@@ -1,0 +1,300 @@
+{
+  "unit": "U40",
+  "stage": "local",
+  "at": "2026-09-26T15:25:15.723Z",
+  "baseline": "738e5466fd934d01e8dfeb61f9faf15d7a291fa1",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u40",
+  "branch": "roadmap-u40-qc-gates-bind-20260926",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "status": "local-verified (uncommitted; the parent commits)",
+  "changedFiles": {
+    "scripts/qc/gm-two-player-campaign-core.cjs": {
+      "class": "product",
+      "added": 60,
+      "removed": 7,
+      "sha256": "43642dbdb61f884b818cb5266ff86bff3861994dc389022b25fe0925901f4155"
+    },
+    "scripts/qc/machine-idle.mjs": {
+      "class": "product",
+      "added": 38,
+      "removed": 0,
+      "sha256": "43f280a6026636c4ebc7459c638e07a306806373db5a8c663f0804b745f8f635"
+    },
+    "scripts/qc/lint-units.mjs": {
+      "class": "product",
+      "added": 93,
+      "removed": 26,
+      "sha256": "c033e89a1884393eca299fdc7fac546d43311e6a8434e5d4084c5b5b5accf830"
+    },
+    "scripts/qc/lint-units.ceiling.json": {
+      "class": "product",
+      "added": 6,
+      "removed": 3,
+      "sha256": "122633233c247a31dd91cad59175771631d760c15172c77bdd87ae4773523366",
+      "note": "adds a \"note\" field: the perPath values are ceilings measured at measuredAt on 2026-09-26, not pins"
+    },
+    "scripts/qc/lint-units-src-tests.ignore": {
+      "class": "product (new, untracked)",
+      "added": 9,
+      "removed": 0,
+      "sha256": "6e11d85aa3fc4f75329d0792dec1af69878956e9f6105c797a4b550ee963e2ba"
+    },
+    "scripts/__tests__/gm-two-player-campaign-qc.test.ts": {
+      "class": "test",
+      "added": 120,
+      "removed": 1,
+      "sha256": "7eb9c8f1d642d8a8ec7a49e397c4abb05d08fc0188b8c50721f1f2c9f8c65e1f"
+    },
+    "scripts/__tests__/lint-units.test.ts": {
+      "class": "test",
+      "added": 96,
+      "removed": 1,
+      "sha256": "406836d0892715f8e86f5e66133d3e3216c42ad1908830315f845d792d561c55"
+    }
+  },
+  "lineCounts": {
+    "source": "git diff --numstat (+ wc -l for the untracked ignore file)",
+    "productAdded": 206,
+    "productRemoved": 36,
+    "productChanged": 242,
+    "testAdded": 216,
+    "testRemoved": 2,
+    "files": "7 source files + 3 u40 receipts = 10 of 15",
+    "capProductLines": 500
+  },
+  "behavior": {
+    "R1": "buildRunPlan's environment carries HOSTNAME: '127.0.0.1' (core.cjs, next to PORT); spread after process.env in runPlan's spawn, so an exported machine name never reaches server.js",
+    "R2": "runPlan (now exported) spawns the plan command, polls a TCP connect to 127.0.0.1:<MEKSTATION_E2E_PORT> every 250 ms until it answers or the child exits, resolves the owner with machine-idle listeningPortOwner (Get-NetTCPConnection via powershell.exe; lsof off Windows), prints `GM2P_SERVER port=<n> pid=<n>`, and settles only after the child exits; a missing tool throws MachineSnapshotError (code SNAPSHOT_UNAVAILABLE, cause ENOENT) after the child exits",
+    "R3": "DEFAULT_PATHS = ['e2e', 'scripts', 'src/pages/api', 'src-tests']; src-tests lints src through scripts/qc/lint-units-src-tests.ignore (cwd-relative); each path prints files/findings/ceiling/verdict; a path with 0 files or over its perPath ceiling fails, and the total still fails over its ceiling"
+  },
+  "redRowsNowGreen": {
+    "command": "node node_modules/jest/bin/jest.js scripts/__tests__/gm-two-player-campaign-qc.test.ts scripts/__tests__/lint-units.test.ts scripts/__tests__/machine-idle.test.ts (final bytes)",
+    "exit": 0,
+    "lines": [
+      "Test Suites: 3 passed, 3 total",
+      "Tests:       113 passed, 113 total"
+    ]
+  },
+  "gates": [
+    {
+      "gate": "guard",
+      "command": "npm run --silent qc:guard-node-modules-link",
+      "exit": 1,
+      "lastLine": "INSTALL_REFUSED node-modules-is-link {...} (by design in a junctioned worktree; recorded at admission)"
+    },
+    {
+      "gate": "machine-idle",
+      "command": "node scripts/qc/machine-idle.mjs --wait --timeout-ms 1800000",
+      "exit": 0,
+      "lastLine": "MACHINE_IDLE"
+    },
+    {
+      "gate": "focused suites (final bytes)",
+      "command": "node node_modules/jest/bin/jest.js scripts/__tests__/gm-two-player-campaign-qc.test.ts scripts/__tests__/lint-units.test.ts scripts/__tests__/machine-idle.test.ts",
+      "exit": 0,
+      "lastLine": "Test Suites: 3 passed, 3 total / Tests: 113 passed, 113 total"
+    },
+    {
+      "gate": "jest scripts (final bytes)",
+      "command": "node node_modules/jest/bin/jest.js scripts",
+      "exit": 0,
+      "lastLine": "Test Suites: 80 passed, 80 total / Tests: 10 skipped, 1259 passed, 1269 total / Time: 154.907 s"
+    },
+    {
+      "gate": "jest evidence",
+      "command": "node node_modules/jest/bin/jest.js src/__tests__/unit/evidence",
+      "exit": 0,
+      "lastLine": "Test Suites: 2 passed, 2 total / Tests: 18 passed, 18 total",
+      "note": "run in revision 1; revision 2 touched only lint-units.test.ts and lint-units.ceiling.json, neither imported by that directory"
+    },
+    {
+      "gate": "lint:units (final bytes)",
+      "command": "npm run --silent lint:units",
+      "exit": 0,
+      "output": [
+        "LINT_UNITS_PATH e2e files=194 findings=50 ceiling=50 PASS",
+        "LINT_UNITS_PATH scripts files=186 findings=50 ceiling=50 PASS",
+        "LINT_UNITS_PATH src/pages/api files=97 findings=16 ceiling=16 PASS",
+        "LINT_UNITS_PATH src-tests files=3203 findings=17782 ceiling=17782 PASS",
+        "LINT_UNITS_PASS 17898/17898"
+      ],
+      "remeasure": "head counts equal the baseline measurement for all four paths"
+    },
+    {
+      "gate": "tsc",
+      "command": "node node_modules/typescript/bin/tsc --noEmit",
+      "exit": 0,
+      "lastLine": "(no output)"
+    },
+    {
+      "gate": "oxlint",
+      "command": "node node_modules/oxlint/bin/oxlint",
+      "exit": 0,
+      "lastLine": "Found 84 warnings and 0 errors. (84 = the recorded baseline)"
+    },
+    {
+      "gate": "oxfmt",
+      "command": "node node_modules/oxfmt/bin/oxfmt --check <the six changed tracked files>",
+      "exit": 0,
+      "lastLine": "All matched files use the correct format."
+    },
+    {
+      "gate": "qc:openspec-ci",
+      "command": "npm run --silent qc:openspec-ci:validate",
+      "exit": 0,
+      "lastLine": "[qc:openspec-ci] ... errors=0",
+      "note": "run in revision 1; revision 2 changes no file it reads"
+    },
+    {
+      "gate": "roadmap validator",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exit": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "note": "rerun after writing this revision"
+    }
+  ],
+  "mutants": {
+    "method": "copy saved to the scratchpad, sha256 before, sed mutation, the named suite run, restored from the copy, sha256 after compared (script mutants.sh in the scratchpad)",
+    "rows": [
+      {
+        "id": "M1",
+        "file": "scripts/qc/gm-two-player-campaign-core.cjs",
+        "mutation": "delete the HOSTNAME: '127.0.0.1' line (passthrough restored)",
+        "suite": "gm-two-player-campaign-qc.test.ts",
+        "jestExit": 1,
+        "tests": "3 failed, 15 passed, 18 total",
+        "failing": [
+          "plans HOSTNAME=127.0.0.1 for every implemented group whatever the shell exports (26 [group, \"some-machine\"] pairs)",
+          "registers the approved catalog and deterministic implemented plans (- \"HOSTNAME\": \"127.0.0.1\")",
+          "prints one GM2P_SERVER line ... (childHostname some-machine)"
+        ],
+        "before": "43642dbdb61f884b818cb5266ff86bff3861994dc389022b25fe0925901f4155",
+        "after": "43642dbdb61f884b818cb5266ff86bff3861994dc389022b25fe0925901f4155",
+        "restored": true,
+        "note": "rerun on the final bytes: same result"
+      },
+      {
+        "id": "M2",
+        "file": "scripts/qc/machine-idle.mjs",
+        "mutation": "listeningPortOwner returns process.pid instead of the resolved pid",
+        "suite": "gm-two-player-campaign-qc.test.ts",
+        "jestExit": 1,
+        "tests": "1 failed, 17 passed, 18 total",
+        "failing": [
+          "prints one GM2P_SERVER line with the owned port and the PID that owns it (expected pid 66996 = the listener child, received 42548)"
+        ],
+        "before": "43f280a6026636c4ebc7459c638e07a306806373db5a8c663f0804b745f8f635",
+        "after": "43f280a6026636c4ebc7459c638e07a306806373db5a8c663f0804b745f8f635",
+        "restored": true,
+        "note": "rerun on the final bytes: same result (pid mismatch)"
+      },
+      {
+        "id": "M3",
+        "file": "scripts/qc/lint-units.mjs",
+        "mutation": "remove `row.files === 0 || ` from pathFails",
+        "suite": "lint-units.test.ts",
+        "jestExit": 1,
+        "tests": "2 failed, 31 passed, 33 total",
+        "failing": [
+          "fails, and exits 1, when empty-path lints zero files (received ... ceiling=none PASS / LINT_UNITS_PASS 0/5)",
+          "fails, and exits 1, when no-such-path lints zero files (same)"
+        ],
+        "before": "c033e89a1884393eca299fdc7fac546d43311e6a8434e5d4084c5b5b5accf830",
+        "after": "c033e89a1884393eca299fdc7fac546d43311e6a8434e5d4084c5b5b5accf830",
+        "restored": true,
+        "note": "rerun on the final bytes: same result"
+      },
+      {
+        "id": "M4",
+        "file": "scripts/qc/lint-units.ceiling.json",
+        "mutation": "perPath e2e LOWERED 50 -> 49 and ceiling 17898 -> 17897 (sum kept consistent)",
+        "suite": "lint-units.test.ts",
+        "jestExit": 1,
+        "tests": "1 failed, 32 passed, 33 total",
+        "failing": [
+          "holds every default path and the total at or under its ceiling: received [{ target: \"e2e\", files: 194, findings: 50, ceiling: 49, verdict: \"FAIL\" }] where [] was expected"
+        ],
+        "cli": {
+          "command": "npm run --silent lint:units (same mutation, separate save/restore)",
+          "exit": 1,
+          "output": [
+            "LINT_UNITS_PATH e2e files=194 findings=50 ceiling=49 FAIL",
+            "LINT_UNITS_PATH scripts files=186 findings=50 ceiling=50 PASS",
+            "LINT_UNITS_PATH src/pages/api files=97 findings=16 ceiling=16 PASS",
+            "LINT_UNITS_PATH src-tests files=3203 findings=17782 ceiling=17782 PASS",
+            "LINT_UNITS_FAIL 17898/17897"
+          ]
+        },
+        "before": "122633233c247a31dd91cad59175771631d760c15172c77bdd87ae4773523366",
+        "after": "122633233c247a31dd91cad59175771631d760c15172c77bdd87ae4773523366",
+        "restored": true,
+        "replaces": "revision 1 M4 (ceiling raised by one, caught only by the dropped equality pin)"
+      }
+    ]
+  },
+  "nonClaims": [
+    "No Playwright run, build or standalone server was made: that a real ladder group prints GM2P_SERVER with the Next server PID, and that the server bound to 127.0.0.1 serves the http://localhost baseURL on this machine, are not measured here (CI runs that pairing per pr-checks.yml:637, read not run)",
+    "The posix lsof branch of listeningPortOwner was not executed: every measurement is Windows (powershell.exe Get-NetTCPConnection)",
+    "Under the relaunching wrapper the printed PID is whichever process owns the port when it first answers; a respawn after that is not re-announced",
+    "The GM2P_SERVER line shares stdout with the inherited Playwright output; interleaving under a real run was not observed",
+    "The pr-checks.yml lint:units step is outside the unit paths and not claimed; lint:units still runs in no CI job",
+    "The ratchet row does not detect a ceiling set higher than the tree needs: a raised ceiling passes by design (parent decision); keeping ceilings tight is left to review of the ceiling file"
+  ],
+  "findings": [
+    {
+      "id": "FN-u40-playwright-config-whitelist-comment",
+      "summary": "playwright.config.ts (webServer.env block, around :314) says Playwright webServer.env is a whitelist; Playwright 1.57.0 webServerPlugin.js:89-91 spreads process.env before options.env, so every runner env key (HOSTNAME included) reaches the server. Comment only; outside the unit paths, not edited."
+    },
+    {
+      "id": "FN-u40-oxlint-ignore-path-anchoring",
+      "summary": "oxlint 1.43.0: --ignore-pattern ignores `!` negation (0 files); --ignore-path honors `!**/__tests__/**` only when the ignore file is passed cwd-relative (3203 files) and not absolute (2670). lint:units depends on the relative form; the zero-files check and the measured-count pin catch a regression."
+    },
+    {
+      "id": "FN-u40-src-tests-unused-imports",
+      "summary": "src-tests carries 17782 findings, 17552 of them no-unused-vars warnings (13634 unused imported identifiers, 1661 unused imported types), e.g. src/simulation/runner/__tests__/*.fragment.ts; now ratcheted, not fixed."
+    },
+    {
+      "id": "FN-u40-ratchet-pin-forces-ratchet-down",
+      "summary": "The measured-count pin (lint-units.test.ts) requires findings == ceiling per path, so a change that removes findings must lower the ceiling in the same change or `jest scripts` fails.",
+      "status": "resolved by revision 2: the equality pin is dropped; the row pins only the ratchet (<= per path and total, no zero-file path)"
+    }
+  ],
+  "rawLogs": {
+    "location": "lane scratchpad (outside the repository); sha256 of each",
+    "final-jest-scripts.log": "07ef1d9c65d5ff3e5426457278c1936dc103d2295df95d53d27e948678a3ab3e",
+    "final-focused.log": "64a98f0c1f644ad2d6f5d3d814198ba65dca0b08655439b032f917d6167e41b8",
+    "final-lint-units.log": "9891c40dcbaba3a677078902c168386b820cfbaf358d95339adfb13038be158b",
+    "final-tsc.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 (empty)",
+    "final-oxlint.log": "df70ee2faf3fa639e621c59d9f52f8890cdbbea1be3fbe5c142dd744211528ac",
+    "final-oxfmt.log": "36b027377550e51c8a459080bf3db6dd050a6093efcd13b4a466a6b3cefb3224",
+    "local-jest-evidence.log": "48bc27bb55d1c1d8eff4be074022e1007a49e1e095ef318def3db385ef42bfda",
+    "local-openspec-ci.log": "21c1181842878b6c171cc9f496ad0f18fdaf7636c2d91ecc439a1da7b51589e6",
+    "M1.log": "db086266682b851c0965f9d380b5f319e7e5332341aea50beecdb08c0905118b",
+    "M2.log": "5f827a63fc05ab9309a030ff32a6dd11407dfe9e579132d8a544f4593c80da60",
+    "M3.log": "94e17d2c76533bcf6c33320a4ba7f04ce23cee596d5544b1fa69cd4df21cee18",
+    "M4.log": "a7a7857c331ce3fe48c7bc6b1828e964bc68975b4d54c57621b1900c1eef95ac",
+    "M4-cli.log": "4edbd5283b18888ecbdd51c3f1a11db10f398f34205193d39c8371b9e8872f54",
+    "ratchet-row-timing-1.log": "5490fce14c4712061c5cb9d379adad9f4e753c7dd54f11a9f90ac75aceef4e0f",
+    "ratchet-row-timing-2.log": "66b58761a6f8db21d5c9ba6105ba9fd15dddf2e12e5df39fd9074f2f01751ab5"
+  },
+  "revision": {
+    "n": 2,
+    "reason": "parent decision on FN-u40-ratchet-pin-forces-ratchet-down: the equality pin is over-built (every PR that adds or removes a src-test finding would redden main, and in-flight PRs with different counts collide); the jest row now pins the ratchet only, and M4 is replaced by a lowered ceiling",
+    "supersedes": {
+      "sha256": "c04535e907338201805d4366402a7e0d1f58018d36b2c829a88e5b15b7b8bbf0",
+      "note": "revision 1 of this file (equality pin, M4 = ceiling raised by one); its mutant and gate rows are replaced below by runs on the final bytes"
+    }
+  },
+  "ratchetRow": {
+    "test": "lint:units per-path gates > holds every default path and the total at or under its ceiling",
+    "assertion": "runs the real CLI in the repository root (default paths); the LINT_UNITS_PATH rows name exactly the perPath keys; no row has verdict FAIL, files 0, or findings above its recorded perPath ceiling (filter toEqual [], so a failure prints the offending path rows); the summed findings are <= the recorded total; last line LINT_UNITS_PASS <sum>/<recorded total>; exit 0. No equality with the measured counts.",
+    "wallTime": {
+      "runs": [
+        "858 ms",
+        "951 ms"
+      ],
+      "command": "node node_modules/jest/bin/jest.js scripts/__tests__/lint-units.test.ts -t \"at or under its ceiling\" --verbose",
+      "decision": "well under the ~20 s threshold, so the row keeps the real oxlint run over all four paths (3203 src test files included); no fixture"
+    }
+  }
+}

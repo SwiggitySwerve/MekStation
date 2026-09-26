@@ -1,0 +1,155 @@
+{
+  "unit": "U40",
+  "stage": "admission",
+  "at": "2026-09-26T15:06:17.325Z",
+  "baseline": "738e5466fd934d01e8dfeb61f9faf15d7a291fa1",
+  "originMainAtAdmission": "738e5466fd934d01e8dfeb61f9faf15d7a291fa1",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u40",
+  "branch": "roadmap-u40-qc-gates-bind-20260926",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "ownedPaths": [
+    "scripts/qc",
+    "scripts/__tests__"
+  ],
+  "behavior": "units.json U40 behavior sentence, unwidened; the pr-checks.yml step is not claimed",
+  "guardNodeModulesLink": {
+    "command": "npm run --silent qc:guard-node-modules-link",
+    "exit": 1,
+    "output": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"<worktree>\\\\node_modules\",\"actualPath\":\"<root checkout>\\\\node_modules\"}",
+    "consequence": "refused by design in a junctioned worktree; npm_config_dry_run=true for the lane; jest/tsc/oxlint/oxfmt run from the junctioned node_modules, nothing installs"
+  },
+  "seams": {
+    "scripts/qc/gm-two-player-campaign-core.cjs:215-237": "buildRunPlan environment: PLAYWRIGHT_E2E_RUN_ID, MEKSTATION_E2E_PORT, MEKSTATION_E2E_REUSE_EXISTING_SERVER, PORT, MEKSTATION_E2E_SERVER_COMMAND, optional MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE; no HOSTNAME",
+    "scripts/qc/gm-two-player-campaign-core.cjs:306-320": "runPlan: spawn(process.execPath, run-playwright args) with env { ...process.env, ...plan.environment } (:310) and stdio inherit (:311); resolves the Playwright exit code; prints nothing itself; module-private (exports :322-328 are REGISTERED_GROUPS, assertRunOwnedPath, buildRunPlan, deriveFixturePort, runCli)",
+    "scripts/qc/gm-two-player-campaign-core.cjs:255-277": "runCli: isPortAvailable pre-check (PORT_IN_USE exit 4), then runPlan; typed errors mapped to exit codes",
+    "scripts/qc/run-gm-two-player-campaign.mjs:5-7": "requires the core and process.exit(await runCli(...))",
+    "playwright.config.ts:9,288,300-315": "baseURL http://localhost:<MEKSTATION_E2E_PORT>; webServer.command = MEKSTATION_E2E_SERVER_COMMAND; webServer.env adds PORT and fixture keys (read-only)",
+    "node_modules/playwright/lib/plugins/webServerPlugin.js:89-91": "Playwright 1.57.0 launches the webServer with { ...DEFAULT_ENVIRONMENT_VARIABLES, ...process.env, ...options.env }, so the runner env (an inherited HOSTNAME included) reaches server.js",
+    "server.js:72-80,151,882": "resolveListenerHostname reads process.env.HOSTNAME (:73); outside the standalone layout anything but undefined/localhost/127.0.0.1 prints [mp-boot] invalid HOSTNAME and process.exit(1) (:75-77); :151 runs it before require(next); :882 listens on { port, host: hostname }",
+    "scripts/qc/machine-idle.mjs:7-13": "MachineSnapshotError (name MachineSnapshotError, code SNAPSHOT_UNAVAILABLE), the module typed error",
+    "scripts/qc/machine-idle.mjs:157-201": "takeSnapshot: execFileSync powershell.exe Get-CimInstance Win32_Process | Select ProcessId, ParentProcessId, Name, CommandLine (:161-168) or ps -eo pid,ppid,comm,args (:169); any failure (ENOENT included) becomes MachineSnapshotError (:196-200); rows carry no port column",
+    "scripts/qc/machine-idle.mjs:268-272": "main runs only when the file is the entry script; the module has top-level await, so a .cjs caller loads it with import(), not require()",
+    "scripts/qc/lint-units.mjs:20": "DEFAULT_PATHS = ['e2e', 'scripts']",
+    "scripts/qc/lint-units.mjs:47-67": "buildLintUnitsArgs: one oxlint argv per path, --allow no-console for scripts only",
+    "scripts/qc/lint-units.mjs:70-74": "evaluateLintUnits: total findings <= total ceiling, nothing else",
+    "scripts/qc/lint-units.mjs:77-87": "readCeilingFile: requires perPath and ceiling === sum(perPath), but no code compares a path against its perPath value",
+    "scripts/qc/lint-units.mjs:100-116": "runOxlint returns report.diagnostics only; report.number_of_files is never read",
+    "scripts/qc/lint-units.mjs:139,146-165": "main: ceiling = --ceiling or the file total; prints LINT_UNITS_PATH <path> <findings> per path and LINT_UNITS_PASS|FAIL <findings>/<ceiling>",
+    "scripts/qc/lint-units.ceiling.json": "{ ceiling: 100, measuredAt: e6711f0c3..., perPath: { e2e: 50, scripts: 50 } }",
+    "scripts/__tests__/lint-units.test.ts:159-170": "pins perPath keys to exactly [e2e, scripts] and ceiling === sum",
+    "scripts/__tests__/gm-two-player-campaign-qc.test.ts:184-193": "authority-recovery plan environment pinned with toEqual (gains HOSTNAME with this unit)",
+    "package.json:19": "lint:units = node scripts/qc/lint-units.mjs (read-only)"
+  },
+  "designAnswers": {
+    "a_hostname": {
+      "path": "shell env -> runPlan spawn env { ...process.env, ...plan.environment } (core.cjs:310) -> run-playwright -> Playwright webServer env { ...process.env, ...options.env } (webServerPlugin.js:89-91) -> server.js:73 process.env.HOSTNAME",
+      "serverJsQuote": "if (isStandaloneRuntime ? raw !== undefined && raw !== '127.0.0.1' : raw !== undefined && raw !== 'localhost' && raw !== '127.0.0.1') { console.error(`[mp-boot] invalid HOSTNAME ${JSON.stringify(raw)}`); process.exit(1); }",
+      "measured": [
+        {
+          "command": "HOSTNAME=some-machine PORT=1 node server.js (worktree root: no server.next-config.json and no .next, so the non-standalone branch)",
+          "exit": 1,
+          "output": "[mp-boot] invalid HOSTNAME \"some-machine\"",
+          "note": "exits at server.js:77 before require(next); nothing listened"
+        },
+        {
+          "command": "HOSTNAME=some-machine node -e \"buildRunPlan({group:'smoke',runId:'u40-probe',repoRoot}); print plan.environment.HOSTNAME and ({...process.env,...plan.environment}).HOSTNAME\"",
+          "exit": 0,
+          "output": "plan.environment.HOSTNAME=undefined childEnv.HOSTNAME=some-machine"
+        }
+      ],
+      "shellNote": "Git Bash on this machine sets HOSTNAME=SwerveStation as a shell variable but does not export it (env | grep -c ^HOSTNAME= printed 0); a shell or container that exports it breaks every group server",
+      "fix": "buildRunPlan's environment carries HOSTNAME: '127.0.0.1' for every group; the plan env is spread after process.env (:310) so it wins. server.js accepts 127.0.0.1 in both layouts (:75). Precedent read from the workflows (not run): pr-checks.yml:637 and nightly-validation.yml:187 run Playwright (baseURL http://localhost) against a server with HOSTNAME 127.0.0.1; e2e/campaign-two-device-drive.spec.ts:94 and e2e/helpers/campaignJournalTwoProcess.ts:220 set it for their own servers"
+    },
+    "b_portAndPid": {
+      "printsToday": "runPlan prints nothing: Playwright inherits stdio; no line carries the port or a PID, so a parent derives the port from the run id (deriveFixturePort, core.cjs:33-42) and has no PID",
+      "snapshotHasPortColumn": false,
+      "snapshotEvidence": "takeSnapshot selects ProcessId, ParentProcessId, Name, CommandLine (machine-idle.mjs:167) or ps pid,ppid,comm,args (:169)",
+      "leastAddition": "one export in scripts/qc/machine-idle.mjs, listeningPortOwner(port), through the same execFileSync seam and typed error as takeSnapshot: Windows powershell.exe Get-NetTCPConnection -State Listen -LocalPort <port> OwningProcess (as a JSON array), posix lsof -nP -t -iTCP:<port> -sTCP:LISTEN; exactly one distinct PID, otherwise MachineSnapshotError. It stays inside the sentence: the resolver lives in machine-idle, the snapshot module the sentence names (machine-idle.mjs:157), and no file outside scripts/qc changes",
+      "probe": "scratch probe (outside the repository): a node http server on 127.0.0.1:49489 (pid 17632); Get-NetTCPConnection printed [17632] in 1411 ms; for port 1 it printed []",
+      "runPlanAfter": "runPlan exported; after spawning, it polls a TCP connect to 127.0.0.1:<MEKSTATION_E2E_PORT> until it answers or the child exits, resolves the owner with listeningPortOwner, prints one stdout line, and settles only after the child has exited (an enumeration failure is thrown after exit, so the Playwright child is never orphaned)",
+      "lineFormat": "GM2P_SERVER port=<n> pid=<n>",
+      "typedError": "MachineSnapshotError (code SNAPSHOT_UNAVAILABLE; cause.code ENOENT when the tool is missing): the existing machine-idle typed error, reused rather than a new class",
+      "parentReads": "the runner stdout (the stream the ladder archives into <group>.log)"
+    },
+    "c_lintUnits": {
+      "ceilingFileToday": "{ ceiling: 100, perPath: { e2e: 50, scripts: 50 } }: a perPath object exists but only the total is enforced (lint-units.mjs:139 reads .ceiling; :70-74 compares the total)",
+      "srcTestsGlob": "the root .oxlintrc.json test ignores scoped to src: src/**/__tests__/** (src/__tests__/** included) plus src/**/*.test.ts, *.test.tsx, *.spec.ts, *.spec.tsx; expected lintable count from git ls-files: 3203 (3185 ts/tsx under 253 __tests__ directories + 18 co-located)",
+      "srcTestsMechanism": "label 'src-tests' lints src with --ignore-path scripts/qc/lint-units-src-tests.ignore (ignore every file with a dot, then re-include **/__tests__/** and the four test suffixes). Measured on oxlint 1.43.0: --ignore-pattern negation lints 0 files; --ignore-path with a cwd-relative path lints exactly 3203 files (3 runs, 17782 findings each); the same file passed as an absolute path lints 2670 (the __tests__ negation stops matching), so the argv carries the path relative to the cwd",
+      "measuredOnBaseline": {
+        "e2e": {
+          "files": 194,
+          "findings": 50
+        },
+        "scripts": {
+          "files": 186,
+          "findings": 50
+        },
+        "src/pages/api": {
+          "files": 97,
+          "findings": 16,
+          "note": "git ls-files counts 97 source files there, 0 of them tests, so no overlap with src-tests"
+        },
+        "src-tests": {
+          "files": 3203,
+          "findings": 17782,
+          "byRule": "no-unused-vars warning 17552, no-require-imports 78, no-console 59, explicit-module-boundary-types 46, rules-of-hooks 27, no-explicit-any 15, no-this-alias 2, no-assign-module-variable 2, prefer-const 1"
+        },
+        "commands": "node node_modules/oxlint/bin/oxlint --config scripts/qc/oxlint-units.json --format json [--allow no-console for scripts] <path>; number_of_files and diagnostics.length read from the JSON report",
+        "npmRunLintUnits": "LINT_UNITS_PATH e2e 50 / LINT_UNITS_PATH scripts 50 / LINT_UNITS_PASS 100/100, exit 0"
+      },
+      "perPathCeilingsToWrite": {
+        "e2e": 50,
+        "scripts": 50,
+        "src/pages/api": 16,
+        "src-tests": 17782,
+        "total": 17898
+      },
+      "zeroFilesDetection": "the oxlint JSON report carries number_of_files; a path whose report says 0 fails the run",
+      "perPathEnforcement": "every linted path that has a perPath entry fails when its findings exceed it; the total still fails over the file (or --ceiling) total"
+    }
+  },
+  "estimate": {
+    "scripts/qc/gm-two-player-campaign-core.cjs": "product ~+40/-10",
+    "scripts/qc/machine-idle.mjs": "product ~+30/-5",
+    "scripts/qc/lint-units.mjs": "product ~+60/-20",
+    "scripts/qc/lint-units.ceiling.json": "product ~+4/-3",
+    "scripts/qc/lint-units-src-tests.ignore": "product ~+10 (new)",
+    "scripts/__tests__/gm-two-player-campaign-qc.test.ts": "test ~+100",
+    "scripts/__tests__/lint-units.test.ts": "test ~+80/-10"
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedProductLines": 500,
+    "plannedFiles": "7 source files + 3 u40 receipts",
+    "plannedProductLines": "~145 changed"
+  },
+  "risksForTheParent": [
+    "routine: lint:units gets stricter on main - four paths (e2e, scripts, src/pages/api, src-tests) each held at its measured count, and a path that lints zero files fails; a wrong ceiling breaks the gate for everyone, so the ceilings are measured on the baseline and re-measured on the head",
+    "lint:units takes longer: the src-tests invocation lints 3203 files",
+    "the src-tests ignore file must be passed cwd-relative (measured: the absolute path loses the __tests__ negation on oxlint 1.43.0); lint:units is already cwd-bound (its lint paths are relative), and the zero-files check plus the measured-count pin catch a silent narrowing",
+    "the ladder server now binds 127.0.0.1 instead of localhost (HOSTNAME unset -> localhost at server.js:79); the Playwright baseURL stays http://localhost:<port>. CI already runs that pairing (pr-checks.yml:637), but this unit makes no Playwright run, so a group run on the head is parent main-proof evidence",
+    "every runner run now calls powershell.exe (Windows) or lsof (posix) once after the server answers; a machine without the tool gets MachineSnapshotError after the Playwright run finishes (exit 1)"
+  ],
+  "reviewClasses": [
+    "routine"
+  ],
+  "next": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "output": "U89",
+    "exit": 0,
+    "note": "U89 overlaps the in-flight U96 server path, which is why the parent chose U40; U40 owns only scripts/qc and scripts/__tests__"
+  },
+  "validator": {
+    "output": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "exit": 0
+  },
+  "baselineFileSha256": {
+    "scripts/qc/gm-two-player-campaign-core.cjs": "5547462252b810e705166cb935c98eedfe7e060d5e641cc60f58c8efc6130a91",
+    "scripts/qc/machine-idle.mjs": "436d862ec366e83be844e2219ea09998eb09f234bcc193c633e4899d4c390f60",
+    "scripts/qc/lint-units.mjs": "c20f52b3ed3018820a29aa9ca2512909d3b6c3b33b46f76b67dc91f208dc9676",
+    "scripts/qc/lint-units.ceiling.json": "0d2bf2f1e7709336439f22429fee746554cfa167d23a1bc3834444b1724df5e2",
+    "scripts/__tests__/gm-two-player-campaign-qc.test.ts": "97e612a2755ac321a976da84705f8f4f7ed7e035a89706bb920fde808ef491c9",
+    "scripts/__tests__/lint-units.test.ts": "e53793e3ab63db378f786a2335475b279681d854ba36169c65413fb3cada0293"
+  },
+  "decision": "go"
+}

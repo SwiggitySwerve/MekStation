@@ -3384,14 +3384,28 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "local-verified",
+      "baseline": "738e5466fd934d01e8dfeb61f9faf15d7a291fa1",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u40-admission-20260926.json",
+          "baseline": "738e5466fd934d01e8dfeb61f9faf15d7a291fa1",
+          "at": "2026-09-26T15:06:17.325Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u40-red-20260926.json",
+          "at": "2026-09-26T15:09:10.103Z",
+          "summary": "baseline 738e5466f: runner suite 4 failed / 14 passed, lint suite 10 failed / 23 passed; every implemented group handed the child HOSTNAME=some-machine and the authority-recovery pin had no HOSTNAME (HOSTNAME=some-machine PORT=1 node server.js exits 1 with [mp-boot] invalid HOSTNAME); core.runPlan is not a function on the baseline, so no GM2P_SERVER line and no typed error; lint:units --path no-such-path and an empty path printed LINT_UNITS_PASS 0/5 exit 0; 51 e2e findings printed LINT_UNITS_PASS 51/100 (only the total enforced; the perPath block decorative); the measured-count row parsed no rows and the ceiling file had only e2e and scripts"
+        },
+        "local": {
+          "path": "evidence/u40-local-20260926.json",
+          "at": "2026-09-26T15:25:15.723Z",
+          "summary": "7 source files, product 242 lines (gm-two-player-campaign-core.cjs +60/-7: buildRunPlan sets HOSTNAME 127.0.0.1 for every run, runPlan waits for the owned MEKSTATION_E2E_PORT, resolves its owner PID and prints GM2P_SERVER port=<n> pid=<n>, throwing MachineSnapshotError SNAPSHOT_UNAVAILABLE after the child exits when the enumeration tool is missing; machine-idle.mjs +38: listeningPortOwner(port) via Get-NetTCPConnection or lsof, exactly one PID or throw; lint-units.mjs +93/-26: DEFAULT_PATHS e2e, scripts, src/pages/api and the src test files through lint-units-src-tests.ignore passed relative (oxlint 1.43.0 anchors it; absolute lints 2670 of 3203 files), a LINT_UNITS_PATH line per path, zero-file paths fail from number_of_files, each perPath ceiling enforced with the total; lint-units.ceiling.json measured on the baseline: e2e 194 files 50 findings, scripts 186/50, src/pages/api 97/16, src-tests 3203/17782 (17552 no-unused-vars), total 17898, with a note that they are ceilings not pins), tests +216/-2; the jest ratchet row runs the real lint:units (under 1 s) and holds every path and the total at or under its ceiling, a zero-file path failing, a lowered ceiling failing; jest scripts 80 suites 1259 passed 10 skipped; src/__tests__/unit/evidence 18; LINT_UNITS_PASS 17898/17898; tsc 0; oxlint 84 warnings 0 errors; oxfmt clean on 6 files; qc:openspec-ci errors=0; validator PASSED; mutants: HOSTNAME line removed (3 rows fail), resolver returns the runner's own pid (ownership row fails), zero-files check removed (both empty-path rows print PASS), e2e ceiling lowered to 49 (the ratchet row and lint:units fail naming e2e), each restored with sha256 confirmed; the parent had the equality pin on measured counts replaced by the ratchet mid-stage (FN-u40-ratchet-pin-forces-ratchet-down resolved; receipt revision 2 records revision 1's sha256); NON-CLAIMS: no Playwright, build or server start (a real group printing the Next server's PID and a 127.0.0.1-bound server answering the localhost baseURL not measured here), the lsof branch not executed, a relaunched server not announced again, pr-checks.yml outside the paths so lint:units runs in no CI job, a raised ceiling passes by design; implementer claude-opus (Agent model: opus, lean-worker); status ready"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -3404,7 +3418,11 @@
         "I-runner-prints-no-server-pid",
         "I-oxlint-ignores-unit-paths",
         "I-lint-units-ratchet"
-      ]
+      ],
+      "admissionNote20260926": {
+        "at": "2026-09-26T16:33:48.000Z",
+        "note": "--next printed U89, which overlaps the in-flight U96's server path; the parent chose U40 (file-disjoint, routine). Admission GO: HOSTNAME reaches server.js through four spreads (core.cjs:310, run-playwright, Playwright's webServer plugin spreading process.env first, server.js:73-77); takeSnapshot has no port column, so listeningPortOwner is the least addition inside scripts/qc; the ceiling file's perPath block was decorative on the baseline. Mid-stage the parent replaced the equality pin on measured counts with a ratchet (at or under), because jest scripts runs in CI's unit shard and an equality pin would have turned every test-touching PR red without a ceiling bump."
+      }
     },
     {
       "id": "U41",
@@ -10608,6 +10626,42 @@
       "summary": "One journey run (about 30 s, port 27498) started while PARENT-PROOF-HOLD existed; the lane printed the file's path and did not stop. The U86 re-proof it overlapped passed.",
       "recommendedSuccessor": "charters say WAIT on the hold explicitly (done from U96 r2's continuation on)",
       "status": "recorded"
+    },
+    {
+      "id": "FN-u40-playwright-config-whitelist-comment",
+      "foundBy": "U40 implementer lane (claude-opus, lean-worker), 2026-09-26 (read: Playwright 1.57.0 webServerPlugin.js:89-91 spreads process.env first)",
+      "at": "2026-09-26T16:33:48.000Z",
+      "class": "false comment outside the unit's paths",
+      "summary": "A comment in playwright.config.ts says webServer.env is a whitelist; Playwright spreads process.env before options.env, so the shell's variables reach the server unless the plan overrides them (which buildRunPlan now does for HOSTNAME).",
+      "recommendedSuccessor": "correct the comment in the next unit that owns playwright.config.ts",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u40-oxlint-ignore-path-anchoring",
+      "foundBy": "U40 implementer lane (claude-opus, lean-worker), 2026-09-26 (measured on oxlint 1.43.0)",
+      "at": "2026-09-26T16:33:48.000Z",
+      "class": "tool behaviour",
+      "summary": "oxlint's --ignore-pattern ignores ! negation, and --ignore-path honours !**/__tests__/** only when the path is relative to the current directory (absolute: 2670 of 3203 files linted).",
+      "recommendedSuccessor": "none; lint-units passes the file relative and documents it",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u40-src-tests-unused-imports",
+      "foundBy": "U40 implementer lane (claude-opus, lean-worker), 2026-09-26 (measured)",
+      "at": "2026-09-26T16:33:48.000Z",
+      "class": "held debt",
+      "summary": "17552 of the 17782 src-test findings are no-unused-vars warnings (13634 unused imports), now held by the ceiling, not fixed.",
+      "recommendedSuccessor": "a sweep unit that lowers the ceiling as it removes them",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u40-ratchet-pin-forces-ratchet-down",
+      "foundBy": "U40 implementer lane (claude-opus, lean-worker), 2026-09-26",
+      "at": "2026-09-26T16:33:48.000Z",
+      "class": "harness hazard, resolved in the unit",
+      "summary": "The first version of the jest row required each path's findings to equal its ceiling, so any change removing findings had to lower the ceiling in the same change or jest scripts (CI's unit shard) failed; two in-flight PRs with different counts would have collided. Replaced by the at-or-under ratchet before the PR.",
+      "recommendedSuccessor": "none",
+      "status": "resolved in U40"
     }
   ]
 }

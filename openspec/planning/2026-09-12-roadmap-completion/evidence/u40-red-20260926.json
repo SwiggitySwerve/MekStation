@@ -1,0 +1,102 @@
+{
+  "unit": "U40",
+  "stage": "red",
+  "at": "2026-09-26T15:09:10.103Z",
+  "baseline": "738e5466fd934d01e8dfeb61f9faf15d7a291fa1",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "productCodeUnderTest": "baseline scripts/qc/gm-two-player-campaign-core.cjs (5547462...), machine-idle.mjs (436d862...), lint-units.mjs (c20f52b...), lint-units.ceiling.json (0d2bf2f...), sha256 re-read unchanged after the red runs; only the two test files carried the new rows",
+  "commands": {
+    "runnerPin": "node node_modules/jest/bin/jest.js scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+    "lintPin": "node node_modules/jest/bin/jest.js scripts/__tests__/lint-units.test.ts",
+    "note": "npx is not used: the node_modules guard refused (INSTALL_REFUSED node-modules-is-link, exit 1); jest runs from the junctioned package bin"
+  },
+  "totals": {
+    "runnerPin": {
+      "exit": 1,
+      "line": "Tests:       4 failed, 14 passed, 18 total"
+    },
+    "lintPin": {
+      "exit": 1,
+      "line": "Tests:       10 failed, 23 passed, 33 total"
+    }
+  },
+  "rows": [
+    {
+      "id": "R1",
+      "claim": "buildRunPlan's environment does not carry HOSTNAME=127.0.0.1; an exported HOSTNAME reaches the child",
+      "tests": [
+        {
+          "test": "GM and two-player campaign QC runner > plans HOSTNAME=127.0.0.1 for every implemented group whatever the shell exports",
+          "assertion": "with process.env.HOSTNAME = 'some-machine', every implemented group's { ...process.env, ...plan.environment }.HOSTNAME equals '127.0.0.1' (filter of mismatches toEqual [])",
+          "red": "Expected Array []; received 26 [group, \"some-machine\"] pairs (fixture-smoke, membership-smoke, evidence-smoke, smoke, authority-pack1, ...)"
+        },
+        {
+          "test": "GM and two-player campaign QC runner > registers the approved catalog and deterministic implemented plans",
+          "assertion": "the authority-recovery plan environment toEqual now includes HOSTNAME: 127.0.0.1",
+          "red": "- \"HOSTNAME\": \"127.0.0.1\" missing from the received environment (Expected - 1, Received + 0)"
+        }
+      ],
+      "boundaryProbe": "admission: HOSTNAME=some-machine PORT=1 node server.js exits 1 with [mp-boot] invalid HOSTNAME \"some-machine\"; buildRunPlan child env HOSTNAME=some-machine"
+    },
+    {
+      "id": "R2",
+      "claim": "runPlan prints no port/PID line, resolves no PID, and has no typed error for a missing enumeration tool",
+      "tests": [
+        {
+          "test": "runPlan server announcement > prints one GM2P_SERVER line with the owned port and the PID that owns it",
+          "setup": "a node http server child listening on 127.0.0.1:<free port> (killed in afterEach); a node -e harness takes the real smoke plan, swaps the Playwright command for a child printing CHILD_HOSTNAME=<env HOSTNAME>, points MEKSTATION_E2E_PORT at the owner port, runs core.runPlan with HOSTNAME=some-machine in its env",
+          "assertion": "toEqual { exit: '0', announcements: [{ port, pid: owner.pid }], childHostname: '127.0.0.1', stderr: '' } and the runner PID differs from owner.pid",
+          "red": "received { announcements: [], childHostname: undefined, exit: undefined, stderr: \"TypeError: core.runPlan is not a function\" at [eval]:7:6 } (runPlan is module-private, core.cjs:322-328; no GM2P_SERVER line exists)"
+        },
+        {
+          "test": "runPlan server announcement > throws MachineSnapshotError when the process enumeration tool is missing",
+          "setup": "same harness with PATH emptied (every case-variant of the PATH key removed, PATH set to \"\")",
+          "assertion": "no GM2P_SERVER line and RUN_PLAN_ERROR {\"name\":\"MachineSnapshotError\",\"code\":\"SNAPSHOT_UNAVAILABLE\",\"cause\":\"ENOENT\"}",
+          "red": "received error: undefined (the harness died on the same TypeError before any error could be typed)"
+        }
+      ]
+    },
+    {
+      "id": "R3",
+      "claim": "lint:units passes a path that lints zero files and never enforces a perPath ceiling",
+      "tests": [
+        {
+          "test": "lint:units per-path gates > fails, and exits 1, when empty-path lints zero files",
+          "assertion": "stdout contains 'LINT_UNITS_PATH empty-path files=0 findings=0 ceiling=none FAIL', last line 'LINT_UNITS_FAIL 0/5', exit 1",
+          "red": "received \"LINT_UNITS_PATH empty-path 0\\nLINT_UNITS_PASS 0/5\" (exit 0 measured by hand from a scratch directory before the test was written)"
+        },
+        {
+          "test": "lint:units per-path gates > fails, and exits 1, when no-such-path lints zero files",
+          "assertion": "same, for a path that does not exist",
+          "red": "received \"LINT_UNITS_PATH no-such-path 0\\nLINT_UNITS_PASS 0/5\" (exit 0 by hand)"
+        },
+        {
+          "test": "lint:units per-path gates > fails, and exits 1, when a path exceeds its perPath ceiling under the total",
+          "setup": "a temp e2e/over-ceiling.ts with perPath.e2e + 1 (= 51) no-explicit-any findings; run with --path e2e and the recorded file total",
+          "assertion": "stdout contains 'LINT_UNITS_PATH e2e files=1 findings=51 ceiling=50 FAIL', last line 'LINT_UNITS_FAIL 51/<file total>', exit 1",
+          "red": "received \"LINT_UNITS_PATH e2e 51\\nLINT_UNITS_PASS 51/100\" - 51 findings over the e2e ceiling of 50 pass because only the total (100) is compared"
+        },
+        {
+          "test": "lint:units per-path gates > holds every default path exactly at its recorded ceiling",
+          "assertion": "the real CLI in the repository root prints one LINT_UNITS_PATH <path> files=<n> findings=<n> ceiling=<n> PASS row per perPath key, findings equal to the recorded ceiling and files > 0; last line LINT_UNITS_PASS <total>/<total>",
+          "red": "received Object {} (the baseline prints LINT_UNITS_PATH <path> <findings> with no files count and only e2e and scripts)"
+        },
+        {
+          "test": "lint:units ceiling file > parses, and its ceiling is the sum of perPath",
+          "assertion": "perPath keys sorted toEqual ['e2e', 'scripts', 'src-tests', 'src/pages/api']",
+          "red": "received ['e2e', 'scripts']"
+        },
+        {
+          "test": "lint:units verdict > is PASS|FAIL at <n> findings against a ceiling of <n> (5 rows)",
+          "assertion": "evaluateLintUnits returns failures: [] on PASS and [\"total <f>/<c>\"] on FAIL",
+          "red": "the failures key is absent (e.g. at 101/100: Expected - 3 lines \"failures\": [\"total 101/100\"])"
+        }
+      ]
+    }
+  ],
+  "rawLogs": {
+    "red-runner.log": "bdc143e17064f2fc94d694263fbba3c6a6c84412b8da5d04c949f246258ab2fa",
+    "red-lint.log": "e2899eb15cf4083762c366b548257ea84939239afd765e109b44a6fba55e6133",
+    "location": "lane scratchpad (outside the repository); sha256 of each"
+  }
+}
