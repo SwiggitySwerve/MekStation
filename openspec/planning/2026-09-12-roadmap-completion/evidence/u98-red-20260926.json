@@ -1,0 +1,1302 @@
+{
+  "unit": "U98",
+  "stage": "red",
+  "status": "RED: the U98 timing row fails on the baseline in 5 of 5 runs; at 1000 events every asserted step grows (grant host-log reads, the adapter readStream, sequence assignment, replica ingest, GM frame in to the last timed step). The U89 row still passes. The equivalence and position rows pass on the baseline trivially (no incremental path exists yet).",
+  "at": "2026-09-26T22:10:48Z",
+  "baseline": "72a0203df4d07d2fdfe696fceb9ece5b0133819b",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u98",
+  "branch": "roadmap-u98-grant-wake-since-sequence-20260926",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "productAtRun": "baseline: no product file edited (git status --short showed only the two modified harness files, the two new test files and the admission receipt)",
+  "testFilesSha256": {
+    "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test.ts": "1ca8458f18b9d626c992c14ea3cce5d92501969b6a2fe76f97356ca2bb77dfa7",
+    "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test-helpers.ts": "6ca7b4b966b59ba29d4ea6483ad35969ed55c36d8d696446707375060ee9b486",
+    "src/lib/multiplayer/server/__tests__/campaignGrantWakeEquivalence.test.ts": "742893a6feb9a8e6ac9ad032f7739dd6de4c2365d0c75f2364e761e9b5c4ee68",
+    "src/lib/campaign/delivery/__tests__/projectCampaignStreamForGrant.position.test.ts": "91890b327292820515b15e3c8259d1cd678871abe18c645f1a459ecb302689e4"
+  },
+  "harnessChanges": [
+    "campaignHostIntentServerTime.test-helpers.ts: a host-log read is labelled grantHostLogRead when the grant host-log adapter makes it (a marker set only while the adapter readStream runs synchronously), from any sequence; before, the label was a read from sequence 0 after the intent, which would mislabel the since reads of the change (as otherRead, or adoptTail inside an adoption). New steps: grantReadStream (the adapter readStream: host-log read plus digests, summed over pages) and grantAssignSequences (SQLiteDeliveryEpochStore.assignSequences). Wrappers only; no product instrumentation.",
+    "campaignHostIntentServerTime.test.ts: the U89 grow check extracted into growth(); a U98 row asserts grantHostLogRead, grantReadStream, grantAssignSequences, replicaIngest and serverTotal on command medians."
+  ],
+  "runner": "per run: wait while PARENT-PROOF-HOLD exists (60 s polls), then node scripts/qc/machine-idle.mjs --wait --timeout-ms 1800000 (proceed only on MACHINE_IDLE), then U35E_ROWS_DIR=<lane-temp>/red U89_LOG_SIZES=50,1000 U89_RUN=<n> npx jest src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test.ts (one jest process per run)",
+  "holdWait": "PARENT-PROOF-HOLD was present at admission (21:59Z, U60 main proof); absent when checked at 22:08Z before the first run; every run log line records \"hold absent\" before its idle check; no timing run started while it existed.",
+  "runLog": [
+    "2026-09-26T22:09:02Z run 1 hold absent",
+    "2026-09-26T22:09:02Z run 1 machine-idle: MACHINE_IDLE",
+    "2026-09-26T22:09:14Z run 1 jest exit 1 : Tests:       1 failed, 3 passed, 4 total",
+    "2026-09-26T22:09:14Z run 2 hold absent",
+    "2026-09-26T22:09:16Z run 2 machine-idle: MACHINE_IDLE",
+    "2026-09-26T22:09:29Z run 2 jest exit 1 : Tests:       1 failed, 3 passed, 4 total",
+    "2026-09-26T22:09:29Z run 3 hold absent",
+    "2026-09-26T22:09:29Z run 3 machine-idle: MACHINE_IDLE",
+    "2026-09-26T22:09:42Z run 3 jest exit 1 : Tests:       1 failed, 3 passed, 4 total",
+    "2026-09-26T22:09:42Z run 4 hold absent",
+    "2026-09-26T22:09:42Z run 4 machine-idle: MACHINE_IDLE",
+    "2026-09-26T22:09:55Z run 4 jest exit 1 : Tests:       1 failed, 3 passed, 4 total",
+    "2026-09-26T22:09:55Z run 5 hold absent",
+    "2026-09-26T22:09:56Z run 5 machine-idle: MACHINE_IDLE",
+    "2026-09-26T22:10:09Z run 5 jest exit 1 : Tests:       1 failed, 3 passed, 4 total",
+    "2026-09-26T22:10:09Z DONE"
+  ],
+  "threshold": {
+    "rule": "grows iff (median(1000) > 2 x median(50) AND median(1000) > 5 ms) OR median(1000) > 50 ms; a missing median grows",
+    "medians": "each run's median over its measured commands (3 SpendFunds + 3 AdvanceDay after 2 discarded warm-ups) or its 3 host PUTs (after 1 discarded); tables: the median of the 5 run medians; verdicts in the tables use the same rule"
+  },
+  "redRow": {
+    "name": "campaignHostIntentServerTime.test.ts: \"the grant wake and the replica ingest do not grow with the log\"",
+    "result": "5 of 5 runs: Tests: 1 failed, 3 passed, 4 total (the two size rows and the U89 row pass; the U98 row fails with all five steps growing)",
+    "perRun": [
+      {
+        "run": 1,
+        "eventsAtStart": {
+          "50": 50,
+          "1000": 1000
+        },
+        "redRowU98": [
+          {
+            "step": "grantHostLogRead",
+            "short": 3.6784499999998843,
+            "long": 213.90180000000055,
+            "grows": true
+          },
+          {
+            "step": "grantReadStream",
+            "short": 4.157200000000103,
+            "long": 242.3753999999999,
+            "grows": true
+          },
+          {
+            "step": "grantAssignSequences",
+            "short": 0.4163499999999658,
+            "long": 6.070150000000012,
+            "grows": true
+          },
+          {
+            "step": "replicaIngest",
+            "short": 5.993800000000192,
+            "long": 94.04089999999951,
+            "grows": true
+          },
+          {
+            "step": "serverTotal",
+            "short": 13.021850000000086,
+            "long": 336.28829999999925,
+            "grows": true
+          }
+        ]
+      },
+      {
+        "run": 2,
+        "eventsAtStart": {
+          "50": 50,
+          "1000": 1000
+        },
+        "redRowU98": [
+          {
+            "step": "grantHostLogRead",
+            "short": 6.627300000000105,
+            "long": 227.5879000000009,
+            "grows": true
+          },
+          {
+            "step": "grantReadStream",
+            "short": 8.482500000000073,
+            "long": 261.4603999999981,
+            "grows": true
+          },
+          {
+            "step": "grantAssignSequences",
+            "short": 0.6177500000001146,
+            "long": 6.068850000000111,
+            "grows": true
+          },
+          {
+            "step": "replicaIngest",
+            "short": 8.911349999999857,
+            "long": 84.51345000000038,
+            "grows": true
+          },
+          {
+            "step": "serverTotal",
+            "short": 22.41184999999996,
+            "long": 356.7988499999997,
+            "grows": true
+          }
+        ]
+      },
+      {
+        "run": 3,
+        "eventsAtStart": {
+          "50": 50,
+          "1000": 1000
+        },
+        "redRowU98": [
+          {
+            "step": "grantHostLogRead",
+            "short": 5.101750000000038,
+            "long": 204.4131000000002,
+            "grows": true
+          },
+          {
+            "step": "grantReadStream",
+            "short": 5.6233999999997195,
+            "long": 234.17045000000098,
+            "grows": true
+          },
+          {
+            "step": "grantAssignSequences",
+            "short": 0.5777499999999236,
+            "long": 5.764250000000175,
+            "grows": true
+          },
+          {
+            "step": "replicaIngest",
+            "short": 7.224549999999908,
+            "long": 76.27259999999978,
+            "grows": true
+          },
+          {
+            "step": "serverTotal",
+            "short": 18.52300000000014,
+            "long": 320.5904500000006,
+            "grows": true
+          }
+        ]
+      },
+      {
+        "run": 4,
+        "eventsAtStart": {
+          "50": 50,
+          "1000": 1000
+        },
+        "redRowU98": [
+          {
+            "step": "grantHostLogRead",
+            "short": 4.264749999999822,
+            "long": 207.7074000000007,
+            "grows": true
+          },
+          {
+            "step": "grantReadStream",
+            "short": 5.778900000000249,
+            "long": 235.9681500000006,
+            "grows": true
+          },
+          {
+            "step": "grantAssignSequences",
+            "short": 0.4810499999998683,
+            "long": 6.619099999999889,
+            "grows": true
+          },
+          {
+            "step": "replicaIngest",
+            "short": 6.141650000000027,
+            "long": 93.28015000000005,
+            "grows": true
+          },
+          {
+            "step": "serverTotal",
+            "short": 15.8121000000001,
+            "long": 341.8726999999999,
+            "grows": true
+          }
+        ]
+      },
+      {
+        "run": 5,
+        "eventsAtStart": {
+          "50": 50,
+          "1000": 1000
+        },
+        "redRowU98": [
+          {
+            "step": "grantHostLogRead",
+            "short": 4.391750000000002,
+            "long": 249.07579999999962,
+            "grows": true
+          },
+          {
+            "step": "grantReadStream",
+            "short": 4.942350000000033,
+            "long": 281.6345500000007,
+            "grows": true
+          },
+          {
+            "step": "grantAssignSequences",
+            "short": 0.4299999999998363,
+            "long": 5.887650000001486,
+            "grows": true
+          },
+          {
+            "step": "replicaIngest",
+            "short": 5.8825500000000375,
+            "long": 100.81119999999964,
+            "grows": true
+          },
+          {
+            "step": "serverTotal",
+            "short": 13.930900000000065,
+            "long": 386.50410000000056,
+            "grows": true
+          }
+        ]
+      }
+    ]
+  },
+  "timingTableBaseline": {
+    "commandMedians": {
+      "appendCommandBatch": {
+        "median50": 1.202,
+        "median1000": 2.75,
+        "ratio": 2.287,
+        "verdict": "flat",
+        "runs50": [
+          0.943,
+          1.591,
+          1.428,
+          1.202,
+          1.15
+        ],
+        "runs1000": [
+          2.617,
+          2.963,
+          2.68,
+          2.75,
+          2.858
+        ]
+      },
+      "appendWithoutRecordRewrite": {
+        "median50": 0.907,
+        "median1000": 0.887,
+        "ratio": 0.978,
+        "verdict": "flat",
+        "runs50": [
+          0.691,
+          1.185,
+          1.071,
+          0.907,
+          0.842
+        ],
+        "runs1000": [
+          0.857,
+          0.977,
+          0.847,
+          0.887,
+          1.029
+        ]
+      },
+      "applyHostIntent": {
+        "median50": 7.965,
+        "median1000": 84.413,
+        "ratio": 10.598,
+        "verdict": "GROWS",
+        "runs50": [
+          5.701,
+          11.304,
+          7.965,
+          8.041,
+          6.716
+        ],
+        "runs1000": [
+          84.413,
+          89.18,
+          77.951,
+          79.426,
+          100.275
+        ]
+      },
+      "commitHighestSequence": {
+        "median50": 0.128,
+        "median1000": 0.111,
+        "ratio": 0.868,
+        "verdict": "flat",
+        "runs50": [
+          0.11,
+          0.164,
+          0.159,
+          0.128,
+          0.107
+        ],
+        "runs1000": [
+          0.092,
+          0.108,
+          0.119,
+          0.111,
+          0.133
+        ]
+      },
+      "deliverToGuest": {
+        "median50": 2.907,
+        "median1000": 4.064,
+        "ratio": 1.398,
+        "verdict": "flat",
+        "runs50": [
+          1.962,
+          3.702,
+          3.13,
+          2.907,
+          2.513
+        ],
+        "runs1000": [
+          3.668,
+          4.281,
+          4.064,
+          4.012,
+          4.144
+        ]
+      },
+      "gate": {
+        "median50": 0.33,
+        "median1000": 0.291,
+        "ratio": 0.881,
+        "verdict": "flat",
+        "runs50": [
+          0.308,
+          0.33,
+          0.411,
+          0.382,
+          0.295
+        ],
+        "runs1000": [
+          0.302,
+          0.298,
+          0.241,
+          0.291,
+          0.255
+        ]
+      },
+      "gateHighestSequence": {
+        "median50": 0.215,
+        "median1000": 0.159,
+        "ratio": 0.742,
+        "verdict": "flat",
+        "runs50": [
+          0.215,
+          0.21,
+          0.259,
+          0.231,
+          0.176
+        ],
+        "runs1000": [
+          0.187,
+          0.185,
+          0.14,
+          0.159,
+          0.149
+        ]
+      },
+      "grantAssignSequences": {
+        "median50": 0.481,
+        "median1000": 6.069,
+        "ratio": 12.616,
+        "verdict": "GROWS",
+        "runs50": [
+          0.416,
+          0.618,
+          0.578,
+          0.481,
+          0.43
+        ],
+        "runs1000": [
+          6.07,
+          6.069,
+          5.764,
+          6.619,
+          5.888
+        ]
+      },
+      "grantHostLogRead": {
+        "median50": 4.392,
+        "median1000": 213.902,
+        "ratio": 48.705,
+        "verdict": "GROWS",
+        "runs50": [
+          3.678,
+          6.627,
+          5.102,
+          4.265,
+          4.392
+        ],
+        "runs1000": [
+          213.902,
+          227.588,
+          204.413,
+          207.707,
+          249.076
+        ]
+      },
+      "grantReadStream": {
+        "median50": 5.623,
+        "median1000": 242.375,
+        "ratio": 43.101,
+        "verdict": "GROWS",
+        "runs50": [
+          4.157,
+          8.483,
+          5.623,
+          5.779,
+          4.942
+        ],
+        "runs1000": [
+          242.375,
+          261.46,
+          234.17,
+          235.968,
+          281.635
+        ]
+      },
+      "healRead": {
+        "median50": 0.486,
+        "median1000": 0.301,
+        "ratio": 0.619,
+        "verdict": "flat",
+        "runs50": [
+          0.231,
+          0.587,
+          0.486,
+          0.516,
+          0.42
+        ],
+        "runs1000": [
+          0.266,
+          0.301,
+          0.246,
+          0.356,
+          0.327
+        ]
+      },
+      "publish": {
+        "median50": 0.15,
+        "median1000": 0.167,
+        "ratio": 1.108,
+        "verdict": "flat",
+        "runs50": [
+          0.134,
+          0.215,
+          0.177,
+          0.15,
+          0.144
+        ],
+        "runs1000": [
+          0.171,
+          0.139,
+          0.167,
+          0.146,
+          0.169
+        ]
+      },
+      "recordRewrite": {
+        "median50": 0.316,
+        "median1000": 1.862,
+        "ratio": 5.899,
+        "verdict": "flat",
+        "runs50": [
+          0.264,
+          0.415,
+          0.36,
+          0.316,
+          0.282
+        ],
+        "runs1000": [
+          1.755,
+          1.957,
+          1.78,
+          1.863,
+          1.862
+        ]
+      },
+      "replicaIngest": {
+        "median50": 6.142,
+        "median1000": 93.28,
+        "ratio": 15.188,
+        "verdict": "GROWS",
+        "runs50": [
+          5.994,
+          8.911,
+          7.225,
+          6.142,
+          5.883
+        ],
+        "runs1000": [
+          94.041,
+          84.513,
+          76.273,
+          93.28,
+          100.811
+        ]
+      },
+      "serverTotal": {
+        "median50": 15.812,
+        "median1000": 341.873,
+        "ratio": 21.621,
+        "verdict": "GROWS",
+        "runs50": [
+          13.022,
+          22.412,
+          18.523,
+          15.812,
+          13.931
+        ],
+        "runs1000": [
+          336.288,
+          356.799,
+          320.59,
+          341.873,
+          386.504
+        ]
+      }
+    },
+    "spendFundsMedians": {
+      "appendCommandBatch": {
+        "median50": 1.233,
+        "median1000": 2.892,
+        "ratio": 2.346,
+        "verdict": "flat",
+        "runs50": [
+          0.866,
+          1.961,
+          1.289,
+          1.193,
+          1.233
+        ],
+        "runs1000": [
+          2.701,
+          2.984,
+          2.892,
+          2.588,
+          3.19
+        ]
+      },
+      "appendWithoutRecordRewrite": {
+        "median50": 0.94,
+        "median1000": 0.947,
+        "ratio": 1.008,
+        "verdict": "flat",
+        "runs50": [
+          0.636,
+          1.483,
+          0.94,
+          0.864,
+          0.954
+        ],
+        "runs1000": [
+          0.875,
+          1.03,
+          0.947,
+          0.827,
+          1.168
+        ]
+      },
+      "applyHostIntent": {
+        "median50": 7.415,
+        "median1000": 87.516,
+        "ratio": 11.803,
+        "verdict": "GROWS",
+        "runs50": [
+          5.505,
+          12.858,
+          7.458,
+          6.829,
+          7.415
+        ],
+        "runs1000": [
+          87.516,
+          88.289,
+          77.744,
+          79.205,
+          105.132
+        ]
+      },
+      "commitHighestSequence": {
+        "median50": 0.216,
+        "median1000": 0.207,
+        "ratio": 0.958,
+        "verdict": "flat",
+        "runs50": [
+          0.144,
+          0.338,
+          0.221,
+          0.216,
+          0.179
+        ],
+        "runs1000": [
+          0.137,
+          0.207,
+          0.2,
+          0.218,
+          0.229
+        ]
+      },
+      "deliverToGuest": {
+        "median50": 2.639,
+        "median1000": 4.201,
+        "ratio": 1.592,
+        "verdict": "flat",
+        "runs50": [
+          1.719,
+          4.433,
+          2.784,
+          2.639,
+          2.5
+        ],
+        "runs1000": [
+          3.572,
+          4.201,
+          4.47,
+          3.785,
+          4.652
+        ]
+      },
+      "grantAssignSequences": {
+        "median50": 0.452,
+        "median1000": 6.521,
+        "ratio": 14.43,
+        "verdict": "GROWS",
+        "runs50": [
+          0.402,
+          0.628,
+          0.625,
+          0.452,
+          0.423
+        ],
+        "runs1000": [
+          6.867,
+          4.864,
+          5.823,
+          6.536,
+          6.521
+        ]
+      },
+      "grantHostLogRead": {
+        "median50": 4.916,
+        "median1000": 207.185,
+        "ratio": 42.141,
+        "verdict": "GROWS",
+        "runs50": [
+          3.577,
+          8.722,
+          4.916,
+          4.372,
+          4.932
+        ],
+        "runs1000": [
+          242.655,
+          198.238,
+          207.185,
+          201.149,
+          261.059
+        ]
+      },
+      "grantReadStream": {
+        "median50": 5.399,
+        "median1000": 233.686,
+        "ratio": 43.282,
+        "verdict": "GROWS",
+        "runs50": [
+          4.07,
+          9.505,
+          5.427,
+          4.941,
+          5.399
+        ],
+        "runs1000": [
+          279.249,
+          226.79,
+          233.686,
+          229.412,
+          292.858
+        ]
+      },
+      "healRead": {
+        "median50": 0.546,
+        "median1000": 0.285,
+        "ratio": 0.521,
+        "verdict": "flat",
+        "runs50": [
+          0.223,
+          0.589,
+          0.569,
+          0.546,
+          0.419
+        ],
+        "runs1000": [
+          0.232,
+          0.285,
+          0.254,
+          0.367,
+          0.448
+        ]
+      },
+      "publish": {
+        "median50": 0.148,
+        "median1000": 0.155,
+        "ratio": 1.053,
+        "verdict": "flat",
+        "runs50": [
+          0.136,
+          0.224,
+          0.157,
+          0.147,
+          0.148
+        ],
+        "runs1000": [
+          0.17,
+          0.133,
+          0.155,
+          0.133,
+          0.163
+        ]
+      },
+      "recordRewrite": {
+        "median50": 0.283,
+        "median1000": 1.826,
+        "ratio": 6.447,
+        "verdict": "flat",
+        "runs50": [
+          0.233,
+          0.416,
+          0.349,
+          0.283,
+          0.278
+        ],
+        "runs1000": [
+          1.826,
+          1.954,
+          1.813,
+          1.66,
+          2.023
+        ]
+      },
+      "replicaIngest": {
+        "median50": 5.597,
+        "median1000": 86.47,
+        "ratio": 15.45,
+        "verdict": "GROWS",
+        "runs50": [
+          4.674,
+          9.699,
+          7.481,
+          5.597,
+          5.576
+        ],
+        "runs1000": [
+          97.123,
+          78.18,
+          74.438,
+          86.47,
+          103.276
+        ]
+      },
+      "serverTotal": {
+        "median50": 13.997,
+        "median1000": 323.162,
+        "ratio": 23.088,
+        "verdict": "GROWS",
+        "runs50": [
+          11.204,
+          26.07,
+          20.047,
+          13.997,
+          13.479
+        ],
+        "runs1000": [
+          390.924,
+          314.405,
+          317.634,
+          323.162,
+          387.062
+        ]
+      }
+    },
+    "advanceDayMedians": {
+      "appendCommandBatch": {
+        "median50": 1.522,
+        "median1000": 2.533,
+        "ratio": 1.665,
+        "verdict": "flat",
+        "runs50": [
+          1.06,
+          1.57,
+          1.568,
+          1.522,
+          1.142
+        ],
+        "runs1000": [
+          2.533,
+          2.942,
+          2.453,
+          2.812,
+          2.525
+        ]
+      },
+      "appendWithoutRecordRewrite": {
+        "median50": 1.123,
+        "median1000": 0.891,
+        "ratio": 0.794,
+        "verdict": "flat",
+        "runs50": [
+          0.778,
+          1.123,
+          1.203,
+          1.152,
+          0.827
+        ],
+        "runs1000": [
+          0.85,
+          0.971,
+          0.748,
+          0.927,
+          0.891
+        ]
+      },
+      "applyHostIntent": {
+        "median50": 8.472,
+        "median1000": 81.31,
+        "ratio": 9.598,
+        "verdict": "GROWS",
+        "runs50": [
+          6.063,
+          10.003,
+          8.472,
+          8.776,
+          6.548
+        ],
+        "runs1000": [
+          81.31,
+          100.013,
+          78.158,
+          79.646,
+          91.249
+        ]
+      },
+      "commitHighestSequence": {
+        "median50": 0.075,
+        "median1000": 0.051,
+        "ratio": 0.685,
+        "verdict": "flat",
+        "runs50": [
+          0.075,
+          0.079,
+          0.099,
+          0.066,
+          0.056
+        ],
+        "runs1000": [
+          0.051,
+          0.047,
+          0.048,
+          0.057,
+          0.06
+        ]
+      },
+      "deliverToGuest": {
+        "median50": 3.027,
+        "median1000": 3.764,
+        "ratio": 1.244,
+        "verdict": "flat",
+        "runs50": [
+          2.338,
+          3.027,
+          3.477,
+          3.176,
+          2.525
+        ],
+        "runs1000": [
+          3.764,
+          4.362,
+          3.658,
+          4.09,
+          3.635
+        ]
+      },
+      "gate": {
+        "median50": 0.33,
+        "median1000": 0.291,
+        "ratio": 0.881,
+        "verdict": "flat",
+        "runs50": [
+          0.308,
+          0.33,
+          0.411,
+          0.382,
+          0.295
+        ],
+        "runs1000": [
+          0.302,
+          0.298,
+          0.241,
+          0.291,
+          0.255
+        ]
+      },
+      "gateHighestSequence": {
+        "median50": 0.215,
+        "median1000": 0.159,
+        "ratio": 0.742,
+        "verdict": "flat",
+        "runs50": [
+          0.215,
+          0.21,
+          0.259,
+          0.231,
+          0.176
+        ],
+        "runs1000": [
+          0.187,
+          0.185,
+          0.14,
+          0.159,
+          0.149
+        ]
+      },
+      "grantAssignSequences": {
+        "median50": 0.478,
+        "median1000": 5.705,
+        "ratio": 11.925,
+        "verdict": "GROWS",
+        "runs50": [
+          0.431,
+          0.572,
+          0.478,
+          0.485,
+          0.436
+        ],
+        "runs1000": [
+          5.322,
+          7.274,
+          5.705,
+          7.203,
+          5.246
+        ]
+      },
+      "grantHostLogRead": {
+        "median50": 4.246,
+        "median1000": 217.641,
+        "ratio": 51.257,
+        "verdict": "GROWS",
+        "runs50": [
+          3.952,
+          6.567,
+          5.287,
+          4.158,
+          4.246
+        ],
+        "runs1000": [
+          210.026,
+          245.063,
+          202.704,
+          220.083,
+          217.641
+        ]
+      },
+      "grantReadStream": {
+        "median50": 5.82,
+        "median1000": 246.248,
+        "ratio": 42.312,
+        "verdict": "GROWS",
+        "runs50": [
+          4.444,
+          7.46,
+          5.82,
+          6.617,
+          4.813
+        ],
+        "runs1000": [
+          239.677,
+          277.852,
+          234.655,
+          248.663,
+          246.248
+        ]
+      },
+      "healRead": {
+        "median50": 0.436,
+        "median1000": 0.299,
+        "ratio": 0.686,
+        "verdict": "flat",
+        "runs50": [
+          0.284,
+          0.585,
+          0.436,
+          0.487,
+          0.422
+        ],
+        "runs1000": [
+          0.299,
+          0.317,
+          0.237,
+          0.351,
+          0.288
+        ]
+      },
+      "publish": {
+        "median50": 0.154,
+        "median1000": 0.17,
+        "ratio": 1.102,
+        "verdict": "flat",
+        "runs50": [
+          0.134,
+          0.206,
+          0.198,
+          0.154,
+          0.14
+        ],
+        "runs1000": [
+          0.172,
+          0.154,
+          0.17,
+          0.169,
+          0.174
+        ]
+      },
+      "recordRewrite": {
+        "median50": 0.331,
+        "median1000": 1.705,
+        "ratio": 5.159,
+        "verdict": "flat",
+        "runs50": [
+          0.282,
+          0.364,
+          0.365,
+          0.331,
+          0.285
+        ],
+        "runs1000": [
+          1.683,
+          1.959,
+          1.705,
+          1.885,
+          1.702
+        ]
+      },
+      "replicaIngest": {
+        "median50": 6.612,
+        "median1000": 93.14,
+        "ratio": 14.086,
+        "verdict": "GROWS",
+        "runs50": [
+          6.612,
+          7.651,
+          6.968,
+          6.414,
+          6.152
+        ],
+        "runs1000": [
+          93.14,
+          85.125,
+          78.107,
+          96.901,
+          98.981
+        ]
+      },
+      "serverTotal": {
+        "median50": 16.118,
+        "median1000": 354.311,
+        "ratio": 21.982,
+        "verdict": "GROWS",
+        "runs50": [
+          13.894,
+          21.865,
+          18.034,
+          16.118,
+          14.02
+        ],
+        "runs1000": [
+          329.607,
+          371.411,
+          323.547,
+          359.686,
+          354.311
+        ]
+      }
+    },
+    "putMedians": {
+      "adoptHighestSequence": {
+        "median50": 0.228,
+        "median1000": 0.161,
+        "ratio": 0.704,
+        "verdict": "flat",
+        "runs50": [
+          0.337,
+          0.315,
+          0.228,
+          0.171,
+          0.222
+        ],
+        "runs1000": [
+          0.152,
+          0.135,
+          0.233,
+          0.161,
+          0.178
+        ]
+      },
+      "adoptSavedCheckpoint": {
+        "median50": 8.743,
+        "median1000": 84.052,
+        "ratio": 9.614,
+        "verdict": "GROWS",
+        "runs50": [
+          10.02,
+          10.866,
+          7.572,
+          7.013,
+          8.743
+        ],
+        "runs1000": [
+          85.362,
+          81.788,
+          84.052,
+          67.789,
+          85.653
+        ]
+      },
+      "adoptTail": {
+        "median50": 0.27,
+        "median1000": 0.197,
+        "ratio": 0.731,
+        "verdict": "flat",
+        "runs50": [
+          0.27,
+          0.272,
+          0.222,
+          0.183,
+          0.321
+        ],
+        "runs1000": [
+          0.197,
+          0.197,
+          0.247,
+          0.187,
+          0.209
+        ]
+      },
+      "grantHostLogRead": {
+        "median50": 6.215,
+        "median1000": 79.926,
+        "ratio": 12.86,
+        "verdict": "GROWS",
+        "runs50": [
+          7.085,
+          8.07,
+          5.41,
+          5.26,
+          6.215
+        ],
+        "runs1000": [
+          82.048,
+          77.209,
+          79.926,
+          64.663,
+          81.509
+        ]
+      },
+      "grantReadStream": {
+        "median50": 7.014,
+        "median1000": null,
+        "ratio": null,
+        "verdict": "GROWS",
+        "runs50": [
+          8.085,
+          9.107,
+          6.201,
+          5.936,
+          7.014
+        ],
+        "runs1000": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "publish": {
+        "median50": 0.16,
+        "median1000": 0.159,
+        "ratio": 0.997,
+        "verdict": "flat",
+        "runs50": [
+          0.16,
+          0.21,
+          0.151,
+          0.144,
+          0.188
+        ],
+        "runs1000": [
+          0.178,
+          0.159,
+          0.161,
+          0.12,
+          0.139
+        ]
+      },
+      "putRoute": {
+        "median50": 16.056,
+        "median1000": 168.98,
+        "ratio": 10.524,
+        "verdict": "GROWS",
+        "runs50": [
+          19.556,
+          18.043,
+          14.318,
+          13.048,
+          16.056
+        ],
+        "runs1000": [
+          187.214,
+          168.98,
+          164.356,
+          141.558,
+          178.081
+        ]
+      }
+    }
+  },
+  "observations": [
+    "recordRewrite 0.316 -> 1.862 ms: flat by the rule (under the 5 ms floor), as the admission expected; appendCommandBatch 1.202 -> 2.75 ms flat by the same floor.",
+    "applyHostIntent (wall time) 7.965 -> 84.413 ms GROWS while its timed inner steps (commit highest-sequence, appendCommandBatch, publish) sum under 3.1 ms at 1000; measured again on the change.",
+    "putMedians.grantReadStream is null at 1000 events: the PUT window closes (hostPut clears the measurement when the route answers) before the adoption wake readStream settles, so no PUT sample includes it; the command rows are the asserted ones."
+  ],
+  "equivalenceRowBaseline": {
+    "command": "U98_EQUIVALENCE_OUT=<lane-temp>/eq-baseline.json npx jest src/lib/multiplayer/server/__tests__/campaignGrantWakeEquivalence.test.ts",
+    "exitCode": 0,
+    "lastLine": "Tests:       1 passed, 1 total",
+    "steps": {
+      "joinSequence": 20,
+      "steps": [
+        {
+          "step": "batch of 600",
+          "delivered": 600,
+          "expected": 600,
+          "lastReplicaSequence": 621
+        },
+        {
+          "step": "checkpoint adoption",
+          "delivered": 601,
+          "expected": 601,
+          "lastReplicaSequence": 622
+        },
+        {
+          "step": "participant removal",
+          "delivered": 602,
+          "expected": 602,
+          "lastReplicaSequence": 623
+        },
+        {
+          "step": "second checkpoint adoption",
+          "delivered": 602,
+          "expected": 602,
+          "lastReplicaSequence": 623
+        }
+      ]
+    },
+    "note": "passes on the baseline trivially: every wake is a full projection, so the incremental path it pins does not exist yet. The state comparison (replica readReplicaState state against foldCampaignGrantDeliveryItems of the full items, canonical JSON) also holds on the baseline."
+  },
+  "positionRowBaseline": {
+    "command": "npx jest src/lib/campaign/delivery/__tests__/projectCampaignStreamForGrant.position.test.ts",
+    "exitCode": 0,
+    "lastLine": "Tests:       1 passed, 1 total",
+    "note": "passes on the baseline trivially: the request field `from` does not exist and is ignored, and the page carries no position (both sides undefined)."
+  }
+}

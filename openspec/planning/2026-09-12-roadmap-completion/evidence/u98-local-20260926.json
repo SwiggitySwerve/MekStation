@@ -1,0 +1,1209 @@
+{
+  "unit": "U98",
+  "stage": "local",
+  "status": "ready (local-verified): the grant wake reads and assigns only the host-log rows after the position its last page stopped at (kept on the per-socket grant session as an opaque token, used only in its own epoch), the host-log adapter asks the host log for the rows from the page start, and the replica ingest folds only the replica rows after its kept head; the U98 timing row passes in 5 of 5 runs (every asserted step flat at 1000 events; GM frame in to the last timed step 5.882 -> 6.275 ms) and fails on the baseline blobs with the current test files; the equivalence row and the position row pass; 7 mutants killed and restored; the record rewrite stays and is measured (flat by the rule).",
+  "at": "2026-09-26T22:22:29Z",
+  "baseline": "72a0203df4d07d2fdfe696fceb9ece5b0133819b",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u98",
+  "branch": "roadmap-u98-grant-wake-since-sequence-20260926",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "admission": "evidence/u98-admission-20260926.json",
+  "red": "evidence/u98-red-20260926.json",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "codingDoctrine": {
+    "fixAssessment": "Root cause: after every host publish both wake-time consumers started from nothing: the grant projection paged the host log from revision 0 through an adapter that re-read the whole host log on every 500-row page, and assigned sequences to every visible identity; the replica ingest re-read, re-parsed and re-folded its whole stream. Fix: the grant session keeps the position its last page stopped at and the projection reads, filters and assigns only the rows after it; the adapter passes the page start to getCampaignEvents(fromSequence); the replica store keeps, per stream, the last revision read and the fold through it and reads only the rows after it.",
+    "removed": [
+      "a per-guest map on the registry entry or a module map keyed by grant: the session owns the cursor and serializes its projections",
+      "a public position type carrying the stream revision: campaignDelivery.boundary.test.ts forbids journal positions on the public result types, so the page carries an opaque token and projectCampaignStreamForGrant keeps what it stands for in a module-private WeakMap",
+      "a new journal method or head port (src/lib/events stays untouched)",
+      "caching the replica envelope list: the fold (apply state and identities) is kept instead",
+      "an incremental record rewrite: the record is lossy and the step is flat by the rule (see the timing table)"
+    ],
+    "scope": "8 product files: hostCampaignEventJournal.ts, handleRoomCodeGuestJoin.ts, projectCampaignStreamForGrant.ts, campaignDeliveryTypes.ts, campaignGrantChannelSession.ts, SQLiteCampaignReplicaStore.ts, planCampaignReplicaIngest.ts, campaignReplicaEnvelope.ts. The token grant join (handleCampaignGrantJoin.ts) uses the same session class and so also keeps a position; callers that pass none (snapshot build, equivalence verifier) keep the full read.",
+    "designChangeAfterAdmission": "The admission receipt described the position as a public object {deliveryEpochId, afterRevision, withheld} on the page. The first focused run failed campaignDelivery.boundary.test.ts (\"does not declare streamRevision or commitPosition on public types\"; its regex matched the expression `?.streamRevision ??` in projectCampaignStreamForGrant.ts, and its stated contract is that journal positions stay off the public result types). The position became an opaque branded token (campaignDeliveryTypes.ts) resolved through a module-private WeakMap in projectCampaignStreamForGrant.ts; the boundary test was not changed."
+  },
+  "changedFiles": {
+    "product": [
+      {
+        "path": "src/lib/campaign/delivery/campaignDeliveryTypes.ts",
+        "added": 14,
+        "removed": 1,
+        "blob": "9778741681af17a501f9a86c1275112655b03388",
+        "sha256": "63ba3c0f6541f5ae0985bff0d154a726c17eb24d740b36e9483e963b0698d931"
+      },
+      {
+        "path": "src/lib/campaign/delivery/campaignGrantChannelSession.ts",
+        "added": 13,
+        "removed": 3,
+        "blob": "b1684c09331f45e07ab78bf95cc635ecdd43d1f9",
+        "sha256": "70b30332512ef72de7e5476694388402b0f880408af3b9065dd9604c2a14d6b6"
+      },
+      {
+        "path": "src/lib/campaign/delivery/projectCampaignStreamForGrant.ts",
+        "added": 53,
+        "removed": 6,
+        "blob": "903be7aafef47da3911d70bce16b45d691d58c96",
+        "sha256": "9e3d7698657a6ba9e3ad1b9874b823d2052adf0edd4cd6e9975b286f7705c2b7"
+      },
+      {
+        "path": "src/lib/campaign/replica/SQLiteCampaignReplicaStore.ts",
+        "added": 43,
+        "removed": 3,
+        "blob": "01605681a394c565bf7bd32627b4e5fb1d5dabe0",
+        "sha256": "d941da04c022433a6b1b3ce6ea17b008db4ece3e433eefa1b92f239ef04504d8"
+      },
+      {
+        "path": "src/lib/campaign/replica/campaignReplicaEnvelope.ts",
+        "added": 31,
+        "removed": 24,
+        "blob": "758c99326503168ed3dc142b8272f5ea30c2908b",
+        "sha256": "83ad721ee41dc108d137d015bab693d65d2bad5c38d44b6e168faaa4f9c04363"
+      },
+      {
+        "path": "src/lib/campaign/replica/planCampaignReplicaIngest.ts",
+        "added": 12,
+        "removed": 10,
+        "blob": "fc6ef4eae992966587ddfa2aba821b8052916b3c",
+        "sha256": "5def8aacef2ba84e9a3cef69226692982689068f5512d1eab8372232724b7913"
+      },
+      {
+        "path": "src/lib/campaign/sync/hostCampaignEventJournal.ts",
+        "added": 9,
+        "removed": 4,
+        "blob": "586bee10d6fc00e94d6d484856fd9e1eb1a26e4f",
+        "sha256": "9c60d51633c7ea39210336f192ba64c614ddfc5e5b559d04e5c09c7f44c71f76"
+      },
+      {
+        "path": "src/lib/multiplayer/server/handleRoomCodeGuestJoin.ts",
+        "added": 8,
+        "removed": 4,
+        "blob": "bbbc5906b93e9f228fdec455ee3b48c38f78b18e",
+        "sha256": "91ce0d890188e0d527057e006b53048a715a920d5b46f7bb9325271dd4580da3"
+      }
+    ],
+    "productTotals": {
+      "files": 8,
+      "added": 183,
+      "removed": 55,
+      "cap": 500,
+      "note": "added lines by git diff --numstat against the baseline (the U41 counting rule counts added lines)"
+    },
+    "tests": [
+      {
+        "path": "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test-helpers.ts",
+        "note": "modified: +48 -9 (grant adapter label, grantReadStream and grantAssignSequences steps)",
+        "blob": "b1702bda220a543eca95ac0745a0a59298413da2",
+        "sha256": "f510909537adcf442669ebe2aceb6713f4c276b75b59041353e6a65937378b47"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test.ts",
+        "note": "modified: +40 -19 (growth() extracted; the U98 row)",
+        "blob": "a3ed1e2c01cae07cb8d5e980ad64092f0f6aab01",
+        "sha256": "1ca8458f18b9d626c992c14ea3cce5d92501969b6a2fe76f97356ca2bb77dfa7"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/campaignGrantWakeEquivalence.test.ts",
+        "note": "new: 236 lines (the equivalence row)",
+        "blob": "4bfe5844ed3bec20cbabbb0ae2a942f3df3f068f",
+        "sha256": "742893a6feb9a8e6ac9ad032f7739dd6de4c2365d0c75f2364e761e9b5c4ee68"
+      },
+      {
+        "path": "src/lib/campaign/delivery/__tests__/projectCampaignStreamForGrant.position.test.ts",
+        "note": "new: 141 lines (position in its epoch, latch carried, rebuilt epoch)",
+        "blob": "f5693debfcb5a91983e2b8ead725aef9cf5b8125",
+        "sha256": "696789999a4fbf40347b8710dc3df93f75fc13ca1b127cec607c632a4225d2d2"
+      }
+    ],
+    "testTotals": {
+      "files": 4,
+      "added": 465
+    },
+    "filesTotal": 12,
+    "fileCap": 15
+  },
+  "timing": {
+    "runner": "per run: wait while PARENT-PROOF-HOLD exists (60 s polls), then node scripts/qc/machine-idle.mjs --wait --timeout-ms 1800000 (proceed only on MACHINE_IDLE), then U35E_ROWS_DIR=<lane-temp>/local U89_LOG_SIZES=50,1000 U89_RUN=<n> npx jest src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test.ts",
+    "holdWait": "the hold file was absent before every run (log lines \"hold absent\"); no wait was needed after admission",
+    "runLog": [
+      "2026-09-26T22:15:34Z run 1 hold absent",
+      "2026-09-26T22:15:35Z run 1 machine-idle: MACHINE_IDLE",
+      "2026-09-26T22:15:44Z run 1 jest exit 0 : Tests:       4 passed, 4 total",
+      "2026-09-26T22:15:44Z run 2 hold absent",
+      "2026-09-26T22:15:44Z run 2 machine-idle: MACHINE_IDLE",
+      "2026-09-26T22:15:53Z run 2 jest exit 0 : Tests:       4 passed, 4 total",
+      "2026-09-26T22:15:53Z run 3 hold absent",
+      "2026-09-26T22:15:54Z run 3 machine-idle: MACHINE_IDLE",
+      "2026-09-26T22:16:03Z run 3 jest exit 0 : Tests:       4 passed, 4 total",
+      "2026-09-26T22:16:03Z run 4 hold absent",
+      "2026-09-26T22:16:04Z run 4 machine-idle: MACHINE_IDLE",
+      "2026-09-26T22:16:13Z run 4 jest exit 0 : Tests:       4 passed, 4 total",
+      "2026-09-26T22:16:13Z run 5 hold absent",
+      "2026-09-26T22:16:14Z run 5 machine-idle: MACHINE_IDLE",
+      "2026-09-26T22:16:22Z run 5 jest exit 0 : Tests:       4 passed, 4 total",
+      "2026-09-26T22:16:22Z DONE"
+    ],
+    "rule": "grows iff (median(1000) > 2 x median(50) AND median(1000) > 5 ms) OR median(1000) > 50 ms; values: the median of 5 run medians, ms",
+    "commandMedians": {
+      "appendCommandBatch": {
+        "before": {
+          "median50": 1.202,
+          "median1000": 2.75,
+          "verdict": "flat"
+        },
+        "after": {
+          "median50": 1.683,
+          "median1000": 3.045,
+          "verdict": "flat"
+        }
+      },
+      "appendWithoutRecordRewrite": {
+        "before": {
+          "median50": 0.907,
+          "median1000": 0.887,
+          "verdict": "flat"
+        },
+        "after": {
+          "median50": 1.187,
+          "median1000": 1.049,
+          "verdict": "flat"
+        }
+      },
+      "applyHostIntent": {
+        "before": {
+          "median50": 7.965,
+          "median1000": 84.413,
+          "verdict": "GROWS"
+        },
+        "after": {
+          "median50": 3.107,
+          "median1000": 4.227,
+          "verdict": "flat"
+        }
+      },
+      "commitHighestSequence": {
+        "before": {
+          "median50": 0.128,
+          "median1000": 0.111,
+          "verdict": "flat"
+        },
+        "after": {
+          "median50": 0.176,
+          "median1000": 0.114,
+          "verdict": "flat"
+        }
+      },
+      "deliverToGuest": {
+        "before": {
+          "median50": 2.907,
+          "median1000": 4.064,
+          "verdict": "flat"
+        },
+        "after": {
+          "median50": 3.555,
+          "median1000": 4.516,
+          "verdict": "flat"
+        }
+      },
+      "gate": {
+        "before": {
+          "median50": 0.33,
+          "median1000": 0.291,
+          "verdict": "flat"
+        },
+        "after": {
+          "median50": 0.474,
+          "median1000": 0.403,
+          "verdict": "flat"
+        }
+      },
+      "gateHighestSequence": {
+        "before": {
+          "median50": 0.215,
+          "median1000": 0.159,
+          "verdict": "flat"
+        },
+        "after": {
+          "median50": 0.301,
+          "median1000": 0.231,
+          "verdict": "flat"
+        }
+      },
+      "grantAssignSequences": {
+        "before": {
+          "median50": 0.481,
+          "median1000": 6.069,
+          "verdict": "GROWS"
+        },
+        "after": {
+          "median50": 0.17,
+          "median1000": 0.152,
+          "verdict": "flat"
+        }
+      },
+      "grantHostLogRead": {
+        "before": {
+          "median50": 4.392,
+          "median1000": 213.902,
+          "verdict": "GROWS"
+        },
+        "after": {
+          "median50": 0.269,
+          "median1000": 0.228,
+          "verdict": "flat"
+        }
+      },
+      "grantReadStream": {
+        "before": {
+          "median50": 5.623,
+          "median1000": 242.375,
+          "verdict": "GROWS"
+        },
+        "after": {
+          "median50": 0.303,
+          "median1000": 0.257,
+          "verdict": "flat"
+        }
+      },
+      "healRead": {
+        "before": {
+          "median50": 0.486,
+          "median1000": 0.301,
+          "verdict": "flat"
+        },
+        "after": {
+          "median50": 0.568,
+          "median1000": 0.433,
+          "verdict": "flat"
+        }
+      },
+      "publish": {
+        "before": {
+          "median50": 0.15,
+          "median1000": 0.167,
+          "verdict": "flat"
+        },
+        "after": {
+          "median50": 0.211,
+          "median1000": 0.171,
+          "verdict": "flat"
+        }
+      },
+      "recordRewrite": {
+        "before": {
+          "median50": 0.316,
+          "median1000": 1.862,
+          "verdict": "flat"
+        },
+        "after": {
+          "median50": 0.399,
+          "median1000": 2.029,
+          "verdict": "flat"
+        }
+      },
+      "replicaIngest": {
+        "before": {
+          "median50": 6.142,
+          "median1000": 93.28,
+          "verdict": "GROWS"
+        },
+        "after": {
+          "median50": 1.275,
+          "median1000": 1.001,
+          "verdict": "flat"
+        }
+      },
+      "serverTotal": {
+        "before": {
+          "median50": 15.812,
+          "median1000": 341.873,
+          "verdict": "GROWS"
+        },
+        "after": {
+          "median50": 5.882,
+          "median1000": 6.275,
+          "verdict": "flat"
+        }
+      }
+    },
+    "spendFundsMedians": {
+      "appendCommandBatch": {
+        "before": {
+          "median50": 1.233,
+          "median1000": 2.892,
+          "verdict": "flat"
+        },
+        "after": {
+          "median50": 1.769,
+          "median1000": 3.13,
+          "verdict": "flat"
+        }
+      },
+      "appendWithoutRecordRewrite": {
+        "before": {
+          "median50": 0.94,
+          "median1000": 0.947,
+          "verdict": "flat"
+        },
+        "after": {
+          "median50": 1.361,
+          "median1000": 1.154,
+          "verdict": "flat"
+        }
+      },
+      "applyHostIntent": {
+        "before": {
+          "median50": 7.415,
+          "median1000": 87.516,
+          "verdict": "GROWS"
+        },
+        "after": {
+          "median50": 3.399,
+          "median1000": 4.262,
+          "verdict": "flat"
+        }
+      },
+      "commitHighestSequence": {
+        "before": {
+          "median50": 0.216,
+          "median1000": 0.207,
+          "verdict": "flat"
+        },
+        "after": {
+          "median50": 0.298,
+          "median1000": 0.221,
+          "verdict": "flat"
+        }
+      },
+      "deliverToGuest": {
+        "before": {
+          "median50": 2.639,
+          "median1000": 4.201,
+          "verdict": "flat"
+        },
+        "after": {
+          "median50": 3.7,
+          "median1000": 4.525,
+          "verdict": "flat"
+        }
+      },
+      "grantAssignSequences": {
+        "before": {
+          "median50": 0.452,
+          "median1000": 6.521,
+          "verdict": "GROWS"
+        },
+        "after": {
+          "median50": 0.171,
+          "median1000": 0.159,
+          "verdict": "flat"
+        }
+      },
+      "grantHostLogRead": {
+        "before": {
+          "median50": 4.916,
+          "median1000": 207.185,
+          "verdict": "GROWS"
+        },
+        "after": {
+          "median50": 0.282,
+          "median1000": 0.238,
+          "verdict": "flat"
+        }
+      },
+      "grantReadStream": {
+        "before": {
+          "median50": 5.399,
+          "median1000": 233.686,
+          "verdict": "GROWS"
+        },
+        "after": {
+          "median50": 0.325,
+          "median1000": 0.267,
+          "verdict": "flat"
+        }
+      },
+      "healRead": {
+        "before": {
+          "median50": 0.546,
+          "median1000": 0.285,
+          "verdict": "flat"
+        },
+        "after": {
+          "median50": 0.574,
+          "median1000": 0.362,
+          "verdict": "flat"
+        }
+      },
+      "publish": {
+        "before": {
+          "median50": 0.148,
+          "median1000": 0.155,
+          "verdict": "flat"
+        },
+        "after": {
+          "median50": 0.211,
+          "median1000": 0.165,
+          "verdict": "flat"
+        }
+      },
+      "recordRewrite": {
+        "before": {
+          "median50": 0.283,
+          "median1000": 1.826,
+          "verdict": "flat"
+        },
+        "after": {
+          "median50": 0.4,
+          "median1000": 2.132,
+          "verdict": "flat"
+        }
+      },
+      "replicaIngest": {
+        "before": {
+          "median50": 5.597,
+          "median1000": 86.47,
+          "verdict": "GROWS"
+        },
+        "after": {
+          "median50": 1.344,
+          "median1000": 0.986,
+          "verdict": "flat"
+        }
+      },
+      "serverTotal": {
+        "before": {
+          "median50": 13.997,
+          "median1000": 323.162,
+          "verdict": "GROWS"
+        },
+        "after": {
+          "median50": 6.093,
+          "median1000": 6.529,
+          "verdict": "flat"
+        }
+      }
+    },
+    "advanceDayMedians": {
+      "appendCommandBatch": {
+        "before": {
+          "median50": 1.522,
+          "median1000": 2.533,
+          "verdict": "flat"
+        },
+        "after": {
+          "median50": 1.657,
+          "median1000": 2.848,
+          "verdict": "flat"
+        }
+      },
+      "appendWithoutRecordRewrite": {
+        "before": {
+          "median50": 1.123,
+          "median1000": 0.891,
+          "verdict": "flat"
+        },
+        "after": {
+          "median50": 1.239,
+          "median1000": 0.925,
+          "verdict": "flat"
+        }
+      },
+      "applyHostIntent": {
+        "before": {
+          "median50": 8.472,
+          "median1000": 81.31,
+          "verdict": "GROWS"
+        },
+        "after": {
+          "median50": 2.852,
+          "median1000": 3.887,
+          "verdict": "flat"
+        }
+      },
+      "commitHighestSequence": {
+        "before": {
+          "median50": 0.075,
+          "median1000": 0.051,
+          "verdict": "flat"
+        },
+        "after": {
+          "median50": 0.095,
+          "median1000": 0.063,
+          "verdict": "flat"
+        }
+      },
+      "deliverToGuest": {
+        "before": {
+          "median50": 3.027,
+          "median1000": 3.764,
+          "verdict": "flat"
+        },
+        "after": {
+          "median50": 3.849,
+          "median1000": 4.356,
+          "verdict": "flat"
+        }
+      },
+      "gate": {
+        "before": {
+          "median50": 0.33,
+          "median1000": 0.291,
+          "verdict": "flat"
+        },
+        "after": {
+          "median50": 0.474,
+          "median1000": 0.403,
+          "verdict": "flat"
+        }
+      },
+      "gateHighestSequence": {
+        "before": {
+          "median50": 0.215,
+          "median1000": 0.159,
+          "verdict": "flat"
+        },
+        "after": {
+          "median50": 0.301,
+          "median1000": 0.231,
+          "verdict": "flat"
+        }
+      },
+      "grantAssignSequences": {
+        "before": {
+          "median50": 0.478,
+          "median1000": 5.705,
+          "verdict": "GROWS"
+        },
+        "after": {
+          "median50": 0.162,
+          "median1000": 0.149,
+          "verdict": "flat"
+        }
+      },
+      "grantHostLogRead": {
+        "before": {
+          "median50": 4.246,
+          "median1000": 217.641,
+          "verdict": "GROWS"
+        },
+        "after": {
+          "median50": 0.25,
+          "median1000": 0.218,
+          "verdict": "flat"
+        }
+      },
+      "grantReadStream": {
+        "before": {
+          "median50": 5.82,
+          "median1000": 246.248,
+          "verdict": "GROWS"
+        },
+        "after": {
+          "median50": 0.279,
+          "median1000": 0.244,
+          "verdict": "flat"
+        }
+      },
+      "healRead": {
+        "before": {
+          "median50": 0.436,
+          "median1000": 0.299,
+          "verdict": "flat"
+        },
+        "after": {
+          "median50": 0.561,
+          "median1000": 0.484,
+          "verdict": "flat"
+        }
+      },
+      "publish": {
+        "before": {
+          "median50": 0.154,
+          "median1000": 0.17,
+          "verdict": "flat"
+        },
+        "after": {
+          "median50": 0.214,
+          "median1000": 0.175,
+          "verdict": "flat"
+        }
+      },
+      "recordRewrite": {
+        "before": {
+          "median50": 0.331,
+          "median1000": 1.705,
+          "verdict": "flat"
+        },
+        "after": {
+          "median50": 0.405,
+          "median1000": 1.906,
+          "verdict": "flat"
+        }
+      },
+      "replicaIngest": {
+        "before": {
+          "median50": 6.612,
+          "median1000": 93.14,
+          "verdict": "GROWS"
+        },
+        "after": {
+          "median50": 1.232,
+          "median1000": 1.053,
+          "verdict": "flat"
+        }
+      },
+      "serverTotal": {
+        "before": {
+          "median50": 16.118,
+          "median1000": 354.311,
+          "verdict": "GROWS"
+        },
+        "after": {
+          "median50": 5.765,
+          "median1000": 6.26,
+          "verdict": "flat"
+        }
+      }
+    },
+    "putMedians": {
+      "adoptHighestSequence": {
+        "before": {
+          "median50": 0.228,
+          "median1000": 0.161,
+          "verdict": "flat"
+        },
+        "after": {
+          "median50": 0.305,
+          "median1000": 0.223,
+          "verdict": "flat"
+        }
+      },
+      "adoptSavedCheckpoint": {
+        "before": {
+          "median50": 8.743,
+          "median1000": 84.052,
+          "verdict": "GROWS"
+        },
+        "after": {
+          "median50": 2.926,
+          "median1000": 4.607,
+          "verdict": "flat"
+        }
+      },
+      "adoptTail": {
+        "before": {
+          "median50": 0.27,
+          "median1000": 0.197,
+          "verdict": "flat"
+        },
+        "after": {
+          "median50": 0.291,
+          "median1000": 0.242,
+          "verdict": "flat"
+        }
+      },
+      "grantHostLogRead": {
+        "before": {
+          "median50": 6.215,
+          "median1000": 79.926,
+          "verdict": "GROWS"
+        },
+        "after": {
+          "median50": 0.272,
+          "median1000": 0.17,
+          "verdict": "flat"
+        }
+      },
+      "grantReadStream": {
+        "before": {
+          "median50": 7.014,
+          "median1000": null,
+          "verdict": "GROWS"
+        },
+        "after": {
+          "median50": 0.378,
+          "median1000": 0.341,
+          "verdict": "flat"
+        }
+      },
+      "publish": {
+        "before": {
+          "median50": 0.16,
+          "median1000": 0.159,
+          "verdict": "flat"
+        },
+        "after": {
+          "median50": 0.182,
+          "median1000": 0.154,
+          "verdict": "flat"
+        }
+      },
+      "putRoute": {
+        "before": {
+          "median50": 16.056,
+          "median1000": 168.98,
+          "verdict": "GROWS"
+        },
+        "after": {
+          "median50": 10.307,
+          "median1000": 90.849,
+          "verdict": "GROWS"
+        }
+      }
+    },
+    "redRowU98PerRunAfter": [
+      {
+        "run": 1,
+        "rows": [
+          {
+            "step": "grantHostLogRead",
+            "short": 0.26884999999970205,
+            "long": 0.252849999999853,
+            "grows": false
+          },
+          {
+            "step": "grantReadStream",
+            "short": 0.3044999999997344,
+            "long": 0.2864499999996042,
+            "grows": false
+          },
+          {
+            "step": "grantAssignSequences",
+            "short": 0.16610000000014224,
+            "long": 0.17159999999967113,
+            "grows": false
+          },
+          {
+            "step": "replicaIngest",
+            "short": 1.293400000000247,
+            "long": 1.3455499999995482,
+            "grows": false
+          },
+          {
+            "step": "serverTotal",
+            "short": 6.196149999999989,
+            "long": 7.36220000000003,
+            "grows": false
+          }
+        ]
+      },
+      {
+        "run": 2,
+        "rows": [
+          {
+            "step": "grantHostLogRead",
+            "short": 0.2145500000001448,
+            "long": 0.22779999999966094,
+            "grows": false
+          },
+          {
+            "step": "grantReadStream",
+            "short": 0.24059999999985848,
+            "long": 0.25680000000011205,
+            "grows": false
+          },
+          {
+            "step": "grantAssignSequences",
+            "short": 0.1391999999998461,
+            "long": 0.16804999999976644,
+            "grows": false
+          },
+          {
+            "step": "replicaIngest",
+            "short": 1.0383500000000367,
+            "long": 1.0005499999997483,
+            "grows": false
+          },
+          {
+            "step": "serverTotal",
+            "short": 4.644900000000007,
+            "long": 6.27475000000004,
+            "grows": false
+          }
+        ]
+      },
+      {
+        "run": 3,
+        "rows": [
+          {
+            "step": "grantHostLogRead",
+            "short": 0.26135000000022046,
+            "long": 0.19370000000026266,
+            "grows": false
+          },
+          {
+            "step": "grantReadStream",
+            "short": 0.29480000000012296,
+            "long": 0.21739999999999782,
+            "grows": false
+          },
+          {
+            "step": "grantAssignSequences",
+            "short": 0.17244999999979882,
+            "long": 0.14694999999983338,
+            "grows": false
+          },
+          {
+            "step": "replicaIngest",
+            "short": 1.2753499999998894,
+            "long": 0.980649999999514,
+            "grows": false
+          },
+          {
+            "step": "serverTotal",
+            "short": 5.6721,
+            "long": 6.197650000000067,
+            "grows": false
+          }
+        ]
+      },
+      {
+        "run": 4,
+        "rows": [
+          {
+            "step": "grantHostLogRead",
+            "short": 0.279149999999845,
+            "long": 0.2363999999997759,
+            "grows": false
+          },
+          {
+            "step": "grantReadStream",
+            "short": 0.3193499999999858,
+            "long": 0.26565000000027794,
+            "grows": false
+          },
+          {
+            "step": "grantAssignSequences",
+            "short": 0.17014999999992142,
+            "long": 0.15229999999974098,
+            "grows": false
+          },
+          {
+            "step": "replicaIngest",
+            "short": 1.4633000000001175,
+            "long": 1.193449999999757,
+            "grows": false
+          },
+          {
+            "step": "serverTotal",
+            "short": 7.1591500000001815,
+            "long": 6.687000000000353,
+            "grows": false
+          }
+        ]
+      },
+      {
+        "run": 5,
+        "rows": [
+          {
+            "step": "grantHostLogRead",
+            "short": 0.27389999999968495,
+            "long": 0.20000000000027285,
+            "grows": false
+          },
+          {
+            "step": "grantReadStream",
+            "short": 0.3034500000001117,
+            "long": 0.22429999999940264,
+            "grows": false
+          },
+          {
+            "step": "grantAssignSequences",
+            "short": 0.1711499999996704,
+            "long": 0.13475000000016735,
+            "grows": false
+          },
+          {
+            "step": "replicaIngest",
+            "short": 1.2164000000000215,
+            "long": 0.9946999999997388,
+            "grows": false
+          },
+          {
+            "step": "serverTotal",
+            "short": 5.882449999999835,
+            "long": 5.509649999999965,
+            "grows": false
+          }
+        ]
+      }
+    ],
+    "baselineBlobsWithCurrentTests": {
+      "how": "the 8 product files written back from git show HEAD:<path>, one timing run (hold absent, MACHINE_IDLE) and one run of the equivalence and position rows with the current test files, then the changed copies restored and sha256sum -c OK for all 8",
+      "log": [
+        "baseline blobs written: 8 files",
+        "2026-09-26T22:20:37Z hold absent",
+        "machine-idle: MACHINE_IDLE",
+        "timing jest exit=1 Tests:       1 failed, 3 passed, 4 total",
+        "rows jest exit=0 Tests:       2 passed, 2 total",
+        "src/lib/campaign/delivery/campaignDeliveryTypes.ts: OK",
+        "src/lib/campaign/delivery/campaignGrantChannelSession.ts: OK",
+        "src/lib/campaign/delivery/projectCampaignStreamForGrant.ts: OK",
+        "src/lib/campaign/replica/SQLiteCampaignReplicaStore.ts: OK",
+        "src/lib/campaign/replica/campaignReplicaEnvelope.ts: OK",
+        "src/lib/campaign/replica/planCampaignReplicaIngest.ts: OK",
+        "src/lib/campaign/sync/hostCampaignEventJournal.ts: OK",
+        "src/lib/multiplayer/server/handleRoomCodeGuestJoin.ts: OK"
+      ],
+      "redRowU98": [
+        {
+          "step": "grantHostLogRead",
+          "short": 6.68529999999987,
+          "long": 245.9689499999995,
+          "grows": true
+        },
+        {
+          "step": "grantReadStream",
+          "short": 7.6416000000003805,
+          "long": 276.5131999999994,
+          "grows": true
+        },
+        {
+          "step": "grantAssignSequences",
+          "short": 0.6528999999998177,
+          "long": 6.4797499999995125,
+          "grows": true
+        },
+        {
+          "step": "replicaIngest",
+          "short": 7.451300000000174,
+          "long": 97.11915000000045,
+          "grows": true
+        },
+        {
+          "step": "serverTotal",
+          "short": 21.20264999999972,
+          "long": 384.05005000000074,
+          "grows": true
+        }
+      ]
+    },
+    "notes": [
+      "applyHostIntent wall time: 7.965 -> 84.413 ms on the baseline, 3.107 -> 4.227 ms on the change, with no change to applyHostIntent itself: the growth U89 inferred was the grant wake and replica ingest running before its promise settled (measured, not only inferred, by removing them from the growth).",
+      "recordRewrite: 0.316 -> 1.862 ms before, 0.399 -> 2.029 ms after: grows by ratio but under the 5 ms floor, flat by the rule; left unchanged (admission q3).",
+      "putRoute (host PUT through the item route, src/pages, outside ownership) still grows: 16.056 -> 168.98 ms before, 10.307 -> 90.849 ms after, while adoptSavedCheckpoint inside it is now flat (8.743 -> 84.052 before, 2.926 -> 4.607 after). The remaining growth is in the route outside the adoption; not measured further here.",
+      "putMedians.grantReadStream at 1000 events was null on the baseline (the PUT window closed before that wake readStream settled); after the change it is 0.378 -> 0.341."
+    ]
+  },
+  "equivalenceRow": {
+    "command": "U98_EQUIVALENCE_OUT=<lane-temp>/eq-change.json npx jest src/lib/multiplayer/server/__tests__/campaignGrantWakeEquivalence.test.ts (inside the focused run: Test Suites: 25 passed; Tests: 110 passed)",
+    "exitCode": 0,
+    "cases": {
+      "joinSequence": 20,
+      "steps": [
+        {
+          "step": "batch of 600",
+          "delivered": 600,
+          "expected": 600,
+          "lastReplicaSequence": 621
+        },
+        {
+          "step": "checkpoint adoption",
+          "delivered": 601,
+          "expected": 601,
+          "lastReplicaSequence": 622
+        },
+        {
+          "step": "participant removal",
+          "delivered": 602,
+          "expected": 602,
+          "lastReplicaSequence": 623
+        },
+        {
+          "step": "second checkpoint adoption",
+          "delivered": 602,
+          "expected": 602,
+          "lastReplicaSequence": 623
+        }
+      ]
+    },
+    "assertions": "after each step: JSON.stringify of the items the live session ingested since the join cursor (replica offset removed) === JSON.stringify of a fresh full projection (no position, null cursor, adapter over getCampaignEvents(0)) filtered to deliverySequence > join cursor; replica lastDeliverySequence === last expected + offset; canonical JSON of readReplicaState(...).state === canonical JSON of foldCampaignGrantDeliveryItems over the full items",
+    "caseMeaning": {
+      "batch of 600": "one commit of 600 FundsChanged; the incremental read starts at revision 21 and crosses the 500-row page boundary at revision 521, the full read at 500",
+      "checkpoint adoption": "host PUT through the item route (U96 adoption); the CampaignSnapshotPublished is visible to the campaign-scoped guest (601)",
+      "participant removal": "ParticipantRemoved (campaign scope, visible) plus a gm-scoped SalvageAllocated (withheld, sets the latch) in one commit (602)",
+      "second checkpoint adoption": "the snapshot is withheld by the latch the kept position carries (still 602)"
+    }
+  },
+  "positionRow": {
+    "command": "npx jest src/lib/campaign/delivery/__tests__/projectCampaignStreamForGrant.position.test.ts",
+    "exitCode": 0,
+    "lastLine": "Tests:       1 passed, 1 total",
+    "pins": "same epoch: from the kept position only E3 and E5 are returned, byte-identical to the full projection after the cursor (the team:alpha snapshot after the withheld campaign-scoped E2 stays withheld); rebuilt epoch (bumpGeneration): the old position is ignored and the page equals a fresh full projection, sequences 1..5",
+    "edit": "after the red run one assertion was removed (expect(kept.position).toEqual(full.position)): after the opaque-token change it compared two empty frozen objects and proved nothing"
+  },
+  "mutants": [
+    {
+      "id": "M1-grant-position-never-advanced",
+      "change": "campaignGrantChannelSession.ts: `this.position = projected.position;` deleted",
+      "killedBy": "U98 timing row (grantHostLogRead 6 -> 114.82, grantReadStream 6.67 -> 129.85, grantAssignSequences 0.5 -> 6.26, serverTotal 11.52 -> 141.94 ms; replicaIngest 1.03 -> 1.2 flat)",
+      "killed": true,
+      "log": [
+        "id=M1-grant-position-never-advanced file=src/lib/campaign/delivery/campaignGrantChannelSession.ts sha256Before=70b30332512ef72de7e5476694388402b0f880408af3b9065dd9604c2a14d6b6 sha256Mutant=de0ee51efa75e8896ceefa84a9db18221fa21d1723fb634079739ce77cbedaa3",
+        "2026-09-26T22:17:01Z hold absent",
+        "machine-idle: MACHINE_IDLE",
+        "jestExit=1",
+        "Tests:       1 failed, 3 passed, 4 total",
+        "  ● U89 campaign host-intent server time by step and log size › the grant wake and the replica ingest do not grow with the log",
+        "sha256Restored=70b30332512ef72de7e5476694388402b0f880408af3b9065dd9604c2a14d6b6 restored=true"
+      ]
+    },
+    {
+      "id": "M2-position-kept-across-epochs",
+      "change": "projectCampaignStreamForGrant.ts: the epoch check dropped (`const from = kept ?? null;`)",
+      "killedBy": "position row at the rebuilt-epoch comparison (position.test.ts:136): received only E6 at sequence 1",
+      "killed": true,
+      "log": [
+        "id=M2-position-kept-across-epochs file=src/lib/campaign/delivery/projectCampaignStreamForGrant.ts sha256Before=9e3d7698657a6ba9e3ad1b9874b823d2052adf0edd4cd6e9975b286f7705c2b7 sha256Mutant=7bcd8dcfd9c9665167d8563c294d0848fe0c5926bfbf9c558b4d486c85b791a0",
+        "jestExit=1",
+        "Tests:       1 failed, 1 total",
+        "  ● projectCampaignStreamForGrant from a kept position › reads on from the position in its epoch and from the start in a rebuilt one",
+        "sha256Restored=9e3d7698657a6ba9e3ad1b9874b823d2052adf0edd4cd6e9975b286f7705c2b7 restored=true"
+      ]
+    },
+    {
+      "id": "M3-page-boundary-off-by-one",
+      "change": "projectCampaignStreamForGrant.ts readCampaignJournal: `afterRevision = last.streamRevision + 1;`",
+      "killedBy": "equivalence row at \"batch of 600\"",
+      "killed": true,
+      "log": [
+        "id=M3-page-boundary-off-by-one file=src/lib/campaign/delivery/projectCampaignStreamForGrant.ts sha256Before=9e3d7698657a6ba9e3ad1b9874b823d2052adf0edd4cd6e9975b286f7705c2b7 sha256Mutant=e7a105b8b8751b1f0c313c678a5487639d5b19fa23a7c75b6aa0eb7396fa1eb9",
+        "jestExit=1",
+        "Tests:       1 failed, 1 total",
+        "  ● U98 grant wake: the live session equals a fresh full projection › after a 600-event batch, an adoption, a removal and a second adoption",
+        "sha256Restored=9e3d7698657a6ba9e3ad1b9874b823d2052adf0edd4cd6e9975b286f7705c2b7 restored=true"
+      ]
+    },
+    {
+      "id": "M4-replica-head-never-remembered",
+      "change": "SQLiteCampaignReplicaStore.ts: `this.heads.set(...)` deleted",
+      "killedBy": "U98 timing row (replicaIngest 7.16 -> 111.42, serverTotal 11.31 -> 116.68 ms; grant steps flat)",
+      "killed": true,
+      "log": [
+        "id=M4-replica-head-never-remembered file=src/lib/campaign/replica/SQLiteCampaignReplicaStore.ts sha256Before=d941da04c022433a6b1b3ce6ea17b008db4ece3e433eefa1b92f239ef04504d8 sha256Mutant=bd23d0e66d33b0e04eda9a094419f01e2020276c14a223d75b6e5c77d5262c58",
+        "2026-09-26T22:17:16Z hold absent",
+        "machine-idle: MACHINE_IDLE",
+        "jestExit=1",
+        "Tests:       1 failed, 3 passed, 4 total",
+        "  ● U89 campaign host-intent server time by step and log size › the grant wake and the replica ingest do not grow with the log",
+        "sha256Restored=d941da04c022433a6b1b3ce6ea17b008db4ece3e433eefa1b92f239ef04504d8 restored=true"
+      ]
+    },
+    {
+      "id": "M6-latch-not-carried",
+      "change": "projectCampaignStreamForGrant.ts: `let withheld = false;`",
+      "killedBy": "position row (position.test.ts:107, the same-epoch comparison)",
+      "killed": true,
+      "log": [
+        "id=M6-latch-not-carried file=src/lib/campaign/delivery/projectCampaignStreamForGrant.ts sha256Before=9e3d7698657a6ba9e3ad1b9874b823d2052adf0edd4cd6e9975b286f7705c2b7 sha256Mutant=c32e17acef76be38172602cf03486983c0643193cba705256915085a15212c92",
+        "jestExit=1",
+        "Tests:       1 failed, 1 total",
+        "  ● projectCampaignStreamForGrant from a kept position › reads on from the position in its epoch and from the start in a rebuilt one",
+        "sha256Restored=9e3d7698657a6ba9e3ad1b9874b823d2052adf0edd4cd6e9975b286f7705c2b7 restored=true"
+      ]
+    },
+    {
+      "id": "M6b-latch-not-carried-equivalence",
+      "change": "the same mutation",
+      "killedBy": "equivalence row at \"second checkpoint adoption\"",
+      "killed": true,
+      "log": [
+        "id=M6b-latch-not-carried-equivalence file=src/lib/campaign/delivery/projectCampaignStreamForGrant.ts sha256Before=9e3d7698657a6ba9e3ad1b9874b823d2052adf0edd4cd6e9975b286f7705c2b7 sha256Mutant=c32e17acef76be38172602cf03486983c0643193cba705256915085a15212c92",
+        "jestExit=1",
+        "Tests:       1 failed, 1 total",
+        "  ● U98 grant wake: the live session equals a fresh full projection › after a 600-event batch, an adoption, a removal and a second adoption",
+        "sha256Restored=9e3d7698657a6ba9e3ad1b9874b823d2052adf0edd4cd6e9975b286f7705c2b7 restored=true"
+      ]
+    },
+    {
+      "id": "M7-adapter-since-read-off-by-one",
+      "change": "hostCampaignEventJournal.ts: `readEvents(query.afterRevision + 1)`",
+      "killedBy": "equivalence row at \"batch of 600\"",
+      "killed": true,
+      "log": [
+        "id=M7-adapter-since-read-off-by-one file=src/lib/campaign/sync/hostCampaignEventJournal.ts sha256Before=9c60d51633c7ea39210336f192ba64c614ddfc5e5b559d04e5c09c7f44c71f76 sha256Mutant=11cf821bea18db6b012e07f95ea9b21c757b52c9ff7c40b59c4c4c8975460be2",
+        "jestExit=1",
+        "Tests:       1 failed, 1 total",
+        "  ● U98 grant wake: the live session equals a fresh full projection › after a 600-event batch, an adoption, a removal and a second adoption",
+        "sha256Restored=9c60d51633c7ea39210336f192ba64c614ddfc5e5b559d04e5c09c7f44c71f76 restored=true"
+      ]
+    }
+  ],
+  "mutantNotes": "M5 (the record rewrite fold skipping the adoption) does not apply: the record rewrite is unchanged. Each mutant was applied to the file, the affected row run live (M1 and M4 with the hold absent and MACHINE_IDLE, U89_LOG_SIZES=50,1000), then the saved copy restored and its sha256 compared with the pre-mutant sha256 (restored=true in every log).",
+  "gates": [
+    {
+      "command": "npx jest src/lib/multiplayer/server src/lib/campaign (hold absent, MACHINE_IDLE before)",
+      "exitCode": 0,
+      "lastLine": "Tests:       4192 passed, 4192 total (Test Suites: 372 passed, 372 total)"
+    },
+    {
+      "command": "npx tsc --noEmit",
+      "exitCode": 0,
+      "lastLine": "(no output)"
+    },
+    {
+      "command": "npx oxlint",
+      "exitCode": 0,
+      "lastLine": "Found 84 warnings and 0 errors. (84 = the reference count)"
+    },
+    {
+      "command": "npx oxfmt --check <the 8 product files and 4 test files>",
+      "exitCode": 0,
+      "lastLine": "All matched files use the correct format."
+    },
+    {
+      "command": "npm run --silent lint:units",
+      "exitCode": 0,
+      "lastLine": "LINT_UNITS_PASS 17899/17899 (src-tests files=3216 findings=17783 ceiling=17783 PASS)"
+    },
+    {
+      "command": "npx oxlint --config scripts/qc/oxlint-units.json --no-ignore <the 12 changed files>",
+      "exitCode": 0,
+      "lastLine": "Found 0 warnings and 0 errors."
+    },
+    {
+      "command": "npm run --silent qc:openspec-ci:validate",
+      "exitCode": 0,
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0"
+    },
+    {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows"
+    }
+  ],
+  "testFileChangesAfterRed": "campaignHostIntentServerTime.test-helpers.ts changed only by npx oxfmt after the red runs (sha256 6ca7b4b9... at red, f5109095... now); projectCampaignStreamForGrant.position.test.ts lost the one token assertion noted above. The baseline-blobs run above used the current test files and still fails the U98 row with every step growing.",
+  "risksForTheParent": [
+    "Concurrency (review class): the kept position is written only from a returned page by the one projection the session runs at a time, and used only in its own epoch; a position that skipped a row would show that guest a stale campaign until a rejoin. Pinned by the equivalence row (4 cases) and the position row; M1, M2, M3, M6, M7 killed.",
+    "The first wake of every session and the first ingest of every replica store instance (one per bound socket) still read the whole stream once; so do the join hydration and readReplicaState/lastCursor at a rejoin.",
+    "The replica head is a lower bound on an append-only stream; two store instances appending the same replica stream each read the other's rows on their next ingest, and expectedRevision still refuses a stale append.",
+    "The position lives in a module-private WeakMap keyed by the token; a token from another process or module instance simply finds nothing and the projection reads from the start.",
+    "Timing rows are machine-sensitive and machine-idle.mjs does not see another lane's jest (FN-u86-machine-idle-blind-to-jest)."
+  ],
+  "findings": [
+    {
+      "id": "FN-u98-put-route-grows-outside-adoption",
+      "class": "performance, outside ownership",
+      "summary": "The host PUT through the item route still grows 10.307 -> 90.849 ms at 50 -> 1000 events after this change while adoptSavedCheckpoint inside it is flat (2.926 -> 4.607 ms); the remaining growth is in src/pages route work outside the adoption, not measured by step here.",
+      "recommendedSuccessor": "a unit owning the item route that times its steps with this harness"
+    },
+    {
+      "id": "FN-u98-record-rewrite-flat-by-floor",
+      "class": "performance, small",
+      "summary": "rewriteCampaignRecordAfterCommand still replays the whole stream (0.399 -> 2.029 ms at 50 -> 1000), flat by the 5 ms floor; left unchanged because the record is lossy and cannot be the base of a fold.",
+      "recommendedSuccessor": "none now"
+    }
+  ],
+  "nonClaims": [
+    "No browser, Playwright, build or standalone server run: timings are in-process jest on real SQLite (temp file) on this machine.",
+    "5000 events not measured (1000 was conclusive: after the change every asserted step 1000-event run median was at or under 7.4 ms and within the rule in 5 of 5 runs; on the baseline all five grew in 5 of 5 runs).",
+    "The mode-2 stall of the UAT diagnosis was not reproduced or explained.",
+    "The performance pack (E2E-71/72/73) was not run.",
+    "No claim about the in-memory (flag-off) host store path beyond the unchanged getEvents(fromSeq) contract it already had; the rows run the journal-native store.",
+    "machine-idle.mjs does not see another lane's jest; idle was held as the script reports it.",
+    "Nothing committed, pushed or stashed (the two stash entries listed by git stash list predate this lane)."
+  ]
+}
