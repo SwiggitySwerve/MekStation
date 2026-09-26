@@ -1,0 +1,307 @@
+{
+  "unit": "U39",
+  "stage": "local",
+  "at": "2026-09-26T05:54:05.289Z",
+  "baseline": "4d4287fe8d5fe217461cfd45307887df76d316cb",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u39",
+  "branch": "roadmap-u39-main-proof-shell-free-20260925",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "status": "ready",
+  "changedFiles": {
+    "scripts/qc/roadmap-main-proof.mjs": {
+      "kind": "product",
+      "added": 139,
+      "deleted": 30,
+      "sha256": "d3254537bc1b2ab62d28ac0422853555c697fc07e4f0f9fa213449dcc79e7e61"
+    },
+    "scripts/qc/validate-exact-main-regression-ladder.mjs": {
+      "kind": "product",
+      "added": 55,
+      "deleted": 29,
+      "sha256": "b3edffa0cf69473e85387ae8bf6acb860eff721ff483cb7daa637ead794f52f9"
+    },
+    "scripts/__tests__/roadmap-loop-closure-proof.test.ts": {
+      "kind": "test",
+      "added": 290,
+      "deleted": 3,
+      "sha256": "042e7be3d37c82d60923e04c0df3d0e94b1917e8be1edd3a20253d826b84e13c"
+    },
+    "scripts/__tests__/validate-exact-main-regression-ladder.test.ts": {
+      "kind": "test",
+      "added": 86,
+      "deleted": 11,
+      "sha256": "454a00eecc9eb26ee08c3a49ede81200a5bb8e678989858faef71dcda88f2993"
+    },
+    "scripts/__tests__/roadmap-loop-scripts.test.ts": {
+      "kind": "test",
+      "added": 12,
+      "deleted": 1,
+      "sha256": "46681522b086c2ca9c7d58a3e87e81e3389d6ee11019f6d95d53756d1a009e76"
+    }
+  },
+  "lineCounts": {
+    "source": "git diff --numstat against the baseline, after oxfmt",
+    "product": {
+      "added": 194,
+      "deleted": 59,
+      "changed": 253,
+      "cap": 500
+    },
+    "test": {
+      "added": 388,
+      "deleted": 15,
+      "changed": 403,
+      "countsTowardCap": false
+    },
+    "files": {
+      "source": 5,
+      "receipts": 3,
+      "total": 8,
+      "cap": 15
+    }
+  },
+  "behaviorDelivered": {
+    "spawnSeam": "roadmap-main-proof.mjs exports spawnStep(argv, { cwd, env }) (no shell option) and resolveArgv (node -> process.execPath; npm/npx -> process.execPath + npm-cli.js/npx-cli.js); execute() and the dirty-check go through it; no step names a .cmd launcher",
+    "runtimeJest": "--runtime-jest -> ['node', 'node_modules/jest/bin/jest.js', <pattern>]; qc-pin uses the same entry point and tsc uses node_modules/typescript/bin/tsc",
+    "runtimeCommand": "--runtime-command is split on whitespace into an argv; quotes/shell operators (\" ' ` | & ; < >) or an empty value are refused RUNTIME_COMMAND_NOT_ARGV before anything runs; \"node <file>\" works unchanged",
+    "exactMainLadderStep": "new step 'exact-main-ladder' after the runtime step: node scripts/qc/validate-exact-main-regression-ladder.mjs --sha <merge> --rerun, NODE_ENV=production; its own exact-main-ladder.log, hashed by the sha256 step",
+    "parseRunnerOutput": "rejects two or more summary blocks (a token that does not come strictly after the previous one in generateSummaryMessage's order) and any column-0 <group>: line; a rejected row is 0/0 with rejected: 'two-summary-blocks' | 'column-0-group-line', and runGroup archives that reason",
+    "exports": "ladder, runLadder, spawnStep and resolveArgv are exported; runCli runs only when the file is the entry script",
+    "riders": [
+      "closure-proof fold failures throw with exit status, stderr and stdout",
+      "both loop pins mkdtemp 'temp-u17-pin-' under openspec/planning (covered by .gitignore:92 temp-*), each with a git check-ignore case",
+      "validate-exact-main-regression-ladder.test.ts:49-51 comment corrected (oxfmt 0.28.0 leaves a \\u sequence as written)"
+    ]
+  },
+  "gates": [
+    {
+      "gate": "node node_modules/jest/bin/jest.js scripts (after MACHINE_IDLE)",
+      "exit": 0,
+      "totals": "Test Suites: 80 passed, 80 total / Tests:       10 skipped, 1252 passed, 1262 total",
+      "lastLine": "Ran all test suites matching /scripts/i."
+    },
+    {
+      "gate": "node node_modules/jest/bin/jest.js src/__tests__/unit/evidence (after MACHINE_IDLE)",
+      "exit": 0,
+      "totals": "Test Suites: 2 passed, 2 total / Tests:       18 passed, 18 total",
+      "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\unit\\\\evidence/i."
+    },
+    {
+      "gate": "node node_modules/typescript/bin/tsc --noEmit",
+      "exit": 0,
+      "lastLine": "(no output)"
+    },
+    {
+      "gate": "node node_modules/oxlint/bin/oxlint",
+      "exit": 0,
+      "lastLine": "Found 84 warnings and 0 errors. / Finished in 1.3s on 3819 files using 16 threads.",
+      "warningsVsBaseline": "84 vs 84; none in the changed files"
+    },
+    {
+      "gate": "node node_modules/oxfmt/bin/oxfmt --check <the 5 changed files>",
+      "exit": 0,
+      "lastLine": "All matched files use the correct format. / Finished in 63ms on 5 files using 16 threads."
+    },
+    {
+      "gate": "npm run --silent lint:units",
+      "exit": 0,
+      "lastLine": "LINT_UNITS_PASS 100/100"
+    },
+    {
+      "gate": "npm run --silent qc:openspec-ci:validate",
+      "exit": 0,
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0"
+    },
+    {
+      "gate": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exit": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows"
+    },
+    {
+      "gate": "validate-roadmap.mjs --next",
+      "exit": 0,
+      "lastLine": "U87"
+    },
+    {
+      "gate": "focused: jest scripts/__tests__/validate-exact-main-regression-ladder.test.ts",
+      "exit": 0,
+      "totals": "Tests:       44 passed, 44 total"
+    },
+    {
+      "gate": "focused: jest scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+      "exit": 0,
+      "totals": "Tests:       29 passed, 29 total"
+    },
+    {
+      "gate": "focused: jest scripts/__tests__/roadmap-loop-scripts.test.ts",
+      "exit": 0,
+      "totals": "Tests:       14 passed, 14 total"
+    },
+    {
+      "gate": "npm run --silent roadmap:main-proof -- --merge <worktree HEAD> --unit U39 --date 20260925 --runtime-jest a|b --dry-run (entry-guard check under npm)",
+      "exit": 1,
+      "lastLine": "TREE_DIRTY: the tree is dirty: 7 entries; the proof must run on the merge commit alone",
+      "note": "expected refusal: shows the CLI still runs when started through npm after the import guard; nothing was executed"
+    }
+  ],
+  "npxNote": "the charter spells jest/tsc/oxlint/oxfmt through npx; the node_modules guard refused (exit 1, INSTALL_REFUSED node-modules-is-link), so each ran as node <package bin> from the junctioned node_modules, which is the same entry point npx would have resolved",
+  "rowTable": [
+    {
+      "row": "R1 --runtime-jest regex dry-run",
+      "before": "FAIL: 'DRY-RUN playwright: npx.cmd jest a|(b)&c'",
+      "after": "PASS: 'DRY-RUN playwright: node node_modules/jest/bin/jest.js a|(b)&c'"
+    },
+    {
+      "row": "R1 resolveArgv never yields .cmd",
+      "before": "FAIL: tool.resolveArgv is not a function",
+      "after": "PASS"
+    },
+    {
+      "row": "R2 fake-step end-to-end pin (per-step logs, marker scan, sha256.txt, dirty count)",
+      "before": "FAIL: tool.ladder is not a function (import ran the CLI: INVALID_ARGUMENT: --merge is required)",
+      "after": "PASS: 13 logs incl. exact-main-ladder.log, playwright argv ['node','node_modules/jest/bin/jest.js','a|(b)&c'] verbatim, marker line in build.log, every sha256.txt digest matches, 'status: 1 dirty lines'"
+    },
+    {
+      "row": "R2b exact-main-ladder step in the ladder",
+      "before": "FAIL: no such step",
+      "after": "PASS: after playwright, before sha256, --sha <merge> --rerun, NODE_ENV=production"
+    },
+    {
+      "row": "R2c --runtime-command argv + 5 refusals",
+      "before": "FAIL x6 (printed the raw string; every shell-shaped value exited 0)",
+      "after": "PASS x6"
+    },
+    {
+      "row": "R3 two-block rerun fixture",
+      "before": "FAIL: archived smoke 5/0; probe: EXACT_MAIN_LADDER_SATISFIED (exit 0)",
+      "after": "PASS: archived 0/0 rejected 'two-summary-blocks', EXACT_MAIN_LADDER_MISSING, exit 1"
+    },
+    {
+      "row": "R3 column-0 group line (rerun + 2 reader rows) and 2 more two-block reader rows",
+      "before": "FAIL x5",
+      "after": "PASS x5"
+    },
+    {
+      "row": "R4 fold failure print",
+      "before": "demo: only 'Expected: 0 / Received: 1'",
+      "after": "demo: 'fold exited 1 / stderr: INVALID_ARGUMENT: unknown flag --red-demo-unknown-flag / stdout:' (file restored, sha256 042e7be3... before and after)"
+    },
+    {
+      "row": "R5 temp ledger prefix git-ignored",
+      "before": "git check-ignore openspec/planning/u17-pin-AbC123 exit 1",
+      "after": "both pins use temp-u17-pin-; 'sits under a name git ignores' PASS in both suites (.gitignore:92:temp-*)"
+    },
+    {
+      "row": "R6 comment at ladder test :49-51",
+      "before": "false claim (oxfmt probe: \\u sequence byte-identical after formatting)",
+      "after": "corrected"
+    }
+  ],
+  "adjustedExistingCases": [
+    "ladder test 'waits for idle, runs the missing group, and archives the result': fake runner now prints the bare summary '  1 passed (0.4s)' (a labelled smoke: line is rejected since U39)",
+    "ladder reader rows 'a labelled line still wins' and 'repeated summaries add up' replaced by rejection rows (the sentence reverses both)",
+    "closure-proof dry-run 'prints the jest ladder': expects the jest.js argv and no '.cmd' in the dry-run"
+  ],
+  "mutants": [
+    {
+      "id": "M1",
+      "what": "--runtime-jest back through npx",
+      "file": "scripts/qc/roadmap-main-proof.mjs",
+      "suite": "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+      "jestExit": 1,
+      "totals": "Tests:       3 failed, 26 passed, 29 total",
+      "caughtBy": [
+        "roadmap-main-proof --dry-run › prints the jest ladder without running anything",
+        "roadmap-main-proof --dry-run › hands a --runtime-jest regex to jest.js verbatim",
+        "roadmap-main-proof execution branch with fake steps › writes a log per step, scans the marker, hashes the logs and counts the dirty tree"
+      ],
+      "preMutantSha256": "d3254537bc1b2ab62d28ac0422853555c697fc07e4f0f9fa213449dcc79e7e61",
+      "mutatedSha256": "14cc70a117383e2f5c2d9331cf2faa701e4bdacb4b204d63b5055992884eecd2",
+      "restoredSha256": "d3254537bc1b2ab62d28ac0422853555c697fc07e4f0f9fa213449dcc79e7e61",
+      "restored": true
+    },
+    {
+      "id": "M2",
+      "what": "parseRunnerOutput accepting two summary blocks again",
+      "file": "scripts/qc/validate-exact-main-regression-ladder.mjs",
+      "suite": "scripts/__tests__/validate-exact-main-regression-ladder.test.ts",
+      "jestExit": 1,
+      "totals": "Tests:       3 failed, 41 passed, 44 total",
+      "caughtBy": [
+        "exact-main regression ladder rerun reads the real runner › archives 0/0 as rejected and stays MISSING on two summary blocks",
+        "exact-main regression ladder runner output reader › rejects a repeated passed summary",
+        "exact-main regression ladder runner output reader › rejects a second block that starts again at failed"
+      ],
+      "preMutantSha256": "b3edffa0cf69473e85387ae8bf6acb860eff721ff483cb7daa637ead794f52f9",
+      "mutatedSha256": "6179e9f7053e79fd43ada909783ab6b05470edbae3b6b45a64dbc5e33c25dd02",
+      "restoredSha256": "b3edffa0cf69473e85387ae8bf6acb860eff721ff483cb7daa637ead794f52f9",
+      "restored": true
+    },
+    {
+      "id": "M3",
+      "what": "the exact-main-ladder step skipped",
+      "file": "scripts/qc/roadmap-main-proof.mjs",
+      "suite": "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+      "jestExit": 1,
+      "totals": "Tests:       2 failed, 27 passed, 29 total",
+      "caughtBy": [
+        "roadmap-main-proof --dry-run › reruns the highest registered rung on the merge commit after the runtime proof",
+        "roadmap-main-proof execution branch with fake steps › writes a log per step, scans the marker, hashes the logs and counts the dirty tree"
+      ],
+      "preMutantSha256": "d3254537bc1b2ab62d28ac0422853555c697fc07e4f0f9fa213449dcc79e7e61",
+      "mutatedSha256": "ba4e075da021849ce9963473ad9695eff9110da9c98418507184bdc1d4f77066",
+      "restoredSha256": "d3254537bc1b2ab62d28ac0422853555c697fc07e4f0f9fa213449dcc79e7e61",
+      "restored": true
+    },
+    {
+      "id": "M4",
+      "what": "parseRunnerOutput accepting a column-0 <group>: line again",
+      "file": "scripts/qc/validate-exact-main-regression-ladder.mjs",
+      "suite": "scripts/__tests__/validate-exact-main-regression-ladder.test.ts",
+      "jestExit": 1,
+      "totals": "Tests:       3 failed, 41 passed, 44 total",
+      "caughtBy": [
+        "exact-main regression ladder rerun reads the real runner › archives 0/0 as rejected and stays MISSING on a column-0 group line",
+        "exact-main regression ladder runner output reader › rejects a labelled line for the group",
+        "exact-main regression ladder runner output reader › rejects a labelled line for another group"
+      ],
+      "preMutantSha256": "b3edffa0cf69473e85387ae8bf6acb860eff721ff483cb7daa637ead794f52f9",
+      "mutatedSha256": "01aa7dd4cf2ca9e69d7171ed39e5a49b72472ab861bee5442f56988b2f575a19",
+      "restoredSha256": "b3edffa0cf69473e85387ae8bf6acb860eff721ff483cb7daa637ead794f52f9",
+      "restored": true
+    }
+  ],
+  "nonClaims": [
+    "No real main proof was run: the tool never ran against a real merge commit; the execution branch is proven only with fake steps in a throwaway repository and the dry-run pins.",
+    "The exact-main-ladder step was never run for real: no Playwright run, no smoke rerun, no port or server check; its argv and log/hash recording are pinned, its runtime cost is the U9 figure quoted in the admission, not a new measurement.",
+    "npm's own script execution is outside the seam: build (a package script chain) and openspec-strict (npx resolving the global openspec bin) still pass through npm's script shell inside npm; their argv are fixed literals, and no caller-provided text reaches them.",
+    "resolveArgv's POSIX candidate (../lib/node_modules/npm/bin) was not exercised on a POSIX machine; only the Windows layout was measured here.",
+    "The tool exit code still does not follow step exits (unchanged by design, see admission failsClosed)."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "FN-u39-sha256-before-restore-next-env",
+      "text": "The sha256 step runs before restore-next-env, so on a fresh log directory restore-next-env.log is never hashed, and sha256.txt hashes every .log present, including logs a previous attempt left in the same directory: u37-main-proof-20260925/sha256.txt lists restore-next-env.log (f891db..., the same bytes as tsc.log), which one run of the ladder in its own order does not write before the sha256 step (INFERENCE: an earlier attempt in the same directory left it). The fake-step pin asserts every listed digest and the step logs before sha256, not the absence of restore-next-env."
+    },
+    {
+      "id": "FN-u39-rerun-skips-when-archive-satisfied",
+      "text": "runExactMainLadder --rerun returns SATISFIED without rerunning when the evidence or archive dir already covers the sha, so a second proof attempt on the same merge commit reuses the first attempt's smoke run instead of rerunning it."
+    },
+    {
+      "id": "FN-u39-empty-runtime-jest-refused-as-command",
+      "text": "An empty --runtime-jest '' passes the exactly-one check but is falsy, so it falls through to the --runtime-command branch and is refused RUNTIME_COMMAND_NOT_ARGV (fails closed, with a message naming the wrong flag)."
+    }
+  ],
+  "evidenceLogs": {
+    "location": "lane scratchpad (outside the repository)",
+    "sha256": {
+      "gate-jest-scripts.log": "70faa8419f7fc5bbcd7374cd759eecdc37eab0e632cd19396ba80a79191140c8",
+      "gate-jest-evidence.log": "da6ef870399596d923fb2a6c9e289a67857dfcd261c1ab21b7184ea6585b03f0",
+      "gate-oxlint.log": "60c0b116942e3a6351687a0f8a96fdf230320051773554e41b5090c333d3e440",
+      "gate-oxfmt.log": "907837cf98b59caf80e9f5b569b03b46fa6b1bdf9388ba5aebd5b633c71d467e",
+      "gate-lint-units.log": "223995a0c85737aa99ff949d8cda78b6ad8a391a5eed4213e193a72ccbc5ff2f",
+      "gate-qc-openspec-ci.log": "21c1181842878b6c171cc9f496ad0f18fdaf7636c2d91ecc439a1da7b51589e6",
+      "gate-validator.log": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc"
+    }
+  }
+}
