@@ -1,0 +1,551 @@
+{
+  "unit": "U21b",
+  "stage": "local",
+  "at": "2026-09-25T23:42:09.950Z",
+  "status": "ready",
+  "baseline": "bd6bfe779036631bf63b0e84b748a7bfd6e122b6",
+  "headAtLocal": "bd6bfe779036631bf63b0e84b748a7bfd6e122b6 + uncommitted working tree (the parent commits)",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u21b",
+  "branch": "roadmap-u21b-viewer-lineage-head-20260925",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "change": {
+    "lineage": "IViewerHistoryLineageStores gains readEffectiveStreamHead(stream); projectEffectiveHead answers null before any journal read when the stored effective head is null, otherwise { branchId, revision } of that journal head and generation from the stored effective head (ViewerHistoryLineage.ts). createViewerHistoryLineageStores builds one SQLiteEventHistoryBranchStore on the API SQLite handle and wires readEffectiveStreamHead(db, branches, stream) (matchHistoryViewerChain.ts).",
+    "staleComments": "F1 GmCombatRewindPreview.ts (the mirror writes nothing at mode off), F2 MatchRecoveryJournalHead.ts (live-path events read from the match store via store.getEvents; the rewound stream folded from the journal by tryFoldActivatedRewindBranch), F5 ServerMatchHost.rewindRebuild.test.ts (the diff prints only the kind key), F6 campaignLaunchHeadRoute.test.ts (the journal holds no event for it).",
+    "closeRouteRow": "new MatchHostRegistry.closeRoute.test.ts (one row).",
+    "testRowsChangedByTheBehavior": [
+      "ViewerHistoryLineage.test.ts \"root-only stream answers effectiveHead and zero transitions\": expected revision 0 (root cutoff) -> 4 (the root journal head seedRoot plants; what GET /head answers).",
+      "ViewerHistoryLineage.test.ts \"GM projection lists the activation reason and invalidated artifacts\": plants candidate-1 journal head at its base (as seedCandidateJournalHead does in production, EventHistoryCandidateBuild.ts:265-279); asserted value unchanged (revision BASE_REVISION = 2). Without the planted row the new code answered revision 0 for this row (observed in this session on the first run after the product edit; that log was overwritten by the next run and is not retained)."
+    ],
+    "formatting": "oxfmt reordered one import in ViewerHistoryLineage.ts and one in MatchHostRegistry.closeRoute.test.ts; every gate and mutant below was re-run on the formatted (final) tree"
+  },
+  "scope": {
+    "ownershipPaths": [
+      "src/lib/multiplayer/server",
+      "src/pages-modules/api"
+    ],
+    "outsideOwnershipEdited": [],
+    "readOnlyImports": [
+      "src/pages/api/multiplayer/matches/[id].ts (loaded by the close-route row)",
+      "src/lib/events/journal/EventHistoryEffectiveStreamHead.ts"
+    ]
+  },
+  "lineCounts": [
+    {
+      "file": "src/lib/multiplayer/server/MatchRecoveryJournalHead.ts",
+      "added": 6,
+      "deleted": 4,
+      "category": "product"
+    },
+    {
+      "file": "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindRebuild.test.ts",
+      "added": 1,
+      "deleted": 1,
+      "category": "test"
+    },
+    {
+      "file": "src/lib/multiplayer/server/history/GmCombatRewindPreview.ts",
+      "added": 7,
+      "deleted": 5,
+      "category": "product"
+    },
+    {
+      "file": "src/lib/multiplayer/server/history/ViewerHistoryLineage.ts",
+      "added": 28,
+      "deleted": 9,
+      "category": "product"
+    },
+    {
+      "file": "src/lib/multiplayer/server/history/__tests__/ViewerHistoryLineage.test.ts",
+      "added": 68,
+      "deleted": 6,
+      "category": "test"
+    },
+    {
+      "file": "src/pages-modules/api/__tests__/campaignLaunchHeadRoute.test.ts",
+      "added": 4,
+      "deleted": 1,
+      "category": "test"
+    },
+    {
+      "file": "src/pages-modules/api/__tests__/matchHeadRoute.test.ts",
+      "added": 38,
+      "deleted": 0,
+      "category": "test"
+    },
+    {
+      "file": "src/pages-modules/api/matchHistoryViewerChain.ts",
+      "added": 9,
+      "deleted": 3,
+      "category": "product"
+    },
+    {
+      "file": "src/lib/multiplayer/server/__tests__/MatchHostRegistry.closeRoute.test.ts",
+      "added": 174,
+      "deleted": 0,
+      "category": "test",
+      "new": true
+    }
+  ],
+  "lineCountTotals": {
+    "files": 9,
+    "productFiles": 4,
+    "testFiles": 5,
+    "productAdded": 50,
+    "productDeleted": 21,
+    "productChanged": 71,
+    "testAdded": 285,
+    "testDeleted": 8,
+    "caps": {
+      "maxFiles": 15,
+      "maxNonGeneratedProductLines": 500
+    },
+    "withinCaps": true
+  },
+  "gates": [
+    {
+      "name": "jest multiplayer/server",
+      "command": "npx jest src/lib/multiplayer/server",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\server/i.",
+      "counts": [
+        "Test Suites: 161 passed, 161 total",
+        "Tests:       1180 passed, 1180 total"
+      ],
+      "idle": "MACHINE_IDLE",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21b/logs/final/gate-jest-multiplayer-server.log",
+        "sha256": "30f5bb3d170bd65b8e509df8864017e9951ffbe159e72c08a641e9ea6e25de07"
+      }
+    },
+    {
+      "name": "jest pages-modules/api",
+      "command": "npx jest src/pages-modules/api",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\pages-modules\\\\api/i.",
+      "counts": [
+        "Test Suites: 8 passed, 8 total",
+        "Tests:       63 passed, 63 total"
+      ],
+      "idle": "MACHINE_IDLE",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21b/logs/final/gate-jest-pages-modules-api.log",
+        "sha256": "751d34248ad7494c2e730380cdfab551300d0fd08586107fba23cc8ee48e36f6"
+      }
+    },
+    {
+      "name": "jest __tests__/api/matches (read-only path)",
+      "command": "npx jest src/__tests__/api/matches",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api\\\\matches/i.",
+      "counts": [
+        "Test Suites: 3 passed, 3 total",
+        "Tests:       47 passed, 47 total"
+      ],
+      "idle": "MACHINE_IDLE",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21b/logs/final/gate-jest-tests-api-matches.log",
+        "sha256": "94f83647bfac28742db790b7f73a856fbfea9bc0837b80ff8333d9c1049d7db1"
+      }
+    },
+    {
+      "name": "jest events/journal (read-only path)",
+      "command": "npx jest src/lib/events/journal",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\events\\\\journal/i.",
+      "counts": [
+        "Test Suites: 23 passed, 23 total",
+        "Tests:       243 passed, 243 total"
+      ],
+      "idle": "MACHINE_IDLE",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21b/logs/final/gate-jest-events-journal.log",
+        "sha256": "74c00250d428dc529e2c3cbd7b2acdf18495c42d28fb23bb1eaf50656b38596f"
+      }
+    },
+    {
+      "name": "tsc",
+      "command": "npx tsc --noEmit",
+      "exitCode": 0,
+      "lastLine": "(no output; 0 lines)",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21b/logs/final/gate-tsc.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "oxlint",
+      "command": "npx oxlint",
+      "exitCode": 0,
+      "lastLine": "Finished in 300ms on 3819 files using 16 threads.",
+      "warnings": 84,
+      "errors": 0,
+      "versus84": "equal (84)",
+      "changedFilesInOutput": "none",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21b/logs/final/gate-oxlint.log",
+        "sha256": "75deb2cbaddbe8cf4fba1fca379308000d47f49d05bc32e9ba9540b7902403b7"
+      }
+    },
+    {
+      "name": "oxfmt",
+      "command": "npx oxfmt --check <the 9 changed files>",
+      "exitCode": 0,
+      "lastLine": "Finished in 45ms on 9 files using 16 threads.",
+      "secondToLast": "All matched files use the correct format.",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21b/logs/final/gate-oxfmt.log",
+        "sha256": "996c2df520268d61f7896f8c78d010b56ec7e09d81c13d35459e4dc366a4a5cf"
+      }
+    },
+    {
+      "name": "lint:units",
+      "command": "npm run lint:units",
+      "exitCode": 0,
+      "lastLine": "LINT_UNITS_PASS 100/100",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21b/logs/final/gate-lint-units.log",
+        "sha256": "e055631f9348b2e6539c922dddc1fe388b583448a734da5f618cb47c583fae2d"
+      }
+    },
+    {
+      "name": "openspec ci",
+      "command": "npm run qc:openspec-ci:validate",
+      "exitCode": 0,
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21b/logs/final/gate-openspec.log",
+        "sha256": "4c2dafd093b946290aa4abe001ad8b3d65671b17c7682722c55a510ecc04f91e"
+      }
+    },
+    {
+      "name": "roadmap validator",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21b/logs/final/gate-roadmap.log",
+        "sha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc"
+      }
+    }
+  ],
+  "gatesTakenOn": "final tree (after oxfmt); lint:units, openspec ci and the roadmap validator were taken after the format write too (their logs copied into logs/final)",
+  "focusedSuitesFinal": {
+    "lineage": {
+      "command": "npx jest src/lib/multiplayer/server/history/__tests__/ViewerHistoryLineage.test.ts --verbose",
+      "exitCode": 0,
+      "rows": [
+        "√ root-only stream answers effectiveHead and zero transitions",
+        "√ answers the journal head GET /head answers, not the branch cutoff (clause c)",
+        "√ store answering null does not invent an effective head",
+        "√ GM projection lists the activation reason and invalidated artifacts",
+        "√ PLAYER projection omits the reason key and GM-only artifact annotation",
+        "√ superseded-then-superseded chain lists two transitions in order"
+      ],
+      "counts": [
+        "Test Suites: 1 passed, 1 total",
+        "Tests:       6 passed, 6 total"
+      ],
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21b/logs/final/green-lineage.log",
+        "sha256": "25910aa951c871a2789c457bafbbe36a220a97d1858bf85531a929be469a540f"
+      }
+    },
+    "headRoute": {
+      "command": "npx jest src/pages-modules/api/__tests__/matchHeadRoute.test.ts --verbose",
+      "exitCode": 0,
+      "rows": [
+        "√ publishes a handler at the Pages Router head entrypoint",
+        "√ gives the host exactly the effective head the lease compares",
+        "√ the lineage names the head GET /head names once the branch runs past its base",
+        "√ refuses player and stranger identically (head present: false)",
+        "√ refuses player and stranger identically (head present: true)",
+        "√ requires a bearer",
+        "√ requires a bearer scoped to this match",
+        "√ refuses POST before reading a bearer",
+        "√ rejects a missing match id",
+        "√ answers an unknown match with the private-preview 404 body",
+        "√ answers no head without inventing a genesis digest",
+        "√ answers no head when the effective branch has no journal head row"
+      ],
+      "counts": [
+        "Test Suites: 1 passed, 1 total",
+        "Tests:       12 passed, 12 total"
+      ],
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21b/logs/final/green-head-route.log",
+        "sha256": "7af03bea718e3550309948027fc44177060b6eaa28f59961d5ba61204a96de17"
+      }
+    },
+    "closeRoute": {
+      "command": "npx jest src/lib/multiplayer/server/__tests__/MatchHostRegistry.closeRoute.test.ts --verbose",
+      "exitCode": 0,
+      "rows": [
+        "√ closes the host the socket graph started and disconnects its sockets"
+      ],
+      "counts": [
+        "Test Suites: 1 passed, 1 total",
+        "Tests:       1 passed, 1 total"
+      ],
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21b/logs/final/green-close-route.log",
+        "sha256": "c91855842ebe1f0b01ae436544f8ccc18ca41168ca131e55914036ffacbe9678"
+      }
+    }
+  },
+  "rowTable": [
+    {
+      "row": "ViewerHistoryLineage > answers the journal head GET /head answers, not the branch cutoff (clause c)",
+      "before": "FAIL on baseline product (revision 2 received, 3 expected; evidence/u21b-red-20260925.json row1)",
+      "after": "PASS",
+      "mutants": "M1 FAIL"
+    },
+    {
+      "row": "GET /api/matches/:id/head > the lineage names the head GET /head names once the branch runs past its base",
+      "before": "FAIL on baseline product (revision 2 received, 3 expected; red row2)",
+      "after": "PASS",
+      "mutants": "M1, M2a, M2b FAIL"
+    },
+    {
+      "row": "DELETE /api/multiplayer/matches/[id] against a live host > closes the host the socket graph started and disconnects its sockets",
+      "before": "PASS on baseline (U22a shipped the slot); FAIL under the module-local registry mutant (red row3)",
+      "after": "PASS",
+      "mutants": "M3 FAIL"
+    },
+    {
+      "row": "ViewerHistoryLineage > root-only stream answers effectiveHead and zero transitions",
+      "before": "PASS on baseline as written then (asserted revision 0, the cutoff); the edited row (asserts 4) FAILs under M1, which restores the baseline formula",
+      "after": "PASS (asserts 4)",
+      "mutants": "M1 FAIL"
+    },
+    {
+      "row": "ViewerHistoryLineage > GM projection lists the activation reason and invalidated artifacts",
+      "before": "PASS on baseline; the edited row (planted head at base) PASSes under M1",
+      "after": "PASS",
+      "mutants": "M1 PASS (head at base equals the cutoff)"
+    },
+    {
+      "row": "GET /api/matches/:id/head > gives the host exactly the effective head the lease compares (existing, unedited)",
+      "before": "PASS",
+      "after": "PASS",
+      "mutants": "M2a, M2b FAIL; M1 PASS (head at base)"
+    }
+  ],
+  "mutants": [
+    {
+      "id": "M1",
+      "what": "projectEffectiveHead answers the effective branch's baseRevision cutoff again (the baseline formula)",
+      "file": "src/lib/multiplayer/server/history/ViewerHistoryLineage.ts",
+      "runs": [
+        {
+          "command": "npx jest src/lib/multiplayer/server/history/__tests__/ViewerHistoryLineage.test.ts --verbose",
+          "exitCode": 1,
+          "counts": [
+            "Test Suites: 1 failed, 1 total",
+            "Tests:       2 failed, 4 passed, 6 total"
+          ],
+          "caughtBy": [
+            "× root-only stream answers effectiveHead and zero transitions",
+            "× answers the journal head GET /head answers, not the branch cutoff (clause c)"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21b/logs/mutant-M1-1.log",
+            "sha256": "8967e483e2e6a62d576f5a63afa75e46904f754757bf86549528d941cf968154"
+          }
+        },
+        {
+          "command": "npx jest src/pages-modules/api/__tests__/matchHeadRoute.test.ts --verbose",
+          "exitCode": 1,
+          "counts": [
+            "Test Suites: 1 failed, 1 total",
+            "Tests:       1 failed, 11 passed, 12 total"
+          ],
+          "caughtBy": [
+            "× the lineage names the head GET /head names once the branch runs past its base"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21b/logs/mutant-M1-2.log",
+            "sha256": "bec16cb041578fc3a6eb8d43ee0f0ff37e3bda5ab7b8943c50583ccb55b535fc"
+          }
+        }
+      ],
+      "caught": true,
+      "preMutantSha256": "efda56f46cdfd673923fa017c69388e52b56ae005ff5673b8494bc4b79045b52",
+      "mutantSha256": "c511b06072ce1120abf41bccc25fdfb8e67a038d7b8ba3a8fb434f80d761207f",
+      "restoredSha256": "efda56f46cdfd673923fa017c69388e52b56ae005ff5673b8494bc4b79045b52",
+      "restored": true,
+      "finalFileSha256Now": "efda56f46cdfd673923fa017c69388e52b56ae005ff5673b8494bc4b79045b52",
+      "preMutantMatchesFinal": true,
+      "restoreMethod": "byte copy saved before the mutation, copied back (scratchpad scripts/mutant.mjs)"
+    },
+    {
+      "id": "M2a",
+      "what": "the lineage wiring reads the journal head of a different stream (streamType campaign) than the head route",
+      "file": "src/pages-modules/api/matchHistoryViewerChain.ts",
+      "runs": [
+        {
+          "command": "npx jest src/pages-modules/api/__tests__/matchHeadRoute.test.ts --verbose",
+          "exitCode": 1,
+          "counts": [
+            "Test Suites: 1 failed, 1 total",
+            "Tests:       2 failed, 10 passed, 12 total"
+          ],
+          "caughtBy": [
+            "× gives the host exactly the effective head the lease compares",
+            "× the lineage names the head GET /head names once the branch runs past its base"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21b/logs/mutant-M2a-1.log",
+            "sha256": "698d1315a4dcb5f71a48aa3328ce9178cb7f4aabf30c96ce6a0cfbcbff7f2f6f"
+          }
+        }
+      ],
+      "caught": true,
+      "preMutantSha256": "98e2e2a9d25d96a0fbc6df6dbded25e5e6e853a60a563f120fcbf757a0e6209b",
+      "mutantSha256": "3c0ea82a6805f7c11db32e90f934ef7934476bf17f62109cf35dee6da0e1d19f",
+      "restoredSha256": "98e2e2a9d25d96a0fbc6df6dbded25e5e6e853a60a563f120fcbf757a0e6209b",
+      "restored": true,
+      "finalFileSha256Now": "98e2e2a9d25d96a0fbc6df6dbded25e5e6e853a60a563f120fcbf757a0e6209b",
+      "preMutantMatchesFinal": true,
+      "restoreMethod": "byte copy saved before the mutation, copied back (scratchpad scripts/mutant.mjs)"
+    },
+    {
+      "id": "M2b",
+      "what": "the lineage wiring reads the revision of the root branch's stream-head row instead of the effective branch's",
+      "file": "src/pages-modules/api/matchHistoryViewerChain.ts",
+      "runs": [
+        {
+          "command": "npx jest src/pages-modules/api/__tests__/matchHeadRoute.test.ts --verbose",
+          "exitCode": 1,
+          "counts": [
+            "Test Suites: 1 failed, 1 total",
+            "Tests:       2 failed, 10 passed, 12 total"
+          ],
+          "caughtBy": [
+            "× gives the host exactly the effective head the lease compares",
+            "× the lineage names the head GET /head names once the branch runs past its base"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21b/logs/mutant-M2b-1.log",
+            "sha256": "aba2c334bd9c452d76c961fe42e366799c6a0067448646cca038e243914b1275"
+          }
+        }
+      ],
+      "caught": true,
+      "preMutantSha256": "98e2e2a9d25d96a0fbc6df6dbded25e5e6e853a60a563f120fcbf757a0e6209b",
+      "mutantSha256": "76a37f2b2ead6c88f78a3fe483540b4f6fb8902a767a34f4b6bbaa604810e425",
+      "restoredSha256": "98e2e2a9d25d96a0fbc6df6dbded25e5e6e853a60a563f120fcbf757a0e6209b",
+      "restored": true,
+      "finalFileSha256Now": "98e2e2a9d25d96a0fbc6df6dbded25e5e6e853a60a563f120fcbf757a0e6209b",
+      "preMutantMatchesFinal": true,
+      "restoreMethod": "byte copy saved before the mutation, copied back (scratchpad scripts/mutant.mjs)"
+    },
+    {
+      "id": "M3",
+      "what": "the registry slot back to module-local: matchHostRegistrySlot reads a module-level object instead of globalThis",
+      "file": "src/lib/multiplayer/server/MatchHostRegistry.ts",
+      "runs": [
+        {
+          "command": "npx jest src/lib/multiplayer/server/__tests__/MatchHostRegistry.closeRoute.test.ts --verbose",
+          "exitCode": 1,
+          "counts": [
+            "Test Suites: 1 failed, 1 total",
+            "Tests:       1 failed, 1 total"
+          ],
+          "caughtBy": [
+            "× closes the host the socket graph started and disconnects its sockets"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21b/logs/mutant-M3-1.log",
+            "sha256": "cafbf4cd5f4b8851c957b2f45df27a0cdc320b3be57ece67020702c344853be4"
+          }
+        }
+      ],
+      "caught": true,
+      "preMutantSha256": "c2f91cf7cd5ce9fb69ff8eac2afd68e7c93254a193696c214827c2a079085ee7",
+      "mutantSha256": "b31bc3a08bc35845abd9cb1e00e1575b1608a34d80bfd1a228b23f9a9ed4785a",
+      "restoredSha256": "c2f91cf7cd5ce9fb69ff8eac2afd68e7c93254a193696c214827c2a079085ee7",
+      "restored": true,
+      "finalFileSha256Now": "c2f91cf7cd5ce9fb69ff8eac2afd68e7c93254a193696c214827c2a079085ee7",
+      "preMutantMatchesFinal": true,
+      "restoreMethod": "byte copy saved before the mutation, copied back (scratchpad scripts/mutant.mjs)"
+    }
+  ],
+  "mutantsRunLog": {
+    "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21b/logs/final/mutants-run.log",
+    "sha256": "b01150a649b493f1fe04372567acb0db9dff14e9bce61a7c7278ace1153d915c"
+  },
+  "mutantsPreFinalRuns": "the same four mutants were first run before the oxfmt write (logs/prefinal-mutants); same caught rows; superseded by the final-tree runs above",
+  "finalFileHashes": {
+    "src/lib/multiplayer/server/MatchRecoveryJournalHead.ts": "174317447770973770374b677a54e472bed9df51c8f201be652b0acc3c72ebbc",
+    "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindRebuild.test.ts": "107e901394dad78c836d116247a32f4d6c71bd75e082f0123a7b872c41c1f17a",
+    "src/lib/multiplayer/server/history/GmCombatRewindPreview.ts": "2863c1753547a38e1823fecdf61e75e6d1e85881e5c0d07093bc3d7efab44e19",
+    "src/lib/multiplayer/server/history/ViewerHistoryLineage.ts": "efda56f46cdfd673923fa017c69388e52b56ae005ff5673b8494bc4b79045b52",
+    "src/lib/multiplayer/server/history/__tests__/ViewerHistoryLineage.test.ts": "d3ac235480d84c9b4f3c427893ea498eb6cd48661db17b2053badcba448eacb1",
+    "src/pages-modules/api/__tests__/campaignLaunchHeadRoute.test.ts": "a45c20f7950971b82d95ece19c40971068222cf46af9c74555cb595fec7754d8",
+    "src/pages-modules/api/__tests__/matchHeadRoute.test.ts": "abc509c275e65918c968d5a13c71cf417c26bbba8eaf533e81a2f76e3df7f0dd",
+    "src/pages-modules/api/matchHistoryViewerChain.ts": "98e2e2a9d25d96a0fbc6df6dbded25e5e6e853a60a563f120fcbf757a0e6209b",
+    "src/lib/multiplayer/server/__tests__/MatchHostRegistry.closeRoute.test.ts": "9a72f93dcaf6ce20ccb5f71f739d605c2eba93db2a43c0d3fd47ce11602e0c33"
+  },
+  "nonClaims": [
+    "No build and no Playwright run: E2E-42 (gm-two-player-rewind.pack.spec.ts:185-186) and the other e2e lineage readers were checked by reading only.",
+    "The /timeline and /export routes are not called by any new row; both call readMatchHistoryLineage, which the head-route row calls directly.",
+    "The close-route row uses the in-memory match store and a lobby-status match with no units; the durable store and a live socket runtime are not exercised.",
+    "Lineage and journal head are read without a shared transaction; better-sqlite3 reads are synchronous in one call, so no interleaving within one process is claimed or measured across processes.",
+    "The owner ruling (Lane B) on the head semantics is not sought or recorded by this lane."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "F1",
+      "file": "e2e/campaign-journal-two-process-convergence.spec.ts, e2e/helpers/campaignJournalDrive.ts",
+      "finding": "FN-u35d-head-claims-wrong-on-baseline (campaign /head claims) is outside U21b paths and its sentence; not examined beyond the ledger text."
+    },
+    {
+      "id": "F2",
+      "file": "src/lib/multiplayer/server/MatchRecoveryJournalHead.ts:27-28",
+      "finding": "The header still says seeding the mirror at creation 'is owed by task 1.7 (S6)'; ServerMatchHostEvents.ts:105-118 already calls store.seedJournalFromInitialEvents (DurableMatchStore.ts:1066) at creation. Stale comment outside the four this unit names."
+    },
+    {
+      "id": "F3",
+      "file": "src/pages/api/multiplayer/matches/[id].ts:119-127",
+      "finding": "DELETE answers 200 { ok: true } when no host is registered (MatchHostRegistry.closeMatch returns silently); the module-local mutant is visible only through the host, not the status."
+    },
+    {
+      "id": "F4",
+      "file": "src/lib/multiplayer/server/history/ViewerHistoryLineage.ts / EventHistoryEffectiveStreamHead.ts:58-63",
+      "finding": "An effective head whose branch has no stream-head row now projects revision 0; GET /head answers 404 for the same state (matchHeadRoute.ts:68). Reached only by a missing row (the candidate build plants one at the base). Not changed: the sentence does not ask for null."
+    },
+    {
+      "id": "F5",
+      "file": "src/lib/multiplayer/server/history/__tests__/ViewerHistoryLineage.test.ts activate()",
+      "finding": "The fixture creates candidates without the journal head the production candidate build plants; the chain row leases candidate-2 at revision 0 on genesis because of that. Left as is; the GM projection row now plants the head explicitly."
+    },
+    {
+      "id": "F6",
+      "file": "src/lib/multiplayer/server/__tests__/MatchHostRegistry.closeRoute.test.ts",
+      "finding": "Loading the module graph twice under jest.isolateModules prints a Yjs \"already imported\" console.error (from src/lib/p2p/SyncProvider.ts via ServerMatchHost); the row passes; MatchHostRegistry.globalSlot.test.ts loads the same graph the same way."
+    }
+  ],
+  "receipts": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u21b-admission-20260925.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u21b-red-20260925.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u21b-local-20260925.json"
+  ],
+  "finalGitStatusShort": [
+    " M src/lib/multiplayer/server/MatchRecoveryJournalHead.ts",
+    " M src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindRebuild.test.ts",
+    " M src/lib/multiplayer/server/history/GmCombatRewindPreview.ts",
+    " M src/lib/multiplayer/server/history/ViewerHistoryLineage.ts",
+    " M src/lib/multiplayer/server/history/__tests__/ViewerHistoryLineage.test.ts",
+    " M src/pages-modules/api/__tests__/campaignLaunchHeadRoute.test.ts",
+    " M src/pages-modules/api/__tests__/matchHeadRoute.test.ts",
+    " M src/pages-modules/api/matchHistoryViewerChain.ts",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u21b-admission-20260925.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u21b-local-20260925.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u21b-red-20260925.json",
+    "?? src/lib/multiplayer/server/__tests__/MatchHostRegistry.closeRoute.test.ts"
+  ]
+}
