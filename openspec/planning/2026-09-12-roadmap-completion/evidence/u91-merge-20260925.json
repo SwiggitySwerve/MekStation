@@ -1,0 +1,19 @@
+{
+  "unit": "U91",
+  "stage": "merge",
+  "at": "2026-09-26T02:03:18.196Z",
+  "pr": 1961,
+  "title": "docs(openspec): co-op controls spec delta (U91)",
+  "head": "ce8e8acfba644290be4da546d9b95f44fe698079",
+  "mergeSha": "302382026ff55881ed93067216e61c38b204d9b5",
+  "mergedAt": "2026-09-26T01:52:11Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "openspec/changes/harden-gm-two-player-campaign-sessions/proposal.md",
+    "openspec/changes/harden-gm-two-player-campaign-sessions/specs/coop-campaign-sync/spec.md"
+  ],
+  "blobEqualityDiffLines": 0
+}

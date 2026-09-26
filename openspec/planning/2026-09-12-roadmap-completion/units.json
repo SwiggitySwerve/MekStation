@@ -2499,8 +2499,8 @@
         "maxNonGeneratedLines": 500
       },
       "baseline": "bd6bfe779036631bf63b0e84b748a7bfd6e122b6",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "ce8e8acfba644290be4da546d9b95f44fe698079",
+      "mergeSha": "302382026ff55881ed93067216e61c38b204d9b5",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u91-admission-20260925.json",
@@ -2519,13 +2519,34 @@
           "at": "2026-09-25T23:31:56.721Z",
           "summary": "docs only, 24 lines added and 1 deleted across 2 files: the delta gains a MODIFIED requirement Co-op campaign command authority projection whose header is byte-identical to the living one (openspec/specs/coop-campaign-sync/spec.md:488), keeping the two opening sentences verbatim and adding that the host co-op command screen exposes approve and veto per pending proposal and the GM ledger route (/gameplay/campaigns/[id]/gm-ledger, reached from the dashboard GM Ledger tab) exposes preview, manual takeover and GM correction; the host scenario rewritten citing the U36 dead-controls rows as pins, the guest scenario verbatim (diff empty); one sentence added to proposal.md line 38; format precedent adopt-combat-journal-cutover-and-gm-rewind specs/gm-combat-interventions/spec.md:5-8 and :64-76; openspec validate harden-gm-two-player-campaign-sessions --strict: valid; openspec show --deltas-only: 1 MODIFIED entry, 2 scenarios; qc:openspec-ci errors=0; validator PASSED; lint:units 100/100; oxfmt does not cover openspec (.oxfmtignore); no product or test change; implementer claude-opus (Agent model: opus); findings: no test pins the ledger controls for a co-op host, the guest-result requirement at :499-504 stays unmet (U92); status ready"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u91-review-20260925.json",
+          "head": "ce8e8acfba644290be4da546d9b95f44fe698079",
+          "reviewedHead": "ce8e8acfba644290be4da546d9b95f44fe698079",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "claude-opus (Agent model: opus)",
+          "outputSha256": "9334de37791edb0d408c4f0d487530ff849c5a0bff08698ce3492f61221f7c8e",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u91-merge-20260925.json",
+          "pr": 1961,
+          "head": "ce8e8acfba644290be4da546d9b95f44fe698079",
+          "mergeSha": "302382026ff55881ed93067216e61c38b204d9b5"
+        },
+        "mainProof": {
+          "path": "evidence/u91-mainproof-20260925.json",
+          "mergeCommit": "302382026ff55881ed93067216e61c38b204d9b5",
+          "verdict": "PASS",
+          "runtime": "Tests:       199 passed, 199 total"
+        },
+        "tick": {
+          "path": "evidence/u91-tick-20260925.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
-      "state": "local-verified",
+      "state": "complete",
       "id": "U91",
       "node": "R6.umbrella",
       "behavior": "The harden change's coop-campaign-sync delta (openspec/changes/harden-gm-two-player-campaign-sessions/specs/coop-campaign-sync/spec.md) gains a MODIFIED requirement 'Co-op campaign command authority projection' (openspec/specs/coop-campaign-sync/spec.md:488-497): the co-op host command screen SHALL expose approve and veto for each pending proposal; the GM intervention controls (preview, manual takeover, GM correction) SHALL be exposed on the host's GM ledger route, which the co-op dashboard's GM Ledger tab reaches (src/components/campaign/CampaignNavigation.tsx:78, :166-171); the guest scenario is unchanged. The full final requirement text is carried so the archive replaces the header. openspec validate --strict passes; the U36 dead-controls rows (src/components/campaign/coop/__tests__/HostGmReviewSurface.deadControls.test.tsx) stay the pins and are cited in the requirement's scenario. No product file changes (the validator derives the product ci class from the change's path; the unit edits only the delta spec).",
