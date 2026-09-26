@@ -2216,20 +2216,34 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "baseline": null,
+      "baseline": "70f15077ac229eb1e6bac78fe226aac62244f8a3",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u87-admission-20260925.json",
+          "baseline": "70f15077ac229eb1e6bac78fe226aac62244f8a3",
+          "at": "2026-09-25T23:21:28-06:00",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u87-red-20260925.json",
+          "at": "2026-09-25T23:35:23-06:00",
+          "summary": "baseline 70f15077a: lifecycle-pack 3 runs, each 1 failed / 1 passed, row A (E2E-75) failing every time with Expected sealed, Received live, the server log showing GoProne dispatched before the host rejoined (row A waited only for the guest banner, spec:216; row B has the same gap at :339-343 and passed only because driveUntilPosture retries); the held-away probe (host page on about:blank, then GoProne) fails sealed-vs-live as the sentence predicts; a pause-overlay wait never fires (the pause message is sent once when a player drops, never to a later rejoiner: ServerMatchHostReplay.ts:319-351); the customizer audit journey fails at step 2 (the removed Create New Unit heading)"
+        },
+        "local": {
+          "path": "evidence/u87-local-20260925.json",
+          "at": "2026-09-26T05:51:57.874Z",
+          "summary": "2 e2e files, 62 spec lines, 0 product lines: gm-two-player-lifecycle.pack.spec.ts +38 (a waitForRejoin helper polls until the host banner tactical-lifecycle-state reads live and neither page shows match-pause-overlay; rows A and B call it after their reloads); ux-walkthrough-audit.spec.ts +19/-5 (step 2 checks the Add unit dialog and both buttons, step 3 clicks New blank unit and finds the heat-sink field by its label, a second #1634 drift the entry gate did not name); lifecycle-pack 3 of 3 (2 passed each, both players rejoined before GoProne); the customizer journey run alone through run-ux-walkthrough.mjs against the worktree production build: 1 journey, 9 steps, 0 failed; jest qc pin 15; tsc 0; oxlint 84 warnings 0 errors; oxfmt clean; qc:openspec-ci errors=0; validator PASSED; mutants: the wait removed caught live (2 of 2 fail), the journey heading restored caught, the wait checking only the guest survives plain runs and is caught only with the host held away; qc:ux-audit:prod not run (needs the root standalone build; the main proof runs it); implementer claude-opus (Agent model: opus); findings: the pause overlay is not a reliable pause signal after a reload pair, a small unmeasured window between the host banner reading live and the server lifting the pause; status ready"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
         "tick": null
       },
       "ownerGate": null,
-      "state": "planned",
+      "state": "local-verified",
       "id": "U87",
       "node": "R6.umbrella",
       "behavior": "Two e2e rows stop racing or drifting. (1) Lifecycle row A (e2e/gm-two-player-lifecycle.pack.spec.ts, E2E-75) waits after its reloads until both surfaces have rejoined (the host's banner reads live and neither page shows the match-pause overlay) before sending GoProne, and row B's reload pair gets the same wait; red first: row A with the host's page held away across the GoProne reads live, not sealed; green: lifecycle-pack passes 3 of 3 in the root checkout and in a worktree. (2) The UX audit's customizer journey (e2e/ux-walkthrough-audit.spec.ts:314-360) follows the combined 'Add unit' dialog the New Unit button opens since #1634 (create blank or configure new) instead of the removed 'Create New Unit' heading; green: qc:ux-audit:prod reports 10 of 10 journeys.",
@@ -2239,7 +2253,11 @@
       "reviewClasses": [
         "routine"
       ],
-      "source20260925": "planned by the parent from the UAT round 1 entry gate (evidence/uat-round-1-entry-gate-20260925.json) and its diagnosis (F-lifecycle-E2E-75-rowA)"
+      "source20260925": "planned by the parent from the UAT round 1 entry gate (evidence/uat-round-1-entry-gate-20260925.json) and its diagnosis (F-lifecycle-E2E-75-rowA)",
+      "admissionNote20260925": {
+        "at": "2026-09-26T05:53:32.000Z",
+        "note": "--next printed U35i, in flight in its own worktree; U87's path e2e overlapped nothing in flight, so the parent admitted it in parallel. The journey's step 3 also needed the heat-sink field found by its label (a second #1634 drift the entry gate did not name)."
+      }
     },
     {
       "id": "U22a",
@@ -9989,6 +10007,33 @@
       "class": "stale comments (outside the unit's exact edits)",
       "summary": "src/lib/multiplayer/server/handleRoomCodeGuestJoin.ts:268 still says 'the flag-off host'; src/lib/campaign/sync/InMemoryCampaignEventStore.ts:3-9 calls the store dev/test only, though it is also the co-op runtime's host store and the CAMPAIGN_EVENT_STORE=memory rollback store; src/lib/campaign/authority/campaignCreationCheckpoint.ts:208-209 describes a flag-off branch whose only production caller now always passes true.",
       "recommendedSuccessor": "fold into the next units that edit those files (U94, U95, U92 own src/lib/multiplayer/server and src/lib/campaign)",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u87-pause-overlay-not-a-pause-signal-after-rejoin",
+      "foundBy": "U87 implementer lane (claude-opus), 2026-09-25 (measured: the overlay stayed absent 30 s with the host held away)",
+      "at": "2026-09-26T05:53:32.000Z",
+      "class": "player-facing state gap",
+      "summary": "The server sends the pause message once, when a player drops (ServerMatchHostReplay.ts:319-351); a player who rejoins later never receives it, so after a reload pair a player can see no match-pause-overlay while every command they send is refused MATCH_PAUSED (ServerMatchHostIntent.ts:275-283). The lifecycle banner never shows the pause either (NetworkedGameSurface.tsx:234-242).",
+      "recommendedSuccessor": "U50 (a refused or interrupted live session shows what happened): the rejoin replay carries the pause state, or the banner reads paused",
+      "status": "recorded; for U50"
+    },
+    {
+      "id": "FN-u87-rejoin-window-before-pause-lift",
+      "foundBy": "U87 implementer lane (claude-opus), 2026-09-25 (read from the code, not hit in 3 runs)",
+      "at": "2026-09-26T05:53:32.000Z",
+      "class": "residual race (unmeasured)",
+      "summary": "The host's banner reads live one database read before the server lifts the pause; if the guest rejoined after the host dropped, no overlay covers that moment, so waitForRejoin could in principle pass one read early.",
+      "recommendedSuccessor": "measure if lifecycle-pack flakes again; the fix would be a pause-state field in the rejoin replay (U50)",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u87-row-a-fails-3-of-3-in-lane-worktree",
+      "foundBy": "U87 implementer lane (claude-opus), 2026-09-25",
+      "at": "2026-09-26T05:53:32.000Z",
+      "class": "environment sensitivity",
+      "summary": "Row A failed 3 of 3 in the lane's worktree while the entry-gate diagnosis saw it pass 2 of 2 in its own worktree; the race's outcome depends on timing the environment sets.",
+      "recommendedSuccessor": "none; the rejoin wait removes the dependence",
       "status": "recorded"
     }
   ]

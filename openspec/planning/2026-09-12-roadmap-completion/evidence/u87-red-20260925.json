@@ -1,0 +1,131 @@
+{
+  "unit": "U87",
+  "baseline": "70f15077ac229eb1e6bac78fe226aac62244f8a3",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u87",
+  "branch": "roadmap-u87-lifecycle-race-and-audit-journey-20260925",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "logDir": ".sisyphus/u87-logs (inside the worktree, git-ignored; every log below is hashed from that directory)",
+  "stage": "red",
+  "at": "2026-09-25T23:35:23-06:00",
+  "build": {
+    "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+    "machineIdle": "MACHINE_IDLE at 2026-09-25T23:21:46-06:00",
+    "exit": 1,
+    "reason": "by design: Unsafe hydration destination (runtime loader tsx) contains a symlink or junction: .next\\standalone\\node_modules",
+    "e2eMarker": "__E2E_MODE__ present in .next/static/chunks/pages/_app-57752df63578994c.js",
+    "log": "build-baseline.log",
+    "logSha256": "80917d045587813c4e2541547e09f4c446c360f7153654b03460363487ac0eba"
+  },
+  "specSha256AtBaseline": {
+    "e2e/gm-two-player-lifecycle.pack.spec.ts": "6ce8fe2d3bd65cc0940940ad671849e1d8f94c8ee935b43b1dbe5bbc35ff7557",
+    "e2e/ux-walkthrough-audit.spec.ts": "5e573a13782672ab326cf6e3211ac3579946380e94ae20051aa7d9d0132fdee2"
+  },
+  "lifecyclePackBaselineRuns": [
+    {
+      "runId": "u87-red-lc-1",
+      "meta": [
+        "run=u87-red-lc-1 port=20411 head=70f15077ac229eb1e6bac78fe226aac62244f8a3 start=2026-09-25T23:23:59-06:00",
+        "6ce8fe2d3bd65cc0940940ad671849e1d8f94c8ee935b43b1dbe5bbc35ff7557 *e2e/gm-two-player-lifecycle.pack.spec.ts",
+        "exit=1 end=2026-09-25T23:25:24-06:00",
+        "[lifecycle-pack] captured=live",
+        "[lifecycle-pack] rowB captured=pending,blocked",
+        "  1 failed",
+        "  1 passed (1.3m)"
+      ],
+      "log": "u87-red-lc-1.log",
+      "logSha256": "bece207e2b51fe582f3dd0b1165127dd9dd8558fa0593b339cbff0b21eaf1e4a",
+      "rowA": "failed: capturePosture sealed timed out 60000 ms, Expected sealed, Received live (spec :508 via :221)",
+      "rowB": "passed",
+      "order": "server log: GoProne dispatched (line 59) before the host session joined (line 66)"
+    },
+    {
+      "runId": "u87-red-lc-2",
+      "meta": [
+        "run=u87-red-lc-2 port=22201 head=70f15077ac229eb1e6bac78fe226aac62244f8a3 start=2026-09-25T23:25:39-06:00",
+        "6ce8fe2d3bd65cc0940940ad671849e1d8f94c8ee935b43b1dbe5bbc35ff7557 *e2e/gm-two-player-lifecycle.pack.spec.ts",
+        "exit=1 end=2026-09-25T23:26:56-06:00",
+        "[lifecycle-pack] captured=live",
+        "[lifecycle-pack] rowB captured=pending,blocked",
+        "  1 failed",
+        "  1 passed (1.3m)"
+      ],
+      "log": "u87-red-lc-2.log",
+      "logSha256": "2982d537de1154cda5c669f4d0858845c49eebd8a97b76ad7d7b283d8746947a",
+      "rowA": "failed: Expected sealed, Received live",
+      "rowB": "passed",
+      "order": "GoProne line 59 before host session joined line 66"
+    },
+    {
+      "runId": "u87-red-lc-3",
+      "meta": [
+        "run=u87-red-lc-3 port=20463 head=70f15077ac229eb1e6bac78fe226aac62244f8a3 start=2026-09-25T23:27:01-06:00",
+        "6ce8fe2d3bd65cc0940940ad671849e1d8f94c8ee935b43b1dbe5bbc35ff7557 *e2e/gm-two-player-lifecycle.pack.spec.ts",
+        "exit=1 end=2026-09-25T23:28:16-06:00",
+        "[lifecycle-pack] captured=live",
+        "[lifecycle-pack] rowB captured=pending,blocked",
+        "  1 failed",
+        "  1 passed (1.2m)"
+      ],
+      "log": "u87-red-lc-3.log",
+      "logSha256": "fb6140bc08e4ae5c00b3de4a22cf94631d2e6cf3ee228dc056f5976a39d812dc",
+      "rowA": "failed: Expected sealed, Received live",
+      "rowB": "passed",
+      "order": "GoProne line 59 before host session joined line 66"
+    }
+  ],
+  "lifecyclePackBaselineSummary": "row A failed 3 of 3 in this worktree (the diagnosis measured it passing 2 of 2 in its own worktree at the pin); row B passed 3 of 3",
+  "heldAwayProbe": {
+    "probe1": {
+      "runId": "u87-red-probe-1",
+      "meta": [
+        "run=u87-red-probe-1 port=29101 head=70f15077ac229eb1e6bac78fe226aac62244f8a3 start=2026-09-25T23:28:31-06:00",
+        "e2db80328be4c74820eb2c29d8f30bb6ec1a4db3b4c0e3bac939ac9e137ec38d *e2e/gm-two-player-lifecycle.pack.spec.ts",
+        "exit=1 end=2026-09-25T23:29:31-06:00",
+        "[lifecycle-pack] captured=live",
+        "[lifecycle-pack] rowB captured=pending,blocked",
+        "  1 failed",
+        "  1 passed (58.4s)"
+      ],
+      "log": "u87-red-probe-1.log",
+      "logSha256": "e036fa25e8d5a83d660d99fabcdeb33d22ff03346739615acb3e97e47dc90c54",
+      "edit": "row A: await hostPage.goto('about:blank') after the guest live capture, then expect(guest match-pause-overlay).toBeVisible({ timeout: 30_000 }), then GoProne and capturePosture sealed 15 s",
+      "result": "failed at the overlay wait: Expected visible; the guest overlay never appeared in 30 s with the host away (the probe did not reach the GoProne)",
+      "finding": "the guest overlay is not a pause signal after a reload pair"
+    },
+    "probe2": {
+      "runId": "u87-red-probe-2",
+      "meta": [
+        "run=u87-red-probe-2 port=20464 head=70f15077ac229eb1e6bac78fe226aac62244f8a3 start=2026-09-25T23:30:00-06:00",
+        "8158a3503f27f2c4d3083b04da5417a13033581efb5141ad97c886739bf85ffa *e2e/gm-two-player-lifecycle.pack.spec.ts",
+        "exit=1 end=2026-09-25T23:30:32-06:00",
+        "[lifecycle-pack] captured=live",
+        "[lifecycle-pack] rowB captured=pending,blocked",
+        "  1 failed",
+        "  1 passed (31.0s)"
+      ],
+      "log": "u87-red-probe-2.log",
+      "logSha256": "ec8f50004118ffce5c80cac9a4de255102329f28e85a7812db26816c9e634b6c",
+      "edit": "row A: await hostPage.goto('about:blank') after the guest live capture, then GoProne, then capturePosture sealed bounded at 15 s",
+      "result": "RED as specified: Expected sealed, Received live, Timeout 15000ms (spec :510 via :223); server log: GoProne dispatched line 59, host socket closed code 1005 line 61, the host never rejoined"
+    },
+    "restored": "spec restored from the saved baseline copy; sha256 6ce8fe2d3bd65cc0940940ad671849e1d8f94c8ee935b43b1dbe5bbc35ff7557 confirmed"
+  },
+  "auditJourneyBaseline": {
+    "runId": "u87-red-ux-1",
+    "meta": [
+      "run=u87-red-ux-1 port=23891 head=70f15077ac229eb1e6bac78fe226aac62244f8a3 start=2026-09-25T23:35:01-06:00",
+      "5e573a13782672ab326cf6e3211ac3579946380e94ae20051aa7d9d0132fdee2 *e2e/ux-walkthrough-audit.spec.ts",
+      "exit=1 end=2026-09-25T23:35:23-06:00",
+      "[qc:ux-audit] run 2026-09-25T23-35-01 (dev build)",
+      "[qc:ux-audit] catalog: .sisyphus\\evidence\\ux-walkthrough\\2026-09-25T23-35-01",
+      "  1 failed",
+      "[qc:ux-audit] journeys=1 (1 failed) steps=2 (1 failed, 0 with console errors) findings=0",
+      "[qc:ux-audit] review: .sisyphus\\evidence\\ux-walkthrough\\2026-09-25T23-35-01\\index.html",
+      "[qc:ux-audit] skeleton: .sisyphus\\evidence\\ux-walkthrough\\2026-09-25T23-35-01\\REVIEW.md"
+    ],
+    "log": "u87-red-ux-1.log",
+    "logSha256": "a9ad97cb3bbe40546e4b8aefd7995733add4b1a6ee97e984f38d14669f164a52",
+    "how": "node scripts/qc/run-ux-walkthrough.mjs -g \"journey: build a new unit in the customizer\" with MEKSTATION_E2E_SERVER_COMMAND=\"node server.js\", NODE_ENV=production, HOSTNAME=127.0.0.1 and an owned port from the run id, against this worktree .next (production server: the next start warning printed, no compilation); the runner labels it (dev build) because --prod was not passed",
+    "result": "failed at step 2: getByRole(heading, { name: Create New Unit }) Expected visible, element(s) not found (spec :338 via :334); journeys=1 (1 failed) steps=2 (1 failed, 0 with console errors)"
+  }
+}
