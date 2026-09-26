@@ -3934,7 +3934,9 @@
       "behavior": "The CAMP roster's review rule (add-saved-custom-unit-campaign-roster P.2) is amended through a spec delta to accept a declared solo-maintainer exception proved by a head-bound OWNER-RULING, matching U59's validator rule; the CAMP-00 controller env passes CAMP01_NEXT_DIST_DIR (OD-camp00-controller-env); proof-02-triage gets an all-green terminal form (OD-proof02-empty-cause-graph). The three-witness gate stays owner-only and is not touched. Red-first: the controller refuses today without the env pass-through and proof-02-triage has no terminal form for an empty cause graph. Admitted after U59.",
       "ownershipPaths": [
         "openspec/changes/add-saved-custom-unit-campaign-roster",
-        "scripts/qc"
+        "scripts/qc",
+        "scripts/__tests__/camp01-authority-receipt-writer.test.ts",
+        "scripts/__tests__/camp01-camp00-listener-adapter.test.ts"
       ],
       "ciClass": "product",
       "reviewClasses": [
@@ -3944,14 +3946,28 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "local-verified",
+      "baseline": "bd98895490911cd841cac8385898b6f333af8472",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u60-admission-20260926.json",
+          "baseline": "bd98895490911cd841cac8385898b6f333af8472",
+          "at": "2026-09-26T19:55:31Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u60-red-20260926.json",
+          "at": "2026-09-26T20:06:37Z",
+          "summary": "baseline bd9889549 (U59's validator rule): both owner decisions found recorded (OD-camp00-controller-env roadmap.json:15749; OD-proof02-empty-cause-graph roadmap.json:15762; both folded into PK-camp-review-gate option (b), decided 2026-09-22T22:15:03Z 'approve and yes to both'); R1 the camp-00 row under the writer's runner refused with stderr 'camp-00 environment missing / CAMP01_WRITER_INVALID: command failed' (the runner's fixed env list at camp01-authority-receipt.mjs:113 dropped CAMP01_NEXT_DIST_DIR); R2 an all-green reproduction threw CAMP01_CONTRACT_INVALID: empty cause graph in both the terminal-form row and the receipt row; R3 npx openspec validate --all --strict 229 passed and qc:openspec-ci errors=0 on the baseline; suite Tests: 3 failed, 66 passed"
+        },
+        "local": {
+          "path": "evidence/u60-local-20260926.json",
+          "at": "2026-09-26T20:13:59Z",
+          "summary": "spec delta openspec/changes/add-saved-custom-unit-campaign-roster/specs/journey-qc/spec.md +41/-1 (a MODIFIED entry for 'Exact-SHA and Canonical-Provenance Execution', the requirement that already carried the 2026-08-09 API-verified reduction, so one solo rule: a CAMP review gate may declare the exception only with a head-bound OWNER-RULING {ruledHead, pr, commentId, author, bodySha256}, ruledHead equal to the gate's exact head; APPROVED on a solo gate means the owner's head-bound ruling, exact-head, non-dismissed and permission kept, only non-author relaxed; a new head voids the ruling; two scenarios added; tasks.md P.2 keeps its frozen wording), scripts/qc/camp01-authority-receipt.mjs +8/-2 (the writer's runner passes the parent's CAMP01_NEXT_DIST_DIR through for the camp-00 row only and only when set, matching camp01-proof-environment.mjs:111/119), camp01-authority-receipt.schemas.mjs +9 and validate-camp01-authority-receipt.mjs +5/-1 (an all-green reproduction with at least one observation validates and prints PROOF02_TRIAGE_TERMINAL {\"causes\":0,\"verdict\":\"all-green\"} before the receipt-valid line; zero observations still fails); tests +53 in two existing camp01 suites (new camp01 test files need a package.json script entry, outside the paths); WAVE_CONTRACTS and digests unchanged; 63 counted lines of 500, 6 files of 15; openspec strict 229 passed; qc:openspec-ci errors=0; jest scripts 80 suites 1264 passed 10 skipped; tsc 0; oxlint 84 warnings 0 errors (the changed files outside its configuration); oxfmt clean on 5 files; LINT_UNITS_PASS 17899/17899 with scripts 50/50; validator plain and --git PASSED at 381 tasks; --next U94; mutants: the pass-through removed (R1), the terminal return removed (R2), the camp-00 limit removed (the non-camp-00 guard row), the validator's print removed, the observation guard removed, each killed and restored with sha256 confirmed; a contradicted spec scenario SURVIVED (no gate reads a scenario's meaning; recorded as a non-claim); NON-CLAIMS: no build, Playwright, standalone server, CAMP receipt run, --github or install; the camp-00 rows use a fake child, runCamp00Authority not run under the writer; the production controller path unchanged; the solo rule enforced by the validator's trust of the gate record and by the provenance sentinel check, neither reading a ruling on GitHub; implementer claude-opus (Agent model: opus, lean-worker); status ready"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -3959,7 +3975,23 @@
       },
       "ownerGate": null,
       "packet": "PK-camp-review-gate",
-      "source20260922": "planned by the parent to implement the owner's yes on PK-camp-review-gate (chat 2026-09-22, \"approve and yes to both\"); the PR still needs the owner's head-bound ruling"
+      "source20260922": "planned by the parent to implement the owner's yes on PK-camp-review-gate (chat 2026-09-22, \"approve and yes to both\"); the PR still needs the owner's head-bound ruling",
+      "testPathsAmendedAtFold20260926": [
+        {
+          "path": "scripts/__tests__/camp01-authority-receipt-writer.test.ts",
+          "at": "2026-09-26T20:22:08.000Z",
+          "why": "the camp-00 pass-through rows (a new camp01 test file needs a package.json script entry, outside the paths)"
+        },
+        {
+          "path": "scripts/__tests__/camp01-camp00-listener-adapter.test.ts",
+          "at": "2026-09-26T20:22:08.000Z",
+          "why": "the all-green terminal-form rows"
+        }
+      ],
+      "admissionNote20260926": {
+        "at": "2026-09-26T20:22:08.000Z",
+        "note": "--next printed U94 (overlaps the in-flight U97's server path); the parent chose U60 after U59 (its validator rule is what the spec delta mirrors). Admission GO: both owner decisions the sentence names are recorded in roadmap.json (:15749, :15762) and folded into PK-camp-review-gate option (b), decided 2026-09-22. The delta is a MODIFIED entry on the requirement that already carried the 2026-08-09 reduction (one rule); what APPROVED means on a solo gate was spec-silent, so the lane took the least option the charter named (the owner's head-bound ruling stands in for the approval), which U59's validator already implements. tasks.md P.2 keeps its frozen wording because a later tick matches the snapshot text."
+      }
     },
     {
       "id": "U61",
@@ -9924,6 +9956,34 @@
       "decision": null,
       "ruling": null,
       "note": "opened at fold on 2026-09-26, before the ruling, so the validator's sensitive-class check sees the packet while the unit is local-verified; decision and ruling are filled when the owner rules the exact head"
+    },
+    {
+      "id": "PK-u60-ruling",
+      "blocks": [
+        "U60"
+      ],
+      "nodes": [
+        "R2.camp-8"
+      ],
+      "taskKeys": [],
+      "question": "U60 (review classes authority) presents head 31f9424d5f913892554674620b4d0de113f9e397. Does the owner rule it?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "an OWNER-RULING <head> comment and the owner-ruled label on U60's PR; the unit merges and proceeds to main proof",
+          "effort": "0.1 day owner"
+        },
+        {
+          "label": "reject",
+          "consequence": "the PR closes; the unit returns to planned with the objection recorded",
+          "effort": "0.1 day owner"
+        }
+      ],
+      "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
+      "revertCost": "low: a squash merge revert",
+      "decision": null,
+      "ruling": null,
+      "note": "opened at fold on 2026-09-26, before the ruling, so the validator's sensitive-class check sees the packet while the unit is local-verified; decision and ruling are filled when the owner rules the exact head"
     }
   ],
   "deferrals": [
@@ -11536,6 +11596,51 @@
       "class": "authority non-claim",
       "summary": "The journal does not carry the intervention id, so a record rebuilt from the journal alone would not recover the history entry; a campaign whose migration marker is not in journal state gets no record rewrite and so no entry. The read route is not narrowed: anyone who reads the host record reads its history.",
       "recommendedSuccessor": "a spec decision at the UAT round 2 triage on whether the journal carries the intervention",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u60-camp01-test-files-need-package-script",
+      "foundBy": "U60 implementer lane (claude-opus, lean-worker), 2026-09-26 (run-viewport-sweep.test.ts:411)",
+      "at": "2026-09-26T20:22:08.000Z",
+      "class": "harness constraint",
+      "summary": "Every camp01-*.test.ts file must be listed in a package.json script; a unit whose paths exclude package.json cannot add a camp01 test file and must extend an existing suite.",
+      "recommendedSuccessor": "none; recorded for charters",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u60-p2-wording-frozen",
+      "foundBy": "U60 implementer lane (claude-opus, lean-worker), 2026-09-26",
+      "at": "2026-09-26T20:22:08.000Z",
+      "class": "ledger mechanics",
+      "summary": "tasks.md P.2 still reads as the strict non-author rule; the spec delta carries the exception, but the row's wording cannot change without breaking a later tick against the frozen snapshot text.",
+      "recommendedSuccessor": "the tick of P.2 records the delta as the row's meaning",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u60-two-camp00-env-builders",
+      "foundBy": "U60 implementer lane (claude-opus, lean-worker), 2026-09-26",
+      "at": "2026-09-26T20:22:08.000Z",
+      "class": "duplicate mechanism",
+      "summary": "The writer's default runner and the production controller each build the camp-00 child's env; the first now passes the parent's CAMP01_NEXT_DIST_DIR through, the second injects its own folder.",
+      "recommendedSuccessor": "a CAMP harness unit unifies them",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u60-task-0-4-command-shape",
+      "foundBy": "U60 implementer lane (claude-opus, lean-worker), 2026-09-26 (read, not run)",
+      "at": "2026-09-26T20:22:08.000Z",
+      "class": "task text drift",
+      "summary": "Task 0.4 passes arguments to qc:camp01-authority-receipt:write, but the writer's main (camp01-authority-receipt.mjs:126) rejects any argument.",
+      "recommendedSuccessor": "the CAMP unit that runs 0.4 reconciles the command shape",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u60-decision-status-fields-stale",
+      "foundBy": "U60 implementer lane (claude-opus, lean-worker), 2026-09-26",
+      "at": "2026-09-26T20:22:08.000Z",
+      "class": "ledger wording",
+      "summary": "The two decision entries OD-camp00-controller-env and OD-proof02-empty-cause-graph still carry status 'owner decision required' though the packet records the decision.",
+      "recommendedSuccessor": "U60's closure sets them to decided",
       "status": "recorded"
     }
   ]

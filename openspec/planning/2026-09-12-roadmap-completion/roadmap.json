@@ -3798,7 +3798,9 @@
         "openspec/changes/add-saved-custom-unit-campaign-roster",
         "scripts/qc",
         "src",
-        "e2e"
+        "e2e",
+        "scripts/__tests__/camp01-authority-receipt-writer.test.ts",
+        "scripts/__tests__/camp01-camp00-listener-adapter.test.ts"
       ],
       "acceptance": [
         "Use immutable camp-01h contract row; preserve its strict PR cap, reporters, authority facts and real approval requirements",
@@ -3840,7 +3842,23 @@
         "ownerOnly": "real 6-command execution, controller-registered receipt, G1 non-author review, G2 three witnesses, R2.combat-browser — restated, not reduced",
         "note": "a worktree race with the parent 1713 proof was recorded by the lane; no artefact affected"
       },
-      "stateQualifier": "owner-blocked; producible audit done"
+      "stateQualifier": "owner-blocked; producible audit done",
+      "ownershipPathsAmended20260926": [
+        {
+          "path": "scripts/__tests__/camp01-authority-receipt-writer.test.ts",
+          "at": "2026-09-26T20:22:08.000Z",
+          "units": "U60",
+          "source": "parent, at U60's fold (tests for the unit's scripts/qc files)",
+          "why": "the camp-00 pass-through rows (a new camp01 test file needs a package.json script entry, outside the paths)"
+        },
+        {
+          "path": "scripts/__tests__/camp01-camp00-listener-adapter.test.ts",
+          "at": "2026-09-26T20:22:08.000Z",
+          "units": "U60",
+          "source": "parent, at U60's fold (tests for the unit's scripts/qc files)",
+          "why": "the all-green terminal-form rows"
+        }
+      ]
     },
     {
       "id": "R2.journey",
