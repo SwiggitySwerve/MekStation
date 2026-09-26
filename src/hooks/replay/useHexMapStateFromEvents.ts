@@ -39,6 +39,7 @@ import {
   MovementType,
   TokenUnitType,
 } from '@/types/gameplay';
+import { deployPlacementsFor } from '@/utils/gameplay/gameState/initialization';
 import { coordToKey } from '@/utils/gameplay/hexMath';
 import { terrainFeaturesFromString } from '@/utils/gameplay/terrainEncoding';
 import { logger } from '@/utils/logger';
@@ -183,6 +184,12 @@ function applyReplayEvent(
   REPLAY_EVENT_HANDLERS[event.type]?.(event, context);
 }
 
+/**
+ * Resets the projection to the GameCreated payload: reads mapRadius,
+ * seeds hexTerrain, and seeds one token per unit at the deploy hex and
+ * facing deployPlacementsFor returns for it (the engine's own GameCreated
+ * placement), replacing seedAccumulator's origin/North default.
+ */
 function applyGameCreatedEvent(
   event: IGameEvent,
   context: ReplayProjectionContext,
@@ -195,9 +202,13 @@ function applyGameCreatedEvent(
   for (const terrain of payload.hexTerrain ?? []) {
     context.terrainByHex.set(coordToKey(terrain.coordinate), terrain);
   }
-  for (const unit of payload.units) {
-    context.accumulators.set(unit.id, seedAccumulator(unit));
-  }
+  const placements = deployPlacementsFor(payload.units);
+  payload.units.forEach((unit, index) => {
+    const acc = seedAccumulator(unit);
+    acc.position = placements[index].position;
+    acc.facing = placements[index].facing;
+    context.accumulators.set(unit.id, acc);
+  });
 }
 
 function applyTerrainChangedEvent(
