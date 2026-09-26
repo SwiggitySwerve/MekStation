@@ -7,9 +7,11 @@
  * adds. The schema rows parse that body with the exported
  * `CreateMultiplayerMatchBodySchema`; the route rows post it through the
  * `POST /api/multiplayer/matches` handler over a temp SQLite database with
- * campaign journal authority off (checked in `beforeEach`), as production
- * runs, then read the host the route registered. An unknown extra roster
- * field and a `sourceVersion` that is not a positive integer stay refused.
+ * campaign journal authority on (checked in `beforeEach`), as production
+ * runs, so each host campaign is saved and its genesis appended to the
+ * SQLite event journal before the post, then read the host the route
+ * registered. An unknown extra roster field and a `sourceVersion` that is
+ * not a positive integer stay refused.
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
@@ -24,16 +26,19 @@ import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjectio
 
 import { _resetRateLimitBucketsForTests } from '@/lib/api/security';
 import { CreateMultiplayerMatchBodySchema } from '@/lib/api/securitySchemas';
+import { appendCampaignGenesis } from '@/lib/campaign/authority/campaignSourceGenesis';
 import { buildCampaignAuthoritativeState } from '@/lib/campaign/coop/campaignAuthoritativeState';
 import { buildPopulatedCampaign } from '@/lib/campaign/persistence/__tests__/campaignFixture';
 import { buildSerializedCampaign } from '@/lib/campaign/persistence/campaignEnvelope';
 import { isCampaignJournalAuthorityEnabled } from '@/lib/campaign/sync/campaignJournalAuthorityEnabled';
+import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
 import {
   _resetCampaignHostRegistry,
   getCampaignHostRegistry,
 } from '@/lib/multiplayer/server/CampaignHostRegistry';
 import { _resetDefaultMatchStore } from '@/lib/multiplayer/server/getDefaultMatchStore';
 import handler from '@/pages/api/multiplayer/matches';
+import { writeCampaignMigrationMarker } from '@/services/campaignPersistence/CampaignMigrationMarkerStore';
 import { saveCampaign } from '@/services/campaignPersistence/CampaignPersistenceService';
 import {
   getSQLiteService,
@@ -57,6 +62,9 @@ jest.mock('@/lib/multiplayer/server/auth', () => ({
 
 /** The pinned library version every roster unit in these rows carries. */
 const SOURCE_VERSION = 3;
+
+/** When each seeded host campaign's genesis snapshot is dated. */
+const GENESIS_AT = '2026-09-25T00:00:00.000Z';
 
 /** The roster unit the refusal rows alter, and its path in the body. */
 const ALTERED_UNIT_ID = 'unit-0';
@@ -295,7 +303,7 @@ describe('POST /api/multiplayer/matches: co-op roster units', () => {
   let dir: string;
 
   beforeEach(async () => {
-    expect(isCampaignJournalAuthorityEnabled()).toBe(false);
+    expect(isCampaignJournalAuthorityEnabled()).toBe(true);
     dir = await mkdtemp(path.join(tmpdir(), 'coop-roster-source-version-'));
     resetSQLiteService();
     getSQLiteService({ path: path.join(dir, 'matches.db') }).initialize();
@@ -313,26 +321,37 @@ describe('POST /api/multiplayer/matches: co-op roster units', () => {
 
   /**
    * Persist the host campaign with `units` as its roster projection, the
-   * save the panel awaits before it posts the match, and return the
-   * campaign.
+   * save the panel awaits before it posts the match, then append that
+   * envelope's genesis to the SQLite event journal and write its marker
+   * (the append the campaign PUT route makes on a create under journal
+   * authority, seeded as multiplayerCoopCreationCheckpoint.test.ts seeds
+   * it), so the creation checkpoint's genesis-branch stage finds its
+   * marker. Returns the campaign and its roster.
    */
-  function persistHostCampaign(
+  async function persistHostCampaign(
     units: (campaign: ICampaign) => readonly IRosterUnitProjection[],
-  ): { campaign: ICampaign; units: readonly IRosterUnitProjection[] } {
+  ): Promise<{ campaign: ICampaign; units: readonly IRosterUnitProjection[] }> {
     const campaign = disjointCampaign();
     const roster = units(campaign);
-    const saved = saveCampaign(
-      buildSerializedCampaign(campaign, 'device-1', 0, {
-        campaignId: campaign.id,
-        units: [...roster],
-        pilots: [],
-        missions: [],
-        activeMissionId: null,
-        missionCount: 0,
-      }),
-      0,
-    );
+    const envelope = buildSerializedCampaign(campaign, 'device-1', 0, {
+      campaignId: campaign.id,
+      units: [...roster],
+      pilots: [],
+      missions: [],
+      activeMissionId: null,
+      missionCount: 0,
+    });
+    const saved = saveCampaign(envelope, 0);
     expect(saved.kind).toBe('ok');
+    const genesis = await appendCampaignGenesis(
+      new SQLiteEventJournal(
+        getSQLiteService().getDatabase(),
+        () => GENESIS_AT,
+      ),
+      writeCampaignMigrationMarker,
+      { envelope, occurredAt: GENESIS_AT },
+    );
+    expect(genesis.kind).toBe('genesis-appended');
     return { campaign, units: roster };
   }
 
@@ -344,7 +363,7 @@ describe('POST /api/multiplayer/matches: co-op roster units', () => {
   }
 
   it('registers the co-op match when roster units carry sourceVersion', async () => {
-    const { campaign, units } = persistHostCampaign((c) =>
+    const { campaign, units } = await persistHostCampaign((c) =>
       rosterUnits(c, SOURCE_VERSION),
     );
 
@@ -370,7 +389,7 @@ describe('POST /api/multiplayer/matches: co-op roster units', () => {
   });
 
   it('registers the co-op match when no roster unit carries sourceVersion', async () => {
-    const { campaign, units } = persistHostCampaign((c) =>
+    const { campaign, units } = await persistHostCampaign((c) =>
       rosterUnits(c, undefined),
     );
 
@@ -386,7 +405,7 @@ describe('POST /api/multiplayer/matches: co-op roster units', () => {
   });
 
   it('answers 400 and registers no host for an unknown extra roster field', async () => {
-    const { campaign, units } = persistHostCampaign((c) =>
+    const { campaign, units } = await persistHostCampaign((c) =>
       rosterUnits(c, SOURCE_VERSION),
     );
 
