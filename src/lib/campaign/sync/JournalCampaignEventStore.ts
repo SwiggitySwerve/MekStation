@@ -263,11 +263,17 @@ export function toJournalBatch(input: {
  * Runs on a SQLite journal writer's handle inside a campaign command's or
  * combat outcome's append transaction, after the batch committed; a throw
  * rolls the append back. Server sites pass the saved-record rewrite (U35e,
- * U35g).
+ * U35g). A campaign command's call also hands it the committed batch: its
+ * events and, for an ApplyGmIntervention, the intervention id (U97); a
+ * combat outcome's call hands it none.
  */
 export type CampaignCommandCommitHook = (
   db: Database.Database,
   campaignId: string,
+  batch?: {
+    readonly events: readonly ICampaignEvent[];
+    readonly gmInterventionId?: string;
+  },
 ) => void;
 
 /**
@@ -276,8 +282,10 @@ export type CampaignCommandCommitHook = (
  * next-sequence; the journal's revision guard turns a lost race into a
  * typed `sequence-conflict` with nothing applied (all-or-nothing). With
  * `afterCommit` and a SQLite writer, the append runs in the writer's
- * extension and `afterCommit` runs on its handle in the same transaction
- * when the batch committed and its command id had no recorded batch before
+ * extension and `afterCommit` runs on its handle in the same transaction,
+ * handed the batch's events and `gmInterventionId` (which the journal batch
+ * never carries), when the batch committed and its command id had no
+ * recorded batch before
  * (the writer answers a recorded id with that batch, which must not run the
  * hook twice); any other journal appends as before.
  */
@@ -291,6 +299,8 @@ export async function appendCampaignCommandBatch(
     readonly intentFingerprint?: string | null;
     /** Journal-private source facts for this command (D12); rides the terminal event. */
     readonly sourcePrivate?: ICampaignSourcePrivateEnvelope | null;
+    /** An ApplyGmIntervention's intervention id, for `afterCommit` only. */
+    readonly gmInterventionId?: string;
     /** Override the derived human principal (e.g. migration imports). */
     readonly principal?: IResolvedJournalPrincipal;
     /**
@@ -321,7 +331,7 @@ export async function appendCampaignCommandBatch(
               .get(batch.commandId) !== undefined;
           const appended = append();
           if (!recorded && appended.kind === 'committed') {
-            afterCommit(db, input.campaignId);
+            afterCommit(db, input.campaignId, input);
           }
           return appended;
         })
@@ -447,6 +457,7 @@ export class JournalCampaignEventStore implements ICampaignEventStore {
         events: input.events,
         expectedPostStateDigest: input.expectedPostStateDigest,
         expectedRevision: input.expectedRevision,
+        gmInterventionId: input.gmInterventionId,
       },
       this.rewriteRecordAfterCommand,
     );

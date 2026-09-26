@@ -263,7 +263,13 @@ describe('GM ledger page approve on a co-op host (U92)', () => {
     measurements.solo = { sent, localWrites: localWrites() };
     expect(sent).toEqual([]);
     expect(localWrites()).toEqual([
-      { newestInterventionId: 'gm-ledger-merchant-reversal', balance: 382_500 },
+      {
+        // Each approval has its own intervention id: the canned id plus a suffix (U97).
+        newestInterventionId: expect.stringMatching(
+          /^gm-ledger-merchant-reversal-/,
+        ),
+        balance: 382_500,
+      },
     ]);
     expect(markDirtySpy).toHaveBeenCalledTimes(1);
   });

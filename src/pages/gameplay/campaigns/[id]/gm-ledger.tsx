@@ -28,9 +28,10 @@ const GM_LEDGER_LOADING = {
  * with GM controls, the player-visible ledger otherwise. An approved funds
  * correction on a co-op campaign is sent to the live host as
  * ApplyGmIntervention; once the host commits it the saved record is re-read
- * (the host wrote it), and a refusal is toasted with nothing written. Every
- * other approval is written to the campaign store (marked dirty on a solo
- * campaign).
+ * (the host wrote it, with the correction in its intervention history), and a
+ * refusal is toasted with nothing written and handed back to the control
+ * plane as its answer. Every other approval is written to the campaign store
+ * (marked dirty on a solo campaign).
  */
 export default function GmLedgerPage(): React.ReactElement {
   const shell = useCampaignPageShell('GM Ledger');
@@ -60,10 +61,11 @@ export default function GmLedgerPage(): React.ReactElement {
                   updates.gmInterventionEvents,
                 )
               : null;
+            let refusal: string | null = null;
             if (intent) {
               // The host's balance comes from the command, never from a
               // local write of `updates`.
-              const refusal = await sendCoopGmIntervention(campaign, intent);
+              refusal = await sendCoopGmIntervention(campaign, intent);
               if (refusal === null) {
                 await useCampaignPersistenceStore
                   .getState()
@@ -87,6 +89,7 @@ export default function GmLedgerPage(): React.ReactElement {
               }
             }
             setActionTick((tick) => tick + 1);
+            return refusal;
           }}
         />
       ) : (

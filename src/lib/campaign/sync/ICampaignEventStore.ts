@@ -118,6 +118,11 @@ export interface ICampaignCommandBatchInput {
   readonly expectedPostStateDigest: string;
   readonly expectedRevision?: number;
   readonly branchId?: string;
+  /**
+   * The GM intervention an ApplyGmIntervention command commits; a store
+   * with a saved-record rewrite lists it in the intervention history.
+   */
+  readonly gmInterventionId?: string;
 }
 
 /** Durable receipt proving one combat outcome version reached campaign authority. */

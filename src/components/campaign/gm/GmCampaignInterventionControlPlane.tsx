@@ -61,9 +61,14 @@ import {
 
 interface GmCampaignInterventionControlPlaneProps {
   readonly campaign: ICampaign;
+  /**
+   * Applies an approval's campaign update. Resolving to a string reports that
+   * the update was refused and nothing was applied (the string is the reason);
+   * resolving to anything else reports it applied.
+   */
   readonly onApplyCampaignUpdate: (
     updates: GmCampaignUpdate,
-  ) => void | Promise<void>;
+  ) => void | Promise<string | null | void>;
   readonly actorId?: string;
   readonly now?: () => string;
 }
@@ -108,6 +113,10 @@ export function GmCampaignInterventionControlPlane({
   // card's stale 'ready' tag for an 'approved' one. Cleared when the next
   // preview is generated.
   const [approvedApplied, setApprovedApplied] = useState(false);
+  // True from an approval's apply call until its answer (the co-op page's
+  // answer is the host's commit or refusal frame), so approve cannot send a
+  // second correction while the first is in flight.
+  const [approving, setApproving] = useState(false);
   const [approvalStatus, setApprovalStatus] = useState<string>(
     'No approved GM corrections yet.',
   );
@@ -131,7 +140,8 @@ export function GmCampaignInterventionControlPlane({
     setGmRows(persistedRows.gmRows);
   }, [actionLedger, persistedRows]);
 
-  const canApprove = preview?.status === 'ready' && !approvedApplied;
+  const canApprove =
+    preview?.status === 'ready' && !approvedApplied && !approving;
   const canTakeManualControl =
     preview?.status === 'requires-manual-takeover' && !approvedApplied;
 
@@ -252,10 +262,39 @@ export function GmCampaignInterventionControlPlane({
     setNextPreview(nextPreview);
   };
 
+  /**
+   * Hands an approved update to `onApplyCampaignUpdate` with approve disabled
+   * until it answers. Returns true when it applied; on a refusal it shows
+   * "Not applied to campaign state." with the reason and returns false.
+   */
+  const applyApproved = async (updates: GmCampaignUpdate): Promise<boolean> => {
+    setApproving(true);
+    try {
+      const refusal = await onApplyCampaignUpdate(updates);
+      if (typeof refusal !== 'string') return true;
+      setApprovalStatus('Not applied to campaign state.');
+      setApprovalReason(refusal);
+      return false;
+    } finally {
+      setApproving(false);
+    }
+  };
+
+  /**
+   * Approves the current preview under a fresh intervention id (the preview's
+   * id, the time in base 36 and six random base-36 characters), so each
+   * approval is its own ledger record and row; applies it through
+   * `applyApproved` and, when applied, latches the preview and refreshes the
+   * rows from the action ledger.
+   */
   const handleApprove = async (): Promise<void> => {
     if (!preview) return;
     const approvedAt = now();
-    if (preview.domain === 'time') {
+    const approval = {
+      ...preview,
+      interventionId: `${preview.interventionId}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
+    };
+    if (approval.domain === 'time') {
       const result = approveGmCascadePreview<
         IGmTimeCascadeInterventionState,
         IGmPrivateMetadata,
@@ -264,7 +303,7 @@ export function GmCampaignInterventionControlPlane({
       >({
         ledger: timeLedger,
         actionLedger,
-        preview: preview as GmTimeCascadePreview,
+        preview: approval as GmTimeCascadePreview,
         state: campaign as IGmTimeCascadeInterventionState,
         approvedAt,
         createdAt: approvedAt,
@@ -287,7 +326,7 @@ export function GmCampaignInterventionControlPlane({
         ) ?? [],
       );
       applyPilotPatches(rosterPatches);
-      await onApplyCampaignUpdate(result.state);
+      if (!(await applyApproved(result.state))) return;
       setApprovedApplied(true);
       setApprovalStatus('Approved and applied to campaign state.');
       setApprovalReason(null);
@@ -303,7 +342,7 @@ export function GmCampaignInterventionControlPlane({
     >({
       ledger: campaignLedger,
       actionLedger,
-      preview: preview as GmCampaignPreview,
+      preview: approval as GmCampaignPreview,
       state: campaign as IGmCampaignInterventionState,
       approvedAt,
       createdAt: approvedAt,
@@ -315,7 +354,7 @@ export function GmCampaignInterventionControlPlane({
       return;
     }
 
-    await onApplyCampaignUpdate(result.state);
+    if (!(await applyApproved(result.state))) return;
     setApprovedApplied(true);
     setApprovalStatus('Approved and applied to campaign state.');
     setApprovalReason(null);
