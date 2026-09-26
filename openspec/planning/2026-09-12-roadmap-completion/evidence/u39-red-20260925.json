@@ -1,0 +1,107 @@
+{
+  "unit": "U39",
+  "stage": "red",
+  "at": "2026-09-26T05:42:20.782Z",
+  "baseline": "4d4287fe8d5fe217461cfd45307887df76d316cb",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "productCodeUnderTest": "baseline scripts/qc/roadmap-main-proof.mjs (82fd00ec...) and scripts/qc/validate-exact-main-regression-ladder.mjs (cf15166c...), unedited; only the three test files carried the new pins",
+  "commands": {
+    "ladderPin": "node node_modules/jest/bin/jest.js scripts/__tests__/validate-exact-main-regression-ladder.test.ts",
+    "closurePin": "node node_modules/jest/bin/jest.js scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+    "loopPin": "node node_modules/jest/bin/jest.js scripts/__tests__/roadmap-loop-scripts.test.ts",
+    "note": "npx is not used in this lane: the node_modules guard refused (INSTALL_REFUSED node-modules-is-link, exit 1)"
+  },
+  "totals": {
+    "ladderPin": {
+      "exit": 1,
+      "line": "Tests:       6 failed, 38 passed, 44 total"
+    },
+    "closurePin": {
+      "exit": 1,
+      "line": "Tests:       11 failed, 18 passed, 29 total"
+    },
+    "loopPin": {
+      "exit": 0,
+      "line": "Tests:       14 passed, 14 total",
+      "note": "its only new case (the temp ledger name is git-ignored) passes once the prefix is renamed in the same test file; the prefix red is the check-ignore probe in row R5"
+    }
+  },
+  "rows": [
+    {
+      "id": "R1",
+      "claim": "a dry-run of --runtime-jest with a regex shows the argv going through a .cmd launcher",
+      "test": "roadmap-main-proof --dry-run > hands a --runtime-jest regex to jest.js verbatim",
+      "red": "Expected substring \"DRY-RUN playwright: node node_modules/jest/bin/jest.js a|(b)&c\"; received \"DRY-RUN playwright: npx.cmd jest a|(b)&c\" (execute() spawns an argv[0] ending .cmd with shell: true, roadmap-main-proof.mjs:172)",
+      "boundaryProbe": {
+        "script": "cmd-boundary-probe.mjs (scratchpad): spawnSync(<echo-args.cmd>, [\"a|(b)&c\"], { shell: true }) exactly as :172 does, then the same argument to node with no shell",
+        "viaCmd": "status 1, stdout empty, stderr \"'b' is not recognized as an internal or external command ... 'c' is not recognized ...\" - cmd.exe split the regex into a pipeline (FN-u17b; U4 run1 exited 255 the same way)",
+        "viaNodeNoShell": "status 0, stdout [\"a|(b)&c\"] - one argv element, verbatim"
+      },
+      "alsoRed": [
+        "prints the jest ladder without running anything: received \"DRY-RUN playwright: npx.cmd jest scripts/__tests__/roadmap-loop-scripts.test.ts\", and the build/tsc/openspec/qc steps print npm.cmd/npx.cmd",
+        "resolves node, npm and npx to the running node and never to a .cmd file: TypeError tool.resolveArgv is not a function (after \"INVALID_ARGUMENT: --merge is required\", printed because importing the module runs main() at :276)"
+      ]
+    },
+    {
+      "id": "R2",
+      "claim": "the fake-step end-to-end pin cannot be written against the baseline: no exported step table, execution branch or spawn seam",
+      "test": "roadmap-main-proof execution branch with fake steps > writes a log per step, scans the marker, hashes the logs and counts the dirty tree",
+      "red": "stderr \"INVALID_ARGUMENT: --merge is required\\nTypeError: tool.ladder is not a function\" - the import itself ran the CLI with no flags, and ladder/runLadder are module-private"
+    },
+    {
+      "id": "R2b",
+      "claim": "no exact-main-ladder step in the ladder",
+      "test": "roadmap-main-proof --dry-run > reruns the highest registered rung on the merge commit after the runtime proof",
+      "red": "Expected line \"DRY-RUN exact-main-ladder: NODE_ENV=production node scripts/qc/validate-exact-main-regression-ladder.mjs --sha <sha> --rerun\"; the received dry-run has no exact-main-ladder line at all"
+    },
+    {
+      "id": "R2c",
+      "claim": "--runtime-command is a shell string",
+      "tests": [
+        "splits --runtime-command into an argv instead of handing it to a shell: received \"DRY-RUN playwright: node .sisyphus/u91-runtime.mjs  --pattern a(b)\" (the raw string, printed for a shell)",
+        "refuses an && chain / a pipe / a redirect / a quoted path / no program at all in --runtime-command: each exited 0 (Expected: not 0) and printed the ladder"
+      ]
+    },
+    {
+      "id": "R3",
+      "claim": "a two-block rerun fixture is accepted by parseRunnerOutput today",
+      "test": "exact-main regression ladder rerun reads the real runner > archives 0/0 as rejected and stays MISSING on two summary blocks",
+      "red": "archived row {group: smoke, passed: 5, failed: 0} (the two blocks summed), no rejected reason",
+      "probe": "two-block-probe.mjs (scratchpad) against the baseline contract: {\"exitCode\":0,\"lines\":[\"EXACT_MAIN_LADDER_SATISFIED a1b2c3d4e5f60718293a4b5c6d7e8f9012345678 milestone=strict-smoke groups=smoke\"],\"rows\":[{\"verdict\":\"SATISFIED\",\"groups\":[{\"group\":\"smoke\",\"passed\":5,\"failed\":0}]}]} - a false SATISFIED",
+      "alsoRed": [
+        "archives 0/0 as rejected and stays MISSING on a column-0 group line: archived passed 1 (the labelled line won)",
+        "rejects a labelled line for the group: received passed 4",
+        "rejects a labelled line for another group: received passed 2",
+        "rejects a repeated passed summary: received passed 3",
+        "rejects a second block that starts again at failed: received passed 7, failed 1"
+      ]
+    },
+    {
+      "id": "R4",
+      "claim": "the closure-proof fold failure prints only its status",
+      "method": "fold-print-demo.sh (scratchpad): a saved copy of the baseline test, a temporary unknown flag appended to foldArgs so the fold refuses, one case run, the file restored from the copy",
+      "red": "jest printed only \"expect(received).toBe(expected) // Object.is equality / Expected: 0 / Received: 1\" at the fold line; the fold's own refusal text appeared nowhere in the failure",
+      "restoredSha256": "8bad641e978cb95c8875e1d47414c25edb7fb63a754908c0d516ec9a1e909e89 before and after (RESTORED)"
+    },
+    {
+      "id": "R5",
+      "claim": "the loop pins' temp ledger prefix is not git-ignored",
+      "probe": {
+        "git check-ignore -v openspec/planning/u17-pin-AbC123": "exit 1 (not ignored)",
+        "git check-ignore -v openspec/planning/temp-u17-pin-AbC123": "exit 0, \".gitignore:92:temp-*\""
+      }
+    },
+    {
+      "id": "R6",
+      "claim": "the comment at validate-exact-main-regression-ladder.test.ts:49-51 is false",
+      "probe": "a pure-ASCII probe file holding '\\u00b5', '\\u001b' and '\\u203a' string literals, run through node node_modules/oxfmt/bin/oxfmt --stdin-filepath=probe.ts (oxfmt 0.28.0): exit 0, output byte-identical (sha256 ced3a35e5602fdb3dd9c2a18e56fdf77fd1d5b8fcc0e4389bca9c674ae4efa6e in and out) - the formatter does not rewrite a \\u sequence"
+    }
+  ],
+  "rawLogs": {
+    "red-ladder.log": "733fd9dc60facefd7fff9b1cc34da83663b32091892913aaa007d80e25f489e8",
+    "red-closure.log": "97d074374a20d37d10b6b3b87f9c6cc04cf98a5941fa992b80f453e7b0312c71",
+    "red-loop.log": "44bbbf80e23bb12ca4275278acaebd21f119b740be66aeccdae6b00ceda4db16",
+    "fold-print-red.log": "ce8bfc48da5725aad73a60999bcc17235e4e0ed8e86f1c865e01d968f54cc6c6",
+    "location": "lane scratchpad (outside the repository); sha256 of each"
+  }
+}

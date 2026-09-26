@@ -1,0 +1,99 @@
+{
+  "unit": "U39",
+  "stage": "admission",
+  "at": "2026-09-26T05:37:12.249Z",
+  "baseline": "4d4287fe8d5fe217461cfd45307887df76d316cb",
+  "originMainAtAdmission": "6c7dbcc1ff973f1b60b97a67a3d6526314b16292",
+  "originMainDrift": "6c7dbcc1f docs(campaign) only; git diff --stat 4d4287fe8 origin/main -- scripts/qc scripts/__tests__ is empty, so the baseline stays the charter pin",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u39",
+  "branch": "roadmap-u39-main-proof-shell-free-20260925",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "ownedPaths": [
+    "scripts/qc",
+    "scripts/__tests__"
+  ],
+  "guardNodeModulesLink": {
+    "command": "npm run --silent qc:guard-node-modules-link",
+    "exit": 1,
+    "output": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"<worktree>\\\\node_modules\",\"actualPath\":\"<root checkout>\\\\node_modules\"}",
+    "consequence": "no npx in this lane: every gate the charter spells npx runs as node <package bin> from the junctioned node_modules (jest/bin/jest.js, typescript/bin/tsc, oxlint/bin/oxlint, oxfmt/bin/oxfmt)"
+  },
+  "gitignore92": "temp-* present at .gitignore:92 (read-only, not edited)",
+  "behavior": "units.json U39 behavior sentence, unwidened",
+  "seams": {
+    "scripts/qc/roadmap-main-proof.mjs:56-58": "win flag; npm = npm.cmd and npx = npx.cmd on Windows",
+    "scripts/qc/roadmap-main-proof.mjs:70-71": "--runtime-jest -> argv [npx, jest, <pattern>] (npx.cmd on Windows)",
+    "scripts/qc/roadmap-main-proof.mjs:72-81": "--runtime-group -> node scripts/qc/run-gm-two-player-campaign.mjs --group=<g>, NODE_ENV=production (already shell-free)",
+    "scripts/qc/roadmap-main-proof.mjs:82": "--runtime-command -> { shell: <string> }",
+    "scripts/qc/roadmap-main-proof.mjs:85-137": "ladder(): the step table; not exported",
+    "scripts/qc/roadmap-main-proof.mjs:159-182": "execute(): the spawn; :167-168 spawnSync(step.shell, { shell: true }); :169-173 argv spawn with shell: win && argv[0].endsWith(\".cmd\")",
+    "scripts/qc/roadmap-main-proof.mjs:235-273": "the execution branch (e2e-marker, sha256, dirty-check in-process); inline in main(), not exported",
+    "scripts/qc/roadmap-main-proof.mjs:276": "runCli(main) runs at import, so nothing in the module can be imported by a pin",
+    "scripts/qc/validate-exact-main-regression-ladder.mjs:60-73,88-98": "MILESTONE_LADDER and resolveMilestone (highest rung whose groups are all registered)",
+    "scripts/qc/validate-exact-main-regression-ladder.mjs:184-206": "parseRunnerOutput: a labelled <group>: row wins (:185-188); otherwise every bare summary line is ADDED (:191-204), so two blocks sum",
+    "scripts/qc/validate-exact-main-regression-ladder.mjs:289-315": "runGroup: one runner spawn per group, log <archive>/<group>.log, row from parseRunnerOutput",
+    "scripts/qc/validate-exact-main-regression-ladder.mjs:328-387": "runExactMainLadder --rerun: head check, idle wait, rerun of missing groups, archive receipt",
+    "scripts/__tests__/roadmap-loop-closure-proof.test.ts:431-433": "fold(): expect(run(FOLD, ...).status).toBe(0) - a failure prints only the status",
+    "scripts/__tests__/roadmap-loop-closure-proof.test.ts:358-360": "temp ledger mkdtemp prefix 'u17-pin-' under openspec/planning",
+    "scripts/__tests__/roadmap-loop-scripts.test.ts:183-185": "temp ledger mkdtemp prefix 'u17-pin-' under openspec/planning",
+    "scripts/__tests__/validate-exact-main-regression-ladder.test.ts:49-51": "comment claims 'the formatter rewrites a \\u sequence back into the literal character'",
+    "scripts/qc/roadmap-unit-closure.mjs:238,314": "runtime line = lastLine(logDir, 'playwright', /passed|failed|flaky/) (read-only)",
+    "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs:86-95": "parseProofLine (read-only)"
+  },
+  "designAnswers": {
+    "runtimeCommandContract": "--runtime-command stays a single string flag but stops being a shell string: it is split on runs of whitespace into an argv and spawned through the same seam as every other step, with no shell. The program token 'node' resolves to process.execPath and 'npm'/'npx' to process.execPath plus npm's own npm-cli.js/npx-cli.js; any other program is spawned directly. A value carrying a quote or a shell operator (\" ' ` | & ; < >) or no program at all is refused RUNTIME_COMMAND_NOT_ARGV before anything runs, because without a shell those characters would reach the program literally instead of meaning what the caller typed. The parent's usage --runtime-command \"node <repo-relative file>\" keeps working unchanged (argv [process.execPath, <file>]).",
+    "stepsThroughShellToday": [
+      "build: npm.cmd run build (:100, spawned with shell: true by :172)",
+      "playwright via --runtime-jest: npx.cmd jest <pattern> (:71, shell: true by :172) - FN-u17b: cmd parsed the regex as a pipeline in U4 run1 (exit 255)",
+      "playwright via --runtime-command: spawnSync(<string>, { shell: true }) (:82, :168)",
+      "tsc: npx.cmd tsc --noEmit (:109)",
+      "openspec-strict: npx.cmd openspec validate --all --strict (:115)",
+      "qc-openspec-ci: npm.cmd run qc:openspec-ci:validate (:117)",
+      "qc-pin: npx.cmd jest <two pin files> (:121-125)"
+    ],
+    "stepsShellFreeToday": "idle-before-build, idle-before-runtime, playwright via --runtime-group, validator, git-check, next (node -> process.execPath) and restore-next-env (git) - all through :169-173 with shell false",
+    "afterThisUnit": "One exported seam spawnStep(argv, { cwd, env }) that never sets a shell option. jest and tsc run from their package JS entry points (node node_modules/jest/bin/jest.js, node node_modules/typescript/bin/tsc); build, qc-openspec-ci and openspec-strict keep npm/npx but as process.execPath + npm-cli.js/npx-cli.js, so no step launches a .cmd file. Residual stated as a non-claim: npm itself runs a package script (the build script chain) and npx runs the global openspec bin through npm's own script shell; those argv are fixed literals with no metacharacters, and no caller-provided text reaches them.",
+    "exactMainLadderStep": "New step 'exact-main-ladder' after the runtime step: node scripts/qc/validate-exact-main-regression-ladder.mjs --sha <--merge> --rerun, env NODE_ENV=production (the env the runtime-group step and the shell ladders gave the ladder runner). The contract resolves the highest registered rung itself: resolveMilestone over REGISTERED_GROUPS is strict-smoke (group smoke = e2e/gm-two-player-fixture.smoke.spec.ts + e2e/gm-two-player-membership.smoke.spec.ts, gm-two-player-campaign-core.cjs:54-57). Cost measured once before: U9's exact-main rerun of smoke, Playwright summary '3 passed (21.2s)', plus server start and the contract's own idle wait. It needs the E2E build the proof already made (the runner's server command is node server.js, gm-two-player-campaign-core.cjs:224-226), so it runs after build and e2e-marker; --rerun refuses a head that is not the merge commit (exit 2).",
+    "exactMainLadderRecording": "Its stdout/stderr go to its own exact-main-ladder.log in the proof log dir, hashed into sha256.txt by the existing sha256 step (which runs after it); the contract additionally writes <group>.log and its archive receipt under .sisyphus/roadmap-completion-20260912/exact-main-ladder/ (ignored by .gitignore .sisyphus/*). playwright.log is not touched, so roadmap-unit-closure.mjs:238 still reads the runtime step's last line and parseProofLine is unaffected.",
+    "failsClosed": "Read as the sentence's own clauses: argv never reinterpreted by a shell; --runtime-command refuses shell syntax instead of passing it through; parseRunnerOutput rejects two or more summary blocks and any column-0 '<group>:' line (a rejected output archives 0/0 with a rejected reason and can never become coverage); a step the seam could not spawn logs its spawn error. The tool's own exit code is NOT changed to follow step exits: the next step legitimately exits 3 on NONE-ADMISSIBLE, and the sentence does not ask for it.",
+    "summaryBlockDefinition": "generateSummaryMessage (playwright/lib/reporters/base.js 1.57.0) pushes its tokens in one fixed order - failed, interrupted, flaky, skipped, did not run, passed, fatal errors - each at most once. A token whose word does not come strictly after the previous token's word can only belong to a second block, so that is the rejection rule.",
+    "fakeStepPin": "The tool exposes no step table or execution branch today (ladder() and the loop inside main() are module-private; runCli runs at import). After: ladder(options, logDirRelative), runLadder({ steps, repoRoot, logDir }) and spawnStep are exported and runCli only runs when the file is the entry script. The pin takes the REAL table from ladder(), replaces every argv step with node <fake-step.mjs> <name> <original argv...> (in-process steps untouched), and runs runLadder in a throwaway git repo: it checks a log per step (exact-main-ladder included), the marker scan over a fake _app chunk, sha256.txt against the bytes, and the dirty count.",
+    "tempPrefix": "Today both loop pins mkdtemp 'u17-pin-' under openspec/planning, which no .gitignore rule covers, so a crashed run leaves a copy of the ledger directory as untracked files. 'temp-u17-pin-' falls under .gitignore:92 temp-*."
+  },
+  "estimate": {
+    "scripts/qc/roadmap-main-proof.mjs": "product ~+80/-30",
+    "scripts/qc/validate-exact-main-regression-ladder.mjs": "product ~+45/-30",
+    "scripts/__tests__/roadmap-loop-closure-proof.test.ts": "test ~+170/-10",
+    "scripts/__tests__/validate-exact-main-regression-ladder.test.ts": "test ~+60/-20",
+    "scripts/__tests__/roadmap-loop-scripts.test.ts": "test ~+15/-2"
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedProductLines": 500,
+    "plannedFiles": "5 source files + 3 u39 receipts",
+    "plannedProductLines": "~185 changed"
+  },
+  "risksForTheParent": [
+    "Keep calling --runtime-command as \"node <repo-relative file>\": that works unchanged. A --runtime-command string that used shell syntax (&&, |, redirects, quotes) is now refused RUNTIME_COMMAND_NOT_ARGV; put such logic inside the node script.",
+    "--runtime-jest now takes a jest regex verbatim (|, (, ), & included), so two directories can be one --runtime-jest 'dirA|dirB' instead of a --runtime-command.",
+    "Every proof now also runs the exact-main-ladder step (the smoke subset on the merge commit: one extra Playwright run behind the contract's own idle wait, on the ladder runner's derived port) and writes exact-main-ladder.log into the proof dir; the closure tool records its hash through sha256.txt but still reads only playwright.log for the runtime line. A failing or MISSING rerun is visible in that log and in the console line 'exact-main-ladder exit 1'; the tool's exit code does not change."
+  ],
+  "next": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "output": "U87",
+    "exit": 0,
+    "note": "U87 is the in-flight lane in worktrees/u87; U39's paths (scripts/qc, scripts/__tests__) overlap nothing in flight per the charter, so this lane continues"
+  },
+  "validator": {
+    "output": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "exit": 0
+  },
+  "baselineFileSha256": {
+    "scripts/qc/roadmap-main-proof.mjs": "82fd00ecd12e1fc202768d504ef777f20f5192db25c52129fb499aa04f591227",
+    "scripts/qc/validate-exact-main-regression-ladder.mjs": "cf15166c2d29eb206b44fd34a7dd917d016232b31ad10620be7095812deaaa1e",
+    "scripts/__tests__/roadmap-loop-closure-proof.test.ts": "8bad641e978cb95c8875e1d47414c25edb7fb63a754908c0d516ec9a1e909e89",
+    "scripts/__tests__/roadmap-loop-scripts.test.ts": "b747789247e1d41f6e072dbf7d3996acac2a82c2e1bfbfc4c0eb92912d641f72",
+    "scripts/__tests__/validate-exact-main-regression-ladder.test.ts": "47943d559fb1a40382a710f2f83f4cd4d4a4f9bbc7c3817abb1d396c087034da"
+  },
+  "decision": "go"
+}

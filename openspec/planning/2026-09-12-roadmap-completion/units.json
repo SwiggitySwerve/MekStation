@@ -3042,14 +3042,28 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "local-verified",
+      "baseline": "4d4287fe8d5fe217461cfd45307887df76d316cb",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u39-admission-20260925.json",
+          "baseline": "4d4287fe8d5fe217461cfd45307887df76d316cb",
+          "at": "2026-09-26T05:37:12.249Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u39-red-20260925.json",
+          "at": "2026-09-26T05:42:20.782Z",
+          "summary": "baseline 4d4287fe8: a --runtime-jest dry run with a regex a|(b)&c spawned npx.cmd and a cmd probe split the regex into a pipeline; the fake-step end-to-end pin could not run (tool.ladder is not a function: runCli ran at import and nothing was exported); parseRunnerOutput archived a two-summary-block fixture as 5/0 SATISFIED and accepted a labelled column-0 group line; the closure-proof fold failure printed only Expected 0 Received 1; the u17-pin- temp prefix was not ignored; the comment at validate-exact-main-regression-ladder.test.ts:49-50 was false (oxfmt 0.28.0 leaves a backslash-u sequence unchanged)"
+        },
+        "local": {
+          "path": "evidence/u39-local-20260925.json",
+          "at": "2026-09-26T05:54:05.289Z",
+          "summary": "5 files: product +194/-59 (253 lines: scripts/qc/roadmap-main-proof.mjs and validate-exact-main-regression-ladder.mjs), tests +388/-15 (three pin suites): every step goes through one exported spawnStep that never sets a shell; --runtime-jest spawns node_modules/jest/bin/jest.js via process.execPath; --runtime-command is split on whitespace into argv (node becomes process.execPath; npm and npx become npm's own cli files) and refused with RUNTIME_COMMAND_NOT_ARGV when empty or carrying quotes, pipes, ampersands, semicolons or redirects (the parent's node <file> usage works unchanged); a new exact-main-ladder step reruns the highest registered rung (strict-smoke) on the --merge commit with its own hashed log, playwright.log untouched; ladder, runLadder, spawnStep and resolveArgv exported and the CLI runs only as the entry script; parseRunnerOutput rejects two or more summary blocks (two-summary-blocks) and a column-0 group line; the closure-proof fold failure prints status, stderr and stdout; both loop pins use temp-u17-pin- (covered by .gitignore:92); the false comment corrected; jest scripts 80 suites 1252 passed 10 skipped, src/__tests__/unit/evidence 18; tsc 0; oxlint 84 warnings 0 errors; oxfmt clean on 5 files; lint:units 100/100; qc:openspec-ci errors=0; validator PASSED; four mutants caught and restored (runtime-jest through npx again; two blocks accepted; the ladder step removed; the column-0 line accepted); two existing ladder cases replaced because the sentence reverses them; NON-CLAIMS: no real main proof run and the new step has never run for real (U39's own main proof is its first), npm run build and the global openspec bin still go through npm's script shell with fixed arguments; implementer claude-opus (Agent model: opus); findings: sha256 runs before restore-next-env so that log is never hashed fresh and stale logs from earlier attempts are hashed, --rerun skips the smoke rerun when an archive already covers the commit; status ready"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -3065,7 +3079,11 @@
         "I-loop-harness-u17-misc",
         "I-pin-temp-ledger-leak",
         "I-oxfmt-unicode-escape-rewrite"
-      ]
+      ],
+      "admissionNote20260925": {
+        "at": "2026-09-26T05:56:02.000Z",
+        "note": "--next printed U87, in flight in its own worktree; U39's paths overlapped nothing in flight. Contract change for the parent: --runtime-command is split into argv with no shell; node <file> keeps working; pipes, quotes, && and redirects are refused (RUNTIME_COMMAND_NOT_ARGV)."
+      }
     },
     {
       "id": "U40",
@@ -10034,6 +10052,24 @@
       "class": "environment sensitivity",
       "summary": "Row A failed 3 of 3 in the lane's worktree while the entry-gate diagnosis saw it pass 2 of 2 in its own worktree; the race's outcome depends on timing the environment sets.",
       "recommendedSuccessor": "none; the rejoin wait removes the dependence",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u39-sha256-before-restore-and-stale-logs",
+      "foundBy": "U39 implementer lane (claude-opus), 2026-09-25",
+      "at": "2026-09-26T05:56:02.000Z",
+      "class": "proof evidence hygiene",
+      "summary": "roadmap-main-proof.mjs hashes the logs before the restore-next-env step, so that log is never hashed on a fresh run, and sha256.txt hashes any stale log left in the proof directory by an earlier attempt (u37's sha256.txt lists a restore-next-env.log from a prior attempt).",
+      "recommendedSuccessor": "the next unit on scripts/qc: hash after the last step and clear the directory first (or refuse a non-empty one)",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u39-rerun-skips-when-archive-covers-commit",
+      "foundBy": "U39 implementer lane (claude-opus), 2026-09-25",
+      "at": "2026-09-26T05:56:02.000Z",
+      "class": "ladder rerun semantics",
+      "summary": "validate-exact-main-regression-ladder.mjs --rerun skips the smoke rerun when an archive already covers the commit, so the new exact-main-ladder proof step may record a skip rather than a run on a commit proved before.",
+      "recommendedSuccessor": "U40 or the next scripts/qc unit: a --force flag for the proof step, or the step records the skip explicitly",
       "status": "recorded"
     }
   ]
