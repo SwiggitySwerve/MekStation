@@ -1,0 +1,995 @@
+{
+  "unit": "U92",
+  "stage": "local",
+  "status": "ready (local-verified): R1-R4 and the debit, solo, refusal and guest-route rows pass; every stage-3 gate passes after the parent-approved amendment of src/stores/campaign/__tests__/coopBattleReconciliationWiring.test.ts:163 (tsc exit 0); lifecycle-pack 2 passed; all five mutants killed and restored; live after-measurement shows the approval committing FundsChanged to host, journal, record and guest.",
+  "at": "2026-09-26T17:23:52.985Z",
+  "baseline": "1f11f4055419c998ff097144480af740efeacfc6",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u92",
+  "branch": "roadmap-u92-coop-gm-intervention-funds-20260926",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "firstAttempt": "evidence/u92-admission-attempt1-20260925.json",
+  "admission": "evidence/u92-admission-20260926.json",
+  "red": "evidence/u92-red-20260926.json",
+  "codingDoctrine": {
+    "fixAssessment": "Root cause: no host command carries a signed GM C-bill change (SpendFunds debits only, campaignSyncSchemas.ts:78), and the ledger page's approve reaches only the local store and the whole-campaign save (gm-ledger.tsx:42-50). Fix: one host-only intent kind that rides the existing validate -> dedupe -> commit -> fan-out door as FundsChanged, and the page sends it for a co-op funds approval instead of writing the store.",
+    "removed": [
+      "a new host door, binder branch or refusal code: the generic applyHostIntent arm (bindCampaignSyncConnection.ts:828-862) and the existing codes absorb it",
+      "a new host-only check: the binder's existing check (:735-746) absorbs it; a validate-arm check would be unreachable",
+      "a new event type: FundsChanged absorbs it",
+      "an edit of the canned ids (helpers.ts:26, src/components): the page-side builder mints a per-approval id",
+      "a schema in campaignSyncSchemas.ts: the kind stays out of the guest-parseable union, schema in Protocol.ts like ReconcileBattle",
+      "a timeout: U96's no-timeout contract is kept",
+      "a page-local fold of the event: the existing record re-read after a committed command absorbs it"
+    ],
+    "scope": "the funds-transaction family on a co-op host's GM ledger page. A solo campaign keeps its local path unchanged; on a co-op campaign the other families and the time cascade keep the baseline path (local store plus the whole-campaign save, adopted by the live host since U96) and stay recorded out of scope (FN-u92-other-intervention-families-unreachable)."
+  },
+  "lineCounts": {
+    "product": [
+      {
+        "path": "src/lib/campaign/coop/campaignSyncTransport.ts",
+        "added": 3,
+        "removed": 3
+      },
+      {
+        "path": "src/lib/multiplayer/server/CampaignMatchHost.doors.ts",
+        "added": 7,
+        "removed": 3
+      },
+      {
+        "path": "src/lib/multiplayer/server/CampaignMatchHost.ts",
+        "added": 4,
+        "removed": 3
+      },
+      {
+        "path": "src/lib/multiplayer/server/CampaignMatchHostIntent.ts",
+        "added": 27,
+        "removed": 3
+      },
+      {
+        "path": "src/lib/multiplayer/server/campaignIntentIdentity.ts",
+        "added": 3,
+        "removed": 3
+      },
+      {
+        "path": "src/pages/gameplay/campaigns/[id]/gm-ledger.tsx",
+        "added": 45,
+        "removed": 5
+      },
+      {
+        "path": "src/types/campaign/CampaignSync.ts",
+        "added": 29,
+        "removed": 0
+      },
+      {
+        "path": "src/types/multiplayer/Protocol.ts",
+        "added": 22,
+        "removed": 1
+      },
+      {
+        "path": "src/lib/campaign/coop/coopGmIntervention.ts",
+        "added": 119,
+        "removed": 0,
+        "note": "new file"
+      }
+    ],
+    "productAdded": 259,
+    "productRemoved": 21,
+    "productFiles": 9,
+    "tests": [
+      {
+        "path": "src/__tests__/api/campaigns/coopGmIntervention.test.ts",
+        "added": 393,
+        "removed": 0,
+        "note": "new file",
+        "sha256": "001b5e3658a54c924957a57f921fc37142e5a41f64507902a3d7d6dc782a0e47"
+      },
+      {
+        "path": "src/__tests__/pages/gameplay/campaigns/gm-ledger.coop.test.tsx",
+        "added": 326,
+        "removed": 0,
+        "note": "new file",
+        "sha256": "5cc9976ea46c2b4afd5c9470546b63dbf778a71c83c2f7cfbfe52da8e9eb0d57"
+      },
+      {
+        "path": "src/stores/campaign/__tests__/coopBattleReconciliationWiring.test.ts",
+        "added": 1,
+        "removed": 1,
+        "note": "parent-approved path amendment",
+        "sha256": "7953bee348b1ddfc0ab0bc236a4234a0e7a6679c8aa14da688a24e21e05679ce"
+      }
+    ],
+    "testAdded": 720,
+    "receipts": 3,
+    "caps": {
+      "maxFiles": 15,
+      "maxNonGeneratedLines": 500,
+      "within": true,
+      "note": "product lines only count toward 500 (OD-line-cap-product-lines); 9 product + 3 test + 3 receipt files = 15"
+    }
+  },
+  "productFileHashes": [
+    {
+      "path": "src/lib/campaign/coop/campaignSyncTransport.ts",
+      "sha256": "9a46cd004bf25f41515f17ffe8fd4c851436aa6879414148c2e4539bb47e37d3"
+    },
+    {
+      "path": "src/lib/multiplayer/server/CampaignMatchHost.doors.ts",
+      "sha256": "04b19f7e894e6073118f4ad4ab9b94d36f3d57034d615bcd32323ecf7b54b52a"
+    },
+    {
+      "path": "src/lib/multiplayer/server/CampaignMatchHost.ts",
+      "sha256": "4ec1d0944d408bc2124adf23348e55a7c3bed52e00501edb7f609a4586fe64df"
+    },
+    {
+      "path": "src/lib/multiplayer/server/CampaignMatchHostIntent.ts",
+      "sha256": "c7f192062422bce354b15990285a9be044d053a2f7088f5fe6d10c3882faf32a"
+    },
+    {
+      "path": "src/lib/multiplayer/server/campaignIntentIdentity.ts",
+      "sha256": "d932d9c855f184fb5c151b34cca3700071901fe4826391e3efa4576abb174242"
+    },
+    {
+      "path": "src/pages/gameplay/campaigns/[id]/gm-ledger.tsx",
+      "sha256": "149a457480777e15f9f3305f991a849985e64c3a3ee1455bfe76e791bae999f2"
+    },
+    {
+      "path": "src/types/campaign/CampaignSync.ts",
+      "sha256": "49c45ce20df5f018d111cfe2cb6d80dbfbb9c898e028b0f3a85e8ddb1a2d8a05"
+    },
+    {
+      "path": "src/types/multiplayer/Protocol.ts",
+      "sha256": "35268c8dde431f2430104db546d3d76561d7316cd3de2898158ad85b64b7ce70"
+    },
+    {
+      "path": "src/lib/campaign/coop/coopGmIntervention.ts",
+      "sha256": "453a54fb8f0da29b9493ec6db758d539e939d0046b8f7e7c1606cd374d39b61b"
+    }
+  ],
+  "rows": {
+    "command": "U35E_ROWS_DIR=<lane-temp>/rows-green npx jest src/__tests__/api/campaigns/coopGmIntervention.test.ts src/__tests__/pages/gameplay/campaigns/gm-ledger.coop.test.tsx",
+    "exitCode": 0,
+    "testsLine": "Tests:       8 passed, 8 total",
+    "log": {
+      "path": "<lane-temp>/logs/green-rows.log",
+      "sha256": "b59eb51da5dcbc507e25ce1c2b444915b4d82fe5f3d675d031215597627cfd9b"
+    },
+    "measurements": [
+      {
+        "path": "<lane-temp>/rows-green/u92-coop-gm-intervention.json",
+        "sha256": "3077b130dc9993bdd14dc275a651bf8ecfd7add2df83783a147f502812811495"
+      },
+      {
+        "path": "<lane-temp>/rows-green/u92-gm-ledger-page.json",
+        "sha256": "93025cc575afdd91a9ae6c32735f6783e5ecf4abb059a0bd40109bf6bfbc61ab"
+      }
+    ],
+    "note": "R1, R1 debit, R2 (api) and R3, R4, solo, refusal, guest route (page): 8 passed. The page run prints the control plane React duplicate-key warning for R3 (finding FN-u92-control-plane-ledger-rows-duplicate-key)."
+  },
+  "gates": {
+    "jestBroad": {
+      "command": "npx jest src/lib/multiplayer/server src/lib/campaign src/types src/components/campaign src/pages src/__tests__/api",
+      "exitCode": 0,
+      "suitesLine": "Test Suites: 558 passed, 558 total",
+      "testsLine": "Tests:       6881 passed, 6881 total",
+      "log": {
+        "path": "<lane-temp>/logs/jest-gate.log",
+        "sha256": "1079cfd20b8afa2232749049af146451792c01221768309b89ac58b46517114a"
+      },
+      "note": "the pattern src/pages does not match src/__tests__/pages; the page rows ran in the rows command and in jestExtra"
+    },
+    "jestExtra": {
+      "command": "npx jest src/__tests__/pages/gameplay/campaigns/gm-ledger.coop.test.tsx src/stores/campaign/__tests__/coopBattleReconciliationWiring.test.ts",
+      "exitCode": 0,
+      "testsLine": "Tests:       9 passed, 9 total",
+      "log": {
+        "path": "<lane-temp>/logs/jest-extra.log",
+        "sha256": "eb88049968549eb0d4a6be47ed1ab3ad89d2ab0fc28eea2f8121a47376d7fd0e"
+      },
+      "note": "the out-of-ownership test that fails the type check passes at runtime (SWC does not type-check)"
+    },
+    "tsc": {
+      "command": "npx tsc --noEmit",
+      "exitCode": 0,
+      "lastLine": "exit=0 with no output",
+      "log": {
+        "path": "<lane-temp>/logs/tsc-amended.log",
+        "sha256": "19eaf43821a7660ec323a87c8457bf74823beb296c39f5e01aa8a683aa50f061"
+      },
+      "previous": {
+        "exitCode": 2,
+        "log": {
+          "path": "<lane-temp>/logs/tsc-final.log",
+          "sha256": "c27a57cf050f9b15bf75e58d76e5a2729ecf4764eafaccbd1a8d33394adcddee"
+        },
+        "note": "before the amendment: the one TS2345 at src/stores/campaign/__tests__/coopBattleReconciliationWiring.test.ts(175,54)"
+      }
+    },
+    "oxlint": {
+      "command": "npx oxlint",
+      "exitCode": 0,
+      "lastLine": "Finished in 747ms on 3820 files using 16 threads.",
+      "log": {
+        "path": "<lane-temp>/logs/oxlint.log",
+        "sha256": "60154a8030d470ef107087f5ff10fd74bfdc49069b283e2e5c1865351568b9a5"
+      },
+      "summary": "Found 84 warnings and 0 errors.",
+      "versusBaseline": "84 warnings, the same count as the charter baseline (84); 0 errors"
+    },
+    "oxfmt": {
+      "command": "npx oxfmt --check <the 9 product files and 2 test files>",
+      "exitCode": 0,
+      "lastLine": "Finished in 32ms on 11 files using 16 threads.",
+      "log": {
+        "path": "<lane-temp>/logs/oxfmt.log",
+        "sha256": "30bf2904b569303f9da9a24ef525d17e738bda7f6186b153b933df96c81d61e1"
+      }
+    },
+    "lintUnits": {
+      "command": "npm run lint:units",
+      "exitCode": 0,
+      "lastLine": "LINT_UNITS_PASS 100/100",
+      "log": {
+        "path": "<lane-temp>/logs/lint-units-amended.log",
+        "sha256": "c06504796b3420c0a8315439709a8398e009646ac40db39f312a4d7b4735702d"
+      },
+      "note": "this worktree is at the baseline 1f11f4055, before U40's merge (edd6b427d, main now de207e4f1); its lint:units lints e2e and scripts only, so it does not cover src tests.",
+      "u40Ratchet": {
+        "command": "NODE_PATH=E:/Projects/MekStation/node_modules node <lane-temp>/u40-qc/scripts/qc/lint-units.mjs (cwd = worktree; origin/main's lint-units.mjs, lint-units.ceiling.json and lint-units-src-tests.ignore via git show, with the unchanged oxlint-units.json and .oxlintrc.json copied beside them)",
+        "exitCode": 0,
+        "lines": [
+          "LINT_UNITS_PATH e2e files=194 findings=50 ceiling=50 PASS",
+          "LINT_UNITS_PATH scripts files=186 findings=50 ceiling=50 PASS",
+          "LINT_UNITS_PATH src/pages/api files=97 findings=16 ceiling=16 PASS",
+          "LINT_UNITS_PATH src-tests files=2674 findings=10503 ceiling=17783 PASS",
+          "LINT_UNITS_PASS 10619/17899"
+        ],
+        "log": {
+          "path": "<lane-temp>/logs/lint-units-u40.log",
+          "sha256": "2862c8e6af0c179dd591a0d63806d24fb94b1f39be88197c8c15b9e9f78fc9b5"
+        },
+        "caveat": "src-tests walked 2674 files, not the ~3203 of U40's measurement: the ignore file sits on drive C while the worktree is on drive E, so its path cannot be cwd-relative and oxlint's __tests__ negation stops matching (the absolute-path behaviour lint-units.mjs:31-36 records). The PASS verdict therefore under-counts src-tests; it is not the ratchet's own reading."
+      },
+      "ownFiles": {
+        "command": "node <oxlint bin> --config scripts/qc/oxlint-units.json --no-ignore --format json <the 2 new test files and src/stores/campaign/__tests__/coopBattleReconciliationWiring.test.ts>",
+        "files": 3,
+        "findingsPerFile": {
+          "src/__tests__/api/campaigns/coopGmIntervention.test.ts": [],
+          "src/__tests__/pages/gameplay/campaigns/gm-ledger.coop.test.tsx": [],
+          "src/stores/campaign/__tests__/coopBattleReconciliationWiring.test.ts": [
+            "eslint-plugin-react-hooks(rules-of-hooks)",
+            "eslint(no-unused-vars)",
+            "eslint(no-unused-vars)"
+          ]
+        },
+        "amendedFileBaseline": {
+          "findings": [
+            "eslint-plugin-react-hooks(rules-of-hooks)"
+          ],
+          "log": {
+            "path": "<lane-temp>/logs/oxlint-units-wiring-baseline.json",
+            "sha256": "8b39eb7eacd61559cb36cdf29cb16c2dd8e6bfa03360ca13070faabbed4b0a33"
+          }
+        },
+        "json": {
+          "path": "<lane-temp>/logs/oxlint-units-mine.json",
+          "sha256": "a813b79c20ef759445ed1f277d9355aa6d194bec9e7766f23c98e8465e46b5bc"
+        },
+        "reading": "the two new test files carry 0 findings under the units config; the amended file carries 2 more than its baseline copy (the imports its line 163 no longer uses)"
+      }
+    },
+    "openspec": {
+      "command": "npm run qc:openspec-ci:validate",
+      "exitCode": 0,
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "log": {
+        "path": "<lane-temp>/logs/openspec.log",
+        "sha256": "f48d24250c83fb8aab7eb3dfa985170545e425403247074a986db36cb479acd7"
+      }
+    },
+    "roadmapValidator": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "log": {
+        "path": "<lane-temp>/logs/validator.log",
+        "sha256": "cd9e20f81bd1bfc7565f1c50d9f7ff16bb85d1b0e6eca37f6ae289413ab3fa19"
+      }
+    },
+    "build": {
+      "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+      "pre": "MACHINE_IDLE\nidleExit=0 holdWaitSeconds=0",
+      "start": "2026-09-26T17:13:27Z",
+      "exit": "exit=1 at 2026-09-26T17:14:43Z",
+      "compiled": "✓ Compiled successfully in 24.2s",
+      "lastLine": "\"error\": \"Unsafe hydration destination (runtime loader tsx) contains a symlink or junction: .next\\\\standalone\\\\node_modules\" (hydration guard, exit 1 by design)",
+      "marker": ".next/static/chunks/pages/_app-9b0c0bcbc1c7c4f2.js\n.next/static/chunks/pages/_app-9b0c0bcbc1c7c4f2.js\nmarkerGrepExit=0",
+      "log": {
+        "path": "<lane-temp>/build-after.log",
+        "sha256": "a65b8d200795582b1a26be3900b6b2e8655f821e460ba5eb1781d4b47657d757"
+      }
+    },
+    "lifecyclePack": {
+      "command": "HOSTNAME=127.0.0.1 NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=lifecycle-pack",
+      "pre": "MACHINE_IDLE\nidleExit=0 holdWaitSeconds=0",
+      "start": "2026-09-26T17:15:29Z",
+      "exit": "exit=0 at 2026-09-26T17:15:50Z",
+      "port": 27487,
+      "portLine": "[WebServer] > Ready on http://127.0.0.1:27487 (multiplayer socket: /api/multiplayer/socket)",
+      "summaryLine": "",
+      "rows": [
+        "ok 1 [chromium] › e2e\\gm-two-player-lifecycle.pack.spec.ts:179:5 › E2E-75 lifecycle postures are distinct, announced and correctly gated @lifecycle-pack @E2E-75 (6.4s)",
+        "ok 2 [chromium] › e2e\\gm-two-player-lifecycle.pack.spec.ts:305:5 › E2E-75 lifecycle postures pending and blocked are distinct, announced and correctly gated @lifecycle-pack @E2E-75 (7.7s)"
+      ],
+      "log": {
+        "path": "<lane-temp>/ladder-lifecycle.log",
+        "sha256": "c57f8a4db6bfeca504759784a229a04813f43312896a88faa4f290eac254a01e"
+      }
+    },
+    "guard": {
+      "command": "npm run --silent qc:guard-node-modules-link",
+      "exitCode": 1,
+      "lastLine": "INSTALL_REFUSED node-modules-is-link (by design in a junctioned worktree; see the admission receipt)"
+    },
+    "parentHold": "PARENT-PROOF-HOLD was present 16:55:58Z to about 17:07Z (the baseline build waited 720 s); absent at every later build, live run and ladder start (holdWaitSeconds=0 in each .pre)",
+    "listenersAfter": "netstat: no listeners on 27487, 27921-27923, 29921-29923 after the runs",
+    "jestAmended": {
+      "command": "npx jest src/stores/campaign/__tests__/coopBattleReconciliationWiring.test.ts src/__tests__/api/campaigns/coopGmIntervention.test.ts src/__tests__/pages/gameplay/campaigns/gm-ledger.coop.test.tsx",
+      "exitCode": 0,
+      "suitesLine": "Test Suites: 3 passed, 3 total",
+      "testsLine": "Tests:       12 passed, 12 total",
+      "perSuite": [
+        "PASS unit src/stores/campaign/__tests__/coopBattleReconciliationWiring.test.ts",
+        "PASS unit src/__tests__/pages/gameplay/campaigns/gm-ledger.coop.test.tsx",
+        "PASS unit src/__tests__/api/campaigns/coopGmIntervention.test.ts"
+      ],
+      "log": {
+        "path": "<lane-temp>/logs/jest-amended.log",
+        "sha256": "fe55f693656cf9fc80035dc37bdeece88946a705d20a3b07e3d887197d8ebe4f"
+      },
+      "note": "wiring test 4 + api rows 3 + page rows 5 = 12"
+    },
+    "oxfmtAmended": {
+      "command": "npx oxfmt --check src/stores/campaign/__tests__/coopBattleReconciliationWiring.test.ts",
+      "exitCode": 0,
+      "lastLine": "All matched files use the correct format.",
+      "log": {
+        "path": "<lane-temp>/logs/oxfmt-amended.log",
+        "sha256": "275709feeac24db6d7f279f4eefa2fa89cf240e5dfb13a071f54b0f2b0ae8f24"
+      }
+    }
+  },
+  "liveMeasurements": {
+    "driver": {
+      "path": "<lane-temp>/u92-live-driver.cjs",
+      "sha256": "6fc3d4886c8d9fce8da6701af58e2a076ba7eca086746fb6f5066842c32f7554",
+      "note": "the after-arm call was corrected once after red: attempt 1 passed the whole approved state instead of its gmInterventionEvents (TypeError in the driver, server killed, kept as <lane-temp>/live-after-attempt1.json); the before-arm lines are unchanged from the red run"
+    },
+    "before": {
+      "port": 27921,
+      "inspectPort": 29921,
+      "serverPid": 28204,
+      "serverKilled": true,
+      "serverAliveAfterKill": false,
+      "stdout": {
+        "path": "<lane-temp>/live-before.stdout",
+        "sha256": "76105a95fb58c7292914c02082a402bfbe6fcd5b83a663f9d91629cbac5b50e8"
+      },
+      "json": {
+        "path": "<lane-temp>/live-before.json",
+        "sha256": "e7404b8e994d7e38b10c2140d3cc2ea16da7a3505b575321f4f60cde808227fa"
+      },
+      "steps": [
+        {
+          "step": "S1 guest joined by room code, GM connected (real client transports)",
+          "record": {
+            "version": 1,
+            "balance": 380000,
+            "gmInterventionEvents": null
+          },
+          "entry": {
+            "hostClosed": false,
+            "paused": false,
+            "hostLiveBalance": 380000,
+            "hostLiveDay": 0
+          },
+          "journal": {
+            "types": [
+              "CampaignSnapshotPublished"
+            ],
+            "balance": 380000,
+            "day": 0
+          }
+        },
+        {
+          "step": "S2 GM approves the merchant reversal; the baseline page saves it through the whole-campaign PUT",
+          "approval": {
+            "status": "approved",
+            "approvedBalance": 382500,
+            "newestEffect": {
+              "interventionId": "gm-ledger-merchant-reversal",
+              "family": "funds-transaction",
+              "publicSummary": "Merchant charge corrected by +2,500.00 C-bills."
+            }
+          },
+          "put": {
+            "status": 200,
+            "savedVersion": 2,
+            "savedBalance": 382500,
+            "kind": null,
+            "reason": null
+          },
+          "guestFramesAfter": [
+            {
+              "kind": "CampaignSnapshot",
+              "code": null,
+              "reason": null,
+              "intentId": null,
+              "eventType": "CampaignSnapshotPublished",
+              "sequence": 1,
+              "payload": {
+                "balance": 382500,
+                "day": 0
+              }
+            }
+          ],
+          "gmFramesAfter": [
+            {
+              "kind": "CampaignSnapshot",
+              "code": null,
+              "reason": null,
+              "intentId": null,
+              "eventType": "CampaignSnapshotPublished",
+              "sequence": 1,
+              "payload": {
+                "balance": 382500,
+                "day": 0
+              }
+            }
+          ],
+          "record": {
+            "version": 2,
+            "balance": 382500,
+            "gmInterventionEvents": 1
+          },
+          "entry": {
+            "hostClosed": false,
+            "paused": false,
+            "hostLiveBalance": 382500,
+            "hostLiveDay": 0
+          },
+          "journal": {
+            "types": [
+              "CampaignSnapshotPublished",
+              "CampaignSnapshotPublished"
+            ],
+            "balance": 382500,
+            "day": 0
+          }
+        },
+        {
+          "step": "S5 GM sends AdvanceDay (reads FN-u96-guests-do-not-ack-snapshot-frames)",
+          "guestFramesAfter": [],
+          "gmFramesAfter": [
+            {
+              "kind": "Error",
+              "code": "CAMPAIGN_NOT_CONVERGED",
+              "reason": "participants-behind pid_AggBtVeT1xaewDyAAsCzsEb4sFY:0; requiredRevision 1",
+              "intentId": "u92-before-advance-day",
+              "eventType": null,
+              "sequence": null,
+              "payload": null
+            }
+          ],
+          "record": {
+            "version": 2,
+            "balance": 382500,
+            "gmInterventionEvents": 1
+          },
+          "entry": {
+            "hostClosed": false,
+            "paused": false,
+            "hostLiveBalance": 382500,
+            "hostLiveDay": 0
+          },
+          "journal": {
+            "types": [
+              "CampaignSnapshotPublished",
+              "CampaignSnapshotPublished"
+            ],
+            "balance": 382500,
+            "day": 0
+          }
+        }
+      ]
+    },
+    "afterAttempt1": {
+      "port": 27922,
+      "inspectPort": 29922,
+      "error": "TypeError: (gmInterventionEvents ?? []).slice is not a function",
+      "serverKilled": true,
+      "json": {
+        "path": "<lane-temp>/live-after-attempt1.json",
+        "sha256": "e15a06d78f6820ab75d3d3c6397776e88bf05e910120d042dab9bcf3ccdc95ca"
+      }
+    },
+    "after": {
+      "port": 27923,
+      "inspectPort": 29923,
+      "pre": "MACHINE_IDLE\nidleExit=0 holdWaitSeconds=0\nholdAbsentAt=2026-09-26T17:15:02Z port=27923 inspectPort=29923",
+      "exit": "exit=0 at 2026-09-26T17:15:11Z\nno listener 27923",
+      "serverPid": 35388,
+      "serverKilled": true,
+      "serverAliveAfterKill": false,
+      "transportErrors": {
+        "gm": [],
+        "guest": []
+      },
+      "stdout": {
+        "path": "<lane-temp>/live-after.stdout",
+        "sha256": "2590ecc8d0b6eb88d6f4d105decfc4c2120e0f32695635377af539fdd65afdd7"
+      },
+      "json": {
+        "path": "<lane-temp>/live-after.json",
+        "sha256": "bd802c888b4506e331c37f70b119e27fe64b6828d0aae1c91002e3fe22e634d5"
+      },
+      "steps": [
+        {
+          "step": "S1 guest joined by room code, GM connected (real client transports)",
+          "record": {
+            "version": 1,
+            "balance": 380000,
+            "gmInterventionEvents": null
+          },
+          "entry": {
+            "hostClosed": false,
+            "paused": false,
+            "hostLiveBalance": 380000,
+            "hostLiveDay": 0
+          },
+          "journal": {
+            "types": [
+              "CampaignSnapshotPublished"
+            ],
+            "balance": 380000,
+            "day": 0
+          }
+        },
+        {
+          "step": "S2 GM approval 1 of the merchant reversal through the page's co-op path",
+          "approval": {
+            "status": "approved"
+          },
+          "intent": {
+            "kind": "ApplyGmIntervention",
+            "campaignId": "campaign-u92-after-1790442905681",
+            "intentId": "gm-intervention-gm-ledger-merchant-reversal-muinh8d8-urs650",
+            "payload": {
+              "interventionId": "gm-ledger-merchant-reversal-muinh8d8-urs650",
+              "summary": "Merchant charge corrected by +2,500.00 C-bills.",
+              "deltaCBills": 2500
+            }
+          },
+          "sendAnswer": null,
+          "guestFramesAfter": [
+            {
+              "kind": "CampaignEvent",
+              "code": null,
+              "reason": null,
+              "intentId": null,
+              "eventType": "FundsChanged",
+              "sequence": 1,
+              "payload": {
+                "delta": 2500,
+                "reason": "Merchant charge corrected by +2,500.00 C-bills.",
+                "balance": 382500
+              }
+            }
+          ],
+          "gmFramesAfter": [
+            {
+              "kind": "CampaignEvent",
+              "code": null,
+              "reason": null,
+              "intentId": null,
+              "eventType": "FundsChanged",
+              "sequence": 1,
+              "payload": {
+                "delta": 2500,
+                "reason": "Merchant charge corrected by +2,500.00 C-bills.",
+                "balance": 382500
+              }
+            }
+          ],
+          "record": {
+            "version": 2,
+            "balance": 382500,
+            "gmInterventionEvents": null
+          },
+          "entry": {
+            "hostClosed": false,
+            "paused": false,
+            "hostLiveBalance": 382500,
+            "hostLiveDay": 0
+          },
+          "journal": {
+            "types": [
+              "CampaignSnapshotPublished",
+              "FundsChanged"
+            ],
+            "balance": 382500,
+            "day": 0
+          }
+        },
+        {
+          "step": "S3 GM approval 2 of the merchant reversal through the page's co-op path",
+          "approval": {
+            "status": "approved"
+          },
+          "intent": {
+            "kind": "ApplyGmIntervention",
+            "campaignId": "campaign-u92-after-1790442905681",
+            "intentId": "gm-intervention-gm-ledger-merchant-reversal-muinh95j-2dbc2l",
+            "payload": {
+              "interventionId": "gm-ledger-merchant-reversal-muinh95j-2dbc2l",
+              "summary": "Merchant charge corrected by +2,500.00 C-bills.",
+              "deltaCBills": 2500
+            }
+          },
+          "sendAnswer": null,
+          "guestFramesAfter": [
+            {
+              "kind": "CampaignEvent",
+              "code": null,
+              "reason": null,
+              "intentId": null,
+              "eventType": "FundsChanged",
+              "sequence": 2,
+              "payload": {
+                "delta": 2500,
+                "reason": "Merchant charge corrected by +2,500.00 C-bills.",
+                "balance": 385000
+              }
+            }
+          ],
+          "gmFramesAfter": [
+            {
+              "kind": "CampaignEvent",
+              "code": null,
+              "reason": null,
+              "intentId": null,
+              "eventType": "FundsChanged",
+              "sequence": 2,
+              "payload": {
+                "delta": 2500,
+                "reason": "Merchant charge corrected by +2,500.00 C-bills.",
+                "balance": 385000
+              }
+            }
+          ],
+          "record": {
+            "version": 3,
+            "balance": 385000,
+            "gmInterventionEvents": null
+          },
+          "entry": {
+            "hostClosed": false,
+            "paused": false,
+            "hostLiveBalance": 385000,
+            "hostLiveDay": 0
+          },
+          "journal": {
+            "types": [
+              "CampaignSnapshotPublished",
+              "FundsChanged",
+              "FundsChanged"
+            ],
+            "balance": 385000,
+            "day": 0
+          }
+        },
+        {
+          "step": "S4 guest sends ApplyGmIntervention on its own socket",
+          "forgedIntentId": "gm-intervention-gm-ledger-merchant-reversal-muinh9xp-wf53vn",
+          "guestFramesAfter": [
+            {
+              "kind": "Error",
+              "code": "AUTH_REJECTED",
+              "reason": "campaign-host-intent-requires-host",
+              "intentId": "gm-intervention-gm-ledger-merchant-reversal-muinh9xp-wf53vn",
+              "eventType": null,
+              "sequence": null,
+              "payload": null
+            }
+          ],
+          "record": {
+            "version": 3,
+            "balance": 385000,
+            "gmInterventionEvents": null
+          },
+          "entry": {
+            "hostClosed": false,
+            "paused": false,
+            "hostLiveBalance": 385000,
+            "hostLiveDay": 0
+          },
+          "journal": {
+            "types": [
+              "CampaignSnapshotPublished",
+              "FundsChanged",
+              "FundsChanged"
+            ],
+            "balance": 385000,
+            "day": 0
+          }
+        },
+        {
+          "step": "S5 GM sends AdvanceDay (reads FN-u96-guests-do-not-ack-snapshot-frames)",
+          "guestFramesAfter": [
+            {
+              "kind": "CampaignEvent",
+              "code": null,
+              "reason": null,
+              "intentId": null,
+              "eventType": "CampaignDayAdvanced",
+              "sequence": 3,
+              "payload": {
+                "newDay": 1
+              }
+            }
+          ],
+          "gmFramesAfter": [
+            {
+              "kind": "CampaignEvent",
+              "code": null,
+              "reason": null,
+              "intentId": null,
+              "eventType": "CampaignDayAdvanced",
+              "sequence": 3,
+              "payload": {
+                "newDay": 1
+              }
+            }
+          ],
+          "record": {
+            "version": 4,
+            "balance": 385000,
+            "gmInterventionEvents": null
+          },
+          "entry": {
+            "hostClosed": false,
+            "paused": false,
+            "hostLiveBalance": 385000,
+            "hostLiveDay": 1
+          },
+          "journal": {
+            "types": [
+              "CampaignSnapshotPublished",
+              "FundsChanged",
+              "FundsChanged",
+              "CampaignDayAdvanced"
+            ],
+            "balance": 385000,
+            "day": 1
+          }
+        }
+      ]
+    },
+    "readings": [
+      "After: approval 1 through the page co-op path sent ApplyGmIntervention {deltaCBills 2500, summary \"Merchant charge corrected by +2,500.00 C-bills.\"}; the send answered null (committed); guest and GM each received CampaignEvent FundsChanged sequence 1 {delta 2500, reason = the summary, balance 382500}; host live 382500; journal [CampaignSnapshotPublished, FundsChanged] replaying 382500; record v2 382500.",
+      "After: approval 2 of the same canned correction carried a different interventionId and committed a second FundsChanged sequence 2 to balance 385000; record v3 385000.",
+      "After: the guest sending the same kind on its own socket was answered Error AUTH_REJECTED campaign-host-intent-requires-host with its intentId; nothing committed (385000, journal unchanged).",
+      "After: the GM AdvanceDay then committed CampaignDayAdvanced newDay 1 (sequence 3): the guest transport acked the FundsChanged events, so FN-u96-guests-do-not-ack-snapshot-frames does not arise on this path. Before: the same AdvanceDay after the adopted snapshot was refused CAMPAIGN_NOT_CONVERGED participants-behind.",
+      "After: the saved record carries no gmInterventionEvents for the co-op approvals (record.gmInterventionEvents null at every step): the owner default \"no separate local-store write\" (risk recorded at admission)."
+    ]
+  },
+  "mutants": [
+    {
+      "id": "M1",
+      "what": "the host-only check removed (the binder commits a CampaignHostIntent from any player)",
+      "file": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+      "command": "npx jest src/__tests__/api/campaigns/coopGmIntervention.test.ts -t \"R2\"",
+      "exitCode": 1,
+      "testsLine": "Tests:       1 failed, 2 skipped, 3 total",
+      "failingRows": [
+        "● U92 ApplyGmIntervention through the live co-op host › (R2) the same intent from the guest is refused host-only and commits nothing; a guest proposal carrying it commits nothing"
+      ],
+      "killed": true,
+      "preSha256": "44e4a0b553432ca48018d3cabd63b356ff160047663b68c0619a772d3cc4c333",
+      "mutatedSha256": "0bdc3812748b26241df9b49798f03f098e00f48730b4aff91ce9c2fdacdee94f",
+      "restoredSha256": "44e4a0b553432ca48018d3cabd63b356ff160047663b68c0619a772d3cc4c333",
+      "restored": true,
+      "log": "<lane-temp>/logs/mutant-M1.log",
+      "logSha256": "f2281d4b654eccfbcc21495fdb42d2589c73f0e45aeeb2cbfd997412beddaae0",
+      "logPath": "<lane-temp>/logs/mutant-M1.log"
+    },
+    {
+      "id": "M2",
+      "what": "the interventionId is the canned constant again",
+      "file": "src/lib/campaign/coop/coopGmIntervention.ts",
+      "command": "npx jest src/__tests__/pages/gameplay/campaigns/gm-ledger.coop.test.tsx -t \"R3\"",
+      "exitCode": 1,
+      "testsLine": "Tests:       1 failed, 4 skipped, 5 total",
+      "failingRows": [
+        "● GM ledger page approve on a co-op host (U92) › (R3) two approvals of one canned correction carry two distinct intervention ids"
+      ],
+      "killed": true,
+      "preSha256": "453a54fb8f0da29b9493ec6db758d539e939d0046b8f7e7c1606cd374d39b61b",
+      "mutatedSha256": "f65214cfc9e525177cf8f51fe20ec6c30e0ee782c0c9d0e32ecc73ccab351930",
+      "restoredSha256": "453a54fb8f0da29b9493ec6db758d539e939d0046b8f7e7c1606cd374d39b61b",
+      "restored": true,
+      "log": "<lane-temp>/logs/mutant-M2.log",
+      "logSha256": "bc04bb02fbaf57364e9088bd4c6a6f5937572f7d1fd58da0da06bbf5b21735fb",
+      "logPath": "<lane-temp>/logs/mutant-M2.log"
+    },
+    {
+      "id": "M3",
+      "what": "the approve callback writes the local store as well as sending",
+      "file": "src/pages/gameplay/campaigns/[id]/gm-ledger.tsx",
+      "command": "npx jest src/__tests__/pages/gameplay/campaigns/gm-ledger.coop.test.tsx -t \"R4\"",
+      "exitCode": 1,
+      "testsLine": "Tests:       1 failed, 4 skipped, 5 total",
+      "failingRows": [
+        "● GM ledger page approve on a co-op host (U92) › (R4) a co-op funds approval sends ApplyGmIntervention and does not write the local store"
+      ],
+      "killed": true,
+      "preSha256": "149a457480777e15f9f3305f991a849985e64c3a3ee1455bfe76e791bae999f2",
+      "mutatedSha256": "e49745f04a39502d32ae63c513f316f9d15b32cf34024ff32eb0b520867c9535",
+      "restoredSha256": "149a457480777e15f9f3305f991a849985e64c3a3ee1455bfe76e791bae999f2",
+      "restored": true,
+      "log": "<lane-temp>/logs/mutant-M3.log",
+      "logSha256": "77c2e4a9795060fb545848d78a8e472fb5872ab00316cae22e026acc5b1a8b52",
+      "logPath": "<lane-temp>/logs/mutant-M3.log"
+    },
+    {
+      "id": "M4",
+      "what": "the delta sign dropped in the host arm",
+      "file": "src/lib/multiplayer/server/CampaignMatchHostIntent.ts",
+      "command": "npx jest src/__tests__/api/campaigns/coopGmIntervention.test.ts -t \"R1 debit\"",
+      "exitCode": 1,
+      "testsLine": "Tests:       1 failed, 2 skipped, 3 total",
+      "failingRows": [
+        "● U92 ApplyGmIntervention through the live co-op host › (R1 debit) a negative delta lowers the balance by its size; a debit past zero is refused insufficient-funds"
+      ],
+      "killed": true,
+      "preSha256": "c7f192062422bce354b15990285a9be044d053a2f7088f5fe6d10c3882faf32a",
+      "mutatedSha256": "c3ffd1efdd45da5d5935984715b264a027c1671f88db4bcc8196433246b8b15e",
+      "restoredSha256": "c7f192062422bce354b15990285a9be044d053a2f7088f5fe6d10c3882faf32a",
+      "restored": true,
+      "log": "<lane-temp>/logs/mutant-M4.log",
+      "logSha256": "100d96f14c4cdac994c045324e5d141d5b0e451221a76f135644d1544c0c6171",
+      "logPath": "<lane-temp>/logs/mutant-M4.log"
+    },
+    {
+      "id": "M5",
+      "what": "the wire schema entry removed from the host-intent frame",
+      "file": "src/types/multiplayer/Protocol.ts",
+      "command": "npx jest src/__tests__/api/campaigns/coopGmIntervention.test.ts -t \"R1\"",
+      "exitCode": 1,
+      "testsLine": "Tests:       2 failed, 1 skipped, 3 total",
+      "failingRows": [
+        "● U92 ApplyGmIntervention through the live co-op host › (R1) the host commits FundsChanged with the delta; guest, host, journal and record carry it; a second approval commits again; a resend does not",
+        "● U92 ApplyGmIntervention through the live co-op host › (R1 debit) a negative delta lowers the balance by its size; a debit past zero is refused insufficient-funds"
+      ],
+      "killed": true,
+      "preSha256": "35268c8dde431f2430104db546d3d76561d7316cd3de2898158ad85b64b7ce70",
+      "mutatedSha256": "17274876421634646fb02dca3e7ca314c4e460d95c6d7cf7816a4ac659ac0764",
+      "restoredSha256": "35268c8dde431f2430104db546d3d76561d7316cd3de2898158ad85b64b7ce70",
+      "restored": true,
+      "log": "<lane-temp>/logs/mutant-M5.log",
+      "logSha256": "db16b50af052db0572822e99b4c38542b9b6c969590f013ed34ac29ff5e052d0",
+      "logPath": "<lane-temp>/logs/mutant-M5.log"
+    }
+  ],
+  "nonClaims": [
+    "The page itself was not driven in a browser: the approve callback is proven in jsdom (R3, R4, refusal, solo); the live runs call the same lib functions the callback calls, on the real approval pipeline and the real client transport in Node, against the standalone server.",
+    "The live runs do not exercise the host browser refresh after a commit (refreshAfterCommittedCommand is asserted called in R4 with a spy, not run against the server).",
+    "R1/R2 run the socket binder with replicaStore null (the joinGuest path) and no membership port, as the existing binder tests do; production binds a membership port and the process replica store.",
+    "The live baseline approve PUT is an emulation of the store co-op save (the stored record with the approved balance, gmInterventionEvents and the host co-op session), not the store code itself.",
+    "No other intervention family, the time cascade, or the guest GM ledger route was changed; the guest route reading is jsdom only.",
+    "No commit, push or stash; no npm install; nothing outside the ownership paths, the parent-amended test file (line 163 only), the two new test files and the three receipts was edited. The U40 ratchet copy lives in the lane temp directory, not in the worktree.",
+    "The live measurements, the build, the ladder and the mutants were run before the amendment; the amendment changes only a test type alias, and the re-run gates are tsc, the three affected suites, oxfmt and lint:units."
+  ],
+  "findings": [
+    {
+      "id": "FN-u92-transport-fake-types-pin-host-intent-union",
+      "class": "blocks tsc (ownership)",
+      "summary": "src/stores/campaign/__tests__/coopBattleReconciliationWiring.test.ts:163 hand-copies the sendHostIntent parameter union; widening the owned transport interface for ApplyGmIntervention fails its type check at :175 (TS2345). Runtime passes.",
+      "recommendedSuccessor": "the parent amends that line onto U92 (one line) or rules another shape",
+      "status": "resolved by the parent-approved amendment at :163 (tsc exit 0)",
+      "residual": "lines 21-22 now import two unused types (2 no-unused-vars findings under the units config); not removed per the instruction"
+    },
+    {
+      "id": "FN-u92-control-plane-ledger-rows-duplicate-key",
+      "class": "adjacent defect (measured in jsdom, R3 and on the baseline)",
+      "summary": "The control plane keys its component-local ledger rows on the canned intervention id (action:gm-ledger-merchant-reversal), so two approvals of one canned correction warn \"Encountered two children with the same key\" (src/components/campaign/gm).",
+      "recommendedSuccessor": "the next unit that edits src/components/campaign/gm"
+    },
+    {
+      "id": "FN-u92-control-plane-reports-applied-after-refusal",
+      "class": "misleading status (code-read; pre-existing for a refused co-op save)",
+      "summary": "handleApprove sets \"Approved and applied to campaign state.\" after the callback returns regardless of its outcome (GmCampaignInterventionControlPlane.tsx:318-321); after a host refusal the page toasts the refusal while the control plane says applied.",
+      "recommendedSuccessor": "a control-plane unit (the callback reports an outcome)"
+    },
+    {
+      "id": "FN-u92-approve-not-gated-in-flight",
+      "class": "idempotency hazard (code-read)",
+      "summary": "The approve button stays enabled while the host round trip is in flight (GmCampaignInterventionActions.tsx:134-135); each click is a fresh approval with a fresh id, so a double click commits twice. On the baseline the double click wrote the same absolute balance twice.",
+      "recommendedSuccessor": "the same control-plane unit"
+    },
+    {
+      "id": "FN-u92-coop-funds-approval-not-in-record-history",
+      "class": "owner-default consequence (measured live)",
+      "summary": "A co-op funds approval no longer writes finances.transactions or gmInterventionEvents to the host record (record.gmInterventionEvents null after both approvals); the host GM ledger lists it only in component-local rows until reload.",
+      "recommendedSuccessor": "owner decision at the next triage if the history must persist"
+    },
+    {
+      "id": "FN-u96-guests-do-not-ack-snapshot-frames",
+      "class": "measured (was code-read)",
+      "summary": "Measured live on the baseline: after an adopted host PUT the GM AdvanceDay is refused CAMPAIGN_NOT_CONVERGED participants-behind <guest>:0; requiredRevision 1. On the U92 funds path the guest acks the FundsChanged and AdvanceDay commits.",
+      "recommendedSuccessor": "unchanged (a one-line ack on snapshot frames); still reachable through every other PUT-adopted change"
+    },
+    {
+      "id": "FN-u96-put-host-identity-is-a-body-claim",
+      "class": "touched in the baseline measurement",
+      "summary": "The baseline driver PUT carried no credential and was adopted on its body co-op session. U92 moves co-op funds approvals off the PUT onto the token-authenticated socket.",
+      "recommendedSuccessor": "unchanged"
+    },
+    {
+      "id": "FN-u96-resent-advanceday-waits-without-timeout",
+      "class": "not touched",
+      "summary": "The funds path never re-sends an intent (one send per approval, a fresh intentId); the no-timeout wait on a lost answer is shared with the day advance.",
+      "recommendedSuccessor": "unchanged"
+    },
+    {
+      "id": "FN-u92-guest-ledger-route-reads-unmirrored-data",
+      "class": "confirmed (jsdom)",
+      "summary": "A guest whose balance took the correction renders the player-only route with \"No player-visible ledger entries yet.\"; the correction reaches the guest balance and feed (FundsChanged reason = public summary), not that route.",
+      "recommendedSuccessor": "unchanged (a follow-on per the finding)"
+    },
+    {
+      "id": "FN-u92-charter-baseline-expectation-superseded-by-u96",
+      "class": "charter drift (measured)",
+      "summary": "The charter expected the baseline approval to reach no host; since U96 it reaches the host and the guest as a whole-state CampaignSnapshot (no FundsChanged, no feed line).",
+      "recommendedSuccessor": "none; recorded in the red receipt"
+    },
+    {
+      "id": "FN-u92-review-classes-drift",
+      "class": "ledger drift",
+      "summary": "The charter names reviewClasses [authority, idempotency]; units.json U92 reads [authority, privacy, idempotency].",
+      "recommendedSuccessor": "the parent reconciles"
+    }
+  ],
+  "priorStatus": {
+    "status": "BLOCKED (ownership): every stage-3 gate passes except npx tsc --noEmit, which exits 2 with exactly one error in a test file outside U92's paths: src/stores/campaign/__tests__/coopBattleReconciliationWiring.test.ts(175,54) TS2345. Its fake transport pushes sendHostIntent's argument into a local HostIntent[] typed ICampaignIntent | ICampaignReconcileBattleIntent (line 163), and the widened ICampaignSyncTransport.sendHostIntent parameter now also admits ICampaignApplyGmInterventionIntent. The one-line fix is at that file:163 (HostIntent = Parameters<ICampaignSyncTransport['sendHostIntent']>[0], or add ICampaignApplyGmInterventionIntent to the union); it was not made because src/stores is read-only for this lane. Not ready to fold until the parent amends that line (or rules another shape) and re-runs tsc.",
+    "at": "2026-09-26T17:20:14.379Z"
+  },
+  "pathAmendment": {
+    "by": "parent (coordinator message during the lane, 2026-09-26)",
+    "file": "src/stores/campaign/__tests__/coopBattleReconciliationWiring.test.ts",
+    "why": "a test of the transport interface the unit widened; R2.authority-live owns src/stores/campaign",
+    "change": "line 163 only: `type HostIntent = ICampaignIntent | ICampaignReconcileBattleIntent;` -> `type HostIntent = Parameters<ICampaignSyncTransport['sendHostIntent']>[0];`",
+    "diff": "diff --git a/src/stores/campaign/__tests__/coopBattleReconciliationWiring.test.ts b/src/stores/campaign/__tests__/coopBattleReconciliationWiring.test.ts\nindex eae8c2d88..d2b914ec9 100644\n--- a/src/stores/campaign/__tests__/coopBattleReconciliationWiring.test.ts\n+++ b/src/stores/campaign/__tests__/coopBattleReconciliationWiring.test.ts\n@@ -160,7 +160,7 @@ async function setupHostedCoopCampaign(): Promise<{\n   return { campaignId, host, matchId };\n }\n \n-type HostIntent = ICampaignIntent | ICampaignReconcileBattleIntent;\n+type HostIntent = Parameters<ICampaignSyncTransport['sendHostIntent']>[0];\n \n function registerHostTransport(\n   matchId: string,\n",
+    "sha256": "7953bee348b1ddfc0ab0bc236a4234a0e7a6679c8aa14da688a24e21e05679ce",
+    "lineCount": {
+      "added": 1,
+      "removed": 1,
+      "countsAs": "test lines"
+    },
+    "sideEffect": "the two type imports this line used (ICampaignIntent, ICampaignReconcileBattleIntent, lines 21-22) are now unused: oxlint with scripts/qc/oxlint-units.json reports 3 findings in the file (rules-of-hooks, which the baseline file also has, plus 2 no-unused-vars) against 1 on the baseline copy. Left as instructed (\"nothing else in that file\"); deleting those two import lines would bring it back to 1. The parent decides."
+  },
+  "reviewClasses": [
+    "authority",
+    "privacy",
+    "idempotency"
+  ],
+  "reviewClassesNote": "matches units.json U92.reviewClasses [\"authority\",\"privacy\",\"idempotency\"] (read 2026-09-26T17:23:52.985Z); the admission receipt recorded the charter's [authority, idempotency] and is kept as history",
+  "risksForTheParent": [
+    "Authority (Lane B): in co-op the GM's funds approval now round-trips through the live host as a host-only command; a tester sees the balance move only after the host commits (a short delay), and a refusal (debit below zero, host unavailable) shows as an error toast with nothing applied.",
+    "Authority: the host's own local store is no longer written by a co-op funds approval; the balance arrives by re-reading the record the command rewrote. The approval's transaction row and its gmInterventionEvents entry are therefore not persisted for a co-op campaign (the owner's default 'no separate local-store write'); the host's GM ledger lists the approval only in the component-local rows until the page reloads.",
+    "Authority: the gm-ledger page mounts no co-op transport of its own (campaignPageShell.tsx:357-362); a GM who opens or reloads the ledger page directly, before visiting a page that connects the host transport (the dashboard), has no active host transport and the approval is refused with 'no live host connection'.",
+    "Idempotency (Lane B): each approval carries a fresh interventionId and intentId, so two approvals of the same canned correction commit twice (the unit's intent). The approve button is not disabled while the round trip is in flight (GmCampaignInterventionActions.tsx:134-135, src/components), so a double click during the round trip is two approvals and commits twice; on the baseline the same double click wrote the same absolute balance twice.",
+    "Idempotency: the commit is recognised by delta and summary (FundsChanged carries no intent id); two identical approvals in flight at once could each resolve on the other's event.",
+    "Privacy: the guest's frame carries delta, reason (the public summary) and balance only; the private metadata (helpers.ts:94-101) never enters the command.",
+    "Privacy (Lane B): from a co-op funds approval a guest receives one FundsChanged with the signed delta, the public summary as its reason and the resulting balance (measured live: {delta 2500, reason \"Merchant charge corrected by +2,500.00 C-bills.\", balance 382500}); it does not receive the intervention history (gmInterventionEvents, the transaction row), the intervention id, or any private metadata (rationale, default outcome, hidden notes), none of which the command carries."
+  ]
+}

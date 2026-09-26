@@ -1,0 +1,381 @@
+{
+  "unit": "U92",
+  "stage": "admission",
+  "status": "admitted",
+  "at": "2026-09-26T16:50:16.156Z",
+  "baseline": "1f11f4055419c998ff097144480af740efeacfc6",
+  "originMainAtAdmission": "1f11f4055419c998ff097144480af740efeacfc6",
+  "originMainLsRemote": "1f11f4055419c998ff097144480af740efeacfc6\trefs/heads/main",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u92",
+  "branch": "roadmap-u92-coop-gm-intervention-funds-20260926",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "node": "R2.authority-live",
+  "firstAttempt": {
+    "receipt": "evidence/u92-admission-attempt1-20260925.json",
+    "status": "BLOCKED",
+    "sha256": "15932f017a71824f2272a3764ade0bb9b1750d172dbe949825f3eae07e378692",
+    "note": "this is the re-admission on the sentence amended 2026-09-26 (units.json U92.behavior, the paragraph beginning \"Amended 2026-09-26\")"
+  },
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "gates": {
+    "guardNodeModulesLink": {
+      "command": "npm run --silent qc:guard-node-modules-link",
+      "lastLine": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u92\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+      "exitCode": 1,
+      "log": {
+        "path": "<lane-temp>/logs/adm-guard.log",
+        "sha256": "ec30cf648994bd4eb79d198a1e5991ad09bf0439175fe964f5a32a2eebe49987"
+      },
+      "expected": true,
+      "why": "refusal by design in a junctioned worktree; no npm install/ci/prune or lifecycle was run"
+    },
+    "head": {
+      "command": "git rev-parse HEAD",
+      "lastLine": "1f11f4055419c998ff097144480af740efeacfc6",
+      "exitCode": 0,
+      "log": {
+        "path": "<lane-temp>/logs/adm-head.log",
+        "sha256": "b05ae881b077e557e21c6a6d624a0c1193c4539f598597399a5b8314dc83f38e"
+      }
+    },
+    "originMain": {
+      "command": "git rev-parse origin/main",
+      "lastLine": "1f11f4055419c998ff097144480af740efeacfc6",
+      "exitCode": 0,
+      "log": {
+        "path": "<lane-temp>/logs/adm-origin-main.log",
+        "sha256": "b05ae881b077e557e21c6a6d624a0c1193c4539f598597399a5b8314dc83f38e"
+      }
+    },
+    "lsRemote": {
+      "command": "git ls-remote origin refs/heads/main",
+      "lastLine": "1f11f4055419c998ff097144480af740efeacfc6\trefs/heads/main",
+      "exitCode": 0,
+      "log": {
+        "path": "<lane-temp>/logs/adm-ls-remote.log",
+        "sha256": "7350e840143b96c04d79183a37934ca71630bbc69570b3f9ba14ea0122b0633d"
+      },
+      "note": "read-only; no fetch"
+    },
+    "gitStatus": {
+      "command": "git status --short",
+      "lastLine": "",
+      "exitCode": 0,
+      "log": {
+        "path": "<lane-temp>/logs/adm-status.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "note": "empty = clean tree at admission"
+    },
+    "validator": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "exitCode": 0,
+      "log": {
+        "path": "<lane-temp>/logs/adm-validator.log",
+        "sha256": "cd9e20f81bd1bfc7565f1c50d9f7ff16bb85d1b0e6eca37f6ae289413ab3fa19"
+      }
+    },
+    "validatorNext": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+      "lastLine": "U89",
+      "exitCode": 0,
+      "log": {
+        "path": "<lane-temp>/logs/adm-next.log",
+        "sha256": "70e92ad56e5a8ba06bded747ad5779710ca1741fa8f0f107520219c490c5c2bf"
+      },
+      "note": "prints U89, not U92, on the baseline; U92 was relaunched by the parent (units.json U92.unblocked20260926); recorded and continued per the charter"
+    },
+    "prerequisites": {
+      "command": "git merge-base --is-ancestor <mergeSha> HEAD (for U95, U96, U35d mergeSha from units.json)",
+      "results": [
+        {
+          "unit": "U95",
+          "state": "complete",
+          "mergeSha": "2d43b9f76fdbf437393592f54c8b99a90dab56f6",
+          "exitCode": 0
+        },
+        {
+          "unit": "U96",
+          "state": "complete",
+          "mergeSha": "5d19d95ada9a390f7b242caf354243c3bf377036",
+          "exitCode": 0
+        },
+        {
+          "unit": "U35d",
+          "state": "complete",
+          "mergeSha": "68cf089ea9da2ba56e8d6c02e523075eddeb802b",
+          "exitCode": 0
+        }
+      ],
+      "note": "exit 0 = each merge is an ancestor of the baseline. In-flight units (units.json state not planned/complete/main-verified/owner-gated/blocked): U40 local-verified owning scripts/qc and scripts/__tests__, disjoint from U92's paths."
+    }
+  },
+  "ownershipPaths": [
+    "src/lib/campaign",
+    "src/lib/multiplayer/server",
+    "src/types/campaign/CampaignSync.ts",
+    "src/types/multiplayer/Protocol.ts",
+    "src/pages/gameplay/campaigns/[id]/gm-ledger.tsx"
+  ],
+  "testPaths": {
+    "planned": [
+      "src/__tests__/api/campaigns/coopGmIntervention.test.ts (R1, R2 and the balance rows: real SQLite, the live item route, the co-op host in the shared registry, the real socket binder with a host socket and a guest socket)",
+      "src/__tests__/pages/gameplay/campaigns/gm-ledger.coop.test.tsx (R3, R4, the solo and refusal rows, the guest ledger route reading)"
+    ],
+    "interpretationForTheParent": "The gm-ledger page's tests cannot live beside it: src/pages is Next's route tree (pageExtensions ts/tsx, next.config.* line 105), and the repository keeps page tests under src/__tests__/pages/gameplay/campaigns/ for exactly that reason (index.coop.test.tsx lines 15-17). The charter names 'their __tests__ directories' and src/__tests__/api; the page row is placed in the repository's page-test directory as the page's __tests__ directory. If the parent reads the charter otherwise, that one test file moves or the row becomes a store-level row."
+  },
+  "reviewClasses": [
+    "authority",
+    "idempotency"
+  ],
+  "reviewClassesNote": "the charter names authority and idempotency; units.json U92.reviewClasses reads [authority, privacy, idempotency]. Recorded as the charter says; the parent reconciles (the privacy class is exercised by the row that the guest frame carries only delta, reason and balance).",
+  "seams": {
+    "authoritativeState": "src/types/campaign/CampaignSync.ts:85-110 ICampaignAuthoritativeState (balance is C-bills, host-enforced >= 0)",
+    "fundsChangedPayload": "src/types/campaign/CampaignSync.ts:208-215 IFundsChangedPayload {delta signed, reason text, balance after}",
+    "hostOnlyIntentPrecedent": "src/types/campaign/CampaignSync.ts:524-534 ICampaignReconcileBattleIntent, kept outside the guest-proposable ICampaignIntent union; its wire schema src/types/multiplayer/Protocol.ts:498-506 and the host frame union Protocol.ts:513-520",
+    "rejectionVocabulary": "src/types/campaign/CampaignSync.ts:551-559 CampaignIntentRejectionReason ('insufficient-funds', 'host-only', 'malformed-intent', 'intent-identity-conflict', ...)",
+    "guestIntentSchema": "src/types/campaign/campaignSyncSchemas.ts:73-81 spendFundsIntentSchema amount positive (debit only) and :118-125 CampaignIntentSchema (not in U92's paths; not edited)",
+    "guestProposalSchema": "src/types/campaign/coopCampaignSchemas.ts:35-40 GuestProposalSchema.intent = CampaignIntentSchema; CampaignGmArbiter.ts:290-301 refuses an unparseable proposal 'malformed-intent'",
+    "binderHostCheck": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts:735-746 a CampaignHostIntent whose playerId is not entry.hostPlayerId is answered Error AUTH_REJECTED 'campaign-host-intent-requires-host'; the frame's playerId is the verified socket principal (:393-401 closes on a mismatch)",
+    "binderMalformed": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts:366-370 an envelope ClientMessageSchema does not parse is answered Error BAD_ENVELOPE 'malformed-envelope'",
+    "binderGenericHostArm": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts:828-862 entry.host.applyHostIntent(envelope.intent); refusal -> Error INVALID_INTENT <reason> carrying the intentId; success -> no answer frame beyond the committed events",
+    "validateAndDerive": "src/lib/multiplayer/server/CampaignMatchHostIntent.ts:126-252 validateCampaignIntent (SpendFunds :146-163 derives FundsChanged {delta: -amount, reason, balance}; exhaustive default :244-249)",
+    "hostDoor": "src/lib/multiplayer/server/CampaignMatchHost.ts:363-366 applyHostIntent under the single-writer lock; CampaignMatchHost.doors.ts:151-174 applyHostIntentLocked: closed-check, replayCommittedIntent (dedupe by intentId), validate, commit with intentCommandIdentity",
+    "dedupe": "src/lib/multiplayer/server/campaignIntentIdentity.ts intentCommandIdentity (commandId campaign-intent:<campaignId>:<intentId>, fingerprint sha256 of the canonical intent) and replayCommittedIntent (a resend answers with the prior events; reused id over different work -> 'intent-identity-conflict')",
+    "fold": "src/lib/campaign/sync/applyCampaignEvent.ts:80-83 FundsChanged adopts payload.balance (reason is not read); campaignMirrorProjection.ts:17-36 projects balance onto the viewer's campaign",
+    "feed": "src/lib/campaign/activity/campaignActivityProjection.ts:140-146 FundsChanged renders 'Received|Spent <abs delta> - <reason> (balance <balance>)', reason is free text",
+    "scope": "src/lib/campaign/sync/campaignEventScope.ts:33 FundsChanged default scope 'campaign' and :43-80 a non-campaign override throws",
+    "clientTransport": "src/lib/campaign/coop/campaignSyncTransport.ts:36-38 and :162-172 sendHostIntent(ICampaignIntent | ICampaignReconcileBattleIntent) wraps a CampaignHostIntent frame, validated locally against ClientMessageSchema (:122-134, a failed parse emits an error to onError listeners); :266-271 getActiveCampaignSyncTransport",
+    "dayAdvancePattern": "src/stores/campaign/useCampaignStore.dayActions.ts:338-345 coopHostTransport (active host-role transport of the co-op match) and :380-431 sendAdvanceDay (resolve null on the commit event, the reason of the Error frame carrying the intentId, or a transport error/throw message; no timeout, :385); :371-374 refreshAfterCommittedCommand after the commit. Both are module-private in src/stores (not exported, not in U92's paths): the pattern is copied into src/lib/campaign/coop, not imported.",
+    "approveProducer": "src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx:255-323 handleApprove: approveGmCascadePreview then await onApplyCampaignUpdate(result.state), then status 'Approved and applied to campaign state.' (:318-321); the approve button has no in-flight state (GmCampaignInterventionActions.tsx:134-135 disabled only by canApprove)",
+    "fundsEffect": "src/lib/interventions/GmCampaignInterventionPreview.ts:203-240 funds-transaction effect: before.balanceCents, after.balanceCents = before + amountCents, publicSummary; GmCampaignInterventionProjection.ts:20-31 stamps interventionId = record id and :136-150 appends the effect to gmInterventionEvents",
+    "cannedIds": "src/components/campaign/gm/GmCampaignInterventionControlPlane.helpers.ts:26 MERCHANT_REVERSAL_ID = 'gm-ledger-merchant-reversal' (publicSummary :103 'Merchant charge corrected by +2,500.00 C-bills.'); GmCampaignInterventionControlPlane.tsx:155-157 passes it as the preview's interventionId",
+    "ledgerPageCallback": "src/pages/gameplay/campaigns/[id]/gm-ledger.tsx:42-50 onApplyCampaignUpdate: updateCampaign(updates); markDirty only without coopSession",
+    "noFoldOnLedgerPage": "src/pages-modules/gameplay/campaigns/campaignPageShell.tsx:357-362 mounts CampaignCoopRouteSurfaceConnected (the host's event fold, CampaignCoopRouteSurfaceConnected.tsx:152-233) only when the frame names a coopRouteId; gm-ledger.tsx:29-35 names none, and CampaignCoopRouteId has no gm-ledger member (CampaignCoopRouteSurface.tsx:76-82, src/components)",
+    "guestLedgerRoute": "src/components/campaign/gm/GmCampaignPlayerLedgerView.tsx:22-36 rows from campaign.gmInterventionEvents / timeCascadeEvents; campaignMirrorProjection.ts:17-36 never writes those fields"
+  },
+  "designAnswers": {
+    "q1_intentShape": {
+      "type": "src/types/campaign/CampaignSync.ts: a new ICampaignApplyGmInterventionIntent {kind: 'ApplyGmIntervention', campaignId, intentId, payload: {interventionId, summary, deltaCBills}} beside ICampaignReconcileBattleIntent, outside the guest-proposable ICampaignIntent union, plus a name for the host-command union (ICampaignIntent | ICampaignApplyGmInterventionIntent). Adding it to CampaignIntentKind instead would break the exhaustive switches in src/components/campaign/coop/pendingProposalFromWire.ts:86-107 (outside U92's paths) and would need campaignSyncSchemas.ts (outside U92's paths).",
+      "wire": "src/types/multiplayer/Protocol.ts: CampaignApplyGmInterventionIntentSchema = {kind literal, campaignId min 1, intentId min 1, payload {interventionId min 1, summary trimmed min 1, deltaCBills z.number().int()}} added to CampaignHostIntentSchema's intent union (:518). z.number().int() refuses NaN, Infinity and fractions. The schema is not added to CampaignIntentSchema or GuestProposalSchema, so no guest path can parse the kind.",
+      "validate": "one new arm in validateCampaignIntent (CampaignMatchHostIntent.ts), which takes the host-command union: the resulting balance must stay >= 0 (else reject 'insufficient-funds', the SpendFunds rule of :148-151), then FundsChanged {delta: deltaCBills, reason: summary, balance: state.balance + deltaCBills}. applyHostIntent / applyHostIntentLocked and the identity helpers take the same union, so the dedupe is the existing one by intentId (replayCommittedIntent before validation, intentCommandIdentity on commit). The binder needs no new branch: its generic arm (:828) carries the kind.",
+      "hostOnly": "the existing binder check bindCampaignSyncConnection.ts:735-746 (every CampaignHostIntent from a player other than the entry's hostPlayerId is refused AUTH_REJECTED 'campaign-host-intent-requires-host') is the host-only check; the guest's other two doors cannot carry the kind (the guest intent path parses CampaignIntentSchema, CampaignMatchHost.doors.ts:115; a proposal parses GuestProposalSchema, CampaignGmArbiter.ts:290). A second host-only check in the validate arm would be unreachable (no caller can hand it a guest-authored ApplyGmIntervention), so none is added.",
+      "refusalCodes": "a guest sender: Error AUTH_REJECTED reason 'campaign-host-intent-requires-host' (existing); a debit below zero: Error INVALID_INTENT reason 'insufficient-funds' (existing reason, the generic arm :845-866); a reused intentId over different work: INVALID_INTENT 'intent-identity-conflict' (existing); a frame that does not parse (no summary, a fractional delta): BAD_ENVELOPE 'malformed-envelope' (existing, :366-370). No new code or reason.",
+      "freshIdPerApproval": "the page-side builder mints interventionId = '<the effect's canned id>-<Date.now base36>-<6 random base36 chars>' (the intent-id idiom of CampaignCoopRouteSurface.tsx:106) once per approve callback, and intentId = 'gm-intervention-<interventionId>'; a resend of one approval (same frame) dedupes, two approvals are two commands."
+    },
+    "q2_transportAndWait": {
+      "answer": "A new module src/lib/campaign/coop/coopGmIntervention.ts: gmFundsInterventionIntent(campaign, updates) builds the intent from the approval's funds-transaction effect (the first funds-transaction effect in updates.gmInterventionEvents past the campaign's own list; deltaCBills = (after.balanceCents - before.balanceCents) / 100; summary = effect.publicSummary) or returns null; sendCoopGmIntervention(campaign, intent) takes the active host-role transport of the campaign's co-op match (getActiveCampaignSyncTransport, the coopHostTransport rule of dayActions.ts:338-345), sends the intent with sendHostIntent and resolves null on the FundsChanged event of the campaign whose delta and reason equal the intent's, or the reason (else code) of the Error frame carrying the intentId, or the message of a transport error or of a throwing send, or a fixed message when no host transport is active. Copied from sendAdvanceDay (dayActions.ts:380-431) because that helper is module-private in src/stores (outside U92's paths).",
+      "wait": "no timeout, the same contract as U96's sendAdvanceDay (dayActions.ts:385): a timeout could not tell a lost answer from a slow commit, and reporting 'refused' for an intent the host later commits would invite a second approval that commits twice.",
+      "commitMatch": "FundsChanged carries no intent id (CampaignSync.ts:208-215), so the commit is recognised by campaign, type, delta and reason; a concurrent FundsChanged with the same delta and summary (a second GM approval of the same correction racing the first) could resolve the first wait early. Recorded, not engineered around.",
+      "FN-u96-resent-advanceday-waits-without-timeout": "not touched: this path never re-sends an intent (one send per approval, fresh intentId), so the deduped-resend-without-answer case does not arise here; the no-timeout wait on a lost answer is shared with the day advance."
+    },
+    "q3_pageStates": {
+      "inFlight": "unchanged: the control plane shows its pre-approval status ('Ready for GM approval.') and the approve button stays enabled until the callback resolves (no page change; the control plane is in src/components).",
+      "afterCommit": "the page re-reads the saved record the command rewrote (useCampaignPersistenceStore.refreshAfterCommittedCommand, the step the fold and the day advance take, CampaignCoopRouteSurfaceConnected.tsx:421-426, dayActions.ts:371-374), so the host's balance arrives from the host's commit; the control plane then says 'Approved and applied to campaign state.'",
+      "afterRefusal": "the page toasts 'GM correction was refused by the host: <reason>. Nothing was applied.' (toast from src/components/shared/Toast, the U96 day-advance refusal idiom, dayActions.ts:364-368) and writes nothing; the control plane still says 'Approved and applied to campaign state.' because handleApprove sets it unconditionally after the callback (ControlPlane.tsx:318-321, src/components). The same misleading status exists on the baseline when the co-op save is refused (the page ignores updateCampaign's result, gm-ledger.tsx:43-45). Recorded as a finding, not fixed (outside U92's paths)."
+    },
+    "q4_guestLedgerRoute": {
+      "answer": "Code-read, to be measured in the page test: the guest's projection of the campaign (campaignMirrorProjection.ts:17-36) writes currentDate, finances.balance and factionStandings only, so after the FundsChanged the guest's balance carries the correction and the guest's feed shows 'Received 2,500 C-bills - Merchant charge corrected by +2,500.00 C-bills. (balance ...)' (campaignActivityProjection.ts:140-146), but the guest's GM ledger route (GmCampaignPlayerLedgerView.tsx:22-36) reads gmInterventionEvents, which the mirror never receives, so it lists no row for the correction. FN-u92-guest-ledger-route-reads-unmirrored-data stays open."
+    },
+    "q5_fold": {
+      "answer": "FundsChanged with reason = the intervention's public summary. There is no reason vocabulary: the fold reads only payload.balance (applyCampaignEvent.ts:80-83) and the feed prints reason as free text (campaignActivityProjection.ts:140-146); existing producers write free text ('Hired pilot <name>', CampaignMatchHostIntent.ts:181; the battle fundsReason). A literal 'gm-intervention' would put an internal token in the guest's feed instead of the public net effect coop-campaign-sync requires (spec.md:499-504), so the summary is used. The guest mirror and the host's fold apply it through applyCampaignEvent unchanged."
+    },
+    "q6_codingDoctrine": {
+      "fixAssessment": "Root cause: no host command carries a signed GM C-bill change (SpendFunds debits only, campaignSyncSchemas.ts:78), and the ledger page's approve reaches only the local store and the whole-campaign save (gm-ledger.tsx:42-50). Fix: one host-only intent kind that rides the existing validate -> dedupe -> commit -> fan-out door as FundsChanged, and the page sends it for a co-op funds approval instead of writing the store.",
+      "removed": [
+        "a new host door, binder branch or refusal code: the generic applyHostIntent arm (bindCampaignSyncConnection.ts:828-862) and the existing codes absorb it",
+        "a new host-only check: the binder's existing check (:735-746) absorbs it; a validate-arm check would be unreachable",
+        "a new event type: FundsChanged absorbs it",
+        "an edit of the canned ids (helpers.ts:26, src/components): the page-side builder mints a per-approval id",
+        "a schema in campaignSyncSchemas.ts: the kind stays out of the guest-parseable union, schema in Protocol.ts like ReconcileBattle",
+        "a timeout: U96's no-timeout contract is kept",
+        "a page-local fold of the event: the existing record re-read after a committed command absorbs it"
+      ],
+      "scope": "the funds-transaction family on a co-op host's GM ledger page. A solo campaign keeps its local path unchanged; on a co-op campaign the other families and the time cascade keep the baseline path (local store plus the whole-campaign save, adopted by the live host since U96) and stay recorded out of scope (FN-u92-other-intervention-families-unreachable)."
+    },
+    "baselineExpectationCorrection": "The charter expects the baseline approval to reach no host (host balance unchanged, guest 0 frames). That was the first attempt's measurement on f510bfc43 (u92-admission-attempt1 baselineProbeMeasurements.afterPut: guestFramesAfterPut 0, hostLiveBalance 380000). U96 has since landed on this baseline: the live host adopts its own instance's whole-campaign save (CampaignMatchHost.ts:369-392 adoptSavedCheckpoint), and U96's live-after measurement shows the guest receiving a CampaignSnapshot frame with the saved balance. INFERENCE (to be measured in stage 2): on this baseline the host's approval reaches the host and the guest as a whole-state snapshot (no FundsChanged, no feed line with the public summary). The live baseline measurement records what actually happens."
+  },
+  "estimate": {
+    "note": "estimates from reading, not measured; counted in stage 3",
+    "product": [
+      {
+        "path": "src/types/campaign/CampaignSync.ts",
+        "lines": "~+25"
+      },
+      {
+        "path": "src/types/multiplayer/Protocol.ts",
+        "lines": "~+22"
+      },
+      {
+        "path": "src/lib/multiplayer/server/CampaignMatchHostIntent.ts",
+        "lines": "~+20"
+      },
+      {
+        "path": "src/lib/multiplayer/server/CampaignMatchHost.ts",
+        "lines": "~+3"
+      },
+      {
+        "path": "src/lib/multiplayer/server/CampaignMatchHost.doors.ts",
+        "lines": "~+3"
+      },
+      {
+        "path": "src/lib/multiplayer/server/campaignIntentIdentity.ts",
+        "lines": "~+5"
+      },
+      {
+        "path": "src/lib/campaign/coop/campaignSyncTransport.ts",
+        "lines": "~+4"
+      },
+      {
+        "path": "src/lib/campaign/coop/coopGmIntervention.ts (new)",
+        "lines": "~+100"
+      },
+      {
+        "path": "src/pages/gameplay/campaigns/[id]/gm-ledger.tsx",
+        "lines": "~+25"
+      }
+    ],
+    "productLines": "~210 (cap 500)",
+    "files": "~9 product + 2 test + 3 receipts (cap 15)"
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "lineRule": "product lines only; test lines reported separately (owner decision OD-line-cap-product-lines, 2026-09-23)"
+  },
+  "acceptanceCommands": [
+    "npx jest src/__tests__/api/campaigns/coopGmIntervention.test.ts src/__tests__/pages/gameplay/campaigns/gm-ledger.coop.test.tsx",
+    "npx jest src/lib/multiplayer/server src/lib/campaign src/types src/components/campaign src/pages src/__tests__/api",
+    "npx tsc --noEmit",
+    "npx oxlint",
+    "npx oxfmt --check <changed files>",
+    "npm run lint:units",
+    "npm run qc:openspec-ci:validate",
+    "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+    "HOSTNAME=127.0.0.1 NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=lifecycle-pack",
+    "the live driver (scripted co-op session over Node sockets on the standalone server) before and after"
+  ],
+  "risksForTheParent": [
+    "Authority (Lane B): in co-op the GM's funds approval now round-trips through the live host as a host-only command; a tester sees the balance move only after the host commits (a short delay), and a refusal (debit below zero, host unavailable) shows as an error toast with nothing applied.",
+    "Authority: the host's own local store is no longer written by a co-op funds approval; the balance arrives by re-reading the record the command rewrote. The approval's transaction row and its gmInterventionEvents entry are therefore not persisted for a co-op campaign (the owner's default 'no separate local-store write'); the host's GM ledger lists the approval only in the component-local rows until the page reloads.",
+    "Authority: the gm-ledger page mounts no co-op transport of its own (campaignPageShell.tsx:357-362); a GM who opens or reloads the ledger page directly, before visiting a page that connects the host transport (the dashboard), has no active host transport and the approval is refused with 'no live host connection'.",
+    "Idempotency (Lane B): each approval carries a fresh interventionId and intentId, so two approvals of the same canned correction commit twice (the unit's intent). The approve button is not disabled while the round trip is in flight (GmCampaignInterventionActions.tsx:134-135, src/components), so a double click during the round trip is two approvals and commits twice; on the baseline the same double click wrote the same absolute balance twice.",
+    "Idempotency: the commit is recognised by delta and summary (FundsChanged carries no intent id); two identical approvals in flight at once could each resolve on the other's event.",
+    "Privacy: the guest's frame carries delta, reason (the public summary) and balance only; the private metadata (helpers.ts:94-101) never enters the command."
+  ],
+  "baselineFileHashes": [
+    {
+      "path": "src/types/campaign/CampaignSync.ts",
+      "sha256": "9cb0a6191c5812a7be3b3c2e36d70a5a5c8fbe2a5970b0fef87f5eb1ab193559"
+    },
+    {
+      "path": "src/types/multiplayer/Protocol.ts",
+      "sha256": "a6ab3be97b33ade411ac9b7e376f36ce3a3aefdd93a80448d4e1aab40664e9dc"
+    },
+    {
+      "path": "src/types/campaign/campaignSyncSchemas.ts",
+      "sha256": "d34d86256f7b7470e5be91ada207a098c57ecf682d4d66c7be0e8d9a88dac3db"
+    },
+    {
+      "path": "src/types/campaign/coopCampaignSchemas.ts",
+      "sha256": "a426dbc6f047ba320b6463d2aadda02e3416f6cd1f1b64e7502fba1afc52810c"
+    },
+    {
+      "path": "src/lib/multiplayer/server/CampaignMatchHostIntent.ts",
+      "sha256": "024b8777c2f5bb898aa3bc0fa75abf89d58642de6c748ad31b79350098cbcc75"
+    },
+    {
+      "path": "src/lib/multiplayer/server/CampaignMatchHost.ts",
+      "sha256": "9ced07a13b652b9d908f37c5ec1ee91ad0262c3a6035975177fcaa784824226c"
+    },
+    {
+      "path": "src/lib/multiplayer/server/CampaignMatchHost.doors.ts",
+      "sha256": "063011d9f0597bb6a19416b5651c2270a788857210ba95571eb9e6dbaf9eb7c8"
+    },
+    {
+      "path": "src/lib/multiplayer/server/campaignIntentIdentity.ts",
+      "sha256": "6a4928cab7a049eab16b69e2d01e1bb4bbe7807943143eed48ed1091be54b247"
+    },
+    {
+      "path": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+      "sha256": "44e4a0b553432ca48018d3cabd63b356ff160047663b68c0619a772d3cc4c333"
+    },
+    {
+      "path": "src/lib/multiplayer/server/CampaignGmArbiter.ts",
+      "sha256": "ab6482f3d854d2b6586b2a76efe89529f27b5b2d4edcfa677cdb9f0fea1f64d1"
+    },
+    {
+      "path": "src/lib/campaign/coop/campaignSyncTransport.ts",
+      "sha256": "57b5fe53121d21b27d5512a2b31a5e46d8bf8a4daa2ea4a2dda57b4001dbe560"
+    },
+    {
+      "path": "src/lib/campaign/coop/campaignMirrorProjection.ts",
+      "sha256": "605ab452028a83171892671d392f2695116e46d15a99de8aab6c9506bb4394a0"
+    },
+    {
+      "path": "src/lib/campaign/sync/applyCampaignEvent.ts",
+      "sha256": "ef304f28771412faa7efd82036508d12a4b3b7c4380aa5e16fc348d3a6a31890"
+    },
+    {
+      "path": "src/lib/campaign/sync/campaignEventScope.ts",
+      "sha256": "21a06df699e3dd925aebce78139a170335001d58247367f59a6d1acc3f01d88b"
+    },
+    {
+      "path": "src/lib/campaign/activity/campaignActivityProjection.ts",
+      "sha256": "6977e608ea3c120494efeaaabbb4555b15b0322a937ac3553e23337463b35ecc"
+    },
+    {
+      "path": "src/pages/gameplay/campaigns/[id]/gm-ledger.tsx",
+      "sha256": "32ccc4bc96d42d7ca85a7c4606cda94cba668f995c5d1792f2e2a7bdf0923e9b"
+    },
+    {
+      "path": "src/pages-modules/gameplay/campaigns/campaignPageShell.tsx",
+      "sha256": "81d2532c1b6e49d91354ee6df8d0405404996f7ba33131f7ed10d8ba3e96f383"
+    },
+    {
+      "path": "src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx",
+      "sha256": "5f971e5c59a2aec23f8d9f03816294ded2003b543be3f98814c4bf8b1fb57689"
+    },
+    {
+      "path": "src/components/campaign/gm/GmCampaignInterventionControlPlane.helpers.ts",
+      "sha256": "cc4e1b3492e5ec21666cbee5889fc2250238f7e223d29e17d11acddcd8e485da"
+    },
+    {
+      "path": "src/components/campaign/gm/GmCampaignPlayerLedgerView.tsx",
+      "sha256": "c038143b2cfed02ebd12f96e80c7304e4f9157e08370f38729686c66c82edf26"
+    },
+    {
+      "path": "src/components/campaign/gm/GmCampaignInterventionActions.tsx",
+      "sha256": "b00d943c9cb67d9c57d774b37359f7b1d2a8320cfaebe54bf5f7e473f01426fe"
+    },
+    {
+      "path": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+      "sha256": "c332fd251e0340cc2512318b748c668aa80e00eac56c32a97b5bd607b25f8487"
+    },
+    {
+      "path": "src/components/campaign/coop/pendingProposalFromWire.ts",
+      "sha256": "22d07c823044f41ad33eb0c3c89b7091f23cd60edcc8b61464e3eac7d51648fc"
+    },
+    {
+      "path": "src/lib/interventions/GmCampaignInterventionPreview.ts",
+      "sha256": "8e252162597037aa276a7d3e832011dcd2784a153347683ec1974376727d6982"
+    },
+    {
+      "path": "src/lib/interventions/GmCampaignInterventionProjection.ts",
+      "sha256": "23947e22af5b71cc45b5fa5bc60ee843425c108bb72756fe804533bfa5bab77f"
+    },
+    {
+      "path": "src/stores/campaign/useCampaignStore.dayActions.ts",
+      "sha256": "1bbecd420c2cbdb202030b224b314b0fa04ae1c614bb1be93faa76cc1dd5abd9"
+    },
+    {
+      "path": "src/stores/campaign/useCampaignPersistenceStore.ts",
+      "sha256": "e50e9013edd3730555b999b41936550ab3e9db5b9055f4cbd491976abe08a2f1"
+    }
+  ]
+}
