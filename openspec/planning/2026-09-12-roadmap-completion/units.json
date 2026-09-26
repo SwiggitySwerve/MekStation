@@ -2350,20 +2350,34 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "baseline": null,
+      "baseline": "bd6bfe779036631bf63b0e84b748a7bfd6e122b6",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u91-admission-20260925.json",
+          "baseline": "bd6bfe779036631bf63b0e84b748a7bfd6e122b6",
+          "at": "2026-09-25T23:29:15.716Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u91-red-20260925.json",
+          "at": "2026-09-25T23:29:15.718Z",
+          "summary": "baseline bd6bfe779: openspec validate --strict passes and the harden change delta for coop-campaign-sync carries only an ADDED section (8 requirements, no MODIFIED section, 0 occurrences of the header); U90 admission blocking cause quoted (the ledger route controls take no proposal; the wire carries approve or veto only)"
+        },
+        "local": {
+          "path": "evidence/u91-local-20260925.json",
+          "at": "2026-09-25T23:31:56.721Z",
+          "summary": "docs only, 24 lines added and 1 deleted across 2 files: the delta gains a MODIFIED requirement Co-op campaign command authority projection whose header is byte-identical to the living one (openspec/specs/coop-campaign-sync/spec.md:488), keeping the two opening sentences verbatim and adding that the host co-op command screen exposes approve and veto per pending proposal and the GM ledger route (/gameplay/campaigns/[id]/gm-ledger, reached from the dashboard GM Ledger tab) exposes preview, manual takeover and GM correction; the host scenario rewritten citing the U36 dead-controls rows as pins, the guest scenario verbatim (diff empty); one sentence added to proposal.md line 38; format precedent adopt-combat-journal-cutover-and-gm-rewind specs/gm-combat-interventions/spec.md:5-8 and :64-76; openspec validate harden-gm-two-player-campaign-sessions --strict: valid; openspec show --deltas-only: 1 MODIFIED entry, 2 scenarios; qc:openspec-ci errors=0; validator PASSED; lint:units 100/100; oxfmt does not cover openspec (.oxfmtignore); no product or test change; implementer claude-opus (Agent model: opus); findings: no test pins the ledger controls for a co-op host, the guest-result requirement at :499-504 stays unmet (U92); status ready"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
         "tick": null
       },
       "ownerGate": null,
-      "state": "planned",
+      "state": "local-verified",
       "id": "U91",
       "node": "R6.umbrella",
       "behavior": "The harden change's coop-campaign-sync delta (openspec/changes/harden-gm-two-player-campaign-sessions/specs/coop-campaign-sync/spec.md) gains a MODIFIED requirement 'Co-op campaign command authority projection' (openspec/specs/coop-campaign-sync/spec.md:488-497): the co-op host command screen SHALL expose approve and veto for each pending proposal; the GM intervention controls (preview, manual takeover, GM correction) SHALL be exposed on the host's GM ledger route, which the co-op dashboard's GM Ledger tab reaches (src/components/campaign/CampaignNavigation.tsx:78, :166-171); the guest scenario is unchanged. The full final requirement text is carried so the archive replaces the header. openspec validate --strict passes; the U36 dead-controls rows (src/components/campaign/coop/__tests__/HostGmReviewSurface.deadControls.test.tsx) stay the pins and are cited in the requirement's scenario. No product file changes (the validator derives the product ci class from the change's path; the unit edits only the delta spec).",
@@ -2373,7 +2387,11 @@
       "reviewClasses": [
         "routine"
       ],
-      "source20260925": "planned by the parent under the owner's answer \"Spec delta, U90 superseded (Recommended)\" (PK-u90-controls, working session of 2026-09-25)"
+      "source20260925": "planned by the parent under the owner's answer \"Spec delta, U90 superseded (Recommended)\" (PK-u90-controls, working session of 2026-09-25)",
+      "admissionNote20260925": {
+        "at": "2026-09-26T00:18:28.000Z",
+        "note": "--next printed U21b, in flight in its own worktree; U91's path overlaps nothing in flight, so the parent admitted it in parallel."
+      }
     },
     {
       "taskKeys": [],
@@ -9260,6 +9278,15 @@
       "class": "tooling hazard",
       "summary": "scripts/e2e/campaign-journal-authority.ts's cutover command writes a marker without checking for an existing one.",
       "recommendedSuccessor": "fold into the next unit that edits scripts/e2e",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u91-no-test-pins-ledger-controls-for-coop-host",
+      "foundBy": "U91 implementer lane (claude-opus), 2026-09-25, finding 2",
+      "at": "2026-09-26T00:18:28.000Z",
+      "class": "test gap on a spec scenario",
+      "summary": "No test renders the GM ledger route's preview, manual takeover and correction controls with a host co-op session; CampaignNavigation.test.tsx:126 pins only the GM Ledger tab. The new scenario's ledger-route half rests on code reading.",
+      "recommendedSuccessor": "a jest row mounting the ledger page with createHostCoopSession, in the next unit that edits src/components/campaign/gm (or U92)",
       "status": "recorded"
     }
   ]

@@ -1,0 +1,45 @@
+{
+  "unit": "U91",
+  "baseline": "bd6bfe779036631bf63b0e84b748a7bfd6e122b6",
+  "originMain": "bd6bfe779036631bf63b0e84b748a7bfd6e122b6",
+  "originMainLsRemote": "bd6bfe779036631bf63b0e84b748a7bfd6e122b6\trefs/heads/main",
+  "baselineEqualsOriginMain": true,
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u91",
+  "branch": "roadmap-u91-coop-controls-spec-delta-20260925",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "stage": "red",
+  "status": "red-recorded",
+  "at": "2026-09-25T23:29:15.718Z",
+  "kind": "docs unit: the measured gap is the spec text against shipped code, not a failing test",
+  "observations": {
+    "validateStrictPassesOnBaseline": {
+      "command": "openspec validate harden-gm-two-player-campaign-sessions --strict",
+      "exit": 0,
+      "output": "Change 'harden-gm-two-player-campaign-sessions' is valid"
+    },
+    "deltaHasNoModifiedRequirementForThisHeader": {
+      "commands": [
+        "grep -c 'Co-op campaign command authority projection' openspec/changes/harden-gm-two-player-campaign-sessions/specs/coop-campaign-sync/spec.md",
+        "grep -c '^## MODIFIED Requirements' openspec/changes/harden-gm-two-player-campaign-sessions/specs/coop-campaign-sync/spec.md"
+      ],
+      "headerCount": 0,
+      "headerGrepExit": 1,
+      "modifiedSectionCount": 0
+    },
+    "livingHostScenarioOnBaseline": {
+      "at": "openspec/specs/coop-campaign-sync/spec.md:491-493",
+      "lines": [
+        "#### Scenario: Host sees authoritative campaign commands",
+        "- **WHEN** a host opens a co-op campaign command screen",
+        "- **THEN** the screen SHALL expose host-authorized preview, approve, veto, manual takeover, and GM correction controls for commands that affect campaign state"
+      ],
+      "againstShippedCode": "the dashboard mount renders Approve and Veto only (HostGmReviewSurface.deadControls.test.tsx:87, on main since U36, PR #1946, mainProof PASS), so the co-op host command screen does not expose preview, manual takeover and GM correction as the scenario states; those three exist on the GM ledger route (GmCampaignInterventionActions.tsx:126-151). Code read, not re-run in this lane."
+    },
+    "u90FindingStands": {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u90-admission-20260925.json",
+      "blockingCauseQuoted": "The charter's green (each per-proposal control renders on the dashboard mount and one press reaches its producer once with the proposal's id) has no producer to wire: the GM ledger route's preview, manual takeover and correction are not proposal-scoped, not exported, and take no argument; no producer in src takes a guest proposal as the target of a manual takeover or GM correction, and the wire carries approve | veto only. Choosing what each control does to a pending proposal is an authority-class design decision, not wiring, and a unit is never widened while it is worked (GOAL.md:15).",
+      "ledger": "units.json U90 state blocked; superseded20260925.by U91"
+    }
+  },
+  "gapTheDeltaCloses": "the living host scenario asks the co-op command screen for five controls, three of which have no per-proposal producer and no wire (U90); the owner chose a spec delta naming which host screen carries which control (PK-u90-controls option D)."
+}
