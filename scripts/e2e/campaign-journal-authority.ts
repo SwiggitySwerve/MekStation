@@ -14,31 +14,31 @@
  * `npx tsx scripts/*.ts` package scripts). The relative `../../src`
  * imports below follow that same precedent rather than the `@/` alias.
  *
- * WHAT IT DOES, and what it deliberately does not. `cutover` moves ONE
- * campaign onto journal authority with no flag anywhere. It has two
+ * WHAT IT DOES, and what it deliberately does not. The production flag
+ * is on (U35d), so a campaign the PUT create makes is journal-native
+ * already: the create writes its genesis and marker with the record.
+ * `cutover` is for a campaign with no marker - one created before the
+ * flag - and moves ONE such campaign onto journal authority. It has two
  * arms, because what is missing depends on what the campaign already
  * has, and both arms are production code:
  *
- *   - **The stream already exists** - which is the ordinary case for a
- *     co-op-hosted campaign, because `CampaignMatchHost` commits a
+ *   - **The stream already exists** - the case once a co-op host has
+ *     opened such a campaign, because `CampaignMatchHost` commits a
  *     `CampaignSnapshotPublished` baseline from its initial state on
- *     `open`, through the durable journal store `selectCampaignEventStore`
- *     hands it. Nothing is appended; the campaign is missing only its
- *     durable marker, so `writeCampaignMigrationMarker(
- *     createJournalNativeMarker(id))` is written exactly as
- *     `campaignAuthorityBlocked.test.ts` writes it.
+ *     `open` of an empty stream, through the durable journal store
+ *     `selectCampaignEventStore` hands it. Nothing is appended; the
+ *     campaign is missing only its durable marker, so
+ *     `writeCampaignMigrationMarker(createJournalNativeMarker(id))` is
+ *     written exactly as `campaignAuthorityBlocked.test.ts` writes it.
  *   - **The stream is empty** - then a marker alone would resolve to
  *     `blocked` ("journal-authority-without-stream"), never to `journal`.
- *     `appendCampaignGenesis` writes the seq-0 genesis AND the marker; it
- *     is the same production function `maybeAppendCampaignGenesisOnCreate`
- *     calls, and it reads no flag of its own.
+ *     `appendCampaignGenesis` writes the seq-0 genesis AND the marker;
+ *     its genesis is the snapshot command the PUT create appends inside
+ *     `saveCampaignRecordThroughJournal`, and it reads no flag of its own.
  *
- * That is the whole point of the slice: the e2e arm
- * (`MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY` plus
- * `NEXT_PUBLIC_E2E_MODE`) cannot fire in a real deployment, so a proof
- * standing on it would demonstrate a branch production can never execute.
- * Nothing here sets, reads, or needs either key, and `flags` reports both
- * switches so the caller can assert that rather than trust it.
+ * `flags` reports the production flag and the resolver's answer as a
+ * real Node process that loaded the modules sees them, so a caller can
+ * assert them rather than trust a comment.
  *
  * The database path must name an EXISTING file. `SQLiteService` creates
  * and migrates whatever it is pointed at, so a typo would manufacture an
@@ -59,10 +59,7 @@ import * as fs from 'fs';
 
 import { createJournalNativeMarker } from '../../src/lib/campaign/authority/campaignAuthorityMigration';
 import { appendCampaignGenesis } from '../../src/lib/campaign/authority/campaignSourceGenesis';
-import {
-  CAMPAIGN_JOURNAL_AUTHORITY_E2E_ENV,
-  isCampaignJournalAuthorityEnabled,
-} from '../../src/lib/campaign/sync/campaignJournalAuthorityEnabled';
+import { isCampaignJournalAuthorityEnabled } from '../../src/lib/campaign/sync/campaignJournalAuthorityEnabled';
 import {
   CAMPAIGN_JOURNAL_AUTHORITY_ENABLED,
   JournalCampaignEventStore,
@@ -86,14 +83,15 @@ function readArg(name: string): string | undefined {
   return index === -1 ? undefined : process.argv[index + 1];
 }
 
-/** The two switches, as a real Node process that loaded them sees them. */
+/**
+ * The production flag (`cutoverFlag`) and the resolver's answer
+ * (`effective`), as a real Node process that loaded them sees them.
+ */
 function flags(): Record<string, unknown> {
   return {
     ok: true,
     cutoverFlag: CAMPAIGN_JOURNAL_AUTHORITY_ENABLED,
     effective: isCampaignJournalAuthorityEnabled(),
-    e2eEnvKey: CAMPAIGN_JOURNAL_AUTHORITY_E2E_ENV,
-    e2eEnvValue: process.env[CAMPAIGN_JOURNAL_AUTHORITY_E2E_ENV] ?? null,
   };
 }
 

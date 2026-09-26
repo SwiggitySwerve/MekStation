@@ -10,13 +10,12 @@
  * force ownership, readiness revision, branch, and cursors SHALL remain
  * authoritative.
  *
- * The genesis/branch rows are live under the fixture arm: the QC
- * authority-recovery group (and the authority/all unions that include
- * it) start the server with
- * MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY=1 while
- * NEXT_PUBLIC_E2E_MODE=true. Finding #48 still holds in production —
- * CAMPAIGN_JOURNAL_AUTHORITY_ENABLED stays false, so no production
- * path writes campaign events to the journal. Do not use test.skip.
+ * The genesis/branch rows are live through the production flag:
+ * CAMPAIGN_JOURNAL_AUTHORITY_ENABLED is on with no override, so the
+ * campaign create appends its genesis and the co-op creation checkpoint
+ * runs its genesis-branch step. The QC group still sets
+ * MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY, which no server code reads.
+ * Do not use test.skip.
  *
  * WHY this group is in RESPAWNING_GROUPS: both rows arm
  * process-exit-after-commit and kill the server.

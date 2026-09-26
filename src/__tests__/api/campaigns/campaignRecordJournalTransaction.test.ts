@@ -24,7 +24,7 @@
  * so the checkpoint rows do not depend on the journal flag. The route's
  * create switch, isCampaignJournalAuthorityEnabled, is replaced in this
  * suite's module registry by a jest.fn that answers false unless a create
- * row sets it; the production flag and the e2e arm are untouched. The
+ * row sets it; the production flag is untouched. The
  * failure is injected by wrapping the writer's extension so it throws after
  * the extension returns, still inside the writer's transaction.
  */

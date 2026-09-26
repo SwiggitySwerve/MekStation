@@ -18,16 +18,16 @@
  *    server is the server's database, and anything but exactly one
  *    qualifying candidate is a loud failure.
  *
- * 2. **Driving the flag-free cutover out of process.** Playwright
- *    transpiles e2e files with babel, which refuses the TypeScript
- *    `declare` class fields in `JournalCampaignEventStore.ts` - so a
- *    spec cannot import the genesis append or the migration machinery at
- *    all. `scripts/e2e/campaign-journal-authority.ts` runs them under
- *    `npx tsx` (the runner this repo already uses for its TypeScript
- *    CLIs) and answers one line of JSON. The production code path is
- *    therefore exercised by a real Node process, not re-implemented
- *    here in raw SQL - which would have proven nothing about the code
- *    a cutover actually runs.
+ * 2. **Reading the flags, the marker and the journal out of process.**
+ *    Playwright transpiles e2e files with babel, which refuses the
+ *    TypeScript `declare` class fields in `JournalCampaignEventStore.ts`
+ *    - so a spec cannot import the resolver, the marker store or the
+ *    journal reads at all. `scripts/e2e/campaign-journal-authority.ts`
+ *    runs them under `npx tsx` (the runner this repo already uses for
+ *    its TypeScript CLIs) and answers one line of JSON. The production
+ *    code path is therefore exercised by a real Node process, not
+ *    re-implemented here in raw SQL - which would have proven nothing
+ *    about the code production runs.
  *
  * 3. **The source process lifecycle.** The spawn/respawn/backoff/
  *    readiness shape is `scripts/e2e/relaunching-server.mjs`, and the
@@ -73,8 +73,6 @@ export interface IAuthorityCliResult {
   readonly highestSequence?: number;
   readonly cutoverFlag?: boolean;
   readonly effective?: boolean;
-  readonly e2eEnvKey?: string;
-  readonly e2eEnvValue?: string | null;
 }
 
 /** The per-run Playwright token the webServer's paths are keyed by. */
@@ -178,19 +176,6 @@ export function runAuthorityCli(
   return JSON.parse(line) as IAuthorityCliResult;
 }
 
-/**
- * Move one campaign onto journal authority without touching a flag, and
- * fail loudly rather than returning a refusal the caller might not read.
- */
-export function cutoverCampaignToJournalAuthority(
-  databasePath: string,
-  campaignId: string,
-): IAuthorityCliResult {
-  const result = runAuthorityCli('cutover', { databasePath, campaignId });
-  if (!result.ok) throw new Error(`cutover failed: ${result.error}`);
-  return result;
-}
-
 /** The journal's highest campaign sequence, or -1 for an empty stream. */
 export function readHighestSequence(
   databasePath: string,
@@ -212,17 +197,14 @@ export function readMarker(
 }
 
 /**
- * The env the source process runs under.
- *
- * Built explicitly and asserted on, rather than spread and hoped about:
- * the acceptance line this slice answers forbids an E2E-only arm as the
- * proof mechanism, so "the arm was never set" has to be a checkable fact
- * about the spawn, not a claim in a comment.
+ * The env the source process runs under: this process's env with the
+ * source's port, the shared campaign database, its own multiplayer
+ * database, the loopback hostname server.js requires, and production
+ * mode.
  */
 export function sourceServerEnv(
   databasePath: string,
   multiplayerDbPath: string,
-  e2eArmKey: string,
 ): NodeJS.ProcessEnv {
   const env: NodeJS.ProcessEnv = {
     ...process.env,
@@ -238,7 +220,6 @@ export function sourceServerEnv(
     HOSTNAME: '127.0.0.1',
     NODE_ENV: 'production',
   };
-  delete env[e2eArmKey];
   return env;
 }
 

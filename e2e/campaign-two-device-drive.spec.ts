@@ -438,24 +438,16 @@ test.describe('live two-device campaign drive', () => {
 });
 
 /**
- * NOT DRIVEN HERE — and not because it was hard to reach.
+ * NOT DRIVEN HERE.
  *
- * Source-to-replica event CONVERGENCE cannot be driven on a live server
- * today by any supported path. The grant delivery projection reads
- * campaign events from the SQLite journal, but the only production
- * writer of campaign events — the co-op match host — goes through
- * `createDefaultCampaignEventStore`, which returns the IN-MEMORY store
- * while `CAMPAIGN_JOURNAL_AUTHORITY_ENABLED` is false. Nothing a live
- * server does puts a campaign event where the delivery path looks.
- *
- * The other candidate producer, `POST /api/campaigns/[id]/commands`,
- * requires the campaign to be on journal authority, which requires a
- * cutover marker, which only the flag-gated genesis and adoption hooks
- * write. Both roads end at the same flag.
- *
- * So convergence is gated on the reviewed cutover, not on more test
- * scaffolding — and it is said here rather than papered over with a
- * scenario that reaches into a database to fake what a server would have
- * written. The in-process convergence proofs (tasks 3.2–3.4, 5.4) still
- * hold; what waits is proving them across two processes.
+ * Source-to-replica event CONVERGENCE across these two devices' separate
+ * database files is not driven by this spec. Both producers reach the
+ * SQLite journal the grant delivery projection reads: the server co-op
+ * match host commits through the durable journal store
+ * `selectCampaignEventStore` returns whenever SQLite is initialised, and
+ * with `CAMPAIGN_JOURNAL_AUTHORITY_ENABLED` on every campaign the PUT
+ * create makes is journal-native, so `POST /api/campaigns/[id]/commands`
+ * accepts a seated caller's command. Convergence across two processes on
+ * ONE file is `campaign-journal-two-process-convergence.spec.ts`; the
+ * in-process convergence proofs (tasks 3.2–3.4, 5.4) still hold.
  */

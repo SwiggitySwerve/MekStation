@@ -6,29 +6,15 @@
  * two-process scoped convergence before cutover acceptance; no E2E-only
  * flag used as production proof."
  *
- * WHY THE E2E ARM IS NOT USED, AND WHAT IS USED INSTEAD.
- * `isCampaignJournalAuthorityEnabled()` ORs the hardcoded-false
- * production constant with an e2e-only arm that requires BOTH
- * `NEXT_PUBLIC_E2E_MODE==='true'` and
- * `MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY==='1'` in the same process.
- * That arm is unreachable in a real deployment by construction, so a
- * proof standing on it would demonstrate a branch production can never
- * execute. It is never armed here - asserted twice, structurally (the
- * env this spec hands the process it spawns, and the constant itself)
- * and behaviourally (the create path leaves NO marker, which is only
- * true while the gate is closed).
- *
- * The campaign reaches journal authority instead by writing the durable
- * marker directly against the shared database file -
- * `writeCampaignMigrationMarker(createJournalNativeMarker(id))`, the
- * same call `campaignAuthorityBlocked.test.ts` makes, just against a
- * real file two live servers also hold. The journal STREAM it needs is
- * not manufactured: registering the co-op host already committed a
- * `CampaignSnapshotPublished` baseline through the durable store, so the
- * cutover appends nothing and the head does not move. (The CLI keeps a
- * `appendCampaignGenesis` arm for an unseeded stream - a marker over an
- * empty journal resolves to `blocked`, never `journal` - but this drive
- * asserts which arm ran.)
+ * HOW THE CAMPAIGN REACHES JOURNAL AUTHORITY: THE PRODUCTION FLAG.
+ * `CAMPAIGN_JOURNAL_AUTHORITY_ENABLED` is on (U35d) and
+ * `isCampaignJournalAuthorityEnabled()` answers it with no override - the
+ * e2e fixture arm is gone. Both are read out of a real Node process that
+ * loaded the production modules, not asserted from a comment. So the
+ * create through the replica process appends the genesis (sequence 0) and
+ * writes the journal-native marker with the record, and registering the
+ * co-op host appends nothing because the stream already holds that
+ * genesis. There is no cutover step and no pre-cutover state to drive.
  *
  * Everything downstream - the seat gate, the authority resolution, the
  * command pipeline, the head read - is the ordinary production path,
@@ -84,7 +70,6 @@ import {
   SPEND_PER_COMMAND,
 } from './helpers/campaignJournalDrive';
 import {
-  cutoverCampaignToJournalAuthority,
   readHighestSequence,
   readMarker,
   resolveServerDatabase,
@@ -95,16 +80,6 @@ import {
   stopSourceServer,
   type ISourceServer,
 } from './helpers/campaignJournalTwoProcess';
-
-/**
- * The e2e opt-in key, spelled here because a spec cannot import the
- * module that defines it: Playwright's babel transform refuses the
- * `declare` class fields in `JournalCampaignEventStore.ts`, which
- * `campaignJournalAuthorityEnabled.ts` imports. The literal is bound to
- * the real constant by the `flags` assertion in the drive below, so a
- * rename cannot leave this string silently guarding nothing.
- */
-const E2E_ARM_KEY = 'MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY';
 
 test.describe('campaign journal authority across two processes', () => {
   test.describe.configure({ mode: 'serial' });
@@ -132,21 +107,14 @@ test.describe('campaign journal authority across two processes', () => {
       baseURL ?? `http://localhost:${process.env.MEKSTATION_E2E_PORT ?? 3600}`;
     const campaignId = `co3-convergence-${Date.now()}`;
 
-    // --- the flag is closed, and it is closed HERE too ----------------
+    // --- the production flag is on -------------------------------------
     // Read out of a real Node process that loaded the production
     // modules, not asserted from a comment. `cutoverFlag` is the
-    // hardcoded production switch and `effective` is it OR'd with the
-    // e2e arm; both false means neither door is open. The env key is
-    // returned by the same call, which is what binds the literal above
-    // to the constant the module actually exports.
+    // production constant and `effective` the resolver's answer; the
+    // resolver has no override, so both are true.
     const flagsBefore = runAuthorityCli('flags');
-    expect(flagsBefore.e2eEnvKey).toBe(E2E_ARM_KEY);
-    expect(flagsBefore.cutoverFlag).toBe(false);
-    expect(flagsBefore.effective).toBe(false);
-    // playwright.config.ts forwards the arm to its webServer ONLY when
-    // the parent process already carries it, so an absent key here is
-    // also an absent key in the replica process.
-    expect(process.env[E2E_ARM_KEY]).toBeUndefined();
+    expect(flagsBefore.cutoverFlag).toBe(true);
+    expect(flagsBefore.effective).toBe(true);
 
     // --- create the campaign through the replica process --------------
     const created = await request.put(
@@ -163,25 +131,21 @@ test.describe('campaign journal authority across two processes', () => {
     // below would pass for the wrong reason.
     const databasePath = resolveServerDatabase(campaignId);
 
-    // Behavioural proof the gate is closed: the create path calls
-    // `maybeAppendCampaignGenesisOnCreate`, which writes a marker ONLY
-    // when the gate opens. No marker means the e2e arm did not fire.
-    expect(readMarker(databasePath, campaignId)).toBeNull();
-    // And the journal has nothing for this campaign: the create path did
-    // not append a genesis either, which is the other half of the same
-    // closed gate.
-    expect(readHighestSequence(databasePath, campaignId)).toBe(-1);
+    // Behavioural proof the flag is on: the create appended the genesis
+    // and wrote the journal-native marker with the record, in one
+    // transaction (`saveCampaignRecordThroughJournal`), so the campaign
+    // is on journal authority from birth, with no command recorded yet.
+    const markerAtCreate = readMarker(databasePath, campaignId);
+    expect(markerAtCreate?.state).toBe('journal');
+    expect(markerAtCreate?.firstJournalAuthorityCommandId).toBeNull();
+    expect(readHighestSequence(databasePath, campaignId)).toBe(0);
 
     // --- boot the source process on the SAME database file ------------
     multiplayerDir = await mkdtemp(path.join(tmpdir(), 'mekstation-co3-mp-'));
     const env = sourceServerEnv(
       databasePath,
       path.join(multiplayerDir, 'multiplayer-matches.db'),
-      E2E_ARM_KEY,
     );
-    // Falsifiable rather than asserted: the arm is absent from the env
-    // object actually handed to `spawn`.
-    expect(env[E2E_ARM_KEY]).toBeUndefined();
     source = await startSourceServer(request, env);
     expect(source.origin).not.toBe(replicaOrigin);
 
@@ -208,10 +172,11 @@ test.describe('campaign journal authority across two processes', () => {
             state: {
               campaignId,
               day: 0,
-              // The ledger the commands below spend from. The host
-              // commits this state as the stream's baseline, so the
-              // balance after N spends is an absolute fact about how
-              // much history survived.
+              // The host's initial ledger. The stream's baseline is
+              // the create's genesis, whose balance is the same
+              // SEED_BALANCE (campaignEnvelope), so the balance after N
+              // spends is an absolute fact about how much history
+              // survived.
               balance: SEED_BALANCE,
               rosterUnits: {},
               forceUnits: {},
@@ -226,19 +191,16 @@ test.describe('campaign journal authority across two processes', () => {
     );
     expect(match.status(), await match.text()).toBe(201);
     const matchId = ((await match.json()) as { matchId: string }).matchId;
-    // The checkpoint's genesis stage is `skipped` while the gate is
-    // closed, so the seat exists and the campaign has NO cutover marker.
-    // Both halves matter: the seat is what the command needs, and the
-    // absent marker is what keeps this proof flag-free - the create and
-    // checkpoint paths are the only two that would have written one, and
-    // neither did.
-    expect(readMarker(databasePath, campaignId)).toBeNull();
+    // The creation checkpoint bound the GM seat, and its genesis-branch
+    // step (run with the flag on) found the create's journal-native
+    // marker; the marker still records no command.
+    const markerAfterMatch = readMarker(databasePath, campaignId);
+    expect(markerAfterMatch?.state).toBe('journal');
+    expect(markerAfterMatch?.firstJournalAuthorityCommandId).toBeNull();
 
-    // Registering the co-op host DID seed the campaign's journal stream:
-    // `CampaignMatchHost` commits a `CampaignSnapshotPublished` baseline
-    // from its initial state on open, through the durable store. So the
-    // stream exists - and the campaign is still NOT on journal
-    // authority, because authority is the marker, not the stream.
+    // Registering the co-op host appended nothing: `CampaignMatchHost`
+    // commits a baseline on open only over an empty stream, and this one
+    // already holds the create's genesis at sequence 0.
     const seededSequence = readHighestSequence(databasePath, campaignId);
     expect(seededSequence).toBe(0);
 
@@ -265,50 +227,6 @@ test.describe('campaign journal authority across two processes', () => {
     expect(replicaSeeded).toEqual(sourceSeeded);
     const seededEntries = sourceSeeded.entries?.length ?? -1;
 
-    // --- control: a command before cutover is refused, not accepted ---
-    // Without this row every assertion after the cutover would pass for
-    // a route that simply accepts everything from a seated caller.
-    const beforeCutover = await postCommand(
-      request,
-      source.origin,
-      campaignId,
-      host.wireToken,
-      `${campaignId}-cmd-0`,
-    );
-    expect(beforeCutover.status).toBe(409);
-    expect(beforeCutover.body).toMatchObject({
-      kind: 'blocked',
-      reason: 'campaign-not-on-journal-authority',
-    });
-
-    // --- the cutover, with no flag anywhere ---------------------------
-    const cutover = cutoverCampaignToJournalAuthority(databasePath, campaignId);
-    expect(cutover.marker?.state).toBe('journal');
-    expect(cutover.marker?.firstJournalAuthorityCommandId).toBeNull();
-    // Which arm ran, stated rather than implied: the stream was already
-    // there, so this wrote a marker and appended nothing.
-    expect(cutover.path).toBe('marker');
-    expect(cutover.highestSequence).toBeGreaterThanOrEqual(0);
-    // The cutover ran in a process where both switches were still shut.
-    expect(cutover.cutoverFlag).toBe(false);
-    expect(cutover.effective).toBe(false);
-    expect(cutover.e2eEnvValue).toBeNull();
-
-    // Writing the marker appends NOTHING: the stream is still the one
-    // the co-op host seeded, and both processes still answer the same
-    // feed. A cutover that moved the head would have fabricated history,
-    // which D10 forbids.
-    expect(readHighestSequence(databasePath, campaignId)).toBe(seededSequence);
-    expect(
-      await readActivity(
-        request,
-        replicaOrigin,
-        campaignId,
-        matchId,
-        host.playerId,
-      ),
-    ).toEqual(sourceSeeded);
-
     // --- a real command on the source under journal authority ---------
     const firstCommandId = `${campaignId}-cmd-1`;
     const first = await postCommand(
@@ -320,8 +238,8 @@ test.describe('campaign journal authority across two processes', () => {
     );
     expect(first.status, JSON.stringify(first.body)).toBe(200);
     expect(first.body.kind).toBe('committed');
-    // Replayed from the stream, not echoed from the intent: the baseline
-    // the co-op host committed, minus this one spend.
+    // Replayed from the stream, not echoed from the intent: the create's
+    // genesis balance, minus this one spend.
     expect(first.body.state?.balance).toBe(SEED_BALANCE - SPEND_PER_COMMAND);
 
     // CO0 (#1739) durable effect: the commit reported itself to the
@@ -439,20 +357,19 @@ test.describe('campaign journal authority across two processes', () => {
       ),
     );
 
-    // --- the gate stayed closed for the whole drive -------------------
+    // --- the flag stayed on for the whole drive -----------------------
     const flagsAfter = runAuthorityCli('flags');
-    expect(flagsAfter.cutoverFlag).toBe(false);
-    expect(flagsAfter.effective).toBe(false);
-    expect(process.env[E2E_ARM_KEY]).toBeUndefined();
-    expect(env[E2E_ARM_KEY]).toBeUndefined();
+    expect(flagsAfter.cutoverFlag).toBe(true);
+    expect(flagsAfter.effective).toBe(true);
   });
 });
 
 /*
  * NOT DRIVEN HERE, deliberately:
  *
- * - The production cutover flag. `CAMPAIGN_JOURNAL_AUTHORITY_ENABLED`
- *   stays false; no campaign is born journal-native by this drive.
+ * - A campaign created before the flag. This drive's campaign is born
+ *   journal-native; the authority CLI's `cutover` command for a campaign
+ *   with no marker is not driven.
  * - The single-player command path. `/commands` refuses a campaign with
  *   no seats, which is the #29 boundary and not a gap this proof papers
  *   over - the campaign here is genuinely co-op-hosted.
