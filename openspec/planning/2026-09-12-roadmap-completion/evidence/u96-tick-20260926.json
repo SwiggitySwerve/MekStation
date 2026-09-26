@@ -1,0 +1,8 @@
+{
+  "unit": "U96",
+  "stage": "tick",
+  "at": "2026-09-26T16:33:17.303Z",
+  "taskKeys": [],
+  "note": "U96 holds no task row (its row is held by a packet until the gated scenario can pass); the delivered behaviour is proven on main by this unit.",
+  "tickedOnMain": null
+}

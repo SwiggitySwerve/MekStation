@@ -2821,7 +2821,7 @@
         "tick": null
       },
       "ownerGate": null,
-      "state": "blocked",
+      "state": "planned",
       "id": "U92",
       "node": "R2.authority-live",
       "behavior": "A GM intervention approved on the co-op host's GM ledger route reaches the guest. Today handleApprove writes only the host's local campaign store (src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx:255-323; the ledger page callback gm-ledger.tsx:42-50), and no code path commits it through the campaign authority (grep of the ledger path for co-op authority calls: 0), so the guest never sees the public net effect that openspec/specs/coop-campaign-sync/spec.md:499-504 requires, and a funds correction on the host is reset by the next accepted frame (src/lib/campaign/coop/campaignMirrorProjection.ts:27-30). After: on a co-op campaign the approved intervention commits through the campaign authority as a host command on the campaign stream, so the host's saved record and the guest's mirror both carry its net effect, and the guest's frame carries the redacted public result only (no rationale, no hidden correction context). Admission decides, with file:line, the command shape (an existing campaign intent that carries the projection's updates, or a new command needing src/types/campaign and Protocol changes, which stops admission for a path amendment) and how the host's own balance survives the mirror reset. Red first, live on two browsers on the journal-authority head: the host approves a funds correction; the guest's balance and feed do not change on the baseline; after, they do, and the guest's frame carries no private field. Amended 2026-09-26 after the first admission attempt (evidence/u92-admission-attempt1-20260925.json; owner answer \"Amend U92: funds-only, those defaults\"): the funds family only. A new host-only command ApplyGmIntervention (src/types/campaign/CampaignSync.ts, the wire schema in src/types/multiplayer/Protocol.ts and campaignSyncSchemas) carries the intervention's public summary and a signed C-bill delta and commits as FundsChanged; the ledger page's approve callback (src/pages/gameplay/campaigns/[id]/gm-ledger.tsx:42-50) sends it for a co-op campaign. Defaults: the host applies the change only through the command's fold (no separate local-store write); each approval carries a unique intervention id (today canned ids repeat, helpers.ts:26, so two approvals would dedupe as one); the day cascade and the other intervention families stay out of scope and are recorded (FN-u92-other-intervention-families-unreachable). Admitted after U95 is main-verified (both own src/lib/multiplayer/server, and U95's shared registry is what a live host read needs).",
@@ -2861,6 +2861,11 @@
         "cause": "first admission BLOCKED for the path amendment above; the amended unit shares src/lib/multiplayer/server with U95, which the owner ordered first",
         "nextIndependentAction": "U96 (in flight next), then U92 resumes on the amended sentence",
         "proof": "evidence/u92-admission-attempt1-20260925.json"
+      },
+      "unblocked20260926": {
+        "at": "2026-09-26T16:33:17.000Z",
+        "by": "U96 main-verified (the shared server path is free; the live host now adopts the host's own PUT, which U92's funds command rides)",
+        "note": "relaunch on the amended sentence; its worktree is stale and is re-created"
       }
     },
     {
@@ -2977,7 +2982,9 @@
         "src/stores/campaign/useCampaignStore.dayActions.ts",
         "src/stores/campaign/useCampaignStore.actions.ts",
         "src/__tests__/integration/coopMutationPersistence.test.ts",
-        "e2e/coop-campaign-two-browser-journey.spec.ts"
+        "e2e/coop-campaign-two-browser-journey.spec.ts",
+        "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts",
+        "src/stores/campaign/__tests__/useCampaignStore.coopDayAdvanceOrder.test.ts"
       ],
       "ciClass": "product",
       "reviewClasses": [
@@ -2989,8 +2996,8 @@
         "maxNonGeneratedLines": 500
       },
       "baseline": "2edfbb3b6f40f04c641dbc8530afd5ad6df73d2a",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "bbdb6a07cb2f01ec2f162bb2dc17a64774ef4504",
+      "mergeSha": "5d19d95ada9a390f7b242caf354243c3bf377036",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u96-admission-20260926.json",
@@ -3009,13 +3016,34 @@
           "at": "2026-09-26T14:59:53.115Z",
           "summary": "8 files, product 430 lines in 4 (src/pages/api/campaigns/[id].ts 76: a PUT whose coopSession is {mode:'host', matchId} for the live entry is saved then adopted, any other PUT while a host is live is refused 409 reason live-coop-session with the matchId, a closed host is not live, the non-live PUT unchanged; CampaignHostRegistry.ts 13 and CampaignMatchHost.ts 27: adoptSavedCheckpoint runs the save under the host's single-writer lock, folds the events with applyCampaignEvent and publishes the existing CampaignSnapshot frame; useCampaignStore.dayActions.ts 314 (192 ignoring the re-indent): the co-op day advance sends AdvanceDay, waits for CampaignDayAdvanced or the Error frame with its intentId, then runs the day pipeline and saves; on refusal saves nothing and toasts; useCampaignStore.actions.ts unchanged), tests 631 (campaignPutLiveHost.test.ts 352, useCampaignStore.coopDayAdvanceOrder.test.ts 261, coopMutationPersistence.test.ts harness +13/-1, the journey's stale :475 expectation corrected to the ruled destroyed-stays behaviour, 4 lines); live after (port 24981): S2 guest CampaignSnapshot balance 382500, hostLiveBalance 382500; S3 FundsChanged balance 381500, record version 3 381500, journal 381500; day advance measured: saving first 184,185,186, sending first 184,185; jest 455 suites 5317 passed; tsc 0; oxlint 84 warnings 0 errors; oxfmt clean on 7 files; lint:units 100/100; qc:openspec-ci errors=0; validator PASSED; build exits at the hydration guard by design with the __E2E_MODE__ marker; lifecycle-pack 2 passed (port 27487); two-browser co-op journey 3 of 3 (ports 27491-27493) after the assertion fix, 3 of 3 failing at :475 before it, failing at :375 on the baseline; mutants: adoption removed (382500 vs 380000), host check removed (409 vs 200), client saves first (184,185,186), reason swapped, closed hosts live (200 vs 409), each caught and restored with sha256 confirmed; NON-CLAIMS: guests do not ack snapshot frames (not measured), a re-sent deduped AdvanceDay waits without timeout (not measured), the record rewrite day timestamp looks local-time (not investigated), Node sockets not browsers, byte-for-byte non-live PUT checked within a run, only lifecycle-pack from the ladder; one journey run started while the hold file existed (recorded); implementer claude-opus (Agent model: opus, lean-worker); status ready"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u96-review-20260926.json",
+          "head": "bbdb6a07cb2f01ec2f162bb2dc17a64774ef4504",
+          "reviewedHead": "bbdb6a07cb2f01ec2f162bb2dc17a64774ef4504",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet, lean-worker)",
+          "implementerModel": "claude-opus (Agent model: opus)",
+          "outputSha256": "5aeaa905e79b163cf8f95ce9bee697ae8175a6a42a4b1fe50ce1b415f50d6c12",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u96-merge-20260926.json",
+          "pr": 2001,
+          "head": "bbdb6a07cb2f01ec2f162bb2dc17a64774ef4504",
+          "mergeSha": "5d19d95ada9a390f7b242caf354243c3bf377036"
+        },
+        "mainProof": {
+          "path": "evidence/u96-mainproof-20260926.json",
+          "mergeCommit": "5d19d95ada9a390f7b242caf354243c3bf377036",
+          "verdict": "PASS",
+          "runtime": "U96 PROOF RUNTIME PASSED: 5322 passed (jest 5320, 0 failed, exit 0; lifecycle-pack 2, 0 failed, exit 0)"
+        },
+        "tick": {
+          "path": "evidence/u96-tick-20260926.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
-      "state": "local-verified",
+      "state": "complete",
       "admitAfter20260926": "U95 main-verified (the shared campaign host registry the route needs to reach the live host); --next cannot express a unit dependency, so the parent checks it at admission",
       "source20260926": "planned by the parent under the owner's answer \"Plan U96 now, before U95\" (2026-09-26) on U92's measured finding FN-u92-coop-checkpoint-erased-by-next-host-command",
       "unblocked20260926": {
@@ -9218,6 +9246,48 @@
         "author": "SwiggitySwerve",
         "label": "owner-ruled",
         "bodySha256": "28cb5ab2919bc12cbee75ab84d20d2c5ab98af1f58db5c64f37d9d5d10800f83",
+        "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
+      },
+      "note": "opened when the owner ruled, 2026-09-22 (the cutover sequence's units carry no pre-opened ruling packets)"
+    },
+    {
+      "id": "PK-u96-ruling",
+      "blocks": [
+        "U96"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "U96 (review classes authority, idempotency) presents head bbdb6a07cb2f01ec2f162bb2dc17a64774ef4504. Does the owner rule it?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "an OWNER-RULING <head> comment and the owner-ruled label on U96's PR; the unit merges and proceeds to main proof",
+          "effort": "0.1 day owner"
+        },
+        {
+          "label": "reject",
+          "consequence": "the PR closes; the unit returns to planned with the objection recorded",
+          "effort": "0.1 day owner"
+        }
+      ],
+      "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
+      "revertCost": "low: a squash merge revert",
+      "decision": {
+        "at": "2026-09-26T16:19:49Z",
+        "option": "rule the head",
+        "text": "Approve (Recommended)",
+        "source": "owner instruction in the working session (chat), after the parent described the unit in plain English: a structured question: the live host adopts its own instance's whole-campaign PUT and any other instance's PUT is refused 409 naming the session; the co-op day advance sends AdvanceDay before it saves (authority and idempotency classes); Lane A verdict and CI on the exact head; disclosed: the host claim is body.coopSession, unauthenticated as every write to the route already was; guests do not ack snapshot frames (not measured); a re-sent deduped AdvanceDay waits without timeout (not measured); the journey's stale post-destroyed expectation corrected to OD-u35g; one lane run overlapped the parent's hold"
+      },
+      "ruling": {
+        "ruledHead": "bbdb6a07cb2f01ec2f162bb2dc17a64774ef4504",
+        "pr": 2001,
+        "commentId": 5847834052,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "9d220aef10def69f5339c510c1fb142816759df71850c76589410b5771fccf96",
         "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
         "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
       },
