@@ -1,0 +1,2467 @@
+{
+  "unit": "U41",
+  "stage": "admission",
+  "at": "2026-09-26T17:20:49.771Z",
+  "baseline": "de207e4f19ff535727924844957ef89703f8eef8",
+  "originMain": "de207e4f19ff535727924844957ef89703f8eef8",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u41",
+  "branch": "roadmap-u41-validator-checks-receipts-20260926",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "behavior": "units.json U41.behavior, unchanged; the charter wording of (2) adds that the parent runtime lines, whose K is 0, keep passing.",
+  "guardNodeModulesLink": {
+    "command": "npm run --silent qc:guard-node-modules-link",
+    "exit": 1,
+    "output": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"<worktree>\\\\node_modules\",\"actualPath\":\"<root checkout>\\\\node_modules\"}",
+    "note": "refuses by design in a junctioned worktree; no npm install/ci/prune/lifecycle and no npx were run by this lane: local gates call the node entry points under node_modules directly"
+  },
+  "baselineRuns": {
+    "validator": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exit": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows"
+    },
+    "git": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --git",
+      "exit": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows"
+    },
+    "next": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+      "exit": 0,
+      "lastLine": "U89",
+      "note": "the validator names U89 (planned; src/lib/multiplayer/server, src/lib/campaign); U41 is the parent's file-disjoint pick beside U92, which the ledger still lists as planned on this baseline"
+    },
+    "nodeTest": {
+      "command": "node --test openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
+      "exit": 0,
+      "counts": "tests 9, pass 9, fail 0"
+    }
+  },
+  "seams": {
+    "parseProofLine": "validate-roadmap.mjs:86-94",
+    "evidenceMainProofBlock": "validate-roadmap.mjs:338-357 (expectedReds count checks :348-355)",
+    "reviewIndependence": "validate-roadmap.mjs:417-424",
+    "sensitiveClassPacketRuling": "validate-roadmap.mjs:426-432 (merged or later only; SENSITIVE_REVIEW_CLASSES :26 matches the DELIVERY.md:11 Lane B list)",
+    "gitMode": "validate-roadmap.mjs:498-509 (merge-base --is-ancestor only; no diff is taken today)",
+    "ownershipPathsToday": "validate-roadmap.mjs:365-370 (unit paths must exist and be owned by the node; no merge diff is compared)",
+    "pathsOverlap": "validate-roadmap.mjs:74-81 (reused for diff containment)",
+    "fixtures": "validate-roadmap.test.mjs:24-48 makeFixture, :94-112 mainVerifiedFixture, :51-57 run",
+    "mainProofValidatorStep": "scripts/qc/roadmap-main-proof.mjs:159 validator path; :197 node <validator>, :198 --git, :199 --next; evidence mode is on by default (validate-roadmap.mjs:22), so the plain step is the evidence-mode run",
+    "closureWriter": "scripts/qc/roadmap-unit-closure.mjs:301 counts failed rows from the line; :328 writes expectedReds at the top level; runtime.failedRows is only present when --extra-runtime supplies it",
+    "scriptsSuitesReadingValidator": "scripts/__tests__/roadmap-loop-closure-proof.test.ts and scripts/__tests__/roadmap-loop-scripts.test.ts copy the ledger directory and run the copied validator (grep validate-roadmap)",
+    "capProse": "GOAL.md:56, DELIVERY.md:8"
+  },
+  "design": {
+    "a_proofLines": {
+      "rule": "ladder red \"<label>: N failed / M passed\" -> N (unchanged); jest \"Tests: [K failed, ][S skipped, ]N passed, M total\" -> K (0 when absent; the red summary is new); \"N passed (...)\" -> the sum of every \"K failed\" inside the parentheses (0 when none), so the parent runtime lines and U16/U22/U35h lines keep parsing as 0",
+      "receipts": [
+        {
+          "receipt": "evidence/u0-mainproof-20260916.json",
+          "unit": "U0",
+          "ciClass": "docs",
+          "shape": "absent",
+          "line": null,
+          "failedBaseline": null,
+          "failedProposed": null,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-16T16:03:48.636Z"
+        },
+        {
+          "receipt": "evidence/u1-mainproof-20260916.json",
+          "unit": "U1",
+          "ciClass": "product",
+          "shape": "playwright-passed",
+          "line": "  1 passed (30.8s)",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-16T18:45:25.603Z"
+        },
+        {
+          "receipt": "evidence/u10-mainproof-20260918.json",
+          "unit": "U10",
+          "ciClass": "product",
+          "shape": "jest",
+          "line": "multiplayer server suites incl. the branch reader pins (jest): Tests:       1164 passed, 1164 total",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-19T18:01:04.106Z"
+        },
+        {
+          "receipt": "evidence/u11-mainproof-20260917.json",
+          "unit": "U11",
+          "ciClass": "product",
+          "shape": "jest",
+          "line": "jest machine-idle pin: Tests:       62 passed, 62 total",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-17T11:11:59.374Z"
+        },
+        {
+          "receipt": "evidence/u12b-mainproof-20260922.json",
+          "unit": "U12b",
+          "ciClass": "product",
+          "shape": "jest",
+          "line": "guard pin (jest, 1 suite, 12/12) plus the CLI run from the root checkout: INSTALL_ALLOWED exit 0: Tests:       12 passed, 12 total",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-22T07:33:08.247Z"
+        },
+        {
+          "receipt": "evidence/u13-mainproof-20260917.json",
+          "unit": "U13",
+          "ciClass": "product",
+          "shape": "jest",
+          "line": "preserve-run-logs pin (jest): Tests:       16 passed, 16 total",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-17T20:04:26.272Z"
+        },
+        {
+          "receipt": "evidence/u14-mainproof-20260917.json",
+          "unit": "U14",
+          "ciClass": "product",
+          "shape": "jest",
+          "line": "jest lint-units pin: Tests:       29 passed, 29 total",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-17T12:24:45.478Z"
+        },
+        {
+          "receipt": "evidence/u15a-mainproof-20260917.json",
+          "unit": "U15a",
+          "ciClass": "product",
+          "shape": "jest",
+          "line": "multiplayer server suites incl. the two-key pin (jest): Tests:       1159 passed, 1159 total",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-18T01:09:55.103Z"
+        },
+        {
+          "receipt": "evidence/u15b-mainproof-20260917.json",
+          "unit": "U15b",
+          "ciClass": "product",
+          "shape": "ladder-red",
+          "line": "authority-recovery: 2 failed / 2 passed",
+          "failedBaseline": 2,
+          "failedProposed": 2,
+          "failedRowsPresent": false,
+          "expectedReds": 2,
+          "at": "2026-09-17T16:41:43.408Z"
+        },
+        {
+          "receipt": "evidence/u16-mainproof-20260917.json",
+          "unit": "U16",
+          "ciClass": "docs",
+          "shape": "playwright-passed",
+          "line": "validate-roadmap.test: 9 passed (node --test, 0 failed; source: node-test.log)",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-17T16:52:38.239Z"
+        },
+        {
+          "receipt": "evidence/u17-mainproof-20260917.json",
+          "unit": "U17",
+          "ciClass": "product",
+          "shape": "jest",
+          "line": "roadmap-loop-scripts pin (jest): Tests:       13 passed, 13 total",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-17T21:05:13.081Z"
+        },
+        {
+          "receipt": "evidence/u17b-mainproof-20260917.json",
+          "unit": "U17b",
+          "ciClass": "product",
+          "shape": "jest",
+          "line": "roadmap-loop-closure-proof pin (jest): Tests:       18 passed, 18 total",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-17T22:24:55.607Z"
+        },
+        {
+          "receipt": "evidence/u19b-mainproof-20260922.json",
+          "unit": "U19b",
+          "ciClass": "product",
+          "shape": "jest",
+          "line": "journal, multiplayer history and campaign authority suites (57 suites, 514) plus verify:qc:coop-campaign-journey (jest 9/143, Playwright 2 passed): Tests:       143 passed, 143 total",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-22T20:21:22.238Z"
+        },
+        {
+          "receipt": "evidence/u1b-mainproof-20260916.json",
+          "unit": "U1b",
+          "ciClass": "product",
+          "shape": "playwright-passed",
+          "line": "evidence-smoke:   1 passed (12.1s)",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-16T19:41:51.448Z"
+        },
+        {
+          "receipt": "evidence/u1c-mainproof-20260916.json",
+          "unit": "U1c",
+          "ciClass": "product",
+          "shape": "playwright-passed",
+          "line": "lifecycle-pack:   1 passed (9.1s)",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-16T21:41:15.929Z"
+        },
+        {
+          "receipt": "evidence/u1d-mainproof-20260916.json",
+          "unit": "U1d",
+          "ciClass": "product",
+          "shape": "playwright-passed",
+          "line": "conflict-pack:   1 passed (15.9s)",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-17T01:13:53.117Z"
+        },
+        {
+          "receipt": "evidence/u1e-mainproof-20260916.json",
+          "unit": "U1e",
+          "ciClass": "product",
+          "shape": "playwright-passed",
+          "line": "lifecycle-pack:   2 passed (22.8s)",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-16T23:14:15.823Z"
+        },
+        {
+          "receipt": "evidence/u20-mainproof-20260922.json",
+          "unit": "U20",
+          "ciClass": "product",
+          "shape": "jest",
+          "line": "campaign authority, launch routes and mission-launch suites (32 suites, 224) plus verify:qc:coop-campaign-journey (jest 9/143, Playwright 2 passed): Tests:       143 passed, 143 total",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-22T22:25:19.015Z"
+        },
+        {
+          "receipt": "evidence/u21-mainproof-20260923.json",
+          "unit": "U21",
+          "ciClass": "product",
+          "shape": "jest",
+          "line": "the match journal reader, match history, rewind route and launch route suites (jest, 26 suites, 233): Tests:       233 passed, 233 total",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-23T04:48:20.568Z"
+        },
+        {
+          "receipt": "evidence/u21b-mainproof-20260925.json",
+          "unit": "U21b",
+          "ciClass": "product",
+          "shape": "parent-runtime",
+          "line": "multiplayer server, API page-module, match route and journal jest suites plus the rewind-pack ladder group (1539 passing): U21B PROOF RUNTIME PASSED: 1539 passed (jest 1533, 0 failed, exit 0; rewind-pack 6, 0 failed, exit 0)",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-26T02:12:24.953Z"
+        },
+        {
+          "receipt": "evidence/u22-mainproof-20260925.json",
+          "unit": "U22",
+          "ciClass": "product",
+          "shape": "playwright-passed",
+          "line": "privacy-pack 8, proposal-pack 2 and the two-process campaign journal specs 2 (Playwright on the root checkout's standalone server): 12 passed (privacy-pack 8, proposal-pack 2, two-process 2, each 0 failed, exit 0)",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-25T20:47:42.650Z"
+        },
+        {
+          "receipt": "evidence/u22a-mainproof-20260925.json",
+          "unit": "U22a",
+          "ciClass": "product",
+          "shape": "jest",
+          "line": "multiplayer server and client, protocol, session hook and match route suites (jest, 186 suites, 1547): Tests:       1547 passed, 1547 total",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-25T06:37:27.504Z"
+        },
+        {
+          "receipt": "evidence/u2c-mainproof-20260922.json",
+          "unit": "U2c",
+          "ciClass": "product",
+          "shape": "playwright-passed",
+          "line": "privacy-pack ladder group on the exact merge commit (Playwright, 8 passed: 7 ok, E2E-25 expected failure under its gate, 0 unexpected passes):   8 passed (41.6s)",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-22T14:25:43.081Z"
+        },
+        {
+          "receipt": "evidence/u3-mainproof-20260917.json",
+          "unit": "U3",
+          "ciClass": "product",
+          "shape": "ladder-red",
+          "line": "authority: 3 failed / 17 passed",
+          "failedBaseline": 3,
+          "failedProposed": 3,
+          "failedRowsPresent": true,
+          "expectedReds": 3,
+          "at": "2026-09-17T07:05:00.438Z"
+        },
+        {
+          "receipt": "evidence/u35a-mainproof-20260922.json",
+          "unit": "U35a",
+          "ciClass": "product",
+          "shape": "jest",
+          "line": "campaign authority and sync suites plus campaign API route suites (jest, 49 suites, 353): Tests:       353 passed, 353 total",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-23T01:02:59.204Z"
+        },
+        {
+          "receipt": "evidence/u35b-mainproof-20260923.json",
+          "unit": "U35b",
+          "ciClass": "product",
+          "shape": "jest",
+          "line": "campaign route suites, campaign persistence service, campaign authority library and unit API suites (jest, 47 suites, 332): Tests:       332 passed, 332 total",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-23T02:58:16.714Z"
+        },
+        {
+          "receipt": "evidence/u35c-mainproof-20260923.json",
+          "unit": "U35c",
+          "ciClass": "product",
+          "shape": "jest",
+          "line": "campaign API route suites and unit API suites (jest, 18 suites, 124): Tests:       124 passed, 124 total",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-23T01:31:11.796Z"
+        },
+        {
+          "receipt": "evidence/u35d-mainproof-20260925.json",
+          "unit": "U35d",
+          "ciClass": "product",
+          "shape": "parent-runtime",
+          "line": "campaign, API route, unit API and persistence jest suites, the ladder groups authority-recovery, privacy-pack and proposal-pack, and the two two-process specs serially (3833 passing): U35D PROOF RUNTIME PASSED: 3833 passed (jest 3817, 0 failed, exit 0; authority-recovery 4, 0 failed, exit 0; privacy-pack 8, 0 failed, exit 0; proposal-pack 2, 0 failed, exit 0; two-process 2, 0 failed, exit 0)",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-26T00:35:47.505Z"
+        },
+        {
+          "receipt": "evidence/u35e-mainproof-20260923.json",
+          "unit": "U35e",
+          "ciClass": "product",
+          "shape": "jest",
+          "line": "campaign route suites, campaign authority and sync libraries, persistence service and unit API suites (jest, 62 suites, 432): Tests:       432 passed, 432 total",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-23T05:14:39.273Z"
+        },
+        {
+          "receipt": "evidence/u35f-mainproof-20260923.json",
+          "unit": "U35f",
+          "ciClass": "product",
+          "shape": "jest",
+          "line": "co-op component, campaign persistence store, co-op campaign library and campaign page suites (jest, 56 suites, 581): Tests:       581 passed, 581 total",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-23T07:53:24.329Z"
+        },
+        {
+          "receipt": "evidence/u35g-mainproof-20260925.json",
+          "unit": "U35g",
+          "ciClass": "product",
+          "shape": "jest",
+          "line": "campaign library, campaign route, campaign persistence and multiplayer server suites (jest, 383 suites, 4293): Tests:       4293 passed, 4293 total",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-25T07:57:05.204Z"
+        },
+        {
+          "receipt": "evidence/u35h-mainproof-20260925.json",
+          "unit": "U35h",
+          "ciClass": "product",
+          "shape": "playwright-passed",
+          "line": "qc pin and scripts jest suites plus the authority-recovery and privacy-pack ladder groups ( passing): 1265 passed (jest 1253 passed and 10 skipped of 1263, exit 0; authority-recovery 4, exit 0; privacy-pack 8, exit 0; all with 0 failed)",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-26T04:16:27.680Z"
+        },
+        {
+          "receipt": "evidence/u35i-mainproof-20260925.json",
+          "unit": "U35i",
+          "ciClass": "product",
+          "shape": "parent-runtime",
+          "line": "campaign sync, multiplayer server and unit API suites (jest, 181 suites, 1323): U35I PROOF RUNTIME PASSED: 1323 passed (jest 1323, 0 failed, exit 0)",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-26T05:37:28.096Z"
+        },
+        {
+          "receipt": "evidence/u35j-mainproof-20260925.json",
+          "unit": "U35j",
+          "ciClass": "product",
+          "shape": "jest",
+          "line": "event replay and journal, campaign authority and sync, multiplayer server suites (jest, 249 suites, 2397): Tests:       2397 passed, 2397 total",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-25T22:02:59.806Z"
+        },
+        {
+          "receipt": "evidence/u36-mainproof-20260925.json",
+          "unit": "U36",
+          "ciClass": "product",
+          "shape": "jest",
+          "line": "multiplayer component and page-module, co-op campaign component and API page-module suites (jest, 40 suites, 384): Tests:       384 passed, 384 total",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-25T21:54:43.283Z"
+        },
+        {
+          "receipt": "evidence/u37-mainproof-20260925.json",
+          "unit": "U37",
+          "ciClass": "product",
+          "shape": "parent-runtime",
+          "line": "replay hooks, gameplay state, engine, gameplay and multiplayer component suites (jest, 574 suites, 7217): U37 PROOF RUNTIME PASSED: 7217 passed (jest 7217, 0 failed, exit 0)",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-26T05:24:20.264Z"
+        },
+        {
+          "receipt": "evidence/u39-mainproof-20260926.json",
+          "unit": "U39",
+          "ciClass": "product",
+          "shape": "parent-runtime",
+          "line": "scripts and evidence unit suites (jest, 82 suites, 1270): U39 PROOF RUNTIME PASSED: 1270 passed (jest 1270, 0 failed, exit 0)",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-26T07:56:54.065Z"
+        },
+        {
+          "receipt": "evidence/u4-mainproof-20260917.json",
+          "unit": "U4",
+          "ciClass": "product",
+          "shape": "jest",
+          "line": "U4 pins: client, lobby intents, protocol (jest): Tests:       72 passed, 72 total",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-18T00:52:37.517Z"
+        },
+        {
+          "receipt": "evidence/u40-mainproof-20260926.json",
+          "unit": "U40",
+          "ciClass": "product",
+          "shape": "parent-runtime",
+          "line": "scripts and evidence unit suites plus one lifecycle-pack group with the runner line (1279 passing): U40 PROOF RUNTIME PASSED: 1279 passed (jest 1277, 0 failed, exit 0; runner line: GM2P_SERVER port=27487 pid=22744; lifecycle-pack 2, 0 failed, exit 0)",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-26T17:07:16.798Z"
+        },
+        {
+          "receipt": "evidence/u58-mainproof-20260925.json",
+          "unit": "U58",
+          "ciClass": "product",
+          "shape": "jest",
+          "line": "campaign library, multiplayer server, campaign route and events suites (jest, 431 suites, 5235): Tests:       5235 passed, 5235 total",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-26T04:25:42.641Z"
+        },
+        {
+          "receipt": "evidence/u5a-mainproof-20260917.json",
+          "unit": "U5a",
+          "ciClass": "product",
+          "shape": "jest",
+          "line": "pages-modules API and match API route suites incl. the private-preview pins (jest): Tests:       75 passed, 75 total",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-18T05:50:18.881Z"
+        },
+        {
+          "receipt": "evidence/u5b-mainproof-20260917.json",
+          "unit": "U5b",
+          "ciClass": "product",
+          "shape": "playwright-passed",
+          "line": "gm-two-player privacy-pack group (Playwright):   6 passed (34.2s)",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-18T00:59:53.102Z"
+        },
+        {
+          "receipt": "evidence/u5c-mainproof-20260919.json",
+          "unit": "U5c",
+          "ciClass": "product",
+          "shape": "jest",
+          "line": "match API and pages-modules API route suites incl. the reason suite (jest): Tests:       96 passed, 96 total",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-21T19:37:50.289Z"
+        },
+        {
+          "receipt": "evidence/u5d-mainproof-20260919.json",
+          "unit": "U5d",
+          "ciClass": "product",
+          "shape": "jest",
+          "line": "multiplayer client suites incl. the commit adapter pins (jest): Tests:       21 passed, 21 total",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-21T19:44:56.775Z"
+        },
+        {
+          "receipt": "evidence/u5e-mainproof-20260921.json",
+          "unit": "U5e",
+          "ciClass": "product",
+          "shape": "jest",
+          "line": "multiplayer client suites incl. the readGmRewindHead pins (jest): Tests:       53 passed, 53 total",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-21T20:51:26.853Z"
+        },
+        {
+          "receipt": "evidence/u5f-mainproof-20260921.json",
+          "unit": "U5f",
+          "ciClass": "product",
+          "shape": "jest",
+          "line": "multiplayer page-module and lobby page suites incl. the producer pins (jest): Tests:       35 passed, 35 total",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-21T21:41:52.808Z"
+        },
+        {
+          "receipt": "evidence/u5g-mainproof-20260922.json",
+          "unit": "U5g",
+          "ciClass": "product",
+          "shape": "jest",
+          "line": "API page-module suites and matches API tests (jest, 11 suites, 107/107): Tests:       107 passed, 107 total",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-22T06:13:45.475Z"
+        },
+        {
+          "receipt": "evidence/u5h-mainproof-20260921.json",
+          "unit": "U5h",
+          "ciClass": "product",
+          "shape": "jest",
+          "line": "client adapter, multiplayer page and producer suites (jest, 9 suites, 104/104): Tests:       104 passed, 104 total",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-22T06:07:22.746Z"
+        },
+        {
+          "receipt": "evidence/u5i-mainproof-20260922.json",
+          "unit": "U5i",
+          "ciClass": "product",
+          "shape": "jest",
+          "line": "multiplayer page-module, multiplayer page and client adapter suites (jest, 9 suites, 106/106): Tests:       106 passed, 106 total",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-22T06:40:40.695Z"
+        },
+        {
+          "receipt": "evidence/u6-mainproof-20260917.json",
+          "unit": "U6",
+          "ciClass": "product",
+          "shape": "playwright-passed",
+          "line": "token-pack:   2 passed (1.7m)",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-17T09:29:03.300Z"
+        },
+        {
+          "receipt": "evidence/u62-mainproof-20260923.json",
+          "unit": "U62",
+          "ciClass": "product",
+          "shape": "jest",
+          "line": "the pre-commit pin scripts/__tests__/precommit-no-build.test.ts (jest, 1 suite, 2): Tests:       2 passed, 2 total",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-23T02:58:48.933Z"
+        },
+        {
+          "receipt": "evidence/u7-mainproof-20260917.json",
+          "unit": "U7",
+          "ciClass": "product",
+          "shape": "playwright-passed",
+          "line": "conflict-pack:   2 passed (7.6s)",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-17T10:06:58.678Z"
+        },
+        {
+          "receipt": "evidence/u8-mainproof-20260917.json",
+          "unit": "U8",
+          "ciClass": "product",
+          "shape": "jest",
+          "line": "campaign API route suites incl. the stale-head pin (jest): Tests:       87 passed, 87 total",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-18T01:04:23.194Z"
+        },
+        {
+          "receipt": "evidence/u86-mainproof-20260926.json",
+          "unit": "U86",
+          "ciClass": "product",
+          "shape": "parent-runtime",
+          "line": "probe route and ladder qc suites plus one performance group (25 passing): U86 PROOF RUNTIME PASSED: 25 passed (jest 24, 0 failed, exit 0; performance 1, 0 failed, exit 0)",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-26T14:52:46.960Z"
+        },
+        {
+          "receipt": "evidence/u87-mainproof-20260926.json",
+          "unit": "U87",
+          "ciClass": "product",
+          "shape": "parent-runtime",
+          "line": "lifecycle-pack three times and the production UX audit (16 passing): U87 PROOF RUNTIME PASSED: 16 passed (lifecycle-pack-1 2, 0 failed, exit 0; lifecycle-pack-2 2, 0 failed, exit 0; lifecycle-pack-3 2, 0 failed, exit 0; ux-audit-prod 10, 0 failed, exit 0)",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-26T07:11:07.274Z"
+        },
+        {
+          "receipt": "evidence/u88-mainproof-20260925.json",
+          "unit": "U88",
+          "ciClass": "product",
+          "shape": "jest",
+          "line": "API schema, API route, unit API and multiplayer server suites (jest, 224 suites, 1995): Tests:       1995 passed, 1995 total",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-25T23:20:38.534Z"
+        },
+        {
+          "receipt": "evidence/u9-mainproof-20260917.json",
+          "unit": "U9",
+          "ciClass": "product",
+          "shape": "jest",
+          "line": "jest exact-main-ladder pin: Tests:       26 passed, 26 total",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-17T14:18:41.937Z"
+        },
+        {
+          "receipt": "evidence/u91-mainproof-20260925.json",
+          "unit": "U91",
+          "ciClass": "product",
+          "shape": "jest",
+          "line": "co-op campaign component and campaign navigation suites, the delta scenario pins (jest, 22 suites, 199): Tests:       199 passed, 199 total",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-26T02:03:18.227Z"
+        },
+        {
+          "receipt": "evidence/u93-mainproof-20260925.json",
+          "unit": "U93",
+          "ciClass": "product",
+          "shape": "jest",
+          "line": "API schema, API route, unit API and campaign authority suites (jest, 88 suites, 992): Tests:       992 passed, 992 total",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-26T01:53:00.322Z"
+        },
+        {
+          "receipt": "evidence/u95-mainproof-20260926.json",
+          "unit": "U95",
+          "ciClass": "product",
+          "shape": "parent-runtime",
+          "line": "multiplayer server, campaign, API-lib and API route suites plus one live lifecycle-pack group (4967 passing): U95 PROOF RUNTIME PASSED: 4967 passed (jest 4965, 0 failed, exit 0; lifecycle-pack 2, 0 failed, exit 0)",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-26T08:14:20.442Z"
+        },
+        {
+          "receipt": "evidence/u96-mainproof-20260926.json",
+          "unit": "U96",
+          "ciClass": "product",
+          "shape": "parent-runtime",
+          "line": "API route, multiplayer server, campaign, API-lib and campaign store suites plus one live lifecycle-pack group (5322 passing): U96 PROOF RUNTIME PASSED: 5322 passed (jest 5320, 0 failed, exit 0; lifecycle-pack 2, 0 failed, exit 0)",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-26T16:33:17.246Z"
+        },
+        {
+          "receipt": "evidence/u9b-mainproof-20260917.json",
+          "unit": "U9b",
+          "ciClass": "product",
+          "shape": "jest",
+          "line": "jest exact-main-ladder pin: Tests:       39 passed, 39 total",
+          "failedBaseline": 0,
+          "failedProposed": 0,
+          "failedRowsPresent": false,
+          "expectedReds": null,
+          "at": "2026-09-17T15:32:42.923Z"
+        }
+      ],
+      "measured": "62 mainproof receipts; the proposed parser changes the failed count of 0 of them; the only unparsed line is U0's absent line, and U0 is docs class (the proof-line check applies to product units only)"
+    },
+    "b_gitDiff": {
+      "today": "the --git mode (:498-509) proves only that mergeSha is an ancestor of origin/main for units at main-verified or later; it derives no diff and reads no ownershipPaths",
+      "mergeShape": "all 62 ledger mergeShas have exactly one parent (squash merges, parentCount!=1: 0); the unit baseline is that parent for 13 of them only",
+      "decision": "the diff is taken as <mergeSha>^1..<mergeSha> (the squash commit against its first parent on main), not baseline..mergeSha: measured, the literal baseline..mergeSha form reports files outside ownership for 55 of 62 units because it includes every other unit merged between the baseline and the merge (e.g. U87 would list campaign sync sources that are not U87's). The parent should confirm this reading of the sentence.",
+      "evidenceExclusion": "only the ledger evidence directory openspec/planning/2026-09-12-roadmap-completion/evidence/ is excluded (measured: it is the only evidence/ directory any ledger merge touches)",
+      "unitsWithFilesOutsideOwnership": [
+        {
+          "unit": "U1",
+          "mergeSha": "6a358383e2531735190dabbdbc23632779a1a5f7",
+          "paths": [
+            "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "scripts/__tests__/gm-two-player-campaign-qc.test.ts"
+          ]
+        },
+        {
+          "unit": "U1b",
+          "mergeSha": "ffc427a0850db3a7149a6720cc3d71ab99a0f6b1",
+          "paths": [
+            "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "scripts/__tests__/gm-two-player-campaign-qc.test.ts"
+          ]
+        },
+        {
+          "unit": "U1c",
+          "mergeSha": "22fe4a5547ce70e0a72a4837ab9897ba7d2ceda3",
+          "paths": [
+            "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "scripts/__tests__/gm-two-player-campaign-qc.test.ts"
+          ]
+        },
+        {
+          "unit": "U1e",
+          "mergeSha": "8a7a4419d1d9bc5cae00d8100d92110ecb87fcce",
+          "paths": [
+            "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "scripts/__tests__/gm-two-player-campaign-qc.test.ts"
+          ]
+        },
+        {
+          "unit": "U1d",
+          "mergeSha": "843d70c79319d0abaa411522f4e7d99f723ea158",
+          "paths": [
+            "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "scripts/__tests__/gm-two-player-campaign-qc.test.ts"
+          ]
+        },
+        {
+          "unit": "U2c",
+          "mergeSha": "a28cda8065fe8df8183eeb66ddacb0c1be242264",
+          "paths": [
+            "scripts/__tests__/gm-two-player-campaign-qc.test.ts"
+          ]
+        },
+        {
+          "unit": "U7",
+          "mergeSha": "d701f63a8b0ab37ce38a57ff832823e13e1b187b",
+          "paths": [
+            "scripts/__tests__/gm-two-player-campaign-qc.test.ts"
+          ]
+        },
+        {
+          "unit": "U5a",
+          "mergeSha": "7286280568e3ad50226840c335cff1ea3527a6df",
+          "paths": [
+            "src/__tests__/api/matches/rewindPreviewRoute.test.ts"
+          ]
+        },
+        {
+          "unit": "U5c",
+          "mergeSha": "c8e42dd955fad931631cc02d4929c8d6ff76a357",
+          "paths": [
+            "src/__tests__/api/matches/rewindCommitRoute.reason.test.ts"
+          ]
+        },
+        {
+          "unit": "U5f",
+          "mergeSha": "aecbec865c4e7aec7ae7955115025968ddaa59a6",
+          "paths": [
+            "src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx"
+          ]
+        },
+        {
+          "unit": "U5h",
+          "mergeSha": "145e155609afd73b079f8410c04fd8df6bb5a278",
+          "paths": [
+            "src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx",
+            "src/pages-modules/multiplayer/__tests__/useGmCorrectionProducers.test.tsx",
+            "src/pages-modules/multiplayer/__tests__/useGmRewindProducers.test.tsx"
+          ]
+        },
+        {
+          "unit": "U5i",
+          "mergeSha": "dd7477070365707094da3e5b06a430a32866aadd",
+          "paths": [
+            "src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx"
+          ]
+        },
+        {
+          "unit": "U8",
+          "mergeSha": "f20f8d5f91565e10ed0c6524cc40c27fc376f401",
+          "paths": [
+            "src/__tests__/api/campaigns/campaignCommandsRoute.staleHead.test.ts"
+          ]
+        }
+      ],
+      "charterExpectedHitsNotSeen": "U96, U87, U39 and U40 touch no file outside their ownershipPaths in the first-parent diff (measured); they only appear under the baseline..mergeSha form",
+      "recording": "each listed path is recorded once in the unit's ownershipExceptions array in units.json",
+      "allUnits": [
+        {
+          "unit": "U0",
+          "state": "complete",
+          "mergeSha": "66fe4303905ccf347b894d7d8e648caca7e07d07",
+          "baseline": "fc12d9d20c9e114a7010e723279ce5714c8a34af",
+          "parentCount": 1,
+          "baselineIsParent": true,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 0
+        },
+        {
+          "unit": "U1",
+          "state": "complete",
+          "mergeSha": "6a358383e2531735190dabbdbc23632779a1a5f7",
+          "baseline": "19e5a061e466dad4d592b2d90f363402f5a0d950",
+          "parentCount": 1,
+          "baselineIsParent": true,
+          "outsideFirstParentDiff": [
+            "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "scripts/__tests__/gm-two-player-campaign-qc.test.ts"
+          ],
+          "outsideBaselineDiffCount": 2
+        },
+        {
+          "unit": "U1b",
+          "state": "complete",
+          "mergeSha": "ffc427a0850db3a7149a6720cc3d71ab99a0f6b1",
+          "baseline": "291eb81e05709b34c5087a7fe3ef4cfd111eedc6",
+          "parentCount": 1,
+          "baselineIsParent": true,
+          "outsideFirstParentDiff": [
+            "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "scripts/__tests__/gm-two-player-campaign-qc.test.ts"
+          ],
+          "outsideBaselineDiffCount": 2
+        },
+        {
+          "unit": "U1c",
+          "state": "complete",
+          "mergeSha": "22fe4a5547ce70e0a72a4837ab9897ba7d2ceda3",
+          "baseline": "7489e311fc0e2a2846c342786b21ad1ea09d29bb",
+          "parentCount": 1,
+          "baselineIsParent": true,
+          "outsideFirstParentDiff": [
+            "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "scripts/__tests__/gm-two-player-campaign-qc.test.ts"
+          ],
+          "outsideBaselineDiffCount": 2
+        },
+        {
+          "unit": "U1e",
+          "state": "complete",
+          "mergeSha": "8a7a4419d1d9bc5cae00d8100d92110ecb87fcce",
+          "baseline": "ac874764a8767fba564cdeacfa565c107d94ae75",
+          "parentCount": 1,
+          "baselineIsParent": true,
+          "outsideFirstParentDiff": [
+            "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "scripts/__tests__/gm-two-player-campaign-qc.test.ts"
+          ],
+          "outsideBaselineDiffCount": 2
+        },
+        {
+          "unit": "U1d",
+          "state": "complete",
+          "mergeSha": "843d70c79319d0abaa411522f4e7d99f723ea158",
+          "baseline": "a00b816dcf1d30cb40b08ce9901bcf66ea3cc125",
+          "parentCount": 1,
+          "baselineIsParent": true,
+          "outsideFirstParentDiff": [
+            "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "scripts/__tests__/gm-two-player-campaign-qc.test.ts"
+          ],
+          "outsideBaselineDiffCount": 2
+        },
+        {
+          "unit": "U2c",
+          "state": "complete",
+          "mergeSha": "a28cda8065fe8df8183eeb66ddacb0c1be242264",
+          "baseline": "62391de467fe080f9787e4adc5f28a7a5f774de7",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [
+            "scripts/__tests__/gm-two-player-campaign-qc.test.ts"
+          ],
+          "outsideBaselineDiffCount": 2
+        },
+        {
+          "unit": "U19b",
+          "state": "complete",
+          "mergeSha": "920630bc0bd3119d88c8b04528ed62d2f92187b4",
+          "baseline": "0367a2f3b8543057b2dac557426d1ea9770a05bc",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 1
+        },
+        {
+          "unit": "U20",
+          "state": "complete",
+          "mergeSha": "f6e3599a36143a7460c9338d3141a4427c118f30",
+          "baseline": "3399af264f64f3c9b319beec23e479665c414111",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 7
+        },
+        {
+          "unit": "U35a",
+          "state": "complete",
+          "mergeSha": "9374745f468fa38248a2a83b1ece478840b975d2",
+          "baseline": "d3c088a9b2ebb7db84e698222707537cdb7515e3",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 1
+        },
+        {
+          "unit": "U35c",
+          "state": "complete",
+          "mergeSha": "a776c2f43cc10ccbe28675d44dce233c62d51e87",
+          "baseline": "9374745f468fa38248a2a83b1ece478840b975d2",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 1
+        },
+        {
+          "unit": "U62",
+          "state": "complete",
+          "mergeSha": "f1b14afb2ce2f5179fbb9b7794555095ca89795f",
+          "baseline": "d2336477d14e588ee44aedd3db0c9857a36abf7c",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 10
+        },
+        {
+          "unit": "U35b",
+          "state": "complete",
+          "mergeSha": "650a80febc985e5d212257d8e64cae6b06cec18e",
+          "baseline": "f50e76fe48d87a04da7fb03cdb86388a05ea9f40",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 4
+        },
+        {
+          "unit": "U35g",
+          "state": "complete",
+          "mergeSha": "7405959ff61df257aa45355f8b90f21f601c9576",
+          "baseline": "0fd24c343d8de2d467bb5b2d3d57c3beeb2d89af",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 2
+        },
+        {
+          "unit": "U35d",
+          "state": "complete",
+          "mergeSha": "68cf089ea9da2ba56e8d6c02e523075eddeb802b",
+          "baseline": "5a3e87f8ca4876ed36a3b186e56ba1211137cb12",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 3
+        },
+        {
+          "unit": "U35h",
+          "state": "complete",
+          "mergeSha": "1c45ac77030067b07ba99fe899fb03eabc857008",
+          "baseline": "54ca8197ca90534648bf6b1ef310186116189c6f",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 13
+        },
+        {
+          "unit": "U35i",
+          "state": "complete",
+          "mergeSha": "6c7dbcc1ff973f1b60b97a67a3d6526314b16292",
+          "baseline": "20d69c1d0264cf906b7fc3524fbaa3981bf7e5cc",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 1
+        },
+        {
+          "unit": "U35j",
+          "state": "complete",
+          "mergeSha": "c8baaa60efd2fbae210119bc9b6339b1cd590bea",
+          "baseline": "890313d59e917f0115a87ca3dbc10dea9cc6ad30",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 11
+        },
+        {
+          "unit": "U35e",
+          "state": "complete",
+          "mergeSha": "45d5c348de63feb7af1ff205f2b4d0945d86db19",
+          "baseline": "ae80d8ba41ead66e5dff5fde3f716a0bccd8d6cc",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 14
+        },
+        {
+          "unit": "U35f",
+          "state": "complete",
+          "mergeSha": "668ed250f5d378c231004127c2eaac08a346b9f7",
+          "baseline": "f32ea5400f3a1282733180059e32d9169fb74204",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 2
+        },
+        {
+          "unit": "U58",
+          "state": "complete",
+          "mergeSha": "59eb4fbb3e41b763c4ab81e30d9f733255320c92",
+          "baseline": "3b1cca3a6542e53703f2ac6fa7ac43ec97ae7f98",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 18
+        },
+        {
+          "unit": "U21",
+          "state": "complete",
+          "mergeSha": "13faa499860fd3230a9325604cd59719073d0480",
+          "baseline": "b0e17e343d3ff1020058e5f6a19d128f0a4ea029",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 15
+        },
+        {
+          "unit": "U22",
+          "state": "complete",
+          "mergeSha": "6f386c5f157925da491aca06c63fac234cccd5fa",
+          "baseline": "0fd24c343d8de2d467bb5b2d3d57c3beeb2d89af",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 12
+        },
+        {
+          "unit": "U86",
+          "state": "complete",
+          "mergeSha": "8daff287d02f1bbaa8ffcfd145987040a3325635",
+          "baseline": "8a025218e86abecba28138368d22975151a82422",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 2
+        },
+        {
+          "unit": "U87",
+          "state": "complete",
+          "mergeSha": "7e03f100a2273b2d1949f31025846b49e728ffb6",
+          "baseline": "70f15077ac229eb1e6bac78fe226aac62244f8a3",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 7
+        },
+        {
+          "unit": "U22a",
+          "state": "complete",
+          "mergeSha": "cb356ac9e1eeb8ab0198892237c34e681e506c78",
+          "baseline": "f32ea5400f3a1282733180059e32d9169fb74204",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 8
+        },
+        {
+          "unit": "U21b",
+          "state": "complete",
+          "mergeSha": "7c5251da43ec7ad1e5e34499a7a1c4a1761cb5ca",
+          "baseline": "bd6bfe779036631bf63b0e84b748a7bfd6e122b6",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 20
+        },
+        {
+          "unit": "U88",
+          "state": "complete",
+          "mergeSha": "43b3794cfe1085203f368c0bfdcfb91e924221bf",
+          "baseline": "5a3e87f8ca4876ed36a3b186e56ba1211137cb12",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 1
+        },
+        {
+          "unit": "U93",
+          "state": "complete",
+          "mergeSha": "b04505e89559b3580eb9e509e02f880904eccea0",
+          "baseline": "fab5328254ffc30c8a853aa301bcfb0a69638439",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 2
+        },
+        {
+          "unit": "U91",
+          "state": "complete",
+          "mergeSha": "302382026ff55881ed93067216e61c38b204d9b5",
+          "baseline": "bd6bfe779036631bf63b0e84b748a7bfd6e122b6",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 18
+        },
+        {
+          "unit": "U95",
+          "state": "complete",
+          "mergeSha": "2d43b9f76fdbf437393592f54c8b99a90dab56f6",
+          "baseline": "23e93dcef3bd4ea34e797c3c35728b5ae6f51cb7",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 19
+        },
+        {
+          "unit": "U96",
+          "state": "complete",
+          "mergeSha": "5d19d95ada9a390f7b242caf354243c3bf377036",
+          "baseline": "2edfbb3b6f40f04c641dbc8530afd5ad6df73d2a",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 6
+        },
+        {
+          "unit": "U36",
+          "state": "complete",
+          "mergeSha": "1eafb9a08208057c793717d5f396f9408631824b",
+          "baseline": "a2e24c8a80706b6ea5e4f4b4e22c3f52ea83aa18",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 14
+        },
+        {
+          "unit": "U37",
+          "state": "complete",
+          "mergeSha": "072b320a79d01c87b985fd9f107f0ba1edaae985",
+          "baseline": "0ac5767ebca7abbb18d26b5cfb0083729b21b929",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 14
+        },
+        {
+          "unit": "U39",
+          "state": "complete",
+          "mergeSha": "c87969a607c7ef5d22cff78dc270a960375112a4",
+          "baseline": "4d4287fe8d5fe217461cfd45307887df76d316cb",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 23
+        },
+        {
+          "unit": "U40",
+          "state": "complete",
+          "mergeSha": "edd6b427de29e878b06f2cbd7969ad87bc708bbc",
+          "baseline": "738e5466fd934d01e8dfeb61f9faf15d7a291fa1",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 10
+        },
+        {
+          "unit": "U3",
+          "state": "main-verified",
+          "mergeSha": "e3fc54384d1eca5ec4b3547a45276e50dd6c4b7e",
+          "baseline": "9d1351a780b74f095fb5864f8879419d2d27967b",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 2
+        },
+        {
+          "unit": "U4",
+          "state": "complete",
+          "mergeSha": "6fe884dd5740da6628ff10e3e4b7075124b4b63f",
+          "baseline": "9913f06e775b90cff8633ce3798b942f0536a2eb",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 30
+        },
+        {
+          "unit": "U15a",
+          "state": "complete",
+          "mergeSha": "555a236a0bc5bd7fd282d57d30fc3ed864492f6c",
+          "baseline": "2d01d1a2ef28fe07e92529341f81875ee1338249",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 30
+        },
+        {
+          "unit": "U15b",
+          "state": "complete",
+          "mergeSha": "6f9444bf2347850a95d42f01e501e557404dbc85",
+          "baseline": "58fd434a486c408e8a9e0a495e7539d85490f416",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 1
+        },
+        {
+          "unit": "U16",
+          "state": "complete",
+          "mergeSha": "da9f669b2e6f49645893b91ec0e73009e040e2c0",
+          "baseline": "4bcd6f8d5fa752270d40ed331423b37f89c15f8a",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 3
+        },
+        {
+          "unit": "U6",
+          "state": "complete",
+          "mergeSha": "4139f39e746cb2d0bb1aafbf5cea8ea9c4b48544",
+          "baseline": "9913f06e775b90cff8633ce3798b942f0536a2eb",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 1
+        },
+        {
+          "unit": "U7",
+          "state": "complete",
+          "mergeSha": "d701f63a8b0ab37ce38a57ff832823e13e1b187b",
+          "baseline": "1d31dc8dcccde8f17b74596db8b2e9d7e6a68388",
+          "parentCount": 1,
+          "baselineIsParent": true,
+          "outsideFirstParentDiff": [
+            "scripts/__tests__/gm-two-player-campaign-qc.test.ts"
+          ],
+          "outsideBaselineDiffCount": 1
+        },
+        {
+          "unit": "U5a",
+          "state": "complete",
+          "mergeSha": "7286280568e3ad50226840c335cff1ea3527a6df",
+          "baseline": "f902fd9d5bfd868aac3f30114ebffb73fbcdc315",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [
+            "src/__tests__/api/matches/rewindPreviewRoute.test.ts"
+          ],
+          "outsideBaselineDiffCount": 2
+        },
+        {
+          "unit": "U5b",
+          "state": "complete",
+          "mergeSha": "31b05182b3c0450d54867fc3883a90133e4a2aa7",
+          "baseline": "0638f87e04b34d6619a7b89587e9b1faccc61248",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 17
+        },
+        {
+          "unit": "U5c",
+          "state": "complete",
+          "mergeSha": "c8e42dd955fad931631cc02d4929c8d6ff76a357",
+          "baseline": "09df54a70c744eb17466f28333009d46dbfddeb1",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [
+            "src/__tests__/api/matches/rewindCommitRoute.reason.test.ts"
+          ],
+          "outsideBaselineDiffCount": 2
+        },
+        {
+          "unit": "U5d",
+          "state": "complete",
+          "mergeSha": "13c0ffcbf4e546df5d69b6a42e0e3a85855780fb",
+          "baseline": "66ecd2695f59eb4b420379191a3066db11507cd2",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 4
+        },
+        {
+          "unit": "U5e",
+          "state": "complete",
+          "mergeSha": "66c0ecad61350927294cd547b24062695d9c905e",
+          "baseline": "4b9880526bb348996b302f2dc9a53d321debaf28",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 1
+        },
+        {
+          "unit": "U5f",
+          "state": "complete",
+          "mergeSha": "aecbec865c4e7aec7ae7955115025968ddaa59a6",
+          "baseline": "66c0ecad61350927294cd547b24062695d9c905e",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [
+            "src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx"
+          ],
+          "outsideBaselineDiffCount": 2
+        },
+        {
+          "unit": "U5g",
+          "state": "complete",
+          "mergeSha": "53bd8f0a84fad3b60809f4b5e2a9dd6fb7f425aa",
+          "baseline": "05794b930927e4e70976b5005747bff6f0e9b4f5",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 7
+        },
+        {
+          "unit": "U5h",
+          "state": "complete",
+          "mergeSha": "145e155609afd73b079f8410c04fd8df6bb5a278",
+          "baseline": "759224fc30e1a724dae54d186de37f72bcda7ef2",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [
+            "src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx",
+            "src/pages-modules/multiplayer/__tests__/useGmCorrectionProducers.test.tsx",
+            "src/pages-modules/multiplayer/__tests__/useGmRewindProducers.test.tsx"
+          ],
+          "outsideBaselineDiffCount": 5
+        },
+        {
+          "unit": "U5i",
+          "state": "complete",
+          "mergeSha": "dd7477070365707094da3e5b06a430a32866aadd",
+          "baseline": "145e155609afd73b079f8410c04fd8df6bb5a278",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [
+            "src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx"
+          ],
+          "outsideBaselineDiffCount": 5
+        },
+        {
+          "unit": "U8",
+          "state": "complete",
+          "mergeSha": "f20f8d5f91565e10ed0c6524cc40c27fc376f401",
+          "baseline": "dfe766524cc71e665a0f34a5ee07e9585e4c8214",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [
+            "src/__tests__/api/campaigns/campaignCommandsRoute.staleHead.test.ts"
+          ],
+          "outsideBaselineDiffCount": 26
+        },
+        {
+          "unit": "U9",
+          "state": "complete",
+          "mergeSha": "45d6134289051d316257641284976a2f9789ceed",
+          "baseline": "fd71b9d7cd6579b1db7fe62995e4436318f0df67",
+          "parentCount": 1,
+          "baselineIsParent": true,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 0
+        },
+        {
+          "unit": "U10",
+          "state": "complete",
+          "mergeSha": "8ac132f4877ff258bd6c244af260050a84497a49",
+          "baseline": "ec23e8794df18a6cc032f223c20e56de292deb87",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 1
+        },
+        {
+          "unit": "U11",
+          "state": "complete",
+          "mergeSha": "03dbdbf317369c1a52adde6ef890db8258bb6906",
+          "baseline": "b6e845f333aa80c24bb37607cc4b4ecc867d3f9f",
+          "parentCount": 1,
+          "baselineIsParent": true,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 0
+        },
+        {
+          "unit": "U12b",
+          "state": "complete",
+          "mergeSha": "5917a6425b2dca4db7e63341193d42baa0db31d6",
+          "baseline": "6fa24e96753bea9f723948d1373452a6ba0ef05e",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 7
+        },
+        {
+          "unit": "U13",
+          "state": "complete",
+          "mergeSha": "cfa943780ebe373c8772222de36c7e6f475173f5",
+          "baseline": "7c6cf4fbe309435a1faef97393d64ace705a0133",
+          "parentCount": 1,
+          "baselineIsParent": false,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 1
+        },
+        {
+          "unit": "U17",
+          "state": "complete",
+          "mergeSha": "149598d9b94e25e0abfc43a701ec9bf2952e1a04",
+          "baseline": "6eff49a2d05a6d0e6db8e3b145adadf21bf122ad",
+          "parentCount": 1,
+          "baselineIsParent": true,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 0
+        },
+        {
+          "unit": "U17b",
+          "state": "complete",
+          "mergeSha": "a96d6ec78da8a8bd95bfc92def64fcd681f6f16d",
+          "baseline": "f018e34cc150d9ede58e39a32929c5c9dec7d9b6",
+          "parentCount": 1,
+          "baselineIsParent": true,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 0
+        },
+        {
+          "unit": "U14",
+          "state": "complete",
+          "mergeSha": "724fcd0b42d4892ee94831ed4e7441dacd22e60f",
+          "baseline": "e6711f0c37b0c37c85e55b1d6a22d525a7de258d",
+          "parentCount": 1,
+          "baselineIsParent": true,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 0
+        },
+        {
+          "unit": "U9b",
+          "state": "complete",
+          "mergeSha": "7f2dbec09cb54970298dcec753d658f42e5ab16c",
+          "baseline": "384bab6cde85724787f5fed28d645b85d7f7a0cc",
+          "parentCount": 1,
+          "baselineIsParent": true,
+          "outsideFirstParentDiff": [],
+          "outsideBaselineDiffCount": 0
+        }
+      ]
+    },
+    "c_capRule": {
+      "sentence": "The cap counting rule: a unit's counted lines are the added lines of `git diff --numstat --no-renames <mergeSha>^1 <mergeSha>` (the squash commit against its parent on main), excluding the ledger's evidence/ directory, generated files (package-lock.json, .next/, __snapshots__/ and *.snap, public/data/, src/types/contracts/generated/) and test files (__tests__/, e2e/, *.test.* and *.spec.*), and `validate-roadmap.mjs --git` fails a unit whose count exceeds caps.maxNonGeneratedLines unless its capException.countedLines records that exact count.",
+      "generatedPatternSources": {
+        "package-lock.json": "git ls-files: package-lock.json, desktop/package-lock.json",
+        ".next/": ".oxfmtignore:2, .oxlintrc.json:21",
+        "__snapshots__/ and *.snap": "git ls-files: two tracked .snap files under __tests__/__snapshots__, .gitignore:222, :249",
+        "public/data/": ".gitignore:120-126",
+        "src/types/contracts/generated/": ".oxlintrc.json:51"
+      },
+      "testFiles": "GOAL.md:56 as it stands: test lines never count toward the 500 (OD-line-cap-product-lines); the rule names them: __tests__/, e2e/, *.test.*, *.spec.*",
+      "measured": [
+        {
+          "unit": "U0",
+          "counted": 18,
+          "testLines": 0,
+          "excludedLines": 143,
+          "cap": 200,
+          "over": false
+        },
+        {
+          "unit": "U1",
+          "counted": 136,
+          "testLines": 568,
+          "excludedLines": 581,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U1b",
+          "counted": 40,
+          "testLines": 445,
+          "excludedLines": 794,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U1c",
+          "counted": 165,
+          "testLines": 470,
+          "excludedLines": 885,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U1e",
+          "counted": 19,
+          "testLines": 318,
+          "excludedLines": 526,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U1d",
+          "counted": 57,
+          "testLines": 368,
+          "excludedLines": 543,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U2c",
+          "counted": 5,
+          "testLines": 302,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U19b",
+          "counted": 121,
+          "testLines": 417,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U20",
+          "counted": 68,
+          "testLines": 284,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U35a",
+          "counted": 102,
+          "testLines": 500,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U35c",
+          "counted": 0,
+          "testLines": 138,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U62",
+          "counted": 5,
+          "testLines": 42,
+          "excludedLines": 0,
+          "cap": 80,
+          "over": false
+        },
+        {
+          "unit": "U35b",
+          "counted": 307,
+          "testLines": 509,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U35g",
+          "counted": 118,
+          "testLines": 536,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U35d",
+          "counted": 55,
+          "testLines": 235,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U35h",
+          "counted": 11,
+          "testLines": 58,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U35i",
+          "counted": 9,
+          "testLines": 0,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U35j",
+          "counted": 54,
+          "testLines": 332,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U35e",
+          "counted": 252,
+          "testLines": 924,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U35f",
+          "counted": 108,
+          "testLines": 972,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U58",
+          "counted": 106,
+          "testLines": 461,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U21",
+          "counted": 202,
+          "testLines": 644,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U22",
+          "counted": 0,
+          "testLines": 38,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U86",
+          "counted": 40,
+          "testLines": 211,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U87",
+          "counted": 0,
+          "testLines": 57,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U22a",
+          "counted": 188,
+          "testLines": 1030,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U21b",
+          "counted": 50,
+          "testLines": 285,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U88",
+          "counted": 5,
+          "testLines": 406,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U93",
+          "counted": 0,
+          "testLines": 41,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U91",
+          "counted": 24,
+          "testLines": 0,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U95",
+          "counted": 44,
+          "testLines": 218,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U96",
+          "counted": 312,
+          "testLines": 629,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U36",
+          "counted": 117,
+          "testLines": 433,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U37",
+          "counted": 56,
+          "testLines": 171,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U39",
+          "counted": 194,
+          "testLines": 388,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U40",
+          "counted": 205,
+          "testLines": 216,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U3",
+          "counted": 1,
+          "testLines": 63,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U4",
+          "counted": 12,
+          "testLines": 142,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U15a",
+          "counted": 84,
+          "testLines": 143,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U15b",
+          "counted": 25,
+          "testLines": 73,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U16",
+          "counted": 86,
+          "testLines": 249,
+          "excludedLines": 356,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U6",
+          "counted": 2,
+          "testLines": 19,
+          "excludedLines": 394,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U7",
+          "counted": 1,
+          "testLines": 122,
+          "excludedLines": 631,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U5a",
+          "counted": 159,
+          "testLines": 734,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U5b",
+          "counted": 409,
+          "testLines": 763,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U5c",
+          "counted": 32,
+          "testLines": 477,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U5d",
+          "counted": 7,
+          "testLines": 94,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U5e",
+          "counted": 62,
+          "testLines": 194,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U5f",
+          "counted": 23,
+          "testLines": 358,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U5g",
+          "counted": 85,
+          "testLines": 313,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U5h",
+          "counted": 20,
+          "testLines": 145,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U5i",
+          "counted": 15,
+          "testLines": 60,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U8",
+          "counted": 52,
+          "testLines": 384,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U9",
+          "counted": 354,
+          "testLines": 544,
+          "excludedLines": 537,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U10",
+          "counted": 36,
+          "testLines": 165,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U11",
+          "counted": 272,
+          "testLines": 407,
+          "excludedLines": 539,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U12b",
+          "counted": 156,
+          "testLines": 262,
+          "excludedLines": 0,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U13",
+          "counted": 440,
+          "testLines": 588,
+          "excludedLines": 252,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U17",
+          "counted": 461,
+          "testLines": 455,
+          "excludedLines": 527,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U17b",
+          "counted": 707,
+          "testLines": 802,
+          "excludedLines": 728,
+          "cap": 500,
+          "over": true
+        },
+        {
+          "unit": "U14",
+          "counted": 400,
+          "testLines": 259,
+          "excludedLines": 483,
+          "cap": 500,
+          "over": false
+        },
+        {
+          "unit": "U9b",
+          "counted": 87,
+          "testLines": 231,
+          "excludedLines": 706,
+          "cap": 500,
+          "over": false
+        }
+      ],
+      "over": [
+        {
+          "unit": "U17b",
+          "counted": 707,
+          "testLines": 802,
+          "excludedLines": 728,
+          "cap": 500,
+          "over": true
+        }
+      ],
+      "recording": "U17b (707 counted over 500: scripts/qc/roadmap-unit-closure.mjs 429, scripts/qc/roadmap-main-proof.mjs 276, package.json 2) gets capException { countedLines: 707 } in units.json"
+    },
+    "d_sensitiveWithoutPacket": {
+      "measured": [
+        {
+          "unit": "U2c",
+          "state": "complete",
+          "classes": [
+            "privacy"
+          ],
+          "packetsNamingItInBlocks": [
+            "PK-u2c-ruling"
+          ]
+        },
+        {
+          "unit": "U19b",
+          "state": "complete",
+          "classes": [
+            "authority",
+            "replay"
+          ],
+          "packetsNamingItInBlocks": [
+            "PK-u19b-ruling"
+          ]
+        },
+        {
+          "unit": "U20",
+          "state": "complete",
+          "classes": [
+            "authority"
+          ],
+          "packetsNamingItInBlocks": [
+            "PK-u20-ruling"
+          ]
+        },
+        {
+          "unit": "U35a",
+          "state": "complete",
+          "classes": [
+            "authority",
+            "idempotency"
+          ],
+          "packetsNamingItInBlocks": [
+            "PK-u35a-ruling"
+          ]
+        },
+        {
+          "unit": "U35b",
+          "state": "complete",
+          "classes": [
+            "authority",
+            "migration",
+            "idempotency"
+          ],
+          "packetsNamingItInBlocks": [
+            "PK-u35b-ruling"
+          ]
+        },
+        {
+          "unit": "U35g",
+          "state": "complete",
+          "classes": [
+            "authority",
+            "idempotency",
+            "concurrency",
+            "migration"
+          ],
+          "packetsNamingItInBlocks": [
+            "PK-u35g-ruling"
+          ]
+        },
+        {
+          "unit": "U35d",
+          "state": "complete",
+          "classes": [
+            "authority",
+            "idempotency",
+            "migration"
+          ],
+          "packetsNamingItInBlocks": [
+            "PK-u35d-ruling"
+          ]
+        },
+        {
+          "unit": "U35j",
+          "state": "complete",
+          "classes": [
+            "replay"
+          ],
+          "packetsNamingItInBlocks": [
+            "PK-u35j-ruling"
+          ]
+        },
+        {
+          "unit": "U35e",
+          "state": "complete",
+          "classes": [
+            "authority",
+            "idempotency",
+            "concurrency",
+            "migration"
+          ],
+          "packetsNamingItInBlocks": [
+            "PK-u35e-ruling"
+          ]
+        },
+        {
+          "unit": "U35f",
+          "state": "complete",
+          "classes": [
+            "authority",
+            "concurrency"
+          ],
+          "packetsNamingItInBlocks": [
+            "PK-u35f-ruling"
+          ]
+        },
+        {
+          "unit": "U58",
+          "state": "complete",
+          "classes": [
+            "privacy",
+            "replay"
+          ],
+          "packetsNamingItInBlocks": [
+            "PK-u58-ruling"
+          ]
+        },
+        {
+          "unit": "U21",
+          "state": "complete",
+          "classes": [
+            "replay",
+            "authority"
+          ],
+          "packetsNamingItInBlocks": [
+            "PK-u21-ruling"
+          ]
+        },
+        {
+          "unit": "U22",
+          "state": "complete",
+          "classes": [
+            "privacy"
+          ],
+          "packetsNamingItInBlocks": [
+            "PK-u22-ruling"
+          ]
+        },
+        {
+          "unit": "U22a",
+          "state": "complete",
+          "classes": [
+            "authority",
+            "replay"
+          ],
+          "packetsNamingItInBlocks": [
+            "PK-u22a-ruling"
+          ]
+        },
+        {
+          "unit": "U21b",
+          "state": "complete",
+          "classes": [
+            "replay",
+            "authority"
+          ],
+          "packetsNamingItInBlocks": [
+            "PK-u21b-ruling"
+          ]
+        },
+        {
+          "unit": "U95",
+          "state": "complete",
+          "classes": [
+            "authority"
+          ],
+          "packetsNamingItInBlocks": [
+            "PK-u95-ruling"
+          ]
+        },
+        {
+          "unit": "U96",
+          "state": "complete",
+          "classes": [
+            "authority",
+            "idempotency"
+          ],
+          "packetsNamingItInBlocks": [
+            "PK-u96-ruling"
+          ]
+        },
+        {
+          "unit": "U36",
+          "state": "complete",
+          "classes": [
+            "idempotency"
+          ],
+          "packetsNamingItInBlocks": [
+            "PK-u36-ruling"
+          ]
+        },
+        {
+          "unit": "U37",
+          "state": "complete",
+          "classes": [
+            "replay"
+          ],
+          "packetsNamingItInBlocks": [
+            "PK-u37-ruling"
+          ]
+        },
+        {
+          "unit": "U3",
+          "state": "main-verified",
+          "classes": [
+            "idempotency",
+            "replay",
+            "concurrency"
+          ],
+          "packetsNamingItInBlocks": [
+            "PK-u3-21-1-tick-and-merge"
+          ]
+        },
+        {
+          "unit": "U4",
+          "state": "complete",
+          "classes": [
+            "idempotency"
+          ],
+          "packetsNamingItInBlocks": [
+            "PK-u4-ruling"
+          ]
+        },
+        {
+          "unit": "U15a",
+          "state": "complete",
+          "classes": [
+            "authority"
+          ],
+          "packetsNamingItInBlocks": [
+            "PK-u15a-ruling"
+          ]
+        },
+        {
+          "unit": "U5a",
+          "state": "complete",
+          "classes": [
+            "privacy"
+          ],
+          "packetsNamingItInBlocks": [
+            "PK-u5a-ruling"
+          ]
+        },
+        {
+          "unit": "U5b",
+          "state": "complete",
+          "classes": [
+            "privacy"
+          ],
+          "packetsNamingItInBlocks": [
+            "PK-u5b-ruling"
+          ]
+        },
+        {
+          "unit": "U5c",
+          "state": "complete",
+          "classes": [
+            "privacy"
+          ],
+          "packetsNamingItInBlocks": [
+            "PK-u5c-ruling"
+          ]
+        },
+        {
+          "unit": "U5d",
+          "state": "complete",
+          "classes": [
+            "privacy"
+          ],
+          "packetsNamingItInBlocks": [
+            "PK-u5d-ruling"
+          ]
+        },
+        {
+          "unit": "U5g",
+          "state": "complete",
+          "classes": [
+            "authority"
+          ],
+          "packetsNamingItInBlocks": [
+            "PK-u5g-ruling"
+          ]
+        },
+        {
+          "unit": "U8",
+          "state": "complete",
+          "classes": [
+            "concurrency"
+          ],
+          "packetsNamingItInBlocks": [
+            "PK-u8-ruling"
+          ]
+        },
+        {
+          "unit": "U10",
+          "state": "complete",
+          "classes": [
+            "replay"
+          ],
+          "packetsNamingItInBlocks": [
+            "PK-u10-ruling"
+          ]
+        }
+      ],
+      "missing": [],
+      "decision": "no unit at local-verified or later with a sensitive class lacks a packet naming it in blocks, so the check applies without a dated cutover (a cutover would be dead code on this ledger)"
+    },
+    "e_finisherModel": {
+      "measured": {
+        "ledgerReviewStageReceipts": 63,
+        "ledgerReviewWithFinisherModel": 0,
+        "reviewEvidenceFiles": 183,
+        "reviewEvidenceWithFinisherModel": 0,
+        "finisherEqualsReviewer": [],
+        "evidenceFilesCarryingFinisherModelAnywhere": [
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-plan-20260922.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/u14-admission-20260917.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/u14-local-20260917.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/u14-red-20260917.json"
+        ]
+      },
+      "decision": "no review receipt (ledger stageReceipts.review or evidence/*-review-*.json) carries finisherModel; finisherModel appears only in U14's admission/red/local receipts and the triage plan, so the check rejects no history. The check reads stageReceipts.review, where reviewerModel is already read (:419)."
+    },
+    "one_expectedRedsByE2eId": {
+      "measured": [
+        {
+          "receipt": "evidence/u15b-mainproof-20260917.json",
+          "unit": "U15b",
+          "failed": 2,
+          "failedRowsPresent": false,
+          "expectedReds": 2,
+          "at": "2026-09-17T16:41:43.408Z"
+        },
+        {
+          "receipt": "evidence/u3-mainproof-20260917.json",
+          "unit": "U3",
+          "failed": 3,
+          "failedRowsPresent": true,
+          "expectedReds": 3,
+          "at": "2026-09-17T07:05:00.438Z"
+        }
+      ],
+      "decision": "U3 carries runtime.failedRows (3) and they name the same E2E ids as its expectedReds; U15b (2 failed, at 2026-09-17) has no runtime.failedRows and would fail. The failedRows requirement applies to receipts whose at is on or after 2026-09-27 and to any earlier receipt that carries failedRows; U15b is recorded as the one historical receipt the cutover leaves at the count check."
+    },
+    "f_estimate": {
+      "perFile": {
+        "validate-roadmap.mjs": "~45 added",
+        "validate-roadmap.test.mjs": "~90 added (fixtures reuse real squash commits for the --git cases instead of building a repository)",
+        "units.json": "~52 added (13 ownershipExceptions arrays, 20 paths; one capException)",
+        "GOAL.md": "1 line changed",
+        "DELIVERY.md": "1 line changed"
+      },
+      "total": "~190 changed lines in 5 files (plus the three receipts under evidence/)",
+      "split": "not needed: under 500 even with the test file counted, so all six checks are delivered here"
+    }
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "counting": "the validator and its test count; GOAL/DELIVERY prose and units.json count; evidence/ receipts do not"
+  },
+  "risksForTheParent": [
+    "routine: the validator gets stricter on main and every ledger PR runs it; a check that rejects history blocks the loop, so the measured history and the recorded exceptions matter more than the code",
+    "the --git diff is <mergeSha>^1..<mergeSha>, not the literal baseline..mergeSha, because 49 of 62 baselines are not the squash parent (measured); a non-squash merge would be diffed against its first parent",
+    "the roadmap-unit-closure tool never writes runtime.failedRows (scripts/qc/roadmap-unit-closure.mjs:301-341); from 2026-09-27 a red mainProof must carry failedRows (through --extra-runtime) and expectedReds naming E2E ids, or the validator fails it",
+    "the node --test fixtures for (4) and (6) read the real squash commit 66c0ecad61350927294cd547b24062695d9c905e (U5e) and origin/main from the local repository; validate-roadmap.test.mjs is not wired into CI (grep of .github and package.json finds no caller)"
+  ],
+  "reviewClasses": [
+    "routine"
+  ]
+}
