@@ -20,8 +20,8 @@ import { sha256 } from 'js-sha256';
 import type { ICampaignEventStore } from '@/lib/campaign/sync/ICampaignEventStore';
 import type { ICampaignEventStore as IStore } from '@/lib/campaign/sync/ICampaignEventStore';
 import type {
+  CampaignHostCommand,
   CampaignIntentResult,
-  ICampaignIntent,
 } from '@/types/campaign/CampaignSync';
 
 import { canonicalizeJsonV1 } from '@/lib/events/journal/EventJournalCanonicalizer';
@@ -72,7 +72,7 @@ export const INTENT_IDENTITY_CONFLICT_REASON = 'intent-identity-conflict';
  */
 export function intentCommandIdentity(
   campaignId: string,
-  intent: ICampaignIntent,
+  intent: CampaignHostCommand,
 ): ICampaignIntentCommandIdentity | undefined {
   if (typeof intent.intentId !== 'string' || intent.intentId.length === 0) {
     return undefined;
@@ -96,7 +96,7 @@ export async function replayCommittedIntent(
     readonly eventStore: ICampaignEventStore;
     readonly conflict: () => Extract<CampaignIntentResult, { ok: false }>;
   },
-  intent: ICampaignIntent,
+  intent: CampaignHostCommand,
 ): Promise<CampaignIntentResult | null> {
   const identity = intentCommandIdentity(deps.campaignId, intent);
   if (!identity) return null;

@@ -11,9 +11,9 @@
 
 import type { ICampaignEventStore } from '@/lib/campaign/sync/ICampaignEventStore';
 import type {
+  CampaignHostCommand,
   CampaignIntentResult,
   ICampaignAuthoritativeState,
-  ICampaignIntent,
 } from '@/types/campaign/CampaignSync';
 
 import { INVALID_CAMPAIGN_INTENT } from '@/types/campaign/CampaignSync';
@@ -147,10 +147,14 @@ export async function handleIntentLocked(
   );
 }
 
-/** Host path: trusted envelope, still validated against the ledger. */
+/**
+ * Host path: closed-check, retry replay by intent id, validation against the
+ * ledger, then commit under the intent's identity. Takes a campaign intent or
+ * the host-only ApplyGmIntervention.
+ */
 export async function applyHostIntentLocked(
   host: ICampaignMatchHostLockedContext,
-  intent: ICampaignIntent,
+  intent: CampaignHostCommand,
 ): Promise<CampaignIntentResult> {
   if (host.isClosed()) return sessionClosed();
   const retry = await replayCommittedIntent(

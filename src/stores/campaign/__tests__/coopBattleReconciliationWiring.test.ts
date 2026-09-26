@@ -18,10 +18,6 @@
 import { afterEach, beforeEach, describe, expect, it } from '@jest/globals';
 
 import type {
-  ICampaignIntent,
-  ICampaignReconcileBattleIntent,
-} from '@/types/campaign/CampaignSync';
-import type {
   ICombatOutcome,
   IUnitCombatDelta,
 } from '@/types/combat/CombatOutcome';
@@ -160,7 +156,7 @@ async function setupHostedCoopCampaign(): Promise<{
   return { campaignId, host, matchId };
 }
 
-type HostIntent = ICampaignIntent | ICampaignReconcileBattleIntent;
+type HostIntent = Parameters<ICampaignSyncTransport['sendHostIntent']>[0];
 
 function registerHostTransport(
   matchId: string,

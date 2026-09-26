@@ -37,10 +37,10 @@
 
 import type { ICoopBattleConsequences } from '@/lib/campaign/coop/reconcileCoopBattle';
 import type {
+  CampaignHostCommand,
   CampaignIntentResult,
   ICampaignAuthoritativeState,
   ICampaignEvent,
-  ICampaignIntent,
   ICampaignIntentError,
   ICampaignSnapshotPublishedPayload,
 } from '@/types/campaign/CampaignSync';
@@ -358,10 +358,11 @@ export class CampaignMatchHost {
    * "advance day"). Takes an `ICampaignIntent` directly — it is already
    * trusted, so the malformed-check is skipped, but it still runs the
    * authoritative-state validation so a host action that breaks the
-   * ledger invariant (over-spend) is rejected just like a guest's.
+   * ledger invariant (over-spend) is rejected just like a guest's. It
+   * also takes the host-only ApplyGmIntervention (a GM funds correction).
    */
   applyHostIntent = async (
-    intent: ICampaignIntent,
+    intent: CampaignHostCommand,
   ): Promise<CampaignIntentResult> =>
     this.runExclusive(() => applyHostIntentLocked(this.doorContext(), intent));
 

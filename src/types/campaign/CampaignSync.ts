@@ -533,6 +533,35 @@ export interface ICampaignReconcileBattleIntent {
   readonly payload: ICoopBattleConsequences;
 }
 
+/** `ApplyGmIntervention` payload: one approved GM funds correction. */
+export interface IApplyGmInterventionIntentPayload {
+  /** Id of this approval; the sender mints a new one per approval. */
+  readonly interventionId: string;
+  /** The intervention's public summary; committed as the FundsChanged reason. */
+  readonly summary: string;
+  /** Signed whole C-bill change (negative = debit). */
+  readonly deltaCBills: number;
+}
+
+/**
+ * Host-only GM funds intervention carried by the campaign-sync host-intent
+ * frame (roadmap unit U92); the host commits it as one FundsChanged. Like
+ * `ICampaignReconcileBattleIntent` it stays outside the guest-proposable
+ * `ICampaignIntent` union, so neither the guest intent path nor a guest
+ * proposal parses it.
+ */
+export interface ICampaignApplyGmInterventionIntent {
+  readonly kind: 'ApplyGmIntervention';
+  readonly campaignId: string;
+  readonly intentId: string;
+  readonly payload: IApplyGmInterventionIntentPayload;
+}
+
+/** An intent the host commits from its own GM: a campaign intent or a GM intervention. */
+export type CampaignHostCommand =
+  | ICampaignIntent
+  | ICampaignApplyGmInterventionIntent;
+
 // =============================================================================
 // Campaign intent result
 // =============================================================================
