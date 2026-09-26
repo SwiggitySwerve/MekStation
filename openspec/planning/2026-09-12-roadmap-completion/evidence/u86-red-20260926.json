@@ -1,0 +1,65 @@
+{
+  "unit": "U86",
+  "stage": "red",
+  "status": "red-reproduced",
+  "at": "2026-09-26T08:33:00.000Z",
+  "baseline": "8a025218e86abecba28138368d22975151a82422",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u86",
+  "branch": "roadmap-u86-performance-pack-converge-20260926",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "admission": "evidence/u86-admission-20260926.json",
+  "whatRan": {
+    "server": "the baseline build (BUILD_ID 1790410763074, the admission's build; no product file edited before it)",
+    "spec": "the baseline spec plus ONLY the GM-transport capture (part of the unit): the pack's observer records Error frames by intent id, issueCommand returns its intent id, and waitForSequence reads the GM page's captured refusals between polls and fails at once naming code and reason. converge() was left as the baseline's receipt plus 25 ms.",
+    "specSha256": "be5e8a76a0f27f33820cd4d28e4da27c00f594b965ef9218a55216f41f9f9436",
+    "windowTypesSha256": "7cffb19c279eb95645883dec0432d6570cd542ee0f5ead4e9b840df39808623f",
+    "tscBeforeRuns": "npx tsc --noEmit exit 0",
+    "command": "HOSTNAME=127.0.0.1 NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=performance (run id qc-performance, port 23319)",
+    "preRun": "PARENT-PROOF-HOLD absent and node scripts/qc/machine-idle.mjs --wait printed MACHINE_IDLE (exit 0) before each run"
+  },
+  "runs": [
+    {
+      "run": "red-1",
+      "startedAt": "2026-09-26T08:27:03Z",
+      "endedAt": "2026-09-26T08:27:32Z",
+      "port": 23319,
+      "exit": 1,
+      "summaryLine": "1 failed",
+      "captured": "Error: perf-AdvanceDay-204 refused on the GM transport: CAMPAIGN_NOT_CONVERGED (participants-behind pid_2UKeJyzW3yqQTGgaKf2treHuyNDZ:204,pid_4RhPTen4ZMpuvjV51GSpLT4LBdh9:204; requiredRevision 205); no delivery reached 206",
+      "at": "spec :649 via the measured-set call site :211",
+      "logSha256": "795b5f886f88af9370bc7dd8db3f5f02845776e39105dc544cc0fe0c48582335"
+    },
+    {
+      "run": "red-2",
+      "startedAt": "2026-09-26T08:27:32Z",
+      "endedAt": "2026-09-26T08:27:52Z",
+      "port": 23319,
+      "exit": 1,
+      "summaryLine": "1 failed",
+      "captured": "Error: perf-AdvanceDay-117 refused on the GM transport: CAMPAIGN_NOT_CONVERGED (participants-behind pid_2avk5QP28vpfTU1syFn749ywy6yE:117,pid_2G4SZD6B5wN82Vg4S25v3Gqa4Uv1:117; requiredRevision 118); no delivery reached 119",
+      "at": "spec :649 via the measured-set call site :211",
+      "logSha256": "008234a63f1ff53fd5d04885f78a56a853c562ac969c776fb9f1f750720d7b7a"
+    },
+    {
+      "run": "red-3",
+      "startedAt": "2026-09-26T08:27:53Z",
+      "endedAt": "2026-09-26T08:28:19Z",
+      "port": 23319,
+      "exit": 1,
+      "summaryLine": "1 failed",
+      "captured": "Error: perf-AdvanceDay-198 refused on the GM transport: CAMPAIGN_NOT_CONVERGED (participants-behind pid_2k8BVrLD3FKt8CSKHGsbXjmvAWR5:198,pid_4SkExpftVduB7cKkGVB9ceDJuEQq:198; requiredRevision 199); no delivery reached 200",
+      "at": "spec :649 via the measured-set call site :211",
+      "logSha256": "6f2f27d081e7bbb351a51114a8697ba419b7a924ad3def53e0a7ae55ca7188e9",
+      "cpuNote": "lane error against the two-core rule: the 9-test jest file src/__tests__/api/e2ePerformanceProbeRoute.test.ts (about 5 s) was started while this run was in progress; red-3's outcome matches red-1 and red-2"
+    }
+  ],
+  "summary": "3 of 3 runs failed on an AdvanceDay of the measured set refused with CAMPAIGN_NOT_CONVERGED, each time with both guests exactly one revision behind the required revision, captured on the GM transport and named in the failure - the diagnosis's mode 1 (the race between client-side receipt plus 25 ms and the server-recorded acknowledgement).",
+  "admissionMeasurementRunForComparison": {
+    "note": "the admission's unedited run (no capture, inspector attached) failed the old way: 'no painted delivery reached 182' after the 2,000 ms functional wait; not counted as red",
+    "logSha256": "7270a017ad1a495b78372b4f0e727f649283e7e36d377035a7d1153acbaa59a1"
+  },
+  "nonClaims": [
+    "The red runs are the capture-only spec on the baseline server; they say nothing about the pack's pass rate after the converge change (see the local receipt).",
+    "Mode 2 (a server-side stall) was not seen in these runs and is U89's."
+  ]
+}
