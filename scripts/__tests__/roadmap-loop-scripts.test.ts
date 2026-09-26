@@ -180,11 +180,22 @@ function foldArgs(evidence: string): string[] {
 
 /** A proof log directory shaped like the ones the shell ladders produced. */
 beforeAll(() => {
+  // The temp- prefix puts the copy under .gitignore's temp-* rule, so a run
+  // that crashes before afterAll leaves no untracked ledger copy behind.
   tempLedger = fs.mkdtempSync(
-    path.join(repoRoot, 'openspec/planning', 'u17-pin-'),
+    path.join(repoRoot, 'openspec/planning', 'temp-u17-pin-'),
   );
   fs.cpSync(SOURCE_LEDGER, tempLedger, { recursive: true });
   pristineUnits = fs.readFileSync(path.join(tempLedger, 'units.json'), 'utf8');
+});
+
+describe('the pin temp ledger', () => {
+  it('sits under a name git ignores', () => {
+    const ignored = spawnSync('git', ['check-ignore', '-q', tempLedger], {
+      cwd: repoRoot,
+    });
+    expect(ignored.status).toBe(0);
+  });
 });
 
 afterAll(() => {

@@ -43,6 +43,7 @@ import { createHash } from 'node:crypto';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 const repoRoot = process.cwd();
 const qc = (name: string): string => path.join(repoRoot, 'scripts/qc', name);
@@ -355,8 +356,10 @@ function closureArgs(review: string, proofDir: string): string[] {
 }
 
 beforeAll(() => {
+  // The temp- prefix puts the copy under .gitignore's temp-* rule, so a run
+  // that crashes before afterAll leaves no untracked ledger copy behind.
   tempLedger = fs.mkdtempSync(
-    path.join(repoRoot, 'openspec/planning', 'u17-pin-'),
+    path.join(repoRoot, 'openspec/planning', 'temp-u17-pin-'),
   );
   fs.cpSync(SOURCE_LEDGER, tempLedger, { recursive: true });
   pristineUnits = fs.readFileSync(path.join(tempLedger, 'units.json'), 'utf8');
@@ -428,9 +431,24 @@ beforeEach(() => {
   seedPlannedUnit();
 });
 
+describe('the pin temp ledger', () => {
+  it('sits under a name git ignores', () => {
+    const ignored = spawnSync('git', ['check-ignore', '-q', tempLedger], {
+      cwd: repoRoot,
+    });
+    expect(ignored.status).toBe(0);
+  });
+});
+
 describe('roadmap-unit-closure', () => {
+  // Seeds the unit to local-verified; a failing fold throws with its exit
+  // status, stderr and stdout, so the refusal it printed is in the report.
   const fold = (): void => {
-    expect(run(FOLD, foldArgs(seedLaneReceipts())).status).toBe(0);
+    const result = run(FOLD, foldArgs(seedLaneReceipts()));
+    if (result.status !== 0)
+      throw new Error(
+        `fold exited ${result.status}\nstderr:\n${result.stderr}\nstdout:\n${result.stdout}`,
+      );
   };
 
   it('writes the four closure receipts and completes the unit', () => {
@@ -734,8 +752,11 @@ describe('roadmap-main-proof --dry-run', () => {
     expect(result.stdout).toContain('NEXT_PUBLIC_E2E_MODE=true');
     expect(result.stdout).toContain('__E2E_MODE__');
     expect(result.stdout).toContain(
-      'jest scripts/__tests__/roadmap-loop-scripts.test.ts',
+      'DRY-RUN playwright: node node_modules/jest/bin/jest.js scripts/__tests__/roadmap-loop-scripts.test.ts',
     );
+    // No step names a .cmd launcher any more: npm and npx are npm's own
+    // JavaScript entry points run by node (see the fake-step pin below).
+    expect(result.stdout).not.toContain('.cmd');
     expect(result.stdout).toContain('tsc --noEmit');
     expect(result.stdout).toContain(
       `openspec/planning/${LEDGER_NAME}/validate-roadmap.mjs --git`,
@@ -798,5 +819,271 @@ describe('roadmap-main-proof --dry-run', () => {
     const result = dryRun([]);
     expect(result.status).not.toBe(0);
     expect(result.stderr).toContain('runtime');
+  });
+
+  // FN-u17b: npx.cmd went through cmd.exe, which read | ( ) & as shell
+  // syntax. jest.js is now spawned by node, so the regex is one argv element.
+  it('hands a --runtime-jest regex to jest.js verbatim', () => {
+    const result = dryRun(['--runtime-jest', 'a|(b)&c']);
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain(
+      'DRY-RUN playwright: node node_modules/jest/bin/jest.js a|(b)&c',
+    );
+  });
+
+  it('reruns the highest registered rung on the merge commit after the runtime proof', () => {
+    const result = dryRun([
+      '--runtime-jest',
+      'scripts/__tests__/roadmap-loop-scripts.test.ts',
+    ]);
+    expect(result.status).toBe(0);
+    const lines = result.stdout.split(/\r?\n/);
+    const at = (prefix: string): number =>
+      lines.findIndex((line) => line.startsWith(prefix));
+    expect(lines).toContain(
+      `DRY-RUN exact-main-ladder: NODE_ENV=production node scripts/qc/validate-exact-main-regression-ladder.mjs --sha ${sha} --rerun`,
+    );
+    expect(at('DRY-RUN exact-main-ladder:')).toBeGreaterThan(
+      at('DRY-RUN playwright:'),
+    );
+    expect(at('DRY-RUN exact-main-ladder:')).toBeLessThan(
+      at('DRY-RUN sha256:'),
+    );
+  });
+
+  it('splits --runtime-command into an argv instead of handing it to a shell', () => {
+    const result = dryRun([
+      '--runtime-command',
+      'node .sisyphus/u91-runtime.mjs  --pattern a(b)',
+    ]);
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain(
+      'DRY-RUN playwright: node .sisyphus/u91-runtime.mjs --pattern a(b)',
+    );
+  });
+
+  it.each([
+    ['an && chain', 'node a.mjs && node b.mjs'],
+    ['a pipe', 'node a.mjs | tee out.log'],
+    ['a redirect', 'node a.mjs > out.log'],
+    ['a quoted path', 'node "a b.mjs"'],
+    ['no program at all', '   '],
+  ])(
+    'refuses %s in --runtime-command before running anything',
+    (_case, value) => {
+      const result = dryRun(['--runtime-command', value]);
+      expect(result.status).not.toBe(0);
+      expect(result.stderr).toContain('RUNTIME_COMMAND_NOT_ARGV');
+      expect(result.stdout).not.toContain('DRY-RUN');
+    },
+  );
+});
+
+/**
+ * The execution branch, end to end, with every spawned step faked (U39).
+ *
+ * The step table is the REAL one from ladder(); only each argv step's argv is
+ * swapped for `node <fake-step.mjs> <step name> <original argv...>`, so a
+ * step dropped from the table, or one whose argv changes, shows up here. The
+ * in-process steps (the marker scan, sha256.txt, the dirty count) run for
+ * real against a throwaway git repository, and every spawn goes through the
+ * module's own spawn seam.
+ */
+describe('roadmap-main-proof execution branch with fake steps', () => {
+  const REGEX = 'a|(b)&c';
+  const LOG_DIR_RELATIVE = `.sisyphus/roadmap-completion-20260912/u91-main-proof-${DATE}`;
+  let repo = '';
+  let sha = '';
+  let fakes = '';
+
+  beforeEach(() => {
+    repo = fs.mkdtempSync(path.join(os.tmpdir(), 'u39-proof-'));
+    spawnSync('git', ['init', '-q'], { cwd: repo });
+    // The real checkout ignores .sisyphus/*; so must this one, or the proof's
+    // own log directory would count as a dirty line.
+    fs.writeFileSync(path.join(repo, '.gitignore'), '.sisyphus/\n');
+    commitAll(repo, 'seed');
+    sha = git(['rev-parse', 'HEAD'], repo);
+    fakes = fs.mkdtempSync(path.join(os.tmpdir(), 'u39-fake-steps-'));
+    // The fake build leaves an E2E _app chunk (the marker scan's input, and
+    // the one untracked path the dirty count should see); every fake step
+    // echoes the argv and NODE_ENV it was given.
+    fs.writeFileSync(
+      path.join(fakes, 'fake-step.mjs'),
+      [
+        "import fs from 'node:fs';",
+        'const [name, ...argv] = process.argv.slice(2);',
+        "if (name === 'build') {",
+        "  fs.mkdirSync('.next/static/chunks/pages', { recursive: true });",
+        "  fs.writeFileSync('.next/static/chunks/pages/_app-fake.js', 'self.__E2E_MODE__ = true;\\n');",
+        '}',
+        'process.stdout.write(JSON.stringify({ name, argv, nodeEnv: process.env.NODE_ENV ?? null }) + "\\n");',
+      ].join('\n'),
+    );
+  });
+
+  afterEach(() => {
+    fs.rmSync(repo, { recursive: true, force: true });
+    fs.rmSync(fakes, { recursive: true, force: true });
+  });
+
+  /** Import the tool in a real ESM context and run one request against it. */
+  const harness = (request: Record<string, unknown>): IRun => {
+    const source = `
+import * as fs from 'node:fs';
+const request = JSON.parse(fs.readFileSync(0, 'utf8'));
+const tool = await import(request.moduleUrl);
+if (request.mode === 'resolve') {
+  process.stdout.write(JSON.stringify(request.argvs.map((argv) => tool.resolveArgv(argv))));
+} else {
+  const steps = tool
+    .ladder({ merge: request.merge, runtimeJest: request.regex }, request.logDirRelative)
+    .map((step) =>
+      step.argv ? { ...step, argv: ['node', request.fakeStep, step.name, ...step.argv] } : step,
+    );
+  tool.runLadder({ steps, repoRoot: request.repo, logDir: request.logDir });
+}`;
+    const result = spawnSync(
+      process.execPath,
+      ['--input-type=module', '-e', source],
+      {
+        cwd: repo,
+        encoding: 'utf8',
+        input: JSON.stringify({
+          moduleUrl: pathToFileURL(MAIN_PROOF).href,
+          ...request,
+        }),
+      },
+    );
+    return {
+      status: result.status,
+      stdout: result.stdout ?? '',
+      stderr: result.stderr ?? '',
+    };
+  };
+
+  it('writes a log per step, scans the marker, hashes the logs and counts the dirty tree', () => {
+    const logDir = path.join(repo, LOG_DIR_RELATIVE);
+    const result = harness({
+      mode: 'run',
+      merge: sha,
+      regex: REGEX,
+      logDirRelative: LOG_DIR_RELATIVE,
+      logDir,
+      repo,
+      fakeStep: path.join(fakes, 'fake-step.mjs'),
+    });
+    expect(result.stderr).toBe('');
+    expect(result.status).toBe(0);
+
+    const read = (name: string): string =>
+      fs.readFileSync(path.join(logDir, name), 'utf8');
+    const echoed = (
+      name: string,
+    ): { name: string; argv: string[]; nodeEnv: string | null } =>
+      JSON.parse(read(`${name}.log`).split(/\r?\n/)[0]) as {
+        name: string;
+        argv: string[];
+        nodeEnv: string | null;
+      };
+
+    const logs = fs
+      .readdirSync(logDir)
+      .filter((name) => name.endsWith('.log'))
+      .sort();
+    expect(logs).toEqual([
+      'build.log',
+      'exact-main-ladder.log',
+      'git-check.log',
+      'idle-before-build.log',
+      'idle-before-runtime.log',
+      'next.log',
+      'openspec-strict.log',
+      'playwright.log',
+      'qc-openspec-ci.log',
+      'qc-pin.log',
+      'restore-next-env.log',
+      'tsc.log',
+      'validator.log',
+    ]);
+    for (const log of logs) {
+      const name = log.replace(/\.log$/, '');
+      expect(echoed(name).name).toBe(name);
+      expect(read(log)).toContain('\nexit 0\n');
+      // Every original program is node, npm, npx or git: no .cmd launcher.
+      expect(['node', 'npm', 'npx', 'git']).toContain(echoed(name).argv[0]);
+    }
+    expect(echoed('playwright').argv).toEqual([
+      'node',
+      'node_modules/jest/bin/jest.js',
+      REGEX,
+    ]);
+    expect(echoed('exact-main-ladder')).toEqual({
+      name: 'exact-main-ladder',
+      argv: [
+        'node',
+        'scripts/qc/validate-exact-main-regression-ladder.mjs',
+        '--sha',
+        sha,
+        '--rerun',
+      ],
+      nodeEnv: 'production',
+    });
+
+    expect(read('build.log')).toContain('__E2E_MODE__ present in _app chunk');
+    expect(result.stdout).toContain(
+      'e2e-marker: __E2E_MODE__ present in _app chunk',
+    );
+
+    const hashed = read('sha256.txt')
+      .trim()
+      .split(/\r?\n/)
+      .map((line) => {
+        const match = /^([0-9a-f]{64}) \*(.+\.log)$/.exec(line);
+        expect(match).not.toBeNull();
+        return { digest: match?.[1] ?? '', name: match?.[2] ?? '' };
+      });
+    for (const { digest, name } of hashed)
+      expect(
+        createHash('sha256')
+          .update(fs.readFileSync(path.join(logDir, name)))
+          .digest('hex'),
+      ).toBe(digest);
+    expect(hashed.map(({ name }) => name)).toEqual(
+      expect.arrayContaining([
+        'build.log',
+        'playwright.log',
+        'exact-main-ladder.log',
+        'qc-pin.log',
+      ]),
+    );
+    expect(result.stdout).toContain(`sha256: ${hashed.length} logs hashed`);
+
+    expect(result.stdout).toContain('exact-main-ladder exit 0:');
+    // The fake build's .next/ is the one untracked path; the log dir is ignored.
+    expect(result.stdout).toContain('status: 1 dirty lines');
+  });
+
+  it('resolves node, npm and npx to the running node and never to a .cmd file', () => {
+    const result = harness({
+      mode: 'resolve',
+      argvs: [
+        ['node', 'x.mjs', REGEX],
+        ['npm', 'run', 'build'],
+        ['npx', 'openspec', 'validate'],
+        ['git', 'status'],
+      ],
+    });
+    expect(result.stderr).toBe('');
+    const [node, npm, npx, gitArgv] = JSON.parse(result.stdout) as string[][];
+    expect(node).toEqual([process.execPath, 'x.mjs', REGEX]);
+    expect(npm[0]).toBe(process.execPath);
+    expect(path.basename(npm[1])).toBe('npm-cli.js');
+    expect(fs.existsSync(npm[1])).toBe(true);
+    expect(npm.slice(2)).toEqual(['run', 'build']);
+    expect(npx[0]).toBe(process.execPath);
+    expect(path.basename(npx[1])).toBe('npx-cli.js');
+    expect(fs.existsSync(npx[1])).toBe(true);
+    expect(gitArgv).toEqual(['git', 'status']);
   });
 });
