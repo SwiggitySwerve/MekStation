@@ -1,7 +1,7 @@
 {
   "unit": "U96",
   "stage": "local",
-  "status": "LOCAL GATES GREEN: jest, type, lint, format, units, openspec, roadmap, lifecycle-pack and the two-browser journey (3 of 3 after the parent-approved assertion fix) pass; all five mutants killed and restored.",
+  "status": "ready (local-verified): LOCAL GATES GREEN: jest, type, lint, format, units, openspec, roadmap, lifecycle-pack and the two-browser journey (3 of 3 after the parent-approved assertion fix) pass; all five mutants killed and restored.",
   "at": "2026-09-26T14:59:53.115Z",
   "baseline": "2edfbb3b6f40f04c641dbc8530afd5ad6df73d2a",
   "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u96",
