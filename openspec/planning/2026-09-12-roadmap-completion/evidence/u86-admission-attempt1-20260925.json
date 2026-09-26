@@ -1,0 +1,89 @@
+{
+  "unit": "U86",
+  "stage": "admission",
+  "status": "BLOCKED",
+  "at": "2026-09-26T02:20:56.850Z",
+  "baseline": "0ac5767ebca7abbb18d26b5cfb0083729b21b929",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u86",
+  "branch": "roadmap-u86-performance-pack-converge-20260925",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "installGuard": {
+    "command": "npm run --silent qc:guard-node-modules-link",
+    "exit": 1,
+    "output": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u86\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+    "note": "refuses in a junctioned worktree by design; no npm install, ci, prune or lifecycle was run"
+  },
+  "next": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "exit": 0,
+    "printed": "U37",
+    "note": "--next prints U37 (in flight in its own lane), not U86; per the charter U86's path overlaps nothing in flight, so admission continued to the design answers"
+  },
+  "validator": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "exit": 0,
+    "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows"
+  },
+  "blocker": {
+    "summary": "The E2E-guarded performance probe route exposes no acknowledged revision. The unit sentence requires the acknowledged revisions to be read through it and says the unit stops at admission for a path amendment if the route needs an edit. It does, and the edit is outside e2e (the unit's only ownership path).",
+    "probeReturnsToday": "src/pages-modules/api/e2ePerformanceProbeRoute.ts:53-61 answers { success, wallMs, monotonicMs, memory: { rss, heapUsed } } and nothing else (response type :23-33); src/pages/api/e2e/performance-probe.ts:7 is a one-line re-export of that handler.",
+    "exactEditsNeeded": [
+      {
+        "path": "src/pages-modules/api/e2ePerformanceProbeRoute.ts",
+        "what": "Behind the existing isAuthorizedE2ERequest guard (:65-70), accept a matchId query parameter and add a read-only convergence block to the 200 body: the session's requiredRevision and, per retained participant, participantId and acknowledged revision. The smallest read needing no new session API is entry.syncSession.evaluateScenarioLaunch() (src/lib/multiplayer/server/CampaignSyncSession.ts:753-777), which answers { ok, requiredRevision } or { ok: false, requiredRevision, behind: [{ participantId, acknowledgedRevision }] } - the same answer the AdvanceDay gate reads. Its unit test is src/__tests__/api/e2ePerformanceProbeRoute.test.ts (also outside e2e)."
+      },
+      {
+        "path": "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+        "what": "INFERENCE (read, not run): the probe route runs in Next's API module graph, while the campaign socket handler, and so every CampaignAck, runs in the tsx graph server.js loads separately (server.js:446-464; its comment at :455-462 records that the two graphs hold separate module singletons). CampaignHostRegistry keeps its singleton in a module-level let (CampaignHostRegistry.ts:405-412), unlike MatchHostRegistry, which moved into a Symbol.for globalThis slot for exactly this reason (MatchHostRegistry.ts:220-260, comment :234-239). A probe-only edit would then read the API graph's registry, whose sessions never receive acks (bindCampaignSyncConnection.ts:220 defaults to the tsx graph's getCampaignHostRegistry()). The likely second edit holds the campaign registry in a globalThis slot as MatchHostRegistry does, or another cross-graph read the parent chooses. This path is U89's ownership path (src/lib/multiplayer/server) and would change which registry instance src/pages/api/multiplayer/matches/index.ts:325 registers into, so it is not a routine-class e2e change."
+      }
+    ],
+    "notViable": [
+      "No server frame reports convergence to the GM: the campaign server message kinds are CampaignSnapshot, CampaignEvent, CampaignProposal, CampaignDecision, CampaignParticipation (src/types/multiplayer/Protocol.ts:955-994) plus Error (:807) and Close (:858); none carries acknowledged revisions.",
+      "The durable cursor campaign_participant_cursor.acked_sequence (read by src/pages-modules/api/campaignLaunchProgressionGate.ts:186-199) is not what the AdvanceDay gate reads: the socket CampaignAck case records only the in-memory retained map (bindCampaignSyncConnection.ts:619-626 -> CampaignSyncSession.ts:660-671); the durable cursor is written on the grant-ack path (src/lib/multiplayer/server/handleCampaignGrantAck.ts, src/lib/campaign/delivery/participantDeliveryCursor.ts:255-260). Waiting on it would not match the authority.",
+      "The client observer's appliedSequence is client-side receipt (spec :510-512), which is what the unit replaces."
+    ]
+  },
+  "designAnswers": {
+    "probeRoute": "Returns wallMs, monotonicMs, memory.rss, memory.heapUsed only (src/pages-modules/api/e2ePerformanceProbeRoute.ts:23-33, :53-61). No acknowledged revision per participant: BLOCKED (see blocker).",
+    "convergedMeansToTheAuthority": "Only AdvanceDay is gated (bindCampaignSyncConnection.ts:748-758): refuseUnconvergedProgression (:700-718) calls entry.syncSession.evaluateScenarioLaunch() (CampaignSyncSession.ts:753-777). requiredRevision = max(0, eventLog.nextSequence() - 1), the committed head read live (:785-787). Clause refusals (branch not active, correction pending, replacement unverified) run first (:755-760). Then every RETAINED participant must have acknowledged >= requiredRevision (:761-770). Retained = non-GM members only: joinMember and retainHydratedParticipant never retain the host (:427-434, :508-531), so the GM's own acks do not count and the two guests' do. acknowledged rises only through noteParticipantAcknowledged (:660-671), called when the server dispatches the CampaignAck frame (bindCampaignSyncConnection.ts:619-626), and is refused above the participant's delivered watermark (:667). The refusal is an Error frame, code CAMPAIGN_NOT_CONVERGED, reason 'participants-behind <id>:<ack>,...; requiredRevision <N>' (CampaignProgressionGate.ts:195-206). The pack's wait must therefore be: every guest's server-recorded acknowledged revision >= the committed head, GM excluded.",
+    "convergeWaitToday": "converge() at e2e/gm-two-player-performance.pack.spec.ts:630-646: takes the max painted head across the three pages (:631-633), polls each page's observer appliedSequence (set on frame receipt, :510-512) for up to functionalWaitMs*5 (:634-641), then waits a fixed 25 ms (:644). Call sites: :165 (before each of the 20 warm-up commands) and :198 (before each measured command). The tail builder (:268-272) does not call converge(): it issues only AllocateSalvage, which is never gated, and waits with waitForSequence on the GM page (:271). waitForSequence (:596-614) is the 2,000 ms functional wait that today reports a refused AdvanceDay as 'no painted delivery reached N' (called at :173, :206, :271).",
+    "gmTransportRefusal": "The GM page's transport (window.__CAMPAIGN_SYNC_TRANSPORT__, src/lib/e2e/storeExposure.ts:67 -> getActiveCampaignSyncTransport, src/lib/campaign/coop/campaignSyncTransport.ts:266) hands every parsed server frame to its onFrame listeners (campaignSyncTransport.ts:182-187, :222-228), Error frames included. The refusal arrives as { kind: 'Error', code: 'CAMPAIGN_NOT_CONVERGED', reason, intentId } (bindCampaignSyncConnection.ts:708-716, errorFrame :1550-1564; schema src/types/multiplayer/Protocol.ts:806-812 carries intentId). The pack's intentId is perf-<kind>-<ordinal> (src/lib/multiplayer/performance/controlledLoopbackFixture.ts:296). A GM-page onFrame listener that records Error frames by intentId is therefore a real read of the refusal, and waitForSequence can fail naming it instead of timing out. This half needs no edit outside e2e.",
+    "runnerPerformanceGroup": "scripts/qc/gm-two-player-campaign-core.cjs:91 maps performance to e2e/gm-two-player-performance.pack.spec.ts alone; the unit needs no env or runner change."
+  },
+  "seams": [
+    "e2e/gm-two-player-performance.pack.spec.ts:630-646 converge()",
+    "e2e/gm-two-player-performance.pack.spec.ts:165, :198 converge() call sites",
+    "e2e/gm-two-player-performance.pack.spec.ts:596-614 waitForSequence (called :173, :206, :271)",
+    "e2e/gm-two-player-performance.pack.spec.ts:439-525 observerScript (appliedSequence :510-512)",
+    "e2e/gm-two-player-performance.pack.spec.ts:667-697 readServerProbe",
+    "src/pages-modules/api/e2ePerformanceProbeRoute.ts:41-62 probe handler (outside e2e)",
+    "src/lib/multiplayer/server/bindCampaignSyncConnection.ts:619-626, :700-718, :748-758",
+    "src/lib/multiplayer/server/CampaignSyncSession.ts:660-671, :753-787",
+    "src/lib/multiplayer/server/CampaignHostRegistry.ts:405-412; src/lib/multiplayer/server/MatchHostRegistry.ts:220-260; server.js:446-464",
+    "src/lib/campaign/coop/campaignSyncTransport.ts:182-187, :222-253"
+  ],
+  "estimatePerFile": {
+    "e2e/gm-two-player-performance.pack.spec.ts": "about 70-100 changed lines: converge() polls the probe convergence block under a timeout that names the wait; a GM onFrame Error capture keyed by intentId; waitForSequence fails naming a captured refusal",
+    "src/pages-modules/api/e2ePerformanceProbeRoute.ts": "about 30-45 lines, outside e2e (path amendment)",
+    "src/__tests__/api/e2ePerformanceProbeRoute.test.ts": "about 30-50 test lines, outside e2e (path amendment)",
+    "src/lib/multiplayer/server/CampaignHostRegistry.ts": "about 15-25 lines if the globalThis slot is chosen; outside e2e and in U89's path (path amendment; INFERENCE that it is needed)"
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "note": "Inside e2e alone: 1 file, product lines 0 (spec lines count as this unit's lines). With the amendment: 3-4 files, product lines about 45-70."
+  },
+  "risksForTheParent": [
+    "routine: none visible to a tester; the pack's timing semantics change (converge waits on server-recorded acknowledgements instead of receipt plus 25 ms).",
+    "The amendment touches the probe route and, likely, which campaign registry instance the API and socket graphs share; the latter is not routine class (authority/concurrency) and overlaps U89's ownership path."
+  ],
+  "stagesNotRun": [
+    "red: not run (charter: stop at admission when the probe route needs an edit). No build, no Playwright run, no spec edit.",
+    "local: not run."
+  ],
+  "nonClaims": [
+    "That CampaignHostRegistry resolves to separate instances in the API and socket graphs is INFERENCE from reading server.js:455-462, MatchHostRegistry.ts:234-239 and CampaignHostRegistry.ts:405-412; it was not measured live.",
+    "No refusal was captured in this lane; its shape is read from code and from the diagnosis (evidence/uat-r1-diagnosis-20260925.json runs 5, 7, 8).",
+    "The per-file estimates are estimates, not measured diffs."
+  ]
+}

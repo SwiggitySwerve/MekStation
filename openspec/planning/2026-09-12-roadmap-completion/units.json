@@ -2089,14 +2089,28 @@
       "state": "planned",
       "id": "U86",
       "node": "R6.umbrella",
-      "behavior": "The performance pack (e2e/gm-two-player-performance.pack.spec.ts, E2E-71/72/73) issues each measured command only after the authority has recorded every participant's acknowledgement of the current head, instead of client-side receipt plus a fixed 25 ms (converge() near :630-646); the acknowledged revisions are read through the existing E2E-guarded performance probe route. An AdvanceDay refused with CAMPAIGN_NOT_CONVERGED is captured on the GM transport and fails the run naming the refusal, instead of timing out as a missing paint. Red first: the pack at its baseline with a GM-transport capture shows CAMPAIGN_NOT_CONVERGED on an AdvanceDay window, as the diagnosis dumps did. Green: the performance group passes 3 of 3 consecutive runs. If the probe route needs an edit (src/pages/api/e2e/performance-probe.ts), the unit stops at admission for a path amendment. The server stall (mode 2) is U89's.",
+      "behavior": "The performance pack (e2e/gm-two-player-performance.pack.spec.ts, E2E-71/72/73) issues each measured command only after the authority has recorded every participant's acknowledgement of the current head, instead of client-side receipt plus a fixed 25 ms (converge() near :630-646); the acknowledged revisions are read through the existing E2E-guarded performance probe route. An AdvanceDay refused with CAMPAIGN_NOT_CONVERGED is captured on the GM transport and fails the run naming the refusal, instead of timing out as a missing paint. Red first: the pack at its baseline with a GM-transport capture shows CAMPAIGN_NOT_CONVERGED on an AdvanceDay window, as the diagnosis dumps did. Green: the performance group passes 3 of 3 consecutive runs. If the probe route needs an edit (src/pages/api/e2e/performance-probe.ts), the unit stops at admission for a path amendment. The server stall (mode 2) is U89's. Amended 2026-09-25 after the first admission attempt (evidence/u86-admission-attempt1-20260925.json): the probe route (src/pages-modules/api/e2ePerformanceProbeRoute.ts, behind its existing E2E guard) takes a matchId and answers the campaign session's convergence, the same answer the AdvanceDay check reads (CampaignSyncSession.evaluateScenarioLaunch), with its test re-pinned. Before any edit the re-admission MEASURES whether the campaign host registry the probe reads (src/lib/multiplayer/server/CampaignHostRegistry.ts:405-412, a module-level singleton) is the same instance the socket runtime's module graph records acknowledgements into (server.js:446-464 loads that graph separately; MatchHostRegistry solved this with a globalThis slot in U22a): a live probe against a running server with a socket session up. If the registries are split, U86 stops BLOCKED again and names the successor (the campaign registry in a globalThis slot, authority class, on src/lib/multiplayer/server).",
       "ownershipPaths": [
-        "e2e"
+        "e2e",
+        "src/pages-modules/api/e2ePerformanceProbeRoute.ts",
+        "src/__tests__/api/e2ePerformanceProbeRoute.test.ts"
       ],
       "reviewClasses": [
         "routine"
       ],
-      "source20260925": "planned by the parent from the UAT round 1 entry gate's diagnosis (evidence/uat-r1-diagnosis-20260925.json, F-perf-E2E-71-72-73)"
+      "source20260925": "planned by the parent from the UAT round 1 entry gate's diagnosis (evidence/uat-r1-diagnosis-20260925.json, F-perf-E2E-71-72-73)",
+      "firstAdmissionAttempt20260925": {
+        "receipt": "evidence/u86-admission-attempt1-20260925.json",
+        "decision": "BLOCKED at admission: the probe route carries no acknowledged revision; the parent amended the unit with the route's two exact files and relaunched with a registry-split measurement first"
+      },
+      "pathsAmendedBeforeAdmission20260925": {
+        "at": "2026-09-26T03:56:30.000Z",
+        "added": [
+          "src/pages-modules/api/e2ePerformanceProbeRoute.ts",
+          "src/__tests__/api/e2ePerformanceProbeRoute.test.ts"
+        ],
+        "why": "the probe route must answer the session's convergence (evaluateScenarioLaunch) for a match"
+      }
     },
     {
       "taskKeys": [],
