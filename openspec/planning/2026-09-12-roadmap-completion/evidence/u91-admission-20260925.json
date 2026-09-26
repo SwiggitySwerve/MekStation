@@ -1,0 +1,143 @@
+{
+  "unit": "U91",
+  "baseline": "bd6bfe779036631bf63b0e84b748a7bfd6e122b6",
+  "originMain": "bd6bfe779036631bf63b0e84b748a7bfd6e122b6",
+  "originMainLsRemote": "bd6bfe779036631bf63b0e84b748a7bfd6e122b6\trefs/heads/main",
+  "baselineEqualsOriginMain": true,
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u91",
+  "branch": "roadmap-u91-coop-controls-spec-delta-20260925",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "stage": "admission",
+  "status": "go",
+  "at": "2026-09-25T23:29:15.716Z",
+  "node": "R6.umbrella",
+  "ownershipPaths": [
+    "openspec/changes/harden-gm-two-player-campaign-sessions"
+  ],
+  "receiptPaths": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u91-admission-20260925.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u91-red-20260925.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u91-local-20260925.json"
+  ],
+  "reviewClasses": [
+    "routine"
+  ],
+  "ciClassInLedger": "product (units.json U91; the validator derives it from the change path; the unit edits only OpenSpec markdown)",
+  "behavior": "units.json U91 behavior sentence, not widened: the harden change's coop-campaign-sync delta gains a MODIFIED requirement 'Co-op campaign command authority projection' carrying the full final text: approve and veto per pending proposal on the co-op host command screen; preview, manual takeover and GM correction on the host's GM ledger route, which the dashboard's GM Ledger tab reaches; the guest scenario unchanged word for word; the U36 dead-controls rows cited as the pins.",
+  "source": "owner decision PK-u90-controls option D (\"Spec delta, U90 superseded (Recommended)\", 2026-09-25T22:27:21.000Z); units.json U91.source20260925",
+  "guardNodeModulesLink": {
+    "command": "npm run --silent qc:guard-node-modules-link",
+    "exit": 1,
+    "output": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"<repo>\\.sisyphus\\roadmap-completion-20260912\\worktrees\\u91\\node_modules\",\"actualPath\":\"<repo>\\node_modules\"}",
+    "outputRedaction": "the repository root is written as <repo> (no absolute machine paths in receipts)",
+    "consequence": "refused by design in a junctioned worktree (node_modules is a junction to the repository root); no install, ci, prune, npx or lifecycle command was run; oxfmt is invoked as node_modules/.bin/oxfmt rather than through npx."
+  },
+  "runners": {
+    "baselineGates": {
+      "path": "session scratchpad u91/baseline-gates.sh",
+      "sha256": "01b3955f8637a2358a60f88e9ba7df7081f17efb29657a698f728e84b4ecdd8a"
+    },
+    "receiptWriter": {
+      "path": "session scratchpad u91/write-admission-red.mjs",
+      "sha256": "bc590530fb904a2d3ba04997de3a14cacd4684a5d7299d0efcd506dc2aa642ba"
+    }
+  },
+  "baselineFileHashes": {
+    "openspec/specs/coop-campaign-sync/spec.md": "780a1f1f69a4ba5186d2fdbc67e0c8277fabcc72ba92aa7e318812187215d3e5",
+    "openspec/changes/harden-gm-two-player-campaign-sessions/specs/coop-campaign-sync/spec.md": "36072f61b73fd4e648fe456feb17ee380c995bf806cb7a41a15fc8c4cc5ada4b",
+    "openspec/changes/harden-gm-two-player-campaign-sessions/proposal.md": "43ce264ba78e8b2298e286828f4224018145f2bbb8fefb2d1b634c4e4df5268c",
+    "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md": "856efc8e3ad992053b4b3f652c895da1e12b218281cb3dc21ca720c378120a1e",
+    "openspec/changes/harden-gm-two-player-campaign-sessions/design.md": "df2a92ea72d6391143ba8492cb1fd539c56857ab8a871d69ce6a2a5f0ef8b3ac"
+  },
+  "designAnswers": {
+    "q1_currentTextQuoted": {
+      "at": "openspec/specs/coop-campaign-sync/spec.md:488-497",
+      "lines": [
+        "### Requirement: Co-op campaign command authority projection",
+        "Co-op campaign command screens SHALL map host and guest roles into the shared command-screen authority model. Hosts SHALL see authoritative campaign and GM controls for owned campaigns, while guests SHALL see proposal, normal player action, and public-result views only.",
+        "",
+        "#### Scenario: Host sees authoritative campaign commands",
+        "- **WHEN** a host opens a co-op campaign command screen",
+        "- **THEN** the screen SHALL expose host-authorized preview, approve, veto, manual takeover, and GM correction controls for commands that affect campaign state",
+        "",
+        "#### Scenario: Guest sees proposal or public command path",
+        "- **WHEN** a guest opens the same co-op campaign command screen",
+        "- **THEN** the screen SHALL hide host-only and GM-private controls and SHALL route mutating actions through proposal or validated player command paths"
+      ]
+    },
+    "q2_existingDeltaOnCoopCampaignSync": {
+      "finding": "The change's delta carries only an ADDED section with 8 requirements and no MODIFIED section; none of them is this header, so a MODIFIED section is appended after the ADDED section and merges with nothing.",
+      "deltaHeaders": [
+        "1:## ADDED Requirements",
+        "3:### Requirement: Co-op Campaign Has One Non-Playing GM and Two Tactical Players",
+        "14:### Requirement: Participant Membership and Ownership Are Durable",
+        "25:### Requirement: Force Ownership and Readiness Are Revisioned",
+        "40:### Requirement: Campaign Progression Requires Convergence",
+        "55:### Requirement: GM Loss Pauses Campaign Authority",
+        "66:### Requirement: Simultaneous Player Proposals Remain Distinct",
+        "77:### Requirement: Campaign Join and Recovery Use Viewer-Safe Projection",
+        "88:### Requirement: Campaign Conflict Resolution Is Command-Based"
+      ],
+      "headerOccurrencesInDelta": 0,
+      "modifiedSectionsInDelta": 0,
+      "otherActiveChangeTouchingThisHeader": "none: grep of openspec/changes (archive excluded) for the header text = 0 files; the only other active delta on coop-campaign-sync, openspec/changes/design-campaign-authority-and-sync/specs/coop-campaign-sync/spec.md, modifies Guest Runs a Read-Only Campaign Mirror, Guest Join Hydrates From Host Snapshot Over Transport, Campaign Event Log, Campaign Event Payload Set and CampaignMatchHost Validates Intents Against Authoritative State, and adds three others.",
+      "origin": "the requirement was ADDED by openspec/changes/archive/2026-06-30-add-playable-command-screens/specs/coop-campaign-sync/spec.md:3"
+    },
+    "q3_modifiedFormat": {
+      "rule": "a MODIFIED entry repeats the living header exactly and carries the full final requirement text and every scenario, so the archive replaces the whole requirement under that header",
+      "precedentInThisUmbrella": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/specs/gm-combat-interventions/spec.md:5-8 (\"The MODIFIED entries carry the FULL final text so that archiving this change replaces the reduced headers the umbrella's archive installs\") and :64-76 (## MODIFIED Requirements placed after the ## ADDED section; header then body on the next line; #### Scenario then - **WHEN** / - **THEN**, no blank lines between them)",
+      "archivedPrecedent": "openspec/changes/archive/2026-07-07-prove-live-coop-campaign-journey/specs/coop-campaign-sync/spec.md:3-30 (## MODIFIED Requirements, ### Requirement: Co-op Runtime Transport Wiring with full text and all scenarios); the living header openspec/specs/coop-campaign-sync/spec.md:413 carries the same name",
+      "thisDeltaConventions": "openspec/changes/harden-gm-two-player-campaign-sessions/specs/coop-campaign-sync/spec.md:3-12: no blank line between ### Requirement and its body or between #### Scenario and its bullets; bullets - **WHEN** / - **THEN**. The living requirement (spec.md:488-497) uses the same spacing; both are matched.",
+      "tasksPrecedent": "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md:299 SPLIT RECEIPT: \"The successor carries the two split requirements as MODIFIED with the full final text so its archive replaces the reduced headers\"; at that split the proposal capability line was amended in place (proposal.md:43)."
+    },
+    "q4_tasksAndProposalPointer": {
+      "tasksMd": "no note: no box in tasks.md holds this requirement (grep of tasks.md for \"command authority projection\" = 0 lines; the requirement came from the archived add-playable-command-screens, not from this change's boxes). The nearest mention (tasks.md:457, a progress note under the checked box 19.3 naming defect #25, \"manual takeover / GM fix fall through to no-op defaults in production\") is history on a box whose letter this delta does not discharge. No checkbox is changed.",
+      "proposalMd": "one-line pointer: proposal.md:38 (the coop-campaign-sync capability line) lists only additions; the delta now also modifies an existing requirement, so the same line gains one sentence naming it, as the gm-combat-interventions line (:43) was amended in place at the split. design.md:19 only lists the delta path and needs nothing."
+    },
+    "q5_validateOnBaseline": {
+      "command": "openspec validate harden-gm-two-player-campaign-sessions --strict",
+      "openspecVersion": "1.5.0",
+      "exit": 0,
+      "output": "Change 'harden-gm-two-player-campaign-sessions' is valid"
+    },
+    "codeCitedReadOnly": {
+      "ledgerTab": "src/components/campaign/CampaignNavigation.tsx:78 canUseGmLedger = canUseCampaignGmControls(coopSession); :166-171 the gm-ledger tab (\"GM Ledger\", /gameplay/campaigns/${campaignId}/gm-ledger) only when canUseGmLedger; src/lib/campaign/campaignAuthority.ts:31-38 mode host -> canUseGmControls true; the dashboard mounts CampaignNavigation at src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.tsx:339-343 and the co-op route surface at :354.",
+      "ledgerRoute": "src/pages/gameplay/campaigns/[id]/gm-ledger.tsx:39-54 renders GmCampaignInterventionControlPlane when authority.canUseGmControls, else GmCampaignPlayerLedgerView; src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx:384-394 mounts GmCampaignInterventionActions with the preview handlers, onApprove and onManualTakeover; GmCampaignInterventionActions.tsx:126-128 \"Generate correction\" (gm-ledger-preview-btn), :136-138 \"Approve cascade\" (gm-ledger-approve-btn), :149-151 \"Take manual control\" (gm-ledger-manual-btn).",
+      "pins": "src/components/campaign/coop/__tests__/HostGmReviewSurface.deadControls.test.tsx:86 describe \"the host dashboard review mount\": :87 \"renders Approve and Veto only\" (the row's buttons equal [approve-p1, veto-p1]); :93 \"renders no control that does nothing when pressed\". :129-130 \"the review surface secondary controls\" pins that Preview, Manual takeover and GM Fix render only when their handler is supplied."
+    }
+  },
+  "u90AdmissionFindingQuoted": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u90-admission-20260925.json",
+    "blockingCause": "The charter's green (each per-proposal control renders on the dashboard mount and one press reaches its producer once with the proposal's id) has no producer to wire: the GM ledger route's preview, manual takeover and correction are not proposal-scoped, not exported, and take no argument; no producer in src takes a guest proposal as the target of a manual takeover or GM correction, and the wire carries approve | veto only. Choosing what each control does to a pending proposal is an authority-class design decision, not wiring, and a unit is never widened while it is worked (GOAL.md:15).",
+    "readingTaken": "per-screen and per-command: the controls are exposed ON the co-op command screen (here the dashboard) for the commands it shows. A navigation link is not taken as meeting it."
+  },
+  "estimate": "docs only: the delta file gains one MODIFIED section (one requirement, two scenarios, about 20 lines) and proposal.md changes one line; 0 product or test lines; PK-u90-controls option D estimated 0.25 day",
+  "acceptanceCommands": [
+    "openspec validate harden-gm-two-player-campaign-sessions --strict",
+    "npm run qc:openspec-ci:validate",
+    "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "node_modules/.bin/oxfmt --check on the changed markdown (openspec is listed in .oxfmtignore)",
+    "npm run lint:units",
+    "byte diffs of the header and the guest scenario against openspec/specs/coop-campaign-sync/spec.md"
+  ],
+  "nextOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "exit": 0,
+    "output": "U21b",
+    "note": "it prints U21b, the parent's pick; U91 owns openspec/changes/harden-gm-two-player-campaign-sessions, which overlaps no in-flight unit's path, so the lane continues as chartered"
+  },
+  "roadmapValidatorOnBaseline": {
+    "exit": 0,
+    "output": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows"
+  },
+  "risksForTheParent": [
+    "Routine: archiving harden-gm-two-player-campaign-sessions later replaces the living requirement at openspec/specs/coop-campaign-sync/spec.md:488-497 whole. After that archive a reader of the living spec sees the same header, the same two opening sentences, two added sentences (approve and veto per pending proposal on the host's co-op command screen; preview, manual takeover and GM correction on the host's GM ledger route reached from the dashboard's GM Ledger tab), a rewritten host scenario and the guest scenario unchanged. Until then the living spec keeps the old host scenario (all five controls on the command screen).",
+    "The harden change is the program-level umbrella with many open boxes, so its archive, and with it this replacement, may be far off. No tasks.md box holds this requirement.",
+    "Neighbouring requirement openspec/specs/coop-campaign-sync/spec.md:499-504 (Co-op player-safe GM result projection: the guest SHALL receive a public command result when the host commits a GM campaign intervention) is not met by the ledger route per U90's code reading (a co-op host's ledger correction writes only the local campaign store, gm-ledger.tsx:42-50). Placing GM correction on the ledger route leaves that unchanged; this unit does not claim it."
+  ],
+  "nonClaims": [
+    "no product or test file is edited; no runtime behaviour changes",
+    "no claim that the GM ledger route's controls reach a co-op guest",
+    "openspec/specs is not edited; the replacement lands only when the change archives"
+  ]
+}
