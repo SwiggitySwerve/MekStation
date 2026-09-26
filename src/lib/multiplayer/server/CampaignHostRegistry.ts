@@ -402,16 +402,40 @@ export class CampaignHostRegistry {
   };
 }
 
-let _singleton: CampaignHostRegistry | null = null;
+const CAMPAIGN_HOST_REGISTRY_SLOT_KEY = Symbol.for(
+  'mekstation.multiplayer.campaignHostRegistry',
+);
 
+type GlobalCampaignHostRegistrySlot = typeof globalThis & {
+  [CAMPAIGN_HOST_REGISTRY_SLOT_KEY]?: CampaignHostRegistry;
+};
+
+/**
+ * The process registry, created on first use and held on globalThis under
+ * the Symbol.for('mekstation.multiplayer.campaignHostRegistry') key.
+ * server.js loads this module through the tsx hook in a module graph
+ * separate from Next's API bundle; both graphs reach the same instance
+ * through that key, so the entry the match create route registers (Next's
+ * API graph) is the entry bindCampaignSyncConnection finds (the socket
+ * runtime's tsx graph), as getMatchHostRegistry does for match hosts.
+ */
 export function getCampaignHostRegistry(): CampaignHostRegistry {
-  if (!_singleton) {
-    _singleton = new CampaignHostRegistry();
+  const global = globalThis as GlobalCampaignHostRegistrySlot;
+  let registry = global[CAMPAIGN_HOST_REGISTRY_SLOT_KEY];
+  if (!registry) {
+    registry = new CampaignHostRegistry();
+    global[CAMPAIGN_HOST_REGISTRY_SLOT_KEY] = registry;
   }
-  return _singleton;
+  return registry;
 }
 
+/**
+ * Test-only: close every entry of the registry held in the globalThis
+ * slot and delete the slot, so the next caller from any module graph
+ * starts from an empty registry.
+ */
 export function _resetCampaignHostRegistry(): void {
-  _singleton?._reset();
-  _singleton = null;
+  const global = globalThis as GlobalCampaignHostRegistrySlot;
+  global[CAMPAIGN_HOST_REGISTRY_SLOT_KEY]?._reset();
+  delete global[CAMPAIGN_HOST_REGISTRY_SLOT_KEY];
 }

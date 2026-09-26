@@ -25,9 +25,10 @@ import type {
   CampaignManifestVerdict,
   ICampaignProgressionReaders,
 } from './CampaignProgressionGate';
+import type { DurableMatchStore } from './DurableMatchStore';
 import type { ICoordinatedCorrectionSaga } from './history/CoordinatedOutcomeCorrectionSaga';
+import type { IMatchStore } from './IMatchStore';
 
-import { DurableMatchStore } from './DurableMatchStore';
 import { getDefaultMatchStore } from './getDefaultMatchStore';
 import { readCoordinatedCorrectionSagaByOutcomeId } from './history/CoordinatedOutcomeCorrectionSaga';
 
@@ -87,9 +88,18 @@ function journalDbOrNull(): Database.Database | null {
   }
 }
 
+/**
+ * The process match store's database when that store is the durable one,
+ * else null. The store sits in the globalThis slot getDefaultMatchStore
+ * shares between Next's API graph and the socket runtime's tsx graph, so
+ * it can be an instance of the OTHER graph's DurableMatchStore class, for
+ * which an instanceof check against this graph's class answers false; this
+ * reads the store's getDatabase method instead of its class.
+ */
 function matchStoreDbOrNull(): Database.Database | null {
-  const store = getDefaultMatchStore();
-  if (!(store instanceof DurableMatchStore)) return null;
+  const store: IMatchStore & Partial<Pick<DurableMatchStore, 'getDatabase'>> =
+    getDefaultMatchStore();
+  if (typeof store.getDatabase !== 'function') return null;
   try {
     return store.getDatabase();
   } catch {
