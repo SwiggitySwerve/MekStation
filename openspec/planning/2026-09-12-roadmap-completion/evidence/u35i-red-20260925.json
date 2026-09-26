@@ -1,0 +1,122 @@
+{
+  "unit": "U35i",
+  "stage": "red",
+  "status": "red-recorded",
+  "at": "2026-09-26T05:09:50.034Z",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "baseline": "20d69c1d0264cf906b7fc3524fbaa3981bf7e5cc",
+  "redKind": "comment-only unit: the red is the falsity of each old comment, shown by the baseline code line that contradicts it; no test can fail on a comment, and none was written",
+  "sites": [
+    {
+      "site": "S1",
+      "file": "src/lib/campaign/coop/coopRuntimeSession.ts:99-100",
+      "oldComment": [
+        "    // The cutover-flag factory (task 5.1): identical in-memory behavior",
+        "    // until CAMPAIGN_JOURNAL_AUTHORITY_ENABLED turns on with task 5.2."
+      ],
+      "oldClaim": "the factory keeps in-memory behavior until CAMPAIGN_JOURNAL_AUTHORITY_ENABLED turns on (task 5.2), implying a journal store once it is on",
+      "contradictedBy": [
+        "src/lib/campaign/sync/JournalCampaignEventStore.ts:90 `export const CAMPAIGN_JOURNAL_AUTHORITY_ENABLED = true;`",
+        "src/lib/campaign/coop/coopRuntimeSession.ts:101 `eventStore: createDefaultCampaignEventStore(),`",
+        "src/lib/campaign/sync/JournalCampaignEventStore.ts:541 `if (CAMPAIGN_JOURNAL_AUTHORITY_ENABLED && deps?.journal) {`",
+        "src/lib/campaign/sync/JournalCampaignEventStore.ts:547 `return new InMemoryCampaignEventStore();`",
+        "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts:365-367 pins createDefaultCampaignEventStore() (no factory) to InMemoryCampaignEventStore with the flag true; green on the baseline (pinsRun below)"
+      ],
+      "why": "the flag is on now and this call still gets the in-memory store, because it passes no journal factory",
+      "baselineSha256": "141d9627958170c7fee2f69c4e508f3c53fa35a1eaacee22662efcf119665989"
+    },
+    {
+      "site": "S2",
+      "file": "src/lib/multiplayer/server/matchJournalAuthority.ts:3",
+      "oldComment": [
+        " * Combat journal-authority types and consume-apply seam (task 2.3).",
+        " * Flag OFF matches CAMPAIGN_JOURNAL_AUTHORITY_ENABLED.",
+        " */"
+      ],
+      "oldClaim": "combat flag OFF matches CAMPAIGN_JOURNAL_AUTHORITY_ENABLED",
+      "contradictedBy": [
+        "src/lib/multiplayer/server/matchJournalAuthority.ts:21 `'off' as CombatJournalAuthorityMode;`",
+        "src/lib/campaign/sync/JournalCampaignEventStore.ts:90 `export const CAMPAIGN_JOURNAL_AUTHORITY_ENABLED = true;`"
+      ],
+      "why": "combat is 'off' while the campaign flag is true; they no longer match",
+      "baselineSha256": "6432f900611b722b70bf8cd7d701e0e83a849eacfc52ea85cd679c1ad1db86ec"
+    },
+    {
+      "site": "S3",
+      "file": "src/pages/api/multiplayer/matches/index.ts:263-266",
+      "oldComment": [
+        "    // The creation checkpoint skips its genesis-branch step when this is",
+        "    // false, so the fixture arm must reach it here as well as on the",
+        "    // campaign PUT route, or a journal-native campaign creates a match",
+        "    // with no genesis branch to recover."
+      ],
+      "oldClaim": "a fixture arm must reach isCampaignJournalAuthorityEnabled here and on the campaign PUT route",
+      "contradictedBy": [
+        "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts:17 `return CAMPAIGN_JOURNAL_AUTHORITY_ENABLED;`",
+        "git grep -n \"e2eJournalAuthorityArmed\\|CAMPAIGN_JOURNAL_AUTHORITY_E2E_ENV\" -- src scripts e2e: no match (exit 1); the arm and its env constant were deleted by U35d",
+        "src/lib/campaign/sync/__tests__/campaignJournalAuthorityEnabled.test.ts: \"answers true with NEXT_PUBLIC_E2E_MODE=%s and the retired arm key %s\" (4 rows) and \"has no environment override\" green on the baseline (pinsRun below)"
+      ],
+      "why": "there is no fixture arm; the resolver returns the production constant, which is true",
+      "baselineSha256": "748a5d5dc4d083e28b75c93ddcb60fc481e6fe67761f8057506aea1f3b18a0ad"
+    },
+    {
+      "site": "S4",
+      "file": "src/lib/multiplayer/server/combatJournalAuthorityEnabled.ts:35-36",
+      "oldComment": [
+        " * Null unless Playwright e2e mode is on (the same",
+        " * NEXT_PUBLIC_E2E_MODE==='true' check the campaign arm uses) AND the"
+      ],
+      "oldClaim": "the combat arm uses the same NEXT_PUBLIC_E2E_MODE==='true' check the campaign arm uses",
+      "contradictedBy": [
+        "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts:17 `return CAMPAIGN_JOURNAL_AUTHORITY_ENABLED;`",
+        "git grep -n NEXT_PUBLIC_E2E_MODE -- src/lib/campaign: hits only src/lib/campaign/sync/__tests__/campaignJournalAuthorityEnabled.test.ts (the retired-key test); no production campaign code reads it",
+        "src/lib/multiplayer/server/combatJournalAuthorityEnabled.ts:42 `if (process.env.NEXT_PUBLIC_E2E_MODE !== 'true') return null;`"
+      ],
+      "why": "the campaign arm is gone; the combat arm is the only reader of the check",
+      "baselineSha256": "c18b1a6b2fc2a858b4df258b1ac7d97ea27d8f84a435ec64e41a805e778d4bb7"
+    },
+    {
+      "site": "S5",
+      "file": "src/lib/campaign/sync/ICampaignEventStore.ts:177",
+      "oldComment": [
+        "   * at the expected head. Both the journal-backed and flag-off in-memory"
+      ],
+      "oldClaim": "the in-memory store is the flag-off store",
+      "contradictedBy": [
+        "src/lib/campaign/sync/JournalCampaignEventStore.ts:90 `export const CAMPAIGN_JOURNAL_AUTHORITY_ENABLED = true;`",
+        "src/lib/campaign/sync/JournalCampaignEventStore.ts:547 `return new InMemoryCampaignEventStore();`",
+        "src/lib/multiplayer/server/getCampaignEventStore.ts:98 `return { durability: 'ephemeral', store: new InMemoryCampaignEventStore() };`"
+      ],
+      "why": "the flag is on and the in-memory store is still selected, for a caller with no journal factory and for the ephemeral selection; neither depends on the flag being off",
+      "baselineSha256": "a941b7c572156894e6ce6d66dfbbe4f5277991d15685b41808975279f7a6c6ac"
+    },
+    {
+      "site": "S6",
+      "file": "src/lib/campaign/sync/InMemoryCampaignEventStore.ts:40",
+      "oldComment": [
+        "  /** Client-command receipts make the flag-off production adapter retry-safe. */"
+      ],
+      "oldClaim": "the in-memory store is the flag-off production adapter",
+      "contradictedBy": [
+        "src/lib/campaign/sync/JournalCampaignEventStore.ts:90 `export const CAMPAIGN_JOURNAL_AUTHORITY_ENABLED = true;`",
+        "src/lib/campaign/sync/JournalCampaignEventStore.ts:547 `return new InMemoryCampaignEventStore();`",
+        "src/lib/multiplayer/server/getCampaignEventStore.ts:98 `return { durability: 'ephemeral', store: new InMemoryCampaignEventStore() };`"
+      ],
+      "why": "same as S5: nothing selects this store because the flag is off",
+      "baselineSha256": "620f1bcd464954e1b8561c1e9e543b9fc410636acd9501e91d6ce9f11f3a341b"
+    }
+  ],
+  "pinsRun": {
+    "command": "npx jest src/lib/campaign/sync/__tests__/campaignJournalAuthorityEnabled.test.ts src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts --verbose",
+    "exitCode": 0,
+    "counts": [
+      "Test Suites: 2 passed, 2 total",
+      "Tests:       23 passed, 23 total"
+    ],
+    "purpose": "live proof on the baseline that the flag is true, has no environment override, and a caller with no journal factory gets the in-memory store",
+    "log": {
+      "name": "red-baseline-pins.log (lane scratch)",
+      "sha256": "c6f963a9c06a6bbd7d079b2a939eb5e09de29e71a864b5b597157104e35b5a72"
+    }
+  }
+}
