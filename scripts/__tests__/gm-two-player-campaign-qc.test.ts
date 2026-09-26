@@ -1,4 +1,4 @@
-import { spawnSync } from 'node:child_process';
+import { type ChildProcess, spawn, spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import net from 'node:net';
 import * as path from 'node:path';
@@ -190,6 +190,7 @@ describe('GM and two-player campaign QC runner', () => {
       PORT: String(core.deriveFixturePort('task-21-authority-recovery')),
       MEKSTATION_E2E_SERVER_COMMAND: 'node scripts/e2e/relaunching-server.mjs',
       MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE: 'enabled',
+      HOSTNAME: '127.0.0.1',
     });
     // Every other group keeps the plain server - the wrapper is the
     // exception, never the default.
@@ -847,4 +848,122 @@ describe('GM and two-player campaign QC runner', () => {
       await new Promise<void>((resolve) => server.close(() => resolve()));
     }
   });
+  it('plans HOSTNAME=127.0.0.1 for every implemented group whatever the shell exports', () => {
+    // server.js:73-77 exits on any HOSTNAME but localhost/127.0.0.1, and
+    // Playwright's webServer inherits the runner env, so a shell that
+    // exports its machine name used to kill every group's server.
+    const inherited = process.env.HOSTNAME;
+    process.env.HOSTNAME = 'some-machine';
+    try {
+      const planned = Object.keys(core.REGISTERED_GROUPS).flatMap((group) => {
+        try {
+          const { environment } = core.buildRunPlan({
+            group,
+            runId: `u40-hostname-${group}`,
+            repoRoot,
+          });
+          return [[group, { ...process.env, ...environment }.HOSTNAME]];
+        } catch (error) {
+          if ((error as { code?: string }).code === 'NOT_IMPLEMENTED')
+            return [];
+          throw error;
+        }
+      });
+      expect(planned.length).toBeGreaterThan(20);
+      expect(
+        planned.filter(([, hostname]) => hostname !== '127.0.0.1'),
+      ).toEqual([]);
+    } finally {
+      if (inherited === undefined) delete process.env.HOSTNAME;
+      else process.env.HOSTNAME = inherited;
+    }
+  });
+});
+
+describe('runPlan server announcement', () => {
+  // The port owner is a real listener in its own process, so the PID the
+  // runner prints can be told apart from the runner's own.
+  let owner: ChildProcess | undefined;
+  let port = 0;
+  beforeEach(async () => {
+    owner = spawn(
+      process.execPath,
+      [
+        '-e',
+        "require('node:http').createServer().listen(0, '127.0.0.1', function () { process.stdout.write(this.address().port + '\\n'); });",
+      ],
+      { stdio: ['ignore', 'pipe', 'inherit'] },
+    );
+    port = await new Promise<number>((resolve, reject) => {
+      owner?.once('error', reject);
+      owner?.stdout?.once('data', (chunk) => resolve(Number(String(chunk))));
+    });
+  });
+  afterEach(() => {
+    owner?.kill();
+    owner = undefined;
+  });
+
+  // The real smoke plan with the Playwright command swapped for a child
+  // that reports the HOSTNAME it received, pointed at the owner's port.
+  const harness = `
+const core = require('./scripts/qc/gm-two-player-campaign-core.cjs');
+const plan = core.buildRunPlan({ group: 'smoke', runId: 'u40-announce', repoRoot: process.cwd() });
+plan.command = process.execPath;
+plan.args = ['-e', "console.log('CHILD_HOSTNAME=' + process.env.HOSTNAME); setTimeout(() => {}, 1000);"];
+plan.environment.MEKSTATION_E2E_PORT = process.argv[1];
+core.runPlan(plan, process.cwd()).then(
+  (code) => console.log('RUN_PLAN_EXIT ' + code + ' RUNNER_PID ' + process.pid),
+  (error) => console.log('RUN_PLAN_ERROR ' + JSON.stringify({ name: error.name, code: error.code, cause: error.cause && error.cause.code }) + ' RUNNER_PID ' + process.pid),
+);`;
+  const runHarness = (env: NodeJS.ProcessEnv) =>
+    spawnSync(process.execPath, ['-e', harness, String(port)], {
+      cwd: repoRoot,
+      encoding: 'utf8',
+      env,
+      timeout: 60_000,
+    });
+  const announcements = (stdout: string) =>
+    [...stdout.matchAll(/^GM2P_SERVER port=(\d+) pid=(\d+)$/gm)].map(
+      (match) => ({ port: Number(match[1]), pid: Number(match[2]) }),
+    );
+
+  it('prints one GM2P_SERVER line with the owned port and the PID that owns it', () => {
+    const result = runHarness({ ...process.env, HOSTNAME: 'some-machine' });
+    const runnerPid = Number(/RUNNER_PID (\d+)/.exec(result.stdout)?.[1]);
+    expect({
+      exit: /RUN_PLAN_EXIT (\d+)/.exec(result.stdout)?.[1],
+      announcements: announcements(result.stdout),
+      childHostname: /CHILD_HOSTNAME=(\S+)/.exec(result.stdout)?.[1],
+      stderr: result.stderr,
+    }).toEqual({
+      exit: '0',
+      announcements: [{ port, pid: owner?.pid }],
+      childHostname: '127.0.0.1',
+      stderr: '',
+    });
+    expect(runnerPid).not.toBe(owner?.pid);
+  }, 60_000);
+
+  it('throws MachineSnapshotError when the process enumeration tool is missing', () => {
+    // An empty PATH hides powershell.exe (lsof off Windows) from the
+    // resolver; the plan's own child is spawned by absolute path.
+    const env = Object.fromEntries(
+      Object.entries(process.env).filter(
+        ([key]) => key.toUpperCase() !== 'PATH',
+      ),
+    );
+    const result = runHarness({ ...env, PATH: '' });
+    expect({
+      announcements: announcements(result.stdout),
+      error: /RUN_PLAN_ERROR (\{.*\})/.exec(result.stdout)?.[1],
+    }).toEqual({
+      announcements: [],
+      error: JSON.stringify({
+        name: 'MachineSnapshotError',
+        code: 'SNAPSHOT_UNAVAILABLE',
+        cause: 'ENOENT',
+      }),
+    });
+  }, 60_000);
 });

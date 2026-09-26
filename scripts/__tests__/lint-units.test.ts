@@ -142,6 +142,7 @@ describe('lint:units verdict', () => {
         verdict,
         findings,
         ceiling,
+        failures: verdict === 'PASS' ? [] : [`total ${findings}/${ceiling}`],
       });
     },
   );
@@ -160,7 +161,12 @@ describe('lint:units ceiling file', () => {
   it('parses, and its ceiling is the sum of perPath', () => {
     const ceiling = readJson(ceilingPath);
     const perPath = ceiling.perPath as Record<string, number>;
-    expect(Object.keys(perPath).sort()).toEqual(['e2e', 'scripts']);
+    expect(Object.keys(perPath).sort()).toEqual([
+      'e2e',
+      'scripts',
+      'src-tests',
+      'src/pages/api',
+    ]);
     expect(Object.values(perPath).every(Number.isInteger)).toBe(true);
     expect(ceiling.ceiling).toBe(
       Object.values(perPath).reduce((sum, count) => sum + count, 0),
@@ -256,4 +262,93 @@ describe('lint:units CLI', () => {
     expect(result.status).toBe(1);
     expect(result.last).toContain('LINT_UNITS_ERROR');
   });
+});
+
+describe('lint:units per-path gates', () => {
+  const recorded = readJson(ceilingPath) as {
+    ceiling: number;
+    perPath: Record<string, number>;
+  };
+  let temporaryDirectory = '';
+
+  // e2e/ holds one finding more than the recorded e2e ceiling; empty-path
+  // holds nothing, so oxlint walks zero files there.
+  beforeAll(() => {
+    temporaryDirectory = fs.mkdtempSync(
+      path.join(os.tmpdir(), 'lint-units-paths-'),
+    );
+    fs.mkdirSync(path.join(temporaryDirectory, 'empty-path'));
+    fs.mkdirSync(path.join(temporaryDirectory, 'e2e'));
+    fs.writeFileSync(
+      path.join(temporaryDirectory, 'e2e', 'over-ceiling.ts'),
+      Array.from(
+        { length: recorded.perPath.e2e + 1 },
+        (_value, index) => `export const value${index}: any = ${index};\n`,
+      ).join(''),
+    );
+  });
+
+  afterAll(() => {
+    if (temporaryDirectory)
+      fs.rmSync(temporaryDirectory, { recursive: true, force: true });
+  });
+
+  it.each(['empty-path', 'no-such-path'])(
+    'fails, and exits 1, when %s lints zero files',
+    (target) => {
+      const result = runCli(
+        ['--path', target, '--ceiling', '5'],
+        temporaryDirectory,
+      );
+      expect(result.stdout).toContain(
+        `LINT_UNITS_PATH ${target} files=0 findings=0 ceiling=none FAIL`,
+      );
+      expect(result.last).toBe('LINT_UNITS_FAIL 0/5');
+      expect(result.status).toBe(1);
+    },
+  );
+
+  it('fails, and exits 1, when a path exceeds its perPath ceiling under the total', () => {
+    const over = recorded.perPath.e2e + 1;
+    expect(over).toBeLessThan(recorded.ceiling);
+    const result = runCli(['--path', 'e2e'], temporaryDirectory);
+    expect(result.stdout).toContain(
+      `LINT_UNITS_PATH e2e files=1 findings=${over} ceiling=${recorded.perPath.e2e} FAIL`,
+    );
+    expect(result.last).toBe(`LINT_UNITS_FAIL ${over}/${recorded.ceiling}`);
+    expect(result.status).toBe(1);
+  });
+
+  // The ratchet on the real tree: every default path lints files and sits at
+  // or under its recorded ceiling, and so does the total. Findings may fall
+  // below a ceiling; this row never requires a ceiling to be lowered.
+  it('holds every default path and the total at or under its ceiling', () => {
+    const result = runCli([], repoRoot);
+    const rows = [
+      ...result.stdout.matchAll(
+        /^LINT_UNITS_PATH (\S+) files=(\d+) findings=(\d+) ceiling=(\S+) (PASS|FAIL)$/gm,
+      ),
+    ].map(([, target, files, findings, ceiling, verdict]) => ({
+      target,
+      files: Number(files),
+      findings: Number(findings),
+      ceiling: Number(ceiling),
+      verdict,
+    }));
+    expect(rows.map((row) => row.target).sort()).toEqual(
+      Object.keys(recorded.perPath).sort(),
+    );
+    expect(
+      rows.filter(
+        (row) =>
+          row.verdict !== 'PASS' ||
+          row.files === 0 ||
+          row.findings > recorded.perPath[row.target],
+      ),
+    ).toEqual([]);
+    const total = rows.reduce((sum, row) => sum + row.findings, 0);
+    expect(total).toBeLessThanOrEqual(recorded.ceiling);
+    expect(result.last).toBe(`LINT_UNITS_PASS ${total}/${recorded.ceiling}`);
+    expect(result.status).toBe(0);
+  }, 120_000);
 });

@@ -217,6 +217,10 @@ function buildRunPlan({ group, runId, repoRoot }) {
       MEKSTATION_E2E_PORT: port,
       MEKSTATION_E2E_REUSE_EXISTING_SERVER: 'false',
       PORT: port,
+      // server.js exits on any HOSTNAME but localhost/127.0.0.1, and
+      // Playwright's webServer inherits this env, so a machine name the
+      // shell exports would stop every group's server before it listens.
+      HOSTNAME: '127.0.0.1',
       // Groups whose scenarios kill the server run behind the relaunching
       // wrapper - Playwright cannot restart a webServer child it did not
       // kill, so the wrapper owns the respawn and the readiness gate waits
@@ -303,19 +307,67 @@ function isPortAvailable(port) {
   });
 }
 
-function runPlan(plan, repoRoot) {
-  return new Promise((resolve, reject) => {
-    const child = spawn(plan.command, plan.args, {
-      cwd: repoRoot,
-      env: { ...process.env, ...plan.environment },
-      stdio: 'inherit',
-    });
+/**
+ * Spawn the plan's command and, while it runs, announce the server on the
+ * plan's MEKSTATION_E2E_PORT (announceServer). Settles only after the child
+ * exits: with the child's exit code, or with the announcement's error (a
+ * missing process enumeration tool is machine-idle's MachineSnapshotError),
+ * so a failed announcement never leaves the child running behind the runner.
+ */
+async function runPlan(plan, repoRoot) {
+  const child = spawn(plan.command, plan.args, {
+    cwd: repoRoot,
+    env: { ...process.env, ...plan.environment },
+    stdio: 'inherit',
+  });
+  let exited = false;
+  const exit = new Promise((resolve, reject) => {
     child.once('error', reject);
     child.once('exit', (code, signal) =>
       signal
         ? reject(new Error(`Playwright exited with signal ${signal}`))
         : resolve(code ?? 1),
     );
+  }).finally(() => {
+    exited = true;
+  });
+  const [status, announced] = await Promise.allSettled([
+    exit,
+    announceServer(Number(plan.environment.MEKSTATION_E2E_PORT), () => exited),
+  ]);
+  if (announced.status === 'rejected') throw announced.reason;
+  if (status.status === 'rejected') throw status.reason;
+  return status.value;
+}
+
+/**
+ * Poll 127.0.0.1:<port> every 250 ms until a TCP connect succeeds or the
+ * child has exited. On the first success, resolve the PID listening on the
+ * port through machine-idle's listeningPortOwner and print one stdout line,
+ * `GM2P_SERVER port=<port> pid=<pid>`. A child that exits before the port
+ * answers prints nothing.
+ */
+async function announceServer(port, hasExited) {
+  while (!hasExited()) {
+    if (await isListening(port)) {
+      const { listeningPortOwner } = await import('./machine-idle.mjs');
+      const pid = listeningPortOwner(port);
+      process.stdout.write(`GM2P_SERVER port=${port} pid=${pid}\n`);
+      return;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 250));
+  }
+}
+
+/** Resolve true when a TCP connect to 127.0.0.1:<port> succeeds, else false. */
+function isListening(port) {
+  return new Promise((resolve) => {
+    const socket = net.connect({ host: '127.0.0.1', port });
+    socket.once('connect', () => {
+      socket.destroy();
+      resolve(true);
+    });
+    socket.once('error', () => resolve(false));
   });
 }
 
@@ -325,4 +377,5 @@ module.exports = {
   buildRunPlan,
   deriveFixturePort,
   runCli,
+  runPlan,
 };

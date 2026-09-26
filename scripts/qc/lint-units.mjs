@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 /**
- * Unit lint target (U14 — R6.loop-harness). The root oxlint config ignores
- * `e2e/**` and `**\/scripts/**`, so `npm run lint` is silent about both trees
- * and every unit receipt that cited it was citing a vacuous gate for them.
- * This wrapper lints those paths against the root rule set (carried verbatim
- * by scripts/qc/oxlint-units.json) and ratchets the finding count against
- * scripts/qc/lint-units.ceiling.json. It fixes nothing: it stops the count
- * from growing.
+ * Unit lint target (U14, widened by U40 — R6.loop-harness). The root oxlint
+ * config ignores `e2e/**`, `**\/scripts/**`, `src/pages/api/**` and the test
+ * files, so `npm run lint` is silent about those trees and every unit receipt
+ * that cited it was citing a vacuous gate for them. This wrapper lints those
+ * paths against the root rule set (carried verbatim by
+ * scripts/qc/oxlint-units.json) and ratchets each path's finding count and
+ * the total against scripts/qc/lint-units.ceiling.json; a path that lints
+ * zero files fails. It fixes nothing: it stops the counts from growing.
  */
 import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
@@ -17,7 +18,32 @@ import { fileURLToPath } from 'node:url';
 const moduleDirectory = path.dirname(fileURLToPath(import.meta.url));
 const UNITS_CONFIG = path.join(moduleDirectory, 'oxlint-units.json');
 const CEILING_FILE = path.join(moduleDirectory, 'lint-units.ceiling.json');
-const DEFAULT_PATHS = ['e2e', 'scripts'];
+/**
+ * The paths linted by default, each hidden from `npm run lint` by the root
+ * config's ignorePatterns. The perPath ceilings live in lint-units.ceiling.json
+ * with the commit they were measured at (`measuredAt`); this comment carries
+ * no counts, so it cannot drift from that file.
+ */
+const DEFAULT_PATHS = ['e2e', 'scripts', 'src/pages/api', 'src-tests'];
+
+/**
+ * Paths that are labels rather than directories. 'src-tests' is the src
+ * files the root config ignores as tests: it lints src through
+ * lint-units-src-tests.ignore. The ignore file is passed cwd-relative
+ * because, measured on oxlint 1.43.0, the relative path lints all 3203
+ * test files while the absolute path lints 2670 (its `**\/__tests__/**`
+ * negation stops matching); `--ignore-pattern` negation lints none.
+ */
+const LINT_ARGS_BY_PATH = {
+  'src-tests': [
+    '--ignore-path',
+    path.relative(
+      process.cwd(),
+      path.join(moduleDirectory, 'lint-units-src-tests.ignore'),
+    ),
+    'src',
+  ],
+};
 
 /**
  * The single rule difference from the root set. scripts/ is a tree of CLIs
@@ -62,15 +88,34 @@ export function buildLintUnitsArgs({ paths, config, ceiling }) {
       '--allow',
       rule,
     ]),
-    target,
+    ...(LINT_ARGS_BY_PATH[target] ?? [target]),
   ]);
 }
 
-/** The ratchet itself: at or under the ceiling passes, one above fails. */
-export function evaluateLintUnits({ findings, ceiling }) {
+/**
+ * A path row fails when it linted zero files or its findings exceed its own
+ * perPath ceiling; a row with no ceiling of its own has no per-path limit.
+ */
+const pathFails = (row) =>
+  row.files === 0 || (row.ceiling !== undefined && row.findings > row.ceiling);
+
+/**
+ * The ratchet itself: FAIL when the total findings exceed the total ceiling
+ * or any path row fails (pathFails); `failures` names each broken gate.
+ */
+export function evaluateLintUnits({ findings, ceiling, paths = [] }) {
   assert(isCount(findings), 'findings');
   assert(isCount(ceiling), 'ceiling');
-  return { verdict: findings <= ceiling ? 'PASS' : 'FAIL', findings, ceiling };
+  const failures = paths
+    .filter(pathFails)
+    .map((row) => `${row.path} files=${row.files} findings=${row.findings}`);
+  if (findings > ceiling) failures.push(`total ${findings}/${ceiling}`);
+  return {
+    verdict: failures.length ? 'FAIL' : 'PASS',
+    findings,
+    ceiling,
+    failures,
+  };
 }
 
 /** The recorded ceiling, refusing a file whose total contradicts its parts. */
@@ -93,9 +138,10 @@ function oxlintBinary() {
 }
 
 /**
- * Run one oxlint invocation. oxlint exits 1 merely because findings exist,
- * so the exit code is not the signal; unparseable output is, and it fails
- * closed rather than counting zero.
+ * Run one oxlint invocation and return { files, diagnostics } from its JSON
+ * report. oxlint exits 1 merely because findings exist, so the exit code is
+ * not the signal; unparseable output is, and it fails closed rather than
+ * counting zero.
  */
 function runOxlint(argv) {
   const result = spawnSync(process.execPath, [oxlintBinary(), ...argv], {
@@ -110,9 +156,9 @@ function runOxlint(argv) {
       `oxlint produced no JSON report (exit ${result.status}): ${(result.stderr || result.stdout).trim().split('\n')[0] ?? ''}`,
     );
   }
-  if (!Array.isArray(report.diagnostics))
-    throw new Error('oxlint report carried no diagnostics array');
-  return report.diagnostics;
+  if (!Array.isArray(report.diagnostics) || !isCount(report.number_of_files))
+    throw new Error('oxlint report carried no diagnostics or file count');
+  return { files: report.number_of_files, diagnostics: report.diagnostics };
 }
 
 /** `--path` is repeatable; `--ceiling` overrides the recorded ceiling. */
@@ -133,27 +179,47 @@ function parseArgs(args) {
   return { paths: paths.length ? paths : DEFAULT_PATHS, ceiling };
 }
 
+/**
+ * Lint each path, print one LINT_UNITS_PATH line per path (files, findings,
+ * its perPath ceiling or `none`, PASS|FAIL), then the verdict. On FAIL the
+ * finding rows of the failing paths are printed, or of every path when only
+ * the total failed.
+ */
 function main(args) {
   try {
     const options = parseArgs(args);
-    const ceiling = options.ceiling ?? readCeilingFile().ceiling;
+    const recorded = readCeilingFile();
+    const ceiling = options.ceiling ?? recorded.ceiling;
     const argvs = buildLintUnitsArgs({
       paths: options.paths,
       config: UNITS_CONFIG,
       ceiling,
     });
-    const diagnostics = [];
-    argvs.forEach((argv, index) => {
-      const found = runOxlint(argv);
-      console.log(`LINT_UNITS_PATH ${options.paths[index]} ${found.length}`);
-      diagnostics.push(...found);
+    const rows = argvs.map((argv, index) => {
+      const target = options.paths[index];
+      const { files, diagnostics } = runOxlint(argv);
+      const row = {
+        path: target,
+        files,
+        findings: diagnostics.length,
+        ceiling: recorded.perPath[target],
+        diagnostics,
+      };
+      console.log(
+        `LINT_UNITS_PATH ${target} files=${files} findings=${row.findings} ceiling=${row.ceiling ?? 'none'} ${pathFails(row) ? 'FAIL' : 'PASS'}`,
+      );
+      return row;
     });
     const outcome = evaluateLintUnits({
-      findings: diagnostics.length,
+      findings: rows.reduce((sum, row) => sum + row.findings, 0),
       ceiling,
+      paths: rows,
     });
+    const failing = rows.filter(pathFails);
     if (outcome.verdict === 'FAIL')
-      for (const row of diagnostics) {
+      for (const row of (failing.length ? failing : rows).flatMap(
+        (entry) => entry.diagnostics,
+      )) {
         const span = row.labels?.[0]?.span;
         console.log(
           `LINT_UNITS_ROW ${row.code} ${row.filename}:${span?.line ?? 0}:${span?.column ?? 0}`,
