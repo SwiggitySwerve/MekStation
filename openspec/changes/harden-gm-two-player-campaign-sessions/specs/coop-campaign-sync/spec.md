@@ -95,3 +95,26 @@ Campaign mutations SHALL be server-authored commands against an expected revisio
 #### Scenario: Same-field stale command rejects
 - **WHEN** intervening facts changed a field the command intends to mutate
 - **THEN** the server SHALL return a typed semantic conflict with current revision and recovery action and SHALL append nothing
+
+## MODIFIED Requirements
+
+<!--
+Roadmap U91 (owner decision PK-u90-controls, 2026-09-25): names which host screen carries which
+GM control. The entry carries the FULL final text so that archiving this change replaces the
+living requirement of the same header. The guest scenario is unchanged word for word. On the
+GM ledger route the three intervention controls are the ledger's preview, its manual takeover,
+and its approval of a previewed correction (the GM correction).
+-->
+
+### Requirement: Co-op campaign command authority projection
+Co-op campaign command screens SHALL map host and guest roles into the shared command-screen authority model. Hosts SHALL see authoritative campaign and GM controls for owned campaigns, while guests SHALL see proposal, normal player action, and public-result views only. The host's co-op command screen SHALL expose approve and veto controls for each pending guest proposal. The GM intervention controls (preview, manual takeover, and GM correction) SHALL be exposed on the host's GM ledger route, `/gameplay/campaigns/[id]/gm-ledger`, which the co-op dashboard's GM Ledger tab reaches.
+
+#### Scenario: Host sees authoritative campaign commands
+- **WHEN** a host opens a co-op campaign command screen while a guest proposal is pending
+- **THEN** the proposal's row on the co-op dashboard SHALL expose approve and veto controls for that proposal (pinned by the `the host dashboard review mount` rows of `src/components/campaign/coop/__tests__/HostGmReviewSurface.deadControls.test.tsx`)
+- **AND** the dashboard's GM Ledger tab SHALL reach the host's GM ledger route
+- **AND** the GM ledger route SHALL expose the preview, manual takeover, and GM correction controls for commands that affect campaign state
+
+#### Scenario: Guest sees proposal or public command path
+- **WHEN** a guest opens the same co-op campaign command screen
+- **THEN** the screen SHALL hide host-only and GM-private controls and SHALL route mutating actions through proposal or validated player command paths
