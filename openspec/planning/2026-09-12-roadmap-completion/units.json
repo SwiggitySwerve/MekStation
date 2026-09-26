@@ -1492,11 +1492,12 @@
     {
       "id": "U35h",
       "node": "R6.loop-harness",
-      "behavior": "After U35d flips the campaign journal flag, the e2e fixture arm's campaign key is dead config: playwright.config.ts stops forwarding MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY (and the combat forward's comment is reworded to stand alone), scripts/qc/gm-two-player-campaign-core.cjs stops setting it for authority-recovery and privacy-pack, and scripts/__tests__/gm-two-player-campaign-qc.test.ts stops pinning it, with the exact edits listed in evidence/u35d-admission-20260924.json flipResidueDecision.exactEdits (owner decision OD-u35g-coop-outcome-rewrites-record, sub-decision 3). The combat key and its forwarding stay. Red-first: a pin that no config or runner line forwards or sets the campaign key.",
+      "behavior": "After U35d flips the campaign journal flag, the e2e fixture arm's campaign key is dead config: playwright.config.ts stops forwarding MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY (and the combat forward's comment is reworded to stand alone), scripts/qc/gm-two-player-campaign-core.cjs stops setting it for authority-recovery and privacy-pack, and scripts/__tests__/gm-two-player-campaign-qc.test.ts stops pinning it, with the exact edits listed in evidence/u35d-admission-20260924.json flipResidueDecision.exactEdits (owner decision OD-u35g-coop-outcome-rewrites-record, sub-decision 3). The combat key and its forwarding stay. Red-first: a pin that no config or runner line forwards or sets the campaign key. Amended 2026-09-25 after the first admission attempt (evidence/u35h-admission-attempt1-20260925.json): the sentence at e2e/gm-two-player-authority-recovery.pack.spec.ts:16-17 saying the QC group still sets the campaign key is deleted, since after this unit nothing sets it.",
       "ownershipPaths": [
         "playwright.config.ts",
         "scripts/qc",
-        "scripts/__tests__"
+        "scripts/__tests__",
+        "e2e/gm-two-player-authority-recovery.pack.spec.ts"
       ],
       "reviewClasses": [
         "routine"
@@ -1530,12 +1531,23 @@
       "resumed20260925": {
         "at": "2026-09-26T00:35:48.000Z",
         "why": "prerequisite main-verified: U35d (merge 68cf089ea9da2ba56e8d6c02e523075eddeb802b), the campaign journal flip; recorded by U35d's closure edit"
+      },
+      "firstAdmissionAttempt20260925": {
+        "receipt": "evidence/u35h-admission-attempt1-20260925.json",
+        "decision": "BLOCKED at admission: one comment line outside the paths (e2e/gm-two-player-authority-recovery.pack.spec.ts:16-17) must be deleted once the runner stops setting the key; the parent amended the unit with that exact file and relaunched"
+      },
+      "pathsAmendedBeforeAdmission20260925": {
+        "at": "2026-09-26T01:25:17.000Z",
+        "added": [
+          "e2e/gm-two-player-authority-recovery.pack.spec.ts"
+        ],
+        "why": "the one e2e comment the residue list missed"
       }
     },
     {
       "id": "U35i",
       "node": "R2.authority-live",
-      "behavior": "After U35d flips the campaign journal flag, three comments still describe the flag-off state and are corrected to the flag-on behaviour, with the exact edits listed in evidence/u35d-admission-20260924.json flipResidueDecision.exactEdits: src/lib/campaign/coop/coopRuntimeSession.ts:99-100, src/lib/multiplayer/server/matchJournalAuthority.ts:3 and src/pages/api/multiplayer/matches/index.ts:262-265 (owner decision OD-u35g-coop-outcome-rewrites-record, sub-decision 3). Comment-only; no behaviour change.",
+      "behavior": "After U35d flips the campaign journal flag, three comments still describe the flag-off state and are corrected to the flag-on behaviour, with the exact edits listed in evidence/u35d-admission-20260924.json flipResidueDecision.exactEdits: src/lib/campaign/coop/coopRuntimeSession.ts:99-100, src/lib/multiplayer/server/matchJournalAuthority.ts:3 and src/pages/api/multiplayer/matches/index.ts:262-265 (owner decision OD-u35g-coop-outcome-rewrites-record, sub-decision 3). Comment-only; no behaviour change. Folded 2026-09-25 (U35h's admission finding F1): the comment at src/lib/multiplayer/server/combatJournalAuthorityEnabled.ts:35-36 says the combat arm uses the same check the campaign arm uses; U35d deleted that arm, so the comment is corrected here too.",
       "ownershipPaths": [
         "src/lib/campaign",
         "src/lib/multiplayer/server",
