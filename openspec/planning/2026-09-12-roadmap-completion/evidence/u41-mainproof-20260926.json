@@ -1,0 +1,38 @@
+{
+  "unit": "U41",
+  "stage": "mainProof",
+  "at": "2026-09-26T18:23:09.620Z",
+  "mergeCommit": "3a62fabaddf169aa1c03a5f2888b43cc5ae78205",
+  "checkout": "root checkout fast-forwarded to the merge commit (real node_modules; hydrate step runs)",
+  "runtime": {
+    "build": "exit 0",
+    "e2eBundleMarker": "__E2E_MODE__ present in _app chunk (run log)",
+    "playwright": "the validator's node --test suite and the roadmap qc jest suites (78 passing): U41 PROOF RUNTIME PASSED: 78 passed (node-test 17, 0 failed, exit 0; jest 61, 0 failed, exit 0)",
+    "tsc": "exit 0"
+  },
+  "commands": {
+    "validator": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "gitAncestry": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows (--git)",
+    "next": "U89",
+    "openspecStrict": "Totals: 229 passed, 0 failed (229 items)",
+    "qcOpenspecCi": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+    "qcPin": "Tests:       30 passed, 30 total"
+  },
+  "logs": ".sisyphus/roadmap-completion-20260912/u41-main-proof-20260926/ (local; sha256 below)",
+  "logHashes": [
+    "9b56277306a4d8481f451c8b7214419f6c6781c0e466ff7289e4a57d7f693b5e *build.log",
+    "3ba4d581b4580a2287020f2721c25fdd70f5ee133929f21fa622607e6a111344 *exact-main-ladder.log",
+    "38875d75a513e6dc764ce99160b9e7423b80cd040a68252ea1b4c336e36d0fc1 *git-check.log",
+    "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43 *idle-before-build.log",
+    "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43 *idle-before-runtime.log",
+    "2fb778017fc50b5804dc739566cc9020b17521f0ef340ac8bb50ef9087a37c5f *next.log",
+    "efd619721df505ed0dbb69fe5bd26b74023670e603ce16891fd2f1331adf1776 *openspec-strict.log",
+    "9dbf9422c450df17db8228f6fecdcaa4cbd6eb9ea6bc3a251d9f13feb5bc6f42 *playwright.log",
+    "5b0f562274df4dbddfb7ae44ab42b7d686dc1e0903383f25c593d88f7479fe9a *qc-openspec-ci.log",
+    "b16bc7c19230e9c6b160a327191e1cf9c9c80e8850de1ca4f5dd462094522ac0 *qc-pin.log",
+    "f891dbdfc0402cd4ba60fab1be3245dfec559c5d7afc7e21b87e795a73d05e5f *restore-next-env.log",
+    "f891dbdfc0402cd4ba60fab1be3245dfec559c5d7afc7e21b87e795a73d05e5f *tsc.log",
+    "38875d75a513e6dc764ce99160b9e7423b80cd040a68252ea1b4c336e36d0fc1 *validator.log"
+  ],
+  "verdict": "PASS"
+}

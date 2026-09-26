@@ -3548,10 +3548,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "de207e4f19ff535727924844957ef89703f8eef8",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "b3e71a0c9600e816bcc2c481ee8f1a2a25bc0908",
+      "mergeSha": "3a62fabaddf169aa1c03a5f2888b43cc5ae78205",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u41-admission-20260926.json",
@@ -3570,10 +3570,31 @@
           "at": "2026-09-26T17:28:25.503Z",
           "summary": "5 files under openspec/planning/2026-09-12-roadmap-completion: validate-roadmap.mjs +66/-7 (the six checks), validate-roadmap.test.mjs +99/-7 (tests 10 to 17; the --git fixtures reuse the real U5e squash commit 66c0ecad6), units.json +50 (20 ownershipExceptions recorded once across 13 units; U17b capException countedLines 707), GOAL.md:56 and DELIVERY.md:8 one identical cap sentence (numstat added lines over non-generated, non-test files against the unit's own merge, evidence excluded; generated: package-lock.json, .next/, __snapshots__/, *.snap, public/data/, src/types/contracts/generated/; tests: __tests__/, e2e/, *.test.*, *.spec.*); check (4) and (6) diff <mergeSha>^1..<mergeSha> (the unit's own squash diff; the sentence's baseline..mergeSha would pull in every unit merged in between, 55 of 62); check (1) applies from receipts dated 2026-09-27; 118 non-test added lines; node --test 17 pass 0 fail; validator evidence mode, --git and --next PASSED/U89 on the current ledger; jest scripts/__tests__/roadmap-* 43; oxlint 84 warnings 0 errors; tsc 0; qc:openspec-ci errors=0; oxfmt does not cover openspec (.prettierignore:12); mutants: one per check, each killed and restored with sha256 confirmed (65bd2b25); history probes: cutover moved to 2026-09-01 fails only U15b; the new --git against the baseline ledger reports exactly the 20 paths and U17b; NON-CLAIMS: no build, Playwright or --github; validate-roadmap.test.mjs has no CI caller and its --git fixtures need local history; check (5) reads the ledger's review block not the evidence file; check (1) compares the first E2E id per entry; findings: the closure tool never writes runtime.failedRows so a proof with failing rows cannot satisfy check (1) from 2026-09-27 without --extra-runtime (scripts/qc successor), a failing jest suite has no E2E ids; implementer claude-opus (Agent model: opus, lean-worker); status ready"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u41-review-20260926.json",
+          "head": "b3e71a0c9600e816bcc2c481ee8f1a2a25bc0908",
+          "reviewedHead": "b3e71a0c9600e816bcc2c481ee8f1a2a25bc0908",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet, lean-worker)",
+          "implementerModel": "claude-opus (Agent model: opus)",
+          "outputSha256": "31d3a93c4fe78c77a676fa06f6f4b8fb0b9d4b3a6b223366400213839811ae13",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u41-merge-20260926.json",
+          "pr": 2015,
+          "head": "b3e71a0c9600e816bcc2c481ee8f1a2a25bc0908",
+          "mergeSha": "3a62fabaddf169aa1c03a5f2888b43cc5ae78205"
+        },
+        "mainProof": {
+          "path": "evidence/u41-mainproof-20260926.json",
+          "mergeCommit": "3a62fabaddf169aa1c03a5f2888b43cc5ae78205",
+          "verdict": "PASS",
+          "runtime": "U41 PROOF RUNTIME PASSED: 78 passed (node-test 17, 0 failed, exit 0; jest 61, 0 failed, exit 0)"
+        },
+        "tick": {
+          "path": "evidence/u41-tick-20260926.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "source20260922": "planned by the parent from the 2026-09-22 triage plan (newUnits; evidence/triage-plan-20260922.json (179 register issues verified against main a9244fcad)) under the owner instruction of 2026-09-22 (\"ultracode find everything that is marked and if there are issues go with recommended path to solution based on the goal\")",
@@ -3588,6 +3609,13 @@
       "admissionNote20260926": {
         "at": "2026-09-26T17:32:44.000Z",
         "note": "--next printed U89 (overlaps the in-flight U92's server path); the parent chose U41 (file-disjoint, routine, docs class). Admission GO; all six checks delivered, no split (118 non-test lines). The parent confirmed the lane's reading of the sentence's 'baseline..mergeSha': with squash merges the unit's own diff is <mergeSha>^1..<mergeSha> (the literal form pulls in every unit merged in between, 55 of 62). Consequence for the loop: a sensitive-class unit's ruling packet is opened decision-only at fold (open-ruling-packet.js; PK-u92-ruling was opened that way ahead of U41's merge), since the check reads local-verified units."
+      },
+      "firstMergeReverted20260926": {
+        "at": "2026-09-26T18:23:09.000Z",
+        "firstMerge": "547a2f35f05f68a2516d447cfb778824af1f1df4 from head f1d530c665d3a4e4f633be9046bd4d3cb0353ffd (PR #2011, Lane A APPROVE, 31 green checks)",
+        "refusal": "the closure tool refused MAIN_PROOF_NOT_PASS with blobDiff 2: the fold of the unit's own receipts (#2012) moved units.json on main between the reviewed head and the merge, so the squash commit did not reproduce the head's units.json blob; the proof itself passed (78 passing)",
+        "revert": "PR #2013 (28651bdfb)",
+        "reCut": "the same commit cherry-picked onto a fresh branch from the current main (PR #2015, head b3e71a0c9600e816bcc2c481ee8f1a2a25bc0908), Lane A delta review, merged with nothing landing in between"
       }
     },
     {
@@ -10974,6 +11002,15 @@
       "summary": "GOAL.md:56 said the validator was unchanged by the line-cap decision; the validator now enforces the cap, so the line reads that caps.maxNonGeneratedLines in units.json is unchanged.",
       "recommendedSuccessor": "none",
       "status": "resolved in U41"
+    },
+    {
+      "id": "FN-u41-ledger-editing-unit-blob-equality",
+      "foundBy": "parent, U41's first closure attempt, 2026-09-26",
+      "at": "2026-09-26T18:23:09.000Z",
+      "class": "loop process",
+      "summary": "A unit whose PR edits units.json cannot satisfy the closure's blob-equality check if any ledger PR lands between its reviewed head and its merge; the unit's own receipts fold is such a PR. Order for ledger-editing units: fold the receipts first, cut the reviewed head on that main, review, merge immediately. The safety hook blocks force pushes, so a re-cut is a cherry-pick onto a fresh branch and a new PR.",
+      "recommendedSuccessor": "none; the order is recorded in WORKERS.md by the next docs unit that edits it",
+      "status": "recorded; applied to U41's re-cut"
     }
   ]
 }

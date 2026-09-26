@@ -1,0 +1,22 @@
+{
+  "unit": "U41",
+  "stage": "merge",
+  "at": "2026-09-26T18:23:09.594Z",
+  "pr": 2015,
+  "title": "docs(roadmap): validate-roadmap checks what receipts say (U41, re-cut head r3)",
+  "head": "b3e71a0c9600e816bcc2c481ee8f1a2a25bc0908",
+  "mergeSha": "3a62fabaddf169aa1c03a5f2888b43cc5ae78205",
+  "mergedAt": "2026-09-26T18:15:56Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "openspec/planning/2026-09-12-roadmap-completion/DELIVERY.md",
+    "openspec/planning/2026-09-12-roadmap-completion/GOAL.md",
+    "openspec/planning/2026-09-12-roadmap-completion/units.json",
+    "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs"
+  ],
+  "blobEqualityDiffLines": 0
+}
