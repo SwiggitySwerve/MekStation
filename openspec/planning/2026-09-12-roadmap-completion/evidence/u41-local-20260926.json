@@ -1,0 +1,262 @@
+{
+  "unit": "U41",
+  "stage": "local",
+  "at": "2026-09-26T17:28:25.503Z",
+  "baseline": "de207e4f19ff535727924844957ef89703f8eef8",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u41",
+  "branch": "roadmap-u41-validator-checks-receipts-20260926",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "status": "ready: all six checks delivered in this unit (no split); the node --test file passes 17/17 and the validator passes plain, --git and evidence mode on the current ledger with 13 ownershipExceptions entries (20 paths), one capException (U17b) and the (1) cutover 2026-09-27 (U15b) recorded; every mutant killed and restored by sha256",
+  "delivered": {
+    "(1)": "evidence mode: a red mainProof carrying runtime.failedRows, or dated (at) on or after 2026-09-27, must have runtime.failedRows naming the same E2E ids as expectedReds one to one (first E2E id per entry)",
+    "(2)": "parseProofLine reads 'Tests: K failed, ... N passed, M total' (K) and sums every 'K failed' inside 'N passed (...)'; the parent runtime lines (all 0 failed) keep parsing as 0",
+    "(3)": "a unit with a sensitive review class at local-verified or later fails when no packet names it in blocks (no cutover: none on the ledger lacks one)",
+    "(4)": "--git: for units at main-verified or later, a file in the <mergeSha>^1..<mergeSha> diff (ledger evidence/ skipped) outside ownershipPaths fails unless unit.ownershipExceptions lists it",
+    "(5)": "stageReceipts.review.finisherModel equal to its reviewerModel fails",
+    "(6)": "--git: added lines in the same diff, skipping evidence/, generated files and test files, over caps.maxNonGeneratedLines fail unless unit.capException.countedLines equals the count; the rule sentence is identical in GOAL.md:56 and DELIVERY.md:8"
+  },
+  "namedForSuccessor": [],
+  "files": {
+    "changed": [
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/DELIVERY.md",
+        "added": 1,
+        "deleted": 1
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/GOAL.md",
+        "added": 1,
+        "deleted": 1
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "added": 50,
+        "deleted": 0
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+        "added": 66,
+        "deleted": 7
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
+        "added": 99,
+        "deleted": 7
+      }
+    ],
+    "sha256": {
+      "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs": "65bd2b258c3f5da5fdf43bf19b00f384982d5fbca15124abf0a7c0d114b0317b",
+      "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs": "6d8f39ebfb8330faae75296ff13db4f7b799414cdec83c44222d77bfa5e5b403",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json": "989b98e02f1c31ac2cc1c87262a8a55304119d07bdcc2bb424cbc6571a1c4485",
+      "openspec/planning/2026-09-12-roadmap-completion/GOAL.md": "713ab51146932558f3cd039566a67de7f919ff2ea893611d239784ac3605c80a",
+      "openspec/planning/2026-09-12-roadmap-completion/DELIVERY.md": "b213e3194991c72c6cd4708618ca2f3d4abf42a1024aa8a45afcb18069518494"
+    },
+    "receipts": [
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/u41-admission-20260926.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/u41-red-20260926.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/u41-local-20260926.json"
+    ]
+  },
+  "lineCounts": {
+    "addedTotal": 217,
+    "deletedTotal": 16,
+    "countedUnderTheU41Rule": 118,
+    "testLines": 99,
+    "caps": "maxFiles 15 (5 changed files + 3 receipts), maxNonGeneratedLines 500: within the cap whether the test file counts (charter) or not (GOAL.md:56)"
+  },
+  "gates": [
+    {
+      "gate": "node --test",
+      "command": "node --test openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
+      "exit": 0,
+      "lastLine": "tests 17, pass 17, fail 0"
+    },
+    {
+      "gate": "validator (evidence mode, as scripts/qc/roadmap-main-proof.mjs:197 runs it)",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exit": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows"
+    },
+    {
+      "gate": "validator --git (roadmap-main-proof.mjs:198)",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --git",
+      "exit": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows"
+    },
+    {
+      "gate": "validator --next (roadmap-main-proof.mjs:199)",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+      "exit": 0,
+      "lastLine": "U89"
+    },
+    {
+      "gate": "jest scripts suites that copy and run the validator",
+      "command": "node node_modules/jest/bin/jest.js scripts/__tests__/roadmap-",
+      "exit": 0,
+      "lastLine": "Test Suites: 2 passed, 2 total; Tests:       43 passed, 43 total"
+    },
+    {
+      "gate": "oxfmt --check (changed files)",
+      "command": "node node_modules/oxfmt/bin/oxfmt --check <the five changed files>",
+      "exit": 2,
+      "lastLine": "Expected at least one target file",
+      "note": "every changed file is under openspec/, which .prettierignore:12 excludes; forced with an empty --ignore-path, oxfmt reports format issues in both the baseline and the changed validator/test files (the files' existing long-line style), exit 1 on both"
+    },
+    {
+      "gate": "oxlint",
+      "command": "node node_modules/oxlint/bin/oxlint",
+      "exit": 0,
+      "lastLine": "Found 84 warnings and 0 errors.",
+      "note": "0 errors; 84 warnings, equal to the 84 the charter names (openspec/ is in the oxlint ignorePatterns, .oxlintrc.json:33)"
+    },
+    {
+      "gate": "qc:openspec-ci:validate",
+      "command": "npm run qc:openspec-ci:validate",
+      "exit": 0,
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0"
+    },
+    {
+      "gate": "tsc",
+      "command": "node node_modules/typescript/bin/tsc --noEmit",
+      "exit": 0,
+      "lastLine": "(no output)"
+    },
+    {
+      "gate": "git diff --check",
+      "command": "git diff --check",
+      "exit": 0,
+      "lastLine": "(no output)"
+    }
+  ],
+  "historyUnderTheNewChecks": {
+    "withoutTheRecordedExceptions": "the changed validator run with --git against a temporary copy of the ledger holding the baseline units.json: exit 1, 21 issues = the 20 ownership paths of U1, U1b, U1c, U1e, U1d, U2c, U7, U5a, U5c, U5f, U5h, U5i, U8 and \"U17b merge a96d6ec78 counts 707 added non-generated, non-test lines over its cap of 500\"",
+    "withoutTheCutover": "FAILED_ROWS_CUTOVER set to 2026-09-01 (restored by copy, sha256 65bd2b25... confirmed): exit 1, \"U15b mainProof reports 2 failed row(s) without a runtime.failedRows array\"; U3 (failedRows present, at 2026-09-17) is compared by E2E id and passes",
+    "check2": "the new parser changes the failed count of 0 of the 62 mainproof receipts (admission table)",
+    "check3": "none of the 29 sensitive units at local-verified or later lacks a packet naming it in blocks",
+    "check5": "no review receipt carries finisherModel (0 of 63 ledger review stage receipts, 0 of 183 evidence review files)"
+  },
+  "mutants": [
+    {
+      "check": "(1)",
+      "mutation": "E2E id comparison removed",
+      "exit": 1,
+      "counts": {
+        "tests": 17,
+        "pass": 16,
+        "fail": 1
+      },
+      "failingTests": [
+        "(1) expectedReds and runtime.failedRows that name different E2E ids fail"
+      ],
+      "killed": true,
+      "restoredSha256": "65bd2b258c3f5da5fdf43bf19b00f384982d5fbca15124abf0a7c0d114b0317b",
+      "restoredMatchesSaved": true
+    },
+    {
+      "check": "(2)",
+      "mutation": "'N passed (...)' sum replaced by 0",
+      "exit": 1,
+      "counts": {
+        "tests": 17,
+        "pass": 16,
+        "fail": 1
+      },
+      "failingTests": [
+        "(2) 'N passed (... K failed)' reads K instead of passing as zero failed"
+      ],
+      "killed": true,
+      "restoredSha256": "65bd2b258c3f5da5fdf43bf19b00f384982d5fbca15124abf0a7c0d114b0317b",
+      "restoredMatchesSaved": true
+    },
+    {
+      "check": "(3)",
+      "mutation": "local-verified packet condition disabled",
+      "exit": 1,
+      "counts": {
+        "tests": 17,
+        "pass": 16,
+        "fail": 1
+      },
+      "failingTests": [
+        "(3) a sensitive unit at local-verified with no packet naming it in blocks fails"
+      ],
+      "killed": true,
+      "restoredSha256": "65bd2b258c3f5da5fdf43bf19b00f384982d5fbca15124abf0a7c0d114b0317b",
+      "restoredMatchesSaved": true
+    },
+    {
+      "check": "(4)",
+      "mutation": "ownership condition disabled",
+      "exit": 1,
+      "counts": {
+        "tests": 17,
+        "pass": 16,
+        "fail": 1
+      },
+      "failingTests": [
+        "(4) --git fails a merge touching a file outside ownershipPaths unless ownershipExceptions lists it"
+      ],
+      "killed": true,
+      "restoredSha256": "65bd2b258c3f5da5fdf43bf19b00f384982d5fbca15124abf0a7c0d114b0317b",
+      "restoredMatchesSaved": true
+    },
+    {
+      "check": "(5)",
+      "mutation": "finisher equality inverted",
+      "exit": 1,
+      "counts": {
+        "tests": 17,
+        "pass": 16,
+        "fail": 1
+      },
+      "failingTests": [
+        "(5) a review receipt whose finisherModel equals its reviewerModel fails"
+      ],
+      "killed": true,
+      "restoredSha256": "65bd2b258c3f5da5fdf43bf19b00f384982d5fbca15124abf0a7c0d114b0317b",
+      "restoredMatchesSaved": true
+    },
+    {
+      "check": "(6)",
+      "mutation": "cap comparison inverted",
+      "exit": 1,
+      "counts": {
+        "tests": 17,
+        "pass": 15,
+        "fail": 2
+      },
+      "failingTests": [
+        "(4) --git fails a merge touching a file outside ownershipPaths unless ownershipExceptions lists it",
+        "(6) --git fails a merge whose counted lines exceed the cap unless capException records the count"
+      ],
+      "killed": true,
+      "restoredSha256": "65bd2b258c3f5da5fdf43bf19b00f384982d5fbca15124abf0a7c0d114b0317b",
+      "restoredMatchesSaved": true
+    }
+  ],
+  "mutantMethod": "saved copy of validate-roadmap.mjs (sha256 65bd2b258c3f5da5fdf43bf19b00f384982d5fbca15124abf0a7c0d114b0317b), one string mutation per check, node --test run, restored by copying the saved file back and comparing sha256",
+  "nonClaims": [
+    "No npx: oxfmt, oxlint, tsc and jest ran through their node entry points under node_modules (the junction to the root checkout), because the install guard refuses in this worktree; the binaries are the ones npx would resolve, but the npx command itself was not run.",
+    "No build, no Playwright, no --github run, no npm install/ci/prune.",
+    "validate-roadmap.test.mjs is not wired into CI (no caller under .github or package.json); its --git fixtures read the real squash commit 66c0ecad6 and origin/main from the local repository.",
+    "The first-parent diff is the PR content only for squash merges; all 62 ledger mergeShas are single-parent (measured). A merge commit would be diffed against its first parent.",
+    "The 'N passed (...)' reading sums 'K failed' only inside the final parenthetical group, which cannot hold a nested ')' (no current line has one).",
+    "(1) compares the first E2E id each entry names; an entry naming a second id is read by its first.",
+    "(5) reads stageReceipts.review in units.json (where reviewerModel is already read), not the review evidence file.",
+    "The evidence exclusion is the ledger evidence directory only (the only evidence/ any ledger merge touches, measured).",
+    "Lane A review, merge, main proof and tick are not claimed."
+  ],
+  "findings": [
+    "U15b mainProof (at 2026-09-17, 2 failed) carries no runtime.failedRows; the (1) cutover 2026-09-27 leaves it at the count check. Recorded, not fixed.",
+    "13 complete units touched files outside their ownershipPaths in their own squash diffs (U1-series edited units.json and a scripts test; the U5 series and U8 added __tests__ files outside their paths; U2c and U7 edited the scripts qc test). Recorded once as ownershipExceptions.",
+    "U17b counted 707 added lines over its 500 cap (scripts/qc/roadmap-unit-closure.mjs 429, scripts/qc/roadmap-main-proof.mjs 276, package.json 2). Recorded as capException { countedLines: 707 }.",
+    "scripts/qc/roadmap-unit-closure.mjs:301-341 never writes runtime.failedRows. From 2026-09-27 a red main proof needs failedRows via --extra-runtime and expectedReds entries that name E2E ids; a jest red has no E2E id, so a jest red main proof cannot pass (1). A scripts/qc successor (not owned here) would write failedRows.",
+    "The ledger sentence says baseline..mergeSha and \"against the unit baseline\"; the checks use <mergeSha>^1..<mergeSha> because the baseline is the squash parent for 13 of 62 units and the literal form reports outside files for 55 of 62 units (other units' merges). The parent should confirm this reading; the GOAL/DELIVERY sentence states it.",
+    "The charter-expected --git hits for U96, U87, U39 and U40 do not appear in their squash diffs; they appear only under the literal baseline..mergeSha form.",
+    "--next on this baseline prints U89, not U41 (U41 is the parent's file-disjoint pick).",
+    "GOAL.md:56 said the validator was unchanged by OD-line-cap-product-lines; that clause now reads \"`caps.maxNonGeneratedLines` in units.json is unchanged\" because the validator enforces the cap."
+  ],
+  "reviewClasses": [
+    "routine"
+  ]
+}

@@ -1,0 +1,125 @@
+{
+  "unit": "U41",
+  "stage": "red",
+  "at": "2026-09-26T17:22:40.730Z",
+  "baseline": "de207e4f19ff535727924844957ef89703f8eef8",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "validatorUnderTest": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "sha256": "4aad5c34afce298291b376145a36f3076004fc58086019ed3a08def173786ba0",
+    "state": "baseline bytes (unchanged from de207e4f1)"
+  },
+  "testFile": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
+    "sha256": "6d8f39ebfb8330faae75296ff13db4f7b799414cdec83c44222d77bfa5e5b403"
+  },
+  "command": "node --test openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
+  "exit": 1,
+  "counts": {
+    "tests": 17,
+    "pass": 9,
+    "fail": 8
+  },
+  "results": [
+    {
+      "n": 1,
+      "name": "a stage receipt path that does not exist fails, naming the unit, the stage and the path",
+      "status": "ok"
+    },
+    {
+      "n": 2,
+      "name": "a stage receipt path that does exist passes",
+      "status": "ok"
+    },
+    {
+      "n": 3,
+      "name": "a mainProof reporting one red without expectedReds fails",
+      "status": "ok"
+    },
+    {
+      "n": 4,
+      "name": "the same mainProof with a one-entry expectedReds passes",
+      "status": "ok"
+    },
+    {
+      "n": 5,
+      "name": "expectedReds shorter than the failed count fails",
+      "status": "ok"
+    },
+    {
+      "n": 6,
+      "name": "every ladder and jest spelling in the real ledger parses, and a free-text line does not",
+      "status": "ok"
+    },
+    {
+      "n": 7,
+      "name": "--no-evidence prints its notice and skips the evidence checks",
+      "status": "ok"
+    },
+    {
+      "n": 8,
+      "name": "--next skips a planned unit whose path sits inside an in-flight path and takes the next free unit",
+      "status": "ok"
+    },
+    {
+      "n": 9,
+      "name": "--github with gh off the PATH fails with a notice rather than passing silently",
+      "status": "ok"
+    },
+    {
+      "n": 10,
+      "name": "(1) expectedReds and runtime.failedRows that name different E2E ids fail",
+      "status": "not ok",
+      "baselineOutputVerbatim": "expected a failing exit, got 0: ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows"
+    },
+    {
+      "n": 11,
+      "name": "(1) a red mainProof dated from 2026-09-27 without runtime.failedRows fails; an earlier one keeps the count check",
+      "status": "not ok",
+      "baselineOutputVerbatim": "expected a failing exit, got 0: ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows"
+    },
+    {
+      "n": 12,
+      "name": "(2) 'N passed (... K failed)' reads K instead of passing as zero failed",
+      "status": "not ok",
+      "baselineOutputVerbatim": "expected a failing exit, got 0: ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows"
+    },
+    {
+      "n": 13,
+      "name": "(2) a jest red summary parses and its failed count is held to expectedReds",
+      "status": "not ok",
+      "baselineOutputVerbatim": "The input did not match the regular expression /F1 mainProof receipt reports 1 failed row\\(s\\) without an expectedReds array/. Input:",
+      "baselineStderrVerbatim": "ROADMAP VALIDATION FAILED (1 issue) | - F1 mainProof receipt runtime.playwright is not a ladder or jest result: jest pin: Tests:       1 failed, 2 skipped, 11 passed, 14 total"
+    },
+    {
+      "n": 14,
+      "name": "(3) a sensitive unit at local-verified with no packet naming it in blocks fails",
+      "status": "not ok",
+      "baselineOutputVerbatim": "expected a failing exit, got 0: ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows"
+    },
+    {
+      "n": 15,
+      "name": "(5) a review receipt whose finisherModel equals its reviewerModel fails",
+      "status": "not ok",
+      "baselineOutputVerbatim": "expected a failing exit, got 0: ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows"
+    },
+    {
+      "n": 16,
+      "name": "(4) --git fails a merge touching a file outside ownershipPaths unless ownershipExceptions lists it",
+      "status": "not ok",
+      "baselineOutputVerbatim": "expected a failing exit, got 0: ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows"
+    },
+    {
+      "n": 17,
+      "name": "(6) --git fails a merge whose counted lines exceed the cap unless capException records the count",
+      "status": "not ok",
+      "baselineOutputVerbatim": "expected a failing exit, got 0: ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows"
+    }
+  ],
+  "reading": [
+    "Tests 1-9 are the existing pins; test 4 now also carries a runtime.failedRows entry for E2E-01 (the U41 rule makes it required) and test 6 adds a parent runtime line (U40 shape) to the spellings that must keep parsing; both pass on the baseline.",
+    "Tests 10-12 and 14-17: the baseline validator ACCEPTS the fixture the test requires to be rejected; the assertion message carries the baseline validator stdout verbatim (\"expected a failing exit, got 0: ROADMAP VALIDATION PASSED: ...\").",
+    "Test 13 (jest red summary): the baseline rejects the line for the wrong reason (it cannot parse a jest red summary: \"is not a ladder or jest result\"); after U41 the line parses and the failure names the failed count held to expectedReds. It is the parse half of check (2); the accepted-by-baseline half of (2) is test 12.",
+    "Checks map: (1) tests 10-11, (2) tests 12-13, (3) test 14, (5) test 15, (4) test 16, (6) test 17."
+  ]
+}

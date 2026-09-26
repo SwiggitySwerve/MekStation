@@ -3502,14 +3502,28 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "local-verified",
+      "baseline": "de207e4f19ff535727924844957ef89703f8eef8",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u41-admission-20260926.json",
+          "baseline": "de207e4f19ff535727924844957ef89703f8eef8",
+          "at": "2026-09-26T17:20:49.771Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u41-red-20260926.json",
+          "at": "2026-09-26T17:22:40.730Z",
+          "summary": "baseline de207e4f1: node --test fixtures 10 to 12 and 14 to 17 accepted by the baseline validator (exit 0, ROADMAP VALIDATION PASSED); fixture 13 (a jest red summary) rejected for the wrong reason ('is not a ladder or jest result'); measured history on the baseline: the new parseProofLine changes the failed count for none of the 62 mainproof receipts (only U0's line is absent, docs class); U3's 3 failed rows carry failedRows matching expectedReds, U15b's 2 failed (2026-09-17) has no failedRows; --git today runs only merge-base --is-ancestor (validate-roadmap.mjs:498-509); 13 units touch 20 paths outside their ownershipPaths in their own squash diffs (U1, U1b, U1c, U1e, U1d: units.json and the qc test; U2c, U7: the qc test; U5a, U5c, U5f, U5h, U5i, U8: route and page tests); U17b is the only unit over the cap (707 counted lines); no sensitive unit lacks a packet; no review receipt carries finisherModel"
+        },
+        "local": {
+          "path": "evidence/u41-local-20260926.json",
+          "at": "2026-09-26T17:28:25.503Z",
+          "summary": "5 files under openspec/planning/2026-09-12-roadmap-completion: validate-roadmap.mjs +66/-7 (the six checks), validate-roadmap.test.mjs +99/-7 (tests 10 to 17; the --git fixtures reuse the real U5e squash commit 66c0ecad6), units.json +50 (20 ownershipExceptions recorded once across 13 units; U17b capException countedLines 707), GOAL.md:56 and DELIVERY.md:8 one identical cap sentence (numstat added lines over non-generated, non-test files against the unit's own merge, evidence excluded; generated: package-lock.json, .next/, __snapshots__/, *.snap, public/data/, src/types/contracts/generated/; tests: __tests__/, e2e/, *.test.*, *.spec.*); check (4) and (6) diff <mergeSha>^1..<mergeSha> (the unit's own squash diff; the sentence's baseline..mergeSha would pull in every unit merged in between, 55 of 62); check (1) applies from receipts dated 2026-09-27; 118 non-test added lines; node --test 17 pass 0 fail; validator evidence mode, --git and --next PASSED/U89 on the current ledger; jest scripts/__tests__/roadmap-* 43; oxlint 84 warnings 0 errors; tsc 0; qc:openspec-ci errors=0; oxfmt does not cover openspec (.prettierignore:12); mutants: one per check, each killed and restored with sha256 confirmed (65bd2b25); history probes: cutover moved to 2026-09-01 fails only U15b; the new --git against the baseline ledger reports exactly the 20 paths and U17b; NON-CLAIMS: no build, Playwright or --github; validate-roadmap.test.mjs has no CI caller and its --git fixtures need local history; check (5) reads the ledger's review block not the evidence file; check (1) compares the first E2E id per entry; findings: the closure tool never writes runtime.failedRows so a proof with failing rows cannot satisfy check (1) from 2026-09-27 without --extra-runtime (scripts/qc successor), a failing jest suite has no E2E ids; implementer claude-opus (Agent model: opus, lean-worker); status ready"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -3524,7 +3538,11 @@
         "I-unit-line-cap-definition",
         "I-ownership-paths-gaps",
         "I-worker-routing-protocol"
-      ]
+      ],
+      "admissionNote20260926": {
+        "at": "2026-09-26T17:32:44.000Z",
+        "note": "--next printed U89 (overlaps the in-flight U92's server path); the parent chose U41 (file-disjoint, routine, docs class). Admission GO; all six checks delivered, no split (118 non-test lines). The parent confirmed the lane's reading of the sentence's 'baseline..mergeSha': with squash merges the unit's own diff is <mergeSha>^1..<mergeSha> (the literal form pulls in every unit merged in between, 55 of 62). Consequence for the loop: a sensitive-class unit's ruling packet is opened decision-only at fold (open-ruling-packet.js; PK-u92-ruling was opened that way ahead of U41's merge), since the check reads local-verified units."
+      }
     },
     {
       "id": "U42",
@@ -10842,6 +10860,33 @@
       "summary": "The relaunch charter listed reviewClasses [authority, idempotency]; units.json carries [authority, privacy, idempotency]. The ledger governs; the ruling discloses the privacy angle.",
       "recommendedSuccessor": "none",
       "status": "recorded"
+    },
+    {
+      "id": "FN-u41-closure-tool-never-writes-failed-rows",
+      "foundBy": "U41 implementer lane (claude-opus, lean-worker), 2026-09-26 (read: scripts/qc/roadmap-unit-closure.mjs:301-341)",
+      "at": "2026-09-26T17:32:44.000Z",
+      "class": "loop harness gap",
+      "summary": "The closure tool never writes runtime.failedRows into a mainProof receipt; from 2026-09-27 a main proof with failing rows must pass them through --extra-runtime and each expectedReds entry must name an E2E id, and a failing jest suite has no E2E ids, so it can never satisfy check (1).",
+      "recommendedSuccessor": "a scripts/qc unit: the closure writes failedRows from the ladder summary and accepts jest ids",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u41-validator-test-has-no-ci-caller",
+      "foundBy": "U41 implementer lane (claude-opus, lean-worker), 2026-09-26",
+      "at": "2026-09-26T17:32:44.000Z",
+      "class": "test coverage gap",
+      "summary": "validate-roadmap.test.mjs runs only when a lane or the parent runs node --test; its --git fixtures need local history (the U5e squash commit and origin/main), so it cannot run in CI as is.",
+      "recommendedSuccessor": "U42 or U59 (same validator) decide whether a jest wrapper in scripts/__tests__ carries the non-git fixtures",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u41-goal-line-56-said-validator-unchanged",
+      "foundBy": "U41 implementer lane (claude-opus, lean-worker), 2026-09-26",
+      "at": "2026-09-26T17:32:44.000Z",
+      "class": "false statement corrected",
+      "summary": "GOAL.md:56 said the validator was unchanged by the line-cap decision; the validator now enforces the cap, so the line reads that caps.maxNonGeneratedLines in units.json is unchanged.",
+      "recommendedSuccessor": "none",
+      "status": "resolved in U41"
     }
   ]
 }
