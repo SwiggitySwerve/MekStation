@@ -2655,6 +2655,38 @@
       }
     },
     {
+      "id": "U94",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "The legacy campaign sync session's small-gap resync tail and live fan-out (src/lib/multiplayer/server/CampaignSyncSession.ts:358-366, resyncGuest's admitToWire) apply campaignBaselineReachesViewer (U58) before delivering a full-state CampaignSnapshotPublished to a restricted player, as the join and large-gap baselines already do, so a raw mid-stream checkpoint carrying a gm-scoped fact never reaches a restricted viewer through the tail (openspec/specs/gm-authority-redaction/spec.md:93-104; measured by U58's Lane A on real SQLite: a checkpoint committed after a gm-scoped hire reached a restricted player through resyncGuest with the withheld pilot inside; the production PUT route's checkpoint writer does not enter publish(), so live fan-out was not reached in that probe, but the tail was). Red first: that probe as a jest row on the baseline; green: the tail withholds it and the GM still receives it; the join and large-gap paths unchanged (their rows stay green). Admission decides whether live fan-out (publish) needs the same guard for any production publisher and says so with file:line.",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "privacy"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "state": "planned",
+      "source20260925": "planned by the parent under gm-authority-redaction/spec.md:93-104 from U58's finding F1 (FN-u58-legacy-resync-tail-delivers-raw-snapshot), confirmed production-reachable by U58's Lane A review (evidence/u58-lane-a-review-20260925.md, question 4); disclosed in the owner's U58 ruling as a unit before UAT round 2"
+    },
+    {
       "id": "U36",
       "node": "R2.multiplayer-client",
       "taskKeys": [],
@@ -9669,7 +9701,7 @@
       "class": "privacy (outside U58's paths; production reach not measured)",
       "summary": "The legacy small-gap resync tail and live fan-out (src/lib/multiplayer/server/CampaignSyncSession.ts:358-366) deliver a raw mid-stream full-state CampaignSnapshotPublished to a player; in a baseline probe, a snapshot committed after a gm-scoped hire reached a restricted player on both paths with the withheld pilot inside. Whether the production checkpoint producer (U35e's record rewrite) reaches that path was not measured.",
       "recommendedSuccessor": "U58's Lane A probes the production reach (question 4); if it reaches, a unit on src/lib/multiplayer/server applies campaignBaselineReachesViewer at the tail and fan-out before UAT round 2",
-      "status": "recorded; Lane A question"
+      "status": "confirmed production-reachable by U58's Lane A (the small-gap resyncGuest tail; live fan-out not reached by the PUT route's checkpoint writer); U94 planned"
     },
     {
       "id": "FN-u58-baseline-author-law-not-in-spec",
