@@ -200,6 +200,44 @@ export function takeSnapshot() {
   }
 }
 
+/**
+ * The PID listening on a local TCP port. takeSnapshot's rows carry no
+ * ports, so this reads the OS listener table instead: Get-NetTCPConnection
+ * through powershell.exe on Windows, `lsof -t -sTCP:LISTEN` elsewhere.
+ * Anything but exactly one distinct positive PID - a missing tool (ENOENT),
+ * a failed or unparseable run, no listener, two owners - throws
+ * MachineSnapshotError; a port that is not an integer in 1-65535 throws
+ * RangeError before any tool runs.
+ */
+export function listeningPortOwner(port) {
+  if (!Number.isInteger(port) || port < 1 || port > 65535)
+    throw new RangeError('INVALID_ARGUMENT: port');
+  try {
+    const windows = process.platform === 'win32';
+    const output = execFileSync(
+      windows ? 'powershell.exe' : 'lsof',
+      windows
+        ? [
+            '-NoProfile',
+            '-NonInteractive',
+            '-Command',
+            `$ErrorActionPreference = "Stop"; ConvertTo-Json -Compress -InputObject @(Get-NetTCPConnection -State Listen -LocalPort ${port} -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess)`,
+          ]
+        : ['-nP', '-t', `-iTCP:${port}`, '-sTCP:LISTEN'],
+      { encoding: 'utf8', windowsHide: true, timeout: 15000 },
+    );
+    const pids = new Set(
+      windows ? JSON.parse(output) : output.split(/\s+/).filter(Boolean),
+    );
+    const pid = Number([...pids][0]);
+    if (pids.size !== 1 || !Number.isInteger(pid) || pid <= 0)
+      throw new Error(`port ${port} listeners: ${[...pids].join(',')}`);
+    return pid;
+  } catch (error) {
+    throw new MachineSnapshotError(error);
+  }
+}
+
 export async function waitForIdle({
   pollMs = 1000,
   timeoutMs = 60000,

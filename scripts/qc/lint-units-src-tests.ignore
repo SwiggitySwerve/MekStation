@@ -1,0 +1,9 @@
+# lint:units 'src-tests' (scripts/qc/lint-units.mjs) lints src through this
+# file: every file is ignored, then the files the root .oxlintrc.json ignores
+# as tests come back - __tests__ trees and the four test suffixes.
+*.*
+!**/__tests__/**
+!*.test.ts
+!*.test.tsx
+!*.spec.ts
+!*.spec.tsx
