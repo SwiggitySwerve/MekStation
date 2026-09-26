@@ -44,25 +44,50 @@ export async function readCampaignJournalEvents(
   }
 }
 
-/** The highest committed sequence, or -1 for an empty stream. */
-export async function readCampaignJournalHighestSequence(
+/** A stream head as read: the last row's revision and its campaign sequence. */
+export interface ICampaignJournalHead {
+  readonly revision: number;
+  readonly sequence: number;
+}
+
+/**
+ * The stream's head, paging forward from the revision of `from` (a head an
+ * earlier read returned; null reads from the stream start). Returns `from`
+ * when no row follows it, and null for an empty stream read from the start.
+ * An earlier head stays a valid starting point because the journal never
+ * updates or deletes an event row.
+ */
+export async function readCampaignJournalHead(
   journal: IEventJournal<ICampaignJournalEnvelope>,
   campaignId: string,
-): Promise<number> {
-  let highest = -1;
-  let afterRevision = 0;
+  from: ICampaignJournalHead | null,
+): Promise<ICampaignJournalHead | null> {
+  let head = from;
   for (;;) {
     const page = await journal.readStream({
       streamType: CAMPAIGN_STREAM_TYPE,
       streamId: campaignId,
       branchId: ROOT_EVENT_BRANCH_ID,
-      afterRevision,
+      afterRevision: head?.revision ?? 0,
       limit: EVENT_JOURNAL_MAX_PAGE_SIZE,
     });
-    if (page.length > 0) {
-      highest = envelopeOf(page[page.length - 1]).sequence;
-      afterRevision = page[page.length - 1].streamRevision;
+    const last = page[page.length - 1];
+    if (last !== undefined) {
+      head = {
+        revision: last.streamRevision,
+        sequence: envelopeOf(last).sequence,
+      };
     }
-    if (page.length < EVENT_JOURNAL_MAX_PAGE_SIZE) return highest;
+    if (page.length < EVENT_JOURNAL_MAX_PAGE_SIZE) return head;
   }
+}
+
+/** The highest committed sequence, read from the stream start, or -1 for an empty stream. */
+export async function readCampaignJournalHighestSequence(
+  journal: IEventJournal<ICampaignJournalEnvelope>,
+  campaignId: string,
+): Promise<number> {
+  return (
+    (await readCampaignJournalHead(journal, campaignId, null))?.sequence ?? -1
+  );
 }
