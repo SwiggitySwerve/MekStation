@@ -18,6 +18,38 @@ import { buildCombatStateForUnit } from './combatStateInitialization';
 export const PLAYER_DEPLOY_ROW = 5;
 export const OPPONENT_DEPLOY_ROW = -5;
 
+/** A unit's deploy hex and facing at GameCreated. */
+export interface IDeployPlacement {
+  readonly position: IHexCoordinate;
+  readonly facing: Facing;
+}
+
+/**
+ * Returns one deploy placement per unit, in the order given: Player units
+ * on row PLAYER_DEPLOY_ROW (+5) facing North, every other side on row
+ * OPPONENT_DEPLOY_ROW (-5) facing South, and q = the unit's index among
+ * the units of its own side so far, minus 2. Pure: reads only each
+ * unit's side and its position in the list. The engine's GameCreated
+ * reducer and the replay hex-map projection both place units with it.
+ */
+export function deployPlacementsFor(
+  units: readonly Pick<IGameUnit, 'side'>[],
+): readonly IDeployPlacement[] {
+  let playerIndex = 0;
+  let opponentIndex = 0;
+  return units.map((unit) => {
+    const isPlayer = unit.side === GameSide.Player;
+    const col = isPlayer ? playerIndex++ : opponentIndex++;
+    return {
+      position: {
+        q: col - 2,
+        r: isPlayer ? PLAYER_DEPLOY_ROW : OPPONENT_DEPLOY_ROW,
+      },
+      facing: isPlayer ? Facing.North : Facing.South,
+    };
+  });
+}
+
 export const DEFAULT_COMPONENT_DAMAGE: IComponentDamageState = {
   engineHits: 0,
   gyroHits: 0,

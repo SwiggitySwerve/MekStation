@@ -309,7 +309,7 @@ describe('useReplayMovementAnimations × useHexMapStateFromEvents', () => {
       projection.current?.tokens.find((t) => t.unitId === 'player-1')?.position,
     ).toEqual({ q: 2, r: 0 });
 
-    // Rewind to sequence 0 — queue flushed, projection regrounds at origin.
+    // Rewind to sequence 0 — queue flushed, projection regrounds at the deploy hex.
     act(() => {
       rerender(
         <ComposedHarness
@@ -328,6 +328,6 @@ describe('useReplayMovementAnimations × useHexMapStateFromEvents', () => {
     ).toBe(0);
     expect(
       projection.current?.tokens.find((t) => t.unitId === 'player-1')?.position,
-    ).toEqual({ q: 0, r: 0 });
+    ).toEqual({ q: -2, r: 5 });
   });
 });

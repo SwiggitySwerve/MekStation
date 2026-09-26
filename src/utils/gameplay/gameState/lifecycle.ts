@@ -1,41 +1,32 @@
 import {
-  Facing,
   GamePhase,
-  GameSide,
   GameStatus,
   IGameCreatedPayload,
   IGameEndedPayload,
   IGameStartedPayload,
   IGameState,
-  IHexCoordinate,
   IUnitGameState,
 } from '@/types/gameplay';
 
 import { buildConservativeC3NetworkStateFromUnits } from '../c3Network';
-import {
-  createInitialUnitState,
-  OPPONENT_DEPLOY_ROW,
-  PLAYER_DEPLOY_ROW,
-} from './initialization';
+import { createInitialUnitState, deployPlacementsFor } from './initialization';
 
+/**
+ * Seeds every GameCreated unit at the placement deployPlacementsFor
+ * returns for it (the deploy hex and facing), then copies the payload's
+ * objectives, ground objects, minefields and C3 network onto the state.
+ */
 export function applyGameCreated(
   state: IGameState,
   payload: IGameCreatedPayload,
 ): IGameState {
   const units: Record<string, IUnitGameState> = {};
-  let playerIndex = 0;
-  let opponentIndex = 0;
+  const placements = deployPlacementsFor(payload.units);
 
-  for (const unit of payload.units) {
-    const isPlayer = unit.side === GameSide.Player;
-    const col = isPlayer ? playerIndex++ : opponentIndex++;
-    const row = isPlayer ? PLAYER_DEPLOY_ROW : OPPONENT_DEPLOY_ROW;
-
-    const position: IHexCoordinate = { q: col - 2, r: row };
-    const facing = isPlayer ? Facing.North : Facing.South;
-
+  payload.units.forEach((unit, index) => {
+    const { position, facing } = placements[index];
     units[unit.id] = createInitialUnitState(unit, position, facing);
-  }
+  });
 
   const automaticC3Network = buildConservativeC3NetworkStateFromUnits(units);
 

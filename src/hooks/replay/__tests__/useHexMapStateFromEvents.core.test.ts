@@ -46,11 +46,13 @@ describe('deriveHexMapStateFromEvents core scenarios', () => {
       expect(state.tokens[0].unitType).toBe(TokenUnitType.Mech);
     });
 
-    it('places fresh tokens at origin with Facing.North until corrected', () => {
+    it('places fresh tokens at the engine deploy hex and facing', () => {
       const events: IGameEvent[] = [makeStandardGameCreatedEvent()];
       const state = deriveHexMapStateFromEvents(events, 0);
-      expect(state.tokens[0].position).toEqual({ q: 0, r: 0 });
+      expect(state.tokens[0].position).toEqual({ q: -2, r: 5 });
       expect(state.tokens[0].facing).toBe(Facing.North);
+      expect(state.tokens[1].position).toEqual({ q: -2, r: -5 });
+      expect(state.tokens[1].facing).toBe(Facing.South);
     });
 
     it('seeds initial terrain and elevation from payload.hexTerrain', () => {
@@ -127,8 +129,8 @@ describe('deriveHexMapStateFromEvents core scenarios', () => {
       const state = deriveHexMapStateFromEvents(events, 1);
 
       const opponentToken = state.tokens.find((t) => t.unitId === 'opponent-2');
-      expect(opponentToken?.position).toEqual({ q: 0, r: 0 });
-      expect(opponentToken?.facing).toBe(Facing.North);
+      expect(opponentToken?.position).toEqual({ q: -2, r: -5 });
+      expect(opponentToken?.facing).toBe(Facing.South);
     });
   });
 
