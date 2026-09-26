@@ -25,9 +25,11 @@
  *
  * U9b narrows one thing only: what `--rerun` reads back from the runner it
  * just spawned. Receipts are still read by parseReceiptGroups; the runner's
- * own stdout is read by parseRunnerOutput, which also accepts Playwright's
- * bare summary, because the runner inherits Playwright's stdio and prints
- * no `<group>:` label (FN-u9-rerun-parser-expects-labeled-line).
+ * own stdout is read by parseRunnerOutput, which reads Playwright's bare
+ * summary, because the runner inherits Playwright's stdio and prints no
+ * `<group>:` label (FN-u9-rerun-parser-expects-labeled-line). U39 makes that
+ * reader fail closed: output with two or more summary blocks, or with any
+ * column-0 `<group>:` line, is rejected and can never become coverage.
  */
 import { spawn, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -162,16 +164,34 @@ const PLAYWRIGHT_FATAL_ERRORS =
   /^ *(\d+) errors? (?:was|were) not a part of any test, see above for details *$/;
 
 /**
- * What the runner just proved about the ONE group it was asked to run.
+ * The order generateSummaryMessage pushes its tokens in (base.js, 1.57.0),
+ * each at most once per summary; `errors` stands for the fatal-error token.
+ */
+const SUMMARY_ORDER = Object.freeze([
+  'failed',
+  'interrupted',
+  'flaky',
+  'skipped',
+  'did not run',
+  'passed',
+  'errors',
+]);
+
+/**
+ * What the runner just proved about the ONE group it was asked to run, read
+ * from Playwright's bare summary. Attributing that summary to the group is
+ * sound only because runGroup spawns the runner once per group, so the
+ * output holds exactly one run - which is why it fails closed (U39) on
+ * anything that says otherwise, returning 0/0 plus a `rejected` reason:
  *
- * The labelled `<group>: N passed` form still wins wherever it appears, so a
- * receipt-shaped line or an injected runner that labels its output reads
- * exactly as it did before. Only when no labelled row names this group does
- * Playwright's bare summary get attributed to it - and that attribution is
- * sound only because runGroup spawns the runner once per group, so nothing
- * else can be in that output. The real ladder runner prints no label at all
- * (it inherits Playwright's stdio), which is why U9 archived 0/0 for a run
- * that passed: finding FN-u9-rerun-parser-expects-labeled-line.
+ * - `two-summary-blocks`: a token whose word does not come strictly after
+ *   the previous token's word in SUMMARY_ORDER can only open a second block
+ *   (a second run, or a runner that retried the group); adding the blocks
+ *   together once turned two runs into one clean-looking row.
+ * - `column-0-group-line`: a line opening with `<group>:`. The real runner
+ *   prints no label (it inherits Playwright's stdio; U9's finding
+ *   FN-u9-rerun-parser-expects-labeled-line), so such a line is a runner
+ *   stating its own verdict, which is not read as one.
  *
  * `flaky`, `did not run`, `interrupted` and a fatal error outside any test
  * all count as FAILED. A row that went green only on retry, a row an aborted
@@ -182,25 +202,30 @@ const PLAYWRIGHT_FATAL_ERRORS =
  * line at all stays 0/0 and can never become coverage.
  */
 export function parseRunnerOutput({ group, output } = {}) {
-  const labelled = parseReceiptGroups({ runtime: { playwright: output } }).find(
-    (row) => row.group === group,
-  );
-  if (labelled) return labelled;
+  const rejected = (reason) => ({
+    group,
+    passed: 0,
+    failed: 0,
+    rejected: reason,
+  });
   let passed = 0;
   let failed = 0;
+  let lastRank = -1;
   for (const line of String(output ?? '').split(/\r?\n/)) {
+    if (GROUP_LINE.test(line)) return rejected('column-0-group-line');
     // The fatal-error token is checked first because it is not an outcome
-    // word at all: no branch below could read it, and leaving it to fall
-    // through would silently discard it the way `interrupted` was.
+    // word at all: the summary pattern could not read it, and leaving it to
+    // fall through would silently discard it the way `interrupted` was.
     const fatal = PLAYWRIGHT_FATAL_ERRORS.exec(line);
-    if (fatal) {
-      failed += Number(fatal[1]);
-      continue;
-    }
-    const summary = PLAYWRIGHT_SUMMARY.exec(line);
-    if (!summary) continue;
-    if (summary[2] === 'passed') passed += Number(summary[1]);
-    else if (summary[2] !== 'skipped') failed += Number(summary[1]);
+    const summary = fatal ? null : PLAYWRIGHT_SUMMARY.exec(line);
+    if (!fatal && !summary) continue;
+    const word = fatal ? 'errors' : summary[2];
+    const rank = SUMMARY_ORDER.indexOf(word);
+    if (rank <= lastRank) return rejected('two-summary-blocks');
+    lastRank = rank;
+    const count = Number((fatal ?? summary)[1]);
+    if (word === 'passed') passed += count;
+    else if (word !== 'skipped') failed += count;
   }
   return { group, passed, failed };
 }
@@ -282,9 +307,9 @@ const defaultRunnerCommand = (group) => ({
 /**
  * One ladder group, its combined stdout and stderr teed into a log file
  * under the archive dir. The output is read by parseRunnerOutput, which
- * accepts the labelled `<group>: N passed` line a receipt would carry and,
- * failing that, Playwright's bare summary - the only thing the real ladder
- * runner ever prints.
+ * reads Playwright's bare summary - the only thing the real ladder runner
+ * ever prints - and rejects two summary blocks or a column-0 `<group>:`
+ * line; a rejected row is archived as 0/0 with its `rejected` reason.
  */
 function runGroup({ group, archiveDir, runnerCommand }) {
   const { command, args } = runnerCommand(group);
@@ -308,6 +333,7 @@ function runGroup({ group, archiveDir, runnerCommand }) {
         group,
         passed: row.passed,
         failed: row.failed,
+        ...(row.rejected ? { rejected: row.rejected } : {}),
         logSha256: createHash('sha256').update(output).digest('hex'),
       });
     });

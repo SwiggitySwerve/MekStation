@@ -46,9 +46,10 @@ const SHA_A_OFF_BY_ONE = `${SHA_A.slice(0, 39)}9`;
  * The captured tail's non-ASCII bytes, built by code point: the ANSI
  * escape, the micro sign in the web-server timings, and the single right-
  * pointing angle quote Playwright puts between a spec path and a title.
- * Naming them keeps this source pure ASCII - a raw escape byte in a test
- * file is invisible in a diff, and the formatter rewrites a \u sequence
- * back into the literal character.
+ * Naming them keeps this source pure ASCII, because a raw escape byte in a
+ * test file is invisible in a diff. A \u sequence would have done as well:
+ * oxfmt 0.28.0 leaves one exactly as written (checked for U39, which found
+ * the earlier claim that the formatter rewrites it did not reproduce).
  */
 const ESC = String.fromCharCode(0x1b);
 const MICRO = String.fromCharCode(0xb5);
@@ -91,6 +92,7 @@ interface IGroupRow {
   readonly group: string;
   readonly passed: number;
   readonly failed: number;
+  readonly rejected?: string;
 }
 interface IVerdict {
   readonly verdict: string;
@@ -257,10 +259,12 @@ function rerunThrough(runnerScript: string): {
   };
   return {
     run,
-    archived: receipt.groups.map(({ group, passed, failed }) => ({
+    // A rejected row keeps its reason; every other row reads as before.
+    archived: receipt.groups.map(({ group, passed, failed, rejected }) => ({
       group,
       passed,
       failed,
+      ...(rejected === undefined ? {} : { rejected }),
     })),
     archiveDir,
   };
@@ -528,10 +532,12 @@ describe('exact-main regression ladder CLI', () => {
 describe('exact-main regression ladder rerun branch', () => {
   it('waits for idle, runs the missing group, and archives the result', () => {
     const archiveDir = temporaryDirectory();
+    // Playwright's bare summary, the only shape the real runner prints (a
+    // labelled `smoke:` line is rejected since U39).
     const runnerScript = path.join(temporaryDirectory(), 'fake-runner.mjs');
     fs.writeFileSync(
       runnerScript,
-      "process.stdout.write(process.argv[2].split('=')[1] + ':   1 passed (0.4s)\\n');\n",
+      "process.stdout.write('  1 passed (0.4s)\\n');\n",
     );
     const run = value<ILadderRun>(
       callExport(
@@ -584,7 +590,7 @@ describe('exact-main regression ladder rerun branch', () => {
     expect(receipt.groups[0].logSha256).toMatch(/^[0-9a-f]{64}$/);
     expect(
       fs.readFileSync(path.join(archiveDir, 'smoke.log'), 'utf8'),
-    ).toContain('smoke:   1 passed');
+    ).toContain('  1 passed (0.4s)');
 
     // The round trip: a later check-mode run reading the archived receipt
     // back must agree that the sha is now covered.
@@ -722,6 +728,46 @@ describe('exact-main regression ladder rerun reads the real runner', () => {
     ]);
     expect(run.exitCode).toBe(1);
   });
+
+  // U39: runGroup spawns the runner once per group, so its output holds one
+  // Playwright summary block. Two blocks mean two runs (or a runner that
+  // retried the whole group), and their passes must not be added into one
+  // clean-looking row.
+  it('archives 0/0 as rejected and stays MISSING on two summary blocks', () => {
+    const { run, archived } = rerunThrough(
+      fakeRunner(
+        'two-block-runner.mjs',
+        '  2 passed (5.0s)\n\nRunning 3 tests using 1 worker\n  3 passed (4.1s)\n',
+      ),
+    );
+    expect(archived).toEqual([
+      { group: 'smoke', passed: 0, failed: 0, rejected: 'two-summary-blocks' },
+    ]);
+    expect(run.lines).toEqual([
+      `EXACT_MAIN_LADDER_MISSING ${SHA_A} milestone=strict-smoke missing=smoke`,
+    ]);
+    expect(run.exitCode).toBe(1);
+  });
+
+  // The real runner never prints `<group>:` at column 0; such a line is a
+  // runner that labels (or fakes) its own verdict, and is not read as one.
+  it('archives 0/0 as rejected and stays MISSING on a column-0 group line', () => {
+    const { run, archived } = rerunThrough(
+      fakeRunner('labelled-runner.mjs', 'smoke:   1 passed (0.4s)\n'),
+    );
+    expect(archived).toEqual([
+      {
+        group: 'smoke',
+        passed: 0,
+        failed: 0,
+        rejected: 'column-0-group-line',
+      },
+    ]);
+    expect(run.lines).toEqual([
+      `EXACT_MAIN_LADDER_MISSING ${SHA_A} milestone=strict-smoke missing=smoke`,
+    ]);
+    expect(run.exitCode).toBe(1);
+  });
 });
 
 describe('exact-main regression ladder runner output reader', () => {
@@ -730,12 +776,42 @@ describe('exact-main regression ladder runner output reader', () => {
       callExport('parseRunnerOutput', { group: 'smoke', output }),
     );
 
+  it.each<[string, string, string]>([
+    [
+      'a labelled line for the group',
+      'smoke: 4 passed (1.1s)\n  9 passed (2s)',
+      'column-0-group-line',
+    ],
+    [
+      'a labelled line for another group',
+      '  2 passed (2s)\nfixture-smoke: 1 passed',
+      'column-0-group-line',
+    ],
+    [
+      'a repeated passed summary',
+      '  1 passed (1s)\n  2 passed (2s)',
+      'two-summary-blocks',
+    ],
+    [
+      'a second block that starts again at failed',
+      '  3 passed (2s)\n  1 failed\n  4 passed (3s)',
+      'two-summary-blocks',
+    ],
+  ])('rejects %s', (_case, output, rejected) => {
+    expect(read(output)).toEqual({
+      group: 'smoke',
+      passed: 0,
+      failed: 0,
+      rejected,
+    });
+  });
+
   it.each<[string, string, number, number]>([
     [
-      'a labelled line still wins',
-      'smoke: 4 passed (1.1s)\n  9 passed (2s)',
-      4,
-      0,
+      'one full block with its listed tests',
+      '  1 failed\n    [chromium] > a.spec.ts:1:1 > t\n  1 flaky\n    [chromium] > b.spec.ts:2:1 > u\n  1 skipped\n  2 passed (3s)',
+      2,
+      2,
     ],
     ['a skipped row counts as neither', '  1 skipped\n  2 passed (3.3s)', 2, 0],
     [
@@ -756,7 +832,6 @@ describe('exact-main regression ladder runner output reader', () => {
       2,
       3,
     ],
-    ['repeated summaries add up', '  1 passed (1s)\n  2 passed (2s)', 3, 0],
     ['prose that is not a summary', 'Running 3 tests using 1 worker', 0, 0],
   ])('reads %s', (_case, output, passed, failed) => {
     expect(read(output)).toEqual({ group: 'smoke', passed, failed });
