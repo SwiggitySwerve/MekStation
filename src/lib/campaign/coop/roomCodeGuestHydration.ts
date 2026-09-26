@@ -1,14 +1,14 @@
 /**
  * Room-code guest hydration helpers (task 3.5).
  *
- * A campaign-scope grant never receives a stored CampaignSnapshotPublished
- * through the projector (task 3.4 skip), so snapshot-plus-tail of a
- * co-op host log that only has genesis would start empty and drop the
- * funds/roster the guest dashboard needs. These helpers seed the guest
- * snapshot from the host-log genesis state, then fold the projector's
- * in-scope incrementals. Replica rows reserve sequence 1 for that
- * hydration snapshot so lastCursor maps back onto the grant channel
- * without re-sending history.
+ * These helpers seed the guest snapshot from the host-log genesis state
+ * the shared baseline law admits to a room-code guest (a campaign-scope
+ * grant: never a migration import), then fold the projector's in-scope
+ * items. Since the projector applies the same law, an admitted genesis
+ * also arrives among its items, and re-folding it is idempotent.
+ * Replica rows reserve sequence 1 for that hydration snapshot so
+ * lastCursor maps back onto the grant channel without re-sending
+ * history.
  *
  * @spec openspec/changes/design-campaign-authority-and-sync/tasks.md (3.5)
  */
@@ -21,9 +21,13 @@ import type {
 } from '@/types/campaign/CampaignSync';
 
 import { campaignGrantItemToReplayEvent } from '@/lib/campaign/delivery/foldCampaignGrantDelivery';
+import { grantAllowsScope } from '@/lib/campaign/grants/campaignGrantGuards';
 import { applyCampaignEvent } from '@/lib/campaign/sync/applyCampaignEvent';
 import { freezeCampaignEvent } from '@/lib/campaign/sync/campaignEventScope';
+import { campaignViewerVisibleEvents } from '@/lib/campaign/sync/campaignViewerProjection';
 import { createEmptyCampaignState } from '@/types/campaign/CampaignSync';
+
+import { ROOM_CODE_GUEST_GRANT_SCOPES } from './resolveOrIssueRoomCodeGuestGrant';
 
 /**
  * Replica sequence 1 is the composed hydration snapshot. Projector
@@ -39,14 +43,20 @@ export interface IRoomCodeGuestHydration {
 }
 
 /**
- * First stored CampaignSnapshotPublished in the host log, which is the
- * co-op open() genesis. Later snapshots are ignored so a migration
- * full-state row cannot sneak into a restricted guest.
+ * State of the first stored CampaignSnapshotPublished in the host log
+ * that the shared baseline law admits to a room-code guest grant
+ * (campaignViewerVisibleEvents over ROOM_CODE_GUEST_GRANT_SCOPES): the
+ * co-op open() genesis. A migration import is never admitted, and its
+ * refusal latches, so no later full-state row is admitted either; null
+ * when nothing is admitted.
  */
 export function genesisStateFromHostLog(
   hostEvents: readonly ICampaignEvent[],
 ): ICampaignAuthoritativeState | null {
-  for (const event of hostEvents) {
+  const visible = campaignViewerVisibleEvents(hostEvents, (scope) =>
+    grantAllowsScope({ scopes: ROOM_CODE_GUEST_GRANT_SCOPES }, scope),
+  );
+  for (const event of visible) {
     if (event.type === 'CampaignSnapshotPublished') {
       return event.payload.state;
     }

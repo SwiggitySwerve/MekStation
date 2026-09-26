@@ -63,35 +63,57 @@ export interface ICampaignViewerProjection {
 }
 
 /**
- * The visibility SET for one viewer.
+ * The `authorPlayerId` the migration import stamps on its baseline
+ * (`importCampaignBaseline`). That baseline is an existing campaign's
+ * whole state, so it can carry material a restricted viewer may not see.
+ */
+export const CAMPAIGN_MIGRATION_AUTHOR_ID = 'migration';
+
+/**
+ * The baseline law (umbrella 12.1, OD-umbrella-12-1-slice): may a stored
+ * full-state `CampaignSnapshotPublished` the viewer's scope already admits
+ * be folded for them? Both projection arms ask this and only this - the
+ * legacy session through `campaignViewerVisibleEvents`, the grant channel
+ * in `projectCampaignStreamForGrant`.
  *
- * Two rules, and the second is the one the legacy baseline was missing.
+ * - A viewer admitted to both `gm` and `campaign` is entitled to the
+ *   full authoritative state and receives every baseline.
+ * - For any other viewer a baseline authored
+ *   `CAMPAIGN_MIGRATION_AUTHOR_ID` is never admitted: it is an imported
+ *   campaign's whole state, not a function of facts the viewer was shown.
+ * - Any other baseline (a genesis, a record checkpoint) is admitted only
+ *   while `withheldBefore` is false. `applyCampaignEvent` REPLACES state
+ *   wholesale on a snapshot, so one minted after something was withheld
+ *   carries that fact's effect; before the first withhold it is a pure
+ *   function of facts this viewer may see, which keeps the genesis ledger
+ *   shared rather than starting a restricted viewer from nothing.
+ *
+ * A caller that gets `false` counts the baseline as withheld from then
+ * on: a later checkpoint folded from an imported record carries the same
+ * material the refused baseline did.
+ */
+export function campaignBaselineReachesViewer(
+  baseline: ICampaignEvent,
+  admits: CampaignScopeAdmits,
+  withheldBefore: boolean,
+): boolean {
+  if (admits('gm') && admits('campaign')) return true;
+  if (baseline.authorPlayerId === CAMPAIGN_MIGRATION_AUTHOR_ID) return false;
+  return !withheldBefore;
+}
+
+/**
+ * The visibility SET for one viewer, in stream order.
  *
  * 1. A fact whose scope the viewer is not admitted to is absent.
  *
- * 2. A full-state `CampaignSnapshotPublished` is admitted only while no
- *    withheld fact precedes it. `applyCampaignEvent` REPLACES state
- *    wholesale on a snapshot, so a re-baseline minted after something
- *    was withheld carries that withheld fact's EFFECT and would hand
- *    back everything rule 1 just removed. Before the first withhold the
- *    snapshot is a pure function of facts this viewer may see - which is
- *    what keeps the genesis ledger (`CampaignMatchHost.open` commits it
- *    at sequence 0, stamped `campaign`) shared rather than making every
- *    restricted viewer start from an empty campaign.
+ * 2. A full-state `CampaignSnapshotPublished` is present only when
+ *    `campaignBaselineReachesViewer` admits it, the law the grant arm
+ *    (`projectCampaignStreamForGrant`) applies too, so both arms hand the
+ *    same viewer the same baseline from the same committed stream
+ *    (`campaignGenesisArmParity.test.ts`).
  *
- * `projectCampaignStreamForGrant` (:254-266) states the same DANGER and
- * answers it with a blanket rule instead: a partially-scoped grant
- * receives no full-state snapshot at all, genesis included. Seam 1 called
- * that "the conservative form of the same law"; seam 2 probed it, and
- * that claim was wrong. The two rules give the same player different
- * opening ledgers from the same committed stream, which
- * `campaignGenesisArmParity.test.ts` pins from both sides.
- *
- * They cannot be reconciled here. Doing it soundly needs a fact neither
- * arm carries - whether a full-state baseline is a pre-scope genesis or
- * an imported campaign's whole state - and that is a schema addition on
- * the baseline event, owned by the campaign-journal migration work. Rule
- * 2 is therefore the LEGACY arm's law, not a claim about the grant arm.
+ * The withhold latch is set by the first absent fact of either kind.
  */
 export function campaignViewerVisibleEvents(
   events: readonly ICampaignEvent[],
@@ -106,7 +128,11 @@ export function campaignViewerVisibleEvents(
       withheld = true;
       continue;
     }
-    if (event.type === 'CampaignSnapshotPublished' && withheld) {
+    if (
+      event.type === 'CampaignSnapshotPublished' &&
+      !campaignBaselineReachesViewer(event, admits, withheld)
+    ) {
+      withheld = true;
       continue;
     }
     visible.push(event);

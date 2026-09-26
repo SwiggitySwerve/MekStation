@@ -182,6 +182,6 @@ describe('campaignDelivery non-inference', () => {
     expect(serialized).toContain(WITHHELD_GM);
     expect(serialized).toContain(WITHHELD_GM_B);
     expect(page.items).toHaveLength(INTERLEAVE_A.length);
-    expect(CAMPAIGN_GRANT_PROJECTOR_VERSION).toBe(1);
+    expect(CAMPAIGN_GRANT_PROJECTOR_VERSION).toBe(2);
   });
 });

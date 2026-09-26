@@ -55,10 +55,8 @@ import type {
   ProjectCampaignStreamResult,
 } from './campaignDeliveryTypes';
 
-import {
-  grantAllowsScope,
-  grantHoldsEveryScope,
-} from '../grants/campaignGrantGuards';
+import { grantAllowsScope } from '../grants/campaignGrantGuards';
+import { campaignBaselineReachesViewer } from '../sync/campaignViewerProjection';
 import {
   CAMPAIGN_STREAM_TYPE,
   envelopeOf,
@@ -250,25 +248,34 @@ export async function projectCampaignStreamForGrant(
     readonly event: ICampaignEvent;
     readonly projectedEventIdentity: string;
   }[] = [];
-  const entitledToFullState = grantHoldsEveryScope(grant);
+  const admits = (scope: ICampaignEvent['scope']): boolean =>
+    grantAllowsScope(grant, scope);
+  // Latches on the first fact this grant may not see (an out-of-scope
+  // fact or a refused baseline), as campaignViewerVisibleEvents does.
+  let withheld = false;
   for (const stored of storedEvents) {
     // D12: the SINGLE narrowing from a stored row to a wire campaign event.
     // Never `stored.payload.*` inline here -- a journal-private sibling of
     // `campaignEvent` (the full contract, the remaining market) must be
     // unreachable from this path by construction, not by reviewer vigilance.
     const event = envelopeOf(stored);
-    if (!grantAllowsScope(grant, event.scope)) continue;
+    if (!admits(event.scope)) {
+      withheld = true;
+      continue;
+    }
     // A stored CampaignSnapshotPublished carries the FULL authoritative
-    // state and `applyCampaignEvent` REPLACES state wholesale with it.
-    // Delivering one to a partially-scoped grant would therefore hand
-    // over everything the scope filter just withheld - genesis and
-    // migration baselines are exactly such rows and they are stamped
-    // `campaign`, so the scope check alone does not stop them. Only a
-    // grant already entitled to every scope may receive one; a
-    // restricted grant takes its baseline from the per-grant scoped
-    // snapshot instead (task 3.4), which is folded from in-scope events
-    // only and so cannot carry withheld material.
-    if (event.type === 'CampaignSnapshotPublished' && !entitledToFullState) {
+    // state and `applyCampaignEvent` REPLACES state wholesale with it,
+    // and genesis, checkpoint and migration baselines are all stamped
+    // `campaign`, so the scope check alone does not decide it. The
+    // baseline law shared with the legacy arm does: a grant holding
+    // `gm` and `campaign` receives every baseline; a restricted grant
+    // never receives a migration import and receives any other baseline
+    // only while nothing withheld precedes it.
+    if (
+      event.type === 'CampaignSnapshotPublished' &&
+      !campaignBaselineReachesViewer(event, admits, withheld)
+    ) {
+      withheld = true;
       continue;
     }
     visible.push({

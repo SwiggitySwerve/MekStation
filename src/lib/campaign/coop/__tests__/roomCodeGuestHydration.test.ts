@@ -66,7 +66,64 @@ function genesis(balance: number): ICampaignEvent {
 }
 
 describe('composeRoomCodeGuestState', () => {
-  it('keeps genesis funds when the projector skipped the stored baseline', () => {
+  it('never seeds a room-code guest from an imported migration baseline', () => {
+    // The guest holds a campaign-scope grant, so it is a restricted
+    // viewer: the migration import's whole state must not reach it
+    // (OD-umbrella-12-1-slice), even as the hydration seed.
+    const importedPilot = 'pilot-in-the-imported-campaign';
+    const migration: ICampaignEvent = {
+      type: 'CampaignSnapshotPublished',
+      sequence: 0,
+      campaignId: CAMPAIGN_ID,
+      ts: TS,
+      authorPlayerId: 'migration',
+      scope: 'campaign',
+      payload: {
+        state: {
+          ...createEmptyCampaignState(CAMPAIGN_ID),
+          balance: 777_000,
+          pilots: {
+            [importedPilot]: { pilotId: importedPilot, name: 'Imported' },
+          },
+        },
+      },
+    };
+    const dayAdvanced: ICampaignEvent = {
+      type: 'CampaignDayAdvanced',
+      sequence: 1,
+      campaignId: CAMPAIGN_ID,
+      ts: TS,
+      authorPlayerId: 'pid_host',
+      scope: 'campaign',
+      payload: { newDay: 4 },
+    };
+    // What the projector hands a campaign-scope grant for this log: the
+    // shared fact alone (the migration baseline is refused there too).
+    const projected: readonly ICampaignGrantDeliveryItem[] = [
+      {
+        deliverySequence: 1,
+        event: {
+          type: 'CampaignDayAdvanced',
+          campaignId: CAMPAIGN_ID,
+          ts: TS,
+          authorPlayerId: 'pid_host',
+          scope: 'campaign',
+          payload: { newDay: 4 },
+        },
+      },
+    ];
+    const state = composeRoomCodeGuestState(
+      CAMPAIGN_ID,
+      [migration, dayAdvanced],
+      projected,
+    );
+    expect(Object.keys(state.pilots)).not.toContain(importedPilot);
+    expect(state.balance).not.toBe(777_000);
+    expect(state.day).toBe(4);
+    expect(genesisStateFromHostLog([migration])).toBeNull();
+  });
+
+  it('keeps genesis funds from the host-log seed alone', () => {
     const state = composeRoomCodeGuestState(
       CAMPAIGN_ID,
       [genesis(1_000_000)],
