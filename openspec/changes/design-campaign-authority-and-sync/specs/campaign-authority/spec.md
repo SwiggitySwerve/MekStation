@@ -194,7 +194,7 @@ The client persistence layer SHALL make exactly one bounded, best-effort durable
 - **AND** that diagnostic SHALL name the reason `envelope-over-keepalive-cap`, so a skipped discard is identifiable by the condition that caused it rather than merely present
 
 ### Requirement: An accepted contract is written exactly once, by exactly one writer
-Accepting a contract SHALL produce exactly one acceptance write. When the source commits an accept-contract command, the source's own campaign record -- its missions and its reduced remaining contract market -- and the compact accepted-contract ledger SHALL both follow from that single committed acceptance, and the client SHALL NOT additionally apply the acceptance to its local campaign. When the source refuses the command, including the refusal a campaign that is not on journal authority receives, no event SHALL be committed and the existing client-side acceptance remains the single write. A state in which both writes occur, or in which the compact ledger records an acceptance the source record does not, SHALL NOT be reachable. This is stated as an obligation rather than as a tolerated transitional divergence because a dual write is silent: nothing detects the two trees disagreeing.
+Accepting a contract SHALL produce exactly one acceptance write. When the source commits an accept-contract command, the source's own campaign record -- its missions and its reduced remaining contract market -- and the compact accepted-contract ledger SHALL both follow from that single committed acceptance, and the client SHALL NOT additionally apply the acceptance to its local campaign. When the source refuses the command, including the refusal a campaign that is not on journal authority receives, no event SHALL be committed and the existing client-side acceptance remains the single write. A state in which both writes occur, or in which the compact ledger records an acceptance the source record does not, SHALL NOT be reachable. This is stated as an obligation rather than as a tolerated transitional divergence because a dual write is silent: nothing detects the two trees disagreeing. Routing an acceptance through the source command pipeline is scoped to co-op-hosted campaigns (PK-6-2b-single-player-seat, option (b)): a co-op host's contract acceptance SHALL be submitted as an accept-contract command through `POST /api/campaigns/[id]/commands` under that route's existing active-seat authorization. A single-player campaign has no co-op session and therefore no seat that route could authorize, so its acceptance SHALL NOT be submitted to `/commands`; it stays the client-side apply, which is its one acceptance write, persisted through the whole-envelope save under the row-version compare-and-swap that task 6.4 bridges. That single-player path is a recorded non-claim, not a delivered source-authority property: no single-player principal or seat is defined here, and defining one is future identity work named by the finding FN-ob2-identity-before-hosted-deployment.
 
 #### Scenario: A committed acceptance produces both projections from one commit
 - **GIVEN** a campaign whose source accepts an accept-contract command naming an offer the persisted source record holds
@@ -220,3 +220,16 @@ Accepting a contract SHALL produce exactly one acceptance write. When the source
 - **WHEN** an accept-contract command names an offer the persisted source record body holds
 - **THEN** the source SHALL read that market from the source record body under the command's own prepared transaction and SHALL accept
 - **AND** the absence of a prior private payload SHALL NOT be treated as an absent offer, because a replay of private rows has none to replay on a first acceptance
+
+#### Scenario: A co-op host's acceptance is routed through the active-seat command route
+- **GIVEN** a co-op-hosted campaign whose host holds an active campaign seat
+- **WHEN** the host accepts a contract-market offer
+- **THEN** the acceptance SHALL be submitted as an accept-contract command through `POST /api/campaigns/[id]/commands` under that route's existing active-seat authorization
+- **AND** the committed and the refused outcomes SHALL each leave exactly one acceptance write, as the other scenarios of this requirement state
+
+#### Scenario: A single-player acceptance stays a client apply and is recorded as a non-claim
+- **GIVEN** a single-player campaign, which has no co-op session and therefore no seat the command route could authorize
+- **WHEN** the player accepts a contract-market offer
+- **THEN** the acceptance SHALL be applied client-side and SHALL NOT be submitted to `/commands`
+- **AND** it SHALL reach the server only through the whole-envelope save, whose row-version compare-and-swap and echo of the stored `sourceReplayFence` (task 6.4) refuse a stale write with a conflict carrying the current record instead of overwriting it
+- **AND** no journal commit, command identity, or server-derived compact name or employer SHALL be claimed for it; a single-player principal and seat are future work named by FN-ob2-identity-before-hosted-deployment
