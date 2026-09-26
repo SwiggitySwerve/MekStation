@@ -2738,14 +2738,28 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "local-verified",
+      "baseline": "0ac5767ebca7abbb18d26b5cfb0083729b21b929",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u37-admission-20260925.json",
+          "baseline": "0ac5767ebca7abbb18d26b5cfb0083729b21b929",
+          "at": "2026-09-26T02:24:30.262Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u37-red-20260925.json",
+          "at": "2026-09-26T02:22:14.977Z",
+          "summary": "baseline 0ac5767eb: core.test.ts:49-54 flipped to the deploy hex fails (received {0,0}); a board row rendering each unit at its deploy hex before any MovementDeclared fails (data-token-map-position 0,0); a mirrored 2v2 row and an engine-vs-projection agreement row fail; the pure-function rows cannot be written (the function is absent); spec clause game-state-management/spec.md:102-121 (GameCreated Event Handler: player row 5 facing North, opponent row -5 facing South, q=-2,-1,0)"
+        },
+        "local": {
+          "path": "evidence/u37-local-20260925.json",
+          "at": "2026-09-26T02:34:16.993Z",
+          "summary": "5 product files +56/-22 (78 lines) and 2 new test files +171/-6: deployPlacementsFor(units) and IDeployPlacement exported from src/utils/gameplay/gameState/initialization.ts; the engine (lifecycle.ts applyGameCreated) calls it (the rule moved, not changed); the projection (src/hooks/replay useHexMapStateFromEvents.ts applyGameCreatedEvent) seeds each token from it, the legacy no-GameCreated path still at {0,0}; GameCreated carries side but no index, so the index is the order of payload.units (public, fog keeps every unit and its order); rows: the flipped pin, core :130 (now {-2,-5} South), integration :331 (now {-2,5}), the 2v2 row, the agreement row, the board row, three pure-function rows; jest src/hooks 50 suites 477, src/utils/gameplay 264 suites 4962, src/engine 30 suites 414, src/components/gameplay 217 suites 1223, plus multiplayer 141, quickgame 86; tsc 0; oxlint 84 warnings 0 errors; oxfmt clean on 7 files; lint:units 100/100; qc:openspec-ci errors=0; validator PASSED; three mutants caught and restored ({0,0} again; sides swapped; q not offset); no Playwright (E2E-43 left for U25 to measure); implementer claude-opus (Agent model: opus); findings: two server-side roster presets compute a different start hex (matchUnitBootstrap.ts:35-50, matchRosterPresets.ts:124-139; reaches only the adapted unit), the projection has no PhysicalAttackResolved handler (a pushed unit keeps its old hex on the networked board until it moves); status ready"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -2755,7 +2769,11 @@
       "source20260922": "planned by the parent from the 2026-09-22 triage plan (newUnits; evidence/triage-plan-20260922.json (179 register issues verified against main a9244fcad)) under the owner instruction of 2026-09-22 (\"ultracode find everything that is marked and if there are issues go with recommended path to solution based on the goal\")",
       "triageIssues20260922": [
         "I-tactical-tokens-seed-origin"
-      ]
+      ],
+      "admissionNote20260925": {
+        "at": "2026-09-26T03:55:56.000Z",
+        "note": "--next printed U37. The engine's placement (src/utils/gameplay/gameState/lifecycle.ts:21-38) is inside the unit's paths, so no amendment was needed; the spec clause is game-state-management/spec.md:102-121."
+      }
     },
     {
       "id": "U38",
@@ -9655,6 +9673,24 @@
       "class": "simplification",
       "summary": "With the grant projector applying the law, roomCodeGuestHydration's host-log genesis seed is redundant with the projector items; a slice owning src/lib/multiplayer/server could drop the host-log read.",
       "recommendedSuccessor": "fold into the next unit that edits handleRoomCodeGuestJoin.ts",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u37-server-roster-presets-compute-other-start-hex",
+      "foundBy": "U37 implementer lane (claude-opus), 2026-09-25",
+      "at": "2026-09-26T03:55:56.000Z",
+      "class": "duplicate placement rule (server side, adapted unit only)",
+      "summary": "src/lib/multiplayer/server/matchUnitBootstrap.ts:35-50 and src/lib/multiplayer/matchRosterPresets.ts:124-139 each compute a start hex (q=+/-2, r from the seat index) that differs from the engine's deploy rule; it reaches only the adapted unit, never the engine state or GameCreated.",
+      "recommendedSuccessor": "the next unit that edits those files uses deployPlacementsFor",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u37-projection-lacks-physical-attack-displacement",
+      "foundBy": "U37 implementer lane (claude-opus), 2026-09-25 (read from the code, not run)",
+      "at": "2026-09-26T03:55:56.000Z",
+      "class": "board projection gap",
+      "summary": "The shared hex-map projection has no PhysicalAttackResolved handler while the engine moves displaced units on that event (physicalAttackResolution.ts:38, :166), so on the networked board a pushed unit keeps its old hex until it next moves.",
+      "recommendedSuccessor": "a R2.multiplayer-client unit adding the handler under the projection's parity pins",
       "status": "recorded"
     }
   ]

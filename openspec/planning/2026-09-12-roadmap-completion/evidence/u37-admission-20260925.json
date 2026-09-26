@@ -1,0 +1,87 @@
+{
+  "unit": "U37",
+  "stage": "admission",
+  "at": "2026-09-26T02:24:30.262Z",
+  "baseline": "0ac5767ebca7abbb18d26b5cfb0083729b21b929",
+  "baselineMatchesCharter": true,
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u37",
+  "branch": "roadmap-u37-networked-token-placement-20260925",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "ordering": "The design reading below was done before any edit; this receipt file was written after the red rows were authored and run (the red receipt records that no product source had changed at that point).",
+  "installGuard": {
+    "command": "npm run --silent qc:guard-node-modules-link",
+    "exitCode": 1,
+    "output": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"<worktree>\\\\node_modules\",\"actualPath\":\"<repo root>\\\\node_modules\"}",
+    "note": "refuses in a junctioned worktree by design; no install/ci/prune/lifecycle was run; npm_config_dry_run=true for every npm/npx call"
+  },
+  "next": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "printed": "U37",
+    "exitCode": 0,
+    "note": "U37's paths overlap nothing in flight; continued"
+  },
+  "validatorBaseline": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+  "ownershipPaths": [
+    "src/hooks",
+    "src/utils/gameplay/gameState"
+  ],
+  "behavior": "On GameCreated the shared hex-map projection seeds each token at the engine's deploy hex and facing (players r=+5 North, opponents r=-5 South, q = per-side index - 2) through one exported pure placement function in src/utils/gameplay/gameState/initialization.ts used by both the engine and the projection.",
+  "specClause": {
+    "governing": "openspec/specs/game-state-management/spec.md:102-121 (Requirement: GameCreated Event Handler; :113 Player at row 5 facing North, :114 Opponent at row -5 facing South, :116-121 three Player units at q=-2,-1,0 on r=5). The placement function implements this clause; the projection now follows it.",
+    "projection": "openspec/specs/combat-analytics/spec.md:770 (Replay State-From-Events Reducer Contract: GameCreated seeds the initial tokens array from payload.units); silent on the seeded position and facing.",
+    "tacticalMapInterface": "openspec/specs/tactical-map-interface/spec.md is silent on initial token placement (grep deploy|placement|facing|GameCreated: :386-412 facing arrow binding, :449-482 deployment zone overlay on the pre-battle preview only).",
+    "multiplayerGameSurface": "openspec/specs/multiplayer-game-surface/spec.md is silent (grep deploy|placement|facing|GameCreated matched only :103, the Connection-Lifecycle requirement heading)."
+  },
+  "seams": {
+    "enginePlacementRule": "src/utils/gameplay/gameState/lifecycle.ts:21-38 applyGameCreated (per-side counters :26-27, col/row :31-32, position {q: col - 2, r: row} :34, facing :35); constants PLAYER_DEPLOY_ROW / OPPONENT_DEPLOY_ROW at src/utils/gameplay/gameState/initialization.ts:18-19",
+    "engineReachesIt": "src/engine/InteractiveSession.ts:244 createGameSession -> src/utils/gameplay/gameSessionCore.ts:98-118 (GameCreated event, deriveState at :118) -> src/utils/gameplay/gameState/eventDispatch.ts:194-195 -> lifecycle.ts:21 applyGameCreated. Recovery: gameSessionCore.ts:160 hydrateGameSessionFromEvents -> deriveState.",
+    "projection": "src/hooks/replay/useHexMapStateFromEvents.ts:186-201 applyGameCreatedEvent seeds through seedAccumulator (src/hooks/replay/useHexMapStateFromEvents.tokens.ts:82-96, origin and North at :89-90)",
+    "projectionConsumers": [
+      "src/components/multiplayer/NetworkedGameSurface.tsx:276 deriveHexMapStateFromEvents(mirrorEvents, highestSeq) -> HexMapDisplay tokens at :372-376",
+      "src/components/quickgame/QuickGameReplayPanel.tsx:76",
+      "src/pages/gameplay/games/[id]/replay.tsx:264"
+    ],
+    "originPin": "src/hooks/replay/__tests__/useHexMapStateFromEvents.core.test.ts:49-54",
+    "wirePayload": "src/types/gameplay/GameSessionLifecycleEvents.ts:56-60 IGameCreatedPayload { config, units: readonly IGameUnit[] }; IGameUnit.side at src/types/gameplay/GameSessionUnitTypes.ts:148-149",
+    "boardTestSurface": "No existing test renders a projection-seeded token before any MovementDeclared. The board surface is HexMapDisplay -> the UnitTokenForType wrapper (data-testid unit-token-<id>, data-token-map-position and data-token-facing from src/components/gameplay/UnitToken/UnitTokenForType.metadata.ts:164-175). The unit adds the board row in src/hooks/replay/__tests__/useHexMapStateFromEvents.deployPlacement.test.tsx, rendering the real HexMapDisplay from the projection tokens."
+  },
+  "designAnswers": {
+    "engineCanImportWithoutOutsideEdit": "Yes. The engine computes the deploy hex and facing only in src/utils/gameplay/gameState/lifecycle.ts:29-37, inside the owned path src/utils/gameplay/gameState; src/engine reaches it through createGameSession and deriveState and has no placement code of its own (grep of src/engine, src/lib and src/utils/gameplay for the rule found only lifecycle.ts). Switching lifecycle.ts to the exported function needs no edit under src/engine, src/lib or src/components. Not BLOCKED.",
+    "gameCreatedOnTheWire": "IGameCreatedPayload (GameSessionLifecycleEvents.ts:56-60) carries units: readonly IGameUnit[], each with side; it carries no position, facing or per-side index. Both the engine (lifecycle.ts:26-31) and the projection must derive the per-side index from the order of payload.units. The fog filter keeps every unit and its order in GameCreated (src/lib/multiplayer/server/fogOfWar.ts:123-137 only strips a non-owned customUnitDefinition) and the wire audience catalogue marks GameCreated PUBLIC (src/lib/multiplayer/server/projection/MatchWireAudienceCatalog.ts:73), so every viewer derives the same indices.",
+    "fixturesPinningOrigin": [
+      "src/hooks/replay/__tests__/useHexMapStateFromEvents.core.test.ts:49-54 (the origin pin; flips to the deploy hex)",
+      "src/hooks/replay/__tests__/useHexMapStateFromEvents.core.test.ts:130 (an unmoved opponent expected at {q:0,r:0}; becomes its deploy hex {q:-2,r:-5})",
+      "src/hooks/replay/__tests__/useReplayMovementAnimations.integration.test.tsx:331 (rewind to sequence 0 expects {q:0,r:0}; becomes the deploy hex {q:-2,r:5})",
+      "MovementDeclared fixtures that spell from: {q:0,r:0} (core, legacy, posture and useReplayMovementAnimations tests; src/components/quickgame/__tests__/QuickGameReplayPanel.test.tsx:114) are unaffected by reading: the projection sets position from payload.to and never reads payload.from.",
+      "The legacy no-GameCreated path (useHexMapStateFromEvents.ts:158-177, legacy.test.ts) keeps seeding synthesized tokens at the origin: the unit sentence covers GameCreated only.",
+      "No jest snapshot or replay fixture under src/hooks/replay pins token positions (grep of src/hooks/replay for q: 0, r: 0 lists only the rows above plus from/at step fields)."
+    ],
+    "firstMovementDeclaredToday": "The engine validates and records each move from its own state (the deploy hex), so a networked match's first MovementDeclared carries from = the deploy hex while the projection jumps the token from {0,0} to payload.to. The fix changes only what is displayed before a unit's first MovementDeclared (and at cursor or rewind positions before it); the move path comes from the event (steps/path), not from the token, so the recorded path is unchanged. An unmoved unit now stays at its deploy hex instead of {0,0}.",
+    "e2eRowsThatSeeIt": [
+      "E2E-43 e2e/gm-two-player-rewind.pack.spec.ts:197-235 (test.fail at :201; :204-206 reads the rendered host token data-token-map-position as the Move origin through e2e/helpers/gmTwoPlayerRewind.ts:212-228, falling back to 0,0): the row U25 ungates after U37 is on main. Not run here (no Playwright).",
+      "E2E-20/E2E-22 e2e/gm-two-player-privacy.pack.spec.ts:404-408, :437-441 and :496-499 read data-token-map-position but compare it with the declared destination hex, not with {0,0}; by reading they are unaffected unless a declared hex equals a deploy hex. Not run here.",
+      "e2e/tactical-map-visual-smoke.spec.ts:3046-3142 pin 0,0 on passenger and isometric tokens; by reading these come from fixture tokens, not from the GameCreated projection. Not run here."
+    ]
+  },
+  "estimate": {
+    "src/utils/gameplay/gameState/initialization.ts": "about +25 product lines (placement type + exported pure function with comment)",
+    "src/utils/gameplay/gameState/lifecycle.ts": "about -10/+6 product lines (use the shared function)",
+    "src/hooks/replay/useHexMapStateFromEvents.ts": "about +8 product lines (seed each accumulator at its placement)",
+    "src/hooks/replay/__tests__/useHexMapStateFromEvents.core.test.ts": "test: flip :49-54 and :130",
+    "src/hooks/replay/__tests__/useReplayMovementAnimations.integration.test.tsx": "test: flip :331 and its comment",
+    "src/hooks/replay/__tests__/useHexMapStateFromEvents.deployPlacement.test.tsx": "test: new (2v2 placement, engine agreement, board row)",
+    "src/utils/gameplay/gameState/__tests__/initialization.deployPlacement.test.ts": "test: new (pure function rows)"
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedProductLines": 500,
+    "estimatedFiles": 7,
+    "estimatedProductLines": 50
+  },
+  "risksForTheParent": {
+    "replayClass": "U37 carries review class 'replay': a Lane B owner ruling (an OWNER-RULING <head> comment plus the owner-ruled label, bound to the PR head) is required before merge.",
+    "existingRecordedMatches": "A replay of an existing recorded match (QuickGameReplayPanel, /gameplay/games/[id]/replay, the networked surface after a reload) now shows every token at its deploy hex and facing at sequence 0 and until that unit's first MovementDeclared, instead of stacked at {0,0} facing North. After a unit's first MovementDeclared the projection is unchanged. No persisted event is rewritten, and the engine's derived state is unchanged (same rule, now shared).",
+    "divergentStartHexNotUsed": "src/lib/multiplayer/server/matchUnitBootstrap.ts:35-50 and src/lib/multiplayer/matchRosterPresets.ts:124-139 compute a different startHex (q = +-2, r from the seat index) that reaches only the adapted unit (matchUnitBootstrap.ts:131 and :145), not IGameUnit and not GameCreated; the engine state never reads it. Outside U37 paths; reported, not changed.",
+    "fog": "Under fog the opponent now sees enemy tokens at their deploy hex before they move. The placement is a pure function of the PUBLIC GameCreated payload, so no new information is revealed; it is still a visible change on a privacy-adjacent surface."
+  }
+}
