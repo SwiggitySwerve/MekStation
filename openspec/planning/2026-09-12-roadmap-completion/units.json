@@ -3170,6 +3170,45 @@
       }
     },
     {
+      "id": "U97",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "A co-op funds approval committed through the host (U92's ApplyGmIntervention) also reaches the campaign record's intervention history, so the GM's own ledger lists it after a page reload, and the ledger page refuses a second approve while one is in flight. Spec delta first, in openspec/changes: which fields of a co-op intervention the record's history holds (the public summary, the signed delta, the intervention id, the commit sequence; never private metadata) and that the guest mirror never receives it; the delta is merged by the unit's closure. Then: the host's FundsChanged commit for an ApplyGmIntervention writes the intervention record beside it, through the record rewrite the host already performs (no second writer; measured by U92: gmInterventionEvents stays null today), and the control plane derives its persisted rows from that record; the page disables approve from send until the commit or refusal frame; the control plane's rows are keyed by intervention id and its 'Approved and applied' text follows the host's answer (FN-u92-control-plane-ledger-rows-duplicate-key, FN-u92-control-plane-reports-applied-after-refusal, FN-u92-approve-not-gated-in-flight, FN-u92-coop-funds-approval-not-in-record-history). Red first: on real SQLite with a live host, an approval commits FundsChanged and the record's gmInterventionEvents stays null; a jsdom row that a second approve during the round trip sends a second intent; green: the record carries the intervention, the reload lists it, the second click is refused. Admitted after U92 is main-verified.",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server",
+        "src/lib/campaign",
+        "src/pages/gameplay/campaigns/[id]/gm-ledger.tsx",
+        "src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx",
+        "openspec/changes/design-campaign-authority-and-sync"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "idempotency"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "state": "planned",
+      "admitAfter20260926": "U92 main-verified (its command and page are what this unit extends): satisfied at planning time (U92 closed in #2014), so the unit is planned, not blocked",
+      "source20260926": "planned by the parent under the owner's U92 ruling of 2026-09-26 (\"Approve (Recommended)\": the record-history gap and the in-flight gating become a small follow-on unit, spec delta first)"
+    },
+    {
       "id": "U36",
       "node": "R2.multiplayer-client",
       "taskKeys": [],
