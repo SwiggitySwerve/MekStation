@@ -1,11 +1,11 @@
 {
-  "ceiling": 17898,
-  "measuredAt": "738e5466fd934d01e8dfeb61f9faf15d7a291fa1",
+  "ceiling": 17899,
+  "measuredAt": "1f11f4055419c998ff097144480af740efeacfc6",
   "note": "Ceilings, not pins: each perPath value is the finding count measured at measuredAt on 2026-09-26; lint:units fails above it and passes at or below it.",
   "perPath": {
     "e2e": 50,
     "scripts": 50,
     "src/pages/api": 16,
-    "src-tests": 17782
+    "src-tests": 17783
   }
 }

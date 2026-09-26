@@ -20,10 +20,9 @@ const UNITS_CONFIG = path.join(moduleDirectory, 'oxlint-units.json');
 const CEILING_FILE = path.join(moduleDirectory, 'lint-units.ceiling.json');
 /**
  * The paths linted by default, each hidden from `npm run lint` by the root
- * config's ignorePatterns. The perPath ceilings in lint-units.ceiling.json
- * are the counts measured on 2026-09-26 at 738e5466f: e2e 50 findings
- * (194 files), scripts 50 (186), src/pages/api 16 (97), src-tests 17782
- * (3203).
+ * config's ignorePatterns. The perPath ceilings live in lint-units.ceiling.json
+ * with the commit they were measured at (`measuredAt`); this comment carries
+ * no counts, so it cannot drift from that file.
  */
 const DEFAULT_PATHS = ['e2e', 'scripts', 'src/pages/api', 'src-tests'];
 
