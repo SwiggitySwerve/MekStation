@@ -311,18 +311,9 @@ export default defineConfig({
       ...(campRuntimeRouted && process.env.MEKSTATION_NEXT_DIST_DIR
         ? { MEKSTATION_NEXT_DIST_DIR: process.env.MEKSTATION_NEXT_DIST_DIR }
         : {}),
-      // Fixture-only journal authority. Playwright's webServer.env is a
-      // whitelist, so the QC plan's opt-in never reaches server.js unless
-      // it is forwarded here. Absent the key, production-shaped e2e stays
-      // on the hardcoded false cutover flag.
-      ...(process.env.MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY
-        ? {
-            MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY:
-              process.env.MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY,
-          }
-        : {}),
-      // The combat sibling of the same fixture arm, forwarded under the
-      // same presence guard for the same whitelist reason. It is passed
+      // Fixture-only combat journal authority. Playwright's webServer.env
+      // is a whitelist, so the QC plan's opt-in never reaches server.js
+      // unless it is forwarded here, under a presence guard. It is passed
       // through rather than hardcoded so the plan owns the mode value
       // ('shadow' or 'enabled'); absent the key, combat stays on the
       // hardcoded 'off' cutover mode.

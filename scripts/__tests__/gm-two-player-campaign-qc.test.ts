@@ -176,13 +176,11 @@ describe('GM and two-player campaign QC runner', () => {
     expect(
       authorityRecoveryPlan.environment.MEKSTATION_E2E_SERVER_COMMAND,
     ).toBe('node scripts/e2e/relaunching-server.mjs');
-    // Predicted red of this pin before the core set the fixture env:
-    // toEqual printed `-   "MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY": "1"`.
-    // Second red, before the combat arm was forwarded (unit U15b):
-    // toEqual printed
+    // Predicted red of this pin before the combat arm was forwarded
+    // (unit U15b): toEqual printed
     // `-   "MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE": "enabled"`.
-    // One arming condition carries BOTH journal keys, so the campaign
-    // genesis and the combat genesis clauses are live in the same run.
+    // No campaign key: U35d deleted the campaign fixture arm, and the
+    // campaign genesis clauses are live through the production flag.
     expect(authorityRecoveryPlan.environment).toEqual({
       PLAYWRIGHT_E2E_RUN_ID: 'task-21-authority-recovery',
       MEKSTATION_E2E_PORT: String(
@@ -191,7 +189,6 @@ describe('GM and two-player campaign QC runner', () => {
       MEKSTATION_E2E_REUSE_EXISTING_SERVER: 'false',
       PORT: String(core.deriveFixturePort('task-21-authority-recovery')),
       MEKSTATION_E2E_SERVER_COMMAND: 'node scripts/e2e/relaunching-server.mjs',
-      MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY: '1',
       MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE: 'enabled',
     });
     // Every other group keeps the plain server - the wrapper is the
@@ -252,7 +249,6 @@ describe('GM and two-player campaign QC runner', () => {
       '--workers=1',
     ]);
     expect(privacyPlan.environment).toMatchObject({
-      MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY: '1',
       MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE: 'enabled',
       MEKSTATION_E2E_SERVER_COMMAND: 'node server.js',
     });
@@ -423,12 +419,7 @@ describe('GM and two-player campaign QC runner', () => {
     expect(authorityPlan.environment.MEKSTATION_E2E_SERVER_COMMAND).toBe(
       'node scripts/e2e/relaunching-server.mjs',
     );
-    expect(
-      authorityPlan.environment.MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY,
-    ).toBe('1');
-    // The combat arm follows authority-recovery into the union on the
-    // same condition, so a member that arms the campaign key can never
-    // arm only half the pair.
+    // The combat arm follows authority-recovery into the union.
     expect(
       authorityPlan.environment.MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE,
     ).toBe('enabled');
@@ -547,9 +538,6 @@ describe('GM and two-player campaign QC runner', () => {
     expect(allPlan.environment.MEKSTATION_E2E_SERVER_COMMAND).toBe(
       'node scripts/e2e/relaunching-server.mjs',
     );
-    expect(allPlan.environment.MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY).toBe(
-      '1',
-    );
     expect(
       allPlan.environment.MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE,
     ).toBe('enabled');
@@ -582,22 +570,19 @@ describe('GM and two-player campaign QC runner', () => {
     // an ESM TypeScript config that pulls in @playwright/test and
     // derives a per-run port and runtime directory at module load. This
     // is therefore a TEXT pin over the config source, and it is honest
-    // about its limit - it proves the key name is forwarded under the
-    // same presence guard the campaign key uses, not that Playwright
-    // actually spawned a server with it. Only a real ladder run proves
-    // the latter, and this suite runs none.
+    // about its limit - it proves the key name is forwarded under a
+    // presence guard, not that Playwright actually spawned a server
+    // with it. Only a real ladder run proves the latter, and this suite
+    // runs none.
     const configSource = readFileSync(
       path.join(repoRoot, 'playwright.config.ts'),
       'utf8',
     );
-    // Both key names must appear. A forward that is dropped is red on
-    // the combat line; the campaign line is the control that shows the
-    // pin is reading the file it thinks it is.
-    expect(configSource).toContain('MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY');
+    // The key name must appear; a forward that is dropped is red here.
     expect(configSource).toContain(
       'MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE',
     );
-    // Same guarded shape for both: `...(process.env.<KEY> ? { <KEY>:
+    // The guarded shape: `...(process.env.<KEY> ? { <KEY>:
     // process.env.<KEY> } : {})`. Whitespace-tolerant so the formatter
     // may rewrap, but an UNCONDITIONAL forward has no
     // `process.env.<KEY>` before the `?` and fails here.
@@ -606,11 +591,54 @@ describe('GM and two-player campaign QC runner', () => {
         String.raw`\.\.\.\(\s*process\.env\.${key}\s*\?\s*\{\s*${key}\s*:\s*process\.env\.${key}\s*,?\s*\}\s*:\s*\{\s*\}\s*\)`,
       );
     expect(configSource).toMatch(
-      guardedForward('MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY'),
-    );
-    expect(configSource).toMatch(
       guardedForward('MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE'),
     );
+  });
+
+  it('forwards and sets no campaign journal key from the config or the runner', () => {
+    // U35d deleted the campaign journal fixture arm: the production flag
+    // is on and no server code reads this key. The row lists every line of
+    // the Playwright config and the two QC runner files that names the
+    // key (comments included), and every implemented group whose planned
+    // environment carries it. Both lists must be empty; one assertion
+    // over both, so a failure prints every offending file:line and group.
+    const campaignKey = 'MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY';
+    const linesNamingTheKey = [
+      'playwright.config.ts',
+      'scripts/qc/gm-two-player-campaign-core.cjs',
+      'scripts/qc/run-gm-two-player-campaign.mjs',
+    ].flatMap((file) =>
+      readFileSync(path.join(repoRoot, file), 'utf8')
+        .split(/\r?\n/)
+        .flatMap((line, index) =>
+          line.includes(campaignKey)
+            ? [`${file}:${index + 1}: ${line.trim()}`]
+            : [],
+        ),
+    );
+    const groupsSettingTheKey = Object.keys(core.REGISTERED_GROUPS).filter(
+      (group) => {
+        let plan: { environment: Record<string, string> };
+        try {
+          plan = core.buildRunPlan({
+            group,
+            runId: `u35h-no-campaign-key-${group}`,
+            repoRoot,
+          });
+        } catch (error) {
+          // A registered group with no plan yet has no environment to read.
+          if ((error as { code?: string }).code === 'NOT_IMPLEMENTED') {
+            return false;
+          }
+          throw error;
+        }
+        return campaignKey in plan.environment;
+      },
+    );
+    expect({ linesNamingTheKey, groupsSettingTheKey }).toEqual({
+      linesNamingTheKey: [],
+      groupsSettingTheKey: [],
+    });
   });
 
   it('archives the performance report inside the run-owned evidence root', () => {
