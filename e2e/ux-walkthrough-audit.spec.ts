@@ -331,21 +331,35 @@ test.describe('ux walkthrough audit — desktop', () => {
         ).toBeVisible({ timeout: 20_000 });
       });
 
+      // Since #1634 New Unit opens the combined 'Add unit' dialog: a blank
+      // unit, starting settings, or a library unit.
+      const addUnit = page.getByRole('dialog', {
+        name: 'Add unit',
+        exact: true,
+      });
+
       await walk.step('open the new-unit dialog', async () => {
         await page.getByRole('button', { name: 'New Unit' }).first().click();
+        await expect(addUnit).toBeVisible();
         await expect(
-          page.getByRole('heading', { name: 'Create New Unit' }),
+          addUnit.getByRole('button', { name: 'New blank unit', exact: true }),
+        ).toBeVisible();
+        await expect(
+          addUnit.getByRole('button', { name: 'Choose starting settings' }),
         ).toBeVisible();
       });
 
       await walk.step('create a default BattleMech', async () => {
-        await page.getByRole('button', { name: 'Create Unit' }).click();
+        await addUnit
+          .getByRole('button', { name: 'New blank unit', exact: true })
+          .click();
         await expect(page).toHaveURL(/\/customizer\/[0-9a-f-]+\/structure/, {
           timeout: 20_000,
         });
-        await expect(page.getByTestId('structure-heat-sink-count')).toBeVisible(
-          { timeout: 20_000 },
-        );
+        // #1634 also dropped the count's test id; the input keeps its name.
+        await expect(
+          page.getByRole('spinbutton', { name: 'Heat sink count' }),
+        ).toBeVisible({ timeout: 20_000 });
       });
 
       await walk.step(
