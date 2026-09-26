@@ -1,0 +1,177 @@
+{
+  "unit": "U98",
+  "stage": "admission",
+  "status": "ADMITTED",
+  "at": "2026-09-26T22:03:47.000Z",
+  "baseline": "72a0203df4d07d2fdfe696fceb9ece5b0133819b",
+  "baselineNote": "git rev-parse HEAD in the worktree answered the charter baseline; the lane does not fetch.",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u98",
+  "branch": "roadmap-u98-grant-wake-since-sequence-20260926",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "node": "R2.authority-live",
+  "ownershipPaths": [
+    "src/lib/multiplayer/server",
+    "src/lib/campaign"
+  ],
+  "reviewClasses": [
+    "concurrency"
+  ],
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500
+  },
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "gates": {
+    "nodeVersion": {
+      "command": "node -v",
+      "exitCode": 0,
+      "lastLine": "v22.22.0"
+    },
+    "guardNodeModulesLink": {
+      "command": "npm run --silent qc:guard-node-modules-link",
+      "exitCode": 1,
+      "lastLine": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"<worktree>\\\\node_modules\",\"actualPath\":\"<repo root>\\\\node_modules\"}",
+      "note": "refuses in a junctioned worktree by design (machine paths replaced by placeholders); no npm install/ci/prune/lifecycle is run by this lane"
+    },
+    "validateNext": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+      "exitCode": 0,
+      "lastLine": "U94",
+      "note": "on the baseline --next prints U94, not U98; the parent launched this lane for U98 (units.json U98: state planned, admitAfter20260926 names U89 main-verified and U97 one at a time) and the lane does not change the ledger. Recorded as printed."
+    },
+    "validate": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows"
+    },
+    "parentProofHold": "present at admission (read 2026-09-26T21:59Z: \"U60 main proof running in the root checkout since 21:51:07Z; hold builds, Playwright and standalone servers until this file is gone\"); timing runs wait for it to be gone"
+  },
+  "behavior": "units.json U98 behavior sentence, not widened: after a host publish, each room-code guest's grant wake and the replica ingest read the host log since their last projected sequence instead of re-reading and projecting the whole stream; the record rewrite after a commit folds from the last record where the projection allows it, else stays and is measured.",
+  "seams": {
+    "grantWakeSubscribe": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts:1543-1552 hostAppendLiveSource (entry.host.subscribe) -> src/lib/campaign/delivery/campaignGrantChannelSession.ts:143-146 attachLiveSubscription -> :171-176 requestPump -> :182-212 drainLive -> :299-331 projectCurrentCursor",
+    "grantSessionPerSocket": "src/lib/multiplayer/server/handleRoomCodeGuestJoin.ts:235-238 and :251-254 attachRoomCodeGuestLiveSession -> src/lib/multiplayer/server/roomCodeGuestLiveFanout.ts:46-78 -> campaignGrantChannelSession.ts:79-85 (one CampaignGrantChannelSession per socket join; its cursor field :88, set from the join cursor :108)",
+    "grantProjection": "src/lib/campaign/delivery/projectCampaignStreamForGrant.ts:191-330: loadGrant :195, viewer :204-224, validateCursor :227-240, resolveEpoch :242, readCampaignJournal :243-246 (:115-135 pages from revision 0), scope filter + baseline latch :247-285, assignSequences over every visible identity :287-293, cursor filter :306-311",
+    "grantHostLogAdapter": "src/lib/multiplayer/server/handleRoomCodeGuestJoin.ts:270-281 projectDepsOverHostLog (reader :277-279 = getCampaignEvents(0)) -> src/lib/campaign/sync/hostCampaignEventJournal.ts:82-100 readStream (:88 reads the whole host log on every page, then filters by afterRevision :96-98 and slices to the page limit :99)",
+    "epochStore": "src/lib/multiplayer/server/delivery/SQLiteDeliveryEpochStore.ts:89-111 resolveEpoch, :117-136 validateCursor, :144-166 assignSequences (existing mappings reused, new identities MAX+1, one IMMEDIATE transaction)",
+    "replicaStorePerConnection": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts:1065-1066 and :1526-1538 resolveReplicaStore -> src/lib/multiplayer/server/campaignGrantChannelDeps.ts:64-71 (a new SQLiteCampaignReplicaStore per bound socket)",
+    "replicaIngest": "src/lib/campaign/replica/SQLiteCampaignReplicaStore.ts:112-143 ingest -> :121 readEnvelopes (:255-262 -> :230-250 readStoredEvents pages the whole replica stream from revision 0) -> src/lib/campaign/replica/planCampaignReplicaIngest.ts:60-125 (:65 identity map of every stored row, :66 applyStateFromReplicaEnvelopes folds every stored row, src/lib/campaign/replica/campaignReplicaEnvelope.ts:108-125 and :149-160; each apply copies the applied array, src/lib/campaign/delivery/applyCampaignGrantDelivery.ts:154)",
+    "replicaFanout": "src/lib/multiplayer/server/roomCodeGuestLiveFanout.ts:86-108 fanOutGrantFrame (ingest of each non-empty delivery page, serialized per session :50-56)",
+    "recordRewrite": "src/lib/campaign/authority/campaignRecordJournalState.ts:84-111 rewriteCampaignRecordAfterCommand -> :51-71 readCampaignJournalState (SELECT every stream row, JSON.parse, replayCampaignEvents) -> :193-227 recordAtJournalState (keeps balance, date from day, roster readiness only)",
+    "journalSinceRead": "src/lib/events/journal/SQLiteEventJournal.ts:15-29 readStream (stream_revision > ? ORDER BY stream_revision LIMIT ?), served by UNIQUE (stream_type, stream_id, branch_id, stream_revision) src/services/persistence/SQLiteService.eventJournal.migration.ts:80; append-only triggers :133-138",
+    "hostLogSinceRead": "src/lib/campaign/sync/campaignEventLog.ts:87-89 getCampaignEvents(fromSeq) -> JournalCampaignEventStore.ts:530-534 -> src/lib/campaign/sync/campaignJournalReads.ts:26-45 (afterRevision = fromSeq, i.e. events with sequence >= fromSeq; sequence N lives at revision N + 1); InMemoryCampaignEventStore.ts:137-147 the same contract",
+    "campaignFold": "src/lib/campaign/sync/applyCampaignEvent.ts:121 applyCampaignEvent (a reducer, state + event -> state) and :209 replayCampaignEvents (from the empty state)"
+  },
+  "designAnswers": {
+    "q1_whereEachProjectionKeepsItsLastSequence": {
+      "grantWakeToday": "Per room-code guest socket, one CampaignGrantChannelSession (campaignGrantChannelSession.ts:79-85) keeps only the delivery cursor (:88). Each wake (:299-306) calls projectCampaignStreamForGrant, which pages the host log from revision 0 (projectCampaignStreamForGrant.ts:120), and the adapter re-reads the whole host log on every 500-row page (hostCampaignEventJournal.ts:88), digests every event (:178), filters every event by scope and the baseline latch (projectCampaignStreamForGrant.ts:256-285) and calls assignSequences for every visible identity (:290-293) before dropping those at or before the cursor (:306-311). It builds no campaign state: it builds a delivery page.",
+      "grantWakeKeptPosition": "On the session, beside the cursor it must agree with: a new field holding the position the last page stopped reading at: { deliveryEpochId, afterRevision (the last stream revision read), withheld (the baseline latch after it) }. projectCampaignStreamForGrant takes it as an optional request field and returns the new one on its page; the session stores it only when a page is returned (where advanceCursor runs, :323). Chosen over the registry entry or a per-guest map because the session is the one object that already owns this socket's cursor, is per guest per grant, and serializes its projections (drainLive :182-212 draining flag; start() projects before liveReleased), so exactly one projection reads or writes the position at a time.",
+      "grantWakeRead": "The host-log adapter reads only what a page asks for: the reader takes a from-sequence and readStream passes query.afterRevision (revision r holds sequence r - 1, so the events from sequence r on are exactly the rows after revision r); projectDepsOverHostLog passes it to getCampaignEvents(fromSequence), the indexed since read U89 measured flat for the adoption tail (adoptTail 0.183 -> 0.176 ms).",
+      "replicaToday": "Per bound socket one SQLiteCampaignReplicaStore (campaignGrantChannelDeps.ts:64-71); every ingest reads and parses the whole replica stream (SQLiteCampaignReplicaStore.ts:121, :230-250) and the planner folds it all (planCampaignReplicaIngest.ts:65-66).",
+      "replicaKeptHead": "On the store instance, like U89's JournalCampaignEventStore heads map: per replica stream id, the last stored revision this instance read and the stream folded up to it (the apply state and the identity per stored sequence). Each ingest reads only the rows after that revision (rows any writer appended since, this instance's own previous appends included) and folds them on; the planner takes the folded durable value instead of the envelope list.",
+      "rebuiltOrReplacedStartsFromFullRead": "A new session (every socket join or rejoin, a server restart, a replaced registry entry whose guests re-join) starts with no position and reads from revision 0; the position is used only inside the epoch it was assigned in (a projection whose resolved epoch differs, a rebaseline after bumpGeneration or a membership revision change, reads from revision 0 with the latch cleared); a stale cursor ends the session (campaignGrantChannelSession.ts:195-198). A new replica store instance (every bound socket) starts with no head and reads the whole replica stream once.",
+      "pageBoundaryAndRewind": "Page boundary: readCampaignJournal keeps its loop and continues each page from the last row's streamRevision (exclusive), starting from the kept afterRevision instead of 0; the adapter keeps its afterRevision filter and page slice; the equivalence row commits a batch of more than 500 events so an incremental read crosses a page boundary at a different revision than the full read does. Rewind: the host log reads the root branch only (campaignJournalReads.ts:37) and event rows cannot be updated or deleted (triggers SQLiteService.eventJournal.migration.ts:133-138), so no row can appear at or below a kept revision; the in-memory store's reset (InMemoryCampaignEventStore.ts:161-164) is test isolation only. The replica stream is append-only on the same table and its revision equals its delivery sequence (SQLiteCampaignReplicaStore.ts:285)."
+    },
+    "q2_foldsIncrementally": {
+      "grantProjection": "Yes. The page is a left fold over stream rows whose only carried state is the withheld latch (projectCampaignStreamForGrant.ts:255, set :263 and :278); the visible list feeds assignSequences, which reuses an identity's existing mapping and gives a new identity MAX+1 (SQLiteDeliveryEpochStore.ts:144-166). Every identity before the kept position was passed to assignSequences in the same epoch by this session, so its mapping exists and is at or below the cursor after that page; passing only the new visible identities therefore returns the same sequences for them as the full list would and the cursor filter drops the same rows. Least change: start the read at the kept revision, start the latch from the kept value, assign only the new visible identities.",
+      "replica": "Yes. applyStateFromReplicaEnvelopes is a left fold of applyCampaignGrantDelivery (campaignReplicaEnvelope.ts:108-125) and the identity map is per row (:149-160); folding the new rows onto the kept value equals folding all rows.",
+      "campaignState": "applyCampaignEvent is a reducer (applyCampaignEvent.ts:121) and replayCampaignEvents folds from the empty state (:209); neither the grant wake nor the replica ingest builds a campaign state on the command path (the replica state fold, readReplicaState :150-173, runs at a rejoin only)."
+    },
+    "q3_recordRewrite": "It stays and is measured. The saved record is not the projection: recordAtJournalState (campaignRecordJournalState.ts:193-227) keeps only the balance, a date derived from the day and the readiness of roster units the record already lists; the journal state it is derived from also holds pilots, contracts, salvage and roster units the record lacks, so the previous record cannot be the base the next fold starts from. A kept journal state beside the record would be a new per-campaign cache inside the append transaction that a checkpoint adoption (U96: the record PUT appends a CampaignSnapshotPublished) and a participant removal also move; by U89's measurement the rewrite is 0.24 -> 1.74 ms at 50 -> 1000 events, under the rule's 5 ms floor, so it is not growing by the rule this unit uses and that cache is not justified. The record rewrite is measured on the baseline and on the change and reported; M5 does not apply.",
+    "q4_equivalence": "A new row on the timing harness (real SQLite, the host in the shared registry, the GM and a room-code guest bound as server.js binds them): after (a) a batch of more than 500 FundsChanged committed at once (the incremental read crosses a page boundary at a revision the full read does not), (b) a checkpoint adoption through the host PUT (a visible CampaignSnapshotPublished), (c) a participant removal committed with a gm-scoped fact (the removal is visible to the guest; the gm fact is withheld and sets the latch), (d) a second checkpoint adoption (the latch withholds it): the delivery items the guest's live session ingested since its join cursor (captured at SQLiteCampaignReplicaStore.ingest, the replica offset removed) serialise byte-identical (JSON.stringify) to a fresh full projection's items after that cursor (projectCampaignStreamForGrant with no position and a null cursor over a fresh host-log adapter), and the replica's lastDeliverySequence matches. A unit row in the delivery tests proves a position from another epoch (bumpGeneration, a rebuilt epoch) is not used: the projection with the old position equals the full projection in the new epoch.",
+    "q5_threshold": "U89 revision 2, stated before measuring: a step GROWS iff (median(1000) > 2 x median(50) AND median(1000) > 5 ms) OR median(1000) > 50 ms; a missing median counts as growing. Medians: each run's median over its measured commands (3 SpendFunds + 3 AdvanceDay after 2 discarded warm-ups) or its 3 host PUTs (after 1 discarded); reported: the median of 5 run medians, 5 separate jest processes, machine-idle held and PARENT-PROOF-HOLD absent before each. The U98 red row asserts, on command medians: grantHostLogRead (the host-log reads the grant adapter makes), grantReadStream (the adapter's readStream: reads plus digests), grantAssignSequences, replicaIngest and serverTotal (GM frame in to the last timed step). applyHostIntent, deliverToGuest, recordRewrite and the PUT steps are measured and reported.",
+    "q6_codingDoctrine": {
+      "fixAssessment": "Root cause: both wake-time consumers of a host publish start from nothing every time: the grant projection pages the host log from revision 0 through an adapter that re-reads the whole log on every page and re-assigns every visible identity, and the replica ingest re-reads and re-folds its whole stream. Fix: each keeps where it stopped (the session its projection position, the replica store its stream head and fold) and reads only the rows after it; the adapter passes the page revision to the host log indexed since read.",
+      "removed": [
+        "a per-guest map on the registry entry or a module map keyed by grant: the session already owns the cursor and serializes projections, so the position lives beside it and dies with it",
+        "a new journal method or a head port: the since read on the existing readStream / getCampaignEvents(fromSeq) index serves it (src/lib/events is read-only here)",
+        "caching the whole replica envelope list: keeping the fold (apply state and identities) removes both the read and the re-fold",
+        "an incremental record rewrite: the record is lossy and the step is under the 5 ms floor (see q3)",
+        "any change to scope filtering, the baseline law, sequence assignment or the ingest fault semantics: the same functions run over the new rows only"
+      ],
+      "scope": "hostCampaignEventJournal.ts (reader takes a from-sequence), handleRoomCodeGuestJoin.ts (passes it), projectCampaignStreamForGrant.ts + campaignDeliveryTypes.ts (optional position in, position out), campaignGrantChannelSession.ts (keeps it), SQLiteCampaignReplicaStore.ts + planCampaignReplicaIngest.ts + campaignReplicaEnvelope.ts (kept head and fold). Every caller of projectCampaignStreamForGrant that passes no position (snapshot build, equivalence verifier) keeps the full read; the token grant join session (handleCampaignGrantJoin.ts:142) uses the same session class and so also keeps a position."
+    },
+    "q7_risksForTheParent": [
+      "Concurrency (review class): a kept position that skipped a row would leave a guest's replica and every later wake without that event (a stale campaign for that guest until a rejoin). The position is written only from a returned page, by the one projection the session runs at a time, and is used only within its epoch; the equivalence row compares the incremental output with a fresh full projection after a batch that crosses the 500-row page boundary, an adoption, a removal and a latched adoption.",
+      "A rebuilt or replaced state starts from a full read: a new socket session has no position; an epoch change clears it; a new replica store instance has no head. The first wake of every session and the first ingest of every connection still read the whole stream once.",
+      "Page boundary at 500 rows: the loop continues from the last row's revision, exclusive, from the kept revision; M3 (an off-by-one at the boundary) must fail the equivalence row.",
+      "Rewind: none on the root-branch host log (append-only triggers); a campaign branch activation does not rewrite root rows. If a future change let root rows move, the position would have to be dropped on it.",
+      "Two replica store instances (two sockets of the same guest) append the same replica stream; each head is a lower bound always followed by a since read, and the journal's expectedRevision still refuses a stale append, as before.",
+      "Timing rows are machine-sensitive and machine-idle.mjs does not see another lane's jest (FN-u86-machine-idle-blind-to-jest); verdicts use medians of 5 runs."
+    ]
+  },
+  "threshold": {
+    "rule": "grows iff (median(1000) > 2 x median(50) AND median(1000) > 5 ms) OR median(1000) > 50 ms; a missing median grows",
+    "source": "U89 revision 2 (evidence/u89-local-20260926.json redRowRule)",
+    "statedBeforeMeasuring": true,
+    "runs": 5
+  },
+  "estimatePerFile": [
+    {
+      "path": "src/lib/campaign/sync/hostCampaignEventJournal.ts",
+      "kind": "product",
+      "estimateLines": 8
+    },
+    {
+      "path": "src/lib/multiplayer/server/handleRoomCodeGuestJoin.ts",
+      "kind": "product",
+      "estimateLines": 4
+    },
+    {
+      "path": "src/lib/campaign/delivery/projectCampaignStreamForGrant.ts",
+      "kind": "product",
+      "estimateLines": 30
+    },
+    {
+      "path": "src/lib/campaign/delivery/campaignDeliveryTypes.ts",
+      "kind": "product",
+      "estimateLines": 15
+    },
+    {
+      "path": "src/lib/campaign/delivery/campaignGrantChannelSession.ts",
+      "kind": "product",
+      "estimateLines": 10
+    },
+    {
+      "path": "src/lib/campaign/replica/SQLiteCampaignReplicaStore.ts",
+      "kind": "product",
+      "estimateLines": 30
+    },
+    {
+      "path": "src/lib/campaign/replica/planCampaignReplicaIngest.ts",
+      "kind": "product",
+      "estimateLines": 12
+    },
+    {
+      "path": "src/lib/campaign/replica/campaignReplicaEnvelope.ts",
+      "kind": "product",
+      "estimateLines": 20
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test-helpers.ts",
+      "kind": "test (labels for the grant adapter reads and assignSequences)",
+      "estimateLines": 40
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test.ts",
+      "kind": "test (the U98 red row)",
+      "estimateLines": 40
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/campaignGrantWakeEquivalence.test.ts",
+      "kind": "test (new: the equivalence row)",
+      "estimateLines": 200
+    },
+    {
+      "path": "src/lib/campaign/delivery/__tests__/projectCampaignStreamForGrant.position.test.ts",
+      "kind": "test (new: a position across a rebuilt epoch)",
+      "estimateLines": 80
+    }
+  ],
+  "estimateTotals": {
+    "files": 12,
+    "productLinesAtMost": 130
+  }
+}

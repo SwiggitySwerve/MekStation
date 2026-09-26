@@ -3337,22 +3337,40 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "baseline": null,
+      "baseline": "72a0203df4d07d2fdfe696fceb9ece5b0133819b",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u98-admission-20260926.json",
+          "baseline": "72a0203df4d07d2fdfe696fceb9ece5b0133819b",
+          "at": "2026-09-26T22:03:47.000Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u98-red-20260926.json",
+          "at": "2026-09-26T22:10:48Z",
+          "summary": "baseline 72a0203df (U89's narrowed reads and harness; U97): the U98 timing rows on U89's harness (medians of 5 run medians, machine-idle held, the hold file absent) failed 5 of 5 at 50 and 1000 events: grantHostLogRead 4.4 to 213.9 ms, grantReadStream 5.6 to 242.4, grantAssignSequences 0.5 to 6.1, replicaIngest 6.1 to 93.3, serverTotal (GM frame in to the last timed step) 15.8 to 341.9, applyHostIntent 8.0 to 84.4 (all GROWS by the rule: twice the 50-event median and 5 ms, or 50 ms); flat: recordRewrite 0.3 to 1.9 (under the floor), deliverToGuest 2.9 to 4.1; putRoute 16.1 to 169.0 GROWS (outside the paths); the equivalence and position rows written against the incremental design pass trivially on the baseline (no incremental path yet)"
+        },
+        "local": {
+          "path": "evidence/u98-local-20260926.json",
+          "at": "2026-09-26T22:22:29Z",
+          "summary": "8 product files +183/-55 (the per-socket CampaignGrantChannelSession keeps its projection position, epoch, last revision and the withheld latch, beside its cursor and continues from it, reading only rows after the last revision (exclusive; a 500-row page boundary cannot skip a row); a new session starts from a full read and a position from another epoch is ignored; the position rides the page as an opaque token looked up in a module-private WeakMap because campaignDelivery.boundary.test.ts forbids journal positions on public result types (the admission's public-object design was changed after that test failed; the test unchanged); the SQLiteCampaignReplicaStore instance keeps per stream the last revision read and the fold through it; the record rewrite unchanged and measured), tests 4 files +465 (the timing rows, the equivalence row, the position row); after: grantHostLogRead 0.27 to 0.23, grantReadStream 0.30 to 0.26, grantAssignSequences 0.17 to 0.15, replicaIngest 1.28 to 1.00, serverTotal 5.9 to 6.3, applyHostIntent 3.1 to 4.2 (flat with no change to it: U89's guess confirmed), recordRewrite 0.4 to 2.0 flat under the floor, putRoute 10.3 to 90.8 GROWS outside the paths; equivalence: the live session's delivered items serialise byte-identical to a fresh full projection and the replica's state equals the full fold after a 600-event batch (crossing the page boundary), a checkpoint adoption, a participant removal with a GM-scoped fact setting the withheld latch, and a second adoption withheld by the latch; the position row: reuse within an epoch, reset after a rebuilt one; re-run on the baseline product files under the head tests still fails (grantHostLogRead 6.7 to 246.0), restored with sha256 OK; jest src/lib/multiplayer/server src/lib/campaign 372 suites 4192 passed; tsc 0; oxlint 84 warnings 0 errors; oxfmt clean on 12 files; LINT_UNITS_PASS 17899/17899; qc:openspec-ci errors=0; validator PASSED; mutants: the grant position never advanced (serverTotal 11.5 to 141.9), kept across epochs (position row), the page boundary off by one (equivalence, batch of 600), the replica head never remembered (replicaIngest 7.2 to 111.4), the withheld latch not carried (position and equivalence rows), the since-read off by one (equivalence), each killed and restored with sha256 confirmed; the record-rewrite mutant not applicable (unchanged); NON-CLAIMS: in-process jest only, no build, Playwright or server; 5000 events not measured; the mode-2 stall not reproduced; the performance pack not run; only the journal-native host store path; oxfmt reformatted the harness helpers after red (formatting only) and one position assertion that compared two empty objects after the token change was removed; implementer claude-opus (Agent model: opus, lean-worker); status ready"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
         "tick": null
       },
       "ownerGate": null,
-      "state": "planned",
+      "state": "local-verified",
       "source20260926": "planned by the parent under the owner's U89 ruling of 2026-09-26 (\"Approve (Recommended)\": the grant-wake and replica-ingest projections become a planned successor unit)",
-      "admitAfter20260926": "U89 main-verified (its harness and narrowed reads are what this unit extends); shares src/lib/multiplayer/server with U97, so the two run one at a time"
+      "admitAfter20260926": "U89 main-verified (its harness and narrowed reads are what this unit extends); shares src/lib/multiplayer/server with U97, so the two run one at a time",
+      "admissionNote20260926": {
+        "at": "2026-09-26T23:48:56.000Z",
+        "note": "--next printed U94 (the same server path; the parent chose U98 as the U89 successor the owner ordered). Admission GO with U89's harness and grow rule. Design changed after admission: the grant's position was first a public object on the page, which campaignDelivery.boundary.test.ts refused (journal positions never appear on public result types); it became an opaque token resolved in a module-private WeakMap, the boundary test unchanged. The record rewrite stays: the saved record holds only the balance, date and roster readiness, so it cannot seed a fold, and the step is flat under the 5 ms floor. The host log is root-branch and append-only, so no rewind can invalidate a kept position; a position from another epoch (a rebaseline) is ignored."
+      }
     },
     {
       "id": "U36",
@@ -10146,6 +10164,34 @@
         "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
       },
       "note": "opened at fold on 2026-09-26, before the ruling, so the validator's sensitive-class check sees the packet while the unit is local-verified; decision and ruling are filled when the owner rules the exact head"
+    },
+    {
+      "id": "PK-u98-ruling",
+      "blocks": [
+        "U98"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "U98 (review classes concurrency) presents head 61ae10ea8df69bb45ff52aa1782e55d505876eeb. Does the owner rule it?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "an OWNER-RULING <head> comment and the owner-ruled label on U98's PR; the unit merges and proceeds to main proof",
+          "effort": "0.1 day owner"
+        },
+        {
+          "label": "reject",
+          "consequence": "the PR closes; the unit returns to planned with the objection recorded",
+          "effort": "0.1 day owner"
+        }
+      ],
+      "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
+      "revertCost": "low: a squash merge revert",
+      "decision": null,
+      "ruling": null,
+      "note": "opened at fold on 2026-09-26, before the ruling, so the validator's sensitive-class check sees the packet while the unit is local-verified; decision and ruling are filled when the owner rules the exact head"
     }
   ],
   "deferrals": [
@@ -11840,6 +11886,33 @@
       "summary": "tasks.md:25's dated 2026-08-23 receipt still describes adoption as the old shadowing import, and design.md:106 and :139 do not mention the co-op-host scope; outside U61's sentence, left as is.",
       "recommendedSuccessor": "the change's archive pass",
       "status": "recorded"
+    },
+    {
+      "id": "FN-u98-put-route-grows-outside-adoption",
+      "foundBy": "U98 implementer lane (claude-opus, lean-worker), 2026-09-26 (measured: 10.3 to 90.8 ms at 50 and 1000 events)",
+      "at": "2026-09-26T23:48:56.000Z",
+      "class": "route time, grows with the log (outside the paths)",
+      "summary": "The host's whole-campaign PUT route still grows even though the adoption inside it is now flat; the remaining growth is in src/pages (the checkpoint save and the record read), outside U98's ownership.",
+      "recommendedSuccessor": "a R2.authority-live unit owning src/pages/api/campaigns/[id].ts measures the route's steps",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u98-record-rewrite-flat-by-floor",
+      "foundBy": "U98 implementer lane (claude-opus, lean-worker), 2026-09-26 (measured: 0.4 to 2.0 ms)",
+      "at": "2026-09-26T23:48:56.000Z",
+      "class": "server time, grows but under the floor",
+      "summary": "The record rewrite after a commit still replays the whole stream; it grows with the log but stays under the 5 ms floor, and the saved record cannot seed an incremental fold.",
+      "recommendedSuccessor": "none until it crosses the floor",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u98-apply-host-intent-wall-time-was-the-wake",
+      "foundBy": "U98 implementer lane (claude-opus, lean-worker), 2026-09-26 (measured: applyHostIntent 8.0 to 84.4 ms before, 3.1 to 4.2 after, with no change to it)",
+      "at": "2026-09-26T23:48:56.000Z",
+      "class": "measurement, resolved",
+      "summary": "U89's guess is confirmed: applyHostIntent's growing wall time was the grant wake and the replica ingest running before its promise settled; narrowing them made it flat.",
+      "recommendedSuccessor": "none",
+      "status": "resolved by U98"
     }
   ]
 }
