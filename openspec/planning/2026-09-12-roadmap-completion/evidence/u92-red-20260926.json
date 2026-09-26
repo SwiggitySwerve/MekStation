@@ -1,0 +1,281 @@
+{
+  "unit": "U92",
+  "stage": "red",
+  "status": "red-reproduced",
+  "at": "2026-09-26T17:11:19.656Z",
+  "baseline": "1f11f4055419c998ff097144480af740efeacfc6",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u92",
+  "branch": "roadmap-u92-coop-gm-intervention-funds-20260926",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "firstAttempt": "evidence/u92-admission-attempt1-20260925.json",
+  "admission": "evidence/u92-admission-20260926.json",
+  "productFilesChanged": 0,
+  "testFiles": [
+    {
+      "path": "src/__tests__/api/campaigns/coopGmIntervention.test.ts",
+      "sha256": "c7db9995460820fdea32f8794d53571481836e9666e9d50db47ef641a12d3d05"
+    },
+    {
+      "path": "src/__tests__/pages/gameplay/campaigns/gm-ledger.coop.test.tsx",
+      "sha256": "5cc9976ea46c2b4afd5c9470546b63dbf778a71c83c2f7cfbfe52da8e9eb0d57"
+    }
+  ],
+  "runs": [
+    {
+      "command": "U35E_ROWS_DIR=<lane-temp>/rows-red npx jest src/__tests__/api/campaigns/coopGmIntervention.test.ts",
+      "exitCode": 1,
+      "log": {
+        "path": "<lane-temp>/logs/red-api.log",
+        "sha256": "667d4127712a3add7735a81f32a23e260843127a6fecfc7b962ecb87351da035"
+      },
+      "failureLines": [
+        "  ● U92 ApplyGmIntervention through the live co-op host › (R1) the host commits FundsChanged with the delta; guest, host, journal and record carry it; a second approval commits again; a resend does not",
+        "    - Expected  - 1",
+        "    + Received  + 8",
+        "  ● U92 ApplyGmIntervention through the live co-op host › (R1 debit) a negative delta lowers the balance by its size; a debit past zero is refused insufficient-funds",
+        "    - Expected  - 12",
+        "    + Received  +  1",
+        "  ● U92 ApplyGmIntervention through the live co-op host › (R2) the same intent from the guest is refused host-only and commits nothing; a guest proposal carrying it commits nothing",
+        "    - Expected  - 3",
+        "    + Received  + 3",
+        "Tests:       3 failed, 3 total"
+      ],
+      "rows": {
+        "path": "<lane-temp>/rows-red/api-rows.json",
+        "sha256": "793c5c1a481a18625fe195ca5acbd6f7b86825393cf1273825166eeba7965e01"
+      }
+    },
+    {
+      "command": "U35E_ROWS_DIR=<lane-temp>/rows-red npx jest src/__tests__/pages/gameplay/campaigns/gm-ledger.coop.test.tsx",
+      "exitCode": 1,
+      "log": {
+        "path": "<lane-temp>/logs/red-page.log",
+        "sha256": "e475d6e321c46e259fa6de27e4f6972b5f0cdd51e78b75c5f1643cbd3101193a"
+      },
+      "failureLines": [
+        "  ● GM ledger page approve on a co-op host (U92) › (R4) a co-op funds approval sends ApplyGmIntervention and does not write the local store",
+        "    Expected length: 1",
+        "    Received length: 0",
+        "    Received array:  []",
+        "  ● GM ledger page approve on a co-op host (U92) › (R3) two approvals of one canned correction carry two distinct intervention ids",
+        "    Expected length: 2",
+        "    Received length: 0",
+        "    Received array:  []",
+        "  ● GM ledger page approve on a co-op host (U92) › (refusal) a refusal from the host is shown and nothing is written",
+        "    Expected length: 1",
+        "    Received length: 0",
+        "    Received array:  []",
+        "Tests:       3 failed, 2 passed, 5 total"
+      ],
+      "rows": {
+        "path": "<lane-temp>/rows-red/u92-gm-ledger-page.json",
+        "sha256": "8b3d3dd8d40da49a1bfc772a0cbbf23718905700375216d97e26be999a9266cc"
+      }
+    }
+  ],
+  "rows": {
+    "R1": {
+      "file": "src/__tests__/api/campaigns/coopGmIntervention.test.ts",
+      "assertion": "ApplyGmIntervention from the GM socket: no Error to the host; the guest receives exactly [CampaignEvent FundsChanged payload {delta 2500, reason summary, balance before+2500}]; live host, journal replay and saved record read before+2500; a second approval (new interventionId) a second FundsChanged at before+5000; a resend of the second frame answers nothing and commits nothing",
+      "failsOnBaselineWith": "host frames [{kind Error, code BAD_ENVELOPE, reason malformed-envelope}] (the frame does not parse: the kind is not on the wire); guest frames [], host 380000, journal [CampaignSnapshotPublished], record v1 380000",
+      "expectedFailure": "unknown intent"
+    },
+    "R1debit": {
+      "file": "src/__tests__/api/campaigns/coopGmIntervention.test.ts",
+      "assertion": "deltaCBills -1500 commits FundsChanged {delta -1500, balance before-1500}; a debit past zero answers Error INVALID_INTENT insufficient-funds carrying the intentId and commits nothing",
+      "failsOnBaselineWith": "guest frames [] (BAD_ENVELOPE to the host)"
+    },
+    "R2": {
+      "file": "src/__tests__/api/campaigns/coopGmIntervention.test.ts",
+      "assertion": "the guest socket sending the CampaignHostIntent is answered [Error AUTH_REJECTED campaign-host-intent-requires-host, intentId]; the guest socket stays open; balance and journal unchanged; a guest CampaignProposal carrying the kind commits nothing",
+      "failsOnBaselineWith": "guest frames [{Error BAD_ENVELOPE malformed-envelope, intentId undefined}] instead of the host-only refusal",
+      "expectedFailure": "unknown intent, not the host-only refusal",
+      "baselineProposalReading": "the proposal is answered with CampaignDecision frames and commits nothing (balance 380000, journal unchanged)"
+    },
+    "R3": {
+      "file": "src/__tests__/pages/gameplay/campaigns/gm-ledger.coop.test.tsx",
+      "assertion": "two approvals of the merchant reversal on a co-op host send two ApplyGmIntervention intents with distinct interventionIds and intentIds",
+      "failsOnBaselineWith": "Expected length 2, received [] (nothing is sent); both approvals are written to the local store carrying the canned id gm-ledger-merchant-reversal and the same absolute balance 382500 (rows-red/u92-gm-ledger-page.json R3.localWrites)",
+      "expectedFailure": "the constant canned ids"
+    },
+    "R4": {
+      "file": "src/__tests__/pages/gameplay/campaigns/gm-ledger.coop.test.tsx",
+      "assertion": "one co-op approval sends one ApplyGmIntervention {campaignId, payload keys exactly deltaCBills/interventionId/summary, deltaCBills 2500, summary}; updateCampaign and markDirty are not called; refreshAfterCommittedCommand({kind committed, state {campaignId}}) is called; no toast",
+      "failsOnBaselineWith": "Expected length 1, received []; updateCampaign called once with balance 382500",
+      "expectedFailure": "local write only"
+    },
+    "refusal": {
+      "assertion": "an Error insufficient-funds answer is toasted (variant error, message contains the reason); nothing written, no refresh",
+      "failsOnBaselineWith": "nothing sent (Expected length 1, received 0)"
+    },
+    "controlRowsPassingOnBaseline": [
+      "(solo) a solo campaign keeps the local path: updateCampaign with the canned id and balance 382500, markDirty once, nothing sent",
+      "(guest route) a guest campaign whose balance is projected to 382500 renders the player-only view; the player log reads \"Player Action LogNo player-visible ledger entries yet.\" (no row for the correction; gmInterventionEvents absent): the reading for FN-u92-guest-ledger-route-reads-unmirrored-data"
+    ],
+    "sideReading": "console.error in the page run (R3): \"Encountered two children with the same key, `action:gm-ledger-merchant-reversal`\": the control plane keys its component-local ledger rows on the canned id (src/components), so two approvals of one canned correction duplicate a React key."
+  },
+  "liveBaseline": {
+    "build": {
+      "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+      "pre": "MACHINE_IDLE\nidleExit=0 holdWaitSeconds=720",
+      "holdWait": "PARENT-PROOF-HOLD was present from 2026-09-26T16:55:58Z; the build waited 720 s (<lane-temp>/build-baseline.holdwait) and started 2026-09-26T17:08:00Z",
+      "exit": "exit=1 at 2026-09-26T17:09:40Z",
+      "lastLine": "\"error\": \"Unsafe hydration destination (runtime loader tsx) contains a symlink or junction: .next\\\\standalone\\\\node_modules\" (the standalone hydration guard; exit 1 by design in a junctioned worktree)",
+      "marker": ".next/static/chunks/pages/_app-5a3d564eff49a9a6.js\n.next/static/chunks/pages/_app-5a3d564eff49a9a6.js\nmarkerGrepExit=0",
+      "log": {
+        "path": "<lane-temp>/build-baseline.log",
+        "sha256": "1bec8bf4c4a0e294a494c45dd6f5130876c12fa8b6621070f24aa892bc2dcc64"
+      }
+    },
+    "driver": {
+      "path": "<lane-temp>/u92-live-driver.cjs",
+      "sha256": "55564bf9340a847e283e15daf91f9b34812196bd79bbfaea1b6565d9b6684092",
+      "command": "node <lane-temp>/u92-live-driver.cjs before before 27921 29921 (cwd = worktree; through <lane-temp>/live.sh after the hold check and machine-idle)",
+      "pre": "MACHINE_IDLE\nidleExit=0 holdWaitSeconds=0\nholdAbsentAt=2026-09-26T17:10:05Z port=27921 inspectPort=29921",
+      "exit": "exit=0 at 2026-09-26T17:10:14Z\nno listener 27921",
+      "port": 27921,
+      "inspectPort": 29921,
+      "serverPid": 28204,
+      "serverKilled": true,
+      "serverAliveAfterKill": false,
+      "stdout": {
+        "path": "<lane-temp>/live-before.stdout",
+        "sha256": "76105a95fb58c7292914c02082a402bfbe6fcd5b83a663f9d91629cbac5b50e8"
+      },
+      "json": {
+        "path": "<lane-temp>/live-before.json",
+        "sha256": "e7404b8e994d7e38b10c2140d3cc2ea16da7a3505b575321f4f60cde808227fa"
+      }
+    },
+    "method": "standalone server from the worktree (node --inspect server.js, NODE_ENV production, MULTIPLAYER_STORE durable, isolated temp SQLite); record created by the item route PUT (balance 380000), co-op match by the match create route; guest and GM connected with the real client transport (connectCampaignSyncTransport over Node ws, which acks CampaignEvent frames); the approval runs the real pipeline (buildMerchantReversalCommand, createGmCascadePreview, approveGmCascadePreview with the control plane arguments); the baseline page callback is emulated as the co-op save does it: the stored record PUT at its version with the approved balance, the approval gmInterventionEvents and the host co-op session; then the GM sends AdvanceDay. Host state and journal read read-only over the Node inspector.",
+    "steps": [
+      {
+        "step": "S1 guest joined by room code, GM connected (real client transports)",
+        "record": {
+          "version": 1,
+          "balance": 380000,
+          "gmInterventionEvents": null
+        },
+        "entry": {
+          "hostClosed": false,
+          "paused": false,
+          "hostLiveBalance": 380000,
+          "hostLiveDay": 0
+        },
+        "journal": {
+          "types": [
+            "CampaignSnapshotPublished"
+          ],
+          "balance": 380000,
+          "day": 0
+        }
+      },
+      {
+        "step": "S2 GM approves the merchant reversal; the baseline page saves it through the whole-campaign PUT",
+        "approval": {
+          "status": "approved",
+          "approvedBalance": 382500,
+          "newestEffect": {
+            "interventionId": "gm-ledger-merchant-reversal",
+            "family": "funds-transaction",
+            "publicSummary": "Merchant charge corrected by +2,500.00 C-bills."
+          }
+        },
+        "put": {
+          "status": 200,
+          "savedVersion": 2,
+          "savedBalance": 382500,
+          "kind": null,
+          "reason": null
+        },
+        "guestFramesAfter": [
+          {
+            "kind": "CampaignSnapshot",
+            "code": null,
+            "reason": null,
+            "intentId": null,
+            "eventType": "CampaignSnapshotPublished",
+            "sequence": 1,
+            "payload": {
+              "balance": 382500,
+              "day": 0
+            }
+          }
+        ],
+        "gmFramesAfter": [
+          {
+            "kind": "CampaignSnapshot",
+            "code": null,
+            "reason": null,
+            "intentId": null,
+            "eventType": "CampaignSnapshotPublished",
+            "sequence": 1,
+            "payload": {
+              "balance": 382500,
+              "day": 0
+            }
+          }
+        ],
+        "record": {
+          "version": 2,
+          "balance": 382500,
+          "gmInterventionEvents": 1
+        },
+        "entry": {
+          "hostClosed": false,
+          "paused": false,
+          "hostLiveBalance": 382500,
+          "hostLiveDay": 0
+        },
+        "journal": {
+          "types": [
+            "CampaignSnapshotPublished",
+            "CampaignSnapshotPublished"
+          ],
+          "balance": 382500,
+          "day": 0
+        }
+      },
+      {
+        "step": "S5 GM sends AdvanceDay (reads FN-u96-guests-do-not-ack-snapshot-frames)",
+        "guestFramesAfter": [],
+        "gmFramesAfter": [
+          {
+            "kind": "Error",
+            "code": "CAMPAIGN_NOT_CONVERGED",
+            "reason": "participants-behind pid_AggBtVeT1xaewDyAAsCzsEb4sFY:0; requiredRevision 1",
+            "intentId": "u92-before-advance-day",
+            "eventType": null,
+            "sequence": null,
+            "payload": null
+          }
+        ],
+        "record": {
+          "version": 2,
+          "balance": 382500,
+          "gmInterventionEvents": 1
+        },
+        "entry": {
+          "hostClosed": false,
+          "paused": false,
+          "hostLiveBalance": 382500,
+          "hostLiveDay": 0
+        },
+        "journal": {
+          "types": [
+            "CampaignSnapshotPublished",
+            "CampaignSnapshotPublished"
+          ],
+          "balance": 382500,
+          "day": 0
+        }
+      }
+    ],
+    "readings": [
+      "The charter expectation (approve reaches no host, guest 0 frames) does NOT hold on this baseline: U96 adoption makes the host PUT reach the live host. Measured: PUT 200 v2 382500; the guest received one CampaignSnapshot frame (CampaignSnapshotPublished sequence 1, balance 382500); host live balance 382500; journal [CampaignSnapshotPublished, CampaignSnapshotPublished] replaying 382500.",
+      "What the guest does NOT receive on the baseline: no FundsChanged, so no command result carrying the public summary (no feed line); the snapshot frame carries the authoritative state only.",
+      "FN-u96-guests-do-not-ack-snapshot-frames measured: after the adopted snapshot the GM AdvanceDay was refused Error CAMPAIGN_NOT_CONVERGED reason \"participants-behind <guest playerId>:0; requiredRevision 1\" (the real guest transport acked nothing for the snapshot frame). The day stayed 0.",
+      "FN-u96-put-host-identity-is-a-body-claim touched: the driver PUT carried no credential and was adopted because its body named the host co-op session."
+    ]
+  }
+}

@@ -2808,20 +2808,34 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "baseline": null,
+      "baseline": "1f11f4055419c998ff097144480af740efeacfc6",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u92-admission-20260926.json",
+          "baseline": "1f11f4055419c998ff097144480af740efeacfc6",
+          "at": "2026-09-26T16:50:16.156Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u92-red-20260926.json",
+          "at": "2026-09-26T17:11:19.656Z",
+          "summary": "baseline 1f11f4055 (U95 and U96 on main; the amended sentence): R1 the GM's ApplyGmIntervention answered BAD_ENVELOPE malformed-envelope and the guest got nothing; R1 debit failed the same way; R2 the guest's intent answered BAD_ENVELOPE instead of AUTH_REJECTED; R3 both approvals went to the local store with the canned id gm-ledger-merchant-reversal; R4 nothing sent, updateCampaign called with 382500; page rows 3 failed 2 passed (the solo and guest-route control rows pass on the baseline); live before (port 27921): the approve's PUT adopted as a checkpoint (guest CampaignSnapshot balance 382500, hostLiveBalance 382500, journal two CampaignSnapshotPublished, no FundsChanged, no feed line), then AdvanceDay refused CAMPAIGN_NOT_CONVERGED participants-behind requiredRevision 1 (guests do not ack snapshot frames, measured)"
+        },
+        "local": {
+          "path": "evidence/u92-local-20260926.json",
+          "at": "2026-09-26T17:23:52.985Z",
+          "summary": "9 product files, 259 added 21 removed (CampaignSync.ts +29: ICampaignApplyGmInterventionIntent {interventionId, summary, deltaCBills} beside ReconcileBattle outside the guest union; Protocol.ts +22/-1: the wire schema on the host-intent frame only, non-blank summary, integer delta; CampaignMatchHostIntent.ts +27/-3: one validate branch commits FundsChanged {delta, reason: summary, balance} and refuses a debit below zero insufficient-funds; CampaignMatchHost.ts, CampaignMatchHost.doors.ts, campaignIntentIdentity.ts, campaignSyncTransport.ts 17 lines; gm-ledger.tsx +45/-5: a co-op funds approval sends the intent with a fresh interventionId and writes nothing locally, re-reads the record on commit, toasts on refusal; src/lib/campaign/coop/coopGmIntervention.ts new 119 lines copied from the day advance's private sendAdvanceDay, resolving on the matching FundsChanged or the Error with the intentId, no timeout), tests 719 in coopGmIntervention.test.ts and gm-ledger.coop.test.tsx plus one derived type line in coopBattleReconciliationWiring.test.ts (parent-approved amendment; its two orphaned imports removed by the parent before the commit); live after (port 27923): guest FundsChanged {delta 2500, reason the public summary, balance 382500} sequence 1, record v2; a second approval with a new id FundsChanged sequence 2 balance 385000 record v3; the guest's own send AUTH_REJECTED campaign-host-intent-requires-host; the next AdvanceDay committed newDay 1 (the guest acknowledged the events); jest 558 suites 6881 passed plus the page rows 9; tsc 0 after the amendment; oxlint 84 warnings 0 errors; oxfmt clean on 11 files; lint:units PASS; qc:openspec-ci errors=0; validator PASSED; build exits at the hydration guard by design with the __E2E_MODE__ marker; lifecycle-pack 2 passed (port 27487); mutants: host-only check removed (a forged guest intent committed), id constant again, callback also writing the local store, delta sign dropped, wire entry removed (BAD_ENVELOPE), each killed and restored with sha256 confirmed; NON-CLAIMS: the page proven in jsdom not a browser, the record refresh after commit checked with a spy, R1 and R2 without a membership port, the baseline approve PUT emulated, the build and live runs not repeated after the type-alias amendment; the parent's hold made the baseline build wait 720 s; implementer claude-opus (Agent model: opus, lean-worker); status ready"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
         "tick": null
       },
       "ownerGate": null,
-      "state": "planned",
+      "state": "local-verified",
       "id": "U92",
       "node": "R2.authority-live",
       "behavior": "A GM intervention approved on the co-op host's GM ledger route reaches the guest. Today handleApprove writes only the host's local campaign store (src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx:255-323; the ledger page callback gm-ledger.tsx:42-50), and no code path commits it through the campaign authority (grep of the ledger path for co-op authority calls: 0), so the guest never sees the public net effect that openspec/specs/coop-campaign-sync/spec.md:499-504 requires, and a funds correction on the host is reset by the next accepted frame (src/lib/campaign/coop/campaignMirrorProjection.ts:27-30). After: on a co-op campaign the approved intervention commits through the campaign authority as a host command on the campaign stream, so the host's saved record and the guest's mirror both carry its net effect, and the guest's frame carries the redacted public result only (no rationale, no hidden correction context). Admission decides, with file:line, the command shape (an existing campaign intent that carries the projection's updates, or a new command needing src/types/campaign and Protocol changes, which stops admission for a path amendment) and how the host's own balance survives the mirror reset. Red first, live on two browsers on the journal-authority head: the host approves a funds correction; the guest's balance and feed do not change on the baseline; after, they do, and the guest's frame carries no private field. Amended 2026-09-26 after the first admission attempt (evidence/u92-admission-attempt1-20260925.json; owner answer \"Amend U92: funds-only, those defaults\"): the funds family only. A new host-only command ApplyGmIntervention (src/types/campaign/CampaignSync.ts, the wire schema in src/types/multiplayer/Protocol.ts and campaignSyncSchemas) carries the intervention's public summary and a signed C-bill delta and commits as FundsChanged; the ledger page's approve callback (src/pages/gameplay/campaigns/[id]/gm-ledger.tsx:42-50) sends it for a co-op campaign. Defaults: the host applies the change only through the command's fold (no separate local-store write); each approval carries a unique intervention id (today canned ids repeat, helpers.ts:26, so two approvals would dedupe as one); the day cascade and the other intervention families stay out of scope and are recorded (FN-u92-other-intervention-families-unreachable). Admitted after U95 is main-verified (both own src/lib/multiplayer/server, and U95's shared registry is what a live host read needs).",
@@ -2830,7 +2844,8 @@
         "src/lib/multiplayer/server",
         "src/types/campaign/CampaignSync.ts",
         "src/types/multiplayer/Protocol.ts",
-        "src/pages/gameplay/campaigns/[id]/gm-ledger.tsx"
+        "src/pages/gameplay/campaigns/[id]/gm-ledger.tsx",
+        "src/stores/campaign/__tests__/coopBattleReconciliationWiring.test.ts"
       ],
       "reviewClasses": [
         "authority",
@@ -2866,6 +2881,26 @@
         "at": "2026-09-26T16:33:17.000Z",
         "by": "U96 main-verified (the shared server path is free; the live host now adopts the host's own PUT, which U92's funds command rides)",
         "note": "relaunch on the amended sentence; its worktree is stale and is re-created"
+      },
+      "testPathsAmendedAtFold20260926": [
+        {
+          "path": "src/stores/campaign/__tests__/coopBattleReconciliationWiring.test.ts",
+          "at": "2026-09-26T17:26:18.000Z",
+          "why": "one line (:163) pinned the transport's sendHostIntent argument as a two-member union; the unit widened the interface with the host-only ApplyGmIntervention intent, so the test now derives the type from the interface (parent-approved after the lane stopped BLOCKED (ownership) on the one tsc error)"
+        }
+      ],
+      "newFiles20260926": {
+        "at": "2026-09-26T17:26:18.000Z",
+        "files": [
+          "src/lib/campaign/coop/coopGmIntervention.ts",
+          "src/__tests__/api/campaigns/coopGmIntervention.test.ts",
+          "src/__tests__/pages/gameplay/campaigns/gm-ledger.coop.test.tsx"
+        ],
+        "note": "coopGmIntervention.ts is under the unit's src/lib/campaign path; the two test files sit in the node's test homes (a page test under src/pages would become a route, hence src/__tests__/pages); the validator requires ownership paths to exist on disk, so the test files join the unit's and the node's paths at closure, after the merge"
+      },
+      "admissionNote20260926": {
+        "at": "2026-09-26T17:26:18.000Z",
+        "note": "--next printed U89 (overlaps this unit's server path; the parent chose U92 under the owner's order after U95 and U96). Re-admission GO on the amended sentence: one host-only intent kind ApplyGmIntervention {interventionId, summary, deltaCBills} beside ReconcileBattle, outside the guest union; the wire schema only on the host-intent frame; validateCampaignIntent commits FundsChanged {delta, reason: summary, balance} and refuses a debit below zero (insufficient-funds); dedupe by intentId as every intent; the existing binder check refuses a guest (AUTH_REJECTED campaign-host-intent-requires-host); a new module src/lib/campaign/coop/coopGmIntervention.ts copied from the day advance's private sendAdvanceDay resolves on the matching FundsChanged or the Error with the intentId, no timeout (U96's contract); the ledger page sends it for a co-op funds approval and writes nothing locally; the guest's ledger route stays empty (FN-u92-guest-ledger-route-reads-unmirrored-data). The charter's baseline expectation (approve reaches no host) predated U96: on the baseline the approve's PUT is adopted as a checkpoint (no FundsChanged, no feed line), and the following AdvanceDay was refused CAMPAIGN_NOT_CONVERGED because guests do not ack snapshot frames (FN-u96-guests-do-not-ack-snapshot-frames, now measured). The lane stopped BLOCKED (ownership) on one tsc error in a store test outside its paths; the parent amended the path and the lane applied the one-line derived type."
       }
     },
     {
@@ -10625,7 +10660,7 @@
       "class": "convergence gap after adoption",
       "summary": "Guests never acknowledge CampaignSnapshot frames, so after an adopted checkpoint the next AdvanceDay may be refused CAMPAIGN_NOT_CONVERGED until the guest acknowledges a later event.",
       "recommendedSuccessor": "measure in U92's or U94's live runs; a one-line ack on snapshot frames if it shows",
-      "status": "recorded"
+      "status": "recorded; measured live by U92's baseline run (AdvanceDay refused CAMPAIGN_NOT_CONVERGED, participants-behind, requiredRevision 1, after an adopted checkpoint); a committed FundsChanged clears it"
     },
     {
       "id": "FN-u96-resent-advanceday-waits-without-timeout",
@@ -10716,6 +10751,69 @@
       "summary": "The comment above DEFAULT_PATHS carried the measured counts and base sha and went stale at the first re-measure; the parent reworded it to point at the ceiling file, which carries measuredAt.",
       "recommendedSuccessor": "none",
       "status": "resolved in U40's second commit"
+    },
+    {
+      "id": "FN-u92-transport-fake-types-pin-host-intent-union",
+      "foundBy": "U92 implementer lane (claude-opus, lean-worker), 2026-09-26 (tsc)",
+      "at": "2026-09-26T17:26:18.000Z",
+      "class": "test coupling, resolved",
+      "summary": "src/stores/campaign/__tests__/coopBattleReconciliationWiring.test.ts:163 hard-coded the transport's sendHostIntent argument as ICampaignIntent | ICampaignReconcileBattleIntent; widening the interface broke tsc in a test outside the unit's paths. Resolved by deriving the type from the interface.",
+      "recommendedSuccessor": "none",
+      "status": "resolved in U92 after a path amendment"
+    },
+    {
+      "id": "FN-u92-control-plane-ledger-rows-duplicate-key",
+      "foundBy": "U92 implementer lane (claude-opus, lean-worker), 2026-09-26 (jsdom, baseline and after)",
+      "at": "2026-09-26T17:26:18.000Z",
+      "class": "UI defect outside the unit's paths",
+      "summary": "Two approvals of one canned correction trigger React's duplicate-key warning in the GM ledger's control plane rows (src/components/campaign/gm), on the baseline as well.",
+      "recommendedSuccessor": "the next unit owning src/components/campaign/gm keys rows by interventionId",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u92-control-plane-reports-applied-after-refusal",
+      "foundBy": "U92 implementer lane (claude-opus, lean-worker), 2026-09-26 (read: GmCampaignInterventionControlPlane.tsx:318-321)",
+      "at": "2026-09-26T17:26:18.000Z",
+      "class": "UI defect outside the unit's paths",
+      "summary": "The control plane says 'Approved and applied' even after the host refused the intervention; the page's own error toast shows the refusal, but the panel text does not follow it.",
+      "recommendedSuccessor": "the next unit owning src/components/campaign/gm reads the page's outcome",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u92-approve-not-gated-in-flight",
+      "foundBy": "U92 implementer lane (claude-opus, lean-worker), 2026-09-26",
+      "at": "2026-09-26T17:26:18.000Z",
+      "class": "idempotency hazard (by design: unique ids)",
+      "summary": "The approve button is not disabled during the round trip, so a double click sends two intents with distinct interventionIds and commits twice.",
+      "recommendedSuccessor": "a small unit disabling approve while a send is in flight (src/components/campaign/gm)",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u92-coop-funds-approval-not-in-record-history",
+      "foundBy": "U92 implementer lane (claude-opus, lean-worker), 2026-09-26 (measured live: gmInterventionEvents stays null)",
+      "at": "2026-09-26T17:26:18.000Z",
+      "class": "persisted history gap",
+      "summary": "A co-op funds approval commits FundsChanged with the public summary as reason but is no longer written to the record's intervention history; the GM's persisted ledger of interventions does not carry it.",
+      "recommendedSuccessor": "a unit that journals the intervention record beside the FundsChanged (spec delta first: what the history holds for co-op)",
+      "status": "recorded; disclosed at the ruling"
+    },
+    {
+      "id": "FN-u92-charter-baseline-expectation-superseded-by-u96",
+      "foundBy": "parent, from the lane's baseline measurement, 2026-09-26",
+      "at": "2026-09-26T17:26:18.000Z",
+      "class": "charter drift",
+      "summary": "The relaunch charter expected the baseline approve to reach no host; after U96 the approve's PUT is adopted as a checkpoint (balance right, no FundsChanged, no feed line). The lane measured and recorded the actual baseline.",
+      "recommendedSuccessor": "none",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u92-review-classes-drift",
+      "foundBy": "U92 implementer lane (claude-opus, lean-worker), 2026-09-26",
+      "at": "2026-09-26T17:26:18.000Z",
+      "class": "charter drift",
+      "summary": "The relaunch charter listed reviewClasses [authority, idempotency]; units.json carries [authority, privacy, idempotency]. The ledger governs; the ruling discloses the privacy angle.",
+      "recommendedSuccessor": "none",
+      "status": "recorded"
     }
   ]
 }
