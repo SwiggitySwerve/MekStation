@@ -2861,21 +2861,39 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "baseline": null,
+      "baseline": "23e93dcef3bd4ea34e797c3c35728b5ae6f51cb7",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u95-admission-20260926.json",
+          "baseline": "23e93dcef3bd4ea34e797c3c35728b5ae6f51cb7",
+          "at": "2026-09-26T07:05:00.000Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u95-red-20260926.json",
+          "at": "2026-09-26T07:21:00.000Z",
+          "summary": "baseline 23e93dcef: CampaignHostRegistry.globalSlot.test.ts fails 3 of 3 (two isolated module loads give two registries: toBe fails with 'serializes to the same string'; the socket-side load's get('match-slot') is null; after a reset from another load the entry's host isClosed() is false); campaignProgressionReaders.durable.crossGraph.test.ts: the control row passes, the cross-graph row fails (Expected 'outcome-cross-graph', Received undefined); live on the standalone server (port 23951) with a scripted co-op session, a Node-inspector read of both graphs: sameRegistryInstance:false at every step, the API graph's entry retained [] and unpaused, the socket graph's own rebuilt entry retained the guest and was paused until the GM joined; a guest acting before the GM's first connection was refused MATCH_PAUSED campaign-paused-gm-absent"
+        },
+        "local": {
+          "path": "evidence/u95-local-20260926.json",
+          "at": "2026-09-26T07:43:47.587Z",
+          "summary": "4 files, product 54 lines (CampaignHostRegistry.ts +31/-7: the module-level singleton becomes a Symbol.for('mekstation.multiplayer.campaignHostRegistry') globalThis slot as MatchHostRegistry.ts:218-262, _resetCampaignHostRegistry closes every entry and deletes the slot; campaignProgressionReaders.durable.ts +13/-3: the durable readers find the shared match store by its getDatabase method instead of instanceof DurableMatchStore, which is false for the other graph's class), tests 218 lines in 2 new files; live after (port 23953): sameRegistryInstance:true, sameEntryObject:true, one entry built by the API graph retaining the guest, unpaused before the GM joined; GM pause table: guest-before-first-GM-connect now processed (CampaignDecision) instead of MATCH_PAUSED, GM-connected, GM-absent (paused) and GM-returns (resumed) unchanged; lifecycle-pack 2 passed (port 27487); jest src/lib/multiplayer/server 163 suites 1185, src/lib/campaign src/lib/api src/__tests__/api 262 suites 3780, other reset/reader consumers 9 suites 69; tsc 0; oxlint 84 warnings 0 errors; oxfmt clean after one fix; lint:units 100/100; qc:openspec-ci errors=0; validator PASSED; build exits at the hydration guard by design with the __E2E_MODE__ marker; mutants: Symbol() for Symbol.for (3 fail), reset without closing (2 fail), new registry per call (2 fail), register always pauses (15 fail; live S2 back to MATCH_PAUSED), reader class check restored (1 fail; live gate ok:true with a saga pending), each restored with sha256 confirmed; NON-CLAIMS: Node sockets not browsers and only the pause gate claimed, no campaign ladder group beyond lifecycle-pack, launch route and process restart (socket-graph-first construction) not driven live; the parent's proof hold file appeared after the lane's last build and server run; implementer claude-opus (Agent model: opus; general-purpose agent type, launched minutes before the lean-worker rule of PR #1983 landed); status ready"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
         "tick": null
       },
       "ownerGate": null,
-      "state": "planned",
-      "source20260925": "planned by the parent under the owner's answer \"Plan U95, U86 waits on it (Recommended)\" (working session of 2026-09-25) on U86's measured registry split"
+      "state": "local-verified",
+      "source20260925": "planned by the parent under the owner's answer \"Plan U95, U86 waits on it (Recommended)\" (working session of 2026-09-25) on U86's measured registry split",
+      "admissionNote20260926": {
+        "at": "2026-09-26T07:57:35.000Z",
+        "note": "--next printed U89 (U95 was the parent's choice under the owner's 2026-09-26 ordering: U95, then U96, then U92). Admission GO: the socket side finds the create route's entry once the slot is shared (measured, one object, built by the API graph), so the freshly-created-unpaused semantics of CampaignSyncSession.ts:312-315 win and the create route's registration does not change (no path amendment). A rider inside the ownership path: campaignProgressionReaders.durable.ts found the shared match store by instanceof, false across graphs; without it the AdvanceDay correction-pending gate answered ok:true with a saga pending (mutant M5, live). The spec (coop-campaign-sync/spec.md:158-162) governs the host-disconnect pause only and is silent on the window before the GM's first connection; the visible change there goes to the owner's ruling."
+      }
     },
     {
       "id": "U96",
@@ -10222,6 +10240,33 @@
       "summary": "The main proof's idle gate runs before the build and before the runtime, but a lane may start its own build after the gate passes; U39's in-band jest runtime then lost one provenance test (a child process fetching a local bare repository) while the U95 lane built. The runtime passed 1270/0 when rerun alone. machine-idle.mjs does not see an in-band jest run, so a lane's idle gate does not hold for the parent's runtime either.",
       "recommendedSuccessor": "the parent holds lanes' heavy steps while a main proof runs (a hold file the lane charters check before build, Playwright and standalone servers), or the proof runtime is retried once on a single failed suite with the retry recorded",
       "status": "recorded; U39 re-proved on the same merge commit"
+    },
+    {
+      "id": "FN-u95-launch-route-saga-read-always-null",
+      "foundBy": "U95 implementer lane (claude-opus), 2026-09-26 (measured instanceof false live; the route itself not driven)",
+      "at": "2026-09-26T07:57:35.000Z",
+      "class": "pre-existing cross-graph defect, fixed by U95's reader change",
+      "summary": "src/pages-modules/api/campaignLaunchAuthorityRoute.ts:188 builds the durable progression readers in Next's API graph, where the process match store is the socket graph's DurableMatchStore instance; on the baseline its correction-pending saga read was always null. U95's method check fixes it; the route was not driven live.",
+      "recommendedSuccessor": "U96 or U92's Lane A drives the launch route with a saga pending",
+      "status": "recorded; fixed in U95, disclosed"
+    },
+    {
+      "id": "FN-u95-coop-host-registry-active-hosts-per-graph",
+      "foundBy": "U95 implementer lane (claude-opus), 2026-09-26 (read from the code)",
+      "at": "2026-09-26T07:57:35.000Z",
+      "class": "split module state, no reader",
+      "summary": "src/lib/campaign/coop/coopHostRegistry.ts:28 activeHosts is a per-graph module Map; after U95 a created entry registers its host in the API graph's copy. getActiveCoopHost has no non-test caller.",
+      "recommendedSuccessor": "delete or slot it when a caller appears",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u95-duplicate-idle-host-per-live-session-resolved",
+      "foundBy": "U95 implementer lane (claude-opus), 2026-09-26 (measured)",
+      "at": "2026-09-26T07:57:35.000Z",
+      "class": "resolved by U95",
+      "summary": "Before U95 every live co-op session held two CampaignMatchHost objects on the same journal stream (the create route's, idle, in the API graph; the socket graph's rebuilt one); after U95 one (sameEntryObject true).",
+      "recommendedSuccessor": "none",
+      "status": "resolved"
     }
   ]
 }

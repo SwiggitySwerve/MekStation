@@ -1,0 +1,1396 @@
+{
+  "unit": "U95",
+  "stage": "local",
+  "status": "LOCAL-VERIFIED",
+  "at": "2026-09-26T07:43:47.587Z",
+  "baseline": "23e93dcef3bd4ea34e797c3c35728b5ae6f51cb7",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u95",
+  "branch": "roadmap-u95-campaign-host-registry-slot-20260926",
+  "head": "23e93dcef3bd4ea34e797c3c35728b5ae6f51cb7",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "behaviourDelivered": "getCampaignHostRegistry holds the registry on globalThis under Symbol.for('mekstation.multiplayer.campaignHostRegistry'), so Next's API graph and the socket runtime's tsx graph share one instance; _resetCampaignHostRegistry closes the entries (registry._reset) and deletes the slot. The durable progression readers read the process match store's getDatabase method instead of checking its class, so an entry built in one graph reads a store constructed by the other.",
+  "changedFiles": {
+    "product": [
+      {
+        "file": "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+        "added": 31,
+        "deleted": 7
+      },
+      {
+        "file": "src/lib/multiplayer/server/campaignProgressionReaders.durable.ts",
+        "added": 13,
+        "deleted": 3
+      }
+    ],
+    "productLinesTotal": 54,
+    "tests": [
+      {
+        "file": "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.globalSlot.test.ts",
+        "lines": 74,
+        "status": "new"
+      },
+      {
+        "file": "src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.crossGraph.test.ts",
+        "lines": 144,
+        "status": "new"
+      }
+    ],
+    "testLinesTotal": 218,
+    "caps": {
+      "maxFiles": 15,
+      "filesTouched": 4,
+      "maxNonGeneratedLines": 500
+    }
+  },
+  "finalHashes": {
+    "src/lib/multiplayer/server/CampaignHostRegistry.ts": "da6f1c4071eb2ad17e46734c8f4ccb42a01103f032c5e3fc791045044d7ba274",
+    "src/lib/multiplayer/server/campaignProgressionReaders.durable.ts": "10cc7c4ee856be690254beba252c7fc1f05722af49ab4d09ca059912ff51ae2d",
+    "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.globalSlot.test.ts": "b051135eb7cd3abff51aa445575e497d6ce663d7486526ea69ddc9875bf99f8e",
+    "src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.crossGraph.test.ts": "f6c377c5b139fafdae85a675500cc0779b4f584333661f85070cb877bad21c8d"
+  },
+  "green": {
+    "command": "npx jest src/lib/multiplayer/server/__tests__/CampaignHostRegistry.globalSlot.test.ts src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.crossGraph.test.ts src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts",
+    "exit": 0,
+    "testsLine": "Tests:       22 passed, 22 total",
+    "lastLine": "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\server\\\\__tests__\\\\CampaignHostRegistry.globalSlot.test.ts|src\\\\lib\\\\multiplayer\\\\server\\\\__tests__\\\\campaignProgressionReaders.durable.crossGraph.test.ts|src\\\\lib\\\\multiplayer\\\\server\\\\__tests__\\\\CampaignHostRegistry.test.ts/i.",
+    "log": {
+      "path": "<lane-temp>/green-jest.log",
+      "sha256": "b720bb0670bec38c093fb4be3dd5a9846db249632d7533b806044f09b680bf8b"
+    },
+    "note": "run on the final files (after oxfmt); the red rows of u95-red-20260926.json all pass"
+  },
+  "build": {
+    "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+    "runs": [
+      {
+        "label": "after (final product code)",
+        "startedAt": "2026-09-26T07:25:24Z",
+        "exit": 1,
+        "buildId": "1790407528594",
+        "log": {
+          "path": "<lane-temp>/build-after.log",
+          "sha256": "b53a4e0d89fc38fb28603bad04885d7e65ea0139b7d2f3e201e3ec74ef4d94ee"
+        },
+        "marker": ".next/static/chunks/pages/_app-57752df63578994c.js contains __E2E_MODE__",
+        "slotInBundle": ".next/server/pages/api/multiplayer/matches.js contains mekstation.multiplayer.campaignHostRegistry"
+      },
+      {
+        "label": "M4 mutant",
+        "exit": 1,
+        "buildId": "1790408033432",
+        "log": {
+          "path": "<lane-temp>/build-M4.log",
+          "sha256": "2b5dade1f316a6add1fb108791b0585edec1e43b0a78611a20c381f4956fe440"
+        }
+      },
+      {
+        "label": "M5 mutant",
+        "exit": 1,
+        "buildId": "1790408213381",
+        "log": {
+          "path": "<lane-temp>/build-M5.log",
+          "sha256": "112667621541843fd144dab6f6ec7eed178eabf7eae038fafe404ca350ee7c38"
+        }
+      },
+      {
+        "label": "final rebuild after mutants restored",
+        "exit": 1,
+        "buildId": "1790408332397",
+        "log": {
+          "path": "<lane-temp>/build-final.log",
+          "sha256": "ab71a86f6a76a79546c309ea6028c8c2d10f88e338c714bd71055cdc01effd00"
+        },
+        "marker": "__E2E_MODE__ present in .next/static/chunks/pages/_app-57752df63578994c.js"
+      }
+    ],
+    "exitNote": "every build exits 1 at the standalone hydration guard by design (junctioned worktree); each preceded by MACHINE_IDLE; none ran concurrently with another build or Playwright run of this lane"
+  },
+  "liveAfterMeasurement": {
+    "summary": "SHARED, measured: one registry (sameRegistryInstance true, globalThis slot present and === the socket graph's getCampaignHostRegistry()), one entry object (sameEntryObject true) built by the API graph, retaining the guest from S1 and serving the GM from S3; the API graph's view equals the socket graph's at every step. Not paused before the GM's first connection (guest proposal processed: CampaignDecision); GM loss pauses (MATCH_PAUSED campaign-paused-gm-absent), GM return resumes. S9: with a correction saga seeded, the shared entry's readers return the saga and its launch gate answers correction-pending.",
+    "method": [
+      "Scratch driver <lane-temp>/u95-live-driver.cjs (outside the repository, not committed): starts `node --inspect=127.0.0.1:<inspectPort> server.js` from the worktree with NODE_ENV=production, HOSTNAME=127.0.0.1 (process-scoped), PORT=<port>, NEXT_PUBLIC_E2E_MODE=true, PLAYWRIGHT_E2E_RUN_ID=u95-live-<label>, MULTIPLAYER_STORE=durable and MULTIPLAYER_DB_PATH/DATABASE_PATH in a fresh temp dir; waits for /__playwright_e2e_ready__?runId=<id> 204.",
+      "Drives one co-op session over the real routes: PUT /api/campaigns/<id> (envelope shape of e2e/helpers/campaignJournalDrive.ts campaignEnvelope), POST /api/multiplayer/matches with coopCampaign and the GM bearer token (identities minted with issuePlayerToken, as campaignIdentity does), then campaign sockets (channel=campaign, CampaignJoin, as e2e/helpers/campaignJournalSocket.ts does): guest joins by room code before the GM; guest CampaignProposal; GM joins; guest proposal; GM socket closes; guest proposal; GM reconnects; guest proposal.",
+      "At every step one read-only Runtime.evaluate over the inspector reads: the socket graph (Module._cache entry for src/lib/multiplayer/server/CampaignHostRegistry.ts, getCampaignHostRegistry()) and Next API graph (.next/server/webpack-api-runtime.js, the webpack module whose factory contains \"Campaign snapshot rejected: \", its only export = getCampaignHostRegistry in this build; that module is async, so its exports sit under Symbol(webpack exports)); per graph the entry for the match: paused, gmConnections, retained participants (acknowledged/delivered), live participants, and which graph built its CampaignMatchHost (instanceof each graph's class); === of the two registries and entries; whether the globalThis slot exists; and whether the process match store (globalThis Symbol.for('mekstation.multiplayer.matchStore')) is an instance of each graph's DurableMatchStore.",
+      "S9 (after the proposal steps, driver revision used for after/M4/M5): seeds one campaign_combat_outcome_inbox row on the run's own journal file and one source-recorded coordinated correction saga on the run's own match-store file, then asks each registry's entry for readSagaForCampaign and evaluateScenarioLaunch (the AdvanceDay gate).",
+      "The server is killed with taskkill /T /F at the end; liveness re-checked with Get-Process."
+    ],
+    "machineIdleBefore": "MACHINE_IDLE (exit 0)",
+    "run": {
+      "output": {
+        "path": "<lane-temp>/live-after.json",
+        "sha256": "e0d6b8654cde853f4791b944f1deb6887df41fd8e521982c1a164250b7051ba8"
+      },
+      "port": 23953,
+      "inspectPort": 29953,
+      "runId": "u95-live-after",
+      "serverPid": 70824,
+      "serverKilled": true,
+      "serverAliveAfterKill": false,
+      "startedAt": "2026-09-26T07:28:51.849Z",
+      "finishedAt": "2026-09-26T07:29:04.825Z",
+      "campaignPut": {
+        "status": 200
+      },
+      "matchCreate": {
+        "status": 201,
+        "matchId": "e3c0e139-8082-46a9-a11d-ed31cbcb3778",
+        "roomCodePresent": true
+      },
+      "campaignId": "campaign-u95-after-1790407734910",
+      "gmPlayerId": "pid_4TaVMMGEw3ZrT1KRkayqCjBkojk",
+      "guestPlayerId": "pid_3hun1sxQ4g8YUgXBt6WLMVdX49X7",
+      "error": null
+    },
+    "stepsVerbatim": [
+      {
+        "step": "S0 after create route 201, no socket yet",
+        "probe": {
+          "at": "2026-09-26T07:28:54.975Z",
+          "slotPresent": true,
+          "slotHoldsRegistry": true,
+          "sameRegistryInstance": true,
+          "slotIsSocketRegistry": true,
+          "socketGraph": [
+            {
+              "matchId": "e3c0e139-8082-46a9-a11d-ed31cbcb3778",
+              "campaignId": "campaign-u95-after-1790407734910",
+              "hostClosed": false,
+              "paused": false,
+              "gmConnections": 0,
+              "retained": [],
+              "live": [],
+              "builtBy": "api-graph"
+            }
+          ],
+          "apiGraph": [
+            {
+              "matchId": "e3c0e139-8082-46a9-a11d-ed31cbcb3778",
+              "campaignId": "campaign-u95-after-1790407734910",
+              "hostClosed": false,
+              "paused": false,
+              "gmConnections": 0,
+              "retained": [],
+              "live": [],
+              "builtBy": "api-graph"
+            }
+          ],
+          "sameEntryObject": true,
+          "matchStore": {
+            "present": true,
+            "instanceofSocketGraphDurableMatchStore": true,
+            "instanceofApiGraphDurableMatchStore": false,
+            "apiDurableClassesFound": 1
+          },
+          "moduleIds": {
+            "host": "21319",
+            "durable": "34971",
+            "registry": "45433"
+          }
+        }
+      },
+      {
+        "step": "S1 guest joined by room code, GM never connected",
+        "guestJoin": "snapshot",
+        "probe": {
+          "at": "2026-09-26T07:28:55.305Z",
+          "slotPresent": true,
+          "slotHoldsRegistry": true,
+          "sameRegistryInstance": true,
+          "slotIsSocketRegistry": true,
+          "socketGraph": [
+            {
+              "matchId": "e3c0e139-8082-46a9-a11d-ed31cbcb3778",
+              "campaignId": "campaign-u95-after-1790407734910",
+              "hostClosed": false,
+              "paused": false,
+              "gmConnections": 0,
+              "retained": [
+                {
+                  "participantId": "pid_3hun1sxQ4g8YUgXBt6WLMVdX49X7",
+                  "acknowledged": 0,
+                  "delivered": 0
+                }
+              ],
+              "live": [
+                "pid_3hun1sxQ4g8YUgXBt6WLMVdX49X7"
+              ],
+              "builtBy": "api-graph"
+            }
+          ],
+          "apiGraph": [
+            {
+              "matchId": "e3c0e139-8082-46a9-a11d-ed31cbcb3778",
+              "campaignId": "campaign-u95-after-1790407734910",
+              "hostClosed": false,
+              "paused": false,
+              "gmConnections": 0,
+              "retained": [
+                {
+                  "participantId": "pid_3hun1sxQ4g8YUgXBt6WLMVdX49X7",
+                  "acknowledged": 0,
+                  "delivered": 0
+                }
+              ],
+              "live": [
+                "pid_3hun1sxQ4g8YUgXBt6WLMVdX49X7"
+              ],
+              "builtBy": "api-graph"
+            }
+          ],
+          "sameEntryObject": true,
+          "matchStore": {
+            "present": true,
+            "instanceofSocketGraphDurableMatchStore": true,
+            "instanceofApiGraphDurableMatchStore": false,
+            "apiDurableClassesFound": 1
+          },
+          "moduleIds": {
+            "host": "21319",
+            "durable": "34971",
+            "registry": "45433"
+          }
+        }
+      },
+      {
+        "step": "S2 guest proposal before the GM first connects",
+        "guestFrames": [
+          {
+            "kind": "CampaignDecision",
+            "code": null,
+            "reason": null,
+            "eventType": null,
+            "status": "mechanically-rejected"
+          },
+          {
+            "kind": "CampaignDecision",
+            "code": null,
+            "reason": null,
+            "eventType": null,
+            "status": "mechanically-rejected"
+          }
+        ],
+        "probe": {
+          "at": "2026-09-26T07:28:56.810Z",
+          "slotPresent": true,
+          "slotHoldsRegistry": true,
+          "sameRegistryInstance": true,
+          "slotIsSocketRegistry": true,
+          "socketGraph": [
+            {
+              "matchId": "e3c0e139-8082-46a9-a11d-ed31cbcb3778",
+              "campaignId": "campaign-u95-after-1790407734910",
+              "hostClosed": false,
+              "paused": false,
+              "gmConnections": 0,
+              "retained": [
+                {
+                  "participantId": "pid_3hun1sxQ4g8YUgXBt6WLMVdX49X7",
+                  "acknowledged": 0,
+                  "delivered": 0
+                }
+              ],
+              "live": [
+                "pid_3hun1sxQ4g8YUgXBt6WLMVdX49X7"
+              ],
+              "builtBy": "api-graph"
+            }
+          ],
+          "apiGraph": [
+            {
+              "matchId": "e3c0e139-8082-46a9-a11d-ed31cbcb3778",
+              "campaignId": "campaign-u95-after-1790407734910",
+              "hostClosed": false,
+              "paused": false,
+              "gmConnections": 0,
+              "retained": [
+                {
+                  "participantId": "pid_3hun1sxQ4g8YUgXBt6WLMVdX49X7",
+                  "acknowledged": 0,
+                  "delivered": 0
+                }
+              ],
+              "live": [
+                "pid_3hun1sxQ4g8YUgXBt6WLMVdX49X7"
+              ],
+              "builtBy": "api-graph"
+            }
+          ],
+          "sameEntryObject": true,
+          "matchStore": {
+            "present": true,
+            "instanceofSocketGraphDurableMatchStore": true,
+            "instanceofApiGraphDurableMatchStore": false,
+            "apiDurableClassesFound": 1
+          },
+          "moduleIds": {
+            "host": "21319",
+            "durable": "34971",
+            "registry": "45433"
+          }
+        }
+      },
+      {
+        "step": "S3 GM connected",
+        "gmJoin": "snapshot",
+        "probe": {
+          "at": "2026-09-26T07:28:57.122Z",
+          "slotPresent": true,
+          "slotHoldsRegistry": true,
+          "sameRegistryInstance": true,
+          "slotIsSocketRegistry": true,
+          "socketGraph": [
+            {
+              "matchId": "e3c0e139-8082-46a9-a11d-ed31cbcb3778",
+              "campaignId": "campaign-u95-after-1790407734910",
+              "hostClosed": false,
+              "paused": false,
+              "gmConnections": 1,
+              "retained": [
+                {
+                  "participantId": "pid_3hun1sxQ4g8YUgXBt6WLMVdX49X7",
+                  "acknowledged": 0,
+                  "delivered": 0
+                }
+              ],
+              "live": [
+                "pid_3hun1sxQ4g8YUgXBt6WLMVdX49X7",
+                "pid_4TaVMMGEw3ZrT1KRkayqCjBkojk"
+              ],
+              "builtBy": "api-graph"
+            }
+          ],
+          "apiGraph": [
+            {
+              "matchId": "e3c0e139-8082-46a9-a11d-ed31cbcb3778",
+              "campaignId": "campaign-u95-after-1790407734910",
+              "hostClosed": false,
+              "paused": false,
+              "gmConnections": 1,
+              "retained": [
+                {
+                  "participantId": "pid_3hun1sxQ4g8YUgXBt6WLMVdX49X7",
+                  "acknowledged": 0,
+                  "delivered": 0
+                }
+              ],
+              "live": [
+                "pid_3hun1sxQ4g8YUgXBt6WLMVdX49X7",
+                "pid_4TaVMMGEw3ZrT1KRkayqCjBkojk"
+              ],
+              "builtBy": "api-graph"
+            }
+          ],
+          "sameEntryObject": true,
+          "matchStore": {
+            "present": true,
+            "instanceofSocketGraphDurableMatchStore": true,
+            "instanceofApiGraphDurableMatchStore": false,
+            "apiDurableClassesFound": 1
+          },
+          "moduleIds": {
+            "host": "21319",
+            "durable": "34971",
+            "registry": "45433"
+          }
+        }
+      },
+      {
+        "step": "S4 guest proposal with the GM present",
+        "guestFrames": [
+          {
+            "kind": "CampaignDecision",
+            "code": null,
+            "reason": null,
+            "eventType": null,
+            "status": "mechanically-rejected"
+          },
+          {
+            "kind": "CampaignDecision",
+            "code": null,
+            "reason": null,
+            "eventType": null,
+            "status": "mechanically-rejected"
+          }
+        ],
+        "probe": {
+          "at": "2026-09-26T07:28:58.629Z",
+          "slotPresent": true,
+          "slotHoldsRegistry": true,
+          "sameRegistryInstance": true,
+          "slotIsSocketRegistry": true,
+          "socketGraph": [
+            {
+              "matchId": "e3c0e139-8082-46a9-a11d-ed31cbcb3778",
+              "campaignId": "campaign-u95-after-1790407734910",
+              "hostClosed": false,
+              "paused": false,
+              "gmConnections": 1,
+              "retained": [
+                {
+                  "participantId": "pid_3hun1sxQ4g8YUgXBt6WLMVdX49X7",
+                  "acknowledged": 0,
+                  "delivered": 0
+                }
+              ],
+              "live": [
+                "pid_3hun1sxQ4g8YUgXBt6WLMVdX49X7",
+                "pid_4TaVMMGEw3ZrT1KRkayqCjBkojk"
+              ],
+              "builtBy": "api-graph"
+            }
+          ],
+          "apiGraph": [
+            {
+              "matchId": "e3c0e139-8082-46a9-a11d-ed31cbcb3778",
+              "campaignId": "campaign-u95-after-1790407734910",
+              "hostClosed": false,
+              "paused": false,
+              "gmConnections": 1,
+              "retained": [
+                {
+                  "participantId": "pid_3hun1sxQ4g8YUgXBt6WLMVdX49X7",
+                  "acknowledged": 0,
+                  "delivered": 0
+                }
+              ],
+              "live": [
+                "pid_3hun1sxQ4g8YUgXBt6WLMVdX49X7",
+                "pid_4TaVMMGEw3ZrT1KRkayqCjBkojk"
+              ],
+              "builtBy": "api-graph"
+            }
+          ],
+          "sameEntryObject": true,
+          "matchStore": {
+            "present": true,
+            "instanceofSocketGraphDurableMatchStore": true,
+            "instanceofApiGraphDurableMatchStore": false,
+            "apiDurableClassesFound": 1
+          },
+          "moduleIds": {
+            "host": "21319",
+            "durable": "34971",
+            "registry": "45433"
+          }
+        }
+      },
+      {
+        "step": "S5 GM socket closed (GM absent)",
+        "probe": {
+          "at": "2026-09-26T07:28:59.436Z",
+          "slotPresent": true,
+          "slotHoldsRegistry": true,
+          "sameRegistryInstance": true,
+          "slotIsSocketRegistry": true,
+          "socketGraph": [
+            {
+              "matchId": "e3c0e139-8082-46a9-a11d-ed31cbcb3778",
+              "campaignId": "campaign-u95-after-1790407734910",
+              "hostClosed": false,
+              "paused": true,
+              "gmConnections": 0,
+              "retained": [
+                {
+                  "participantId": "pid_3hun1sxQ4g8YUgXBt6WLMVdX49X7",
+                  "acknowledged": 0,
+                  "delivered": 0
+                }
+              ],
+              "live": [
+                "pid_3hun1sxQ4g8YUgXBt6WLMVdX49X7"
+              ],
+              "builtBy": "api-graph"
+            }
+          ],
+          "apiGraph": [
+            {
+              "matchId": "e3c0e139-8082-46a9-a11d-ed31cbcb3778",
+              "campaignId": "campaign-u95-after-1790407734910",
+              "hostClosed": false,
+              "paused": true,
+              "gmConnections": 0,
+              "retained": [
+                {
+                  "participantId": "pid_3hun1sxQ4g8YUgXBt6WLMVdX49X7",
+                  "acknowledged": 0,
+                  "delivered": 0
+                }
+              ],
+              "live": [
+                "pid_3hun1sxQ4g8YUgXBt6WLMVdX49X7"
+              ],
+              "builtBy": "api-graph"
+            }
+          ],
+          "sameEntryObject": true,
+          "matchStore": {
+            "present": true,
+            "instanceofSocketGraphDurableMatchStore": true,
+            "instanceofApiGraphDurableMatchStore": false,
+            "apiDurableClassesFound": 1
+          },
+          "moduleIds": {
+            "host": "21319",
+            "durable": "34971",
+            "registry": "45433"
+          }
+        }
+      },
+      {
+        "step": "S6 guest proposal while the GM is absent",
+        "guestFrames": [
+          {
+            "kind": "Error",
+            "code": "MATCH_PAUSED",
+            "reason": "campaign-paused-gm-absent",
+            "eventType": null,
+            "status": null
+          }
+        ],
+        "probe": {
+          "at": "2026-09-26T07:29:00.941Z",
+          "slotPresent": true,
+          "slotHoldsRegistry": true,
+          "sameRegistryInstance": true,
+          "slotIsSocketRegistry": true,
+          "socketGraph": [
+            {
+              "matchId": "e3c0e139-8082-46a9-a11d-ed31cbcb3778",
+              "campaignId": "campaign-u95-after-1790407734910",
+              "hostClosed": false,
+              "paused": true,
+              "gmConnections": 0,
+              "retained": [
+                {
+                  "participantId": "pid_3hun1sxQ4g8YUgXBt6WLMVdX49X7",
+                  "acknowledged": 0,
+                  "delivered": 0
+                }
+              ],
+              "live": [
+                "pid_3hun1sxQ4g8YUgXBt6WLMVdX49X7"
+              ],
+              "builtBy": "api-graph"
+            }
+          ],
+          "apiGraph": [
+            {
+              "matchId": "e3c0e139-8082-46a9-a11d-ed31cbcb3778",
+              "campaignId": "campaign-u95-after-1790407734910",
+              "hostClosed": false,
+              "paused": true,
+              "gmConnections": 0,
+              "retained": [
+                {
+                  "participantId": "pid_3hun1sxQ4g8YUgXBt6WLMVdX49X7",
+                  "acknowledged": 0,
+                  "delivered": 0
+                }
+              ],
+              "live": [
+                "pid_3hun1sxQ4g8YUgXBt6WLMVdX49X7"
+              ],
+              "builtBy": "api-graph"
+            }
+          ],
+          "sameEntryObject": true,
+          "matchStore": {
+            "present": true,
+            "instanceofSocketGraphDurableMatchStore": true,
+            "instanceofApiGraphDurableMatchStore": false,
+            "apiDurableClassesFound": 1
+          },
+          "moduleIds": {
+            "host": "21319",
+            "durable": "34971",
+            "registry": "45433"
+          }
+        }
+      },
+      {
+        "step": "S7 GM returned",
+        "gmReturn": "snapshot",
+        "gmFramesOnReturn": [
+          {
+            "kind": "CampaignSnapshot",
+            "code": null,
+            "reason": null,
+            "eventType": "CampaignSnapshotPublished",
+            "status": null
+          },
+          {
+            "kind": "CampaignDecision",
+            "code": null,
+            "reason": null,
+            "eventType": null,
+            "status": "mechanically-rejected"
+          }
+        ],
+        "probe": {
+          "at": "2026-09-26T07:29:01.450Z",
+          "slotPresent": true,
+          "slotHoldsRegistry": true,
+          "sameRegistryInstance": true,
+          "slotIsSocketRegistry": true,
+          "socketGraph": [
+            {
+              "matchId": "e3c0e139-8082-46a9-a11d-ed31cbcb3778",
+              "campaignId": "campaign-u95-after-1790407734910",
+              "hostClosed": false,
+              "paused": false,
+              "gmConnections": 1,
+              "retained": [
+                {
+                  "participantId": "pid_3hun1sxQ4g8YUgXBt6WLMVdX49X7",
+                  "acknowledged": 0,
+                  "delivered": 0
+                }
+              ],
+              "live": [
+                "pid_3hun1sxQ4g8YUgXBt6WLMVdX49X7",
+                "pid_4TaVMMGEw3ZrT1KRkayqCjBkojk"
+              ],
+              "builtBy": "api-graph"
+            }
+          ],
+          "apiGraph": [
+            {
+              "matchId": "e3c0e139-8082-46a9-a11d-ed31cbcb3778",
+              "campaignId": "campaign-u95-after-1790407734910",
+              "hostClosed": false,
+              "paused": false,
+              "gmConnections": 1,
+              "retained": [
+                {
+                  "participantId": "pid_3hun1sxQ4g8YUgXBt6WLMVdX49X7",
+                  "acknowledged": 0,
+                  "delivered": 0
+                }
+              ],
+              "live": [
+                "pid_3hun1sxQ4g8YUgXBt6WLMVdX49X7",
+                "pid_4TaVMMGEw3ZrT1KRkayqCjBkojk"
+              ],
+              "builtBy": "api-graph"
+            }
+          ],
+          "sameEntryObject": true,
+          "matchStore": {
+            "present": true,
+            "instanceofSocketGraphDurableMatchStore": true,
+            "instanceofApiGraphDurableMatchStore": false,
+            "apiDurableClassesFound": 1
+          },
+          "moduleIds": {
+            "host": "21319",
+            "durable": "34971",
+            "registry": "45433"
+          }
+        }
+      },
+      {
+        "step": "S8 guest proposal after the GM returned",
+        "guestFrames": [
+          {
+            "kind": "CampaignDecision",
+            "code": null,
+            "reason": null,
+            "eventType": null,
+            "status": "mechanically-rejected"
+          },
+          {
+            "kind": "CampaignDecision",
+            "code": null,
+            "reason": null,
+            "eventType": null,
+            "status": "mechanically-rejected"
+          }
+        ],
+        "probe": {
+          "at": "2026-09-26T07:29:02.956Z",
+          "slotPresent": true,
+          "slotHoldsRegistry": true,
+          "sameRegistryInstance": true,
+          "slotIsSocketRegistry": true,
+          "socketGraph": [
+            {
+              "matchId": "e3c0e139-8082-46a9-a11d-ed31cbcb3778",
+              "campaignId": "campaign-u95-after-1790407734910",
+              "hostClosed": false,
+              "paused": false,
+              "gmConnections": 1,
+              "retained": [
+                {
+                  "participantId": "pid_3hun1sxQ4g8YUgXBt6WLMVdX49X7",
+                  "acknowledged": 0,
+                  "delivered": 0
+                }
+              ],
+              "live": [
+                "pid_3hun1sxQ4g8YUgXBt6WLMVdX49X7",
+                "pid_4TaVMMGEw3ZrT1KRkayqCjBkojk"
+              ],
+              "builtBy": "api-graph"
+            }
+          ],
+          "apiGraph": [
+            {
+              "matchId": "e3c0e139-8082-46a9-a11d-ed31cbcb3778",
+              "campaignId": "campaign-u95-after-1790407734910",
+              "hostClosed": false,
+              "paused": false,
+              "gmConnections": 1,
+              "retained": [
+                {
+                  "participantId": "pid_3hun1sxQ4g8YUgXBt6WLMVdX49X7",
+                  "acknowledged": 0,
+                  "delivered": 0
+                }
+              ],
+              "live": [
+                "pid_3hun1sxQ4g8YUgXBt6WLMVdX49X7",
+                "pid_4TaVMMGEw3ZrT1KRkayqCjBkojk"
+              ],
+              "builtBy": "api-graph"
+            }
+          ],
+          "sameEntryObject": true,
+          "matchStore": {
+            "present": true,
+            "instanceofSocketGraphDurableMatchStore": true,
+            "instanceofApiGraphDurableMatchStore": false,
+            "apiDurableClassesFound": 1
+          },
+          "moduleIds": {
+            "host": "21319",
+            "durable": "34971",
+            "registry": "45433"
+          }
+        }
+      },
+      {
+        "step": "S9 correction saga seeded; progression readers and launch gate per registry entry",
+        "gateRead": [
+          {
+            "label": "socket-graph registry",
+            "entry": true,
+            "saga": {
+              "outcomeId": "u95-outcome",
+              "state": "source-recorded"
+            },
+            "gate": {
+              "ok": false,
+              "reason": "correction-pending",
+              "requiredRevision": 0,
+              "sagaKey": {
+                "matchId": "e3c0e139-8082-46a9-a11d-ed31cbcb3778",
+                "outcomeId": "u95-outcome",
+                "outcomeVersion": 1
+              },
+              "state": "source-recorded",
+              "behind": []
+            }
+          },
+          {
+            "label": "api-graph registry",
+            "entry": true,
+            "saga": {
+              "outcomeId": "u95-outcome",
+              "state": "source-recorded"
+            },
+            "gate": {
+              "ok": false,
+              "reason": "correction-pending",
+              "requiredRevision": 0,
+              "sagaKey": {
+                "matchId": "e3c0e139-8082-46a9-a11d-ed31cbcb3778",
+                "outcomeId": "u95-outcome",
+                "outcomeVersion": 1
+              },
+              "state": "source-recorded",
+              "behind": []
+            }
+          }
+        ]
+      }
+    ],
+    "earlierAttempt": "one earlier after-run on the same build (port 23953, before S9 was added to the driver) gave the same S0-S8 readings; its output was overwritten by this run and is not cited"
+  },
+  "gmReturnBehaviourBeforeAndAfter": [
+    {
+      "moment": "guest acts before the GM first connects (S2)",
+      "baseline": "Error MATCH_PAUSED campaign-paused-gm-absent; socket entry paused true",
+      "after": "CampaignDecision (processed); shared entry paused false"
+    },
+    {
+      "moment": "GM connected (S3)",
+      "baseline": "GM receives CampaignSnapshot; paused false",
+      "after": "same"
+    },
+    {
+      "moment": "GM absent (S5/S6)",
+      "baseline": "paused true; guest proposal -> MATCH_PAUSED campaign-paused-gm-absent",
+      "after": "same"
+    },
+    {
+      "moment": "GM returns (S7)",
+      "baseline": "GM receives CampaignSnapshot (CampaignSnapshotPublished) then CampaignDecision; paused false",
+      "after": "same"
+    },
+    {
+      "moment": "guest acts after the GM returned (S8)",
+      "baseline": "CampaignDecision",
+      "after": "same"
+    }
+  ],
+  "ladder": [
+    {
+      "group": "lifecycle-pack",
+      "command": "HOSTNAME=127.0.0.1 NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=lifecycle-pack",
+      "machineIdleBefore": "MACHINE_IDLE (exit 0)",
+      "build": "1790407528594 (final product code)",
+      "startedAt": "2026-09-26T07:29:15Z",
+      "exit": 0,
+      "port": 27487,
+      "portSource": "[WebServer] > Ready on http://127.0.0.1:27487 (multiplayer socket: /api/multiplayer/socket)",
+      "summaryLine": "2 passed (20.1s)",
+      "rows": [
+        "ok 1 [chromium] › e2e\\gm-two-player-lifecycle.pack.spec.ts:179:5 › E2E-75 lifecycle postures are distinct, announced and correctly gated @lifecycle-pack @E2E-75 (6.6s)",
+        "ok 2 [chromium] › e2e\\gm-two-player-lifecycle.pack.spec.ts:305:5 › E2E-75 lifecycle postures pending and blocked are distinct, announced and correctly gated @lifecycle-pack @E2E-75 (7.6s)"
+      ],
+      "log": {
+        "path": "<lane-temp>/ladder-lifecycle.log",
+        "sha256": "01d1220027fe1b055b9cfd24d1d8c9f1d9fd312f47fcea603b26127880436527"
+      },
+      "serverAfter": "no LISTENING socket on 27487 after the run (netstat)"
+    }
+  ],
+  "gates": [
+    {
+      "name": "jest src/lib/multiplayer/server",
+      "command": "npx jest src/lib/multiplayer/server",
+      "exit": 0,
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\server/i.",
+      "log": {
+        "path": "<lane-temp>/jest-mp-server.log",
+        "sha256": "d22499f826f55527f4297e26abaaa4d9be6d6ad851204304d4ab6f3189682c73"
+      },
+      "testsLine": "Tests:       1185 passed, 1185 total",
+      "suitesLine": "Test Suites: 163 passed, 163 total",
+      "note": "ran before oxfmt rewrapped the cross-graph test file (whitespace only); that file was re-run green after"
+    },
+    {
+      "name": "jest src/lib/campaign src/lib/api src/__tests__/api",
+      "command": "npx jest src/lib/campaign src/lib/api src/__tests__/api",
+      "exit": 0,
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\campaign|src\\\\lib\\\\api|src\\\\__tests__\\\\api/i.",
+      "log": {
+        "path": "<lane-temp>/jest-campaign-api.log",
+        "sha256": "b560e361ecef4f701ca8421a56d8534f59fa8c93ac6599a2887df0deca1d9cd1"
+      },
+      "testsLine": "Tests:       3780 passed, 3780 total",
+      "suitesLine": "Test Suites: 262 passed, 262 total"
+    },
+    {
+      "name": "jest other _resetCampaignHostRegistry / reader consumers",
+      "command": "npx jest src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts src/pages-modules/api",
+      "exit": 0,
+      "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\unit\\\\api\\\\multiplayerCoopCreationCheckpoint.test.ts|src\\\\pages-modules\\\\api/i.",
+      "log": {
+        "path": "<lane-temp>/jest-consumers.log",
+        "sha256": "6e7dda2ad5dfab80cb2c46e488bb690991e4a717a076303c94626b4f147c905a"
+      },
+      "testsLine": "Tests:       69 passed, 69 total",
+      "suitesLine": "Test Suites: 9 passed, 9 total"
+    },
+    {
+      "name": "tsc",
+      "command": "npx tsc --noEmit",
+      "exit": 0,
+      "lastLine": "(no output)",
+      "log": {
+        "path": "<lane-temp>/tsc.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "oxlint",
+      "command": "npx oxlint",
+      "exit": 0,
+      "lastLine": "Finished in 687ms on 3819 files using 16 threads.",
+      "log": {
+        "path": "<lane-temp>/oxlint.log",
+        "sha256": "0ac85250531599130585386f427f4568fd6093f466b1dd3325a2bba5619bc86e"
+      },
+      "errors": 0,
+      "warnings": 84,
+      "warningsBaselineReference": 84,
+      "note": "last line is the timing line; the counts line is \"Found 84 warnings and 0 errors.\""
+    },
+    {
+      "name": "oxfmt --check (changed files)",
+      "command": "npx oxfmt --check src/lib/multiplayer/server/CampaignHostRegistry.ts src/lib/multiplayer/server/campaignProgressionReaders.durable.ts src/lib/multiplayer/server/__tests__/CampaignHostRegistry.globalSlot.test.ts src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.crossGraph.test.ts",
+      "exit": 0,
+      "lastLine": "Finished in 53ms on 4 files using 16 threads.",
+      "firstAttempt": {
+        "exit": 1,
+        "log": {
+          "path": "<lane-temp>/oxfmt.log",
+          "sha256": "2ce9a6fdb874d2573134bee2211c88a3da461645be4766dac39033394c7a23a0"
+        },
+        "fixedBy": "npx oxfmt on the cross-graph test file (line wrapping)"
+      }
+    },
+    {
+      "name": "lint:units",
+      "command": "npm run lint:units",
+      "exit": 0,
+      "lastLine": "LINT_UNITS_PASS 100/100",
+      "log": {
+        "path": "<lane-temp>/lint-units.log",
+        "sha256": "e055631f9348b2e6539c922dddc1fe388b583448a734da5f618cb47c583fae2d"
+      }
+    },
+    {
+      "name": "qc:openspec-ci:validate",
+      "command": "npm run qc:openspec-ci:validate",
+      "exit": 0,
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "log": {
+        "path": "<lane-temp>/openspec.log",
+        "sha256": "4c2dafd093b946290aa4abe001ad8b3d65671b17c7682722c55a510ecc04f91e"
+      }
+    },
+    {
+      "name": "roadmap validator",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exit": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "log": {
+        "path": "<lane-temp>/roadmap.log",
+        "sha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc"
+      }
+    }
+  ],
+  "mutants": [
+    {
+      "id": "M1",
+      "what": "slot key Symbol(...) instead of Symbol.for(...)",
+      "command": "npx jest CampaignHostRegistry.globalSlot.test.ts CampaignHostRegistry.test.ts",
+      "exit": 1,
+      "testsLine": "Tests:       3 failed, 17 passed, 20 total",
+      "failedRows": [
+        "● CampaignHostRegistry process slot › two module graphs get one registry",
+        "● CampaignHostRegistry process slot › the socket graph finds the entry the API graph registered",
+        "● CampaignHostRegistry process slot › _resetCampaignHostRegistry closes the entries and clears the slot for every graph"
+      ],
+      "log": {
+        "path": "<lane-temp>/mutant-M1.log",
+        "sha256": "cdda48121b035e2ecd3c471644f435d465f3228545337902d30bfaafb885edac"
+      },
+      "restoredFrom": "<lane-temp>/CampaignHostRegistry.final.ts",
+      "sha256AfterRestore": "da6f1c4071eb2ad17e46734c8f4ccb42a01103f032c5e3fc791045044d7ba274",
+      "matchesPreMutant": true
+    },
+    {
+      "id": "M2",
+      "what": "_resetCampaignHostRegistry deletes the slot without _reset() (entries not closed)",
+      "command": "npx jest CampaignHostRegistry.globalSlot.test.ts CampaignHostRegistry.test.ts",
+      "exit": 1,
+      "testsLine": "Tests:       2 failed, 18 passed, 20 total",
+      "failedRows": [
+        "● CampaignHostRegistry › exposes a resettable process singleton",
+        "● CampaignHostRegistry process slot › _resetCampaignHostRegistry closes the entries and clears the slot for every graph"
+      ],
+      "log": {
+        "path": "<lane-temp>/mutant-M2.log",
+        "sha256": "3a4e283f1f18c6cc56dd2f976f53cd4a25084589aab022eda0285c672ddeee4d"
+      },
+      "restoredFrom": "<lane-temp>/CampaignHostRegistry.final.ts",
+      "sha256AfterRestore": "da6f1c4071eb2ad17e46734c8f4ccb42a01103f032c5e3fc791045044d7ba274",
+      "matchesPreMutant": true
+    },
+    {
+      "id": "M3",
+      "what": "getCampaignHostRegistry creates and stores a new registry on every call (if (true))",
+      "command": "npx jest CampaignHostRegistry.globalSlot.test.ts CampaignHostRegistry.test.ts",
+      "exit": 1,
+      "testsLine": "Tests:       2 failed, 18 passed, 20 total",
+      "failedRows": [
+        "● CampaignHostRegistry process slot › two module graphs get one registry",
+        "● CampaignHostRegistry process slot › the socket graph finds the entry the API graph registered"
+      ],
+      "log": {
+        "path": "<lane-temp>/mutant-M3.log",
+        "sha256": "8e74085dd60105bd37cdd22b2ffa5c84c023af557e72ca28169750194c7312e4"
+      },
+      "note": "the red row and the finds-the-entry row fail; the older CampaignHostRegistry.test.ts rows pass under it (its reset row still resets the instance held in the slot)",
+      "restoredFrom": "<lane-temp>/CampaignHostRegistry.final.ts",
+      "sha256AfterRestore": "da6f1c4071eb2ad17e46734c8f4ccb42a01103f032c5e3fc791045044d7ba274",
+      "matchesPreMutant": true
+    },
+    {
+      "id": "M4",
+      "what": "the socket side forced back to the rebuilt semantics: register pauses every entry (if (options.rebuilt === true) -> if (true)), so the created entry the socket side now finds starts paused",
+      "command": "npx jest CampaignHostRegistry.test.ts CampaignHostRegistry.globalSlot.test.ts bindCampaignSyncConnection.test.ts",
+      "exit": 1,
+      "testsLine": "Tests:       15 failed, 55 passed, 70 total",
+      "failedRows": [
+        "● bindCampaignSyncConnection › streams a campaign snapshot to a joined guest",
+        "● bindCampaignSyncConnection › admits a returning member whose room code is now wrong",
+        "● bindCampaignSyncConnection › a refused third player is sent NOTHING but the refusal",
+        "● bindCampaignSyncConnection › cold-recovers a durable member after the invite expired",
+        "● bindCampaignSyncConnection › lets a durable member cold-reconnect with no room code at all",
+        "● bindCampaignSyncConnection › refuses a proposal attributed to someone else",
+        "● bindCampaignSyncConnection › still accepts a proposal a player attributes to themselves",
+        "● bindCampaignSyncConnection › refuses a decision from anyone but the GM",
+        "● bindCampaignSyncConnection › routes a guest proposal through the server arbiter and broadcasts committed events",
+        "● bindCampaignSyncConnection › rejects a guest attempting to send a host-only campaign intent",
+        "● bindCampaignSyncConnection › broadcasts post-battle reconciliation events to joined campaign-sync guests",
+        "● bindCampaignSyncConnection › honours durable force ownership from a previous process",
+        "● bindCampaignSyncConnection — audited participant removal › revokes the durable seat, detaches the live player, and unblocks the next launch",
+        "● bindCampaignSyncConnection — audited participant removal › heals a committed removal on the next authenticated join after its durable revoke crashes",
+        "● CampaignHostRegistry › creates a fresh campaign UNPAUSED"
+      ],
+      "log": {
+        "path": "<lane-temp>/mutant-M4.log",
+        "sha256": "3d4375b0ad704bffd4251f9228b185af56d92b407a776f35b6267496f3dcb5ae"
+      },
+      "live": {
+        "build": "1790408033432",
+        "run": {
+          "output": {
+            "path": "<lane-temp>/live-M4.json",
+            "sha256": "c08810d53c0e6dd73443bd277c9d4e4208a49b5bc5ddf5c777efe9dc9d94217b"
+          },
+          "port": 23954,
+          "inspectPort": 29954,
+          "runId": "u95-live-m4",
+          "serverPid": 37212,
+          "serverKilled": true,
+          "serverAliveAfterKill": false,
+          "startedAt": "2026-09-26T07:35:49.027Z",
+          "finishedAt": "2026-09-26T07:36:15.232Z",
+          "campaignPut": {
+            "status": 200
+          },
+          "matchCreate": {
+            "status": 201,
+            "matchId": "b41db9d3-f7c4-4dad-ac7b-62c0de3512ab",
+            "roomCodePresent": true
+          },
+          "campaignId": "campaign-u95-m4-1790408165248",
+          "gmPlayerId": "pid_4Bs6RXwyc9t4aTk4Mg9ivC8uFVFS",
+          "guestPlayerId": "pid_zg65khHPAdh9cSYAbF7Cn5McK5J",
+          "error": null
+        },
+        "S1": {
+          "step": "S1 guest joined by room code, GM never connected",
+          "guestJoin": "snapshot",
+          "probe": {
+            "at": "2026-09-26T07:36:05.697Z",
+            "slotPresent": true,
+            "slotHoldsRegistry": true,
+            "sameRegistryInstance": true,
+            "slotIsSocketRegistry": true,
+            "socketGraph": [
+              {
+                "matchId": "b41db9d3-f7c4-4dad-ac7b-62c0de3512ab",
+                "campaignId": "campaign-u95-m4-1790408165248",
+                "hostClosed": false,
+                "paused": true,
+                "gmConnections": 0,
+                "retained": [
+                  {
+                    "participantId": "pid_zg65khHPAdh9cSYAbF7Cn5McK5J",
+                    "acknowledged": 0,
+                    "delivered": 0
+                  }
+                ],
+                "live": [
+                  "pid_zg65khHPAdh9cSYAbF7Cn5McK5J"
+                ],
+                "builtBy": "api-graph"
+              }
+            ],
+            "apiGraph": [
+              {
+                "matchId": "b41db9d3-f7c4-4dad-ac7b-62c0de3512ab",
+                "campaignId": "campaign-u95-m4-1790408165248",
+                "hostClosed": false,
+                "paused": true,
+                "gmConnections": 0,
+                "retained": [
+                  {
+                    "participantId": "pid_zg65khHPAdh9cSYAbF7Cn5McK5J",
+                    "acknowledged": 0,
+                    "delivered": 0
+                  }
+                ],
+                "live": [
+                  "pid_zg65khHPAdh9cSYAbF7Cn5McK5J"
+                ],
+                "builtBy": "api-graph"
+              }
+            ],
+            "sameEntryObject": true,
+            "matchStore": {
+              "present": true,
+              "instanceofSocketGraphDurableMatchStore": true,
+              "instanceofApiGraphDurableMatchStore": false,
+              "apiDurableClassesFound": 1
+            },
+            "moduleIds": {
+              "host": "21319",
+              "durable": "34971",
+              "registry": "45433"
+            }
+          }
+        },
+        "S2": {
+          "step": "S2 guest proposal before the GM first connects",
+          "guestFrames": [
+            {
+              "kind": "Error",
+              "code": "MATCH_PAUSED",
+              "reason": "campaign-paused-gm-absent",
+              "eventType": null,
+              "status": null
+            }
+          ],
+          "probe": {
+            "at": "2026-09-26T07:36:07.203Z",
+            "slotPresent": true,
+            "slotHoldsRegistry": true,
+            "sameRegistryInstance": true,
+            "slotIsSocketRegistry": true,
+            "socketGraph": [
+              {
+                "matchId": "b41db9d3-f7c4-4dad-ac7b-62c0de3512ab",
+                "campaignId": "campaign-u95-m4-1790408165248",
+                "hostClosed": false,
+                "paused": true,
+                "gmConnections": 0,
+                "retained": [
+                  {
+                    "participantId": "pid_zg65khHPAdh9cSYAbF7Cn5McK5J",
+                    "acknowledged": 0,
+                    "delivered": 0
+                  }
+                ],
+                "live": [
+                  "pid_zg65khHPAdh9cSYAbF7Cn5McK5J"
+                ],
+                "builtBy": "api-graph"
+              }
+            ],
+            "apiGraph": [
+              {
+                "matchId": "b41db9d3-f7c4-4dad-ac7b-62c0de3512ab",
+                "campaignId": "campaign-u95-m4-1790408165248",
+                "hostClosed": false,
+                "paused": true,
+                "gmConnections": 0,
+                "retained": [
+                  {
+                    "participantId": "pid_zg65khHPAdh9cSYAbF7Cn5McK5J",
+                    "acknowledged": 0,
+                    "delivered": 0
+                  }
+                ],
+                "live": [
+                  "pid_zg65khHPAdh9cSYAbF7Cn5McK5J"
+                ],
+                "builtBy": "api-graph"
+              }
+            ],
+            "sameEntryObject": true,
+            "matchStore": {
+              "present": true,
+              "instanceofSocketGraphDurableMatchStore": true,
+              "instanceofApiGraphDurableMatchStore": false,
+              "apiDurableClassesFound": 1
+            },
+            "moduleIds": {
+              "host": "21319",
+              "durable": "34971",
+              "registry": "45433"
+            }
+          }
+        },
+        "reading": "the measured pause returns: the shared entry is paused before the GM connects and the guest proposal is refused MATCH_PAUSED campaign-paused-gm-absent"
+      },
+      "restoredFrom": "<lane-temp>/CampaignHostRegistry.final.ts",
+      "sha256AfterRestore": "da6f1c4071eb2ad17e46734c8f4ccb42a01103f032c5e3fc791045044d7ba274",
+      "matchesPreMutant": true
+    },
+    {
+      "id": "M5",
+      "what": "the reader reverted to `store instanceof DurableMatchStore` (the baseline campaignProgressionReaders.durable.ts) with the slot kept",
+      "command": "npx jest src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.crossGraph.test.ts",
+      "exit": 1,
+      "testsLine": "Tests:       1 failed, 1 passed, 2 total",
+      "failedRows": [
+        "● durable progression readers across module graphs › reads the pending saga from a match store another graph constructed"
+      ],
+      "log": {
+        "path": "<lane-temp>/mutant-M5.log",
+        "sha256": "fd6b3f94e9716dab9ce2d7ed2806e4f50b5ff97ca2caa92ea63173977f07c4b8"
+      },
+      "live": {
+        "build": "1790408213381",
+        "run": {
+          "output": {
+            "path": "<lane-temp>/live-M5.json",
+            "sha256": "fe4b4c5efd2d152a942f5f82fb61592919954d7364ea363cc87bc8a91a3198c0"
+          },
+          "port": 23955,
+          "inspectPort": 29955,
+          "runId": "u95-live-m5",
+          "serverPid": 72864,
+          "serverKilled": true,
+          "serverAliveAfterKill": false,
+          "startedAt": "2026-09-26T07:38:24.320Z",
+          "finishedAt": "2026-09-26T07:38:37.786Z",
+          "campaignPut": {
+            "status": 200
+          },
+          "matchCreate": {
+            "status": 201,
+            "matchId": "a8e5d5b3-6648-471c-8208-500861b5c8ad",
+            "roomCodePresent": true
+          },
+          "campaignId": "campaign-u95-m5-1790408307752",
+          "gmPlayerId": "pid_3X661DMkJ3YMj2QDFDBQwzLJBoyq",
+          "guestPlayerId": "pid_2HJBdi5ocfQn5Vn3HHbv2RZTmmTT",
+          "error": null
+        },
+        "S9": {
+          "step": "S9 correction saga seeded; progression readers and launch gate per registry entry",
+          "gateRead": [
+            {
+              "label": "socket-graph registry",
+              "entry": true,
+              "saga": null,
+              "gate": {
+                "ok": true,
+                "requiredRevision": 0
+              }
+            },
+            {
+              "label": "api-graph registry",
+              "entry": true,
+              "saga": null,
+              "gate": {
+                "ok": true,
+                "requiredRevision": 0
+              }
+            }
+          ]
+        },
+        "reading": "with a source-recorded saga seeded, the shared (API-built) entry reads no saga and its launch gate answers ok:true: the correction-pending clause is dark. With the fix (live after S9) it answers correction-pending."
+      },
+      "restoredFrom": "<lane-temp>/campaignProgressionReaders.durable.final.ts",
+      "sha256AfterRestore": "10cc7c4ee856be690254beba252c7fc1f05722af49ab4d09ca059912ff51ae2d",
+      "matchesPreMutant": true
+    }
+  ],
+  "parentProofHold": {
+    "notice": "parent notice received after the last build and server run of this lane: check E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/PARENT-PROOF-HOLD before any build, Playwright group or standalone server",
+    "fileSeen": "present at 2026-09-26T07:43:25Z (mtime 01:41 local), after this lane's final build (BUILD_ID 1790408332397)",
+    "waited": false,
+    "why": "no build, Playwright group or server was started after the notice; only receipt writing and git status followed"
+  },
+  "processesAndPorts": [
+    {
+      "what": "live driver baseline (final)",
+      "port": 23951,
+      "inspectPort": 29951,
+      "pid": 75108,
+      "killed": true
+    },
+    {
+      "what": "live driver debug (x2, module-shape inspection)",
+      "port": 23952,
+      "inspectPort": 29952,
+      "killed": true
+    },
+    {
+      "what": "live driver after",
+      "port": 23953,
+      "inspectPort": 29953,
+      "pid": 70824,
+      "killed": true
+    },
+    {
+      "what": "live driver M4",
+      "port": 23954,
+      "inspectPort": 29954,
+      "pid": 37212,
+      "killed": true
+    },
+    {
+      "what": "live driver M5",
+      "port": 23955,
+      "inspectPort": 29955,
+      "pid": 72864,
+      "killed": true
+    },
+    {
+      "what": "lifecycle-pack ladder webServer (Playwright-owned)",
+      "port": 27487
+    },
+    {
+      "check": "netstat after the last run: no LISTENING socket on 23951-23955, 29951-29955 or 27487"
+    }
+  ],
+  "scratchArtifacts": {
+    "driver": {
+      "path": "<lane-temp>/u95-live-driver.cjs",
+      "sha256": "e7c54665aded1609fa66d06650b199270296c3720d17bc6a84fff6f298403c27"
+    },
+    "mutator": {
+      "path": "<lane-temp>/mutate.cjs",
+      "sha256": "4457088874e692b498c901bdd87087a3c8e1abeb8c27802a6266338143a788f0"
+    },
+    "mutantRunner": {
+      "path": "<lane-temp>/run-mutant.sh",
+      "sha256": "b7bfb9f06e64c0d79b2416ec04177cf66c9da97bfa6c392899175c7491526752"
+    },
+    "receiptWriter": {
+      "path": "<lane-temp>/write-receipts.cjs",
+      "sha256": "4fc7ff77f2e1d01b632506f9b1649fe477766078d5158d563fa4b351177a53b7"
+    },
+    "note": "<lane-temp> = the lane's OS temp directory (the session scratchpad was withdrawn mid-lane); nothing there is part of the diff"
+  },
+  "nonClaims": [
+    "The live GM/guest session is a scripted Node-socket session, not browsers; the guest proposal is malformed on purpose, so only the pause gate (Error MATCH_PAUSED vs CampaignDecision) is claimed.",
+    "Only lifecycle-pack was run as the ladder regression gate; no campaign ladder group (performance, proposal-pack, restart-pack) was run on this head.",
+    "The API launch route's saga read (campaignLaunchAuthorityRoute.ts) was not driven live; its change follows from the same reader and the measured instanceof false.",
+    "A process restart (rebuilt path through getOrCreate) was not measured live; it is covered by the unchanged CampaignHostRegistry.test.ts rows \"rebuilds a campaign PAUSED\" and \"lets the returning GM clear a rebuild pause\" (passing).",
+    "The two-graph jest rows use jest.isolateModules as the stand-in for Next's webpack graph and the tsx graph; the live runs are the real two graphs.",
+    "Which graph constructs the registry first is order-dependent (create route first in every run here); the socket-first order after a restart was not measured."
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "summary": "Pre-existing: the API-graph launch authority route (src/pages-modules/api/campaignLaunchAuthorityRoute.ts:188) builds createDurableCampaignProgressionReaders in Next's API graph, where the process match store is the socket graph's DurableMatchStore (measured instanceof false); on the baseline its correction-pending saga read is always null. Fixed by this unit's reader change; not driven live.",
+      "status": "fixed in this unit (disclosure)"
+    },
+    {
+      "id": "F2",
+      "summary": "src/lib/campaign/coop/coopHostRegistry.ts:28 activeHosts is per graph; after U95 a created entry registers its host in the API graph's copy. getActiveCoopHost has no non-test caller, so nothing reads it today.",
+      "status": "recorded, no edit"
+    },
+    {
+      "id": "F3",
+      "summary": "Before U95 every live co-op session held two CampaignMatchHost objects on the same journal stream (the create route's in the API graph, idle, plus the socket graph's rebuilt one); after U95 there is one (measured sameEntryObject true).",
+      "status": "resolved by this unit"
+    }
+  ],
+  "gitStatusShortAtReceipt": "M src/lib/multiplayer/server/CampaignHostRegistry.ts\n M src/lib/multiplayer/server/campaignProgressionReaders.durable.ts\n?? openspec/planning/2026-09-12-roadmap-completion/evidence/u95-admission-20260926.json\n?? openspec/planning/2026-09-12-roadmap-completion/evidence/u95-local-20260926.json\n?? openspec/planning/2026-09-12-roadmap-completion/evidence/u95-red-20260926.json\n?? src/lib/multiplayer/server/__tests__/CampaignHostRegistry.globalSlot.test.ts\n?? src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.crossGraph.test.ts"
+}
