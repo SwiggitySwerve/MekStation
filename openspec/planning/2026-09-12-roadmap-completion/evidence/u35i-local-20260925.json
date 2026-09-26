@@ -1,0 +1,377 @@
+{
+  "unit": "U35i",
+  "stage": "local",
+  "status": "ready",
+  "at": "2026-09-26T05:15:22.650Z",
+  "baseline": "20d69c1d0264cf906b7fc3524fbaa3981bf7e5cc",
+  "head": "20d69c1d0264cf906b7fc3524fbaa3981bf7e5cc",
+  "headNote": "uncommitted working tree on the baseline; the parent commits",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u35i",
+  "branch": "roadmap-u35i-flag-off-comments-20260925",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "admission": "openspec/planning/2026-09-12-roadmap-completion/evidence/u35i-admission-20260925.json",
+  "red": "openspec/planning/2026-09-12-roadmap-completion/evidence/u35i-red-20260925.json",
+  "behaviorDelivered": [
+    {
+      "site": "S1",
+      "file": "src/lib/campaign/coop/coopRuntimeSession.ts:99-100",
+      "before": [
+        "    // The cutover-flag factory (task 5.1): identical in-memory behavior",
+        "    // until CAMPAIGN_JOURNAL_AUTHORITY_ENABLED turns on with task 5.2."
+      ],
+      "after": [
+        "    // The cutover-flag factory, called with no journal factory: it returns",
+        "    // the in-memory store whatever CAMPAIGN_JOURNAL_AUTHORITY_ENABLED holds."
+      ]
+    },
+    {
+      "site": "S2",
+      "file": "src/lib/multiplayer/server/matchJournalAuthority.ts:3",
+      "before": [
+        " * Combat journal-authority types and consume-apply seam (task 2.3).",
+        " * Flag OFF matches CAMPAIGN_JOURNAL_AUTHORITY_ENABLED.",
+        " */"
+      ],
+      "after": [
+        " * Combat journal-authority types and consume-apply seam (task 2.3).",
+        " */"
+      ]
+    },
+    {
+      "site": "S3",
+      "file": "src/pages/api/multiplayer/matches/index.ts:263-266",
+      "before": [
+        "    // The creation checkpoint skips its genesis-branch step when this is",
+        "    // false, so the fixture arm must reach it here as well as on the",
+        "    // campaign PUT route, or a journal-native campaign creates a match",
+        "    // with no genesis branch to recover."
+      ],
+      "after": [
+        "    // The creation checkpoint skips its genesis-branch step when this is",
+        "    // false. The resolver answers the production constant, true with no",
+        "    // override, so the step runs and a campaign with no genesis marker",
+        "    // fails the checkpoint."
+      ]
+    },
+    {
+      "site": "S4",
+      "file": "src/lib/multiplayer/server/combatJournalAuthorityEnabled.ts:35-36",
+      "before": [
+        " * Null unless Playwright e2e mode is on (the same",
+        " * NEXT_PUBLIC_E2E_MODE==='true' check the campaign arm uses) AND the"
+      ],
+      "after": [
+        " * Null unless Playwright e2e mode is on (NEXT_PUBLIC_E2E_MODE==='true',",
+        " * its own check: the campaign resolver has no e2e arm) AND the"
+      ]
+    },
+    {
+      "site": "S5",
+      "file": "src/lib/campaign/sync/ICampaignEventStore.ts:177",
+      "before": [
+        "   * at the expected head. Both the journal-backed and flag-off in-memory"
+      ],
+      "after": [
+        "   * at the expected head. Both the journal-backed and the in-memory"
+      ]
+    },
+    {
+      "site": "S6",
+      "file": "src/lib/campaign/sync/InMemoryCampaignEventStore.ts:40",
+      "before": [
+        "  /** Client-command receipts make the flag-off production adapter retry-safe. */"
+      ],
+      "after": [
+        "  /** Client-command receipts make the in-memory adapter retry-safe. */"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "file": "src/lib/campaign/coop/coopRuntimeSession.ts",
+      "added": 2,
+      "removed": 2,
+      "category": "product (comment lines only)",
+      "sha256": "95182dbc45fa4a0c72b71a48a9b3caa85de3161634f940f4ad729000910582a2",
+      "baselineSha256": "141d9627958170c7fee2f69c4e508f3c53fa35a1eaacee22662efcf119665989"
+    },
+    {
+      "file": "src/lib/campaign/sync/ICampaignEventStore.ts",
+      "added": 1,
+      "removed": 1,
+      "category": "product (comment lines only)",
+      "sha256": "cd4c78ca000b0386bf126c0248761846a76add380c70fca7d3ac4c9a8630a762",
+      "baselineSha256": "a941b7c572156894e6ce6d66dfbbe4f5277991d15685b41808975279f7a6c6ac"
+    },
+    {
+      "file": "src/lib/campaign/sync/InMemoryCampaignEventStore.ts",
+      "added": 1,
+      "removed": 1,
+      "category": "product (comment lines only)",
+      "sha256": "6b6f82c2f05cb02c27a2c808ee209162e1ba0252d5558b3e5c8f0fedadd54817",
+      "baselineSha256": "620f1bcd464954e1b8561c1e9e543b9fc410636acd9501e91d6ce9f11f3a341b"
+    },
+    {
+      "file": "src/lib/multiplayer/server/combatJournalAuthorityEnabled.ts",
+      "added": 2,
+      "removed": 2,
+      "category": "product (comment lines only)",
+      "sha256": "11c2586fda2853795b87f36cb405fc2093ebc60076c25a7465c840863a5041f5",
+      "baselineSha256": "c18b1a6b2fc2a858b4df258b1ac7d97ea27d8f84a435ec64e41a805e778d4bb7"
+    },
+    {
+      "file": "src/lib/multiplayer/server/matchJournalAuthority.ts",
+      "added": 0,
+      "removed": 1,
+      "category": "product (comment lines only)",
+      "sha256": "50e5e780476e3a0dd7fc148ea1021b24c22e2e3a413a7c5231da4bf12a8a9650",
+      "baselineSha256": "6432f900611b722b70bf8cd7d701e0e83a849eacfc52ea85cd679c1ad1db86ec"
+    },
+    {
+      "file": "src/pages/api/multiplayer/matches/index.ts",
+      "added": 3,
+      "removed": 3,
+      "category": "product (comment lines only)",
+      "sha256": "e9208e9e96f54eec931b936f27df6df84403a8de4a8bd36c3dd20f7e41734986",
+      "baselineSha256": "748a5d5dc4d083e28b75c93ddcb60fc481e6fe67761f8057506aea1f3b18a0ad"
+    }
+  ],
+  "diffStat": [
+    " src/lib/campaign/coop/coopRuntimeSession.ts                 | 4 ++--",
+    " src/lib/campaign/sync/ICampaignEventStore.ts                | 2 +-",
+    " src/lib/campaign/sync/InMemoryCampaignEventStore.ts         | 2 +-",
+    " src/lib/multiplayer/server/combatJournalAuthorityEnabled.ts | 4 ++--",
+    " src/lib/multiplayer/server/matchJournalAuthority.ts         | 1 -",
+    " src/pages/api/multiplayer/matches/index.ts                  | 6 +++---",
+    " 6 files changed, 9 insertions(+), 10 deletions(-)"
+  ],
+  "commentOnlyCheck": {
+    "command": "node comment-only-check.mjs (lane scratch)",
+    "method": "(1) every added or removed line of git diff -U0 matches a comment-line pattern (//, /**, *, */); (2) each changed file at HEAD and in the working tree is parsed by the TypeScript compiler (zero parse diagnostics required) and printed with removeComments; the two printed programs must be identical",
+    "exitCode": 0,
+    "output": [
+      "changedDiffLines=19 nonCommentChangedLines=0",
+      "  COMMENT -    // The cutover-flag factory (task 5.1): identical in-memory behavior",
+      "  COMMENT -    // until CAMPAIGN_JOURNAL_AUTHORITY_ENABLED turns on with task 5.2.",
+      "  COMMENT +    // The cutover-flag factory, called with no journal factory: it returns",
+      "  COMMENT +    // the in-memory store whatever CAMPAIGN_JOURNAL_AUTHORITY_ENABLED holds.",
+      "  COMMENT -   * at the expected head. Both the journal-backed and flag-off in-memory",
+      "  COMMENT +   * at the expected head. Both the journal-backed and the in-memory",
+      "  COMMENT -  /** Client-command receipts make the flag-off production adapter retry-safe. */",
+      "  COMMENT +  /** Client-command receipts make the in-memory adapter retry-safe. */",
+      "  COMMENT - * Null unless Playwright e2e mode is on (the same",
+      "  COMMENT - * NEXT_PUBLIC_E2E_MODE==='true' check the campaign arm uses) AND the",
+      "  COMMENT + * Null unless Playwright e2e mode is on (NEXT_PUBLIC_E2E_MODE==='true',",
+      "  COMMENT + * its own check: the campaign resolver has no e2e arm) AND the",
+      "  COMMENT - * Flag OFF matches CAMPAIGN_JOURNAL_AUTHORITY_ENABLED.",
+      "  COMMENT -    // false, so the fixture arm must reach it here as well as on the",
+      "  COMMENT -    // campaign PUT route, or a journal-native campaign creates a match",
+      "  COMMENT -    // with no genesis branch to recover.",
+      "  COMMENT +    // false. The resolver answers the production constant, true with no",
+      "  COMMENT +    // override, so the step runs and a campaign with no genesis marker",
+      "  COMMENT +    // fails the checkpoint.",
+      "printedWithoutComments src/lib/campaign/coop/coopRuntimeSession.ts: headLines=205 workLines=205 identical=true",
+      "printedWithoutComments src/lib/campaign/sync/ICampaignEventStore.ts: headLines=87 workLines=87 identical=true",
+      "printedWithoutComments src/lib/campaign/sync/InMemoryCampaignEventStore.ts: headLines=101 workLines=101 identical=true",
+      "printedWithoutComments src/lib/multiplayer/server/combatJournalAuthorityEnabled.ts: headLines=19 workLines=19 identical=true",
+      "printedWithoutComments src/lib/multiplayer/server/matchJournalAuthority.ts: headLines=115 workLines=115 identical=true",
+      "printedWithoutComments src/pages/api/multiplayer/matches/index.ts: headLines=236 workLines=236 identical=true",
+      "files=6 tokenMismatchFiles=0"
+    ],
+    "log": {
+      "name": "local-comment-only.log (lane scratch)",
+      "sha256": "9cce5ae850ec0298cabbca4d51664a251a686e63316152475bbafc1f26abc7ee"
+    },
+    "negativeControl": {
+      "command": "node check-control.mjs (lane scratch; in memory, no file written)",
+      "exitCode": 0,
+      "output": [
+        "codeMutantApplied=true codeMutantPrintsIdentical=false",
+        "commentMutantApplied=true commentMutantPrintsIdentical=true"
+      ],
+      "meaning": "a one-token code change in combatJournalAuthorityEnabled.ts prints differently; a comment change prints identically"
+    }
+  },
+  "lineCounts": {
+    "rule": "added + removed per git diff --numstat; all changed lines are comment lines in product files (OD-line-cap-product-lines)",
+    "commentLinesAdded": 9,
+    "commentLinesRemoved": 10,
+    "productLines": 19,
+    "nonCommentProductLines": 0,
+    "testLines": 0,
+    "totalFiles": 6,
+    "caps": {
+      "maxFiles": 15,
+      "maxNonGeneratedLines": 500
+    },
+    "withinCaps": true,
+    "outsideOwnershipPaths": [],
+    "receiptsNotCounted": [
+      "u35i-admission-20260925.json",
+      "u35i-red-20260925.json",
+      "u35i-local-20260925.json"
+    ]
+  },
+  "gates": {
+    "machineIdle": {
+      "command": "node scripts/qc/machine-idle.mjs --wait --timeout-ms 1800000",
+      "result": "MACHINE_IDLE before each of the three jest directory runs"
+    },
+    "jestCampaignSync": {
+      "command": "npx jest src/lib/campaign/sync",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\campaign\\\\sync/i.",
+      "counts": [
+        "Test Suites: 14 passed, 14 total",
+        "Tests:       108 passed, 108 total"
+      ],
+      "log": {
+        "name": "local-jest-campaign-sync.log (lane scratch)",
+        "sha256": "3a4e86ba198d321a5e3cd3f0cc0c970ad9e014766dc60766cfdddb07443b1590"
+      }
+    },
+    "jestMultiplayerServer": {
+      "command": "npx jest src/lib/multiplayer/server",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\server/i.",
+      "counts": [
+        "Test Suites: 161 passed, 161 total",
+        "Tests:       1180 passed, 1180 total"
+      ],
+      "log": {
+        "name": "local-jest-mp-server.log (lane scratch)",
+        "sha256": "0fc1977d715f72d3ae5249f059188689ba89ca49b02f95739204163d99c0d478"
+      }
+    },
+    "jestUnitApi": {
+      "command": "npx jest src/__tests__/unit/api",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\unit\\\\api/i.",
+      "counts": [
+        "Test Suites: 6 passed, 6 total",
+        "Tests:       35 passed, 35 total"
+      ],
+      "log": {
+        "name": "local-jest-unit-api.log (lane scratch)",
+        "sha256": "7f60a2b9797b007671d325d360ce3fb9bdca17e9465c0b6e836f9463fb84b642"
+      }
+    },
+    "tsc": {
+      "command": "npx tsc --noEmit",
+      "exitCode": 0,
+      "lastLine": "",
+      "output": "none (tsconfig.json incremental: true; the ignored tsconfig.tsbuildinfo was written by this run)",
+      "log": {
+        "name": "local-tsc.log (lane scratch)",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "tscFull": {
+      "command": "npx tsc --noEmit --incremental false",
+      "exitCode": 0,
+      "lastLine": "",
+      "output": "none",
+      "log": {
+        "name": "local-tsc-full.log (lane scratch)",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "oxlint": {
+      "command": "npx oxlint",
+      "exitCode": 0,
+      "lastLine": "Finished in 564ms on 3819 files using 16 threads.",
+      "summary": "Found 84 warnings and 0 errors.",
+      "warningsVsBaseline": "84 (baseline 84)",
+      "log": {
+        "name": "local-oxlint.log (lane scratch)",
+        "sha256": "7ce72458a049ada18449a8a4795142a039ea03655d3311e560a0f72d001a543b"
+      }
+    },
+    "oxfmt": {
+      "command": "npx oxfmt --check <the six changed files>",
+      "exitCode": 0,
+      "lastLine": "Finished in 59ms on 6 files using 16 threads.",
+      "summary": [
+        "All matched files use the correct format.",
+        "Finished in 59ms on 6 files using 16 threads."
+      ],
+      "log": {
+        "name": "local-oxfmt.log (lane scratch)",
+        "sha256": "4aede76a610844b1ac1911afde6519ddfb5f0e4030890abb1a5673e14e6f4418"
+      }
+    },
+    "lintUnits": {
+      "command": "npm run lint:units",
+      "exitCode": 0,
+      "lastLine": "LINT_UNITS_PASS 100/100",
+      "log": {
+        "name": "local-lint-units.log (lane scratch)",
+        "sha256": "e055631f9348b2e6539c922dddc1fe388b583448a734da5f618cb47c583fae2d"
+      }
+    },
+    "openspecCi": {
+      "command": "npm run qc:openspec-ci:validate",
+      "exitCode": 0,
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "log": {
+        "name": "local-openspec-ci.log (lane scratch)",
+        "sha256": "4c2dafd093b946290aa4abe001ad8b3d65671b17c7682722c55a510ecc04f91e"
+      }
+    },
+    "roadmapValidator": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "log": {
+        "name": "local-validator.log (lane scratch)",
+        "sha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc"
+      }
+    }
+  },
+  "mutants": [],
+  "mutantsNote": "none: the unit is comment-only; no behavior exists to mutate. The comment-only check carries an in-memory negative control instead (commentOnlyCheck.negativeControl)",
+  "nonClaims": [
+    "Comment-only: no runtime behavior changed and none was measured as changed; the jest runs show the owned suites stay green, not that a comment is correct. Each new comment was checked by reading the code it describes (admission sites[].codeItDescribes).",
+    "The baseline is 20d69c1d0; origin/main moved to 70f15077a (docs only) during the lane and was not merged into the worktree.",
+    "No build, no Playwright, no npm install, ci, prune or lifecycle command. qc:guard-node-modules-link refuses in this junctioned worktree (exit 1, INSTALL_REFUSED node-modules-is-link); per the charter npx jest, tsc, oxlint and oxfmt were still run with npm_config_dry_run=true; none of them installs.",
+    "Other stale comments noticed are listed under findingsReportedNotFixed and were not edited.",
+    "Nothing was committed, pushed, stashed or amended."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "F1",
+      "file": "src/lib/multiplayer/server/handleRoomCodeGuestJoin.ts:268",
+      "finding": "the doc comment on projectDepsOverHostLog says 'while the flag-off host still writes ICampaignEventStore'; the campaign flag is on (JournalCampaignEventStore.ts:90). Stale flag-off wording in U35i's paths, not one of the six named sites."
+    },
+    {
+      "id": "F2",
+      "file": "src/lib/campaign/sync/InMemoryCampaignEventStore.ts:3-9",
+      "finding": "the file header calls the store 'the dev/test ICampaignEventStore implementation' and 'what CO1 ships'; it is also the co-op runtime host's store (createDefaultCampaignEventStore with no journal factory, JournalCampaignEventStore.ts:547, called at coopRuntimeSession.ts:101) and the CAMPAIGN_EVENT_STORE=memory rollback arm (getCampaignEventStore.ts:24-27, :98). Incomplete rather than flag-off wording; not edited."
+    },
+    {
+      "id": "F3",
+      "file": "src/lib/campaign/authority/campaignCreationCheckpoint.ts:208-209",
+      "finding": "'While the cutover flag is off there is no branch to await' is true as a conditional for the journalAuthorityEnabled parameter (:216), but the one production caller (matches/index.ts:267) now always passes true; low, not edited."
+    },
+    {
+      "id": "F4",
+      "file": "openspec/planning/2026-09-12-roadmap-completion/units.json U35i behavior",
+      "finding": "the sentence cites src/pages/api/multiplayer/matches/index.ts:262-265; on the baseline the comment is at :263-266 (as the charter says)."
+    }
+  ],
+  "risksForTheParent": [
+    "routine: comment-only; the printed-program comparison shows no code change in any of the six files.",
+    "WORKERS.md 2026-09-22 asks for the node_modules guard before any npx command; the guard refuses in a junctioned worktree by design and the charter directs the npx gates anyway; recorded here so the review lane sees it."
+  ],
+  "gitStatusShort": [
+    " M src/lib/campaign/coop/coopRuntimeSession.ts",
+    " M src/lib/campaign/sync/ICampaignEventStore.ts",
+    " M src/lib/campaign/sync/InMemoryCampaignEventStore.ts",
+    " M src/lib/multiplayer/server/combatJournalAuthorityEnabled.ts",
+    " M src/lib/multiplayer/server/matchJournalAuthority.ts",
+    " M src/pages/api/multiplayer/matches/index.ts",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u35i-admission-20260925.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u35i-local-20260925.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u35i-red-20260925.json"
+  ]
+}

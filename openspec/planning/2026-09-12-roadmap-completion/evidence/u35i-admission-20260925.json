@@ -1,0 +1,183 @@
+{
+  "unit": "U35i",
+  "stage": "admission",
+  "status": "admitted",
+  "at": "2026-09-26T05:08:53.895Z",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u35i",
+  "branch": "roadmap-u35i-flag-off-comments-20260925",
+  "baseline": "20d69c1d0264cf906b7fc3524fbaa3981bf7e5cc",
+  "originMainAtAdmission": "70f15077ac229eb1e6bac78fe226aac62244f8a3",
+  "originMainNote": "origin/main moved past the baseline during the lane (docs only: u35h-mainproof, u86-admission-attempt2, units.json; git diff --stat baseline..origin/main); that commit carries the second folded clause (ICampaignEventStore.ts:177, InMemoryCampaignEventStore.ts:40); both clauses are applied here",
+  "unitSentenceSource": "units.json U35i behavior on origin/main (both folded clauses); the baseline copy carries the first folded clause only",
+  "ownershipPaths": [
+    "src/lib/campaign",
+    "src/lib/multiplayer/server",
+    "src/pages/api/multiplayer/matches/index.ts"
+  ],
+  "nodeDependency": "U35d main-verified (merge 68cf089ea9da2ba56e8d6c02e523075eddeb802b), recorded in units.json U35i resumed20260925",
+  "nextOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "exitCode": 0,
+    "output": "U35i"
+  },
+  "validatorOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "exitCode": 0,
+    "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows"
+  },
+  "guardNodeModulesLink": {
+    "command": "npm run --silent qc:guard-node-modules-link",
+    "exitCode": 1,
+    "output": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"<worktree>\\node_modules\",\"actualPath\":\"<repository root>\\node_modules\"}",
+    "note": "refuses in a junctioned worktree by design (paths abbreviated here); no npm install, ci, prune or lifecycle command was run; npm_config_dry_run=true was set for every command"
+  },
+  "intendedBehavior": "comment-only: six comment sites corrected to the flag-on state; no non-comment line changes",
+  "sites": [
+    {
+      "site": "S1",
+      "file": "src/lib/campaign/coop/coopRuntimeSession.ts",
+      "lines": "99-100",
+      "currentComment": [
+        "    // The cutover-flag factory (task 5.1): identical in-memory behavior",
+        "    // until CAMPAIGN_JOURNAL_AUTHORITY_ENABLED turns on with task 5.2."
+      ],
+      "codeItDescribes": [
+        "src/lib/campaign/coop/coopRuntimeSession.ts:101 `eventStore: createDefaultCampaignEventStore(),` (no argument)",
+        "src/lib/campaign/sync/JournalCampaignEventStore.ts:90 `export const CAMPAIGN_JOURNAL_AUTHORITY_ENABLED = true;`",
+        "src/lib/campaign/sync/JournalCampaignEventStore.ts:541 `if (CAMPAIGN_JOURNAL_AUTHORITY_ENABLED && deps?.journal) {` ... :547 `return new InMemoryCampaignEventStore();`"
+      ],
+      "whatTheCodeDoesNow": "the flag is already true and the call passes no journal factory, so the factory returns the in-memory store; the flag does not change that",
+      "correctedText": [
+        "    // The cutover-flag factory, called with no journal factory: it returns",
+        "    // the in-memory store whatever CAMPAIGN_JOURNAL_AUTHORITY_ENABLED holds."
+      ],
+      "editSource": "u35d-admission-20260924.json flipResidueDecision.exactEdits[9]",
+      "baselineSha256": "141d9627958170c7fee2f69c4e508f3c53fa35a1eaacee22662efcf119665989"
+    },
+    {
+      "site": "S2",
+      "file": "src/lib/multiplayer/server/matchJournalAuthority.ts",
+      "lines": "3",
+      "currentComment": [
+        " * Combat journal-authority types and consume-apply seam (task 2.3).",
+        " * Flag OFF matches CAMPAIGN_JOURNAL_AUTHORITY_ENABLED.",
+        " */"
+      ],
+      "codeItDescribes": [
+        "src/lib/multiplayer/server/matchJournalAuthority.ts:20-21 `export const COMBAT_JOURNAL_AUTHORITY_MODE =` `'off' as CombatJournalAuthorityMode;`",
+        "src/lib/campaign/sync/JournalCampaignEventStore.ts:90 `export const CAMPAIGN_JOURNAL_AUTHORITY_ENABLED = true;`"
+      ],
+      "whatTheCodeDoesNow": "the combat mode is its own constant, 'off'; the campaign flag is true, so combat OFF no longer matches it",
+      "correctedText": [
+        " * Combat journal-authority types and consume-apply seam (task 2.3).",
+        " */"
+      ],
+      "editSource": "u35d-admission-20260924.json flipResidueDecision.exactEdits[10] (delete the sentence)",
+      "baselineSha256": "6432f900611b722b70bf8cd7d701e0e83a849eacfc52ea85cd679c1ad1db86ec"
+    },
+    {
+      "site": "S3",
+      "file": "src/pages/api/multiplayer/matches/index.ts",
+      "lines": "263-266",
+      "currentComment": [
+        "    // The creation checkpoint skips its genesis-branch step when this is",
+        "    // false, so the fixture arm must reach it here as well as on the",
+        "    // campaign PUT route, or a journal-native campaign creates a match",
+        "    // with no genesis branch to recover."
+      ],
+      "codeItDescribes": [
+        "src/pages/api/multiplayer/matches/index.ts:267 `journalAuthorityEnabled: isCampaignJournalAuthorityEnabled(),`",
+        "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts:16-18 `return CAMPAIGN_JOURNAL_AUTHORITY_ENABLED;` (no override, no e2e arm)",
+        "src/lib/campaign/authority/campaignCreationCheckpoint.ts:216 `if (!input.journalAuthorityEnabled) return 'skipped';` then :217-220 a null genesis marker returns failed('genesis-branch', ...)",
+        "src/pages/api/multiplayer/matches/index.ts:270-274 a failed checkpoint throws"
+      ],
+      "whatTheCodeDoesNow": "the value is the production constant (true), no fixture arm reaches it, the genesis-branch step runs and a campaign with no genesis marker fails the checkpoint",
+      "correctedText": [
+        "    // The creation checkpoint skips its genesis-branch step when this is",
+        "    // false. The resolver answers the production constant, true with no",
+        "    // override, so the step runs and a campaign with no genesis marker",
+        "    // fails the checkpoint."
+      ],
+      "editSource": "u35d-admission-20260924.json flipResidueDecision.exactEdits[11] (the comment is at :263-266 on this baseline; units.json says :262-265)",
+      "baselineSha256": "748a5d5dc4d083e28b75c93ddcb60fc481e6fe67761f8057506aea1f3b18a0ad"
+    },
+    {
+      "site": "S4",
+      "file": "src/lib/multiplayer/server/combatJournalAuthorityEnabled.ts",
+      "lines": "35-36",
+      "currentComment": [
+        " * Null unless Playwright e2e mode is on (the same",
+        " * NEXT_PUBLIC_E2E_MODE==='true' check the campaign arm uses) AND the"
+      ],
+      "codeItDescribes": [
+        "src/lib/multiplayer/server/combatJournalAuthorityEnabled.ts:42 `if (process.env.NEXT_PUBLIC_E2E_MODE !== 'true') return null;`",
+        "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts:16-18 returns the constant; git grep NEXT_PUBLIC_E2E_MODE over src/lib/campaign hits only __tests__/campaignJournalAuthorityEnabled.test.ts (the retired-key test)"
+      ],
+      "whatTheCodeDoesNow": "the combat arm checks NEXT_PUBLIC_E2E_MODE itself; there is no campaign arm to share the check with",
+      "correctedText": [
+        " * Null unless Playwright e2e mode is on (NEXT_PUBLIC_E2E_MODE==='true',",
+        " * its own check: the campaign resolver has no e2e arm) AND the"
+      ],
+      "editSource": "units.json U35i folded clause (U35h admission finding F1); no exact edit was written for it, the corrected text is this lane's",
+      "baselineSha256": "c18b1a6b2fc2a858b4df258b1ac7d97ea27d8f84a435ec64e41a805e778d4bb7"
+    },
+    {
+      "site": "S5",
+      "file": "src/lib/campaign/sync/ICampaignEventStore.ts",
+      "lines": "177",
+      "currentComment": [
+        "   * at the expected head. Both the journal-backed and flag-off in-memory"
+      ],
+      "codeItDescribes": [
+        "src/lib/campaign/sync/InMemoryCampaignEventStore.ts:80 `appendCommandBatch = async (`",
+        "src/lib/campaign/sync/JournalCampaignEventStore.ts:421 `appendCommandBatch = async (`",
+        "src/lib/campaign/sync/JournalCampaignEventStore.ts:90 the flag is true; the in-memory store is chosen at :547 (no journal factory) and src/lib/multiplayer/server/getCampaignEventStore.ts:98 (ephemeral selection), neither conditioned on the flag being off"
+      ],
+      "whatTheCodeDoesNow": "both stores implement appendCommandBatch; the in-memory store is not a flag-off store",
+      "correctedText": [
+        "   * at the expected head. Both the journal-backed and the in-memory"
+      ],
+      "editSource": "units.json U35i folded clause (FN-u35d-inmemory-store-comments-say-flag-off); the corrected text is this lane's",
+      "baselineSha256": "a941b7c572156894e6ce6d66dfbbe4f5277991d15685b41808975279f7a6c6ac"
+    },
+    {
+      "site": "S6",
+      "file": "src/lib/campaign/sync/InMemoryCampaignEventStore.ts",
+      "lines": "40",
+      "currentComment": [
+        "  /** Client-command receipts make the flag-off production adapter retry-safe. */"
+      ],
+      "codeItDescribes": [
+        "src/lib/campaign/sync/InMemoryCampaignEventStore.ts:85-89 a prior receipt for the command id answers duplicate-command; :119 the receipt is stored",
+        "same selection sites as S5 (JournalCampaignEventStore.ts:547, getCampaignEventStore.ts:98)"
+      ],
+      "whatTheCodeDoesNow": "the receipts make the in-memory adapter retry-safe; it is not the flag-off adapter",
+      "correctedText": [
+        "  /** Client-command receipts make the in-memory adapter retry-safe. */"
+      ],
+      "editSource": "units.json U35i folded clause (FN-u35d-inmemory-store-comments-say-flag-off); the corrected text is this lane's",
+      "baselineSha256": "620f1bcd464954e1b8561c1e9e543b9fc410636acd9501e91d6ce9f11f3a341b"
+    }
+  ],
+  "beforeBlocksMatchedOnce": "each before block occurs exactly once in its file on the baseline (apply.mjs --check, exit 0)",
+  "noNonCommentLineChanges": "every before and after line is a comment line (// or JSDoc *) or the unchanged JSDoc open/close; the local receipt checks every changed diff line",
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "plannedFiles": 6,
+    "plannedChangedLinesEstimate": 18
+  },
+  "acceptanceCommands": [
+    "git diff --stat; every changed diff line is a comment line",
+    "npx jest src/lib/campaign/sync",
+    "npx jest src/lib/multiplayer/server",
+    "npx jest src/__tests__/unit/api",
+    "npx tsc --noEmit",
+    "npx oxlint",
+    "npx oxfmt --check <the six files>",
+    "npm run lint:units",
+    "npm run qc:openspec-ci:validate",
+    "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+  ]
+}

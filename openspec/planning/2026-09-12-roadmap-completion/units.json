@@ -1597,7 +1597,7 @@
       "reviewClasses": [
         "routine"
       ],
-      "state": "planned",
+      "state": "local-verified",
       "admitAfter20260925": "U35d main-verified (the comments describe the flag-off state until the flip lands)",
       "taskKeys": [],
       "ciClass": "product",
@@ -1605,13 +1605,27 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "baseline": null,
+      "baseline": "20d69c1d0264cf906b7fc3524fbaa3981bf7e5cc",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u35i-admission-20260925.json",
+          "baseline": "20d69c1d0264cf906b7fc3524fbaa3981bf7e5cc",
+          "at": "2026-09-26T05:08:53.895Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u35i-red-20260925.json",
+          "at": "2026-09-26T05:09:50.034Z",
+          "summary": "baseline 20d69c1d0 (comment-only unit: the red is the falsity of each comment against the code): the campaign flag is true at JournalCampaignEventStore.ts:90 and the resolver returns it (campaignJournalAuthorityEnabled.ts:17); the e2e arm is gone (no e2eJournalAuthorityArmed or CAMPAIGN_JOURNAL_AUTHORITY_E2E_ENV in src); the co-op runtime gets the in-memory store with no journal factory (coopRuntimeSession.ts:101, JournalCampaignEventStore.ts:547); combat is still off (matchJournalAuthority.ts:20-21) so it no longer matches the campaign flag; the combat arm is the only production reader of NEXT_PUBLIC_E2E_MODE (combatJournalAuthorityEnabled.ts:42); the in-memory store choice does not depend on the flag (getCampaignEventStore.ts:98); two existing pin suites pass on the baseline (2 suites, 23 tests)"
+        },
+        "local": {
+          "path": "evidence/u35i-local-20260925.json",
+          "at": "2026-09-26T05:15:22.650Z",
+          "summary": "6 files, +9/-10, comment lines only (each file compiled with comments stripped is byte-identical to HEAD; a control showed the check catches a one-token code change): coopRuntimeSession.ts:99-100, matchJournalAuthority.ts:3 (line deleted), matches/index.ts:263-266, combatJournalAuthorityEnabled.ts:35-36, ICampaignEventStore.ts:177, InMemoryCampaignEventStore.ts:40 each state the flag-on behaviour; jest src/lib/campaign/sync 14 suites 108, src/lib/multiplayer/server 161 suites 1180, src/__tests__/unit/api 35; tsc 0 (also non-incremental); oxlint 84 warnings 0 errors; oxfmt clean; lint:units 100/100; qc:openspec-ci errors=0; validator PASSED; no mutants (comment-only); implementer claude-opus (Agent model: opus); findings: handleRoomCodeGuestJoin.ts:268 still says the flag-off host, InMemoryCampaignEventStore.ts:3-9 calls the store dev/test only, campaignCreationCheckpoint.ts:208-209 describes a branch whose only production caller passes true, the sentence cites matches/index.ts:262-265 (the comment is at :263-266); status ready"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -1626,6 +1640,10 @@
       "resumed20260925": {
         "at": "2026-09-26T00:35:48.000Z",
         "why": "prerequisite main-verified: U35d (merge 68cf089ea9da2ba56e8d6c02e523075eddeb802b), the campaign journal flip; recorded by U35d's closure edit"
+      },
+      "admissionNote20260925": {
+        "at": "2026-09-26T05:25:37.000Z",
+        "note": "the sentence cites matches/index.ts:262-265; on the baseline the comment sits at :263-266 (U35d's lane noted the same drift)."
       }
     },
     {
@@ -9942,6 +9960,15 @@
       "summary": "Next's API module graph and the socket runtime's graph (server.js:446-464) each hold their own CampaignHostRegistry instance; the API graph's copy, which the create route registers into, retains no participants, so any API-graph reader of campaign session state (the E2E probe, and by reading any future route) sees a different session than the players talk to. MatchHostRegistry had the same split until U22a.",
       "recommendedSuccessor": "U95",
       "status": "recorded; U95 planned; U86 blocked on it"
+    },
+    {
+      "id": "FN-u35i-remaining-flag-off-comments",
+      "foundBy": "U35i implementer lane (claude-opus), 2026-09-25, findings F1-F3",
+      "at": "2026-09-26T05:25:37.000Z",
+      "class": "stale comments (outside the unit's exact edits)",
+      "summary": "src/lib/multiplayer/server/handleRoomCodeGuestJoin.ts:268 still says 'the flag-off host'; src/lib/campaign/sync/InMemoryCampaignEventStore.ts:3-9 calls the store dev/test only, though it is also the co-op runtime's host store and the CAMPAIGN_EVENT_STORE=memory rollback store; src/lib/campaign/authority/campaignCreationCheckpoint.ts:208-209 describes a flag-off branch whose only production caller now always passes true.",
+      "recommendedSuccessor": "fold into the next units that edit those files (U94, U95, U92 own src/lib/multiplayer/server and src/lib/campaign)",
+      "status": "recorded"
     }
   ]
 }
