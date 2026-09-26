@@ -1,0 +1,29 @@
+{
+  "unit": "U92",
+  "stage": "merge",
+  "at": "2026-09-26T18:08:03.626Z",
+  "pr": 2008,
+  "title": "feat(campaign): a GM funds correction on a co-op campaign commits through the host (U92)",
+  "head": "53973e939383c40a9c64c91674ded777653b7c2b",
+  "mergeSha": "65b2dad00727358318244cdfdd817b93a4dfd208",
+  "mergedAt": "2026-09-26T17:58:39Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "src/__tests__/api/campaigns/coopGmIntervention.test.ts",
+    "src/__tests__/pages/gameplay/campaigns/gm-ledger.coop.test.tsx",
+    "src/lib/campaign/coop/campaignSyncTransport.ts",
+    "src/lib/campaign/coop/coopGmIntervention.ts",
+    "src/lib/multiplayer/server/CampaignMatchHost.doors.ts",
+    "src/lib/multiplayer/server/CampaignMatchHost.ts",
+    "src/lib/multiplayer/server/CampaignMatchHostIntent.ts",
+    "src/lib/multiplayer/server/campaignIntentIdentity.ts",
+    "src/pages/gameplay/campaigns/[id]/gm-ledger.tsx",
+    "src/stores/campaign/__tests__/coopBattleReconciliationWiring.test.ts",
+    "src/types/campaign/CampaignSync.ts",
+    "src/types/multiplayer/Protocol.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}
