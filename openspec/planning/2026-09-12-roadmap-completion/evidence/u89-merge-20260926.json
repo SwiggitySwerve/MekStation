@@ -1,0 +1,24 @@
+{
+  "unit": "U89",
+  "stage": "merge",
+  "at": "2026-09-26T19:33:58.698Z",
+  "pr": 2020,
+  "title": "perf(campaign): the host-intent path reads the journal since its last head (U89)",
+  "head": "0c080f3e9c29894439a256aa41f1bff8e4784f48",
+  "mergeSha": "57c55fb3d4fd98cec5a40e4b5a36df605e813a9f",
+  "mergedAt": "2026-09-26T19:24:07Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+    "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.heads.test.ts",
+    "src/lib/campaign/sync/campaignJournalReads.ts",
+    "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test-helpers.ts",
+    "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test.ts",
+    "src/lib/multiplayer/server/__tests__/healCommittedParticipantRemovals.test.ts",
+    "src/lib/multiplayer/server/bindCampaignSyncConnection.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}
