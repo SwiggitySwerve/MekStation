@@ -1,0 +1,70 @@
+{
+  "journey": "03-fresh-profile-empty-states",
+  "persona": "new player with no saved content yet",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "startedAt": "2026-09-26T07:08:19.009Z",
+  "finishedAt": "2026-09-26T07:08:22.692Z",
+  "status": "ok",
+  "steps": [
+    {
+      "index": 1,
+      "slug": "01-step-7d794ed3a4a9babe",
+      "title": "step-title:<sha256:7d794ed3a4a9babe>",
+      "surface": "default",
+      "screenshot": "journey-090644827e79a605/01-step-7d794ed3a4a9babe.png",
+      "route": "/units",
+      "startedAt": "2026-09-26T07:08:19.009Z",
+      "durationMs": 1537,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 2,
+      "slug": "02-step-76902af844e04246",
+      "title": "step-title:<sha256:76902af844e04246>",
+      "surface": "default",
+      "screenshot": "journey-090644827e79a605/02-step-76902af844e04246.png",
+      "route": "/replay-library",
+      "startedAt": "2026-09-26T07:08:20.547Z",
+      "durationMs": 1101,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 3,
+      "slug": "03-step-a308d2613e411b55",
+      "title": "step-title:<sha256:a308d2613e411b55>",
+      "surface": "default",
+      "screenshot": "journey-090644827e79a605/03-step-a308d2613e411b55.png",
+      "route": "/replay-library",
+      "startedAt": "2026-09-26T07:08:21.657Z",
+      "durationMs": 520,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": ["note:<sha256:adc18652587e5d5d>"],
+      "status": "ok"
+    },
+    {
+      "index": 4,
+      "slug": "04-step-a250e3ddac6aee54",
+      "title": "step-title:<sha256:a250e3ddac6aee54>",
+      "surface": "default",
+      "screenshot": "journey-090644827e79a605/04-step-a250e3ddac6aee54.png",
+      "route": "/replay-library",
+      "startedAt": "2026-09-26T07:08:22.177Z",
+      "durationMs": 515,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    }
+  ],
+  "findings": []
+}

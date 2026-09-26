@@ -1,0 +1,89 @@
+{
+  "journey": "09-coop-multiplayer-two-client",
+  "persona": "host and guest proving co-op campaign and 1v1 lobby handoff surfaces",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "startedAt": "2026-09-26T07:07:36.623Z",
+  "finishedAt": "2026-09-26T07:07:44.073Z",
+  "status": "ok",
+  "steps": [
+    {
+      "index": 1,
+      "slug": "01-step-ee509dd5c2627ae1",
+      "title": "step-title:<sha256:ee509dd5c2627ae1>",
+      "surface": "default",
+      "screenshot": "journey-b3613f6229744902/01-step-ee509dd5c2627ae1.png",
+      "route": "<route:ff71cf74abb3ccb0>",
+      "startedAt": "2026-09-26T07:07:36.625Z",
+      "durationMs": 859,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 2,
+      "slug": "02-step-8ab42367be9f71de",
+      "title": "step-title:<sha256:8ab42367be9f71de>",
+      "surface": "default",
+      "screenshot": "journey-b3613f6229744902/02-step-8ab42367be9f71de.png",
+      "route": "/gameplay/campaigns/<route:120f7a53d3ab22ca>",
+      "startedAt": "2026-09-26T07:07:37.484Z",
+      "durationMs": 2477,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 3,
+      "slug": "03-step-b5ddb823d8a8372e",
+      "title": "step-title:<sha256:b5ddb823d8a8372e>",
+      "surface": "guest",
+      "screenshot": "journey-b3613f6229744902/03-step-b5ddb823d8a8372e.png",
+      "route": "/gameplay/campaigns/<route:120f7a53d3ab22ca>/gm-ledger",
+      "startedAt": "2026-09-26T07:07:39.962Z",
+      "durationMs": 1361,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 4,
+      "slug": "04-step-957143c3cfb6c081",
+      "title": "step-title:<sha256:957143c3cfb6c081>",
+      "surface": "default",
+      "screenshot": "journey-b3613f6229744902/04-step-957143c3cfb6c081.png",
+      "route": "/multiplayer/lobby/<route:ca04f0ce84c976a9>",
+      "startedAt": "2026-09-26T07:07:41.323Z",
+      "durationMs": 2610,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    }
+  ],
+  "findings": [
+    {
+      "id": "finding-ac9745898405fb9b",
+      "severity": "minor",
+      "summary": "finding-summary:<sha256:178e7c9eb6339707>",
+      "steps": [2]
+    },
+    {
+      "id": "finding-e4b28fbe1a2ddfd9",
+      "severity": "minor",
+      "summary": "finding-summary:<sha256:e837c5c17e9fd6f0>",
+      "steps": [3]
+    },
+    {
+      "id": "finding-04aed4d05d092d69",
+      "severity": "minor",
+      "summary": "finding-summary:<sha256:f874d33f686b8001>",
+      "steps": [4]
+    }
+  ]
+}
