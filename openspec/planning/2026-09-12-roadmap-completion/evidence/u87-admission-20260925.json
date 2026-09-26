@@ -1,0 +1,74 @@
+{
+  "unit": "U87",
+  "baseline": "70f15077ac229eb1e6bac78fe226aac62244f8a3",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u87",
+  "branch": "roadmap-u87-lifecycle-race-and-audit-journey-20260925",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "logDir": ".sisyphus/u87-logs (inside the worktree, git-ignored; every log below is hashed from that directory)",
+  "stage": "admission",
+  "at": "2026-09-25T23:21:28-06:00",
+  "guard": {
+    "command": "npm run --silent qc:guard-node-modules-link",
+    "exit": 1,
+    "output": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u87\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+    "note": "refused by design in a junctioned worktree; no npm install/ci/prune was run"
+  },
+  "next": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "exit": 0,
+    "printed": "U35i",
+    "note": "U87 is not the unit --next names; per the charter U87 owns only e2e and overlaps nothing in flight, so the lane continued"
+  },
+  "validatorAtBaseline": {
+    "exit": 0,
+    "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "log": "validate-baseline.log",
+    "logSha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc"
+  },
+  "ownershipPaths": [
+    "e2e"
+  ],
+  "behavior": "units.json U87 behavior sentence, not widened: (1) lifecycle row A waits after its reloads until the host banner reads live and neither page shows the match-pause overlay before GoProne; row B reload pair gets the same wait. (2) The UX audit customizer journey follows the combined Add unit dialog.",
+  "seams": [
+    "e2e/gm-two-player-lifecycle.pack.spec.ts:213-216 row A: reload guest, reload host, capturePosture(guestPage, live) - guest only",
+    "e2e/gm-two-player-lifecycle.pack.spec.ts:220-221 sendGoProne on the guest socket, then capturePosture sealed (poll :508-510, 60 s)",
+    "e2e/gm-two-player-lifecycle.pack.spec.ts:339-343 row B: the same reload pair, then a guest-only poll for live",
+    "e2e/gm-two-player-lifecycle.pack.spec.ts:542-552 postureState reads data-state of tactical-lifecycle-state, 1 s attribute timeout, empty string when absent",
+    "src/components/multiplayer/TacticalLifecycleStateBanner.tsx:31-32 data-testid tactical-lifecycle-state, data-state",
+    "src/components/multiplayer/NetworkedGameSurface.overlays.tsx:151 data-testid match-pause-overlay; NetworkedGameSurface.tsx:387 rendered only while paused",
+    "src/components/multiplayer/NetworkedGameSurface.tsx:234-242 interactionPaused: the pause is its own arm, not a banner posture",
+    "src/lib/multiplayer/server/ServerMatchHostReconnectLifecycle.ts:31-51 maybeMarkPlayerPending; :85-100 broadcastPauseSnapshot (MatchPaused broadcast once, at drop); :68-83 maybeResume",
+    "src/lib/multiplayer/server/ServerMatchHostIntent.ts:275-283 isPaused -> MATCH_PAUSED",
+    "src/lib/multiplayer/server/ServerMatchHostReplay.ts:319-351 handleSessionJoin: sendReplay, then getMatchMeta, LobbyUpdated, then maybeResume",
+    "src/lib/multiplayer/tacticalLifecycleState.ts:166 deriveTacticalWireFacts; :203 behind when not ready; :205 sealed only on a sealed own declaration",
+    "e2e/ux-walkthrough-audit.spec.ts:334-339 step 2 expects heading Create New Unit; :341-349 step 3 clicks Create Unit and expects /customizer/<id>/structure and structure-heat-sink-count",
+    "src/components/customizer/tabs/MultiUnitTabsEmptyState.tsx:70-76 New Unit button -> onOpenLoadDialog; :94-102 UnitLoadDialog with onCreateBlankUnit and onConfigureNewUnit",
+    "src/components/customizer/dialogs/UnitLoadDialog.tsx:353 h3 Add unit; :361-367 button New blank unit; :372-380 button Choose starting settings; no test ids",
+    "src/components/customizer/dialogs/ModalOverlay.tsx:110-112 role dialog, aria-labelledby (accessible name Add unit)",
+    "src/components/customizer/tabs/MultiUnitTabs.tsx:154-161 createBlankUnit -> createNewUnit(50); configureNewUnit -> NewTabModal (heading Create New Unit at NewTabModal.tsx:123-124, Create Unit at :194)"
+  ],
+  "designAnswers": {
+    "rowAToday": "Between its reloads and GoProne row A only polls the GUEST banner for live (:216) and runs the capture obligations on it; nothing reads the host page. Readiness signals: tactical-lifecycle-state data-state on each page (the banner renders once the surface has replayed; live needs ready, set by ReplayEnd) and match-pause-overlay (rendered only while that page holds a MatchPaused).",
+    "whySealedFails": "The diagnosis names the pause: a reloading seat is marked pending and the match paused (ServerMatchHostReconnectLifecycle.ts:31-51, :85-100); ServerMatchHostIntent.ts:275-283 refuses the GoProne with MATCH_PAUSED; no MovementDeclared is committed, so deriveTacticalWireFacts never sees a sealed declaration and the guest banner keeps answering live. The guest banner does not show the pause (NetworkedGameSurface.tsx:234-242). Measured here: in all 3 baseline failures the GoProne was dispatched before the host session joined (server log line 59 vs line 66).",
+    "rowBGap": "Yes, the same reload pair (:339-340) followed by a guest-only poll (:341-343); row B survives because driveUntilPosture retries advancePhase up to 8 times (:431-450), not because it waits.",
+    "overlaySignalLimit": "MEASURED (red probe 1): with the host held away after the reload pair the guest never showed match-pause-overlay within 30 s. MatchPaused is broadcast only when a seat drops (broadcastPauseSnapshot) and handleSessionJoin sends none, so a guest that rejoins after the host dropped holds no overlay while the match is paused. The host banner reading live is therefore the signal that carries the host rejoin; the overlay checks cover the case where a page did receive the pause.",
+    "auditJourneyToday": "Step 1 opens /customizer and expects No Units Open. Step 2 clicks New Unit and expects the heading Create New Unit, which the empty state no longer opens (it opens UnitLoadDialog titled Add unit). Step 3 clicks Create Unit and expects /customizer/<id>/structure plus structure-heat-sink-count.",
+    "dialogNow": "Dialog role dialog named Add unit (h3 :353 via aria-labelledby); buttons New blank unit (createNewUnit(50), then closes) and Choose starting settings (closes, opens NewTabModal with Create New Unit / Create Unit); library table with Load Unit. No test ids.",
+    "pathChosen": "New blank unit: one click, the dialog primary action; it calls the same createNewUnit/createNewUnitWithRouting route the old Create Unit button called, so it reaches /customizer/<id>/structure (measured in the green run). Choose starting settings would keep the removed modal as the journey main path.",
+    "auditRunnerChange": "None needed; scripts/qc/run-ux-walkthrough.mjs is untouched. qc:ux-audit:prod chains npm run build && node .next/standalone/server.js (scripts/playwright/run-playwright.mjs:37-41), which in a junctioned worktree exits 1 at the hydration guard, so the prod audit runs only in the root checkout (main proof)."
+  },
+  "estimate": {
+    "e2e/gm-two-player-lifecycle.pack.spec.ts": "~40 spec lines (one helper plus two calls)",
+    "e2e/ux-walkthrough-audit.spec.ts": "~20 spec lines (steps 2 and 3)"
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "productLines": 0,
+    "note": "spec lines count as this unit lines; product count 0"
+  },
+  "risksForTheParent": [
+    "routine: none visible to a tester",
+    "the pack wait semantics change: rows A and B now also wait on the host page (60 s bound) after their reload pair"
+  ]
+}

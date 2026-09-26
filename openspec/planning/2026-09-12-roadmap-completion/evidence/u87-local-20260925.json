@@ -1,0 +1,314 @@
+{
+  "unit": "U87",
+  "baseline": "70f15077ac229eb1e6bac78fe226aac62244f8a3",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u87",
+  "branch": "roadmap-u87-lifecycle-race-and-audit-journey-20260925",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "logDir": ".sisyphus/u87-logs (inside the worktree, git-ignored; every log below is hashed from that directory)",
+  "stage": "local",
+  "at": "2026-09-26T05:51:57.874Z",
+  "changes": {
+    "e2e/gm-two-player-lifecycle.pack.spec.ts": "waitForRejoin(hostPage, guestPage) added (polls every 100 ms up to 60 s until the host banner reads live and neither page renders match-pause-overlay, in one poll round) plus pauseOverlayShown; called in row A after its reload pair and before the guest live capture, and in row B after its reload pair",
+    "e2e/ux-walkthrough-audit.spec.ts": "step 2 expects dialog Add unit with buttons New blank unit and Choose starting settings; step 3 clicks New blank unit; step 3 reads the heat sink count by its accessible name (spinbutton Heat sink count) because #1634 also removed the structure-heat-sink-count test id (found only after step 2 was fixed)"
+  },
+  "finalSha256": {
+    "e2e/gm-two-player-lifecycle.pack.spec.ts": "d9384819e463554be621dc1083060baec68bb864a4c7372cd025b8786c01340c",
+    "e2e/ux-walkthrough-audit.spec.ts": "524cbfb44efbf17b3d0f667614ebc8d2d02145dc9fb0724e5fe0f1d4bcd4be4f"
+  },
+  "lineCounts": {
+    "files": 2,
+    "specLines": {
+      "e2e/gm-two-player-lifecycle.pack.spec.ts": "+38 -0",
+      "e2e/ux-walkthrough-audit.spec.ts": "+19 -5"
+    },
+    "specTotal": 62,
+    "productLines": 0
+  },
+  "gates": [
+    {
+      "command": "npx jest scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+      "exit": 0,
+      "lastLine": "Tests:       15 passed, 15 total",
+      "suites": "Test Suites: 1 passed, 1 total",
+      "logSha256": "705aae27cd4a57012a616c21aa078b75d6e3213a81f4405a50a452d62a8169d9"
+    },
+    {
+      "command": "npx tsc --noEmit",
+      "exit": 0,
+      "lastLine": "(no output)",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "npx oxlint",
+      "exit": 0,
+      "lastLine": "Found 84 warnings and 0 errors.",
+      "note": "warnings 84 against the 84 baseline; none in the two changed files",
+      "logSha256": "cf74f4fdd980b90fbb1e71851bdbda6294d809edc329c5e4d01ce54a923158d0"
+    },
+    {
+      "command": "npx oxfmt --check e2e/gm-two-player-lifecycle.pack.spec.ts e2e/ux-walkthrough-audit.spec.ts",
+      "exit": 0,
+      "lastLine": "Finished in 53ms on 2 files using 16 threads. (preceded by: All matched files use the correct format.)",
+      "logSha256": "95c23f63db40c69c7db388739c5c1fd712c00c27c973f429c9d35ba13773be1c"
+    },
+    {
+      "command": "npm run qc:openspec-ci:validate",
+      "exit": 0,
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "logSha256": "4c2dafd093b946290aa4abe001ad8b3d65671b17c7682722c55a510ecc04f91e"
+    },
+    {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exit": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "logSha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc"
+    }
+  ],
+  "build": "the baseline build (red receipt) serves every run below; the change touches only e2e specs, which Playwright transpiles at run time, so no rebuild was run",
+  "ladder": [
+    {
+      "runId": "u87-green-lc-1",
+      "meta": [
+        "run=u87-green-lc-1 port=24435 head=70f15077ac229eb1e6bac78fe226aac62244f8a3 start=2026-09-25T23:37:47-06:00",
+        "d9384819e463554be621dc1083060baec68bb864a4c7372cd025b8786c01340c *e2e/gm-two-player-lifecycle.pack.spec.ts",
+        "exit=0 end=2026-09-25T23:38:06-06:00",
+        "[lifecycle-pack] captured=live,sealed,finalized,syncing,behind",
+        "[lifecycle-pack] rowB captured=pending,blocked",
+        "  2 passed (18.5s)"
+      ],
+      "log": "u87-green-lc-1.log",
+      "logSha256": "ca4b67bf5aa86472976d07d509090848046fb40bdbb690833fb0f7ea5ac415ac",
+      "phase": "green",
+      "rowA": "passed captured=live,sealed,finalized,syncing,behind",
+      "rowB": "passed",
+      "order": "both sessions joined (lines 52, 64) before GoProne (line 71)"
+    },
+    {
+      "runId": "u87-green-lc-2",
+      "meta": [
+        "run=u87-green-lc-2 port=25695 head=70f15077ac229eb1e6bac78fe226aac62244f8a3 start=2026-09-25T23:38:07-06:00",
+        "d9384819e463554be621dc1083060baec68bb864a4c7372cd025b8786c01340c *e2e/gm-two-player-lifecycle.pack.spec.ts",
+        "exit=0 end=2026-09-25T23:38:30-06:00",
+        "[lifecycle-pack] captured=live,sealed,finalized,syncing,behind",
+        "[lifecycle-pack] rowB captured=pending,blocked",
+        "  2 passed (22.1s)"
+      ],
+      "log": "u87-green-lc-2.log",
+      "logSha256": "b57a45bb44fb2e992a4194ec4914d14da3d139a38c3b80d7cfe08a6b9e81988a",
+      "phase": "green",
+      "rowA": "passed",
+      "rowB": "passed",
+      "order": "joined lines 52, 64; GoProne line 71"
+    },
+    {
+      "runId": "u87-green-lc-3",
+      "meta": [
+        "run=u87-green-lc-3 port=20609 head=70f15077ac229eb1e6bac78fe226aac62244f8a3 start=2026-09-25T23:38:31-06:00",
+        "d9384819e463554be621dc1083060baec68bb864a4c7372cd025b8786c01340c *e2e/gm-two-player-lifecycle.pack.spec.ts",
+        "exit=0 end=2026-09-25T23:39:03-06:00",
+        "[lifecycle-pack] captured=live,sealed,finalized,syncing,behind",
+        "[lifecycle-pack] rowB captured=pending,blocked",
+        "  2 passed (31.9s)"
+      ],
+      "log": "u87-green-lc-3.log",
+      "logSha256": "d2c95d3a81f70286d9add89360df9a3a205d058a15e64f547d4c2dc18f8b7e05",
+      "phase": "green",
+      "rowA": "passed",
+      "rowB": "passed",
+      "order": "joined lines 52, 64; GoProne line 71"
+    }
+  ],
+  "ladderSummary": "lifecycle-pack 3 of 3 consecutive passes in the worktree at the final spec sha d9384819...; every run preceded by MACHINE_IDLE",
+  "journeyRuns": [
+    {
+      "runId": "u87-green-ux-1",
+      "meta": [
+        "run=u87-green-ux-1 port=24771 head=70f15077ac229eb1e6bac78fe226aac62244f8a3 start=2026-09-25T23:36:12-06:00",
+        "60a9a988d9ae199f0216ee85c6288c222cd14d067b2cf7a6114c8b8d1cbf5f85 *e2e/ux-walkthrough-audit.spec.ts",
+        "exit=1 end=2026-09-25T23:36:42-06:00",
+        "[qc:ux-audit] run 2026-09-25T23-36-12 (dev build)",
+        "[qc:ux-audit] catalog: .sisyphus\\evidence\\ux-walkthrough\\2026-09-25T23-36-12",
+        "  1 failed",
+        "[qc:ux-audit] journeys=1 (1 failed) steps=3 (1 failed, 0 with console errors) findings=0",
+        "[qc:ux-audit] review: .sisyphus\\evidence\\ux-walkthrough\\2026-09-25T23-36-12\\index.html",
+        "[qc:ux-audit] skeleton: .sisyphus\\evidence\\ux-walkthrough\\2026-09-25T23-36-12\\REVIEW.md"
+      ],
+      "log": "u87-green-ux-1.log",
+      "logSha256": "d3a9038dd6bd11b6f752eedf4beb81f613cea6d8bb570de12c848668d36d3e17",
+      "spec": "intermediate (steps 2-3 dialog change only)",
+      "result": "failed at step 3: getByTestId(structure-heat-sink-count) not found; the URL assertion /customizer/<id>/structure passed; the page snapshot shows the Structure tab selected on a new 50 t Mek"
+    },
+    {
+      "runId": "u87-green-ux-2",
+      "meta": [
+        "run=u87-green-ux-2 port=20833 head=70f15077ac229eb1e6bac78fe226aac62244f8a3 start=2026-09-25T23:37:22-06:00",
+        "524cbfb44efbf17b3d0f667614ebc8d2d02145dc9fb0724e5fe0f1d4bcd4be4f *e2e/ux-walkthrough-audit.spec.ts",
+        "exit=0 end=2026-09-25T23:37:37-06:00",
+        "[qc:ux-audit] run 2026-09-25T23-37-22 (dev build)",
+        "[qc:ux-audit] catalog: .sisyphus\\evidence\\ux-walkthrough\\2026-09-25T23-37-22",
+        "  1 passed (14.6s)",
+        "[qc:ux-audit] journeys=1 (0 failed) steps=9 (0 failed, 1 with console errors) findings=0",
+        "[qc:ux-audit] review: .sisyphus\\evidence\\ux-walkthrough\\2026-09-25T23-37-22\\index.html",
+        "[qc:ux-audit] skeleton: .sisyphus\\evidence\\ux-walkthrough\\2026-09-25T23-37-22\\REVIEW.md"
+      ],
+      "log": "u87-green-ux-2.log",
+      "logSha256": "5bf902df70a16ea56efda24f197d290257da22f98fef8baf8721c16743b1b164",
+      "spec": "final",
+      "result": "passed: 1 passed (14.6s); [qc:ux-audit] journeys=1 (0 failed) steps=9 (0 failed, 1 with console errors) findings=0"
+    }
+  ],
+  "journeyHow": "Only the customizer journey, through scripts/qc/run-ux-walkthrough.mjs -g \"journey: build a new unit in the customizer\" (no --prod), with MEKSTATION_E2E_SERVER_COMMAND=\"node server.js\", NODE_ENV=production, HOSTNAME=127.0.0.1 and an owned port derived from the run id, against this worktree production .next (not the standalone server). qc:ux-audit:prod was not run: it builds and serves .next/standalone, which a junctioned worktree cannot complete; the 10-of-10 audit belongs to the root-checkout main proof. Catalogs moved to .sisyphus/u87-logs/ux-catalogs so the worktree status stays clean.",
+  "mutants": [
+    {
+      "id": "M1",
+      "mutation": "row A waitForRejoin call removed (row B keeps it)",
+      "runs": [
+        {
+          "runId": "u87-m1-lc-1",
+          "meta": [
+            "run=u87-m1-lc-1 port=28412 head=70f15077ac229eb1e6bac78fe226aac62244f8a3 start=2026-09-25T23:39:20-06:00",
+            "c045c7cdd69136da3a2f9ec534741e5b7e20e933e8dce16286bb095336e13c8a *e2e/gm-two-player-lifecycle.pack.spec.ts",
+            "exit=1 end=2026-09-25T23:40:37-06:00",
+            "[lifecycle-pack] captured=live",
+            "[lifecycle-pack] rowB captured=pending,blocked",
+            "  1 failed",
+            "  1 passed (1.3m)"
+          ],
+          "log": "u87-m1-lc-1.log",
+          "logSha256": "93c6018c09ed583f1b4fe11888c67738144343f5834c4725c4ad70714879c6ea",
+          "result": "row A failed: Expected sealed, Received live"
+        },
+        {
+          "runId": "u87-m1-lc-2",
+          "meta": [
+            "run=u87-m1-lc-2 port=28154 head=70f15077ac229eb1e6bac78fe226aac62244f8a3 start=2026-09-25T23:40:38-06:00",
+            "c045c7cdd69136da3a2f9ec534741e5b7e20e933e8dce16286bb095336e13c8a *e2e/gm-two-player-lifecycle.pack.spec.ts",
+            "exit=1 end=2026-09-25T23:41:54-06:00",
+            "[lifecycle-pack] captured=live",
+            "[lifecycle-pack] rowB captured=pending,blocked",
+            "  1 failed",
+            "  1 passed (1.3m)"
+          ],
+          "log": "u87-m1-lc-2.log",
+          "logSha256": "2a045085269e857f75909f48e9233211393afaa35bee76489bd2790e947c01db",
+          "result": "row A failed: Expected sealed, Received live"
+        }
+      ],
+      "caught": "yes, 2 of 2 live runs",
+      "restored": "from the saved final copy; sha256 d9384819e463554be621dc1083060baec68bb864a4c7372cd025b8786c01340c confirmed"
+    },
+    {
+      "id": "M2",
+      "mutation": "waitForRejoin reads only the guest (banner and both overlay reads from guestPage)",
+      "runs": [
+        {
+          "runId": "u87-m2-lc-1",
+          "meta": [
+            "run=u87-m2-lc-1 port=23213 head=70f15077ac229eb1e6bac78fe226aac62244f8a3 start=2026-09-25T23:42:01-06:00",
+            "24acf5f45e40c423f268cd86facdbb1d4d1ae544ed5f78c1d84abb663a6d4ff5 *e2e/gm-two-player-lifecycle.pack.spec.ts",
+            "exit=0 end=2026-09-25T23:42:20-06:00",
+            "[lifecycle-pack] captured=live,sealed,finalized,syncing,behind",
+            "[lifecycle-pack] rowB captured=pending,blocked",
+            "  2 passed (18.3s)"
+          ],
+          "log": "u87-m2-lc-1.log",
+          "logSha256": "951711c28b7fde5a137710455e65ed84cb2d8a0282aef6d69c1f979fcea1ee06",
+          "result": "passed 2 of 2 rows; both sessions joined before GoProne"
+        },
+        {
+          "runId": "u87-m2-lc-2",
+          "meta": [
+            "run=u87-m2-lc-2 port=25367 head=70f15077ac229eb1e6bac78fe226aac62244f8a3 start=2026-09-25T23:42:22-06:00",
+            "24acf5f45e40c423f268cd86facdbb1d4d1ae544ed5f78c1d84abb663a6d4ff5 *e2e/gm-two-player-lifecycle.pack.spec.ts",
+            "exit=0 end=2026-09-25T23:42:42-06:00",
+            "[lifecycle-pack] captured=live,sealed,finalized,syncing,behind",
+            "[lifecycle-pack] rowB captured=pending,blocked",
+            "  2 passed (19.2s)"
+          ],
+          "log": "u87-m2-lc-2.log",
+          "logSha256": "a2b31f61818ceeaa85820895808e764c753037694d00eecd7d517e32cb0181fc",
+          "result": "passed 2 of 2 rows; both sessions joined before GoProne"
+        }
+      ],
+      "caught": "NOT caught by plain live runs: the host rejoin lags the guest by a few server log lines, and the extra guest poll round alone was long enough for the host to join in both runs; the mutant does not observe the host at all",
+      "discrimination": {
+        "probe": "temporary hostPage.goto('about:blank') right after the row A host reload, before the wait",
+        "withRealWait": {
+          "runId": "u87-hold-fix-1",
+          "meta": [
+            "run=u87-hold-fix-1 port=28170 head=70f15077ac229eb1e6bac78fe226aac62244f8a3 start=2026-09-25T23:42:59-06:00",
+            "ec6bc49c5c8dd06043f66af2c0d52e759251bf8131a083cf0d515c3a1986d1a3 *e2e/gm-two-player-lifecycle.pack.spec.ts",
+            "exit=1 end=2026-09-25T23:44:21-06:00",
+            "[lifecycle-pack] captured=",
+            "[lifecycle-pack] rowB captured=pending,blocked",
+            "  1 failed",
+            "  1 passed (1.4m)"
+          ],
+          "log": "u87-hold-fix-1.log",
+          "logSha256": "b8c87257571b257da4eae7fb59a30fbd8404a356b02484bb592bb93ebcfe2abb",
+          "result": "row A failed at waitForRejoin: Received { guestPaused: false, host: \"\", hostPaused: false }, Expected host live - the real wait refuses to proceed with the host away"
+        },
+        "withM2": {
+          "runId": "u87-hold-m2-1",
+          "meta": [
+            "run=u87-hold-m2-1 port=22809 head=70f15077ac229eb1e6bac78fe226aac62244f8a3 start=2026-09-25T23:44:28-06:00",
+            "cad74915e7828aad2e06ae33b4d235f33ae2b2b164014e1b24b05c73971b282a *e2e/gm-two-player-lifecycle.pack.spec.ts",
+            "exit=1 end=2026-09-25T23:46:08-06:00",
+            "[lifecycle-pack] captured=live",
+            "[lifecycle-pack] rowB captured=pending,blocked",
+            "  1 failed",
+            "  1 passed (1.6m)"
+          ],
+          "log": "u87-hold-m2-1.log",
+          "logSha256": "842abbb7eab1215d92d8ebb4739e24de8ea9599c2b83251bf2dc9aa9a9840437",
+          "result": "row A passed the M2 wait and failed at sealed: Expected sealed, Received live, Timeout 60000ms (spec :225)"
+        }
+      },
+      "restored": "from the saved final copy; sha256 d9384819e463554be621dc1083060baec68bb864a4c7372cd025b8786c01340c confirmed after the M2 runs and after the hold probes"
+    },
+    {
+      "id": "M3",
+      "mutation": "journey step 2 expects heading Create New Unit again (in place of the Add unit dialog assertion)",
+      "runs": [
+        {
+          "runId": "u87-m3-ux-1",
+          "meta": [
+            "run=u87-m3-ux-1 port=28706 head=70f15077ac229eb1e6bac78fe226aac62244f8a3 start=2026-09-25T23:46:20-06:00",
+            "933ec1c9586be2bbb949f4dd3e4672c5e442a72bc5270cedf8bd3657a19e941a *e2e/ux-walkthrough-audit.spec.ts",
+            "exit=1 end=2026-09-25T23:46:41-06:00",
+            "[qc:ux-audit] run 2026-09-25T23-46-20 (dev build)",
+            "[qc:ux-audit] catalog: .sisyphus\\evidence\\ux-walkthrough\\2026-09-25T23-46-20",
+            "  1 failed",
+            "[qc:ux-audit] journeys=1 (1 failed) steps=2 (1 failed, 0 with console errors) findings=0",
+            "[qc:ux-audit] review: .sisyphus\\evidence\\ux-walkthrough\\2026-09-25T23-46-20\\index.html",
+            "[qc:ux-audit] skeleton: .sisyphus\\evidence\\ux-walkthrough\\2026-09-25T23-46-20\\REVIEW.md"
+          ],
+          "log": "u87-m3-ux-1.log",
+          "logSha256": "b61fc0f1705267176fbce5cb0106ffdf1343e9652f8aef42ce36860fac752f8e",
+          "result": "failed at step 2: getByRole(heading, { name: Create New Unit }) not found (spec :345 via :341); journeys=1 (1 failed) steps=2 (1 failed)"
+        }
+      ],
+      "caught": "yes",
+      "restored": "from the saved final copy; sha256 524cbfb44efbf17b3d0f667614ebc8d2d02145dc9fb0724e5fe0f1d4bcd4be4f confirmed"
+    }
+  ],
+  "nonClaims": [
+    "lifecycle-pack 3 of 3 was measured in this worktree only; the root-checkout 3 of 3 half of the green belongs to the main proof",
+    "qc:ux-audit:prod 10 of 10 was not run; only the customizer journey was run, against the worktree production .next served by node server.js, not the standalone server",
+    "Residual window not removed: the host banner reads live at ReplayEnd, and maybeResume runs one awaited getMatchMeta later (ServerMatchHostReplay.ts:319-351); when the guest joined after the host dropped, no overlay covers that window. Not observed in any run here; not measured",
+    "The M2 mutant survives plain live runs (2 of 2); it is caught only with the host held away",
+    "The step with console errors in the green journey run (step 9, record sheet preview) was not inspected: the manifest stores console text as hashes",
+    "No product file, runner or scripts/qc file was edited"
+  ],
+  "findingsReportedNotFixed": [
+    "The match-pause overlay is not a reliable pause signal after a reload pair: MatchPaused is broadcast once at the drop and a later-joining socket receives none, so a guest can sit on a surface with no overlay while every command is refused MATCH_PAUSED (measured: red probe 1 and u87-hold-fix-1 guestPaused false with the host away)",
+    "Row A failed 3 of 3 on the baseline in this worktree, against 2 of 2 passing in the diagnosis worktree; the ordering signature (GoProne before host join) matched the root preflight failures",
+    "#1634 also removed the structure-heat-sink-count test id that journey step 3 read; fixed here by accessible name, reported because the entry gate named only step 2"
+  ],
+  "finalGitStatus": [
+    " M e2e/gm-two-player-lifecycle.pack.spec.ts",
+    " M e2e/ux-walkthrough-audit.spec.ts",
+    "?? the three u87 receipts"
+  ],
+  "status": "ready"
+}
