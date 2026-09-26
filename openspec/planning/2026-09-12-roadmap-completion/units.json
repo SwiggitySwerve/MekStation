@@ -2230,10 +2230,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "bd6bfe779036631bf63b0e84b748a7bfd6e122b6",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "d3df6aaef0f49467224e8774c2ad6a2bcfaba396",
+      "mergeSha": "7c5251da43ec7ad1e5e34499a7a1c4a1761cb5ca",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u21b-admission-20260925.json",
@@ -2252,10 +2252,31 @@
           "at": "2026-09-25T23:42:09.950Z",
           "summary": "4 product files (+50/-21, 29 lines) and 5 test files (+285/-8): the viewer lineage reads the match journal effective head through readEffectiveStreamHead over the same API SQLite handle and one branch store the head route uses (ViewerHistoryLineage.ts, wired in matchHistoryViewerChain.ts:153-159 and :170-183), the generation still from the stored effective-head row, null still answered before any journal read when no effective-head row exists; a branch with no stream-head row now answers revision 0 (was the cutoff; GET /head answers 404 there); the four stale comments corrected; the close-route regression row starts a host in one isolated module graph, loads the pages route read-only in another, sends DELETE as the host and asserts the host closed, the socket closed with a Close frame and the registry entry gone; rows: U21 row and the head-route row green, root-only row now expects the journal head 4, GM projection row plants the candidate head at its base; jest src/lib/multiplayer/server 161 suites 1180, src/pages-modules/api 63, src/__tests__/api/matches 47, src/lib/events/journal 243; tsc 0; oxlint 84 warnings 0 errors; oxfmt clean on 9 files; lint:units 100/100; qc:openspec-ci errors=0; validator PASSED; four mutants caught and restored (cutoff restored, lineage reads the campaign stream, lineage reads the root branch head row, registry module-local); no build, no Playwright, E2E-42 not run; implementer claude-opus (Agent model: opus); findings: E2E-42 parallel lineage reads may differ under the tip semantics, DELETE answers 200 with no host, a stale seed comment in MatchRecoveryJournalHead.ts:27-28; status ready"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u21b-review-20260925.json",
+          "head": "d3df6aaef0f49467224e8774c2ad6a2bcfaba396",
+          "reviewedHead": "d3df6aaef0f49467224e8774c2ad6a2bcfaba396",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "claude-opus (Agent model: opus)",
+          "outputSha256": "60a62af55f0633c6a89723ee129a69483fbf8c006108c365accbd6c252f823f7",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u21b-merge-20260925.json",
+          "pr": 1962,
+          "head": "d3df6aaef0f49467224e8774c2ad6a2bcfaba396",
+          "mergeSha": "7c5251da43ec7ad1e5e34499a7a1c4a1761cb5ca"
+        },
+        "mainProof": {
+          "path": "evidence/u21b-mainproof-20260925.json",
+          "mergeCommit": "7c5251da43ec7ad1e5e34499a7a1c4a1761cb5ca",
+          "verdict": "PASS",
+          "runtime": "U21B PROOF RUNTIME PASSED: 1539 passed (jest 1533, 0 failed, exit 0; rewind-pack 6, 0 failed, exit 0)"
+        },
+        "tick": {
+          "path": "evidence/u21b-tick-20260925.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "source20260923": "planned by the parent from U21's admission contingency (clause (c)) and its lane's findings F1, F2, F5, F6 (evidence/u21-local-20260923.json)",
@@ -8507,6 +8528,48 @@
         "author": "SwiggitySwerve",
         "label": "owner-ruled",
         "bodySha256": "258d6a4223f8e06d73c9340e23e9d5a9978f4849d7e7bf637045e126d8b5b1e4",
+        "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
+      },
+      "note": "opened when the owner ruled, 2026-09-22 (the cutover sequence's units carry no pre-opened ruling packets)"
+    },
+    {
+      "id": "PK-u21b-ruling",
+      "blocks": [
+        "U21b"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "U21b (review classes replay, authority) presents head d3df6aaef0f49467224e8774c2ad6a2bcfaba396. Does the owner rule it?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "an OWNER-RULING <head> comment and the owner-ruled label on U21b's PR; the unit merges and proceeds to main proof",
+          "effort": "0.1 day owner"
+        },
+        {
+          "label": "reject",
+          "consequence": "the PR closes; the unit returns to planned with the objection recorded",
+          "effort": "0.1 day owner"
+        }
+      ],
+      "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
+      "revertCost": "low: a squash merge revert",
+      "decision": {
+        "at": "2026-09-26T01:52:23Z",
+        "option": "rule the head",
+        "text": "Approve (Recommended)",
+        "source": "owner instruction in the working session (chat), after the parent described the unit in plain English: a structured question: the viewer lineage reads the match journal effective head through the seam GET /head, the correction lease and restart recovery use, instead of the rewind cutoff; four stale comments corrected; the close-route regression row from the U22a ruling; Lane A APPROVE (gates and red reproduced; on real SQLite the lineage, GET /head and the lease agree); 31 green checks after U93; disclosed: revision 0 where /head answers 404 for a branch with no stream-head row, DELETE answers 200 with no host, E2E-42 not racy as written, e2e cleanup already calls the close route"
+      },
+      "ruling": {
+        "ruledHead": "d3df6aaef0f49467224e8774c2ad6a2bcfaba396",
+        "pr": 1962,
+        "commentId": 5842138207,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "91adf5c2b2fc40f5e58f667d2643341e32c691bb2e3a0dc50b9576bc0313c630",
         "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
         "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
       },
