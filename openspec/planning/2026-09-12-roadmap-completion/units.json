@@ -3773,14 +3773,28 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "local-verified",
+      "baseline": "1f6bac99dc6dc0378cb88c914db508da88f8f671",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u59-admission-20260926.json",
+          "baseline": "1f6bac99dc6dc0378cb88c914db508da88f8f671",
+          "at": "2026-09-26T19:07:32.000Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u59-red-20260926.json",
+          "at": "2026-09-26T19:08:14.000Z",
+          "summary": "baseline 1f6bac99d (U41 and U42 on the validator): node --test 27 tests, 22 pass, 5 fail on the baseline validator: a solo gate with a valid head-bound ruling refused 'R2.camp-3 has invalid CAMP GitHub review gate' (R1), a solo gate with no ruling refused with the same generic line (R2), a ruling for another head and a malformed ruling refused with the generic line, a solo gate on R0.plan accepted (PASSED, 376 tasks); the pinned gates pass and nonAuthor false stays refused (R3, passing on the baseline as intended); the nine gates live at roadmap.json's R2.camp-0..8 githubReviewGate fields (:3183, :3314, :3378, :3473, :3544, :3615, :3679, :3743, :3808), checked at validate-roadmap.mjs:285-291 with two messages"
+        },
+        "local": {
+          "path": "evidence/u59-local-20260926.json",
+          "at": "2026-09-26T19:11:33.000Z",
+          "summary": "validate-roadmap.mjs +20/-1 (a R2.camp-0..8 gate may carry soloException true with nonAuthor false only with a 40-hex head and a ruling {ruledHead, pr, commentId, author, bodySha256} bound to that head, the field names of the ledger's 30 packet rulings; APPROVED, exactHead, nonDismissed and WRITE/MAINTAIN/ADMIN stay required; four named refusals: no ruling, another head, malformed ruling (the failing fields listed), solo outside R2.camp-0..8), validate-roadmap.test.mjs +42/-1 (fixtures 22 to 27); units.json and roadmap.json untouched (sha256 equal to the baseline); no gate on the ledger is solo, so main's result is unchanged; 20 counted lines of 500, 5 files of 15; node --test 27 pass; validator plain, --git PASSED at 381 tasks, --next U59; jest scripts/__tests__/roadmap- 43; oxlint 84 warnings 0 errors (the planning directory outside its scope); qc:openspec-ci errors=0; tsc 0; mutants: the ruling requirement removed (test 23), the head equality removed (test 25), the CAMP-only restriction removed (test 27), the malformed-ruling check removed (test 26), each restored by copying the saved implementation back with sha256 6b3ec280 confirmed (not git checkout HEAD, which would have wiped the uncommitted work); NON-CLAIMS: no build, Playwright, --github or install; the check trusts the gate record and its ruling and does not read the packet's decision, verify the ruling on GitHub or compare the author with the owner's login; no gate made solo, no tasks.md row ticked; the admission and red receipts' at values corrected to measured file times with an atSource field; implementer claude-opus (Agent model: opus, lean-worker); status ready"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -3788,7 +3802,11 @@
       },
       "ownerGate": null,
       "packet": "PK-camp-review-gate",
-      "source20260922": "planned by the parent to implement the owner's yes on PK-camp-review-gate (chat 2026-09-22, \"approve and yes to both\"); the PR still needs the owner's head-bound ruling"
+      "source20260922": "planned by the parent to implement the owner's yes on PK-camp-review-gate (chat 2026-09-22, \"approve and yes to both\"); the PR still needs the owner's head-bound ruling",
+      "admissionNote20260926": {
+        "at": "2026-09-26T19:14:56.000Z",
+        "note": "--next printed U59. Admission GO: PK-camp-review-gate is owner-decided for option (b) (decision 2026-09-22T22:15:03Z, 'approve and yes to both'; ruling null), so the unit implements a decided option. The nine R2.camp-0..8 gates are roadmap.json githubReviewGate fields checked at validate-roadmap.mjs:285-291 on the baseline; the solo shape adds soloException, nonAuthor false, a 40-hex head and a head-bound ruling with the packet rulings' field names; the check trusts the gate record and its ruling (it reads neither the packet's decision nor GitHub), recorded as a non-claim."
+      }
     },
     {
       "id": "U60",
@@ -9702,6 +9720,34 @@
       "decision": null,
       "ruling": null,
       "note": "opened at fold on 2026-09-26, before the ruling, so the validator's sensitive-class check sees the packet while the unit is local-verified; decision and ruling are filled when the owner rules the exact head"
+    },
+    {
+      "id": "PK-u59-ruling",
+      "blocks": [
+        "U59"
+      ],
+      "nodes": [
+        "R0.plan"
+      ],
+      "taskKeys": [],
+      "question": "U59 (review classes authority) presents head 89697987d27a89325240fd4f26b3b427072b2f99. Does the owner rule it?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "an OWNER-RULING <head> comment and the owner-ruled label on U59's PR; the unit merges and proceeds to main proof",
+          "effort": "0.1 day owner"
+        },
+        {
+          "label": "reject",
+          "consequence": "the PR closes; the unit returns to planned with the objection recorded",
+          "effort": "0.1 day owner"
+        }
+      ],
+      "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
+      "revertCost": "low: a squash merge revert",
+      "decision": null,
+      "ruling": null,
+      "note": "opened at fold on 2026-09-26, before the ruling, so the validator's sensitive-class check sees the packet while the unit is local-verified; decision and ruling are filled when the owner rules the exact head"
     }
   ],
   "deferrals": [
@@ -11251,6 +11297,33 @@
       "class": "harness hygiene",
       "summary": "The timing row runs in CI's unit shard; its grow rule gained a 5 ms absolute floor so sub-millisecond noise cannot trip the 2x ratio on a loaded worker; the 50 ms ceiling stays.",
       "recommendedSuccessor": "none unless it flakes in CI",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u59-solo-gate-still-requires-approved",
+      "foundBy": "U59 implementer lane (claude-opus, lean-worker), 2026-09-26",
+      "at": "2026-09-26T19:14:56.000Z",
+      "class": "spec gap for U60",
+      "summary": "GitHub does not let a PR's author approve their own PR, yet a solo gate still requires state APPROVED (the sentence relaxes only nonAuthor). U60's roster P.2 amendment must say what APPROVED means under the exception (the owner's ruling comment as the approval, or the pin relaxed by the spec delta).",
+      "recommendedSuccessor": "U60",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u59-packet-question-cites-stale-line",
+      "foundBy": "U59 implementer lane (claude-opus, lean-worker), 2026-09-26",
+      "at": "2026-09-26T19:14:56.000Z",
+      "class": "ledger wording",
+      "summary": "PK-camp-review-gate's question cites validate-roadmap.mjs:273 for the pin; it was :290 on the baseline and the pin is at :295 after U59.",
+      "recommendedSuccessor": "none; line citations in packets drift by design",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u59-roster-spec-already-carries-solo-reduction",
+      "foundBy": "U59 implementer lane (claude-opus, lean-worker), 2026-09-26 (read)",
+      "at": "2026-09-26T19:14:56.000Z",
+      "class": "spec reconciliation for U60",
+      "summary": "openspec/changes/add-saved-custom-unit-campaign-roster/specs/journey-qc/spec.md:5 already carries a 2026-08-09 solo-maintainer reduction; U60's P.2 amendment must reconcile with it.",
+      "recommendedSuccessor": "U60",
       "status": "recorded"
     }
   ]

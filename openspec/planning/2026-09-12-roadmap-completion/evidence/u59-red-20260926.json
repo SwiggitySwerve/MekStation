@@ -1,0 +1,57 @@
+{
+  "unit": "U59",
+  "stage": "red",
+  "at": "2026-09-26T19:08:14.000Z",
+  "atSource": "the mtime of the saved red node --test output (date -u -r); the first-written value was not taken from a clock and is replaced here",
+  "baseline": "1f6bac99dc6dc0378cb88c914db508da88f8f671",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "validatorUnderTest": "baseline validate-roadmap.mjs, sha256 df40a6deb9d9b7ba287d5b5a07cdc132bf75f122feb3f060c85e5cb223379bc3 (unchanged at this stage)",
+  "testFile": "validate-roadmap.test.mjs with the U59 cases appended, sha256 e9567b90e44371f02278c84752e45052d1c66efc776cce738670a5121b52de8a; makeFixture gains an optional third argument editNodes(nodesById) applied to the fixture roadmap before it is written; the 21 earlier tests are unchanged",
+  "command": "node --test openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
+  "exit": 1,
+  "lastLines": "tests 27, pass 22, fail 5",
+  "fixtureShape": "gateFixture(over, nodeId = 'R2.camp-3') copies R2.camp-0's pinned gate onto the node and applies over; SOLO = { soloException: true, nonAuthor: false, head: 'a'x40 }; SOLO_RULING = { ruledHead: 'a'x40, pr: 1797, commentId: 5710327985, author: 'fixture-owner', bodySha256: 'c'x64 }",
+  "cases": [
+    {
+      "id": "R1",
+      "test": "22 U59 (R1) a solo CAMP gate with a head-bound OWNER-RULING for its head passes",
+      "baseline": "not ok",
+      "refusalQuoted": "expected a passing exit, got 1: ROADMAP VALIDATION FAILED (1 issue) / - R2.camp-3 has invalid CAMP GitHub review gate",
+      "why": "the pin at validate-roadmap.mjs:290 requires nonAuthor === true and soloException === false"
+    },
+    {
+      "id": "R2",
+      "test": "23 U59 (R2) a solo CAMP gate without an OWNER-RULING fails, naming the missing ruling",
+      "baseline": "not ok",
+      "refusalQuoted": "The input did not match the regular expression /R2\\.camp-3 CAMP review gate declares soloException without a head-bound OWNER-RULING \\(PK-camp-review-gate option b\\)/. Input: 'ROADMAP VALIDATION FAILED (1 issue)\\n- R2.camp-3 has invalid CAMP GitHub review gate\\n'",
+      "why": "refused today for the pin, not for the missing ruling; after the change the refusal names the missing ruling"
+    },
+    {
+      "id": "R3",
+      "test": "24 U59 (R3) the pinned CAMP gates pass, and a pinned gate with nonAuthor false or a solo flag with nonAuthor true still fails",
+      "baseline": "ok",
+      "assertions": "an unedited fixture passes; R2.camp-3 with nonAuthor false fails '- R2.camp-3 has invalid CAMP GitHub review gate'; soloException true with nonAuthor true and a valid ruling fails the same line"
+    },
+    {
+      "id": "R4-otherHead",
+      "test": "25 U59 a solo CAMP gate whose OWNER-RULING names another head fails",
+      "baseline": "not ok",
+      "refusalQuoted": "Input: 'ROADMAP VALIDATION FAILED (1 issue)\\n- R2.camp-3 has invalid CAMP GitHub review gate\\n' (regex wanted 'R2.camp-3 CAMP review gate OWNER-RULING is bound to dddd..., not the gate head aaaa...')"
+    },
+    {
+      "id": "R5-malformed",
+      "test": "26 U59 a solo CAMP gate whose OWNER-RULING has a short head and no body sha256 fails as malformed",
+      "baseline": "not ok",
+      "refusalQuoted": "Input: 'ROADMAP VALIDATION FAILED (1 issue)\\n- R2.camp-3 has invalid CAMP GitHub review gate\\n' (regex wanted 'OWNER-RULING is malformed: ruledHead is not 40-hex, bodySha256 is not 64-hex')"
+    },
+    {
+      "id": "R6-nonCamp",
+      "test": "27 U59 a solo gate with a valid OWNER-RULING on a node outside R2.camp-0..8 fails",
+      "baseline": "not ok",
+      "refusalQuoted": "expected a failing exit, got 0: ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "why": "the baseline reads githubReviewGate on the nine CAMP nodes only (validate-roadmap.mjs:287-291), so a solo gate on R0.plan is accepted; 376 because the fixture ledger lists no supplement"
+    }
+  ],
+  "notRedEvidence": "R3 passes on the baseline by design (behaviour-preserving pin); it is kept as the regression guard, not as red evidence",
+  "status": "red"
+}

@@ -1,0 +1,84 @@
+{
+  "unit": "U59",
+  "stage": "admission",
+  "at": "2026-09-26T19:07:32.000Z",
+  "atSource": "the receipt file mtime (date -u -r); the first-written value was not taken from a clock and is replaced here",
+  "baseline": "1f6bac99dc6dc0378cb88c914db508da88f8f671",
+  "originMainAtAdmission": "1f6bac99dc6dc0378cb88c914db508da88f8f671 (the local origin/main ref equals the baseline: 'docs(roadmap): U89 receipts folded, unit local-verified (#2022)')",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u59",
+  "branch": "roadmap-u59-solo-maintainer-exception-20260926",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "decision": "go",
+  "behavior": "units.json U59.behavior (units.json:3764), verbatim scope: validate-roadmap.mjs accepts a declared solo-maintainer exception on the R2.camp-0..8 review gates (PK-camp-review-gate option b): a gate may carry soloException true with nonAuthor false only when it also names a head-bound OWNER-RULING (40-hex head, comment id, author, body sha256) for that exact head; every other gate keeps the current pin (APPROVED, exactHead, nonAuthor, nonDismissed, WRITE/MAINTAIN/ADMIN).",
+  "packetDecision": {
+    "packet": "PK-camp-review-gate (units.json:8689)",
+    "ownerDecided": true,
+    "decisionQuoted": "units.json:8718-8723 decision = { at: '2026-09-22T22:15:03Z', option: '(b) solo-maintainer exception through openspec', text: 'approve and yes to both', source: 'owner instruction in the working session (chat), replying to the parent's message that asked, as numbered items, for U20's ruling and for an explicit yes on these two packets (each described in plain language with its recommendation); transcribed by the parent with the owner's words verbatim' }",
+    "ruling": "null (units.json:8724); the packet's decisionNote20260922 says the decision authorises planning the implementing change and is not a head-bound ruling; every PR implementing it still gets the owner's OWNER-RULING on its exact head before merge",
+    "optionBText": "roster P.2 and the validator pin are amended through an openspec change to accept a declared solo-maintainer exception, proved by a head-bound OWNER-RULING; ... the three-witness gate stays owner-only"
+  },
+  "guardNodeModulesLink": {
+    "command": "npm run --silent qc:guard-node-modules-link",
+    "exit": 1,
+    "output": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"<worktree>\\\\node_modules\",\"actualPath\":\"<root checkout>\\\\node_modules\"}",
+    "note": "refuses by design in a junctioned worktree; npm_config_dry_run=true set; no npm install/ci/prune/lifecycle run"
+  },
+  "baselineRuns": [
+    { "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs", "exit": 0, "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows" },
+    { "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --git", "exit": 0, "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows" },
+    { "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next", "exit": 0, "lastLine": "U59" },
+    { "command": "node --test openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs", "exit": 0, "lastLine": "tests 21, pass 21, fail 0" }
+  ],
+  "baselineSha256": {
+    "validate-roadmap.mjs": "df40a6deb9d9b7ba287d5b5a07cdc132bf75f122feb3f060c85e5cb223379bc3",
+    "validate-roadmap.test.mjs": "51ab4b9a3468feb829c228c9a2afb72f9c71aa5f422f3b270e324abc21ccae1e",
+    "units.json": "fc13f9703c15c94c31c25fecb24072f4cc2ae6c6318f1461c60ab267edfbb353",
+    "roadmap.json": "a47501795c79a7a72dce8140736299c0a31da63ac7721503f91918cf7ae34ddd"
+  },
+  "seams": {
+    "campGateCheck": "validate-roadmap.mjs:285-291 (campIds R2.camp-0..8 at :285; a missing node fails 'missing CAMP node: <id>' at :286; the pin at :290 reads node.githubReviewGate and fails '<id> has invalid CAMP GitHub review gate' unless state === 'APPROVED', exactHead === true, nonAuthor === true, nonDismissed === true, soloException === false, and permissions is exactly three entries holding WRITE, MAINTAIN and ADMIN)",
+    "gateRecords": "roadmap.json node entries, field githubReviewGate: R2.camp-0 :3183, camp-1 :3314, camp-2 :3378, camp-3 :3473, camp-4 :3544, camp-5 :3615, camp-6 :3679, camp-7 :3743, camp-8 :3808; each is { authority: 'add-saved-custom-unit-campaign-roster P.2 and scripts/qc/camp01-github-provenance.mjs', state: 'APPROVED', nonDismissed: true, exactHead: true, nonAuthor: true, permissions: [WRITE, MAINTAIN, ADMIN], soloException: false } (roadmap.json:3183-3195 for camp-0); units.json holds no gate record (its only 'soloException' hits are U59's sentence :3764 and the packet question :8703)",
+    "packetRulingShape": "units.json packets[].ruling, 30 rulings measured: keys ruledHead, pr, commentId, author, label, bodySha256, postedBy, deviationDisclosed*; commentId a number on all 30; bodySha256 a string on 29 and null on PK-u3-21-1-tick-and-merge; the validator checks only ruledHead 40-hex (validate-roadmap.mjs:530-533) and, for a sensitive merged unit, ruledHead === merge head (:487-491); --github checks the PR carries owner-ruled and a comment containing 'OWNER-RULING <head>' (:596-621)",
+    "recordUnitRuling": "no script named record-unit-ruling exists: git grep -n -i 'record-unit-ruling\\|recordUnitRuling' printed nothing; the ruling shape above is taken from the recorded packets",
+    "testFixtureStyle": "validate-roadmap.test.mjs: makeFixture(ledger, receipts) :25-49 copies the real roadmap.json (R0.plan paths widened) into a temp dir and runs the validator as a child with --roadmap; assertRejects/assertPasses :127-134; 21 tests"
+  },
+  "designAnswers": {
+    "q1_whereRepresentedAndChecked": "Represented as the roadmap.json node field githubReviewGate on the nine R2.camp-0..8 nodes (lines above) and nowhere else: a node scan printed exactly nine gates, all CAMP. Checked at validate-roadmap.mjs:285-291 only; the single failure message is '<id> has invalid CAMP GitHub review gate' (:290) plus 'missing CAMP node: <id>' (:286). No other node's githubReviewGate is read.",
+    "q2_soloShape": "A solo gate is the existing record with soloException: true, nonAuthor: false, a new head field (40-hex) and a ruling object { ruledHead, pr, commentId, author, bodySha256 } using the packet ruling field names. 'That exact head' is the gate's head field: today exactHead is a boolean policy flag (roadmap.json:3187 'exactHead': true, meaning the approval must be bound to the exact PR head) and no gate names a head, so a solo gate names the head its exception covers in head, and ruling.ruledHead must equal it. exactHead stays true. Fields still required on a solo gate: state APPROVED, exactHead true, nonDismissed true, permissions WRITE/MAINTAIN/ADMIN, because the sentence relaxes only nonAuthor (to false, under soloException true) and adds the ruling as a further requirement; option (b)'s text amends the pin only 'to accept a declared solo-maintainer exception, proved by a head-bound OWNER-RULING' and names no other relaxation. Ruling field rules: ruledHead 40-hex, pr integer, commentId integer, author non-empty string, bodySha256 64-hex. soloException true with nonAuthor true stays refused by the pin, as today.",
+    "q3_currentLedgerSolo": "Measured: none. All nine gates carry soloException false and nonAuthor true (node scan of roadmap.json), so the change is behaviour-preserving on main; the plain, --git and --next runs are expected to print the same lines.",
+    "q4_failureMessages": {
+      "soloWithoutRuling": "<id> CAMP review gate declares soloException without a head-bound OWNER-RULING (PK-camp-review-gate option b)",
+      "soloRulingOtherHead": "<id> CAMP review gate OWNER-RULING is bound to <ruledHead>, not the gate head <head>",
+      "soloRulingMalformed": "<id> CAMP review gate OWNER-RULING is malformed: <list, e.g. 'ruledHead is not 40-hex, bodySha256 is not 64-hex'>",
+      "soloOnNonCampNode": "<id> declares a solo-maintainer exception, which only the R2.camp-0..8 review gates may carry",
+      "pinUnchanged": "<id> has invalid CAMP GitHub review gate (every other pin failure, including soloException true with nonAuthor true)"
+    },
+    "q5_authorityRisk": "The check trusts the gate record and its ruling object; it does not read PK-camp-review-gate's decision. The packet is cited in the check's comment and in the no-ruling failure message. The packet's decision is recorded on main (units.json:8718-8723) and GOAL.md:48 forbids agents from writing the OWNER-RULING comment, label or packet decision; the validator cannot prove a ruling comment exists without GitHub, as for packet rulings today. Reading the decision would be about three more lines in the ledger section (fail when any gate is solo and PK-camp-review-gate.decision.option does not start with '(b)'); it is not in the sentence, so it is left to the parent."
+  },
+  "estimatePerFile": {
+    "validate-roadmap.mjs": "about +20/-2 (the pin's nonAuthor/soloException terms keyed on the solo flag, the ruling block, one non-CAMP line)",
+    "validate-roadmap.test.mjs": "about +70 (a roadmap-edit hook on makeFixture, five tests); test lines, not counted",
+    "units.json": "0 (no gate record lives in units.json; the parent folds the receipts)",
+    "evidence": "three receipts, not counted"
+  },
+  "caps": { "maxFiles": 15, "maxNonGeneratedLines": 500 },
+  "reviewClasses": ["authority"],
+  "risksForTheParent": [
+    "Authority: the exception is the owner's declared decision on the CAMP gates (PK-camp-review-gate decision 2026-09-22T22:15:03Z). The validator trusts a solo gate's ruling object and does not read the packet decision (q5); an agent-written solo gate with a fabricated ruling would pass locally, as a fabricated packet ruling does today. There is no --github check of a gate ruling.",
+    "GitHub refuses an APPROVED review from a PR's own author, so on a one-collaborator repository a solo head cannot get a real APPROVED review; the gate keeps state APPROVED because the sentence relaxes only nonAuthor. U60's roster P.2 delta must say what APPROVED means under the exception.",
+    "PK-camp-review-gate's question cites validate-roadmap.mjs:273 for the pin; on the baseline it is :290 (U41/U42 shifted it). Text drift only.",
+    "The packet carries a decision, ruling null and blocks []; U59 is authority class, so from local-verified on validate-roadmap.mjs:484 requires a packet naming U59 in blocks. The parent must add U59 to a packet's blocks when folding the local receipt, or the ledger fails.",
+    "The journey-qc spec delta (openspec/changes/add-saved-custom-unit-campaign-roster/specs/journey-qc/spec.md:5) already carries a 2026-08-09 'solo-maintainer reduction' with a sentinel approval tuple 'solo-maintainer|<owner-login>'; U60 amends P.2 and should reconcile with it. Read-only here."
+  ],
+  "acceptanceCommands": [
+    "node --test openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
+    "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --git",
+    "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "npx jest scripts/__tests__/roadmap-",
+    "npx oxlint",
+    "npm run qc:openspec-ci:validate",
+    "npx tsc --noEmit"
+  ],
+  "status": "go"
+}
