@@ -4061,10 +4061,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "3c010252b43bb062a93fc490fe7b29c6346afff4",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "9966f819ce7113f81ee99ebeec6334721a85b086",
+      "mergeSha": "abe2d2b571c6e341690ee28ab7028669d674f8c4",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u61-admission-20260926.json",
@@ -4083,10 +4083,31 @@
           "at": "2026-09-26T22:20:00Z",
           "summary": "3 files, +16/-3 (specs/campaign-authority/spec.md +14/-1: the change's own ADDED requirement 'An accepted contract is written exactly once, by exactly one writer' edited in place (no canonical campaign-authority spec exists to MODIFY): routing through the source command pipeline scoped to co-op-hosted campaigns via POST /api/campaigns/[id]/commands under the active-seat authorization; a single-player acceptance stays the client-side apply persisted through the whole-envelope save under the row-version compare-and-swap task 6.4 bridges, a recorded non-claim, the principal left to FN-ob2-identity-before-hosted-deployment; two scenarios added, six parse; design.md +1/-1: D8 amended 2026-09-26: an adopted campaign is journal-native with a system-authored CampaignSnapshotPublished genesis at sequence 0, marker state journal with importedBaseline null and no shadowing marker, D10's rollback not applying, importedDigest still returned, campaignBaselineReachesViewer reading that genesis; each clause checked against campaignLegacyAdoption.ts:130-148, campaignSourceGenesis.ts:238-302, campaignAuthorityMigration.ts:155-162, campaignViewerProjection.ts:95-103; tasks.md +1/-1: one amendment on the section-6 preface line, every pinned row byte-identical to the supplement text, 6.2@106 sha256 unchanged, the supplement file's sha256 unchanged); no checkbox ticked; strict OpenSpec 229 passed with the change valid alone; qc:openspec-ci errors=0; validator plain and --git PASSED at 381 tasks; oxfmt ignores openspec (.oxfmtignore:11); grep probe finds the scope, the route, the client apply, the 6.4 bridge, FN-ob2 (spec.md:197, :225-235, tasks.md:102) and the D8 text (design.md:40); mutants: a header renamed to an existing requirement killed (duplicate requirement); a missing colon, an empty name and a wrong heading level (which silently drops the requirement) SURVIVE OpenSpec 1.5.0 strict validation; a one-character edit of the 6.2 row SURVIVES the roadmap validator (it compares the live row with the supplement only at tick time), the lane's own pinned-row probe catches it; each restored with sha256 confirmed; NON-CLAIMS: no src change, rows 6.2-6.4 stay open, the 6.2b routing unbuilt, no build, jest or Playwright, the D8 and 6.4 wording checked by reading; implementer claude-opus (Agent model: opus, lean-worker); status ready"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u61-review-20260926.json",
+          "head": "9966f819ce7113f81ee99ebeec6334721a85b086",
+          "reviewedHead": "9966f819ce7113f81ee99ebeec6334721a85b086",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet, lean-worker)",
+          "implementerModel": "claude-opus (Agent model: opus)",
+          "outputSha256": "d11180e4d6e6ff1a1fea8ec24c0e09d1a72accaa403e12d3de9206a77450cdf5",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u61-merge-20260926.json",
+          "pr": 2034,
+          "head": "9966f819ce7113f81ee99ebeec6334721a85b086",
+          "mergeSha": "abe2d2b571c6e341690ee28ab7028669d674f8c4"
+        },
+        "mainProof": {
+          "path": "evidence/u61-mainproof-20260926.json",
+          "mergeCommit": "abe2d2b571c6e341690ee28ab7028669d674f8c4",
+          "verdict": "PASS",
+          "runtime": "U61 PROOF RUNTIME PASSED: 88 passed (node-test 27, 0 failed, exit 0; jest 61, 0 failed, exit 0)"
+        },
+        "tick": {
+          "path": "evidence/u61-tick-20260926.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "packet": "PK-6-2b-single-player-seat",
@@ -10108,8 +10129,22 @@
       ],
       "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
       "revertCost": "low: a squash merge revert",
-      "decision": null,
-      "ruling": null,
+      "decision": {
+        "at": "2026-09-26T23:38:58Z",
+        "option": "rule the head",
+        "text": "Approve (Recommended)",
+        "source": "owner instruction in the working session (chat), after the parent described the unit in plain English: a structured question: task 6.2b scoped to co-op-host contract acceptance routing through /commands under the active-seat authorization, the single-player acceptance staying a client apply under the 6.4 compare-and-swap as a recorded non-claim with the principal left to FN-ob2 (PK-6-2b-single-player-seat option b, owner-decided 2026-09-22; authority class); D8 amended to state U35a's journal-native adoption marker; Lane A verdict and CI on the exact head; disclosed: no code changes, rows 6.2-6.4 stay open and the 6.2b routing is unbuilt; strict OpenSpec accepts malformed headers and the validator checks pinned rows only at tick (findings)"
+      },
+      "ruling": {
+        "ruledHead": "9966f819ce7113f81ee99ebeec6334721a85b086",
+        "pr": 2034,
+        "commentId": 5850969286,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "07c558906c09dd504c65b8a50141659706922f66f68bc086299ed210e9d89db0",
+        "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
+      },
       "note": "opened at fold on 2026-09-26, before the ruling, so the validator's sensitive-class check sees the packet while the unit is local-verified; decision and ruling are filled when the owner rules the exact head"
     }
   ],

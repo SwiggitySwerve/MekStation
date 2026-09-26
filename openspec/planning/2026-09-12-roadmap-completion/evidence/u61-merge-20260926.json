@@ -1,0 +1,20 @@
+{
+  "unit": "U61",
+  "stage": "merge",
+  "at": "2026-09-26T23:47:33.412Z",
+  "pr": 2034,
+  "title": "docs(openspec): task 6.2b is co-op-host acceptance routing only; D8 states the journal-native adoption marker (U61)",
+  "head": "9966f819ce7113f81ee99ebeec6334721a85b086",
+  "mergeSha": "abe2d2b571c6e341690ee28ab7028669d674f8c4",
+  "mergedAt": "2026-09-26T23:39:05Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "openspec/changes/design-campaign-authority-and-sync/design.md",
+    "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md",
+    "openspec/changes/design-campaign-authority-and-sync/tasks.md"
+  ],
+  "blobEqualityDiffLines": 0
+}
