@@ -1,0 +1,199 @@
+{
+  "unit": "U97",
+  "stage": "admission",
+  "status": "admitted",
+  "at": "2026-09-26T19:53:47.743Z",
+  "baseline": "998f026e9eecdb0289d2bca7cc4721d0d495f44b",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u97",
+  "branch": "roadmap-u97-coop-intervention-history-20260926",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "node": "R2.authority-live",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "gates": {
+    "guardNodeModulesLink": {
+      "command": "npm run --silent qc:guard-node-modules-link",
+      "exitCode": 1,
+      "lastLine": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u97\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+      "expected": true,
+      "why": "refusal by design in a junctioned worktree; run once at the start (output copied from the terminal, no log file); no npm install/ci/prune or lifecycle was run"
+    },
+    "head": {
+      "command": "git rev-parse HEAD",
+      "exitCode": 0,
+      "lastLine": "998f026e9eecdb0289d2bca7cc4721d0d495f44b",
+      "log": {
+        "path": "<lane-temp>/logs/adm-head.log",
+        "sha256": "b5ea38072c5ca9de80710869fbad79dc2ca3ef0b6724c332579e5bb0fc8fd338"
+      }
+    },
+    "originMain": {
+      "command": "git rev-parse origin/main",
+      "exitCode": 0,
+      "lastLine": "bd98895490911cd841cac8385898b6f333af8472",
+      "log": {
+        "path": "<lane-temp>/logs/adm-origin-main.log",
+        "sha256": "60e7f0dfe5869bd8b84be5e0994fc0e6dc953ade80488168481ec27107e4b3b7"
+      },
+      "note": "the local origin/main ref (not fetched by this lane) is 2 commits past the baseline: bd9889549 (#2027) and da41d494b (#2026), both docs(roadmap), 7 files under openspec/planning/2026-09-12-roadmap-completion (evidence/u59-* and units.json); disjoint from U97 paths. The lane stays on the charter baseline 998f026e9.",
+      "driftLog": {
+        "path": "<lane-temp>/logs/adm-origin-drift.log",
+        "sha256": "7b679011f6de9e7af5ac6031259c47be47e472bc39cb7b882bc553f9e3f9ce92"
+      }
+    },
+    "gitStatus": {
+      "command": "git status --short",
+      "exitCode": 0,
+      "lastLine": "",
+      "note": "empty = clean tree at admission",
+      "log": {
+        "path": "<lane-temp>/logs/adm-status.log",
+        "sha256": "19eaf43821a7660ec323a87c8457bf74823beb296c39f5e01aa8a683aa50f061"
+      }
+    },
+    "validator": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows",
+      "log": {
+        "path": "<lane-temp>/logs/adm-validator.log",
+        "sha256": "da2677d6d1bfc9b46216e3dac5755f79241667ff6e8c859beb65b990384d1f1f"
+      }
+    },
+    "validatorNext": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+      "exitCode": 0,
+      "lastLine": "U94",
+      "log": {
+        "path": "<lane-temp>/logs/adm-next.log",
+        "sha256": "5a2428e59eb31b4a27a3ba6450a398ffc695986525925a5c364f18ada43c75c0"
+      },
+      "note": "prints U94, not U97, on the baseline; U97 was launched by the parent under the owner U92 ruling (units.json U97.source20260926); recorded and continued per the charter"
+    },
+    "prerequisites": {
+      "command": "git merge-base --is-ancestor <mergeSha> HEAD (U92, U96, U89 mergeSha from units.json)",
+      "lines": [
+        "U92 state=complete mergeSha=65b2dad00727358318244cdfdd817b93a4dfd208 isAncestorExit=0",
+        "U96 state=complete mergeSha=5d19d95ada9a390f7b242caf354243c3bf377036 isAncestorExit=0",
+        "U89 state=complete mergeSha=57c55fb3d4fd98cec5a40e4b5a36df605e813a9f isAncestorExit=0"
+      ],
+      "log": {
+        "path": "<lane-temp>/logs/adm-prereq.log",
+        "sha256": "3d0d53e32a3dbc4077c9421bc6a7140a5c8073b0a4f863a0e0ab7dbb94134dcd"
+      },
+      "note": "isAncestorExit 0 = each merge is an ancestor of the baseline"
+    },
+    "inFlightUnits": {
+      "command": "units.json states outside planned/complete/main-verified/owner-gated/blocked",
+      "lines": [
+        "U59 local-verified [\"openspec/planning/2026-09-12-roadmap-completion\"]"
+      ],
+      "log": {
+        "path": "<lane-temp>/logs/adm-inflight.log",
+        "sha256": "cab099b7f2a69c316896cc7b66d125d970fa4a5706a816a43262db58c2839df4"
+      },
+      "note": "U59 owns openspec/planning/2026-09-12-roadmap-completion only; disjoint from U97"
+    }
+  },
+  "ownershipPaths": [
+    "src/lib/multiplayer/server",
+    "src/lib/campaign",
+    "src/pages/gameplay/campaigns/[id]/gm-ledger.tsx",
+    "src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx",
+    "openspec/changes/design-campaign-authority-and-sync (spec delta and design/tasks prose only; no checkbox)",
+    "tests: __tests__ of the owned files, src/components/campaign/gm/__tests__, src/__tests__/api, src/__tests__/pages",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u97-{admission,red,local}-20260926.json"
+  ],
+  "seams": {
+    "applyGmInterventionArm": "src/lib/multiplayer/server/CampaignMatchHostIntent.ts:239-258 ApplyGmIntervention -> one FundsChanged {delta: deltaCBills, reason: summary, balance}; the interventionId is not on the event",
+    "hostDoor": "src/lib/multiplayer/server/CampaignMatchHost.doors.ts:155-178 applyHostIntentLocked: replayCommittedIntent (dedupe), validateCampaignIntent, commitValidated(host, events, intentCommandIdentity(campaignId, intent)) (:66-83)",
+    "identity": "src/lib/multiplayer/server/campaignIntentIdentity.ts:61-84 ICampaignIntentCommandIdentity {commandId, intentFingerprint} built from the intent; it already rides from the door to the store port",
+    "commitPath": "src/lib/multiplayer/server/CampaignMatchHost.ts:494-521 commitEvents -> src/lib/multiplayer/server/campaignHostBatchCommit.ts:135-171 commitCampaignEventBatch stamps sequence base+index (:141-147) and calls eventStore.appendCommandBatch with commandId/intentFingerprint from the identity (:156-171)",
+    "portInput": "src/lib/campaign/sync/ICampaignEventStore.ts:113-121 ICampaignCommandBatchInput",
+    "recordRewrite": "src/lib/campaign/sync/JournalCampaignEventStore.ts:424-453 appendCommandBatch passes this.rewriteRecordAfterCommand to appendCampaignCommandBatch (:284-351), which runs the hook on the writer handle inside the append transaction only when the batch committed and its command id had no recorded batch (:314-327); hook type :262-271 (db, campaignId); installed by src/lib/campaign/sync/journalCapabilityPorts.ts:225-232 on the server store (src/lib/multiplayer/server/getCampaignEventStore.ts:122)",
+    "rewriteBody": "src/lib/campaign/authority/campaignRecordJournalState.ts:75-95 rewriteCampaignRecordAfterCommand writes the record at version+1 with the journal balance/date/roster (recordAtJournalState :118-152, every other field kept as stored, gmInterventionEvents included); returns without writing unless the marker is journal state and the row exists (:79-86)",
+    "historyField": "src/types/campaign/Campaign.ts:181 and src/types/campaign/SerializedCampaign.ts:199 gmInterventionEvents?: readonly IGmCampaignProjectedEffect[]; src/types/interventions/GmCampaignInterventionTypes.ts:116-123 base {type, domain, family, interventionId?, changedStateRefs, publicSummary}, :139-150 IGmCampaignFundsTransactionEffect {transactionId, before {balanceCents, transactionIds}, after {balanceCents, transaction}}, :101-107 IGmCampaignProjectedTransaction {id, type, amountCents, date, description}",
+    "soloWrite": "src/lib/interventions/GmCampaignInterventionProjection.ts:20-31 stamps interventionId = record.id on each effect and :237 appends to gmInterventionEvents; the page writes result.state through updateCampaign on a solo campaign (gm-ledger.tsx:81-88)",
+    "controlPlaneRows": "src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx:88-101 persistedRows = buildPersistedCampaignEventRows(campaign.gmInterventionEvents, ...) (helpers.ts:197-259, ids persisted:<interventionId>:<index>); :115-132 rows start from and follow persistedRows until the component-local action ledger holds a record; after an approval rows come from the action ledger (refreshLedgerRows, helpers.ts:182-195)",
+    "rowKey": "GmCampaignLedgerProjection.tsx:58,97 key={row.id}; src/lib/interventions/ActionLedger.ts:53 id `action:${record.id}`; src/lib/interventions/GmCascadePreviewPipeline.ts:275 record.id = preview.interventionId; ControlPlane.tsx:154-156 passes the canned MERCHANT_REVERSAL_ID (and :178, :200, :223, :248 the other canned ids)",
+    "appliedText": "GmCampaignInterventionControlPlane.tsx:290-293 (time) and :318-321 (campaign) set \"Approved and applied to campaign state.\" after await onApplyCampaignUpdate regardless of outcome; the callback type is void | Promise<void> (:64-66)",
+    "approveGate": "ControlPlane.tsx:134 canApprove = preview ready && !approvedApplied; GmCampaignInterventionActions.tsx:134-135 disabled={!canApprove}; approvedApplied is set only after the callback resolves (:291, :319)",
+    "page": "src/pages/gameplay/campaigns/[id]/gm-ledger.tsx:56-90 co-op branch: gmFundsInterventionIntent, await sendCoopGmIntervention, refreshAfterCommittedCommand on null, toast on a refusal; the callback returns nothing",
+    "sendAndResolution": "src/lib/campaign/coop/coopGmIntervention.ts:40-63 mints interventionId = <effect.interventionId>-<Date.now base36>-<6 random> per call and intentId gm-intervention-<id>; :75-119 resolves null on the matching FundsChanged, the Error frame reason for the intentId, or a transport error; no timeout",
+    "guestFold": "src/lib/campaign/sync/applyCampaignEvent.ts:80-83 FundsChanged adopts payload.balance only; src/lib/campaign/coop/campaignMirrorProjection.ts:17-37 projects currentDate, finances.balance and factionStandings only (never gmInterventionEvents)"
+  },
+  "designAnswers": {
+    "q1_specDelta": {
+      "where": "openspec/changes/design-campaign-authority-and-sync/specs/gm-campaign-intervention-boundaries/spec.md (new file; the change had no delta for this capability), one ADDED requirement with four scenarios. Not the 6.2 delta (U61).",
+      "text": "# GM Campaign Intervention Boundaries (Delta)\n\n## ADDED Requirements\n\n### Requirement: Co-op GM Funds Corrections Reach the Campaign Record's Intervention History\n\nWhen a co-op host's GM funds correction commits through the live campaign host as the host-only `ApplyGmIntervention` command, the host SHALL append one entry for it to the saved campaign record's `gmInterventionEvents` through the record rewrite the host already runs inside that command's append transaction, with no second writer and no new campaign event type. The entry SHALL hold the correction's public summary, its signed C-bill delta, its intervention id and the commit sequence of the `FundsChanged` event that applied it, and SHALL hold no GM-private metadata. A resend of an already committed command and a refused command SHALL add no entry. The guest SHALL never receive the entry: the guest's frames and the campaign its mirror projects carry the committed `FundsChanged` only. A solo campaign's approval SHALL keep writing its entry through the owner's own campaign save.\n\n#### Scenario: A co-op funds approval is listed in the record's intervention history\n\n- **GIVEN** a journal-native co-op campaign with a live host\n- **WHEN** the GM's `ApplyGmIntervention` for a funds correction commits a `FundsChanged` at sequence N\n- **THEN** the saved record's `gmInterventionEvents` SHALL end with one `funds-transaction` entry whose `publicSummary` is the correction's summary, whose `after.transaction.amountCents` is the signed delta in cents, whose `interventionId` is the command's intervention id and whose `transactionId` is `campaign-event:<campaignId>:<N>`\n- **AND** the entry SHALL carry no GM rationale, hidden notes, default outcome or manual-takeover notes\n- **AND** the GM's own ledger SHALL list the entry after the page reloads the record\n\n#### Scenario: A resend or a refusal adds no entry\n\n- **GIVEN** a co-op funds correction already committed under one intent id\n- **WHEN** the same intent is resent, or a correction is refused by the host\n- **THEN** the saved record's `gmInterventionEvents` SHALL gain no entry\n\n#### Scenario: The guest mirror never receives the history\n\n- **GIVEN** a guest joined to the same co-op campaign\n- **WHEN** the GM's funds correction commits\n- **THEN** the guest's frame for it SHALL be the committed `FundsChanged` with only its delta, reason and resulting balance\n- **AND** no frame the guest receives and no campaign its mirror projects SHALL carry an intervention history entry or the intervention id\n\n#### Scenario: A solo approval's entry is unchanged\n\n- **GIVEN** a single-player campaign with no co-op session\n- **WHEN** the owner approves a funds correction\n- **THEN** the approval's projected effect SHALL be appended to `gmInterventionEvents` by the owner's own campaign save\n- **AND** no campaign command SHALL be sent\n"
+    },
+    "q2_hostWrite": {
+      "where": "the record rewrite already running in the command append transaction (JournalCampaignEventStore.ts:314-327 -> campaignRecordJournalState.ts:75-95). No second writer, no new event type, no journal byte change.",
+      "how": "intentCommandIdentity (campaignIntentIdentity.ts:73-84) adds gmInterventionId = intent.payload.interventionId for an ApplyGmIntervention; commitCampaignEventBatch passes it on ICampaignCommandBatchInput (new optional field); JournalCampaignEventStore passes it into appendCampaignCommandBatch, whose afterCommit call hands the hook the committed batch ({events, gmInterventionId}); rewriteCampaignRecordAfterCommand appends one entry per FundsChanged event of that batch to the record it already writes. The hook still runs only for a first commit of a command id, so a deduped resend adds nothing; a refused intent never reaches the append. toJournalBatch does not read the new field, so canonical bytes and digests are unchanged. The combat-outcome inbox and the /commands pipeline call the hook without the id and write no entry.",
+      "whyIdentityCarriesIt": "the identity is the one value that already travels from the door that holds the intent to the store port; carrying the id there avoids new parameters on the locked-context commitEvents, commitValidated and CampaignMatchHost.commitEvents. Only the id is carried: summary, delta and sequence are read from the committed FundsChanged, so the entry cannot disagree with the event it records.",
+      "entryShape": {
+        "type": "'gm.campaign.funds_transaction_corrected'",
+        "domain": "'economy' (the domain of the funds-transaction family, as the canned merchant command, helpers.ts:81)",
+        "family": "'funds-transaction'",
+        "interventionId": "the ApplyGmIntervention payload interventionId (field 3)",
+        "publicSummary": "FundsChanged.reason, which the validate arm sets to the intent summary (field 1)",
+        "transactionId": "campaign-event:<campaignId>:<FundsChanged.sequence> (field 4: the commit sequence names the ledger movement, which in co-op is the committed event)",
+        "after": "{balanceCents: balance*100, transaction: {id: the same campaign-event id, type: Miscellaneous, amountCents: delta*100 (field 2: the signed delta), date: the record currentDate, description: the summary}}",
+        "before": "{balanceCents: (balance - delta)*100, transactionIds: []}",
+        "changedStateRefs": "['campaign:<campaignId>:finances']",
+        "emptyAndWhy": "before.transactionIds stays [] because the host keeps no transaction list and the co-op path writes no finances.transactions (FN-u92-coop-funds-approval-not-in-record-history; not widened here). No private metadata: the effect type has no private field (GmCampaignInterventionTypes.ts:116-150) and the host never receives the approval private metadata.",
+        "noTypeChange": "every field is filled from the committed event, the intent id and the record; IGmCampaignFundsTransactionEffect already holds the four facts (publicSummary, after.transaction.amountCents, interventionId, transactionId), so src/types is not edited."
+      }
+    },
+    "q3_controlPlaneRows": {
+      "answer": "already derived: persistedRows come from campaign.gmInterventionEvents (ControlPlane.tsx:88-101, helpers.ts:197-259) and seed/follow the rows until the component-local action ledger holds a record (:115-132). A reload (any mount) lists the host-written entry; after an in-session approval the rows show the action-ledger record (unchanged). The control plane needs only the key and text changes.",
+      "keyChange": "handleApprove approves the preview under a fresh intervention id (the preview id, the time in base 36 and six random base-36 characters, the U92 idiom) in both the campaign and the time branch, so each approval is its own action-ledger record and row key (action:<id>). Consequence: a solo approval entry keeps its shape and writer but its interventionId gains the suffix (the U92 solo row asserting the bare canned id is updated). The U92 mint in coopGmIntervention.ts is left unchanged, so the co-op history id is the approval id plus the per-send suffix (both unique; the history id starts with the row id).",
+      "textChange": "the callback may resolve to a refusal reason (string); the control plane then shows \"Not applied: the co-op host refused the correction.\" with the reason in the preview panel, does not latch approvedApplied and does not refresh the rows; the page returns the refusal sendCoopGmIntervention answered."
+    },
+    "q4_inFlightGate": {
+      "leastState": "one boolean in the control plane (approving), set before the await of onApplyCampaignUpdate and cleared after it; canApprove also requires !approving. The control plane owns canApprove and the await, and the page callback resolves exactly on the host commit (then the record refresh) or the refusal frame, so the boolean spans send..frame. A page-level pending intervention id would need a new prop through the control plane to reach the button and duplicate what the awaited promise already marks, so it is not added.",
+      "refusalShows": "the page toast (U92, unchanged) and the control-plane status \"Not applied: the co-op host refused the correction.\" with the reason; approve is enabled again, and a new approve mints a new id.",
+      "lostFrame": "a frame that never arrives on an open socket leaves approve disabled until the page reloads (a transport error or close resolves the send and clears it). Same no-timeout contract as FN-u96-resent-advanceday-waits-without-timeout; acceptable because a timeout cannot tell a lost answer from a slow commit, and re-enabling approve while the first intent may still commit would re-open the double commit this unit closes. Recorded, not engineered around."
+    },
+    "q5_codingDoctrine": {
+      "fixAssessment": "root cause 1: the record rewrite that already runs in the ApplyGmIntervention append transaction knows only (db, campaignId), so the intervention never reaches the record; fixed by handing the rewrite the committed batch and the intervention id, not by a second write. Root cause 2: two approvals share one record id (the canned preview id), so rows collide; fixed at the id, not at the React key. Root cause 3: the approve gate ignores the in-flight callback; fixed by one boolean. Root cause 4: the control plane cannot see the host answer; fixed by letting the callback resolve to the refusal.",
+      "removed": "a page-level pending id and prop (the awaited promise already marks in flight); new parameters on three commitEvents signatures (the identity already rides the path); a new event type or a journal-envelope field for the intervention (the rewrite already writes the record in the same transaction); a type change in src/types (the funds effect already holds the four facts); a timeout on the wait (FN-u96 contract).",
+      "scope": "product files: campaignIntentIdentity.ts, campaignHostBatchCommit.ts, ICampaignEventStore.ts, JournalCampaignEventStore.ts, campaignRecordJournalState.ts, GmCampaignInterventionControlPlane.tsx, gm-ledger.tsx, plus the spec delta. Out of scope, recorded as findings where met: the refused approval stays in the component-local action ledger; finances.transactions for co-op approvals; narrowing GET /api/campaigns/:id."
+    }
+  },
+  "estimatePerFile": {
+    "openspec/changes/design-campaign-authority-and-sync/specs/gm-campaign-intervention-boundaries/spec.md": 40,
+    "src/lib/multiplayer/server/campaignIntentIdentity.ts": 10,
+    "src/lib/multiplayer/server/campaignHostBatchCommit.ts": 5,
+    "src/lib/campaign/sync/ICampaignEventStore.ts": 4,
+    "src/lib/campaign/sync/JournalCampaignEventStore.ts": 14,
+    "src/lib/campaign/authority/campaignRecordJournalState.ts": 60,
+    "src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx": 35,
+    "src/pages/gameplay/campaigns/[id]/gm-ledger.tsx": 8,
+    "totalProduct": 176,
+    "tests": "new: src/__tests__/api/campaigns/coopGmInterventionHistory.test.ts (R1, R2), src/__tests__/pages/gameplay/campaigns/gm-ledger.inflight.test.tsx (R3), src/components/campaign/gm/__tests__/GmCampaignInterventionControlPlane.approval.test.tsx (R4); edited: the U92 solo row of src/__tests__/pages/gameplay/campaigns/gm-ledger.coop.test.tsx (the solo entry id gains the per-approval suffix)"
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "plannedProductFiles": 8
+  },
+  "risksForTheParent": [
+    "authority: the saved record gains gmInterventionEvents rows written by the host inside the ApplyGmIntervention append transaction (the rewrite that already writes balance/date/roster there). The host builds the row from the committed FundsChanged and the intent id, never from the browser approval; the journal does not carry the intervention id, so a record rebuilt from the journal alone would not recover the row (non-claim).",
+    "privacy: the entry holds public summary, signed delta, intervention id and the commit sequence, no GM-private metadata; the guest receives only the FundsChanged frame (delta, reason, balance), and the guest mirror projection never writes gmInterventionEvents. Not narrowed by this unit: whoever reads the host record through GET /api/campaigns/:id reads its history, as the solo and PUT paths already stored it.",
+    "idempotency: approve is disabled from send until the commit or refusal frame; the rewrite runs only on the first commit of a command id, so a resend adds no row; a resend after a refusal mints a new id (U92 page mint) and is a new command. A lost frame leaves approve disabled until reload.",
+    "behavior change outside co-op: every approval (solo included) now gets a fresh intervention id (preview id plus suffix), so solo history entries no longer share the canned id."
+  ],
+  "reviewClasses": [
+    "authority",
+    "privacy",
+    "idempotency"
+  ],
+  "next": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "printed": "U94",
+    "exitCode": 0
+  }
+}

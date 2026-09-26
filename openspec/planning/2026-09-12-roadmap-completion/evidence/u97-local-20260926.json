@@ -1,0 +1,666 @@
+{
+  "unit": "U97",
+  "stage": "local",
+  "status": "ready: local-verified on the baseline worktree (not committed); R1, R3, R4 reversed, R2 still passing, five mutants killed and restored, every gate green",
+  "at": "2026-09-26T20:12:12.479Z",
+  "baseline": "998f026e9eecdb0289d2bca7cc4721d0d495f44b",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u97",
+  "branch": "roadmap-u97-coop-intervention-history-20260926",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "admission": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u97-admission-20260926.json",
+    "sha256": "7a6941d85e7e08616b3a68fe4d09426fbbb41f38d3ca2f2d53837b92458d648d"
+  },
+  "red": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u97-red-20260926.json",
+    "sha256": "9abd63cc572f85bdfc29200f3a0543eb83a40ca87287403e69cee6494ba394bd"
+  },
+  "codingDoctrine": {
+    "fixAssessment": "the ApplyGmIntervention commit hands its intervention id to the record rewrite that already runs in its append transaction (identity -> batch input -> hook), which appends one entry built from the committed FundsChanged; each approval gets its own intervention id at the control plane; one boolean gates approve while the apply call is in flight; the apply callback can answer a refusal and the page returns the host refusal.",
+    "removed": "no second writer, no new event type, no journal byte change, no src/types change, no page-level pending id/prop, no timeout",
+    "scope": "7 product files + 1 spec delta; tests: 3 new files and 1 edited row"
+  },
+  "specDelta": {
+    "file": {
+      "path": "openspec/changes/design-campaign-authority-and-sync/specs/gm-campaign-intervention-boundaries/spec.md",
+      "sha256": "ef345ed18c143b0ee23b38883d7c3ef7c845954337aa62dabacb349b8df58517"
+    },
+    "note": "identical to the admission design text (q1_specDelta.text); ADDED requirement, four scenarios; no tasks.md checkbox touched"
+  },
+  "lineCounts": {
+    "rule": "added lines: git diff --numstat for modified files, line count for new files; tests (__tests__/, *.test.*) reported separately",
+    "product": [
+      {
+        "file": "src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx",
+        "added": 46,
+        "deleted": 7
+      },
+      {
+        "file": "src/lib/campaign/authority/campaignRecordJournalState.ts",
+        "added": 86,
+        "deleted": 11
+      },
+      {
+        "file": "src/lib/campaign/sync/ICampaignEventStore.ts",
+        "added": 5,
+        "deleted": 0
+      },
+      {
+        "file": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+        "added": 15,
+        "deleted": 4
+      },
+      {
+        "file": "src/lib/multiplayer/server/campaignHostBatchCommit.ts",
+        "added": 4,
+        "deleted": 0
+      },
+      {
+        "file": "src/lib/multiplayer/server/campaignIntentIdentity.ts",
+        "added": 11,
+        "deleted": 1
+      },
+      {
+        "file": "src/pages/gameplay/campaigns/[id]/gm-ledger.tsx",
+        "added": 7,
+        "deleted": 4
+      },
+      {
+        "file": "openspec/changes/design-campaign-authority-and-sync/specs/gm-campaign-intervention-boundaries/spec.md",
+        "added": 35,
+        "deleted": 0,
+        "new": true
+      }
+    ],
+    "productAdded": 209,
+    "tests": [
+      {
+        "file": "src/__tests__/pages/gameplay/campaigns/gm-ledger.coop.test.tsx",
+        "added": 7,
+        "deleted": 1
+      },
+      {
+        "file": "src/__tests__/api/campaigns/coopGmInterventionHistory.test.ts",
+        "added": 343,
+        "deleted": 0,
+        "new": true
+      },
+      {
+        "file": "src/__tests__/pages/gameplay/campaigns/gm-ledger.inflight.test.tsx",
+        "added": 205,
+        "deleted": 0,
+        "new": true
+      },
+      {
+        "file": "src/components/campaign/gm/__tests__/GmCampaignInterventionControlPlane.approval.test.tsx",
+        "added": 129,
+        "deleted": 0,
+        "new": true
+      }
+    ],
+    "testAdded": 684,
+    "files": 12,
+    "caps": {
+      "maxFiles": 15,
+      "maxNonGeneratedLines": 500
+    }
+  },
+  "productFileHashes": [
+    {
+      "path": "src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx",
+      "sha256": "36e731a31f78be8f34e391a05f598a12fc4f720b5741f8bd09ebcfcbe5fe1656"
+    },
+    {
+      "path": "src/lib/campaign/authority/campaignRecordJournalState.ts",
+      "sha256": "3c2ea50c39dfda3db21d25c6a3fe358f2fef66a3316c23930375717ca32fc7f0"
+    },
+    {
+      "path": "src/lib/campaign/sync/ICampaignEventStore.ts",
+      "sha256": "6925c43a7c3b0faa05f31cb1099c8596c4159b8c94ed15adbf76f3ea5a5f950f"
+    },
+    {
+      "path": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+      "sha256": "9c2d15c3a947ebed1a532e5c0e642cbc5c8de4423af8cc81b1e11c81b4392db9"
+    },
+    {
+      "path": "src/lib/multiplayer/server/campaignHostBatchCommit.ts",
+      "sha256": "e8ccd2cb2ffe777ea61bf5d9a8249d7c0297492bd4424ff81230aaf5acfaba66"
+    },
+    {
+      "path": "src/lib/multiplayer/server/campaignIntentIdentity.ts",
+      "sha256": "4812c334e246e6b6f483d82605b350182a2eedff2010f6c2617c78697476fd1a"
+    },
+    {
+      "path": "src/pages/gameplay/campaigns/[id]/gm-ledger.tsx",
+      "sha256": "7732c0ff64614f8ac1694fdb90758ebfad5c38ef113fe04648566b4b34bae7f5"
+    },
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/specs/gm-campaign-intervention-boundaries/spec.md",
+      "sha256": "ef345ed18c143b0ee23b38883d7c3ef7c845954337aa62dabacb349b8df58517"
+    }
+  ],
+  "testFileHashes": [
+    {
+      "path": "src/__tests__/pages/gameplay/campaigns/gm-ledger.coop.test.tsx",
+      "sha256": "d249df1cce062abef6179640acb8ef82a7dd9d956a5b4882e90e566036c37fc8"
+    },
+    {
+      "path": "src/__tests__/api/campaigns/coopGmInterventionHistory.test.ts",
+      "sha256": "e5cc4437de5651b6f742de7cb1437d92deacf5c2ba09b7f1c9eb3ce8fd82b532"
+    },
+    {
+      "path": "src/__tests__/pages/gameplay/campaigns/gm-ledger.inflight.test.tsx",
+      "sha256": "43aed783eb1eb7f81d2198eb336a6cefb250f59dffd8e85ee72375bd0cd7ba61"
+    },
+    {
+      "path": "src/components/campaign/gm/__tests__/GmCampaignInterventionControlPlane.approval.test.tsx",
+      "sha256": "f8b662adc8f835cccf47d16fa27a6b76acb43a72ba6ed98322849a88784a45fa"
+    }
+  ],
+  "rows": {
+    "command": "U35E_ROWS_DIR=<lane-temp>/rows-green npx jest src/__tests__/api/campaigns/coopGmInterventionHistory.test.ts src/__tests__/pages/gameplay/campaigns/gm-ledger.inflight.test.tsx src/components/campaign/gm/__tests__/GmCampaignInterventionControlPlane.approval.test.tsx src/__tests__/pages/gameplay/campaigns/gm-ledger.coop.test.tsx src/__tests__/api/campaigns/coopGmIntervention.test.ts",
+    "exitCode": 0,
+    "suitesLine": "Test Suites: 5 passed, 5 total",
+    "testsLine": "Tests:       13 passed, 13 total",
+    "log": {
+      "path": "<lane-temp>/logs/green-rows.log",
+      "sha256": "676ab2e458a90d01a13b3342edb905fd3bc990d14eef625c3a96e76684ed0d44"
+    },
+    "measurements": [
+      {
+        "path": "<lane-temp>/rows-green/u97-coop-gm-history.json",
+        "sha256": "3739e0d753a5eff898a74b7028300784b637f0155a923ae5770be95dc14cc30e"
+      },
+      {
+        "path": "<lane-temp>/rows-green/u97-gm-ledger-inflight.json",
+        "sha256": "5dec4b07b16998dc3372d93e8647413c4c54594d72ee1966a2f1fc2d0fea41c3"
+      },
+      {
+        "path": "<lane-temp>/rows-green/u97-control-plane-approval.json",
+        "sha256": "90efe698a2a729c195bbd6f5f2fba4c5d20cf029ac9950790f79fc0842951f81"
+      }
+    ],
+    "R1": {
+      "result": "passed (was red)",
+      "afterCommit": {
+        "version": 2,
+        "balance": 382500,
+        "gmInterventionEvents": [
+          {
+            "type": "gm.campaign.funds_transaction_corrected",
+            "domain": "economy",
+            "family": "funds-transaction",
+            "interventionId": "gm-ledger-merchant-reversal-u97a",
+            "transactionId": "campaign-event:u97-history:1",
+            "changedStateRefs": [
+              "campaign:u97-history:finances"
+            ],
+            "publicSummary": "Merchant charge corrected by +2,500.00 C-bills.",
+            "before": {
+              "balanceCents": 38000000,
+              "transactionIds": []
+            },
+            "after": {
+              "balanceCents": 38250000,
+              "transaction": {
+                "id": "campaign-event:u97-history:1",
+                "type": "miscellaneous",
+                "amountCents": 250000,
+                "date": "3025-07-04T00:00:00.000Z",
+                "description": "Merchant charge corrected by +2,500.00 C-bills."
+              }
+            }
+          }
+        ]
+      },
+      "reloadRows": [
+        {
+          "id": "persisted:gm-ledger-merchant-reversal-u97a:0",
+          "summary": "Merchant charge corrected by +2,500.00 C-bills.",
+          "interventionRecordId": "gm-ledger-merchant-reversal-u97a"
+        }
+      ],
+      "afterResendEntries": 1,
+      "afterRefusalEntries": 1,
+      "refusalHostFrames": [
+        {
+          "kind": "Error",
+          "matchId": "match-u97",
+          "ts": "2026-09-26T20:02:43.907Z",
+          "code": "INVALID_INTENT",
+          "reason": "insufficient-funds",
+          "intentId": "gm-intervention-gm-debit-u97-over"
+        }
+      ]
+    },
+    "R2": {
+      "result": "passed (control; passed on the baseline too)",
+      "read": {
+        "before": 380000,
+        "guestFrames": [
+          {
+            "kind": "CampaignEvent",
+            "matchId": "match-u97",
+            "ts": "2026-09-26T20:02:43.990Z",
+            "event": {
+              "type": "FundsChanged",
+              "campaignId": "u97-guest",
+              "authorPlayerId": "pid_host",
+              "ts": "2026-09-26T20:02:43.988Z",
+              "payload": {
+                "delta": 2500,
+                "reason": "Merchant charge corrected by +2,500.00 C-bills.",
+                "balance": 382500
+              },
+              "scope": "campaign",
+              "sequence": 1
+            }
+          }
+        ],
+        "guestEventTypes": [
+          "CampaignSnapshotPublished",
+          "FundsChanged"
+        ],
+        "foldedBalance": 382500,
+        "mirrorHasHistory": false,
+        "mirrorBalance": 382500
+      }
+    },
+    "R3": {
+      "result": "passed (was red)",
+      "read": {
+        "enabledBeforeSend": true,
+        "sentAfterFirst": 1,
+        "disabledInFlight": true,
+        "sentAfterSecond": 1,
+        "sentIntentIds": [
+          "gm-intervention-gm-ledger-merchant-reversal-muitgs52-nf48jw-muitgs53-yzcscq"
+        ],
+        "statusAfterCommit": "ApprovalApproved and applied to campaign state.",
+        "localWrites": 0
+      }
+    },
+    "R4": {
+      "result": "passed (was red)",
+      "text": {
+        "calls": 1,
+        "status": "Not applied to campaign state.",
+        "reason": "insufficient-funds",
+        "approveEnabled": true
+      },
+      "key": {
+        "ids": [
+          "gm-ledger-merchant-reversal-muitgrtu-eygiiu",
+          "gm-ledger-merchant-reversal-muitgru6-ns1dxr"
+        ],
+        "duplicateKeyWarnings": [],
+        "playerRows": 2
+      }
+    },
+    "u92Rows": "the U92 rows (coopGmIntervention.test.ts 3, gm-ledger.coop.test.tsx 5) pass; the U92 solo row now expects the intervention id to match /^gm-ledger-merchant-reversal-/ (was the bare canned id), the one existing assertion edited; no duplicate-key warning in this run (grep \"same key\" = 0)"
+  },
+  "liveMeasurements": {
+    "driver": {
+      "path": "<lane-temp>/u97-live-driver.cjs",
+      "sha256": "62eba1e4f0e9c22c9c2843561a9ba526ec5152cac0507829123c87c7ec02aa52"
+    },
+    "before": {
+      "port": 27971,
+      "inspectPort": 29971,
+      "receipt": "evidence/u97-red-20260926.json liveBaseline",
+      "json": {
+        "path": "<lane-temp>/live-before.json",
+        "sha256": "e97e6529b2b34d62ee89e25899a85bdec6595d88eeabba028378b47b3fc6550d"
+      },
+      "stepLines": [
+        "S1 guest joined by room code, GM connected (real client transports): {\"record\":{\"status\":200,\"version\":1,\"balance\":380000,\"gmInterventionEvents\":null},\"reloadRows\":[],\"entry\":{\"hostClosed\":false,\"hostLiveBalance\":380000},\"journal\":{\"types\":[\"CampaignSnapshotPublished\"]}}",
+        "S2 GM approval of the merchant reversal through the page co-op path, then the page-equivalent GET re-read: {\"approval\":{\"status\":\"approved\"},\"intent\":{\"kind\":\"ApplyGmIntervention\",\"campaignId\":\"campaign-u97-before-1790452738083\",\"intentId\":\"gm-intervention-gm-ledger-merchant-reversal-muitbz67-bfynz2\",\"payload\":{\"interventionId\":\"gm-ledger-merchant-reversal-muitbz67-bfynz2\",\"summary\":\"Merchant charge corrected by +2,500.00 C-bills.\",\"deltaCBills\":2500}},\"sendAnswer\":null,\"guestFramesAfter\":[{\"kind\":\"CampaignEvent\",\"code\":null,\"reason\":null,\"intentId\":null,\"eventType\":\"FundsChanged\",\"sequence\":1,\"payload\":{\"delta\":2500,\"reason\":\"Merchant charge corrected by +2,500.00 C-bills.\",\"balance\":382500}}],\"guestRawCarriesInterventionId\":false,\"guestRawCarriesHistory\":false,\"gmFramesAfter\":[{\"kind\":\"CampaignEvent\",\"code\":null,\"reason\":null,\"intentId\":null,\"eventType\":\"FundsChanged\",\"sequence\":1,\"payload\":{\"delta\":2500,\"reason\":\"Merchant charge corrected by +2,500.00 C-bills.\",\"balance\":382500}}],\"record\":{\"status\":200,\"version\":2,\"balance\":382500,\"gmInterventionEvents\":null},\"reloadRows\":[],\"entry\":{\"hostClosed\":false,\"hostLiveBalance\":382500},\"journal\":{\"types\":[\"CampaignSnapshotPublished\",\"FundsChanged\"]}}",
+        "S3 GM resends the same intent (dedupe): {\"guestFramesAfter\":[],\"gmFramesAfter\":[],\"record\":{\"status\":200,\"version\":2,\"balance\":382500,\"gmInterventionEvents\":null},\"reloadRows\":[],\"entry\":{\"hostClosed\":false,\"hostLiveBalance\":382500},\"journal\":{\"types\":[\"CampaignSnapshotPublished\",\"FundsChanged\"]}}"
+      ]
+    },
+    "after": {
+      "build": {
+        "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+        "pre": "MACHINE_IDLE\nidleExit=0 holdWaitSeconds=0",
+        "start": "2026-09-26T20:08:34Z",
+        "exit": "exit=1 at 2026-09-26T20:10:22Z",
+        "compiled": "✓ Compiled successfully in 31.4s",
+        "lastLine": "\"error\": \"Unsafe hydration destination (runtime loader tsx) contains a symlink or junction: .next\\\\standalone\\\\node_modules\" (hydration guard, exit 1 by design)",
+        "marker": ".next/static/chunks/pages/_app-9c8f9cb8a428355f.js\n.next/static/chunks/pages/_app-9c8f9cb8a428355f.js\nmarkerGrepExit=0",
+        "log": {
+          "path": "<lane-temp>/build-after.log",
+          "sha256": "239a1ef941b9710e3fe9ca95202027ab3f467069439df61bf345b01721c86677"
+        }
+      },
+      "pre": "MACHINE_IDLE\nidleExit=0 holdWaitSeconds=0\nholdAbsentAt=2026-09-26T20:10:28Z port=27972 inspectPort=29972",
+      "exit": "exit=0 at 2026-09-26T20:10:45Z\nno listener 27972",
+      "port": 27972,
+      "inspectPort": 29972,
+      "serverPid": 5024,
+      "serverKilled": true,
+      "serverAliveAfterKill": false,
+      "transportErrors": {
+        "gm": [],
+        "guest": []
+      },
+      "json": {
+        "path": "<lane-temp>/live-after.json",
+        "sha256": "94eff23a5a5bf8521ee184819a20ed98acac9d7e94015de4efc4d4ac7aed38db"
+      },
+      "stdout": {
+        "path": "<lane-temp>/live-after.stdout",
+        "sha256": "521249d16021c1ddcbf443a229957d78e16b56382c71e156a56ecadfb4b7ae41"
+      },
+      "stepLines": [
+        "S1 guest joined by room code, GM connected (real client transports): {\"record\":{\"status\":200,\"version\":1,\"balance\":380000,\"gmInterventionEvents\":null},\"reloadRows\":[],\"entry\":{\"hostClosed\":false,\"hostLiveBalance\":380000},\"journal\":{\"types\":[\"CampaignSnapshotPublished\"]}}",
+        "S2 GM approval of the merchant reversal through the page co-op path, then the page-equivalent GET re-read: {\"approval\":{\"status\":\"approved\"},\"intent\":{\"kind\":\"ApplyGmIntervention\",\"campaignId\":\"campaign-u97-after-1790453440739\",\"intentId\":\"gm-intervention-gm-ledger-merchant-reversal-muitr1kr-rppy0a\",\"payload\":{\"interventionId\":\"gm-ledger-merchant-reversal-muitr1kr-rppy0a\",\"summary\":\"Merchant charge corrected by +2,500.00 C-bills.\",\"deltaCBills\":2500}},\"sendAnswer\":null,\"guestFramesAfter\":[{\"kind\":\"CampaignEvent\",\"code\":null,\"reason\":null,\"intentId\":null,\"eventType\":\"FundsChanged\",\"sequence\":1,\"payload\":{\"delta\":2500,\"reason\":\"Merchant charge corrected by +2,500.00 C-bills.\",\"balance\":382500}}],\"guestRawCarriesInterventionId\":false,\"guestRawCarriesHistory\":false,\"gmFramesAfter\":[{\"kind\":\"CampaignEvent\",\"code\":null,\"reason\":null,\"intentId\":null,\"eventType\":\"FundsChanged\",\"sequence\":1,\"payload\":{\"delta\":2500,\"reason\":\"Merchant charge corrected by +2,500.00 C-bills.\",\"balance\":382500}}],\"record\":{\"status\":200,\"version\":2,\"balance\":382500,\"gmInterventionEvents\":[{\"type\":\"gm.campaign.funds_transaction_corrected\",\"domain\":\"economy\",\"family\":\"funds-transaction\",\"interventionId\":\"gm-ledger-merchant-reversal-muitr1kr-rppy0a\",\"transactionId\":\"campaign-event:campaign-u97-after-1790453440739:1\",\"changedStateRefs\":[\"campaign:campaign-u97-after-1790453440739:finances\"],\"publicSummary\":\"Merchant charge corrected by +2,500.00 C-bills.\",\"before\":{\"balanceCents\":38000000,\"transactionIds\":[]},\"after\":{\"balanceCents\":38250000,\"transaction\":{\"id\":\"campaign-event:campaign-u97-after-1790453440739:1\",\"type\":\"miscellaneous\",\"amountCents\":250000,\"date\":\"3025-01-01T00:00:00.000Z\",\"description\":\"Merchant charge corrected by +2,500.00 C-bills.\"}}}]},\"reloadRows\":[{\"id\":\"persisted:gm-ledger-merchant-reversal-muitr1kr-rppy0a:0\",\"summary\":\"Merchant charge corrected by +2,500.00 C-bills.\",\"interventionRecordId\":\"gm-ledger-merchant-reversal-muitr1kr-rppy0a\"}],\"entry\":{\"hostClosed\":false,\"hostLiveBalance\":382500},\"journal\":{\"types\":[\"CampaignSnapshotPublished\",\"FundsChanged\"]}}",
+        "S3 GM resends the same intent (dedupe): {\"guestFramesAfter\":[],\"gmFramesAfter\":[],\"record\":{\"status\":200,\"version\":2,\"balance\":382500,\"gmInterventionEvents\":[{\"type\":\"gm.campaign.funds_transaction_corrected\",\"domain\":\"economy\",\"family\":\"funds-transaction\",\"interventionId\":\"gm-ledger-merchant-reversal-muitr1kr-rppy0a\",\"transactionId\":\"campaign-event:campaign-u97-after-1790453440739:1\",\"changedStateRefs\":[\"campaign:campaign-u97-after-1790453440739:finances\"],\"publicSummary\":\"Merchant charge corrected by +2,500.00 C-bills.\",\"before\":{\"balanceCents\":38000000,\"transactionIds\":[]},\"after\":{\"balanceCents\":38250000,\"transaction\":{\"id\":\"campaign-event:campaign-u97-after-1790453440739:1\",\"type\":\"miscellaneous\",\"amountCents\":250000,\"date\":\"3025-01-01T00:00:00.000Z\",\"description\":\"Merchant charge corrected by +2,500.00 C-bills.\"}}}]},\"reloadRows\":[{\"id\":\"persisted:gm-ledger-merchant-reversal-muitr1kr-rppy0a:0\",\"summary\":\"Merchant charge corrected by +2,500.00 C-bills.\",\"interventionRecordId\":\"gm-ledger-merchant-reversal-muitr1kr-rppy0a\"}],\"entry\":{\"hostClosed\":false,\"hostLiveBalance\":382500},\"journal\":{\"types\":[\"CampaignSnapshotPublished\",\"FundsChanged\"]}}"
+      ],
+      "reading": "after: the approval committed FundsChanged sequence 1 (sendAnswer null); guest frames = [CampaignEvent FundsChanged {delta 2500, reason = summary, balance 382500}], guestRawCarriesInterventionId false, guestRawCarriesHistory false; the page-equivalent GET re-read reads record v2 balance 382500 with gmInterventionEvents = [one funds-transaction entry: interventionId = the intent id, transactionId campaign-event:<campaignId>:1, publicSummary = summary, after.transaction.amountCents 250000]; the control plane persisted rows built from it list one row persisted:<interventionId>:0 with the summary; the resend commits nothing and adds no entry (record v2, one entry)."
+    },
+    "portsAfter": "no listener on 27487/27971/27972/29971/29972"
+  },
+  "ladder": {
+    "command": "HOSTNAME=127.0.0.1 NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=lifecycle-pack",
+    "pre": "MACHINE_IDLE\nidleExit=0 holdWaitSeconds=0",
+    "start": "2026-09-26T20:10:51Z",
+    "exit": "exit=0 at 2026-09-26T20:11:11Z",
+    "port": 27487,
+    "portLine": "\u001b[2m[WebServer] \u001b[22m> Ready on http://127.0.0.1:27487 (multiplayer socket: /api/multiplayer/socket)",
+    "summaryLine": "2 passed (18.9s)",
+    "rows": [
+      "ok 1 [chromium] › e2e\\gm-two-player-lifecycle.pack.spec.ts:179:5 › E2E-75 lifecycle postures are distinct, announced and correctly gated @lifecycle-pack @E2E-75 (6.9s)",
+      "ok 2 [chromium] › e2e\\gm-two-player-lifecycle.pack.spec.ts:305:5 › E2E-75 lifecycle postures pending and blocked are distinct, announced and correctly gated @lifecycle-pack @E2E-75 (5.9s)"
+    ],
+    "log": {
+      "path": "<lane-temp>/ladder-lifecycle.log",
+      "sha256": "c4b18c0c8e6cdfb1242fa602e1558e10bedd1db4063997655f057e8e1244eb66"
+    }
+  },
+  "mutants": [
+    {
+      "id": "M1",
+      "what": "the history write removed: the rewrite writes the record without withGmInterventionEntries",
+      "file": "src/lib/campaign/authority/campaignRecordJournalState.ts",
+      "row": "(R1)",
+      "command": "npx jest src/__tests__/api/campaigns/coopGmInterventionHistory.test.ts -t \"(R1)\"",
+      "exitCode": 1,
+      "testsLine": "Tests:       1 failed, 1 skipped, 2 total",
+      "firstFailure": [
+        "Expected: [{\"after\": {\"balanceCents\": 38250000, \"transaction\": {\"amountCents\": 250000, \"date\": Any<String>, \"description\": \"Merchant charge corrected by +2,500.00 C-bills.\", \"id\": \"campaign-event:u97-history:1\", \"type\": \"miscellaneous\"}}, \"before\": {\"balanceCents\": 38000000, \"transactionIds\": []}, \"changedStateRefs\": [\"campaign:u97-history:finances\"], \"domain\": \"economy\", \"family\": \"funds-transaction\", \"interventionId\": \"gm-ledger-merchant-reversal-u97a\", \"publicSummary\": \"Merchant charge corrected by +2,500.00 C-bills.\", \"transactionId\": \"campaign-event:u97-history:1\", \"type\": \"gm.campaign.funds_transaction_corrected\"}]",
+        "Received: null"
+      ],
+      "savedSha256": "3c2ea50c39dfda3db21d25c6a3fe358f2fef66a3316c23930375717ca32fc7f0",
+      "mutatedSha256": "24460fbe78abe1fe1b5f7e8119c57e8b690f6b6c03cb8cfad9731d15d67059a1",
+      "restoredSha256": "3c2ea50c39dfda3db21d25c6a3fe358f2fef66a3316c23930375717ca32fc7f0",
+      "restored": true,
+      "log": {
+        "path": "<lane-temp>/logs/mutant-M1.log",
+        "sha256": "906159b0646f0fe550748e30b0e7a40a54ffb2463d8791ff9a6d471f566e104d"
+      },
+      "originalCopy": "<lane-temp>/mutant-M1.orig"
+    },
+    {
+      "id": "M2",
+      "what": "the intervention id leaks to the guest: the committed FundsChanged payload carries interventionId",
+      "file": "src/lib/multiplayer/server/CampaignMatchHostIntent.ts",
+      "row": "(R2)",
+      "command": "npx jest src/__tests__/api/campaigns/coopGmInterventionHistory.test.ts -t \"(R2)\"",
+      "exitCode": 1,
+      "testsLine": "Tests:       1 failed, 1 skipped, 2 total",
+      "firstFailure": [
+        "- Expected  - 0",
+        "+ Received  + 1"
+      ],
+      "savedSha256": "c7f192062422bce354b15990285a9be044d053a2f7088f5fe6d10c3882faf32a",
+      "mutatedSha256": "74d04b4b27cb7d5741c6620593072a8a6ce071e3de54012324b5f9e340e0e898",
+      "restoredSha256": "c7f192062422bce354b15990285a9be044d053a2f7088f5fe6d10c3882faf32a",
+      "restored": true,
+      "log": {
+        "path": "<lane-temp>/logs/mutant-M2.log",
+        "sha256": "7dd0cca99b4a344c9a0856903a15794a99223219a1ff735854632f2a3326c194"
+      },
+      "originalCopy": "<lane-temp>/mutant-M2.orig"
+    },
+    {
+      "id": "M3",
+      "what": "the in-flight gate removed: canApprove no longer reads approving",
+      "file": "src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx",
+      "row": "(R3)",
+      "command": "npx jest src/__tests__/pages/gameplay/campaigns/gm-ledger.inflight.test.tsx -t \"(R3)\"",
+      "exitCode": 1,
+      "testsLine": "Tests:       1 failed, 1 total",
+      "firstFailure": [
+        "Expected: true",
+        "Received: false"
+      ],
+      "savedSha256": "36e731a31f78be8f34e391a05f598a12fc4f720b5741f8bd09ebcfcbe5fe1656",
+      "mutatedSha256": "a9be4dad554f6379d8e504ffbc6186cc6f01de99c08e611c7c3a04210dffec6e",
+      "restoredSha256": "36e731a31f78be8f34e391a05f598a12fc4f720b5741f8bd09ebcfcbe5fe1656",
+      "restored": true,
+      "log": {
+        "path": "<lane-temp>/logs/mutant-M3.log",
+        "sha256": "3940a6738948f689b65b7132eb2fcb70c49f1c55edc50658a0061032a25c7957"
+      },
+      "originalCopy": "<lane-temp>/mutant-M3.orig"
+    },
+    {
+      "id": "M4",
+      "what": "the row key back to the canned id: the approval keeps the preview intervention id",
+      "file": "src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx",
+      "row": "(R4 key)",
+      "command": "npx jest src/components/campaign/gm/__tests__/GmCampaignInterventionControlPlane.approval.test.tsx -t \"(R4 key)\"",
+      "exitCode": 1,
+      "testsLine": "Tests:       1 failed, 1 skipped, 2 total",
+      "firstFailure": [
+        "Expected pattern: /^gm-ledger-merchant-reversal-/",
+        "Received string:  \"gm-ledger-merchant-reversal\""
+      ],
+      "savedSha256": "36e731a31f78be8f34e391a05f598a12fc4f720b5741f8bd09ebcfcbe5fe1656",
+      "mutatedSha256": "70bd95fec56fe290d4d82fc03a726fecab65bff813928e96c6137e47caba9419",
+      "restoredSha256": "36e731a31f78be8f34e391a05f598a12fc4f720b5741f8bd09ebcfcbe5fe1656",
+      "restored": true,
+      "log": {
+        "path": "<lane-temp>/logs/mutant-M4.log",
+        "sha256": "8313f4a2a6ce9c3d415ad01eb5c17285794a494a5f2e2e544030637eed6a1c1a"
+      },
+      "originalCopy": "<lane-temp>/mutant-M4.orig"
+    },
+    {
+      "id": "M5",
+      "what": "the applied text no longer follows the refusal: applyApproved reports applied whatever the callback answers",
+      "file": "src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx",
+      "row": "(R4 text)",
+      "command": "npx jest src/components/campaign/gm/__tests__/GmCampaignInterventionControlPlane.approval.test.tsx -t \"(R4 text)\"",
+      "exitCode": 1,
+      "testsLine": "Tests:       1 failed, 1 skipped, 2 total",
+      "firstFailure": [
+        "Expected substring: not \"Approved and applied\"",
+        "Received string:        \"Approved and applied to campaign state.\""
+      ],
+      "savedSha256": "36e731a31f78be8f34e391a05f598a12fc4f720b5741f8bd09ebcfcbe5fe1656",
+      "mutatedSha256": "4a667c2e2ca749a14365ece58ba834efd931174de9e68eb2c0a58d3281a36356",
+      "restoredSha256": "36e731a31f78be8f34e391a05f598a12fc4f720b5741f8bd09ebcfcbe5fe1656",
+      "restored": true,
+      "log": {
+        "path": "<lane-temp>/logs/mutant-M5.log",
+        "sha256": "6ac28aba1fda57e06ad03b20125f8dad0f6f1051faac18584883190c0ebda63f"
+      },
+      "originalCopy": "<lane-temp>/mutant-M5.orig"
+    }
+  ],
+  "mutantsScript": {
+    "path": "<lane-temp>/mutants.cjs",
+    "sha256": "d739a8b76278637a12521e5473a626a1d2f7bef6f316251d036324282bb40194"
+  },
+  "gates": {
+    "tsc": {
+      "command": "npx tsc --noEmit",
+      "exitCode": 0,
+      "lastLine": "(no output)",
+      "log": {
+        "path": "<lane-temp>/logs/tsc.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "oxlint": {
+      "command": "npx oxlint",
+      "exitCode": 0,
+      "lastLine": "Finished in 226ms on 3820 files using 16 threads.",
+      "summary": "Found 84 warnings and 0 errors.",
+      "versusBaseline": "84 warnings, the charter baseline count; 0 errors. The one warning on a changed file is eslint(max-lines) on GmCampaignInterventionControlPlane.tsx (422 counted lines; the baseline copy counts 404 by the same skip-blank/skip-comment rule, so the warning pre-exists and the total is unchanged)",
+      "log": {
+        "path": "<lane-temp>/logs/oxlint.log",
+        "sha256": "e20c114f5fe64d0ff2ad7304beb7b5df439666b6b4fa478de2516e84aadd4d00"
+      },
+      "changedFiles": {
+        "summary": "Found 1 warning and 0 errors.",
+        "log": {
+          "path": "<lane-temp>/logs/oxlint-mine.log",
+          "sha256": "42b8ac2619d9a74223afb28ca0bcfa8d435556d296c1cc87ef4cecfe3e881cf4"
+        }
+      }
+    },
+    "oxfmt": {
+      "command": "npx oxfmt --check <7 product files, 4 test files, the spec delta>",
+      "exitCode": 0,
+      "lastLine": "Finished in 322ms on 11 files using 16 threads.",
+      "note": "11 files matched (the .md delta is not an oxfmt-matched file)",
+      "log": {
+        "path": "<lane-temp>/logs/oxfmt.log",
+        "sha256": "9919db86b69b0f7c31cd917d82fffd78076e65e70e0e805ad6e8e31f038211d1"
+      }
+    },
+    "jestBroad": {
+      "command": "npx jest src/lib/multiplayer/server src/lib/campaign src/components/campaign src/pages src/__tests__/api src/__tests__/pages",
+      "exitCode": 0,
+      "suitesLine": "Test Suites: 759 passed, 759 total",
+      "testsLine": "Tests:       6403 passed, 6403 total",
+      "exit": "exit=0 at 2026-09-26T20:07:21Z",
+      "log": {
+        "path": "<lane-temp>/logs/jest-broad.log",
+        "sha256": "b4d5c9446519ad701452f5541a4d24dfef758944626227cc9e4ca31b7282a89a"
+      },
+      "note": "the log carries two React duplicate-key warnings (key `0`) from src/__tests__/pages/gameplay/campaigns/activity-feed-cutover.test.tsx:200, not from the GM ledger"
+    },
+    "lintUnits": {
+      "command": "npm run lint:units",
+      "exitCode": 0,
+      "lines": [
+        "LINT_UNITS_PATH e2e files=194 findings=50 ceiling=50 PASS",
+        "LINT_UNITS_PATH scripts files=186 findings=50 ceiling=50 PASS",
+        "LINT_UNITS_PATH src/pages/api files=97 findings=16 ceiling=16 PASS",
+        "LINT_UNITS_PATH src-tests files=3214 findings=17783 ceiling=17783 PASS",
+        "LINT_UNITS_PASS 17899/17899"
+      ],
+      "lastLine": "LINT_UNITS_PASS 17899/17899",
+      "log": {
+        "path": "<lane-temp>/logs/lint-units.log",
+        "sha256": "6b8a7952dac95448fc8c2ea67698a184ab52e54c8c68fdaccff538823b00c029"
+      },
+      "ownFiles": {
+        "command": "node node_modules/oxlint/bin/oxlint --config scripts/qc/oxlint-units.json --no-ignore --format json <the 3 new test files and gm-ledger.coop.test.tsx>",
+        "exitCode": 0,
+        "findings": 0,
+        "log": {
+          "path": "<lane-temp>/logs/oxlint-units-mine.json",
+          "sha256": "2722aa1f619c0622ca37ab79a576ed82111701bb05bb6117387aba6cf4239357"
+        }
+      }
+    },
+    "openspecStrict": {
+      "command": "npx openspec validate --all --strict (roadmap-main-proof.mjs:201-202 openspec-strict)",
+      "exitCode": 0,
+      "lastLine": "Totals: 229 passed, 0 failed (229 items)",
+      "lines": [
+        "✓ change/design-campaign-authority-and-sync",
+        "✓ spec/gm-campaign-intervention-boundaries"
+      ],
+      "log": {
+        "path": "<lane-temp>/logs/openspec-strict.log",
+        "sha256": "fed248fc815eeb6f7bcba19c13e61a741afc1b5b5b5033b1c2d22a2195eccb0e"
+      }
+    },
+    "openspecCi": {
+      "command": "npm run qc:openspec-ci:validate",
+      "exitCode": 0,
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "log": {
+        "path": "<lane-temp>/logs/openspec-ci.log",
+        "sha256": "4c2dafd093b946290aa4abe001ad8b3d65671b17c7682722c55a510ecc04f91e"
+      }
+    },
+    "roadmapValidator": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows",
+      "log": {
+        "path": "<lane-temp>/logs/validator.log",
+        "sha256": "5d4e2632ad433b598282457f50f016260282736419f55973bd91f704a9ef25a1"
+      }
+    }
+  },
+  "nonClaims": [
+    "no commit, push, PR, review or main proof; the parent commits",
+    "the journal does not carry the intervention id: a record rebuilt from the journal alone would not recover the history entry (the entry lives in the saved record body, carried forward by later rewrites and saves)",
+    "a campaign whose migration marker is not in journal state gets no record rewrite at all (balance included), so no history entry either; only journal-native campaigns were measured",
+    "the live driver approves with the canned preview id (it runs the approval pipeline, not the rendered control plane), so its intent id carries only the U92 page suffix; in the browser the id is the control-plane-minted id plus the U92 suffix (measured in jsdom: gm-intervention-gm-ledger-merchant-reversal-<t>-<r>-<t>-<r>)",
+    "the reload was measured as a GET re-read plus buildPersistedCampaignEventRows over its gmInterventionEvents, not a browser reload",
+    "a lost answer frame on an open socket leaves approve disabled until reload (not measured; code-read)",
+    "GET /api/campaigns/:id is not narrowed: whoever reads the host record reads its history",
+    "the Lane B classes (authority, privacy, idempotency) are not ruled by this lane"
+  ],
+  "findings": [
+    {
+      "id": "FN-u97-refused-approval-stays-in-local-action-ledger",
+      "class": "adjacent defect (code-read)",
+      "summary": "approveGmCascadePreview appends to the component-local action ledger before the apply callback (GmCascadePreviewPipeline.ts:234-236), so a refused co-op approval stays as an approved record and shows as a row at the next row refresh (src/lib/interventions, not in U97 paths)."
+    },
+    {
+      "id": "FN-u97-coop-intervention-id-double-suffix",
+      "class": "cosmetic (measured in jsdom)",
+      "summary": "the control plane mints one id per approval and the U92 page mint (coopGmIntervention.ts:51) appends a second time/random suffix, so the co-op history id is the row id plus a suffix; both unique. Left unchanged to keep U92 contract; a follow-on can use the approval id directly."
+    },
+    {
+      "id": "FN-u97-approval-latch-after-new-preview",
+      "class": "adjacent race (code-read)",
+      "summary": "Generate correction stays enabled while an approval is in flight; if the GM generates a new preview before the answer, the first approval answer latches approvedApplied on the new preview (pre-existing shape; approve itself stays disabled while in flight)."
+    },
+    {
+      "id": "FN-u97-activity-feed-duplicate-key-warning",
+      "class": "adjacent (measured in the broad jest log)",
+      "summary": "activity-feed-cutover.test.tsx:200 logs \"Encountered two children with the same key, `0`\" (outside U97 paths)."
+    },
+    {
+      "id": "FN-u92-coop-funds-approval-not-in-record-history",
+      "class": "resolved by this unit for gmInterventionEvents (measured live and on real SQLite)",
+      "summary": "finances.transactions for co-op approvals is still not written (not in the U97 sentence)."
+    },
+    {
+      "id": "FN-u97-origin-main-drift",
+      "class": "ledger drift",
+      "summary": "the local origin/main is bd9889549, 2 docs(roadmap) commits past the baseline (planning files only)."
+    }
+  ],
+  "reviewClasses": [
+    "authority",
+    "privacy",
+    "idempotency"
+  ],
+  "finalGitStatus": [
+    "M src/__tests__/pages/gameplay/campaigns/gm-ledger.coop.test.tsx",
+    " M src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx",
+    " M src/lib/campaign/authority/campaignRecordJournalState.ts",
+    " M src/lib/campaign/sync/ICampaignEventStore.ts",
+    " M src/lib/campaign/sync/JournalCampaignEventStore.ts",
+    " M src/lib/multiplayer/server/campaignHostBatchCommit.ts",
+    " M src/lib/multiplayer/server/campaignIntentIdentity.ts",
+    " M src/pages/gameplay/campaigns/[id]/gm-ledger.tsx",
+    "?? openspec/changes/design-campaign-authority-and-sync/specs/gm-campaign-intervention-boundaries/",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u97-admission-20260926.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u97-red-20260926.json",
+    "?? src/__tests__/api/campaigns/coopGmInterventionHistory.test.ts",
+    "?? src/__tests__/pages/gameplay/campaigns/gm-ledger.inflight.test.tsx",
+    "?? src/components/campaign/gm/__tests__/GmCampaignInterventionControlPlane.approval.test.tsx"
+  ]
+}

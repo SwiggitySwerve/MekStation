@@ -3231,7 +3231,8 @@
         "src/lib/campaign",
         "src/pages/gameplay/campaigns/[id]/gm-ledger.tsx",
         "src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx",
-        "openspec/changes/design-campaign-authority-and-sync"
+        "openspec/changes/design-campaign-authority-and-sync",
+        "src/__tests__/pages/gameplay/campaigns/gm-ledger.coop.test.tsx"
       ],
       "ciClass": "product",
       "reviewClasses": [
@@ -3243,22 +3244,57 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "baseline": null,
+      "baseline": "998f026e9eecdb0289d2bca7cc4721d0d495f44b",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u97-admission-20260926.json",
+          "baseline": "998f026e9eecdb0289d2bca7cc4721d0d495f44b",
+          "at": "2026-09-26T19:53:47.743Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u97-red-20260926.json",
+          "at": "2026-09-26T20:00:00.381Z",
+          "summary": "baseline 998f026e9 (U92, U96, U89 on the product side): R1 on real SQLite with a live host, an ApplyGmIntervention commits FundsChanged and the record's gmInterventionEvents stays null (Received: null); R2 the guest's frames and mirror carry no history (a control row, passing before and after); R3 a second approve during the round trip sends a second intent (sentAfterSecond 2, approve not disabled); R4 a refused approval reads 'Approved and applied to campaign state.' and two approvals of one canned correction share the id gm-ledger-merchant-reversal (duplicate-key warning); live before (port 27971): record version 2 balance 382500 gmInterventionEvents null, reloadRows []"
+        },
+        "local": {
+          "path": "evidence/u97-local-20260926.json",
+          "at": "2026-09-26T20:12:12.479Z",
+          "summary": "8 product files, 209 added lines (campaignRecordJournalState.ts +86: the host's record rewrite inside the command's append transaction appends one IGmCampaignFundsTransactionEffect per committed FundsChanged of an ApplyGmIntervention: publicSummary the event's reason, amountCents the delta times 100, the interventionId, transactionId campaign-event:<campaignId>:<sequence>, balances from the event; JournalCampaignEventStore.ts +15, ICampaignEventStore.ts +5, campaignHostBatchCommit.ts +4, campaignIntentIdentity.ts +11: the intent identity carries gmInterventionId to the rewrite; the hook runs only on a command id's first commit so a resend adds nothing; GmCampaignInterventionControlPlane.tsx +46: a fresh id per approval, the apply callback may return a refusal shown as 'Not applied to campaign state.' with the reason, one approving boolean disables approve from send until the commit or refusal frame; gm-ledger.tsx +7; the spec delta openspec/changes/design-campaign-authority-and-sync/specs/gm-campaign-intervention-boundaries/spec.md new 35 lines: one requirement with four scenarios), tests 684 lines (coopGmInterventionHistory.test.ts 343, gm-ledger.inflight.test.tsx 205, GmCampaignInterventionControlPlane.approval.test.tsx 129, gm-ledger.coop.test.tsx +7/-1 for the suffixed id); 12 files of 15; live after (port 27972): the record carries one entry with the four fields, reloadRows lists it, the guest received one FundsChanged frame with neither the intervention id nor gmInterventionEvents, a resend left the record at v2 with one entry; jest 759 suites 6403 passed; tsc 0; oxlint 84 warnings 0 errors (the control plane's max-lines warning pre-existing at 404 lines); oxfmt clean on 11 files; lint:units 17899/17899 (0 findings in the four test files); openspec strict 229 passed; qc:openspec-ci errors=0; validator PASSED; build exits at the hydration guard by design with the __E2E_MODE__ marker; lifecycle-pack 2 passed (port 27487); mutants: the history write removed (R1), the FundsChanged payload carrying the intervention id (R2), the in-flight guard removed (R3), the canned id kept (R4 key), apply always reporting applied (R4 text), each killed and restored with sha256 confirmed; NON-CLAIMS: the journal does not carry the intervention id (a record rebuilt from the journal alone would not recover the entry); only journal-native campaigns measured; the reload a GET re-read; the lost-frame behaviour read not measured; the read route not narrowed; implementer claude-opus (Agent model: opus, lean-worker); status ready"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
         "tick": null
       },
       "ownerGate": null,
-      "state": "planned",
+      "state": "local-verified",
       "admitAfter20260926": "U92 main-verified (its command and page are what this unit extends): satisfied at planning time (U92 closed in #2014), so the unit is planned, not blocked",
-      "source20260926": "planned by the parent under the owner's U92 ruling of 2026-09-26 (\"Approve (Recommended)\": the record-history gap and the in-flight gating become a small follow-on unit, spec delta first)"
+      "source20260926": "planned by the parent under the owner's U92 ruling of 2026-09-26 (\"Approve (Recommended)\": the record-history gap and the in-flight gating become a small follow-on unit, spec delta first)",
+      "testPathsAmendedAtFold20260926": [
+        {
+          "path": "src/__tests__/pages/gameplay/campaigns/gm-ledger.coop.test.tsx",
+          "at": "2026-09-26T20:15:28.000Z",
+          "why": "U92's solo row now expects the suffixed approval id (+7/-1); the file joined the node at U92's closure"
+        }
+      ],
+      "newFiles20260926": {
+        "at": "2026-09-26T20:15:28.000Z",
+        "files": [
+          "src/__tests__/api/campaigns/coopGmInterventionHistory.test.ts",
+          "src/__tests__/pages/gameplay/campaigns/gm-ledger.inflight.test.tsx",
+          "src/components/campaign/gm/__tests__/GmCampaignInterventionControlPlane.approval.test.tsx",
+          "openspec/changes/design-campaign-authority-and-sync/specs/gm-campaign-intervention-boundaries/spec.md"
+        ],
+        "note": "the three test files sit in the node's test homes and join the unit's and the node's paths at closure (they must exist on disk); the spec delta file is under the unit's change path already"
+      },
+      "admissionNote20260926": {
+        "at": "2026-09-26T20:15:28.000Z",
+        "note": "--next printed U94 (overlaps this unit's server path); the parent chose U97 (the U92 follow-on the owner ordered). Admission GO, spec delta first: one requirement with four scenarios in the change's gm-campaign-intervention-boundaries delta. The host's record rewrite inside the command's append transaction already existed; the intent identity now carries the intervention id to it, so no second writer, no new event type, no journal-byte change, no type change. The page-level pending id the charter suggested was not added: one approving boolean in the control plane, where canApprove and the awaited callback live, is the least state. A lost frame leaves approve disabled until reload (U96's no-timeout contract, recorded)."
+      }
     },
     {
       "id": "U98",
@@ -9860,6 +9896,34 @@
         "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
       },
       "note": "opened at fold on 2026-09-26, before the ruling, so the validator's sensitive-class check sees the packet while the unit is local-verified; decision and ruling are filled when the owner rules the exact head"
+    },
+    {
+      "id": "PK-u97-ruling",
+      "blocks": [
+        "U97"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "U97 (review classes authority, privacy, idempotency) presents head 94a790757cad44e0ffdf3405af55f30b5abc2640. Does the owner rule it?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "an OWNER-RULING <head> comment and the owner-ruled label on U97's PR; the unit merges and proceeds to main proof",
+          "effort": "0.1 day owner"
+        },
+        {
+          "label": "reject",
+          "consequence": "the PR closes; the unit returns to planned with the objection recorded",
+          "effort": "0.1 day owner"
+        }
+      ],
+      "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
+      "revertCost": "low: a squash merge revert",
+      "decision": null,
+      "ruling": null,
+      "note": "opened at fold on 2026-09-26, before the ruling, so the validator's sensitive-class check sees the packet while the unit is local-verified; decision and ruling are filled when the owner rules the exact head"
     }
   ],
   "deferrals": [
@@ -11436,6 +11500,42 @@
       "class": "spec reconciliation for U60",
       "summary": "openspec/changes/add-saved-custom-unit-campaign-roster/specs/journey-qc/spec.md:5 already carries a 2026-08-09 solo-maintainer reduction; U60's P.2 amendment must reconcile with it.",
       "recommendedSuccessor": "U60",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u97-refused-approval-stays-in-local-ledger",
+      "foundBy": "U97 implementer lane (claude-opus, lean-worker), 2026-09-26 (read: GmCascadePreviewPipeline.ts:234-236)",
+      "at": "2026-09-26T20:15:28.000Z",
+      "class": "UI defect outside the unit's paths",
+      "summary": "The approval is recorded in the local action ledger before the callback answers, so a refused co-op approval shows as an approved row at the next row refresh even though the control plane's text says it was not applied.",
+      "recommendedSuccessor": "the next unit owning src/components/campaign/gm records the approval after the callback's answer",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u97-coop-intervention-id-double-suffix",
+      "foundBy": "U97 implementer lane (claude-opus, lean-worker), 2026-09-26",
+      "at": "2026-09-26T20:15:28.000Z",
+      "class": "cosmetic",
+      "summary": "U92's page mint adds its own suffix, so a co-op history id is the in-session row id plus a second suffix.",
+      "recommendedSuccessor": "none unless the id shape is specified",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u97-generate-correction-not-gated-in-flight",
+      "foundBy": "U97 implementer lane (claude-opus, lean-worker), 2026-09-26",
+      "at": "2026-09-26T20:15:28.000Z",
+      "class": "latch race (existing shape)",
+      "summary": "'Generate correction' stays enabled while an approval is in flight, so a new preview can be marked approved by the first approval's answer.",
+      "recommendedSuccessor": "the same successor as the local-ledger finding",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u97-history-not-in-journal",
+      "foundBy": "U97 implementer lane (claude-opus, lean-worker), 2026-09-26",
+      "at": "2026-09-26T20:15:28.000Z",
+      "class": "authority non-claim",
+      "summary": "The journal does not carry the intervention id, so a record rebuilt from the journal alone would not recover the history entry; a campaign whose migration marker is not in journal state gets no record rewrite and so no entry. The read route is not narrowed: anyone who reads the host record reads its history.",
+      "recommendedSuccessor": "a spec decision at the UAT round 2 triage on whether the journal carries the intervention",
       "status": "recorded"
     }
   ]
