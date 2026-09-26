@@ -1,0 +1,437 @@
+{
+  "unit": "U61",
+  "stage": "local",
+  "status": "ready: delta written in 3 change files (spec requirement + 2 scenarios, tasks section-6 preface, design D8); every gate exit 0 with 381 tasks; M1 killed only by the duplicate-name variant (three header malformations survive strict validation); M2 survives the roadmap validator (see findings)",
+  "at": "2026-09-26T22:20:00Z",
+  "baseline": "3c010252b43bb062a93fc490fe7b29c6346afff4",
+  "head": "3c010252b43bb062a93fc490fe7b29c6346afff4 (uncommitted working tree; the parent commits)",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u61",
+  "branch": "roadmap-u61-6-2b-spec-delta-20260926",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "filesChanged": [
+    {
+      "file": "openspec/changes/design-campaign-authority-and-sync/design.md",
+      "added": 1,
+      "deleted": 1
+    },
+    {
+      "file": "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md",
+      "added": 14,
+      "deleted": 1
+    },
+    {
+      "file": "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+      "added": 1,
+      "deleted": 1
+    }
+  ],
+  "lineCounts": {
+    "addedLinesTotal": 16,
+    "deletedLinesTotal": 3,
+    "note": "git diff --numstat on the working tree; 3 of the added lines are whole-line rewrites of design.md:40, tasks.md:102 and spec.md:197 (each an append to the existing line). Test lines: 0. The three u61 receipts are under evidence/, excluded from the U41 count.",
+    "fileLengthsAfter": {
+      "openspec/changes/design-campaign-authority-and-sync/design.md": 141,
+      "openspec/changes/design-campaign-authority-and-sync/tasks.md": 111,
+      "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md": 235
+    },
+    "caps": "maxFiles 15 (3 product files + 3 receipts), maxNonGeneratedLines 500 (16 added)"
+  },
+  "finalHashes": {
+    "openspec/changes/design-campaign-authority-and-sync/design.md": "e33c3b3c710d2bba8a1f1a8993a1e327c5b16208bced45a2b0cd003cd05ed91a",
+    "openspec/changes/design-campaign-authority-and-sync/tasks.md": "075ce10e1c188fbeb58cf94b5826a1437fac0f28743aaca21b41cd0d83c43ff8",
+    "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md": "ddbf300e8a90eb36912b7d8d370e5c05f78f3d24903aede689bbec3b3a6bddee"
+  },
+  "gates": {
+    "openspecStrict": {
+      "command": "npx openspec validate --all --strict",
+      "exitCode": 0,
+      "lastLine": "Totals: 229 passed, 0 failed (229 items)",
+      "log": {
+        "path": "<lane-temp>/fin-osv.log",
+        "sha256": "fed248fc815eeb6f7bcba19c13e61a741afc1b5b5b5033b1c2d22a2195eccb0e"
+      },
+      "changeLine": "✓ change/design-campaign-authority-and-sync (log line 79)"
+    },
+    "openspecChange": {
+      "command": "npx openspec validate design-campaign-authority-and-sync --strict",
+      "exitCode": 0,
+      "lastLine": "Change 'design-campaign-authority-and-sync' is valid",
+      "log": {
+        "path": "<lane-temp>/loc-osv-change.log",
+        "sha256": "96dbe86c53dde147f419cc23e062ad0fb400e9f7d0a146f204162c5944e56876"
+      }
+    },
+    "deltaParsed": {
+      "command": "npx openspec show design-campaign-authority-and-sync --json --deltas-only",
+      "exitCode": 0,
+      "result": "31 deltas; the campaign-authority ADDED requirement \"Accepting a contract SHALL produce exactly one acceptance write...\" parses with 6 scenarios (the 4 existing plus \"a co-op-hosted campaign whose host holds an active campaign seat\" and \"a single-player campaign, which has no co-op session ...\"); stderr: \"Warning: Ignoring flags not applicable to change: scenarios\"",
+      "log": {
+        "path": "<lane-temp>/loc-show.json",
+        "sha256": "1626b3011b9f22466f5fb4dd61d66954cdb557512b65ecef1e18963d84a425df"
+      }
+    },
+    "openspecCi": {
+      "command": "npm run --silent qc:openspec-ci:validate",
+      "exitCode": 0,
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "log": {
+        "path": "<lane-temp>/fin-ci.log",
+        "sha256": "21c1181842878b6c171cc9f496ad0f18fdaf7636c2d91ecc439a1da7b51589e6"
+      }
+    },
+    "roadmapPlain": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows",
+      "log": {
+        "path": "<lane-temp>/fin-roadmap.log",
+        "sha256": "5d4e2632ad433b598282457f50f016260282736419f55973bd91f704a9ef25a1"
+      }
+    },
+    "roadmapGit": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --git",
+      "exitCode": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows",
+      "log": {
+        "path": "<lane-temp>/fin-roadmap-git.log",
+        "sha256": "5d4e2632ad433b598282457f50f016260282736419f55973bd91f704a9ef25a1"
+      }
+    },
+    "supplementSha256": {
+      "recorded": "2047731066377c7ada89dfa9e71a023ea8bf7fcedebbb2c2bfb1f8569b7c2066",
+      "measured": "2047731066377c7ada89dfa9e71a023ea8bf7fcedebbb2c2bfb1f8569b7c2066"
+    },
+    "pinnedRows": {
+      "command": "node probe: supplement task text vs live tasks.md row text",
+      "exitCode": 0,
+      "result": "all five pinned rows equal (6.2@106 live sha256 a266125321583ca907cfda02137f32bb1b1ee0cc9a391b67fab9a9932b96472a); tasks.md file sha256 is now 075ce10e1c188fbeb58cf94b5826a1437fac0f28743aaca21b41cd0d83c43ff8, no longer the supplement group sha256 dd97d742...",
+      "log": {
+        "path": "<lane-temp>/loc-pinned.log",
+        "sha256": "43d4adbddd2421840411a9a1a6cd8ac118b2d582b3e92b0370a0ccd8da72f60e"
+      }
+    },
+    "oxfmt": {
+      "command": "npx oxfmt --check openspec/changes/design-campaign-authority-and-sync/design.md openspec/changes/design-campaign-authority-and-sync/tasks.md openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md",
+      "exitCode": 2,
+      "lastLine": "Expected at least one target file",
+      "log": {
+        "path": "<lane-temp>/loc-oxfmt.log",
+        "sha256": "d5bd27a64dfada6a95d3602cb5bf5f9d2303ca6e7ee7fa2b3502c07cc85ddcbb"
+      },
+      "why": "oxfmt 0.28.0 covers none of these files because .oxfmtignore:11 lists `openspec`; the receipts are under openspec/ too (the same exit 2 \"Expected at least one target file\" on u61-red-20260926.json). Markdown itself is NOT outside oxfmt scope: `npx oxfmt --check README.md` exits 0 (\"Finished in 346ms on 1 files\").",
+      "readmeControl": {
+        "command": "npx oxfmt --check README.md",
+        "exitCode": 0,
+        "lastLine": "Finished in 346ms on 1 files using 16 threads.",
+        "log": {
+          "path": "<lane-temp>/loc-oxfmt-readme.log",
+          "sha256": "7a952652f430080e3b2328bf932a948d187f8e865f9e114cee72761373ad5049"
+        }
+      }
+    },
+    "grepProbe": {
+      "command": "node <lane-temp>/probe.mjs",
+      "exitCode": 0,
+      "counts": {
+        "coopHostScope": {
+          "deltas": 2,
+          "design": 0,
+          "tasks": 1,
+          "canonical": 0
+        },
+        "commandsRoute": {
+          "deltas": 3,
+          "design": 0,
+          "tasks": 3,
+          "canonical": 0
+        },
+        "singlePlayerNotSubmitted": {
+          "deltas": 2,
+          "design": 0,
+          "tasks": 0,
+          "canonical": 0
+        },
+        "singlePlayerClientApply": {
+          "deltas": 2,
+          "design": 0,
+          "tasks": 1,
+          "canonical": 0
+        },
+        "bridge64": {
+          "deltas": 2,
+          "design": 0,
+          "tasks": 1,
+          "canonical": 0
+        },
+        "findingFN": {
+          "deltas": 2,
+          "design": 0,
+          "tasks": 1,
+          "canonical": 0
+        },
+        "packetPK": {
+          "deltas": 1,
+          "design": 0,
+          "tasks": 1,
+          "canonical": 0
+        },
+        "d8Marker": {
+          "deltas": 0,
+          "design": 1,
+          "tasks": 1,
+          "canonical": 0
+        },
+        "d8Genesis": {
+          "deltas": 0,
+          "design": 1,
+          "tasks": 0,
+          "canonical": 0
+        },
+        "d8Predicate": {
+          "deltas": 0,
+          "design": 1,
+          "tasks": 0,
+          "canonical": 0
+        }
+      },
+      "hits": {
+        "coopHostScope": {
+          "deltas": [
+            "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md:197",
+            "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md:225"
+          ],
+          "design": [],
+          "tasks": [
+            "openspec/changes/design-campaign-authority-and-sync/tasks.md:102"
+          ],
+          "canonical": []
+        },
+        "commandsRoute": {
+          "deltas": [
+            "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md:124",
+            "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md:197",
+            "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md:227"
+          ],
+          "design": [],
+          "tasks": [
+            "openspec/changes/design-campaign-authority-and-sync/tasks.md:17",
+            "openspec/changes/design-campaign-authority-and-sync/tasks.md:68",
+            "openspec/changes/design-campaign-authority-and-sync/tasks.md:102"
+          ],
+          "canonical": []
+        },
+        "singlePlayerNotSubmitted": {
+          "deltas": [
+            "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md:197",
+            "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md:233"
+          ],
+          "design": [],
+          "tasks": [],
+          "canonical": []
+        },
+        "singlePlayerClientApply": {
+          "deltas": [
+            "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md:197",
+            "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md:230"
+          ],
+          "design": [],
+          "tasks": [
+            "openspec/changes/design-campaign-authority-and-sync/tasks.md:102"
+          ],
+          "canonical": []
+        },
+        "bridge64": {
+          "deltas": [
+            "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md:197",
+            "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md:234"
+          ],
+          "design": [],
+          "tasks": [
+            "openspec/changes/design-campaign-authority-and-sync/tasks.md:102"
+          ],
+          "canonical": []
+        },
+        "findingFN": {
+          "deltas": [
+            "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md:197",
+            "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md:235"
+          ],
+          "design": [],
+          "tasks": [
+            "openspec/changes/design-campaign-authority-and-sync/tasks.md:102"
+          ],
+          "canonical": []
+        },
+        "packetPK": {
+          "deltas": [
+            "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md:197"
+          ],
+          "design": [],
+          "tasks": [
+            "openspec/changes/design-campaign-authority-and-sync/tasks.md:102"
+          ],
+          "canonical": []
+        },
+        "d8Marker": {
+          "deltas": [],
+          "design": [
+            "openspec/changes/design-campaign-authority-and-sync/design.md:40"
+          ],
+          "tasks": [
+            "openspec/changes/design-campaign-authority-and-sync/tasks.md:25"
+          ],
+          "canonical": []
+        },
+        "d8Genesis": {
+          "deltas": [],
+          "design": [
+            "openspec/changes/design-campaign-authority-and-sync/design.md:40"
+          ],
+          "tasks": [],
+          "canonical": []
+        },
+        "d8Predicate": {
+          "deltas": [],
+          "design": [
+            "openspec/changes/design-campaign-authority-and-sync/design.md:40"
+          ],
+          "tasks": [],
+          "canonical": []
+        }
+      },
+      "log": {
+        "path": "<lane-temp>/loc-probe.json",
+        "sha256": "4c5ba0c6960893fabfb918544d5cec78e6450fd42674ba3f86898b7b50d4218c"
+      }
+    }
+  },
+  "mutants": [
+    {
+      "id": "M1a",
+      "file": "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md",
+      "line": 196,
+      "change": "drop the colon: \"### Requirement An accepted contract ...\"",
+      "preSha256": "ddbf300e8a90eb36912b7d8d370e5c05f78f3d24903aede689bbec3b3a6bddee",
+      "mutantSha256": "1b98e6b70d4605bba8d60d77f61f2ebcd25867084d1e0cfb7fdd23789dca7789",
+      "gate": "npx openspec validate --all --strict; npx openspec validate design-campaign-authority-and-sync --strict",
+      "exitCodes": [
+        0,
+        0
+      ],
+      "output": "Totals: 229 passed, 0 failed (229 items); \"Change 'design-campaign-authority-and-sync' is valid\"",
+      "verdict": "SURVIVED",
+      "log": {
+        "path": "<lane-temp>/m1-osv.log",
+        "sha256": "fed248fc815eeb6f7bcba19c13e61a741afc1b5b5b5033b1c2d22a2195eccb0e"
+      }
+    },
+    {
+      "id": "M1b",
+      "file": "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md",
+      "line": 196,
+      "change": "empty name: \"### Requirement:\"",
+      "preSha256": "ddbf300e8a90eb36912b7d8d370e5c05f78f3d24903aede689bbec3b3a6bddee",
+      "mutantSha256": "74354c156ad9287645d8bfe6a76000a30d79e58d8b7d905a8b6b9bea3bbdc0e9",
+      "exitCodes": [
+        0,
+        0
+      ],
+      "output": "Totals: 229 passed, 0 failed (229 items); \"Change 'design-campaign-authority-and-sync' is valid\"",
+      "verdict": "SURVIVED",
+      "log": {
+        "path": "<lane-temp>/m1b-osv.log",
+        "sha256": "fed248fc815eeb6f7bcba19c13e61a741afc1b5b5b5033b1c2d22a2195eccb0e"
+      }
+    },
+    {
+      "id": "M1c",
+      "file": "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md",
+      "line": 196,
+      "change": "header level: \"## Requirement: An accepted contract ...\"",
+      "preSha256": "ddbf300e8a90eb36912b7d8d370e5c05f78f3d24903aede689bbec3b3a6bddee",
+      "mutantSha256": "6ad4802c801b594e4caec3ab18d4434f88a89061f490569107caae2c0df9fa29",
+      "exitCodes": [
+        0,
+        0
+      ],
+      "output": "Totals: 229 passed, 0 failed (229 items); \"is valid\"; openspec show --deltas-only then lists 30 deltas and 9 campaign-authority requirements (31 and 10 unmutated): the requirement silently drops out",
+      "verdict": "SURVIVED",
+      "log": {
+        "path": "<lane-temp>/m1c-osv.log",
+        "sha256": "fed248fc815eeb6f7bcba19c13e61a741afc1b5b5b5033b1c2d22a2195eccb0e"
+      }
+    },
+    {
+      "id": "M1d",
+      "file": "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md",
+      "line": 196,
+      "change": "header renamed to an existing requirement: \"### Requirement: Client storage is a cache, never a source\"",
+      "preSha256": "ddbf300e8a90eb36912b7d8d370e5c05f78f3d24903aede689bbec3b3a6bddee",
+      "mutantSha256": "82501c8cb74eb7dbf926a77bdbc97d145bef4fa29745dc184761ba0090573d4f",
+      "exitCodes": [
+        1,
+        1
+      ],
+      "output": "✗ change/design-campaign-authority-and-sync; Totals: 228 passed, 1 failed (229 items); \"✗ [ERROR] campaign-authority/spec.md: Duplicate requirement in ADDED: \\\"Client storage is a cache, never a source\\\"\"",
+      "verdict": "KILLED",
+      "log": {
+        "path": "<lane-temp>/m1d-osv-change.log",
+        "sha256": "5d042f4bb88a8d5c4fcda993e00875e6c2890eb6ef1c3f173273115fce783bde"
+      }
+    },
+    {
+      "id": "M2",
+      "file": "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+      "line": 106,
+      "change": "one character in the 6.2 row text: \"after 6.1 only.\" -> \"after 6.1 only;\"",
+      "preSha256": "075ce10e1c188fbeb58cf94b5826a1437fac0f28743aaca21b41cd0d83c43ff8",
+      "mutantSha256": "d2f91a85ed33eb0d703f911349d4bf405fcca472f3b5d46ef1164e48da9a7186",
+      "gate": "validate-roadmap.mjs plain and --git",
+      "exitCodes": [
+        0,
+        0
+      ],
+      "output": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows (both)",
+      "verdict": "SURVIVED the roadmap validator, as the admission receipt predicted from validate-roadmap.mjs:346-362 and :520-534; the lane pinned-row probe detects it (6.2@106 equal=false, live sha256 0e3217fc529515a87a00b4558645fd89eef1565fced640349f41f305608f4f8d)",
+      "logs": [
+        {
+          "path": "<lane-temp>/m2-roadmap.log",
+          "sha256": "5d4e2632ad433b598282457f50f016260282736419f55973bd91f704a9ef25a1"
+        },
+        {
+          "path": "<lane-temp>/m2-roadmap-git.log",
+          "sha256": "5d4e2632ad433b598282457f50f016260282736419f55973bd91f704a9ef25a1"
+        },
+        {
+          "path": "<lane-temp>/m2-pinned.log",
+          "sha256": "99c3643d6d14d8f10273e549de5d7692977ac42b567686f380cecafad4fb5f66"
+        }
+      ]
+    }
+  ],
+  "restoreMethod": "every mutant restored by copying the pre-mutant backup (<lane-temp>/bak/) over the file, then sha256 compared with the pre-mutant hash: spec.md ddbf300e... after each M1 variant, tasks.md 075ce10e... after M2. Not `git checkout HEAD --` (WORKERS.md 2026-09-22): the mutated files carry this unit's uncommitted delta, which a checkout would erase. Final hashes are in finalHashes and match the backups.",
+  "nonClaims": [
+    "No code: no src/ file changed, so no runtime behavior changes; 6.2b co-op-host routing through /commands is still unimplemented (tasks.md:107) and 6.2, 6.3, 6.4 stay open; no checkbox ticked.",
+    "No build, jest or Playwright was run (charter: validators only).",
+    "The delta does not define a single-player principal or seat; that is future work named by FN-ob2-identity-before-hosted-deployment.",
+    "The canonical specs are unchanged (0 probe hits there); the delta reaches openspec/specs only when the change is archived.",
+    "D8 text is checked against source reads (campaignLegacyAdoption.ts:130-148, campaignSourceGenesis.ts:238/:248/:301-302, campaignAuthorityMigration.ts:155-162, campaignViewerProjection.ts:95-103) and U35a receipts, not against a test run by this lane.",
+    "The 6.4 bridge wording (row-version CAS + sourceReplayFence echo, conflict carrying the current record) is checked against CampaignPersistenceService.ts:176-187 and useCampaignPersistenceStore.ts:829-833 by reading, not by a test run by this lane.",
+    "No owner ruling exists for this head; the packet ruling is null."
+  ],
+  "findings": [
+    "FN-candidate (validator): validate-roadmap.mjs does not guard the frozen supplement text of an unticked row. Live row text is compared only in the tick-receipt check (:520-534) and the supplement check hashes only the supplement file (:346-349); M2 (a one-character edit of 6.2@106) passes plain and --git. The pinned text is enforced only when a unit ticks the key.",
+    "FN-candidate (validator): the supplement group sha256 (tasks.md dd97d742...) is never compared with the live tasks.md; after this delta the live file hashes 075ce10e... and the validator is silent.",
+    "FN-candidate (OpenSpec 1.5.0): strict validation passes three malformed requirement headers in this delta (missing colon, empty name, level-2 heading); under the level-2 variant the requirement silently drops out of the parsed deltas (31 -> 30). Only the duplicate-name variant fails.",
+    "Charter drift: the charter cites D13 at design.md:102; D13 starts at design.md:127 (:102 is \"Next prerequisites (not solved by P0a)\").",
+    "Charter drift: the charter says markdown is outside oxfmt scope; measured, oxfmt 0.28.0 checks README.md (exit 0), and these files are out of scope because .oxfmtignore:11 lists openspec.",
+    "Charter premise: there is no canonical campaign-authority spec, so the 6.2b narrowing is an in-place edit of the change's ADDED requirement, not a MODIFIED restatement.",
+    "--next prints U94, not U61 (admission receipt).",
+    "Left unchanged (outside the charter): tasks.md:25, the dated 2026-08-23 receipt of task 1.4, still describes adoption through importCampaignBaseline into shadowing; design.md:106 (P1) and :139 (D13 consequence) still speak of the toolbar path without the co-op-host scope, which the spec and the tasks preface now state.",
+    "The guard qc:guard-node-modules-link was run twice (lane start and once to capture its log), both exit 1 INSTALL_REFUSED node-modules-is-link."
+  ]
+}

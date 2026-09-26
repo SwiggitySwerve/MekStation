@@ -1,0 +1,132 @@
+{
+  "unit": "U61",
+  "stage": "admission",
+  "status": "go",
+  "at": "2026-09-26T22:00:30Z",
+  "baseline": "3c010252b43bb062a93fc490fe7b29c6346afff4",
+  "baselineCheck": "git rev-parse HEAD and git rev-parse origin/main both print 3c010252b43bb062a93fc490fe7b29c6346afff4 in the worktree (no fetch was run by this lane)",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u61",
+  "branch": "roadmap-u61-6-2b-spec-delta-20260926",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "node": "v22.22.0",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "ownershipPaths": [
+    "openspec/changes/design-campaign-authority-and-sync"
+  ],
+  "gates": {
+    "guardNodeModulesLink": {
+      "command": "npm run --silent qc:guard-node-modules-link",
+      "exitCode": 1,
+      "lastLine": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u61\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+      "expected": true,
+      "why": "refusal by design in a junctioned worktree. Run at lane start (exit 1, same line, copied from the terminal) and once more to capture the log below; no npm install/ci/prune or lifecycle was run",
+      "log": {
+        "path": "<lane-temp>/adm-guard.log",
+        "sha256": "764ccf8b394e7fbcaf2a987d673d71369403cf5d0d181d28f6d93796b6c8b711"
+      }
+    },
+    "next": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+      "printed": "U94",
+      "exitCode": 0,
+      "log": {
+        "path": "<lane-temp>/adm-next.log",
+        "sha256": "5a2428e59eb31b4a27a3ba6450a398ffc695986525925a5c364f18ada43c75c0"
+      },
+      "note": "--next prints U94, not U61: U61 is planned and the parent assigned it by charter; this lane records the print and does not route around it"
+    }
+  },
+  "packetDecisionQuoted": {
+    "packet": "PK-6-2b-single-player-seat",
+    "option": "(b) co-op-host-only scope for 6.2b",
+    "ownerWords": "approve and yes to both",
+    "at": "2026-09-22T22:15:03Z",
+    "consequenceOfOptionB": "6.2's letter is amended through a spec delta so 6.2b covers co-op-host acceptance routing only; single-player acceptance stays on the client apply with the 6.4 CAS bridge, recorded as a non-claim for a future identity item",
+    "ruling": "null (units.json packet PK-6-2b-single-player-seat.ruling); decisionNote20260922: every PR that implements it still gets the owner OWNER-RULING on its exact head before merge",
+    "taskKeys": [
+      "design-campaign-authority-and-sync#6.2@106",
+      "design-campaign-authority-and-sync#6.3@108",
+      "design-campaign-authority-and-sync#6.4@110"
+    ]
+  },
+  "finding": {
+    "id": "FN-ob2-identity-before-hosted-deployment",
+    "where": "units.json findings (units.json:10595); roadmap.json:6439 (outsideProgram list) and roadmap.json:15738 (parentNotes20260922.identityItem)",
+    "recommendedSuccessor": "an identity and owner-column item before any hosted deployment"
+  },
+  "seams": {
+    "requirement": "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md:196-222 \"An accepted contract is written exactly once, by exactly one writer\" under \"## ADDED Requirements\" (:3)",
+    "noCanonicalCampaignAuthority": "ls openspec/specs shows campaign-persistence, coop-campaign-sync, gm-campaign-intervention-boundaries but no campaign-authority; campaign-authority is a NEW capability of this change (proposal.md \"NEW capability `campaign-authority`\")",
+    "tasksSection6": "openspec/changes/design-campaign-authority-and-sync/tasks.md:100 section header, :102 section preface paragraph (single line), :104 row 6.1 [x], :106 row 6.2 [ ], :107 6.2 Progress note (6.2b \"BLOCKED on an owner decision ... no single-player identity or seat exists\"), :108 row 6.3, :110 row 6.4 (two references to 6.2b), :111 6.4 Progress",
+    "designD8": "openspec/changes/design-campaign-authority-and-sync/design.md:39 heading, :40 text incl. \"AMENDED 2026-08-20: ... an adopted browser campaign records its imported baseline in the D10 cutover marker and enters `journal` (or `shadowing` ...)\"",
+    "designD13": "design.md:127 heading (the charter cites D13 at :102; measured: :102 is \"### Next prerequisites (not solved by P0a)\" and D13 starts at :127); :135 6.2a freshness; :139 \"Consequence: an accepted contract has exactly one writer (6.2b)\"",
+    "commandsRouteSeatGate": "src/pages/api/campaigns/[id]/commands.ts:161 isActiveCampaignSeat(id, auth.playerId) -> 403 not-campaign-participant; header comment :28-33 \"A campaign with no co-op session has no seats, so this route refuses every caller on one ... the single-player boundary recorded as finding #29\"",
+    "clientApply": "src/stores/campaign/campaignCommandActions.ts:454-493 acceptContractOffer writes missions + contractMarket through applyCampaignMutation; caller src/pages/gameplay/campaigns/[id]/contract-market.tsx:71",
+    "casAndFence": "src/services/campaignPersistence/CampaignPersistenceService.ts:179-183 stored sourceReplayFence guard and :186-187 baseVersion CAS, both returning conflictFromStoredRow; client echo src/stores/campaign/useCampaignPersistenceStore.ts:829-833 putLiveCampaign(campaignId, baseVersion, get().sourceReplayFence)",
+    "bridgeRefresh": "src/stores/campaign/useCampaignPersistenceStore.ts:218-236 refreshAfterCommittedCommand doc (\"THE BRIDGE IS A REFETCH, NOT AN ARITHMETIC MAPPING\")",
+    "adoption": "src/lib/campaign/authority/campaignLegacyAdoption.ts:130-148 (retry guard on state journal or importedBaseline !== null; appendCampaignGenesis; importedDigest: genesis.stateDigest at :146); header :13-18",
+    "genesis": "src/lib/campaign/authority/campaignSourceGenesis.ts:238 authorPlayerId system; :248 commandId campaign-genesis:<id>; actorId campaign-source-genesis; :301-302 createJournalNativeMarker + writeMarker",
+    "journalNativeMarker": "src/lib/campaign/authority/campaignAuthorityMigration.ts:155-162 createJournalNativeMarker -> state 'journal', importedBaseline null",
+    "u58Predicate": "src/lib/campaign/sync/campaignViewerProjection.ts:95-103 campaignBaselineReachesViewer: gm+campaign viewer true; authorPlayerId migration false; else !withheldBefore",
+    "u35aReceipt": "evidence/u35a-admission-20260922.json risk \"Authority (adoption): an adopted campaign is journal-native (importedBaseline null) ... its baseline is now system-authored genesis (commandId campaign-genesis:<id>), which the U58 baseline-law predicate treats as a genesis baseline that reaches restricted viewers.\"; evidence/u35a-local-20260922.json finding \"D8 (amended 2026-08-20) says ... the design text is not updated. Outside the ownership paths.\"",
+    "supplement": "evidence/admission-snapshot-supplement-20260922.json (units.json supplementSnapshots sha256 2047731066377c7ada89dfa9e71a023ea8bf7fcedebbb2c2bfb1f8569b7c2066); group sha256 dd97d74247eaf7a32a43d4c194f4d0ecbb8629dfd6b4d5072e3c33e69e664dec = live tasks.md sha256 on the baseline",
+    "validatorSupplementCheck": "validate-roadmap.mjs:346-349 hashes the SUPPLEMENT FILE bytes against units.json; live tasks.md rows are compared to the pinned text only inside the tick-receipt check (:520-534), which runs for a unit with a tick receipt; no check compares the live tasks.md sha256 with the supplement group sha256 (grep sourceSha256: only :190 and :356)"
+  },
+  "designAnswers": {
+    "q1_deltaText": {
+      "file": "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md",
+      "form": "The charter asks for a MODIFIED requirement restating the canonical one. Measured: there is no canonical openspec/specs/campaign-authority, and the governing requirement (:196) is an ADDED requirement of this change, so there is nothing to MODIFY. The delta edits that ADDED requirement in place: the requirement body keeps its current text and gains the scope sentences below, and two scenarios are appended after :222. No header changes, no new capability file.",
+      "requirementBodyAppend": " Routing an acceptance through the source command pipeline is scoped to co-op-hosted campaigns (PK-6-2b-single-player-seat, option (b)): a co-op host's contract acceptance SHALL be submitted as an accept-contract command through `POST /api/campaigns/[id]/commands` under that route's existing active-seat authorization. A single-player campaign has no co-op session and therefore no seat that route could authorize, so its acceptance SHALL NOT be submitted to `/commands`; it stays the client-side apply, which is its one acceptance write, persisted through the whole-envelope save under the row-version compare-and-swap that task 6.4 bridges. That single-player path is a recorded non-claim, not a delivered source-authority property: no single-player principal or seat is defined here, and defining one is future identity work named by the finding FN-ob2-identity-before-hosted-deployment.",
+      "scenariosAppended": "\n#### Scenario: A co-op host's acceptance is routed through the active-seat command route\n- **GIVEN** a co-op-hosted campaign whose host holds an active campaign seat\n- **WHEN** the host accepts a contract-market offer\n- **THEN** the acceptance SHALL be submitted as an accept-contract command through `POST /api/campaigns/[id]/commands` under that route's existing active-seat authorization\n- **AND** the committed and the refused outcomes SHALL each leave exactly one acceptance write, as the other scenarios of this requirement state\n\n#### Scenario: A single-player acceptance stays a client apply and is recorded as a non-claim\n- **GIVEN** a single-player campaign, which has no co-op session and therefore no seat the command route could authorize\n- **WHEN** the player accepts a contract-market offer\n- **THEN** the acceptance SHALL be applied client-side and SHALL NOT be submitted to `/commands`\n- **AND** it SHALL reach the server only through the whole-envelope save, whose row-version compare-and-swap and echo of the stored `sourceReplayFence` (task 6.4) refuse a stale write with a conflict carrying the current record instead of overwriting it\n- **AND** no journal commit, command identity, or server-derived compact name or employer SHALL be claimed for it; a single-player principal and seat are future work named by FN-ob2-identity-before-hosted-deployment\n",
+      "d8Amendment": {
+        "file": "openspec/changes/design-campaign-authority-and-sync/design.md",
+        "line": 40,
+        "appendToLine": " AMENDED 2026-09-26 (U61, following U35a under OD-mvp-hard-cutover; supersedes the imported-baseline clause of the 2026-08-20 amendment and the `campaign-adopted` event naming above): an adopted browser campaign is JOURNAL-NATIVE. Adoption appends the genesis the create path appends -- a `CampaignSnapshotPublished` at sequence 0 authored by the `system` principal (command `campaign-genesis:<id>`, actor `campaign-source-genesis`) -- and writes a journal-native cutover marker (`state: 'journal'`, `importedBaseline: null`), so the marker records no imported revision or digest, this adoption path writes no `shadowing` marker (a marker an earlier import left in `shadowing` is left standing), and D10's snapshot rollback does not apply to an adopted campaign; the adoption answer still returns the genesis state digest as `importedDigest`. Umbrella 12.1's baseline-law predicate (`campaignBaselineReachesViewer`, U58) reads that genesis as a system-authored baseline, which reaches a restricted viewer while nothing has been withheld, unlike a `migration`-authored imported baseline, which never does."
+      }
+    },
+    "q2_tasksProse": {
+      "choice": "append one amendment to the section-6 preface paragraph at tasks.md:102, on the same line, so no line number below it moves (6.1@104, 6.2@106, 6.3@108, 6.4@110 keep their lines) and rows 104-111 stay byte-identical",
+      "rejected": "a note under row 6.2 or a new paragraph line would shift 6.3 and 6.4 off the supplement keys @108 and @110; design.md only would leave the tasks prose unamended, which the unit behavior sentence names",
+      "pinnedVsLive": "6.2@106 pinned text sha256 a266125321583ca907cfda02137f32bb1b1ee0cc9a391b67fab9a9932b96472a (6236 chars) equals the live row text sha256 on the baseline; same equality for 1.6@30, 6.1@104, 6.3@108, 6.4@110 (node probe over the supplement)",
+      "appendText": " **Scope amendment for 6.2b (2026-09-26, PK-6-2b-single-player-seat option (b); owner decision 2026-09-22: \"approve and yes to both\").** The 6.2 row below is left byte-identical because the admission-snapshot supplement pins its text; its 6.2b letter is read under this amendment. 6.2b covers co-op-host contract acceptance routing through `POST /api/campaigns/[id]/commands` only: the row's \"route the toolbar path ... through the source command pipeline ... and the existing active-seat route\" and \"the client SHALL NOT also apply locally\" apply to a co-op-hosted campaign's acceptance. Single-player acceptance stays on the client apply (`acceptContractOffer`, persisted by the whole-envelope save under 6.4's compare-and-swap bridge). That is a recorded NON-CLAIM, not a delivered property: `/commands` refuses every caller on a campaign with no co-op session because no single-player principal or seat exists, and defining one is a future identity item named by the finding FN-ob2-identity-before-hosted-deployment. 6.4's references to 6.2b carry the same scope. The normative text is the requirement \"An accepted contract is written exactly once, by exactly one writer\" in `specs/campaign-authority/spec.md`. This amendment checks no box.",
+      "consequence": "the tasks.md file sha256 moves off dd97d742... (the supplement group sha256). The validator does not compare those (seams.validatorSupplementCheck); recorded as a risk for the parent"
+    },
+    "q3_nonClaimWording": {
+      "staysClientApplied": "acceptContractOffer (campaignCommandActions.ts:454-493): the single-player acceptance writes missions and the reduced contractMarket in the browser store and reaches the server only through the whole-envelope PUT",
+      "bridgeGuarantees": "the PUT carries baseVersion (the row version, counter A of task 6.4) and echoes the stored sourceReplayFence; the server refuses a stale base version or a fence mismatch with a conflict carrying the current record (CampaignPersistenceService.ts:179-187) instead of overwriting it. It does not give a journal commit, command identity or server-derived compact name/employer; refreshAfterCommittedCommand has no committed command to follow on this path",
+      "futureIdentityItem": "no single-player principal or seat exists (commands.ts:28-33, :161); defining one is future work named by FN-ob2-identity-before-hosted-deployment"
+    },
+    "q4_risksSummary": "see risksForTheParent"
+  },
+  "estimatePerFile": {
+    "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md": "1 line changed (requirement body), about 12 lines added (two scenarios)",
+    "openspec/changes/design-campaign-authority-and-sync/tasks.md": "1 line changed (:102 preface), rows untouched",
+    "openspec/changes/design-campaign-authority-and-sync/design.md": "1 line changed (:40 D8)",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u61-*.json": "3 new receipts (evidence/ is excluded from the U41 count)"
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "plannedProductFiles": 3,
+    "plannedEvidenceFiles": 3
+  },
+  "risksForTheParent": [
+    "Authority: the delta changes what 6.2 means for single-player campaigns. 6.2b no longer asks that a single-player acceptance route through /commands; the single-player seat becomes a recorded non-claim tied to FN-ob2-identity-before-hosted-deployment. Needs the owner OWNER-RULING on the exact PR head (packet ruling is null).",
+    "Nothing ships in code: no src/ file is touched, so the delta changes no runtime behavior; 6.2b co-op-host routing itself is still unimplemented (tasks.md:107 progress note) and 6.2 stays open.",
+    "No checkbox ticks; rows 6.1-6.4 are byte-identical; the pinned text of 6.2@106 is unchanged.",
+    "tasks.md whole-file sha256 changes (dd97d742... -> new) although the supplement group records dd97d742...; the validator does not check the live file hash against it (validate-roadmap.mjs:346-362), so this is silent. The supplement file itself is not edited, so its own sha256 check keeps passing.",
+    "Charter M2 expects the roadmap validator's supplement check to fail on a one-character edit of 6.2's row text; by reading validate-roadmap.mjs, live row text is compared only in the tick-receipt check, and no unit holding 6.2 has a tick receipt (the packet holds it). M2 is therefore EXPECTED (not checked) to PASS the validator; stage 3 measures it.",
+    "D8 amendment rewrites the design record of adoption (journal-native, system genesis, no imported baseline) to match U35a; the dated 2026-08-23 receipt at tasks.md:25 still describes the pre-U35a shadowing import as history and is left unchanged (not in the charter scope)."
+  ],
+  "reviewClasses": [
+    "authority"
+  ],
+  "next": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "printed": "U94",
+    "exitCode": 0
+  }
+}
