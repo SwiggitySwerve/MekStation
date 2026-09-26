@@ -1,0 +1,29 @@
+{
+  "unit": "U97",
+  "stage": "merge",
+  "at": "2026-09-26T20:42:31.229Z",
+  "pr": 2028,
+  "title": "feat(campaign): a co-op GM funds approval reaches the record intervention history; approve gated in flight (U97)",
+  "head": "94a790757cad44e0ffdf3405af55f30b5abc2640",
+  "mergeSha": "6689cac89456304087d2154586d528d689df5406",
+  "mergedAt": "2026-09-26T20:31:35Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "openspec/changes/design-campaign-authority-and-sync/specs/gm-campaign-intervention-boundaries/spec.md",
+    "src/__tests__/api/campaigns/coopGmInterventionHistory.test.ts",
+    "src/__tests__/pages/gameplay/campaigns/gm-ledger.coop.test.tsx",
+    "src/__tests__/pages/gameplay/campaigns/gm-ledger.inflight.test.tsx",
+    "src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx",
+    "src/components/campaign/gm/__tests__/GmCampaignInterventionControlPlane.approval.test.tsx",
+    "src/lib/campaign/authority/campaignRecordJournalState.ts",
+    "src/lib/campaign/sync/ICampaignEventStore.ts",
+    "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+    "src/lib/multiplayer/server/campaignHostBatchCommit.ts",
+    "src/lib/multiplayer/server/campaignIntentIdentity.ts",
+    "src/pages/gameplay/campaigns/[id]/gm-ledger.tsx"
+  ],
+  "blobEqualityDiffLines": 0
+}
