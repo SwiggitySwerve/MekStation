@@ -15799,7 +15799,7 @@
       "at": "2026-09-15T12:16:59.678Z",
       "node": "R2.camp-0",
       "question": "the frozen camp-01 controller runs commands in a hermetic env that omits CAMP01_NEXT_DIST_DIR, so the frozen camp-00 command would not take its runCamp00Authority branch under the controller (inference from camp01-authority-receipt.mjs:113 and validate-multiplayer-packaged-socket.mjs:503); fixing it means changing a frozen command contract or the controller env — owner call",
-      "status": "owner decision required; not executed, not modified",
+      "status": "decided: PK-camp-review-gate option (b), 2026-09-22; implemented by U60 (closed 2026-09-26)",
       "evidence": "evidence/camp00-receipt-run-main-819ff6f-20260915.json",
       "packet20260922": {
         "at": "2026-09-22T20:10:00.000Z",
@@ -15812,7 +15812,7 @@
       "at": "2026-09-15T12:43:54.805Z",
       "node": "R2.triage",
       "question": "the frozen camp-01 contract rejects a proof-02-triage artifact whose reproduction is all green (assertCauseGraph: empty cause graph). Either admit an empty disposition set for an all-green reproduction or define an explicit all-green terminal form; both change a frozen command contract",
-      "status": "owner decision required; nothing modified",
+      "status": "decided: PK-camp-review-gate option (b), 2026-09-22; implemented by U60 (closed 2026-09-26)",
       "evidence": "evidence/proof02-final-rerun-main-e048a43-20260915.json",
       "packet20260922": {
         "at": "2026-09-22T20:10:00.000Z",
