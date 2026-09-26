@@ -3261,6 +3261,40 @@
       "source20260926": "planned by the parent under the owner's U92 ruling of 2026-09-26 (\"Approve (Recommended)\": the record-history gap and the in-flight gating become a small follow-on unit, spec delta first)"
     },
     {
+      "id": "U98",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "After a host publish, each room-code guest's grant wake and the replica ingest read the host log since their last projected sequence instead of re-reading and projecting the whole stream; the record rewrite after a commit folds from the last record where the projection allows it, else stays and is measured. Measured by U89 (evidence/u89-red-20260926.json, u89-local-20260926.json): at 50 and 1000 events the grant wake's host-log read grew 3.8 to 194.5 ms and the replica ingest 5.2 to 80.7 ms, about 290 ms per guest per command at 1000 events after the guest's frame is out (hostCampaignEventJournal.ts:88 re-reads once per 500-row page; SQLiteCampaignReplicaStore.ts:121 reads the whole replica stream); the record rewrite 0.29 to 1.7 ms (campaignRecordJournalState.ts:48-63); applyHostIntent's wall time still grows 8 to 84 ms though its timed inner steps sum under 3 ms (U89's guess: the grant wake runs before its promise settles: measure it). Admission decides, with file:line, where each projection keeps its last sequence (per guest grant, per replica), what a rebuilt or replaced state starts from (a full read), and that a page boundary or a rewind cannot skip rows; it reuses U89's timing harness (campaignHostIntentServerTime.test-helpers.ts) and its grow rule (twice the 50-event median and 5 ms, or 50 ms). Red first: the grant wake and replica ingest rows fail on the baseline at 1000 events; green: both flat, GM frame in to the last timed step under the rule, the guest's projection byte-identical to a full projection (a row compares the incremental projection with a fresh full one after a batch, a removal and a checkpoint adoption).",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server",
+        "src/lib/campaign"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "concurrency"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "state": "planned",
+      "source20260926": "planned by the parent under the owner's U89 ruling of 2026-09-26 (\"Approve (Recommended)\": the grant-wake and replica-ingest projections become a planned successor unit)",
+      "admitAfter20260926": "U89 main-verified (its harness and narrowed reads are what this unit extends); shares src/lib/multiplayer/server with U97, so the two run one at a time"
+    },
+    {
       "id": "U36",
       "node": "R2.multiplayer-client",
       "taskKeys": [],
