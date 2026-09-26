@@ -22,7 +22,8 @@ const FIXTURE_NODE_PATHS = ['src/lib', 'src/lib/multiplayer/server', 'e2e'];
 
 // Build a fixture roadmap directory: the contract files the validator reads by link, the admission
 // snapshot it derives every count from, and a units.json holding only the fixture's own units.
-const makeFixture = (ledger, receipts = {}) => {
+// editNodes, when given, is called with the fixture roadmap's nodes by id before it is written.
+const makeFixture = (ledger, receipts = {}, editNodes = null) => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'u16-fixture-'));
   fs.mkdirSync(path.join(dir, 'evidence'));
   for (const file of ['DELIVERY.md', 'WORKERS.md', 'README.md', 'PROGRESS.md']) {
@@ -32,6 +33,7 @@ const makeFixture = (ledger, receipts = {}) => {
   const roadmap = JSON.parse(fs.readFileSync(path.join(here, 'roadmap.json'), 'utf8'));
   const plan = roadmap.nodes.find((node) => node.id === 'R0.plan');
   plan.ownershipPaths = [...plan.ownershipPaths, ...FIXTURE_NODE_PATHS];
+  if (editNodes) editNodes(new Map(roadmap.nodes.map((node) => [node.id, node])));
   fs.writeFileSync(path.join(dir, 'roadmap.json'), JSON.stringify(roadmap));
   fs.writeFileSync(path.join(dir, 'units.json'), JSON.stringify({
     schemaVersion: 1,
@@ -398,4 +400,43 @@ test('a supplement repeating a snapshot occurrence is refused', () => {
 
 test('a supplement whose bytes differ from the recorded sha256 is refused', () => {
   assertRejects(run(supplementFixture(heldLedger, null, '0'.repeat(64))), new RegExp(`supplement snapshot evidence/${escapeRe(SUPPLEMENT)} sha256 [0-9a-f]{64} differs from the recorded 0{64}`));
+});
+
+// ---- U59: PK-camp-review-gate option (b), a declared solo-maintainer exception on the R2.camp-0..8
+// review gates. A solo gate carries soloException true, nonAuthor false, the head it covers and a
+// head-bound OWNER-RULING; every other gate keeps the pin.
+
+const SOLO_RULING = { ruledHead: HEAD_A, pr: 1797, commentId: 5710327985, author: 'fixture-owner', bodySha256: 'c'.repeat(64) };
+// A fixture whose R2.camp-3 gate (or the named node's) is replaced by the pinned gate with `over` applied.
+const gateFixture = (over, nodeId = 'R2.camp-3') => makeFixture({}, {}, (nodes) => {
+  nodes.get(nodeId).githubReviewGate = { ...nodes.get('R2.camp-0').githubReviewGate, ...over };
+});
+const SOLO = { soloException: true, nonAuthor: false, head: HEAD_A };
+
+test('U59 (R1) a solo CAMP gate with a head-bound OWNER-RULING for its head passes', () => {
+  assertPasses(run(gateFixture({ ...SOLO, ruling: SOLO_RULING })));
+});
+
+test('U59 (R2) a solo CAMP gate without an OWNER-RULING fails, naming the missing ruling', () => {
+  assertRejects(run(gateFixture(SOLO)), /R2\.camp-3 CAMP review gate declares soloException without a head-bound OWNER-RULING \(PK-camp-review-gate option b\)/);
+});
+
+test('U59 (R3) the pinned CAMP gates pass, and a pinned gate with nonAuthor false or a solo flag with nonAuthor true still fails', () => {
+  assertPasses(run(makeFixture({})));
+  assertRejects(run(gateFixture({ nonAuthor: false })), /R2\.camp-3 has invalid CAMP GitHub review gate/);
+  assertRejects(run(gateFixture({ ...SOLO, nonAuthor: true, ruling: SOLO_RULING })), /R2\.camp-3 has invalid CAMP GitHub review gate/);
+});
+
+test('U59 a solo CAMP gate whose OWNER-RULING names another head fails', () => {
+  const other = 'd'.repeat(40);
+  assertRejects(run(gateFixture({ ...SOLO, ruling: { ...SOLO_RULING, ruledHead: other } })), new RegExp(`R2\.camp-3 CAMP review gate OWNER-RULING is bound to ${other}, not the gate head ${HEAD_A}`));
+});
+
+test('U59 a solo CAMP gate whose OWNER-RULING has a short head and no body sha256 fails as malformed', () => {
+  const { bodySha256: _dropped, ...noSha } = SOLO_RULING;
+  assertRejects(run(gateFixture({ ...SOLO, ruling: { ...noSha, ruledHead: 'a'.repeat(39) } })), /R2\.camp-3 CAMP review gate OWNER-RULING is malformed: ruledHead is not 40-hex, bodySha256 is not 64-hex/);
+});
+
+test('U59 a solo gate with a valid OWNER-RULING on a node outside R2.camp-0..8 fails', () => {
+  assertRejects(run(gateFixture({ ...SOLO, ruling: SOLO_RULING }, 'R0.plan')), /R0\.plan declares a solo-maintainer exception, which only the R2\.camp-0\.\.8 review gates may carry/);
 });
