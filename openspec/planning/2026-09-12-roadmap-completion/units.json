@@ -2371,21 +2371,43 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "baseline": null,
+      "baseline": "fab5328254ffc30c8a853aa301bcfb0a69638439",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u93-admission-20260925.json",
+          "baseline": "fab5328254ffc30c8a853aa301bcfb0a69638439",
+          "at": "2026-09-26T01:28:20.956Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u93-red-20260925.json",
+          "at": "2026-09-26T01:28:20.957Z",
+          "summary": "baseline fab532825 (U88 and U35d on main): the suite fails 3 of 10; the beforeEach assertion at :298 (flag pinned false) throws before mkdtemp, and afterEach then calls rm(undefined) (the TypeError); with the pin flipped in a probe, the two 201 rows answer 500 at genesis-branch (genesis branch is not committed) because the harness never appended a genesis; the 400 row passes"
+        },
+        "local": {
+          "path": "evidence/u93-local-20260925.json",
+          "at": "2026-09-26T01:28:20.957Z",
+          "summary": "1 test file, +41/-22, 0 product lines: persistHostCampaign is async and appends the campaign genesis after the save as the re-pinned multiplayerCoopCreationCheckpoint.test.ts:154-164 does (appendCampaignGenesis on a SQLiteEventJournal over the test database with writeCampaignMigrationMarker); the three route rows await it; the flag assertion says true; rows 10 of 10 (7 schema, 3 route: 201 with sourceVersion 3 kept, 201 control, 400 unknown field); jest src/lib/api 10, src/__tests__/unit/api 35, src/__tests__/api 57 suites 772; tsc 0; oxlint 84 warnings 0 errors; oxfmt clean; lint:units 100/100; qc:openspec-ci errors=0; validator PASSED; mutants: genesis append removed caught (500 at genesis-branch), flag assertion inverted caught, flag assertion removed survives (not load-bearing: the rows seed a genesis whatever the flag says); implementer claude-opus (Agent model: opus); the parent's diagnosis corrected (see diagnosisCorrected20260925); status ready"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
         "tick": null
       },
       "ownerGate": null,
-      "state": "planned",
-      "source20260925": "planned by the parent from the red Unit Tests shard on PRs #1961 and #1962 (main after U88 #1956 and U35d #1957), reproduced in a fresh worktree off fab532825: 3 of 10 fail, 2 of 10 still fail with the pin flipped"
+      "state": "local-verified",
+      "source20260925": "planned by the parent from the red Unit Tests shard on PRs #1961 and #1962 (main after U88 #1956 and U35d #1957), reproduced in a fresh worktree off fab532825: 3 of 10 fail, 2 of 10 still fail with the pin flipped",
+      "diagnosisCorrected20260925": {
+        "at": "2026-09-26T01:29:34.000Z",
+        "note": "The parent's sentence said the route rows reached a campaign-journal database path the harness never set up. Measured by the lane: the TypeError came from afterEach calling rm(dir) with dir undefined after the beforeEach flag assertion threw before mkdtemp ran; with the pin flipped, the two 201 rows answered 500 'Campaign creation checkpoint failed at genesis-branch: genesis branch is not committed' (campaignCreationCheckpoint.ts:212-222), because U88's harness never appended a genesis. The fix appends the genesis after the save, as the re-pinned multiplayerCoopCreationCheckpoint.test.ts:154-164 does, and asserts the flag true."
+      },
+      "admissionNote20260925": {
+        "at": "2026-09-26T01:29:34.000Z",
+        "note": "--next printed U37 on the baseline (U93 was planned on main after the baseline); U93's path overlaps nothing in flight."
+      }
     },
     {
       "taskKeys": [],
@@ -9461,6 +9483,15 @@
       "summary": "U88 (#1956, baseline 5a3e87f8c) added a test pinning the campaign journal flag false; U35d (#1957, baseline 5a3e87f8c) flipped it true. Each PR's CI was green on its own merge ref, and U35d's lane checked outside suites on a baseline that predates U88, so main's Unit Tests shard went red after both merged. Neither main proof ran src/lib/api under the flip.",
       "recommendedSuccessor": "U93 fixes the test; the loop rule going forward: before merging a unit whose baseline predates another unit's merge, re-run the other unit's suites on the merge ref (or rebase the PR), and a main proof's jest runtime includes every path a concurrent unit touched",
       "status": "recorded; U93 planned"
+    },
+    {
+      "id": "FN-u93-beforeeach-assert-before-mkdtemp-misleads",
+      "foundBy": "U93 implementer lane (claude-opus), 2026-09-25, finding F2",
+      "at": "2026-09-26T01:29:34.000Z",
+      "class": "test ergonomics",
+      "summary": "In src/lib/api/__tests__/coopMatchRosterSourceVersion.test.ts the beforeEach flag assertion runs before mkdtemp, so any future failure of it makes afterEach's rm(undefined) raise a misleading secondary TypeError.",
+      "recommendedSuccessor": "move the assertion after the temp directory is created, in the next unit that edits the file",
+      "status": "recorded"
     }
   ]
 }
