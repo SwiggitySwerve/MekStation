@@ -1,0 +1,386 @@
+{
+  "unit": "U86",
+  "stage": "admission",
+  "status": "BLOCKED",
+  "at": "2026-09-26T04:16:41.775Z",
+  "attempt": 2,
+  "firstAttempt": "evidence/u86-admission-attempt1-20260925.json",
+  "baseline": "f954d4557c4537f107f05cb798bc158037c28596",
+  "originMainAtReceipt": {
+    "sha": "5ba94d1b7471b9e60c05df9f4f6593ae503b2a3b",
+    "baselineIsAncestor": true,
+    "commitsAhead": [
+      "5ba94d1b7 docs(roadmap): U94 planned (the resync tail applies the baseline law; U58 finding F1 confirmed reachable) (#1978)"
+    ],
+    "note": "the charter baseline f954d4557 was origin/main at launch; one docs-only commit landed on origin/main during this attempt"
+  },
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u86",
+  "branch": "roadmap-u86-performance-pack-converge-20260925",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "installGuard": {
+    "command": "npm run --silent qc:guard-node-modules-link",
+    "exit": 1,
+    "output": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u86\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+    "note": "refuses in a junctioned worktree by design; npm_config_dry_run=true was set; no npm install, ci, prune or lifecycle was run"
+  },
+  "next": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "exit": 0,
+    "printed": "U41",
+    "note": "prints U41, not U86; per the charter U86 overlaps nothing in flight, so admission continued to the measurement"
+  },
+  "validator": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "exit": 0,
+    "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows"
+  },
+  "build": {
+    "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+    "machineIdleBefore": "MACHINE_IDLE (exit 0)",
+    "startedAt": "2026-09-26T04:05:23Z",
+    "exit": 1,
+    "exitNote": "exits 1 at the standalone hydration guard by design: Unsafe hydration destination (runtime loader tsx) contains a symlink or junction: .next\\standalone\\node_modules",
+    "e2eMarker": {
+      "chunk": ".next/static/chunks/pages/_app-64fcab0ac2eba811.js",
+      "present": true
+    },
+    "buildId": "1790395526341"
+  },
+  "registrySplitMeasurement": {
+    "question": "Is the campaign host registry the probe route would read (Next API module graph) the same instance the socket runtime (tsx graph loaded by server.js:446-464) records CampaignAck into?",
+    "answer": "SPLIT. Two registry instances of two different class objects each hold an entry for the same live match. The API graph entry retains no participant and its evaluateScenarioLaunch() answers ok:true at every sample; the socket graph entry retains both guests and answers participants-behind while they trail the head. A probe route reading the API graph would report every head as converged.",
+    "method": [
+      "Ran the ladder group as the charter says: machine-idle MACHINE_IDLE first; HOSTNAME=127.0.0.1 (process-scoped); NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=performance; run id qc-performance, port 23319 from deriveFixturePort.",
+      "Resolved the webServer PID from the LISTENING socket on 23319 (pid 25956, cwd the worktree), activated its inspector with process._debugProcess(pid), and evaluated one read-only expression over the DevTools protocol (Runtime.evaluate) while the co-op session was live. No repository file was edited and no extra build was made for the measurement.",
+      "Socket graph: the Module._cache entry for src/lib/multiplayer/server/CampaignHostRegistry.ts (loaded through tsx by server.js), exports.getCampaignHostRegistry().",
+      "API graph: .next/server/webpack-api-runtime.js exports the webpack require (it keeps no public module cache); require(45433) is CampaignHostRegistry.ts in this build (export gH = getCampaignHostRegistry, located in .next/server/pages/api/multiplayer/matches.js at the class body that throws \"Campaign snapshot revision is stale\"). The webpack require returns the already-cached exports, so this is the instance src/pages/api/multiplayer/matches/index.ts:325 registered into and the one every API route sharing that runtime file (the probe route included) reads.",
+      "Per graph: registry entries (matchId, campaignId), the sync session retained map (acknowledged, delivered) and evaluateScenarioLaunch(); plus === on the two registries, their prototypes and the per-match sync sessions."
+    ],
+    "probeScript": {
+      "sha256": "89010a33c2b9eef36623c39e33ff3ef694591b9e76c2eb268860b2d4a2887c98",
+      "note": "scratch script outside the repository, not committed"
+    },
+    "serverPid": 25956,
+    "port": 23319,
+    "samples": [
+      {
+        "at": "2026-09-26T04:12:07.061Z",
+        "sameRegistryInstance": false,
+        "sameRegistryClass": false,
+        "socketGraph": [
+          {
+            "matchId": "a3e2e859-2d2f-4624-bf68-7b174b0594ec",
+            "campaignId": "campaign-1790395758507-kbez6ov",
+            "retained": [
+              {
+                "participantId": "pid_3crjNaahPn79te5VKhrRT3Zeddu1",
+                "acknowledged": 876,
+                "delivered": 881
+              },
+              {
+                "participantId": "pid_2CWf5uP4u4aXcMFKo9DP3BGr2Yqe",
+                "acknowledged": 876,
+                "delivered": 881
+              }
+            ],
+            "gate": {
+              "ok": false,
+              "reason": "participants-behind",
+              "requiredRevision": 881,
+              "behind": [
+                {
+                  "participantId": "pid_3crjNaahPn79te5VKhrRT3Zeddu1",
+                  "acknowledgedRevision": 876
+                },
+                {
+                  "participantId": "pid_2CWf5uP4u4aXcMFKo9DP3BGr2Yqe",
+                  "acknowledgedRevision": 876
+                }
+              ]
+            }
+          }
+        ],
+        "apiGraph": [
+          {
+            "matchId": "a3e2e859-2d2f-4624-bf68-7b174b0594ec",
+            "campaignId": "campaign-1790395758507-kbez6ov",
+            "retained": [],
+            "gate": {
+              "ok": true,
+              "requiredRevision": 881
+            }
+          }
+        ],
+        "sameSyncSessionPerSharedMatch": [
+          {
+            "matchId": "a3e2e859-2d2f-4624-bf68-7b174b0594ec",
+            "sameSyncSession": false
+          }
+        ]
+      },
+      {
+        "at": "2026-09-26T04:12:19.718Z",
+        "sameRegistryInstance": false,
+        "sameRegistryClass": false,
+        "socketGraph": [
+          {
+            "matchId": "a3e2e859-2d2f-4624-bf68-7b174b0594ec",
+            "campaignId": "campaign-1790395758507-kbez6ov",
+            "retained": [
+              {
+                "participantId": "pid_3crjNaahPn79te5VKhrRT3Zeddu1",
+                "acknowledged": 912,
+                "delivered": 919
+              },
+              {
+                "participantId": "pid_2CWf5uP4u4aXcMFKo9DP3BGr2Yqe",
+                "acknowledged": 912,
+                "delivered": 919
+              }
+            ],
+            "gate": {
+              "ok": false,
+              "reason": "participants-behind",
+              "requiredRevision": 919,
+              "behind": [
+                {
+                  "participantId": "pid_3crjNaahPn79te5VKhrRT3Zeddu1",
+                  "acknowledgedRevision": 912
+                },
+                {
+                  "participantId": "pid_2CWf5uP4u4aXcMFKo9DP3BGr2Yqe",
+                  "acknowledgedRevision": 912
+                }
+              ]
+            }
+          }
+        ],
+        "apiGraph": [
+          {
+            "matchId": "a3e2e859-2d2f-4624-bf68-7b174b0594ec",
+            "campaignId": "campaign-1790395758507-kbez6ov",
+            "retained": [],
+            "gate": {
+              "ok": true,
+              "requiredRevision": 919
+            }
+          }
+        ],
+        "sameSyncSessionPerSharedMatch": [
+          {
+            "matchId": "a3e2e859-2d2f-4624-bf68-7b174b0594ec",
+            "sameSyncSession": false
+          }
+        ]
+      },
+      {
+        "at": "2026-09-26T04:12:24.919Z",
+        "sameRegistryInstance": false,
+        "sameRegistryClass": false,
+        "socketGraph": [
+          {
+            "matchId": "a3e2e859-2d2f-4624-bf68-7b174b0594ec",
+            "campaignId": "campaign-1790395758507-kbez6ov",
+            "retained": [
+              {
+                "participantId": "pid_3crjNaahPn79te5VKhrRT3Zeddu1",
+                "acknowledged": 930,
+                "delivered": 934
+              },
+              {
+                "participantId": "pid_2CWf5uP4u4aXcMFKo9DP3BGr2Yqe",
+                "acknowledged": 930,
+                "delivered": 934
+              }
+            ],
+            "gate": {
+              "ok": false,
+              "reason": "participants-behind",
+              "requiredRevision": 934,
+              "behind": [
+                {
+                  "participantId": "pid_3crjNaahPn79te5VKhrRT3Zeddu1",
+                  "acknowledgedRevision": 930
+                },
+                {
+                  "participantId": "pid_2CWf5uP4u4aXcMFKo9DP3BGr2Yqe",
+                  "acknowledgedRevision": 930
+                }
+              ]
+            }
+          }
+        ],
+        "apiGraph": [
+          {
+            "matchId": "a3e2e859-2d2f-4624-bf68-7b174b0594ec",
+            "campaignId": "campaign-1790395758507-kbez6ov",
+            "retained": [],
+            "gate": {
+              "ok": true,
+              "requiredRevision": 934
+            }
+          }
+        ],
+        "sameSyncSessionPerSharedMatch": [
+          {
+            "matchId": "a3e2e859-2d2f-4624-bf68-7b174b0594ec",
+            "sameSyncSession": false
+          }
+        ]
+      },
+      {
+        "at": "2026-09-26T04:12:30.022Z",
+        "sameRegistryInstance": false,
+        "sameRegistryClass": false,
+        "socketGraph": [
+          {
+            "matchId": "a3e2e859-2d2f-4624-bf68-7b174b0594ec",
+            "campaignId": "campaign-1790395758507-kbez6ov",
+            "retained": [
+              {
+                "participantId": "pid_3crjNaahPn79te5VKhrRT3Zeddu1",
+                "acknowledged": 939,
+                "delivered": 948
+              },
+              {
+                "participantId": "pid_2CWf5uP4u4aXcMFKo9DP3BGr2Yqe",
+                "acknowledged": 939,
+                "delivered": 948
+              }
+            ],
+            "gate": {
+              "ok": false,
+              "reason": "participants-behind",
+              "requiredRevision": 948,
+              "behind": [
+                {
+                  "participantId": "pid_3crjNaahPn79te5VKhrRT3Zeddu1",
+                  "acknowledgedRevision": 939
+                },
+                {
+                  "participantId": "pid_2CWf5uP4u4aXcMFKo9DP3BGr2Yqe",
+                  "acknowledgedRevision": 939
+                }
+              ]
+            }
+          }
+        ],
+        "apiGraph": [
+          {
+            "matchId": "a3e2e859-2d2f-4624-bf68-7b174b0594ec",
+            "campaignId": "campaign-1790395758507-kbez6ov",
+            "retained": [],
+            "gate": {
+              "ok": true,
+              "requiredRevision": 948
+            }
+          }
+        ],
+        "sameSyncSessionPerSharedMatch": [
+          {
+            "matchId": "a3e2e859-2d2f-4624-bf68-7b174b0594ec",
+            "sameSyncSession": false
+          }
+        ]
+      }
+    ],
+    "requiredRevisionAgreement": "both graphs computed the same requiredRevision at every sample (both read the same durable campaign event log); only the retained and acknowledged half differs",
+    "matchHostRegistryGlobalSlotPresent": true,
+    "measurementRun": {
+      "startedAt": "2026-09-26T04:08:59Z",
+      "summaryLine": "1 passed (5.1m)",
+      "exit": 0,
+      "note": "ran with an inspector attached and no refusal capture; not counted as a red or a green run"
+    }
+  },
+  "blocker": {
+    "summary": "The probe route cannot answer the authority's convergence: the registry it reads (API graph) is not the one the socket runtime records acknowledgements into. The fix is in src/lib/multiplayer/server, outside U86's ownership paths, so U86 stops BLOCKED at admission as its amended behaviour sentence directs.",
+    "successor": {
+      "what": "The campaign host registry held in a globalThis slot, as MatchHostRegistry does since U22a (MatchHostRegistry.ts:220-260)",
+      "reviewClass": "authority",
+      "path": "src/lib/multiplayer/server (U89's ownership path)",
+      "exactEdit": {
+        "file": "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+        "lines": "405-417 (let _singleton; getCampaignHostRegistry; _resetCampaignHostRegistry)",
+        "replaceWith": [
+          "const CAMPAIGN_HOST_REGISTRY_SLOT_KEY = Symbol.for('mekstation.multiplayer.campaignHostRegistry');",
+          "type GlobalCampaignHostRegistrySlot = typeof globalThis & { [CAMPAIGN_HOST_REGISTRY_SLOT_KEY]?: CampaignHostRegistry | null };",
+          "/** The process registry, created on first use and held on globalThis, so Next's API graph (the match create route, the E2E probe) and the socket runtime's tsx graph (bindCampaignSyncConnection) read the same instance. */",
+          "export function getCampaignHostRegistry(): CampaignHostRegistry {",
+          "  const global = globalThis as GlobalCampaignHostRegistrySlot;",
+          "  let registry = global[CAMPAIGN_HOST_REGISTRY_SLOT_KEY];",
+          "  if (!registry) { registry = new CampaignHostRegistry(); global[CAMPAIGN_HOST_REGISTRY_SLOT_KEY] = registry; }",
+          "  return registry;",
+          "}",
+          "/** Closes every entry and empties the slot (tests). */",
+          "export function _resetCampaignHostRegistry(): void {",
+          "  const global = globalThis as GlobalCampaignHostRegistrySlot;",
+          "  global[CAMPAIGN_HOST_REGISTRY_SLOT_KEY]?._reset();",
+          "  global[CAMPAIGN_HOST_REGISTRY_SLOT_KEY] = null;",
+          "}"
+        ],
+        "plusTest": "a jest row in src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts that loads the module twice (jest.isolateModules) and asserts both getCampaignHostRegistry() calls return one instance, mirroring the MatchHostRegistry slot row; and a live proof that the probe (or the inspector read above) sees one registry"
+      },
+      "behaviourToWeigh": [
+        "MEASURED: today the socket graph holds its own entry for the match the create route registered in the API graph.",
+        "READ (CampaignHostRegistry.ts:351-387, :334-340): the socket side reaches its entry through getOrCreate, which registers with { rebuilt: true } and so calls pauseUntilGmReturns().",
+        "INFERENCE (not measured): with one shared registry the socket side would find the create route's entry (not rebuilt, not paused), and that entry's host, sync session and arbiter would be objects built from the API graph's module copies with their own module-level state (for example registerActiveCoopHost and the durable readers). That is why the successor is authority class and not a routine e2e change.",
+        "Once it lands, U86 needs no edit outside its paths: the probe route reads getCampaignHostRegistry().get(matchId)?.syncSession.evaluateScenarioLaunch() behind its existing guard."
+      ]
+    }
+  },
+  "designAnswers": {
+    "probeRoute": "Today it answers { success, wallMs, monotonicMs, memory: { rss, heapUsed } } only (src/pages-modules/api/e2ePerformanceProbeRoute.ts:23-33 type, :41-62 handler, guard :65-70; src/pages/api/e2e/performance-probe.ts:7 re-exports it). It carries no acknowledged revision. The amended paths let U86 add a matchId read of evaluateScenarioLaunch(), but MEASURED above: from the API graph that read answers ok:true with no retained participant, so the amendment alone cannot deliver the behaviour.",
+    "convergedMeansToTheAuthority": "Only AdvanceDay is gated (bindCampaignSyncConnection.ts:748-758 -> refuseUnconvergedProgression :700-718 -> CampaignSyncSession.evaluateScenarioLaunch :753-777). requiredRevision = max(0, nextSequence()-1), read live (:785-787). Clause refusals run first (:755-760), then every RETAINED participant must have acknowledged >= requiredRevision (:761-770). Retained = non-GM participants (joinMember :520-531 and retainHydratedParticipant :430-439 skip the host). acknowledged rises only through noteParticipantAcknowledged (:660-671), called from the CampaignAck dispatch (bindCampaignSyncConnection.ts:619-626) and refused above the delivered watermark (:667). MEASURED live: the socket graph retained exactly two participant ids, never three.",
+    "convergeWaitToday": "converge() at e2e/gm-two-player-performance.pack.spec.ts:630-646: max painted head across the three pages, polls each page's appliedSequence (set on frame receipt, :511) for up to functionalWaitMs*5, then a fixed 25 ms (:644). Call sites :165 (warm-up) and :198 (measured). The tail builder (:268-272) uses waitForSequence only (:271). waitForSequence :596-614 (called :173, :206, :271) is the 2,000 ms functional wait. READ: the client transport hands a frame to onFrame listeners (campaignSyncTransport.ts:228) before it sends CampaignAck (:244), so appliedSequence reaches the head before the ack leaves the page.",
+    "gmTransportRefusal": "The refusal is an Error frame { kind: 'Error', code: 'CAMPAIGN_NOT_CONVERGED', reason: 'participants-behind <id>:<ack>,...; requiredRevision N', intentId } (bindCampaignSyncConnection.ts:708-716; errorFrame :1550-1564; CampaignProgressionGate.ts:195-206; schema src/types/multiplayer/Protocol.ts:807). The GM transport passes every parsed frame, Error included, to onFrame listeners (campaignSyncTransport.ts:228), and the pack's intentId is perf-<kind>-<ordinal> (controlledLoopbackFixture.ts:296). A GM-page onFrame capture keyed by intentId is a real read and needs no edit outside e2e. Not built in this attempt: admission stopped first.",
+    "runnerPerformanceGroup": "scripts/qc/gm-two-player-campaign-core.cjs:91 maps performance to e2e/gm-two-player-performance.pack.spec.ts only; the plan sets PLAYWRIGHT_E2E_RUN_ID, MEKSTATION_E2E_PORT and PORT (deriveFixturePort) and MEKSTATION_E2E_SERVER_COMMAND=node server.js. No runner or env change is needed."
+  },
+  "seams": [
+    "src/lib/multiplayer/server/CampaignHostRegistry.ts:405-417 module-level singleton (measured split)",
+    "src/lib/multiplayer/server/MatchHostRegistry.ts:220-260 globalThis slot precedent",
+    "server.js:446-464 socket runtime loaded through tsx",
+    "src/pages/api/multiplayer/matches/index.ts:325 API-graph registration",
+    "src/pages-modules/api/e2ePerformanceProbeRoute.ts:41-62",
+    "src/lib/multiplayer/server/CampaignSyncSession.ts:660-671, :753-787",
+    "src/lib/multiplayer/server/bindCampaignSyncConnection.ts:619-626, :700-718, :748-758",
+    "src/lib/campaign/coop/campaignSyncTransport.ts:228, :244",
+    "e2e/gm-two-player-performance.pack.spec.ts:165, :198, :596-614, :630-646"
+  ],
+  "estimatePerFile": {
+    "e2e/gm-two-player-performance.pack.spec.ts": "about 70-100 changed lines once unblocked (converge on the probe, GM Error capture, refusal-naming wait)",
+    "src/pages-modules/api/e2ePerformanceProbeRoute.ts": "about 30-45 lines once the registry is shared",
+    "src/__tests__/api/e2ePerformanceProbeRoute.test.ts": "about 30-50 test lines",
+    "src/lib/multiplayer/server/CampaignHostRegistry.ts": "successor, about 20 lines plus a jest row; not U86's"
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "note": "not exercised: no repository edit was made"
+  },
+  "risksForTheParent": [
+    "routine for U86 once unblocked: none visible to a tester; the pack's timing semantics change.",
+    "The successor changes which registry instance the create route and the socket runtime share (authority class, U89's path); it should land and be main-proved before U86 is relaunched.",
+    "Landing only the probe route edit without the successor would be vacuous: MEASURED, the API-graph session answered ok:true at all four samples, so converge() would return at once and the race would stay."
+  ],
+  "sourceHashes": {
+    "src/lib/multiplayer/server/CampaignHostRegistry.ts": "9aa560eadb81df858f0fc3a33b8bf9877c8c0d6cf947b62a5b2826ec5f0aff8a",
+    "src/lib/multiplayer/server/MatchHostRegistry.ts": "c2f91cf7cd5ce9fb69ff8eac2afd68e7c93254a193696c214827c2a079085ee7",
+    "server.js": "e4f973d2cfa7f4c25775e4ce9315b7398655a6a17cfc799793545de84a59ecf6",
+    "src/pages-modules/api/e2ePerformanceProbeRoute.ts": "530ccd42d80244ce20dae62cc0ffefae3521fc3ecf5fc54c9236542da8efe3fb",
+    "e2e/gm-two-player-performance.pack.spec.ts": "affd8826c0c3f327e937dc394b239e8573c2f747ec82207d37f4a8700cc13a5d",
+    ".next/server/pages/api/multiplayer/matches.js": "979bfa1c5c174699d4f1df8a8b3576602f329c61b3a993c9e1a3b14db2ab6466",
+    ".next/server/webpack-api-runtime.js": "92402cba0dd9772565c522d2a87556295bfa03ee60f6046c046990f5d60b5872"
+  },
+  "stagesNotRun": [
+    "red: not run (charter: stop BLOCKED at admission when the registries are split). No spec edit, no capture built.",
+    "local: not run; u86-red-20260925.json and u86-local-20260925.json were not written."
+  ],
+  "nonClaims": [
+    "The split is measured in this build (BUILD_ID above) under the ladder's node server.js; module id 45433 is specific to this build.",
+    "What a shared registry changes at runtime is read from code, not measured.",
+    "No CAMPAIGN_NOT_CONVERGED refusal was captured in this attempt. The socket-graph samples show the guests 4 to 9 revisions behind the head mid-run, the state the gate refuses on, but no AdvanceDay refusal was observed.",
+    "The measurement run's 1/1 pass says nothing about the pack's failure rate; it ran with an inspector attached."
+  ],
+  "gitStatusShortBeforeReceipt": "(clean)"
+}
