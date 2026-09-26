@@ -1,0 +1,23 @@
+{
+  "unit": "U35i",
+  "stage": "merge",
+  "at": "2026-09-26T05:37:28.070Z",
+  "pr": 1982,
+  "title": "docs(campaign): the flip's comment residue (U35i)",
+  "head": "00535cb45869ede00a0b00c39f24f024b3d3c575",
+  "mergeSha": "6c7dbcc1ff973f1b60b97a67a3d6526314b16292",
+  "mergedAt": "2026-09-26T05:29:51Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "src/lib/campaign/coop/coopRuntimeSession.ts",
+    "src/lib/campaign/sync/ICampaignEventStore.ts",
+    "src/lib/campaign/sync/InMemoryCampaignEventStore.ts",
+    "src/lib/multiplayer/server/combatJournalAuthorityEnabled.ts",
+    "src/lib/multiplayer/server/matchJournalAuthority.ts",
+    "src/pages/api/multiplayer/matches/index.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}
