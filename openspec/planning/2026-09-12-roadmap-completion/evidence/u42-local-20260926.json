@@ -1,0 +1,82 @@
+{
+  "unit": "U42",
+  "stage": "local",
+  "at": "2026-09-26T18:36:56.000Z",
+  "baseline": "248f7ab12dac16d03311532f91e6d4f8f537c660",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u42",
+  "branch": "roadmap-u42-supplement-snapshot-holders-20260926",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "status": "ready: the supplement loads into taskByKey, its open rows are held (1.6 by the new PK-1-6-navigation-flush-letter, 6.2-6.4 by PK-6-2b-single-player-seat, 6.1 checked), admission-snapshot.json byte-identical, every gate green; uncommitted in the worktree for the parent",
+  "delivered": {
+    "supplement": "evidence/admission-snapshot-supplement-20260922.json (new, 53 lines, sha256 2047731066377c7ada89dfa9e71a023ea8bf7fcedebbb2c2bfb1f8569b7c2066): header additive (frozen, never edited), supplements evidence/admission-snapshot.json, sourceCommit f2ee1876613e86759846d1e1f1d836d4b03a0307; one group design-campaign-authority-and-sync (tasks.md sha256 dd97d74247eaf7a32a43d4c194f4d0ecbb8629dfd6b4d5072e3c33e69e664dec) with 1.6@30 (open), 6.1@104 (checked), 6.2@106, 6.3@108, 6.4@110 (open); each text is the whole live row",
+    "validator": "validate-roadmap.mjs: taskByKey = roadmap.json tasks plus every supplement occurrence listed in units.json supplementSnapshots; refuses a supplement whose sha256 differs from the recorded one and an occurrence whose key is already loaded ('supplement snapshot <path> repeats task occurrence <key>'); a package a supplement names is activated for the holders rule, which now iterates taskByKey; the PASSED line counts snapshot plus supplement occurrences",
+    "ledger": "units.json: supplementSnapshots [{ path, sha256 }] after programSnapshot; one sentence appended to holdersRule (a package a supplement names is activated too); PK-6-2b-single-player-seat taskKeys gains 6.2@106, 6.3@108, 6.4@110 plus a keysAdded20260926 note; new packet PK-1-6-navigation-flush-letter (node R2.authority-client, taskKeys 1.6@30, decision null, ruling null, three options, recommendation (b), nonClaim quoting OD-flush-mechanism nonClaim20260922)",
+    "tests": "validate-roadmap.test.mjs: 4 cases (18-21): no holders names 1.6/6.2/6.3/6.4 and not 6.1; holders pass with ' 381 tasks, '; a repeated snapshot occurrence (1.1@11) is refused; a wrong recorded sha256 is refused"
+  },
+  "snapshotUntouched": { "file": "evidence/admission-snapshot.json", "sha256Before": "dd2b997e6e2e3adf85130d3196ee9f2838fc900019ff36f8bd3495f3caf58b68", "sha256After": "dd2b997e6e2e3adf85130d3196ee9f2838fc900019ff36f8bd3495f3caf58b68" },
+  "files": [
+    "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
+    "openspec/planning/2026-09-12-roadmap-completion/units.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/admission-snapshot-supplement-20260922.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u42-admission-20260926.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u42-red-20260926.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u42-local-20260926.json"
+  ],
+  "lineCounts": {
+    "command": "git diff --numstat (tracked) and wc -l (new)",
+    "validate-roadmap.mjs": "+31 -5",
+    "validate-roadmap.test.mjs": "+60 -0 (test file: uncounted under UNCOUNTED_FILES)",
+    "units.json": "+48 -3",
+    "evidence/admission-snapshot-supplement-20260922.json": "53 (new; evidence/ is skipped by the --git diff check)",
+    "countedNonGeneratedNonTestLines": 79,
+    "cap": 500,
+    "filesChanged": "3 tracked + 4 new = 7 of 15"
+  },
+  "sha256": {
+    "validate-roadmap.mjs": "df40a6deb9d9b7ba287d5b5a07cdc132bf75f122feb3f060c85e5cb223379bc3",
+    "validate-roadmap.test.mjs": "51ab4b9a3468feb829c228c9a2afb72f9c71aa5f422f3b270e324abc21ccae1e",
+    "units.json": "4043d46e61b3dc0972cfbeece7265c8e2a3d9fd63d11d5d728923a95bb4e0e82"
+  },
+  "gates": [
+    { "gate": "node --test", "command": "node --test openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs", "exit": 0, "lastLine": "tests 21, pass 21, fail 0 (U16/U41 17 + U42 4)" },
+    { "gate": "validator (evidence mode)", "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs", "exit": 0, "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows" },
+    { "gate": "validator --git", "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --git", "exit": 0, "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows" },
+    { "gate": "validator --next", "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next", "exit": 0, "lastLine": "U89" },
+    { "gate": "jest (suites that copy the ledger and run the validator)", "command": "npx jest scripts/__tests__/roadmap-", "exit": 0, "lastLine": "Test Suites: 2 passed, 2 total; Tests: 43 passed, 43 total" },
+    { "gate": "oxlint", "command": "npx oxlint", "exit": 0, "lastLine": "Found 84 warnings and 0 errors. (84 = the U41 baseline count; 0 lines of the output name validate-roadmap)" },
+    { "gate": "openspec ci", "command": "npm run --silent qc:openspec-ci:validate", "exit": 0, "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0" },
+    { "gate": "tsc", "command": "npx tsc --noEmit", "exit": 0, "lastLine": "(no output; 51 s)" }
+  ],
+  "mutantMethod": "each mutant is a single string replacement in validate-roadmap.mjs (saved copy restored after each, sha256 compared with the saved df40a6de...); M3 edits a temporary copy of the planning directory, never the real ledger",
+  "mutants": [
+    { "id": "M1", "mutation": "supplement loading removed (the supplementSnapshots array replaced by [])", "nodeTest": { "exit": 1, "tests": 21, "pass": 17, "fail": 4, "failing": ["18", "19", "20", "21"] }, "ledger": { "exit": 1, "output": "ROADMAP VALIDATION FAILED (4 issues): PK-6-2b-single-player-seat references unknown task key ...#6.2@106, ...#6.3@108, ...#6.4@110; PK-1-6-navigation-flush-letter references unknown task key ...#1.6@30" }, "killed": true, "restoredSha256": "df40a6deb9d9b7ba287d5b5a07cdc132bf75f122feb3f060c85e5cb223379bc3", "restoredMatchesSaved": true },
+    { "id": "M2", "mutation": "duplicate-key refusal removed", "nodeTest": { "exit": 1, "tests": 21, "pass": 20, "fail": 1, "failing": ["20 - a supplement repeating a snapshot occurrence is refused (the colliding fixture is accepted again)"] }, "ledger": { "exit": 0, "output": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows (the real supplement has no collision)" }, "killed": true, "restoredSha256": "df40a6deb9d9b7ba287d5b5a07cdc132bf75f122feb3f060c85e5cb223379bc3", "restoredMatchesSaved": true },
+    { "id": "M3", "mutation": "ledger copy: 6.3@108 removed from PK-6-2b-single-player-seat taskKeys (validator unmutated)", "ledger": { "exit": 1, "output": "ROADMAP VALIDATION FAILED (1 issue) - activated package design-campaign-authority-and-sync leaves design-campaign-authority-and-sync#6.3@108 open and unheld" }, "killed": true, "validatorSha256": "df40a6deb9d9b7ba287d5b5a07cdc132bf75f122feb3f060c85e5cb223379bc3" },
+    { "id": "M4", "mutation": "supplement activation removed (activatedPackages starts empty)", "nodeTest": { "exit": 1, "tests": 21, "pass": 20, "fail": 1, "failing": ["18 - a listed supplement with no holders fails, naming each open supplemented row and not the checked 6.1"] }, "ledger": { "exit": 0, "output": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows" }, "killed": true, "restoredSha256": "df40a6deb9d9b7ba287d5b5a07cdc132bf75f122feb3f060c85e5cb223379bc3", "restoredMatchesSaved": true },
+    { "id": "M5", "mutation": "sha256 check disabled", "nodeTest": { "exit": 1, "tests": 21, "pass": 20, "fail": 1, "failing": ["21 - a supplement whose bytes differ from the recorded sha256 is refused"] }, "ledger": { "exit": 0, "output": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows" }, "killed": true, "restoredSha256": "df40a6deb9d9b7ba287d5b5a07cdc132bf75f122feb3f060c85e5cb223379bc3", "restoredMatchesSaved": true }
+  ],
+  "decision1_6": {
+    "holder": "PK-1-6-navigation-flush-letter",
+    "why": "UNVERIFIED from the letter alone: tasks.md:30 names the loss as 'up to 2s of mutations are discarded on hard reload or close' (hard reload is a navigation-shaped discard); its NON-CLAIMS say a browser that 'FIRES the event, accepts the keepalive request and then declines to dispatch it because the document is leaving via a NAVIGATION rather than a close' still loses the window; its ACCEPTANCE names only jsdom jest suites; its progress note (tasks.md:31) keeps the box OPEN on the 'hard reload' half",
+    "nonClaim": "OD-flush-mechanism nonClaim20260922 (roadmap.json:15704): the keepalive fetch on pagehide can be aborted before dispatch on a navigation (0/15 about:blank navigation-discard, 1/2 same-origin navigation; evidence/r2-client-discard-flush-diagnosis-20260915.json)"
+  },
+  "nonClaims": [
+    "no build, no Playwright, no --github run; no npm install, ci, prune or lifecycle",
+    "no tasks.md row ticked or edited; roadmap.json, admission-snapshot.json and README.md untouched",
+    "U42's own stageReceipts and state in units.json are not updated here (the parent folds receipts)",
+    "the tick check (validate-roadmap.mjs tick receipt block) is not exercised on a supplement row: no unit can hold one today (see findings)",
+    "the supplement's sha256 check is exact bytes; the repository's .gitattributes (* text=auto eol=lf) keeps the JSON LF on checkout, measured only for this worktree",
+    "whether 1.6's letter names a navigation-flush scenario is not decided here; it is the owner question of PK-1-6-navigation-flush-letter"
+  ],
+  "findings": [
+    "The ledger sentence cites 'tasks.md:30, 106, 108, 110' for five rows; 6.1 is at tasks.md:104 and is checked ('- [x] 6.1'), so it needs no holder and the red names four rows, not five",
+    "A unit cannot hold a supplement row: validate-roadmap.mjs's 'holds <key>, which is not a task key of <node>' check reads roadmap.json node taskKeys, which the node-assignment check pins to roadmap.json tasks; ticking 1.6 or 6.2-6.4 through a unit tick receipt needs a follow-up that gives the supplement keys a node (a roadmap.json edit, outside U42's file list)",
+    "No unit held a design-campaign-authority-and-sync key, so the package was not activated; loading alone would not have made the rows red. The supplement now activates the packages it names (holdersRule sentence and validator)",
+    "PK-6-2b-single-player-seat carries decision (b) (2026-09-22T22:15:03Z) and ruling null; the ledger sentence calls it owner-gated, but no unit's ownerGate names it (U61 names it in its 'packet' field)",
+    "U61's spec delta amends 6.2's letter; after it the frozen supplement text of 6.2@106 would no longer match the live row, so a later tick needs a new supplement occurrence (not an edit of this one)",
+    "README.md:6 ('376 task occurrences') is now a stale human overview; no check reads it",
+    "origin/main moved past the baseline (892369e67, #2017: units.json +39, roadmap.json +17/-1); the parent re-applies the units.json edits on the moved main"
+  ],
+  "reviewClasses": ["routine"]
+}
