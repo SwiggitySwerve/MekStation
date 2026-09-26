@@ -304,6 +304,15 @@ describe('co-op host mutation persistence', () => {
     });
     await flushAsyncHandlers();
     guestSocket.sent.length = 0;
+    // The host socket's frames reach the transport's frame handlers, as the
+    // real transport delivers them: the host day advance waits for the
+    // CampaignDayAdvanced frame before it saves (U96).
+    const frameHandlers = new Set<(message: IServerMessage) => void>();
+    const hostSend = hostSocket.send.bind(hostSocket);
+    hostSocket.send = (data: string) => {
+      hostSend(data);
+      frameHandlers.forEach((handler) => handler(JSON.parse(data)));
+    };
 
     const transport = {
       matchId: MATCH_ID,
@@ -321,7 +330,10 @@ describe('co-op host mutation persistence', () => {
           intent,
         });
       },
-      onFrame: jest.fn(() => () => undefined),
+      onFrame: (handler: (message: IServerMessage) => void) => {
+        frameHandlers.add(handler);
+        return () => frameHandlers.delete(handler);
+      },
       onError: jest.fn(() => () => undefined),
       close: jest.fn(),
       lastSeq: jest.fn(() => -1),

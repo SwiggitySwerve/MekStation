@@ -8,6 +8,15 @@
  *          record at its incremented `version`. A journal-native save or
  *          a create under journal authority commits the row with a journal
  *          snapshot in one transaction (`campaignRecordJournalSave`).
+ *          While a live co-op host holds the campaign (an entry of the
+ *          shared `CampaignHostRegistry` whose host is not closed), only
+ *          the host's own save is taken - its envelope's co-op session is
+ *          the live match in the host role: it saves as above under that
+ *          host's single-writer lock, and the host folds and publishes the
+ *          checkpoint it appended. Any other PUT is refused `409` with
+ *          reason `live-coop-session` and the live `matchId`, in the
+ *          conflict shape with the stored record (the blocked shape when no
+ *          record is readable), and writes nothing.
  * DELETE — removes the server record; `204`. Idempotent.
  *
  * Spec scenarios this satisfies:
@@ -34,6 +43,7 @@ import { resolveCampaignAuthorityFromStores } from '@/lib/campaign/authority/res
 import { isCampaignJournalAuthorityEnabled } from '@/lib/campaign/sync/campaignJournalAuthorityEnabled';
 import { EXPECTED_HEAD_RESYNC_ACTION } from '@/lib/events/journal/EventHistoryExpectedHead';
 import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
+import { getCampaignHostRegistry } from '@/lib/multiplayer/server/CampaignHostRegistry';
 import {
   initializeApiDatabase as initCampaignDb,
   rejectMissingQueryString as readCampaignId,
@@ -54,12 +64,17 @@ import { getSQLiteService } from '@/services/persistence/SQLiteService';
  */
 type ConflictResponse = {
   kind: 'conflict';
-  reason: 'base-state-unavailable';
+  reason: 'base-state-unavailable' | typeof LIVE_COOP_SESSION_REASON;
   recoveryAction: typeof EXPECTED_HEAD_RESYNC_ACTION;
   conflictingFields: readonly string[];
   currentVersion: number;
   current: SerializedCampaign;
+  /** The live co-op session that refused the write (live-coop-session). */
+  matchId?: string;
 };
+
+/** Why a PUT is refused while a live co-op host holds the campaign. */
+const LIVE_COOP_SESSION_REASON = 'live-coop-session';
 
 type ErrorResponse =
   | { error: string }
@@ -67,6 +82,7 @@ type ErrorResponse =
       error: string;
       kind: 'blocked';
       reason: string;
+      matchId?: string;
     }
   | {
       error: string;
@@ -111,6 +127,50 @@ function isValidPutBody(value: unknown): value is PutBody {
     typeof envelope.body === 'object' &&
     envelope.body !== null
   );
+}
+
+/**
+ * True when `envelope`'s co-op session is the host role of the live
+ * session `matchId`: what the host browser saves once its co-op match
+ * exists (a guest mirror carries mode guest and hostMatchId instead).
+ */
+function isLiveHostSave(
+  envelope: SerializedCampaign,
+  matchId: string,
+): boolean {
+  const coop = envelope.body.coopSession;
+  return coop?.mode === 'host' && coop.matchId === matchId;
+}
+
+/**
+ * Answers 409 for a PUT the live co-op session `matchId` does not own:
+ * the conflict shape with the stored record as `current`, or the blocked
+ * shape when the stored record is not readable. Writes nothing.
+ */
+function refuseForLiveSession(
+  res: NextApiResponse<ConflictResponse | ErrorResponse>,
+  id: string,
+  matchId: string,
+): void {
+  const stored = readCampaign(id);
+  if (stored.kind !== 'ok') {
+    res.status(409).json({
+      error: 'campaign is held by a live co-op session',
+      kind: 'blocked',
+      reason: LIVE_COOP_SESSION_REASON,
+      matchId,
+    });
+    return;
+  }
+  res.status(409).json({
+    kind: 'conflict',
+    reason: LIVE_COOP_SESSION_REASON,
+    recoveryAction: EXPECTED_HEAD_RESYNC_ACTION,
+    conflictingFields: [],
+    currentVersion: stored.record.version,
+    current: stored.record,
+    matchId,
+  });
 }
 
 /** GET reads, PUT saves and DELETE removes one campaign record (see the header). */
@@ -193,6 +253,11 @@ export default async function handler(
         });
         return;
       }
+      const live = getCampaignHostRegistry().liveEntryFor(id);
+      if (live !== null && !isLiveHostSave(body.envelope, live.matchId)) {
+        refuseForLiveSession(res, id, live.matchId);
+        return;
+      }
 
       try {
         // Journal-native: checkpoint; a create under journal authority:
@@ -203,10 +268,10 @@ export default async function handler(
             : body.baseVersion === 0 && isCampaignJournalAuthorityEnabled()
               ? 'genesis'
               : null;
-        const result =
+        const save = async () =>
           purpose === null
             ? saveCampaign(body.envelope, body.baseVersion)
-            : await saveCampaignRecordThroughJournal(
+            : saveCampaignRecordThroughJournal(
                 new SQLiteEventJournal(getSQLiteService().getDatabase(), () =>
                   new Date().toISOString(),
                 ),
@@ -218,6 +283,11 @@ export default async function handler(
                   occurredAt: new Date().toISOString(),
                 },
               );
+        // The live host's own save runs under its lock and is adopted.
+        const result =
+          live === null
+            ? await save()
+            : await live.host.adoptSavedCheckpoint(save);
         if (result.kind === 'invalid-campaign-projection') {
           // Refused before the row or the snapshot was written.
           res.status(500).json({
