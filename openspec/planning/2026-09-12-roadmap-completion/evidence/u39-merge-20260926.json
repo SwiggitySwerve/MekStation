@@ -1,0 +1,22 @@
+{
+  "unit": "U39",
+  "stage": "merge",
+  "at": "2026-09-26T07:56:54.034Z",
+  "pr": 1990,
+  "title": "chore(qc): shell-free, fail-closed main-proof execution (U39)",
+  "head": "743e6fd49ac6ca93f4b7f721f6d740c1240cf106",
+  "mergeSha": "c87969a607c7ef5d22cff78dc270a960375112a4",
+  "mergedAt": "2026-09-26T07:12:42Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+    "scripts/__tests__/roadmap-loop-scripts.test.ts",
+    "scripts/__tests__/validate-exact-main-regression-ladder.test.ts",
+    "scripts/qc/roadmap-main-proof.mjs",
+    "scripts/qc/validate-exact-main-regression-ladder.mjs"
+  ],
+  "blobEqualityDiffLines": 0
+}
