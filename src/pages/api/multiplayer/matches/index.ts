@@ -261,9 +261,9 @@ async function commitCoopCampaignAuthority(
     sessionId: matchId,
     gmParticipantId: hostPlayerId,
     // The creation checkpoint skips its genesis-branch step when this is
-    // false, so the fixture arm must reach it here as well as on the
-    // campaign PUT route, or a journal-native campaign creates a match
-    // with no genesis branch to recover.
+    // false. The resolver answers the production constant, true with no
+    // override, so the step runs and a campaign with no genesis marker
+    // fails the checkpoint.
     journalAuthorityEnabled: isCampaignJournalAuthorityEnabled(),
     committedAt: new Date().toISOString(),
   });

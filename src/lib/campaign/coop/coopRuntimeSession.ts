@@ -96,8 +96,8 @@ export async function openCoopRuntimeSession(
   const host = new CampaignMatchHost({
     campaignId: campaign.id,
     hostPlayerId: options.hostPlayerId ?? 'host',
-    // The cutover-flag factory (task 5.1): identical in-memory behavior
-    // until CAMPAIGN_JOURNAL_AUTHORITY_ENABLED turns on with task 5.2.
+    // The cutover-flag factory, called with no journal factory: it returns
+    // the in-memory store whatever CAMPAIGN_JOURNAL_AUTHORITY_ENABLED holds.
     eventStore: createDefaultCampaignEventStore(),
     initialState: buildCampaignAuthoritativeState(campaign),
   });
