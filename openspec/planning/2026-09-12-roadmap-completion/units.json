@@ -3384,10 +3384,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "738e5466fd934d01e8dfeb61f9faf15d7a291fa1",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "aa1b6b9ea6aa7220c2757c29ed3451281412cc5b",
+      "mergeSha": "edd6b427de29e878b06f2cbd7969ad87bc708bbc",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u40-admission-20260926.json",
@@ -3404,12 +3404,33 @@
         "local": {
           "path": "evidence/u40-local-20260926.json",
           "at": "2026-09-26T15:25:15.723Z",
-          "summary": "7 source files, product 242 lines (gm-two-player-campaign-core.cjs +60/-7: buildRunPlan sets HOSTNAME 127.0.0.1 for every run, runPlan waits for the owned MEKSTATION_E2E_PORT, resolves its owner PID and prints GM2P_SERVER port=<n> pid=<n>, throwing MachineSnapshotError SNAPSHOT_UNAVAILABLE after the child exits when the enumeration tool is missing; machine-idle.mjs +38: listeningPortOwner(port) via Get-NetTCPConnection or lsof, exactly one PID or throw; lint-units.mjs +93/-26: DEFAULT_PATHS e2e, scripts, src/pages/api and the src test files through lint-units-src-tests.ignore passed relative (oxlint 1.43.0 anchors it; absolute lints 2670 of 3203 files), a LINT_UNITS_PATH line per path, zero-file paths fail from number_of_files, each perPath ceiling enforced with the total; lint-units.ceiling.json measured on the baseline: e2e 194 files 50 findings, scripts 186/50, src/pages/api 97/16, src-tests 3203/17782 (17552 no-unused-vars), total 17898, with a note that they are ceilings not pins), tests +216/-2; the jest ratchet row runs the real lint:units (under 1 s) and holds every path and the total at or under its ceiling, a zero-file path failing, a lowered ceiling failing; jest scripts 80 suites 1259 passed 10 skipped; src/__tests__/unit/evidence 18; LINT_UNITS_PASS 17898/17898; tsc 0; oxlint 84 warnings 0 errors; oxfmt clean on 6 files; qc:openspec-ci errors=0; validator PASSED; mutants: HOSTNAME line removed (3 rows fail), resolver returns the runner's own pid (ownership row fails), zero-files check removed (both empty-path rows print PASS), e2e ceiling lowered to 49 (the ratchet row and lint:units fail naming e2e), each restored with sha256 confirmed; the parent had the equality pin on measured counts replaced by the ratchet mid-stage (FN-u40-ratchet-pin-forces-ratchet-down resolved; receipt revision 2 records revision 1's sha256); NON-CLAIMS: no Playwright, build or server start (a real group printing the Next server's PID and a 127.0.0.1-bound server answering the localhost baseURL not measured here), the lsof branch not executed, a relaunched server not announced again, pr-checks.yml outside the paths so lint:units runs in no CI job, a raised ceiling passes by design; implementer claude-opus (Agent model: opus, lean-worker); status ready"
+          "summary": "7 source files, product 242 lines (gm-two-player-campaign-core.cjs +60/-7: buildRunPlan sets HOSTNAME 127.0.0.1 for every run, runPlan waits for the owned MEKSTATION_E2E_PORT, resolves its owner PID and prints GM2P_SERVER port=<n> pid=<n>, throwing MachineSnapshotError SNAPSHOT_UNAVAILABLE after the child exits when the enumeration tool is missing; machine-idle.mjs +38: listeningPortOwner(port) via Get-NetTCPConnection or lsof, exactly one PID or throw; lint-units.mjs +93/-26: DEFAULT_PATHS e2e, scripts, src/pages/api and the src test files through lint-units-src-tests.ignore passed relative (oxlint 1.43.0 anchors it; absolute lints 2670 of 3203 files), a LINT_UNITS_PATH line per path, zero-file paths fail from number_of_files, each perPath ceiling enforced with the total; lint-units.ceiling.json measured on the baseline: e2e 194 files 50 findings, scripts 186/50, src/pages/api 97/16, src-tests 3203/17782 (17552 no-unused-vars), total 17898, with a note that they are ceilings not pins), tests +216/-2; the jest ratchet row runs the real lint:units (under 1 s) and holds every path and the total at or under its ceiling, a zero-file path failing, a lowered ceiling failing; jest scripts 80 suites 1259 passed 10 skipped; src/__tests__/unit/evidence 18; LINT_UNITS_PASS 17898/17898; tsc 0; oxlint 84 warnings 0 errors; oxfmt clean on 6 files; qc:openspec-ci errors=0; validator PASSED; mutants: HOSTNAME line removed (3 rows fail), resolver returns the runner's own pid (ownership row fails), zero-files check removed (both empty-path rows print PASS), e2e ceiling lowered to 49 (the ratchet row and lint:units fail naming e2e), each restored with sha256 confirmed; the parent had the equality pin on measured counts replaced by the ratchet mid-stage (FN-u40-ratchet-pin-forces-ratchet-down resolved; receipt revision 2 records revision 1's sha256); NON-CLAIMS: no Playwright, build or server start (a real group printing the Next server's PID and a 127.0.0.1-bound server answering the localhost baseURL not measured here), the lsof branch not executed, a relaunched server not announced again, pr-checks.yml outside the paths so lint:units runs in no CI job, a raised ceiling passes by design; implementer claude-opus (Agent model: opus, lean-worker); status ready Revision 3 after the rebase onto 1f11f4055: src-tests 3205 files 17783 findings, total 17899, the comment above DEFAULT_PATHS points at the ceiling file; focused suites 113, jest scripts 1259 passed 10 skipped, lint:units 17899/17899, tsc 0."
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u40-review-20260926.json",
+          "head": "aa1b6b9ea6aa7220c2757c29ed3451281412cc5b",
+          "reviewedHead": "aa1b6b9ea6aa7220c2757c29ed3451281412cc5b",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet, lean-worker)",
+          "implementerModel": "claude-opus (Agent model: opus)",
+          "outputSha256": "4b5e804c58e5a2f0fa0ec85f866a39df764392c6cb5cd56d4a059cd4ca342b70",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u40-merge-20260926.json",
+          "pr": 2003,
+          "head": "aa1b6b9ea6aa7220c2757c29ed3451281412cc5b",
+          "mergeSha": "edd6b427de29e878b06f2cbd7969ad87bc708bbc"
+        },
+        "mainProof": {
+          "path": "evidence/u40-mainproof-20260926.json",
+          "mergeCommit": "edd6b427de29e878b06f2cbd7969ad87bc708bbc",
+          "verdict": "PASS",
+          "runtime": "U40 PROOF RUNTIME PASSED: 1279 passed (jest 1277, 0 failed, exit 0; runner line: GM2P_SERVER port=27487 pid=22744; lifecycle-pack 2, 0 failed, exit 0)"
+        },
+        "tick": {
+          "path": "evidence/u40-tick-20260926.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "source20260922": "planned by the parent from the 2026-09-22 triage plan (newUnits; evidence/triage-plan-20260922.json (179 register issues verified against main a9244fcad)) under the owner instruction of 2026-09-22 (\"ultracode find everything that is marked and if there are issues go with recommended path to solution based on the goal\")",
@@ -3422,6 +3443,12 @@
       "admissionNote20260926": {
         "at": "2026-09-26T16:33:48.000Z",
         "note": "--next printed U89, which overlaps the in-flight U96's server path; the parent chose U40 (file-disjoint, routine). Admission GO: HOSTNAME reaches server.js through four spreads (core.cjs:310, run-playwright, Playwright's webServer plugin spreading process.env first, server.js:73-77); takeSnapshot has no port column, so listeningPortOwner is the least addition inside scripts/qc; the ceiling file's perPath block was decorative on the baseline. Mid-stage the parent replaced the equality pin on measured counts with a ratchet (at or under), because jest scripts runs in CI's unit shard and an equality pin would have turned every test-touching PR red without a ceiling bump."
+      },
+      "rebasedBeforeMerge20260926": {
+        "at": "2026-09-26T17:07:17.000Z",
+        "from": "e344c2db942e5dc5267658bb89e82c3011136a2c on base 738e5466f",
+        "to": "aa1b6b9ea6aa7220c2757c29ed3451281412cc5b on base 1f11f4055 (carries U96)",
+        "why": "Lane A's required edit: U96's two test files pushed src-tests to 17783 findings over the 17782 ceiling measured on the old base; the lane re-measured on the rebased head (ceiling 17899, src-tests 17783, measuredAt 1f11f4055) and the parent reworded the DEFAULT_PATHS comment to carry no counts; the local receipt is revision 3"
       }
     },
     {
@@ -10662,6 +10689,33 @@
       "summary": "The first version of the jest row required each path's findings to equal its ceiling, so any change removing findings had to lower the ceiling in the same change or jest scripts (CI's unit shard) failed; two in-flight PRs with different counts would have collided. Replaced by the at-or-under ratchet before the PR.",
       "recommendedSuccessor": "none",
       "status": "resolved in U40"
+    },
+    {
+      "id": "FN-u96-one-new-src-test-finding",
+      "foundBy": "U40 implementer lane (claude-opus, lean-worker), 2026-09-26 (measured with lint:units on the rebased head)",
+      "at": "2026-09-26T17:07:17.000Z",
+      "class": "test hygiene in U96's file",
+      "summary": "src/stores/campaign/__tests__/useCampaignStore.coopDayAdvanceOrder.test.ts:195 calls useCampaignStore inside a helper (advanceOnce), a rules-of-hooks finding; it is the one src-test finding U96 added (17782 to 17783). campaignPutLiveHost.test.ts adds none. Lane A's delta review measured it a false positive: useCampaignStore is a plain memoized singleton accessor (useCampaignStore.ts:171-183) that calls no React hook.",
+      "recommendedSuccessor": "none needed for correctness; a lint allowance or a rename would lower the ceiling",
+      "status": "recorded; false positive, held by the ceiling"
+    },
+    {
+      "id": "FN-u40-probe-file-in-src-removed",
+      "foundBy": "U40 implementer lane (claude-opus, lean-worker), 2026-09-26 (self-reported)",
+      "at": "2026-09-26T17:07:17.000Z",
+      "class": "lane process",
+      "summary": "While locating U96's new finding the lane copied a scratch probe to src/__tests__/integration/__u40probe_old.test.ts and deleted it in the next command, before any lint or test ran; git status showed only the ceiling file afterwards.",
+      "recommendedSuccessor": "none",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u40-default-paths-comment-stale",
+      "foundBy": "U40 implementer lane (claude-opus, lean-worker), 2026-09-26",
+      "at": "2026-09-26T17:07:17.000Z",
+      "class": "comment drift, resolved",
+      "summary": "The comment above DEFAULT_PATHS carried the measured counts and base sha and went stale at the first re-measure; the parent reworded it to point at the ceiling file, which carries measuredAt.",
+      "recommendedSuccessor": "none",
+      "status": "resolved in U40's second commit"
     }
   ]
 }

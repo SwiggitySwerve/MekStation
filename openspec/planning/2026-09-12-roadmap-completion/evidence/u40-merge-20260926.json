@@ -1,0 +1,24 @@
+{
+  "unit": "U40",
+  "stage": "merge",
+  "at": "2026-09-26T17:07:16.768Z",
+  "pr": 2003,
+  "title": "chore(qc): the ladder runner pins HOSTNAME and prints port and PID; lint:units per-path ceilings (U40)",
+  "head": "aa1b6b9ea6aa7220c2757c29ed3451281412cc5b",
+  "mergeSha": "edd6b427de29e878b06f2cbd7969ad87bc708bbc",
+  "mergedAt": "2026-09-26T16:55:12Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+    "scripts/__tests__/lint-units.test.ts",
+    "scripts/qc/gm-two-player-campaign-core.cjs",
+    "scripts/qc/lint-units-src-tests.ignore",
+    "scripts/qc/lint-units.ceiling.json",
+    "scripts/qc/lint-units.mjs",
+    "scripts/qc/machine-idle.mjs"
+  ],
+  "blobEqualityDiffLines": 0
+}
