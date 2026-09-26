@@ -1,0 +1,703 @@
+{
+  "unit": "U58",
+  "stage": "local",
+  "at": "2026-09-26T01:57:58.848Z",
+  "status": "ready",
+  "baseline": "3b1cca3a6542e53703f2ac6fa7ac43ec97ae7f98",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u58",
+  "branch": "roadmap-u58-baseline-law-predicate-20260925",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "behavior": "units.json U58 (not widened); see u58-admission-20260925.json",
+  "admissionCorrection": {
+    "what": "the admission receipt's designAnswers.twoArms names two decision points; stage 3 found a third inside the ownership path: src/lib/campaign/coop/roomCodeGuestHydration.ts genesisStateFromHostLog, which seeded a room-code guest (a ['campaign'] grant, ROOM_CODE_GUEST_GRANT_SCOPES at resolveOrIssueRoomCodeGuestGrant.ts:27-29) from the FIRST host-log CampaignSnapshotPublished of any author. Its caller is src/lib/multiplayer/server/handleRoomCodeGuestJoin.ts:323-331 (read-only; unchanged). It is part of the grant arm's consumer, so it now takes the law through campaignViewerVisibleEvents; no edit outside src/lib/campaign was needed. The admission receipt is preserved unedited.",
+    "redAddendum": {
+      "row": "composeRoomCodeGuestState > never seeds a room-code guest from an imported migration baseline",
+      "measuredOn": "roomCodeGuestHydration.ts restored to its baseline blob (git diff --quiet confirmed) for the run, then the fixed copy restored and its sha256 re-matched (0e538c30...)",
+      "command": "npx jest --verbose src/lib/campaign/coop/__tests__/roomCodeGuestHydration.test.ts",
+      "exitCode": 1,
+      "counts": [
+        "Test Suites: 1 failed, 1 total",
+        "Tests:       1 failed, 5 passed, 6 total"
+      ],
+      "failure": "Expected value: not \"pilot-in-the-imported-campaign\" | Received array:     [\"pilot-in-the-imported-campaign\"]",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u58/logs/red-hydration.log",
+        "sha256": "4e98887d499adacea9d95da54fa3bada92e329cc97b9fb00d5ab4b17fba15121"
+      }
+    }
+  },
+  "changedFiles": [
+    {
+      "path": "src/lib/campaign/authority/campaignAuthorityMigration.ts",
+      "added": 4,
+      "deleted": 1,
+      "test": false
+    },
+    {
+      "path": "src/lib/campaign/coop/__tests__/roomCodeGuestHydration.test.ts",
+      "added": 58,
+      "deleted": 1,
+      "test": true
+    },
+    {
+      "path": "src/lib/campaign/coop/roomCodeGuestHydration.ts",
+      "added": 22,
+      "deleted": 12,
+      "test": false
+    },
+    {
+      "path": "src/lib/campaign/delivery/__tests__/campaignDelivery.nonInference.test.ts",
+      "added": 1,
+      "deleted": 1,
+      "test": true
+    },
+    {
+      "path": "src/lib/campaign/delivery/__tests__/campaignGenesisArmParity.test.ts",
+      "added": 201,
+      "deleted": 78,
+      "test": true
+    },
+    {
+      "path": "src/lib/campaign/delivery/__tests__/campaignGrantSnapshot.storedBaselineLeak.test.ts",
+      "added": 15,
+      "deleted": 13,
+      "test": true
+    },
+    {
+      "path": "src/lib/campaign/delivery/__tests__/projectCampaignStreamForGrant.test.ts",
+      "added": 86,
+      "deleted": 2,
+      "test": true
+    },
+    {
+      "path": "src/lib/campaign/delivery/campaignDeliveryTypes.ts",
+      "added": 6,
+      "deleted": 1,
+      "test": false
+    },
+    {
+      "path": "src/lib/campaign/delivery/projectCampaignStreamForGrant.ts",
+      "added": 23,
+      "deleted": 16,
+      "test": false
+    },
+    {
+      "path": "src/lib/campaign/grants/campaignGrantGuards.ts",
+      "added": 0,
+      "deleted": 17,
+      "test": false
+    },
+    {
+      "path": "src/lib/campaign/sync/__tests__/campaignViewerProjection.test.ts",
+      "added": 100,
+      "deleted": 0,
+      "test": true
+    },
+    {
+      "path": "src/lib/campaign/sync/campaignViewerProjection.ts",
+      "added": 51,
+      "deleted": 25,
+      "test": false
+    }
+  ],
+  "lineCounts": {
+    "product": {
+      "files": 6,
+      "added": 106,
+      "deleted": 72,
+      "changedLines": 178
+    },
+    "test": {
+      "files": 6,
+      "added": 461,
+      "deleted": 95,
+      "changedLines": 556
+    },
+    "totalFiles": 12,
+    "caps": {
+      "maxFiles": 15,
+      "maxNonGeneratedProductLines": 500
+    },
+    "withinCaps": true
+  },
+  "finalContentSha256": {
+    "src/lib/campaign/authority/campaignAuthorityMigration.ts": "9f58bb9cbd1bb25ed0c00d7b9caf7191a0fa4cfa6629a7cda5aab8e0b90750be",
+    "src/lib/campaign/coop/__tests__/roomCodeGuestHydration.test.ts": "b63674342e077810664516e1391fde165efeef9233cafdee9564553571d443ab",
+    "src/lib/campaign/coop/roomCodeGuestHydration.ts": "0e538c3040d94ac3524614519350bb002a7bf891753c1b31b55c27ca9192896e",
+    "src/lib/campaign/delivery/__tests__/campaignDelivery.nonInference.test.ts": "8ce639a6e0d44f5c9283461f6f959c0c799f02c9e9eb429de129dc4a37ec7d04",
+    "src/lib/campaign/delivery/__tests__/campaignGenesisArmParity.test.ts": "c3aae021726c8b57a070c606c04d071af5c2d7a7fbdee7e7854084e5e7c238f0",
+    "src/lib/campaign/delivery/__tests__/campaignGrantSnapshot.storedBaselineLeak.test.ts": "46cf58f54fcc5cd025eae030d417ccd1697e2ab64e47b73fe4c7f089baeea77c",
+    "src/lib/campaign/delivery/__tests__/projectCampaignStreamForGrant.test.ts": "676abd3f031041a35eac24e55ff9380d60efc6e469fa2dfa3e7fc504629b3330",
+    "src/lib/campaign/delivery/campaignDeliveryTypes.ts": "c883c1133a77836efe9ffef342157a29e5b29fc09f3881edcc90e167e9ba4d66",
+    "src/lib/campaign/delivery/projectCampaignStreamForGrant.ts": "ffa33650975c7f0428b1a0ce3773969481b6e2ba11517282079ca773edf39dfc",
+    "src/lib/campaign/grants/campaignGrantGuards.ts": "d0e1244c8113be292169909ebf3ff3402cf350a47d13379941c7ca25b9b7c62c",
+    "src/lib/campaign/sync/__tests__/campaignViewerProjection.test.ts": "6e0315be9649fcfc4a29760fdd3595d0daa860b678e86700f733fa26164ef22e",
+    "src/lib/campaign/sync/campaignViewerProjection.ts": "a56dbb4aff0df47e074acdc55f052585e3eace59388654583d2f9200751ac878"
+  },
+  "gates": [
+    {
+      "id": "jest-campaign",
+      "command": "npx jest src/lib/campaign",
+      "lastLine": "Tests:       2998 passed, 2998 total",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u58/logs/local-jest-campaign.log",
+        "sha256": "3291c0c6eccc505d12187644ccde0f9abd47d35262a5b6db746f3cca01779091"
+      },
+      "counts": [
+        "Test Suites: 204 passed, 204 total",
+        "Tests:       2998 passed, 2998 total"
+      ],
+      "preceededBy": "node scripts/qc/machine-idle.mjs --wait --timeout-ms 1800000 -> MACHINE_IDLE"
+    },
+    {
+      "id": "jest-multiplayer-server",
+      "command": "npx jest src/lib/multiplayer/server",
+      "lastLine": "Tests:       1178 passed, 1178 total",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u58/logs/local-jest-mpserver.log",
+        "sha256": "5293e521d64d17fd6371702c375937559846067b93d06738d97d8660330e999f"
+      },
+      "counts": [
+        "Test Suites: 160 passed, 160 total",
+        "Tests:       1178 passed, 1178 total"
+      ],
+      "preceededBy": "MACHINE_IDLE"
+    },
+    {
+      "id": "jest-api-campaigns",
+      "command": "npx jest src/__tests__/api/campaigns",
+      "lastLine": "Tests:       110 passed, 110 total",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u58/logs/local-jest-api-campaigns.log",
+        "sha256": "c3458fb49b460c0644d25b571bb9d0186c985f151a8d01caf942a8024cd7edbc"
+      },
+      "counts": [
+        "Test Suites: 15 passed, 15 total",
+        "Tests:       110 passed, 110 total"
+      ],
+      "preceededBy": "MACHINE_IDLE"
+    },
+    {
+      "id": "jest-activity-feed-consumer",
+      "command": "npx jest src/__tests__/pages/gameplay/campaigns/activity-feed-cutover.test.tsx",
+      "lastLine": "Tests:       8 passed, 8 total",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u58/logs/local-jest-activity-feed.log",
+        "sha256": "406d138db706f707998d9ff710d2650040f79b142045a5cb0e8883bf781da6bc"
+      },
+      "counts": [
+        "Test Suites: 1 passed, 1 total",
+        "Tests:       8 passed, 8 total"
+      ],
+      "why": "the one test outside the three directories that imports a campaignViewerVisibleEvents consumer"
+    },
+    {
+      "id": "jest-u58-rows",
+      "command": "npx jest --verbose <the six suites carrying the u58 rows>",
+      "lastLine": "Tests:       43 passed, 43 total",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u58/logs/local-green-rows.log",
+        "sha256": "9447ac7eace48ec3c36748dda26ed083f94d633bd766ef0c7583a27d8e799a87"
+      },
+      "counts": [
+        "Test Suites: 6 passed, 6 total",
+        "Tests:       43 passed, 43 total"
+      ]
+    },
+    {
+      "id": "tsc",
+      "command": "npx tsc --noEmit",
+      "lastLine": "(no output)",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u58/logs/local-tsc.log",
+        "sha256": "19eaf43821a7660ec323a87c8457bf74823beb296c39f5e01aa8a683aa50f061"
+      },
+      "note": "an earlier run exited 2 on a test-only type error in the new hydration row (TS2322, a spread of a union-typed fixture); fixed and re-run to exit 0; the failed log was overwritten by the re-run"
+    },
+    {
+      "id": "oxlint",
+      "command": "npx oxlint",
+      "lastLine": "Found 84 warnings and 0 errors.",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u58/logs/local-oxlint.log",
+        "sha256": "2cf82926bba2a6e82e2736f28cf2786cdb587ed64f5e1d84bd4bfc6bcd37e14a"
+      }
+    },
+    {
+      "id": "oxfmt",
+      "command": "npx oxfmt --check <the 12 changed files>",
+      "lastLine": "All matched files use the correct format.",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u58/logs/local-oxfmt.log",
+        "sha256": "771da98dbcf2a4b24ad3ae2742a92905e13b14cb197130d024b4cfcf2e2aadd6"
+      }
+    },
+    {
+      "id": "lint-units",
+      "command": "npm run lint:units",
+      "lastLine": "LINT_UNITS_PASS 100/100",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u58/logs/local-lint-units.log",
+        "sha256": "c06504796b3420c0a8315439709a8398e009646ac40db39f312a4d7b4735702d"
+      }
+    },
+    {
+      "id": "openspec-ci",
+      "command": "npm run qc:openspec-ci:validate",
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u58/logs/local-openspec-ci.log",
+        "sha256": "f48d24250c83fb8aab7eb3dfa985170545e425403247074a986db36cb479acd7"
+      }
+    },
+    {
+      "id": "roadmap-validator",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u58/logs/local-validator.log",
+        "sha256": "cd9e20f81bd1bfc7565f1c50d9f7ff16bb85d1b0e6eca37f6ae289413ab3fa19"
+      }
+    }
+  ],
+  "oxlintWarningsVsPin": {
+    "measured": 84,
+    "pin": 84,
+    "inChangedFiles": 0
+  },
+  "rowTable": [
+    {
+      "suite": "campaignGenesisArmParity",
+      "row": "the same player gets the same state digest from both arms",
+      "before": "fail",
+      "after": "pass"
+    },
+    {
+      "suite": "campaignGenesisArmParity",
+      "row": "the grant arm folds the opening ledger into the same player baseline",
+      "before": "fail",
+      "after": "pass"
+    },
+    {
+      "suite": "campaignGenesisArmParity",
+      "row": "the migration baseline reaches the restricted player through neither arm",
+      "before": "fail",
+      "after": "pass"
+    },
+    {
+      "suite": "campaignGenesisArmParity",
+      "row": "a later full-state checkpoint does not reach the restricted player either",
+      "before": "fail",
+      "after": "pass"
+    },
+    {
+      "suite": "campaignGenesisArmParity",
+      "row": "the legacy arm folds the opening ledger into the player baseline",
+      "before": "pass",
+      "after": "pass"
+    },
+    {
+      "suite": "campaignGenesisArmParity",
+      "row": "the migration baseline still reaches the GM through both arms",
+      "before": "pass",
+      "after": "pass"
+    },
+    {
+      "suite": "campaignGenesisArmParity",
+      "row": "both arms withhold the gm-scoped fact from the same player",
+      "before": "pass",
+      "after": "pass"
+    },
+    {
+      "suite": "roomCodeGuestHydration",
+      "row": "never seeds a room-code guest from an imported migration baseline",
+      "before": "fail",
+      "after": "pass"
+    },
+    {
+      "suite": "roomCodeGuestHydration",
+      "row": "keeps genesis funds from the host-log seed alone",
+      "before": "pass",
+      "after": "pass"
+    },
+    {
+      "suite": "campaignViewerProjection",
+      "row": "never admits a migration-authored baseline to a restricted viewer",
+      "before": "not-run-on-baseline (added in stage 3; pinned by the mutants)",
+      "after": "pass"
+    },
+    {
+      "suite": "campaignViewerProjection",
+      "row": "admits a genesis baseline to a restricted viewer while nothing is withheld",
+      "before": "not-run-on-baseline (added in stage 3; pinned by the mutants)",
+      "after": "pass"
+    },
+    {
+      "suite": "campaignViewerProjection",
+      "row": "refuses a non-migration baseline once something was withheld",
+      "before": "not-run-on-baseline (added in stage 3; pinned by the mutants)",
+      "after": "pass"
+    },
+    {
+      "suite": "campaignViewerProjection",
+      "row": "admits every baseline to a viewer entitled to every scope",
+      "before": "not-run-on-baseline (added in stage 3; pinned by the mutants)",
+      "after": "pass"
+    },
+    {
+      "suite": "campaignViewerProjection",
+      "row": "keys on the author, not the sequence",
+      "before": "not-run-on-baseline (added in stage 3; pinned by the mutants)",
+      "after": "pass"
+    },
+    {
+      "suite": "campaignViewerProjection",
+      "row": "the visibility set drops a migration baseline and every baseline after it",
+      "before": "not-run-on-baseline (added in stage 3; pinned by the mutants)",
+      "after": "pass"
+    },
+    {
+      "suite": "projectCampaignStreamForGrant",
+      "row": "answers stale-epoch to a cursor numbered before the shared baseline law",
+      "before": "not-run-on-baseline (added in stage 3; pinned by the mutants)",
+      "after": "pass"
+    },
+    {
+      "suite": "campaignGrantSnapshot.storedBaselineLeak",
+      "row": "is withheld from a campaign-scope grant and served to an all-scopes grant",
+      "before": "not-run-on-baseline in this form (the baseline row used a host-authored seq-0 fixture and passed under the blanket rule; the fixture is now migration-authored)",
+      "after": "pass"
+    }
+  ],
+  "mutants": [
+    {
+      "id": "M1",
+      "what": "the grant arm stops calling the predicate (every in-scope stored baseline delivered)",
+      "file": "src/lib/campaign/delivery/projectCampaignStreamForGrant.ts",
+      "line": 276,
+      "from": "      !campaignBaselineReachesViewer(event, admits, withheld)",
+      "to": "      false",
+      "preMutantSha256": "ffa33650975c7f0428b1a0ce3773969481b6e2ba11517282079ca773edf39dfc",
+      "mutatedSha256": "71efba54a04b2dc91addf721b78e641d64fa6555a920522a3b214dafb90c6e99",
+      "restoredSha256": "ffa33650975c7f0428b1a0ce3773969481b6e2ba11517282079ca773edf39dfc",
+      "restoredMatches": true,
+      "exitCode": 1,
+      "counts": [
+        "Test Suites: 2 failed, 4 passed, 6 total",
+        "Tests:       3 failed, 40 passed, 43 total"
+      ],
+      "caughtBy": [
+        "stored full-state baseline delivery › is withheld from a campaign-scope grant and served to an all-scopes grant",
+        "an imported migration baseline across the legacy and grant arms › the migration baseline reaches the restricted player through neither arm",
+        "an imported migration baseline across the legacy and grant arms › a later full-state checkpoint does not reach the restricted player either"
+      ],
+      "killed": true,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u58/logs/mutant-M1.log",
+        "sha256": "84f5ff3dc017786a00a3ea51fb16e3db7d0be1f3e7c30769c82cc47b7df3cbd8"
+      }
+    },
+    {
+      "id": "M1b",
+      "what": "the legacy arm stops calling the predicate and keeps its pre-unit latch-only law",
+      "file": "src/lib/campaign/sync/campaignViewerProjection.ts",
+      "line": 133,
+      "from": "      !campaignBaselineReachesViewer(event, admits, withheld)",
+      "to": "      withheld",
+      "preMutantSha256": "a56dbb4aff0df47e074acdc55f052585e3eace59388654583d2f9200751ac878",
+      "mutatedSha256": "ae5c6fafa36cf7c0666ad7f380a29b04a68a846afbf3f004a14f1ae866f86271",
+      "restoredSha256": "a56dbb4aff0df47e074acdc55f052585e3eace59388654583d2f9200751ac878",
+      "restoredMatches": true,
+      "exitCode": 1,
+      "counts": [
+        "Test Suites: 3 failed, 3 passed, 6 total",
+        "Tests:       4 failed, 39 passed, 43 total"
+      ],
+      "caughtBy": [
+        "campaignBaselineReachesViewer - the baseline law › the visibility set drops a migration baseline and every baseline after it",
+        "composeRoomCodeGuestState › never seeds a room-code guest from an imported migration baseline",
+        "an imported migration baseline across the legacy and grant arms › the migration baseline reaches the restricted player through neither arm",
+        "an imported migration baseline across the legacy and grant arms › a later full-state checkpoint does not reach the restricted player either"
+      ],
+      "killed": true,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u58/logs/mutant-M1b.log",
+        "sha256": "7c7c27e517c0d06cda693a9d6e9c235d95340756d570f34d8cc3ce20325fe988"
+      }
+    },
+    {
+      "id": "M2",
+      "what": "the predicate lets a migration-authored baseline through",
+      "file": "src/lib/campaign/sync/campaignViewerProjection.ts",
+      "line": 101,
+      "from": "  if (baseline.authorPlayerId === CAMPAIGN_MIGRATION_AUTHOR_ID) return false;",
+      "to": "  // mutant M2: migration check removed",
+      "preMutantSha256": "a56dbb4aff0df47e074acdc55f052585e3eace59388654583d2f9200751ac878",
+      "mutatedSha256": "55317fc6af7b111969a6fe7d44a86aa7f5e6caab117df777041a36a2221faaf6",
+      "restoredSha256": "a56dbb4aff0df47e074acdc55f052585e3eace59388654583d2f9200751ac878",
+      "restoredMatches": true,
+      "exitCode": 1,
+      "counts": [
+        "Test Suites: 4 failed, 2 passed, 6 total",
+        "Tests:       7 failed, 36 passed, 43 total"
+      ],
+      "caughtBy": [
+        "campaignBaselineReachesViewer - the baseline law › never admits a migration-authored baseline to a restricted viewer",
+        "campaignBaselineReachesViewer - the baseline law › keys on the author, not the sequence",
+        "campaignBaselineReachesViewer - the baseline law › the visibility set drops a migration baseline and every baseline after it",
+        "stored full-state baseline delivery › is withheld from a campaign-scope grant and served to an all-scopes grant",
+        "composeRoomCodeGuestState › never seeds a room-code guest from an imported migration baseline",
+        "an imported migration baseline across the legacy and grant arms › the migration baseline reaches the restricted player through neither arm",
+        "an imported migration baseline across the legacy and grant arms › a later full-state checkpoint does not reach the restricted player either"
+      ],
+      "killed": true,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u58/logs/mutant-M2.log",
+        "sha256": "48dfb9ff7c7777112a8473e79e469831ff9710a58fcc93b4c004a7fa689c9e6a"
+      }
+    },
+    {
+      "id": "M3",
+      "what": "the predicate blocks the genesis baseline (every baseline refused to a restricted viewer)",
+      "file": "src/lib/campaign/sync/campaignViewerProjection.ts",
+      "line": 102,
+      "from": "  return !withheldBefore;",
+      "to": "  return false;",
+      "preMutantSha256": "a56dbb4aff0df47e074acdc55f052585e3eace59388654583d2f9200751ac878",
+      "mutatedSha256": "3a827eff936422bb4c30456509c9f76a31214326567f2dc0b4d78f450a43087c",
+      "restoredSha256": "a56dbb4aff0df47e074acdc55f052585e3eace59388654583d2f9200751ac878",
+      "restoredMatches": true,
+      "exitCode": 1,
+      "counts": [
+        "Test Suites: 4 failed, 2 passed, 6 total",
+        "Tests:       13 failed, 30 passed, 43 total"
+      ],
+      "caughtBy": [
+        "campaignViewerVisibleEvents - the visibility set › omits a fact the viewer is not admitted to",
+        "campaignViewerVisibleEvents - the visibility set › keeps the genesis baseline, which precedes every withhold",
+        "campaignViewerVisibleEvents - the visibility set › drops a re-baseline minted after something was withheld",
+        "campaignViewerVisibleEvents - the visibility set › keeps a re-baseline minted while nothing had been withheld",
+        "campaignBaselineReachesViewer - the baseline law › admits a genesis baseline to a restricted viewer while nothing is withheld",
+        "campaignBaselineReachesViewer - the baseline law › keys on the author, not the sequence",
+        "projectCampaignForViewer - the fold of exactly that set › a withheld effect is absent from the restricted fold",
+        "composeRoomCodeGuestState › keeps genesis funds from the host-log seed alone",
+        "composeRoomCodeGuestState › folds in-scope incrementals onto genesis",
+        "composeRoomCodeGuestState › folds replica hydration items to the composed guest state",
+        "genesis baseline across the legacy and grant arms › the legacy arm folds the opening ledger into the player baseline",
+        "genesis baseline across the legacy and grant arms › the grant arm folds the opening ledger into the same player baseline",
+        "projectCampaignStreamForGrant › answers stale-epoch to a cursor numbered before the shared baseline law"
+      ],
+      "killed": true,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u58/logs/mutant-M3.log",
+        "sha256": "fc7c2f749626714d72d2ff0963348546d20b1e289f1b39ed50b9bc47c8abd960"
+      }
+    },
+    {
+      "id": "M4",
+      "what": "the predicate keys on the snapshot's sequence instead of its author",
+      "file": "src/lib/campaign/sync/campaignViewerProjection.ts",
+      "line": 101,
+      "from": "  if (baseline.authorPlayerId === CAMPAIGN_MIGRATION_AUTHOR_ID) return false;",
+      "to": "  if (baseline.sequence === 0) return false;",
+      "preMutantSha256": "a56dbb4aff0df47e074acdc55f052585e3eace59388654583d2f9200751ac878",
+      "mutatedSha256": "a43580b20c764ad9d60d70934f815c7f0507bf096cea9832f54c7a20fc5fa6b0",
+      "restoredSha256": "a56dbb4aff0df47e074acdc55f052585e3eace59388654583d2f9200751ac878",
+      "restoredMatches": true,
+      "exitCode": 1,
+      "counts": [
+        "Test Suites: 4 failed, 2 passed, 6 total",
+        "Tests:       13 failed, 30 passed, 43 total"
+      ],
+      "caughtBy": [
+        "campaignViewerVisibleEvents - the visibility set › omits a fact the viewer is not admitted to",
+        "campaignViewerVisibleEvents - the visibility set › keeps the genesis baseline, which precedes every withhold",
+        "campaignViewerVisibleEvents - the visibility set › drops a re-baseline minted after something was withheld",
+        "campaignViewerVisibleEvents - the visibility set › keeps a re-baseline minted while nothing had been withheld",
+        "campaignBaselineReachesViewer - the baseline law › admits a genesis baseline to a restricted viewer while nothing is withheld",
+        "campaignBaselineReachesViewer - the baseline law › keys on the author, not the sequence",
+        "projectCampaignForViewer - the fold of exactly that set › a withheld effect is absent from the restricted fold",
+        "composeRoomCodeGuestState › keeps genesis funds from the host-log seed alone",
+        "composeRoomCodeGuestState › folds in-scope incrementals onto genesis",
+        "composeRoomCodeGuestState › folds replica hydration items to the composed guest state",
+        "genesis baseline across the legacy and grant arms › the legacy arm folds the opening ledger into the player baseline",
+        "genesis baseline across the legacy and grant arms › the grant arm folds the opening ledger into the same player baseline",
+        "projectCampaignStreamForGrant › answers stale-epoch to a cursor numbered before the shared baseline law"
+      ],
+      "killed": true,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u58/logs/mutant-M4.log",
+        "sha256": "ae22bde57a754980e0d35cbde6659cadd2c4435d19775cad05dd93b3f16050fa"
+      }
+    },
+    {
+      "id": "M5",
+      "what": "the grant arm does not latch on a refused baseline",
+      "file": "src/lib/campaign/delivery/projectCampaignStreamForGrant.ts",
+      "line": 278,
+      "from": "      withheld = true;",
+      "to": "      // mutant M5: latch removed",
+      "preMutantSha256": "ffa33650975c7f0428b1a0ce3773969481b6e2ba11517282079ca773edf39dfc",
+      "mutatedSha256": "a4fe015505598c3d96215deb15b67da7902a34353514aa9cae9193416d25c7a3",
+      "restoredSha256": "ffa33650975c7f0428b1a0ce3773969481b6e2ba11517282079ca773edf39dfc",
+      "restoredMatches": true,
+      "exitCode": 1,
+      "counts": [
+        "Test Suites: 1 failed, 5 passed, 6 total",
+        "Tests:       1 failed, 42 passed, 43 total"
+      ],
+      "caughtBy": [
+        "an imported migration baseline across the legacy and grant arms › a later full-state checkpoint does not reach the restricted player either"
+      ],
+      "killed": true,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u58/logs/mutant-M5.log",
+        "sha256": "e99c265e16fb30b3ac6cd4f869d508bb640043005b434e8206288f9f28782c97"
+      }
+    },
+    {
+      "id": "M5b",
+      "what": "the legacy arm does not latch on a refused baseline",
+      "file": "src/lib/campaign/sync/campaignViewerProjection.ts",
+      "line": 135,
+      "from": "      withheld = true;",
+      "to": "      // mutant M5b: latch removed",
+      "preMutantSha256": "a56dbb4aff0df47e074acdc55f052585e3eace59388654583d2f9200751ac878",
+      "mutatedSha256": "c47cfb18e79b656492304222ada55bcc21b61de04b0bee5d74e1676ed611ea4b",
+      "restoredSha256": "a56dbb4aff0df47e074acdc55f052585e3eace59388654583d2f9200751ac878",
+      "restoredMatches": true,
+      "exitCode": 1,
+      "counts": [
+        "Test Suites: 2 failed, 4 passed, 6 total",
+        "Tests:       2 failed, 41 passed, 43 total"
+      ],
+      "caughtBy": [
+        "campaignBaselineReachesViewer - the baseline law › the visibility set drops a migration baseline and every baseline after it",
+        "an imported migration baseline across the legacy and grant arms › a later full-state checkpoint does not reach the restricted player either"
+      ],
+      "killed": true,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u58/logs/mutant-M5b.log",
+        "sha256": "82d5f6ee8f7b392b42a3f59106e63bef343f2dc0049746eb4d3bdf010fe2da57"
+      }
+    },
+    {
+      "id": "M7",
+      "what": "the room-code guest hydration seed stops applying the law (first host-log snapshot, any author)",
+      "file": "src/lib/campaign/coop/roomCodeGuestHydration.ts",
+      "line": 59,
+      "from": "  for (const event of visible) {",
+      "to": "  for (const event of hostEvents) {",
+      "preMutantSha256": "0e538c3040d94ac3524614519350bb002a7bf891753c1b31b55c27ca9192896e",
+      "mutatedSha256": "10012c92fc90e5b7ffbc284194cc0b47363c190d60dd74c1e1074ee57488b7f9",
+      "restoredSha256": "0e538c3040d94ac3524614519350bb002a7bf891753c1b31b55c27ca9192896e",
+      "restoredMatches": true,
+      "exitCode": 1,
+      "counts": [
+        "Test Suites: 1 failed, 5 passed, 6 total",
+        "Tests:       1 failed, 42 passed, 43 total"
+      ],
+      "caughtBy": [
+        "composeRoomCodeGuestState › never seeds a room-code guest from an imported migration baseline"
+      ],
+      "killed": true,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u58/logs/mutant-M7.log",
+        "sha256": "2e45ff06afb0b1a96005246d24c1971f1b71f26091425249f681f33a1157c9e5"
+      }
+    },
+    {
+      "id": "M6",
+      "what": "the projector version is not bumped (stays 1)",
+      "file": "src/lib/campaign/delivery/campaignDeliveryTypes.ts",
+      "line": 35,
+      "from": "export const CAMPAIGN_GRANT_PROJECTOR_VERSION = 2 as const;",
+      "to": "export const CAMPAIGN_GRANT_PROJECTOR_VERSION = 1 as const;",
+      "preMutantSha256": "c883c1133a77836efe9ffef342157a29e5b29fc09f3881edcc90e167e9ba4d66",
+      "mutatedSha256": "56f751e1bb5e5b2f2efe6a2bc92e4e70047bac2cbf72afc692fc5a045ce88d5f",
+      "restoredSha256": "c883c1133a77836efe9ffef342157a29e5b29fc09f3881edcc90e167e9ba4d66",
+      "restoredMatches": true,
+      "exitCode": 1,
+      "counts": [
+        "Test Suites: 2 failed, 4 passed, 6 total",
+        "Tests:       2 failed, 41 passed, 43 total"
+      ],
+      "caughtBy": [
+        "campaignDelivery non-inference › GM all-scopes grant receives every event as sequences 1 through 6",
+        "projectCampaignStreamForGrant › answers stale-epoch to a cursor numbered before the shared baseline law"
+      ],
+      "killed": true,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u58/logs/mutant-M6.log",
+        "sha256": "626ec12228fc617f5dea1059e9e437a5cf62e8fd2ff1aa5a65cbc5ca1f2b000a"
+      }
+    }
+  ],
+  "mutantsAllKilledAndRestored": true,
+  "mutantRestoreMethod": "each mutated file restored by copying the saved pre-mutant copy (not git checkout, which would drop the uncommitted change), then sha256 compared with the pre-mutant hash",
+  "factsFor12_1": {
+    "holder": "U31 ticks harden-gm-two-player-campaign-sessions#12.1@252 whole, from this unit main proof, only when every surface the letter names is proven on main (OD-whole-row-tick-rule)",
+    "provenHereLocally": [
+      "snapshot / resync baseline: the legacy join baseline and the large-gap resync baseline (both CampaignSyncSession.buildBaselineEvent -> projectCampaignForViewer) and the grant arm (projectCampaignStreamForGrant, its scoped snapshot, and the room-code guest hydration seed) apply one exported law, campaignBaselineReachesViewer; the genesis-stream parity row (same player, same digest from both arms) is now an it and green",
+      "the migration-authored baseline (the real importCampaignBaseline producer) reaches no restricted viewer through the legacy baseline, the grant page, the grant scoped snapshot, or the room-code guest seed; the GM keeps it on both arms",
+      "grant delivery replay identity: an epoch numbered under the previous law answers stale-epoch (projector version 2)"
+    ],
+    "stillOpenForTheRowLetter": [
+      "replay / resync tail and live fan-out: the legacy small-gap resync tail and live fan-out still pass raw frames through campaignScopeAdmits only (see findings); not changed here",
+      "cold recovery: not driven through a process-restart rebuild in this unit (the rebuild reaches buildBaselineEvent per the 12.1 seam-1 note, but no restart row was added or run here)",
+      "audit timeline and export: untouched (they digest audit rows, not campaign baselines)",
+      "main proof: none yet; this is local evidence only"
+    ],
+    "verdict": "a receipt toward 12.1, not a tick: the row stays open"
+  },
+  "risksForTheParent": {
+    "ownerRulingOnHead": "privacy and replay classes: merged only with the owner head-bound Lane B ruling; Lane A cross-model review required",
+    "viewersSeeLess": "restricted legacy viewers and room-code guests of a campaign whose seq 0 is a migration import no longer receive the imported whole state, nor any later full-state checkpoint (the refusal latches). No production caller of importCampaignBaseline was found (only campaignSnapshotBackfill; adoption now appends a genesis).",
+    "viewersSeeMore": "restricted grants (grant channel page and scoped snapshot) now receive the genesis baseline and any checkpoint minted before the first withheld fact - the same content the legacy arm already gave the same player.",
+    "replayResync": "CAMPAIGN_GRANT_PROJECTOR_VERSION 1 -> 2 makes every existing grant delivery epoch stale: a cursor from one gets stale-epoch plus a new baseline. The grant channel session answers stale with a rebaseline frame (campaignGrantChannelSession.ts:112-130, :386); the room-code guest rejoin path with a replica cursor from a version-1 epoch was not driven here."
+  },
+  "nonClaims": [
+    "no Playwright, build, or e2e run (charter); e2e/gm-two-player-token.pack.spec.ts and the co-op ladder were not run",
+    "the legacy small-gap resync tail and live fan-out are not changed and not claimed (read-only path)",
+    "cold recovery through a real restart was not re-proven here",
+    "the room-code guest rejoin from a replica holding a version-1 epoch cursor was not driven",
+    "no living-spec clause names the author distinction; the law is the owner decision OD-umbrella-12-1-slice (spec-silent)",
+    "tasks.md 12.1 is not ticked and no checkbox was touched; units.json, roadmap.json and admission-snapshot.json are unchanged"
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "F1-legacy-raw-snapshot-tail",
+      "where": "src/lib/multiplayer/server/CampaignSyncSession.ts:358-366 (admitToWire) used by resyncGuest small-gap tail :593-601 and live fan-out (attachLiveParticipant)",
+      "measured": "admission probe on the baseline (logs/admission-probe.log): after a gm-scoped PilotHired, a campaign-scoped CampaignSnapshotPublished committed through the host test seam is delivered raw to a player on the small-gap resync tail and on live fan-out, carrying the withheld pilot: PROBE_LEGACY_TAIL {\"joinOk\":true,\"liveJoinOk\":true,\"resyncOk\":true,\"snapshotted\":false,\"resyncTail\":[[2,\"CampaignSnapshotPublished\",\"campaign\",true]],\"liveFanOut\":[[-1,\"CampaignSnapshotPublished\",\"campaign\",false],[2,\"CampaignSnapshotPublished\",\"campaign\",true]]}",
+      "productionReach": "not measured end to end: the production mid-stream full-state producer is the record checkpoint (campaignSourceGenesis purpose checkpoint) appended by the PUT route; whether it reaches a connected player tail was not driven. The wire lastSeq is nonnegative (Protocol.ts:97, :462), so seq 0 never rides the tail.",
+      "owner": "src/lib/multiplayer/server is read-only for U58; the fix is to run the same baseline law on the per-recipient wire path"
+    },
+    {
+      "id": "F2-spec-silent-baseline-author-law",
+      "where": "openspec/specs/gm-authority-redaction/spec.md, openspec/specs/coop-campaign-sync/spec.md",
+      "measured": "grep finds no clause naming genesis vs imported baselines or the withheld-precedes ordering; the law implemented is OD-umbrella-12-1-slice",
+      "owner": "a spec delta at the next triage"
+    },
+    {
+      "id": "F3-redundant-hydration-seed",
+      "where": "src/lib/multiplayer/server/handleRoomCodeGuestJoin.ts:323-331 still passes the host log to buildRoomCodeGuestHydration",
+      "measured": "with the shared law the projector items already carry any admitted genesis, so the seed only repeats the first item (idempotent re-fold); the seed now applies the law so it cannot leak, but it is redundant",
+      "owner": "a multiplayer/server-owned slice could drop the host-log read"
+    }
+  ]
+}

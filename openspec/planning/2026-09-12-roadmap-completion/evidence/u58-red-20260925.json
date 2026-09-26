@@ -1,0 +1,90 @@
+{
+  "unit": "U58",
+  "stage": "red",
+  "at": "2026-09-26T01:31:57.616Z",
+  "status": "red-recorded",
+  "baseline": "3b1cca3a6542e53703f2ac6fa7ac43ec97ae7f98",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u58",
+  "branch": "roadmap-u58-baseline-law-predicate-20260925",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "productFilesChangedAtRed": [],
+  "testFilesChangedAtRed": [
+    "src/lib/campaign/delivery/__tests__/campaignGenesisArmParity.test.ts"
+  ],
+  "productCodeAtRedRun": "baseline product code; git diff at the red run shows only the parity test file",
+  "suite": "src/lib/campaign/delivery/__tests__/campaignGenesisArmParity.test.ts",
+  "baselineBlob": {
+    "sha256": "222f292b6055b3a97c0f53afcdbb4ebc78db0942c68b0182d88bbecead74c20e",
+    "copy": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u58/copies/parity.baseline.ts"
+  },
+  "redBlob": {
+    "sha256": "c3aae021726c8b57a070c606c04d071af5c2d7a7fbdee7e7854084e5e7c238f0",
+    "copy": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u58/copies/parity.red.ts"
+  },
+  "command": "npx jest src/lib/campaign/delivery/__tests__/campaignGenesisArmParity.test.ts",
+  "exitCode": 1,
+  "counts": [
+    "Test Suites: 1 failed, 1 total",
+    "Tests:       4 failed, 3 passed, 7 total"
+  ],
+  "rows": [
+    {
+      "row": "genesis baseline across the legacy and grant arms > the same player gets the same state digest from both arms",
+      "role": "THE PARITY ROW: the it.failing at :180 turned into it (the it.failing is deleted, OD-mvp-hard-cutover); the two arms quoted: legacy digest is the Expected value, grant digest the Received value; the grant state carries no opening pilot (row below: Received array [])",
+      "expectedOnBaseline": "fail",
+      "measuredOnBaseline": "fail",
+      "failure": "expect(received).toBe(expected) // Object.is equality | Expected: \"62871ec757a88a6b1350969075cf952725c535c2ccd360edb45b174c7e23f283\" | Received: \"be4895a6e01df4ec12d16f18aa4d265b0a10136aa32c46517ca5c829ae3bc26f\""
+    },
+    {
+      "row": "genesis baseline across the legacy and grant arms > the grant arm folds the opening ledger into the same player baseline",
+      "role": "the grant arm's actual output for the restricted player: pilots [] (baseline row :169 pinned the blanket rule; inverted because the ruling says a genesis baseline reaches a restricted viewer)",
+      "expectedOnBaseline": "fail",
+      "measuredOnBaseline": "fail",
+      "failure": "expect(received).toContain(expected) // indexOf | Expected value: \"pilot-in-the-opening-ledger\" | Received array: []"
+    },
+    {
+      "row": "an imported migration baseline across the legacy and grant arms > the migration baseline reaches the restricted player through neither arm",
+      "role": "THE LEAK: seq 0 from the real importCampaignBaseline (authorPlayerId 'migration'); the legacy arm hands the restricted player a baseline frame whose state carries the imported pilot (quoted); the grant arm withholds it today (admission probe PROBE_GRANT_MIGRATION: items [[1,FundsChanged]], snapshot pilots {})",
+      "expectedOnBaseline": "fail",
+      "measuredOnBaseline": "fail",
+      "failure": "expect(received).not.toContain(expected) // indexOf | Expected substring: not \"pilot-in-the-imported-campaign\" | Received string:        \"{\\\"type\\\":\\\"CampaignSnapshotPublished\\\",\\\"sequence\\\":-1,\\\"campaignId\\\":\\\"campaign-genesis-arm-parity\\\",\\\"ts\\\":\\\"2026-09-26T01:27:37.404Z\\\",\\\"authorPlayerId\\\":\\\"gm-player\\\",\\\"scope\\\":\\\"campaign\\\",\\\"payload\\\":{\\\"state\\\":{\\\"balance\\\":1,\\\"campaignId\\\":\\\"campaign-genesis-arm-parity\\\",\\\"contracts\\\":{},\\\"day\\\":0,\\\"factionStanding\\\":{},\\\"forceUnits\\\":{},\\\"pilots\\\":{\\\"pilot-in-the-imported-campaign\\\":{\\\"name\\\":\\\"Imported\\\",\\\"pilotId\\\":\\\"pilot-in-the-imported-campaign\\\"}},\\\"rosterUnits\\\":{},\\\"salvagePool\\\":0},\\\"matchId\\\":\\\"campaign-genesis-arm-parity\\\",\\\"revision\\\":1}}\""
+    },
+    {
+      "row": "an imported migration baseline across the legacy and grant arms > a later full-state checkpoint does not reach the restricted player either",
+      "role": "the latch on a refused baseline: a 'system' checkpoint at seq 2 carrying the imported state, nothing gm-scoped before it; the legacy arm folds it (quoted, balance 777000)",
+      "expectedOnBaseline": "fail",
+      "measuredOnBaseline": "fail",
+      "failure": "expect(received).not.toContain(expected) // indexOf | Expected substring: not \"pilot-in-the-imported-campaign\" | Received string:        \"{\\\"type\\\":\\\"CampaignSnapshotPublished\\\",\\\"sequence\\\":-1,\\\"campaignId\\\":\\\"campaign-genesis-arm-parity\\\",\\\"ts\\\":\\\"2026-09-26T01:27:37.515Z\\\",\\\"authorPlayerId\\\":\\\"gm-player\\\",\\\"scope\\\":\\\"campaign\\\",\\\"payload\\\":{\\\"state\\\":{\\\"balance\\\":777000,\\\"campaignId\\\":\\\"campaign-genesis-arm-parity\\\",\\\"contracts\\\":{},\\\"day\\\":0,\\\"factionStanding\\\":{},\\\"forceUnits\\\":{},\\\"pilots\\\":{\\\"pilot-in-the-imported-campaign\\\":{\\\"name\\\":\\\"Imported\\\",\\\"pilotId\\\":\\\"pilot-in-the-imported-campaign\\\"}},\\\"rosterUnits\\\":{},\\\"salvagePool\\\":0},\\\"matchId\\\":\\\"campaign-genesis-arm-parity\\\",\\\"revision\\\":2}}\""
+    },
+    {
+      "row": "genesis baseline across the legacy and grant arms > the legacy arm folds the opening ledger into the player baseline",
+      "role": "THE CONTROL: a genesis baseline reaches the restricted player on the legacy arm today",
+      "expectedOnBaseline": "pass",
+      "measuredOnBaseline": "pass",
+      "failure": null
+    },
+    {
+      "row": "an imported migration baseline across the legacy and grant arms > the migration baseline still reaches the GM through both arms",
+      "role": "control: the entitled viewer keeps the imported state on both arms",
+      "expectedOnBaseline": "pass",
+      "measuredOnBaseline": "pass",
+      "failure": null
+    },
+    {
+      "row": "genesis baseline across the legacy and grant arms > both arms withhold the gm-scoped fact from the same player",
+      "role": "scope control (baseline row :155)",
+      "expectedOnBaseline": "pass",
+      "measuredOnBaseline": "pass",
+      "failure": null
+    }
+  ],
+  "log": {
+    "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u58/logs/red-parity.log",
+    "sha256": "324e8a80adcc50b4f9abf26998d260329fb089fb39dd46537fcbae5785e42005"
+  },
+  "allRowsAsExpected": true
+}

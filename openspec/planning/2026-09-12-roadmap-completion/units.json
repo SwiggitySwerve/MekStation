@@ -1849,14 +1849,28 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "local-verified",
+      "baseline": "3b1cca3a6542e53703f2ac6fa7ac43ec97ae7f98",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u58-admission-20260925.json",
+          "baseline": "3b1cca3a6542e53703f2ac6fa7ac43ec97ae7f98",
+          "at": "2026-09-26T01:31:31.130Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u58-red-20260925.json",
+          "at": "2026-09-26T01:31:57.616Z",
+          "summary": "baseline 3b1cca3a6: the parity row un-failed disagrees (legacy digest 62871e... vs grant be4895...); the legacy join baseline (seq -1) hands a restricted player the imported pilot from the migration baseline (the leak); the grant arm withholds the migration baseline but also the genesis (pilots []); a later checkpoint folds into the restricted player's state (balance 777000); the room-code guest is seeded from the migration baseline; controls (genesis on the legacy arm, the GM keeping the migration baseline, the gm-scope withhold, the genesis seed) pass"
+        },
+        "local": {
+          "path": "evidence/u58-local-20260925.json",
+          "at": "2026-09-26T01:57:58.848Z",
+          "summary": "6 product files +106/-72 (178 lines) and 6 test files +461/-95: campaignViewerProjection.ts exports campaignBaselineReachesViewer and CAMPAIGN_MIGRATION_AUTHOR_ID (a gm+campaign viewer gets every baseline; a restricted viewer never gets one authored migration; any other passes only while nothing withheld comes before it, a refused baseline latching so a later checkpoint is refused too); both arms use it (campaignViewerVisibleEvents behind CampaignSyncSession.buildBaselineEvent's join and large-gap baselines; projectCampaignStreamForGrant.ts behind the scoped snapshot, grant channel and room-code join); grantHoldsEveryScope deleted with its only caller; CAMPAIGN_GRANT_PROJECTOR_VERSION 1 to 2 so old-epoch cursors get a fresh baseline; roomCodeGuestHydration.genesisStateFromHostLog applies the law; campaignAuthorityMigration.ts stamps the exported author id; the it.failing at campaignGenesisArmParity.test.ts:180 is a plain row; rows: parity, grant folds the genesis, migration baseline reaches neither arm, later checkpoint withheld, room-code seed, six predicate-law rows, a stale-epoch row, controls; jest src/lib/campaign 204 suites 2998, src/lib/multiplayer/server 160 suites 1178, src/__tests__/api/campaigns 110; tsc 0 (one test-only type error fixed first); oxlint 84 warnings 0 errors; oxfmt clean on 12 files; lint:units 100/100; qc:openspec-ci errors=0; validator PASSED; nine mutants caught and restored; no Playwright, build or restart run; implementer claude-opus (Agent model: opus); findings F1 (legacy resync tail delivers a raw snapshot, outside the paths), F2 (author law not in the spec), F3 (hydration seed redundant); 12.1 facts recorded for U31 (snapshot and resync baselines share one law, genesis parity holds; open: replay/resync tail and live fan-out, cold recovery, audit timeline and export, the main proof); status ready"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -1866,7 +1880,11 @@
       "source20260922": "planned by the parent from the triage plan's recommendation for owner question 6 (umbrella 12.1), recorded as decided in roadmap.json ownerDecisions OD-umbrella-12-1-slice under the owner instruction of 2026-09-22 (\"ultracode find everything that is marked and if there are issues go with recommended path to solution based on the goal\"); the parent transcribed the recommendation as the owner's ruling (evidence/triage-plan-20260922.json (179 register issues verified against main a9244fcad))",
       "triageIssues20260922": [
         "I-12-1-shared-projection-contract"
-      ]
+      ],
+      "admissionNote20260925": {
+        "at": "2026-09-26T02:12:59.000Z",
+        "note": "--next printed U35h, in flight in its own worktree; U58's path src/lib/campaign overlapped nothing in flight, so the parent admitted it in parallel. Admission correction (local receipt): roomCodeGuestHydration.genesisStateFromHostLog seeded a ['campaign'] guest from the first host-log snapshot of any author; it now applies the law, its caller unchanged."
+      }
     },
     {
       "id": "U21",
@@ -9610,6 +9628,33 @@
       "class": "test ergonomics",
       "summary": "In src/lib/api/__tests__/coopMatchRosterSourceVersion.test.ts the beforeEach flag assertion runs before mkdtemp, so any future failure of it makes afterEach's rm(undefined) raise a misleading secondary TypeError.",
       "recommendedSuccessor": "move the assertion after the temp directory is created, in the next unit that edits the file",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u58-legacy-resync-tail-delivers-raw-snapshot",
+      "foundBy": "U58 implementer lane (claude-opus), 2026-09-25, finding F1 (probe on the baseline)",
+      "at": "2026-09-26T02:12:59.000Z",
+      "class": "privacy (outside U58's paths; production reach not measured)",
+      "summary": "The legacy small-gap resync tail and live fan-out (src/lib/multiplayer/server/CampaignSyncSession.ts:358-366) deliver a raw mid-stream full-state CampaignSnapshotPublished to a player; in a baseline probe, a snapshot committed after a gm-scoped hire reached a restricted player on both paths with the withheld pilot inside. Whether the production checkpoint producer (U35e's record rewrite) reaches that path was not measured.",
+      "recommendedSuccessor": "U58's Lane A probes the production reach (question 4); if it reaches, a unit on src/lib/multiplayer/server applies campaignBaselineReachesViewer at the tail and fan-out before UAT round 2",
+      "status": "recorded; Lane A question"
+    },
+    {
+      "id": "FN-u58-baseline-author-law-not-in-spec",
+      "foundBy": "U58 implementer lane (claude-opus), 2026-09-25, finding F2",
+      "at": "2026-09-26T02:12:59.000Z",
+      "class": "spec-silent decision (owner decision OD-umbrella-12-1-slice)",
+      "summary": "No living spec clause names the baseline author law (a migration-authored baseline never reaches a restricted viewer; a refused baseline latches); it comes from the owner decision only. The nearest clauses are gm-authority-redaction/spec.md:93-104 and the umbrella delta's Visibility Is Equivalent Across Surfaces.",
+      "recommendedSuccessor": "a [Spec Delta] on the harden change at the next triage (OD-uat-two-rounds sub-decision 9)",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u58-room-code-hydration-seed-redundant",
+      "foundBy": "U58 implementer lane (claude-opus), 2026-09-25, finding F3",
+      "at": "2026-09-26T02:12:59.000Z",
+      "class": "simplification",
+      "summary": "With the grant projector applying the law, roomCodeGuestHydration's host-log genesis seed is redundant with the projector items; a slice owning src/lib/multiplayer/server could drop the host-log read.",
+      "recommendedSuccessor": "fold into the next unit that edits handleRoomCodeGuestJoin.ts",
       "status": "recorded"
     }
   ]
