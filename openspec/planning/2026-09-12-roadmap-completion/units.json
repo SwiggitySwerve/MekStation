@@ -2975,7 +2975,9 @@
         "src/lib/multiplayer/server",
         "src/pages/api/campaigns/[id].ts",
         "src/stores/campaign/useCampaignStore.dayActions.ts",
-        "src/stores/campaign/useCampaignStore.actions.ts"
+        "src/stores/campaign/useCampaignStore.actions.ts",
+        "src/__tests__/integration/coopMutationPersistence.test.ts",
+        "e2e/coop-campaign-two-browser-journey.spec.ts"
       ],
       "ciClass": "product",
       "reviewClasses": [
@@ -3018,6 +3020,30 @@
           "src/stores/campaign/useCampaignStore.actions.ts"
         ],
         "why": "the host's browser must send AdvanceDay before it saves the day effects, so the checkpoint it PUTs lands on the advanced day and the host's adoption of that checkpoint does not double-count; R2.authority-live owns src/stores/campaign"
+      },
+      "testPathsAmendedAtFold20260926": [
+        {
+          "path": "src/__tests__/integration/coopMutationPersistence.test.ts",
+          "at": "2026-09-26T15:05:43.000Z",
+          "why": "harness-only edit (+13/-1, no assertion changed): its day-advance row stubbed onFrame so no commit frame could arrive once the day advance waits for the host's commit"
+        },
+        {
+          "path": "e2e/coop-campaign-two-browser-journey.spec.ts",
+          "at": "2026-09-26T15:05:43.000Z",
+          "why": "the journey's post-destroyed expectation at :475 was stale against OD-u35g-coop-outcome-rewrites-record (a destroyed unit is kept with status destroyed, reconcileCoopBattle.ts:220-224) and unreachable on main until the day advance passed; the sentence names this journey's day advance as a green gate"
+        }
+      ],
+      "newTestFiles20260926": {
+        "at": "2026-09-26T15:05:43.000Z",
+        "files": [
+          "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts",
+          "src/stores/campaign/__tests__/useCampaignStore.coopDayAdvanceOrder.test.ts"
+        ],
+        "note": "new files created by the unit under the node's test homes (src/__tests__/api/campaigns beside the other campaign route tests; src/stores/campaign/__tests__ beside the store's tests); the validator requires ownership paths to exist on disk, so they join the unit's and the node's paths at closure, after the merge"
+      },
+      "admissionNote20260926": {
+        "at": "2026-09-26T15:05:43.000Z",
+        "note": "--next printed U89 (overlaps this unit's server path; the parent chose U96 under the owner's order). Re-admission GO on the amended sentence. Instance identity: getOrCreateHostInstanceId is one id per server database (campaignHostInstance.ts:148-151, :175-192), so it cannot tell the host's browser from a guest's; the PUT body's coopSession does ({mode:'host', matchId} stamped at CampaignCoopEntryPanel.tsx:255-259; a guest sends {mode:'guest', hostMatchId}); the route authenticates nobody, so this is a claim in the request body (finding). Adoption: CampaignMatchHost.adoptSavedCheckpoint runs the route's save under the host's single-writer lock and folds the appended events with applyCampaignEvent; guests receive the existing CampaignSnapshot frame. Double count: the co-op day advance sends AdvanceDay, waits for CampaignDayAdvanced or the Error frame with its intentId, then runs the day pipeline and saves (measured: saving first gave host day 184, 185, 186; sending first 184, 185). useCampaignStore.actions.ts unchanged."
       }
     },
     {
@@ -10453,6 +10479,51 @@
       "summary": "E2E-73's server memory ceiling (128 MiB rss growth) was exceeded by 549 MiB in one root-checkout run of the performance group after the U86 change, while seven lane runs of the same spec passed it; whether the concurrent U96 lane's Playwright run (started six minutes earlier) or the root's data directory caused it was not measured.",
       "recommendedSuccessor": "if the re-proof passes, none; if it fails again, a unit measuring rss per window (measured, tailBuild, catchUp) in the root against a lane worktree",
       "status": "recorded; U86 re-proved on the same merge commit"
+    },
+    {
+      "id": "FN-u96-put-host-identity-is-a-body-claim",
+      "foundBy": "U96 implementer lane (claude-opus, lean-worker), 2026-09-26 (read from the code)",
+      "at": "2026-09-26T15:05:43.000Z",
+      "class": "authority: unauthenticated host claim",
+      "summary": "The campaign PUT route authenticates nobody; whether a save is the host's own is read from body.coopSession ({mode:'host', matchId}) against the live entry. A guest that sends a host-shaped coopSession would have its save adopted. The route's whole-campaign write was equally unauthenticated before U96.",
+      "recommendedSuccessor": "a route-auth unit when the multiplayer token reaches the campaign routes",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u96-guests-do-not-ack-snapshot-frames",
+      "foundBy": "U96 implementer lane (claude-opus, lean-worker), 2026-09-26 (read from campaignSyncTransport.ts:229-252, not measured)",
+      "at": "2026-09-26T15:05:43.000Z",
+      "class": "convergence gap after adoption",
+      "summary": "Guests never acknowledge CampaignSnapshot frames, so after an adopted checkpoint the next AdvanceDay may be refused CAMPAIGN_NOT_CONVERGED until the guest acknowledges a later event.",
+      "recommendedSuccessor": "measure in U92's or U94's live runs; a one-line ack on snapshot frames if it shows",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u96-resent-advanceday-waits-without-timeout",
+      "foundBy": "U96 implementer lane (claude-opus, lean-worker), 2026-09-26 (read from the code, not measured)",
+      "at": "2026-09-26T15:05:43.000Z",
+      "class": "client hang hazard",
+      "summary": "Re-sending an AdvanceDay the host already committed gets no answer frame (the duplicate is deduped), so the day advance would wait for a commit frame with no timeout.",
+      "recommendedSuccessor": "the client treats a deduped intent as committed (the host could answer the duplicate) in a follow-on",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u96-record-rewrite-day-timestamp-local-time",
+      "foundBy": "U96 implementer lane (claude-opus, lean-worker), 2026-09-26 (seen in a live run, not investigated)",
+      "at": "2026-09-26T15:05:43.000Z",
+      "class": "adjacent defect",
+      "summary": "After AdvanceDay the record rewrite wrote 3025-07-04T23:00Z for day 185, which looks like local-time arithmetic in the day-to-date conversion.",
+      "recommendedSuccessor": "a small unit on the campaign date conversion",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u96-lane-hold-breach-once",
+      "foundBy": "parent, from the U96 lane's report, 2026-09-26",
+      "at": "2026-09-26T15:05:43.000Z",
+      "class": "loop process",
+      "summary": "One journey run (about 30 s, port 27498) started while PARENT-PROOF-HOLD existed; the lane printed the file's path and did not stop. The U86 re-proof it overlapped passed.",
+      "recommendedSuccessor": "charters say WAIT on the hold explicitly (done from U96 r2's continuation on)",
+      "status": "recorded"
     }
   ]
 }

@@ -1,0 +1,303 @@
+{
+  "unit": "U96",
+  "stage": "red",
+  "at": "2026-09-26T14:11:49.416Z",
+  "baseline": "2edfbb3b6f40f04c641dbc8530afd5ad6df73d2a",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u96",
+  "branch": "roadmap-u96-put-through-live-host-20260926",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "admissionReceipt": "evidence/u96-admission-20260926.json",
+  "firstAttempt": "evidence/u96-admission-attempt1-20260926.json (its R1 numbers are reproduced here with the host co-op session on the PUT)",
+  "productFilesChanged": "none (git status --short lists only the two new test files and the admission receipt)",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "tests": {
+    "server": {
+      "file": "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts",
+      "sha256": "abb74df4aa90da2b69b2e8dc317f23e498a8c35c6d9d31a8fd14abb4576d11a7",
+      "command": "U35E_ROWS_DIR=<lane-temp>/rows-red npx jest src/__tests__/api/campaigns/campaignPutLiveHost.test.ts",
+      "exitCode": 1,
+      "testsLine": "Tests:       2 failed, 2 passed, 4 total",
+      "log": {
+        "path": "<lane-temp>/red-server-jest.log",
+        "sha256": "925901cf5a5c65e79aee2bdc5f50749323f3d4bb594d22aa1d68232a4817421c"
+      },
+      "measurements": {
+        "path": "<lane-temp>/rows-red/u96-put-live-host.json",
+        "sha256": "41de24bf1c97426072f1db2b3558eb7c6cab47b5a754c22747aeaeb279053923"
+      }
+    },
+    "client": {
+      "file": "src/stores/campaign/__tests__/useCampaignStore.coopDayAdvanceOrder.test.ts",
+      "sha256": "bf71c83c4f20a983fa52465764e9ae8ebbfc067bedac58bd1ae8894bb0af8c7d",
+      "command": "npx jest src/stores/campaign/__tests__/useCampaignStore.coopDayAdvanceOrder.test.ts",
+      "exitCode": 1,
+      "testsLine": "Tests:       2 failed, 2 total",
+      "log": {
+        "path": "<lane-temp>/red-client-jest.log",
+        "sha256": "1270de4de379735882417626347c3a07409a8bc361559a84d0ab1270c25c822b"
+      }
+    }
+  },
+  "rows": {
+    "R1": {
+      "name": "(R1) the host's own save is adopted: after SpendFunds 1000 the journal, the record and the guest read 381500",
+      "setup": "real SQLite temp file; journal-native campaign created through the route (balance 380000); host registered in the shared registry (getCampaignHostRegistry().register, as the match create route); guest attached through syncSession.attachLiveParticipant (frames mapped with campaignEventWireFrame); PUT balance 382500 at the current version with body.coopSession { mode: 'host', roomCode, matchId: 'match-u96-live' }; then host.applyHostIntent SpendFunds 1000",
+      "assertions": [
+        "afterPut.putStatus 200",
+        "typesAfterPut = typesBefore + CampaignSnapshotPublished",
+        "afterPut.hostLiveBalance 382500",
+        "guestFramesAfterPut = [{ kind CampaignSnapshot, type CampaignSnapshotPublished, sequence 1, balance 382500 }]",
+        "spendOk true; hostLiveBalance, journal balance and stored row balance 381500",
+        "last guest frame { kind CampaignEvent, type FundsChanged, sequence 2, balance 381500 }"
+      ],
+      "result": "failed",
+      "firstFailure": "expect(afterPut.hostLiveBalance).toBe(382_500) at campaignPutLiveHost.test.ts:180 (as run): Expected: 382500 Received: 380000",
+      "measuredVerbatim": {
+        "typesBefore": [
+          "CampaignSnapshotPublished"
+        ],
+        "afterPut": {
+          "putStatus": 200,
+          "typesAfterPut": [
+            "CampaignSnapshotPublished",
+            "CampaignSnapshotPublished"
+          ],
+          "guestFramesAfterPut": [],
+          "hostLiveBalance": 380000,
+          "journalReplayBalance": 382500,
+          "storedRow": {
+            "version": 2,
+            "balance": 382500,
+            "currentDate": "3025-07-04T00:00:00.000Z"
+          }
+        },
+        "afterNext": {
+          "spendOk": true,
+          "typesAfterNext": [
+            "CampaignSnapshotPublished",
+            "CampaignSnapshotPublished",
+            "FundsChanged"
+          ],
+          "guestFrames": [
+            {
+              "kind": "CampaignEvent",
+              "type": "FundsChanged",
+              "sequence": 2,
+              "balance": 379000
+            }
+          ],
+          "hostLiveBalance": 379000,
+          "journal": {
+            "balance": 379000,
+            "day": 184,
+            "pilots": [],
+            "contracts": [],
+            "salvagePool": 0
+          },
+          "storedRow": {
+            "version": 3,
+            "balance": 379000,
+            "currentDate": "3025-07-04T00:00:00.000Z"
+          }
+        }
+      },
+      "reading": "U92 sequence reproduced: the PUT answers 200 and appends a second CampaignSnapshotPublished; the guest gets 0 frames; the live host stays at 380000 while the journal and the record (version 2) read 382500; SpendFunds 1000 commits FundsChanged { balance 379000 } at sequence 2, the guest receives it, and the journal and the record (version 3) read 379000: the save is gone (379000, not 381500)."
+    },
+    "R2": {
+      "name": [
+        "(R2 commit) sends AdvanceDay first and saves the day after the host committed it, at the rewritten version",
+        "(R2 refusal) a refused AdvanceDay saves nothing, keeps the day and reports the refusal"
+      ],
+      "setup": "real useCampaignStore and useCampaignPersistenceStore; a co-op host campaign (createHostCoopSession('ROOM42', matchId)) saved once (record version 1); fetch stubbed as the item route (GET the record, PUT with the baseVersion compare-and-swap); a registered host transport records host intents and answers AdvanceDay after a tick: commit = the record rewritten one day on at the next version plus a CampaignEvent CampaignDayAdvanced frame; refuse = an Error frame { code CAMPAIGN_NOT_CONVERGED, reason progression-blocked-behind, intentId }",
+      "assertions": {
+        "commit": [
+          "timeline = [intent:AdvanceDay, GET, PUT { baseVersion 2, currentDate dayBefore + 1 day }]",
+          "report returned",
+          "store date = dayBefore + 1 day",
+          "record { version 3, currentDate dayBefore + 1 day }"
+        ],
+        "refusal": [
+          "timeline = [intent:AdvanceDay]",
+          "report null",
+          "store date unchanged",
+          "record { version 1, currentDate dayBefore }",
+          "one toast containing progression-blocked-behind"
+        ]
+      },
+      "result": "both failed",
+      "firstFailure": {
+        "commit": "expect(run.timeline).toEqual(...) at useCampaignStore.coopDayAdvanceOrder.test.ts:239: received [PUT { baseVersion 1, currentDate 2026-09-27T14:07:56.962Z }, intent:AdvanceDay]",
+        "refusal": "expect(run.timeline).toEqual([{ step: intent:AdvanceDay }]) at :253: received [PUT { baseVersion 1, currentDate 2026-09-27T14:07:56.999Z }, intent:AdvanceDay]"
+      },
+      "measuredVerbatim": {
+        "commit": {
+          "dateBefore": "2026-09-26T14:07:56.962Z",
+          "dayAfter": "2026-09-27T14:07:56.962Z",
+          "reportReturned": true,
+          "timeline": [
+            {
+              "step": "PUT",
+              "baseVersion": 1,
+              "currentDate": "2026-09-27T14:07:56.962Z"
+            },
+            {
+              "step": "intent:AdvanceDay"
+            }
+          ],
+          "dateAfter": "2026-09-27T14:07:56.962Z",
+          "record": {
+            "version": 3,
+            "currentDate": "2026-09-28T14:07:56.962Z"
+          },
+          "toasts": []
+        },
+        "refusal": {
+          "dateBefore": "2026-09-26T14:07:56.999Z",
+          "dayAfter": "2026-09-27T14:07:56.999Z",
+          "reportReturned": true,
+          "timeline": [
+            {
+              "step": "PUT",
+              "baseVersion": 1,
+              "currentDate": "2026-09-27T14:07:56.999Z"
+            },
+            {
+              "step": "intent:AdvanceDay"
+            }
+          ],
+          "dateAfter": "2026-09-27T14:07:56.999Z",
+          "record": {
+            "version": 2,
+            "currentDate": "2026-09-27T14:07:56.999Z"
+          },
+          "toasts": []
+        }
+      },
+      "reading": "Today's order is save then send: the day's PUT (base 1, day+1) lands before the AdvanceDay intent in both rows; with the refusing host the day is still saved and advanceDay returns a report (reportReturned true, record version 2 at day+1, no toast). In the commit row the stub server's rewrite (one day on from the record it holds) ends at 2026-09-28, two days on: that is the stub's arithmetic on a record the save already advanced, shown as the ordering hazard, not a measurement of the real host."
+    },
+    "R3": {
+      "name": "(R3) a guest mirror's PUT while the host is live is refused 409 naming the session; nothing is written",
+      "setup": "as R1, PUT balance 382500 with body.coopSession { mode: 'guest', roomCode, hostMatchId: 'match-u96-foreign' }",
+      "assertions": [
+        "status 409",
+        "kind conflict",
+        "reason live-coop-session",
+        "matchId match-u96-foreign",
+        "currentVersion = row version before",
+        "current balance = row balance before",
+        "row, journal types, host state unchanged",
+        "guest frames []"
+      ],
+      "result": "failed",
+      "firstFailure": "expect(put.status).toBe(409) at campaignPutLiveHost.test.ts:235 (as run): Expected: 409 Received: 200",
+      "measuredVerbatim": {
+        "putStatus": 200,
+        "kind": null,
+        "reason": null,
+        "matchId": null,
+        "currentVersion": null,
+        "currentBalance": null,
+        "rowBefore": {
+          "version": 1,
+          "balance": 380000,
+          "currentDate": "3025-07-04T00:00:00.000Z"
+        },
+        "rowAfter": {
+          "version": 2,
+          "balance": 382500,
+          "currentDate": "3025-07-04T00:00:00.000Z"
+        },
+        "typesBefore": [
+          "CampaignSnapshotPublished"
+        ],
+        "typesAfter": [
+          "CampaignSnapshotPublished",
+          "CampaignSnapshotPublished"
+        ],
+        "hostBalanceAfter": 380000,
+        "guestFrames": []
+      },
+      "reading": "Today a guest-mirror PUT while the host is live answers 200 and checkpoints 382500 over the host (row version 2, a second snapshot) while the host stays at 380000."
+    },
+    "nonLivePins": {
+      "rows": [
+        "(pin none) with no host entry the PUT saves as before: 200 with the stored record and one checkpoint",
+        "(pin closed) a closed host is not live and another campaign host does not hold this one: the PUT saves as before"
+      ],
+      "result": "both passed on the baseline",
+      "measured": {
+        "none": {
+          "putStatus": 200,
+          "putBodyEqualsGetBody": true,
+          "types": [
+            "CampaignSnapshotPublished",
+            "CampaignSnapshotPublished"
+          ]
+        },
+        "closed": {
+          "hostClosed": true,
+          "putStatus": 200,
+          "putBodyEqualsGetBody": true,
+          "types": [
+            "CampaignSnapshotPublished",
+            "CampaignSnapshotPublished"
+          ],
+          "storedRow": {
+            "version": 2,
+            "balance": 382500,
+            "currentDate": "3025-07-04T00:00:00.000Z"
+          }
+        }
+      },
+      "byteForByte": "each row asserts JSON.stringify(PUT body) === JSON.stringify(GET body) (putBodyEqualsGetBody true); a cross-run byte hash is not used because the fixture mints Date.now force ids, savedAt and rngSeed per run"
+    }
+  },
+  "liveBaseline": {
+    "method": "Driver <lane-temp>/u96-live-driver.cjs, the attempt-1 driver with one change: the S2 PUT envelope carries the host co-op session { mode: host, roomCode, matchId } (the host browser envelope). node --inspect server.js from the worktree, NODE_ENV=production, HOSTNAME=127.0.0.1, MULTIPLAYER_STORE=durable, fresh temp MULTIPLAYER_DB_PATH and DATABASE_PATH; S0 create record 380000 and co-op match; S1 guest by room code and GM join; S2 PUT 382500; S3 GM CampaignHostIntent SpendFunds 1000; each step reads the shared registry slot entry, the journal and the record.",
+    "driverSha256": "f0443ac4741d6a92eb6e094bd893790d2fb0b503839ac4fff846ed2bdd329f60",
+    "driverDiffFromAttempt1": "diff shows only the r2 header comment and the S2 envelope line adding coopSession",
+    "build": "the worktree .next BUILD_ID 1790411033448 built by attempt 1 from 8a025218e; git diff --stat 8a025218e..HEAD outside openspec/planning prints nothing, so the product code equals this baseline; _app-57752df63578994c.js carries __E2E_MODE__ (grep -l)",
+    "machineIdleBefore": "MACHINE_IDLE (exit 0); PARENT-PROOF-HOLD absent (ls: No such file or directory)",
+    "port": 24971,
+    "inspectPort": 29971,
+    "serverPid": 29328,
+    "serverKilled": true,
+    "serverAliveAfterKill": false,
+    "listenerAfter": "netstat: no LISTENING socket on 24971 or 29971",
+    "startedAt": "2026-09-26T14:10:19.461Z",
+    "finishedAt": "2026-09-26T14:10:36.226Z",
+    "error": null,
+    "matchCreate": {
+      "status": 201,
+      "matchId": "5b8d28f3-5a03-423f-b986-af483986a707",
+      "roomCodePresent": true,
+      "error": null
+    },
+    "stdoutVerbatim": [
+      "S0 after create route 201, no socket yet: {\"record\":{\"version\":1,\"balance\":380000},\"entry\":{\"matchId\":\"5b8d28f3-5a03-423f-b986-af483986a707\",\"campaignId\":\"campaign-u96-baseline-1790431831940\",\"hostClosed\":false,\"paused\":false,\"gmConnections\":0,\"hostLiveBalance\":380000},\"journal\":{\"types\":[\"CampaignSnapshotPublished\"],\"balance\":380000},\"coop\":{\"socketGraphLoaded\":true,\"socketGraphHoldsHost\":\"undefined\",\"apiGraphModules\":[]}}",
+      "S1 guest joined by room code, GM connected: {\"guestJoin\":\"snapshot\",\"gmJoin\":\"snapshot\",\"record\":{\"version\":1,\"balance\":380000},\"entry\":{\"matchId\":\"5b8d28f3-5a03-423f-b986-af483986a707\",\"campaignId\":\"campaign-u96-baseline-1790431831940\",\"hostClosed\":false,\"paused\":false,\"gmConnections\":1,\"hostLiveBalance\":380000},\"journal\":{\"types\":[\"CampaignSnapshotPublished\"],\"balance\":380000},\"coop\":{\"socketGraphLoaded\":true,\"socketGraphHoldsHost\":\"undefined\",\"apiGraphModules\":[]}}",
+      "S2 PUT balance 382500 at the current version while the host is live: {\"put\":{\"status\":200,\"kind\":null,\"reason\":null,\"matchId\":null,\"recoveryAction\":null,\"currentVersion\":null,\"currentBalance\":null,\"savedVersion\":2,\"savedBalance\":382500},\"guestFramesAfterPut\":[],\"record\":{\"version\":2,\"balance\":382500},\"entry\":{\"matchId\":\"5b8d28f3-5a03-423f-b986-af483986a707\",\"campaignId\":\"campaign-u96-baseline-1790431831940\",\"hostClosed\":false,\"paused\":false,\"gmConnections\":1,\"hostLiveBalance\":380000},\"journal\":{\"types\":[\"CampaignSnapshotPublished\",\"CampaignSnapshotPublished\"],\"balance\":382500},\"coop\":{\"socketGraphLoaded\":true,\"socketGraphHoldsHost\":\"undefined\",\"apiGraphModules\":[]}}",
+      "S3 GM CampaignHostIntent SpendFunds 1000: {\"guestFramesAfterSpend\":[{\"kind\":\"CampaignEvent\",\"code\":null,\"reason\":null,\"eventType\":\"FundsChanged\",\"sequence\":2,\"payload\":{\"delta\":-1000,\"reason\":\"next\",\"balance\":379000}}],\"gmErrorFrames\":[],\"record\":{\"version\":3,\"balance\":379000},\"entry\":{\"matchId\":\"5b8d28f3-5a03-423f-b986-af483986a707\",\"campaignId\":\"campaign-u96-baseline-1790431831940\",\"hostClosed\":false,\"paused\":false,\"gmConnections\":1,\"hostLiveBalance\":379000},\"journal\":{\"types\":[\"CampaignSnapshotPublished\",\"CampaignSnapshotPublished\",\"FundsChanged\"],\"balance\":379000},\"coop\":{\"socketGraphLoaded\":true,\"socketGraphHoldsHost\":\"undefined\",\"apiGraphModules\":[]}}"
+    ],
+    "output": {
+      "path": "<lane-temp>/live-baseline.json",
+      "sha256": "147acdba93eaf4379bf56d48b57403d8532d4229db333c656253a475e42d4f86"
+    },
+    "reading": "Live, same numbers as attempt 1 with the host session on the PUT: S2 PUT 200 saved version 2 balance 382500, guest frames after PUT [], host live balance 380000, journal [Snapshot, Snapshot] 382500; S3 guest receives CampaignEvent FundsChanged sequence 2 { delta -1000, balance 379000 }, host 379000, journal [Snapshot, Snapshot, FundsChanged] 379000, record version 3 balance 379000."
+  },
+  "laneArtifacts": {
+    "dir": "<lane-temp> = %TEMP%/u96-lane-r2-20260926 (machine-local scratch, not committed)",
+    "redTestCopies": {
+      "server": {
+        "path": "<lane-temp>/red-campaignPutLiveHost.test.ts"
+      },
+      "client": {
+        "path": "<lane-temp>/red-coopDayAdvanceOrder.test.ts"
+      }
+    },
+    "receiptWriter": "<lane-temp>/write-red.cjs"
+  }
+}
