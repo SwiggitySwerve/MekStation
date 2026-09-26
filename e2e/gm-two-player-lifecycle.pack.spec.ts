@@ -212,6 +212,9 @@ test('E2E-75 lifecycle postures are distinct, announced and correctly gated @lif
     // FINDING. Measured: both surfaces report `live` after this.
     await guestPage.reload();
     await hostPage.reload();
+    // The GoProne below is refused while the host is still away; see
+    // waitForRejoin.
+    await waitForRejoin(hostPage, guestPage);
 
     await capturePosture(guestPage, 'live', seenText, evidence);
 
@@ -338,6 +341,7 @@ test('E2E-75 lifecycle postures pending and blocked are distinct, announced and 
     // what makes the arm falsifiable rather than inherited.
     await guestPage.reload();
     await hostPage.reload();
+    await waitForRejoin(hostPage, guestPage);
     await expect
       .poll(() => postureState(guestPage), { timeout: 60_000 })
       .toBe('live');
@@ -549,6 +553,40 @@ async function postureState(page: Page): Promise<string> {
   } catch {
     return '';
   }
+}
+
+/**
+ * Polls, every 100 ms for up to 60 s, until the host's banner reads `live`
+ * and neither page renders `match-pause-overlay`, all three read in the same
+ * poll round. Throws on timeout naming the last values read.
+ *
+ * Why after a reload pair: a dropped seat pauses the match
+ * (ServerMatchHostReconnectLifecycle.ts:31-51) and every engine intent is
+ * refused MATCH_PAUSED until that seat rejoins (ServerMatchHostIntent.ts
+ * :275-283), while the guest's banner keeps reading `live` - the pause is
+ * the overlay's arm, not the banner's (NetworkedGameSurface.tsx:234-242).
+ * The host's banner is the signal that carries the rejoin: it renders only
+ * once the host's new socket has replayed. The overlay alone is not one -
+ * MatchPaused is broadcast once, when the seat drops, so a guest that
+ * rejoined after the host dropped never shows it (measured: the overlay
+ * stayed absent for 30 s with the host held away).
+ */
+async function waitForRejoin(hostPage: Page, guestPage: Page): Promise<void> {
+  await expect
+    .poll(
+      async () => ({
+        host: await postureState(hostPage),
+        hostPaused: await pauseOverlayShown(hostPage),
+        guestPaused: await pauseOverlayShown(guestPage),
+      }),
+      { timeout: 60_000, intervals: [100] },
+    )
+    .toEqual({ host: 'live', hostPaused: false, guestPaused: false });
+}
+
+/** Whether the page currently renders the match-pause overlay. */
+async function pauseOverlayShown(page: Page): Promise<boolean> {
+  return (await page.getByTestId('match-pause-overlay').count()) > 0;
 }
 
 /** One real `GoProne`; the engine answers `MovementDeclared`, sealed. */
