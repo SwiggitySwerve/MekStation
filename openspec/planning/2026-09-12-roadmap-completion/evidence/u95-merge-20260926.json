@@ -1,0 +1,21 @@
+{
+  "unit": "U95",
+  "stage": "merge",
+  "at": "2026-09-26T08:14:20.413Z",
+  "pr": 1993,
+  "title": "feat(multiplayer): the campaign host registry is one instance across both module graphs (U95)",
+  "head": "f0bd8f0adb795fd21b8d39e595508c4d6426ab32",
+  "mergeSha": "2d43b9f76fdbf437393592f54c8b99a90dab56f6",
+  "mergedAt": "2026-09-26T08:03:40Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+    "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.globalSlot.test.ts",
+    "src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.crossGraph.test.ts",
+    "src/lib/multiplayer/server/campaignProgressionReaders.durable.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}
