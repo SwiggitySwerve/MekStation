@@ -1,0 +1,42 @@
+{
+  "unit": "U17c",
+  "stage": "mainProof",
+  "at": "2026-09-27T20:34:16.625Z",
+  "mergeCommit": "3b4a7b1534afd95db0fc57d761ef265d02157f1e",
+  "checkout": "owned wave-A worktree detached at the merge commit, with its private physical node_modules (no install run; no build is part of this tooling proof); the root checkout was not touched",
+  "runtime": {
+    "build": "not run: U17c changes ledger tooling scripts and their jest pins only and ships no runtime bytes; the plan QA names the pin tests, a scratch-ledger CLI run, typecheck, lint, lint:units and format:check",
+    "e2eBundleMarker": "not applicable: no browser or production bundle is part of this unit's proof",
+    "playwright": "U17c exact-main jest ladder: U17C PROOF RUNTIME PASSED: 147 passed (3 separate jest processes x 49 tests, 0 failed, exit 0)",
+    "tsc": "npm run typecheck exit 0",
+    "lint": "npm run lint exit 0: Found 84 warnings and 0 errors",
+    "lintUnits": "npm run lint:units exit 0: LINT_UNITS_PASS 17899/17899",
+    "formatCheck": "npm run format:check exit 0",
+    "focusedJest": "3 separate jest processes of scripts/__tests__/roadmap-loop-closure-proof.test.ts and scripts/__tests__/roadmap-loop-scripts.test.ts, 49/49 each",
+    "validatorGithub": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows (--github, exit 0)"
+  },
+  "commands": {
+    "validator": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows",
+    "gitAncestry": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows (--git)",
+    "next": "U17C_MAIN_RESULT validator-next 0",
+    "openspecStrict": "(no log)",
+    "qcOpenspecCi": "(no log)",
+    "qcPin": "(no log)"
+  },
+  "logs": ".omo/ulw-execute/u17c/main-proof-01-logs/ (local; sha256 below)",
+  "logHashes": [
+    "dfff8206a22ff3252b29253e219a787159a506d48c40a46817b99a1b4f34ac2f *build.log",
+    "531e5b2a4e365764e39db3ebe4db20d2ebdd834bb9d298f432717548ddbdc862 *exact-main-ladder.log",
+    "08fe1304a62f5d287c32dc9d5bb72e5d6c196b6b14ae4147acf4ea113ff8f3ae *format.log",
+    "3772488ce765d920cded37dd966cc8637908106b78aaff0779cd616a9fe21615 *git-check.log",
+    "8d4d9ccefd206b2df62fba98d096a460d93e8b4673fd0f988654df60a3bd2841 *github.log",
+    "b1da7ce2186a22a044be349b6bb2010706ce39f96ceb2aa1d170b66bef92dd55 *jest.log",
+    "90e9db088038041114a3f40bb545130c54ab83e47c3e05ca9232b2ccce0132eb *lint-units.log",
+    "3252acf8f3a0364f22e9301800c9c4b8f6bc301d63cb2d8cee1209741cfd953b *lint.log",
+    "64673ed5b56f2693c94a97fccfd3af6259162c5ba5640ec8d01ee90a70019d06 *next.log",
+    "f90e95d76961f9bc651a0720724b4d765245600c03e90374f67ff98702d51bb5 *playwright.log",
+    "95d19405987b7333ac0d269a82dd53ae18e3f99ddc86c3b4a5a23ff3a8f24c8c *tsc.log",
+    "d2b9732da2ed3c27335958168f2ee7e59cfb130356ab2b28ed072597ddb1a4bc *validator.log"
+  ],
+  "verdict": "PASS"
+}

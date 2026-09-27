@@ -1,0 +1,45 @@
+{
+  "unit": "U17c",
+  "stage": "admission",
+  "at": "2026-09-27T20:04:20.001Z",
+  "baseline": "f53e2233c23341101918c74b38ffa9b23ca8ca14",
+  "next": "validate-roadmap.mjs --next printed U17c on exact main f53e223 (evidence .omo task-48-u98c-closure-main-proof.json)",
+  "ownership": {
+    "declared": [
+      "scripts/qc",
+      "scripts/__tests__"
+    ],
+    "touched": [
+      "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+      "scripts/__tests__/roadmap-loop-scripts.test.ts",
+      "scripts/qc/roadmap-ledger-lib.mjs",
+      "scripts/qc/roadmap-unit-closure.mjs",
+      "scripts/qc/roadmap-unit-fold.mjs"
+    ],
+    "touchedRecordedAt": "fold (the diff was not known at admission)"
+  },
+  "tier": "STANDARD: routine tooling fix in two ledger tools, their shared library and two pin files; independently reviewed per plan",
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500
+  },
+  "parentRead": [
+    "scripts/qc/roadmap-ledger-lib.mjs",
+    "scripts/qc/roadmap-unit-fold.mjs",
+    "scripts/qc/roadmap-unit-closure.mjs",
+    "scripts/__tests__/roadmap-loop-closure-proof.test.ts (header, helpers, closure rows)",
+    "scripts/__tests__/roadmap-loop-scripts.test.ts (row outline: the fold cases live here)"
+  ],
+  "decisions": {
+    "exit": "printValidator returns a result; fold and closure refuse LEDGER_INVALID_AFTER_WRITE with the validator line when the main validator does not exit 0 with PASSED; --next stays informational; no rollback (the write stays on disk and the message says not to publish it)",
+    "sensitiveRuling": "precondition: a non-routine unit needs a packet whose blocks include it with a decision and a ruling whose ruledHead is the PR head, recorded in units.json in the same working tree before the closure runs (one commit); laneB names it; otherwise OWNER_RULING_MISSING before any write; no new flag",
+    "closerInput": "optional --review-context, --reviewer-effort, --checkout, --merge-method; absent -> \"not stated by the closer\"; e2eBundleMarker defaults to the same and --extra-runtime can still override it; the tick note drops the unverifiable packet clause",
+    "foldPinRow": "scripts/__tests__/roadmap-loop-scripts.test.ts (where U17 placed the fold cases)",
+    "outOfScope": "roadmap-unit-park.mjs and roadmap-main-proof.mjs; docs outside scripts/ recorded as findings"
+  },
+  "parentDecision": {
+    "decision": "go",
+    "reason": "Registered by #2054; --next prints U17c on f53e223; every existing refusal stays; receipts already in the ledger are not rewritten."
+  },
+  "planTask": "47"
+}

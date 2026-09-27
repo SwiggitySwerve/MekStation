@@ -1,0 +1,10 @@
+{
+  "unit": "U17c",
+  "stage": "red",
+  "at": "2026-09-27T20:07:03.564Z",
+  "baseline": "f53e2233c23341101918c74b38ffa9b23ca8ca14",
+  "summary": "Red first against the unchanged tools on f53e223: R1 the closure exits 0 after its post-write validator reports FAILED (a deterministically invalid unrelated unit); R2 a sensitive unit (reviewClasses authority) with a decision-only packet closes and gets a review receipt saying Lane B is not required; R3 the fold exits 0 after its post-write validator reports FAILED; R4 (parent correction) --expected-reds without closer-supplied failedRows is accepted when the tool fabricates failedRows from expectedReds. Each new pin row failed red (Jest exit 1).",
+  "evidence": [
+    "worker logs R1-closure-validator-red.log, R2-owner-ruling-red.log, R3-fold-validator-red.log, R4-expected-reds-without-observed-rows-red.log (preserved with the lane evidence)"
+  ]
+}

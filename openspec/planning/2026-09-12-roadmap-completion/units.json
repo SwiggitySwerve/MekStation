@@ -3837,18 +3837,53 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
-      "prHead": null,
-      "mergeSha": null,
+      "state": "complete",
+      "baseline": "f53e2233c23341101918c74b38ffa9b23ca8ca14",
+      "prHead": "7e0011267d2dfcb739c16bfc91a419e7c450d5e9",
+      "mergeSha": "3b4a7b1534afd95db0fc57d761ef265d02157f1e",
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "admission": {
+          "path": "evidence/u17c-admission-20260927.json",
+          "baseline": "f53e2233c23341101918c74b38ffa9b23ca8ca14",
+          "at": "2026-09-27T20:04:20.001Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u17c-red-20260927.json",
+          "at": "2026-09-27T20:07:03.564Z",
+          "summary": "Red first against the unchanged tools on f53e223: the closure and the fold each exited 0 after their post-write validator reported FAILED (R1, R3); a sensitive unit with a decision-only packet closed with Lane B \"not required\" (R2); expected reds without observed failed rows were accepted once failedRows was fabricated (R4, parent correction)"
+        },
+        "local": {
+          "path": "evidence/u17c-local-20260927.json",
+          "at": "2026-09-27T20:21:19.268Z",
+          "summary": "5 files +271/-20 in scripts/qc and scripts/__tests__: LEDGER_INVALID_AFTER_WRITE after an invalid write (no rollback), head-bound owner ruling for non-routine units or OWNER_RULING_MISSING before any write, four closer flags with \"not stated by the closer\" defaults, no packet claim in the tick note, failedRows only from --extra-runtime; pins 49/49, scratch fold CLI exit 1, typecheck, lint 0 errors, lint:units 17899/17899, format; Lane A reproduced R1-R4 and the CLI failure"
+        },
+        "review": {
+          "path": "evidence/u17c-review-20260927.json",
+          "head": "7e0011267d2dfcb739c16bfc91a419e7c450d5e9",
+          "reviewedHead": "7e0011267d2dfcb739c16bfc91a419e7c450d5e9",
+          "reviewerModel": "claude-fable-5-1",
+          "implementerModel": "gpt-5.6-sol-fast (deep-low task st_01a0e478)",
+          "outputSha256": "b3c0c69b11501155b583088c77b6c9843520d0958c2e4b5de438e05ed68d0e0b",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u17c-merge-20260927.json",
+          "pr": 2059,
+          "head": "7e0011267d2dfcb739c16bfc91a419e7c450d5e9",
+          "mergeSha": "3b4a7b1534afd95db0fc57d761ef265d02157f1e"
+        },
+        "mainProof": {
+          "path": "evidence/u17c-mainproof-20260927.json",
+          "mergeCommit": "3b4a7b1534afd95db0fc57d761ef265d02157f1e",
+          "verdict": "PASS",
+          "runtime": "U17C PROOF RUNTIME PASSED: 147 passed (3 separate jest processes x 49 tests, 0 failed, exit 0)"
+        },
+        "tick": {
+          "path": "evidence/u17c-tick-20260927.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "admissionRequires": "Parent verifies the admission baseline, reads the closure pin and both tools first, and keeps every existing refusal (merge state, review head, reviewer model, verdict, blob equality, proof lines) unchanged.",
@@ -12936,7 +12971,8 @@
       "class": "closure tooling",
       "summary": "scripts/qc/roadmap-unit-fold.mjs and scripts/qc/roadmap-unit-closure.mjs call printValidator after writing, which prints 'ROADMAP VALIDATION FAILED' without propagating the failure, so both exit 0: the P1A local fold's first run and the P1A closure both exited 0 with the validator reporting one failure. A caller that trusts the exit code publishes an invalid ledger.",
       "recommendedSuccessor": "U17c",
-      "status": "recorded; held by U17c"
+      "status": "resolved by U17c (merge 3b4a7b1534afd95db0fc57d761ef265d02157f1e): fold and closure refuse LEDGER_INVALID_AFTER_WRITE with the validator's line after an invalid write",
+      "resolvedBy": "U17c"
     },
     {
       "id": "FN-p1a-closure-fixed-receipt-text",
@@ -12945,7 +12981,8 @@
       "class": "closure tooling",
       "summary": "The closure writes fixed text into every review and mainProof receipt: the Lane A reviewer 're-ran tsc/oxlint/oxfmt/jest', Lane B 'not required (review classes: routine)', checkout 'root checkout fast-forwarded to the merge commit', and '__E2E_MODE__ present in _app chunk'. For P1A all four were false (a sensitive unit with an owner ruling, a hash-and-probe reviewer, an owned detached worktree, a production proof) and were corrected by hand at the fold (correctedAtFold fields).",
       "recommendedSuccessor": "U17c",
-      "status": "recorded; held by U17c"
+      "status": "resolved by U17c (merge 3b4a7b1534afd95db0fc57d761ef265d02157f1e): Lane B follows the review classes and a head-bound packet ruling; review context, reviewer effort, checkout and merge method come from closer flags or read \"not stated by the closer\"; the tick note drops the packet claim; receipts already in the ledger are not rewritten",
+      "resolvedBy": "U17c"
     },
     {
       "id": "FN-u98b-stall-burst-takes-six-sample-median",
@@ -12957,6 +12994,16 @@
       "recommendedSuccessor": "U98c",
       "status": "resolved by U98c (merge d1297db61807e09019213842f40f30df5955a872): each log size measures 12 commands after 4 warm-ups, so up to five stalled commands leave a step's median unchanged; the growth rule, thresholds, sizes and rows are unchanged",
       "resolvedBy": "U98c"
+    },
+    {
+      "id": "FN-u17c-park-ignores-validator-result",
+      "foundBy": "U17c implementer and Lane A review, 2026-09-27",
+      "at": "2026-09-27T20:34:34.349Z",
+      "class": "closure tooling",
+      "summary": "scripts/qc/roadmap-unit-park.mjs still calls printValidator without acting on its result, so a park whose post-write validation fails can exit 0, the defect U17c removed from the fold and the closure. It was outside U17c's admitted scope.",
+      "evidence": "evidence/u17c-local-20260927.json and evidence/u17c-lane-a-review-20260927.md",
+      "recommendedSuccessor": "a later R6.loop-harness unit",
+      "status": "recorded; not yet held by a unit"
     }
   ]
 }

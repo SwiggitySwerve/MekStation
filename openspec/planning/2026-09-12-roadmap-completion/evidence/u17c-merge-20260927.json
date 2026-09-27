@@ -1,0 +1,22 @@
+{
+  "unit": "U17c",
+  "stage": "merge",
+  "at": "2026-09-27T20:34:16.598Z",
+  "pr": 2059,
+  "title": "fix(qc): make ledger closure tools fail and report truthfully",
+  "head": "7e0011267d2dfcb739c16bfc91a419e7c450d5e9",
+  "mergeSha": "3b4a7b1534afd95db0fc57d761ef265d02157f1e",
+  "mergedAt": "2026-09-27T20:29:54Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge 2059 --squash --match-head-commit 7e0011267d2dfcb739c16bfc91a419e7c450d5e9 after the GraphQL pre-merge gate (31/31 checks SUCCESS, CLEAN/MERGEABLE, 0 unresolved threads, Lane A APPROVE on the exact head); no administrative bypass",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+    "scripts/__tests__/roadmap-loop-scripts.test.ts",
+    "scripts/qc/roadmap-ledger-lib.mjs",
+    "scripts/qc/roadmap-unit-closure.mjs",
+    "scripts/qc/roadmap-unit-fold.mjs"
+  ],
+  "blobEqualityDiffLines": 0
+}

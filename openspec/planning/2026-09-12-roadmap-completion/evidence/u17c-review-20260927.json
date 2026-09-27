@@ -1,0 +1,17 @@
+{
+  "unit": "U17c",
+  "stage": "review",
+  "at": "2026-09-27T20:34:14.939Z",
+  "lane": "A",
+  "reviewerModel": "claude-fable-5-1",
+  "implementerModel": "gpt-5.6-sol-fast (deep-low task st_01a0e478)",
+  "reviewerEffort": "not exposed by the task snapshot",
+  "head": "7e0011267d2dfcb739c16bfc91a419e7c450d5e9",
+  "reviewedHead": "7e0011267d2dfcb739c16bfc91a419e7c450d5e9",
+  "verdict": "APPROVE",
+  "outputPath": "evidence/u17c-lane-a-review-20260927.md",
+  "outputSha256": "b3c0c69b11501155b583088c77b6c9843520d0958c2e4b5de438e05ed68d0e0b",
+  "sharedContext": "none: a separate task (st_01a0e488) on a different model from the implementer reviewed a detached, locked worktree at the head (node_modules junctioned to the wave-A dependencies); it reproduced R1-R4 against baseline tool files restored from f53e223 (head files restored and sha256-checked), ran both pin files at the head (34/34 and 15/15) and a scratch-ledger fold CLI run (exit 1), and did not re-run typecheck, lint or format",
+  "laneB": "not required (review classes: routine)",
+  "githubApproval": "none recorded; Lane A is engineering evidence, never a GitHub approval"
+}
