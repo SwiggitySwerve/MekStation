@@ -3589,17 +3589,22 @@
       }
     },
     {
-      "id": "U38",
+      "id": "P1",
       "node": "R2.authority-live",
       "taskKeys": [],
-      "behavior": "On a co-op campaign match, ServerMatchHost refuses a combat intent for a unit on a side the caller does not hold: AUTH_REJECTED unit-not-owned, with nothing appended. The blanket exemption 'if (meta?.coopCampaign) return null;' at ServerMatchHostIntent.ts:552 and its comment (:544-551) are deleted, and the uncalled ownsCoopUnit is either removed or wired in. Red-first: on the campaign-sync co-op match, a jest row where player B commands player A's unit is admitted today and refused after. U53 re-proves E2E-31/32 on the co-op fixture.",
+      "behavior": "Co-op mission launch creates one trusted shared combat match on the server with a server-derived per-unit owner map. Through the existing multiplayer match-create route (src/pages/api/multiplayer/matches/index.ts) a co-op launch for coopCampaign.campaignId derives unit ownership server-side from the durable CampaignSessionForceClaimStore claims at the accepted launch head: every selected force and unit is validated for membership, a claim the caller does not hold or that names a force the campaign does not carry is refused with a typed 400, and no match is created for a stale head, a nonmember or a forged claim. Each bootstrap unit persists an optional ownerPlayerId; the mapping is complete for every deploying player, both player rosters sit on the player side, and any ownership the client sends is ignored. Opposing-side OpFor units are preserved in the bootstrap without granting either player ownership of them. Exactly one missionMatchId is announced through the existing campaign-sync delivery, so the guest receives it, and a retried launch is idempotent: it returns the same match and appends nothing new. Restart preserves the stored owner mapping. Page navigation does not change in this unit (P2 consumes the contract on R2.multiplayer-client). Red-first: a jest row through the real create route and store shows that today the launch drops owner-tagged composition before any shared host exists, and that a spoofed owner, a stale head, a missing owner and a duplicate launch are not refused. If create/map and announce cannot fit the caps together, split announce into a registered successor before admission rather than trimming the letter. Regression only: the pre-existing e2e/coop-campaign-two-browser-journey.spec.ts journey is run locally and on main as it stands; P1 does not author the new launch/shared-match/opponent-turn browser assertions (P2 owns them under its own path amendment). Because launchCoopMission changes, the immutable camp-01d ordered arrays in openspec/changes/add-saved-custom-unit-campaign-roster/tasks.md:37 run through the existing receipt contract without rewriting their command IDs.",
       "ownershipPaths": [
+        "src/lib/campaign",
         "src/lib/multiplayer/server",
-        "src/lib/campaign"
+        "src/pages/api/multiplayer/matches/index.ts",
+        "src/lib/api",
+        "src/types/campaign/CampaignSync.ts",
+        "e2e/coop-campaign-two-browser-journey.spec.ts"
       ],
       "ciClass": "product",
       "reviewClasses": [
-        "authority"
+        "authority",
+        "idempotency"
       ],
       "caps": {
         "maxFiles": 15,
@@ -3619,9 +3624,156 @@
         "tick": null
       },
       "ownerGate": null,
+      "admissionRequires": "None beyond the loop's own gates: this is the first of the three U38 precursors. The parent checks at admission that no in-flight unit owns an ancestor or descendant of these paths, and that e2e/coop-campaign-two-browser-journey.spec.ts is exercised only as the existing regression journey (no new browser assertions here). Lane B (owner-originated OWNER-RULING on the exact merged head) is required by the authority class; it is not recorded here and nothing in this ledger pre-approves it.",
+      "source20260927": "registered by the parent under task 1 of the approved continuation plan (.omo/plans/mekstation-roadmap-loop-continuation.md, user approval 'Write and review plan' on 2026-09-27; plan task 2 is this unit's letter) as the server precursor of the U38 correction: U38's deleted co-op exemption would lock out the guest unless a shared host already carries a trusted per-unit owner map (GAP-1, GAP-6). Planning provenance only; not an owner ruling on any head.",
+      "successors": [
+        "PAI",
+        "P2",
+        "U38"
+      ]
+    },
+    {
+      "id": "PAI",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "The server drives the opposing force of an explicitly bootstrapped co-op mission match through its own commands, reusing the existing engine AI without any browser AI, transport or client-visible authority field. A bounded server-only driver under src/lib/multiplayer/server imports the existing InteractiveSession AI (InteractiveSession.runAITurn(GameSide.Opponent, unitId), src/engine/InteractiveSession.ts:692-694) rather than rewriting strategy; it applies only to co-op mission matches P1 bootstrapped, never to the campaign-sync vessel or a versus match. At an eligible opposing-unit turn the driver submits, inside ServerMatchHost's existing serialized command lifecycle, an internal command bound to the current branch, revision and generation with a deterministic identity derived from the match, the head and the active unit; the engine runs the AI turn inside that lifecycle and the whole generated batch is persisted and broadcast through the normal store/journal paths with normal per-viewer publication. Internal authority is not representable by any client wire field, so no player can spoof an internal AI command. Seeded decisions are reconstructed from committed engine/head state and never rerolled on duplicate delivery: a duplicate trigger, a restart after persisted-before-broadcast, or a recovery cannot append twice, storage failure stops advancement, and a stale branch or generation invalidates the pending work. Scheduling comes from accepted state transitions, not an unbounded timer or poll loop; at most one opponent action is in flight; rewind, close, pause and the existing co-op host-disconnect pause rule invalidate stale work. Hidden opponent inputs stay server-side. Red-first: a new jest suite (CoopOpponentDriver) with the real InteractiveSession, a seeded runtime and a SQLite store shows that today an opposing unit's turn never advances on the shared host; after, player-turn -> opponent-turn -> player-turn completes and replay/cold reopen reproduces the same outcome. Before implementation the corresponding server-AI OpenSpec delta is added through a separately owned contract slice; it does not change the per-unit ownership rule. If adapting the engine invocation needs engine edits or exceeds the caps, those owned changes are split and registered before admission; engine guards are never bypassed to fit. The public two-browser opponent-turn proof belongs to P2.",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "admissionRequires": "P1 main-verified or complete with its mainProof receipt naming an exact main merge commit (validate-roadmap.mjs --next does not read this field; the parent releases this unit to planned only after checking P1's receipts on main). If P1 is parked on an owner packet, this unit is gated on the same packet rather than released. The server-AI OpenSpec delta slice must exist before admission. Lane B is required by every one of its review classes.",
+      "source20260927": "registered by the parent under task 1 of the approved continuation plan (plan task 40 is this unit's letter): the user chose on 2026-09-27 that the opposing force in a shared co-op match is driven by the SERVER through existing engine logic, not by a player browser (GAP-7); the choice is recorded here as planning provenance, not as an exact-head OWNER-RULING.",
+      "blocked20260927": {
+        "cause": "prerequisite P1 is planned, not on main: the driver needs the owner-bound bootstrap and shared host P1 creates",
+        "nextIndependentAction": "P1 delivers through the loop; the parent then re-reads P1's exact-main receipts and releases PAI to planned in a ledger edit"
+      },
+      "predecessors": [
+        "P1"
+      ],
+      "successors": [
+        "P2",
+        "U38"
+      ]
+    },
+    {
+      "id": "P2",
+      "node": "R2.multiplayer-client",
+      "taskKeys": [],
+      "behavior": "Both deploying co-op clients join the shared mission the server created. missionLaunchPage.launch.ts consumes P1's server-issued missionMatchId: the deploying host and the deploying guest navigate to and join the same tactical match, command-hq stays on /gameplay/campaigns/<id>, and the non-playing GM connection is preserved. No player browser receives or requests an opponent-control grant, and a guest disconnect grants nothing. A failed or stale launch leaves both clients on their safe prior routes and creates no extra match. This unit also owns e2e/coop-campaign-two-browser-journey.spec.ts through task 1's node and unit path amendment: it adds the launch, deploy/HQ destination, shared match ID and active opponent-turn browser assertions to that journey and updates the spec's current no-mission-launch coverage comment to the behavior actually proved. Red-first: jest rows on missionLaunchPage.launch (deploy and HQ destinations, stale head, failed create) fail today because launch drops the composition before any shared match exists; the extended journey run through npm.cmd run verify:qc:coop-campaign-journey fails today at the shared-identity and opponent-turn assertions and passes locally and on exact main after. Not claimed: any server, API or persistence change (P1, PAI) and the ownership refusal itself (U38).",
+      "ownershipPaths": [
+        "src/pages-modules/gameplay/campaigns/missionLaunchPage.launch.ts",
+        "src/pages-modules/gameplay/campaigns/__tests__/missionLaunchPage.launch.test.ts",
+        "src/components/campaign/coop",
+        "src/hooks",
+        "e2e/coop-campaign-two-browser-journey.spec.ts"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "admissionRequires": "P1 and PAI both main-verified or complete with mainProof receipts naming exact main merge commits, so that the shared match exists and its opposing force is actively driven before any client is cut over to it (a blocked driver parks P2 and U38 together rather than shipping an inert opposing force). validate-roadmap.mjs --next does not read this field; the parent releases P2 to planned only after checking both receipts on main. If P1 or PAI is parked on an owner packet, P2 is gated on that same packet. Review classes are re-read at admission: if the increment changes the wire or authority contract, the parent adds the matching sensitive class and Lane B before local-verified.",
+      "source20260927": "registered by the parent under task 1 of the approved continuation plan (plan task 39 is this unit's letter) as the client precursor of the U38 correction (GAP-6): a host-only test cannot prove the player journey, and the server paths stay on R2.authority-live rather than moving to this client node.",
+      "blocked20260927": {
+        "cause": "prerequisites P1 and PAI are not on main: there is no server-issued missionMatchId to consume and no proven opponent driver to cut over to",
+        "nextIndependentAction": "P1 then PAI deliver through the loop; the parent then re-reads both exact-main receipts and releases P2 to planned in a ledger edit"
+      },
+      "predecessors": [
+        "P1",
+        "PAI"
+      ],
+      "successors": [
+        "U38"
+      ]
+    },
+    {
+      "id": "U38",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "On a co-op campaign mission match, both players sit on the same side and each commands only the units they own: ServerMatchHost compares every combat intent against the trusted server-derived per-unit owner map P1 stored at launch (never a client claim), so a caller's own same-side units succeed and any other unit is refused AUTH_REJECTED unit-not-owned with nothing appended, the event head unchanged and the receipt census unchanged, in both directions between the two owners. A unit with no owner in the map (an ownerless historical co-op vessel match, or a unit the map does not carry) is also refused for combat commands, without appending and without fabricating an owner; that fail-closed limit is an explicit round-2 known issue, not silently healed. The versus side check is retained. The blanket exemption 'if (meta?.coopCampaign) return null;' at ServerMatchHostIntent.ts:552 and its comment (:544-551) are deleted, and the uncalled ownsCoopUnit is either removed or wired in consistently. Guest bravo is not converted into opponent-side gameplay; the opposing force stays PAI's. Red-first: on the P1-bootstrapped co-op match, jest rows where player B commands player A's unit and player A commands player B's unit are admitted today and refused after, while own-unit controls in both seats pass, including after restart and on ownerless metadata. U53 re-proves E2E-31/32 on the co-op fixture; the complete strict-combat reproof stays with U53.",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server",
+        "src/lib/campaign"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "admissionRequires": "P1, PAI and P2 all main-verified or complete with mainProof receipts naming exact main merge commits, checked by the parent before this unit is released to planned (validate-roadmap.mjs --next does not read this field). Enforcing per-unit ownership before the trusted map exists (P1), before the opposing force is driven (PAI) and before both clients join the shared match (P2) would lock the guest out of a playable mission. If any precursor is parked on an owner packet, U38 is gated on that same packet. Lane B is required by the authority class.",
       "source20260922": "planned by the parent from the 2026-09-22 triage plan (newUnits; evidence/triage-plan-20260922.json (179 register issues verified against main a9244fcad)) under the owner instruction of 2026-09-22 (\"ultracode find everything that is marked and if there are issues go with recommended path to solution based on the goal\")",
       "triageIssues20260922": [
         "I-coop-per-unit-ownership"
+      ],
+      "corrected20260927": {
+        "by": "parent, task 1 of the approved continuation plan (.omo/plans/mekstation-roadmap-loop-continuation.md; GAP-1)",
+        "from": "On a co-op campaign match, ServerMatchHost refuses a combat intent for a unit on a side the caller does not hold: AUTH_REJECTED unit-not-owned, with nothing appended. The blanket exemption 'if (meta?.coopCampaign) return null;' at ServerMatchHostIntent.ts:552 and its comment (:544-551) are deleted, and the uncalled ownsCoopUnit is either removed or wired in. Red-first: on the campaign-sync co-op match, a jest row where player B commands player A's unit is admitted today and refused after. U53 re-proves E2E-31/32 on the co-op fixture.",
+        "why": "side ownership is not unit ownership: in co-op both players hold the same side, so the side-only sentence would either admit every teammate command or, with the exemption deleted alone, lock out the guest. The canonical rule in openspec/specs/coop-campaign-sync/spec.md:166-188 already states per-unit ownership and needs no replacement delta; ownership paths, class and caps are unchanged",
+        "stateChange": "planned -> blocked on P1, PAI and P2 (registered in the same edit, immediately before this unit, without reordering any existing unit)"
+      },
+      "predecessors": [
+        "P1",
+        "PAI",
+        "P2"
       ]
     },
     {
