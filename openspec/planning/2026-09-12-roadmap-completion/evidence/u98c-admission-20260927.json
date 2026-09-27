@@ -1,0 +1,25 @@
+{
+  "unit": "U98c",
+  "stage": "admission",
+  "at": "2026-09-27T19:20:00.000Z",
+  "baseline": "c37665476c818b8d8e273264deaf9a4fc705400b",
+  "next": "validate-roadmap.mjs --next printed U98c on exact main c376654 (evidence .omo task-46-u98b-closure-main-proof.json)",
+  "ownership": {
+    "declared": [
+      "src/lib/multiplayer/server"
+    ],
+    "touched": [
+      "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test-helpers.ts"
+    ]
+  },
+  "tier": "LIGHT: routine, test-only sample-count change; independently reviewed per plan",
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500
+  },
+  "parentDecision": {
+    "decision": "go",
+    "reason": "Registered by #2056 as the successor of U98b; admissionRequires a red-first test-local stall mutant failing at 2/6 and passing at 4/12, with size-scaled growth and the 50 ms rewrite ceiling still failing."
+  },
+  "planTask": "48"
+}
