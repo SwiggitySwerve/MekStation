@@ -5026,14 +5026,28 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "local-verified",
+      "baseline": "e14e0f2ca989e58d4ea8bf87695cbda1383e2161",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u23-admission-20260927.json",
+          "baseline": "e14e0f2ca989e58d4ea8bf87695cbda1383e2161",
+          "at": "2026-09-27T22:33:02.765Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u23-red-20260927.json",
+          "at": "2026-09-27T22:37:01.063Z",
+          "summary": "Red first: the fail-closed suite failed 5 of 7 on the unchanged store; the legacy-control and digest-only divergent rows were each red before their fixes"
+        },
+        "local": {
+          "path": "evidence/u23-local-20260927.json",
+          "at": "2026-09-27T23:37:13.043Z",
+          "summary": "6 files, 119 counted lines: journal-authority commands fail closed on every non-mirrored result at mode enabled, identical retries heal from stored data, divergent retries refuse before the journal, legacy stays diagnostic, admission no longer poisoned; green in two processes, all gates and build; Lane A APPROVE at 7d9399f after an earlier REJECT was fixed"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -11326,6 +11340,34 @@
       "decision": null,
       "ruling": null,
       "note": "Registered at the local receipt fold because the validator requires a sensitive-class packet from local-verified on. This is an undecided question, not an owner ruling. The owner was asked in the working session at 2026-09-27 and did not answer within the question window; the agent will not post the owner comment, apply its label or choose the packet decision."
+    },
+    {
+      "id": "PK-u23-ruling",
+      "blocks": [
+        "U23"
+      ],
+      "nodes": [
+        "R4.S7"
+      ],
+      "taskKeys": [],
+      "question": "U23 presents head 7d9399f5abef0660f3889b01593857fbf609d091 on PR #2065 for concurrency, idempotency and authority review. Does the owner rule this exact head after fresh independent review and required CI checks pass?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "The owner posts the head-bound OWNER-RULING comment and applies owner-ruled on the actual product PR; only then may the parent merge and run exact-main proof.",
+          "effort": "One owner review of the exact head and its evidence"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Do not merge; preserve the objection and revise through a new verified head, fresh independent review and fresh owner ruling.",
+          "effort": "Depends on the concrete requested change"
+        }
+      ],
+      "agentRecommendation": "Rule the exact head. Lane A approved 7d9399f after an earlier REJECT (B1: a digest-divergent same-id retry could be mirrored) was fixed and reproduced; 31 of 31 checks are green. Fail-closed applies only to journal-authority commands at mode enabled; legacy, seed and rolled-back matches stay diagnostic, and the rollback proof is unchanged.",
+      "revertCost": "Revert the isolated store and admission change; mode off is unaffected and no stored data is rewritten.",
+      "decision": null,
+      "ruling": null,
+      "note": "Registered at the local receipt fold because the validator requires a sensitive-class packet from local-verified on. This is an undecided question, not an owner ruling. The owner has not yet been reached for this head; the agent will not post the owner comment, apply its label or choose the packet decision."
     }
   ],
   "deferrals": [
@@ -13234,6 +13276,16 @@
       "evidence": "evidence/u17c-local-20260927.json and evidence/u17c-lane-a-review-20260927.md",
       "recommendedSuccessor": "a later R6.loop-harness unit",
       "status": "recorded; not yet held by a unit"
+    },
+    {
+      "id": "FN-u23-fingerprint-key-order",
+      "foundBy": "U23 Lane A re-review, 2026-09-27",
+      "at": "2026-09-27T23:37:12.855Z",
+      "class": "store identity",
+      "summary": "The persisted v2 command fingerprint (matchCommandBatch.ts) is sensitive to payload key order, so a same-id retry whose event payload objects carry the same values in a different key order is refused as integrity-conflict even though the canonical journal comparison would accept it. This is conservative (it never admits divergent content) and predates U23; deterministic re-execution and receipt-driven resume produce the same order.",
+      "evidence": "evidence/u23-local-20260927.json and the Lane A re-review export",
+      "recommendedSuccessor": "none; revisit only if a legitimate retry is observed to reorder payload keys",
+      "status": "recorded; not held"
     }
   ]
 }

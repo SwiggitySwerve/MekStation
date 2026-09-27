@@ -1,0 +1,10 @@
+{
+  "unit": "U23",
+  "stage": "red",
+  "at": "2026-09-27T22:37:01.063Z",
+  "baseline": "e14e0f2ca989e58d4ea8bf87695cbda1383e2161",
+  "summary": "Red first on the unchanged store: the new fail-closed suite failed 5 of 7 (a forced revision conflict, a thrown mirror error, integrity-conflict, post-commit branch-integrity and an unavailable capability DB all acked the command instead of failing it closed). Later red rows: the legacy-control row against an intermediate fail-closed-for-all version, and the digest-only divergent retry against head f9e5349 (Lane A B1), both then fixed.",
+  "evidence": [
+    "lane logs red-journalMirrorFailClosed.log, parent-red-legacy-control.log, parent-red-rollback-legacy.log, review-b1-red.log"
+  ]
+}
