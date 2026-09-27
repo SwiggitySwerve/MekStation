@@ -5802,15 +5802,7 @@
         "src/pages-modules/api/e2ePerformanceProbeRoute.ts",
         "src/__tests__/api/e2ePerformanceProbeRoute.test.ts"
       ],
-      "acceptance": [
-        "npm.cmd run verify:qc:gm-two-player-campaign",
-        "npm.cmd run verify:qc:campaign-long",
-        "npm.cmd run typecheck",
-        "npm.cmd run lint",
-        "npm.cmd run format:check",
-        "npm.cmd run build",
-        "All reachable required E2E-01..80 assertions with ten-scenario reconnect/restart/correction proof; preserve explicit out-of-scope simulations"
-      ],
+      "acceptance": "E2E-01..80 resolved and run as the harden-gm-two-player-campaign-sessions e2e-testing requirement 'Acceptance Run Excludes Only Named-Gate Rows' defines: every id resolves exactly once to an authored row, the E2E-80 exact-main contract, or a gated-absent entry of scripts/qc/gm-two-player-acceptance-gates.cjs naming its gate tag and holder; the run passes only when every non-excluded row passes and no excluded row passes unexpectedly; ten-scenario reconnect/restart/correction proof; preserve explicit out-of-scope simulations",
       "owner": "parent; assign bounded Luna high worker on admission",
       "maxFiles": 15,
       "maxNonGeneratedLines": 500,
@@ -5961,7 +5953,21 @@
           "source": "parent, from U86's first admission attempt (evidence/u86-admission-attempt1-20260925.json)",
           "why": "the E2E-guarded performance probe route the unit's sentence names returns only wall, monotonic and memory readings (e2ePerformanceProbeRoute.ts:53-61), so the unit must extend it to answer the session's convergence for a match"
         }
-      ]
+      ],
+      "acceptancePrevious20260926": [
+        "npm.cmd run verify:qc:gm-two-player-campaign",
+        "npm.cmd run verify:qc:campaign-long",
+        "npm.cmd run typecheck",
+        "npm.cmd run lint",
+        "npm.cmd run format:check",
+        "npm.cmd run build",
+        "All reachable required E2E-01..80 assertions with ten-scenario reconnect/restart/correction proof; preserve explicit out-of-scope simulations"
+      ],
+      "acceptanceAmended20260926": {
+        "at": "2026-09-27T00:34:47.000Z",
+        "by": "U29 (the parent writes the string from the lane's admission receipt at fold)",
+        "packet": "PK-umbrella-acceptance-unsatisfiable option (b)"
+      }
     },
     {
       "id": "R6.deferrals",

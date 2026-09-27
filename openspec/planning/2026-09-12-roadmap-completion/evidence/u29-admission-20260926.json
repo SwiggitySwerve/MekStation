@@ -1,0 +1,1053 @@
+{
+  "unit": "U29",
+  "stage": "admission",
+  "status": "go",
+  "at": "2026-09-27T00:03:32.168Z",
+  "node": "R6.umbrella",
+  "baseline": "ae7b6fc8019ddc7e977b4a634aa296d381cf9600",
+  "originMain": "ae7b6fc8019ddc7e977b4a634aa296d381cf9600",
+  "originMainLsRemote": "ae7b6fc8019ddc7e977b4a634aa296d381cf9600\trefs/heads/main",
+  "baselineEqualsOriginMain": true,
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u29",
+  "branch": "roadmap-u29-acceptance-gates-manifest-20260926",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "ownershipPaths": [
+    "openspec/changes/harden-gm-two-player-campaign-sessions",
+    "scripts/qc",
+    "scripts/__tests__"
+  ],
+  "receiptPaths": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u29-admission-20260926.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u29-red-20260926.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u29-local-20260926.json"
+  ],
+  "reviewClasses": [
+    "routine"
+  ],
+  "behavior": "units.json U29 behavior sentence, not widened; each clause is answered in designAnswers",
+  "decision": {
+    "packet": "PK-umbrella-acceptance-unsatisfiable",
+    "option": "amend the acceptance through openspec (option b)",
+    "decidedAt": "2026-09-22T12:00:00.000Z",
+    "ownerWordsQuoted": "go with option b and the whole-row rule, continue the loop. I want the best solution that does not block us towards the goal. This software is in MVP so you can hard cutover and do whatever you like to make sure it works correctly",
+    "decisionTextRest": "Option (b) as council 3 decision 7 words it (openspec/council-decisions/2026-09-21-umbrella-failures-review.md): every E2E id in the catalogue must exist as an authored row; the excluded set is exactly the authored rows carrying a strict test.fail with a named gate tag; the run passes when every non-gated row is green and zero gated rows pass unexpectedly; named gates @until-journal-cutover (owner adopt-combat-journal-cutover-and-gm-rewind) and the campaign-genesis production flip (design-campaign-authority-and-sync 5.7). The spec delta that writes this into the acceptance is a unit of R6.umbrella; the head-bound ruling is recorded on that unit's PR.",
+    "decisionSource": "units.json packets[PK-umbrella-acceptance-unsatisfiable].decision (transcribed by the parent; the owner's words verbatim); ruling is null: the owner's head-bound ruling on this unit's PR resolves the packet",
+    "councilRecord": "openspec/council-decisions/2026-09-21-umbrella-failures-review.md:17 (decision 7)",
+    "manifestVariant": "units.json U29 behavior: \"The manifest variant is chosen under OD-mvp-hard-cutover because 28 catalogue ids have no Playwright row today (measured)\"; roadmap.json:15903-15913 OD-mvp-hard-cutover carries the same ownerWords"
+  },
+  "guardNodeModulesLink": {
+    "command": "npm run --silent qc:guard-node-modules-link",
+    "exit": 1,
+    "output": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"<repo>\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u29\\\\node_modules\",\"actualPath\":\"<repo>\\\\node_modules\"}",
+    "outputRedaction": "the repository root is written as <repo>",
+    "consequence": "refused by design in a junctioned worktree; npm_config_dry_run=true on every npm/npx call; no install, ci, prune or lifecycle was run; npx is used only with installed binaries (npx --no-install openspec --version printed 1.5.0)"
+  },
+  "nextOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "exit": 0,
+    "output": "U25",
+    "note": "the validator names U25, not U29; U29 is assigned by the parent charter"
+  },
+  "roadmapValidatorOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "exit": 0,
+    "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows"
+  },
+  "seams": [
+    {
+      "at": "scripts/qc/gm-two-player-campaign-core.cjs:5-6",
+      "what": "GROUP_CATALOG; traceability:34 is reserved and answers NOT_IMPLEMENTED today"
+    },
+    {
+      "at": "scripts/qc/gm-two-player-campaign-core.cjs:51-148,180-185",
+      "what": "SPEC_BY_GROUP inside buildRunPlan (not exported); the all plan is every implemented group's specs, de-duplicated: 23 spec files, measured with buildRunPlan({group:\"all\"})"
+    },
+    {
+      "at": "scripts/qc/gm-two-player-campaign-core.cjs:215-216",
+      "what": "every plan sets PLAYWRIGHT_E2E_RUN_ID to its runId"
+    },
+    {
+      "at": "scripts/qc/gm-two-player-campaign-core.cjs:374-381",
+      "what": "exports REGISTERED_GROUPS and buildRunPlan; the pin reads the run's spec list through buildRunPlan"
+    },
+    {
+      "at": "scripts/qc/validate-exact-main-regression-ladder.mjs:5-11,62",
+      "what": "the E2E-80 exact-main contract and MILESTONE_LADDER"
+    },
+    {
+      "at": "scripts/qc/validate-exact-main-regression-ladder.mjs:200-203",
+      "what": "the ladder parser counts skipped as neither pass nor failure (unchanged by this unit)"
+    },
+    {
+      "at": "openspec/changes/harden-gm-two-player-campaign-sessions/specs/e2e-testing/spec.md:1-339",
+      "what": "one ADDED block, six requirements (:3, :78, :129, :192, :255, :298), 80 scenarios E2E-01..80"
+    },
+    {
+      "at": "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md:3",
+      "what": "plan pointer to implementation-plan.md and event-history-wave-map.md"
+    },
+    {
+      "at": "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md:100,103",
+      "what": "6.3 row; its 2026-08-28 receipt says \"scoped minting exists and is what connections now use\""
+    },
+    {
+      "at": "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md:581,642,649-650",
+      "what": "22.1, 25.1, 25.4 and its 2026-09-04 NOTE"
+    },
+    {
+      "at": "openspec/changes/harden-gm-two-player-campaign-sessions/implementation-plan.md:18",
+      "what": "\"The historical 33-todo matrix below\" while the matrix holds todos 1-34 plus F1-F4"
+    },
+    {
+      "at": "openspec/changes/harden-gm-two-player-campaign-sessions/implementation-plan.md:89-102",
+      "what": "Historical umbrella scheduling waves (the wave map)"
+    },
+    {
+      "at": "src/pages/api/multiplayer/auth/token.ts:157,161-167",
+      "what": "the production token route signs canonicalTokenPayload({ playerId, issuedAt, expiresAt }); the returned token has no scope"
+    },
+    {
+      "at": "src/lib/multiplayer/server/auth.ts:233-248",
+      "what": "the scope is checked only inside if (token.scope); a scopeless token passes"
+    },
+    {
+      "at": "e2e/gm-two-player-rewind.pack.spec.ts:43,76,119,201,251,315",
+      "what": "six strict test.fail marks, each carrying @until-journal-cutover"
+    },
+    {
+      "at": "e2e/gm-two-player-cleanup-ownership.spec.ts:312,372",
+      "what": "two test.skip(!runId, 'sandbox fixture requires PLAYWRIGHT_E2E_RUN_ID') marks in a spec the all plan runs"
+    }
+  ],
+  "designAnswers": {
+    "q1_catalogue": {
+      "summary": "80 catalogue ids (the delta's scenario headings). 52 ids carry an authored row. 28 carry none: E2E-80, resolved by the exact-main contract; E2E-46..60 (15), holder DF-branch-and-time-cascade (R6.B7); and 12 others: E2E-33, 35, 36, 37, 38, 39 and 45, holder U54 (row 21.3), and E2E-64, 65, 67, 68 and 69, holder U52 (row 22.2). Every rowless id has a holder, so nothing is BLOCKED on that count.",
+      "notRows": "E2E-64/65/67/68/69 appear only in the NOT CLAIMED HERE comment at e2e/gm-two-player-failure.pack.spec.ts:59-79, never in a test title; E2E-33/35-39/45/46-60/80 appear nowhere under e2e/ (grep -rn \"E2E-NN\\b\" e2e: 0 hits each).",
+      "measuredBy": {
+        "commands": [
+          "grep -nE \"^s*test(s*['\\\"`].*@E2E-[0-9]{2}\" e2e/*.ts  (58 title lines)",
+          "grep -nE \"^#### Scenario: E2E-[0-9]{2} \" openspec/changes/harden-gm-two-player-campaign-sessions/specs/e2e-testing/spec.md  (80 lines)"
+        ],
+        "grepRowsSha256": "916fbf602fab4b288ce2b07fa269a4ba35969f2115941d1780c1a8929c58d88c",
+        "grepCatalogueSha256": "850cd63ee0bf0ef10fae70b67848ba5a6e47f3dd740396f488be662265b2c5a8"
+      },
+      "counts": {
+        "catalogueIds": 80,
+        "idsWithAuthoredRow": 52,
+        "idsWithoutRow": 28,
+        "idsWithoutRowList": [
+          "E2E-33",
+          "E2E-35",
+          "E2E-36",
+          "E2E-37",
+          "E2E-38",
+          "E2E-39",
+          "E2E-45",
+          "E2E-46",
+          "E2E-47",
+          "E2E-48",
+          "E2E-49",
+          "E2E-50",
+          "E2E-51",
+          "E2E-52",
+          "E2E-53",
+          "E2E-54",
+          "E2E-55",
+          "E2E-56",
+          "E2E-57",
+          "E2E-58",
+          "E2E-59",
+          "E2E-60",
+          "E2E-64",
+          "E2E-65",
+          "E2E-67",
+          "E2E-68",
+          "E2E-69",
+          "E2E-80"
+        ],
+        "ofWhichE2E46to60": 15,
+        "ofWhichE2E80Contract": 1,
+        "others": [
+          "E2E-33",
+          "E2E-35",
+          "E2E-36",
+          "E2E-37",
+          "E2E-38",
+          "E2E-39",
+          "E2E-45",
+          "E2E-64",
+          "E2E-65",
+          "E2E-67",
+          "E2E-68",
+          "E2E-69"
+        ],
+        "unresolvedNoHolder": []
+      },
+      "table": [
+        {
+          "id": "E2E-01",
+          "scenario": "durable campaign cold recovery",
+          "spec": "specs/e2e-testing/spec.md:6",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-authority-recovery.pack.spec.ts:45",
+            "e2e/gm-two-player-authority-recovery.pack.spec.ts:64"
+          ]
+        },
+        {
+          "id": "E2E-02",
+          "scenario": "participant ownership survives restart",
+          "spec": "specs/e2e-testing/spec.md:10",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-authority-recovery.pack.spec.ts:83",
+            "e2e/gm-two-player-authority-recovery.pack.spec.ts:121"
+          ]
+        },
+        {
+          "id": "E2E-03",
+          "scenario": "campaign fact commits before render",
+          "spec": "specs/e2e-testing/spec.md:14",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-authority.pack1.spec.ts:115"
+          ]
+        },
+        {
+          "id": "E2E-04",
+          "scenario": "multi-event combat batch is atomic",
+          "spec": "specs/e2e-testing/spec.md:18",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-authority-order.pack.spec.ts:163"
+          ]
+        },
+        {
+          "id": "E2E-05",
+          "scenario": "crash before commit is invisible",
+          "spec": "specs/e2e-testing/spec.md:22",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-restart.pack.spec.ts:306"
+          ]
+        },
+        {
+          "id": "E2E-06",
+          "scenario": "crash after commit replays",
+          "spec": "specs/e2e-testing/spec.md:26",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-restart.pack.spec.ts:364"
+          ]
+        },
+        {
+          "id": "E2E-07",
+          "scenario": "concurrent player commands serialize",
+          "spec": "specs/e2e-testing/spec.md:30",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-authority-order.pack.spec.ts:225"
+          ]
+        },
+        {
+          "id": "E2E-08",
+          "scenario": "duplicate intent has one effect",
+          "spec": "specs/e2e-testing/spec.md:34",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-authority.pack1.spec.ts:153"
+          ]
+        },
+        {
+          "id": "E2E-09",
+          "scenario": "duplicate frame applies once",
+          "spec": "specs/e2e-testing/spec.md:38",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-exactly-once.pack.spec.ts:57"
+          ]
+        },
+        {
+          "id": "E2E-10",
+          "scenario": "replay-live overlap applies once",
+          "spec": "specs/e2e-testing/spec.md:42",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-exactly-once.pack.spec.ts:89"
+          ]
+        },
+        {
+          "id": "E2E-11",
+          "scenario": "delivery gap triggers resync",
+          "spec": "specs/e2e-testing/spec.md:46",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-exactly-once.pack.spec.ts:121"
+          ]
+        },
+        {
+          "id": "E2E-12",
+          "scenario": "delivery collision blocks",
+          "spec": "specs/e2e-testing/spec.md:50",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-exactly-once.pack.spec.ts:154"
+          ]
+        },
+        {
+          "id": "E2E-13",
+          "scenario": "persistence failure is truthful",
+          "spec": "specs/e2e-testing/spec.md:54",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-fault.pack.spec.ts:45"
+          ]
+        },
+        {
+          "id": "E2E-14",
+          "scenario": "slow client is isolated",
+          "spec": "specs/e2e-testing/spec.md:58",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-resilience.pack.spec.ts:590"
+          ]
+        },
+        {
+          "id": "E2E-15",
+          "scenario": "restart restores full authority",
+          "spec": "specs/e2e-testing/spec.md:62",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-resilience.pack.spec.ts:769"
+          ]
+        },
+        {
+          "id": "E2E-16",
+          "scenario": "token expiry reauthenticates safely",
+          "spec": "specs/e2e-testing/spec.md:66",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-token.pack.spec.ts:153"
+          ]
+        },
+        {
+          "id": "E2E-17",
+          "scenario": "active route uses durable identity",
+          "spec": "specs/e2e-testing/spec.md:70",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-token.pack.spec.ts:348"
+          ]
+        },
+        {
+          "id": "E2E-18",
+          "scenario": "quiet heartbeat keeps clients connected",
+          "spec": "specs/e2e-testing/spec.md:74",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-authority.pack1.spec.ts:78"
+          ]
+        },
+        {
+          "id": "E2E-19",
+          "scenario": "GM draft remains private",
+          "spec": "specs/e2e-testing/spec.md:81",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-privacy.pack.spec.ts:220"
+          ]
+        },
+        {
+          "id": "E2E-20",
+          "scenario": "Player 1 sealed choice is private",
+          "spec": "specs/e2e-testing/spec.md:85",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-privacy.pack.spec.ts:365"
+          ]
+        },
+        {
+          "id": "E2E-21",
+          "scenario": "Player 2 sealed choice is private",
+          "spec": "specs/e2e-testing/spec.md:89",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-privacy.pack.spec.ts:460"
+          ]
+        },
+        {
+          "id": "E2E-22",
+          "scenario": "finalization reveals together",
+          "spec": "specs/e2e-testing/spec.md:93",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-privacy.pack.spec.ts:559"
+          ]
+        },
+        {
+          "id": "E2E-23",
+          "scenario": "public combat fact publishes immediately",
+          "spec": "specs/e2e-testing/spec.md:97",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-privacy.pack.spec.ts:365"
+          ]
+        },
+        {
+          "id": "E2E-24",
+          "scenario": "fog yields distinct projections",
+          "spec": "specs/e2e-testing/spec.md:101",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-privacy.pack.spec.ts:365"
+          ]
+        },
+        {
+          "id": "E2E-25",
+          "scenario": "public correction redacts private reason",
+          "spec": "specs/e2e-testing/spec.md:105",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-privacy.pack.spec.ts:276"
+          ]
+        },
+        {
+          "id": "E2E-26",
+          "scenario": "reconnect preserves visibility",
+          "spec": "specs/e2e-testing/spec.md:109",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-privacy.pack.spec.ts:623"
+          ]
+        },
+        {
+          "id": "E2E-27",
+          "scenario": "player surfaces contain no GM-private data",
+          "spec": "specs/e2e-testing/spec.md:113",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-privacy.pack.spec.ts:514"
+          ]
+        },
+        {
+          "id": "E2E-28",
+          "scenario": "unauthorized access fails before fan-out",
+          "spec": "specs/e2e-testing/spec.md:117",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-privacy.pack.spec.ts:702"
+          ]
+        },
+        {
+          "id": "E2E-29",
+          "scenario": "veto and timeout commit nothing",
+          "spec": "specs/e2e-testing/spec.md:121",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-proposals.pack.spec.ts:177"
+          ]
+        },
+        {
+          "id": "E2E-30",
+          "scenario": "simultaneous proposals remain attributable",
+          "spec": "specs/e2e-testing/spec.md:125",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-proposals.pack.spec.ts:49"
+          ]
+        },
+        {
+          "id": "E2E-31",
+          "scenario": "player commands owned unit",
+          "spec": "specs/e2e-testing/spec.md:132",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-combat.pack1.spec.ts:298"
+          ]
+        },
+        {
+          "id": "E2E-32",
+          "scenario": "cross-player command rejects",
+          "spec": "specs/e2e-testing/spec.md:136",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-combat.pack1.spec.ts:355"
+          ]
+        },
+        {
+          "id": "E2E-33",
+          "scenario": "concurrent choices resolve deterministically",
+          "spec": "specs/e2e-testing/spec.md:140",
+          "resolution": "gated-absent manifest entry (proposed)",
+          "rows": [],
+          "gateTag": "@until-U54",
+          "holder": "U54",
+          "holderSource": "units.json U54 taskKeys holds harden-gm-two-player-campaign-sessions#21.3@559 (tasks.md 21.3: E2E-31..45); U54 behavior: \"Authors E2E-45 ... Ticks 21.3 when E2E-31..45 and the GM-connection clause are green on main\""
+        },
+        {
+          "id": "E2E-34",
+          "scenario": "server RNG provenance is authoritative",
+          "spec": "specs/e2e-testing/spec.md:144",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-combat.pack1.spec.ts:424"
+          ]
+        },
+        {
+          "id": "E2E-35",
+          "scenario": "player disconnect follows delivery and progression policy",
+          "spec": "specs/e2e-testing/spec.md:148",
+          "resolution": "gated-absent manifest entry (proposed)",
+          "rows": [],
+          "gateTag": "@until-U54",
+          "holder": "U54",
+          "holderSource": "units.json U54 taskKeys holds harden-gm-two-player-campaign-sessions#21.3@559 (tasks.md 21.3: E2E-31..45); U54 behavior: \"Authors E2E-45 ... Ticks 21.3 when E2E-31..45 and the GM-connection clause are green on main\""
+        },
+        {
+          "id": "E2E-36",
+          "scenario": "GM pause and resume are durable",
+          "spec": "specs/e2e-testing/spec.md:152",
+          "resolution": "gated-absent manifest entry (proposed)",
+          "rows": [],
+          "gateTag": "@until-U54",
+          "holder": "U54",
+          "holderSource": "units.json U54 taskKeys holds harden-gm-two-player-campaign-sessions#21.3@559 (tasks.md 21.3: E2E-31..45); U54 behavior: \"Authors E2E-45 ... Ticks 21.3 when E2E-31..45 and the GM-connection clause are green on main\""
+        },
+        {
+          "id": "E2E-37",
+          "scenario": "terminal outcome publishes once",
+          "spec": "specs/e2e-testing/spec.md:156",
+          "resolution": "gated-absent manifest entry (proposed)",
+          "rows": [],
+          "gateTag": "@until-U54",
+          "holder": "U54",
+          "holderSource": "units.json U54 taskKeys holds harden-gm-two-player-campaign-sessions#21.3@559 (tasks.md 21.3: E2E-31..45); U54 behavior: \"Authors E2E-45 ... Ticks 21.3 when E2E-31..45 and the GM-connection clause are green on main\""
+        },
+        {
+          "id": "E2E-38",
+          "scenario": "duplicate outcome reconciliation is idempotent",
+          "spec": "specs/e2e-testing/spec.md:160",
+          "resolution": "gated-absent manifest entry (proposed)",
+          "rows": [],
+          "gateTag": "@until-U54",
+          "holder": "U54",
+          "holderSource": "units.json U54 taskKeys holds harden-gm-two-player-campaign-sessions#21.3@559 (tasks.md 21.3: E2E-31..45); U54 behavior: \"Authors E2E-45 ... Ticks 21.3 when E2E-31..45 and the GM-connection clause are green on main\""
+        },
+        {
+          "id": "E2E-39",
+          "scenario": "GM combat correction is durable and safe",
+          "spec": "specs/e2e-testing/spec.md:164",
+          "resolution": "gated-absent manifest entry (proposed)",
+          "rows": [],
+          "gateTag": "@until-U54",
+          "holder": "U54",
+          "holderSource": "units.json U54 taskKeys holds harden-gm-two-player-campaign-sessions#21.3@559 (tasks.md 21.3: E2E-31..45); U54 behavior: \"Authors E2E-45 ... Ticks 21.3 when E2E-31..45 and the GM-connection clause are green on main\""
+        },
+        {
+          "id": "E2E-40",
+          "scenario": "combat rewind creates replacement branch",
+          "spec": "specs/e2e-testing/spec.md:168",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-rewind.pack.spec.ts:39"
+          ]
+        },
+        {
+          "id": "E2E-41",
+          "scenario": "stale branch command rejects",
+          "spec": "specs/e2e-testing/spec.md:172",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-rewind.pack.spec.ts:72"
+          ]
+        },
+        {
+          "id": "E2E-42",
+          "scenario": "all contexts converge on new head",
+          "spec": "specs/e2e-testing/spec.md:176",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-rewind.pack.spec.ts:115"
+          ]
+        },
+        {
+          "id": "E2E-43",
+          "scenario": "fog restores after rewind",
+          "spec": "specs/e2e-testing/spec.md:180",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-rewind.pack.spec.ts:197"
+          ]
+        },
+        {
+          "id": "E2E-44",
+          "scenario": "offline player catches up after rewind",
+          "spec": "specs/e2e-testing/spec.md:184",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-rewind.pack.spec.ts:247"
+          ]
+        },
+        {
+          "id": "E2E-45",
+          "scenario": "applied outcome uses coordinated correction",
+          "spec": "specs/e2e-testing/spec.md:188",
+          "resolution": "gated-absent manifest entry (proposed)",
+          "rows": [],
+          "gateTag": "@until-U54",
+          "holder": "U54",
+          "holderSource": "units.json U54 taskKeys holds harden-gm-two-player-campaign-sessions#21.3@559 (tasks.md 21.3: E2E-31..45); U54 behavior: \"Authors E2E-45 ... Ticks 21.3 when E2E-31..45 and the GM-connection clause are green on main\""
+        },
+        {
+          "id": "E2E-46",
+          "scenario": "one-day advance commits one version",
+          "spec": "specs/e2e-testing/spec.md:195",
+          "resolution": "gated-absent manifest entry (proposed)",
+          "rows": [],
+          "gateTag": "@until-DF-branch-and-time-cascade",
+          "holder": "DF-branch-and-time-cascade (R6.B7)",
+          "holderSource": "units.json deferral DF-branch-and-time-cascade holds harden-gm-two-player-campaign-sessions#22.1@574 (tasks.md 22.1: E2E-46..60), deferredToNode R6.B7"
+        },
+        {
+          "id": "E2E-47",
+          "scenario": "multi-effect day cascade is atomic",
+          "spec": "specs/e2e-testing/spec.md:199",
+          "resolution": "gated-absent manifest entry (proposed)",
+          "rows": [],
+          "gateTag": "@until-DF-branch-and-time-cascade",
+          "holder": "DF-branch-and-time-cascade (R6.B7)",
+          "holderSource": "units.json deferral DF-branch-and-time-cascade holds harden-gm-two-player-campaign-sessions#22.1@574 (tasks.md 22.1: E2E-46..60), deferredToNode R6.B7"
+        },
+        {
+          "id": "E2E-48",
+          "scenario": "rewind rebuilds derived state",
+          "spec": "specs/e2e-testing/spec.md:203",
+          "resolution": "gated-absent manifest entry (proposed)",
+          "rows": [],
+          "gateTag": "@until-DF-branch-and-time-cascade",
+          "holder": "DF-branch-and-time-cascade (R6.B7)",
+          "holderSource": "units.json deferral DF-branch-and-time-cascade holds harden-gm-two-player-campaign-sessions#22.1@574 (tasks.md 22.1: E2E-46..60), deferredToNode R6.B7"
+        },
+        {
+          "id": "E2E-49",
+          "scenario": "contract correction rebuilds linked domains",
+          "spec": "specs/e2e-testing/spec.md:207",
+          "resolution": "gated-absent manifest entry (proposed)",
+          "rows": [],
+          "gateTag": "@until-DF-branch-and-time-cascade",
+          "holder": "DF-branch-and-time-cascade (R6.B7)",
+          "holderSource": "units.json deferral DF-branch-and-time-cascade holds harden-gm-two-player-campaign-sessions#22.1@574 (tasks.md 22.1: E2E-46..60), deferredToNode R6.B7"
+        },
+        {
+          "id": "E2E-50",
+          "scenario": "rewind invalidates later artifacts",
+          "spec": "specs/e2e-testing/spec.md:211",
+          "resolution": "gated-absent manifest entry (proposed)",
+          "rows": [],
+          "gateTag": "@until-DF-branch-and-time-cascade",
+          "holder": "DF-branch-and-time-cascade (R6.B7)",
+          "holderSource": "units.json deferral DF-branch-and-time-cascade holds harden-gm-two-player-campaign-sessions#22.1@574 (tasks.md 22.1: E2E-46..60), deferredToNode R6.B7"
+        },
+        {
+          "id": "E2E-51",
+          "scenario": "stale artifact cannot be used",
+          "spec": "specs/e2e-testing/spec.md:215",
+          "resolution": "gated-absent manifest entry (proposed)",
+          "rows": [],
+          "gateTag": "@until-DF-branch-and-time-cascade",
+          "holder": "DF-branch-and-time-cascade (R6.B7)",
+          "holderSource": "units.json deferral DF-branch-and-time-cascade holds harden-gm-two-player-campaign-sessions#22.1@574 (tasks.md 22.1: E2E-46..60), deferredToNode R6.B7"
+        },
+        {
+          "id": "E2E-52",
+          "scenario": "next scenario retains roles and version",
+          "spec": "specs/e2e-testing/spec.md:219",
+          "resolution": "gated-absent manifest entry (proposed)",
+          "rows": [],
+          "gateTag": "@until-DF-branch-and-time-cascade",
+          "holder": "DF-branch-and-time-cascade (R6.B7)",
+          "holderSource": "units.json deferral DF-branch-and-time-cascade holds harden-gm-two-player-campaign-sessions#22.1@574 (tasks.md 22.1: E2E-46..60), deferredToNode R6.B7"
+        },
+        {
+          "id": "E2E-53",
+          "scenario": "customized unit stays exact",
+          "spec": "specs/e2e-testing/spec.md:223",
+          "resolution": "gated-absent manifest entry (proposed)",
+          "rows": [],
+          "gateTag": "@until-DF-branch-and-time-cascade",
+          "holder": "DF-branch-and-time-cascade (R6.B7)",
+          "holderSource": "units.json deferral DF-branch-and-time-cascade holds harden-gm-two-player-campaign-sessions#22.1@574 (tasks.md 22.1: E2E-46..60), deferredToNode R6.B7"
+        },
+        {
+          "id": "E2E-54",
+          "scenario": "ten scenarios survive restarts",
+          "spec": "specs/e2e-testing/spec.md:227",
+          "resolution": "gated-absent manifest entry (proposed)",
+          "rows": [],
+          "gateTag": "@until-DF-branch-and-time-cascade",
+          "holder": "DF-branch-and-time-cascade (R6.B7)",
+          "holderSource": "units.json deferral DF-branch-and-time-cascade holds harden-gm-two-player-campaign-sessions#22.1@574 (tasks.md 22.1: E2E-46..60), deferredToNode R6.B7"
+        },
+        {
+          "id": "E2E-55",
+          "scenario": "checkpoint replay equals full replay",
+          "spec": "specs/e2e-testing/spec.md:231",
+          "resolution": "gated-absent manifest entry (proposed)",
+          "rows": [],
+          "gateTag": "@until-DF-branch-and-time-cascade",
+          "holder": "DF-branch-and-time-cascade (R6.B7)",
+          "holderSource": "units.json deferral DF-branch-and-time-cascade holds harden-gm-two-player-campaign-sessions#22.1@574 (tasks.md 22.1: E2E-46..60), deferredToNode R6.B7"
+        },
+        {
+          "id": "E2E-56",
+          "scenario": "outcome linkage remains once",
+          "spec": "specs/e2e-testing/spec.md:235",
+          "resolution": "gated-absent manifest entry (proposed)",
+          "rows": [],
+          "gateTag": "@until-DF-branch-and-time-cascade",
+          "holder": "DF-branch-and-time-cascade (R6.B7)",
+          "holderSource": "units.json deferral DF-branch-and-time-cascade holds harden-gm-two-player-campaign-sessions#22.1@574 (tasks.md 22.1: E2E-46..60), deferredToNode R6.B7"
+        },
+        {
+          "id": "E2E-57",
+          "scenario": "audit records complete provenance",
+          "spec": "specs/e2e-testing/spec.md:239",
+          "resolution": "gated-absent manifest entry (proposed)",
+          "rows": [],
+          "gateTag": "@until-DF-branch-and-time-cascade",
+          "holder": "DF-branch-and-time-cascade (R6.B7)",
+          "holderSource": "units.json deferral DF-branch-and-time-cascade holds harden-gm-two-player-campaign-sessions#22.1@574 (tasks.md 22.1: E2E-46..60), deferredToNode R6.B7"
+        },
+        {
+          "id": "E2E-58",
+          "scenario": "player audit excludes private fields",
+          "spec": "specs/e2e-testing/spec.md:243",
+          "resolution": "gated-absent manifest entry (proposed)",
+          "rows": [],
+          "gateTag": "@until-DF-branch-and-time-cascade",
+          "holder": "DF-branch-and-time-cascade (R6.B7)",
+          "holderSource": "units.json deferral DF-branch-and-time-cascade holds harden-gm-two-player-campaign-sessions#22.1@574 (tasks.md 22.1: E2E-46..60), deferredToNode R6.B7"
+        },
+        {
+          "id": "E2E-59",
+          "scenario": "GM audit preserves prior branches",
+          "spec": "specs/e2e-testing/spec.md:247",
+          "resolution": "gated-absent manifest entry (proposed)",
+          "rows": [],
+          "gateTag": "@until-DF-branch-and-time-cascade",
+          "holder": "DF-branch-and-time-cascade (R6.B7)",
+          "holderSource": "units.json deferral DF-branch-and-time-cascade holds harden-gm-two-player-campaign-sessions#22.1@574 (tasks.md 22.1: E2E-46..60), deferredToNode R6.B7"
+        },
+        {
+          "id": "E2E-60",
+          "scenario": "rewind preview lists blast radius",
+          "spec": "specs/e2e-testing/spec.md:251",
+          "resolution": "gated-absent manifest entry (proposed)",
+          "rows": [],
+          "gateTag": "@until-DF-branch-and-time-cascade",
+          "holder": "DF-branch-and-time-cascade (R6.B7)",
+          "holderSource": "units.json deferral DF-branch-and-time-cascade holds harden-gm-two-player-campaign-sessions#22.1@574 (tasks.md 22.1: E2E-46..60), deferredToNode R6.B7"
+        },
+        {
+          "id": "E2E-61",
+          "scenario": "malformed intent has no effect",
+          "spec": "specs/e2e-testing/spec.md:258",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-failure.pack.spec.ts:420"
+          ]
+        },
+        {
+          "id": "E2E-62",
+          "scenario": "replay attack cannot duplicate",
+          "spec": "specs/e2e-testing/spec.md:262",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-failure.pack.spec.ts:476"
+          ]
+        },
+        {
+          "id": "E2E-63",
+          "scenario": "command-batch failure is atomic",
+          "spec": "specs/e2e-testing/spec.md:266",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-failure.pack.spec.ts:544"
+          ]
+        },
+        {
+          "id": "E2E-64",
+          "scenario": "projection failure fails closed",
+          "spec": "specs/e2e-testing/spec.md:270",
+          "resolution": "gated-absent manifest entry (proposed)",
+          "rows": [],
+          "gateTag": "@until-U52",
+          "holder": "U52",
+          "holderSource": "units.json U52 taskKeys holds harden-gm-two-player-campaign-sessions#22.2@575 (tasks.md 22.2: E2E-61..70); U52 behavior names E2E-64, E2E-65, E2E-68, E2E-69 and \"The stale-branch clause rides U45's wire\" (E2E-67 is the pre-rewind stale-branch scenario)"
+        },
+        {
+          "id": "E2E-65",
+          "scenario": "GM loss pauses without migration",
+          "spec": "specs/e2e-testing/spec.md:274",
+          "resolution": "gated-absent manifest entry (proposed)",
+          "rows": [],
+          "gateTag": "@until-U52",
+          "holder": "U52",
+          "holderSource": "units.json U52 taskKeys holds harden-gm-two-player-campaign-sessions#22.2@575 (tasks.md 22.2: E2E-61..70); U52 behavior names E2E-64, E2E-65, E2E-68, E2E-69 and \"The stale-branch clause rides U45's wire\" (E2E-67 is the pre-rewind stale-branch scenario)"
+        },
+        {
+          "id": "E2E-66",
+          "scenario": "partitioned player catches up once",
+          "spec": "specs/e2e-testing/spec.md:278",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-failure.pack.spec.ts:603",
+            "e2e/gm-two-player-failure.pack.spec.ts:668"
+          ]
+        },
+        {
+          "id": "E2E-67",
+          "scenario": "pre-rewind client cannot diverge",
+          "spec": "specs/e2e-testing/spec.md:282",
+          "resolution": "gated-absent manifest entry (proposed)",
+          "rows": [],
+          "gateTag": "@until-U52",
+          "holder": "U52",
+          "holderSource": "units.json U52 taskKeys holds harden-gm-two-player-campaign-sessions#22.2@575 (tasks.md 22.2: E2E-61..70); U52 behavior names E2E-64, E2E-65, E2E-68, E2E-69 and \"The stale-branch clause rides U45's wire\" (E2E-67 is the pre-rewind stale-branch scenario)"
+        },
+        {
+          "id": "E2E-68",
+          "scenario": "corruption quarantines one session",
+          "spec": "specs/e2e-testing/spec.md:286",
+          "resolution": "gated-absent manifest entry (proposed)",
+          "rows": [],
+          "gateTag": "@until-U52",
+          "holder": "U52",
+          "holderSource": "units.json U52 taskKeys holds harden-gm-two-player-campaign-sessions#22.2@575 (tasks.md 22.2: E2E-61..70); U52 behavior names E2E-64, E2E-65, E2E-68, E2E-69 and \"The stale-branch clause rides U45's wire\" (E2E-67 is the pre-rewind stale-branch scenario)"
+        },
+        {
+          "id": "E2E-69",
+          "scenario": "large tail is bounded",
+          "spec": "specs/e2e-testing/spec.md:290",
+          "resolution": "gated-absent manifest entry (proposed)",
+          "rows": [],
+          "gateTag": "@until-U52",
+          "holder": "U52",
+          "holderSource": "units.json U52 taskKeys holds harden-gm-two-player-campaign-sessions#22.2@575 (tasks.md 22.2: E2E-61..70); U52 behavior names E2E-64, E2E-65, E2E-68, E2E-69 and \"The stale-branch clause rides U45's wire\" (E2E-67 is the pre-rewind stale-branch scenario)"
+        },
+        {
+          "id": "E2E-70",
+          "scenario": "socket failure preserves authority",
+          "spec": "specs/e2e-testing/spec.md:294",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-failure.pack.spec.ts:757"
+          ]
+        },
+        {
+          "id": "E2E-71",
+          "scenario": "p95 meets controlled budget",
+          "spec": "specs/e2e-testing/spec.md:301",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-performance.pack.spec.ts:110"
+          ]
+        },
+        {
+          "id": "E2E-72",
+          "scenario": "p99 meets long-log budget",
+          "spec": "specs/e2e-testing/spec.md:305",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-performance.pack.spec.ts:110"
+          ]
+        },
+        {
+          "id": "E2E-73",
+          "scenario": "cold catch-up meets budget",
+          "spec": "specs/e2e-testing/spec.md:309",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-performance.pack.spec.ts:110"
+          ]
+        },
+        {
+          "id": "E2E-74",
+          "scenario": "slow-client backpressure stays bounded",
+          "spec": "specs/e2e-testing/spec.md:313",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-backpressure.pack.spec.ts:90"
+          ]
+        },
+        {
+          "id": "E2E-75",
+          "scenario": "lifecycle states are distinct and accessible",
+          "spec": "specs/e2e-testing/spec.md:317",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-lifecycle.pack.spec.ts:179",
+            "e2e/gm-two-player-lifecycle.pack.spec.ts:305"
+          ]
+        },
+        {
+          "id": "E2E-76",
+          "scenario": "rewind confirmation prevents accidental invalidation",
+          "spec": "specs/e2e-testing/spec.md:321",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-rewind.pack.spec.ts:311"
+          ]
+        },
+        {
+          "id": "E2E-77",
+          "scenario": "conflict message is actionable and safe",
+          "spec": "specs/e2e-testing/spec.md:325",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-conflict.pack.spec.ts:80",
+            "e2e/gm-two-player-conflict.pack.spec.ts:341"
+          ]
+        },
+        {
+          "id": "E2E-78",
+          "scenario": "evidence bundle is complete",
+          "spec": "specs/e2e-testing/spec.md:329",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-evidence.pack.spec.ts:190",
+            "e2e/gm-two-player-fixture.smoke.spec.ts:123"
+          ]
+        },
+        {
+          "id": "E2E-79",
+          "scenario": "cleanup is ownership-scoped",
+          "spec": "specs/e2e-testing/spec.md:333",
+          "resolution": "authored row",
+          "rows": [
+            "e2e/gm-two-player-cleanup-ownership.spec.ts:305",
+            "e2e/gm-two-player-cleanup-ownership.spec.ts:365",
+            "e2e/gm-two-player-cleanup-ownership.spec.ts:403",
+            "e2e/gm-two-player-cleanup-ownership.spec.ts:408",
+            "e2e/gm-two-player-cleanup-ownership.spec.ts:413"
+          ]
+        },
+        {
+          "id": "E2E-80",
+          "scenario": "major merges trigger exact-main regression",
+          "spec": "specs/e2e-testing/spec.md:337",
+          "resolution": "exact-main regression contract",
+          "rows": [],
+          "contract": "scripts/qc/validate-exact-main-regression-ladder.mjs:5-11 (header names E2E-80), :62 MILESTONE_LADDER"
+        }
+      ]
+    },
+    "q2_manifestShape": {
+      "file": "scripts/qc/gm-two-player-acceptance-gates.cjs (data only: it lists and decides nothing)",
+      "exports": {
+        "EXACT_MAIN_CONTRACT": "{ id: \"E2E-80\", path: \"scripts/qc/validate-exact-main-regression-ladder.mjs\" }",
+        "NAMED_GATES": "{ \"@until-journal-cutover\": \"adopt-combat-journal-cutover-and-gm-rewind\" }: the only gate tag any test.fail carries today; the campaign-genesis gate of council decision 7 is carried by no row, so it is not listed",
+        "GATED_ABSENT": "one frozen entry per gated-absent id, { id, gateTag, holder, source }: 27 entries",
+        "RUNNER_GUARDED_SKIPS": "{ file: 'e2e/gm-two-player-cleanup-ownership.spec.ts', mark: \"test.skip(!runId, 'sandbox fixture requires PLAYWRIGHT_E2E_RUN_ID')\", count: 2, env: 'PLAYWRIGHT_E2E_RUN_ID' }"
+      },
+      "pinTest": "scripts/__tests__/gm-two-player-acceptance-gates.test.ts",
+      "pinChecks": [
+        "the catalogue read from the delta's \"#### Scenario: E2E-NN\" headings is exactly E2E-01..80",
+        "every catalogue id resolves exactly once over three sources: authored rows (test titles carrying @E2E-NN in the spec files buildRunPlan({group:\"all\"}) returns), EXACT_MAIN_CONTRACT and GATED_ABSENT; the failure names every unresolved and every doubly-resolved id (a manifest entry whose id has a row, a duplicate entry, a row for E2E-80)",
+        "every GATED_ABSENT entry carries an @until- gate tag, a holder and a source",
+        "the run's spec files carry no test.fixme, no test.fail without a NAMED_GATES tag, and no test.skip other than the exact RUNNER_GUARDED_SKIPS marks at their exact counts; the failure names file:line and the mark",
+        "each RUNNER_GUARDED_SKIPS file is in the all plan, every registered plan that runs it sets the named variable, and the file binds runId from that variable once per mark",
+        "the E2E-80 contract file exists and names E2E-80"
+      ],
+      "unexpectedPass": "A listed gated-absent id has no row, so it cannot pass. A listed id that gains a row must leave the manifest in the same change; the pin catches it as doubly resolved. An authored row with a strict test.fail that passes is reported failed by Playwright (strict expected-failure semantics); that runtime half belongs to the run, not to the pin.",
+      "skipResolution": "The two cleanup-ownership skips are resolved through the manifest (RUNNER_GUARDED_SKIPS), not left open: every plan sets PLAYWRIGHT_E2E_RUN_ID (core.cjs:216), so !runId is false in every run of that file. Removing the marks would need an e2e/ edit, outside this unit."
+    },
+    "q3_requirement": "### Requirement: Acceptance Run Excludes Only Named-Gate Rows\nThe umbrella acceptance run SHALL resolve every catalogue id of this delta, E2E-01 through E2E-80, exactly once: to an authored row, meaning a Playwright test title carrying the id's `@E2E-NN` tag in a spec file that the `all` plan of `scripts/qc/gm-two-player-campaign-core.cjs` runs; to the exact-main regression contract, for E2E-80 only (`scripts/qc/validate-exact-main-regression-ladder.mjs`); or to one entry of the gated-absent manifest `scripts/qc/gm-two-player-acceptance-gates.cjs` naming the id, its gate tag and its holder, the roadmap unit or deferral that holds the id's task row. An unresolved id, an id resolved more than once, a `test.fixme` mark, a `test.fail` mark carrying no gate tag the manifest names, and a `test.skip` mark SHALL fail the run, except a skip mark the manifest names together with the environment variable its condition reads when every plan that runs its file sets that variable, so the mark cannot skip in the run. The excluded set SHALL be exactly the authored rows carrying a strict `test.fail` with a named gate tag plus the manifest's gated-absent ids, and the run SHALL pass only when every non-excluded row passes and no excluded row passes unexpectedly. A gated-absent id has no row and cannot pass; an id that gains a row SHALL leave the manifest in the same change.\n\n#### Scenario: every catalogue id resolves exactly once\n- **WHEN** the manifest pin reads the catalogue ids from this delta's scenario headings, the test titles of the spec files the `all` plan runs, and the manifest\n- **THEN** each of E2E-01 through E2E-80 SHALL resolve to its authored rows, the exact-main contract or one gated-absent entry, and an unresolved or doubly-resolved id SHALL fail the pin with the id named\n\n#### Scenario: a gated-absent id that gains a row fails until it leaves the manifest\n- **WHEN** an id the manifest lists as gated-absent appears in a test title of a spec file the run executes\n- **THEN** the pin SHALL fail naming that id as resolved twice\n\n#### Scenario: an unnamed expected failure, a fixme or a live skip fails the run\n- **WHEN** a spec file the run executes carries a `test.fail` mark without a gate tag the manifest names, a `test.fixme` mark, or a `test.skip` mark the manifest does not name\n- **THEN** the pin SHALL fail naming the file, the line and the mark\n\n#### Scenario: an excluded row that passes fails the run\n- **WHEN** an authored row carrying a strict `test.fail` with a named gate tag passes\n- **THEN** Playwright SHALL report the row as failed and the run SHALL fail, so a gate is removed only by the change that ungates its row",
+    "q4_reconciliation": {
+      "measured": "implementation-plan.md: todo headings 1..34 at :145-413 (34) and F1..F4 at :423-435 (4); 6 todos checked (1, 2, 3, 4, 5, 26), 28 unchecked, F1-F4 unchecked; :18 says \"historical 33-todo matrix\"; the nine waves at :93-101 name every todo 1-34 (todos 2-4 in Waves 1 and 3). tasks.md: 84 \"- [x]\" and 24 \"- [ ]\" rows (108 checkbox rows; 10.4 is numbered twice, :217 and :222).",
+      "edit18": "replace \"The historical 33-todo matrix below\" with \"The historical 34-todo matrix below (plus the final verification reviews F1-F4)\"",
+      "note": "> Reconciled with `tasks.md` on 2026-09-26 (roadmap unit U29, measured at ae7b6fc80): every one of todos 1-34 appears in the nine waves below (todos 2-4 in Waves 1 and 3, as Wave 1 says), and F1-F4 run after them as the final verification wave. The checkboxes in this file are not maintained: 6 of the 34 todos (1-5 and 26) and none of F1-F4 are checked here, while `tasks.md` then held 84 checked and 24 open rows. The receipts under the `tasks.md` rows are the only completion record; a checkbox in this plan is never evidence that a todo or a `tasks.md` row is done. Event-history sections are executed from `event-history-wave-map.md` and the named leaf changes' `tasks.md`, as `tasks.md` line 3 says.",
+      "placement": "a new blockquote line after implementation-plan.md:92, inside \"Historical umbrella scheduling waves\""
+    },
+    "q5_errata": {
+      "verified": {
+        "tokenRoute": "src/pages/api/multiplayer/auth/token.ts:157 `const payload = canonicalTokenPayload({ playerId, issuedAt, expiresAt });`; :161-167 the IPlayerToken literal { playerId, issuedAt, expiresAt, publicKey, signature } with no scope",
+        "pathCorrection": "the charter and the ledger cite token.ts:153 and src/lib/multiplayer/server/token.ts:150-160; no src/lib/multiplayer/server/token.ts exists (git ls-files); the only token.ts is src/pages/api/multiplayer/auth/token.ts, where :153 is `const nowMs = Date.now();` and the scopeless payload is :157. The ERRATA cites :157.",
+        "verifier": "src/lib/multiplayer/server/auth.ts:233-237 comment: \"A token with no scope is still accepted when expectedScope was passed - transition residual; cutover is future work (reject scopeless socket tokens).\"; :238-248 `if (token.scope) { if (expectedScope === undefined) return scope-unchecked; if (kind or id differ) return scope-mismatch; }`. The block closes at :248, one line past the ledger's :247.",
+        "noScopedMinting": "issuePlayerToken (src/lib/multiplayer/client/issuePlayerToken.ts:100-153), the only signer that sets a scope, is referenced outside its own file only by tests and by comments in the token route (grep -rln issuePlayerToken src); the production pages mint through POST /api/multiplayer/auth/token (src/pages/multiplayer/index.tsx:66, src/pages-modules/multiplayer/multiplayerPage.helpers.ts:20, src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx:72)"
+      },
+      "placement": "a new first sub-bullet under the 6.3 row (tasks.md:100), above the 2026-09-02 ERRATA, newest first as the row already orders its notes",
+      "text": "  - ERRATA (2026-09-26, roadmap unit U29; no checkbox is changed by this note): the 2026-08-28 receipt below says \"scoped minting exists and is what connections now use\"; the second half of that sentence is withdrawn. Measured at ae7b6fc80: the production token route mints no scope - src/pages/api/multiplayer/auth/token.ts:157 signs `canonicalTokenPayload({ playerId, issuedAt, expiresAt })` and the token it returns (:161-167) has no scope field; the production pages mint their tokens through that route (src/pages/multiplayer/index.tsx:66, src/pages-modules/multiplayer/multiplayerPage.helpers.ts:20, src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx:72); and the only signer that sets a scope, issuePlayerToken (src/lib/multiplayer/client/issuePlayerToken.ts:100-153), is referenced outside its own file only by tests and by comments in that route. The verifier admits the scopeless token: src/lib/multiplayer/server/auth.ts:233-248 checks the scope only inside `if (token.scope)`, so a token without one passes whether or not an expected scope was passed (its comment at :233-237 names this the transition residual). What #1420 delivered stands: a scope, when present, is inside the signed bytes, and an unchecked or mismatched scope is refused. Minting scoped tokens on the production path and refusing scopeless socket tokens remain future work."
+    },
+    "q6_note254": {
+      "placement": "a new first sub-bullet under 25.4 (tasks.md:649), above the 2026-09-04 NOTE",
+      "text": "  - NOTE (2026-09-26, roadmap unit U29): 25.1 is held by roadmap unit U57, which runs its gate sweep on exact main and ticks it whole. This row waits on the owner decision OD-camp01h-terminal: it is deferred to the R2.journey node (DF-closure-rows) behind that decision's option (a), a second WRITE+ collaborator, a non-author approved review and three human witness sessions. The acceptance run's exclusions are named by the requirement 'Acceptance Run Excludes Only Named-Gate Rows' (specs/e2e-testing/spec.md) and listed in scripts/qc/gm-two-player-acceptance-gates.cjs; that manifest resolves ids for the run and closes no row."
+    },
+    "q7_acceptanceString": "E2E-01..80 resolved and run as the harden-gm-two-player-campaign-sessions e2e-testing requirement 'Acceptance Run Excludes Only Named-Gate Rows' defines: every id resolves exactly once to an authored row, the E2E-80 exact-main contract, or a gated-absent entry of scripts/qc/gm-two-player-acceptance-gates.cjs naming its gate tag and holder; the run passes only when every non-excluded row passes and no excluded row passes unexpectedly; ten-scenario reconnect/restart/correction proof; preserve explicit out-of-scope simulations",
+    "q8_risks": "see risksForTheParent"
+  },
+  "proposedAcceptanceString": "E2E-01..80 resolved and run as the harden-gm-two-player-campaign-sessions e2e-testing requirement 'Acceptance Run Excludes Only Named-Gate Rows' defines: every id resolves exactly once to an authored row, the E2E-80 exact-main contract, or a gated-absent entry of scripts/qc/gm-two-player-acceptance-gates.cjs naming its gate tag and holder; the run passes only when every non-excluded row passes and no excluded row passes unexpectedly; ten-scenario reconnect/restart/correction proof; preserve explicit out-of-scope simulations",
+  "proposedAcceptanceStringReplaces": "roadmap.json R6.umbrella acceptance[6]: \"All reachable required E2E-01..80 assertions with ten-scenario reconnect/restart/correction proof; preserve explicit out-of-scope simulations\" (the parent writes it at fold)",
+  "estimate": [
+    {
+      "file": "scripts/qc/gm-two-player-acceptance-gates.cjs",
+      "kind": "product (new)",
+      "lines": "about 80"
+    },
+    {
+      "file": "scripts/__tests__/gm-two-player-acceptance-gates.test.ts",
+      "kind": "test (new)",
+      "lines": "about 170"
+    },
+    {
+      "file": "openspec/changes/harden-gm-two-player-campaign-sessions/specs/e2e-testing/spec.md",
+      "kind": "prose",
+      "lines": "about 20 added"
+    },
+    {
+      "file": "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md",
+      "kind": "prose",
+      "lines": "2 added (ERRATA, 25.4 note)"
+    },
+    {
+      "file": "openspec/changes/harden-gm-two-player-campaign-sessions/implementation-plan.md",
+      "kind": "prose",
+      "lines": "1 changed, 1 added"
+    },
+    {
+      "file": "three u29 receipts under evidence/",
+      "kind": "evidence (not counted)",
+      "lines": "-"
+    }
+  ],
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "estimatedFiles": 8,
+    "estimatedProductLines": "about 80 (the manifest is the only product file)"
+  },
+  "filesToEdit": [
+    "scripts/qc/gm-two-player-acceptance-gates.cjs",
+    "scripts/__tests__/gm-two-player-acceptance-gates.test.ts",
+    "openspec/changes/harden-gm-two-player-campaign-sessions/specs/e2e-testing/spec.md",
+    "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md",
+    "openspec/changes/harden-gm-two-player-campaign-sessions/implementation-plan.md"
+  ],
+  "risksForTheParent": [
+    "Divergence from the letter of council decision 7: decision 7 (quoted in the packet decision) says every catalogue id must exist as an authored row and treats an absent row as a failure; U29's sentence resolves 27 rowless ids through a gated-absent manifest instead. The manifest variant is the ledger's choice under OD-mvp-hard-cutover; the owner's head-bound ruling on this PR is what makes it the owner's. Lane B should see this sentence.",
+    "The manifest is the umbrella's honesty ledger: it makes the acceptance run's exclusions explicit (27 gated-absent ids plus the six @until-journal-cutover rows). An id leaves only when its row lands, and the pin forces that in the same change.",
+    "RUNNER_GUARDED_SKIPS is a named exception shape for the two cleanup-ownership skips (e2e/ is outside this unit). If the parent prefers no such shape, an e2e-owning unit (U57 owns e2e) removes the two guards and the manifest entry together; the pin fails until the entry leaves because the counts must match exactly.",
+    "E2E-33, 35, 36, 37, 38 and 39 are held by U54 only through row 21.3: U54's sentence names E2E-45 as the row it authors and ticks 21.3 when E2E-31..45 are green; no unit sentence names who authors 33 and 35-39.",
+    "6.3 stays checked (this unit changes no checkbox), yet the ERRATA shows its \"mint scoped session tokens\" clause is not met on the production path; under OD-whole-row-tick-rule the parent may want a packet or a successor unit for it.",
+    "The runtime half (a skip or an unexpected pass at run time fails the run) is enforced by Playwright's strict test.fail and by U57's traceability runner, not by this pin; the ladder parser counts skipped as neither today (validate-exact-main-regression-ladder.mjs:200-203).",
+    "The ledger's token.ts:153 and src/lib/multiplayer/server/token.ts path do not match the tree; the ERRATA cites src/pages/api/multiplayer/auth/token.ts:157 and auth.ts:233-248 as measured.",
+    "The reconciliation note's checkbox counts are dated to the baseline (84 checked, 24 open) and go stale as rows tick; the note names the measurement commit for that reason."
+  ],
+  "baselineSha256": {
+    "scripts/qc/gm-two-player-acceptance-gates.cjs": null,
+    "scripts/__tests__/gm-two-player-acceptance-gates.test.ts": null,
+    "openspec/changes/harden-gm-two-player-campaign-sessions/specs/e2e-testing/spec.md": "ab398fccb1ac3b926e5df7dc8bc5c757273731b9ec0e59aa24ac493d3b696d5d",
+    "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md": "856efc8e3ad992053b4b3f652c895da1e12b218281cb3dc21ca720c378120a1e",
+    "openspec/changes/harden-gm-two-player-campaign-sessions/implementation-plan.md": "aac19ea942edb58c7dc67a7e30d3f524ae7405b0b543954b13e21842951876d3"
+  }
+}

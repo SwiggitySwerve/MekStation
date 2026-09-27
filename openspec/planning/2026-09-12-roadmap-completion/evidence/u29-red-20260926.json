@@ -1,0 +1,111 @@
+{
+  "unit": "U29",
+  "stage": "red",
+  "at": "2026-09-27T00:05:09.021Z",
+  "baseline": "ae7b6fc8019ddc7e977b4a634aa296d381cf9600",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u29",
+  "branch": "roadmap-u29-acceptance-gates-manifest-20260926",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "testedTree": "the baseline commit plus the new pin test scripts/__tests__/gm-two-player-acceptance-gates.test.ts (sha256 below); R1b adds only the entry-less stub manifest",
+  "pinTestSha256AtRed": "7376b0903af0a3f06f1119978353eae7f11bb58619d42198ec4de84a99065d34",
+  "probes": {
+    "R1a_noManifest": {
+      "command": "npx --no-install jest scripts/__tests__/gm-two-player-acceptance-gates.test.ts (scripts/qc/gm-two-player-acceptance-gates.cjs absent, as on the baseline)",
+      "exit": 1,
+      "output": [
+        "Cannot find module '../qc/gm-two-player-acceptance-gates.cjs' from 'scripts/__tests__/gm-two-player-acceptance-gates.test.ts'",
+        "Test Suites: 1 failed, 1 total",
+        "Tests:       0 total"
+      ],
+      "logSha256": "fbf57734b35db4be3dd31f14ce76fa42c305826dad6f43fd549521e590bfef64",
+      "reading": "no manifest exists on the baseline, so the suite cannot load: every id that has no row is unresolvable"
+    },
+    "R1b_entrylessManifest": {
+      "command": "the same jest command with a stub manifest carrying only EXACT_MAIN_CONTRACT and empty NAMED_GATES, GATED_ABSENT and RUNNER_GUARDED_SKIPS",
+      "stubSha256": "2f8a148e6a4c96807020161f2ddb74b7486356b91d5c9f017d79d1b57146de21",
+      "exit": 1,
+      "testsLine": "Tests:       2 failed, 4 passed, 6 total",
+      "failing": [
+        "resolves every catalogue id exactly once",
+        "leaves no skip, fixme or unnamed test.fail mark in the run"
+      ],
+      "unresolvedIdsNamed": [
+        "E2E-33",
+        "E2E-35",
+        "E2E-36",
+        "E2E-37",
+        "E2E-38",
+        "E2E-39",
+        "E2E-45",
+        "E2E-46",
+        "E2E-47",
+        "E2E-48",
+        "E2E-49",
+        "E2E-50",
+        "E2E-51",
+        "E2E-52",
+        "E2E-53",
+        "E2E-54",
+        "E2E-55",
+        "E2E-56",
+        "E2E-57",
+        "E2E-58",
+        "E2E-59",
+        "E2E-60",
+        "E2E-64",
+        "E2E-65",
+        "E2E-67",
+        "E2E-68",
+        "E2E-69"
+      ],
+      "unresolvedCount": 27,
+      "reading": "27 ids unresolved; with E2E-80 (no row, resolved only by the exact-main contract) these are the 28 rowless ids the ledger sentence counts",
+      "logSha256": "de54d4a904cedfcb242f930698f32d0301b80c6786edae446764860d30780e9a"
+    },
+    "R2_markScan": {
+      "commandInPin": "the same R1b run, test \"leaves no skip, fixme or unnamed test.fail mark in the run\"",
+      "unaccountedMarksNamed": [
+        "e2e/gm-two-player-cleanup-ownership.spec.ts:312 test.skip(!runId, 'sandbox fixture requires PLAYWRIGHT_E2E_RUN_ID');",
+        "e2e/gm-two-player-cleanup-ownership.spec.ts:372 test.skip(!runId, 'sandbox fixture requires PLAYWRIGHT_E2E_RUN_ID');",
+        "e2e/gm-two-player-rewind.pack.spec.ts:43 test.fail(",
+        "e2e/gm-two-player-rewind.pack.spec.ts:76 test.fail(true, 'E2E-41 stale branch command rejects @until-journal-cutover');",
+        "e2e/gm-two-player-rewind.pack.spec.ts:119 test.fail(",
+        "e2e/gm-two-player-rewind.pack.spec.ts:201 test.fail(true, 'E2E-43 fog restores after rewind @until-journal-cutover');",
+        "e2e/gm-two-player-rewind.pack.spec.ts:251 test.fail(",
+        "e2e/gm-two-player-rewind.pack.spec.ts:315 test.fail("
+      ],
+      "grepOverAllE2e": {
+        "command": "grep -rnE \"\\btest(\\.describe)?(\\.(serial|parallel))?\\.(skip|fixme|fail)\\s*\\(\" e2e",
+        "lines": 20,
+        "sha256": "dfb5db3984cd2f8e64f5a2578ae095658d14e0df47c57f95c12fe71e22fbadbb"
+      },
+      "inRunSpecFiles": {
+        "testFail": "6, all in e2e/gm-two-player-rewind.pack.spec.ts (:43, :76, :119, :201, :251, :315), each carrying @until-journal-cutover",
+        "testSkip": "2, in e2e/gm-two-player-cleanup-ownership.spec.ts (:312, :372), test.skip(!runId, 'sandbox fixture requires PLAYWRIGHT_E2E_RUN_ID')",
+        "testFixme": 0
+      },
+      "outsideTheRun": "audit-capture.spec.ts 4 test.fixme; p2p-sync.spec.ts 1 test.describe.fixme; game.spec.ts 4 test.skip; flow-audits.spec.ts, scenario-pack-minting.spec.ts, tactical-map-visual-smoke.spec.ts 1 test.skip each: none of these files is in the all plan, so the rule does not reach them",
+      "resolution": "the six test.fail marks are resolved by NAMED_GATES (@until-journal-cutover, holder adopt-combat-journal-cutover-and-gm-rewind); the two skips by RUNNER_GUARDED_SKIPS (every plan sets PLAYWRIGHT_E2E_RUN_ID, core.cjs:216); none is recorded as open"
+    },
+    "R3_openspec": {
+      "openspecValidateAllStrict": {
+        "command": "npx --no-install openspec validate --all --strict",
+        "exit": 0,
+        "lastLine": "Totals: 229 passed, 0 failed (229 items)",
+        "umbrellaLine": "✓ change/harden-gm-two-player-campaign-sessions",
+        "logSha256": "fed248fc815eeb6f7bcba19c13e61a741afc1b5b5b5033b1c2d22a2195eccb0e"
+      },
+      "openspecCi": {
+        "command": "npm run --silent qc:openspec-ci:validate",
+        "exit": 0,
+        "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+        "logSha256": "21c1181842878b6c171cc9f496ad0f18fdaf7636c2d91ecc439a1da7b51589e6"
+      },
+      "reading": "both PASS on the baseline; the delta must keep them PASS"
+    }
+  },
+  "nonClaims": [
+    "No Playwright run: the resolution and the scan are static reads of the spec files the all plan names.",
+    "R1a fails at module load, not at an assertion; R1b is the assertion-level red."
+  ]
+}

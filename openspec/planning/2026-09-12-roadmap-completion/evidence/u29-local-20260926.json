@@ -1,0 +1,247 @@
+{
+  "unit": "U29",
+  "stage": "local",
+  "status": "ready: pin 6/6, every gate exit 0, three mutants killed and restored with sha256 match; stages 1-3 done, awaiting the parent commit, Lane A and the owner's head-bound ruling on PK-umbrella-acceptance-unsatisfiable",
+  "at": "2026-09-27T00:13:02.330Z",
+  "baseline": "ae7b6fc8019ddc7e977b4a634aa296d381cf9600",
+  "testedTree": "the baseline commit plus the uncommitted edits hashed below (the parent commits)",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u29",
+  "branch": "roadmap-u29-acceptance-gates-manifest-20260926",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "runners": {
+    "localGates": {
+      "path": "session scratchpad u29/local-gates.sh",
+      "sha256": "8d75a771b17b7bba2f1e1ef161f4e65a4ff868059a13508bc6c6dacf59cf3385"
+    },
+    "mutants": {
+      "path": "session scratchpad u29/mutants.sh",
+      "sha256": "3861ce0c05a3c77dded0ead6a32f0ce6f337600ba71c45123b50f0de0295ee41"
+    },
+    "receiptWriter": {
+      "path": "session scratchpad u29/write-local.mjs",
+      "sha256": "18499cf58c37c589b469ac0fb608afc9a1cb81a85fee4292ef0ecaf6cb7efc8f"
+    }
+  },
+  "changedFiles": [
+    {
+      "file": "scripts/qc/gm-two-player-acceptance-gates.cjs",
+      "added": 87,
+      "deleted": 0,
+      "kind": "product",
+      "sha256": "01804efc937185a835f6ab7c1d59cfe9689fa1f4a3394624897d306e42a1d937",
+      "baselineSha256": null
+    },
+    {
+      "file": "scripts/__tests__/gm-two-player-acceptance-gates.test.ts",
+      "added": 227,
+      "deleted": 0,
+      "kind": "test",
+      "sha256": "631dc819612d95a76c7fb8fceefc596190c56b40374501fc11bcf85df25c7aa5",
+      "baselineSha256": null
+    },
+    {
+      "file": "openspec/changes/harden-gm-two-player-campaign-sessions/implementation-plan.md",
+      "added": 2,
+      "deleted": 1,
+      "kind": "prose",
+      "sha256": "ff29a5656044291c0022a0d4114f6a288bb624856fea5bd9d35c9a2590612598",
+      "baselineSha256": "aac19ea942edb58c7dc67a7e30d3f524ae7405b0b543954b13e21842951876d3"
+    },
+    {
+      "file": "openspec/changes/harden-gm-two-player-campaign-sessions/specs/e2e-testing/spec.md",
+      "added": 19,
+      "deleted": 0,
+      "kind": "prose",
+      "sha256": "c85d44d618222a3ec18773acddaf5964e182060cdf4ac8ace15f94da7687a593",
+      "baselineSha256": "ab398fccb1ac3b926e5df7dc8bc5c757273731b9ec0e59aa24ac493d3b696d5d"
+    },
+    {
+      "file": "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md",
+      "added": 2,
+      "deleted": 0,
+      "kind": "prose",
+      "sha256": "d41b74cb0592903040ad1ddc6ace88b30758f7937d8b16bb0a53ca2682e870e0",
+      "baselineSha256": "856efc8e3ad992053b4b3f652c895da1e12b218281cb3dc21ca720c378120a1e"
+    }
+  ],
+  "lineCounts": {
+    "productLines": 87,
+    "testLines": 227,
+    "proseLinesAdded": 23,
+    "proseLinesDeleted": 1,
+    "files": 5,
+    "filesWithReceipts": 8,
+    "caps": "maxFiles 15, maxNonGeneratedLines 500 (product only): within",
+    "note": "git diff --numstat for tracked files; wc -l for the two new files"
+  },
+  "gates": [
+    {
+      "name": "pin",
+      "command": "npx --no-install jest scripts/__tests__/gm-two-player-acceptance-gates.test.ts",
+      "exit": 0,
+      "lastLine": "Ran all test suites matching /scripts\\\\__tests__\\\\gm-two-player-acceptance-gates.test.ts/i.",
+      "logSha256": "084c56afd020b43822fc0986b94fc05520851df34a8acd6e5aa291582e07e621",
+      "testsLine": "Tests:       6 passed, 6 total"
+    },
+    {
+      "name": "jest-scripts",
+      "command": "npx --no-install jest scripts",
+      "exit": 0,
+      "lastLine": "Ran all test suites matching /scripts/i.",
+      "logSha256": "00d295723ea618b677a40ed7d0264dadec8b4582f1c8c7f68819a1a4d0132dda",
+      "suitesLine": "Test Suites: 81 passed, 81 total",
+      "testsLine": "Tests:       10 skipped, 1270 passed, 1280 total"
+    },
+    {
+      "name": "tsc",
+      "command": "npx --no-install tsc --noEmit",
+      "exit": 0,
+      "lastLine": "(no output)",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "oxlint",
+      "command": "npx --no-install oxlint",
+      "exit": 0,
+      "lastLine": "Finished in 221ms on 3820 files using 16 threads.",
+      "logSha256": "ddffc97dc0006ca13b85f8c00d49b21783afc7bde6f5aeb3d78164c7c9712c2f",
+      "summary": "Found 84 warnings and 0 errors.",
+      "baselineWarnings": 84
+    },
+    {
+      "name": "oxfmt-check",
+      "command": "npx --no-install oxfmt --check <the five changed files>",
+      "exit": 0,
+      "lastLine": "Finished in 17ms on 2 files using 16 threads.",
+      "logSha256": "5962924bc3a319264ca4cfa1f972e8d9e70ace743a6ab1f580988eeaa9f7f6b9",
+      "note": "oxfmt checked 2 files: .oxfmtignore:11 ignores openspec, so the three markdown files are outside the formatter"
+    },
+    {
+      "name": "lint-units",
+      "command": "npm run --silent lint:units",
+      "exit": 0,
+      "lastLine": "LINT_UNITS_PASS 17899/17899",
+      "logSha256": "396bcb4f58e4b853a9b838bce18a095796a01e4da94ef60b7b415e4993582ce2",
+      "scriptsLine": "LINT_UNITS_PATH scripts files=188 findings=50 ceiling=50 PASS"
+    },
+    {
+      "name": "openspec-strict",
+      "command": "npx --no-install openspec validate --all --strict",
+      "exit": 0,
+      "lastLine": "Totals: 229 passed, 0 failed (229 items)",
+      "logSha256": "fed248fc815eeb6f7bcba19c13e61a741afc1b5b5b5033b1c2d22a2195eccb0e",
+      "umbrellaLine": "✓ change/harden-gm-two-player-campaign-sessions"
+    },
+    {
+      "name": "openspec-ci",
+      "command": "npm run --silent qc:openspec-ci:validate",
+      "exit": 0,
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "logSha256": "21c1181842878b6c171cc9f496ad0f18fdaf7636c2d91ecc439a1da7b51589e6"
+    },
+    {
+      "name": "roadmap",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exit": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows",
+      "logSha256": "5d4e2632ad433b598282457f50f016260282736419f55973bd91f704a9ef25a1"
+    }
+  ],
+  "failedAttempt1": {
+    "what": "first gate run: jest scripts 1 failed (scripts/__tests__/lint-units.test.ts:348) and lint:units LINT_UNITS_FAIL 17901/17899, both because the new pin test used two bare require() calls (typescript-eslint(no-require-imports) at :36 and :44) and pushed scripts to 52 findings over its ceiling of 50",
+    "fix": "the pin test loads the two CommonJS qc modules through createRequire(__filename); no ceiling was changed",
+    "lintUnitsLastLine": "LINT_UNITS_FAIL 17901/17899",
+    "jestScriptsTestsLine": "Tests:       1 failed, 10 skipped, 1269 passed, 1280 total",
+    "logsSha256": {
+      "lintUnits": "abf0030fb5b495745dadae525026772f15333278adeccc4c04ee1b87ae5629f1",
+      "jestScripts": "cc82b0bdd60d022453952f6573ffcf1f6c8288d9603d98f1a4456d1d950c4047"
+    }
+  },
+  "mutants": [
+    {
+      "id": "M1",
+      "mutation": "scripts/qc/gm-two-player-acceptance-gates.cjs: the E2E-33 entry removed (sed s/['E2E-33', /[/)",
+      "pinExit": 1,
+      "killed": true,
+      "pinNamed": [
+        "+     \"E2E-33\","
+      ],
+      "testsLine": "Tests:       1 failed, 5 passed, 6 total",
+      "preSha256": "01804efc937185a835f6ab7c1d59cfe9689fa1f4a3394624897d306e42a1d937",
+      "mutantSha256": "3de8faee2d806c6d8c66a3f1d69f09f235a50e118e2372371572ecf53aadbf73",
+      "postSha256": "01804efc937185a835f6ab7c1d59cfe9689fa1f4a3394624897d306e42a1d937",
+      "restored": true,
+      "restoredBy": "copy of the pre-mutant bytes (untracked file; git checkout cannot restore it)",
+      "logSha256": "0e7ac224316d0dea31d93f429f6a45067a3baf84ff63a7f6bd2724ffdbb844e8"
+    },
+    {
+      "id": "M2",
+      "mutation": "scripts/qc/gm-two-player-acceptance-gates.cjs: a GATED_ABSENT entry added for E2E-01, which has authored rows",
+      "pinExit": 1,
+      "killed": true,
+      "pinNamed": [
+        "+     \"E2E-01 <- row + gated-absent @until-U54\","
+      ],
+      "testsLine": "Tests:       1 failed, 5 passed, 6 total",
+      "preSha256": "01804efc937185a835f6ab7c1d59cfe9689fa1f4a3394624897d306e42a1d937",
+      "mutantSha256": "5971dc73274ad3812b7dd7fcd29ee795368723bdfc5dae4f092995ea838ccb52",
+      "postSha256": "01804efc937185a835f6ab7c1d59cfe9689fa1f4a3394624897d306e42a1d937",
+      "restored": true,
+      "restoredBy": "copy of the pre-mutant bytes (untracked file; git checkout cannot restore it)",
+      "logSha256": "d3d2c4498a57b37fe8543fcf0966d161566c04aa212e0b896e80dc12b388472d"
+    },
+    {
+      "id": "M3",
+      "mutation": "e2e/gm-two-player-proposals.pack.spec.ts (a spec the all plan runs): test.fail(true, 'ungated expected failure'); appended",
+      "pinExit": 1,
+      "killed": true,
+      "pinNamed": [
+        "+   \"e2e/gm-two-player-proposals.pack.spec.ts:523 test.fail(true, 'ungated expected failure');\","
+      ],
+      "testsLine": "Tests:       1 failed, 5 passed, 6 total",
+      "preSha256": "97e0e21958d936df351ac25e79eda229ea8e101d777063fc62330a1b464ede65",
+      "mutantSha256": "ff555e50733b20770299ece6e61a70c0b4a69e866f85c9f92c29cd2f7730fecb",
+      "postSha256": "97e0e21958d936df351ac25e79eda229ea8e101d777063fc62330a1b464ede65",
+      "restored": true,
+      "restoredBy": "git checkout HEAD -- e2e/gm-two-player-proposals.pack.spec.ts",
+      "logSha256": "aba68b13bf240a35f6764779ba3c8cb8a02d984bd90d8651bb1eb322d4f113ef"
+    }
+  ],
+  "mutantControl": "control exit=0",
+  "finalTexts": {
+    "requirement": "### Requirement: Acceptance Run Excludes Only Named-Gate Rows\nThe umbrella acceptance run SHALL resolve every catalogue id of this delta, E2E-01 through E2E-80, exactly once: to an authored row, meaning a Playwright test title carrying the id's `@E2E-NN` tag in a spec file that the `all` plan of `scripts/qc/gm-two-player-campaign-core.cjs` runs; to the exact-main regression contract, for E2E-80 only (`scripts/qc/validate-exact-main-regression-ladder.mjs`); or to one entry of the gated-absent manifest `scripts/qc/gm-two-player-acceptance-gates.cjs` naming the id, its gate tag and its holder, the roadmap unit or deferral that holds the id's task row. An unresolved id, an id resolved more than once, a `test.fixme` mark, a `test.fail` mark carrying no gate tag the manifest names, and a `test.skip` mark SHALL fail the run, except a skip mark the manifest names together with the environment variable its condition reads when every plan that runs its file sets that variable, so the mark cannot skip in the run. The excluded set SHALL be exactly the authored rows carrying a strict `test.fail` with a named gate tag plus the manifest's gated-absent ids, and the run SHALL pass only when every non-excluded row passes and no excluded row passes unexpectedly. A gated-absent id has no row and cannot pass; an id that gains a row SHALL leave the manifest in the same change.\n\n#### Scenario: every catalogue id resolves exactly once\n- **WHEN** the manifest pin reads the catalogue ids from this delta's scenario headings, the test titles of the spec files the `all` plan runs, and the manifest\n- **THEN** each of E2E-01 through E2E-80 SHALL resolve to its authored rows, the exact-main contract or one gated-absent entry, and an unresolved or doubly-resolved id SHALL fail the pin with the id named\n\n#### Scenario: a gated-absent id that gains a row fails until it leaves the manifest\n- **WHEN** an id the manifest lists as gated-absent appears in a test title of a spec file the run executes\n- **THEN** the pin SHALL fail naming that id as resolved twice\n\n#### Scenario: an unnamed expected failure, a fixme or a live skip fails the run\n- **WHEN** a spec file the run executes carries a `test.fail` mark without a gate tag the manifest names, a `test.fixme` mark, or a `test.skip` mark the manifest does not name\n- **THEN** the pin SHALL fail naming the file, the line and the mark\n\n#### Scenario: an excluded row that passes fails the run\n- **WHEN** an authored row carrying a strict `test.fail` with a named gate tag passes\n- **THEN** Playwright SHALL report the row as failed and the run SHALL fail, so a gate is removed only by the change that ungates its row",
+    "errata": "  - ERRATA (2026-09-26, roadmap unit U29; no checkbox is changed by this note): the 2026-08-28 receipt below says \"scoped minting exists and is what connections now use\"; the second half of that sentence is withdrawn. Measured at ae7b6fc80: the production token route mints no scope - src/pages/api/multiplayer/auth/token.ts:157 signs `canonicalTokenPayload({ playerId, issuedAt, expiresAt })` and the token it returns (:161-167) has no scope field; the production pages mint their tokens through that route (src/pages/multiplayer/index.tsx:66, src/pages-modules/multiplayer/multiplayerPage.helpers.ts:20, src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx:72); and the only signer that sets a scope, issuePlayerToken (src/lib/multiplayer/client/issuePlayerToken.ts:100-153), is referenced outside its own file only by tests and by comments in that route. The verifier admits the scopeless token: src/lib/multiplayer/server/auth.ts:233-248 checks the scope only inside `if (token.scope)`, so a token without one passes whether or not an expected scope was passed (its comment at :233-237 names this the transition residual). What #1420 delivered stands: a scope, when present, is inside the signed bytes, and an unchecked or mismatched scope is refused. Minting scoped tokens on the production path and refusing scopeless socket tokens remain future work.",
+    "note254": "  - NOTE (2026-09-26, roadmap unit U29): 25.1 is held by roadmap unit U57 (units.json), which ticks it whole only from its gate sweep on exact main. This row waits on the owner decision OD-camp01h-terminal: it is deferred to the R2.journey node (DF-closure-rows) behind that decision's option (a), a second WRITE+ collaborator, a non-author approved review and three human witness sessions. The acceptance run's exclusions are named by the requirement 'Acceptance Run Excludes Only Named-Gate Rows' (specs/e2e-testing/spec.md) and listed in scripts/qc/gm-two-player-acceptance-gates.cjs; that manifest resolves ids for the run and closes no row.",
+    "reconciliationNote": "> Reconciled with `tasks.md` on 2026-09-26 (roadmap unit U29, measured at ae7b6fc80): every one of todos 1-34 appears in the nine waves below (todos 2-4 in Waves 1 and 3, as Wave 1 says), and F1-F4 run after them as the final verification wave. The checkboxes in this file are not maintained: 6 of the 34 todos (1-5 and 26) and none of F1-F4 are checked here, while `tasks.md` then held 84 checked and 24 open rows. The receipts under the `tasks.md` rows are the only completion record; a checkbox in this plan is never evidence that a todo or a `tasks.md` row is done. Event-history sections are executed from `event-history-wave-map.md` and the named leaf changes' `tasks.md`, as `tasks.md` line 3 says.",
+    "implementationPlanLine18": "The historical 34-todo matrix below (plus the final verification reviews F1-F4) is acceptance topology, not the current executable PR count.",
+    "proposedAcceptanceString": "E2E-01..80 resolved and run as the harden-gm-two-player-campaign-sessions e2e-testing requirement 'Acceptance Run Excludes Only Named-Gate Rows' defines: every id resolves exactly once to an authored row, the E2E-80 exact-main contract, or a gated-absent entry of scripts/qc/gm-two-player-acceptance-gates.cjs naming its gate tag and holder; the run passes only when every non-excluded row passes and no excluded row passes unexpectedly; ten-scenario reconnect/restart/correction proof; preserve explicit out-of-scope simulations",
+    "changeSinceAdmission": "the 25.4 note's first sentence was reworded after admission from \"25.1 is held by roadmap unit U57, which runs its gate sweep on exact main and ticks it whole.\" to \"25.1 is held by roadmap unit U57 (units.json), which ticks it whole only from its gate sweep on exact main.\" (U57 is planned, so the note no longer states its sweep in the present tense); the admission receipt keeps the earlier text"
+  },
+  "nonClaims": [
+    "No Playwright run, no build and no server: the catalogue resolution and the mark scan are static reads of the delta, the spec files buildRunPlan({group:\"all\"}) names, and the manifest.",
+    "The runtime half of the requirement (a skip that fires, or an excluded row that passes, fails the run) is not exercised here; it rests on Playwright's strict test.fail and on U57's traceability runner, which does not exist yet (traceability answers NOT_IMPLEMENTED).",
+    "No checkbox was ticked or unticked; roadmap.json and units.json were not edited (the acceptance string is proposed for the parent's fold).",
+    "The ERRATA reports source reads at the baseline; no socket was dialled to observe a scopeless token being admitted.",
+    "Holders are read from units.json at the baseline; the manifest does not re-check them against the ledger."
+  ],
+  "findings": [
+    "FN-u29-cleanup-ownership-conditional-skips: e2e/gm-two-player-cleanup-ownership.spec.ts:312 and :372 carry test.skip(!runId, ...) in a spec the all plan runs; resolved through RUNNER_GUARDED_SKIPS because every plan sets PLAYWRIGHT_E2E_RUN_ID (gm-two-player-campaign-core.cjs:216); an e2e-owning unit can delete both guards and the entry together.",
+    "FN-u29-token-path-in-ledger: the ledger and charter cite token.ts:153 / src/lib/multiplayer/server/token.ts:150-160; the file is src/pages/api/multiplayer/auth/token.ts and the scopeless payload is :157; auth.ts's scope block is :233-248, not :233-247.",
+    "FN-u29-6-3-scoped-clause-unmet: 6.3 stays checked while its \"mint scoped session tokens\" clause is unmet on the production path (ERRATA); under OD-whole-row-tick-rule the parent may want a packet or successor.",
+    "FN-u29-21-3-authoring-unnamed: E2E-33 and E2E-35..39 are held by U54 through row 21.3, but no unit sentence names who authors them (U54 names E2E-45).",
+    "FN-u29-plan-todo-33-reference: implementation-plan.md todo 33 (E2E-71..80) references tasks.md 23.1-23.4, while those ids are tasks.md 22.3; not edited (outside the sentence).",
+    "FN-u29-tasks-10-4-duplicate: tasks.md numbers two rows 10.4 (:217 and :222 at the baseline); not edited.",
+    "FN-u29-ladder-skips-neutral: validate-exact-main-regression-ladder.mjs:200-203 counts skipped as neither pass nor failure; the new requirement makes a fired skip fail the acceptance run, so U57's runner must not reuse that counting for the traceability group.",
+    "FN-u29-next-is-u25: validate-roadmap.mjs --next printed U25 on the baseline, not U29."
+  ],
+  "gitStatusShort": [
+    " M openspec/changes/harden-gm-two-player-campaign-sessions/implementation-plan.md",
+    " M openspec/changes/harden-gm-two-player-campaign-sessions/specs/e2e-testing/spec.md",
+    " M openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u29-admission-20260926.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u29-local-20260926.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u29-red-20260926.json",
+    "?? scripts/__tests__/gm-two-player-acceptance-gates.test.ts",
+    "?? scripts/qc/gm-two-player-acceptance-gates.cjs"
+  ]
+}
