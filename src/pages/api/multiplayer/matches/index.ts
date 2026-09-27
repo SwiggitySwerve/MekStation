@@ -28,6 +28,7 @@ import {
   rejectRateLimited,
 } from '@/lib/api/security';
 import {
+  CreateCoopMissionMatchBodySchema,
   CreateMultiplayerMatchBodySchema,
   type CreateMultiplayerMatchBody,
 } from '@/lib/api/securitySchemas';
@@ -36,6 +37,11 @@ import { campaignCreationCheckpointPorts } from '@/lib/campaign/authority/campai
 import { isCampaignJournalAuthorityEnabled } from '@/lib/campaign/sync/campaignJournalAuthorityEnabled';
 import { authenticateRequest } from '@/lib/multiplayer/server/auth';
 import { getCampaignHostRegistry } from '@/lib/multiplayer/server/CampaignHostRegistry';
+import { CoopMissionRefusal } from '@/lib/multiplayer/server/coopMissionAdmission';
+import {
+  createCoopMissionMatch,
+  isCoopMissionBody,
+} from '@/lib/multiplayer/server/coopMissionCreate';
 import { getDefaultMatchStore } from '@/lib/multiplayer/server/getDefaultMatchStore';
 import { getDefaultPlayerStore } from '@/lib/multiplayer/server/InMemoryPlayerStore';
 import { setAiSlot } from '@/lib/multiplayer/server/lobby/lobbyStateMachine';
@@ -48,9 +54,11 @@ import {
   type IMatchSeat,
   type SeatKind,
 } from '@/types/multiplayer/Lobby';
+import { logger } from '@/utils/logger';
 
 interface ICreateMatchResponse {
   matchId: string;
+  missionMatchId?: string;
   wsUrl: string;
   /** Wave 3b: 6-char invite code so the host can share the lobby. */
   roomCode?: string;
@@ -281,7 +289,10 @@ export default async function handler(
   applySecurityHeaders(res);
   if (rejectUnexpectedMethod(req, res, ['POST'])) return;
 
-  const body = parseBody(CreateMultiplayerMatchBodySchema, req, res);
+  const body =
+    req.body?.coopCampaign?.missionId !== undefined
+      ? parseBody(CreateCoopMissionMatchBodySchema, req, res)
+      : parseBody(CreateMultiplayerMatchBodySchema, req, res);
   if (!body) return;
 
   const limit = rateLimit(
@@ -299,6 +310,28 @@ export default async function handler(
     return;
   }
   const hostPlayerId = auth.playerId;
+  if (isCoopMissionBody(body)) {
+    try {
+      const meta = await createCoopMissionMatch(body, hostPlayerId);
+      res.status(201).json({
+        matchId: meta.matchId,
+        missionMatchId: meta.matchId,
+        wsUrl: buildWsUrl(req, meta.matchId),
+        meta,
+      });
+    } catch (error) {
+      if (error instanceof CoopMissionRefusal) {
+        res.status(error.status).json({ error: error.code, code: error.code });
+      } else {
+        logger.error('[matches] co-op mission creation failed', error);
+        res.status(500).json({
+          error: 'Mission creation failed',
+          code: 'COOP_MISSION_STORE_FAILURE',
+        });
+      }
+    }
+    return;
+  }
   const store = getDefaultMatchStore();
 
   await bootstrapHostProfile(hostPlayerId, auth.publicKey, body.displayName);

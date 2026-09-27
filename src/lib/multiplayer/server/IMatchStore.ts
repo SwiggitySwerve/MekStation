@@ -83,6 +83,7 @@ export interface IMatchConfig {
  */
 export interface IMatchUnitBootstrapEntry {
   readonly unitId: string;
+  readonly ownerPlayerId?: string;
   readonly unitRef: string;
   readonly side: ISideAssignment['side'];
   readonly name?: string;
@@ -102,6 +103,18 @@ export interface IMatchCoopCampaignRegistration {
   readonly campaignId: string;
   readonly state: ICampaignAuthoritativeState;
   readonly arbitrationMode?: GmArbitrationMode;
+}
+
+export interface IMatchCoopMission {
+  readonly campaignId: string;
+  readonly sessionId: string;
+  readonly missionId: string;
+  readonly acceptedHead: {
+    readonly branchId: string;
+    readonly revision: number;
+    readonly effectiveGeneration: number;
+  };
+  readonly requestFingerprint: string;
 }
 
 /**
@@ -129,6 +142,7 @@ export interface IMatchMeta {
   readonly seats?: readonly IMatchSeat[];
   readonly unitBootstrap?: readonly IMatchUnitBootstrapEntry[];
   readonly coopCampaign?: IMatchCoopCampaignRegistration;
+  readonly coopMission?: IMatchCoopMission;
 }
 
 /**
@@ -440,7 +454,11 @@ export interface IMatchStore
    * Persist a brand-new match. Implementations MUST reject if a match
    * with the same `matchId` already exists.
    */
-  createMatch(meta: IMatchMeta): Promise<string>;
+  /** Metadata and any opening events commit together, or neither commits. */
+  createMatch(
+    meta: IMatchMeta,
+    initialEvents?: readonly IGameEvent[],
+  ): Promise<string>;
 
   /**
    * Append a single event. Sequence collisions MUST reject with

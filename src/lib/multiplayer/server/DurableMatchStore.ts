@@ -706,7 +706,10 @@ export class DurableMatchStore
   readMatchStreamRebuild = (matchId: string): StreamRebuildRefusal | null =>
     readDurableStreamRebuild({ streamType: 'match', streamId: matchId });
 
-  createMatch = async (meta: IMatchMeta): Promise<string> => {
+  createMatch = async (
+    meta: IMatchMeta,
+    initialEvents: readonly IGameEvent[] = [],
+  ): Promise<string> => {
     const existing = this.db
       .prepare('SELECT match_id FROM mp_matches WHERE match_id = ?')
       .get(meta.matchId);
@@ -721,13 +724,16 @@ export class DurableMatchStore
       meta.roomCode && meta.status === 'lobby'
         ? normalizeRoomCode(meta.roomCode)
         : null;
-    this.db
-      .prepare(
-        `INSERT INTO mp_matches
+    const insertMatch = this.db.prepare(
+      `INSERT INTO mp_matches
            (match_id, status, room_code, created_at, updated_at, meta_json)
          VALUES (?, ?, ?, ?, ?, ?)`,
-      )
-      .run(
+    );
+    const insertEvent = this.db.prepare(
+      'INSERT INTO mp_match_events (match_id, sequence, event_json) VALUES (?, ?, ?)',
+    );
+    this.db.transaction(() => {
+      insertMatch.run(
         meta.matchId,
         meta.status,
         indexedRoomCode,
@@ -735,6 +741,10 @@ export class DurableMatchStore
         meta.updatedAt,
         JSON.stringify(meta),
       );
+      for (const event of initialEvents) {
+        insertEvent.run(meta.matchId, event.sequence, JSON.stringify(event));
+      }
+    })();
     return meta.matchId;
   };
 

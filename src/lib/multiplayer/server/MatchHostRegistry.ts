@@ -140,6 +140,10 @@ export class MatchHostRegistry {
     }
 
     let host: ServerMatchHost;
+    if (meta.coopMission) {
+      await this.recoverActiveMatches(matchId);
+      return this.get(matchId);
+    }
     try {
       const bootstrap = await buildMatchHostBootstrapFromMeta(meta, {
         diceSeed: options.diceSeed,
@@ -171,15 +175,27 @@ export class MatchHostRegistry {
    * Idempotent: a match already tracked in the registry is left as-is
    * — recovery never clobbers a live host.
    */
-  recoverActiveMatches = async (): Promise<{
+  recoverActiveMatches = async (
+    matchId?: string,
+  ): Promise<{
     readonly recovered: number;
     readonly failed: number;
     readonly blocked: readonly IMatchRecoveryBlock[];
   }> => {
-    const result = await recoverActiveMatches(this.store, this.quarantine);
-    this.blocked = Array.from(result.blocked);
+    const result = await recoverActiveMatches(
+      this.store,
+      this.quarantine,
+      matchId,
+    );
+    this.blocked = [
+      ...this.blocked.filter(
+        (entry) => matchId !== undefined && entry.matchId !== matchId,
+      ),
+      ...result.blocked,
+    ];
     for (const [matchId, host] of Array.from(result.hosts.entries())) {
-      if (!this.hosts.has(matchId)) {
+      const existing = this.hosts.get(matchId);
+      if (!existing || existing.isClosed()) {
         this.hosts.set(matchId, host);
       }
     }
