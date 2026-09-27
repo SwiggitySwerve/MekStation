@@ -16,16 +16,33 @@
  * projection contract.
  */
 
+import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+
+import type { ICampaignEventStore } from '@/lib/campaign/sync/ICampaignEventStore';
 import type { UnsequencedCampaignEvent } from '@/lib/multiplayer/server/CampaignMatchHostIntent';
 import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
 
 import { InMemoryCampaignEventStore } from '@/lib/campaign/sync/InMemoryCampaignEventStore';
+import {
+  appendCampaignCommandBatch,
+  computeCampaignStateDigest,
+  JournalCampaignEventStore,
+  type ICampaignJournalEnvelope,
+} from '@/lib/campaign/sync/JournalCampaignEventStore';
+import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
 import { CampaignMatchHost } from '@/lib/multiplayer/server/CampaignMatchHost';
 import {
   CampaignSyncSession,
   RESYNC_SNAPSHOT_GAP,
 } from '@/lib/multiplayer/server/CampaignSyncSession';
+import {
+  getSQLiteService,
+  resetSQLiteService,
+} from '@/services/persistence/SQLiteService';
 import { createEmptyCampaignState } from '@/types/campaign/CampaignSync';
+import { nowIso } from '@/types/multiplayer/Protocol';
 
 const CAMPAIGN_ID = 'campaign-baseline-projection';
 const GM_ID = 'gm-player';
@@ -34,7 +51,9 @@ const P2_ID = 'player-two';
 const OPENING_BALANCE = 500_000;
 
 /** A real host plus session, opened, with a shared genesis ledger. */
-async function openSession(): Promise<{
+async function openSession(
+  eventStore: ICampaignEventStore = new InMemoryCampaignEventStore(),
+): Promise<{
   host: CampaignMatchHost;
   session: CampaignSyncSession;
   roomCode: string;
@@ -42,7 +61,7 @@ async function openSession(): Promise<{
   const host = new CampaignMatchHost({
     campaignId: CAMPAIGN_ID,
     hostPlayerId: GM_ID,
-    eventStore: new InMemoryCampaignEventStore(),
+    eventStore,
     initialState: {
       ...createEmptyCampaignState(CAMPAIGN_ID),
       balance: OPENING_BALANCE,
@@ -308,5 +327,336 @@ describe('legacy campaign baseline - the authority keeps everything', () => {
     const baseline = baselineOf(seen);
     expect(baseline.payload.revision).toBe(head);
     expect(baseline.sequence).toBe(-1);
+  });
+});
+
+/**
+ * U94: the small-gap resync tail and the live fan-out apply the baseline
+ * law (campaignBaselineReachesViewer) to a stored full-state
+ * `CampaignSnapshotPublished`, as the join and large-gap baselines above
+ * already do. Real SQLite journal; the checkpoint is appended in the shape
+ * the PUT route's `saveCampaignRecordThroughJournal` writes (system author,
+ * scope campaign, the whole state, revision = its sequence), either
+ * directly to the journal (U58 Lane A's probe: no live host adopts it) or
+ * through `adoptSavedCheckpoint`, the live host's adoption of that save
+ * (U96), which is the production publisher that reaches live sinks.
+ *
+ * Every row records the frames each viewer received (U94_FRAMES_OUT).
+ */
+describe('U94 - the small-gap tail and live fan-out obey the baseline law', () => {
+  const PLANTED = 'pilot-leak-check';
+  const observed: Record<string, unknown> = {};
+  let dir: string;
+
+  beforeEach(async () => {
+    dir = await mkdtemp(path.join(tmpdir(), 'u94-tail-'));
+    resetSQLiteService();
+    getSQLiteService({ path: path.join(dir, 'u94.db') }).initialize();
+  });
+
+  afterEach(async () => {
+    resetSQLiteService();
+    await rm(dir, { recursive: true, force: true });
+  });
+
+  afterAll(async () => {
+    const out = process.env.U94_FRAMES_OUT;
+    if (out) await writeFile(out, JSON.stringify(observed, null, 2));
+  });
+
+  function journal(): SQLiteEventJournal<ICampaignJournalEnvelope> {
+    return new SQLiteEventJournal(getSQLiteService().getDatabase(), () =>
+      nowIso(),
+    );
+  }
+
+  /** A host and session over the real SQLite journal. */
+  async function journalSession(): Promise<
+    Awaited<ReturnType<typeof openSession>>
+  > {
+    return openSession(new JournalCampaignEventStore(journal()));
+  }
+
+  /**
+   * Appends a record checkpoint the way the PUT route's
+   * `saveCampaignRecordThroughJournal` does: a system-authored, campaign
+   * scoped, full-state snapshot at the stream's next sequence. Its state is
+   * the host's whole state (so it carries anything gm-scoped the host
+   * folded) plus a planted gm-only pilot.
+   */
+  async function appendCheckpoint(
+    host: CampaignMatchHost,
+  ): Promise<ICampaignEvent<'CampaignSnapshotPublished'>> {
+    const sequence = await host.getEventLog().nextSequence();
+    const base = host.getState();
+    const state = {
+      ...base,
+      pilots: {
+        ...base.pilots,
+        [PLANTED]: { pilotId: PLANTED, name: 'Leak Check' },
+      },
+    };
+    const event = {
+      sequence,
+      campaignId: CAMPAIGN_ID,
+      ts: nowIso(),
+      authorPlayerId: 'system',
+      type: 'CampaignSnapshotPublished',
+      scope: 'campaign',
+      payload: { state, revision: sequence },
+    } as ICampaignEvent<'CampaignSnapshotPublished'>;
+    const appended = await appendCampaignCommandBatch(journal(), {
+      campaignId: CAMPAIGN_ID,
+      commandId: `campaign-checkpoint:${CAMPAIGN_ID}:${sequence}`,
+      events: [event],
+      expectedPostStateDigest: computeCampaignStateDigest(state),
+      principal: {
+        actorKind: 'system',
+        actorId: 'campaign-record-checkpoint',
+        authorityType: 'campaign-source',
+        authorityId: CAMPAIGN_ID,
+      },
+    });
+    expect(appended.kind).toBe('committed');
+    return event;
+  }
+
+  /** What one frame showed the viewer: enough to see a leak. */
+  function frameOf(event: ICampaignEvent): Record<string, unknown> {
+    return {
+      type: event.type,
+      sequence: event.sequence,
+      scope: event.scope,
+      authorPlayerId: event.authorPlayerId,
+      ...(event.type === 'CampaignSnapshotPublished'
+        ? {
+            pilots: Object.keys(
+              (event as ICampaignEvent<'CampaignSnapshotPublished'>).payload
+                .state.pilots,
+            ),
+          }
+        : {}),
+      ...(event.type === 'FundsChanged'
+        ? {
+            balance: (event as ICampaignEvent<'FundsChanged'>).payload.balance,
+          }
+        : {}),
+    };
+  }
+
+  function record(
+    row: string,
+    viewer: string,
+    frames: readonly ICampaignEvent[],
+  ): void {
+    const entry = (observed[row] ?? {}) as Record<string, unknown>;
+    entry[viewer] = frames.map(frameOf);
+    observed[row] = entry;
+  }
+
+  /** Stored full-state snapshots in a frame list (not the -1 baseline). */
+  function checkpointsIn(
+    frames: readonly ICampaignEvent[],
+  ): ICampaignEvent<'CampaignSnapshotPublished'>[] {
+    return frames.filter(
+      (event) =>
+        event.type === 'CampaignSnapshotPublished' && event.sequence >= 0,
+    ) as ICampaignEvent<'CampaignSnapshotPublished'>[];
+  }
+
+  function pilotsSeen(frames: readonly ICampaignEvent[]): string[] {
+    return frames.flatMap((event) =>
+      event.type === 'CampaignSnapshotPublished'
+        ? Object.keys(
+            (event as ICampaignEvent<'CampaignSnapshotPublished'>).payload.state
+              .pilots,
+          )
+        : [],
+    );
+  }
+
+  it('(R1) a restricted player resyncing a small gap does not receive a checkpoint committed after a gm-scoped fact', async () => {
+    const { host, session } = await journalSession();
+    const live: ICampaignEvent[] = [];
+    const join = await session.joinMember((event) => live.push(event), P1_ID);
+    expect(join.ok).toBe(true);
+    const joinRevision = baselineOf(live).payload.revision ?? 0;
+
+    await host._commitEventsForTests(hiddenPilot('gm', 'pilot-gm-only'));
+    const checkpoint = await appendCheckpoint(host);
+    const after = await host._commitEventsForTests(
+      scopedFunds('campaign', 450_000, 'shared-after-checkpoint'),
+    );
+    join.disconnect();
+
+    const tail: ICampaignEvent[] = [];
+    const resync = await session.resyncGuest(
+      joinRevision,
+      (event) => tail.push(event),
+      P1_ID,
+    );
+    record('R1', 'player-one live', live);
+    record('R1', 'player-one resync tail', tail);
+
+    expect(resync.snapshotted).toBe(false);
+    // U58 Lane A: the journal write never enters publish(), so the live
+    // sink saw no checkpoint; the tail is where it leaked.
+    expect(checkpointsIn(live)).toHaveLength(0);
+    expect(checkpointsIn(tail)).toHaveLength(0);
+    expect(pilotsSeen(tail)).not.toContain(PLANTED);
+    expect(pilotsSeen(tail)).not.toContain('pilot-gm-only');
+    // The events after it that their scope admits still arrive.
+    expect(tail.map((event) => event.sequence)).toEqual([after[0]?.sequence]);
+    expect(checkpoint.sequence).toBeLessThan(after[0]?.sequence ?? -1);
+  });
+
+  it('(R1b) the latch comes from the log before lastSeq when the tail starts after the withheld fact', async () => {
+    const { host, session } = await journalSession();
+    const hire = await host._commitEventsForTests(
+      hiddenPilot('gm', 'pilot-gm-only'),
+    );
+    await appendCheckpoint(host);
+    await host._commitEventsForTests(
+      scopedFunds('campaign', 450_000, 'shared-after-checkpoint'),
+    );
+
+    const tail: ICampaignEvent[] = [];
+    await session.resyncGuest(
+      hire[0]?.sequence ?? 0,
+      (event) => tail.push(event),
+      P1_ID,
+    );
+    record('R1b', 'player-one resync tail', tail);
+
+    expect(checkpointsIn(tail)).toHaveLength(0);
+    expect(tail.map((event) => event.type)).toEqual(['FundsChanged']);
+  });
+
+  it('(R2) the GM resyncing the same small gap receives the checkpoint', async () => {
+    const { host, session } = await journalSession();
+    await host._commitEventsForTests(hiddenPilot('gm', 'pilot-gm-only'));
+    const checkpoint = await appendCheckpoint(host);
+
+    const tail: ICampaignEvent[] = [];
+    const resync = await session.resyncGuest(
+      0,
+      (event) => tail.push(event),
+      GM_ID,
+    );
+    record('R2', 'gm resync tail', tail);
+
+    expect(resync.snapshotted).toBe(false);
+    expect(checkpointsIn(tail).map((event) => event.sequence)).toEqual([
+      checkpoint.sequence,
+    ]);
+    expect(pilotsSeen(tail)).toEqual(
+      expect.arrayContaining([PLANTED, 'pilot-gm-only']),
+    );
+  });
+
+  it('(R4) a restricted player with nothing withheld before the checkpoint receives it through the tail', async () => {
+    const { host, session } = await journalSession();
+    await host._commitEventsForTests(
+      scopedFunds('campaign', 450_000, 'shared-before-checkpoint'),
+    );
+    const checkpoint = await appendCheckpoint(host);
+
+    const tail: ICampaignEvent[] = [];
+    await session.resyncGuest(0, (event) => tail.push(event), P1_ID);
+    record('R4', 'player-one resync tail', tail);
+
+    expect(checkpointsIn(tail).map((event) => event.sequence)).toEqual([
+      checkpoint.sequence,
+    ]);
+  });
+
+  it('(R5) a session rebuilt over the surviving journal withholds the same checkpoint', async () => {
+    const { host, session, roomCode } = await journalSession();
+    await host._commitEventsForTests(hiddenPilot('gm', 'pilot-gm-only'));
+    await appendCheckpoint(host);
+    session.hostDisconnected();
+
+    const rebuilt = new CampaignMatchHost({
+      campaignId: CAMPAIGN_ID,
+      hostPlayerId: GM_ID,
+      eventStore: new JournalCampaignEventStore(journal()),
+      initialState: host.getState(),
+    });
+    const rebuiltSession = new CampaignSyncSession(rebuilt);
+    await rebuiltSession.open(roomCode);
+
+    const tail: ICampaignEvent[] = [];
+    const resync = await rebuiltSession.resyncGuest(
+      0,
+      (event) => tail.push(event),
+      P1_ID,
+    );
+    record('R5', 'player-one resync tail (rebuilt session)', tail);
+
+    expect(resync.ok).toBe(true);
+    expect(checkpointsIn(tail)).toHaveLength(0);
+  });
+
+  it('(R3) the live host adopting the save does not fan the checkpoint out to a joined restricted player after a withheld fact; the GM receives it', async () => {
+    const { host, session } = await journalSession();
+    const player: ICampaignEvent[] = [];
+    const gm: ICampaignEvent[] = [];
+    await session.joinMember((event) => player.push(event), P1_ID);
+    await session.joinMember((event) => gm.push(event), GM_ID);
+
+    await host._commitEventsForTests(hiddenPilot('gm', 'pilot-gm-only'));
+    const checkpoint = await host.adoptSavedCheckpoint(() =>
+      appendCheckpoint(host),
+    );
+    await host._commitEventsForTests(
+      scopedFunds('campaign', 450_000, 'shared-after-checkpoint'),
+    );
+    record('R3', 'player-one live', player);
+    record('R3', 'gm live', gm);
+
+    expect(checkpointsIn(player)).toHaveLength(0);
+    expect(pilotsSeen(player)).not.toContain(PLANTED);
+    expect(player.at(-1)?.type).toBe('FundsChanged');
+    expect(checkpointsIn(gm).map((event) => event.sequence)).toEqual([
+      checkpoint.sequence,
+    ]);
+  });
+
+  it('(R3b) a sink attached after the withheld fact takes its latch from the log at attach', async () => {
+    const { host, session } = await journalSession();
+    await host._commitEventsForTests(hiddenPilot('gm', 'pilot-gm-only'));
+
+    const player: ICampaignEvent[] = [];
+    const detach = session.attachLiveParticipant(
+      (event) => player.push(event),
+      P1_ID,
+    );
+    await host.adoptSavedCheckpoint(() => appendCheckpoint(host));
+    await host._commitEventsForTests(
+      scopedFunds('campaign', 450_000, 'shared-after-checkpoint'),
+    );
+    detach();
+    record('R3b', 'player-one live (attached after the hire)', player);
+
+    expect(checkpointsIn(player)).toHaveLength(0);
+    expect(player.map((event) => event.type)).toEqual(['FundsChanged']);
+  });
+
+  it('(R3c) a live restricted sink with nothing withheld before the checkpoint receives it', async () => {
+    const { host, session } = await journalSession();
+    const player: ICampaignEvent[] = [];
+    const detach = session.attachLiveParticipant(
+      (event) => player.push(event),
+      P1_ID,
+    );
+    const checkpoint = await host.adoptSavedCheckpoint(() =>
+      appendCheckpoint(host),
+    );
+    detach();
+    record('R3c', 'player-one live', player);
+
+    expect(checkpointsIn(player).map((event) => event.sequence)).toEqual([
+      checkpoint.sequence,
+    ]);
   });
 });
