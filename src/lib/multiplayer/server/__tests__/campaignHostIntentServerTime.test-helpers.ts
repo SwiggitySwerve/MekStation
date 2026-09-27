@@ -34,8 +34,16 @@ export const ROOM = 'ABC234';
 export const WARM_UP: readonly ('SpendFunds' | 'AdvanceDay')[] = [
   'SpendFunds',
   'AdvanceDay',
+  'SpendFunds',
+  'AdvanceDay',
 ];
 export const MEASURED: readonly ('SpendFunds' | 'AdvanceDay')[] = [
+  'SpendFunds',
+  'AdvanceDay',
+  'SpendFunds',
+  'AdvanceDay',
+  'SpendFunds',
+  'AdvanceDay',
   'SpendFunds',
   'AdvanceDay',
   'SpendFunds',
