@@ -5240,10 +5240,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "f85a9f8a565f01abaf7ba4507103102052351bd8",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "02e27cef7017ec62b281d9bac71f465ebd101472",
+      "mergeSha": "2feeb7c5042a4141242e0fd85ab991814d945c9c",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u34-admission-20260927.json",
@@ -5262,10 +5262,33 @@
           "at": "2026-09-27T01:25:18.000Z",
           "summary": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/notepad.md +93/-89 (one file; caps 15 files and 500 lines): the table rebuilt on f85a9f8a5 with classes real 47 (46 authored titles plus E2E-80 through the exact-main contract validate-exact-main-regression-ladder.mjs:5-11, a contract not a Playwright row), strict-expected-failure 6 (E2E-40, 41, 42, 43, 44, 76; marks rewind.pack.spec.ts:43,76,119,201,251,315 tagged @until-journal-cutover), manifest-gated 27 (7 under U54, 15 under DF-branch-and-time-cascade, 5 under U52), absent 0; 40 rows changed class since 2026-09-13 (13 missing-to-real: E2E-15, 19, 24, 25, 27, 28, 62, 66, 74, 75, 77, 78, 80; 27 missing-to-gated), 15 real rows with moved line numbers, the six strict rows now cite mark and gate; the 34-of-80 count kept as one labelled historical sentence naming 2026-09-13 and 44b94adbb; evidence column: authored rows 'run evidence, not on main', E2E-80 the ladder receipt at 7f2dbec09cb5; reachable surface: E2E-19 and E2E-25 declare the combat fixture switch (privacy.pack.spec.ts:82-85) which the runner sets for authority-recovery, privacy-pack, authority and all (core.cjs:203-205, 236-240), production mode replaces it after U24 and the class stays real; the campaign flip is already on the baseline (JournalCampaignEventStore.ts:91 true); probe on the rebuilt table exit 0 disagreements=0; gates: openspec strict 229 passed, qc:openspec-ci errors=0, roadmap validator PASSED, LINT_UNITS_PASS 17899/17899, the U29 pin 6 passed, oxfmt does not cover openspec/ (.oxfmtignore:11), install guard refused by design; mutants on a copy each named by the probe and restored with sha256 confirmed: E2E-33 relabelled real, E2E-03 anchored in a spec the all plan does not run, E2E-50 row deleted (rows=79), E2E-40 without its gate tag; NON-CLAIMS: no Playwright run (the notepad's first paragraph says so), real does not mean the row passes, U25's expectation for the strict rows after U24 quoted not measured, tasks.md 0.1 not ticked (the closure ticks it); implementer claude-opus (Agent model: opus, lean-worker); status ready"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u34-review-20260927.json",
+          "head": "02e27cef7017ec62b281d9bac71f465ebd101472",
+          "reviewedHead": "02e27cef7017ec62b281d9bac71f465ebd101472",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet, lean-worker)",
+          "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+          "outputSha256": "bbbbea2249ca06ad2fc78b66532dbfbe678d168647305e7ec0f545ff0319996f",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u34-merge-20260927.json",
+          "pr": 2043,
+          "head": "02e27cef7017ec62b281d9bac71f465ebd101472",
+          "mergeSha": "2feeb7c5042a4141242e0fd85ab991814d945c9c"
+        },
+        "mainProof": {
+          "path": "evidence/u34-mainproof-20260927.json",
+          "mergeCommit": "2feeb7c5042a4141242e0fd85ab991814d945c9c",
+          "verdict": "PASS",
+          "runtime": "U34 PROOF RUNTIME PASSED: 94 passed (node-test 27, 0 failed, exit 0; jest 67, 0 failed, exit 0)"
+        },
+        "tick": {
+          "path": "evidence/u34-tick-20260927.json",
+          "taskKeys": [
+            "adopt-combat-journal-cutover-and-gm-rewind#0.1@9"
+          ]
+        }
       },
       "ownerGate": null,
       "source20260922": "planned by the parent: the validator lets a unit hold only its own node's keys, so the adopt rows owned by R4.S1, R4.S4 and R4.matrix get receipt units on those nodes",

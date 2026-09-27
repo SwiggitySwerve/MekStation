@@ -1,0 +1,10 @@
+{
+  "unit": "U34",
+  "stage": "tick",
+  "at": "2026-09-27T01:52:27.919Z",
+  "taskKeys": [
+    "adopt-combat-journal-cutover-and-gm-rewind#0.1@9"
+  ],
+  "note": "rows checked by this closure",
+  "tickedOnMain": "2feeb7c5042a4141242e0fd85ab991814d945c9c"
+}
