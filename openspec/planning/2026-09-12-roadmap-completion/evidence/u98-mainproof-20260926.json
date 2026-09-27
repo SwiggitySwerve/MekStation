@@ -1,0 +1,37 @@
+{
+  "unit": "U98",
+  "stage": "mainProof",
+  "at": "2026-09-27T00:33:55.039Z",
+  "mergeCommit": "1cb5b02a7ecfc24159e28404d053ec4145b71d0a",
+  "checkout": "root checkout fast-forwarded to the merge commit (real node_modules; hydrate step runs)",
+  "runtime": {
+    "build": "exit 0",
+    "e2eBundleMarker": "__E2E_MODE__ present in _app chunk (run log)",
+    "playwright": "multiplayer server, campaign, API-lib and API route suites plus one live lifecycle-pack group (4989 passing): U98 PROOF RUNTIME PASSED: 4989 passed (jest 4987, 0 failed, exit 0; lifecycle-pack 2, 0 failed, exit 0)",
+    "tsc": "exit 0"
+  },
+  "commands": {
+    "validator": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows",
+    "gitAncestry": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows (--git)",
+    "next": "U25",
+    "openspecStrict": "Totals: 229 passed, 0 failed (229 items)",
+    "qcOpenspecCi": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+    "qcPin": "Tests:       30 passed, 30 total"
+  },
+  "logs": ".sisyphus/roadmap-completion-20260912/u98-main-proof-20260926/ (local; sha256 below)",
+  "logHashes": [
+    "44f7c5a1f99d3dfa6e95e2e86695c434be3c2e8becadc54dee826fc01dbe654f *build.log",
+    "5170e43582195f015f14e23aa2b8478f06cdc38d39e26236d8df59456cab2129 *exact-main-ladder.log",
+    "71a8bd7a8b2073f6ae5178effaaf306bc58915cc8e5b35318223868cc0b450b4 *git-check.log",
+    "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43 *idle-before-build.log",
+    "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43 *idle-before-runtime.log",
+    "9699f0bf2b9c7ec652e00e6f4b2eb14639192320dd95be3e7c9cfa71ef509461 *next.log",
+    "efd619721df505ed0dbb69fe5bd26b74023670e603ce16891fd2f1331adf1776 *openspec-strict.log",
+    "109437e137bc07bc81f43805de05c36053ca8febd5868d429c2689df00792b74 *playwright.log",
+    "5b0f562274df4dbddfb7ae44ab42b7d686dc1e0903383f25c593d88f7479fe9a *qc-openspec-ci.log",
+    "6f8b2036600c2dbceaf305da17c0921db04a9529325c3a4cff193269271037fe *qc-pin.log",
+    "f891dbdfc0402cd4ba60fab1be3245dfec559c5d7afc7e21b87e795a73d05e5f *tsc.log",
+    "71a8bd7a8b2073f6ae5178effaaf306bc58915cc8e5b35318223868cc0b450b4 *validator.log"
+  ],
+  "verdict": "PASS"
+}
