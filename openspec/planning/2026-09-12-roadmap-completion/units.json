@@ -4718,10 +4718,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "ae7b6fc8019ddc7e977b4a634aa296d381cf9600",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "8716c79aefe9941ff1391628ab5dde671b52d58e",
+      "mergeSha": "46a157358a939cc6e0575829dac8a15f9e0d9986",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u29-admission-20260926.json",
@@ -4740,10 +4740,31 @@
           "at": "2026-09-27T00:13:02.330Z",
           "summary": "scripts/qc/gm-two-player-acceptance-gates.cjs new 87 product lines (one entry per gated-absent id: id, gate tag, holder, source; the two runner-guarded skips named with PLAYWRIGHT_E2E_RUN_ID, which every plan sets), scripts/__tests__/gm-two-player-acceptance-gates.test.ts new 227 lines (every id resolves exactly once; a manifest entry for an id with a row is doubly-resolved; the mark scan over the files the all plan runs fails on an unnamed test.fail, a fixme or a live skip), prose +23/-1 (specs/e2e-testing/spec.md +19: the ADDED requirement 'Acceptance Run Excludes Only Named-Gate Rows' with four scenarios; tasks.md +2: the dated ERRATA under 6.3 withdrawing 'connections now use scoped tokens' with file:line (the production token route src/pages/api/multiplayer/auth/token.ts:157-167 mints no scope, the pages mint through it, the only scoped signer issuePlayerToken is referenced outside its file only by tests and comments, auth.ts:233-248 admits a scopeless token; what #1420 delivered stands) and the 25.4 note (25.1 held by U57; 25.4 waits on OD-camp01h-terminal); implementation-plan.md +2/-1: the todo count 34 plus F1-F4, the wave note (every todo in a wave; 6 of 34 checked in the plan, 84 checked and 24 open rows in tasks.md; tasks.md receipts the only completion record)); no checkbox ticked; 5 files; pin 6 passed; jest scripts 81 suites 1270 passed 10 skipped (the first run failed one row and lint:units 17901/17899 on two bare requires in the pin, switched to createRequire, no ceiling changed); tsc 0; oxlint 84 warnings 0 errors; oxfmt clean on 2 files; LINT_UNITS_PASS 17899/17899 scripts 188 files 50/50; openspec strict 229 passed; qc:openspec-ci errors=0; validator PASSED; mutants: E2E-33 removed from the manifest (unresolved named), an entry added for E2E-01 (doubly-resolved named), an untagged test.fail appended to proposals.pack.spec.ts (named with file:line), each killed and restored with sha256 confirmed; NON-CLAIMS: no Playwright, build or server; the runtime half (a skip that fires or a gated row that passes failing the run) depends on Playwright's strict test.fail and U57's traceability runner (not yet built); the ERRATA rests on reading the source; implementer claude-opus (Agent model: opus, lean-worker); status ready"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u29-review-20260926.json",
+          "head": "8716c79aefe9941ff1391628ab5dde671b52d58e",
+          "reviewedHead": "8716c79aefe9941ff1391628ab5dde671b52d58e",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet, lean-worker)",
+          "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+          "outputSha256": "81fdbb943f4ff4ca2a6d2e5062cdc92f87a7374ce8ffcea624df0ca7e7d70edb",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u29-merge-20260926.json",
+          "pr": 2039,
+          "head": "8716c79aefe9941ff1391628ab5dde671b52d58e",
+          "mergeSha": "46a157358a939cc6e0575829dac8a15f9e0d9986"
+        },
+        "mainProof": {
+          "path": "evidence/u29-mainproof-20260926.json",
+          "mergeCommit": "46a157358a939cc6e0575829dac8a15f9e0d9986",
+          "verdict": "PASS",
+          "runtime": "U29 PROOF RUNTIME PASSED: 1290 passed (jest 1288, 0 failed, exit 0; runner line: GM2P_SERVER port=27487 pid=65548; lifecycle-pack 2, 0 failed, exit 0)"
+        },
+        "tick": {
+          "path": "evidence/u29-tick-20260926.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "source20260922": "planned by the parent under OD-mvp-hard-cutover (owner, 2026-09-22) from the read-only cutover map of 2026-09-22 (Opus planning lane; its evidence is file:line on origin/main 31ab3c16e and is summarised in each behaviour sentence)",
@@ -8433,8 +8454,21 @@
         "text": "go with option b and the whole-row rule, continue the loop. I want the best solution that does not block us towards the goal. This software is in MVP so you can hard cutover and do whatever you like to make sure it works correctly | Option (b) as council 3 decision 7 words it (openspec/council-decisions/2026-09-21-umbrella-failures-review.md): every E2E id in the catalogue must exist as an authored row; the excluded set is exactly the authored rows carrying a strict test.fail with a named gate tag; the run passes when every non-gated row is green and zero gated rows pass unexpectedly; named gates @until-journal-cutover (owner adopt-combat-journal-cutover-and-gm-rewind) and the campaign-genesis production flip (design-campaign-authority-and-sync 5.7). The spec delta that writes this into the acceptance is a unit of R6.umbrella; the head-bound ruling is recorded on that unit's PR.",
         "source": "owner instruction 2026-09-22 in the working session (chat), after the parent listed the open decisions in plain language with council 3's recommendations; transcribed by the parent (the owner's words are quoted verbatim)"
       },
-      "ruling": null,
-      "raisedBy": "council 2026-09-17 (Oracle, Explore-Deep E5)"
+      "ruling": {
+        "ruledHead": "8716c79aefe9941ff1391628ab5dde671b52d58e",
+        "pr": 2039,
+        "commentId": 5851395704,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "7471f7f03592dad5a20e009b5345518fca3456d3b43445b1d76535c20fb53adc",
+        "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop",
+        "copiedFrom": "PK-u29-ruling",
+        "at": "2026-09-27T01:05:12.000Z",
+        "divergenceDisclosed": "option (b) as decided says every catalogue id must exist as an authored row; U29's head instead resolves 27 rowless ids through the gated-absent manifest by gate tag and holder (the ledger's sentence, chosen under OD-mvp-hard-cutover because the rows do not exist), and the two runner-guarded cleanup-ownership skips are named in the manifest; the owner ruled the head with this disclosed"
+      },
+      "raisedBy": "council 2026-09-17 (Oracle, Explore-Deep E5)",
+      "note": "Ruled through U29's PR on 2026-09-27."
     },
     {
       "id": "PK-u4-ruling",
@@ -10270,8 +10304,22 @@
       ],
       "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
       "revertCost": "low: a squash merge revert",
-      "decision": null,
-      "ruling": null,
+      "decision": {
+        "at": "2026-09-27T00:49:34Z",
+        "option": "rule the head",
+        "text": "Approve (Recommended)",
+        "source": "owner instruction in the working session (chat), after the parent described the unit in plain English: a structured question: the umbrella acceptance run excludes only named-gate rows: an ADDED e2e-testing requirement resolving every catalogue id E2E-01..80 exactly once to an authored row, the E2E-80 exact-main contract or an entry of the gated-absent manifest scripts/qc/gm-two-player-acceptance-gates.cjs naming its gate tag and holder, with a pin test; the 6.3 ERRATA withdrawing the scoped-tokens claim; the 25.4 note; the plan reconciled with tasks.md (routine class; the ruling PK-umbrella-acceptance-unsatisfiable option (b) expects on this PR); Lane A verdict and CI on the exact head; disclosed: council decision 7 and the packet word option (b) as every catalogue id existing as an authored row, while the manifest excludes 27 rowless ids by gate tag and holder as the ledger sentence chose under OD-mvp-hard-cutover; 6.3 stays checked though its scoped-tokens clause is not met on the production path; the runtime half (a live skip or an unexpectedly passing gated row failing the run) waits on U57's runner; no Playwright run"
+      },
+      "ruling": {
+        "ruledHead": "8716c79aefe9941ff1391628ab5dde671b52d58e",
+        "pr": 2039,
+        "commentId": 5851395704,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "7471f7f03592dad5a20e009b5345518fca3456d3b43445b1d76535c20fb53adc",
+        "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
+      },
       "note": "opened at fold on 2026-09-27; U29 is routine class, but its sentence says the owner's head-bound ruling on this PR resolves PK-umbrella-acceptance-unsatisfiable, so the ruling is recorded here and copied onto that packet"
     }
   ],
