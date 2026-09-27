@@ -1,0 +1,27 @@
+{
+  "unit": "U23",
+  "stage": "local",
+  "at": "2026-09-27T23:37:13.043Z",
+  "status": "local-verified",
+  "head": "7d9399f5abef0660f3889b01593857fbf609d091",
+  "baseline": "e14e0f2ca989e58d4ea8bf87695cbda1383e2161",
+  "summary": "6 files in src/lib/multiplayer/server (119 counted non-test added lines): at mode enabled a journal-authority command (flagged by both ServerMatchHostJournalAuthority paths) fails closed with STORE_FAILURE when its mirror is not mirrored (non-mirrored result, throw, integrity-conflict, post-commit branch-integrity, unavailable capability DB with its tripwire); an identical retry is a duplicate only when fingerprint, stored digest and canonical stored events match, and re-mirrors the stored data to heal parity; a divergent same-id retry (digest-only or payload-tampered) is refused before any journal call; legacy, seed and rolled-back matches stay diagnostic (rollback proof unchanged); a mirror mismatch no longer refuses journal authority to later matches. Green 171/171 and 95/95 in two processes and 10/10 x2 on the fail-closed suite; typecheck, lint 0 errors, lint:units 17899/17899, format:check, diff --check and build. Lane A rejected f9e5349 (B1) and approved 7d9399f after reproducing B1 and 172/172 and 96/96.",
+  "implementer": "gpt-5.6-sol-fast (deep-low task st_01a0e500)",
+  "files": {
+    "src/lib/multiplayer/server/DurableMatchStore.ts": "d560be16620a0b81f1781967b8d73c9a8e8f85ad0ec980d5b188db1a42dbc2fc",
+    "src/lib/multiplayer/server/ServerMatchHostJournalAuthority.ts": "f3d6a1ba4b09747452966d5979a6c81d9266a405da3de7126cf3d20792f09d51",
+    "src/lib/multiplayer/server/__tests__/journalAuthorityAdmission.test.ts": "b33b09207539b0a3af272b2d546c00447eeef6ceedf9faf62803b8a9a5f704f6",
+    "src/lib/multiplayer/server/__tests__/journalMirrorFailClosed.sqlite.test.ts": "985b20e79413129bccddbd5ed3231f9d65c5adddd92e74eb623ec8ab02522800",
+    "src/lib/multiplayer/server/journalAuthorityAdmission.ts": "847d8438de64fc37ec6d90c5305a2a9a6b255daf5bb8a3ff3cbaff3869b93c45",
+    "src/lib/multiplayer/server/matchCommandBatch.ts": "e08976d7a7d6be730b6f640314f38c4c619fd356c9556ba43a45a45530da4b75"
+  },
+  "parentCorrections": [
+    "rejected a deleted rollback-proof legacy assertion; fail closed scoped to journal-authority commands",
+    "asked to keep the payload-tamper divergent row alongside the digest-only row"
+  ],
+  "evidence": [
+    ".omo/ulw-execute/u23/DONECLAIM.md (lane evidence)",
+    "E:/Projects/MekStation/.omo/ulw-execute/evidence/task-4-u23-review-01-reject.md",
+    "E:/Projects/MekStation/.omo/ulw-execute/evidence/task-4-u23-review-02.md"
+  ]
+}

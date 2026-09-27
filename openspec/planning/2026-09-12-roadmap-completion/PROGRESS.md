@@ -1,3 +1,9 @@
+## 2026-09-27 U23 locally verified; owner ruling pending (parent)
+
+U23 (#2065, head `7d9399f5abef0660f3889b01593857fbf609d091`) makes journal-authority commands fail closed at mode enabled. When the post-transaction journal mirror does not report `mirrored` (a non-mirrored result, a throw, integrity-conflict, a post-commit branch-integrity error, or an unavailable capability database, now recorded as a tripwire), the command returns `STORE_FAILURE`. An identical retry is a duplicate only when its fingerprint, the stored post-state digest and the canonical stored events all match, and it heals the journal from the stored data; a divergent same-id retry is refused before any journal call. Legacy, seed and rolled-back matches stay diagnostic, and a mirror mismatch on one match no longer refuses journal authority to later matches. It is 6 files with 119 counted lines, green in two processes with every gate and a production build. Lane A rejected the first head because a digest-only divergent retry could still be mirrored; the fix was reproduced red and approved at `7d9399f`. CI is 31 of 31 green.
+
+U23 is folded to local-verified with the undecided packet **PK-u23-ruling**; the product PR stays unmerged until the owner rules. FN-u23-fingerprint-key-order records a pre-existing, conservative key-order sensitivity in the stored command fingerprint.
+
 ## 2026-09-27 P1B1 locally verified; owner ruling pending (parent)
 
 P1B1 (#2063, head `ff448e2853523c0ec50890a5be85682cfaf05214`) registers the `CampaignMissionLaunched` event contract: a strict four-field payload, every exhaustive replay and projection consumer, a no-op reducer, campaign scope and a roster-free activity row, with the privacy latch unchanged and nothing emitting the event yet. It is 14 files and 291 lines, green in three processes with every gate and a production build, and Lane A (privacy, replay) approved it with no required edits after reproducing the reds. CI is 31 of 31 green.

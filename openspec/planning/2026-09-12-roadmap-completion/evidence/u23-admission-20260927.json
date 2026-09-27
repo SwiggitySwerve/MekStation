@@ -1,0 +1,30 @@
+{
+  "unit": "U23",
+  "stage": "admission",
+  "at": "2026-09-27T22:33:02.765Z",
+  "baseline": "e14e0f2ca989e58d4ea8bf87695cbda1383e2161",
+  "next": "validate-roadmap.mjs --next printed U23 on exact main e14e0f2 (P1B1 in flight on disjoint paths; evidence .omo task-49-p1b1-fold-main-proof.json)",
+  "ownership": {
+    "declared": [
+      "src/lib/multiplayer/server"
+    ],
+    "touched": []
+  },
+  "tier": "HEAVY: concurrency, idempotency and authority review classes; owner ruling required before merge",
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500
+  },
+  "parallelLane": "P1B1 (#2063) is local-verified and awaits the owner; its paths (src/lib/campaign, CampaignSync.ts, replay files) are disjoint from src/lib/multiplayer/server",
+  "decisions": {
+    "faultClasses": "At mode enabled every non-success mirror result fails the command closed with STORE_FAILURE through ServerMatchHostJournalAuthority: non-mirrored result, a thrown mirror error, integrity-conflict, a post-commit branch-integrity EventHistoryBranchError, and an unready capability database (readiness moved inside the guarded path with a journal-mirror:capability-db-unavailable tripwire entry)",
+    "retry": "the identical retry, answered duplicate-command by the store, re-mirrors the stored batch under its own command identity and reaches parity; a same-id batch with a different digest fails closed and is never success; the duplicateIsSuccess clause is dropped",
+    "admission": "the process-wide mirror-failure counter no longer gates journal-authority admission for later matches (journalAuthorityAdmission)",
+    "method": "extend the existing post-transaction mirror; do not replace it"
+  },
+  "parentDecision": {
+    "decision": "go",
+    "reason": "--next prints U23 on e14e0f2; plan task 4; ownership disjoint from the in-flight P1B1"
+  },
+  "planTask": "4"
+}
