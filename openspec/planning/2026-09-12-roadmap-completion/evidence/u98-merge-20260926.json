@@ -1,0 +1,29 @@
+{
+  "unit": "U98",
+  "stage": "merge",
+  "at": "2026-09-27T00:33:55.012Z",
+  "pr": 2036,
+  "title": "perf(campaign): the grant wake and the replica ingest read the host log since their last projected sequence (U98)",
+  "head": "61ae10ea8df69bb45ff52aa1782e55d505876eeb",
+  "mergeSha": "1cb5b02a7ecfc24159e28404d053ec4145b71d0a",
+  "mergedAt": "2026-09-27T00:24:53Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "src/lib/campaign/delivery/__tests__/projectCampaignStreamForGrant.position.test.ts",
+    "src/lib/campaign/delivery/campaignDeliveryTypes.ts",
+    "src/lib/campaign/delivery/campaignGrantChannelSession.ts",
+    "src/lib/campaign/delivery/projectCampaignStreamForGrant.ts",
+    "src/lib/campaign/replica/SQLiteCampaignReplicaStore.ts",
+    "src/lib/campaign/replica/campaignReplicaEnvelope.ts",
+    "src/lib/campaign/replica/planCampaignReplicaIngest.ts",
+    "src/lib/campaign/sync/hostCampaignEventJournal.ts",
+    "src/lib/multiplayer/server/__tests__/campaignGrantWakeEquivalence.test.ts",
+    "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test-helpers.ts",
+    "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test.ts",
+    "src/lib/multiplayer/server/handleRoomCodeGuestJoin.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}

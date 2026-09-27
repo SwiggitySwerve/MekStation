@@ -3338,8 +3338,8 @@
         "maxNonGeneratedLines": 500
       },
       "baseline": "72a0203df4d07d2fdfe696fceb9ece5b0133819b",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "61ae10ea8df69bb45ff52aa1782e55d505876eeb",
+      "mergeSha": "1cb5b02a7ecfc24159e28404d053ec4145b71d0a",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u98-admission-20260926.json",
@@ -3358,13 +3358,34 @@
           "at": "2026-09-26T22:22:29Z",
           "summary": "8 product files +183/-55 (the per-socket CampaignGrantChannelSession keeps its projection position, epoch, last revision and the withheld latch, beside its cursor and continues from it, reading only rows after the last revision (exclusive; a 500-row page boundary cannot skip a row); a new session starts from a full read and a position from another epoch is ignored; the position rides the page as an opaque token looked up in a module-private WeakMap because campaignDelivery.boundary.test.ts forbids journal positions on public result types (the admission's public-object design was changed after that test failed; the test unchanged); the SQLiteCampaignReplicaStore instance keeps per stream the last revision read and the fold through it; the record rewrite unchanged and measured), tests 4 files +465 (the timing rows, the equivalence row, the position row); after: grantHostLogRead 0.27 to 0.23, grantReadStream 0.30 to 0.26, grantAssignSequences 0.17 to 0.15, replicaIngest 1.28 to 1.00, serverTotal 5.9 to 6.3, applyHostIntent 3.1 to 4.2 (flat with no change to it: U89's guess confirmed), recordRewrite 0.4 to 2.0 flat under the floor, putRoute 10.3 to 90.8 GROWS outside the paths; equivalence: the live session's delivered items serialise byte-identical to a fresh full projection and the replica's state equals the full fold after a 600-event batch (crossing the page boundary), a checkpoint adoption, a participant removal with a GM-scoped fact setting the withheld latch, and a second adoption withheld by the latch; the position row: reuse within an epoch, reset after a rebuilt one; re-run on the baseline product files under the head tests still fails (grantHostLogRead 6.7 to 246.0), restored with sha256 OK; jest src/lib/multiplayer/server src/lib/campaign 372 suites 4192 passed; tsc 0; oxlint 84 warnings 0 errors; oxfmt clean on 12 files; LINT_UNITS_PASS 17899/17899; qc:openspec-ci errors=0; validator PASSED; mutants: the grant position never advanced (serverTotal 11.5 to 141.9), kept across epochs (position row), the page boundary off by one (equivalence, batch of 600), the replica head never remembered (replicaIngest 7.2 to 111.4), the withheld latch not carried (position and equivalence rows), the since-read off by one (equivalence), each killed and restored with sha256 confirmed; the record-rewrite mutant not applicable (unchanged); NON-CLAIMS: in-process jest only, no build, Playwright or server; 5000 events not measured; the mode-2 stall not reproduced; the performance pack not run; only the journal-native host store path; oxfmt reformatted the harness helpers after red (formatting only) and one position assertion that compared two empty objects after the token change was removed; implementer claude-opus (Agent model: opus, lean-worker); status ready"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u98-review-20260926.json",
+          "head": "61ae10ea8df69bb45ff52aa1782e55d505876eeb",
+          "reviewedHead": "61ae10ea8df69bb45ff52aa1782e55d505876eeb",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet, lean-worker)",
+          "implementerModel": "claude-opus (Agent model: opus)",
+          "outputSha256": "79db9fedfda32e5d780d9683e17b5f6e8e8e13a446e049f6ac1e01d1b92a1aae",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u98-merge-20260926.json",
+          "pr": 2036,
+          "head": "61ae10ea8df69bb45ff52aa1782e55d505876eeb",
+          "mergeSha": "1cb5b02a7ecfc24159e28404d053ec4145b71d0a"
+        },
+        "mainProof": {
+          "path": "evidence/u98-mainproof-20260926.json",
+          "mergeCommit": "1cb5b02a7ecfc24159e28404d053ec4145b71d0a",
+          "verdict": "PASS",
+          "runtime": "U98 PROOF RUNTIME PASSED: 4989 passed (jest 4987, 0 failed, exit 0; lifecycle-pack 2, 0 failed, exit 0)"
+        },
+        "tick": {
+          "path": "evidence/u98-tick-20260926.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
-      "state": "local-verified",
+      "state": "complete",
       "source20260926": "planned by the parent under the owner's U89 ruling of 2026-09-26 (\"Approve (Recommended)\": the grant-wake and replica-ingest projections become a planned successor unit)",
       "admitAfter20260926": "U89 main-verified (its harness and narrowed reads are what this unit extends); shares src/lib/multiplayer/server with U97, so the two run one at a time",
       "admissionNote20260926": {
@@ -10189,8 +10210,22 @@
       ],
       "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
       "revertCost": "low: a squash merge revert",
-      "decision": null,
-      "ruling": null,
+      "decision": {
+        "at": "2026-09-27T00:24:46Z",
+        "option": "rule the head",
+        "text": "Approve (Recommended)",
+        "source": "owner instruction in the working session (chat), after the parent described the unit in plain English: a structured question: after a host publish each room-code guest's grant wake and the replica ingest read the host log since their last projected sequence (the grant position kept per socket session with its epoch and the withheld latch, riding the page as an opaque token; the replica store keeping its last revision and fold per stream), 200 ms reads down to under 0.3 ms at 1000 events (concurrency class); Lane A verdict and CI on the exact head; disclosed: a new session or store starts from a full read and a position from another epoch is ignored; the incremental projection equals a full one after a batch, a removal and a checkpoint adoption; the record rewrite still replays the whole stream under the 5 ms floor; the PUT route still grows outside the paths; in-process jest only"
+      },
+      "ruling": {
+        "ruledHead": "61ae10ea8df69bb45ff52aa1782e55d505876eeb",
+        "pr": 2036,
+        "commentId": 5851247228,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "4776b7302d76b411739cbd48094a06c3d8feb5db704321f40a77c0f1c2cd7f74",
+        "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
+      },
       "note": "opened at fold on 2026-09-26, before the ruling, so the validator's sensitive-class check sees the packet while the unit is local-verified; decision and ruling are filled when the owner rules the exact head"
     }
   ],
