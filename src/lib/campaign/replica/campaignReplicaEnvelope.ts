@@ -101,14 +101,34 @@ export function replicaEnvelopeToDeliveryItem(
 }
 
 /**
- * Rebuilds the task-3.3 apply state from durable envelopes. The stored
- * stream must itself apply cleanly; a gap or collision in stored rows
- * is corruption, not a live ingest fault.
+ * A stored replica stream folded: the task-3.3 apply state after its last
+ * stored row and the canonical identity at each stored deliverySequence
+ * (so ingest can detect a historical collision the head-only apply helper
+ * would miss).
  */
-export function applyStateFromReplicaEnvelopes(
+export interface ICampaignReplicaDurable {
+  readonly state: ICampaignGrantReplicaApplyState;
+  readonly identities: ReadonlyMap<number, string>;
+}
+
+/** The fold of an empty stored stream. */
+export const EMPTY_CAMPAIGN_REPLICA_DURABLE: ICampaignReplicaDurable = {
+  state: emptyCampaignGrantReplicaState(),
+  identities: new Map(),
+};
+
+/**
+ * `durable` with `envelopes` (the stored rows that follow it, in order)
+ * folded on; neither input is mutated. The stored stream must itself apply
+ * cleanly; a gap or collision in stored rows is corruption, not a live
+ * ingest fault, and throws.
+ */
+export function foldReplicaEnvelopes(
+  durable: ICampaignReplicaDurable,
   envelopes: readonly ICampaignReplicaEnvelope[],
-): ICampaignGrantReplicaApplyState {
-  let state = emptyCampaignGrantReplicaState();
+): ICampaignReplicaDurable {
+  let state = durable.state;
+  const identities = new Map(durable.identities);
   for (const envelope of envelopes) {
     const result = applyCampaignGrantDelivery(state, {
       deliveryEpochId: envelope.deliveryEpochId,
@@ -120,8 +140,12 @@ export function applyStateFromReplicaEnvelopes(
       );
     }
     state = result.state;
+    identities.set(
+      envelope.deliverySequence,
+      canonicalReplicaDeliveryIdentity(envelope.event),
+    );
   }
-  return state;
+  return { state, identities };
 }
 
 /**
@@ -140,21 +164,4 @@ export function canonicalReplicaDeliveryIdentity(
     ts: event.ts,
     type: event.type,
   });
-}
-
-/**
- * Identity map keyed by deliverySequence so ingest can detect a
- * historical collision the head-only apply helper would miss.
- */
-export function replicaIdentityBySequence(
-  envelopes: readonly ICampaignReplicaEnvelope[],
-): ReadonlyMap<number, string> {
-  const map = new Map<number, string>();
-  for (const envelope of envelopes) {
-    map.set(
-      envelope.deliverySequence,
-      canonicalReplicaDeliveryIdentity(envelope.event),
-    );
-  }
-  return map;
 }

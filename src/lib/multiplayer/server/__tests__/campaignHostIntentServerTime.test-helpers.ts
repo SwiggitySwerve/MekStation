@@ -1,5 +1,6 @@
 /**
- * Harness for the U89 timing row (campaignHostIntentServerTime.test.ts):
+ * Harness for the U89 timing row (campaignHostIntentServerTime.test.ts;
+ * U98 added the grant wake's adapter and sequence-assignment steps):
  * the production-bound sockets, the log seeding, the test-side step
  * wrappers and the per-command drive. Nothing here is product code; the
  * wrappers are installed with jest spies and instance reassignment only.
@@ -17,9 +18,11 @@ import type { IServerMessage } from '@/types/multiplayer/Protocol';
 import { callId } from '@/__tests__/api/campaigns/campaignJournalEffectsFixture';
 import { SQLiteCampaignReplicaStore } from '@/lib/campaign/replica/SQLiteCampaignReplicaStore';
 import { CampaignEventLog } from '@/lib/campaign/sync/campaignEventLog';
+import { createHostCampaignEventJournal } from '@/lib/campaign/sync/hostCampaignEventJournal';
 import { bindCampaignSyncConnection } from '@/lib/multiplayer/server/bindCampaignSyncConnection';
 import { CampaignMatchHost } from '@/lib/multiplayer/server/CampaignMatchHost';
 import { createCampaignSessionMembershipPort } from '@/lib/multiplayer/server/campaignSessionMembershipPort';
+import { SQLiteDeliveryEpochStore } from '@/lib/multiplayer/server/delivery/SQLiteDeliveryEpochStore';
 import { readCampaign } from '@/services/campaignPersistence/CampaignPersistenceService';
 import { nowIso } from '@/types/multiplayer/Protocol';
 
@@ -47,7 +50,8 @@ export type Steps = Record<string, number>;
 /** The command being measured; wrappers add into its steps. */
 let current: { steps: Steps; intentStarted: boolean; lastEnd: number } | null =
   null;
-const markers = { intent: false, gate: false, adopt: false };
+/** `grant` is set only while the grant host-log adapter's readStream runs synchronously. */
+const markers = { intent: false, gate: false, adopt: false, grant: false };
 let ingests = 0;
 
 /** Adds `ms` to `step` of the command being measured, if any. */
@@ -192,14 +196,14 @@ export function instrument(entry: ICampaignHostRegistryEntry): void {
     this: CampaignEventLog,
     fromSeq = 0,
   ) {
-    // Before the command's intent: the heal read (from any sequence). After
-    // it, or inside an adoption, a whole-log read is the grant wake's
-    // host-log adapter, and the adoption's own read starts past 0.
+    // A read the grant wake's host-log adapter makes (from any sequence)
+    // is grantHostLogRead. Otherwise, before the command's intent: the heal
+    // read; inside an adoption: the adoption's own read.
     const label = (): string =>
-      !current?.intentStarted && !markers.adopt
-        ? 'healRead'
-        : fromSeq === 0
-          ? 'grantHostLogRead'
+      markers.grant
+        ? 'grantHostLogRead'
+        : !current?.intentStarted && !markers.adopt
+          ? 'healRead'
           : markers.adopt
             ? 'adoptTail'
             : 'otherRead';
@@ -242,6 +246,41 @@ export function instrument(entry: ICampaignHostRegistryEntry): void {
     ).finally(() => {
       ingests += 1;
     });
+  });
+  // The grant wake's host-log adapter (its class is module-private, so its
+  // prototype is reached through an instance) and the delivery epoch's
+  // sequence assignment it runs per wake.
+  const adapter = Object.getPrototypeOf(
+    createHostCampaignEventJournal('', async () => []),
+  ) as ReturnType<typeof createHostCampaignEventJournal>;
+  const origReadStream = adapter.readStream;
+  jest
+    .spyOn(adapter, 'readStream')
+    .mockImplementation(function (this: unknown, query) {
+      return timed(
+        () => 'grantReadStream',
+        () => {
+          markers.grant = true;
+          try {
+            return origReadStream.call(this, query);
+          } finally {
+            markers.grant = false;
+          }
+        },
+      );
+    });
+  const epochs = SQLiteDeliveryEpochStore.prototype;
+  const origAssign = epochs.assignSequences;
+  jest.spyOn(epochs, 'assignSequences').mockImplementation(function (
+    this: SQLiteDeliveryEpochStore,
+    ...args
+  ) {
+    const start = performance.now();
+    try {
+      return origAssign.apply(this, args);
+    } finally {
+      add('grantAssignSequences', start);
+    }
   });
 
   const store = Reflect.get(

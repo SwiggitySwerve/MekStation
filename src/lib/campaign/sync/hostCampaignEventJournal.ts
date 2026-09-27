@@ -36,8 +36,10 @@ import {
   type ICampaignJournalEnvelope,
 } from './JournalCampaignEventStore';
 
-/** Reader bound to one campaign's host log. */
-export type HostCampaignEventReader = () => Promise<readonly ICampaignEvent[]>;
+/** Reader bound to one campaign's host log: its events from `fromSequence` on, in order. */
+export type HostCampaignEventReader = (
+  fromSequence: number,
+) => Promise<readonly ICampaignEvent[]>;
 
 const READ_ONLY_MESSAGE =
   'Host campaign event journal is a projection source and refuses append';
@@ -77,7 +79,10 @@ class HostCampaignEventJournal implements IEventJournal<ICampaignJournalEnvelope
    * Pages host-log events as stored journal rows. streamRevision is
    * sequence + 1 so sequence 0 (genesis) occupies revision 1, matching
    * JournalCampaignEventStore. Identities are digests of the campaign
-   * event so delivery sequences stay stable across rejoins.
+   * event so delivery sequences stay stable across rejoins. Only the
+   * events from sequence afterRevision on (the rows after that revision)
+   * are read from the host log; the revision filter below still applies
+   * to whatever the reader returns.
    */
   public async readStream(
     query: IReadStreamQuery,
@@ -85,7 +90,7 @@ class HostCampaignEventJournal implements IEventJournal<ICampaignJournalEnvelope
     if (query.streamType !== CAMPAIGN_STREAM_TYPE) return [];
     if (query.streamId !== this.campaignId) return [];
     if (query.branchId !== ROOT_EVENT_BRANCH_ID) return [];
-    const events = await this.readEvents();
+    const events = await this.readEvents(query.afterRevision);
     const stored = events
       .filter(function (event) {
         return event.campaignId === query.streamId;

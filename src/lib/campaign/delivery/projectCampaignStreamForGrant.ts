@@ -50,6 +50,7 @@ import type { ICampaignGrantStore } from '../grants/ICampaignGrantStore';
 import type { ICampaignJournalEnvelope } from '../sync/JournalCampaignEventStore';
 import type {
   CampaignGrantClock,
+  CampaignGrantProjectionPosition,
   ICampaignGrantDeliveryItem,
   ICampaignGrantProjectedEvent,
   ProjectCampaignStreamResult,
@@ -82,7 +83,28 @@ export interface IProjectCampaignStreamRequest {
   readonly principal: IVerifiedPrincipal;
   readonly grantId: string;
   readonly cursor: IDeliveryCursor | null;
+  /**
+   * The position this grant's previous page returned. Used only when it
+   * names the epoch this projection resolves; otherwise, or when absent,
+   * the stream is read from its start.
+   */
+  readonly from?: CampaignGrantProjectionPosition | null;
 }
+
+/**
+ * What each position token handed out stands for: the epoch the page
+ * assigned sequences in, the last stream revision it read (0 when none),
+ * and the withhold latch after that row. Module-private, so the journal
+ * position never appears on a public result type.
+ */
+const positions = new WeakMap<
+  CampaignGrantProjectionPosition,
+  {
+    readonly deliveryEpochId: string;
+    readonly afterRevision: number;
+    readonly withheld: boolean;
+  }
+>();
 
 /** Constant refused result: membership never minted a viewer. */
 function refusedResult(): ProjectCampaignStreamResult {
@@ -109,15 +131,18 @@ function loadGrant(store: ICampaignGrantStore, grantId: string) {
 }
 
 /**
- * Pages the campaign journal in order. Identity for sequence mapping is
- * the stored eventDigest, matching projectWithIdentities.
+ * Pages the campaign journal in order from the row after `fromRevision`,
+ * each page continuing after the last row of the one before. Identity
+ * for sequence mapping is the stored eventDigest, matching
+ * projectWithIdentities.
  */
 async function readCampaignJournal(
   journal: IEventJournal<ICampaignJournalEnvelope>,
   campaignId: string,
+  fromRevision: number,
 ): Promise<readonly IStoredEvent<ICampaignJournalEnvelope>[]> {
   const stored: IStoredEvent<ICampaignJournalEnvelope>[] = [];
-  let afterRevision = 0;
+  let afterRevision = fromRevision;
   for (;;) {
     const page = await journal.readStream({
       streamType: CAMPAIGN_STREAM_TYPE,
@@ -186,7 +211,9 @@ function epochRequest(campaignId: string) {
 /**
  * Projects the campaign stream for one grant. A revoked, expired, or
  * unknown grant is refused at membership (no viewer). An active grant
- * whose scopes match nothing is a page with zero items.
+ * whose scopes match nothing is a page with zero items. With a `from`
+ * position in the resolved epoch it reads, filters and assigns only the
+ * rows after that position; the page returns the position it stopped at.
  */
 export async function projectCampaignStreamForGrant(
   deps: IProjectCampaignStreamDeps,
@@ -240,9 +267,17 @@ export async function projectCampaignStreamForGrant(
   }
 
   const baseline = deps.deliveryStore.resolveEpoch(viewer, requestEpoch);
+  // A kept position counts only in the epoch it was taken in: every
+  // visible identity before it was assigned a sequence in that epoch and
+  // lies at or below the cursor, so the rows after it are all a page can
+  // add. In any other epoch (a rebaseline) nothing is assigned yet and the
+  // stream is read from its start with the latch cleared.
+  const kept = request.from ? positions.get(request.from) : undefined;
+  const from = kept?.deliveryEpochId === baseline.deliveryEpochId ? kept : null;
   const storedEvents = await readCampaignJournal(
     deps.journal,
     grant.campaignId,
+    from?.afterRevision ?? 0,
   );
   const visible: {
     readonly event: ICampaignEvent;
@@ -251,8 +286,9 @@ export async function projectCampaignStreamForGrant(
   const admits = (scope: ICampaignEvent['scope']): boolean =>
     grantAllowsScope(grant, scope);
   // Latches on the first fact this grant may not see (an out-of-scope
-  // fact or a refused baseline), as campaignViewerVisibleEvents does.
-  let withheld = false;
+  // fact or a refused baseline), as campaignViewerVisibleEvents does;
+  // carried over from the kept position.
+  let withheld = from?.withheld ?? false;
   for (const stored of storedEvents) {
     // D12: the SINGLE narrowing from a stored row to a wire campaign event.
     // Never `stored.payload.*` inline here -- a journal-private sibling of
@@ -317,6 +353,16 @@ export async function projectCampaignStreamForGrant(
     );
   }
 
+  const lastRow = storedEvents[storedEvents.length - 1];
+  const position = Object.freeze({}) as CampaignGrantProjectionPosition;
+  positions.set(position, {
+    deliveryEpochId: baseline.deliveryEpochId,
+    afterRevision:
+      lastRow === undefined
+        ? (from?.afterRevision ?? 0)
+        : lastRow.streamRevision,
+    withheld,
+  });
   return Object.freeze({
     kind: 'page' as const,
     deliveryEpochId: baseline.deliveryEpochId,
@@ -326,5 +372,6 @@ export async function projectCampaignStreamForGrant(
       deliveryEpochId: baseline.deliveryEpochId,
       effectiveGeneration: baseline.effectiveGeneration,
     }),
+    position,
   });
 }

@@ -18,13 +18,11 @@ import {
   type ICampaignGrantReplicaApplyState,
 } from '@/lib/campaign/delivery/applyCampaignGrantDelivery';
 
-import type { ICampaignReplicaEnvelope } from './campaignReplicaTypes';
 import type { CampaignReplicaIngestFault } from './campaignReplicaTypes';
 
 import {
-  applyStateFromReplicaEnvelopes,
   canonicalReplicaDeliveryIdentity,
-  replicaIdentityBySequence,
+  type ICampaignReplicaDurable,
 } from './campaignReplicaEnvelope';
 
 export type CampaignReplicaIngestPlan =
@@ -54,22 +52,26 @@ function lastVerifiedCursor(
 }
 
 /**
- * Plans ingest of one delivered page. pending items are the only rows
- * the store may append; the caller must not write on any other kind.
+ * Plans ingest of one delivered page against the folded stored stream
+ * (`stored`, not mutated). pending items are the only rows the store may
+ * append; the caller must not write on any other kind.
  */
 export function planCampaignReplicaIngest(
-  stored: readonly ICampaignReplicaEnvelope[],
+  stored: ICampaignReplicaDurable,
   deliveryEpochId: string,
   items: readonly ICampaignGrantDeliveryItem[],
 ): CampaignReplicaIngestPlan {
-  const identities = new Map(replicaIdentityBySequence(stored));
-  const durable = applyStateFromReplicaEnvelopes(stored);
+  // Identities this page adds, checked before the stored ones.
+  const added = new Map<number, string>();
+  const durable = stored.state;
   let working = durable;
   const pending: ICampaignGrantDeliveryItem[] = [];
 
   for (const item of items) {
     const identity = canonicalReplicaDeliveryIdentity(item.event);
-    const storedIdentity = identities.get(item.deliverySequence);
+    const storedIdentity =
+      added.get(item.deliverySequence) ??
+      stored.identities.get(item.deliverySequence);
     if (storedIdentity !== undefined) {
       if (storedIdentity !== identity) {
         return {
@@ -98,7 +100,7 @@ export function planCampaignReplicaIngest(
     }
     working = result.state;
     pending.push(item);
-    identities.set(item.deliverySequence, identity);
+    added.set(item.deliverySequence, identity);
   }
 
   if (pending.length === 0) {
