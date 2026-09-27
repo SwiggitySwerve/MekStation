@@ -3589,6 +3589,150 @@
       }
     },
     {
+      "id": "P1A",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Through the existing authenticated POST /api/multiplayer/matches door, an explicit co-op mission descriptor creates one durable real combat match with server-derived per-unit owners. Validate the accepted branch/revision/effectiveGeneration, active campaign membership, accepted participation, roster references and each contributor's durable force claim: the initiating host is not required to own the guest's approved force. Ignore client owner/player claims. Both deploying rosters are player-side; admitted OpFor stays opponent-side and ownerless. Distinct coopMission metadata carries campaignId, sessionId, missionId, acceptedHead and requestFingerprint so creation/recovery cannot mistake this match for another campaign-sync vessel. Persist immutable mission identity and match metadata together; serialize final expected-head admission through the existing campaign authority boundary and arbitrate duplicate creation durably. An identical stored receipt returns the original missionMatchId without another create/append, even when a later head has advanced; a divergent identity or stale new request refuses typed and never closes a previously successful match. Start and recover through the existing combat host registry. Refuse missing claims/choices, forged or inconsistent refs and nonmembers with zero new match side effects. Red-first actual route/auth/SQLite/host tests cover valid two-contributor creation, concurrent/identical/divergent retry and cold reopen; HTTP surface proof records status/headers/body and before/after match/receipt counts. Preserve existing vessel, versus and single-player behavior. No announcement, page navigation, AI driving or U38 command refusal is claimed here. Admission re-measures the proposed ten-file/430-product-line estimate against the unchanged 15/500 caps.",
+      "ownershipPaths": [
+        "src/lib/api",
+        "src/pages/api/multiplayer/matches/index.ts",
+        "src/lib/multiplayer/server"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "idempotency",
+        "concurrency"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "admissionRequires": "Parent verifies the registered paths and admission baseline before implementation. No snapshot/transport workaround may weaken the complete create/map contract. Required sensitive-class owner ruling is obtained on the actual PR head before merge.",
+      "predecessors": [],
+      "splitFrom": "P1",
+      "source20260927": {
+        "at": "2026-09-27T05:26:25.903Z",
+        "reason": "Full P1 stopped at admission: replay registration and full accepted-head page handoff exceed its fixed ownership. This slice preserves its assigned clauses; estimates are not measured diffs.",
+        "evidence": "evidence/p1-split-admission-20260927.json",
+        "planTask": "43"
+      }
+    },
+    {
+      "id": "P1B",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "After P1A, publish each accepted mission match exactly once as a campaign-scoped CampaignMissionLaunched fact through the existing serialized campaign journal lifecycle. Its payload is missionId, missionMatchId, acceptedHead (branchId/revision/effectiveGeneration) and deployingPlayerIds; no private roster payload is published. The server-only announcement door consumes the stored immutable mission receipt rather than client owner claims, using deterministic command identity and fingerprint with normal receipt/replay and per-viewer publication. Recover a create-before-announcement interruption from that receipt without creating another match or appending twice; matching prior journal receipt is success and divergent identity is refused. Register the new event in CampaignSync, the strict baseline schema pack, its exhaustive registry and fixture/test inventory, reducers, entity references, scope and activity projections. A restricted guest must receive the linkage live and after cold reconnect even after valid private history; never piggyback on a withheld full snapshot, weaken its privacy latch, overload unrelated event fields, add a transport, or rewrite archived schema inventory. Red-first tests use real journal/schema/parser/guest delivery with subscription before trigger; cover duplicates, parallel retry, failed append after match create, reopen, private-history replay, scope isolation and malformed payload refusal. The existing vessel and versus paths remain controls. Fifteen files/450 product lines are estimates only; admission measures the full 15/500 cap, and uses the new announcement test for the actual transport parser without silently adding a sixteenth file.",
+      "ownershipPaths": [
+        "src/types/campaign/CampaignSync.ts",
+        "src/lib/campaign",
+        "src/lib/multiplayer/server",
+        "src/lib/events/replay/CampaignBaselineSchemaPack.ts",
+        "src/lib/events/replay/ReplayBaselineDomainRegistry.ts",
+        "src/lib/events/replay/__fixtures__/CampaignBaselineSchemaPack.fixture.ts",
+        "src/lib/events/replay/__tests__/CampaignBaselineSchemaPack.test.ts"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "admissionRequires": "P1A must be main-verified or complete with exact-main mainProof receipts before the parent releases this unit to planned. NEXT does not enforce these unit dependencies. A parked predecessor keeps this unit blocked or on the same owner packet. No existing receipt is widened.",
+      "predecessors": [
+        "P1A"
+      ],
+      "splitFrom": "P1",
+      "source20260927": {
+        "at": "2026-09-27T05:26:25.903Z",
+        "reason": "Full P1 stopped at admission: replay registration and full accepted-head page handoff exceed its fixed ownership. This slice preserves its assigned clauses; estimates are not measured diffs.",
+        "evidence": "evidence/p1-split-admission-20260927.json",
+        "planTask": "44"
+      }
+    },
+    {
+      "id": "P1C",
+      "node": "R2.multiplayer-client",
+      "taskKeys": [],
+      "behavior": "After P1A and P1B, explicitly carry mission identity and the original accepted branch/revision/effectiveGeneration from missionLaunchPage.launch.ts into launchCoopMission, invoke the existing authenticated mission-create contract with the approved contributions, and return missionMatchId. The current encounter/HQ destination remains unchanged until P2, and a local encounter gameSessionId is never represented as the shared ServerMatchHost ID. Reuse existing stored-token transport; keep single-use request logic in the existing launch module rather than invent a helper, hidden cross-call cache or a head re-read that erases the stale-head window. Define failure/retry ordering so failed creation preserves the prior route and identical retry never creates another shared mission. Read/test canonical source gates separately from malformed/forged/stale/loading/unavailable cases and preserve their zero-side-effect behavior. Run the actual route/store handoff, focused launch and page-argument tests, the immutable CAMP-01D ordered command arrays through the existing receipt contract, and the existing co-op journey. New navigation-cutover/shared-match/opponent-turn browser assertions remain P2's. Default scope is the four existing files named in ownershipPaths; the proposed 180-product-line estimate is not measured evidence.",
+      "ownershipPaths": [
+        "src/lib/campaign/coop/launchCoopMission.ts",
+        "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts",
+        "src/pages-modules/gameplay/campaigns/missionLaunchPage.launch.ts",
+        "src/pages-modules/gameplay/campaigns/__tests__/missionLaunchPage.launch.test.ts"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "idempotency"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "admissionRequires": "P1A and P1B must be main-verified or complete with exact-main mainProof receipts before the parent releases this unit to planned. NEXT does not enforce these unit dependencies. A parked predecessor keeps this unit blocked or on the same owner packet. No existing receipt is widened.",
+      "predecessors": [
+        "P1A",
+        "P1B"
+      ],
+      "splitFrom": "P1",
+      "source20260927": {
+        "at": "2026-09-27T05:26:25.903Z",
+        "reason": "Full P1 stopped at admission: replay registration and full accepted-head page handoff exceed its fixed ownership. This slice preserves its assigned clauses; estimates are not measured diffs.",
+        "evidence": "evidence/p1-split-admission-20260927.json",
+        "planTask": "45"
+      }
+    },
+    {
       "id": "P1",
       "node": "R2.authority-live",
       "taskKeys": [],
@@ -3610,7 +3754,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
+      "state": "blocked",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -3630,13 +3774,23 @@
         "PAI",
         "P2",
         "U38"
-      ]
+      ],
+      "superseded20260927": {
+        "at": "2026-09-27T05:26:25.903Z",
+        "by": "P1A, P1B, P1C",
+        "note": "Retained as the truthful record of the measured full-P1 admission, following U35. The complete original behavior is delivered and proved by all three successors; no P1 completion receipts are fabricated.",
+        "evidence": "evidence/p1-split-admission-20260927.json"
+      },
+      "blocked20260927": {
+        "cause": "The complete letter needs unowned replay-registry/schema and explicit page-head handoff changes.",
+        "nextIndependentAction": "Admit P1A after the split registration; then P1B and P1C after their exact-main predecessors. P1 itself is not re-admitted."
+      }
     },
     {
       "id": "PAI",
       "node": "R2.authority-live",
       "taskKeys": [],
-      "behavior": "The server drives the opposing force of an explicitly bootstrapped co-op mission match through its own commands, reusing the existing engine AI without any browser AI, transport or client-visible authority field. A bounded server-only driver under src/lib/multiplayer/server imports the existing InteractiveSession AI (InteractiveSession.runAITurn(GameSide.Opponent, unitId), src/engine/InteractiveSession.ts:692-694) rather than rewriting strategy; it applies only to co-op mission matches P1 bootstrapped, never to the campaign-sync vessel or a versus match. At an eligible opposing-unit turn the driver submits, inside ServerMatchHost's existing serialized command lifecycle, an internal command bound to the current branch, revision and generation with a deterministic identity derived from the match, the head and the active unit; the engine runs the AI turn inside that lifecycle and the whole generated batch is persisted and broadcast through the normal store/journal paths with normal per-viewer publication. Internal authority is not representable by any client wire field, so no player can spoof an internal AI command. Seeded decisions are reconstructed from committed engine/head state and never rerolled on duplicate delivery: a duplicate trigger, a restart after persisted-before-broadcast, or a recovery cannot append twice, storage failure stops advancement, and a stale branch or generation invalidates the pending work. Scheduling comes from accepted state transitions, not an unbounded timer or poll loop; at most one opponent action is in flight; rewind, close, pause and the existing co-op host-disconnect pause rule invalidate stale work. Hidden opponent inputs stay server-side. Red-first: a new jest suite (CoopOpponentDriver) with the real InteractiveSession, a seeded runtime and a SQLite store shows that today an opposing unit's turn never advances on the shared host; after, player-turn -> opponent-turn -> player-turn completes and replay/cold reopen reproduces the same outcome. Before implementation the corresponding server-AI OpenSpec delta is added through a separately owned contract slice; it does not change the per-unit ownership rule. If adapting the engine invocation needs engine edits or exceeds the caps, those owned changes are split and registered before admission; engine guards are never bypassed to fit. The public two-browser opponent-turn proof belongs to P2.",
+      "behavior": "The server drives the opposing force of an explicitly bootstrapped co-op mission match through its own commands, reusing the existing engine AI without any browser AI, transport or client-visible authority field. A bounded server-only driver under src/lib/multiplayer/server imports the existing InteractiveSession AI (InteractiveSession.runAITurn(GameSide.Opponent, unitId), src/engine/InteractiveSession.ts:692-694) rather than rewriting strategy; it applies only to co-op mission matches P1A bootstrapped, never to the campaign-sync vessel or a versus match. At an eligible opposing-unit turn the driver submits, inside ServerMatchHost's existing serialized command lifecycle, an internal command bound to the current branch, revision and generation with a deterministic identity derived from the match, the head and the active unit; the engine runs the AI turn inside that lifecycle and the whole generated batch is persisted and broadcast through the normal store/journal paths with normal per-viewer publication. Internal authority is not representable by any client wire field, so no player can spoof an internal AI command. Seeded decisions are reconstructed from committed engine/head state and never rerolled on duplicate delivery: a duplicate trigger, a restart after persisted-before-broadcast, or a recovery cannot append twice, storage failure stops advancement, and a stale branch or generation invalidates the pending work. Scheduling comes from accepted state transitions, not an unbounded timer or poll loop; at most one opponent action is in flight; rewind, close, pause and the existing co-op host-disconnect pause rule invalidate stale work. Hidden opponent inputs stay server-side. Red-first: a new jest suite (CoopOpponentDriver) with the real InteractiveSession, a seeded runtime and a SQLite store shows that today an opposing unit's turn never advances on the shared host; after, player-turn -> opponent-turn -> player-turn completes and replay/cold reopen reproduces the same outcome. Before implementation the corresponding server-AI OpenSpec delta is added through a separately owned contract slice; it does not change the per-unit ownership rule. If adapting the engine invocation needs engine edits or exceeds the caps, those owned changes are split and registered before admission; engine guards are never bypassed to fit. The public two-browser opponent-turn proof belongs to P2.",
       "ownershipPaths": [
         "src/lib/multiplayer/server"
       ],
@@ -3666,25 +3820,34 @@
         "tick": null
       },
       "ownerGate": null,
-      "admissionRequires": "P1 main-verified or complete with its mainProof receipt naming an exact main merge commit (validate-roadmap.mjs --next does not read this field; the parent releases this unit to planned only after checking P1's receipts on main). If P1 is parked on an owner packet, this unit is gated on the same packet rather than released. The server-AI OpenSpec delta slice must exist before admission. Lane B is required by every one of its review classes.",
+      "admissionRequires": "P1A, P1B, P1C all require exact-main mainProof receipts before parent release to planned. The blocked historical P1 record is superseded by P1A/P1B/P1C; its absence of a mainProof is not bypassed or falsified. NEXT does not enforce these unit dependencies. If any predecessor is owner-gated, dependent units are kept blocked/on that same packet. The separately owned server-AI OpenSpec contract (execution task 41) must also be delivered before admission. All sensitive-class exact-head owner rulings remain required.",
       "source20260927": "registered by the parent under task 1 of the approved continuation plan (plan task 40 is this unit's letter): the user chose on 2026-09-27 that the opposing force in a shared co-op match is driven by the SERVER through existing engine logic, not by a player browser (GAP-7); the choice is recorded here as planning provenance, not as an exact-head OWNER-RULING.",
       "blocked20260927": {
-        "cause": "prerequisite P1 is planned, not on main: the driver needs the owner-bound bootstrap and shared host P1 creates",
-        "nextIndependentAction": "P1 delivers through the loop; the parent then re-reads P1's exact-main receipts and releases PAI to planned in a ledger edit"
+        "cause": "Required P1A/P1B/P1C launch chain is not on main",
+        "nextIndependentAction": "Deliver and verify each named predecessor, then release through a parent ledger edit; do not use the superseded P1 record as synthetic proof."
       },
       "predecessors": [
-        "P1"
+        "P1A",
+        "P1B",
+        "P1C"
       ],
       "successors": [
         "P2",
         "U38"
-      ]
+      ],
+      "predecessorCorrection20260927": {
+        "at": "2026-09-27T05:26:25.903Z",
+        "from": [
+          "P1"
+        ],
+        "reason": "The complete P1 acceptance is preserved by the three admitted successors, not by an unimplemented parent."
+      }
     },
     {
       "id": "P2",
       "node": "R2.multiplayer-client",
       "taskKeys": [],
-      "behavior": "Both deploying co-op clients join the shared mission the server created. missionLaunchPage.launch.ts consumes P1's server-issued missionMatchId: the deploying host and the deploying guest navigate to and join the same tactical match, command-hq stays on /gameplay/campaigns/<id>, and the non-playing GM connection is preserved. No player browser receives or requests an opponent-control grant, and a guest disconnect grants nothing. A failed or stale launch leaves both clients on their safe prior routes and creates no extra match. This unit also owns e2e/coop-campaign-two-browser-journey.spec.ts through task 1's node and unit path amendment: it adds the launch, deploy/HQ destination, shared match ID and active opponent-turn browser assertions to that journey and updates the spec's current no-mission-launch coverage comment to the behavior actually proved. Red-first: jest rows on missionLaunchPage.launch (deploy and HQ destinations, stale head, failed create) fail today because launch drops the composition before any shared match exists; the extended journey run through npm.cmd run verify:qc:coop-campaign-journey fails today at the shared-identity and opponent-turn assertions and passes locally and on exact main after. Not claimed: any server, API or persistence change (P1, PAI) and the ownership refusal itself (U38).",
+      "behavior": "Both deploying co-op clients join the shared mission the server created. missionLaunchPage.launch.ts consumes the P1A-created, P1B-announced missionMatchId: the deploying host and the deploying guest navigate to and join the same tactical match, command-hq stays on /gameplay/campaigns/<id>, and the non-playing GM connection is preserved. No player browser receives or requests an opponent-control grant, and a guest disconnect grants nothing. A failed or stale launch leaves both clients on their safe prior routes and creates no extra match. This unit also owns e2e/coop-campaign-two-browser-journey.spec.ts through task 1's node and unit path amendment: it adds the launch, deploy/HQ destination, shared match ID and active opponent-turn browser assertions to that journey and updates the spec's current no-mission-launch coverage comment to the behavior actually proved. Red-first: jest rows on missionLaunchPage.launch (deploy and HQ destinations, stale head, failed create) fail today because launch drops the composition before any shared match exists; the extended journey run through npm.cmd run verify:qc:coop-campaign-journey fails today at the shared-identity and opponent-turn assertions and passes locally and on exact main after. Not claimed: any server, API or persistence change (P1, PAI) and the ownership refusal itself (U38).",
       "ownershipPaths": [
         "src/pages-modules/gameplay/campaigns/missionLaunchPage.launch.ts",
         "src/pages-modules/gameplay/campaigns/__tests__/missionLaunchPage.launch.test.ts",
@@ -3714,25 +3877,35 @@
         "tick": null
       },
       "ownerGate": null,
-      "admissionRequires": "P1 and PAI both main-verified or complete with mainProof receipts naming exact main merge commits, so that the shared match exists and its opposing force is actively driven before any client is cut over to it (a blocked driver parks P2 and U38 together rather than shipping an inert opposing force). validate-roadmap.mjs --next does not read this field; the parent releases P2 to planned only after checking both receipts on main. If P1 or PAI is parked on an owner packet, P2 is gated on that same packet. Review classes are re-read at admission: if the increment changes the wire or authority contract, the parent adds the matching sensitive class and Lane B before local-verified.",
+      "admissionRequires": "P1A, P1B, P1C, PAI all require exact-main mainProof receipts before parent release to planned. The blocked historical P1 record is superseded by P1A/P1B/P1C; its absence of a mainProof is not bypassed or falsified. NEXT does not enforce these unit dependencies. If any predecessor is owner-gated, dependent units are kept blocked/on that same packet. Re-read review classes at admission; wire/authority changes require the matching sensitive class and owner ruling.",
       "source20260927": "registered by the parent under task 1 of the approved continuation plan (plan task 39 is this unit's letter) as the client precursor of the U38 correction (GAP-6): a host-only test cannot prove the player journey, and the server paths stay on R2.authority-live rather than moving to this client node.",
       "blocked20260927": {
-        "cause": "prerequisites P1 and PAI are not on main: there is no server-issued missionMatchId to consume and no proven opponent driver to cut over to",
-        "nextIndependentAction": "P1 then PAI deliver through the loop; the parent then re-reads both exact-main receipts and releases P2 to planned in a ledger edit"
+        "cause": "Required P1A/P1B/P1C launch chain is not on main; PAI is also blocked",
+        "nextIndependentAction": "Deliver and verify each named predecessor, then release through a parent ledger edit; do not use the superseded P1 record as synthetic proof."
       },
       "predecessors": [
-        "P1",
+        "P1A",
+        "P1B",
+        "P1C",
         "PAI"
       ],
       "successors": [
         "U38"
-      ]
+      ],
+      "predecessorCorrection20260927": {
+        "at": "2026-09-27T05:26:25.903Z",
+        "from": [
+          "P1",
+          "PAI"
+        ],
+        "reason": "The complete P1 acceptance is preserved by the three admitted successors, not by an unimplemented parent."
+      }
     },
     {
       "id": "U38",
       "node": "R2.authority-live",
       "taskKeys": [],
-      "behavior": "On a co-op campaign mission match, both players sit on the same side and each commands only the units they own: ServerMatchHost compares every combat intent against the trusted server-derived per-unit owner map P1 stored at launch (never a client claim), so a caller's own same-side units succeed and any other unit is refused AUTH_REJECTED unit-not-owned with nothing appended, the event head unchanged and the receipt census unchanged, in both directions between the two owners. A unit with no owner in the map (an ownerless historical co-op vessel match, or a unit the map does not carry) is also refused for combat commands, without appending and without fabricating an owner; that fail-closed limit is an explicit round-2 known issue, not silently healed. The versus side check is retained. The blanket exemption 'if (meta?.coopCampaign) return null;' at ServerMatchHostIntent.ts:552 and its comment (:544-551) are deleted, and the uncalled ownsCoopUnit is either removed or wired in consistently. Guest bravo is not converted into opponent-side gameplay; the opposing force stays PAI's. Red-first: on the P1-bootstrapped co-op match, jest rows where player B commands player A's unit and player A commands player B's unit are admitted today and refused after, while own-unit controls in both seats pass, including after restart and on ownerless metadata. U53 re-proves E2E-31/32 on the co-op fixture; the complete strict-combat reproof stays with U53.",
+      "behavior": "On a co-op campaign mission match, both players sit on the same side and each commands only the units they own: ServerMatchHost compares every combat intent against the trusted server-derived per-unit owner map P1A stored at launch (never a client claim), so a caller's own same-side units succeed and any other unit is refused AUTH_REJECTED unit-not-owned with nothing appended, the event head unchanged and the receipt census unchanged, in both directions between the two owners. A unit with no owner in the map (an ownerless historical co-op vessel match, or a unit the map does not carry) is also refused for combat commands, without appending and without fabricating an owner; that fail-closed limit is an explicit round-2 known issue, not silently healed. The versus side check is retained. The blanket exemption 'if (meta?.coopCampaign) return null;' at ServerMatchHostIntent.ts:552 and its comment (:544-551) are deleted, and the uncalled ownsCoopUnit is either removed or wired in consistently. Guest bravo is not converted into opponent-side gameplay; the opposing force stays PAI's. Red-first: on the P1A-bootstrapped co-op match, jest rows where player B commands player A's unit and player A commands player B's unit are admitted today and refused after, while own-unit controls in both seats pass, including after restart and on ownerless metadata. U53 re-proves E2E-31/32 on the co-op fixture; the complete strict-combat reproof stays with U53.",
       "ownershipPaths": [
         "src/lib/multiplayer/server",
         "src/lib/campaign"
@@ -3759,7 +3932,7 @@
         "tick": null
       },
       "ownerGate": null,
-      "admissionRequires": "P1, PAI and P2 all main-verified or complete with mainProof receipts naming exact main merge commits, checked by the parent before this unit is released to planned (validate-roadmap.mjs --next does not read this field). Enforcing per-unit ownership before the trusted map exists (P1), before the opposing force is driven (PAI) and before both clients join the shared match (P2) would lock the guest out of a playable mission. If any precursor is parked on an owner packet, U38 is gated on that same packet. Lane B is required by the authority class.",
+      "admissionRequires": "P1A, P1B, P1C, PAI, P2 all require exact-main mainProof receipts before parent release to planned. The blocked historical P1 record is superseded by P1A/P1B/P1C; its absence of a mainProof is not bypassed or falsified. NEXT does not enforce these unit dependencies. If any predecessor is owner-gated, dependent units are kept blocked/on that same packet. The authority-class exact-head owner ruling remains required.",
       "source20260922": "planned by the parent from the 2026-09-22 triage plan (newUnits; evidence/triage-plan-20260922.json (179 register issues verified against main a9244fcad)) under the owner instruction of 2026-09-22 (\"ultracode find everything that is marked and if there are issues go with recommended path to solution based on the goal\")",
       "triageIssues20260922": [
         "I-coop-per-unit-ownership"
@@ -3771,10 +3944,25 @@
         "stateChange": "planned -> blocked on P1, PAI and P2 (registered in the same edit, immediately before this unit, without reordering any existing unit)"
       },
       "predecessors": [
-        "P1",
+        "P1A",
+        "P1B",
+        "P1C",
         "PAI",
         "P2"
-      ]
+      ],
+      "blocked20260927": {
+        "cause": "Required P1A/P1B/P1C launch chain is not on main; PAI/P2 are also blocked",
+        "nextIndependentAction": "Deliver and verify each named predecessor, then release through a parent ledger edit; do not use the superseded P1 record as synthetic proof."
+      },
+      "predecessorCorrection20260927": {
+        "at": "2026-09-27T05:26:25.903Z",
+        "from": [
+          "P1",
+          "PAI",
+          "P2"
+        ],
+        "reason": "The complete P1 acceptance is preserved by the three admitted successors, not by an unimplemented parent."
+      }
     },
     {
       "id": "U39",

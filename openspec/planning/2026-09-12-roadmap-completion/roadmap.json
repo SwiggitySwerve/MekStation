@@ -2754,7 +2754,8 @@
         "openspec/changes/design-campaign-authority-and-sync",
         "src/__tests__/api/campaigns/coopGmInterventionHistory.test.ts",
         "src/__tests__/pages/gameplay/campaigns/gm-ledger.inflight.test.tsx",
-        "src/components/campaign/gm/__tests__/GmCampaignInterventionControlPlane.approval.test.tsx"
+        "src/components/campaign/gm/__tests__/GmCampaignInterventionControlPlane.approval.test.tsx",
+        "src/lib/events/replay/ReplayBaselineDomainRegistry.ts"
       ],
       "acceptance": [
         "npm.cmd run typecheck",
@@ -3178,6 +3179,16 @@
           "units": "U97",
           "source": "parent, at U97's closure (the unit's new test files, on disk after the merge)",
           "why": "the three test files sit in the node's test homes and join the unit's and the node's paths at closure (they must exist on disk); the spec delta file is under the unit's change path already"
+        }
+      ],
+      "ownershipPathsAmended20260927": [
+        {
+          "path": "src/lib/events/replay/ReplayBaselineDomainRegistry.ts",
+          "at": "2026-09-27T05:26:25.903Z",
+          "units": "P1B",
+          "source": "P1 measured admission split, execution task 42; evidence/p1-split-admission-20260927.json",
+          "why": "The new campaign launch fact requires this existing exhaustive replay registry as well as the already-owned pack/fixture/test files.",
+          "disclosure": "Future unit ownership only. Existing main-verified receipts and historical node state are unchanged; this amendment is not an owner ruling."
         }
       ]
     },
@@ -7684,7 +7695,9 @@
         "src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignDashboardPage.launch.test.ts",
         "src/stores/campaign/useCampaignPersistenceStore.ts",
         "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts",
-        "e2e/coop-campaign-two-browser-journey.spec.ts"
+        "e2e/coop-campaign-two-browser-journey.spec.ts",
+        "src/lib/campaign/coop/launchCoopMission.ts",
+        "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts"
       ],
       "acceptance": [
         "Each unit reproduces its boundary red-first (jest at the client or route seam), passes tsc/oxlint/oxfmt and the focused suites, and lands with a Lane A review and, for wire/idempotency/privacy classes, a Lane B ruling on the exact head",
@@ -7698,6 +7711,22 @@
           "source": "task 1 of the approved continuation plan (.omo/plans/mekstation-roadmap-loop-continuation.md, user approval 'Write and review plan' on 2026-09-27): a parent ledger edit made before P2's admission so the client unit can own the new launch, deploy/HQ destination, shared match ID and opponent-turn browser assertions together with its navigation implementation. Precedent: ownershipPathsAmended20260922 and ownershipPathsAmended20260923 on this node.",
           "why": "the exact file, not a directory. R2.authority-live (main-verified) also lists it, and keeps it: P1 runs the pre-existing journey there only as a regression check. No server path moves to this node and no main-verified receipt is widened. validate-roadmap.mjs --next serializes on unit ownership (pathsOverlap against in-flight units), so P1 and P2 are attempted serially: P2 stays blocked until P1 and PAI are on main, and the two never hold the file in flight at once.",
           "disclosure": "This is not an owner ruling. The owner did not word or rule on this amendment; the parent made it as a ledger edit under plan task 1's ownership amendment."
+        },
+        {
+          "path": "src/lib/campaign/coop/launchCoopMission.ts",
+          "at": "2026-09-27T05:26:25.903Z",
+          "units": "P1C",
+          "source": "P1 measured admission split, execution task 42; evidence/p1-split-admission-20260927.json",
+          "why": "The existing browser launch module and its test must receive the original full accepted head explicitly, together with the already-owned page caller; no server directory is transferred.",
+          "disclosure": "Future unit ownership only. Existing main-verified receipts and historical node state are unchanged; this amendment is not an owner ruling."
+        },
+        {
+          "path": "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts",
+          "at": "2026-09-27T05:26:25.903Z",
+          "units": "P1C",
+          "source": "P1 measured admission split, execution task 42; evidence/p1-split-admission-20260927.json",
+          "why": "The existing browser launch module and its test must receive the original full accepted head explicitly, together with the already-owned page caller; no server directory is transferred.",
+          "disclosure": "Future unit ownership only. Existing main-verified receipts and historical node state are unchanged; this amendment is not an owner ruling."
         }
       ],
       "owner": "parent; bounded worker lanes per WORKERS.md",

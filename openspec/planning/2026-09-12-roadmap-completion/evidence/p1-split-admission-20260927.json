@@ -1,0 +1,89 @@
+{
+  "unit": "P1",
+  "status": "blocked-at-admission",
+  "observedAt": "2026-09-27T05:26:25.903Z",
+  "baseline": "5ffa960861064d2fbf095f0f441b0c9af591b0d5",
+  "sourceManifestSha256": "4788cf2ca5d8c240a42ee2e1a15aa24e4765c572c2b72134a5429aa3867ffdb0",
+  "sourceReportSha256": "164336a82c65b14e849548c96e4e5dc8ea31dd8f7b8bef19964113725d52c4de",
+  "artifactDirectory": ".omo/ulw-execute/p1",
+  "parentVerifiedArtifacts": 34,
+  "trackedChangesAtBlocker": 0,
+  "productDoneClaim": false,
+  "blockers": [
+    {
+      "paths": [
+        "src/lib/events/replay/CampaignBaselineSchemaPack.ts",
+        "src/lib/events/replay/ReplayBaselineDomainRegistry.ts",
+        "src/lib/events/replay/__fixtures__/CampaignBaselineSchemaPack.fixture.ts",
+        "src/lib/events/replay/__tests__/CampaignBaselineSchemaPack.test.ts"
+      ],
+      "reason": "CampaignEventType schema/registry/fixture exhaustiveness requires these paths for a truthful launch event; they are not all unit/node owned by P1."
+    },
+    {
+      "paths": [
+        "src/lib/campaign/coop/launchCoopMission.ts",
+        "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts",
+        "src/pages-modules/gameplay/campaigns/missionLaunchPage.launch.ts",
+        "src/pages-modules/gameplay/campaigns/__tests__/missionLaunchPage.launch.test.ts"
+      ],
+      "reason": "The page has branch/revision/generation but launchCoopMission receives revision only. Explicit original-head handoff is outside P1 ownership; rereading head would erase stale-head protection."
+    }
+  ],
+  "probes": {
+    "routeAuthSqlite": {
+      "exit": 1,
+      "behavioralRed": true,
+      "applicationHttpProof": false,
+      "observed": "Existing vessel path creates vessels, not a mission combat host/owner map. Proposed mission descriptor and forged-owner field are already schema-refused; no claim those security refusals were missing."
+    },
+    "snapshotAlternative": {
+      "exit": 0,
+      "knownPrivatePayloadParses": true,
+      "privateScopeResolverAccepts": true,
+      "privateWireEnvelopeParses": true,
+      "restrictedGuestMissionId": null,
+      "allScopesMissionId": "p1-mission-proof",
+      "noPrivateHistoryMissionId": "p1-mission-proof",
+      "correction": "Use permitted gm PilotHired probe, not the invalid gm FundsChanged fixture retained in the first red report."
+    }
+  },
+  "split": [
+    {
+      "id": "P1A",
+      "node": "R2.authority-live",
+      "purpose": "trusted owner-derived idempotent mission create/map",
+      "estimatedFiles": 10,
+      "estimatedAddedProductLines": 430
+    },
+    {
+      "id": "P1B",
+      "node": "R2.authority-live",
+      "purpose": "durable campaign-scoped launch event and restricted guest/restart delivery",
+      "estimatedFiles": 15,
+      "estimatedAddedProductLines": 450
+    },
+    {
+      "id": "P1C",
+      "node": "R2.multiplayer-client",
+      "purpose": "full accepted-head request handoff without navigation cutover",
+      "estimatedFiles": 4,
+      "estimatedAddedProductLines": 180
+    }
+  ],
+  "estimateDisclaimer": "Design estimates only. Each successor must be admitted and measured inside 15 files/500 added product lines; no capped-out omission is authorized.",
+  "ownershipCorrection": "Each contributor must hold that contributor's approved force; the initiating host is not required to own the guest force.",
+  "historicalParent": "P1 stays blocked and superseded, following U35. No parent mainProof or completion receipt is synthesized.",
+  "nonclaims": [
+    "No product edits or implementation green result",
+    "No full HTTP server/browser/Jest/build/CAMP proof",
+    "No owner ruling",
+    "No archival schema rewrite"
+  ],
+  "cleanup": {
+    "ownedProbeTempAbsent": true,
+    "ownedLiveProcesses": 0,
+    "ownedPorts": 0,
+    "dependenciesModified": false,
+    "sourceFinalStateCorrection": "cleanup-final.json supersedes the retained false directory-removed flag in final-state.json"
+  }
+}
