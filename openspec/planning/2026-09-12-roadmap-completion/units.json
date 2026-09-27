@@ -3923,7 +3923,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
+      "state": "blocked",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -3954,6 +3954,154 @@
         "to": "planned",
         "reason": "Its admissionRequires condition holds: predecessor P1A is complete with an exact-main mainProof receipt (evidence/p1a-mainproof-20260927.json, merge d0347e7e6a236055a8af59c610cf6fb3ff650d35, verdict PASS). Released at the P1A closure fold; no receipt is widened.",
         "admissionNotes": "Read-only preparation on the P1A candidate found that the stored coopMission receipt carries no immutable deployingPlayerIds, and that playerIds, sideAssignments and unitBootstrap are patchable through IMatchMetaPatch. Admission must establish an immutable source for the announced deployers and re-measure the proposed fifteen-file scope against the caps."
+      },
+      "superseded20260927": {
+        "at": "2026-09-27T21:12:19.238Z",
+        "by": "P1B1, P1B2, P1B3",
+        "note": "Retained as the truthful record of the measured P1B admission, following P1 and U35. Its complete behavior is delivered and proved by all three successors; no P1B completion receipts are fabricated.",
+        "evidence": "evidence/p1b-split-admission-20260927.json"
+      },
+      "blocked20260927": {
+        "cause": "Cold reconnect on the production CampaignJoin member and room-code guest paths sends a folded safe baseline, so a state-preserving launch fact needs CampaignSyncSession.ts and handleRoomCodeGuestJoin.ts beyond the fifteen files admitted for P1B.",
+        "nextIndependentAction": "Admit P1B1; release P1B2 and then P1B3 after each exact-main predecessor. P1B itself is not re-admitted."
+      }
+    },
+    {
+      "id": "P1B1",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "ciClass": "product",
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "splitFrom": "P1B",
+      "behavior": "Register the CampaignMissionLaunched campaign event contract, with no producer yet. The live CampaignEvent union and runtime list gain the discriminant with exactly the payload missionId, missionMatchId, acceptedHead (branchId/revision/effectiveGeneration) and deployingPlayerIds. A strict replay payload schema refuses missing, extra and ill-typed fields at the top level and in acceptedHead; the exhaustive live replay registry, live fixture inventory and schema tests include the event while the archived eight-item inventory stays byte-identical. The reducer is a state-preserving no-op; the event is campaign-scoped, carries mission and match entity references and a roster-free activity row, and has a projected-event arm in projectCampaignStreamForGrant that keeps the private-history latch set while a visible launch stays projectable and excludes grants without campaign scope. Red first with real journal and projector fixtures. No accepted HTTP mission emits the event yet and no end-to-end launch claim is made. Planned files (12): src/types/campaign/CampaignSync.ts; src/lib/campaign/activity/campaignActivityProjection.ts; src/lib/campaign/sync/campaignEventScope.ts and its __tests__/campaignEventScope.test.ts; src/lib/campaign/sync/campaignEventEntityRefs.ts; src/lib/campaign/sync/applyCampaignEvent.ts; src/lib/campaign/delivery/projectCampaignStreamForGrant.ts; src/lib/events/replay/CampaignBaselineSchemaPack.ts, ReplayBaselineDomainRegistry.ts, __fixtures__/CampaignBaselineSchemaPack.fixture.ts and __tests__/CampaignBaselineSchemaPack.test.ts; new src/lib/campaign/delivery/__tests__/campaignMissionLaunchContract.test.ts. The 328-line estimate is not a measured diff.",
+      "ownershipPaths": [
+        "src/types/campaign/CampaignSync.ts",
+        "src/lib/campaign",
+        "src/lib/events/replay/CampaignBaselineSchemaPack.ts",
+        "src/lib/events/replay/ReplayBaselineDomainRegistry.ts",
+        "src/lib/events/replay/__fixtures__/CampaignBaselineSchemaPack.fixture.ts",
+        "src/lib/events/replay/__tests__/CampaignBaselineSchemaPack.test.ts"
+      ],
+      "reviewClasses": [
+        "privacy",
+        "replay"
+      ],
+      "state": "planned",
+      "admissionRequires": "P1A is complete with an exact-main mainProof (evidence/p1a-mainproof-20260927.json). The parent measures the actual diff against 15 files/500 non-generated lines including tests; the estimate is not proof. The preserved red fixture and schema-test changes from the P1B attempt (sha256 b644647a... and 3493d55e..., in the split evidence) may be reused. A sensitive-class packet is registered at the local fold, and the owner rules the exact head before merge.",
+      "predecessors": [
+        "P1A"
+      ],
+      "source20260927": {
+        "at": "2026-09-27T21:12:19.238Z",
+        "reason": "P1B stopped with BLOCKED-SPLIT before any product edit: cold reconnect needs files beyond its fifteen. This slice holds the event contract and replay registration clauses.",
+        "evidence": "evidence/p1b-split-admission-20260927.json",
+        "planTask": "49"
+      }
+    },
+    {
+      "id": "P1B2",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "ciClass": "product",
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "splitFrom": "P1B",
+      "behavior": "After P1B1, publish each accepted mission match exactly once as a CampaignMissionLaunched fact. coopMission gains a readonly optional deployingPlayerIds, stored once at create from the unique, sorted ownerPlayerId values of player-side admitted bootstrap units (deploy choices only; never client input or patchable metadata). After the create critical section returns, a server-only lock-taking CampaignMatchHost door commits the fact through the existing journal lifecycle with command id campaign-mission-launched:<campaignId>:<missionMatchId> and the stored request fingerprint. An identical duplicate returns the existing receipt; a divergent identity is refused; a receipt without deployingPlayerIds is refused with a typed legacy refusal that appends nothing. A create-before-announcement interruption recovers on the identical authenticated POST without a second match or event, and CampaignHostRegistry is not changed. A restricted guest subscribed before the real POST receives exactly one strict frame whose payload equals the receipt-derived values, parsed by CampaignEventMessageSchema, ServerMessageSchema and the replay schema, with no pilot, roster, bootstrap, owner map or token. Vessel and versus paths stay green. Cold reconnect is not claimed here (P1B3). Planned files (5): src/lib/multiplayer/server/IMatchStore.ts, coopMissionCreate.ts, CampaignMatchHost.ts, new __tests__/coopMissionAnnouncement.harness.ts and new __tests__/coopMissionAnnouncement.test.ts. The 460-line estimate is not a measured diff.",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server"
+      ],
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "idempotency",
+        "concurrency"
+      ],
+      "state": "blocked",
+      "admissionRequires": "P1B1 must be complete with an exact-main mainProof receipt before the parent releases this unit to planned. NEXT does not enforce these unit dependencies. The preserved red announcement test from the P1B attempt (sha256 90ae6449..., in the split evidence) may be reused. A sensitive-class packet is registered at the local fold and the owner rules the exact head before merge. Stop and split rather than exceed 15 files/500 lines.",
+      "predecessors": [
+        "P1B1"
+      ],
+      "source20260927": {
+        "at": "2026-09-27T21:12:19.238Z",
+        "reason": "P1B stopped with BLOCKED-SPLIT before any product edit. This slice holds the immutable receipt, exactly-once producer, recovery and live-delivery clauses.",
+        "evidence": "evidence/p1b-split-admission-20260927.json",
+        "planTask": "50"
+      }
+    },
+    {
+      "id": "P1B3",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "ciClass": "product",
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "splitFrom": "P1B",
+      "behavior": "After P1B2, a restricted co-op guest receives the durable CampaignMissionLaunched linkage after cold reconnect, even after valid private history, on every production reconnect path. The CampaignJoin member path (CampaignSyncSession.joinMember, and the adapter-unavailable large-gap resync) and the room-code guest hydration path (no-cursor and retained-replica branches) send the safe baseline, then the stored scope-admitted launch facts at or below the cut in sequence order, then the live tail, delivering each launch once per connection across history and the buffered live overlap. The full-stream grant channel delivers it to a fresh cursor and not twice to a resumed one, and never to an out-of-scope grant or another campaign. Reconnect is read-only for the journal (no new event, receipt, sequence or timestamp); the stored full checkpoint after private history stays withheld and later live checkpoints stay latched; no transport, pause or invite policy change, unrelated-field overload or state-bearing reducer is added. Planned files (4): src/lib/multiplayer/server/CampaignSyncSession.ts, handleRoomCodeGuestJoin.ts, new campaignMissionLaunchReplay.ts (narrow history selector) and new __tests__/coopMissionAnnouncement.reconnect.test.ts. The 485-line estimate is not a measured diff.",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server"
+      ],
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "concurrency"
+      ],
+      "state": "blocked",
+      "admissionRequires": "P1B2 must be complete with an exact-main mainProof receipt before the parent releases this unit to planned. NEXT does not enforce these unit dependencies. A sensitive-class packet is registered at the local fold and the owner rules the exact head before merge. Stop and split rather than exceed 15 files/500 lines.",
+      "predecessors": [
+        "P1B2"
+      ],
+      "source20260927": {
+        "at": "2026-09-27T21:12:19.238Z",
+        "reason": "P1B stopped with BLOCKED-SPLIT: the CampaignJoin member and room-code guest paths fold history into a baseline. This slice holds the cold-reconnect delivery clauses.",
+        "evidence": "evidence/p1b-split-admission-20260927.json",
+        "planTask": "51"
       }
     },
     {
@@ -3990,10 +4138,12 @@
         "tick": null
       },
       "ownerGate": null,
-      "admissionRequires": "P1A and P1B must be main-verified or complete with exact-main mainProof receipts before the parent releases this unit to planned. NEXT does not enforce these unit dependencies. A parked predecessor keeps this unit blocked or on the same owner packet. No existing receipt is widened.",
+      "admissionRequires": "P1A, P1B1, P1B2 and P1B3 must be main-verified or complete with exact-main mainProof receipts before the parent releases this unit to planned. NEXT does not enforce these unit dependencies. A parked predecessor keeps this unit blocked or on the same owner packet. No existing receipt is widened. The P1B record is in turn superseded by P1B1/P1B2/P1B3.",
       "predecessors": [
         "P1A",
-        "P1B"
+        "P1B1",
+        "P1B2",
+        "P1B3"
       ],
       "splitFrom": "P1",
       "source20260927": {
@@ -4001,6 +4151,11 @@
         "reason": "Full P1 stopped at admission: replay registration and full accepted-head page handoff exceed its fixed ownership. This slice preserves its assigned clauses; estimates are not measured diffs.",
         "evidence": "evidence/p1-split-admission-20260927.json",
         "planTask": "45"
+      },
+      "amended20260927": {
+        "at": "2026-09-27T21:12:19.238Z",
+        "change": "predecessor P1B replaced by P1B1, P1B2 and P1B3",
+        "note": "P1B is superseded by P1B1/P1B2/P1B3 (evidence/p1b-split-admission-20260927.json); its absence of a mainProof is not bypassed or falsified."
       }
     },
     {
@@ -4091,7 +4246,7 @@
         "tick": null
       },
       "ownerGate": null,
-      "admissionRequires": "P1A, P1B, P1C all require exact-main mainProof receipts before parent release to planned. The blocked historical P1 record is superseded by P1A/P1B/P1C; its absence of a mainProof is not bypassed or falsified. NEXT does not enforce these unit dependencies. If any predecessor is owner-gated, dependent units are kept blocked/on that same packet. The separately owned server-AI OpenSpec contract (execution task 41) must also be delivered before admission. All sensitive-class exact-head owner rulings remain required.",
+      "admissionRequires": "P1A, P1B1, P1B2, P1B3, P1C all require exact-main mainProof receipts before parent release to planned. The blocked historical P1 record is superseded by P1A/P1B/P1C; its absence of a mainProof is not bypassed or falsified. NEXT does not enforce these unit dependencies. If any predecessor is owner-gated, dependent units are kept blocked/on that same packet. The separately owned server-AI OpenSpec contract (execution task 41) must also be delivered before admission. All sensitive-class exact-head owner rulings remain required. The P1B record is in turn superseded by P1B1/P1B2/P1B3.",
       "source20260927": "registered by the parent under task 1 of the approved continuation plan (plan task 40 is this unit's letter): the user chose on 2026-09-27 that the opposing force in a shared co-op match is driven by the SERVER through existing engine logic, not by a player browser (GAP-7); the choice is recorded here as planning provenance, not as an exact-head OWNER-RULING.",
       "blocked20260927": {
         "cause": "Required P1A/P1B/P1C launch chain is not on main",
@@ -4099,7 +4254,9 @@
       },
       "predecessors": [
         "P1A",
-        "P1B",
+        "P1B1",
+        "P1B2",
+        "P1B3",
         "P1C"
       ],
       "successors": [
@@ -4112,6 +4269,11 @@
           "P1"
         ],
         "reason": "The complete P1 acceptance is preserved by the three admitted successors, not by an unimplemented parent."
+      },
+      "amended20260927": {
+        "at": "2026-09-27T21:12:19.238Z",
+        "change": "predecessor P1B replaced by P1B1, P1B2 and P1B3",
+        "note": "P1B is superseded by P1B1/P1B2/P1B3 (evidence/p1b-split-admission-20260927.json); its absence of a mainProof is not bypassed or falsified."
       }
     },
     {
@@ -4148,7 +4310,7 @@
         "tick": null
       },
       "ownerGate": null,
-      "admissionRequires": "P1A, P1B, P1C, PAI all require exact-main mainProof receipts before parent release to planned. The blocked historical P1 record is superseded by P1A/P1B/P1C; its absence of a mainProof is not bypassed or falsified. NEXT does not enforce these unit dependencies. If any predecessor is owner-gated, dependent units are kept blocked/on that same packet. Re-read review classes at admission; wire/authority changes require the matching sensitive class and owner ruling.",
+      "admissionRequires": "P1A, P1B1, P1B2, P1B3, P1C, PAI all require exact-main mainProof receipts before parent release to planned. The blocked historical P1 record is superseded by P1A/P1B/P1C; its absence of a mainProof is not bypassed or falsified. NEXT does not enforce these unit dependencies. If any predecessor is owner-gated, dependent units are kept blocked/on that same packet. Re-read review classes at admission; wire/authority changes require the matching sensitive class and owner ruling. The P1B record is in turn superseded by P1B1/P1B2/P1B3.",
       "source20260927": "registered by the parent under task 1 of the approved continuation plan (plan task 39 is this unit's letter) as the client precursor of the U38 correction (GAP-6): a host-only test cannot prove the player journey, and the server paths stay on R2.authority-live rather than moving to this client node.",
       "blocked20260927": {
         "cause": "Required P1A/P1B/P1C launch chain is not on main; PAI is also blocked",
@@ -4156,7 +4318,9 @@
       },
       "predecessors": [
         "P1A",
-        "P1B",
+        "P1B1",
+        "P1B2",
+        "P1B3",
         "P1C",
         "PAI"
       ],
@@ -4170,6 +4334,11 @@
           "PAI"
         ],
         "reason": "The complete P1 acceptance is preserved by the three admitted successors, not by an unimplemented parent."
+      },
+      "amended20260927": {
+        "at": "2026-09-27T21:12:19.238Z",
+        "change": "predecessor P1B replaced by P1B1, P1B2 and P1B3",
+        "note": "P1B is superseded by P1B1/P1B2/P1B3 (evidence/p1b-split-admission-20260927.json); its absence of a mainProof is not bypassed or falsified."
       }
     },
     {
@@ -4203,7 +4372,7 @@
         "tick": null
       },
       "ownerGate": null,
-      "admissionRequires": "P1A, P1B, P1C, PAI, P2 all require exact-main mainProof receipts before parent release to planned. The blocked historical P1 record is superseded by P1A/P1B/P1C; its absence of a mainProof is not bypassed or falsified. NEXT does not enforce these unit dependencies. If any predecessor is owner-gated, dependent units are kept blocked/on that same packet. The authority-class exact-head owner ruling remains required.",
+      "admissionRequires": "P1A, P1B1, P1B2, P1B3, P1C, PAI, P2 all require exact-main mainProof receipts before parent release to planned. The blocked historical P1 record is superseded by P1A/P1B/P1C; its absence of a mainProof is not bypassed or falsified. NEXT does not enforce these unit dependencies. If any predecessor is owner-gated, dependent units are kept blocked/on that same packet. The authority-class exact-head owner ruling remains required. The P1B record is in turn superseded by P1B1/P1B2/P1B3.",
       "source20260922": "planned by the parent from the 2026-09-22 triage plan (newUnits; evidence/triage-plan-20260922.json (179 register issues verified against main a9244fcad)) under the owner instruction of 2026-09-22 (\"ultracode find everything that is marked and if there are issues go with recommended path to solution based on the goal\")",
       "triageIssues20260922": [
         "I-coop-per-unit-ownership"
@@ -4216,7 +4385,9 @@
       },
       "predecessors": [
         "P1A",
-        "P1B",
+        "P1B1",
+        "P1B2",
+        "P1B3",
         "P1C",
         "PAI",
         "P2"
@@ -4233,6 +4404,11 @@
           "P2"
         ],
         "reason": "The complete P1 acceptance is preserved by the three admitted successors, not by an unimplemented parent."
+      },
+      "amended20260927": {
+        "at": "2026-09-27T21:12:19.238Z",
+        "change": "predecessor P1B replaced by P1B1, P1B2 and P1B3",
+        "note": "P1B is superseded by P1B1/P1B2/P1B3 (evidence/p1b-split-admission-20260927.json); its absence of a mainProof is not bypassed or falsified."
       }
     },
     {

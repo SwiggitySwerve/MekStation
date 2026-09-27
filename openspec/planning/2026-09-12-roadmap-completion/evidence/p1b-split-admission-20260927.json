@@ -1,0 +1,96 @@
+{
+  "unit": "P1B",
+  "status": "blocked-at-implementation-before-product-edit",
+  "observedAt": "2026-09-27T21:12:19.238Z",
+  "baseline": "d3a913fa3319f3b5b984773647d6904dfae10b9e",
+  "worker": "st_01a0e49d (deep-high, gpt-6-astra)",
+  "sources": {
+    "doneClaim": {
+      "path": ".omo/ulw-execute/p1b/DONECLAIM.md (lane evidence, wave-A worktree)",
+      "sha256": "15981b19e53116b444e012a2f83a79c17787b51700edad2e197cb907d9088472"
+    },
+    "splitProposal": {
+      "path": ".omo/ulw-execute/p1b/split-proposal.md (lane evidence)",
+      "sha256": "c7bf6778739f37c679295d8e7274768a17ffcdebda0ae2b724ea73d430c5be79"
+    },
+    "admissionMeasurement": {
+      "path": ".omo/ulw-execute/evidence/p1b-admission-measurement-3b4a7b1.md (parent evidence)",
+      "sha256": "2851059675162e8a89224080c4d036f0dc3f4d937acea5c503de90d60b2a1798"
+    }
+  },
+  "blocker": {
+    "summary": "The browser reconnect sends CampaignJoin (src/lib/campaign/coop/campaignSyncTransport.ts:205-216). An active member is routed to CampaignSyncSession.joinMember (src/lib/multiplayer/server/bindCampaignSyncConnection.ts:1044-1058), which sends a safe folded baseline and then only events above the captured revision (CampaignSyncSession.ts:523-587). The room-code guest path sends a safe synthetic or replica snapshot and keeps grant catch-up ingest-only (handleRoomCodeGuestJoin.ts:236-271, roomCodeGuestLiveFanout.ts:79-104). A state-preserving launch fact at or below the cut therefore never reaches a cold guest on either path.",
+    "diagnostic": "A registered campaign-scoped ParticipantRemoved fact committed through the journal was received live by a restricted guest; after private PilotHired history, a campaign checkpoint and an independent registry reopen, the same member received only a safe CampaignSnapshot and zero historical CampaignEvent frames.",
+    "red": "red-confirmed: 10 failed / 37 passed on unchanged product code; archived eight-item inventory equal to HEAD",
+    "minimumFiles": 16
+  },
+  "partialRedDiff": {
+    "productEdits": 0,
+    "files": [
+      {
+        "path": "src/lib/events/replay/__fixtures__/CampaignBaselineSchemaPack.fixture.ts",
+        "sha256": "b644647af9cd171ec13b0c1731c5ed7718bd0cdc4e834289f962bf96b2b248eb",
+        "changedLines": 6,
+        "successor": "P1B1"
+      },
+      {
+        "path": "src/lib/events/replay/__tests__/CampaignBaselineSchemaPack.test.ts",
+        "sha256": "3493d55e244f050354b905bd0f5de7e9149c206a5bb376537ac42bad22adb2c2",
+        "changedLines": 18,
+        "successor": "P1B1"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.test.ts",
+        "sha256": "90ae6449038d0f8132076277038811d4bdb4d0774a6d3146e9e33c5d56e08ef3",
+        "changedLines": 402,
+        "successor": "P1B2 (producer rows) and P1B3 (private-history, cold and diagnostic rows)"
+      }
+    ],
+    "totalChangedLines": 426,
+    "preserved": "wave-A .omo/ulw-execute/p1b/partial-red-backup (hash-verified copies and tracked.patch)"
+  },
+  "mechanism": {
+    "chosen": "selective replay of stored, scope-admitted CampaignMissionLaunched facts after the safe baseline, deduplicated against the live tail, read-only for the journal",
+    "rejected": "a state-bearing reducer: it would violate the admitted no-op reducer, and stored CampaignSnapshotPublished checkpoints replace state wholesale (applyCampaignEvent.ts:74-75) while checkpoint projection preserves only pilots, contracts and salvagePool (campaignSourceGenesis.ts:65-88,203-224), so the linkage would be erased",
+    "grantChannel": "full-stream CampaignGrantJoin already replays admitted history beyond the cursor (projectCampaignStreamForGrant.ts:278-363); only proof is added"
+  },
+  "retainedDecisions": [
+    "D1 immutable deployers from player-side admitted bootstrap owners",
+    "D2 lock-taking CampaignMatchHost door after the create section with deterministic command id and stored fingerprint",
+    "D3 recovery through the identical POST, no CampaignHostRegistry change",
+    "D4 no-op reducer and exhaustive registration"
+  ],
+  "replacedDecision": "D5 (one fifteen-file unit) is replaced by the three bounded file lists",
+  "split": [
+    {
+      "id": "P1B1",
+      "purpose": "launch fact contract and replay registration",
+      "estimatedFiles": 12,
+      "estimatedChangedLines": 328,
+      "planTask": "49"
+    },
+    {
+      "id": "P1B2",
+      "purpose": "immutable receipt and serialized exactly-once producer with live delivery",
+      "estimatedFiles": 5,
+      "estimatedChangedLines": 460,
+      "planTask": "50"
+    },
+    {
+      "id": "P1B3",
+      "purpose": "restricted guest cold-reconnect delivery on member, room-code and grant paths",
+      "estimatedFiles": 4,
+      "estimatedChangedLines": 485,
+      "planTask": "51"
+    }
+  ],
+  "estimateDisclaimer": "Design estimates including tests; each successor is admitted and measured within 15 files/500 non-generated lines, and stops and splits rather than trimming proof.",
+  "downstream": "P1C, PAI, P2 and U38 name P1B1, P1B2 and P1B3 in place of P1B (amended20260927).",
+  "historicalParent": "P1B stays blocked and superseded, following P1 and U35. No P1B mainProof or completion receipt is synthesized.",
+  "nonclaims": [
+    "No product edits and no implementation green result",
+    "No owner ruling",
+    "No archived schema rewrite",
+    "No new transport"
+  ]
+}
