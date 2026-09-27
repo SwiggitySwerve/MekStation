@@ -1,0 +1,19 @@
+{
+  "unit": "U98b",
+  "stage": "merge",
+  "at": "2026-09-27T19:08:48.122Z",
+  "pr": 2055,
+  "title": "test(multiplayer): assert U98 server time net of the recorded record rewrite",
+  "head": "fb97b890854a9ea5c62b2a817a30fe0302fe4150",
+  "mergeSha": "e8a21edb15475df2728a538c0d96869be72e4376",
+  "mergedAt": "2026-09-27T18:59:16Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test-helpers.ts",
+    "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}

@@ -1,0 +1,45 @@
+{
+  "unit": "U98b",
+  "stage": "mainProof",
+  "at": "2026-09-27T19:08:48.150Z",
+  "mergeCommit": "e8a21edb15475df2728a538c0d96869be72e4376",
+  "checkout": "owned wave-A worktree detached at the merge commit, with its private physical node_modules (no install run; no build is part of this test-only proof); the root checkout was not touched",
+  "correctedAtFold": "2026-09-27: checkout replaced the closure tool's fixed root-checkout text (FN-p1a-closure-fixed-receipt-text); the runtime fields come from --extra-runtime",
+  "runtime": {
+    "build": "not run: U98b changes two jest test files only and ships no runtime bytes; the plan QA names repeated jest processes, typecheck, lint, lint:units and format:check",
+    "e2eBundleMarker": "not applicable: no browser or production bundle is part of this unit's proof",
+    "playwright": "U98b exact-main jest ladder attempt 02: U98B PROOF RUNTIME PASSED: 15 passed (3 separate jest processes x 5 tests, 0 failed, exit 0)",
+    "tsc": "npm run typecheck exit 0 (attempt 02)",
+    "lint": "npm run lint exit 0: Found 84 warnings and 0 errors",
+    "lintUnits": "npm run lint:units exit 0: LINT_UNITS_PASS 17899/17899",
+    "formatCheck": "npm run format:check exit 0",
+    "focusedJest": "3 separate jest processes of campaignHostIntentServerTime.test.ts, 5/5 each; net serverTotal x0.92, x0.79, x0.70; recordRewrite at 1000 events 2.57, 2.15, 2.10 ms; largest long-log command net 5.1 ms",
+    "validatorGithub": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows (--github, exit 0)",
+    "attempts": "attempt 01 on this commit ran focused-1 and focused-2 green and failed focused-3 (U98 row, serverTotalWithoutRecordRewrite 4.37 -> 23.78 ms from a burst of ~30 ms stalls on the first three long-log commands in varied steps), before the gates; attempt 02 ran the full ladder green. Both ladders are preserved (attempt-01-exact-main-ladder.log, exact-main-ladder.log). The burst sensitivity is a separate defect recorded as FN-u98b-stall-burst-takes-six-sample-median and held by U98c; it is not claimed fixed here."
+  },
+  "commands": {
+    "validator": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows",
+    "gitAncestry": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows (--git)",
+    "next": "U98B_MAIN_RESULT validator-next 0",
+    "openspecStrict": "(no log)",
+    "qcOpenspecCi": "(no log)",
+    "qcPin": "(no log)"
+  },
+  "logs": ".omo/ulw-execute/u98b/main-proof-02-logs/ (local; sha256 below)",
+  "logHashes": [
+    "88fece6f7421b67582fd00cb4bcc235fcf1e1eb8415fb74ecc947f4803f92deb *attempt-01-exact-main-ladder.log",
+    "9a7619a7757b574ef013200ac038f0e30f16cfc1be39dd15c84dcd8a1d46252b *build.log",
+    "ac8d94a9169d22e95bd7265ccca05d8d781cb3b052dd579542f1ccea1ca583e7 *exact-main-ladder.log",
+    "25cd57fa030b5ee251c3655ab7858de48d3a145c2f9f0f06c7950cec69ba6e5d *format.log",
+    "8b2db2986a664454a70f1eb68b2205de6a0754f6a116d977e858fbcfcd8ec8f5 *git-check.log",
+    "35dddfb944c05370d84d61e59b6c6e35f20fe2ea89d9325ddfce3c1f81be9e94 *github.log",
+    "7ad0bc96d7d711644af0940ff0f1350644c3457003256fd446b487daef11b4e7 *jest.log",
+    "11c130426b4a4c427ad7596415f754f6cb76bd95c8d0737a7aa656b528fee031 *lint-units.log",
+    "a62f8e6383d6677dd93ae07e5348e03d631a9ab9d571337e570e446718aeb59f *lint.log",
+    "e5b27b58bbfae4b0d8128febfd43be3a1329a3c44e10a39cf38945b705620400 *next.log",
+    "a62f424b9c358c7c9ba1786b5d44ce5515fcc9dbf02b03b52849516c0f445b6f *playwright.log",
+    "53a01fffc688e30dd3377133d8ee2d60b56465d0f54a0c7d093930b63a56557a *tsc.log",
+    "8c6ef376e03a31872914da818917e2d1b7e0bd343a571f0f3b42b3cedcc244bc *validator.log"
+  ],
+  "verdict": "PASS"
+}

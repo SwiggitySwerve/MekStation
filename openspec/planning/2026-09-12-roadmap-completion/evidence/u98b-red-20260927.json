@@ -1,0 +1,12 @@
+{
+  "unit": "U98b",
+  "stage": "red",
+  "at": "2026-09-27T17:45:00.000Z",
+  "baseline": "0e4df62c8d69470f0cd123abfdc4ae27470fa6a6",
+  "summary": "Recorded red, not fabricated: on the ledger-only PR #2053 (CI run 36337191504, job 108670256369) U98's row failed with serverTotal 8.93 -> 19.39 ms (x2.17) while no code changed; six local runs on the same code measured serverTotal x1.13-1.58, recordRewrite x5-8 and serverTotal net of the rewrite x0.78-1.05 (evidence/u98b-diagnosis-20260927.json). Mutant M0 (the original serverTotal assertion with a 60 ms rewrite at the long size) fails the original U98 row, showing the coupling.",
+  "evidence": [
+    "evidence/u98b-diagnosis-20260927.json",
+    "CI run 36337191504 job 108670256369",
+    "worker log B-M0.log (preserved with the lane evidence)"
+  ]
+}

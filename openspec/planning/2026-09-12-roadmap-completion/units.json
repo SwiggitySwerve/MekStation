@@ -3684,6 +3684,82 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
+      "state": "complete",
+      "baseline": "0e4df62c8d69470f0cd123abfdc4ae27470fa6a6",
+      "prHead": "fb97b890854a9ea5c62b2a817a30fe0302fe4150",
+      "mergeSha": "e8a21edb15475df2728a538c0d96869be72e4376",
+      "stageReceipts": {
+        "admission": {
+          "path": "evidence/u98b-admission-20260927.json",
+          "baseline": "0e4df62c8d69470f0cd123abfdc4ae27470fa6a6",
+          "at": "2026-09-27T18:12:00.000Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u98b-red-20260927.json",
+          "at": "2026-09-27T17:45:00.000Z",
+          "summary": "Recorded red on the ledger-only PR #2053 (CI run 36337191504): U98 row serverTotal 8.93 -> 19.39 ms (x2.17); six local runs serverTotal x1.13-1.58 vs net of the rewrite x0.78-1.05; mutant M0 fails the original row on rewrite growth"
+        },
+        "local": {
+          "path": "evidence/u98b-local-20260927.json",
+          "at": "2026-09-27T18:58:00.000Z",
+          "summary": "2 test files +21/-2; 5 separate jest processes green; mutants M1 (grant growth) and M2 (rewrite over 50 ms) fail the intended rows, M0 fails the original; typecheck, lint (0 errors), lint:units 17899/17899, format clean; Lane A reproduced 3 runs and 2 mutants"
+        },
+        "review": {
+          "path": "evidence/u98b-review-20260927.json",
+          "head": "fb97b890854a9ea5c62b2a817a30fe0302fe4150",
+          "reviewedHead": "fb97b890854a9ea5c62b2a817a30fe0302fe4150",
+          "reviewerModel": "claude-fable-5-1",
+          "implementerModel": "gpt-5.6-sol-fast (deep-low task st_01a0e402)",
+          "outputSha256": "48befd9a1e925094a6de6ca8cd60ae2c5f6f4ba0b487f7b03ff478730f49f5e4",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u98b-merge-20260927.json",
+          "pr": 2055,
+          "head": "fb97b890854a9ea5c62b2a817a30fe0302fe4150",
+          "mergeSha": "e8a21edb15475df2728a538c0d96869be72e4376"
+        },
+        "mainProof": {
+          "path": "evidence/u98b-mainproof-20260927.json",
+          "mergeCommit": "e8a21edb15475df2728a538c0d96869be72e4376",
+          "verdict": "PASS",
+          "runtime": "U98B PROOF RUNTIME PASSED: 15 passed (3 separate jest processes x 5 tests, 0 failed, exit 0)"
+        },
+        "tick": {
+          "path": "evidence/u98b-tick-20260927.json",
+          "taskKeys": []
+        }
+      },
+      "ownerGate": null,
+      "admissionRequires": "Parent verifies the admission baseline and that only the two campaignHostIntentServerTime test files change. Red is the recorded timing evidence (the CI run and the six local runs in evidence/u98b-diagnosis-20260927.json), not a fabricated failure; green is at least five separate jest processes, plus test-local mutants showing the new rows still fail on real growth (a grant-wake delay fails the net row; a record-rewrite delay above 50 ms fails the ceiling row), restored with sha256 checked.",
+      "predecessors": [
+        "U98"
+      ],
+      "source20260927": {
+        "at": "2026-09-27T18:05:00.000Z",
+        "reason": "Discovered while closing P1A: the P1A closure fold's CI failed this pre-existing row; diagnosed with measurements, not treated as noise.",
+        "evidence": "evidence/u98b-diagnosis-20260927.json",
+        "planTask": "46"
+      }
+    },
+    {
+      "id": "U98c",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test-helpers.ts measures enough GM commands per log size that a short burst of transient stalls cannot carry a step's median: WARM_UP rises from 2 to 4 and MEASURED from 6 to 12 commands (SpendFunds and AdvanceDay alternating), so up to five stalled commands per size leave the median unchanged. U89's grows rule, its 2x/5 ms/50 ms thresholds, the sizes, the host PUT count and every asserted row stay as they are. Today a single burst of ~30 ms stalls on the first three measured 1000-event commands, each in a different step (appendCommandBatch, gate, healRead), moved U98's net serverTotal median from about 4.4 to 23.8 ms and failed one of thirteen exact-main runs of e8a21ed (FN-u98b-stall-burst-takes-six-sample-median); across 156 measured commands no other stall appeared.",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
       "state": "planned",
       "baseline": null,
       "prHead": null,
@@ -3698,15 +3774,15 @@
         "tick": null
       },
       "ownerGate": null,
-      "admissionRequires": "Parent verifies the admission baseline and that only the two campaignHostIntentServerTime test files change. Red is the recorded timing evidence (the CI run and the six local runs in evidence/u98b-diagnosis-20260927.json), not a fabricated failure; green is at least five separate jest processes, plus test-local mutants showing the new rows still fail on real growth (a grant-wake delay fails the net row; a record-rewrite delay above 50 ms fails the ceiling row), restored with sha256 checked.",
+      "admissionRequires": "Parent verifies the admission baseline and that only the two campaignHostIntentServerTime test files change. Red first with a test-local mutant: a ~30 ms stall injected into the first three measured 1000-event commands fails U98's row at today's six samples; green: the same mutant leaves every row green at twelve, while a size-scaled delay on every command still fails U98's row and a rewrite above 50 ms still fails the ceiling row; at least ten separate jest processes green on the head; restored with sha256 checked. Report the test's added wall time.",
       "predecessors": [
-        "U98"
+        "U98b"
       ],
       "source20260927": {
-        "at": "2026-09-27T18:05:00.000Z",
-        "reason": "Discovered while closing P1A: the P1A closure fold's CI failed this pre-existing row; diagnosed with measurements, not treated as noise.",
-        "evidence": "evidence/u98b-diagnosis-20260927.json",
-        "planTask": "46"
+        "at": "2026-09-27T19:40:00.000Z",
+        "reason": "Discovered at U98b's exact-main proof: attempt 01 failed its third process on a stall burst that U98b's rewrite correction does not address; ten more runs and attempt 02 were clean.",
+        "evidence": "evidence/u98b-mainproof-20260927.json (attempts) and evidence/u98b-logs-20260927.json (attempt-01-exact-main-ladder.log)",
+        "planTask": "48"
       }
     },
     {
@@ -12815,7 +12891,8 @@
       "summary": "U98's row asserts that serverTotal (GM frame to last timed step) does not grow, but serverTotal contains the whole-stream record rewrite recorded as growing (FN-u89-record-rewrite-folds-whole-stream). Six local runs: serverTotal x1.13-1.58, recordRewrite x5-8, net of the rewrite x0.78-1.05; CI crossed the 2x clause at x2.17 on a ledger-only PR. The row passes by dilution, not because serverTotal is flat.",
       "evidence": "evidence/u98b-diagnosis-20260927.json",
       "recommendedSuccessor": "U98b",
-      "status": "recorded; held by U98b"
+      "status": "resolved by U98b (merge e8a21edb15475df2728a538c0d96869be72e4376): the U98 row asserts serverTotal net of the rewrite and a separate row bounds the rewrite at 50 ms; the rewrite's own growth stays recorded under FN-u89-record-rewrite-folds-whole-stream",
+      "resolvedBy": "U98b"
     },
     {
       "id": "FN-p1a-ledger-tools-exit-0-on-validator-failure",
@@ -12834,6 +12911,16 @@
       "summary": "The closure writes fixed text into every review and mainProof receipt: the Lane A reviewer 're-ran tsc/oxlint/oxfmt/jest', Lane B 'not required (review classes: routine)', checkout 'root checkout fast-forwarded to the merge commit', and '__E2E_MODE__ present in _app chunk'. For P1A all four were false (a sensitive unit with an owner ruling, a hash-and-probe reviewer, an owned detached worktree, a production proof) and were corrected by hand at the fold (correctedAtFold fields).",
       "recommendedSuccessor": "U17c",
       "status": "recorded; held by U17c"
+    },
+    {
+      "id": "FN-u98b-stall-burst-takes-six-sample-median",
+      "foundBy": "parent at U98b's exact-main proof, 2026-09-27 (attempt 01 on e8a21ed, third process)",
+      "at": "2026-09-27T19:10:00.000Z",
+      "class": "timing-dependent assertion",
+      "summary": "In one of thirteen exact-main runs of campaignHostIntentServerTime.test.ts, the first three measured 1000-event commands stalled ~30 ms each in different steps (appendCommandBatch 34 ms; gate 31 ms with append 41 ms and replica ingest 17 ms; healRead 31 ms), and U98's net serverTotal median rose from about 4.4 to 23.8 ms because each size measures only six commands. The other 153 measured commands had no stall over 15 ms. A burst of three can carry a six-sample median.",
+      "evidence": "evidence/u98b-logs-20260927.json (attempt-01-exact-main-ladder.log) and evidence/u98b-mainproof-20260927.json",
+      "recommendedSuccessor": "U98c",
+      "status": "recorded; held by U98c"
     }
   ]
 }
