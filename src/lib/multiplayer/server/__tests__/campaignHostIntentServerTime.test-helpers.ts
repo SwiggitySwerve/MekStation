@@ -353,6 +353,8 @@ export async function command(
       (current.steps.recordRewrite ?? 0),
     deliverToGuest: (delivered[0]?.at ?? Number.NaN) - t0,
     serverTotal: current.lastEnd - t0,
+    serverTotalWithoutRecordRewrite:
+      current.lastEnd - t0 - (current.steps.recordRewrite ?? 0),
     refused: refused ? 1 : 0,
   };
   current = null;
