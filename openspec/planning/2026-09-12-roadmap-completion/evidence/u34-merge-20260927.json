@@ -1,0 +1,18 @@
+{
+  "unit": "U34",
+  "stage": "merge",
+  "at": "2026-09-27T01:52:27.840Z",
+  "pr": 2043,
+  "title": "docs(openspec): U34 acceptance reconciliation table rebuilt from exact main (80 rows, four classes)",
+  "head": "02e27cef7017ec62b281d9bac71f465ebd101472",
+  "mergeSha": "2feeb7c5042a4141242e0fd85ab991814d945c9c",
+  "mergedAt": "2026-09-27T01:43:41Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/notepad.md"
+  ],
+  "blobEqualityDiffLines": 0
+}
