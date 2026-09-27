@@ -59,6 +59,8 @@ export interface IMatchCommandBatch {
    * author intended, rather than confirming itself.
    */
   readonly expectedPostStateDigest?: string | null;
+  /** The journal-authority host path requires mirror failures to fail closed. */
+  readonly journalAuthorityCommand?: true;
   /** First journal-authority command only; a second write fails. */
   readonly journalAuthorityStarted?: IMatchJournalAuthorityStarted;
   /** Terminal journal-authority command only; a second write fails. */
