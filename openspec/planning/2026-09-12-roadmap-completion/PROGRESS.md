@@ -1,3 +1,9 @@
+## 2026-09-27 P1A local verification (parent)
+
+P1A is locally verified at corrected product candidate `a6eed9ddbcbf25373fb3873e2f3f1a3bbd83cf6a`, based on `9f0d401dfdcbc832f48f678733b790d4566d271c`. The [local receipt](evidence/p1a-local-20260927.json) binds 14 source/test files to 131 passing focused tests and the CI shard (459 suites, 5,962 passed, zero failed, three pre-existing platform/asset skips). The earlier 47-case real-HTTP proof and production build cover unchanged runtime bytes. Product additions are 473 lines; test additions are 1,003 lines. The first CI failure and its stricter native-error assertion fix remain recorded.
+
+The corrected head has an independent exact-head APPROVE and 31 successful CI checks on [PR #2051](https://github.com/SwiggitySwerve/MekStation/pull/2051). Owner-originated ruling evidence and the packet decision are not yet verified; guarded merge, exact-main proof and closure remain required. P1B/P1C, server AI, browser launch proof and U38 ownership enforcement remain separate unfinished work. No task row is ticked by this local checkpoint. Historical checkpoints below are unchanged.
+
 ## 2026-09-22 terminal checkpoint (parent)
 
 origin/main 28d5b7d7b. `validate-roadmap.mjs --next` prints NONE-ADMISSIBLE (0 owner-gated, 3 blocked) with the validator PASSED: the loop's terminal state per GOAL.md. Since the loop checkpoint earlier today: U12b merged (#1885, 5917a6425; closure #1889; the parked U12 draft #1809 closed), U2b resumed (#1882) and re-parked on draft #1886 head cbb0e214e (#1887, packet shape repaired #1888) with E2E-19 green and E2E-25 refused at the candidate anchor, U2c planned (#1887), folded (#1890), merged on the owner's ruling (#1891, a28cda806; OWNER-RULING comment 5778168930) and closed (#1892): the privacy pack now runs armed, E2E-19 proven on main, E2E-25 authored verbatim and gated @until-journal-cutover.
