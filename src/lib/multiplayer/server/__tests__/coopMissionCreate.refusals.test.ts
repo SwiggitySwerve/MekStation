@@ -89,7 +89,11 @@ describe('co-op mission create refusals leave durable state unchanged', () => {
         BEFORE UPDATE OF status ON mp_matches
         WHEN NEW.status = 'completed'
         BEGIN SELECT RAISE(ABORT, 'p1a-close-write-failure'); END`);
-      await expect(closed.closeMatch()).rejects.toThrow();
+      // Native SQLite errors can originate in another Jest realm.
+      await expect(closed.closeMatch()).rejects.toMatchObject({
+        message: 'p1a-close-write-failure',
+        code: 'SQLITE_CONSTRAINT_TRIGGER',
+      });
       expect(closed.isClosed()).toBe(true);
       expect((await fixture.store.getMatchMeta(created.matchId)).status).toBe(
         'active',
