@@ -1,0 +1,252 @@
+{
+  "unit": "U98b",
+  "stage": "registration-evidence",
+  "at": "2026-09-27T17:45:00.000Z",
+  "failingTest": "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test.ts :: U89 campaign host-intent server time by step and log size > the grant wake and the replica ingest do not grow with the log",
+  "ci": {
+    "pr": 2053,
+    "prScope": "8 ledger/evidence files, no code",
+    "run": 36337191504,
+    "job": 108670256369,
+    "headSha": "56c12fa32c89b28025753419090ef74a11957805",
+    "observed": {
+      "step": "serverTotal",
+      "short": 8.930849500000477,
+      "long": 19.38573950000864,
+      "ratio": 2.17,
+      "rule": "grows iff (long > 2 x short AND long > 5 ms) OR long > 50 ms"
+    },
+    "rerun": "failed jobs rerun after investigation; 31/31 SUCCESS"
+  },
+  "localRepeat": {
+    "head": "56c12fa32c89b28025753419090ef74a11957805",
+    "productIdenticalTo": "d0347e7e6a236055a8af59c610cf6fb3ff650d35",
+    "runs": 6,
+    "failures": 0,
+    "method": "separate jest processes, Node 22.22.0, processor affinity 3, machine-idle waited, no hold file; U35E_ROWS_DIR medians",
+    "medians": [
+      {
+        "run": "u89-server-time-repeat-1.json",
+        "serverTotal": [
+          5.2082000000000335,
+          6.0279499999996915
+        ],
+        "recordRewrite": [
+          0.3605499999998756,
+          1.8462999999992462
+        ],
+        "appendWithoutRecordRewrite": [
+          1.3551500000003216,
+          0.8974499999994805
+        ],
+        "serverTotalNetOfRewrite": [
+          4.847650000000158,
+          4.181650000000445
+        ],
+        "grantHostLogRead": [
+          0.2156499999996413,
+          0.18570000000090658
+        ],
+        "grantReadStream": [
+          0.24069999999983338,
+          0.2065999999995256
+        ],
+        "grantAssignSequences": [
+          0.13995000000022628,
+          0.160649999999805
+        ],
+        "replicaIngest": [
+          1.080000000000382,
+          0.936399999999594
+        ]
+      },
+      {
+        "run": "u89-server-time-repeat-2.json",
+        "serverTotal": [
+          5.245649999999841,
+          6.374450000000252
+        ],
+        "recordRewrite": [
+          0.3902000000002772,
+          2.388999999999669
+        ],
+        "appendWithoutRecordRewrite": [
+          1.1831999999994878,
+          0.9785500000002685
+        ],
+        "serverTotalNetOfRewrite": [
+          4.855449999999564,
+          3.985450000000583
+        ],
+        "grantHostLogRead": [
+          0.2580000000002656,
+          0.21575000000029831
+        ],
+        "grantReadStream": [
+          0.29260000000022046,
+          0.23755000000028303
+        ],
+        "grantAssignSequences": [
+          0.15659999999979846,
+          0.15655000000015207
+        ],
+        "replicaIngest": [
+          1.3225500000003194,
+          1.1435499999997774
+        ]
+      },
+      {
+        "run": "u89-server-time-repeat-3.json",
+        "serverTotal": [
+          5.303899999999885,
+          5.972150000000511
+        ],
+        "recordRewrite": [
+          0.39520000000038635,
+          2.148599999999533
+        ],
+        "appendWithoutRecordRewrite": [
+          1.1867000000002008,
+          0.9120500000003631
+        ],
+        "serverTotalNetOfRewrite": [
+          4.908699999999499,
+          3.823550000000978
+        ],
+        "grantHostLogRead": [
+          0.2796000000003005,
+          0.21529999999984284
+        ],
+        "grantReadStream": [
+          0.33109999999942374,
+          0.23615000000017972
+        ],
+        "grantAssignSequences": [
+          0.1584499999999025,
+          0.16629999999986467
+        ],
+        "replicaIngest": [
+          1.2635999999997694,
+          1.0647500000000036
+        ]
+      },
+      {
+        "run": "u89-server-time-repeat-4.json",
+        "serverTotal": [
+          4.366050000000541,
+          6.902149999999892
+        ],
+        "recordRewrite": [
+          0.33609999999998763,
+          2.6610500000001593
+        ],
+        "appendWithoutRecordRewrite": [
+          1.076600000000326,
+          1.0517500000000837
+        ],
+        "serverTotalNetOfRewrite": [
+          4.029950000000554,
+          4.241099999999733
+        ],
+        "grantHostLogRead": [
+          0.24839999999994689,
+          0.22525000000041473
+        ],
+        "grantReadStream": [
+          0.27400000000034197,
+          0.2503500000002532
+        ],
+        "grantAssignSequences": [
+          0.13980000000037762,
+          0.15184999999974025
+        ],
+        "replicaIngest": [
+          1.0447500000000218,
+          1.2387999999996282
+        ]
+      },
+      {
+        "run": "u89-server-time-repeat-5.json",
+        "serverTotal": [
+          5.8156999999996515,
+          7.594349999999849
+        ],
+        "recordRewrite": [
+          0.5279500000001462,
+          2.5938499999997475
+        ],
+        "appendWithoutRecordRewrite": [
+          1.3071499999996377,
+          1.1995500000002721
+        ],
+        "serverTotalNetOfRewrite": [
+          5.287749999999505,
+          5.000500000000102
+        ],
+        "grantHostLogRead": [
+          0.2490499999998974,
+          0.2316000000000713
+        ],
+        "grantReadStream": [
+          0.2786999999998443,
+          0.25815000000011423
+        ],
+        "grantAssignSequences": [
+          0.17800000000033833,
+          0.15815000000020518
+        ],
+        "replicaIngest": [
+          1.2755000000001928,
+          1.29300000000012
+        ]
+      },
+      {
+        "run": "u89-server-time-repeat-6.json",
+        "serverTotal": [
+          4.899799999999914,
+          6.2253499999997075
+        ],
+        "recordRewrite": [
+          0.32085000000006403,
+          2.397950000000037
+        ],
+        "appendWithoutRecordRewrite": [
+          1.0588000000002467,
+          1.0350499999999556
+        ],
+        "serverTotalNetOfRewrite": [
+          4.57894999999985,
+          3.8273999999996704
+        ],
+        "grantHostLogRead": [
+          0.26385000000027503,
+          0.22824999999966167
+        ],
+        "grantReadStream": [
+          0.29359999999996944,
+          0.2536000000000058
+        ],
+        "grantAssignSequences": [
+          0.14915000000019063,
+          0.1775500000003376
+        ],
+        "replicaIngest": [
+          1.0676499999999578,
+          1.0656499999995503
+        ]
+      }
+    ]
+  },
+  "history": {
+    "failedRunsScanned": 40,
+    "since": "2026-09-23T14:08:12Z",
+    "earlierFailuresOfThisTest": 0
+  },
+  "cause": "serverTotal includes recordRewrite (rewriteCampaignRecordAfterCommand folds the whole campaign stream; recorded finding FN-u89-record-rewrite-folds-whole-stream, left in place by U98 admission q3). recordRewrite grows x5-8 from 50 to 1000 events in every local run while appendWithoutRecordRewrite and every grant/replica step stay flat, so serverTotal grows x1.13-1.58 locally and crossed the 2x clause at x2.17 on the CI runner. The assertion passes by dilution/timing, not because serverTotal is flat.",
+  "rule": "grows iff (median(1000) > 2 x median(50) AND median(1000) > 5 ms) OR median(1000) > 50 ms (U89 revision 2; unchanged by U98b)",
+  "relatedFindings": [
+    "FN-u89-record-rewrite-folds-whole-stream",
+    "FN-u98-record-rewrite-flat-by-floor",
+    "FN-u98b-servertotal-row-includes-growing-rewrite"
+  ]
+}
