@@ -1,0 +1,294 @@
+{
+  "unit": "U94",
+  "stage": "red",
+  "at": "2026-09-27T01:21:21.862Z",
+  "baseline": "f85a9f8a565f01abaf7ba4507103102052351bd8",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u94",
+  "branch": "roadmap-u94-resync-tail-baseline-law-20260927",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "admissionReceipt": "evidence/u94-admission-20260927.json",
+  "productFilesChanged": "none (git status --short: M src/lib/multiplayer/server/__tests__/campaignBaselineViewerProjection.test.ts, ?? the admission receipt; git diff --quiet outside __tests__ held)",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "test": {
+    "file": "src/lib/multiplayer/server/__tests__/campaignBaselineViewerProjection.test.ts",
+    "sha256": "51e1f95d02e63571fea06cd4102562b3fa826a97ece3e32f9776ee37db24842b",
+    "fixture": "rows added in a new describe block of the existing file; openSession takes an optional ICampaignEventStore (default InMemoryCampaignEventStore, so the nine existing rows are unchanged) and the U94 rows pass a JournalCampaignEventStore over a real SQLite temp file (getSQLiteService + SQLiteEventJournal, the campaignHostLostRace.test.ts setup)",
+    "checkpointWrite": "appendCampaignCommandBatch(journal, { commandId: 'campaign-checkpoint:<id>:<seq>', events: [a system-authored, scope campaign CampaignSnapshotPublished with payload { state, revision: seq }], expectedPostStateDigest, principal { actorKind system, actorId campaign-record-checkpoint, authorityType campaign-source } }), the journal batch shape saveCampaignRecordThroughJournal appends (campaignSourceGenesis.ts:233-257 via toJournalBatch). The state is host.getState() (which folded the gm-scoped hire pilot-gm-only) plus a planted gm-only pilot pilot-leak-check.",
+    "command": "U94_FRAMES_OUT=<lane-temp>/frames-red.json npx jest src/lib/multiplayer/server/__tests__/campaignBaselineViewerProjection.test.ts",
+    "exitCode": 1,
+    "testsLine": "Tests:       5 failed, 12 passed, 17 total",
+    "suitesLine": "Test Suites: 1 failed, 1 total",
+    "log": {
+      "path": "<lane-temp>/red-jest.log",
+      "sha256": "a2c5dbe744521189c96a43683ab577b752875495dd747ef6b2de851183f7a426"
+    },
+    "frames": {
+      "path": "<lane-temp>/frames-red.json",
+      "sha256": "47c8a3f18e51065824567202aad4d46e73a5a43c49798a271a70e47147b1fb8e"
+    }
+  },
+  "existingRows": "the nine existing rows (join, large-gap, rebuilt-session join, GM baseline) passed on the baseline in the same run",
+  "rows": {
+    "R1": {
+      "name": "(R1) a restricted player resyncing a small gap does not receive a checkpoint committed after a gm-scoped fact",
+      "setup": "player-one joined (joinMember, live-attached); gm-scoped PilotHired pilot-gm-only committed (seq 1, the latch); checkpoint appended directly to the journal (seq 2, U58 Lane A probe, never enters publish); campaign FundsChanged 450000 committed (seq 3); player disconnects; resyncGuest(lastSeq = join revision 0, player-one): gap 3 <= 50, small-gap tail",
+      "result": "FAILED on the baseline (the row asserts absence)",
+      "observed": "live sink: the -1 join baseline (no pilots) and FundsChanged seq 3; no checkpoint (the journal write does not reach publish, as U58 Lane A measured). resync tail: CampaignSnapshotPublished seq 2, author system, pilots [pilot-gm-only, pilot-leak-check], then FundsChanged seq 3. Failure: expect(checkpointsIn(tail)).toHaveLength(0), received length 1 (the raw checkpoint with both pilots)."
+    },
+    "R1b": {
+      "name": "(R1b) the latch comes from the log before lastSeq when the tail starts after the withheld fact",
+      "setup": "hire seq 1 (gm), checkpoint seq 2 (direct journal append), FundsChanged seq 3; resyncGuest(lastSeq = 1, player-one)",
+      "result": "FAILED on the baseline",
+      "observed": "tail: CampaignSnapshotPublished seq 2 pilots [pilot-gm-only, pilot-leak-check], FundsChanged seq 3"
+    },
+    "R2": {
+      "name": "(R2) the GM resyncing the same small gap receives the checkpoint",
+      "result": "PASSED on the baseline (expected: the GM is admitted to every scope)",
+      "observed": "tail: PilotHired seq 1 (gm), CampaignSnapshotPublished seq 2 pilots [pilot-gm-only, pilot-leak-check]"
+    },
+    "R4": {
+      "name": "(R4) a restricted player with nothing withheld before the checkpoint receives it through the tail",
+      "result": "PASSED on the baseline (expected: the law admits it, latch unset)",
+      "observed": "tail: FundsChanged seq 1 (campaign), CampaignSnapshotPublished seq 2 pilots [pilot-leak-check]"
+    },
+    "R5": {
+      "name": "(R5) a session rebuilt over the surviving journal withholds the same checkpoint",
+      "setup": "hire seq 1, checkpoint seq 2, hostDisconnected; a new host (initialState = the old host state, which carries pilot-gm-only) and session over a new JournalCampaignEventStore on the same SQLite database, open(roomCode); resyncGuest(0, player-one)",
+      "result": "FAILED on the baseline",
+      "observed": "tail: CampaignSnapshotPublished seq 2 pilots [pilot-gm-only, pilot-leak-check]"
+    },
+    "R3": {
+      "name": "(R3) the live host adopting the save does not fan the checkpoint out to a joined restricted player after a withheld fact; the GM receives it",
+      "setup": "player-one and the GM joined (joinMember); hire seq 1 (gm); host.adoptSavedCheckpoint(() => append the checkpoint) (U96, the PUT route publisher, [id].ts:290) publishes seq 2; FundsChanged seq 3 committed",
+      "result": "FAILED on the baseline (live fan-out reached by a production publisher)",
+      "observed": "player-one live: -1 baseline (no pilots), CampaignSnapshotPublished seq 2 pilots [pilot-gm-only, pilot-leak-check], FundsChanged seq 3. gm live: -1 baseline, PilotHired seq 1, CampaignSnapshotPublished seq 2 pilots [pilot-gm-only, pilot-leak-check], FundsChanged seq 3."
+    },
+    "R3b": {
+      "name": "(R3b) a sink attached after the withheld fact takes its latch from the log at attach",
+      "setup": "hire seq 1 (gm) committed BEFORE player-one attaches through session.attachLiveParticipant (the handleRoomCodeGuestJoin.ts:208 path); adoptSavedCheckpoint publishes seq 2; FundsChanged seq 3",
+      "result": "FAILED on the baseline",
+      "observed": "player-one live: CampaignSnapshotPublished seq 2 pilots [pilot-gm-only, pilot-leak-check], FundsChanged seq 3"
+    },
+    "R3c": {
+      "name": "(R3c) a live restricted sink with nothing withheld before the checkpoint receives it",
+      "result": "PASSED on the baseline (expected: latch unset)",
+      "observed": "player-one live: CampaignSnapshotPublished seq 1 pilots [pilot-leak-check]"
+    }
+  },
+  "liveFanOutAnswer": "admission q2: a production publisher (adoptSavedCheckpoint, CampaignMatchHost.ts:390, driven by the PUT route [id].ts:290) reaches a restricted live sink; R3 and R3b measure it red on the baseline, so the fan-out is guarded in stage 3, not a no-op.",
+  "framesObserved": {
+    "R1": {
+      "player-one live": [
+        {
+          "type": "CampaignSnapshotPublished",
+          "sequence": -1,
+          "scope": "campaign",
+          "authorPlayerId": "gm-player",
+          "pilots": []
+        },
+        {
+          "type": "FundsChanged",
+          "sequence": 3,
+          "scope": "campaign",
+          "authorPlayerId": "gm-player",
+          "balance": 450000
+        }
+      ],
+      "player-one resync tail": [
+        {
+          "type": "CampaignSnapshotPublished",
+          "sequence": 2,
+          "scope": "campaign",
+          "authorPlayerId": "system",
+          "pilots": [
+            "pilot-gm-only",
+            "pilot-leak-check"
+          ]
+        },
+        {
+          "type": "FundsChanged",
+          "sequence": 3,
+          "scope": "campaign",
+          "authorPlayerId": "gm-player",
+          "balance": 450000
+        }
+      ]
+    },
+    "R1b": {
+      "player-one resync tail": [
+        {
+          "type": "CampaignSnapshotPublished",
+          "sequence": 2,
+          "scope": "campaign",
+          "authorPlayerId": "system",
+          "pilots": [
+            "pilot-gm-only",
+            "pilot-leak-check"
+          ]
+        },
+        {
+          "type": "FundsChanged",
+          "sequence": 3,
+          "scope": "campaign",
+          "authorPlayerId": "gm-player",
+          "balance": 450000
+        }
+      ]
+    },
+    "R2": {
+      "gm resync tail": [
+        {
+          "type": "PilotHired",
+          "sequence": 1,
+          "scope": "gm",
+          "authorPlayerId": "gm-player"
+        },
+        {
+          "type": "CampaignSnapshotPublished",
+          "sequence": 2,
+          "scope": "campaign",
+          "authorPlayerId": "system",
+          "pilots": [
+            "pilot-gm-only",
+            "pilot-leak-check"
+          ]
+        }
+      ]
+    },
+    "R4": {
+      "player-one resync tail": [
+        {
+          "type": "FundsChanged",
+          "sequence": 1,
+          "scope": "campaign",
+          "authorPlayerId": "gm-player",
+          "balance": 450000
+        },
+        {
+          "type": "CampaignSnapshotPublished",
+          "sequence": 2,
+          "scope": "campaign",
+          "authorPlayerId": "system",
+          "pilots": [
+            "pilot-leak-check"
+          ]
+        }
+      ]
+    },
+    "R5": {
+      "player-one resync tail (rebuilt session)": [
+        {
+          "type": "CampaignSnapshotPublished",
+          "sequence": 2,
+          "scope": "campaign",
+          "authorPlayerId": "system",
+          "pilots": [
+            "pilot-gm-only",
+            "pilot-leak-check"
+          ]
+        }
+      ]
+    },
+    "R3": {
+      "player-one live": [
+        {
+          "type": "CampaignSnapshotPublished",
+          "sequence": -1,
+          "scope": "campaign",
+          "authorPlayerId": "gm-player",
+          "pilots": []
+        },
+        {
+          "type": "CampaignSnapshotPublished",
+          "sequence": 2,
+          "scope": "campaign",
+          "authorPlayerId": "system",
+          "pilots": [
+            "pilot-gm-only",
+            "pilot-leak-check"
+          ]
+        },
+        {
+          "type": "FundsChanged",
+          "sequence": 3,
+          "scope": "campaign",
+          "authorPlayerId": "gm-player",
+          "balance": 450000
+        }
+      ],
+      "gm live": [
+        {
+          "type": "CampaignSnapshotPublished",
+          "sequence": -1,
+          "scope": "campaign",
+          "authorPlayerId": "gm-player",
+          "pilots": []
+        },
+        {
+          "type": "PilotHired",
+          "sequence": 1,
+          "scope": "gm",
+          "authorPlayerId": "gm-player"
+        },
+        {
+          "type": "CampaignSnapshotPublished",
+          "sequence": 2,
+          "scope": "campaign",
+          "authorPlayerId": "system",
+          "pilots": [
+            "pilot-gm-only",
+            "pilot-leak-check"
+          ]
+        },
+        {
+          "type": "FundsChanged",
+          "sequence": 3,
+          "scope": "campaign",
+          "authorPlayerId": "gm-player",
+          "balance": 450000
+        }
+      ]
+    },
+    "R3b": {
+      "player-one live (attached after the hire)": [
+        {
+          "type": "CampaignSnapshotPublished",
+          "sequence": 2,
+          "scope": "campaign",
+          "authorPlayerId": "system",
+          "pilots": [
+            "pilot-gm-only",
+            "pilot-leak-check"
+          ]
+        },
+        {
+          "type": "FundsChanged",
+          "sequence": 3,
+          "scope": "campaign",
+          "authorPlayerId": "gm-player",
+          "balance": 450000
+        }
+      ]
+    },
+    "R3c": {
+      "player-one live": [
+        {
+          "type": "CampaignSnapshotPublished",
+          "sequence": 1,
+          "scope": "campaign",
+          "authorPlayerId": "system",
+          "pilots": [
+            "pilot-leak-check"
+          ]
+        }
+      ]
+    }
+  },
+  "nonClaims": [
+    "the checkpoint is appended with appendCampaignCommandBatch (the same toJournalBatch shape), not by calling saveCampaignRecordThroughJournal itself, which needs a campaigns row and a SerializedCampaign record; the PUT route itself is exercised by the out-of-path src/__tests__/api/campaigns/campaignPutLiveHost.test.ts (U96).",
+    "the gm-scoped fact is committed through the host test seam _commitEventsForTests, as the existing rows do; no production producer of a gm-scoped campaign fact was driven."
+  ]
+}

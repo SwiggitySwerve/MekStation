@@ -1,0 +1,137 @@
+{
+  "unit": "U94",
+  "stage": "admission",
+  "status": "admitted",
+  "at": "2026-09-27T01:18:15.232Z",
+  "baseline": "f85a9f8a565f01abaf7ba4507103102052351bd8",
+  "originMainLsRemote": "f85a9f8a565f01abaf7ba4507103102052351bd8 refs/heads/main (git ls-remote origin refs/heads/main)",
+  "baselineEqualsOriginMain": true,
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u94",
+  "branch": "roadmap-u94-resync-tail-baseline-law-20260927",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "node": "R2.authority-live",
+  "ownershipPaths": [
+    "src/lib/multiplayer/server"
+  ],
+  "reviewClasses": [
+    "privacy"
+  ],
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500
+  },
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "gates": {
+    "guardNodeModulesLink": {
+      "command": "npm run --silent qc:guard-node-modules-link",
+      "exitCode": 1,
+      "output": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"<worktree>\\node_modules\",\"actualPath\":\"<repo-root>\\node_modules\"}",
+      "note": "refuses by design in a junctioned worktree; no install/ci/prune was run"
+    },
+    "next": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+      "exitCode": 0,
+      "output": "U94"
+    },
+    "validator": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows"
+    },
+    "parentProofHold": "absent at admission (ls: No such file or directory)"
+  },
+  "spec": {
+    "governing": "openspec/specs/gm-authority-redaction/spec.md:93-104 (Authorized Viewer Projection Precedes Serialization: every live, replay, snapshot and recovery payload is produced from a viewer context; raw journal rows stay inside the server; projection failure sends no raw fallback)",
+    "tailClauses": "openspec/specs/coop-campaign-sync/spec.md:144-149 (Guest resync streams only the missing tail: only events with sequence > lastSeq; the mirror converges with no missing or duplicated events) and :151-156 (Large-gap resync receives a fresh snapshot). Neither names the baseline author law or the latch; the tail clause says the mirror converges, which a withheld checkpoint makes untrue for a restricted viewer (their mirror lags the checkpoint by design).",
+    "specDeltaCandidate": "FN-u58-baseline-author-law-not-in-spec: the author law and the latch are owner-decision only (OD-umbrella-12-1-slice). This unit extends that law to the legacy tail and live fan-out; recorded as a spec-delta candidate for UAT round 2 triage (OD-uat-two-rounds sub-decision 9), together with the coop-campaign-sync :148 convergence wording for a restricted viewer. No spec is written by this unit."
+  },
+  "seams": {
+    "admitToWire": "src/lib/multiplayer/server/CampaignSyncSession.ts:358-366 (scope-only campaignScopeAdmits per recipient; no baseline law)",
+    "attachLiveParticipant": "src/lib/multiplayer/server/CampaignSyncSession.ts:385-423 (host.subscribe with the admitToWire sink; noteDelivered for every frame, withheld or not, :396)",
+    "joinMemberBaseline": "src/lib/multiplayer/server/CampaignSyncSession.ts:488 (buildBaselineEvent, projected); the join tail :497-505 goes through the scope-only sink",
+    "resyncGuest": "src/lib/multiplayer/server/CampaignSyncSession.ts:556-604; large gap :575-591 (buildBaselineEvent at :578); small-gap tail :593-603 (getCampaignEvents(lastSeq + 1) through the scope-only sink, noteDelivered :599)",
+    "buildBaselineEvent": "src/lib/multiplayer/server/CampaignSyncSession.ts:825-853 (reads the log from 0 and folds projectCampaignForViewer)",
+    "law": "src/lib/campaign/sync/campaignViewerProjection.ts:95-103 (campaignBaselineReachesViewer) and :118-141 (campaignViewerVisibleEvents; the latch set by the first absent fact or refused baseline) - read-only, called not changed",
+    "grantArm": "src/lib/campaign/delivery/projectCampaignStreamForGrant.ts:291-316 (the grant arm carries withheld across pages and calls campaignBaselineReachesViewer at :312)",
+    "publish": "src/lib/multiplayer/server/CampaignMatchHost.ts:534-536 (private publish: forEach subscriber)",
+    "adoptSavedCheckpoint": "src/lib/multiplayer/server/CampaignMatchHost.ts:383-393 (U96: runs save, reads the appended events, folds and publishes each at :390)",
+    "putRoute": "src/pages/api/campaigns/[id].ts:274 (saveCampaignRecordThroughJournal) and :290 (live.host.adoptSavedCheckpoint(save) when a live host holds the campaign)",
+    "checkpointProducer": "src/lib/campaign/authority/campaignRecordJournalSave.ts:71-146 (appendPreparedWithExtension with toJournalBatch(campaignSnapshotCommand)); the event is built at src/lib/campaign/authority/campaignSourceGenesis.ts:233-244 (authorPlayerId system, scope campaign, full state)",
+    "roomCodeLiveAttach": "src/lib/multiplayer/server/handleRoomCodeGuestJoin.ts:208 (a restricted room-code guest attaches through attachLiveParticipant)",
+    "socketResync": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts:1131-1137 (resyncGuest sink = sendCampaignEvent; resync.delivered is not serialized)"
+  },
+  "publishCallers": [
+    {
+      "caller": "campaignHostBatchCommit.ts:125 commitCampaignEventsInSequence (non-batch store) via CampaignMatchHost.commitEvents",
+      "doors": "openLocked (CampaignMatchHost.doors.ts:86-107), handleIntentLocked (:109, via commitValidated :67-73), applyHostIntentLocked (:155), creditSalvagePoolLocked (:181-195), applyRosterUnitChangeLocked (:213-229), _commitEventsForTests (CampaignMatchHost.ts:481, test seam)",
+      "fullStateSnapshot": "only openLocked: the seq-0 genesis snapshot (doors.ts:95-106), committed only when nextSequence() === 0, before any sink can join (joinMember refuses until opened); nothing precedes it, so every latch is unset and the law admits it. Every other door commits validateCampaignIntent output (0 occurrences of CampaignSnapshotPublished in CampaignMatchHostIntent.ts), SalvageAllocated or RosterUnitChanged.",
+      "reachesRestrictedSink": "no full-state snapshot after a withheld fact"
+    },
+    {
+      "caller": "campaignHostBatchCommit.ts:227 commitCampaignEventBatch (journal store) via CampaignMatchHost.commitEvents",
+      "doors": "the same doors as above",
+      "fullStateSnapshot": "the same: only the seq-0 genesis",
+      "reachesRestrictedSink": "no full-state snapshot after a withheld fact"
+    },
+    {
+      "caller": "CampaignMatchHostOutcomeInbox.ts:120 commitCampaignOutcomeConsequences via CampaignMatchHost.commitCombatOutcomeConsequences (:300)",
+      "doors": "the combat outcome inbox",
+      "fullStateSnapshot": "none (derived consequences through validateCampaignIntent; 0 occurrences of CampaignSnapshotPublished in the file)",
+      "reachesRestrictedSink": "no"
+    },
+    {
+      "caller": "CampaignMatchHost.ts:390 adoptSavedCheckpoint (U96)",
+      "doors": "the PUT item route src/pages/api/campaigns/[id].ts:290 when a live host holds the campaign",
+      "fullStateSnapshot": "YES: the system-authored full-state CampaignSnapshotPublished checkpoint saveCampaignRecordThroughJournal appends",
+      "reachesRestrictedSink": "YES: every subscriber registered through attachLiveParticipant (joinMember :534, resyncGuest :584/:602, handleRoomCodeGuestJoin.ts:208) receives it through the scope-only admitToWire; the checkpoint is scope campaign, so a restricted player with a withheld gm-scoped fact before it receives the raw full state live"
+    }
+  ],
+  "designAnswers": {
+    "q1_smallGapTail": "Picked: one per-recipient wire gate (scope check, then campaignBaselineReachesViewer with a latch) used by the small-gap tail AND the live fan-out, its latch seeded from the log through the shared campaignViewerVisibleEvents. The session reads the log from 0 once (buildBaselineEvent already does for the join and the large gap); the latch before a frame of sequence s is \"campaignViewerVisibleEvents(events with sequence < s) dropped something\" (that function drops a fact only when it sets its latch, so visible.length < prior.length IS its latch), OR-ed with any frame the gate itself withheld. The tail frames (sequence > lastSeq) then step through the gate in order. The alternative (campaignViewerVisibleEvents over the whole log, deliver the visible events with sequence > lastSeq) is equally small for the tail alone, but the live fan-out needs an incremental per-sink latch anyway (q2), so one gate for tail and live is the smaller total and keeps one stepping rule for both; the seed still comes from the U58 function, not a second copy of the history walk. noteDelivered still advances for a withheld frame (the recorded 11.1 trade-off), stated in the comment.",
+    "q2_liveFanOut": "Needed. adoptSavedCheckpoint (CampaignMatchHost.ts:383-393, U96) publishes the PUT route's full-state checkpoint (src/pages/api/campaigns/[id].ts:290) to every live sink, and attachLiveParticipant (CampaignSyncSession.ts:385) admits it by scope alone. The unit implements the per-sink latch: joinMember and resyncGuest hand their live subscription the same gate their tail used (the latch carries on from the history they already read); the public attachLiveParticipant (handleRoomCodeGuestJoin.ts:208) subscribes first, starts one log read and seeds the gate from it; a full-state snapshot that arrives while that read is pending waits, with every later frame queued behind it in order; a failed read seeds the latch as set (fail closed: incremental frames continue, no full-state snapshot reaches a restricted viewer). The other production publishers (campaignHostBatchCommit.ts:125/:227, CampaignMatchHostOutcomeInbox.ts:120) publish no full-state snapshot after the seq-0 genesis.",
+    "q3_gm": "A viewer admitted to gm and campaign (the GM: campaignScopeAdmits returns true for every scope when isGm, campaignWireScopeBoundary.ts:45) passes campaignBaselineReachesViewer's first line (campaignViewerProjection.ts:100) for every snapshot; rows prove the GM receives the checkpoint through the same small-gap tail and the live fan-out.",
+    "q4_unsetLatch": "A restricted viewer with no absent fact before the checkpoint has latch false, so the law's third line (campaignViewerProjection.ts:102) admits the system-authored checkpoint: a row proves they still receive it through the tail, and one through the live fan-out.",
+    "q5_wireShapeWithheld": "The restricted player receives, in sequence order, every tail frame their scope admits except the refused full-state snapshot: no CampaignSnapshotPublished frame at all, then the campaign-scoped events after it (e.g. a FundsChanged). Their mirror keeps the state it had (the last fold before the first withheld fact) plus those incremental facts, so it lags the checkpoint's effects exactly as the join path's fold does (buildBaselineEvent -> projectCampaignForViewer): a pilot or contract only the checkpoint carries never appears; a FundsChanged carrying an absolute balance still lands. Once latched, every later full-state checkpoint is refused for that viewer (U58 Lane A F-Q2).",
+    "q6_risks": "see risksForTheParent",
+    "q7_spec": "gm-authority-redaction/spec.md:93-104 governs; no living spec names the tail's baseline law (coop-campaign-sync/spec.md:144-156 names the tail and the large gap only). Recorded as a spec-delta candidate (spec.specDeltaCandidate); no spec written."
+  },
+  "estimatePerFile": [
+    {
+      "path": "src/lib/multiplayer/server/campaignViewerWireGate.ts",
+      "kind": "product (new)",
+      "estimate": "~80 lines"
+    },
+    {
+      "path": "src/lib/multiplayer/server/CampaignSyncSession.ts",
+      "kind": "product",
+      "estimate": "~+60/-35"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/campaignBaselineViewerProjection.test.ts",
+      "kind": "test (rows added beside the existing join and large-gap rows; openSession takes an optional store instead of a forked fixture)",
+      "estimate": "~+300"
+    }
+  ],
+  "capsCheck": "estimated 3 files, ~140 product lines (cap 15 files / 500 product lines)",
+  "risksForTheParent": [
+    "privacy: a restricted viewer must never receive a raw full-state checkpoint after a withheld fact; rows assert the absence on the wire sink for the small-gap tail, the joined live sink and the attachLiveParticipant sink whose latch comes only from the seed.",
+    "the GM must never lose a checkpoint: rows assert the GM receives it through the tail and live.",
+    "watermark trade-off (11.1): noteDelivered advances for a withheld frame, so a restricted player converges on the launch gate without ever receiving the checkpoint.",
+    "the rebuilt-session path (U58 review rejoin row, campaignBaselineViewerProjection.test.ts:245): the latch is seeded from the durable log, not session memory, so a rebuilt session over the surviving log withholds the same checkpoint; a row proves it on real SQLite.",
+    "timing: attachLiveParticipant's seed is an async log read; frames still deliver synchronously unless a full-state snapshot arrives before the read returns, in which case that snapshot and every later frame wait and flush in order (noteDelivered runs when a frame is settled, not when it is queued).",
+    "a restricted mirror no longer converges with the authoritative state after a withheld checkpoint (by design of the law); coop-campaign-sync/spec.md:148 says the mirror converges.",
+    "resync.delivered (the return value, not serialized by bindCampaignSyncConnection.ts:1131-1137) still lists the whole raw tail as before; the rows assert the wire sink."
+  ],
+  "acceptanceCommands": [
+    "npx jest src/lib/multiplayer/server src/lib/campaign",
+    "npx tsc --noEmit",
+    "npx oxlint",
+    "npx oxfmt --check <changed files>",
+    "npm run lint:units",
+    "npm run qc:openspec-ci:validate",
+    "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+  ]
+}

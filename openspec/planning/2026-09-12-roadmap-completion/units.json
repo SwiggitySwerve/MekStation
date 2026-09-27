@@ -3017,21 +3017,39 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "baseline": null,
+      "baseline": "f85a9f8a565f01abaf7ba4507103102052351bd8",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u94-admission-20260927.json",
+          "baseline": "f85a9f8a565f01abaf7ba4507103102052351bd8",
+          "at": "2026-09-27T01:18:15.232Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u94-red-20260927.json",
+          "at": "2026-09-27T01:21:21.862Z",
+          "summary": "baseline f85a9f8a5: on real SQLite a restricted player live-attached, a gm-scoped PilotHired@1 through the host test seam, a system-authored full-state CampaignSnapshotPublished@2 appended with appendCampaignCommandBatch in the PUT route's batch shape (carrying pilot-gm-only and a planted pilot-leak-check), FundsChanged@3: R1 the small-gap resync tail delivered Snapshot@2 with both pilots to the restricted player (fails: the row asserts no full-state snapshot), R1b the same at lastSeq=1, R3 the joined live sink received baseline@-1, Snapshot@2 [both], Funds@3, R3b a sink attached after the hire received Snapshot@2 [both], R5 a rebuilt session over the surviving log delivered Snapshot@2 [both]; the rows file 5 failed 12 passed exit 1; R2 the GM tail and R4 the unset-latch viewer receive the checkpoint (pass on the baseline); the publish caller table: campaignHostBatchCommit.ts:125,:227 publish no snapshot after the sequence-0 genesis (doors.ts:95), CampaignMatchHostOutcomeInbox.ts:120 none, CampaignMatchHost.ts:390 adoptSavedCheckpoint (U96, reached from src/pages/api/campaigns/[id].ts:290) publishes the full-state checkpoint to every live sink: live fan-out needs the guard; --next printed U94"
+        },
+        "local": {
+          "path": "evidence/u94-local-20260927.json",
+          "at": "2026-09-27T01:31:06.569Z",
+          "summary": "4 files under src/lib/multiplayer/server, product +223 (campaignViewerWireGate.ts new 112: one per-recipient wire gate withholding out-of-scope frames and any full-state snapshot campaignBaselineReachesViewer refuses, latch seeded from the log through campaignViewerVisibleEvents and advanced on each withheld frame, a snapshot offered before the seed returns waits with later frames queued in order, a failed seed counts as set; CampaignSyncSession.ts +111/-51: admitToWire returns the gate, the small-gap tail reads from 0 and offers events after lastSeq, joinMember and resyncGuest carry their gate into the live subscription, attachLiveParticipant subscribes then seeds with one log read, noteDelivered still advances for a withheld frame (11.1 trade-off stated)), tests +467 (campaignBaselineViewerProjection.test.ts +352/-2 R1..R5 and live rows 17 of 17, campaignViewerWireGate.test.ts new 115 5 rows); green frames: restricted tail Funds@3 only, GM tail PilotHired@1 + Snapshot@2, unset-latch viewer Funds@1 + Snapshot@2, restricted live baseline@-1 + Funds@3, rebuilt session none; the nine join, large-gap and rebuilt-join rows unchanged; gates: jest src/lib/multiplayer/server src/lib/campaign 373 suites 4205 passed (a first run lost 3 suites to a Windows EPERM rename in jest's transform cache with 0 test failures), src/__tests__/api/campaigns 120 passed (U96's PUT rows), tsc 0, oxlint 84 warnings 0 errors, oxfmt clean on 4 files, LINT_UNITS_PASS 17899/17899, qc:openspec-ci errors=0, validator PASSED; mutants each a live run of the affected row restored with sha256 confirmed: latch never set (R1 killed), predicate inverted (GM row killed), scope check only (R1 killed), attach seed replaced with an empty log (R3b killed); NON-CLAIMS: no build, Playwright or server; the PUT route not driven (its batch shape appended; U96's route rows pass with the change); the gm-scoped fact from the host test seam; the snapshot-waits-for-seed path proven only at the gate unit level; no performance measurement (the small-gap tail reads from 0, each live attach adds one full-log read); implementer claude-opus (Agent model: opus, lean-worker); status ready"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
         "tick": null
       },
       "ownerGate": null,
-      "state": "planned",
-      "source20260925": "planned by the parent under gm-authority-redaction/spec.md:93-104 from U58's finding F1 (FN-u58-legacy-resync-tail-delivers-raw-snapshot), confirmed production-reachable by U58's Lane A review (evidence/u58-lane-a-review-20260925.md, question 4); disclosed in the owner's U58 ruling as a unit before UAT round 2"
+      "state": "local-verified",
+      "source20260925": "planned by the parent under gm-authority-redaction/spec.md:93-104 from U58's finding F1 (FN-u58-legacy-resync-tail-delivers-raw-snapshot), confirmed production-reachable by U58's Lane A review (evidence/u58-lane-a-review-20260925.md, question 4); disclosed in the owner's U58 ruling as a unit before UAT round 2",
+      "admissionNote20260927": {
+        "at": "2026-09-27T01:34:30.000Z",
+        "note": "--next printed U94. Admission GO: live fan-out needs the guard because CampaignMatchHost.adoptSavedCheckpoint (U96) publishes the PUT route's full-state checkpoint to every live sink that only checked scope; the commit pipeline publishes no snapshot after genesis and the outcome inbox none. Design: one per-recipient wire gate (a new module, campaignViewerWireGate.ts) shared by the small-gap tail and the live fan-out rather than a whole-log filter in the tail alone, because the fan-out needs a latch that keeps advancing; the tail now reads the log from 0. Governing clause gm-authority-redaction/spec.md:93-104; no living spec names the law on the tail (FN-u58-baseline-author-law-not-in-spec)."
+      }
     },
     {
       "id": "U95",
@@ -10339,6 +10357,34 @@
         "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
       },
       "note": "opened at fold on 2026-09-27; U29 is routine class, but its sentence says the owner's head-bound ruling on this PR resolves PK-umbrella-acceptance-unsatisfiable, so the ruling is recorded here and copied onto that packet"
+    },
+    {
+      "id": "PK-u94-ruling",
+      "blocks": [
+        "U94"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "U94 (review classes privacy) presents head f71c1ca8f6dcf53ef94c81d8b3eae55ca33c58f1. Does the owner rule it?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "an OWNER-RULING <head> comment and the owner-ruled label on U94's PR; the unit merges and proceeds to main proof",
+          "effort": "0.1 day owner"
+        },
+        {
+          "label": "reject",
+          "consequence": "the PR closes; the unit returns to planned with the objection recorded",
+          "effort": "0.1 day owner"
+        }
+      ],
+      "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
+      "revertCost": "low: a squash merge revert",
+      "decision": null,
+      "ruling": null,
+      "note": "opened at fold on 2026-09-27 (decision-only, so the validator's sensitive-class check holds before the owner rules)"
     }
   ],
   "deferrals": [
@@ -12149,6 +12195,42 @@
       "class": "ledger classification",
       "summary": "U34 is ciClass product because its path openspec/changes/... is neither openspec/planning/** nor docs/**, though the unit edits prose only; its gates ran as a docs unit.",
       "recommendedSuccessor": "none; recorded for the ciClass rule",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u94-resynced-mirror-convergence-clause-untrue-for-restricted-viewer",
+      "foundBy": "U94 implementer lane (claude-opus, lean-worker), 2026-09-27 (openspec/specs/coop-campaign-sync/spec.md:148)",
+      "at": "2026-09-27T01:34:30.000Z",
+      "class": "spec-delta candidate",
+      "summary": "No living spec names the baseline law on the resync tail or live fan-out; coop-campaign-sync/spec.md:148 says the resynced mirror converges, which a withheld checkpoint makes untrue for a restricted viewer by design of the law (their mirror lags the checkpoint's effects until admitted incremental facts fold). For the UAT round 2 spec triage.",
+      "recommendedSuccessor": "UAT round 2 triage spec delta (with FN-u58-baseline-author-law-not-in-spec)",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u94-delivered-arrays-list-raw-tail",
+      "foundBy": "U94 implementer lane (claude-opus, lean-worker), 2026-09-27 (bindCampaignSyncConnection.ts:1131-1137)",
+      "at": "2026-09-27T01:34:30.000Z",
+      "class": "adjacent",
+      "summary": "joinMember and resyncGuest return `delivered` arrays that still list the raw, scope-withheld tail; the socket caller does not serialize resync.delivered, so nothing reaches the wire, but the return value misstates what was delivered.",
+      "recommendedSuccessor": "a R2.authority-live slice that returns the admitted frames or drops the array",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u94-attach-and-tail-full-log-reads-unmeasured",
+      "foundBy": "U94 implementer lane (claude-opus, lean-worker), 2026-09-27",
+      "at": "2026-09-27T01:34:30.000Z",
+      "class": "performance (unmeasured)",
+      "summary": "The small-gap resync tail now reads the campaign log from 0 (it read from lastSeq + 1) and every attachLiveParticipant adds one full-log read to seed the latch; each offered snapshot filters the seeded log once. Not measured; U98's harness could measure it at 1000 events.",
+      "recommendedSuccessor": "a R2.authority-live timing slice on U89's harness",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u94-jest-transform-cache-eperm-flake",
+      "foundBy": "U94 implementer lane (claude-opus, lean-worker), 2026-09-27",
+      "at": "2026-09-27T01:34:30.000Z",
+      "class": "test infrastructure",
+      "summary": "A full jest run of src/lib/multiplayer/server src/lib/campaign lost 3 suites to a Windows EPERM rename in jest's shared transform cache under the user's Temp with 0 test failures; the suites passed alone and the rerun was 373 of 373.",
+      "recommendedSuccessor": "none; recorded (two lanes ran jest concurrently)",
       "status": "recorded"
     }
   ]
