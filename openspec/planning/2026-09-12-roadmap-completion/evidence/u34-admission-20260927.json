@@ -1,0 +1,896 @@
+{
+  "unit": "U34",
+  "stage": "admission",
+  "status": "go",
+  "at": "2026-09-27T01:20:14.000Z",
+  "node": "R4.matrix",
+  "baseline": "f85a9f8a565f01abaf7ba4507103102052351bd8",
+  "originMain": "f85a9f8a565f01abaf7ba4507103102052351bd8",
+  "originMainLsRemote": "f85a9f8a565f01abaf7ba4507103102052351bd8\trefs/heads/main",
+  "baselineEqualsOriginMain": true,
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u34",
+  "branch": "roadmap-u34-acceptance-reconciliation-table-20260927",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "taskKeys": [
+    "adopt-combat-journal-cutover-and-gm-rewind#0.1@9"
+  ],
+  "ownershipPaths": [
+    "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind"
+  ],
+  "filesToEdit": [
+    "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/notepad.md",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u34-admission-20260927.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u34-red-20260927.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u34-local-20260927.json"
+  ],
+  "readOnlyConfirmed": "tasks.md (0.1 is ticked by the parent closure tool), every other file of the change, the manifest, the pin and the runner are unchanged; nothing outside the four paths above needs an edit, so admission is not BLOCKED",
+  "reviewClasses": [
+    "routine"
+  ],
+  "behavior": "units.json:5208 U34 behavior sentence, not widened; every clause is answered in designAnswers",
+  "guardNodeModulesLink": {
+    "command": "npm run --silent qc:guard-node-modules-link",
+    "exit": 1,
+    "output": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"<repo>\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u34\\\\node_modules\",\"actualPath\":\"<repo>\\\\node_modules\"}",
+    "outputRedaction": "the repository root is written as <repo>",
+    "consequence": "refused by design in a junctioned worktree; npm_config_dry_run=true on every npm/npx call; no install, ci, prune or lifecycle was run"
+  },
+  "nextOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "exit": 0,
+    "output": "U94",
+    "note": "the validator names U94 (another lane), not U34; U34 is assigned by the parent charter"
+  },
+  "roadmapValidatorOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "exit": 0,
+    "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows"
+  },
+  "ciClassNote": "the charter calls U34 a docs-class unit; units.json U34 carries ciClass \"product\" because its ownership path openspec/changes/... is outside openspec/planning/** and docs/** (WORKERS.md:99). Gates were run as the charter scopes them (no build, no Playwright, no full jest); the parent decides the PR lane",
+  "seams": [
+    {
+      "at": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md:9",
+      "what": "0.1 letter: real, strict expected failures, no row; a table in the notepad and a receipt naming the reachable surface (34 of 80 at the split)"
+    },
+    {
+      "at": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/notepad.md:1-98",
+      "what": "the 2026-09-13 inventory on 44b94adbb: 8 prose paragraphs (:3-15), a five-column table (:17-18 header, :19-98 rows): 34 real, 6 strict-expected-failure, 40 missing"
+    },
+    {
+      "at": "openspec/changes/harden-gm-two-player-campaign-sessions/specs/e2e-testing/spec.md:6-337",
+      "what": "80 \"#### Scenario: E2E-NN\" headings, E2E-01 at :6 to E2E-80 at :337"
+    },
+    {
+      "at": "openspec/changes/harden-gm-two-player-campaign-sessions/specs/e2e-testing/spec.md:341",
+      "what": "ADDED requirement \"Acceptance Run Excludes Only Named-Gate Rows\" (the charter cites :342, which is its first body line)"
+    },
+    {
+      "at": "scripts/__tests__/gm-two-player-acceptance-gates.test.ts:74-75",
+      "what": "runSpecs = the e2e/ args of buildRunPlan({group:\"all\"})"
+    },
+    {
+      "at": "scripts/__tests__/gm-two-player-acceptance-gates.test.ts:78-80",
+      "what": "catalogue = the delta's \"#### Scenario: (E2E-\\d{2}) \" headings"
+    },
+    {
+      "at": "scripts/__tests__/gm-two-player-acceptance-gates.test.ts:83-86",
+      "what": "titleIds: every @E2E-NN inside the first string argument of a bare test( call"
+    },
+    {
+      "at": "scripts/__tests__/gm-two-player-acceptance-gates.test.ts:94-104",
+      "what": "resolveCatalogue: row / exact-main contract / gated-absent, each id exactly once"
+    },
+    {
+      "at": "scripts/__tests__/gm-two-player-acceptance-gates.test.ts:117-152",
+      "what": "unaccountedMarks: a test.fail is accounted for only when its call names a NAMED_GATES tag"
+    },
+    {
+      "at": "scripts/qc/gm-two-player-acceptance-gates.cjs:16-19",
+      "what": "EXACT_MAIN_CONTRACT { id: E2E-80, path: scripts/qc/validate-exact-main-regression-ladder.mjs }"
+    },
+    {
+      "at": "scripts/qc/gm-two-player-acceptance-gates.cjs:23-25",
+      "what": "NAMED_GATES: only @until-journal-cutover"
+    },
+    {
+      "at": "scripts/qc/gm-two-player-acceptance-gates.cjs:33-68",
+      "what": "GATED_ABSENT: 27 entries (U54 x7 at :35-38, DF-branch-and-time-cascade (R6.B7) x15 at :41-60, U52 x5 at :63-66)"
+    },
+    {
+      "at": "scripts/qc/gm-two-player-acceptance-gates.cjs:73-80",
+      "what": "RUNNER_GUARDED_SKIPS: the two cleanup-ownership skips (e2e/gm-two-player-cleanup-ownership.spec.ts:312, :372)"
+    },
+    {
+      "at": "scripts/qc/gm-two-player-campaign-core.cjs:180-185",
+      "what": "the all plan: every implemented group's specs, de-duplicated; measured 23 spec files"
+    },
+    {
+      "at": "scripts/qc/gm-two-player-campaign-core.cjs:197-205,231-240",
+      "what": "the combat fixture switch MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE=enabled is set when the plan includes authority-recovery or privacy-pack; measured: set for authority-recovery, privacy-pack, authority and all"
+    },
+    {
+      "at": "scripts/qc/validate-exact-main-regression-ladder.mjs:5-11,62-75",
+      "what": "the E2E-80 exact-main contract and MILESTONE_LADDER (fixture-smoke, membership-smoke, smoke)"
+    },
+    {
+      "at": "e2e/gm-two-player-rewind.pack.spec.ts:43,76,119,201,251,315",
+      "what": "six strict test.fail marks, each tagged @until-journal-cutover, carried by the titles at :39 (E2E-40), :72 (E2E-41), :115 (E2E-42), :197 (E2E-43), :247 (E2E-44), :311 (E2E-76)"
+    },
+    {
+      "at": "e2e/gm-two-player-privacy.pack.spec.ts:82-85",
+      "what": "E2E-19 and E2E-25 \"require the ladder's journal fixture arm\""
+    },
+    {
+      "at": "src/lib/multiplayer/server/matchJournalAuthority.ts:19-20",
+      "what": "COMBAT_JOURNAL_AUTHORITY_MODE = 'off' (production)"
+    },
+    {
+      "at": "src/lib/campaign/sync/JournalCampaignEventStore.ts:91",
+      "what": "CAMPAIGN_JOURNAL_AUTHORITY_ENABLED = true (the campaign flip is on main)"
+    },
+    {
+      "at": "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts:16-18",
+      "what": "the campaign resolver returns the constant with no override (no e2e arm)"
+    },
+    {
+      "at": "scripts/__tests__/gm-two-player-campaign-qc.test.ts:599",
+      "what": "pin: no campaign journal key in playwright.config.ts or the two runner files, and no group sets it"
+    },
+    {
+      "at": "playwright.config.ts:38-41",
+      "what": "the per-run store ./.sisyphus/e2e-runtime/<runId> (gitignored, .gitignore:189)"
+    },
+    {
+      "at": "openspec/planning/2026-09-12-roadmap-completion/units.json:4365",
+      "what": "U25: expected 40, 42, 44 and 76 after U24; 41 only after U45; 43 only after U37"
+    }
+  ],
+  "designAnswers": {
+    "q1_catalogue": {
+      "method": "a scratch node script (not committed) that loads scripts/qc/gm-two-player-campaign-core.cjs and scripts/qc/gm-two-player-acceptance-gates.cjs and applies the pin's own regexes (catalogue :78-80, titleIds :83-86, mark regex :126) to the 23 all-plan specs; a strict row is a titled row whose body carries a test.fail naming a NAMED_GATES tag",
+      "runSpecs": [
+        "e2e/gm-two-player-fixture.smoke.spec.ts",
+        "e2e/gm-two-player-membership.smoke.spec.ts",
+        "e2e/gm-two-player-authority.pack1.spec.ts",
+        "e2e/gm-two-player-exactly-once.pack.spec.ts",
+        "e2e/gm-two-player-fault.pack.spec.ts",
+        "e2e/gm-two-player-token.pack.spec.ts",
+        "e2e/gm-two-player-restart.pack.spec.ts",
+        "e2e/gm-two-player-resilience.pack.spec.ts",
+        "e2e/gm-two-player-authority-order.pack.spec.ts",
+        "e2e/gm-two-player-authority-recovery.pack.spec.ts",
+        "e2e/gm-two-player-privacy.pack.spec.ts",
+        "e2e/gm-two-player-proposals.pack.spec.ts",
+        "e2e/gm-two-player-performance.pack.spec.ts",
+        "e2e/authority-privacy-three-context.spec.ts",
+        "e2e/campaign-two-device-drive.spec.ts",
+        "e2e/gm-two-player-failure.pack.spec.ts",
+        "e2e/gm-two-player-cleanup-ownership.spec.ts",
+        "e2e/gm-two-player-combat.pack1.spec.ts",
+        "e2e/gm-two-player-rewind.pack.spec.ts",
+        "e2e/gm-two-player-backpressure.pack.spec.ts",
+        "e2e/gm-two-player-evidence.pack.spec.ts",
+        "e2e/gm-two-player-lifecycle.pack.spec.ts",
+        "e2e/gm-two-player-conflict.pack.spec.ts"
+      ],
+      "titledRows": 58,
+      "doublyResolvedOrUnresolved": [],
+      "table": [
+        {
+          "id": "E2E-01",
+          "scenario": "E2E-01 durable campaign cold recovery",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-authority-recovery.pack.spec.ts:45; e2e/gm-two-player-authority-recovery.pack.spec.ts:64",
+          "evidence": "run evidence, not on main",
+          "successor": "U28 (21.1)"
+        },
+        {
+          "id": "E2E-02",
+          "scenario": "E2E-02 participant ownership survives restart",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-authority-recovery.pack.spec.ts:83; e2e/gm-two-player-authority-recovery.pack.spec.ts:121",
+          "evidence": "run evidence, not on main",
+          "successor": "U28 (21.1)"
+        },
+        {
+          "id": "E2E-03",
+          "scenario": "E2E-03 campaign fact commits before render",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-authority.pack1.spec.ts:115",
+          "evidence": "run evidence, not on main",
+          "successor": "U28 (21.1)"
+        },
+        {
+          "id": "E2E-04",
+          "scenario": "E2E-04 multi-event combat batch is atomic",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-authority-order.pack.spec.ts:163",
+          "evidence": "run evidence, not on main",
+          "successor": "U28 (21.1)"
+        },
+        {
+          "id": "E2E-05",
+          "scenario": "E2E-05 crash before commit is invisible",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-restart.pack.spec.ts:306",
+          "evidence": "run evidence, not on main",
+          "successor": "U28 (21.1)"
+        },
+        {
+          "id": "E2E-06",
+          "scenario": "E2E-06 crash after commit replays",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-restart.pack.spec.ts:364",
+          "evidence": "run evidence, not on main",
+          "successor": "U28 (21.1)"
+        },
+        {
+          "id": "E2E-07",
+          "scenario": "E2E-07 concurrent player commands serialize",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-authority-order.pack.spec.ts:225",
+          "evidence": "run evidence, not on main",
+          "successor": "U28 (21.1)"
+        },
+        {
+          "id": "E2E-08",
+          "scenario": "E2E-08 duplicate intent has one effect",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-authority.pack1.spec.ts:153",
+          "evidence": "run evidence, not on main",
+          "successor": "U28 (21.1)"
+        },
+        {
+          "id": "E2E-09",
+          "scenario": "E2E-09 duplicate frame applies once",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-exactly-once.pack.spec.ts:57",
+          "evidence": "run evidence, not on main",
+          "successor": "U28 (21.1)"
+        },
+        {
+          "id": "E2E-10",
+          "scenario": "E2E-10 replay-live overlap applies once",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-exactly-once.pack.spec.ts:89",
+          "evidence": "run evidence, not on main",
+          "successor": "U28 (21.1)"
+        },
+        {
+          "id": "E2E-11",
+          "scenario": "E2E-11 delivery gap triggers resync",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-exactly-once.pack.spec.ts:121",
+          "evidence": "run evidence, not on main",
+          "successor": "U28 (21.1)"
+        },
+        {
+          "id": "E2E-12",
+          "scenario": "E2E-12 delivery collision blocks",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-exactly-once.pack.spec.ts:154",
+          "evidence": "run evidence, not on main",
+          "successor": "U28 (21.1)"
+        },
+        {
+          "id": "E2E-13",
+          "scenario": "E2E-13 persistence failure is truthful",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-fault.pack.spec.ts:45",
+          "evidence": "run evidence, not on main",
+          "successor": "U28 (21.1)"
+        },
+        {
+          "id": "E2E-14",
+          "scenario": "E2E-14 slow client is isolated",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-resilience.pack.spec.ts:590",
+          "evidence": "run evidence, not on main",
+          "successor": "U28 (21.1)"
+        },
+        {
+          "id": "E2E-15",
+          "scenario": "E2E-15 restart restores full authority",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-resilience.pack.spec.ts:769",
+          "evidence": "run evidence, not on main",
+          "successor": "U28 (21.1)"
+        },
+        {
+          "id": "E2E-16",
+          "scenario": "E2E-16 token expiry reauthenticates safely",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-token.pack.spec.ts:153",
+          "evidence": "run evidence, not on main",
+          "successor": "U28 (21.1)"
+        },
+        {
+          "id": "E2E-17",
+          "scenario": "E2E-17 active route uses durable identity",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-token.pack.spec.ts:348",
+          "evidence": "run evidence, not on main",
+          "successor": "U28 (21.1)"
+        },
+        {
+          "id": "E2E-18",
+          "scenario": "E2E-18 quiet heartbeat keeps clients connected",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-authority.pack1.spec.ts:78",
+          "evidence": "run evidence, not on main",
+          "successor": "U28 (21.1)"
+        },
+        {
+          "id": "E2E-19",
+          "scenario": "E2E-19 GM draft remains private",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-privacy.pack.spec.ts:220",
+          "evidence": "run evidence, not on main",
+          "successor": "none (real; 21.2 ticked)"
+        },
+        {
+          "id": "E2E-20",
+          "scenario": "E2E-20 Player 1 sealed choice is private",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-privacy.pack.spec.ts:365",
+          "evidence": "run evidence, not on main",
+          "successor": "none (real; 21.2 ticked)"
+        },
+        {
+          "id": "E2E-21",
+          "scenario": "E2E-21 Player 2 sealed choice is private",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-privacy.pack.spec.ts:460",
+          "evidence": "run evidence, not on main",
+          "successor": "none (real; 21.2 ticked)"
+        },
+        {
+          "id": "E2E-22",
+          "scenario": "E2E-22 finalization reveals together",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-privacy.pack.spec.ts:559",
+          "evidence": "run evidence, not on main",
+          "successor": "none (real; 21.2 ticked)"
+        },
+        {
+          "id": "E2E-23",
+          "scenario": "E2E-23 public combat fact publishes immediately",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-privacy.pack.spec.ts:365",
+          "evidence": "run evidence, not on main",
+          "successor": "none (real; 21.2 ticked)"
+        },
+        {
+          "id": "E2E-24",
+          "scenario": "E2E-24 fog yields distinct projections",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-privacy.pack.spec.ts:365",
+          "evidence": "run evidence, not on main",
+          "successor": "none (real; 21.2 ticked)"
+        },
+        {
+          "id": "E2E-25",
+          "scenario": "E2E-25 public correction redacts private reason",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-privacy.pack.spec.ts:276",
+          "evidence": "run evidence, not on main",
+          "successor": "none (real; 21.2 ticked)"
+        },
+        {
+          "id": "E2E-26",
+          "scenario": "E2E-26 reconnect preserves visibility",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-privacy.pack.spec.ts:623",
+          "evidence": "run evidence, not on main",
+          "successor": "none (real; 21.2 ticked)"
+        },
+        {
+          "id": "E2E-27",
+          "scenario": "E2E-27 player surfaces contain no GM-private data",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-privacy.pack.spec.ts:514",
+          "evidence": "run evidence, not on main",
+          "successor": "none (real; 21.2 ticked)"
+        },
+        {
+          "id": "E2E-28",
+          "scenario": "E2E-28 unauthorized access fails before fan-out",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-privacy.pack.spec.ts:702",
+          "evidence": "run evidence, not on main",
+          "successor": "none (real; 21.2 ticked)"
+        },
+        {
+          "id": "E2E-29",
+          "scenario": "E2E-29 veto and timeout commit nothing",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-proposals.pack.spec.ts:177",
+          "evidence": "run evidence, not on main",
+          "successor": "none (real; 21.2 ticked)"
+        },
+        {
+          "id": "E2E-30",
+          "scenario": "E2E-30 simultaneous proposals remain attributable",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-proposals.pack.spec.ts:49",
+          "evidence": "run evidence, not on main",
+          "successor": "none (real; 21.2 ticked)"
+        },
+        {
+          "id": "E2E-31",
+          "scenario": "E2E-31 player commands owned unit",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-combat.pack1.spec.ts:298",
+          "evidence": "run evidence, not on main",
+          "successor": "U54 (21.3)"
+        },
+        {
+          "id": "E2E-32",
+          "scenario": "E2E-32 cross-player command rejects",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-combat.pack1.spec.ts:355",
+          "evidence": "run evidence, not on main",
+          "successor": "U54 (21.3)"
+        },
+        {
+          "id": "E2E-33",
+          "scenario": "E2E-33 concurrent choices resolve deterministically",
+          "class": "manifest-gated `@until-U54`",
+          "anchor": "scripts/qc/gm-two-player-acceptance-gates.cjs:35",
+          "evidence": "manifest entry: holder U54; tasks.md 21.3",
+          "successor": "U54"
+        },
+        {
+          "id": "E2E-34",
+          "scenario": "E2E-34 server RNG provenance is authoritative",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-combat.pack1.spec.ts:424",
+          "evidence": "run evidence, not on main",
+          "successor": "U54 (21.3)"
+        },
+        {
+          "id": "E2E-35",
+          "scenario": "E2E-35 player disconnect follows delivery and progression policy",
+          "class": "manifest-gated `@until-U54`",
+          "anchor": "scripts/qc/gm-two-player-acceptance-gates.cjs:35",
+          "evidence": "manifest entry: holder U54; tasks.md 21.3",
+          "successor": "U54"
+        },
+        {
+          "id": "E2E-36",
+          "scenario": "E2E-36 GM pause and resume are durable",
+          "class": "manifest-gated `@until-U54`",
+          "anchor": "scripts/qc/gm-two-player-acceptance-gates.cjs:35",
+          "evidence": "manifest entry: holder U54; tasks.md 21.3",
+          "successor": "U54"
+        },
+        {
+          "id": "E2E-37",
+          "scenario": "E2E-37 terminal outcome publishes once",
+          "class": "manifest-gated `@until-U54`",
+          "anchor": "scripts/qc/gm-two-player-acceptance-gates.cjs:35",
+          "evidence": "manifest entry: holder U54; tasks.md 21.3",
+          "successor": "U54"
+        },
+        {
+          "id": "E2E-38",
+          "scenario": "E2E-38 duplicate outcome reconciliation is idempotent",
+          "class": "manifest-gated `@until-U54`",
+          "anchor": "scripts/qc/gm-two-player-acceptance-gates.cjs:35",
+          "evidence": "manifest entry: holder U54; tasks.md 21.3",
+          "successor": "U54"
+        },
+        {
+          "id": "E2E-39",
+          "scenario": "E2E-39 GM combat correction is durable and safe",
+          "class": "manifest-gated `@until-U54`",
+          "anchor": "scripts/qc/gm-two-player-acceptance-gates.cjs:35",
+          "evidence": "manifest entry: holder U54; tasks.md 21.3",
+          "successor": "U54"
+        },
+        {
+          "id": "E2E-40",
+          "scenario": "E2E-40 combat rewind creates replacement branch",
+          "class": "strict-expected-failure `@until-journal-cutover`",
+          "anchor": "e2e/gm-two-player-rewind.pack.spec.ts:39 (title); e2e/gm-two-player-rewind.pack.spec.ts:43 (test.fail)",
+          "evidence": "run evidence, not on main",
+          "successor": "U25 (after U24)"
+        },
+        {
+          "id": "E2E-41",
+          "scenario": "E2E-41 stale branch command rejects",
+          "class": "strict-expected-failure `@until-journal-cutover`",
+          "anchor": "e2e/gm-two-player-rewind.pack.spec.ts:72 (title); e2e/gm-two-player-rewind.pack.spec.ts:76 (test.fail)",
+          "evidence": "run evidence, not on main",
+          "successor": "U25 (after U24 and U45)"
+        },
+        {
+          "id": "E2E-42",
+          "scenario": "E2E-42 all contexts converge on new head",
+          "class": "strict-expected-failure `@until-journal-cutover`",
+          "anchor": "e2e/gm-two-player-rewind.pack.spec.ts:115 (title); e2e/gm-two-player-rewind.pack.spec.ts:119 (test.fail)",
+          "evidence": "run evidence, not on main",
+          "successor": "U25 (after U24)"
+        },
+        {
+          "id": "E2E-43",
+          "scenario": "E2E-43 fog restores after rewind",
+          "class": "strict-expected-failure `@until-journal-cutover`",
+          "anchor": "e2e/gm-two-player-rewind.pack.spec.ts:197 (title); e2e/gm-two-player-rewind.pack.spec.ts:201 (test.fail)",
+          "evidence": "run evidence, not on main",
+          "successor": "U25 (after U24; U37 complete)"
+        },
+        {
+          "id": "E2E-44",
+          "scenario": "E2E-44 offline player catches up after rewind",
+          "class": "strict-expected-failure `@until-journal-cutover`",
+          "anchor": "e2e/gm-two-player-rewind.pack.spec.ts:247 (title); e2e/gm-two-player-rewind.pack.spec.ts:251 (test.fail)",
+          "evidence": "run evidence, not on main",
+          "successor": "U25 (after U24)"
+        },
+        {
+          "id": "E2E-45",
+          "scenario": "E2E-45 applied outcome uses coordinated correction",
+          "class": "manifest-gated `@until-U54`",
+          "anchor": "scripts/qc/gm-two-player-acceptance-gates.cjs:35",
+          "evidence": "manifest entry: holder U54; tasks.md 21.3",
+          "successor": "U54"
+        },
+        {
+          "id": "E2E-46",
+          "scenario": "E2E-46 one-day advance commits one version",
+          "class": "manifest-gated `@until-DF-branch-and-time-cascade`",
+          "anchor": "scripts/qc/gm-two-player-acceptance-gates.cjs:42",
+          "evidence": "manifest entry: holder DF-branch-and-time-cascade (R6.B7); tasks.md 22.1",
+          "successor": "DF-branch-and-time-cascade (R6.B7)"
+        },
+        {
+          "id": "E2E-47",
+          "scenario": "E2E-47 multi-effect day cascade is atomic",
+          "class": "manifest-gated `@until-DF-branch-and-time-cascade`",
+          "anchor": "scripts/qc/gm-two-player-acceptance-gates.cjs:43",
+          "evidence": "manifest entry: holder DF-branch-and-time-cascade (R6.B7); tasks.md 22.1",
+          "successor": "DF-branch-and-time-cascade (R6.B7)"
+        },
+        {
+          "id": "E2E-48",
+          "scenario": "E2E-48 rewind rebuilds derived state",
+          "class": "manifest-gated `@until-DF-branch-and-time-cascade`",
+          "anchor": "scripts/qc/gm-two-player-acceptance-gates.cjs:44",
+          "evidence": "manifest entry: holder DF-branch-and-time-cascade (R6.B7); tasks.md 22.1",
+          "successor": "DF-branch-and-time-cascade (R6.B7)"
+        },
+        {
+          "id": "E2E-49",
+          "scenario": "E2E-49 contract correction rebuilds linked domains",
+          "class": "manifest-gated `@until-DF-branch-and-time-cascade`",
+          "anchor": "scripts/qc/gm-two-player-acceptance-gates.cjs:45",
+          "evidence": "manifest entry: holder DF-branch-and-time-cascade (R6.B7); tasks.md 22.1",
+          "successor": "DF-branch-and-time-cascade (R6.B7)"
+        },
+        {
+          "id": "E2E-50",
+          "scenario": "E2E-50 rewind invalidates later artifacts",
+          "class": "manifest-gated `@until-DF-branch-and-time-cascade`",
+          "anchor": "scripts/qc/gm-two-player-acceptance-gates.cjs:46",
+          "evidence": "manifest entry: holder DF-branch-and-time-cascade (R6.B7); tasks.md 22.1",
+          "successor": "DF-branch-and-time-cascade (R6.B7)"
+        },
+        {
+          "id": "E2E-51",
+          "scenario": "E2E-51 stale artifact cannot be used",
+          "class": "manifest-gated `@until-DF-branch-and-time-cascade`",
+          "anchor": "scripts/qc/gm-two-player-acceptance-gates.cjs:47",
+          "evidence": "manifest entry: holder DF-branch-and-time-cascade (R6.B7); tasks.md 22.1",
+          "successor": "DF-branch-and-time-cascade (R6.B7)"
+        },
+        {
+          "id": "E2E-52",
+          "scenario": "E2E-52 next scenario retains roles and version",
+          "class": "manifest-gated `@until-DF-branch-and-time-cascade`",
+          "anchor": "scripts/qc/gm-two-player-acceptance-gates.cjs:48",
+          "evidence": "manifest entry: holder DF-branch-and-time-cascade (R6.B7); tasks.md 22.1",
+          "successor": "DF-branch-and-time-cascade (R6.B7)"
+        },
+        {
+          "id": "E2E-53",
+          "scenario": "E2E-53 customized unit stays exact",
+          "class": "manifest-gated `@until-DF-branch-and-time-cascade`",
+          "anchor": "scripts/qc/gm-two-player-acceptance-gates.cjs:49",
+          "evidence": "manifest entry: holder DF-branch-and-time-cascade (R6.B7); tasks.md 22.1",
+          "successor": "DF-branch-and-time-cascade (R6.B7)"
+        },
+        {
+          "id": "E2E-54",
+          "scenario": "E2E-54 ten scenarios survive restarts",
+          "class": "manifest-gated `@until-DF-branch-and-time-cascade`",
+          "anchor": "scripts/qc/gm-two-player-acceptance-gates.cjs:50",
+          "evidence": "manifest entry: holder DF-branch-and-time-cascade (R6.B7); tasks.md 22.1",
+          "successor": "DF-branch-and-time-cascade (R6.B7)"
+        },
+        {
+          "id": "E2E-55",
+          "scenario": "E2E-55 checkpoint replay equals full replay",
+          "class": "manifest-gated `@until-DF-branch-and-time-cascade`",
+          "anchor": "scripts/qc/gm-two-player-acceptance-gates.cjs:51",
+          "evidence": "manifest entry: holder DF-branch-and-time-cascade (R6.B7); tasks.md 22.1",
+          "successor": "DF-branch-and-time-cascade (R6.B7)"
+        },
+        {
+          "id": "E2E-56",
+          "scenario": "E2E-56 outcome linkage remains once",
+          "class": "manifest-gated `@until-DF-branch-and-time-cascade`",
+          "anchor": "scripts/qc/gm-two-player-acceptance-gates.cjs:52",
+          "evidence": "manifest entry: holder DF-branch-and-time-cascade (R6.B7); tasks.md 22.1",
+          "successor": "DF-branch-and-time-cascade (R6.B7)"
+        },
+        {
+          "id": "E2E-57",
+          "scenario": "E2E-57 audit records complete provenance",
+          "class": "manifest-gated `@until-DF-branch-and-time-cascade`",
+          "anchor": "scripts/qc/gm-two-player-acceptance-gates.cjs:53",
+          "evidence": "manifest entry: holder DF-branch-and-time-cascade (R6.B7); tasks.md 22.1",
+          "successor": "DF-branch-and-time-cascade (R6.B7)"
+        },
+        {
+          "id": "E2E-58",
+          "scenario": "E2E-58 player audit excludes private fields",
+          "class": "manifest-gated `@until-DF-branch-and-time-cascade`",
+          "anchor": "scripts/qc/gm-two-player-acceptance-gates.cjs:54",
+          "evidence": "manifest entry: holder DF-branch-and-time-cascade (R6.B7); tasks.md 22.1",
+          "successor": "DF-branch-and-time-cascade (R6.B7)"
+        },
+        {
+          "id": "E2E-59",
+          "scenario": "E2E-59 GM audit preserves prior branches",
+          "class": "manifest-gated `@until-DF-branch-and-time-cascade`",
+          "anchor": "scripts/qc/gm-two-player-acceptance-gates.cjs:55",
+          "evidence": "manifest entry: holder DF-branch-and-time-cascade (R6.B7); tasks.md 22.1",
+          "successor": "DF-branch-and-time-cascade (R6.B7)"
+        },
+        {
+          "id": "E2E-60",
+          "scenario": "E2E-60 rewind preview lists blast radius",
+          "class": "manifest-gated `@until-DF-branch-and-time-cascade`",
+          "anchor": "scripts/qc/gm-two-player-acceptance-gates.cjs:56",
+          "evidence": "manifest entry: holder DF-branch-and-time-cascade (R6.B7); tasks.md 22.1",
+          "successor": "DF-branch-and-time-cascade (R6.B7)"
+        },
+        {
+          "id": "E2E-61",
+          "scenario": "E2E-61 malformed intent has no effect",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-failure.pack.spec.ts:420",
+          "evidence": "run evidence, not on main",
+          "successor": "U52 (22.2)"
+        },
+        {
+          "id": "E2E-62",
+          "scenario": "E2E-62 replay attack cannot duplicate",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-failure.pack.spec.ts:476",
+          "evidence": "run evidence, not on main",
+          "successor": "U52 (22.2)"
+        },
+        {
+          "id": "E2E-63",
+          "scenario": "E2E-63 command-batch failure is atomic",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-failure.pack.spec.ts:544",
+          "evidence": "run evidence, not on main",
+          "successor": "U52 (22.2)"
+        },
+        {
+          "id": "E2E-64",
+          "scenario": "E2E-64 projection failure fails closed",
+          "class": "manifest-gated `@until-U52`",
+          "anchor": "scripts/qc/gm-two-player-acceptance-gates.cjs:63",
+          "evidence": "manifest entry: holder U52; tasks.md 22.2",
+          "successor": "U52"
+        },
+        {
+          "id": "E2E-65",
+          "scenario": "E2E-65 GM loss pauses without migration",
+          "class": "manifest-gated `@until-U52`",
+          "anchor": "scripts/qc/gm-two-player-acceptance-gates.cjs:63",
+          "evidence": "manifest entry: holder U52; tasks.md 22.2",
+          "successor": "U52"
+        },
+        {
+          "id": "E2E-66",
+          "scenario": "E2E-66 partitioned player catches up once",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-failure.pack.spec.ts:603; e2e/gm-two-player-failure.pack.spec.ts:668",
+          "evidence": "run evidence, not on main",
+          "successor": "U52 (22.2)"
+        },
+        {
+          "id": "E2E-67",
+          "scenario": "E2E-67 pre-rewind client cannot diverge",
+          "class": "manifest-gated `@until-U52`",
+          "anchor": "scripts/qc/gm-two-player-acceptance-gates.cjs:63",
+          "evidence": "manifest entry: holder U52; tasks.md 22.2",
+          "successor": "U52"
+        },
+        {
+          "id": "E2E-68",
+          "scenario": "E2E-68 corruption quarantines one session",
+          "class": "manifest-gated `@until-U52`",
+          "anchor": "scripts/qc/gm-two-player-acceptance-gates.cjs:63",
+          "evidence": "manifest entry: holder U52; tasks.md 22.2",
+          "successor": "U52"
+        },
+        {
+          "id": "E2E-69",
+          "scenario": "E2E-69 large tail is bounded",
+          "class": "manifest-gated `@until-U52`",
+          "anchor": "scripts/qc/gm-two-player-acceptance-gates.cjs:63",
+          "evidence": "manifest entry: holder U52; tasks.md 22.2",
+          "successor": "U52"
+        },
+        {
+          "id": "E2E-70",
+          "scenario": "E2E-70 socket failure preserves authority",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-failure.pack.spec.ts:757",
+          "evidence": "run evidence, not on main",
+          "successor": "U52 (22.2)"
+        },
+        {
+          "id": "E2E-71",
+          "scenario": "E2E-71 p95 meets controlled budget",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-performance.pack.spec.ts:110",
+          "evidence": "run evidence, not on main",
+          "successor": "U31 (22.3)"
+        },
+        {
+          "id": "E2E-72",
+          "scenario": "E2E-72 p99 meets long-log budget",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-performance.pack.spec.ts:110",
+          "evidence": "run evidence, not on main",
+          "successor": "U31 (22.3)"
+        },
+        {
+          "id": "E2E-73",
+          "scenario": "E2E-73 cold catch-up meets budget",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-performance.pack.spec.ts:110",
+          "evidence": "run evidence, not on main",
+          "successor": "U31 (22.3)"
+        },
+        {
+          "id": "E2E-74",
+          "scenario": "E2E-74 slow-client backpressure stays bounded",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-backpressure.pack.spec.ts:90",
+          "evidence": "run evidence, not on main",
+          "successor": "U31 (22.3)"
+        },
+        {
+          "id": "E2E-75",
+          "scenario": "E2E-75 lifecycle states are distinct and accessible",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-lifecycle.pack.spec.ts:179; e2e/gm-two-player-lifecycle.pack.spec.ts:305",
+          "evidence": "run evidence, not on main",
+          "successor": "U31 (22.3)"
+        },
+        {
+          "id": "E2E-76",
+          "scenario": "E2E-76 rewind confirmation prevents accidental invalidation",
+          "class": "strict-expected-failure `@until-journal-cutover`",
+          "anchor": "e2e/gm-two-player-rewind.pack.spec.ts:311 (title); e2e/gm-two-player-rewind.pack.spec.ts:315 (test.fail)",
+          "evidence": "run evidence, not on main",
+          "successor": "U25 (after U24)"
+        },
+        {
+          "id": "E2E-77",
+          "scenario": "E2E-77 conflict message is actionable and safe",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-conflict.pack.spec.ts:80; e2e/gm-two-player-conflict.pack.spec.ts:341",
+          "evidence": "run evidence, not on main",
+          "successor": "U31 (22.3)"
+        },
+        {
+          "id": "E2E-78",
+          "scenario": "E2E-78 evidence bundle is complete",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-fixture.smoke.spec.ts:123; e2e/gm-two-player-evidence.pack.spec.ts:190",
+          "evidence": "run evidence, not on main",
+          "successor": "U31 (22.3)"
+        },
+        {
+          "id": "E2E-79",
+          "scenario": "E2E-79 cleanup is ownership-scoped",
+          "class": "real",
+          "anchor": "e2e/gm-two-player-cleanup-ownership.spec.ts:305; e2e/gm-two-player-cleanup-ownership.spec.ts:365; e2e/gm-two-player-cleanup-ownership.spec.ts:403; e2e/gm-two-player-cleanup-ownership.spec.ts:408; e2e/gm-two-player-cleanup-ownership.spec.ts:413",
+          "evidence": "run evidence, not on main",
+          "successor": "U31 (22.3)"
+        },
+        {
+          "id": "E2E-80",
+          "scenario": "E2E-80 major merges trigger exact-main regression",
+          "class": "real",
+          "anchor": "scripts/qc/validate-exact-main-regression-ladder.mjs:5-11 (exact-main contract, not a Playwright row)",
+          "evidence": "openspec/planning/2026-09-12-roadmap-completion/evidence/exact-main-ladder-7f2dbec09cb5-20260917.json (taken at 7f2dbec09cb5, not this baseline)",
+          "successor": "U31 (22.3)"
+        }
+      ]
+    },
+    "q2_counts": {
+      "real": 47,
+      "realAuthored": 46,
+      "realContract": [
+        "E2E-80"
+      ],
+      "strictExpectedFailure": [
+        "E2E-40",
+        "E2E-41",
+        "E2E-42",
+        "E2E-43",
+        "E2E-44",
+        "E2E-76"
+      ],
+      "manifestGated": 27,
+      "absent": [],
+      "total": 80,
+      "reconcileWithU29": "U29 admission measured 52 ids with an authored row and 28 without (27 gated-absent plus E2E-80). Measured here: 46 authored real + 6 strict = 52 authored rows; 27 manifest-gated + E2E-80 = 28 rowless. E2E-80 is classified real through the exact-main contract, so real = 47. The charter's \"52 real including E2E-80\" does not add up with 6 strict and 27 gated (52+27 = 79 with E2E-80 counted inside 52, or 53 with the 6 strict counted separately); the measured split is 47 + 6 + 27 + 0 = 80"
+    },
+    "q3_evidencePath": {
+      "realRows": "run evidence, not on main: a row's run writes its per-run store under ./.sisyphus/e2e-runtime/<runId> (playwright.config.ts:38-41), its results under test-results/ and its HTML report under playwright-report/ (playwright.config.ts:26-33); all three are gitignored (.gitignore:161, :162, :189). grep -l f85a9f8 over the evidence directory finds no receipt recording a run on this baseline, and a receipt taken on an older commit is not evidence for this baseline (DELIVERY.md: never use an old successful run as current-head proof), so every authored row (real and strict) carries the phrase",
+      "e2e80": "openspec/planning/2026-09-12-roadmap-completion/evidence/exact-main-ladder-7f2dbec09cb5-20260917.json, the only exact-main ladder receipt on main (verdict SATISFIED, milestone strict-smoke, sha 7f2dbec09cb5, not this baseline); the ladder archive dir is .sisyphus/roadmap-completion-20260912/exact-main-ladder (validate-exact-main-regression-ladder.mjs:52-55)",
+      "gatedRows": "the manifest entry: holder and source (scripts/qc/gm-two-player-acceptance-gates.cjs:35-38, :41-60, :63-66)"
+    },
+    "q4_successor": {
+      "gated": "the manifest holder: U54 (E2E-33, 35-39, 45), DF-branch-and-time-cascade (R6.B7) (E2E-46..60), U52 (E2E-64, 65, 67, 68, 69)",
+      "strict": "U25 (R4.rewind), after U24; E2E-41 also after U45 (planned); E2E-43 after U37, which is complete (units.json U37 state complete, mergeSha 072b320a7)",
+      "real": "the unit holding the open umbrella tasks.md row whose range names the id: U28 holds 21.1 (E2E-01..18), U54 holds 21.3 (E2E-31..45), U52 holds 22.2 (E2E-61..70), U31 holds 22.3 (E2E-71..80); E2E-19..30 sit under 21.2, which is ticked (harden tasks.md:553, held by U22, complete), so \"none (real; 21.2 ticked)\". No row needs R6.umbrella as a fallback"
+    },
+    "q5_reachableSurface": {
+      "combatFlipU24": "The runner sets the combat fixture switch for plans that include authority-recovery or privacy-pack (core.cjs:203-205, 236-240); measured on authority-recovery, privacy-pack, authority and all. Declared dependence, read from the specs: e2e/gm-two-player-privacy.pack.spec.ts:82-85 says E2E-19 (:220) and E2E-25 (:276) require the arm, so today they are reachable only under the fixture switch and after U24 (which deletes the arm, units.json:4233) in production mode; their class stays real. E2E-01/02 are armed by plan membership (core.cjs:71-75 comment: \"combat genesis is live under the fixture arm\"; :231-233: \"E2E-01/02 must exercise the journal-authority path itself\"), but the spec header (e2e/gm-two-player-authority-recovery.pack.spec.ts:13-16) cites only the campaign production flag and the genesis assertion reads the campaign stream (e2e/helpers/authorityRecoveryEvidence.ts:95-106), so no dependence is declared. The six strict rows are the only rows whose class is expected to change after U24: U25 expects 40, 42, 44 and 76, 41 only after U45, 43 only after U37 (units.json:4365); not measured here",
+      "campaignFlip": "already on the baseline: CAMPAIGN_JOURNAL_AUTHORITY_ENABLED = true (JournalCampaignEventStore.ts:91) with no override (campaignJournalAuthorityEnabled.ts:16-18), and no config line or group sets the retired campaign key (pin scripts/__tests__/gm-two-player-campaign-qc.test.ts:599). No row depends on a campaign fixture switch; U28 (units.json:4666) still says it removes \"both switches\", but only the combat switch remains"
+    },
+    "q6_prose": {
+      "keep_rewritten": [
+        "title",
+        "source/baseline paragraph (:3) -> baseline f85a9f8, the definitions and the no-Playwright non-claim",
+        "counts paragraph (:5) -> the measured counts per class",
+        "non-claim paragraph (:9) -> kept: class is declaration only; E2E-31/32 title-versus-heading note with anchors; the six rewind marks",
+        "runner paragraph (:11) -> 26 implemented groups, 8 reserved names, 23 all-plan spec files; the campaign arm is gone and the combat arm is what authority-recovery and privacy-pack use",
+        "limits paragraph (:13) -> trimmed to the anchored two-seat caveats (combat.pack1.spec.ts:8-12, privacy.pack.spec.ts:82-85)"
+      ],
+      "go": [
+        "the September 4 split paragraph (:7): 34-of-80 now appears only in the historical line",
+        "the source-hash paragraph (:15): becomes the one-sentence historical line naming 2026-09-13 and 44b94adbb, with its receipt link; the .sisyphus raw-output sentence goes (not on main)"
+      ],
+      "new": "a short reachable-surface paragraph (U24 and the campaign flip) before the table"
+    },
+    "q7_columns": "Five columns kept: Scenario | Class | Anchor | Evidence path | Successor. The old fourth column \"Gap or proof limit\" becomes \"Evidence path\" because the behaviour sentence requires an evidence path per row and a per-row gap is not verifiable from declarations; limits move to anchored prose. Class cells name the gate tag in backticks for strict and manifest-gated rows; anchors are file:line only, so the probe can parse them",
+    "q8_risksAndCaps": "see risksForTheParent; caps: 1 product file (notepad.md) plus 3 receipts (evidence/, excluded from the count)"
+  },
+  "estimate": {
+    "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/notepad.md": "about 105 added and 98 deleted lines (15 prose/header lines plus 2 table header lines plus 80 table rows); prose, counted anyway",
+    "evidence/u34-*-20260927.json": "3 receipts, not counted (evidence/ directory)",
+    "files": "1 counted file of 15; about 105 of 500 lines"
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500
+  },
+  "risksForTheParent": [
+    "Routine class. The table classifies by declarations (title tags, test.fail marks, the manifest); no Playwright run backs it, and the notepad's header says so.",
+    "A title in a spec the all plan does not run would overstate the surface; the probe and the U29 pin both read the spec list from buildRunPlan({group:\"all\"}), so such a row fails both.",
+    "In the all plan the combat fixture switch is on for every one of the 23 specs (core.cjs:197-205 expands all to every member), so the six rewind rows run under the arm in all, but not in rewind-pack alone. Whether any of them then passes unexpectedly (which fails the strict run) is not measured here.",
+    "Tag versus heading: the @E2E-31 title (combat.pack1.spec.ts:298) names a foreign-unit refusal plus an owned command, the E2E-32 heading (spec.md:136) is cross-player rejection, and the @E2E-32 title (:355) names back-to-back ordering, closer to the E2E-33 heading (spec.md:140), which is manifest-gated. The table follows the tags, as the pin does.",
+    "units.json U34 is ciClass product (its path is openspec/changes/...), not docs; the charter's docs framing is about which gates run.",
+    "U28 still reads \"remove both switches\", but the campaign switch is already gone from the runner and the config (qc pin :599)."
+  ],
+  "baselineSha256": {
+    "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/notepad.md": "4ae60bcd1f7044b6cfe03d95255815f359e86b7f3ec470c24a6a2ed560785d30",
+    "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md": "e0f4d855aa569b7efd04dae0b1f9e23f365f47dda9cfcd0c411cfdbab51b4044",
+    "scripts/qc/gm-two-player-acceptance-gates.cjs": "01804efc937185a835f6ab7c1d59cfe9689fa1f4a3394624897d306e42a1d937",
+    "scripts/__tests__/gm-two-player-acceptance-gates.test.ts": "631dc819612d95a76c7fb8fceefc596190c56b40374501fc11bcf85df25c7aa5",
+    "scripts/qc/gm-two-player-campaign-core.cjs": "43642dbdb61f884b818cb5266ff86bff3861994dc389022b25fe0925901f4155"
+  }
+}
