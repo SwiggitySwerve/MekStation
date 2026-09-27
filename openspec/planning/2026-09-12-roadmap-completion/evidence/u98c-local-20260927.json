@@ -1,0 +1,18 @@
+{
+  "unit": "U98c",
+  "stage": "local",
+  "at": "2026-09-27T19:32:30.880Z",
+  "status": "local-verified",
+  "head": "ce937d97c40a5fb9f3e6936e1d832acbf64519bc",
+  "baseline": "c37665476c818b8d8e273264deaf9a4fc705400b",
+  "summary": "1 test helper (+8/-0): WARM_UP 2 -> 4 and MEASURED 6 -> 12 commands, SpendFunds and AdvanceDay alternating; the growth rule, its 2x/5 ms/50 ms thresholds, sizes, PUTS and every asserted row unchanged; no product file. The stall mutant S fails U98 at 2/6 (4.86 -> 19.58 ms) and passes at 4/12 (4.24/3.70 ms); G (size-scaled grant delay) still fails U98 (net 5.01 -> 18.90 ms); R (60 ms rewrite) still fails only the ceiling row (62.03 ms); restored with sha256 checked. Ten separate jest processes green; added mean wall time 0.66 s (+7.6%). typecheck 0, lint 0 errors (84 existing warnings), lint:units 17899/17899, format:check 0. Independent Lane A reproduced S at both counts, G, R and three green processes (APPROVE).",
+  "implementer": "gpt-5.6-sol-fast (deep-low task st_01a0e44f)",
+  "files": {
+    "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test-helpers.ts": "d3891bf50cb3bd16a7e1a66df12bb247f95ed4b09919074679360914495109ca",
+    "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test.ts": "93ab06cdcb3843c901017c227a642a433c028205f6948076036ea2cc9a42afba"
+  },
+  "evidence": [
+    ".omo/ulw-execute/u98c/DONECLAIM.md (lane evidence)",
+    "E:/Projects/MekStation/.omo/ulw-execute/evidence/task-48-u98c-review.md"
+  ]
+}

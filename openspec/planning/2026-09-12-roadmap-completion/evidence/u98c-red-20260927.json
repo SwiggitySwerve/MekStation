@@ -1,0 +1,11 @@
+{
+  "unit": "U98c",
+  "stage": "red",
+  "at": "2026-09-27T19:25:03.562Z",
+  "baseline": "c37665476c818b8d8e273264deaf9a4fc705400b",
+  "summary": "Red first with a test-local mutant: a ~30 ms stall inside the timed appendCommandBatch wrapper on exactly the first three measured 1000-event commands. At the original 2 warm-ups / 6 measured commands it exits 1 with 4 passed / 1 failed; only U98's row fails, serverTotalWithoutRecordRewrite 4.863 -> 19.582 ms (grows). The same burst shape occurred naturally: U98b exact-main attempt 01 on e8a21ed failed U98's row 4.37 -> 23.78 ms (FN-u98b-stall-burst-takes-six-sample-median).",
+  "evidence": [
+    "worker log S-red.log and rows/u89-server-time-S-red.json (preserved with the lane evidence)",
+    "evidence/u98b-logs-20260927.json (attempt-01-exact-main-ladder.log)"
+  ]
+}

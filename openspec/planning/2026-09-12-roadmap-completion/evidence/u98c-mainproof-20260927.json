@@ -1,0 +1,43 @@
+{
+  "unit": "U98c",
+  "stage": "mainProof",
+  "at": "2026-09-27T19:52:11.418Z",
+  "mergeCommit": "d1297db61807e09019213842f40f30df5955a872",
+  "checkout": "owned wave-A worktree detached at the merge commit, with its private physical node_modules (no install run; no build is part of this test-only proof); the root checkout was not touched",
+  "correctedAtFold": "2026-09-27: checkout replaced the closure tool's fixed root-checkout text (FN-p1a-closure-fixed-receipt-text); the runtime fields come from --extra-runtime",
+  "runtime": {
+    "build": "not run: U98c changes one jest test helper only and ships no runtime bytes; the plan QA names repeated jest processes, typecheck, lint, lint:units and format:check",
+    "e2eBundleMarker": "not applicable: no browser or production bundle is part of this unit's proof",
+    "playwright": "U98c exact-main jest ladder: U98C PROOF RUNTIME PASSED: 25 passed (5 separate jest processes x 5 tests, 0 failed, exit 0)",
+    "tsc": "npm run typecheck exit 0",
+    "lint": "npm run lint exit 0: Found 84 warnings and 0 errors",
+    "lintUnits": "npm run lint:units exit 0: LINT_UNITS_PASS 17899/17899",
+    "formatCheck": "npm run format:check exit 0",
+    "focusedJest": "5 separate jest processes of campaignHostIntentServerTime.test.ts at 4 warm-ups / 12 measured commands, 5/5 each; net serverTotal medians at 50/1000 events 4.40/3.98, 4.68/4.70, 5.12/4.27, 4.80/4.05, 4.38/4.16 ms; recordRewrite at 1000 events 2.17-2.86 ms",
+    "validatorGithub": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows (--github, exit 0)"
+  },
+  "commands": {
+    "validator": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows",
+    "gitAncestry": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows (--git)",
+    "next": "U98C_MAIN_RESULT validator-next 0",
+    "openspecStrict": "(no log)",
+    "qcOpenspecCi": "(no log)",
+    "qcPin": "(no log)"
+  },
+  "logs": ".omo/ulw-execute/u98c/main-proof-01-logs/ (local; sha256 below)",
+  "logHashes": [
+    "0755eb61ba0e8f884b05fefeac9c56380d629807671941eb4f849af29599fa90 *build.log",
+    "ea2da44af51f463a7a97cb87885885e9e70bb4c40aac6b3e26fdb2cf5dbfd5d9 *exact-main-ladder.log",
+    "80ce3c9f55e60539b1aab1bc740fb89adf06600080f15f539d78dda460ddba2a *format.log",
+    "a0e7f72713bcd6484ac3d245795899dd93c06d11a1fc70f27ef6ada2741f5930 *git-check.log",
+    "858088f472cbad4b00daf82efe3463c3f3005023e1eac04e4aedbf5c8cadbb38 *github.log",
+    "d17fc8a70c1d7364046f6fed44e9e7bfbc0c384545d73d1b0f2a413c28af8f4c *jest.log",
+    "42611a83865ed274c49aabb67de58cd9792148b6c60f6e7f883e5ef628363066 *lint-units.log",
+    "84506d01ca05292ff980d25921a10dbb585bbeef1beaba952f8d9c6423d557f7 *lint.log",
+    "02037d749b11094c27a51bc896bd65feb54641816ea5d1574055a52972b2ecd7 *next.log",
+    "f92407e44f46eb088280cfe0d0d6d17c803aeec477b523c3ca198b3d3c5f952e *playwright.log",
+    "97c70c08c1ea9ee44f4f2591cd17a45153b2171470b8c738c0b8146e30be69fa *tsc.log",
+    "0e079406bbfb8041a1d7a12f74502b4aebe70f93aceced2cc15dbfcdf0a100de *validator.log"
+  ],
+  "verdict": "PASS"
+}

@@ -1,0 +1,75 @@
+{
+  "unit": "U98c",
+  "date": "20260927",
+  "at": "2026-09-27T19:52:11.478Z",
+  "runDir": ".omo/ulw-execute/u98c/main-proof-01-logs",
+  "preservedDir": "../../MekStation/.omo/ulw-execute/preserved-runs/U98c-20260927",
+  "files": [
+    {
+      "file": "build.log",
+      "bytes": 177,
+      "sha256": "0755eb61ba0e8f884b05fefeac9c56380d629807671941eb4f849af29599fa90"
+    },
+    {
+      "file": "exact-main-ladder.log",
+      "bytes": 44457,
+      "sha256": "ea2da44af51f463a7a97cb87885885e9e70bb4c40aac6b3e26fdb2cf5dbfd5d9"
+    },
+    {
+      "file": "format.log",
+      "bytes": 235,
+      "sha256": "80ce3c9f55e60539b1aab1bc740fb89adf06600080f15f539d78dda460ddba2a"
+    },
+    {
+      "file": "git-check.log",
+      "bytes": 139,
+      "sha256": "a0e7f72713bcd6484ac3d245795899dd93c06d11a1fc70f27ef6ada2741f5930"
+    },
+    {
+      "file": "github.log",
+      "bytes": 145,
+      "sha256": "858088f472cbad4b00daf82efe3463c3f3005023e1eac04e4aedbf5c8cadbb38"
+    },
+    {
+      "file": "jest.log",
+      "bytes": 4050,
+      "sha256": "d17fc8a70c1d7364046f6fed44e9e7bfbc0c384545d73d1b0f2a413c28af8f4c"
+    },
+    {
+      "file": "lint-units.log",
+      "bytes": 412,
+      "sha256": "42611a83865ed274c49aabb67de58cd9792148b6c60f6e7f883e5ef628363066"
+    },
+    {
+      "file": "lint.log",
+      "bytes": 38998,
+      "sha256": "84506d01ca05292ff980d25921a10dbb585bbeef1beaba952f8d9c6423d557f7"
+    },
+    {
+      "file": "next.log",
+      "bytes": 70,
+      "sha256": "02037d749b11094c27a51bc896bd65feb54641816ea5d1574055a52972b2ecd7"
+    },
+    {
+      "file": "playwright.log",
+      "bytes": 620,
+      "sha256": "f92407e44f46eb088280cfe0d0d6d17c803aeec477b523c3ca198b3d3c5f952e"
+    },
+    {
+      "file": "sha256.txt",
+      "bytes": 939,
+      "sha256": "d1717d8fac26670eba3a9ba7a17215e17b599d57bd55aaff26eddb35dee5cdc5"
+    },
+    {
+      "file": "tsc.log",
+      "bytes": 120,
+      "sha256": "97c70c08c1ea9ee44f4f2591cd17a45153b2171470b8c738c0b8146e30be69fa"
+    },
+    {
+      "file": "validator.log",
+      "bytes": 131,
+      "sha256": "0e079406bbfb8041a1d7a12f74502b4aebe70f93aceced2cc15dbfcdf0a100de"
+    }
+  ],
+  "bytes": 90493
+}

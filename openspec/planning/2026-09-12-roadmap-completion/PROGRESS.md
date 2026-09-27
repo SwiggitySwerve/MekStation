@@ -1,3 +1,9 @@
+## 2026-09-27 U98c complete (parent)
+
+U98c (#2057, merge `d1297db61807e09019213842f40f30df5955a872`) is complete. The server-time test now measures each log size over 4 discarded warm-ups and 12 measured GM commands instead of 2 and 6, so a burst of up to five stalled commands can no longer carry a step's median. U89's growth rule, its thresholds, the sizes and every asserted row are unchanged; only the test helper changed (+8/−0). A test-local mutant that stalls the first three measured 1000-event commands by ~30 ms failed U98's row at the old counts (net `serverTotal` rose from 4.86 to 19.58 ms) and passed at the new ones, while size-scaled growth and a 60 ms rewrite still fail their rows. The added cost is about 0.66 s per run. Lane A reproduced the stall mutant at both counts, both protection mutants and three clean runs.
+
+The [exact-main proof](evidence/u98c-mainproof-20260927.json) passed on its first attempt: five separate processes, typecheck, lint, lint:units, format and the validator in four modes. FN-u98b-stall-burst-takes-six-sample-median is resolved by U98c. The closure tool's fixed reviewer, checkout and tick text was corrected again in U98c's receipts (FN-p1a-closure-fixed-receipt-text, held by U17c). `validate-roadmap.mjs --next` now prints U17c.
+
 ## 2026-09-27 U98b complete; U98c registered (parent)
 
 U98b (#2055, merge `e8a21edb15475df2728a538c0d96869be72e4376`) is complete. U98's server-time row now asserts `serverTotal` net of the separately timed record rewrite, and a new row bounds the rewrite at U89's 50 ms clause. Only the two test files changed (+21/−2). Lane A reproduced three green processes and two discriminating mutants.

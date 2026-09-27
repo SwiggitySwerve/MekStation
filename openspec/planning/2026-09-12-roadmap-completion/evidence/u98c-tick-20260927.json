@@ -1,0 +1,8 @@
+{
+  "unit": "U98c",
+  "stage": "tick",
+  "at": "2026-09-27T19:52:11.482Z",
+  "taskKeys": [],
+  "note": "U98c holds no task row: it is a discovered-defect unit registered by #2056 (continuation plan task 48), not a packet-held scenario row. The delivered behaviour is proven on main by this unit.",
+  "tickedOnMain": null
+}

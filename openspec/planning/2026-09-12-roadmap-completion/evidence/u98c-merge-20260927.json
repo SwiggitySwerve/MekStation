@@ -1,0 +1,18 @@
+{
+  "unit": "U98c",
+  "stage": "merge",
+  "at": "2026-09-27T19:52:11.390Z",
+  "pr": 2057,
+  "title": "test(multiplayer): measure enough server-time commands to absorb stall bursts",
+  "head": "ce937d97c40a5fb9f3e6936e1d832acbf64519bc",
+  "mergeSha": "d1297db61807e09019213842f40f30df5955a872",
+  "mergedAt": "2026-09-27T19:46:52Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test-helpers.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}

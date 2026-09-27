@@ -3760,18 +3760,53 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
-      "prHead": null,
-      "mergeSha": null,
+      "state": "complete",
+      "baseline": "c37665476c818b8d8e273264deaf9a4fc705400b",
+      "prHead": "ce937d97c40a5fb9f3e6936e1d832acbf64519bc",
+      "mergeSha": "d1297db61807e09019213842f40f30df5955a872",
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "admission": {
+          "path": "evidence/u98c-admission-20260927.json",
+          "baseline": "c37665476c818b8d8e273264deaf9a4fc705400b",
+          "at": "2026-09-27T19:20:00.000Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u98c-red-20260927.json",
+          "at": "2026-09-27T19:25:03.562Z",
+          "summary": "Red first with a test-local mutant: a ~30 ms stall in the timed appendCommandBatch wrapper on the first three measured 1000-event commands fails U98's row at the original 2 warm-ups / 6 measured commands (serverTotalWithoutRecordRewrite 4.86 -> 19.58 ms, 4 passed / 1 failed); the same burst failed U98b's exact-main attempt 01 on e8a21ed (4.37 -> 23.78 ms)"
+        },
+        "local": {
+          "path": "evidence/u98c-local-20260927.json",
+          "at": "2026-09-27T19:32:30.880Z",
+          "summary": "1 test helper +8/-0: WARM_UP 2 -> 4 and MEASURED 6 -> 12, alternating; growth rule, thresholds, sizes, PUTS and asserted rows unchanged; the stall mutant passes at 4/12 (4.24/3.70 ms), size-scaled grant growth still fails U98 and a 60 ms rewrite still fails only the ceiling; 10 separate jest processes green; +0.66 s mean wall time; typecheck, lint (0 errors), lint:units 17899/17899, format clean; Lane A reproduced the mutant at both counts, both protection mutants and 3 runs"
+        },
+        "review": {
+          "path": "evidence/u98c-review-20260927.json",
+          "head": "ce937d97c40a5fb9f3e6936e1d832acbf64519bc",
+          "reviewedHead": "ce937d97c40a5fb9f3e6936e1d832acbf64519bc",
+          "reviewerModel": "claude-fable-5-1",
+          "implementerModel": "gpt-5.6-sol-fast (deep-low task st_01a0e44f)",
+          "outputSha256": "808f4fda70a4faadee85e7ebf7d36814d1775090de113bf55e06c516e84d9b43",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u98c-merge-20260927.json",
+          "pr": 2057,
+          "head": "ce937d97c40a5fb9f3e6936e1d832acbf64519bc",
+          "mergeSha": "d1297db61807e09019213842f40f30df5955a872"
+        },
+        "mainProof": {
+          "path": "evidence/u98c-mainproof-20260927.json",
+          "mergeCommit": "d1297db61807e09019213842f40f30df5955a872",
+          "verdict": "PASS",
+          "runtime": "U98C PROOF RUNTIME PASSED: 25 passed (5 separate jest processes x 5 tests, 0 failed, exit 0)"
+        },
+        "tick": {
+          "path": "evidence/u98c-tick-20260927.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "admissionRequires": "Parent verifies the admission baseline and that only the two campaignHostIntentServerTime test files change. Red first with a test-local mutant: a ~30 ms stall injected into the first three measured 1000-event commands fails U98's row at today's six samples; green: the same mutant leaves every row green at twelve, while a size-scaled delay on every command still fails U98's row and a rewrite above 50 ms still fails the ceiling row; at least ten separate jest processes green on the head; restored with sha256 checked. Report the test's added wall time.",
@@ -12920,7 +12955,8 @@
       "summary": "In one of thirteen exact-main runs of campaignHostIntentServerTime.test.ts, the first three measured 1000-event commands stalled ~30 ms each in different steps (appendCommandBatch 34 ms; gate 31 ms with append 41 ms and replica ingest 17 ms; healRead 31 ms), and U98's net serverTotal median rose from about 4.4 to 23.8 ms because each size measures only six commands. The other 153 measured commands had no stall over 15 ms. A burst of three can carry a six-sample median.",
       "evidence": "evidence/u98b-logs-20260927.json (attempt-01-exact-main-ladder.log) and evidence/u98b-mainproof-20260927.json",
       "recommendedSuccessor": "U98c",
-      "status": "recorded; held by U98c"
+      "status": "resolved by U98c (merge d1297db61807e09019213842f40f30df5955a872): each log size measures 12 commands after 4 warm-ups, so up to five stalled commands leave a step's median unchanged; the growth rule, thresholds, sizes and rows are unchanged",
+      "resolvedBy": "U98c"
     }
   ]
 }
