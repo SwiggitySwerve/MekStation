@@ -1,0 +1,8 @@
+{
+  "unit": "P1A",
+  "stage": "tick",
+  "at": "2026-09-27T17:23:47.473Z",
+  "taskKeys": [],
+  "note": "P1A holds no task row: it is a split prefix of P1 (splitFrom P1). The aggregate proof of plan task 2 stays open until P1A, P1B and P1C are delivered; the delivered create/map behaviour is proven on main by this unit.",
+  "tickedOnMain": null
+}

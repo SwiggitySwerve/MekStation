@@ -1,0 +1,31 @@
+{
+  "unit": "P1A",
+  "stage": "merge",
+  "at": "2026-09-27T17:23:47.373Z",
+  "pr": 2051,
+  "title": "feat(multiplayer): create owner-bound co-op mission matches",
+  "head": "a6eed9ddbcbf25373fb3873e2f3f1a3bbd83cf6a",
+  "mergeSha": "d0347e7e6a236055a8af59c610cf6fb3ff650d35",
+  "mergedAt": "2026-09-27T17:12:23Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "src/lib/api/securitySchemas.ts",
+    "src/lib/multiplayer/server/DurableMatchStore.ts",
+    "src/lib/multiplayer/server/IMatchStore.ts",
+    "src/lib/multiplayer/server/InMemoryMatchStore.ts",
+    "src/lib/multiplayer/server/MatchHostRegistry.ts",
+    "src/lib/multiplayer/server/MatchRecovery.ts",
+    "src/lib/multiplayer/server/__tests__/coopMissionCreate.fixture.ts",
+    "src/lib/multiplayer/server/__tests__/coopMissionCreate.harness.ts",
+    "src/lib/multiplayer/server/__tests__/coopMissionCreate.refusals.test.ts",
+    "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+    "src/lib/multiplayer/server/coopMissionAdmission.ts",
+    "src/lib/multiplayer/server/coopMissionCreate.ts",
+    "src/lib/multiplayer/server/matchUnitBootstrap.ts",
+    "src/pages/api/multiplayer/matches/index.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}

@@ -1,3 +1,11 @@
+## 2026-09-27 P1A complete on main (parent)
+
+P1A is complete. The owner answered the ruling question for [PR #2051](https://github.com/SwiggitySwerve/MekStation/pull/2051) with "Accept P1A scope (Recommended)" and then instructed "go ahead and transcribe and continue". On that instruction the parent posted the `OWNER-RULING a6eed9ddbcbf25373fb3873e2f3f1a3bbd83cf6a` comment (5857974832) and applied `owner-ruled`; `PK-p1a-ruling` records the decision, the ruling and that deviation from the out-of-band rule. The PR merged with a head-pinned squash and no administrative bypass as `d0347e7e6a236055a8af59c610cf6fb3ff650d35`: one parent, the 14 reviewed files byte-identical, 31 of 31 checks green.
+
+The [exact-main proof](evidence/p1a-mainproof-20260927.json) ran in the owned worktree detached at the merge, not the root checkout. It covers a fresh production build, typecheck, lint (84 warnings, 0 errors), lint:units 17899/17899, format:check, 18 focused suites (131 passed), the real production HTTP run (47 of 47 cases, 9 server boots, all 526 artifacts hash-verified, cleanup checked) and the validator with `--git`, `--next` and `--github`. A first attempt stopped before any gate on a proof-script defect; its log is kept. The closure tool's fixed text about a gate-re-running reviewer, Lane B "not required" and a root-checkout fast-forward was corrected in the receipts.
+
+P1B is released to planned because its predecessor now has an exact-main receipt; its admission must supply an immutable source for the announced deployers. P1C stays blocked on P1B. Plan task 2's aggregate proof, the server AI, browser launch proof and U38 enforcement remain unfinished.
+
 ## 2026-09-27 P1A local verification (parent)
 
 P1A is locally verified at corrected product candidate `a6eed9ddbcbf25373fb3873e2f3f1a3bbd83cf6a`, based on `9f0d401dfdcbc832f48f678733b790d4566d271c`. The [local receipt](evidence/p1a-local-20260927.json) binds 14 source/test files to 131 passing focused tests and the CI shard (459 suites, 5,962 passed, zero failed, three pre-existing platform/asset skips). The earlier 47-case real-HTTP proof and production build cover unchanged runtime bytes. Product additions are 473 lines; test additions are 1,003 lines. The first CI failure and its stricter native-error assertion fix remain recorded.

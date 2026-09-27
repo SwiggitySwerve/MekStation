@@ -3609,10 +3609,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "9f0d401dfdcbc832f48f678733b790d4566d271c",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "a6eed9ddbcbf25373fb3873e2f3f1a3bbd83cf6a",
+      "mergeSha": "d0347e7e6a236055a8af59c610cf6fb3ff650d35",
       "stageReceipts": {
         "admission": {
           "path": "evidence/p1a-admission-20260927.json",
@@ -3631,10 +3631,31 @@
           "at": "2026-09-27T09:45:20.279Z",
           "summary": "131 focused tests and 5,962 CI-shard tests passed; the prior 47-case HTTP proof covers unchanged runtime; 14 files and 473 added product lines"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/p1a-review-20260927.json",
+          "head": "a6eed9ddbcbf25373fb3873e2f3f1a3bbd83cf6a",
+          "reviewedHead": "a6eed9ddbcbf25373fb3873e2f3f1a3bbd83cf6a",
+          "reviewerModel": "claude-fable-5-1",
+          "implementerModel": "gpt-6-astra (xhigh; deep-high task st_01a0e17f; parent applied its patches)",
+          "outputSha256": "fd53fcd4f36d119dc88aa09d9c4a4b0e8b532509c196549bdfb000282b9f4740",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/p1a-merge-20260927.json",
+          "pr": 2051,
+          "head": "a6eed9ddbcbf25373fb3873e2f3f1a3bbd83cf6a",
+          "mergeSha": "d0347e7e6a236055a8af59c610cf6fb3ff650d35"
+        },
+        "mainProof": {
+          "path": "evidence/p1a-mainproof-20260927.json",
+          "mergeCommit": "d0347e7e6a236055a8af59c610cf6fb3ff650d35",
+          "verdict": "PASS",
+          "runtime": "P1A PROOF RUNTIME PASSED: 178 passed (focused jest 131 of 131 in 18 suites, 0 failed, exit 0; real production HTTP 47 of 47 cases, 48 requests, 9 server boots, 0 failed, exit 0)"
+        },
+        "tick": {
+          "path": "evidence/p1a-tick-20260927.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "admissionRequires": "Parent verifies the registered paths and admission baseline before implementation. No snapshot/transport workaround may weaken the complete create/map contract. Required sensitive-class owner ruling is obtained on the actual PR head before merge.",
@@ -3673,7 +3694,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -3697,6 +3718,13 @@
         "reason": "Full P1 stopped at admission: replay registration and full accepted-head page handoff exceed its fixed ownership. This slice preserves its assigned clauses; estimates are not measured diffs.",
         "evidence": "evidence/p1-split-admission-20260927.json",
         "planTask": "44"
+      },
+      "release20260927": {
+        "at": "2026-09-27T17:30:00.000Z",
+        "from": "blocked",
+        "to": "planned",
+        "reason": "Its admissionRequires condition holds: predecessor P1A is complete with an exact-main mainProof receipt (evidence/p1a-mainproof-20260927.json, merge d0347e7e6a236055a8af59c610cf6fb3ff650d35, verdict PASS). Released at the P1A closure fold; no receipt is widened.",
+        "admissionNotes": "Read-only preparation on the P1A candidate found that the stored coopMission receipt carries no immutable deployingPlayerIds, and that playerIds, sideAssignments and unitBootstrap are patchable through IMatchMetaPatch. Admission must establish an immutable source for the announced deployers and re-measure the proposed fifteen-file scope against the caps."
       }
     },
     {
@@ -10822,9 +10850,23 @@
       ],
       "agentRecommendation": "Rule the exact head only after fresh independent review and required CI pass. The local proof covers P1A; announcement, navigation, server AI and command-ownership work remain outside this unit.",
       "revertCost": "Revert the isolated product change while preserving already-created durable mission metadata and opening events; no destructive data rollback is authorized.",
-      "decision": null,
-      "ruling": null,
-      "note": "Registered at the local receipt fold after the validator required a sensitive-class packet. This is an undecided question, not an owner ruling. The agent will not post the owner comment, apply its label or choose the packet decision."
+      "decision": {
+        "at": "2026-09-27T17:10:21Z",
+        "option": "rule the head",
+        "text": "Accept P1A scope (Recommended)",
+        "source": "owner instruction in the working session (chat): a structured question asking what disposition PK-p1a-ruling should contain for PR #2051 at a6eed9ddbcbf25373fb3873e2f3f1a3bbd83cf6a, covering only P1A durable mission creation and mapping; disclosed: Lane A APPROVE on the exact head, 31 of 31 checks green and CLEAN/MERGEABLE, and the scope limits (no P1B announcement, P1C handoff, navigation, server AI or U38 enforcement); the owner then answered \"go ahead and transcribe and continue\" to the transcription request"
+      },
+      "ruling": {
+        "ruledHead": "a6eed9ddbcbf25373fb3873e2f3f1a3bbd83cf6a",
+        "pr": 2051,
+        "commentId": 5857974832,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "1e42bebb7c04fe031cadbd93dc65f109f49161df2f75dc6ba5f7178098d45dd6",
+        "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band, and this packet's note said the agent would not post the comment or apply the label; on the owner's explicit instruction the parent composed and posted the comment from the owner GitHub account and applied the label; the decision is the owner's quoted answer, and the parent supplied the head from the ledger, as in the earlier rulings of this loop"
+      },
+      "note": "Registered at the local receipt fold after the validator required a sensitive-class packet. This is an undecided question, not an owner ruling. The agent will not post the owner comment, apply its label or choose the packet decision. Amended 2026-09-27 at the P1A closure fold: the owner answered the parent's question with \"Accept P1A scope (Recommended)\" and then instructed \"go ahead and transcribe and continue\"; on that instruction the parent posted the ruling comment and applied the label (see ruling.deviationDisclosed). The decision is the owner's; the agent chose no option."
     }
   ],
   "deferrals": [
