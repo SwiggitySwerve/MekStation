@@ -40,6 +40,7 @@ import { freezeCampaignEvent } from '@/lib/campaign/sync/campaignEventScope';
 import { projectCampaignForViewer } from '@/lib/campaign/sync/campaignViewerProjection';
 import { generateRoomCode, normalizeRoomCode } from '@/lib/p2p/roomCodes';
 import { nowIso } from '@/types/multiplayer/Protocol';
+import { logger } from '@/utils/logger';
 
 import type { CampaignMatchHost } from './CampaignMatchHost';
 
@@ -50,6 +51,10 @@ import {
   type ICampaignParticipantConvergence,
   type ICampaignProgressionReaders,
 } from './CampaignProgressionGate';
+import {
+  createCampaignViewerWireGate,
+  type ICampaignViewerWireGate,
+} from './campaignViewerWireGate';
 import {
   campaignScopeAdmits,
   type ICampaignWireViewer,
@@ -337,15 +342,7 @@ export class CampaignSyncSession {
    *
    * A wrong room code rejects with `ok: false` and delivers nothing.
    */
-  /**
-   * The single wire application point (umbrella 11.1, campaign half):
-   * every campaign frame passes the scope boundary per recipient BEFORE
-   * serialization. Withheld frames still advance delivery bookkeeping -
-   * the existing noteDelivered calls run regardless of admission, and
-   * deliberately: a participant will never receive a fact scope holds
-   * back, and convergence must not wait forever on it (trade-off owned
-   * by the delegated delivery-epoch change; recorded in the receipts).
-   */
+  /** The wire viewer for a sink: its proven participant, and whether that is the GM. */
   private wireViewer(participantId?: string): ICampaignWireViewer {
     return {
       participantId: participantId ?? null,
@@ -355,14 +352,37 @@ export class CampaignSyncSession {
     };
   }
 
+  /**
+   * The single wire application point (umbrella 11.1 and 12.1, U94): every
+   * campaign log frame for one recipient passes this gate BEFORE
+   * serialization. It withholds a frame whose scope the recipient is not
+   * admitted to, and a full-state `CampaignSnapshotPublished` that
+   * `campaignBaselineReachesViewer` refuses - the law the join baseline
+   * and the grant arm apply. The latch that law reads is seeded by the
+   * caller from the campaign log (`seed`: the events before each snapshot's
+   * sequence) and set by every frame the gate itself withholds.
+   *
+   * Withheld frames still advance delivery bookkeeping: `noteDelivered`
+   * runs for every settled frame regardless of admission, and
+   * deliberately: a participant will never receive a fact the gate holds
+   * back, and convergence must not wait forever on it (the 11.1 trade-off
+   * owned by the delegated delivery-epoch change; recorded in the
+   * receipts). It runs when a frame is settled, after the sink took it,
+   * so the ack guard never accepts a frame that was not yet sent.
+   */
   private admitToWire(
     sink: CampaignGuestSink,
     participantId: string | undefined,
-  ): CampaignGuestSink {
-    const viewer = this.wireViewer(participantId);
-    return (event) => {
-      if (campaignScopeAdmits(event.scope, viewer)) sink(event);
-    };
+  ): ICampaignViewerWireGate {
+    return createCampaignViewerWireGate(
+      this.wireViewer(participantId),
+      sink,
+      (event) => {
+        if (participantId !== undefined) {
+          this.noteDelivered(participantId, event.sequence);
+        }
+      },
+    );
   }
 
   /**
@@ -376,26 +396,54 @@ export class CampaignSyncSession {
    * a committed command could then reach one arm's clients and not
    * another's, which is exactly the live failure the finding recorded.
    *
-   * Scope admission runs per recipient through the same 11.1 boundary
-   * `joinMember` always used (the GM viewer admits every scope, so host
-   * delivery is unchanged in content). Delivery bookkeeping advances
-   * regardless of admission — the recorded 11.1 trade-off: a withheld
-   * fact must not make convergence wait forever.
+   * Admission runs per recipient through `admitToWire` (the GM viewer
+   * admits every scope and every baseline, so host delivery is unchanged
+   * in content). Delivery bookkeeping advances regardless of admission —
+   * the recorded 11.1 trade-off: a withheld fact must not make
+   * convergence wait forever.
+   *
+   * Subscribes first, then reads the campaign log once and seeds the
+   * gate's latch from it, so a full-state checkpoint published later (the
+   * live host adopting a PUT save, `adoptSavedCheckpoint`) is judged
+   * against everything this viewer was withheld before attaching. A
+   * snapshot published before that read returns waits, with every frame
+   * after it, until the seed settles them in order. A failed read seeds the
+   * latch as set: frames keep flowing, no full-state snapshot reaches a
+   * restricted viewer.
    */
   attachLiveParticipant = (
     rawSink: CampaignGuestSink,
     participantId?: string,
   ): (() => void) => {
-    const sink = this.admitToWire(rawSink, participantId);
-    const unsubscribe = this.host.subscribe((event) => {
-      sink(event);
-      // Delivery is recorded where delivery HAPPENS, and only after the
-      // sink took the frame. This is what lets the ack guard refuse a
-      // claim about a frame that was never sent.
-      if (participantId !== undefined) {
-        this.noteDelivered(participantId, event.sequence);
-      }
-    });
+    const gate = this.admitToWire(rawSink, participantId);
+    const detach = this.subscribeLive(gate, participantId);
+    void this.host
+      .getEventLog()
+      .getCampaignEvents(0)
+      .then(
+        (history) => gate.seed(history),
+        (error: unknown) => {
+          logger.warn(
+            'campaign live attach could not read the log to seed its baseline latch',
+            error,
+          );
+          gate.seed(null);
+        },
+      );
+    return detach;
+  };
+
+  /**
+   * Subscribe `gate` to the host's committed events and register the
+   * detach under the participant. `joinMember` and `resyncGuest` pass the
+   * gate their hydration already seeded and stepped, so its latch carries
+   * on from the frames they streamed.
+   */
+  private subscribeLive(
+    gate: ICampaignViewerWireGate,
+    participantId: string | undefined,
+  ): () => void {
+    const unsubscribe = this.host.subscribe((event) => gate.offer(event));
     if (participantId === undefined) return unsubscribe;
 
     // Registered under the participant so a committed removal can find
@@ -413,7 +461,7 @@ export class CampaignSyncSession {
     attached.add(detach);
     this.liveByParticipant.set(participantId, attached);
     return detach;
-  };
+  }
 
   /**
    * Retain a participant whose BASELINE was hydrated outside this
@@ -479,15 +527,19 @@ export class CampaignSyncSession {
     if (!this.opened || this.paused) {
       return { ok: false, delivered: [], disconnect: () => {} };
     }
-    const sink = this.admitToWire(rawSink, participantId);
+    const gate = this.admitToWire(rawSink, participantId);
 
     const delivered: ICampaignEvent[] = [];
     const buffered: ICampaignEvent[] = [];
     const liveUnsub = this.host.subscribe((event) => buffered.push(event));
     const revision = await this.currentRevision();
-    const baseline = await this.buildBaselineEvent(revision, participantId);
+    const history = await this.host.getEventLog().getCampaignEvents(0);
+    const baseline = this.buildBaselineEvent(revision, participantId, history);
+    gate.seed(history);
     delivered.push(baseline);
-    sink(baseline);
+    // Already projected for this viewer and not a log event: the gate
+    // does not step on it.
+    rawSink(baseline);
 
     // The highest revision this join actually handed the participant.
     // The baseline IS `revision`; the tail can carry more when the host
@@ -499,7 +551,7 @@ export class CampaignSyncSession {
       if (event.sequence <= revision || seen.has(event.sequence)) continue;
       seen.add(event.sequence);
       delivered.push(event);
-      sink(event);
+      gate.offer(event);
       if (event.sequence > deliveredRevision)
         deliveredRevision = event.sequence;
     }
@@ -531,7 +583,7 @@ export class CampaignSyncSession {
       });
     }
 
-    const unsubscribe = this.attachLiveParticipant(rawSink, participantId);
+    const unsubscribe = this.subscribeLive(gate, participantId);
 
     return { ok: true, delivered, disconnect: unsubscribe };
   };
@@ -558,7 +610,7 @@ export class CampaignSyncSession {
     rawSink: CampaignGuestSink,
     participantId?: string,
   ): Promise<ICampaignResyncResult> => {
-    const sink = this.admitToWire(rawSink, participantId);
+    const gate = this.admitToWire(rawSink, participantId);
     if (this.roomCode === null) {
       return {
         ok: false,
@@ -575,13 +627,19 @@ export class CampaignSyncSession {
     if (gap > RESYNC_SNAPSHOT_GAP) {
       // Large-gap path — a fresh baseline is cheaper than the tail.
       const revision = Math.max(0, highest - 1);
-      const baseline = await this.buildBaselineEvent(revision, participantId);
+      const history = await this.host.getEventLog().getCampaignEvents(0);
+      const baseline = this.buildBaselineEvent(
+        revision,
+        participantId,
+        history,
+      );
+      gate.seed(history);
       delivered.push(baseline);
-      sink(baseline);
+      rawSink(baseline);
       if (participantId !== undefined) {
         this.noteDelivered(participantId, revision);
       }
-      const unsubscribe = this.attachLiveParticipant(rawSink, participantId);
+      const unsubscribe = this.subscribeLive(gate, participantId);
       return {
         ok: true,
         delivered,
@@ -591,15 +649,16 @@ export class CampaignSyncSession {
     }
 
     // Small-gap path — stream only the missing tail (sequence > lastSeq).
-    const tail = await this.host.getEventLog().getCampaignEvents(lastSeq + 1);
-    for (const event of tail) {
+    // The whole log is read so the gate's latch sees what this viewer was
+    // withheld before lastSeq; only the tail is offered.
+    const history = await this.host.getEventLog().getCampaignEvents(0);
+    gate.seed(history);
+    for (const event of history) {
+      if (event.sequence <= lastSeq) continue;
       delivered.push(event);
-      sink(event);
-      if (participantId !== undefined) {
-        this.noteDelivered(participantId, event.sequence);
-      }
+      gate.offer(event);
     }
-    const unsubscribe = this.attachLiveParticipant(rawSink, participantId);
+    const unsubscribe = this.subscribeLive(gate, participantId);
     return { ok: true, delivered, snapshotted: false, disconnect: unsubscribe };
   };
 
@@ -822,14 +881,15 @@ export class CampaignSyncSession {
    * numbering is the deferral recorded in `campaignWireScopeBoundary`,
    * owned elsewhere. Narrowing the state does not touch it.
    */
-  private async buildBaselineEvent(
+  private buildBaselineEvent(
     revision: number,
     participantId: string | undefined,
-  ): Promise<ICampaignEvent<'CampaignSnapshotPublished'>> {
+    events: readonly ICampaignEvent[],
+  ): ICampaignEvent<'CampaignSnapshotPublished'> {
     const viewer = this.wireViewer(participantId);
-    // The whole log, not the host's cached state: the fold has to be of
-    // the events this viewer may see, and only the log carries scopes.
-    const events = await this.host.getEventLog().getCampaignEvents(0);
+    // `events` is the whole log, not the host's cached state: the fold has
+    // to be of the events this viewer may see, and only the log carries
+    // scopes.
     const projection = projectCampaignForViewer(
       this.host.campaignId,
       events,
