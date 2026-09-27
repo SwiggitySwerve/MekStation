@@ -1,0 +1,149 @@
+{
+  "unit": "P1A",
+  "stage": "red",
+  "at": "2026-09-27T08:51:58.647Z",
+  "baseline": "9f0d401dfdcbc832f48f678733b790d4566d271c",
+  "productSourceUnchanged": true,
+  "implementerModel": "GPT-6 Astra / xhigh",
+  "handler": {
+    "at": "2026-09-27T06:51:15.152Z",
+    "baseline": "9f0d401dfdcbc832f48f678733b790d4566d271c",
+    "command": "powershell.exe -NoProfile -NonInteractive -Command '$ErrorActionPreference=\"Stop\"; $env:Path=\"C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0;\"+$env:Path; Set-Location \"E:/Projects/MekStation-wt/mekstation-roadmap-loop-continuation-wave-a\"; (Get-Process -Id $PID).ProcessorAffinity=3; node scripts/qc/machine-idle.mjs; if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}; node node_modules/jest/bin/jest.js --runInBand --watchAll=false \"--testPathPattern=coopMissionCreate\" --json --outputFile=.omo/ulw-execute/p1a/red-02-results.json; exit $LASTEXITCODE'",
+    "monitor": "mon_MP9R5BDY6BC9Q0M6",
+    "exit": 1,
+    "kind": "behavioral-red",
+    "tests": {
+      "total": 21,
+      "failed": 11,
+      "passed": 10,
+      "runtimeErrorSuites": 0
+    },
+    "primaryFailure": {
+      "case": "creates an owner-bound combat match when both contributors deployed",
+      "expectedStatus": 201,
+      "actualStatus": 400
+    },
+    "positiveControl": "keeps vessel requests distinct when their bodies are repeated passed",
+    "nonclaims": [
+      "Schema400 negatives do not prove semantic authorization/ownership refusals",
+      "Real application HTTP red pending baseline build",
+      "No product implementation applied"
+    ],
+    "cleanup": {
+      "p1aRouteTempDirectoriesRemaining": [],
+      "inheritedCrashDirectories": [
+        {
+          "path": "C:\\Users\\wroll\\AppData\\Local\\Temp\\mp-durable-crash-0jICT0",
+          "absent": true
+        },
+        {
+          "path": "C:\\Users\\wroll\\AppData\\Local\\Temp\\mp-durable-crash-hbZd2I",
+          "absent": true
+        },
+        {
+          "path": "C:\\Users\\wroll\\AppData\\Local\\Temp\\mp-durable-head-crash-09A0oN",
+          "absent": true
+        },
+        {
+          "path": "C:\\Users\\wroll\\AppData\\Local\\Temp\\mp-durable-head-crash-jJgeKL",
+          "absent": true
+        }
+      ]
+    },
+    "baselineBuild": {
+      "monitor": "mon_N09AKGB1A87023HA",
+      "command": "powershell.exe -NoProfile -NonInteractive -Command '$ErrorActionPreference=\"Stop\"; $env:Path=\"C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0;\"+$env:Path; Set-Location \"E:/Projects/MekStation-wt/mekstation-roadmap-loop-continuation-wave-a\"; (Get-Process -Id $PID).ProcessorAffinity=3; node scripts/qc/machine-idle.mjs; if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}; npm.cmd run build 2>&1 | Tee-Object -FilePath .omo/ulw-execute/p1a/baseline-build-01.log; $code=$LASTEXITCODE; Write-Output \"P1A_BASELINE_BUILD_EXIT $code\"; exit $code'",
+      "status": "running",
+      "log": ".omo/ulw-execute/p1a/baseline-build-01.log"
+    },
+    "implementation": {
+      "worker": "st_01a0e17f",
+      "epoch": 4,
+      "status": "Authoring patch text only; parent holds application until HTTP red"
+    },
+    "diagnostics": "Four test files were clean before environment-comment removal; refreshed requests on the two comment-edited files timed out. No TypeScript diagnostic reported; production build is pending."
+  },
+  "http": {
+    "task": "43",
+    "unit": "P1A",
+    "status": "real-HTTP-red-confirmed-not-implemented",
+    "baseline": "9f0d401dfdcbc832f48f678733b790d4566d271c",
+    "build": {
+      "monitor": "mon_2GY80SZGHDYXMTH0",
+      "command": "set -o pipefail; cd E:/Projects/MekStation-wt/mekstation-roadmap-loop-continuation-wave-a; powershell.exe -NoProfile -NonInteractive -Command '$ErrorActionPreference=\"Stop\"; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new(); $env:Path=\"C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0;\"+$env:Path; (Get-Process -Id $PID).ProcessorAffinity=3; node scripts/qc/machine-idle.mjs --wait --timeout-ms 1200000; if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}; $holds=@(\".omo\",\".sisyphus\",\"E:/Projects/MekStation/.omo\",\"E:/Projects/MekStation/.sisyphus\") | Where-Object { Test-Path $_ } | ForEach-Object { Get-ChildItem -LiteralPath $_ -File -Recurse -Filter \"*PARENT-PROOF-HOLD*\" }; if($holds){Write-Output \"P1A_HOLD_PRESENT\"; exit 3}; & cmd.exe /d /s /c \"npm.cmd run build 2>&1\"; exit $LASTEXITCODE' | tee .omo/ulw-execute/p1a/baseline-build-03.log; rc=$?; printf \"P1A_BASELINE_BUILD_EXIT %s\\n\" \"$rc\"; exit \"$rc\"",
+      "exit": 0,
+      "buildId": "1790492634238",
+      "pages": 71,
+      "hydration": true,
+      "standaloneNodeModulesIsLink": false,
+      "log": ".omo/ulw-execute/p1a/baseline-build-03.log"
+    },
+    "http": {
+      "monitor": "mon_J2KWRBZ4T4CA9RQ2",
+      "command": "set -o pipefail; cd E:/Projects/MekStation-wt/mekstation-roadmap-loop-continuation-wave-a; powershell.exe -NoProfile -NonInteractive -Command '$ErrorActionPreference=\"Stop\"; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new(); $env:Path=\"C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0;\"+$env:Path; (Get-Process -Id $PID).ProcessorAffinity=3; $holds=@(\".omo\",\".sisyphus\",\"E:/Projects/MekStation/.omo\",\"E:/Projects/MekStation/.sisyphus\") | Where-Object { Test-Path $_ } | ForEach-Object { Get-ChildItem -LiteralPath $_ -File -Recurse -Filter \"*PARENT-PROOF-HOLD*\" }; if($holds){Write-Output \"P1A_HOLD_PRESENT\"; exit 3}; & cmd.exe /d /s /c \"node --import tsx .omo/ulw-execute/p1a/http-red.cjs attempt-02 2>&1\"; exit $LASTEXITCODE' | tee .omo/ulw-execute/p1a/http-red-02.log; rc=$?; printf \"P1A_HTTP_RED_EXIT %s\\n\" \"$rc\"; exit \"$rc\"",
+      "exit": 1,
+      "phase": "mission-positive-assertion",
+      "requests": [
+        {
+          "name": "head",
+          "status": 200
+        },
+        {
+          "name": "vessel",
+          "status": 201
+        },
+        {
+          "name": "mission",
+          "status": 400
+        }
+      ],
+      "before": {
+        "matches": 1,
+        "combatHosts": 0,
+        "missionReceipts": 0,
+        "events": 0,
+        "receipts": 0,
+        "campaignEvents": 1
+      },
+      "after": {
+        "matches": 1,
+        "combatHosts": 0,
+        "missionReceipts": 0,
+        "events": 0,
+        "receipts": 0,
+        "campaignEvents": 1
+      },
+      "refusal": "Strict body schema requires coopCampaign.state and rejects mission descriptor fields",
+      "evidence": ".omo/ulw-execute/p1a/attempt-02-http-red/"
+    },
+    "integrity": {
+      "artifacts": 18,
+      "hashErrors": []
+    },
+    "cleanup": {
+      "pid": 9812,
+      "pidAbsent": true,
+      "port": 3639,
+      "listenerCount": 0,
+      "fixtureAbsent": true,
+      "databasesAndSidecarsRemoved": [
+        "campaign.db",
+        "campaign.db-shm",
+        "campaign.db-wal",
+        "matches.db",
+        "matches.db-shm",
+        "matches.db-wal"
+      ]
+    },
+    "nonclaims": [
+      "P1A product behavior is not implemented",
+      "10 passing red-suite negatives do not yet prove semantic admission",
+      "Private dependencies and build outputs are retained under their registered cleanup obligation"
+    ]
+  },
+  "excludedAttempts": [
+    "Initial helper typing and Jest environment setup failures were tooling failures, not behavioral red.",
+    "The first build wrapper and the rejected standalone junction hydration were not counted as successful builds or behavior red."
+  ],
+  "summary": "The corrected real-handler integration run had 11 failures / 10 passes with zero runtime-error suites. Actual production HTTP returned 400 rather than 201 for valid mission creation; head 200 and vessel 201 controls passed and durable counts remained unchanged."
+}

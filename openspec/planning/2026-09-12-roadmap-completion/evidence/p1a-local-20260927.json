@@ -1,0 +1,812 @@
+{
+  "unit": "P1A",
+  "stage": "local",
+  "at": "2026-09-27T09:45:20.279Z",
+  "status": "ready",
+  "baseline": "9f0d401dfdcbc832f48f678733b790d4566d271c",
+  "candidateHead": "a6eed9ddbcbf25373fb3873e2f3f1a3bbd83cf6a",
+  "testedTree": "Original production/HTTP proof was captured before the first normal-hook commit, whose 14 files matched tested bytes. CI then exposed a native-error matcher issue. The test-only correction was rerun through 131 focused tests and the actual CI shard, then committed with the corrected test hash unchanged by normal hooks. Unchanged-runtime HTTP evidence is reused explicitly, not represented as a new execution.",
+  "implementerModel": "GPT-6 Astra / xhigh",
+  "worktree": "E:/Projects/MekStation-wt/mekstation-roadmap-loop-continuation-wave-a",
+  "files": [
+    {
+      "file": "src/lib/api/securitySchemas.ts",
+      "sha256": "592a59e62e85d40e912c52caf324c0e7f78de630ee76fa28aa6bf74a8f7eca12",
+      "matchesTested": true
+    },
+    {
+      "file": "src/lib/multiplayer/server/DurableMatchStore.ts",
+      "sha256": "c7aa9dc2e90b215d23ecac7f1cf5ed4aae14796b5d22bd8a4c093e581ddca962",
+      "matchesTested": true
+    },
+    {
+      "file": "src/lib/multiplayer/server/IMatchStore.ts",
+      "sha256": "ee30498d0d76a1c48946a974558dbeb6bc1449f94758016cb80eff1ec10365c1",
+      "matchesTested": true
+    },
+    {
+      "file": "src/lib/multiplayer/server/InMemoryMatchStore.ts",
+      "sha256": "be168c3aeabf50b26e43bac88f57263a8e14a30d46ea7cf0fe6e18b0a3569a30",
+      "matchesTested": true
+    },
+    {
+      "file": "src/lib/multiplayer/server/MatchHostRegistry.ts",
+      "sha256": "feb2576461403b3dafd68dba5631b43c4f0ba9620d0f0f006f47178b8d62cade",
+      "matchesTested": true
+    },
+    {
+      "file": "src/lib/multiplayer/server/MatchRecovery.ts",
+      "sha256": "0a168f96381d47a3487b00b509d81dc53549377e98ab8523ac2209e2e7fc5ede",
+      "matchesTested": true
+    },
+    {
+      "file": "src/lib/multiplayer/server/matchUnitBootstrap.ts",
+      "sha256": "f9a6adf5fdd2cda453a440d83eb4d30499c925a5c8fd464b6a8a639585342b7d",
+      "matchesTested": true
+    },
+    {
+      "file": "src/pages/api/multiplayer/matches/index.ts",
+      "sha256": "b2cce8463b107b2c8b7a71f6582eacc0eb4e06976467703c5347a429400f481d",
+      "matchesTested": true
+    },
+    {
+      "file": "src/lib/multiplayer/server/__tests__/coopMissionCreate.fixture.ts",
+      "sha256": "9446da8239e1bdc01927564b9b2cc186a9648628621c28697768c8fbc609c205",
+      "matchesTested": true
+    },
+    {
+      "file": "src/lib/multiplayer/server/__tests__/coopMissionCreate.harness.ts",
+      "sha256": "7ece3af4538927777c69bc2e8a6f1846cc41d6dd8690b9dcbd5a8c8d148f77ae",
+      "matchesTested": true
+    },
+    {
+      "file": "src/lib/multiplayer/server/__tests__/coopMissionCreate.refusals.test.ts",
+      "sha256": "8091944ed5c279fb2e9aa0ea22458fb2b894203951e3a9feace7d9621c16b367",
+      "matchesTested": true
+    },
+    {
+      "file": "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+      "sha256": "1e523bfd31702265a6389febc7f66aeac1240fd12c9e2151b32e87369049148c",
+      "matchesTested": true
+    },
+    {
+      "file": "src/lib/multiplayer/server/coopMissionAdmission.ts",
+      "sha256": "93a2df0ba603ac1c089bc9e0f49eb671dcfb3f2036093af8c30a8b7480058704",
+      "matchesTested": true
+    },
+    {
+      "file": "src/lib/multiplayer/server/coopMissionCreate.ts",
+      "sha256": "39f2ad3c4a6c3361a6bc49e5748007347b67ca864391e7f544f115706226922a",
+      "matchesTested": true
+    }
+  ],
+  "lineCounts": {
+    "sourceAndTestFiles": 14,
+    "productAddedLines": 473,
+    "productDeletedLines": 23,
+    "testAddedLines": 1003,
+    "testDeletedLines": 0,
+    "caps": {
+      "maxFiles": 15,
+      "maxNonGeneratedLines": 500
+    }
+  },
+  "focusedTests": {
+    "command": "set -o pipefail; cd E:/Projects/MekStation-wt/mekstation-roadmap-loop-continuation-wave-a; powershell.exe -NoProfile -NonInteractive -Command '$ErrorActionPreference=\"Stop\"; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new(); $env:Path=\"C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0;\"+$env:Path; $env:TEMP=\"C:/Users/wroll/AppData/Local/Temp/mekstation-p1a-ci-fix-jzCLvr\"; $env:TMP=\"C:/Users/wroll/AppData/Local/Temp/mekstation-p1a-ci-fix-jzCLvr\"; $env:TMPDIR=\"C:/Users/wroll/AppData/Local/Temp/mekstation-p1a-ci-fix-jzCLvr\"; (Get-Process -Id $PID).ProcessorAffinity=3; node scripts/qc/machine-idle.mjs --wait --timeout-ms 1200000; if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}; $holds=@(\".omo\",\".sisyphus\",\"E:/Projects/MekStation/.omo\",\"E:/Projects/MekStation/.sisyphus\") | Where-Object {Test-Path $_} | ForEach-Object {Get-ChildItem -LiteralPath $_ -File -Recurse -Filter \"*PARENT-PROOF-HOLD*\"}; if($holds){Write-Output \"P1A_HOLD_PRESENT\"; exit 3}; Write-Output \"P1A_FIX_STAGE focused\"; & cmd.exe /d /s /c \"node node_modules/jest/bin/jest.js --runInBand --watchAll=false --testPathPattern=coopMissionCreate^|DurableMatchStore^|InMemoryMatchStore^|MatchHostRegistry^|MatchRecovery^|multiplayerMatchesFog^|multiplayerCoopCreationCheckpoint^|coopMatchRosterSourceVersion^|securitySchemas --json --outputFile=.omo/ulw-execute/p1a/green-08-results.json 2>&1\"; $code=$LASTEXITCODE; Write-Output \"P1A_FIX_RESULT focused $code\"; if($code -ne 0){exit $code}; $env:JEST_EXCLUDE_PERF_SENSITIVE=\"true\"; Write-Output \"P1A_FIX_STAGE shard1\"; & cmd.exe /d /s /c \"node node_modules/jest/bin/jest.js --selectProjects unit --ci --shard=1/6 --runInBand --watchAll=false --json --outputFile=.omo/ulw-execute/p1a/ci-fix-shard-1-results.json 2>&1\"; $code=$LASTEXITCODE; Write-Output \"P1A_FIX_RESULT shard1 $code\"; if($code -ne 0){exit $code}; foreach($gate in @(\"typecheck\",\"lint:units\",\"format:check\")){Write-Output \"P1A_FIX_STAGE $gate\"; & cmd.exe /d /s /c \"npm.cmd run $gate 2>&1\"; $code=$LASTEXITCODE; Write-Output \"P1A_FIX_RESULT $gate $code\"; if($code -ne 0){exit $code}}; exit 0' | tee .omo/ulw-execute/p1a/ci-fix-local-01.log; rc=$?; printf \"P1A_CI_FIX_EXIT %s\\n\" \"$rc\"; exit \"$rc\"",
+    "suites": 18,
+    "passed": 131,
+    "failed": 0,
+    "runtimeErrorSuites": 0,
+    "artifact": "E:/Projects/MekStation-wt/mekstation-roadmap-loop-continuation-wave-a/.omo/ulw-execute/p1a/green-08-results.json"
+  },
+  "additionalRegression": {
+    "red": "closed-host-red-results.json:16 passes and one intended failure; real SQLite close-write fault left a closed cached host despite an active durable receipt",
+    "green": "green07 proves replacement with a live recovered host and unchanged identity/events"
+  },
+  "gates": {
+    "unit": "P1A",
+    "task": "43",
+    "at": "2026-09-27T08:32:54.287Z",
+    "command": "set -o pipefail; cd E:/Projects/MekStation-wt/mekstation-roadmap-loop-continuation-wave-a; powershell.exe -NoProfile -NonInteractive -Command '$ErrorActionPreference=\"Stop\"; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new(); $env:Path=\"C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0;\"+$env:Path; $env:TEMP=\"C:/Users/wroll/AppData/Local/Temp/mekstation-p1a-final-proof-A6PJOH\"; $env:TMP=\"C:/Users/wroll/AppData/Local/Temp/mekstation-p1a-final-proof-A6PJOH\"; $env:TMPDIR=\"C:/Users/wroll/AppData/Local/Temp/mekstation-p1a-final-proof-A6PJOH\"; (Get-Process -Id $PID).ProcessorAffinity=3; node scripts/qc/machine-idle.mjs --wait --timeout-ms 1200000; if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}; $holds=@(\".omo\",\".sisyphus\",\"E:/Projects/MekStation/.omo\",\"E:/Projects/MekStation/.sisyphus\") | Where-Object {Test-Path $_} | ForEach-Object {Get-ChildItem -LiteralPath $_ -File -Recurse -Filter \"*PARENT-PROOF-HOLD*\"}; if($holds){Write-Output \"P1A_HOLD_PRESENT\"; exit 3}; foreach($gate in @(\"typecheck\",\"lint\",\"lint:units\",\"format:check\",\"build\")){Write-Output \"P1A_GATE_START $gate\"; & cmd.exe /d /s /c \"npm.cmd run $gate 2>&1\"; $code=$LASTEXITCODE; Write-Output \"P1A_GATE_RESULT $gate $code\"; if($code -ne 0){exit $code}}; exit 0' | tee .omo/ulw-execute/p1a/local-gates-03.log; rc=$?; printf \"P1A_LOCAL_GATES_EXIT %s\\n\" \"$rc\"; exit \"$rc\"",
+    "log": {
+      "path": "local-gates-03.log",
+      "sha256": "1263f38f857fcc9ab1fb8d56e0843649e6ef758aaff42bd258fb0e8d1c18cedb"
+    },
+    "exit": 0,
+    "results": {
+      "typecheck": 0,
+      "lint": {
+        "exit": 0,
+        "warnings": 84,
+        "errors": 0
+      },
+      "lintUnits": {
+        "exit": 0,
+        "findings": 17899,
+        "ceiling": 17899
+      },
+      "format": 0,
+      "build": 0
+    },
+    "buildId": "1790497660791",
+    "sourceAfterGates": [
+      {
+        "file": "src/lib/api/securitySchemas.ts",
+        "unchanged": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/DurableMatchStore.ts",
+        "unchanged": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/IMatchStore.ts",
+        "unchanged": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/InMemoryMatchStore.ts",
+        "unchanged": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/MatchHostRegistry.ts",
+        "unchanged": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/MatchRecovery.ts",
+        "unchanged": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/matchUnitBootstrap.ts",
+        "unchanged": true
+      },
+      {
+        "file": "src/pages/api/multiplayer/matches/index.ts",
+        "unchanged": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/__tests__/coopMissionCreate.fixture.ts",
+        "unchanged": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/__tests__/coopMissionCreate.harness.ts",
+        "unchanged": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/__tests__/coopMissionCreate.refusals.test.ts",
+        "unchanged": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+        "unchanged": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/coopMissionAdmission.ts",
+        "unchanged": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/coopMissionCreate.ts",
+        "unchanged": true
+      }
+    ],
+    "cleanup": {
+      "root": "C:/Users/wroll/AppData/Local/Temp/mekstation-p1a-final-proof-A6PJOH",
+      "entries": 2277,
+      "top": [
+        "jest",
+        "mp-durable-crash-HPe9Uu",
+        "mp-durable-head-crash-t1DrJc",
+        "node-compile-cache"
+      ],
+      "scope": "Fresh parent-owned verification TEMP; HTTP runner does not use this TEMP."
+    },
+    "doneClaim": false
+  },
+  "http": {
+    "unit": "P1A",
+    "task": "43",
+    "status": "LOCAL_HTTP_VERIFIED",
+    "command": "set -o pipefail; cd E:/Projects/MekStation-wt/mekstation-roadmap-loop-continuation-wave-a; export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH; TSX_DISABLE_CACHE=1 node --import tsx .omo/ulw-execute/p1a/http-green.cjs attempt-03 2>&1 | tee .omo/ulw-execute/p1a/http-green-03.log; rc=$?; printf \"P1A_HTTP_GREEN_EXIT %s\\n\" \"$rc\"; exit \"$rc\"",
+    "exit": 0,
+    "cases": 47,
+    "requests": 48,
+    "realServerProcesses": 9,
+    "source": {
+      "baseline": "9f0d401dfdcbc832f48f678733b790d4566d271c",
+      "branch": "codex/p1a-coop-mission-create-20260927",
+      "buildId": "1790497660791",
+      "bundle": ".next\\server\\pages\\api\\multiplayer\\matches.js",
+      "bundleSha256": "a47bae79aa34ed705f6ff5140117cf61e0339980e28de9265a77ed521e7a6e89",
+      "sourceDigest": "96866572e755ecef62f307e6261c7e1101c1b02a56cd2b291fdf40c4539fcec9",
+      "unchangedDuringProof": true,
+      "sourceHashCount": 7276
+    },
+    "integrity": {
+      "manifest": "attempt-03-http-green/manifest.json",
+      "manifestSha256": "f0dae5b6c9a2ca7f0eda5d4d7414241e5c321140052de75b63b722a38a667730",
+      "artifactsVerified": 526,
+      "failed": []
+    },
+    "caseArtifacts": [
+      {
+        "scenario": "main-vessel",
+        "status": "PASS",
+        "path": "attempt-03-http-green/main-vessel.case.json"
+      },
+      {
+        "scenario": "parallel-create",
+        "status": "PASS",
+        "path": "attempt-03-http-green/parallel-create.case.json"
+      },
+      {
+        "scenario": "identical-retry",
+        "status": "PASS",
+        "path": "attempt-03-http-green/identical-retry.case.json"
+      },
+      {
+        "scenario": "divergent-retry",
+        "status": "PASS",
+        "path": "attempt-03-http-green/divergent-retry.case.json"
+      },
+      {
+        "scenario": "first-cold-restart",
+        "status": "PASS",
+        "path": "attempt-03-http-green/first-cold-restart.case.json"
+      },
+      {
+        "scenario": "first-cold-retry",
+        "status": "PASS",
+        "path": "attempt-03-http-green/first-cold-retry.case.json"
+      },
+      {
+        "scenario": "nonmember",
+        "status": "PASS",
+        "path": "attempt-03-http-green/nonmember.case.json"
+      },
+      {
+        "scenario": "invalid-vessel",
+        "status": "PASS",
+        "path": "attempt-03-http-green/invalid-vessel.case.json"
+      },
+      {
+        "scenario": "missing-claim",
+        "status": "PASS",
+        "path": "attempt-03-http-green/missing-claim.case.json"
+      },
+      {
+        "scenario": "missing-participation",
+        "status": "PASS",
+        "path": "attempt-03-http-green/missing-participation.case.json"
+      },
+      {
+        "scenario": "negative-group-one-restart",
+        "status": "PASS",
+        "path": "attempt-03-http-green/negative-group-one-restart.case.json"
+      },
+      {
+        "scenario": "foreign-ref",
+        "status": "PASS",
+        "path": "attempt-03-http-green/foreign-ref.case.json"
+      },
+      {
+        "scenario": "foreign-unit",
+        "status": "PASS",
+        "path": "attempt-03-http-green/foreign-unit.case.json"
+      },
+      {
+        "scenario": "forged-owner",
+        "status": "PASS",
+        "path": "attempt-03-http-green/forged-owner.case.json"
+      },
+      {
+        "scenario": "choice-conflict",
+        "status": "PASS",
+        "path": "attempt-03-http-green/choice-conflict.case.json"
+      },
+      {
+        "scenario": "duplicate-unit",
+        "status": "PASS",
+        "path": "attempt-03-http-green/duplicate-unit.case.json"
+      },
+      {
+        "scenario": "negative-group-two-restart",
+        "status": "PASS",
+        "path": "attempt-03-http-green/negative-group-two-restart.case.json"
+      },
+      {
+        "scenario": "missing-ref",
+        "status": "PASS",
+        "path": "attempt-03-http-green/missing-ref.case.json"
+      },
+      {
+        "scenario": "unknown-opfor",
+        "status": "PASS",
+        "path": "attempt-03-http-green/unknown-opfor.case.json"
+      },
+      {
+        "scenario": "malformed-head",
+        "status": "PASS",
+        "path": "attempt-03-http-green/malformed-head.case.json"
+      },
+      {
+        "scenario": "foreign-force",
+        "status": "PASS",
+        "path": "attempt-03-http-green/foreign-force.case.json"
+      },
+      {
+        "scenario": "missing-choice",
+        "status": "PASS",
+        "path": "attempt-03-http-green/missing-choice.case.json"
+      },
+      {
+        "scenario": "controls-restart",
+        "status": "PASS",
+        "path": "attempt-03-http-green/controls-restart.case.json"
+      },
+      {
+        "scenario": "versus-control",
+        "status": "PASS",
+        "path": "attempt-03-http-green/versus-control.case.json"
+      },
+      {
+        "scenario": "single-player-control",
+        "status": "PASS",
+        "path": "attempt-03-http-green/single-player-control.case.json"
+      },
+      {
+        "scenario": "vessel-repeat",
+        "status": "PASS",
+        "path": "attempt-03-http-green/vessel-repeat.case.json"
+      },
+      {
+        "scenario": "hq-vessel",
+        "status": "PASS",
+        "path": "attempt-03-http-green/hq-vessel.case.json"
+      },
+      {
+        "scenario": "hq-create",
+        "status": "PASS",
+        "path": "attempt-03-http-green/hq-create.case.json"
+      },
+      {
+        "scenario": "head-change-restart",
+        "status": "PASS",
+        "path": "attempt-03-http-green/head-change-restart.case.json"
+      },
+      {
+        "scenario": "receipt-after-head-advance",
+        "status": "PASS",
+        "path": "attempt-03-http-green/receipt-after-head-advance.case.json"
+      },
+      {
+        "scenario": "stale-new-revision",
+        "status": "PASS",
+        "path": "attempt-03-http-green/stale-new-revision.case.json"
+      },
+      {
+        "scenario": "stale-new-branch",
+        "status": "PASS",
+        "path": "attempt-03-http-green/stale-new-branch.case.json"
+      },
+      {
+        "scenario": "stale-new-generation",
+        "status": "PASS",
+        "path": "attempt-03-http-green/stale-new-generation.case.json"
+      },
+      {
+        "scenario": "zero-deployers",
+        "status": "PASS",
+        "path": "attempt-03-http-green/zero-deployers.case.json"
+      },
+      {
+        "scenario": "pre-interruption-restart",
+        "status": "PASS",
+        "path": "attempt-03-http-green/pre-interruption-restart.case.json"
+      },
+      {
+        "scenario": "interrupted-vessel",
+        "status": "PASS",
+        "path": "attempt-03-http-green/interrupted-vessel.case.json"
+      },
+      {
+        "scenario": "cancel-commit-restart-retry",
+        "status": "PASS",
+        "path": "attempt-03-http-green/cancel-commit-restart-retry.case.json"
+      },
+      {
+        "scenario": "main-after-interruption",
+        "status": "PASS",
+        "path": "attempt-03-http-green/main-after-interruption.case.json"
+      },
+      {
+        "scenario": "hq-after-interruption",
+        "status": "PASS",
+        "path": "attempt-03-http-green/hq-after-interruption.case.json"
+      },
+      {
+        "scenario": "revoked-member",
+        "status": "PASS",
+        "path": "attempt-03-http-green/revoked-member.case.json"
+      },
+      {
+        "scenario": "unauthenticated",
+        "status": "PASS",
+        "path": "attempt-03-http-green/unauthenticated.case.json"
+      },
+      {
+        "scenario": "repeated-interruption-restart",
+        "status": "PASS",
+        "path": "attempt-03-http-green/repeated-interruption-restart.case.json"
+      },
+      {
+        "scenario": "repeated-main-retry",
+        "status": "PASS",
+        "path": "attempt-03-http-green/repeated-main-retry.case.json"
+      },
+      {
+        "scenario": "repeated-interrupted-retry",
+        "status": "PASS",
+        "path": "attempt-03-http-green/repeated-interrupted-retry.case.json"
+      },
+      {
+        "scenario": "cold-divergent-retry",
+        "status": "PASS",
+        "path": "attempt-03-http-green/cold-divergent-retry.case.json"
+      },
+      {
+        "scenario": "forged-durable-claim",
+        "status": "PASS",
+        "path": "attempt-03-http-green/forged-durable-claim.case.json"
+      },
+      {
+        "scenario": "forged-descriptor-player",
+        "status": "PASS",
+        "path": "attempt-03-http-green/forged-descriptor-player.case.json"
+      }
+    ],
+    "expectedInterruptedRequest": {
+      "name": "interrupted-create",
+      "status": null,
+      "error": "AbortError",
+      "reason": "Client canceled after durable commit while server return was held; cold recovery and identical retry passed."
+    },
+    "cleanup": {
+      "exits": [
+        {
+          "boot": 1,
+          "pid": 34664,
+          "code": null,
+          "signal": "SIGTERM",
+          "expectedStop": true
+        },
+        {
+          "boot": 2,
+          "pid": 47952,
+          "code": null,
+          "signal": "SIGTERM",
+          "expectedStop": true
+        },
+        {
+          "boot": 3,
+          "pid": 44268,
+          "code": null,
+          "signal": "SIGTERM",
+          "expectedStop": true
+        },
+        {
+          "boot": 4,
+          "pid": 41284,
+          "code": null,
+          "signal": "SIGTERM",
+          "expectedStop": true
+        },
+        {
+          "boot": 5,
+          "pid": 29584,
+          "code": null,
+          "signal": "SIGTERM",
+          "expectedStop": true
+        },
+        {
+          "boot": 6,
+          "pid": 18856,
+          "code": null,
+          "signal": "SIGTERM",
+          "expectedStop": true
+        },
+        {
+          "boot": 7,
+          "pid": 76316,
+          "code": null,
+          "signal": "SIGTERM",
+          "expectedStop": true
+        },
+        {
+          "boot": 8,
+          "pid": 38332,
+          "code": null,
+          "signal": "SIGTERM",
+          "expectedStop": true
+        },
+        {
+          "boot": 9,
+          "pid": 49740,
+          "code": null,
+          "signal": "SIGTERM",
+          "expectedStop": true
+        }
+      ],
+      "liveOwnedPids": [],
+      "listeners3639": [],
+      "fixtureAbsent": true,
+      "removedFiles": [
+        "campaign.db",
+        "campaign.db-shm",
+        "campaign.db-wal",
+        "matches.db",
+        "matches.db-shm",
+        "matches.db-wal"
+      ]
+    },
+    "nonclaims": [
+      "No browser/navigation or mission-announcement claim; P1B/P1C own those.",
+      "No server-AI turn progression or U38 command-ownership claim.",
+      "No owner ruling, independent review, PR merge or exact-main delivery yet."
+    ],
+    "doneClaim": false
+  },
+  "commit": {
+    "unit": "P1A",
+    "head": "a6eed9ddbcbf25373fb3873e2f3f1a3bbd83cf6a",
+    "previousHead": "2eb86c2fef9efbebbc15be592bdfa9c85dc1d68b",
+    "commitCommand": "set -o pipefail; cd E:/Projects/MekStation-wt/mekstation-roadmap-loop-continuation-wave-a; powershell.exe -NoProfile -NonInteractive -Command '$ErrorActionPreference=\"Stop\"; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new(); $env:Path=\"C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0;\"+$env:Path; (Get-Process -Id $PID).ProcessorAffinity=3; node scripts/qc/machine-idle.mjs --wait --timeout-ms 1200000; if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}; $holds=@(\".omo\",\".sisyphus\",\"E:/Projects/MekStation/.omo\",\"E:/Projects/MekStation/.sisyphus\") | Where-Object {Test-Path $_} | ForEach-Object {Get-ChildItem -LiteralPath $_ -File -Recurse -Filter \"*PARENT-PROOF-HOLD*\"}; if($holds){Write-Output \"P1A_HOLD_PRESENT\"; exit 3}; & cmd.exe /d /s /c \"git commit -m `\"test(multiplayer): match native SQLite rejections across realms`\" 2>&1\"; exit $LASTEXITCODE' | tee .omo/ulw-execute/p1a/commit-02.log; rc=$?; printf \"P1A_COMMIT_EXIT %s\\n\" \"$rc\"; exit \"$rc\"",
+    "normalHooks": true,
+    "changedFiles": [
+      "src/lib/multiplayer/server/__tests__/coopMissionCreate.refusals.test.ts"
+    ],
+    "committedFiles": [
+      {
+        "file": "src/lib/api/securitySchemas.ts",
+        "sha256": "592a59e62e85d40e912c52caf324c0e7f78de630ee76fa28aa6bf74a8f7eca12",
+        "matchesTested": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/DurableMatchStore.ts",
+        "sha256": "c7aa9dc2e90b215d23ecac7f1cf5ed4aae14796b5d22bd8a4c093e581ddca962",
+        "matchesTested": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/IMatchStore.ts",
+        "sha256": "ee30498d0d76a1c48946a974558dbeb6bc1449f94758016cb80eff1ec10365c1",
+        "matchesTested": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/InMemoryMatchStore.ts",
+        "sha256": "be168c3aeabf50b26e43bac88f57263a8e14a30d46ea7cf0fe6e18b0a3569a30",
+        "matchesTested": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/MatchHostRegistry.ts",
+        "sha256": "feb2576461403b3dafd68dba5631b43c4f0ba9620d0f0f006f47178b8d62cade",
+        "matchesTested": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/MatchRecovery.ts",
+        "sha256": "0a168f96381d47a3487b00b509d81dc53549377e98ab8523ac2209e2e7fc5ede",
+        "matchesTested": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/matchUnitBootstrap.ts",
+        "sha256": "f9a6adf5fdd2cda453a440d83eb4d30499c925a5c8fd464b6a8a639585342b7d",
+        "matchesTested": true
+      },
+      {
+        "file": "src/pages/api/multiplayer/matches/index.ts",
+        "sha256": "b2cce8463b107b2c8b7a71f6582eacc0eb4e06976467703c5347a429400f481d",
+        "matchesTested": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/__tests__/coopMissionCreate.fixture.ts",
+        "sha256": "9446da8239e1bdc01927564b9b2cc186a9648628621c28697768c8fbc609c205",
+        "matchesTested": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/__tests__/coopMissionCreate.harness.ts",
+        "sha256": "7ece3af4538927777c69bc2e8a6f1846cc41d6dd8690b9dcbd5a8c8d148f77ae",
+        "matchesTested": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/__tests__/coopMissionCreate.refusals.test.ts",
+        "sha256": "8091944ed5c279fb2e9aa0ea22458fb2b894203951e3a9feace7d9621c16b367",
+        "matchesTested": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+        "sha256": "1e523bfd31702265a6389febc7f66aeac1240fd12c9e2151b32e87369049148c",
+        "matchesTested": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/coopMissionAdmission.ts",
+        "sha256": "93a2df0ba603ac1c089bc9e0f49eb671dcfb3f2036093af8c30a8b7480058704",
+        "matchesTested": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/coopMissionCreate.ts",
+        "sha256": "39f2ad3c4a6c3361a6bc49e5748007347b67ca864391e7f544f115706226922a",
+        "matchesTested": true
+      }
+    ],
+    "testedTestBytesMatch": true,
+    "localEvidence": "ci-fix-local-01-parent.json",
+    "cleanup": {
+      "temp": "C:/Users/wroll/AppData/Local/Temp/mekstation-p1a-ci-fix-jzCLvr",
+      "absent": true
+    },
+    "budget": {
+      "files": 14,
+      "productAddedLines": 473,
+      "testAddedLines": 1003
+    },
+    "review": {
+      "worktree": "E:/Projects/MekStation-wt/mekstation-roadmap-loop-continuation-p1a-review",
+      "temp": "C:/Users/wroll/AppData/Local/Temp/mekstation-p1a-review2-4NpJsd",
+      "cleanupTask": "Clean P1A corrected-head review worktree resources"
+    },
+    "ciMonitor": "mon_Z8ZA9K7ENVAYGBHC"
+  },
+  "remaining": [
+    "Owner-originated exact-head ruling and owner-ruled label remain required before merge; no decision is supplied.",
+    "Exact-main proof, closure and task tick are not done.",
+    "P1B/P1C, PAI/P2 and U38 remain separate unfinished units."
+  ],
+  "summary": "131 focused tests and the CI shard pass: 459 suites, 5962 passed, zero failed, three pre-existing platform/asset skips. Typecheck, unchanged 17899/17899 unit ratchet and formatting pass. Production code and the 47-case HTTP proof surface are unchanged; all proof resources except the registered private dependencies and active review resources are cleaned.",
+  "ciShard": {
+    "suites": 459,
+    "passed": 5962,
+    "failed": 0,
+    "skipped": 3,
+    "target": [
+      {
+        "file": "E:\\Projects\\MekStation-wt\\mekstation-roadmap-loop-continuation-wave-a\\src\\lib\\multiplayer\\server\\__tests__\\coopMissionCreate.refusals.test.ts",
+        "test": "co-op mission create refusals leave durable state unchanged recovers an active receipt after its cached host failed to close durably",
+        "status": "passed"
+      }
+    ],
+    "skipRows": [
+      {
+        "file": "E:\\Projects\\MekStation-wt\\mekstation-roadmap-loop-continuation-wave-a\\scripts\\__tests__\\camp01-h-report-normalizer.test.ts",
+        "test": "CAMP-01H normalized reports rejects a POSIX reports-directory symlink without writing through it",
+        "status": "pending"
+      },
+      {
+        "file": "E:\\Projects\\MekStation-wt\\mekstation-roadmap-loop-continuation-wave-a\\src\\services\\printing\\svgRecordSheetRenderer\\__tests__\\svgGeometry.test.ts",
+        "test": "parseSvgViewBox reads a real US template root, not the nested logo viewBox",
+        "status": "pending"
+      },
+      {
+        "file": "E:\\Projects\\MekStation-wt\\mekstation-roadmap-loop-continuation-wave-a\\src\\services\\printing\\svgRecordSheetRenderer\\__tests__\\svgGeometry.test.ts",
+        "test": "parseSvgViewBox reads a real ISO template root, not the nested logo viewBox",
+        "status": "pending"
+      }
+    ],
+    "skipExplanation": "One existing POSIX symlink row is Windows-skipped; two existing record-sheet geometry rows require absent fetched assets. No skip declaration changed."
+  },
+  "testChangeVerification": {
+    "command": "set -o pipefail; cd E:/Projects/MekStation-wt/mekstation-roadmap-loop-continuation-wave-a; powershell.exe -NoProfile -NonInteractive -Command '$ErrorActionPreference=\"Stop\"; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new(); $env:Path=\"C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0;\"+$env:Path; $env:TEMP=\"C:/Users/wroll/AppData/Local/Temp/mekstation-p1a-ci-fix-jzCLvr\"; $env:TMP=\"C:/Users/wroll/AppData/Local/Temp/mekstation-p1a-ci-fix-jzCLvr\"; $env:TMPDIR=\"C:/Users/wroll/AppData/Local/Temp/mekstation-p1a-ci-fix-jzCLvr\"; (Get-Process -Id $PID).ProcessorAffinity=3; node scripts/qc/machine-idle.mjs --wait --timeout-ms 1200000; if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}; $holds=@(\".omo\",\".sisyphus\",\"E:/Projects/MekStation/.omo\",\"E:/Projects/MekStation/.sisyphus\") | Where-Object {Test-Path $_} | ForEach-Object {Get-ChildItem -LiteralPath $_ -File -Recurse -Filter \"*PARENT-PROOF-HOLD*\"}; if($holds){Write-Output \"P1A_HOLD_PRESENT\"; exit 3}; Write-Output \"P1A_FIX_STAGE focused\"; & cmd.exe /d /s /c \"node node_modules/jest/bin/jest.js --runInBand --watchAll=false --testPathPattern=coopMissionCreate^|DurableMatchStore^|InMemoryMatchStore^|MatchHostRegistry^|MatchRecovery^|multiplayerMatchesFog^|multiplayerCoopCreationCheckpoint^|coopMatchRosterSourceVersion^|securitySchemas --json --outputFile=.omo/ulw-execute/p1a/green-08-results.json 2>&1\"; $code=$LASTEXITCODE; Write-Output \"P1A_FIX_RESULT focused $code\"; if($code -ne 0){exit $code}; $env:JEST_EXCLUDE_PERF_SENSITIVE=\"true\"; Write-Output \"P1A_FIX_STAGE shard1\"; & cmd.exe /d /s /c \"node node_modules/jest/bin/jest.js --selectProjects unit --ci --shard=1/6 --runInBand --watchAll=false --json --outputFile=.omo/ulw-execute/p1a/ci-fix-shard-1-results.json 2>&1\"; $code=$LASTEXITCODE; Write-Output \"P1A_FIX_RESULT shard1 $code\"; if($code -ne 0){exit $code}; foreach($gate in @(\"typecheck\",\"lint:units\",\"format:check\")){Write-Output \"P1A_FIX_STAGE $gate\"; & cmd.exe /d /s /c \"npm.cmd run $gate 2>&1\"; $code=$LASTEXITCODE; Write-Output \"P1A_FIX_RESULT $gate $code\"; if($code -ne 0){exit $code}}; exit 0' | tee .omo/ulw-execute/p1a/ci-fix-local-01.log; rc=$?; printf \"P1A_CI_FIX_EXIT %s\\n\" \"$rc\"; exit \"$rc\"",
+    "exit": 0,
+    "gates": {
+      "typecheck": 0,
+      "lintUnits": "17899/17899",
+      "format": 0
+    },
+    "evidence": "E:/Projects/MekStation-wt/mekstation-roadmap-loop-continuation-wave-a/.omo/ulw-execute/p1a/ci-fix-local-01-parent.json"
+  },
+  "qaReuse": {
+    "unchangedRuntimeBindings": [
+      {
+        "file": "src/lib/api/securitySchemas.ts",
+        "matchesPriorProof": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/DurableMatchStore.ts",
+        "matchesPriorProof": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/IMatchStore.ts",
+        "matchesPriorProof": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/InMemoryMatchStore.ts",
+        "matchesPriorProof": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/MatchHostRegistry.ts",
+        "matchesPriorProof": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/MatchRecovery.ts",
+        "matchesPriorProof": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/matchUnitBootstrap.ts",
+        "matchesPriorProof": true
+      },
+      {
+        "file": "src/pages/api/multiplayer/matches/index.ts",
+        "matchesPriorProof": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/__tests__/coopMissionCreate.fixture.ts",
+        "matchesPriorProof": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/__tests__/coopMissionCreate.harness.ts",
+        "matchesPriorProof": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+        "matchesPriorProof": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/coopMissionAdmission.ts",
+        "matchesPriorProof": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/coopMissionCreate.ts",
+        "matchesPriorProof": true
+      }
+    ],
+    "routeBundleUnchanged": true,
+    "greenToolBindings": [
+      {
+        "file": ".omo/ulw-execute/p1a/http-green-cases.cjs",
+        "unchanged": true
+      },
+      {
+        "file": ".omo/ulw-execute/p1a/http-green-inspect.cjs",
+        "unchanged": true
+      },
+      {
+        "file": ".omo/ulw-execute/p1a/http-green-preload.cjs",
+        "unchanged": true
+      },
+      {
+        "file": ".omo/ulw-execute/p1a/http-green-restart.cjs",
+        "unchanged": true
+      },
+      {
+        "file": ".omo/ulw-execute/p1a/http-green-runtime.cjs",
+        "unchanged": true
+      },
+      {
+        "file": ".omo/ulw-execute/p1a/http-green.cjs",
+        "unchanged": true
+      }
+    ],
+    "originalHttpProof": "parent-http-green-proof.json",
+    "reason": "Only the rejection matcher in a test file changed; production code, proof fixture/transport code and compiled HTTP route are unchanged. The affected test rows were rerun, not represented as a new HTTP execution."
+  },
+  "priorCandidate": {
+    "head": "2eb86c2fef9efbebbc15be592bdfa9c85dc1d68b",
+    "ciRun": 36308634795,
+    "failedJob": 108590186951,
+    "failure": "Jest rejects.toThrow did not recognize a native SqliteError across realms; the Lint and Test failure was its aggregator.",
+    "correction": "Require exact rejection message and SQLITE_CONSTRAINT_TRIGGER; retain all lifecycle and durable-state assertions.",
+    "evidence": "E:/Projects/MekStation-wt/mekstation-roadmap-loop-continuation-wave-a/.omo/ulw-execute/p1a/native-error-matcher-reproduction.json"
+  },
+  "postLocalGateUpdate": {
+    "at": "2026-09-27T09:56:07.142Z",
+    "pr": 2051,
+    "head": "a6eed9ddbcbf25373fb3873e2f3f1a3bbd83cf6a",
+    "laneA": {
+      "verdict": "APPROVE",
+      "reviewerModel": "claude-fable-5-1",
+      "reportSha256": "fd53fcd4f36d119dc88aa09d9c4a4b0e8b532509c196549bdfb000282b9f4740",
+      "reportPath": "E:/Projects/MekStation-wt/mekstation-roadmap-loop-continuation-wave-a/.omo/ulw-execute/p1a/lane-a-review-02.md"
+    },
+    "ci": {
+      "checks": 31,
+      "success": 31,
+      "artifact": "E:/Projects/MekStation-wt/mekstation-roadmap-loop-continuation-wave-a/.omo/ulw-execute/p1a/ci-product-02-final.json"
+    },
+    "ownerEvidence": "Not yet verified; observation is armed. The packet decision and ruling remain null."
+  }
+}

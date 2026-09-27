@@ -1,0 +1,61 @@
+{
+  "unit": "P1A",
+  "stage": "admission",
+  "at": "2026-09-27T08:51:58.647Z",
+  "baseline": "9f0d401dfdcbc832f48f678733b790d4566d271c",
+  "worktree": "E:/Projects/MekStation-wt/mekstation-roadmap-loop-continuation-wave-a",
+  "branch": "codex/p1a-coop-mission-create-20260927",
+  "implementerModel": "GPT-6 Astra / xhigh",
+  "ordering": "This canonical receipt is prepared after local verification. The admission decision and unchanged-baseline inspection preceded product edits; original admission.md, red receipts and execution-ledger entries are preserved.",
+  "parentDecision": {
+    "decision": "go",
+    "scope": "P1A only, after task42 split registration and exact-main proof"
+  },
+  "behavior": "Through the existing authenticated POST /api/multiplayer/matches door, an explicit co-op mission descriptor creates one durable real combat match with server-derived per-unit owners. Validate the accepted branch/revision/effectiveGeneration, active campaign membership, accepted participation, roster references and each contributor's durable force claim: the initiating host is not required to own the guest's approved force. Ignore client owner/player claims. Both deploying rosters are player-side; admitted OpFor stays opponent-side and ownerless. Distinct coopMission metadata carries campaignId, sessionId, missionId, acceptedHead and requestFingerprint so creation/recovery cannot mistake this match for another campaign-sync vessel. Persist immutable mission identity and match metadata together; serialize final expected-head admission through the existing campaign authority boundary and arbitrate duplicate creation durably. An identical stored receipt returns the original missionMatchId without another create/append, even when a later head has advanced; a divergent identity or stale new request refuses typed and never closes a previously successful match. Start and recover through the existing combat host registry. Refuse missing claims/choices, forged or inconsistent refs and nonmembers with zero new match side effects. Red-first actual route/auth/SQLite/host tests cover valid two-contributor creation, concurrent/identical/divergent retry and cold reopen; HTTP surface proof records status/headers/body and before/after match/receipt counts. Preserve existing vessel, versus and single-player behavior. No announcement, page navigation, AI driving or U38 command refusal is claimed here. Admission re-measures the proposed ten-file/430-product-line estimate against the unchanged 15/500 caps.",
+  "ownershipPaths": [
+    "src/lib/api",
+    "src/pages/api/multiplayer/matches/index.ts",
+    "src/lib/multiplayer/server"
+  ],
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500
+  },
+  "measured": {
+    "sourceAndTestFiles": 14,
+    "productAddedLines": 473,
+    "testAddedLines": 999
+  },
+  "baselineClassification": {
+    "missionDescriptor": "absent; real HTTP returned schema400 instead of201",
+    "campaignVessel": "implemented; real authenticated201 control",
+    "combatRegistry": "existing substrate reused",
+    "atomicOpening": "missing at acknowledgment boundary; new store create commits metadata and opening events together",
+    "announcementNavigationAiOwnership": "out of this slice; registered downstream work remains open"
+  },
+  "sensitiveClasses": [
+    "authority",
+    "privacy",
+    "idempotency",
+    "concurrency"
+  ],
+  "ownerRuling": "Required on actual product PR head before merge; not supplied or fabricated",
+  "evidence": [
+    {
+      "path": "E:/Projects/MekStation-wt/mekstation-roadmap-loop-continuation-wave-a/.omo/ulw-execute/p1a/admission.md",
+      "sha256": "2add4e87bd13039b306c811be5e8d7ba8662302f288d56e44735dd009fdd4448"
+    },
+    {
+      "path": "E:/Projects/MekStation-wt/mekstation-roadmap-loop-continuation-wave-a/.omo/ulw-execute/p1a/parent-http-red-proof.json",
+      "sha256": "50889914b4f54d5c6a980bf1882016a1ad6a7d290d92ecc4295f40db1c59825b"
+    }
+  ],
+  "candidateRemeasurement": {
+    "at": "2026-09-27T09:45:20.279Z",
+    "head": "a6eed9ddbcbf25373fb3873e2f3f1a3bbd83cf6a",
+    "sourceAndTestFiles": 14,
+    "productAddedLines": 473,
+    "testAddedLines": 1003,
+    "reason": "One CI-discovered native-error assertion was strengthened; product scope and caps are unchanged."
+  }
+}

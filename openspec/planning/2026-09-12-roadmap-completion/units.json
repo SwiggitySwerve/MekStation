@@ -3609,14 +3609,28 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "local-verified",
+      "baseline": "9f0d401dfdcbc832f48f678733b790d4566d271c",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/p1a-admission-20260927.json",
+          "baseline": "9f0d401dfdcbc832f48f678733b790d4566d271c",
+          "at": "2026-09-27T08:51:58.647Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/p1a-red-20260927.json",
+          "at": "2026-09-27T08:51:58.647Z",
+          "summary": "Real HTTP mission creation returned 400 instead of 201; handler red had 11 failures and 10 passes"
+        },
+        "local": {
+          "path": "evidence/p1a-local-20260927.json",
+          "at": "2026-09-27T09:45:20.279Z",
+          "summary": "131 focused tests and 5,962 CI-shard tests passed; the prior 47-case HTTP proof covers unchanged runtime; 14 files and 473 added product lines"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -10783,6 +10797,34 @@
         "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
       },
       "note": "opened at fold on 2026-09-27 (decision-only, so the validator's sensitive-class check holds before the owner rules)"
+    },
+    {
+      "id": "PK-p1a-ruling",
+      "blocks": [
+        "P1A"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "P1A presents head a6eed9ddbcbf25373fb3873e2f3f1a3bbd83cf6a on PR #2051 for authority, privacy, idempotency and concurrency review. Does the owner rule this exact head after fresh independent review and required CI checks pass?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "The owner posts the head-bound OWNER-RULING comment and applies owner-ruled on the actual product PR; only then may the parent merge and run exact-main proof.",
+          "effort": "One owner review of the exact head and its evidence"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Do not merge; preserve the objection and revise through a new verified head, fresh independent review and fresh owner ruling.",
+          "effort": "Depends on the concrete requested change"
+        }
+      ],
+      "agentRecommendation": "Rule the exact head only after fresh independent review and required CI pass. The local proof covers P1A; announcement, navigation, server AI and command-ownership work remain outside this unit.",
+      "revertCost": "Revert the isolated product change while preserving already-created durable mission metadata and opening events; no destructive data rollback is authorized.",
+      "decision": null,
+      "ruling": null,
+      "note": "Registered at the local receipt fold after the validator required a sensitive-class packet. This is an undecided question, not an owner ruling. The agent will not post the owner comment, apply its label or choose the packet decision."
     }
   ],
   "deferrals": [
