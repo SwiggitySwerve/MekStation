@@ -1,0 +1,275 @@
+{
+  "unit": "U34",
+  "stage": "local",
+  "status": "ready: the 80-row table is rebuilt from exact main f85a9f8a5; the probe reports 0 disagreements (61 on the baseline); every applicable gate passes (the install guard refuses by design in a junctioned worktree, and oxfmt does not cover openspec/); four mutants named by the probe and restored with sha256 confirmed",
+  "at": "2026-09-27T01:25:18.000Z",
+  "baseline": "f85a9f8a565f01abaf7ba4507103102052351bd8",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u34",
+  "branch": "roadmap-u34-acceptance-reconciliation-table-20260927",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "taskKeys": [
+    "adopt-combat-journal-cutover-and-gm-rewind#0.1@9"
+  ],
+  "changedFiles": {
+    "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/notepad.md": {
+      "sha256": "87baf04fa5bba19249f2cea3113c247dc39be408888a633c0e662ac82e74ecad",
+      "sha256Baseline": "4ae60bcd1f7044b6cfe03d95255815f359e86b7f3ec470c24a6a2ed560785d30",
+      "lines": 102,
+      "numstat": "93 added, 89 deleted (git diff --numstat)"
+    }
+  },
+  "untrackedReceipts": {
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u34-admission-20260927.json": {
+      "lines": 896
+    },
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u34-red-20260927.json": {
+      "lines": 188
+    },
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u34-local-20260927.json": {
+      "lines": 275
+    }
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "countedFiles": 1,
+    "countedAddedLines": 93,
+    "note": "the notepad is prose and is counted anyway; receipts sit under evidence/ and are skipped by the U41 counting rule; no test file changed"
+  },
+  "classCounts": {
+    "real": 47,
+    "realAuthored": 46,
+    "realContract": "E2E-80 (scripts/qc/validate-exact-main-regression-ladder.mjs:5-11; a contract, not a Playwright row)",
+    "strictExpectedFailure": 6,
+    "strictIds": [
+      "E2E-40",
+      "E2E-41",
+      "E2E-42",
+      "E2E-43",
+      "E2E-44",
+      "E2E-76"
+    ],
+    "manifestGated": 27,
+    "manifestGatedByGate": {
+      "@until-U54": 7,
+      "@until-DF-branch-and-time-cascade": 15,
+      "@until-U52": 5
+    },
+    "absent": 0,
+    "total": 80
+  },
+  "changedClassSince20260913": {
+    "count": 40,
+    "note": "every one of the 40 rows the 2026-09-13 table called \"missing\" (not a legal class now) changed class; the 34 real and 6 strict rows kept their class",
+    "missingToReal": [
+      "E2E-15",
+      "E2E-19",
+      "E2E-24",
+      "E2E-25",
+      "E2E-27",
+      "E2E-28",
+      "E2E-62",
+      "E2E-66",
+      "E2E-74",
+      "E2E-75",
+      "E2E-77",
+      "E2E-78",
+      "E2E-80"
+    ],
+    "missingToManifestGated": [
+      "E2E-33",
+      "E2E-35",
+      "E2E-36",
+      "E2E-37",
+      "E2E-38",
+      "E2E-39",
+      "E2E-45",
+      "E2E-46",
+      "E2E-47",
+      "E2E-48",
+      "E2E-49",
+      "E2E-50",
+      "E2E-51",
+      "E2E-52",
+      "E2E-53",
+      "E2E-54",
+      "E2E-55",
+      "E2E-56",
+      "E2E-57",
+      "E2E-58",
+      "E2E-59",
+      "E2E-60",
+      "E2E-64",
+      "E2E-65",
+      "E2E-67",
+      "E2E-68",
+      "E2E-69"
+    ],
+    "realAnchorsMoved": [
+      "E2E-01",
+      "E2E-02",
+      "E2E-14",
+      "E2E-17",
+      "E2E-20",
+      "E2E-21",
+      "E2E-22",
+      "E2E-23",
+      "E2E-26",
+      "E2E-31",
+      "E2E-32",
+      "E2E-71",
+      "E2E-72",
+      "E2E-73",
+      "E2E-79"
+    ],
+    "strictAnchorsGainedMarkAndGate": [
+      "E2E-40",
+      "E2E-41",
+      "E2E-42",
+      "E2E-43",
+      "E2E-44",
+      "E2E-76"
+    ]
+  },
+  "reachableSurface": {
+    "countsOnBaseline": "47 real (46 authored + E2E-80 contract), 6 strict-expected-failure, 27 manifest-gated, 0 absent",
+    "afterCombatFlipU24": "E2E-19 and E2E-25 declare they need the combat fixture switch (e2e/gm-two-player-privacy.pack.spec.ts:82-85): reachable today only under the switch the runner sets for authority-recovery, privacy-pack, authority and all (scripts/qc/gm-two-player-campaign-core.cjs:203-205, 236-240); after U24 (units.json:4233) production mode replaces the switch; class stays real. E2E-01/02 run under the switch and the runner comment says they need it (core.cjs:231-233), but their spec header cites only the campaign production flag (e2e/gm-two-player-authority-recovery.pack.spec.ts:13-16). The six strict rows are the only rows U25 expects to change class after U24 (units.json:4365), not measured.",
+    "afterCampaignFlip": "already on the baseline: CAMPAIGN_JOURNAL_AUTHORITY_ENABLED = true (src/lib/campaign/sync/JournalCampaignEventStore.ts:91), no override (src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts:16-18), no campaign key in the config or the runner (scripts/__tests__/gm-two-player-campaign-qc.test.ts:599); no row depends on a campaign fixture switch"
+  },
+  "probe": {
+    "source": "u34-red-20260927.json R1_probe.source (unchanged; sha256 65aa1c11439473db59b95b08eb618647740b6ee25cb4033abb02f7db8d2c62ab)",
+    "red": {
+      "on": "baseline notepad (sha256 4ae60bcd...)",
+      "exit": 1,
+      "lastLine": "rows=80 catalogue=80 disagreements=61",
+      "disagreements": 61
+    },
+    "green": {
+      "on": "rebuilt notepad (sha256 87baf04fa5bba19249f2cea3113c247dc39be408888a633c0e662ac82e74ecad)",
+      "command": "node <scratch>/probe.cjs .",
+      "exit": 0,
+      "output": [
+        "rows=80 catalogue=80 disagreements=0"
+      ]
+    }
+  },
+  "mutants": [
+    {
+      "id": "M1",
+      "what": "E2E-33 relabelled real (manifest-gated row)",
+      "pre": "87baf04fa5bba19249f2cea3113c247dc39be408888a633c0e662ac82e74ecad",
+      "mutated": "b82f8affd7878c6f4efa852d3da239838a251c2adcc301ee3728ec6e2888b4ed",
+      "probeExit": 1,
+      "restored": "87baf04fa5bba19249f2cea3113c247dc39be408888a633c0e662ac82e74ecad",
+      "restoredMatchesOriginal": true,
+      "probeOutput": [
+        "DISAGREE E2E-33: class \"real\" but measured manifest-gated @until-U54",
+        "rows=80 catalogue=80 disagreements=1"
+      ]
+    },
+    {
+      "id": "M2",
+      "what": "E2E-03 anchor pointed at e2e/campaign-journal-two-process-convergence.spec.ts:115, a spec the all plan does not run",
+      "pre": "87baf04fa5bba19249f2cea3113c247dc39be408888a633c0e662ac82e74ecad",
+      "mutated": "ea951f0d2fb71413e5b8f99cd9227012b76577ba893a1b8f3211ac895c537f1b",
+      "probeExit": 1,
+      "restored": "87baf04fa5bba19249f2cea3113c247dc39be408888a633c0e662ac82e74ecad",
+      "restoredMatchesOriginal": true,
+      "probeOutput": [
+        "DISAGREE E2E-03: e2e/campaign-journal-two-process-convergence.spec.ts is not run by the all plan; anchor [e2e/campaign-journal-two-process-convergence.spec.ts:115] but measured [e2e/gm-two-player-authority.pack1.spec.ts:115]",
+        "rows=80 catalogue=80 disagreements=1"
+      ]
+    },
+    {
+      "id": "M3",
+      "what": "E2E-50 row deleted",
+      "pre": "87baf04fa5bba19249f2cea3113c247dc39be408888a633c0e662ac82e74ecad",
+      "mutated": "853160b0a18b7087f80e049ad20eaecb031f81c5069622e17b72f2d0ac31c34c",
+      "probeExit": 1,
+      "restored": "87baf04fa5bba19249f2cea3113c247dc39be408888a633c0e662ac82e74ecad",
+      "restoredMatchesOriginal": true,
+      "probeOutput": [
+        "DISAGREE E2E-50: missing from the table",
+        "rows=79 catalogue=80 disagreements=1"
+      ]
+    },
+    {
+      "id": "M4",
+      "what": "E2E-40 class loses its gate tag (strict-expected-failure with no @until-journal-cutover)",
+      "pre": "87baf04fa5bba19249f2cea3113c247dc39be408888a633c0e662ac82e74ecad",
+      "mutated": "d90eab6c9ca7440ad1168af21258b0cae467089d0bc1e4205ef0e5efd0c91bd9",
+      "probeExit": 1,
+      "restored": "87baf04fa5bba19249f2cea3113c247dc39be408888a633c0e662ac82e74ecad",
+      "restoredMatchesOriginal": true,
+      "probeOutput": [
+        "DISAGREE E2E-40: class names no gate @until-journal-cutover",
+        "rows=80 catalogue=80 disagreements=1"
+      ]
+    }
+  ],
+  "mutantMethod": "each mutant was applied to a copy of the notepad outside the repository, the probe was run against the copy, the copy was restored by re-copying the notepad and its sha256 compared with the notepad's; the notepad itself was never mutated (sha256 87baf04fa5bba19249f2cea3113c247dc39be408888a633c0e662ac82e74ecad before and after)",
+  "gates": [
+    {
+      "command": "npm run --silent qc:guard-node-modules-link",
+      "exit": 1,
+      "lastLine": "INSTALL_REFUSED node-modules-is-link {...} (by design in a junctioned worktree; recorded at admission)"
+    },
+    {
+      "command": "npx --no-install oxfmt --check openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/notepad.md",
+      "exit": 2,
+      "lastLine": "Expected at least one target file",
+      "meaning": "oxfmt does not format this file: .oxfmtignore:11 ignores openspec, and format:check is `oxfmt --check .` (package.json:25), so no openspec markdown or receipt is in the format surface"
+    },
+    {
+      "command": "npx --no-install openspec validate --all --strict",
+      "exit": 0,
+      "lastLine": "Totals: 229 passed, 0 failed (229 items)"
+    },
+    {
+      "command": "npm run qc:openspec-ci:validate",
+      "exit": 0,
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0"
+    },
+    {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exit": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows",
+      "unchangedFromBaseline": true
+    },
+    {
+      "command": "npm run lint:units",
+      "exit": 0,
+      "lastLine": "LINT_UNITS_PASS 17899/17899",
+      "note": "every path at its ceiling (e2e 50, scripts 50, src/pages/api 16, src-tests 17783); no code touched"
+    },
+    {
+      "command": "npx --no-install jest scripts/__tests__/gm-two-player-acceptance-gates.test.ts",
+      "exit": 0,
+      "lastLine": "Tests:       6 passed, 6 total",
+      "parentProofHold": "absent at 2026-09-27T01:24:25Z; no wait"
+    }
+  ],
+  "nonClaims": [
+    "No Playwright run: the table classifies rows by their declarations (titles, test.fail marks, the manifest), not by a fresh pass; the notepad's first paragraph says so.",
+    "A real class does not mean the row passes, that every clause of its scenario is asserted, or that production cutover holds.",
+    "The evidence column cites no run on this baseline: authored rows read \"run evidence, not on main\"; E2E-80 cites the ladder receipt taken at 7f2dbec09cb5.",
+    "U25's expectation for the six strict rows after U24 is quoted, not measured.",
+    "No build, no standalone server, no full jest; the only jest run is the U29 pin.",
+    "tasks.md 0.1 is not ticked (the parent's closure tool ticks it)."
+  ],
+  "findings": [
+    "The all plan sets the combat fixture switch for all 23 spec files, the rewind pack included, while rewind-pack alone does not (core.cjs:197-205); whether a strict row passes unexpectedly under the switch in the all run is not measured.",
+    "Tag versus heading: the @E2E-32 title (e2e/gm-two-player-combat.pack1.spec.ts:355) names back-to-back ordering, closer to the E2E-33 heading (spec.md:140), and the @E2E-31 title (:298) covers the foreign-unit refusal of E2E-32 (spec.md:136). The table follows the tags, as the pin does.",
+    "U28 (units.json:4666) says it removes \"both switches\"; the campaign switch is already gone from the runner and the config (qc pin gm-two-player-campaign-qc.test.ts:599), so only the combat switch, which U24 deletes, remains.",
+    "units.json U34 is ciClass \"product\" (its path openspec/changes/... is not openspec/planning/** or docs/**); the charter treats it as docs-class for gate scope.",
+    "The charter's expected \"52 real including E2E-80\" does not reconcile with 6 strict and 27 gated; measured: 46 authored real + E2E-80 = 47 real, 6 strict, 27 gated, 0 absent (U29's 52 counts authored rows, strict included).",
+    "The charter cites the ADDED requirement at spec.md:342; its heading is :341.",
+    "validate-roadmap --next printed U94 on the baseline, not U34."
+  ],
+  "finalGitStatus": [
+    " M openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/notepad.md",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u34-admission-20260927.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u34-local-20260927.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u34-red-20260927.json"
+  ]
+}

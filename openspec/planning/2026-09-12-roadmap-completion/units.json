@@ -5222,21 +5222,39 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "local-verified",
+      "baseline": "f85a9f8a565f01abaf7ba4507103102052351bd8",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u34-admission-20260927.json",
+          "baseline": "f85a9f8a565f01abaf7ba4507103102052351bd8",
+          "at": "2026-09-27T01:20:14.000Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u34-red-20260927.json",
+          "at": "2026-09-27T01:21:06.000Z",
+          "summary": "baseline f85a9f8a5: R1 a probe (source kept in this receipt, never committed) compares each notepad row's class and anchor with the catalogue measured the pin's way (titles tagged @E2E-NN in the specs buildRunPlan({group:'all'}) lists, the six test.fail marks and their tags, the manifest entries, E2E-80 the contract): on the 2026-09-13 table exit 1, rows=80 catalogue=80 disagreements=61 (27 missing-to-gated, 13 missing-to-real, 6 strict rows lacking their mark and gate, 15 moved line numbers); R2 openspec strict 229 passed and qc:openspec-ci errors=0 on the baseline; R3 the U29 pin 6 passed on the baseline (hold file absent, no wait); --next printed U94 (the parent chose U34 as a file-disjoint parallel lane)"
+        },
+        "local": {
+          "path": "evidence/u34-local-20260927.json",
+          "at": "2026-09-27T01:25:18.000Z",
+          "summary": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/notepad.md +93/-89 (one file; caps 15 files and 500 lines): the table rebuilt on f85a9f8a5 with classes real 47 (46 authored titles plus E2E-80 through the exact-main contract validate-exact-main-regression-ladder.mjs:5-11, a contract not a Playwright row), strict-expected-failure 6 (E2E-40, 41, 42, 43, 44, 76; marks rewind.pack.spec.ts:43,76,119,201,251,315 tagged @until-journal-cutover), manifest-gated 27 (7 under U54, 15 under DF-branch-and-time-cascade, 5 under U52), absent 0; 40 rows changed class since 2026-09-13 (13 missing-to-real: E2E-15, 19, 24, 25, 27, 28, 62, 66, 74, 75, 77, 78, 80; 27 missing-to-gated), 15 real rows with moved line numbers, the six strict rows now cite mark and gate; the 34-of-80 count kept as one labelled historical sentence naming 2026-09-13 and 44b94adbb; evidence column: authored rows 'run evidence, not on main', E2E-80 the ladder receipt at 7f2dbec09cb5; reachable surface: E2E-19 and E2E-25 declare the combat fixture switch (privacy.pack.spec.ts:82-85) which the runner sets for authority-recovery, privacy-pack, authority and all (core.cjs:203-205, 236-240), production mode replaces it after U24 and the class stays real; the campaign flip is already on the baseline (JournalCampaignEventStore.ts:91 true); probe on the rebuilt table exit 0 disagreements=0; gates: openspec strict 229 passed, qc:openspec-ci errors=0, roadmap validator PASSED, LINT_UNITS_PASS 17899/17899, the U29 pin 6 passed, oxfmt does not cover openspec/ (.oxfmtignore:11), install guard refused by design; mutants on a copy each named by the probe and restored with sha256 confirmed: E2E-33 relabelled real, E2E-03 anchored in a spec the all plan does not run, E2E-50 row deleted (rows=79), E2E-40 without its gate tag; NON-CLAIMS: no Playwright run (the notepad's first paragraph says so), real does not mean the row passes, U25's expectation for the strict rows after U24 quoted not measured, tasks.md 0.1 not ticked (the closure ticks it); implementer claude-opus (Agent model: opus, lean-worker); status ready"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
         "tick": null
       },
       "ownerGate": null,
-      "source20260922": "planned by the parent: the validator lets a unit hold only its own node's keys, so the adopt rows owned by R4.S1, R4.S4 and R4.matrix get receipt units on those nodes"
+      "source20260922": "planned by the parent: the validator lets a unit hold only its own node's keys, so the adopt rows owned by R4.S1, R4.S4 and R4.matrix get receipt units on those nodes",
+      "admissionNote20260927": {
+        "at": "2026-09-27T01:29:20.000Z",
+        "note": "--next printed U94; the parent ran U34 as a file-disjoint parallel lane (docs only, the change's notepad) beside U94 (src/lib/multiplayer/server). Admission GO: the catalogue measured the pin's way gives 47 real (46 authored plus E2E-80 through the exact-main contract), 6 strict-expected-failure, 27 manifest-gated, 0 absent; the charter's '52 real including E2E-80' was the parent's arithmetic slip (U29's 52 counts authored rows, strict included) and the charter cited the ADDED requirement at spec.md:342 where its heading is :341; the ledger's ciClass product stands (the path is under openspec/changes/), the gates ran as a docs unit (no build, no Playwright, the U29 pin the only jest)."
+      }
     },
     {
       "id": "U56",
@@ -12095,6 +12113,42 @@
       "class": "ledger wording",
       "summary": "U54 holds E2E-33 and 35-39 through row 21.3, but its sentence names only E2E-45; who authors the other six rows is not written.",
       "recommendedSuccessor": "U54's admission names them",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u34-all-plan-sets-combat-switch-for-rewind-pack",
+      "foundBy": "U34 implementer lane (claude-opus, lean-worker), 2026-09-27 (scripts/qc/gm-two-player-campaign-core.cjs:197-205)",
+      "at": "2026-09-27T01:29:20.000Z",
+      "class": "harness",
+      "summary": "The all plan turns the combat fixture switch on for every one of its 23 spec files, the rewind pack included, while rewind-pack alone does not; whether one of the six strict @until-journal-cutover rows then passes unexpectedly in the all run (which would fail the strict run) is not measured.",
+      "recommendedSuccessor": "U24 (deletes the switch) or U57's runner",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u34-e2e-31-32-tags-sit-on-neighbouring-headings",
+      "foundBy": "U34 implementer lane (claude-opus, lean-worker), 2026-09-27",
+      "at": "2026-09-27T01:29:20.000Z",
+      "class": "tag versus heading",
+      "summary": "The @E2E-32 title (e2e/gm-two-player-combat.pack1.spec.ts:355) names back-to-back ordering, closer to the E2E-33 heading (spec.md:140), and the @E2E-31 title (:298) covers the foreign-unit refusal of E2E-32 (spec.md:136). The table and the pin follow the tags.",
+      "recommendedSuccessor": "an e2e-owning unit retags the two titles in the same change as any row edit",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u34-u28-sentence-names-both-switches",
+      "foundBy": "U34 implementer lane (claude-opus, lean-worker), 2026-09-27 (qc pin gm-two-player-campaign-qc.test.ts:599)",
+      "at": "2026-09-27T01:29:20.000Z",
+      "class": "ledger wording",
+      "summary": "U28's sentence says it removes both fixture switches; the campaign switch is already gone from the runner and the config, so only the combat switch, which U24 deletes, remains.",
+      "recommendedSuccessor": "U28's admission re-reads the sentence",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u34-ciclass-product-for-docs-only-path",
+      "foundBy": "U34 implementer lane (claude-opus, lean-worker), 2026-09-27",
+      "at": "2026-09-27T01:29:20.000Z",
+      "class": "ledger classification",
+      "summary": "U34 is ciClass product because its path openspec/changes/... is neither openspec/planning/** nor docs/**, though the unit edits prose only; its gates ran as a docs unit.",
+      "recommendedSuccessor": "none; recorded for the ciClass rule",
       "status": "recorded"
     }
   ]
