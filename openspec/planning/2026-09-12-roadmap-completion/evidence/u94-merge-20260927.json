@@ -1,0 +1,21 @@
+{
+  "unit": "U94",
+  "stage": "merge",
+  "at": "2026-09-27T02:08:09.129Z",
+  "pr": 2045,
+  "title": "fix(multiplayer): U94 campaign resync tail and live fan-out apply the baseline law (privacy)",
+  "head": "f71c1ca8f6dcf53ef94c81d8b3eae55ca33c58f1",
+  "mergeSha": "954da87aac5240a1f41d96a8031bfd19e0f5fbab",
+  "mergedAt": "2026-09-27T01:59:33Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "src/lib/multiplayer/server/CampaignSyncSession.ts",
+    "src/lib/multiplayer/server/__tests__/campaignBaselineViewerProjection.test.ts",
+    "src/lib/multiplayer/server/__tests__/campaignViewerWireGate.test.ts",
+    "src/lib/multiplayer/server/campaignViewerWireGate.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}

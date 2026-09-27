@@ -3018,8 +3018,8 @@
         "maxNonGeneratedLines": 500
       },
       "baseline": "f85a9f8a565f01abaf7ba4507103102052351bd8",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "f71c1ca8f6dcf53ef94c81d8b3eae55ca33c58f1",
+      "mergeSha": "954da87aac5240a1f41d96a8031bfd19e0f5fbab",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u94-admission-20260927.json",
@@ -3038,13 +3038,34 @@
           "at": "2026-09-27T01:31:06.569Z",
           "summary": "4 files under src/lib/multiplayer/server, product +223 (campaignViewerWireGate.ts new 112: one per-recipient wire gate withholding out-of-scope frames and any full-state snapshot campaignBaselineReachesViewer refuses, latch seeded from the log through campaignViewerVisibleEvents and advanced on each withheld frame, a snapshot offered before the seed returns waits with later frames queued in order, a failed seed counts as set; CampaignSyncSession.ts +111/-51: admitToWire returns the gate, the small-gap tail reads from 0 and offers events after lastSeq, joinMember and resyncGuest carry their gate into the live subscription, attachLiveParticipant subscribes then seeds with one log read, noteDelivered still advances for a withheld frame (11.1 trade-off stated)), tests +467 (campaignBaselineViewerProjection.test.ts +352/-2 R1..R5 and live rows 17 of 17, campaignViewerWireGate.test.ts new 115 5 rows); green frames: restricted tail Funds@3 only, GM tail PilotHired@1 + Snapshot@2, unset-latch viewer Funds@1 + Snapshot@2, restricted live baseline@-1 + Funds@3, rebuilt session none; the nine join, large-gap and rebuilt-join rows unchanged; gates: jest src/lib/multiplayer/server src/lib/campaign 373 suites 4205 passed (a first run lost 3 suites to a Windows EPERM rename in jest's transform cache with 0 test failures), src/__tests__/api/campaigns 120 passed (U96's PUT rows), tsc 0, oxlint 84 warnings 0 errors, oxfmt clean on 4 files, LINT_UNITS_PASS 17899/17899, qc:openspec-ci errors=0, validator PASSED; mutants each a live run of the affected row restored with sha256 confirmed: latch never set (R1 killed), predicate inverted (GM row killed), scope check only (R1 killed), attach seed replaced with an empty log (R3b killed); NON-CLAIMS: no build, Playwright or server; the PUT route not driven (its batch shape appended; U96's route rows pass with the change); the gm-scoped fact from the host test seam; the snapshot-waits-for-seed path proven only at the gate unit level; no performance measurement (the small-gap tail reads from 0, each live attach adds one full-log read); implementer claude-opus (Agent model: opus, lean-worker); status ready"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u94-review-20260927.json",
+          "head": "f71c1ca8f6dcf53ef94c81d8b3eae55ca33c58f1",
+          "reviewedHead": "f71c1ca8f6dcf53ef94c81d8b3eae55ca33c58f1",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet, lean-worker)",
+          "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+          "outputSha256": "28eaa0e30ac859289282a77461f9ee9f42d9ad4078fce2c03746f635988df4d6",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u94-merge-20260927.json",
+          "pr": 2045,
+          "head": "f71c1ca8f6dcf53ef94c81d8b3eae55ca33c58f1",
+          "mergeSha": "954da87aac5240a1f41d96a8031bfd19e0f5fbab"
+        },
+        "mainProof": {
+          "path": "evidence/u94-mainproof-20260927.json",
+          "mergeCommit": "954da87aac5240a1f41d96a8031bfd19e0f5fbab",
+          "verdict": "PASS",
+          "runtime": "U94 PROOF RUNTIME PASSED: 5002 passed (jest 5000, 0 failed, exit 0; lifecycle-pack 2, 0 failed, exit 0)"
+        },
+        "tick": {
+          "path": "evidence/u94-tick-20260927.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
-      "state": "local-verified",
+      "state": "complete",
       "source20260925": "planned by the parent under gm-authority-redaction/spec.md:93-104 from U58's finding F1 (FN-u58-legacy-resync-tail-delivers-raw-snapshot), confirmed production-reachable by U58's Lane A review (evidence/u58-lane-a-review-20260925.md, question 4); disclosed in the owner's U58 ruling as a unit before UAT round 2",
       "admissionNote20260927": {
         "at": "2026-09-27T01:34:30.000Z",
@@ -10405,8 +10426,22 @@
       ],
       "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
       "revertCost": "low: a squash merge revert",
-      "decision": null,
-      "ruling": null,
+      "decision": {
+        "at": "2026-09-27T01:59:25Z",
+        "option": "rule the head",
+        "text": "Approve (Recommended)",
+        "source": "owner instruction in the working session (chat), after the parent described the unit in plain English: a structured question: the legacy campaign sync session's small-gap resync tail and live fan-out apply campaignBaselineReachesViewer through one per-recipient wire gate before delivering a full-state CampaignSnapshotPublished to a restricted player, as the join and large-gap baselines already do (privacy class; gm-authority-redaction/spec.md:93-104); Lane A verdict and CI on the exact head; disclosed: live fan-out needed the guard because adoptSavedCheckpoint publishes the PUT route's checkpoint to every live sink; a new gate module rather than a whole-log filter; the tail reads the log from 0 and each attach adds one full-log read, unmeasured; the delivered watermark still advances for a withheld frame so a restricted player converges without the checkpoint; a restricted mirror no longer converges after a withheld checkpoint while coop-campaign-sync/spec.md:148 says it converges (spec-delta candidate); no Playwright, build or server; the PUT route not driven directly"
+      },
+      "ruling": {
+        "ruledHead": "f71c1ca8f6dcf53ef94c81d8b3eae55ca33c58f1",
+        "pr": 2045,
+        "commentId": 5851805071,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "20c9944d47b1e52e81ac2831e56e47c1d754129ba26f3c059704ad556cf34941",
+        "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
+      },
       "note": "opened at fold on 2026-09-27 (decision-only, so the validator's sensitive-class check holds before the owner rules)"
     }
   ],
@@ -12254,6 +12289,15 @@
       "class": "test infrastructure",
       "summary": "A full jest run of src/lib/multiplayer/server src/lib/campaign lost 3 suites to a Windows EPERM rename in jest's shared transform cache under the user's Temp with 0 test failures; the suites passed alone and the rerun was 373 of 373.",
       "recommendedSuccessor": "none; recorded (two lanes ran jest concurrently)",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u34-closure-tool-tick-receipt-does-not-tick-live-row",
+      "foundBy": "parent at U34's closure, 2026-09-27 (scripts/qc/roadmap-unit-closure.mjs:371-381; validator issue 'U34 tick receipt claims adopt-combat-journal-cutover-and-gm-rewind#0.1@9 but the live row is not checked')",
+      "at": "2026-09-27T02:08:09.000Z",
+      "class": "closure tooling",
+      "summary": "roadmap-unit-closure.mjs writes the tick receipt (note 'rows checked by this closure', tickedOnMain = the merge sha) without checking the live tasks.md row; the validator then refuses the closure until the closer ticks the row by hand (U22's and U34's closures did). Either the tool ticks the row or its receipt note stops claiming it.",
+      "recommendedSuccessor": "a R6.loop-harness slice: the closure tool ticks the taskKeys rows in the live tasks.md, or the receipt says 'rows to be ticked by the closer'",
       "status": "recorded"
     }
   ]
