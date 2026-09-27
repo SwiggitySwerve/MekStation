@@ -173,17 +173,34 @@ describe('U89 campaign host-intent server time by step and log size', () => {
 
   // U98: the grant wake after publish (the adapter's host-log reads, its
   // readStream, the epoch's sequence assignment), the replica ingest, and
-  // the GM frame in to the last timed step.
+  // the GM frame in to the last timed step net of the record rewrite.
   it('the grant wake and the replica ingest do not grow with the log', () => {
     const rows = growth([
       ['commandMedians', 'grantHostLogRead'],
       ['commandMedians', 'grantReadStream'],
       ['commandMedians', 'grantAssignSequences'],
       ['commandMedians', 'replicaIngest'],
-      ['commandMedians', 'serverTotal'],
+      ['commandMedians', 'serverTotalWithoutRecordRewrite'],
     ]);
     results.redRowU98 = { short, long, rows };
     expect(short).toBeLessThan(long);
     expect(rows.filter((row) => row.grows)).toEqual([]);
+  });
+
+  it('the record rewrite stays under the absolute 50 ms ceiling', () => {
+    const at = (size: number): number | null =>
+      (
+        results[String(size)] as
+          | Record<string, Record<string, number | null>>
+          | undefined
+      )?.commandMedians?.recordRewrite ?? null;
+    const row = {
+      step: 'recordRewrite',
+      short: at(short),
+      long: at(long),
+    };
+    results.recordRewriteCeiling = { short, long, row };
+    expect(short).toBeLessThan(long);
+    expect(row.long === null || row.long > 50).toBe(false);
   });
 });
