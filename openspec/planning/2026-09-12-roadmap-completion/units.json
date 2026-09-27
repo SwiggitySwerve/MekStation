@@ -3669,6 +3669,89 @@
       }
     },
     {
+      "id": "U98b",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "The U98 row of src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test.ts ('the grant wake and the replica ingest do not grow with the log') asserts serverTotal net of the separately timed recordRewrite (serverTotal minus recordRewrite, the appendWithoutRecordRewrite pattern U89 already uses), and a new row bounds recordRewrite by U89's absolute 50 ms clause, so the row measures what it claims. Today serverTotal contains the whole-stream record rewrite that FN-u89-record-rewrite-folds-whole-stream and FN-u98-record-rewrite-flat-by-floor record as growing (x5-8 from 50 to 1000 events); the row passes only by dilution (x1.13-1.58 in six local runs) and failed at x2.17 on CI run 36337191504 job 108670256369 (PR #2053, a ledger-only change). Net of the rewrite, serverTotal measured x0.78-1.05. U89's grows rule and thresholds and every other asserted step stay unchanged; no product file changes; the rewrite findings stay recorded (this unit does not claim the rewrite flat).",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "admissionRequires": "Parent verifies the admission baseline and that only the two campaignHostIntentServerTime test files change. Red is the recorded timing evidence (the CI run and the six local runs in evidence/u98b-diagnosis-20260927.json), not a fabricated failure; green is at least five separate jest processes, plus test-local mutants showing the new rows still fail on real growth (a grant-wake delay fails the net row; a record-rewrite delay above 50 ms fails the ceiling row), restored with sha256 checked.",
+      "predecessors": [
+        "U98"
+      ],
+      "source20260927": {
+        "at": "2026-09-27T18:05:00.000Z",
+        "reason": "Discovered while closing P1A: the P1A closure fold's CI failed this pre-existing row; diagnosed with measurements, not treated as noise.",
+        "evidence": "evidence/u98b-diagnosis-20260927.json",
+        "planTask": "46"
+      }
+    },
+    {
+      "id": "U17c",
+      "node": "R6.loop-harness",
+      "taskKeys": [],
+      "behavior": "scripts/qc/roadmap-unit-closure.mjs and scripts/qc/roadmap-unit-fold.mjs exit non-zero when the validator they run after writing reports FAILED (today printValidator prints the failure and both exit 0; observed at P1A's local fold and its closure, FN-p1a-ledger-tools-exit-0-on-validator-failure). The closure's review and mainProof receipts stop asserting fixed text a unit may not satisfy (FN-p1a-closure-fixed-receipt-text): laneB follows the unit's review classes and, for a sensitive unit, its packet ruling; the reviewer's re-run scope, the proof checkout and any E2E bundle marker come from what the closer supplies, and absent input is recorded as not stated rather than asserted. Admission decides how a sensitive unit's packet ruling enters the same write. Red first in scripts/__tests__/roadmap-loop-closure-proof.test.ts: a post-write validator failure exits 0, and a sensitive unit's review receipt says Lane B is not required. Receipts already in the ledger are not rewritten.",
+      "ownershipPaths": [
+        "scripts/qc",
+        "scripts/__tests__"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "admissionRequires": "Parent verifies the admission baseline, reads the closure pin and both tools first, and keeps every existing refusal (merge state, review head, reviewer model, verdict, blob equality, proof lines) unchanged.",
+      "predecessors": [
+        "U17"
+      ],
+      "source20260927": {
+        "at": "2026-09-27T18:05:00.000Z",
+        "reason": "Discovered while closing P1A: the parent had to correct four fixed receipt fields by hand and read the validator directly because both tools exit 0 after a validator failure.",
+        "evidence": "evidence/p1a-mainproof-20260927.json (correctedAtFold) and evidence/p1a-review-20260927.json (correctedAtFold)",
+        "planTask": "47"
+      }
+    },
+    {
       "id": "P1B",
       "node": "R2.authority-live",
       "taskKeys": [],
@@ -12723,6 +12806,34 @@
       "summary": "roadmap-unit-closure.mjs writes the tick receipt (note 'rows checked by this closure', tickedOnMain = the merge sha) without checking the live tasks.md row; the validator then refuses the closure until the closer ticks the row by hand (U22's and U34's closures did). Either the tool ticks the row or its receipt note stops claiming it.",
       "recommendedSuccessor": "a R6.loop-harness slice: the closure tool ticks the taskKeys rows in the live tasks.md, or the receipt says 'rows to be ticked by the closer'",
       "status": "recorded"
+    },
+    {
+      "id": "FN-u98b-servertotal-row-includes-growing-rewrite",
+      "foundBy": "parent at P1A's closure fold, 2026-09-27 (CI run 36337191504 job 108670256369 on PR #2053, then six local runs)",
+      "at": "2026-09-27T17:45:00.000Z",
+      "class": "timing-dependent assertion",
+      "summary": "U98's row asserts that serverTotal (GM frame to last timed step) does not grow, but serverTotal contains the whole-stream record rewrite recorded as growing (FN-u89-record-rewrite-folds-whole-stream). Six local runs: serverTotal x1.13-1.58, recordRewrite x5-8, net of the rewrite x0.78-1.05; CI crossed the 2x clause at x2.17 on a ledger-only PR. The row passes by dilution, not because serverTotal is flat.",
+      "evidence": "evidence/u98b-diagnosis-20260927.json",
+      "recommendedSuccessor": "U98b",
+      "status": "recorded; held by U98b"
+    },
+    {
+      "id": "FN-p1a-ledger-tools-exit-0-on-validator-failure",
+      "foundBy": "parent at P1A's local receipt fold and its closure, 2026-09-27",
+      "at": "2026-09-27T17:24:00.000Z",
+      "class": "closure tooling",
+      "summary": "scripts/qc/roadmap-unit-fold.mjs and scripts/qc/roadmap-unit-closure.mjs call printValidator after writing, which prints 'ROADMAP VALIDATION FAILED' without propagating the failure, so both exit 0: the P1A local fold's first run and the P1A closure both exited 0 with the validator reporting one failure. A caller that trusts the exit code publishes an invalid ledger.",
+      "recommendedSuccessor": "U17c",
+      "status": "recorded; held by U17c"
+    },
+    {
+      "id": "FN-p1a-closure-fixed-receipt-text",
+      "foundBy": "parent at P1A's closure, 2026-09-27 (scripts/qc/roadmap-unit-closure.mjs review and mainProof receipt literals)",
+      "at": "2026-09-27T17:24:00.000Z",
+      "class": "closure tooling",
+      "summary": "The closure writes fixed text into every review and mainProof receipt: the Lane A reviewer 're-ran tsc/oxlint/oxfmt/jest', Lane B 'not required (review classes: routine)', checkout 'root checkout fast-forwarded to the merge commit', and '__E2E_MODE__ present in _app chunk'. For P1A all four were false (a sensitive unit with an owner ruling, a hash-and-probe reviewer, an owned detached worktree, a production proof) and were corrected by hand at the fold (correctedAtFold fields).",
+      "recommendedSuccessor": "U17c",
+      "status": "recorded; held by U17c"
     }
   ]
 }

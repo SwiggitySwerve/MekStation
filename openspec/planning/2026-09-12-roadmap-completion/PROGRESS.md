@@ -1,3 +1,13 @@
+## 2026-09-27 two discovered defects registered (parent)
+
+Closing P1A surfaced two pre-existing defects, now registered as planned units ahead of P1B.
+
+**U98b.** PR #2053, which changes only the ledger, failed Unit Tests (3/6) on U98's server-time row (CI run 36337191504). That row asserts `serverTotal` does not grow, but `serverTotal` contains the whole-stream record rewrite that FN-u89 and FN-u98 already record as growing. In [six local runs](evidence/u98b-diagnosis-20260927.json), `serverTotal` grew x1.13-1.58, the rewrite x5-8, and `serverTotal` net of the rewrite x0.78-1.05. CI crossed the 2x clause at x2.17. U98b makes the row assert `serverTotal` net of the rewrite and bounds the rewrite by the 50 ms clause. It changes no threshold or product file (finding FN-u98b-servertotal-row-includes-growing-rewrite).
+
+**U17c.** The fold and closure tools exit 0 after their own validator reports FAILED, and the closure writes fixed receipt text that was false for P1A (Lane B "not required", a root-checkout fast-forward, an `__E2E_MODE__` marker, a reviewer that re-ran the gates). U17c makes both tools exit non-zero on a validator failure and takes that text from the unit and the closer (findings FN-p1a-ledger-tools-exit-0-on-validator-failure and FN-p1a-closure-fixed-receipt-text).
+
+`validate-roadmap.mjs --next` now prints U98b.
+
 ## 2026-09-27 P1A complete on main (parent)
 
 P1A is complete. The owner answered the ruling question for [PR #2051](https://github.com/SwiggitySwerve/MekStation/pull/2051) with "Accept P1A scope (Recommended)" and then instructed "go ahead and transcribe and continue". On that instruction the parent posted the `OWNER-RULING a6eed9ddbcbf25373fb3873e2f3f1a3bbd83cf6a` comment (5857974832) and applied `owner-ruled`; `PK-p1a-ruling` records the decision, the ruling and that deviation from the out-of-band rule. The PR merged with a head-pinned squash and no administrative bypass as `d0347e7e6a236055a8af59c610cf6fb3ff650d35`: one parent, the 14 reviewed files byte-identical, 31 of 31 checks green.
