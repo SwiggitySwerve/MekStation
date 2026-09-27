@@ -90,7 +90,7 @@ describe('CAMPAIGN_EVENT_DEFAULT_SCOPE completeness', () => {
     expect(Object.keys(CAMPAIGN_EVENT_DEFAULT_SCOPE).sort()).toEqual(
       [...CAMPAIGN_EVENT_TYPES].sort(),
     );
-    expect(CAMPAIGN_EVENT_TYPES).toHaveLength(8);
+    expect(CAMPAIGN_EVENT_TYPES).toHaveLength(9);
   });
 
   it('rejects a partial table at runtime', () => {

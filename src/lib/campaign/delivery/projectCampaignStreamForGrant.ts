@@ -194,6 +194,8 @@ function toProjectedCampaignEvent(
       return freezeProjected(event);
     case 'ParticipantRemoved':
       return freezeProjected(event);
+    case 'CampaignMissionLaunched':
+      return freezeProjected(event);
     case 'CampaignSnapshotPublished':
       return freezeProjected(event);
   }

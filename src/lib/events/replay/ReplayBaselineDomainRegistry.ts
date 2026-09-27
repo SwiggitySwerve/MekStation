@@ -91,6 +91,7 @@ const CANONICAL_CAMPAIGN_EVENT_TYPES = [
   'RosterUnitChanged',
   'SalvageAllocated',
   'ParticipantRemoved',
+  'CampaignMissionLaunched',
   'CampaignSnapshotPublished',
 ] as const satisfies readonly CampaignEventType[];
 

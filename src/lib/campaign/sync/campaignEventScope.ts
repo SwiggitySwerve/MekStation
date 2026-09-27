@@ -36,6 +36,7 @@ export const CAMPAIGN_EVENT_DEFAULT_SCOPE = {
   RosterUnitChanged: 'campaign',
   SalvageAllocated: 'campaign',
   ParticipantRemoved: 'campaign',
+  CampaignMissionLaunched: 'campaign',
   CampaignSnapshotPublished: 'campaign',
 } as const satisfies Record<CampaignEventType, CampaignEventScope>;
 

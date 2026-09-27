@@ -92,6 +92,20 @@ const CAMPAIGN_BASELINE_PAYLOAD_SCHEMAS = {
   ParticipantRemoved: z
     .object({ participantId: z.string(), reason: z.string().optional() })
     .strict(),
+  CampaignMissionLaunched: z
+    .object({
+      missionId: z.string(),
+      missionMatchId: z.string(),
+      acceptedHead: z
+        .object({
+          branchId: z.string(),
+          revision: z.number().int().nonnegative(),
+          effectiveGeneration: z.number().int().nonnegative(),
+        })
+        .strict(),
+      deployingPlayerIds: z.array(z.string()),
+    })
+    .strict(),
   CampaignSnapshotPublished: z
     .object({
       state: campaignAuthoritativeState,

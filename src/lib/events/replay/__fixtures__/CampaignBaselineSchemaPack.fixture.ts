@@ -44,6 +44,12 @@ const contract = {
 export const VALID_CAMPAIGN_EVENT_PAYLOADS: Readonly<
   Record<CampaignEventType, unknown>
 > = Object.freeze({
+  CampaignMissionLaunched: {
+    missionId: 'mission-1',
+    missionMatchId: 'match-mission-1',
+    acceptedHead: { branchId: 'root', revision: 4, effectiveGeneration: 0 },
+    deployingPlayerIds: ['player-1'],
+  },
   CampaignDayAdvanced: { newDay: 12 },
   FundsChanged: { delta: -25_000, reason: 'repair', balance: 4_975_000 },
   PilotHired: { pilot, cost: 150_000 },
