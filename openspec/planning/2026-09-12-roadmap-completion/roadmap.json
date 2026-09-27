@@ -7683,11 +7683,22 @@
         "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.launch.ts",
         "src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignDashboardPage.launch.test.ts",
         "src/stores/campaign/useCampaignPersistenceStore.ts",
-        "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts"
+        "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts",
+        "e2e/coop-campaign-two-browser-journey.spec.ts"
       ],
       "acceptance": [
         "Each unit reproduces its boundary red-first (jest at the client or route seam), passes tsc/oxlint/oxfmt and the focused suites, and lands with a Lane A review and, for wire/idempotency/privacy classes, a Lane B ruling on the exact head",
         "No unit widens R2.authority-live's main-verified receipt: server paths stay with their owning nodes"
+      ],
+      "ownershipPathsAmended20260927": [
+        {
+          "path": "e2e/coop-campaign-two-browser-journey.spec.ts",
+          "at": "2026-09-27T00:00:00.000Z",
+          "units": "P2",
+          "source": "task 1 of the approved continuation plan (.omo/plans/mekstation-roadmap-loop-continuation.md, user approval 'Write and review plan' on 2026-09-27): a parent ledger edit made before P2's admission so the client unit can own the new launch, deploy/HQ destination, shared match ID and opponent-turn browser assertions together with its navigation implementation. Precedent: ownershipPathsAmended20260922 and ownershipPathsAmended20260923 on this node.",
+          "why": "the exact file, not a directory. R2.authority-live (main-verified) also lists it, and keeps it: P1 runs the pre-existing journey there only as a regression check. No server path moves to this node and no main-verified receipt is widened. validate-roadmap.mjs --next serializes on unit ownership (pathsOverlap against in-flight units), so P1 and P2 are attempted serially: P2 stays blocked until P1 and PAI are on main, and the two never hold the file in flight at once.",
+          "disclosure": "This is not an owner ruling. The owner did not word or rule on this amendment; the parent made it as a ledger edit under plan task 1's ownership amendment."
+        }
       ],
       "owner": "parent; bounded worker lanes per WORKERS.md",
       "maxFiles": 15,
