@@ -1,0 +1,22 @@
+{
+  "unit": "U17c",
+  "stage": "local",
+  "at": "2026-09-27T20:21:19.268Z",
+  "status": "local-verified",
+  "head": "7e0011267d2dfcb739c16bfc91a419e7c450d5e9",
+  "baseline": "f53e2233c23341101918c74b38ffa9b23ca8ca14",
+  "summary": "5 files in scripts/qc and scripts/__tests__ (+271/-20): fold and closure refuse LEDGER_INVALID_AFTER_WRITE with the validator line after an invalid write (no rollback; --next informational); a non-routine unit needs a packet ruling bound to the PR head (laneB names it) or the closure refuses OWNER_RULING_MISSING before any write; --review-context, --reviewer-effort, --checkout and --merge-method fill their receipt fields, absent ones and the E2E marker read \"not stated by the closer\"; the tick note drops the packet claim; runtime.failedRows only from --extra-runtime. Every existing refusal kept. Pins 49/49 (re-run by the parent), scratch-ledger fold CLI exit 1, typecheck, lint 0 errors, lint:units 17899/17899, format:check, diff --check. Independent Lane A reproduced R1/R2/R4 and the CLI failure (APPROVE).",
+  "implementer": "gpt-5.6-sol-fast (deep-low task st_01a0e478)",
+  "files": {
+    "scripts/__tests__/roadmap-loop-closure-proof.test.ts": "f74646167b155717c99302c7fc66c7b6a016cd2c15325b89aa8872f73192b637",
+    "scripts/__tests__/roadmap-loop-scripts.test.ts": "dc3394d75b78abfe804de344fc5f180624e7b60db9737935926d396727f16f40",
+    "scripts/qc/roadmap-ledger-lib.mjs": "17976bba096c951b0cd29c5b6fe40327bbda8a996a279c03aa9349bd307015ab",
+    "scripts/qc/roadmap-unit-closure.mjs": "98cc5f1832362a948bc37cfd3770bcfe98d8716c102231bdc38b5dc15d9e5633",
+    "scripts/qc/roadmap-unit-fold.mjs": "648173892b2e395a65d9fb7c91375336719b86bbf9372d156cd78025fe3f04cb"
+  },
+  "parentCorrection": "The first version copied expectedReds into runtime.failedRows; the parent rejected it (it would make the U41 check pass by construction) and the worker removed it with red-first row R4.",
+  "evidence": [
+    ".omo/ulw-execute/u17c/DONECLAIM.md (lane evidence)",
+    "E:/Projects/MekStation/.omo/ulw-execute/evidence/task-47-u17c-review.md"
+  ]
+}
