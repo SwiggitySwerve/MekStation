@@ -1,0 +1,345 @@
+{
+  "unit": "U94",
+  "stage": "local",
+  "status": "ready for review: the small-gap resync tail and the live fan-out apply campaignBaselineReachesViewer through one per-recipient wire gate; R1/R1b/R3/R3b/R5 red on the baseline and green here, the GM and unset-latch rows green on both, the join and large-gap rows unchanged; every gate green; four mutants killed and restored",
+  "at": "2026-09-27T01:31:06.569Z",
+  "baseline": "f85a9f8a565f01abaf7ba4507103102052351bd8",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u94",
+  "branch": "roadmap-u94-resync-tail-baseline-law-20260927",
+  "head": "uncommitted working tree on the baseline (the parent commits)",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "admissionReceipt": "evidence/u94-admission-20260927.json",
+  "redReceipt": "evidence/u94-red-20260927.json",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "behaviourDelivered": {
+    "gate": "src/lib/multiplayer/server/campaignViewerWireGate.ts (new): createCampaignViewerWireGate(viewer, sink, settled) returns { offer, seed }. offer withholds an event whose scope the viewer is not admitted to, and a CampaignSnapshotPublished that campaignBaselineReachesViewer refuses; withheldBefore = the gate already withheld a frame OR campaignViewerVisibleEvents(seeded log events with a lower sequence) dropped something OR the seed is null (unreadable log). A snapshot offered before seed waits, with every later event behind it; seed settles them in order. settled runs for every event, sent or withheld.",
+    "session": "src/lib/multiplayer/server/CampaignSyncSession.ts: admitToWire returns the gate (settled = noteDelivered, so the 11.1 watermark trade-off stands: a withheld frame still advances delivery); joinMember reads the log once, builds the projected baseline from it (buildBaselineEvent now takes the events and is synchronous), seeds the gate, sends the baseline straight to the raw sink (already projected, not a log event), offers the tail through the gate and hands the same gate to the live subscription; resyncGuest large gap: the same; small gap: reads the log from 0, seeds the gate, offers only events with sequence > lastSeq, then hands the gate to the live subscription; attachLiveParticipant (the handleRoomCodeGuestJoin.ts:208 entry) subscribes first, reads the log once and seeds the gate (a failed read logs a warning and seeds null: fail closed); a new private subscribeLive holds the old attach body (host.subscribe + liveByParticipant registration).",
+    "joinTailNote": "the join tail now passes the gate (uniform with the small-gap tail); its frames call noteDelivered through settled before retained.set assigns the same final watermark, as before (code reading).",
+    "returnValues": "resync.delivered / join.delivered still list the raw tail (unchanged; bindCampaignSyncConnection.ts:1131-1137 does not serialize them). The rows assert the wire sink."
+  },
+  "changedFiles": [
+    {
+      "path": "src/lib/multiplayer/server/CampaignSyncSession.ts",
+      "kind": "product",
+      "numstat": "+111 -51",
+      "sha256After": "2a808c8b9f370b4c548dcd95d1d04fe987c8197f988f3d69175348e077673018"
+    },
+    {
+      "path": "src/lib/multiplayer/server/campaignViewerWireGate.ts",
+      "kind": "product (new)",
+      "numstat": "+112",
+      "sha256After": "ae460e29db3a6a2130b68a259f86853423e7310216c491b389d6206983139b11"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/campaignBaselineViewerProjection.test.ts",
+      "kind": "test",
+      "numstat": "+352 -2",
+      "sha256After": "336b4775d191346abdde34c8190cc0e8859821a81f6885fabbd687b608b6f023"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/campaignViewerWireGate.test.ts",
+      "kind": "test (new)",
+      "numstat": "+115",
+      "sha256After": "8007b83cd43d5b33890c37832c5de1ec50530b01c3cb5d6ff6496ccf95af8f81"
+    }
+  ],
+  "lineCounts": {
+    "method": "git diff --numstat against the baseline for tracked files; wc -l for the two new files",
+    "productAdded": 223,
+    "productDeleted": 51,
+    "testAdded": 467,
+    "testDeleted": 2,
+    "files": 4,
+    "caps": "cap 15 files / 500 product lines: 4 files, 223 product lines added"
+  },
+  "green": {
+    "command": "U94_FRAMES_OUT=<lane-temp>/frames-green.json npx jest src/lib/multiplayer/server/__tests__/campaignBaselineViewerProjection.test.ts src/lib/multiplayer/server/__tests__/campaignViewerWireGate.test.ts",
+    "exitCode": 0,
+    "testsLine": "Tests:       22 passed, 22 total",
+    "log": {
+      "path": "<lane-temp>/green-jest.log",
+      "sha256": "82ff2b069b98f24b1bf5a6907a7cc59c71e64d835f889cde74c5ca86e190eb70"
+    },
+    "frames": {
+      "path": "<lane-temp>/frames-green.json",
+      "sha256": "478aa0c0bdc701bb40d9674b9ee58ed273786077707fc767bba1511af01b64cd"
+    },
+    "rowsRedToGreen": [
+      "R1",
+      "R1b",
+      "R3",
+      "R3b",
+      "R5"
+    ],
+    "rowsGreenBoth": [
+      "R2 (GM tail)",
+      "R4 (unset latch, tail)",
+      "R3c (unset latch, live)",
+      "the nine existing join / large-gap / rebuilt-join / GM baseline rows"
+    ],
+    "gateUnitRows": "campaignViewerWireGate.test.ts, 5 rows: a snapshot offered before the seed waits with the event after it and both settle in order (sent [3], settled [2,3]); a non-snapshot does not wait; the latch counts only events before the snapshot; seed(null) withholds the snapshot and still sends the in-scope event; the GM receives every snapshot even with seed(null). First run: 1 of 5 failed because the test itself fed a gm hire at sequence 1 (below the snapshot) while claiming it came after; the test was corrected to sequence 3, no product change; then 5/5."
+  },
+  "frameTables": {
+    "R1": {
+      "player-one live": {
+        "red": [
+          "CampaignSnapshotPublished@-1 campaign pilots=[]",
+          "FundsChanged@3 campaign balance=450000"
+        ],
+        "green": [
+          "CampaignSnapshotPublished@-1 campaign pilots=[]",
+          "FundsChanged@3 campaign balance=450000"
+        ]
+      },
+      "player-one resync tail": {
+        "red": [
+          "CampaignSnapshotPublished@2 campaign pilots=[pilot-gm-only,pilot-leak-check]",
+          "FundsChanged@3 campaign balance=450000"
+        ],
+        "green": [
+          "FundsChanged@3 campaign balance=450000"
+        ]
+      }
+    },
+    "R1b": {
+      "player-one resync tail": {
+        "red": [
+          "CampaignSnapshotPublished@2 campaign pilots=[pilot-gm-only,pilot-leak-check]",
+          "FundsChanged@3 campaign balance=450000"
+        ],
+        "green": [
+          "FundsChanged@3 campaign balance=450000"
+        ]
+      }
+    },
+    "R2": {
+      "gm resync tail": {
+        "red": [
+          "PilotHired@1 gm",
+          "CampaignSnapshotPublished@2 campaign pilots=[pilot-gm-only,pilot-leak-check]"
+        ],
+        "green": [
+          "PilotHired@1 gm",
+          "CampaignSnapshotPublished@2 campaign pilots=[pilot-gm-only,pilot-leak-check]"
+        ]
+      }
+    },
+    "R4": {
+      "player-one resync tail": {
+        "red": [
+          "FundsChanged@1 campaign balance=450000",
+          "CampaignSnapshotPublished@2 campaign pilots=[pilot-leak-check]"
+        ],
+        "green": [
+          "FundsChanged@1 campaign balance=450000",
+          "CampaignSnapshotPublished@2 campaign pilots=[pilot-leak-check]"
+        ]
+      }
+    },
+    "R5": {
+      "player-one resync tail (rebuilt session)": {
+        "red": [
+          "CampaignSnapshotPublished@2 campaign pilots=[pilot-gm-only,pilot-leak-check]"
+        ],
+        "green": []
+      }
+    },
+    "R3": {
+      "player-one live": {
+        "red": [
+          "CampaignSnapshotPublished@-1 campaign pilots=[]",
+          "CampaignSnapshotPublished@2 campaign pilots=[pilot-gm-only,pilot-leak-check]",
+          "FundsChanged@3 campaign balance=450000"
+        ],
+        "green": [
+          "CampaignSnapshotPublished@-1 campaign pilots=[]",
+          "FundsChanged@3 campaign balance=450000"
+        ]
+      },
+      "gm live": {
+        "red": [
+          "CampaignSnapshotPublished@-1 campaign pilots=[]",
+          "PilotHired@1 gm",
+          "CampaignSnapshotPublished@2 campaign pilots=[pilot-gm-only,pilot-leak-check]",
+          "FundsChanged@3 campaign balance=450000"
+        ],
+        "green": [
+          "CampaignSnapshotPublished@-1 campaign pilots=[]",
+          "PilotHired@1 gm",
+          "CampaignSnapshotPublished@2 campaign pilots=[pilot-gm-only,pilot-leak-check]",
+          "FundsChanged@3 campaign balance=450000"
+        ]
+      }
+    },
+    "R3b": {
+      "player-one live (attached after the hire)": {
+        "red": [
+          "CampaignSnapshotPublished@2 campaign pilots=[pilot-gm-only,pilot-leak-check]",
+          "FundsChanged@3 campaign balance=450000"
+        ],
+        "green": [
+          "FundsChanged@3 campaign balance=450000"
+        ]
+      }
+    },
+    "R3c": {
+      "player-one live": {
+        "red": [
+          "CampaignSnapshotPublished@1 campaign pilots=[pilot-leak-check]"
+        ],
+        "green": [
+          "CampaignSnapshotPublished@1 campaign pilots=[pilot-leak-check]"
+        ]
+      }
+    }
+  },
+  "whatARestrictedPlayerSees": "R1 green: the restricted player resyncing from revision 0 receives only FundsChanged@3 balance=450000; no CampaignSnapshotPublished, no pilot-gm-only, no pilot-leak-check. Their mirror keeps the pre-hire fold plus the balance the FundsChanged carries; the checkpoint effects never arrive. The GM (R2, R3) receives the checkpoint with both pilots.",
+  "gates": [
+    {
+      "command": "npm run --silent qc:guard-node-modules-link (stage start)",
+      "exitCode": 1,
+      "lastLine": "INSTALL_REFUSED node-modules-is-link {...} (refuses in a junctioned worktree by design)"
+    },
+    {
+      "command": "ls PARENT-PROOF-HOLD before each full jest run",
+      "result": "absent both times (No such file or directory); no wait was needed"
+    },
+    {
+      "command": "node scripts/qc/machine-idle.mjs --wait --timeout-ms 1800000 (before each full jest run)",
+      "exitCode": 0,
+      "lastLine": "MACHINE_IDLE"
+    },
+    {
+      "command": "npx jest src/lib/multiplayer/server src/lib/campaign (attempt 1, 01:24:33Z)",
+      "exitCode": 1,
+      "lastLine": "Test Suites: 3 failed, 370 passed, 373 total / Tests: 4173 passed, 4173 total",
+      "note": "the 3 suites failed to run with \"jest: failed to cache transform results ... EPERM: operation not permitted, rename\" in the shared jest transform cache (6 EPERM lines, 6 \"Test suite failed to run\" lines; matchStoreBranchSegmentReader, ServerMatchHost.rewindRebuild, viewerFrameRawNegativeSweep); rerun alone: Test Suites: 3 passed / Tests: 32 passed. Log preserved at <lane-temp>/jest-full-attempt1.log"
+    },
+    {
+      "command": "npx jest src/lib/multiplayer/server src/lib/campaign (attempt 2, 01:26:20Z)",
+      "exitCode": 0,
+      "lastLine": "Test Suites: 373 passed, 373 total / Tests: 4205 passed, 4205 total"
+    },
+    {
+      "command": "npx jest src/__tests__/api/campaigns (read-only extra: the U96 PUT live-host rows attach through attachLiveParticipant)",
+      "exitCode": 0,
+      "lastLine": "Test Suites: 18 passed, 18 total / Tests: 120 passed, 120 total"
+    },
+    {
+      "command": "npx tsc --noEmit",
+      "exitCode": 0,
+      "lastLine": "(no output)"
+    },
+    {
+      "command": "npx oxlint",
+      "exitCode": 0,
+      "lastLine": "Found 84 warnings and 0 errors.",
+      "note": "84 = the pinned count; 0 lines of the output name any of the 4 changed files"
+    },
+    {
+      "command": "npx oxfmt --check <4 changed files>",
+      "exitCode": 0,
+      "lastLine": "All matched files use the correct format.",
+      "note": "the first check flagged 2 files; npx oxfmt rewrote them (a method-closing `};` -> `}` in CampaignSyncSession.ts and one toEqual line join in the test); rows rerun green after"
+    },
+    {
+      "command": "npm run lint:units",
+      "exitCode": 0,
+      "lastLine": "LINT_UNITS_PASS 17899/17899",
+      "note": "src-tests findings=17783 ceiling=17783 PASS; npx oxlint --config scripts/qc/oxlint-units.json on the two changed test files: Found 0 warnings and 0 errors (the baseline copy of campaignBaselineViewerProjection.test.ts also 0)"
+    },
+    {
+      "command": "npm run qc:openspec-ci:validate",
+      "exitCode": 0,
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0"
+    },
+    {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows"
+    }
+  ],
+  "mutants": {
+    "method": "script <lane-temp>/mutants.sh: copy the file aside, sha256, apply one exact-anchor replacement, run `npx jest <rows file> -t <row>`, restore from the saved copy, sha256 again",
+    "table": [
+      {
+        "id": "M1",
+        "what": "the tail's latch never set: campaignViewerWireGate.ts `withheldBefore(event.sequence),` -> `false,`",
+        "row": "R1",
+        "exitCode": 1,
+        "testsLine": "Tests:       1 failed, 16 skipped, 17 total",
+        "killed": true,
+        "preSha256": "ae460e29db3a6a2130b68a259f86853423e7310216c491b389d6206983139b11",
+        "mutatedSha256": "e269a952ef707ef65d7635ce9a88f5395572239b514d10ea9db8331a2f791d17",
+        "restoredSha256": "ae460e29db3a6a2130b68a259f86853423e7310216c491b389d6206983139b11",
+        "restored": true
+      },
+      {
+        "id": "M2",
+        "what": "the predicate call inverted: `!campaignBaselineReachesViewer(` -> `campaignBaselineReachesViewer(`",
+        "row": "R2 (GM)",
+        "exitCode": 1,
+        "testsLine": "Tests:       1 failed, 16 skipped, 17 total",
+        "killed": true,
+        "preSha256": "ae460e29db3a6a2130b68a259f86853423e7310216c491b389d6206983139b11",
+        "mutatedSha256": "bd66c854ae5ca33cd16b5b6300244b1e878946127a6623998972b1d39059ea7d",
+        "restoredSha256": "ae460e29db3a6a2130b68a259f86853423e7310216c491b389d6206983139b11",
+        "restored": true
+      },
+      {
+        "id": "M3",
+        "what": "scope only (the pre-fix behaviour): the snapshot branch guard `event.type === 'CampaignSnapshotPublished' &&` -> `false &&`",
+        "row": "R1",
+        "exitCode": 1,
+        "testsLine": "Tests:       1 failed, 16 skipped, 17 total",
+        "killed": true,
+        "preSha256": "ae460e29db3a6a2130b68a259f86853423e7310216c491b389d6206983139b11",
+        "mutatedSha256": "0dba2fa1cb82f50646df9837ad5e78d6ca2b7da5fbb6f8b47f9b81642f56b3af",
+        "restoredSha256": "ae460e29db3a6a2130b68a259f86853423e7310216c491b389d6206983139b11",
+        "restored": true
+      },
+      {
+        "id": "M4",
+        "what": "the per-sink latch not seeded at attach: CampaignSyncSession.ts `(history) => gate.seed(history),` -> `() => gate.seed([]),`",
+        "row": "R3b",
+        "exitCode": 1,
+        "testsLine": "Tests:       1 failed, 16 skipped, 17 total",
+        "killed": true,
+        "preSha256": "2a808c8b9f370b4c548dcd95d1d04fe987c8197f988f3d69175348e077673018",
+        "mutatedSha256": "a7caaf135564645d5cccc674e92b318f1c18532187dc9b65bc45b8af393ef844",
+        "restoredSha256": "2a808c8b9f370b4c548dcd95d1d04fe987c8197f988f3d69175348e077673018",
+        "restored": true
+      }
+    ],
+    "gitStatusAfter": "M CampaignSyncSession.ts, M campaignBaselineViewerProjection.test.ts, ?? campaignViewerWireGate.ts, ?? campaignViewerWireGate.test.ts, ?? the two earlier u94 receipts"
+  },
+  "hygiene": "git diff and the two new files grepped for claude|anthropic|co-authored|E:\\|/e/Projects|C:\\Users|/c/Users: no match",
+  "nonClaims": [
+    "no build, Playwright or standalone server was run; the e2e specs that reach attachLiveParticipant (campaign-journal-two-process-privacy, gm-two-player-authority.pack1, gm-two-player-token.pack) were not run.",
+    "the PUT route itself is not driven by this unit's rows (the checkpoint is appended with appendCampaignCommandBatch in the saveCampaignRecordThroughJournal batch shape); the U96 route rows in src/__tests__/api/campaigns passed 120/120 with the change.",
+    "the gm-scoped fact is committed through the host test seam _commitEventsForTests; no production gm-scoped producer was driven.",
+    "the gate waiting path (a snapshot offered before the attach seed returns) is proven only at the gate unit level; the session rows do not deterministically publish before the seed read resolves.",
+    "no performance measurement: small-gap resync now reads the log from 0 (it read from lastSeq + 1), attachLiveParticipant adds one full-log read per attach, and each offered snapshot filters the seeded log once.",
+    "the sequence-gap concealment deferral recorded in campaignWireScopeBoundary is untouched."
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "class": "test infrastructure",
+      "summary": "the first full jest run lost 3 suites to a Windows EPERM rename in the shared jest transform cache (C:/Users/.../Temp/jest); 0 tests failed; the suites passed alone and the second full run was 373/373."
+    },
+    {
+      "id": "F2",
+      "class": "adjacent (not fixed)",
+      "summary": "joinMember and resyncGuest return `delivered` arrays that list the raw, scope-withheld tail (unchanged by this unit); the socket caller bindCampaignSyncConnection.ts:1131-1137 does not serialize resync.delivered."
+    },
+    {
+      "id": "F3",
+      "class": "spec-delta candidate",
+      "summary": "no living spec names the baseline law on the tail or live fan-out (FN-u58-baseline-author-law-not-in-spec); coop-campaign-sync/spec.md:148 says the resynced mirror converges, which a withheld checkpoint makes untrue for a restricted viewer by design. For UAT round 2 triage; no spec written."
+    }
+  ]
+}
