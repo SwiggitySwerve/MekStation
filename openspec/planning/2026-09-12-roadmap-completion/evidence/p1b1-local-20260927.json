@@ -1,0 +1,31 @@
+{
+  "unit": "P1B1",
+  "stage": "local",
+  "at": "2026-09-27T21:43:58.265Z",
+  "status": "local-verified",
+  "head": "ff448e2853523c0ec50890a5be85682cfaf05214",
+  "baseline": "7d99b5517493e4fea5baa810b022939f26ae80cc",
+  "rebasedOnto": "ff8543f4d2d7b72813c1dd2c14f8fd34aa9b57ce",
+  "summary": "14 files +291 lines: CampaignMissionLaunched joins the live union with a strict payload (missionId, missionMatchId, acceptedHead {branchId, revision, effectiveGeneration}, deployingPlayerIds) and is registered in every exhaustive consumer: replay schema pack, live registry, provenance manifest (NONE), fixture, registry count pin (9 campaign / 90 total), a no-op reducer, campaign scope, mission and match entity refs, a roster-free battle activity row and the grant projection arm; the privacy latch logic is unchanged and nothing emits the event. Green in three processes (58/58, 10/10, 347/347), typecheck, lint 0 errors, lint:units 17899/17899, format:check, diff --check and a production build. Lane A (privacy, replay) reproduced the reds and 382 green tests in two processes (APPROVE). The work was moved from 7d99b55 onto ff8543f (ownership amendment #2062) with identical bytes.",
+  "implementer": "gpt-5.6-sol-fast (deep-low task st_01a0e4bf)",
+  "files": {
+    "src/lib/campaign/activity/campaignActivityProjection.ts": "6a4a6cd3ffeea3e7550a3ed9f7cb83814e465af3a01309e51aff5dfc5eb2493f",
+    "src/lib/campaign/delivery/projectCampaignStreamForGrant.ts": "c928040a79897685e033b1ca4c8bdf9f8678614e5716459ab95986eda34110df",
+    "src/lib/campaign/sync/__tests__/campaignEventScope.test.ts": "a6596cdabb717c37b19fe78eb7b1f40666ea803d3262990d58ec127ac1c68410",
+    "src/lib/campaign/sync/applyCampaignEvent.ts": "16c23ddb223db53ee5ecc42c91372c39c9003f0c4cd1b3537599eaa9e9c54814",
+    "src/lib/campaign/sync/campaignEventEntityRefs.ts": "470f3fd5edd5f4484cafa753d054ee96afd8ae47b75dbbbf5362131b6cd1deed",
+    "src/lib/campaign/sync/campaignEventScope.ts": "7e4da1ab78462c391050582235b7ce843570bb5d10c2f14ae8e65f57e40b2b3b",
+    "src/lib/events/replay/CampaignBaselineSchemaPack.ts": "0873045fadda4bce753c6058c19da743a61147139170d0fae9b569373701f412",
+    "src/lib/events/replay/ReplayBaselineDomainRegistry.ts": "eb11b88f7ccd081625988bdb09d027a6fa990473c5ddcc0b3710c506faa773d4",
+    "src/lib/events/replay/ReplayInputProvenanceManifest.ts": "608b6d6044e5a14383105885d9997f33b6c6759b00169443121ba82b0058465f",
+    "src/lib/events/replay/__fixtures__/CampaignBaselineSchemaPack.fixture.ts": "b644647af9cd171ec13b0c1731c5ed7718bd0cdc4e834289f962bf96b2b248eb",
+    "src/lib/events/replay/__tests__/CampaignBaselineSchemaPack.test.ts": "c3bdaa143d8df330a11c984a6f4ee557565f9b6796cda487be581e16938aabbd",
+    "src/lib/events/replay/__tests__/ReplayBaselineDomainRegistry.test.ts": "6eb8035124a33d48d920496da5d085ada64e505cd9596199186245dc0bf585b7",
+    "src/types/campaign/CampaignSync.ts": "62be45d40f2bcbfc4a0aea83212d34a1c156f52932546820022f10e2696c566d",
+    "src/lib/campaign/delivery/__tests__/campaignMissionLaunchContract.test.ts": "bef1621cc7554d2b7be55be20eddf408c60f73ed9d9cc527283afe07de9479f8"
+  },
+  "evidence": [
+    ".omo/ulw-execute/p1b1/DONECLAIM.md (lane evidence)",
+    "E:/Projects/MekStation/.omo/ulw-execute/evidence/task-49-p1b1-review.md"
+  ]
+}

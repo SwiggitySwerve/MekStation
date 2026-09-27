@@ -1,0 +1,10 @@
+{
+  "unit": "P1B1",
+  "stage": "red",
+  "at": "2026-09-27T21:24:18.978Z",
+  "baseline": "7d99b5517493e4fea5baa810b022939f26ae80cc",
+  "summary": "Red first on the unchanged product code: the new contract suite failed 4 of 5 (no CampaignMissionLaunched reducer, scope, refs, activity or projection) and the schema suite failed 4 of 41 (the live inventory, valid fixture, mutation matrix and fingerprint rows for the unregistered discriminant). Lane A reproduced the reds against baseline files restored from ff8543f.",
+  "evidence": [
+    "worker logs red-contract.log and red-schema.log (lane evidence)"
+  ]
+}

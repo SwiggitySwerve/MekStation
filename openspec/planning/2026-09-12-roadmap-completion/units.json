@@ -3975,13 +3975,27 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "baseline": null,
+      "baseline": "7d99b5517493e4fea5baa810b022939f26ae80cc",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/p1b1-admission-20260927.json",
+          "baseline": "7d99b5517493e4fea5baa810b022939f26ae80cc",
+          "at": "2026-09-27T21:22:01.358Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/p1b1-red-20260927.json",
+          "at": "2026-09-27T21:24:18.978Z",
+          "summary": "Red first on unchanged product code: contract suite 4 of 5 failed and schema suite 4 of 41 failed for the unregistered discriminant; Lane A reproduced both against baseline files"
+        },
+        "local": {
+          "path": "evidence/p1b1-local-20260927.json",
+          "at": "2026-09-27T21:43:58.265Z",
+          "summary": "14 files +291: strict CampaignMissionLaunched contract registered in every exhaustive consumer, no-op reducer, campaign scope, refs, roster-free activity, projection arm, latch unchanged, no producer; green 58/58, 10/10, 347/347 in three processes, all gates and build; Lane A privacy/replay APPROVE"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -4004,7 +4018,7 @@
         "privacy",
         "replay"
       ],
-      "state": "planned",
+      "state": "local-verified",
       "admissionRequires": "P1A is complete with an exact-main mainProof (evidence/p1a-mainproof-20260927.json). The parent measures the actual diff against 15 files/500 non-generated lines including tests; the estimate is not proof. The preserved red fixture and schema-test changes from the P1B attempt (sha256 b644647a... and 3493d55e..., in the split evidence) may be reused. A sensitive-class packet is registered at the local fold, and the owner rules the exact head before merge.",
       "predecessors": [
         "P1A"
@@ -11284,6 +11298,34 @@
         "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band, and this packet's note said the agent would not post the comment or apply the label; on the owner's explicit instruction the parent composed and posted the comment from the owner GitHub account and applied the label; the decision is the owner's quoted answer, and the parent supplied the head from the ledger, as in the earlier rulings of this loop"
       },
       "note": "Registered at the local receipt fold after the validator required a sensitive-class packet. This is an undecided question, not an owner ruling. The agent will not post the owner comment, apply its label or choose the packet decision. Amended 2026-09-27 at the P1A closure fold: the owner answered the parent's question with \"Accept P1A scope (Recommended)\" and then instructed \"go ahead and transcribe and continue\"; on that instruction the parent posted the ruling comment and applied the label (see ruling.deviationDisclosed). The decision is the owner's; the agent chose no option."
+    },
+    {
+      "id": "PK-p1b1-ruling",
+      "blocks": [
+        "P1B1"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "P1B1 presents head ff448e2853523c0ec50890a5be85682cfaf05214 on PR #2063 for privacy and replay review. Does the owner rule this exact head after fresh independent review and required CI checks pass?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "The owner posts the head-bound OWNER-RULING comment and applies owner-ruled on the actual product PR; only then may the parent merge and run exact-main proof.",
+          "effort": "One owner review of the exact head and its evidence"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Do not merge; preserve the objection and revise through a new verified head, fresh independent review and fresh owner ruling.",
+          "effort": "Depends on the concrete requested change"
+        }
+      ],
+      "agentRecommendation": "Rule the exact head. Lane A APPROVE on ff448e2 with no required edits (privacy/replay), 31 of 31 checks green and CLEAN. P1B1 registers the CampaignMissionLaunched contract only: nothing emits the event until P1B2, and cold-reconnect delivery is P1B3.",
+      "revertCost": "Revert the isolated registration commit; no event of this type can exist in any journal before P1B2, so no data rollback is involved.",
+      "decision": null,
+      "ruling": null,
+      "note": "Registered at the local receipt fold because the validator requires a sensitive-class packet from local-verified on. This is an undecided question, not an owner ruling. The owner was asked in the working session at 2026-09-27 and did not answer within the question window; the agent will not post the owner comment, apply its label or choose the packet decision."
     }
   ],
   "deferrals": [
