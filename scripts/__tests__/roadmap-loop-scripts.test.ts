@@ -136,6 +136,14 @@ function seedPlannedUnit(): void {
   writeJson(path.join(tempLedger, 'units.json'), ledger);
 }
 
+function makeUnrelatedUnitInvalid(): void {
+  const ledger = ledgerUnits();
+  const unrelated = ledger.units.find((unit) => unit.id !== UNIT);
+  if (!unrelated) throw new Error('no unrelated unit to invalidate');
+  unrelated.reviewClasses = [];
+  writeJson(path.join(tempLedger, 'units.json'), ledger);
+}
+
 /** The three lane receipts the fold reads, in the shapes the lanes write. */
 function seedLaneReceipts(localStatus = 'ready'): string {
   const evidence = path.join(tempLedger, 'evidence');
@@ -224,6 +232,14 @@ describe('roadmap-unit-fold', () => {
     expect(unit.baseline).toBe(BASELINE);
     expect(result.stdout).toContain('ROADMAP VALIDATION PASSED');
     expect(result.stdout).toContain(`${UNIT} local-verified`);
+  });
+
+  it('exits non-zero with the validator failure after writing an invalid ledger', () => {
+    makeUnrelatedUnitInvalid();
+    const result = run(FOLD, foldArgs(seedLaneReceipts()));
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toContain('ROADMAP VALIDATION FAILED');
+    expect(unitOf(UNIT).state).toBe('local-verified');
   });
 
   it('writes stage receipts shaped like the ones already on main', () => {

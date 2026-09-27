@@ -11,6 +11,8 @@
  *     --red-summary "..." --local-summary "..."
  *
  * The unit moves planned -> local-verified and the validator runs afterwards.
+ * A failed post-write validation exits non-zero without rollback: the ledger
+ * remains written on disk and must not be published.
  * It refuses a unit that is not planned, a missing lane receipt, a local
  * receipt whose status is neither `ready` nor `local-verified`, and an
  * admission receipt with no 40-hex baseline.
@@ -70,7 +72,15 @@ function main(argv) {
   unit.state = 'local-verified';
   saveUnits(ledgerDir, ledger);
 
-  printValidator(ledgerDir);
+  const validation = printValidator(ledgerDir);
+  if (
+    validation.main.status !== 0 ||
+    !validation.main.line.includes('ROADMAP VALIDATION PASSED')
+  )
+    refuse(
+      'LEDGER_INVALID_AFTER_WRITE',
+      `the ledger on disk was written and now fails validation (${validation.main.line}); it must not be published`,
+    );
   console.log(
     unit.id,
     unit.state,

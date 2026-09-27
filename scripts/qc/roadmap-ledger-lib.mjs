@@ -157,9 +157,10 @@ export function runValidator(ledgerDir, extraArgs = []) {
 export function printValidator(ledgerDir, { withNext = false } = {}) {
   const main = runValidator(ledgerDir);
   console.log('validator:', main.line, 'exit', main.status);
-  if (!withNext) return;
+  if (!withNext) return { main };
   const next = runValidator(ledgerDir, ['--next']);
   console.log('--next:', next.line, 'exit', next.status);
+  return { main, next };
 }
 
 /**

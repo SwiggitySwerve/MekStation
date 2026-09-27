@@ -9,9 +9,13 @@
  *
  *   npm run roadmap:closure -- --unit U18 --pr 1840 --date 20260918 \
  *     --review <lane-a-review.md> --proof-dir <proof log dir> \
- *     --runtime-label "u18 pin (jest)" --implementer "claude-opus (Agent lane)"
+ *     --runtime-label "u18 pin (jest)" --implementer "claude-opus (Agent lane)" \
+ *     --review-context "isolated diff" --reviewer-effort "high" \
+ *     --checkout "exact merge checkout" --merge-method "squash queue"
  *
- * Run it from a checkout whose HEAD is the merge commit. What it refuses:
+ * Run it from a checkout whose HEAD is the merge commit. A failed post-write
+ * validation exits non-zero without rollback: the ledger and receipts remain
+ * written on disk and must not be published. What it refuses:
  * a PR that is not MERGED, a PR with no files, a checkout that is not at the
  * merge commit (unless `--reproof-commit` names the head it is at, which is
  * then recorded), a review whose `reviewedHead:` is not the PR head, a review
@@ -23,6 +27,10 @@
  *
  * `--extra-runtime <json-file>` merges further fields into `runtime` (what the
  * post-closure scripts did by hand for U9, U9b and U16).
+ *
+ * Review context, reviewer effort, checkout and merge method are supplied by
+ * their matching flags; omitted values are recorded as not stated by the
+ * closer rather than replaced with a fixed claim.
  *
  * The Lane A reviewer model is read from the review markdown's `reviewerModel:`
  * header line rather than carried here as a literal, so a review by any model
@@ -75,6 +83,10 @@ const STRINGS = [
   '--proof-dir',
   '--runtime-label',
   '--implementer',
+  '--review-context',
+  '--reviewer-effort',
+  '--checkout',
+  '--merge-method',
   '--extra-runtime',
   '--expected-reds',
   '--reproof-commit',
@@ -158,6 +170,8 @@ function main(argv) {
       'BLOB_CHECK_REQUIRED',
       `--skip-blob-check cannot be used on the repository's own ledger (${posix(ledgerDir)}); it exists for the jest pin, which works on a copy`,
     );
+  const ledger = loadUnits(ledgerDir);
+  const unit = findUnit(ledger, unitId);
   const evidence = evidenceDirOf(ledgerDir);
   const repoRoot = options.repoRoot
     ? path.resolve(options.repoRoot)
@@ -182,6 +196,36 @@ function main(argv) {
       'PR_HEADS_UNREADABLE',
       `PR ${options.pr} has no 40-hex head and merge commit`,
     );
+
+  const reviewClasses = Array.isArray(unit.reviewClasses)
+    ? unit.reviewClasses
+    : [];
+  const rulingPacket = (ledger.packets ?? []).find(
+    (packet) =>
+      (packet.blocks ?? []).includes(unitId) &&
+      packet.decision?.option &&
+      packet.ruling?.ruledHead === head,
+  );
+  const needsOwnerRuling = reviewClasses.some(
+    (reviewClass) => reviewClass !== 'routine',
+  );
+  if (needsOwnerRuling && !rulingPacket)
+    refuse(
+      'OWNER_RULING_MISSING',
+      `${unitId} has no owner ruling bound to PR head ${head}`,
+    );
+  const laneB = needsOwnerRuling
+    ? (() => {
+        const ruling = rulingPacket.ruling;
+        const details = [
+          ruling.pr === undefined ? null : `PR #${ruling.pr}`,
+          ruling.commentId === undefined ? null : `comment ${ruling.commentId}`,
+          ruling.label === undefined ? null : `label ${ruling.label}`,
+        ].filter(Boolean);
+        return `owner ruling ${rulingPacket.id}: ${rulingPacket.decision.option} on ${ruling.ruledHead}${details.length ? ` (${details.join(', ')})` : ''}`;
+      })()
+    : 'not required (review classes: routine)';
+
   const prFiles = gh(
     `pr view ${options.pr} --json files --jq "[.files[].path]"`,
     repoRoot,
@@ -244,15 +288,14 @@ function main(argv) {
     lane: 'A',
     reviewerModel,
     implementerModel: options.implementer,
-    reviewerEffort: 'default',
+    reviewerEffort: options.reviewerEffort ?? 'not stated by the closer',
     head,
     reviewedHead: head,
     verdict: 'APPROVE',
     outputPath: `evidence/${lc}-lane-a-review-${date}.md`,
     outputSha256: sha256(reviewBytes),
-    sharedContext:
-      'none: reviewer received only the diff range, the head, the contract and spec files on the head, and re-ran tsc/oxlint/oxfmt/jest in its own throwaway worktree',
-    laneB: 'not required (review classes: routine)',
+    sharedContext: options.reviewContext ?? 'not stated by the closer',
+    laneB,
     githubApproval:
       'none recorded; Lane A is engineering evidence, never a GitHub approval',
   };
@@ -281,8 +324,7 @@ function main(argv) {
     mergeSha,
     mergedAt: pr.mergedAt,
     mergedBy: pr.mergedBy && pr.mergedBy.login,
-    method:
-      'gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)',
+    method: options.mergeMethod ?? 'not stated by the closer',
     checksAtMerge: `${checks.filter((check) => check.bucket === 'pass').length} pass, ${checks.filter((check) => check.bucket !== 'pass').length} other`,
     parentCount:
       git(['rev-list', '--parents', '-n', '1', mergeSha], repoRoot)
@@ -304,13 +346,12 @@ function main(argv) {
     stage: 'mainProof',
     at: nowIso(),
     mergeCommit: mergeSha,
-    checkout:
-      'root checkout fast-forwarded to the merge commit (real node_modules; hydrate step runs)',
+    checkout: options.checkout ?? 'not stated by the closer',
     runtime: {
       build:
         lastLine(logDir, 'build', /hydrat|Compiled|error|Error|exit/i) ||
         '(see log)',
-      e2eBundleMarker: '__E2E_MODE__ present in _app chunk (run log)',
+      e2eBundleMarker: 'not stated by the closer',
       playwright: `${options.runtimeLabel}: ${runtimeLine}`,
       tsc: lastLine(logDir, 'tsc', /\S/) || '(clean)',
       ...(options.extraRuntime ? readJson(options.extraRuntime) : {}),
@@ -360,8 +401,6 @@ function main(argv) {
       `main proof not PASS: ${JSON.stringify(mainProof.runtime)} parents=${merge.parentCount} blobDiff=${merge.blobEqualityDiffLines}`,
     );
 
-  const ledger = loadUnits(ledgerDir);
-  const unit = findUnit(ledger, unitId);
   if (unit.state !== 'local-verified')
     refuse(
       'UNIT_NOT_LOCAL_VERIFIED',
@@ -375,7 +414,7 @@ function main(argv) {
     taskKeys,
     note: taskKeys.length
       ? 'rows checked by this closure'
-      : `${unitId} holds no task row (its row is held by a packet until the gated scenario can pass); the delivered behaviour is proven on main by this unit.`,
+      : `${unitId} holds no task row; the delivered behaviour is proven on main by this unit.`,
     tickedOnMain: taskKeys.length ? mergeSha : null,
   };
   writeJson(path.join(evidence, `${lc}-tick-${date}.json`), tick);
@@ -410,7 +449,15 @@ function main(argv) {
   unit.state = 'complete';
   saveUnits(ledgerDir, ledger);
 
-  printValidator(ledgerDir, { withNext: true });
+  const validation = printValidator(ledgerDir, { withNext: true });
+  if (
+    validation.main.status !== 0 ||
+    !validation.main.line.includes('ROADMAP VALIDATION PASSED')
+  )
+    refuse(
+      'LEDGER_INVALID_AFTER_WRITE',
+      `the ledger on disk was written and now fails validation (${validation.main.line}); it must not be published`,
+    );
   console.log(
     `preserved: ${preserved.files.length} files ${preserved.bytes} bytes -> evidence/${lc}-logs-${date}.json`,
   );

@@ -200,6 +200,53 @@ function seedPlannedUnit(): void {
   writeJson(path.join(tempLedger, 'units.json'), ledger);
 }
 
+function makeUnrelatedUnitInvalid(): void {
+  const ledger = ledgerUnits();
+  const unrelated = ledger.units.find((unit) => unit.id !== UNIT);
+  if (!unrelated) throw new Error('no unrelated unit to invalidate');
+  unrelated.reviewClasses = [];
+  writeJson(path.join(tempLedger, 'units.json'), ledger);
+}
+
+function seedSensitivePacket(withRuling: boolean): void {
+  const ledger = ledgerUnits();
+  const unit = ledger.units.find((entry) => entry.id === UNIT);
+  if (!unit) throw new Error(`no unit ${UNIT}`);
+  unit.reviewClasses = ['authority'];
+  const packet = {
+    id: 'PK-u91-ruling',
+    blocks: [UNIT],
+    nodes: ['R6.loop-harness'],
+    taskKeys: [],
+    question: 'Does the owner rule the fabricated U91 head?',
+    options: [
+      { label: 'rule', consequence: 'close U91', effort: 'small' },
+      { label: 'reject', consequence: 'stop U91', effort: 'small' },
+    ],
+    agentRecommendation: 'rule after checks pass',
+    revertCost: 'low',
+    decision: { option: 'rule the head' },
+    ruling: withRuling
+      ? {
+          ruledHead: PR_HEAD,
+          pr: 1836,
+          commentId: 987654,
+          author: 'owner',
+          label: 'owner-ruled',
+          bodySha256: 'd'.repeat(64),
+        }
+      : null,
+  };
+  const packets = Array.isArray(ledger.packets) ? ledger.packets : [];
+  ledger.packets = [
+    ...packets.filter(
+      (entry) => (entry as Record<string, unknown>).id !== packet.id,
+    ),
+    packet,
+  ];
+  writeJson(path.join(tempLedger, 'units.json'), ledger);
+}
+
 /** The three lane receipts the fold reads, in the shapes the lanes write. */
 function seedLaneReceipts(localStatus = 'ready'): string {
   const evidence = path.join(tempLedger, 'evidence');
@@ -503,6 +550,102 @@ describe('roadmap-unit-closure', () => {
     expect(unit.mergeSha).toBe(headSha);
     expect(result.stdout).toContain('ROADMAP VALIDATION PASSED');
     expect(result.stdout).toContain('--next:');
+    expect(reviewReceipt.sharedContext).toBe('not stated by the closer');
+    expect(reviewReceipt.reviewerEffort).toBe('not stated by the closer');
+    expect(merge.method).toBe('not stated by the closer');
+    expect(mainProof.checkout).toBe('not stated by the closer');
+    expect((mainProof.runtime as Record<string, string>).e2eBundleMarker).toBe(
+      'not stated by the closer',
+    );
+  });
+
+  it('exits non-zero with the validator failure after writing an invalid ledger', () => {
+    fold();
+    makeUnrelatedUnitInvalid();
+    const result = run(
+      CLOSURE,
+      closureArgs(
+        seedReview(),
+        seedProofDir('Tests:       12 passed, 12 total'),
+      ),
+    );
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toContain('ROADMAP VALIDATION FAILED');
+    expect(unitOf(UNIT).state).toBe('complete');
+  });
+
+  it('refuses a sensitive unit with no owner ruling before writing a receipt', () => {
+    seedSensitivePacket(false);
+    fold();
+    const result = run(
+      CLOSURE,
+      closureArgs(
+        seedReview(),
+        seedProofDir('Tests:       12 passed, 12 total'),
+      ),
+    );
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toContain('OWNER_RULING_MISSING');
+    expect(result.stderr).toContain(UNIT);
+    expect(result.stderr).toContain(PR_HEAD);
+    expect(
+      fs.existsSync(
+        path.join(tempLedger, 'evidence', `u91-review-${DATE}.json`),
+      ),
+    ).toBe(false);
+  });
+
+  it('records the matching owner ruling as Lane B', () => {
+    seedSensitivePacket(true);
+    fold();
+    expectClosureOk(
+      run(
+        CLOSURE,
+        closureArgs(
+          seedReview(),
+          seedProofDir('Tests:       12 passed, 12 total'),
+        ),
+      ),
+    );
+    const receipt = readJson<Record<string, unknown>>(
+      path.join(tempLedger, 'evidence', `u91-review-${DATE}.json`),
+    );
+    expect(receipt.laneB).toBe(
+      `owner ruling PK-u91-ruling: rule the head on ${PR_HEAD} (PR #1836, comment 987654, label owner-ruled)`,
+    );
+  });
+
+  it('records closer-supplied receipt claims verbatim', () => {
+    fold();
+    const result = run(CLOSURE, [
+      ...closureArgs(
+        seedReview(),
+        seedProofDir('Tests:       12 passed, 12 total'),
+      ),
+      '--review-context',
+      'isolated diff and contract',
+      '--reviewer-effort',
+      'high',
+      '--checkout',
+      'detached exact merge checkout',
+      '--merge-method',
+      'squash through protected queue',
+    ]);
+    expectClosureOk(result);
+    const evidence = path.join(tempLedger, 'evidence');
+    const review = readJson<Record<string, unknown>>(
+      path.join(evidence, `u91-review-${DATE}.json`),
+    );
+    const merge = readJson<Record<string, unknown>>(
+      path.join(evidence, `u91-merge-${DATE}.json`),
+    );
+    const proof = readJson<Record<string, unknown>>(
+      path.join(evidence, `u91-mainproof-${DATE}.json`),
+    );
+    expect(review.sharedContext).toBe('isolated diff and contract');
+    expect(review.reviewerEffort).toBe('high');
+    expect(merge.method).toBe('squash through protected queue');
+    expect(proof.checkout).toBe('detached exact merge checkout');
   });
 
   it('preserves the proof logs through the U13 helper', () => {
@@ -622,11 +765,22 @@ describe('roadmap-unit-closure', () => {
     fold();
     const proofDir = seedProofDir('authority-recovery: 2 failed / 6 passed');
     const expected = path.join(tempLedger, 'expected-reds.json');
-    writeJson(expected, ['genesis snapshot row', 'genesis replay row']);
+    writeJson(expected, [
+      'E2E-01 genesis snapshot row',
+      'E2E-02 genesis replay row',
+    ]);
+    const observed = [
+      '1) [chromium] › e2e/gm-two-player-authority-recovery.pack.spec.ts:66:5 › E2E-01 genesis branch recovers @E2E-01',
+      '2) [chromium] › e2e/gm-two-player-authority-recovery.pack.spec.ts:123:5 › E2E-02 effective branch remains authoritative @E2E-02',
+    ];
+    const extra = path.join(tempLedger, 'observed-failed-rows.json');
+    writeJson(extra, { failedRows: observed });
     const result = run(CLOSURE, [
       ...closureArgs(seedReview(), proofDir),
       '--expected-reds',
       expected,
+      '--extra-runtime',
+      extra,
     ]);
     expectClosureOk(result);
     const mainProof = readJson<Record<string, unknown>>(
@@ -634,9 +788,32 @@ describe('roadmap-unit-closure', () => {
     );
     expect(mainProof.verdict).toBe('PASS');
     expect(mainProof.expectedReds).toEqual([
-      'genesis snapshot row',
-      'genesis replay row',
+      'E2E-01 genesis snapshot row',
+      'E2E-02 genesis replay row',
     ]);
+    expect((mainProof.runtime as Record<string, unknown>).failedRows).toEqual(
+      observed,
+    );
+    expect(unitOf(UNIT).state).toBe('complete');
+  });
+
+  it('rejects expected reds without closer-supplied failed rows after writing', () => {
+    fold();
+    const expected = path.join(tempLedger, 'expected-reds.json');
+    writeJson(expected, [
+      'E2E-01 genesis snapshot row',
+      'E2E-02 genesis replay row',
+    ]);
+    const result = run(CLOSURE, [
+      ...closureArgs(
+        seedReview(),
+        seedProofDir('authority-recovery: 2 failed / 6 passed'),
+      ),
+      '--expected-reds',
+      expected,
+    ]);
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toContain('LEDGER_INVALID_AFTER_WRITE');
     expect(unitOf(UNIT).state).toBe('complete');
   });
 
