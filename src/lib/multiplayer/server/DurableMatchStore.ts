@@ -54,6 +54,7 @@ import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 
 import { readDurableStreamRebuild } from '@/lib/events/journal/EventHistoryDurableRebuild';
+import { canonicalizeJsonV1 } from '@/lib/events/journal/EventJournalCanonicalizer';
 import { normalizeRoomCode } from '@/lib/p2p/roomCodes';
 import { isSqliteUniqueConstraintError } from '@/services/persistence/sqliteConstraintErrors';
 
@@ -128,7 +129,10 @@ import {
   getCombatJournalAuthorityMode,
   recordProcessShadowComparison,
 } from './matchJournalAuthority';
-import { mirrorMatchBatchToJournal } from './MatchStreamJournalMirror';
+import {
+  mirrorMatchBatchToJournal,
+  withoutUndefinedProperties,
+} from './MatchStreamJournalMirror';
 
 // =============================================================================
 // Constants
@@ -788,6 +792,7 @@ export class DurableMatchStore
 
     const fingerprint = matchCommandFingerprint(batch);
     const committedAt = new Date().toISOString();
+    let duplicateEvents: readonly IGameEvent[] | null = null;
 
     const tx = this.db.transaction((): MatchBatchAppendResult => {
       const prior = this.db
@@ -797,11 +802,38 @@ export class DurableMatchStore
         )
         .get(matchId, batch.commandId) as ICommandReceiptRow | undefined;
       if (prior) {
-        // Same id, same work: the caller never saw the acknowledgement.
-        // Same id, different work: refuse rather than overwrite.
-        return matchesCommandFingerprint(prior.fingerprint, batch)
-          ? { kind: 'duplicate-command', receipt: receiptFrom(prior) }
-          : { kind: 'integrity-conflict', commandId: batch.commandId };
+        const receipt = receiptFrom(prior);
+        const stored = this.db
+          .prepare(
+            `SELECT event_json AS eventJson FROM mp_match_events
+             WHERE match_id = ? AND sequence BETWEEN ? AND ?
+             ORDER BY sequence`,
+          )
+          .all(matchId, receipt.firstRevision, receipt.lastRevision) as {
+          readonly eventJson: string;
+        }[];
+        const storedEvents = stored.map(
+          (row) => JSON.parse(row.eventJson) as IGameEvent,
+        );
+        const sameJournalIdentity =
+          receipt.expectedPostStateDigest ===
+            (batch.expectedPostStateDigest ?? null) &&
+          storedEvents.length === batch.events.length &&
+          batch.events.every(
+            (event, index) =>
+              canonicalizeJsonV1(withoutUndefinedProperties(event)) ===
+              canonicalizeJsonV1(storedEvents[index]),
+          );
+        // Keep the persisted fingerprint format stable, but close over
+        // fields the journal identity also consumes (full events + digest).
+        if (
+          matchesCommandFingerprint(prior.fingerprint, batch) &&
+          sameJournalIdentity
+        ) {
+          duplicateEvents = storedEvents;
+          return { kind: 'duplicate-command', receipt };
+        }
+        return { kind: 'integrity-conflict', commandId: batch.commandId };
       }
 
       // Live head only. The superseded tail lives in the sibling
@@ -985,14 +1017,46 @@ export class DurableMatchStore
     });
 
     const result = tx();
-    if (result.kind === 'committed' || result.kind === 'duplicate-command') {
+    if (result.kind === 'integrity-conflict') {
+      if (getCombatJournalAuthorityMode() !== 'off') {
+        this.recordMirrorFailure(batch, 'command-identity-conflict');
+      }
+      return result;
+    }
+    if (result.kind === 'committed') {
+      await this.mirrorCommittedBatch(matchId, batch);
+    }
+    if (result.kind === 'duplicate-command') {
       await this.mirrorCommittedBatch(
         matchId,
-        batch,
-        result.kind === 'duplicate-command',
+        {
+          ...batch,
+          actorId: result.receipt.actorId,
+          expectedRevision: result.receipt.firstRevision,
+          events: duplicateEvents!,
+          expectedPostStateDigest: result.receipt.expectedPostStateDigest,
+        },
+        true,
       );
     }
     return result;
+  };
+
+  private recordMirrorFailure = (
+    batch: IMatchCommandBatch,
+    reason: string,
+  ): string => {
+    const failure = `journal-mirror:${reason}`;
+    recordProcessShadowComparison({
+      intentId: batch.commandId,
+      equal: false,
+      eventCountLive: batch.events.length,
+      eventCountShadow: 0,
+      liveDigest: batch.expectedPostStateDigest ?? '',
+      shadowDigest: '',
+      reason: failure,
+    });
+    return failure;
   };
 
   /**
@@ -1041,16 +1105,7 @@ export class DurableMatchStore
     } catch (error) {
       reason = error instanceof Error ? error.message : 'mirror failed';
     }
-    const failure = `journal-mirror:${reason}`;
-    recordProcessShadowComparison({
-      intentId: batch.commandId,
-      equal: false,
-      eventCountLive: batch.events.length,
-      eventCountShadow: 0,
-      liveDigest: batch.expectedPostStateDigest ?? '',
-      shadowDigest: '',
-      reason: failure,
-    });
+    const failure = this.recordMirrorFailure(batch, reason);
     if (mode === 'enabled' && batch.journalAuthorityCommand) {
       throw new Error(failure);
     }

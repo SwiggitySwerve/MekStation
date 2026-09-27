@@ -39,26 +39,20 @@ type MirrorFault = (
   ...args: Parameters<Mirror>
 ) => ReturnType<Mirror>;
 
-const roster: IGameUnit[] = [
-  {
-    id: 'lock-player',
-    name: 'lock-player',
-    side: GameSide.Player,
-    unitRef: 'lock-player',
-    pilotRef: 'lock-player-pilot',
+function unit(id: string, side: GameSide): IGameUnit {
+  return {
+    id,
+    name: id,
+    side,
+    unitRef: id,
     gunnery: 4,
     piloting: 5,
-  },
-  {
-    id: 'lock-opponent',
-    name: 'lock-opponent',
-    side: GameSide.Opponent,
-    unitRef: 'lock-opponent',
-    pilotRef: 'lock-opponent-pilot',
-    gunnery: 4,
-    piloting: 5,
-  },
-] as IGameUnit[];
+  } as IGameUnit;
+}
+const roster = [
+  unit('lock-player', GameSide.Player),
+  unit('lock-opponent', GameSide.Opponent),
+];
 
 function intent(intentId: string, matchId: string): IIntent {
   return {
@@ -88,23 +82,16 @@ function meta(matchId: string) {
   };
 }
 
-function bounded<T>(signal: Promise<T>, label: string): Promise<T> {
-  return new Promise((resolve, reject) => {
-    const timeout = setTimeout(
-      () => reject(new Error(`${label} timed out`)),
-      2000,
-    );
-    signal.then(
-      (value) => {
-        clearTimeout(timeout);
-        resolve(value);
-      },
-      (error: unknown) => {
-        clearTimeout(timeout);
-        reject(error);
-      },
-    );
+async function bounded<T>(signal: Promise<T>, label: string): Promise<T> {
+  let timeout: ReturnType<typeof setTimeout>;
+  const limit = new Promise<never>((_, reject) => {
+    timeout = setTimeout(() => reject(new Error(`${label} timed out`)), 2000);
   });
+  try {
+    return await Promise.race([signal, limit]);
+  } finally {
+    clearTimeout(timeout!);
+  }
 }
 
 async function createHost(
@@ -120,15 +107,11 @@ async function createHost(
     resolveSeed = resolve;
     rejectSeed = reject;
   });
-  store.seedJournalFromInitialEvents = async (...args) => {
-    try {
-      await seed(...args);
-      resolveSeed();
-    } catch (error) {
+  store.seedJournalFromInitialEvents = (...args) =>
+    seed(...args).then(resolveSeed, (error: unknown) => {
       rejectSeed(error);
       throw error;
-    }
-  };
+    });
   const host = ServerMatchHost.create(matchId, store, {
     mapRadius: 4,
     turnLimit: 5,
@@ -170,7 +153,7 @@ const faultRows: readonly {
   readonly label: string;
   readonly reason: string;
   readonly fault: MirrorFault;
-  readonly commitsJournal: boolean;
+  readonly commitsJournal?: boolean;
 }[] = [
   {
     label: 'non-mirrored revision conflict',
@@ -180,7 +163,6 @@ const faultRows: readonly {
       expectedRevision: OPENING_HEAD,
       actualRevision: OPENING_HEAD + 1,
     }),
-    commitsJournal: false,
   },
   {
     label: 'thrown mirror error',
@@ -188,13 +170,11 @@ const faultRows: readonly {
     fault: async () => {
       throw new Error('mirror exploded');
     },
-    commitsJournal: false,
   },
   {
     label: 'integrity-conflict',
     reason: 'integrity-conflict',
     fault: async () => ({ kind: 'integrity-conflict' }),
-    commitsJournal: false,
   },
   {
     label: 'post-commit branch-integrity',
@@ -212,16 +192,14 @@ const faultRows: readonly {
 
 describe('enabled journal mirror failures fail commands closed', () => {
   let dir: string;
-  let capabilityPath: string;
   let matchPath: string;
   let store: DurableMatchStore;
 
   beforeEach(async () => {
     dir = await mkdtemp(path.join(tmpdir(), 'journal-fail-closed-'));
-    capabilityPath = path.join(dir, 'mekstation.db');
     matchPath = path.join(dir, 'matches.db');
     resetSQLiteService();
-    getSQLiteService({ path: capabilityPath }).initialize();
+    getSQLiteService({ path: path.join(dir, 'mekstation.db') }).initialize();
     matchJournalAuthority._resetProcessShadowStatsForTests();
     matchJournalAuthority._setCombatJournalAuthorityModeForTests('enabled');
     store = new DurableMatchStore({
@@ -296,37 +274,59 @@ describe('enabled journal mirror failures fail commands closed', () => {
     expect(journalHead(matchId)).toBe(storedAfterFailure);
   });
 
-  it('a divergent same-id retry refuses and never reaches the journal', async () => {
+  it('a digest-only divergent retry fails before the journal and an identical retry heals', async () => {
     const matchId = 'match-divergent-retry';
     const host = await createHost(store, matchId);
     mirrorMock.mockRejectedValueOnce(new Error('first mirror failed'));
     await host.handleIntent(intent('lock-1', matchId));
-    mirrorMock.mockImplementation(actualMirror);
-    const receipt = await store.getCommandReceipt(matchId, 'lock-1');
-    expect(receipt).not.toBeNull();
+    const getReceipt = store.getCommandReceipt.bind(store);
+    store.getCommandReceipt = async (...args) => {
+      const stored = await getReceipt(...args);
+      return stored == null
+        ? null
+        : { ...stored, expectedPostStateDigest: 'divergent-digest' };
+    };
+    mirrorMock.mockClear();
 
+    const divergent = await host.handleIntent(intent('lock-1', matchId));
+
+    expect(storeFailure(divergent)).toEqual(
+      expect.objectContaining({ reason: 'integrity-conflict' }),
+    );
+    expect(mirrorMock).not.toHaveBeenCalled();
+    expect(journalHead(matchId)).toBe(OPENING_HEAD);
+
+    store.getCommandReceipt = getReceipt;
+    const identical = await host.handleIntent(intent('lock-1', matchId));
+
+    expect(storeFailure(identical)).toBeUndefined();
+    expect(journalHead(matchId)).toBe((await store.getEvents(matchId)).length);
+  });
+
+  it('a payload-tampered same-id retry fails before the journal', async () => {
+    const matchId = 'match-payload-tamper-retry';
+    const host = await createHost(store, matchId);
+    mirrorMock.mockRejectedValueOnce(new Error('first mirror failed'));
+    await host.handleIntent(intent('lock-1', matchId));
+    const event = (await store.getEvents(matchId))[OPENING_HEAD];
     const db = new Database(matchPath);
-    try {
-      const event = (await store.getEvents(matchId)).find(
-        (candidate) => candidate.sequence === receipt?.firstRevision,
-      );
-      db.prepare(
-        `UPDATE mp_match_events SET event_json = ?
-          WHERE match_id = ? AND sequence = ?`,
-      ).run(
-        JSON.stringify({ ...event, payload: { divergent: true } }),
-        matchId,
-        receipt!.firstRevision,
-      );
-    } finally {
-      db.close();
-    }
+    db.prepare(
+      `UPDATE mp_match_events SET event_json = ?
+       WHERE match_id = ? AND sequence = ?`,
+    ).run(
+      JSON.stringify({ ...event, payload: { divergent: true } }),
+      matchId,
+      event.sequence,
+    );
+    db.close();
+    mirrorMock.mockClear();
 
     const retry = await host.handleIntent(intent('lock-1', matchId));
 
     expect(storeFailure(retry)).toEqual(
       expect.objectContaining({ reason: 'integrity-conflict' }),
     );
+    expect(mirrorMock).not.toHaveBeenCalled();
     expect(journalHead(matchId)).toBe(OPENING_HEAD);
   });
 
