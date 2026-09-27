@@ -3996,7 +3996,9 @@
         "src/lib/events/replay/CampaignBaselineSchemaPack.ts",
         "src/lib/events/replay/ReplayBaselineDomainRegistry.ts",
         "src/lib/events/replay/__fixtures__/CampaignBaselineSchemaPack.fixture.ts",
-        "src/lib/events/replay/__tests__/CampaignBaselineSchemaPack.test.ts"
+        "src/lib/events/replay/__tests__/CampaignBaselineSchemaPack.test.ts",
+        "src/lib/events/replay/ReplayInputProvenanceManifest.ts",
+        "src/lib/events/replay/__tests__/ReplayBaselineDomainRegistry.test.ts"
       ],
       "reviewClasses": [
         "privacy",
@@ -4012,6 +4014,16 @@
         "reason": "P1B stopped with BLOCKED-SPLIT before any product edit: cold reconnect needs files beyond its fifteen. This slice holds the event contract and replay registration clauses.",
         "evidence": "evidence/p1b-split-admission-20260927.json",
         "planTask": "49"
+      },
+      "ownershipAmended20260927": {
+        "at": "2026-09-27T21:30:28.188Z",
+        "added": [
+          "src/lib/events/replay/ReplayInputProvenanceManifest.ts",
+          "src/lib/events/replay/__tests__/ReplayBaselineDomainRegistry.test.ts"
+        ],
+        "reason": "Adding CampaignMissionLaunched to the live CampaignEventType makes two further exhaustive consumers compile- or test-enforced: ReplayInputProvenanceManifest.ts (Record<CampaignEventType | GameEventType, IReplayInputProvenance>; typecheck TS1360 without a row) and ReplayBaselineDomainRegistry.test.ts (pins the live campaign count at 8 and the total at 89). The P1B1 plan omitted both; the worker stopped at its ownership boundary rather than editing them. Planned files become 14, still within 15 files/500 lines.",
+        "nodeAmended": "R2.authority-live ownershipPaths gains the same two exact paths",
+        "evidence": "P1B1 lane evidence .omo/ulw-execute/p1b1/typecheck-blocker.log and green-registry-consumers.log (2 failed / 345 passed)"
       }
     },
     {
