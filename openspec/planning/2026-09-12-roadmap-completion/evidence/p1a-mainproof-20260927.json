@@ -1,0 +1,62 @@
+{
+  "unit": "P1A",
+  "stage": "mainProof",
+  "at": "2026-09-27T17:23:47.400Z",
+  "mergeCommit": "d0347e7e6a236055a8af59c610cf6fb3ff650d35",
+  "checkout": "owned wave-A worktree detached at the merge commit, with its private physical node_modules copied from the root install (no install run; hydrate step ran); the root checkout was not touched",
+  "correctedAtFold": "2026-09-27: checkout replaced the closure tool's fixed root-checkout text; the runtime fields come from --extra-runtime",
+  "attempts": "attempt-01 (main-proof-01.log) exited 1 before any gate on a proof-script defect (null branch name on a detached checkout); it created no server, database or temp content. attempt-02 is this receipt.",
+  "runtime": {
+    "build": "npm run build exit 0: compiled successfully in 55s, standalone server hydrated, BUILD_ID 1790529276876 (fresh build of d0347e7 in the owned wave-A worktree using its private physical node_modules)",
+    "e2eBundleMarker": "not applicable: production proof. http-main.cjs refuses inherited NEXT_PUBLIC_E2E_MODE, PLAYWRIGHT_E2E_RUN_ID, MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE, MEKSTATION_FAULT_CONTROLS, MULTIPLAYER_STORE and CAMPAIGN_EVENT_STORE; none was set",
+    "playwright": "P1A exact-main focused Jest and real production HTTP: P1A PROOF RUNTIME PASSED: 178 passed (focused jest 131 of 131 in 18 suites, 0 failed, exit 0; real production HTTP 47 of 47 cases, 48 requests, 9 server boots, 0 failed, exit 0)",
+    "tsc": "npm run typecheck exit 0 (tsc --noEmit --skipLibCheck), run after the build because the build regenerates .next/types",
+    "lint": "npm run lint exit 0: Found 84 warnings and 0 errors",
+    "lintUnits": "npm run lint:units exit 0: LINT_UNITS_PASS 17899/17899",
+    "formatCheck": "npm run format:check exit 0: All matched files use the correct format.",
+    "focusedJest": "18 suites, 131 passed, 0 failed, exit 0 (--runInBand; pattern coopMissionCreate|DurableMatchStore|InMemoryMatchStore|MatchHostRegistry|MatchRecovery|multiplayerMatchesFog|multiplayerCoopCreationCheckpoint|coopMatchRosterSourceVersion|securitySchemas)",
+    "realHttp": {
+      "driver": ".omo/ulw-execute/p1a/http-main.cjs attempt-02 d0347e7e6a236055a8af59c610cf6fb3ff650d35",
+      "status": "PASS",
+      "exit": 0,
+      "cases": 47,
+      "requests": 48,
+      "serverBoots": 9,
+      "artifacts": 526,
+      "artifactHashesVerified": true,
+      "checkout": "detached at the merge commit",
+      "buildId": "1790529276876",
+      "compiledMatchRouteSha256": "a47bae79aa34ed705f6ff5140117cf61e0339980e28de9265a77ed521e7a6e89",
+      "sourceDigest": "bc87a023023d598325172881f9e68f693df8f07d40b3bfdb6d55a1fcfac07717",
+      "sourceAndBuildIdentityStableDuringRun": true,
+      "cleanup": "all nine server PIDs absent, port 3639 has no listener, fixture databases removed (checked independently after the run)"
+    },
+    "validatorGithub": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows (--github, exit 0)",
+    "notRun": "No Playwright, openspec strict, qc:openspec-ci or qc pin ran for this unit; its plan QA names focused Jest and the owned live-server POST"
+  },
+  "commands": {
+    "validator": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows",
+    "gitAncestry": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows (--git)",
+    "next": "U25",
+    "openspecStrict": "(no log)",
+    "qcOpenspecCi": "(no log)",
+    "qcPin": "(no log)"
+  },
+  "logs": ".omo/ulw-execute/p1a/main-proof-02-logs/ (local; sha256 below)",
+  "logHashes": [
+    "00cb2d4478a4f9864919d0c117275b074db135d292adfababd1803336275288e *build.log",
+    "e668ad6c4e7df77f0777b23cfc25c7862e59e04b41aab8d89f23b65749b66eb7 *exact-main-ladder.log",
+    "67de057d852b0e5d6a07ccabd21127caf32857418d96900eaa0dcd46ef095597 *format.log",
+    "1b8b7ab3c0cc003128a1d2e11afda9abbe88c91314ec5439b97ee0e3983e322b *git-check.log",
+    "392e2e4841e8495193de81d6dedcd9b6438e022143ecf22f19d91697116524e4 *github.log",
+    "87d30b997f92eee650109e1ed907655ddbf701f82b657255aecf8b837f27ea09 *http-main.log",
+    "056244c68efecfb4a599156466947723d36eb5b29b070c6354ee4be8b48adeb4 *jest.log",
+    "8d8eae4cd94d029972515e5ae5972befbf61bbd42f3ff440ff4d767973b3acf0 *lint-units.log",
+    "5d670639d170d72867eca739c65ecf4b1f0b0da671fd4c40f6555651cbbb0bd9 *lint.log",
+    "7d420367e9f17d9a262bf8d4c7321097d8ee515676af56d290afd5fd9a0197bc *next.log",
+    "5e87483881b881f4ae939139d9a985faa7b34e3048dc24f637b9fcc94e374641 *playwright.log",
+    "a8bb006a084211eed48834a2c4bf17642ff708fb79709e81b8a1e3f38378d83b *tsc.log",
+    "1d26a6d2805f2f8450a7bb70b5b138848f238adc1531307e2c93306373e4bae1 *validator.log"
+  ],
+  "verdict": "PASS"
+}

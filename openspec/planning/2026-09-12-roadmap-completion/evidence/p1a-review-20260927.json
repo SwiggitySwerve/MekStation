@@ -1,0 +1,18 @@
+{
+  "unit": "P1A",
+  "stage": "review",
+  "at": "2026-09-27T17:23:45.782Z",
+  "lane": "A",
+  "reviewerModel": "claude-fable-5-1",
+  "implementerModel": "gpt-6-astra (xhigh; deep-high task st_01a0e17f; parent applied its patches)",
+  "reviewerEffort": "not exposed by the task snapshot",
+  "head": "a6eed9ddbcbf25373fb3873e2f3f1a3bbd83cf6a",
+  "reviewedHead": "a6eed9ddbcbf25373fb3873e2f3f1a3bbd83cf6a",
+  "verdict": "APPROVE",
+  "outputPath": "evidence/p1a-lane-a-review-20260927.md",
+  "outputSha256": "fd53fcd4f36d119dc88aa09d9c4a4b0e8b532509c196549bdfb000282b9f4740",
+  "sharedContext": "none: a separate task (st_01a0e23e) on a different model from the implementer reviewed a fresh detached worktree at the head; it recomputed the 14 committed file bindings and all 526 HTTP artifact hashes and reproduced the native SQLite error-matcher probe; it did not re-run the product tests, gates or HTTP proof, which the parent ran (local receipt and this unit's mainProof)",
+  "laneB": "required (review classes: authority, privacy, idempotency, concurrency): PK-p1a-ruling; OWNER-RULING comment 5857974832 on head a6eed9ddbcbf25373fb3873e2f3f1a3bbd83cf6a with the owner-ruled label, posted by the parent on the owner's explicit instruction (deviation disclosed in the packet)",
+  "correctedAtFold": "2026-09-27: sharedContext, laneB and reviewerEffort replaced the closure tool's fixed text, which described a routine unit whose reviewer re-ran the gates",
+  "githubApproval": "none recorded; Lane A is engineering evidence, never a GitHub approval"
+}
