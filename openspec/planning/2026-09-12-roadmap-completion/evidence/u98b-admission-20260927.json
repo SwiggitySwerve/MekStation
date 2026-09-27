@@ -1,0 +1,26 @@
+{
+  "unit": "U98b",
+  "stage": "admission",
+  "at": "2026-09-27T18:12:00.000Z",
+  "baseline": "0e4df62c8d69470f0cd123abfdc4ae27470fa6a6",
+  "next": "validate-roadmap.mjs --next printed U98b on exact main 0e4df62 (evidence .omo task-46-u98b-registration-main-proof.json)",
+  "ownership": {
+    "declared": [
+      "src/lib/multiplayer/server"
+    ],
+    "touched": [
+      "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test.ts",
+      "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test-helpers.ts"
+    ]
+  },
+  "tier": "LIGHT: routine, test-only measurement correction; independently reviewed per plan",
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500
+  },
+  "parentDecision": {
+    "decision": "go",
+    "reason": "Registered by #2054; the red is recorded timing evidence, not a fabricated failure (admissionRequires)."
+  },
+  "planTask": "46"
+}

@@ -1,0 +1,18 @@
+{
+  "unit": "U98b",
+  "stage": "review",
+  "at": "2026-09-27T19:08:46.155Z",
+  "lane": "A",
+  "reviewerModel": "claude-fable-5-1",
+  "implementerModel": "gpt-5.6-sol-fast (deep-low task st_01a0e402)",
+  "reviewerEffort": "not exposed by the task snapshot",
+  "head": "fb97b890854a9ea5c62b2a817a30fe0302fe4150",
+  "reviewedHead": "fb97b890854a9ea5c62b2a817a30fe0302fe4150",
+  "verdict": "APPROVE",
+  "outputPath": "evidence/u98b-lane-a-review-20260927.md",
+  "outputSha256": "48befd9a1e925094a6de6ca8cd60ae2c5f6f4ba0b487f7b03ff478730f49f5e4",
+  "sharedContext": "none: a separate task (st_01a0e435) on a different model from the implementer reviewed a detached, locked worktree at the head; it re-ran the changed jest file in three separate processes and its own two temporary mutants (restored with sha256 checked), and did not re-run tsc, oxlint or oxfmt",
+  "correctedAtFold": "2026-09-27: sharedContext and reviewerEffort replaced the closure tool's fixed text (FN-p1a-closure-fixed-receipt-text); laneB is true for this routine unit and is kept",
+  "laneB": "not required (review classes: routine)",
+  "githubApproval": "none recorded; Lane A is engineering evidence, never a GitHub approval"
+}

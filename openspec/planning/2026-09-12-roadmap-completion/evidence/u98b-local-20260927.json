@@ -1,0 +1,18 @@
+{
+  "unit": "U98b",
+  "stage": "local",
+  "at": "2026-09-27T18:58:00.000Z",
+  "status": "local-verified",
+  "head": "fb97b890854a9ea5c62b2a817a30fe0302fe4150",
+  "baseline": "0e4df62c8d69470f0cd123abfdc4ae27470fa6a6",
+  "summary": "2 test files (+21/-2): the U98 row asserts serverTotalWithoutRecordRewrite; a new row bounds recordRewrite at the absolute 50 ms clause; growth rule, thresholds, sizes, warm-ups and sample counts unchanged; no product file. Five separate jest processes green (net x0.77-0.87, rewrite <= 2.51 ms at 1000 events); mutants M1 (size-scaled grant delay) fails the U98 row, M2 (60 ms rewrite) fails only the ceiling row, M0 fails the original row; restored with sha256 checked. typecheck 0, lint 0 errors (84 existing warnings), lint:units 17899/17899, format:check 0. Independent Lane A reproduced 3 green processes and its own two mutants (APPROVE).",
+  "implementer": "gpt-5.6-sol-fast (deep-low task st_01a0e402)",
+  "files": {
+    "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test.ts": "93ab06cdcb3843c901017c227a642a433c028205f6948076036ea2cc9a42afba",
+    "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test-helpers.ts": "28fa0502c051768edf94fc52fe352904608eb6c7f6a9024f59dc138d67b76ea2"
+  },
+  "evidence": [
+    ".omo/ulw-execute/u98b/DONECLAIM.md (lane evidence, 45 files)",
+    "E:/Projects/MekStation/.omo/ulw-execute/evidence/task-46-u98b-review.md"
+  ]
+}

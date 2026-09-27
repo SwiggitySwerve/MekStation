@@ -1,3 +1,13 @@
+## 2026-09-27 U98b complete; U98c registered (parent)
+
+U98b (#2055, merge `e8a21edb15475df2728a538c0d96869be72e4376`) is complete. U98's server-time row now asserts `serverTotal` net of the separately timed record rewrite, and a new row bounds the rewrite at U89's 50 ms clause. Only the two test files changed (+21/−2). Lane A reproduced three green processes and two discriminating mutants.
+
+The [exact-main proof](evidence/u98b-mainproof-20260927.json) needed two attempts on the same commit. Attempt 01 ran two processes green and failed its third on U98's row: net `serverTotal` rose from 4.37 to 23.78 ms. The cause was a burst of ~30 ms stalls on the first three measured 1000-event commands, each in a different step. Attempt 02 ran the full ladder green: three processes, typecheck, lint, lint:units, format and the validator in four modes. Both ladders are preserved.
+
+Ten further runs on the same commit were clean. Across thirteen runs and 156 measured commands, that burst was the only stall over 15 ms. It is a separate defect: with six commands per size, a three-command burst can carry the median. It is recorded as FN-u98b-stall-burst-takes-six-sample-median and held by the new unit **U98c**, which raises warm-ups to 4 and measured commands to 12 without changing any threshold. FN-u98b-servertotal-row-includes-growing-rewrite is resolved by U98b.
+
+The closure tool's fixed reviewer and checkout text was corrected again in U98b's receipts (FN-p1a-closure-fixed-receipt-text, held by U17c). `validate-roadmap.mjs --next` now prints U98c.
+
 ## 2026-09-27 two discovered defects registered (parent)
 
 Closing P1A surfaced two pre-existing defects, now registered as planned units ahead of P1B.

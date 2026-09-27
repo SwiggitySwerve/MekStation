@@ -1,0 +1,80 @@
+{
+  "unit": "U98b",
+  "date": "20260927",
+  "at": "2026-09-27T19:08:48.214Z",
+  "runDir": ".omo/ulw-execute/u98b/main-proof-02-logs",
+  "preservedDir": "../../MekStation/.omo/ulw-execute/preserved-runs/U98b-20260927",
+  "files": [
+    {
+      "file": "attempt-01-exact-main-ladder.log",
+      "bytes": 3723,
+      "sha256": "88fece6f7421b67582fd00cb4bcc235fcf1e1eb8415fb74ecc947f4803f92deb"
+    },
+    {
+      "file": "build.log",
+      "bytes": 176,
+      "sha256": "9a7619a7757b574ef013200ac038f0e30f16cfc1be39dd15c84dcd8a1d46252b"
+    },
+    {
+      "file": "exact-main-ladder.log",
+      "bytes": 42833,
+      "sha256": "ac8d94a9169d22e95bd7265ccca05d8d781cb3b052dd579542f1ccea1ca583e7"
+    },
+    {
+      "file": "format.log",
+      "bytes": 235,
+      "sha256": "25cd57fa030b5ee251c3655ab7858de48d3a145c2f9f0f06c7950cec69ba6e5d"
+    },
+    {
+      "file": "git-check.log",
+      "bytes": 139,
+      "sha256": "8b2db2986a664454a70f1eb68b2205de6a0754f6a116d977e858fbcfcd8ec8f5"
+    },
+    {
+      "file": "github.log",
+      "bytes": 145,
+      "sha256": "35dddfb944c05370d84d61e59b6c6e35f20fe2ea89d9325ddfce3c1f81be9e94"
+    },
+    {
+      "file": "jest.log",
+      "bytes": 2430,
+      "sha256": "7ad0bc96d7d711644af0940ff0f1350644c3457003256fd446b487daef11b4e7"
+    },
+    {
+      "file": "lint-units.log",
+      "bytes": 412,
+      "sha256": "11c130426b4a4c427ad7596415f754f6cb76bd95c8d0737a7aa656b528fee031"
+    },
+    {
+      "file": "lint.log",
+      "bytes": 38998,
+      "sha256": "a62f8e6383d6677dd93ae07e5348e03d631a9ab9d571337e570e446718aeb59f"
+    },
+    {
+      "file": "next.log",
+      "bytes": 70,
+      "sha256": "e5b27b58bbfae4b0d8128febfd43be3a1329a3c44e10a39cf38945b705620400"
+    },
+    {
+      "file": "playwright.log",
+      "bytes": 729,
+      "sha256": "a62f424b9c358c7c9ba1786b5d44ce5515fcc9dbf02b03b52849516c0f445b6f"
+    },
+    {
+      "file": "sha256.txt",
+      "bytes": 1038,
+      "sha256": "cd825c8c650affc4273324ffaca39bad58a9f991a6b03dd2564e93298eedaac0"
+    },
+    {
+      "file": "tsc.log",
+      "bytes": 120,
+      "sha256": "53a01fffc688e30dd3377133d8ee2d60b56465d0f54a0c7d093930b63a56557a"
+    },
+    {
+      "file": "validator.log",
+      "bytes": 131,
+      "sha256": "8c6ef376e03a31872914da818917e2d1b7e0bd343a571f0f3b42b3cedcc244bc"
+    }
+  ],
+  "bytes": 91179
+}
