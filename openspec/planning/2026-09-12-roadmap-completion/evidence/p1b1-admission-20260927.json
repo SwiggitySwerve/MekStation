@@ -1,0 +1,53 @@
+{
+  "unit": "P1B1",
+  "stage": "admission",
+  "at": "2026-09-27T21:22:01.358Z",
+  "baseline": "7d99b5517493e4fea5baa810b022939f26ae80cc",
+  "next": "validate-roadmap.mjs --next printed P1B1 on exact main 7d99b55 (evidence .omo task-44-p1b-split-main-proof.json)",
+  "ownership": {
+    "declared": [
+      "src/types/campaign/CampaignSync.ts",
+      "src/lib/campaign",
+      "src/lib/events/replay/CampaignBaselineSchemaPack.ts",
+      "src/lib/events/replay/ReplayBaselineDomainRegistry.ts",
+      "src/lib/events/replay/__fixtures__/CampaignBaselineSchemaPack.fixture.ts",
+      "src/lib/events/replay/__tests__/CampaignBaselineSchemaPack.test.ts"
+    ],
+    "plannedFiles": [
+      "src/types/campaign/CampaignSync.ts",
+      "src/lib/campaign/activity/campaignActivityProjection.ts",
+      "src/lib/campaign/sync/campaignEventScope.ts",
+      "src/lib/campaign/sync/__tests__/campaignEventScope.test.ts",
+      "src/lib/campaign/sync/campaignEventEntityRefs.ts",
+      "src/lib/campaign/sync/applyCampaignEvent.ts",
+      "src/lib/campaign/delivery/projectCampaignStreamForGrant.ts",
+      "src/lib/events/replay/CampaignBaselineSchemaPack.ts",
+      "src/lib/events/replay/ReplayBaselineDomainRegistry.ts",
+      "src/lib/events/replay/__fixtures__/CampaignBaselineSchemaPack.fixture.ts",
+      "src/lib/events/replay/__tests__/CampaignBaselineSchemaPack.test.ts",
+      "src/lib/campaign/delivery/__tests__/campaignMissionLaunchContract.test.ts"
+    ]
+  },
+  "tier": "STANDARD: privacy and replay review classes; owner ruling required before merge",
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500
+  },
+  "carriedRed": {
+    "fixture": "b644647af9cd171ec13b0c1731c5ed7718bd0cdc4e834289f962bf96b2b248eb",
+    "schemaTest": "3493d55e244f050354b905bd0f5de7e9149c206a5bb376537ac42bad22adb2c2",
+    "note": "carried from the P1B attempt; the announcement test belongs to P1B2 and stays in the backup"
+  },
+  "decisions": {
+    "payload": "exactly missionId, missionMatchId, acceptedHead {branchId, revision, effectiveGeneration}, deployingPlayerIds (strings)",
+    "reducer": "state-preserving no-op",
+    "scope": "campaign",
+    "projection": "freeze/project the new variant through the existing arm; do not change the latch",
+    "archive": "archived eight-item inventory byte-identical; live inventory extended"
+  },
+  "parentDecision": {
+    "decision": "go",
+    "reason": "Registered by #2061 and proven on main; --next prints P1B1; estimate 12 files / 328 lines."
+  },
+  "planTask": "49"
+}

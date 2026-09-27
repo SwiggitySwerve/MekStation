@@ -1,3 +1,9 @@
+## 2026-09-27 P1B1 locally verified; owner ruling pending (parent)
+
+P1B1 (#2063, head `ff448e2853523c0ec50890a5be85682cfaf05214`) registers the `CampaignMissionLaunched` event contract: a strict four-field payload, every exhaustive replay and projection consumer, a no-op reducer, campaign scope and a roster-free activity row, with the privacy latch unchanged and nothing emitting the event yet. It is 14 files and 291 lines, green in three processes with every gate and a production build, and Lane A (privacy, replay) approved it with no required edits after reproducing the reds. CI is 31 of 31 green.
+
+P1B1 is folded to local-verified and the sensitive-class packet **PK-p1b1-ruling** is registered with no decision: the owner was asked for the exact-head ruling and has not answered, and the agent does not rule, comment or label on the owner's behalf. The product PR stays unmerged until the owner rules. `validate-roadmap.mjs --next` now looks past P1B1's in-flight paths.
+
 ## 2026-09-27 P1B1 ownership amended by two exhaustive replay consumers (parent)
 
 Registering `CampaignMissionLaunched` in the live campaign union makes two more files compile- or test-enforced that P1B1's planned list missed: `src/lib/events/replay/ReplayInputProvenanceManifest.ts` (its provenance record must cover every campaign and game event type, so typecheck fails without a row) and `src/lib/events/replay/__tests__/ReplayBaselineDomainRegistry.test.ts` (it pins the live campaign count at 8). The P1B1 worker stopped at its ownership boundary with the other twelve files green. Both paths are added to node R2.authority-live and to P1B1 (`ownershipAmended20260927`); P1B1 becomes fourteen planned files, still within 15 files and 500 lines. No other unit, packet or finding changes, and `validate-roadmap.mjs --next` still prints P1B1.
