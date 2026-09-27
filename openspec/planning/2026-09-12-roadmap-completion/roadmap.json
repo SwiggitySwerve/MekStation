@@ -2757,7 +2757,8 @@
         "src/components/campaign/gm/__tests__/GmCampaignInterventionControlPlane.approval.test.tsx",
         "src/lib/events/replay/ReplayBaselineDomainRegistry.ts",
         "src/lib/events/replay/ReplayInputProvenanceManifest.ts",
-        "src/lib/events/replay/__tests__/ReplayBaselineDomainRegistry.test.ts"
+        "src/lib/events/replay/__tests__/ReplayBaselineDomainRegistry.test.ts",
+        "src/pages/api/multiplayer/auth"
       ],
       "acceptance": [
         "npm.cmd run typecheck",
@@ -5813,7 +5814,8 @@
         "e2e",
         "scripts/__tests__",
         "src/pages-modules/api/e2ePerformanceProbeRoute.ts",
-        "src/__tests__/api/e2ePerformanceProbeRoute.test.ts"
+        "src/__tests__/api/e2ePerformanceProbeRoute.test.ts",
+        "openspec/specs/coop-campaign-sync/spec.md"
       ],
       "acceptance": "E2E-01..80 resolved and run as the harden-gm-two-player-campaign-sessions e2e-testing requirement 'Acceptance Run Excludes Only Named-Gate Rows' defines: every id resolves exactly once to an authored row, the E2E-80 exact-main contract, or a gated-absent entry of scripts/qc/gm-two-player-acceptance-gates.cjs naming its gate tag and holder; the run passes only when every non-excluded row passes and no excluded row passes unexpectedly; ten-scenario reconnect/restart/correction proof; preserve explicit out-of-scope simulations",
       "owner": "parent; assign bounded Luna high worker on admission",

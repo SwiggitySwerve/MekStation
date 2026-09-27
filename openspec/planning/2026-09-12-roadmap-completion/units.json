@@ -5748,7 +5748,7 @@
       "id": "U53",
       "node": "R6.umbrella",
       "taskKeys": [],
-      "behavior": "Test-only: brings the Strict Combat rows in line with the spec letters (specs/e2e-testing/spec.md:128-190). E2E-31: both seats command their own units. E2E-32: foreign-unit commands are refused in both directions, with the store head and receipt census unchanged. E2E-33: the same seeded barrier runs twice and the results are compared. E2E-35..39 are authored to their letters. After U38, E2E-31/32 are also re-proven on the co-op campaign fixture with the non-playing GM connected, which drops the versus-only workaround. No taskKeys: U54 ticks 21.3. If over cap, E2E-35..39 become a second unit.",
+      "behavior": "Test-only: brings the Strict Combat rows in line with the spec letters (specs/e2e-testing/spec.md:128-190). E2E-31: both seats command their own units. E2E-32: foreign-unit commands are refused in both directions, with the store head and receipt census unchanged. E2E-33: the same seeded barrier runs twice and the results are compared. E2E-35..39 are authored to their letters. After U38, E2E-31/32 are also re-proven on the co-op campaign fixture with the non-playing GM connected, which drops the versus-only workaround. No taskKeys: U54 ticks 21.3. If over cap, E2E-35..39 become a second unit. Task-37 reconciliation: the current @E2E-31 row is partial (one foreign refusal plus one owned command) and the current @E2E-32 row is an ordering row; neither title is renamed as a substitute for behavior. U53 rewrites or splits them so E2E-31 proves legal own-unit commands from both seats and E2E-32 proves foreign-unit refusal in both directions with event head, authoritative state and receipt census unchanged, then authors E2E-33 as a separately seeded repeated-order row. U34's 80-row table remains inventory until these rows have exact-main runtime proof.",
       "ownershipPaths": [
         "e2e",
         "scripts/qc",
@@ -5781,7 +5781,13 @@
       "triageIssues20260922": [
         "I-21-3-e2e-31-45",
         "I-coop-per-unit-ownership"
-      ]
+      ],
+      "amended20260927": {
+        "at": "2026-09-27T23:48:52.197Z",
+        "task": "37",
+        "change": "behavior appended with the task-37 scenario-tag reconciliation",
+        "evidence": "evidence/triage-32-37-20260927.md"
+      }
     },
     {
       "id": "U30",
@@ -9134,6 +9140,239 @@
         "cause": "placeholder: Phase 7 starts after the roadmap program closes (R9.close complete); campaign, multiplayer, events and p2p stay roadmap-owned until then",
         "nextIndependentAction": "none inside the program; R9.close's final handoff lists this record"
       }
+    },
+    {
+      "id": "U99",
+      "node": "R6.umbrella",
+      "taskKeys": [],
+      "behavior": "Spec-only clause correction: in openspec/specs/coop-campaign-sync/spec.md (small-gap resync scenario, lines 144-149 at 58bbb27) convergence means the fold of facts authorized for that viewer, never raw equality with host state containing withheld facts; in the harden change's gm-authority-redaction delta (specs/gm-authority-redaction/spec.md) qualify Visibility Is Equivalent Across Surfaces as per-viewer authorized projection and ADD the existing baseline author and prior-withhold law: a migration-authored baseline never reaches a viewer lacking every represented scope; a system genesis may initialize a restricted viewer only before that viewer's fold withheld any fact; after any withheld fact or refused baseline, later full-state checkpoints stay withheld while admitted incremental facts continue; a host or owner GM entitled to every represented scope keeps the full baseline. Preserve U94's wire proof and FN-u58's resolved raw-tail disposition. Only those two spec files change; no product source change and no task tick. Proposed wording is in evidence/triage-32-37-20260927.md (tasks 32-33).",
+      "ownershipPaths": [
+        "openspec/specs/coop-campaign-sync/spec.md",
+        "openspec/changes/harden-gm-two-player-campaign-sessions"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay"
+      ],
+      "caps": {
+        "maxFiles": 2,
+        "maxNonGeneratedLines": 120
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260927": {
+        "at": "2026-09-27T23:48:52.197Z",
+        "reason": "Tasks 32-33 triage: the restricted-view convergence clause and the baseline author law need spec edits that product-spec rules assign to an owning unit.",
+        "evidence": "evidence/triage-32-37-20260927.md",
+        "planTask": "32,33"
+      }
+    },
+    {
+      "id": "U100",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Render campaign activity for a RosterUnitChanged change kind 'repaired' from the carried unit status: Damaged reads damaged, Destroyed reads destroyed, Operational or Repaired reads repaired. Preserve the journal payload and U35g's destroyed-unit persistence decision. Red-first rows cover all three statuses. Expected edits are confined to src/lib/campaign/activity.",
+      "ownershipPaths": [
+        "src/lib/campaign"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 3,
+        "maxNonGeneratedLines": 120
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260927": {
+        "at": "2026-09-27T23:48:52.197Z",
+        "reason": "Task 34 triage of FN-u35g-feed-reads-damaged-as-repaired: the feed copy is objectively wrong for a damaged unit.",
+        "evidence": "evidence/triage-32-37-20260927.md",
+        "planTask": "34"
+      }
+    },
+    {
+      "id": "U101",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Make production multiplayer token issuance and verification satisfy the checked 6.3 scoped-token clause: the production token route mints the required session/match scope, and socket authentication refuses a token with no required scope. Preserve existing authorized host and player flows and add negative rows for scopeless, wrong-match and wrong-role tokens. Reconcile the live task only after exact-main proof; do not rewrite the historical U29 ERRATA.",
+      "ownershipPaths": [
+        "src/pages/api/multiplayer/auth",
+        "src/lib/multiplayer/server"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy"
+      ],
+      "caps": {
+        "maxFiles": 8,
+        "maxNonGeneratedLines": 300
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260927": {
+        "at": "2026-09-27T23:48:52.197Z",
+        "reason": "Task 36 triage of FN-u29-6-3-checked-but-scoped-tokens-not-on-production-path: a checked row claims scoped tokens the production path does not mint or require.",
+        "evidence": "evidence/triage-32-37-20260927.md",
+        "planTask": "36"
+      }
+    },
+    {
+      "id": "U103",
+      "node": "R6.loop-harness",
+      "taskKeys": [],
+      "behavior": "Make roadmap-unit-closure truthful about task-key rows. Before writing a tick receipt or marking a unit complete, either tick each named live tasks.md row in the same closure operation and validate its exact text, or write a non-closing \"rows to be ticked by the closer\" receipt and leave the unit non-complete; on any failure leave no invalid closure artifact behind. Red-first tests cover an unchecked row, an already-checked row, a missing or drifted row, a multi-row unit and a validator failure. Expected edits: scripts/qc/roadmap-unit-closure.mjs, scripts/qc/roadmap-ledger-lib.mjs and their pins in scripts/__tests__.",
+      "ownershipPaths": [
+        "scripts/qc",
+        "scripts/__tests__"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 6,
+        "maxNonGeneratedLines": 350
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260927": {
+        "at": "2026-09-27T23:48:52.197Z",
+        "reason": "Task 37 recheck of FN-u34-closure-tool-tick-receipt-does-not-tick-live-row: U17c (3b4a7b1) made the tool fail truthfully but it still does not tick the live row.",
+        "evidence": "evidence/triage-32-37-20260927.md",
+        "planTask": "37"
+      }
+    },
+    {
+      "id": "U104",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Drive campaignLaunchAuthorityRoute through its public route seam with a correction saga pending across the API and socket module graphs, and prove the launch is blocked and read correctly through createDurableCampaignProgressionReaders. Proof-only unless the route still reads null; any product correction stays inside the route and reader paths.",
+      "ownershipPaths": [
+        "src/pages-modules/api",
+        "src/lib/multiplayer/server"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "replay"
+      ],
+      "caps": {
+        "maxFiles": 5,
+        "maxNonGeneratedLines": 220
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260927": {
+        "at": "2026-09-27T23:48:52.197Z",
+        "reason": "Task 34 triage of FN-u95-launch-route-saga-read-always-null: U95 fixed the shared reader but the launch route was never driven with a saga pending.",
+        "evidence": "evidence/triage-32-37-20260927.md",
+        "planTask": "34"
+      }
+    },
+    {
+      "id": "U105",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "A guest acknowledges an adopted CampaignSnapshot at its authoritative revision so the convergence gate does not refuse the next host command only because the checkpoint frame was unacknowledged. Red-first live transport row reproduces U92's participants-behind refusal; green proves the snapshot ack, the next AdvanceDay succeeding, no ack of a withheld snapshot, and unchanged incremental ack ordering.",
+      "ownershipPaths": [
+        "src/lib/campaign",
+        "src/lib/multiplayer/server"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "concurrency"
+      ],
+      "caps": {
+        "maxFiles": 8,
+        "maxNonGeneratedLines": 300
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260927": {
+        "at": "2026-09-27T23:48:52.197Z",
+        "reason": "Task 34 triage of FN-u96-guests-do-not-ack-snapshot-frames: a measured convergence refusal (evidence/u92-red-20260926.json).",
+        "evidence": "evidence/triage-32-37-20260927.md",
+        "planTask": "34"
+      }
     }
   ],
   "packets": [
@@ -11368,6 +11607,99 @@
       "decision": null,
       "ruling": null,
       "note": "Registered at the local receipt fold because the validator requires a sensitive-class packet from local-verified on. This is an undecided question, not an owner ruling. The owner has not yet been reached for this head; the agent will not post the owner comment, apply its label or choose the packet decision."
+    },
+    {
+      "id": "PK-triage-checkpoint-day-effects",
+      "blocks": [],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "Must every non-day effect produced by co-op AdvanceDay be committed as independently replayable journal events, or may those effects remain authoritative only through the adopted whole-record checkpoint?",
+      "options": [
+        {
+          "label": "independent events",
+          "consequence": "Matches the active design delta's every-committed-mutation and exact replay law; needs event coverage for every day-effect family plus migration, replay and privacy tests.",
+          "effort": "High"
+        },
+        {
+          "label": "explicit checkpoint carriage",
+          "consequence": "Smaller implementation; needs a product-spec correction admitting checkpoint-carried authority and defining replay, recovery and visibility semantics.",
+          "effort": "Medium"
+        },
+        {
+          "label": "narrow AdvanceDay to the day count",
+          "consequence": "Avoids checkpoint authority but removes or postpones existing co-op day side effects.",
+          "effort": "Medium to high"
+        }
+      ],
+      "agentRecommendation": "Independent events: the active authority delta makes the journal the source of truth and snapshots derived materializations (design-campaign-authority-and-sync coop-campaign-sync spec lines 78-99).",
+      "revertCost": "Independent events add schema and history that are costly to reverse once histories exist; checkpoint carriage is cheap to reverse before archive but leaves spec debt; narrowing changes user-visible progression.",
+      "decision": null,
+      "ruling": null,
+      "note": "Registered by the task-34 triage for FN-u96-day-effects-ride-the-checkpoint. An undecided owner question, not a ruling; the owner is currently unavailable. It blocks no unit until a decision chooses the implementing unit."
+    },
+    {
+      "id": "PK-triage-destroyed-roster-count",
+      "blocks": [],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "Should the co-op Units count include roster entries whose persisted readiness is Destroyed?",
+      "options": [
+        {
+          "label": "exclude destroyed from the count",
+          "consequence": "The count means usable roster; destroyed records and history stay; needs a selector, test and copy clarification.",
+          "effort": "Low"
+        },
+        {
+          "label": "include destroyed",
+          "consequence": "Current behaviour stays; the copy must say total roster records rather than available units.",
+          "effort": "Low"
+        },
+        {
+          "label": "show active and total counts",
+          "consequence": "Most informative, adds UI and copy surface.",
+          "effort": "Medium"
+        }
+      ],
+      "agentRecommendation": "Exclude destroyed from the count; it keeps U35g's owner decision that destroyed units remain records while avoiding a misleading operational count.",
+      "revertCost": "Low for either count choice (selector and copy); medium for showing both (layout and acceptance snapshots).",
+      "decision": null,
+      "ruling": null,
+      "note": "Registered by the task-34 triage for FN-u35g-kept-destroyed-units-in-guest-roster-count. An undecided owner question, not a ruling; the owner is currently unavailable."
+    },
+    {
+      "id": "PK-triage-intervention-history-authority",
+      "blocks": [],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "Is gmInterventionEvents authoritative history that must survive a journal-only rebuild, or a record-side derived index that may be lost when the saved record is rebuilt solely from campaign events?",
+      "options": [
+        {
+          "label": "journal-authoritative identity",
+          "consequence": "Carry intervention identity and public fields in a server-private journal envelope and rebuild the record index from it; keeps guest privacy and satisfies source-of-truth replay.",
+          "effort": "High"
+        },
+        {
+          "label": "record-side derived index",
+          "consequence": "Correct the spec to declare it non-authoritative and define backup and recovery loss; current code mostly stands.",
+          "effort": "Low to medium"
+        },
+        {
+          "label": "separate intervention-history stream",
+          "consequence": "Strong provenance and access boundary, adds cross-stream atomicity and recovery work.",
+          "effort": "High"
+        }
+      ],
+      "agentRecommendation": "Journal-authoritative identity through a server-private envelope field rather than widening guest-visible FundsChanged; aligns with the journal source-of-truth law and U97's privacy evidence.",
+      "revertCost": "High after the journal or stream options write production history schemas; low before deployment; the derived-index option is cheap in code but carries data-recovery debt.",
+      "decision": null,
+      "ruling": null,
+      "note": "Registered by the task-35 triage for FN-u97-history-not-in-journal. An undecided owner question, not a ruling; the owner is currently unavailable."
     }
   ],
   "deferrals": [
@@ -12179,7 +12511,17 @@
       "class": "display nuance of the owner's destroyed-unit decision",
       "summary": "Once destroyed units are kept as status Destroyed (owner decision OD-u35g-coop-outcome-rewrites-record), the co-op guest's roster count includes them.",
       "recommendedSuccessor": "decide in UAT round 2 whether the roster count should exclude destroyed units",
-      "status": "recorded; for UAT round 2 triage"
+      "status": "owner decision required; owner unavailable",
+      "statusBefore20260927": "recorded; for UAT round 2 triage",
+      "disposition": "owner-packet: PK-triage-destroyed-roster-count",
+      "triage20260927": {
+        "at": "2026-09-27T23:48:52.197Z",
+        "task": "34",
+        "disposition": "owner-packet: PK-triage-destroyed-roster-count",
+        "evidence": [
+          "evidence/u35g-local-20260925.json"
+        ]
+      }
     },
     {
       "id": "FN-u35g-outcome-payload-may-carry-sourceversion",
@@ -12197,7 +12539,17 @@
       "class": "display wording",
       "summary": "The campaign activity feed now describes a destroyed unit as destroyed, but a damaged unit still reads as 'repaired', because both ride the 'repaired' change kind.",
       "recommendedSuccessor": "the feed reads the unit's status for every 'repaired' change (damaged, destroyed, operational)",
-      "status": "recorded; for UAT round 2 triage"
+      "status": "assigned to U100",
+      "statusBefore20260927": "recorded; for UAT round 2 triage",
+      "disposition": "successor-unit: U100",
+      "triage20260927": {
+        "at": "2026-09-27T23:48:52.197Z",
+        "task": "34",
+        "disposition": "successor-unit: U100",
+        "evidence": [
+          "evidence/u35g-local-20260925.json"
+        ]
+      }
     },
     {
       "id": "FN-uat-r1-u35f-refresh-read-per-event-cost",
@@ -12413,7 +12765,19 @@
       "class": "privacy (outside U58's paths; production reach not measured)",
       "summary": "The legacy small-gap resync tail and live fan-out (src/lib/multiplayer/server/CampaignSyncSession.ts:358-366) deliver a raw mid-stream full-state CampaignSnapshotPublished to a player; in a baseline probe, a snapshot committed after a gm-scoped hire reached a restricted player on both paths with the withheld pilot inside. Whether the production checkpoint producer (U35e's record rewrite) reaches that path was not measured.",
       "recommendedSuccessor": "U58's Lane A probes the production reach (question 4); if it reaches, a unit on src/lib/multiplayer/server applies campaignBaselineReachesViewer at the tail and fan-out before UAT round 2",
-      "status": "confirmed production-reachable by U58's Lane A (the small-gap resyncGuest tail; live fan-out not reached by the PUT route's checkpoint writer); U94 planned"
+      "status": "resolved by U94 exact-main proof",
+      "statusBefore20260927": "confirmed production-reachable by U58's Lane A (the small-gap resyncGuest tail; live fan-out not reached by the PUT route's checkpoint writer); U94 planned",
+      "resolvedBy": "U94",
+      "disposition": "resolved-by-proof (history preserved)",
+      "triage20260927": {
+        "at": "2026-09-27T23:48:52.197Z",
+        "task": "32",
+        "disposition": "resolved-by-proof (history preserved)",
+        "evidence": [
+          "evidence/u94-local-20260927.json",
+          "evidence/u94-mainproof-20260927.json"
+        ]
+      }
     },
     {
       "id": "FN-u58-baseline-author-law-not-in-spec",
@@ -12422,7 +12786,19 @@
       "class": "spec-silent decision (owner decision OD-umbrella-12-1-slice)",
       "summary": "No living spec clause names the baseline author law (a migration-authored baseline never reaches a restricted viewer; a refused baseline latches); it comes from the owner decision only. The nearest clauses are gm-authority-redaction/spec.md:93-104 and the umbrella delta's Visibility Is Equivalent Across Surfaces.",
       "recommendedSuccessor": "a [Spec Delta] on the harden change at the next triage (OD-uat-two-rounds sub-decision 9)",
-      "status": "recorded"
+      "status": "assigned to U99",
+      "statusBefore20260927": "recorded",
+      "disposition": "clause-correction: U99 (document the existing migration/system author and prior-withhold law)",
+      "triage20260927": {
+        "at": "2026-09-27T23:48:52.197Z",
+        "task": "33",
+        "disposition": "clause-correction: U99 (document the existing migration/system author and prior-withhold law)",
+        "evidence": [
+          "evidence/u58-local-20260925.json",
+          "evidence/u58-lane-a-review-20260925.md",
+          "evidence/u94-local-20260927.json"
+        ]
+      }
     },
     {
       "id": "FN-u58-room-code-hydration-seed-redundant",
@@ -12566,7 +12942,18 @@
       "class": "pre-existing cross-graph defect, fixed by U95's reader change",
       "summary": "src/pages-modules/api/campaignLaunchAuthorityRoute.ts:188 builds the durable progression readers in Next's API graph, where the process match store is the socket graph's DurableMatchStore instance; on the baseline its correction-pending saga read was always null. U95's method check fixes it; the route was not driven live.",
       "recommendedSuccessor": "U96 or U92's Lane A drives the launch route with a saga pending",
-      "status": "recorded; fixed in U95, disclosed"
+      "status": "assigned to U104",
+      "statusBefore20260927": "recorded; fixed in U95, disclosed",
+      "disposition": "successor-unit: U104 (route-level proof)",
+      "triage20260927": {
+        "at": "2026-09-27T23:48:52.197Z",
+        "task": "34",
+        "disposition": "successor-unit: U104 (route-level proof)",
+        "evidence": [
+          "evidence/u95-local-20260926.json",
+          "evidence/u95-lane-a-review-20260926.md"
+        ]
+      }
     },
     {
       "id": "FN-u95-coop-host-registry-active-hosts-per-graph",
@@ -12584,7 +12971,19 @@
       "class": "resolved by U95",
       "summary": "Before U95 every live co-op session held two CampaignMatchHost objects on the same journal stream (the create route's, idle, in the API graph; the socket graph's rebuilt one); after U95 one (sameEntryObject true).",
       "recommendedSuccessor": "none",
-      "status": "resolved"
+      "status": "resolved by U95 exact-main proof",
+      "statusBefore20260927": "resolved",
+      "resolvedBy": "U95",
+      "disposition": "resolved-by-proof",
+      "triage20260927": {
+        "at": "2026-09-27T23:48:52.197Z",
+        "task": "34",
+        "disposition": "resolved-by-proof",
+        "evidence": [
+          "units[U95].stageReceipts.local",
+          "evidence/u95-mainproof-20260926.json"
+        ]
+      }
     },
     {
       "id": "FN-u96-coop-host-client-routes-ledger-through-put",
@@ -12593,7 +12992,19 @@
       "class": "authority: the host's browser bypasses the intent loop for its own mutations",
       "summary": "The co-op host's browser saves its day advance (useCampaignStore.dayActions.ts:239, then AdvanceDay only if the save committed, :306-318), travel (:365-384) and updateCampaign (useCampaignStore.actions.ts:286-290) through the whole-campaign PUT; the host session never folds that checkpoint, so the next host command erases it (FN-u92-coop-checkpoint-erased-by-next-host-command). A 409 refusal of the PUT makes the day advance return null, roll the date back and show a refusal toast.",
       "recommendedSuccessor": "U96 as amended (host adopts its own instance's checkpoint; the day advance sends the command first)",
-      "status": "recorded; folded into U96's amended sentence"
+      "status": "resolved by U96 exact-main proof",
+      "statusBefore20260927": "recorded; folded into U96's amended sentence",
+      "resolvedBy": "U96",
+      "disposition": "resolved-by-proof (checkpoint adopted under the host lock before the next command)",
+      "triage20260927": {
+        "at": "2026-09-27T23:48:52.197Z",
+        "task": "34",
+        "disposition": "resolved-by-proof (checkpoint adopted under the host lock before the next command)",
+        "evidence": [
+          "evidence/u96-lane-a-review-20260926.md",
+          "evidence/u96-mainproof-20260926.json"
+        ]
+      }
     },
     {
       "id": "FN-u96-campaign-host-entries-never-disposed",
@@ -12611,7 +13022,17 @@
       "class": "partial co-op authoritative state",
       "summary": "Day effects other than the day count reach the journal only through the PUT's checkpoint, because the co-op authoritative state holds only some campaign fields (CampaignSync.ts:85-110) and AdvanceDay commits only CampaignDayAdvanced (CampaignMatchHostIntent.ts:236-241); the next host command erases them the way it erased the balance.",
       "recommendedSuccessor": "U96's adoption keeps them; the authoritative-state scope goes to the UAT round 2 spec triage",
-      "status": "recorded"
+      "status": "owner decision required; owner unavailable",
+      "statusBefore20260927": "recorded",
+      "disposition": "owner-packet: PK-triage-checkpoint-day-effects",
+      "triage20260927": {
+        "at": "2026-09-27T23:48:52.197Z",
+        "task": "34",
+        "disposition": "owner-packet: PK-triage-checkpoint-day-effects",
+        "evidence": [
+          "openspec/changes/design-campaign-authority-and-sync/specs/coop-campaign-sync/spec.md:78-99"
+        ]
+      }
     },
     {
       "id": "FN-u86-old-wait-pass-rate-swings-with-machine-timing",
@@ -12656,7 +13077,17 @@
       "class": "convergence gap after adoption",
       "summary": "Guests never acknowledge CampaignSnapshot frames, so after an adopted checkpoint the next AdvanceDay may be refused CAMPAIGN_NOT_CONVERGED until the guest acknowledges a later event.",
       "recommendedSuccessor": "measure in U92's or U94's live runs; a one-line ack on snapshot frames if it shows",
-      "status": "recorded; measured live by U92's baseline run (AdvanceDay refused CAMPAIGN_NOT_CONVERGED, participants-behind, requiredRevision 1, after an adopted checkpoint); a committed FundsChanged clears it"
+      "status": "assigned to U105",
+      "statusBefore20260927": "recorded; measured live by U92's baseline run (AdvanceDay refused CAMPAIGN_NOT_CONVERGED, participants-behind, requiredRevision 1, after an adopted checkpoint); a committed FundsChanged clears it",
+      "disposition": "successor-unit: U105 (measured convergence refusal)",
+      "triage20260927": {
+        "at": "2026-09-27T23:48:52.197Z",
+        "task": "34",
+        "disposition": "successor-unit: U105 (measured convergence refusal)",
+        "evidence": [
+          "evidence/u92-red-20260926.json"
+        ]
+      }
     },
     {
       "id": "FN-u96-resent-advanceday-waits-without-timeout",
@@ -12980,7 +13411,19 @@
       "class": "authority non-claim",
       "summary": "The journal does not carry the intervention id, so a record rebuilt from the journal alone would not recover the history entry; a campaign whose migration marker is not in journal state gets no record rewrite and so no entry. The read route is not narrowed: anyone who reads the host record reads its history.",
       "recommendedSuccessor": "a spec decision at the UAT round 2 triage on whether the journal carries the intervention",
-      "status": "recorded"
+      "status": "owner decision required; owner unavailable",
+      "statusBefore20260927": "recorded",
+      "disposition": "owner-packet: PK-triage-intervention-history-authority",
+      "triage20260927": {
+        "at": "2026-09-27T23:48:52.197Z",
+        "task": "35",
+        "disposition": "owner-packet: PK-triage-intervention-history-authority",
+        "evidence": [
+          "openspec/changes/design-campaign-authority-and-sync/specs/gm-campaign-intervention-boundaries/spec.md:5-28",
+          "evidence/u97-lane-a-review-20260926.md",
+          "evidence/u61-lane-a-review-20260926.md"
+        ]
+      }
     },
     {
       "id": "FN-u60-camp01-test-files-need-package-script",
@@ -13097,7 +13540,19 @@
       "class": "decision wording versus the ledger sentence",
       "summary": "Council decision 7 and PK-umbrella-acceptance-unsatisfiable option (b) say every catalogue id must exist as an authored row; U29's manifest excludes 27 rowless ids by gate tag and holder instead, as the ledger's sentence chose under OD-mvp-hard-cutover. The owner's head-bound ruling on U29's PR covers the difference.",
       "recommendedSuccessor": "none if ruled; the manifest shrinks as U54, U52 and the deferral author their rows",
-      "status": "recorded; to the ruling"
+      "status": "resolved by U29 owner ruling and exact-main ledger proof",
+      "statusBefore20260927": "recorded; to the ruling",
+      "resolvedBy": "U29",
+      "disposition": "resolved-by-proof; the manifest is exclusion inventory, not whole-row runtime proof",
+      "triage20260927": {
+        "at": "2026-09-27T23:48:52.197Z",
+        "task": "36",
+        "disposition": "resolved-by-proof; the manifest is exclusion inventory, not whole-row runtime proof",
+        "evidence": [
+          "scripts/qc/gm-two-player-acceptance-gates.cjs:8-12,31-68",
+          "evidence/u29-mainproof-20260926.json"
+        ]
+      }
     },
     {
       "id": "FN-u29-6-3-checked-but-scoped-tokens-not-on-production-path",
@@ -13106,7 +13561,17 @@
       "class": "checked row whose clause is not met",
       "summary": "tasks.md 6.3 stays checked while its 'scoped session tokens' clause is not met on the production path: the token route mints no scope and the verifier admits a scopeless token; the ERRATA withdraws the claim. Under the whole-row rule this wants a packet or a successor unit.",
       "recommendedSuccessor": "a R2.multiplayer unit: the production token route mints a scope and the verifier refuses scopeless socket tokens",
-      "status": "recorded"
+      "status": "assigned to U101",
+      "statusBefore20260927": "recorded",
+      "disposition": "successor-unit: U101",
+      "triage20260927": {
+        "at": "2026-09-27T23:48:52.197Z",
+        "task": "36",
+        "disposition": "successor-unit: U101",
+        "evidence": [
+          "units[U29].stageReceipts.local"
+        ]
+      }
     },
     {
       "id": "FN-u29-skip-exception-shape",
@@ -13115,7 +13580,17 @@
       "class": "manifest shape",
       "summary": "The runner-guarded skip entry (the two cleanup-ownership test.skip(!runId) marks named with PLAYWRIGHT_E2E_RUN_ID, which every plan sets) is a new manifest shape with an exact count; the pin fails until the entry leaves, so U57 or an e2e-owning unit removes the guards and the entry together.",
       "recommendedSuccessor": "U57",
-      "status": "recorded"
+      "status": "assigned to U57",
+      "statusBefore20260927": "recorded",
+      "disposition": "existing-successor: U57",
+      "triage20260927": {
+        "at": "2026-09-27T23:48:52.197Z",
+        "task": "36",
+        "disposition": "existing-successor: U57",
+        "evidence": [
+          "scripts/qc/gm-two-player-acceptance-gates.cjs:70-79"
+        ]
+      }
     },
     {
       "id": "FN-u29-ladder-counts-skips-neutral",
@@ -13124,7 +13599,15 @@
       "class": "harness",
       "summary": "The exact-main ladder counts a skip as neither pass nor fail; U57's traceability runner must not reuse that counting for the acceptance group, where a live skip fails the run.",
       "recommendedSuccessor": "U57",
-      "status": "recorded"
+      "status": "assigned to U57",
+      "statusBefore20260927": "recorded",
+      "disposition": "existing-successor: U57 (acceptance must fail on a live skip)",
+      "triage20260927": {
+        "at": "2026-09-27T23:48:52.197Z",
+        "task": "36",
+        "disposition": "existing-successor: U57 (acceptance must fail on a live skip)",
+        "evidence": []
+      }
     },
     {
       "id": "FN-u29-umbrella-numbering-errors",
@@ -13133,7 +13616,15 @@
       "class": "stale prose (outside the sentence)",
       "summary": "implementation-plan.md todo 33 cites tasks.md rows 23.1-23.4 that are numbered 22.3; tasks.md has two rows numbered 10.4 (lines 217 and 222). Left unedited.",
       "recommendedSuccessor": "the change's archive pass",
-      "status": "recorded"
+      "status": "assigned to the harden change archive pass",
+      "statusBefore20260927": "recorded",
+      "disposition": "clause-correction: archive pass (prose only; no task history rewrite)",
+      "triage20260927": {
+        "at": "2026-09-27T23:48:52.197Z",
+        "task": "36",
+        "disposition": "clause-correction: archive pass (prose only; no task history rewrite)",
+        "evidence": []
+      }
     },
     {
       "id": "FN-u29-u54-sentence-names-only-e2e-45",
@@ -13142,7 +13633,17 @@
       "class": "ledger wording",
       "summary": "U54 holds E2E-33 and 35-39 through row 21.3, but its sentence names only E2E-45; who authors the other six rows is not written.",
       "recommendedSuccessor": "U54's admission names them",
-      "status": "recorded"
+      "status": "assigned to U54 admission",
+      "statusBefore20260927": "recorded",
+      "disposition": "clause-correction: U54 admission names E2E-33,35-39,45",
+      "triage20260927": {
+        "at": "2026-09-27T23:48:52.197Z",
+        "task": "36",
+        "disposition": "clause-correction: U54 admission names E2E-33,35-39,45",
+        "evidence": [
+          "scripts/qc/gm-two-player-acceptance-gates.cjs:33-39"
+        ]
+      }
     },
     {
       "id": "FN-u34-all-plan-sets-combat-switch-for-rewind-pack",
@@ -13160,7 +13661,18 @@
       "class": "tag versus heading",
       "summary": "The @E2E-32 title (e2e/gm-two-player-combat.pack1.spec.ts:355) names back-to-back ordering, closer to the E2E-33 heading (spec.md:140), and the @E2E-31 title (:298) covers the foreign-unit refusal of E2E-32 (spec.md:136). The table and the pin follow the tags.",
       "recommendedSuccessor": "an e2e-owning unit retags the two titles in the same change as any row edit",
-      "status": "recorded"
+      "status": "assigned to U53",
+      "statusBefore20260927": "recorded",
+      "disposition": "existing-successor: U53 (rewrites assertions and tags together)",
+      "triage20260927": {
+        "at": "2026-09-27T23:48:52.197Z",
+        "task": "37",
+        "disposition": "existing-successor: U53 (rewrites assertions and tags together)",
+        "evidence": [
+          "openspec/changes/harden-gm-two-player-campaign-sessions/specs/e2e-testing/spec.md:129-142",
+          "e2e/gm-two-player-combat.pack1.spec.ts"
+        ]
+      }
     },
     {
       "id": "FN-u34-u28-sentence-names-both-switches",
@@ -13187,7 +13699,20 @@
       "class": "spec-delta candidate",
       "summary": "No living spec names the baseline law on the resync tail or live fan-out; coop-campaign-sync/spec.md:148 says the resynced mirror converges, which a withheld checkpoint makes untrue for a restricted viewer by design of the law (their mirror lags the checkpoint's effects until admitted incremental facts fold). For the UAT round 2 spec triage.",
       "recommendedSuccessor": "UAT round 2 triage spec delta (with FN-u58-baseline-author-law-not-in-spec)",
-      "status": "recorded"
+      "status": "assigned to U99",
+      "statusBefore20260927": "recorded",
+      "disposition": "clause-correction: U99 (restricted convergence is the authorized fold, never raw host-state equality)",
+      "triage20260927": {
+        "at": "2026-09-27T23:48:52.197Z",
+        "task": "32",
+        "disposition": "clause-correction: U99 (restricted convergence is the authorized fold, never raw host-state equality)",
+        "evidence": [
+          "openspec/specs/coop-campaign-sync/spec.md:144-149",
+          "openspec/specs/gm-authority-redaction/spec.md:93-104",
+          "evidence/u94-local-20260927.json",
+          "evidence/u58-lane-a-review-20260925.md"
+        ]
+      }
     },
     {
       "id": "FN-u94-delivered-arrays-list-raw-tail",
@@ -13223,7 +13748,17 @@
       "class": "closure tooling",
       "summary": "roadmap-unit-closure.mjs writes the tick receipt (note 'rows checked by this closure', tickedOnMain = the merge sha) without checking the live tasks.md row; the validator then refuses the closure until the closer ticks the row by hand (U22's and U34's closures did). Either the tool ticks the row or its receipt note stops claiming it.",
       "recommendedSuccessor": "a R6.loop-harness slice: the closure tool ticks the taskKeys rows in the live tasks.md, or the receipt says 'rows to be ticked by the closer'",
-      "status": "recorded"
+      "status": "assigned to U103; U17c did not resolve it",
+      "statusBefore20260927": "recorded",
+      "disposition": "successor-unit: U103",
+      "triage20260927": {
+        "at": "2026-09-27T23:48:52.197Z",
+        "task": "37",
+        "disposition": "successor-unit: U103",
+        "evidence": [
+          "scripts/qc/roadmap-unit-closure.mjs"
+        ]
+      }
     },
     {
       "id": "FN-u98b-servertotal-row-includes-growing-rewrite",
