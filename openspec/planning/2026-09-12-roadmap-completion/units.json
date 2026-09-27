@@ -13606,7 +13606,11 @@
         "at": "2026-09-27T23:48:52.197Z",
         "task": "36",
         "disposition": "existing-successor: U57 (acceptance must fail on a live skip)",
-        "evidence": []
+        "evidence": [
+          "scripts/qc/validate-exact-main-regression-ladder.mjs:200-202 (documents that `skipped` counts as neither pass nor fail)",
+          "scripts/qc/validate-exact-main-regression-ladder.mjs:228 (a skipped count is not added to failed)",
+          "finding recommendedSuccessor U57 (planned; its acceptance group must fail on a live skip)"
+        ]
       }
     },
     {
@@ -13623,7 +13627,11 @@
         "at": "2026-09-27T23:48:52.197Z",
         "task": "36",
         "disposition": "clause-correction: archive pass (prose only; no task history rewrite)",
-        "evidence": []
+        "evidence": [
+          "openspec/changes/harden-gm-two-player-campaign-sessions/implementation-plan.md:409 (cites tasks.md 23.1-23.4 for E2E-71..80)",
+          "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md:592 (row 22.3 holds E2E-71 through E2E-80)",
+          "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md:218,223 (two rows numbered 10.4)"
+        ]
       }
     },
     {
