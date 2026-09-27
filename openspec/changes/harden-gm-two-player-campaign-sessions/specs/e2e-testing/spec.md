@@ -337,3 +337,22 @@ The controlled loopback performance fixture SHALL use one campaign, one active m
 #### Scenario: E2E-80 major merges trigger exact-main regression
 - **WHEN** a major authority, delivery, projection, rewind, campaign, or harness PR merges
 - **THEN** the applicable staged three-context regression subset SHALL rerun against exact main before the next dependent PR begins and SHALL archive its result with the milestone: fixture isolation before durable role admission, membership after GM/P1/P2 roles land, and the evolving strict smoke subset thereafter
+
+### Requirement: Acceptance Run Excludes Only Named-Gate Rows
+The umbrella acceptance run SHALL resolve every catalogue id of this delta, E2E-01 through E2E-80, exactly once: to an authored row, meaning a Playwright test title carrying the id's `@E2E-NN` tag in a spec file that the `all` plan of `scripts/qc/gm-two-player-campaign-core.cjs` runs; to the exact-main regression contract, for E2E-80 only (`scripts/qc/validate-exact-main-regression-ladder.mjs`); or to one entry of the gated-absent manifest `scripts/qc/gm-two-player-acceptance-gates.cjs` naming the id, its gate tag and its holder, the roadmap unit or deferral that holds the id's task row. An unresolved id, an id resolved more than once, a `test.fixme` mark, a `test.fail` mark carrying no gate tag the manifest names, and a `test.skip` mark SHALL fail the run, except a skip mark the manifest names together with the environment variable its condition reads when every plan that runs its file sets that variable, so the mark cannot skip in the run. The excluded set SHALL be exactly the authored rows carrying a strict `test.fail` with a named gate tag plus the manifest's gated-absent ids, and the run SHALL pass only when every non-excluded row passes and no excluded row passes unexpectedly. A gated-absent id has no row and cannot pass; an id that gains a row SHALL leave the manifest in the same change.
+
+#### Scenario: every catalogue id resolves exactly once
+- **WHEN** the manifest pin reads the catalogue ids from this delta's scenario headings, the test titles of the spec files the `all` plan runs, and the manifest
+- **THEN** each of E2E-01 through E2E-80 SHALL resolve to its authored rows, the exact-main contract or one gated-absent entry, and an unresolved or doubly-resolved id SHALL fail the pin with the id named
+
+#### Scenario: a gated-absent id that gains a row fails until it leaves the manifest
+- **WHEN** an id the manifest lists as gated-absent appears in a test title of a spec file the run executes
+- **THEN** the pin SHALL fail naming that id as resolved twice
+
+#### Scenario: an unnamed expected failure, a fixme or a live skip fails the run
+- **WHEN** a spec file the run executes carries a `test.fail` mark without a gate tag the manifest names, a `test.fixme` mark, or a `test.skip` mark the manifest does not name
+- **THEN** the pin SHALL fail naming the file, the line and the mark
+
+#### Scenario: an excluded row that passes fails the run
+- **WHEN** an authored row carrying a strict `test.fail` with a named gate tag passes
+- **THEN** Playwright SHALL report the row as failed and the run SHALL fail, so a gate is removed only by the change that ungates its row

@@ -15,7 +15,7 @@ Your next move: use the reviewed plan in an isolated task-owned worktree when im
 
 ---
 
-> TL;DR (machine): XL/high-risk, leaf-driven focused PRs plus strict final verifiers deliver durable GM+2 authority, role-safe projection, append-only correction/rewind, exactly-once effect application over at-least-once delivery, 80 strict E2E scenarios, controlled latency gates, and exact-main post-merge regression. The historical 33-todo matrix below is acceptance topology, not the current executable PR count.
+> TL;DR (machine): XL/high-risk, leaf-driven focused PRs plus strict final verifiers deliver durable GM+2 authority, role-safe projection, append-only correction/rewind, exactly-once effect application over at-least-once delivery, 80 strict E2E scenarios, controlled latency gates, and exact-main post-merge regression. The historical 34-todo matrix below (plus the final verification reviews F1-F4) is acceptance topology, not the current executable PR count.
 
 ## Scope
 ### Must have
@@ -90,6 +90,7 @@ Before Task 1, create `.omo/evidence/gm-two-player-live-campaign-sandbox/program
 > These rows retain acceptance provenance for the original todo decomposition. The current executable event-history order is the leaf path above; the one-PR-at-a-time contract supersedes the parallel suggestions below for current work.
 > Target 3-8 todos per implementation wave. Waves 1 and 2 are intentional one-merge sequencing gates around the ABI preflight and fixture bootstrap, with the evidence-only RED checkpoint allowed in parallel.
 > Waves are staged scheduling buckets, not sets of tasks that may all launch concurrently. A task may run concurrently only with tasks listed in its `Can parallelize with` cell, and never with anything in its `Depends on` or `Blocks` cell.
+> Reconciled with `tasks.md` on 2026-09-26 (roadmap unit U29, measured at ae7b6fc80): every one of todos 1-34 appears in the nine waves below (todos 2-4 in Waves 1 and 3, as Wave 1 says), and F1-F4 run after them as the final verification wave. The checkboxes in this file are not maintained: 6 of the 34 todos (1-5 and 26) and none of F1-F4 are checked here, while `tasks.md` then held 84 checked and 24 open rows. The receipts under the `tasks.md` rows are the only completion record; a checkbox in this plan is never evidence that a todo or a `tasks.md` row is done. Event-history sections are executed from `event-history-wave-map.md` and the named leaf changes' `tasks.md`, as `tasks.md` line 3 says.
 - Wave 1 — pre-harness gate: Todo 5. Todo 1 and any already-landed portions of Todos 2-4 are historical receipts; remaining work in Todos 2-4 waits for the fixture.
 - Wave 2 — red contracts and harness scaffolding: after Todo 5, Todo 26 is the next committed slice; evidence-only Todo 6 may run in parallel.
 - Wave 3 — post-fixture prerequisites and additive foundations: todos 2, 3, 4, 7, 10, 27.
