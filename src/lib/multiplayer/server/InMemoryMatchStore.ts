@@ -110,16 +110,29 @@ export class InMemoryMatchStore
     }
   }
 
-  createMatch = async (meta: IMatchMeta): Promise<string> => {
+  createMatch = async (
+    meta: IMatchMeta,
+    initialEvents: readonly IGameEvent[] = [],
+  ): Promise<string> => {
     if (this.records.has(meta.matchId)) {
       throw new Error(
         `Match already exists in store: ${meta.matchId} (call createMatch with a fresh id)`,
       );
     }
+    const sequences = new Set<number>();
+    for (const event of initialEvents) {
+      if (sequences.has(event.sequence)) {
+        throw new MatchStoreSequenceCollisionError(
+          meta.matchId,
+          event.sequence,
+        );
+      }
+      sequences.add(event.sequence);
+    }
     this.records.set(meta.matchId, {
       meta,
-      events: [],
-      sequences: new Set(),
+      events: [...initialEvents],
+      sequences,
       receipts: new Map(),
       publications: new Map(),
       combatOutcome: null,

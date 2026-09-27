@@ -158,6 +158,7 @@ async function registerRecoveredHost(
 export async function recoverActiveMatches(
   store: IMatchStore,
   quarantine?: ReplayQuarantineRegistry,
+  matchId?: string,
 ): Promise<IMatchRecoveryResult> {
   const hosts = new Map<string, ServerMatchHost>();
   const failed: string[] = [];
@@ -186,6 +187,7 @@ export async function recoverActiveMatches(
   }
 
   for (const meta of active) {
+    if (matchId !== undefined && meta.matchId !== matchId) continue;
     try {
       // A committed rewind leaves a non-root effective branch. Fold
       // that path here — the store log is still the untruncated line.

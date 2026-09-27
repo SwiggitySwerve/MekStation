@@ -134,7 +134,7 @@ const CoopCampaignRegistrationSchema = z
   })
   .strict();
 
-export const CreateMultiplayerMatchBodySchema = z
+const CreateMultiplayerMatchObjectSchema = z
   .object({
     config: MatchConfigSchema,
     displayName: z
@@ -155,15 +155,64 @@ export const CreateMultiplayerMatchBodySchema = z
     hostSeatKind: z.enum(['human', 'spectator']).optional(),
     coopCampaign: CoopCampaignRegistrationSchema.optional(),
   })
-  .strict()
-  .refine((body) => body.layout !== undefined || body.playerIds !== undefined, {
-    message: 'Either layout or playerIds is required',
-    path: ['layout'],
-  })
-  .refine((body) => body.layout !== undefined || body.aiSlots === undefined, {
+  .strict();
+
+export const CreateMultiplayerMatchBodySchema =
+  CreateMultiplayerMatchObjectSchema.refine(
+    (body) => body.layout !== undefined || body.playerIds !== undefined,
+    {
+      message: 'Either layout or playerIds is required',
+      path: ['layout'],
+    },
+  ).refine((body) => body.layout !== undefined || body.aiSlots === undefined, {
     message: 'aiSlots require a layout',
     path: ['aiSlots'],
   });
+
+const MissionEntityIdSchema = z.string().trim().min(1).max(ID_MAX_LENGTH);
+
+export const CreateCoopMissionMatchBodySchema =
+  CreateMultiplayerMatchObjectSchema.extend({
+    unitBootstrap: z.array(MatchUnitBootstrapEntrySchema).min(1).max(24),
+    coopCampaign: z
+      .object({
+        campaignId: MissionEntityIdSchema,
+        sessionId: MissionEntityIdSchema,
+        missionId: MissionEntityIdSchema,
+        expectedHead: z
+          .object({
+            branchId: MissionEntityIdSchema,
+            revision: z
+              .number()
+              .int()
+              .nonnegative()
+              .max(Number.MAX_SAFE_INTEGER),
+            effectiveGeneration: z
+              .number()
+              .int()
+              .positive()
+              .max(Number.MAX_SAFE_INTEGER),
+          })
+          .strict(),
+        contributions: z
+          .array(
+            z
+              .object({
+                forceId: MissionEntityIdSchema,
+                choice: z.enum(['deploy', 'command-hq']),
+                unitIds: z.array(MissionEntityIdSchema).max(8),
+              })
+              .strict(),
+          )
+          .min(1)
+          .max(2),
+      })
+      .strict(),
+  });
+
+export type CreateCoopMissionMatchBody = z.infer<
+  typeof CreateCoopMissionMatchBodySchema
+>;
 
 export type TokenIssueBody = z.infer<typeof TokenIssueBodySchema>;
 export type UnlockIdentityBody = z.infer<typeof UnlockIdentityBodySchema>;

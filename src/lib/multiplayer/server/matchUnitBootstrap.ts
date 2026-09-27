@@ -120,6 +120,13 @@ function gameUnitFromAdapted(
   };
 }
 
+export class MatchUnitReferenceError extends Error {
+  constructor(readonly unitRef: string) {
+    super(`Unit bootstrap failed: unknown unitRef ${unitRef}`);
+    this.name = 'MatchUnitReferenceError';
+  }
+}
+
 async function adaptBootstrapUnit(
   entry: IMatchUnitBootstrapEntry,
 ): Promise<{ readonly adapted: IAdaptedUnit; readonly gameUnit: IGameUnit }> {
@@ -136,7 +143,7 @@ async function adaptBootstrapUnit(
     readServerCustomCombatDefinition,
   );
   if (!adapted) {
-    throw new Error(`Unit bootstrap failed: unknown unitRef ${entry.unitRef}`);
+    throw new MatchUnitReferenceError(entry.unitRef);
   }
   const adaptedWithRuntimeId: IAdaptedUnit = {
     ...adapted,
