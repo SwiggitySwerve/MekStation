@@ -332,6 +332,16 @@ The implementation follows the ordered, independently revertible slices in `impl
 
 Prerequisite audit defects stay isolated in their own PRs so a regression fix can merge or roll back without coupling to the authority migration.
 
+## Roadmap Crosswalk
+
+| Spec delta | Roadmap node | Implementing unit | Contract unit |
+| --- | --- | --- | --- |
+| MODIFIED `coop-campaign-sync` "Co-op Mission Launch With Both Forces" (server-owned opponent turns) | R2.authority-live | PAI | PAIC (plan task 41) |
+
+The delta says who drives the OpFor in an explicitly bootstrapped co-op mission match: the server, through the existing engine AI inside `ServerMatchHost`'s serialized command lifecycle. Each turn gets a deterministic identity from the match, the accepted branch, revision and effectiveGeneration head, and the active unit. Output goes out through the normal per-viewer publication. The per-player same-side unit ownership rule and the existing disconnect and pause policy are unchanged, and no client can carry or request opponent authority. PAIC is text only. PAI owns the implementation and stays blocked until PAIC has an exact-main proof.
+
+Provenance: on 2026-09-27 the user chose a server-driven opponent for shared co-op matches (GAP-7). That choice is recorded as planning provenance. It isn't an exact-head owner ruling, and PAI still needs its own sensitive-class rulings.
+
 ## Validation and Error Handling
 
 - Mechanical validation runs before GM review; a mechanical rejection, GM veto, timeout, stale branch, stale revision, duplicate collision, projection failure, persistence failure, and authorization failure each have distinct typed results.
