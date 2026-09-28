@@ -5244,18 +5244,53 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
-      "prHead": null,
-      "mergeSha": null,
+      "state": "complete",
+      "baseline": "e0bde6163f9eaab3ccd13c31905327875b1f4c8a",
+      "prHead": "5983fb9ef5f3b423f7ff468aa067348cb8d234bb",
+      "mergeSha": "4206a48bc797a59b33b2f48a8f73d22e24614da9",
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "admission": {
+          "path": "evidence/u43-admission-20260928.json",
+          "baseline": "e0bde6163f9eaab3ccd13c31905327875b1f4c8a",
+          "at": "2026-09-28T05:14:43.749Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u43-red-20260928.json",
+          "at": "2026-09-28T05:18:05.450Z",
+          "summary": "Red first on the unchanged baseline, disk-backed SQLite with cold reopen: seed-then-restart with no command (no opening receipt), strict-prefix journal restart (journal stayed behind), receipt committed with the opening mirror unavailable (no head on restart), and missing and corrupt receipt identity (match served) failed; the complete-journal control passed (5 failed, 1 passed). Corrections added rows that were red on their prior heads: a corrupted fingerprint suffix and a pre-U43 complete journal without a create receipt (2 failed on b37ee96), and a nonempty corrupt post-state digest, alone and in the second of two missing batches (2 failed on 1aa120d). Lane A (gpt-6-sol) reproduced each red set."
+        },
+        "local": {
+          "path": "evidence/u43-local-20260928.json",
+          "at": "2026-09-28T06:17:44.718Z",
+          "summary": "5 files in src/lib/multiplayer/server (232 counted non-test added lines): the create seed persists a create:<matchId> receipt over revisions 0..N-1 with the folded opening post-state digest before mirroring; boot recovery reads the live-path journal head first, leaves complete (including pre-U43) journals unchanged, validates full v2/legacy fingerprints and recomputed post-state digests for the whole missing range before replay, and replays whole batches through mirrorCommittedBatch; missing, gapped or corrupt receipts refuse with typed partial-history and no journal mutation. Green 16/16 focused and the full multiplayer/server __tests__ directory 145 suites / 1067 tests, typecheck, lint 0 errors / 84 warnings, lint:units, format:check, diff --check and build. Lane A gpt-6-sol APPROVE at 5983fb9 after two corrections."
+        },
+        "review": {
+          "path": "evidence/u43-review-20260928.json",
+          "head": "5983fb9ef5f3b423f7ff468aa067348cb8d234bb",
+          "reviewedHead": "5983fb9ef5f3b423f7ff468aa067348cb8d234bb",
+          "reviewerModel": "gpt-6-sol",
+          "implementerModel": "gpt-5.6-sol-fast (deep-low task st_01a0e66f)",
+          "outputSha256": "c5817d4fd758bc91eb567e395761f9adbb51626e81675656ab5495c8e2c5ebed",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u43-merge-20260928.json",
+          "pr": 2075,
+          "head": "5983fb9ef5f3b423f7ff468aa067348cb8d234bb",
+          "mergeSha": "4206a48bc797a59b33b2f48a8f73d22e24614da9"
+        },
+        "mainProof": {
+          "path": "evidence/u43-mainproof-20260928.json",
+          "mergeCommit": "4206a48bc797a59b33b2f48a8f73d22e24614da9",
+          "verdict": "PASS",
+          "runtime": "Tests:       167 passed, 167 total"
+        },
+        "tick": {
+          "path": "evidence/u43-tick-20260928.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "source20260922": "planned by the parent from the 2026-09-22 triage plan (newUnits; evidence/triage-plan-20260922.json (179 register issues verified against main a9244fcad)) under the owner instruction of 2026-09-22 (\"ultracode find everything that is marked and if there are issues go with recommended path to solution based on the goal\")",
@@ -11931,6 +11966,48 @@
         "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; under the owner's standing instruction the parent composed and posted the comment from the owner GitHub account and applied owner-ruled; the decision is the owner's standing instruction, and the parent supplied the head from the ledger"
       },
       "note": "Registered at the P1C closure with its ruling already given: the owner's standing merge instruction (2026-09-28) covers sensitive units once CI is green and Lane A approves the exact head, so no separate pending-packet fold was needed. The agent chose no option."
+    },
+    {
+      "id": "PK-u43-ruling",
+      "blocks": [
+        "U43"
+      ],
+      "nodes": [
+        "R4.S7"
+      ],
+      "taskKeys": [],
+      "question": "U43 presents head 5983fb9ef5f3b423f7ff468aa067348cb8d234bb on PR #2075 for authority, replay and idempotency review. Does the owner rule this exact head after fresh independent review and required CI checks pass?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "The owner posts the head-bound OWNER-RULING comment and applies owner-ruled on the actual product PR; only then may the parent merge and run exact-main proof.",
+          "effort": "One owner review of the exact head and its evidence"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Do not merge; preserve the objection and revise through a new verified head, fresh independent review and fresh owner ruling.",
+          "effort": "Depends on the concrete requested change"
+        }
+      ],
+      "agentRecommendation": "Rule the exact head. Lane A (gpt-6-sol) APPROVE on 5983fb9 with no BLOCKER or REQUIRED finding after two corrections (full-fingerprint validation; post-state digest validation before replay) and a CI regression fix (pre-U43 complete journals); 16/16 and 173/173 green in separate processes; 31 of 31 checks green and CLEAN.",
+      "revertCost": "Revert the isolated recovery commit; opening receipts written by the new seed remain valid mp_command_receipts rows, so no data rollback is needed.",
+      "decision": {
+        "at": "2026-09-28T00:58:00Z",
+        "option": "rule the head",
+        "text": "Checks + review, then merge (Recommended)",
+        "source": "owner standing instruction in the working session (chat), 2026-09-28: \"merge PRs if they are passing the checks\", then, to the question \"For roadmap PRs going forward (P1B2 next, then U43, U24 and so on), when should I merge?\" (toolu_011JoFgVt4MouFz3sMkuTkcP), \"Checks + review, then merge (Recommended)\", whose option text read: \"When CI is 31/31 green and the independent review approves the exact head, I merge pinned to that head. For sensitive units I post the OWNER-RULING comment and owner-ruled label myself, citing this standing instruction, instead of asking you per head.\"; both conditions held on 5983fb9 (Lane A APPROVE sha256 c5817d4f..., 31/31 CI)"
+      },
+      "ruling": {
+        "ruledHead": "5983fb9ef5f3b423f7ff468aa067348cb8d234bb",
+        "pr": 2075,
+        "commentId": 5864527726,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "87aff3da9ba2e7b55ee8b621d6156c8d3091170dd11af9fdddd620475df50203",
+        "postedBy": "parent under the owner's standing instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; under the owner's standing instruction the parent composed and posted the comment from the owner GitHub account and applied owner-ruled; the decision is the owner's standing instruction, and the parent supplied the head from the ledger"
+      },
+      "note": "Registered at the U43 closure with its ruling already given: the owner's standing merge instruction (2026-09-28) covers sensitive units once CI is green and Lane A approves the exact head, so no separate pending-packet fold was needed. The agent chose no option."
     },
     {
       "id": "PK-triage-checkpoint-day-effects",

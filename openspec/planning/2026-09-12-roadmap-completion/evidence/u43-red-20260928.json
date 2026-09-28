@@ -1,0 +1,10 @@
+{
+  "unit": "U43",
+  "stage": "red",
+  "at": "2026-09-28T05:18:05.450Z",
+  "baseline": "e0bde6163f9eaab3ccd13c31905327875b1f4c8a",
+  "summary": "Red first on the unchanged baseline, disk-backed SQLite with cold reopen: seed-then-restart with no command (no opening receipt), strict-prefix journal restart (journal stayed behind), receipt committed with the opening mirror unavailable (no head on restart), and missing and corrupt receipt identity (match served) failed; the complete-journal control passed (5 failed, 1 passed). Corrections added rows that were red on their prior heads: a corrupted fingerprint suffix and a pre-U43 complete journal without a create receipt (2 failed on b37ee96), and a nonempty corrupt post-state digest, alone and in the second of two missing batches (2 failed on 1aa120d). Lane A (gpt-6-sol) reproduced each red set.",
+  "evidence": [
+    "lane log red-new-suite.log"
+  ]
+}

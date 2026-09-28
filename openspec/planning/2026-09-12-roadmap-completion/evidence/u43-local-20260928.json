@@ -1,0 +1,21 @@
+{
+  "unit": "U43",
+  "stage": "local",
+  "at": "2026-09-28T06:17:44.718Z",
+  "status": "local-verified",
+  "head": "5983fb9ef5f3b423f7ff468aa067348cb8d234bb",
+  "baseline": "e0bde6163f9eaab3ccd13c31905327875b1f4c8a",
+  "summary": "5 files in src/lib/multiplayer/server (232 counted non-test added lines): the create seed persists a create:<matchId> receipt over revisions 0..N-1 with the folded opening post-state digest before mirroring; boot recovery reads the live-path journal head first, leaves complete (including pre-U43) journals unchanged, validates full v2/legacy fingerprints and recomputed post-state digests for the whole missing range before replay, and replays whole batches through mirrorCommittedBatch; missing, gapped or corrupt receipts refuse with typed partial-history and no journal mutation. Green 16/16 focused and the full multiplayer/server __tests__ directory 145 suites / 1067 tests, typecheck, lint 0 errors / 84 warnings, lint:units, format:check, diff --check and build. Lane A gpt-6-sol APPROVE at 5983fb9 after two corrections.",
+  "implementer": "gpt-5.6-sol-fast (deep-low task st_01a0e66f)",
+  "files": {
+    "src/lib/multiplayer/server/DurableMatchStore.ts": "82d3bd3b7512ace10740cad54e1d5c7973ec294f5b0d7995819d748f8c936944",
+    "src/lib/multiplayer/server/IMatchStore.ts": "6cbc18b0b41b38d52e7f77292d2415547a8b89e2eff33010138f186017080898",
+    "src/lib/multiplayer/server/MatchRecovery.ts": "b41eddd1986c76e50308a4338419e18d9b2caa7993a068ea73ed7c9a1628b0fb",
+    "src/lib/multiplayer/server/__tests__/matchMarkerRetirementRecovery.sqlite.test.ts": "97dca4b4b8b3d09c2693b8174f319f0af5aeb9e93206394e167e1229e62a0f88",
+    "src/lib/multiplayer/server/__tests__/matchJournalBatchRecovery.sqlite.test.ts": "c7ddf67b9868ed7a843d4dca988ecd579bcd85f70897b75d6ea290ffda1d282b"
+  },
+  "evidence": [
+    ".omo/ulw-execute/u43/DONECLAIM.md (lane evidence, with Correction and Correction 2)",
+    "E:/Projects/MekStation/.omo/ulw-execute/evidence/task-5-u43-review.md"
+  ]
+}

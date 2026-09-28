@@ -1,0 +1,22 @@
+{
+  "unit": "U43",
+  "stage": "merge",
+  "at": "2026-09-28T06:25:16.018Z",
+  "pr": 2075,
+  "title": "fix(journal): recover seeded and interrupted match history",
+  "head": "5983fb9ef5f3b423f7ff468aa067348cb8d234bb",
+  "mergeSha": "4206a48bc797a59b33b2f48a8f73d22e24614da9",
+  "mergedAt": "2026-09-28T06:17:02Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge 2075 --squash --match-head-commit 5983fb9ef5f3b423f7ff468aa067348cb8d234bb after the GraphQL pre-merge gate (31/31 checks SUCCESS, CLEAN/MERGEABLE, 0 unresolved threads, 5 files, Lane A APPROVE on the exact head, OWNER-RULING comment 5864527726 and owner-ruled label under the owner's standing instruction)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "src/lib/multiplayer/server/DurableMatchStore.ts",
+    "src/lib/multiplayer/server/IMatchStore.ts",
+    "src/lib/multiplayer/server/MatchRecovery.ts",
+    "src/lib/multiplayer/server/__tests__/matchJournalBatchRecovery.sqlite.test.ts",
+    "src/lib/multiplayer/server/__tests__/matchMarkerRetirementRecovery.sqlite.test.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}

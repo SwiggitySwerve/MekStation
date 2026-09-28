@@ -1,3 +1,16 @@
+## 2026-09-28 U43 complete (parent)
+
+U43 (#2075, head `5983fb9ef5f3b423f7ff468aa067348cb8d234bb`, merge `4206a48bc797a59b33b2f48a8f73d22e24614da9`) makes boot recovery reach a commit-ready journal head for every match the store holds, at mode enabled. The create seed persists the opening batch as a `create:<matchId>` receipt over revisions 0..N-1, carrying the folded opening post-state digest, before mirroring it. Recovery reads the live-path journal head first and leaves complete journals unchanged, including pre-U43 matches that have no create receipt. For the missing range only, it validates full v2 or legacy fingerprints and recomputed post-state digests before any replay, then replays whole batches through `mirrorCommittedBatch`. Missing, gapped or corrupt receipts refuse with a typed `partial-history` block and no journal mutation, and no command identity is ever synthesized.
+
+The owner's standing merge instruction of 2026-09-28 is recorded in PK-u43-ruling; the parent posted `OWNER-RULING` comment 5864527726 and applied `owner-ruled`. The head went through three rounds:
+- **b37ee96:** Lane A (gpt-6-sol) blocked it because recovery checked only a fingerprint prefix, and CI on it caught a regression that refused pre-U43 matches at boot.
+- **1aa120d:** fixed both, and was blocked because a nonempty corrupt post-state digest was accepted.
+- **5983fb9:** validates the digest before replay, and was approved.
+
+Every correction was a new commit with red rows on the prior head.
+
+The [exact-main proof](evidence/u43-mainproof-20260928.json) passed: build with the e2e marker, 18 runtime suites and 167 tests, the exact-main ladder (strict-smoke), tsc, the validator in four modes, openspec strict, qc:openspec-ci, the qc pin, lint (84 warnings, 0 errors), lint:units and format:check. U43 was folded and closed in one PR because its ruling was already given. No unit is released; U24, the flip that U43 gates, was already planned. `validate-roadmap.mjs --next` prints U24.
+
 ## 2026-09-28 P1C complete; partial-success rejoin assigned to P2 (parent)
 
 P1C (#2073, head `f474743c9aab2d6029e5c29a98218b215bb81e46`, merge `5433488de0fe7ef9ede71144463205e4b290c98c`) carries the mission identity and the original accepted campaign head (`branchId`, `revision`, `effectiveGeneration`) from the mission launch page into `launchCoopMission`. That function creates the shared mission through the authenticated mission-create route, using the stored co-op Bearer token, the approved force contributions and the deploying-unit bootstrap, before any local encounter side effect. It returns the route's `missionMatchId` separately from the local `gameSessionId`. A stale or failed create returns before the local launch and before navigation, and an identical retry keeps the same shared id. Encounter and command-HQ navigation are unchanged until P2.
