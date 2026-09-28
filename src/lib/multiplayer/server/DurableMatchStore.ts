@@ -1258,6 +1258,10 @@ export class DurableMatchStore
       .all(matchId, head.revision) as ICommandReceiptRow[];
     const batches: IMatchCommandBatch[] = [];
     let nextRevision = head.revision;
+    let reconstructed =
+      head.revision === 0
+        ? undefined
+        : foldMatchSession(matchId, events.slice(0, head.revision));
     for (const row of rows) {
       const receipt = receiptFrom(row);
       const batchEvents = events.slice(
@@ -1291,6 +1295,18 @@ export class DurableMatchStore
           ],
         };
       }
+      const postState = foldMatchSession(matchId, batchEvents, reconstructed);
+      const postDigest = digestCommandPostState(postState);
+      if (receipt.expectedPostStateDigest !== postDigest) {
+        return {
+          kind: 'blocked',
+          reason: 'partial-history',
+          evidence: [
+            `stored receipt '${receipt.commandId}' has a corrupt post-state digest`,
+          ],
+        };
+      }
+      reconstructed = postState;
       batches.push(batch);
       nextRevision = receipt.lastRevision + 1;
     }

@@ -251,6 +251,26 @@ async function appendStoredTail(
   return all;
 }
 
+function corruptReceiptDigest(commandId: string): void {
+  const db = new Database(matchPath);
+  try {
+    const row = db
+      .prepare(
+        `SELECT post_digest AS digest FROM mp_command_receipts
+         WHERE match_id = ? AND command_id = ?`,
+      )
+      .get(MATCH_ID, commandId) as { readonly digest: string };
+    const corrupt =
+      row.digest === 'f'.repeat(64) ? 'e'.repeat(64) : 'f'.repeat(64);
+    db.prepare(
+      `UPDATE mp_command_receipts SET post_digest = ?
+       WHERE match_id = ? AND command_id = ?`,
+    ).run(corrupt, MATCH_ID, commandId);
+  } finally {
+    db.close();
+  }
+}
+
 beforeEach(async () => {
   dir = await mkdtemp(path.join(tmpdir(), 'match-journal-recovery-'));
   matchPath = path.join(dir, 'matches.db');
@@ -393,6 +413,46 @@ describe('boot recovery restores every trusted stored journal batch', () => {
     } finally {
       db.close();
     }
+
+    coldReopen();
+    const recovered = await recoverActiveMatches(store);
+
+    expect(recovered.hosts.has(MATCH_ID)).toBe(false);
+    expect(recovered.blocked).toEqual([
+      expect.objectContaining({
+        matchId: MATCH_ID,
+        reason: 'partial-history',
+      }),
+    ]);
+    expect(journalSnapshot()).toEqual(before);
+  });
+
+  it('refuses a non-empty corrupt digest in the missing range without mutation', async () => {
+    const opening = await createAndSeed();
+    await appendStoredTail(opening);
+    const before = journalSnapshot();
+    expect(before.head?.revision).toBe(opening.length);
+    corruptReceiptDigest('cmd-tail');
+
+    coldReopen();
+    const recovered = await recoverActiveMatches(store);
+
+    expect(recovered.hosts.has(MATCH_ID)).toBe(false);
+    expect(recovered.blocked).toEqual([
+      expect.objectContaining({
+        matchId: MATCH_ID,
+        reason: 'partial-history',
+      }),
+    ]);
+    expect(journalSnapshot()).toEqual(before);
+  });
+
+  it('validates a second corrupt missing-batch digest before mirroring the first', async () => {
+    const opening = await createAndSeed(false);
+    await appendStoredTail(opening);
+    const before = journalSnapshot();
+    expect(before).toEqual({ head: undefined, rows: [] });
+    corruptReceiptDigest('cmd-tail');
 
     coldReopen();
     const recovered = await recoverActiveMatches(store);
