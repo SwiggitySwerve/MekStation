@@ -12,9 +12,11 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
+import type { CreateCoopMissionMatchBody } from '@/lib/api/securitySchemas';
 import type { IForce } from '@/types/campaign/Force';
 import type { IEncounter } from '@/types/encounter';
 
+import { readCoopCampaignToken } from '@/lib/campaign/coop/coopCampaignAuthTokenStore';
 import { materializeCampaignMissionEncounter } from '@/lib/campaign/encounter/materializeCampaignMissionEncounter';
 import {
   admitCampaignLaunch,
@@ -26,7 +28,20 @@ import { EncounterStatus, TerrainPreset } from '@/types/encounter';
 import type { ICampaignEncounterLauncherService } from '../../encounter/launchCampaignEncounter';
 import type { LaunchCoopMissionAdmission } from '../launchCoopMission';
 
+import {
+  MissionReplySchema,
+  openRouteFixture,
+  post,
+} from '../../../multiplayer/server/__tests__/coopMissionCreate.harness';
 import { launchCoopMission } from '../launchCoopMission';
+
+jest.mock('@/lib/campaign/coop/coopCampaignAuthTokenStore', () => ({
+  readCoopCampaignToken: jest.fn(),
+}));
+
+const readTokenMock = readCoopCampaignToken as jest.MockedFunction<
+  typeof readCoopCampaignToken
+>;
 
 // Records every composition attempt while still running the REAL
 // composer, so "rejected before composition" can be asserted literally
@@ -97,6 +112,12 @@ const LAUNCH_ID = {
   matchId: 'match-1',
   revision: 1,
 } as const;
+const EXPECTED_HEAD = {
+  branchId: 'accepted-branch',
+  revision: 17,
+  effectiveGeneration: 3,
+} as const;
+const missionFetch = jest.fn<Promise<Response>, Parameters<typeof fetch>>();
 
 function unit(
   unitId: string,
@@ -117,9 +138,31 @@ function launchAdmission(
       unit('u-h2', 'hunchback-hbk-4g'),
       unit('u-g1'),
     ],
+    mission: {
+      campaignId: 'campaign-1',
+      sessionId: 'match-1',
+      missionId: 'mission-1',
+      expectedHead: EXPECTED_HEAD,
+      fetchImpl: missionFetch as typeof fetch,
+    },
     ...overrides,
   };
 }
+
+beforeEach(() => {
+  readTokenMock.mockReturnValue({
+    matchId: 'match-1',
+    playerId: 'host',
+    wireToken: 'wire-token',
+    displayName: 'Host',
+  });
+  missionFetch.mockReset();
+  missionFetch.mockResolvedValue({
+    ok: true,
+    status: 201,
+    json: async () => ({ missionMatchId: 'shared-mission-1' }),
+  } as Response);
+});
 
 function hostDeploy() {
   // oxfmt-ignore
@@ -131,14 +174,17 @@ function hostDeploy() {
  * successfully launched session — stands in for the SQLite-backed
  * `EncounterService` singleton.
  */
-function fakeService(): {
+function fakeService(failLaunchCount = 0): {
   service: ICampaignEncounterLauncherService;
+  created: string[];
   launched: string[];
 } {
+  const created: string[] = [];
   const launched: string[] = [];
   let stored: IEncounter | null = null;
   const service: ICampaignEncounterLauncherService = {
     createEncounter: (input) => {
+      created.push(input.name);
       stored = {
         ...BASE_ENCOUNTER,
         id: 'repo-enc-1',
@@ -151,6 +197,9 @@ function fakeService(): {
     setPlayerForce: () => ({ success: true, id: 'repo-enc-1' }),
     launchEncounter: async (id) => {
       launched.push(id);
+      if (launched.length <= failLaunchCount) {
+        return { success: false, error: 'local launch failed' };
+      }
       if (stored) {
         stored = { ...stored, gameSessionId: 'game-session-coop-1' };
       }
@@ -158,7 +207,7 @@ function fakeService(): {
     },
     getEncounter: () => stored,
   };
-  return { service, launched };
+  return { service, created, launched };
 }
 
 describe('launchCoopMission — routes through the existing launch path', () => {
@@ -188,6 +237,8 @@ describe('launchCoopMission — routes through the existing launch path', () => 
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(result.gameSessionId).toBe('game-session-coop-1');
+    expect(result.missionMatchId).toBe('shared-mission-1');
+    expect(result.missionMatchId).not.toBe(result.gameSessionId);
     // The encounter went through the EXISTING encounter launch path.
     expect(launched).toEqual(['repo-enc-1']);
     // Both rosters are on the shared side.
@@ -224,6 +275,206 @@ describe('launchCoopMission — routes through the existing launch path', () => 
     expect(result.composition.deployingPlayerIds).toEqual(['host']);
     expect(result.composition.commandHqPlayerIds).toEqual(['guest']);
     expect(result.composition.coopSeats.map((s) => s.unitId)).toEqual(['u-h1']);
+  });
+});
+
+describe('launchCoopMission - authenticated shared mission creation', () => {
+  it('sends the unchanged accepted head, mission identity, approved contributions and bootstrap without ownership assertions', async () => {
+    const { service } = fakeService();
+    const result = await launchCoopMission(
+      BASE_ENCOUNTER,
+      [
+        {
+          playerId: 'host',
+          role: 'host',
+          force: makeForce('force-host', ['u-h1', 'u-h2']),
+          participation: 'deploy',
+        },
+        {
+          playerId: 'guest',
+          role: 'guest',
+          force: makeForce('force-guest', ['u-g1']),
+          participation: 'command-hq',
+        },
+      ],
+      service,
+      launchAdmission(),
+    );
+
+    expect(result.ok).toBe(true);
+    const [, init] = missionFetch.mock.calls[0] ?? [];
+    expect(init?.headers).toEqual({
+      Authorization: 'Bearer wire-token',
+      'Content-Type': 'application/json',
+    });
+    const body = JSON.parse(String(init?.body)) as CreateCoopMissionMatchBody;
+    expect(body.coopCampaign).toEqual({
+      campaignId: 'campaign-1',
+      sessionId: 'match-1',
+      missionId: 'mission-1',
+      expectedHead: EXPECTED_HEAD,
+      contributions: [
+        { forceId: 'force-host', choice: 'deploy', unitIds: ['u-h1', 'u-h2'] },
+        { forceId: 'force-guest', choice: 'command-hq', unitIds: ['u-g1'] },
+      ],
+    });
+    expect(body.coopCampaign).not.toHaveProperty('playerId');
+    expect(body.coopCampaign).not.toHaveProperty('role');
+    expect(body.unitBootstrap).toEqual([
+      { unitId: 'u-h1', unitRef: 'locust-lct-1v', side: 'player' },
+      { unitId: 'u-h2', unitRef: 'hunchback-hbk-4g', side: 'player' },
+    ]);
+    expect(body.unitBootstrap[0]).not.toHaveProperty('ownerPlayerId');
+  });
+
+  it('refuses a stale-head 409 before creating a local encounter', async () => {
+    missionFetch.mockResolvedValueOnce({
+      ok: false,
+      status: 409,
+      json: async () => ({ code: 'COOP_MISSION_STALE_HEAD' }),
+    } as Response);
+    const { service, created, launched } = fakeService();
+
+    const result = await launchCoopMission(
+      BASE_ENCOUNTER,
+      hostDeploy(),
+      service,
+      launchAdmission(),
+    );
+
+    expect(result).toEqual({
+      ok: false,
+      error: 'Mission creation refused (409 COOP_MISSION_STALE_HEAD)',
+    });
+    expect(created).toEqual([]);
+    expect(launched).toEqual([]);
+  });
+
+  it('retries an identical remote create after local partial failure without changing the shared mission id', async () => {
+    const { service, created } = fakeService(1);
+    const first = await launchCoopMission(
+      BASE_ENCOUNTER,
+      hostDeploy(),
+      service,
+      launchAdmission(),
+    );
+    const retry = await launchCoopMission(
+      BASE_ENCOUNTER,
+      hostDeploy(),
+      service,
+      launchAdmission(),
+    );
+
+    expect(first).toEqual({ ok: false, error: 'local launch failed' });
+    expect(retry.ok).toBe(true);
+    if (!retry.ok) return;
+    expect(retry.missionMatchId).toBe('shared-mission-1');
+    expect(missionFetch).toHaveBeenCalledTimes(2);
+    expect(missionFetch.mock.calls[1]?.[1]?.body).toBe(
+      missionFetch.mock.calls[0]?.[1]?.body,
+    );
+    expect(created).toHaveLength(2);
+  });
+
+  it('hands the exact payload to the real authenticated route/store and gets the same id on retry', async () => {
+    const fixture = await openRouteFixture();
+    try {
+      readTokenMock.mockReturnValue({
+        matchId: fixture.entry.matchId,
+        playerId: fixture.host.playerId,
+        wireToken: fixture.host.wireToken,
+        displayName: 'Host',
+      });
+      const request = fixture.request;
+      const sent: CreateCoopMissionMatchBody[] = [];
+      const fetchImpl = jest.fn(
+        async (_input: RequestInfo | URL, init?: RequestInit) => {
+          expect(init?.headers).toEqual({
+            Authorization: `Bearer ${fixture.host.wireToken}`,
+            'Content-Type': 'application/json',
+          });
+          const body = JSON.parse(
+            String(init?.body),
+          ) as CreateCoopMissionMatchBody;
+          sent.push(body);
+          const response = await post(body, fixture.host);
+          return {
+            ok: response.status >= 200 && response.status < 300,
+            status: response.status,
+            json: async () => response.body,
+          } as Response;
+        },
+      ) as typeof fetch;
+      const playerUnits = request.unitBootstrap.filter(
+        (entry) => entry.side === 'player',
+      );
+      const contributions = request.coopCampaign.contributions.map(
+        (entry, index) => ({
+          playerId: fixture.contributors[index]?.playerId ?? `player-${index}`,
+          role: index === 0 ? ('host' as const) : ('guest' as const),
+          force: makeForce(entry.forceId, [...entry.unitIds]),
+          participation: entry.choice,
+        }),
+      );
+      const identity = {
+        campaignId: request.coopCampaign.campaignId,
+        matchId: request.coopCampaign.sessionId,
+        revision: 1,
+      };
+      const admission = launchAdmission({
+        snapshot: {
+          ...identity,
+          catalog: readyCanonicalCatalog(
+            playerUnits.map((entry) => entry.unitRef),
+          ),
+        },
+        expected: identity,
+        selectedUnits: playerUnits.map((entry) =>
+          unit(entry.unitId, entry.unitRef),
+        ),
+        mission: {
+          ...request.coopCampaign,
+          fetchImpl,
+        },
+      });
+      const encounter = {
+        ...BASE_ENCOUNTER,
+        campaignMeta: {
+          campaignId: request.coopCampaign.campaignId,
+          contractId: 'contract-1',
+          scenarioId: request.coopCampaign.missionId,
+        },
+      };
+
+      const first = await launchCoopMission(
+        encounter,
+        contributions,
+        fakeService().service,
+        admission,
+      );
+      const census = fixture.census();
+      const retry = await launchCoopMission(
+        encounter,
+        contributions,
+        fakeService().service,
+        admission,
+      );
+
+      if (!first.ok) throw new Error(first.error);
+      if (!retry.ok) throw new Error(retry.error);
+      expect(first.missionMatchId).toBe(retry.missionMatchId);
+      expect(
+        MissionReplySchema.parse((await post(sent[0], fixture.host)).body)
+          .missionMatchId,
+      ).toBe(first.missionMatchId);
+      expect(sent[0].coopCampaign.expectedHead).toEqual(
+        request.coopCampaign.expectedHead,
+      );
+      expect(sent[1]).toEqual(sent[0]);
+      expect(fixture.census()).toEqual(census);
+    } finally {
+      await fixture.close();
+    }
   });
 });
 

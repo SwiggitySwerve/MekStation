@@ -204,6 +204,7 @@ function okCoopLaunch(): LaunchCoopMissionResult {
     ok: true,
     encounterId: 'enc-coop-1',
     gameSessionId: 'gs-1',
+    missionMatchId: 'shared-mission-1',
     composition: {
       encounter: { id: 'enc-coop-1' } as IEncounter,
       coopSeats: [],
@@ -286,6 +287,7 @@ describe('launchMissionFromPage', () => {
       force,
     };
     const setLaunchError = jest.fn();
+    const router = { push: jest.fn() };
 
     await launchMissionFromPage({
       campaign,
@@ -297,7 +299,7 @@ describe('launchMissionFromPage', () => {
       localPlayerId: 'host',
       localChoice: 'deploy',
       readinessProjection: readyProjection(),
-      router: { push: jest.fn() },
+      router,
       store: fakeStore(),
       setLaunchError,
       setIsLaunching: jest.fn(),
@@ -326,10 +328,48 @@ describe('launchMissionFromPage', () => {
     );
 
     const admission = launchCoopMissionMock.mock.calls[0]?.[3];
+    expect(admission?.mission).toEqual({
+      campaignId: 'campaign-1',
+      sessionId: 'match-1',
+      missionId: 'mission-1',
+      expectedHead: {
+        branchId: SERVER_HEAD.branchId,
+        revision: SERVER_HEAD.revision,
+        effectiveGeneration: SERVER_HEAD.effectiveGeneration,
+      },
+    });
     expect(admission?.expected.revision).toBe(SERVER_HEAD.revision);
     expect(admission?.snapshot.revision).toBe(SERVER_HEAD.revision);
     expect(admission?.expected.revision).not.toBe(SEQUENCE_DERIVED_REVISION);
     expect(setLaunchError).toHaveBeenCalledWith(null);
+    expect(router.push).toHaveBeenCalledWith(
+      '/gameplay/encounters/enc-coop-1?campaignId=campaign-1&missionId=mission-1',
+    );
+
+    router.push.mockClear();
+    launchCoopMissionMock.mockResolvedValueOnce({
+      ok: false,
+      error: 'Mission creation refused (409 COOP_MISSION_STALE_HEAD)',
+    });
+    await launchMissionFromPage({
+      campaign,
+      campaignKey: campaign.id,
+      missionKey: 'mission-1',
+      matchId: 'match-1',
+      localForce: force,
+      otherRecord,
+      localPlayerId: 'host',
+      localChoice: 'deploy',
+      readinessProjection: readyProjection(),
+      router,
+      store: fakeStore(),
+      setLaunchError,
+      setIsLaunching: jest.fn(),
+    });
+    expect(router.push).not.toHaveBeenCalled();
+    expect(setLaunchError).toHaveBeenLastCalledWith(
+      'Mission creation refused (409 COOP_MISSION_STALE_HEAD)',
+    );
   });
 
   it('surfaces a stale server head refusal as the dashboard typed conflict', async () => {
@@ -361,6 +401,7 @@ describe('launchMissionFromPage', () => {
       coopSession: createHostCoopSession('ROOM1', 'match-1'),
     };
     const setLaunchError = jest.fn();
+    const router = { push: jest.fn() };
 
     await launchMissionFromPage({
       campaign,
@@ -379,13 +420,14 @@ describe('launchMissionFromPage', () => {
       localPlayerId: 'host',
       localChoice: 'deploy',
       readinessProjection: readyProjection(),
-      router: { push: jest.fn() },
+      router,
       store: fakeStore(),
       setLaunchError,
       setIsLaunching: jest.fn(),
     });
 
     expect(launchCoopMissionMock).not.toHaveBeenCalled();
+    expect(router.push).not.toHaveBeenCalled();
     expect(useCampaignPersistenceStore.getState().launchConflict).toEqual({
       code: 'STALE_REVISION',
       reason:

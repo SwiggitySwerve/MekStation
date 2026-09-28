@@ -260,6 +260,20 @@ async function launchCoopMissionFromPage({
           unitRef: unit.unitRef,
           unitSource: unit.unitSource,
         })),
+        ...(launchHead.kind === 'head'
+          ? {
+              mission: {
+                campaignId: campaign.id,
+                sessionId: matchId,
+                missionId: missionKey,
+                expectedHead: {
+                  branchId: launchHead.branchId,
+                  revision: launchHead.revision,
+                  effectiveGeneration: launchHead.effectiveGeneration,
+                },
+              },
+            }
+          : {}),
       },
     );
     if (!result.ok) {
