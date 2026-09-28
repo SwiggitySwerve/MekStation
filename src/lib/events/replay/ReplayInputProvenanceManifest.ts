@@ -1,7 +1,7 @@
 /**
  * Deterministic replay input provenance manifest (replay-safety PR 12).
  *
- * Exhaustive declaration, for EVERY canonical replay discriminant (7
+ * Exhaustive declaration, for EVERY canonical replay discriminant (9
  * campaign + 81 combat, keyed by runtime values with compile-time
  * exhaustiveness over both live unions), of which resolved
  * nondeterministic inputs its replay depends on and HOW each is
@@ -80,6 +80,7 @@ export const REPLAY_INPUT_PROVENANCE_MANIFEST = {
   // Pure command input - actor/participant/reason come from the intent,
   // no randomness, catalog, or clock feeds it.
   ParticipantRemoved: NONE,
+  CampaignMissionLaunched: NONE,
   CampaignSnapshotPublished: provenance({ catalogRules: ['state'] }),
 
   // Combat lifecycle / initiative.

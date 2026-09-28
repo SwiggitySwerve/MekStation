@@ -112,6 +112,20 @@ export function campaignEventEntityRefs(
         });
       }
       break;
+    case 'CampaignMissionLaunched':
+      refs.push(
+        {
+          entityType: CAMPAIGN_ENTITY_TYPES.mission,
+          entityId: event.payload.missionId,
+          role: 'launched',
+        },
+        {
+          entityType: CAMPAIGN_ENTITY_TYPES.match,
+          entityId: event.payload.missionMatchId,
+          role: 'mission-match',
+        },
+      );
+      break;
     case 'CampaignDayAdvanced':
     case 'FundsChanged':
       break;

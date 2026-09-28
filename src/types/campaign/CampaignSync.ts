@@ -151,6 +151,7 @@ export type CampaignEventType =
   | 'RosterUnitChanged'
   | 'SalvageAllocated'
   | 'ParticipantRemoved'
+  | 'CampaignMissionLaunched'
   | 'CampaignSnapshotPublished';
 
 /**
@@ -166,6 +167,7 @@ export const CAMPAIGN_EVENT_TYPES = [
   'RosterUnitChanged',
   'SalvageAllocated',
   'ParticipantRemoved',
+  'CampaignMissionLaunched',
   'CampaignSnapshotPublished',
 ] as const satisfies readonly CampaignEventType[];
 
@@ -254,6 +256,18 @@ export interface IParticipantRemovedPayload {
   readonly reason?: string;
 }
 
+/** `CampaignMissionLaunched` — immutable linkage to a tactical mission. */
+export interface ICampaignMissionLaunchedPayload {
+  readonly missionId: string;
+  readonly missionMatchId: string;
+  readonly acceptedHead: {
+    readonly branchId: string;
+    readonly revision: number;
+    readonly effectiveGeneration: number;
+  };
+  readonly deployingPlayerIds: readonly string[];
+}
+
 /**
  * `CampaignSnapshotPublished` — a full-state baseline for a joining or
  * resyncing guest. The only event whose payload is a whole-campaign
@@ -280,6 +294,7 @@ export interface ICampaignEventPayloadMap {
   readonly RosterUnitChanged: IRosterUnitChangedPayload;
   readonly SalvageAllocated: ISalvageAllocatedPayload;
   readonly ParticipantRemoved: IParticipantRemovedPayload;
+  readonly CampaignMissionLaunched: ICampaignMissionLaunchedPayload;
   readonly CampaignSnapshotPublished: ICampaignSnapshotPublishedPayload;
 }
 
@@ -416,7 +431,7 @@ export function isCampaignWireEvent(value: unknown): value is ICampaignEvent {
   return isCampaignEventShape(value, -1);
 }
 
-/** True iff `value` is one of the eight `CampaignEventType` strings. */
+/** True iff `value` is one of the live `CampaignEventType` strings. */
 export function isCampaignEventType(value: string): value is CampaignEventType {
   return CAMPAIGN_EVENT_TYPE_SET.has(value);
 }

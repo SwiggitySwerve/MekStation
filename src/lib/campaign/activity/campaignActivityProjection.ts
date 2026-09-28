@@ -198,6 +198,11 @@ function describeCampaignFact(
         message: `Removed participant ${participantId}${rationale}`,
       };
     }
+    case 'CampaignMissionLaunched':
+      return {
+        category: 'battle',
+        message: `Launched mission ${event.payload.missionId}`,
+      };
     default: {
       const exhaustive: never = event;
       void exhaustive;

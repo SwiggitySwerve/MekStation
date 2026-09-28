@@ -2,9 +2,9 @@
  * Complete domain registry composition contract (replay-safety PR 11).
  *
  * Pins: the composed campaign + combat registration set covers EXACTLY
- * the canonical discriminant sets (7 campaign + 81 combat = 88, per the
+ * the canonical discriminant sets (9 campaign + 81 combat = 90, per the
  * amended schema-pack-inventory); the composed fixture index covers the
- * same 88 keys; EVERY discriminant round-trips its valid fixture at
+ * same 90 keys; EVERY discriminant round-trips its valid fixture at
  * baseline v1 and reaches exactly one current target; EVERY
  * discriminant fails typed on an unsupported version and unknown types
  * fail typed - full iteration, no representative sampling; and the
@@ -26,7 +26,7 @@ import { UnsupportedReplayHistoryError } from '../ReplaySchemaRegistry';
 
 // Pinned to the CURRENT union heads - a new discriminant rewrites a
 // number here, not a title (the migration-head retitle law).
-const CAMPAIGN_COUNT = 8;
+const CAMPAIGN_COUNT = 9;
 const COMBAT_COUNT = 81;
 
 describe('complete replay baseline domain registry', () => {

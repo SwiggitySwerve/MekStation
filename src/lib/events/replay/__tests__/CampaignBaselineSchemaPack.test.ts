@@ -72,6 +72,11 @@ const INVENTORY_CAMPAIGN_DISCRIMINANTS = [
   'CampaignSnapshotPublished',
 ] as const;
 
+const LIVE_CAMPAIGN_DISCRIMINANTS = [
+  ...INVENTORY_CAMPAIGN_DISCRIMINANTS,
+  'CampaignMissionLaunched',
+] as const;
+
 type MutablePayload = Record<string, unknown>;
 
 const clone = (value: unknown): MutablePayload =>
@@ -84,6 +89,28 @@ const clone = (value: unknown): MutablePayload =>
 const MUTATIONS: Readonly<
   Record<string, readonly ((payload: MutablePayload) => void)[]>
 > = {
+  CampaignMissionLaunched: [
+    (p) => delete p['missionId'],
+    (p) => delete p['missionMatchId'],
+    (p) => delete p['acceptedHead'],
+    (p) => delete p['deployingPlayerIds'],
+    (p) => (p['unexpected'] = true),
+    (p) => (p['missionId'] = 42),
+    (p) => (p['missionMatchId'] = 42),
+    (p) => (p['acceptedHead'] = 'root'),
+    (p) => (p['deployingPlayerIds'] = [42]),
+    (p) => delete (p['acceptedHead'] as MutablePayload)['branchId'],
+    (p) => delete (p['acceptedHead'] as MutablePayload)['revision'],
+    (p) => delete (p['acceptedHead'] as MutablePayload)['effectiveGeneration'],
+    (p) => ((p['acceptedHead'] as MutablePayload)['unexpected'] = true),
+    (p) => ((p['acceptedHead'] as MutablePayload)['branchId'] = 42),
+    (p) => ((p['acceptedHead'] as MutablePayload)['revision'] = '4'),
+    (p) => ((p['acceptedHead'] as MutablePayload)['revision'] = 1.5),
+    (p) => ((p['acceptedHead'] as MutablePayload)['revision'] = -1),
+    (p) => ((p['acceptedHead'] as MutablePayload)['effectiveGeneration'] = '2'),
+    (p) => ((p['acceptedHead'] as MutablePayload)['effectiveGeneration'] = 1.5),
+    (p) => ((p['acceptedHead'] as MutablePayload)['effectiveGeneration'] = -1),
+  ],
   CampaignDayAdvanced: [
     (p) => delete p['newDay'],
     (p) => (p['unexpected'] = true),
@@ -138,14 +165,14 @@ describe('campaign baseline schema pack', () => {
 
   it('registers discriminants exactly equal to the canonical campaign union', () => {
     const packTypes = [...CAMPAIGN_BASELINE_EVENT_TYPES].sort();
-    expect(packTypes).toEqual([...INVENTORY_CAMPAIGN_DISCRIMINANTS].sort());
+    expect(packTypes).toEqual([...LIVE_CAMPAIGN_DISCRIMINANTS].sort());
     expect(
       [...CAMPAIGN_BASELINE_SCHEMA_PACK.map((e) => e.eventType)].sort(),
     ).toEqual(packTypes);
     expect(Object.isFrozen(CAMPAIGN_BASELINE_SCHEMA_PACK)).toBe(true);
   });
 
-  it.each(INVENTORY_CAMPAIGN_DISCRIMINANTS)(
+  it.each(LIVE_CAMPAIGN_DISCRIMINANTS)(
     '%s parses its valid fixture at baseline v1 and round-trips deterministically',
     (eventType) => {
       const fixture = VALID_CAMPAIGN_EVENT_PAYLOADS[eventType];
@@ -160,11 +187,11 @@ describe('campaign baseline schema pack', () => {
     },
   );
 
-  it.each(INVENTORY_CAMPAIGN_DISCRIMINANTS)(
+  it.each(LIVE_CAMPAIGN_DISCRIMINANTS)(
     '%s rejects its missing/extra/ill-typed mutation matrix',
     (eventType) => {
       const mutations = MUTATIONS[eventType];
-      expect(mutations).toHaveLength(3);
+      expect(mutations.length).toBeGreaterThanOrEqual(3);
       for (const mutate of mutations) {
         const payload = clone(VALID_CAMPAIGN_EVENT_PAYLOADS[eventType]);
         mutate(payload);
@@ -194,7 +221,7 @@ describe('campaign baseline schema pack', () => {
   });
 
   it('fingerprints the campaign pipeline deterministically', () => {
-    const versions = INVENTORY_CAMPAIGN_DISCRIMINANTS.map((eventType) => ({
+    const versions = LIVE_CAMPAIGN_DISCRIMINANTS.map((eventType) => ({
       eventType,
       schemaVersion: 1,
     }));
