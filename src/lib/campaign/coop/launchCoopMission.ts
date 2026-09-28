@@ -26,8 +26,11 @@
  * @module lib/campaign/coop/launchCoopMission
  */
 
+import type { CreateCoopMissionMatchBody } from '@/lib/api/securitySchemas';
+import type { IExpectedBranchHead } from '@/lib/events/journal/EventHistoryExpectedHead';
 import type { IEncounter } from '@/types/encounter';
 
+import { readCoopCampaignToken } from '@/lib/campaign/coop/coopCampaignAuthTokenStore';
 import {
   type CampaignLaunchExpectedIdentity,
   type CampaignLaunchSelectionUnit,
@@ -50,6 +53,13 @@ export interface LaunchCoopMissionAdmission {
   readonly snapshot: CampaignLaunchSnapshot;
   readonly expected: CampaignLaunchExpectedIdentity;
   readonly selectedUnits?: readonly CampaignLaunchSelectionUnit[];
+  readonly mission?: {
+    readonly campaignId: string;
+    readonly sessionId: string;
+    readonly missionId: string;
+    readonly expectedHead: IExpectedBranchHead;
+    readonly fetchImpl?: typeof fetch;
+  };
 }
 
 // =============================================================================
@@ -65,7 +75,9 @@ export interface LaunchCoopMissionAdmission {
 export type LaunchCoopMissionResult =
   | {
       readonly ok: true;
-      /** The id of the launched `GameSession` running on `ServerMatchHost`. */
+      /** The durable shared mission id; absent only on the injected legacy test seam. */
+      readonly missionMatchId: string | undefined;
+      /** The id of the existing local encounter session, not the shared id. */
       readonly gameSessionId: string | undefined;
       /** The materialised encounter id. */
       readonly encounterId: string | undefined;
@@ -97,7 +109,7 @@ export type LaunchCoopMissionResult =
 export async function launchCoopMission(
   baseEncounter: IEncounter,
   contributions: readonly ICoopForceContribution[],
-  service: ICampaignEncounterLauncherService = getEncounterService(),
+  service?: ICampaignEncounterLauncherService,
   admission?: LaunchCoopMissionAdmission,
 ): Promise<LaunchCoopMissionResult> {
   const deployingUnitIds = contributions.flatMap((contribution) =>
@@ -131,13 +143,119 @@ export async function launchCoopMission(
     };
   }
 
-  // Step 2 — route the composed encounter through the EXISTING campaign
-  // encounter launch path. No new combat transport — co-op combat runs
-  // on the same `ServerMatchHost` loop any campaign encounter uses
-  // (design D1).
+  const mission = admission?.mission;
+  let missionMatchId: string | undefined;
+  if (mission) {
+    const token = readCoopCampaignToken(mission.sessionId);
+    if (!token) {
+      return {
+        ok: false,
+        error: 'Co-op campaign authorization is unavailable',
+      };
+    }
+    const selectedUnits = new Map(
+      (admission.selectedUnits ?? []).map((unit) => [unit.unitId, unit]),
+    );
+    const unitBootstrap = composed.composition.coopSeats.map((seat) => {
+      const selected = selectedUnits.get(seat.unitId);
+      if (!selected?.unitRef) {
+        throw new Error(
+          `Co-op mission unit ${seat.unitId} has no unit reference`,
+        );
+      }
+      return {
+        unitId: seat.unitId,
+        unitRef: selected.unitRef,
+        side: 'player' as const,
+      };
+    });
+    const body: CreateCoopMissionMatchBody = {
+      config: {
+        mapRadius: baseEncounter.mapConfig.radius,
+        turnLimit:
+          baseEncounter.victoryConditions.find(
+            (condition) => condition.turnLimit !== undefined,
+          )?.turnLimit ?? 20,
+        fogOfWar: false,
+        optionalRules: [...baseEncounter.optionalRules],
+        contractId: baseEncounter.campaignMeta?.contractId,
+        scenarioId: baseEncounter.campaignMeta?.scenarioId,
+        encounterId: baseEncounter.id,
+      },
+      layout: '1v1',
+      unitBootstrap,
+      coopCampaign: {
+        campaignId: mission.campaignId,
+        sessionId: mission.sessionId,
+        missionId: mission.missionId,
+        expectedHead: mission.expectedHead,
+        contributions: contributions.map((contribution) => ({
+          forceId: contribution.force.id,
+          choice: contribution.participation,
+          unitIds: [...contribution.force.unitIds],
+        })),
+      },
+    };
+    let response: Response;
+    try {
+      response = await (mission.fetchImpl ?? fetch)(
+        '/api/multiplayer/matches',
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token.wireToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(body),
+        },
+      );
+    } catch (error) {
+      return {
+        ok: false,
+        error:
+          error instanceof Error ? error.message : 'Mission creation failed',
+      };
+    }
+    const reply = (await response.json().catch(() => ({}))) as {
+      readonly missionMatchId?: unknown;
+      readonly code?: unknown;
+      readonly error?: unknown;
+    };
+    if (!response.ok) {
+      const reason =
+        typeof reply.code === 'string'
+          ? reply.code
+          : typeof reply.error === 'string'
+            ? reply.error
+            : 'Mission creation failed';
+      return {
+        ok: false,
+        error: `Mission creation refused (${response.status} ${reason})`,
+      };
+    }
+    if (typeof reply.missionMatchId !== 'string') {
+      return {
+        ok: false,
+        error: 'Mission creation returned no shared match id',
+      };
+    }
+    missionMatchId = reply.missionMatchId;
+  } else if (!service) {
+    // The real page omits both only when no accepted head exists. An explicitly
+    // injected service keeps older local-only admission tests usable without
+    // granting the browser path an unauthenticated fallback.
+    return {
+      ok: false,
+      error: 'Co-op mission creation context is unavailable',
+    };
+  }
+
+  // Remote creation is deliberately first. A stale/create refusal leaves no
+  // local artifact; if local launch later fails, retrying this byte-identical
+  // payload relies on the route's durable idempotency before trying local again.
   const launched = await launchCampaignEncounter(
     composed.composition.encounter,
-    service,
+    service ?? getEncounterService(),
   );
   if (!launched.success) {
     return {
@@ -148,6 +266,7 @@ export async function launchCoopMission(
 
   return {
     ok: true,
+    missionMatchId,
     gameSessionId: launched.gameSessionId,
     encounterId: launched.encounterId,
     composition: composed.composition,
