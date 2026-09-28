@@ -1,0 +1,39 @@
+{
+  "unit": "P1B2",
+  "stage": "admission",
+  "at": "2026-09-28T01:32:14.157Z",
+  "baseline": "7061b954f5a96d9d6b87d7c3b19566dcfd13438a",
+  "next": "validate-roadmap.mjs --next printed P1B2 on exact main 7061b95 (evidence .omo task-49-4-close-p1b1-u23-main-proof.json)",
+  "ownership": {
+    "declared": [
+      "src/lib/multiplayer/server"
+    ],
+    "plannedFiles": [
+      "src/lib/multiplayer/server/IMatchStore.ts",
+      "src/lib/multiplayer/server/coopMissionCreate.ts",
+      "src/lib/multiplayer/server/CampaignMatchHost.ts",
+      "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.harness.ts",
+      "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.test.ts"
+    ]
+  },
+  "tier": "HEAVY: authority, privacy, idempotency and concurrency review classes; owner ruling required before merge",
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500
+  },
+  "carriedRed": {
+    "announcementTest": "90ae6449038d0f8132076277038811d4bdb4d0774a6d3146e9e33c5d56e08ef3",
+    "source": "E:\\Projects\\MekStation-wt\\mekstation-roadmap-loop-continuation-wave-a\\.omo\\ulw-execute\\p1b\\partial-red-backup\\coopMissionAnnouncement.test.ts",
+    "note": "preserved from the P1B attempt; P1B3 owns its private-history/cold rows (lines 37, 124-152, 341-401)"
+  },
+  "decisions": {
+    "D1": "deployingPlayerIds: unique sorted ownerPlayerId of player-side admitted bootstrap units, stored once at create; never client input or patchable metadata",
+    "D2": "server-only lock-taking CampaignMatchHost door after the create critical section; command id campaign-mission-launched:<campaignId>:<missionMatchId>; stored request fingerprint; duplicate returns prior receipt; divergent refused; legacy receipt without deployers refused typed",
+    "D3": "identical authenticated POST recovers a create-before-announcement interruption; no registry edit or startup scan"
+  },
+  "parentDecision": {
+    "decision": "go",
+    "reason": "Released by #2068 after P1B1 main proof; --next prints P1B2; split-proposal estimate 5 files / 460 lines (not measured)."
+  },
+  "planTask": "50"
+}

@@ -1,0 +1,14 @@
+{
+  "unit": "P1B2",
+  "stage": "red",
+  "at": "2026-09-28T01:52:31.442Z",
+  "baseline": "7061b954f5a96d9d6b87d7c3b19566dcfd13438a",
+  "summary": "Red first on the unchanged baseline: all seven producer rows of the new announcement suite failed (no live launch frame, no receipt or journal row after normal/duplicate/parallel creates, no recovery after an interruption, no typed legacy/divergent/append-only refusals). Lane A (gpt-6-sol) reproduced the seven reds against the restored baseline product files.",
+  "evidence": [
+    "lane log manual-server-cross-graph-red.log",
+    "lane log red-announcement-idle.log",
+    "lane log red-announcement.log",
+    "lane log red-format-idle.log",
+    "lane log red-format.log"
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "unit": "P1B2",
+  "stage": "mainProof",
+  "at": "2026-09-28T02:22:56.305Z",
+  "mergeCommit": "24e7888e3458d6ea217eac7574bade5974b884ec",
+  "checkout": "owned wave-A worktree detached at the merge commit, with its private physical node_modules (no install run); roadmap:main-proof ran build, e2e marker, runtime jest, exact-main ladder, tsc, validator, --git, --next, openspec strict, qc:openspec-ci and the qc pin; the root checkout was not touched",
+  "runtime": {
+    "build": "exit 0",
+    "e2eBundleMarker": "__E2E_MODE__ present in _app chunk (roadmap:main-proof e2e-marker step, appended to build.log)",
+    "playwright": "P1B2 exact-main jest (roadmap:main-proof --runtime-jest, 12 suites): Tests:       118 passed, 118 total",
+    "tsc": "exit 0",
+    "lint": "npm run lint exit 0: Found 84 warnings and 0 errors.",
+    "lintUnits": "npm run lint:units exit 0: LINT_UNITS_PASS 17899/17899",
+    "formatCheck": "npm run format:check exit 0: Finished in 16184ms on 8132 files using 16 threads.",
+    "validatorGithub": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows (--github, exit 0)",
+    "focusedJest": "roadmap:main-proof --runtime-jest over 12 suites (coopMissionAnnouncement, coopMissionCreate and refusals, CampaignMatchHost and pipeline, campaignRetroactiveCorrectionCommit, multiplayerCoopCreationCheckpoint, multiplayerMatchesFog, DurableMatchStore, InMemoryMatchStore and related): Test Suites 12 passed, Tests 118 passed",
+    "exactMainLadder": "EXACT_MAIN_LADDER_SATISFIED 24e7888e3458d6ea217eac7574bade5974b884ec milestone=strict-smoke groups=smoke",
+    "extraGateLogs": "lint, lint:units, format:check and --github ran after the tool wrote sha256.txt, into the same directory (UTF-8): 47a553535d2bd2265e32da61c7acf19c01190983d168646abcb1f010ffa1b04a *lint.log; e22537baf9c9013fd7db149d5e120b5cc3d14429334afb82af693fef53cfb9bd *lint-units.log; 1079b840fc5f082e03198e1c66c75a1c0c40d9a5e97556bd8b010fb2775061f6 *format.log; ea265f76ff47bda8194a0d1ccf59d172157d123ff68fa53ed0fed341ca685220 *github.log"
+  },
+  "commands": {
+    "validator": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows",
+    "gitAncestry": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows (--git)",
+    "next": "",
+    "openspecStrict": "Totals: 229 passed, 0 failed (229 items)",
+    "qcOpenspecCi": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+    "qcPin": "Tests:       30 passed, 30 total"
+  },
+  "logs": "../mekstation-roadmap-loop-continuation-wave-a/.sisyphus/roadmap-completion-20260912/p1b2-main-proof-20260928/ (local; sha256 below)",
+  "logHashes": [
+    "b7b94e7a00635660d837625bfa7053e70f9723def8b4d0c7c867a54fa86397a2 *build.log",
+    "dcc78f418febe4dc72ce12e49c3f34aff8953b14064358cd08dc62878eb939d1 *exact-main-ladder.log",
+    "71a8bd7a8b2073f6ae5178effaaf306bc58915cc8e5b35318223868cc0b450b4 *git-check.log",
+    "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43 *idle-before-build.log",
+    "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43 *idle-before-runtime.log",
+    "da05b21e277715c5000b369e100475db94cc298dadc335d8d62455b869c5944e *next.log",
+    "efd619721df505ed0dbb69fe5bd26b74023670e603ce16891fd2f1331adf1776 *openspec-strict.log",
+    "220958bde37a1cabbea6c6d94f51cd160ac02175d6f4c3f6b71d7f18735765dc *playwright.log",
+    "5b0f562274df4dbddfb7ae44ab42b7d686dc1e0903383f25c593d88f7479fe9a *qc-openspec-ci.log",
+    "c54c417782c1955fc80c8a3998d5df139a5a8dcf60b9921c641d552d2a87a2f7 *qc-pin.log",
+    "f891dbdfc0402cd4ba60fab1be3245dfec559c5d7afc7e21b87e795a73d05e5f *tsc.log",
+    "71a8bd7a8b2073f6ae5178effaaf306bc58915cc8e5b35318223868cc0b450b4 *validator.log"
+  ],
+  "verdict": "PASS"
+}
