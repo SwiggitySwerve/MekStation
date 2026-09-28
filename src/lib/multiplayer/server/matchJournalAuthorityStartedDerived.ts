@@ -5,14 +5,16 @@
  *
  * Started means the stream has an effective head in
  * `event_history_effective_heads`, not a separate started marker.
- * The journal writer installs genesis and the effective head with the
- * stream's first append, in the same transaction as its events and head.
- * No global backfill is needed to install a newly appended stream.
+ * Where the branch tables exist, the journal writer installs genesis and
+ * the effective head with the stream's first append, in the same
+ * transaction as its events and head. No global backfill is needed to
+ * install a newly appended stream.
  *
- * `ServerMatchHost.create` persists its opening events and asks the store
- * to seed that batch. When mirroring is enabled and succeeds, a fresh
- * match therefore has a head before its first player command. A legacy
- * log without journal history does not gain a head merely by being read.
+ * `ServerMatchHost.create` persists its opening events asynchronously and
+ * then asks the store to seed that batch. When mirroring is enabled and
+ * the opening seed completes, the match has a head; a command that arrives
+ * before that seed completes can still observe no head. A legacy log
+ * without journal history does not gain a head merely by being read.
  *
  * This consult reads persisted state, not the process mode. Changing the
  * mode does not change whether a stored effective head exists.
