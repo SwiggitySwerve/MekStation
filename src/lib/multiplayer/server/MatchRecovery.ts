@@ -216,6 +216,21 @@ export async function recoverActiveMatches(
         hosts.set(meta.matchId, host);
         continue;
       }
+      // Validate the complete durable receipt chain before changing the
+      // journal, then replay only whole batches beyond its current head.
+      // This also heals a receipt committed before an opening mirror failed.
+      if (store.recoverJournalBatches) {
+        const catchUp = await store.recoverJournalBatches(meta.matchId);
+        if (catchUp.kind === 'blocked') {
+          failed.push(meta.matchId);
+          blocked.push({
+            matchId: meta.matchId,
+            reason: catchUp.reason,
+            evidence: catchUp.evidence,
+          });
+          continue;
+        }
+      }
       // No rewind. The journal head still answers for a mirrored
       // stream: which branch, and how far. S4 of the cutover.
       const journal = await consultMatchRecoveryJournalHead(

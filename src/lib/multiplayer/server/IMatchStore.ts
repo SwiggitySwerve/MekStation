@@ -551,9 +551,9 @@ export interface IMatchStore
    * from the match id, so a second call recognises its own prior seed.
    *
    * OPTIONAL as a structural flag, exactly as `appendCommandBatch` is.
-   * A store without a journal simply does not offer it, and never
-   * throws for a mirror outcome: a failed seed is recorded on the same
-   * shadow tripwire every other mirror refusal reaches.
+   * A store without a journal simply does not offer it. Implementations
+   * may throw when the stored opening identity conflicts with the seed;
+   * mirror refusals remain recorded on the standard shadow tripwire.
    */
   seedJournalFromInitialEvents?(
     matchId: string,
@@ -571,6 +571,20 @@ export interface IMatchStore
    * rewrites or synthesizes the receipt.
    */
   getLastCommandReceipt?(matchId: string): Promise<IMatchCommandReceipt | null>;
+
+  /**
+   * Restore missing live-path journal batches from durable command receipts.
+   * A refusal is typed and must be returned before mutating the journal when
+   * the stored receipt history itself is incomplete or corrupt.
+   */
+  recoverJournalBatches?(matchId: string): Promise<
+    | { readonly kind: 'unchanged' | 'recovered' }
+    | {
+        readonly kind: 'blocked';
+        readonly reason: 'partial-history';
+        readonly evidence: readonly string[];
+      }
+  >;
 
   /**
    * Move the live match-log tail from `fromSequence` inclusive into
