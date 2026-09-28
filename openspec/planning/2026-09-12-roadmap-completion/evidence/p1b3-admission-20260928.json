@@ -1,0 +1,37 @@
+{
+  "unit": "P1B3",
+  "stage": "admission",
+  "at": "2026-09-28T02:32:04.280Z",
+  "baseline": "6bd482ecfd3661595a856873fb9531b095847931",
+  "next": "validate-roadmap.mjs --next printed P1B3 on exact main 6bd482e (evidence .omo task-50-p1b2-close-main-proof.json)",
+  "ownership": {
+    "declared": [
+      "src/lib/multiplayer/server"
+    ],
+    "plannedFiles": [
+      "src/lib/multiplayer/server/CampaignSyncSession.ts",
+      "src/lib/multiplayer/server/handleRoomCodeGuestJoin.ts",
+      "src/lib/multiplayer/server/campaignMissionLaunchReplay.ts",
+      "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts"
+    ]
+  },
+  "tier": "HEAVY: authority, privacy, replay, concurrency review classes; ruling under the owner's standing merge instruction",
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500
+  },
+  "carriedRed": {
+    "source": "E:/Projects/MekStation-wt/mekstation-roadmap-loop-continuation-wave-a/.omo/ulw-execute/p1b/partial-red-backup/coopMissionAnnouncement.test.ts",
+    "lines": "37, 124-152, 341-401 (private-history setup, ParticipantRemoved diagnostic, cold-linkage row)"
+  },
+  "decisions": {
+    "mechanism": "selective replay of stored, scope-admitted CampaignMissionLaunched facts after the safe baseline and before the live tail, once per connection, read-only for the journal; no state-bearing reducer",
+    "grant": "full-stream grant channel already replays; add fresh/resumed/out-of-scope proof only",
+    "privacy": "stored full checkpoints after private history stay withheld; later checkpoints stay latched"
+  },
+  "parentDecision": {
+    "decision": "go",
+    "reason": "Released by #2070 after P1B2 main proof; --next prints P1B3; split-proposal estimate 4 files / 485 lines (not measured; tests uncounted by the validator cap rule)."
+  },
+  "planTask": "51"
+}

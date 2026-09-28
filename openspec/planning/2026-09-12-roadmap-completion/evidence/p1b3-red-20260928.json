@@ -1,0 +1,19 @@
+{
+  "unit": "P1B3",
+  "stage": "red",
+  "at": "2026-09-28T02:46:57.517Z",
+  "baseline": "6bd482ecfd3661595a856873fb9531b095847931",
+  "summary": "Red first on the unchanged baseline: 13 feature rows of the new reconnect suite failed (no cold launch linkage on member join, large-gap resync and both room-code branches, missing pre-cut fact, grant fresh/zero-cursor rows) while its 4 control rows passed. Lane A (gpt-6-sol) reproduced 13 failed / 4 passed against the restored baseline product files.",
+  "evidence": [
+    "lane log red-boundaries-idle.log",
+    "lane log red-boundaries.log",
+    "lane log red-confirmed-idle.log",
+    "lane log red-confirmed.log",
+    "lane log red-final-idle.log",
+    "lane log red-final.log",
+    "lane log red-format-idle.log",
+    "lane log red-format.log",
+    "lane log red-reconnect-idle.log",
+    "lane log red-reconnect.log"
+  ]
+}
