@@ -1,0 +1,20 @@
+{
+  "unit": "P1B3",
+  "stage": "local",
+  "at": "2026-09-28T03:31:25.961Z",
+  "status": "local-verified",
+  "head": "1d9bdfbd7a23c7f612e047895f511ded0527807a",
+  "baseline": "6bd482ecfd3661595a856873fb9531b095847931",
+  "summary": "4 files in src/lib/multiplayer/server (123 counted non-test added lines): after the safe baseline, stored scope-admitted CampaignMissionLaunched facts are replayed byte-identical and read-only on durable-member join, adapter-unavailable large-gap resync (buffer before the cut, drain the tail) and both room-code reconnect branches (history read after live attach, per-connection dedupe); grant projection, privacy latch, wire gate, pause/invite policy, transport and reducer unchanged. Green 236/236 in two processes, typecheck, lint 0 errors / 84 warnings, lint:units, format:check, diff --check, build and a real HTTP/WebSocket proof across three cold restarts. Lane A gpt-6-sol APPROVE at 1d9bdfb.",
+  "implementer": "gpt-6-astra (deep-high task st_01a0e5db)",
+  "files": {
+    "src/lib/multiplayer/server/CampaignSyncSession.ts": "86646faedb4c1b8c0689b1850c53486afb73472518bbb7f9f4ad59c010e3c6d3",
+    "src/lib/multiplayer/server/handleRoomCodeGuestJoin.ts": "4d6638431bad92a46a6356921c43ec37389a464b7902dc5211b5dd16eab439fd",
+    "src/lib/multiplayer/server/campaignMissionLaunchReplay.ts": "550b8ac35d317a33172dc6a87216bc0797494fcd314d92f7a9ced3e500e68fd9",
+    "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts": "1a291144a99a0dd44bc313b0c6d201d9a24fed65e799128d4214a8d78fa8c405"
+  },
+  "evidence": [
+    ".omo/ulw-execute/p1b3/DONECLAIM.md (lane evidence)",
+    "E:/Projects/MekStation/.omo/ulw-execute/evidence/task-51-p1b3-review.md"
+  ]
+}

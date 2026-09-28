@@ -1,0 +1,21 @@
+{
+  "unit": "P1B3",
+  "stage": "merge",
+  "at": "2026-09-28T03:40:52.436Z",
+  "pr": 2071,
+  "title": "feat(coop): deliver mission launches after a cold reconnect",
+  "head": "1d9bdfbd7a23c7f612e047895f511ded0527807a",
+  "mergeSha": "c3f83fd1aea062d5c9f7960dba7866fef9f9a5f9",
+  "mergedAt": "2026-09-28T03:29:42Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge 2071 --squash --match-head-commit 1d9bdfbd7a23c7f612e047895f511ded0527807a after the GraphQL pre-merge gate (31/31 checks SUCCESS, CLEAN/MERGEABLE, 0 unresolved threads, 4 files, Lane A APPROVE on the exact head, OWNER-RULING comment 5862784916 and owner-ruled label under the owner's standing instruction)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "src/lib/multiplayer/server/CampaignSyncSession.ts",
+    "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts",
+    "src/lib/multiplayer/server/campaignMissionLaunchReplay.ts",
+    "src/lib/multiplayer/server/handleRoomCodeGuestJoin.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}
