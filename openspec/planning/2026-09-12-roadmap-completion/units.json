@@ -4253,18 +4253,53 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
-      "prHead": null,
-      "mergeSha": null,
+      "state": "complete",
+      "baseline": "5dc1c1a372e31b83101d13e7e3ab100fdf1b0315",
+      "prHead": "f474743c9aab2d6029e5c29a98218b215bb81e46",
+      "mergeSha": "5433488de0fe7ef9ede71144463205e4b290c98c",
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "admission": {
+          "path": "evidence/p1c-admission-20260928.json",
+          "baseline": "5dc1c1a372e31b83101d13e7e3ab100fdf1b0315",
+          "at": "2026-09-28T03:50:07.501Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/p1c-red-20260928.json",
+          "at": "2026-09-28T03:54:24.052Z",
+          "summary": "Red first on the unchanged baseline: 5 helper rows (no mission-create call, no route missionMatchId, no stale refusal, no retry identity, no real route/store handoff) and 1 page row (full accepted head and mission identity absent from the helper admission) failed. Lane A (gpt-6-sol) reproduced the six failures against the restored baseline product files."
+        },
+        "local": {
+          "path": "evidence/p1c-local-20260928.json",
+          "at": "2026-09-28T04:56:12.145Z",
+          "summary": "4 existing files (140 counted non-test added lines): the mission launch page carries mission identity and the original accepted {branchId, revision, effectiveGeneration} into launchCoopMission, which calls the authenticated mission-create route with the stored co-op Bearer token, approved contributions and unitBootstrap before any local encounter side effect and returns the route missionMatchId separately from the local gameSessionId; stale/failed create returns before local launch and navigation; identical retry keeps the shared id; encounter/HQ navigation unchanged. Green 16/16 and 75/75 in separate processes, co-op journey 144/144 and 2/2 Chromium, CAMP-01D three frozen arrays, typecheck, lint 0 errors / 84 warnings, lint:units, format:check, diff --check and build. Lane A gpt-6-sol APPROVE at f474743 (partial-success rejoin recorded as a NOTE and tracked finding for P2)."
+        },
+        "review": {
+          "path": "evidence/p1c-review-20260928.json",
+          "head": "f474743c9aab2d6029e5c29a98218b215bb81e46",
+          "reviewedHead": "f474743c9aab2d6029e5c29a98218b215bb81e46",
+          "reviewerModel": "gpt-6-sol",
+          "implementerModel": "gpt-5.6-sol-fast (deep-low task st_01a0e623)",
+          "outputSha256": "0b4369b2f57b5ee64bc561b7d39f319171744e7a703dc164e1440528bb38679d",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/p1c-merge-20260928.json",
+          "pr": 2073,
+          "head": "f474743c9aab2d6029e5c29a98218b215bb81e46",
+          "mergeSha": "5433488de0fe7ef9ede71144463205e4b290c98c"
+        },
+        "mainProof": {
+          "path": "evidence/p1c-mainproof-20260928.json",
+          "mergeCommit": "5433488de0fe7ef9ede71144463205e4b290c98c",
+          "verdict": "PASS",
+          "runtime": "Tests:       75 passed, 75 total"
+        },
+        "tick": {
+          "path": "evidence/p1c-tick-20260928.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "admissionRequires": "P1A, P1B1, P1B2 and P1B3 must be main-verified or complete with exact-main mainProof receipts before the parent releases this unit to planned. NEXT does not enforce these unit dependencies. A parked predecessor keeps this unit blocked or on the same owner packet. No existing receipt is widened. The P1B record is in turn superseded by P1B1/P1B2/P1B3.",
@@ -4415,7 +4450,7 @@
       "id": "P2",
       "node": "R2.multiplayer-client",
       "taskKeys": [],
-      "behavior": "Both deploying co-op clients join the shared mission the server created. missionLaunchPage.launch.ts consumes the P1A-created, P1B-announced missionMatchId: the deploying host and the deploying guest navigate to and join the same tactical match, command-hq stays on /gameplay/campaigns/<id>, and the non-playing GM connection is preserved. No player browser receives or requests an opponent-control grant, and a guest disconnect grants nothing. A failed or stale launch leaves both clients on their safe prior routes and creates no extra match. This unit also owns e2e/coop-campaign-two-browser-journey.spec.ts through task 1's node and unit path amendment: it adds the launch, deploy/HQ destination, shared match ID and active opponent-turn browser assertions to that journey and updates the spec's current no-mission-launch coverage comment to the behavior actually proved. Red-first: jest rows on missionLaunchPage.launch (deploy and HQ destinations, stale head, failed create) fail today because launch drops the composition before any shared match exists; the extended journey run through npm.cmd run verify:qc:coop-campaign-journey fails today at the shared-identity and opponent-turn assertions and passes locally and on exact main after. Not claimed: any server, API or persistence change (P1, PAI) and the ownership refusal itself (U38).",
+      "behavior": "Both deploying co-op clients join the shared mission the server created. missionLaunchPage.launch.ts consumes the P1A-created, P1B-announced missionMatchId: the deploying host and the deploying guest navigate to and join the same tactical match, command-hq stays on /gameplay/campaigns/<id>, and the non-playing GM connection is preserved. No player browser receives or requests an opponent-control grant, and a guest disconnect grants nothing. A failed or stale launch leaves both clients on their safe prior routes and creates no extra match. This unit also owns e2e/coop-campaign-two-browser-journey.spec.ts through task 1's node and unit path amendment: it adds the launch, deploy/HQ destination, shared match ID and active opponent-turn browser assertions to that journey and updates the spec's current no-mission-launch coverage comment to the behavior actually proved. Red-first: jest rows on missionLaunchPage.launch (deploy and HQ destinations, stale head, failed create) fail today because launch drops the composition before any shared match exists; the extended journey run through npm.cmd run verify:qc:coop-campaign-journey fails today at the shared-identity and opponent-turn assertions and passes locally and on exact main after. Not claimed: any server, API or persistence change (P1, PAI) and the ownership refusal itself (U38). When the campaign already carries the CampaignMissionLaunched fact for this mission (for example after a local launch failure or a tab close that followed a successful create), the page rejoins that announced missionMatchId instead of re-POSTing mission create, so a partially completed launch is recoverable and still never creates an extra match.",
       "ownershipPaths": [
         "src/pages-modules/gameplay/campaigns/missionLaunchPage.launch.ts",
         "src/pages-modules/gameplay/campaigns/__tests__/missionLaunchPage.launch.test.ts",
@@ -4474,6 +4509,11 @@
         "at": "2026-09-27T21:12:19.238Z",
         "change": "predecessor P1B replaced by P1B1, P1B2 and P1B3",
         "note": "P1B is superseded by P1B1/P1B2/P1B3 (evidence/p1b-split-admission-20260927.json); its absence of a mainProof is not bypassed or falsified."
+      },
+      "amended20260928": {
+        "at": "2026-09-28T04:56:27.842Z",
+        "change": "behavior extended with already-launched mission rejoin",
+        "note": "Holds FN-p1c-partial-success-rejoin. The owner was asked how to handle it (defer to P2, relax the create route identity check, or page cross-call state) and did not answer within 30 minutes; the parent took the recommended option, deferring to P2, which already consumes the announced missionMatchId on this page."
       }
     },
     {
@@ -11851,6 +11891,48 @@
       "note": "Registered at the P1B3 closure with its ruling already given: the owner's standing merge instruction (2026-09-28) covers sensitive units once CI is green and Lane A approves the exact head, so no separate pending-packet fold was needed. The agent chose no option."
     },
     {
+      "id": "PK-p1c-ruling",
+      "blocks": [
+        "P1C"
+      ],
+      "nodes": [
+        "R2.multiplayer-client"
+      ],
+      "taskKeys": [],
+      "question": "P1C presents head f474743c9aab2d6029e5c29a98218b215bb81e46 on PR #2073 for authority and idempotency review. Does the owner rule this exact head after fresh independent review and required CI checks pass?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "The owner posts the head-bound OWNER-RULING comment and applies owner-ruled on the actual product PR; only then may the parent merge and run exact-main proof.",
+          "effort": "One owner review of the exact head and its evidence"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Do not merge; preserve the objection and revise through a new verified head, fresh independent review and fresh owner ruling.",
+          "effort": "Depends on the concrete requested change"
+        }
+      ],
+      "agentRecommendation": "Rule the exact head. Lane A (gpt-6-sol) APPROVE on f474743 with no BLOCKER or REQUIRED finding after reproducing six red rows and 16/16 and 75/75 green in separate processes; its first-pass partial-success retry blocker was withdrawn against P1C's binding text and recorded as a NOTE (FN-p1c-partial-success-rejoin, assigned to P2); 31 of 31 checks green and CLEAN. P1C carries the original accepted head into authenticated mission creation and returns the shared missionMatchId.",
+      "revertCost": "Revert the isolated launch-handoff commit; created missions are idempotent by mission identity and remain valid P1A records, so no data rollback is needed.",
+      "decision": {
+        "at": "2026-09-28T00:58:00Z",
+        "option": "rule the head",
+        "text": "Checks + review, then merge (Recommended)",
+        "source": "owner standing instruction in the working session (chat), 2026-09-28: \"merge PRs if they are passing the checks\", then, to the question \"For roadmap PRs going forward (P1B2 next, then U43, U24 and so on), when should I merge?\" (toolu_011JoFgVt4MouFz3sMkuTkcP), \"Checks + review, then merge (Recommended)\", whose option text read: \"When CI is 31/31 green and the independent review approves the exact head, I merge pinned to that head. For sensitive units I post the OWNER-RULING comment and owner-ruled label myself, citing this standing instruction, instead of asking you per head.\"; both conditions held on f474743 (Lane A APPROVE sha256 0b4369b2..., 31/31 CI)"
+      },
+      "ruling": {
+        "ruledHead": "f474743c9aab2d6029e5c29a98218b215bb81e46",
+        "pr": 2073,
+        "commentId": 5863723675,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "915f0017fc518efa006c91df90d5e676799d6e3d205f6b51e8ef34c2c8179607",
+        "postedBy": "parent under the owner's standing instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; under the owner's standing instruction the parent composed and posted the comment from the owner GitHub account and applied owner-ruled; the decision is the owner's standing instruction, and the parent supplied the head from the ledger"
+      },
+      "note": "Registered at the P1C closure with its ruling already given: the owner's standing merge instruction (2026-09-28) covers sensitive units once CI is green and Lane A approves the exact head, so no separate pending-packet fold was needed. The agent chose no option."
+    },
+    {
       "id": "PK-triage-checkpoint-day-effects",
       "blocks": [],
       "nodes": [
@@ -14071,6 +14153,16 @@
       "evidence": "evidence/u23-local-20260927.json and the Lane A re-review export",
       "recommendedSuccessor": "none; revisit only if a legitimate retry is observed to reorder payload keys",
       "status": "recorded; not held"
+    },
+    {
+      "id": "FN-p1c-partial-success-rejoin",
+      "foundBy": "P1C Lane A review, 2026-09-28",
+      "at": "2026-09-28T04:56:27.842Z",
+      "class": "co-op launch recovery",
+      "summary": "After a successful shared mission create, if the local encounter launch fails or the tab closes mid-launch, the next click on the mission launch page reads a campaign head advanced by CampaignMissionLaunched, so the create request is no longer identical and the route refuses it with 409 COOP_MISSION_IDENTITY_CONFLICT. No duplicate shared mission is created and no navigation occurs, but that mission cannot be relaunched or rejoined from the page. P1C's written contract (failed creation keeps the prior route; an identical retry never creates another shared mission) is met.",
+      "evidence": "evidence/p1c-local-20260928.json and evidence/p1c-lane-a-review-20260928.md (criterion 4a NOTE)",
+      "recommendedSuccessor": "P2 (amended20260928): an already-launched mission rejoins its announced missionMatchId instead of re-POSTing create",
+      "status": "held by P2"
     }
   ]
 }

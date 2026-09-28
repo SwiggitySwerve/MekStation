@@ -1,0 +1,44 @@
+{
+  "unit": "P1C",
+  "stage": "admission",
+  "at": "2026-09-28T03:50:07.501Z",
+  "baseline": "5dc1c1a372e31b83101d13e7e3ab100fdf1b0315",
+  "next": "validate-roadmap.mjs --next printed P1C on exact main 5dc1c1a (evidence .omo task-51-p1b3-close-main-proof.json)",
+  "ownership": {
+    "declared": [
+      "src/lib/campaign/coop/launchCoopMission.ts",
+      "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts",
+      "src/pages-modules/gameplay/campaigns/missionLaunchPage.launch.ts",
+      "src/pages-modules/gameplay/campaigns/__tests__/missionLaunchPage.launch.test.ts"
+    ],
+    "plannedFiles": [
+      "src/lib/campaign/coop/launchCoopMission.ts",
+      "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts",
+      "src/pages-modules/gameplay/campaigns/missionLaunchPage.launch.ts",
+      "src/pages-modules/gameplay/campaigns/__tests__/missionLaunchPage.launch.test.ts"
+    ]
+  },
+  "tier": "HEAVY: authority and idempotency review classes; ruling under the owner's standing merge instruction",
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500
+  },
+  "preparation": {
+    "path": "E:/Projects/MekStation/.omo/ulw-execute/evidence/p1c-readonly-preparation-a6eed9d.json",
+    "sourceHead": "a6eed9ddbcbf25373fb3873e2f3f1a3bbd83cf6a",
+    "note": "candidate-bound; the worker must refresh every cited line against the admitted baseline, which now includes the merged P1A/P1B1-P1B3 implementation"
+  },
+  "decisions": {
+    "scope": "four existing files only; no new helper, no hidden cross-call cache, no head re-read",
+    "head": "carry the original accepted branch/revision/effectiveGeneration and mission identity from the page into launchCoopMission and send it unchanged to the accepted mission-create route",
+    "transport": "reuse readCoopCampaignToken Bearer wire token",
+    "ordering": "remote create before local side effects, or an explicitly proven ordering where a failure preserves the prior route and an identical retry keeps the same shared missionMatchId",
+    "navigation": "encounter/HQ destination unchanged until P2; the local gameSessionId is never presented as the shared match id"
+  },
+  "parentDecision": {
+    "decision": "go",
+    "reason": "Released by #2072 after P1B3 main proof; --next prints P1C; default four-file scope; 180-line estimate is not measured."
+  },
+  "planTask": "45",
+  "laneTemp": "C:/Users/wroll/AppData/Local/Temp/mekstation-p1c-lane-U5wcpy"
+}
