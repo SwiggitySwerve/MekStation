@@ -51,7 +51,10 @@ import type {
 import type { IPlayerRef } from '@/types/multiplayer/Player';
 
 import { publishCombatOutcome } from '@/engine/combatOutcomeBus';
-import { InteractiveSession } from '@/engine/InteractiveSession';
+import {
+  InteractiveSession,
+  deriveAdaptedUnitsFromSession,
+} from '@/engine/InteractiveSession';
 import {
   type IGameSessionChannel,
   type IReconnectRequestEnvelope,
@@ -60,7 +63,9 @@ import {
   matchLogStorage,
   type MatchLogStorage,
 } from '@/lib/p2p/matchLogStorage';
+import { readServerCustomCombatDefinition } from '@/services/units/serverCustomCombatDefinition';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
+import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 import {
   type IIntent,
   type IEventMessage,
@@ -69,6 +74,7 @@ import {
 } from '@/types/multiplayer/Protocol';
 import { logger } from '@/utils/logger';
 
+import type { CampaignSyncSession } from './CampaignSyncSession';
 import type { IPublishNetworkedCommandResultInput } from './ServerMatchHostCommandResults';
 import type { IMatchSocket } from './ServerMatchSocketTypes';
 
@@ -76,6 +82,8 @@ import {
   selectCommandRejectionAudit,
   type ICommandRejectionAuditPort,
 } from './audit/CommandRejectionAudit';
+import { getCampaignHostRegistry } from './CampaignHostRegistry';
+import { driveCoopOpponent } from './CoopOpponentDriver';
 import { type IServerDiceRoller } from './CryptoDiceRoller';
 import { bindViewerDeliveryPersist } from './DurableMatchStore.viewerDelivery';
 import { FogOfWarVisibilityCache } from './fogOfWar';
@@ -272,6 +280,10 @@ export class ServerMatchHost {
    * `ForfeitMatch` host overrides — are still allowed.
    */
   private isPaused = false;
+  private opponentEpoch = 0;
+  private opponentFaulted = false;
+  private campaignPause: CampaignSyncSession | null = null;
+  private releaseCampaignPause: (() => void) | undefined;
 
   /**
    * Wave 3a: the roll-capture cluster (source roller + per-intent
@@ -407,7 +419,12 @@ export class ServerMatchHost {
         // pause-not-abort). They are independent: migration keeps
         // privileged ops available while the pause waits out the
         // dropped seat's grace window.
-        void this.handleSocketDropped(playerId);
+        this.opponentEpoch += 1;
+        void this.queueCommand(() => this.handleSocketDropped(playerId)).catch(
+          (error) => {
+            logger.error('[ServerMatchHost] disconnect handling failed', error);
+          },
+        );
       },
     });
     if (options.recovered) {
@@ -487,10 +504,20 @@ export class ServerMatchHost {
       store,
       session,
     );
+    const mission = (await store.getMatchMeta(matchId)).coopMission;
+    const units = mission
+      ? await deriveAdaptedUnitsFromSession(
+          session.getSession(),
+          readServerCustomCombatDefinition,
+        )
+      : [];
     const host = new ServerMatchHost(matchId, store, session, undefined, {
       recovered: true,
       rollbackReader,
+      playerUnits: units.filter((unit) => unit.side === GameSide.Player),
+      opponentUnits: units.filter((unit) => unit.side === GameSide.Opponent),
     });
+    if (mission) await host.bindCampaignPause(mission.sessionId);
     // Pass 0 for terminal combat: a crash after the terminal transaction but
     // before notification resumes from the row before this host accepts work.
     await host.publishDurableCombatOutcome();
@@ -519,8 +546,15 @@ export class ServerMatchHost {
    * Rebuild the live engine from the activated rewind branch. The
    * commit route calls this after `kind === 'committed'`.
    */
-  rebuildFromActivatedBranch = (input: IRewindRebuildRequest): Promise<void> =>
-    rebuildHostFromActivatedBranch(this.rewindRebuildPort(), input);
+  rebuildFromActivatedBranch = (
+    input: IRewindRebuildRequest,
+  ): Promise<void> => {
+    this.opponentEpoch += 1;
+    return this.queueCommand(async () => {
+      await rebuildHostFromActivatedBranch(this.rewindRebuildPort(), input);
+      await this.driveOpponent();
+    });
+  };
 
   /**
    * Bound ReplayChunk to the activated head after a rewind fold
@@ -826,6 +860,7 @@ export class ServerMatchHost {
    * Wave 4: resolve the pause when the last pending peer reconnects.
    */
   private maybeResume(): void {
+    if (this.opponentFaulted) return;
     maybeResume({
       matchId: this.matchId,
       isPaused: this.isPaused,
@@ -954,13 +989,18 @@ export class ServerMatchHost {
       ? 0
       : (firstMissed ?? afterLastHeld);
     this.rewindResyncViewers.delete(playerId);
-    await handleSessionJoin(
+    const joined = await handleSessionJoin(
       buildReplayContext(this.internals()),
       socket,
       playerId,
       resumeFrom,
       requestedMatchId,
     );
+    if (joined) {
+      await this.queueCommand(async () => {
+        if (socket.readyState === 1) await this.driveOpponent();
+      });
+    }
   };
 
   // ---------------------------------------------------------------------------
@@ -995,21 +1035,63 @@ export class ServerMatchHost {
    */
   private intentChain: Promise<unknown> = Promise.resolve();
 
+  private queueCommand<T>(run: () => Promise<T>): Promise<T> {
+    const queued = this.intentChain.then(run, run);
+    this.intentChain = queued.catch(() => undefined);
+    return queued;
+  }
+
+  private async bindCampaignPause(sessionId: string): Promise<void> {
+    if (this.campaignPause || this.closed) return;
+    const entry = await getCampaignHostRegistry().getOrCreate(sessionId);
+    if (!entry || this.closed) return;
+    this.campaignPause = entry.syncSession;
+    this.releaseCampaignPause = entry.syncSession.onPauseChanged((paused) => {
+      this.opponentEpoch += 1;
+      if (!paused)
+        void this.queueCommand(() => this.driveOpponent()).catch((error) => {
+          logger.error('[ServerMatchHost] opponent resume failed', error);
+        });
+    });
+  }
+
+  private driveOpponent = (): Promise<readonly IServerMessage[]> => {
+    const epoch = this.opponentEpoch;
+    return driveCoopOpponent({
+      context: () => buildIntentContext(this.internals(true)),
+      current: () =>
+        epoch === this.opponentEpoch &&
+        !this.closed &&
+        !this.isPausedForReconnect(),
+      bindCampaign: (sessionId) => this.bindCampaignPause(sessionId),
+      connected: (playerId) =>
+        this.lifecycle.snapshotConnectedSince().has(playerId),
+      halt: () => {
+        this.opponentFaulted = true;
+        this.isPaused = true;
+      },
+    });
+  };
+
   handleIntent = async (
     envelope: IIntent,
     connectionKey?: string,
     verifiedPrincipalId?: string,
   ): Promise<readonly IServerMessage[]> => {
-    const run = () =>
-      handleIntentWithContext(
+    return this.queueCommand(async () => {
+      const messages = await handleIntentWithContext(
         buildIntentContext(this.internals()),
         envelope,
         connectionKey,
         verifiedPrincipalId,
       );
-    const queued = this.intentChain.then(run, run);
-    this.intentChain = queued.catch(() => undefined);
-    return queued;
+      if (
+        messages.some((message) => message.kind === 'Error') ||
+        !messages.some((message) => message.kind === 'Event')
+      )
+        return messages;
+      return [...messages, ...(await this.driveOpponent())];
+    });
   };
 
   publishHostCommandResult = async (
@@ -1052,6 +1134,7 @@ export class ServerMatchHost {
   closeMatch = async (): Promise<void> => {
     if (this.closed) return;
     this.closed = true;
+    this.releaseCampaignPause?.();
     // Wave 4: cancel every pending grace timer so a finished match
     // doesn't keep Node alive (and so a delayed timer doesn't fire a
     // SeatTimedOut envelope on a closed host).
@@ -1162,7 +1245,8 @@ export class ServerMatchHost {
   isClosed = (): boolean => this.closed;
 
   /** Wave 4 test/observability: is the match currently paused? */
-  isPausedForReconnect = (): boolean => this.isPaused;
+  isPausedForReconnect = (): boolean =>
+    this.isPaused || this.campaignPause?.isPaused() === true;
 
   /** Wave 4 test/observability: snapshot pending peers (slot+player). */
   getPendingPeersForTests = (): ReadonlyArray<PendingPeerSnapshot> =>
@@ -1183,17 +1267,17 @@ export class ServerMatchHost {
    * callbacks are bound arrows so the free-function modules can hold
    * stable references without `this` rebinding.
    */
-  private internals(): IServerMatchHostInternals {
+  private internals(internalCommand = false): IServerMatchHostInternals {
     return {
       matchId: this.matchId,
       store: this.store,
       session: this.session,
       closed: this.closed,
-      isPaused: this.isPaused,
+      isPaused: this.isPausedForReconnect(),
       playerRefs: this.playerRefs,
       pendingPeers: this.pendingPeers,
       setPaused: (paused) => {
-        this.isPaused = paused;
+        this.isPaused = paused || this.opponentFaulted;
       },
       broadcast: (message) => this.broadcast(message),
       broadcastEvent: (message) => this.broadcastEvent(message),
@@ -1216,15 +1300,18 @@ export class ServerMatchHost {
       commandRejectionAudit: this.commandRejectionAudit ?? undefined,
       rollbackBlockReason: this.rollbackBlockReason ?? undefined,
       journalAuthority:
-        this.journalAuthorityEnabled || this.journalAuthorityShadow
+        internalCommand ||
+        this.journalAuthorityEnabled ||
+        this.journalAuthorityShadow
           ? {
-              enabled: this.journalAuthorityEnabled,
+              enabled: internalCommand || this.journalAuthorityEnabled,
               shadow: this.journalAuthorityShadow,
               decideDeps: {
                 randomSeed: this.journalRandomSeed,
                 diceSeed: this.journalDiceSeed,
                 playerUnits: this.journalPlayerUnits,
                 opponentUnits: this.journalOpponentUnits,
+                d6Roller: () => this.capture.d6(),
               },
               d6: () => this.capture.d6(),
               replaceSession: (session) => {

@@ -25,8 +25,9 @@ import type {
 import { hasPublicationOutbox } from './IMatchStore';
 import * as matchJournalAuthority from './matchJournalAuthority';
 import {
-  decideCommandBatch,
   digestCommandPostState,
+  type ICommandDecision,
+  type IDecideCommandBatchDeps,
 } from './ServerMatchHostDecision';
 import { stampIntentIdOnNewEvents } from './ServerMatchHostEvents';
 import {
@@ -46,7 +47,7 @@ function finish(
 function persistenceFailure(
   ctx: IServerMatchHostIntentContext,
   journal: IJournalAuthorityHostHandle,
-  envelope: IIntent,
+  envelope: Pick<IIntent, 'playerId' | 'intentId'>,
   reason: string,
 ): IJournalAuthorityPathResult {
   const err = errorMessage(
@@ -62,7 +63,7 @@ function persistenceFailure(
 async function resumeCommittedCommand(
   ctx: IServerMatchHostIntentContext,
   journal: IJournalAuthorityHostHandle,
-  envelope: IIntent,
+  envelope: Pick<IIntent, 'playerId' | 'intentId'>,
   prior: IMatchCommandReceipt,
   appendCommandBatch: NonNullable<IMatchStore['appendCommandBatch']>,
 ): Promise<IJournalAuthorityPathResult> {
@@ -118,7 +119,8 @@ async function resumeCommittedCommand(
 
 export async function commitJournalAuthorityCommand(
   ctx: IServerMatchHostIntentContext,
-  envelope: IIntent,
+  envelope: Pick<IIntent, 'playerId' | 'intentId'>,
+  decide: (deps: IDecideCommandBatchDeps) => ICommandDecision,
 ): Promise<IJournalAuthorityPathResult> {
   const journal = ctx.journalAuthority;
   if (journal == null || !journal.enabled) {
@@ -153,7 +155,7 @@ export async function commitJournalAuthorityCommand(
   ctx.installFreshCapture();
   let decided;
   try {
-    decided = decideCommandBatch(ctx.session, envelope.intent, {
+    decided = decide({
       ...journal.decideDeps,
       d6Roller: journal.d6,
     });

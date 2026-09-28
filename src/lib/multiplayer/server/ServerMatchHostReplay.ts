@@ -296,7 +296,7 @@ export async function handleSessionJoin(
    */
   fromSeq?: number,
   requestedMatchId = ctx.matchId,
-): Promise<void> {
+): Promise<boolean> {
   if (requestedMatchId !== ctx.matchId) {
     ctx.safeSend(socket, {
       kind: 'Error',
@@ -305,25 +305,25 @@ export async function handleSessionJoin(
       code: 'UNKNOWN_MATCH',
       reason: 'wrong-match',
     });
-    return;
+    return false;
   }
 
   const resolution = await resolveJoinViewer(ctx, playerId);
   if (resolution.kind !== 'viewer') {
     sendJoinClose(ctx, socket, resolution);
-    return;
+    return false;
   }
   const viewer = resolution.viewer;
 
   const requestFrom = fromSeq ?? 0;
   const replayed = await sendReplay(ctx, socket, requestFrom, playerId, viewer);
-  if (!replayed) return;
+  if (!replayed) return false;
 
   let meta: IMatchMeta;
   try {
     meta = await ctx.store.getMatchMeta(ctx.matchId);
   } catch {
-    return;
+    return false;
   }
   const seats = meta.seats ?? [];
   if (seats.length > 0) {
@@ -341,7 +341,7 @@ export async function handleSessionJoin(
     );
     if (guarded.kind === 'failure') {
       sendJoinGuardError(ctx, socket, guarded.error.message);
-      return;
+      return false;
     }
     if (guarded.kind === 'send') {
       ctx.safeSend(socket, guarded.value);
@@ -349,6 +349,7 @@ export async function handleSessionJoin(
   }
 
   ctx.maybeResume();
+  return true;
 }
 
 /**

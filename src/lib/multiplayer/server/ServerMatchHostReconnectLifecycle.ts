@@ -43,8 +43,14 @@ export async function maybeMarkPlayerPending(
   const seat = seats.find(
     (s) => s.kind === 'human' && s.occupant?.playerId === playerId,
   );
-  if (!seat) return;
-  ctx.pendingPeers.markPending(playerId, seat.slotId, (entry) =>
+  // P1A missions persist participant identities without lobby seats.
+  const slotId =
+    seat?.slotId ??
+    (meta.coopMission && meta.playerIds.includes(playerId)
+      ? `coop:${playerId}`
+      : null);
+  if (slotId === null) return;
+  ctx.pendingPeers.markPending(playerId, slotId, (entry) =>
     handleGraceTimeout(ctx, entry),
   );
   broadcastPauseSnapshot(ctx);

@@ -75,7 +75,7 @@ export function digestCommandPostState(session: IGameSession): string {
 
 export function decideCommandBatch(
   liveSession: InteractiveSession,
-  intent: IIntent['intent'],
+  intent: IIntent['intent'] | ((session: InteractiveSession) => void),
   deps: IDecideCommandBatchDeps,
 ): ICommandDecision {
   const live = liveSession.getSession();
@@ -102,7 +102,9 @@ export function decideCommandBatch(
     suppressOutcomePublication: true,
   });
 
-  dispatchToEngine(scratch, intent);
+  // A function is a server-owned action, never a client message shape.
+  if (typeof intent === 'function') intent(scratch);
+  else dispatchToEngine(scratch, intent);
   const produced = scratch.getSession().events.slice(head);
   const postState = scratch.getSession();
   return {
