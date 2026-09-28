@@ -115,6 +115,7 @@ export interface IMatchCoopMission {
     readonly effectiveGeneration: number;
   };
   readonly requestFingerprint: string;
+  readonly deployingPlayerIds?: readonly string[];
 }
 
 /**

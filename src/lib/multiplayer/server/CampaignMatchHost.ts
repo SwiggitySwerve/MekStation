@@ -60,6 +60,7 @@ import type {
 } from './campaignHostDoors';
 import type { ICampaignIntentCommandIdentity } from './campaignIntentIdentity';
 import type { UnsequencedCampaignEvent } from './CampaignMatchHostIntent';
+import type { IMatchMeta } from './IMatchStore';
 
 import {
   commitCampaignEventBatch,
@@ -102,6 +103,20 @@ export interface ICampaignMatchHostOptions {
    * log always begins with a replayable baseline.
    */
   readonly initialState: ICampaignAuthoritativeState;
+}
+
+export class CampaignMissionLaunchRefusal extends Error {
+  readonly status = 409;
+  constructor(
+    readonly code:
+      | 'COOP_MISSION_INVALID_SESSION'
+      | 'COOP_MISSION_LEGACY_RECEIPT'
+      | 'COOP_MISSION_JOURNAL_REQUIRED'
+      | 'COOP_MISSION_STALE_HEAD',
+  ) {
+    super(code);
+    this.name = 'CampaignMissionLaunchRefusal';
+  }
 }
 
 export class CampaignMatchHost {
@@ -316,6 +331,48 @@ export class CampaignMatchHost {
         consequences,
       ),
     );
+
+  /** Server-only producer: consume a persisted receipt after releasing the create lock. */
+  announceMissionLaunched = (
+    meta: IMatchMeta,
+  ): Promise<readonly ICampaignEvent[]> =>
+    this.runExclusive(async () => {
+      const receipt = meta.coopMission;
+      if (this.closed || receipt?.campaignId !== this.campaignId) {
+        throw new CampaignMissionLaunchRefusal('COOP_MISSION_INVALID_SESSION');
+      }
+      if (receipt.deployingPlayerIds === undefined) {
+        throw new CampaignMissionLaunchRefusal('COOP_MISSION_LEGACY_RECEIPT');
+      }
+      if (!this.eventStore.appendCommandBatch) {
+        throw new CampaignMissionLaunchRefusal('COOP_MISSION_JOURNAL_REQUIRED');
+      }
+      const outcome = await this.commitEvents(
+        [
+          {
+            type: 'CampaignMissionLaunched',
+            campaignId: this.campaignId,
+            authorPlayerId: this.hostPlayerId,
+            ts: new Date().toISOString(),
+            scope: 'campaign',
+            payload: {
+              missionId: receipt.missionId,
+              missionMatchId: meta.matchId,
+              acceptedHead: receipt.acceptedHead,
+              deployingPlayerIds: receipt.deployingPlayerIds,
+            },
+          },
+        ],
+        {
+          commandId: `campaign-mission-launched:${this.campaignId}:${meta.matchId}`,
+          intentFingerprint: receipt.requestFingerprint,
+        },
+      );
+      if (outcome.kind === 'lost-race') {
+        throw new CampaignMissionLaunchRefusal('COOP_MISSION_STALE_HEAD');
+      }
+      return outcome.events;
+    });
 
   /** The campaign event log facade — for the sync-session replay path. */
   getEventLog = (): CampaignEventLog => {

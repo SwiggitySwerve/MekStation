@@ -75,7 +75,7 @@ export async function createCoopMissionMatch(
   const fingerprint = createHash('sha256')
     .update(JSON.stringify({ mission, config, units: body.unitBootstrap }))
     .digest('hex');
-  return entry.host.runBatchExclusive(async () => {
+  const created = await entry.host.runBatchExclusive(async () => {
     requireCoopMissionMember(mission, actorId);
     let meta = await readMission(store, matchId);
     if (!meta) {
@@ -102,6 +102,17 @@ export async function createCoopMissionMatch(
           missionId: mission.missionId,
           acceptedHead: mission.expectedHead,
           requestFingerprint: fingerprint,
+          deployingPlayerIds: Object.freeze(
+            Array.from(
+              new Set(
+                admitted.unitBootstrap.flatMap((unit) =>
+                  unit.side === 'player' && unit.ownerPlayerId !== undefined
+                    ? [unit.ownerPlayerId]
+                    : [],
+                ),
+              ),
+            ).sort(),
+          ),
         },
       };
       let bootstrap: IMatchHostBootstrap;
@@ -139,4 +150,18 @@ export async function createCoopMissionMatch(
     requireCoopMissionMember(mission, actorId);
     return meta;
   });
+  // A retry reaches this door from the stored match even if the first append failed.
+  try {
+    await entry.host.announceMissionLaunched(created);
+  } catch (error) {
+    // Like readMission, this boundary also receives the socket graph's errors.
+    if (
+      error instanceof Error &&
+      error.name === 'CampaignMissionLaunchRefusal'
+    ) {
+      throw new CoopMissionRefusal(409, error.message);
+    }
+    throw error;
+  }
+  return created;
 }
