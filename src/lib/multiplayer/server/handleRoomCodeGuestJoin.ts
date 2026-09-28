@@ -32,6 +32,7 @@ import {
   buildScopedCampaignSnapshot,
   projectedHeadDeliverySequence,
 } from '@/lib/campaign/delivery/buildScopedCampaignSnapshot';
+import { grantAllowsScope } from '@/lib/campaign/grants/campaignGrantGuards';
 import { createHostCampaignEventJournal } from '@/lib/campaign/sync/hostCampaignEventJournal';
 import { mintVerifiedPrincipal } from '@/lib/multiplayer/server/authorization/AuthorizedViewer';
 import { normalizeRoomCode } from '@/lib/p2p/roomCodes';
@@ -42,6 +43,7 @@ import type { ICampaignHostRegistryEntry } from './CampaignHostRegistry';
 import type { ICampaignGrantChannelDeps } from './handleCampaignGrantJoin';
 
 import { campaignEventWireFrame } from './campaignEventWireFrame';
+import { selectCampaignMissionLaunches } from './campaignMissionLaunchReplay';
 import { attachRoomCodeGuestLiveSession } from './roomCodeGuestLiveFanout';
 
 export type RoomCodeGuestJoinOutcome = 'served' | 'fallback' | 'rejected';
@@ -167,6 +169,18 @@ export async function handleRoomCodeGuestJoin(
   const lastCursor = await replica.lastCursor(grant.campaignId, grant.grantId);
 
   const pendingLive: IServerMessage[] = [];
+  const replayedLaunches = new Set<number>();
+  const sendOnce = (message: IServerMessage): void => {
+    if (
+      message.kind === 'CampaignEvent' &&
+      message.event.type === 'CampaignMissionLaunched'
+    ) {
+      const sequence = message.event.sequence;
+      if (replayedLaunches.has(sequence)) return;
+      replayedLaunches.add(sequence);
+    }
+    deps.send(message);
+  };
   let snapshotReleased = false;
   /**
    * Holds live frames until the client baseline is published so
@@ -180,7 +194,7 @@ export async function handleRoomCodeGuestJoin(
       pendingLive.push(message);
       return;
     }
-    deps.send(message);
+    sendOnce(message);
   };
   // The SAME scoped live attach every other join arm uses (finding
   // #12, delivery unification). Attached BEFORE the hydration reads so
@@ -213,6 +227,21 @@ export async function handleRoomCodeGuestJoin(
     );
   }, deps.verifiedPlayerId);
   deps.cleanupFns.add(detachLive);
+  // Read AFTER attaching: joinHead predates the subscription, and the
+  // replica's projectorHead is a different (delivery) sequence space.
+  const history = await deps.entry.host.getEventLog().getCampaignEvents(0);
+  const launches = selectCampaignMissionLaunches(
+    history,
+    history.at(-1)?.sequence ?? -1,
+    (scope) => grantAllowsScope(grant, scope),
+  );
+  const releaseSnapshot = (): void => {
+    for (const event of launches) {
+      sendOnce(campaignEventWireFrame(deps.matchId, event, channel.nowIso()));
+    }
+    snapshotReleased = true;
+    flushPendingLive(pendingLive, sendOnce);
+  };
   const fanout = liveFanoutDeps(
     deps,
     grant.campaignId,
@@ -243,8 +272,7 @@ export async function handleRoomCodeGuestJoin(
       hydrated.projectorHead,
       nowIso,
     );
-    snapshotReleased = true;
-    flushPendingLive(pendingLive, deps.send);
+    releaseSnapshot();
     return 'served';
   }
 
@@ -253,13 +281,8 @@ export async function handleRoomCodeGuestJoin(
     grantCursorFromReplicaCursor(lastCursor),
   );
   await sendReplicaSnapshot(deps, grant.campaignId, grant.grantId, replica);
-  snapshotReleased = true;
-  // Flushed, not dropped: the buffer can only hold commits that landed
-  // AFTER this join attached its live sink - never replayed history -
-  // and dropping those would lose a live event the rejoiner's snapshot
-  // may not have folded yet. (The drop existed for grant-channel
-  // catch-up frames, which no longer reach the client at all.)
-  flushPendingLive(pendingLive, deps.send);
+  // Preserve all buffered frames; only launch replay/live overlap is deduped.
+  releaseSnapshot();
   return 'served';
 }
 
@@ -377,9 +400,8 @@ function sendGuestSnapshot(
 }
 
 /**
- * Flushes live CampaignEvent frames that arrived while the snapshot
- * was still unpublished. Rejoin drops that buffer instead so catch-up
- * already folded into replica state is not applied twice.
+ * Flushes live frames that arrived while the snapshot was unpublished.
+ * Both join branches preserve these commits across hydration.
  */
 function flushPendingLive(
   pending: readonly IServerMessage[],
