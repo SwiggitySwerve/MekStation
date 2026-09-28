@@ -1,0 +1,11 @@
+{
+  "unit": "PAIC",
+  "stage": "red",
+  "at": "2026-09-28T06:53:00.000Z",
+  "baseline": "d3c2a8844e1b9ebcc4b2d8c9340736a8b56a47b7",
+  "summary": "Red before the contract: the harden change and the archived co-op mission requirement named the OpFor but specified nothing about who drives it, so server-owned opponent turns, the no-grant rule, deterministic identity and replay had no source contract (grep of the baseline delta and archived requirement). Failure QA recorded in a temporary ledger copy: with PAIC incomplete, PAI stays blocked as shipped, and the validator does not itself enforce predecessor completion for a planned state (disclosed; PAI release is the parent ledger edit gated on PAIC mainProof). Lane A reproduced the temp-ledger result.",
+  "evidence": [
+    "lane log qa.log",
+    "lane crosswalk.md"
+  ]
+}

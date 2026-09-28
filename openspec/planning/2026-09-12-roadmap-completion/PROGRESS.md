@@ -1,3 +1,18 @@
+## 2026-09-28 PAIC complete; PAI released (parent)
+
+PAIC (#2078, head `7daa013e2f2b7a53f86dc7fecdb1f0b717c35345`, merge `b4cef4671c269f7bf46ac568e0f14834f95b28ad`) delivers plan task 41's server-AI source contract. It is a MODIFIED "Co-op Mission Launch With Both Forces" requirement in the harden change. The archived text is restated byte for byte (1362/1362 bytes), so per-player same-side unit ownership is unchanged. The requirement adds:
+- server-owned OpFor turns through the existing engine AI inside the host's serialized command lifecycle;
+- no browser grant;
+- a deterministic command identity from the match, the accepted head and the active unit;
+- normal per-viewer publication;
+- the existing disconnect and pause policy.
+
+It comes with five scenarios and a design crosswalk mapping the delta to PAI. No product code changed.
+
+The owner's standing merge instruction is recorded in PK-paic-ruling; the parent posted `OWNER-RULING` comment 5865062740 and applied `owner-ruled`. Lane A (gpt-6-sol) approved with no blocking finding. The [exact-main proof](evidence/paic-mainproof-20260928.json) ran at the merge commit: build with the e2e marker, the roadmap Jest suites (2 suites, 49 tests), the exact-main ladder (strict-smoke), tsc, the validator in four modes, openspec strict, qc:openspec-ci, the qc pin, lint, lint:units and format:check. This closure runs at current main `aaec40d` via `--reproof-commit`, because the ledger-only U24 split (#2079) merged after PAIC.
+
+**PAI is released from blocked to planned.** All six predecessors (P1A, P1B1, P1B2, P1B3, P1C, PAIC) are complete with PASS exact-main mainProof receipts. The validator does not enforce predecessor completion for a planned state, so each receipt was checked explicitly before this edit. `validate-roadmap.mjs --next` prints PAI. U24a, the U24 re-pin later in ledger order, is already in flight on its own lane.
+
 ## 2026-09-28 U24 split into U24a and U24b (parent)
 
 U24 (the production hard cutover) was re-admitted on `d3c2a88` after its ownership amendment. It stopped again with BLOCKED-SPLIT before any edit. A source-grounded census found it needs at least 19 files: 12 product, spec and config files and 7 tests. With the four writer-only history re-pins from rider (d) it needs 23, against its 15-file cap. The census covered the production constant, the fixture consumer, producer and forwarding, the mirror backfill, the four OpenSpec edits, five default-dependent server suites, and three production comments that claim the shipped default is off.

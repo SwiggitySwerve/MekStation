@@ -1,0 +1,46 @@
+{
+  "unit": "PAIC",
+  "stage": "mainProof",
+  "at": "2026-09-28T07:10:04.884Z",
+  "mergeCommit": "b4cef4671c269f7bf46ac568e0f14834f95b28ad",
+  "checkout": "owned wave-B worktree (node_modules junctioned to wave-A, no install run); roadmap:main-proof ran at the merge commit b4cef4671c269f7bf46ac568e0f14834f95b28ad; this closure runs at current main aaec40d086572866febc77a4ad8589a9c8269492 via --reproof-commit because the ledger-only U24 split (#2079) merged after PAIC; the root checkout was not touched",
+  "runtime": {
+    "build": "exit 1",
+    "e2eBundleMarker": "__E2E_MODE__ present in _app chunk (roadmap:main-proof e2e-marker step, appended to build.log)",
+    "playwright": "PAIC exact-main jest (roadmap:main-proof --runtime-jest, 2 roadmap suites; spec-only unit): Tests:       49 passed, 49 total",
+    "tsc": "exit 0",
+    "lint": "npm run lint exit 0",
+    "lintUnits": "npm run lint:units exit 0: LINT_UNITS_PASS 17899/17899",
+    "formatCheck": "npm run format:check exit 0 (8135 files).",
+    "validatorGithub": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows (--github, exit 0)",
+    "focusedJest": "roadmap:main-proof --runtime-jest over the two roadmap ledger/closure suites (roadmap-loop-closure-proof, roadmap-loop-scripts): Test Suites 2 passed, Tests 49 passed; PAIC is spec-only, so its substantive proof is openspec strict and the roadmap validator in the ladder",
+    "exactMainLadder": "EXACT_MAIN_LADDER_SATISFIED b4cef4671c269f7bf46ac568e0f14834f95b28ad milestone=strict-smoke groups=smoke",
+    "reproof": "the proof ran at the PAIC merge b4cef4671c269f7bf46ac568e0f14834f95b28ad; the closure runs at current main aaec40d086572866febc77a4ad8589a9c8269492 (b4cef46 plus the ledger-only U24 split #2079) via --reproof-commit, avoiding a units.json conflict",
+    "extraGateLogs": "lint, lint:units, format:check and --github ran after the tool wrote sha256.txt, into the same directory (UTF-8): d8890acb5082c1fe7186c49697eac88704e3ab046a7d757d641335ebca9b270c *lint.log; 57a1d2da7f0acbd5dfd5e9a6fba754ddb2bf6b32a3b05451c385daf3cd778703 *lint-units.log; 07d4e94688c1a744db2e7cdfff62294df5fbc35eee19aabbefc95f6413752ba8 *format.log; ea265f76ff47bda8194a0d1ccf59d172157d123ff68fa53ed0fed341ca685220 *github.log"
+  },
+  "commands": {
+    "validator": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows",
+    "gitAncestry": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows (--git)",
+    "next": "",
+    "openspecStrict": "Totals: 229 passed, 0 failed (229 items)",
+    "qcOpenspecCi": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+    "qcPin": "Tests:       30 passed, 30 total"
+  },
+  "logs": ".sisyphus/roadmap-completion-20260912/paic-main-proof-20260928/ (local; sha256 below)",
+  "logHashes": [
+    "9240d839fa41b4f99b8c2825e50a98bfd8563332a2e8f0c1826018aa61923707 *build.log",
+    "92e512e385f9e0ae7a7bb8e7d1fa639055c78695c3d6fd273ffb7ebaf874c9ae *exact-main-ladder.log",
+    "71a8bd7a8b2073f6ae5178effaaf306bc58915cc8e5b35318223868cc0b450b4 *git-check.log",
+    "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43 *idle-before-build.log",
+    "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43 *idle-before-runtime.log",
+    "976832c8723b4e5ffbbac9dbabf296de8cc64648bb05b82e6645d6b21cb9f455 *next.log",
+    "efd619721df505ed0dbb69fe5bd26b74023670e603ce16891fd2f1331adf1776 *openspec-strict.log",
+    "e1a1e1475647cfdda870d14dbbd33af2b06c76547fa82127829e75b7c7797a3f *playwright.log",
+    "5b0f562274df4dbddfb7ae44ab42b7d686dc1e0903383f25c593d88f7479fe9a *qc-openspec-ci.log",
+    "97d17171f66f8a42ea0a8aa5435030b117aa61933ad975ce1659eefce21b6b62 *qc-pin.log",
+    "f891dbdfc0402cd4ba60fab1be3245dfec559c5d7afc7e21b87e795a73d05e5f *tsc.log",
+    "71a8bd7a8b2073f6ae5178effaaf306bc58915cc8e5b35318223868cc0b450b4 *validator.log"
+  ],
+  "reproofCommit": "aaec40d086572866febc77a4ad8589a9c8269492",
+  "verdict": "PASS"
+}

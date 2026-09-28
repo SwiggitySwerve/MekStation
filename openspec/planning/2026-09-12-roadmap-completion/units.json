@@ -4400,18 +4400,53 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
-      "prHead": null,
-      "mergeSha": null,
+      "state": "complete",
+      "baseline": "d3c2a8844e1b9ebcc4b2d8c9340736a8b56a47b7",
+      "prHead": "7daa013e2f2b7a53f86dc7fecdb1f0b717c35345",
+      "mergeSha": "b4cef4671c269f7bf46ac568e0f14834f95b28ad",
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "admission": {
+          "path": "evidence/paic-admission-20260928.json",
+          "baseline": "d3c2a8844e1b9ebcc4b2d8c9340736a8b56a47b7",
+          "at": "2026-09-28T06:50:25.526Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/paic-red-20260928.json",
+          "at": "2026-09-28T06:53:00.000Z",
+          "summary": "Red before the contract: the harden change and the archived co-op mission requirement named the OpFor but specified nothing about who drives it, so server-owned opponent turns, the no-grant rule, deterministic identity and replay had no source contract (grep of the baseline delta and archived requirement). Failure QA recorded in a temporary ledger copy: with PAIC incomplete, PAI stays blocked as shipped, and the validator does not itself enforce predecessor completion for a planned state (disclosed; PAI release is the parent ledger edit gated on PAIC mainProof). Lane A reproduced the temp-ledger result."
+        },
+        "local": {
+          "path": "evidence/paic-local-20260928.json",
+          "at": "2026-09-28T07:09:37.719Z",
+          "summary": "2 files in openspec/changes/harden-gm-two-player-campaign-sessions (84 added lines): a MODIFIED \"Co-op Mission Launch With Both Forces\" requirement restating the archived text byte-for-byte (1362/1362 bytes) and adding server-owned OpFor turns through existing engine AI, no browser grant, deterministic command identity from match, accepted head and active unit, normal per-viewer publication and the existing disconnect/pause policy, with five scenarios; a design Roadmap Crosswalk mapping the delta to PAI with PAIC as its contract and the user choice as provenance. openspec strict (change and all 229), roadmap validator four modes, oxfmt and diff --check pass. Lane A gpt-6-sol APPROVE at 7daa013."
+        },
+        "review": {
+          "path": "evidence/paic-review-20260928.json",
+          "head": "7daa013e2f2b7a53f86dc7fecdb1f0b717c35345",
+          "reviewedHead": "7daa013e2f2b7a53f86dc7fecdb1f0b717c35345",
+          "reviewerModel": "gpt-6-sol",
+          "implementerModel": "claude-opus-5-5 (writing task st_01a0e6c7)",
+          "outputSha256": "46ca7f559e18117f778277b150309bd33b9f4fa81daae9934591071a9c8780b7",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/paic-merge-20260928.json",
+          "pr": 2078,
+          "head": "7daa013e2f2b7a53f86dc7fecdb1f0b717c35345",
+          "mergeSha": "b4cef4671c269f7bf46ac568e0f14834f95b28ad"
+        },
+        "mainProof": {
+          "path": "evidence/paic-mainproof-20260928.json",
+          "mergeCommit": "b4cef4671c269f7bf46ac568e0f14834f95b28ad",
+          "verdict": "PASS",
+          "runtime": "Tests:       49 passed, 49 total"
+        },
+        "tick": {
+          "path": "evidence/paic-tick-20260928.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "admissionRequires": "P1A, P1B1, P1B2, P1B3 and P1C are complete with exact-main mainProof receipts (met at registration; see evidence/paic-registration-20260928.json). NEXT does not enforce these unit dependencies. openspec validate harden-gm-two-player-campaign-sessions --strict and the roadmap validator must pass. A sensitive-class packet is registered at the local fold and the head is ruled before merge. Stop and split rather than exceed 15 files/500 lines.",
@@ -4452,7 +4487,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -4500,6 +4535,12 @@
         "at": "2026-09-28T06:40:16.458Z",
         "change": "predecessor PAIC added",
         "note": "PAIC is the separately owned server-AI OpenSpec contract (plan task 41) that PAI's admissionRequires already names; PAI stays blocked until PAIC has an exact-main mainProof receipt."
+      },
+      "released20260928": {
+        "at": "2026-09-28T07:10:23.154Z",
+        "from": "blocked",
+        "cause": "admissionRequires met: P1A (evidence/p1a-mainproof-20260927.json, PASS), P1B1 (evidence/p1b1-mainproof-20260928.json, PASS), P1B2 (evidence/p1b2-mainproof-20260928.json, PASS), P1B3 (evidence/p1b3-mainproof-20260928.json, PASS), P1C (evidence/p1c-mainproof-20260928.json, PASS), PAIC (evidence/paic-mainproof-20260928.json, PASS); PAIC closes here (the server-AI OpenSpec contract of plan task 41, PR #2078, merge b4cef4671c269f7bf46ac568e0f14834f95b28ad)",
+        "by": "parent ledger edit in the PAIC closure PR, as admissionRequires directs; the validator does not enforce predecessor completion for a planned state, so each predecessor mainProof was checked explicitly before this edit"
       }
     },
     {
@@ -12187,6 +12228,48 @@
         "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; under the owner's standing instruction the parent composed and posted the comment from the owner GitHub account and applied owner-ruled; the decision is the owner's standing instruction, and the parent supplied the head from the ledger"
       },
       "note": "Registered at the U43 closure with its ruling already given: the owner's standing merge instruction (2026-09-28) covers sensitive units once CI is green and Lane A approves the exact head, so no separate pending-packet fold was needed. The agent chose no option."
+    },
+    {
+      "id": "PK-paic-ruling",
+      "blocks": [
+        "PAIC"
+      ],
+      "nodes": [
+        "R6.umbrella"
+      ],
+      "taskKeys": [],
+      "question": "PAIC presents head 7daa013e2f2b7a53f86dc7fecdb1f0b717c35345 on PR #2078 for authority, privacy and replay review. Does the owner rule this exact head after fresh independent review and required CI checks pass?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "The owner posts the head-bound OWNER-RULING comment and applies owner-ruled on the actual product PR; only then may the parent merge and run exact-main proof.",
+          "effort": "One owner review of the exact head and its evidence"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Do not merge; preserve the objection and revise through a new verified head, fresh independent review and fresh owner ruling.",
+          "effort": "Depends on the concrete requested change"
+        }
+      ],
+      "agentRecommendation": "Rule the exact head. Lane A (gpt-6-sol) APPROVE on 7daa013 with no BLOCKER or REQUIRED finding: archived text byte-identical, consistent with PAI and InteractiveSession.runAITurn, OpenSpec strict 229/229 and the roadmap validator in four modes; 31 of 31 checks green and CLEAN.",
+      "revertCost": "Revert the isolated spec commit; no product code or data is involved.",
+      "decision": {
+        "at": "2026-09-28T00:58:00Z",
+        "option": "rule the head",
+        "text": "Checks + review, then merge (Recommended)",
+        "source": "owner standing instruction in the working session (chat), 2026-09-28: \"merge PRs if they are passing the checks\", then, to the question \"For roadmap PRs going forward (P1B2 next, then U43, U24 and so on), when should I merge?\" (toolu_011JoFgVt4MouFz3sMkuTkcP), \"Checks + review, then merge (Recommended)\", whose option text read: \"When CI is 31/31 green and the independent review approves the exact head, I merge pinned to that head. For sensitive units I post the OWNER-RULING comment and owner-ruled label myself, citing this standing instruction, instead of asking you per head.\"; both conditions held on 7daa013 (Lane A APPROVE sha256 46ca7f55..., 31/31 CI)"
+      },
+      "ruling": {
+        "ruledHead": "7daa013e2f2b7a53f86dc7fecdb1f0b717c35345",
+        "pr": 2078,
+        "commentId": 5865062740,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "c82808ee26d777c4833e424e3df6b41877c51be79756ea86f32eb63341cd884c",
+        "postedBy": "parent under the owner's standing instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; under the owner's standing instruction the parent composed and posted the comment from the owner GitHub account and applied owner-ruled; the decision is the owner's standing instruction, and the parent supplied the head from the ledger"
+      },
+      "note": "Registered at the PAIC closure with its ruling already given: the owner's standing merge instruction (2026-09-28) covers sensitive units once CI is green and Lane A approves the exact head. The agent chose no option."
     },
     {
       "id": "PK-triage-checkpoint-day-effects",

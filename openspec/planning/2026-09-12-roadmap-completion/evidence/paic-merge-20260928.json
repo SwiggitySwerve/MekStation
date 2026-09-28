@@ -1,0 +1,19 @@
+{
+  "unit": "PAIC",
+  "stage": "merge",
+  "at": "2026-09-28T07:10:04.867Z",
+  "pr": 2078,
+  "title": "docs(coop): specify server-owned opponent turns",
+  "head": "7daa013e2f2b7a53f86dc7fecdb1f0b717c35345",
+  "mergeSha": "b4cef4671c269f7bf46ac568e0f14834f95b28ad",
+  "mergedAt": "2026-09-28T07:01:33Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge 2078 --squash --match-head-commit 7daa013e2f2b7a53f86dc7fecdb1f0b717c35345 after the GraphQL pre-merge gate (31/31 checks SUCCESS, CLEAN/MERGEABLE, 0 unresolved threads, 2 files, Lane A APPROVE on the exact head, OWNER-RULING comment 5865062740 and owner-ruled label under the owner's standing instruction)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "openspec/changes/harden-gm-two-player-campaign-sessions/design.md",
+    "openspec/changes/harden-gm-two-player-campaign-sessions/specs/coop-campaign-sync/spec.md"
+  ],
+  "blobEqualityDiffLines": 0
+}
