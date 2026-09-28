@@ -1230,15 +1230,34 @@ export class DurableMatchStore
     }
     const events = await this.getEvents(matchId, 0);
     if (events.length === 0) return { kind: 'unchanged' };
+    const db = this.capabilityDatabase();
+    const head = readEffectiveStreamHead(
+      db,
+      new SQLiteEventHistoryBranchStore(db),
+      matchStreamRef(matchId),
+    );
+    if (!isLivePathBranchId(head.branchId) || head.revision > events.length) {
+      return {
+        kind: 'blocked',
+        reason: 'partial-history',
+        evidence: [
+          `journal head '${head.branchId}' at revision ${head.revision} cannot be extended to ${events.length}`,
+        ],
+      };
+    }
+    // A complete journal needs no historical match-store receipts. This
+    // preserves pre-U43 streams whose opening batch predates create receipts.
+    if (head.revision === events.length) return { kind: 'unchanged' };
+
     const rows = this.db
       .prepare(
         `SELECT * FROM mp_command_receipts
-         WHERE match_id = ?
+         WHERE match_id = ? AND last_revision >= ?
          ORDER BY first_revision, last_revision`,
       )
-      .all(matchId) as ICommandReceiptRow[];
+      .all(matchId, head.revision) as ICommandReceiptRow[];
     const batches: IMatchCommandBatch[] = [];
-    let nextRevision = 0;
+    let nextRevision = head.revision;
     for (const row of rows) {
       const receipt = receiptFrom(row);
       const batchEvents = events.slice(
@@ -1253,12 +1272,10 @@ export class DurableMatchStore
         expectedPostStateDigest: receipt.expectedPostStateDigest,
         journalAuthorityCommand: true,
       };
-      const identityPrefix = `${receipt.commandId}|${receipt.actorId}|${receipt.firstRevision}|`;
       const valid =
         receipt.commandId.trim().length > 0 &&
         receipt.actorId.trim().length > 0 &&
-        (row.fingerprint.startsWith(`v2|${identityPrefix}`) ||
-          row.fingerprint.startsWith(identityPrefix)) &&
+        matchesCommandFingerprint(row.fingerprint, batch) &&
         receipt.firstRevision === nextRevision &&
         receipt.eventCount === batchEvents.length &&
         receipt.lastRevision ===
@@ -1282,31 +1299,12 @@ export class DurableMatchStore
         kind: 'blocked',
         reason: 'partial-history',
         evidence: [
-          `stored receipts cover revisions 0..${nextRevision - 1}; match log holds ${events.length} events`,
+          `stored receipts cover missing revisions ${head.revision}..${nextRevision - 1}; match log holds ${events.length} events`,
         ],
       };
     }
 
-    const db = this.capabilityDatabase();
-    const head = readEffectiveStreamHead(
-      db,
-      new SQLiteEventHistoryBranchStore(db),
-      matchStreamRef(matchId),
-    );
-    if (!isLivePathBranchId(head.branchId) || head.revision > events.length) {
-      return {
-        kind: 'blocked',
-        reason: 'partial-history',
-        evidence: [
-          `journal head '${head.branchId}' at revision ${head.revision} cannot be extended to ${events.length}`,
-        ],
-      };
-    }
-    if (head.revision === events.length) return { kind: 'unchanged' };
-    const missing = batches.filter(
-      (batch) => batch.expectedRevision >= head.revision,
-    );
-    if (missing[0]?.expectedRevision !== head.revision) {
+    if (batches[0]?.expectedRevision !== head.revision) {
       return {
         kind: 'blocked',
         reason: 'partial-history',
@@ -1316,7 +1314,7 @@ export class DurableMatchStore
       };
     }
     try {
-      for (const batch of missing) {
+      for (const batch of batches) {
         await this.mirrorCommittedBatch(matchId, batch, true);
       }
     } catch (error) {

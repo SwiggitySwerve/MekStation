@@ -165,6 +165,55 @@ function journalState(): {
   return { head: head?.revision ?? null, rows: rows.count };
 }
 
+function journalSnapshot(): {
+  readonly head:
+    | {
+        readonly branchId: string;
+        readonly revision: number;
+        readonly digest: string;
+      }
+    | undefined;
+  readonly rows: readonly {
+    readonly revision: number;
+    readonly eventId: string;
+    readonly commandId: string;
+    readonly digest: string;
+    readonly payloadJson: string;
+  }[];
+} {
+  const head = campaignDb()
+    .prepare(
+      `SELECT branch_id AS branchId, stream_revision AS revision,
+              event_digest AS digest
+         FROM event_journal_stream_heads
+        WHERE stream_type = 'match' AND stream_id = ?`,
+    )
+    .get(MATCH_ID) as
+    | {
+        readonly branchId: string;
+        readonly revision: number;
+        readonly digest: string;
+      }
+    | undefined;
+  const rows = campaignDb()
+    .prepare(
+      `SELECT stream_revision AS revision, event_id AS eventId,
+              command_id AS commandId, event_digest AS digest,
+              payload_json AS payloadJson
+         FROM event_journal_events
+        WHERE stream_type = 'match' AND stream_id = ?
+        ORDER BY stream_revision`,
+    )
+    .all(MATCH_ID) as readonly {
+    readonly revision: number;
+    readonly eventId: string;
+    readonly commandId: string;
+    readonly digest: string;
+    readonly payloadJson: string;
+  }[];
+  return { head, rows };
+}
+
 async function createAndSeed(
   capabilityAvailable = true,
 ): Promise<readonly IGameEvent[]> {
@@ -303,7 +352,7 @@ describe('boot recovery restores every trusted stored journal batch', () => {
   ] as const)(
     'refuses a %s receipt identity without mutating the journal',
     async (_label, corrupt) => {
-      await createAndSeed();
+      await createAndSeed(false);
       const before = journalState();
       const db = new Database(matchPath);
       try {
@@ -326,15 +375,70 @@ describe('boot recovery restores every trusted stored journal batch', () => {
     },
   );
 
-  it('leaves an already complete journal byte-for-byte unchanged', async () => {
+  it('refuses a corrupted event-bearing fingerprint suffix without journal mutation', async () => {
+    await createAndSeed(false);
+    const before = journalSnapshot();
+    expect(before).toEqual({ head: undefined, rows: [] });
+    const db = new Database(matchPath);
+    try {
+      const row = db
+        .prepare(
+          `SELECT fingerprint FROM mp_command_receipts WHERE match_id = ?`,
+        )
+        .get(MATCH_ID) as { readonly fingerprint: string };
+      const prefix = row.fingerprint.split('|').slice(0, 4).join('|');
+      db.prepare(
+        `UPDATE mp_command_receipts SET fingerprint = ? WHERE match_id = ?`,
+      ).run(`${prefix}|corrupted-event`, MATCH_ID);
+    } finally {
+      db.close();
+    }
+
+    coldReopen();
+    const recovered = await recoverActiveMatches(store);
+
+    expect(recovered.hosts.has(MATCH_ID)).toBe(false);
+    expect(recovered.blocked).toEqual([
+      expect.objectContaining({
+        matchId: MATCH_ID,
+        reason: 'partial-history',
+      }),
+    ]);
+    expect(journalSnapshot()).toEqual(before);
+  });
+
+  it('recovers a complete pre-U43 journal without an opening receipt', async () => {
     await createAndSeed();
-    const before = journalState();
+    const db = new Database(matchPath);
+    try {
+      db.prepare(`DELETE FROM mp_command_receipts WHERE match_id = ?`).run(
+        MATCH_ID,
+      );
+    } finally {
+      db.close();
+    }
+    expect(
+      await store.getCommandReceipt(MATCH_ID, `create:${MATCH_ID}`),
+    ).toBeNull();
+    const before = journalSnapshot();
 
     coldReopen();
     const recovered = await recoverActiveMatches(store);
 
     expect(recovered.blocked).toEqual([]);
     expect(recovered.hosts.has(MATCH_ID)).toBe(true);
-    expect(journalState()).toEqual(before);
+    expect(journalSnapshot()).toEqual(before);
+  });
+
+  it('leaves an already complete journal byte-for-byte unchanged', async () => {
+    await createAndSeed();
+    const before = journalSnapshot();
+
+    coldReopen();
+    const recovered = await recoverActiveMatches(store);
+
+    expect(recovered.blocked).toEqual([]);
+    expect(recovered.hosts.has(MATCH_ID)).toBe(true);
+    expect(journalSnapshot()).toEqual(before);
   });
 });

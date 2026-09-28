@@ -551,9 +551,9 @@ export interface IMatchStore
    * from the match id, so a second call recognises its own prior seed.
    *
    * OPTIONAL as a structural flag, exactly as `appendCommandBatch` is.
-   * A store without a journal simply does not offer it, and never
-   * throws for a mirror outcome: a failed seed is recorded on the same
-   * shadow tripwire every other mirror refusal reaches.
+   * A store without a journal simply does not offer it. Implementations
+   * may throw when the stored opening identity conflicts with the seed;
+   * mirror refusals remain recorded on the standard shadow tripwire.
    */
   seedJournalFromInitialEvents?(
     matchId: string,
