@@ -118,3 +118,77 @@ Co-op campaign command screens SHALL map host and guest roles into the shared co
 #### Scenario: Guest sees proposal or public command path
 - **WHEN** a guest opens the same co-op campaign command screen
 - **THEN** the screen SHALL hide host-only and GM-private controls and SHALL route mutating actions through proposal or validated player command paths
+
+<!--
+Roadmap PAIC (plan task 41), the source contract for roadmap unit PAI (R2.authority-live).
+This entry modifies the archived "Co-op Mission Launch With Both Forces" requirement because
+that requirement owns co-op mission combat: it composes the encounter, names the OpFor and
+binds the fight to ServerMatchHost. The OpFor was named but nothing said who drives it. The
+entry carries the FULL final text. Its first paragraph and its three original scenarios are
+unchanged word for word, so the per-player same-side unit ownership rule is preserved.
+Provenance: the user chose on 2026-09-27 that the server drives the opposing force (GAP-7).
+That choice is planning provenance, not an exact-head owner ruling.
+-->
+
+### Requirement: Co-op Mission Launch With Both Forces
+
+The system SHALL launch a co-op campaign mission as one encounter composed from both players' selected forces, assigned to a shared `GameSide` against the encounter's OpFor. The composed encounter SHALL be run through the existing `ServerMatchHost` server-authoritative combat loop. Each deploying player SHALL own and command only their own units; an intent for a unit a player does not own SHALL be rejected.
+
+In an explicitly bootstrapped co-op mission match, the OpFor SHALL be driven by server-owned commands. At an eligible opposing-unit turn the server SHALL run the existing engine AI inside the host's serialized command lifecycle. No player browser SHALL run, receive, or be able to request control of the OpFor, and no opponent-control grant SHALL exist. Each server opponent turn SHALL carry a deterministic command identity derived from the match, the accepted branch, revision and effectiveGeneration head, and the active unit, so replay and cold reopen reproduce the same turn and a duplicate trigger appends nothing. The turn's output SHALL reach players only through the normal per-viewer publication, and hidden opponent inputs SHALL stay server-side. The existing disconnect and pause policy SHALL apply unchanged; a guest disconnect SHALL grant no participant any authority. No client wire field SHALL be able to represent server-internal authority, and a player-supplied command that claims to be an opponent AI command SHALL be rejected.
+
+#### Scenario: Co-op encounter contains both rosters
+
+- **GIVEN** a co-op campaign mission with two players, each contributing a force
+- **WHEN** the mission is launched
+- **THEN** the resulting encounter SHALL contain the units of both forces
+- **AND** both forces SHALL be assigned to the same side against the encounter OpFor
+
+#### Scenario: Co-op encounter runs through the existing combat host
+
+- **GIVEN** a composed co-op encounter
+- **WHEN** the encounter starts
+- **THEN** it SHALL be run by `ServerMatchHost`
+- **AND** no new combat transport SHALL be introduced for co-op play
+
+#### Scenario: Cross-player unit intent is rejected
+
+- **GIVEN** a co-op encounter with two deploying players
+- **WHEN** one player sends a combat intent for a unit owned by the other player
+- **THEN** the host SHALL reject the intent as unauthorized
+- **AND** no event SHALL be appended for that intent
+
+#### Scenario: Server opponent turn advances combat
+
+- **GIVEN** an explicitly bootstrapped co-op mission match whose active unit belongs to the OpFor
+- **WHEN** the accepted state reaches that unit's turn
+- **THEN** the server SHALL take the turn with the existing engine AI inside the host's serialized command lifecycle
+- **AND** the resulting events SHALL be persisted and published to each viewer through the normal per-viewer projection
+- **AND** combat SHALL advance to the next eligible turn without any player browser acting for the OpFor
+
+#### Scenario: Forged client opponent command is refused
+
+- **GIVEN** a co-op mission match in progress
+- **WHEN** a player's client submits a command that claims opponent AI authority or targets an OpFor unit
+- **THEN** the host SHALL reject the command as unauthorized
+- **AND** no event SHALL be appended and no opponent turn SHALL run
+
+#### Scenario: Replay and cold reopen reproduce the opponent turn
+
+- **GIVEN** a co-op mission match in which the server took an opponent turn
+- **WHEN** the match is replayed from its journal or cold reopened after a restart
+- **THEN** the opponent turn SHALL have the same command identity and the same resulting events as the original
+- **AND** hidden opponent inputs SHALL NOT appear in any player's projection, replay, or export
+
+#### Scenario: Duplicate opponent trigger appends once
+
+- **GIVEN** an opponent turn already committed for a head and active unit
+- **WHEN** the same turn is triggered again, including after a restart or redelivery
+- **THEN** the host SHALL resolve it to the existing command identity
+- **AND** no second batch of events SHALL be appended
+
+#### Scenario: Guest disconnect grants nothing
+
+- **GIVEN** a co-op mission match with a connected host and guest
+- **WHEN** the guest disconnects
+- **THEN** the existing disconnect and pause policy SHALL apply unchanged
+- **AND** no participant SHALL gain control of the guest's units or the OpFor
