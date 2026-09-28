@@ -1,0 +1,252 @@
+{
+  "kind": "split-admission",
+  "unit": "U24",
+  "at": "2026-09-28T06:58:24.882Z",
+  "baseline": "d3c2a8844e1b9ebcc4b2d8c9340736a8b56a47b7",
+  "implementer": "gpt-6-astra (deep-high task st_01a0e6b9)",
+  "result": "BLOCKED-SPLIT: at least 19 mandatory files > 15; 23 with the four writer-only re-pins (12 non-test, 11 test); actual diff 0 files",
+  "inventory": {
+    "baseline": "d3c2a8844e1b9ebcc4b2d8c9340736a8b56a47b7",
+    "unit": "U24",
+    "scopeValidated": true,
+    "caps": {
+      "maxFiles": 15,
+      "maxNonGeneratedLines": 500
+    },
+    "mandatoryFiles": [
+      {
+        "path": "src/lib/multiplayer/server/matchJournalAuthority.ts",
+        "kind": "product",
+        "present": true,
+        "line": 20,
+        "source": "'off' as CombatJournalAuthorityMode;",
+        "reason": "Enable the production constant; base contract.",
+        "sha256": "50e5e780476e3a0dd7fc148ea1021b24c22e2e3a413a7c5231da4bf12a8a9650"
+      },
+      {
+        "path": "src/lib/multiplayer/server/combatJournalAuthorityEnabled.ts",
+        "kind": "product",
+        "present": true,
+        "line": 41,
+        "source": "export function e2eCombatJournalAuthorityMode(): CombatJournalAuthorityMode | null {",
+        "reason": "Delete the fixture consumer; rider (a).",
+        "sha256": "11c2586fda2853795b87f36cb405fc2093ebc60076c25a7465c840863a5041f5"
+      },
+      {
+        "path": "src/lib/multiplayer/server/MatchStreamJournalMirror.ts",
+        "kind": "product",
+        "present": true,
+        "line": 265,
+        "source": "branches.backfillGenesisBranches();",
+        "reason": "Remove the redundant global installer call; rider (c).",
+        "sha256": "18a3cb96c248743770e71bded660b4f7a2baeca992acf980142198ec82dea811"
+      },
+      {
+        "path": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md",
+        "kind": "product",
+        "present": true,
+        "line": 29,
+        "source": "- [ ] 1.7 S6: reviewed cutover flag with shadow parity, migration states and rollback law in the campaign cutover's shape; new matches admit through the journal, legacy completed matches keep their reads. Rollback proof: revert the flag, no row erased.",
+        "reason": "Amend the whole task letter to the hard cutover; base contract.",
+        "sha256": "30ca261cb8b066485c5bbf3cde0cd1d2c676bdca147d491953e7798f6074ccc7"
+      },
+      {
+        "path": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/design.md",
+        "kind": "product",
+        "present": true,
+        "line": 14,
+        "source": "- **S6 reviewed cutover.** The flag becomes a reviewed cutover with shadow parity, migration states and a rollback law, in the shape `design-campaign-authority-and-sync` shipped for the campaign journal (marker store, honest baseline import, shadow-parity block). New matches admit through the journal; legacy completed matches keep their reads.",
+        "reason": "Amend S6 and add the roadmap crosswalk; rider (b).",
+        "sha256": "54ad4a6652ce9f02619eb0d9c3cd44d319717be1c32c6392d9807440c0b77d67"
+      },
+      {
+        "path": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/proposal.md",
+        "kind": "product",
+        "present": true,
+        "line": 35,
+        "source": "- Rollback is additive and history-preserving: revert the cutover flag; never erase journal, branch, receipt or audit rows.",
+        "reason": "Amend Impact and add the roadmap crosswalk; rider (b).",
+        "sha256": "37a25c602f62b9f3b6828e59730bf45b401b11ffeb9caac2c7fdbfae7b1d5934"
+      },
+      {
+        "path": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/specs/event-store/spec.md",
+        "kind": "product",
+        "present": false,
+        "line": null,
+        "reason": "Add the mandated event-store requirement delta; rider (b).",
+        "sha256": null
+      },
+      {
+        "path": "scripts/qc/gm-two-player-campaign-core.cjs",
+        "kind": "product",
+        "present": true,
+        "line": 238,
+        "source": "MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE: 'enabled',",
+        "reason": "Remove fixture producer and correct comments; re-admission clause 3.",
+        "sha256": "43642dbdb61f884b818cb5266ff86bff3861994dc389022b25fe0925901f4155"
+      },
+      {
+        "path": "scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+        "kind": "test",
+        "present": true,
+        "line": 192,
+        "source": "MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE: 'enabled',",
+        "reason": "Re-pin fixture production/forwarding assertions; re-admission clause 3.",
+        "sha256": "7eb9c8f1d642d8a8ec7a49e397c4abb05d08fc0188b8c50721f1f2c9f8c65e1f"
+      },
+      {
+        "path": "playwright.config.ts",
+        "kind": "product",
+        "present": true,
+        "line": 319,
+        "source": "// hardcoded 'off' cutover mode.",
+        "reason": "Remove fixture forwarding and correct mode-off claim; re-admission clause 3.",
+        "sha256": "d483179811287e17adfcc835513ca7842aa8e356dc6006a68c5aa6c805c8604c"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/combatJournalAuthorityEnabled.test.ts",
+        "kind": "test",
+        "present": true,
+        "line": 45,
+        "source": "expect(COMBAT_JOURNAL_AUTHORITY_MODE).toBe('off');",
+        "reason": "Re-pin the fixture resolver/default assertions; rider (a).",
+        "sha256": "6340970416f8da0a95c4b11b847ebe2074254d845373cdb25c24abf5718c2835"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/journalAuthorityShadow.test.ts",
+        "kind": "test",
+        "present": true,
+        "line": 225,
+        "source": "expect(COMBAT_JOURNAL_AUTHORITY_MODE).toBe('off');",
+        "reason": "Re-pin direct production-constant off/false assertions and implicit off controls.",
+        "sha256": "a070547114b159446b139e9a1e3397c1a770692697852d0138ee1e260a0b72ba"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/matchCreatePathJournalSeed.sqlite.test.ts",
+        "kind": "test",
+        "present": true,
+        "line": 26,
+        "source": "* No cutover: `COMBAT_JOURNAL_AUTHORITY_MODE` stays 'off' and every",
+        "reason": "Correct false mode-off claim and prove default create seeding; rider (a)/base contract.",
+        "sha256": "7b8834d75f1f2497870d50b8ea4919cba5825fb0c312b425cc0c2d63f1ca44e4"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/matchRecoveryJournalArmDoor.sqlite.test.ts",
+        "kind": "test",
+        "present": true,
+        "line": 23,
+        "source": "* No cutover: `COMBAT_JOURNAL_AUTHORITY_MODE` stays 'off' and every",
+        "reason": "Correct false mode-off claim; rider (a).",
+        "sha256": "4ed73ff663283edc34f7b717bbd72e9a1b1df883c790a1183a6e6ed2811fd6fd"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/ServerMatchHostBranchAdmission.journalHead.test.ts",
+        "kind": "test",
+        "present": true,
+        "line": 464,
+        "source": "expect(COMBAT_JOURNAL_AUTHORITY_MODE).toBe('off');",
+        "reason": "Re-pin shipped-default off/no-head/no-journal assertions.",
+        "sha256": "34f21863312182b3e9779b18bfb298266e7ec1b87ca3f96addc64929ffaecc4d"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/journalAuthorityPath.test.ts",
+        "kind": "test",
+        "present": true,
+        "line": 142,
+        "source": "expect(COMBAT_JOURNAL_AUTHORITY_ENABLED).toBe(false);",
+        "reason": "Re-pin direct production-constant assertion.",
+        "sha256": "9af1757135a76635c1699292af86e68aead2464bdaa84ff64dab9a7ded089294"
+      },
+      {
+        "path": "src/lib/multiplayer/server/ServerMatchHost.ts",
+        "kind": "product",
+        "present": true,
+        "line": 1604,
+        "source": "* default to the hardcoded 'off' and make the arm unobservable.",
+        "reason": "Correct false bootstrap/fixture/mode-off commentary; rider (a).",
+        "sha256": "17a3657f4565b0290efdcf36c030c41d301973023a327ee924d59ed0346f873a"
+      },
+      {
+        "path": "src/lib/multiplayer/server/matchJournalAuthorityStartedDerived.ts",
+        "kind": "product",
+        "present": true,
+        "line": 35,
+        "source": "* mode (`off`) nothing mirrors, so every match answers false; a stream",
+        "reason": "Correct false shipped-mode claim; rider (a).",
+        "sha256": "f0d6641605feca582e0ab37b81e53ae1f3f220290d37214bd72af8932a4a0587"
+      },
+      {
+        "path": "src/lib/multiplayer/server/history/GmCombatRewindPreview.ts",
+        "kind": "product",
+        "present": true,
+        "line": 244,
+        "source": "// nothing while the combat journal authority mode is 'off' (the shipped",
+        "reason": "Correct false shipped-mode and backfill commentary; rider (a).",
+        "sha256": "2863c1753547a38e1823fecdf61e75e6d1e85881e5c0d07093bc3d7efab44e19"
+      }
+    ],
+    "writerOnlyRepins": [
+      {
+        "path": "src/lib/multiplayer/server/history/__tests__/CoordinatedOutcomeCorrection.test.ts",
+        "kind": "test",
+        "present": true,
+        "line": 112,
+        "source": "branches().backfillGenesisBranches();",
+        "reason": "Existing pin explicitly runs backfill after the writer; remove that call for writer-only proof under rider (d).",
+        "sha256": "5e8d1e5fe0a916691a0e57f2f55f34b7c3be03421457f6777c5e48f2a7361f9f"
+      },
+      {
+        "path": "src/lib/multiplayer/server/history/__tests__/CoordinatedOutcomeCorrectionSaga.test.ts",
+        "kind": "test",
+        "present": true,
+        "line": 460,
+        "source": "branches.backfillGenesisBranches();",
+        "reason": "Existing pin explicitly runs backfill after the writer; remove that call for writer-only proof under rider (d).",
+        "sha256": "f53da0f2a37c7ac3c82323ad607263bde5fd614699b40fb7ae1f55f6b529879c"
+      },
+      {
+        "path": "src/lib/multiplayer/server/history/__tests__/GmCombatRewindCommit.test.ts",
+        "kind": "test",
+        "present": true,
+        "line": 181,
+        "source": "branches().backfillGenesisBranches();",
+        "reason": "Existing pin explicitly runs backfill after the writer; remove that call for writer-only proof under rider (d).",
+        "sha256": "e38c37a7b306bacfbfaae13e22f868ea2b5317a71906aab0bbbc21fd97f6619c"
+      },
+      {
+        "path": "src/lib/multiplayer/server/history/__tests__/GmCombatRewindPreview.test.ts",
+        "kind": "test",
+        "present": true,
+        "line": 186,
+        "source": "branches().backfillGenesisBranches();",
+        "reason": "Existing pin explicitly runs backfill after the writer; remove that call for writer-only proof under rider (d).",
+        "sha256": "b91bb2791b933d33bf7673194d229e614f17f3e19fafc9115e1f0e88bf4dcb66"
+      }
+    ],
+    "counts": {
+      "mandatoryFiles": 19,
+      "mandatoryProductFiles": 12,
+      "mandatoryTestFiles": 7,
+      "additionalWriterOnlyTestFiles": 4,
+      "withWriterOnlyRepins": 23
+    },
+    "caveats": [
+      "Required file census, not an applied patch or full runtime blast-radius census.",
+      "No prospective added-line estimate is presented as measured; the file cap alone already fails.",
+      "Typed missing-branch refusal and multi-event drain may require additional changes; not counted here.",
+      "No test consolidation/deletion or false-comment deferral is used to hide required files."
+    ]
+  },
+  "allocation": {
+    "U24a": {
+      "files": 12,
+      "scope": "three production comment files, five server suites made explicit, four writer-only history pins"
+    },
+    "U24b": {
+      "files": 15,
+      "scope": "files 1-11 of the inventory plus the four overlapping suites (journalAuthorityShadow, matchCreatePathJournalSeed, ServerMatchHostBranchAdmission.journalHead, journalAuthorityPath)",
+      "note": "at the cap; re-measured at admission"
+    }
+  },
+  "taskKey": "adopt-combat-journal-cutover-and-gm-rewind#1.7@20 moves from U24 to U24b"
+}
