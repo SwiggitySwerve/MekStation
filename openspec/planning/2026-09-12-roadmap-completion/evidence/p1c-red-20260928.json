@@ -1,0 +1,11 @@
+{
+  "unit": "P1C",
+  "stage": "red",
+  "at": "2026-09-28T03:54:24.052Z",
+  "baseline": "5dc1c1a372e31b83101d13e7e3ab100fdf1b0315",
+  "summary": "Red first on the unchanged baseline: 5 helper rows (no mission-create call, no route missionMatchId, no stale refusal, no retry identity, no real route/store handoff) and 1 page row (full accepted head and mission identity absent from the helper admission) failed. Lane A (gpt-6-sol) reproduced the six failures against the restored baseline product files.",
+  "evidence": [
+    "lane log logs/red-launchCoopMission.log",
+    "lane log logs/red-missionLaunchPage.log"
+  ]
+}

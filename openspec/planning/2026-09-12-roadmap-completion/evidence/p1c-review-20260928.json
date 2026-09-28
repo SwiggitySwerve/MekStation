@@ -1,0 +1,17 @@
+{
+  "unit": "P1C",
+  "stage": "review",
+  "at": "2026-09-28T05:04:17.639Z",
+  "lane": "A",
+  "reviewerModel": "gpt-6-sol",
+  "implementerModel": "gpt-5.6-sol-fast (deep-low task st_01a0e623)",
+  "reviewerEffort": "not exposed by the task snapshot",
+  "head": "f474743c9aab2d6029e5c29a98218b215bb81e46",
+  "reviewedHead": "f474743c9aab2d6029e5c29a98218b215bb81e46",
+  "verdict": "APPROVE",
+  "outputPath": "evidence/p1c-lane-a-review-20260928.md",
+  "outputSha256": "0b4369b2f57b5ee64bc561b7d39f319171744e7a703dc164e1440528bb38679d",
+  "sharedContext": "none: a separate task (st_01a0e638) on gpt-6-sol, a different model from the implementer, reviewed a detached worktree at the head (node_modules junctioned to the wave-A dependencies), reproduced six red rows against restored baseline product files and ran 16/16 and 75/75 in separate processes; its first pass returned REQUEST_CHANGES on a retry after partial success (the page re-reads an advanced head and the route refuses with 409: no duplicate, no rejoin), and on re-review of the same head against P1C's binding text it withdrew the blocker, recorded the gap as a NOTE (tracked as FN-p1c-partial-success-rejoin, held by P2) and returned APPROVE with no BLOCKER or REQUIRED finding",
+  "laneB": "owner ruling PK-p1c-ruling: rule the head on f474743c9aab2d6029e5c29a98218b215bb81e46 (PR #2073, comment 5863723675, label owner-ruled)",
+  "githubApproval": "none recorded; Lane A is engineering evidence, never a GitHub approval"
+}

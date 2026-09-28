@@ -1,0 +1,20 @@
+{
+  "unit": "P1C",
+  "stage": "local",
+  "at": "2026-09-28T04:56:12.145Z",
+  "status": "local-verified",
+  "head": "f474743c9aab2d6029e5c29a98218b215bb81e46",
+  "baseline": "5dc1c1a372e31b83101d13e7e3ab100fdf1b0315",
+  "summary": "4 existing files (140 counted non-test added lines): the mission launch page carries mission identity and the original accepted {branchId, revision, effectiveGeneration} into launchCoopMission, which calls the authenticated mission-create route with the stored co-op Bearer token, approved contributions and unitBootstrap before any local encounter side effect and returns the route missionMatchId separately from the local gameSessionId; stale/failed create returns before local launch and navigation; identical retry keeps the shared id; encounter/HQ navigation unchanged. Green 16/16 and 75/75 in separate processes, co-op journey 144/144 and 2/2 Chromium, CAMP-01D three frozen arrays, typecheck, lint 0 errors / 84 warnings, lint:units, format:check, diff --check and build. Lane A gpt-6-sol APPROVE at f474743 (partial-success rejoin recorded as a NOTE and tracked finding for P2).",
+  "implementer": "gpt-5.6-sol-fast (deep-low task st_01a0e623)",
+  "files": {
+    "src/lib/campaign/coop/launchCoopMission.ts": "9617253f682731eff8c9a2a6a2595e2ee2ae810ab7fcefd200e70a7b04a3ce94",
+    "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts": "26f70d4274c79e276cc3fa4310a24afdcff4b76fb008491a1ae4884ade873aa4",
+    "src/pages-modules/gameplay/campaigns/missionLaunchPage.launch.ts": "4d59057e5edef6840ae1254635cbb4f2a44ffaa432bfc5bcae77f4c4d60b066d",
+    "src/pages-modules/gameplay/campaigns/__tests__/missionLaunchPage.launch.test.ts": "b853d1a73d41e16b04dd5fbd7d65ca2fb5cbcd05d2e705eee5ac1e32db972e24"
+  },
+  "evidence": [
+    ".omo/ulw-execute/p1c/DONECLAIM.md (lane evidence)",
+    "E:/Projects/MekStation/.omo/ulw-execute/evidence/task-45-p1c-review.md"
+  ]
+}

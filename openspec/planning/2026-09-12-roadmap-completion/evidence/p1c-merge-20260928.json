@@ -1,0 +1,21 @@
+{
+  "unit": "P1C",
+  "stage": "merge",
+  "at": "2026-09-28T05:04:19.327Z",
+  "pr": 2073,
+  "title": "fix(coop): pass the accepted head into mission creation",
+  "head": "f474743c9aab2d6029e5c29a98218b215bb81e46",
+  "mergeSha": "5433488de0fe7ef9ede71144463205e4b290c98c",
+  "mergedAt": "2026-09-28T04:55:29Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge 2073 --squash --match-head-commit f474743c9aab2d6029e5c29a98218b215bb81e46 after the GraphQL pre-merge gate (31/31 checks SUCCESS, CLEAN/MERGEABLE, 0 unresolved threads, 4 files, Lane A APPROVE on the exact head, OWNER-RULING comment 5863723675 and owner-ruled label under the owner's standing instruction)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts",
+    "src/lib/campaign/coop/launchCoopMission.ts",
+    "src/pages-modules/gameplay/campaigns/__tests__/missionLaunchPage.launch.test.ts",
+    "src/pages-modules/gameplay/campaigns/missionLaunchPage.launch.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}
