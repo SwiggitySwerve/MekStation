@@ -40,7 +40,7 @@ import {
   type IMatchJournalAuthorityBaseline,
 } from '../matchJournalAuthority';
 import { ViewerDeliveryCursors } from '../projection/ViewerDeliveryCursors';
-import { ServerMatchHost, type IMatchSocket } from '../ServerMatchHost';
+import { ServerMatchHost } from '../ServerMatchHost';
 
 const MATCH_ID = 'match-journal-admission';
 
@@ -172,19 +172,6 @@ async function makeHost(options: {
   return { host, store };
 }
 
-function makeRecordingSocket(): IMatchSocket & { sent: unknown[] } {
-  const sent: unknown[] = [];
-  const socket = {
-    send(data: string) {
-      sent.push(JSON.parse(data) as unknown);
-    },
-    close() {},
-    readyState: 1,
-    sent,
-  };
-  return socket as IMatchSocket & { sent: unknown[] };
-}
-
 describe('journal authority admission', () => {
   afterEach(() => {
     matchJournalAuthority._setCombatJournalAuthorityModeForTests(null);
@@ -231,7 +218,6 @@ describe('journal authority admission', () => {
       mode: 'enabled',
       requested: true,
       imported: false,
-      processMismatchCount: 0,
       gates: wiredGates(new InMemoryMatchStore({ quiet: true })),
       existingBaseline: null,
     });
@@ -240,42 +226,22 @@ describe('journal authority admission', () => {
     expect(decision.kind).toBe('admitted');
   });
 
-  it('MISMATCH TRIPWIRE: any process mismatch refuses; creation stays legacy', async () => {
+  it('PROCESS ISOLATION: a prior match mismatch does not refuse a later match', async () => {
     recordProcessShadowComparison(mismatchRecord());
     matchJournalAuthority._setCombatJournalAuthorityModeForTests('enabled');
-    const warn = jest.spyOn(logger, 'warn').mockImplementation(() => undefined);
 
     const { host, store } = await makeHost({
-      matchId: 'match-admit-mismatch',
+      matchId: 'match-admit-after-mismatch',
       journalAuthority: true,
     });
 
-    // MUTATION A: skip the mismatch tripwire — this row reds
-    expect(host.isJournalAuthorityEnabled()).toBe(false);
+    expect(host.isJournalAuthorityEnabled()).toBe(true);
     expect(
-      store.getJournalAuthorityBaseline('match-admit-mismatch'),
+      store.getJournalAuthorityBaseline('match-admit-after-mismatch'),
+    ).not.toBeNull();
+    expect(
+      getJournalAuthorityAdmissionRefusal('match-admit-after-mismatch'),
     ).toBeNull();
-    expect(getJournalAuthorityAdmissionRefusal('match-admit-mismatch')).toEqual(
-      {
-        matchId: 'match-admit-mismatch',
-        reason: 'shadow-mismatch',
-      },
-    );
-    expect(warn).toHaveBeenCalled();
-
-    const socket = makeRecordingSocket();
-    host.attachSocket(socket, 'host-player');
-    await host.handleIntent(intent('lock-1', host.matchId));
-    expect(await store.getJournalAuthorityStarted!(host.matchId)).toBeNull();
-    expect(
-      socket.sent.some(
-        (frame) =>
-          typeof frame === 'object' &&
-          frame !== null &&
-          JSON.stringify(frame).includes('shadow-mismatch'),
-      ),
-    ).toBe(false);
-    warn.mockRestore();
   });
 
   it('MISSING GATE: incomplete wiring refuses; construction still yields a working legacy match', async () => {
@@ -405,7 +371,6 @@ describe('journal authority admission', () => {
         mode: 'enabled',
         requested: true,
         imported: false,
-        processMismatchCount: 0,
         gates: wiredGates(memory),
         existingBaseline: genesis,
       });

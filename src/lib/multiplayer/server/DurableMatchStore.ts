@@ -54,6 +54,7 @@ import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 
 import { readDurableStreamRebuild } from '@/lib/events/journal/EventHistoryDurableRebuild';
+import { canonicalizeJsonV1 } from '@/lib/events/journal/EventJournalCanonicalizer';
 import { normalizeRoomCode } from '@/lib/p2p/roomCodes';
 import { isSqliteUniqueConstraintError } from '@/services/persistence/sqliteConstraintErrors';
 
@@ -120,12 +121,18 @@ import {
   matchCommandFingerprint,
   matchesCommandFingerprint,
 } from './matchCommandBatch';
-import { resolveMatchCommitExpectedRevision } from './matchCommitJournalHead';
+import {
+  resolveMatchCommitExpectedRevision,
+  storeExpectedRevision,
+} from './matchCommitJournalHead';
 import {
   getCombatJournalAuthorityMode,
   recordProcessShadowComparison,
 } from './matchJournalAuthority';
-import { mirrorMatchBatchToJournal } from './MatchStreamJournalMirror';
+import {
+  mirrorMatchBatchToJournal,
+  withoutUndefinedProperties,
+} from './MatchStreamJournalMirror';
 
 // =============================================================================
 // Constants
@@ -785,6 +792,7 @@ export class DurableMatchStore
 
     const fingerprint = matchCommandFingerprint(batch);
     const committedAt = new Date().toISOString();
+    let duplicateEvents: readonly IGameEvent[] | null = null;
 
     const tx = this.db.transaction((): MatchBatchAppendResult => {
       const prior = this.db
@@ -794,11 +802,38 @@ export class DurableMatchStore
         )
         .get(matchId, batch.commandId) as ICommandReceiptRow | undefined;
       if (prior) {
-        // Same id, same work: the caller never saw the acknowledgement.
-        // Same id, different work: refuse rather than overwrite.
-        return matchesCommandFingerprint(prior.fingerprint, batch)
-          ? { kind: 'duplicate-command', receipt: receiptFrom(prior) }
-          : { kind: 'integrity-conflict', commandId: batch.commandId };
+        const receipt = receiptFrom(prior);
+        const stored = this.db
+          .prepare(
+            `SELECT event_json AS eventJson FROM mp_match_events
+             WHERE match_id = ? AND sequence BETWEEN ? AND ?
+             ORDER BY sequence`,
+          )
+          .all(matchId, receipt.firstRevision, receipt.lastRevision) as {
+          readonly eventJson: string;
+        }[];
+        const storedEvents = stored.map(
+          (row) => JSON.parse(row.eventJson) as IGameEvent,
+        );
+        const sameJournalIdentity =
+          receipt.expectedPostStateDigest ===
+            (batch.expectedPostStateDigest ?? null) &&
+          storedEvents.length === batch.events.length &&
+          batch.events.every(
+            (event, index) =>
+              canonicalizeJsonV1(withoutUndefinedProperties(event)) ===
+              canonicalizeJsonV1(storedEvents[index]),
+          );
+        // Keep the persisted fingerprint format stable, but close over
+        // fields the journal identity also consumes (full events + digest).
+        if (
+          matchesCommandFingerprint(prior.fingerprint, batch) &&
+          sameJournalIdentity
+        ) {
+          duplicateEvents = storedEvents;
+          return { kind: 'duplicate-command', receipt };
+        }
+        return { kind: 'integrity-conflict', commandId: batch.commandId };
       }
 
       // Live head only. The superseded tail lives in the sibling
@@ -982,62 +1017,36 @@ export class DurableMatchStore
     });
 
     const result = tx();
+    if (result.kind === 'integrity-conflict') {
+      if (getCombatJournalAuthorityMode() !== 'off') {
+        this.recordMirrorFailure(batch, 'command-identity-conflict');
+      }
+      return result;
+    }
     if (result.kind === 'committed') {
       await this.mirrorCommittedBatch(matchId, batch);
+    }
+    if (result.kind === 'duplicate-command') {
+      await this.mirrorCommittedBatch(
+        matchId,
+        {
+          ...batch,
+          actorId: result.receipt.actorId,
+          expectedRevision: result.receipt.firstRevision,
+          events: duplicateEvents!,
+          expectedPostStateDigest: result.receipt.expectedPostStateDigest,
+        },
+        true,
+      );
     }
     return result;
   };
 
-  /**
-   * Mirror a committed batch into the journal (S1 of the combat
-   * cutover). Deliberately AFTER `tx()`: the journal lives in the
-   * campaign file and cannot join this transaction, and the command is
-   * already durable here. A mirror failure therefore never fails the
-   * command — it is recorded on the shadow tripwire S6 consults, so a
-   * journal that fell behind cannot be promoted to authority.
-   */
-  private mirrorCommittedBatch = async (
-    matchId: string,
+  private recordMirrorFailure = (
     batch: IMatchCommandBatch,
-    // A SEED is idempotent by construction (task 1.7 preparation): the
-    // same match always derives the same command id over the same
-    // opening events, so the journal's command-identity check answering
-    // `duplicate-command` means the seed already landed. Counting that
-    // as a mismatch would pin above zero the very tripwire S6 consults
-    // before promoting a journal to authority.
-    duplicateIsSuccess = false,
-  ): Promise<void> => {
-    if (getCombatJournalAuthorityMode() === 'off') return;
-    // Method presence is not an open database: a process that never
-    // initialized SQLiteService has the ports bound and would throw.
-    if (!this.isCapabilityDbAvailable()) return;
-    let reason: string;
-    try {
-      const db = this.capabilityDatabase();
-      // The batch's `expectedRevision` IS the match's next sequence.
-      // Task 1.6: at mode 'enabled' the consult answers from the
-      // journal head instead, and it runs HERE - outside the mirror's
-      // transaction - so the view this writer holds is one another
-      // writer can invalidate before the append re-reads it.
-      const expected = resolveMatchCommitExpectedRevision(
-        db,
-        matchId,
-        batch.expectedRevision,
-      );
-      const mirrored = await mirrorMatchBatchToJournal(db, {
-        matchId,
-        commandId: batch.commandId,
-        actorId: batch.actorId,
-        expected,
-        events: batch.events,
-        expectedPostStateDigest: batch.expectedPostStateDigest,
-      });
-      if (mirrored.kind === 'mirrored') return;
-      if (duplicateIsSuccess && mirrored.kind === 'duplicate-command') return;
-      reason = mirrored.kind;
-    } catch (error) {
-      reason = error instanceof Error ? error.message : 'mirror failed';
-    }
+    reason: string,
+  ): string => {
+    const failure = `journal-mirror:${reason}`;
     recordProcessShadowComparison({
       intentId: batch.commandId,
       equal: false,
@@ -1045,8 +1054,61 @@ export class DurableMatchStore
       eventCountShadow: 0,
       liveDigest: batch.expectedPostStateDigest ?? '',
       shadowDigest: '',
-      reason: `journal-mirror:${reason}`,
+      reason: failure,
     });
+    return failure;
+  };
+
+  /**
+   * Mirror a committed batch into the journal (S1 of the combat
+   * cutover). Deliberately AFTER `tx()`: the journal lives in the
+   * campaign file and cannot join this transaction. Shadow mode records
+   * failures diagnostically; enabled mode throws so the host fails the
+   * already-durable command closed and can heal it on an exact retry.
+   */
+  private mirrorCommittedBatch = async (
+    matchId: string,
+    batch: IMatchCommandBatch,
+    retry = false,
+  ): Promise<void> => {
+    const mode = getCombatJournalAuthorityMode();
+    if (mode === 'off') return;
+    let reason: string;
+    try {
+      // Method presence is not an open database: a process that never
+      // initialized SQLiteService has the ports bound and would throw.
+      if (!this.isCapabilityDbAvailable()) {
+        reason = 'capability-db-unavailable';
+      } else {
+        const db = this.capabilityDatabase();
+        // An exact store retry must offer the original expectation so
+        // the journal recognises its command identity if the first
+        // mirror committed before a post-commit failure.
+        const expected = retry
+          ? storeExpectedRevision(batch.expectedRevision)
+          : resolveMatchCommitExpectedRevision(
+              db,
+              matchId,
+              batch.expectedRevision,
+            );
+        const mirrored = await mirrorMatchBatchToJournal(db, {
+          matchId,
+          commandId: batch.commandId,
+          actorId: batch.actorId,
+          expected,
+          events: batch.events,
+          expectedPostStateDigest: batch.expectedPostStateDigest,
+        });
+        if (mirrored.kind === 'mirrored') return;
+        reason = mirrored.kind;
+      }
+    } catch (error) {
+      reason = error instanceof Error ? error.message : 'mirror failed';
+    }
+    const failure = this.recordMirrorFailure(batch, reason);
+    if (mode === 'enabled' && batch.journalAuthorityCommand) {
+      throw new Error(failure);
+    }
   };
 
   /**

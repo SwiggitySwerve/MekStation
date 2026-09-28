@@ -17,7 +17,6 @@ import {
 } from './matchAuthorityBaseline';
 import {
   getCombatJournalAuthorityMode,
-  getProcessShadowMismatchCount,
   type CombatJournalAuthorityMode,
   type IMatchJournalAuthorityBaseline,
 } from './matchJournalAuthority';
@@ -29,7 +28,6 @@ import {
 
 export type JournalAuthorityAdmissionRefusalReason =
   | 'imported-legacy'
-  | 'shadow-mismatch'
   | 'missing-privacy-gates';
 
 export interface IJournalAuthorityAdmissionRefusal {
@@ -65,7 +63,6 @@ export interface IAdmitJournalAuthorityInput {
   readonly mode: CombatJournalAuthorityMode;
   readonly requested: boolean;
   readonly imported: boolean;
-  readonly processMismatchCount: number;
   readonly gates: IJournalAuthorityPrivacyGateWiring;
   readonly existingBaseline: IMatchJournalAuthorityBaseline | null;
 }
@@ -115,14 +112,6 @@ export function privacyGatesArePresent(
     gates.viewerPublicationBoundary instanceof ViewerPublicationBoundary &&
     gates.viewerDeliveryCursors instanceof ViewerDeliveryCursors
   );
-}
-
-/**
- * Zero comparisons is not a blocker: equality evidence is the mode
- * flip. Any recorded mismatch in this process un-flips admission.
- */
-export function shadowMismatchBlocksAdmission(count: number): boolean {
-  return count > 0;
 }
 
 /** Identity digest of the empty/genesis stream (no retained events). */
@@ -179,9 +168,6 @@ export function admitJournalAuthority(
   if (input.mode !== 'enabled' || !input.requested) {
     return { kind: 'inert' };
   }
-  if (shadowMismatchBlocksAdmission(input.processMismatchCount)) {
-    return { kind: 'refused', reason: 'shadow-mismatch' };
-  }
   if (!privacyGatesArePresent(input.gates)) {
     return { kind: 'refused', reason: 'missing-privacy-gates' };
   }
@@ -218,7 +204,6 @@ export function resolveJournalAuthorityForNewMatch(input: {
     mode: getCombatJournalAuthorityMode(),
     requested: input.requested,
     imported: matchStreamIsImportedLegacy(input.store, input.matchId),
-    processMismatchCount: getProcessShadowMismatchCount(),
     gates: input.gates,
     existingBaseline: existing,
   });

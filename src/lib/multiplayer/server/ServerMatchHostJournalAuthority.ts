@@ -80,6 +80,7 @@ async function resumeCommittedCommand(
       expectedRevision: prior.firstRevision,
       events,
       expectedPostStateDigest: prior.expectedPostStateDigest,
+      journalAuthorityCommand: true,
     });
   } catch (e) {
     const reason = e instanceof Error ? e.message : 'Store append failed';
@@ -200,6 +201,7 @@ export async function commitJournalAuthorityCommand(
       expectedRevision,
       events,
       expectedPostStateDigest: decided.postStateDigest,
+      journalAuthorityCommand: true,
       ...(decided.terminalOutcome
         ? {
             combatOutcome: {
