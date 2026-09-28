@@ -1,0 +1,18 @@
+{
+  "unit": "PAIC",
+  "stage": "local",
+  "at": "2026-09-28T07:09:37.719Z",
+  "status": "local-verified",
+  "head": "7daa013e2f2b7a53f86dc7fecdb1f0b717c35345",
+  "baseline": "d3c2a8844e1b9ebcc4b2d8c9340736a8b56a47b7",
+  "summary": "2 files in openspec/changes/harden-gm-two-player-campaign-sessions (84 added lines): a MODIFIED \"Co-op Mission Launch With Both Forces\" requirement restating the archived text byte-for-byte (1362/1362 bytes) and adding server-owned OpFor turns through existing engine AI, no browser grant, deterministic command identity from match, accepted head and active unit, normal per-viewer publication and the existing disconnect/pause policy, with five scenarios; a design Roadmap Crosswalk mapping the delta to PAI with PAIC as its contract and the user choice as provenance. openspec strict (change and all 229), roadmap validator four modes, oxfmt and diff --check pass. Lane A gpt-6-sol APPROVE at 7daa013.",
+  "implementer": "claude-opus-5-5 (writing task st_01a0e6c7)",
+  "files": {
+    "openspec/changes/harden-gm-two-player-campaign-sessions/design.md": "0fbbad7be497417f352f9ef83b706c5204d3fcf609cf23fd5cd3957315e5d9db",
+    "openspec/changes/harden-gm-two-player-campaign-sessions/specs/coop-campaign-sync/spec.md": "44804c9703f7c87175c8c46d65e5a9c8a76353b48a384efb2ef0c5eff8436e77"
+  },
+  "evidence": [
+    ".omo/ulw-execute/paic/DONECLAIM.md (lane evidence)",
+    "E:/Projects/MekStation/.omo/ulw-execute/evidence/task-41-paic-review.md"
+  ]
+}

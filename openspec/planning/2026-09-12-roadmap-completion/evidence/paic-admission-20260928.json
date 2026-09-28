@@ -1,0 +1,26 @@
+{
+  "unit": "PAIC",
+  "stage": "admission",
+  "at": "2026-09-28T06:50:25.526Z",
+  "baseline": "d3c2a8844e1b9ebcc4b2d8c9340736a8b56a47b7",
+  "next": "validate-roadmap.mjs --next printed PAIC on exact main d3c2a88",
+  "ownership": {
+    "declared": [
+      "openspec/changes/harden-gm-two-player-campaign-sessions"
+    ]
+  },
+  "tier": "HEAVY review classes (authority, privacy, replay) on a spec-only source contract; ruling under the owner's standing merge instruction",
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500
+  },
+  "decisions": {
+    "mechanism": "one MODIFIED co-op mission requirement in specs/coop-campaign-sync/spec.md of the harden change, plus a design.md crosswalk entry; no product code",
+    "provenance": "the user's 2026-09-27 server-driven opponent choice recorded as provenance, not an exact-head ruling"
+  },
+  "parentDecision": {
+    "decision": "go",
+    "reason": "registered by #2077 with predecessors P1A-P1C complete; --next prints PAIC"
+  },
+  "planTask": "41"
+}
