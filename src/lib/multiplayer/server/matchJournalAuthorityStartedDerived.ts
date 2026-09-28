@@ -3,39 +3,21 @@
  * sub-prefix): answer "has journal authority started for this match
  * stream?" from S1's real journal state.
  *
- * WHY THIS EXISTS. Two facts USED TO claim to answer that question.
- * The `mp_journal_authority_started` marker (written by the older,
- * still-off task-2.3/2.4 path) was one; S1's mirror, which installs the
- * stream head and the match's genesis / effective-head row on the
- * first committed batch, is the other. This module was added BESIDE the
- * marker read so callers could be repointed a slice at a time; task
- * 1.3's sub-prefix 3 finished that, so it is now the ONE source of
- * "started" and no production code reads the marker at all.
+ * Started means the stream has an effective head in
+ * `event_history_effective_heads`, not a separate started marker.
+ * Where the branch tables exist, the journal writer installs genesis and
+ * the effective head with the stream's first append, in the same
+ * transaction as its events and head. No global backfill is needed to
+ * install a newly appended stream.
  *
- * THE DEFINITION. Started means the stream has an effective head
- * installed in `event_history_effective_heads`. That row is chosen
- * deliberately over the journal tail: the mirror appends events,
- * installs `event_journal_stream_heads` and backfills genesis plus the
- * effective head in ONE transaction, so the head cannot exist without
- * the events — and the effective head is the exact row the S2 branch
- * admission consult and S4 recovery read, which makes "started" and
- * "the journal can answer for this match" the same fact rather than
- * two facts that can drift.
+ * `ServerMatchHost.create` persists its opening events asynchronously and
+ * then asks the store to seed that batch. When mirroring is enabled and
+ * the opening seed completes, the match has a head; a command that arrives
+ * before that seed completes can still observe no head. A legacy log
+ * without journal history does not gain a head merely by being read.
  *
- * BEFORE THE FIRST BATCH THE ANSWER IS FALSE, INCLUDING FOR A LIVE
- * MATCH. `ServerMatchHost.create` persists a match's initial events
- * through `appendEvent`, which is not the batch path and never
- * mirrors (measured in the S2 proof suite, evidence
- * `r4-s2-live-head-admission-local-20260915.json`). So a created,
- * event-carrying match whose first COMMAND BATCH has not committed is
- * honestly not started: no journal row of any kind exists for it.
- * This is S1's disclosed no-catch-up, not a bug in the derivation.
- *
- * THIS READS PERSISTED STATE, NEVER THE CUTOVER FLAG. At the shipped
- * mode (`off`) nothing mirrors, so every match answers false; a stream
- * mirrored while the mode was on keeps answering true after the mode
- * goes off, because the rows are still there and the question is about
- * the stream, not about this process's configuration.
+ * This consult reads persisted state, not the process mode. Changing the
+ * mode does not change whether a stored effective head exists.
  *
  * @spec openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/design.md (S3)
  */
@@ -71,14 +53,8 @@ export interface IMatchJournalAuthorityStartedHead {
  * says the store COULD have journalled this match and cannot answer
  * right now.
  *
- * THE DISTINCTION CARRIES NO OBSERVABLE BEHAVIOUR TODAY. Until task
- * 1.3's sub-prefix 3, `unavailable` reached the retired marker arm and
- * `not-started` did not; with that arm gone both route to the legacy
- * reader, and a mutant collapsing the two survives the whole scoped
- * suite. The tri-state is retained because S7-d's durable per-match
- * migration state is what gives `unavailable` a distinct answer again
- * (a refusal, rather than a legacy fallback). If S7-d's shape changes
- * such that it never will, this should collapse rather than linger.
+ * This union describes the read result; it does not select a recovery
+ * reader or install missing history. Callers own those decisions.
  */
 export type MatchJournalAuthorityStartedOutcome =
   | {

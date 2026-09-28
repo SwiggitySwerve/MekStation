@@ -4,10 +4,8 @@
  *
  * The pre-existing 14.2 suite builds its head with raw SQL, so it
  * proves the consult's logic and nothing about where a head comes
- * from. Finding #48 is exactly that gap: in production
- * `readEffectiveHead` answers null for every match, so all four
- * illegal shapes are structurally dead. This file closes the S1-to-S2
- * join — a real combat batch commits through the store's command
+ * from. This file closes the S1-to-S2 join: a real combat batch
+ * commits through the store's command
  * boundary, S1's mirror installs the journal head and the genesis /
  * effective-head rows, and the four shapes are then driven through
  * `handleIntent` against THAT head.
@@ -16,12 +14,9 @@
  * (match file + campaign file), and one row restarts both so a head
  * that lived only in an open handle cannot pass.
  *
- * MODE IS THE DISCRIMINATOR. Only the test-configured override turns
- * the mirror on; the production constant is never touched. The last
- * row clears the override and runs on that constant, pinning the
- * honest shipped behaviour — no head, inert consult — and that is what
- * makes the other rows falsifiable: with the override removed they go
- * red because no head exists to read.
+ * Branch fixtures explicitly select shadow mode; the production constant
+ * is never touched. The last row alone clears the override and pins the
+ * shipped default. That default-bound row is retained for the cutover.
  *
  * @spec openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md (1.2)
  */
@@ -67,6 +62,7 @@ import {
   HISTORY_INTEGRITY_BLOCKED_REASON,
   LIVE_BRANCH_ADMISSION_PHRASING,
 } from '../ServerMatchHostBranchAdmission';
+import { createPersistedHost } from './matchHostPersistence.test-helpers';
 
 const AT = '2026-09-15T00:00:00.000Z';
 const CANDIDATE = 'candidate-1';
@@ -124,18 +120,17 @@ function meta(matchId: string): IMatchMeta {
 
 /** Build a host over the current store; the match row may already exist. */
 async function openHost(matchId: string): Promise<ServerMatchHost> {
-  const host = ServerMatchHost.create(matchId, store, {
-    mapRadius: 4,
-    turnLimit: 5,
-    random: new SeededRandom(1),
-    grid: createMinimalGrid(4),
-    playerUnits: [],
-    opponentUnits: [],
-    gameUnits: [] as readonly IGameUnit[],
-  });
-  await Promise.resolve();
-  await Promise.resolve();
-  return host;
+  return createPersistedHost(() =>
+    ServerMatchHost.create(matchId, store, {
+      mapRadius: 4,
+      turnLimit: 5,
+      random: new SeededRandom(1),
+      grid: createMinimalGrid(4),
+      playerUnits: [],
+      opponentUnits: [],
+      gameUnits: [] as readonly IGameUnit[],
+    }),
+  );
 }
 
 /** Create the match, seed the head through the mirror, then open a host. */

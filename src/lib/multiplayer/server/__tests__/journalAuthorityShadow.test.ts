@@ -1,6 +1,6 @@
 /**
  * Journal-authority shadow comparison (adopt-combat-event-journal-authority
- * task 4.1). Legacy remains the sole author; the decide path is compare-only.
+ * task 4.1). In the explicit shadow fixture, the decide path is compare-only.
  */
 
 import { createMinimalGrid } from '@/engine/GameEngine.helpers';
@@ -34,6 +34,7 @@ import {
   type IDecideCommandBatchDeps,
 } from '../ServerMatchHostDecision';
 import { dispatchToEngine } from '../ServerMatchHostEngineDispatch';
+import { createPersistedHost } from './matchHostPersistence.test-helpers';
 
 const MATCH_ID = 'match-journal-shadow';
 
@@ -115,25 +116,20 @@ async function makeHost(options: {
       ...(options.fogOfWar === true ? { fogOfWar: true } : {}),
     },
   });
-  const host = ServerMatchHost.create(matchId, store, {
-    mapRadius: 4,
-    turnLimit: 5,
-    random: new SeededRandom(42),
-    randomSeed: 42,
-    grid: createMinimalGrid(4),
-    playerUnits: [],
-    opponentUnits: [],
-    gameUnits: twoSidedRoster(),
-    diceSeed: 42,
-    journalAuthority: options.journalAuthority,
-  });
-  const deadline = Date.now() + 1000;
-  while ((await store.getEvents(matchId)).length < 2) {
-    if (Date.now() > deadline) {
-      throw new Error('initial events did not persist');
-    }
-    await Promise.resolve();
-  }
+  const host = await createPersistedHost(() =>
+    ServerMatchHost.create(matchId, store, {
+      mapRadius: 4,
+      turnLimit: 5,
+      random: new SeededRandom(42),
+      randomSeed: 42,
+      grid: createMinimalGrid(4),
+      playerUnits: [],
+      opponentUnits: [],
+      gameUnits: twoSidedRoster(),
+      diceSeed: 42,
+      journalAuthority: options.journalAuthority,
+    }),
+  );
   return { host, store };
 }
 
@@ -213,6 +209,10 @@ function stripMintFields(value: unknown): unknown {
 }
 
 describe('combat journal-authority shadow', () => {
+  beforeEach(() => {
+    matchJournalAuthority._setCombatJournalAuthorityModeForTests('off');
+  });
+
   afterEach(() => {
     matchJournalAuthority._setCombatJournalAuthorityModeForTests(null);
     _setShadowReplayRollsForTests(null);
@@ -242,7 +242,7 @@ describe('combat journal-authority shadow', () => {
     expect(record?.eventCountLive).toBe(record?.eventCountShadow);
     expect(record?.liveDigest).toBe(record?.shadowDigest);
     expect(record?.liveDigest).toMatch(/^[0-9a-f]{64}$/);
-    // Production sandbox deployment is the separate mode flip to `enabled`.
+    // Shadow evidence covers each audience independently of the shipped mode.
     // Falsification: remove an audience from the comparison loop.
     expect(record?.audienceDigests?.map((digest) => digest.audience)).toEqual([
       'gm',

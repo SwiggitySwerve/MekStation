@@ -3,7 +3,7 @@
  * (add-authoritative-history-branches; umbrella 13.5, seam 3b-iv-a).
  *
  * Harness copied from the preview suite: a migrated SQLite through
- * `SQLiteService`, four real journal events, genesis backfill. A real
+ * `SQLiteService`, four real journal events and writer-installed genesis. A real
  * `DurableMatchStore` sits beside it so R3 can ask the shipped 14.3
  * consult (`readMatchStreamRebuild`) while the lease is held.
  *
@@ -105,6 +105,11 @@ describe('commitGmCombatRewind', () => {
   let store: DurableMatchStore;
 
   beforeEach(async () => {
+    jest
+      .spyOn(SQLiteEventHistoryBranchStore.prototype, 'backfillGenesisBranches')
+      .mockImplementation(() => {
+        throw new Error('writer-only fixture must not backfill');
+      });
     dir = await mkdtemp(path.join(tmpdir(), 'rewind-commit-'));
     resetSQLiteService();
     const service = getSQLiteService({ path: path.join(dir, 'rewind.db') });
@@ -116,6 +121,7 @@ describe('commitGmCombatRewind', () => {
   });
 
   afterEach(async () => {
+    jest.restoreAllMocks();
     store.close();
     resetSQLiteService();
     await rm(dir, { recursive: true, force: true, maxRetries: 3 });
@@ -148,9 +154,8 @@ describe('commitGmCombatRewind', () => {
 
   /**
    * Appends four probe events to the match stream through the shipped
-   * journal, runs the backfill the match mirror still runs after an append,
-   * and asserts the stream then holds exactly one effective genesis branch
-   * and one effective head, whichever of the two installed them.
+   * writer and asserts its first append installed exactly one effective
+   * genesis branch and one effective head, without a global backfill.
    */
   async function seedJournal(): Promise<void> {
     const result = await journal().append({
@@ -178,7 +183,6 @@ describe('commitGmCombatRewind', () => {
       })),
     });
     expect(result.kind).toBe('committed');
-    branches().backfillGenesisBranches();
     expect(branches().listBranches(STREAM)).toMatchObject([
       { branchId: 'root', ancestorDepth: 0, status: 'effective' },
     ]);

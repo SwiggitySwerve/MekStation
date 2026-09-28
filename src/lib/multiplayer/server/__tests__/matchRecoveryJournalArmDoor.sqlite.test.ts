@@ -20,8 +20,8 @@
  * `journal` for the same reason a seeded production match would. No
  * hand-built consult, no stubbed head.
  *
- * No cutover: `COMBAT_JOURNAL_AUTHORITY_MODE` stays 'off' and every
- * mode here is a `_setCombatJournalAuthorityModeForTests` override.
+ * Fixture modes are explicit: seed in shadow, then exercise the recovery
+ * door with mirroring off. The shipped default does not select either.
  *
  * @spec openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/design.md (S4)
  */
@@ -162,6 +162,7 @@ async function seedJournalPathMatch(
 }
 
 beforeEach(async () => {
+  _setCombatJournalAuthorityModeForTests('off');
   dir = await mkdtemp(path.join(tmpdir(), 'match-journal-arm-door-'));
   resetSQLiteService();
   getSQLiteService({ path: path.join(dir, 'mekstation.db') }).initialize();
