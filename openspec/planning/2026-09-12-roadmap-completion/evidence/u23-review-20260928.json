@@ -1,0 +1,17 @@
+{
+  "unit": "U23",
+  "stage": "review",
+  "at": "2026-09-28T00:29:41.788Z",
+  "lane": "A",
+  "reviewerModel": "claude-fable-5-1",
+  "implementerModel": "gpt-5.6-sol-fast (deep-low task st_01a0e500)",
+  "reviewerEffort": "not exposed by the task snapshot",
+  "head": "7d9399f5abef0660f3889b01593857fbf609d091",
+  "reviewedHead": "7d9399f5abef0660f3889b01593857fbf609d091",
+  "verdict": "APPROVE",
+  "outputPath": "evidence/u23-lane-a-review-20260928.md",
+  "outputSha256": "6e3bb7888dd7452a3cb9c3c5a8f756bd46688373ccafd6e164a11e45df13d8ba",
+  "sharedContext": "none: a separate task on a different model from the implementer (st_01a0e519) rejected head f9e5349 (B1); after the fix, st_01a0e534 reviewed a detached worktree at 7d9399f, reproduced the B1 red against the fixed store and returned APPROVE",
+  "laneB": "owner ruling PK-u23-ruling: rule the head on 7d9399f5abef0660f3889b01593857fbf609d091 (PR #2065, comment 5861145972, label owner-ruled)",
+  "githubApproval": "none recorded; Lane A is engineering evidence, never a GitHub approval"
+}

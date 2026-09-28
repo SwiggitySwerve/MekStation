@@ -1,0 +1,31 @@
+{
+  "unit": "P1B1",
+  "stage": "merge",
+  "at": "2026-09-28T00:25:17.214Z",
+  "pr": 2063,
+  "title": "feat(campaign): register the mission-launch event",
+  "head": "ff448e2853523c0ec50890a5be85682cfaf05214",
+  "mergeSha": "6d58cd327dfdc8659bbfc6438a80e445a8986741",
+  "mergedAt": "2026-09-28T00:14:56Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge 2063 --squash --match-head-commit ff448e2853523c0ec50890a5be85682cfaf05214 after the GraphQL pre-merge gate (31/31 checks SUCCESS, CLEAN/MERGEABLE, 0 unresolved threads, Lane A APPROVE on the exact head, OWNER-RULING comment 5861144908 and owner-ruled label); no administrative bypass",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "src/lib/campaign/activity/campaignActivityProjection.ts",
+    "src/lib/campaign/delivery/__tests__/campaignMissionLaunchContract.test.ts",
+    "src/lib/campaign/delivery/projectCampaignStreamForGrant.ts",
+    "src/lib/campaign/sync/__tests__/campaignEventScope.test.ts",
+    "src/lib/campaign/sync/applyCampaignEvent.ts",
+    "src/lib/campaign/sync/campaignEventEntityRefs.ts",
+    "src/lib/campaign/sync/campaignEventScope.ts",
+    "src/lib/events/replay/CampaignBaselineSchemaPack.ts",
+    "src/lib/events/replay/ReplayBaselineDomainRegistry.ts",
+    "src/lib/events/replay/ReplayInputProvenanceManifest.ts",
+    "src/lib/events/replay/__fixtures__/CampaignBaselineSchemaPack.fixture.ts",
+    "src/lib/events/replay/__tests__/CampaignBaselineSchemaPack.test.ts",
+    "src/lib/events/replay/__tests__/ReplayBaselineDomainRegistry.test.ts",
+    "src/types/campaign/CampaignSync.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}
