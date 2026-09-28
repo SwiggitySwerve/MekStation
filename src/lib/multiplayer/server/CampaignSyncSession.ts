@@ -44,6 +44,7 @@ import { logger } from '@/utils/logger';
 
 import type { CampaignMatchHost } from './CampaignMatchHost';
 
+import { replayCampaignMissionLaunches } from './campaignMissionLaunchReplay';
 import {
   evaluateCampaignProgressionClauses,
   PROGRESSION_BLOCKED_BEHIND,
@@ -540,6 +541,14 @@ export class CampaignSyncSession {
     // Already projected for this viewer and not a log event: the gate
     // does not step on it.
     rawSink(baseline);
+    const viewer = this.wireViewer(participantId);
+    replayCampaignMissionLaunches(
+      history,
+      revision,
+      (scope) => campaignScopeAdmits(scope, viewer),
+      rawSink,
+      delivered,
+    );
 
     // The highest revision this join actually handed the participant.
     // The baseline IS `revision`; the tail can carry more when the host
@@ -625,27 +634,50 @@ export class CampaignSyncSession {
     const delivered: ICampaignEvent[] = [];
 
     if (gap > RESYNC_SNAPSHOT_GAP) {
-      // Large-gap path — a fresh baseline is cheaper than the tail.
-      const revision = Math.max(0, highest - 1);
-      const history = await this.host.getEventLog().getCampaignEvents(0);
-      const baseline = this.buildBaselineEvent(
-        revision,
-        participantId,
-        history,
-      );
-      gate.seed(history);
-      delivered.push(baseline);
-      rawSink(baseline);
-      if (participantId !== undefined) {
-        this.noteDelivered(participantId, revision);
+      // Buffer before choosing the baseline cut, just as joinMember does.
+      const buffered: ICampaignEvent[] = [];
+      const liveUnsub = this.host.subscribe((event) => buffered.push(event));
+      try {
+        const revision = await this.currentRevision();
+        const history = await this.host.getEventLog().getCampaignEvents(0);
+        const baseline = this.buildBaselineEvent(
+          revision,
+          participantId,
+          history,
+        );
+        gate.seed(history);
+        delivered.push(baseline);
+        rawSink(baseline);
+        if (participantId !== undefined) {
+          this.noteDelivered(participantId, revision);
+        }
+        const viewer = this.wireViewer(participantId);
+        replayCampaignMissionLaunches(
+          history,
+          revision,
+          (scope) => campaignScopeAdmits(scope, viewer),
+          rawSink,
+          delivered,
+        );
+        const seen = new Set<number>();
+        const tail = await this.host
+          .getEventLog()
+          .getCampaignEvents(revision + 1);
+        for (const event of [...tail, ...buffered]) {
+          if (event.sequence <= revision || seen.has(event.sequence)) continue;
+          seen.add(event.sequence);
+          delivered.push(event);
+          gate.offer(event);
+        }
+        return {
+          ok: true,
+          delivered,
+          snapshotted: true,
+          disconnect: this.subscribeLive(gate, participantId),
+        };
+      } finally {
+        liveUnsub();
       }
-      const unsubscribe = this.subscribeLive(gate, participantId);
-      return {
-        ok: true,
-        delivered,
-        snapshotted: true,
-        disconnect: unsubscribe,
-      };
     }
 
     // Small-gap path — stream only the missing tail (sequence > lastSeq).
