@@ -1,0 +1,8 @@
+{
+  "unit": "P1B2",
+  "stage": "tick",
+  "at": "2026-09-28T02:22:56.389Z",
+  "taskKeys": [],
+  "note": "P1B2 holds no task row; the delivered behaviour is proven on main by this unit.",
+  "tickedOnMain": null
+}

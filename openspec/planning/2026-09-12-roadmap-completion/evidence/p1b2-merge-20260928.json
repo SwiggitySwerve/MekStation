@@ -1,0 +1,22 @@
+{
+  "unit": "P1B2",
+  "stage": "merge",
+  "at": "2026-09-28T02:22:56.275Z",
+  "pr": 2069,
+  "title": "feat(coop): publish each mission launch exactly once",
+  "head": "4bc1ee4dfe427aa8dc627bab523c399a175864af",
+  "mergeSha": "24e7888e3458d6ea217eac7574bade5974b884ec",
+  "mergedAt": "2026-09-28T02:15:33Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge 2069 --squash --match-head-commit 4bc1ee4dfe427aa8dc627bab523c399a175864af after the GraphQL pre-merge gate (31/31 checks SUCCESS, CLEAN/MERGEABLE, 0 unresolved threads, Lane A APPROVE on the exact head, OWNER-RULING comment 5862095085 and owner-ruled label under the owner's standing merge instruction); no administrative bypass",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "src/lib/multiplayer/server/CampaignMatchHost.ts",
+    "src/lib/multiplayer/server/IMatchStore.ts",
+    "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.harness.ts",
+    "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.test.ts",
+    "src/lib/multiplayer/server/coopMissionCreate.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}

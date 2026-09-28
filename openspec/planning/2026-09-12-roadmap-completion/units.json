@@ -4070,17 +4070,52 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "baseline": null,
-      "prHead": null,
-      "mergeSha": null,
+      "baseline": "7061b954f5a96d9d6b87d7c3b19566dcfd13438a",
+      "prHead": "4bc1ee4dfe427aa8dc627bab523c399a175864af",
+      "mergeSha": "24e7888e3458d6ea217eac7574bade5974b884ec",
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "admission": {
+          "path": "evidence/p1b2-admission-20260928.json",
+          "baseline": "7061b954f5a96d9d6b87d7c3b19566dcfd13438a",
+          "at": "2026-09-28T01:32:14.157Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/p1b2-red-20260928.json",
+          "at": "2026-09-28T01:52:31.442Z",
+          "summary": "Red first: all seven producer rows failed on the unchanged baseline; Lane A reproduced them"
+        },
+        "local": {
+          "path": "evidence/p1b2-local-20260928.json",
+          "at": "2026-09-28T02:20:50.346Z",
+          "summary": "5 files, 84 counted lines: immutable deployers at create and one exactly-once CampaignMissionLaunched through a serialized identity-bound door with typed refusals and identical-POST recovery; green 100/100 in two processes, all gates and build; Lane A gpt-6-sol APPROVE"
+        },
+        "review": {
+          "path": "evidence/p1b2-review-20260928.json",
+          "head": "4bc1ee4dfe427aa8dc627bab523c399a175864af",
+          "reviewedHead": "4bc1ee4dfe427aa8dc627bab523c399a175864af",
+          "reviewerModel": "gpt-6-sol",
+          "implementerModel": "gpt-6-astra (deep-high task st_01a0e5a4)",
+          "outputSha256": "da13b027d816d6f61704af0f58d81ec168d3b4c514a14074eb0ce1ae8284eef1",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/p1b2-merge-20260928.json",
+          "pr": 2069,
+          "head": "4bc1ee4dfe427aa8dc627bab523c399a175864af",
+          "mergeSha": "24e7888e3458d6ea217eac7574bade5974b884ec"
+        },
+        "mainProof": {
+          "path": "evidence/p1b2-mainproof-20260928.json",
+          "mergeCommit": "24e7888e3458d6ea217eac7574bade5974b884ec",
+          "verdict": "PASS",
+          "runtime": "Tests:       118 passed, 118 total"
+        },
+        "tick": {
+          "path": "evidence/p1b2-tick-20260928.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "splitFrom": "P1B",
@@ -4094,7 +4129,7 @@
         "idempotency",
         "concurrency"
       ],
-      "state": "planned",
+      "state": "complete",
       "admissionRequires": "P1B1 must be complete with an exact-main mainProof receipt before the parent releases this unit to planned. NEXT does not enforce these unit dependencies. The preserved red announcement test from the P1B attempt (sha256 90ae6449..., in the split evidence) may be reused. A sensitive-class packet is registered at the local fold and the owner rules the exact head before merge. Stop and split rather than exceed 15 files/500 lines.",
       "predecessors": [
         "P1B1"
@@ -4145,7 +4180,7 @@
         "replay",
         "concurrency"
       ],
-      "state": "blocked",
+      "state": "planned",
       "admissionRequires": "P1B2 must be complete with an exact-main mainProof receipt before the parent releases this unit to planned. NEXT does not enforce these unit dependencies. A sensitive-class packet is registered at the local fold and the owner rules the exact head before merge. Stop and split rather than exceed 15 files/500 lines.",
       "predecessors": [
         "P1B2"
@@ -4155,6 +4190,12 @@
         "reason": "P1B stopped with BLOCKED-SPLIT: the CampaignJoin member and room-code guest paths fold history into a baseline. This slice holds the cold-reconnect delivery clauses.",
         "evidence": "evidence/p1b-split-admission-20260927.json",
         "planTask": "51"
+      },
+      "released20260928": {
+        "at": "2026-09-28T02:23:12.498Z",
+        "from": "blocked",
+        "cause": "admissionRequires met: P1B2 is complete with an exact-main mainProof receipt (evidence/p1b2-mainproof-20260928.json, verdict PASS, merge 24e7888e3458d6ea217eac7574bade5974b884ec, PR #2069 at 4bc1ee4dfe427aa8dc627bab523c399a175864af, owner ruling PK-p1b2-ruling)",
+        "by": "parent ledger edit in the P1B2 closure PR, as admissionRequires directs"
       }
     },
     {
@@ -11683,6 +11724,48 @@
         "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band, and this packet's note said the agent would not post the comment or apply the label; the owner selected the option under which the parent posts the comment and applies the label, so the parent composed and posted the comment from the owner GitHub account and applied owner-ruled; the decision is the owner's quoted answer, and the parent supplied the head from the ledger, as for PK-p1a-ruling"
       },
       "note": "Registered at the local receipt fold because the validator requires a sensitive-class packet from local-verified on. This is an undecided question, not an owner ruling. The owner has not yet been reached for this head; the agent will not post the owner comment, apply its label or choose the packet decision. Amended 2026-09-28 at the U23 closure: the owner answered the parent's question with \"Approve; you transcribe (Recommended)\"; on that selected option the parent posted the ruling comment 5861145972 and applied the label (see ruling.deviationDisclosed). The decision is the owner's; the agent chose no option."
+    },
+    {
+      "id": "PK-p1b2-ruling",
+      "blocks": [
+        "P1B2"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "P1B2 presents head 4bc1ee4dfe427aa8dc627bab523c399a175864af on PR #2069 for authority, privacy, idempotency and concurrency review. Does the owner rule this exact head after fresh independent review and required CI checks pass?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "The owner posts the head-bound OWNER-RULING comment and applies owner-ruled on the actual product PR; only then may the parent merge and run exact-main proof.",
+          "effort": "One owner review of the exact head and its evidence"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Do not merge; preserve the objection and revise through a new verified head, fresh independent review and fresh owner ruling.",
+          "effort": "Depends on the concrete requested change"
+        }
+      ],
+      "agentRecommendation": "Rule the exact head. Lane A (gpt-6-sol) APPROVE on 4bc1ee4 with no BLOCKER or REQUIRED finding after reproducing the seven red rows and 100/100 in two processes; 31 of 31 checks green and CLEAN. P1B2 stores immutable deployers and publishes one launch fact per mission; cold-reconnect delivery is P1B3.",
+      "revertCost": "Revert the isolated producer commit; journals may already hold CampaignMissionLaunched facts, which P1B1 registered as state-preserving and campaign-scoped, so no data rollback is needed.",
+      "decision": {
+        "at": "2026-09-28T00:58:00Z",
+        "option": "rule the head",
+        "text": "Checks + review, then merge (Recommended)",
+        "source": "owner standing instruction in the working session (chat), 2026-09-28: \"merge PRs if they are passing the checks\", then, to the question \"For roadmap PRs going forward (P1B2 next, then U43, U24 and so on), when should I merge?\" (toolu_011JoFgVt4MouFz3sMkuTkcP), \"Checks + review, then merge (Recommended)\", whose option text read: \"When CI is 31/31 green and the independent review approves the exact head, I merge pinned to that head. For sensitive units I post the OWNER-RULING comment and owner-ruled label myself, citing this standing instruction, instead of asking you per head.\"; both conditions held on 4bc1ee4 (Lane A APPROVE sha256 da13b027..., 31/31 CI)"
+      },
+      "ruling": {
+        "ruledHead": "4bc1ee4dfe427aa8dc627bab523c399a175864af",
+        "pr": 2069,
+        "commentId": 5862095085,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "34e290e945d7f034eeb633661eba044da7275cdad9d6c1c0f5dc8b8739bc941e",
+        "postedBy": "parent under the owner's standing instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; under the owner's standing instruction the parent composed and posted the comment from the owner GitHub account and applied owner-ruled; the decision is the owner's standing instruction, and the parent supplied the head from the ledger"
+      },
+      "note": "Registered at the P1B2 closure with its ruling already given: the owner's standing merge instruction (2026-09-28) covers sensitive units once CI is green and Lane A approves the exact head, so no separate pending-packet fold was needed. The agent chose no option."
     },
     {
       "id": "PK-triage-checkpoint-day-effects",

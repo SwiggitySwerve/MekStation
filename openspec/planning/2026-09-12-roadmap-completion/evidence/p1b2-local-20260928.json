@@ -1,0 +1,21 @@
+{
+  "unit": "P1B2",
+  "stage": "local",
+  "at": "2026-09-28T02:20:50.346Z",
+  "status": "local-verified",
+  "head": "4bc1ee4dfe427aa8dc627bab523c399a175864af",
+  "baseline": "7061b954f5a96d9d6b87d7c3b19566dcfd13438a",
+  "summary": "5 files in src/lib/multiplayer/server (84 counted non-test added lines): immutable deployingPlayerIds stored once at create from player-side deploy owners; a server-only lock-taking CampaignMatchHost door after the create lock publishes one CampaignMissionLaunched fact with command id campaign-mission-launched:<campaignId>:<missionMatchId> and the stored fingerprint; identical retries return prior receipt events and recover create-before-announcement interruptions; divergent identity, legacy receipt, append-only store and stale head refused with typed 409s. Green 100/100 in two processes, typecheck, lint 0 errors, lint:units, format:check, diff --check, build and a real HTTP/WebSocket proof. Lane A gpt-6-sol APPROVE at 4bc1ee4.",
+  "implementer": "gpt-6-astra (deep-high task st_01a0e5a4)",
+  "files": {
+    "src/lib/multiplayer/server/CampaignMatchHost.ts": "b9bb5152b979b851ded60854bc5906e8067d011c775b4e9ad5c3e6da653a5c14",
+    "src/lib/multiplayer/server/IMatchStore.ts": "f7718e36b56767e4ab27f7f00957005c4092443e4c32c610802f0374cf6fe378",
+    "src/lib/multiplayer/server/coopMissionCreate.ts": "6237df87a5005d65708a13dd7223042aac0b40707bc5984e5119972397250266",
+    "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.harness.ts": "83773258f2c8d6c2564e76a1220d01dfa2245e72ec66d547abf4017b5a2ebc10",
+    "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.test.ts": "c4f6323129e473a2d70345b4de2541aaf97662018c7e28d1e60c6907b9f3b4d6"
+  },
+  "evidence": [
+    ".omo/ulw-execute/p1b2/DONECLAIM.md (lane evidence)",
+    "E:/Projects/MekStation/.omo/ulw-execute/evidence/task-50-p1b2-review.md"
+  ]
+}
