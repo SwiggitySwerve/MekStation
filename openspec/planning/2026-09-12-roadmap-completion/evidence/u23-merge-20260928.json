@@ -1,0 +1,23 @@
+{
+  "unit": "U23",
+  "stage": "merge",
+  "at": "2026-09-28T00:29:43.417Z",
+  "pr": 2065,
+  "title": "fix(journal): fail commands closed on mirror errors",
+  "head": "7d9399f5abef0660f3889b01593857fbf609d091",
+  "mergeSha": "c032fec2f793a041996c052a502c613f9e8da936",
+  "mergedAt": "2026-09-28T00:15:23Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge 2065 --squash --match-head-commit 7d9399f5abef0660f3889b01593857fbf609d091 after the GraphQL pre-merge gate (31/31 checks SUCCESS, CLEAN/MERGEABLE, 0 unresolved threads, Lane A APPROVE on the exact head, OWNER-RULING comment 5861145972 and owner-ruled label); no administrative bypass",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "src/lib/multiplayer/server/DurableMatchStore.ts",
+    "src/lib/multiplayer/server/ServerMatchHostJournalAuthority.ts",
+    "src/lib/multiplayer/server/__tests__/journalAuthorityAdmission.test.ts",
+    "src/lib/multiplayer/server/__tests__/journalMirrorFailClosed.sqlite.test.ts",
+    "src/lib/multiplayer/server/journalAuthorityAdmission.ts",
+    "src/lib/multiplayer/server/matchCommandBatch.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}

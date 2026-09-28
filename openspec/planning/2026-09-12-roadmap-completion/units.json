@@ -3976,8 +3976,8 @@
         "maxNonGeneratedLines": 500
       },
       "baseline": "7d99b5517493e4fea5baa810b022939f26ae80cc",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "ff448e2853523c0ec50890a5be85682cfaf05214",
+      "mergeSha": "6d58cd327dfdc8659bbfc6438a80e445a8986741",
       "stageReceipts": {
         "admission": {
           "path": "evidence/p1b1-admission-20260927.json",
@@ -3996,10 +3996,31 @@
           "at": "2026-09-27T21:43:58.265Z",
           "summary": "14 files +291: strict CampaignMissionLaunched contract registered in every exhaustive consumer, no-op reducer, campaign scope, refs, roster-free activity, projection arm, latch unchanged, no producer; green 58/58, 10/10, 347/347 in three processes, all gates and build; Lane A privacy/replay APPROVE"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/p1b1-review-20260928.json",
+          "head": "ff448e2853523c0ec50890a5be85682cfaf05214",
+          "reviewedHead": "ff448e2853523c0ec50890a5be85682cfaf05214",
+          "reviewerModel": "claude-fable-5-1",
+          "implementerModel": "gpt-5.6-sol-fast (deep-low task st_01a0e4bf)",
+          "outputSha256": "332a2f5ba7b3ac77cc1f0519dd5098a1dcf033936a2c7b685e5819fe205ee38d",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/p1b1-merge-20260928.json",
+          "pr": 2063,
+          "head": "ff448e2853523c0ec50890a5be85682cfaf05214",
+          "mergeSha": "6d58cd327dfdc8659bbfc6438a80e445a8986741"
+        },
+        "mainProof": {
+          "path": "evidence/p1b1-mainproof-20260928.json",
+          "mergeCommit": "6d58cd327dfdc8659bbfc6438a80e445a8986741",
+          "verdict": "PASS",
+          "runtime": "Tests:       417 passed, 417 total"
+        },
+        "tick": {
+          "path": "evidence/p1b1-tick-20260928.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "splitFrom": "P1B",
@@ -4018,7 +4039,7 @@
         "privacy",
         "replay"
       ],
-      "state": "local-verified",
+      "state": "complete",
       "admissionRequires": "P1A is complete with an exact-main mainProof (evidence/p1a-mainproof-20260927.json). The parent measures the actual diff against 15 files/500 non-generated lines including tests; the estimate is not proof. The preserved red fixture and schema-test changes from the P1B attempt (sha256 b644647a... and 3493d55e..., in the split evidence) may be reused. A sensitive-class packet is registered at the local fold, and the owner rules the exact head before merge.",
       "predecessors": [
         "P1A"
@@ -4073,7 +4094,7 @@
         "idempotency",
         "concurrency"
       ],
-      "state": "blocked",
+      "state": "planned",
       "admissionRequires": "P1B1 must be complete with an exact-main mainProof receipt before the parent releases this unit to planned. NEXT does not enforce these unit dependencies. The preserved red announcement test from the P1B attempt (sha256 90ae6449..., in the split evidence) may be reused. A sensitive-class packet is registered at the local fold and the owner rules the exact head before merge. Stop and split rather than exceed 15 files/500 lines.",
       "predecessors": [
         "P1B1"
@@ -4083,6 +4104,12 @@
         "reason": "P1B stopped with BLOCKED-SPLIT before any product edit. This slice holds the immutable receipt, exactly-once producer, recovery and live-delivery clauses.",
         "evidence": "evidence/p1b-split-admission-20260927.json",
         "planTask": "50"
+      },
+      "released20260928": {
+        "at": "2026-09-28T00:29:55.558Z",
+        "from": "blocked",
+        "cause": "admissionRequires met: P1B1 is complete with an exact-main mainProof receipt (evidence/p1b1-mainproof-20260928.json, verdict PASS, merge 6d58cd327dfdc8659bbfc6438a80e445a8986741, PR #2063 at ff448e2853523c0ec50890a5be85682cfaf05214, owner ruling PK-p1b1-ruling)",
+        "by": "parent ledger edit in the P1B1/U23 closure PR, as admissionRequires directs"
       }
     },
     {
@@ -5026,10 +5053,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "e14e0f2ca989e58d4ea8bf87695cbda1383e2161",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "7d9399f5abef0660f3889b01593857fbf609d091",
+      "mergeSha": "c032fec2f793a041996c052a502c613f9e8da936",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u23-admission-20260927.json",
@@ -5048,10 +5075,31 @@
           "at": "2026-09-27T23:37:13.043Z",
           "summary": "6 files, 119 counted lines: journal-authority commands fail closed on every non-mirrored result at mode enabled, identical retries heal from stored data, divergent retries refuse before the journal, legacy stays diagnostic, admission no longer poisoned; green in two processes, all gates and build; Lane A APPROVE at 7d9399f after an earlier REJECT was fixed"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u23-review-20260928.json",
+          "head": "7d9399f5abef0660f3889b01593857fbf609d091",
+          "reviewedHead": "7d9399f5abef0660f3889b01593857fbf609d091",
+          "reviewerModel": "claude-fable-5-1",
+          "implementerModel": "gpt-5.6-sol-fast (deep-low task st_01a0e500)",
+          "outputSha256": "6e3bb7888dd7452a3cb9c3c5a8f756bd46688373ccafd6e164a11e45df13d8ba",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u23-merge-20260928.json",
+          "pr": 2065,
+          "head": "7d9399f5abef0660f3889b01593857fbf609d091",
+          "mergeSha": "c032fec2f793a041996c052a502c613f9e8da936"
+        },
+        "mainProof": {
+          "path": "evidence/u23-mainproof-20260928.json",
+          "mergeCommit": "c032fec2f793a041996c052a502c613f9e8da936",
+          "verdict": "PASS",
+          "runtime": "Tests:       113 passed, 113 total"
+        },
+        "tick": {
+          "path": "evidence/u23-tick-20260928.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "source20260922": "planned by the parent under OD-mvp-hard-cutover (owner, 2026-09-22) from the read-only cutover map of 2026-09-22 (Opus planning lane; its evidence is file:line on origin/main 31ab3c16e and is summarised in each behaviour sentence)"
@@ -11576,9 +11624,23 @@
       ],
       "agentRecommendation": "Rule the exact head. Lane A APPROVE on ff448e2 with no required edits (privacy/replay), 31 of 31 checks green and CLEAN. P1B1 registers the CampaignMissionLaunched contract only: nothing emits the event until P1B2, and cold-reconnect delivery is P1B3.",
       "revertCost": "Revert the isolated registration commit; no event of this type can exist in any journal before P1B2, so no data rollback is involved.",
-      "decision": null,
-      "ruling": null,
-      "note": "Registered at the local receipt fold because the validator requires a sensitive-class packet from local-verified on. This is an undecided question, not an owner ruling. The owner was asked in the working session at 2026-09-27 and did not answer within the question window; the agent will not post the owner comment, apply its label or choose the packet decision."
+      "decision": {
+        "at": "2026-09-28T00:12:13Z",
+        "option": "rule the head",
+        "text": "Approve; you transcribe (Recommended)",
+        "source": "owner instruction in the working session (chat), 2026-09-28T00:12:13Z: a structured question (answer to toolu_01TPhpaktb359Bagu3YvYiY1) asking \"P1B1 (PR #2063, head ff448e2) registers the CampaignMissionLaunched event contract; nothing emits it yet. It is 14 files and 291 lines, independently approved for privacy and replay with no required edits, 31/31 CI, CLEAN. What is your ruling on this exact head?\"; options: \"Approve; you transcribe (Recommended)\", \"Approve; I'll post it myself\", \"Request changes\"; the owner answered \"Approve; you transcribe (Recommended)\", whose option text read that the parent posts the OWNER-RULING comment bound to ff448e2 quoting the answer, applies owner-ruled, merges pinned to that head and closes the unit"
+      },
+      "ruling": {
+        "ruledHead": "ff448e2853523c0ec50890a5be85682cfaf05214",
+        "pr": 2063,
+        "commentId": 5861144908,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "bb6fb665e94c176ca63ddb3dd73f3aff2e956af4599a0af1cf03f3010bb54083",
+        "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band, and this packet's note said the agent would not post the comment or apply the label; the owner selected the option under which the parent posts the comment and applies the label, so the parent composed and posted the comment from the owner GitHub account and applied owner-ruled; the decision is the owner's quoted answer, and the parent supplied the head from the ledger, as for PK-p1a-ruling"
+      },
+      "note": "Registered at the local receipt fold because the validator requires a sensitive-class packet from local-verified on. This is an undecided question, not an owner ruling. The owner was asked in the working session at 2026-09-27 and did not answer within the question window; the agent will not post the owner comment, apply its label or choose the packet decision. Amended 2026-09-28 at the P1B1 closure: the owner answered the parent's question with \"Approve; you transcribe (Recommended)\"; on that selected option the parent posted the ruling comment 5861144908 and applied the label (see ruling.deviationDisclosed). The decision is the owner's; the agent chose no option."
     },
     {
       "id": "PK-u23-ruling",
@@ -11604,9 +11666,23 @@
       ],
       "agentRecommendation": "Rule the exact head. Lane A approved 7d9399f after an earlier REJECT (B1: a digest-divergent same-id retry could be mirrored) was fixed and reproduced; 31 of 31 checks are green. Fail-closed applies only to journal-authority commands at mode enabled; legacy, seed and rolled-back matches stay diagnostic, and the rollback proof is unchanged.",
       "revertCost": "Revert the isolated store and admission change; mode off is unaffected and no stored data is rewritten.",
-      "decision": null,
-      "ruling": null,
-      "note": "Registered at the local receipt fold because the validator requires a sensitive-class packet from local-verified on. This is an undecided question, not an owner ruling. The owner has not yet been reached for this head; the agent will not post the owner comment, apply its label or choose the packet decision."
+      "decision": {
+        "at": "2026-09-28T00:12:13Z",
+        "option": "rule the head",
+        "text": "Approve; you transcribe (Recommended)",
+        "source": "owner instruction in the working session (chat), 2026-09-28T00:12:13Z: a structured question (answer to toolu_01TPhpaktb359Bagu3YvYiY1) asking \"U23 (PR #2065, head 7d9399f): at mode enabled, journal-authority commands fail closed with STORE_FAILURE on any mirror failure. Identical retries heal from stored data, divergent retries refuse before the journal, and legacy matches stay diagnostic. The first head was rejected (B1) and fixed; the reviewer then approved 7d9399f, and CI is 31/31. What is your ruling on this exact head?\"; options: \"Approve; you transcribe (Recommended)\", \"Approve; I'll post it myself\", \"Request changes\"; the owner answered \"Approve; you transcribe (Recommended)\", whose option text read that the parent posts the OWNER-RULING comment bound to 7d9399f quoting the answer, applies owner-ruled, merges pinned to that head and closes the unit"
+      },
+      "ruling": {
+        "ruledHead": "7d9399f5abef0660f3889b01593857fbf609d091",
+        "pr": 2065,
+        "commentId": 5861145972,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "5378578d11f0f8581a56221f1c012a29003c1a0c9c0681fc0c96a5dac0047705",
+        "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band, and this packet's note said the agent would not post the comment or apply the label; the owner selected the option under which the parent posts the comment and applies the label, so the parent composed and posted the comment from the owner GitHub account and applied owner-ruled; the decision is the owner's quoted answer, and the parent supplied the head from the ledger, as for PK-p1a-ruling"
+      },
+      "note": "Registered at the local receipt fold because the validator requires a sensitive-class packet from local-verified on. This is an undecided question, not an owner ruling. The owner has not yet been reached for this head; the agent will not post the owner comment, apply its label or choose the packet decision. Amended 2026-09-28 at the U23 closure: the owner answered the parent's question with \"Approve; you transcribe (Recommended)\"; on that selected option the parent posted the ruling comment 5861145972 and applied the label (see ruling.deviationDisclosed). The decision is the owner's; the agent chose no option."
     },
     {
       "id": "PK-triage-checkpoint-day-effects",

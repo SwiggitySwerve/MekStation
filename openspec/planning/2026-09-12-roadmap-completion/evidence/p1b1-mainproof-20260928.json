@@ -1,0 +1,44 @@
+{
+  "unit": "P1B1",
+  "stage": "mainProof",
+  "at": "2026-09-28T00:25:17.242Z",
+  "mergeCommit": "6d58cd327dfdc8659bbfc6438a80e445a8986741",
+  "checkout": "owned wave-A worktree detached at the merge commit, with its private physical node_modules (no install run); roadmap:main-proof ran build, e2e marker, runtime jest, exact-main ladder, tsc, validator, --git, --next, openspec strict, qc:openspec-ci and the qc pin; the root checkout was not touched",
+  "runtime": {
+    "build": "exit 0",
+    "e2eBundleMarker": "__E2E_MODE__ present in _app chunk (roadmap:main-proof e2e-marker step, appended to build.log)",
+    "playwright": "P1B1 exact-main jest (roadmap:main-proof --runtime-jest, 13 suites): Tests:       417 passed, 417 total",
+    "tsc": "exit 0",
+    "lint": "npm run lint exit 0: Found 84 warnings and 0 errors",
+    "lintUnits": "npm run lint:units exit 0: LINT_UNITS_PASS 17899/17899",
+    "formatCheck": "npm run format:check exit 0: All matched files use the correct format (8129 files)",
+    "validatorGithub": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows (--github, exit 0)",
+    "focusedJest": "roadmap:main-proof --runtime-jest over 13 suites (contract, schema pack, scope, entity refs, reducer, projection, activity, replay registries, provenance manifest, Protocol): Test Suites 13 passed, Tests 417 passed",
+    "exactMainLadder": "EXACT_MAIN_LADDER_SATISFIED 6d58cd327dfdc8659bbfc6438a80e445a8986741 milestone=strict-smoke groups=smoke",
+    "extraGateLogs": "lint, lint:units, format:check and --github ran after the tool wrote sha256.txt, into the same directory (UTF-16LE PowerShell redirects): 2f4baa345dca2b9666db525ef015b3f52fc0f33daa2c94afa3ebea533881b0e7 *lint.log; a8b9bd975413e89d00c3ac258fa1fefdd94639f4719a5d0394f790530c0938a3 *lint-units.log; 42c19096a47d5de9ce479029bcfc24c9e1a236133d4e9fab599510c4372b7ff8 *format.log; 0e77d2b89c1548550a81653c1a373b7c2c79cdf2c396a6a2274f21f50bddbf6c *github.log"
+  },
+  "commands": {
+    "validator": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows",
+    "gitAncestry": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows (--git)",
+    "next": "U25",
+    "openspecStrict": "Totals: 229 passed, 0 failed (229 items)",
+    "qcOpenspecCi": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+    "qcPin": "Tests:       30 passed, 30 total"
+  },
+  "logs": "../mekstation-roadmap-loop-continuation-wave-a/.sisyphus/roadmap-completion-20260912/p1b1-main-proof-20260928/ (local; sha256 below)",
+  "logHashes": [
+    "a8ad075d71d9c4a4bef0fa0697fbffbfea9dca422ab7bb9818ecb47e9d572074 *build.log",
+    "7f5c94f5bc907f98ad43eb8ec4bc8c2262a666f09152872f7e12f243b8bbba7d *exact-main-ladder.log",
+    "71a8bd7a8b2073f6ae5178effaaf306bc58915cc8e5b35318223868cc0b450b4 *git-check.log",
+    "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43 *idle-before-build.log",
+    "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43 *idle-before-runtime.log",
+    "9699f0bf2b9c7ec652e00e6f4b2eb14639192320dd95be3e7c9cfa71ef509461 *next.log",
+    "efd619721df505ed0dbb69fe5bd26b74023670e603ce16891fd2f1331adf1776 *openspec-strict.log",
+    "a830b16cba8bcfc99547a538339ed93af573c64f043f5d71ac9857659c902116 *playwright.log",
+    "5b0f562274df4dbddfb7ae44ab42b7d686dc1e0903383f25c593d88f7479fe9a *qc-openspec-ci.log",
+    "fd252e4c027514102baf5e9b4064bbdcc0b8e033424bdc1d6188ae14464a07a8 *qc-pin.log",
+    "f891dbdfc0402cd4ba60fab1be3245dfec559c5d7afc7e21b87e795a73d05e5f *tsc.log",
+    "71a8bd7a8b2073f6ae5178effaaf306bc58915cc8e5b35318223868cc0b450b4 *validator.log"
+  ],
+  "verdict": "PASS"
+}
