@@ -34,6 +34,7 @@ import {
   getCampaignHostRegistry,
   _resetCampaignHostRegistry,
 } from '../CampaignHostRegistry';
+import * as coopOpponentDriver from '../CoopOpponentDriver';
 import { DurableMatchStore } from '../DurableMatchStore';
 import {
   _setDefaultMatchStoreForTests,
@@ -62,6 +63,15 @@ jest.mock('@/lib/p2p/matchLogStorage', () => {
     },
   };
 });
+
+// SWC exports are non-configurable getters. Copy the real exports so spies
+// can observe/inject at the driver boundary without replacing its behavior.
+jest.mock('../CoopOpponentDriver', () => ({
+  __esModule: true,
+  ...jest.requireActual<typeof import('../CoopOpponentDriver')>(
+    '../CoopOpponentDriver',
+  ),
+}));
 
 const MATCH = 'coop-opponent-driver';
 const AT = '2026-09-28T00:00:00.000Z';
@@ -317,6 +327,91 @@ afterEach(async () => {
 });
 
 describe.each([false, true])('CoopOpponentDriver authority=%s', (enabled) => {
+  it('leaves a broken-store non-mission join with only its Close and no pause', async () => {
+    const { hostSocket, guestSocket } = await fixture(enabled, 'versus');
+    const before = await store.getEvents(MATCH);
+    const driver = jest.spyOn(coopOpponentDriver, 'driveCoopOpponent');
+    jest
+      .spyOn(store, 'getMatchMeta')
+      .mockRejectedValue(new Error('broken membership store'));
+
+    await host!.handleSessionJoin(hostSocket, 'host');
+
+    expect(hostSocket.frames).toEqual([
+      expect.objectContaining({
+        kind: 'Close',
+        code: 'INTERNAL_ERROR',
+        reason: 'membership verification unavailable',
+      }),
+    ]);
+    expect(guestSocket.frames).toEqual([]);
+    expect(host!.isPausedForReconnect()).toBe(false);
+    expect(driver).not.toHaveBeenCalled();
+    expect(await store.getEvents(MATCH)).toEqual(before);
+  });
+
+  it('does not trigger the driver after an unauthorized mission join', async () => {
+    await fixture(enabled);
+    const driver = jest.spyOn(coopOpponentDriver, 'driveCoopOpponent');
+    const stranger = socket();
+    const before = await store.getEvents(MATCH);
+
+    await host!.handleSessionJoin(stranger, 'stranger');
+
+    expect(stranger.frames).toEqual([
+      expect.objectContaining({ kind: 'Close', code: 'AUTH_REJECTED' }),
+    ]);
+    expect(driver).not.toHaveBeenCalled();
+    expect(host!.isPausedForReconnect()).toBe(false);
+    expect(await store.getEvents(MATCH)).toEqual(before);
+  });
+
+  it('does not trigger the driver when the joining socket closes during replay', async () => {
+    const { hostSocket } = await fixture(enabled);
+    const driver = jest.spyOn(coopOpponentDriver, 'driveCoopOpponent');
+    const send = hostSocket.send;
+    jest.spyOn(hostSocket, 'send').mockImplementation((data) => {
+      send(data);
+      if ((JSON.parse(data) as IServerMessage).kind === 'ReplayEnd')
+        hostSocket.readyState = 3;
+    });
+    const before = await store.getEvents(MATCH);
+
+    await host!.handleSessionJoin(hostSocket, 'host');
+
+    expect(hostSocket.readyState).toBe(3);
+    expect(driver).not.toHaveBeenCalled();
+    expect(host!.isPausedForReconnect()).toBe(false);
+    expect(await store.getEvents(MATCH)).toEqual(before);
+  });
+
+  it('does not publish or latch pause when the engagement metadata read fails', async () => {
+    const { hostSocket, guestSocket } = await fixture(enabled, 'versus');
+    const before = await store.getEvents(MATCH);
+    const run = coopOpponentDriver.driveCoopOpponent;
+    const driver = jest
+      .spyOn(coopOpponentDriver, 'driveCoopOpponent')
+      .mockImplementation((input) => {
+        // Inject after successful replay/admission, at the driver's own lookup.
+        jest
+          .spyOn(store, 'getMatchMeta')
+          .mockRejectedValue(new Error('engagement lookup unavailable'));
+        return run(input);
+      });
+
+    await host!.handleSessionJoin(hostSocket, 'host');
+
+    expect(driver).toHaveBeenCalledTimes(1);
+    expect(hostSocket.frames.map((frame) => frame.kind)).toEqual([
+      'ReplayStart',
+      'ReplayChunk',
+      'ReplayEnd',
+    ]);
+    expect(guestSocket.frames).toEqual([]);
+    expect(host!.isPausedForReconnect()).toBe(false);
+    expect(await store.getEvents(MATCH)).toEqual(before);
+  });
+
   it('advances player -> opponent -> player through the serialized host', async () => {
     const { hostSocket, guestSocket } = await fixture(enabled);
     const advance = await intent({ kind: 'AdvancePhase' }, 'start-movement');

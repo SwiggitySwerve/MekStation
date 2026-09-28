@@ -18,7 +18,7 @@ import { logger } from '@/utils/logger';
 
 import type { IServerMatchHostIntentContext } from './ServerMatchHostIntent';
 
-import { hasMatchStreamRebuildReader } from './IMatchStore';
+import { hasMatchStreamRebuildReader, type IMatchMeta } from './IMatchStore';
 import { isLivePathBranchId } from './matchAuthorityBaseline';
 import { decideCommandBatch } from './ServerMatchHostDecision';
 import { commitJournalAuthorityCommand } from './ServerMatchHostJournalAuthority';
@@ -90,11 +90,19 @@ export async function driveCoopOpponent(input: {
   const initial = input.context();
   if (initial.closed || initial.isPaused || initial.rollbackBlockReason)
     return [];
+  let meta: IMatchMeta;
+  try {
+    meta = await initial.store.getMatchMeta(initial.matchId);
+  } catch (cause) {
+    // An unknown engagement is not a failed mission command.
+    logger.warn('[CoopOpponentDriver] engagement lookup failed', cause);
+    return [];
+  }
+  if (!meta.coopMission || meta.coopCampaign || meta.status !== 'active')
+    return [];
+
   const messages: IServerMessage[] = [];
   try {
-    const meta = await initial.store.getMatchMeta(initial.matchId);
-    if (!meta.coopMission || meta.coopCampaign || meta.status !== 'active')
-      return [];
     await input.bindCampaign(meta.coopMission.sessionId);
     const participants =
       meta.coopMission.deployingPlayerIds ??

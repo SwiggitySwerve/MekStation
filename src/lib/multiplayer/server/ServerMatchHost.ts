@@ -989,15 +989,17 @@ export class ServerMatchHost {
       ? 0
       : (firstMissed ?? afterLastHeld);
     this.rewindResyncViewers.delete(playerId);
-    await handleSessionJoin(
+    const joined = await handleSessionJoin(
       buildReplayContext(this.internals()),
       socket,
       playerId,
       resumeFrom,
       requestedMatchId,
     );
-    if (requestedMatchId === this.matchId) {
-      await this.queueCommand(() => this.driveOpponent());
+    if (joined) {
+      await this.queueCommand(async () => {
+        if (socket.readyState === 1) await this.driveOpponent();
+      });
     }
   };
 
