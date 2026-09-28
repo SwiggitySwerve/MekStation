@@ -1,0 +1,81 @@
+{
+  "kind": "unit-registration",
+  "unit": "PAIC",
+  "planTask": "41",
+  "at": "2026-09-28T06:40:16.458Z",
+  "baseline": "f2d09feef6ec754f618d369096bc48ef0f634c65",
+  "node": {
+    "id": "R6.umbrella",
+    "reason": "owns openspec/changes/harden-gm-two-player-campaign-sessions in roadmap.json"
+  },
+  "predecessorProofs": [
+    {
+      "id": "P1A",
+      "state": "complete",
+      "mainProof": "evidence/p1a-mainproof-20260927.json",
+      "mergeSha": "d0347e7e6a236055a8af59c610cf6fb3ff650d35"
+    },
+    {
+      "id": "P1B1",
+      "state": "complete",
+      "mainProof": "evidence/p1b1-mainproof-20260928.json",
+      "mergeSha": "6d58cd327dfdc8659bbfc6438a80e445a8986741"
+    },
+    {
+      "id": "P1B2",
+      "state": "complete",
+      "mainProof": "evidence/p1b2-mainproof-20260928.json",
+      "mergeSha": "24e7888e3458d6ea217eac7574bade5974b884ec"
+    },
+    {
+      "id": "P1B3",
+      "state": "complete",
+      "mainProof": "evidence/p1b3-mainproof-20260928.json",
+      "mergeSha": "c3f83fd1aea062d5c9f7960dba7866fef9f9a5f9"
+    },
+    {
+      "id": "P1C",
+      "state": "complete",
+      "mainProof": "evidence/p1c-mainproof-20260928.json",
+      "mergeSha": "5433488de0fe7ef9ede71144463205e4b290c98c"
+    }
+  ],
+  "clauseCrosswalk": [
+    {
+      "clause": "register a bounded contract unit immediately before PAI under the node owning the harden change",
+      "where": "units.json PAIC at the index before PAI; node R6.umbrella"
+    },
+    {
+      "clause": "MODIFIED co-op mission requirement: server-owned opponent turns, no browser grant",
+      "where": "PAIC.behavior (1)"
+    },
+    {
+      "clause": "deterministic command identity and replay",
+      "where": "PAIC.behavior (2)"
+    },
+    {
+      "clause": "normal per-viewer publication",
+      "where": "PAIC.behavior (3)"
+    },
+    {
+      "clause": "existing disconnect/pause policy",
+      "where": "PAIC.behavior (4)"
+    },
+    {
+      "clause": "update the design crosswalk without changing per-player ownership or frozen occurrence keys",
+      "where": "PAIC.behavior, final sentences"
+    },
+    {
+      "clause": "record the user-selected server-AI decision as provenance, not a head-bound ruling",
+      "where": "PAIC.behavior; PAI.source20260927"
+    },
+    {
+      "clause": "own paths, caps, review classes and delivery receipts",
+      "where": "PAIC.ownershipPaths/caps/reviewClasses/stageReceipts"
+    },
+    {
+      "clause": "PAI stays blocked until the contract exact-main proof",
+      "where": "PAI.predecessors includes PAIC; PAI.amended20260928; PAI.state stays blocked"
+    }
+  ]
+}

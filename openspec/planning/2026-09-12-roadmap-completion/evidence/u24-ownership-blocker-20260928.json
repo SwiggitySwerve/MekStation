@@ -1,0 +1,133 @@
+{
+  "kind": "ownership-blocker",
+  "unit": "U24",
+  "at": "2026-09-28T06:42:04.631Z",
+  "baseline": "f2d09feef6ec754f618d369096bc48ef0f634c65",
+  "implementer": "gpt-6-astra (deep-high task st_01a0e6b9)",
+  "result": "BLOCKED before any product edit",
+  "outsideOwned": [
+    {
+      "path": "scripts/qc/gm-two-player-campaign-core.cjs",
+      "why": "builds fixture-arming group membership and injects MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE=enabled (lines 194-209, 231-240); comments at 73-75 and 231-235 describe a fixture rather than production authority"
+    },
+    {
+      "path": "scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+      "why": "pins the fixture key in the recovery, privacy and composite plans (184-194, 252-255, 423-426, 542-544) and fixture-group arming/forwarding (547-597); must be re-pinned, not deleted"
+    },
+    {
+      "path": "playwright.config.ts",
+      "why": "forwards the fixture key (314-325); lines 318-319 claim combat stays on hardcoded off without it, which the flip makes false (rider (a))"
+    }
+  ],
+  "probe": {
+    "method": "read-only call of the real QC runner's buildRunPlan for every registered ladder group, asserting no plan sets the retired fixture key",
+    "exit": 1,
+    "groupsStillSetting": [
+      "authority-recovery",
+      "privacy-pack",
+      "authority",
+      "all"
+    ],
+    "reservedGroupsNotImplemented": 8,
+    "logTail": [
+      "  expected: [],",
+      "  operator: 'deepStrictEqual',",
+      "  diff: 'simple'",
+      "}",
+      "",
+      "Node.js v22.22.0"
+    ]
+  },
+  "prerequisitesPresent": {
+    "U19b": "SQLiteEventJournalWriter first-append genesis install",
+    "U23": "DurableMatchStore mirror retry/fail-closed",
+    "U43": "create:<matchId> receipt before mirror and boot catch-up"
+  },
+  "resolution": "U24.ownershipPaths and node R4.S7 ownershipPaths gain the three exact paths (U24.ownershipAmended20260928, R4.S7.ownershipPathsAmended20260928); U24 is re-dispatched from the merged amendment",
+  "commandResults": [
+    {
+      "label": "node-version",
+      "command": "node --version",
+      "exit": 0,
+      "log": ".omo/ulw-execute/u24/node-version.log"
+    },
+    {
+      "label": "baseline",
+      "command": "git rev-parse HEAD",
+      "exit": 0,
+      "log": ".omo/ulw-execute/u24/baseline.log"
+    },
+    {
+      "label": "branch",
+      "command": "git branch --show-current",
+      "exit": 0,
+      "log": ".omo/ulw-execute/u24/branch.log"
+    },
+    {
+      "label": "status-before",
+      "command": "git status --short",
+      "exit": 0,
+      "log": ".omo/ulw-execute/u24/status-before.log"
+    },
+    {
+      "label": "roadmap",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exit": 0,
+      "log": ".omo/ulw-execute/u24/roadmap.log"
+    },
+    {
+      "label": "next",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+      "exit": 0,
+      "log": ".omo/ulw-execute/u24/next.log"
+    },
+    {
+      "label": "u19b-ancestor",
+      "command": "git merge-base --is-ancestor 920630bc0bd3119d88c8b04528ed62d2f92187b4 HEAD",
+      "exit": 0,
+      "log": ".omo/ulw-execute/u24/u19b-ancestor.log"
+    },
+    {
+      "label": "u23-ancestor",
+      "command": "git merge-base --is-ancestor c032fec2f793a041996c052a502c613f9e8da936 HEAD",
+      "exit": 0,
+      "log": ".omo/ulw-execute/u24/u23-ancestor.log"
+    },
+    {
+      "label": "u43-ancestor",
+      "command": "git merge-base --is-ancestor 4206a48bc797a59b33b2f48a8f73d22e24614da9 HEAD",
+      "exit": 0,
+      "log": ".omo/ulw-execute/u24/u43-ancestor.log"
+    },
+    {
+      "label": "red-fixture-retirement",
+      "command": "node .omo/ulw-execute/u24/fixture-retirement-probe.cjs",
+      "exit": 1,
+      "log": ".omo/ulw-execute/u24/red-fixture-retirement.log"
+    },
+    {
+      "label": "diff-check",
+      "command": "git diff --check",
+      "exit": 0,
+      "log": ".omo/ulw-execute/u24/diff-check.log"
+    },
+    {
+      "label": "numstat",
+      "command": "git diff --numstat --no-renames HEAD",
+      "exit": 0,
+      "log": ".omo/ulw-execute/u24/numstat.log"
+    },
+    {
+      "label": "changed-files",
+      "command": "git diff --name-only HEAD",
+      "exit": 0,
+      "log": ".omo/ulw-execute/u24/changed-files.log"
+    },
+    {
+      "label": "status-after",
+      "command": "git status --short",
+      "exit": 0,
+      "log": ".omo/ulw-execute/u24/status-after.log"
+    }
+  ]
+}

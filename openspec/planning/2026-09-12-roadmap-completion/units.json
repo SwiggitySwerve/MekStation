@@ -4383,6 +4383,56 @@
       }
     },
     {
+      "id": "PAIC",
+      "node": "R6.umbrella",
+      "taskKeys": [],
+      "behavior": "Source contract for server-driven co-op opponents (plan task 41, split from task 40 before PAI admission). A MODIFIED co-op mission requirement in the active change openspec/changes/harden-gm-two-player-campaign-sessions (its coop-campaign-sync delta) specifies that the opposing force of an explicitly bootstrapped co-op mission match is driven by server-owned commands: (1) opposing-unit turns are taken by the server through existing engine AI inside the host's serialized command lifecycle, never by a player browser, and no browser receives or can request an opponent-control grant; (2) each server turn has a deterministic command identity derived from the match, the accepted branch/revision/effectiveGeneration head and the active unit, so replay and cold reopen reproduce it and a duplicate trigger cannot append twice; (3) its output uses the normal per-viewer publication, with hidden opponent inputs kept server-side; (4) the existing disconnect and pause policy applies unchanged, and a guest disconnect grants nothing. The change's design crosswalk is updated to map the delta to roadmap R2.authority-live PAI. The existing per-player same-side unit ownership rule and the frozen occurrence keys are unchanged, and the text must not authorize any player-supplied internal AI command. The user's 2026-09-27 choice of a server-driven opponent is recorded as provenance, not as a head-bound ruling. No product code changes.",
+      "ownershipPaths": [
+        "openspec/changes/harden-gm-two-player-campaign-sessions"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "admissionRequires": "P1A, P1B1, P1B2, P1B3 and P1C are complete with exact-main mainProof receipts (met at registration; see evidence/paic-registration-20260928.json). NEXT does not enforce these unit dependencies. openspec validate harden-gm-two-player-campaign-sessions --strict and the roadmap validator must pass. A sensitive-class packet is registered at the local fold and the head is ruled before merge. Stop and split rather than exceed 15 files/500 lines.",
+      "predecessors": [
+        "P1A",
+        "P1B1",
+        "P1B2",
+        "P1B3",
+        "P1C"
+      ],
+      "successors": [
+        "PAI"
+      ],
+      "source20260928": {
+        "at": "2026-09-28T06:40:16.458Z",
+        "reason": "Plan task 41 requires a separately owned server-AI source contract, registered immediately before PAI under the node owning openspec/changes/harden-gm-two-player-campaign-sessions (R6.umbrella), after the P1 launch chain is proved on main and before PAI admission.",
+        "evidence": "evidence/paic-registration-20260928.json",
+        "planTask": "41"
+      }
+    },
+    {
       "id": "PAI",
       "node": "R2.authority-live",
       "taskKeys": [],
@@ -4427,7 +4477,8 @@
         "P1B1",
         "P1B2",
         "P1B3",
-        "P1C"
+        "P1C",
+        "PAIC"
       ],
       "successors": [
         "P2",
@@ -4444,6 +4495,11 @@
         "at": "2026-09-27T21:12:19.238Z",
         "change": "predecessor P1B replaced by P1B1, P1B2 and P1B3",
         "note": "P1B is superseded by P1B1/P1B2/P1B3 (evidence/p1b-split-admission-20260927.json); its absence of a mainProof is not bypassed or falsified."
+      },
+      "amended20260928": {
+        "at": "2026-09-28T06:40:16.458Z",
+        "change": "predecessor PAIC added",
+        "note": "PAIC is the separately owned server-AI OpenSpec contract (plan task 41) that PAI's admissionRequires already names; PAI stays blocked until PAIC has an exact-main mainProof receipt."
       }
     },
     {
@@ -5309,7 +5365,10 @@
       "behavior": "The hard cutover: COMBAT_JOURNAL_AUTHORITY_MODE is enabled in production with no override; the mirror's redundant global backfill call goes (U19b installs genesis rows); task 1.7's letter, design.md S6 and proposal.md Impact are amended to the hard-cutover rule of OD-mvp-hard-cutover (no migration states, shadow parity or rollback law; the combat fixture switch retires); suites that assumed mode off are re-pinned. Red-first: the default mode is enabled and a created match has a journal head (red today). If the re-pin exceeds the cap at admission, park and split re-pin first, flip second. Main proof runs every ladder group. Ticks 1.7 (0.2 is held by U32, and 1.2, 1.3, 1.5 and 1.6 by DF-adopt-rows-proven-by-seam-receipts). Folded 2026-09-22 (triage): Admission requires U19b merged. (a) Delete the combat e2e fixture arm (combatJournalAuthorityEnabled.ts:40-57) and its pin, and in the same diff rewrite every 'mode off' comment the flip makes false. (b) The openspec edit adds an adopt event-store spec delta that MODIFIES 'Combat Rollback Preserves Journal Authority' to the hard-cutover rule: started means the effective head the first batch installs; there is no started marker and no rollback law. The same edit adds one crosswalk sentence to design.md and proposal.md:11 mapping design S5/S6 to roadmap R4.S5-S7. (c) Streams with a journal head but no branch row are pre-cutover data. The backfill (MatchStreamJournalMirror.ts:264) goes with no replacement installer, and a pin shows the owning reader fails closed, typed. (d) After the removal, re-run the four re-aimed pins red-first against the writer-only install: CoordinatedOutcomeCorrection, CoordinatedOutcomeCorrectionSaga, GmCombatRewindCommit, GmCombatRewindPreview. (e) A pin shows a multi-event batch leaves lastBroadcastSeq on the batch's last sequence, so a later drainNewEvents caller appends only its own events. The split rule is unchanged: re-pin first, flip second if over cap.",
       "ownershipPaths": [
         "src/lib/multiplayer/server",
-        "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind"
+        "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind",
+        "scripts/qc/gm-two-player-campaign-core.cjs",
+        "scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+        "playwright.config.ts"
       ],
       "ciClass": "product",
       "reviewClasses": [
@@ -5342,6 +5401,17 @@
           "U43 on main"
         ],
         "note": "U19b's first-append genesis install is the only installer once U24 removes the backfill (triage edit 3); U43's create-seed receipt and boot catch-up are a correctness gate for the flip and land before U24 (U43's behaviour)"
+      },
+      "ownershipAmended20260928": {
+        "at": "2026-09-28T06:42:04.631Z",
+        "added": [
+          "scripts/qc/gm-two-player-campaign-core.cjs",
+          "scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+          "playwright.config.ts"
+        ],
+        "reason": "U24's letter retires the combat fixture switch and requires rewriting every 'mode off' comment the flip makes false (rider (a)). A read-only probe of the real QC runner's buildRunPlan found four implemented ladder groups (authority-recovery, privacy-pack, authority, all) still injecting the fixture key, and the three files above produce, pin and forward it. They sit outside U24's original paths; the implementer stopped at its ownership boundary before any edit. The re-pin stays within U24's caps (15 files / 500 lines) and is not split.",
+        "nodeAmended": "R4.S7 ownershipPaths gains the same three exact paths",
+        "evidence": "evidence/u24-ownership-blocker-20260928.json"
       }
     },
     {

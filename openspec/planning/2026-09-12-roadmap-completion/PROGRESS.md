@@ -1,3 +1,28 @@
+## 2026-09-28 U24 ownership amended for fixture retirement (parent)
+
+U24's letter retires the combat fixture switch and requires rewriting every "mode off" comment that the production flip makes false. Its implementer stopped at the ownership boundary before editing anything. A read-only probe of the real QC runner's `buildRunPlan` shows four ladder groups (authority-recovery, privacy-pack, authority and all) still inject the fixture key. Three files produce, pin and forward that key, and all three sit outside U24's paths:
+- `scripts/qc/gm-two-player-campaign-core.cjs`;
+- `scripts/__tests__/gm-two-player-campaign-qc.test.ts`;
+- `playwright.config.ts`.
+
+Following the P1B1 precedent, U24 (`ownershipAmended20260928`) and node R4.S7 (`ownershipPathsAmended20260928`) gain exactly those paths, under the owner's OD-mvp-hard-cutover. The re-pin stays within U24's 15-file / 500-line caps and is not split. U24 is re-dispatched from this merged amendment. The evidence is in [u24-ownership-blocker-20260928.json](evidence/u24-ownership-blocker-20260928.json).
+
+## 2026-09-28 PAIC registered: server-AI source contract before PAI (parent)
+
+Plan task 41 needs a separately owned source contract for server-driven co-op opponents before PAI can be admitted. It is registered here as unit **PAIC** on R6.umbrella, the node that owns `openspec/changes/harden-gm-two-player-campaign-sessions`, placed immediately before PAI.
+
+PAIC owns only that change. Its review classes are authority, privacy and replay. Its predecessors are P1A, P1B1, P1B2, P1B3 and P1C, all complete with exact-main proofs, so it is registered as planned.
+
+Its letter is a MODIFIED co-op mission requirement:
+- the server takes opposing-unit turns through existing engine AI inside the host's serialized command lifecycle, with no browser grant;
+- each server turn has a deterministic command identity derived from the match, the accepted head and the active unit, so replay and cold reopen reproduce it and a duplicate trigger cannot append twice;
+- output uses normal per-viewer publication;
+- the existing disconnect and pause policy applies unchanged.
+
+The contract also updates the change's design crosswalk. It leaves the per-player same-side ownership rule and the frozen occurrence keys unchanged, and it must not authorize a player-supplied internal AI command.
+
+PAI now lists PAIC as a predecessor (`amended20260928`) and stays blocked until PAIC has an exact-main proof. With PAIC planned ahead of U24 in ledger order, `validate-roadmap.mjs --next` prints PAIC. U24 was admitted and dispatched earlier on `f2d09fe`, when `--next` printed U24, and continues on its own lane. The registration evidence and clause crosswalk are in [paic-registration-20260928.json](evidence/paic-registration-20260928.json).
+
 ## 2026-09-28 U43 complete (parent)
 
 U43 (#2075, head `5983fb9ef5f3b423f7ff468aa067348cb8d234bb`, merge `4206a48bc797a59b33b2f48a8f73d22e24614da9`) makes boot recovery reach a commit-ready journal head for every match the store holds, at mode enabled. The create seed persists the opening batch as a `create:<matchId>` receipt over revisions 0..N-1, carrying the folded opening post-state digest, before mirroring it. Recovery reads the live-path journal head first and leaves complete journals unchanged, including pre-U43 matches that have no create receipt. For the missing range only, it validates full v2 or legacy fingerprints and recomputed post-state digests before any replay, then replays whole batches through `mirrorCommittedBatch`. Missing, gapped or corrupt receipts refuse with a typed `partial-history` block and no journal mutation, and no command identity is ever synthesized.

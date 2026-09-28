@@ -4992,7 +4992,10 @@
       "ownershipPaths": [
         "src/lib/multiplayer/server",
         "src/lib/events/journal",
-        "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind"
+        "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind",
+        "scripts/qc/gm-two-player-campaign-core.cjs",
+        "scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+        "playwright.config.ts"
       ],
       "acceptance": [
         "npm.cmd run typecheck",
@@ -5240,7 +5243,30 @@
             "disposition": "closed by design (triage edit 22): the strict JCS v1 contract stays and S7-a1 (#1737, bb672249c) fixed the call site"
           }
         ]
-      }
+      },
+      "ownershipPathsAmended20260928": [
+        {
+          "path": "scripts/qc/gm-two-player-campaign-core.cjs",
+          "at": "2026-09-28T06:42:04.631Z",
+          "units": "U24",
+          "source": "parent, under OD-mvp-hard-cutover (owner, 2026-09-22); U24's implementer stopped at the ownership boundary (evidence/u24-ownership-blocker-20260928.json)",
+          "why": "builds fixture-arming group membership and injects MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE=enabled (lines 194-209, 231-240); comments at 73-75 and 231-235 describe a fixture rather than production authority"
+        },
+        {
+          "path": "scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+          "at": "2026-09-28T06:42:04.631Z",
+          "units": "U24",
+          "source": "parent, under OD-mvp-hard-cutover (owner, 2026-09-22); U24's implementer stopped at the ownership boundary (evidence/u24-ownership-blocker-20260928.json)",
+          "why": "pins the fixture key in the recovery, privacy and composite plans (184-194, 252-255, 423-426, 542-544) and fixture-group arming/forwarding (547-597); must be re-pinned, not deleted"
+        },
+        {
+          "path": "playwright.config.ts",
+          "at": "2026-09-28T06:42:04.631Z",
+          "units": "U24",
+          "source": "parent, under OD-mvp-hard-cutover (owner, 2026-09-22); U24's implementer stopped at the ownership boundary (evidence/u24-ownership-blocker-20260928.json)",
+          "why": "forwards the fixture key (314-325); lines 318-319 claim combat stays on hardcoded off without it, which the flip makes false (rider (a))"
+        }
+      ]
     },
     {
       "id": "R4.rewind",
