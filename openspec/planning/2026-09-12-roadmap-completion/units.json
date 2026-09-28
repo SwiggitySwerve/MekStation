@@ -5476,17 +5476,52 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "baseline": null,
-      "prHead": null,
-      "mergeSha": null,
+      "baseline": "aaec40d086572866febc77a4ad8589a9c8269492",
+      "prHead": "37003e402c4e289d0e15fe296493438202157e84",
+      "mergeSha": "9490590629c04efeb0051383289a1824cb071a99",
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "admission": {
+          "path": "evidence/u24a-admission-20260928.json",
+          "baseline": "aaec40d086572866febc77a4ad8589a9c8269492",
+          "at": "2026-09-28T07:07:16.724Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u24a-red-20260928.json",
+          "at": "2026-09-28T07:12:18.439Z",
+          "summary": "Red and falsification on the unchanged baseline: forbidding the global backfill failed the four history suites (33 failed / 10 passed), and disabling writer genesis left all 43 history tests green, proving they depended on backfill rather than the writer-only install. The fixture-timing rows were shown to rely on fixed microtask drains and clock polling. Lane A (gpt-6-sol) reproduced the disabled-genesis falsification (33 branch-dependent failures) and forced off/enabled runs."
+        },
+        "local": {
+          "path": "evidence/u24a-local-20260928.json",
+          "at": "2026-09-28T08:01:03.480Z",
+          "summary": "13 files in src/lib/multiplayer/server (21 counted non-test added lines at the first head; the correction commit is comment-only): five journal-authority suites select fixture mode explicitly, a test helper awaits real persistence completion with a bounded timeout instead of fixed drains or polling, four history pins are proven writer-only with a guard that fails on the global backfill, and three production comments describe persisted heads and first-append genesis (corrected to state that a head exists once the opening seed completes). The production constant, fixture consumer, mirror backfill and external fixture wiring are unchanged. Green: 76/76 changed suites, 1067 server tests in two processes; typecheck, lint 0 errors / 84 warnings, lint:units, format, diff --check, build. Lane A gpt-6-sol APPROVE at 37003e4."
+        },
+        "review": {
+          "path": "evidence/u24a-review-20260928.json",
+          "head": "37003e402c4e289d0e15fe296493438202157e84",
+          "reviewedHead": "37003e402c4e289d0e15fe296493438202157e84",
+          "reviewerModel": "gpt-6-sol",
+          "implementerModel": "gpt-6-astra (deep-high task st_01a0e6b9); comment-only correction 37003e4 by the parent",
+          "outputSha256": "1c7b582c3b3caf2cc93fd49e5da09543a28345e62b948876a2009188c4521ad9",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u24a-merge-20260928.json",
+          "pr": 2081,
+          "head": "37003e402c4e289d0e15fe296493438202157e84",
+          "mergeSha": "9490590629c04efeb0051383289a1824cb071a99"
+        },
+        "mainProof": {
+          "path": "evidence/u24a-mainproof-20260928.json",
+          "mergeCommit": "9490590629c04efeb0051383289a1824cb071a99",
+          "verdict": "PASS",
+          "runtime": "Tests:       155 passed, 155 total"
+        },
+        "tick": {
+          "path": "evidence/u24a-tick-20260928.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "splitFrom": "U24",
@@ -5494,7 +5529,7 @@
       "ownershipPaths": [
         "src/lib/multiplayer/server"
       ],
-      "state": "planned",
+      "state": "complete",
       "admissionRequires": "U19b, U23 and U43 are complete with exact-main mainProof receipts (met at registration). Re-measure the files and both line budgets at admission; stop and split again rather than exceed 15 files/500 lines. A sensitive-class packet is registered at the local fold and the head is ruled before merge.",
       "predecessors": [
         "U19b",
@@ -5548,7 +5583,7 @@
         "scripts/__tests__/gm-two-player-campaign-qc.test.ts",
         "playwright.config.ts"
       ],
-      "state": "blocked",
+      "state": "planned",
       "admissionRequires": "U24a must be complete with an exact-main mainProof receipt before the parent releases this unit to planned. NEXT does not enforce these unit dependencies. Re-measure the files and both line budgets at admission; the registration allocation (15 files) is at the cap, so stop and split again rather than exceed 15 files/500 lines. A sensitive-class packet is registered at the local fold and the head is ruled before merge.",
       "predecessors": [
         "U24a"
@@ -5562,6 +5597,12 @@
       "blocked20260928": {
         "cause": "Predecessor U24a (the re-pin) is not complete on main.",
         "nextIndependentAction": "Deliver U24a and prove it on exact main, then release U24b through a parent ledger edit."
+      },
+      "released20260928": {
+        "at": "2026-09-28T08:02:00.238Z",
+        "from": "blocked",
+        "cause": "admissionRequires met: U24a is complete with an exact-main mainProof receipt (evidence/u24a-mainproof-20260928.json, verdict PASS, merge 9490590629c04efeb0051383289a1824cb071a99, PR #2081 at 37003e402c4e289d0e15fe296493438202157e84, owner ruling PK-u24a-ruling). Admission must re-measure files and both line budgets; the registration allocation (15 files) is at the cap and a further split is likely.",
+        "by": "parent ledger edit in the U24a closure PR, as admissionRequires directs; U24a mainProof checked explicitly because the validator does not enforce predecessor completion for a planned state"
       }
     },
     {
@@ -12270,6 +12311,48 @@
         "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; under the owner's standing instruction the parent composed and posted the comment from the owner GitHub account and applied owner-ruled; the decision is the owner's standing instruction, and the parent supplied the head from the ledger"
       },
       "note": "Registered at the PAIC closure with its ruling already given: the owner's standing merge instruction (2026-09-28) covers sensitive units once CI is green and Lane A approves the exact head. The agent chose no option."
+    },
+    {
+      "id": "PK-u24a-ruling",
+      "blocks": [
+        "U24a"
+      ],
+      "nodes": [
+        "R4.S7"
+      ],
+      "taskKeys": [],
+      "question": "U24a presents head 37003e402c4e289d0e15fe296493438202157e84 on PR #2081 for authority and migration review. Does the owner rule this exact head after fresh independent review and required CI checks pass?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "The owner posts the head-bound OWNER-RULING comment and applies owner-ruled on the actual product PR; only then may the parent merge and run exact-main proof.",
+          "effort": "One owner review of the exact head and its evidence"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Do not merge; preserve the objection and revise through a new verified head, fresh independent review and fresh owner ruling.",
+          "effort": "Depends on the concrete requested change"
+        }
+      ],
+      "agentRecommendation": "Rule the exact head. Lane A (gpt-6-sol) APPROVE on 37003e4 with no BLOCKER or REQUIRED finding after a comment-only correction of a false head-timing claim; independently reproduced forced off/enabled runs and the disabled-genesis falsification; 31 of 31 checks green and CLEAN.",
+      "revertCost": "Revert the isolated test and comment commit; no product behavior or data changes.",
+      "decision": {
+        "at": "2026-09-28T00:58:00Z",
+        "option": "rule the head",
+        "text": "Checks + review, then merge (Recommended)",
+        "source": "owner standing instruction in the working session (chat), 2026-09-28: \"merge PRs if they are passing the checks\", then, to the question \"For roadmap PRs going forward (P1B2 next, then U43, U24 and so on), when should I merge?\" (toolu_011JoFgVt4MouFz3sMkuTkcP), \"Checks + review, then merge (Recommended)\", whose option text read: \"When CI is 31/31 green and the independent review approves the exact head, I merge pinned to that head. For sensitive units I post the OWNER-RULING comment and owner-ruled label myself, citing this standing instruction, instead of asking you per head.\"; both conditions held on 37003e4 (Lane A APPROVE sha256 1c7b582c..., 31/31 CI)"
+      },
+      "ruling": {
+        "ruledHead": "37003e402c4e289d0e15fe296493438202157e84",
+        "pr": 2081,
+        "commentId": 5865785264,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "b950c8ac33f1616bc9408215a50199a667ddb844c52edd8b1af492016b174239",
+        "postedBy": "parent under the owner's standing instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; under the owner's standing instruction the parent composed and posted the comment from the owner GitHub account and applied owner-ruled; the decision is the owner's standing instruction, and the parent supplied the head from the ledger"
+      },
+      "note": "Registered at the U24a closure with its ruling already given: the owner's standing merge instruction (2026-09-28) covers sensitive units once CI is green and Lane A approves the exact head. The agent chose no option."
     },
     {
       "id": "PK-triage-checkpoint-day-effects",

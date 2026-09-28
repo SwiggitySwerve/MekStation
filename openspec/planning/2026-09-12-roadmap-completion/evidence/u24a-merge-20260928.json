@@ -1,0 +1,30 @@
+{
+  "unit": "U24a",
+  "stage": "merge",
+  "at": "2026-09-28T08:01:40.751Z",
+  "pr": 2081,
+  "title": "test(journal): re-pin authority suites for the production flip",
+  "head": "37003e402c4e289d0e15fe296493438202157e84",
+  "mergeSha": "9490590629c04efeb0051383289a1824cb071a99",
+  "mergedAt": "2026-09-28T07:54:28Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge 2081 --squash --match-head-commit 37003e402c4e289d0e15fe296493438202157e84 after the GraphQL pre-merge gate (31/31 checks SUCCESS, CLEAN/MERGEABLE, 0 unresolved threads, 13 files, Lane A APPROVE on the exact head, OWNER-RULING comment 5865785264 and owner-ruled label under the owner's standing instruction)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "src/lib/multiplayer/server/ServerMatchHost.ts",
+    "src/lib/multiplayer/server/__tests__/ServerMatchHostBranchAdmission.journalHead.test.ts",
+    "src/lib/multiplayer/server/__tests__/journalAuthorityPath.test.ts",
+    "src/lib/multiplayer/server/__tests__/journalAuthorityShadow.test.ts",
+    "src/lib/multiplayer/server/__tests__/matchCreatePathJournalSeed.sqlite.test.ts",
+    "src/lib/multiplayer/server/__tests__/matchHostPersistence.test-helpers.ts",
+    "src/lib/multiplayer/server/__tests__/matchRecoveryJournalArmDoor.sqlite.test.ts",
+    "src/lib/multiplayer/server/history/GmCombatRewindPreview.ts",
+    "src/lib/multiplayer/server/history/__tests__/CoordinatedOutcomeCorrection.test.ts",
+    "src/lib/multiplayer/server/history/__tests__/CoordinatedOutcomeCorrectionSaga.test.ts",
+    "src/lib/multiplayer/server/history/__tests__/GmCombatRewindCommit.test.ts",
+    "src/lib/multiplayer/server/history/__tests__/GmCombatRewindPreview.test.ts",
+    "src/lib/multiplayer/server/matchJournalAuthorityStartedDerived.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}
