@@ -107,6 +107,9 @@ export async function migrateHostIfNeeded(
     return { migrated: false };
   }
 
+  // A mission retains the campaign host; a tactical survivor is not its GM.
+  if (meta.coopMission) return { migrated: false, reason: 'campaign-gm' };
+
   const gmRefusal = await refuseIfCampaignGm(ctx, meta, droppedPlayerId);
   if (gmRefusal !== null) return gmRefusal;
 

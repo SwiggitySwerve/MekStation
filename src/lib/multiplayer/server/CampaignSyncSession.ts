@@ -45,6 +45,7 @@ import { logger } from '@/utils/logger';
 import type { CampaignMatchHost } from './CampaignMatchHost';
 
 import { replayCampaignMissionLaunches } from './campaignMissionLaunchReplay';
+import { CampaignPauseSignal } from './CampaignPauseSignal';
 import {
   evaluateCampaignProgressionClauses,
   PROGRESSION_BLOCKED_BEHIND,
@@ -148,7 +149,8 @@ export class CampaignSyncSession {
   private readonly host: CampaignMatchHost;
   private readonly matchId: string;
   private roomCode: string | null = null;
-  private paused = false;
+  private readonly pause = new CampaignPauseSignal();
+  onPauseChanged = this.pause.onChange;
   /**
    * How many GM connections are currently attached.
    *
@@ -276,9 +278,7 @@ export class CampaignSyncSession {
   };
 
   /** Whether the session is paused (host disconnected). */
-  isPaused = (): boolean => {
-    return this.paused;
-  };
+  isPaused = this.pause.isPaused;
 
   /**
    * The GM's connection arrived. Clears a pause left by their previous
@@ -291,7 +291,7 @@ export class CampaignSyncSession {
    */
   noteGmConnected = (): void => {
     this.gmConnections += 1;
-    this.paused = false;
+    this.pause.setPaused(false);
   };
 
   /**
@@ -320,7 +320,7 @@ export class CampaignSyncSession {
    * case paused would refuse a guest who arrives in between.
    */
   pauseUntilGmReturns = (): void => {
-    this.paused = true;
+    this.pause.setPaused(true);
   };
 
   noteGmDisconnected = (): void => {
@@ -328,7 +328,7 @@ export class CampaignSyncSession {
     this.gmConnections -= 1;
     // Paused only when the LAST one goes. The GM is absent when none of
     // their connections remain, not when one of several closes.
-    if (this.gmConnections === 0) this.paused = true;
+    if (this.gmConnections === 0) this.pause.setPaused(true);
   };
 
   /**
@@ -525,7 +525,7 @@ export class CampaignSyncSession {
     rawSink: CampaignGuestSink,
     participantId?: string,
   ): Promise<ICampaignJoinResult> => {
-    if (!this.opened || this.paused) {
+    if (!this.opened || this.isPaused()) {
       return { ok: false, delivered: [], disconnect: () => {} };
     }
     const gate = this.admitToWire(rawSink, participantId);
@@ -884,7 +884,7 @@ export class CampaignSyncSession {
    * read-only — is frozen. No campaign-tier host migration (design D6).
    */
   hostDisconnected = (): void => {
-    this.paused = true;
+    this.pause.setPaused(true);
     this.roomCode = null;
     this.host.close();
   };

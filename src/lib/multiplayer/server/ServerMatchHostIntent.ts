@@ -43,6 +43,7 @@ import {
   refuseDuringHistoryRebuild,
   refuseLiveBranchFromIntent,
 } from './ServerMatchHostBranchAdmission';
+import { decideCommandBatch } from './ServerMatchHostDecision';
 import { dispatchToEngine } from './ServerMatchHostEngineDispatch';
 import { stampIntentIdOnNewEvents } from './ServerMatchHostEvents';
 import {
@@ -165,6 +166,17 @@ export async function handleIntent(
 
   if (ctx.closed) {
     const err = errorMessage(ctx.matchId, 'UNKNOWN_MATCH', 'Match is closed');
+    ctx.broadcast(err);
+    return [err];
+  }
+
+  if (envelope.intentId?.startsWith('coop-ai:')) {
+    const err = errorMessage(
+      ctx.matchId,
+      'AUTH_REJECTED',
+      'server-command-only',
+      envelope.intentId,
+    );
     ctx.broadcast(err);
     return [err];
   }
@@ -322,7 +334,9 @@ export async function handleIntent(
   }
 
   if (ctx.journalAuthority?.enabled) {
-    const result = await commitJournalAuthorityCommand(ctx, envelope);
+    const result = await commitJournalAuthorityCommand(ctx, envelope, (deps) =>
+      decideCommandBatch(ctx.session, envelope.intent, deps),
+    );
     return result.messages;
   }
 

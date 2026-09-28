@@ -162,6 +162,7 @@ export function foldCommittedEvents(
   ]);
   return InteractiveSession.fromHydratedSession(hydrated, {
     random: new SeededRandom(deps.randomSeed),
+    d6Roller: deps.d6Roller,
     playerUnits: deps.playerUnits,
     opponentUnits: deps.opponentUnits,
   });
