@@ -1,0 +1,27 @@
+{
+  "unit": "U43",
+  "stage": "admission",
+  "at": "2026-09-28T05:14:43.749Z",
+  "baseline": "e0bde6163f9eaab3ccd13c31905327875b1f4c8a",
+  "next": "validate-roadmap.mjs --next printed U43 on exact main e0bde61 (evidence .omo task-45-p1c-close-main-proof.json)",
+  "ownership": {
+    "declared": [
+      "src/lib/multiplayer/server"
+    ]
+  },
+  "tier": "HEAVY: authority, replay and idempotency review classes; ruling under the owner's standing merge instruction",
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500
+  },
+  "decisions": {
+    "mechanism": "persist a create:<matchId> receipt covering the opening revisions with the opening post-state digest before mirroring; replay missing stored receipt batches through mirrorCommittedBatch when the journal head is a strict prefix; heal or refuse (typed) a partial/failed seed; never synthesize command identities",
+    "precondition": "verify the behavior is not already implemented: the red rows must fail on this baseline"
+  },
+  "parentDecision": {
+    "decision": "go",
+    "reason": "--next prints U43 after the P1C closure; U43 has no predecessors; correctness gate for the U24 flip."
+  },
+  "planTask": "5",
+  "laneTemp": "C:/Users/wroll/AppData/Local/Temp/mekstation-u43-lane-d30og4"
+}

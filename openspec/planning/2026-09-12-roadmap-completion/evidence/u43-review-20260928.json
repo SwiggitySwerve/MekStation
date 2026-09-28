@@ -1,0 +1,17 @@
+{
+  "unit": "U43",
+  "stage": "review",
+  "at": "2026-09-28T06:25:14.055Z",
+  "lane": "A",
+  "reviewerModel": "gpt-6-sol",
+  "implementerModel": "gpt-5.6-sol-fast (deep-low task st_01a0e66f)",
+  "reviewerEffort": "not exposed by the task snapshot",
+  "head": "5983fb9ef5f3b423f7ff468aa067348cb8d234bb",
+  "reviewedHead": "5983fb9ef5f3b423f7ff468aa067348cb8d234bb",
+  "verdict": "APPROVE",
+  "outputPath": "evidence/u43-lane-a-review-20260928.md",
+  "outputSha256": "c5817d4fd758bc91eb567e395761f9adbb51626e81675656ab5495c8e2c5ebed",
+  "sharedContext": "none: a separate task (st_01a0e681) on gpt-6-sol, a different model from the implementer, reviewed detached worktrees at each head (node_modules junctioned to the wave-A dependencies). On b37ee96 it returned REQUEST_CHANGES (recovery validated only a fingerprint prefix), and CI on that head also failed (pre-U43 matches without a create receipt were refused at boot); on 1aa120d it confirmed both fixes and returned REQUEST_CHANGES (a nonempty corrupt post-state digest was accepted); on 5983fb9 it reproduced the new red rows against the prior head, ran 16/16 and 173/173 in separate processes and returned APPROVE with no BLOCKER or REQUIRED finding",
+  "laneB": "owner ruling PK-u43-ruling: rule the head on 5983fb9ef5f3b423f7ff468aa067348cb8d234bb (PR #2075, comment 5864527726, label owner-ruled)",
+  "githubApproval": "none recorded; Lane A is engineering evidence, never a GitHub approval"
+}
