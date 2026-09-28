@@ -5359,9 +5359,7 @@
     {
       "id": "U24",
       "node": "R4.S7",
-      "taskKeys": [
-        "adopt-combat-journal-cutover-and-gm-rewind#1.7@20"
-      ],
+      "taskKeys": [],
       "behavior": "The hard cutover: COMBAT_JOURNAL_AUTHORITY_MODE is enabled in production with no override; the mirror's redundant global backfill call goes (U19b installs genesis rows); task 1.7's letter, design.md S6 and proposal.md Impact are amended to the hard-cutover rule of OD-mvp-hard-cutover (no migration states, shadow parity or rollback law; the combat fixture switch retires); suites that assumed mode off are re-pinned. Red-first: the default mode is enabled and a created match has a journal head (red today). If the re-pin exceeds the cap at admission, park and split re-pin first, flip second. Main proof runs every ladder group. Ticks 1.7 (0.2 is held by U32, and 1.2, 1.3, 1.5 and 1.6 by DF-adopt-rows-proven-by-seam-receipts). Folded 2026-09-22 (triage): Admission requires U19b merged. (a) Delete the combat e2e fixture arm (combatJournalAuthorityEnabled.ts:40-57) and its pin, and in the same diff rewrite every 'mode off' comment the flip makes false. (b) The openspec edit adds an adopt event-store spec delta that MODIFIES 'Combat Rollback Preserves Journal Authority' to the hard-cutover rule: started means the effective head the first batch installs; there is no started marker and no rollback law. The same edit adds one crosswalk sentence to design.md and proposal.md:11 mapping design S5/S6 to roadmap R4.S5-S7. (c) Streams with a journal head but no branch row are pre-cutover data. The backfill (MatchStreamJournalMirror.ts:264) goes with no replacement installer, and a pin shows the owning reader fails closed, typed. (d) After the removal, re-run the four re-aimed pins red-first against the writer-only install: CoordinatedOutcomeCorrection, CoordinatedOutcomeCorrectionSaga, GmCombatRewindCommit, GmCombatRewindPreview. (e) A pin shows a multi-event batch leaves lastBroadcastSeq on the batch's last sequence, so a later drainNewEvents caller appends only its own events. The split rule is unchanged: re-pin first, flip second if over cap.",
       "ownershipPaths": [
         "src/lib/multiplayer/server",
@@ -5379,7 +5377,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
+      "state": "blocked",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -5412,6 +5410,117 @@
         "reason": "U24's letter retires the combat fixture switch and requires rewriting every 'mode off' comment the flip makes false (rider (a)). A read-only probe of the real QC runner's buildRunPlan found four implemented ladder groups (authority-recovery, privacy-pack, authority, all) still injecting the fixture key, and the three files above produce, pin and forward it. They sit outside U24's original paths; the implementer stopped at its ownership boundary before any edit. The re-pin stays within U24's caps (15 files / 500 lines) and is not split.",
         "nodeAmended": "R4.S7 ownershipPaths gains the same three exact paths",
         "evidence": "evidence/u24-ownership-blocker-20260928.json"
+      },
+      "superseded20260928": {
+        "at": "2026-09-28T06:58:24.882Z",
+        "by": "U24a, U24b",
+        "note": "Retained as the truthful record of the measured U24 admissions (ownership blocker, then file cap). Its complete behavior, riders (a)-(e) and task 1.7 tick are delivered and proved by U24a and U24b; no U24 completion receipts are fabricated.",
+        "evidence": "evidence/u24-split-admission-20260928.json"
+      },
+      "blocked20260928": {
+        "cause": "At re-admission on d3c2a88 the measured inventory needs at least 19 files (12 product/spec/config + 7 test; 23 with the four writer-only re-pins) against the 15-file cap.",
+        "nextIndependentAction": "Admit U24a; release U24b after U24a has an exact-main proof. U24 itself is not re-admitted."
+      }
+    },
+    {
+      "id": "U24a",
+      "taskKeys": [],
+      "node": "R4.S7",
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "migration"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "splitFrom": "U24",
+      "behavior": "Re-pin first, before the production flip, so the flip can land within the caps. Three production comment files that claim the shipped default is off or rely on the genesis backfill (ServerMatchHost.ts around 1601-1604, matchJournalAuthorityStartedDerived.ts around 34-38, history/GmCombatRewindPreview.ts around 242-247) are rewritten so they stay true before and after the flip. Five server suites that depend on the shipped default (journalAuthorityShadow, matchCreatePathJournalSeed.sqlite, matchRecoveryJournalArmDoor.sqlite, ServerMatchHostBranchAdmission.journalHead, journalAuthorityPath) make their fixture mode explicit instead of relying on it, and replace timing-dependent setup (fixed microtask drains, clock-deadline polling) with exact completion signals. The four history pins named in U24 rider (d) (CoordinatedOutcomeCorrection, CoordinatedOutcomeCorrectionSaga, GmCombatRewindCommit, GmCombatRewindPreview) prove their behavior against the writer-only first-append genesis install without calling the global backfill. The production constant, the fixture consumer and the external fixture wiring stay unchanged; default-value assertions that can only change at cutover stay for U24b. No conditional skip or weakened success assertion.",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server"
+      ],
+      "state": "planned",
+      "admissionRequires": "U19b, U23 and U43 are complete with exact-main mainProof receipts (met at registration). Re-measure the files and both line budgets at admission; stop and split again rather than exceed 15 files/500 lines. A sensitive-class packet is registered at the local fold and the head is ruled before merge.",
+      "predecessors": [
+        "U19b",
+        "U23",
+        "U43"
+      ],
+      "successors": [
+        "U24b"
+      ],
+      "source20260928": {
+        "at": "2026-09-28T06:58:24.882Z",
+        "reason": "U24 stopped with BLOCKED-SPLIT at re-admission: its measured inventory needs at least 19 files (23 with the writer-only re-pins) against the 15-file cap. This slice holds the re-pin and comment work that is true on both sides of the flip.",
+        "evidence": "evidence/u24-split-admission-20260928.json",
+        "planTask": "6"
+      }
+    },
+    {
+      "id": "U24b",
+      "taskKeys": [
+        "adopt-combat-journal-cutover-and-gm-rewind#1.7@20"
+      ],
+      "node": "R4.S7",
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "migration"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "splitFrom": "U24",
+      "behavior": "The production hard cutover, after U24a: COMBAT_JOURNAL_AUTHORITY_MODE is enabled in production with no override (matchJournalAuthority.ts); the fixture consumer (combatJournalAuthorityEnabled.ts), producer (scripts/qc/gm-two-player-campaign-core.cjs) and forwarding (playwright.config.ts) retire with their tests (combatJournalAuthorityEnabled.test.ts, scripts/__tests__/gm-two-player-campaign-qc.test.ts); the mirror's global backfill call (MatchStreamJournalMirror.ts) goes with no replacement installer; the adopt change's task 1.7, design.md S6 and proposal.md Impact are amended to the hard-cutover rule of OD-mvp-hard-cutover and a new event-store spec delta MODIFIES 'Combat Rollback Preserves Journal Authority' (no started marker, no rollback law), with one crosswalk sentence mapping design S5/S6 to roadmap R4.S5-S7; default-mode assertions in the overlapping suites change to the enabled truth and a default create proves a journal head; a stream with a journal head but no branch row fails closed, typed, in its owning reader; lastBroadcastSeq reaches the final event of a multi-event batch and a multi-event drain does not rebroadcast earlier events. Red-first: default mode enabled and a created match has a journal head (red before the flip); the fixture-retirement probe (no ladder plan sets the retired key) turns green. Main proof runs every ladder group. Ticks 1.7. Carries U24's riders (a)-(e) in full.",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server",
+        "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind",
+        "scripts/qc/gm-two-player-campaign-core.cjs",
+        "scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+        "playwright.config.ts"
+      ],
+      "state": "blocked",
+      "admissionRequires": "U24a must be complete with an exact-main mainProof receipt before the parent releases this unit to planned. NEXT does not enforce these unit dependencies. Re-measure the files and both line budgets at admission; the registration allocation (15 files) is at the cap, so stop and split again rather than exceed 15 files/500 lines. A sensitive-class packet is registered at the local fold and the head is ruled before merge.",
+      "predecessors": [
+        "U24a"
+      ],
+      "source20260928": {
+        "at": "2026-09-28T06:58:24.882Z",
+        "reason": "U24 stopped with BLOCKED-SPLIT at re-admission (see U24a). This slice holds the production flip, the fixture retirement, the backfill removal and the OpenSpec hard-cutover amendments.",
+        "evidence": "evidence/u24-split-admission-20260928.json",
+        "planTask": "6"
+      },
+      "blocked20260928": {
+        "cause": "Predecessor U24a (the re-pin) is not complete on main.",
+        "nextIndependentAction": "Deliver U24a and prove it on exact main, then release U24b through a parent ledger edit."
       }
     },
     {

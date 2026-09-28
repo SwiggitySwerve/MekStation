@@ -1,3 +1,13 @@
+## 2026-09-28 U24 split into U24a and U24b (parent)
+
+U24 (the production hard cutover) was re-admitted on `d3c2a88` after its ownership amendment. It stopped again with BLOCKED-SPLIT before any edit. A source-grounded census found it needs at least 19 files: 12 product, spec and config files and 7 tests. With the four writer-only history re-pins from rider (d) it needs 23, against its 15-file cap. The census covered the production constant, the fixture consumer, producer and forwarding, the mirror backfill, the four OpenSpec edits, five default-dependent server suites, and three production comments that claim the shipped default is off.
+
+Following the unit's own rule ("park and split re-pin first, flip second") and the P1B precedent, U24 becomes a blocked, superseded record with no task keys:
+- **U24a (planned; predecessors U19b, U23 and U43):** the re-pin, 12 files under `src/lib/multiplayer/server`. Comments are rewritten to stay true across the flip. The five suites make their fixture mode explicit, with exact signals replacing timing-based setup. The four history pins are proven writer-only, without the backfill.
+- **U24b (blocked on U24a's exact-main proof):** the flip, 15 files under U24's full ownership, at the cap and re-measured at admission. It enables production mode with no override, retires the fixture consumer, producer and forwarding, removes the backfill, and makes the adopt change's hard-cutover amendments plus a new event-store delta. It also covers the default-create head, the typed missing-branch refusal and the multi-event drain.
+
+U24b carries task key `#1.7@20`. Both slices keep the authority and migration review classes. Evidence: [u24-split-admission-20260928.json](evidence/u24-split-admission-20260928.json).
+
 ## 2026-09-28 U24 ownership amended for fixture retirement (parent)
 
 U24's letter retires the combat fixture switch and requires rewriting every "mode off" comment that the production flip makes false. Its implementer stopped at the ownership boundary before editing anything. A read-only probe of the real QC runner's `buildRunPlan` shows four ladder groups (authority-recovery, privacy-pack, authority and all) still inject the fixture key. Three files produce, pin and forward that key, and all three sit outside U24's paths:
