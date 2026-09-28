@@ -13,6 +13,7 @@ import * as matchJournalAuthority from '../matchJournalAuthority';
 import { COMBAT_JOURNAL_AUTHORITY_ENABLED } from '../matchJournalAuthority';
 import { ServerMatchHost, type IMatchSocket } from '../ServerMatchHost';
 import { digestCommandPostState } from '../ServerMatchHostDecision';
+import { createPersistedHost } from './matchHostPersistence.test-helpers';
 
 const MATCH_ID = 'match-journal-authority';
 
@@ -52,7 +53,7 @@ function intent(intentId: string, matchId = MATCH_ID): IIntent {
 
 async function makeHost(options: {
   readonly matchId?: string;
-  readonly journalAuthority?: boolean;
+  readonly journalAuthority: boolean;
 }): Promise<{ host: ServerMatchHost; store: InMemoryMatchStore }> {
   const matchId = options.matchId ?? MATCH_ID;
   const store = new InMemoryMatchStore({ quiet: true });
@@ -70,20 +71,20 @@ async function makeHost(options: {
     updatedAt: now,
     config: { mapRadius: 4, turnLimit: 5 },
   });
-  const host = ServerMatchHost.create(matchId, store, {
-    mapRadius: 4,
-    turnLimit: 5,
-    random: new SeededRandom(42),
-    randomSeed: 42,
-    grid: createMinimalGrid(4),
-    playerUnits: [],
-    opponentUnits: [],
-    gameUnits: twoSidedRoster(),
-    diceSeed: 42,
-    journalAuthority: options.journalAuthority,
-  });
-  await Promise.resolve();
-  await Promise.resolve();
+  const host = await createPersistedHost(() =>
+    ServerMatchHost.create(matchId, store, {
+      mapRadius: 4,
+      turnLimit: 5,
+      random: new SeededRandom(42),
+      randomSeed: 42,
+      grid: createMinimalGrid(4),
+      playerUnits: [],
+      opponentUnits: [],
+      gameUnits: twoSidedRoster(),
+      diceSeed: 42,
+      journalAuthority: options.journalAuthority,
+    }),
+  );
   return { host, store };
 }
 
@@ -134,7 +135,12 @@ function makeMockSocket(): IMatchSocket & { sent: { kind: string }[] } {
 }
 
 describe('combat journal-authority path', () => {
+  beforeEach(() => {
+    matchJournalAuthority._setCombatJournalAuthorityModeForTests('off');
+  });
+
   afterEach(() => {
+    matchJournalAuthority._setCombatJournalAuthorityModeForTests(null);
     matchJournalAuthority._setApplyCommittedForTests(null);
   });
 

@@ -4,7 +4,7 @@
  *
  * Real all the way down: a migrated SQLite through the shipped
  * `SQLiteService` singleton, four real events through the shipped
- * journal writer, the shipped genesis backfill, and - for the lease
+ * journal writer with its first-append genesis install, and - for the lease
  * row - a real correction lease acquired through the shipped store, so
  * the DEFAULT durable rebuild reader is what answers rather than a seam.
  *
@@ -115,6 +115,11 @@ describe('previewGmCombatRewind', () => {
   let probeCalls: string[];
 
   beforeEach(async () => {
+    jest
+      .spyOn(SQLiteEventHistoryBranchStore.prototype, 'backfillGenesisBranches')
+      .mockImplementation(() => {
+        throw new Error('writer-only fixture must not backfill');
+      });
     dir = await mkdtemp(path.join(tmpdir(), 'rewind-preview-'));
     resetSQLiteService();
     const service = getSQLiteService({ path: path.join(dir, 'rewind.db') });
@@ -126,6 +131,7 @@ describe('previewGmCombatRewind', () => {
   });
 
   afterEach(async () => {
+    jest.restoreAllMocks();
     resetSQLiteService();
     await rm(dir, { recursive: true, force: true, maxRetries: 3 });
   });
@@ -152,10 +158,9 @@ describe('previewGmCombatRewind', () => {
   }
 
   /**
-   * Four real events through the shipped writer, then the backfill the match
-   * mirror still runs after an append; asserts the stream then holds exactly
-   * one effective genesis branch and one effective head, whichever of the
-   * two installed them.
+   * Four real events through the shipped writer; its first append installs
+   * exactly one effective genesis branch and one effective head. No backfill
+   * runs before the branch/head assertions or the preview.
    */
   async function seedStream(): Promise<void> {
     const result = await journal().append({
@@ -183,7 +188,6 @@ describe('previewGmCombatRewind', () => {
       })),
     });
     expect(result.kind).toBe('committed');
-    branches().backfillGenesisBranches();
     expect(branches().listBranches(STREAM)).toMatchObject([
       { branchId: 'root', ancestorDepth: 0, status: 'effective' },
     ]);
@@ -427,11 +431,8 @@ describe('previewGmCombatRewind', () => {
   });
 
   it('says a match with no authoritative history has none, and asks no probe', async () => {
-    // FINDING #48/#53: nothing writes match events to the journal, so a
-    // real match has no stream-head row and therefore no genesis branch.
-    // That is an ANSWER this surface gives, not an exception it raises -
-    // `readEffectiveHead`, never `requireEffectiveHead`, exactly as
-    // `campaignLaunchHead` decided for the same reason.
+    // This stream was never appended, so it has no genesis or effective
+    // head. Absence is a typed answer, independent of the process mode.
     const unregistered = 'stream-unregistered';
 
     const result = await previewGmCombatRewind(deps(), gmAuthority(), {

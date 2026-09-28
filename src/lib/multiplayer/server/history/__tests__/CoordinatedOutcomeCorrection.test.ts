@@ -60,6 +60,11 @@ describe('admitCoordinatedOutcomeCorrection', () => {
   let db: Database.Database;
 
   beforeEach(async () => {
+    jest
+      .spyOn(SQLiteEventHistoryBranchStore.prototype, 'backfillGenesisBranches')
+      .mockImplementation(() => {
+        throw new Error('writer-only fixture must not backfill');
+      });
     dir = await mkdtemp(path.join(tmpdir(), 'outcome-correction-'));
     resetSQLiteService();
     const service = getSQLiteService({ path: path.join(dir, 'correction.db') });
@@ -69,6 +74,7 @@ describe('admitCoordinatedOutcomeCorrection', () => {
   });
 
   afterEach(async () => {
+    jest.restoreAllMocks();
     resetSQLiteService();
     await rm(dir, { recursive: true, force: true, maxRetries: 3 });
   });
@@ -79,9 +85,8 @@ describe('admitCoordinatedOutcomeCorrection', () => {
 
   /**
    * Appends four probe events to the match stream through the shipped
-   * journal, runs the backfill the match mirror still runs after an append,
-   * and asserts the stream then holds exactly one effective genesis branch
-   * and one effective head, whichever of the two installed them.
+   * writer and asserts its first append installed exactly one effective
+   * genesis branch and one effective head, without a global backfill.
    */
   async function seedJournal(): Promise<void> {
     const result = await new SQLiteEventJournal(db, () => AT).append({
@@ -109,7 +114,6 @@ describe('admitCoordinatedOutcomeCorrection', () => {
       })),
     });
     expect(result.kind).toBe('committed');
-    branches().backfillGenesisBranches();
     expect(branches().listBranches(STREAM)).toMatchObject([
       { branchId: 'root', ancestorDepth: 0, status: 'effective' },
     ]);

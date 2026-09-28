@@ -16,15 +16,12 @@
  * journal history from wherever the mirror happened to be, with no
  * record that a prefix is missing. Seeding must precede any flip.
  *
- * WHAT IS NOT DONE HERE. Nothing retro-seeds a match that already
- * exists. A stream created before this change has no journal row of any
- * kind, and S3-a's derivation is what reports that honestly rather than
- * inventing a prefix — `matchJournalAuthorityStartedDerived.ts` says so
- * in its own words ("BEFORE THE FIRST BATCH THE ANSWER IS FALSE,
- * INCLUDING FOR A LIVE MATCH"), and the last row below pins it.
+ * The final row arranges a legacy log without journal rows or a seed
+ * receipt. The derived-head reader reports its absence without inventing
+ * a prefix; a read alone never retro-seeds that stream.
  *
- * No cutover: `COMBAT_JOURNAL_AUTHORITY_MODE` stays 'off' and every
- * mode here is a test override.
+ * Every fixture selects its mode explicitly; none relies on the shipped
+ * default. A pre-cutover log without journal rows is arranged separately.
  *
  * @spec openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/design.md (S1, S5, S6)
  */
@@ -61,6 +58,7 @@ import {
 import { deriveMatchJournalAuthorityStartedHead } from '../matchJournalAuthorityStartedDerived';
 import { buildMatchHostBootstrapFromMeta } from '../matchUnitBootstrap';
 import { ServerMatchHost } from '../ServerMatchHost';
+import { createPersistedHost } from './matchHostPersistence.test-helpers';
 
 const MATCH_ID = 'match-create-path-seed';
 const STREAM = { streamType: 'match', streamId: MATCH_ID } as const;
@@ -131,20 +129,13 @@ function primary(): Database.Database {
   return getSQLiteService().getDatabase();
 }
 
-/** Let the host's fire-and-forget `persistInitialEvents` finish. The
- * whole chain is synchronous better-sqlite3 work behind resolved
- * promises, so a bounded number of microtask turns drains it. */
-async function drain(): Promise<void> {
-  for (let turn = 0; turn < 50; turn += 1) await Promise.resolve();
-}
-
 /** The production create path: the real host factory on a real store. */
 async function createHost(mode: CombatJournalAuthorityMode) {
   _setCombatJournalAuthorityModeForTests(mode);
   const bootstrap = await buildMatchHostBootstrapFromMeta(matchMeta(unitRef));
-  const host = ServerMatchHost.create(MATCH_ID, store!, bootstrap);
-  await drain();
-  return host;
+  return createPersistedHost(() =>
+    ServerMatchHost.create(MATCH_ID, store!, bootstrap),
+  );
 }
 
 function head() {
@@ -219,8 +210,7 @@ describe('the create path seeds the match journal stream', () => {
       `create:${MATCH_ID}:0`,
       `create:${MATCH_ID}:1`,
     ]);
-    // A seeded stream is not a mismatch; the counter S6 consults before
-    // any promotion has to stay clean through creation.
+    // A successful seed records no mirror-failure diagnostic.
     expect(getProcessShadowMismatchCount()).toBe(0);
   });
 

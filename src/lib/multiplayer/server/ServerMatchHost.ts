@@ -1598,10 +1598,9 @@ function refoldedJournalHead(
 
 /**
  * Bootstrap default for a host created without an explicit request.
- * An explicit `bootstrap.journalAuthority` wins; otherwise the RUNTIME
- * mode decides, so a jest override or the U15a two-key e2e arm reaches
- * this seam. Reading the module constant here instead would pin the
- * default to the hardcoded 'off' and make the arm unobservable.
+ * An explicit `bootstrap.journalAuthority` wins; otherwise the runtime
+ * mode getter selects authority. Tests can select a fixture mode without
+ * changing the production constant.
  */
 export function resolveBootstrapJournalAuthority(
   requested: boolean | undefined,

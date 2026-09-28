@@ -33,6 +33,7 @@ import {
   GamePhase,
 } from '@/types/gameplay/GameSessionInterfaces';
 
+import { _setCombatJournalAuthorityModeForTests } from '../../matchJournalAuthority';
 import {
   blockCoordinatedCorrection,
   firstSupersededMatchSequence,
@@ -189,6 +190,21 @@ function outboxRowCount(store: DurableMatchStore): number {
     .get(MATCH_ID) as { readonly n: number };
   return row.n;
 }
+
+beforeEach(() => {
+  // These source-store fixtures seed the separate journal explicitly.
+  _setCombatJournalAuthorityModeForTests('off');
+  jest
+    .spyOn(SQLiteEventHistoryBranchStore.prototype, 'backfillGenesisBranches')
+    .mockImplementation(() => {
+      throw new Error('writer-only fixture must not backfill');
+    });
+});
+
+afterEach(() => {
+  _setCombatJournalAuthorityModeForTests(null);
+  jest.restoreAllMocks();
+});
 
 describe('recordCoordinatedCorrectionSource', () => {
   let store: DurableMatchStore;
@@ -426,9 +442,8 @@ describe('sealCoordinatedCorrectionManifest', () => {
 
   /**
    * Appends four probe events to the match stream through the shipped
-   * journal, runs the backfill the match mirror still runs after an append,
-   * and asserts the stream then holds exactly one effective genesis branch
-   * and one effective head, whichever of the two installed them.
+   * writer and asserts its first append installed exactly one effective
+   * genesis branch and one effective head, without a global backfill.
    */
   async function seedJournal(): Promise<void> {
     const result = await new SQLiteEventJournal(journalDb, () => AT).append({
@@ -457,7 +472,6 @@ describe('sealCoordinatedCorrectionManifest', () => {
     });
     expect(result.kind).toBe('committed');
     const branches = new SQLiteEventHistoryBranchStore(journalDb);
-    branches.backfillGenesisBranches();
     expect(branches.listBranches(STREAM)).toMatchObject([
       { branchId: 'root', ancestorDepth: 0, status: 'effective' },
     ]);
