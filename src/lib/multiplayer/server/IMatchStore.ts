@@ -573,6 +573,20 @@ export interface IMatchStore
   getLastCommandReceipt?(matchId: string): Promise<IMatchCommandReceipt | null>;
 
   /**
+   * Restore missing live-path journal batches from durable command receipts.
+   * A refusal is typed and must be returned before mutating the journal when
+   * the stored receipt history itself is incomplete or corrupt.
+   */
+  recoverJournalBatches?(matchId: string): Promise<
+    | { readonly kind: 'unchanged' | 'recovered' }
+    | {
+        readonly kind: 'blocked';
+        readonly reason: 'partial-history';
+        readonly evidence: readonly string[];
+      }
+  >;
+
+  /**
    * Move the live match-log tail from `fromSequence` inclusive into
    * superseded sibling storage. A rewind activation uses this so the
    * next append can reuse the cut sequence. Optional: a store without

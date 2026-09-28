@@ -76,7 +76,6 @@ import {
   _resetProcessShadowStatsForTests,
   _setCombatJournalAuthorityModeForTests,
 } from '../matchJournalAuthority';
-import { MATCH_ROLLBACK_PRESERVED_FACTS } from '../matchRollbackReaderSelection';
 import {
   selectRecoveredMatchRollbackReader,
   ServerMatchHost,
@@ -374,14 +373,10 @@ describe('recovery has one source of started after the marker retires', () => {
     );
   });
 
-  it('refuses a seeded match that has committed no command, rather than serving it', async () => {
-    // Pinned here because S7-a2 made the shape reachable and this suite
-    // is where the started question is decided. A create-path seed
-    // installs a head but no command receipt, so recovery has a started
-    // fact and no recorded head to check a refold against. That is
-    // `missing-journal-head` — fail-closed, and NOT legacy-compatible.
-    // Unchanged by this slice; it is the pre-existing answer, recorded
-    // so a later slice cannot quietly turn it into a legacy fallback.
+  it('selects the journal reader for a seeded match with no later command', async () => {
+    // U43 records the opening batch as create:<matchId> before mirroring.
+    // The receipt carries the opening post-state digest, so the seeded
+    // head is now commit-ready rather than missing its recorded head.
     _setCombatJournalAuthorityModeForTests('enabled');
     const events = await createAndSeed();
     store.insertJournalAuthorityBaseline(admissionBaseline(events));
@@ -393,10 +388,8 @@ describe('recovery has one source of started after the marker retires', () => {
       session,
     );
 
-    expect(decision).toEqual({
-      kind: 'blocked',
-      reason: 'missing-journal-head',
-      preserved: MATCH_ROLLBACK_PRESERVED_FACTS,
-    });
+    expect(decision).toEqual(
+      expect.objectContaining({ kind: 'journal-compatible' }),
+    );
   });
 });

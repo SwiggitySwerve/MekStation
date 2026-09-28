@@ -54,7 +54,9 @@ import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 
 import { readDurableStreamRebuild } from '@/lib/events/journal/EventHistoryDurableRebuild';
+import { readEffectiveStreamHead } from '@/lib/events/journal/EventHistoryEffectiveStreamHead';
 import { canonicalizeJsonV1 } from '@/lib/events/journal/EventJournalCanonicalizer';
+import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import { normalizeRoomCode } from '@/lib/p2p/roomCodes';
 import { isSqliteUniqueConstraintError } from '@/services/persistence/sqliteConstraintErrors';
 
@@ -95,6 +97,7 @@ import {
   selectViewerDeliveryAcknowledgement,
   upsertViewerDeliveryAcknowledgement,
 } from './DurableMatchStore.viewerDelivery';
+import { matchStreamRef } from './history/GmCombatRewindPreview';
 import { nextMatchSequenceAfter } from './history/matchStoreBranchSegmentReader';
 import {
   MatchNotFoundError,
@@ -116,6 +119,7 @@ import {
   type ILegacyImportMarker,
   type LegacyEventImportResult,
 } from './importLegacyMatchEvents';
+import { isLivePathBranchId } from './matchAuthorityBaseline';
 import {
   firstNonContiguousSequence,
   matchCommandFingerprint,
@@ -129,10 +133,12 @@ import {
   getCombatJournalAuthorityMode,
   recordProcessShadowComparison,
 } from './matchJournalAuthority';
+import { foldMatchSession } from './MatchSessionProjector';
 import {
   mirrorMatchBatchToJournal,
   withoutUndefinedProperties,
 } from './MatchStreamJournalMirror';
+import { digestCommandPostState } from './ServerMatchHostDecision';
 
 // =============================================================================
 // Constants
@@ -1142,21 +1148,187 @@ export class DurableMatchStore
     if (events.length === 0) return;
     const meta = this.getMatchRow(matchId);
     if (!meta) return;
-    await this.mirrorCommittedBatch(
-      matchId,
-      {
-        // Derived from the match id alone, so a repeated seed is
-        // recognised as its own retry rather than as a new command.
-        commandId: `create:${matchId}`,
-        actorId: (JSON.parse(meta.meta_json) as IMatchMeta).hostPlayerId,
-        // The opening batch starts an empty log, and an empty journal
-        // expects revision 0 on both arms of the consult.
-        expectedRevision: nextMatchSequenceAfter(null),
-        events,
-        expectedPostStateDigest: null,
-      },
-      true,
+    const batch: IMatchCommandBatch = {
+      commandId: `create:${matchId}`,
+      actorId: (JSON.parse(meta.meta_json) as IMatchMeta).hostPlayerId,
+      expectedRevision: nextMatchSequenceAfter(null),
+      events,
+      expectedPostStateDigest: digestCommandPostState(
+        foldMatchSession(matchId, events),
+      ),
+    };
+    const stored = await this.getEvents(matchId, 0);
+    const exactOpening =
+      stored.length >= events.length &&
+      events.every(
+        (event, index) =>
+          canonicalizeJsonV1(withoutUndefinedProperties(event)) ===
+          canonicalizeJsonV1(withoutUndefinedProperties(stored[index])),
+      );
+    if (!exactOpening || firstNonContiguousSequence(batch) !== null) {
+      throw new Error('journal-seed:opening-history-mismatch');
+    }
+
+    const committedAt = new Date().toISOString();
+    this.db.transaction(() => {
+      const existing = this.db
+        .prepare(
+          `SELECT * FROM mp_command_receipts
+           WHERE match_id = ? AND command_id = ?`,
+        )
+        .get(matchId, batch.commandId) as ICommandReceiptRow | undefined;
+      if (existing) {
+        const receipt = receiptFrom(existing);
+        if (
+          !matchesCommandFingerprint(existing.fingerprint, batch) ||
+          receipt.expectedPostStateDigest !== batch.expectedPostStateDigest
+        ) {
+          throw new Error('journal-seed:command-identity-conflict');
+        }
+        return;
+      }
+      this.db
+        .prepare(
+          `INSERT INTO mp_command_receipts
+             (match_id, command_id, actor_id, first_revision, last_revision,
+              event_count, fingerprint, post_digest, committed_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        )
+        .run(
+          matchId,
+          batch.commandId,
+          batch.actorId,
+          batch.events[0].sequence,
+          batch.events[batch.events.length - 1].sequence,
+          batch.events.length,
+          matchCommandFingerprint(batch),
+          batch.expectedPostStateDigest,
+          committedAt,
+        );
+    })();
+
+    // The receipt commits first. If the second database is unavailable,
+    // restart recovery now has the trusted identity needed to finish.
+    await this.mirrorCommittedBatch(matchId, batch, true);
+  };
+
+  recoverJournalBatches = async (
+    matchId: string,
+  ): Promise<
+    | { readonly kind: 'unchanged' | 'recovered' }
+    | {
+        readonly kind: 'blocked';
+        readonly reason: 'partial-history';
+        readonly evidence: readonly string[];
+      }
+  > => {
+    if (
+      getCombatJournalAuthorityMode() !== 'enabled' ||
+      !this.isCapabilityDbAvailable()
+    ) {
+      return { kind: 'unchanged' };
+    }
+    const events = await this.getEvents(matchId, 0);
+    if (events.length === 0) return { kind: 'unchanged' };
+    const rows = this.db
+      .prepare(
+        `SELECT * FROM mp_command_receipts
+         WHERE match_id = ?
+         ORDER BY first_revision, last_revision`,
+      )
+      .all(matchId) as ICommandReceiptRow[];
+    const batches: IMatchCommandBatch[] = [];
+    let nextRevision = 0;
+    for (const row of rows) {
+      const receipt = receiptFrom(row);
+      const batchEvents = events.slice(
+        receipt.firstRevision,
+        receipt.lastRevision + 1,
+      );
+      const batch: IMatchCommandBatch = {
+        commandId: receipt.commandId,
+        actorId: receipt.actorId,
+        expectedRevision: receipt.firstRevision,
+        events: batchEvents,
+        expectedPostStateDigest: receipt.expectedPostStateDigest,
+        journalAuthorityCommand: true,
+      };
+      const identityPrefix = `${receipt.commandId}|${receipt.actorId}|${receipt.firstRevision}|`;
+      const valid =
+        receipt.commandId.trim().length > 0 &&
+        receipt.actorId.trim().length > 0 &&
+        (row.fingerprint.startsWith(`v2|${identityPrefix}`) ||
+          row.fingerprint.startsWith(identityPrefix)) &&
+        receipt.firstRevision === nextRevision &&
+        receipt.eventCount === batchEvents.length &&
+        receipt.lastRevision ===
+          receipt.firstRevision + receipt.eventCount - 1 &&
+        receipt.expectedPostStateDigest != null &&
+        receipt.expectedPostStateDigest.length > 0;
+      if (!valid) {
+        return {
+          kind: 'blocked',
+          reason: 'partial-history',
+          evidence: [
+            `stored receipt '${receipt.commandId || '<empty>'}' does not identify revisions ${nextRevision}..${receipt.lastRevision}`,
+          ],
+        };
+      }
+      batches.push(batch);
+      nextRevision = receipt.lastRevision + 1;
+    }
+    if (nextRevision !== events.length) {
+      return {
+        kind: 'blocked',
+        reason: 'partial-history',
+        evidence: [
+          `stored receipts cover revisions 0..${nextRevision - 1}; match log holds ${events.length} events`,
+        ],
+      };
+    }
+
+    const db = this.capabilityDatabase();
+    const head = readEffectiveStreamHead(
+      db,
+      new SQLiteEventHistoryBranchStore(db),
+      matchStreamRef(matchId),
     );
+    if (!isLivePathBranchId(head.branchId) || head.revision > events.length) {
+      return {
+        kind: 'blocked',
+        reason: 'partial-history',
+        evidence: [
+          `journal head '${head.branchId}' at revision ${head.revision} cannot be extended to ${events.length}`,
+        ],
+      };
+    }
+    if (head.revision === events.length) return { kind: 'unchanged' };
+    const missing = batches.filter(
+      (batch) => batch.expectedRevision >= head.revision,
+    );
+    if (missing[0]?.expectedRevision !== head.revision) {
+      return {
+        kind: 'blocked',
+        reason: 'partial-history',
+        evidence: [
+          `journal head revision ${head.revision} splits a stored command batch`,
+        ],
+      };
+    }
+    try {
+      for (const batch of missing) {
+        await this.mirrorCommittedBatch(matchId, batch, true);
+      }
+    } catch (error) {
+      return {
+        kind: 'blocked',
+        reason: 'partial-history',
+        evidence: [
+          error instanceof Error ? error.message : 'journal recovery failed',
+        ],
+      };
+    }
+    return { kind: 'recovered' };
   };
 
   getCommandReceipt = async (
