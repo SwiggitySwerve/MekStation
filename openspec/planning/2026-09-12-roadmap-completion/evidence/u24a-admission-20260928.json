@@ -1,0 +1,28 @@
+{
+  "unit": "U24a",
+  "stage": "admission",
+  "at": "2026-09-28T07:07:16.724Z",
+  "baseline": "aaec40d086572866febc77a4ad8589a9c8269492",
+  "next": "validate-roadmap.mjs --next prints PAIC at this baseline (PAIC is ahead in ledger order and its closure is in flight); U24a runs on its own lane. NEXT does not enforce unit dependencies.",
+  "ownership": {
+    "declared": [
+      "src/lib/multiplayer/server"
+    ]
+  },
+  "tier": "HEAVY: authority and migration review classes; ruling under the owner's standing merge instruction",
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500
+  },
+  "predecessors": {
+    "U19b": "complete",
+    "U23": "complete",
+    "U43": "complete"
+  },
+  "allocation": "12 files from evidence/u24-split-admission-20260928.json (three production comment files, five server suites, four writer-only history pins)",
+  "parentDecision": {
+    "decision": "go",
+    "reason": "registered by #2079 (merge aaec40d) with predecessors complete; the split exists to keep the flip within caps"
+  },
+  "planTask": "6"
+}

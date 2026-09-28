@@ -1,0 +1,18 @@
+{
+  "unit": "U24a",
+  "stage": "red",
+  "at": "2026-09-28T07:12:18.439Z",
+  "baseline": "aaec40d086572866febc77a4ad8589a9c8269492",
+  "summary": "Red and falsification on the unchanged baseline: forbidding the global backfill failed the four history suites (33 failed / 10 passed), and disabling writer genesis left all 43 history tests green, proving they depended on backfill rather than the writer-only install. The fixture-timing rows were shown to rely on fixed microtask drains and clock polling. Lane A (gpt-6-sol) reproduced the disabled-genesis falsification (33 branch-dependent failures) and forced off/enabled runs.",
+  "evidence": [
+    "lane log red-ambient-enabled-holds.log",
+    "lane log red-ambient-enabled-idle.log",
+    "lane log red-ambient-enabled.log",
+    "lane log red-backfill-holds.log",
+    "lane log red-backfill-idle.log",
+    "lane log red-backfill.log",
+    "lane log red-io-completion-holds.log",
+    "lane log red-io-completion-idle.log",
+    "lane log red-io-completion.log"
+  ]
+}

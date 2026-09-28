@@ -1,0 +1,17 @@
+{
+  "unit": "U24a",
+  "stage": "review",
+  "at": "2026-09-28T08:01:38.873Z",
+  "lane": "A",
+  "reviewerModel": "gpt-6-sol",
+  "implementerModel": "gpt-6-astra (deep-high task st_01a0e6b9); comment-only correction 37003e4 by the parent",
+  "reviewerEffort": "not exposed by the task snapshot",
+  "head": "37003e402c4e289d0e15fe296493438202157e84",
+  "reviewedHead": "37003e402c4e289d0e15fe296493438202157e84",
+  "verdict": "APPROVE",
+  "outputPath": "evidence/u24a-lane-a-review-20260928.md",
+  "outputSha256": "1c7b582c3b3caf2cc93fd49e5da09543a28345e62b948876a2009188c4521ad9",
+  "sharedContext": "none: a separate task (st_01a0e6f3) on gpt-6-sol, a different model from the implementer, reviewed detached worktrees at each head; on 2cfce37 it returned REQUEST_CHANGES (a production comment claimed a fresh match has a journal head before its first player command, false because the host returns before its opening seed completes); on 37003e4 (comment-only correction) it confirmed the new text against the code and an identical emitted program, carried forward its independent forced off/enabled runs and disabled-genesis falsification (33 branch-dependent failures), and returned APPROVE with no BLOCKER or REQUIRED finding",
+  "laneB": "owner ruling PK-u24a-ruling: rule the head on 37003e402c4e289d0e15fe296493438202157e84 (PR #2081, comment 5865785264, label owner-ruled)",
+  "githubApproval": "none recorded; Lane A is engineering evidence, never a GitHub approval"
+}

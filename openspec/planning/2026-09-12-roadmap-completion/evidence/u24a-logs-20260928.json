@@ -1,0 +1,100 @@
+{
+  "unit": "U24a",
+  "date": "20260928",
+  "at": "2026-09-28T08:01:40.852Z",
+  "runDir": ".sisyphus/roadmap-completion-20260912/u24a-main-proof-20260928",
+  "preservedDir": ".sisyphus/roadmap-completion-20260912/preserved-runs/U24a-20260928",
+  "files": [
+    {
+      "file": "build.log",
+      "bytes": 3354256,
+      "sha256": "fb5bc7792d2da99b73594bc78de09aa80ed553fc11d9f82a336564439e83c53e"
+    },
+    {
+      "file": "exact-main-ladder.log",
+      "bytes": 113,
+      "sha256": "1c1ffba330b7cba3e6ebc17ee13d159abd0a26b003b470aad4c66cfa383d00bb"
+    },
+    {
+      "file": "format.log",
+      "bytes": 185,
+      "sha256": "bb89010e2453a000bec2cf20639da88a73ebfae233cbce28a217d69308013a56"
+    },
+    {
+      "file": "git-check.log",
+      "bytes": 84,
+      "sha256": "71a8bd7a8b2073f6ae5178effaaf306bc58915cc8e5b35318223868cc0b450b4"
+    },
+    {
+      "file": "github.log",
+      "bytes": 80,
+      "sha256": "ea265f76ff47bda8194a0d1ccf59d172157d123ff68fa53ed0fed341ca685220"
+    },
+    {
+      "file": "idle-before-build.log",
+      "bytes": 21,
+      "sha256": "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43"
+    },
+    {
+      "file": "idle-before-runtime.log",
+      "bytes": 21,
+      "sha256": "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43"
+    },
+    {
+      "file": "lint-units.log",
+      "bytes": 367,
+      "sha256": "8956e2e03cd6b3a4d74d9319548eec06f46973a22f0c2336a867ee5ef71a6a72"
+    },
+    {
+      "file": "lint.log",
+      "bytes": 40009,
+      "sha256": "4ab3d04117d2f0363a60e3a35d51ef03b3e57a68613093be9f23c08954db5f46"
+    },
+    {
+      "file": "next.log",
+      "bytes": 12,
+      "sha256": "fd9ea77cd7c74a5ee2e94b6b2fc45c8b20958e8ea9864bc0cc487fa8b918bb44"
+    },
+    {
+      "file": "openspec-strict.log",
+      "bytes": 6835,
+      "sha256": "efd619721df505ed0dbb69fe5bd26b74023670e603ce16891fd2f1331adf1776"
+    },
+    {
+      "file": "playwright.log",
+      "bytes": 239328,
+      "sha256": "62ae0d759d58c96eaa2a343a7b1e6f1eeb882c91d4bac26ca5dc9b25e29c9822"
+    },
+    {
+      "file": "qc-openspec-ci.log",
+      "bytes": 299,
+      "sha256": "5b0f562274df4dbddfb7ae44ab42b7d686dc1e0903383f25c593d88f7479fe9a"
+    },
+    {
+      "file": "qc-pin.log",
+      "bytes": 400,
+      "sha256": "fa48cdc49a2a11c5c8aa9f1e341d72b1c5b465ecfd0dd360467e21ad773d5923"
+    },
+    {
+      "file": "restore-next-env.log",
+      "bytes": 8,
+      "sha256": "f891dbdfc0402cd4ba60fab1be3245dfec559c5d7afc7e21b87e795a73d05e5f"
+    },
+    {
+      "file": "sha256.txt",
+      "bytes": 980,
+      "sha256": "b70fb77828d2169f2c49eee4b5586bcfc08ec6320919cb40172d75a0b4bba731"
+    },
+    {
+      "file": "tsc.log",
+      "bytes": 8,
+      "sha256": "f891dbdfc0402cd4ba60fab1be3245dfec559c5d7afc7e21b87e795a73d05e5f"
+    },
+    {
+      "file": "validator.log",
+      "bytes": 84,
+      "sha256": "71a8bd7a8b2073f6ae5178effaaf306bc58915cc8e5b35318223868cc0b450b4"
+    }
+  ],
+  "bytes": 3643090
+}

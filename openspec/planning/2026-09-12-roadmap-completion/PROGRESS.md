@@ -1,3 +1,24 @@
+## 2026-09-28 U24a complete; U24b released; P1 aggregate proof; single-lane correction (parent)
+
+U24a (#2081, head `37003e402c4e289d0e15fe296493438202157e84`, merge `9490590629c04efeb0051383289a1824cb071a99`) is the re-pin half of the U24 split. It makes the journal-authority suites and comments hold on both sides of the production flip:
+- five suites select their fixture mode explicitly;
+- a test helper awaits real persistence completion instead of fixed drains or polling;
+- four history pins are proven writer-only, with a guard that fails on the global backfill;
+- three production comments describe persisted heads.
+
+The production constant, fixture wiring and mirror backfill are unchanged. Lane A (gpt-6-sol) first blocked a production comment that claimed a fresh match has a journal head before its first player command. That claim is false, because the host returns before its opening seed completes. The parent corrected the comment only (37003e4) and the re-gate approved it. PK-u24a-ruling records the owner's standing merge instruction, via comment 5865785264. The [exact-main proof](evidence/u24a-mainproof-20260928.json) passed: 19 runtime suites and 155 tests, the exact-main ladder (strict-smoke), tsc, the validator in four modes, openspec strict, qc:openspec-ci, the qc pin, lint (84 warnings, 0 errors), lint:units and format:check.
+
+**U24b is released from blocked to planned.** U24a's PASS mainProof was checked explicitly, because the validator does not enforce predecessor completion for a planned state. U24b's admission must re-measure its files; the registration allocation is already at the 15-file cap.
+
+**P1 aggregate proof (plan task 2).** Task 2 closes on its complete successor chain (P1A, P1B1-P1B3, P1C) plus an aggregate proof, which ran on exact main `51fa887`:
+- `J(launchCoopMission|CampaignSessionForceClaim|multiplayer)`: 224 suites, 1820 tests;
+- `verify:qc:coop-campaign-journey`: 144 Jest tests plus 2 Chromium runs;
+- the three frozen CAMP-01D arrays: 22, 48, and 144 tests plus 2 Chromium runs.
+
+The ledger P1 record stays a blocked, superseded record, and no P1 receipts are invented.
+
+**Single-lane correction.** The approved plan runs one product unit at a time, in validator order. PAIC (task 41) and PAI (task 40) were started while U24 was in flight, and before task 2's aggregate proof, which the dependency matrix places first. PAIC had already merged. PAI was parked with its uncommitted state preserved, and U24a finished as the single lane. `validate-roadmap.mjs --next` prints PAI, which resumes next.
+
 ## 2026-09-28 PAIC complete; PAI released (parent)
 
 PAIC (#2078, head `7daa013e2f2b7a53f86dc7fecdb1f0b717c35345`, merge `b4cef4671c269f7bf46ac568e0f14834f95b28ad`) delivers plan task 41's server-AI source contract. It is a MODIFIED "Co-op Mission Launch With Both Forces" requirement in the harden change. The archived text is restated byte for byte (1362/1362 bytes), so per-player same-side unit ownership is unchanged. The requirement adds:

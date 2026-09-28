@@ -1,0 +1,29 @@
+{
+  "unit": "U24a",
+  "stage": "local",
+  "at": "2026-09-28T08:01:03.480Z",
+  "status": "local-verified",
+  "head": "37003e402c4e289d0e15fe296493438202157e84",
+  "baseline": "aaec40d086572866febc77a4ad8589a9c8269492",
+  "summary": "13 files in src/lib/multiplayer/server (21 counted non-test added lines at the first head; the correction commit is comment-only): five journal-authority suites select fixture mode explicitly, a test helper awaits real persistence completion with a bounded timeout instead of fixed drains or polling, four history pins are proven writer-only with a guard that fails on the global backfill, and three production comments describe persisted heads and first-append genesis (corrected to state that a head exists once the opening seed completes). The production constant, fixture consumer, mirror backfill and external fixture wiring are unchanged. Green: 76/76 changed suites, 1067 server tests in two processes; typecheck, lint 0 errors / 84 warnings, lint:units, format, diff --check, build. Lane A gpt-6-sol APPROVE at 37003e4.",
+  "implementer": "gpt-6-astra (deep-high task st_01a0e6b9); comment correction by the parent",
+  "files": {
+    "src/lib/multiplayer/server/ServerMatchHost.ts": "c09ae36d7f6943d9c5304f3c56332a7078b270e95c97bf8f93f4d010d888b716",
+    "src/lib/multiplayer/server/__tests__/ServerMatchHostBranchAdmission.journalHead.test.ts": "3627bee0d9f75c78597294788f828cde32ba22f7b8948b8ef67c2f743af3fce4",
+    "src/lib/multiplayer/server/__tests__/journalAuthorityPath.test.ts": "e254a52fe413b597cd7e768651259dfbd661c5ec9ea978baeca32f9675e63969",
+    "src/lib/multiplayer/server/__tests__/journalAuthorityShadow.test.ts": "c59a0e37b700bc78c0132669b2ec50b41dbe25f94ba87e3a3b7252fef4345cb5",
+    "src/lib/multiplayer/server/__tests__/matchCreatePathJournalSeed.sqlite.test.ts": "3954f3d40454e90ff2729abcd35c85eed26983aea4c0a3a35d423bcdaf5cd829",
+    "src/lib/multiplayer/server/__tests__/matchHostPersistence.test-helpers.ts": "dcd39315e4e6dad700f594fd6a11295983f26c8c2b5f966f4c8d78e62d7c5b96",
+    "src/lib/multiplayer/server/__tests__/matchRecoveryJournalArmDoor.sqlite.test.ts": "3a43cc33980b3238e0f07abd20ccdf59b5d0f28615364d4aacf39e2c8275de32",
+    "src/lib/multiplayer/server/history/GmCombatRewindPreview.ts": "f814c14895c52214b31717218d739aa30042db45c2d6d57b6e82476a2bc50193",
+    "src/lib/multiplayer/server/history/__tests__/CoordinatedOutcomeCorrection.test.ts": "674e16bc71ed1be7a559590c6630b47515100c4824b8e1a95d4aaa871ac1cca7",
+    "src/lib/multiplayer/server/history/__tests__/CoordinatedOutcomeCorrectionSaga.test.ts": "d8b2211c1b07dde96af39310eab92f0ad19b83b5e710b34887c994d37c850fc9",
+    "src/lib/multiplayer/server/history/__tests__/GmCombatRewindCommit.test.ts": "08ba79e0c5cb5d97d19f58beb905212ee095fdec2c6672942aa90035ff66a1ab",
+    "src/lib/multiplayer/server/history/__tests__/GmCombatRewindPreview.test.ts": "6f6ded89308938c228041263b1bc7c51571304f0484360f5eb11b8702e3aaa39",
+    "src/lib/multiplayer/server/matchJournalAuthorityStartedDerived.ts": "2ad3169f9c1086c30305b8f8ba6e72e02f3b24b1e0f02d425c0fa338e8617016"
+  },
+  "evidence": [
+    ".omo/ulw-execute/u24a/DONECLAIM.md (lane evidence)",
+    "E:/Projects/MekStation/.omo/ulw-execute/evidence/task-6-u24a-review.md"
+  ]
+}
