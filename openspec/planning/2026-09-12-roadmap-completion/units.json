@@ -4664,17 +4664,26 @@
       "id": "P2",
       "node": "R2.multiplayer-client",
       "taskKeys": [],
-      "behavior": "Both deploying co-op clients join the shared mission the server created. missionLaunchPage.launch.ts consumes the P1A-created, P1B-announced missionMatchId: the deploying host and the deploying guest navigate to and join the same tactical match, command-hq stays on /gameplay/campaigns/<id>, and the non-playing GM connection is preserved. No player browser receives or requests an opponent-control grant, and a guest disconnect grants nothing. A failed or stale launch leaves both clients on their safe prior routes and creates no extra match. This unit also owns e2e/coop-campaign-two-browser-journey.spec.ts through task 1's node and unit path amendment: it adds the launch, deploy/HQ destination, shared match ID and active opponent-turn browser assertions to that journey and updates the spec's current no-mission-launch coverage comment to the behavior actually proved. Red-first: jest rows on missionLaunchPage.launch (deploy and HQ destinations, stale head, failed create) fail today because launch drops the composition before any shared match exists; the extended journey run through npm.cmd run verify:qc:coop-campaign-journey fails today at the shared-identity and opponent-turn assertions and passes locally and on exact main after. Not claimed: any server, API or persistence change (P1, PAI) and the ownership refusal itself (U38). When the campaign already carries the CampaignMissionLaunched fact for this mission (for example after a local launch failure or a tab close that followed a successful create), the page rejoins that announced missionMatchId instead of re-POSTing mission create, so a partially completed launch is recoverable and still never creates an extra match.",
+      "behavior": "Both deploying co-op clients join the shared mission the server created. missionLaunchPage.launch.ts consumes the P1A-created, P1B-announced missionMatchId: the deploying host and the deploying guest navigate to and join the same tactical match, command-hq stays on /gameplay/campaigns/<id>, and the non-playing GM connection is preserved. No player browser receives or requests an opponent-control grant, and a guest disconnect grants nothing; this does not invent a guest-disconnect pause requirement, because PAIC/PAI preserve the existing host-disconnect pause rule. A failed or stale launch leaves both clients on their safe prior routes and creates no extra match. This unit also owns e2e/coop-campaign-two-browser-journey.spec.ts through task 1's node and unit path amendment: it adds the launch, deploy/HQ destination, shared match ID and active opponent-turn browser assertions to that journey and updates the spec's current no-mission-launch coverage comment to the behavior actually proved. Red-first: jest rows on missionLaunchPage.launch (deploy and HQ destinations, stale head, failed create) fail today because launch drops the composition before any shared match exists; the extended journey run through npm.cmd run verify:qc:coop-campaign-journey fails today at the shared-identity and opponent-turn assertions and passes locally and on exact main after. Not claimed: any server, API or persistence change (P1, PAI) and the ownership refusal itself (U38). When the campaign already carries the CampaignMissionLaunched fact for this mission (for example after a local launch failure or a tab close that followed a successful create), the page rejoins that announced missionMatchId instead of re-POSTing mission create, so a partially completed launch is recoverable and still never creates an extra match. The existing parent ownership path src/pages/multiplayer is held by P2 only so implementation may add the single planned leaf src/pages/multiplayer/mission/[matchId].tsx; it grants P2 no permission to edit any other file under that parent.",
       "ownershipPaths": [
         "src/pages-modules/gameplay/campaigns/missionLaunchPage.launch.ts",
         "src/pages-modules/gameplay/campaigns/__tests__/missionLaunchPage.launch.test.ts",
         "src/components/campaign/coop",
         "src/hooks",
-        "e2e/coop-campaign-two-browser-journey.spec.ts"
+        "e2e/coop-campaign-two-browser-journey.spec.ts",
+        "src/lib/campaign/coop/launchCoopMission.ts",
+        "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts",
+        "src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx",
+        "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx",
+        "src/pages/multiplayer"
       ],
       "ciClass": "product",
       "reviewClasses": [
-        "routine"
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
       ],
       "caps": {
         "maxFiles": 15,
@@ -4694,7 +4703,7 @@
         "tick": null
       },
       "ownerGate": null,
-      "admissionRequires": "P1A, P1B1, P1B2, P1B3, P1C, PAI all require exact-main mainProof receipts before parent release to planned. The blocked historical P1 record is superseded by P1A/P1B/P1C; its absence of a mainProof is not bypassed or falsified. NEXT does not enforce these unit dependencies. If any predecessor is owner-gated, dependent units are kept blocked/on that same packet. Re-read review classes at admission; wire/authority changes require the matching sensitive class and owner ruling. The P1B record is in turn superseded by P1B1/P1B2/P1B3.",
+      "admissionRequires": "P1A, P1B1, P1B2, P1B3, P1C, PAI all require exact-main mainProof receipts before parent release to planned. The blocked historical P1 record is superseded by P1A/P1B/P1C; its absence of a mainProof is not bypassed or falsified. NEXT does not enforce these unit dependencies. If any predecessor is owner-gated, dependent units are kept blocked/on that same packet. Authority, privacy, replay, idempotency and concurrency classes require an exact-head owner ruling and --github evidence. The P1B record is in turn superseded by P1B1/P1B2/P1B3. Before product edits, parent verifies that every ownership path exists and appears verbatim in R2.multiplayer-client. Because the future leaf src/pages/multiplayer/mission/[matchId].tsx cannot be registered before it exists, P2 temporarily owns the smallest existing verbatim node path src/pages/multiplayer, strictly bound by behavior and ownershipAmended20260929 to creating and editing that one named leaf only; any other file under the parent requires a new amendment.",
       "source20260927": "registered by the parent under task 1 of the approved continuation plan (plan task 39 is this unit's letter) as the client precursor of the U38 correction (GAP-6): a host-only test cannot prove the player journey, and the server paths stay on R2.authority-live rather than moving to this client node.",
       "blocked20260927": {
         "cause": "Required P1A/P1B/P1C launch chain is not on main; PAI is also blocked",
@@ -4728,6 +4737,32 @@
         "at": "2026-09-28T04:56:27.842Z",
         "change": "behavior extended with already-launched mission rejoin",
         "note": "Holds FN-p1c-partial-success-rejoin. The owner was asked how to handle it (defer to P2, relax the create route identity check, or page cross-call state) and did not answer within 30 minutes; the parent took the recommended option, deferring to P2, which already consumes the announced missionMatchId on this page."
+      },
+      "ownershipAmended20260929": {
+        "at": "2026-09-29T00:00:00.000Z",
+        "planTask": 53,
+        "evidence": "evidence/p2-ownership-amendment-20260929.json",
+        "addedExistingPaths": [
+          "src/lib/campaign/coop/launchCoopMission.ts",
+          "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts",
+          "src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx",
+          "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx"
+        ],
+        "newLeafParent": "src/pages/multiplayer",
+        "newLeafBinding": "P2 may create and edit only src/pages/multiplayer/mission/[matchId].tsx under this parent; no other multiplayer page is authorized.",
+        "reviewClassesAdded": [
+          "authority",
+          "privacy",
+          "replay",
+          "idempotency",
+          "concurrency"
+        ],
+        "estimateOnly": {
+          "implementationAndTestFiles": 11,
+          "addedNonTestProductLines": 315,
+          "note": "Admission estimate only; the future implementation receipt records the measured diff."
+        },
+        "limits": "No new unit, holder, predecessor, receipt or state change; caps remain 15 files and 500 non-generated product lines; U38 remains blocked."
       },
       "released20260929": {
         "at": "2026-09-29T03:41:18.808Z",

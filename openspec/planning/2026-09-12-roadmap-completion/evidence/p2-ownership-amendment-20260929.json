@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "kind": "p2-ownership-amendment",
+  "planTask": 53,
+  "date": "2026-09-29",
+  "baseline": "a02efd68f5c08139b33c0653f1e20524018ec5ba",
+  "branch": "codex/p2-ownership-amend-20260929",
+  "decision": "docs-only ownership correction prepared for parent exact-head review and delivery before P2 implementation",
+  "validatorRule": {
+    "source": "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs:438-440",
+    "requirements": [
+      "every unit ownership path exists",
+      "every unit ownership path appears verbatim in the owner node ownershipPaths"
+    ]
+  },
+  "unit": "P2",
+  "node": "R2.multiplayer-client",
+  "unitOwnershipAdded": [
+    "src/lib/campaign/coop/launchCoopMission.ts",
+    "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts",
+    "src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx",
+    "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx",
+    "src/pages/multiplayer"
+  ],
+  "nodeOwnershipAdded": [
+    "src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx",
+    "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx"
+  ],
+  "existingNodePathsReused": [
+    "src/lib/campaign/coop/launchCoopMission.ts",
+    "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts",
+    "src/pages/multiplayer"
+  ],
+  "plannedNewLeaf": {
+    "path": "src/pages/multiplayer/mission/[matchId].tsx",
+    "existsAtAmendment": false,
+    "registeredPath": "src/pages/multiplayer",
+    "restriction": "P2 may create and edit only the named planned leaf under the registered parent; no other file under src/pages/multiplayer is authorized.",
+    "placeholderCreated": false
+  },
+  "reviewClasses": [
+    "authority",
+    "privacy",
+    "replay",
+    "idempotency",
+    "concurrency"
+  ],
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "unchanged": true
+  },
+  "estimateOnly": {
+    "implementationAndTestFiles": 11,
+    "addedNonTestProductLines": 315,
+    "measuredFutureDiff": false
+  },
+  "qaCorrection": {
+    "browserExecuted": false,
+    "hostDisconnectPauseRulePreserved": true,
+    "guestDisconnectPauseRequired": false,
+    "guestDisconnectRequirement": "No opponent-control grant; assert the actual server disconnect/rejoin contract without inventing a pause.",
+    "plannedRoute": "/multiplayer/mission/<missionMatchId>",
+    "plannedRouteExists": false,
+    "existingSelectorsAreSeparatedFromPlannedRouteInAdmissionCorrection": true
+  },
+  "unchanged": {
+    "newUnits": 0,
+    "holders": true,
+    "predecessors": true,
+    "stageReceipts": true,
+    "states": true,
+    "taskKeys": true,
+    "packets": true,
+    "findings": true,
+    "U38State": "blocked"
+  },
+  "allowedTrackedFiles": [
+    "openspec/planning/2026-09-12-roadmap-completion/units.json",
+    "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+    "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/p2-ownership-amendment-20260929.json"
+  ],
+  "verification": {
+    "status": "passed",
+    "rawEvidenceDirectory": ".omo/ulw-execute/p2-amendment",
+    "validator": {
+      "base": "exit 0; ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows",
+      "git": "exit 0; ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows",
+      "next": "exit 0; P2",
+      "github": "exit 0; ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows",
+      "tests": "exit 0; 27 passed, 0 failed",
+      "negativeLiteralOwnershipFixture": "exit 1 as required; P2 owns src/pages/multiplayer, which is not owned by R2.multiplayer-client"
+    },
+    "checks": {
+      "jsonParse": "exit 0; 3 files",
+      "jsonPretty": "exit 0; 3 files",
+      "formatCheck": "exit 0; all 8139 matched files formatted; openspec remains ignored by normal oxfmt configuration",
+      "diffCheck": "exit 0",
+      "structuralAudit": "exit 0; only P2 and R2.multiplayer-client structurally changed; counts, historical units, packets, deferrals, findings, holders, predecessors, receipts and states unchanged"
+    },
+    "preservedFailure": "The first direct scoped oxfmt invocation exited 2 because all supplied openspec targets are ignored and oxfmt reported 'Expected at least one target file'; raw/07-* is retained. The normal repository format:check then passed.",
+    "note": "Raw argv, stdout, stderr and exit files, structural comparison, full diff and hash inventory are exported outside tracked ledger evidence for parent review."
+  }
+}
