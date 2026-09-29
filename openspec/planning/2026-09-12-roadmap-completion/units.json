@@ -4751,6 +4751,66 @@
       }
     },
     {
+      "id": "P2B",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Under the existing serialized campaign-authority admission in admitCoopMission, the server derives the complete co-op combat roster before any match metadata, opening event, journal seed, launch announcement or receipt write. After validating accepted deploy/command-hq participation and signed force claims, count only admitted deploying player units and call the existing selectOpponentUnits policy with that count and seed `${campaignId}:${missionId}`. Give every derived opponent a deterministic, stable, collision-free runtime unitId, side opponent and no ownerPlayerId or player grant. A client may omit opponent rows; any supplied opponent rows are assertions only and must exactly match the server-derived ids, refs and side with no owner, otherwise refuse with no mutation. Apply the existing 24-entry unit-bootstrap cap to the full derived roster: 12 deploying player units plus 12 opponents is admitted, while 13 plus 13 is refused rather than truncated. Resolve every player and opponent canonical unitRef before the first match write. Bind the request fingerprint to the server-derived roster so identical and concurrent retries return one missionMatchId, divergent assertions refuse, and cold recovery uses the persisted roster and opening events without regenerating or rerolling. Historical opponentless matches are not retrofitted. Production-shaped player-only mission create must persist owner-bound player rows plus ownerless opponent rows; deploy/deploy and HQ/deploy count only deployed units; player command -> PAI server-opponent action -> player command must advance in the route-created match and remain stable after cold reopen. Stale head, foreign/nonmember claim, participation mismatch, duplicate/colliding id, unresolved reference, forged opponent, combined-cap and storage-failure cases refuse with unchanged match/event/receipt census. Existing generic encounter REST force rows are not campaign/session/signed-head authority and are not imported as the mission OpFor. Existing viewer publication and REST match-metadata exposure remain unchanged; this unit does not claim roster secrecy that the current REST contract does not provide. No browser opponent grant is added. P2 still owns the client change that stops successful shared creation from depending on an opponentless local encounter, plus navigation and two-browser proof. The existing co-op mission OpenSpec source contract does not yet state server-derived roster creation; a separate reviewed amendment is required before P2B product admission, but no OpenSpec path is silently added to this registration.",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server/coopMissionAdmission.ts",
+        "src/lib/multiplayer/server/__tests__/coopMissionCreate.fixture.ts",
+        "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+        "src/lib/multiplayer/server/__tests__/coopMissionCreate.refusals.test.ts",
+        "src/lib/multiplayer/server/__tests__/CoopOpponentDriver.test.ts",
+        "src/lib/campaign/encounter/__tests__/materializeCampaignMissionEncounter.test.ts"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ],
+      "caps": {
+        "maxFiles": 6,
+        "maxNonGeneratedLines": 300
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "admissionRequires": "This docs-only registration must land and receive exact-main proof before product admission. Parent must freshly verify all six exact existing ownership paths remain verbatim on R2.authority-live, the estimate of six files with only coopMissionAdmission.ts as a product file, and the 6-file/300-added-product-line caps before implementation. P1A, P1C, PAI and P2A must remain complete with PASS exact-main mainProof receipts and ancestry. A separately reviewed OpenSpec amendment must state the server-derived co-op opponent bootstrap contract before product edits; adding that source path requires its own registered ownership rather than widening P2B here. Preserve the P2 partial worktree and original red SHA-256 144dfb6effa612da69836aaa528d9ef713267821ac11f3afabaa9cf603ba3b4f. Sensitive classes require this pending decision-free packet before local-verified and an owner-originated exact-head ruling plus --github evidence before merge. If implementation needs any seventh file, second product file, schema, migration, privacy promise, encounter REST authority, browser grant or more than 300 added product lines, stop for a separately reviewed amendment.",
+      "predecessors": [
+        "P1A",
+        "P1C",
+        "PAI",
+        "P2A"
+      ],
+      "successors": [
+        "P2"
+      ],
+      "source20260929": {
+        "planTasks": [
+          56,
+          57
+        ],
+        "baseline": "1cb45c562b3a81cbdfb1a036b5ec024d42dc5a9d",
+        "evidence": "evidence/p2b-registration-20260929.json",
+        "finding": "FN-p2-public-launch-missing-authoritative-opfor",
+        "note": "Registration only: no product behavior, OpenSpec amendment, owner decision, ruling or completion is claimed. The source census estimates six existing paths, one product file and at most 300 added product lines; parent remeasurement is mandatory before implementation."
+      }
+    },
+    {
       "id": "P2",
       "node": "R2.multiplayer-client",
       "taskKeys": [],
@@ -4779,7 +4839,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
+      "state": "blocked",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -4793,7 +4853,7 @@
         "tick": null
       },
       "ownerGate": null,
-      "admissionRequires": "P1A, P1B1, P1B2, P1B3, P1C, PAI all require exact-main mainProof receipts before parent release to planned. The blocked historical P1 record is superseded by P1A/P1B/P1C; its absence of a mainProof is not bypassed or falsified. NEXT does not enforce these unit dependencies. If any predecessor is owner-gated, dependent units are kept blocked/on that same packet. Authority, privacy, replay, idempotency and concurrency classes require an exact-head owner ruling and --github evidence. The P1B record is in turn superseded by P1B1/P1B2/P1B3. Before product edits, parent verifies that every ownership path exists and appears verbatim in R2.multiplayer-client. Because the future leaf src/pages/multiplayer/mission/[matchId].tsx cannot be registered before it exists, P2 temporarily owns the smallest existing verbatim node path src/pages/multiplayer, strictly bound by behavior and ownershipAmended20260929 to creating and editing that one named leaf only; any other file under the parent requires a new amendment. Additional prerequisite P2A (plan tasks 54/55): remain blocked until its signed-owner preflight repair is complete with PASS exact-main mainProof, ancestry and closure; parent verifies all existing predecessors again before release. Preserve the original P2 failing test and evidence until that landed repair makes the boundary pass. U38 remains transitively blocked through P2.",
+      "admissionRequires": "P1A, P1B1, P1B2, P1B3, P1C, PAI all require exact-main mainProof receipts before parent release to planned. The blocked historical P1 record is superseded by P1A/P1B/P1C; its absence of a mainProof is not bypassed or falsified. NEXT does not enforce these unit dependencies. If any predecessor is owner-gated, dependent units are kept blocked/on that same packet. Authority, privacy, replay, idempotency and concurrency classes require an exact-head owner ruling and --github evidence. The P1B record is in turn superseded by P1B1/P1B2/P1B3. Before product edits, parent verifies that every ownership path exists and appears verbatim in R2.multiplayer-client. Because the future leaf src/pages/multiplayer/mission/[matchId].tsx cannot be registered before it exists, P2 temporarily owns the smallest existing verbatim node path src/pages/multiplayer, strictly bound by behavior and ownershipAmended20260929 to creating and editing that one named leaf only; any other file under the parent requires a new amendment. Additional prerequisite P2A (plan tasks 54/55) remains historically satisfied by its PASS exact-main proof, ancestry and closure. New prerequisite P2B (plan tasks 56/57): remain blocked until the server-derived authoritative opponent bootstrap is complete with PASS exact-main mainProof, ancestry and closure; parent verifies P1A, P1C, PAI, P2A and every older predecessor again before release. Preserve the original P2 failing test and evidence and the current uncommitted P2 client worktree. P2 still owns removal of the successful shared-create dependency on an opponentless local launcher, shared navigation and two-browser proof. U38 remains transitively blocked through P2.",
       "source20260927": "registered by the parent under task 1 of the approved continuation plan (plan task 39 is this unit's letter) as the client precursor of the U38 correction (GAP-6): a host-only test cannot prove the player journey, and the server paths stay on R2.authority-live rather than moving to this client node.",
       "blocked20260927": {
         "cause": "Required P1A/P1B/P1C launch chain is not on main; PAI is also blocked",
@@ -4806,7 +4866,8 @@
         "P1B3",
         "P1C",
         "PAI",
-        "P2A"
+        "P2A",
+        "P2B"
       ],
       "successors": [
         "U38"
@@ -4881,6 +4942,18 @@
         "evidence": "evidence/p2-release-after-p2a-20260929.json",
         "preservedOriginalRedSha256": "144dfb6effa612da69836aaa528d9ef713267821ac11f3afabaa9cf603ba3b4f",
         "limits": "This releases P2 to planned only. No P2 implementation or QA is claimed, and U38 stays blocked."
+      },
+      "opponentBootstrapBlocked20260929": {
+        "planTasks": [
+          56,
+          57
+        ],
+        "from": "planned",
+        "cause": "The public shared mission-create request contains player rows only, so the route-created match has no authoritative opposing roster for PAI to drive. Generic encounter REST rows are not bound to the signed campaign/session/accepted head.",
+        "requires": "P2B complete with PASS exact-main mainProof, ancestry and closure; parent rechecks P1A, P1C, PAI, P2A and all older prerequisites before releasing P2. NEXT does not enforce this documentary gate.",
+        "evidence": "evidence/p2b-registration-20260929.json",
+        "preservedOriginalRedSha256": "144dfb6effa612da69836aaa528d9ef713267821ac11f3afabaa9cf603ba3b4f",
+        "limits": "The earlier releasedAfterP2A provenance remains historical and unchanged. P2's uncommitted client diff is not accepted or completed; U38 remains blocked on P2."
       }
     },
     {
@@ -10113,6 +10186,34 @@
   ],
   "packets": [
     {
+      "id": "PK-p2b-ruling",
+      "blocks": [
+        "P2B"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "After P2B has a product head, independent exact-head review and required CI, should the owner rule that exact head for authority, privacy, replay, idempotency and concurrency before guarded merge?",
+      "options": [
+        {
+          "label": "rule the exact head",
+          "consequence": "Record an owner-originated head-bound ruling only after independent review and required CI pass; guarded merge and exact-main proof remain required.",
+          "effort": "One owner review of the exact product head and its evidence"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Do not merge; preserve the objection and require a corrected verified head, fresh independent review and fresh ruling.",
+          "effort": "Depends on the concrete requested change"
+        }
+      ],
+      "agentRecommendation": "Rule only a future exact head that stays within the registered six paths and proves deterministic server-derived opponents, refusal-before-write, stable retry/recovery and unchanged publication. This registration supplies no product head and makes no owner decision.",
+      "revertCost": "Expected low to medium within the registered one-product-file design: revert the future product merge; no schema or migration is authorized. Persisted matches created by that head remain historical records and must not be silently rewritten.",
+      "decision": null,
+      "ruling": null,
+      "note": "Pending decision-free packet registered with P2B. No owner option, exact head, comment, label or ruling exists yet."
+    },
+    {
       "id": "PK-p2a-ruling",
       "blocks": [
         "P2A"
@@ -14939,6 +15040,17 @@
       "evidence": "evidence/p1c-local-20260928.json and evidence/p1c-lane-a-review-20260928.md (criterion 4a NOTE)",
       "recommendedSuccessor": "P2 (amended20260928): an already-launched mission rejoins its announced missionMatchId instead of re-POSTing create",
       "status": "held by P2"
+    },
+    {
+      "id": "FN-p2-public-launch-missing-authoritative-opfor",
+      "foundBy": "P2/task39 public shared-create red and parent source audit, 2026-09-29",
+      "at": "2026-09-29T10:30:00.000Z",
+      "class": "co-op mission launch authority",
+      "summary": "The public launch helper sends only admitted player-side unitBootstrap rows. The current mission admission accepts optional client opponent rows but does not derive them, matchUnitBootstrap then has no opponent for PAI to drive, and the PAI suite injects its opponent fixture directly. Generic encounter opponent-force REST rows are not bound to campaignId, sessionId, missionId, accepted head and signed participation, so they cannot supply campaign mission authority.",
+      "evidence": "evidence/p2b-registration-20260929.json and .omo/ulw-execute/evidence/task-39-p2-opponent-bootstrap-blocker.json",
+      "recommendedSuccessor": "P2B",
+      "status": "held by P2B; unresolved registration only",
+      "holder": "P2B"
     },
     {
       "id": "FN-p2-signed-claims-refused-by-placeholder-preflight",

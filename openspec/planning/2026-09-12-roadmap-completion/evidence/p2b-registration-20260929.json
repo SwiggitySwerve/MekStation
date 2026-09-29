@@ -1,0 +1,161 @@
+{
+  "event": "p2b-opponent-bootstrap-registration",
+  "at": "2026-09-29T10:30:00.000Z",
+  "task": 56,
+  "implementationTask": 57,
+  "unit": "P2B",
+  "baseline": "1cb45c562b3a81cbdfb1a036b5ec024d42dc5a9d",
+  "branch": "codex/p2b-opponent-registration-20260929",
+  "worktree": "E:/Projects/MekStation-wt/p2b-opponent-registration-20260929",
+  "registrationOnly": true,
+  "sourceEvidence": {
+    "blockerReceipt": "E:/Projects/MekStation/.omo/ulw-execute/evidence/task-39-p2-opponent-bootstrap-blocker.json",
+    "publicRequest": "src/lib/campaign/coop/launchCoopMission.ts builds unitBootstrap only from composed player seats",
+    "authorityBoundary": "src/lib/multiplayer/server/coopMissionAdmission.ts admits and returns the roster before createCoopMissionMatch persists metadata and opening events",
+    "selector": "src/lib/campaign/encounter/materializeCampaignMissionEncounter.forceUnits.ts exports deterministic selectOpponentUnits({ count, seed })",
+    "driverGap": "src/lib/multiplayer/server/__tests__/CoopOpponentDriver.test.ts injects an opponent fixture instead of exercising public route creation",
+    "rejectedAuthority": "Generic encounter opponent-force REST rows do not bind campaignId, sessionId, missionId, accepted head and signed participation",
+    "privacyLimit": "Existing REST match metadata may expose roster metadata; P2B preserves publication and does not claim stronger secrecy"
+  },
+  "contract": {
+    "policy": "After signed participation admission, count deployed player units and select opponents with seed `${campaignId}:${missionId}`; deterministic stable unique opponent runtime IDs, opponent side, no owner or player grant",
+    "assertions": "Client-supplied opponent rows are optional assertions only; exact derived match or refusal before any write",
+    "cap": "Apply 24 entries to the complete derived roster; 12 player + 12 opponent is allowed and 13 + 13 refuses without truncation",
+    "references": "Resolve all player and derived opponent canonical refs before metadata, opening-event, journal, announcement or receipt mutation",
+    "retryRecovery": "Fingerprint the derived roster; identical/concurrent retries are stable and cold recovery uses persisted roster/opening events without regeneration",
+    "runtime": "A route-created match proves player command -> PAI server-opponent action -> player command",
+    "historical": "Do not retrofit opponentless historical matches",
+    "p2Boundary": "P2 still owns removal of the successful shared-create dependency on an opponentless local launcher, navigation and two-browser proof"
+  },
+  "predecessors": [
+    "P1A",
+    "P1C",
+    "PAI",
+    "P2A"
+  ],
+  "scopeEstimate": {
+    "exactExistingPaths": [
+      "src/lib/multiplayer/server/coopMissionAdmission.ts",
+      "src/lib/multiplayer/server/__tests__/coopMissionCreate.fixture.ts",
+      "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+      "src/lib/multiplayer/server/__tests__/coopMissionCreate.refusals.test.ts",
+      "src/lib/multiplayer/server/__tests__/CoopOpponentDriver.test.ts",
+      "src/lib/campaign/encounter/__tests__/materializeCampaignMissionEncounter.test.ts"
+    ],
+    "files": 6,
+    "productFiles": 1,
+    "productFile": "src/lib/multiplayer/server/coopMissionAdmission.ts",
+    "maxFiles": 6,
+    "estimatedAddedProductLines": 220,
+    "maxNonGeneratedLines": 300,
+    "parentMustRemeasureBeforeImplementation": true
+  },
+  "openspec": {
+    "addedByRegistration": false,
+    "requiredBeforeProductAdmission": "A separately reviewed amendment to the existing co-op mission launch source contract must state server-derived opponent bootstrap; its ownership is not silently granted to P2B."
+  },
+  "preservation": {
+    "waveBOriginalRedSha256": "144dfb6effa612da69836aaa528d9ef713267821ac11f3afabaa9cf603ba3b4f",
+    "p2PartialWorktree": "E:/Projects/MekStation-wt/p2-client-cutover-20260929 remains uncommitted and incomplete",
+    "releasedAfterP2A": "Preserved as historical provenance; a new P2B blocked reason moves P2 back to blocked",
+    "u38": "Remains blocked on P2",
+    "roadmapJson": "Changed only at R2.authority-live: the validator requires exact unit paths verbatim, so six aliases were added beneath the node's already-owned src/lib/multiplayer/server and src/lib/campaign parents; effective scope is not widened",
+    "ownerDecision": "None fabricated; PK-p2b-ruling is pending with decision and ruling null"
+  },
+  "verification": {
+    "node": "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+    "preEdit": [
+      {
+        "argv": [
+          "node",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+        ],
+        "stdout": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows",
+        "exit": 0
+      },
+      {
+        "argv": [
+          "node",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+          "--git"
+        ],
+        "stdout": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows",
+        "exit": 0
+      },
+      {
+        "argv": [
+          "node",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+          "--next"
+        ],
+        "stdout": "P2",
+        "exit": 0
+      },
+      {
+        "argv": [
+          "node",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+          "--github"
+        ],
+        "stdout": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows",
+        "exit": 0
+      },
+      {
+        "argv": [
+          "node",
+          "--test",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs"
+        ],
+        "stdout": "27 passed, 0 failed",
+        "exit": 0
+      }
+    ],
+    "postEdit": {
+      "positive": [
+        {
+          "argv": ["node", "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"],
+          "stdout": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows",
+          "exit": 0
+        },
+        {
+          "argv": ["node", "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs", "--git"],
+          "stdout": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows",
+          "exit": 0
+        },
+        {
+          "argv": ["node", "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs", "--next"],
+          "stdout": "P2B",
+          "exit": 0
+        },
+        {
+          "argv": ["node", "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs", "--github"],
+          "stdout": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows",
+          "exit": 0
+        }
+      ],
+      "malformedFixtures": [
+        {
+          "name": "duplicate holder",
+          "mutation": "P2B also holds harden-gm-two-player-campaign-sessions#21.2@547",
+          "stderr": "task key harden-gm-two-player-campaign-sessions#21.2@547 is held twice: U22 and P2B",
+          "exit": 1
+        },
+        {
+          "name": "missing node ownership",
+          "mutation": "Remove src/lib/multiplayer/server/coopMissionAdmission.ts from R2.authority-live only",
+          "stderr": "P2B owns src/lib/multiplayer/server/coopMissionAdmission.ts, which is not owned by R2.authority-live",
+          "exit": 1
+        },
+        {
+          "name": "invalid predecessor",
+          "mutation": "Append NO-SUCH-UNIT to P2B.predecessors",
+          "stdout": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows",
+          "exit": 0,
+          "knownDocumentaryLimitation": "validate-roadmap.mjs does not inspect predecessor or admissionRequires fields. Plan task 56 records this actual exit 0 and requires the parent to compare the seven retained P2-chain predecessor PASS mainProof receipts and Git ancestry on fresh main before P2B product admission; no validator change or test waiver is claimed."
+        }
+      ],
+      "cleanup": "All .fixture-* roadmap, ledger, stdout and stderr files removed; no fixture residue remains.",
+      "claim": "P2B docs-only registration is complete under corrected plan task 56: positive validator modes pass, the two existing malformed contracts refuse, and invalid predecessor exit 0 is a known documentary limitation covered by mandatory parent checks of seven retained predecessor PASS receipts and ancestry on fresh main. No product or source-contract completion is claimed."
+    }
+  }
+}
