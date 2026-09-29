@@ -32,12 +32,17 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-import type { OwnedForceMaterializationResult } from '@/lib/campaign/encounter/campaignOwnedForceMaterialization';
+import type {
+  IOwnedForceMaterializationInput,
+  OwnedForceMaterializationResult,
+  OwnedMissionContext,
+} from '@/lib/campaign/encounter/campaignOwnedForceMaterialization';
 import type {
   IActiveBranchHead,
   IExpectedBranchHead,
 } from '@/lib/events/journal/EventHistoryExpectedHead';
 
+import { playerSlotPlaceholderId } from '@/lib/campaign/authority/campaignCreationCheckpoint';
 import {
   campaignLaunchHeadPorts,
   campaignStreamRef,
@@ -46,6 +51,7 @@ import {
 import { materializeOwnedPlayerForces } from '@/lib/campaign/encounter/campaignOwnedForceMaterialization';
 import { validateExpectedBranchHead } from '@/lib/events/journal/EventHistoryExpectedHead';
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
+import { getCampaignHostRegistry } from '@/lib/multiplayer/server/CampaignHostRegistry';
 import { createDurableCampaignProgressionReaders } from '@/lib/multiplayer/server/campaignProgressionReaders.durable';
 import {
   evaluateCampaignLaunchProgression,
@@ -61,9 +67,11 @@ import {
 } from '@/pages-modules/api/routeHelpers';
 import { readCampaign } from '@/services/campaignPersistence/CampaignPersistenceService';
 import {
+  listCampaignSessionForceClaims,
   readCampaignSessionForceHolder,
   readCampaignSessionForcesHeldBy,
 } from '@/services/campaignPersistence/CampaignSessionForceClaimStore';
+import { listActiveCampaignSessionParticipants } from '@/services/campaignPersistence/CampaignSessionParticipantStore';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { getUnitRepository } from '@/services/units/UnitRepository';
 
@@ -94,8 +102,20 @@ interface IRequestBody {
 function parseBody(value: unknown): IRequestBody | null {
   if (typeof value !== 'object' || value === null) return null;
   const body = value as Record<string, unknown>;
+  if (
+    Object.keys(body).some(
+      (key) => !['expectedHead', 'missionId', 'sessionId'].includes(key),
+    )
+  )
+    return null;
   const head = body.expectedHead;
   if (typeof head !== 'object' || head === null) return null;
+  if (
+    Object.keys(head).some(
+      (key) => !['branchId', 'revision', 'effectiveGeneration'].includes(key),
+    )
+  )
+    return null;
   const { branchId, revision, effectiveGeneration } = head as Record<
     string,
     unknown
@@ -123,6 +143,55 @@ function parseBody(value: unknown): IRequestBody | null {
   };
 }
 
+function readMissionContext(
+  input: IOwnedForceMaterializationInput,
+): OwnedMissionContext {
+  const claims = listCampaignSessionForceClaims(
+    input.campaignId,
+    input.sessionId,
+  ).filter((claim) => claim.missionId === input.missionId);
+  const entry = getCampaignHostRegistry().get(input.sessionId);
+  const placeholders = [playerSlotPlaceholderId(1), playerSlotPlaceholderId(2)];
+  // Even a revoked member proves this was a signed session, not a legacy
+  // slot-only session. Losing claims or revoking members cannot restore slots.
+  const hasSignedMembership =
+    getSQLiteService()
+      .getDatabase()
+      .prepare(
+        `SELECT 1 FROM campaign_session_participant
+         WHERE campaign_id = ? AND session_id = ?
+           AND participant_id NOT IN (?, ?) LIMIT 1`,
+      )
+      .get(input.campaignId, input.sessionId, ...placeholders) !== undefined;
+  if (
+    !entry &&
+    !hasSignedMembership &&
+    claims.every((claim) => placeholders.includes(claim.participantId))
+  ) {
+    return { kind: 'legacy' };
+  }
+  // Durable claims cannot reconstruct deploy/HQ choices after host loss.
+  // This read door never recovers a host or guesses a missing choice.
+  if (
+    !entry ||
+    entry.host.isClosed() ||
+    entry.campaignId !== input.campaignId ||
+    entry.matchId !== input.sessionId
+  ) {
+    return { kind: 'unavailable' };
+  }
+  return {
+    kind: 'signed',
+    records: entry.getParticipationRecords(input.missionId),
+    claims,
+    members: listActiveCampaignSessionParticipants(
+      input.campaignId,
+      input.sessionId,
+    ),
+    state: entry.host.getState(),
+  };
+}
+
 /** The durable owned-force ports. Only reachable with SQLite present. */
 function ownedForcePorts(currentRevision: number) {
   return {
@@ -139,6 +208,7 @@ function ownedForcePorts(currentRevision: number) {
       ),
     readForcesHeldBy: readCampaignSessionForcesHeldBy,
     readForceHolder: readCampaignSessionForceHolder,
+    readMissionContext,
     readCampaign,
     resolveCustomUnit: (unitRef: string) =>
       getUnitRepository().getById(unitRef),
@@ -168,64 +238,74 @@ export default function handler(
   }
 
   try {
-    const head = resolveCampaignLaunchHead(campaignLaunchHeadPorts(), id);
-    if (head.kind === 'campaign-not-found') {
-      res.status(404).json({ error: 'not found' });
-      return;
-    }
-    if (head.kind === 'no-authoritative-stream') {
-      res.status(200).json({ kind: 'no-authoritative-stream' });
-      return;
-    }
+    // One read snapshot binds head, progression, membership, claims and roster.
+    // Mission creation independently re-admits this same expected head later.
+    getSQLiteService()
+      .getDatabase()
+      .transaction(() => {
+        const head = resolveCampaignLaunchHead(campaignLaunchHeadPorts(), id);
+        if (head.kind === 'campaign-not-found') {
+          res.status(404).json({ error: 'not found' });
+          return;
+        }
+        if (head.kind === 'no-authoritative-stream') {
+          res.status(200).json({ kind: 'no-authoritative-stream' });
+          return;
+        }
 
-    // N+1 gate after the head is known, before any launch proceeds.
-    // Session-free: durable readers + cursor rows, not a host entry.
-    const gate = evaluateCampaignLaunchProgression({
-      campaignId: id,
-      sessionId: body.sessionId,
-      requiredRevision: head.revision,
-      readers: resolveCampaignLaunchProgressionReaders(
-        createDurableCampaignProgressionReaders,
-      ),
-    });
-    if (!gate.ok) {
-      res.status(409).json(
-        toCampaignLaunchProgressionRefusal(gate, {
-          branchId: head.branchId,
-          revision: head.revision,
-          effectiveGeneration: head.effectiveGeneration,
-        }),
-      );
-      return;
-    }
-
-    const ports = ownedForcePorts(head.revision);
-    if (body.sessionId === undefined) {
-      // Head-only gate: validate and stop. No session means no claims.
-      const verdict = ports.validateHead(id, head.revision, body.expectedHead);
-      if (verdict.kind === 'refused') {
-        res.status(409).json({
-          kind: 'refused',
-          code: verdict.code,
-          reason: `launch head is stale (${verdict.code})`,
-          activeHead: verdict.activeHead,
-          resyncAction: verdict.resyncAction,
+        // N+1 gate after the head is known, before any launch proceeds.
+        // Session-free: durable readers + cursor rows, not a host entry.
+        const gate = evaluateCampaignLaunchProgression({
+          campaignId: id,
+          sessionId: body.sessionId,
+          requiredRevision: head.revision,
+          readers: resolveCampaignLaunchProgressionReaders(
+            createDurableCampaignProgressionReaders,
+          ),
         });
-        return;
-      }
-      res.status(200).json({ kind: 'current', head: verdict.activeHead });
-      return;
-    }
+        if (!gate.ok) {
+          res.status(409).json(
+            toCampaignLaunchProgressionRefusal(gate, {
+              branchId: head.branchId,
+              revision: head.revision,
+              effectiveGeneration: head.effectiveGeneration,
+            }),
+          );
+          return;
+        }
 
-    const owned = materializeOwnedPlayerForces(ports, {
-      campaignId: id,
-      sessionId: body.sessionId,
-      missionId: body.missionId,
-      currentRevision: head.revision,
-      expectedHead: body.expectedHead,
-      materializedAt: new Date().toISOString(),
-    });
-    res.status(owned.kind === 'refused' ? 409 : 200).json(owned);
+        const ports = ownedForcePorts(head.revision);
+        if (body.sessionId === undefined) {
+          // Head-only gate: validate and stop. No session means no claims.
+          const verdict = ports.validateHead(
+            id,
+            head.revision,
+            body.expectedHead,
+          );
+          if (verdict.kind === 'refused') {
+            res.status(409).json({
+              kind: 'refused',
+              code: verdict.code,
+              reason: `launch head is stale (${verdict.code})`,
+              activeHead: verdict.activeHead,
+              resyncAction: verdict.resyncAction,
+            });
+            return;
+          }
+          res.status(200).json({ kind: 'current', head: verdict.activeHead });
+          return;
+        }
+
+        const owned = materializeOwnedPlayerForces(ports, {
+          campaignId: id,
+          sessionId: body.sessionId,
+          missionId: body.missionId,
+          currentRevision: head.revision,
+          expectedHead: body.expectedHead,
+          materializedAt: new Date().toISOString(),
+        });
+        res.status(owned.kind === 'refused' ? 409 : 200).json(owned);
+      })();
   } catch (error) {
     sendCaughtApiError(res, error, 'failed to resolve launch authority');
   }

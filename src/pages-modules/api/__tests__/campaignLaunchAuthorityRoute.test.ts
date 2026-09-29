@@ -13,9 +13,11 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { z } from 'zod';
 
 import type {
   EventHistoryBranchStatus,
@@ -36,6 +38,9 @@ import { buildSerializedCampaign } from '@/lib/campaign/persistence/campaignEnve
 import { CAMPAIGN_STREAM_TYPE } from '@/lib/campaign/sync/JournalCampaignEventStore';
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
+import { acceptFixtureParticipation } from '@/lib/multiplayer/server/__tests__/coopMissionCreate.fixture';
+import { openRouteFixture } from '@/lib/multiplayer/server/__tests__/coopMissionCreate.harness';
+import { getCampaignHostRegistry } from '@/lib/multiplayer/server/CampaignHostRegistry';
 import { createDurableCampaignProgressionReaders } from '@/lib/multiplayer/server/campaignProgressionReaders.durable';
 import handler from '@/pages-modules/api/campaignLaunchAuthorityRoute';
 import {
@@ -43,9 +48,15 @@ import {
   CAMPAIGN_LAUNCH_NOT_CONVERGED,
   evaluateCampaignLaunchProgression,
 } from '@/pages-modules/api/campaignLaunchProgressionGate';
-import { saveCampaign } from '@/services/campaignPersistence/CampaignPersistenceService';
+import {
+  readCampaign,
+  saveCampaign,
+} from '@/services/campaignPersistence/CampaignPersistenceService';
 import { claimCampaignSessionForce } from '@/services/campaignPersistence/CampaignSessionForceClaimStore';
-import { bindCampaignSessionParticipant } from '@/services/campaignPersistence/CampaignSessionParticipantStore';
+import {
+  bindCampaignSessionParticipant,
+  revokeCampaignSessionParticipant,
+} from '@/services/campaignPersistence/CampaignSessionParticipantStore';
 import {
   getSQLiteService,
   resetSQLiteService,
@@ -628,20 +639,87 @@ describe('POST /api/campaigns/:id/launch-authority', () => {
   });
 
   it('proceeds when every clause is satisfied and every cursor is at the head', async () => {
-    const world = await buildWorld();
-    bindPlayers(world.campaign.id);
-    seedCursor(world.campaign.id, PLAYER_1, world.revision);
-    seedCursor(world.campaign.id, PLAYER_2, world.revision);
-    const { req, res, result } = post(
-      world.campaign.id,
-      bodyFor(world, { sessionId: SESSION_ID }),
-    );
+    // Real members need accepted participation as well as converged cursors;
+    // membership plus creation placeholders alone is the rejected cold case.
+    const world = await signedWorld();
+    try {
+      const before = durablePreflightCensus();
 
-    handler(req, res);
+      const result = callSignedPreflight(world);
 
-    expect(result.statusCode).toBe(200);
-    expect((result.body as { kind: string }).kind).toBe('materialized');
+      expect(result.statusCode).toBe(200);
+      const body = signedResponse.parse(result.body);
+      expect(body.slots.map((slot) => slot.ownerParticipantId).sort()).toEqual(
+        [world.host.playerId, world.guest.playerId].sort(),
+      );
+      expect(durablePreflightCensus()).toEqual(before);
+    } finally {
+      await world.close();
+    }
   });
+
+  it.each([false, true])(
+    'keeps legacy-only creation slots read-only with mission overrides=%s',
+    async (override) => {
+      const world = await buildWorld();
+      // A signed member of another session is not this session's footprint.
+      bindCampaignSessionParticipant({
+        campaignId: world.campaign.id,
+        sessionId: 'another-session',
+        participantId: 'another-session-gm',
+        seat: 'gm',
+        boundAt: NOW,
+      });
+      const forces = world.forceIds.slice(0, 2);
+      expect(forces).toHaveLength(2);
+      if (override) {
+        forces.reverse();
+        forces.forEach((forceId, index) => {
+          expect(
+            claimCampaignSessionForce({
+              campaignId: world.campaign.id,
+              sessionId: SESSION_ID,
+              missionId: MISSION_ID,
+              forceId,
+              participantId: playerSlotPlaceholderId(index === 0 ? 1 : 2),
+              claimedAt: NOW,
+            }).kind,
+          ).toBe('claimed');
+        });
+      }
+      const before = durablePreflightCensus();
+      const request = post(
+        world.campaign.id,
+        bodyFor(world, { sessionId: SESSION_ID }),
+      );
+
+      handler(request.req, request.res);
+
+      const after = durablePreflightCensus();
+      captureClassifierEvidence(`legacy-${override}`, {
+        before,
+        after,
+        result: request.result,
+      });
+      expect(after).toEqual(before);
+      expect(request.result.statusCode).toBe(200);
+      const body = signedResponse.parse(request.result.body);
+      expect(body.head).toEqual(bodyFor(world).expectedHead);
+      expect(
+        body.slots.map(({ slot, forceId, ownerParticipantId }) => ({
+          slot,
+          forceId,
+          ownerParticipantId,
+        })),
+      ).toEqual(
+        forces.map((forceId, index) => ({
+          slot: index + 1,
+          forceId,
+          ownerParticipantId: playerSlotPlaceholderId(index === 0 ? 1 : 2),
+        })),
+      );
+    },
+  );
 
   it('with SQLite uninitialized answers exactly what it answers today', async () => {
     resetSQLiteService();
@@ -662,5 +740,630 @@ describe('POST /api/campaigns/:id/launch-authority', () => {
     handler(req, res);
 
     expect(result.statusCode).toBe(404);
+  });
+});
+
+const signedResponse = z.object({
+  kind: z.literal('materialized'),
+  head: z.object({
+    branchId: z.string(),
+    revision: z.number(),
+    effectiveGeneration: z.number(),
+  }),
+  slots: z.array(
+    z.object({
+      slot: z.union([z.literal(1), z.literal(2)]),
+      forceId: z.string(),
+      ownerParticipantId: z.string(),
+      units: z.array(
+        z.object({
+          reference: z.object({ unitId: z.string(), unitRef: z.string() }),
+          pilotRef: z.string().optional(),
+        }),
+      ),
+    }),
+  ),
+});
+
+async function signedWorld(
+  hostChoice: 'deploy' | 'command-hq' = 'deploy',
+  guestChoice: 'deploy' | 'command-hq' = 'deploy',
+) {
+  const fixture = await openRouteFixture();
+  try {
+    let entry = fixture.entry;
+    if (hostChoice === 'command-hq' || guestChoice === 'command-hq') {
+      // Rebuild a real host with no accepted choices, then run the shipped
+      // participation admission. A choice already accepted is immutable.
+      const registry = getCampaignHostRegistry();
+      registry.dispose(entry.matchId);
+      const rebuilt = await registry.getOrCreate(entry.matchId);
+      if (!rebuilt) throw new Error('Campaign host did not rebuild');
+      entry = rebuilt;
+      acceptFixtureParticipation(
+        entry,
+        fixture.contributors.map((row) => ({
+          ...row,
+          choice:
+            row.playerId === fixture.host.playerId ? hostChoice : guestChoice,
+        })),
+      );
+    }
+    const mission = fixture.request.coopCampaign;
+    for (const identity of [fixture.host, fixture.guest]) {
+      seedCursor(
+        mission.campaignId,
+        identity.playerId,
+        mission.expectedHead.revision,
+      );
+    }
+    return { ...fixture, entry, mission };
+  } catch (error) {
+    await fixture.close();
+    throw error;
+  }
+}
+
+function callSignedPreflight(
+  world: Awaited<ReturnType<typeof signedWorld>>,
+  overrides: Record<string, unknown> = {},
+) {
+  const request = post(world.mission.campaignId, {
+    missionId: world.mission.missionId,
+    sessionId: world.mission.sessionId,
+    expectedHead: world.mission.expectedHead,
+    ...overrides,
+  });
+  handler(request.req, request.res);
+  return request.result;
+}
+
+function durablePreflightCensus() {
+  const db = getSQLiteService().getDatabase();
+  return {
+    changes: db.prepare('SELECT total_changes() AS n').get(),
+    tables: Object.fromEntries(
+      [
+        'campaigns',
+        'event_journal_events',
+        'event_journal_batches',
+        'campaign_session_force_claim',
+        'campaign_session_participant',
+        'campaign_participant_cursor',
+      ].map((table) => [
+        table,
+        db
+          .prepare(`SELECT * FROM ${table}`)
+          .all()
+          .map((row) => JSON.stringify(row))
+          .sort(),
+      ]),
+    ),
+    registrySize: getCampaignHostRegistry().size(),
+  };
+}
+
+function captureClassifierEvidence(name: string, value: unknown) {
+  const dir = process.env.P2A_EVIDENCE_DIR;
+  if (!dir) return;
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(
+    path.join(dir, `classifier-${name}.json`),
+    JSON.stringify(value, null, 2),
+    { flag: 'wx' },
+  );
+}
+
+describe('launch preflight with real signed campaign claims (P2A)', () => {
+  it.each([
+    { host: 'missing', revoked: 'none', missionPlaceholders: false },
+    { host: 'missing', revoked: 'guest', missionPlaceholders: false },
+    { host: 'missing', revoked: 'host', missionPlaceholders: false },
+    { host: 'missing', revoked: 'all', missionPlaceholders: false },
+    { host: 'missing', revoked: 'none', missionPlaceholders: true },
+    { host: 'closed', revoked: 'none', missionPlaceholders: false },
+    { host: 'rebuilt', revoked: 'none', missionPlaceholders: false },
+    { host: 'accepted', revoked: 'none', missionPlaceholders: false },
+  ])(
+    'refuses lost signed claims with host=$host revoked=$revoked missionPlaceholders=$missionPlaceholders',
+    async ({ host, revoked, missionPlaceholders }) => {
+      const world = await signedWorld();
+      try {
+        const db = getSQLiteService().getDatabase();
+        const { campaignId, sessionId, missionId } = world.mission;
+        const registry = getCampaignHostRegistry();
+        if (host === 'closed') world.entry.host.close();
+        if (host === 'missing' || host === 'rebuilt')
+          registry.dispose(sessionId);
+        if (host === 'rebuilt') {
+          const entry = await registry.getOrCreate(sessionId);
+          expect(entry?.getParticipationRecords(missionId)).toEqual([]);
+        }
+        expect(
+          db
+            .prepare(
+              'DELETE FROM campaign_session_force_claim WHERE campaign_id = ? AND session_id = ? AND mission_id = ?',
+            )
+            .run(campaignId, sessionId, missionId).changes,
+        ).toBe(2);
+        const creationClaims = db
+          .prepare(
+            'SELECT force_id, participant_id FROM campaign_session_force_claim WHERE campaign_id = ? AND session_id = ? AND mission_id = ? ORDER BY force_id',
+          )
+          .all(campaignId, sessionId, CAMPAIGN_CREATION_MISSION_ID);
+        expect(creationClaims).toEqual([
+          {
+            force_id: 'force-guest',
+            participant_id: playerSlotPlaceholderId(1),
+          },
+          {
+            force_id: 'force-host',
+            participant_id: playerSlotPlaceholderId(2),
+          },
+        ]);
+        if (missionPlaceholders) {
+          ['force-guest', 'force-host'].forEach((forceId, index) => {
+            expect(
+              claimCampaignSessionForce({
+                campaignId,
+                sessionId,
+                missionId,
+                forceId,
+                participantId: playerSlotPlaceholderId(index === 0 ? 1 : 2),
+                claimedAt: NOW,
+              }).kind,
+            ).toBe('claimed');
+          });
+        }
+        for (const [role, identity] of [
+          ['host', world.host],
+          ['guest', world.guest],
+        ] as const) {
+          if (revoked === 'all' || revoked === role) {
+            expect(
+              revokeCampaignSessionParticipant({
+                campaignId,
+                sessionId,
+                participantId: identity.playerId,
+                revokedAt: NOW,
+              }),
+            ).toBe(true);
+          }
+        }
+        expect(
+          db
+            .prepare(
+              'SELECT participant_id FROM campaign_session_participant WHERE campaign_id = ? AND session_id = ? ORDER BY participant_id',
+            )
+            .all(campaignId, sessionId),
+        ).toEqual(
+          [world.host.playerId, world.guest.playerId]
+            .sort()
+            .map((participant_id) => ({ participant_id })),
+        );
+        const before = {
+          ...durablePreflightCensus(),
+          multiplayer: world.census(),
+        };
+        expect(before.multiplayer).toEqual({
+          matches: 1,
+          events: 0,
+          receipts: 0,
+        });
+
+        const result = callSignedPreflight(world);
+
+        const after = {
+          ...durablePreflightCensus(),
+          multiplayer: world.census(),
+        };
+        captureClassifierEvidence(`${host}-${revoked}-${missionPlaceholders}`, {
+          before,
+          after,
+          result,
+        });
+        expect(after).toEqual(before);
+        expect(result.statusCode).toBe(409);
+        expect(result.body).toMatchObject({
+          kind: 'refused',
+          code: 'STALE_OWNERSHIP',
+          activeHead: world.mission.expectedHead,
+        });
+        expect(result.body).not.toHaveProperty('slots');
+      } finally {
+        await world.close();
+      }
+    },
+  );
+  it.each([
+    { hostChoice: 'deploy' as const, placeholders: true },
+    { hostChoice: 'deploy' as const, placeholders: false },
+    { hostChoice: 'command-hq' as const, placeholders: true },
+    { hostChoice: 'command-hq' as const, placeholders: false },
+  ])(
+    'admits $hostChoice / guest deploy with placeholders=$placeholders',
+    async ({ hostChoice, placeholders }) => {
+      const world = await signedWorld(hostChoice);
+      try {
+        if (!placeholders) {
+          getSQLiteService()
+            .getDatabase()
+            .prepare(
+              `DELETE FROM campaign_session_force_claim
+           WHERE campaign_id = ? AND session_id = ? AND mission_id = ?`,
+            )
+            .run(
+              world.mission.campaignId,
+              world.mission.sessionId,
+              CAMPAIGN_CREATION_MISSION_ID,
+            );
+        }
+        const before = world.census();
+
+        const result = callSignedPreflight(world);
+
+        const after = world.census();
+        expect(after).toEqual(before);
+        const evidenceDir = process.env.P2A_EVIDENCE_DIR;
+        if (evidenceDir) {
+          mkdirSync(evidenceDir, { recursive: true });
+          writeFileSync(
+            path.join(evidenceDir, `${hostChoice}-${placeholders}.json`),
+            JSON.stringify({ result, before, after }, null, 2),
+            { flag: 'wx' },
+          );
+        }
+        expect(result.statusCode).toBe(200);
+        const body = signedResponse.parse(result.body);
+        expect(body.head).toEqual(world.mission.expectedHead);
+        const expected = [
+          ...(hostChoice === 'deploy'
+            ? [
+                {
+                  owner: world.host.playerId,
+                  force: 'force-host',
+                  unit: 'unit-host',
+                  ref: 'atlas-as7-d',
+                },
+              ]
+            : []),
+          {
+            owner: world.guest.playerId,
+            force: 'force-guest',
+            unit: 'unit-guest',
+            ref: 'marauder-mad-3r',
+          },
+        ].sort((a, b) => a.owner.localeCompare(b.owner));
+        expect(
+          body.slots.map((slot) => ({
+            slot: slot.slot,
+            owner: slot.ownerParticipantId,
+            force: slot.forceId,
+            units: slot.units.map((unit) => ({
+              id: unit.reference.unitId,
+              ref: unit.reference.unitRef,
+            })),
+          })),
+        ).toEqual(
+          expected.map((row, index) => ({
+            slot: index + 1,
+            owner: row.owner,
+            force: row.force,
+            units: [{ id: row.unit, ref: row.ref }],
+          })),
+        );
+      } finally {
+        await world.close();
+      }
+    },
+  );
+
+  it('refuses zero deployed forces through real accepted HQ choices', async () => {
+    const world = await signedWorld('command-hq', 'command-hq');
+    try {
+      const before = world.census();
+
+      const result = callSignedPreflight(world);
+
+      expect(result).toMatchObject({
+        statusCode: 409,
+        body: { kind: 'refused', code: 'UNOWNED_SLOT' },
+      });
+      expect(world.census()).toEqual(before);
+    } finally {
+      await world.close();
+    }
+  });
+
+  it('keeps repeated reads and parallel caller requests side-effect free', async () => {
+    const world = await signedWorld();
+    try {
+      const before = world.census();
+      const db = getSQLiteService().getDatabase();
+      const changes = db.prepare('SELECT total_changes() AS n').get();
+
+      const results = await Promise.all([
+        Promise.resolve().then(() => callSignedPreflight(world)),
+        Promise.resolve().then(() => callSignedPreflight(world)),
+      ]);
+
+      for (const result of results) {
+        expect(result.statusCode).toBe(200);
+        const body = signedResponse.parse(result.body);
+        expect(body.head).toEqual(world.mission.expectedHead);
+        expect(
+          body.slots.map((slot) => slot.ownerParticipantId).sort(),
+        ).toEqual([world.host.playerId, world.guest.playerId].sort());
+      }
+      expect(world.census()).toEqual(before);
+      expect(db.prepare('SELECT total_changes() AS n').get()).toEqual(changes);
+    } finally {
+      await world.close();
+    }
+  });
+
+  it('admits genuinely reaccepted participation after a cold registry rebuild', async () => {
+    const world = await signedWorld();
+    try {
+      const registry = getCampaignHostRegistry();
+      registry.dispose(world.entry.matchId);
+      const rebuilt = await registry.getOrCreate(world.entry.matchId);
+      if (!rebuilt) throw new Error('Missing rebuilt host');
+      acceptFixtureParticipation(rebuilt, world.contributors);
+      const before = world.census();
+
+      const result = callSignedPreflight(world);
+
+      expect(result.statusCode).toBe(200);
+      expect(
+        signedResponse
+          .parse(result.body)
+          .slots.map((slot) => slot.ownerParticipantId)
+          .sort(),
+      ).toEqual([world.host.playerId, world.guest.playerId].sort());
+      expect(world.census()).toEqual(before);
+    } finally {
+      await world.close();
+    }
+  });
+
+  const invalidStates: readonly {
+    name: string;
+    change: (
+      world: Awaited<ReturnType<typeof signedWorld>>,
+    ) => void | Promise<void>;
+    code: string;
+  }[] = [
+    {
+      name: 'missing registry',
+      code: 'STALE_OWNERSHIP',
+      change: (world) => getCampaignHostRegistry().dispose(world.entry.matchId),
+    },
+    {
+      name: 'closed registry host',
+      code: 'STALE_OWNERSHIP',
+      change: (world) => world.entry.host.close(),
+    },
+    {
+      name: 'cold host without accepted choices',
+      code: 'STALE_OWNERSHIP',
+      change: async (world) => {
+        const registry = getCampaignHostRegistry();
+        registry.dispose(world.entry.matchId);
+        expect(await registry.getOrCreate(world.entry.matchId)).not.toBeNull();
+      },
+    },
+    {
+      name: 'missing durable claim',
+      code: 'STALE_OWNERSHIP',
+      change: (world) => {
+        getSQLiteService()
+          .getDatabase()
+          .prepare(
+            'DELETE FROM campaign_session_force_claim WHERE campaign_id = ? AND mission_id = ? AND participant_id = ?',
+          )
+          .run(
+            world.mission.campaignId,
+            world.mission.missionId,
+            world.guest.playerId,
+          );
+      },
+    },
+    {
+      name: 'conflicting durable claimant',
+      code: 'STALE_OWNERSHIP',
+      change: (world) => {
+        getSQLiteService()
+          .getDatabase()
+          .prepare(
+            'UPDATE campaign_session_force_claim SET participant_id = ? WHERE campaign_id = ? AND mission_id = ? AND participant_id = ?',
+          )
+          .run(
+            'pid-foreign',
+            world.mission.campaignId,
+            world.mission.missionId,
+            world.guest.playerId,
+          );
+      },
+    },
+    {
+      name: 'extra unknown force claim',
+      code: 'STALE_OWNERSHIP',
+      change: (world) => {
+        expect(
+          claimCampaignSessionForce({
+            campaignId: world.mission.campaignId,
+            sessionId: world.mission.sessionId,
+            missionId: world.mission.missionId,
+            forceId: 'unknown-force',
+            participantId: world.host.playerId,
+            claimedAt: NOW,
+          }).kind,
+        ).toBe('claimed');
+      },
+    },
+    {
+      name: 'revoked contributor',
+      code: 'STALE_OWNERSHIP',
+      change: (world) => {
+        expect(
+          revokeCampaignSessionParticipant({
+            campaignId: world.mission.campaignId,
+            sessionId: world.mission.sessionId,
+            participantId: world.guest.playerId,
+            revokedAt: NOW,
+          }),
+        ).toBe(true);
+      },
+    },
+    {
+      name: 'nonmember contributor',
+      code: 'STALE_OWNERSHIP',
+      change: (world) => {
+        getSQLiteService()
+          .getDatabase()
+          .prepare(
+            'DELETE FROM campaign_session_participant WHERE campaign_id = ? AND session_id = ? AND participant_id = ?',
+          )
+          .run(
+            world.mission.campaignId,
+            world.mission.sessionId,
+            world.guest.playerId,
+          );
+      },
+    },
+    {
+      name: 'behind participant',
+      code: 'CAMPAIGN_NOT_CONVERGED',
+      change: (world) => {
+        getSQLiteService()
+          .getDatabase()
+          .prepare(
+            'DELETE FROM campaign_participant_cursor WHERE campaign_id = ? AND participant_id = ?',
+          )
+          .run(world.mission.campaignId, world.guest.playerId);
+      },
+    },
+    {
+      name: 'unresolved durable roster',
+      code: 'UNRESOLVED_SLOT_UNIT',
+      change: (world) => {
+        const read = readCampaign(world.mission.campaignId);
+        if (read.kind !== 'ok' || !read.record.body.rosterProjection)
+          throw new Error('Missing persisted roster');
+        const record = read.record;
+        expect(
+          saveCampaign(
+            {
+              ...record,
+              body: {
+                ...record.body,
+                rosterProjection: {
+                  ...read.record.body.rosterProjection,
+                  units: [],
+                },
+              },
+            },
+            record.version,
+          ).kind,
+        ).toBe('ok');
+      },
+    },
+  ];
+  it.each(invalidStates)(
+    'refuses $name without a write or legacy fallback',
+    async ({ change, code }) => {
+      const world = await signedWorld();
+      try {
+        await change(world);
+        const before = world.census();
+        const db = getSQLiteService().getDatabase();
+        const changes = db.prepare('SELECT total_changes() AS n').get();
+        const registrySize = getCampaignHostRegistry().size();
+
+        const result = callSignedPreflight(world);
+
+        expect(result).toMatchObject({
+          statusCode: 409,
+          body: { kind: 'refused', code },
+        });
+        expect(world.census()).toEqual(before);
+        expect(db.prepare('SELECT total_changes() AS n').get()).toEqual(
+          changes,
+        );
+        expect(getCampaignHostRegistry().size()).toBe(registrySize);
+      } finally {
+        await world.close();
+      }
+    },
+  );
+
+  it.each(['revision', 'branchId', 'effectiveGeneration'] as const)(
+    'preserves the signed-session stale %s refusal',
+    async (field) => {
+      const world = await signedWorld();
+      try {
+        const expectedHead = {
+          ...world.mission.expectedHead,
+          [field]: field === 'branchId' ? 'foreign-branch' : 0,
+        };
+        const code = {
+          revision: 'STALE_REVISION',
+          branchId: 'STALE_BRANCH',
+          effectiveGeneration: 'STALE_GENERATION',
+        }[field];
+        const before = world.census();
+
+        const result = callSignedPreflight(world, { expectedHead });
+
+        expect(result).toMatchObject({
+          statusCode: 409,
+          body: {
+            kind: 'refused',
+            code,
+            activeHead: world.mission.expectedHead,
+          },
+        });
+        expect(world.census()).toEqual(before);
+      } finally {
+        await world.close();
+      }
+    },
+  );
+
+  it.each(['ownerParticipantId', 'playerId', 'slot', 'contributions'])(
+    'rejects browser-provided %s authority',
+    async (field) => {
+      const world = await signedWorld();
+      try {
+        const before = world.census();
+
+        const result = callSignedPreflight(world, { [field]: 'forged-owner' });
+
+        expect(result.statusCode).toBe(400);
+        expect(world.census()).toEqual(before);
+      } finally {
+        await world.close();
+      }
+    },
+  );
+
+  it('refuses an unknown mission without adopting any creation placeholder', async () => {
+    const world = await signedWorld();
+    try {
+      const before = world.census();
+
+      const result = callSignedPreflight(world, {
+        missionId: 'unknown-mission',
+      });
+
+      expect(result).toMatchObject({
+        statusCode: 409,
+        body: { kind: 'refused', code: 'STALE_OWNERSHIP' },
+      });
+      expect(world.census()).toEqual(before);
+    } finally {
+      await world.close();
+    }
   });
 });
