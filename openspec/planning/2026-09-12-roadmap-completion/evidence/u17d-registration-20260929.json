@@ -1,0 +1,76 @@
+{
+  "kind": "unit-registration",
+  "unit": "U17d",
+  "planTask": "52",
+  "at": "2026-09-29T00:00:00.000Z",
+  "baseline": "d5c1ada3dae4076a6081e668ed9045f1458a08a9",
+  "branch": "codex/merge-closure-register-20260929",
+  "worktree": "E:/Projects/MekStation-wt/merge-closure-registration-20260929",
+  "node": {
+    "id": "R6.loop-harness",
+    "roadmapChangeRequired": true,
+    "reason": "The validator requires exact unit ownership paths to appear verbatim on the node; R6's existing scripts/qc and scripts/__tests__ parents were amended with only these four exact paths."
+  },
+  "idAvailability": {
+    "chosen": "U17d",
+    "unusedAtBaseline": true,
+    "reason": "Unused immediate successor name for completed U17c."
+  },
+  "incident": {
+    "pr": 2083,
+    "reviewedHead": "ec00717c474a909af0ae53afaa758eeac33614a7",
+    "reviewedHeadTree": "27952ecb640e6e6997ab2b6427d1e5b0efea712f",
+    "merge": "d5c1ada3dae4076a6081e668ed9045f1458a08a9",
+    "mergeParent": "8c1bfdb674dbc8757445e074fb56a473333683f1",
+    "mergeTree": "5182cffdc0347c5d02eb3983f0ccf458b63612f8",
+    "mergeBase": "51fa88740a40bd98f3146f52d8ec47d80f8f2f5e",
+    "parentCount": 1,
+    "observedDifference": "Intervening U24a changed the production-authority comment in src/lib/multiplayer/server/ServerMatchHost.ts. Raw head-versus-merge comparison reports drift although the reviewed twelve-file PAI delta was integrated.",
+    "paiReviewedDeltaFiles": 12,
+    "paiMergeDeltaFiles": 12
+  },
+  "comparisonDecision": {
+    "scope": "whole tree",
+    "mechanismContract": "Use native Git three-way semantics to integrate the exact reviewed head onto the actual sole merge parent, then require the actual merge tree identity to equal the expected tree identity.",
+    "whyNotReviewedTouchedPathsOnly": "Touched-path comparison can miss unexplained merge-only changes elsewhere and does not prove that all parent-side content survived.",
+    "identityAssumptions": [
+      "GitHub's PR head is exactly the Lane A reviewed head and any required owner-ruling head.",
+      "The reported merge and reviewed-head objects exist locally.",
+      "The reported merge has exactly one parent, used as the integration target.",
+      "Git establishes the required ancestry/base and computes one conflict-free expected tree.",
+      "The closure checkout and exact-main proof remain bound to the reported merge."
+    ],
+    "failClosed": [
+      "missing Git objects",
+      "zero or multiple merge parents",
+      "invalid ancestry or merge-base identity",
+      "three-way merge conflict",
+      "actual tree differs from expected integration tree"
+    ]
+  },
+  "ownership": [
+    "scripts/qc/roadmap-unit-closure.mjs",
+    "scripts/qc/roadmap-ledger-lib.mjs",
+    "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+    "scripts/__tests__/roadmap-loop-scripts.test.ts"
+  ],
+  "caps": {
+    "maxFiles": 4,
+    "maxNonGeneratedLines": 300
+  },
+  "acceptance": [
+    "Clean-head and legitimate nonconflicting intervening-main integrations pass.",
+    "Conflicts, missing/invalid identity, and unexplained merge content fail nonzero without completion.",
+    "Exact-head review, owner-ruling, CI, runtime, checkout, ancestry and validator gates remain enforced.",
+    "The actual PAI identities reproduce through the closure CLI on an isolated ledger fixture before official closure.",
+    "Both roadmap-loop Jest files run red-first and green in separate deterministic processes."
+  ],
+  "preservation": {
+    "historicalReceiptsChanged": false,
+    "holdersChanged": false,
+    "frozenOccurrencesChanged": false,
+    "roadmapOrderingChanged": false,
+    "paiStateChanged": false,
+    "productOrScriptCodeChanged": false
+  }
+}

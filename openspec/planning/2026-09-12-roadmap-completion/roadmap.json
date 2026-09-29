@@ -7861,7 +7861,11 @@
       "dependsOn": [],
       "ownershipPaths": [
         "scripts/qc",
+        "scripts/qc/roadmap-unit-closure.mjs",
+        "scripts/qc/roadmap-ledger-lib.mjs",
         "scripts/__tests__",
+        "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+        "scripts/__tests__/roadmap-loop-scripts.test.ts",
         "package.json",
         ".oxlintrc.json",
         "playwright.config.ts",
