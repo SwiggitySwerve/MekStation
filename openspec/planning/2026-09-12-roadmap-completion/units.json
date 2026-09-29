@@ -4683,18 +4683,53 @@
         "maxFiles": 4,
         "maxNonGeneratedLines": 400
       },
-      "state": "planned",
-      "baseline": null,
-      "prHead": null,
-      "mergeSha": null,
+      "state": "complete",
+      "baseline": "cf9c269d5261753c18520e61ac2e9f5f43e0615b",
+      "prHead": "fbd0ac4bcacae52634b073e471f31a41edf8a409",
+      "mergeSha": "845ea72b7e2af190a162c6cca546dfcb57cb1007",
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "admission": {
+          "path": "evidence/p2a-admission-20260929.json",
+          "baseline": "cf9c269d5261753c18520e61ac2e9f5f43e0615b",
+          "at": "2026-09-29T07:35:38.000Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/p2a-red-20260929.json",
+          "at": "2026-09-29T08:39:09.338Z",
+          "summary": "The original P2 real-route red returned 409 for accepted signed owners. P2A's first product head 69a67d084 then passed 31 CI checks but independent production HTTP found a distinct fail-open: cold active signed membership with mission claims erased returned 200 with placeholder owners. That head was REJECTED; its evidence remains archived unchanged."
+        },
+        "local": {
+          "path": "evidence/p2a-local-20260929.json",
+          "at": "2026-09-29T08:39:09.338Z",
+          "summary": "Corrected normal head fbd0ac4bc: exactly four registered files, 274 added product lines under cap 400 and 1,145 test lines. Twelve suites / 187 tests, typecheck, lint 84 baseline warnings and 0 errors, lint:units, format, build and four roadmap modes passed; 38 production HTTP preflights include cold signed 409 and genuine legacy-only 200 controls. The HTTP endpoint does not authenticate its caller; contributor identity is signed socket participation plus durable membership/claims. If all signed membership history and all mission claims are deleted, legacy-only state is indistinguishable without a new persistence marker, which this no-schema unit does not claim."
+        },
+        "review": {
+          "path": "evidence/p2a-review-20260929.json",
+          "head": "fbd0ac4bcacae52634b073e471f31a41edf8a409",
+          "reviewedHead": "fbd0ac4bcacae52634b073e471f31a41edf8a409",
+          "reviewerModel": "gpt-6-sol",
+          "implementerModel": "gpt-6-astra",
+          "outputSha256": "95b7e3a5989739412124eef65f2a240bda555e7c91989e9465d3d9a3991d640a",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/p2a-merge-20260929.json",
+          "pr": 2089,
+          "head": "fbd0ac4bcacae52634b073e471f31a41edf8a409",
+          "mergeSha": "845ea72b7e2af190a162c6cca546dfcb57cb1007"
+        },
+        "mainProof": {
+          "path": "evidence/p2a-mainproof-20260929.json",
+          "mergeCommit": "845ea72b7e2af190a162c6cca546dfcb57cb1007",
+          "verdict": "PASS",
+          "runtime": "P2A PROOF RUNTIME PASSED: 225 passed (187 registered Jest tests + 38 production HTTP preflights; 0 failed)"
+        },
+        "tick": {
+          "path": "evidence/p2a-tick-20260929.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "admissionRequires": "This registration must land before product admission. Parent verifies P1A complete with PASS exact-main proof and ancestry on fresh origin/main, exact existing/verbatim node ownership, the four-file estimate, and preservation of the original P2 red test/evidence. Sensitive classes require a decision-free packet before local-verified and an owner-originated exact-head ruling plus --github evidence before merge. P2 remains blocked until P2A is complete with PASS exact-main proof, closure and ancestry; NEXT does not enforce unit predecessors. Any new persistence, HTTP authentication contract, schema, migration or helper path requires a separately reviewed amendment.",
@@ -4744,7 +4779,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -4837,6 +4872,15 @@
         "cause": "All six named P2 predecessors are complete with PASS mainProof receipts whose merge commits are ancestors of freshly fetched origin/main166e8eb; see evidence/p2-release-20260929.json.",
         "by": "parent-authorized ledger edit after official U17d and PAI closure; NEXT does not enforce these unit dependencies. U38 remains blocked on P2.",
         "evidence": "evidence/p2-release-20260929.json"
+      },
+      "releasedAfterP2A20260929": {
+        "at": "2026-09-29T09:30:00.000Z",
+        "from": "blocked",
+        "cause": "P1A, P1B1, P1B2, P1B3, P1C, PAI and P2A are complete with PASS mainProof receipts and every merge commit is an ancestor of exact main 845ea72b7; P2A closed through the shipped native tool.",
+        "by": "explicit parent-release step after checking every documentary prerequisite; NEXT does not enforce unit predecessor metadata",
+        "evidence": "evidence/p2-release-after-p2a-20260929.json",
+        "preservedOriginalRedSha256": "144dfb6effa612da69836aaa528d9ef713267821ac11f3afabaa9cf603ba3b4f",
+        "limits": "This releases P2 to planned only. No P2 implementation or QA is claimed, and U38 stays blocked."
       }
     },
     {
@@ -10069,6 +10113,48 @@
   ],
   "packets": [
     {
+      "id": "PK-p2a-ruling",
+      "blocks": [
+        "P2A"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "P2A presents corrected head fbd0ac4bcacae52634b073e471f31a41edf8a409 on PR #2089 for authority, privacy, replay, idempotency and concurrency review. Does the owner's standing Checks + review instruction rule this exact head after independent review and required CI checks pass?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "The existing head-bound OWNER-RULING comment and owner-ruled label authorize guarded merge; exact-main proof and closure remain required before P2 release.",
+          "effort": "Apply the already-posted standing instruction to the exact reviewed head"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Do not accept the head; preserve the objection and require a new verified head, fresh independent review and fresh ruling.",
+          "effort": "Depends on the concrete requested change"
+        }
+      ],
+      "agentRecommendation": "Rule the corrected exact head. Independent gpt-6-sol review APPROVED fbd0ac4bc with no blocker, 31 of 31 checks passed, and the exact cold fail-open that rejected 69a67d084 now returns typed 409 while legacy-only controls remain 200.",
+      "revertCost": "Revert squash merge 845ea72b7; the four-file change adds no schema or migration. No data rollback is required.",
+      "decision": {
+        "at": "2026-09-29T08:37:42Z",
+        "option": "rule the head",
+        "text": "Checks + review, then merge (Recommended)",
+        "source": "owner standing instruction quoted verbatim in existing PR comment 5886681165: \"merge PRs if they are passing the checks\" and \"Checks + review, then merge (Recommended)\"; the agent did not choose the owner decision"
+      },
+      "ruling": {
+        "ruledHead": "fbd0ac4bcacae52634b073e471f31a41edf8a409",
+        "pr": 2089,
+        "commentId": 5886681165,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "ab9b89a31320698854d4309c689ea347fbd731c91b5f6c258d86f824248f2334",
+        "postedBy": "parent under the owner's standing instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed": "DELIVERY.md describes an owner-originated ruling outside the agent. The parent posted the existing comment from the owner's GitHub account and applied owner-ruled under the quoted standing instruction; this records no personal owner review and this closure agent posted no comment or label."
+      },
+      "note": "Registered from the actual posted PR comment and standing instruction at closure. The rejected first head 69a67d084 is not ruled; the decision and ruling bind only corrected head fbd0ac4bc."
+    },
+    {
       "id": "PK-pai-ruling",
       "blocks": [
         "PAI"
@@ -14862,8 +14948,9 @@
       "summary": "At current converged head root/1/1, durable signed mission claims are refused by placeholder-only launch preflight: normal creation claims produce 409 STALE_OWNERSHIP; without placeholders it produces 409 UNOWNED_SLOT. Both keep matches/events/receipts at 1/0/0. P1A mission-create accepts signed contributors; bypassing preflight would weaken ownership/convergence guards.",
       "evidence": "evidence/p2a-registration-20260929.json",
       "recommendedSuccessor": "P2A",
-      "status": "held by P2A; reproduced, not fixed",
-      "holder": "P2A"
+      "status": "resolved by P2A",
+      "holder": "P2A",
+      "resolution": "P2A corrected head fbd0ac4bc was independently approved and merged as 845ea72b7; exact-main proof passed 225 checks (187 registered Jest tests plus 38 production HTTP preflights), including the rejected cold-signed reproduction returning typed 409 while legacy-only controls remained 200. Initial red and rejected-head evidence are preserved."
     }
   ]
 }

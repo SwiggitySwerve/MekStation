@@ -1,0 +1,17 @@
+{
+  "unit": "P2A",
+  "stage": "review",
+  "at": "2026-09-29T09:26:54.672Z",
+  "lane": "A",
+  "reviewerModel": "gpt-6-sol",
+  "implementerModel": "gpt-6-astra",
+  "reviewerEffort": "high",
+  "head": "fbd0ac4bcacae52634b073e471f31a41edf8a409",
+  "reviewedHead": "fbd0ac4bcacae52634b073e471f31a41edf8a409",
+  "verdict": "APPROVE",
+  "outputPath": "evidence/p2a-lane-a-review-20260929.md",
+  "outputSha256": "95b7e3a5989739412124eef65f2a240bda555e7c91989e9465d3d9a3991d640a",
+  "sharedContext": "independent exact-head product review; rejected first head preserved",
+  "laneB": "owner ruling PK-p2a-ruling: rule the head on fbd0ac4bcacae52634b073e471f31a41edf8a409 (PR #2089, comment 5886681165, label owner-ruled)",
+  "githubApproval": "none recorded; Lane A is engineering evidence, never a GitHub approval"
+}

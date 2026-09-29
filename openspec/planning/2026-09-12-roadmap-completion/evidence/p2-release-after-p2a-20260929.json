@@ -1,0 +1,84 @@
+{
+  "kind": "conditional-successor-release",
+  "unit": "P2",
+  "releasedAt": "2026-09-29T09:30:00.000Z",
+  "from": "blocked",
+  "to": "planned",
+  "releaseHead": "845ea72b7e2af190a162c6cca546dfcb57cb1007",
+  "predecessors": [
+    {
+      "unit": "P1A",
+      "state": "complete",
+      "mainProof": "evidence/p1a-mainproof-20260927.json",
+      "mainProofSha256": "fba1209bf787447a8b4b7246f512ec00c15bd5f83c303350b5720c201d644343",
+      "mergeCommit": "d0347e7e6a236055a8af59c610cf6fb3ff650d35",
+      "verdict": "PASS",
+      "ancestorOfReleaseHead": true
+    },
+    {
+      "unit": "P1B1",
+      "state": "complete",
+      "mainProof": "evidence/p1b1-mainproof-20260928.json",
+      "mainProofSha256": "a5cce9aed38206bbb11b88d3af4c609b8f5073e54e8d2a7d89b912481cfffd65",
+      "mergeCommit": "6d58cd327dfdc8659bbfc6438a80e445a8986741",
+      "verdict": "PASS",
+      "ancestorOfReleaseHead": true
+    },
+    {
+      "unit": "P1B2",
+      "state": "complete",
+      "mainProof": "evidence/p1b2-mainproof-20260928.json",
+      "mainProofSha256": "d1615a81a1c052accc1264f7dedc94d1dab2b02976f6ee3e9f058a46e45b0292",
+      "mergeCommit": "24e7888e3458d6ea217eac7574bade5974b884ec",
+      "verdict": "PASS",
+      "ancestorOfReleaseHead": true
+    },
+    {
+      "unit": "P1B3",
+      "state": "complete",
+      "mainProof": "evidence/p1b3-mainproof-20260928.json",
+      "mainProofSha256": "417bf07f775645eeca4442e156294ac6441044aad3c249493de9d74abbc2bf55",
+      "mergeCommit": "c3f83fd1aea062d5c9f7960dba7866fef9f9a5f9",
+      "verdict": "PASS",
+      "ancestorOfReleaseHead": true
+    },
+    {
+      "unit": "P1C",
+      "state": "complete",
+      "mainProof": "evidence/p1c-mainproof-20260928.json",
+      "mainProofSha256": "04c85729cc778f8f4355019eb4e0b8c308266c52f105f3bfda7b6caf77a28280",
+      "mergeCommit": "5433488de0fe7ef9ede71144463205e4b290c98c",
+      "verdict": "PASS",
+      "ancestorOfReleaseHead": true
+    },
+    {
+      "unit": "PAI",
+      "state": "complete",
+      "mainProof": "evidence/pai-mainproof-20260928.json",
+      "mainProofSha256": "185b94aa30e27f7330244ba1eea1c1e4eb7df5fa42e76afa450c388cef4ccd8a",
+      "mergeCommit": "d5c1ada3dae4076a6081e668ed9045f1458a08a9",
+      "verdict": "PASS",
+      "ancestorOfReleaseHead": true
+    },
+    {
+      "unit": "P2A",
+      "state": "complete",
+      "mainProof": "evidence/p2a-mainproof-20260929.json",
+      "mainProofSha256": "ae12c9b3c137e417b4b74f23420053abb6f354e8804b66880f982fb8af5adab3",
+      "mergeCommit": "845ea72b7e2af190a162c6cca546dfcb57cb1007",
+      "verdict": "PASS",
+      "ancestorOfReleaseHead": true
+    }
+  ],
+  "preservedOriginalRed": {
+    "path": "E:/Projects/MekStation-wt/mekstation-roadmap-loop-continuation-wave-b/src/lib/campaign/coop/__tests__/launchCoopMission.test.ts",
+    "sha256": "144dfb6effa612da69836aaa528d9ef713267821ac11f3afabaa9cf603ba3b4f",
+    "unchanged": true
+  },
+  "nonclaims": [
+    "No P2 implementation or QA is performed by this release.",
+    "U38 remains blocked on P2 and is unchanged.",
+    "Plan task 55 is not ticked here; the parent owns that checkbox after closure publication on exact main."
+  ],
+  "authorization": "Explicit parent-release step after official P2A closure and verification of every original P2 prerequisite."
+}

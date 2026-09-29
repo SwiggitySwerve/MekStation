@@ -1,0 +1,72 @@
+{
+  "unit": "P2A",
+  "stage": "mainProof",
+  "at": "2026-09-29T09:26:56.759Z",
+  "mergeCommit": "845ea72b7e2af190a162c6cca546dfcb57cb1007",
+  "checkout": "owned worktree at exact squash merge 845ea72b7; no root checkout mutation",
+  "runtime": {
+    "build": "\"hydratedStandaloneServer\": \".next\\\\standalone\\\\server.js\"",
+    "e2eBundleMarker": "not stated by the closer",
+    "playwright": "P2A exact-main product proof (registered Jest plus production HTTP): P2A PROOF RUNTIME PASSED: 225 passed (187 registered Jest tests + 38 production HTTP preflights; 0 failed)",
+    "tsc": "npm run typecheck: tsc --noEmit --skipLibCheck; exit 0",
+    "proofKind": "adapter over archived exact-main product proof; no gate rerun",
+    "registeredJest": {
+      "suitesPassed": 12,
+      "testsPassed": 187,
+      "testsFailed": 0
+    },
+    "productionHttp": {
+      "preflightsPassed": 38,
+      "signedLive": 33,
+      "cold": 5,
+      "coldSignedLostClaims": "409 STALE_OWNERSHIP",
+      "legacyOnlyCreation": 200,
+      "legacyOnlyOverride": 200
+    },
+    "recordedMainProof": {
+      "mergeCommit": "845ea72b7e2af190a162c6cca546dfcb57cb1007",
+      "archive": "E:/Projects/MekStation/.omo/ulw-execute/evidence/task-55-p2a-main-proof-845ea72b7",
+      "archiveInventorySha256": "c61b845d459978ed6b4c02f9b60c6d121f81819a132aa12da7067f8a9e0d2c41",
+      "originalReceiptSha256": "db715b269ef5b50e58248a1a892de32215b8e82e1eed9c26e21510355f365728",
+      "wholeTree": "reviewed and merged trees both aa795f981d9bba7f86554c4b59175a3180b42f9d"
+    },
+    "rejectedHeadCaveat": {
+      "head": "69a67d08439a51766f1917c365b1b6f52efae4ff",
+      "verdict": "REQUEST_CHANGES despite 31 successful CI checks",
+      "reason": "cold active signed membership plus erased mission claims fell back to placeholder owners with HTTP 200",
+      "archiveInventorySha256": "bffd8bc8d6007bf28faf520815e283aa2e09120b315595a57d27331a087ad91e"
+    },
+    "authenticationLimit": "The HTTP endpoint does not authenticate the request caller. Contributor identities were authenticated through signed CampaignJoin/CampaignParticipation sockets plus durable membership and claims.",
+    "persistenceLimit": "If all signed membership history and all signed mission claims are deleted, legacy-only state is indistinguishable without a new durable persistence marker; no stronger guarantee is claimed.",
+    "reviewClassesCovered": [
+      "authority",
+      "privacy",
+      "replay",
+      "idempotency",
+      "concurrency"
+    ],
+    "cleanup": "All product-proof QA listeners, sockets, PIDs and ports were stopped; the proof worktree was removed non-force after archive verification."
+  },
+  "commands": {
+    "validator": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows",
+    "gitAncestry": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows (--git)",
+    "next": "",
+    "openspecStrict": "",
+    "qcOpenspecCi": "",
+    "qcPin": ""
+  },
+  "logs": ".omo/ulw-execute/p2a-closure/ (local; sha256 below)",
+  "logHashes": [
+    "024056039d554eeb8319e071a60035db459649ee15791e99d9580df8c70e7b5e *qc-openspec-ci.log",
+    "0ccd88471319492e3fa813be522e3476f6c59c16c3ec1529574c695f3c64c4f0 *playwright.log",
+    "1a2bbef83e3bb1762acbb14f9b31230e2d463b7d756b482cd0bb6efdfa09b460 *build.log",
+    "384a30a0d6919ee5e520fbe139cb89a70bc7107befcaa11cec9c74832158885b *tsc.log",
+    "40e9d8ba72f64484ca96b32fbd0d75f6b6d8f85de1e259df2047b23109ce87f3 *git-check.log",
+    "771298496dec4813d1a96c58d074b8b2dba1b9b31043514967550118da3b90f9 *extra-runtime.json",
+    "a98e7d93eab9077f4d3266207236fba2ea88117e10ebc3fe415ee48c8d2ea7ee *qc-pin.log",
+    "e9c2b8a06237b1e4f0c7703d80ddc242216b3ad5a57b6b2d2f3aee30af7b034c *next.log",
+    "eed20875365c9b0be113b826edd2f57373617c1fe0911847db0447801b294796 *openspec-strict.log",
+    "fef6ef0ac692927778030cd7dd5627a845e27c5fb0aa45369399b4b05fc29e7e *validator.log"
+  ],
+  "verdict": "PASS"
+}

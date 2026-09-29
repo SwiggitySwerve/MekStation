@@ -1,0 +1,23 @@
+{
+  "unit": "P2A",
+  "stage": "merge",
+  "at": "2026-09-29T09:26:56.758Z",
+  "pr": 2089,
+  "title": "fix(coop): materialize signed mission owners at launch",
+  "head": "fbd0ac4bcacae52634b073e471f31a41edf8a409",
+  "mergeSha": "845ea72b7e2af190a162c6cca546dfcb57cb1007",
+  "mergedAt": "2026-09-29T08:38:13Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "pinned squash merge after 31/31 exact-head checks, independent APPROVE and standing owner ruling; no bypass",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "treeIntegration": {
+    "parent": "cf9c269d5261753c18520e61ac2e9f5f43e0615b",
+    "mergeBases": [
+      "cf9c269d5261753c18520e61ac2e9f5f43e0615b"
+    ],
+    "expectedTree": "aa795f981d9bba7f86554c4b59175a3180b42f9d",
+    "actualTree": "aa795f981d9bba7f86554c4b59175a3180b42f9d",
+    "matches": true
+  }
+}

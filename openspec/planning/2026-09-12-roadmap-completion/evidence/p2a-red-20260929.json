@@ -1,0 +1,25 @@
+{
+  "unit": "P2A",
+  "stage": "red",
+  "at": "2026-09-29T08:39:09.338Z",
+  "baseline": "cf9c269d5261753c18520e61ac2e9f5f43e0615b",
+  "chronology": [
+    {
+      "kind": "original-admission-red",
+      "result": "At converged root/1/1, accepted signed mission owners were refused: 409 STALE_OWNERSHIP with creation placeholders and 409 UNOWNED_SLOT without them; matches/events/receipts remained 1/0/0.",
+      "evidence": "evidence/p2a-registration-20260929.json"
+    },
+    {
+      "kind": "first-head-independent-rejection",
+      "head": "69a67d08439a51766f1917c365b1b6f52efae4ff",
+      "ci": "31 SUCCESS, which did not make the head approved",
+      "verdict": "REQUEST_CHANGES",
+      "result": "Cold active signed membership with current mission claims erased and creation placeholders retained returned HTTP 200 with placeholder owners instead of typed 409.",
+      "archive": "E:/Projects/MekStation/.omo/ulw-execute/evidence/task-55-p2a-rejected-review-69a67d084",
+      "archiveInventorySha256": "bffd8bc8d6007bf28faf520815e283aa2e09120b315595a57d27331a087ad91e",
+      "reviewSha256": "714b9ba22c09b3ec36c1c9e21028fe635a6b0fe8a1e6a5bcca79815cb8bc0853"
+    }
+  ],
+  "correctionRed": "Five real route/SQLite cases failed on 69a67d084 with actual HTTP 200 versus expected 409 before the normal correction commit. They were not rerun as red on the corrected head.",
+  "preservation": "The first rejection and original P2 red remain historical evidence; neither is rewritten as approval."
+}

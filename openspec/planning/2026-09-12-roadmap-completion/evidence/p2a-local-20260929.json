@@ -1,0 +1,29 @@
+{
+  "unit": "P2A",
+  "stage": "local",
+  "at": "2026-09-29T08:39:09.338Z",
+  "status": "local-verified",
+  "baseline": "cf9c269d5261753c18520e61ac2e9f5f43e0615b",
+  "head": "fbd0ac4bcacae52634b073e471f31a41edf8a409",
+  "scope": {
+    "files": 4,
+    "addedProductLines": 274,
+    "cap": 400,
+    "addedTestLines": 1145
+  },
+  "verification": {
+    "registeredJest": "12 suites, 187 tests passed in each of two separate Node 22 processes",
+    "productionHttp": "38 passed: 33 signed/live plus 5 cold; exact rejected cold fixture now 409 STALE_OWNERSHIP, genuine legacy-only creation and override controls 200",
+    "gates": "typecheck, lint (84 baseline warnings, 0 errors, 0 changed-file warnings), lint:units, format, production build, roadmap base/--git/--next/--github and diff check all exited 0",
+    "review": "Independent gpt-6-sol APPROVE on exact head; report SHA-256 95b7e3a5989739412124eef65f2a240bda555e7c91989e9465d3d9a3991d640a"
+  },
+  "reviewArchive": {
+    "path": "E:/Projects/MekStation/.omo/ulw-execute/evidence/task-55-p2a-corrected-review-fbd0ac4bc",
+    "inventorySha256": "00c466b95151217dec0edc15b969195bfdcc9e369fb29efcb29fb6ccd414e956"
+  },
+  "limits": [
+    "The HTTP launch-authority endpoint does not authenticate the request caller; contributors are authenticated through signed CampaignJoin/CampaignParticipation sockets and durable membership/claims.",
+    "If all signed membership history and all signed mission claims are deleted, the remaining state cannot be distinguished from legacy-only state without a new durable persistence marker; this no-schema unit does not claim that guarantee.",
+    "P2 and U38 remain blocked until official exact-main closure and explicit parent release."
+  ]
+}
