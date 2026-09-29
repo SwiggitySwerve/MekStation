@@ -1,0 +1,578 @@
+{
+  "unit": "P2BC",
+  "nature": "Docs/ledger-only truthful closure, no product implementation or downstream release",
+  "closureWriterModel": "gpt-6.1-sol",
+  "sourceBaseline": "6f2bc4ae950faf135fa245999037f6cf2fc8a90c",
+  "freshMainFullSHA": "ff318347e9eb1adcd61053f79fda0151e2279c4c",
+  "reviewedHead": "d65e686290ba8379e19a36469ab723d09cc3aa7c",
+  "sourcePR": 2093,
+  "sourceMerge": "ff318347e9eb1adcd61053f79fda0151e2279c4c",
+  "stageReadinessAddendum": {
+    "path": "E:\\Projects\\.omo\\evidence\\p2bc-stage-readiness-reproof\\addendum.json",
+    "sha256": "801b968ee3e3e67860b41233962e2b023b68dee0a1884fa4b0d48f27ab05a11b",
+    "scope": "Static stage 1-3 sufficiency only, not contemporaneous admission or actual fold",
+    "implementerIdentity": {
+      "requested": "chatgpt-subscription/gpt-5.6-sol-fast",
+      "resolved": "chatgpt-subscription/gpt-5.6-sol-fast",
+      "fallbackChain": [
+        "chatgpt-subscription/gpt-5.6-sol"
+      ],
+      "sessionSelected": "chatgpt-subscription/gpt-5.6-sol-fast",
+      "thinkingLevel": "medium",
+      "assistantMessageModel": "gpt-5.6-sol",
+      "assistantMessageCount": 34,
+      "recordedModelChangeCount": 1,
+      "recordedAssistantErrorCount": 0,
+      "fallbackEventEstablished": false,
+      "currentRuntimeExplainsFastBaseNormalization": true,
+      "historicalCausalResolution": "not conclusively established: no historical request payload/service_tier or historical runtime-module hash preserved",
+      "suggestedClosureImplementerLabel": "GPT-5.6 Sol Fast (requested/resolved/session-selected: chatgpt-subscription/gpt-5.6-sol-fast; captured assistant-message model: chatgpt-subscription/gpt-5.6-sol; medium; historical wire tier unverified)",
+      "reviewerModel": "gpt-6-sol",
+      "doNotRelabelHistoricalIdentities": true
+    }
+  },
+  "inputVerification": {
+    "path": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\input-verification.json",
+    "sha256": "95347efaa4f3b9cacad9376299311434594e6d83f177b4ea53a0c3fc0f44d51e"
+  },
+  "sourceToDestinationManifest": {
+    "path": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\source-to-destination-manifest.json",
+    "sha256": "b4d490ebb20ffdf67551c342cf75e9c2f880e4c40644668ca0cdf2bfdbac8511",
+    "files": [
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-mainproof-ff318347e\\official-run2-logs\\build.log",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\original-official-run2\\build.log",
+        "sourceSha256": "70300671c98c7d23363273a4a33824336a478c75727c173512b3a2bfbfeadf03",
+        "destinationSha256": "70300671c98c7d23363273a4a33824336a478c75727c173512b3a2bfbfeadf03",
+        "bytes": 127476
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-mainproof-ff318347e\\official-run2-logs\\build.log",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\build.log",
+        "sourceSha256": "70300671c98c7d23363273a4a33824336a478c75727c173512b3a2bfbfeadf03",
+        "destinationSha256": "70300671c98c7d23363273a4a33824336a478c75727c173512b3a2bfbfeadf03",
+        "bytes": 127476
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-mainproof-ff318347e\\official-run2-logs\\exact-main-ladder.log",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\original-official-run2\\exact-main-ladder.log",
+        "sourceSha256": "6eef8e3c3d9f21533aa56a3ada2fc2a38923f1b39ca92822a80cb1d42f47fd54",
+        "destinationSha256": "6eef8e3c3d9f21533aa56a3ada2fc2a38923f1b39ca92822a80cb1d42f47fd54",
+        "bytes": 112
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-mainproof-ff318347e\\official-run2-logs\\git-check.log",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\original-official-run2\\git-check.log",
+        "sourceSha256": "71a8bd7a8b2073f6ae5178effaaf306bc58915cc8e5b35318223868cc0b450b4",
+        "destinationSha256": "71a8bd7a8b2073f6ae5178effaaf306bc58915cc8e5b35318223868cc0b450b4",
+        "bytes": 84
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-mainproof-ff318347e\\official-run2-logs\\git-check.log",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\git-check.log",
+        "sourceSha256": "71a8bd7a8b2073f6ae5178effaaf306bc58915cc8e5b35318223868cc0b450b4",
+        "destinationSha256": "71a8bd7a8b2073f6ae5178effaaf306bc58915cc8e5b35318223868cc0b450b4",
+        "bytes": 84
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-mainproof-ff318347e\\official-run2-logs\\idle-before-build.log",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\original-official-run2\\idle-before-build.log",
+        "sourceSha256": "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43",
+        "destinationSha256": "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43",
+        "bytes": 21
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-mainproof-ff318347e\\official-run2-logs\\idle-before-build.log",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\idle-before-build.log",
+        "sourceSha256": "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43",
+        "destinationSha256": "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43",
+        "bytes": 21
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-mainproof-ff318347e\\official-run2-logs\\idle-before-runtime.log",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\original-official-run2\\idle-before-runtime.log",
+        "sourceSha256": "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43",
+        "destinationSha256": "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43",
+        "bytes": 21
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-mainproof-ff318347e\\official-run2-logs\\idle-before-runtime.log",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\idle-before-runtime.log",
+        "sourceSha256": "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43",
+        "destinationSha256": "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43",
+        "bytes": 21
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-mainproof-ff318347e\\official-run2-logs\\next.log",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\original-official-run2\\next.log",
+        "sourceSha256": "370f11bbddda251b10699157224980b18453e8a9796332768c84428168e30192",
+        "destinationSha256": "370f11bbddda251b10699157224980b18453e8a9796332768c84428168e30192",
+        "bytes": 13
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-mainproof-ff318347e\\official-run2-logs\\next.log",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\next.log",
+        "sourceSha256": "370f11bbddda251b10699157224980b18453e8a9796332768c84428168e30192",
+        "destinationSha256": "370f11bbddda251b10699157224980b18453e8a9796332768c84428168e30192",
+        "bytes": 13
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-mainproof-ff318347e\\official-run2-logs\\openspec-strict.log",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\original-official-run2\\openspec-strict.log",
+        "sourceSha256": "efd619721df505ed0dbb69fe5bd26b74023670e603ce16891fd2f1331adf1776",
+        "destinationSha256": "efd619721df505ed0dbb69fe5bd26b74023670e603ce16891fd2f1331adf1776",
+        "bytes": 6835
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-mainproof-ff318347e\\official-run2-logs\\openspec-strict.log",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\openspec-strict.log",
+        "sourceSha256": "efd619721df505ed0dbb69fe5bd26b74023670e603ce16891fd2f1331adf1776",
+        "destinationSha256": "efd619721df505ed0dbb69fe5bd26b74023670e603ce16891fd2f1331adf1776",
+        "bytes": 6835
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-mainproof-ff318347e\\official-run2-logs\\playwright.log",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\original-official-run2\\playwright.log",
+        "sourceSha256": "6d43538e9dcfbcf76f42fe135b6ccdf0e95d02e8a58a58900c3aa32474af9e8d",
+        "destinationSha256": "6d43538e9dcfbcf76f42fe135b6ccdf0e95d02e8a58a58900c3aa32474af9e8d",
+        "bytes": 65
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-mainproof-ff318347e\\official-run2-logs\\qc-openspec-ci.log",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\original-official-run2\\qc-openspec-ci.log",
+        "sourceSha256": "5b0f562274df4dbddfb7ae44ab42b7d686dc1e0903383f25c593d88f7479fe9a",
+        "destinationSha256": "5b0f562274df4dbddfb7ae44ab42b7d686dc1e0903383f25c593d88f7479fe9a",
+        "bytes": 299
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-mainproof-ff318347e\\official-run2-logs\\qc-openspec-ci.log",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\qc-openspec-ci.log",
+        "sourceSha256": "5b0f562274df4dbddfb7ae44ab42b7d686dc1e0903383f25c593d88f7479fe9a",
+        "destinationSha256": "5b0f562274df4dbddfb7ae44ab42b7d686dc1e0903383f25c593d88f7479fe9a",
+        "bytes": 299
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-mainproof-ff318347e\\official-run2-logs\\qc-pin.log",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\original-official-run2\\qc-pin.log",
+        "sourceSha256": "ce2b3fd28a25f65de2108a61516f6125e5d8c9420ada380c0161ae501c93f51b",
+        "destinationSha256": "ce2b3fd28a25f65de2108a61516f6125e5d8c9420ada380c0161ae501c93f51b",
+        "bytes": 401
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-mainproof-ff318347e\\official-run2-logs\\qc-pin.log",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\qc-pin.log",
+        "sourceSha256": "ce2b3fd28a25f65de2108a61516f6125e5d8c9420ada380c0161ae501c93f51b",
+        "destinationSha256": "ce2b3fd28a25f65de2108a61516f6125e5d8c9420ada380c0161ae501c93f51b",
+        "bytes": 401
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-mainproof-ff318347e\\official-run2-logs\\restore-next-env.log",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\original-official-run2\\restore-next-env.log",
+        "sourceSha256": "f891dbdfc0402cd4ba60fab1be3245dfec559c5d7afc7e21b87e795a73d05e5f",
+        "destinationSha256": "f891dbdfc0402cd4ba60fab1be3245dfec559c5d7afc7e21b87e795a73d05e5f",
+        "bytes": 8
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-mainproof-ff318347e\\official-run2-logs\\restore-next-env.log",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\restore-next-env.log",
+        "sourceSha256": "f891dbdfc0402cd4ba60fab1be3245dfec559c5d7afc7e21b87e795a73d05e5f",
+        "destinationSha256": "f891dbdfc0402cd4ba60fab1be3245dfec559c5d7afc7e21b87e795a73d05e5f",
+        "bytes": 8
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-mainproof-ff318347e\\official-run2-logs\\sha256.txt",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\original-official-run2\\sha256.txt",
+        "sourceSha256": "3e545ffeaf97db02a6935bc3e0cca3551a9cddb1d99f08a3c321d7d2e83d2848",
+        "destinationSha256": "3e545ffeaf97db02a6935bc3e0cca3551a9cddb1d99f08a3c321d7d2e83d2848",
+        "bytes": 1067
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-mainproof-ff318347e\\official-run2-logs\\tsc.log",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\original-official-run2\\tsc.log",
+        "sourceSha256": "f891dbdfc0402cd4ba60fab1be3245dfec559c5d7afc7e21b87e795a73d05e5f",
+        "destinationSha256": "f891dbdfc0402cd4ba60fab1be3245dfec559c5d7afc7e21b87e795a73d05e5f",
+        "bytes": 8
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-mainproof-ff318347e\\official-run2-logs\\tsc.log",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\tsc.log",
+        "sourceSha256": "f891dbdfc0402cd4ba60fab1be3245dfec559c5d7afc7e21b87e795a73d05e5f",
+        "destinationSha256": "f891dbdfc0402cd4ba60fab1be3245dfec559c5d7afc7e21b87e795a73d05e5f",
+        "bytes": 8
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-mainproof-ff318347e\\official-run2-logs\\validator.log",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\original-official-run2\\validator.log",
+        "sourceSha256": "71a8bd7a8b2073f6ae5178effaaf306bc58915cc8e5b35318223868cc0b450b4",
+        "destinationSha256": "71a8bd7a8b2073f6ae5178effaaf306bc58915cc8e5b35318223868cc0b450b4",
+        "bytes": 84
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-mainproof-ff318347e\\official-run2-logs\\validator.log",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\validator.log",
+        "sourceSha256": "71a8bd7a8b2073f6ae5178effaaf306bc58915cc8e5b35318223868cc0b450b4",
+        "destinationSha256": "71a8bd7a8b2073f6ae5178effaaf306bc58915cc8e5b35318223868cc0b450b4",
+        "bytes": 84
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-mainproof-ff318347e\\official-main-proof-run2.argv.json",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\original-official-run2\\official-main-proof-run2.argv.json",
+        "sourceSha256": "6c8b801a48da001f7d530c3659fed443e7da2bfcc5e420a6c3509a13bba61686",
+        "destinationSha256": "6c8b801a48da001f7d530c3659fed443e7da2bfcc5e420a6c3509a13bba61686",
+        "bytes": 302
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-mainproof-ff318347e\\official-main-proof-run2.exit",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\original-official-run2\\official-main-proof-run2.exit",
+        "sourceSha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "destinationSha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "bytes": 2
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-mainproof-ff318347e\\official-main-proof-run2.stderr",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\original-official-run2\\official-main-proof-run2.stderr",
+        "sourceSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "destinationSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-mainproof-ff318347e\\official-main-proof-run2.stdout",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\original-official-run2\\official-main-proof-run2.stdout",
+        "sourceSha256": "181d8c3656afe9b9a8a88b6e40433d28f6f145ec378c81fd77a3c04c90133fbe",
+        "destinationSha256": "181d8c3656afe9b9a8a88b6e40433d28f6f145ec378c81fd77a3c04c90133fbe",
+        "bytes": 1474
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-mainproof-ff318347e\\official-run2-logs\\exact-main-ladder.log",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\historical-failed-exact-main-ladder.log",
+        "sourceSha256": "6eef8e3c3d9f21533aa56a3ada2fc2a38923f1b39ca92822a80cb1d42f47fd54",
+        "destinationSha256": "6eef8e3c3d9f21533aa56a3ada2fc2a38923f1b39ca92822a80cb1d42f47fd54",
+        "bytes": 112
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-smoke-ff318347e\\st_01a0ee89\\ladder.stdout",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\exact-main-ladder.log",
+        "sourceSha256": "80d89f72788ed694d57517fb465490862faed5874b7601c9c58baa81b904dcca",
+        "destinationSha256": "80d89f72788ed694d57517fb465490862faed5874b7601c9c58baa81b904dcca",
+        "bytes": 105
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-smoke-ff318347e\\st_01a0ee89\\ladder-archive\\exact-main-ladder-ff318347e9eb-2026-09-29.json",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\registered-smoke\\ladder-archive\\exact-main-ladder-ff318347e9eb-2026-09-29.json",
+        "sourceSha256": "b100c0de4a288588ee61f7500448c697d2ab188e636636358032aea75bf7ae14",
+        "destinationSha256": "b100c0de4a288588ee61f7500448c697d2ab188e636636358032aea75bf7ae14",
+        "bytes": 328
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-smoke-ff318347e\\st_01a0ee89\\ladder-archive\\smoke.log",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\registered-smoke\\ladder-archive\\smoke.log",
+        "sourceSha256": "73f84c4bc74b7999776653e0449646dc16ba70c7194e37a104fe80052bfffd6e",
+        "destinationSha256": "73f84c4bc74b7999776653e0449646dc16ba70c7194e37a104fe80052bfffd6e",
+        "bytes": 4133
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-smoke-ff318347e\\st_01a0ee89\\ladder.argv.json",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\registered-smoke\\ladder.argv.json",
+        "sourceSha256": "856cf0ef745da80281c24e4acf0566f4093ebba37c7f49d1a7c26fd26ac9e098",
+        "destinationSha256": "856cf0ef745da80281c24e4acf0566f4093ebba37c7f49d1a7c26fd26ac9e098",
+        "bytes": 2761
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-smoke-ff318347e\\st_01a0ee89\\ladder.exit.json",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\registered-smoke\\ladder.exit.json",
+        "sourceSha256": "f6da207e88852860a43418493ed681d9dd43d86877855f9734ef613a6e83481e",
+        "destinationSha256": "f6da207e88852860a43418493ed681d9dd43d86877855f9734ef613a6e83481e",
+        "bytes": 107
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-smoke-ff318347e\\st_01a0ee89\\baseline.json",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\registered-smoke\\baseline.json",
+        "sourceSha256": "11c663218dd81773ce73de6a42d728e19e3dda8c05bf8e711212fe1c91be3c1a",
+        "destinationSha256": "11c663218dd81773ce73de6a42d728e19e3dda8c05bf8e711212fe1c91be3c1a",
+        "bytes": 359
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-smoke-ff318347e\\st_01a0ee89\\build.argv.json",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\registered-smoke\\build.argv.json",
+        "sourceSha256": "272102b7c618de5390117c0f09eac32746aa0c0c20d7864d33cab579fdd3d450",
+        "destinationSha256": "272102b7c618de5390117c0f09eac32746aa0c0c20d7864d33cab579fdd3d450",
+        "bytes": 2517
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-smoke-ff318347e\\st_01a0ee89\\build.exit.json",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\registered-smoke\\build.exit.json",
+        "sourceSha256": "add8741ee22c2b9d5b0213ad9a045e0d0123291429c5dc1e1430d751b6413d12",
+        "destinationSha256": "add8741ee22c2b9d5b0213ad9a045e0d0123291429c5dc1e1430d751b6413d12",
+        "bytes": 107
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-smoke-ff318347e\\st_01a0ee89\\production-prerequisites.json",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\registered-smoke\\production-prerequisites.json",
+        "sourceSha256": "14ac1668770dc8c0f1b2a20f01a905e1a57413665c22197ac1a83c2c02cf4090",
+        "destinationSha256": "14ac1668770dc8c0f1b2a20f01a905e1a57413665c22197ac1a83c2c02cf4090",
+        "bytes": 353
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-smoke-ff318347e\\st_01a0ee89\\generated-content.json",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\registered-smoke\\generated-content.json",
+        "sourceSha256": "39e985b035e417efc0542dbf035957c2aa88e66f5a890d57ca7bf9a988d62f0c",
+        "destinationSha256": "39e985b035e417efc0542dbf035957c2aa88e66f5a890d57ca7bf9a988d62f0c",
+        "bytes": 229
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-smoke-ff318347e\\st_01a0ee89\\cleanup.json",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\registered-smoke\\cleanup.json",
+        "sourceSha256": "16407add571400834e1dd4ada6ead179bd96e8ddede32fe6357190e48cc7513f",
+        "destinationSha256": "16407add571400834e1dd4ada6ead179bd96e8ddede32fe6357190e48cc7513f",
+        "bytes": 6618
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-smoke-ff318347e\\st_01a0ee89\\manifest.json",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\registered-smoke\\manifest.json",
+        "sourceSha256": "5fd1607d1e39af66a4c9e0bdae3907472870f381bd90324635c22d91002b36a8",
+        "destinationSha256": "5fd1607d1e39af66a4c9e0bdae3907472870f381bd90324635c22d91002b36a8",
+        "bytes": 15485
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-smoke-ff318347e\\st_01a0ee89\\P2BC-manual-qa.md",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\registered-smoke\\P2BC-manual-qa.md",
+        "sourceSha256": "7c2b98b4993a386215c4b0d3d9af81a200ddaaf8c712aa615556b9546679827a",
+        "destinationSha256": "7c2b98b4993a386215c4b0d3d9af81a200ddaaf8c712aa615556b9546679827a",
+        "bytes": 11293
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-smoke-ff318347e\\st_01a0ee89\\build.stdout",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\registered-production-build.log",
+        "sourceSha256": "ba6566ec7a5beffebfd8c90600d75a45602dcd51f19e68aeee11a9cf77601364",
+        "destinationSha256": "ba6566ec7a5beffebfd8c90600d75a45602dcd51f19e68aeee11a9cf77601364",
+        "bytes": 7081
+      },
+      {
+        "source": "E:\\Projects\\.omo\\evidence\\p2bc-source-smoke-ff318347e\\st_01a0ee89\\ladder-archive\\smoke.log",
+        "destination": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\derived-normalization\\playwright.log",
+        "sourceSha256": "73f84c4bc74b7999776653e0449646dc16ba70c7194e37a104fe80052bfffd6e",
+        "destinationSha256": "d424ffb93796423537e31d1bcd0b0ac6645d7f3a19239ca2bf100d6f4a384324",
+        "transform": "Exact raw bytes followed by attributed normalizer restatement; no execution claimed."
+      }
+    ]
+  },
+  "commands": [
+    {
+      "argvFile": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\fold.argv.json",
+      "argvSha256": "14273a7e0fbd3e5a00874bc5d205a1aebffaa442920f4c31b6a135f28a69bd94",
+      "exitFile": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\fold.exit.json",
+      "exitSha256": "2347ae86b23fe3acdaa777bbc7eeec9b2aa3bc00384413c840567fa1014492a6",
+      "exit": 0
+    },
+    {
+      "argvFile": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\closure.argv.json",
+      "argvSha256": "9a75b611a0bc9afb0124aa1aba6f6f8a525155c4622ac8b02ab35c334d032993",
+      "exitFile": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\closure.exit.json",
+      "exitSha256": "74022389aedb16c6942d8bfe889a11acff3bf8e3660f4e25909127c7729f4d6c",
+      "exit": 0
+    }
+  ],
+  "predecessorProofs": [
+    {
+      "unit": "PAIC",
+      "merge": "b4cef4671c269f7bf46ac568e0f14834f95b28ad",
+      "receipt": "E:\\Projects\\MekStation-wt\\p2bc-closure-20260929-gpt61\\openspec\\planning\\2026-09-12-roadmap-completion\\evidence\\paic-mainproof-20260928.json",
+      "sha256": "81886965a4922f3382047546504d931cb78897cb27be3a103d0f3b18d78c0124",
+      "verdict": "PASS",
+      "historicalRuntime": {
+        "build": "exit 1",
+        "e2eBundleMarker": "__E2E_MODE__ present in _app chunk (roadmap:main-proof e2e-marker step, appended to build.log)",
+        "playwright": "PAIC exact-main jest (roadmap:main-proof --runtime-jest, 2 roadmap suites; spec-only unit): Tests:       49 passed, 49 total",
+        "tsc": "exit 0",
+        "lint": "npm run lint exit 0",
+        "lintUnits": "npm run lint:units exit 0: LINT_UNITS_PASS 17899/17899",
+        "formatCheck": "npm run format:check exit 0 (8135 files).",
+        "validatorGithub": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows (--github, exit 0)",
+        "focusedJest": "roadmap:main-proof --runtime-jest over the two roadmap ledger/closure suites (roadmap-loop-closure-proof, roadmap-loop-scripts): Test Suites 2 passed, Tests 49 passed; PAIC is spec-only, so its substantive proof is openspec strict and the roadmap validator in the ladder",
+        "exactMainLadder": "EXACT_MAIN_LADDER_SATISFIED b4cef4671c269f7bf46ac568e0f14834f95b28ad milestone=strict-smoke groups=smoke",
+        "reproof": "the proof ran at the PAIC merge b4cef4671c269f7bf46ac568e0f14834f95b28ad; the closure runs at current main aaec40d086572866febc77a4ad8589a9c8269492 (b4cef46 plus the ledger-only U24 split #2079) via --reproof-commit, avoiding a units.json conflict",
+        "extraGateLogs": "lint, lint:units, format:check and --github ran after the tool wrote sha256.txt, into the same directory (UTF-8): d8890acb5082c1fe7186c49697eac88704e3ab046a7d757d641335ebca9b270c *lint.log; 57a1d2da7f0acbd5dfd5e9a6fba754ddb2bf6b32a3b05451c385daf3cd778703 *lint-units.log; 07d4e94688c1a744db2e7cdfff62294df5fbc35eee19aabbefc95f6413752ba8 *format.log; ea265f76ff47bda8194a0d1ccf59d172157d123ff68fa53ed0fed341ca685220 *github.log"
+      }
+    },
+    {
+      "unit": "P1A",
+      "merge": "d0347e7e6a236055a8af59c610cf6fb3ff650d35",
+      "receipt": "E:\\Projects\\MekStation-wt\\p2bc-closure-20260929-gpt61\\openspec\\planning\\2026-09-12-roadmap-completion\\evidence\\p1a-mainproof-20260927.json",
+      "sha256": "fba1209bf787447a8b4b7246f512ec00c15bd5f83c303350b5720c201d644343",
+      "verdict": "PASS",
+      "historicalRuntime": {
+        "build": "npm run build exit 0: compiled successfully in 55s, standalone server hydrated, BUILD_ID 1790529276876 (fresh build of d0347e7 in the owned wave-A worktree using its private physical node_modules)",
+        "e2eBundleMarker": "not applicable: production proof. http-main.cjs refuses inherited NEXT_PUBLIC_E2E_MODE, PLAYWRIGHT_E2E_RUN_ID, MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE, MEKSTATION_FAULT_CONTROLS, MULTIPLAYER_STORE and CAMPAIGN_EVENT_STORE; none was set",
+        "playwright": "P1A exact-main focused Jest and real production HTTP: P1A PROOF RUNTIME PASSED: 178 passed (focused jest 131 of 131 in 18 suites, 0 failed, exit 0; real production HTTP 47 of 47 cases, 48 requests, 9 server boots, 0 failed, exit 0)",
+        "tsc": "npm run typecheck exit 0 (tsc --noEmit --skipLibCheck), run after the build because the build regenerates .next/types",
+        "lint": "npm run lint exit 0: Found 84 warnings and 0 errors",
+        "lintUnits": "npm run lint:units exit 0: LINT_UNITS_PASS 17899/17899",
+        "formatCheck": "npm run format:check exit 0: All matched files use the correct format.",
+        "focusedJest": "18 suites, 131 passed, 0 failed, exit 0 (--runInBand; pattern coopMissionCreate|DurableMatchStore|InMemoryMatchStore|MatchHostRegistry|MatchRecovery|multiplayerMatchesFog|multiplayerCoopCreationCheckpoint|coopMatchRosterSourceVersion|securitySchemas)",
+        "realHttp": {
+          "driver": ".omo/ulw-execute/p1a/http-main.cjs attempt-02 d0347e7e6a236055a8af59c610cf6fb3ff650d35",
+          "status": "PASS",
+          "exit": 0,
+          "cases": 47,
+          "requests": 48,
+          "serverBoots": 9,
+          "artifacts": 526,
+          "artifactHashesVerified": true,
+          "checkout": "detached at the merge commit",
+          "buildId": "1790529276876",
+          "compiledMatchRouteSha256": "a47bae79aa34ed705f6ff5140117cf61e0339980e28de9265a77ed521e7a6e89",
+          "sourceDigest": "bc87a023023d598325172881f9e68f693df8f07d40b3bfdb6d55a1fcfac07717",
+          "sourceAndBuildIdentityStableDuringRun": true,
+          "cleanup": "all nine server PIDs absent, port 3639 has no listener, fixture databases removed (checked independently after the run)"
+        },
+        "validatorGithub": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows (--github, exit 0)",
+        "notRun": "No Playwright, openspec strict, qc:openspec-ci or qc pin ran for this unit; its plan QA names focused Jest and the owned live-server POST"
+      }
+    },
+    {
+      "unit": "PAI",
+      "merge": "d5c1ada3dae4076a6081e668ed9045f1458a08a9",
+      "receipt": "E:\\Projects\\MekStation-wt\\p2bc-closure-20260929-gpt61\\openspec\\planning\\2026-09-12-roadmap-completion\\evidence\\pai-mainproof-20260928.json",
+      "sha256": "185b94aa30e27f7330244ba1eea1c1e4eb7df5fa42e76afa450c388cef4ccd8a",
+      "verdict": "PASS",
+      "historicalRuntime": {
+        "build": "exit 0",
+        "e2eBundleMarker": "__E2E_MODE__ present in _app chunk",
+        "playwright": "PAI exact-main Jest at d5c1ada (historical measured run; not rerun at closure): Tests:       1320 passed, 1320 total",
+        "tsc": "exit 0",
+        "exactMainCheck": "EXACT_MAIN_LADDER_SATISFIED d5c1ada3dae4076a6081e668ed9045f1458a08a9 milestone=strict-smoke groups=smoke",
+        "lint": "Found 84 warnings and 0 errors.",
+        "lintUnits": "LINT_UNITS_PASS 17899/17899",
+        "formatCheck": "All matched files use the correct format.",
+        "validatorGithub": "\ufeffROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows"
+      }
+    },
+    {
+      "unit": "P1C",
+      "merge": "5433488de0fe7ef9ede71144463205e4b290c98c",
+      "receipt": "E:\\Projects\\MekStation-wt\\p2bc-closure-20260929-gpt61\\openspec\\planning\\2026-09-12-roadmap-completion\\evidence\\p1c-mainproof-20260928.json",
+      "sha256": "04c85729cc778f8f4355019eb4e0b8c308266c52f105f3bfda7b6caf77a28280",
+      "verdict": "PASS",
+      "historicalRuntime": {
+        "build": "exit 0",
+        "e2eBundleMarker": "__E2E_MODE__ present in _app chunk (roadmap:main-proof e2e-marker step, appended to build.log)",
+        "playwright": "P1C exact-main jest (roadmap:main-proof --runtime-jest, 7 suites): Tests:       75 passed, 75 total",
+        "tsc": "exit 0",
+        "lint": "npm run lint exit 0: Found 84 warnings and 0 errors.",
+        "lintUnits": "npm run lint:units exit 0: LINT_UNITS_PASS 17899/17899",
+        "formatCheck": "npm run format:check exit 0 (8134 files).",
+        "validatorGithub": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows (--github, exit 0)",
+        "focusedJest": "roadmap:main-proof --runtime-jest over the 7 P1C launch/authority/create/announcement suites (launchCoopMission, missionLaunchPage.launch, requestLaunchAuthority, coopMissionCreate and refusals, coopMissionAnnouncement and reconnect): Test Suites 7 passed, Tests 75 passed",
+        "exactMainLadder": "EXACT_MAIN_LADDER_SATISFIED 5433488de0fe7ef9ede71144463205e4b290c98c milestone=strict-smoke groups=smoke",
+        "extraGateLogs": "lint, lint:units, format:check and --github ran after the tool wrote sha256.txt, into the same directory (UTF-8): 2f9c55c6faf0934c986efe7ba277a67c810b06e3340030695137bdfb34fe9353 *lint.log; 48c40cebd9028aa1774b9dafccb39d3f1f46844fc7f282ecf034f90d48c413b3 *lint-units.log; ed7d19ff3397a8c678588c3ef2b054e4f2cd9f4e77fd9b29b746c1b84f5b7312 *format.log; ea265f76ff47bda8194a0d1ccf59d172157d123ff68fa53ed0fed341ca685220 *github.log"
+      }
+    },
+    {
+      "unit": "P2A",
+      "merge": "845ea72b7e2af190a162c6cca546dfcb57cb1007",
+      "receipt": "E:\\Projects\\MekStation-wt\\p2bc-closure-20260929-gpt61\\openspec\\planning\\2026-09-12-roadmap-completion\\evidence\\p2a-mainproof-20260929.json",
+      "sha256": "ae12c9b3c137e417b4b74f23420053abb6f354e8804b66880f982fb8af5adab3",
+      "verdict": "PASS",
+      "historicalRuntime": {
+        "build": "\"hydratedStandaloneServer\": \".next\\\\standalone\\\\server.js\"",
+        "e2eBundleMarker": "not stated by the closer",
+        "playwright": "P2A exact-main product proof (registered Jest plus production HTTP): P2A PROOF RUNTIME PASSED: 225 passed (187 registered Jest tests + 38 production HTTP preflights; 0 failed)",
+        "tsc": "npm run typecheck: tsc --noEmit --skipLibCheck; exit 0",
+        "proofKind": "adapter over archived exact-main product proof; no gate rerun",
+        "registeredJest": {
+          "suitesPassed": 12,
+          "testsPassed": 187,
+          "testsFailed": 0
+        },
+        "productionHttp": {
+          "preflightsPassed": 38,
+          "signedLive": 33,
+          "cold": 5,
+          "coldSignedLostClaims": "409 STALE_OWNERSHIP",
+          "legacyOnlyCreation": 200,
+          "legacyOnlyOverride": 200
+        },
+        "recordedMainProof": {
+          "mergeCommit": "845ea72b7e2af190a162c6cca546dfcb57cb1007",
+          "archive": "E:/Projects/MekStation/.omo/ulw-execute/evidence/task-55-p2a-main-proof-845ea72b7",
+          "archiveInventorySha256": "c61b845d459978ed6b4c02f9b60c6d121f81819a132aa12da7067f8a9e0d2c41",
+          "originalReceiptSha256": "db715b269ef5b50e58248a1a892de32215b8e82e1eed9c26e21510355f365728",
+          "wholeTree": "reviewed and merged trees both aa795f981d9bba7f86554c4b59175a3180b42f9d"
+        },
+        "rejectedHeadCaveat": {
+          "head": "69a67d08439a51766f1917c365b1b6f52efae4ff",
+          "verdict": "REQUEST_CHANGES despite 31 successful CI checks",
+          "reason": "cold active signed membership plus erased mission claims fell back to placeholder owners with HTTP 200",
+          "archiveInventorySha256": "bffd8bc8d6007bf28faf520815e283aa2e09120b315595a57d27331a087ad91e"
+        },
+        "authenticationLimit": "The HTTP endpoint does not authenticate the request caller. Contributor identities were authenticated through signed CampaignJoin/CampaignParticipation sockets plus durable membership and claims.",
+        "persistenceLimit": "If all signed membership history and all signed mission claims are deleted, legacy-only state is indistinguishable without a new durable persistence marker; no stronger guarantee is claimed.",
+        "reviewClassesCovered": [
+          "authority",
+          "privacy",
+          "replay",
+          "idempotency",
+          "concurrency"
+        ],
+        "cleanup": "All product-proof QA listeners, sockets, PIDs and ports were stopped; the proof worktree was removed non-force after archive verification."
+      }
+    }
+  ],
+  "paicHistoricalBuild": "exit 1",
+  "history": "Original official internal ladder exit 1 retained despite aggregate exit 0. Later independently registered smoke is a separate exact-merge measured run. No all-historical-gates-green claim.",
+  "parserLimit": "Shipped commands.next matches U/NONE, not P2BC: generated field remains empty; original next.log and runtime.historicalNext retain actual result. No parser change.",
+  "buildRuntimeForLedgerDelta": "not_applicable: only roadmap ledger/evidence/PROGRESS changed; existing exact-merge source and independently registered production build/smoke proof supplied; no new runtime claimed",
+  "releaseBoundary": "P2B/P2/U38 stay blocked; task 59 must be registered, implemented, proven and closed before P2B. Parent owns plan task 58 checkbox, exact-head CI/review and any merge.",
+  "localClosureValidation": {
+    "validatorModes": [
+      {
+        "mode": "base",
+        "exit": 0,
+        "output": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows"
+      },
+      {
+        "mode": "git",
+        "exit": 0,
+        "output": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows"
+      },
+      {
+        "mode": "next",
+        "exit": 0,
+        "output": "U24b"
+      },
+      {
+        "mode": "github",
+        "exit": 0,
+        "output": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows"
+      }
+    ],
+    "validatorTests": {
+      "passed": 27,
+      "failed": 0,
+      "exit": 0,
+      "outputSha256": "d82c6b077f0858fe9cd3ba7026a8e99c7ca77ebc0179906be73ed8b2cca9b9a5"
+    },
+    "closurePins": {
+      "passed": 66,
+      "failed": 0,
+      "exit": 0,
+      "outputSha256": "4d93b5290b437b84c132980c21849e08a8f3f564359a350104d98f4647db018a"
+    },
+    "formatCheck": {
+      "exit": 0,
+      "threads": 2,
+      "outputSha256": "7d7ba3775b3d2099294664c72011118b8e5159495caead4620f29dc8756539bc"
+    },
+    "manualQa": {
+      "path": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\P2BC-manual-qa.md",
+      "scope": "Real fold/closure/validator and isolated negative CLI/library fixtures; no product runtime inference"
+    },
+    "publicationHookDisclosure": "Initial normal Git commit fac69bc323fff9c75f6c3e2d60f1cc4f91c513dc ran without bypass flags, but generated .husky/_ launchers were absent in the new worktree, so it did not execute the hook. Existing local Husky package bootstrapped launchers without installing dependencies or modifying product files; configured lint-staged checks then passed on the full 12-file closure diff with --fail-on-changes. This follow-up evidence commit uses the actual normal pre-commit hook. No amend, force push or rewritten history.",
+    "fullClosureHookChecks": {
+      "argvPath": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\full-closure-hook-checks.argv.json",
+      "exit": 0,
+      "stdoutSha256": "ab735316f821660891f97fbe09f210fc47152a959a406a7231ccc6fdb53ba78c",
+      "stderrSha256": "a7cc7aa91ce0a627fb1330cd271a27d0d41aaeec2a5aacbde623349e52cf465f"
+    }
+  }
+}

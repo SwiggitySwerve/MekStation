@@ -1,0 +1,8 @@
+{
+  "unit": "P2BC",
+  "stage": "tick",
+  "at": "2026-09-29T19:21:42.652Z",
+  "taskKeys": [],
+  "note": "P2BC holds no task row; the delivered behaviour is proven on main by this unit.",
+  "tickedOnMain": null
+}

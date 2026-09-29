@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2BC",
+  "date": "20260929",
+  "stage": "admission",
+  "receiptNature": "retrospective-evidence-transcription",
+  "notContemporaneousReceipt": true,
+  "curatedAt": "2026-09-29T18:48:19Z",
+  "curatorTask": "st_01a0ee7c",
+  "at": "2026-09-29T11:20:11.161Z",
+  "baseline": "6f2bc4ae950faf135fa245999037f6cf2fc8a90c",
+  "parentDecision": {
+    "decision": "go",
+    "provenance": "The parent-dispatched task explicitly requested implementation in the owned source worktree at this baseline; this is not an owner ruling."
+  },
+  "summary": "Retrospective transcription of the dispatched source-contract admission and clean baseline observation; no contemporaneous named admission receipt is preserved.",
+  "scope": {
+    "maxFiles": 2,
+    "maxNonGeneratedAddedLines": 150,
+    "paths": [
+      "openspec/changes/harden-gm-two-player-campaign-sessions/specs/coop-campaign-sync/spec.md",
+      "openspec/changes/harden-gm-two-player-campaign-sessions/design.md"
+    ]
+  },
+  "sourceArtifacts": [
+    {
+      "path": "E:/Projects/.omo/evidence/p2bc-stage-provenance/admission.raw.jsonl",
+      "sha256": "0a924f39cb461e74e6f380f39b03bde0c8e6aafe6044be701fda0bd9b6c11d54",
+      "messageIds": [
+        "4bb15506",
+        "bef7c109",
+        "214c7464",
+        "172d8d7f",
+        "b9eb132b",
+        "b087ef71"
+      ]
+    },
+    {
+      "path": "E:/Projects/.omo/evidence/p2bc-stage-provenance/implementer-task-record.raw.json",
+      "sha256": "f909a00b9b146e462f8498d5447c1a8c18b11b9e0beaa190dc1de40e0ad6e4e5"
+    }
+  ],
+  "explicitGaps": [
+    "No contemporaneous p2bc-admission-20260929.json is preserved in the supplied evidence.",
+    "The implementer inspected predecessor requirements but did not capture fresh predecessor ancestry command output in the admission stage.",
+    "The inherited originalSessionPath locator was removed: no preserved full-session artifact verifies its exact filename."
+  ],
+  "curatorModel": "gpt-6.1-sol",
+  "previousDraftMetadata": "The inherited draft named st_01a0ece4 (the implementer task) as curator and used 2026-09-29T18:40:00Z without preserved curation-event evidence; replaced at final evidence curation, not asserted as historical fact."
+}

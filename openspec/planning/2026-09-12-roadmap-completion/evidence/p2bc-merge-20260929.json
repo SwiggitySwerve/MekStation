@@ -1,0 +1,23 @@
+{
+  "unit": "P2BC",
+  "stage": "merge",
+  "at": "2026-09-29T19:21:42.565Z",
+  "pr": 2093,
+  "title": "docs(coop): define server-derived opponent bootstrap contract",
+  "head": "d65e686290ba8379e19a36469ab723d09cc3aa7c",
+  "mergeSha": "ff318347e9eb1adcd61053f79fda0151e2279c4c",
+  "mergedAt": "2026-09-29T18:06:18Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "Observed one-parent squash integration verified by shipped native merge-tree attestation",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "treeIntegration": {
+    "parent": "6f2bc4ae950faf135fa245999037f6cf2fc8a90c",
+    "mergeBases": [
+      "6f2bc4ae950faf135fa245999037f6cf2fc8a90c"
+    ],
+    "expectedTree": "87c52da523dbfe6eb485b7885ac6c7797ca8f85c",
+    "actualTree": "87c52da523dbfe6eb485b7885ac6c7797ca8f85c",
+    "matches": true
+  }
+}

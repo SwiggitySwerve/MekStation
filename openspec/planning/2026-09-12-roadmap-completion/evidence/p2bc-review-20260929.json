@@ -1,0 +1,17 @@
+{
+  "unit": "P2BC",
+  "stage": "review",
+  "at": "2026-09-29T19:21:40.760Z",
+  "lane": "A",
+  "reviewerModel": "gpt-6-sol",
+  "implementerModel": "GPT-5.6 Sol Fast (requested/resolved/session-selected: chatgpt-subscription/gpt-5.6-sol-fast; captured assistant-message model: chatgpt-subscription/gpt-5.6-sol; medium; historical wire tier unverified)",
+  "reviewerEffort": "not stated in historical review",
+  "head": "d65e686290ba8379e19a36469ab723d09cc3aa7c",
+  "reviewedHead": "d65e686290ba8379e19a36469ab723d09cc3aa7c",
+  "verdict": "APPROVE",
+  "outputPath": "evidence/p2bc-lane-a-review-20260929.md",
+  "outputSha256": "1f9d957926a1bb609996a8a71d934ce036fe757e80b6300b2ea3dd23c0217904",
+  "sharedContext": "Historical independent exact-head source-contract review only; no runtime inference. Review scope and missing gates retained in copied report.",
+  "laneB": "owner ruling PK-p2bc-ruling: rule the exact head on d65e686290ba8379e19a36469ab723d09cc3aa7c (PR #2093, comment 5895840581, label owner-ruled)",
+  "githubApproval": "none recorded; Lane A is engineering evidence, never a GitHub approval"
+}
