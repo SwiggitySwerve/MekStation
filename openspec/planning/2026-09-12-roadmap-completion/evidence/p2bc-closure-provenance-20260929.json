@@ -522,5 +522,57 @@
   "history": "Original official internal ladder exit 1 retained despite aggregate exit 0. Later independently registered smoke is a separate exact-merge measured run. No all-historical-gates-green claim.",
   "parserLimit": "Shipped commands.next matches U/NONE, not P2BC: generated field remains empty; original next.log and runtime.historicalNext retain actual result. No parser change.",
   "buildRuntimeForLedgerDelta": "not_applicable: only roadmap ledger/evidence/PROGRESS changed; existing exact-merge source and independently registered production build/smoke proof supplied; no new runtime claimed",
-  "releaseBoundary": "P2B/P2/U38 stay blocked; task 59 must be registered, implemented, proven and closed before P2B. Parent owns plan task 58 checkbox, exact-head CI/review and any merge."
+  "releaseBoundary": "P2B/P2/U38 stay blocked; task 59 must be registered, implemented, proven and closed before P2B. Parent owns plan task 58 checkbox, exact-head CI/review and any merge.",
+  "localClosureValidation": {
+    "validatorModes": [
+      {
+        "mode": "base",
+        "exit": 0,
+        "output": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows"
+      },
+      {
+        "mode": "git",
+        "exit": 0,
+        "output": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows"
+      },
+      {
+        "mode": "next",
+        "exit": 0,
+        "output": "U24b"
+      },
+      {
+        "mode": "github",
+        "exit": 0,
+        "output": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows"
+      }
+    ],
+    "validatorTests": {
+      "passed": 27,
+      "failed": 0,
+      "exit": 0,
+      "outputSha256": "d82c6b077f0858fe9cd3ba7026a8e99c7ca77ebc0179906be73ed8b2cca9b9a5"
+    },
+    "closurePins": {
+      "passed": 66,
+      "failed": 0,
+      "exit": 0,
+      "outputSha256": "4d93b5290b437b84c132980c21849e08a8f3f564359a350104d98f4647db018a"
+    },
+    "formatCheck": {
+      "exit": 0,
+      "threads": 2,
+      "outputSha256": "7d7ba3775b3d2099294664c72011118b8e5159495caead4620f29dc8756539bc"
+    },
+    "manualQa": {
+      "path": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\P2BC-manual-qa.md",
+      "scope": "Real fold/closure/validator and isolated negative CLI/library fixtures; no product runtime inference"
+    },
+    "publicationHookDisclosure": "Initial normal Git commit fac69bc323fff9c75f6c3e2d60f1cc4f91c513dc ran without bypass flags, but generated .husky/_ launchers were absent in the new worktree, so it did not execute the hook. Existing local Husky package bootstrapped launchers without installing dependencies or modifying product files; configured lint-staged checks then passed on the full 12-file closure diff with --fail-on-changes. This follow-up evidence commit uses the actual normal pre-commit hook. No amend, force push or rewritten history.",
+    "fullClosureHookChecks": {
+      "argvPath": "E:\\Projects\\.omo\\evidence\\p2bc-truthful-closure-gpt61\\full-closure-hook-checks.argv.json",
+      "exit": 0,
+      "stdoutSha256": "ab735316f821660891f97fbe09f210fc47152a959a406a7231ccc6fdb53ba78c",
+      "stderrSha256": "a7cc7aa91ce0a627fb1330cd271a27d0d41aaeec2a5aacbde623349e52cf465f"
+    }
+  }
 }
