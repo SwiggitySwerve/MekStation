@@ -171,12 +171,16 @@ In an explicitly bootstrapped co-op mission match, the OpFor SHALL be driven by 
 - **AND** the complete roster SHALL contain owner-bound player rows and stable, unique, collision-free ownerless opponent rows
 - **AND** every canonical player and opponent reference SHALL resolve before the first match write
 
-#### Scenario: Combined bootstrap cap refuses without truncation
+#### Scenario: Combined bootstrap cap admits twelve plus twelve
 
 - **GIVEN** a server-derived co-op mission bootstrap
 - **WHEN** the complete roster contains twelve player rows and twelve opponent rows
 - **THEN** the bootstrap SHALL be admitted under the 24-entry cap
-- **BUT WHEN** the complete roster would contain thirteen player rows and thirteen opponent rows
+
+#### Scenario: Combined bootstrap cap refuses thirteen plus thirteen
+
+- **GIVEN** a server-derived co-op mission bootstrap
+- **WHEN** the complete roster would contain thirteen player rows and thirteen opponent rows
 - **THEN** launch SHALL be refused before any write and neither side SHALL be truncated
 
 #### Scenario: Client opponent assertions mismatch
