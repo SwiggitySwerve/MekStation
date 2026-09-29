@@ -1,0 +1,32 @@
+{
+  "unit": "PAI",
+  "stage": "admission",
+  "at": "2026-09-28T07:20:25.866Z",
+  "baseline": "51fa88740a40bd98f3146f52d8ec47d80f8f2f5e",
+  "next": "validate-roadmap.mjs --next printed PAI on exact main 51fa887 (evidence .omo task-41-paic-close-main-proof.json)",
+  "ownership": {
+    "declared": [
+      "src/lib/multiplayer/server"
+    ]
+  },
+  "tier": "HEAVY: authority, privacy, replay, idempotency and concurrency review classes; ruling under the owner's standing merge instruction",
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500
+  },
+  "predecessors": {
+    "P1A": "complete",
+    "P1B1": "complete",
+    "P1B2": "complete",
+    "P1B3": "complete",
+    "P1C": "complete",
+    "PAIC": "complete"
+  },
+  "contract": "PAIC (#2078): MODIFIED \"Co-op Mission Launch With Both Forces\" in openspec/changes/harden-gm-two-player-campaign-sessions/specs/coop-campaign-sync/spec.md",
+  "parentDecision": {
+    "decision": "go",
+    "reason": "released by #2080 after all six predecessor exact-main proofs; --next prints PAI"
+  },
+  "planTask": "40",
+  "laneTemp": "C:/Users/wroll/AppData/Local/Temp/mekstation-pai-lane-E5xnwy"
+}

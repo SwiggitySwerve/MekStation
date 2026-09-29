@@ -1,0 +1,23 @@
+{
+  "unit": "PAI",
+  "stage": "merge",
+  "at": "2026-09-29T03:38:30.725Z",
+  "pr": 2083,
+  "title": "feat(coop): drive opposing turns on the server",
+  "head": "ec00717c474a909af0ae53afaa758eeac33614a7",
+  "mergeSha": "d5c1ada3dae4076a6081e668ed9045f1458a08a9",
+  "mergedAt": "2026-09-28T17:47:52Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "Historical PR2083 squash pinned toec00717c474a909af0ae53afaa758eeac33614a7 after31green checks,independent APPROVE and actual OWNER-RULING comment5875452398 under recorded standing authorization. No merge or comment is performed by this closure.",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "treeIntegration": {
+    "parent": "8c1bfdb674dbc8757445e074fb56a473333683f1",
+    "mergeBases": [
+      "51fa88740a40bd98f3146f52d8ec47d80f8f2f5e"
+    ],
+    "expectedTree": "5182cffdc0347c5d02eb3983f0ccf458b63612f8",
+    "actualTree": "5182cffdc0347c5d02eb3983f0ccf458b63612f8",
+    "matches": true
+  }
+}

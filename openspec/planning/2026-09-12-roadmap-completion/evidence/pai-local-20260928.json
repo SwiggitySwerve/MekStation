@@ -1,0 +1,28 @@
+{
+  "unit": "PAI",
+  "stage": "local",
+  "at": "2026-09-28T17:49:14.113Z",
+  "status": "local-verified",
+  "head": "ec00717c474a909af0ae53afaa758eeac33614a7",
+  "baseline": "51fa88740a40bd98f3146f52d8ec47d80f8f2f5e",
+  "summary": "12 files, all in src/lib/multiplayer/server (399 conservatively counted changed production lines, 876 test lines added; caps 15 files / 500 lines): a server-only CoopOpponentDriver drives the opposing force of explicitly bootstrapped co-op mission matches through the existing engine AI inside ServerMatchHost's serialized command lifecycle, with a deterministic turn identity seeding strategy and dice, refusal of client-claimed AI identity, invalidation on stale work/disconnect/pause/close, and a fault latch on engaged-mission storage failure; vessels and versus matches are never engaged. Correction ec00717: refused or closed joins no longer schedule the driver and a pre-engagement metadata failure sends no frame and pauses nothing. Green: new suite 36/36 in two processes; entire server tree 174 suites / 1,320 tests in two processes; all 191 multiplayer suites / 1,579 tests; typecheck, lint 0 errors / 84 warnings (parent rerun), lint:units, format:check, git diff --check, build, and a real-WebSocket smoke in both authority modes.",
+  "implementer": "gpt-6-astra (deep-high task st_01a0e6e3), first head 00decaa and correction ec00717",
+  "files": {
+    "src/lib/multiplayer/server/CampaignPauseSignal.ts": "705c4e9fd8bd5cc01312c5299672daa77df3fa9c4841eb1e25875e5751493f46",
+    "src/lib/multiplayer/server/CampaignSyncSession.ts": "2dbd9810a7e2464fdabe697cc873078bcdb31ae1f7e28248929d92c3e3895022",
+    "src/lib/multiplayer/server/CoopOpponentDriver.ts": "5188e08996f203851d082b708d1495c746f933ef8cdeab1a11396fcf58e5af73",
+    "src/lib/multiplayer/server/ServerMatchHost.ts": "0af8b7abcb65771a9a73f59f3151d06b4b4bb9f29e3ca4d7d37624a762b7a1f2",
+    "src/lib/multiplayer/server/ServerMatchHostDecision.ts": "ff3e76bf3325ea5f88c587cbd70191d4d93bed840482d90519471b02aa2568c5",
+    "src/lib/multiplayer/server/ServerMatchHostIntent.ts": "584698b14ffdd7d4ad29221c7fa7f460581684592d41fe45af530617c70ced3e",
+    "src/lib/multiplayer/server/ServerMatchHostJournalAuthority.ts": "634eed0c30272df6cbcb62a8ee39b5af6ae67be0d919aa9b0bf510878e7a2c03",
+    "src/lib/multiplayer/server/ServerMatchHostReconnectLifecycle.ts": "f412c58e87df8268bd3f14b4f87e748e475a9549c0e3a485e9f3158a80507389",
+    "src/lib/multiplayer/server/ServerMatchHostReplay.ts": "0c931c26c787ab0c344431e7a116acdea0988f66addf7e209151ac1f18c0340b",
+    "src/lib/multiplayer/server/__tests__/CoopOpponentDriver.test.ts": "c1958c94249dcbeaa571246e4f6eeb85ffef40395bf55f1e459e9a6be3b481c0",
+    "src/lib/multiplayer/server/matchJournalAuthority.ts": "ce9d8ff57691e8efaf3ce0a7d0c4621cc53d820ef5c91e2ee9d991757d224f8b",
+    "src/lib/multiplayer/server/reconnection/HostMigration.ts": "bf0ee68305598f5722c60fe89f7bda0c1642bb3a21efbb3e9a4af2a76af4ee8b"
+  },
+  "evidence": [
+    ".omo/ulw-execute/pai/DONECLAIM.md (lane evidence, including Correction 1)",
+    "E:/Projects/MekStation/.omo/ulw-execute/evidence/task-40-pai-review.md"
+  ]
+}

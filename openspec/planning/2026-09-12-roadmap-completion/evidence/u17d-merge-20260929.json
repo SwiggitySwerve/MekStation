@@ -1,0 +1,23 @@
+{
+  "unit": "U17d",
+  "stage": "merge",
+  "at": "2026-09-29T03:36:23.395Z",
+  "pr": 2085,
+  "title": "fix(qc): attest squash merges with whole-tree integration",
+  "head": "33ebc856765438e574ac9d74518754bfb033dcb4",
+  "mergeSha": "166e8eb78598425b621b527728d4c6141d7e45f3",
+  "mergedAt": "2026-09-29T03:02:06Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "PR2085 squash merge after parent exact-head33ebc856 gate:31SUCCESS,CLEAN/MERGEABLE,no unresolved threads and independent APPROVE; merged2026-09-29T03:02:06Z. Closure independently queries current PR/check identities.",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "treeIntegration": {
+    "parent": "7b7dd05b4cf9dec5eef6af960fc29c2fcdc101b7",
+    "mergeBases": [
+      "7b7dd05b4cf9dec5eef6af960fc29c2fcdc101b7"
+    ],
+    "expectedTree": "147ac7517b67ab9228c510cbedc6171b54d54aa6",
+    "actualTree": "147ac7517b67ab9228c510cbedc6171b54d54aa6",
+    "matches": true
+  }
+}

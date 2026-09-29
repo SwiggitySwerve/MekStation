@@ -1,0 +1,43 @@
+{
+  "unit": "PAI",
+  "stage": "mainProof",
+  "at": "2026-09-29T03:38:30.726Z",
+  "mergeCommit": "d5c1ada3dae4076a6081e668ed9045f1458a08a9",
+  "checkout": "Closure tooling runs at166e8eb78598425b621b527728d4c6141d7e45f3 in the owned U17d checkout. The supplied proof directory was actually generated at PAI merge d5c1ada3dae4076a6081e668ed9045f1458a08a9 in wave-A on2026-09-28 and is historical, not rerun here. --reproof-commit names only this current tooling invocation checkout; the stock stdout phrase about where the proof directory was produced does not describe these inputs.",
+  "runtime": {
+    "build": "exit 0",
+    "e2eBundleMarker": "__E2E_MODE__ present in _app chunk",
+    "playwright": "PAI exact-main Jest at d5c1ada (historical measured run; not rerun at closure): Tests:       1320 passed, 1320 total",
+    "tsc": "exit 0",
+    "exactMainCheck": "EXACT_MAIN_LADDER_SATISFIED d5c1ada3dae4076a6081e668ed9045f1458a08a9 milestone=strict-smoke groups=smoke",
+    "lint": "Found 84 warnings and 0 errors.",
+    "lintUnits": "LINT_UNITS_PASS 17899/17899",
+    "formatCheck": "All matched files use the correct format.",
+    "validatorGithub": "﻿ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows"
+  },
+  "commands": {
+    "validator": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows",
+    "gitAncestry": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows (--git)",
+    "next": "",
+    "openspecStrict": "Totals: 229 passed, 0 failed (229 items)",
+    "qcOpenspecCi": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+    "qcPin": "Tests:       30 passed, 30 total"
+  },
+  "logs": "../mekstation-roadmap-loop-continuation-wave-a/.sisyphus/roadmap-completion-20260912/pai-main-proof-20260928/ (local; sha256 below)",
+  "logHashes": [
+    "778a2630d0a55758bf00367d400bbd46c63abcd1e05a38387bdf1ea62ff5e72c *build.log",
+    "9b419573f681061349c9c4c7b09b9fc2ba2ebd647bbaf04f67c05ddfe6589ced *exact-main-ladder.log",
+    "71a8bd7a8b2073f6ae5178effaaf306bc58915cc8e5b35318223868cc0b450b4 *git-check.log",
+    "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43 *idle-before-build.log",
+    "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43 *idle-before-runtime.log",
+    "fd9ea77cd7c74a5ee2e94b6b2fc45c8b20958e8ea9864bc0cc487fa8b918bb44 *next.log",
+    "efd619721df505ed0dbb69fe5bd26b74023670e603ce16891fd2f1331adf1776 *openspec-strict.log",
+    "f5813005418dea860dfbd1d6221eaa6789bbc0c2bc156136bf5868d8538ac016 *playwright.log",
+    "5b0f562274df4dbddfb7ae44ab42b7d686dc1e0903383f25c593d88f7479fe9a *qc-openspec-ci.log",
+    "190afb016ab3f9a37155f9882ba0015b9aeb6cbd100a17f45e90e058a40a5941 *qc-pin.log",
+    "f891dbdfc0402cd4ba60fab1be3245dfec559c5d7afc7e21b87e795a73d05e5f *tsc.log",
+    "71a8bd7a8b2073f6ae5178effaaf306bc58915cc8e5b35318223868cc0b450b4 *validator.log"
+  ],
+  "reproofCommit": "166e8eb78598425b621b527728d4c6141d7e45f3",
+  "verdict": "PASS"
+}

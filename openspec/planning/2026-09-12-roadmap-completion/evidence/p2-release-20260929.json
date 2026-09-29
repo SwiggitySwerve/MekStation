@@ -1,0 +1,90 @@
+{
+  "unit": "P2",
+  "stage": "release",
+  "at": "2026-09-29T03:41:18.808Z",
+  "from": "blocked",
+  "to": "planned",
+  "baseline": "166e8eb78598425b621b527728d4c6141d7e45f3",
+  "predecessors": [
+    {
+      "unit": "P1A",
+      "state": "complete",
+      "mainProof": "evidence/p1a-mainproof-20260927.json",
+      "mainProofSha256": "fba1209bf787447a8b4b7246f512ec00c15bd5f83c303350b5720c201d644343",
+      "verdict": "PASS",
+      "mergeCommit": "d0347e7e6a236055a8af59c610cf6fb3ff650d35",
+      "ancestorOf": "166e8eb78598425b621b527728d4c6141d7e45f3",
+      "ancestryExit": 0,
+      "runtime": "P1A exact-main focused Jest and real production HTTP: P1A PROOF RUNTIME PASSED: 178 passed (focused jest 131 of 131 in 18 suites, 0 failed, exit 0; real production HTTP 47 of 47 cases, 48 requests, 9 server boots, 0 failed, exit 0)"
+    },
+    {
+      "unit": "P1B1",
+      "state": "complete",
+      "mainProof": "evidence/p1b1-mainproof-20260928.json",
+      "mainProofSha256": "a5cce9aed38206bbb11b88d3af4c609b8f5073e54e8d2a7d89b912481cfffd65",
+      "verdict": "PASS",
+      "mergeCommit": "6d58cd327dfdc8659bbfc6438a80e445a8986741",
+      "ancestorOf": "166e8eb78598425b621b527728d4c6141d7e45f3",
+      "ancestryExit": 0,
+      "runtime": "P1B1 exact-main jest (roadmap:main-proof --runtime-jest, 13 suites): Tests:       417 passed, 417 total"
+    },
+    {
+      "unit": "P1B2",
+      "state": "complete",
+      "mainProof": "evidence/p1b2-mainproof-20260928.json",
+      "mainProofSha256": "d1615a81a1c052accc1264f7dedc94d1dab2b02976f6ee3e9f058a46e45b0292",
+      "verdict": "PASS",
+      "mergeCommit": "24e7888e3458d6ea217eac7574bade5974b884ec",
+      "ancestorOf": "166e8eb78598425b621b527728d4c6141d7e45f3",
+      "ancestryExit": 0,
+      "runtime": "P1B2 exact-main jest (roadmap:main-proof --runtime-jest, 12 suites): Tests:       118 passed, 118 total"
+    },
+    {
+      "unit": "P1B3",
+      "state": "complete",
+      "mainProof": "evidence/p1b3-mainproof-20260928.json",
+      "mainProofSha256": "417bf07f775645eeca4442e156294ac6441044aad3c249493de9d74abbc2bf55",
+      "verdict": "PASS",
+      "mergeCommit": "c3f83fd1aea062d5c9f7960dba7866fef9f9a5f9",
+      "ancestorOf": "166e8eb78598425b621b527728d4c6141d7e45f3",
+      "ancestryExit": 0,
+      "runtime": "P1B3 exact-main jest (roadmap:main-proof --runtime-jest, 30 suites): Tests:       236 passed, 236 total"
+    },
+    {
+      "unit": "P1C",
+      "state": "complete",
+      "mainProof": "evidence/p1c-mainproof-20260928.json",
+      "mainProofSha256": "04c85729cc778f8f4355019eb4e0b8c308266c52f105f3bfda7b6caf77a28280",
+      "verdict": "PASS",
+      "mergeCommit": "5433488de0fe7ef9ede71144463205e4b290c98c",
+      "ancestorOf": "166e8eb78598425b621b527728d4c6141d7e45f3",
+      "ancestryExit": 0,
+      "runtime": "P1C exact-main jest (roadmap:main-proof --runtime-jest, 7 suites): Tests:       75 passed, 75 total"
+    },
+    {
+      "unit": "PAI",
+      "state": "complete",
+      "mainProof": "evidence/pai-mainproof-20260928.json",
+      "mainProofSha256": "185b94aa30e27f7330244ba1eea1c1e4eb7df5fa42e76afa450c388cef4ccd8a",
+      "verdict": "PASS",
+      "mergeCommit": "d5c1ada3dae4076a6081e668ed9045f1458a08a9",
+      "ancestorOf": "166e8eb78598425b621b527728d4c6141d7e45f3",
+      "ancestryExit": 0,
+      "runtime": "PAI exact-main Jest at d5c1ada (historical measured run; not rerun at closure): Tests:       1320 passed, 1320 total"
+    }
+  ],
+  "nonclaims": [
+    "No P2 implementation or mainProof is claimed.",
+    "U38 remains blocked and unchanged.",
+    "No task row was ticked: U17d, PAI and P2 taskKeys are empty."
+  ],
+  "toolingDependency": {
+    "unit": "U17d",
+    "successors": [
+      "PAI"
+    ],
+    "planTask": "52",
+    "mergeSha": "166e8eb78598425b621b527728d4c6141d7e45f3"
+  },
+  "authorization": "Parent executable assignment to prepare combined U17d/PAI closure and release only P2 after checking every predecessor."
+}
