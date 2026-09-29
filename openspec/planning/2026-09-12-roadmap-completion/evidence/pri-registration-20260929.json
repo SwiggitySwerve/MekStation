@@ -1,0 +1,182 @@
+{
+  "unit": "PRI",
+  "kind": "documentation-only registration and future contract; not admission, implementation or approval",
+  "baseline": "7cd44eb43fe6513a24d3e1a7b88a294b6ad4b608",
+  "planTask": 60,
+  "decision": {
+    "date": "2026-09-29",
+    "selected": "Amend review identity contract",
+    "routing": "Every new implementation and review worker remains chatgpt-subscription/gpt-6.1-sol; observe actual engine resolution before work.",
+    "rejected": "Opus review exception, fake model aliases, retrospective same-model grandfathering and blanket unit exemptions",
+    "notAnOwnerRuling": "User process decision and planning provenance, not an exact-head Lane B comment, packet decision or GitHub approval."
+  },
+  "ownership": {
+    "node": "R6.loop-harness",
+    "paths": [
+      "scripts/qc/roadmap-unit-closure.mjs",
+      "scripts/qc/roadmap-ledger-lib.mjs",
+      "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+      "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
+      "openspec/planning/2026-09-12-roadmap-completion/GOAL.md",
+      "openspec/planning/2026-09-12-roadmap-completion/DELIVERY.md",
+      "openspec/planning/2026-09-12-roadmap-completion/WORKERS.md"
+    ],
+    "caps": { "maxFiles": 8, "maxNonGeneratedLines": 500 },
+    "ciClass": "product",
+    "reviewClasses": ["routine"],
+    "rationale": "The shipped producer and shared library are on the loop-harness node through U17/U17c/U17d. Add only five exact consumer/test/instruction aliases for this atomic process-contract repair. R0.plan retains its planning-directory ownership and R6.umbrella retains existing parent ownership. Neither is widened or reassigned. No app/wire/storage authority is changed, so this is routine process tooling, not a manufactured sensitive-owner packet.",
+    "lineAccounting": "Ordinary U41 added product-line accounting, including counted instruction edits, remains unchanged; tests are separately reported and uncounted. No capException. Re-measure before admission; over-cap requires a separately reviewed amendment or independently buildable split before edits.",
+    "exclusions": "No roadmap-main-proof runner, roadmap-loop-scripts test edit, new helper file, package/CI change, root grant, app source, global registry or signed-identity infrastructure. Existing shared library is the smallest paired-check reuse surface and is already imported by closure and its mirror tests."
+  },
+  "sourceCallerMap": [
+    {
+      "path": "scripts/qc/roadmap-unit-closure.mjs",
+      "role": "actual receipt producer",
+      "anchors": ["STRINGS and parseFlags", "reviewedHead and reviewerModel header parsing near 249-265", "review object near 283-304", "stageReceipts.review near 454-463", "post-write printValidator"],
+      "observed": "reviewerModel comes from markdown; implementerModel comes from options.implementer. Both external JSON and inline ledger review summaries are written. Current producer does not establish task/session independence and post-write validator can reject equal model strings after writing."
+    },
+    {
+      "path": "scripts/qc/roadmap-ledger-lib.mjs",
+      "role": "producer library and existing CLI/receipt conventions",
+      "anchors": ["UNIT_ID /^[A-Za-z][A-Za-z0-9]*$/", "parseFlags strings/booleans", "readJson/writeJson/sha256", "foldStages local receipt and inline summary", "runValidator/printValidator"],
+      "future": "Put shared version-2 shape/hash/actor binding checks here; consumer imports that exact function through a repository-relative module path. Add optional version-2 contributor-census propagation in foldStages without changing legacy folded shapes. No separate speculative helper."
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "role": "actual consumer",
+      "anchors": ["review independence near 488-497", "default evidence path existence near 398-433", "head chain near 470-486", "--git caps/ownership", "--github owner rulings", "--next unit array scan"],
+      "observed": "Independence currently compares inline reviewerModel/implementerModel and optional finisherModel. It does not read review JSON or verify the review output hash at this boundary. Modern mode must cross-check the external receipt and hashed identity evidence against the inline summary and review output; legacy behavior is retained."
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
+      "role": "existing 27 Node consumer pins",
+      "anchors": ["mainVerifiedFixture and run --roadmap", "U41 finisherModel equals reviewerModel refusal", "--git ownership/cap fixtures", "--next ancestor/descendant overlap"]
+    },
+    {
+      "path": "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+      "role": "existing producer/main-proof pins",
+      "anchors": ["seedReview/closureArgs", "fold local-verified seed", "mirrorRepo copies closure/lib/preserve logs", "review head/model/verdict refusal", "three-way attestation and fake steps"],
+      "future": "Add machine-consumed version/identity/census fields and actual CLI output/exit/state assertions here; retain real Git and equivalent gh responses, existing refusals and mirror behavior. No prose wording pins."
+    },
+    {
+      "path": "package.json",
+      "role": "unchanged public caller",
+      "anchors": ["roadmap:closure", "roadmap:fold", "roadmap:main-proof"],
+      "future": "Keep existing script names and add only closure JSON-file inputs; no package edit is required."
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/GOAL.md",
+      "role": "canonical stage-4 instructions",
+      "future": "Describe modern audited actor independence alongside unchanged valid legacy rules, exact-head/output binding, owner and GitHub-approval distinctions. Do not change caps or the delivery ladder."
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/DELIVERY.md",
+      "role": "canonical step-5 delivery instructions",
+      "future": "Synchronize versioned producer inputs, observed minimal evidence and bootstrap with the consumer; keep every Lane B/CI/main/runtime/cleanup gate."
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/WORKERS.md",
+      "role": "canonical worker and review-lane instructions",
+      "future": "Add dated 2026-09-29 routing/identity instruction superseding older model routing and literal cross-model requirements for modern mode only; preserve dated history and independent-context/mutant scope. Every new worker stays actual GPT6.1 Sol, no fallback."
+    }
+  ],
+  "priorWork": "U41 supplied finisher model refusal; U17c supplied truthful caller claims and post-write nonzero failure; U17d supplied native merge-tree attestation. None establishes engine task/session identity. The current ledger has no PRI or other review-identity successor, so this is not a duplicate. All their historical receipts remain unchanged.",
+  "selector": {
+    "baselineNext": "PMP",
+    "registeredNext": "PRI",
+    "placement": "Insert immediately before PMP; removing PRI restores the complete old unit ID order. Existing units keep their states and receipts.",
+    "namespace": "PRI matches shipped UNIT_ID and has no unit-ID collision; no priority field is introduced.",
+    "documentaryLimit": "NEXT enforces node dependencies and in-flight ancestor/descendant path exclusions, not unit.predecessors or admissionRequires. Parent must check predecessor PASS/ancestry/closure; a test fixture changing only predecessors may pass and is not reported as enforcement.",
+    "downstream": "Append PRI after PMP's existing P2BC/U17b/U39 predecessor prefix and append its admission guard; preserve PMP planned state, three owned files and 150-line cap. P2B/P2/U38 remain blocked. Nothing admits PMP or releases downstream work."
+  },
+  "futureContract": {
+    "versionField": "reviewContractVersion",
+    "modernVersion": 2,
+    "selection": "Closure selects modern mode only with --review-identity <json-file> and requires --engine-records-dir <directory>. A missing companion argument, unknown version, explicit null/version 1, or partial modern fields fails before receipt writes. No flag for skipping identity checks. No version and no modern fields selects legacy mode; historical legacy receipts remain byte-identical. Modern verification remains mandatory even under existing --no-evidence, which cannot bypass identity integrity.",
+    "legacy": "Retain existing nonempty model requirements, reviewerModel != implementerModel and reviewerModel != finisherModel when present, head chain and all other gates. No legacy same-model exemption, mass migration or invented model prefix/suffix. New current workers cannot close truthful same-model work through legacy mode.",
+    "cli": {
+      "existingRequired": ["--unit", "--pr", "--date", "--review", "--proof-dir", "--runtime-label", "--implementer"],
+      "newStringInputs": ["--review-identity", "--engine-records-dir"],
+      "inputMode": "Existing parseFlags string-pair convention and JSON-file input pattern (--extra-runtime/--expected-reds). The caller provides the live engine task-record directory at execution, never a baked-in drive/home path. Only task_id-derived filenames inside that caller directory are read. The consumer uses portable archives, never requires a private engine directory, and never reads private task metadata."
+    },
+    "localContributorCensus": {
+      "shape": {
+        "reviewContractVersion": 2,
+        "implementationActors": [
+          { "role": "author", "task_id": "observed st_ plus eight lowercase hexadecimal digits", "child_session_id": "observed UUID", "model": "actual provider/model" }
+        ]
+      },
+      "rules": "Require exactly one author plus every worker that finished or edited implementation, each role author or finisher; zero finishers is represented by the census containing only its author, not an omitted identity contract. Author and finishers may coincide only by one deduplicated actor entry; reviewer may coincide with neither. New local receipt carries this census; shared foldStages validates and propagates it into the inline local summary only when version 2 is declared, leaving legacy receipt shapes unchanged. Closure compares local JSON bytes and inline census to the manifest, and the consumer rechecks them. Local receipt SHA-256 binds the full implementation census; no finisherModel-only shortcut. Parent independently inventories actual contributors and the reviewer checks coverage; adding a contributor after frozen review requires a new head/review/census."
+    },
+    "identitySnapshotShape": {
+      "schemaVersion": 1,
+      "unit": "actual unit id",
+      "sourceHead": "40 lowercase hexadecimal reviewed source head",
+      "reviewOutputSha256": "64 lowercase hexadecimal digest of exact review markdown bytes",
+      "observedAt": "actual observation ISO timestamp",
+      "engine": {
+        "task_id": "observed st_ plus eight lowercase hexadecimal digits",
+        "child_session_id": "observed UUID",
+        "agent_type": "observed string or null only if field absent",
+        "execution_mode": "observed nonempty execution mode",
+        "model": "actual engine model string",
+        "resolved_model": { "provider": "observed provider", "model_id": "observed model id" }
+      }
+    },
+    "identityCapture": "A trusted independent observer reads only allowlisted actual engine fields; never export the full task record, spawn_spec, notifications, descriptions, prompts, transcripts, credentials or environment. Actual inspected records use resolved_model.model_id (underscore), not guessed modelId. Archive only provider/model_id from resolved_model; absent/conflicting resolution or model != provider + '/' + model_id refuses. agent_type can be absent in actual in-process records and is stored as null, never invented. The assigned workers are GPT6.1 Sol; product checks bind observed values rather than model-name aliases. Task/session types and syntax are validated at the boundary. The source-head/review-hash envelope is observation binding, not falsely described as a native engine field.",
+    "manifestShape": {
+      "reviewContractVersion": 2,
+      "unit": "actual unit id",
+      "sourceHead": "exact reviewed head",
+      "reviewOutputSha256": "digest of exact review output",
+      "localReceiptSha256": "digest of exact local receipt copied by fold",
+      "author": { "path": "relative identity snapshot path", "sha256": "digest of exact snapshot bytes" },
+      "finishers": [],
+      "reviewer": { "path": "relative identity snapshot path", "sha256": "digest of exact snapshot bytes" }
+    },
+    "manifestRules": "finishers is required even when empty; every entry has the same path/sha256 shape as author/reviewer. Reject unknown fields, malformed JSON/types/digests, missing artifacts and incomplete contributor coverage. Snapshot engine identities exactly match census and live allowlisted engine observations at production. Reviewer identity is from its own engine task, not a self-authored model/header claim. --implementer and reviewerModel header must exactly match author/reviewer engine.model; optional modern finisherModel must truthfully match its single finisher (multiple finishers use the complete manifest/census, never scalar independence). The modern review markdown's first six lines must contain exactly one plain Verdict: APPROVE, reviewedHead: <sourceHead>, reviewerModel: <actual reviewer engine.model> and reviewContractVersion: 2. This version header must agree with the JSON manifest and cannot opt into legacy without dropping modern data, which is a refusal. Legacy header acceptance remains unchanged. Existing verdict/head checks remain; duplicate/conflicting head/model/version bindings refuse.",
+    "portableArchive": "Resolve input snapshot paths relative to the manifest; require relative forward-slash paths with no absolute path, traversal or reparse escape. Copy checked minimal snapshots under the ledger evidence directory as identity-<sha256>.json and the normalized manifest as review-identity-<sha256>.json, using hashes of the exact serialized bytes (existing writeJson convention, not a new canonicalization framework). Existing identical content may be reused; any existing file with conflicting bytes refuses rather than overwrites. Receipt references are relative to the ledger directory. No per-host path or engine task-record directory is persisted in shipped identity refs. Reopen/cross-check all archives before a successful receipt; do not hash or archive full secret-bearing engine records.",
+    "receiptShape": {
+      "reviewContractVersion": 2,
+      "identityEvidence": { "path": "evidence/review-identity-<sha256>.json", "sha256": "manifest byte digest" },
+      "otherFields": "Retain existing unit/stage/head/reviewedHead/reviewerModel/implementerModel/outputPath/outputSha256/verdict/effort/context/laneB fields. The inline stageReceipts.review adds the exact same version and identityEvidence ref and agrees with the external review JSON. Preserve all existing merge/mainProof/tick fields."
+    },
+    "pairedChecks": [
+      "Producer validates modern identities, live engine observations, local census and all head/model/output bindings before any review evidence or ledger completion is written; bad identities leave the unit local-verified and publish no modern review/tick success.",
+      "Consumer verifies version dispatch, external review JSON and inline agreement, manifest/snapshot byte hashes, local receipt digest/census, actual output digest, role coverage and exact unit/source-head/output bindings. Identity files are mandatory in modern mode, including --no-evidence.",
+      "Reviewer task_id differs from the author and every finisher task_id, AND reviewer child_session_id differs from the author and every finisher child_session_id. Different tasks sharing a session fail; different sessions sharing a task fail; different models on the same actor still fail. Missing identities never fall back to string inequality.",
+      "Unknown/partial/downgraded modern fields, corrupt archives, swapped roles or refs, stale head/output/local receipt and inconsistent actual model/resolution fail nonzero; matching forged scalar hashes without matching observed engine records cannot pass the producer.",
+      "Legacy receipt validation is preserved unchanged; modern integrity enforcement does not retroactively demand missing engine artifacts from valid historical cross-model receipts."
+    ],
+    "trustBoundary": "Hashing proves immutable archived bytes and binding, not cryptographic engine authenticity or that a worker performed a review. Authenticity comes from observed real engine records and independent parent/reviewer comparison at authoring time, the local contributor census and normal exact-head review/CI/pinned Git delivery. A copy of a self-written JSON assertion is not engine observation. Parent must preserve the minimal observed archive in reviewed evidence and reject unaudited/self-authored substitutions. No signature service/global registry is introduced; no proof stronger than that existing trusted observation boundary is claimed.",
+    "bootstrap": "PRI itself is not exempt. After source head freeze, capture new real author/every-finisher identities and a fresh independent GPT6.1 reviewer on that exact head. Supply those observations and local census through its candidate modern closure producer and validate using its candidate consumer; unchanged consumer rejection of truthful same-model actors is the RED boundary. Before merge, run candidate validation on controlled mirrors of the real observed records and exact head; after required CI/pinned merge/exact-main proof, close PRI through the shipped candidate code at the actual merge and validate the resulting modern ledger. New candidate producer/consumer must accept that real modern review and legacy history and reject all adversarial variants. No historical example identity is approval of PRI or a future unit; no Boolean bypass or fabricated cross-model receipt is permitted."
+  },
+  "futureAcceptance": {
+    "happy": ["truthful independent same-model task AND session identities through actual producer and consumer", "different-model independent modern identities", "valid historical unversioned cross-model receipts unchanged", "author-only census and complete multi-finisher census", "portable archived replay without private host paths"],
+    "failClosed": ["reviewer is author", "reviewer is any finisher", "shared task/different session", "shared session/different task", "different models/same actor", "missing or malformed version/identity/census/resolution", "missing or corrupt snapshot/manifest/output/local receipt", "unbound or stale unit/head/output/local census", "swapped roles or mismatched inline/external review", "unknown or partial modern mode/downgrade", "invalid legacy same-model or legacy reviewer-finisher model equality", "path traversal/absolute/reparse escape", "supplied archive disagrees with actual safe engine observation"],
+    "tests": "Existing 27 Node validator pins and both existing roadmap-loop Jest files (66 total at registration baseline), plus future discriminating machine-field tests within the named files. Real controlled --ledger-dir/--roadmap producer/consumer CLIs retain normal identity/blob/refusal semantics; mocks preserve behavior and do not turn the integration into an unconditional pass. No prose tests, fixed sleeps or timing luck.",
+    "gates": "Fresh diagnostics on every future changed file; focused tests and real CLI surface; typecheck, lint, unchanged lint:units ratchet, format, build and applicable strict OpenSpec/CI/exact-main/runtime gates under actual machine-idle/common holds. Independent exact-head candidate-contract review, task-60 31/31 CI, guarded pinned merge, exact-main PASS and truthful closure. Parent checks complete/PASS/ancestry/closure before PMP admission even though NEXT ignores documentary unit predecessors.",
+    "nonClaims": "This registration does not ship or test version-2 implementation, accept a modern receipt today, approve PRI's future head, satisfy GitHub review/Lane B, admit PMP/P2B/P2/U38, change flags/platform/host activation or complete task 60. Documentation build, UI/runtime, typecheck and lint are not applicable to this registration-only delta; they remain mandatory where applicable to future code."
+  },
+  "historicalSafeObservations": [
+    {
+      "task_id": "st_01a0eed3",
+      "child_session_id": "01a0eed3-4c10-7359-abc6-f4fb14f3df71",
+      "agent_type": "omo-native-qa-executor",
+      "execution_mode": "in-process",
+      "model": "chatgpt-subscription/gpt-6.1-sol",
+      "resolved_model": { "provider": "chatgpt-subscription", "model_id": "gpt-6.1-sol" }
+    },
+    {
+      "task_id": "st_01a0eee6",
+      "child_session_id": "01a0eee6-5cd9-7ff6-adde-359483780e9c",
+      "agent_type": "omo-native-gate-reviewer",
+      "execution_mode": "in-process",
+      "model": "chatgpt-subscription/gpt-6.1-sol",
+      "resolved_model": { "provider": "chatgpt-subscription", "model_id": "gpt-6.1-sol" }
+    }
+  ],
+  "historicalObservationLimit": "Observed distinct completed GPT6.1 task/session examples only, not future unit receipt approvals. Current registration author is separately observed in external evidence; no prompt/config assumption is used as runtime proof.",
+  "registrationVerification": "Fresh author evidence is stored outside worktrees under review-identity-contract-registration-author-gpt61: exact argv/exit logs, four validator modes, 27 Node pins, 66 closure/fold pins, actual data-shaped ownership/collision/caps/planned/completion/order/downstream fixtures, safe model observation, diff/JSON diagnostics, configured formatter exclusion and owned-resource cleanup. The older failed QA directory is preserved unchanged."
+}
