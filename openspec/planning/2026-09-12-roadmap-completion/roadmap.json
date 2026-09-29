@@ -2762,7 +2762,13 @@
         "src/lib/campaign/encounter/campaignOwnedForceMaterialization.ts",
         "src/lib/campaign/encounter/__tests__/campaignOwnedForceMaterialization.test.ts",
         "src/pages-modules/api/campaignLaunchAuthorityRoute.ts",
-        "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts"
+        "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts",
+        "src/lib/multiplayer/server/coopMissionAdmission.ts",
+        "src/lib/multiplayer/server/__tests__/coopMissionCreate.fixture.ts",
+        "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+        "src/lib/multiplayer/server/__tests__/coopMissionCreate.refusals.test.ts",
+        "src/lib/multiplayer/server/__tests__/CoopOpponentDriver.test.ts",
+        "src/lib/campaign/encounter/__tests__/materializeCampaignMissionEncounter.test.ts"
       ],
       "acceptance": [
         "npm.cmd run typecheck",
@@ -3204,6 +3210,13 @@
         "evidence": "evidence/p2a-registration-20260929.json",
         "paths": ["src/lib/campaign/encounter/campaignOwnedForceMaterialization.ts", "src/lib/campaign/encounter/__tests__/campaignOwnedForceMaterialization.test.ts", "src/pages-modules/api/campaignLaunchAuthorityRoute.ts", "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts"],
         "reason": "Validator requires existing exact unit paths verbatim on the node. Only the four materializer/route files and neighboring tests are added; broad parent ownership is not expanded. Historical node state/receipts and task holders stay unchanged."
+      },
+      "ownershipPathsAmended20260929P2B": {
+        "unit": "P2B",
+        "planTasks": [56, 57],
+        "evidence": "evidence/p2b-registration-20260929.json",
+        "paths": ["src/lib/multiplayer/server/coopMissionAdmission.ts", "src/lib/multiplayer/server/__tests__/coopMissionCreate.fixture.ts", "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts", "src/lib/multiplayer/server/__tests__/coopMissionCreate.refusals.test.ts", "src/lib/multiplayer/server/__tests__/CoopOpponentDriver.test.ts", "src/lib/campaign/encounter/__tests__/materializeCampaignMissionEncounter.test.ts"],
+        "reason": "Validator requires existing exact unit paths verbatim on the node. These six aliases are already contained by the node's existing src/lib/multiplayer/server and src/lib/campaign parents, so effective node scope is not widened. Historical node state/receipts and task holders stay unchanged."
       }
     },
     {
