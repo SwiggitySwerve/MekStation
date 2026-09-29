@@ -7711,6 +7711,8 @@
       ],
       "ownershipPaths": [
         "src/pages/multiplayer",
+        "src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx",
+        "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx",
         "src/components/multiplayer",
         "src/pages-modules/multiplayer",
         "src/pages/api/campaigns",
@@ -7759,6 +7761,32 @@
           "disclosure": "Future unit ownership only. Existing main-verified receipts and historical node state are unchanged; this amendment is not an owner ruling."
         }
       ],
+      "ownershipPathsAmended20260929": [
+        {
+          "path": "src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx",
+          "at": "2026-09-29T00:00:00.000Z",
+          "units": "P2",
+          "source": "plan task 53; evidence/p2-ownership-amendment-20260929.json",
+          "why": "This existing mounted route owns the live/replayed CampaignMissionLaunched subscription that hands both browsers to the shared match. Exact-file ownership avoids widening the campaign page tree.",
+          "disclosure": "Docs-only future ownership; no product file changes, state transition, owner ruling or historical receipt change."
+        },
+        {
+          "path": "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx",
+          "at": "2026-09-29T00:00:00.000Z",
+          "units": "P2",
+          "source": "plan task 53; evidence/p2-ownership-amendment-20260929.json",
+          "why": "This existing route test is the smallest real wiring boundary for live/replayed launch handoff and the no-rePOST rejoin clause.",
+          "disclosure": "Docs-only future ownership; no product file changes, state transition, owner ruling or historical receipt change."
+        }
+      ],
+      "p2NewRouteBinding20260929": {
+        "unit": "P2",
+        "registeredExistingPath": "src/pages/multiplayer",
+        "plannedNewLeaf": "src/pages/multiplayer/mission/[matchId].tsx",
+        "restriction": "The existing parent is registered only because validate-roadmap requires ownership paths to exist and appear verbatim in node ownership. P2 may create/edit only the named new leaf; every other file under the parent remains out of P2 scope.",
+        "noPlaceholder": true,
+        "evidence": "evidence/p2-ownership-amendment-20260929.json"
+      },
       "owner": "parent; bounded worker lanes per WORKERS.md",
       "maxFiles": 15,
       "maxNonGeneratedLines": 500,
