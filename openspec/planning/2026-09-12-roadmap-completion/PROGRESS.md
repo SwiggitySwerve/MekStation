@@ -1,3 +1,13 @@
+## 2026-09-29 U17d registered for merge-aware closure attestation
+
+PAI PR #2083 was reviewed at `ec00717c474a909af0ae53afaa758eeac33614a7` and squash-merged as `d5c1ada3dae4076a6081e668ed9045f1458a08a9`. The closure tool truthfully refused its raw reviewed-head-versus-merge comparison because intervening U24a changed a comment in `ServerMatchHost.ts`. The reviewed PAI delta and the merge's first-parent delta name the same twelve files; this is an integration-attestation limitation, not permission to hand-author a PASS or weaken review, owner-ruling, CI, runtime, ancestry, or validator gates.
+
+**U17d** is a bounded R6.loop-harness successor to U17c, inserted immediately before PAI so NEXT selects the correction first. It owns exactly the closure script, its shared ledger library, and the two existing roadmap-loop test files. The future implementation computes Git's expected three-way integration of the exact reviewed head onto the actual sole merge parent, refuses conflicts, missing objects and invalid ancestry, and compares the actual merge's whole tree with the expected tree. Whole-tree comparison is intentional: it proves both that parent-side content survived and that no unexplained merge-only drift appeared outside the reviewed touched paths.
+
+The unit is routine tooling, capped at four files and 300 non-generated lines. It adds no product or closure algorithm code in this registration PR. Historical receipts, holders, frozen occurrences, roadmap ordering, and PAI's merged-but-unclosed ledger state are unchanged. Registration evidence is in [u17d-registration-20260929.json](evidence/u17d-registration-20260929.json).
+
+`validate-roadmap.mjs --next` now prints U17d.
+
 ## 2026-09-28 U24a complete; U24b released; P1 aggregate proof; single-lane correction (parent)
 
 U24a (#2081, head `37003e402c4e289d0e15fe296493438202157e84`, merge `9490590629c04efeb0051383289a1824cb071a99`) is the re-pin half of the U24 split. It makes the journal-authority suites and comments hold on both sides of the production flip:

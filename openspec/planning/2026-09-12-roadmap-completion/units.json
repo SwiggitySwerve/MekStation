@@ -4468,6 +4468,47 @@
       }
     },
     {
+      "id": "U17d",
+      "node": "R6.loop-harness",
+      "taskKeys": [],
+      "behavior": "Make roadmap-unit-closure's reviewed-content attestation merge-aware without weakening any closure gate. Replace the raw reviewed PR head versus squash merge blob comparison with an expected integration computed by Git three-way semantics from the exact reviewed head and the actual sole parent of the reported merge commit. Compare the actual merge's whole tree identity with that expected integration tree: whole-tree scope is required so the attestation proves that all parent-side content survived, the reviewed delta integrated, and no unexplained merge-only drift appeared even outside the PR's touched paths. The identity assumptions are explicit and fail closed: the GitHub PR head remains the head named by Lane A and any required owner ruling; the reported merge commit and its single parent exist locally; Git can establish the required merge ancestry/base and produce a conflict-free integration; and the checkout/proof still names the reported merge. Missing objects, zero or multiple merge parents, invalid ancestry/base, merge conflicts, or any actual-versus-expected tree mismatch refuse nonzero before completion. Preserve the existing exact-head review and owner-ruling checks, required CI census, runtime/validator proof, checkout identity, and receipt truthfulness; do not hand-author PASS or rewrite historical receipts. Red-first in scripts/__tests__/roadmap-loop-closure-proof.test.ts and scripts/__tests__/roadmap-loop-scripts.test.ts with real throwaway Git repositories: clean-head integration and legitimate nonconflicting intervening-main changes pass; conflicts, missing/invalid identity, and tampered merge content fail without completion. Reproduce the PAI identities (reviewed head ec00717c474a909af0ae53afaa758eeac33614a7, merge d5c1ada3dae4076a6081e668ed9045f1458a08a9) through the closure CLI on an isolated ledger fixture and record measured extra-runtime evidence before closing PAI through the shipped tool. No product code, task-row, or historical receipt changes.",
+      "ownershipPaths": [
+        "scripts/qc/roadmap-unit-closure.mjs",
+        "scripts/qc/roadmap-ledger-lib.mjs",
+        "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+        "scripts/__tests__/roadmap-loop-scripts.test.ts"
+      ],
+      "ciClass": "product",
+      "reviewClasses": ["routine"],
+      "caps": {
+        "maxFiles": 4,
+        "maxNonGeneratedLines": 300
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "admissionRequires": "Parent verifies freshly fetched origin/main, U17c's exact-main proof, the PAI reviewed-head/merge identities, and that the four exact ownership paths remain sufficient before dispatch. Run the two existing roadmap-loop Jest files red-first and green in separate processes; exercise the real closure CLI on isolated --ledger-dir repositories for clean integration, intervening-main integration, conflict, missing/invalid identity and unexplained drift; preserve literal argv, exits and output. Keep every existing review, owner-ruling, CI, runtime, checkout and validator refusal. Reproduce PAI through the fixture before using the shipped tool on the official local fold. Stop and split before exceeding four files or 300 non-generated lines.",
+      "predecessors": ["U17c"],
+      "successors": ["PAI"],
+      "source20260929": {
+        "at": "2026-09-29T00:00:00.000Z",
+        "reason": "Plan task 52 and the user's selected strict merge-aware comparison: PAI closure refused after legitimate U24a integration changed ServerMatchHost.ts between the reviewed head and squash merge.",
+        "evidence": "evidence/u17d-registration-20260929.json",
+        "planTask": "52"
+      }
+    },
+    {
       "id": "PAI",
       "node": "R2.authority-live",
       "taskKeys": [],
