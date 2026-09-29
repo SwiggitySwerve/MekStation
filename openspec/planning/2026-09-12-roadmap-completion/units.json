@@ -4837,6 +4837,58 @@
       }
     },
     {
+      "id": "PRI",
+      "node": "R6.loop-harness",
+      "taskKeys": [],
+      "behavior": "Implement the versioned audited review-identity contract specified in evidence/pri-registration-20260929.json, paired in the real closure producer and roadmap consumer. New version 2 receipts bind actual engine-observed author, every finisher and independent reviewer task_id AND child_session_id, truthful model/resolved_model, exact reviewed source head, local contributor census and review-output SHA-256 to immutable portable hashed minimal identity evidence. Same-model actors may review only with distinct task and child-session identities; an author or finisher cannot review themselves even with different models. Missing, malformed, unbound, corrupt, stale, shared or downgraded modern evidence fails closed. Preserve valid historical unversioned cross-model receipts byte-identically; invalid legacy same-model/finisher receipts still fail. Use the existing shared ledger library for paired checks and existing JSON-file CLI patterns; no signed framework, global registry, fake aliases, Boolean bypass, blanket unit exemption or historical migration. Update only the three named canonical instruction files with the paired implementation. Red-first real producer/consumer proof must retain unchanged-consumer rejection of truthful same-model actors. Green existing pins plus discriminating machine-field tests and real controlled CLI scenarios must accept valid modern and legacy modes and reject every adversarial identity case. PRI's own review and closure must pass its candidate producer/consumer version 2 contract using freshly observed independent GPT6.1 engine records, not historical examples or an exception. All head/hash, owner, CI, main/runtime, ownership/cap, strict-validation and idle/hold gates remain unchanged. Registration implements no source, validator, test or instruction rule.",
+      "ownershipPaths": [
+        "scripts/qc/roadmap-unit-closure.mjs",
+        "scripts/qc/roadmap-ledger-lib.mjs",
+        "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+        "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+        "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
+        "openspec/planning/2026-09-12-roadmap-completion/GOAL.md",
+        "openspec/planning/2026-09-12-roadmap-completion/DELIVERY.md",
+        "openspec/planning/2026-09-12-roadmap-completion/WORKERS.md"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 8,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "admissionRequires": "This documentation-only registration requires independent exact-head review, required CI, pinned merge and exact-main registration proof before PRI source admission. Fresh NEXT is PRI after the authorized insertion before PMP (baseline NEXT PMP); selection is not admission and documentary predecessors are not enforced. Parent verifies U17d and U41 complete with PASS exact-main proofs and Git ancestry, exact eight-file ownership, no in-flight overlap and ordinary caps. Re-measure added product lines including counted instruction edits; tests remain separately reported/uncounted under unchanged U41 rules. If scope exceeds eight files/500 lines, stop for a separate bounded registration amendment, never widen in flight. Use real candidate version 2 producer/consumer for PRI's own bootstrap review and closure with current observed independent GPT6.1 tasks/sessions, honest model strings, exact-head/hash-bound evidence and contributor census; no exemption. Run existing Node validator and both roadmap-loop Jest pins, discriminating machine-field cases and actual controlled producer/consumer CLIs, diagnostics, typecheck, lint/ratchet, format, build and applicable strict/exact-main/runtime gates serialized under actual idle/common holds. Independent exact-head candidate-contract review, required CI (task 60 requires 31/31), pinned merge, exact-main PASS and truthful closure precede PMP admission. Parent compares named PASS receipts, ancestry and closure before release; P2B/P2/U38 stay blocked. Historical example worker identities are not future approval.",
+      "predecessors": [
+        "U17d",
+        "U41"
+      ],
+      "successors": [
+        "PMP"
+      ],
+      "source20260929": {
+        "planTask": 60,
+        "baseline": "7cd44eb43fe6513a24d3e1a7b88a294b6ad4b608",
+        "evidence": "evidence/pri-registration-20260929.json",
+        "note": "User selected Amend review identity contract on 2026-09-29; every new worker remains GPT6.1 Sol. PRI is an unused accepted alphanumeric ID. Planned rowless routine tooling prerequisite, not admitted or completed; no review/merge/mainProof/tick or owner ruling fabricated."
+      }
+    },
+    {
       "id": "PMP",
       "node": "R6.loop-harness",
       "taskKeys": [],
@@ -4868,11 +4920,12 @@
         "tick": null
       },
       "ownerGate": null,
-      "admissionRequires": "Registration must receive independent exact-head review, required CI, pinned merge and exact-main docs proof before tooling admission. Actual NEXT at baseline 772cf3aba1df5b8723cae43c3c8c2c47209dca5c is U24b, not P2B or NONE. The authorized insertion immediately before blocked P2B is at an earlier array position than U24b, so the registered planned PMP becomes NEXT without reordering or changing any existing unit. Parent must integrate registration review/CI/merge/mainproof and reconcile this actual selector transition before admission; selection alone is not admission. Parent freshly checks P2BC, U17b and U39 complete with PASS exact-main proofs and Git ancestry, exact three-file ownership, no in-flight path overlap and the 3-file/150-added-product-line cap. Existing R6.umbrella parent ownership does not grant this successor extra files. Run unchanged-runner red-first scratch CLI, both existing proof-pin files and controlled green/negative CLI cases with literal argv, raw outputs, exits and tracked-byte preservation. Diagnostics, typecheck, lint, lint:units ratchet, format and build are serialized under idle/hold; retain runtime/exact-main/strict gates. Independent exact-head review, green CI, pinned merge, exact-main proof and truthful closure precede P2B release. Never rerun the unsafe official runner on a real worktree before repair. Stop for separate registration amendment if another file or more than 150 added product lines is necessary.",
+      "admissionRequires": "Registration must receive independent exact-head review, required CI, pinned merge and exact-main docs proof before tooling admission. Actual NEXT at baseline 772cf3aba1df5b8723cae43c3c8c2c47209dca5c is U24b, not P2B or NONE. The authorized insertion immediately before blocked P2B is at an earlier array position than U24b, so the registered planned PMP becomes NEXT without reordering or changing any existing unit. Parent must integrate registration review/CI/merge/mainproof and reconcile this actual selector transition before admission; selection alone is not admission. Parent freshly checks P2BC, U17b and U39 complete with PASS exact-main proofs and Git ancestry, exact three-file ownership, no in-flight path overlap and the 3-file/150-added-product-line cap. Existing R6.umbrella parent ownership does not grant this successor extra files. Run unchanged-runner red-first scratch CLI, both existing proof-pin files and controlled green/negative CLI cases with literal argv, raw outputs, exits and tracked-byte preservation. Diagnostics, typecheck, lint, lint:units ratchet, format and build are serialized under idle/hold; retain runtime/exact-main/strict gates. Independent exact-head review, green CI, pinned merge, exact-main proof and truthful closure precede P2B release. Never rerun the unsafe official runner on a real worktree before repair. Stop for separate registration amendment if another file or more than 150 added product lines is necessary. Task 60 adds PRI as an unmet documentary prerequisite: parent must verify PRI complete with audited version 2 candidate-contract review/closure, PASS exact-main proof and Git ancestry before PMP source admission. NEXT does not enforce this prerequisite; PMP remains planned and unadmitted, with its existing three paths and 150-line cap unchanged.",
       "predecessors": [
         "P2BC",
         "U17b",
-        "U39"
+        "U39",
+        "PRI"
       ],
       "successors": [
         "P2B"
