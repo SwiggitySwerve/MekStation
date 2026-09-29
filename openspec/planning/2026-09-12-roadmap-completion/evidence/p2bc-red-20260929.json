@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2BC",
+  "date": "20260929",
+  "stage": "red",
+  "receiptNature": "retrospective-evidence-transcription",
+  "notContemporaneousReceipt": true,
+  "curatedAt": "2026-09-29T18:48:19Z",
+  "curatorTask": "st_01a0ee7c",
+  "at": "2026-09-29T11:21:02.483Z",
+  "baseline": "6f2bc4ae950faf135fa245999037f6cf2fc8a90c",
+  "status": "semantic-contract-gap-observed",
+  "summary": "Focused strict OpenSpec validation exited 0 structurally while the active requirement and design crosswalk lacked every P2BC roster-bootstrap term; this is semantic RED evidence, not a failing validator or runtime test.",
+  "structuralValidator": {
+    "command": "npx.cmd openspec validate harden-gm-two-player-campaign-sessions --strict",
+    "exit": 0,
+    "stdoutSummary": "Change 'harden-gm-two-player-campaign-sessions' is valid",
+    "capturedOutputSha256": "d745d35ef9b001bbcfdc629304141294e93134f17140dfddb9c3709de3c97b0b",
+    "interpretation": "Structural pass only; not semantic contract pass.",
+    "capturedOutputSha256Provenance": "Hash printed by historical command; raw JSONL capture is independently hashed, not the deleted temporary output file."
+  },
+  "semanticGap": {
+    "requirementSection": "MODIFIED Requirements / Co-op Mission Launch With Both Forces",
+    "designSection": "Roadmap Crosswalk",
+    "zeroCountTerms": [
+      "selectOpponentUnits",
+      "${campaignId}:${missionId}",
+      "24-entry",
+      "12 player",
+      "13 plus 13",
+      "immutable persisted roster",
+      "generic encounter REST"
+    ]
+  },
+  "sourceArtifacts": [
+    {
+      "path": "E:/Projects/.omo/evidence/p2bc-stage-provenance/semantic-red-gap.raw.jsonl",
+      "sha256": "4f1a7fb457aaf3e2d26540c59cfab0fd10a91855a11340484d655e49d8237ecf",
+      "messageIds": [
+        "b087ef71",
+        "35ed9ac8",
+        "41d5ebe5",
+        "9098188e"
+      ]
+    }
+  ],
+  "explicitGaps": [
+    "No contemporaneous p2bc-red-20260929.json or standalone retained red log is preserved in the supplied evidence.",
+    "The first shell term census rendered missing-count output ambiguously; the immediately following Python census records explicit zero counts.",
+    "No failing prose-pinning test is established by preserved evidence; none was added in the two-file source amendment.",
+    "The inherited originalSessionPath locator was removed: no preserved full-session artifact verifies its exact filename."
+  ],
+  "preservedUnrelatedRedSha256": "144dfb6effa612da69836aaa528d9ef713267821ac11f3afabaa9cf603ba3b4f",
+  "curatorModel": "gpt-6.1-sol",
+  "previousDraftMetadata": "The inherited draft named st_01a0ece4 (the implementer task) as curator and used 2026-09-29T18:40:00Z without preserved curation-event evidence; replaced at final evidence curation, not asserted as historical fact."
+}

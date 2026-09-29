@@ -4770,18 +4770,53 @@
         "maxFiles": 2,
         "maxNonGeneratedLines": 150
       },
-      "state": "planned",
-      "baseline": null,
-      "prHead": null,
-      "mergeSha": null,
+      "state": "complete",
+      "baseline": "6f2bc4ae950faf135fa245999037f6cf2fc8a90c",
+      "prHead": "d65e686290ba8379e19a36469ab723d09cc3aa7c",
+      "mergeSha": "ff318347e9eb1adcd61053f79fda0151e2279c4c",
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "admission": {
+          "path": "evidence/p2bc-admission-20260929.json",
+          "baseline": "6f2bc4ae950faf135fa245999037f6cf2fc8a90c",
+          "at": "2026-09-29T11:20:11.161Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/p2bc-red-20260929.json",
+          "at": "2026-09-29T11:21:02.483Z",
+          "summary": "Retrospective semantic contract-absence census; structural baseline OpenSpec PASS exit 0, not runtime RED. Original unrelated P2 red SHA 144dfb6effa612da69836aaa528d9ef713267821ac11f3afabaa9cf603ba3b4f preserved."
+        },
+        "local": {
+          "path": "evidence/p2bc-local-20260929.json",
+          "at": "2026-09-29T11:30:44.185Z",
+          "summary": "Retrospective source-only correction at d65e686290ba8379e19a36469ab723d09cc3aa7c: two files +46/-2; corrected exact-head review APPROVE. Initial malformed head rejection and wrapper/QC exit 1 retained; no opponent-bootstrap implementation claim."
+        },
+        "review": {
+          "path": "evidence/p2bc-review-20260929.json",
+          "head": "d65e686290ba8379e19a36469ab723d09cc3aa7c",
+          "reviewedHead": "d65e686290ba8379e19a36469ab723d09cc3aa7c",
+          "reviewerModel": "gpt-6-sol",
+          "implementerModel": "GPT-5.6 Sol Fast (requested/resolved/session-selected: chatgpt-subscription/gpt-5.6-sol-fast; captured assistant-message model: chatgpt-subscription/gpt-5.6-sol; medium; historical wire tier unverified)",
+          "outputSha256": "1f9d957926a1bb609996a8a71d934ce036fe757e80b6300b2ea3dd23c0217904",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/p2bc-merge-20260929.json",
+          "pr": 2093,
+          "head": "d65e686290ba8379e19a36469ab723d09cc3aa7c",
+          "mergeSha": "ff318347e9eb1adcd61053f79fda0151e2279c4c"
+        },
+        "mainProof": {
+          "path": "evidence/p2bc-mainproof-20260929.json",
+          "mergeCommit": "ff318347e9eb1adcd61053f79fda0151e2279c4c",
+          "verdict": "PASS",
+          "runtime": "P2BC PROOF RUNTIME PASSED: 3 passed (registered smoke 3, 0 failed, exit 0)"
+        },
+        "tick": {
+          "path": "evidence/p2bc-tick-20260929.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "admissionRequires": "This docs-only registration must land with exact-main proof before the source-contract amendment is admitted. Parent verifies the existing R6.umbrella ownership path remains verbatim, PAIC, P1A and PAI remain complete with PASS exact-main mainProof receipts whose merge commits are ancestors of freshly fetched main, and the amendment remains limited to the active coop-campaign-sync requirement plus design crosswalk under two files/150 added source lines. Sensitive classes require PK-p2bc-ruling to remain decision-free until a product-class documentation head exists, then independent exact-head review, required CI, an owner-originated exact-head ruling and --github evidence before merge. P2B remains blocked until P2BC is complete with PASS exact-main proof, ancestry and closure. NEXT does not enforce documentary predecessors, so the parent performs these checks explicitly. If another source path, task row, product file, authored scenario-specific force, privacy promise or cap increase is needed, stop for a separately reviewed registration amendment.",
@@ -10268,9 +10303,23 @@
       ],
       "agentRecommendation": "Rule only a future exact head limited to the existing requirement and design crosswalk that preserves PAIC, adds deterministic server-derived ownerless opponents, fails before write, and keeps retry/recovery on the persisted roster. This registration supplies no source head and makes no owner decision.",
       "revertCost": "Low: revert the future two-file source-contract merge. P2B remains blocked and no product or persisted data change is authorized by P2BC.",
-      "decision": null,
-      "ruling": null,
-      "note": "Pending decision-free packet registered with P2BC. No owner option, exact head, comment, label or ruling exists yet."
+      "decision": {
+        "at": "2026-09-29T18:05:32Z",
+        "option": "rule the exact head",
+        "text": "Checks + review, then merge (Recommended)",
+        "source": "Already recorded user standing instruction in .omo/ulw-execute/goal-objective.md (2026-09-28): \"merge PRs if they are passing the checks\"; \"Checks + review, then merge (Recommended)\". Orchestrator applied the prior instruction following the recorded 30-minute unanswered-question rule. This closure faithfully transcribes that existing decision for d65e686290ba8379e19a36469ab723d09cc3aa7c only; no new owner choice or separate personal owner inspection."
+      },
+      "ruling": {
+        "ruledHead": "d65e686290ba8379e19a36469ab723d09cc3aa7c",
+        "pr": 2093,
+        "commentId": 5895840581,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "d86f3c2c60fbc665681290b1d704ab94e2c5a850c660a5e6b309d5379ded38e1",
+        "postedBy": "orchestrator under the already recorded user standing instruction following the 30-minute unanswered-question rule",
+        "deviationDisclosed": "DELIVERY.md describes an owner-originated ruling outside the agent. The orchestrator posted this existing comment from the owner GitHub account and applied owner-ruled under the standing instruction. This is not a separate personal owner inspection; closure writer posted no comment or label. Scope only corrected d65e P2BC, no downstream approval."
+      },
+      "note": "Faithful transcription of existing PR #2093 comment 5895840581 and standing user instruction, independently fetched and body-hash verified at closure. Initial rejected head 7823a1f is not covered. P2B/P2/U38 remain blocked; no blanket downstream ruling."
     },
     {
       "id": "PK-p2b-ruling",

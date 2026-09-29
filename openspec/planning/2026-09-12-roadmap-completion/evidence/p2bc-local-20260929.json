@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2BC",
+  "date": "20260929",
+  "stage": "local",
+  "receiptNature": "retrospective-evidence-transcription",
+  "notContemporaneousReceipt": true,
+  "curatedAt": "2026-09-29T18:48:19Z",
+  "curatorTask": "st_01a0ee7c",
+  "at": "2026-09-29T11:30:44.185Z",
+  "status": "ready",
+  "statusProvenance": "Transcribed from the corrected uncommitted DoneClaim READY_FOR_PARENT_COMMIT_AND_INDEPENDENT_RE-REVIEW; not a claim that a contemporaneous local receipt existed.",
+  "baseline": "6f2bc4ae950faf135fa245999037f6cf2fc8a90c",
+  "rejectedHead": "7823a1f584a411d75ac37b2729bca85668975090",
+  "correctedHead": "d65e686290ba8379e19a36469ab723d09cc3aa7c",
+  "summary": "Initial two-file source amendment passed local structural gates but was independently rejected for scenario grammar; the surgical correction passed focused/full strict validation and diffcheck before the parent created corrected head d65e686.",
+  "initialLocal": {
+    "doneClaim": "READY_FOR_PARENT_REVIEW",
+    "focusedStrictExit": 0,
+    "focusedStdoutSha256": "d745d35ef9b001bbcfdc629304141294e93134f17140dfddb9c3709de3c97b0b",
+    "fullStrictExit": 0,
+    "fullStrictResult": "229 passed, 0 failed",
+    "fullStdoutSha256": "fed248fc815eeb6f7bcba19c13e61a741afc1b5b5b5033b1c2d22a2195eccb0e",
+    "diffCheckExit": 0,
+    "diffSha256": "d4b2dac1e0bcb1a345a05be0056f5ce3dbcc522e3b02f83547164191350522ef",
+    "numstat": {
+      "design.md": {
+        "added": 6,
+        "deleted": 2
+      },
+      "spec.md": {
+        "added": 36,
+        "deleted": 0
+      }
+    },
+    "purposeNode22Exit": 0,
+    "purposeStdoutSha256": "bfc72534ae7deff1cdd8a5ba5f0ca9cd8c922a3e7c10bb3e968c07bd55b85256",
+    "terminologyDirectExit": 0,
+    "terminologyDirectStdoutSha256": "3822d444d52db6154f5768fa750f2cc4da56f19939aa4a502851d77ef13d974e",
+    "officialTerminologyWrapperExit": 1,
+    "officialTerminologyWrapperOutputSha256": "7be1bb2b6e9d11707e8549183ee71648f054bd5d8c8cfb4467e4330072047c76",
+    "openspecQcExit": 1,
+    "openspecQcOutputSha256": "853718842b1177e19d668172bfe35780907c1618ecb56c3bd8c9fabba91cfac9"
+  },
+  "independentRejection": {
+    "reviewedHead": "7823a1f584a411d75ac37b2729bca85668975090",
+    "verdict": "REJECT",
+    "blocker": "P2BC-SCENARIO-1",
+    "reviewArtifact": "E:/Projects/.omo/evidence/p2bc-stage-provenance/rejected-head-review.raw.md",
+    "reviewSha256": "06ed4440cb1e77dfa49f46eebd9f6e8d11a45f60cd59ae93d509ced02994f3eb"
+  },
+  "correctedLocal": {
+    "doneClaim": "READY_FOR_PARENT_COMMIT_AND_INDEPENDENT_RE-REVIEW",
+    "validationWorkingTreeHead": "7823a1f584a411d75ac37b2729bca85668975090",
+    "focusedStrictExit": 0,
+    "focusedStdoutSha256": "d745d35ef9b001bbcfdc629304141294e93134f17140dfddb9c3709de3c97b0b",
+    "fullStrictExit": 0,
+    "fullStrictResult": "229 passed, 0 failed",
+    "fullStdoutSha256": "fed248fc815eeb6f7bcba19c13e61a741afc1b5b5b5033b1c2d22a2195eccb0e",
+    "diffCheckExit": 0,
+    "uncommittedCorrectionDiffSha256": "c8b3f5051811ba25d4ceafb42f67e6eae006c5c9f5be5d030b58542243af1a02",
+    "cumulativeDiffSha256": "d09e245a18f9069f71249e02efc663171159d035ae688dc2966b022eb702b76e",
+    "cumulativeNumstat": {
+      "design.md": {
+        "added": 6,
+        "deleted": 2
+      },
+      "spec.md": {
+        "added": 40,
+        "deleted": 0
+      }
+    }
+  },
+  "correctedHeadReview": {
+    "reviewedHead": "d65e686290ba8379e19a36469ab723d09cc3aa7c",
+    "verdict": "APPROVE",
+    "reviewerModel": "gpt-6-sol",
+    "reviewArtifact": "E:/Projects/.omo/evidence/p2bc-stage-provenance/corrected-head-review.raw.md",
+    "reviewSha256": "a0ee5aa16fcecc4dd40e5c87fb1d7a2296ba07bc8ef31c78a10ba5632252702c"
+  },
+  "sourceArtifacts": [
+    {
+      "path": "E:/Projects/.omo/evidence/p2bc-stage-provenance/initial-local.raw.jsonl",
+      "sha256": "13760f9be706c8762b0e134ea47f4c7068a62a2001e87759e1a39fcbe34d8687"
+    },
+    {
+      "path": "E:/Projects/.omo/evidence/p2bc-stage-provenance/rejected-head-session.raw.jsonl",
+      "sha256": "b41b118481514d4962f4a400643ae165539a191ad27973e22587b962bd654bec"
+    },
+    {
+      "path": "E:/Projects/.omo/evidence/p2bc-stage-provenance/corrected-head-session.raw.jsonl",
+      "sha256": "08a5fe5b3de26ccb6cd0189641dee679e07ea165be8e41b00da4493f4963b2b0"
+    },
+    {
+      "path": "E:/Projects/.omo/evidence/p2bc-stage-provenance/implementer-task-record.raw.json",
+      "sha256": "f909a00b9b146e462f8498d5447c1a8c18b11b9e0beaa190dc1de40e0ad6e4e5"
+    },
+    {
+      "path": "E:/Projects/.omo/evidence/p2bc-stage-provenance/closure-compatible-review.raw.md",
+      "sha256": "1f9d957926a1bb609996a8a71d934ce036fe757e80b6300b2ea3dd23c0217904"
+    }
+  ],
+  "explicitGaps": [
+    "No contemporaneous p2bc-local-20260929.json is preserved in the supplied evidence.",
+    "The corrected local validations ran before corrected commit d65e686 existed; exact-head binding comes from the later independent corrected-head review.",
+    "The initial local result was not semantically acceptable despite structural OpenSpec success; GPT-6 Sol rejected head 7823a1f.",
+    "No product/runtime QA is represented by this source-contract local transcription.",
+    "The inherited originalSessionPath locator was removed: no preserved full-session artifact verifies its exact filename.",
+    "Historical per-command output/diff hashes are captured command claims; temporary files were removed. This curation verifies source JSONL hashes and reproduces focused/full strict output hashes where complete captured output permits it."
+  ],
+  "curatorModel": "gpt-6.1-sol",
+  "previousDraftMetadata": "The inherited draft named st_01a0ece4 (the implementer task) as curator and used 2026-09-29T18:40:00Z without preserved curation-event evidence; replaced at final evidence curation, not asserted as historical fact.",
+  "implementerIdentity": {
+    "taskRecordModel": "chatgpt-subscription/gpt-5.6-sol-fast",
+    "taskRecordDisplay": "GPT-5.6 Sol Fast",
+    "taskRecordVariant": "medium",
+    "preservedAssistantMessageModel": "gpt-5.6-sol",
+    "interpretation": "Historical task configuration and observed message metadata differ; both preserved. No GPT-6.1 historical implementer claim."
+  }
+}

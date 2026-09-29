@@ -1,0 +1,245 @@
+{
+  "unit": "P2BC",
+  "date": "20260929",
+  "at": "2026-09-29T19:21:42.650Z",
+  "runDir": "../../.omo/evidence/p2bc-truthful-closure-gpt61/derived-normalization",
+  "preservedDir": "../../.omo/evidence/p2bc-truthful-closure-gpt61/preserved-runs/P2BC-20260929",
+  "files": [
+    {
+      "file": "build.log",
+      "bytes": 127476,
+      "sha256": "70300671c98c7d23363273a4a33824336a478c75727c173512b3a2bfbfeadf03"
+    },
+    {
+      "file": "exact-main-ladder.log",
+      "bytes": 105,
+      "sha256": "80d89f72788ed694d57517fb465490862faed5874b7601c9c58baa81b904dcca"
+    },
+    {
+      "file": "git-check.log",
+      "bytes": 84,
+      "sha256": "71a8bd7a8b2073f6ae5178effaaf306bc58915cc8e5b35318223868cc0b450b4"
+    },
+    {
+      "file": "historical-failed-exact-main-ladder.log",
+      "bytes": 112,
+      "sha256": "6eef8e3c3d9f21533aa56a3ada2fc2a38923f1b39ca92822a80cb1d42f47fd54"
+    },
+    {
+      "file": "idle-before-build.log",
+      "bytes": 21,
+      "sha256": "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43"
+    },
+    {
+      "file": "idle-before-runtime.log",
+      "bytes": 21,
+      "sha256": "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43"
+    },
+    {
+      "file": "next.log",
+      "bytes": 13,
+      "sha256": "370f11bbddda251b10699157224980b18453e8a9796332768c84428168e30192"
+    },
+    {
+      "file": "openspec-strict.log",
+      "bytes": 6835,
+      "sha256": "efd619721df505ed0dbb69fe5bd26b74023670e603ce16891fd2f1331adf1776"
+    },
+    {
+      "file": "original-official-run2/build.log",
+      "bytes": 127476,
+      "sha256": "70300671c98c7d23363273a4a33824336a478c75727c173512b3a2bfbfeadf03"
+    },
+    {
+      "file": "original-official-run2/exact-main-ladder.log",
+      "bytes": 112,
+      "sha256": "6eef8e3c3d9f21533aa56a3ada2fc2a38923f1b39ca92822a80cb1d42f47fd54"
+    },
+    {
+      "file": "original-official-run2/git-check.log",
+      "bytes": 84,
+      "sha256": "71a8bd7a8b2073f6ae5178effaaf306bc58915cc8e5b35318223868cc0b450b4"
+    },
+    {
+      "file": "original-official-run2/idle-before-build.log",
+      "bytes": 21,
+      "sha256": "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43"
+    },
+    {
+      "file": "original-official-run2/idle-before-runtime.log",
+      "bytes": 21,
+      "sha256": "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43"
+    },
+    {
+      "file": "original-official-run2/next.log",
+      "bytes": 13,
+      "sha256": "370f11bbddda251b10699157224980b18453e8a9796332768c84428168e30192"
+    },
+    {
+      "file": "original-official-run2/official-main-proof-run2.argv.json",
+      "bytes": 302,
+      "sha256": "6c8b801a48da001f7d530c3659fed443e7da2bfcc5e420a6c3509a13bba61686"
+    },
+    {
+      "file": "original-official-run2/official-main-proof-run2.exit",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "file": "original-official-run2/official-main-proof-run2.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "original-official-run2/official-main-proof-run2.stdout",
+      "bytes": 1474,
+      "sha256": "181d8c3656afe9b9a8a88b6e40433d28f6f145ec378c81fd77a3c04c90133fbe"
+    },
+    {
+      "file": "original-official-run2/openspec-strict.log",
+      "bytes": 6835,
+      "sha256": "efd619721df505ed0dbb69fe5bd26b74023670e603ce16891fd2f1331adf1776"
+    },
+    {
+      "file": "original-official-run2/playwright.log",
+      "bytes": 65,
+      "sha256": "6d43538e9dcfbcf76f42fe135b6ccdf0e95d02e8a58a58900c3aa32474af9e8d"
+    },
+    {
+      "file": "original-official-run2/qc-openspec-ci.log",
+      "bytes": 299,
+      "sha256": "5b0f562274df4dbddfb7ae44ab42b7d686dc1e0903383f25c593d88f7479fe9a"
+    },
+    {
+      "file": "original-official-run2/qc-pin.log",
+      "bytes": 401,
+      "sha256": "ce2b3fd28a25f65de2108a61516f6125e5d8c9420ada380c0161ae501c93f51b"
+    },
+    {
+      "file": "original-official-run2/restore-next-env.log",
+      "bytes": 8,
+      "sha256": "f891dbdfc0402cd4ba60fab1be3245dfec559c5d7afc7e21b87e795a73d05e5f"
+    },
+    {
+      "file": "original-official-run2/sha256.txt",
+      "bytes": 1067,
+      "sha256": "3e545ffeaf97db02a6935bc3e0cca3551a9cddb1d99f08a3c321d7d2e83d2848"
+    },
+    {
+      "file": "original-official-run2/tsc.log",
+      "bytes": 8,
+      "sha256": "f891dbdfc0402cd4ba60fab1be3245dfec559c5d7afc7e21b87e795a73d05e5f"
+    },
+    {
+      "file": "original-official-run2/validator.log",
+      "bytes": 84,
+      "sha256": "71a8bd7a8b2073f6ae5178effaaf306bc58915cc8e5b35318223868cc0b450b4"
+    },
+    {
+      "file": "playwright.log",
+      "bytes": 4374,
+      "sha256": "d424ffb93796423537e31d1bcd0b0ac6645d7f3a19239ca2bf100d6f4a384324"
+    },
+    {
+      "file": "qc-openspec-ci.log",
+      "bytes": 299,
+      "sha256": "5b0f562274df4dbddfb7ae44ab42b7d686dc1e0903383f25c593d88f7479fe9a"
+    },
+    {
+      "file": "qc-pin.log",
+      "bytes": 401,
+      "sha256": "ce2b3fd28a25f65de2108a61516f6125e5d8c9420ada380c0161ae501c93f51b"
+    },
+    {
+      "file": "registered-production-build.log",
+      "bytes": 7081,
+      "sha256": "ba6566ec7a5beffebfd8c90600d75a45602dcd51f19e68aeee11a9cf77601364"
+    },
+    {
+      "file": "registered-smoke/P2BC-manual-qa.md",
+      "bytes": 11293,
+      "sha256": "7c2b98b4993a386215c4b0d3d9af81a200ddaaf8c712aa615556b9546679827a"
+    },
+    {
+      "file": "registered-smoke/baseline.json",
+      "bytes": 359,
+      "sha256": "11c663218dd81773ce73de6a42d728e19e3dda8c05bf8e711212fe1c91be3c1a"
+    },
+    {
+      "file": "registered-smoke/build.argv.json",
+      "bytes": 2517,
+      "sha256": "272102b7c618de5390117c0f09eac32746aa0c0c20d7864d33cab579fdd3d450"
+    },
+    {
+      "file": "registered-smoke/build.exit.json",
+      "bytes": 107,
+      "sha256": "add8741ee22c2b9d5b0213ad9a045e0d0123291429c5dc1e1430d751b6413d12"
+    },
+    {
+      "file": "registered-smoke/cleanup.json",
+      "bytes": 6618,
+      "sha256": "16407add571400834e1dd4ada6ead179bd96e8ddede32fe6357190e48cc7513f"
+    },
+    {
+      "file": "registered-smoke/generated-content.json",
+      "bytes": 229,
+      "sha256": "39e985b035e417efc0542dbf035957c2aa88e66f5a890d57ca7bf9a988d62f0c"
+    },
+    {
+      "file": "registered-smoke/ladder-archive/exact-main-ladder-ff318347e9eb-2026-09-29.json",
+      "bytes": 328,
+      "sha256": "b100c0de4a288588ee61f7500448c697d2ab188e636636358032aea75bf7ae14"
+    },
+    {
+      "file": "registered-smoke/ladder-archive/smoke.log",
+      "bytes": 4133,
+      "sha256": "73f84c4bc74b7999776653e0449646dc16ba70c7194e37a104fe80052bfffd6e"
+    },
+    {
+      "file": "registered-smoke/ladder.argv.json",
+      "bytes": 2761,
+      "sha256": "856cf0ef745da80281c24e4acf0566f4093ebba37c7f49d1a7c26fd26ac9e098"
+    },
+    {
+      "file": "registered-smoke/ladder.exit.json",
+      "bytes": 107,
+      "sha256": "f6da207e88852860a43418493ed681d9dd43d86877855f9734ef613a6e83481e"
+    },
+    {
+      "file": "registered-smoke/manifest.json",
+      "bytes": 15485,
+      "sha256": "5fd1607d1e39af66a4c9e0bdae3907472870f381bd90324635c22d91002b36a8"
+    },
+    {
+      "file": "registered-smoke/production-prerequisites.json",
+      "bytes": 353,
+      "sha256": "14ac1668770dc8c0f1b2a20f01a905e1a57413665c22197ac1a83c2c02cf4090"
+    },
+    {
+      "file": "restore-next-env.log",
+      "bytes": 8,
+      "sha256": "f891dbdfc0402cd4ba60fab1be3245dfec559c5d7afc7e21b87e795a73d05e5f"
+    },
+    {
+      "file": "sha256.txt",
+      "bytes": 2774,
+      "sha256": "2650db6be4714021939fe2feaace3a1ed5e1e5e751ac49c11fdc47ebbde0371f"
+    },
+    {
+      "file": "source-to-destination-manifest.json",
+      "bytes": 21960,
+      "sha256": "b4d490ebb20ffdf67551c342cf75e9c2f880e4c40644668ca0cdf2bfdbac8511"
+    },
+    {
+      "file": "tsc.log",
+      "bytes": 8,
+      "sha256": "f891dbdfc0402cd4ba60fab1be3245dfec559c5d7afc7e21b87e795a73d05e5f"
+    },
+    {
+      "file": "validator.log",
+      "bytes": 84,
+      "sha256": "71a8bd7a8b2073f6ae5178effaaf306bc58915cc8e5b35318223868cc0b450b4"
+    }
+  ],
+  "bytes": 354218
+}
