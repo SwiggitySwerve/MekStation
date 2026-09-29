@@ -639,20 +639,87 @@ describe('POST /api/campaigns/:id/launch-authority', () => {
   });
 
   it('proceeds when every clause is satisfied and every cursor is at the head', async () => {
-    const world = await buildWorld();
-    bindPlayers(world.campaign.id);
-    seedCursor(world.campaign.id, PLAYER_1, world.revision);
-    seedCursor(world.campaign.id, PLAYER_2, world.revision);
-    const { req, res, result } = post(
-      world.campaign.id,
-      bodyFor(world, { sessionId: SESSION_ID }),
-    );
+    // Real members need accepted participation as well as converged cursors;
+    // membership plus creation placeholders alone is the rejected cold case.
+    const world = await signedWorld();
+    try {
+      const before = durablePreflightCensus();
 
-    handler(req, res);
+      const result = callSignedPreflight(world);
 
-    expect(result.statusCode).toBe(200);
-    expect((result.body as { kind: string }).kind).toBe('materialized');
+      expect(result.statusCode).toBe(200);
+      const body = signedResponse.parse(result.body);
+      expect(body.slots.map((slot) => slot.ownerParticipantId).sort()).toEqual(
+        [world.host.playerId, world.guest.playerId].sort(),
+      );
+      expect(durablePreflightCensus()).toEqual(before);
+    } finally {
+      await world.close();
+    }
   });
+
+  it.each([false, true])(
+    'keeps legacy-only creation slots read-only with mission overrides=%s',
+    async (override) => {
+      const world = await buildWorld();
+      // A signed member of another session is not this session's footprint.
+      bindCampaignSessionParticipant({
+        campaignId: world.campaign.id,
+        sessionId: 'another-session',
+        participantId: 'another-session-gm',
+        seat: 'gm',
+        boundAt: NOW,
+      });
+      const forces = world.forceIds.slice(0, 2);
+      expect(forces).toHaveLength(2);
+      if (override) {
+        forces.reverse();
+        forces.forEach((forceId, index) => {
+          expect(
+            claimCampaignSessionForce({
+              campaignId: world.campaign.id,
+              sessionId: SESSION_ID,
+              missionId: MISSION_ID,
+              forceId,
+              participantId: playerSlotPlaceholderId(index === 0 ? 1 : 2),
+              claimedAt: NOW,
+            }).kind,
+          ).toBe('claimed');
+        });
+      }
+      const before = durablePreflightCensus();
+      const request = post(
+        world.campaign.id,
+        bodyFor(world, { sessionId: SESSION_ID }),
+      );
+
+      handler(request.req, request.res);
+
+      const after = durablePreflightCensus();
+      captureClassifierEvidence(`legacy-${override}`, {
+        before,
+        after,
+        result: request.result,
+      });
+      expect(after).toEqual(before);
+      expect(request.result.statusCode).toBe(200);
+      const body = signedResponse.parse(request.result.body);
+      expect(body.head).toEqual(bodyFor(world).expectedHead);
+      expect(
+        body.slots.map(({ slot, forceId, ownerParticipantId }) => ({
+          slot,
+          forceId,
+          ownerParticipantId,
+        })),
+      ).toEqual(
+        forces.map((forceId, index) => ({
+          slot: index + 1,
+          forceId,
+          ownerParticipantId: playerSlotPlaceholderId(index === 0 ? 1 : 2),
+        })),
+      );
+    },
+  );
 
   it('with SQLite uninitialized answers exactly what it answers today', async () => {
     resetSQLiteService();
@@ -751,7 +818,163 @@ function callSignedPreflight(
   return request.result;
 }
 
+function durablePreflightCensus() {
+  const db = getSQLiteService().getDatabase();
+  return {
+    changes: db.prepare('SELECT total_changes() AS n').get(),
+    tables: Object.fromEntries(
+      [
+        'campaigns',
+        'event_journal_events',
+        'event_journal_batches',
+        'campaign_session_force_claim',
+        'campaign_session_participant',
+        'campaign_participant_cursor',
+      ].map((table) => [
+        table,
+        db
+          .prepare(`SELECT * FROM ${table}`)
+          .all()
+          .map((row) => JSON.stringify(row))
+          .sort(),
+      ]),
+    ),
+    registrySize: getCampaignHostRegistry().size(),
+  };
+}
+
+function captureClassifierEvidence(name: string, value: unknown) {
+  const dir = process.env.P2A_EVIDENCE_DIR;
+  if (!dir) return;
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(
+    path.join(dir, `classifier-${name}.json`),
+    JSON.stringify(value, null, 2),
+    { flag: 'wx' },
+  );
+}
+
 describe('launch preflight with real signed campaign claims (P2A)', () => {
+  it.each([
+    { host: 'missing', revoked: 'none', missionPlaceholders: false },
+    { host: 'missing', revoked: 'guest', missionPlaceholders: false },
+    { host: 'missing', revoked: 'host', missionPlaceholders: false },
+    { host: 'missing', revoked: 'all', missionPlaceholders: false },
+    { host: 'missing', revoked: 'none', missionPlaceholders: true },
+    { host: 'closed', revoked: 'none', missionPlaceholders: false },
+    { host: 'rebuilt', revoked: 'none', missionPlaceholders: false },
+    { host: 'accepted', revoked: 'none', missionPlaceholders: false },
+  ])(
+    'refuses lost signed claims with host=$host revoked=$revoked missionPlaceholders=$missionPlaceholders',
+    async ({ host, revoked, missionPlaceholders }) => {
+      const world = await signedWorld();
+      try {
+        const db = getSQLiteService().getDatabase();
+        const { campaignId, sessionId, missionId } = world.mission;
+        const registry = getCampaignHostRegistry();
+        if (host === 'closed') world.entry.host.close();
+        if (host === 'missing' || host === 'rebuilt')
+          registry.dispose(sessionId);
+        if (host === 'rebuilt') {
+          const entry = await registry.getOrCreate(sessionId);
+          expect(entry?.getParticipationRecords(missionId)).toEqual([]);
+        }
+        expect(
+          db
+            .prepare(
+              'DELETE FROM campaign_session_force_claim WHERE campaign_id = ? AND session_id = ? AND mission_id = ?',
+            )
+            .run(campaignId, sessionId, missionId).changes,
+        ).toBe(2);
+        const creationClaims = db
+          .prepare(
+            'SELECT force_id, participant_id FROM campaign_session_force_claim WHERE campaign_id = ? AND session_id = ? AND mission_id = ? ORDER BY force_id',
+          )
+          .all(campaignId, sessionId, CAMPAIGN_CREATION_MISSION_ID);
+        expect(creationClaims).toEqual([
+          {
+            force_id: 'force-guest',
+            participant_id: playerSlotPlaceholderId(1),
+          },
+          {
+            force_id: 'force-host',
+            participant_id: playerSlotPlaceholderId(2),
+          },
+        ]);
+        if (missionPlaceholders) {
+          ['force-guest', 'force-host'].forEach((forceId, index) => {
+            expect(
+              claimCampaignSessionForce({
+                campaignId,
+                sessionId,
+                missionId,
+                forceId,
+                participantId: playerSlotPlaceholderId(index === 0 ? 1 : 2),
+                claimedAt: NOW,
+              }).kind,
+            ).toBe('claimed');
+          });
+        }
+        for (const [role, identity] of [
+          ['host', world.host],
+          ['guest', world.guest],
+        ] as const) {
+          if (revoked === 'all' || revoked === role) {
+            expect(
+              revokeCampaignSessionParticipant({
+                campaignId,
+                sessionId,
+                participantId: identity.playerId,
+                revokedAt: NOW,
+              }),
+            ).toBe(true);
+          }
+        }
+        expect(
+          db
+            .prepare(
+              'SELECT participant_id FROM campaign_session_participant WHERE campaign_id = ? AND session_id = ? ORDER BY participant_id',
+            )
+            .all(campaignId, sessionId),
+        ).toEqual(
+          [world.host.playerId, world.guest.playerId]
+            .sort()
+            .map((participant_id) => ({ participant_id })),
+        );
+        const before = {
+          ...durablePreflightCensus(),
+          multiplayer: world.census(),
+        };
+        expect(before.multiplayer).toEqual({
+          matches: 1,
+          events: 0,
+          receipts: 0,
+        });
+
+        const result = callSignedPreflight(world);
+
+        const after = {
+          ...durablePreflightCensus(),
+          multiplayer: world.census(),
+        };
+        captureClassifierEvidence(`${host}-${revoked}-${missionPlaceholders}`, {
+          before,
+          after,
+          result,
+        });
+        expect(after).toEqual(before);
+        expect(result.statusCode).toBe(409);
+        expect(result.body).toMatchObject({
+          kind: 'refused',
+          code: 'STALE_OWNERSHIP',
+          activeHead: world.mission.expectedHead,
+        });
+        expect(result.body).not.toHaveProperty('slots');
+      } finally {
+        await world.close();
+      }
+    },
+  );
   it.each([
     { hostChoice: 'deploy' as const, placeholders: true },
     { hostChoice: 'deploy' as const, placeholders: false },

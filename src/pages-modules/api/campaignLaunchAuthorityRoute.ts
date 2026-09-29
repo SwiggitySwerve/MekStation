@@ -152,8 +152,20 @@ function readMissionContext(
   ).filter((claim) => claim.missionId === input.missionId);
   const entry = getCampaignHostRegistry().get(input.sessionId);
   const placeholders = [playerSlotPlaceholderId(1), playerSlotPlaceholderId(2)];
+  // Even a revoked member proves this was a signed session, not a legacy
+  // slot-only session. Losing claims or revoking members cannot restore slots.
+  const hasSignedMembership =
+    getSQLiteService()
+      .getDatabase()
+      .prepare(
+        `SELECT 1 FROM campaign_session_participant
+         WHERE campaign_id = ? AND session_id = ?
+           AND participant_id NOT IN (?, ?) LIMIT 1`,
+      )
+      .get(input.campaignId, input.sessionId, ...placeholders) !== undefined;
   if (
     !entry &&
+    !hasSignedMembership &&
     claims.every((claim) => placeholders.includes(claim.participantId))
   ) {
     return { kind: 'legacy' };
