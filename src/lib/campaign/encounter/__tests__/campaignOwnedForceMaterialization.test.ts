@@ -27,10 +27,14 @@ import {
   CAMPAIGN_CREATION_MISSION_ID,
   playerSlotPlaceholderId,
 } from '@/lib/campaign/authority/campaignCreationCheckpoint';
-import { appendCampaignGenesis } from '@/lib/campaign/authority/campaignSourceGenesis';
+import {
+  appendCampaignGenesis,
+  authoritativeStateFromSerializedCampaign,
+} from '@/lib/campaign/authority/campaignSourceGenesis';
 import {
   materializeOwnedPlayerForces,
   ownedPlayerForceUnits,
+  type OwnedMissionContext,
 } from '@/lib/campaign/encounter/campaignOwnedForceMaterialization';
 import { buildPopulatedCampaign } from '@/lib/campaign/persistence/__tests__/campaignFixture';
 import { buildSerializedCampaign } from '@/lib/campaign/persistence/campaignEnvelope';
@@ -44,9 +48,14 @@ import {
 } from '@/services/campaignPersistence/CampaignPersistenceService';
 import {
   claimCampaignSessionForce,
+  listCampaignSessionForceClaims,
   readCampaignSessionForceHolder,
   readCampaignSessionForcesHeldBy,
 } from '@/services/campaignPersistence/CampaignSessionForceClaimStore';
+import {
+  bindCampaignSessionParticipant,
+  listActiveCampaignSessionParticipants,
+} from '@/services/campaignPersistence/CampaignSessionParticipantStore';
 import {
   getSQLiteService,
   resetSQLiteService,
@@ -413,5 +422,422 @@ describe('authoritative owned-force materialization', () => {
       kind: 'refused',
       code: 'UNRESOLVED_SLOT_UNIT',
     });
+  });
+});
+
+type SignedContext = Extract<OwnedMissionContext, { kind: 'signed' }>;
+
+function signedContext(world: IWorld, count = 2): SignedContext {
+  const identities = ['pid-z-host', 'pid-a-guest', 'pid-m-third'];
+  const records = world.forceIds.slice(0, count).map((forceId, index) => {
+    const force = world.campaign.forces.get(forceId);
+    const playerId = identities[index];
+    if (!force || !playerId)
+      throw new Error('Missing signed fixture contributor');
+    expect(
+      bindCampaignSessionParticipant({
+        campaignId: world.campaign.id,
+        sessionId: SESSION_ID,
+        participantId: playerId,
+        seat: index === 0 ? 'gm' : 'player',
+        boundAt: NOW,
+      }).kind,
+    ).toBe('bound');
+    expect(
+      claimCampaignSessionForce({
+        campaignId: world.campaign.id,
+        sessionId: SESSION_ID,
+        missionId: MISSION_ID,
+        forceId,
+        participantId: playerId,
+        claimedAt: NOW,
+      }).kind,
+    ).toBe('claimed');
+    return {
+      matchId: SESSION_ID,
+      missionId: MISSION_ID,
+      playerId,
+      role: index === 0 ? ('host' as const) : ('guest' as const),
+      choice: 'deploy' as const,
+      force,
+    };
+  });
+  return {
+    kind: 'signed',
+    records,
+    claims: listCampaignSessionForceClaims(
+      world.campaign.id,
+      SESSION_ID,
+    ).filter((claim) => claim.missionId === MISSION_ID),
+    members: listActiveCampaignSessionParticipants(
+      world.campaign.id,
+      SESSION_ID,
+    ),
+    state: authoritativeStateFromSerializedCampaign(world.envelope),
+  };
+}
+
+function materializeSigned(world: IWorld, context: OwnedMissionContext) {
+  return materializeOwnedPlayerForces(
+    { ...ports(), readMissionContext: () => context },
+    {
+      campaignId: world.campaign.id,
+      sessionId: SESSION_ID,
+      missionId: MISSION_ID,
+      currentRevision: world.revision,
+      materializedAt: NOW,
+      expectedHead: {
+        branchId: world.branchId,
+        revision: world.revision,
+        effectiveGeneration: world.generation,
+      },
+    },
+  );
+}
+
+describe('signed mission ownership projection', () => {
+  let dir: string;
+  beforeEach(async () => {
+    dir = await mkdtemp(path.join(tmpdir(), 'signed-owned-force-'));
+    resetSQLiteService();
+    getSQLiteService({ path: path.join(dir, 'owned.db') }).initialize();
+  });
+  afterEach(async () => {
+    resetSQLiteService();
+    await rm(dir, { recursive: true });
+  });
+
+  it('orders signed owners, retaining exact adopted references and pilot assignments', async () => {
+    const world = await buildWorld();
+    const context = signedContext(world);
+
+    const result = materializeSigned(world, context);
+
+    if (result.kind !== 'materialized') throw new Error(result.code);
+    expect(
+      result.slots.map((slot) => ({
+        slot: slot.slot,
+        owner: slot.ownerParticipantId,
+        refs: slot.units.map((unit) => [unit.reference.unitRef, unit.pilotRef]),
+      })),
+    ).toEqual([
+      { slot: 1, owner: 'pid-a-guest', refs: [['catalog-ref-1', 'pilot-1']] },
+      { slot: 2, owner: 'pid-z-host', refs: [['catalog-ref-0', 'pilot-0']] },
+    ]);
+    expect(ownedPlayerForceUnits(result.slots)).toEqual([
+      { unitRef: 'catalog-ref-1', pilotRef: 'pilot-1' },
+      { unitRef: 'catalog-ref-0', pilotRef: 'pilot-0' },
+    ]);
+  });
+
+  it('does not resolve or field HQ units, even when their source cannot resolve', async () => {
+    const world = await buildWorld();
+    const context = signedContext(world);
+    const records = context.records.map((record) => ({
+      ...record,
+      choice: record.role === 'host' ? ('command-hq' as const) : record.choice,
+    }));
+    const roster = rosterFor(world.campaign);
+    expect(
+      saveCampaign(
+        buildSerializedCampaign(world.campaign, 'device-1', 1, {
+          ...roster,
+          units: roster.units.slice(1),
+        }),
+        1,
+      ).kind,
+    ).toBe('ok');
+
+    const result = materializeSigned(world, { ...context, records });
+
+    if (result.kind !== 'materialized') throw new Error(result.code);
+    expect(result.slots).toHaveLength(1);
+    expect(result.slots[0]).toMatchObject({
+      slot: 1,
+      ownerParticipantId: 'pid-a-guest',
+    });
+  });
+
+  it('refuses an all-HQ mission without promoting a contributor', async () => {
+    const world = await buildWorld();
+    const context = signedContext(world);
+
+    const result = materializeSigned(world, {
+      ...context,
+      records: context.records.map((record) => ({
+        ...record,
+        choice: 'command-hq',
+      })),
+    });
+
+    expect(result).toMatchObject({ kind: 'refused', code: 'UNOWNED_SLOT' });
+  });
+
+  it('refuses three deploying contributors instead of silently dropping one', async () => {
+    const world = await buildWorld();
+    const context = signedContext(world, 3);
+
+    const result = materializeSigned(world, context);
+
+    expect(result).toMatchObject({ kind: 'refused', code: 'STALE_OWNERSHIP' });
+  });
+
+  const invalidContexts: readonly {
+    name: string;
+    change: (context: SignedContext) => SignedContext;
+    code: string;
+  }[] = [
+    {
+      name: 'missing accepted participation',
+      change: (context) => ({ ...context, records: [] }),
+      code: 'STALE_OWNERSHIP',
+    },
+    {
+      name: 'missing durable claim',
+      change: (context) => ({ ...context, claims: context.claims.slice(1) }),
+      code: 'STALE_OWNERSHIP',
+    },
+    {
+      name: 'extra claim',
+      change: (context) => ({
+        ...context,
+        claims: [
+          ...context.claims,
+          {
+            missionId: MISSION_ID,
+            forceId: 'extra',
+            participantId: 'pid-other',
+          },
+        ],
+      }),
+      code: 'STALE_OWNERSHIP',
+    },
+    {
+      name: 'foreign mission claim',
+      change: (context) => ({
+        ...context,
+        claims: context.claims.map((claim) => ({
+          ...claim,
+          missionId: 'foreign',
+        })),
+      }),
+      code: 'STALE_OWNERSHIP',
+    },
+    {
+      name: 'foreign campaign',
+      change: (context) => ({
+        ...context,
+        state: { ...context.state, campaignId: 'foreign' },
+      }),
+      code: 'STALE_OWNERSHIP',
+    },
+    {
+      name: 'foreign accepted session',
+      change: (context) => ({
+        ...context,
+        records: context.records.map((record) => ({
+          ...record,
+          matchId: 'foreign',
+        })),
+      }),
+      code: 'STALE_OWNERSHIP',
+    },
+    {
+      name: 'foreign accepted mission',
+      change: (context) => ({
+        ...context,
+        records: context.records.map((record) => ({
+          ...record,
+          missionId: 'foreign',
+        })),
+      }),
+      code: 'STALE_OWNERSHIP',
+    },
+    {
+      name: 'nonmember contributor',
+      change: (context) => ({ ...context, members: context.members.slice(1) }),
+      code: 'STALE_OWNERSHIP',
+    },
+    {
+      name: 'revoked contributor',
+      change: (context) => ({
+        ...context,
+        members: context.members.map((member) => ({
+          ...member,
+          revokedAt: NOW,
+        })),
+      }),
+      code: 'STALE_OWNERSHIP',
+    },
+    {
+      name: 'foreign member binding',
+      change: (context) => ({
+        ...context,
+        members: context.members.map((member) => ({
+          ...member,
+          sessionId: 'foreign',
+        })),
+      }),
+      code: 'STALE_OWNERSHIP',
+    },
+    {
+      name: 'conflicting claim owner',
+      change: (context) => ({
+        ...context,
+        claims: context.claims.map((claim) => ({
+          ...claim,
+          participantId: 'pid-other',
+        })),
+      }),
+      code: 'STALE_OWNERSHIP',
+    },
+    {
+      name: 'duplicate contributor',
+      change: (context) => ({
+        ...context,
+        records: context.records.map((record) => ({
+          ...record,
+          playerId: 'pid-z-host',
+        })),
+      }),
+      code: 'STALE_OWNERSHIP',
+    },
+    {
+      name: 'unknown force',
+      change: (context) => ({
+        ...context,
+        records: context.records.map((record) => ({
+          ...record,
+          force: { ...record.force, id: 'unknown' },
+        })),
+      }),
+      code: 'STALE_OWNERSHIP',
+    },
+    {
+      name: 'duplicate contributed unit',
+      change: (context) => ({
+        ...context,
+        records: context.records.map((record) => ({
+          ...record,
+          force: {
+            ...record.force,
+            unitIds: [...record.force.unitIds, ...record.force.unitIds],
+          },
+        })),
+      }),
+      code: 'STALE_OWNERSHIP',
+    },
+    {
+      name: 'changed force membership',
+      change: (context) => ({
+        ...context,
+        state: { ...context.state, forceUnits: {} },
+      }),
+      code: 'STALE_OWNERSHIP',
+    },
+    {
+      name: 'unrepresented active player',
+      change: (context) => ({
+        ...context,
+        members: [
+          ...context.members,
+          {
+            campaignId: context.state.campaignId,
+            sessionId: SESSION_ID,
+            participantId: 'pid-new',
+            seat: 'player',
+            boundAt: NOW,
+            revokedAt: null,
+          },
+        ],
+      }),
+      code: 'STALE_OWNERSHIP',
+    },
+    {
+      name: 'missing current unit',
+      change: (context) => ({
+        ...context,
+        state: { ...context.state, rosterUnits: {} },
+      }),
+      code: 'UNRESOLVED_SLOT_UNIT',
+    },
+    {
+      name: 'destroyed current units',
+      change: (context) => ({
+        ...context,
+        state: {
+          ...context.state,
+          rosterUnits: Object.fromEntries(
+            Object.entries(context.state.rosterUnits).map(([id, unit]) => [
+              id,
+              { ...unit, status: 'destroyed' },
+            ]),
+          ),
+        },
+      }),
+      code: 'UNRESOLVED_SLOT_UNIT',
+    },
+    {
+      name: 'changed source identity',
+      change: (context) => ({
+        ...context,
+        state: {
+          ...context.state,
+          rosterUnits: Object.fromEntries(
+            Object.entries(context.state.rosterUnits).map(([id, unit]) => [
+              id,
+              { ...unit, unitSource: 'custom' },
+            ]),
+          ),
+        },
+      }),
+      code: 'UNRESOLVED_SLOT_UNIT',
+    },
+    {
+      name: 'changed pinned source version',
+      change: (context) => ({
+        ...context,
+        state: {
+          ...context.state,
+          rosterUnits: Object.fromEntries(
+            Object.entries(context.state.rosterUnits).map(([id, unit]) => [
+              id,
+              { ...unit, sourceVersion: 99 },
+            ]),
+          ),
+        },
+      }),
+      code: 'UNRESOLVED_SLOT_UNIT',
+    },
+  ];
+  it.each(invalidContexts)(
+    'refuses $name in a server-bound context',
+    async ({ change, code }) => {
+      const world = await buildWorld();
+      const context = change(signedContext(world));
+      const db = getSQLiteService().getDatabase();
+      const before = db.prepare('SELECT total_changes() AS n').get();
+
+      const result = materializeSigned(world, context);
+
+      expect(result).toMatchObject({ kind: 'refused', code });
+      expect(db.prepare('SELECT total_changes() AS n').get()).toEqual(before);
+    },
+  );
+
+  it('never falls back to creation slots when signed context is unavailable', async () => {
+    const world = await buildWorld();
+
+    const result = materializeSigned(world, { kind: 'unavailable' });
+
+    expect(result).toMatchObject({ kind: 'refused', code: 'STALE_OWNERSHIP' });
+  });
+
+  it('retains the legacy slot path when the server explicitly finds no signed context', async () => {
+    const world = await buildWorld();
+
+    const result = materializeSigned(world, { kind: 'legacy' });
+
+    expect(result).toEqual(materialize(world));
   });
 });

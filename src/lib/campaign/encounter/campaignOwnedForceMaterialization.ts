@@ -49,6 +49,10 @@ import type {
   IExpectedBranchHead,
   ExpectedHeadVerdict,
 } from '@/lib/events/journal/EventHistoryExpectedHead';
+import type { ICampaignParticipationRecord } from '@/lib/multiplayer/server/CampaignHostRegistry';
+import type { ICampaignSessionForceClaim } from '@/services/campaignPersistence/CampaignSessionForceClaimStore';
+import type { ICampaignSessionMembership } from '@/services/campaignPersistence/CampaignSessionParticipantStore';
+import type { ICampaignAuthoritativeState } from '@/types/campaign/CampaignSync';
 import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 import type { ICustomUnitRecord } from '@/types/persistence/UnitPersistence';
 
@@ -119,6 +123,18 @@ type CampaignReadLike =
   | { readonly kind: 'corrupt'; readonly id: string }
   | { readonly kind: 'invalid_authority'; readonly reason: string };
 
+/** Server reads only: claims persist owners, not deploy/HQ choices. */
+export type OwnedMissionContext =
+  | { readonly kind: 'legacy' }
+  | { readonly kind: 'unavailable' }
+  | {
+      readonly kind: 'signed';
+      readonly records: readonly ICampaignParticipationRecord[];
+      readonly claims: readonly ICampaignSessionForceClaim[];
+      readonly members: readonly ICampaignSessionMembership[];
+      readonly state: ICampaignAuthoritativeState;
+    };
+
 /**
  * The durable reads this module needs, as ports.
  *
@@ -149,6 +165,9 @@ export interface IOwnedForceMaterializationPorts {
   }) => string | null;
   readonly readCampaign: (campaignId: string) => CampaignReadLike;
   readonly resolveCustomUnit: (unitRef: string) => ICustomUnitRecord | null;
+  readonly readMissionContext?: (
+    input: IOwnedForceMaterializationInput,
+  ) => OwnedMissionContext;
 }
 
 export interface IOwnedForceMaterializationInput {
@@ -279,6 +298,18 @@ export function materializeOwnedPlayerForces(
     );
   }
 
+  const context = ports.readMissionContext?.(input);
+  if (context?.kind === 'unavailable') {
+    return refuse(
+      'STALE_OWNERSHIP',
+      'Accepted mission participation is unavailable',
+      head,
+    );
+  }
+  if (context?.kind === 'signed') {
+    return signedMissionForces(context, read.record, { ports, input, head });
+  }
+
   const slots: IOwnedSlotForce[] = [];
   for (const slot of TACTICAL_PLAYER_SLOTS) {
     const participantId = playerSlotPlaceholderId(slot);
@@ -321,6 +352,111 @@ export function materializeOwnedPlayerForces(
     }
   }
 
+  return Object.freeze({ kind: 'materialized', head, slots });
+}
+
+function signedMissionForces(
+  context: Extract<OwnedMissionContext, { kind: 'signed' }>,
+  campaign: SerializedCampaign,
+  launch: {
+    readonly ports: IOwnedForceMaterializationPorts;
+    readonly input: IOwnedForceMaterializationInput;
+    readonly head: IActiveBranchHead;
+  },
+): OwnedForceMaterializationResult {
+  const { ports, input, head } = launch;
+  const { records, claims, members, state } = context;
+  const invalid = () =>
+    refuse(
+      'STALE_OWNERSHIP',
+      'Accepted mission ownership is inconsistent',
+      head,
+    );
+  if (
+    state.campaignId !== input.campaignId ||
+    !campaign.body.missions.some(([id]) => id === input.missionId) ||
+    records.length === 0 ||
+    records.length !== claims.length ||
+    members.some(
+      (member) =>
+        member.seat === 'player' &&
+        !records.some((record) => record.playerId === member.participantId),
+    )
+  )
+    return invalid();
+
+  const players = new Set<string>();
+  const forces = new Set<string>();
+  const deployedUnits = new Set<string>();
+  const slots: IOwnedSlotForce[] = [];
+  for (const record of [...records].sort((a, b) =>
+    a.playerId.localeCompare(b.playerId),
+  )) {
+    const forceId = record.force.id;
+    const claim = claims.find((entry) => entry.forceId === forceId);
+    const force = campaign.body.forces.find(([id]) => id === forceId)?.[1];
+    const roster = state.forceUnits?.[forceId];
+    const member = members.find(
+      (entry) => entry.participantId === record.playerId,
+    );
+    if (
+      record.matchId !== input.sessionId ||
+      record.missionId !== input.missionId ||
+      players.has(record.playerId) ||
+      forces.has(forceId) ||
+      !member ||
+      member.revokedAt !== null ||
+      member.campaignId !== input.campaignId ||
+      member.sessionId !== input.sessionId ||
+      !claim ||
+      claim.missionId !== input.missionId ||
+      claim.participantId !== record.playerId ||
+      !force ||
+      !roster ||
+      new Set(record.force.unitIds).size !== record.force.unitIds.length ||
+      force.unitIds.length !== record.force.unitIds.length ||
+      roster.length !== record.force.unitIds.length ||
+      record.force.unitIds.some(
+        (id) => !force.unitIds.includes(id) || !roster.includes(id),
+      )
+    )
+      return invalid();
+    players.add(record.playerId);
+    forces.add(forceId);
+    if (record.choice === 'command-hq') continue;
+    const slot = TACTICAL_PLAYER_SLOTS[slots.length];
+    if (slot === undefined) return invalid();
+    const units = unitsForForce(ports, campaign, forceId, input.materializedAt);
+    if (
+      units === null ||
+      units.some(({ reference }) => {
+        const current = state.rosterUnits[reference.unitId];
+        return (
+          !current ||
+          current.status === 'destroyed' ||
+          current.unitRef !== reference.unitRef ||
+          (current.unitSource ?? 'canonical') !== reference.unitSource ||
+          current.sourceVersion !== reference.sourceVersion
+        );
+      })
+    )
+      return refuse(
+        'UNRESOLVED_SLOT_UNIT',
+        'A deploying force has unresolved roster references',
+        head,
+      );
+    for (const unit of units) {
+      if (deployedUnits.has(unit.reference.unitId)) return invalid();
+      deployedUnits.add(unit.reference.unitId);
+    }
+    slots.push({ slot, forceId, ownerParticipantId: record.playerId, units });
+  }
+  if (deployedUnits.size === 0)
+    return refuse(
+      'UNOWNED_SLOT',
+      'No accepted contributor deploys a unit',
+      head,
+    );
   return Object.freeze({ kind: 'materialized', head, slots });
 }
 
