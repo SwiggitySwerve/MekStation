@@ -133,6 +133,7 @@ function run(
   const result = spawnSync(process.execPath, [script, ...args], {
     cwd,
     encoding: 'utf8',
+    timeout: 30000,
     env: {
       ...process.env,
       ...extraEnv,
@@ -146,8 +147,17 @@ function run(
   };
 }
 
-const git = (args: string[], cwd: string): string =>
-  spawnSync('git', args, { cwd, encoding: 'utf8' }).stdout.trim();
+const git = (args: string[], cwd: string): string => {
+  const result = spawnSync('git', args, {
+    cwd,
+    encoding: 'utf8',
+    env: { ...process.env, ...PIN_GIT_ENV },
+    timeout: 10000,
+  });
+  if (result.status !== 0)
+    throw new Error(`git ${args.join(' ')}: ${result.stderr}`);
+  return result.stdout.trim();
+};
 
 /** Commit everything in `repo` under the pin's identity. */
 function commitAll(repo: string, message: string): void {
@@ -432,13 +442,13 @@ beforeAll(() => {
       'if (has("checks")) {',
       '  process.stdout.write(JSON.stringify([{ bucket: "pass" }, { bucket: "pass" }]));',
       '} else if (args.join(" ").includes("files")) {',
-      '  process.stdout.write(JSON.stringify(["scripts/qc/roadmap-unit-fold.mjs"]));',
+      '  process.stdout.write(JSON.stringify(process.env.U17_FAKE_GH_HEAD ? ["shared.txt"] : ["scripts/qc/roadmap-unit-fold.mjs"]));',
       '} else {',
       '  process.stdout.write(JSON.stringify({',
       '    state: "MERGED",',
       `    mergeCommit: { oid: process.env.U17_FAKE_GH_MERGE ?? ${JSON.stringify(headSha)} },`,
       '    mergedAt: "2026-09-17T19:00:00Z",',
-      `    headRefOid: ${JSON.stringify(PR_HEAD)},`,
+      `    headRefOid: process.env.U17_FAKE_GH_HEAD ?? ${JSON.stringify(PR_HEAD)},`,
       '    mergedBy: { login: "SwiggitySwerve" },',
       '    title: "chore(qc): loop scripts",',
       '  }));',
@@ -880,6 +890,193 @@ describe('roadmap-unit-closure', () => {
     expect(result.stderr).toContain('merge commit');
     expect(unitOf(UNIT).state).toBe('local-verified');
   });
+});
+
+describe('roadmap-unit-closure three-way attestation', () => {
+  let repo = '';
+
+  beforeEach(() => {
+    repo = fs.mkdtempSync(path.join(os.tmpdir(), 'u17d-integration-'));
+    git(['init', '-q'], repo);
+    expectClosureOk(run(FOLD, foldArgs(seedLaneReceipts())));
+  });
+
+  afterEach(() => fs.rmSync(repo, { recursive: true, force: true }));
+
+  // Construct the actual tree independently of merge-tree. The two reviewed
+  // and parent edits are far apart in one file; outside.txt is never a PR file.
+  const fixture = (scenario: string) => {
+    let sequence = 0;
+    const lines = Array.from({ length: 40 }, (_, index) => `line ${index}`);
+    const tree = (first: string, last: string, outside: string): string => {
+      fs.writeFileSync(
+        path.join(repo, 'shared.txt'),
+        [first, ...lines, last, ''].join('\n'),
+      );
+      fs.writeFileSync(path.join(repo, 'outside.txt'), `${outside}\n`);
+      git(['add', '.'], repo);
+      return git(['write-tree'], repo);
+    };
+    const commit = (content: string, parents: string[]): string =>
+      git(
+        [
+          'commit-tree',
+          content,
+          ...parents.flatMap((p) => ['-p', p]),
+          '-m',
+          `fixture ${sequence++}`,
+        ],
+        repo,
+      );
+    const baseTree = tree('base', 'base', 'base');
+    const base = commit(baseTree, []);
+    const reviewedTree = tree('reviewed', 'base', 'base');
+    let head = commit(reviewedTree, [base]);
+    const clean = scenario === 'clean' || scenario === 'outside-drift';
+    const parentTree = tree(
+      scenario === 'conflict' ? 'parent-conflict' : 'base',
+      clean ? 'base' : 'parent',
+      clean ? 'base' : 'parent-only',
+    );
+    const parent = clean ? base : commit(parentTree, [base]);
+    const actualTree = tree(
+      scenario === 'reviewed-drift' ? 'tampered' : 'reviewed',
+      clean ? 'base' : 'parent',
+      scenario === 'outside-drift'
+        ? 'unreviewed'
+        : clean
+          ? 'base'
+          : 'parent-only',
+    );
+    const parents =
+      scenario === 'root'
+        ? []
+        : scenario === 'multiple'
+          ? [parent, head]
+          : [parent];
+    const merge = commit(actualTree, parents);
+    if (scenario === 'unrelated') head = commit(reviewedTree, []);
+    if (scenario === 'missing') head = 'f'.repeat(40);
+    if (scenario === 'tree-as-head') head = reviewedTree;
+    if (scenario === 'merge-as-head') head = merge;
+    if (scenario === 'future-head') head = commit(actualTree, [merge]);
+    if (scenario === 'already-integrated') head = base;
+    git(['update-ref', 'refs/heads/main', merge], repo);
+    git(['symbolic-ref', 'HEAD', 'refs/heads/main'], repo);
+    const ledger = ledgerUnits();
+    const unit = ledger.units.find((entry) => entry.id === UNIT);
+    if (!unit) throw new Error('fixture unit missing');
+    unit.baseline = base;
+    writeJson(path.join(tempLedger, 'units.json'), ledger);
+    return { head, merge, parent, base, actualTree };
+  };
+
+  const close = (
+    identity: { head: string; merge: string },
+    extra: string[] = [],
+  ): IRun => {
+    const args = closureArgs(
+      seedReview('Verdict: APPROVE', identity.head),
+      seedProofDir('Tests:       12 passed, 12 total'),
+    ).filter((arg) => arg !== '--skip-blob-check');
+    return run(
+      CLOSURE,
+      [...without(args, '--repo-root'), '--repo-root', repo, ...extra],
+      repoRoot,
+      { U17_FAKE_GH_HEAD: identity.head, U17_FAKE_GH_MERGE: identity.merge },
+    );
+  };
+
+  it.each(['clean', 'intervening-main'])(
+    'completes %s with the whole integrated tree',
+    (scenario) => {
+      const identity = fixture(scenario);
+      const result = close(identity);
+      expectClosureOk(result);
+      expect(unitOf(UNIT).state).toBe('complete');
+      const receipt = readJson<Record<string, unknown>>(
+        path.join(tempLedger, 'evidence', `u91-merge-${DATE}.json`),
+      );
+      expect(receipt.treeIntegration).toEqual({
+        parent: identity.parent,
+        mergeBases: [identity.base],
+        expectedTree: identity.actualTree,
+        actualTree: identity.actualTree,
+        matches: true,
+      });
+    },
+  );
+
+  it.each([
+    ['outside-drift', 'MAIN_PROOF_NOT_PASS'],
+    ['reviewed-drift', 'MAIN_PROOF_NOT_PASS'],
+    ['conflict', 'GIT_FAILED'],
+    ['missing', 'GIT_FAILED'],
+    ['tree-as-head', 'GIT_FAILED'],
+    ['unrelated', 'GIT_FAILED'],
+    ['root', 'MERGE_PARENT_COUNT'],
+    ['multiple', 'MERGE_PARENT_COUNT'],
+    ['merge-as-head', 'MERGE_ANCESTRY_INVALID'],
+    ['future-head', 'MERGE_ANCESTRY_INVALID'],
+    ['already-integrated', 'MERGE_ANCESTRY_INVALID'],
+  ])('refuses %s without completing', (scenario, code) => {
+    const identity = fixture(scenario);
+    const result = close(identity);
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toContain(code);
+    expect(unitOf(UNIT).state).toBe('local-verified');
+    expect(
+      fs.existsSync(path.join(tempLedger, 'evidence', `u91-tick-${DATE}.json`)),
+    ).toBe(false);
+  });
+
+  it('refuses a missing merge object even with a named reproof checkout', () => {
+    const identity = fixture('clean');
+    const result = close({ ...identity, merge: 'e'.repeat(40) }, [
+      '--reproof-commit',
+      identity.merge,
+    ]);
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toContain('GIT_FAILED');
+    expect(unitOf(UNIT).state).toBe('local-verified');
+  });
+
+  it('refuses a ruling tied to an earlier head before attestation', () => {
+    const identity = fixture('intervening-main');
+    seedSensitivePacket(true);
+    const result = close(identity);
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toContain('OWNER_RULING_MISSING');
+    expect(unitOf(UNIT).state).toBe('local-verified');
+  });
+
+  it.each(['validator', 'git-check'])(
+    'retains the %s proof refusal after valid integration',
+    (log) => {
+      const identity = fixture('intervening-main');
+      const proof = seedProofDir('Tests:       12 passed, 12 total');
+      fs.writeFileSync(
+        path.join(proof, `${log}.log`),
+        'ROADMAP VALIDATION FAILED\nexit 1\n',
+      );
+      const args = closureArgs(
+        seedReview('Verdict: APPROVE', identity.head),
+        proof,
+      ).filter((arg) => arg !== '--skip-blob-check');
+      const result = run(
+        CLOSURE,
+        [...without(args, '--repo-root'), '--repo-root', repo],
+        repoRoot,
+        {
+          U17_FAKE_GH_HEAD: identity.head,
+          U17_FAKE_GH_MERGE: identity.merge,
+        },
+      );
+      expect(result.status).not.toBe(0);
+      expect(result.stderr).toContain('MAIN_PROOF_NOT_PASS');
+      expect(unitOf(UNIT).state).toBe('local-verified');
+    },
+  );
 });
 
 describe('roadmap-main-proof --dry-run', () => {
