@@ -1,0 +1,24 @@
+{
+  "unit": "PMP",
+  "kind": "docs-only registration, not admission or tooling proof",
+  "baseline": "772cf3aba1df5b8723cae43c3c8c2c47209dca5c",
+  "planTask": 59,
+  "ownershipPaths": [
+    "scripts/qc/roadmap-main-proof.mjs",
+    "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+    "scripts/__tests__/roadmap-loop-scripts.test.ts"
+  ],
+  "caps": {
+    "maxFiles": 3,
+    "maxNonGeneratedLines": 150
+  },
+  "namespace": "roadmap-ledger-lib.mjs UNIT_ID /^[A-Za-z][A-Za-z0-9]*$/ accepts PMP; no existing unit id collision",
+  "owningNode": "R6.loop-harness (shipped U17b/U39 provenance); exact runner path added, existing exact test paths reused",
+  "umbrellaAssessment": "R6.umbrella already has scripts/qc and scripts/__tests__ parent ownership. No umbrella path/state/dependency changed; overlapping planned units are serialized by --next and no current in-flight unit overlaps these three files.",
+  "priorRepair": "U39 complete and PR1990 c87969a607c7ef5d22cff78dc270a960375112a4 retained unchanged. Its shell-free seam and exact-main step exist, but runLadder does not aggregate outcomes and still restores next-env.d.ts; execution pin accepts a dirty final state. No duplicate implementation is started.",
+  "selector": "Fresh baseline CLI NEXT U24b. The authorized insertion immediately before blocked P2B occupies array position 59, ahead of existing planned U24b at position 74 after insertion. Registered NEXT is PMP: the selector uses first planned, dependency-ready, path-free unit; this changes selection without reordering or changing any existing unit. Documentary predecessors remain unenforced. Parent must integrate registration review/CI/merge/mainproof and reconcile this transition before any implementation/admission.",
+  "downstream": "P2B/P2/U38 remain blocked and unadmitted; PMP complete/PASS/ancestry/closure is an additional P2B prerequisite, not a release.",
+  "preservedBugEvidence": "E:/Projects/.omo/evidence/p2bc-source-mainproof-ff318347e/official-main-proof-run2.stdout; aggregate exit 0 and exact-main-ladder exit 1, preserved original logs.",
+  "preservedP2RedSha256": "144dfb6effa612da69836aaa528d9ef713267821ac11f3afabaa9cf603ba3b4f",
+  "limits": "No product/tooling implementation, admission, staged PASS/red/review/merge/tick receipts, owner decision, task-row/plan checkbox or safety-gate edit."
+}
