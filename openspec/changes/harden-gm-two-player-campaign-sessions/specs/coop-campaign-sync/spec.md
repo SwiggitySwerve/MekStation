@@ -134,6 +134,12 @@ That choice is planning provenance, not an exact-head owner ruling.
 
 The system SHALL launch a co-op campaign mission as one encounter composed from both players' selected forces, assigned to a shared `GameSide` against the encounter's OpFor. The composed encounter SHALL be run through the existing `ServerMatchHost` server-authoritative combat loop. Each deploying player SHALL own and command only their own units; an intent for a unit a player does not own SHALL be rejected.
 
+After admitting the signed deploying players, participation choices, and force claims, the server SHALL derive the default opposing rows with the existing `selectOpponentUnits` policy. The selector count SHALL equal the admitted deploying-player unit count and its seed SHALL be `${campaignId}:${missionId}`. Every derived opponent SHALL have a stable, unique runtime unit identifier that does not collide with a player unit, SHALL be assigned to the opponent side, and SHALL have neither `ownerPlayerId` nor a player-control grant. Every player and opponent canonical unit reference SHALL resolve before the first match metadata, opening-event, journal-seed, launch-announcement, or receipt write.
+
+The 24-entry unit-bootstrap cap SHALL apply to the combined player and opponent roster. Twelve player rows plus twelve derived opponent rows SHALL be admissible; thirteen plus thirteen SHALL be refused without truncation. A client MAY omit opponent rows. If it supplies opponent rows, they SHALL be assertions only and SHALL exactly match the server-derived identifiers, canonical references, side, and absence of owner; a mismatch SHALL refuse the launch before any of the writes named above.
+
+The admitted server-derived roster and its opening events SHALL be immutable match creation state. Identical or concurrent retries and cold recovery SHALL reuse that persisted roster and opening rather than regenerate, reroll, truncate, or duplicate either. Generic encounter REST force rows SHALL NOT become campaign-session or signed-head authority, historical opponentless matches SHALL NOT be retrofitted, and launch SHALL NOT require an authored scenario-specific opposing force. Existing REST match-metadata exposure is unchanged; this requirement makes no stronger roster-secrecy claim.
+
 In an explicitly bootstrapped co-op mission match, the OpFor SHALL be driven by server-owned commands. At an eligible opposing-unit turn the server SHALL run the existing engine AI inside the host's serialized command lifecycle. No player browser SHALL run, receive, or be able to request control of the OpFor, and no opponent-control grant SHALL exist. Each server opponent turn SHALL carry a deterministic command identity derived from the match, the accepted branch, revision and effectiveGeneration head, and the active unit, so replay and cold reopen reproduce the same turn and a duplicate trigger appends nothing. The turn's output SHALL reach players only through the normal per-viewer publication, and hidden opponent inputs SHALL stay server-side. The existing disconnect and pause policy SHALL apply unchanged; a guest disconnect SHALL grant no participant any authority. No client wire field SHALL be able to represent server-internal authority, and a player-supplied command that claims to be an opponent AI command SHALL be rejected.
 
 #### Scenario: Co-op encounter contains both rosters
@@ -156,6 +162,40 @@ In an explicitly bootstrapped co-op mission match, the OpFor SHALL be driven by 
 - **WHEN** one player sends a combat intent for a unit owned by the other player
 - **THEN** the host SHALL reject the intent as unauthorized
 - **AND** no event SHALL be appended for that intent
+
+#### Scenario: Server derives the complete opposing roster
+
+- **GIVEN** admitted signed deploying players whose accepted forces contribute canonical player units
+- **WHEN** the co-op mission bootstrap is admitted
+- **THEN** the server SHALL select the same number of default opponents with `selectOpponentUnits` and seed `${campaignId}:${missionId}`
+- **AND** the complete roster SHALL contain owner-bound player rows and stable, unique, collision-free ownerless opponent rows
+- **AND** every canonical player and opponent reference SHALL resolve before the first match write
+
+#### Scenario: Combined bootstrap cap admits twelve plus twelve
+
+- **GIVEN** a server-derived co-op mission bootstrap
+- **WHEN** the complete roster contains twelve player rows and twelve opponent rows
+- **THEN** the bootstrap SHALL be admitted under the 24-entry cap
+
+#### Scenario: Combined bootstrap cap refuses thirteen plus thirteen
+
+- **GIVEN** a server-derived co-op mission bootstrap
+- **WHEN** the complete roster would contain thirteen player rows and thirteen opponent rows
+- **THEN** launch SHALL be refused before any write and neither side SHALL be truncated
+
+#### Scenario: Client opponent assertions mismatch
+
+- **GIVEN** the client supplies optional opponent rows with a co-op mission launch
+- **WHEN** any supplied identifier, canonical reference, side, or owner field differs from the server-derived roster
+- **THEN** launch SHALL be refused before match metadata, opening events, journal seed, launch announcement, or receipt is written
+- **AND** the client rows SHALL NOT replace or extend the server-derived roster
+
+#### Scenario: Retry and cold recovery reuse the admitted opening
+
+- **GIVEN** a co-op mission match whose derived roster and opening events were persisted
+- **WHEN** an identical launch retries concurrently or the match cold-recovers
+- **THEN** the same immutable roster and opening SHALL be reused
+- **AND** no opponent SHALL be regenerated or rerolled and no opening effect SHALL be duplicated
 
 #### Scenario: Server opponent turn advances combat
 
