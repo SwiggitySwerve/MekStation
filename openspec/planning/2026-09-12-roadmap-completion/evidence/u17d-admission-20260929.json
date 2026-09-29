@@ -1,0 +1,28 @@
+{
+  "unit": "U17d",
+  "stage": "admission",
+  "baseline": "7b7dd05b4cf9dec5eef6af960fc29c2fcdc101b7",
+  "model": "gpt-6-astra",
+  "effort": "xhigh",
+  "branch": "codex/u17d-merge-aware-closure-20260929",
+  "worktree": "E:/Projects/MekStation-wt/u17d-merge-aware-closure-20260929",
+  "contractRecordedBeforeQA": "../COMMAND-SCENARIOS.md",
+  "nextEvidence": "../raw/admission-next.log",
+  "validatorEvidence": "../raw/admission-validator.log",
+  "predecessor": { "unit": "U17c", "state": "complete", "mainProofMerge": "3b4a7b1534afd95db0fc57d761ef265d02157f1e", "recordedProof": "3 separate processes, 49 tests each, PASS" },
+  "node": { "id": "R6.loop-harness", "dependsOn": [] },
+  "ownedPaths": ["scripts/qc/roadmap-unit-closure.mjs", "scripts/qc/roadmap-ledger-lib.mjs", "scripts/__tests__/roadmap-loop-closure-proof.test.ts", "scripts/__tests__/roadmap-loop-scripts.test.ts"],
+  "caps": { "maxFiles": 4, "maxNonGeneratedLines": 300, "rule": "U41 added product lines; test lines separate" },
+  "measuredBeforeQA": { "files": 0, "productAdded": 0, "testAdded": 0 },
+  "measuredCurrent": { "files": 2, "productAdded": 52, "productRemoved": 21, "testAdded": 201, "testRemoved": 4 },
+  "classification": {
+    "nativeThreeWayIntegration": "absent at baseline",
+    "wholeTreeComparison": "absent at baseline",
+    "invalidIdentityAncestry": "partial: Git failures and sole parent check existed, ancestor identity acceptance reproduced in red",
+    "reviewRulingRuntimeCheckoutPostwriteRefusals": "proven by unchanged 49-test baseline and predecessor receipt",
+    "ciCensus": "implemented; no added policy",
+    "historicalReceiptPreservation": "required and retained; scratch-only fold/closure"
+  },
+  "pai": { "head": "ec00717c474a909af0ae53afaa758eeac33614a7", "merge": "d5c1ada3dae4076a6081e668ed9045f1458a08a9", "parent": "8c1bfdb674dbc8757445e074fb56a473333683f1", "base": "51fa88740a40bd98f3146f52d8ec47d80f8f2f5e", "expectedAndActualTree": "5182cffdc0347c5d02eb3983f0ccf458b63612f8" },
+  "notes": "Admission plan and commands were written before QA. This JSON indexes those facts after the red-first and initial green executions; it is not a historical official ledger receipt. No official ledger change or delivery Git action."
+}

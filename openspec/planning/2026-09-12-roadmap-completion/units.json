@@ -4479,28 +4479,69 @@
         "scripts/__tests__/roadmap-loop-scripts.test.ts"
       ],
       "ciClass": "product",
-      "reviewClasses": ["routine"],
+      "reviewClasses": [
+        "routine"
+      ],
       "caps": {
         "maxFiles": 4,
         "maxNonGeneratedLines": 300
       },
-      "state": "planned",
-      "baseline": null,
-      "prHead": null,
-      "mergeSha": null,
+      "state": "complete",
+      "baseline": "7b7dd05b4cf9dec5eef6af960fc29c2fcdc101b7",
+      "prHead": "33ebc856765438e574ac9d74518754bfb033dcb4",
+      "mergeSha": "166e8eb78598425b621b527728d4c6141d7e45f3",
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "admission": {
+          "path": "evidence/u17d-admission-20260929.json",
+          "baseline": "7b7dd05b4cf9dec5eef6af960fc29c2fcdc101b7",
+          "at": "2026-09-29T03:35:52.925Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u17d-red-20260929.json",
+          "at": "2026-09-29T02:27:40.420Z",
+          "summary": "Unchanged baseline49/49; old-product discriminating regression11 failed/55 passed, including intervening-main false refusal and outside-tree drift accepted; actual PAI scratch closure refused blobDiff2."
+        },
+        "local": {
+          "path": "evidence/u17d-local-20260929.json",
+          "at": "2026-09-29T02:30:51.318Z",
+          "summary": "Reviewed33ebc856 has the exact locally tested source hashes: two66/66 processes, real CLI pass/refusals, all local gates0; 2 files,52 added product lines,201 added test lines."
+        },
+        "review": {
+          "path": "evidence/u17d-review-20260929.json",
+          "head": "33ebc856765438e574ac9d74518754bfb033dcb4",
+          "reviewedHead": "33ebc856765438e574ac9d74518754bfb033dcb4",
+          "reviewerModel": "gpt-6-sol",
+          "implementerModel": "gpt-6-astra",
+          "outputSha256": "05206c9c4c827cc7a7ef707719ded6cbcae5be527ae1868b64e8c0060a579bc5",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u17d-merge-20260929.json",
+          "pr": 2085,
+          "head": "33ebc856765438e574ac9d74518754bfb033dcb4",
+          "mergeSha": "166e8eb78598425b621b527728d4c6141d7e45f3"
+        },
+        "mainProof": {
+          "path": "evidence/u17d-mainproof-20260929.json",
+          "mergeCommit": "166e8eb78598425b621b527728d4c6141d7e45f3",
+          "verdict": "PASS",
+          "runtime": "Tests:       66 passed, 66 total"
+        },
+        "tick": {
+          "path": "evidence/u17d-tick-20260929.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "admissionRequires": "Parent verifies freshly fetched origin/main, U17c's exact-main proof, the PAI reviewed-head/merge identities, and that the four exact ownership paths remain sufficient before dispatch. Run the two existing roadmap-loop Jest files red-first and green in separate processes; exercise the real closure CLI on isolated --ledger-dir repositories for clean integration, intervening-main integration, conflict, missing/invalid identity and unexplained drift; preserve literal argv, exits and output. Keep every existing review, owner-ruling, CI, runtime, checkout and validator refusal. Reproduce PAI through the fixture before using the shipped tool on the official local fold. Stop and split before exceeding four files or 300 non-generated lines.",
-      "predecessors": ["U17c"],
-      "successors": ["PAI"],
+      "predecessors": [
+        "U17c"
+      ],
+      "successors": [
+        "PAI"
+      ],
       "source20260929": {
         "at": "2026-09-29T00:00:00.000Z",
         "reason": "Plan task 52 and the user's selected strict merge-aware comparison: PAI closure refused after legitimate U24a integration changed ServerMatchHost.ts between the reviewed head and squash merge.",
@@ -4528,18 +4569,53 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
-      "prHead": null,
-      "mergeSha": null,
+      "state": "complete",
+      "baseline": "51fa88740a40bd98f3146f52d8ec47d80f8f2f5e",
+      "prHead": "ec00717c474a909af0ae53afaa758eeac33614a7",
+      "mergeSha": "d5c1ada3dae4076a6081e668ed9045f1458a08a9",
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "admission": {
+          "path": "evidence/pai-admission-20260928.json",
+          "baseline": "51fa88740a40bd98f3146f52d8ec47d80f8f2f5e",
+          "at": "2026-09-28T07:20:25.866Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/pai-red-20260928.json",
+          "at": "2026-09-28T17:49:14.113Z",
+          "summary": "Red first on the unchanged baseline: the pre-check found no existing opponent driver, and the new CoopOpponentDriver suite failed 16 and passed 8 (red-full.log). Correction 1 was reproduced red on the first head 00decaa before its fix: nine failures across refused/closed joins and pre-engagement metadata failure, including the unchanged CI test projection/__tests__/ViewerPublicationJoin.test.ts that failed PR CI (correction-1-red-00decaa.log, correction-1-red-confirmed.log)."
+        },
+        "local": {
+          "path": "evidence/pai-local-20260928.json",
+          "at": "2026-09-28T17:49:14.113Z",
+          "summary": "12 files, all in src/lib/multiplayer/server (399 conservatively counted changed production lines, 876 test lines added; caps 15 files / 500 lines): a server-only CoopOpponentDriver drives the opposing force of explicitly bootstrapped co-op mission matches through the existing engine AI inside ServerMatchHost's serialized command lifecycle, with a deterministic turn identity seeding strategy and dice, refusal of client-claimed AI identity, invalidation on stale work/disconnect/pause/close, and a fault latch on engaged-mission storage failure; vessels and versus matches are never engaged. Correction ec00717: refused or closed joins no longer schedule the driver and a pre-engagement metadata failure sends no frame and pauses nothing. Green: new suite 36/36 in two processes; entire server tree 174 suites / 1,320 tests in two processes; all 191 multiplayer suites / 1,579 tests; typecheck, lint 0 errors / 84 warnings (parent rerun), lint:units, format:check, git diff --check, build, and a real-WebSocket smoke in both authority modes."
+        },
+        "review": {
+          "path": "evidence/pai-review-20260928.json",
+          "head": "ec00717c474a909af0ae53afaa758eeac33614a7",
+          "reviewedHead": "ec00717c474a909af0ae53afaa758eeac33614a7",
+          "reviewerModel": "gpt-6-sol",
+          "implementerModel": "gpt-6-astra",
+          "outputSha256": "834ed582f83a1496f15ec70d6c594de650472cb14de925d4a2d4780f944e75fa",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/pai-merge-20260928.json",
+          "pr": 2083,
+          "head": "ec00717c474a909af0ae53afaa758eeac33614a7",
+          "mergeSha": "d5c1ada3dae4076a6081e668ed9045f1458a08a9"
+        },
+        "mainProof": {
+          "path": "evidence/pai-mainproof-20260928.json",
+          "mergeCommit": "d5c1ada3dae4076a6081e668ed9045f1458a08a9",
+          "verdict": "PASS",
+          "runtime": "Tests:       1320 passed, 1320 total"
+        },
+        "tick": {
+          "path": "evidence/pai-tick-20260928.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "admissionRequires": "P1A, P1B1, P1B2, P1B3, P1C all require exact-main mainProof receipts before parent release to planned. The blocked historical P1 record is superseded by P1A/P1B/P1C; its absence of a mainProof is not bypassed or falsified. NEXT does not enforce these unit dependencies. If any predecessor is owner-gated, dependent units are kept blocked/on that same packet. The separately owned server-AI OpenSpec contract (execution task 41) must also be delivered before admission. All sensitive-class exact-head owner rulings remain required. The P1B record is in turn superseded by P1B1/P1B2/P1B3.",
@@ -4604,7 +4680,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -4652,6 +4728,13 @@
         "at": "2026-09-28T04:56:27.842Z",
         "change": "behavior extended with already-launched mission rejoin",
         "note": "Holds FN-p1c-partial-success-rejoin. The owner was asked how to handle it (defer to P2, relax the create route identity check, or page cross-call state) and did not answer within 30 minutes; the parent took the recommended option, deferring to P2, which already consumes the announced missionMatchId on this page."
+      },
+      "released20260929": {
+        "at": "2026-09-29T03:41:18.808Z",
+        "from": "blocked",
+        "cause": "All six named P2 predecessors are complete with PASS mainProof receipts whose merge commits are ancestors of freshly fetched origin/main166e8eb; see evidence/p2-release-20260929.json.",
+        "by": "parent-authorized ledger edit after official U17d and PAI closure; NEXT does not enforce these unit dependencies. U38 remains blocked on P2.",
+        "evidence": "evidence/p2-release-20260929.json"
       }
     },
     {
@@ -9883,6 +9966,48 @@
     }
   ],
   "packets": [
+    {
+      "id": "PK-pai-ruling",
+      "blocks": [
+        "PAI"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "PAI presents head ec00717c474a909af0ae53afaa758eeac33614a7 on PR #2083 for authority, privacy, replay, idempotency and concurrency review. Does the owner rule this exact head after fresh independent review and required CI checks pass?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "The owner posts the head-bound OWNER-RULING comment and applies owner-ruled on the actual product PR; only then may the parent merge and run exact-main proof.",
+          "effort": "One owner review of the exact head and its evidence"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Do not merge; preserve the objection and revise through a new verified head, fresh independent review and fresh owner ruling.",
+          "effort": "Depends on the concrete requested change"
+        }
+      ],
+      "agentRecommendation": "Rule the exact head. Lane A (gpt-6-sol) APPROVE on ec00717 with no BLOCKER or REQUIRED finding, after a correction commit fixed the refused-join regression that failed CI on 00decaa; the reviewer independently ran the entire src/lib/multiplayer/server Jest tree in two processes (174 suites / 1,320 tests each); 31 of 31 checks green and CLEAN.",
+      "revertCost": "Revert the squash merge d5c1ada; the driver is server-only under src/lib/multiplayer/server with no schema, wire or persisted-format change, so no data migration is needed.",
+      "decision": {
+        "at": "2026-09-28T00:58:00Z",
+        "option": "rule the head",
+        "text": "Checks + review, then merge (Recommended)",
+        "source": "owner standing instruction in the working session (chat), 2026-09-28: \"merge PRs if they are passing the checks\", then, to the question \"For roadmap PRs going forward (P1B2 next, then U43, U24 and so on), when should I merge?\" (toolu_011JoFgVt4MouFz3sMkuTkcP), \"Checks + review, then merge (Recommended)\", whose option text read: \"When CI is 31/31 green and the independent review approves the exact head, I merge pinned to that head. For sensitive units I post the OWNER-RULING comment and owner-ruled label myself, citing this standing instruction, instead of asking you per head.\"; both conditions held on ec00717 (Lane A APPROVE sha256 834ed582..., 31/31 CI)"
+      },
+      "ruling": {
+        "ruledHead": "ec00717c474a909af0ae53afaa758eeac33614a7",
+        "pr": 2083,
+        "commentId": 5875452398,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "2662d02b727e74893cd29af3c2f166dfced32b9811f3a074f590bf48021e68b7",
+        "postedBy": "parent under the owner's standing instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; under the owner's standing instruction the parent composed and posted the comment from the owner GitHub account and applied owner-ruled; the decision is the owner's standing instruction, and the parent supplied the head from the ledger"
+      },
+      "note": "Registered at the PAI closure with its ruling already given: the owner's standing merge instruction (2026-09-28) covers sensitive units once CI is green and Lane A approves the exact head. The agent chose no option."
+    },
     {
       "id": "PK-rewind-branch-reader",
       "blocks": [],

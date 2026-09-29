@@ -1,0 +1,23 @@
+{
+  "unit": "PAI",
+  "stage": "red",
+  "at": "2026-09-28T17:49:14.113Z",
+  "baseline": "51fa88740a40bd98f3146f52d8ec47d80f8f2f5e",
+  "summary": "Red first on the unchanged baseline: the pre-check found no existing opponent driver, and the new CoopOpponentDriver suite failed 16 and passed 8 (red-full.log). Correction 1 was reproduced red on the first head 00decaa before its fix: nine failures across refused/closed joins and pre-engagement metadata failure, including the unchanged CI test projection/__tests__/ViewerPublicationJoin.test.ts that failed PR CI (correction-1-red-00decaa.log, correction-1-red-confirmed.log).",
+  "evidence": [
+    "lane log correction-1-red-00decaa.log",
+    "lane log correction-1-red-00decaa.log.idle.log",
+    "lane log correction-1-red-confirmed.log",
+    "lane log correction-1-red-confirmed.log.idle.log",
+    "lane log correction-1-red.log",
+    "lane log correction-1-red.log.idle.log",
+    "lane log red-campaign-gm.log",
+    "lane log red-campaign-gm.log.idle.log",
+    "lane log red-full.log",
+    "lane log red-full.log.idle.log",
+    "lane log red-prerequisite.log",
+    "lane log red-prerequisite.log.idle.log",
+    "lane log red-resume.log",
+    "lane log red-resume.log.idle.log"
+  ]
+}

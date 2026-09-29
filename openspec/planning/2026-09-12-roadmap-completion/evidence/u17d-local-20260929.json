@@ -1,0 +1,281 @@
+{
+  "unit": "U17d",
+  "stage": "local",
+  "at": "2026-09-29T02:30:51.318Z",
+  "status": "local-verified",
+  "baseline": "7b7dd05b4cf9dec5eef6af960fc29c2fcdc101b7",
+  "head": "33ebc856765438e574ac9d74518754bfb033dcb4",
+  "implementer": "gpt-6-astra",
+  "summary": "Native conflict-free Git integration of the exact reviewed head onto the actual sole merge parent is compared by whole-tree identity. Two owned files; 52 product additions/21 removals, tests 201 additions/4 removals. Both scoped test files pass 66/66 in two processes; standalone CLI and actual PAI scratch reproduction pass only correct integrations, with conflict/drift/identity refusals. All local gates pass, lint84 warnings/0 errors, lint:units17899/17899. No dependency, helper abstraction, official ledger change or historical receipt rewrite in the product diff.",
+  "testedCheckoutHead": "7b7dd05b4cf9dec5eef6af960fc29c2fcdc101b7",
+  "testedContent": "Local runs occurred on the uncommitted implementation delta above baseline; these exact file hashes were subsequently committed and reviewed at head33ebc856. They are not claimed as executions made after that commit existed.",
+  "files": [
+    {
+      "path": "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+      "sha256": "a2d398f3a5bc1028040214eb7b8fa193d1f6809a1400f69ea856728e79d6e134"
+    },
+    {
+      "path": "scripts/qc/roadmap-unit-closure.mjs",
+      "sha256": "be4f11d4012c264747717cbdb1d36d5cb0eb2ba8a9e73a24c3ba5530579af546"
+    }
+  ],
+  "caps": {
+    "files": 2,
+    "maxFiles": 4,
+    "productAdded": 52,
+    "maxProductAdded": 300,
+    "testAdded": 201
+  },
+  "runs": {
+    "jest-green-1": {
+      "exit": 0,
+      "summary": "66 passed, 66 total",
+      "at": "2026-09-29T02:29:34.707Z",
+      "command": {
+        "cwd": "E:\\Projects\\MekStation-wt\\u17d-merge-aware-closure-20260929",
+        "program": "node",
+        "args": [
+          "node_modules/jest/bin/jest.js",
+          "--runInBand",
+          "--watchAll=false",
+          "--runTestsByPath",
+          "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+          "scripts/__tests__/roadmap-loop-scripts.test.ts"
+        ],
+        "at": "2026-09-29T02:28:46.685Z",
+        "node": "v22.22.0",
+        "model": "gpt-6-astra",
+        "affinity": "inherited mask 3"
+      },
+      "artifacts": [
+        {
+          "path": ".omo/ulw-execute/u17d/raw/jest-green-1.command.json",
+          "sha256": "43ad7b083dda0ce5fb260ffb077a4133a5813829876b71e6cba93ff3c9d027bb"
+        },
+        {
+          "path": ".omo/ulw-execute/u17d/raw/jest-green-1.stdout",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": ".omo/ulw-execute/u17d/raw/jest-green-1.stderr",
+          "sha256": "80abf28771b071f4f7b2534b9c0e8511bdcf2e94d19a8a3bb0f5a401dfd2cfe2"
+        },
+        {
+          "path": ".omo/ulw-execute/u17d/raw/jest-green-1.exit.json",
+          "sha256": "189c5abea08c7c4f572bd224fb331d01efd7efbbcdc9dbee9785250847d8927f"
+        }
+      ]
+    },
+    "jest-green-2": {
+      "exit": 0,
+      "summary": "66 passed, 66 total",
+      "at": "2026-09-29T02:30:51.318Z",
+      "command": {
+        "cwd": "E:\\Projects\\MekStation-wt\\u17d-merge-aware-closure-20260929",
+        "program": "node",
+        "args": [
+          "node_modules/jest/bin/jest.js",
+          "--runInBand",
+          "--watchAll=false",
+          "--runTestsByPath",
+          "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+          "scripts/__tests__/roadmap-loop-scripts.test.ts"
+        ],
+        "at": "2026-09-29T02:30:04.171Z",
+        "node": "v22.22.0",
+        "model": "gpt-6-astra",
+        "affinity": "inherited mask 3"
+      },
+      "artifacts": [
+        {
+          "path": ".omo/ulw-execute/u17d/raw/jest-green-2.command.json",
+          "sha256": "ef2c50d4f0ff484018a69144b905d3c68cd612fb7d84ff85704a3d5faff67185"
+        },
+        {
+          "path": ".omo/ulw-execute/u17d/raw/jest-green-2.stdout",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": ".omo/ulw-execute/u17d/raw/jest-green-2.stderr",
+          "sha256": "90248ba5cf5927858cd4004a30fe0bd68a4e3c00fab199bb9ab805f92e66297f"
+        },
+        {
+          "path": ".omo/ulw-execute/u17d/raw/jest-green-2.exit.json",
+          "sha256": "d20774857fd337a37ac20c02e796c1859c0d2dbeda72fab4fe0e480b7f3e2b8e"
+        }
+      ]
+    }
+  },
+  "gates": {
+    "gate-typecheck": {
+      "exit": 0,
+      "command": {
+        "cwd": "E:\\Projects\\MekStation-wt\\u17d-merge-aware-closure-20260929",
+        "program": "cmd.exe",
+        "args": [
+          "/d",
+          "/s",
+          "/c",
+          "npm.cmd run typecheck"
+        ],
+        "at": "2026-09-29T02:32:44.709Z",
+        "node": "v22.22.0",
+        "model": "gpt-6-astra",
+        "affinity": "inherited mask 3"
+      },
+      "stdoutSha256": "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "gate-lint": {
+      "exit": 0,
+      "command": {
+        "cwd": "E:\\Projects\\MekStation-wt\\u17d-merge-aware-closure-20260929",
+        "program": "cmd.exe",
+        "args": [
+          "/d",
+          "/s",
+          "/c",
+          "npm.cmd run lint"
+        ],
+        "at": "2026-09-29T02:33:35.761Z",
+        "node": "v22.22.0",
+        "model": "gpt-6-astra",
+        "affinity": "inherited mask 3"
+      },
+      "stdoutSha256": "b64989c670253a3b0b7e82c38f3b57118e618db6529b9d2c1af82848601b31c9",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "gate-lint-units": {
+      "exit": 0,
+      "command": {
+        "cwd": "E:\\Projects\\MekStation-wt\\u17d-merge-aware-closure-20260929",
+        "program": "cmd.exe",
+        "args": [
+          "/d",
+          "/s",
+          "/c",
+          "npm.cmd run lint:units"
+        ],
+        "at": "2026-09-29T02:33:39.105Z",
+        "node": "v22.22.0",
+        "model": "gpt-6-astra",
+        "affinity": "inherited mask 3"
+      },
+      "stdoutSha256": "f685d7b98a785c65f8dcfb3475c399afcccb922eff0d2e21cc9c640995ef2fb8",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "gate-format-check": {
+      "exit": 0,
+      "command": {
+        "cwd": "E:\\Projects\\MekStation-wt\\u17d-merge-aware-closure-20260929",
+        "program": "cmd.exe",
+        "args": [
+          "/d",
+          "/s",
+          "/c",
+          "npm.cmd run format:check"
+        ],
+        "at": "2026-09-29T02:33:42.266Z",
+        "node": "v22.22.0",
+        "model": "gpt-6-astra",
+        "affinity": "inherited mask 3"
+      },
+      "stdoutSha256": "f8b7834ae829fbd22eaaac427ef278fd326356085194fdc908f6ff08ed950add",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "gate-build": {
+      "exit": 0,
+      "command": {
+        "cwd": "E:\\Projects\\MekStation-wt\\u17d-merge-aware-closure-20260929",
+        "program": "cmd.exe",
+        "args": [
+          "/d",
+          "/s",
+          "/c",
+          "npm.cmd run build"
+        ],
+        "at": "2026-09-29T02:33:57.299Z",
+        "node": "v22.22.0",
+        "model": "gpt-6-astra",
+        "affinity": "inherited mask 3"
+      },
+      "stdoutSha256": "10b99f1ef72457b420227cf1ec7c28d495704a72e2726321deb0f2622e634aa0",
+      "stderrSha256": "3b2543a6e7575e250ce1c34f582c68bab1dcfb68f91901cf0c3dde74beccda0b"
+    },
+    "validator-base": {
+      "exit": 0,
+      "command": {
+        "cwd": "E:\\Projects\\MekStation-wt\\u17d-merge-aware-closure-20260929",
+        "program": "node",
+        "args": [
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+        ],
+        "at": "2026-09-29T02:36:43.916Z",
+        "node": "v22.22.0",
+        "model": "gpt-6-astra",
+        "affinity": "inherited mask 3"
+      },
+      "stdoutSha256": "5d4e2632ad433b598282457f50f016260282736419f55973bd91f704a9ef25a1",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "validator-git": {
+      "exit": 0,
+      "command": {
+        "cwd": "E:\\Projects\\MekStation-wt\\u17d-merge-aware-closure-20260929",
+        "program": "node",
+        "args": [
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+          "--git"
+        ],
+        "at": "2026-09-29T02:36:45.252Z",
+        "node": "v22.22.0",
+        "model": "gpt-6-astra",
+        "affinity": "inherited mask 3"
+      },
+      "stdoutSha256": "5d4e2632ad433b598282457f50f016260282736419f55973bd91f704a9ef25a1",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "validator-next": {
+      "exit": 0,
+      "command": {
+        "cwd": "E:\\Projects\\MekStation-wt\\u17d-merge-aware-closure-20260929",
+        "program": "node",
+        "args": [
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+          "--next"
+        ],
+        "at": "2026-09-29T02:36:51.728Z",
+        "node": "v22.22.0",
+        "model": "gpt-6-astra",
+        "affinity": "inherited mask 3"
+      },
+      "stdoutSha256": "6491cd09028317021b5ffb1f94cf8c8582b0c6e6c6447439aa5568745b90ba08",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "diff-check": {
+      "exit": 0,
+      "command": {
+        "cwd": "E:\\Projects\\MekStation-wt\\u17d-merge-aware-closure-20260929",
+        "program": "git",
+        "args": [
+          "diff",
+          "--check"
+        ],
+        "at": "2026-09-29T02:36:52.571Z",
+        "node": "v22.22.0",
+        "model": "gpt-6-astra",
+        "affinity": "inherited mask 3"
+      },
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "cliEvidence": {
+    "manifest": ".omo/ulw-execute/u17d/cli-outcomes.json",
+    "sha256": "59a62f352073d9bf0451ae8faf76b0f480a69983a386390872a204950f06d997",
+    "actualPaiResult": ".omo/ulw-execute/u17d/pai-green-result.json",
+    "actualPaiResultSha256": "44c709906e1056408390a8af09d267464812e79b957af08a2bdc5c12fa57afaf"
+  },
+  "diagnostics": "Initial product LSP diagnostics clean; post-format refresh timed out then. Parent and independent exact-head reviewer later reported fresh diagnostics clean on the same hashes. No clean refresh is invented for the earlier run.",
+  "evidenceRoot": ".omo/ulw-execute/u17d"
+}

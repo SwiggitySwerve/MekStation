@@ -1,0 +1,17 @@
+{
+  "unit": "PAI",
+  "stage": "review",
+  "at": "2026-09-29T03:38:28.685Z",
+  "lane": "A",
+  "reviewerModel": "gpt-6-sol",
+  "implementerModel": "gpt-6-astra",
+  "reviewerEffort": "not exposed by the historical task snapshot",
+  "head": "ec00717c474a909af0ae53afaa758eeac33614a7",
+  "reviewedHead": "ec00717c474a909af0ae53afaa758eeac33614a7",
+  "verdict": "APPROVE",
+  "outputPath": "evidence/pai-lane-a-review-20260928.md",
+  "outputSha256": "834ed582f83a1496f15ec70d6c594de650472cb14de925d4a2d4780f944e75fa",
+  "sharedContext": "Independent gpt-6-sol re-gate approved exactec00717 after CI exposed the refused-join regression on00decaa and correction red-first; reviewer ran entire server tree in two processes,174 suites/1320 tests each. Full review preserved unchanged; no new review or owner ruling is invented.",
+  "laneB": "owner ruling PK-pai-ruling: rule the head on ec00717c474a909af0ae53afaa758eeac33614a7 (PR #2083, comment 5875452398, label owner-ruled)",
+  "githubApproval": "none recorded; Lane A is engineering evidence, never a GitHub approval"
+}

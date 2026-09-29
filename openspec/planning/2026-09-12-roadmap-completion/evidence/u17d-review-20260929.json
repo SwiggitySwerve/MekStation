@@ -1,0 +1,17 @@
+{
+  "unit": "U17d",
+  "stage": "review",
+  "at": "2026-09-29T03:36:21.328Z",
+  "lane": "A",
+  "reviewerModel": "gpt-6-sol",
+  "implementerModel": "gpt-6-astra",
+  "reviewerEffort": "not stated in archived review",
+  "head": "33ebc856765438e574ac9d74518754bfb033dcb4",
+  "reviewedHead": "33ebc856765438e574ac9d74518754bfb033dcb4",
+  "verdict": "APPROVE",
+  "outputPath": "evidence/u17d-lane-a-review-20260929.md",
+  "outputSha256": "05206c9c4c827cc7a7ef707719ded6cbcae5be527ae1868b64e8c0060a579bc5",
+  "sharedContext": "Independent gpt-6-sol review in detached exact33ebc856 checkout; reviewed full two-file diff, ran66/66 scoped tests and11 real-Git CLI scenarios, independently measured actual PAI parent/base/tree; APPROVE with no blocker. Supporting build/type/lint evidence was inspected, not independently rerun by reviewer.",
+  "laneB": "not required (review classes: routine)",
+  "githubApproval": "none recorded; Lane A is engineering evidence, never a GitHub approval"
+}

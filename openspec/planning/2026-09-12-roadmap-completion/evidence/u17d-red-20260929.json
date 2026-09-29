@@ -1,0 +1,133 @@
+{
+  "unit": "U17d",
+  "stage": "red",
+  "at": "2026-09-29T02:27:40.420Z",
+  "baseline": "7b7dd05b4cf9dec5eef6af960fc29c2fcdc101b7",
+  "summary": "Unchanged baseline 49/49 passed. Before product edit, refined real-Git regression failed 11 and passed 55: legitimate same-file intervening-main integration refused MAIN_PROOF_NOT_PASS blobDiff=2; outside-path drift and self/future head identities were wrongly accepted. Actual PAI scratch CLI also refused MAIN_PROOF_NOT_PASS blobDiff=2 on original measured proof. Initial 10-failed/56-passed fixture run remains preserved.",
+  "runs": {
+    "jest-baseline": {
+      "exit": 0,
+      "summary": "49 passed, 49 total",
+      "at": "2026-09-29T02:20:41.577Z",
+      "command": {
+        "cwd": "E:\\Projects\\MekStation-wt\\u17d-merge-aware-closure-20260929",
+        "program": "node",
+        "args": [
+          "node_modules/jest/bin/jest.js",
+          "--runInBand",
+          "--watchAll=false",
+          "--runTestsByPath",
+          "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+          "scripts/__tests__/roadmap-loop-scripts.test.ts"
+        ],
+        "at": "2026-09-29T02:19:14.045Z",
+        "node": "v22.22.0",
+        "model": "gpt-6-astra",
+        "affinity": "inherited mask 3"
+      },
+      "artifacts": [
+        {
+          "path": ".omo/ulw-execute/u17d/raw/jest-baseline.command.json",
+          "sha256": "da58a188370cb122a39184ab0fec22a25e307aaa5bc839775c6fe2a19ecefcb7"
+        },
+        {
+          "path": ".omo/ulw-execute/u17d/raw/jest-baseline.stdout",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": ".omo/ulw-execute/u17d/raw/jest-baseline.stderr",
+          "sha256": "729b14c70b7dd8457df92b1898d63656b039cdf91a18dcddeabb6513b9c84f02"
+        },
+        {
+          "path": ".omo/ulw-execute/u17d/raw/jest-baseline.exit.json",
+          "sha256": "0fa189116f97dccea190cbd94e0e60d798aae65807008c70f60eaa12af30e24a"
+        }
+      ]
+    },
+    "jest-red": {
+      "exit": 1,
+      "summary": "10 failed, 56 passed, 66 total",
+      "at": "2026-09-29T02:23:55.649Z",
+      "command": {
+        "cwd": "E:\\Projects\\MekStation-wt\\u17d-merge-aware-closure-20260929",
+        "program": "node",
+        "args": [
+          "node_modules/jest/bin/jest.js",
+          "--runInBand",
+          "--watchAll=false",
+          "--runTestsByPath",
+          "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+          "scripts/__tests__/roadmap-loop-scripts.test.ts"
+        ],
+        "at": "2026-09-29T02:23:12.584Z",
+        "node": "v22.22.0",
+        "model": "gpt-6-astra",
+        "affinity": "inherited mask 3"
+      },
+      "artifacts": [
+        {
+          "path": ".omo/ulw-execute/u17d/raw/jest-red.command.json",
+          "sha256": "cf0f6a89aa7d1bfb509e2fa3c2242f82b9601fee1b2fb5aef274eb0abea74458"
+        },
+        {
+          "path": ".omo/ulw-execute/u17d/raw/jest-red.stdout",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": ".omo/ulw-execute/u17d/raw/jest-red.stderr",
+          "sha256": "68ff9c81c35051f3e577be5a412761fef2ebd0fb72e3b84ce694ee75e1674e86"
+        },
+        {
+          "path": ".omo/ulw-execute/u17d/raw/jest-red.exit.json",
+          "sha256": "00b7f6a8fe508ed380881c8a03829b37e4c9c6daf1e6cc0bc54d7acb0fadf0e7"
+        }
+      ]
+    },
+    "jest-red-discriminating": {
+      "exit": 1,
+      "summary": "11 failed, 55 passed, 66 total",
+      "at": "2026-09-29T02:27:40.420Z",
+      "command": {
+        "cwd": "E:\\Projects\\MekStation-wt\\u17d-merge-aware-closure-20260929",
+        "program": "node",
+        "args": [
+          "node_modules/jest/bin/jest.js",
+          "--runInBand",
+          "--watchAll=false",
+          "--runTestsByPath",
+          "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+          "scripts/__tests__/roadmap-loop-scripts.test.ts"
+        ],
+        "at": "2026-09-29T02:26:57.174Z",
+        "node": "v22.22.0",
+        "model": "gpt-6-astra",
+        "affinity": "inherited mask 3"
+      },
+      "artifacts": [
+        {
+          "path": ".omo/ulw-execute/u17d/raw/jest-red-discriminating.command.json",
+          "sha256": "a082a1676b99a6543f02acbed4a927f61023636a1001cf0a4490aa3ddbea05b3"
+        },
+        {
+          "path": ".omo/ulw-execute/u17d/raw/jest-red-discriminating.stdout",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": ".omo/ulw-execute/u17d/raw/jest-red-discriminating.stderr",
+          "sha256": "885c7f4fb28ab7c86a1cd8c9bb69aaa59059abe7d81b2d6b6fcefd1ba827d1cc"
+        },
+        {
+          "path": ".omo/ulw-execute/u17d/raw/jest-red-discriminating.exit.json",
+          "sha256": "538e2eac74702006f09bcc76bb39a1e115206ee33e51a3703b73dd0526b04e01"
+        }
+      ]
+    }
+  },
+  "realPaiRed": {
+    "commandPath": ".omo/ulw-execute/u17d/raw/pai-red-closure.command.json",
+    "exit": 1,
+    "stderrSha256": "83f917158be764cc06eae607f2d1f745321bce3addac0a97a762e1ec79eac916"
+  },
+  "evidenceRoot": ".omo/ulw-execute/u17d",
+  "scope": "Real throwaway Git repositories; GitHub metadata fake only in isolated unit fixtures. Actual PAI reproduction queried real PR2083; no official ledger was modified by red proof."
+}

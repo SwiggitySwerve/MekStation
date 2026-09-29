@@ -1,0 +1,8 @@
+{
+  "unit": "PAI",
+  "stage": "tick",
+  "at": "2026-09-29T03:38:30.797Z",
+  "taskKeys": [],
+  "note": "PAI holds no task row; the delivered behaviour is proven on main by this unit.",
+  "tickedOnMain": null
+}
