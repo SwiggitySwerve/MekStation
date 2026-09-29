@@ -1,0 +1,252 @@
+{
+  "kind": "unit-registration",
+  "unit": "P2A",
+  "planTasks": [
+    54,
+    55
+  ],
+  "date": "2026-09-29",
+  "baseline": "cfd219a8daee5c4797d3bea5eae1b047ed3ba40f",
+  "branch": "codex/p2a-register-20260929",
+  "worktree": "E:\\Projects\\MekStation-wt\\p2a-registration-20260929",
+  "implementer": {
+    "model": "gpt-6-astra",
+    "reasoning": "xhigh"
+  },
+  "idAvailability": {
+    "chosen": "P2A",
+    "unusedAtBaseline": true
+  },
+  "fitDecision": {
+    "existingPlannedUnitFits": false,
+    "P1A": "Complete; mission-create owns signed mapping but not the earlier launch-authority materializer.",
+    "P2": "Client-only; measured preflight defect is outside its fixed ownership.",
+    "U38": "Blocked combat-intent unit enforcement, not launch preflight.",
+    "U50": "Client recovery/unavailable-head guard, not signed owner resolution.",
+    "U104": "Planned proof of correction-saga visibility through the route and durable reader; distinct clause, retained unchanged."
+  },
+  "observedRed": [
+    {
+      "path": "E:/Projects/MekStation-wt/mekstation-roadmap-loop-continuation-wave-b/.omo/ulw-execute/p2/evidence/preflight-red-2/preflight-false.json",
+      "sha256": "d44f8b6d28acc662d1811d5179f61ec1231de337bf26c9d5ea405cc23c52a64e",
+      "status": 409,
+      "code": "UNOWNED_SLOT",
+      "creationClaims": false,
+      "expectedHead": {
+        "branchId": "root",
+        "revision": 1,
+        "effectiveGeneration": 1
+      },
+      "before": {
+        "matches": 1,
+        "events": 0,
+        "receipts": 0
+      },
+      "after": {
+        "matches": 1,
+        "events": 0,
+        "receipts": 0
+      }
+    },
+    {
+      "path": "E:/Projects/MekStation-wt/mekstation-roadmap-loop-continuation-wave-b/.omo/ulw-execute/p2/evidence/preflight-red-2/preflight-true.json",
+      "sha256": "e897a770cc9ffa0826d016d5071b553a48850a81b9ceb9910a9ccd9f8b2613b4",
+      "status": 409,
+      "code": "STALE_OWNERSHIP",
+      "creationClaims": true,
+      "expectedHead": {
+        "branchId": "root",
+        "revision": 1,
+        "effectiveGeneration": 1
+      },
+      "before": {
+        "matches": 1,
+        "events": 0,
+        "receipts": 0
+      },
+      "after": {
+        "matches": 1,
+        "events": 0,
+        "receipts": 0
+      }
+    }
+  ],
+  "preservedRedTest": {
+    "path": "E:/Projects/MekStation-wt/mekstation-roadmap-loop-continuation-wave-b/src/lib/campaign/coop/__tests__/launchCoopMission.test.ts",
+    "sha256": "144dfb6effa612da69836aaa528d9ef713267821ac11f3afabaa9cf603ba3b4f",
+    "action": "Read/hash only. Do not remove, restore, relocate or rewrite; future precursor authors its own neighboring route/materializer tests. Parent reruns this preserved test after landed repair before P2 release."
+  },
+  "sourceFacts": {
+    "callerChain": "missionLaunchPage.launch.ts:235-241 -> resolveLaunchForces(sessionId) -> POST launch-authority -> campaignLaunchAuthorityRoute.ts:220 -> materializeOwnedPlayerForces; the page asserts refusal before shared create.",
+    "productionMaterializerCallers": [
+      "src/pages-modules/api/campaignLaunchAuthorityRoute.ts"
+    ],
+    "lspEvidence": "LSP references and goto-definition confirmed the production materializer caller; ownedPlayerForceUnits references confirmed materializeCampaignMissionEncounter.ts as its only production consumer.",
+    "sourceOfTruth": "Signed CampaignJoin/Participation verifies principal in the socket binder. authorizeCampaignParticipation derives identity/role, checks baseline and first-claim conflict; bindCampaignSyncConnection.ts:1377-1406 records durable claim then publishes accepted participation. Durable membership is revocable. P1A checks accepted records against durable claims and membership.",
+    "durabilityLimit": "CampaignHostRegistry stores choices in participationByMission, a process-local map; getParticipationRecords filters freshness. CampaignSessionForceClaimStore persists missionId/forceId/participantId, NOT deploy/HQ choice. No durable accepted-choice reader exists. Never invent one or infer deploy on restart.",
+    "creationSlots": "campaignCreationCheckpoint mints positional placeholders and claims forces under campaign-creation; those placeholders are not real signed identities and are not additional player membership bindings.",
+    "currentAuth": "launch-authority handler and routeHelpers contain no bearer verification; requestLaunchAuthority sends only Content-Type. Authenticated proof means server-accepted signed campaign-socket contributors plus durable member/claim validation, followed by real HTTP preflight. It does not prove HTTP-requester authentication. Adding a new HTTP auth requirement would break existing callers and the preserved red fixture and is not silently included.",
+    "downstreamShape": "IOwnedSlotForce[] is not a fixed pair. requestLaunchAuthority relays it; mission launch checks refusal; materializeCampaignMissionEncounter flattens every returned slot through ownedPlayerForceUnits and sizes existing OpFor off the flattened length. No consumer reads ownerParticipantId as a lobby grant. Existing two-slot tests remain controls; no consumer product change is needed for one deployed slot.",
+    "opponentBoundary": "selectOpponentUnits in materializeCampaignMissionEncounter.forceUnits.ts is pure deterministic selection from representativeUnits; P2 may reuse it for mission bootstrap. P2A changes no opponent selection or PAI driver."
+  },
+  "design": {
+    "recommendation": "A server-bound typed read port on the existing pure materializer, implemented by the existing route; four files only.",
+    "port": "Return a tagged legacy-slot / signed-mission / refused context from SERVER reads. The route supplies fresh accepted records, durable current memberships/claims and campaign/session binding; no context field is parsed from request owner/player/slot/contribution data.",
+    "signedMode": "Use signed mode when a live campaign entry exists or a per-mission durable claim names a non-placeholder owner. Missing/closed/wrong-campaign registry or missing/stale accepted choices then refuses; do not fall back to legacy. With no live entry and only legitimate creation/per-mission placeholder claims, retain the existing slot-based path. Pure existing callers without the optional server context retain their current slot-based behavior.",
+    "validation": "Check original expected head and existing progression first. In signed mode require mission existence, exact campaign/session binding, fresh accepted record coverage for active tactical members, record/claim agreement, one force per contributor as P1A, no extra signed claim, active matching membership, exact current force/unit membership and resolvable source references. Refuse conflicting/duplicate owners/units and empty deployed union. Read durable state consistently without writes. P1A still re-admits at create; preflight is not a reservation.",
+    "output": {
+      "zero": "typed refusal, no slots promoted",
+      "one": "one slot numbered 1 with actual signed owner, exact force, adopted reference/pilot list; HQ absent",
+      "two": "signed playerId stable ordering -> slots 1 and 2, both on downstream player side",
+      "overTwo": "typed refusal, never truncate",
+      "legacy": "same placeholder slot numbering, overrides and refusal law as existing tests"
+    },
+    "replayAndConcurrency": "Repeated preflight is read-only; cold loss of accepted participation refuses until genuine signed choices are accepted again. Capture no-append census. Preflight/create race remains guarded by P1A original-head re-admission; do not fabricate durable choice replay or acquire/create a registry host from this read route.",
+    "rejectedAlternatives": [
+      "Omit sessionId or skip assertOwnedForcesCurrent: bypasses existing guards.",
+      "Treat all durable claims as deploy: promotes HQ after lost choices.",
+      "Rewrite owner IDs to placeholders: contradicts P1A signed identity.",
+      "Add a choice cache/store or new schema: unnecessary persistence change outside this bounded repair.",
+      "Change HTTP caller authentication without client/contract ownership: separate authority boundary, not this signed contributor repair."
+    ]
+  },
+  "ownership": [
+    {
+      "path": "src/lib/campaign/encounter/campaignOwnedForceMaterialization.ts",
+      "existsAtBaseline": true,
+      "baselineLines": 343,
+      "sha256": "321de501a1a21b1b5be8bcc9cd4c075013b4b42481384a3a2e519495c55d1829",
+      "estimatedAddedProductLines": 160,
+      "estimatedAddedTestLines": 0,
+      "purpose": "Typed server-context port; signed/legacy/refused selection; exact membership/claim/reference checks; deterministic one/two deployed slots and HQ exclusion. Keep pure reference adoption and legacy slot logic."
+    },
+    {
+      "path": "src/lib/campaign/encounter/__tests__/campaignOwnedForceMaterialization.test.ts",
+      "existsAtBaseline": true,
+      "baselineLines": 417,
+      "sha256": "b5dac9bcadb4b737aaa2ef0b3e312dbb3210775fade6dd41405f78332de492a3",
+      "estimatedAddedProductLines": 0,
+      "estimatedAddedTestLines": 280,
+      "purpose": "Preserve ten existing slot-based rows; signed contexts, zero/one/two/over-cap deployers, missing/duplicate/foreign/nonmember claims, exact source/pilot references and legacy controls."
+    },
+    {
+      "path": "src/pages-modules/api/campaignLaunchAuthorityRoute.ts",
+      "existsAtBaseline": true,
+      "baselineLines": 232,
+      "sha256": "a0b6624ec65c8d222444a7069d66cad1621fc9cd1e581fd38e19c70ddfe7b603",
+      "estimatedAddedProductLines": 100,
+      "estimatedAddedTestLines": 0,
+      "purpose": "Bind server-only context from existing registry.get plus durable membership/claim readers, with consistent synchronous durable snapshot; retain full head/progression gates, typed failures and read-only semantics. No getOrCreate or new authentication contract."
+    },
+    {
+      "path": "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts",
+      "existsAtBaseline": true,
+      "baselineLines": 666,
+      "sha256": "13c20973efa068af3527918fa2aba6656a2e5f5e6bd5479635712016ce241a13",
+      "estimatedAddedProductLines": 0,
+      "estimatedAddedTestLines": 420,
+      "purpose": "Add real signed route/SQLite regressions using the existing P1A fixture; retain current head/convergence/candidate/saga/legacy rows. Prove refusal census, repeated reads and unavailable accepted participation."
+    }
+  ],
+  "estimate": {
+    "files": 4,
+    "addedProductLines": 260,
+    "addedTestLines": 700,
+    "estimateOnly": true
+  },
+  "caps": {
+    "maxFiles": 4,
+    "maxNonGeneratedLines": 400,
+    "testCounting": "U41, tests separate"
+  },
+  "nodeAmendment": {
+    "node": "R2.authority-live",
+    "addedExactPaths": [
+      "src/lib/campaign/encounter/campaignOwnedForceMaterialization.ts",
+      "src/lib/campaign/encounter/__tests__/campaignOwnedForceMaterialization.test.ts",
+      "src/pages-modules/api/campaignLaunchAuthorityRoute.ts",
+      "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts"
+    ],
+    "reason": "Existing broad parents cover the domain but the validator requires literal exact node entries. No new directory grant."
+  },
+  "reviewClasses": {
+    "authority": "Resolve signed owners without promotion or guard bypass.",
+    "privacy": "Return only justified deployed force references, no HQ/foreign force or private input leakage.",
+    "replay": "Cold context loss refuses; no inferred deployment from retained claims.",
+    "idempotency": "Repeated preflight/retry has zero durable writes.",
+    "concurrency": "Consistent head/claim reads and unchanged final P1A re-admission."
+  },
+  "acceptanceScenarios": [
+    "Real route/SQLite red before implementation, reusing P1A fixture; normal creation and carried-over claims both fail today.",
+    "Owned live HTTP preflight after real signed CampaignJoin and CampaignParticipation: deploy/deploy and host GM HQ/guest deploy, creation placeholders present and absent.",
+    "Zero deployers refuses; one/two deployer owner/reference/pilot sets exact; no HQ deployed ownership; over-two refuses.",
+    "Stale revision/branch/generation, missing/foreign/revoked/nonmember owner, conflicting/extra claims, missing/stale choice, unresolved/corrupt source and duplicate unit refuse typed with unchanged match/event/receipt census.",
+    "Original malformed body/method, no-authoritative-stream, missing branch, behind cursor, correction saga, candidate head and legitimate placeholder flows remain truthful.",
+    "Client owner/slot/contribution spoof cannot influence returned owners; reject malformed ownership-bearing input rather than trusting it.",
+    "Repeat/retry/cold registry loss and reaccepted participation; no event/receipt/match writes and no getOrCreate side effect."
+  ],
+  "proposedProductCommands": {
+    "jest": [
+      "node",
+      "node_modules/jest/bin/jest.js",
+      "--runInBand",
+      "--watchAll=false",
+      "--runTestsByPath",
+      "src/lib/campaign/encounter/__tests__/campaignOwnedForceMaterialization.test.ts",
+      "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts",
+      "src/lib/campaign/encounter/__tests__/materializeCampaignMissionEncounter.test.ts",
+      "src/lib/campaign/encounter/__tests__/requestLaunchAuthority.test.ts",
+      "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+      "src/lib/multiplayer/server/__tests__/coopMissionCreate.refusals.test.ts",
+      "src/lib/multiplayer/server/__tests__/campaignParticipationForceOwnership.test.ts",
+      "src/lib/multiplayer/server/__tests__/campaignParticipationFreshness.test.ts",
+      "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts",
+      "src/pages-modules/gameplay/campaigns/__tests__/missionLaunchPage.launch.test.ts",
+      "src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignDashboardPage.launch.test.ts",
+      "src/lib/campaign/fastForward/__tests__/fastForwardCombatRunner.test.ts"
+    ],
+    "executions": "Red first, then the complete related manifest green in two separate Node 22 processes; enumerate any newly discovered importers before implementation.",
+    "live": [
+      "node",
+      ".omo/ulw-execute/p2a/live-http-proof.mjs",
+      "--run-id=p2a-20260929-01"
+    ],
+    "liveScriptStatus": "Future implementation evidence harness, not an existing file or executed proof. It must own actual server PID/observed free port/DB and real signed socket clients; record HTTP status/body plus durable census, redact credentials and clean up after archive.",
+    "gates": [
+      "npm.cmd run typecheck",
+      "npm.cmd run lint",
+      "npm.cmd run lint:units",
+      "npm.cmd run format:check",
+      "npm.cmd run build",
+      "git diff --check",
+      "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --git",
+      "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --github"
+    ]
+  },
+  "releaseGate": "P2 remains blocked until P2A complete, PASS exact-main mainProof, closure and ancestry checked by parent, plus recheck of all prior P2 prerequisites. U38 stays transitively blocked through P2. NEXT does not enforce predecessor metadata. No receipts/owner ruling are invented.",
+  "preservation": {
+    "existingBehaviorsUnchanged": true,
+    "oldReceiptsAndHoldersUnchanged": true,
+    "oldUnitRelativeOrderUnchanged": true,
+    "U38Unchanged": true,
+    "sourceEdits": false,
+    "P2RedUnchanged": true
+  },
+  "sourceHashes": {
+    "src/lib/campaign/encounter/campaignOwnedForceMaterialization.ts": "321de501a1a21b1b5be8bcc9cd4c075013b4b42481384a3a2e519495c55d1829",
+    "src/pages-modules/api/campaignLaunchAuthorityRoute.ts": "a0b6624ec65c8d222444a7069d66cad1621fc9cd1e581fd38e19c70ddfe7b603",
+    "src/pages-modules/api/campaignLaunchProgressionGate.ts": "2e84b0ce52ea7482bd71d8d3157b6aefe3e470ea2841527f3102f57546395ab5",
+    "src/lib/multiplayer/server/CampaignHostRegistry.ts": "dd3524f45102237cec5edd0b1f4fffd990f0d1ed7624b3f576a4aead4aaabfa1",
+    "src/lib/multiplayer/server/authorizeCampaignParticipation.ts": "6291093ddf803541a156032af47241825359f1caa2a885fc1953841bfa29bb3e",
+    "src/lib/multiplayer/server/bindCampaignSyncConnection.ts": "d316df99881efe5729382b742202460e03452ee4d4163134566b31c1d04cae5e",
+    "src/lib/multiplayer/server/coopMissionAdmission.ts": "93a2df0ba603ac1c089bc9e0f49eb671dcfb3f2036093af8c30a8b7480058704",
+    "src/services/campaignPersistence/CampaignSessionParticipantStore.ts": "d56f53075fe0d6f2dd69a9f91077a70b788994c36980cc802cfe84d9f528a668",
+    "src/services/campaignPersistence/CampaignSessionForceClaimStore.ts": "cabe9a78703506cd9afe7fc17aa6f87e88e2922e33a07094bd242c6fa44a6280",
+    "src/lib/campaign/authority/campaignCreationCheckpoint.ts": "b5341fc05eb9fcd85e18752098f4e9bd82e4ba9eb62e493f2c4a7e1515e58a51",
+    "src/lib/campaign/encounter/requestLaunchAuthority.ts": "d45a4b485504fe8e13948ef7157ab6bb93edf89e24a5bd420ddb6f84ecce062d",
+    "src/lib/campaign/encounter/materializeCampaignMissionEncounter.ts": "aa41451c3684dec9a2a267d992a39350c8139649cb4a802cb61e7b8c717c5584",
+    "src/lib/campaign/encounter/materializeCampaignMissionEncounter.forceUnits.ts": "7a581a0093b061fad065c6c11678f2e95adc579815056748cafc5ba756a6ad6d"
+  },
+  "registrationVerification": "Results are captured in .omo/ulw-execute/p2a-registration/DONECLAIM.md with raw command manifests/stdout/stderr/exits. This tracked registration is not a product local/main proof."
+}

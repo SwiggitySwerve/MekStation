@@ -4661,6 +4661,61 @@
       }
     },
     {
+      "id": "P2A",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Reconcile read-only launch-authority preflight with P1A accepted signed mission owners, without changing mission creation, client navigation or combat command ownership. Resolve campaign/session/mission identity, the accepted branch/revision/effectiveGeneration, durable active membership and durable per-mission force claims on the server, combined with fresh server-accepted deploy/command-hq participation from the existing CampaignHostRegistry entry. Claims do not persist participation choices: a missing/closed/wrong-campaign entry or absent/stale accepted choice in signed-mission mode must refuse, never infer deploy from a claim or fall back to creation placeholders. No request-supplied owner/player/slot/contribution fields may select authority. Retain legitimate creation-slot resolution when no signed mission context exists, non-co-op head-only behavior and all existing expected-head/progression/refusal checks. Validate every accepted contributor against current membership, exact claimed force and authoritative force/unit/source references; reject duplicate/conflicting/foreign/revoked/nonmember owners, missing claims, unresolved units and extra signed claims. HQ contributes no deployed slot or unit ownership. Zero deployers refuses; one returns one IOwnedSlotForce at positional slot 1; two return slots 1 and 2 in deterministic signed-player-id order, preserving real ownerParticipantId, exact adopted references and pilot refs; more than two deployers refuses instead of dropping one. Positional slots are not lobby seats or grants. Existing slot-based tests remain truthful, including per-mission placeholder overrides and cross-slot refusal. Raw signed claims without accepted participation are not a legitimate placeholder override. Keep preflight read-only and bind durable reads consistently; subsequent P1A create still re-admits the original head before mutation. Red-first at the real HTTP-handler/SQLite boundary, then deploy/deploy and host-GM command-hq/guest-deploy through owned live HTTP with signed campaign-socket participation, placeholders present and absent, valid source/pilot identity and zero/one/two-deployer cases. Stale head/branch/generation, behind cursors, correction/candidate gates, foreign/nonmember/conflicting claims, malformed ownership input and unresolved roster refuse typed with unchanged match/event/command-receipt census. Cold registry loss refuses until genuine accepted participation is restored; repeated preflight/replay/retry appends nothing. The current read-only route and its client have no bearer authorization contract: authenticated proof binds contributors through signed campaign sockets plus durable membership/claims; do not claim a new HTTP-caller authentication gate. No schema/migration, durable choice store, getOrCreate recovery side effect, browser identity workaround, PAI/opponent bootstrap change or U38 guard. Run the exact related Jest manifest in evidence/p2a-registration-20260929.json red-first and green in two separate processes, owned live HTTP, diagnostics, typecheck, lint without ratchet increase, lint:units, format, build and roadmap validators. Cross-model exact-head review, owner ruling, CI, guarded merge, exact-main proof and closure precede parent release of P2. Four existing files are estimated at 260 added product lines; remeasure against four files/400 product lines and stop before any scope expansion.",
+      "ownershipPaths": [
+        "src/lib/campaign/encounter/campaignOwnedForceMaterialization.ts",
+        "src/lib/campaign/encounter/__tests__/campaignOwnedForceMaterialization.test.ts",
+        "src/pages-modules/api/campaignLaunchAuthorityRoute.ts",
+        "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ],
+      "caps": {
+        "maxFiles": 4,
+        "maxNonGeneratedLines": 400
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "admissionRequires": "This registration must land before product admission. Parent verifies P1A complete with PASS exact-main proof and ancestry on fresh origin/main, exact existing/verbatim node ownership, the four-file estimate, and preservation of the original P2 red test/evidence. Sensitive classes require a decision-free packet before local-verified and an owner-originated exact-head ruling plus --github evidence before merge. P2 remains blocked until P2A is complete with PASS exact-main proof, closure and ancestry; NEXT does not enforce unit predecessors. Any new persistence, HTTP authentication contract, schema, migration or helper path requires a separately reviewed amendment.",
+      "predecessors": [
+        "P1A"
+      ],
+      "successors": [
+        "P2"
+      ],
+      "source20260929": {
+        "planTasks": [
+          54,
+          55
+        ],
+        "baseline": "cfd219a8daee5c4797d3bea5eae1b047ed3ba40f",
+        "evidence": "evidence/p2a-registration-20260929.json",
+        "finding": "FN-p2-signed-claims-refused-by-placeholder-preflight",
+        "note": "Measured real-route 409 refusals; no historical holder or receipt transferred and no repair claimed."
+      }
+    },
+    {
       "id": "P2",
       "node": "R2.multiplayer-client",
       "taskKeys": [],
@@ -4689,7 +4744,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
+      "state": "blocked",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -4703,7 +4758,7 @@
         "tick": null
       },
       "ownerGate": null,
-      "admissionRequires": "P1A, P1B1, P1B2, P1B3, P1C, PAI all require exact-main mainProof receipts before parent release to planned. The blocked historical P1 record is superseded by P1A/P1B/P1C; its absence of a mainProof is not bypassed or falsified. NEXT does not enforce these unit dependencies. If any predecessor is owner-gated, dependent units are kept blocked/on that same packet. Authority, privacy, replay, idempotency and concurrency classes require an exact-head owner ruling and --github evidence. The P1B record is in turn superseded by P1B1/P1B2/P1B3. Before product edits, parent verifies that every ownership path exists and appears verbatim in R2.multiplayer-client. Because the future leaf src/pages/multiplayer/mission/[matchId].tsx cannot be registered before it exists, P2 temporarily owns the smallest existing verbatim node path src/pages/multiplayer, strictly bound by behavior and ownershipAmended20260929 to creating and editing that one named leaf only; any other file under the parent requires a new amendment.",
+      "admissionRequires": "P1A, P1B1, P1B2, P1B3, P1C, PAI all require exact-main mainProof receipts before parent release to planned. The blocked historical P1 record is superseded by P1A/P1B/P1C; its absence of a mainProof is not bypassed or falsified. NEXT does not enforce these unit dependencies. If any predecessor is owner-gated, dependent units are kept blocked/on that same packet. Authority, privacy, replay, idempotency and concurrency classes require an exact-head owner ruling and --github evidence. The P1B record is in turn superseded by P1B1/P1B2/P1B3. Before product edits, parent verifies that every ownership path exists and appears verbatim in R2.multiplayer-client. Because the future leaf src/pages/multiplayer/mission/[matchId].tsx cannot be registered before it exists, P2 temporarily owns the smallest existing verbatim node path src/pages/multiplayer, strictly bound by behavior and ownershipAmended20260929 to creating and editing that one named leaf only; any other file under the parent requires a new amendment. Additional prerequisite P2A (plan tasks 54/55): remain blocked until its signed-owner preflight repair is complete with PASS exact-main mainProof, ancestry and closure; parent verifies all existing predecessors again before release. Preserve the original P2 failing test and evidence until that landed repair makes the boundary pass. U38 remains transitively blocked through P2.",
       "source20260927": "registered by the parent under task 1 of the approved continuation plan (plan task 39 is this unit's letter) as the client precursor of the U38 correction (GAP-6): a host-only test cannot prove the player journey, and the server paths stay on R2.authority-live rather than moving to this client node.",
       "blocked20260927": {
         "cause": "Required P1A/P1B/P1C launch chain is not on main; PAI is also blocked",
@@ -4715,7 +4770,8 @@
         "P1B2",
         "P1B3",
         "P1C",
-        "PAI"
+        "PAI",
+        "P2A"
       ],
       "successors": [
         "U38"
@@ -4737,6 +4793,17 @@
         "at": "2026-09-28T04:56:27.842Z",
         "change": "behavior extended with already-launched mission rejoin",
         "note": "Holds FN-p1c-partial-success-rejoin. The owner was asked how to handle it (defer to P2, relax the create route identity check, or page cross-call state) and did not answer within 30 minutes; the parent took the recommended option, deferring to P2, which already consumes the announced missionMatchId on this page."
+      },
+      "preflightBlocked20260929": {
+        "planTasks": [
+          54,
+          55
+        ],
+        "from": "planned",
+        "cause": "Real current-head launch-authority refuses accepted signed mission claims: 409 STALE_OWNERSHIP with creation placeholders, 409 UNOWNED_SLOT without them; durable census unchanged.",
+        "requires": "P2A complete with PASS exact-main mainProof and closure; parent checks ancestry and all retained predecessors before releasing P2. NEXT does not enforce this documentary gate.",
+        "evidence": "evidence/p2a-registration-20260929.json",
+        "preservedRedSha256": "144dfb6effa612da69836aaa528d9ef713267821ac11f3afabaa9cf603ba3b4f"
       },
       "ownershipAmended20260929": {
         "at": "2026-09-29T00:00:00.000Z",
@@ -14786,6 +14853,17 @@
       "evidence": "evidence/p1c-local-20260928.json and evidence/p1c-lane-a-review-20260928.md (criterion 4a NOTE)",
       "recommendedSuccessor": "P2 (amended20260928): an already-launched mission rejoins its announced missionMatchId instead of re-POSTing create",
       "status": "held by P2"
+    },
+    {
+      "id": "FN-p2-signed-claims-refused-by-placeholder-preflight",
+      "foundBy": "P2/task39 real-route SQLite red, accepted by parent for plan tasks 54/55",
+      "at": "2026-09-29T05:03:15.108Z",
+      "class": "campaign launch authority identity",
+      "summary": "At current converged head root/1/1, durable signed mission claims are refused by placeholder-only launch preflight: normal creation claims produce 409 STALE_OWNERSHIP; without placeholders it produces 409 UNOWNED_SLOT. Both keep matches/events/receipts at 1/0/0. P1A mission-create accepts signed contributors; bypassing preflight would weaken ownership/convergence guards.",
+      "evidence": "evidence/p2a-registration-20260929.json",
+      "recommendedSuccessor": "P2A",
+      "status": "held by P2A; reproduced, not fixed",
+      "holder": "P2A"
     }
   ]
 }

@@ -2758,7 +2758,11 @@
         "src/lib/events/replay/ReplayBaselineDomainRegistry.ts",
         "src/lib/events/replay/ReplayInputProvenanceManifest.ts",
         "src/lib/events/replay/__tests__/ReplayBaselineDomainRegistry.test.ts",
-        "src/pages/api/multiplayer/auth"
+        "src/pages/api/multiplayer/auth",
+        "src/lib/campaign/encounter/campaignOwnedForceMaterialization.ts",
+        "src/lib/campaign/encounter/__tests__/campaignOwnedForceMaterialization.test.ts",
+        "src/pages-modules/api/campaignLaunchAuthorityRoute.ts",
+        "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts"
       ],
       "acceptance": [
         "npm.cmd run typecheck",
@@ -3193,7 +3197,14 @@
           "why": "The new campaign launch fact requires this existing exhaustive replay registry as well as the already-owned pack/fixture/test files.",
           "disclosure": "Future unit ownership only. Existing main-verified receipts and historical node state are unchanged; this amendment is not an owner ruling."
         }
-      ]
+      ],
+      "ownershipPathsAmended20260929": {
+        "unit": "P2A",
+        "planTasks": [54, 55],
+        "evidence": "evidence/p2a-registration-20260929.json",
+        "paths": ["src/lib/campaign/encounter/campaignOwnedForceMaterialization.ts", "src/lib/campaign/encounter/__tests__/campaignOwnedForceMaterialization.test.ts", "src/pages-modules/api/campaignLaunchAuthorityRoute.ts", "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts"],
+        "reason": "Validator requires existing exact unit paths verbatim on the node. Only the four materializer/route files and neighboring tests are added; broad parent ownership is not expanded. Historical node state/receipts and task holders stay unchanged."
+      }
     },
     {
       "id": "R2.camp-0",
