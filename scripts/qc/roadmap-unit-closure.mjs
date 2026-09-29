@@ -22,8 +22,8 @@
  * whose verdict is not a plain APPROVE, and a proof whose runtime line does
  * not report passes, or reports failures that `--expected-reds` does not name
  * one by one, or whose validator or `--git` line does not say PASSED, or whose
- * merge commit has more than one parent or does not reproduce the PR head's
- * content for the files the PR touched.
+ * merge commit does not have exactly one parent or its whole tree differs
+ * from Git's conflict-free integration of that parent and the reviewed head.
  *
  * `--extra-runtime <json-file>` merges further fields into `runtime` (what the
  * post-closure scripts did by hand for U9, U9b and U16).
@@ -40,7 +40,7 @@
  * Pin-only injection points, never used by the loop: `--ledger-dir` and
  * `--repo-root` relocate the ledger and the git checkout, `--preserved-root`
  * relocates the preserved log copies, and `--skip-blob-check` records the blob
- * equality as skipped instead of running `git diff` against a head that does
+ * attestation as skipped instead of running Git against a head that does
  * not exist in a fabricated repository. `--skip-blob-check` is refused outright
  * whenever the ledger being closed is the repository's own, so no receipt in
  * this repository's ledger can ever carry a blob check nobody ran (U17 finding
@@ -132,7 +132,7 @@ const git = (args, cwd) => {
   if (result.status !== 0)
     refuse(
       'GIT_FAILED',
-      `git ${args.join(' ')}: ${(result.stderr ?? '').trim()}`,
+      `git ${args.join(' ')} (exit ${result.status}): ${(result.stderr ?? '').trim()} ${(result.stdout ?? '').trim()}`,
     );
   return result.stdout;
 };
@@ -302,17 +302,53 @@ function main(argv) {
   writeJson(path.join(evidence, `${lc}-review-${date}.json`), review);
 
   const checks = gh(`pr checks ${options.pr} --json bucket`, repoRoot);
-  // Blob equality over the PR's OWN files: the squash must reproduce the head's
-  // content for every file the PR touched; other files (docs PRs merged in
-  // between) are outside the claim.
-  const blobDiff = options.skipBlobCheck
-    ? 0
+  const parents = git(['rev-list', '--parents', '-n', '1', mergeSha], repoRoot)
+    .trim()
+    .split(' ')
+    .slice(1);
+  if (parents.length !== 1)
+    refuse('MERGE_PARENT_COUNT', `${mergeSha} has ${parents.length} parents`);
+  // Native merge semantics retain intervening parent edits, including edits
+  // in reviewed files. Whole-tree equality also detects drift outside them.
+  const treeIntegration = options.skipBlobCheck
+    ? null
     : (() => {
-        const output = git(
-          ['diff', '--stat', head, mergeSha, '--', ...prFiles],
+        if (git(['rev-parse', `${head}^{commit}`], repoRoot).trim() !== head)
+          refuse('MERGE_ANCESTRY_INVALID', `${head} is not a commit identity`);
+        const parent = parents[0];
+        const mergeBases = git(['merge-base', '--all', parent, head], repoRoot)
+          .trim()
+          .split(/\r?\n/);
+        if (
+          mergeBases.includes(head) ||
+          git(['merge-base', mergeSha, head], repoRoot).trim() === mergeSha
+        )
+          refuse(
+            'MERGE_ANCESTRY_INVALID',
+            `${head} is already in ${parent} or includes reported merge ${mergeSha}`,
+          );
+        // A conflicted merge-tree may print a tree; git() must accept exit 0
+        // before that output can become an attestation.
+        const expectedTree = git(
+          ['merge-tree', '--write-tree', '--no-messages', parent, head],
           repoRoot,
         ).trim();
-        return output ? output.split(/\r?\n/).length : 0;
+        if (!HEX40.test(expectedTree))
+          refuse(
+            'GIT_FAILED',
+            `merge-tree returned no single tree: ${expectedTree}`,
+          );
+        const actualTree = git(
+          ['rev-parse', `${mergeSha}^{tree}`],
+          repoRoot,
+        ).trim();
+        return {
+          parent,
+          mergeBases,
+          expectedTree,
+          actualTree,
+          matches: expectedTree === actualTree,
+        };
       })();
   const merge = {
     unit: unitId,
@@ -326,15 +362,10 @@ function main(argv) {
     mergedBy: pr.mergedBy && pr.mergedBy.login,
     method: options.mergeMethod ?? 'not stated by the closer',
     checksAtMerge: `${checks.filter((check) => check.bucket === 'pass').length} pass, ${checks.filter((check) => check.bucket !== 'pass').length} other`,
-    parentCount:
-      git(['rev-list', '--parents', '-n', '1', mergeSha], repoRoot)
-        .trim()
-        .split(' ').length - 1,
-    blobEqualityFiles: prFiles,
-    blobEqualityDiffLines: blobDiff,
+    parentCount: parents.length,
     ...(options.skipBlobCheck
       ? { blobEqualityCheck: 'skipped (--skip-blob-check; the jest pin only)' }
-      : {}),
+      : { treeIntegration }),
   };
   writeJson(path.join(evidence, `${lc}-merge-${date}.json`), merge);
 
@@ -376,7 +407,7 @@ function main(argv) {
       /PASSED/.test(validatorLine) &&
       /PASSED/.test(gitCheckLine) &&
       merge.parentCount === 1 &&
-      merge.blobEqualityDiffLines === 0
+      (options.skipBlobCheck || treeIntegration.matches)
         ? 'PASS'
         : 'FAIL',
   };
@@ -398,7 +429,7 @@ function main(argv) {
   if (mainProof.verdict !== 'PASS')
     refuse(
       'MAIN_PROOF_NOT_PASS',
-      `main proof not PASS: ${JSON.stringify(mainProof.runtime)} parents=${merge.parentCount} blobDiff=${merge.blobEqualityDiffLines}`,
+      `main proof not PASS: ${JSON.stringify(mainProof.runtime)} parents=${merge.parentCount} integration=${JSON.stringify(treeIntegration)}`,
     );
 
   if (unit.state !== 'local-verified')
