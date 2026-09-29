@@ -4837,6 +4837,54 @@
       }
     },
     {
+      "id": "PMP",
+      "node": "R6.loop-harness",
+      "taskKeys": [],
+      "behavior": "Make the shipped main-proof runner fail closed at process level without destructive restoration. Aggregate every actual ladder step failure into nonzero process exit, including failed or unspawnable steps, a missing E2E bundle marker and dirty final state; never present a failed proof as overall PASS. Preserve tracked edits, including pre-existing tracked content: replace git checkout -- next-env.d.ts with a check that never discards edits, and use no destructive Git restoration. Optional restoration of run-generated content is permitted only when provably owned by that run. Keep the existing shell-free argv seam and every runtime, exact-merge identity, exact-main-ladder, machine-idle/hold and strict-validation gate. Red-first real controlled scratch CLI on the unchanged runner must demonstrate internal step exit 1 with aggregate exit 0; preserve the original P2BC aggregate0/exact-main-ladder1 evidence unchanged. Green existing pins plus real controlled scratch CLI cases must discriminate clean proof, failed step, spawn failure, missing marker, dirty final state and pre-existing tracked content; verify tracked bytes survive and failed cases never claim success. Ownership is exclusively the runner and the two existing roadmap-loop test files; no source/game paths, broad scripts grant, bypass flag, ratchet raise or prose-pinning test. No implementation in this registration.",
+      "ownershipPaths": [
+        "scripts/qc/roadmap-main-proof.mjs",
+        "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+        "scripts/__tests__/roadmap-loop-scripts.test.ts"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 3,
+        "maxNonGeneratedLines": 150
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "admissionRequires": "Registration must receive independent exact-head review, required CI, pinned merge and exact-main docs proof before tooling admission. Actual NEXT at baseline 772cf3aba1df5b8723cae43c3c8c2c47209dca5c is U24b, not P2B or NONE. The authorized insertion immediately before blocked P2B is at an earlier array position than U24b, so the registered planned PMP becomes NEXT without reordering or changing any existing unit. Parent must integrate registration review/CI/merge/mainproof and reconcile this actual selector transition before admission; selection alone is not admission. Parent freshly checks P2BC, U17b and U39 complete with PASS exact-main proofs and Git ancestry, exact three-file ownership, no in-flight path overlap and the 3-file/150-added-product-line cap. Existing R6.umbrella parent ownership does not grant this successor extra files. Run unchanged-runner red-first scratch CLI, both existing proof-pin files and controlled green/negative CLI cases with literal argv, raw outputs, exits and tracked-byte preservation. Diagnostics, typecheck, lint, lint:units ratchet, format and build are serialized under idle/hold; retain runtime/exact-main/strict gates. Independent exact-head review, green CI, pinned merge, exact-main proof and truthful closure precede P2B release. Never rerun the unsafe official runner on a real worktree before repair. Stop for separate registration amendment if another file or more than 150 added product lines is necessary.",
+      "predecessors": [
+        "P2BC",
+        "U17b",
+        "U39"
+      ],
+      "successors": [
+        "P2B"
+      ],
+      "source20260929": {
+        "planTask": 59,
+        "baseline": "772cf3aba1df5b8723cae43c3c8c2c47209dca5c",
+        "evidence": "evidence/pmp-registration-20260929.json",
+        "note": "PMP is accepted by the shipped alphanumeric unit namespace and has no collision. Routine tooling, planned/not admitted, with no staged delivery receipt, owner decision, tick or implementation claim."
+      }
+    },
+    {
       "id": "P2B",
       "node": "R2.authority-live",
       "taskKeys": [],
@@ -4875,13 +4923,14 @@
         "tick": null
       },
       "ownerGate": null,
-      "admissionRequires": "This docs-only registration and P2BC source-contract prerequisite must land and receive exact-main proof before product admission. Parent must freshly verify all six exact existing ownership paths remain verbatim on R2.authority-live, the estimate of six files with only coopMissionAdmission.ts as a product file, and the 6-file/300-added-product-line caps before implementation. P1A, P1C, PAI and P2A must remain complete with PASS exact-main mainProof receipts and ancestry. P2BC must be complete with a PASS exact-main mainProof receipt, ancestry and closure before P2B is released from blocked; NEXT does not enforce this documentary gate. Preserve the P2 partial worktree and original red SHA-256 144dfb6effa612da69836aaa528d9ef713267821ac11f3afabaa9cf603ba3b4f. Sensitive classes require this pending decision-free packet before local-verified and an owner-originated exact-head ruling plus --github evidence before merge. If implementation needs any seventh file, second product file, schema, migration, privacy promise, encounter REST authority, browser grant or more than 300 added product lines, stop for a separately reviewed amendment.",
+      "admissionRequires": "This docs-only registration and P2BC source-contract prerequisite must land and receive exact-main proof before product admission. Parent must freshly verify all six exact existing ownership paths remain verbatim on R2.authority-live, the estimate of six files with only coopMissionAdmission.ts as a product file, and the 6-file/300-added-product-line caps before implementation. P1A, P1C, PAI and P2A must remain complete with PASS exact-main mainProof receipts and ancestry. P2BC must be complete with a PASS exact-main mainProof receipt, ancestry and closure before P2B is released from blocked; NEXT does not enforce this documentary gate. Preserve the P2 partial worktree and original red SHA-256 144dfb6effa612da69836aaa528d9ef713267821ac11f3afabaa9cf603ba3b4f. Sensitive classes require this pending decision-free packet before local-verified and an owner-originated exact-head ruling plus --github evidence before merge. If implementation needs any seventh file, second product file, schema, migration, privacy promise, encounter REST authority, browser grant or more than 300 added product lines, stop for a separately reviewed amendment. Additional task 59 gate: PMP must be complete with PASS exact-main proof, ancestry and truthful closure before P2B release; parent reconciles actual NEXT (baseline U24b, registered PMP) without reordering or changing existing states.",
       "predecessors": [
         "P1A",
         "P1C",
         "PAI",
         "P2A",
-        "P2BC"
+        "P2BC",
+        "PMP"
       ],
       "successors": [
         "P2"

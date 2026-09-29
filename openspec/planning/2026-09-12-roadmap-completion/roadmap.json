@@ -7959,7 +7959,8 @@
         ".github/actions/setup-node-and-install/action.yml",
         "Dockerfile",
         "public/data/units",
-        "e2e/gm-two-player-authority-recovery.pack.spec.ts"
+        "e2e/gm-two-player-authority-recovery.pack.spec.ts",
+        "scripts/qc/roadmap-main-proof.mjs"
       ],
       "acceptance": [
         "Each harness unit ships with a jest pin and a red-first probe; no product path under src/ is touched",
@@ -8303,6 +8304,15 @@
           "units": "U35h",
           "source": "parent, under owner decision OD-u35g-coop-outcome-rewrites-record sub-decision 3 (the flip residue outside U35d's paths is U35h's and U35i's); this comment line was missing from the residue list",
           "why": "the comment at :16-17 ('The QC group still sets MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY, which no server code reads') becomes false once U35h stops the runner setting the key; comment only"
+        }
+      ],
+      "ownershipPathsAmended20260929": [
+        {
+          "path": "scripts/qc/roadmap-main-proof.mjs",
+          "unit": "PMP",
+          "source": "Approved continuation plan task 59; docs registration only, before bounded tooling implementation.",
+          "why": "U17b and U39 shipped this runner on R6.loop-harness through scripts/qc. Add its exact verbatim path for exclusive three-file successor ownership; R6.umbrella retains its existing broad parent paths, with no node state or dependency change.",
+          "evidence": "evidence/pmp-registration-20260929.json"
         }
       ]
     }
