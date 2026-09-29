@@ -4751,6 +4751,57 @@
       }
     },
     {
+      "id": "P2BC",
+      "node": "R6.umbrella",
+      "taskKeys": [],
+      "behavior": "Source contract for authoritative co-op opponent roster bootstrap before P2B product admission. Amend the active openspec/changes/harden-gm-two-player-campaign-sessions coop-campaign-sync delta's existing MODIFIED Co-op Mission Launch With Both Forces requirement and its design crosswalk, without replacing or weakening PAIC's server-driven AI text or the per-player same-side owner rule. After signed deploying players, accepted participation and force claims are admitted, the server SHALL derive the default opposing rows through the existing campaign/mission seeded selector using the admitted deploying-player count and seed `${campaignId}:${missionId}`. Derived opponents SHALL have stable unique collision-free runtime IDs, opponent side, and no ownerPlayerId or player-control grant. The 24-entry bootstrap cap applies to the combined roster: 12 player plus 12 opponent rows is admissible and 13 plus 13 refuses without truncation. Optional client opponent rows are assertions only and mismatch refuses before any match metadata, opening event, journal seed, launch announcement or receipt write. Every player and opponent canonical reference resolves before the first write. Identical or concurrent retry and cold recovery use the immutable persisted roster and opening events without regeneration, reroll or duplicate effect. The contract SHALL NOT import generic encounter REST force rows as campaign/session/signed-head authority, invent a client grant, retrofit historical opponentless matches, or require a phantom authored scenario-specific opposing force. It acknowledges that existing REST match metadata exposure is unchanged and claims no new roster secrecy. Preserve PAIC's normal per-viewer publication, server AI command identity/replay, disconnect/pause policy and no-browser-grant clauses. Update only the requirement delta and design crosswalk; if the amendment needs more than two files or 150 added source lines, stop for a separately reviewed registration amendment. No product code, task-row tick or completion claim.",
+      "ownershipPaths": [
+        "openspec/changes/harden-gm-two-player-campaign-sessions"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ],
+      "caps": {
+        "maxFiles": 2,
+        "maxNonGeneratedLines": 150
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "admissionRequires": "This docs-only registration must land with exact-main proof before the source-contract amendment is admitted. Parent verifies the existing R6.umbrella ownership path remains verbatim, PAIC, P1A and PAI remain complete with PASS exact-main mainProof receipts whose merge commits are ancestors of freshly fetched main, and the amendment remains limited to the active coop-campaign-sync requirement plus design crosswalk under two files/150 added source lines. Sensitive classes require PK-p2bc-ruling to remain decision-free until a product-class documentation head exists, then independent exact-head review, required CI, an owner-originated exact-head ruling and --github evidence before merge. P2B remains blocked until P2BC is complete with PASS exact-main proof, ancestry and closure. NEXT does not enforce documentary predecessors, so the parent performs these checks explicitly. If another source path, task row, product file, authored scenario-specific force, privacy promise or cap increase is needed, stop for a separately reviewed registration amendment.",
+      "predecessors": [
+        "PAIC",
+        "P1A",
+        "PAI"
+      ],
+      "successors": [
+        "P2B"
+      ],
+      "source20260929": {
+        "at": "2026-09-29T12:00:00.000Z",
+        "planTask": 58,
+        "baseline": "26336662f70bf69c0fa004bbacd17c25b704d22c",
+        "evidence": "evidence/p2bc-registration-20260929.json",
+        "note": "Registration only. No OpenSpec source or product behavior is changed, no owner decision or ruling is claimed, and no historical holder, receipt or task row is rewritten."
+      }
+    },
+    {
       "id": "P2B",
       "node": "R2.authority-live",
       "taskKeys": [],
@@ -4775,7 +4826,7 @@
         "maxFiles": 6,
         "maxNonGeneratedLines": 300
       },
-      "state": "planned",
+      "state": "blocked",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -4789,12 +4840,13 @@
         "tick": null
       },
       "ownerGate": null,
-      "admissionRequires": "This docs-only registration must land and receive exact-main proof before product admission. Parent must freshly verify all six exact existing ownership paths remain verbatim on R2.authority-live, the estimate of six files with only coopMissionAdmission.ts as a product file, and the 6-file/300-added-product-line caps before implementation. P1A, P1C, PAI and P2A must remain complete with PASS exact-main mainProof receipts and ancestry. A separately reviewed OpenSpec amendment must state the server-derived co-op opponent bootstrap contract before product edits; adding that source path requires its own registered ownership rather than widening P2B here. Preserve the P2 partial worktree and original red SHA-256 144dfb6effa612da69836aaa528d9ef713267821ac11f3afabaa9cf603ba3b4f. Sensitive classes require this pending decision-free packet before local-verified and an owner-originated exact-head ruling plus --github evidence before merge. If implementation needs any seventh file, second product file, schema, migration, privacy promise, encounter REST authority, browser grant or more than 300 added product lines, stop for a separately reviewed amendment.",
+      "admissionRequires": "This docs-only registration and P2BC source-contract prerequisite must land and receive exact-main proof before product admission. Parent must freshly verify all six exact existing ownership paths remain verbatim on R2.authority-live, the estimate of six files with only coopMissionAdmission.ts as a product file, and the 6-file/300-added-product-line caps before implementation. P1A, P1C, PAI and P2A must remain complete with PASS exact-main mainProof receipts and ancestry. P2BC must be complete with a PASS exact-main mainProof receipt, ancestry and closure before P2B is released from blocked; NEXT does not enforce this documentary gate. Preserve the P2 partial worktree and original red SHA-256 144dfb6effa612da69836aaa528d9ef713267821ac11f3afabaa9cf603ba3b4f. Sensitive classes require this pending decision-free packet before local-verified and an owner-originated exact-head ruling plus --github evidence before merge. If implementation needs any seventh file, second product file, schema, migration, privacy promise, encounter REST authority, browser grant or more than 300 added product lines, stop for a separately reviewed amendment.",
       "predecessors": [
         "P1A",
         "P1C",
         "PAI",
-        "P2A"
+        "P2A",
+        "P2BC"
       ],
       "successors": [
         "P2"
@@ -4808,6 +4860,13 @@
         "evidence": "evidence/p2b-registration-20260929.json",
         "finding": "FN-p2-public-launch-missing-authoritative-opfor",
         "note": "Registration only: no product behavior, OpenSpec amendment, owner decision, ruling or completion is claimed. The source census estimates six existing paths, one product file and at most 300 added product lines; parent remeasurement is mandatory before implementation."
+      },
+      "sourceContractBlocked20260929": {
+        "at": "2026-09-29T12:00:00.000Z",
+        "from": "planned",
+        "requires": "P2BC complete with PASS exact-main mainProof, ancestry and closure before parent release; all retained P2B predecessors are rechecked on fresh main.",
+        "evidence": "evidence/p2bc-registration-20260929.json",
+        "note": "The original P2B registration, behavior, finding, packet and receipts remain unchanged; this adds the separately owned source-contract gate required by plan task 58."
       }
     },
     {
@@ -10185,6 +10244,34 @@
     }
   ],
   "packets": [
+    {
+      "id": "PK-p2bc-ruling",
+      "blocks": [
+        "P2BC"
+      ],
+      "nodes": [
+        "R6.umbrella"
+      ],
+      "taskKeys": [],
+      "question": "After P2BC has a product-class documentation head, independent exact-head review and required CI, should the owner rule that exact head for authority, privacy, replay, idempotency and concurrency before guarded merge?",
+      "options": [
+        {
+          "label": "rule the exact head",
+          "consequence": "Record an owner-originated head-bound ruling only after the bounded requirement and design crosswalk preserve PAIC and satisfy the P2B source contract; guarded merge and exact-main proof remain required.",
+          "effort": "One owner review of the exact documentation head and its evidence"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Do not merge or release P2B; preserve the objection and require a corrected verified head, fresh independent review and fresh ruling.",
+          "effort": "Depends on the concrete requested change"
+        }
+      ],
+      "agentRecommendation": "Rule only a future exact head limited to the existing requirement and design crosswalk that preserves PAIC, adds deterministic server-derived ownerless opponents, fails before write, and keeps retry/recovery on the persisted roster. This registration supplies no source head and makes no owner decision.",
+      "revertCost": "Low: revert the future two-file source-contract merge. P2B remains blocked and no product or persisted data change is authorized by P2BC.",
+      "decision": null,
+      "ruling": null,
+      "note": "Pending decision-free packet registered with P2BC. No owner option, exact head, comment, label or ruling exists yet."
+    },
     {
       "id": "PK-p2b-ruling",
       "blocks": [
