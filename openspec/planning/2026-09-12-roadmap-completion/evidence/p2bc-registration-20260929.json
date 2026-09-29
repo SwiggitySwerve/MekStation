@@ -1,0 +1,160 @@
+{
+  "event": "p2bc-source-contract-registration",
+  "at": "2026-09-29T12:00:00.000Z",
+  "planTask": 58,
+  "unit": "P2BC",
+  "baseline": "26336662f70bf69c0fa004bbacd17c25b704d22c",
+  "branch": "codex/p2bc-contract-registration-20260929",
+  "worktree": "E:/Projects/MekStation-wt/p2bc-contract-registration-20260929",
+  "registrationOnly": true,
+  "rootCause": {
+    "symptom": "P2B is registered to derive an authoritative opponent roster, but the active co-op source contract specifies only who drives an already bootstrapped OpFor.",
+    "intermediateCause": "PAIC added server AI authority, command identity, publication and no-browser-grant rules without defining server-derived default opponent rows.",
+    "rootCause": "P2B product admission lacks a separately owned source contract for roster derivation, pre-write refusal, combined cap and persisted-roster retry/recovery.",
+    "architecturalGap": "The active MODIFIED co-op mission requirement and design crosswalk do not yet map authoritative roster bootstrap to P2B."
+  },
+  "fixAssessment": {
+    "easy": "Leave P2B planned and mention the missing amendment only in prose, which permits product admission without exact-main source-contract closure.",
+    "correct": "Register one rowless product-class source-contract unit before P2B and block P2B on its PASS exact-main proof, ancestry and closure.",
+    "removed": [
+      "No roadmap node edit because R6.umbrella already owns the exact OpenSpec change path verbatim.",
+      "No OpenSpec source or product edit in registration.",
+      "No new service, topic, cache, fallback, branch or validator behavior."
+    ],
+    "scope": "P2BC owns only the active co-op requirement and design crosswalk under the existing change path; P2B remains the product implementation and P2/U38 remain blocked downstream."
+  },
+  "contract": {
+    "derivation": "After signed admitted deploying players, participation and claims validate, derive default opponents with the existing selector from deployed-player count and `${campaignId}:${missionId}`.",
+    "identityAndAuthority": "Stable unique collision-free opponent IDs, opponent side, no ownerPlayerId and no player or browser grant.",
+    "cap": "The existing 24-entry cap covers the combined roster; 12+12 is admitted and 13+13 refuses without truncation.",
+    "clientInput": "Optional client opponent rows are assertions only; mismatch refuses before any write.",
+    "references": "Resolve every player and opponent canonical reference before metadata, opening event, journal, announcement or receipt mutation.",
+    "retryRecovery": "Identical/concurrent retry and cold recovery use the immutable persisted roster and opening events without regeneration or reroll.",
+    "preserved": "PAIC server AI, deterministic command identity/replay, normal per-viewer publication, disconnect/pause policy, no-browser-grant and per-player owner rules remain unchanged.",
+    "nonClaims": "No phantom authored scenario-specific force, generic encounter REST authority, historical retrofit, client grant or stronger REST roster privacy promise."
+  },
+  "predecessors": [
+    "PAIC",
+    "P1A",
+    "PAI"
+  ],
+  "scope": {
+    "ownershipPath": "openspec/changes/harden-gm-two-player-campaign-sessions",
+    "node": "R6.umbrella",
+    "nodePathAlreadyVerbatim": true,
+    "roadmapJsonChanged": false,
+    "taskKeys": [],
+    "ciClass": "product",
+    "reviewClasses": [
+      "authority",
+      "privacy",
+      "replay",
+      "idempotency",
+      "concurrency"
+    ],
+    "caps": {
+      "maxFiles": 2,
+      "maxNonGeneratedLines": 150
+    },
+    "amendSeparatelyIfExceeded": true
+  },
+  "preservation": {
+    "historicalSourceRowsChanged": false,
+    "openspecSourceChanged": false,
+    "productChanged": false,
+    "p2bReceiptsChanged": false,
+    "waveBOriginalRedSha256": "144dfb6effa612da69836aaa528d9ef713267821ac11f3afabaa9cf603ba3b4f",
+    "p2": "Remains blocked on P2B.",
+    "u38": "Remains blocked on P2.",
+    "ownerDecision": "None fabricated; PK-p2bc-ruling has decision and ruling null."
+  },
+  "documentaryGate": {
+    "validatorEnforcesUnitPredecessors": false,
+    "expectedInvalidPredecessorFixtureExit": 0,
+    "parentGate": "Before P2BC admission verify PAIC/P1A/PAI PASS mainProof receipts and ancestry; before P2B release verify P2BC PASS mainProof, ancestry and closure on freshly fetched main."
+  },
+  "verification": {
+    "status": "PROGRESS",
+    "node": "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe v22.22.0",
+    "commands": [
+      {
+        "mode": "base",
+        "exit": 0,
+        "stdout": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows",
+        "log": "E:/Projects/.omo/p2bc-contract-registration-20260929/validator-base.log"
+      },
+      {
+        "mode": "--git",
+        "exit": 0,
+        "stdout": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows",
+        "log": "E:/Projects/.omo/p2bc-contract-registration-20260929/validator-git.log"
+      },
+      {
+        "mode": "--next",
+        "exit": 0,
+        "stdout": "P2BC",
+        "log": "E:/Projects/.omo/p2bc-contract-registration-20260929/validator-next.log"
+      },
+      {
+        "mode": "--github",
+        "exit": 0,
+        "stdout": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows",
+        "log": "E:/Projects/.omo/p2bc-contract-registration-20260929/validator-github.log"
+      },
+      {
+        "mode": "node --test validate-roadmap.test.mjs",
+        "exit": 0,
+        "stdout": "27 passed, 0 failed",
+        "log": "E:/Projects/.omo/p2bc-contract-registration-20260929/validator-tests.log"
+      },
+      {
+        "mode": "git diff --check",
+        "exit": 0,
+        "stdout": "",
+        "log": "E:/Projects/.omo/p2bc-contract-registration-20260929/diff-check.log"
+      },
+      {
+        "mode": "JSON diagnostics",
+        "exit": 0,
+        "stdout": "JSON diagnostics: 3 files parsed",
+        "log": "E:/Projects/.omo/p2bc-contract-registration-20260929/json-diagnostics.log"
+      }
+    ],
+    "fixtures": [
+      {
+        "name": "duplicate holder",
+        "mutation": "P2BC also holds harden-gm-two-player-campaign-sessions#21.2@547",
+        "exit": 1,
+        "refusal": "task key harden-gm-two-player-campaign-sessions#21.2@547 is held twice: U22 and P2BC",
+        "log": "E:/Projects/.omo/p2bc-contract-registration-20260929/fixture-duplicate-holder.log"
+      },
+      {
+        "name": "invalid node ownership",
+        "mutation": "Remove the exact harden change path from R6.umbrella",
+        "exit": 1,
+        "refusal": "P2BC and existing R6 units own a path no longer owned by R6.umbrella",
+        "log": "E:/Projects/.omo/p2bc-contract-registration-20260929/fixture-invalid-node-ownership.log"
+      },
+      {
+        "name": "invalid predecessor",
+        "mutation": "Append NO-SUCH-UNIT to P2BC.predecessors",
+        "exit": 0,
+        "stdout": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows",
+        "knownDocumentaryLimitation": "The shipped validator does not inspect unit predecessor metadata; parent PASS-receipt and Git-ancestry checks remain mandatory.",
+        "log": "E:/Projects/.omo/p2bc-contract-registration-20260929/fixture-invalid-predecessor.log"
+      }
+    ],
+    "census": {
+      "log": "E:/Projects/.omo/p2bc-contract-registration-20260929/history-scope-census.json",
+      "units": "153 -> 154",
+      "packets": "65 -> 66",
+      "order": "P2BC index 58 immediately before P2B index 59",
+      "predecessors": "PAIC, P1A and PAI are complete with PASS mainProof receipts and their merge SHAs are ancestors of current origin/main",
+      "p2b": "blocked; P2BC predecessor present; stageReceipts byte-equivalent as parsed",
+      "downstream": "P2 blocked on P2B; U38 blocked on P2; original P2 red SHA preserved",
+      "nodeOwnership": "R6.umbrella contains the exact harden change path once; roadmap.json unchanged"
+    },
+    "cleanup": "All isolated fixture directories were removed; no worktree .tmp-* files, processes, servers or databases remain. Verification logs remain under E:/Projects/.omo/p2bc-contract-registration-20260929 for parent review.",
+    "doneClaim": "Registration is ready for parent commit/review on baseline 26336662f70bf69c0fa004bbacd17c25b704d22c. This is PROGRESS for task 58 only: no P2BC source delivery, P2B product admission, P2/U38 completion, F1 or final completion is claimed."
+  }
+}

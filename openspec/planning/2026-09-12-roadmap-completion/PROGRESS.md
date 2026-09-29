@@ -1,3 +1,11 @@
+## 2026-09-29 P2BC source-contract prerequisite registered (task 58)
+
+**P2BC** is registered immediately before P2B as a rowless product-class unit on `R6.umbrella`, using the node's existing verbatim `openspec/changes/harden-gm-two-player-campaign-sessions` ownership path. It is bounded to two files and 150 added source lines: amend the active `coop-campaign-sync` MODIFIED co-op mission requirement and design crosswalk to specify server-derived default opponents from signed admitted deployers and the campaign/mission seed, stable unique ownerless IDs, the combined 24-entry cap with 13+13 refusal, assertions-only client opponents, pre-write reference resolution, immutable stored-roster retry/recovery, and no client grant. It preserves PAIC's server AI, owner, publication, replay and disconnect/pause rules, invents no authored scenario-specific force, and acknowledges unchanged REST metadata exposure.
+
+P2BC depends on completed PAIC, P1A and PAI; it does not depend on blocked P2B. P2B moves from planned to blocked and adds P2BC as a predecessor. It is released only after P2BC is complete with a PASS exact-main proof, ancestry and closure. P2 remains blocked on P2B and U38 remains blocked on P2. `PK-p2bc-ruling` is pending with `decision` and `ruling` null. This registration changes no OpenSpec source, product file, historical source row, P2B receipt or `roadmap.json`; [registration evidence](evidence/p2bc-registration-20260929.json) records the measured commands while remaining `PROGRESS` for task 58 source delivery.
+
+The shipped validator still does not enforce documentary unit predecessors. The isolated invalid-predecessor fixture is expected to exit 0 and must be reported honestly; parent admission/release checks compare PASS receipts and Git ancestry on fresh main instead of expanding validator scope in this registration.
+
 ## 2026-09-29 P2B registered; P2 blocked on authoritative opponent bootstrap (tasks 56/57)
 
 P2's public shared mission create currently carries only admitted player rows, so its route-created combat match has no opposing roster for PAI to drive. PAI's own proof injects an opponent fixture. Generic encounter opponent-force REST rows are not bound to the signed campaign, session, mission and accepted head, and are not substituted as authority.
