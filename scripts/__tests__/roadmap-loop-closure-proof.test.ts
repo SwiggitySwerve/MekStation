@@ -147,11 +147,15 @@ function run(
   };
 }
 
-const git = (args: string[], cwd: string): string => {
+const git = (
+  args: string[],
+  cwd: string,
+  extraEnv: Record<string, string> = {},
+): string => {
   const result = spawnSync('git', args, {
     cwd,
     encoding: 'utf8',
-    env: { ...process.env, ...PIN_GIT_ENV },
+    env: { ...process.env, ...PIN_GIT_ENV, ...extraEnv },
     timeout: 10000,
   });
   if (result.status !== 0)
@@ -1111,27 +1115,52 @@ describe('PRI audited review identity', () => {
           git(['add', '.'], repo);
           return git(['write-tree'], repo);
         };
-        const commit = (content: string, parent?: string): string =>
+        // Distinct commit roles must not depend on crossing a wall-clock second.
+        const fixedDate = '2026-09-30T00:00:00Z';
+        const commit = (
+          subject: string,
+          content: string,
+          parent?: string,
+        ): string =>
           git(
             [
               'commit-tree',
               content,
               ...(parent ? ['-p', parent] : []),
               '-m',
-              'mechanistic fixture',
+              subject,
             ],
             repo,
+            { GIT_AUTHOR_DATE: fixedDate, GIT_COMMITTER_DATE: fixedDate },
           );
-        const base = commit(tree('base', 'base'));
-        const head = commit(tree('reviewed', 'base'), base);
+        const base = commit('mechanistic base', tree('base', 'base'));
+        const head = commit(
+          'mechanistic reviewed head',
+          tree('reviewed', 'base'),
+          base,
+        );
         const parent =
-          scenario === 'clean' ? base : commit(tree('base', 'main'), base);
+          scenario === 'clean'
+            ? base
+            : commit('mechanistic main parent', tree('base', 'main'), base);
         const integratedTree = tree(
           scenario === 'reviewed-drift' ? 'tampered' : 'reviewed',
           scenario === 'clean' ? 'base' : 'main',
           scenario === 'outside-drift' ? 'drift' : 'base',
         );
-        const merge = commit(integratedTree, parent);
+        const merge = commit(
+          'mechanistic squash merge',
+          integratedTree,
+          parent,
+        );
+        expect(new Set([base, head, merge]).size).toBe(3);
+        expect(git(['rev-list', '--parents', '-n', '1', head], repo)).toBe(
+          `${head} ${base}`,
+        );
+        expect(git(['rev-list', '--parents', '-n', '1', merge], repo)).toBe(
+          `${merge} ${parent}`,
+        );
+        expect(git(['merge-base', '--all', merge, head], repo)).toBe(base);
         git(['update-ref', 'refs/heads/main', merge], repo);
         git(['symbolic-ref', 'HEAD', 'refs/heads/main'], repo);
         const input = fixture('valid', 2, head);
