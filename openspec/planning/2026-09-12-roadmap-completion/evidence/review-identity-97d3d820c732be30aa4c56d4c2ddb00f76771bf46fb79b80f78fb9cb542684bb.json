@@ -1,0 +1,18 @@
+{
+  "reviewContractVersion": 2,
+  "unit": "PRI",
+  "sourceHead": "2918950c8b1a62aff39b00d7c881b19a3f24e0f5",
+  "reviewOutputSha256": "c2b9c5f145a335a4fe68ac1a94502f50df3593b81c5a09472012e35be69f5156",
+  "localReceiptSha256": "745c4b60692f2a2208b89e275abd1e58db1d437425e9d1dea1a4e74855ae03f8",
+  "author": {
+    "path": "identity-f00c61e316d6f63632e9c58a8e6ee645e4cbcc777cf84e597668117305b46b59.json",
+    "sha256": "f00c61e316d6f63632e9c58a8e6ee645e4cbcc777cf84e597668117305b46b59",
+    "bytes": 572
+  },
+  "finishers": [],
+  "reviewer": {
+    "path": "identity-a0fa6826f486dcd97c9327a311f46809131e1dd9e9f311c2eb68d6fab43a258e.json",
+    "sha256": "a0fa6826f486dcd97c9327a311f46809131e1dd9e9f311c2eb68d6fab43a258e",
+    "bytes": 594
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "unit": "PRI",
+  "stage": "tick",
+  "at": "2026-09-30T03:42:36.048Z",
+  "taskKeys": [],
+  "note": "PRI holds no task row; the delivered behaviour is proven on main by this unit.",
+  "tickedOnMain": null
+}

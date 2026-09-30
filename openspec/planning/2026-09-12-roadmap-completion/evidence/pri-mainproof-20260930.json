@@ -1,0 +1,322 @@
+{
+  "unit": "PRI",
+  "stage": "mainProof",
+  "at": "2026-09-30T03:42:36.046Z",
+  "mergeCommit": "df65feae186c300f9ae30a95019e9217095a509d",
+  "checkout": "Clean locked independent source-mainproof at exact source squash df65; closure checkout HEAD also df65 before docs edits",
+  "runtime": {
+    "build": "  \"hydratedStandaloneServer\": \".next\\\\standalone\\\\server.js\",",
+    "e2eBundleMarker": "not stated by the closer",
+    "playwright": "Actual independent PRI source proof: PRI PROOF RUNTIME PASSED: 184 passed (106 Jest + 62 Node consumer + 16 distinct real CLI scenarios; zero test skips; exact main df65feae186c300f9ae30a95019e9217095a509d)",
+    "tsc": "> tsc --noEmit --skipLibCheck",
+    "sourceProofKind": "Actual independent exact-main source execution at df65, not fixture receipt success strings.",
+    "sourceHead": "2918950c8b1a62aff39b00d7c881b19a3f24e0f5",
+    "testCounts": {
+      "testCount": 184,
+      "jest": 106,
+      "nodeConsumer": 62,
+      "distinctCliCases": 16,
+      "positiveLifecycleCases": 2,
+      "negativeCases": 14,
+      "zeroTestSkips": true,
+      "line": "PRI PROOF RUNTIME PASSED: 184 passed (106 Jest + 62 Node consumer + 16 distinct real CLI scenarios; zero test skips; exact main df65feae186c300f9ae30a95019e9217095a509d)",
+      "path": "runtimeproof.log",
+      "artifactAudit": "independent-runtime-artifact-audit.json"
+    },
+    "actualSourceProof": [
+      {
+        "path": "pri-source-mainproof-df65feae-gpt61/mainproof.json",
+        "bytes": 4713,
+        "sha256": "2126ad4b4273a3d9c38f9b5572349773cd74d8cec56eda02189faf8839948fcb"
+      },
+      {
+        "path": "pri-source-mainproof-df65feae-gpt61/report.md",
+        "bytes": 5832,
+        "sha256": "165fc25850d79cdd113eb9c5227be0e4714292a4ed9dd325d9f60eb026ed58cf"
+      },
+      {
+        "path": "pri-source-mainproof-df65feae-gpt61/runtimeproof.log",
+        "bytes": 659,
+        "sha256": "10c730741681c2a80eaab1dc58f5c01ed49d1476f87ef8f8fcd7c61358a36470"
+      },
+      {
+        "path": "pri-source-mainproof-df65feae-gpt61/manifest.json",
+        "bytes": 295300,
+        "sha256": "3fac07920c8eb5513e8c7b83ecfd0819b0c6c3a2fc5824855d0d82d562f29d3a"
+      },
+      {
+        "path": "pri-source-mainproof-df65feae-gpt61/source-bindings.json",
+        "bytes": 4983,
+        "sha256": "b2524ed31b18c587e9d6380b26ecb59a83ef92bf01b11ae78a8eb04c3d702d32"
+      },
+      {
+        "path": "pri-source-mainproof-df65feae-gpt61/independent-runtime-artifact-audit.json",
+        "bytes": 1781,
+        "sha256": "31b945b97faf4d6ea2b8d18228ea0242ee6cdcc9b6c813464c81bce306173bbf"
+      },
+      {
+        "path": "pri-source-mainproof-df65feae-gpt61/command-matrix.json",
+        "bytes": 144266,
+        "sha256": "9967a4052f8ac6c2e547a2f742feaf0939dc05214d14638aabcf701d3426906f"
+      },
+      {
+        "path": "pri-source-mainproof-df65feae-gpt61/manualQA.json",
+        "bytes": 104717,
+        "sha256": "936349d11663bd6ce89dae6127fba55cd1e37893800be400d4bd4414093aeae4"
+      }
+    ],
+    "proofOutputPackaging": [
+      {
+        "source": {
+          "path": "pri-source-mainproof-df65feae-gpt61/runtimeproof.log",
+          "bytes": 659,
+          "sha256": "10c730741681c2a80eaab1dc58f5c01ed49d1476f87ef8f8fcd7c61358a36470"
+        },
+        "packaged": {
+          "path": "proof-inputs/playwright.log",
+          "bytes": 654,
+          "sha256": "cb22ab24c5f95fa878de6e25b276f6467a27ef942b552c8d08b0eaeab679034b"
+        },
+        "transformation": "CRLF to LF and final LF only; unchanged command-output text. Original bytes/hash retained in source descriptor."
+      },
+      {
+        "source": {
+          "path": "pri-source-mainproof-df65feae-gpt61/roadmap-default.stdout",
+          "bytes": 76,
+          "sha256": "5d4e2632ad433b598282457f50f016260282736419f55973bd91f704a9ef25a1"
+        },
+        "packaged": {
+          "path": "proof-inputs/validator.log",
+          "bytes": 76,
+          "sha256": "5d4e2632ad433b598282457f50f016260282736419f55973bd91f704a9ef25a1"
+        },
+        "transformation": "byte-identical rename"
+      },
+      {
+        "source": {
+          "path": "pri-source-mainproof-df65feae-gpt61/roadmap-git.stdout",
+          "bytes": 76,
+          "sha256": "5d4e2632ad433b598282457f50f016260282736419f55973bd91f704a9ef25a1"
+        },
+        "packaged": {
+          "path": "proof-inputs/git-check.log",
+          "bytes": 76,
+          "sha256": "5d4e2632ad433b598282457f50f016260282736419f55973bd91f704a9ef25a1"
+        },
+        "transformation": "byte-identical rename"
+      },
+      {
+        "source": {
+          "path": "pri-source-mainproof-df65feae-gpt61/roadmap-next.stdout",
+          "bytes": 4,
+          "sha256": "d49313f4c242c06d4cf1c41b0ea6493e6bc5362c3dffba78b15ab404505a6281"
+        },
+        "packaged": {
+          "path": "proof-inputs/next.log",
+          "bytes": 4,
+          "sha256": "d49313f4c242c06d4cf1c41b0ea6493e6bc5362c3dffba78b15ab404505a6281"
+        },
+        "transformation": "byte-identical rename"
+      },
+      {
+        "source": {
+          "path": "pri-source-mainproof-df65feae-gpt61/build.stdout",
+          "bytes": 7349,
+          "sha256": "9e6a11974fd3202a31c2a4471fd60e72d9af34d285f35eb5cc3277f8b61fcad9"
+        },
+        "packaged": {
+          "path": "proof-inputs/build.log",
+          "bytes": 7349,
+          "sha256": "9e6a11974fd3202a31c2a4471fd60e72d9af34d285f35eb5cc3277f8b61fcad9"
+        },
+        "transformation": "byte-identical rename"
+      },
+      {
+        "source": {
+          "path": "pri-source-mainproof-df65feae-gpt61/typecheck.stdout",
+          "bytes": 65,
+          "sha256": "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f"
+        },
+        "packaged": {
+          "path": "proof-inputs/tsc.log",
+          "bytes": 65,
+          "sha256": "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f"
+        },
+        "transformation": "byte-identical rename"
+      },
+      {
+        "source": {
+          "path": "pri-source-mainproof-df65feae-gpt61/openspec-strict.stdout",
+          "bytes": 6811,
+          "sha256": "9ca58d5988581dd3de39d1f251ab3b4e85271cd35e067c898bb258ce7748a181"
+        },
+        "packaged": {
+          "path": "proof-inputs/openspec-strict.log",
+          "bytes": 6811,
+          "sha256": "9ca58d5988581dd3de39d1f251ab3b4e85271cd35e067c898bb258ce7748a181"
+        },
+        "transformation": "byte-identical rename"
+      },
+      {
+        "source": {
+          "path": "pri-source-mainproof-df65feae-gpt61/qc-openspec-ci-validate.stdout",
+          "bytes": 291,
+          "sha256": "4c2dafd093b946290aa4abe001ad8b3d65671b17c7682722c55a510ecc04f91e"
+        },
+        "packaged": {
+          "path": "proof-inputs/qc-openspec-ci.log",
+          "bytes": 291,
+          "sha256": "4c2dafd093b946290aa4abe001ad8b3d65671b17c7682722c55a510ecc04f91e"
+        },
+        "transformation": "byte-identical rename"
+      },
+      {
+        "source": {
+          "path": "pri-source-mainproof-df65feae-gpt61/focused-jest.stderr",
+          "bytes": 427,
+          "sha256": "13353bee2500a91b923861350d2eb96af4a5b66e698a907eb5667d8de60f96b3"
+        },
+        "packaged": {
+          "path": "proof-inputs/qc-pin.log",
+          "bytes": 427,
+          "sha256": "13353bee2500a91b923861350d2eb96af4a5b66e698a907eb5667d8de60f96b3"
+        },
+        "transformation": "byte-identical rename"
+      }
+    ],
+    "actualBuild": {
+      "freshAtMerge": "df65feae186c300f9ae30a95019e9217095a509d",
+      "command": {
+        "command": {
+          "argv": [
+            "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+            "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node_modules\\npm\\bin\\npm-cli.js",
+            "run",
+            "build"
+          ],
+          "cwd": "E:\\Projects\\MekStation-wt\\pri-source-mainproof-df65feae-20260930-gpt61",
+          "startedAt": "2026-09-30T02:56:59.511739+00:00"
+        },
+        "outcome": {
+          "exit": 0,
+          "expected": null,
+          "endedAt": "2026-09-30T02:59:39.238625+00:00"
+        },
+        "artifacts": [
+          {
+            "path": "pri-source-mainproof-df65feae-gpt61/build.argv.json",
+            "bytes": 339,
+            "sha256": "858e072fc55bb7fc5ddc995bc743bfda45ef554c798ff8032c3ff8d76f40d20d"
+          },
+          {
+            "path": "pri-source-mainproof-df65feae-gpt61/build.stdout",
+            "bytes": 7349,
+            "sha256": "9e6a11974fd3202a31c2a4471fd60e72d9af34d285f35eb5cc3277f8b61fcad9"
+          },
+          {
+            "path": "pri-source-mainproof-df65feae-gpt61/build.stderr",
+            "bytes": 3421419,
+            "sha256": "3cbb11b36522845214441e238b09f0903069696c5d64f432187f3a3292597371"
+          },
+          {
+            "path": "pri-source-mainproof-df65feae-gpt61/build.exit.json",
+            "bytes": 90,
+            "sha256": "da21641ec6455893aa02d1f190d19242cf938678e7ffb0ccdbdd5dde826db9e2"
+          }
+        ]
+      },
+      "priorSourceBuildReused": false
+    },
+    "sourceMergeGuards": {
+      "commit": "df65feae186c300f9ae30a95019e9217095a509d",
+      "parent": "4ade3c387ad10bce46047274c78f4f625e46ed4d",
+      "reviewedHead": "2918950c8b1a62aff39b00d7c881b19a3f24e0f5",
+      "mergedAt": "2026-09-30T02:37:47Z",
+      "verifiedAt": "2026-09-30T02:38:28.856Z",
+      "command": [
+        "gh",
+        "pr",
+        "merge",
+        "2097",
+        "--repo",
+        "SwiggitySwerve/MekStation",
+        "--squash",
+        "--admin",
+        "--match-head-commit",
+        "2918950c8b1a62aff39b00d7c881b19a3f24e0f5"
+      ],
+      "exit": 0,
+      "premergeGuards": {
+        "observedAt": "2026-09-30T02:36:43.054Z",
+        "viewer": "SwiggitySwerve",
+        "permission": "ADMIN",
+        "state": "OPEN",
+        "draft": false,
+        "mainAndBase": "4ade3c387ad10bce46047274c78f4f625e46ed4d",
+        "mergeable": "MERGEABLE",
+        "mergeStateStatus": "CLEAN",
+        "checks": {
+          "total": 31,
+          "success": 31
+        },
+        "labels": [],
+        "githubReviews": [],
+        "reviewThreads": [],
+        "allPagesComplete": true,
+        "sourceReview": "Independent actual local review APPROVE; not a fabricated GitHub approval.",
+        "ownerGate": "PRI routine class, null ownerGate; no owner ruling required."
+      },
+      "postmergeGuards": "Actual GraphQL MERGED/exact reviewed head/sole parent/exact remote main df65 verified. Whole-tree/source-byte integration proof delegated, not inferred."
+    },
+    "correctedSourceCi": {
+      "head": "2918950c8b1a62aff39b00d7c881b19a3f24e0f5",
+      "watcher": "mon_YT33DNT8BJS0BDA2",
+      "watcherExit": 0,
+      "run": 36655488088,
+      "status": "PASS",
+      "checks": {
+        "total": 31,
+        "success": 31,
+        "failure": 0,
+        "pending": 0
+      },
+      "freshSnapshot": "Exact291 head, OPEN/nondraft,MERGEABLE/CLEAN and31COMPLETED/SUCCESS verified after watcher completed.",
+      "retainedSnapshot": ".omo/ulw-execute/evidence/task-60-pri-source-ci-snapshot-2918950.json"
+    },
+    "historicalCiFailure": "b186 had 29/31; corrected exact291 passed 31/31. Producer checksAtMerge is its current merged-source check census, while actual premerge guards/time above come from parent frozen metadata.",
+    "limitations": "Actual source proof counts controlled adversarial CLI execution as tests, but controlled gh/proof fixtures and mirror complete/tick receipts are not live lifecycle. Mainproof QA is not source finisher. Closure candidate is not shipped, Task60 tick, PMP admission or P2B release.",
+    "closurePackagingAuthor": {
+      "task_id": "st_01a0f04f",
+      "child_session_id": "01a0f04f-7710-735b-8d14-a3d4d943174d",
+      "model": "chatgpt-subscription/gpt-6.1-sol",
+      "execution_mode": "in-process",
+      "agent_type": null,
+      "resolved_model": {
+        "provider": "chatgpt-subscription",
+        "model_id": "gpt-6.1-sol"
+      }
+    },
+    "closureDeliveryReview": "Required independently on frozen delivery head; not the original source reviewer."
+  },
+  "commands": {
+    "validator": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows",
+    "gitAncestry": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows (--git)",
+    "next": "",
+    "openspecStrict": "Totals: 229 passed, 0 failed (229 items)",
+    "qcOpenspecCi": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+    "qcPin": "Tests:       106 passed, 106 total"
+  },
+  "logs": "../../.omo/evidence/pri-actual-v2-closure-author-gpt61/proof-inputs/ (local; sha256 below)",
+  "logHashes": [
+    "9e6a11974fd3202a31c2a4471fd60e72d9af34d285f35eb5cc3277f8b61fcad9  build.log",
+    "5d4e2632ad433b598282457f50f016260282736419f55973bd91f704a9ef25a1  git-check.log",
+    "d49313f4c242c06d4cf1c41b0ea6493e6bc5362c3dffba78b15ab404505a6281  next.log",
+    "9ca58d5988581dd3de39d1f251ab3b4e85271cd35e067c898bb258ce7748a181  openspec-strict.log",
+    "cb22ab24c5f95fa878de6e25b276f6467a27ef942b552c8d08b0eaeab679034b  playwright.log",
+    "4c2dafd093b946290aa4abe001ad8b3d65671b17c7682722c55a510ecc04f91e  qc-openspec-ci.log",
+    "13353bee2500a91b923861350d2eb96af4a5b66e698a907eb5667d8de60f96b3  qc-pin.log",
+    "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f  tsc.log",
+    "5d4e2632ad433b598282457f50f016260282736419f55973bd91f704a9ef25a1  validator.log"
+  ],
+  "verdict": "PASS"
+}

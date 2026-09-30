@@ -4859,18 +4859,68 @@
         "maxFiles": 8,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
-      "prHead": null,
-      "mergeSha": null,
+      "state": "complete",
+      "baseline": "4ade3c387ad10bce46047274c78f4f625e46ed4d",
+      "prHead": "2918950c8b1a62aff39b00d7c881b19a3f24e0f5",
+      "mergeSha": "df65feae186c300f9ae30a95019e9217095a509d",
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "admission": {
+          "path": "evidence/pri-admission-20260930.json",
+          "baseline": "4ade3c387ad10bce46047274c78f4f625e46ed4d",
+          "at": "2026-09-30T03:37:37.674032+00:00",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/pri-red-20260930.json",
+          "at": "2026-09-30T03:37:37.776581+00:00",
+          "summary": "Authentic original unchanged-consumer same-model refusal; controlled RED bindings are not source lifecycle."
+        },
+        "local": {
+          "path": "evidence/pri-local-20260930.json",
+          "at": "2026-09-30T03:38:41.231662+00:00",
+          "summary": "Authentic final 2918950c source aggregation, 106 Jest/62 Node, 499 product/568 excluded test additions, one author/no finishers.",
+          "reviewContractVersion": 2,
+          "implementationActors": [
+            {
+              "role": "author",
+              "task_id": "st_01a0ef5d",
+              "child_session_id": "01a0ef5d-bf9d-7683-a9c0-0287a372483c",
+              "model": "chatgpt-subscription/gpt-6.1-sol"
+            }
+          ]
+        },
+        "review": {
+          "path": "evidence/pri-review-20260930.json",
+          "head": "2918950c8b1a62aff39b00d7c881b19a3f24e0f5",
+          "reviewedHead": "2918950c8b1a62aff39b00d7c881b19a3f24e0f5",
+          "reviewerModel": "chatgpt-subscription/gpt-6.1-sol",
+          "implementerModel": "chatgpt-subscription/gpt-6.1-sol",
+          "outputSha256": "c2b9c5f145a335a4fe68ac1a94502f50df3593b81c5a09472012e35be69f5156",
+          "verdict": "APPROVE",
+          "reviewContractVersion": 2,
+          "identityEvidence": {
+            "path": "evidence/review-identity-97d3d820c732be30aa4c56d4c2ddb00f76771bf46fb79b80f78fb9cb542684bb.json",
+            "sha256": "97d3d820c732be30aa4c56d4c2ddb00f76771bf46fb79b80f78fb9cb542684bb",
+            "bytes": 739
+          }
+        },
+        "merge": {
+          "path": "evidence/pri-merge-20260930.json",
+          "pr": 2097,
+          "head": "2918950c8b1a62aff39b00d7c881b19a3f24e0f5",
+          "mergeSha": "df65feae186c300f9ae30a95019e9217095a509d"
+        },
+        "mainProof": {
+          "path": "evidence/pri-mainproof-20260930.json",
+          "mergeCommit": "df65feae186c300f9ae30a95019e9217095a509d",
+          "verdict": "PASS",
+          "runtime": "PRI PROOF RUNTIME PASSED: 184 passed (106 Jest + 62 Node consumer + 16 distinct real CLI scenarios; zero test skips; exact main df65feae186c300f9ae30a95019e9217095a509d)"
+        },
+        "tick": {
+          "path": "evidence/pri-tick-20260930.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "admissionRequires": "This documentation-only registration requires independent exact-head review, required CI, pinned merge and exact-main registration proof before PRI source admission. Fresh NEXT is PRI after the authorized insertion before PMP (baseline NEXT PMP); selection is not admission and documentary predecessors are not enforced. Parent verifies U17d and U41 complete with PASS exact-main proofs and Git ancestry, exact eight-file ownership, no in-flight overlap and ordinary caps. Re-measure added product lines including counted instruction edits; tests remain separately reported/uncounted under unchanged U41 rules. If scope exceeds eight files/500 lines, stop for a separate bounded registration amendment, never widen in flight. Use real candidate version 2 producer/consumer for PRI's own bootstrap review and closure with current observed independent GPT6.1 tasks/sessions, honest model strings, exact-head/hash-bound evidence and contributor census; no exemption. Run existing Node validator and both roadmap-loop Jest pins, discriminating machine-field cases and actual controlled producer/consumer CLIs, diagnostics, typecheck, lint/ratchet, format, build and applicable strict/exact-main/runtime gates serialized under actual idle/common holds. Independent exact-head candidate-contract review, required CI (task 60 requires 31/31), pinned merge, exact-main PASS and truthful closure precede PMP admission. Parent compares named PASS receipts, ancestry and closure before release; P2B/P2/U38 stay blocked. Historical example worker identities are not future approval.",

@@ -1,0 +1,235 @@
+{
+  "unit": "PRI",
+  "stage": "admission",
+  "at": "2026-09-30T03:37:37.674032+00:00",
+  "baseline": "4ade3c387ad10bce46047274c78f4f625e46ed4d",
+  "model": "chatgpt-subscription/gpt-6.1-sol",
+  "sourceAuthor": {
+    "task_id": "st_01a0ef5d",
+    "child_session_id": "01a0ef5d-bf9d-7683-a9c0-0287a372483c",
+    "model": "chatgpt-subscription/gpt-6.1-sol",
+    "execution_mode": "in-process",
+    "agent_type": null,
+    "resolved_model": {
+      "provider": "chatgpt-subscription",
+      "model_id": "gpt-6.1-sol"
+    }
+  },
+  "ownedPaths": [
+    "scripts/qc/roadmap-unit-closure.mjs",
+    "scripts/qc/roadmap-ledger-lib.mjs",
+    "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+    "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
+    "openspec/planning/2026-09-12-roadmap-completion/GOAL.md",
+    "openspec/planning/2026-09-12-roadmap-completion/DELIVERY.md",
+    "openspec/planning/2026-09-12-roadmap-completion/WORKERS.md"
+  ],
+  "caps": {
+    "maxFiles": 8,
+    "maxNonGeneratedLines": 500
+  },
+  "taskKeys": [],
+  "node": "R6.loop-harness",
+  "reviewClasses": [
+    "routine"
+  ],
+  "ownerGate": null,
+  "summary": "Original source admission: clean fetched 4ade3c38, NEXT PRI, U17d/U41 complete/PASS/ancestor, no collision, exact rowless routine 8/500 scope. Retrospective indexing, not an invented historical lifecycle event.",
+  "assembly": {
+    "assembledAt": "2026-09-30T03:37:37.654175+00:00",
+    "kind": "Derived index of authentic frozen source executions, not an original Lane artifact or newly executed source stage. Original dates/argv/exits/source epochs remain in the referenced artifacts.",
+    "closureAuthor": "st_01a0f04f",
+    "sourceAuthor": "st_01a0ef5d",
+    "sourceAuthorSession": "01a0ef5d-bf9d-7683-a9c0-0287a372483c",
+    "sourceFinishers": [],
+    "sourceBaseline": "4ade3c387ad10bce46047274c78f4f625e46ed4d",
+    "finalSourceHead": "2918950c8b1a62aff39b00d7c881b19a3f24e0f5"
+  },
+  "originalAdmission": {
+    "path": "pri-audited-review-identity-source-gpt61/admission.json",
+    "bytes": 49280,
+    "sha256": "a9964478ea4e507fd8952d5d693021b9db19149d70e6fc959a5c10f8de031132"
+  },
+  "originalReport": {
+    "path": "pri-audited-review-identity-source-gpt61/report.md",
+    "bytes": 8262,
+    "sha256": "4ba34d57ed4199b855c570889393d18d9ea07f3010797e65fb40e9d248fd01d3"
+  },
+  "commands": {
+    "admission-base": {
+      "command": {
+        "argv": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "E:\\Projects\\MekStation-wt\\pri-audited-review-identity-source-20260929-gpt61\\openspec\\planning\\2026-09-12-roadmap-completion\\validate-roadmap.mjs"
+        ],
+        "cwd": "E:\\Projects\\MekStation-wt\\pri-audited-review-identity-source-20260929-gpt61",
+        "exit": 0
+      },
+      "outcome": {
+        "exit": 0
+      },
+      "artifacts": [
+        {
+          "path": "pri-audited-review-identity-source-gpt61/admission-base.argv.json",
+          "bytes": 348,
+          "sha256": "31acfda6d42fb792b96036206da10cda53dadc2eda454ae5fa41fd3fa47b4649"
+        },
+        {
+          "path": "pri-audited-review-identity-source-gpt61/admission-base.stdout",
+          "bytes": 76,
+          "sha256": "5d4e2632ad433b598282457f50f016260282736419f55973bd91f704a9ef25a1"
+        },
+        {
+          "path": "pri-audited-review-identity-source-gpt61/admission-base.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    "admission-head": {
+      "command": {
+        "argv": [
+          "git",
+          "rev-parse",
+          "HEAD"
+        ],
+        "cwd": "E:\\Projects\\MekStation-wt\\pri-audited-review-identity-source-20260929-gpt61",
+        "exit": 0
+      },
+      "outcome": {
+        "exit": 0
+      },
+      "artifacts": [
+        {
+          "path": "pri-audited-review-identity-source-gpt61/admission-head.argv.json",
+          "bytes": 172,
+          "sha256": "f5c1123e42ea8ac33c2f5201cff61c4f607e5c2c51f2c0bf2235a7b6945eaed6"
+        },
+        {
+          "path": "pri-audited-review-identity-source-gpt61/admission-head.stdout",
+          "bytes": 41,
+          "sha256": "db46975798c3ca22ab710e57490a320ae1afc9e0408117c1c55cf645d7a12ec7"
+        },
+        {
+          "path": "pri-audited-review-identity-source-gpt61/admission-head.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    "admission-next": {
+      "command": {
+        "argv": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "E:\\Projects\\MekStation-wt\\pri-audited-review-identity-source-20260929-gpt61\\openspec\\planning\\2026-09-12-roadmap-completion\\validate-roadmap.mjs",
+          "--next"
+        ],
+        "cwd": "E:\\Projects\\MekStation-wt\\pri-audited-review-identity-source-20260929-gpt61",
+        "exit": 0
+      },
+      "outcome": {
+        "exit": 0
+      },
+      "artifacts": [
+        {
+          "path": "pri-audited-review-identity-source-gpt61/admission-next.argv.json",
+          "bytes": 363,
+          "sha256": "113aa9bbd2301d0ba4868ef6183c0c8202aa5e78ddc3f6b56cbb6d89a110f991"
+        },
+        {
+          "path": "pri-audited-review-identity-source-gpt61/admission-next.stdout",
+          "bytes": 4,
+          "sha256": "d49313f4c242c06d4cf1c41b0ea6493e6bc5362c3dffba78b15ab404505a6281"
+        },
+        {
+          "path": "pri-audited-review-identity-source-gpt61/admission-next.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    "admission-status": {
+      "command": {
+        "argv": [
+          "git",
+          "status",
+          "--porcelain"
+        ],
+        "cwd": "E:\\Projects\\MekStation-wt\\pri-audited-review-identity-source-20260929-gpt61",
+        "exit": 0
+      },
+      "outcome": {
+        "exit": 0
+      },
+      "artifacts": [
+        {
+          "path": "pri-audited-review-identity-source-gpt61/admission-status.argv.json",
+          "bytes": 176,
+          "sha256": "6817fddb57af6c76ff2869d8b6dd00157addf97c574214e81e4c8055935a6c19"
+        },
+        {
+          "path": "pri-audited-review-identity-source-gpt61/admission-status.stdout",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "pri-audited-review-identity-source-gpt61/admission-status.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    }
+  },
+  "predecessors": [
+    {
+      "unit": "U17d",
+      "artifacts": [
+        {
+          "path": "pri-audited-review-identity-source-gpt61/U17d-predecessor.json",
+          "bytes": 8923,
+          "sha256": "766317edbb05c50d675de294d2b6f7e23b85b1f6d120f6df04927de7447edfc8"
+        },
+        {
+          "path": "pri-audited-review-identity-source-gpt61/predecessor-U17d.argv.json",
+          "bytes": 244,
+          "sha256": "d95cda95a556ad64eaf63a094fcdcc1562997816e92add8a4665144b212f1747"
+        },
+        {
+          "path": "pri-audited-review-identity-source-gpt61/predecessor-U17d.stdout",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "unit": "U41",
+      "artifacts": [
+        {
+          "path": "pri-audited-review-identity-source-gpt61/U41-predecessor.json",
+          "bytes": 10794,
+          "sha256": "1efa9d529ce95ca304182ed4dd55039b6ce623dffc6a66dc03076ce0861e45bb"
+        },
+        {
+          "path": "pri-audited-review-identity-source-gpt61/predecessor-U41.argv.json",
+          "bytes": 244,
+          "sha256": "71271eec21272c1c869708260a889a3afbbab13577fe8cb8c5782c485a9b80ec"
+        },
+        {
+          "path": "pri-audited-review-identity-source-gpt61/predecessor-U41.stdout",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    }
+  ],
+  "originalEpochManifest": {
+    "path": "pri-audited-review-identity-source-gpt61/manifest.json",
+    "bytes": 2354856,
+    "sha256": "54b14f173003c881418b35664a784fa91eee4bff0729e0e9b5ab1d4ac62808e5"
+  },
+  "parentDecision": {
+    "decision": "go",
+    "basis": "Original authorized source assignment and frozen admission, not a new Lane B ruling."
+  }
+}
