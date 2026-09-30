@@ -1,0 +1,80 @@
+{
+  "unit": "U17e",
+  "stage": "local",
+  "at": "2026-09-30T20:20:41.881Z",
+  "baseline": "acbfc11dc71576263ffb3ffc41372295486506fc",
+  "sourceHead": "13ce444324f49400316dd77d87d5f7171cbe7114",
+  "testedHead": "13ce444324f49400316dd77d87d5f7171cbe7114",
+  "pr": 2101,
+  "status": "ready",
+  "reviewContractVersion": 2,
+  "implementationActors": [
+    {
+      "role": "author",
+      "task_id": "st_01a0f381",
+      "child_session_id": "01a0f381-17e1-7f51-ad26-df1f36533ab5",
+      "model": "chatgpt-subscription/gpt-6.1-sol"
+    }
+  ],
+  "sourceHashes": [
+    {
+      "path": "E:/Projects/MekStation-wt/u17e-source-gpt61/scripts/qc/roadmap-unit-closure.mjs",
+      "bytes": 21544,
+      "sha256": "2bb6f5cd52455598cd0af9087f269a69da7c740d1c06fa2d6b691d63c2050416"
+    },
+    {
+      "path": "E:/Projects/MekStation-wt/u17e-source-gpt61/scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+      "bytes": 89633,
+      "sha256": "8d0388552ceb5afcffe31a717dc6e7256d9ded4b15ead2a834e83848bf2bd2a2"
+    },
+    {
+      "path": "E:/Projects/MekStation-wt/u17e-source-gpt61/openspec/planning/2026-09-12-roadmap-completion/GOAL.md",
+      "bytes": 12708,
+      "sha256": "06b2e7cdeede00d9cab0ea79aebd934abf953eaf98b3bb4ed9bc934fd021bb61"
+    },
+    {
+      "path": "E:/Projects/MekStation-wt/u17e-source-gpt61/openspec/planning/2026-09-12-roadmap-completion/DELIVERY.md",
+      "bytes": 13034,
+      "sha256": "9b84ac1456d1f17b8323412f27cc35a7de1882f82f187affe4ba46e8f3ffeb3c"
+    }
+  ],
+  "budget": {
+    "files": 4,
+    "countedAdded": 35,
+    "testAdded": 289,
+    "maxCountedAdded": 150
+  },
+  "gates": {
+    "path": "E:/Projects/.omo/evidence/u17e-ordered-parent-attestation-source-author-20260930-gpt61/completed-gates-head13ce.json",
+    "bytes": 7711,
+    "sha256": "e01da15976fcafee20b001c9b952f84fdc7ff7c6b54bae7623a5d90c0221968d"
+  },
+  "engineObservation": {
+    "path": "E:/Projects/.omo/evidence/u17e-ordered-parent-attestation-source-author-20260930-gpt61/engine-identity-projection.json",
+    "bytes": 660,
+    "sha256": "b925ba7f5e242d900b2cfcc3000456ed5a26ae2599992a22a59dc127668ff49e"
+  },
+  "historicalHookCaveat": {
+    "path": "E:/Projects/.omo/evidence/u17e-ordered-parent-attestation-source-author-20260930-gpt61/hook-observation.json",
+    "bytes": 786,
+    "sha256": "a15a092cfbc25d2aa32c8cce32c144832cf875f0bf0ffcd420567367bfe709cf"
+  },
+  "correctiveNormalHook": {
+    "path": "E:/Projects/.omo/evidence/u17e-ordered-parent-attestation-source-author-20260930-gpt61/corrective-normal-hook-commit.result.json",
+    "bytes": 880,
+    "sha256": "6ef9e7a11bcfc8b3a3c4402349412e06fda0f0553ea5044376bfb8f04a438ae3"
+  },
+  "scope": "Bounded SOURCE verified locally; not official unit lifecycle, independent APPROVE,31CI,mainproof,ownclosure or PMP completion",
+  "warnings": [
+    "84 inherited lint warnings; script paths ignored by project lint",
+    "Markdown LSP unavailable and OpenSpec formatter paths ignored",
+    "Actual original CI child stderr was unavailable; controlled scanner/removal race reproduced and owned fixture isolated"
+  ],
+  "remaining": [
+    "Fresh independent exact-head v2 source review with this whole local receipt hash",
+    "Actual producer identity/prospective precheck before SOURCE merge without fabricated final main proof",
+    "All31 exact-head CI",
+    "Parent pinned explicit squash",
+    "Actual exact-main proof and truthful own U17e v2 closure before task63 tick or later PMP closure"
+  ]
+}

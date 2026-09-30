@@ -1,0 +1,28 @@
+{
+  "unit": "U17e",
+  "stage": "admission",
+  "at": "2026-09-30T23:03:59.565Z",
+  "baseline": "acbfc11dc71576263ffb3ffc41372295486506fc",
+  "observedClosureBaseline": "90a4de1b5147e3f04a5323f8c9f5232df8de112c",
+  "parentDecision": {
+    "decision": "go"
+  },
+  "sourceAdmission": {
+    "path": "E:/Projects/MekStation/.omo/ulw-execute/evidence/task-63-u17e-source-author-admission.json",
+    "bytes": 3518,
+    "sha256": "ee057530637decd9b46bb8f4d9647b659f1601c58a0d46a05c31e90d52f74115"
+  },
+  "originalObservedAdmission": {
+    "path": "E:/Projects/.omo/evidence/u17e-ordered-parent-attestation-source-author-20260930-gpt61/admission.json",
+    "bytes": 6575,
+    "sha256": "2ca1a1d98a9ea362c64dc000877baaddda8c64889e56be47875ac648159b8fb3"
+  },
+  "closureDispatch": {
+    "path": "E:/Projects/MekStation/.omo/ulw-execute/evidence/task-63-official-u17e-closure-author-dispatch.json",
+    "bytes": 1771,
+    "sha256": "d33082eba1599231c565f0e7541524b0a8529a6ec3abb4b750fdfd9cd85322d2"
+  },
+  "sourceHead": "13ce444324f49400316dd77d87d5f7171cbe7114",
+  "sourcePR": 2101,
+  "scope": "Derived index over genuine source admission; current assembly time is not source execution time. Only common metadata closure remains."
+}

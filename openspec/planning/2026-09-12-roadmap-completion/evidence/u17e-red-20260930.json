@@ -1,0 +1,25 @@
+{
+  "unit": "U17e",
+  "stage": "red",
+  "at": "2026-09-30T23:03:59.566Z",
+  "baseline": "acbfc11dc71576263ffb3ffc41372295486506fc",
+  "status": "measured-source-red",
+  "refusal": "MERGE_PARENT_COUNT",
+  "exit": 1,
+  "observed": {
+    "path": "E:/Projects/.omo/evidence/u17e-ordered-parent-attestation-source-author-20260930-gpt61/red-observed.json",
+    "bytes": 1080,
+    "sha256": "f4fa12d016f7a2100541b849c487e38b513e392928bb867c01f09395a44ebae8"
+  },
+  "command": {
+    "path": "E:/Projects/.omo/evidence/u17e-ordered-parent-attestation-source-author-20260930-gpt61/red-valid-two-parent.result.json",
+    "bytes": 1050,
+    "sha256": "181b62b2318dc7abbf079773e95890dc66ca75b2f436fdda09949b38afa9a252"
+  },
+  "stderr": {
+    "path": "E:/Projects/.omo/evidence/u17e-ordered-parent-attestation-source-author-20260930-gpt61/red-valid-two-parent.stderr",
+    "bytes": 9544,
+    "sha256": "49df022733c2ba76d741aa519571fc2d4bbf3c559b27a9c30ea1ab1c231c2350"
+  },
+  "scope": "Derived index of actual unchanged-source valid-two-parent refusal. No RED rerun, fabricated command or official identity from controlled bootstrap."
+}

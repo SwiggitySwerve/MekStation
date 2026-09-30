@@ -1,0 +1,8 @@
+{
+  "unit": "U17e",
+  "stage": "tick",
+  "at": "2026-09-30T23:06:33.619Z",
+  "taskKeys": [],
+  "note": "U17e holds no task row; the delivered behaviour is proven on main by this unit.",
+  "tickedOnMain": null
+}
