@@ -17,8 +17,9 @@
  * merge commit or the tree is dirty.
  *
  * Everything runs against a temporary COPY of the ledger directory, placed
- * under openspec/planning/ so that the copied validate-roadmap.mjs still
- * resolves the real repository root three levels up, and against a fabricated
+ * under .next/<unique>/ledger so the copied validate-roadmap.mjs still resolves
+ * the real repository root three levels up, without exposing transient trees to
+ * concurrent repository QC scans, and against a fabricated
  * planned unit. The real ledger is never written by this file.
  *
  * gh and git: the closure's gh calls go to a fake `gh` on PATH that prints the
@@ -93,6 +94,7 @@ interface ILedger {
 }
 
 let tempLedger = '';
+let tempRoot = '';
 let pristineUnits = '';
 let fakeBin = '';
 /** The throwaway repository the closure cases treat as the merged checkout. */
@@ -106,6 +108,8 @@ const PIN_GIT_ENV = {
   GIT_AUTHOR_EMAIL: 'pin@example.invalid',
   GIT_COMMITTER_NAME: 'pin',
   GIT_COMMITTER_EMAIL: 'pin@example.invalid',
+  GIT_AUTHOR_DATE: '2026-09-30T00:00:00Z',
+  GIT_COMMITTER_DATE: '2026-09-30T00:00:00Z',
 };
 
 const readJson = <T>(file: string): T =>
@@ -417,11 +421,10 @@ function closureArgs(review: string, proofDir: string): string[] {
 }
 
 beforeAll(() => {
-  // The temp- prefix puts the copy under .gitignore's temp-* rule, so a run
-  // that crashes before afterAll leaves no untracked ledger copy behind.
-  tempLedger = fs.mkdtempSync(
-    path.join(repoRoot, 'openspec/planning', 'temp-u17-pin-'),
-  );
+  // Keep the real three-level consumer root, inside QC's existing ignored tree.
+  fs.mkdirSync(path.join(repoRoot, '.next'), { recursive: true });
+  tempRoot = fs.mkdtempSync(path.join(repoRoot, '.next', 'temp-u17-pin-'));
+  tempLedger = path.join(tempRoot, 'ledger');
   fs.cpSync(SOURCE_LEDGER, tempLedger, { recursive: true });
   pristineUnits = fs.readFileSync(path.join(tempLedger, 'units.json'), 'utf8');
 
@@ -476,7 +479,7 @@ beforeAll(() => {
 });
 
 afterAll(() => {
-  if (tempLedger) fs.rmSync(tempLedger, { recursive: true, force: true });
+  if (tempRoot) fs.rmSync(tempRoot, { recursive: true, force: true });
   if (fakeBin) fs.rmSync(fakeBin, { recursive: true, force: true });
   if (proofRepo) fs.rmSync(proofRepo, { recursive: true, force: true });
 });
@@ -494,6 +497,33 @@ beforeEach(() => {
 });
 
 describe('the pin temp ledger', () => {
+  it('keeps the live ledger outside concurrent QC repository scans', () => {
+    // Given: observe native reads in an isolated child; no filesystem result is faked.
+    const observer = path.join(fakeBin, 'observe-qc-scan.mjs');
+    fs.writeFileSync(
+      observer,
+      [
+        "import fs from 'node:fs';",
+        "import path from 'node:path';",
+        "import {syncBuiltinESMExports} from 'node:module';",
+        'const read = fs.readdirSync;',
+        'const target = ' + JSON.stringify(tempLedger) + ';',
+        'fs.readdirSync = function(dir, ...args) {',
+        '  if (path.resolve(String(dir)) === target) process.stderr.write("QC_PIN_LEDGER_SCANNED");',
+        '  return read.call(this, dir, ...args);',
+        '};',
+        'syncBuiltinESMExports();',
+        'await import(' +
+          JSON.stringify(pathToFileURL(qc('validate-qc-registry.mjs')).href) +
+          ');',
+      ].join(String.fromCharCode(10)),
+    );
+    // When: the real QC validator enumerates the real repository.
+    const result = run(observer, []);
+    // Then: the owning fixture cannot race that scanner's directory cleanup.
+    expectClosureOk(result);
+    expect(result.stderr).not.toContain('QC_PIN_LEDGER_SCANNED');
+  });
   it('sits under a name git ignores', () => {
     const ignored = spawnSync('git', ['check-ignore', '-q', tempLedger], {
       cwd: repoRoot,
@@ -1091,16 +1121,55 @@ describe('PRI audited review identity', () => {
   );
 
   it.each([
-    'clean',
-    'intervening-main',
-    'outside-drift',
-    'reviewed-drift',
-    'prospective-invalid',
-    'archive-conflict',
-    'external-local-downgrade',
+    ...[
+      'clean',
+      'intervening-main',
+      'outside-drift',
+      'reviewed-drift',
+      'prospective-invalid',
+      'archive-conflict',
+      'external-local-downgrade',
+    ].flatMap((scenario) =>
+      [false, true].map((twoParents) => ({ scenario, twoParents })),
+    ),
+    ...[
+      'root',
+      'octopus',
+      'wrong-second',
+      'wrong-second-skip',
+      'missing-source',
+      'tree-source',
+      'future-source',
+      'merge-source',
+      'tag-merge',
+      'reversed',
+      'stale-second',
+      'unrelated-target',
+      'unrelated-source',
+      'missing-target',
+      'already-integrated',
+      'conflict',
+      'dropped-parent',
+      'mode-drift',
+      'failed-runtime',
+      'flaky-runtime',
+      'failed-validator',
+      'failed-git-check',
+      'wrong-checkout',
+      'stale-ruling',
+      'moved-head',
+      'identity-shared-task',
+      'identity-shared-session',
+      'identity-omitted-finisher',
+      'identity-corrupt-local',
+      'identity-corrupt-snapshot',
+      'identity-live-disagreement',
+      'identity-duplicate-prolog',
+      'identity-conflicting-prolog',
+    ].map((scenario) => ({ scenario, twoParents: true })),
   ])(
-    'exercises modern %s through real Git and portable consumption before publication',
-    (scenario) => {
+    'exercises modern $scenario (twoParents=$twoParents) through real Git before publication',
+    ({ scenario, twoParents }) => {
       const repo = fs.mkdtempSync(path.join(os.tmpdir(), 'pri-modern-git-'));
       try {
         git(['init', '-q'], repo);
@@ -1120,13 +1189,13 @@ describe('PRI audited review identity', () => {
         const commit = (
           subject: string,
           content: string,
-          parent?: string,
+          parents: string[] = [],
         ): string =>
           git(
             [
               'commit-tree',
               content,
-              ...(parent ? ['-p', parent] : []),
+              ...parents.flatMap((parent) => ['-p', parent]),
               '-m',
               subject,
             ],
@@ -1137,33 +1206,88 @@ describe('PRI audited review identity', () => {
         const head = commit(
           'mechanistic reviewed head',
           tree('reviewed', 'base'),
-          base,
+          scenario === 'unrelated-source' ? [] : [base],
         );
         const parent =
           scenario === 'clean'
             ? base
-            : commit('mechanistic main parent', tree('base', 'main'), base);
-        const integratedTree = tree(
+            : commit(
+                'mechanistic main parent',
+                tree(
+                  scenario === 'conflict'
+                    ? 'conflicting'
+                    : scenario === 'already-integrated'
+                      ? 'reviewed'
+                      : 'base',
+                  'main',
+                ),
+                scenario === 'unrelated-target'
+                  ? []
+                  : [scenario === 'already-integrated' ? head : base],
+              );
+        let integratedTree = tree(
           scenario === 'reviewed-drift' ? 'tampered' : 'reviewed',
-          scenario === 'clean' ? 'base' : 'main',
+          scenario === 'clean' || scenario === 'dropped-parent'
+            ? 'base'
+            : 'main',
           scenario === 'outside-drift' ? 'drift' : 'base',
         );
+        if (scenario === 'mode-drift') {
+          git(['update-index', '--chmod=+x', 'outside.txt'], repo);
+          integratedTree = git(['write-tree'], repo);
+        }
+        let parents = twoParents ? [parent, head] : [parent];
+        if (scenario === 'root') parents = [];
+        if (scenario === 'octopus')
+          parents.push(commit('third parent', tree('base', 'base'), [base]));
+        if (scenario === 'wrong-second' || scenario === 'wrong-second-skip')
+          parents[1] = commit('unreviewed tip', tree('other', 'base'), [base]);
+        if (scenario === 'stale-second') parents[1] = base;
+        if (scenario === 'reversed') parents = [head, parent];
         const merge = commit(
-          'mechanistic squash merge',
+          'mechanistic integration',
           integratedTree,
-          parent,
+          parents,
         );
         expect(new Set([base, head, merge]).size).toBe(3);
-        expect(git(['rev-list', '--parents', '-n', '1', head], repo)).toBe(
-          `${head} ${base}`,
-        );
         expect(git(['rev-list', '--parents', '-n', '1', merge], repo)).toBe(
-          `${merge} ${parent}`,
+          [merge, ...parents].join(' '),
         );
-        expect(git(['merge-base', '--all', merge, head], repo)).toBe(base);
-        git(['update-ref', 'refs/heads/main', merge], repo);
+        git(
+          [
+            'update-ref',
+            'refs/heads/main',
+            scenario === 'wrong-checkout' ? parent : merge,
+          ],
+          repo,
+        );
         git(['symbolic-ref', 'HEAD', 'refs/heads/main'], repo);
-        const input = fixture('valid', 2, head);
+        let sourceHead = head;
+        if (scenario === 'missing-source') sourceHead = 'f'.repeat(40);
+        if (scenario === 'tree-source') sourceHead = integratedTree;
+        if (scenario === 'future-source')
+          sourceHead = commit('future source', integratedTree, [merge]);
+        if (scenario === 'merge-source') sourceHead = merge;
+        let reportedMerge = merge;
+        if (scenario === 'tag-merge') {
+          git(
+            [
+              'tag',
+              '-a',
+              'reported-merge',
+              '-m',
+              'noncommit merge identity',
+              merge,
+            ],
+            repo,
+          );
+          reportedMerge = git(['rev-parse', 'refs/tags/reported-merge'], repo);
+        }
+        const input = fixture(
+          scenario.startsWith('identity-') ? scenario.slice(9) : 'valid',
+          2,
+          sourceHead,
+        );
         for (const stage of ['admission', 'red', 'local']) {
           const file = path.join(
             tempLedger,
@@ -1182,13 +1306,29 @@ describe('PRI audited review identity', () => {
         target.baseline = base;
         target.stageReceipts.admission.baseline = base;
         writeJson(path.join(tempLedger, 'units.json'), ledgerAtBase);
-        writeJson(input.manifest, {
-          ...readJson<Record<string, unknown>>(input.manifest),
-          localReceiptSha256: digest(
-            path.join(tempLedger, 'evidence', `u91-local-${DATE}.json`),
-          ),
-        });
+        if (scenario !== 'identity-corrupt-local')
+          writeJson(input.manifest, {
+            ...readJson<Record<string, unknown>>(input.manifest),
+            localReceiptSha256: digest(
+              path.join(tempLedger, 'evidence', `u91-local-${DATE}.json`),
+            ),
+          });
         if (scenario === 'prospective-invalid') makeUnrelatedUnitInvalid();
+        if (scenario === 'identity-corrupt-local')
+          fs.appendFileSync(
+            path.join(tempLedger, 'evidence', 'u91-local-' + DATE + '.json'),
+            ' ',
+          );
+        if (scenario === 'stale-ruling') seedSensitivePacket(true);
+        if (scenario === 'missing-target')
+          fs.unlinkSync(
+            path.join(
+              repo,
+              '.git/objects',
+              parent.slice(0, 2),
+              parent.slice(2),
+            ),
+          );
         if (scenario === 'archive-conflict') {
           const snapshot = path.join(tempLedger, 'snapshot-3.json');
           fs.writeFileSync(
@@ -1224,11 +1364,77 @@ describe('PRI audited review identity', () => {
           delete local.implementationActors;
           writeJson(path.join(tempLedger, 'units.json'), ledger);
         }
+        const proof = args[args.indexOf('--proof-dir') + 1];
+        if (scenario === 'failed-runtime' || scenario === 'flaky-runtime')
+          fs.writeFileSync(
+            path.join(proof, 'playwright.log'),
+            scenario === 'failed-runtime'
+              ? '1 failed / 12 passed'
+              : '1 flaky / 12 passed',
+          );
+        if (scenario === 'failed-validator' || scenario === 'failed-git-check')
+          fs.writeFileSync(
+            path.join(proof, scenario.slice(7) + '.log'),
+            'ROADMAP VALIDATION FAILED',
+          );
         const before = diskState();
+        const indexBefore = git(['ls-files', '--stage'], repo);
+        const reportedHead = scenario === 'moved-head' ? parent : sourceHead;
+        if (scenario === 'tag-merge') args.push('--reproof-commit', merge);
+        if (scenario === 'wrong-second-skip') args.push('--skip-blob-check');
+        // When: only gh transport is faked; Git and the producer CLI are real.
         const result = run(CLOSURE, [...args, '--repo-root', repo], repoRoot, {
-          U17_FAKE_GH_HEAD: head,
-          U17_FAKE_GH_MERGE: merge,
+          U17_FAKE_GH_HEAD: reportedHead,
+          U17_FAKE_GH_MERGE: reportedMerge,
         });
+        if (process.env.U17E_QA_RAW) {
+          const name = scenario + '-' + (twoParents ? 'two' : 'one');
+          const dir = path.join(process.env.U17E_QA_RAW, name);
+          fs.mkdirSync(dir, { recursive: true });
+          fs.writeFileSync(path.join(dir, 'producer.stdout'), result.stdout);
+          fs.writeFileSync(path.join(dir, 'producer.stderr'), result.stderr);
+          for (const stage of [
+            'review',
+            'merge',
+            'mainproof',
+            'tick',
+            'logs',
+          ]) {
+            const file = path.join(
+              tempLedger,
+              'evidence',
+              'u91-' + stage + '-' + DATE + '.json',
+            );
+            if (fs.existsSync(file))
+              fs.copyFileSync(file, path.join(dir, stage + '.json'));
+          }
+          console.log(
+            'U17E_PUBLIC ' +
+              JSON.stringify({
+                scenario,
+                twoParents,
+                head,
+                reportedHead,
+                reportedMerge,
+                merge,
+                parents,
+                parent,
+                base,
+                integratedTree,
+                status: result.status,
+                before: createHash('sha256')
+                  .update(JSON.stringify(before))
+                  .digest('hex'),
+                after: createHash('sha256')
+                  .update(JSON.stringify(diskState()))
+                  .digest('hex'),
+                argv: [process.execPath, CLOSURE, ...args, '--repo-root', repo],
+                sourceSha256: digest(CLOSURE),
+              }),
+          );
+        }
+        // Then: native attestation must not mutate the fixture index.
+        expect(git(['ls-files', '--stage'], repo)).toBe(indexBefore);
         if (scenario === 'clean' || scenario === 'intervening-main') {
           expectClosureOk(result);
           expect(unitOf(UNIT).state).toBe('complete');
@@ -1246,17 +1452,49 @@ describe('PRI audited review identity', () => {
           );
           expect(receipt.treeIntegration).toEqual({
             parent,
+            ...(twoParents ? { parents } : {}),
             mergeBases: [base],
             expectedTree: integratedTree,
             actualTree: integratedTree,
             matches: true,
           });
+          expect(receipt.parentCount).toBe(twoParents ? 2 : 1);
+          expect(receipt.head).toBe(head);
+          if (scenario === 'intervening-main')
+            expect(parent).not.toBe(unitOf(UNIT).baseline);
         } else {
+          const codes: Record<string, string> = {
+            root: 'MERGE_PARENT_COUNT',
+            octopus: 'MERGE_PARENT_COUNT',
+            'wrong-second': 'MERGE_REVIEWED_PARENT_MISMATCH',
+            'wrong-second-skip': 'MERGE_REVIEWED_PARENT_MISMATCH',
+            'missing-source': 'MERGE_REVIEWED_PARENT_MISMATCH',
+            'tree-source': 'MERGE_REVIEWED_PARENT_MISMATCH',
+            'future-source': 'MERGE_REVIEWED_PARENT_MISMATCH',
+            'merge-source': 'MERGE_REVIEWED_PARENT_MISMATCH',
+            'tag-merge': 'MERGE_ANCESTRY_INVALID',
+            reversed: 'MERGE_REVIEWED_PARENT_MISMATCH',
+            'stale-second': 'MERGE_REVIEWED_PARENT_MISMATCH',
+            'unrelated-target': 'GIT_FAILED',
+            'unrelated-source': 'GIT_FAILED',
+            'missing-target': 'GIT_FAILED',
+            conflict: 'GIT_FAILED',
+            'already-integrated': 'MERGE_ANCESTRY_INVALID',
+            'wrong-checkout': 'WRONG_CHECKOUT',
+            'stale-ruling': 'OWNER_RULING_MISSING',
+            'moved-head': 'REVIEW_HEAD_MISMATCH',
+            'outside-drift': 'MAIN_PROOF_NOT_PASS',
+            'reviewed-drift': 'MAIN_PROOF_NOT_PASS',
+            'dropped-parent': 'MAIN_PROOF_NOT_PASS',
+            'mode-drift': 'MAIN_PROOF_NOT_PASS',
+            'failed-runtime': 'MAIN_PROOF_NOT_PASS',
+            'flaky-runtime': 'MAIN_PROOF_NOT_PASS',
+            'failed-validator': 'MAIN_PROOF_NOT_PASS',
+            'failed-git-check': 'MAIN_PROOF_NOT_PASS',
+          };
           expect(result.status).toBe(1);
           expect(result.stderr).toContain(
-            scenario.includes('drift')
-              ? 'MAIN_PROOF_NOT_PASS'
-              : 'REVIEW_IDENTITY_INVALID',
+            codes[scenario] ?? 'REVIEW_IDENTITY_INVALID',
           );
           expect(diskState()).toEqual(before);
           expect(unitOf(UNIT).state).toBe('local-verified');
@@ -1403,7 +1641,9 @@ describe('roadmap-unit-closure three-way attestation', () => {
         ? []
         : scenario === 'multiple'
           ? [parent, head]
-          : [parent];
+          : scenario === 'octopus'
+            ? [parent, head, commit(baseTree, [base])]
+            : [parent];
     const merge = commit(actualTree, parents);
     if (scenario === 'unrelated') head = commit(reviewedTree, []);
     if (scenario === 'missing') head = 'f'.repeat(40);
@@ -1437,7 +1677,7 @@ describe('roadmap-unit-closure three-way attestation', () => {
     );
   };
 
-  it.each(['clean', 'intervening-main'])(
+  it.each(['clean', 'intervening-main', 'multiple'])(
     'completes %s with the whole integrated tree',
     (scenario) => {
       const identity = fixture(scenario);
@@ -1449,6 +1689,9 @@ describe('roadmap-unit-closure three-way attestation', () => {
       );
       expect(receipt.treeIntegration).toEqual({
         parent: identity.parent,
+        ...(scenario === 'multiple'
+          ? { parents: [identity.parent, identity.head] }
+          : {}),
         mergeBases: [identity.base],
         expectedTree: identity.actualTree,
         actualTree: identity.actualTree,
@@ -1465,7 +1708,7 @@ describe('roadmap-unit-closure three-way attestation', () => {
     ['tree-as-head', 'GIT_FAILED'],
     ['unrelated', 'GIT_FAILED'],
     ['root', 'MERGE_PARENT_COUNT'],
-    ['multiple', 'MERGE_PARENT_COUNT'],
+    ['octopus', 'MERGE_PARENT_COUNT'],
     ['merge-as-head', 'MERGE_ANCESTRY_INVALID'],
     ['future-head', 'MERGE_ANCESTRY_INVALID'],
     ['already-integrated', 'MERGE_ANCESTRY_INVALID'],

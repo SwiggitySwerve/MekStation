@@ -22,8 +22,9 @@
  * whose verdict is not a plain APPROVE, and a proof whose runtime line does
  * not report passes, or reports failures that `--expected-reds` does not name
  * one by one, or whose validator or `--git` line does not say PASSED, or whose
- * merge commit does not have exactly one parent or its whole tree differs
- * from Git's conflict-free integration of that parent and the reviewed head.
+ * merge commit has neither one parent nor two ordered parents with the reviewed
+ * head second, or its whole tree differs from Git's conflict-free integration
+ * of the first parent and that exact reviewed head.
  *
  * `--extra-runtime <json-file>` merges further fields into `runtime` (what the
  * post-closure scripts did by hand for U9, U9b and U16).
@@ -37,8 +38,8 @@
  * is receipted as the model that wrote it; a review that does not name one is
  * refused (U17 finding F2).
  *
- * Pin-only injection points, never used by the loop: `--ledger-dir` and
- * `--repo-root` relocate the ledger and the git checkout, `--preserved-root`
+ * `--ledger-dir` and `--repo-root` relocate the current ledger and historical
+ * proof checkout independently; `--preserved-root`
  * relocates the preserved log copies, and `--skip-blob-check` records the blob
  * attestation as skipped instead of running Git against a head that does
  * not exist in a fabricated repository. `--skip-blob-check` is refused outright
@@ -342,13 +343,27 @@ function main(argv) {
     .trim()
     .split(' ')
     .slice(1);
-  if (parents.length !== 1)
+  if (parents.length !== 1 && parents.length !== 2)
     refuse('MERGE_PARENT_COUNT', `${mergeSha} has ${parents.length} parents`);
+  const supportedTopology = parents.length === 1 || parents[1] === head;
+  if (!supportedTopology)
+    refuse(
+      'MERGE_REVIEWED_PARENT_MISMATCH',
+      `${mergeSha} second parent ${parents[1]} is not reviewed head ${head}`,
+    );
   // Native merge semantics retain intervening parent edits, including edits
   // in reviewed files. Whole-tree equality also detects drift outside them.
   const treeIntegration = options.skipBlobCheck
     ? null
     : (() => {
+        if (
+          git(['rev-parse', `${mergeSha}^{commit}`], repoRoot).trim() !==
+          mergeSha
+        )
+          refuse(
+            'MERGE_ANCESTRY_INVALID',
+            `${mergeSha} is not a commit identity`,
+          );
         if (git(['rev-parse', `${head}^{commit}`], repoRoot).trim() !== head)
           refuse('MERGE_ANCESTRY_INVALID', `${head} is not a commit identity`);
         const parent = parents[0];
@@ -380,6 +395,7 @@ function main(argv) {
         ).trim();
         return {
           parent,
+          ...(parents.length === 2 ? { parents } : {}),
           mergeBases,
           expectedTree,
           actualTree,
@@ -443,7 +459,7 @@ function main(argv) {
         : !/\b[1-9]\d* (failed|flaky)\b/.test(runtimeLine)) &&
       /PASSED/.test(validatorLine) &&
       /PASSED/.test(gitCheckLine) &&
-      merge.parentCount === 1 &&
+      supportedTopology &&
       (options.skipBlobCheck || treeIntegration.matches)
         ? 'PASS'
         : 'FAIL',
