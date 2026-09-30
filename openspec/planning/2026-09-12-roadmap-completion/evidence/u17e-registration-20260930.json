@@ -1,0 +1,480 @@
+{
+  "unit": "U17e",
+  "kind": "Documentation-only registration; not source admission, implementation, product red/green or staged PASS",
+  "planTask": 62,
+  "sourceTask": 63,
+  "baseline": "b0340bb363a0589739bd7e615348a6626f7f1404",
+  "baselineTree": "10f167214a31bedb61a1038867f7e95bf136f0ad",
+  "branch": "codex/u17e-two-parent-attestation-registration-gpt61",
+  "worktree": "E:/Projects/MekStation-wt/u17e-registration-gpt61",
+  "author": {
+    "task_id": "st_01a0f317",
+    "child_session_id": "01a0f317-9f8f-74f3-ae9a-1c621a3d9b9e",
+    "model": "chatgpt-subscription/gpt-6.1-sol",
+    "resolved_model": {
+      "provider": "chatgpt-subscription",
+      "model_id": "gpt-6.1-sol"
+    }
+  },
+  "writeMethod": "Installed Senpi applyPatchDetailed, the apply_patch implementation; all authored helper/report/docs/JSON writes use it. Raw stdout/stderr contain process bytes only.",
+  "admission": {
+    "path": "E:/Projects/MekStation/.omo/ulw-execute/evidence/task-62-u17e-registration-author-admission.json",
+    "bytes": 3710,
+    "sha256": "9b4345a9b2d013805a8dc78967d7b5fb7f8da6a29e4bfdfa9fd96676eea80119"
+  },
+  "assessment": {
+    "path": "E:/Projects/.omo/evidence/pmp-closure-parent-contract-recovery-assessment-20260930-gpt61/final-ready.json",
+    "bytes": 4873,
+    "sha256": "e087baee34c0b1f9ee00d95e70ba9a6f2166f3a439682993d3b362e6daecf4aa"
+  },
+  "futureSourceGrant": {
+    "node": "R6.loop-harness",
+    "ownershipPaths": [
+      "scripts/qc/roadmap-unit-closure.mjs",
+      "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+      "openspec/planning/2026-09-12-roadmap-completion/GOAL.md",
+      "openspec/planning/2026-09-12-roadmap-completion/DELIVERY.md"
+    ],
+    "caps": {
+      "maxFiles": 4,
+      "maxNonGeneratedLines": 150
+    },
+    "ciClass": "product",
+    "reviewClasses": [
+      "routine"
+    ],
+    "ownerGate": null,
+    "predecessors": [
+      "U17d",
+      "PRI",
+      "U41"
+    ],
+    "ordinaryNodeCaps": {
+      "maxFiles": 15,
+      "maxNonGeneratedLines": 500
+    },
+    "roadmapEditRequired": false,
+    "exactAliases": [
+      {
+        "path": "scripts/qc/roadmap-unit-closure.mjs",
+        "exact": true,
+        "exists": true
+      },
+      {
+        "path": "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+        "exact": true,
+        "exists": true
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/GOAL.md",
+        "exact": true,
+        "exists": true
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/DELIVERY.md",
+        "exact": true,
+        "exists": true
+      }
+    ],
+    "implementationEstimates": {
+      "producerAdded": [
+        35,
+        70
+      ],
+      "instructionsAdded": [
+        15,
+        35
+      ],
+      "countedTotalAdded": [
+        50,
+        105
+      ],
+      "testAddedSeparately": [
+        250,
+        450
+      ],
+      "notMeasuredImplementation": true
+    },
+    "lineAccounting": "Unchanged U41 added-line rules: counted producer plus instruction additions; test/evidence/generated additions excluded, all files count toward file cap; no capException or cap widening.",
+    "exclusions": "No consumer/library/fold/NodeTest/otherJest/package/WORKERS/workflow/game/broad-root path. Stop before fifth path or counted additions over 150 for separately reviewed amendment."
+  },
+  "registrationGrant": {
+    "paths": [
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/u17e-registration-20260930.json"
+    ],
+    "maxFiles": 3,
+    "maxCountedNonEvidenceAdditions": 500,
+    "noProductionBehaviorChanged": true
+  },
+  "incident": {
+    "pr": 2099,
+    "reviewedHead": "b17186d0ad70a0285a5bd050b4e4a4192c2bb079",
+    "merge": "b0340bb363a0589739bd7e615348a6626f7f1404",
+    "orderedParents": [
+      "d9ae8b9c28f50756145708c05111ab94f286d68e",
+      "b17186d0ad70a0285a5bd050b4e4a4192c2bb079"
+    ],
+    "actualTree": "10f167214a31bedb61a1038867f7e95bf136f0ad",
+    "parentMistakenMergeMethod": "--merge",
+    "nativeIntegrationRecomputedHere": false,
+    "sourceFindings": {
+      "initialOneParentRefusal": true,
+      "secondOneParentPassPredicate": true,
+      "consumerParentCountOccurrences": 0,
+      "consumerTreeIntegrationOccurrences": 0
+    },
+    "priorSourceDiff": {
+      "files": 2,
+      "productAdded": 52,
+      "testAdded": 322,
+      "unchangedPmpCaps": {
+        "maxFiles": 3,
+        "maxNonGeneratedLines": 150
+      },
+      "attribution": "Completed parent-audited source assessment, not a new implementation measurement"
+    }
+  },
+  "sourceReview": {
+    "path": "E:/Projects/.omo/evidence/pmp-b171-modern-source-review-20260930-gpt61/source-review.md",
+    "bytes": 6937,
+    "sha256": "ac1d846099a7730ee3dfdcc122f30ace1d5903d2645bd9117813a589103ab770",
+    "publication": "Completed genuine independent modern source-only APPROVE of unchanged b171, post-merge and parent-audited; never pretended pre-merge",
+    "producerConsumption": "Pending future delegated QA",
+    "approvesU17e": false,
+    "original266AndHistoricalProofsImmutable": true
+  },
+  "selector": {
+    "baselineNext": "PMP",
+    "registeredNext": "U17e",
+    "removingOnlyU17eNext": "PMP",
+    "oldRelativeOrderUnchanged": true,
+    "unitPredecessorsEnforcedByNext": false,
+    "parentAdmissionRequired": true
+  },
+  "prerequisites": [
+    {
+      "id": "U17d",
+      "state": "complete",
+      "mergeSha": "166e8eb78598425b621b527728d4c6141d7e45f3",
+      "mainProofMerge": "166e8eb78598425b621b527728d4c6141d7e45f3",
+      "verdict": "PASS",
+      "receiptGitBlob": "20e98e89d511ea8a487817c9ebc233a1aa54e9c6",
+      "receipt": {
+        "path": "E:\\Projects\\MekStation-wt\\u17e-registration-gpt61\\openspec\\planning\\2026-09-12-roadmap-completion\\evidence\\u17d-mainproof-20260929.json",
+        "bytes": 2841,
+        "sha256": "9751b0e5cacde22a5dae588b83a4c7814bee2a0b9232ec5c415fe7f47ecc222e"
+      },
+      "gitReceiptMatchesWorking": true,
+      "ancestorOfBaseline": true
+    },
+    {
+      "id": "PRI",
+      "state": "complete",
+      "mergeSha": "df65feae186c300f9ae30a95019e9217095a509d",
+      "mainProofMerge": "df65feae186c300f9ae30a95019e9217095a509d",
+      "verdict": "PASS",
+      "receiptGitBlob": "ab96d86056bff046d2a95f5226b0989b9f941cfa",
+      "receipt": {
+        "path": "E:\\Projects\\MekStation-wt\\u17e-registration-gpt61\\openspec\\planning\\2026-09-12-roadmap-completion\\evidence\\pri-mainproof-20260930.json",
+        "bytes": 13573,
+        "sha256": "9aae8de5842030cd77b7871ae7153c0d59bf27fb1d03d4b4fe9168b26c23b322"
+      },
+      "gitReceiptMatchesWorking": true,
+      "ancestorOfBaseline": true
+    },
+    {
+      "id": "U41",
+      "state": "complete",
+      "mergeSha": "3a62fabaddf169aa1c03a5f2888b43cc5ae78205",
+      "mainProofMerge": "3a62fabaddf169aa1c03a5f2888b43cc5ae78205",
+      "verdict": "PASS",
+      "receiptGitBlob": "132daa137ed98df5121ea570a0e16b140ac7a797",
+      "receipt": {
+        "path": "E:\\Projects\\MekStation-wt\\u17e-registration-gpt61\\openspec\\planning\\2026-09-12-roadmap-completion\\evidence\\u41-mainproof-20260926.json",
+        "bytes": 2444,
+        "sha256": "d0d9105ede8d29ba304fc79961646d34adda5cc5ba8890fca191d3cdf60f18d3"
+      },
+      "gitReceiptMatchesWorking": true,
+      "ancestorOfBaseline": true
+    }
+  ],
+  "invariants": {
+    "oldUnitCount": 156,
+    "newUnitCount": 157,
+    "allOldRelativeOrder": true,
+    "removingOnlyU17eRestoresOldOrder": true,
+    "allOldStatesCapsOwnersReceiptsTaskKeysPreserved": true,
+    "oldUnitChanges": [
+      {
+        "id": "PMP",
+        "allowedFields": [
+          "closurePredecessors",
+          "closureRequires"
+        ]
+      }
+    ],
+    "allOtherCollectionsPreserved": true,
+    "holdersSha256": "d62a78d27c5146503c2a2c13444e33a7ebafb3a6a5572c381af1643917236b50",
+    "roadmapUnchanged": true,
+    "roadmapCounts": {
+      "packages": 13,
+      "tasks": 376,
+      "checkedAtAdmission": 173,
+      "openAtAdmission": 203,
+      "triage": 40
+    },
+    "snapshots": [
+      {
+        "path": "E:/Projects/MekStation-wt/u17e-registration-gpt61/openspec/planning/2026-09-12-roadmap-completion/evidence/admission-snapshot.json",
+        "bytes": 196809,
+        "sha256": "dd2b997e6e2e3adf85130d3196ee9f2838fc900019ff36f8bd3495f3caf58b68",
+        "gitBlob": "11c6a7ab7cde9f6679be0bfc68e21fcaeaa19e75",
+        "unchanged": true
+      },
+      {
+        "path": "E:/Projects/MekStation-wt/u17e-registration-gpt61/openspec/planning/2026-09-12-roadmap-completion/evidence/admission-snapshot-supplement-20260922.json",
+        "bytes": 20144,
+        "sha256": "2047731066377c7ada89dfa9e71a023ea8bf7fcedebbb2c2bfb1f8569b7c2066",
+        "gitBlob": "727b9a55709101d5cb497a936127d90dc70b3ca2",
+        "unchanged": true
+      }
+    ],
+    "downstream": [
+      {
+        "id": "PMP",
+        "state": "planned"
+      },
+      {
+        "id": "P2B",
+        "state": "blocked"
+      },
+      {
+        "id": "P2",
+        "state": "blocked"
+      },
+      {
+        "id": "U38",
+        "state": "blocked"
+      }
+    ],
+    "nextDoesNotEnforcePredecessors": true,
+    "namespace": {
+      "supplementSnapshots": 0,
+      "units": 0,
+      "packets": 0,
+      "deferrals": 0,
+      "findings": 0
+    },
+    "inFlightUnits": [],
+    "oldPmpPredecessorsUnchanged": [
+      "P2BC",
+      "U17b",
+      "U39",
+      "PRI"
+    ],
+    "pmpClosurePredecessors": [
+      "U17e"
+    ],
+    "pmpClosureOnly": "Not a retroactive source-admission claim and not a replacement for existing PMP prerequisites"
+  },
+  "registrationValidation": {
+    "gates": [
+      {
+        "name": "registered-default",
+        "argv": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+        ],
+        "exit": 0,
+        "stdoutSha256": "5d4e2632ad433b598282457f50f016260282736419f55973bd91f704a9ef25a1",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "registered-git",
+        "argv": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+          "--git"
+        ],
+        "exit": 0,
+        "stdoutSha256": "5d4e2632ad433b598282457f50f016260282736419f55973bd91f704a9ef25a1",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "registered-github",
+        "argv": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+          "--github"
+        ],
+        "exit": 0,
+        "stdoutSha256": "5d4e2632ad433b598282457f50f016260282736419f55973bd91f704a9ef25a1",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "registered-next",
+        "argv": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+          "--next"
+        ],
+        "exit": 0,
+        "stdoutSha256": "20111acdb352b406ef19c6e49a24f28abdf455033cc182f3f46d012283fb52dd",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "removed-only-u17e-next",
+        "argv": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+          "--roadmap",
+          "E:/Projects/.omo/evidence/u17e-two-parent-attestation-registration-author-20260930-gpt61/selector-removal-fixture/roadmap.json",
+          "--next"
+        ],
+        "exit": 0,
+        "stdoutSha256": "b74ce582efdf94bf36f8f337f5e3da44ff428a0c459ecf1ce9bf504ae998dd08",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "consumer-62",
+        "argv": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "--test",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs"
+        ],
+        "exit": 0,
+        "stdoutSha256": "ad3742f4f08cc09c0c6936990fc2aba225f1d1ebcbc762c3977b02bb3b5be12b",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "openspec-strict",
+        "argv": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js",
+          "validate",
+          "--all",
+          "--strict"
+        ],
+        "exit": 0,
+        "stdoutSha256": "9ca58d5988581dd3de39d1f251ab3b4e85271cd35e067c898bb258ce7748a181",
+        "stderrSha256": "5bc31df123a2e521acdd2c0d9477b367feec506471a91065d0a6b32c09089ed5"
+      },
+      {
+        "name": "purpose",
+        "argv": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node_modules/npm/bin/npm-cli.js",
+          "run",
+          "spec:purpose:validate:strict"
+        ],
+        "exit": 0,
+        "stdoutSha256": "c14ee9594db76cf9f525bb28343ef6968dd983bafecc85e1d55a090907e7381b",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "terminology",
+        "argv": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node_modules/npm/bin/npm-cli.js",
+          "run",
+          "terminology:validate:strict"
+        ],
+        "exit": 0,
+        "stdoutSha256": "802336d601029933274a542ce7a45e7e5cfc75d509f53bccd81ea65a05d8d9e6",
+        "stderrSha256": "73e14dd68f42232660f0b1a2a658d4e5c23c5497c3fe7808b1e8f2ca437e84d6"
+      },
+      {
+        "name": "qc-consistency",
+        "argv": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node_modules/npm/bin/npm-cli.js",
+          "run",
+          "qc:openspec-ci:validate"
+        ],
+        "exit": 0,
+        "stdoutSha256": "4c2dafd093b946290aa4abe001ad8b3d65671b17c7682722c55a510ecc04f91e",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "format-configured",
+        "argv": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node_modules/npm/bin/npm-cli.js",
+          "run",
+          "format:check",
+          "--",
+          "--threads=2"
+        ],
+        "exit": 1,
+        "stdoutSha256": "8fdd0940c3143da509e05bb3f68b07c546b84b13de7ffef9f1ccac26f0a9696a",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "format-configured-with-tailwind",
+        "argv": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node_modules/npm/bin/npm-cli.js",
+          "run",
+          "format:check",
+          "--",
+          "--threads=2"
+        ],
+        "exit": 0,
+        "stdoutSha256": "8f91e6bb4e18c9dc0f812ef82b2502f5389d4f26de07ecdbc1b47aecd7e9e7fc",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "format-targets",
+        "argv": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "node_modules/oxfmt/bin/oxfmt",
+          "--check",
+          "--threads=2",
+          "--no-error-on-unmatched-pattern",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md"
+        ],
+        "exit": 0,
+        "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderrSha256": "d7acccf6e4442342286b857e47867ebe9f23a28e8dca37d19be3806f3b4d2f75"
+      }
+    ],
+    "consumerTests": {
+      "passed": 62,
+      "failed": 0,
+      "skipped": 0,
+      "runs": 1
+    },
+    "openspec": {
+      "passed": 229,
+      "failed": 0
+    },
+    "purpose": {
+      "specFiles": 220,
+      "errors": 0
+    },
+    "terminology": {
+      "files": 304,
+      "violations": 0,
+      "warning": "MODULE_TYPELESS_PACKAGE_JSON from unchanged terminology-tool.ts; retained, not suppressed"
+    },
+    "qc": "8/8 workflow contracts, 1/1 job contract, 19/19 aggregator needs, 3/3 scripts, 9/9 active changes, errors=0",
+    "format": "Initial exit 1 with 592 TSX mismatches because minimal physical tooling lacked Tailwind. Copied actual Tailwind dependencies with before/after hashes; unchanged configured full formatter then passed 8139 files. openspec is excluded by actual .prettierignore: direct target invocation exit 0 reports no matching files, not formatting coverage.",
+    "jsonDiagnostics": "units.json LSP reports no diagnostics; both changed JSON files additionally parsed and invariant-checked before commit",
+    "buildBrowser": "Not run: docs-only registration does not implement behavior; source proof remains historical and immutable."
+  },
+  "admissionGuards": "Exact-head independent docs review/all 31 required CI/parent explicit --squash --match-head-commit/observed one-parent/tree/fresh delegated exact-main registration proof precede task 63. U17e source and closure use original one-parent bootstrap, full gates and truthful v2 identities. CLOSE U17e before prospective PMP closure using accepted new tool/current ledger and exact-b034 historical --repo-root. Standing user --admin authority survives only after actual required gates; no administrative bypass, review/CI waiver or merge by this author.",
+  "nonClaims": {
+    "sourceImplementation": false,
+    "stageReceiptsWritten": false,
+    "canonicalTask62Tick": false,
+    "task63Admitted": false,
+    "task59Complete": false,
+    "task61Admitted": false,
+    "p2bP2U38Released": false,
+    "mergePerformed": false
+  },
+  "preservation": "Old worktrees, proofs, partial P2, inherited PRI locks, mutants, historical receipts, modern source-review bytes and unrelated processes remain untouched."
+}

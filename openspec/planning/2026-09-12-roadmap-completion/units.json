@@ -4939,6 +4939,56 @@
       }
     },
     {
+      "id": "U17e",
+      "node": "R6.loop-harness",
+      "taskKeys": [],
+      "behavior": "Extend roadmap-unit-closure to exactly two actual ordered parents while retaining the original one-parent branch and receipt shape. For two parents, parent2 must equal the exact independently reviewed PR head; parent1 is the actual main-side target, never the unit baseline. Retain original commit/head/base/ancestry guards; ALWAYS require conflict-free native git merge-tree --write-tree --no-messages parent1 head, exit 0, a single 40-hex expected tree and equality with the WHOLE actual merge tree. Change both initial MERGE_PARENT_COUNT and later PASS predicate coherently, never a count-only relaxation, skip, unit exception, unordered-parent search or touched-path/reviewed-tree shortcut. Reject zero/three-or-more parents, bad second parent, reversed roles, stale/missing/noncommit head, already-integrated/future head, conflicts, merge-only drift and dropped parent content. Preserve v2 identity/live/archive/prospective-publication transactions and all review/owner/CI/checkout/runtime/strict/idle/ownership/cap gates. Consumer has no duplicate parentCount/treeIntegration check; no consumer/library/fold edit grant. Promote the existing valid two-parent fixture to a discriminating positive and add invalid multiparent coverage without skipping/deleting refusals. Later GOAL/DELIVERY instructions clarify supported topologies, accepted-tool/current-ledger versus historical-proof roots and guarded squash default. U17e itself bootstraps registration/source/closure using parent explicit --squash --match-head-commit, observed one-parent/tree, independent review, all 31 required CI, exact-main proof and true v2 closure, without exception. No implementation in this registration.",
+      "ownershipPaths": [
+        "scripts/qc/roadmap-unit-closure.mjs",
+        "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+        "openspec/planning/2026-09-12-roadmap-completion/GOAL.md",
+        "openspec/planning/2026-09-12-roadmap-completion/DELIVERY.md"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 4,
+        "maxNonGeneratedLines": 150
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "admissionRequires": "Independent exact-head docs review, all 31 required CI, parent pinned explicit --squash --match-head-commit, observed one-parent/tree and fresh delegated exact-main registration proof precede task 63 source admission. Freshly check namespace in every collection, exact existing node aliases, no in-flight overlap, and U17d/PRI/U41 complete with PASS mainProof Git blobs and ancestry to fetched main. NEXT ignores documentary unit predecessors. Source estimates: producer 35-70 plus instructions 15-35 = 50-105 counted additions; tests 250-450 separately excluded under unchanged U41, not measured implementation. Stop before a fifth file or over 150 counted additions for a separately reviewed amendment. No consumer/library/fold/Node-test/other-Jest/package/WORKERS/workflow/game/root grant. Preserve historical reviews/receipts/proofs, mistaken PR2099 merge and original source bytes. Standing user --admin authority applies only after all actual required gates, never a bypass or waiver; parent alone merges. CLOSE U17e before prospective PMP closure. Registration/source merge alone does not complete task 59 or release task 61/P2B/P2/U38.",
+      "predecessors": [
+        "U17d",
+        "PRI",
+        "U41"
+      ],
+      "successors": [
+        "PMP"
+      ],
+      "source20260930": {
+        "planTask": 62,
+        "sourceTask": 63,
+        "baseline": "b0340bb363a0589739bd7e615348a6626f7f1404",
+        "evidence": "evidence/u17e-registration-20260930.json",
+        "note": "Separately admitted docs registration only; not source admission or staged PASS. Immediately before PMP, without old unit reorder. PMP requirement is prospective CLOSURE ONLY, never a retroactive source-admission claim."
+      }
+    },
+    {
       "id": "PMP",
       "node": "R6.loop-harness",
       "taskKeys": [],
@@ -4977,6 +5027,10 @@
         "U39",
         "PRI"
       ],
+      "closurePredecessors": [
+        "U17e"
+      ],
+      "closureRequires": "CLOSURE ONLY: verify U17e complete with truthful v2 closure, PASS exact-main proof and ancestry before prospective PMP closure. This is not a retroactive source-admission claim for already-merged PR2099/b171 at b034. Existing PMP P2BC/U17b/U39/PRI prerequisites, three paths and 3-file/150-line cap remain unchanged. Use the accepted new producer/current ledger with historical --repo-root to reopen immutable b034 source proof and genuine modern exact-b171 post-merge source review; producer consumption remains pending. Original 266 review and every historical receipt/proof stay immutable. Task 59 and task 61/P2B/P2/U38 remain withheld until reviewed closure, all required CI, parent pinned squash and fresh exact-main closure proof.",
       "successors": [
         "P2B"
       ],
