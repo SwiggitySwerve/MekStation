@@ -211,15 +211,11 @@ export function ladder(options, logDirRelative) {
         'src/__tests__/unit/evidence/gmTwoPlayerEvidence.test.ts',
       ],
     },
+    { name: 'dirty-check', inProcess: 'git status --short, counted' },
     {
       name: 'sha256',
       inProcess: `write sha256.txt over every log in ${logDirRelative}`,
     },
-    {
-      name: 'restore-next-env',
-      argv: ['git', 'checkout', '--', 'next-env.d.ts'],
-    },
-    { name: 'dirty-check', inProcess: 'git status --short, counted' },
   ];
 }
 
@@ -265,7 +261,12 @@ function execute(step, { repoRoot, logDir }) {
       .split(/\r?\n/)
       .filter((line) => line.trim() && !/^exit \d+$/.test(line))
       .pop() ?? '';
-  return { status: result.status, tail: tail.slice(0, 160) };
+  return {
+    status: result.status,
+    success: result.status === 0 && !result.error,
+    stdout: result.stdout ?? '',
+    tail: tail.slice(0, 160),
+  };
 }
 
 /**
@@ -308,6 +309,8 @@ function main(argv) {
     cwd: repoRoot,
     encoding: 'utf8',
   });
+  if (status.error || status.status !== 0)
+    refuse('GIT_FAILED', `git status in ${posix(repoRoot)} failed`);
   const dirty = (status.stdout ?? '').trim();
   if (dirty)
     refuse(
@@ -327,53 +330,55 @@ function main(argv) {
 }
 
 /**
- * The execution branch: creates logDir, then runs the steps in order. The
- * three in-process steps append the marker line to build.log, write
- * sha256.txt over every .log present at that moment, and print the count of
- * `git status --short` lines; every other step goes through execute(), and
- * each prints one `<name> exit <status>: <tail>` line. A failing step does
- * not stop the ones after it.
+ * Run dependent gates in order, stopping on failure. Final Git inspection
+ * and log hashing still run on failure; no tracked content is restored.
  */
 export function runLadder({ steps, repoRoot, logDir }) {
   fs.mkdirSync(logDir, { recursive: true });
-  for (const step of steps) {
-    if (step.name === 'e2e-marker') {
-      const line = e2eMarker(repoRoot);
-      fs.appendFileSync(path.join(logDir, 'build.log'), `${line}\n`);
-      console.log(`e2e-marker: ${line}`);
-      continue;
-    }
-    if (step.name === 'sha256') {
-      const lines = fs
-        .readdirSync(logDir)
-        .filter((name) => name.endsWith('.log'))
-        .sort()
-        .map(
-          (name) =>
-            `${createHash('sha256')
-              .update(fs.readFileSync(path.join(logDir, name)))
-              .digest('hex')} *${name}`,
+  const failures = [];
+  try {
+    for (const step of steps) {
+      if (step.name === 'sha256' || step.name === 'dirty-check') continue;
+      if (step.name === 'e2e-marker') {
+        const line = e2eMarker(repoRoot);
+        fs.appendFileSync(path.join(logDir, 'build.log'), `${line}\n`);
+        console.log(`e2e-marker: ${line}`);
+        if (line === 'E2E MARKER MISSING') refuse('E2E_MARKER_MISSING', line);
+        continue;
+      }
+      const outcome = execute(step, { repoRoot, logDir });
+      console.log(`${step.name} exit ${outcome.status}: ${outcome.tail}`);
+      if (!outcome.success)
+        refuse(
+          'STEP_FAILED',
+          `${step.name} exit ${outcome.status}: ${outcome.tail}`,
         );
-      fs.writeFileSync(
-        path.join(logDir, 'sha256.txt'),
-        `${lines.join('\n')}\n`,
-      );
-      console.log(`sha256: ${lines.length} logs hashed`);
-      continue;
     }
-    if (step.name === 'dirty-check') {
-      const after = spawnStep(['git', 'status', '--short'], {
-        cwd: repoRoot,
-        env: process.env,
-      });
-      console.log(
-        `status: ${(after.stdout ?? '').trim().split(/\r?\n/).filter(Boolean).length} dirty lines`,
-      );
-      continue;
-    }
-    const outcome = execute(step, { repoRoot, logDir });
-    console.log(`${step.name} exit ${outcome.status}: ${outcome.tail}`);
+  } catch (error) {
+    if (!(error instanceof Error)) throw error;
+    failures.push(error.message);
   }
+  const after = execute(
+    { name: 'dirty-check', argv: ['git', 'status', '--short'] },
+    { repoRoot, logDir },
+  );
+  const dirtyLines = after.stdout.trim().split(/\r?\n/).filter(Boolean).length;
+  console.log(`status: ${dirtyLines} dirty lines`);
+  if (!after.success) failures.push(`GIT_FAILED: ${after.tail}`);
+  if (dirtyLines) failures.push(`TREE_DIRTY: ${dirtyLines} entries`);
+  const lines = fs
+    .readdirSync(logDir)
+    .filter((name) => name.endsWith('.log'))
+    .sort()
+    .map(
+      (name) =>
+        `${createHash('sha256')
+          .update(fs.readFileSync(path.join(logDir, name)))
+          .digest('hex')} *${name}`,
+    );
+  fs.writeFileSync(path.join(logDir, 'sha256.txt'), `${lines.join('\n')}\n`);
+  console.log(`sha256: ${lines.length} logs hashed`);
+  if (failures.length) refuse('MAIN_PROOF_FAILED', failures.join('; '));
 }
 
 // The CLI runs only when this file is the entry script, so the pin can import
