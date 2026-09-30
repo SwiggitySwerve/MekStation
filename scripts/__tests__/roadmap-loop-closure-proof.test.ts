@@ -1529,6 +1529,299 @@ describe('roadmap-unit-closure three-way attestation', () => {
   );
 });
 
+describe('roadmap-main-proof public CLI', () => {
+  let repo = '';
+  let sha = '';
+  const proofRelative = `.sisyphus/roadmap-completion-20260912/pmp-main-proof-${DATE}`;
+  const original = Buffer.from('// tracked fixture\r\n', 'utf8');
+  const write = (file: string, bytes: string | Buffer): void => {
+    const target = path.join(repo, file);
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    fs.writeFileSync(target, bytes);
+  };
+
+  beforeEach(() => {
+    repo = fs.mkdtempSync(path.join(os.tmpdir(), 'pmp-public-cli-'));
+    git(['init', '-q'], repo);
+    write('.gitignore', '.sisyphus/\n.next/\nnode_modules/\n');
+    write('next-env.d.ts', original);
+    write(
+      'package.json',
+      JSON.stringify({
+        private: true,
+        scripts: {
+          build: 'node proof-step.mjs build',
+          'qc:openspec-ci:validate': 'node proof-step.mjs qc',
+        },
+      }),
+    );
+    write(
+      'proof-step.mjs',
+      `
+import fs from 'node:fs';
+const [step, ...argv] = process.argv.slice(2);
+const scenario = process.env.PMP_CASE;
+console.log(JSON.stringify({step, argv, cwd:process.cwd(), pid:process.pid}));
+if (step === 'build' && scenario !== 'missing-chunks') {
+  fs.mkdirSync('.next/static/chunks/pages', {recursive:true});
+  fs.writeFileSync('.next/static/chunks/pages/_app-fixture.js', scenario === 'missing-marker' ? 'not the sentinel' : '__E2E_MODE__');
+}
+if (step === 'runtime' && scenario === 'dirty-tracked') fs.writeFileSync('next-env.d.ts', 'concurrent tracked edit\\r\\n');
+if (step === 'runtime' && scenario === 'dirty-untracked') fs.writeFileSync('generated.txt', 'untracked output');
+if (step === 'runtime' && scenario === 'failed-runtime' || step === 'idle' && scenario === 'failed-idle' || step === 'exact-main' && scenario === 'failed-exact-main') process.exitCode = 1;
+`,
+    );
+    for (const [file, step] of [
+      ['scripts/qc/machine-idle.mjs', 'idle'],
+      ['scripts/qc/validate-exact-main-regression-ladder.mjs', 'exact-main'],
+      [`openspec/planning/${LEDGER_NAME}/validate-roadmap.mjs`, 'validator'],
+    ])
+      write(
+        file,
+        `process.argv.splice(2, 0, ${JSON.stringify(step)}); await import(${JSON.stringify(pathToFileURL(path.join(repo, 'proof-step.mjs')).href)});`,
+      );
+    // Controlled leaf fixtures; orchestration, marker scan, Git and children remain real.
+    write(
+      'node_modules/typescript/bin/tsc',
+      "console.log(JSON.stringify({step:'tsc',argv:process.argv.slice(2)}));\n",
+    );
+    write(
+      'node_modules/jest/bin/jest.js',
+      "console.log(JSON.stringify({step:'qc-pin',argv:process.argv.slice(2)}));\n",
+    );
+    // npx must resolve a fixture-local executable, never a global install or cache.
+    write(
+      'node_modules/.bin/openspec',
+      `#!/bin/sh\nexec "${process.execPath}" "${path.join(repo, 'proof-step.mjs')}" openspec "$@"\n`,
+    );
+    fs.chmodSync(path.join(repo, 'node_modules/.bin/openspec'), 0o755);
+    write(
+      'node_modules/.bin/openspec.cmd',
+      `@echo off\r\n"${process.execPath}" "${path.join(repo, 'proof-step.mjs')}" openspec %*\r\n`,
+    );
+    write(
+      'status-fault.mjs',
+      `
+import childProcess from 'node:child_process';
+import {syncBuiltinESMExports} from 'node:module';
+const spawn = childProcess.spawnSync;
+let statusCalls = 0;
+childProcess.spawnSync = (command, argv, options) => {
+  if (command === 'git' && argv[0] === 'status') {
+    statusCalls++;
+    if (statusCalls === Number(process.env.PMP_STATUS_CALL)) {
+      // Real Git rejects an invalid status-only configuration; no canned result.
+      return spawn(command, ['-c', 'core.ignoreStat=invalid', ...argv], options);
+    }
+  }
+  return spawn(command, argv, options);
+};
+syncBuiltinESMExports();
+`,
+    );
+    commitAll(repo, 'committed public CLI fixtures');
+    sha = git(['rev-parse', 'HEAD'], repo);
+  });
+  afterEach(() => fs.rmSync(repo, { recursive: true, force: true }));
+
+  const invoke = (scenario: string): IRun => {
+    const args = [
+      ...(scenario.startsWith('status-')
+        ? ['--import', pathToFileURL(path.join(repo, 'status-fault.mjs')).href]
+        : []),
+      MAIN_PROOF,
+      '--merge',
+      sha,
+      '--unit',
+      'PMP',
+      '--date',
+      DATE,
+      '--repo-root',
+      repo,
+      '--runtime-command',
+      scenario === 'absent-executable'
+        ? 'pmp-genuinely-absent-executable-st-01a0f1d2'
+        : 'node proof-step.mjs runtime',
+    ];
+    const before = fs.readFileSync(path.join(repo, 'next-env.d.ts'));
+    const sourceHash = createHash('sha256')
+      .update(fs.readFileSync(MAIN_PROOF))
+      .digest('hex');
+    const indexBefore = git(['ls-files', '--stage'], repo);
+    const result = spawnSync(process.execPath, args, {
+      cwd: repo,
+      encoding: 'utf8',
+      timeout: 30000,
+      env: {
+        ...process.env,
+        PMP_CASE: scenario,
+        PMP_STATUS_CALL: scenario === 'status-initial' ? '1' : '2',
+        npm_config_offline: 'true',
+        npm_config_yes: 'false',
+      },
+    });
+    if (process.env.PMP_QA_EVIDENCE) {
+      writeJson(path.join(process.env.PMP_QA_EVIDENCE, scenario + '.json'), {
+        argv: [process.execPath, ...args],
+        cwd: repo,
+        head: sha,
+        status: result.status,
+        error: result.error?.message ?? null,
+        signal: result.signal,
+        stdout: result.stdout,
+        stderr: result.stderr,
+        indexBefore,
+        indexAfter: git(['ls-files', '--stage'], repo),
+        statusAfter: git(['status', '--porcelain'], repo),
+        sourceHash,
+        sourceHashAfter: createHash('sha256')
+          .update(fs.readFileSync(MAIN_PROOF))
+          .digest('hex'),
+        trackedBefore: before.toString('base64'),
+        trackedAfter: fs
+          .readFileSync(path.join(repo, 'next-env.d.ts'))
+          .toString('base64'),
+        logs: fs.existsSync(path.join(repo, proofRelative))
+          ? Object.fromEntries(
+              fs
+                .readdirSync(path.join(repo, proofRelative))
+                .map((name) => [
+                  name,
+                  fs.readFileSync(path.join(repo, proofRelative, name), 'utf8'),
+                ]),
+            )
+          : {},
+      });
+    }
+    return {
+      status: result.status,
+      stdout: result.stdout ?? '',
+      stderr: result.stderr ?? '',
+    };
+  };
+
+  it('succeeds through the unchanged public entry on a clean proof', () => {
+    // Given: committed fixtures and real Git.
+    // When
+    const result = invoke('clean');
+    // Then
+    expect(result.status).toBe(0);
+    expect(result.stderr).toBe('');
+    expect(git(['status', '--porcelain'], repo)).toBe('');
+    expect(fs.readFileSync(path.join(repo, 'next-env.d.ts'))).toEqual(original);
+    const strict = fs.readFileSync(
+      path.join(repo, proofRelative, 'openspec-strict.log'),
+      'utf8',
+    );
+    expect(JSON.parse(strict.split(/\r?\n/)[0])).toMatchObject({
+      step: 'openspec',
+      argv: ['validate', '--all', '--strict'],
+    });
+  });
+
+  it.each([
+    ['failed-idle', 'idle-before-build.log', 'build.log'],
+    ['failed-runtime', 'playwright.log', 'exact-main-ladder.log'],
+    ['failed-exact-main', 'exact-main-ladder.log', 'tsc.log'],
+    ['absent-executable', 'playwright.log', 'exact-main-ladder.log'],
+    ['missing-marker', 'build.log', 'playwright.log'],
+    ['missing-chunks', 'build.log', 'playwright.log'],
+  ])(
+    'fails %s and stops dependent gates while finalizing evidence',
+    (scenario, failedLog, dependentLog) => {
+      // Given
+      const logDir = path.join(repo, proofRelative);
+      // When
+      const result = invoke(scenario);
+      // Then
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain('MAIN_PROOF_FAILED');
+      expect(fs.existsSync(path.join(logDir, dependentLog))).toBe(false);
+      const failure = fs.readFileSync(path.join(logDir, failedLog), 'utf8');
+      if (scenario === 'absent-executable') {
+        expect(failure).toContain('spawn error:');
+        expect(failure).toContain('ENOENT');
+        expect(failure).toContain('\nexit null\n');
+      } else if (scenario.startsWith('missing-')) {
+        expect(failure).toContain('E2E MARKER MISSING');
+      } else expect(failure).toContain('\nexit 1\n');
+      const hashes = fs.readFileSync(path.join(logDir, 'sha256.txt'), 'utf8');
+      for (const name of fs
+        .readdirSync(logDir)
+        .filter((name) => name.endsWith('.log'))) {
+        expect(hashes).toContain(
+          `${createHash('sha256')
+            .update(fs.readFileSync(path.join(logDir, name)))
+            .digest('hex')} *${name}`,
+        );
+      }
+      expect(fs.existsSync(path.join(logDir, 'dirty-check.log'))).toBe(true);
+      expect(fs.readFileSync(path.join(repo, 'next-env.d.ts'))).toEqual(
+        original,
+      );
+    },
+  );
+
+  it.each(['status-initial', 'status-final'])(
+    'refuses a real failed %s lookup',
+    (scenario) => {
+      // Given: the real Git child receives an invalid status-only configuration.
+      // When
+      const result = invoke(scenario);
+      // Then
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain('GIT_FAILED');
+      const dir = path.join(repo, proofRelative);
+      if (scenario === 'status-initial') expect(fs.existsSync(dir)).toBe(false);
+      else {
+        expect(
+          fs.readFileSync(path.join(dir, 'dirty-check.log'), 'utf8'),
+        ).toContain('\nexit 128\n');
+        expect(fs.existsSync(path.join(dir, 'sha256.txt'))).toBe(true);
+      }
+    },
+  );
+
+  it.each(['dirty-tracked', 'dirty-untracked'])(
+    'refuses %s output without restoring edits',
+    (scenario) => {
+      // Given
+      // When
+      const result = invoke(scenario);
+      // Then
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain('TREE_DIRTY');
+      expect(git(['diff', '--cached', '--name-only'], repo)).toBe('');
+      if (scenario === 'dirty-tracked') {
+        expect(fs.readFileSync(path.join(repo, 'next-env.d.ts'))).toEqual(
+          Buffer.from('concurrent tracked edit\r\n'),
+        );
+      } else
+        expect(fs.readFileSync(path.join(repo, 'generated.txt'), 'utf8')).toBe(
+          'untracked output',
+        );
+    },
+  );
+
+  it('preserves preexisting working and staged tracked bytes on admission refusal', () => {
+    // Given: staged bytes differ from both HEAD and the working tree.
+    write('next-env.d.ts', Buffer.from('staged bytes\r\n'));
+    git(['add', 'next-env.d.ts'], repo);
+    write('next-env.d.ts', Buffer.from('working bytes\r\n'));
+    const index = git(['ls-files', '--stage'], repo);
+    // When
+    const result = invoke('preexisting-edits');
+    // Then
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('TREE_DIRTY');
+    expect(fs.readFileSync(path.join(repo, 'next-env.d.ts'))).toEqual(
+      Buffer.from('working bytes\r\n'),
+    );
+    expect(git(['ls-files', '--stage'], repo)).toBe(index);
+    expect(fs.existsSync(path.join(repo, proofRelative))).toBe(false);
+  });
+});
+
 describe('roadmap-main-proof --dry-run', () => {
   let repo = '';
   let sha = '';
@@ -1797,8 +2090,8 @@ if (request.mode === 'resolve') {
       repo,
       fakeStep: path.join(fakes, 'fake-step.mjs'),
     });
-    expect(result.stderr).toBe('');
-    expect(result.status).toBe(0);
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('MAIN_PROOF_FAILED');
 
     const read = (name: string): string =>
       fs.readFileSync(path.join(logDir, name), 'utf8');
@@ -1817,6 +2110,7 @@ if (request.mode === 'resolve') {
       .sort();
     expect(logs).toEqual([
       'build.log',
+      'dirty-check.log',
       'exact-main-ladder.log',
       'git-check.log',
       'idle-before-build.log',
@@ -1826,12 +2120,16 @@ if (request.mode === 'resolve') {
       'playwright.log',
       'qc-openspec-ci.log',
       'qc-pin.log',
-      'restore-next-env.log',
       'tsc.log',
       'validator.log',
     ]);
     for (const log of logs) {
       const name = log.replace(/\.log$/, '');
+      if (name === 'dirty-check') {
+        expect(read(log)).toContain('?? .next/');
+        expect(read(log)).toContain('\nexit 0\n');
+        continue;
+      }
       expect(echoed(name).name).toBe(name);
       expect(read(log)).toContain('\nexit 0\n');
       // Every original program is node, npm, npx or git: no .cmd launcher.
@@ -1886,6 +2184,27 @@ if (request.mode === 'resolve') {
     expect(result.stdout).toContain('exact-main-ladder exit 0:');
     // The fake build's .next/ is the one untracked path; the log dir is ignored.
     expect(result.stdout).toContain('status: 1 dirty lines');
+  });
+
+  it('succeeds when generated output is ignored and the final tree is clean', () => {
+    // Given
+    fs.appendFileSync(path.join(repo, '.gitignore'), '.next/\n');
+    commitAll(repo, 'ignore owned build output');
+    sha = git(['rev-parse', 'HEAD'], repo);
+    // When
+    const result = harness({
+      mode: 'run',
+      merge: sha,
+      regex: REGEX,
+      logDirRelative: LOG_DIR_RELATIVE,
+      logDir: path.join(repo, LOG_DIR_RELATIVE),
+      repo,
+      fakeStep: path.join(fakes, 'fake-step.mjs'),
+    });
+    // Then
+    expect(result.status).toBe(0);
+    expect(result.stderr).toBe('');
+    expect(git(['status', '--porcelain'], repo)).toBe('');
   });
 
   it('resolves node, npm and npx to the running node and never to a .cmd file', () => {
