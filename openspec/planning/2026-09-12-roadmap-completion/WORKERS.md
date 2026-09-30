@@ -4,6 +4,12 @@ The leader remains on the user's selected Astra model and owns final validation.
 
 The 2026-09-12 routing audit verified all 36 native roles at high/xhigh effort, including Luna `explore` and `executor`. The capability lock reported `skill_surface_mismatch`; digest comparison localized drift to `skills/.system/openai-docs/SKILL.md` and `skills/interview-protocol/SKILL.md`. No agent route/global configuration was changed and the lock was not regenerated. Recheck on future admission if the environment changes.
 
+## Audited identity routing - 2026-09-29
+
+This dated instruction supersedes older model-routing and literal cross-model requirements for NEW version-2 receipts only. Every productive implementation and independent review worker runs actual `chatgpt-subscription/gpt-6.1-sol`; parent verifies the live `model` and `resolved_model.provider/model_id` tuple before work. No silent substitute, fake alias, model switch or independent self-review. Dated history below and valid unversioned historical receipts remain unchanged.
+
+Follow GOAL.md's canonical v2 census, observed-field allowlist, independent task/session and immutable archive contract, plus DELIVERY.md's lifecycle. Export no full records, prompts, transcripts, credentials, environment or private engine-root paths. A fresh isolated SOURCE reviewer receives frozen diff/evidence/full unit behavior, not author context, and independently reproduces at least two mutants. Registration approval and synthetic QA are not substitutes. Parent alone merges/releases dependencies after every existing gate; no exemption, legacy same-model grandfathering or Lane B/GitHub-approval substitution.
+
 ## Assignments
 
 Every worker receives:

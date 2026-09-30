@@ -54,6 +54,12 @@ import { preserveRunLogs } from './preserve-run-logs.mjs';
 import {
   DATE8,
   DEFAULT_LEDGER_DIR,
+  archiveReviewIdentity,
+  reviewIdentityMode,
+  validateReviewIdentity,
+  validateReviewReceipt,
+  identityPath,
+  runValidator,
   HEX40,
   REPO_ROOT,
   UNIT_ID,
@@ -93,6 +99,8 @@ const STRINGS = [
   '--ledger-dir',
   '--repo-root',
   '--preserved-root',
+  '--review-identity',
+  '--engine-records-dir',
 ];
 /**
  * Are these the same directory on disk? Compared through realpath so a junction
@@ -158,6 +166,12 @@ function main(argv) {
   if (!/^\d+$/.test(options.pr))
     refuse('INVALID_ARGUMENT', `--pr ${options.pr}`);
 
+  if (Boolean(options.reviewIdentity) !== Boolean(options.engineRecordsDir))
+    refuse(
+      'REVIEW_IDENTITY_INVALID',
+      '--review-identity requires --engine-records-dir and conversely',
+    );
+  const modern = Boolean(options.reviewIdentity);
   const unitId = options.unit;
   const lc = unitId.toLowerCase();
   const date = options.date;
@@ -172,6 +186,7 @@ function main(argv) {
     );
   const ledger = loadUnits(ledgerDir);
   const unit = findUnit(ledger, unitId);
+  validateReviewReceipt(ledgerDir, unit);
   const evidence = evidenceDirOf(ledgerDir);
   const repoRoot = options.repoRoot
     ? path.resolve(options.repoRoot)
@@ -271,10 +286,20 @@ function main(argv) {
   )
     refuse('REVIEW_NOT_APPROVE', 'review verdict is not a plain APPROVE');
 
-  fs.copyFileSync(
-    path.resolve(options.review),
-    path.join(evidence, `${lc}-lane-a-review-${date}.md`),
-  );
+  if (
+    !modern &&
+    (reviewIdentityMode(unit.stageReceipts.local) ||
+      /^reviewContractVersion:/m.test(reviewMd))
+  )
+    refuse(
+      'REVIEW_IDENTITY_INVALID',
+      'modern local/prolog requires both identity flags',
+    );
+  if (!modern)
+    fs.copyFileSync(
+      path.resolve(options.review),
+      path.join(evidence, `${lc}-lane-a-review-${date}.md`),
+    );
   const logHashes = fs
     .readFileSync(path.join(logDir, 'sha256.txt'), 'utf8')
     .trim()
@@ -299,7 +324,18 @@ function main(argv) {
     githubApproval:
       'none recorded; Lane A is engineering evidence, never a GitHub approval',
   };
-  writeJson(path.join(evidence, `${lc}-review-${date}.json`), review);
+  const verifiedIdentity = modern
+    ? validateReviewIdentity({
+        ledgerDir,
+        unit,
+        review: { ...review, reviewContractVersion: 2 },
+        manifestFile: options.reviewIdentity,
+        engineRecordsDir: options.engineRecordsDir,
+        reviewBytes,
+      })
+    : null;
+  if (!modern)
+    writeJson(path.join(evidence, `${lc}-review-${date}.json`), review);
 
   const checks = gh(`pr checks ${options.pr} --json bucket`, repoRoot);
   const parents = git(['rev-list', '--parents', '-n', '1', mergeSha], repoRoot)
@@ -367,7 +403,8 @@ function main(argv) {
       ? { blobEqualityCheck: 'skipped (--skip-blob-check; the jest pin only)' }
       : { treeIntegration }),
   };
-  writeJson(path.join(evidence, `${lc}-merge-${date}.json`), merge);
+  if (!modern)
+    writeJson(path.join(evidence, `${lc}-merge-${date}.json`), merge);
 
   const validatorLine = lastLine(logDir, 'validator', /PASSED|FAILED/);
   const gitCheckLine = lastLine(logDir, 'git-check', /PASSED|FAILED/);
@@ -411,7 +448,8 @@ function main(argv) {
         ? 'PASS'
         : 'FAIL',
   };
-  writeJson(path.join(evidence, `${lc}-mainproof-${date}.json`), mainProof);
+  if (!modern)
+    writeJson(path.join(evidence, `${lc}-mainproof-${date}.json`), mainProof);
 
   // DELIVERY.md ("Owned cleanup"): the run's logs are preserved outside every
   // worktree, with hashes, before anything is removed. U13 wrote the helper
@@ -419,13 +457,14 @@ function main(argv) {
   // BEFORE the verdict is acted on, because a FAIL is the run whose logs are
   // most wanted and the refusal below is followed by a worktree removal just
   // the same.
-  const preserved = preserveRunLogs({
+  const preservation = {
     runDir: logDir,
     unit: unitId,
     date,
     evidenceDir: evidence,
     ...(options.preservedRoot ? { preservedRoot: options.preservedRoot } : {}),
-  });
+  };
+  let preserved = modern ? null : preserveRunLogs(preservation);
   if (mainProof.verdict !== 'PASS')
     refuse(
       'MAIN_PROOF_NOT_PASS',
@@ -448,7 +487,7 @@ function main(argv) {
       : `${unitId} holds no task row; the delivered behaviour is proven on main by this unit.`,
     tickedOnMain: taskKeys.length ? mergeSha : null,
   };
-  writeJson(path.join(evidence, `${lc}-tick-${date}.json`), tick);
+  if (!modern) writeJson(path.join(evidence, `${lc}-tick-${date}.json`), tick);
 
   unit.prHead = head;
   unit.mergeSha = mergeSha;
@@ -478,6 +517,57 @@ function main(argv) {
     taskKeys,
   };
   unit.state = 'complete';
+  if (modern) {
+    // Validate the complete prospective ledger in an owned scratch copy. No modern
+    // success artifacts/state are published when any existing gate refuses it.
+    const staging = fs.mkdtempSync(
+      path.join(path.dirname(ledgerDir), 'temp-pri-'),
+    );
+    const receipts = { review, merge, mainproof: mainProof, tick };
+    const outputName = `${lc}-lane-a-review-${date}.md`;
+    const materialize = (dir) => {
+      const destination = evidenceDirOf(dir);
+      fs.writeFileSync(path.join(destination, outputName), reviewBytes);
+      for (const [stage, receipt] of Object.entries(receipts))
+        writeJson(
+          path.join(destination, `${lc}-${stage}-${date}.json`),
+          receipt,
+        );
+    };
+    try {
+      fs.cpSync(ledgerDir, staging, { recursive: true });
+      review.reviewContractVersion = 2;
+      unit.stageReceipts.review.reviewContractVersion = 2;
+      review.identityEvidence = archiveReviewIdentity(
+        staging,
+        verifiedIdentity,
+      );
+      unit.stageReceipts.review.identityEvidence = review.identityEvidence;
+      for (const name of [
+        outputName,
+        ...Object.keys(receipts).map((s) => `${lc}-${s}-${date}.json`),
+      ]) {
+        if (fs.existsSync(path.join(evidence, name)))
+          identityPath(evidence, name);
+      }
+      materialize(staging);
+      saveUnits(staging, ledger);
+      const candidate = runValidator(ledgerDir, [
+        '--roadmap',
+        path.join(staging, 'roadmap.json'),
+      ]);
+      if (candidate.status !== 0)
+        refuse(
+          'REVIEW_IDENTITY_INVALID',
+          `prospective ledger refused before write: ${candidate.line}`,
+        );
+      archiveReviewIdentity(ledgerDir, verifiedIdentity);
+      materialize(ledgerDir);
+      preserved = preserveRunLogs(preservation);
+    } finally {
+      fs.rmSync(staging, { recursive: true });
+    }
+  }
   saveUnits(ledgerDir, ledger);
 
   const validation = printValidator(ledgerDir, { withNext: true });

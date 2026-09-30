@@ -440,3 +440,119 @@ test('U59 a solo CAMP gate whose OWNER-RULING has a short head and no body sha25
 test('U59 a solo gate with a valid OWNER-RULING on a node outside R2.camp-0..8 fails', () => {
   assertRejects(run(gateFixture({ ...SOLO, ruling: SOLO_RULING }, 'R0.plan')), /R0\.plan declares a solo-maintainer exception, which only the R2\.camp-0\.\.8 review gates may carry/);
 });
+
+// Mechanistic QA only: distinct historical observed workers, synthetic F1 bindings/output.
+const MODERN_MODEL = 'chatgpt-subscription/gpt-6.1-sol';
+const identityFixture = (mutate = () => {}, finishers = 1) => {
+  const dir = mainVerifiedFixture('pin: 1 passed');
+  const json = (value) => Buffer.from(`${JSON.stringify(value, null, 2)}\n`);
+  const hash = (bytes) => crypto.createHash('sha256').update(bytes).digest('hex');
+  const actors = [
+    ['st_01a0ef0b', '01a0ef0b-71e5-7508-a303-49a952f7476e'],
+    ['st_01a0eed3', '01a0eed3-4c10-7359-abc6-f4fb14f3df71'],
+    ['st_01a0eee6', '01a0eee6-5cd9-7ff6-adde-359483780e9c'],
+    ['st_01a0ef25', '01a0ef25-a176-77db-8467-40bbf5f3ef02'],
+  ].map(([task_id, child_session_id]) => ({ task_id, child_session_id, model: MODERN_MODEL, execution_mode: 'in-process', agent_type: null, resolved_model: { provider: 'chatgpt-subscription', model_id: 'gpt-6.1-sol' } }));
+  const reviewText = `Verdict: APPROVE\nreviewedHead: ${HEAD_A}\nreviewerModel: ${MODERN_MODEL}\nreviewContractVersion: 2\n\nMechanistic QA fixture.\n`;
+  const local = { unit: 'F1', stage: 'local', reviewContractVersion: 2, implementationActors: actors.slice(0, 1 + finishers).map((a, i) => ({ role: i ? 'finisher' : 'author', task_id: a.task_id, child_session_id: a.child_session_id, model: a.model })) };
+  const snapshots = [actors[0], ...actors.slice(1, 1 + finishers), actors[3]].map((engine) => ({ schemaVersion: 1, unit: 'F1', sourceHead: HEAD_A, reviewOutputSha256: hash(Buffer.from(reviewText)), observedAt: '2026-09-29T20:00:00.000Z', engine }));
+  const manifest = { reviewContractVersion: 2, unit: 'F1', sourceHead: HEAD_A, reviewOutputSha256: hash(Buffer.from(reviewText)), localReceiptSha256: '', author: null, finishers: [], reviewer: null };
+  const review = { unit: 'F1', stage: 'review', reviewContractVersion: 2, head: HEAD_A, reviewedHead: HEAD_A, reviewerModel: MODERN_MODEL, implementerModel: MODERN_MODEL, outputPath: 'evidence/f1-review.md', outputSha256: hash(Buffer.from(reviewText)), verdict: 'APPROVE', identityEvidence: null };
+  const ledger = JSON.parse(fs.readFileSync(path.join(dir, 'units.json'), 'utf8'));
+  const state = { dir, local, snapshots, manifest, review, reviewText, ledger, after: () => {} };
+  mutate(state);
+  const outputDigest = hash(Buffer.from(state.reviewText));
+  manifest.reviewOutputSha256 = outputDigest; review.outputSha256 = outputDigest;
+  for (const snapshot of snapshots) snapshot.reviewOutputSha256 = outputDigest;
+  const put = (name, bytes) => { fs.writeFileSync(path.join(dir, 'evidence', name), bytes); return { path: `evidence/${name}`, sha256: hash(bytes), bytes: bytes.length }; };
+  put('f1-local.json', json(local));
+  manifest.localReceiptSha256 = hash(json(local));
+  const refs = snapshots.map((s) => { const bytes = json(s); const name = `identity-${hash(bytes)}.json`; return { ...put(name, bytes), path: name }; });
+  manifest.author = refs[0]; manifest.finishers = refs.slice(1, -1); manifest.reviewer = refs.at(-1);
+  const manifestBytes = json(manifest);
+  review.identityEvidence = put(`review-identity-${hash(manifestBytes)}.json`, manifestBytes);
+  put('f1-review.md', Buffer.from(state.reviewText));
+  put('f1-review.json', json(review));
+  ledger.units[0].stageReceipts.local = { ...ledger.units[0].stageReceipts.local, reviewContractVersion: local.reviewContractVersion, implementationActors: local.implementationActors };
+  ledger.units[0].stageReceipts.review = { path: 'evidence/f1-review.json', ...Object.fromEntries(['reviewContractVersion', 'head', 'reviewedHead', 'reviewerModel', 'implementerModel', 'outputSha256', 'verdict', 'identityEvidence'].map((k) => [k, review[k]])) };
+  fs.writeFileSync(path.join(dir, 'units.json'), json(ledger));
+  state.after();
+  return dir;
+};
+
+for (const finishers of [0, 1, 2]) test(`PRI accepts independent same-model actors with ${finishers} finishers`, () => {
+  const dir = identityFixture(() => {}, finishers);
+  try { assertPasses(run(dir)); } finally { fs.rmSync(dir, { recursive: true }); }
+});
+
+const identityMutations = {
+  'reviewer author': (s) => { s.snapshots.at(-1).engine = structuredClone(s.snapshots[0].engine); },
+  'reviewer finisher': (s) => { s.snapshots.at(-1).engine = structuredClone(s.snapshots[1].engine); },
+  'same task': (s) => { s.snapshots.at(-1).engine.task_id = s.snapshots[0].engine.task_id; },
+  'same session': (s) => { s.snapshots.at(-1).engine.child_session_id = s.snapshots[1].engine.child_session_id; },
+  'different model same actor': (s) => { const a = s.snapshots.at(-1).engine; a.task_id = s.snapshots[0].engine.task_id; a.model = 'other/model'; a.resolved_model = { provider: 'other', model_id: 'model' }; s.review.reviewerModel = a.model; },
+  'omitted finisher': (s) => { s.snapshots.splice(1, 1); },
+  'missing census': (s) => { delete s.local.implementationActors; },
+  'null version': (s) => { s.review.reviewContractVersion = null; },
+  'version one': (s) => { s.review.reviewContractVersion = 1; },
+  'unknown version': (s) => { s.review.reviewContractVersion = 3; },
+  'downgrade': (s) => { delete s.review.reviewContractVersion; },
+  'provider mismatch': (s) => { s.snapshots[0].engine.resolved_model.provider = 'other'; },
+  'model_id mismatch': (s) => { s.snapshots[0].engine.resolved_model.model_id = 'other'; },
+  'wrong unit': (s) => { s.snapshots[0].unit = 'F2'; },
+  'stale head': (s) => { s.manifest.sourceHead = MERGE_A; },
+  'unknown field': (s) => { s.snapshots[0].privateData = 'forbidden'; },
+  'duplicate verdict': (s) => { s.reviewText = s.reviewText.replace('Mechanistic QA fixture.', 'Verdict: APPROVE'); },
+  'conflicting head': (s) => { s.reviewText = s.reviewText.replace('Mechanistic QA fixture.', `reviewedHead: ${MERGE_A}`); },
+  'hyphen verdict': (s) => { s.reviewText = s.reviewText.replace('Verdict: APPROVE', 'Verdict: APPROVE-WITH-REQUIRED-EDITS'); },
+  'inline disagreement': (s) => { s.after = () => { const f = path.join(s.dir, 'units.json'); const l = JSON.parse(fs.readFileSync(f)); l.units[0].stageReceipts.review.outputSha256 = '0'.repeat(64); fs.writeFileSync(f, JSON.stringify(l)); }; },
+  'corrupt snapshot': (s) => { s.after = () => fs.appendFileSync(path.join(s.dir, 'evidence', s.manifest.author.path), ' '); },
+  'corrupt manifest': (s) => { s.after = () => fs.appendFileSync(path.join(s.dir, s.review.identityEvidence.path), ' '); },
+  'corrupt local': (s) => { s.after = () => fs.appendFileSync(path.join(s.dir, 'evidence/f1-local.json'), ' '); },
+  'corrupt output': (s) => { s.after = () => fs.appendFileSync(path.join(s.dir, 'evidence/f1-review.md'), ' '); },
+  'unsafe path': (s) => { s.after = () => { const f = path.join(s.dir, 'units.json'); const l = JSON.parse(fs.readFileSync(f)); l.units[0].stageReceipts.review.identityEvidence.path = '../escape.json'; fs.writeFileSync(f, JSON.stringify(l)); }; },
+};
+for (const [name, mutate] of Object.entries(identityMutations)) test(`PRI rejects ${name} even with --no-evidence`, () => {
+  const dir = identityFixture((s) => {
+    // Different-model control prevents unchanged legacy inequality masking missing v2 checks.
+    s.snapshots.at(-1).engine.model = 'fixture-provider/reviewer';
+    s.snapshots.at(-1).engine.resolved_model = { provider: 'fixture-provider', model_id: 'reviewer' };
+    s.review.reviewerModel = 'fixture-provider/reviewer';
+    s.reviewText = s.reviewText.replace(MODERN_MODEL, s.review.reviewerModel);
+    mutate(s);
+  });
+  try {
+    const result = run(dir, ['--no-evidence']);
+    assert.equal(result.code, 1);
+    assert.match(result.stderr, /review identity:/);
+    assert.doesNotMatch(result.stderr, /ENOENT/);
+  } finally { fs.rmSync(dir, { recursive: true }); }
+});
+
+for (const scenario of ['external-only', 'inline-only', 'partial', 'malformed', 'census-disagreement']) test(`PRI local-only rejects ${scenario} with --no-evidence`, () => {
+  const actor = { role: 'author', task_id: 'st_01a0ef0b', child_session_id: '01a0ef0b-71e5-7508-a303-49a952f7476e', model: MODERN_MODEL };
+  const local = { unit: 'F1', stage: 'local', reviewContractVersion: 2, implementationActors: [actor] };
+  const inline = scenario === 'external-only' ? {} : structuredClone(local);
+  const external = scenario === 'inline-only' ? {} : structuredClone(local);
+  if (scenario === 'partial') delete external.reviewContractVersion;
+  if (scenario === 'malformed') external.implementationActors = null;
+  if (scenario === 'census-disagreement') external.implementationActors[0].model = 'other/model';
+  const dir = makeFixture({ units: [unit({ state: 'local-verified', stageReceipts: { ...unit({}).stageReceipts, admission: ladderBelowMainProof.admission, red: ladderBelowMainProof.red, local: { path: 'evidence/f1-local.json', ...inline } } })] }, { ...stubReceipts, 'f1-local.json': external });
+  try {
+    const result = run(dir, ['--no-evidence']);
+    assert.equal(result.code, 1);
+    assert.match(result.stderr, /review identity:/);
+    assert.doesNotMatch(result.stderr, /ENOENT/);
+  } finally { fs.rmSync(dir, { recursive: true }); }
+});
+
+test('PRI local-only accepts complete matching modern census and preserves legacy opt-out', () => {
+  const local = { unit: 'F1', stage: 'local', reviewContractVersion: 2, implementationActors: [{ role: 'author', task_id: 'st_01a0ef0b', child_session_id: '01a0ef0b-71e5-7508-a303-49a952f7476e', model: MODERN_MODEL }] };
+  const dir = makeFixture({ units: [unit({ state: 'local-verified', stageReceipts: { ...unit({}).stageReceipts, admission: ladderBelowMainProof.admission, red: ladderBelowMainProof.red, local: { path: 'evidence/f1-local.json', ...local } } })] }, { ...stubReceipts, 'f1-local.json': local });
+  try { assertPasses(run(dir, ['--no-evidence'])); } finally { fs.rmSync(dir, { recursive: true }); }
+});
+
+test('PRI preserves invalid same-model legacy rejection', () => {
+  const dir = mainVerifiedFixture('pin: 1 passed', undefined, { review: { reviewerModel: MODERN_MODEL, implementerModel: MODERN_MODEL } });
+  try { assert.equal(run(dir).code, 1); } finally { fs.rmSync(dir, { recursive: true }); }
+});
