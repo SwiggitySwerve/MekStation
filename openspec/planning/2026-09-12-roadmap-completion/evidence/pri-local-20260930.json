@@ -1,0 +1,736 @@
+{
+  "unit": "PRI",
+  "stage": "local",
+  "at": "2026-09-30T03:38:41.231662+00:00",
+  "status": "local-verified",
+  "reviewContractVersion": 2,
+  "implementationActors": [
+    {
+      "role": "author",
+      "task_id": "st_01a0ef5d",
+      "child_session_id": "01a0ef5d-bf9d-7683-a9c0-0287a372483c",
+      "model": "chatgpt-subscription/gpt-6.1-sol"
+    }
+  ],
+  "baseline": "4ade3c387ad10bce46047274c78f4f625e46ed4d",
+  "head": "2918950c8b1a62aff39b00d7c881b19a3f24e0f5",
+  "sourceHead": "2918950c8b1a62aff39b00d7c881b19a3f24e0f5",
+  "implementer": "chatgpt-subscription/gpt-6.1-sol",
+  "summary": "Final eight-path source candidate: 499 product additions/568 ordinary excluded test additions; corrected 106 Jest/62 Node/12 controlled CLI outcomes and applicable local gates pass. Historical b186 failure is not final PASS. One actual source author, zero finishers.",
+  "assembly": {
+    "assembledAt": "2026-09-30T03:37:37.654175+00:00",
+    "kind": "Derived index of authentic frozen source executions, not an original Lane artifact or newly executed source stage. Original dates/argv/exits/source epochs remain in the referenced artifacts.",
+    "closureAuthor": "st_01a0f04f",
+    "sourceAuthor": "st_01a0ef5d",
+    "sourceAuthorSession": "01a0ef5d-bf9d-7683-a9c0-0287a372483c",
+    "sourceFinishers": [],
+    "sourceBaseline": "4ade3c387ad10bce46047274c78f4f625e46ed4d",
+    "finalSourceHead": "2918950c8b1a62aff39b00d7c881b19a3f24e0f5"
+  },
+  "testedContent": "Commands originally ran uncommitted candidate bytes above their recorded checkout heads. Frozen-head/normal-hook bindings connect exact bytes to committed 2918950c; historical commands are not relabeled as executions after that head existed. Correction changes only a test. Prior actual b186 normal build is explicitly byte-bound, not rerun at 291. Later independent mainProof includes a fresh build at actual df65.",
+  "files": [
+    {
+      "path": "scripts/qc/roadmap-unit-closure.mjs",
+      "bytes": 20957,
+      "sha256": "3c458694e6d0c798aeb3032cad63dc42f80343c568e877acee1bfebbcaf16de1",
+      "gitBlob": "6c745d797718d01cb384d18888e1b99ede48a1c7"
+    },
+    {
+      "path": "scripts/qc/roadmap-ledger-lib.mjs",
+      "bytes": 21164,
+      "sha256": "0ec737762cb9011f752627d6a73a0d94c81bee5808bc8b5c6c6132dc3a9e2e6d",
+      "gitBlob": "e6bd7062f674850916ad3ec76ca68949feab9b84"
+    },
+    {
+      "path": "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+      "bytes": 68162,
+      "sha256": "009b16be85574e88ebcff4089cc70442fa6aa497c927fbd09839e7e76d330690",
+      "gitBlob": "d3ad095c7ac8a270911a2fdec2964318e70da441"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "bytes": 45485,
+      "sha256": "fd387a67557558345bd63e82789acce961e0f5b4903bf559689314bac0ed4719",
+      "gitBlob": "9c717c87e6c525c144bcd1d78a3e37af3e2d1787"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
+      "bytes": 33343,
+      "sha256": "c6ed5d191f44d56e921db0f1d011c55c8f63fbbd28dc175f637ba3caa24df6d7",
+      "gitBlob": "7707efbb4b310d2695ea90df5cc6d434b6a14500"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/GOAL.md",
+      "bytes": 11554,
+      "sha256": "3432298a628e77d059360bd65a2c9423b5954b922efce7595bc6601a0ec8fae1",
+      "gitBlob": "eda38f714a89fd64e8e190422920a10fa3e864a1"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/DELIVERY.md",
+      "bytes": 11659,
+      "sha256": "ced7bb73127c37960f671b840a502a04e216abc0a3fafd02aa83760e5f05cc21",
+      "gitBlob": "1736eda318eb8910044ec15b606e7dda74ab9599"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/WORKERS.md",
+      "bytes": 21674,
+      "sha256": "670c7504a7bef922bccd1b568838577fc51bd8c815d587f2403469fdd00fd177",
+      "gitBlob": "c7591ade29c6894e4d1158b1a3921d62a0e79916"
+    }
+  ],
+  "sourceBudget": {
+    "head": "2918950c8b1a62aff39b00d7c881b19a3f24e0f5",
+    "baseline": "4ade3c387ad10bce46047274c78f4f625e46ed4d",
+    "files": [
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/DELIVERY.md",
+        "added": 5,
+        "deleted": 1,
+        "testExcluded": false
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/GOAL.md",
+        "added": 11,
+        "deleted": 1,
+        "testExcluded": false
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/WORKERS.md",
+        "added": 6,
+        "deleted": 0,
+        "testExcluded": false
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+        "added": 10,
+        "deleted": 1,
+        "testExcluded": false
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
+        "added": 116,
+        "deleted": 0,
+        "testExcluded": true
+      },
+      {
+        "path": "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+        "added": 452,
+        "deleted": 2,
+        "testExcluded": true
+      },
+      {
+        "path": "scripts/qc/roadmap-ledger-lib.mjs",
+        "added": 367,
+        "deleted": 0,
+        "testExcluded": false
+      },
+      {
+        "path": "scripts/qc/roadmap-unit-closure.mjs",
+        "added": 100,
+        "deleted": 10,
+        "testExcluded": false
+      }
+    ],
+    "fileCount": 8,
+    "fileCap": 8,
+    "productAdded": 499,
+    "productCap": 500,
+    "testAddedExcluded": 568,
+    "ordinaryTestExclusionOnly": true,
+    "compliant": true,
+    "correctionOnlyTestPath": "scripts/__tests__/roadmap-loop-closure-proof.test.ts"
+  },
+  "frozenHeadBinding": {
+    "path": "pri-source-ci-correction-b18604c8-gpt61/frozen-head.json",
+    "bytes": 2479,
+    "sha256": "583253d6dc1347a847d4637cd133e04af8cc9576d7117ad426cb633a72f1c15a"
+  },
+  "finalBudgetBinding": {
+    "path": "pri-source-ci-correction-b18604c8-gpt61/budget-final.json",
+    "bytes": 1660,
+    "sha256": "f7383b94dac02098367d3cd346bd770509987fbc97628b3221404fb09764c6d8"
+  },
+  "actorObservation": {
+    "path": "pri-source-ci-correction-b18604c8-gpt61/author-frozen-head-observation.json",
+    "bytes": 600,
+    "sha256": "10e8dd6c983f4ba9f843e52997e1338bb43adbbe59693a2ab0b59ca5742f832f"
+  },
+  "independentContributorAudit": {
+    "path": "pri-source-pr2097-2918950-independent-review-gpt61/observed-actors.json",
+    "bytes": 3437,
+    "sha256": "b056cb4f87ecbdc838854d0c44feb07be08a35633344ddd4056f34091185eb1b"
+  },
+  "finalAuthorCommands": {
+    "fixed-metadata-full-related-green": {
+      "command": {
+        "argv": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "node_modules/jest/bin/jest.js",
+          "--runInBand",
+          "--watchAll=false",
+          "--runTestsByPath",
+          "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+          "scripts/__tests__/roadmap-loop-scripts.test.ts"
+        ],
+        "cwd": "E:\\Projects\\MekStation-wt\\pri-audited-review-identity-source-20260929-gpt61",
+        "startedAt": "2026-09-30T01:23:13.464234+00:00"
+      },
+      "outcome": {
+        "exit": 0,
+        "expected": 0,
+        "endedAt": "2026-09-30T01:25:10.517970+00:00"
+      },
+      "artifacts": [
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/fixed-metadata-full-related-green.argv.json",
+          "bytes": 450,
+          "sha256": "79d55de0677749d6440d436ad15db46574846c353d0e76dcd9b4ca1c0658c02e"
+        },
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/fixed-metadata-full-related-green.stdout",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/fixed-metadata-full-related-green.stderr",
+          "bytes": 391,
+          "sha256": "b8e6f22b868823499e728e201d930b17a8c852483cb0cdae5d00a9c1292afbaf"
+        },
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/fixed-metadata-full-related-green.exit.json",
+          "bytes": 87,
+          "sha256": "0019075ca6e8bc7e88bdccb6c46cfd43853694513fe6ac8e863b24a66ce8c56d"
+        }
+      ]
+    },
+    "consumer-regressions-green": {
+      "command": {
+        "argv": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "--test",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs"
+        ],
+        "cwd": "E:\\Projects\\MekStation-wt\\pri-audited-review-identity-source-20260929-gpt61",
+        "startedAt": "2026-09-30T01:25:10.518230+00:00"
+      },
+      "outcome": {
+        "exit": 0,
+        "expected": 0,
+        "endedAt": "2026-09-30T01:25:18.660265+00:00"
+      },
+      "artifacts": [
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/consumer-regressions-green.argv.json",
+          "bytes": 323,
+          "sha256": "3b8425a31d2488f283168a5a32a81c5c4ac8467c82f2b268c6e9654fca68e995"
+        },
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/consumer-regressions-green.stdout",
+          "bytes": 12416,
+          "sha256": "5612985574400e2b08d5b630e20977422d6dd72f57e634b678c23b2c220dc118"
+        },
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/consumer-regressions-green.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/consumer-regressions-green.exit.json",
+          "bytes": 87,
+          "sha256": "f0c705e600d97c769c1ddaa12ef569776de265d1c8df9778af657b2b9a9803fa"
+        }
+      ]
+    },
+    "corrected-real-cli-qa": {
+      "command": {
+        "argv": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "E:\\Projects\\.omo\\evidence\\pri-source-ci-correction-b18604c8-gpt61\\cli-qa.mjs",
+          "corrected"
+        ],
+        "cwd": "E:\\Projects\\MekStation-wt\\pri-audited-review-identity-source-20260929-gpt61",
+        "startedAt": "2026-09-30T01:25:18.660536+00:00"
+      },
+      "outcome": {
+        "exit": 0,
+        "expected": 0,
+        "endedAt": "2026-09-30T01:26:42.889874+00:00"
+      },
+      "artifacts": [
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/corrected-real-cli-qa.argv.json",
+          "bytes": 334,
+          "sha256": "534a70b86440378838be034c5063411638097ccaa12e885753ee5cd431c6b44a"
+        },
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/corrected-real-cli-qa.stdout",
+          "bytes": 2956,
+          "sha256": "953b7c6130873a6d0a2f1df69875839ffd020bf0ded398956b473a331ac5e7eb"
+        },
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/corrected-real-cli-qa.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/corrected-real-cli-qa.exit.json",
+          "bytes": 87,
+          "sha256": "0a99c9a94e40ff080a01bfed247137531f49daa418a4b52bd370ae81c4f8bf3f"
+        }
+      ]
+    },
+    "corrected-typecheck": {
+      "command": {
+        "argv": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node_modules\\npm\\bin\\npm-cli.js",
+          "run",
+          "typecheck"
+        ],
+        "cwd": "E:\\Projects\\MekStation-wt\\pri-audited-review-identity-source-20260929-gpt61",
+        "startedAt": "2026-09-30T01:26:42.890176+00:00"
+      },
+      "outcome": {
+        "exit": 0,
+        "expected": 0,
+        "endedAt": "2026-09-30T01:26:53.269329+00:00"
+      },
+      "artifacts": [
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/corrected-typecheck.argv.json",
+          "bytes": 348,
+          "sha256": "ffad4dedfe48def8b163dcce7a99267bff675ae05747e3c6f7841b7ec969aee3"
+        },
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/corrected-typecheck.stdout",
+          "bytes": 65,
+          "sha256": "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f"
+        },
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/corrected-typecheck.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/corrected-typecheck.exit.json",
+          "bytes": 87,
+          "sha256": "4ee87fd46da765a90b0dc8d8645a01640b5add6480ffbcabb15bedc9eea92d42"
+        }
+      ]
+    },
+    "corrected-lint": {
+      "command": {
+        "argv": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node_modules\\npm\\bin\\npm-cli.js",
+          "run",
+          "lint",
+          "--",
+          "--threads=2"
+        ],
+        "cwd": "E:\\Projects\\MekStation-wt\\pri-audited-review-identity-source-20260929-gpt61",
+        "startedAt": "2026-09-30T01:26:53.269540+00:00"
+      },
+      "outcome": {
+        "exit": 0,
+        "expected": 0,
+        "endedAt": "2026-09-30T01:26:56.074203+00:00"
+      },
+      "artifacts": [
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/corrected-lint.argv.json",
+          "bytes": 374,
+          "sha256": "2fba839cd4b4da50ce279ba3670bb8519797be355cdb3894dc75b774b31137b2"
+        },
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/corrected-lint.stdout",
+          "bytes": 38965,
+          "sha256": "6ec790a4f39d4c0bb6e9d366112346a71f951b889ac660a34824964d688d2ec4"
+        },
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/corrected-lint.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/corrected-lint.exit.json",
+          "bytes": 87,
+          "sha256": "29fe9bc6603a3cb1cb8ab9818cf0ad305e3a9897c84a81b699482dee046bec1d"
+        }
+      ]
+    },
+    "corrected-lint-units": {
+      "command": {
+        "argv": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node_modules\\npm\\bin\\npm-cli.js",
+          "run",
+          "lint:units"
+        ],
+        "cwd": "E:\\Projects\\MekStation-wt\\pri-audited-review-identity-source-20260929-gpt61",
+        "startedAt": "2026-09-30T01:26:56.074440+00:00"
+      },
+      "outcome": {
+        "exit": 0,
+        "expected": 0,
+        "endedAt": "2026-09-30T01:26:58.349618+00:00"
+      },
+      "artifacts": [
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/corrected-lint-units.argv.json",
+          "bytes": 349,
+          "sha256": "bcef5fa9174034508cea1f125bcc5e0b8a05de130ea67982ed3a157878698078"
+        },
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/corrected-lint-units.stdout",
+          "bytes": 355,
+          "sha256": "f685d7b98a785c65f8dcfb3475c399afcccb922eff0d2e21cc9c640995ef2fb8"
+        },
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/corrected-lint-units.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/corrected-lint-units.exit.json",
+          "bytes": 87,
+          "sha256": "cd2b900650f1779f4b27d2da34bed38b16e4e09be91a828289cfe8825c98268d"
+        }
+      ]
+    },
+    "corrected-matched-format-check": {
+      "command": {
+        "argv": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "node_modules/oxfmt/bin/oxfmt",
+          "--check",
+          "--threads=2",
+          "scripts/qc/roadmap-unit-closure.mjs",
+          "scripts/qc/roadmap-ledger-lib.mjs",
+          "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
+          "openspec/planning/2026-09-12-roadmap-completion/GOAL.md",
+          "openspec/planning/2026-09-12-roadmap-completion/DELIVERY.md",
+          "openspec/planning/2026-09-12-roadmap-completion/WORKERS.md"
+        ],
+        "cwd": "E:\\Projects\\MekStation-wt\\pri-audited-review-identity-source-20260929-gpt61",
+        "startedAt": "2026-09-30T01:26:58.350703+00:00"
+      },
+      "outcome": {
+        "exit": 0,
+        "expected": 0,
+        "endedAt": "2026-09-30T01:26:58.462162+00:00"
+      },
+      "artifacts": [
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/corrected-matched-format-check.argv.json",
+          "bytes": 804,
+          "sha256": "14641b3d1c6cac39f495fe3aabda3e47a8d31fa24268884187c3c4108ae4bed4"
+        },
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/corrected-matched-format-check.stdout",
+          "bytes": 111,
+          "sha256": "b7aa3232b9b0d70860f6f3ad0ef592b2d4053767cf6b27c99a3971847b9e00fd"
+        },
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/corrected-matched-format-check.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/corrected-matched-format-check.exit.json",
+          "bytes": 87,
+          "sha256": "b3dd42319ea550a784c2711cf0a54be3bb8aebd1e209fabb43f6dab76b99622f"
+        }
+      ]
+    },
+    "corrected-full-format-check": {
+      "command": {
+        "argv": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node_modules\\npm\\bin\\npm-cli.js",
+          "run",
+          "format:check",
+          "--",
+          "--threads=2"
+        ],
+        "cwd": "E:\\Projects\\MekStation-wt\\pri-audited-review-identity-source-20260929-gpt61",
+        "startedAt": "2026-09-30T01:26:58.462373+00:00"
+      },
+      "outcome": {
+        "exit": 0,
+        "expected": 0,
+        "endedAt": "2026-09-30T01:27:13.778091+00:00"
+      },
+      "artifacts": [
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/corrected-full-format-check.argv.json",
+          "bytes": 382,
+          "sha256": "d0f5324e872c3169e2669e38f5288ca016be4e03ca42f7afa701ca09816f81d5"
+        },
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/corrected-full-format-check.stdout",
+          "bytes": 185,
+          "sha256": "70559e1fa71b37757f3c416a86ee5606c11affc42eb242ed2c32b93ccdabb94d"
+        },
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/corrected-full-format-check.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/corrected-full-format-check.exit.json",
+          "bytes": 87,
+          "sha256": "dfb69198f479e35a2c89aefde0e15a601b556bac77c38f41ab02feae2f24c5a8"
+        }
+      ]
+    },
+    "corrected-openspec-all-strict": {
+      "command": {
+        "argv": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js",
+          "validate",
+          "--all",
+          "--strict"
+        ],
+        "cwd": "E:\\Projects\\MekStation-wt\\pri-audited-review-identity-source-20260929-gpt61",
+        "startedAt": "2026-09-30T01:27:13.778401+00:00"
+      },
+      "outcome": {
+        "exit": 0,
+        "expected": 0,
+        "endedAt": "2026-09-30T01:27:15.529826+00:00"
+      },
+      "artifacts": [
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/corrected-openspec-all-strict.argv.json",
+          "bytes": 367,
+          "sha256": "d4063f4bd4b5b4340b61312e994ee996c2f8d6f277cedc3cfcc1f6c5cacc6b6c"
+        },
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/corrected-openspec-all-strict.stdout",
+          "bytes": 6811,
+          "sha256": "9ca58d5988581dd3de39d1f251ab3b4e85271cd35e067c898bb258ce7748a181"
+        },
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/corrected-openspec-all-strict.stderr",
+          "bytes": 16,
+          "sha256": "5bc31df123a2e521acdd2c0d9477b367feec506471a91065d0a6b32c09089ed5"
+        },
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/corrected-openspec-all-strict.exit.json",
+          "bytes": 87,
+          "sha256": "9c712e4733f5838342659bb2b346ffa343e1dae8f6e1325bf3ea3f90d60b43a3"
+        }
+      ]
+    },
+    "corrected-purpose-strict": {
+      "command": {
+        "argv": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node_modules\\npm\\bin\\npm-cli.js",
+          "run",
+          "spec:purpose:validate:strict"
+        ],
+        "cwd": "E:\\Projects\\MekStation-wt\\pri-audited-review-identity-source-20260929-gpt61",
+        "startedAt": "2026-09-30T01:27:15.530269+00:00"
+      },
+      "outcome": {
+        "exit": 0,
+        "expected": 0,
+        "endedAt": "2026-09-30T01:27:17.211154+00:00"
+      },
+      "artifacts": [
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/corrected-purpose-strict.argv.json",
+          "bytes": 367,
+          "sha256": "18e4c3b7e24eda84f19532cf108448a9c0c1c7a59ce62bb5b4a6726f2a8ce34a"
+        },
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/corrected-purpose-strict.stdout",
+          "bytes": 292,
+          "sha256": "728dfa38e2014a12a2553af3f6be9586649dd5e16cd525da0e89f12b7a3a3983"
+        },
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/corrected-purpose-strict.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/corrected-purpose-strict.exit.json",
+          "bytes": 87,
+          "sha256": "afd81ee545b62e592b259eac7659eb28588bdeb7296b11786ce563c85ac8aaba"
+        }
+      ]
+    },
+    "corrected-terminology-strict": {
+      "command": {
+        "argv": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node_modules\\npm\\bin\\npm-cli.js",
+          "run",
+          "terminology:validate:strict"
+        ],
+        "cwd": "E:\\Projects\\MekStation-wt\\pri-audited-review-identity-source-20260929-gpt61",
+        "startedAt": "2026-09-30T01:27:17.211350+00:00"
+      },
+      "outcome": {
+        "exit": 0,
+        "expected": 0,
+        "endedAt": "2026-09-30T01:27:25.957971+00:00"
+      },
+      "artifacts": [
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/corrected-terminology-strict.argv.json",
+          "bytes": 366,
+          "sha256": "46d3c7090ff024a34a841c82a3bd2d94b89d8d554b13193a516a775fbdb12441"
+        },
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/corrected-terminology-strict.stdout",
+          "bytes": 311,
+          "sha256": "802336d601029933274a542ce7a45e7e5cfc75d509f53bccd81ea65a05d8d9e6"
+        },
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/corrected-terminology-strict.stderr",
+          "bytes": 548,
+          "sha256": "ec4c2869092f36486f664ea9828ca1b6f431ca27f52f3e7a48d5dc7342d4bef4"
+        },
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/corrected-terminology-strict.exit.json",
+          "bytes": 87,
+          "sha256": "1fab38bfe7243445da5c651492309b7726a25a9d51319f1813a2a1f3c4f42581"
+        }
+      ]
+    },
+    "corrected-openspec-ci-quality": {
+      "command": {
+        "argv": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node_modules\\npm\\bin\\npm-cli.js",
+          "run",
+          "qc:openspec-ci:validate"
+        ],
+        "cwd": "E:\\Projects\\MekStation-wt\\pri-audited-review-identity-source-20260929-gpt61",
+        "startedAt": "2026-09-30T01:27:25.958320+00:00"
+      },
+      "outcome": {
+        "exit": 0,
+        "expected": 0,
+        "endedAt": "2026-09-30T01:27:26.802256+00:00"
+      },
+      "artifacts": [
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/corrected-openspec-ci-quality.argv.json",
+          "bytes": 362,
+          "sha256": "7f7884a0904314111ee9db98b2f949d41b6ea89c106b2cd6f760074dcc126b46"
+        },
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/corrected-openspec-ci-quality.stdout",
+          "bytes": 291,
+          "sha256": "4c2dafd093b946290aa4abe001ad8b3d65671b17c7682722c55a510ecc04f91e"
+        },
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/corrected-openspec-ci-quality.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "pri-source-ci-correction-b18604c8-gpt61/corrected-openspec-ci-quality.exit.json",
+          "bytes": 87,
+          "sha256": "2428da2a75be6372d37177c3e93845d8935dd5b43ddbc65c874d0edbc2c17483"
+        }
+      ]
+    }
+  },
+  "build": {
+    "priorActualNormalBuild": {
+      "command": {
+        "argv": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node_modules\\npm\\bin\\npm-cli.js",
+          "run",
+          "build"
+        ],
+        "cwd": "E:\\Projects\\MekStation-wt\\pri-audited-review-identity-source-20260929-gpt61",
+        "startedAt": "2026-09-30T00:29:55.726516+00:00"
+      },
+      "outcome": {
+        "exit": 0,
+        "expected": 0,
+        "endedAt": "2026-09-30T00:33:38.514611+00:00"
+      },
+      "artifacts": [
+        {
+          "path": "pri-audited-review-identity-within-cap-gpt61/local-build-physical-dependencies.argv.json",
+          "bytes": 344,
+          "sha256": "a6c038049f55b2cec5c3e2e9f8f149ec49d17cc714403c836266666971642211"
+        },
+        {
+          "path": "pri-audited-review-identity-within-cap-gpt61/local-build-physical-dependencies.stdout",
+          "bytes": 7112,
+          "sha256": "22e725b847bbfbf36b854158dd0184066c2f18fad89ac2d1680e781eebd8ab05"
+        },
+        {
+          "path": "pri-audited-review-identity-within-cap-gpt61/local-build-physical-dependencies.stderr",
+          "bytes": 3501439,
+          "sha256": "e838322dc7152ccfd344abb5fe208b6506b8aaa45a4ecc3a4b849bdf77379d63"
+        },
+        {
+          "path": "pri-audited-review-identity-within-cap-gpt61/local-build-physical-dependencies.exit.json",
+          "bytes": 87,
+          "sha256": "e5f62bd5cee88e6ce5227728718403ba34984305bad8305d8b807e0b6e1478c0"
+        }
+      ]
+    },
+    "unchangedSourceBinding": {
+      "path": "pri-source-ci-correction-b18604c8-gpt61/unchanged-build-byte-binding.json",
+      "bytes": 2468,
+      "sha256": "aa69126c7301928f117459c6eb0cd707cdfc038c8fe42e99392e4eae615e09a4"
+    },
+    "limitation": "Actual build ran at b186 implementation before the test-only correction. Fresh actual-main build is later mainProof, not retrospective local execution."
+  },
+  "diagnostics": {
+    "path": "pri-source-ci-correction-b18604c8-gpt61/changed-file-diagnostics.json",
+    "bytes": 186,
+    "sha256": "b8278e563d19d179b615858f5a59889aa01e5d386d24454dcb46d3b261e6a700"
+  },
+  "preservedFailures": {
+    "original567over500Draft": {
+      "path": "pri-audited-review-identity-source-gpt61/budget-blocker.json",
+      "bytes": 2934,
+      "sha256": "4513a58794e012c6b5a2ca4e1c6c82246060b82a77afc34cca3fb8767f901ef4"
+    },
+    "failedCiHead": "b18604c8a6df016eb41b8af73942ecec9fd98a91",
+    "admissionIncident": "Prior transient overwrite recovered exact 5264 bytes SHA569b942a97a53492724805344fc3d95c8497761aa022309b143e2f6560742bdc and 55 misrouted artifacts moved. Current manifests match, not untouched throughout.",
+    "recovery": {
+      "path": "pri-source-ci-correction-b18604c8-gpt61/evidence-routing-recovery.json",
+      "bytes": 734,
+      "sha256": "674a84505bc5c94922053c5e7fb454587755adf0d0f2ae6dc92dfe42c6965b51"
+    }
+  },
+  "sourceEpochManifests": [
+    {
+      "path": "pri-audited-review-identity-source-gpt61/manifest.json",
+      "bytes": 2354856,
+      "sha256": "54b14f173003c881418b35664a784fa91eee4bff0729e0e9b5ab1d4ac62808e5"
+    },
+    {
+      "path": "pri-audited-review-identity-within-cap-gpt61/manifest.json",
+      "bytes": 4652283,
+      "sha256": "7b2b4695c0024256f2ba507ef8e9def71e6bf60496e16a6a12bd0e9b0a50580f"
+    },
+    {
+      "path": "pri-source-ci-correction-b18604c8-gpt61/manifest.json",
+      "bytes": 4710475,
+      "sha256": "449bae3766af6f439f0852c26f1721b545cf78ab750f5941a875ad8b10090233"
+    }
+  ],
+  "cleanup": {
+    "path": "pri-source-ci-correction-b18604c8-gpt61/cleanup.json",
+    "bytes": 911,
+    "sha256": "ef35c8e4d74c5729de228fe9244ec98f38a5fb7e39b2bff020d59dd3fbcb9025"
+  },
+  "closurePackagingIsNotSourceFinishing": true
+}

@@ -1,0 +1,23 @@
+{
+  "unit": "PRI",
+  "stage": "review",
+  "at": "2026-09-30T03:42:33.612Z",
+  "lane": "A",
+  "reviewerModel": "chatgpt-subscription/gpt-6.1-sol",
+  "implementerModel": "chatgpt-subscription/gpt-6.1-sol",
+  "reviewerEffort": "high",
+  "head": "2918950c8b1a62aff39b00d7c881b19a3f24e0f5",
+  "reviewedHead": "2918950c8b1a62aff39b00d7c881b19a3f24e0f5",
+  "verdict": "APPROVE",
+  "outputPath": "evidence/pri-lane-a-review-20260930.md",
+  "outputSha256": "c2b9c5f145a335a4fe68ac1a94502f50df3593b81c5a09472012e35be69f5156",
+  "sharedContext": "Independent frozen exact-head source review; actual live minimal source actor observations re-opened; packaging author is not source finisher",
+  "laneB": "not required (review classes: routine)",
+  "githubApproval": "none recorded; Lane A is engineering evidence, never a GitHub approval",
+  "reviewContractVersion": 2,
+  "identityEvidence": {
+    "path": "evidence/review-identity-97d3d820c732be30aa4c56d4c2ddb00f76771bf46fb79b80f78fb9cb542684bb.json",
+    "sha256": "97d3d820c732be30aa4c56d4c2ddb00f76771bf46fb79b80f78fb9cb542684bb",
+    "bytes": 739
+  }
+}

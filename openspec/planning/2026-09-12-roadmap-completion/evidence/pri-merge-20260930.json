@@ -1,0 +1,23 @@
+{
+  "unit": "PRI",
+  "stage": "merge",
+  "at": "2026-09-30T03:42:36.046Z",
+  "pr": 2097,
+  "title": "fix(qc): enforce audited review identities",
+  "head": "2918950c8b1a62aff39b00d7c881b19a3f24e0f5",
+  "mergeSha": "df65feae186c300f9ae30a95019e9217095a509d",
+  "mergedAt": "2026-09-30T02:37:47Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "Parent-only pinned squash/admin with exact291 guard; actual merge 2026-09-30T02:37:47Z",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "treeIntegration": {
+    "parent": "4ade3c387ad10bce46047274c78f4f625e46ed4d",
+    "mergeBases": [
+      "4ade3c387ad10bce46047274c78f4f625e46ed4d"
+    ],
+    "expectedTree": "82825fd1d5ccf48fc074211e3ebedf42243f4b69",
+    "actualTree": "82825fd1d5ccf48fc074211e3ebedf42243f4b69",
+    "matches": true
+  }
+}

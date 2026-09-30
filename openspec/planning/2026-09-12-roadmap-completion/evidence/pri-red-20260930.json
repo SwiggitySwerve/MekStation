@@ -1,0 +1,210 @@
+{
+  "unit": "PRI",
+  "stage": "red",
+  "at": "2026-09-30T03:37:37.776581+00:00",
+  "baseline": "4ade3c387ad10bce46047274c78f4f625e46ed4d",
+  "summary": "Unchanged production consumer refuses truthful independent same-model v2 actors. Original equal-model legacy CLI exits 1 after historical write-then-fail; not modern no-write proof. Original discriminators and later deterministic CI fixture RED remain frozen.",
+  "assembly": {
+    "assembledAt": "2026-09-30T03:37:37.654175+00:00",
+    "kind": "Derived index of authentic frozen source executions, not an original Lane artifact or newly executed source stage. Original dates/argv/exits/source epochs remain in the referenced artifacts.",
+    "closureAuthor": "st_01a0f04f",
+    "sourceAuthor": "st_01a0ef5d",
+    "sourceAuthorSession": "01a0ef5d-bf9d-7683-a9c0-0287a372483c",
+    "sourceFinishers": [],
+    "sourceBaseline": "4ade3c387ad10bce46047274c78f4f625e46ed4d",
+    "finalSourceHead": "2918950c8b1a62aff39b00d7c881b19a3f24e0f5"
+  },
+  "unchangedProductionConsumer": {
+    "commit": "4ade3c387ad10bce46047274c78f4f625e46ed4d",
+    "path": "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "gitBlob": "b730eeea1e94c4b356331cfaa2efea84607069c5",
+    "gitBytesSha256": "6b3ec28083d298563a3d9fbc38c01b829f50ed1472954caa1179bc69f4778eda",
+    "executionBinding": "Unchanged baseline production consumer with added uncommitted discriminator tests; not final reviewed source bytes."
+  },
+  "originalConsumerRed": {
+    "command": {
+      "argv": [
+        "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+        "--test",
+        "--test-name-pattern=PRI",
+        "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs"
+      ],
+      "cwd": "E:\\Projects\\MekStation-wt\\pri-audited-review-identity-source-20260929-gpt61",
+      "exit": 1
+    },
+    "outcome": {
+      "exit": 1
+    },
+    "artifacts": [
+      {
+        "path": "pri-audited-review-identity-source-gpt61/red-consumer.argv.json",
+        "bytes": 278,
+        "sha256": "26d16e3aa88fcc8218609cf72f799dce193ffa968c274ab950cc99d486cc106e"
+      },
+      {
+        "path": "pri-audited-review-identity-source-gpt61/red-consumer.stdout",
+        "bytes": 9781,
+        "sha256": "27181d365f89318465567b4eaebb57c44138caa76119782143bdc8f7316192bb"
+      },
+      {
+        "path": "pri-audited-review-identity-source-gpt61/red-consumer.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ]
+  },
+  "literalRefusal": "F1 review receipt is not cross-model: chatgpt-subscription/gpt-6.1-sol reviewed itself",
+  "originalRealCli": {
+    "command": {
+      "argv": [
+        "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+        "E:\\Projects\\.omo\\evidence\\pri-audited-review-identity-source-gpt61\\cli-qa.mjs",
+        "red"
+      ],
+      "cwd": "E:\\Projects\\MekStation-wt\\pri-audited-review-identity-source-20260929-gpt61",
+      "startedAt": "2026-09-29T23:03:15.411340+00:00"
+    },
+    "outcome": {
+      "exit": 0,
+      "expected": 0,
+      "endedAt": "2026-09-29T23:03:37.660782+00:00"
+    },
+    "artifacts": [
+      {
+        "path": "pri-audited-review-identity-source-gpt61/red-real-cli.argv.json",
+        "bytes": 329,
+        "sha256": "9a97028a7dab9e7a81b32b2eaaebefa10a1f3bca3ca5124ee90d7bd6a15183e0"
+      },
+      {
+        "path": "pri-audited-review-identity-source-gpt61/red-real-cli.stdout",
+        "bytes": 728,
+        "sha256": "aee1020bc2e6b53dc8e7d4e63f6f6c1034c2be58d5687bc58cdf3480799b8102"
+      },
+      {
+        "path": "pri-audited-review-identity-source-gpt61/red-real-cli.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "pri-audited-review-identity-source-gpt61/red-real-cli.exit.json",
+        "bytes": 87,
+        "sha256": "bc3f69f5d72b289589d38d322c1caa713cd00f3336b18bdf05242cb0c883a0ba"
+      }
+    ]
+  },
+  "controlledCli": {
+    "matrix": {
+      "path": "pri-audited-review-identity-source-gpt61/red-cli/matrix.json",
+      "bytes": 1043,
+      "sha256": "42675ac2600fd3836ce90ef9e25fb1243b74d7860575263e50df48537005795d"
+    },
+    "argv": {
+      "path": "pri-audited-review-identity-source-gpt61/red-cli/legacy-equal-closure.argv.json",
+      "bytes": 1167,
+      "sha256": "6bc1d4f2bdeea20480a915a3bcbabc26b00457d3c34c1feb3d6f0277b0b03b36"
+    },
+    "stdout": {
+      "path": "pri-audited-review-identity-source-gpt61/red-cli/legacy-equal-closure.stdout",
+      "bytes": 105,
+      "sha256": "c580d285c3b3cdfdc6325873f5cf719c1b0a132178a454a64ac2cc4d0d4963b3"
+    },
+    "stderr": {
+      "path": "pri-audited-review-identity-source-gpt61/red-cli/legacy-equal-closure.stderr",
+      "bytes": 148,
+      "sha256": "92d50a42692e56fa2765145e0307a90b942cb888b26ecc0f5074ab778269f6fb"
+    },
+    "limitation": "Git/gh/head/merge/proof envelopes are SYNTHETIC_CONTROLLED, not source lifecycle. Actual command execution and refusal are genuine RED.",
+    "noWrites": false
+  },
+  "originalDiscriminatingConsumer": {
+    "command": {
+      "argv": [
+        "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+        "--test",
+        "--test-name-pattern=PRI",
+        "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs"
+      ],
+      "cwd": "E:\\Projects\\MekStation-wt\\pri-audited-review-identity-source-20260929-gpt61",
+      "startedAt": "2026-09-29T22:59:51.889672+00:00"
+    },
+    "outcome": {
+      "exit": 1,
+      "expected": 1,
+      "endedAt": "2026-09-29T22:59:55.045372+00:00"
+    },
+    "artifacts": [
+      {
+        "path": "pri-audited-review-identity-source-gpt61/red-consumer-discriminating.argv.json",
+        "bytes": 355,
+        "sha256": "9e044afb611e1fcb2e76c145e1229bc3d8f3d73828d38228675765feba2dc0c9"
+      },
+      {
+        "path": "pri-audited-review-identity-source-gpt61/red-consumer-discriminating.stdout",
+        "bytes": 32949,
+        "sha256": "1849a859aa8e4a63baf456bca50ed754fc9d5194278334ddc0b3c635de08e22b"
+      },
+      {
+        "path": "pri-audited-review-identity-source-gpt61/red-consumer-discriminating.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "pri-audited-review-identity-source-gpt61/red-consumer-discriminating.exit.json",
+        "bytes": 87,
+        "sha256": "c7b4022dbd9c49eb41e02b45e3a9d7564b8799695938f36b61059d0794886dbd"
+      }
+    ]
+  },
+  "ciCorrectionRed": {
+    "command": {
+      "argv": [
+        "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+        "node_modules/jest/bin/jest.js",
+        "--runInBand",
+        "--watchAll=false",
+        "--runTestsByPath",
+        "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+        "--testNamePattern=exercises modern clean through real Git"
+      ],
+      "cwd": "E:\\Projects\\MekStation-wt\\pri-audited-review-identity-source-20260929-gpt61",
+      "startedAt": "2026-09-30T01:09:07.476107+00:00"
+    },
+    "outcome": {
+      "exit": 1,
+      "expected": 1,
+      "endedAt": "2026-09-30T01:09:41.507828+00:00"
+    },
+    "artifacts": [
+      {
+        "path": "pri-source-ci-correction-b18604c8-gpt61/unchanged-fixed-metadata-red.argv.json",
+        "bytes": 461,
+        "sha256": "412349caf3843c3d1cff2350fe44a4f5ae0f8ef3df42abe3b970a23c6ee6a1d9"
+      },
+      {
+        "path": "pri-source-ci-correction-b18604c8-gpt61/unchanged-fixed-metadata-red.stdout",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "pri-source-ci-correction-b18604c8-gpt61/unchanged-fixed-metadata-red.stderr",
+        "bytes": 8557,
+        "sha256": "7fc05c70d9802d37fb3646781a7de5a46137653c09b20a2986131080e48908c5"
+      },
+      {
+        "path": "pri-source-ci-correction-b18604c8-gpt61/unchanged-fixed-metadata-red.exit.json",
+        "bytes": 87,
+        "sha256": "fef6dcda32d8da20bde7f3145bc64107bfd89ad90264e8fac77ff266ee6a10ac"
+      }
+    ]
+  },
+  "originalReport": {
+    "path": "pri-audited-review-identity-source-gpt61/report.md",
+    "bytes": 8262,
+    "sha256": "4ba34d57ed4199b855c570889393d18d9ea07f3010797e65fb40e9d248fd01d3"
+  },
+  "correctionReport": {
+    "path": "pri-source-ci-correction-b18604c8-gpt61/report.md",
+    "bytes": 10671,
+    "sha256": "f937000aa7368cbd50cd09ee1ea55eb229f53d4d77ebe7396601215036f98aaa"
+  }
+}

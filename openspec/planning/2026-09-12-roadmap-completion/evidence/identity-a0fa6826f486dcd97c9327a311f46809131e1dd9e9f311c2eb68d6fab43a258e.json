@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "unit": "PRI",
+  "sourceHead": "2918950c8b1a62aff39b00d7c881b19a3f24e0f5",
+  "reviewOutputSha256": "c2b9c5f145a335a4fe68ac1a94502f50df3593b81c5a09472012e35be69f5156",
+  "observedAt": "2026-09-30T02:13:29.416129+00:00",
+  "engine": {
+    "task_id": "st_01a0effe",
+    "child_session_id": "01a0effe-cad8-7f40-a14f-d03352475b3f",
+    "model": "chatgpt-subscription/gpt-6.1-sol",
+    "execution_mode": "in-process",
+    "agent_type": "omo-native-gate-reviewer",
+    "resolved_model": {
+      "provider": "chatgpt-subscription",
+      "model_id": "gpt-6.1-sol"
+    }
+  }
+}

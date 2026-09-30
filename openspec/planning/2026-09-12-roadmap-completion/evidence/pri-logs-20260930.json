@@ -1,0 +1,60 @@
+{
+  "unit": "PRI",
+  "date": "20260930",
+  "at": "2026-09-30T03:42:38.837Z",
+  "runDir": "../../.omo/evidence/pri-actual-v2-closure-author-gpt61/proof-inputs",
+  "preservedDir": "../../.omo/evidence/pri-actual-v2-closure-author-gpt61/preserved-proof/PRI-20260930",
+  "files": [
+    {
+      "file": "build.log",
+      "bytes": 7349,
+      "sha256": "9e6a11974fd3202a31c2a4471fd60e72d9af34d285f35eb5cc3277f8b61fcad9"
+    },
+    {
+      "file": "git-check.log",
+      "bytes": 76,
+      "sha256": "5d4e2632ad433b598282457f50f016260282736419f55973bd91f704a9ef25a1"
+    },
+    {
+      "file": "next.log",
+      "bytes": 4,
+      "sha256": "d49313f4c242c06d4cf1c41b0ea6493e6bc5362c3dffba78b15ab404505a6281"
+    },
+    {
+      "file": "openspec-strict.log",
+      "bytes": 6811,
+      "sha256": "9ca58d5988581dd3de39d1f251ab3b4e85271cd35e067c898bb258ce7748a181"
+    },
+    {
+      "file": "playwright.log",
+      "bytes": 654,
+      "sha256": "cb22ab24c5f95fa878de6e25b276f6467a27ef942b552c8d08b0eaeab679034b"
+    },
+    {
+      "file": "qc-openspec-ci.log",
+      "bytes": 291,
+      "sha256": "4c2dafd093b946290aa4abe001ad8b3d65671b17c7682722c55a510ecc04f91e"
+    },
+    {
+      "file": "qc-pin.log",
+      "bytes": 427,
+      "sha256": "13353bee2500a91b923861350d2eb96af4a5b66e698a907eb5667d8de60f96b3"
+    },
+    {
+      "file": "sha256.txt",
+      "bytes": 714,
+      "sha256": "9ebfa3e149ec2742d8f6bfbdce47c2b2c6041adc360ece22d30a5bc6ef818263"
+    },
+    {
+      "file": "tsc.log",
+      "bytes": 65,
+      "sha256": "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f"
+    },
+    {
+      "file": "validator.log",
+      "bytes": 76,
+      "sha256": "5d4e2632ad433b598282457f50f016260282736419f55973bd91f704a9ef25a1"
+    }
+  ],
+  "bytes": 16467
+}
