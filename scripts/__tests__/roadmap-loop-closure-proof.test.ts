@@ -1589,6 +1589,16 @@ if (step === 'runtime' && scenario === 'failed-runtime' || step === 'idle' && sc
       'node_modules/jest/bin/jest.js',
       "console.log(JSON.stringify({step:'qc-pin',argv:process.argv.slice(2)}));\n",
     );
+    // npx must resolve a fixture-local executable, never a global install or cache.
+    write(
+      'node_modules/.bin/openspec',
+      `#!/bin/sh\nexec "${process.execPath}" "${path.join(repo, 'proof-step.mjs')}" openspec "$@"\n`,
+    );
+    fs.chmodSync(path.join(repo, 'node_modules/.bin/openspec'), 0o755);
+    write(
+      'node_modules/.bin/openspec.cmd',
+      `@echo off\r\n"${process.execPath}" "${path.join(repo, 'proof-step.mjs')}" openspec %*\r\n`,
+    );
     write(
       'status-fault.mjs',
       `
@@ -1699,6 +1709,14 @@ syncBuiltinESMExports();
     expect(result.stderr).toBe('');
     expect(git(['status', '--porcelain'], repo)).toBe('');
     expect(fs.readFileSync(path.join(repo, 'next-env.d.ts'))).toEqual(original);
+    const strict = fs.readFileSync(
+      path.join(repo, proofRelative, 'openspec-strict.log'),
+      'utf8',
+    );
+    expect(JSON.parse(strict.split(/\r?\n/)[0])).toMatchObject({
+      step: 'openspec',
+      argv: ['validate', '--all', '--strict'],
+    });
   });
 
   it.each([
