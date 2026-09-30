@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { reviewIdentityMode, validateReviewReceipt } from '../../../scripts/qc/roadmap-ledger-lib.mjs';
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(scriptDir, '..', '..', '..');
@@ -485,8 +486,16 @@ try {
           if (receipts.merge && receipts.merge.mergeSha !== receipts.mainProof.mergeCommit) fail(`${label} mainProof merge commit does not equal the merge receipt mergeSha`);
         }
 
+        // Modern archives are mandatory even under --no-evidence; legacy dispatch stays unchanged.
+        let modernReview = false;
+        try {
+          validateReviewReceipt(roadmapDir, unit);
+          modernReview = reviewIdentityMode(receipts.review) === 2;
+        } catch (error) {
+          fail(`${label} review identity: ${error instanceof Error ? error.message : String(error)}`);
+        }
         // ---- review independence
-        if (receipts.review) {
+        if (receipts.review && !modernReview) {
           const reviewerModel = receipts.review.reviewerModel;
           const implementerModel = receipts.review.implementerModel;
           if (!hasValue(reviewerModel) || !hasValue(implementerModel)) fail(`${label} review receipt lacks reviewerModel/implementerModel`);

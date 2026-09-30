@@ -440,6 +440,7 @@ beforeAll(() => {
       'const args = process.argv.slice(2);',
       'const has = (value) => args.includes(value);',
       'if (has("checks")) {',
+      '  if (process.env.U17_MUTATE_REVIEW) require("node:fs").writeFileSync(process.env.U17_MUTATE_REVIEW, "changed after validated capture\\n");',
       '  process.stdout.write(JSON.stringify([{ bucket: "pass" }, { bucket: "pass" }]));',
       '} else if (args.join(" ").includes("files")) {',
       '  process.stdout.write(JSON.stringify(process.env.U17_FAKE_GH_HEAD ? ["shared.txt"] : ["scripts/qc/roadmap-unit-fold.mjs"]));',
@@ -889,6 +890,426 @@ describe('roadmap-unit-closure', () => {
     expect(result.status).not.toBe(0);
     expect(result.stderr).toContain('merge commit');
     expect(unitOf(UNIT).state).toBe('local-verified');
+  });
+});
+
+describe('PRI audited review identity', () => {
+  const MODEL = 'chatgpt-subscription/gpt-6.1-sol';
+  interface IActor {
+    task_id: string;
+    child_session_id: string;
+    model: string;
+    execution_mode: string;
+    agent_type: string | null;
+    resolved_model: { provider: string; model_id: string };
+  }
+  const digest = (file: string): string =>
+    createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+  const diskState = (): Record<string, string> => {
+    const root = path.join(tempLedger, 'evidence');
+    const files = [
+      path.join(tempLedger, 'units.json'),
+      ...fs
+        .readdirSync(root, { recursive: true })
+        .map((name) => path.join(root, String(name)))
+        .filter((file) => fs.statSync(file).isFile()),
+    ];
+    return Object.fromEntries(files.map((file) => [file, digest(file)]));
+  };
+  // These are mechanistic fixtures with real historically observed distinct task/session tuples;
+  // their U91 head/prolog/output bindings are synthetic, never source-unit approvals.
+  const fixture = (
+    scenario = 'valid',
+    finishers = 2,
+    sourceHead = PR_HEAD,
+  ): { args: string[]; census: unknown; manifest: string } => {
+    const actors: IActor[] = [
+      ['st_01a0ef0b', '01a0ef0b-71e5-7508-a303-49a952f7476e'],
+      ['st_01a0eed3', '01a0eed3-4c10-7359-abc6-f4fb14f3df71'],
+      ['st_01a0eee6', '01a0eee6-5cd9-7ff6-adde-359483780e9c'],
+      ['st_01a0ef25', '01a0ef25-a176-77db-8467-40bbf5f3ef02'],
+    ].map(([task_id, child_session_id]) => ({
+      task_id,
+      child_session_id,
+      model: MODEL,
+      execution_mode: 'in-process',
+      agent_type: null,
+      resolved_model: {
+        provider: 'chatgpt-subscription',
+        model_id: 'gpt-6.1-sol',
+      },
+    }));
+    const author = actors[0];
+    const reviewer = actors[3];
+    const finisher = actors[1];
+    const engines = path.join(tempLedger, 'engine-records');
+    fs.mkdirSync(engines, { recursive: true });
+    for (const actor of actors)
+      writeJson(path.join(engines, `${actor.task_id}.json`), actor);
+    const census = actors.slice(0, 1 + finishers).map((a, i) => ({
+      role: i ? 'finisher' : 'author',
+      task_id: a.task_id,
+      child_session_id: a.child_session_id,
+      model: a.model,
+    }));
+    const evidence = seedLaneReceipts();
+    const localFile = path.join(evidence, `u91-local-${DATE}.json`);
+    const local = readJson<Record<string, unknown>>(localFile);
+    writeJson(localFile, {
+      ...local,
+      reviewContractVersion: 2,
+      implementationActors: census,
+    });
+    expectClosureOk(run(FOLD, foldArgs(evidence)));
+    const review = path.join(tempLedger, 'modern-review.md');
+    let text = `Verdict: APPROVE\nreviewedHead: ${sourceHead}\nreviewerModel: ${MODEL}\nreviewContractVersion: 2\n\nMechanistic QA fixture.\n`;
+    if (scenario === 'duplicate-prolog')
+      text = text.replace('Mechanistic QA fixture.', 'Verdict: APPROVE');
+    if (scenario === 'conflicting-prolog')
+      text = text.replace(
+        'Mechanistic QA fixture.',
+        `reviewedHead: ${BASELINE}`,
+      );
+    if (scenario === 'model-prolog')
+      text = text.replace(MODEL, 'fixture-provider/reviewer');
+    if (scenario === 'hyphen-verdict')
+      text = text.replace(
+        'Verdict: APPROVE',
+        'Verdict: APPROVE-WITH-REQUIRED-EDITS',
+      );
+    fs.writeFileSync(review, text);
+    if (scenario === 'reviewer-author') Object.assign(reviewer, author);
+    if (scenario === 'reviewer-finisher') Object.assign(reviewer, finisher);
+    if (scenario === 'shared-task') reviewer.task_id = author.task_id;
+    if (scenario === 'shared-session')
+      reviewer.child_session_id = finisher.child_session_id;
+    if (scenario === 'different-model-same-actor') {
+      Object.assign(reviewer, author, {
+        model: 'fixture-provider/reviewer',
+        resolved_model: { provider: 'fixture-provider', model_id: 'reviewer' },
+      });
+      fs.writeFileSync(review, text.replace(MODEL, reviewer.model));
+    }
+    if (scenario === 'provider-mismatch')
+      author.resolved_model.provider = 'other';
+    if (scenario === 'model-id-mismatch')
+      author.resolved_model.model_id = 'other';
+    const refs = [author, ...actors.slice(1, 1 + finishers), reviewer].map(
+      (engine, i) => {
+        const file = path.join(tempLedger, `snapshot-${i}.json`);
+        writeJson(file, {
+          schemaVersion: 1,
+          unit: scenario === 'wrong-unit' ? 'U92' : UNIT,
+          sourceHead: scenario === 'stale-head' ? BASELINE : sourceHead,
+          reviewOutputSha256: digest(review),
+          observedAt: '2026-09-29T20:00:00.000Z',
+          engine,
+        });
+        return {
+          path: path.basename(file),
+          sha256: digest(file),
+          bytes: fs.statSync(file).size,
+        };
+      },
+    );
+    const manifest = path.join(tempLedger, 'identity-input.json');
+    const data: Record<string, unknown> = {
+      reviewContractVersion: 2,
+      unit: UNIT,
+      sourceHead,
+      reviewOutputSha256: digest(review),
+      localReceiptSha256: digest(localFile),
+      author: refs[0],
+      finishers: refs.slice(1, -1),
+      reviewer: refs[refs.length - 1],
+    };
+    if (scenario === 'missing-finishers') delete data.finishers;
+    if (scenario === 'omitted-finisher') data.finishers = [];
+    if (scenario === 'null-version') data.reviewContractVersion = null;
+    if (scenario === 'version-one') data.reviewContractVersion = 1;
+    if (scenario === 'unknown-version') data.reviewContractVersion = 3;
+    if (scenario === 'downgrade') delete data.reviewContractVersion;
+    if (scenario === 'wrong-bytes') refs[0].bytes += 1;
+    if (scenario === 'unsafe-path') refs[0].path = '../escape.json';
+    if (scenario === 'absolute-path')
+      refs[0].path = path.join(tempLedger, 'snapshot-0.json');
+    if (scenario === 'corrupt-snapshot')
+      fs.appendFileSync(path.join(tempLedger, 'snapshot-0.json'), ' ');
+    if (scenario === 'corrupt-local') fs.appendFileSync(localFile, ' ');
+    if (scenario === 'local-inline-disagreement') {
+      const ledger = ledgerUnits();
+      const target = ledger.units.find((u) => u.id === UNIT);
+      if (!target) throw new Error('missing fixture unit');
+      target.stageReceipts.local = {
+        ...target.stageReceipts.local,
+        implementationActors: census.slice(0, 1),
+      };
+      writeJson(path.join(tempLedger, 'units.json'), ledger);
+    }
+    if (scenario === 'live-disagreement')
+      writeJson(path.join(engines, `${author.task_id}.json`), {
+        ...author,
+        child_session_id: reviewer.child_session_id,
+      });
+    writeJson(manifest, data);
+    const args = without(
+      closureArgs(review, seedProofDir('Tests: 12 passed, 12 total')),
+      '--implementer',
+    );
+    args.push('--implementer', MODEL);
+    if (scenario !== 'engine-only') args.push('--review-identity', manifest);
+    if (scenario !== 'manifest-only')
+      args.push('--engine-records-dir', engines);
+    return { args, census, manifest };
+  };
+
+  it.each([0, 1, 2])(
+    'folds the complete %i-finisher census and closes independent same-model actors',
+    (finishers) => {
+      // Given
+      const input = fixture('valid', finishers);
+      expect(unitOf(UNIT).stageReceipts.local?.implementationActors).toEqual(
+        input.census,
+      );
+      // When
+      const result = run(CLOSURE, input.args);
+      // Then: producer's post-write validator is the real portable consumer.
+      expectClosureOk(result);
+      const review = readJson<Record<string, unknown>>(
+        path.join(tempLedger, 'evidence', `u91-review-${DATE}.json`),
+      );
+      expect(review.reviewContractVersion).toBe(2);
+      expect(unitOf(UNIT).stageReceipts.review?.identityEvidence).toEqual(
+        review.identityEvidence,
+      );
+      expect(unitOf(UNIT).state).toBe('complete');
+    },
+  );
+
+  it.each([
+    'clean',
+    'intervening-main',
+    'outside-drift',
+    'reviewed-drift',
+    'prospective-invalid',
+    'archive-conflict',
+    'external-local-downgrade',
+  ])(
+    'exercises modern %s through real Git and portable consumption before publication',
+    (scenario) => {
+      const repo = fs.mkdtempSync(path.join(os.tmpdir(), 'pri-modern-git-'));
+      try {
+        git(['init', '-q'], repo);
+        const tree = (
+          reviewed: string,
+          main: string,
+          outside = 'base',
+        ): string => {
+          fs.writeFileSync(path.join(repo, 'reviewed.txt'), reviewed);
+          fs.writeFileSync(path.join(repo, 'main.txt'), main);
+          fs.writeFileSync(path.join(repo, 'outside.txt'), outside);
+          git(['add', '.'], repo);
+          return git(['write-tree'], repo);
+        };
+        const commit = (content: string, parent?: string): string =>
+          git(
+            [
+              'commit-tree',
+              content,
+              ...(parent ? ['-p', parent] : []),
+              '-m',
+              'mechanistic fixture',
+            ],
+            repo,
+          );
+        const base = commit(tree('base', 'base'));
+        const head = commit(tree('reviewed', 'base'), base);
+        const parent =
+          scenario === 'clean' ? base : commit(tree('base', 'main'), base);
+        const integratedTree = tree(
+          scenario === 'reviewed-drift' ? 'tampered' : 'reviewed',
+          scenario === 'clean' ? 'base' : 'main',
+          scenario === 'outside-drift' ? 'drift' : 'base',
+        );
+        const merge = commit(integratedTree, parent);
+        git(['update-ref', 'refs/heads/main', merge], repo);
+        git(['symbolic-ref', 'HEAD', 'refs/heads/main'], repo);
+        const input = fixture('valid', 2, head);
+        for (const stage of ['admission', 'red', 'local']) {
+          const file = path.join(
+            tempLedger,
+            'evidence',
+            `u91-${stage}-${DATE}.json`,
+          );
+          writeJson(file, {
+            ...readJson<Record<string, unknown>>(file),
+            baseline: base,
+          });
+        }
+        const ledgerAtBase = ledgerUnits();
+        const target = ledgerAtBase.units.find((u) => u.id === UNIT);
+        if (!target?.stageReceipts.admission)
+          throw new Error('missing fixture admission');
+        target.baseline = base;
+        target.stageReceipts.admission.baseline = base;
+        writeJson(path.join(tempLedger, 'units.json'), ledgerAtBase);
+        writeJson(input.manifest, {
+          ...readJson<Record<string, unknown>>(input.manifest),
+          localReceiptSha256: digest(
+            path.join(tempLedger, 'evidence', `u91-local-${DATE}.json`),
+          ),
+        });
+        if (scenario === 'prospective-invalid') makeUnrelatedUnitInvalid();
+        if (scenario === 'archive-conflict') {
+          const snapshot = path.join(tempLedger, 'snapshot-3.json');
+          fs.writeFileSync(
+            path.join(
+              tempLedger,
+              'evidence',
+              `identity-${digest(snapshot)}.json`,
+            ),
+            'conflicting existing archive',
+          );
+        }
+        let args = without(input.args, '--repo-root').filter(
+          (arg) => arg !== '--skip-blob-check',
+        );
+        if (scenario === 'external-local-downgrade') {
+          args = without(
+            without(args, '--review-identity'),
+            '--engine-records-dir',
+          );
+          const file = args[args.indexOf('--review') + 1];
+          fs.writeFileSync(
+            file,
+            fs
+              .readFileSync(file, 'utf8')
+              .replace('reviewContractVersion: 2\n', '')
+              .replace(MODEL, 'fixture-provider/reviewer'),
+          );
+          const ledger = ledgerUnits();
+          const local = ledger.units.find((u) => u.id === UNIT)?.stageReceipts
+            .local;
+          if (!local) throw new Error('missing local receipt');
+          delete local.reviewContractVersion;
+          delete local.implementationActors;
+          writeJson(path.join(tempLedger, 'units.json'), ledger);
+        }
+        const before = diskState();
+        const result = run(CLOSURE, [...args, '--repo-root', repo], repoRoot, {
+          U17_FAKE_GH_HEAD: head,
+          U17_FAKE_GH_MERGE: merge,
+        });
+        if (scenario === 'clean' || scenario === 'intervening-main') {
+          expectClosureOk(result);
+          expect(unitOf(UNIT).state).toBe('complete');
+          const consumed = run(
+            path.join(SOURCE_LEDGER, 'validate-roadmap.mjs'),
+            [
+              '--roadmap',
+              path.join(tempLedger, 'roadmap.json'),
+              '--no-evidence',
+            ],
+          );
+          expectClosureOk(consumed);
+          const receipt = readJson<Record<string, unknown>>(
+            path.join(tempLedger, 'evidence', `u91-merge-${DATE}.json`),
+          );
+          expect(receipt.treeIntegration).toEqual({
+            parent,
+            mergeBases: [base],
+            expectedTree: integratedTree,
+            actualTree: integratedTree,
+            matches: true,
+          });
+        } else {
+          expect(result.status).toBe(1);
+          expect(result.stderr).toContain(
+            scenario.includes('drift')
+              ? 'MAIN_PROOF_NOT_PASS'
+              : 'REVIEW_IDENTITY_INVALID',
+          );
+          expect(diskState()).toEqual(before);
+          expect(unitOf(UNIT).state).toBe('local-verified');
+        }
+      } finally {
+        fs.rmSync(repo, { recursive: true, force: true });
+      }
+    },
+  );
+
+  it.each([
+    'reviewer-author',
+    'reviewer-finisher',
+    'shared-task',
+    'shared-session',
+    'different-model-same-actor',
+    'missing-finishers',
+    'omitted-finisher',
+    'null-version',
+    'version-one',
+    'unknown-version',
+    'downgrade',
+    'provider-mismatch',
+    'model-id-mismatch',
+    'wrong-unit',
+    'stale-head',
+    'wrong-bytes',
+    'unsafe-path',
+    'absolute-path',
+    'corrupt-snapshot',
+    'corrupt-local',
+    'local-inline-disagreement',
+    'live-disagreement',
+    'duplicate-prolog',
+    'conflicting-prolog',
+    'model-prolog',
+    'hyphen-verdict',
+    'manifest-only',
+    'engine-only',
+  ])('refuses %s before ANY receipt or state write', (scenario) => {
+    // Given
+    const input = fixture(scenario);
+    const before = diskState();
+    // When
+    const result = run(CLOSURE, input.args);
+    // Then
+    expect(result.status).toBe(1);
+    expect(diskState()).toEqual(before);
+    expect(unitOf(UNIT).state).toBe('local-verified');
+  });
+
+  it('publishes captured validated review bytes when source changes at the checks event', () => {
+    // Given: mutation is synchronous at the actual gh checks boundary, after identity validation.
+    const input = fixture();
+    const reviewFile = input.args[input.args.indexOf('--review') + 1];
+    const original = fs.readFileSync(reviewFile);
+    // When
+    const result = run(CLOSURE, input.args, repoRoot, {
+      U17_MUTATE_REVIEW: reviewFile,
+    });
+    // Then
+    expectClosureOk(result);
+    expect(fs.readFileSync(reviewFile).equals(original)).toBe(false);
+    expect(
+      fs.readFileSync(
+        path.join(tempLedger, 'evidence', `u91-lane-a-review-${DATE}.md`),
+      ),
+    ).toEqual(original);
+  });
+
+  it('retains truthful equal-model legacy RED and its historical write-then-fail behavior', () => {
+    expectClosureOk(run(FOLD, foldArgs(seedLaneReceipts())));
+    const args = without(
+      closureArgs(
+        seedReview('Verdict: APPROVE', PR_HEAD, MODEL),
+        seedProofDir('Tests: 12 passed, 12 total'),
+      ),
+      '--implementer',
+    );
+    const result = run(CLOSURE, [...args, '--implementer', MODEL]);
+    expect(result.status).toBe(1);
+    expect(unitOf(UNIT).state).toBe('complete');
   });
 });
 
