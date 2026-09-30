@@ -17,8 +17,9 @@
  * merge commit or the tree is dirty.
  *
  * Everything runs against a temporary COPY of the ledger directory, placed
- * under openspec/planning/ so that the copied validate-roadmap.mjs still
- * resolves the real repository root three levels up, and against a fabricated
+ * under .next/<unique>/ledger so the copied validate-roadmap.mjs still resolves
+ * the real repository root three levels up, without exposing transient trees to
+ * concurrent repository QC scans, and against a fabricated
  * planned unit. The real ledger is never written by this file.
  *
  * gh and git: the closure's gh calls go to a fake `gh` on PATH that prints the
@@ -93,6 +94,7 @@ interface ILedger {
 }
 
 let tempLedger = '';
+let tempRoot = '';
 let pristineUnits = '';
 let fakeBin = '';
 /** The throwaway repository the closure cases treat as the merged checkout. */
@@ -419,11 +421,10 @@ function closureArgs(review: string, proofDir: string): string[] {
 }
 
 beforeAll(() => {
-  // The temp- prefix puts the copy under .gitignore's temp-* rule, so a run
-  // that crashes before afterAll leaves no untracked ledger copy behind.
-  tempLedger = fs.mkdtempSync(
-    path.join(repoRoot, 'openspec/planning', 'temp-u17-pin-'),
-  );
+  // Keep the real three-level consumer root, inside QC's existing ignored tree.
+  fs.mkdirSync(path.join(repoRoot, '.next'), { recursive: true });
+  tempRoot = fs.mkdtempSync(path.join(repoRoot, '.next', 'temp-u17-pin-'));
+  tempLedger = path.join(tempRoot, 'ledger');
   fs.cpSync(SOURCE_LEDGER, tempLedger, { recursive: true });
   pristineUnits = fs.readFileSync(path.join(tempLedger, 'units.json'), 'utf8');
 
@@ -478,7 +479,7 @@ beforeAll(() => {
 });
 
 afterAll(() => {
-  if (tempLedger) fs.rmSync(tempLedger, { recursive: true, force: true });
+  if (tempRoot) fs.rmSync(tempRoot, { recursive: true, force: true });
   if (fakeBin) fs.rmSync(fakeBin, { recursive: true, force: true });
   if (proofRepo) fs.rmSync(proofRepo, { recursive: true, force: true });
 });
@@ -496,6 +497,33 @@ beforeEach(() => {
 });
 
 describe('the pin temp ledger', () => {
+  it('keeps the live ledger outside concurrent QC repository scans', () => {
+    // Given: observe native reads in an isolated child; no filesystem result is faked.
+    const observer = path.join(fakeBin, 'observe-qc-scan.mjs');
+    fs.writeFileSync(
+      observer,
+      [
+        "import fs from 'node:fs';",
+        "import path from 'node:path';",
+        "import {syncBuiltinESMExports} from 'node:module';",
+        'const read = fs.readdirSync;',
+        'const target = ' + JSON.stringify(tempLedger) + ';',
+        'fs.readdirSync = function(dir, ...args) {',
+        '  if (path.resolve(String(dir)) === target) process.stderr.write("QC_PIN_LEDGER_SCANNED");',
+        '  return read.call(this, dir, ...args);',
+        '};',
+        'syncBuiltinESMExports();',
+        'await import(' +
+          JSON.stringify(pathToFileURL(qc('validate-qc-registry.mjs')).href) +
+          ');',
+      ].join(String.fromCharCode(10)),
+    );
+    // When: the real QC validator enumerates the real repository.
+    const result = run(observer, []);
+    // Then: the owning fixture cannot race that scanner's directory cleanup.
+    expectClosureOk(result);
+    expect(result.stderr).not.toContain('QC_PIN_LEDGER_SCANNED');
+  });
   it('sits under a name git ignores', () => {
     const ignored = spawnSync('git', ['check-ignore', '-q', tempLedger], {
       cwd: repoRoot,
