@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "unit": "U17e",
+  "sourceHead": "13ce444324f49400316dd77d87d5f7171cbe7114",
+  "reviewOutputSha256": "d1f981f99df0e022a521570186f9ae627d2fa75cc6c10f71af39bd0b877f2ee9",
+  "observedAt": "2026-09-30T23:05:56.889Z",
+  "engine": {
+    "task_id": "st_01a0f381",
+    "child_session_id": "01a0f381-17e1-7f51-ad26-df1f36533ab5",
+    "model": "chatgpt-subscription/gpt-6.1-sol",
+    "execution_mode": "in-process",
+    "agent_type": null,
+    "resolved_model": {
+      "provider": "chatgpt-subscription",
+      "model_id": "gpt-6.1-sol"
+    }
+  }
+}

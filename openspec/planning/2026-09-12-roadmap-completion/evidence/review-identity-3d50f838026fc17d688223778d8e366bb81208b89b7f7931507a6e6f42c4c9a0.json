@@ -1,0 +1,18 @@
+{
+  "reviewContractVersion": 2,
+  "unit": "U17e",
+  "sourceHead": "13ce444324f49400316dd77d87d5f7171cbe7114",
+  "reviewOutputSha256": "d1f981f99df0e022a521570186f9ae627d2fa75cc6c10f71af39bd0b877f2ee9",
+  "localReceiptSha256": "b03f42cf063ad93ceedbbe71b8d19f9df76a7297ee547da0f95a3fd6a2e1bdc5",
+  "author": {
+    "path": "identity-aac91d4e028d6a70d11220490b8825bbec1c3ae85cd64d53411fdbca590ec48d.json",
+    "sha256": "aac91d4e028d6a70d11220490b8825bbec1c3ae85cd64d53411fdbca590ec48d",
+    "bytes": 565
+  },
+  "finishers": [],
+  "reviewer": {
+    "path": "identity-2c8f44c3da78f4ad9b37618c59fb26245a5ca4e8203705ad9443404e143b97c9.json",
+    "sha256": "2c8f44c3da78f4ad9b37618c59fb26245a5ca4e8203705ad9443404e143b97c9",
+    "bytes": 587
+  }
+}

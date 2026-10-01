@@ -1,0 +1,125 @@
+{
+  "unit": "U17e",
+  "stage": "mainProof",
+  "at": "2026-09-30T23:06:33.617Z",
+  "mergeCommit": "90a4de1b5147e3f04a5323f8c9f5232df8de112c",
+  "checkout": "Clean native exact90a4de1b5147e3f04a5323f8c9f5232df8de112c proof checkout",
+  "runtime": {
+    "build": "exit 0",
+    "e2eBundleMarker": "not stated by the closer",
+    "playwright": "Accepted exact90a4 source-main 172-test runtime: U17e PROOF RUNTIME PASSED: 172 passed (145.442s)",
+    "tsc": "exit 0",
+    "sourceHead": "13ce444324f49400316dd77d87d5f7171cbe7114",
+    "proofHead": "90a4de1b5147e3f04a5323f8c9f5232df8de112c",
+    "sourceMainProof": {
+      "path": "E:/Projects/.omo/evidence/u17e-90a4-exact-main-source-proof-20260930-gpt61/final-ready.json",
+      "bytes": 6119,
+      "sha256": "5d32b753053613ab4139ef311708b4fdec0683002cfabc57692aa8482cb81725"
+    },
+    "sourceMainReport": {
+      "path": "E:/Projects/.omo/evidence/u17e-90a4-exact-main-source-proof-20260930-gpt61/report.md",
+      "bytes": 11292,
+      "sha256": "a58e4deff66c3db36a98e65e0e54686c8395e5a6bc9c230e37897ffd2d385b02"
+    },
+    "runtimeMeasurement": {
+      "path": "E:/Projects/.omo/evidence/u17e-90a4-exact-main-source-proof-20260930-gpt61/runtime-recovery-measured-summary.json",
+      "bytes": 2042,
+      "sha256": "f6c27224ca194f637579f533d3c33e9cf479e9c30c539338462776aaf122e39d"
+    },
+    "actualRuntime": {
+      "passed": 172,
+      "failed": 0,
+      "suites": 3,
+      "footer": "U17e PROOF RUNTIME PASSED: 172 passed (145.442s)"
+    },
+    "strictSmoke": {
+      "accepted": {
+        "passed": 3,
+        "failed": 0,
+        "ref": {
+          "path": "E:/Projects/.omo/evidence/u17e-90a4-exact-main-source-proof-20260930-gpt61/fresh-smoke-binding-v2.json",
+          "bytes": 3987,
+          "sha256": "9a1856c9e3af51ceed174a4eee922825aa93585334e7787bc64914c2b032cf99"
+        }
+      },
+      "authoritativeEpochBinding": {
+        "path": "E:/Projects/.omo/evidence/u17e-90a4-exact-main-source-proof-20260930-gpt61/fresh-smoke-binding-v2.json",
+        "bytes": 3987,
+        "sha256": "9a1856c9e3af51ceed174a4eee922825aa93585334e7787bc64914c2b032cf99"
+      },
+      "executionEpoch": {
+        "label": "Initial genuine actual90a4 public epoch",
+        "publicResult": {
+          "path": "E:/Projects/.omo/evidence/u17e-90a4-exact-main-source-proof-20260930-gpt61/public-entry.result.json",
+          "bytes": 1137,
+          "sha256": "81271bd2e5f22520ac8df457300b9f9f001e9e3b774256be58af506dea9b5258"
+        },
+        "started": "2026-09-30T22:15:35.350Z",
+        "finished": "2026-09-30T22:21:44.479Z",
+        "smokeArchiveAt": "2026-09-30T22:20:45.291Z",
+        "publicAggregateExit": 1,
+        "failedLaterStep": "openspec-strict",
+        "smokePassedBeforeLaterFailure": true
+      },
+      "recovery": {
+        "publicResult": {
+          "path": "E:/Projects/.omo/evidence/u17e-90a4-exact-main-source-proof-20260930-gpt61/recovery-public-entry.result.json",
+          "bytes": 1173,
+          "sha256": "af76fc433b3c19d86a279a67d0b7f593a9518b9f774c3bce0fcb73a97ebcb812"
+        },
+        "buildProof": {
+          "path": "E:/Projects/.omo/evidence/u17e-90a4-exact-main-source-proof-20260930-gpt61/recovery-build-proof.json",
+          "bytes": 1645,
+          "sha256": "0c217d60adb7136ff39b18d315f54a1ed7dfdb9a9e3aed1158c5e8951e49d193"
+        },
+        "stockLadderReopenedExactSameArchive": true,
+        "chromiumRerun": false
+      },
+      "note": "Executed once at initial exact90a4 production epoch; recovered public ladder reopened same current-head smoke, not a second Chromium run."
+    },
+    "sourceBudget": {
+      "files": 4,
+      "countedAdded": 35,
+      "testAdded": 289,
+      "cap": 150
+    },
+    "coverage": "Accepted exact90a4 source build/runtime reused without replay or relabeling; metadata closure separately checked.",
+    "metadataClosureActor": {
+      "task_id": "st_01a0f488",
+      "child_session_id": "01a0f488-6550-70f8-8785-685607ca2618",
+      "model": "chatgpt-subscription/gpt-6.1-sol",
+      "execution_mode": "in-process",
+      "agent_type": null,
+      "resolved_model": {
+        "provider": "chatgpt-subscription",
+        "model_id": "gpt-6.1-sol"
+      }
+    },
+    "sourceOnlyApprovalNotClosureReview": true
+  },
+  "commands": {
+    "validator": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows",
+    "gitAncestry": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows (--git)",
+    "next": "U17e",
+    "openspecStrict": "Totals: 229 passed, 0 failed (229 items)",
+    "qcOpenspecCi": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+    "qcPin": "Tests:       30 passed, 30 total"
+  },
+  "logs": "../../.omo/evidence/u17e-90a4-exact-main-source-proof-20260930-gpt61/recovery-public-logs/ (local; sha256 below)",
+  "logHashes": [
+    "73f9643bf4d9d96f8c28bb017d491701d6d3d35c39af8b059407bdc6a4b57ae4 *build.log",
+    "f891dbdfc0402cd4ba60fab1be3245dfec559c5d7afc7e21b87e795a73d05e5f *dirty-check.log",
+    "71426bd73690421336eb2fe92fdd2678262ee7af70273019708527cb591598dc *exact-main-ladder.log",
+    "71a8bd7a8b2073f6ae5178effaaf306bc58915cc8e5b35318223868cc0b450b4 *git-check.log",
+    "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43 *idle-before-build.log",
+    "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43 *idle-before-runtime.log",
+    "6496493d610d0c557ffbcbd8c2c23085b49bb5243cb15cf9ed3d4daaf190e67c *next.log",
+    "efd619721df505ed0dbb69fe5bd26b74023670e603ce16891fd2f1331adf1776 *openspec-strict.log",
+    "a4eb03e8ed3313ec16c3b4be0dbb9c395f56eb4aedcb6251604fbf9fc3e4ff57 *playwright.log",
+    "5b0f562274df4dbddfb7ae44ab42b7d686dc1e0903383f25c593d88f7479fe9a *qc-openspec-ci.log",
+    "c7c557c485fcfd3d232ebf16c6428b906ca932906145b8c266566bf8f4d3fdb2 *qc-pin.log",
+    "f891dbdfc0402cd4ba60fab1be3245dfec559c5d7afc7e21b87e795a73d05e5f *tsc.log",
+    "71a8bd7a8b2073f6ae5178effaaf306bc58915cc8e5b35318223868cc0b450b4 *validator.log"
+  ],
+  "verdict": "PASS"
+}
