@@ -2769,7 +2769,8 @@
         "src/lib/multiplayer/server/__tests__/coopMissionCreate.refusals.test.ts",
         "src/lib/multiplayer/server/__tests__/CoopOpponentDriver.test.ts",
         "src/lib/campaign/encounter/__tests__/materializeCampaignMissionEncounter.test.ts",
-        "src/lib/multiplayer/server/coopMissionCreate.ts"
+        "src/lib/multiplayer/server/coopMissionCreate.ts",
+        "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.test.ts"
       ],
       "acceptance": [
         "npm.cmd run typecheck",
@@ -3211,6 +3212,13 @@
         "evidence": "evidence/p2a-registration-20260929.json",
         "paths": ["src/lib/campaign/encounter/campaignOwnedForceMaterialization.ts", "src/lib/campaign/encounter/__tests__/campaignOwnedForceMaterialization.test.ts", "src/pages-modules/api/campaignLaunchAuthorityRoute.ts", "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts"],
         "reason": "Validator requires existing exact unit paths verbatim on the node. Only the four materializer/route files and neighboring tests are added; broad parent ownership is not expanded. Historical node state/receipts and task holders stay unchanged."
+      },
+      "ownershipPathsAmended20261001P2BTask64": {
+        "unit": "P2B",
+        "planTask": 64,
+        "evidence": "evidence/p2b-announcement-test-ownership-amendment-20261001.json",
+        "path": "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.test.ts",
+        "reason": "The validator requires the exact existing unit leaf verbatim on R2.authority-live. Its existing src/lib/multiplayer/server parent already contains this test, so effective node authority, state, dependencies, receipts and holders are unchanged."
       },
       "ownershipPathsAmended20261001P2B": {
         "unit": "P2B",
