@@ -5171,10 +5171,10 @@
         "maxFiles": 8,
         "maxNonGeneratedLines": 300
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "2fa51ed00eb28d1752384765101ac8cc230ec235",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "d13e4a34236568c0e8688a0f10336a70d3d5be88",
+      "mergeSha": "0a4448597b36900084c45e9ca9dc070a862e7acd",
       "stageReceipts": {
         "admission": {
           "path": "evidence/p2b-admission-20261001.json",
@@ -5202,10 +5202,37 @@
             }
           ]
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/p2b-review-20261001.json",
+          "head": "d13e4a34236568c0e8688a0f10336a70d3d5be88",
+          "reviewedHead": "d13e4a34236568c0e8688a0f10336a70d3d5be88",
+          "reviewerModel": "chatgpt-subscription/gpt-6.1-sol",
+          "implementerModel": "chatgpt-subscription/gpt-6.1-sol",
+          "outputSha256": "770d091fcca34b73ca2bb1c980bfd95f17a469a473a57e5e7b1c22f070592270",
+          "verdict": "APPROVE",
+          "reviewContractVersion": 2,
+          "identityEvidence": {
+            "path": "evidence/review-identity-a1864ebba2df4290766689a6592e08ed1ffb893926b815bf99ce6997ecc02dfd.json",
+            "sha256": "a1864ebba2df4290766689a6592e08ed1ffb893926b815bf99ce6997ecc02dfd",
+            "bytes": 739
+          }
+        },
+        "merge": {
+          "path": "evidence/p2b-merge-20261001.json",
+          "pr": 2106,
+          "head": "d13e4a34236568c0e8688a0f10336a70d3d5be88",
+          "mergeSha": "0a4448597b36900084c45e9ca9dc070a862e7acd"
+        },
+        "mainProof": {
+          "path": "evidence/p2b-mainproof-20261001.json",
+          "mergeCommit": "0a4448597b36900084c45e9ca9dc070a862e7acd",
+          "verdict": "PASS",
+          "runtime": "Tests:       144 passed, 144 total"
+        },
+        "tick": {
+          "path": "evidence/p2b-tick-20261001.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "admissionRequires": "The original docs-only registration, task 61 fingerprint ownership amendment and P2BC source-contract prerequisite must land and receive exact-main proof before product admission. Parent must freshly verify all eight exact existing ownership paths remain verbatim on R2.authority-live, preserving the task 61 seven paths verbatim in order and appending only coopMissionAnnouncement.test.ts, and count the two-product-file mechanism against ordinary 8-file/300-added-product-line caps before implementation. Task 61's source-only projection is 250 added product lines, not an executed implementation diff. P1A, P1C, PAI and P2A must remain complete with PASS exact-main mainProof receipts and ancestry. P2BC must be complete with a PASS exact-main mainProof receipt, ancestry and closure before P2B is released from blocked; NEXT does not enforce this documentary gate. Preserve the P2 partial worktree and original red SHA-256 144dfb6effa612da69836aaa528d9ef713267821ac11f3afabaa9cf603ba3b4f as historical evidence, not an assumed current hash. Sensitive classes require this pending decision-free packet before local-verified and an owner-originated exact-head ruling plus --github evidence before merge. If implementation needs any ninth file, third product file, schema, migration, privacy promise, encounter REST authority, browser grant or more than 300 added product lines, stop for a separately reviewed amendment. Additional task 59 gate: PMP must be complete with PASS exact-main proof, ancestry and truthful closure before P2B release; parent reconciles actual NEXT (baseline U24b, registered PMP) without reordering or changing existing states. Task 61 requires independent exact-head docs review, all 31 CI, parent-only pinned merge and independent exact-main registration proof before the parent rechecks prerequisites and considers release; current NEXT remains U24b while P2B is blocked. No caller-parameter mutation, historical match retrofit or opponent reroll is granted. Task 64 announcement-test ownership amendment must receive independent exact-head REGISTRATION ONLY review, all 31 CI, parent-only guarded merge, all three postmerge workflows and fresh independent exact-main registration proof before the same source author resumes task 57. Local unpublished candidate 05b4bfff0e46ad47ed390c88c7fba9ef9bec21d2 retains actual native public/runtime exit 1, 142 passed and one failed, not source PASS. Retain an explicit tampered-bootstrap 409 refusal with no recovery, announcement or writes, and separately prove append-failure recovery with the original valid persisted bootstrap, exactly one announcement and idempotent retries. No harness or third product path, weakened check, skipped test, native activation, cap exception, owner decision or downstream release is granted.",
@@ -10700,9 +10727,24 @@
       ],
       "agentRecommendation": "Rule only a future exact head that stays within the registered six paths and proves deterministic server-derived opponents, refusal-before-write, stable retry/recovery and unchanged publication. This registration supplies no product head and makes no owner decision.",
       "revertCost": "Expected low to medium within the registered one-product-file design: revert the future product merge; no schema or migration is authorized. Persisted matches created by that head remain historical records and must not be silently rewritten.",
-      "decision": null,
-      "ruling": null,
-      "note": "Pending decision-free packet registered with P2B. No owner option, exact head, comment, label or ruling exists yet."
+      "decision": {
+        "at": "2026-10-01T10:51:06Z",
+        "option": "rule the exact head",
+        "text": "OWNER-RULING d13e4a34236568c0e8688a0f10336a70d3d5be88\n\nStanding owner-authorized ruling for P2B at this exact source head, covering authority, privacy, replay, idempotency and concurrency. Independent exact-head review APPROVE with audited v2 task/session identity and all 31 CI checks SUCCESS have been verified. The increment stays within the registered eight source paths/300 added-product-line cap: six changed source files and 117 added lines in the two authorized product seams. Player-only creation, refusal-before-write, player/server-AI progression and two cold reopens are evidenced. The three failed production proof epochs remain failures; successful retained checks are not re-scored or replayed.\n\nThis ruling authorizes the head-guarded source merge only. Exact-main proof, final owned cleanup/preservation and separately verified closure remain required before Task57 completion or P2/U38 release.",
+        "source": "Faithful incorporation of the existing PR2106 owner-account comment 5929838477 and standing-authorized orchestration recorded in task-57-p2b-pr2106-d13-standing-owner-ruling-confirmed.json. This is not a new owner choice or separate personal owner inspection."
+      },
+      "ruling": {
+        "ruledHead": "d13e4a34236568c0e8688a0f10336a70d3d5be88",
+        "pr": 2106,
+        "commentId": 5929838477,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "73dfc7ad5b5158ffcdbdda8ce5e08995a9f95864d3c53e9adc85a07aac67194d",
+        "body": "OWNER-RULING d13e4a34236568c0e8688a0f10336a70d3d5be88\n\nStanding owner-authorized ruling for P2B at this exact source head, covering authority, privacy, replay, idempotency and concurrency. Independent exact-head review APPROVE with audited v2 task/session identity and all 31 CI checks SUCCESS have been verified. The increment stays within the registered eight source paths/300 added-product-line cap: six changed source files and 117 added lines in the two authorized product seams. Player-only creation, refusal-before-write, player/server-AI progression and two cold reopens are evidenced. The three failed production proof epochs remain failures; successful retained checks are not re-scored or replayed.\n\nThis ruling authorizes the head-guarded source merge only. Exact-main proof, final owned cleanup/preservation and separately verified closure remain required before Task57 completion or P2/U38 release.",
+        "postedBy": "orchestrator under the existing standing owner authorization, as recorded by the original source-ruling evidence",
+        "deviationDisclosed": "The existing comment was posted from the owner GitHub account through standing-authorized orchestration, not a separate personal owner inspection. This metadata author posts no owner comment or label. The ruling covers exact d13 source merge only; separately verified closure and parent acceptance remain required. No P2/U38 admission."
+      },
+      "note": "Faithful incorporation of existing PR2106 comment 5929838477 for exact d13, including its full original body and SHA-256. Historical registration recommendations remain historical. No new ruling, broader approval, metadata-head approval, canonical completion or downstream admission is claimed."
     },
     {
       "id": "PK-p2a-ruling",

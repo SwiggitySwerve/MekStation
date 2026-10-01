@@ -1,0 +1,23 @@
+{
+  "unit": "P2B",
+  "stage": "merge",
+  "at": "2026-10-01T16:23:12.881Z",
+  "pr": 2106,
+  "title": "fix(multiplayer): derive authoritative co-op mission opponents",
+  "head": "d13e4a34236568c0e8688a0f10336a70d3d5be88",
+  "mergeSha": "0a4448597b36900084c45e9ca9dc070a862e7acd",
+  "mergedAt": "2026-10-01T10:52:28Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "Observed PR2106 source squash",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "treeIntegration": {
+    "parent": "2fa51ed00eb28d1752384765101ac8cc230ec235",
+    "mergeBases": [
+      "2fa51ed00eb28d1752384765101ac8cc230ec235"
+    ],
+    "expectedTree": "434aed866d06e5a94e680857e1b070fd953e3493",
+    "actualTree": "434aed866d06e5a94e680857e1b070fd953e3493",
+    "matches": true
+  }
+}

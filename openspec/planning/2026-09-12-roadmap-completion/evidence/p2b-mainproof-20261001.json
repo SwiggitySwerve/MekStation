@@ -1,0 +1,683 @@
+{
+  "unit": "P2B",
+  "stage": "mainProof",
+  "at": "2026-10-01T16:23:12.881Z",
+  "mergeCommit": "0a4448597b36900084c45e9ca9dc070a862e7acd",
+  "checkout": "Retained exact 0a444859 source-main checkout; original execution correspondence retained, no product QA replay",
+  "runtime": {
+    "build": "exit 0",
+    "e2eBundleMarker": "not stated by the closer",
+    "playwright": "Historical exact 0a444859 P2B source-main runtime; not metadata-head execution: Tests:       144 passed, 144 total",
+    "tsc": "exit 0",
+    "sourceHead": "d13e4a34236568c0e8688a0f10336a70d3d5be88",
+    "proofHead": "0a4448597b36900084c45e9ca9dc070a862e7acd",
+    "sourceBaseline": "2fa51ed00eb28d1752384765101ac8cc230ec235",
+    "sourceTree": "434aed866d06e5a94e680857e1b070fd953e3493",
+    "historicalProofReuse": {
+      "currentMetadataHeadRuntimeExecuted": false,
+      "productQaReplayed": false,
+      "label": "Original exact0a source-main public and normal production observations; not metadata-head runtime",
+      "immutableAnchor": {
+        "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\final-ready.json",
+        "bytes": 19507,
+        "sha256": "2b75022364dc9f478f1f8207293cc2e2cc4394e21d0055e7a96f4b1f057d85a9",
+        "originalReceipt": {
+          "status": "INDEPENDENT_EXACT_MAIN_PUBLIC_AND_ATTRIBUTED_PRODUCTION_PROOF_SEALED_OWNED_QA_CLEANUP_COMPLETE",
+          "taskId": "st_01a0f724",
+          "sessionId": "01a0f724-4aab-765c-8533-61d9892fa152",
+          "provider": "chatgpt-subscription",
+          "model": "gpt-6.1-sol",
+          "merge": "0a4448597b36900084c45e9ca9dc070a862e7acd",
+          "tree": "434aed866d06e5a94e680857e1b070fd953e3493",
+          "soleParent": "2fa51ed00eb28d1752384765101ac8cc230ec235",
+          "conclusion": "Exact-main public/native13 and normal production behavior proven with failed epochs retained; official closure is separate and unperformed",
+          "public": {
+            "receipt": {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\main-public-proof-ready.json",
+              "bytes": 16556,
+              "sha256": "beba8b8f5b0466e6650a8ef63615da3a067efb8847438568e70d58f4fab09c32"
+            },
+            "nativeCliExit": 0,
+            "nativeGateCount": 13,
+            "runtime": {
+              "passed": 144,
+              "failed": 0,
+              "pending": 0,
+              "suites": 8,
+              "machineResults": {
+                "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\public02-native\\public-runtime-jest.json",
+                "bytes": 63253,
+                "sha256": "543aa426de075534ff6a8fd55f99005b74aec01a4447274c48f686b5d1a4150c"
+              }
+            },
+            "outerMonitorStatus": "timed_out; never rescored exit0"
+          },
+          "production": {
+            "receipt": {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\production-proof-ready.json",
+              "bytes": 32797,
+              "sha256": "bbdaaf1742e59c2c93f434ed020fe540bb8cc85b7f47a08a38ba7fa28c87e32f"
+            },
+            "proofKind": "Attributed original three failed whole epochs plus fresh failed attempts; R06 scoped case PASS adopted by actual R07 native0",
+            "initialAndResume01Native1Retained": true,
+            "noSuccessfulActionReplay": true,
+            "catalogVerificationRequests": 5,
+            "internalOriginFetchCount": "N/A: not instrumented",
+            "failedNativeEpochs": [
+              {
+                "epoch": "production-live-failure.json",
+                "actualNativeExit": 1,
+                "receipt": {
+                  "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\production-live-failure.json",
+                  "bytes": 732,
+                  "sha256": "0eaeb09b0c6c8e4e87e8701dc02c8d55a2e8c288675fc7c2428e3647a78f53e5"
+                },
+                "authority": "Genuine parent-relayed native completion; retained failure artifact",
+                "remainsFailed": true
+              },
+              {
+                "epoch": "resume01-production-failure.json",
+                "actualNativeExit": 1,
+                "receipt": {
+                  "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\resume01-production-failure.json",
+                  "bytes": 16044,
+                  "sha256": "a7d0911457cc0b49dbb0cd5350e90a52d76a5a22e5ed971e3e138b1cf9f24aaf"
+                },
+                "authority": "Genuine parent-relayed native completion; retained failure artifact",
+                "remainsFailed": true
+              },
+              {
+                "epoch": "resume02-production-failure.json",
+                "actualNativeExit": 1,
+                "receipt": {
+                  "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\resume02-production-failure.json",
+                  "bytes": 5727,
+                  "sha256": "d1cd970f33a27dd2698beff9098b044af20d59dc895cece514ae7d2f38ebbf6d"
+                },
+                "authority": "Genuine parent-relayed native completion; retained failure artifact",
+                "remainsFailed": true
+              }
+            ],
+            "freshFailedAttempts": [
+              {
+                "receipt": {
+                  "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\final-case-fresh-gpt61\\resume03f-native-result.json",
+                  "bytes": 1550,
+                  "sha256": "04c423bca99bd72a47ee3d619adaa0cbd73757890a57d7d159056347cd7866e8"
+                },
+                "actualNodeExit": 1,
+                "remainsFailed": true
+              },
+              {
+                "receipt": {
+                  "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\final-case-fresh-gpt61\\resume05\\resume03f-r05-native-result.json",
+                  "bytes": 1898,
+                  "sha256": "efc6cb4a78c1ec82e77c32c64e279bad081db49c8aecf50b41bd58d30218cb1e"
+                },
+                "actualNodeExit": 1,
+                "remainsFailed": true
+              },
+              {
+                "receipt": {
+                  "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\final-case-fresh-gpt61\\resume06\\resume03f-r06-native-result.json",
+                  "bytes": 1897,
+                  "sha256": "566b308d940d26e56c3ce438a365363fcc5ce06eb49e2bd05977f1f1d6a358bd"
+                },
+                "actualNodeExit": 1,
+                "remainsFailed": true
+              },
+              {
+                "receipt": {
+                  "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\final-case-fresh-gpt61\\transport04\\resume03f-t04-native-result.json",
+                  "bytes": 1904,
+                  "sha256": "698c00e6af238fe8369e137463f91cecb86e8f36c361e24bfde3fcbc82070167"
+                },
+                "actualNodeExit": 1,
+                "remainsFailed": true
+              }
+            ],
+            "finalOnlyReceipt": {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\final-case-fresh-gpt61\\resume07\\final-only-ready.json",
+              "bytes": 3260,
+              "sha256": "ed0776ae3fd9477e5e5914d9b3f01f833159d7344f983e1dccdc34f315cec924"
+            },
+            "finalFixtureIdentityChange": {
+              "original": {
+                "gm": "pid_4VRkTTaVtZf1scNYnU2eFo3CqqTB",
+                "player1": "pid_2pHw6gvMD6u8DFXsb3VKAX2MYmm8",
+                "player2": "pid_dXUc1Bft3uWFU9biaDYLzGSaKWM"
+              },
+              "fresh": {
+                "gm": "pid_LVmCfNyPrriL48gZNsv7UCbxdC3",
+                "player1": "pid_3v8aWJzQ4P8A2cgBsHRcXhihX1do",
+                "player2": "pid_2smbEM9Xtxoi3MfHZosJ2XBMDMjQ"
+              },
+              "evidence": {
+                "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\final-case-fresh-gpt61\\transport04\\resume03f-t04-fresh-identities.json",
+                "bytes": 2229,
+                "sha256": "8b81890c9e36007a3e059a6806646717f2664cdb882d3f14dc48872e9437bc1b"
+              },
+              "campaignId": "p2b-st01a0f724-mainproof-0a444859-claimless",
+              "scope": "Only the previously uncreated claimless session",
+              "reason": "authenticated creating signer becomes host and new-session GM; existing campaign genesis unchanged",
+              "normalCreatingSignerBecomesNewSessionGM": true,
+              "noExpiryBypassOrCapacityOverride": true,
+              "originalPrimaryHQCap24ActorsAndReceiptsUnchanged": true
+            },
+            "coProducedFinalRuntime": true,
+            "allFailedWholeEpochsRemainFailed": true
+          },
+          "normalBuild": {
+            "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\normal-production-build-ready.json",
+            "bytes": 1953,
+            "sha256": "26d9b4d19658c787a38bfe2174af5d051eeee4c7ac7058bd4a20fcc584d18885"
+          },
+          "cleanup": {
+            "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\owned-cleanup-ready.json",
+            "bytes": 3222,
+            "sha256": "5a62e0f9a7af0af1977d5071d107c45f0386a531faa0b89e86ad94fa4c574ab6"
+          },
+          "protected": {
+            "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\protected-comparable-final.json",
+            "bytes": 3437,
+            "sha256": "d3ce6e59cde14ce3b8059e791095bc16fb0ab8dade4eed35727ca89ef610deed"
+          },
+          "openedReferences": {
+            "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\opened-reference-audit.json",
+            "bytes": 220927,
+            "sha256": "729c2704da7ea5326a4344bfa63395cc485dd0792b1c91126063e413913c7bb2"
+          },
+          "fullRawContentSeal": {
+            "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\seal-content-manifest.json",
+            "bytes": 10058,
+            "sha256": "59676c69636dd0e6d61566687ea153be854082b3e7e6a2f202ce987eff50c0da"
+          },
+          "fullControlSeal": {
+            "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\seal-control-index.json",
+            "bytes": 9697,
+            "sha256": "a7788ea64d67f1112b7c77fb7371239cbf7977a07b7c7f2e99c3317a2d941c69"
+          },
+          "contentFiles": 7449,
+          "contentBytes": 562576101,
+          "physicalFiles": 7528,
+          "physicalMembership": [
+            {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\seal-membership-page-0001.json",
+              "bytes": 8524,
+              "sha256": "d79b5cbbb7d435fb04ef065d615f1907fc3175e3746d15e6e3a71e55276d485e"
+            },
+            {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\seal-membership-page-0002.json",
+              "bytes": 8778,
+              "sha256": "18e545f4f7db3f9e860cab939888937416449debd2dedf15a2bd8eee3a1142c3"
+            },
+            {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\seal-membership-page-0003.json",
+              "bytes": 13366,
+              "sha256": "b5f276e74ef1615623ce9b4a05beee589cf0bac006ca9124b8591998d833daca"
+            },
+            {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\seal-membership-page-0004.json",
+              "bytes": 10737,
+              "sha256": "31f3b5fd31028af498f5c34505f31808b9175bad039a4b1d6508e3f25fb721ed"
+            },
+            {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\seal-membership-page-0005.json",
+              "bytes": 7603,
+              "sha256": "cbcae63b27a11d9ffe8d28dfc2bae20ebfbef847f5ffb0c6a8c0a29ea71857aa"
+            },
+            {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\seal-membership-page-0006.json",
+              "bytes": 7603,
+              "sha256": "62b34b67fd7999a65d1db826f7d0ebf6067fffe2f9c24a1b5db2e41239e9efdf"
+            },
+            {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\seal-membership-page-0007.json",
+              "bytes": 7603,
+              "sha256": "63db3a1b21d1381cbcd11e8c503f4af60d0477b1727066132d775dbc91d85582"
+            },
+            {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\seal-membership-page-0008.json",
+              "bytes": 7700,
+              "sha256": "7ecc3013210987a64cbdada37c19505bb19c65364d34682e6412664818e737d9"
+            },
+            {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\seal-membership-page-0009.json",
+              "bytes": 8699,
+              "sha256": "ccae86e57e5015ded20f0af29ea183cd63f731bb65f931fd71ef5ad6c8484b83"
+            },
+            {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\seal-membership-page-0010.json",
+              "bytes": 9047,
+              "sha256": "3dc6f425306c43f2a9aaf1bcbcecd732c89d273c2e32c3547027fe0304378e85"
+            },
+            {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\seal-membership-page-0011.json",
+              "bytes": 9123,
+              "sha256": "ceb2b0252ad09da1e702f334d61f2327e7c021e19024d8e6d6da9cb6e6211467"
+            },
+            {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\seal-membership-page-0012.json",
+              "bytes": 9225,
+              "sha256": "593f03421c3c674bdb68880c25ad5100918a0b4e16e2d754dbef20473423d743"
+            },
+            {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\seal-membership-page-0013.json",
+              "bytes": 9247,
+              "sha256": "c7d29f7eaa5e991fac1c6d487eff64ccc89922dee0966cdd9c7ad20da474df67"
+            },
+            {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\seal-membership-page-0014.json",
+              "bytes": 8847,
+              "sha256": "326f6f3f414c888234edadb242ec300d1371bef10daddec25bd6b539156de963"
+            },
+            {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\seal-membership-page-0015.json",
+              "bytes": 14040,
+              "sha256": "1bfbff51896bf2efd2e26eb9e8ffada6cfde32fb138af13a467b70bf181cc52b"
+            },
+            {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\seal-membership-page-0016.json",
+              "bytes": 19440,
+              "sha256": "3a2c2b8a13ed490ed49274caa530951c2cedc460e294f43f74a938ba2ff89d6f"
+            },
+            {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\seal-membership-page-0017.json",
+              "bytes": 11336,
+              "sha256": "d07fb59db65e6427aec836998bb2f0ec14fbeab8f609c00fa52ba3ab4bbc00f2"
+            },
+            {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\seal-membership-page-0018.json",
+              "bytes": 11877,
+              "sha256": "9026dc5c5e2a27ec3bd17eb36613e09f5791ca21a4289e0ecdcf74c7df22e4d8"
+            },
+            {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\seal-membership-page-0019.json",
+              "bytes": 34209,
+              "sha256": "903666d112ce9db92ef0b6c41c441fed990ea9f9a29f0379a6ce13230238062d"
+            },
+            {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\seal-membership-page-0020.json",
+              "bytes": 34754,
+              "sha256": "3e6c260e6d521db6f2c26ddfc6c229278fc070bb237b12c296e35114b456ed39"
+            },
+            {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\seal-membership-page-0021.json",
+              "bytes": 35137,
+              "sha256": "46959babe14965ed09ab0a82eb2ef5d0f6e8b4be604af48ae341b73d405dab09"
+            },
+            {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\seal-membership-page-0022.json",
+              "bytes": 34779,
+              "sha256": "9e507d58413f2e731a2c12741535eae665c891b0c5fab84275d1ea40537d0853"
+            },
+            {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\seal-membership-page-0023.json",
+              "bytes": 34882,
+              "sha256": "fd908d49d9781de71d4aa17f7ea7f5b1d26bb1e7c659573792122f6a3fa012e4"
+            },
+            {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\seal-membership-page-0024.json",
+              "bytes": 34923,
+              "sha256": "c5e6447627b95a86a05378bca626bba2256e5332917aeba9f3099e9a9f7fe9cb"
+            },
+            {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\seal-membership-page-0025.json",
+              "bytes": 34978,
+              "sha256": "b692c6164e60b2172655ffc2f6da7f8c6d21992b1322bceb628ab6e1f99787bb"
+            },
+            {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\seal-membership-page-0026.json",
+              "bytes": 35006,
+              "sha256": "ebd991ae15c7396f687e21c94cbbdcc710d3ba4d0c67cf97a3aecf901427ee53"
+            },
+            {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\seal-membership-page-0027.json",
+              "bytes": 34707,
+              "sha256": "deaf0509a7689bc079ea20f61cdca27cbbcc2a0ee13b2859989956bae5fc78d5"
+            },
+            {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\seal-membership-page-0028.json",
+              "bytes": 34272,
+              "sha256": "560028217a08fcfc2fdbc46629a7729aa517b6ab376092507b356c5977dc4c45"
+            },
+            {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\seal-membership-page-0029.json",
+              "bytes": 16524,
+              "sha256": "ac3367566a5e1d15da4d6564d1aa4b2d10dba3fd6707c5eec0b7459bed2406cc"
+            },
+            {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\seal-membership-page-0030.json",
+              "bytes": 16403,
+              "sha256": "c48b4f9491c5a83effffa8c0ad25f1e0858a1331ee8ae94603dac74ef00939d9"
+            },
+            {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\seal-membership-page-0031.json",
+              "bytes": 16403,
+              "sha256": "8f7bdf24ec5076212b09bee6d7d29666d178ed006639ec7bbfd2e5cdfe8b5fdd"
+            },
+            {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\seal-membership-page-0032.json",
+              "bytes": 16403,
+              "sha256": "37dcd44e29702e13dd8628db1eb225055912bb09490d077ba4a7f45d32c0e878"
+            },
+            {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\seal-membership-page-0033.json",
+              "bytes": 16403,
+              "sha256": "8edf3396b13a520b76713429a210b1f2db8ea390909a0bfef58da0a15547b3e5"
+            },
+            {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\seal-membership-page-0034.json",
+              "bytes": 16403,
+              "sha256": "a0e542fd6f745a38a9ed723f0f8b03f4882bf086035439e3a1415b4644a2cb76"
+            },
+            {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\seal-membership-page-0035.json",
+              "bytes": 16403,
+              "sha256": "46f05c3ad5a5e10d32c4233e6e8c173ffd6daffe45c59a95927b8de36024749a"
+            },
+            {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\seal-membership-page-0036.json",
+              "bytes": 16403,
+              "sha256": "eadfa12de7628468042a1f016607381021e421eed179a4290bfb0076934a0ae5"
+            },
+            {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\seal-membership-page-0037.json",
+              "bytes": 16880,
+              "sha256": "0e401127381ca83c704759f4b79f49c8d4e516d175339530cbfd9b072378d3de"
+            },
+            {
+              "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\seal-membership-page-0038.json",
+              "bytes": 4458,
+              "sha256": "f252d9e10cbcae291820ba39adf60cd5e70f5c4d330e1ba5343fbd4738ab68c9"
+            }
+          ],
+          "lease": {
+            "worktree": "E:/Projects/MekStation-wt/p2b-source-mainproof-0a444859-bridged-gpt61",
+            "lockedCleanExactMergeParentDeliveryLease": true,
+            "ownedServersPortsDependenciesBuildTempStoresAbsent": true
+          },
+          "diagnostics": {
+            "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\verification-observations.json",
+            "bytes": 1128,
+            "sha256": "2c309f3ab4b70b5774b377a79d42409927ab605344184896617c5090e5026199"
+          },
+          "Task57Complete": false,
+          "P2Released": false,
+          "U38Released": false,
+          "officialClosure": null,
+          "producers": [
+            {
+              "taskId": "st_01a0f724",
+              "sessionId": "01a0f724-4aab-765c-8533-61d9892fa152",
+              "provider": "chatgpt-subscription",
+              "model": "gpt-6.1-sol",
+              "role": "Original public/build/production epochs and final aggregation/cleanup/seal"
+            },
+            {
+              "taskId": "st_01a0f7ab",
+              "sessionId": "01a0f7ab-6b8f-76ca-9d3f-b6b6cb81571f",
+              "provider": "chatgpt-subscription",
+              "model": "gpt-6.1-sol",
+              "role": "Fresh final-case runtime co-producer; R06 case PASS and R07 remaining verification",
+              "evidence": {
+                "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\final-case-fresh-gpt61\\resume07\\final-only-ready.json",
+                "bytes": 3260,
+                "sha256": "ed0776ae3fd9477e5e5914d9b3f01f833159d7344f983e1dccdc34f315cec924"
+              }
+            }
+          ],
+          "rootRelayRole": "Native transport and acceptance, not QA author",
+          "aggregateManualQa": {
+            "path": "E:\\Projects\\.omo\\evidence\\p2b-source-mainproof-0a444859-bridged-20261001-gpt61\\full-aggregated-manual-qa.json",
+            "bytes": 19579,
+            "sha256": "872984776d3bc1c1f40fa525a349a425bebb4b3e0395c5e2afb72b3eea358810"
+          }
+        }
+      },
+      "independentAcceptance": {
+        "path": "E:\\Projects\\MekStation\\.omo\\ulw-execute\\evidence\\task-57-p2b-exact-main-proof-independent-approved-closure-ready.json",
+        "originalReceipt": {
+          "task": 57,
+          "status": "P2B_EXACT_MAIN_PUBLIC_PRODUCTION_GRAPH_PROOF_INDEPENDENTLY_APPROVED_OWNED_REVIEW_CLEAR_OFFICIAL_CLOSURE_PENDING",
+          "merge": "0a4448597b36900084c45e9ca9dc070a862e7acd",
+          "tree": "434aed866d06e5a94e680857e1b070fd953e3493",
+          "anchor": {
+            "path": "E:/Projects/.omo/evidence/p2b-source-mainproof-0a444859-bridged-20261001-gpt61/final-ready.json",
+            "bytes": 19507,
+            "sha256": "2b75022364dc9f478f1f8207293cc2e2cc4394e21d0055e7a96f4b1f057d85a9",
+            "matched": true
+          },
+          "independentVerdict": {
+            "verdict": "APPROVE",
+            "reviewedMerge": "0a4448597b36900084c45e9ca9dc070a862e7acd",
+            "reviewedTree": "434aed866d06e5a94e680857e1b070fd953e3493",
+            "soleParent": "2fa51ed00eb28d1752384765101ac8cc230ec235",
+            "reviewedSourceHead": "d13e4a34236568c0e8688a0f10336a70d3d5be88",
+            "reviewerModel": "chatgpt-subscription/gpt-6.1-sol",
+            "reviewerTask": "st_01a0f801",
+            "reviewerSession": "01a0f801-4f3a-7487-8503-01d1f9a3e274",
+            "identityAuthority": "Actual child PI environment independently observed; distinct from implementation, source-review, QA and blocked-review actors",
+            "confidence": "HIGH within bounded Task57/P2B proof scope",
+            "AdversarialVerify": "CONFIRMED",
+            "criterion": "ACHIEVED",
+            "constraintsVerdict": "PASS with explicitly retained historical qualifications",
+            "evidenceVerdict": "PASS: complete graph integrity and all absent-reference qualifications",
+            "qaVerdict": "PASS: completed scoped observations; failed whole epochs remain failed",
+            "blockingFindings": [],
+            "requiredFixes": [],
+            "packet": {
+              "path": "E:/Projects/.omo/evidence/p2b-source-mainproof-0a444859-bridged-20261001-gpt61",
+              "anchor": "final-ready.json",
+              "anchorBytes": 19507,
+              "anchorSha256": "2b75022364dc9f478f1f8207293cc2e2cc4394e21d0055e7a96f4b1f057d85a9",
+              "contentFiles": 7449,
+              "contentBytes": 562576101,
+              "physicalFiles": 7528,
+              "physicalBytes": 566305469,
+              "declaredReopenedReferences": 147390,
+              "independentDigestObservations": 588654,
+              "directMatches": 580957,
+              "historicalPathAbsences": 7697,
+              "retainedByteIdenticalQualifications": 7649,
+              "pointInTimeQualifications": 48,
+              "unqualifiedRequiredReferences": 0,
+              "pageChecks": 25,
+              "protectedComparisons": 9,
+              "dependencyDonorRows": 39300,
+              "openspecDonorRows": 2615,
+              "beforeAfterUnchanged": true
+            },
+            "auditEpochs": {
+              "fullAudit": {
+                "monitor": "mon_1JYSZ4VV3ZM6EK1Y",
+                "bash": "bash_69",
+                "outcome": "timed_out",
+                "wholeNativeExit": null,
+                "rescored": false,
+                "ownedTreeStop": "Killed bash_69."
+              },
+              "boundedQualificationAdoption": {
+                "monitor": "mon_BCR8G71W7Y672MWD",
+                "actualNativeExit": 0,
+                "errors": [],
+                "doesNotRescoreFullAudit": true
+              }
+            },
+            "adversarialClasses": {
+              "stale_state": "CONFIRMED",
+              "dirty_worktree": "CONFIRMED",
+              "misleading_success_output": "CONFIRMED",
+              "authority": "CONFIRMED",
+              "privacy": "CONFIRMED, existing REST metadata exposure unchanged",
+              "replay": "CONFIRMED",
+              "idempotency": "CONFIRMED",
+              "concurrency": "CONFIRMED",
+              "schema": "CONFIRMED",
+              "canonicalIdentity": "CONFIRMED",
+              "combinedLimits": "CONFIRMED",
+              "tacticalIntegrity": "CONFIRMED",
+              "storage_failure": "CONFIRMED within binding tested boundary",
+              "browserCutover": "N/A: Task39/P2 scope",
+              "wholeGoalCompletion": "N/A: independent bounded proof review only"
+            },
+            "qualifications": [
+              "Original full audit timed_out and seven failed whole runtime epochs remain failed",
+              "R06 completed refusal CASEPASS does not change its whole Node exit1; R07 native0 adopts without replay",
+              "Public outer timeout and two cmd255 failures are retained",
+              "Fresh native relay PI provider/model/session NULL; QA author identities separately audited",
+              "Known84 warnings and unavailable/timeout LSP are not falsely clean",
+              "Historical physicalBefore/After observations are not current mutable-store-byte bindings",
+              "Internal origin-fetch count uninstrumented N/A",
+              "Exact source approval and exact-main proof remain different lifecycle facts"
+            ],
+            "evidencePointers": [
+              "qualification-adoption-report.json",
+              "all-7697-absence-qualifications.json",
+              "unqualified-required-references.json",
+              "packet-before.json",
+              "packet-after.json",
+              "semantic-review-input-index.json",
+              "exact-product-diff.patch",
+              "independent-final-review.md"
+            ],
+            "cleanupReceipt": "owned-review-cleanup.json",
+            "qualifiedForParentClosureUse": true,
+            "officialClosure": null,
+            "task57CompletionMutated": false,
+            "P2Admitted": false,
+            "U38Admitted": false,
+            "wholeGoalComplete": false,
+            "productExecutionRerun": false,
+            "originalPacketMutation": false
+          },
+          "reviewerCleanup": {
+            "taskId": "st_01a0f801",
+            "sessionId": "01a0f801-4f3a-7487-8503-01d1f9a3e274",
+            "status": "OWNED_REVIEW_RESOURCES_CLEAR",
+            "checkoutAllocated": false,
+            "approvedCheckoutPath": "E:/Projects/MekStation-wt/p2b-sealed-mainproof-final-review-standalone-gpt61",
+            "pathAbsent": true,
+            "deregistered": true,
+            "gitWorktreeListNativeExit": 0,
+            "authority": "qualification-adoption-report.json#cleanup; permitted retained exact-merge source checkout used read-only instead of allocating a review worktree",
+            "ownedFullAudit": {
+              "monitor": "mon_1JYSZ4VV3ZM6EK1Y",
+              "bash": "bash_69",
+              "outcome": "timed_out",
+              "wholeNativeExit": null,
+              "stopTool": "kill_bash",
+              "observedStopResult": "Killed bash_69.",
+              "receipt": "E:/Projects/MekStation/.omo/ulw-execute/evidence/task-57-p2b-independent-audit-resolved-owned-bash-tree-stopped.json",
+              "rescored": false
+            },
+            "boundedAdoption": {
+              "monitor": "mon_BCR8G71W7Y672MWD",
+              "actualNativeExit": 0
+            },
+            "allocatedServers": [],
+            "allocatedPorts": [],
+            "productTestsBuildsRuntimeBrowserFixturesRun": false,
+            "foreignResourcesTargeted": false,
+            "sourceAndProofGitLeasesPreserved": true,
+            "originalPacketBeforeAfterUnchanged": true,
+            "retainedOutputArchive": "E:/Projects/.omo/evidence/p2b-sealed-mainproof-final-review-standalone-20261001-gpt61",
+            "forceUsed": false,
+            "checkoutRemovalRequired": false
+          },
+          "sourceModelSessionAuthority": {
+            "task": "st_01a0f801",
+            "session": "01a0f801-4f3a-7487-8503-01d1f9a3e274",
+            "actualModel": "chatgpt-subscription/gpt-6.1-sol"
+          },
+          "sourceReadyFinalSealNative0": true,
+          "qualifiedAdoptionNative0": true,
+          "allHistoricalWholeFailuresAndReviewAuditTimeoutRetained": true,
+          "sourceTwoDeliveryGitLeasesRetained": true,
+          "proofDeliveryGitLeaseRetained": true,
+          "closureAssessment": ".omo/ulw-execute/evidence/task-57-p2b-closure-authoring-assessment-accepted-source-backed-current-gates.json",
+          "remainingPrerequisite": "Incorporate accepted exact-d13 PK-p2b-ruling in new owned closure ledger, then use shipped producer and obtain separately reviewed metadata closure.",
+          "officialClosure": null,
+          "task57Complete": false,
+          "P2Released": false,
+          "U38Released": false
+        }
+      }
+    },
+    "historicalQualifications": {
+      "privatePi": null,
+      "sevenFailedWholeProductionEpochsRemainFailed": true,
+      "R06": "Scoped final case PASS; whole Node epoch remains native1",
+      "R07": "Actual native0 qualification/adoption, not rescoring earlier epochs",
+      "bash67": "Failed finalizer remains failed",
+      "publicWrapper": "Native255 and timed-out outer monitors remain failures/timeouts",
+      "independentExpensiveAudit": "timed_out, whole exit null, owned tree killed bash69; no replay",
+      "absenceQualification": {
+        "total": 7697,
+        "retained": 7649,
+        "pointInTime": 48,
+        "unresolved": 0,
+        "replayed": false
+      },
+      "knownWarnings": 84,
+      "lsp": "Unavailable/timeout observations remain distinct from a clean diagnostic pass"
+    },
+    "metadataClosureActor": {
+      "task": "st_01a0f82e",
+      "session": "01a0f82e-0908-75fc-a507-3e19e1d62d62",
+      "model": "chatgpt-subscription/gpt-6.1-sol",
+      "provider": "chatgpt-subscription",
+      "role": "Metadata packaging only; not a source finisher",
+      "observedRecord": "E:/Projects/.omo/senpi-task/tasks/st_01a0f82e.json",
+      "allocationReceipt": "E:\\Projects\\.omo\\evidence\\p2b-truthful-closure-author-20261001-gpt61\\allocate-owned-closure-v1.result.json"
+    },
+    "metadataClosureVerification": {
+      "scope": "Fresh completed-ledger owner gate, distinct from historical local-verified GitHub pass",
+      "github": {
+        "argv": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "E:\\Projects\\MekStation-wt\\p2b-truthful-closure-20261001-gpt61\\openspec\\planning\\2026-09-12-roadmap-completion\\validate-roadmap.mjs",
+          "--github"
+        ],
+        "cwd": "E:/Projects/MekStation-wt/p2b-truthful-closure-20261001-gpt61",
+        "nativeReceipt": "E:\\Projects\\.omo\\evidence\\p2b-truthful-closure-author-20261001-gpt61\\closure-consumer-github-v1.monitor.exit.json",
+        "stdout": "E:\\Projects\\.omo\\evidence\\p2b-truthful-closure-author-20261001-gpt61\\closure-consumer-github-v1.monitor.stdout.log",
+        "stderr": "E:\\Projects\\.omo\\evidence\\p2b-truthful-closure-author-20261001-gpt61\\closure-consumer-github-v1.monitor.stderr.log"
+      },
+      "publicationRequiresActualConsumerNativeZero": true
+    },
+    "deliveryNonclaims": {
+      "canonicalTask57Complete": false,
+      "P2Admitted": false,
+      "U38Admitted": false,
+      "metadataHeadIndependentlyApproved": false,
+      "metadataHeadAll31Accepted": false,
+      "parentMergePerformed": false
+    }
+  },
+  "commands": {
+    "validator": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows",
+    "gitAncestry": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows (--git)",
+    "next": "U25",
+    "openspecStrict": "Totals: 229 passed, 0 failed (229 items)",
+    "qcOpenspecCi": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+    "qcPin": "Tests:       30 passed, 30 total"
+  },
+  "logs": "../../.omo/evidence/p2b-source-mainproof-0a444859-bridged-20261001-gpt61/public-real-logs/ (local; sha256 below)",
+  "logHashes": [
+    "63993dc35f286bdacdfdeeaddaac934ed27072fd0b441abcae70b29b0cf97d7d *build.log",
+    "f891dbdfc0402cd4ba60fab1be3245dfec559c5d7afc7e21b87e795a73d05e5f *dirty-check.log",
+    "d4a403e81d83b0294da691b4d796436d2164fe9537e17ebec29dc272ffa1c9b0 *exact-main-ladder.log",
+    "71a8bd7a8b2073f6ae5178effaaf306bc58915cc8e5b35318223868cc0b450b4 *git-check.log",
+    "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43 *idle-before-build.log",
+    "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43 *idle-before-runtime.log",
+    "9699f0bf2b9c7ec652e00e6f4b2eb14639192320dd95be3e7c9cfa71ef509461 *next.log",
+    "efd619721df505ed0dbb69fe5bd26b74023670e603ce16891fd2f1331adf1776 *openspec-strict.log",
+    "8dd064a7e7bd4ebd3adea2a8399c9845def744c9029b3b65f11788a238646560 *playwright.log",
+    "5b0f562274df4dbddfb7ae44ab42b7d686dc1e0903383f25c593d88f7479fe9a *qc-openspec-ci.log",
+    "b10eae2e7146ade4b628796a85f12599b97d960428b3686d671ff857849dfdef *qc-pin.log",
+    "f891dbdfc0402cd4ba60fab1be3245dfec559c5d7afc7e21b87e795a73d05e5f *tsc.log",
+    "71a8bd7a8b2073f6ae5178effaaf306bc58915cc8e5b35318223868cc0b450b4 *validator.log"
+  ],
+  "verdict": "PASS"
+}
