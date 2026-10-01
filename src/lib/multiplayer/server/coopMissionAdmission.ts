@@ -1,9 +1,12 @@
+import { createHash } from 'node:crypto';
+
 import type { CreateCoopMissionMatchBody } from '@/lib/api/securitySchemas';
 
 import {
   campaignLaunchHeadPorts,
   resolveCampaignLaunchHead,
 } from '@/lib/campaign/authority/campaignLaunchHead';
+import { selectOpponentUnits } from '@/lib/campaign/encounter/materializeCampaignMissionEncounter.forceUnits';
 import { readCampaign } from '@/services/campaignPersistence/CampaignPersistenceService';
 import { listCampaignSessionForceClaims } from '@/services/campaignPersistence/CampaignSessionForceClaimStore';
 import {
@@ -133,14 +136,10 @@ export function admitCoopMission(
   ) {
     throw new CoopMissionRefusal(400, 'COOP_MISSION_INVALID_UNITS');
   }
-  const unitBootstrap = body.unitBootstrap.map(
-    (unit): IMatchUnitBootstrapEntry => {
+  const playerUnits = body.unitBootstrap
+    .filter((unit) => unit.side === 'player')
+    .map((unit): IMatchUnitBootstrapEntry => {
       const ownerPlayerId = owners.get(unit.unitId);
-      if (unit.side === 'opponent') {
-        if (state.rosterUnits[unit.unitId])
-          throw new CoopMissionRefusal(400, 'COOP_MISSION_INVALID_OPFOR');
-        return unit;
-      }
       if (
         !ownerPlayerId ||
         state.rosterUnits[unit.unitId]?.unitRef !== unit.unitRef
@@ -148,13 +147,98 @@ export function admitCoopMission(
         throw new CoopMissionRefusal(400, 'COOP_MISSION_INVALID_UNIT_REF');
       }
       return { ...unit, ownerPlayerId };
-    },
-  );
-  if (
-    unitBootstrap.filter((unit) => unit.side === 'player').length !==
-    owners.size
-  ) {
+    });
+  if (playerUnits.length !== owners.size) {
     throw new CoopMissionRefusal(400, 'COOP_MISSION_INCOMPLETE_ROSTER');
   }
+  const opponents = selectOpponentUnits({
+    count: owners.size,
+    seed: `${mission.campaignId}:${mission.missionId}`,
+  }).map(
+    (unit, index): IMatchUnitBootstrapEntry => ({
+      unitId: `coop-opponent:${createHash('sha256')
+        .update(JSON.stringify([mission.campaignId, mission.missionId, index]))
+        .digest('hex')}`,
+      unitRef: unit.unitRef,
+      side: 'opponent',
+    }),
+  );
+  const unitBootstrap = [...playerUnits, ...opponents];
+  if (unitBootstrap.length > 24) {
+    throw new CoopMissionRefusal(400, 'COOP_MISSION_ROSTER_LIMIT');
+  }
+  if (
+    opponents.some((unit) => state.rosterUnits[unit.unitId]) ||
+    new Set(unitBootstrap.map((unit) => unit.unitId)).size !==
+      unitBootstrap.length
+  ) {
+    throw new CoopMissionRefusal(400, 'COOP_MISSION_INVALID_OPFOR');
+  }
+  assertCoopOpponentRows(body, opponents);
   return { unitBootstrap, playerIds: Array.from(players) };
+}
+
+/** Fixed field order makes persisted rows independent of object key order. */
+export function coopUnitIdentity(unit: IMatchUnitBootstrapEntry): string {
+  return JSON.stringify([
+    unit.unitId,
+    unit.unitRef,
+    unit.side,
+    unit.ownerPlayerId,
+    unit.name,
+    unit.pilotRef,
+    unit.gunnery,
+    unit.piloting,
+    unit.startHex ? [unit.startHex.q, unit.startHex.r] : null,
+  ]);
+}
+
+function assertCoopOpponentRows(
+  body: CreateCoopMissionMatchBody,
+  opponents: readonly IMatchUnitBootstrapEntry[],
+): void {
+  const supplied = body.unitBootstrap.filter(
+    (unit) => unit.side === 'opponent',
+  );
+  if (supplied.length === 0) return;
+  const expected = new Map(
+    opponents.map((unit) => [unit.unitId, coopUnitIdentity(unit)]),
+  );
+  if (
+    supplied.length !== opponents.length ||
+    new Set(supplied.map((unit) => unit.unitId)).size !== supplied.length ||
+    supplied.some(
+      (unit) => expected.get(unit.unitId) !== coopUnitIdentity(unit),
+    )
+  ) {
+    throw new CoopMissionRefusal(400, 'COOP_MISSION_INVALID_OPFOR');
+  }
+}
+
+/** Retry authority is the immutable bootstrap, never a newly advanced head. */
+export function validatePersistedCoopRoster(
+  body: CreateCoopMissionMatchBody,
+  roster: readonly IMatchUnitBootstrapEntry[],
+): void {
+  const players = roster.filter((unit) => unit.side === 'player');
+  const supplied = body.unitBootstrap.filter((unit) => unit.side === 'player');
+  if (
+    supplied.length !== players.length ||
+    new Set(body.unitBootstrap.map((unit) => unit.unitId)).size !==
+      body.unitBootstrap.length ||
+    supplied.some((unit) => {
+      const stored = players.find((row) => row.unitId === unit.unitId);
+      return (
+        !stored?.ownerPlayerId ||
+        coopUnitIdentity({ ...unit, ownerPlayerId: stored.ownerPlayerId }) !==
+          coopUnitIdentity(stored)
+      );
+    })
+  ) {
+    throw new CoopMissionRefusal(409, 'COOP_MISSION_IDENTITY_CONFLICT');
+  }
+  assertCoopOpponentRows(
+    body,
+    roster.filter((unit) => unit.side === 'opponent'),
+  );
 }

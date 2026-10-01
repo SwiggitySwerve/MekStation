@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
-import { generateKeyPairSync, sign } from 'node:crypto';
+import { createHash, generateKeyPairSync, sign } from 'node:crypto';
+import { cpSync, mkdirSync } from 'node:fs';
+import path from 'node:path';
 
 import type { CreateCoopMissionMatchBody } from '@/lib/api/securitySchemas';
 
@@ -11,6 +13,7 @@ import {
   appendCampaignGenesis,
   authoritativeStateFromSerializedCampaign,
 } from '@/lib/campaign/authority/campaignSourceGenesis';
+import { selectOpponentUnits } from '@/lib/campaign/encounter/materializeCampaignMissionEncounter.forceUnits';
 import { buildPopulatedCampaign } from '@/lib/campaign/persistence/__tests__/campaignFixture';
 import { buildSerializedCampaign } from '@/lib/campaign/persistence/campaignEnvelope';
 import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
@@ -32,6 +35,37 @@ import { admitCampaignParticipation } from '../authorizeCampaignParticipation';
 import { derivePlayerId } from '../playerIdFromPublicKey';
 
 export const FIXTURE_AT = '2026-09-27T00:00:00.000Z';
+
+export function expectedOpponents(
+  campaignId: string,
+  missionId: string,
+  count: number,
+): readonly {
+  readonly unitId: string;
+  readonly unitRef: string;
+  readonly side: 'opponent';
+}[] {
+  return selectOpponentUnits({ count, seed: `${campaignId}:${missionId}` }).map(
+    (unit, index) => ({
+      unitId: `coop-opponent:${createHash('sha256')
+        .update(JSON.stringify([campaignId, missionId, index]))
+        .digest('hex')}`,
+      unitRef: unit.unitRef,
+      side: 'opponent' as const,
+    }),
+  );
+}
+
+export function archiveRouteFixture(root: string): void {
+  const archive = process.env.P2B_EVIDENCE_DIR;
+  if (!archive) return;
+  mkdirSync(archive, { recursive: true });
+  cpSync(root, path.join(archive, path.basename(root)), {
+    recursive: true,
+    errorOnExist: true,
+    force: false,
+  });
+}
 
 export function fixtureIdentity(): {
   readonly playerId: string;
@@ -58,42 +92,44 @@ export function fixtureIdentity(): {
 
 export async function seedCoopCampaign(
   campaignId: string,
+  options: {
+    readonly counts?: readonly [number, number];
+    readonly firstUnitId?: string;
+    readonly firstUnitRef?: string;
+  } = {},
 ): Promise<ReturnType<typeof authoritativeStateFromSerializedCampaign>> {
   const base = buildPopulatedCampaign();
   const template = Array.from(base.forces.values())[0];
   assert.ok(template);
+  const counts = options.counts ?? [1, 1];
+  const hostIds = Array.from({ length: counts[0] }, (_, i) =>
+    i === 0 ? (options.firstUnitId ?? 'unit-host') : `unit-host-${i}`,
+  );
+  const guestIds = Array.from({ length: counts[1] }, (_, i) =>
+    i === 0 ? 'unit-guest' : `unit-guest-${i}`,
+  );
   const campaign = {
     ...base,
     id: campaignId,
     rootForceId: 'force-host',
     forces: new Map([
-      ['force-host', { ...template, id: 'force-host', unitIds: ['unit-host'] }],
-      [
-        'force-guest',
-        { ...template, id: 'force-guest', unitIds: ['unit-guest'] },
-      ],
+      ['force-host', { ...template, id: 'force-host', unitIds: hostIds }],
+      ['force-guest', { ...template, id: 'force-guest', unitIds: guestIds }],
     ]),
   };
   const envelope = buildSerializedCampaign(campaign, 'p1a-fixture', 0, {
     campaignId,
-    units: [
-      {
-        unitId: 'unit-host',
-        unitRef: 'atlas-as7-d',
-        unitSource: 'canonical',
-        unitName: 'Host Atlas',
-        chassisVariant: 'AS7-D',
-        readiness: 'Ready',
-      },
-      {
-        unitId: 'unit-guest',
-        unitRef: 'marauder-mad-3r',
-        unitSource: 'canonical',
-        unitName: 'Guest Marauder',
-        chassisVariant: 'MAD-3R',
-        readiness: 'Ready',
-      },
-    ],
+    units: [...hostIds, ...guestIds].map((unitId, index) => ({
+      unitId,
+      unitRef:
+        index < hostIds.length
+          ? (options.firstUnitRef ?? 'atlas-as7-d')
+          : 'marauder-mad-3r',
+      unitSource: 'canonical' as const,
+      unitName: unitId,
+      chassisVariant: 'Fixture',
+      readiness: 'Ready',
+    })),
     pilots: [],
     missions: [],
     activeMissionId: null,
@@ -187,6 +223,9 @@ export function missionRequest(
     entry.campaignId,
   );
   assert.ok(head.kind === 'head');
+  const state = entry.host.getState();
+  const hostIds = state.forceUnits?.['force-host'] ?? [];
+  const guestIds = state.forceUnits?.['force-guest'] ?? [];
   return {
     config: { mapRadius: 8, turnLimit: 20, fogOfWar: false },
     layout: '1v1' as const,
@@ -200,14 +239,14 @@ export function missionRequest(
         effectiveGeneration: head.effectiveGeneration,
       },
       contributions: [
-        { forceId: 'force-host', choice: 'deploy', unitIds: ['unit-host'] },
-        { forceId: 'force-guest', choice: 'deploy', unitIds: ['unit-guest'] },
+        { forceId: 'force-host', choice: 'deploy', unitIds: [...hostIds] },
+        { forceId: 'force-guest', choice: 'deploy', unitIds: [...guestIds] },
       ],
     },
-    unitBootstrap: [
-      { unitId: 'unit-host', unitRef: 'atlas-as7-d', side: 'player' },
-      { unitId: 'unit-guest', unitRef: 'marauder-mad-3r', side: 'player' },
-      { unitId: 'opfor-1', unitRef: 'locust-lct-1v', side: 'opponent' },
-    ],
+    unitBootstrap: [...hostIds, ...guestIds].map((unitId) => {
+      const unitRef = state.rosterUnits[unitId]?.unitRef;
+      assert.ok(unitRef);
+      return { unitId, unitRef, side: 'player' as const };
+    }),
   };
 }
