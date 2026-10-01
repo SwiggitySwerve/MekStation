@@ -1,0 +1,18 @@
+{
+  "reviewContractVersion": 2,
+  "unit": "PMP",
+  "sourceHead": "b17186d0ad70a0285a5bd050b4e4a4192c2bb079",
+  "reviewOutputSha256": "ac1d846099a7730ee3dfdcc122f30ace1d5903d2645bd9117813a589103ab770",
+  "localReceiptSha256": "f0b1ecf9a60523c26bc2a4d6400226f03b1186311439c98db70248ba92c49fcb",
+  "author": {
+    "path": "identity-317b99eeee5c2ce195efd8a3fb1d76e154b02181b877c5a27c18d6a5484d5d73.json",
+    "sha256": "317b99eeee5c2ce195efd8a3fb1d76e154b02181b877c5a27c18d6a5484d5d73",
+    "bytes": 564
+  },
+  "finishers": [],
+  "reviewer": {
+    "path": "identity-7fb22d9201cc4cddaf368e949201a69d700522babc7aa218d4ef5aa65f494790.json",
+    "sha256": "7fb22d9201cc4cddaf368e949201a69d700522babc7aa218d4ef5aa65f494790",
+    "bytes": 586
+  }
+}

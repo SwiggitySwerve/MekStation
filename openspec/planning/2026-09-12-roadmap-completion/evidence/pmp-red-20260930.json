@@ -1,0 +1,21 @@
+{
+  "unit": "PMP",
+  "stage": "red",
+  "baseline": "d9ae8b9c28f50756145708c05111ab94f286d68e",
+  "sourceRed": {
+    "path": "E:/Projects/.omo/evidence/pmp-fail-closed-source-author-20260930-gpt61/public-cli-red.json",
+    "bytes": 471,
+    "sha256": "31b4bdc5196e3c9943310f8e50d71d01099333c0144cb0dc65c3f51bce6cfa80"
+  },
+  "sourceArgv": {
+    "path": "E:/Projects/.omo/evidence/pmp-fail-closed-source-author-20260930-gpt61/public-cli-unchanged-red.argv.json",
+    "bytes": 624,
+    "sha256": "24706df2a20dcb817376ee98e636cfe0f23618a4d67797ad3bc84cdf9a31db58"
+  },
+  "sourceExit": {
+    "path": "E:/Projects/.omo/evidence/pmp-fail-closed-source-author-20260930-gpt61/public-cli-unchanged-red.exit.json",
+    "bytes": 737,
+    "sha256": "7b1b6620925862ecd2d13c99ce1fc6fca0a386a38b1d478d9753dee0c4c7489d"
+  },
+  "summary": "Original unchanged-runner RED: actual runtime exit1 hidden by aggregate0; retained unchanged, not replayed"
+}

@@ -1,0 +1,8 @@
+{
+  "unit": "PMP",
+  "stage": "tick",
+  "at": "2026-10-01T02:04:14.422Z",
+  "taskKeys": [],
+  "note": "PMP holds no task row; the delivered behaviour is proven on main by this unit.",
+  "tickedOnMain": null
+}

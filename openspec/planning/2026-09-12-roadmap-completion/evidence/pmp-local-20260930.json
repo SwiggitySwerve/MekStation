@@ -1,0 +1,45 @@
+{
+  "unit": "PMP",
+  "stage": "local",
+  "baseline": "d9ae8b9c28f50756145708c05111ab94f286d68e",
+  "sourceHead": "b17186d0ad70a0285a5bd050b4e4a4192c2bb079",
+  "testedHead": "b17186d0ad70a0285a5bd050b4e4a4192c2bb079",
+  "pr": 2099,
+  "status": "ready",
+  "reviewContractVersion": 2,
+  "implementationActors": [
+    {
+      "role": "author",
+      "task_id": "st_01a0f1d2",
+      "child_session_id": "01a0f1d2-249f-7724-967d-035a050d1adc",
+      "model": "chatgpt-subscription/gpt-6.1-sol"
+    }
+  ],
+  "sourceLocalArtifact": {
+    "path": "E:/Projects/.omo/evidence/pmp-fail-closed-source-author-20260930-gpt61/frozen-source-candidate-ci-corrected.json",
+    "bytes": 5725,
+    "sha256": "dc85ffefd39174fb3f74ee84c8bd425822bc3e22f0b8da76fd97da4265184713"
+  },
+  "sourceGateArtifact": {
+    "path": "E:/Projects/.omo/evidence/pmp-fail-closed-source-author-20260930-gpt61/ci-local-gates-complete.json",
+    "bytes": 953,
+    "sha256": "d621fff3f2064c788981ac51810f693e211948b338af2683b8fce799a7218b7b"
+  },
+  "sourceHashes": {
+    "scripts/qc/roadmap-main-proof.mjs": "34ade804d97393c3e98e41cc8d252a59325d4578eb64ee8482083c4d65b4699a",
+    "scripts/__tests__/roadmap-loop-closure-proof.test.ts": "d8c048f35e7e99eae730a08ab9db6f92006819b2aa517a50fb922cb5220583e5"
+  },
+  "budget": {
+    "files": 2,
+    "maxFiles": 3,
+    "productAdditions": 52,
+    "maxProductAdditions": 150,
+    "productDeletions": 47,
+    "testAdditions": 322,
+    "testDeletions": 3,
+    "correctionProductAdditions": 0,
+    "correctionTestAdditions": 18
+  },
+  "summary": "Retrospective stage index consumes unchanged sealed genuine b171 local publication; 119 focused/62 consumer, native public build and strict source QA remain original Sept30 measurements. Metadata author is NOT source finisher.",
+  "sourceFinishers": []
+}

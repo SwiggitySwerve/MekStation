@@ -1,0 +1,27 @@
+{
+  "unit": "PMP",
+  "stage": "merge",
+  "at": "2026-10-01T02:04:14.409Z",
+  "pr": 2099,
+  "title": "fix(qc): fail main proof closed and preserve tracked edits",
+  "head": "b17186d0ad70a0285a5bd050b4e4a4192c2bb079",
+  "mergeSha": "b0340bb363a0589739bd7e615348a6626f7f1404",
+  "mergedAt": "2026-09-30T14:24:01Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "Historical native two-parent PR2099 merge; original ordered main-side parent then reviewed b171 source",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 2,
+  "treeIntegration": {
+    "parent": "d9ae8b9c28f50756145708c05111ab94f286d68e",
+    "parents": [
+      "d9ae8b9c28f50756145708c05111ab94f286d68e",
+      "b17186d0ad70a0285a5bd050b4e4a4192c2bb079"
+    ],
+    "mergeBases": [
+      "d9ae8b9c28f50756145708c05111ab94f286d68e"
+    ],
+    "expectedTree": "10f167214a31bedb61a1038867f7e95bf136f0ad",
+    "actualTree": "10f167214a31bedb61a1038867f7e95bf136f0ad",
+    "matches": true
+  }
+}

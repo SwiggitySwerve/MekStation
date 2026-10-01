@@ -1,0 +1,23 @@
+{
+  "unit": "PMP",
+  "stage": "review",
+  "at": "2026-10-01T02:04:12.406Z",
+  "lane": "A",
+  "reviewerModel": "chatgpt-subscription/gpt-6.1-sol",
+  "implementerModel": "chatgpt-subscription/gpt-6.1-sol",
+  "reviewerEffort": "medium (literal genuine review header)",
+  "head": "b17186d0ad70a0285a5bd050b4e4a4192c2bb079",
+  "reviewedHead": "b17186d0ad70a0285a5bd050b4e4a4192c2bb079",
+  "verdict": "APPROVE",
+  "outputPath": "evidence/pmp-lane-a-review-20260930.md",
+  "outputSha256": "ac1d846099a7730ee3dfdcc122f30ace1d5903d2645bd9117813a589103ab770",
+  "sharedContext": "Genuine independent post-merge source-only review2f0; modern report unchanged; not closure-head approval",
+  "laneB": "not required (review classes: routine)",
+  "githubApproval": "none recorded; Lane A is engineering evidence, never a GitHub approval",
+  "reviewContractVersion": 2,
+  "identityEvidence": {
+    "path": "evidence/review-identity-6dc9552a581d49f6206ba1119cd69050f4d3071575a7bcbef6d6b44bf7277823.json",
+    "sha256": "6dc9552a581d49f6206ba1119cd69050f4d3071575a7bcbef6d6b44bf7277823",
+    "bytes": 739
+  }
+}
