@@ -14,7 +14,9 @@ import { getCampaignHostRegistry } from './CampaignHostRegistry';
 import {
   admitCoopMission,
   CoopMissionRefusal,
+  coopUnitIdentity,
   requireCoopMissionMember,
+  validatePersistedCoopRoster,
 } from './coopMissionAdmission';
 import { getDefaultMatchStore } from './getDefaultMatchStore';
 import { getMatchHostRegistry } from './MatchHostRegistry';
@@ -72,14 +74,22 @@ export async function createCoopMissionMatch(
       )
       .digest('hex');
   const config = { ...body.config, fogOfWar: body.config.fogOfWar ?? false };
-  const fingerprint = createHash('sha256')
-    .update(JSON.stringify({ mission, config, units: body.unitBootstrap }))
-    .digest('hex');
   const created = await entry.host.runBatchExclusive(async () => {
     requireCoopMissionMember(mission, actorId);
+    const fingerprintFor = (units: NonNullable<IMatchMeta['unitBootstrap']>) =>
+      createHash('sha256')
+        .update(
+          JSON.stringify({
+            mission,
+            config,
+            units: units.map(coopUnitIdentity),
+          }),
+        )
+        .digest('hex');
     let meta = await readMission(store, matchId);
     if (!meta) {
       const admitted = admitCoopMission(body, entry, actorId);
+      const fingerprint = fingerprintFor(admitted.unitBootstrap);
       const now = new Date().toISOString();
       const proposed: IMatchMeta = {
         matchId,
@@ -127,7 +137,12 @@ export async function createCoopMissionMatch(
       const { session } = buildHostSession(bootstrap);
       const opening = session.getSession().events;
       // Re-admit after catalog IO; createMatch commits synchronously before yielding.
-      admitCoopMission(body, entry, actorId);
+      if (
+        fingerprintFor(admitCoopMission(body, entry, actorId).unitBootstrap) !==
+        fingerprint
+      ) {
+        throw new CoopMissionRefusal(409, 'COOP_MISSION_STALE_HEAD');
+      }
       try {
         await store.createMatch(proposed, opening);
         meta = proposed;
@@ -138,7 +153,9 @@ export async function createCoopMissionMatch(
       if (meta === proposed)
         await store.seedJournalFromInitialEvents?.(matchId, opening);
     }
-    if (meta.coopMission?.requestFingerprint !== fingerprint) {
+    const roster = meta.unitBootstrap ?? [];
+    validatePersistedCoopRoster(body, roster);
+    if (meta.coopMission?.requestFingerprint !== fingerprintFor(roster)) {
       throw new CoopMissionRefusal(409, 'COOP_MISSION_IDENTITY_CONFLICT');
     }
     if (

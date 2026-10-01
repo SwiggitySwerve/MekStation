@@ -1,6 +1,8 @@
 import Database from 'better-sqlite3';
 import assert from 'node:assert/strict';
 import { EventEmitter, once } from 'node:events';
+import { readFile } from 'node:fs/promises';
+import path from 'node:path';
 
 import { InMemoryCampaignEventStore } from '@/lib/campaign/sync/InMemoryCampaignEventStore';
 import { CAMPAIGN_BASELINE_SCHEMA_PACK } from '@/lib/events/replay/CampaignBaselineSchemaPack';
@@ -16,6 +18,7 @@ import type { ICampaignHostBatchDoors } from '../campaignHostDoors';
 import { getCampaignHostRegistry } from '../CampaignHostRegistry';
 import { CampaignIntentIdentityConflictError } from '../campaignIntentIdentity';
 import { CampaignMatchHost } from '../CampaignMatchHost';
+import { getMatchHostRegistry } from '../MatchHostRegistry';
 import {
   LAUNCH,
   launches,
@@ -24,9 +27,10 @@ import {
 } from './coopMissionAnnouncement.harness';
 import {
   acceptFixtureParticipation,
+  archiveRouteFixture,
   missionRequest,
 } from './coopMissionCreate.fixture';
-import { post } from './coopMissionCreate.harness';
+import { countDurableRows, post } from './coopMissionCreate.harness';
 
 const ONE = { matches: 2, events: 1, receipts: 1 };
 const UNANNOUNCED = { matches: 2, events: 0, receipts: 0 };
@@ -37,6 +41,7 @@ describe('durable campaign mission announcements', () => {
   });
   afterEach(async () => {
     jest.restoreAllMocks();
+    archiveRouteFixture(fixture.root);
     await fixture.close();
   });
 
@@ -163,25 +168,64 @@ describe('durable campaign mission announcements', () => {
 
   it('recovers an append failure after create persistence through the identical POST', async () => {
     const meta = await interruptAppend();
-    await fixture.store.updateMatchMeta(meta.matchId, {
-      playerIds: ['FORGED'],
-      sideAssignments: [],
-      unitBootstrap: [],
-    });
+    const opening = await fixture.store.getEvents(meta.matchId);
     getCampaignHostRegistry().dispose(fixture.entry.matchId);
     const recovered = await getCampaignHostRegistry().getOrCreate(
       fixture.entry.matchId,
     );
     assert.ok(recovered);
+    const socket = await fixture.join(getCampaignHostRegistry());
+    const observed = nextFrame(socket);
+    const [matchId] = await Promise.all([fixture.create(), observed]);
+    expect(matchId).toBe(meta.matchId);
     expect(await fixture.create()).toBe(meta.matchId);
+    expect(await fixture.create()).toBe(meta.matchId);
+    expect(launches(socket)).toHaveLength(1);
+    expect(await fixture.store.getMatchMeta(meta.matchId)).toEqual(meta);
+    expect(await fixture.store.getEvents(meta.matchId)).toEqual(opening);
     expect(await fixture.census(meta.matchId)).toEqual(ONE);
     const events = await recovered.host.getEventLog().getCampaignEvents(0);
+    expect(events.filter((row) => row.type === LAUNCH)).toHaveLength(1);
     expect(events.find((row) => row.type === LAUNCH)?.payload).toMatchObject({
       deployingPlayerIds: [
         fixture.host.playerId,
         fixture.guest.playerId,
       ].sort(),
     });
+  });
+
+  it('refuses a tampered persisted bootstrap before recovery, announcement or durable writes', async () => {
+    const meta = await interruptAppend();
+    await fixture.store.updateMatchMeta(meta.matchId, {
+      playerIds: ['FORGED'],
+      sideAssignments: [],
+      unitBootstrap: [],
+    });
+    const census = countDurableRows(fixture.matchPath);
+    const paths = [
+      fixture.matchPath,
+      path.join(fixture.root, 'campaign.db'),
+    ].flatMap((file) => [file, `${file}-wal`]);
+    const before = await Promise.all(paths.map((file) => readFile(file)));
+    const recovery = jest.spyOn(getMatchHostRegistry(), 'getOrCreate');
+    const announce = jest.spyOn(fixture.entry.host, 'announceMissionLaunched');
+    const create = jest.spyOn(fixture.store, 'createMatch');
+    const update = jest.spyOn(fixture.store, 'updateMatchMeta');
+    const append = jest.spyOn(fixture.store, 'appendCommandBatch');
+    const seed = jest.spyOn(fixture.store, 'seedJournalFromInitialEvents');
+    const response = await post(fixture.request, fixture.host);
+    expect(response.status).toBe(409);
+    expect(response.body).toMatchObject({
+      code: 'COOP_MISSION_IDENTITY_CONFLICT',
+    });
+    for (const write of [recovery, announce, create, update, append, seed]) {
+      expect(write).not.toHaveBeenCalled();
+    }
+    expect(countDurableRows(fixture.matchPath)).toEqual(census);
+    expect(await fixture.census(meta.matchId)).toEqual(UNANNOUNCED);
+    expect(await Promise.all(paths.map((file) => readFile(file)))).toEqual(
+      before,
+    );
   });
 
   it('returns prior receipt events after a committed announcement loses its HTTP response', async () => {
