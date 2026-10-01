@@ -1,3 +1,13 @@
+## 2026-10-01 P2B historical source closure candidate after Task65; metadata acceptance pending (task 57)
+
+Source PR #2106, reviewed d13e4a34236568c0e8688a0f10336a70d3d5be88 and historical source merge 0a4448597b36900084c45e9ca9dc070a862e7acd are unchanged. This candidate starts from accepted Task65 registration main 684fda156f500fe3a32120ebdc58f86bba056556 and preserves its exact source0a-only lifecycle ownership exception. Eight source paths, two product seams, ordinary caps, all unrelated units and the Task65 registration documents remain unchanged. Metadata added lines still count.
+
+Closure receipts and identity archives are byte-identical outputs of the original shipped producer native0, not a new producer or product execution on this metadata base. Authentic source author st_01a0f5d2 and source reviewer st_01a0f704 retain distinct observed tasks/sessions and source finishers []; metadata author st_01a0f82e is not a source finisher. Existing source owner comment 5929838477 retains its full original body/hash and standing-orchestration disclosure; it does not approve this metadata head. Source taskKeys remain empty and producer tickedOnMain remains null.
+
+Original completed-ledger default/github/next native0 and git native1 remain literal historical outcomes. Task65 registration resolves the omitted exact source lifecycle permission; qualification here requires all four unchanged consumers, including --git against real source0a, on the actual integrated ledger. Historical runtime, seven failed whole production epochs, public wrapper failures/timeouts, scoped R06 PASS versus whole native1, R07 adoption, warnings and qualified absent references are retained without replay or rescoring.
+
+This is a metadata candidate, not accepted canonical Task57 completion or P2/U38 admission. Fresh independent exact-head metadata APPROVE, all31 CI, parent-only pinned merge, required postmerge workflows and delegated exact-main acceptance remain mandatory. The original closure checkout and retained source/proof leases are preserved.
+
 ## 2026-10-01 P2B lifecycle ownership exception proposed; closure held (task 65)
 
 **Registration only, not P2B closure.** The [amendment](evidence/p2b-lifecycle-ownership-exception-amendment-20261001.json) adds only the exact units.json ownership exception to existing P2B. Its original eight ordered product/test paths, ordinary 8-file/300-added-line caps, local-verified state and original admission/red/local receipts remain unchanged. No unit, holder, packet, order, node alias, consumer or product behavior changes.

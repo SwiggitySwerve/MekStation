@@ -1,0 +1,18 @@
+{
+  "reviewContractVersion": 2,
+  "unit": "P2B",
+  "sourceHead": "d13e4a34236568c0e8688a0f10336a70d3d5be88",
+  "reviewOutputSha256": "770d091fcca34b73ca2bb1c980bfd95f17a469a473a57e5e7b1c22f070592270",
+  "localReceiptSha256": "a7e01f0a8d0bea2a38521f4710ecf8b42b0db937d6e75cdc6f62f3f249988de4",
+  "author": {
+    "path": "identity-f7f30b7d0ed42506973266fb0f91a6ee491474b0c1c7b0e0d10cb6c8350af1b1.json",
+    "sha256": "f7f30b7d0ed42506973266fb0f91a6ee491474b0c1c7b0e0d10cb6c8350af1b1",
+    "bytes": 572
+  },
+  "finishers": [],
+  "reviewer": {
+    "path": "identity-9dd335027fa33a0f2a1e8fdad80f1043cae637d8b4f36124d3ca7d12264a1471.json",
+    "sha256": "9dd335027fa33a0f2a1e8fdad80f1043cae637d8b4f36124d3ca7d12264a1471",
+    "bytes": 594
+  }
+}

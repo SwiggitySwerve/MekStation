@@ -1,0 +1,23 @@
+{
+  "unit": "P2B",
+  "stage": "review",
+  "at": "2026-10-01T16:23:10.734Z",
+  "lane": "A",
+  "reviewerModel": "chatgpt-subscription/gpt-6.1-sol",
+  "implementerModel": "chatgpt-subscription/gpt-6.1-sol",
+  "reviewerEffort": "medium",
+  "head": "d13e4a34236568c0e8688a0f10336a70d3d5be88",
+  "reviewedHead": "d13e4a34236568c0e8688a0f10336a70d3d5be88",
+  "verdict": "APPROVE",
+  "outputPath": "evidence/p2b-lane-a-review-20261001.md",
+  "outputSha256": "770d091fcca34b73ca2bb1c980bfd95f17a469a473a57e5e7b1c22f070592270",
+  "sharedContext": "Accepted independent exact-d13 SOURCE review st_01a0f704; metadata author is not a source finisher and metadata-head review remains separate",
+  "laneB": "owner ruling PK-p2b-ruling: rule the exact head on d13e4a34236568c0e8688a0f10336a70d3d5be88 (PR #2106, comment 5929838477, label owner-ruled)",
+  "githubApproval": "none recorded; Lane A is engineering evidence, never a GitHub approval",
+  "reviewContractVersion": 2,
+  "identityEvidence": {
+    "path": "evidence/review-identity-a1864ebba2df4290766689a6592e08ed1ffb893926b815bf99ce6997ecc02dfd.json",
+    "sha256": "a1864ebba2df4290766689a6592e08ed1ffb893926b815bf99ce6997ecc02dfd",
+    "bytes": 739
+  }
+}
