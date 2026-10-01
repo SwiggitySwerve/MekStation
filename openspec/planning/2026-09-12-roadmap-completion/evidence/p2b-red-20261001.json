@@ -1,0 +1,12 @@
+{
+  "unit": "P2B",
+  "stage": "red",
+  "at": "2026-10-01T10:20:54.493Z",
+  "baseline": "2fa51ed00eb28d1752384765101ac8cc230ec235",
+  "summary": "Unchanged announcement suite: actual native exit1, 6 passed and 1 failed, expected201 versus actual409 COOP_MISSION_IDENTITY_CONFLICT. Historical 142pass/1fail and original red3 remain failures.",
+  "red": {
+    "path": "E:/Projects/.omo/evidence/p2b-authoritative-roster-retry-source-20261001-gpt61/red-announcement-ready.json",
+    "bytes": 866,
+    "sha256": "5ec30159b8bf5f213dd092cd4d22e95afba418ea642d4b9a40aec926d89d02da"
+  }
+}

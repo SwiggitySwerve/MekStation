@@ -1,0 +1,35 @@
+{
+  "unit": "P2B",
+  "stage": "admission",
+  "at": "2026-10-01T10:20:54.373Z",
+  "baseline": "2fa51ed00eb28d1752384765101ac8cc230ec235",
+  "parentDecision": {
+    "decision": "go",
+    "source": {
+      "path": "E:/Projects/MekStation/.omo/ulw-execute/evidence/task-57-p2b-2fa51e-eight-path-source-resumption-admitted.json",
+      "bytes": 78344,
+      "sha256": "8305794a98bed5a0b7b189320b519f49b6c4b6b0e8f465d609d47189db0b0dbe"
+    }
+  },
+  "scope": "Bounded source-author implementation and publication only; not owner ruling, merge, mainProof or closure",
+  "grant": [
+    "src/lib/multiplayer/server/coopMissionAdmission.ts",
+    "src/lib/multiplayer/server/__tests__/coopMissionCreate.fixture.ts",
+    "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+    "src/lib/multiplayer/server/__tests__/coopMissionCreate.refusals.test.ts",
+    "src/lib/multiplayer/server/__tests__/CoopOpponentDriver.test.ts",
+    "src/lib/campaign/encounter/__tests__/materializeCampaignMissionEncounter.test.ts",
+    "src/lib/multiplayer/server/coopMissionCreate.ts",
+    "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.test.ts"
+  ],
+  "caps": {
+    "maxFiles": 8,
+    "maxAddedProductLines": 300,
+    "productFiles": 2
+  },
+  "preflight": {
+    "path": "E:/Projects/.omo/evidence/p2b-authoritative-roster-retry-source-20261001-gpt61/resumption-preflight.json",
+    "bytes": 6787,
+    "sha256": "3a283e26b1a56174d52a7a2e2e9a1789737ddb9a60318c44fe4e15209577e78d"
+  }
+}

@@ -5168,14 +5168,37 @@
         "maxFiles": 8,
         "maxNonGeneratedLines": 300
       },
-      "state": "blocked",
-      "baseline": null,
+      "state": "local-verified",
+      "baseline": "2fa51ed00eb28d1752384765101ac8cc230ec235",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/p2b-admission-20261001.json",
+          "baseline": "2fa51ed00eb28d1752384765101ac8cc230ec235",
+          "at": "2026-10-01T10:20:54.373Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/p2b-red-20261001.json",
+          "at": "2026-10-01T10:20:54.493Z",
+          "summary": "Native unchanged announcement red: 6pass1fail201-v409; historical failures retained"
+        },
+        "local": {
+          "path": "evidence/p2b-local-20261001.json",
+          "at": "2026-10-01T10:20:54.616Z",
+          "summary": "Fresh source6paths117productAdds; focused120 and broader144; public all13native0; normal production roster/cap/refusal/AI/cold native04exit0; prior native failures retained",
+          "reviewContractVersion": 2,
+          "implementationActors": [
+            {
+              "role": "author",
+              "task_id": "st_01a0f5d2",
+              "child_session_id": "01a0f5d2-e74e-7dab-b5ee-df7e5ab132e3",
+              "model": "chatgpt-subscription/gpt-6.1-sol"
+            }
+          ]
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
