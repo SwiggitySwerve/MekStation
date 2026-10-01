@@ -5315,7 +5315,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -5430,6 +5430,16 @@
         "evidence": "evidence/p2b-registration-20260929.json",
         "preservedOriginalRedSha256": "144dfb6effa612da69836aaa528d9ef713267821ac11f3afabaa9cf603ba3b4f",
         "limits": "The earlier releasedAfterP2A provenance remains historical and unchanged. P2's uncommitted client diff is not accepted or completed; U38 remains blocked on P2."
+      },
+      "releasedAfterP2B20261001": {
+        "at": "2026-10-01T21:06:16.000Z",
+        "from": "blocked",
+        "cause": "P1A, P1B1, P1B2, P1B3, P1C, PAI, P2A and P2B are complete with PASS mainProof receipts, and all eight merge commits pass native merge-base --is-ancestor against freshly observed integration main ab143b6cfa355fe7bfa755c3830b677328cd2899. Official Task57 P2B closure and independent exact-main acceptance have been recorded by the parent.",
+        "by": "Source-authored release preparation under explicit parent authorization; effective only after parent acceptance and guarded ledger application. NEXT does not enforce documentary unit predecessors.",
+        "evidence": "E:/Projects/.omo/evidence/p2-client-source-20261001-gpt61/release-preflight.stdout.json",
+        "officialTask57Acceptance": "E:/Projects/MekStation/.omo/ulw-execute/evidence/task-57-p2b-official-closure-exact-main-accepted.json",
+        "preservedOriginalRedSha256": "144dfb6effa612da69836aaa528d9ef713267821ac11f3afabaa9cf603ba3b4f",
+        "limits": "P2 blocked-to-planned release only; all historical blockers and releases, unrelated units, packets, paths, caps and stage receipts remain unchanged. No implementation, runtime QA, source delivery, Task39 completion or whole-goal completion is claimed. U38 remains blocked. Product edits require explicit parent acceptance."
       }
     },
     {
