@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "kind": "p2b-fingerprint-ownership-amendment",
+  "planTask": 61,
+  "date": "2026-10-01",
+  "baseline": "c719050993f04627c109ba461fa731675e0d0904",
+  "branch": "codex/p2b-fingerprint-registration-gpt61",
+  "unit": "P2B",
+  "node": "R2.authority-live",
+  "scope": "Docs-only proposed ownership registration, not P2B implementation or admission",
+  "unitOwnershipAdded": [
+    "src/lib/multiplayer/server/coopMissionCreate.ts"
+  ],
+  "existingSixPathsPreservedInOrder": true,
+  "caps": {
+    "previousMaxFiles": 6,
+    "maxFiles": 7,
+    "maxNonGeneratedLines": 300,
+    "addedProductLineCapUnchanged": true,
+    "ordinaryCapAmendment": true,
+    "capException": false
+  },
+  "sourceOnlyMeasurement": {
+    "creationFileLines": 167,
+    "admissionFileLines": 160,
+    "creationSeams": [
+      "coopMissionCreate.ts:73-77 hashes raw client unitBootstrap before admission",
+      "coopMissionCreate.ts:78-82 admits only when no persisted match exists",
+      "coopMissionCreate.ts:104 stores the fingerprint; 141 compares it on retry",
+      "coopMissionCreate.ts:118-138 already resolves references, rechecks authority and arbitrates durable creation",
+      "coopMissionCreate.ts:146-166 already recovers persisted hosts and retries announcement"
+    ],
+    "proposedMechanism": "Admission retains signed authority checks, derives opponents through the existing selectOpponentUnits count/seed policy, checks IDs, exact optional assertions and the combined cap. Creation fingerprints the admitted roster inside its existing lock; stored retries validate player rows and optional opponent assertions against persisted bootstrap before identity comparison, host recovery or announcement. Persisted retry/cold recovery never calls selection again. Reuse pre-write reference adaptation, durable arbitration and opening events without changing caller parameters or historical matches.",
+    "projectedFiles": 7,
+    "projectedProductFiles": 2,
+    "projectedTestAndFixtureFiles": 5,
+    "projectedAddedProductLines": 250,
+    "projectionBreakdown": {
+      "admissionImportsTypes": 12,
+      "playerRosterValidation": 38,
+      "selectorRowsCollisionCombinedCap": 42,
+      "assertionAndPersistedPlayerComparison": 58,
+      "creationImportsFingerprint": 18,
+      "newVersusPersistedIdentity": 42,
+      "catalogRecheckDurableWinner": 16,
+      "formattingRefusalCommentsAllowance": 24
+    },
+    "headroomUnder300": 50,
+    "futureImplementationDiffMeasured": false,
+    "sourceSpansMeasured": true,
+    "historical220LineEstimateNotReused": true,
+    "whySeven": "The original six paths include admission and five test/fixture files. Only creation owns fingerprint construction, stored-match retry and durable arbitration. Adding that one existing file makes two product files; no new API, domain, harness or policy path is needed.",
+    "lineCapRationale": "The source-based 250-line projection fits the existing 300-line cap. It is not an implemented patch or proof of behavior. Parent must count the actual native source diff before admission and delivery; an eighth file, third product file or over-cap implementation needs another reviewed registration."
+  },
+  "registryBoundary": {
+    "validator": "validate-roadmap.mjs:439-441 requires each unit path verbatim on its owner node",
+    "missingNodeAliasAtBaseline": "src/lib/multiplayer/server/coopMissionCreate.ts",
+    "existingNodeParent": "src/lib/multiplayer/server",
+    "requiredExactAliasOnly": true,
+    "effectiveNodeAuthorityNotWidened": true,
+    "isolatedWithoutAliasExit": 1,
+    "isolatedWithAliasExit": 0,
+    "isolatedWithAliasNext": "U24b"
+  },
+  "predecessorsPreserved": ["P1A", "P1C", "PAI", "P2A", "P2BC", "PMP"],
+  "baselinePrerequisiteObservation": "All six are complete with PASS mainProof blobs and native merge ancestry to c719. PMP's historical b171/b034 source proof remains historical; parent separately accepted fresh c719 closure proof after U17e completed at 20781.",
+  "admissionGate": "P2B stays blocked until this registration receives independent exact-head docs review, all 31 CI, parent-only pinned merge and independent exact-main registration proof. Parent then rechecks every prerequisite mainProof and native ancestry on fresh main; documentary predecessors are not enforced by NEXT. Literal NEXT remains U24b, the registered later task6 slice, not authority to skip WaveB.",
+  "preserved": {
+    "P2BBehaviorAndP2BCSourceContract": true,
+    "allHistoricalSourceFieldsAndStageReceipts": true,
+    "allPredecessorFields": true,
+    "unitOrderHoldersPacketsOtherStates": true,
+    "P2BState": "blocked",
+    "P2State": "blocked",
+    "U38State": "blocked",
+    "partialP2Worktree": "E:/Projects/MekStation-wt/p2-client-cutover-20260929",
+    "originalRedSHAHistoricalOnly": "144dfb6effa612da69836aaa528d9ef713267821ac11f3afabaa9cf603ba3b4f",
+    "noNewUnitAPIOrDomainOwnership": true,
+    "noCallerParameterMutationMatchRetrofitOrReroll": true,
+    "noImplementationReceiptOwnerRulingOrCompletion": true
+  },
+  "rawEvidenceArchive": "E:/Projects/.omo/evidence/p2b-fingerprint-registration-20261001-gpt61",
+  "sourceMeasurement": "source-measurement.json",
+  "sourceNativeAndByteBindings": "source-input-bindings.json",
+  "boundaryObservation": "boundary-issue.json",
+  "verificationScope": "Registration consumers and docs/registry gates only. No P2B runtime, product build or browser proof is claimed."
+}

@@ -5152,7 +5152,8 @@
         "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
         "src/lib/multiplayer/server/__tests__/coopMissionCreate.refusals.test.ts",
         "src/lib/multiplayer/server/__tests__/CoopOpponentDriver.test.ts",
-        "src/lib/campaign/encounter/__tests__/materializeCampaignMissionEncounter.test.ts"
+        "src/lib/campaign/encounter/__tests__/materializeCampaignMissionEncounter.test.ts",
+        "src/lib/multiplayer/server/coopMissionCreate.ts"
       ],
       "ciClass": "product",
       "reviewClasses": [
@@ -5163,7 +5164,7 @@
         "concurrency"
       ],
       "caps": {
-        "maxFiles": 6,
+        "maxFiles": 7,
         "maxNonGeneratedLines": 300
       },
       "state": "blocked",
@@ -5180,7 +5181,14 @@
         "tick": null
       },
       "ownerGate": null,
-      "admissionRequires": "This docs-only registration and P2BC source-contract prerequisite must land and receive exact-main proof before product admission. Parent must freshly verify all six exact existing ownership paths remain verbatim on R2.authority-live, the estimate of six files with only coopMissionAdmission.ts as a product file, and the 6-file/300-added-product-line caps before implementation. P1A, P1C, PAI and P2A must remain complete with PASS exact-main mainProof receipts and ancestry. P2BC must be complete with a PASS exact-main mainProof receipt, ancestry and closure before P2B is released from blocked; NEXT does not enforce this documentary gate. Preserve the P2 partial worktree and original red SHA-256 144dfb6effa612da69836aaa528d9ef713267821ac11f3afabaa9cf603ba3b4f. Sensitive classes require this pending decision-free packet before local-verified and an owner-originated exact-head ruling plus --github evidence before merge. If implementation needs any seventh file, second product file, schema, migration, privacy promise, encounter REST authority, browser grant or more than 300 added product lines, stop for a separately reviewed amendment. Additional task 59 gate: PMP must be complete with PASS exact-main proof, ancestry and truthful closure before P2B release; parent reconciles actual NEXT (baseline U24b, registered PMP) without reordering or changing existing states.",
+      "admissionRequires": "The original docs-only registration, task 61 fingerprint ownership amendment and P2BC source-contract prerequisite must land and receive exact-main proof before product admission. Parent must freshly verify all seven exact existing ownership paths remain verbatim on R2.authority-live, preserving the original six in order and adding only coopMissionCreate.ts, and count the two-product-file mechanism against ordinary 7-file/300-added-product-line caps before implementation. Task 61's source-only projection is 250 added product lines, not an executed implementation diff. P1A, P1C, PAI and P2A must remain complete with PASS exact-main mainProof receipts and ancestry. P2BC must be complete with a PASS exact-main mainProof receipt, ancestry and closure before P2B is released from blocked; NEXT does not enforce this documentary gate. Preserve the P2 partial worktree and original red SHA-256 144dfb6effa612da69836aaa528d9ef713267821ac11f3afabaa9cf603ba3b4f as historical evidence, not an assumed current hash. Sensitive classes require this pending decision-free packet before local-verified and an owner-originated exact-head ruling plus --github evidence before merge. If implementation needs any eighth file, third product file, schema, migration, privacy promise, encounter REST authority, browser grant or more than 300 added product lines, stop for a separately reviewed amendment. Additional task 59 gate: PMP must be complete with PASS exact-main proof, ancestry and truthful closure before P2B release; parent reconciles actual NEXT (baseline U24b, registered PMP) without reordering or changing existing states. Task 61 requires independent exact-head docs review, all 31 CI, parent-only pinned merge and independent exact-main registration proof before the parent rechecks prerequisites and considers release; current NEXT remains U24b while P2B is blocked. No caller-parameter mutation, historical match retrofit or opponent reroll is granted.",
+      "ownershipAmended20261001": {
+        "planTask": 61,
+        "baseline": "c719050993f04627c109ba461fa731675e0d0904",
+        "evidence": "evidence/p2b-fingerprint-ownership-amendment-20261001.json",
+        "addedPath": "src/lib/multiplayer/server/coopMissionCreate.ts",
+        "reason": "Creation hashes raw client bootstrap before admission and bypasses admission on stored retries. The settled roster-bound fingerprint and persisted-assertion contract needs this creation seam alongside admission. Source-only projection: seven files, two product files, 250 added product lines; ordinary maxFiles changes from six to seven, and the 300-line cap stays unchanged. Registration is not implementation or release."
+      },
       "predecessors": [
         "P1A",
         "P1C",
