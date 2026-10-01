@@ -5153,7 +5153,8 @@
         "src/lib/multiplayer/server/__tests__/coopMissionCreate.refusals.test.ts",
         "src/lib/multiplayer/server/__tests__/CoopOpponentDriver.test.ts",
         "src/lib/campaign/encounter/__tests__/materializeCampaignMissionEncounter.test.ts",
-        "src/lib/multiplayer/server/coopMissionCreate.ts"
+        "src/lib/multiplayer/server/coopMissionCreate.ts",
+        "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.test.ts"
       ],
       "ciClass": "product",
       "reviewClasses": [
@@ -5164,7 +5165,7 @@
         "concurrency"
       ],
       "caps": {
-        "maxFiles": 7,
+        "maxFiles": 8,
         "maxNonGeneratedLines": 300
       },
       "state": "blocked",
@@ -5181,7 +5182,14 @@
         "tick": null
       },
       "ownerGate": null,
-      "admissionRequires": "The original docs-only registration, task 61 fingerprint ownership amendment and P2BC source-contract prerequisite must land and receive exact-main proof before product admission. Parent must freshly verify all seven exact existing ownership paths remain verbatim on R2.authority-live, preserving the original six in order and adding only coopMissionCreate.ts, and count the two-product-file mechanism against ordinary 7-file/300-added-product-line caps before implementation. Task 61's source-only projection is 250 added product lines, not an executed implementation diff. P1A, P1C, PAI and P2A must remain complete with PASS exact-main mainProof receipts and ancestry. P2BC must be complete with a PASS exact-main mainProof receipt, ancestry and closure before P2B is released from blocked; NEXT does not enforce this documentary gate. Preserve the P2 partial worktree and original red SHA-256 144dfb6effa612da69836aaa528d9ef713267821ac11f3afabaa9cf603ba3b4f as historical evidence, not an assumed current hash. Sensitive classes require this pending decision-free packet before local-verified and an owner-originated exact-head ruling plus --github evidence before merge. If implementation needs any eighth file, third product file, schema, migration, privacy promise, encounter REST authority, browser grant or more than 300 added product lines, stop for a separately reviewed amendment. Additional task 59 gate: PMP must be complete with PASS exact-main proof, ancestry and truthful closure before P2B release; parent reconciles actual NEXT (baseline U24b, registered PMP) without reordering or changing existing states. Task 61 requires independent exact-head docs review, all 31 CI, parent-only pinned merge and independent exact-main registration proof before the parent rechecks prerequisites and considers release; current NEXT remains U24b while P2B is blocked. No caller-parameter mutation, historical match retrofit or opponent reroll is granted.",
+      "admissionRequires": "The original docs-only registration, task 61 fingerprint ownership amendment and P2BC source-contract prerequisite must land and receive exact-main proof before product admission. Parent must freshly verify all eight exact existing ownership paths remain verbatim on R2.authority-live, preserving the task 61 seven paths verbatim in order and appending only coopMissionAnnouncement.test.ts, and count the two-product-file mechanism against ordinary 8-file/300-added-product-line caps before implementation. Task 61's source-only projection is 250 added product lines, not an executed implementation diff. P1A, P1C, PAI and P2A must remain complete with PASS exact-main mainProof receipts and ancestry. P2BC must be complete with a PASS exact-main mainProof receipt, ancestry and closure before P2B is released from blocked; NEXT does not enforce this documentary gate. Preserve the P2 partial worktree and original red SHA-256 144dfb6effa612da69836aaa528d9ef713267821ac11f3afabaa9cf603ba3b4f as historical evidence, not an assumed current hash. Sensitive classes require this pending decision-free packet before local-verified and an owner-originated exact-head ruling plus --github evidence before merge. If implementation needs any ninth file, third product file, schema, migration, privacy promise, encounter REST authority, browser grant or more than 300 added product lines, stop for a separately reviewed amendment. Additional task 59 gate: PMP must be complete with PASS exact-main proof, ancestry and truthful closure before P2B release; parent reconciles actual NEXT (baseline U24b, registered PMP) without reordering or changing existing states. Task 61 requires independent exact-head docs review, all 31 CI, parent-only pinned merge and independent exact-main registration proof before the parent rechecks prerequisites and considers release; current NEXT remains U24b while P2B is blocked. No caller-parameter mutation, historical match retrofit or opponent reroll is granted. Task 64 announcement-test ownership amendment must receive independent exact-head REGISTRATION ONLY review, all 31 CI, parent-only guarded merge, all three postmerge workflows and fresh independent exact-main registration proof before the same source author resumes task 57. Local unpublished candidate 05b4bfff0e46ad47ed390c88c7fba9ef9bec21d2 retains actual native public/runtime exit 1, 142 passed and one failed, not source PASS. Retain an explicit tampered-bootstrap 409 refusal with no recovery, announcement or writes, and separately prove append-failure recovery with the original valid persisted bootstrap, exactly one announcement and idempotent retries. No harness or third product path, weakened check, skipped test, native activation, cap exception, owner decision or downstream release is granted.",
+      "ownershipAmended20261001Task64": {
+        "planTask": 64,
+        "baseline": "c0d55ab86e005f797c23da89b7d842ed341adc46",
+        "evidence": "evidence/p2b-announcement-test-ownership-amendment-20261001.json",
+        "addedPath": "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.test.ts",
+        "reason": "The unowned announcement retry test erases persisted bootstrap but expects 201; the settled immutable-roster contract refuses 409 before recovery or announcement. Append only this existing test as path eight; ordinary maxFiles seven to eight, unchanged 300 added product lines and two product paths. This registration neither repairs the test nor approves the unpublished local source candidate."
+      },
       "ownershipAmended20261001": {
         "planTask": 61,
         "baseline": "c719050993f04627c109ba461fa731675e0d0904",
