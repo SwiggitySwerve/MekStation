@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "kind": "p2b-lifecycle-ownership-exception-amendment",
+  "planTask": 65,
+  "date": "2026-10-01",
+  "baseline": "0a4448597b36900084c45e9ca9dc070a862e7acd",
+  "branch": "codex/20261001-p2b-lifecycle-ownership-registration",
+  "unit": "P2B",
+  "scope": "Proposed docs-only prospective closure authorization, not original source permission or P2B closure",
+  "ownershipExceptionsAdded": [
+    "openspec/planning/2026-09-12-roadmap-completion/units.json"
+  ],
+  "historicalBinding": {
+    "sourceMerge": "0a4448597b36900084c45e9ca9dc070a862e7acd",
+    "reviewedSourceHead": "d13e4a34236568c0e8688a0f10336a70d3d5be88",
+    "sourceBaseline": "2fa51ed00eb28d1752384765101ac8cc230ec235",
+    "onlyAuthorizedDelta": "P2B blocked -> local-verified, exact baseline and admission/red/local receipts with authentic source-author census",
+    "sourceAuthorTask": "st_01a0f5d2",
+    "sourceAuthorSession": "01a0f5d2-e74e-7dab-b5ee-df7e5ab132e3",
+    "sourceAuthorModel": "chatgpt-subscription/gpt-6.1-sol",
+    "retainedDelta": "E:/Projects/.omo/evidence/p2b-sealed-mainproof-final-review-standalone-20261001-gpt61/exact-product-diff.patch:101-147",
+    "originalGrantContainedException": false,
+    "originalGitConsumerExit": 1,
+    "originalFailure": "P2B merge 0a4448597 touches openspec/planning/2026-09-12-roadmap-completion/units.json outside its ownershipPaths and ownershipExceptions",
+    "failureReceipt": "E:/Projects/MekStation/.omo/ulw-execute/evidence/task-57-p2b-producer0-consumers-three0-git1-source-units-ownership-blocker.json",
+    "independentAddendum": "E:/Projects/.omo/evidence/p2b-sealed-mainproof-final-review-standalone-20261001-gpt61/closure-readiness-git-ownership-addendum.json",
+    "originalProofAndHistoricalApproveImmutable": true,
+    "closureReadiness": "HELD_NOT_ACCEPTED"
+  },
+  "predicateBoundary": {
+    "machinePredicate": "Exact path inclusion in per-unit ownershipExceptions; no JSON-subtree or SHA enforcement",
+    "reviewedDocumentaryGrant": "Only the measured immutable source merge lifecycle delta above",
+    "futureGeneralSharedFileEditsAuthorized": false,
+    "precedents": "Existing U1 exact units.json exception and U41 independently reviewed measured-history exceptions"
+  },
+  "sourceAccounting": {
+    "method": "Native git diff --numstat --no-renames sourceMerge^1 sourceMerge; unchanged consumer evidence/test exclusions",
+    "productAddedLines": 117,
+    "lifecycleMetadataAddedLines": 28,
+    "countedAddedLines": 145,
+    "metadataLinesCounted": true,
+    "ordinaryMaxFilesUnchanged": 8,
+    "ordinaryMaxNonGeneratedLinesUnchanged": 300,
+    "capExceptionAdded": false,
+    "eightOrderedOwnershipPathsAndTwoProductPathsUnchanged": true
+  },
+  "preserved": {
+    "P2BState": "local-verified",
+    "originalSourceLifecycleAndIdentities": true,
+    "allOtherUnitsPacketsHoldersOrderNodesAndCaps": true,
+    "heldClosureCheckout": "E:/Projects/MekStation-wt/p2b-truthful-closure-20261001-gpt61",
+    "heldClosureReadOnlyAndUncommitted": true,
+    "sourceProofLeasesAndPriorNativeFailures": true
+  },
+  "verificationScope": "Four fresh registration consumer modes, existing consumer/registry/doc tests, native diagnostics, QC and scoped formatting; separate owned completed-ledger fixture consumes genuine held witnesses and exercises unchanged --git against original source0a",
+  "deliveryGate": "Fresh independent exact-registration-head APPROVE, all31 CI, parent-only --squash --match-head-commit, required postmerge workflows and fresh delegated exact-main registration proof precede separate closure resumption",
+  "rawEvidenceArchive": "E:/Projects/.omo/evidence/p2b-lifecycle-ownership-registration-20261001-gpt61",
+  "registrationAuthorTask": "st_01a0f854",
+  "registrationAuthorSession": "01a0f854-bc40-78fb-9c11-532ea1ca84a2",
+  "registrationAuthorModel": "chatgpt-subscription/gpt-6.1-sol",
+  "registrationNotClosure": true,
+  "officialClosure": null,
+  "task57Complete": false,
+  "P2Released": false,
+  "U38Released": false
+}
