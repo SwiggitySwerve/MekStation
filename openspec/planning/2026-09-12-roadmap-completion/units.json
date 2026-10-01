@@ -5056,18 +5056,68 @@
         "maxFiles": 3,
         "maxNonGeneratedLines": 150
       },
-      "state": "planned",
-      "baseline": null,
-      "prHead": null,
-      "mergeSha": null,
+      "state": "complete",
+      "baseline": "d9ae8b9c28f50756145708c05111ab94f286d68e",
+      "prHead": "b17186d0ad70a0285a5bd050b4e4a4192c2bb079",
+      "mergeSha": "b0340bb363a0589739bd7e615348a6626f7f1404",
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "admission": {
+          "path": "evidence/pmp-admission-20260930.json",
+          "baseline": "d9ae8b9c28f50756145708c05111ab94f286d68e",
+          "at": "2026-09-30T10:25:01.164Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/pmp-red-20260930.json",
+          "at": "2026-10-01T02:02:41.117Z",
+          "summary": "Genuine historical aggregate0/runtime1 unchanged-runner RED; source bytes preserved"
+        },
+        "local": {
+          "path": "evidence/pmp-local-20260930.json",
+          "at": "2026-10-01T02:02:41.117Z",
+          "summary": "Sealed genuine b171 source-local PASS; sole author1d2/finishers[]; historical QA not replayed",
+          "reviewContractVersion": 2,
+          "implementationActors": [
+            {
+              "role": "author",
+              "task_id": "st_01a0f1d2",
+              "child_session_id": "01a0f1d2-249f-7724-967d-035a050d1adc",
+              "model": "chatgpt-subscription/gpt-6.1-sol"
+            }
+          ]
+        },
+        "review": {
+          "path": "evidence/pmp-review-20260930.json",
+          "head": "b17186d0ad70a0285a5bd050b4e4a4192c2bb079",
+          "reviewedHead": "b17186d0ad70a0285a5bd050b4e4a4192c2bb079",
+          "reviewerModel": "chatgpt-subscription/gpt-6.1-sol",
+          "implementerModel": "chatgpt-subscription/gpt-6.1-sol",
+          "outputSha256": "ac1d846099a7730ee3dfdcc122f30ace1d5903d2645bd9117813a589103ab770",
+          "verdict": "APPROVE",
+          "reviewContractVersion": 2,
+          "identityEvidence": {
+            "path": "evidence/review-identity-6dc9552a581d49f6206ba1119cd69050f4d3071575a7bcbef6d6b44bf7277823.json",
+            "sha256": "6dc9552a581d49f6206ba1119cd69050f4d3071575a7bcbef6d6b44bf7277823",
+            "bytes": 739
+          }
+        },
+        "merge": {
+          "path": "evidence/pmp-merge-20260930.json",
+          "pr": 2099,
+          "head": "b17186d0ad70a0285a5bd050b4e4a4192c2bb079",
+          "mergeSha": "b0340bb363a0589739bd7e615348a6626f7f1404"
+        },
+        "mainProof": {
+          "path": "evidence/pmp-mainproof-20260930.json",
+          "mergeCommit": "b0340bb363a0589739bd7e615348a6626f7f1404",
+          "verdict": "PASS",
+          "runtime": "Tests:       119 passed, 119 total"
+        },
+        "tick": {
+          "path": "evidence/pmp-tick-20260930.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "admissionRequires": "Registration must receive independent exact-head review, required CI, pinned merge and exact-main docs proof before tooling admission. Actual NEXT at baseline 772cf3aba1df5b8723cae43c3c8c2c47209dca5c is U24b, not P2B or NONE. The authorized insertion immediately before blocked P2B is at an earlier array position than U24b, so the registered planned PMP becomes NEXT without reordering or changing any existing unit. Parent must integrate registration review/CI/merge/mainproof and reconcile this actual selector transition before admission; selection alone is not admission. Parent freshly checks P2BC, U17b and U39 complete with PASS exact-main proofs and Git ancestry, exact three-file ownership, no in-flight path overlap and the 3-file/150-added-product-line cap. Existing R6.umbrella parent ownership does not grant this successor extra files. Run unchanged-runner red-first scratch CLI, both existing proof-pin files and controlled green/negative CLI cases with literal argv, raw outputs, exits and tracked-byte preservation. Diagnostics, typecheck, lint, lint:units ratchet, format and build are serialized under idle/hold; retain runtime/exact-main/strict gates. Independent exact-head review, green CI, pinned merge, exact-main proof and truthful closure precede P2B release. Never rerun the unsafe official runner on a real worktree before repair. Stop for separate registration amendment if another file or more than 150 added product lines is necessary. Task 60 adds PRI as an unmet documentary prerequisite: parent must verify PRI complete with audited version 2 candidate-contract review/closure, PASS exact-main proof and Git ancestry before PMP source admission. NEXT does not enforce this prerequisite; PMP remains planned and unadmitted, with its existing three paths and 150-line cap unchanged.",

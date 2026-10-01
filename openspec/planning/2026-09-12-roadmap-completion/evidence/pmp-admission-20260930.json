@@ -1,0 +1,12 @@
+{
+  "unit": "PMP",
+  "stage": "admission",
+  "baseline": "d9ae8b9c28f50756145708c05111ab94f286d68e",
+  "sourceAdmission": {
+    "path": "E:/Projects/.omo/evidence/pmp-fail-closed-source-author-20260930-gpt61/admission.json",
+    "bytes": 8449,
+    "sha256": "42823cc455cc0cb132c8e0df68320054ecbf55220afa5649c3f6be1790354337"
+  },
+  "at": "2026-09-30T10:25:01.164Z",
+  "note": "Retrospective index of sealed genuine source admission; metadata admission is separate current dispatch; no new source admission or QA"
+}
