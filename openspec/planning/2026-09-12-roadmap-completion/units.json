@@ -5287,6 +5287,61 @@
       }
     },
     {
+      "id": "P2CC",
+      "node": "R6.umbrella",
+      "taskKeys": [],
+      "behavior": "Specify authenticated applied-view convergence at the current campaign branch and effective generation in the active coop-campaign-sync source contract and design crosswalk. Require successful baseline/checkpoint application before acknowledgment, durable current-lineage recovery, explicit GM/player retention semantics, revocation and reconnect. Safe hidden-only advancement must not disclose hidden payloads or falsely acknowledge unapplied visible events. Grant-delivery sequences remain epoch-local and must never be compared directly with journal revisions; maximum cursor, join, signed ownership, participation or delivery alone are not application. Preserve existing convergence, N+1 and privacy rules. Normative source work is limited to specs/coop-campaign-sync/spec.md and design.md under the registered change path. Those two files plus the narrowly authorized own-P2CC lifecycle units.json file count together within three total files/300 added non-generated lines. No product implementation, storage/schema choice, task-row tick or completion claim belongs to this unit.",
+      "ownershipPaths": [
+        "openspec/changes/harden-gm-two-player-campaign-sessions"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "lifecycleOwnershipLimit": "Prospective own-P2CC lifecycle/state/baseline/head/merge/stage-receipt and bound authentic actor-census fields only, effective after this registration receives independent exact-head review, all 31 required CI checks, parent pinned merge and independent exact-main proof. No other-unit, packet, holder, behavior, ownership, cap, prerequisite, historical receipt or P2-release edits. Any canonical packet change requires separately authorized actual parent-ruling/closure scope. Two normative source files and this lifecycle file count together within maxFiles3 and the unchanged 300 added non-generated-line cap; shared-file additions count, with no capException or broad node grant. No current lifecycle receipt or PASS is manufactured.",
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ],
+      "caps": {
+        "maxFiles": 3,
+        "maxNonGeneratedLines": 300
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "admissionRequires": "Registration requires independent exact-head review, all 31 required CI checks, parent-only pinned merge and independent exact-main registration proof before source admission or the prospective own-lifecycle exception becomes effective. Parent freshly verifies P2B, PAIC, P2A and audited PRI complete with PASS mainProof receipts, closure and merge ancestry on fetched origin/main, exact existing R6.umbrella ownership and no in-flight overlap. Selection is not admission; NEXT does not enforce documentary unit predecessors. The source candidate must remain limited to the named requirement and design crosswalk plus authentic own-P2CC lifecycle metadata under ordinary three-total-file/300-counted-added-line caps, preserve convergence/N+1/privacy rules and choose no guessed storage representation. The exact units.json ownership exception is documentary-limited by lifecycleOwnershipLimit; it grants no other-unit, packet, holder, prerequisite, historical receipt, product path or P2-release edit. PK-p2cc-ruling stays decision-free until an independently approved green exact source head exists; source delivery retains audited independent identity, required CI, exact-head standing parent owner-ruling, --github, pinned merge, exact-main PASS and truthful closure gates. P2 remains blocked after P2CC closure: a separately registered and implemented current-lineage convergence repair with exact-main PASS, ancestry and closure is also required before parent release. P2C is not registered by this increment. Any additional path, source-contract scope, storage/schema ownership or cap requires a separately reviewed registration amendment.",
+      "predecessors": [
+        "P2B",
+        "PAIC",
+        "P2A",
+        "PRI"
+      ],
+      "successors": [
+        "P2"
+      ],
+      "source20261002": {
+        "planTask": 66,
+        "baseline": "716d09b829bcf079dcb7e06de3465dfdedaf1522",
+        "evidence": "evidence/p2cc-registration-20261002.json",
+        "note": "Prospective rowless source-contract registration only; no source, product, owner decision, admission or completion evidence is supplied. P2C storage/schema ownership remains unchosen and unregistered."
+      }
+    },
+    {
       "id": "P2",
       "node": "R2.multiplayer-client",
       "taskKeys": [],
@@ -5315,7 +5370,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
+      "state": "blocked",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -5329,7 +5384,7 @@
         "tick": null
       },
       "ownerGate": null,
-      "admissionRequires": "P1A, P1B1, P1B2, P1B3, P1C, PAI all require exact-main mainProof receipts before parent release to planned. The blocked historical P1 record is superseded by P1A/P1B/P1C; its absence of a mainProof is not bypassed or falsified. NEXT does not enforce these unit dependencies. If any predecessor is owner-gated, dependent units are kept blocked/on that same packet. Authority, privacy, replay, idempotency and concurrency classes require an exact-head owner ruling and --github evidence. The P1B record is in turn superseded by P1B1/P1B2/P1B3. Before product edits, parent verifies that every ownership path exists and appears verbatim in R2.multiplayer-client. Because the future leaf src/pages/multiplayer/mission/[matchId].tsx cannot be registered before it exists, P2 temporarily owns the smallest existing verbatim node path src/pages/multiplayer, strictly bound by behavior and ownershipAmended20260929 to creating and editing that one named leaf only; any other file under the parent requires a new amendment. Additional prerequisite P2A (plan tasks 54/55) remains historically satisfied by its PASS exact-main proof, ancestry and closure. New prerequisite P2B (plan tasks 56/57): remain blocked until the server-derived authoritative opponent bootstrap is complete with PASS exact-main mainProof, ancestry and closure; parent verifies P1A, P1C, PAI, P2A and every older predecessor again before release. Preserve the original P2 failing test and evidence and the current uncommitted P2 client worktree. P2 still owns removal of the successful shared-create dependency on an opponentless local launcher, shared navigation and two-browser proof. U38 remains transitively blocked through P2.",
+      "admissionRequires": "P1A, P1B1, P1B2, P1B3, P1C, PAI all require exact-main mainProof receipts before parent release to planned. The blocked historical P1 record is superseded by P1A/P1B/P1C; its absence of a mainProof is not bypassed or falsified. NEXT does not enforce these unit dependencies. If any predecessor is owner-gated, dependent units are kept blocked/on that same packet. Authority, privacy, replay, idempotency and concurrency classes require an exact-head owner ruling and --github evidence. The P1B record is in turn superseded by P1B1/P1B2/P1B3. Before product edits, parent verifies that every ownership path exists and appears verbatim in R2.multiplayer-client. Because the future leaf src/pages/multiplayer/mission/[matchId].tsx cannot be registered before it exists, P2 temporarily owns the smallest existing verbatim node path src/pages/multiplayer, strictly bound by behavior and ownershipAmended20260929 to creating and editing that one named leaf only; any other file under the parent requires a new amendment. Additional prerequisite P2A (plan tasks 54/55) remains historically satisfied by its PASS exact-main proof, ancestry and closure. New prerequisite P2B (plan tasks 56/57): remain blocked until the server-derived authoritative opponent bootstrap is complete with PASS exact-main mainProof, ancestry and closure; parent verifies P1A, P1C, PAI, P2A and every older predecessor again before release. Preserve the original P2 failing test and evidence and the current uncommitted P2 client worktree. P2 still owns removal of the successful shared-create dependency on an opponentless local launcher, shared navigation and two-browser proof. U38 remains transitively blocked through P2. New task66 prerequisite P2CC requires complete/PASS exact-main source-contract proof, ancestry and closure. This alone does not release P2: a separately registered implemented authenticated current-lineage convergence repair must also receive PASS exact-main proof, ancestry and closure, then parent rechecks every retained predecessor before explicit release. P2C is not registered or admitted here; no guessed storage/schema grant, cursor fabrication or delivery-only convergence is permitted.",
       "source20260927": "registered by the parent under task 1 of the approved continuation plan (plan task 39 is this unit's letter) as the client precursor of the U38 correction (GAP-6): a host-only test cannot prove the player journey, and the server paths stay on R2.authority-live rather than moving to this client node.",
       "blocked20260927": {
         "cause": "Required P1A/P1B/P1C launch chain is not on main; PAI is also blocked",
@@ -5343,7 +5398,8 @@
         "P1C",
         "PAI",
         "P2A",
-        "P2B"
+        "P2B",
+        "P2CC"
       ],
       "successors": [
         "U38"
@@ -5430,6 +5486,17 @@
         "evidence": "evidence/p2b-registration-20260929.json",
         "preservedOriginalRedSha256": "144dfb6effa612da69836aaa528d9ef713267821ac11f3afabaa9cf603ba3b4f",
         "limits": "The earlier releasedAfterP2A provenance remains historical and unchanged. P2's uncommitted client diff is not accepted or completed; U38 remains blocked on P2."
+      },
+      "appliedViewConvergenceBlocked20261002": {
+        "planTask": 66,
+        "from": "planned",
+        "cause": "Public launch refuses CAMPAIGN_NOT_CONVERGED before mission creation. The gate compares MAX epoch-local grant acked_sequence with journal revision; public snapshot acknowledgment and durable current-lineage applied-view evidence are not established.",
+        "requires": "P2CC complete with PASS exact-main proof, ancestry and closure, followed by a separately registered implemented current-lineage convergence repair and its PASS exact-main proof, ancestry and closure before parent rechecks all retained predecessors and releases P2. Source-contract closure alone is insufficient.",
+        "evidence": "evidence/p2cc-registration-20261002.json",
+        "blockerPublication": "E:/Projects/MekStation/.omo/ulw-execute/evidence/task-39-p2-convergence-blocker-publication-verified.json",
+        "independentAssessment": "E:/Projects/MekStation/.omo/ulw-execute/evidence/task-39-p2-convergence-ownership-assessment-confirmed.json",
+        "preservedOriginalRedSha256": "144dfb6effa612da69836aaa528d9ef713267821ac11f3afabaa9cf603ba3b4f",
+        "limits": "All prior releases and blockers remain historical and unchanged. Both dirty P2 checkouts, old paths/caps and all predecessor receipts are preserved. P2C remains unregistered; P2/U38 are not admitted or completed."
       },
       "releasedAfterP2B20261001": {
         "at": "2026-10-01T21:06:16.000Z",
@@ -10671,6 +10738,33 @@
     }
   ],
   "packets": [
+    {
+      "id": "PK-p2cc-ruling",
+      "blocks": [
+        "P2CC"
+      ],
+      "nodes": [
+        "R6.umbrella"
+      ],
+      "taskKeys": [],
+      "question": "After independent exact-head source review and required green CI, should the standing parent owner authority rule the bounded P2CC applied-view source-contract head before guarded merge?",
+      "options": [
+        {
+          "label": "rule the exact source head",
+          "consequence": "Permit only guarded source-contract merge and exact-main proof; P2 stays blocked pending a separately registered implemented convergence repair and closure.",
+          "effort": "One exact-head source-contract review and evidence check"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Hold source merge and downstream release; require a corrected verified source head and fresh independent review/ruling.",
+          "effort": "Bounded by the concrete source-contract objection"
+        }
+      ],
+      "agentRecommendation": "Rule only a future independently approved green source head preserving authenticated current-lineage application, durable baseline recovery and privacy. This registration contains no source head or owner decision; standing parent authority is unchanged.",
+      "revertCost": "Low: revert the future two-file source-contract change; no product or persisted data change belongs to P2CC, and P2 remains blocked.",
+      "decision": null,
+      "ruling": null
+    },
     {
       "id": "PK-p2bc-ruling",
       "blocks": [

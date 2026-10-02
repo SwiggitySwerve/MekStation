@@ -1,0 +1,115 @@
+{
+  "event": "p2cc-applied-view-source-contract-registration",
+  "planTask": 66,
+  "unit": "P2CC",
+  "baseline": "716d09b829bcf079dcb7e06de3465dfdedaf1522",
+  "registrationOnly": true,
+  "sourceImplementationExecuted": false,
+  "rootCause": {
+    "symptom": "Public shared launch refuses CAMPAIGN_NOT_CONVERGED before mission creation.",
+    "intermediateCause": "campaignLaunchProgressionGate reads MAX(acked_sequence) across grants/epochs and compares it directly with journal revision; actual CampaignSnapshot frames are not acknowledged by the CampaignEvent-only browser producer.",
+    "rootCause": "Authenticated public applied-view acknowledgment has no established durable current-branch/effective-generation bridge to launch convergence.",
+    "architecturalGap": "A separately owned source contract must settle baseline, retained participants, privacy-safe hidden-only advancement, revocation and recovery before a separately registered implementation chooses storage."
+  },
+  "fixAssessment": {
+    "easy": "Treat highest delivery cursor, participation or join as convergence, or release P2 immediately after a prose amendment.",
+    "correct": "Register a rowless bounded source-contract prerequisite, block P2, and require separately registered implemented current-lineage repair and exact-main closure before release.",
+    "removed": [
+      "No node edit: the exact change path is already owned verbatim by R6.umbrella.",
+      "No source, product, transport, server, API, persistence, schema or validator edit.",
+      "No guessed P2C storage/schema ownership or fabricated cursor/receipt."
+    ],
+    "scope": "Only units.json, PROGRESS.md and this registration evidence change; future P2CC source scope is two named files under the existing change path."
+  },
+  "prospectiveContract": {
+    "reviewClasses": [
+      "authority",
+      "privacy",
+      "replay",
+      "idempotency",
+      "concurrency"
+    ],
+    "idempotencyReviewObligation": "Parent explicitly requires duplicate-receipt and no-regression semantics to receive idempotency review; no ownership/cap expansion or implementation is granted.",
+    "ownershipPaths": [
+      "openspec/changes/harden-gm-two-player-campaign-sessions"
+    ],
+    "ownershipExceptions": [
+      "openspec/planning/2026-09-12-roadmap-completion/units.json"
+    ],
+    "lifecycleOwnershipLimit": "Authentic own-P2CC lifecycle/state/baseline/head/merge/stage-receipt and bound actor-census fields only. Effective only after independent registration review/all31CI/parent pinned merge/exact-main proof. No other-unit, packet, holder, behavior, ownership, cap, prerequisite, historical receipt or P2-release edit. Canonical packet changes need separately authorized actual parent-ruling/closure scope. Shared metadata additions count with source additions within the unchanged 300-line cap; no capException or broad node grant.",
+    "expectedSourceFiles": [
+      "openspec/changes/harden-gm-two-player-campaign-sessions/specs/coop-campaign-sync/spec.md",
+      "openspec/changes/harden-gm-two-player-campaign-sessions/design.md"
+    ],
+    "caps": {
+      "maxFiles": 3,
+      "maxNonGeneratedLines": 300
+    },
+    "fileAccounting": "Two normative source files plus one own-lifecycle units.json file, counted together; no new source-contract or product path.",
+    "predecessors": [
+      "P2B",
+      "PAIC",
+      "P2A",
+      "PRI"
+    ],
+    "requirements": "Authenticated applied-view convergence at current branch/effective generation; successful baseline/checkpoint application before acknowledgment; durable recovery; explicit GM/player retention; privacy-safe hidden-only advancement; revocation and reconnect. Grant-delivery sequences remain epoch-local and are never directly compared with journal revisions. Preserve convergence/N+1/privacy rules; join, signed ownership, participation, delivery or maximum cursor are not application.",
+    "notImplemented": "No source contract text, application protocol, durable storage/schema or product repair is delivered by registration."
+  },
+  "immutableBlockerProvenance": {
+    "publication": "E:/Projects/MekStation/.omo/ulw-execute/evidence/task-39-p2-convergence-blocker-publication-verified.json",
+    "assessment": "E:/Projects/MekStation/.omo/ulw-execute/evidence/task-39-p2-convergence-ownership-assessment-confirmed.json",
+    "originalPublicPacket": {
+      "path": "E:/Projects/.omo/evidence/p2-convergence-continuation-20261002-gpt61/recovery-ready.json",
+      "bytes": 12964,
+      "sha256": "5772be7ecb09064c8197417c91960d6f05bc97fbf78d3401572d13a218452991",
+      "nativeExit": 1,
+      "jestPassed": 144,
+      "chromiumPassed": 3,
+      "chromiumFailed": 1,
+      "missionCreateRequests": 0,
+      "attribution": "Original public author measurement, not current registration execution."
+    }
+  },
+  "documentaryGate": {
+    "prospectiveClosurePermission": {
+      "resolution": {
+        "status": "OPTION1_PARENT_AUTHORIZED_REGISTRATION_PROPOSAL_NOT_YET_EFFECTIVE",
+        "authority": "E:/Projects/MekStation/.omo/ulw-execute/evidence/task-66-p2cc-prospective-self-lifecycle-registration-authorized.json",
+        "ordinaryMaxFiles": 3,
+        "unchangedMaxNonGeneratedLines": 300,
+        "limit": "Exact units.json exception for own-P2CC authentic lifecycle only; no other-unit/packet/holder/prerequisite/history/P2-release edit or broad node/product-path grant.",
+        "effectiveOnlyAfter": "Independent exact-head registration review, all31CI, parent pinned merge and independent exact-main proof.",
+        "currentStageReceiptsRemainAllNull": true,
+        "currentPacketDecisionAndRulingRemainNull": true,
+        "historicalBlockerRetainedBelow": true
+      },
+      "historicalStatus": "PARENT_DECISION_REQUIRED_BEFORE_FREEZING",
+      "historicalExceptionGranted": false,
+      "sourceFold": "scripts/qc/roadmap-unit-fold.mjs:62-73 uses foldStages, sets local-verified and saves units.json. roadmap-ledger-lib.mjs:223-245 writes this unit's baseline and authentic admission/red/local receipts and contributor census.",
+      "machinePredicate": "validate-roadmap.mjs:590-621 checks the source merge first-parent diff. units.json is not in the evidence-directory exclusion; without an exact ownershipExceptions entry it is outside P2CC ownership, and its added lines count against maxNonGeneratedLines.",
+      "historicalCapBoundary": "At the original blocker epoch, two source files plus committed lifecycle units.json would be three files under the then two-file grant. The consumer validates maxFiles structurally but does not enforce the actual merged-file count; that omission was not authorization. Parent option1 now proposes three total files with source and lifecycle metadata additions together within unchanged 300 counted lines.",
+      "historicalPrecedent": "Task65 evidence/p2b-lifecycle-ownership-exception-amendment-20261001.json records the authentic P2B --git1 for the same missing shared-file exception; its later exception is explicitly source0a-only and supplies no P2CC permission.",
+      "recommendedRequiredDelta": "Parent must explicitly choose and register the source-lifecycle policy before source admission: either authorize a narrow self-P2CC-only units.json lifecycle exception with an ordinary three-file total cap and unchanged 300 counted-line cap, or keep the two-file source grant and make the fold/closure metadata a separately owned delivery excluded from the source merge. No broad units.json ownership or other-unit edits are implied by either option.",
+      "historicalNotGranted": "At the prior terminal blocker, no exception/cap delta, source edit, lifecycle receipt or closure PASS had been added. The same session resumed only after recorded parent option1 authorization; original observation evidence remains unchanged."
+    },
+    "validatorEnforcesUnitPredecessors": false,
+    "parentAdmission": "After registration review/CI/pinned merge/exact-main proof, freshly verify all four P2CC predecessor PASS receipts, closure, ancestry and exact ownership before source admission.",
+    "parentRelease": "P2CC exact-main closure alone cannot release P2. A separately registered implemented current-lineage convergence repair must also pass exact-main, ancestry and closure; parent rechecks every retained P2 predecessor and guard before explicit release.",
+    "P2CRegistered": false,
+    "P2Admitted": false,
+    "U38Admitted": false,
+    "packet": "PK-p2cc-ruling",
+    "decision": null,
+    "ruling": null
+  },
+  "preservation": {
+    "historicalP2Release": "releasedAfterP2B20261001 remains unchanged and historical.",
+    "P2Caps": {
+      "maxFiles": 15,
+      "maxNonGeneratedLines": 500
+    },
+    "originalRedSha256": "144dfb6effa612da69836aaa528d9ef713267821ac11f3afabaa9cf603ba3b4f",
+    "dirtyCheckouts": "Both dirty P2 worktrees remain untouched; no access or destructive Git performed there.",
+    "historicalAuthor": "st_01a0fa6f/session01a0fa6f-54cf-7cee-a230-fb03826b8aeb completed tooling-blocked before setup, edits, QA, commit, PR or resource creation."
+  }
+}
