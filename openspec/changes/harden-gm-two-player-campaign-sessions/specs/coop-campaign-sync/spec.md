@@ -52,6 +52,67 @@ Committed events MAY continue to healthy recipients while another participant is
 - **WHEN** the GM uses an audited participant-removal command
 - **THEN** the retained participant set and launch acknowledgement requirement SHALL update in one committed campaign batch
 
+Convergence SHALL use authenticated public applied-view evidence, not delivery or final-state equality. Every durable active retained seat, including the non-playing GM and either tactical player regardless of deployment choice, SHALL participate. Socket absence SHALL NOT remove a seat. Committed audited removal SHALL determine retention and authorization even if a crash precedes seat-row healing; every attachment of the removed participant SHALL stop delivery and acknowledgement.
+
+The public `CampaignSnapshot` and `CampaignEvent` stream SHALL offer opaque application identities bound to the admitted socket, authenticated principal, campaign session, effective viewer authority, and application lineage. A cumulative receipt SHALL identify a delivered prefix; its predecessor SHALL link that prefix, with no predecessor only for an authorized replacement baseline. The server SHALL resolve the snapshot, required hydration adjunct facts, and receipt to the same captured effective branch, generation, and committed journal cut using verified parent-prefix/child-suffix history, never a root-only log substituted for a child branch.
+
+An acknowledgement SHALL report successful actual application: baseline/event acceptance into the authoritative fold or player mirror, successful projection onto the loaded campaign, and retention/application of required adjunct facts, including historical mission-launch identities absent from snapshot state. Notification of listeners, handing data to a sink, socket delivery, a transport high-water mark, or starting a saved-record refresh SHALL NOT count as application. A later saved-record refresh SHALL NOT regress an acknowledged authoritative view. Replacement hydration SHALL deliberately replace the held application lineage, be serialized per connection, and be accepted only for an outstanding join/recovery; closed or superseded views SHALL NOT acknowledge. A missing visible predecessor, rejected snapshot, wrong campaign, malformed frame, absent consumer, or failed application SHALL withhold acknowledgement and require the existing join/resync recovery path.
+
+Confirmed applied journal cuts SHALL persist in a separate durable public applied-view record keyed by campaign, session, and participant, binding branch, effective generation, viewer-authority fingerprint, accepted receipt identity, journal revision, and application time. Missing evidence SHALL mean unacknowledged even at revision zero. Grant delivery epochs/cursors, campaign `event.sequence`, snapshot `payload.revision`, membership, internal replica application, and memory acknowledgements SHALL NOT seed or substitute for this record. The existing default sequence-N/journal-revision-N+1 mapping SHALL remain distinct; explicit branch revisions SHALL NOT be repaired by adding one to a public number.
+
+Before the durable write, the server SHALL revalidate admitted socket, principal, active membership after committed removals, public viewer authority, delivered receipt prefix, and captured lineage in the transaction's authoritative context. An upgrade-authenticated but unadmitted socket SHALL NOT advance evidence. Unknown, invented-ahead, foreign-principal/session/campaign/socket, revoked, stale-authority, or stale-branch/generation claims SHALL advance nothing. Exact accepted duplicates SHALL be idempotent and MAY receive the same confirmation after revalidation; superseded offers SHALL earn no new convergence credit. Older or concurrent tab evidence SHALL NOT regress a newer valid row. Confirmation SHALL be sent only after durable commit; failure SHALL NOT confirm application. Failed, refused, or saturated sends SHALL NOT establish a delivered prefix, and that connection SHALL recover without stopping healthy recipients.
+
+Launch and socket progression SHALL read the same durable applied-view evidence and current effective history, preserving existing active-branch, pending-correction, replacement-verification precedence, readiness, and next-scenario gates. A seat SHALL converge only with valid current-lineage/current-authority evidence whose cut does not exceed the required head and whose authorized visible remainder through that head is empty. This evaluation SHALL preserve the existing full-state snapshot withholding latch across the verified history, not merely filter tail scopes. A visible fact that leaves reduced state unchanged SHALL still require application. Missing/unavailable evidence or unverifiable history SHALL fail closed, never become an empty retained set or a successful zero comparison.
+
+Hidden-only committed tails MAY satisfy convergence after a genuinely applied authorized prefix without advancing its stored applied cut. They SHALL require no player progress frame, acknowledgement request, fabricated cut, hidden payload, hidden count, or hidden-only activity disclosure. Public receipts, confirmations, and newly added refusal detail SHALL expose no durable applied journal cut. Existing public viewer policy SHALL remain: GM sees admitted scopes, players see campaign and their own player scope, and unsupported team scope is fail-closed. Public session-seat authority and internal replica-grant authority SHALL remain distinct; revoking either SHALL NOT imply automatic cross-revocation. This contract introduces no claim that the documented legacy raw-sequence concealment deferral is repaired.
+
+GM loss SHALL remain a separate pause condition with no promotion. Authentication, viewer-safe hydration, recovery, and application acknowledgements SHALL remain possible while paused so the same GM can catch up before convergence-dependent resumption; connection alone SHALL NOT demonstrate catch-up. Cold server recovery SHALL read SQLite and current effective history rather than retained memory. Outstanding unconfirmed connection offers SHALL NOT survive as application evidence. A fresh browser SHALL actually apply a fresh authorized baseline and required adjunct facts before enabling its commands, even when a durable row survived the server restart; returning membership SHALL NOT require reopening an expired invite.
+
+#### Scenario: Actual baseline and adjunct application is confirmed durably
+- **WHEN** an admitted GM or player successfully applies a public baseline, projects its state, and retains all required hydration launch facts
+- **THEN** the consumer MAY acknowledge the cumulative offered receipt and the server SHALL confirm only after its validated applied-view transaction commits
+- **AND** HTTP launch and socket progression SHALL evaluate that same durable current-lineage evidence
+
+#### Scenario: Delivery without successful application gives no credit
+- **WHEN** a frame is delivered but has no successful application consumer, is rejected, or fails projection or adjunct application
+- **THEN** no application acknowledgement or durable advancement SHALL occur and convergence SHALL remain blocked
+
+#### Scenario: Missing visible predecessor blocks a later receipt
+- **WHEN** a cumulative prefix lacks an applied visible predecessor, including a visible reducer no-op
+- **THEN** the client SHALL enter behind/syncing and SHALL NOT acknowledge past the hole before authorized recovery
+
+#### Scenario: Foreign or stale receipt is refused
+- **WHEN** a receipt is unknown, ahead of delivery, from another socket/principal/session/campaign, unadmitted, revoked, or superseded by current authority or lineage
+- **THEN** it SHALL advance no applied record and SHALL provide no current convergence credit, even with an equal or larger numeric revision
+
+#### Scenario: Duplicate and multiple-tab acknowledgements do not regress
+- **WHEN** an accepted receipt is repeated or another tab submits older evidence after a newer valid row
+- **THEN** the exact duplicate MAY be confirmed idempotently after revalidation and older evidence SHALL NOT overwrite or regress the valid row
+
+#### Scenario: Snapshot and receipt share a branch cut
+- **WHEN** hydration races a new commit or effective branch/generation change
+- **THEN** the offered receipt SHALL cover only the same verified cut as the applied snapshot and adjuncts, and obsolete lineage SHALL NOT satisfy the current gate
+
+#### Scenario: Hidden-only tail converges without player progress messages
+- **WHEN** a player has valid applied-prefix evidence and the remaining effective history contains only facts withheld by the full projection law
+- **THEN** the gate MAY converge through the required head without sending a hidden-only progress message or advancing the stored cut
+- **AND** an earlier unapplied visible fact SHALL still block, and withheld full-state checkpoints SHALL remain withheld
+
+#### Scenario: Paused GM catches up before resumption
+- **WHEN** the same GM reauthenticates while campaign authority is paused
+- **THEN** authorized hydration and acknowledgements SHALL be possible, but convergence-dependent resumption SHALL wait for the GM and every other retained seat to converge
+- **AND** no tactical player SHALL gain GM authority
+
+#### Scenario: Cold recovery requires fresh browser application
+- **WHEN** the server cold-reopens durable state and a fresh browser returns through active membership
+- **THEN** convergence SHALL use SQLite/current effective history rather than lost memory, and the browser SHALL apply fresh authorized hydration before enabling commands
+- **AND** missing applied evidence SHALL remain unacknowledged even at revision zero
+
+#### Scenario: Committed removal survives a seat-heal crash
+- **WHEN** audited participant removal committed but the process crashed before seat-row healing
+- **THEN** the removed participant SHALL neither acknowledge nor remain required for convergence, and every attachment SHALL lose delivery authorization
+- **AND** unrelated internal grant revocation SHALL NOT be inferred from that public-seat removal
+
 ### Requirement: GM Loss Pauses Campaign Authority
 Loss of the non-playing GM connection SHALL pause proposal finalization, rewind, campaign correction, and scenario transition. GM authority SHALL NOT migrate implicitly to a player.
 
