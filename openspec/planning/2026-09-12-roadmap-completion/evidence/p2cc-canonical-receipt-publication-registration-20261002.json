@@ -1,0 +1,65 @@
+{
+  "event": "p2cc-canonical-receipt-publication-registration",
+  "planTask": 70,
+  "unit": "P2CC",
+  "baseline": "7de6685035790462b00a17f301ffa1c2354933e0",
+  "registrationOnly": true,
+  "authority": "E:/Projects/MekStation/.omo/ulw-execute/handoffs/task-70-p2cc-canonical-receipt-registration-20261002.json",
+  "assessment": "E:/Projects/MekStation/.omo/ulw-execute/evidence/task-67-p2cc-canonical-receipt-permission-gap-assessed.json",
+  "acceptedTask66": "E:/Projects/MekStation/.omo/ulw-execute/evidence/task-66-p2cc-registration-final-qualified-exactmain-accepted.json",
+  "acceptedTask66Review": "E:/Projects/MekStation/.omo/ulw-execute/evidence/task-66-p2cc-registration-exact151f-independent-review-accepted.json",
+  "mechanism": {
+    "fold": "scripts/qc/roadmap-ledger-lib.mjs:194-243 derives unitId.toLowerCase()/date names, copies admission/red/local files byte-for-byte into canonical planning evidence and records those paths. roadmap-unit-fold.mjs:62-73 then changes own state and saves units.json.",
+    "consumer": "validate-roadmap.mjs:595-619 skips evidence-directory entries for ownership/added-line checking and does not enforce actual merged-file count. Neither omission supplies a native path grant or permission to exceed the accepted actual file cap.",
+    "actualRequiredFiles": 6,
+    "oldRegisteredMaxFiles": 3,
+    "ownerNode": "R6.umbrella",
+    "ownerMaxFiles": 15,
+    "ownerMaxNonGeneratedLines": 500,
+    "ownerNodeChanged": false
+  },
+  "prospectiveDelta": {
+    "maxFilesFrom": 3,
+    "maxFilesTo": 6,
+    "unchangedMaxNonGeneratedLines": 300,
+    "appendExactOwnershipExceptions": [
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cc-admission-20261002.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cc-red-20261002.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cc-local-20261002.json"
+    ],
+    "sixActualFiles": "Two existing named normative source files plus exact own-lifecycle units.json and the three exact own canonical receipts. All lifecycle metadata additions count with source additions in300; canonical receipt additions are separately reported under unchanged shipped line accounting, but still count as actual files.",
+    "documentaryPrecedence": "After Task70 acceptance only, canonicalReceiptPublication20261002 supersedes the original three-file accounting sentences, not any behavior, lifecycle subtree limit or admission gate. Original Task66 records/text remain unchanged.",
+    "noCapException": true,
+    "noBroadGrant": true
+  },
+  "preservedBlockedDraft": {
+    "candidate": "E:/Projects/.omo/evidence/p2cc-source-contract-20261002-gpt61/candidate-ready.json",
+    "candidateBytes": 6575,
+    "candidateSHA256": "dab97b6d39f41f2e10c0ba59ac9eb0209ad3e3ae0e77a09da7de274d028b0e55",
+    "originalActor": "st_01a0faf7/01a0faf7-712f-7c6f-ac1d-155000f84749",
+    "countedSourceAddedLines": 97,
+    "designBytes": 37045,
+    "designSHA256": "5347c2eb372e4d2277e373255e066c57f1f1aae2e53c3b56c6870424f04d68fb",
+    "specBytes": 26790,
+    "specSHA256": "94768ebd8b02f5559e64124d3030728a84a1ce8ef8eae1288022153a21ec34ed",
+    "disposition": "Read/hash only; uncommitted draft not adopted or approved. Original failed format and blocked publication remain historical; no source-stage artifact is generated here."
+  },
+  "preservation": {
+    "sourceOwnership": "openspec/changes/harden-gm-two-player-campaign-sessions",
+    "ownLifecycleException": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+    "ownLifecycleSubtreeLimitUnchanged": true,
+    "reviewClasses": ["authority", "privacy", "replay", "idempotency", "concurrency"],
+    "state": "planned",
+    "baselineHeadMergeAndSevenStages": "all null",
+    "PKp2ccDecisionAndRuling": "both null",
+    "allOtherUnitsPacketsHoldersOrderPrerequisitesHistoryAndP2Guards": "unchanged",
+    "twoNormativeSourceFiles": "unchanged"
+  },
+  "delivery": "Three registration files/150 counted added lines, evidence additions separately reported. Independent exact-head review/all31CI/standing parent ruling, parent pinned merge, all actual postmerge workflows, independent exact-main registration proof and genuine owned teardown precede parent Task70 acceptance and fresh Task67 re-admission. No admission from NEXT or skipped evidence enforcement.",
+  "Task70Complete": false,
+  "Task67Readmitted": false,
+  "P2CCSourcePASS": false,
+  "P2CRegistered": false,
+  "P2Admitted": false,
+  "U38Admitted": false
+}
