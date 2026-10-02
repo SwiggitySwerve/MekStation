@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CC",
+  "stage": "admission",
+  "date": "20261002",
+  "baseline": "20dc4859da6542fc2c5f659e3bc5b68fb7d0fbf7",
+  "sourceCheckpoint": "20946dbf76ce3091363c162ae1fe39fd29a90c14",
+  "integrationHead": "e129965cb506eb8223d56c5c8f55756cf6eab831",
+  "authority": "E:/Projects/MekStation/.omo/ulw-execute/handoffs/task-67-current20dc-source-delivery-readmitted-20261002.json",
+  "acceptedPreflight": "E:/Projects/MekStation/.omo/ulw-execute/evidence/task-67-currentmain-resumption-preflight-parent-accepted-20261002.json",
+  "acceptedNormativeCheckpoint": "E:/Projects/MekStation/.omo/ulw-execute/evidence/task-67-preserved-normative-checkpoint-parent-accepted-20261002.json",
+  "parentDecision": {
+    "decision": "go",
+    "scope": "Released current20dc six-file source delivery after independent two-file checkpoint approval and fresh native Add-only capability"
+  },
+  "actor": {
+    "task_id": "st_01a0faf7",
+    "child_session_id": "01a0faf7-712f-7c6f-ac1d-155000f84749",
+    "model": "chatgpt-subscription/gpt-6.1-sol",
+    "epoch": 5
+  },
+  "cap": {
+    "maxFiles": 6,
+    "maxCountedAddedLines": 300,
+    "preservedNormativeAdditions": 97,
+    "remainingCountedMetadataBudgetAtMost": 203,
+    "canonicalEvidenceLinesSeparatelyReported": true
+  },
+  "summary": "Original author re-admitted on accepted20dc; checkpoint20946 retained through normal ordered-parent merge. Own lifecycle and only three exact dated receipts are authorized; normative pins stay unchanged.",
+  "historicalQualification": "Original blocked candidate, failed QA/recovery epochs, preserved Draft2112 and tracking-config mutation/final protection failure remain literal. Actual current config is the new protection baseline, not repaired.",
+  "nonClaims": {
+    "runtimeImplementation": false,
+    "Task67Complete": false,
+    "reviewOfFinalSixFiles": false,
+    "CIOfFinalHead": false,
+    "ownerRuling": false,
+    "mergeToMain": false,
+    "mainProof": false,
+    "closure": false,
+    "Task68Task69P2U38Admitted": false
+  }
+}

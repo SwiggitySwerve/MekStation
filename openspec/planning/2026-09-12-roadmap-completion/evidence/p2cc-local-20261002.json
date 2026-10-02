@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CC",
+  "stage": "local",
+  "date": "20261002",
+  "status": "ready",
+  "baseline": "20dc4859da6542fc2c5f659e3bc5b68fb7d0fbf7",
+  "testedIntegrationHead": "e129965cb506eb8223d56c5c8f55756cf6eab831",
+  "reviewContractVersion": 2,
+  "implementationActors": [
+    {
+      "role": "author",
+      "task_id": "st_01a0faf7",
+      "child_session_id": "01a0faf7-712f-7c6f-ac1d-155000f84749",
+      "model": "chatgpt-subscription/gpt-6.1-sol"
+    }
+  ],
+  "execution": {
+    "currentNativeEpoch": 6,
+    "earlierGateEpoch": 5,
+    "node": "v22.22.0",
+    "affinity": 3,
+    "serializedHeavyLane": true,
+    "physicalOriginalOwnedDependencies": true,
+    "fullNativeGraphVerifiedAt": "2026-10-02T18:55:15.717Z",
+    "evidenceRoot": "E:/Projects/.omo/evidence/p2cc-source-contract-20261002-gpt61/current20dc-resumption/"
+  },
+  "sourcePins": [
+    {
+      "path": "openspec/changes/harden-gm-two-player-campaign-sessions/design.md",
+      "bytes": 37045,
+      "sha256": "5347c2eb372e4d2277e373255e066c57f1f1aae2e53c3b56c6870424f04d68fb"
+    },
+    {
+      "path": "openspec/changes/harden-gm-two-player-campaign-sessions/specs/coop-campaign-sync/spec.md",
+      "bytes": 26790,
+      "sha256": "94768ebd8b02f5559e64124d3030728a84a1ce8ef8eae1288022153a21ec34ed"
+    }
+  ],
+  "nativeGateResults": [
+    {"result": "current-node-pins.result.json", "bytes": 14110, "sha256": "4d5dc7b74b42067922e2359bcd22752a517b39b4fd48d001268043514ba3f514", "nativeExit": 0},
+    {"result": "current-qc-pins.result.json", "bytes": 1822, "sha256": "46bfcc7fdf885d61c8d14c9f509f81da89c9ed7dc782a5bb70aab231cfbf357f", "nativeExit": 0},
+    {"result": "current-strict-change.result.json", "bytes": 1462, "sha256": "11c9d030ac3abe1981af7ed48ea3d0157a2af66a80adad82f6e08a0fe612ef3f", "nativeExit": 0},
+    {"result": "current-strict-all.result.json", "bytes": 8423, "sha256": "9516983a0c7d68d0583fb4c88dbcb0fa66df58c1fb149e8bf5b8eaa1152744b7", "nativeExit": 0},
+    {"result": "current-format.result.json", "bytes": 1508, "sha256": "1dfa20acb89564ec0e49819c29a51a8bb7866ee02057098139a7561af4ffd13f", "nativeExit": 0},
+    {"result": "current-lint.result.json", "bytes": 41320, "sha256": "af633afcf1359f2a64e7cc0a43362950878ad710ec5da11788eb4e336e27d272", "nativeExit": 0},
+    {"result": "current-typecheck.result.json", "bytes": 1399, "sha256": "d4c164c7ea0bd732f891cfe09aac6540572357d83c0b157412ce5e42b249ca82", "nativeExit": 0},
+    {"result": "current-epoch6-purpose.result.json", "bytes": 1679, "sha256": "f9d38c71be81c200a4345d54f0e8c54bd10b4ea0d9ab46e3bf56a0b631d8355d", "nativeExit": 0},
+    {"result": "current-epoch6-terminology.result.json", "bytes": 2291, "sha256": "24623455f5973fb22ca3d2ff90cccbe3e6d90430861d4360a8000331e33b8ca5", "nativeExit": 0},
+    {"result": "current-epoch6-qc-openspec.result.json", "bytes": 1695, "sha256": "a7cab880b505dab5d96c6134030332b95666b32e4da64b4d5316413265df59d9", "nativeExit": 0},
+    {"result": "current-epoch6-qc-registry.result.json", "bytes": 1520, "sha256": "293bf386916796d846ae28c82b4ab0a7dde69e6776a8fdedff62b0918ea07247", "nativeExit": 0},
+    {"result": "current-epoch6-lint-units.result.json", "bytes": 1747, "sha256": "74674b1d3622e96f7bd4cfe528cf7e6ecae068b343097353bceac5d06d575d78", "nativeExit": 0},
+    {"result": "current-epoch6-build.result.json", "bytes": 137362, "sha256": "1c2351abf58e892e3c770bc5bd2822ef0b803a64421cefdf4a78808ed51b80c7", "nativeExit": 0}
+  ],
+  "summary": "All13 required current-base native gates exited0: Node62/62, Jest52/52, strict OpenSpec229/229, format, lint, typecheck, strict purpose/terminology, OpenSpec QC, registry, lint-units and production build. The inspected own-P2CC-only fold and final public metadata validation follow; their native outcomes belong to the fresh candidate handoff.",
+  "qualifications": [
+    "Lint retains84 existing warnings and0 errors; no suppression or cleanup.",
+    "Terminology retains the shipped MODULE_TYPELESS_PACKAGE_JSON warning; no package change.",
+    "External-helper TypeScript LSP is unavailable because its workspace installation cannot be resolved; canonical JSON diagnostics were clean and real typecheck/build exited0.",
+    "Epoch5 batch exited1 after original native task became completed before current-purpose input creation. Epoch6 parent-native resumption ran only six unexecuted gates; the failed batch and seven earlier passing results remain immutable.",
+    "The historical shared-config branch-tracking deviation and original failed final guard remain qualified; no config repair.",
+    "These are current-base local source gates, not final exact-head CI, review, runtime convergence proof or source completion."
+  ],
+  "finisherCount": 0,
+  "runtimeImplementation": false,
+  "Task67Complete": false,
+  "P2CRegistered": false,
+  "P2U38Admitted": false
+}

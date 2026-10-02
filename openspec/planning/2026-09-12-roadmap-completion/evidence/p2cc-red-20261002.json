@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CC",
+  "stage": "red",
+  "date": "20261002",
+  "baseline": "20dc4859da6542fc2c5f659e3bc5b68fb7d0fbf7",
+  "receiptNature": "Semantic source-contract gap, not a runtime failing test",
+  "historicalSourceObservation": {
+    "path": "E:/Projects/.omo/evidence/p2cc-source-contract-20261002-gpt61/source-semantic-gap-and-scope-blocker.json",
+    "bytes": 7317,
+    "sha256": "445e130b9118398abe25f9ab312528c3e931a84f24ab97c3cfa0a81adc11a033",
+    "baseline": "7de6685035790462b00a17f301ffa1c2354933e0",
+    "reopenedUnchangedInCurrentEpoch": true
+  },
+  "currentBaseBinding": "Accepted nonauthor current20dc preflight binds unchanged openspec/src trees and producer inputs; Task70 changes metadata only. Independent checkpoint epoch1 accepted the preserved97-line normative contract without replaying semantic review. This receipt carries forward the explicit source gap, not historical QA as fresh execution.",
+  "summary": "Baseline20dc lacks authenticated durable public actual-application/current-lineage convergence: grant MAX and delivery/memory acknowledgment do not prove applied journal cuts, GM participation, fold/mirror/adjunct application or cold recovery.",
+  "sourceGap": [
+    {
+      "path": "src/pages-modules/api/campaignLaunchProgressionGate.ts",
+      "lines": "224-242",
+      "observation": "MAX(acked_sequence) over grant cursors is not an authenticated public current-lineage journal cut."
+    },
+    {
+      "path": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+      "lines": "627-634",
+      "observation": "Public CampaignAck records a memory-only participant acknowledgment."
+    },
+    {
+      "path": "src/lib/campaign/coop/campaignSyncTransport.ts",
+      "lines": "216-254",
+      "observation": "Transport notification and numeric acknowledgment do not establish successful snapshot/fold/mirror/adjunct application."
+    },
+    {
+      "path": "src/lib/multiplayer/server/CampaignSyncSession.ts",
+      "lines": "570-592",
+      "observation": "Delivery seeds acknowledgment and excludes the GM; retained-seat applied convergence is not durable."
+    }
+  ],
+  "selectedSourceContract": "Authenticated actual-application receipts on existing public frames, separate durable current-lineage applied journal cuts, and authorized visible-remainder evaluation for all retained seats including GM.",
+  "preservedBoundaries": "Existing full-state snapshot withholding, N+1/raw-sequence privacy deferral, independent public seat/internal grant authorities and committed retained-seat removal remain distinct. Representation is prospective design, not a shipped protocol or migration.",
+  "runtimeRED": false,
+  "runtimePASS": false,
+  "runtimeImplementation": false,
+  "Task67Complete": false
+}

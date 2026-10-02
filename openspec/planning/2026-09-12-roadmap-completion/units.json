@@ -5313,14 +5313,37 @@
         "maxFiles": 6,
         "maxNonGeneratedLines": 300
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "local-verified",
+      "baseline": "20dc4859da6542fc2c5f659e3bc5b68fb7d0fbf7",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/p2cc-admission-20261002.json",
+          "baseline": "20dc4859da6542fc2c5f659e3bc5b68fb7d0fbf7",
+          "at": "2026-10-02T18:57:40.176Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/p2cc-red-20261002.json",
+          "at": "2026-10-02T18:57:40.176Z",
+          "summary": "Semantic source gap: baseline20dc lacks authenticated current-lineage actual application; no runtime RED."
+        },
+        "local": {
+          "path": "evidence/p2cc-local-20261002.json",
+          "at": "2026-10-02T18:57:40.176Z",
+          "summary": "Current-base13gates exit0: Node62/62 Jest52/52 strict229/229 format lint84warnings type QC build; unchanged97norms; authentic original author only. Final review/CI/ruling/merge/proof/closure pending.",
+          "reviewContractVersion": 2,
+          "implementationActors": [
+            {
+              "role": "author",
+              "task_id": "st_01a0faf7",
+              "child_session_id": "01a0faf7-712f-7c6f-ac1d-155000f84749",
+              "model": "chatgpt-subscription/gpt-6.1-sol"
+            }
+          ]
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
