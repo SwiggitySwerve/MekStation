@@ -5295,7 +5295,10 @@
         "openspec/changes/harden-gm-two-player-campaign-sessions"
       ],
       "ownershipExceptions": [
-        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cc-admission-20261002.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cc-red-20261002.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cc-local-20261002.json"
       ],
       "lifecycleOwnershipLimit": "Prospective own-P2CC lifecycle/state/baseline/head/merge/stage-receipt and bound authentic actor-census fields only, effective after this registration receives independent exact-head review, all 31 required CI checks, parent pinned merge and independent exact-main proof. No other-unit, packet, holder, behavior, ownership, cap, prerequisite, historical receipt or P2-release edits. Any canonical packet change requires separately authorized actual parent-ruling/closure scope. Two normative source files and this lifecycle file count together within maxFiles3 and the unchanged 300 added non-generated-line cap; shared-file additions count, with no capException or broad node grant. No current lifecycle receipt or PASS is manufactured.",
       "ciClass": "product",
@@ -5307,7 +5310,7 @@
         "concurrency"
       ],
       "caps": {
-        "maxFiles": 3,
+        "maxFiles": 6,
         "maxNonGeneratedLines": 300
       },
       "state": "planned",
@@ -5339,6 +5342,14 @@
         "baseline": "716d09b829bcf079dcb7e06de3465dfdedaf1522",
         "evidence": "evidence/p2cc-registration-20261002.json",
         "note": "Prospective rowless source-contract registration only; no source, product, owner decision, admission or completion evidence is supplied. P2C storage/schema ownership remains unchosen and unregistered."
+      },
+      "canonicalReceiptPublication20261002": {
+        "planTask": 70,
+        "baseline": "7de6685035790462b00a17f301ffa1c2354933e0",
+        "evidence": "evidence/p2cc-canonical-receipt-publication-registration-20261002.json",
+        "effectiveOnlyAfter": "Independent exact-head registration review, all31CI, standing parent ruling, parent pinned merge, all required postmerge workflows, independent exact-main registration proof and genuine owned teardown; parent alone accepts Task70 and re-admits Task67.",
+        "prospectiveAccounting": "Supersedes only Task66's three-total-file accounting sentences in behavior, lifecycleOwnershipLimit and admissionRequires after acceptance: two unchanged named normative source paths, exact own-lifecycle units.json and the three appended own canonical admission/red/local-20261002.json receipt paths count as six actual files. Ordinary maxFiles6/maxNonGeneratedLines300; lifecycle metadata additions count in300 and canonical evidence additions are separately reported under unchanged shipped line accounting. No file-count exemption, capException or broad directory grant.",
+        "publicationLimit": "Only authentic own-P2CC admission/red/local receipts at the three exact appended paths; no other date, stage, identity archive, source path, other-unit, packet, holder, prerequisite, history, behavior or P2-release edit. Existing lifecycle subtree restriction and all five review classes remain binding. No source fold, admission, stage receipt, PASS, P2C registration or P2/U38 release is supplied by this amendment."
       }
     },
     {
