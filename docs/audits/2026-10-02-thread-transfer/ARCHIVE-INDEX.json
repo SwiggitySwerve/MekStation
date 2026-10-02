@@ -1,0 +1,138 @@
+{
+  "status": "SEALED_THREE_ARCHIVE_READER_PAIR_FINAL_PUBLICATION_FILE_SET_REVIEW_PENDING",
+  "authoritativeReaderPortal": "START-HERE.md",
+  "readOnlyDecoder": "read-archives.mjs",
+  "archives": [
+    {
+      "name": "p2",
+      "directory": "p2-source-archive",
+      "encoding": "gzip JSON with exact UTF8 member bodies",
+      "ordinalDigits": 3,
+      "parts": 12,
+      "members": 21,
+      "originalMemberBytes": 200057,
+      "compressed": {
+        "bytes": 52487,
+        "sha256": "2659f9b2fa1ef02347b6209466d93b85201a5ddc062b154c021d7934b805dc28"
+      },
+      "decoded": {
+        "bytes": 220124,
+        "sha256": "479e61e79f42e74876bf7fd5286b270a311f223f89df6f04dcb9fc046813dbb6"
+      },
+      "originalVerification": {
+        "path": "E:/Projects/.omo/evidence/mekstation-thread-transfer-history-20261002-gpt61/p2-native-parts-parent-checkpoint-ready.json",
+        "bytes": 5126,
+        "sha256": "2764fd474d8fc04bc9fb2b5f9683ce45ff6dfb9f7399b935a3e0b94a5305622b"
+      }
+    },
+    {
+      "name": "history",
+      "directory": "full-history-archive",
+      "encoding": "Brotli: uint64LE header byte length, UTF8 JSON header, concatenated raw original members",
+      "ordinalDigits": 4,
+      "parts": 371,
+      "members": 732,
+      "originalMemberBytes": 7740630,
+      "compressed": {
+        "bytes": 1279785,
+        "sha256": "c17cfbf58cdc6a7a1a60c315a210c5462564b5490da80c95f18a555da8cb2d86"
+      },
+      "decoded": {
+        "bytes": 8089028,
+        "sha256": "785bf88a1797b7c389a534272f78b0d9ecaa976a0c883af04442aa3242e519be"
+      },
+      "originalVerification": {
+        "path": "E:/Projects/.omo/evidence/mekstation-thread-transfer-history-20261002-gpt61/full-history-genuine-materialization-ready.json",
+        "bytes": 1811,
+        "sha256": "07ceca3e95789a893ec67210404e189b3d219538e5469f4ae354070f31e7a982"
+      }
+    },
+    {
+      "name": "current",
+      "directory": "current-controls-archive",
+      "encoding": "Brotli: uint64LE header byte length, UTF8 JSON header, concatenated raw original members",
+      "ordinalDigits": 4,
+      "parts": 72,
+      "members": 19,
+      "originalMemberBytes": 1275499,
+      "compressed": {
+        "bytes": 245456,
+        "sha256": "3c9cfe9eced9779f7a9347866d73f712b50c0fa72642e43954969c5f360f82c4"
+      },
+      "decoded": {
+        "bytes": 1286843,
+        "sha256": "1775852e6e1aeba91b3f0f322ae533f0b5901c73f60bbc3610c7a6b8b30dc5bd"
+      },
+      "originalVerification": {
+        "path": "E:/Projects/.omo/evidence/mekstation-thread-transfer-history-20261002-gpt61/current-controls-genuine-materialization-ready.json",
+        "bytes": 1232,
+        "sha256": "d512392e41a4af6d506ea48beffcb01ba50f41fddb9634e28219a1059289209d"
+      }
+    }
+  ],
+  "actualArchiveParts": 455,
+  "actualArchiveMemberOccurrences": 772,
+  "actualOriginalMemberOccurrenceBytes": 9216186,
+  "historicalManifestLF": {
+    "bytes": 125059,
+    "sha256": "fe3663e55078e5110b0cf06d70fe27e65b95af67fadfdf09d03f1ddc93d46856",
+    "originalRows": 732,
+    "originalBytes": 7740630
+  },
+  "historicalDraftCaptureMapping": {
+    "originalPath": "E:/Projects/MekStation/.omo/ulw-execute/handoffs/thread-transfer-next-thread-planning-handoff-20261002.md",
+    "captureSource": "E:/Projects/MekStation-wt/thread-transfer-history-20261002-gpt61/docs/audits/2026-10-02-thread-transfer/PARENT-PLANNING-HANDOFF-DRAFT.md",
+    "bytes": 12146,
+    "sha256": "6f6f79cd6fbdce6d0de94fada32da357542e1df1fba071324caeb7834b35ffb4"
+  },
+  "historicalCore": [
+    {
+      "file": "README.md",
+      "bytes": 4047,
+      "sha256": "7b329f9e92c22d57727c929be14b3f112081f8eade59243441321fa1f2de5bf5",
+      "qualification": "Historical preparation-era README; not current materialization status."
+    },
+    {
+      "file": "PARENT-PLANNING-HANDOFF-DRAFT.md",
+      "bytes": 12146,
+      "sha256": "6f6f79cd6fbdce6d0de94fada32da357542e1df1fba071324caeb7834b35ffb4",
+      "qualification": "Authenticated old draft; current12310-byte original is separately captured in current archive."
+    },
+    {
+      "file": "historical-153-todos-and-current-override.json",
+      "bytes": 6670,
+      "sha256": "1b1126155b61772668b00d0f331a96c17650cf59fe17e8b92dc1814ab83d2cf3",
+      "qualification": "Complete exact original structured task object and full five-override bytes; unchanged."
+    }
+  ],
+  "localOnlyIndex": {
+    "relativePath": "LOCAL-ONLY-CUSTODY-INDEX.json",
+    "qualification": "Custody/provenance metadata only. Private native archives, raw graph material, over2MiB inspection-cap material and unadopted leases remain local; no private payload publication or cleanup."
+  },
+  "sourceQualification": {
+    "normalSourceHookExit": 1,
+    "literalFailure": "src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx(187,54): TS2345: string | undefined is not assignable to SetStateAction<string | null>.",
+    "sourceCommit": null,
+    "sourcePush": false,
+    "sourcePR": null,
+    "P2SourceAcceptance": false,
+    "Task39Complete": false,
+    "CAMPAIGN_NOT_CONVERGED": true,
+    "archiveBytesAcceptedIsNotSourceDelivery": true,
+    "all43OriginalFutureObligationsPending": true,
+    "publicationHeld": true
+  },
+  "laterParentSlots": {
+    "finalExactFileSetIndependentReview": "Same reviewer st_01a0fc29; payload review approved, final portal/additive file-set approval remains pending.",
+    "automaticUnweakenedNormalPublicationHooks": "Pending parent release; no commit or hook run here.",
+    "actualHistoryRemotePRHeadBlobsAndCI": "Later additive originals only after real publication.",
+    "finalTransferTaskStatusesLedgerPlanningHandoffAndPause": "Later additive parent evidence, not an impossible self-reference prerequisite.",
+    "allOwnedPublished": false,
+    "finalSnapshotComplete": false,
+    "transferComplete": false,
+    "overallGoalComplete": false
+  },
+  "acceptedArchivePayloadsAndFilePinsUnchanged": true,
+  "archiveJSONRepresentationChanges": [],
+  "publicationFileManifestAuthority": "The final bounded-materialization-ready.json binds the complete frozen documentation file set, including this index, the portal, custody index and post-capture original sidecars."
+}
