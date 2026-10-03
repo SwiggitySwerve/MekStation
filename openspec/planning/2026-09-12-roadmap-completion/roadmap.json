@@ -8349,6 +8349,98 @@
           "evidence": "evidence/pri-registration-20260929.json"
         }
       ]
+    },
+    {
+      "id": "R0.cni-registration",
+      "wave": 0,
+      "title": "CNI0 approved docs-bootstrap delivery milestone; canonical native closure debt OPEN",
+      "kind": "planning",
+      "state": "planned",
+      "dependsOn": [],
+      "ownershipPaths": [
+        "openspec/planning/2026-09-12-roadmap-completion/GOAL.md",
+        "openspec/planning/2026-09-12-roadmap-completion/DELIVERY.md",
+        "openspec/planning/2026-09-12-roadmap-completion/WORKERS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/roadmap.json"
+      ],
+      "maxFiles": 6,
+      "maxNonGeneratedLines": 500,
+      "taskKeys": [],
+      "receipt": null,
+      "acceptance": [
+        "Actual independent exact-head Sol high/xhigh docs review, required CI/owner gates, guarded merge and exact-main registration proof; no native canonical closure claim"
+      ],
+      "registration": "evidence/cni-registration-20261002.json"
+    },
+    {
+      "id": "R6.cni-source",
+      "wave": 6,
+      "title": "CNI1 atomic seven-file source delivery milestone; native closure debt remains OPEN until publication",
+      "kind": "verification",
+      "state": "blocked",
+      "dependsOn": [
+        "R0.cni-registration"
+      ],
+      "ownershipPaths": [
+        "scripts/qc/roadmap-ledger-lib.mjs",
+        "scripts/qc/roadmap-unit-closure.mjs",
+        "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+        "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+        "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs"
+      ],
+      "maxFiles": 7,
+      "maxNonGeneratedLines": 500,
+      "taskKeys": [],
+      "receipt": null,
+      "acceptance": [
+        "One atomic source PR; genuine native capture/intake/portable qualification, isolated SOURCE review, all required CI/owner gates, guarded merge and exact-main source proof"
+      ],
+      "registration": "evidence/cni-registration-20261002.json"
+    },
+    {
+      "id": "R0.cni-evidence",
+      "wave": 0,
+      "title": "CNI2 actual canonical native evidence prefix delivery; partial publication releases no unit",
+      "kind": "planning",
+      "state": "blocked",
+      "dependsOn": [
+        "R6.cni-source"
+      ],
+      "ownershipPaths": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/roadmap.json"
+      ],
+      "maxFiles": 15,
+      "maxNonGeneratedLines": 500,
+      "taskKeys": [],
+      "receipt": null,
+      "acceptance": [
+        "Freeze actual finite filenames/hash/bytes, independent exact-head review and actual prefix merge/main proof; no partial closure"
+      ],
+      "registration": "evidence/cni-registration-20261002.json"
+    },
+    {
+      "id": "R0.cni-discharge",
+      "wave": 0,
+      "title": "CNI3 complete native debt evidence publication; original Task1 requalification remains required",
+      "kind": "planning",
+      "state": "blocked",
+      "dependsOn": [
+        "R0.cni-evidence"
+      ],
+      "ownershipPaths": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/roadmap.json"
+      ],
+      "maxFiles": 15,
+      "maxNonGeneratedLines": 500,
+      "taskKeys": [],
+      "receipt": null,
+      "acceptance": [
+        "Full genuine CNI0/CNI1 candidate intake and portable archives, complete debt discharge, exact-head delivery/main proof and cleanup before separate current-main Task1 qualification"
+      ],
+      "registration": "evidence/cni-registration-20261002.json"
     }
   ],
   "tasks": [

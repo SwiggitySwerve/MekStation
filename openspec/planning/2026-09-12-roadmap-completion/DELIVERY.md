@@ -1,4 +1,7 @@
 # Delivery, verification, and cleanup contract
+> **Status:** Active; named CNI0 bootstrap only
+> **Created:** 2026-09-15
+> **Updated:** 2026-10-02
 
 This roadmap is authorized by the user's 2026-09-12 request for implementation, verification, incremental PRs, merging, cleanup, and completion. The parent owns decomposition, integration, acceptance, and Git delivery. Workers own only their assigned files or evidence question.
 
@@ -18,6 +21,20 @@ This roadmap is authorized by the user's 2026-09-12 request for implementation, 
 ## Version-2 review delivery (2026-09-29)
 
 Follow GOAL.md's canonical v2 census, observation, bindings, archive and fail-closed contract. Before fold, record the complete local contributor census; closure requires paired `--review-identity <manifest-json>` AND `--engine-records-dir <caller-directory>`. Parent independently audits live observations and contributor coverage; hashes do not authenticate provenance. PRI requires fresh SOURCE review under its candidate contract, then all existing CI/pinned-merge/exact-main/closure gates. Registration approval and synthetic fixtures are not delivery; no Task60 tick or PMP admission before closure.
+
+## Codex-native delivery amendment (2026-10-02)
+
+Follow GOAL.md's owner-approved LOCAL version-3 policy and [the exact registration](evidence/cni-registration-20261002.json). The owner's approval permits CNI0 docs-bootstrap delivery only; unchanged v2 cannot represent it, so retain OPEN canonical native closure debt without invented receipts. This section supersedes prior no-bootstrap wording only for CNI0. All old modes/receipts/actors/resources and every ordinary review, CI, owner, topology, whole-tree, exact-main and cleanup gate retain their contracts.
+
+CNI0 owns exactly six files/500 counted additions. Its new docs-registration milestone records actual bootstrap delivery independently from the blocked canonical CNI0 unit. Admit CNI1 only after that milestone's real merged/main-proved registration, ancestry, independent review and exact scope are checked. CNI1 owns exactly seven files/500 counted additions in ONE atomic source PR; no separate producer prefix. Every changed test/doc/register/evidence file counts toward file caps; existing U41 line exclusions remain exact. Stop for separately reviewed registration before exceeding scope/caps.
+
+CNI2 and CNI3 each own only units.json, roadmap.json and finite actual CNI0/CNI1 evidence filenames allowed by the registration's naming contract; each stays within 15 files/500 counted additions. Freeze actual dates/hash names and exact byte/hash list before publication review. No placeholder snapshot, wildcard write grant or invented contributor is permitted. Reopen exports and independently qualify all source/result/reviewer bytes and actual contributor/route/context bindings. Partial prefixes never complete canonical CNI0/CNI1 or original Task1.
+
+Existing literal ownership paths are executable navigation; absent prospective files are exact `ownershipExceptions`, constrained by the registration's authoritative grants. Parent must independently enforce reservations, complete changed-file scope and publication caps because NEXT does not reserve exceptions and --git excludes ledger evidence paths. Future exception lists stay empty until genuine names freeze. No global harness/config/hook/lock, credential, fold/main-proof source, package/schema, game/browser/service or historical-resource grant exists.
+
+Only after genuine v3 closure/debt publication and required delivery/cleanup may the parent requalify Task1 against fetched current main. A missing consumer, witness, gate, SOURCE reviewer or complete byte readback remains a blocker; docs approval and synthetic tests do not discharge it.
+
+Use GOAL.md's finite same-scope milestone follow-ups: units.json/roadmap.json plus existing registration JSON only if needed, recording actual predecessor proofs under ordinary exact-head review/required CI/owner-ruling/guarded merge/main-proof gates. No registry edit rides CNI1's seven-file source PR. Aggregate initial/follow-up CNI0 counted additions must stay within 500; no extra filename or bootstrap exception is granted. The general approval does not supply a final `OWNER-RULING <head>` comment or `owner-ruled` label for these authority/privacy units.
 
 ## Ordered-parent successor and retained historical proof
 
