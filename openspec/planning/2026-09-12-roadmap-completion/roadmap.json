@@ -8381,7 +8381,7 @@
       "wave": 6,
       "title": "CNI1 atomic thirteen-file modular source delivery milestone; native closure debt remains OPEN until publication",
       "kind": "verification",
-      "state": "blocked",
+      "state": "main-verified",
       "dependsOn": [
         "R0.cni-registration"
       ],
@@ -8405,7 +8405,10 @@
       "maxFiles": 13,
       "maxNonGeneratedLines": 500,
       "taskKeys": [],
-      "receipt": null,
+      "receipt": {
+        "mainSha": "622f46cdbe505fd57cfd5e0a9635496a343baf3e",
+        "evidence": "evidence/cni-registration-20261002.json"
+      },
       "acceptance": [
         "One atomic source PR; genuine native capture/intake/portable qualification, isolated SOURCE review, all required CI/owner gates, guarded merge and exact-main source proof"
       ],

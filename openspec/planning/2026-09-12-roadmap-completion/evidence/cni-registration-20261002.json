@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "actual first-registration main delivery and cleanup proved; native debt OPEN; no source or canonical closure acceptance",
+  "status": "actual first-registration and CNI1 source main delivery and cleanup proved; native debt OPEN; no canonical closure acceptance",
   "id": "CNI-registration-20261002",
   "baseline": "2fe46eaae9de7be054395021c9dc89dc6798293c",
   "deliveryProof": {
@@ -106,6 +106,129 @@
     },
     "enforcement": "Documentary public summary only. Unchanged portable NEXT checks node state, not deliveryProof authenticity. Parent reopens private raw bytes and confirms custody; hashes alone cannot authenticate private evidence."
   },
+  "sourceDeliveryProof": {
+    "scope": "Actual CNI1 atomic source delivery only; canonical native closure debt OPEN; CNI2 admission waits for CNI1P actual main acceptance",
+    "verdict": "PASS",
+    "pr": 2117,
+    "url": "https://github.com/SwiggitySwerve/MekStation/pull/2117",
+    "reviewedHead": "e3606fd495f83c80f689b432f5e9d713e7482ede",
+    "mergeSha": "622f46cdbe505fd57cfd5e0a9635496a343baf3e",
+    "mergedAt": "2026-10-03T12:46:00Z",
+    "parents": [
+      "357a04b2599c9bbf4234588fb05d43be065a82ec",
+      "e3606fd495f83c80f689b432f5e9d713e7482ede"
+    ],
+    "tree": "2c4a80d0ffd8bff2ea2de5185d812bb4a7bbbd77",
+    "sourceTreeEqualsMergeTree": true,
+    "review": {
+      "verdict": "APPROVE",
+      "provider": "openai",
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "bytes": 6680,
+      "sha256": "90eca2d12576d2e07a7a71e6a11ab54e4410369343b01540b66b791c656f0133",
+      "freshScenarios": 27,
+      "mutantsDetected": 2,
+      "scope": "Fresh isolated exact-head SOURCE review distinct from every contributor"
+    },
+    "sourceQualification": {
+      "bytes": 3642,
+      "sha256": "5ec9b5f62a2c4fca975ef05a7cf0f9d131b8b92e3da4fceb992f68006494a5b8",
+      "sourceHead": "e3606fd495f83c80f689b432f5e9d713e7482ede",
+      "files": 13,
+      "sourceBytes": 371209,
+      "genuineCaptures": [
+        {
+          "role": "author",
+          "bytes": 39456,
+          "sha256": "d352a03d3d259ff926ebde5aa20e4ecbd9602b3f9110a2bd2c830a54a57ce554"
+        },
+        {
+          "role": "capture-finisher",
+          "bytes": 41808,
+          "sha256": "6318d72e2faeb6ad97d44847641273de2b8c3de3299900cd7831bd76c5168dd3"
+        },
+        {
+          "role": "validator-finisher",
+          "bytes": 41632,
+          "sha256": "d094fc269d8325ba8ab4e729b63fc476b29d1f359ff9acf57141617c468b3689"
+        },
+        {
+          "role": "reviewer",
+          "bytes": 35819,
+          "sha256": "60e8c88160cfdc60cdd403c037ef9d19ed7f0c1033c1d63831d6093658b72c27"
+        }
+      ],
+      "pairedArchive": {
+        "bytes": 1210,
+        "sha256": "31fcbcd60def4f724c56eb0c56f0a27d618a85e104d853d30f16c87f2d17d7f8",
+        "verdict": "PASS"
+      },
+      "portableExit": 0,
+      "corruptionExit": 1,
+      "canonicalClosureClaimed": false
+    },
+    "ci": {
+      "head": "e3606fd495f83c80f689b432f5e9d713e7482ede",
+      "completedSuccess": 31,
+      "requiredCheckRuns": 31,
+      "bytes": 158496,
+      "sha256": "d4be00527cee04ac9ee92e9517a6f87de831ffc98bf373db6daf222249efaded",
+      "runUrls": [
+        "https://github.com/SwiggitySwerve/MekStation/actions/runs/37123435411"
+      ]
+    },
+    "ownerRuling": {
+      "ruledHead": "e3606fd495f83c80f689b432f5e9d713e7482ede",
+      "pr": 2117,
+      "commentId": 5969291160,
+      "author": "SwiggitySwerve",
+      "association": "OWNER",
+      "bodyBytes": 1237,
+      "bodySha256": "973dcd3c80215866bfd98723c8a4587b26ca03298169f865c1fa6de410bb366c",
+      "url": "https://github.com/SwiggitySwerve/MekStation/pull/2117#issuecomment-5969291160",
+      "provenance": "Recorded on owner behalf under standing human delivery authorization; no manual independent GitHub review represented"
+    },
+    "mainProof": {
+      "verdict": "PASS",
+      "mergeSha": "622f46cdbe505fd57cfd5e0a9635496a343baf3e",
+      "sourceHead": "e3606fd495f83c80f689b432f5e9d713e7482ede",
+      "bytes": 17349,
+      "sha256": "c8beeb014b0750c463624575b09a63cd5fbecadd5f9fb9cd64a8783f83ae3beb",
+      "jestPassed": 306,
+      "jestFailed": 0,
+      "portablePassed": 62,
+      "strictPassed": 229,
+      "nativeIntake": "PASS",
+      "portableExit": 0,
+      "corruptionExit": 1,
+      "formatter": "12 source files matched; OpenSpec validator excluded; no excluded-target pass claimed"
+    },
+    "custody": {
+      "allConsumersTerminal": true,
+      "sourceFilesReopened": 113205,
+      "sourceBytesReopened": 2872371553,
+      "mainFilesReopened": 36659,
+      "mainBytesReopened": 641170192,
+      "nativePrefixesReopened": 5,
+      "nativePrefixBytesReopened": 104974855,
+      "mismatches": 0,
+      "sourceAndMainPhysicalAdminGitEntriesAbsent": true,
+      "localAndTrackingRefsAbsent": true,
+      "remoteBranchAbsent": true,
+      "dependencyTargetPreserved": true,
+      "primaryPreserved": true,
+      "rootProof": {
+        "bytes": 5273,
+        "sha256": "4c4919dd582c2c4f17cf62f29e4d29e6b53f78fa04c32415b224458f987e9543"
+      },
+      "cleanupProof": {
+        "bytes": 1696,
+        "sha256": "a1b00f7df6a6b006ea5d26aed8493a23c3ea89c327112da051b96ca21feded5d"
+      }
+    },
+    "enforcement": "Documentary source milestone only. Parent verifies actual raw bindings, source merge census, CI, ruling and custody. Portable NEXT and blocked-unit Git/GitHub checks do not authenticate this proof. Native closure and original Task1 remain open."
+  },
   "ownerDecision": {
     "message": "approved",
     "decision": "native-compatibility-owner-decision.md",
@@ -199,7 +322,7 @@
       "cleanlinessQuote": "lets not block ourselves, rewrite or remove as needed as long as we maintain project cleanliness",
       "measurement": "Full formatted source physical lines, including comments/blanks/final non-LF segment, from merge-SHA blobs or bound current-head bytes; no byte normalization. Tests/generated size exemptions remain; every changed file counts.",
       "review": "250–350 or fewer is the target; 500/501 triggers normal concern/split/rationale review, not automatic refusal or new human budget approval. No aggregate 1500 allowance.",
-      "enforcement": "Planned atomic CNI1 branch in existing validate-roadmap.mjs validates the reserved identical unit/node/registration ref, enforces exact grant and actual census <=13, reports full source metrics and removes only CNI1 aggregate rejection. Invalid/missing refs fail closed once declared; old ledgers and unrelated units retain old aggregate semantics. Current executable does not enforce this mode; interim parent manual checks are required."
+      "enforcement": "Actual CNI1 validate-roadmap.mjs validates the reserved identical unit/node/registration ref and exact thirteen-file modular grant. Invalid/missing refs fail closed once declared; old ledgers and unrelated units retain old aggregate semantics. Actual merge census/source metrics run only for main-verified-or-later canonical units under --git; source delivery with native closure debt OPEN still requires parent manual source merge/census checks."
     }
   },
   "ownership": {
