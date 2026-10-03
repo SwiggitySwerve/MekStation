@@ -476,9 +476,19 @@ interface INativeChunkCase {
     | 'extra'
     | 'id';
 }
+type TObserverCase =
+  | 'distinct-records'
+  | 'prefix-bytes'
+  | 'prefix-hash'
+  | 'native'
+  | 'completion'
+  | 'chunks'
+  | 'readbacks'
+  | 'census';
 function nativeFixture(
   finishers = 0,
   chunkCase?: INativeChunkCase,
+  observerCase?: TObserverCase,
 ): INativeFixture {
   const f = fixture();
   const roles = ['author', ...Array<string>(finishers).fill('finisher')];
@@ -515,9 +525,13 @@ function nativeFixture(
   const frame = Buffer.from('frame\n'),
     chunkFrame = Buffer.from('chunk-frame\n'),
     terminal = Buffer.from('terminal\n');
-  const prefix = chunkCase
+  const completionPrefix = chunkCase
     ? Buffer.concat([chunkFrame, frame, terminal])
     : Buffer.concat([frame, terminal]);
+  const appFrames = observerCase
+    ? [Buffer.from('author-App-frame\n'), Buffer.from('reviewer-App-frame\n')]
+    : [];
+  const prefix = Buffer.concat([completionPrefix, ...appFrames]);
   const records = [
     { ordinal: 0, offset: 0, ...blob(chunkCase ? chunkFrame : frame) },
     ...(chunkCase
@@ -525,10 +539,17 @@ function nativeFixture(
       : []),
     {
       ordinal: chunkCase ? 2 : 1,
-      offset: prefix.length - terminal.length,
+      offset: completionPrefix.length - terminal.length,
       ...blob(terminal),
     },
   ];
+  const appRecords = appFrames.map((bytes, index) => ({
+    ordinal: records.length + index,
+    offset:
+      completionPrefix.length +
+      appFrames.slice(0, index).reduce((sum, part) => sum + part.length, 0),
+    ...blob(bytes),
+  }));
   const source = {
     prefixBytes: prefix.length,
     prefixSha256: digest(prefix),
@@ -692,6 +713,59 @@ function nativeFixture(
           break;
       }
     }
+    const selectedObserver = observerCase
+      ? {
+          ...observer,
+          native: {
+            ...observer.native,
+            turns: observer.native.turns.map((turn) => ({ ...turn })),
+          },
+          source: {
+            ...source,
+            records: [...records, appRecords[role === 'reviewer' ? 1 : 0]],
+          },
+          completion: { ...observer.completion },
+          readbacks: { ...observer.readbacks },
+          census: [...observer.census],
+        }
+      : observer;
+    if (role === 'reviewer') {
+      switch (observerCase) {
+        case 'prefix-bytes':
+          selectedObserver.source.prefixBytes += 1;
+          break;
+        case 'prefix-hash':
+          selectedObserver.source.prefixSha256 = digest(
+            Buffer.from('foreign prefix'),
+          );
+          break;
+        case 'native':
+          selectedObserver.native.turns[0].effort = 'xhigh';
+          break;
+        case 'completion':
+          selectedObserver.completion.resultSha256 = digest(
+            Buffer.from('foreign result'),
+          );
+          break;
+        case 'chunks':
+          selectedObserver.chunks = [selectedObserver.completion];
+          break;
+        case 'readbacks':
+          selectedObserver.readbacks.diff = {
+            ...readbacks.diff,
+            sha256: digest(Buffer.from('foreign diff')),
+          };
+          observation.readbacks.diff = selectedObserver.readbacks.diff;
+          break;
+        case 'census':
+          selectedObserver.census.push({
+            role: 'finisher',
+            sessionId: uid(99),
+            model: MODEL,
+          });
+          break;
+      }
+    }
     const snapshot = {
       schemaVersion: 1,
       reviewContractVersion: 3,
@@ -700,7 +774,11 @@ function nativeFixture(
       reviewOutputSha256: digest(output),
       observedAt: '2026-10-03T09:00:00Z',
       appWitness: witness(app),
-      routeWitness: witness({ schemaVersion: 1, observer, observation }),
+      routeWitness: witness({
+        schemaVersion: 1,
+        observer: selectedObserver,
+        observation,
+      }),
     };
     const bytes = Buffer.from(JSON.stringify(snapshot, null, 2) + '\n');
     const name = 'codex-observation-' + digest(bytes) + '.json';
@@ -1349,6 +1427,33 @@ describe('Native-v3 archive residue and legacy byte reuse', () => {
     expect(result.before).toHaveLength(3);
     expect(result.second).toEqual(result.first);
     expect(result.after).toEqual(result.before);
+  });
+});
+
+describe('Native-v3 shared observer and subject-selected records', () => {
+  jest.setTimeout(120000);
+  it('accepts distinct valid App record selections under the same observer prefix', () => {
+    const f = nativeFixture(0, undefined, 'distinct-records');
+    const result = rpc(f.sizing, 'observer', { op: 'candidate', args: f.args });
+    expect(result.exit).toBe(0);
+    expect(JSON.parse(result.stdout)).toEqual({ version: 3, snapshots: 2 });
+  });
+  const controls: TObserverCase[] = [
+    'prefix-bytes',
+    'prefix-hash',
+    'native',
+    'completion',
+    'chunks',
+    'readbacks',
+    'census',
+  ];
+  it.each(controls)('still refuses changed common observer %s', (field) => {
+    const f = nativeFixture(0, undefined, field);
+    const result = rpc(f.sizing, 'observer', { op: 'candidate', args: f.args });
+    expect(result.exit).toBe(1);
+    expect(result.stderr).toContain(
+      'native independent final observer/census/local mismatch',
+    );
   });
 });
 

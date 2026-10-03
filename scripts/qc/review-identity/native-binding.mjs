@@ -329,6 +329,13 @@ export function validateNativeReview({
     ...actors.filter((a) => a.role === 'finisher'),
   ];
   const reviewer = bindings.at(-1);
+  // App record selections differ by subject; the frozen source prefix stays shared.
+  const commonObserver = (observer) => {
+    const source = { ...observer.source };
+    delete source.records;
+    return { ...observer, source };
+  };
+  const expectedObserver = commonObserver(bindings[0].observer);
   identityCheck(
     bindings.length === contributors.length + 1 &&
       bindings
@@ -345,7 +352,7 @@ export function validateNativeReview({
   identityCheck(
     bindings.every(
       (b) =>
-        isDeepStrictEqual(b.observer, bindings[0].observer) &&
+        isDeepStrictEqual(commonObserver(b.observer), expectedObserver) &&
         isDeepStrictEqual(b.observer.census, actors) &&
         b.observer.readbacks.local.sha256 === localSha256,
     ),
