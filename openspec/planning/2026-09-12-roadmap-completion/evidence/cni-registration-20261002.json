@@ -1,0 +1,191 @@
+{
+  "schemaVersion": 1,
+  "status": "owner-approved-registration-candidate; no source or canonical closure acceptance",
+  "id": "CNI-registration-20261002",
+  "baseline": "2fe46eaae9de7be054395021c9dc89dc6798293c",
+  "ownerDecision": {
+    "message": "approved",
+    "decision": "native-compatibility-owner-decision.md",
+    "localApproval": "E:/Projects/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/owner-approval-20261002.json",
+    "decisionSha256": "2720d1889c096efb3f1a24ed7562387df18dd6bb9ab91d9efd6c9d829b4bec29",
+    "limits": "Initial policy approval is not SOURCE approval or a final exact-head OWNER-RULING/GitHub review."
+  },
+  "frozen": {
+    "originalUnits": 158,
+    "unitsSha256": "4bfda4e016dd97d08feeefaf88378f262a595bb7bb0a514882b2941b02b62ec8",
+    "originalNodes": 75,
+    "roadmapSha256": "4bc60a8397af7eebcb28482305f7e6a2bcdfbcd715b3efc400f3078c1686e9bb",
+    "admissionSnapshotSha256": "dd2b997e6e2e3adf85130d3196ee9f2838fc900019ff36f8bd3495f3caf58b68",
+    "preservation": "All original unit/node rows, tasks, packages, triage, receipts, actors and resources stay unchanged; no original Task1/checkbox completion."
+  },
+  "grants": [
+    {
+      "id": "CNI0",
+      "node": "R0.cni-registration",
+      "exactFiles": [
+        "openspec/planning/2026-09-12-roadmap-completion/GOAL.md",
+        "openspec/planning/2026-09-12-roadmap-completion/DELIVERY.md",
+        "openspec/planning/2026-09-12-roadmap-completion/WORKERS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/cni-registration-20261002.json"
+      ],
+      "maxFiles": 6,
+      "maxCountedAdditions": 500,
+      "mode": "docs-bootstrap-only",
+      "condition": "Named parent-selected docs lifecycle; canonical CNI0 stays blocked with all stage receipts null until genuine native-v3 closure publication."
+    },
+    {
+      "id": "CNI1",
+      "node": "R6.cni-source",
+      "exactFiles": [
+        "scripts/qc/roadmap-codex-identity-capture.mjs",
+        "scripts/__tests__/roadmap-codex-identity-capture.test.ts",
+        "scripts/qc/roadmap-ledger-lib.mjs",
+        "scripts/qc/roadmap-unit-closure.mjs",
+        "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+        "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+        "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs"
+      ],
+      "maxFiles": 7,
+      "maxCountedAdditions": 500,
+      "mode": "ONE atomic source PR; separate producer PR is superseded",
+      "condition": "Actual merged/main-proved R0.cni-registration milestone plus parent admission of genuine capture/source/reviewer/census qualification and exact seven-file grant."
+    },
+    {
+      "id": "CNI2",
+      "node": "R0.cni-evidence",
+      "exactFiles": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/roadmap.json"
+      ],
+      "frozenEvidenceFiles": [],
+      "maxFiles": 15,
+      "maxCountedAdditions": 500,
+      "condition": "Actual source-delivery milestone, genuine captured evidence, finite filenames/hash/bytes frozen before review. Partial prefix never closes CNI0/CNI1."
+    },
+    {
+      "id": "CNI3",
+      "node": "R0.cni-discharge",
+      "exactFiles": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/roadmap.json"
+      ],
+      "frozenEvidenceFiles": [],
+      "maxFiles": 15,
+      "maxCountedAdditions": 500,
+      "condition": "Actual CNI2 prefix delivery; full remaining genuine canonical publication/intake/portable consumption, debt discharge and cleanup before separate Task1 requalification."
+    }
+  ],
+  "ownership": {
+    "prospectiveExceptions": [
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/cni-registration-20261002.json",
+      "scripts/qc/roadmap-codex-identity-capture.mjs",
+      "scripts/__tests__/roadmap-codex-identity-capture.test.ts"
+    ],
+    "boundary": "Existing literal node/unit paths plus exact ownershipExceptions permit absent files without broad directories. Exceptions are the only new filename grants; no placeholder file creation.",
+    "enforcementGap": "NEXT uses unit state/node dependencies and ownershipPaths only; it does not enforce documentary unit predecessors or reserve exception-only names. --git also skips ledger evidence paths. Parent explicitly checks reservations, full changed-file scopes/caps and actual frozen publication filenames; no new validator gate is claimed."
+  },
+  "policy": {
+    "version": 3,
+    "provider": "openai",
+    "model": "gpt-6.1-sol",
+    "effort": [
+      "high",
+      "xhigh"
+    ],
+    "trust": "LOCAL three-way independently witnessed observation; noncryptographic",
+    "subscriptionIdentity": "unproved; never alias chatgpt-subscription",
+    "sources": [
+      "Actual native item_completed/McpToolCall completion frame and result bytes",
+      "Matching live App thread/turn/call/status/workdir observations, with all relevant turns reached",
+      "Independently witnessed raw session_meta/turn_context route, parent/context and native source provenance/integrity"
+    ],
+    "binding": "Freeze/reopen exact record slice/prefix hashes separately from decoded UTF-8 stdout and artifact bytes; trusted observers establish source authenticity. No hash-only or writable-file authentication.",
+    "required": [
+      "Actual owned workdir HEAD/tree/index/diff and relevant dirt",
+      "Full current-source/reviewer-output direct byte/hash readbacks and independent reopen without normalization",
+      "Exactly one real author and every editing parent/finisher; audited complete-or-empty census",
+      "Fresh isolated reviewer distinct from every contributor native session/task identity, no author context; reviewer edits void review",
+      "Matching exact local/review/inline/external version, head/output/local/census bindings",
+      "Candidate intake plus portable consumption and immutable native archive reopen"
+    ],
+    "refuse": "Absent, foreign, stale, changed, aliased, ambiguous, truncated, fabricated, mixed, unknown, partial or downgraded inputs, including no-evidence; no st_ spoof, subscription alias, invented engine fields or fake v2 closure.",
+    "markerLimit": "The controlled 330-byte marker proves one native result/matching call, not large-output completeness, full census or SOURCE approval.",
+    "export": "Safe allowlisted projections only; no full session records/transcripts/prompts/reasoning/credentials/environment/private native source paths. Missing root/child fields stay missing."
+  },
+  "owners": {
+    "capture": "scripts/qc/roadmap-codex-identity-capture.mjs owns bounded exact-source extraction/capture, not trusted witness manufacture or a second policy validator.",
+    "identity": "scripts/qc/roadmap-ledger-lib.mjs is the one review-identity policy/validation owner; preserve identityPath archive ownership and all old behavior.",
+    "paired": "roadmap-unit-closure.mjs and validate-roadmap.mjs dispatch exact matching old/native versions atomically; no broad ID regex change or fake engine-record producer."
+  },
+  "publication": {
+    "root": "openspec/planning/2026-09-12-roadmap-completion/evidence/",
+    "units": [
+      "cni0",
+      "cni1"
+    ],
+    "receiptNames": [
+      "<unit>-admission-<actual-date>.json",
+      "<unit>-red-<actual-date>.json",
+      "<unit>-local-<actual-date>.json",
+      "<unit>-review-<actual-date>.json",
+      "<unit>-merge-<actual-date>.json",
+      "<unit>-mainproof-<actual-date>.json",
+      "<unit>-tick-<actual-date>.json",
+      "<unit>-lane-a-review-<actual-date>.md"
+    ],
+    "nativeNames": [
+      "codex-observation-<actual-sha256>.json",
+      "codex-review-identity-<actual-sha256>.json"
+    ],
+    "rule": "Naming contract only, never wildcard write authority. Freeze exact finite actual paths/bytes/hashes under CNI2/CNI3 before review; update exact ownershipExceptions then. Every evidence/snapshot/review/register file counts. Stop before a sixteenth file or any unregistered name. Partial prefixes do not complete a unit."
+  },
+  "localEvidence": {
+    "root": ".omo/evidence/codex-native-contract/<CNI0-or-CNI1>/",
+    "boundedNames": [
+      "source.log",
+      "local.log",
+      "review.md",
+      "review-capture.json",
+      "ci.json",
+      "merge.json",
+      "main-proof.log",
+      "qa.md",
+      "app-observation.json",
+      "route-witness.json",
+      "author.json",
+      "reviewer.json",
+      "manifest.json"
+    ],
+    "finisherName": "finisher-<actual-observed-session-UUID>.json",
+    "rule": "Private/run evidence outside Git; frozen real census only. Any additional report changes the finite manifest and requires remeasurement/review. Author report is carried by source.log/local.log/qa.md."
+  },
+  "lifecycle": {
+    "bootstrap": "CNI0 only: independent exact-head Sol high/xhigh docs review under approved native witnesses, actual required CI/owner gates, guarded merge, actual main proof, evidence reopen and owned cleanup; no administrative bypass.",
+    "milestones": "R0.cni-registration records actual docs delivery; R6.cni-source actual source delivery; R0.cni-evidence actual prefix delivery; R0.cni-discharge full debt publication. All start unproved and never mean fictional canonical closure.",
+    "canonicalDebt": {
+      "CNI0": "OPEN",
+      "CNI1": "OPEN"
+    },
+    "discharge": "Genuine CNI0/CNI1 native-v3 candidate intake and portable acceptance, full actual contributor/reviewer/source/result/witness bindings and published reopened archives, required exact-head delivery and cleanup.",
+    "task1": "OPEN/BLOCKED until current fetched-main qualification is rerun after full debt discharge; no original task released.",
+    "sourceReview": "CNI1 fresh isolated exact-head SOURCE reviewer independently reproduces at least two mutants; source merge and fixture success are insufficient."
+  },
+  "caps": "Preserve exact U41 test/generated/ledger-evidence line exclusions; docs/register additions count unless existing rule excludes them. All modified files count; no new allowance, exemption or cap inflation.",
+  "milestoneFollowups": {
+    "exactFiles": ["openspec/planning/2026-09-12-roadmap-completion/units.json", "openspec/planning/2026-09-12-roadmap-completion/roadmap.json", "openspec/planning/2026-09-12-roadmap-completion/evidence/cni-registration-20261002.json"],
+    "sequence": ["After actual first registration merge/main proof, ordinary follow-up records that predecessor proof, advances R0.cni-registration to main-verified and ONLY CNI1 to planned", "After actual CNI1 source merge/main proof, ordinary follow-up records that predecessor proof, advances R6.cni-source and ONLY CNI2 to planned", "After actual CNI2 prefix merge/main proof, ordinary follow-up records that predecessor proof, advances R0.cni-evidence and ONLY CNI3 to planned"],
+    "gates": "Every follow-up needs fresh exact-head review, required CI/owner ruling, guarded merge and actual exact-main proof before successor admission; never prefill own future merge. CNI0 canonical unit stays blocked/native debt OPEN.",
+    "caps": "All follow-ups stay within the same six-file CNI0 grant; aggregate initial plus follow-up counted additions <=500. Reserve and measure remaining budget. No seventh source file, extra filename or bootstrap exception.",
+    "ordering": "Insert new units immediately before old NEXT U24b; preserve all 158 original objects and relative order. All CNI units initially blocked; NEXT U24b is honest, later only the eligible CNI successor may become NEXT."
+  },
+  "noGrant": [
+    "Global harness/config/hook/lock/role changes",
+    "Credentials or subscription claims",
+    "Package/schema/fold/main-proof source",
+    "Game/browser/service changes or dependency install",
+    "Old actor/resource adoption or historical receipt rewrite"
+  ],
+  "validation": "Node22.22.0 unchanged portable62-test baseline plus changed --git/accounting/docs/QC/strict gates and actual canonical projection; negative stale/dirt/misleading-success probes are local evidence, never SOURCE or main acceptance."
+}

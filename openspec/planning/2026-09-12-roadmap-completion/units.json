@@ -6477,6 +6477,177 @@
       }
     },
     {
+      "id": "CNI0",
+      "node": "R0.cni-registration",
+      "taskKeys": [],
+      "behavior": "Register the owner-approved LOCAL native-v3 policy through the named six-file docs-bootstrap lifecycle. Canonical native closure stays OPEN; this blocked unit is not completed by its independent docs-delivery milestone.",
+      "ownershipPaths": [
+        "openspec/planning/2026-09-12-roadmap-completion/GOAL.md",
+        "openspec/planning/2026-09-12-roadmap-completion/DELIVERY.md",
+        "openspec/planning/2026-09-12-roadmap-completion/WORKERS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/roadmap.json"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/cni-registration-20261002.json"
+      ],
+      "ciClass": "docs",
+      "reviewClasses": [
+        "authority"
+      ],
+      "caps": {
+        "maxFiles": 6,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "nativeClosureDebt": "OPEN",
+      "registration": "evidence/cni-registration-20261002.json",
+      "admissionRequires": "Explicit owner-approved docs-bootstrap selected by parent; canonical unit stays blocked until genuine v3 closure. Actual docs merge/main proof may advance only its delivery milestone.",
+      "predecessors": []
+    },
+    {
+      "id": "CNI1",
+      "node": "R6.cni-source",
+      "taskKeys": [],
+      "behavior": "Implement and genuinely qualify the seven-file atomic native capture and paired library/intake/portable version-3 contract, preserving all old modes/bytes. Source delivery alone never discharges canonical native closure debt.",
+      "ownershipPaths": [
+        "scripts/qc/roadmap-ledger-lib.mjs",
+        "scripts/qc/roadmap-unit-closure.mjs",
+        "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+        "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+        "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs"
+      ],
+      "ownershipExceptions": [
+        "scripts/qc/roadmap-codex-identity-capture.mjs",
+        "scripts/__tests__/roadmap-codex-identity-capture.test.ts"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy"
+      ],
+      "caps": {
+        "maxFiles": 7,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "nativeClosureDebt": "OPEN",
+      "registration": "evidence/cni-registration-20261002.json",
+      "admissionRequires": "Keep blocked until owning-node dependencies are actually main-verified/complete and parent checks exact frozen grants, all live witness/source/census/reviewer and ordinary admission gates. Documentary predecessors and exception reservations are not enforced by NEXT.",
+      "predecessors": [
+        "CNI0",
+        "docs-delivery milestone only"
+      ]
+    },
+    {
+      "id": "CNI2",
+      "node": "R0.cni-evidence",
+      "taskKeys": [],
+      "behavior": "Publish the first finite actual native CNI0/CNI1 evidence prefix after genuine source qualification. Freeze exact names/hash/bytes before admission; partial evidence completes no unit.",
+      "ownershipPaths": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/roadmap.json"
+      ],
+      "ownershipExceptions": [],
+      "ciClass": "docs",
+      "reviewClasses": [
+        "authority",
+        "privacy"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "nativeClosureDebt": "OPEN",
+      "registration": "evidence/cni-registration-20261002.json",
+      "admissionRequires": "Keep blocked until owning-node dependencies are actually main-verified/complete and parent checks exact frozen grants, all live witness/source/census/reviewer and ordinary admission gates. Documentary predecessors and exception reservations are not enforced by NEXT.",
+      "predecessors": [
+        "CNI1",
+        "genuine source-delivery milestone"
+      ]
+    },
+    {
+      "id": "CNI3",
+      "node": "R0.cni-discharge",
+      "taskKeys": [],
+      "behavior": "Publish remaining finite actual native evidence and discharge CNI0/CNI1 canonical debt only with complete genuine intake/portable consumption and delivery/cleanup; then separately requalify original Task1 on fetched current main.",
+      "ownershipPaths": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/roadmap.json"
+      ],
+      "ownershipExceptions": [],
+      "ciClass": "docs",
+      "reviewClasses": [
+        "authority",
+        "privacy"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "nativeClosureDebt": "OPEN",
+      "registration": "evidence/cni-registration-20261002.json",
+      "admissionRequires": "Keep blocked until owning-node dependencies are actually main-verified/complete and parent checks exact frozen grants, all live witness/source/census/reviewer and ordinary admission gates. Documentary predecessors and exception reservations are not enforced by NEXT.",
+      "predecessors": [
+        "CNI2",
+        "actual prefix delivery; no partial closure"
+      ]
+    },
+    {
       "id": "U24b",
       "taskKeys": [
         "adopt-combat-journal-cutover-and-gm-rewind#1.7@20"

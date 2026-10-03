@@ -1,4 +1,7 @@
 # Worker routing and task contract
+> **Status:** Active; new native transport admitted with open debt
+> **Created:** 2026-09-15
+> **Updated:** 2026-10-02
 
 The leader remains on the user's selected Astra model and owns final validation. Prefer Grok4.6/high through direct CLI or Cursor Agent for bounded implementation when that route can execute. Direct Grok has a retained quota failure; the approved Cursor launcher task failed in its hooks before source access. Do not retry those unchanged routes or alter global hooks. Terra/high handles substantive implementation, diagnosis and semantic review; Luna/high handles small edits and routine checks. XHigh/Max remain bounded user-requested trials. The dated sections below retain routing history; later refinements supersede earlier fallback preferences.
 
@@ -9,6 +12,14 @@ The 2026-09-12 routing audit verified all 36 native roles at high/xhigh effort, 
 This dated instruction supersedes older model-routing and literal cross-model requirements for NEW version-2 receipts only. Every productive implementation and independent review worker runs actual `chatgpt-subscription/gpt-6.1-sol`; parent verifies the live `model` and `resolved_model.provider/model_id` tuple before work. No silent substitute, fake alias, model switch or independent self-review. Dated history below and valid unversioned historical receipts remain unchanged.
 
 Follow GOAL.md's canonical v2 census, observed-field allowlist, independent task/session and immutable archive contract, plus DELIVERY.md's lifecycle. Export no full records, prompts, transcripts, credentials, environment or private engine-root paths. A fresh isolated SOURCE reviewer receives frozen diff/evidence/full unit behavior, not author context, and independently reproduces at least two mutants. Registration approval and synthetic QA are not substitutes. Parent alone merges/releases dependencies after every existing gate; no exemption, legacy same-model grandfathering or Lane B/GitHub-approval substitution.
+
+## Codex-native routing amendment (2026-10-02)
+
+For the owner's newly admitted CNI0-CNI3 path only, GOAL.md and [the registration](evidence/cni-registration-20261002.json) require actual `openai` / `gpt-6.1-sol` / `high` or `xhigh` route observations. This supersedes the earlier literal subscription-provider requirement only for the distinct LOCAL native-v3 transport. Subscription identity remains unproved; old historical/v2 contracts are unchanged. Parent and independent observer must establish native source provenance/integrity, witness actual served route/parent/context and correlate real completion/result bytes with matching live App calls. Desired arguments, local hashes and model labels alone are insufficient.
+
+One cohesive writer owns each bounded grant; no nested agents. Freeze exactly one author and every real finisher/editing parent. A fresh isolated Sol high/xhigh SOURCE reviewer receives frozen diff/evidence/full behavior without author context, is independent of all contributors and reproduces two mutants. Record absent root/child fields as absent, never invent Senpi IDs or engine JSON. Export safe projections only, never transcripts, prompts, private source paths, environment or credentials.
+
+CNI0 alone has the approved named docs-bootstrap lifecycle, with canonical native debt OPEN. CNI1 uses genuine candidate capture and paired intake/portable validation; CNI2/CNI3 publish actual closure/debt evidence. Every lane stops on missing observations, incomplete bytes, ungranted paths or exceeded caps; parent retains exact-head review, delivery, cleanup and original Task1 release. No existing actor/resource is adopted.
 
 ## Assignments
 
