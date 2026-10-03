@@ -57,6 +57,8 @@ import {
   DEFAULT_LEDGER_DIR,
   archiveReviewIdentity,
   reviewIdentityMode,
+  nativeBytes,
+  nativeFile,
   validateReviewIdentity,
   validateReviewReceipt,
   identityPath,
@@ -102,6 +104,7 @@ const STRINGS = [
   '--preserved-root',
   '--review-identity',
   '--engine-records-dir',
+  '--native-observations-dir',
 ];
 /**
  * Are these the same directory on disk? Compared through realpath so a junction
@@ -167,12 +170,26 @@ function main(argv) {
   if (!/^\d+$/.test(options.pr))
     refuse('INVALID_ARGUMENT', `--pr ${options.pr}`);
 
-  if (Boolean(options.reviewIdentity) !== Boolean(options.engineRecordsDir))
+  if (options.nativeObservationsDir) {
+    const flags = argv.filter((arg) => arg.startsWith('--'));
+    if (
+      !options.reviewIdentity ||
+      options.engineRecordsDir ||
+      new Set(flags).size !== flags.length
+    )
+      refuse(
+        'REVIEW_IDENTITY_INVALID',
+        '--review-identity requires one distinct native adapter input',
+      );
+  } else if (
+    Boolean(options.reviewIdentity) !== Boolean(options.engineRecordsDir)
+  )
     refuse(
       'REVIEW_IDENTITY_INVALID',
       '--review-identity requires --engine-records-dir and conversely',
     );
   const modern = Boolean(options.reviewIdentity);
+  const version = options.nativeObservationsDir ? 3 : 2;
   const unitId = options.unit;
   const lc = unitId.toLowerCase();
   const date = options.date;
@@ -262,7 +279,10 @@ function main(argv) {
       );
   }
 
-  const reviewBytes = fs.readFileSync(path.resolve(options.review));
+  const reviewBytes =
+    version === 3
+      ? nativeBytes(path.resolve(options.review))
+      : fs.readFileSync(path.resolve(options.review));
   const reviewMd = reviewBytes.toString();
   const reviewedHead = /reviewedHead:\s*([0-9a-f]{40})/.exec(reviewMd);
   if (!reviewedHead || reviewedHead[1] !== head)
@@ -329,9 +349,11 @@ function main(argv) {
     ? validateReviewIdentity({
         ledgerDir,
         unit,
-        review: { ...review, reviewContractVersion: 2 },
+        review: { ...review, reviewContractVersion: version },
         manifestFile: options.reviewIdentity,
         engineRecordsDir: options.engineRecordsDir,
+        nativeObservationsDir: options.nativeObservationsDir,
+        reviewFile: version === 3 ? options.review : undefined,
         reviewBytes,
       })
     : null;
@@ -552,8 +574,8 @@ function main(argv) {
     };
     try {
       fs.cpSync(ledgerDir, staging, { recursive: true });
-      review.reviewContractVersion = 2;
-      unit.stageReceipts.review.reviewContractVersion = 2;
+      review.reviewContractVersion = version;
+      unit.stageReceipts.review.reviewContractVersion = version;
       review.identityEvidence = archiveReviewIdentity(
         staging,
         verifiedIdentity,
@@ -563,8 +585,10 @@ function main(argv) {
         outputName,
         ...Object.keys(receipts).map((s) => `${lc}-${s}-${date}.json`),
       ]) {
-        if (fs.existsSync(path.join(evidence, name)))
-          identityPath(evidence, name);
+        if (fs.existsSync(path.join(evidence, name))) {
+          if (version === 3) nativeFile(evidence, name);
+          else identityPath(evidence, name);
+        }
       }
       materialize(staging);
       saveUnits(staging, ledger);
@@ -578,6 +602,7 @@ function main(argv) {
           `prospective ledger refused before write: ${candidate.line}`,
         );
       archiveReviewIdentity(ledgerDir, verifiedIdentity);
+      if (version === 3) verifiedIdentity.revalidate();
       materialize(ledgerDir);
       preserved = preserveRunLogs(preservation);
     } finally {

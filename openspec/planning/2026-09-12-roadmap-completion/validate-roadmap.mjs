@@ -112,6 +112,47 @@ const UNCOUNTED_FILES = [
 const EVIDENCE_PREFIX = `${path.relative(repoRoot, path.join(planningDir, 'evidence')).split(path.sep).join('/')}/`;
 // Historical node receipts were never normalised: some are null, some a bare evidence path, some an
 // object whose main SHA field drifted between mainSha and mainSHA. Read all three shapes tolerantly.
+// CNI1 alone declares the modular-source grant; historical ledgers remain unchanged.
+const cni1SourceSizing = (unit, node, directory) => {
+  if (unit.id !== 'CNI1') return null;
+  const reference = 'evidence/cni-registration-20261002.json#sourceSizing.CNI1';
+  const registrationFile = path.join(directory, reference.split('#')[0]);
+  let registration = null;
+  if (fs.existsSync(registrationFile)) {
+    try { registration = readJson(registrationFile); }
+    catch (error) {
+      if (unit.sourceSizingRef !== undefined || node?.sourceSizingRef !== undefined)
+        fail('CNI1 sourceSizing registration is unreadable: ' + (error instanceof Error ? error.message : String(error)));
+      return null;
+    }
+  }
+  const grants = Array.isArray(registration?.grants) ? registration.grants.filter((value) => value.id === 'CNI1') : [];
+  const grant = grants[0];
+  const sizing = registration?.sourceSizing?.CNI1;
+  if ([unit.sourceSizingRef, node?.sourceSizingRef, grant?.sourceSizingRef, sizing].every((value) => value === undefined)) return null;
+  const paths = (value) => Array.isArray(value?.ownershipPaths) && Array.isArray(value?.ownershipExceptions)
+    ? [...value.ownershipPaths, ...value.ownershipExceptions] : [];
+  const safeFiles = Array.isArray(grant?.exactFiles) && grant.exactFiles.every((file) =>
+    typeof file === 'string' && file && !/[\\:]/.test(file) && !file.startsWith('/') &&
+    file.split('/').every((part) => part && part !== '.' && part !== '..'));
+  const exactFiles = safeFiles ? [...grant.exactFiles].sort() : [];
+  const wiring = ['scripts/qc/roadmap-unit-closure.mjs', 'openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs'];
+  if (unit.node !== 'R6.cni-source' || node?.id !== 'R6.cni-source' ||
+      (unit.reownedTo !== undefined && unit.reownedTo !== null && unit.reownedTo !== node.id) ||
+      [unit.sourceSizingRef, node.sourceSizingRef, grant?.sourceSizingRef].some((value) => value !== reference) ||
+      grants.length !== 1 || grant.maxFiles !== 13 || unit.caps?.maxFiles !== 13 || node.maxFiles !== 13 ||
+      exactFiles.length !== 13 || new Set(exactFiles).size !== 13 ||
+      !same(paths(unit).sort(), exactFiles) || !same(paths(node).sort(), exactFiles) ||
+      sizing?.version !== 1 || sizing.mode !== 'modular-source-files' || sizing.grantRef !== 'grants.CNI1' ||
+      !same(sizing.targetLines, [250, 350]) || sizing.reviewGuidanceLines !== 500 ||
+      !same(sizing.wiringOnlyLegacyPaths, wiring)) {
+    fail('CNI1 sourceSizing must bind its reserved unit/node/registration version1 modular grant exactly');
+    return null;
+  }
+  return { ...sizing, exactFiles, maxFiles: grant.maxFiles };
+};
+
+
 const readReceipt = (node) => {
   const receipt = node && typeof node === 'object' ? node.receipt : node;
   if (receipt === null || receipt === undefined) return {};
@@ -336,6 +377,7 @@ try {
       checkUnique(packets.map((packet) => ({ value: packet.id })), 'packet id');
       checkUnique(deferrals.map((deferral) => ({ value: deferral.id })), 'deferral id');
       const unitById = new Map(units.map((unit) => [unit.id, unit]));
+      const sourceSizingByUnit = new Map();
       const packetById = new Map(packets.map((packet) => [packet.id, packet]));
       // U42: taskByKey is the roadmap.json tasks (pinned to the admission snapshot above) plus every
       // occurrence in the frozen supplements that units.json lists in supplementSnapshots ({ path, sha256 },
@@ -433,6 +475,8 @@ try {
         if (!nodeById.has(unit.node)) fail(`${label} names unknown node ${unit.node}`);
         if (typeof unit.reownedTo === 'string' && !nodeById.has(unit.reownedTo)) fail(`${label} is re-owned to unknown node ${unit.reownedTo}`);
         const ownerNode = nodeById.get(ownerNodeId);
+        const sourceSizing = cni1SourceSizing(unit, nodeById.get('R6.cni-source'), roadmapDir);
+        if (sourceSizing) sourceSizingByUnit.set(unit.id, sourceSizing);
 
         const ownershipPaths = Array.isArray(unit.ownershipPaths) ? unit.ownershipPaths : [];
         if (!ownershipPaths.length) fail(`${label} has no ownership paths`);
@@ -490,7 +534,7 @@ try {
         let modernReview = false;
         try {
           validateReviewReceipt(roadmapDir, unit);
-          modernReview = reviewIdentityMode(receipts.review) === 2;
+          modernReview = reviewIdentityMode(receipts.review) !== 0;
         } catch (error) {
           fail(`${label} review identity: ${error instanceof Error ? error.message : String(error)}`);
         }
@@ -592,6 +636,35 @@ try {
           } catch {
             fail(`${unit.id} mergeSha ${unit.mergeSha} is not an ancestor of origin/main`);
           }
+          const sizing = sourceSizingByUnit.get(unit.id);
+          if (sizing) {
+            try {
+              const rows = execFileSync('git', ['diff', '--numstat', '-z', '--no-renames', unit.mergeSha + '^1', unit.mergeSha], { cwd: repoRoot }).toString('utf8').split('\0').filter(Boolean);
+              if (rows.length > sizing.maxFiles) fail('CNI1 sourceSizing changed-file census exceeds its exact 13-file grant');
+              const metrics = [];
+              for (const row of rows) {
+                const file = row.slice(row.indexOf('\t', row.indexOf('\t') + 1) + 1);
+                if (!sizing.exactFiles.includes(file)) {
+                  fail('CNI1 sourceSizing merge touches an ungranted file: ' + file);
+                  continue;
+                }
+                const exists = execFileSync('git', ['ls-tree', '-z', unit.mergeSha, '--', file], { cwd: repoRoot }).length > 0;
+                const bytes = exists ? execFileSync('git', ['show', unit.mergeSha + ':' + file], { cwd: repoRoot, maxBuffer: 64 * 1024 * 1024 }) : Buffer.alloc(0);
+                let lines = bytes.length && bytes.at(-1) !== 10 ? 1 : 0;
+                for (const byte of bytes) if (byte === 10) lines++;
+                const exempt = UNCOUNTED_FILES.some((pattern) => pattern.test(file));
+                const legacyWiring = sizing.wiringOnlyLegacyPaths.includes(file);
+                metrics.push({ path: file, lines, bytes: bytes.length, deleted: !exists, exempt, legacyWiring, requiresSizingReview: !exempt && !legacyWiring && lines > sizing.reviewGuidanceLines });
+              }
+              const report = 'CNI1_SOURCE_SIZING ' + JSON.stringify({ mergeSha: unit.mergeSha, fileCount: rows.length, maxFiles: sizing.maxFiles, targetLines: sizing.targetLines, reviewGuidanceLines: sizing.reviewGuidanceLines, files: metrics });
+              if (wantNext) console.error(report);
+              else console.log(report);
+            } catch (error) {
+              fail('CNI1 sourceSizing cannot measure merge blobs: ' + (error instanceof Error ? error.message : String(error)));
+            }
+            continue;
+          }
+
           // U41 (4) and (6): the merge's own diff is the squash commit against its first parent (the
           // unit baseline is rarely that parent, so baseline..mergeSha would include other units' merges),
           // with the ledger's evidence directory skipped. A file outside ownershipPaths fails unless the
