@@ -1,7 +1,7 @@
 # Delivery, verification, and cleanup contract
 > **Status:** Active; named CNI0 bootstrap only
 > **Created:** 2026-09-15
-> **Updated:** 2026-10-02
+> **Updated:** 2026-10-03
 
 This roadmap is authorized by the user's 2026-09-12 request for implementation, verification, incremental PRs, merging, cleanup, and completion. The parent owns decomposition, integration, acceptance, and Git delivery. Workers own only their assigned files or evidence question.
 
@@ -26,7 +26,11 @@ Follow GOAL.md's canonical v2 census, observation, bindings, archive and fail-cl
 
 Follow GOAL.md's owner-approved LOCAL version-3 policy and [the exact registration](evidence/cni-registration-20261002.json). The owner's approval permits CNI0 docs-bootstrap delivery only; unchanged v2 cannot represent it, so retain OPEN canonical native closure debt without invented receipts. This section supersedes prior no-bootstrap wording only for CNI0. All old modes/receipts/actors/resources and every ordinary review, CI, owner, topology, whole-tree, exact-main and cleanup gate retain their contracts.
 
-CNI0 owns exactly six files/500 counted additions. Its new docs-registration milestone records actual bootstrap delivery independently from the blocked canonical CNI0 unit. Admit CNI1 only after that milestone's real merged/main-proved registration, ancestry, independent review and exact scope are checked. CNI1 owns exactly seven files/500 counted additions in ONE atomic source PR; no separate producer prefix. Every changed test/doc/register/evidence file counts toward file caps; existing U41 line exclusions remain exact. Stop for separately reviewed registration before exceeding scope/caps.
+CNI0 owns exactly six files/500 counted additions. Its docs-registration milestone records actual bootstrap delivery independently from the blocked canonical CNI0 unit. Admit CNI1 only after that milestone's real merged/main-proved registration, ancestry, independent review and exact scope are checked. CNI1 owns exactly thirteen registered files in ONE atomic source PR under `sourceSizing.CNI1`. Every changed file, including tests, counts toward its file census. Other unit aggregate caps and existing U41 exclusions remain exact; changes beyond the finite grant need a concrete reviewed registration correction.
+
+CNI1 and R6.cni-source carry the identical reserved `sourceSizingRef`. Its modular mode retains historical numeric 500 fields but supersedes their CNI1 aggregate interpretation. The planned branch in the existing portable validator accepts only the matched unit/node/registration tuple, fails closed on absent/malformed/mismatched refs or unregistered paths, and enforces the actual changed-file census <=13. It reports full formatted source lines from merge-SHA blobs for --git; premerge review binds current-head bytes, diff/index/dirt and full-file measurements. Count comments, blanks and a final non-LF segment; do not normalize bytes. Tests retain size exemptions while counting as files. 500/501 is ordinary split/rationale guidance, not a binary refusal or renewed human approval wall. No new helper or dedicated policy-test framework is granted.
+
+Until that atomic source change ships, the unchanged executable still uses aggregate additions and ignores the new sizing metadata. Parent manually checks exact scope/current source sizing in the interim; this policy correction proves no installed modular gate or genuine native SOURCE acceptance. Retain and rerun unchanged portable62 and loop-scripts pins; the closure pin only gains explicit mirror dependencies, while new native/sizing scenarios use the registered native tests.
 
 CNI2 and CNI3 each own only units.json, roadmap.json and finite actual CNI0/CNI1 evidence filenames allowed by the registration's naming contract; each stays within 15 files/500 counted additions. Freeze actual dates/hash names and exact byte/hash list before publication review. No placeholder snapshot, wildcard write grant or invented contributor is permitted. Reopen exports and independently qualify all source/result/reviewer bytes and actual contributor/route/context bindings. Partial prefixes never complete canonical CNI0/CNI1 or original Task1.
 
@@ -34,7 +38,7 @@ Existing literal ownership paths are executable navigation; absent prospective f
 
 Only after genuine v3 closure/debt publication and required delivery/cleanup may the parent requalify Task1 against fetched current main. A missing consumer, witness, gate, SOURCE reviewer or complete byte readback remains a blocker; docs approval and synthetic tests do not discharge it.
 
-Use GOAL.md's finite same-scope milestone follow-ups: units.json/roadmap.json plus existing registration JSON only if needed, recording actual predecessor proofs under ordinary exact-head review/required CI/owner-ruling/guarded merge/main-proof gates. No registry edit rides CNI1's seven-file source PR. Aggregate initial/follow-up CNI0 counted additions must stay within 500; no extra filename or bootstrap exception is granted. The general approval does not supply a final `OWNER-RULING <head>` comment or `owner-ruled` label for these authority/privacy units.
+Use GOAL.md's finite same-scope milestone follow-ups: units.json/roadmap.json plus existing registration JSON only if needed, recording actual predecessor proofs under ordinary exact-head review/required CI/owner-ruling/guarded merge/main-proof gates. No registry edit rides CNI1's thirteen-file source PR. Aggregate initial/correction/follow-up CNI0 counted additions must stay within 500; reserve future publication follow-ups. No extra filename or bootstrap exception is granted. The general approval does not supply a final `OWNER-RULING <head>` comment or `owner-ruled` label for these authority/privacy units.
 
 ## Ordered-parent successor and retained historical proof
 

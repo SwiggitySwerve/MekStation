@@ -8379,7 +8379,7 @@
     {
       "id": "R6.cni-source",
       "wave": 6,
-      "title": "CNI1 atomic seven-file source delivery milestone; native closure debt remains OPEN until publication",
+      "title": "CNI1 atomic thirteen-file modular source delivery milestone; native closure debt remains OPEN until publication",
       "kind": "verification",
       "state": "blocked",
       "dependsOn": [
@@ -8389,17 +8389,28 @@
         "scripts/qc/roadmap-ledger-lib.mjs",
         "scripts/qc/roadmap-unit-closure.mjs",
         "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
-        "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
-        "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs"
+        "scripts/__tests__/roadmap-loop-closure-proof.test.ts"
       ],
-      "maxFiles": 7,
+      "ownershipExceptions": [
+        "scripts/qc/roadmap-codex-identity-capture.mjs",
+        "scripts/__tests__/roadmap-codex-identity-capture.test.ts",
+        "scripts/qc/roadmap-loop-runtime.mjs",
+        "scripts/qc/review-identity/contract.mjs",
+        "scripts/qc/review-identity/custody.mjs",
+        "scripts/qc/review-identity/source.mjs",
+        "scripts/qc/review-identity/native-binding.mjs",
+        "scripts/qc/review-identity/review.mjs",
+        "scripts/__tests__/roadmap-codex-review-identity.test.ts"
+      ],
+      "maxFiles": 13,
       "maxNonGeneratedLines": 500,
       "taskKeys": [],
       "receipt": null,
       "acceptance": [
         "One atomic source PR; genuine native capture/intake/portable qualification, isolated SOURCE review, all required CI/owner gates, guarded merge and exact-main source proof"
       ],
-      "registration": "evidence/cni-registration-20261002.json"
+      "registration": "evidence/cni-registration-20261002.json",
+      "sourceSizingRef": "evidence/cni-registration-20261002.json#sourceSizing.CNI1"
     },
     {
       "id": "R0.cni-evidence",

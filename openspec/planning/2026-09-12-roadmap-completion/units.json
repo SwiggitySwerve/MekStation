@@ -6522,17 +6522,23 @@
       "id": "CNI1",
       "node": "R6.cni-source",
       "taskKeys": [],
-      "behavior": "Implement and genuinely qualify the seven-file atomic native capture and paired library/intake/portable version-3 contract, preserving all old modes/bytes. Source delivery alone never discharges canonical native closure debt.",
+      "behavior": "Implement and genuinely qualify the thirteen-file atomic modular native capture and paired identity/intake/portable version-3 contract under sourceSizing.CNI1, preserving all old modes/bytes. Source delivery alone never discharges canonical native closure debt.",
       "ownershipPaths": [
         "scripts/qc/roadmap-ledger-lib.mjs",
         "scripts/qc/roadmap-unit-closure.mjs",
         "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
-        "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
-        "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs"
+        "scripts/__tests__/roadmap-loop-closure-proof.test.ts"
       ],
       "ownershipExceptions": [
         "scripts/qc/roadmap-codex-identity-capture.mjs",
-        "scripts/__tests__/roadmap-codex-identity-capture.test.ts"
+        "scripts/__tests__/roadmap-codex-identity-capture.test.ts",
+        "scripts/qc/roadmap-loop-runtime.mjs",
+        "scripts/qc/review-identity/contract.mjs",
+        "scripts/qc/review-identity/custody.mjs",
+        "scripts/qc/review-identity/source.mjs",
+        "scripts/qc/review-identity/native-binding.mjs",
+        "scripts/qc/review-identity/review.mjs",
+        "scripts/__tests__/roadmap-codex-review-identity.test.ts"
       ],
       "ciClass": "product",
       "reviewClasses": [
@@ -6540,7 +6546,7 @@
         "privacy"
       ],
       "caps": {
-        "maxFiles": 7,
+        "maxFiles": 13,
         "maxNonGeneratedLines": 500
       },
         "state": "planned",
@@ -6559,6 +6565,7 @@
       "ownerGate": null,
       "nativeClosureDebt": "OPEN",
       "registration": "evidence/cni-registration-20261002.json",
+      "sourceSizingRef": "evidence/cni-registration-20261002.json#sourceSizing.CNI1",
       "admissionRequires": "Keep blocked until owning-node dependencies are actually main-verified/complete and parent checks exact frozen grants, all live witness/source/census/reviewer and ordinary admission gates. Documentary predecessors and exception reservations are not enforced by NEXT.",
       "predecessors": [
         "CNI0",
