@@ -1,7 +1,7 @@
 # Worker routing and task contract
 > **Status:** Active; new native transport admitted with open debt
 > **Created:** 2026-09-15
-> **Updated:** 2026-10-02
+> **Updated:** 2026-10-03
 
 The leader remains on the user's selected Astra model and owns final validation. Prefer Grok4.6/high through direct CLI or Cursor Agent for bounded implementation when that route can execute. Direct Grok has a retained quota failure; the approved Cursor launcher task failed in its hooks before source access. Do not retry those unchanged routes or alter global hooks. Terra/high handles substantive implementation, diagnosis and semantic review; Luna/high handles small edits and routine checks. XHigh/Max remain bounded user-requested trials. The dated sections below retain routing history; later refinements supersede earlier fallback preferences.
 
@@ -19,7 +19,9 @@ For the owner's newly admitted CNI0-CNI3 path only, GOAL.md and [the registratio
 
 One cohesive writer owns each bounded grant; no nested agents. Freeze exactly one author and every real finisher/editing parent. A fresh isolated Sol high/xhigh SOURCE reviewer receives frozen diff/evidence/full behavior without author context, is independent of all contributors and reproduces two mutants. Record absent root/child fields as absent, never invent Senpi IDs or engine JSON. Export safe projections only, never transcripts, prompts, private source paths, environment or credentials.
 
-CNI0 alone has the approved named docs-bootstrap lifecycle, with canonical native debt OPEN. CNI1 uses genuine candidate capture and paired intake/portable validation; CNI2/CNI3 publish actual closure/debt evidence. Every lane stops on missing observations, incomplete bytes, ungranted paths or exceeded caps; parent retains exact-head review, delivery, cleanup and original Task1 release. No existing actor/resource is adopted.
+CNI0 alone has the approved named docs-bootstrap lifecycle, with canonical native debt OPEN. CNI1 uses genuine candidate capture and paired intake/portable validation; CNI2/CNI3 publish actual closure/debt evidence. Every lane stops on missing observations, incomplete bytes or ungranted paths; unrelated aggregate caps remain. CNI1 source sizing follows the registered per-file review guidance, with no new 501-line approval wall. Parent retains exact-head review, delivery, cleanup and original Task1 release. No existing actor/resource is adopted.
+
+The exact thirteen-file CNI1 grant has one acyclic identity owner: runtime is the boundary-primitives leaf; contract owns schema facts; custody owns artifact I/O; source owns raw extraction; native-binding owns plain causal rules; review is the public facade; ledger owns orchestration. Dependencies flow runtime -> contract -> custody/source and native-binding -> review -> ledger, never back into the facade from lower modules. Move rules rather than copy them; do not hide source logic in tests or use dynamic imports to bypass cycles. Verify behavior-preserving extraction and original archive bytes before adding v3 behavior in the same atomic source delivery. The 613-line closure and 698-line portable validator are named wiring-only legacy cases; shrink the 617-line ledger library through extraction. Leave giant legacy tests and unchanged portable/loop-script pins intact.
 
 ## Assignments
 

@@ -148,12 +148,19 @@
         "scripts/qc/roadmap-unit-closure.mjs",
         "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
         "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
-        "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs"
+        "scripts/qc/roadmap-loop-runtime.mjs",
+        "scripts/qc/review-identity/contract.mjs",
+        "scripts/qc/review-identity/custody.mjs",
+        "scripts/qc/review-identity/source.mjs",
+        "scripts/qc/review-identity/native-binding.mjs",
+        "scripts/qc/review-identity/review.mjs",
+        "scripts/__tests__/roadmap-codex-review-identity.test.ts"
       ],
-      "maxFiles": 7,
+      "maxFiles": 13,
       "maxCountedAdditions": 500,
       "mode": "ONE atomic source PR; separate producer PR is superseded",
-      "condition": "Actual merged/main-proved R0.cni-registration milestone plus parent admission of genuine capture/source/reviewer/census qualification and exact seven-file grant."
+      "sourceSizingRef": "evidence/cni-registration-20261002.json#sourceSizing.CNI1",
+      "condition": "Actual merged/main-proved R0.cni-registration milestone plus parent admission of genuine capture/source/reviewer/census qualification and exact thirteen-file modular grant."
     },
     {
       "id": "CNI2",
@@ -180,11 +187,33 @@
       "condition": "Actual CNI2 prefix delivery; full remaining genuine canonical publication/intake/portable consumption, debt discharge and cleanup before separate Task1 requalification."
     }
   ],
+  "sourceSizing": {
+    "CNI1": {
+      "version": 1,
+      "mode": "modular-source-files",
+      "targetLines": [250, 350],
+      "reviewGuidanceLines": 500,
+      "grantRef": "grants.CNI1",
+      "wiringOnlyLegacyPaths": ["scripts/qc/roadmap-unit-closure.mjs", "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"],
+      "humanQuote": "usually per file code is limited to keep files from being bloated when we can break down into smaller units",
+      "cleanlinessQuote": "lets not block ourselves, rewrite or remove as needed as long as we maintain project cleanliness",
+      "measurement": "Full formatted source physical lines, including comments/blanks/final non-LF segment, from merge-SHA blobs or bound current-head bytes; no byte normalization. Tests/generated size exemptions remain; every changed file counts.",
+      "review": "250–350 or fewer is the target; 500/501 triggers normal concern/split/rationale review, not automatic refusal or new human budget approval. No aggregate 1500 allowance.",
+      "enforcement": "Planned atomic CNI1 branch in existing validate-roadmap.mjs validates the reserved identical unit/node/registration ref, enforces exact grant and actual census <=13, reports full source metrics and removes only CNI1 aggregate rejection. Invalid/missing refs fail closed once declared; old ledgers and unrelated units retain old aggregate semantics. Current executable does not enforce this mode; interim parent manual checks are required."
+    }
+  },
   "ownership": {
     "prospectiveExceptions": [
       "openspec/planning/2026-09-12-roadmap-completion/evidence/cni-registration-20261002.json",
       "scripts/qc/roadmap-codex-identity-capture.mjs",
-      "scripts/__tests__/roadmap-codex-identity-capture.test.ts"
+      "scripts/__tests__/roadmap-codex-identity-capture.test.ts",
+      "scripts/qc/roadmap-loop-runtime.mjs",
+      "scripts/qc/review-identity/contract.mjs",
+      "scripts/qc/review-identity/custody.mjs",
+      "scripts/qc/review-identity/source.mjs",
+      "scripts/qc/review-identity/native-binding.mjs",
+      "scripts/qc/review-identity/review.mjs",
+      "scripts/__tests__/roadmap-codex-review-identity.test.ts"
     ],
     "boundary": "Existing literal node/unit paths plus exact ownershipExceptions permit absent files without broad directories. Exceptions are the only new filename grants; no placeholder file creation.",
     "enforcementGap": "NEXT uses unit state/node dependencies and ownershipPaths only; it does not enforce documentary unit predecessors or reserve exception-only names. --git also skips ledger evidence paths. Parent explicitly checks reservations, full changed-file scopes/caps and actual frozen publication filenames; no new validator gate is claimed."
@@ -219,7 +248,7 @@
   },
   "owners": {
     "capture": "scripts/qc/roadmap-codex-identity-capture.mjs owns bounded exact-source extraction/capture, not trusted witness manufacture or a second policy validator.",
-    "identity": "scripts/qc/roadmap-ledger-lib.mjs is the one review-identity policy/validation owner; preserve identityPath archive ownership and all old behavior.",
+    "identity": "scripts/qc/review-identity/review.mjs is the public identity-domain policy facade over contract/custody/source/native-binding; runtime is a leaf, ledger retains orchestration/reexports. Lower modules never import facade/ledger. Extract rather than copy rules; preserve all old exports/archive bytes/outcomes before v3.",
     "paired": "roadmap-unit-closure.mjs and validate-roadmap.mjs dispatch exact matching old/native versions atomically; no broad ID regex change or fake engine-record producer."
   },
   "publication": {
@@ -275,7 +304,7 @@
     "task1": "OPEN/BLOCKED until current fetched-main qualification is rerun after full debt discharge; no original task released.",
     "sourceReview": "CNI1 fresh isolated exact-head SOURCE reviewer independently reproduces at least two mutants; source merge and fixture success are insufficient."
   },
-  "caps": "Preserve exact U41 test/generated/ledger-evidence line exclusions; docs/register additions count unless existing rule excludes them. All modified files count; no new allowance, exemption or cap inflation.",
+  "caps": "CNI1 alone uses sourceSizing.CNI1 instead of aggregate added-line rejection; historical numeric500 fields stay for old readers. Preserve all other aggregate caps and exact U41 exclusions. CNI0 initial/correction/follow-up additions stay <=500 with future publication reserve. All modified files count; no broad path grant.",
   "milestoneFollowups": {
     "exactFiles": ["openspec/planning/2026-09-12-roadmap-completion/units.json", "openspec/planning/2026-09-12-roadmap-completion/roadmap.json", "openspec/planning/2026-09-12-roadmap-completion/evidence/cni-registration-20261002.json"],
     "sequence": ["After actual first registration merge/main proof, ordinary follow-up records that predecessor proof, advances R0.cni-registration to main-verified and ONLY CNI1 to planned", "After actual CNI1 source merge/main proof, ordinary follow-up records that predecessor proof, advances R6.cni-source and ONLY CNI2 to planned", "After actual CNI2 prefix merge/main proof, ordinary follow-up records that predecessor proof, advances R0.cni-evidence and ONLY CNI3 to planned"],
