@@ -8355,7 +8355,7 @@
       "wave": 0,
       "title": "CNI0 approved docs-bootstrap delivery milestone; canonical native closure debt OPEN",
       "kind": "planning",
-      "state": "planned",
+        "state": "main-verified",
       "dependsOn": [],
       "ownershipPaths": [
         "openspec/planning/2026-09-12-roadmap-completion/GOAL.md",
@@ -8367,7 +8367,10 @@
       "maxFiles": 6,
       "maxNonGeneratedLines": 500,
       "taskKeys": [],
-      "receipt": null,
+        "receipt": {
+          "mainSha": "83525164532b61ef5af18937a635dc53bde2591a",
+          "evidence": "evidence/cni-registration-20261002.json"
+        },
       "acceptance": [
         "Actual independent exact-head Sol high/xhigh docs review, required CI/owner gates, guarded merge and exact-main registration proof; no native canonical closure claim"
       ],
