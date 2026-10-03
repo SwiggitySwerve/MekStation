@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "actual first-registration and CNI1 source main delivery and cleanup proved; native debt OPEN; no canonical closure acceptance",
+  "status": "Actual registration, CNI1 source and first historical prefix Main/custody/owned cleanup proved; canonical native debt OPEN",
   "id": "CNI-registration-20261002",
   "baseline": "2fe46eaae9de7be054395021c9dc89dc6798293c",
   "deliveryProof": {
@@ -229,6 +229,126 @@
     },
     "enforcement": "Documentary source milestone only. Parent verifies actual raw bindings, source merge census, CI, ruling and custody. Portable NEXT and blocked-unit Git/GitHub checks do not authenticate this proof. Native closure and original Task1 remain open."
   },
+  "prefixDeliveryProof": {
+    "scope": "Ordinary seven-file historical CNI1 archive prefix; no current CNI2 SOURCE qualification or native closure",
+    "verdict": "PASS actual prefix Source/merge/Main/custody/owned cleanup",
+    "pr": 2120,
+    "url": "https://github.com/SwiggitySwerve/MekStation/pull/2120",
+    "reviewedHead": "de93c6328831e268dccae354dc35f33510c6d2fc",
+    "mergeSha": "92dc24042d919d6ac94975ca814a4de752de770c",
+    "mergedAt": "2026-10-03T17:14:12Z",
+    "parent1": "040695ed1c68d2f20cc26219a2977520aff15941",
+    "tree": "1a350949a5fd193fda6841c4d11f264ee8376f96",
+    "review": {
+      "verdict": "APPROVE",
+      "bytes": 17776,
+      "sha256": "c9e25493b51ab4760aed5b1592b423465e4ded4c1d512bd1ea16002d8100d7fd",
+      "model": "openai/gpt-6.1-sol",
+      "effort": "high",
+      "actualCompletedNativeAppPairs": 22
+    },
+    "ci": {
+      "status": "PASS",
+      "checks": 31,
+      "head": "de93c6328831e268dccae354dc35f33510c6d2fc",
+      "artifact": "cni2-source-ci.json",
+      "bytes": 180172,
+      "sha256": "2eccecf16c257f03f2aeafa632c051bc601140b494d60ea2a684f8eef4c0032d"
+    },
+    "ownerRuling": {
+      "commentId": 5971531225,
+      "bodyBytes": 1198,
+      "bodySha256": "13949a9ef9db6b7b3d495b596736acac847be17af032432dd4782681861d30ef",
+      "head": "de93c6328831e268dccae354dc35f33510c6d2fc",
+      "author": "SwiggitySwerve",
+      "association": "OWNER",
+      "authorizedTranscription": true,
+      "label": "owner-ruled"
+    },
+    "mainProof": {
+      "status": "PASS ordinary historical prefix",
+      "artifact": "main-proof.json",
+      "bytes": 105950,
+      "sha256": "351746a97e1f9fc63ee74debc2c64656e2d2a60be30bae076e2330cb816215c4",
+      "head": "92dc24042d919d6ac94975ca814a4de752de770c",
+      "wholeSourceTreeEqual": true,
+      "files": 7,
+      "sourceBytes": 2392815,
+      "historicalFiles": 5,
+      "historicalBytes": 159925,
+      "historicalSubject": "CNI1/e3606fd495f83c80f689b432f5e9d713e7482ede",
+      "qaInvocations": 17,
+      "expectedExitsMatched": 17,
+      "portablePassed": 62,
+      "typesExit": 0,
+      "qcErrors": 0,
+      "strictPassed": 229,
+      "purposeFiles": 220,
+      "terminologyFiles": 304,
+      "modernFold": "LOCAL_STATUS_REFUSED for unchanged incomplete historical LOCAL",
+      "canonicalQualification": false
+    },
+    "custody": {
+      "source": {
+        "files": 1298,
+        "bytes": 172740216,
+        "aliases": 0,
+        "mismatches": 0
+      },
+      "main": {
+        "files": 707,
+        "bytes": 72880273,
+        "aliases": 0,
+        "mismatches": 0
+      },
+      "native": {
+        "prefixes": 8,
+        "bytes": 102487656,
+        "mismatches": 0
+      },
+      "historicalArchives": [
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-d352a03d3d259ff926ebde5aa20e4ecbd9602b3f9110a2bd2c830a54a57ce554.json",
+          "bytes": 39456,
+          "sha256": "d352a03d3d259ff926ebde5aa20e4ecbd9602b3f9110a2bd2c830a54a57ce554"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-6318d72e2faeb6ad97d44847641273de2b8c3de3299900cd7831bd76c5168dd3.json",
+          "bytes": 41808,
+          "sha256": "6318d72e2faeb6ad97d44847641273de2b8c3de3299900cd7831bd76c5168dd3"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-d094fc269d8325ba8ab4e729b63fc476b29d1f359ff9acf57141617c468b3689.json",
+          "bytes": 41632,
+          "sha256": "d094fc269d8325ba8ab4e729b63fc476b29d1f359ff9acf57141617c468b3689"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-60e8c88160cfdc60cdd403c037ef9d19ed7f0c1033c1d63831d6093658b72c27.json",
+          "bytes": 35819,
+          "sha256": "60e8c88160cfdc60cdd403c037ef9d19ed7f0c1033c1d63831d6093658b72c27"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-review-identity-31fcbcd60def4f724c56eb0c56f0a27d618a85e104d853d30f16c87f2d17d7f8.json",
+          "bytes": 1210,
+          "sha256": "31fcbcd60def4f724c56eb0c56f0a27d618a85e104d853d30f16c87f2d17d7f8"
+        }
+      ],
+      "cleanup": {
+        "artifact": "cni2-final-cleanup-audit.json",
+        "bytes": 4686,
+        "sha256": "d566f47f0ff8bc009ef7e2a6df8cb022fe06bac441a49281ac47d1f699d13c21",
+        "ownedPhysicalAdminRefsAbsent": true,
+        "primaryPreserved": true,
+        "dependencyNativeBuffers": 14,
+        "yaml": "2.9.0",
+        "mismatches": 0,
+        "manualRecursiveDelete": false,
+        "normalGitWorktreeRemoval": true,
+        "emptyRootRecoveryProcessStops": 0
+      }
+    },
+    "enforcement": "Documentary prior-prefix proof with Root and independent evidence/lifecycle checks; NEXT and canonical sourceInventory do not authenticate this field. Canonical own receipts stay null and native debt OPEN; CNI3/discharge stay blocked. No future CNI2P or CNI3R result is claimed."
+  },
   "ownerDecision": {
     "message": "approved",
     "decision": "native-compatibility-owner-decision.md",
@@ -430,7 +550,7 @@
   "caps": "CNI1 alone uses sourceSizing.CNI1 instead of aggregate added-line rejection; historical numeric500 fields stay for old readers. Preserve all other aggregate caps and exact U41 exclusions. CNI0 initial/correction/follow-up additions stay <=500 with future publication reserve. All modified files count; no broad path grant.",
   "milestoneFollowups": {
     "exactFiles": ["openspec/planning/2026-09-12-roadmap-completion/units.json", "openspec/planning/2026-09-12-roadmap-completion/roadmap.json", "openspec/planning/2026-09-12-roadmap-completion/evidence/cni-registration-20261002.json"],
-    "sequence": ["After actual first registration merge/main proof, ordinary follow-up records that predecessor proof, advances R0.cni-registration to main-verified and ONLY CNI1 to planned", "After actual CNI1 source merge/main proof, ordinary follow-up records that predecessor proof, advances R6.cni-source and ONLY CNI2 to planned", "After actual CNI2 prefix merge/main proof, ordinary follow-up records that predecessor proof, advances R0.cni-evidence and ONLY CNI3 to planned"],
+    "sequence": ["After actual first registration merge/main proof, ordinary follow-up records that predecessor proof, advances R0.cni-registration to main-verified and ONLY CNI1 to planned", "After actual CNI1 source merge/main proof, ordinary follow-up records that predecessor proof, advances R6.cni-source and ONLY CNI2 to planned", "After actual CNI2 prefix Main/custody/cleanup, the existing-three-file CNI2P records that predecessor proof and advances only R0.cni-evidence's actual prefix milestone. Canonical CNI3 remains blocked with null own receipts. After CNI2P's own actual Main/custody/cleanup, Root may separately admit the existing-six-file CNI3R correction under its registered grant and actual user authority; recovery/components wait for CNI3R actual Main/custody/cleanup."],
     "gates": "Every follow-up needs fresh exact-head review, required CI/owner ruling, guarded merge and actual exact-main proof before successor admission; never prefill own future merge. CNI0 canonical unit stays blocked/native debt OPEN.",
     "caps": "All follow-ups stay within the same six-file CNI0 grant; aggregate initial plus follow-up counted additions <=500. Reserve and measure remaining budget. No seventh source file, extra filename or bootstrap exception.",
     "ordering": "Insert new units immediately before old NEXT U24b; preserve all 158 original objects and relative order. All CNI units initially blocked; NEXT U24b is honest, later only the eligible CNI successor may become NEXT."
