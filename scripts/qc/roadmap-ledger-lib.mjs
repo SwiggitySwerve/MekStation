@@ -4,7 +4,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { implementationCensus } from './review-identity/review.mjs';
+import {
+  implementationCensus,
+  reviewIdentityMode,
+} from './review-identity/review.mjs';
 import {
   HEX40,
   evidenceDirOf,
@@ -36,6 +39,7 @@ export {
   identityPath,
   implementationCensus,
   nativeBytes,
+  nativeFile,
   nativeCheck,
   nativePath,
   nativeText,
@@ -170,7 +174,10 @@ export function foldStages({
     at: local.at || at,
     summary: localSummary ?? fallback('local', local),
     ...(census
-      ? { reviewContractVersion: 2, implementationActors: census }
+      ? {
+          reviewContractVersion: reviewIdentityMode(local),
+          implementationActors: census,
+        }
       : {}),
   };
   return { unit, baseline };

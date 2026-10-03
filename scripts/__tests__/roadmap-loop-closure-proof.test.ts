@@ -378,6 +378,8 @@ function mirrorRepo(): {
     'review-identity/contract.mjs',
     'review-identity/custody.mjs',
     'review-identity/review.mjs',
+    'review-identity/source.mjs',
+    'review-identity/native-binding.mjs',
   ]) {
     const target = path.join(qcDir, name);
     fs.mkdirSync(path.dirname(target), { recursive: true });

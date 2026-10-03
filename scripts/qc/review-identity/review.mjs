@@ -13,12 +13,26 @@ import {
   observedEngine,
   sessionId,
   taskId,
+  nativeRef,
+  nativeText,
+  nativeJson,
 } from './contract.mjs';
-import { identityArtifact, identityPath } from './custody.mjs';
+import {
+  identityArtifact,
+  identityPath,
+  nativeArtifact,
+  nativeBytes,
+  nativeFile,
+} from './custody.mjs';
+import {
+  nativeImplementationCensus,
+  validateNativeReview,
+} from './native-binding.mjs';
 export {
   archiveReviewIdentity,
   identityPath,
   nativeBytes,
+  nativeFile,
   nativePath,
   nativeText,
 } from './custody.mjs';
@@ -32,19 +46,24 @@ export function reviewIdentityMode(value) {
     );
   if (!modern) return 0;
   identityCheck(
-    value.reviewContractVersion === 2,
+    value.reviewContractVersion === 2 || value.reviewContractVersion === 3,
     'partial, unknown or downgraded reviewContractVersion',
   );
-  return 2;
+  return value.reviewContractVersion;
 }
 
 export function implementationCensus(local) {
-  if (!reviewIdentityMode(local)) return null;
+  const mode = reviewIdentityMode(local);
+  if (!mode) return null;
   identityCheck(
     !Object.hasOwn(local, 'identityEvidence'),
     'local receipt cannot carry review identityEvidence',
   );
   const actors = local.implementationActors;
+  if (mode === 3) {
+    nativeImplementationCensus(actors);
+    return actors;
+  }
   identityCheck(
     Array.isArray(actors) && actors.length > 0,
     'implementationActors census missing',
@@ -71,11 +90,21 @@ export function implementationCensus(local) {
 const localReviewEvidence = (ledgerDir, unit) => {
   const inline = unit.stageReceipts.local;
   const mode = reviewIdentityMode(inline);
-  const file = mode
-    ? identityPath(ledgerDir, inline.path)
-    : inline?.path && path.resolve(ledgerDir, inline.path);
-  const bytes = file && fs.existsSync(file) ? fs.readFileSync(file) : null;
-  const external = bytes && JSON.parse(bytes.toString('utf8'));
+  const file =
+    mode === 3
+      ? nativeFile(ledgerDir, inline.path)
+      : mode
+        ? identityPath(ledgerDir, inline.path)
+        : inline?.path && path.resolve(ledgerDir, inline.path);
+  const bytes =
+    file && fs.existsSync(file)
+      ? mode === 3
+        ? nativeBytes(file)
+        : fs.readFileSync(file)
+      : null;
+  const external =
+    bytes &&
+    (mode === 3 ? nativeJson(bytes) : JSON.parse(bytes.toString('utf8')));
   identityCheck(
     mode === reviewIdentityMode(external),
     'external modern local downgraded to legacy',
@@ -88,8 +117,138 @@ const localReviewEvidence = (ledgerDir, unit) => {
         isDeepStrictEqual(actors, implementationCensus(inline))),
     'local receipt/census disagrees with inline summary',
   );
-  return { mode, actors, bytes };
+  return { mode, actors, bytes, file };
 };
+
+function reviewProlog(output, review, version) {
+  const lines = (
+    version === 3 ? nativeText(output) : output.toString('utf8')
+  ).split(/\r?\n/);
+  const prolog = lines.slice(0, 6);
+  for (const [key, value] of Object.entries({
+    Verdict: 'APPROVE',
+    reviewedHead: review.head,
+    reviewerModel: review.reviewerModel,
+    reviewContractVersion: String(version),
+  })) {
+    identityCheck(
+      lines.filter((line) => line.startsWith(`${key}:`)).length === 1 &&
+        prolog.includes(`${key}: ${value}`),
+      `duplicate/conflicting/missing modern ${key} prolog`,
+    );
+  }
+}
+
+function validateNativeIdentity({
+  ledgerDir,
+  unit,
+  review,
+  manifestFile,
+  nativeObservationsDir,
+  engineRecordsDir,
+  reviewBytes,
+  reviewFile,
+}) {
+  identityCheck(
+    !engineRecordsDir &&
+      !Object.hasOwn(review, 'implementationActors') &&
+      review.unit === unit.id &&
+      review.stage === 'review' &&
+      review.head === review.reviewedHead &&
+      HEX40.test(review.head) &&
+      review.verdict === 'APPROVE',
+    'native review unit/head/verdict or engine adapter mismatch',
+  );
+  const local = localReviewEvidence(ledgerDir, unit);
+  identityCheck(
+    local.mode === 3 && local.actors,
+    'paired native local census required',
+  );
+  identityCheck(
+    !manifestFile || nativeObservationsDir,
+    'native candidate requires explicit native observations directory',
+  );
+  const data = manifestFile
+    ? {
+        file: path.resolve(manifestFile),
+        bytes: nativeBytes(path.resolve(manifestFile)),
+      }
+    : nativeArtifact(ledgerDir, review.identityEvidence);
+  const manifest = data.value ?? nativeJson(data.bytes);
+  const outputFile = reviewFile
+    ? path.resolve(reviewFile)
+    : nativeFile(ledgerDir, review.outputPath);
+  const output = nativeBytes(outputFile);
+  identityCheck(
+    !reviewBytes || output.equals(reviewBytes),
+    'native retained review bytes drift',
+  );
+  exactKeys(manifest, {
+    reviewContractVersion: 3,
+    unit: unit.id,
+    sourceHead: review.head,
+    reviewOutputSha256: (v) =>
+      v === review.outputSha256 && v === sha256(output),
+    localReceiptSha256: sha256(local.bytes),
+    author: nativeRef,
+    finishers: (refs) => Array.isArray(refs) && refs.every(nativeRef),
+    reviewer: nativeRef,
+  });
+  reviewProlog(output, review, 3);
+  const refs = [manifest.author, ...manifest.finishers, manifest.reviewer];
+  identityCheck(
+    new Set(refs.map((r) => r.path.toLowerCase())).size === refs.length &&
+      refs.every(
+        (r) => path.basename(r.path) === `codex-observation-${r.sha256}.json`,
+      ),
+    'native observation refs aliased/wrong kind',
+  );
+  if (!manifestFile)
+    identityCheck(
+      path.basename(review.identityEvidence.path) ===
+        `codex-review-identity-${review.identityEvidence.sha256}.json`,
+      'native archived manifest kind mismatch',
+    );
+  const snapshots = refs.map((ref) => {
+    const artifact = nativeArtifact(path.dirname(data.file), ref);
+    if (nativeObservationsDir)
+      identityCheck(
+        nativeArtifact(nativeObservationsDir, ref).bytes.equals(artifact.bytes),
+        'native snapshot differs from actual qualified capture',
+      );
+    return artifact;
+  });
+  const bindings = validateNativeReview({
+    snapshots,
+    manifest,
+    actors: local.actors,
+    review,
+    localSha256: sha256(local.bytes),
+  });
+  const revalidate = () => {
+    identityCheck(
+      nativeBytes(data.file).equals(data.bytes) &&
+        nativeBytes(outputFile).equals(output) &&
+        nativeBytes(local.file).equals(local.bytes),
+      'native frozen manifest/review/local artifact drift',
+    );
+    snapshots.forEach((snapshot, i) => {
+      identityCheck(
+        nativeBytes(snapshot.file).equals(snapshot.bytes),
+        'native frozen observation artifact drift',
+      );
+      if (nativeObservationsDir)
+        identityCheck(
+          nativeArtifact(nativeObservationsDir, refs[i]).bytes.equals(
+            snapshot.bytes,
+          ),
+          'native actual capture artifact drift',
+        );
+    });
+  };
+  revalidate();
+  return { manifest, snapshots, bindings, revalidate };
+}
 
 export function validateReviewIdentity({
   ledgerDir,
@@ -98,7 +257,20 @@ export function validateReviewIdentity({
   manifestFile,
   engineRecordsDir,
   reviewBytes,
+  reviewFile,
+  nativeObservationsDir,
 }) {
+  if (reviewIdentityMode(review) === 3)
+    return validateNativeIdentity({
+      ledgerDir,
+      unit,
+      review,
+      manifestFile,
+      engineRecordsDir,
+      nativeObservationsDir,
+      reviewBytes,
+      reviewFile,
+    });
   identityCheck(
     reviewIdentityMode(review) === 2 &&
       !Object.hasOwn(review, 'implementationActors') &&
@@ -131,20 +303,7 @@ export function validateReviewIdentity({
     finishers: (refs) => Array.isArray(refs) && refs.every(checkRef),
     reviewer: checkRef,
   });
-  const lines = output.toString('utf8').split(/\r?\n/);
-  const prolog = lines.slice(0, 6);
-  for (const [key, value] of Object.entries({
-    Verdict: 'APPROVE',
-    reviewedHead: review.head,
-    reviewerModel: review.reviewerModel,
-    reviewContractVersion: '2',
-  })) {
-    identityCheck(
-      lines.filter((line) => line.startsWith(`${key}:`)).length === 1 &&
-        prolog.includes(`${key}: ${value}`),
-      `duplicate/conflicting/missing modern ${key} prolog`,
-    );
-  }
+  reviewProlog(output, review, 2);
   const refs = [manifest.author, ...manifest.finishers, manifest.reviewer];
   identityCheck(
     new Set(refs.map((r) => r.path.toLowerCase())).size === refs.length,
@@ -213,12 +372,19 @@ export function validateReviewReceipt(ledgerDir, unit) {
   const { mode: localMode } = localReviewEvidence(ledgerDir, unit);
   if (!inline) return;
   const mode = reviewIdentityMode(inline);
-  const externalFile = mode
-    ? identityPath(ledgerDir, inline.path)
-    : path.resolve(ledgerDir, inline.path);
-  const external = fs.existsSync(externalFile) ? readJson(externalFile) : null;
+  const externalFile =
+    mode === 3
+      ? nativeFile(ledgerDir, inline.path)
+      : mode
+        ? identityPath(ledgerDir, inline.path)
+        : path.resolve(ledgerDir, inline.path);
+  const external = fs.existsSync(externalFile)
+    ? mode === 3
+      ? nativeJson(nativeBytes(externalFile))
+      : readJson(externalFile)
+    : null;
   identityCheck(
-    mode === reviewIdentityMode(external) && (!localMode || mode === 2),
+    mode === reviewIdentityMode(external) && (!localMode || mode === localMode),
     'inline/external/local review contract downgrade',
   );
   if (!mode) {
