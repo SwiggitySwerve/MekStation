@@ -8352,6 +8352,7 @@
     },
     {
       "id": "R0.cni-registration",
+      "planningSizingRef": "evidence/cni-registration-20261002.json#planningSizing",
       "wave": 0,
       "title": "CNI0 approved docs-bootstrap delivery milestone; canonical native closure debt OPEN",
       "kind": "planning",
@@ -8417,6 +8418,7 @@
     },
     {
       "id": "R0.cni-evidence",
+      "planningSizingRef": "evidence/cni-registration-20261002.json#planningSizing",
       "wave": 0,
       "title": "CNI2 actual canonical native evidence prefix delivery; partial publication releases no unit",
       "kind": "planning",
@@ -8444,6 +8446,7 @@
     },
     {
       "id": "R0.cni-discharge",
+      "planningSizingRef": "evidence/cni-registration-20261002.json#planningSizing",
       "wave": 0,
       "title": "CNI3 complete native debt evidence publication; original Task1 requalification remains required",
       "kind": "planning",
