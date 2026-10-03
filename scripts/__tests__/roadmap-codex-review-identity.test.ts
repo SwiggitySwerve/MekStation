@@ -1459,7 +1459,9 @@ describe('Native-v3 shared observer and subject-selected records', () => {
 
 describe('CNI1 declared source sizing metadata', () => {
   it('accepts the public tuple without changing NEXT', () => {
-    const result = run(fixture(), ['--next']);
+    const f = fixture();
+    f.unit.state = 'planned';
+    const result = run(f, ['--next']);
     expect(result.exit).toBe(0);
     expect(result.stdout.trim()).toBe('CNI1');
   });
