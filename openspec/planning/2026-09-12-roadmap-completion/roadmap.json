@@ -8420,7 +8420,7 @@
       "wave": 0,
       "title": "CNI2 actual canonical native evidence prefix delivery; partial publication releases no unit",
       "kind": "planning",
-      "state": "blocked",
+      "state": "main-verified",
       "dependsOn": [
         "R6.cni-source"
       ],
@@ -8431,10 +8431,14 @@
       "maxFiles": 15,
       "maxNonGeneratedLines": 500,
       "taskKeys": [],
-      "receipt": null,
+      "receipt": {
+        "mainSha": "92dc24042d919d6ac94975ca814a4de752de770c",
+        "evidence": "evidence/cni-registration-20261002.json"
+      },
       "acceptance": [
         "Freeze actual finite filenames/hash/bytes, independent exact-head review and actual prefix merge/main proof; no partial closure",
-        "Exact historical CNI1 finite path/bytes/hash/physical-line freeze and literal reservations are recorded by CNI2.admissionRequires and CNI2.ownershipExceptions in units.json; Standing-authorized Root admission follows observed predecessor040695 exact-main proof (24265 bytes, sha256 ccccb5507372025f570540c0610a7b0575ffb8fe25c5d279c5c0636253a66cb9) and completed source/Main custody and owned cleanup, recorded by cni1p-parent-main-evidence-readback.json, cni1p-final-cleanup-audit.json and cni2-execution-admission.json. Canonical receipts/debt and CNI3 stay unchanged."
+        "Exact historical CNI1 finite path/bytes/hash/physical-line freeze and literal reservations are recorded by CNI2.admissionRequires and CNI2.ownershipExceptions in units.json; Standing-authorized Root admission follows observed predecessor040695 exact-main proof (24265 bytes, sha256 ccccb5507372025f570540c0610a7b0575ffb8fe25c5d279c5c0636253a66cb9) and completed source/Main custody and owned cleanup, recorded by cni1p-parent-main-evidence-readback.json, cni1p-final-cleanup-audit.json and cni2-execution-admission.json. Canonical receipts/debt and CNI3 stay unchanged.",
+        "Actual prior CNI2 ordinary prefix Main/custody/owned cleanup proof is owned by evidence/cni-registration-20261002.json#prefixDeliveryProof; canonical own receipts remain null, native debt OPEN and CNI3/discharge blocked."
       ],
       "registration": "evidence/cni-registration-20261002.json"
     },
