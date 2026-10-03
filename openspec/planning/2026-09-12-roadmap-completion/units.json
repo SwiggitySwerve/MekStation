@@ -6478,6 +6478,7 @@
     },
     {
       "id": "CNI0",
+      "planningSizingRef": "evidence/cni-registration-20261002.json#planningSizing",
       "node": "R0.cni-registration",
       "taskKeys": [],
       "behavior": "Register the owner-approved LOCAL native-v3 policy through the named six-file docs-bootstrap lifecycle. Canonical native closure stays OPEN; this blocked unit is not completed by its independent docs-delivery milestone.",
@@ -6574,6 +6575,7 @@
     },
     {
       "id": "CNI2",
+      "planningSizingRef": "evidence/cni-registration-20261002.json#planningSizing",
       "node": "R0.cni-evidence",
       "taskKeys": [],
       "behavior": "Publish the first finite actual native CNI0/CNI1 evidence prefix after genuine source qualification. Freeze exact names/hash/bytes before admission; partial evidence completes no unit.",
@@ -6621,6 +6623,9 @@
     },
     {
       "id": "CNI3",
+      "planningSizingRef": "evidence/cni-registration-20261002.json#planningSizing",
+      "ordinaryPublicationTasksRef": "evidence/cni-registration-20261002.json#ordinaryPublicationTasks",
+      "nativeDebtDischargeRef": "evidence/cni-registration-20261002.json#ordinaryPublicationMilestones.nativeDebtDischarge",
       "node": "R0.cni-discharge",
       "taskKeys": [],
       "behavior": "Publish remaining finite actual native evidence and discharge CNI0/CNI1 canonical debt only with complete genuine intake/portable consumption and delivery/cleanup; then separately requalify original Task1 on fetched current main.",

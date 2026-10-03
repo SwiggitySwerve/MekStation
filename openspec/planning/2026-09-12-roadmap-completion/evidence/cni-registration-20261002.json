@@ -377,7 +377,8 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/cni-registration-20261002.json"
       ],
       "maxFiles": 6,
-      "maxCountedAdditions": 500,
+      "historicalMaxCountedAdditions": 500,
+      "planningSizingRef": "evidence/cni-registration-20261002.json#planningSizing",
       "mode": "docs-bootstrap-only",
       "condition": "Named parent-selected docs lifecycle; canonical CNI0 stays blocked with all stage receipts null until genuine native-v3 closure publication."
     },
@@ -414,7 +415,8 @@
       ],
       "frozenEvidenceFiles": [],
       "maxFiles": 15,
-      "maxCountedAdditions": 500,
+      "historicalMaxCountedAdditions": 500,
+      "planningSizingRef": "evidence/cni-registration-20261002.json#planningSizing",
       "condition": "Actual source-delivery milestone, genuine captured evidence, finite filenames/hash/bytes frozen before review. Partial prefix never closes CNI0/CNI1."
     },
     {
@@ -426,7 +428,8 @@
       ],
       "frozenEvidenceFiles": [],
       "maxFiles": 15,
-      "maxCountedAdditions": 500,
+      "historicalMaxCountedAdditions": 500,
+      "planningSizingRef": "evidence/cni-registration-20261002.json#planningSizing",
       "condition": "Actual CNI2 prefix delivery; full remaining genuine canonical publication/intake/portable consumption, debt discharge and cleanup before separate Task1 requalification."
     }
   ],
@@ -445,6 +448,356 @@
       "enforcement": "Actual CNI1 validate-roadmap.mjs validates the reserved identical unit/node/registration ref and exact thirteen-file modular grant. Invalid/missing refs fail closed once declared; old ledgers and unrelated units retain old aggregate semantics. Actual merge census/source metrics run only for main-verified-or-later canonical units under --git; source delivery with native closure debt OPEN still requires parent manual source merge/census checks."
     }
   },
+  "planningSizing": {
+    "version": 1,
+    "mode": "cohesive-files-review",
+    "scope": [
+      "CNI0 ordinary policy corrections and milestone follow-ups",
+      "CNI2/CNI3 finite ordinary planning and evidence publication tasks"
+    ],
+    "perFileGuidanceRef": "sourceSizing.CNI1",
+    "aggregateAddedLineCeiling": null,
+    "measure": "All changed files: exact bytes, full physical lines including final non-LF segment, raw additions/deletions and one concern; every promoted file counts.",
+    "review": "Independent exact-head cohesive review, with split/rationale for inherited ledgers or immutable evidence. Preserve readable complete commands/proof; no minification, normalization, truncation, deletion credit, historical reset or new aggregate allowance.",
+    "enforcement": "Manual Root and independent reviewer. Exact finite paths/file ceilings and all native, source, census, privacy, owner, CI, guarded merge/whole-tree, Main, custody and cleanup gates remain. No new executable sizing mode.",
+    "legacyUnitCaps": "Canonical numeric unit/node fields and historical --git source-merge checks remain unchanged; sourceSizing.CNI1 enforcement applies to canonical units, not the ordinary documentary tasks.",
+    "authority": {
+      "kind": "actual user instructions, independently reopened",
+      "records": [
+        {
+          "ordinal": 4841,
+          "offset": 26367186,
+          "bytes": 2382,
+          "sha256": "7dd5a709354862024b935919e7ac1a2db8411fdbfe6bf25258222a0a6ee8d239",
+          "timestamp": "2026-10-03T04:56:25.994Z",
+          "role": "user",
+          "quote": "auto approved to do all commits and delivery of PRs to continue iterating on the plan"
+        },
+        {
+          "ordinal": 7020,
+          "offset": 34741597,
+          "bytes": 1971,
+          "sha256": "473dafdde7a62fccc1e66dea1357bfbb7c58e48f28fcf9a360ce51094f88e1e4",
+          "timestamp": "2026-10-03T07:31:02.938Z",
+          "role": "user",
+          "quote": "usually per file code is limited to keep files from being bloated when we can break down into smaller units"
+        },
+        {
+          "ordinal": 7206,
+          "offset": 35223309,
+          "bytes": 1960,
+          "sha256": "c34fe74859d9aca8cad0a158a6b056512862972cff1592c221b697eac477ab5d",
+          "timestamp": "2026-10-03T07:49:10.320Z",
+          "role": "user",
+          "quote": "lets not block ourselves, rewrite or remove as needed as long as we maintain project cleanliness"
+        }
+      ]
+    },
+    "historicalAccounting": {
+      "preparedCommittedSourceBase": "0e7cc79256352f84ee530e265cdcc7e5489eab5a",
+      "acceptedMaterializationBase": "a5d630c4fff3cb760a02e610f91c164355bada4c",
+      "countedU41Additions": 387,
+      "rawAdditions": 964,
+      "retiredCumulativeCeiling": 500,
+      "oldRuleRemainder": 113,
+      "priorAcceptedPrefixMain": "92dc24042d919d6ac94975ca814a4de752de770c",
+      "priorPrefixCounted": 378,
+      "priorPrefixRaw": 833,
+      "originalPolicyAcceptedBase": "040695ed1c68d2f20cc26219a2977520aff15941",
+      "originalPolicyCounted": 368,
+      "originalPolicyRaw": 823,
+      "rule": "Retain these actual histories and append later raw/counted measurements. No remaining allowance governs future scoped ordinary tasks after this corrected policy actually ships."
+    }
+  },
+  "ordinaryPublicationTasks": {
+    "version": 1,
+    "effect": "These finite named tasks replace only original CNI3 single-publication scheduling/accounting. Canonical CNI3 remains blocked/null own receipts with numeric caps visible; no component merge is its source ladder. Original inventories/order/task holders and original131 obligations are preserved.",
+    "admissionOrder": [
+      "CNI2 actual Main/custody/cleanup",
+      "CNI2P existing-three actual Main/custody/cleanup",
+      "CNI3R existing-six actual Main/custody/cleanup",
+      "qualified private historical recovery",
+      "CNI3A",
+      "CNI3B",
+      "CNI3C",
+      "CNI3D",
+      "separate full original Task1 qualification"
+    ],
+    "CNI2P": {
+      "maxFiles": 3,
+      "exactFiles": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/cni-registration-20261002.json"
+      ],
+      "outcome": "Actual prior-prefix proof only; no normative-doc edits or recovery/component admission before CNI3R actual delivery.",
+      "status": null,
+      "predecessorProof": null,
+      "delivery": null
+    },
+    "CNI3R": {
+      "maxFiles": 6,
+      "exactFiles": [
+        "openspec/planning/2026-09-12-roadmap-completion/GOAL.md",
+        "openspec/planning/2026-09-12-roadmap-completion/DELIVERY.md",
+        "openspec/planning/2026-09-12-roadmap-completion/WORKERS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/cni-registration-20261002.json"
+      ],
+      "outcome": "Ordinary concrete normative correction with real authority/head ruling/review/required CI/guarded merge/whole-tree/Main/custody/cleanup. It grants no new bootstrap or Source/schema/parser change.",
+      "status": null,
+      "predecessorProof": null,
+      "delivery": null
+    },
+    "tasks": {
+      "CNI3A": {
+        "id": "CNI3A",
+        "kind": "documentary ordinary task, not canonical unit",
+        "selection": "Root manually selects/serializes this ordinary task after actual predecessor Main/custody/cleanup and delivered CNI3R contract; no NEXT/task-ID native capture authority.",
+        "planningSizingRef": "evidence/cni-registration-20261002.json#planningSizing",
+        "reviewClasses": [
+          "authority",
+          "privacy"
+        ],
+        "gates": [
+          "actual Sol high/xhigh direct exact-head Source review with full source/result/census/native/App evidence and relevant mutants",
+          "real head-bound owner ruling and all required CI (currently 31; resolve the actual required set on that head)",
+          "guarded merge plus whole native integration tree",
+          "actual exact-Main proof, full byte reopen/public consumption and owned custody/cleanup"
+        ],
+        "freezeRule": "Before public writes/review/merge, freeze literal actual paths/bytes/SHA256/full physical lines/raw diff/concern, exclusive writer and predecessor evidence in bounded owned unit/node component metadata consistent with this contract. Naming vocabulary is never wildcard authority.",
+        "status": null,
+        "owner": null,
+        "admission": null,
+        "frozenEvidenceFiles": [],
+        "predecessorProof": null,
+        "delivery": null,
+        "behavior": "CNI1 first-three-stage evidence publication",
+        "dependsOn": [
+          "CNI3R actual Main/custody/cleanup",
+          "genuine complete private CNI1 new tuple and prospective acceptance"
+        ],
+        "maxFiles": 15,
+        "expectedMinimumFiles": 5,
+        "exactPlanningFiles": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/roadmap.json"
+        ],
+        "evidenceCategories": [
+          "CNI1 admission JSON",
+          "CNI1 red JSON",
+          "CNI1 new full LOCAL JSON"
+        ],
+        "sourceUnit": "CNI1",
+        "outcome": "Canonical CNI1 remains blocked/OPEN with real packet, first-three receipts and later four paths null."
+      },
+      "CNI3B": {
+        "id": "CNI3B",
+        "kind": "documentary ordinary task, not canonical unit",
+        "selection": "Root manually selects/serializes this ordinary task after actual predecessor Main/custody/cleanup and delivered CNI3R contract; no NEXT/task-ID native capture authority.",
+        "planningSizingRef": "evidence/cni-registration-20261002.json#planningSizing",
+        "reviewClasses": [
+          "authority",
+          "privacy"
+        ],
+        "gates": [
+          "actual Sol high/xhigh direct exact-head Source review with full source/result/census/native/App evidence and relevant mutants",
+          "real head-bound owner ruling and all required CI (currently 31; resolve the actual required set on that head)",
+          "guarded merge plus whole native integration tree",
+          "actual exact-Main proof, full byte reopen/public consumption and owned custody/cleanup"
+        ],
+        "freezeRule": "Before public writes/review/merge, freeze literal actual paths/bytes/SHA256/full physical lines/raw diff/concern, exclusive writer and predecessor evidence in bounded owned unit/node component metadata consistent with this contract. Naming vocabulary is never wildcard authority.",
+        "status": null,
+        "owner": null,
+        "admission": null,
+        "frozenEvidenceFiles": [],
+        "predecessorProof": null,
+        "delivery": null,
+        "behavior": "CNI1 remaining new-tuple canonical publication",
+        "dependsOn": [
+          "CNI3A actual Main/custody/cleanup",
+          "matching private canonical CNI1 acceptance"
+        ],
+        "maxFiles": 15,
+        "expectedMinimumFiles": 13,
+        "exactPlanningFiles": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/roadmap.json"
+        ],
+        "evidenceCategories": [
+          "CNI1 review JSON",
+          "CNI1 full independent review output",
+          "four genuine new author/finisher/reviewer observations",
+          "new matching manifest",
+          "CNI1 merge JSON",
+          "CNI1 Main proof JSON",
+          "CNI1 tick JSON",
+          "CNI1 logs manifest JSON"
+        ],
+        "sourceUnit": "CNI1",
+        "outcome": "Complete canonical CNI1 sourcee360/merge622 only after genuine full public consumption; CNI0/umbrella remains open."
+      },
+      "CNI3C": {
+        "id": "CNI3C",
+        "kind": "documentary ordinary task, not canonical unit",
+        "selection": "Root manually selects/serializes this ordinary task after actual predecessor Main/custody/cleanup and delivered CNI3R contract; no NEXT/task-ID native capture authority.",
+        "planningSizingRef": "evidence/cni-registration-20261002.json#planningSizing",
+        "reviewClasses": [
+          "authority",
+          "privacy"
+        ],
+        "gates": [
+          "actual Sol high/xhigh direct exact-head Source review with full source/result/census/native/App evidence and relevant mutants",
+          "real head-bound owner ruling and all required CI (currently 31; resolve the actual required set on that head)",
+          "guarded merge plus whole native integration tree",
+          "actual exact-Main proof, full byte reopen/public consumption and owned custody/cleanup"
+        ],
+        "freezeRule": "Before public writes/review/merge, freeze literal actual paths/bytes/SHA256/full physical lines/raw diff/concern, exclusive writer and predecessor evidence in bounded owned unit/node component metadata consistent with this contract. Naming vocabulary is never wildcard authority.",
+        "status": null,
+        "owner": null,
+        "admission": null,
+        "frozenEvidenceFiles": [],
+        "predecessorProof": null,
+        "delivery": null,
+        "behavior": "CNI0 complete new-tuple canonical publication",
+        "dependsOn": [
+          "CNI3B actual Main/custody/cleanup",
+          "genuine complete private CNI0 new tuple and prospective acceptance"
+        ],
+        "maxFiles": 15,
+        "expectedMinimumFiles": 14,
+        "exactPlanningFiles": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/roadmap.json"
+        ],
+        "evidenceCategories": [
+          "CNI0 seven stage JSONs",
+          "CNI0 full independent review output",
+          "new author/reviewer and every actual finisher observations",
+          "new matching manifest",
+          "CNI0 logs manifest JSON"
+        ],
+        "sourceUnit": "CNI0",
+        "outcome": "Complete canonical CNI0 sourceac84/merge835 only after full public consumption; account every finisher and never preclaim publisher future Main.",
+        "extraFilesPerActualFinisher": 1
+      },
+      "CNI3D": {
+        "id": "CNI3D",
+        "kind": "documentary ordinary task, not canonical unit",
+        "selection": "Root manually selects/serializes this ordinary task after actual predecessor Main/custody/cleanup and delivered CNI3R contract; no NEXT/task-ID native capture authority.",
+        "planningSizingRef": "evidence/cni-registration-20261002.json#planningSizing",
+        "reviewClasses": [
+          "authority",
+          "privacy"
+        ],
+        "gates": [
+          "actual Sol high/xhigh direct exact-head Source review with full source/result/census/native/App evidence and relevant mutants",
+          "real head-bound owner ruling and all required CI (currently 31; resolve the actual required set on that head)",
+          "guarded merge plus whole native integration tree",
+          "actual exact-Main proof, full byte reopen/public consumption and owned custody/cleanup"
+        ],
+        "freezeRule": "Before public writes/review/merge, freeze literal actual paths/bytes/SHA256/full physical lines/raw diff/concern, exclusive writer and predecessor evidence in bounded owned unit/node component metadata consistent with this contract. Naming vocabulary is never wildcard authority.",
+        "status": null,
+        "owner": null,
+        "admission": null,
+        "frozenEvidenceFiles": [],
+        "predecessorProof": null,
+        "delivery": null,
+        "behavior": "Prior-component debt agreement and ordinary discharge milestone",
+        "dependsOn": [
+          "CNI3B and CNI3C actual Main/public consumption/custody/cleanup"
+        ],
+        "maxFiles": 3,
+        "expectedMinimumFiles": 3,
+        "exactPlanningFiles": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/cni-registration-20261002.json"
+        ],
+        "evidenceCategories": [],
+        "sourceUnit": null,
+        "outcome": "Agreement uses authentic already observed component proof; own future Main remains unclaimed; original Task1 fetched-current-Main qualification remains separate."
+      }
+    }
+  },
+  "ordinaryPublicationMilestones": {
+    "nativeDebtDischarge": {
+      "status": null,
+      "componentProofs": null,
+      "canonicalAcceptance": null,
+      "dischargeFollowup": null,
+      "rule": "Only genuine already observed complete CNI0/CNI1 canonical public acceptance and CNI3B/CNI3C actual Main/custody/cleanup support CNI3D prior-proof agreement. CNI3D own actual lifecycle is recorded after observation, never in its own future source. Canonical CNI3 stays blocked/unreceipted; original Task1 is separately freshly qualified afterward."
+    }
+  },
+  "historicalRecovery": {
+    "version": 1,
+    "admitted": false,
+    "admission": null,
+    "acceptedProducerCommit": null,
+    "prospectiveRepository": null,
+    "privateSourceRoots": null,
+    "privatePathFreeze": null,
+    "actorCensus": null,
+    "decisionPackets": null,
+    "prerequisite": "Actual CNI2 and CNI2P and CNI3R Main/custody/cleanup, followed by separate bounded Root admission of real source/dependencies/admission/red/preimages/packets/actors/exclusive private ownership.",
+    "privateRoot": "CNI0 outputs below the executable-supported .omo/evidence/codex-native-contract/CNI1 at an actual unused literal suffix frozen with absence/canonical non-reparse identity/finite manifest/owner before creation, or a supported explicitly admitted external selector. No arbitrary sibling CNI0 ignored root or source allowlist edit.",
+    "roots": "Complete actual accepted prospective repository hierarchy/Git/current producer distinct from unchanged historical source and historical merge proof roots; no synthetic/reduced ledger or false reproof commit.",
+    "stateAdmission": "Assigned private receipt performer may move only the selected qualified CNI0/CNI1 entry blocked-to-planned in that complete private ledger under recorded Root admission, retain OPEN debt/real packet and revalidate every existing record before unchanged fold. Historical committed grants/source and public state remain unchanged; new ready/local-verified LOCAL alone is insufficient.",
+    "newLocal": "Genuine original author owns new truthful full version3/unit/stage/status/at/source/head/tree/baseline/commands/exits/preimage/census LOCAL. Preserve old bound LOCAL/output/archive bytes; historical checks retain actual head/time and current checks retain their own scope. Later captures/acceptance cannot edit frozen LOCAL.",
+    "originalActors": "Resume actual original author/all contributors under genuine UUID/path/fork-none birth; retain every original/recovery contributing turn and real followup mapping, actual openai Sol high/xhigh, completed native/App call/turn/terminal/workdir and complete lossless source/index/inventory/diff/status readbacks. No substitute author or fake contributor.",
+    "reviewObserver": "Fresh isolated Source reviewers distinct from all contributors, no author context/edits, full actual source/output plus relevant real mutants. Accepted separately authenticated LOCAL Root observer reopens full source/newLOCAL/newoutput and is never their contributor. All subjects/Root share exact source workdir/index/inventory/diff/status/bytes; hash-only summaries do not authenticate.",
+    "archives": "New LOCAL/output requires new author/all-finisher/reviewer observations and manifest. New target absent before exclusive archive creation in each distinct destination; existing target refuses even equal bytes. Old five historical CNI1 buffers stay immutable; public presence is proved only after actual CNI2 prefix Main/custody. Public exact copies are consumer-checked, not rearchived over existing targets.",
+    "owner": "Actual admitted packet question/options/consequences/recommendation/revert cost/decision/ruling provenance required; no invented human answer. Canonical e360 source-head reaffirmation uses real standing-authorized transcription after admission, exact grammar/comment ID/login/head/body hash/label and independent reopen; it is not manual GitHub approval. Every new head needs its own real ruling/checks.",
+    "applicability": {
+      "admitted": false,
+      "matrix": null,
+      "rule": "Before execution explicitly review applicable historical-source and new prospective-consumer gate matrix with actual head/time/invocation/exit/preimages. Real historic622 Jest stderr793bytes may use legacy playwright lookup only as exact byte-mapped historical Jest plus supported runtime metadata; no borrowed CNI0 proof. NOT RUN build/browser/E2E is never PASS; every applicable missing gate executes. CNI0 uses real own835 proof. Genuine current/prospective native/portable/Git/Github/whole-tree/privacy/stale/dirt/misleading-success/corruption/custody/cleanup gates remain.",
+      "boundedGaps": {
+        "CNI0Runtime": {
+          "originalEvidence": "own835 TAP62, not a compatible runtimeLine",
+          "displayOverrideRescuesVerdict": false,
+          "futureScenario": {
+            "source": "83525164532b61ef5af18937a635dc53bde2591a",
+            "target": "scripts/__tests__/roadmap-loop-scripts.test.ts",
+            "targetBytes": 16384,
+            "targetSha256": "dc3394d75b78abfe804de344fc5f180624e7b60db9737935926d396727f16f40",
+            "argv": [
+              "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+              "node_modules/jest/bin/jest.js",
+              "--selectProjects",
+              "unit",
+              "--runInBand",
+              "--watchAll=false",
+              "--runTestsByPath",
+              "scripts/__tests__/roadmap-loop-scripts.test.ts"
+            ],
+            "admitted": false,
+            "actualResult": null,
+            "assertionCount": null,
+            "temporaryFamily": "openspec/planning/temp-u17-pin-* must be finitely admitted/owned and preserved/cleaned up by the actual future lane"
+          }
+        },
+        "CNI1Runtime": {
+          "historicalJestBytes": 793,
+          "sha256": "7d3fb2b807f71536d9f9f15a3e96a3da2f73b6fd7999c4c140db7960fe197ff0",
+          "conditionalGenuineApplicabilityRequired": true,
+          "newRuntimeExecuted": false
+        },
+        "genericAbsentHistoricalGates": [
+          "production build",
+          "flagged E2E bundle marker",
+          "E2E-80 exact-main ladder",
+          "default gm/QC pin"
+        ],
+        "freshMissingProspectiveGates": "Actual new recovered-state canonical Git/NEXT/prospective/private and public consumption, applicability-dependent current type/QC/strict/format/lint/purpose/terminology checks; old blocked/planned ledger PASS cannot replace them.",
+        "missingRequiredIsPass": false,
+        "admission": null,
+        "gateResults": null
+      }
+    },
+    "discharge": "Debt OPEN until full canonical public source-unit consumption, genuine exact delivery and CNI3D prior-component agreement plus its actual follow-up lifecycle. Original Task1 fresh complete fetched-main qualification is separate."
+  },
   "ownership": {
     "prospectiveExceptions": [
       "openspec/planning/2026-09-12-roadmap-completion/evidence/cni-registration-20261002.json",
@@ -459,7 +812,7 @@
       "scripts/__tests__/roadmap-codex-review-identity.test.ts"
     ],
     "boundary": "Existing literal node/unit paths plus exact ownershipExceptions permit absent files without broad directories. Exceptions are the only new filename grants; no placeholder file creation.",
-    "enforcementGap": "NEXT uses unit state/node dependencies and ownershipPaths only; it does not enforce documentary unit predecessors or reserve exception-only names. --git also skips ledger evidence paths. Parent explicitly checks reservations, full changed-file scopes/caps and actual frozen publication filenames; no new validator gate is claimed."
+    "enforcementGap": "NEXT selects canonical unit states/node dependencies/literal paths only; it never selects documentary ordinary task IDs, reserves exceptions or enforces planningSizing. --git keeps canonical numeric/source-merge law and skips ledger evidence. Root independently verifies finite task reservations, complete file/byte/physical-line/diff metrics and cohesive review under ordinaryPublicationTasks; no executable task or sizing gate is claimed."
   },
   "policy": {
     "version": 3,
@@ -508,7 +861,8 @@
       "<unit>-merge-<actual-date>.json",
       "<unit>-mainproof-<actual-date>.json",
       "<unit>-tick-<actual-date>.json",
-      "<unit>-lane-a-review-<actual-date>.md"
+      "<unit>-lane-a-review-<actual-date>.md",
+      "<unit>-logs-<actual-date>.json"
     ],
     "nativeNames": [
       "codex-observation-<actual-sha256>.json",
@@ -517,7 +871,7 @@
     "rule": "Naming contract only, never wildcard write authority. Freeze exact finite actual paths/bytes/hashes under CNI2/CNI3 before review; update exact ownershipExceptions then. Every evidence/snapshot/review/register file counts. Stop before a sixteenth file or any unregistered name. Partial prefixes do not complete a unit."
   },
   "localEvidence": {
-    "root": ".omo/evidence/codex-native-contract/<CNI0-or-CNI1>/",
+    "root": ".omo/evidence/codex-native-contract/CNI1/<actual-unused-literal-suffix>/",
     "boundedNames": [
       "source.log",
       "local.log",
@@ -547,12 +901,12 @@
     "task1": "OPEN/BLOCKED until current fetched-main qualification is rerun after full debt discharge; no original task released.",
     "sourceReview": "CNI1 fresh isolated exact-head SOURCE reviewer independently reproduces at least two mutants; source merge and fixture success are insufficient."
   },
-  "caps": "CNI1 alone uses sourceSizing.CNI1 instead of aggregate added-line rejection; historical numeric500 fields stay for old readers. Preserve all other aggregate caps and exact U41 exclusions. CNI0 initial/correction/follow-up additions stay <=500 with future publication reserve. All modified files count; no broad path grant.",
+  "caps": "CNI1 sourceSizing.CNI1 and executable canonical numeric fields remain unchanged. Named future native ordinary planning/correction/evidence tasks use planningSizing only; retired manual aggregate scalars are historical metadata. All exact file grants and unrelated product contracts remain.",
   "milestoneFollowups": {
     "exactFiles": ["openspec/planning/2026-09-12-roadmap-completion/units.json", "openspec/planning/2026-09-12-roadmap-completion/roadmap.json", "openspec/planning/2026-09-12-roadmap-completion/evidence/cni-registration-20261002.json"],
     "sequence": ["After actual first registration merge/main proof, ordinary follow-up records that predecessor proof, advances R0.cni-registration to main-verified and ONLY CNI1 to planned", "After actual CNI1 source merge/main proof, ordinary follow-up records that predecessor proof, advances R6.cni-source and ONLY CNI2 to planned", "After actual CNI2 prefix Main/custody/cleanup, the existing-three-file CNI2P records that predecessor proof and advances only R0.cni-evidence's actual prefix milestone. Canonical CNI3 remains blocked with null own receipts. After CNI2P's own actual Main/custody/cleanup, Root may separately admit the existing-six-file CNI3R correction under its registered grant and actual user authority; recovery/components wait for CNI3R actual Main/custody/cleanup."],
     "gates": "Every follow-up needs fresh exact-head review, required CI/owner ruling, guarded merge and actual exact-main proof before successor admission; never prefill own future merge. CNI0 canonical unit stays blocked/native debt OPEN.",
-    "caps": "All follow-ups stay within the same six-file CNI0 grant; aggregate initial plus follow-up counted additions <=500. Reserve and measure remaining budget. No seventh source file, extra filename or bootstrap exception.",
+    "caps": "CNI2P/CNI3D retain only the existing three planning/registration files; separately registered CNI3R retains the existing six policy files. planningSizing owns future ordinary sizing. Preserve historical counts and scope, without cumulative reserve or renewed allowance.",
     "ordering": "Insert new units immediately before old NEXT U24b; preserve all 158 original objects and relative order. All CNI units initially blocked; NEXT U24b is honest, later only the eligible CNI successor may become NEXT."
   },
   "noGrant": [
