@@ -374,8 +374,15 @@ function mirrorRepo(): {
     'roadmap-unit-closure.mjs',
     'roadmap-ledger-lib.mjs',
     'preserve-run-logs.mjs',
-  ])
-    fs.copyFileSync(qc(name), path.join(qcDir, name));
+    'roadmap-loop-runtime.mjs',
+    'review-identity/contract.mjs',
+    'review-identity/custody.mjs',
+    'review-identity/review.mjs',
+  ]) {
+    const target = path.join(qcDir, name);
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    fs.copyFileSync(qc(name), target);
+  }
   const evidence = path.join(
     root,
     'openspec',
