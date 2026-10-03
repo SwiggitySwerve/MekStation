@@ -8433,7 +8433,8 @@
       "taskKeys": [],
       "receipt": null,
       "acceptance": [
-        "Freeze actual finite filenames/hash/bytes, independent exact-head review and actual prefix merge/main proof; no partial closure"
+        "Freeze actual finite filenames/hash/bytes, independent exact-head review and actual prefix merge/main proof; no partial closure",
+        "Exact historical CNI1 finite path/bytes/hash/physical-line freeze and literal reservations are recorded by CNI2.admissionRequires and CNI2.ownershipExceptions in units.json; Standing-authorized Root admission follows observed predecessor040695 exact-main proof (24265 bytes, sha256 ccccb5507372025f570540c0610a7b0575ffb8fe25c5d279c5c0636253a66cb9) and completed source/Main custody and owned cleanup, recorded by cni1p-parent-main-evidence-readback.json, cni1p-final-cleanup-audit.json and cni2-execution-admission.json. Canonical receipts/debt and CNI3 stay unchanged."
       ],
       "registration": "evidence/cni-registration-20261002.json"
     },

@@ -6581,7 +6581,13 @@
         "openspec/planning/2026-09-12-roadmap-completion/units.json",
         "openspec/planning/2026-09-12-roadmap-completion/roadmap.json"
       ],
-      "ownershipExceptions": [],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-d352a03d3d259ff926ebde5aa20e4ecbd9602b3f9110a2bd2c830a54a57ce554.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-6318d72e2faeb6ad97d44847641273de2b8c3de3299900cd7831bd76c5168dd3.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-d094fc269d8325ba8ab4e729b63fc476b29d1f359ff9acf57141617c468b3689.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-60e8c88160cfdc60cdd403c037ef9d19ed7f0c1033c1d63831d6093658b72c27.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-review-identity-31fcbcd60def4f724c56eb0c56f0a27d618a85e104d853d30f16c87f2d17d7f8.json"
+      ],
       "ciClass": "docs",
       "reviewClasses": [
         "authority",
@@ -6607,7 +6613,7 @@
       "ownerGate": null,
       "nativeClosureDebt": "OPEN",
       "registration": "evidence/cni-registration-20261002.json",
-      "admissionRequires": "Keep blocked until owning-node dependencies are actually main-verified/complete and parent checks exact frozen grants, all live witness/source/census/reviewer and ordinary admission gates. Documentary predecessors and exception reservations are not enforced by NEXT.",
+      "admissionRequires": "Keep blocked until owning-node dependencies are actually main-verified/complete and parent checks exact frozen grants, all live witness/source/census/reviewer and ordinary admission gates. Documentary predecessors and exception reservations are not enforced by NEXT. Historical CNI1/e3606fd495f83c80f689b432f5e9d713e7482ede custody prefix frozen for the standing-authorized CNI2 publication: path=openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-d352a03d3d259ff926ebde5aa20e4ecbd9602b3f9110a2bd2c830a54a57ce554.json, bytes=39456, sha256=d352a03d3d259ff926ebde5aa20e4ecbd9602b3f9110a2bd2c830a54a57ce554, physicalAddedLines=18; path=openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-6318d72e2faeb6ad97d44847641273de2b8c3de3299900cd7831bd76c5168dd3.json, bytes=41808, sha256=6318d72e2faeb6ad97d44847641273de2b8c3de3299900cd7831bd76c5168dd3, physicalAddedLines=18; path=openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-d094fc269d8325ba8ab4e729b63fc476b29d1f359ff9acf57141617c468b3689.json, bytes=41632, sha256=d094fc269d8325ba8ab4e729b63fc476b29d1f359ff9acf57141617c468b3689, physicalAddedLines=18; path=openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-60e8c88160cfdc60cdd403c037ef9d19ed7f0c1033c1d63831d6093658b72c27.json, bytes=35819, sha256=60e8c88160cfdc60cdd403c037ef9d19ed7f0c1033c1d63831d6093658b72c27, physicalAddedLines=18; path=openspec/planning/2026-09-12-roadmap-completion/evidence/codex-review-identity-31fcbcd60def4f724c56eb0c56f0a27d618a85e104d853d30f16c87f2d17d7f8.json, bytes=1210, sha256=31fcbcd60def4f724c56eb0c56f0a27d618a85e104d853d30f16c87f2d17d7f8, physicalAddedLines=29. Predecessor 040695ed1c68d2f20cc26219a2977520aff15941 exact-main proof is observed (24265 bytes, sha256 ccccb5507372025f570540c0610a7b0575ffb8fe25c5d279c5c0636253a66cb9; cni1p-parent-main-evidence-readback.json), and source/Main custody and owned cleanup are complete (cni1p-final-cleanup-audit.json). Root admitted this finite publication in cni2-execution-admission.json; canonical stages/debt stay unchanged. No current-head CNI2 producer qualification or future delivery is claimed.",
       "predecessors": [
         "CNI1",
         "genuine source-delivery milestone"
