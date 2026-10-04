@@ -351,9 +351,6 @@ describe('useEquipmentCalculations', () => {
         emptyCriticalSlots: 0,
         totalSlots: 9,
       });
-      if (process.env.TERMINOLOGY_NUMERIC_DUMP === '1') {
-        console.info('CATEGORY_NUMERIC_DUMP ' + JSON.stringify(dump));
-      }
     });
     it('should group equipment by category', () => {
       const equipment: IMountedEquipmentInstance[] = [
