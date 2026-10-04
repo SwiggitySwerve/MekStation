@@ -30,7 +30,7 @@ import { getWeaponById } from '@/utils/equipment/weapons/utilities';
 export interface ICategorySummary {
   readonly count: number;
   readonly weight: number;
-  readonly slots: number;
+  readonly criticalSlots: number;
   readonly heat: number;
 }
 
@@ -69,7 +69,7 @@ function createEmptyCategorySummary(): ICategorySummary {
   return {
     count: 0,
     weight: 0,
-    slots: 0,
+    criticalSlots: 0,
     heat: 0,
   };
 }
@@ -155,7 +155,7 @@ export function useEquipmentCalculations(
       byCategory[categoryKey] = {
         count: items.length,
         weight: items.reduce((sum, item) => sum + item.weight, 0),
-        slots: items.reduce((sum, item) => sum + item.criticalSlots, 0),
+        criticalSlots: items.reduce((sum, item) => sum + item.criticalSlots, 0),
         heat: items.reduce((sum, item) => sum + heatFor(item), 0),
       };
     }

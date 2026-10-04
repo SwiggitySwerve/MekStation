@@ -323,6 +323,38 @@ describe('useEquipmentCalculations', () => {
   });
 
   describe('Category Breakdowns', () => {
+    it('sums category critical-slot counts and keeps empty categories at zero', () => {
+      const equipment = [
+        createMockEquipment({ instanceId: 'energy-a', criticalSlots: 2 }),
+        createMockEquipment({ instanceId: 'energy-b', criticalSlots: 3 }),
+        createMockEquipment({
+          instanceId: 'ballistic',
+          category: EquipmentCategory.BALLISTIC_WEAPON,
+          criticalSlots: 4,
+        }),
+      ];
+      const { result } = renderHook(() => useEquipmentCalculations(equipment));
+      const dump = {
+        energyCriticalSlots:
+          result.current.byCategory[EquipmentCategory.ENERGY_WEAPON]
+            .criticalSlots,
+        ballisticCriticalSlots:
+          result.current.byCategory[EquipmentCategory.BALLISTIC_WEAPON]
+            .criticalSlots,
+        emptyCriticalSlots:
+          result.current.byCategory[EquipmentCategory.AMMUNITION].criticalSlots,
+        totalSlots: result.current.totalSlots,
+      };
+      expect(dump).toEqual({
+        energyCriticalSlots: 5,
+        ballisticCriticalSlots: 4,
+        emptyCriticalSlots: 0,
+        totalSlots: 9,
+      });
+      if (process.env.TERMINOLOGY_NUMERIC_DUMP === '1') {
+        console.info('CATEGORY_NUMERIC_DUMP ' + JSON.stringify(dump));
+      }
+    });
     it('should group equipment by category', () => {
       const equipment: IMountedEquipmentInstance[] = [
         createMockEquipment({

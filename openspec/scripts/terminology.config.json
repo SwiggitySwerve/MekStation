@@ -1,9 +1,7 @@
 {
-  "$schema": "./terminology.schema.json",
   "version": "2.0",
   "description": "Unified terminology rules for OpenSpec validation and fixing",
-  "lastUpdated": "2026-06-30",
-
+  "lastUpdated": "2026-10-03",
   "deprecatedTerms": [
     {
       "id": "crit-slots",
@@ -186,7 +184,6 @@
       "note": "Only matches lowercase; preserves camelCase like heatSink"
     }
   ],
-
   "propertyViolations": [
     {
       "id": "prop-tons",
@@ -215,9 +212,24 @@
       "canonical": "introductionYear:",
       "severity": "error",
       "context": "property definition"
+    },
+    {
+      "id": "prop-slots-count",
+      "pattern": "^\\s*(?:readonly\\s+)?slots:\\s*number\\b(?!\\s*\\[)",
+      "canonical": "criticalSlots: number",
+      "severity": "error",
+      "context": "critical-slot count; update its owning source contract with the spec",
+      "fixable": false
+    },
+    {
+      "id": "prop-tech-base-faction",
+      "pattern": "^\\s*(?:readonly\\s+)?faction:\\s*TechBase\\b",
+      "canonical": "techBase: TechBase",
+      "severity": "error",
+      "context": "technology classification, not political control",
+      "fixable": false
     }
   ],
-
   "capitalizationRules": [
     {
       "id": "battlemech-lower-m",
@@ -245,7 +257,6 @@
       "context": "when referring to faction (not 'inner sphere technology')"
     }
   ],
-
   "skipPatterns": {
     "lines": [
       "❌",
@@ -275,7 +286,6 @@
       "fix-reports": ["Found:", "Should be:", "TERMINOLOGY", "instances"]
     }
   },
-
   "filePatterns": {
     "specs": ["**/openspec/specs/**/*.md", "**/openspec/changes/**/*.md"],
     "source": ["src/**/*.ts", "src/**/*.tsx"],
@@ -290,7 +300,6 @@
       "**/TERMINOLOGY_FIX_REPORT.md"
     ]
   },
-
   "smartReplacements": {
     "technology base": {
       "Technology base": "Tech base",

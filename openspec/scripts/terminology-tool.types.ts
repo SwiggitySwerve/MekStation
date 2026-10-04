@@ -13,6 +13,7 @@ export interface DeprecatedTerm {
 }
 
 export interface PropertyViolation {
+  fixable?: boolean;
   id: string;
   pattern: string;
   canonical: string;
@@ -96,6 +97,7 @@ export interface CliOptions {
   specsOnly: boolean;
   strict: boolean;
   verbose: boolean;
+  canonicalOnly?: boolean;
   configPath?: string;
   targetPath?: string;
 }

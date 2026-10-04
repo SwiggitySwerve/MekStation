@@ -257,7 +257,7 @@ The following legacy scripts are still available but the unified tool is recomme
 
 ### `validate-terminology.js` (Legacy)
 
-Original JavaScript validator. Use `terminology-tool.ts validate` instead.
+Canonical `spec.md` compatibility checker. It uses the same configuration and detector as `terminology-tool.ts validate --strict`; the modern default also checks active-change Markdown. Both reject missing, unreadable or empty required input and malformed configuration. The compatibility `--fix` flag remains non-mutating.
 
 ```bash
 node openspec/scripts/validate-terminology.js
@@ -265,7 +265,7 @@ node openspec/scripts/validate-terminology.js
 
 ### `fix-terminology.sh` (Legacy)
 
-Bash script for fixing terminology. Use `terminology-tool.ts fix` instead.
+Retired entry point: exits 1 without changing files. Its hardcoded rules were removed. Use `terminology-tool.ts fix --dry-run`, review the classified matches, then opt into `fix`.
 
 ```bash
 bash openspec/scripts/fix-terminology.sh
@@ -273,7 +273,7 @@ bash openspec/scripts/fix-terminology.sh
 
 ### `fix_terminology.py` (Legacy)
 
-Python script for BattleMech/mech/unit terminology. Use `terminology-tool.ts fix` instead.
+Retired entry point: still parses the historical optional path and `--dry-run`, then exits 1 without changing files. Its independent regex replacements were removed. Use the shared modern fixer explicitly.
 
 ```bash
 python openspec/scripts/fix_terminology.py openspec/specs
@@ -324,3 +324,7 @@ npx ts-node openspec/scripts/terminology-tool.ts validate openspec/specs/gyro-sy
 - `../TERMINOLOGY_GLOSSARY.md` - Canonical terminology reference
 - `../specs/README.md` - Specification index
 - `../templates/spec-template.md` - Specification template
+
+### Rule ownership and contract changes
+
+`terminology.config.json` owns rule facts; `terminology-tool.core.js` owns configuration validation, input selection and context-aware detection. Both CLIs and the modern fixer consume that contract. Prose `heatsink` is rejected, while fenced code identifiers and enum values remain intact. Political `faction` fields are valid; a typed `faction: TechBase` is a technology-classification naming error. Numeric `slots: number` counts are rejected; slot arrays are accepted. Numeric count and technology-key migrations are non-fixable because the owning source and its spec must change together. The fixer edits only classified matches and refuses an existing backup instead of overwriting it.
