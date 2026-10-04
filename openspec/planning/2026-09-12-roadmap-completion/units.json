@@ -6550,10 +6550,10 @@
         "maxFiles": 13,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "complete",
       "baseline": "357a04b2599c9bbf4234588fb05d43be065a82ec",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "e3606fd495f83c80f689b432f5e9d713e7482ede",
+      "mergeSha": "622f46cdbe505fd57cfd5e0a9635496a343baf3e",
       "stageReceipts": {
         "admission": {
           "path": "evidence/cni1-admission-20261004.json",
@@ -6593,10 +6593,37 @@
             }
           ]
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/cni1-review-20261004.json",
+          "head": "e3606fd495f83c80f689b432f5e9d713e7482ede",
+          "reviewedHead": "e3606fd495f83c80f689b432f5e9d713e7482ede",
+          "reviewerModel": "openai/gpt-6.1-sol",
+          "implementerModel": "openai/gpt-6.1-sol",
+          "outputSha256": "810370662bebe786380d21773bbc714c0acbae2e797588a34f32be670c770b16",
+          "verdict": "APPROVE",
+          "reviewContractVersion": 3,
+          "identityEvidence": {
+            "path": "evidence/codex-review-identity-72431485c6cb4abde67e7d16a0a94052c47ed973677645813a63b2cc90d0d227.json",
+            "sha256": "72431485c6cb4abde67e7d16a0a94052c47ed973677645813a63b2cc90d0d227",
+            "bytes": 1210
+          }
+        },
+        "merge": {
+          "path": "evidence/cni1-merge-20261004.json",
+          "pr": 2117,
+          "head": "e3606fd495f83c80f689b432f5e9d713e7482ede",
+          "mergeSha": "622f46cdbe505fd57cfd5e0a9635496a343baf3e"
+        },
+        "mainProof": {
+          "path": "evidence/cni1-mainproof-20261004.json",
+          "mergeCommit": "622f46cdbe505fd57cfd5e0a9635496a343baf3e",
+          "verdict": "PASS",
+          "runtime": "Tests:       306 passed, 306 total"
+        },
+        "tick": {
+          "path": "evidence/cni1-tick-20261004.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "nativeClosureDebt": "OPEN",
@@ -6671,7 +6698,18 @@
       "ownershipExceptions": [
         "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-admission-20261004.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-red-20261004.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-local-20261004.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-local-20261004.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-review-20261004.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-lane-a-review-20261004.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-e84105a99a699fe5bf405820d15b0ab0a3f4438ed5cf9f83b78f6b5baa811454.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-b3c0afb63366923c6cc75f636a7c797d203e84c704e7295c4df71b9a8847deba.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-502b4847dbba8730e3f3e120c7301666832e64fdd6d21d19cecb95cb97e8beaa.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-25f98a9de258e6ac7b978428c49d9f57840581bbe3bc23487704d959bfed6391.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-review-identity-72431485c6cb4abde67e7d16a0a94052c47ed973677645813a63b2cc90d0d227.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-merge-20261004.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-mainproof-20261004.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-tick-20261004.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-logs-20261004.json"
       ],
       "ciClass": "docs",
       "reviewClasses": [
@@ -6707,7 +6745,7 @@
         "CNI3A": {
           "id": "CNI3A",
           "kind": "documentary ordinary task, not canonical unit",
-          "status": "publication-pending",
+          "status": "delivered",
           "owner": "/root/cni3a_private_fold_recovery",
           "contractRef": "evidence/cni-registration-20261002.json#ordinaryPublicationTasks.tasks.CNI3A",
           "planningSizingRef": "evidence/cni-registration-20261002.json#planningSizing",
@@ -6752,9 +6790,183 @@
               "scope": "Complete genuine private CNI1 recovery and prospective acceptance; public package remains pending"
             }
           },
-          "delivery": null,
+          "delivery": {
+            "authority": "Root accepted cni3a-final-cleanup-audit.json after actual exact-head review, all31 CI, Main/public readback, full custody and owned cleanup",
+            "pr": 2125,
+            "head": "400689cc25bce10598ce7082b09f20de58166582",
+            "merge": "50b8c415f87f11adf7f1ec080e79f8ed889cccd6",
+            "publicationFiles": 5,
+            "actualPrFiles": 6,
+            "separateCorrection": {
+              "task": "CNI3F",
+              "path": "scripts/__tests__/roadmap-codex-review-identity.test.ts",
+              "concern": "Reset isolated sizing fixture stage receipts; actual PR included this separate correction"
+            },
+            "main": {
+              "witness": "cni3a-main-parent-witness.json",
+              "bytes": 1636,
+              "sha256": "52979316e5cb7c73b4459938c2e41cc8321fed05f41011a476bb966c315a7128",
+              "physicalLines": 32
+            },
+            "custody": [
+              {
+                "witness": "cni3a-source-custody-parent-witness.json",
+                "bytes": 468,
+                "sha256": "3a71fc8082b7b45d3cb495957940ef5ef9f6e953ee00092852564ba6f847f31c",
+                "physicalLines": 15
+              },
+              {
+                "witness": "cni3a-main-custody-parent-witness.json",
+                "bytes": 425,
+                "sha256": "d1dcafe643f604d965f834784f12a6c81f4e3ee334fc372bc4b8096cd3193a3a",
+                "physicalLines": 15
+              }
+            ],
+            "cleanup": {
+              "witness": "cni3a-final-cleanup-audit.json",
+              "bytes": 1594,
+              "sha256": "32d4edbf0913d2b49cde5a1e6ad4aeb1a80a5186060b20900edeb03cf32f28c4",
+              "physicalLines": 29
+            },
+            "canonicalDebt": "OPEN",
+            "originalTask1": "Separate fetched-current-Main qualification remains unfinished"
+          },
           "canonicalOutcome": "Canonical CNI1 remains blocked/OPEN with real packet, first-three receipts and later four paths null.",
           "enforcement": "Root freezes complete five-file byte/hash/physical-line/raw-diff metrics and independently reviews this ordinary component; NEXT and canonical numeric caps do not authenticate it."
+        },
+        "CNI3B": {
+          "id": "CNI3B",
+          "kind": "documentary ordinary task, not canonical unit",
+          "status": "publication-pending",
+          "owner": "/root/cni3a_private_fold_recovery",
+          "contractRef": "evidence/cni-registration-20261002.json#ordinaryPublicationTasks.tasks.CNI3B",
+          "planningSizingRef": "evidence/cni-registration-20261002.json#planningSizing",
+          "admission": {
+            "baseline": "50b8c415f87f11adf7f1ec080e79f8ed889cccd6",
+            "authority": "Root cni3b-source-resource-admission.json; private candidate only until separate exact thirteen-file application freeze",
+            "exclusiveWriter": "/root/cni3a_private_fold_recovery"
+          },
+          "frozenEvidenceFiles": [
+            {
+              "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-review-20261004.json",
+              "bytes": 1218,
+              "sha256": "291d5fb7e183ec833f24520eab1de192e25972178b87258f353d6091d669177f",
+              "physicalLines": 23
+            },
+            {
+              "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-lane-a-review-20261004.md",
+              "bytes": 6999,
+              "sha256": "810370662bebe786380d21773bbc714c0acbae2e797588a34f32be670c770b16",
+              "physicalLines": 22
+            },
+            {
+              "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-e84105a99a699fe5bf405820d15b0ab0a3f4438ed5cf9f83b78f6b5baa811454.json",
+              "bytes": 35672,
+              "sha256": "e84105a99a699fe5bf405820d15b0ab0a3f4438ed5cf9f83b78f6b5baa811454",
+              "physicalLines": 18
+            },
+            {
+              "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-b3c0afb63366923c6cc75f636a7c797d203e84c704e7295c4df71b9a8847deba.json",
+              "bytes": 35213,
+              "sha256": "b3c0afb63366923c6cc75f636a7c797d203e84c704e7295c4df71b9a8847deba",
+              "physicalLines": 18
+            },
+            {
+              "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-502b4847dbba8730e3f3e120c7301666832e64fdd6d21d19cecb95cb97e8beaa.json",
+              "bytes": 35181,
+              "sha256": "502b4847dbba8730e3f3e120c7301666832e64fdd6d21d19cecb95cb97e8beaa",
+              "physicalLines": 18
+            },
+            {
+              "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-25f98a9de258e6ac7b978428c49d9f57840581bbe3bc23487704d959bfed6391.json",
+              "bytes": 32857,
+              "sha256": "25f98a9de258e6ac7b978428c49d9f57840581bbe3bc23487704d959bfed6391",
+              "physicalLines": 18
+            },
+            {
+              "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-review-identity-72431485c6cb4abde67e7d16a0a94052c47ed973677645813a63b2cc90d0d227.json",
+              "bytes": 1210,
+              "sha256": "72431485c6cb4abde67e7d16a0a94052c47ed973677645813a63b2cc90d0d227",
+              "physicalLines": 29
+            },
+            {
+              "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-merge-20261004.json",
+              "bytes": 923,
+              "sha256": "85cac7fff7541dd6d3e7eac0bfccc96eb78a732ae04d1f957b7fb4dc4404ff1f",
+              "physicalLines": 27
+            },
+            {
+              "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-mainproof-20261004.json",
+              "bytes": 2467,
+              "sha256": "e5be0330d3668bded379456280e8e836e76e8d6ed29bd6de55551ab0c440dc7c",
+              "physicalLines": 37
+            },
+            {
+              "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-tick-20261004.json",
+              "bytes": 211,
+              "sha256": "477806ba4cb13ae1844700cbdd1db67bcd92c0525160d0657353434f0abc7ac7",
+              "physicalLines": 8
+            },
+            {
+              "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-logs-20261004.json",
+              "bytes": 2336,
+              "sha256": "4375bb43b7a1c5494ff9e3dce21be344754797dec59769991e30f8a9b7e16cf0",
+              "physicalLines": 75
+            }
+          ],
+          "predecessorProof": {
+            "CNI3A": {
+              "authority": "Root accepted cni3a-final-cleanup-audit.json after actual exact-head review, all31 CI, Main/public readback, full custody and owned cleanup",
+              "pr": 2125,
+              "head": "400689cc25bce10598ce7082b09f20de58166582",
+              "merge": "50b8c415f87f11adf7f1ec080e79f8ed889cccd6",
+              "publicationFiles": 5,
+              "actualPrFiles": 6,
+              "separateCorrection": {
+                "task": "CNI3F",
+                "path": "scripts/__tests__/roadmap-codex-review-identity.test.ts",
+                "concern": "Reset isolated sizing fixture stage receipts; actual PR included this separate correction"
+              },
+              "main": {
+                "witness": "cni3a-main-parent-witness.json",
+                "bytes": 1636,
+                "sha256": "52979316e5cb7c73b4459938c2e41cc8321fed05f41011a476bb966c315a7128",
+                "physicalLines": 32
+              },
+              "custody": [
+                {
+                  "witness": "cni3a-source-custody-parent-witness.json",
+                  "bytes": 468,
+                  "sha256": "3a71fc8082b7b45d3cb495957940ef5ef9f6e953ee00092852564ba6f847f31c",
+                  "physicalLines": 15
+                },
+                {
+                  "witness": "cni3a-main-custody-parent-witness.json",
+                  "bytes": 425,
+                  "sha256": "d1dcafe643f604d965f834784f12a6c81f4e3ee334fc372bc4b8096cd3193a3a",
+                  "physicalLines": 15
+                }
+              ],
+              "cleanup": {
+                "witness": "cni3a-final-cleanup-audit.json",
+                "bytes": 1594,
+                "sha256": "32d4edbf0913d2b49cde5a1e6ad4aeb1a80a5186060b20900edeb03cf32f28c4",
+                "physicalLines": 29
+              },
+              "canonicalDebt": "OPEN",
+              "originalTask1": "Separate fetched-current-Main qualification remains unfinished"
+            },
+            "privateCni1": {
+              "witness": "cni3a-private-closure-parent-witness.json",
+              "bytes": 2148,
+              "sha256": "4d9b055df412795048d4c476f27e1d584354c23481acdba715b5f940832a185e",
+              "physicalLines": 55,
+              "scope": "Accepted complete private CNI1 tuple and prospective consumption; fresh public consumption is mandatory"
+            }
+          },
+          "delivery": null,
+          "canonicalOutcome": "Candidate supplies accepted historical CNI1 source e360/merge622 with all seven receipts. Complete state must pass genuine full public consumption after separately frozen application. CNI1 nativeClosureDebt stays OPEN until CNI3D; CNI0/CNI3 stay blocked/OPEN with unchanged own receipts. No future CNI3B Main, CNI3C/CNI3D delivery or original Task1 completion is claimed.",
+          "enforcement": "Root independently freezes thirteen file bytes/hashes/full physical lines/raw diff and enforces planningSizing/manual reservations. NEXT and canonical numeric caps do not authenticate documentary task metadata."
         }
       }
     },

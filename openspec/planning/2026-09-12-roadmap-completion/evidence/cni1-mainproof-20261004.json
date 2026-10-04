@@ -1,0 +1,37 @@
+{
+  "unit": "CNI1",
+  "stage": "mainProof",
+  "at": "2026-10-04T10:12:34.860Z",
+  "mergeCommit": "622f46cdbe505fd57cfd5e0a9635496a343baf3e",
+  "checkout": "Owned historical Main622 checkout at 622f46cdbe505fd57cfd5e0a9635496a343baf3e; historical runtime dates preserved",
+  "runtime": {
+    "build": "  \"hydratedStandaloneServer\": \".next\\\\standalone\\\\server.js\",",
+    "e2eBundleMarker": "not stated by the closer",
+    "playwright": "Historical Main622 four-suite Jest306; exact legacy playwright lookup; separate own622 flagged build/strict-smoke3/defaultGM30: Tests:       306 passed, 306 total",
+    "tsc": "(clean)"
+  },
+  "commands": {
+    "validator": "ROADMAP VALIDATION PASSED: 79 nodes, 13 packages, 381 tasks, 40 triage rows",
+    "gitAncestry": "ROADMAP VALIDATION PASSED: 79 nodes, 13 packages, 381 tasks, 40 triage rows (--git)",
+    "next": "U24b",
+    "openspecStrict": "Totals: 229 passed, 0 failed (229 items)",
+    "qcOpenspecCi": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+    "qcPin": "Tests:       30 passed, 30 total"
+  },
+  "logs": "../cni1-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni1-20261003-01a0febd/closure-preparation-20261004/proof/ (local; sha256 below)",
+  "logHashes": [
+    "1bdfaddf4749d2c91266d4eeca8d07d66fa58a20879f460ff004a63ea235ac3a  build.log",
+    "7d3fb2b807f71536d9f9f15a3e96a3da2f73b6fd7999c4c140db7960fe197ff0  playwright.log",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  tsc.log",
+    "e604fb1b5bb7eaad75730f7fa89375caac87dca6de9d0ef566f3f34fae7c3357  validator-historical.log",
+    "9ca58d5988581dd3de39d1f251ab3b4e85271cd35e067c898bb258ce7748a181  openspec-strict.log",
+    "21c1181842878b6c171cc9f496ad0f18fdaf7636c2d91ecc439a1da7b51589e6  qc-openspec-ci.log",
+    "c586c772ded3048491dee17a3f529bb9366dfa9918aac61ee474b016f6879389  qc-pin.log",
+    "d936b59d324d665c2d1cf94da2e832ab51c80e7d5bb140c86b83ae9b085f7f05  smoke.log",
+    "e604fb1b5bb7eaad75730f7fa89375caac87dca6de9d0ef566f3f34fae7c3357  validator.log",
+    "e604fb1b5bb7eaad75730f7fa89375caac87dca6de9d0ef566f3f34fae7c3357  git-check.log",
+    "e99e17bac5f767eec0124459c86411ad5efa05b7d82b738f57a7d201b2c30650  next.log",
+    "e604fb1b5bb7eaad75730f7fa89375caac87dca6de9d0ef566f3f34fae7c3357  github.log"
+  ],
+  "verdict": "PASS"
+}
