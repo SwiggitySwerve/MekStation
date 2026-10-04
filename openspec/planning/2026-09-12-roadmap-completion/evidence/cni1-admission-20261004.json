@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 3,
+  "unit": "CNI1",
+  "stage": "admission",
+  "at": "2026-10-04T04:06:45.968Z",
+  "generatedAt": "2026-10-04T04:06:45.968Z",
+  "baseline": "357a04b2599c9bbf4234588fb05d43be065a82ec",
+  "source": {
+    "source": "E:/Projects/MekStation-wt/cni1-recovery-source-01a0febd",
+    "head": "e3606fd495f83c80f689b432f5e9d713e7482ede",
+    "tree": "2c4a80d0ffd8bff2ea2de5185d812bb4a7bbbd77",
+    "baseline": "357a04b2599c9bbf4234588fb05d43be065a82ec",
+    "Main": "622f46cdbe505fd57cfd5e0a9635496a343baf3e",
+    "producer": "ef4110d4cf0b949cc57189c784fd62258bb1b674"
+  },
+  "prospective": {
+    "root": "E:\\Projects\\MekStation-wt\\cni1-prospective-01a0febd",
+    "head": "ef4110d4cf0b949cc57189c784fd62258bb1b674",
+    "tree": "3f71b9c39e98d958471b726491515312d6a07967"
+  },
+  "status": "admitted-private-recovery-only",
+  "parentDecision": {
+    "decision": "go",
+    "option": "admit bounded private recovery",
+    "by": "Root",
+    "at": "2026-10-04T03:58:09.329Z",
+    "authority": "standing-delivery-authorization.json and delivered CNI3R recovery contract",
+    "reference": "E:/Projects/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/cni3a-current-recovery-decision.json",
+    "newHumanReply": false
+  },
+  "admissionReference": "E:/Projects/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/cni3a-private-admission-execution.json",
+  "preimages": {
+    "unitsSHA256": "d128981fbf297cc3d3097b78a9cbef9e682db583b5055e3c5e79768cede53b21",
+    "roadmapSHA256": "70aade79fc4479daf4d5b71418ff69173b2b41de207e3903406cd5916597595f",
+    "planningFiles": 1826,
+    "planningBytes": 23009293,
+    "indexSHA256": "cf73bb518eb16f33dc7ed57e13c5f288bb3fa2b22c0be07818c7f597b4e9c62b"
+  },
+  "currentRED": {
+    "pid": 60576,
+    "start": "2026-10-04T04:06:45.095Z",
+    "end": "2026-10-04T04:06:45.155Z",
+    "exit": 1,
+    "code": "UNIT_NOT_PLANNED"
+  },
+  "scope": "Exact private packet/admission/currentRED/planned entry only; LOCAL/foldSuccess/capture/review/public writes not admitted",
+  "historicalLimits": {
+    "initialWholeSourceRED": "NOT LOCATED; no absence or before-all-implementation claim",
+    "historicalLatePairedRED": "Preserved genuine event with original UTC/PID/preimages",
+    "sourceUnchanged": true
+  },
+  "canonicalDebt": "OPEN",
+  "originalTasksDone": 0
+}

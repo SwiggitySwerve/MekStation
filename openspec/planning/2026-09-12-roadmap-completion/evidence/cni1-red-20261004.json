@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 3,
+  "unit": "CNI1",
+  "stage": "red",
+  "at": "2026-10-04T04:06:45.155Z",
+  "generatedAt": "2026-10-04T04:06:45.968Z",
+  "baseline": "357a04b2599c9bbf4234588fb05d43be065a82ec",
+  "classification": "current-dated private admission guard refusal",
+  "scenario": "Actual CNI1 blocked state refuses unchanged fold before receipt reads/copies or ledger writes",
+  "expected": {
+    "exit": 1,
+    "stderr": "UNIT_NOT_PLANNED: CNI1 is blocked, not planned"
+  },
+  "actual": {
+    "name": "blocked-fold",
+    "pid": 60576,
+    "start": "2026-10-04T04:06:45.095Z",
+    "end": "2026-10-04T04:06:45.155Z",
+    "exe": "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+    "args": [
+      "scripts/qc/roadmap-unit-fold.mjs",
+      "--unit",
+      "CNI1",
+      "--date",
+      "20261004",
+      "--ledger-dir",
+      "E:/Projects/MekStation-wt/cni1-prospective-01a0febd/openspec/planning/2026-09-12-roadmap-completion",
+      "--receipts-dir",
+      "E:/Projects/MekStation-wt/cni1-prospective-01a0febd/openspec/planning/2026-09-12-roadmap-completion/evidence",
+      "--red-summary",
+      "Current blocked CNI1 refuses before receipt reads or writes",
+      "--local-summary",
+      "No LOCAL exists or is admitted; expected blocked-state refusal"
+    ],
+    "cwd": "E:\\Projects\\MekStation-wt\\cni1-prospective-01a0febd",
+    "exit": 1,
+    "signal": null,
+    "error": null,
+    "stdout": "",
+    "stderr": "UNIT_NOT_PLANNED: CNI1 is blocked, not planned\n",
+    "stdoutSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderrSHA256": "4f764ab491e6980608d1a1db07e27bfd21051201c24dfb233714142e43ffe5c1"
+  },
+  "preimage": {
+    "head": "ef4110d4cf0b949cc57189c784fd62258bb1b674",
+    "tree": "3f71b9c39e98d958471b726491515312d6a07967",
+    "unitsSHA256": "d128981fbf297cc3d3097b78a9cbef9e682db583b5055e3c5e79768cede53b21",
+    "roadmapSHA256": "70aade79fc4479daf4d5b71418ff69173b2b41de207e3903406cd5916597595f",
+    "planningFiles": 1826,
+    "planningBytes": 23009293,
+    "indexSHA256": "cf73bb518eb16f33dc7ed57e13c5f288bb3fa2b22c0be07818c7f597b4e9c62b"
+  },
+  "planningCorpusUnchanged": true,
+  "allThreeTargetsStillAbsent": true,
+  "historicalInitialWholeSourceRED": "NOT LOCATED; no absence or before-all-implementation claim",
+  "historicalLatePairedRED": "Preserved genuine original events/time/PIDs/preimages; not relabelled as this current refusal",
+  "LOCALCreated": false,
+  "canonicalDebt": "OPEN"
+}
