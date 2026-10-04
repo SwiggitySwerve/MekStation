@@ -238,6 +238,16 @@ export function nativeActor(scan, turnIds) {
   };
 }
 
+function mcpResultText(result) {
+  exactKeys(result, {
+    content: (c) => Array.isArray(c) && c.length === 1,
+    isError: false,
+  });
+  const content = result.content[0];
+  exactKeys(content, { type: 'text', text: (v) => typeof v === 'string' });
+  return content.text;
+}
+
 function mcpFrame(scan, actor, callId, server, tool, pluginId) {
   identityCheck(nativeCallId(callId), 'native completion ID invalid');
   const matches = scan.records.filter(
@@ -268,20 +278,15 @@ function mcpFrame(scan, actor, callId, server, tool, pluginId) {
     prior?.value.payload.turn_id === turn_id,
     'native completion out of turn',
   );
-  exactKeys(item.result, {
-    content: (c) => Array.isArray(c) && c.length === 1,
-    isError: false,
-  });
-  const content = item.result.content[0];
-  exactKeys(content, { type: 'text', text: (v) => typeof v === 'string' });
-  const resultBytes = nativeUtf8(content.text);
+  const text = mcpResultText(item.result);
+  const resultBytes = nativeUtf8(text);
   return {
     record,
     item,
     thread_id,
     turn_id,
     resultBytes,
-    result: nativeJson(content.text),
+    result: nativeJson(text),
   };
 }
 
@@ -490,8 +495,13 @@ export function nativeParentLink(scan, actor, callId) {
   };
 }
 
-export const nativeApiPage = (scan, observer, callId) =>
-  mcpFrame(
+const isMcpResult = (value) =>
+  value !== null &&
+  typeof value === 'object' &&
+  (Object.hasOwn(value, 'content') || Object.hasOwn(value, 'isError'));
+
+export function nativeApiPage(scan, observer, callId) {
+  const frame = mcpFrame(
     scan,
     observer,
     callId,
@@ -499,5 +509,10 @@ export const nativeApiPage = (scan, observer, callId) =>
     'read_thread',
     'codex-app-tools@openai-bundled',
   );
+  if (!isMcpResult(frame.result)) return frame;
+  const result = nativeJson(mcpResultText(frame.result));
+  identityCheck(!isMcpResult(result), 'recursive API transport envelope');
+  return { ...frame, result };
+}
 
 export { decodeReadback, encodeReadbackChunk } from './contract.mjs';
