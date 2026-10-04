@@ -8463,9 +8463,15 @@
       "taskKeys": [],
       "receipt": null,
       "acceptance": [
-        "Full genuine CNI0/CNI1 candidate intake and portable archives, complete debt discharge, exact-head delivery/main proof and cleanup before separate current-main Task1 qualification"
+        "Full genuine CNI0/CNI1 candidate intake and portable archives, complete debt discharge, exact-head delivery/main proof and cleanup before separate current-main Task1 qualification",
+        "CNI3A first-three CNI1 receipts are frozen by CNI3.ordinaryPublicationComponents.CNI3A in units.json under the registered ordinary task. This finite publication leaves canonical CNI1 blocked/OPEN, four later receipts null and canonical CNI3/discharge blocked. All delivery gates remain pending."
       ],
-      "registration": "evidence/cni-registration-20261002.json"
+      "registration": "evidence/cni-registration-20261002.json",
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-admission-20261004.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-red-20261004.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-local-20261004.json"
+      ]
     }
   ],
   "tasks": [

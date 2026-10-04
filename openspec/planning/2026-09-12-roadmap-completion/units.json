@@ -6550,14 +6550,49 @@
         "maxFiles": 13,
         "maxNonGeneratedLines": 500
       },
-        "state": "blocked",
-      "baseline": null,
+      "state": "blocked",
+      "baseline": "357a04b2599c9bbf4234588fb05d43be065a82ec",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/cni1-admission-20261004.json",
+          "baseline": "357a04b2599c9bbf4234588fb05d43be065a82ec",
+          "at": "2026-10-04T04:06:45.968Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/cni1-red-20261004.json",
+          "at": "2026-10-04T04:06:45.155Z",
+          "summary": "E:/Projects/MekStation-wt/cni1-prospective-01a0febd/openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-red-20261004.json"
+        },
+        "local": {
+          "path": "evidence/cni1-local-20261004.json",
+          "at": "2026-10-04T04:36:54.869Z",
+          "summary": "E:/Projects/MekStation-wt/cni1-prospective-01a0febd/openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-local-20261004.json",
+          "reviewContractVersion": 3,
+          "implementationActors": [
+            {
+              "role": "author",
+              "sessionId": "01a10045-67ef-7310-b0b2-bfbf31493740",
+              "agentPath": "/root/cni1_atomic_source_worker",
+              "model": "openai/gpt-6.1-sol"
+            },
+            {
+              "role": "finisher",
+              "sessionId": "01a1006a-6884-7183-9622-974c203afee4",
+              "agentPath": "/root/cni1_native_capture_test_worker",
+              "model": "openai/gpt-6.1-sol"
+            },
+            {
+              "role": "finisher",
+              "sessionId": "01a10021-4542-7250-b73b-398e50b4fdb8",
+              "agentPath": "/root/cni0_main_proof_cleanup",
+              "model": "openai/gpt-6.1-sol"
+            }
+          ]
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -6633,7 +6668,11 @@
         "openspec/planning/2026-09-12-roadmap-completion/units.json",
         "openspec/planning/2026-09-12-roadmap-completion/roadmap.json"
       ],
-      "ownershipExceptions": [],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-admission-20261004.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-red-20261004.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-local-20261004.json"
+      ],
       "ciClass": "docs",
       "reviewClasses": [
         "authority",
@@ -6663,7 +6702,61 @@
       "predecessors": [
         "CNI2",
         "actual prefix delivery; no partial closure"
-      ]
+      ],
+      "ordinaryPublicationComponents": {
+        "CNI3A": {
+          "id": "CNI3A",
+          "kind": "documentary ordinary task, not canonical unit",
+          "status": "publication-pending",
+          "owner": "/root/cni3a_private_fold_recovery",
+          "contractRef": "evidence/cni-registration-20261002.json#ordinaryPublicationTasks.tasks.CNI3A",
+          "planningSizingRef": "evidence/cni-registration-20261002.json#planningSizing",
+          "admission": {
+            "baseline": "71b31beb64b9b0d7f634ea6a72fe056e73c464f9",
+            "authority": "Root cni3a-public-resource-admission.json; private candidate only until separate literal application freeze",
+            "exclusiveWriter": "/root/cni3a_private_fold_recovery"
+          },
+          "frozenEvidenceFiles": [
+            {
+              "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-admission-20261004.json",
+              "bytes": 2356,
+              "sha256": "454e880bac9689a438bdc3a3e45416eddee1fc09024dcacdc4e327a0b9694421",
+              "physicalLines": 54
+            },
+            {
+              "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-red-20261004.json",
+              "bytes": 2469,
+              "sha256": "a187fc1a23306fcfda2806cd4b9922c42e4d87311701781edfd967a2a5b61980",
+              "physicalLines": 59
+            },
+            {
+              "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-local-20261004.json",
+              "bytes": 204550,
+              "sha256": "39b1083632e52a58f98eb976621fd659f5cb7ca5f5ba76900c79d657ad312d8f",
+              "physicalLines": 5529
+            }
+          ],
+          "predecessorProof": {
+            "CNI3R": {
+              "authority": "Root accepted actual Main/custody/cleanup before this bounded resource grant",
+              "mainWitness": "cni3r-parent-main-evidence-readback.json",
+              "mainWitnessSha256": "489de57798a3898e7b8b0ac442eeefa40ed5343bd1c2223f270e8eb40552619a",
+              "cleanupWitness": "cni3r-final-cleanup-audit.json",
+              "cleanupWitnessSha256": "1dcf3737890dbb28f808e1dd7ec118d253bff00d89f06ac3e4a0bd46e8e98f7b"
+            },
+            "privateCni1": {
+              "witness": "cni3a-private-closure-parent-witness.json",
+              "bytes": 2148,
+              "sha256": "4d9b055df412795048d4c476f27e1d584354c23481acdba715b5f940832a185e",
+              "physicalLines": 55,
+              "scope": "Complete genuine private CNI1 recovery and prospective acceptance; public package remains pending"
+            }
+          },
+          "delivery": null,
+          "canonicalOutcome": "Canonical CNI1 remains blocked/OPEN with real packet, first-three receipts and later four paths null.",
+          "enforcement": "Root freezes complete five-file byte/hash/physical-line/raw-diff metrics and independently reviews this ordinary component; NEXT and canonical numeric caps do not authenticate it."
+        }
+      }
     },
     {
       "id": "U24b",
@@ -13761,6 +13854,47 @@
       "decision": null,
       "ruling": null,
       "note": "Registered by the task-35 triage for FN-u97-history-not-in-journal. An undecided owner question, not a ruling; the owner is currently unavailable."
+    },
+    {
+      "id": "PK-cni1-historical-recovery-20261004",
+      "blocks": [
+        "CNI1"
+      ],
+      "nodes": [
+        "R6.cni-source"
+      ],
+      "taskKeys": [],
+      "question": "Should Root admit only bounded current-dated private historical CNI1 recovery in the complete P1 ledger while keeping canonical public CNI1 blocked and native closure debt OPEN?",
+      "options": [
+        {
+          "label": "admit bounded private recovery",
+          "consequence": "Permit only separately frozen private packet/selected-entry admission and genuine current RED under standing authority. New original-author LOCAL, later capture/review/fold/publication each require their own concrete freeze/admission. Historical Sourcee360/Main622 and public state stay unchanged.",
+          "effort": "One finite private admission/preimage/actor/applicability qualification and exact four-file receipt grant"
+        },
+        {
+          "label": "retain blocked pending gaps",
+          "consequence": "Keep private CNI1 blocked and receipts absent until the named actor/applicability/decision gaps are actually qualified; preserve completed engineering proof.",
+          "effort": "Only the missing bounded qualification; no duplicated existing tests or fabricated historical receipts"
+        }
+      ],
+      "agentRecommendation": "Select bounded private admission/RED/entry work only after Root qualifies complete actors and actual applicability/preimages. New LOCAL is expressly withheld until a later genuine original-author byte/target freeze. No private execution is admitted by this audit.",
+      "revertCost": "Low: retain failed attempts, restore only the prior private units entry/packet from bound preimages and preserve any new immutable receipts as evidence; public Source and state never change.",
+      "decision": {
+        "option": "admit bounded private recovery",
+        "by": "Root under existing standing human authorization",
+        "at": "2026-10-04T03:58:09.329Z",
+        "authority": "cni3a-current-recovery-decision.json"
+      },
+      "ruling": {
+        "ruledHead": "e3606fd495f83c80f689b432f5e9d713e7482ede",
+        "pr": 2117,
+        "commentId": 5976773240,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "08d721de9f5b90ba0c4c154eedb1a6094debabaea7c7c9be64edc943ca5f083a",
+        "postedBy": "Parent under existing standing owner authorization",
+        "deviationDisclosed": "This records the existing agent-posted standing-authorized ruling, not a new human response or manual GitHub review."
+      }
     }
   ],
   "deferrals": [

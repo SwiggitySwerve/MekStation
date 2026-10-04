@@ -163,6 +163,15 @@ function fixture(): IFixture {
   // Mutations below are deliberate fixture setup, never canonical ledger edits.
   unit.taskKeys = [];
   unit.reviewClasses = ['routine'];
+  unit.stageReceipts = {
+    admission: null,
+    red: null,
+    local: null,
+    review: null,
+    merge: null,
+    mainProof: null,
+    tick: null,
+  };
   for (const name of [
     'DELIVERY.md',
     'WORKERS.md',
