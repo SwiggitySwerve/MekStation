@@ -348,7 +348,13 @@ const nativeRpcCode = [
   "const archiveCensus=ledgerDir=>{const evidence=ledgerDir+'/evidence',baseline=new Set(fs.readdirSync(evidence));return ()=>fs.readdirSync(evidence).filter(name=>!baseline.has(name)).sort().map(name=>{const b=fs.readFileSync(evidence+'/'+name);return {name,bytes:b.length,sha256:hash(b)};});};",
   'try {',
   'let result;',
-  "if(request.op==='mode') result={mode:api.reviewIdentityMode(request.value)};",
+  "if(request.op==='api-transport'){",
+  "const bytes=Buffer.from(request.records.map(value=>JSON.stringify(value)+'\\n').join(''));",
+  'const scan=sourceApi.scanNativeRecords(bytes);',
+  'const frame=request.gitBash?sourceApi.nativeCompletion(scan,request.actor,request.callId):sourceApi.nativeApiPage(scan,request.actor,request.callId);',
+  "result=request.gitBash?{stdout:frame.stdout.toString('base64'),completion:frame.completion,ref:frame.record.ref}:{value:frame.result,ref:frame.record.ref,resultBytes:frame.resultBytes.toString('base64')};",
+  '}',
+  "else if(request.op==='mode') result={mode:api.reviewIdentityMode(request.value)};",
   "else if(request.op==='facts') result={privateRoots:facts.NATIVE_PRIVATE_ROOTS};",
   "else if(request.op==='external-review'){api.validateReviewReceipt(request.args.ledgerDir,request.args.unit);result={accepted:true};}",
   "else if(request.op==='legacy-reuse'){",
@@ -433,7 +439,11 @@ const nativeRpcCode = [
   '}',
 ].join('\n');
 
-function rpc(f: IFixture, name: string, request: unknown): ICall {
+function rpc(
+  f: Pick<IFixture, 'dir' | 'calls'>,
+  name: string,
+  request: unknown,
+): ICall {
   const requestFile = path.join(f.dir, name + '-request.json');
   put(requestFile, request);
   const argv = ['--input-type=module', '-e', nativeRpcCode, repo, requestFile];
@@ -1064,6 +1074,166 @@ function parentFixture(fault: TParentFault) {
     },
   };
 }
+
+describe('API transport', () => {
+  const page = { thread: { id: uid(20) }, turns: [], page: {} };
+  const envelope = (value: unknown) => ({
+    isError: false,
+    content: [{ type: 'text', text: JSON.stringify(value) }],
+  });
+  function transport(value: unknown, gitBash = false) {
+    const f = {
+      dir: fs.mkdtempSync(
+        path.join(fs.realpathSync(os.tmpdir()), 'cni1-sizing-'),
+      ),
+      calls: [] as ICall[],
+    };
+    const actor = { sessionId: uid(20), turns: [{ turnId: uid(120) }] };
+    const callId = 'exec-' + uid(600);
+    const records = [
+      { type: 'turn_context', payload: { turn_id: uid(120) } },
+      {
+        type: 'event_msg',
+        payload: {
+          type: 'item_completed',
+          thread_id: uid(20),
+          turn_id: uid(120),
+          item: {
+            type: 'McpToolCall',
+            id: callId,
+            server: gitBash ? 'git_bash' : 'codex_app',
+            tool: gitBash ? 'run' : 'read_thread',
+            status: 'completed',
+            pluginId: gitBash
+              ? 'omo@sisyphuslabs'
+              : 'codex-app-tools@openai-bundled',
+            arguments: { workdir: repo },
+            result: envelope(value),
+          },
+        },
+      },
+    ];
+    const result = rpc(f, 'transport', {
+      op: 'api-transport',
+      records,
+      actor,
+      callId,
+      gitBash,
+    });
+    return { result, records, original: Buffer.from(JSON.stringify(value)) };
+  }
+  it.each([false, true])(
+    'accepts direct or wrapped API page %s and retains outer bytes',
+    (wrapped) => {
+      const { result, records, original } = transport(
+        wrapped ? envelope(page) : page,
+      );
+      expect(result.exit).toBe(0);
+      const parsed = JSON.parse(result.stdout);
+      expect(parsed.value).toEqual(page);
+      expect(Buffer.from(parsed.resultBytes, 'base64')).toEqual(original);
+      expect(parsed.ref.sha256).toBe(
+        digest(Buffer.from(JSON.stringify(records[1]) + '\n')),
+      );
+    },
+  );
+  it('preserves direct GitBash result, stdout and frame hash', () => {
+    const value = {
+      exitCode: 0,
+      stdout: 'Exact stdout\n',
+      stderr: '',
+      timedOut: false,
+    };
+    const { result, records, original } = transport(value, true);
+    expect(result.exit).toBe(0);
+    const parsed = JSON.parse(result.stdout);
+    expect(Buffer.from(parsed.stdout, 'base64')).toEqual(
+      Buffer.from(value.stdout),
+    );
+    expect(parsed.completion.resultSha256).toBe(digest(original));
+    expect(parsed.completion.frameSha256).toBe(
+      digest(Buffer.from(JSON.stringify(records[1]) + '\n')),
+    );
+  });
+  it.each([
+    { isError: true, content: [{ type: 'text', text: '{}' }] },
+    { ...envelope(page), extra: true },
+    { content: [{ type: 'text', text: '{}' }] },
+    { isError: false },
+    { isError: false, content: [] },
+    {
+      isError: false,
+      content: [...envelope(page).content, ...envelope(page).content],
+    },
+    { isError: false, content: [{ type: 'image', text: '{}' }] },
+    { isError: false, content: [{ type: 'text', text: 5 }] },
+    { isError: false, content: [{ type: 'text', text: 'InvalidJSON' }] },
+    envelope(envelope(page)),
+  ])('refuses malformed or recursive API envelope %#', (value) => {
+    const { result } = transport(value);
+    expect(result.exit).toBe(1);
+    expect(result.stderr).toContain('REVIEW_IDENTITY_INVALID');
+    expect(result.stderr).not.toContain('InvalidJSON');
+  });
+  it.each(['root', 'child', 'mixed', 'wrong-thread'])(
+    'correlates wrapped API pages through the public App observer: %s',
+    (mode) => {
+      const { f, request } = parentFixture('linked');
+      const selected = z
+        .object({
+          payload: z
+            .object({
+              item: z
+                .object({
+                  id: z.string(),
+                  result: z
+                    .object({
+                      content: z.array(
+                        z
+                          .object({ type: z.string(), text: z.string() })
+                          .passthrough(),
+                      ),
+                      isError: z.boolean(),
+                    })
+                    .passthrough(),
+                })
+                .passthrough(),
+            })
+            .passthrough(),
+        })
+        .passthrough();
+      const rows = fs
+        .readFileSync(request.raw.observer, 'utf8')
+        .trimEnd()
+        .split('\n')
+        .map((line) => {
+          const value: unknown = JSON.parse(line);
+          const frame = selected.safeParse(value);
+          if (!frame.success) return value;
+          const item = frame.data.payload.item;
+          const isChild = item.id === request.childPageId;
+          if ((mode === 'root' && isChild) || (mode === 'child' && !isChild))
+            return value;
+          const body = z
+            .object({ thread: z.object({ id: z.string() }).passthrough() })
+            .passthrough()
+            .parse(JSON.parse(item.result.content[0].text));
+          if (mode === 'wrong-thread' && isChild) body.thread.id = uid(999);
+          item.result.content[0].text = JSON.stringify(envelope(body));
+          return frame.data;
+        });
+      fs.writeFileSync(
+        request.raw.observer,
+        rows.map((value) => JSON.stringify(value) + '\n').join(''),
+      );
+      const result = rpc(f.sizing, 'wrapped-parent', request);
+      expect(result.exit).toBe(mode === 'wrong-thread' ? 1 : 0);
+      if (mode === 'wrong-thread') expect(result.stderr).toContain('App');
+      else
+        expect(JSON.parse(result.stdout)).toEqual({ version: 3, snapshots: 2 });
+    },
+  );
+});
 
 describe('Native-v3 paired identity facade and portable consumption', () => {
   jest.setTimeout(120000);
