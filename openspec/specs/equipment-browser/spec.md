@@ -722,7 +722,7 @@ interface EquipmentBrowserState {
 interface ICategorySummary {
   readonly count: number;
   readonly weight: number;
-  readonly slots: number;
+  readonly criticalSlots: number;
   readonly heat: number;
 }
 ```

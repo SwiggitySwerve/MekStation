@@ -27,11 +27,22 @@
  *   --strict        Exit with error code on any violation
  */
 
-import { execSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
-import { fileURLToPath } from 'url';
 
+import type {
+  CliOptions,
+  FileResult,
+  RunResult,
+  TerminologyConfig,
+} from './terminology-tool.types';
+
+import {
+  loadConfig,
+  detectViolations,
+  findFiles,
+  summarize,
+} from './terminology-tool.core.js';
 import { applyFixes } from './terminology-tool.fixers.js';
 import {
   c,
@@ -40,412 +51,6 @@ import {
   formatViolation,
   showHelp,
 } from './terminology-tool.output.js';
-import type {
-  CapitalizationRule,
-  CliOptions,
-  DeprecatedTerm,
-  FileResult,
-  LineContext,
-  RunResult,
-  TerminologyConfig,
-  Violation,
-} from './terminology-tool.types';
-
-// Get __dirname equivalent for ES modules
-const __filename_local =
-  typeof __filename !== 'undefined'
-    ? __filename
-    : fileURLToPath(import.meta.url);
-const __dirname_local =
-  typeof __dirname !== 'undefined' ? __dirname : path.dirname(__filename_local);
-
-// ============================================================================
-// Configuration Loader
-// ============================================================================
-
-function loadConfig(configPath?: string): TerminologyConfig {
-  const defaultPath = path.join(__dirname_local, 'terminology.config.json');
-  const cfgPath = configPath || defaultPath;
-
-  if (!fs.existsSync(cfgPath)) {
-    throw new Error(`Configuration file not found: ${cfgPath}`);
-  }
-
-  const content = fs.readFileSync(cfgPath, 'utf-8');
-  return JSON.parse(content) as TerminologyConfig;
-}
-
-const ALWAYS_EXCLUDED_PATH_FRAGMENTS = [
-  'VIOLATIONS_REPORT.md',
-  'VALIDATION_FINDINGS',
-  '/templates/',
-];
-
-const EXCLUDE_PATTERN_RULES: Array<{
-  patternFragment: string;
-  matchesPath: (normalizedPath: string) => boolean;
-}> = [
-  {
-    patternFragment: 'node_modules',
-    matchesPath: (normalizedPath) => normalizedPath.includes('node_modules'),
-  },
-  {
-    patternFragment: '.bak',
-    matchesPath: (normalizedPath) => normalizedPath.endsWith('.bak'),
-  },
-  {
-    patternFragment: 'dist',
-    matchesPath: (normalizedPath) => normalizedPath.includes('/dist/'),
-  },
-  {
-    patternFragment: 'build',
-    matchesPath: (normalizedPath) => normalizedPath.includes('/build/'),
-  },
-  {
-    patternFragment: 'openspec/changes/archive',
-    matchesPath: (normalizedPath) =>
-      normalizedPath.includes('/openspec/changes/archive/'),
-  },
-  {
-    patternFragment: 'openspec/scripts',
-    matchesPath: (normalizedPath) =>
-      normalizedPath.includes('/openspec/scripts/'),
-  },
-  {
-    patternFragment: 'TERMINOLOGY_GLOSSARY.md',
-    matchesPath: (normalizedPath) =>
-      normalizedPath.endsWith('TERMINOLOGY_GLOSSARY.md'),
-  },
-  {
-    patternFragment: 'TERMINOLOGY_FIX_REPORT.md',
-    matchesPath: (normalizedPath) =>
-      normalizedPath.endsWith('TERMINOLOGY_FIX_REPORT.md'),
-  },
-];
-
-// ============================================================================
-// File Discovery
-// ============================================================================
-
-function findFiles(
-  rootDir: string,
-  options: CliOptions,
-  config: TerminologyConfig,
-): string[] {
-  const files: string[] = [];
-
-  // If checking only changed files
-  if (options.changedOnly) {
-    try {
-      const gitOutput = execSync('git diff --name-only HEAD', {
-        cwd: rootDir,
-        encoding: 'utf-8',
-      });
-      const changedFiles = gitOutput.split('\n').filter(Boolean);
-      return changedFiles
-        .map((f) => path.join(rootDir, f))
-        .filter((f) => fs.existsSync(f) && matchesPatterns(f, config, options));
-    } catch {
-      console.warn(
-        c.warn(
-          'Warning: Could not get changed files from git, scanning all files',
-        ),
-      );
-    }
-  }
-
-  function traverse(dir: string): void {
-    try {
-      const entries = fs.readdirSync(dir, { withFileTypes: true });
-      for (const entry of entries) {
-        const fullPath = path.join(dir, entry.name);
-
-        // Skip excluded patterns
-        if (isExcluded(fullPath, config.filePatterns.exclude)) {
-          continue;
-        }
-
-        if (entry.isDirectory()) {
-          traverse(fullPath);
-        } else if (matchesPatterns(fullPath, config, options)) {
-          files.push(fullPath);
-        }
-      }
-    } catch {
-      // Ignore permission errors
-    }
-  }
-
-  traverse(rootDir);
-  return files;
-}
-
-function isExcluded(filePath: string, excludePatterns: string[]): boolean {
-  const normalized = filePath.replace(/\\/g, '/');
-  return (
-    hasConfiguredExcludePattern(normalized, excludePatterns) ||
-    ALWAYS_EXCLUDED_PATH_FRAGMENTS.some((fragment) =>
-      normalized.includes(fragment),
-    )
-  );
-}
-
-function hasConfiguredExcludePattern(
-  normalizedPath: string,
-  excludePatterns: string[],
-): boolean {
-  return excludePatterns.some((pattern) =>
-    EXCLUDE_PATTERN_RULES.some(
-      (rule) =>
-        pattern.includes(rule.patternFragment) && rule.matchesPath(normalizedPath),
-    ),
-  );
-}
-
-function matchesPatterns(
-  filePath: string,
-  config: TerminologyConfig,
-  options: CliOptions,
-): boolean {
-  const normalized = filePath.replace(/\\/g, '/');
-
-  // Specs only mode
-  if (options.specsOnly) {
-    return normalized.includes('/openspec/') && normalized.endsWith('.md');
-  }
-
-  // Check spec patterns
-  const isSpec =
-    (normalized.includes('/openspec/specs/') ||
-      normalized.includes('/openspec/changes/')) &&
-    normalized.endsWith('.md');
-
-  // Check source patterns
-  const isSource =
-    (normalized.endsWith('.ts') || normalized.endsWith('.tsx')) &&
-    normalized.includes('/src/');
-
-  if (options.source) {
-    return isSpec || isSource;
-  }
-
-  return isSpec;
-}
-
-// ============================================================================
-// Context Detection
-// ============================================================================
-
-function analyzeLineContext(
-  line: string,
-  content: string,
-  lineIndex: number,
-  config: TerminologyConfig,
-): LineContext {
-  const lines = content.split('\n');
-
-  // Count code block markers before this line
-  let codeBlockCount = 0;
-  let isTypeScript = false;
-  for (let i = 0; i < lineIndex; i++) {
-    if (lines[i].trim().startsWith('```')) {
-      codeBlockCount++;
-      if (lines[i].includes('typescript') || lines[i].includes('ts')) {
-        isTypeScript = codeBlockCount % 2 === 1;
-      }
-    }
-  }
-  const inCodeBlock = codeBlockCount % 2 === 1;
-
-  const skipPatterns = config.skipPatterns;
-
-  return {
-    inCodeBlock,
-    inTypeScriptBlock: inCodeBlock && isTypeScript,
-    isComment:
-      line.trim().startsWith('//') ||
-      line.trim().startsWith('/*') ||
-      line.trim().startsWith('*'),
-    isDeprecatedExample: skipPatterns.contexts['deprecated-examples'].some(
-      (p) => line.includes(p),
-    ),
-    isComparison: skipPatterns.contexts['comparisons'].some((p) =>
-      line.includes(p),
-    ),
-    isRuleDescription: skipPatterns.contexts['rule-descriptions'].some((p) =>
-      line.includes(p),
-    ),
-    isRationale: skipPatterns.contexts['rationale'].some((p) =>
-      line.includes(p),
-    ),
-    isChangelog: skipPatterns.contexts['changelog'].some((p) =>
-      line.includes(p),
-    ),
-    isWhenClause: skipPatterns.contexts['when-clauses'].some((p) =>
-      line.includes(p),
-    ),
-    isUserAction: skipPatterns.contexts['user-actions'].some((p) =>
-      line.includes(p),
-    ),
-  };
-}
-
-const SKIP_CONTEXT_CHECKS: Record<string, (context: LineContext) => boolean> = {
-  'rule-descriptions': (context) => context.isRuleDescription,
-  'code-block': (context) => context.inCodeBlock,
-  rationale: (context) => context.isRationale,
-  changelog: (context) => context.isChangelog,
-  comparisons: (context) => context.isComparison,
-};
-
-function shouldSkipViolation(
-  term: DeprecatedTerm | CapitalizationRule,
-  context: LineContext,
-  line: string,
-  config: TerminologyConfig,
-): boolean {
-  return (
-    isAlwaysSkippedContext(context) ||
-    hasRuleSkipContext(term, context) ||
-    isUrlLine(line) ||
-    hasConfiguredLineSkip(line, config) ||
-    isTerminologyReferenceTable(line)
-  );
-}
-
-function isAlwaysSkippedContext(context: LineContext): boolean {
-  return context.isDeprecatedExample || context.isComparison;
-}
-
-function hasRuleSkipContext(
-  term: DeprecatedTerm | CapitalizationRule,
-  context: LineContext,
-): boolean {
-  if (!('skipContexts' in term)) return false;
-  return (term.skipContexts ?? []).some((skipContext) => {
-    const check = SKIP_CONTEXT_CHECKS[skipContext];
-    return check?.(context) ?? false;
-  });
-}
-
-function isUrlLine(line: string): boolean {
-  return line.includes('http://') || line.includes('https://');
-}
-
-function hasConfiguredLineSkip(
-  line: string,
-  config: TerminologyConfig,
-): boolean {
-  return config.skipPatterns.lines.some((skipPattern) =>
-    line.includes(skipPattern),
-  );
-}
-
-function isTerminologyReferenceTable(line: string): boolean {
-  return (
-    /^\s*\|.*→.*\|/.test(line) ||
-    /^\s*\|.*".*"\s*\|.*".*"\s*\|/.test(line)
-  );
-}
-
-// ============================================================================
-// Violation Detection
-// ============================================================================
-
-function detectViolations(
-  filePath: string,
-  content: string,
-  config: TerminologyConfig,
-): Violation[] {
-  const violations: Violation[] = [];
-  const lines = content.split('\n');
-
-  lines.forEach((line, index) => {
-    const lineNumber = index + 1;
-    const ctx = analyzeLineContext(line, content, index, config);
-
-    // Check deprecated terms
-    for (const term of config.deprecatedTerms) {
-      if (shouldSkipViolation(term, ctx, line, config)) continue;
-
-      const regex = new RegExp(term.pattern, term.flags || 'gi');
-      let match: RegExpExecArray | null;
-
-      while ((match = regex.exec(line)) !== null) {
-        violations.push({
-          file: filePath,
-          line: lineNumber,
-          column: match.index + 1,
-          type: 'deprecated-term',
-          severity: term.severity,
-          ruleId: term.id,
-          found: match[0],
-          canonical: term.canonical,
-          context: term.context,
-          lineText: line.trim(),
-          fixable: true,
-        });
-      }
-    }
-
-    // Check property violations (only in code blocks)
-    if (ctx.inCodeBlock || ctx.inTypeScriptBlock) {
-      for (const prop of config.propertyViolations) {
-        const regex = new RegExp(prop.pattern, 'gm');
-        let match: RegExpExecArray | null;
-
-        while ((match = regex.exec(line)) !== null) {
-          // Skip variable declarations
-          if (/^(const|let|var)\s+\w+/.test(line.trim())) continue;
-
-          violations.push({
-            file: filePath,
-            line: lineNumber,
-            column: match.index + 1,
-            type: 'property-naming',
-            severity: prop.severity,
-            ruleId: prop.id,
-            found: match[0].trim(),
-            canonical: prop.canonical,
-            context: prop.context,
-            lineText: line.trim(),
-            fixable: true,
-          });
-        }
-      }
-    }
-
-    // Check capitalization
-    for (const rule of config.capitalizationRules) {
-      if (shouldSkipViolation(rule, ctx, line, config)) continue;
-
-      const regex = new RegExp(rule.pattern, 'g');
-      let match: RegExpExecArray | null;
-
-      while ((match = regex.exec(line)) !== null) {
-        violations.push({
-          file: filePath,
-          line: lineNumber,
-          column: match.index + 1,
-          type: 'capitalization',
-          severity: rule.severity,
-          ruleId: rule.id,
-          found: match[0],
-          canonical: rule.canonical,
-          context: rule.context,
-          lineText: line.trim(),
-          fixable: true,
-        });
-      }
-    }
-  });
-
-  return violations;
-}
-
-// ============================================================================
-// File Processing
-// ============================================================================
 
 function processFile(
   filePath: string,
@@ -473,7 +78,10 @@ function processFile(
       if (!options.dryRun) {
         // Create backup
         const backupPath = filePath + '.bak';
-        fs.writeFileSync(backupPath, content, 'utf-8');
+        fs.writeFileSync(backupPath, content, {
+          encoding: 'utf-8',
+          flag: 'wx',
+        });
 
         // Write fixed content
         fs.writeFileSync(filePath, fixedContent, 'utf-8');
@@ -544,11 +152,16 @@ function parseArgs(args: string[]): CliOptions {
 
     if (setCommandOption(arg, options)) continue;
     if (setFlagOption(arg, options)) continue;
-    if (arg === '--config' && args[i + 1]) {
+    if (arg === '--config') {
+      if (!args[i + 1] || args[i + 1].startsWith('-'))
+        throw new Error('--config requires a path');
       options.configPath = args[++i];
       continue;
     }
-    if (!arg.startsWith('-')) options.targetPath = arg;
+    if (arg.startsWith('-')) throw new Error(`Unknown option: ${arg}`);
+    if (options.targetPath)
+      throw new Error('Only one target path is supported');
+    options.targetPath = arg;
   }
 
   return options;
@@ -605,12 +218,6 @@ function printFileCount(options: CliOptions, files: string[]): void {
   }
 }
 
-function exitWhenNoFiles(options: CliOptions, files: string[]): void {
-  if (options.json || files.length > 0) return;
-  console.log(c.warn('No files found to scan\n'));
-  process.exit(0);
-}
-
 function processFiles(
   files: string[],
   rootDir: string,
@@ -623,15 +230,7 @@ function processFiles(
     return result;
   });
 
-  return {
-    filesScanned: files.length,
-    filesWithViolations: results.filter((r) => r.violations.length > 0).length,
-    totalViolations: sumViolations(results),
-    totalErrors: sumSeverity(results, 'error'),
-    totalWarnings: sumSeverity(results, 'warning'),
-    totalFixed: results.reduce((sum, result) => sum + result.fixed, 0),
-    results,
-  };
+  return summarize(results);
 }
 
 function printFileResult(
@@ -653,23 +252,6 @@ function printFileResult(
   if (result.fixed > 0) {
     console.log(c.success(`  ✓ Fixed ${result.fixed} violation(s)\n`));
   }
-}
-
-function sumViolations(results: FileResult[]): number {
-  return results.reduce((sum, result) => sum + result.violations.length, 0);
-}
-
-function sumSeverity(
-  results: FileResult[],
-  severity: Violation['severity'],
-): number {
-  return results.reduce(
-    (sum, result) =>
-      sum +
-      result.violations.filter((violation) => violation.severity === severity)
-        .length,
-    0,
-  );
 }
 
 function printRunResult(runResult: RunResult, options: CliOptions): void {
@@ -715,7 +297,6 @@ async function main(): Promise<void> {
   printRunPreamble(options, config);
 
   const files = findFiles(rootDir, options, config);
-  exitWhenNoFiles(options, files);
   printFileCount(options, files);
 
   const runResult = processFiles(files, rootDir, config, options);
