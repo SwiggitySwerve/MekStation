@@ -1,0 +1,29 @@
+{
+  "reviewContractVersion": 3,
+  "unit": "CNI1",
+  "sourceHead": "e3606fd495f83c80f689b432f5e9d713e7482ede",
+  "reviewOutputSha256": "810370662bebe786380d21773bbc714c0acbae2e797588a34f32be670c770b16",
+  "localReceiptSha256": "39b1083632e52a58f98eb976621fd659f5cb7ca5f5ba76900c79d657ad312d8f",
+  "author": {
+    "path": "codex-observation-e84105a99a699fe5bf405820d15b0ab0a3f4438ed5cf9f83b78f6b5baa811454.json",
+    "sha256": "e84105a99a699fe5bf405820d15b0ab0a3f4438ed5cf9f83b78f6b5baa811454",
+    "bytes": 35672
+  },
+  "finishers": [
+    {
+      "path": "codex-observation-b3c0afb63366923c6cc75f636a7c797d203e84c704e7295c4df71b9a8847deba.json",
+      "sha256": "b3c0afb63366923c6cc75f636a7c797d203e84c704e7295c4df71b9a8847deba",
+      "bytes": 35213
+    },
+    {
+      "path": "codex-observation-502b4847dbba8730e3f3e120c7301666832e64fdd6d21d19cecb95cb97e8beaa.json",
+      "sha256": "502b4847dbba8730e3f3e120c7301666832e64fdd6d21d19cecb95cb97e8beaa",
+      "bytes": 35181
+    }
+  ],
+  "reviewer": {
+    "path": "codex-observation-25f98a9de258e6ac7b978428c49d9f57840581bbe3bc23487704d959bfed6391.json",
+    "sha256": "25f98a9de258e6ac7b978428c49d9f57840581bbe3bc23487704d959bfed6391",
+    "bytes": 32857
+  }
+}

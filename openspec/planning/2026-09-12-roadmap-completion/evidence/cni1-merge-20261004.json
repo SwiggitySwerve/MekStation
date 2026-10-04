@@ -1,0 +1,27 @@
+{
+  "unit": "CNI1",
+  "stage": "merge",
+  "at": "2026-10-04T10:12:34.859Z",
+  "pr": 2117,
+  "title": "feat(qc): support genuine Codex native review identity",
+  "head": "e3606fd495f83c80f689b432f5e9d713e7482ede",
+  "mergeSha": "622f46cdbe505fd57cfd5e0a9635496a343baf3e",
+  "mergedAt": "2026-10-03T12:46:00Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "Actual two-parent merge; original source e360 is the reviewed second parent",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 2,
+  "treeIntegration": {
+    "parent": "357a04b2599c9bbf4234588fb05d43be065a82ec",
+    "parents": [
+      "357a04b2599c9bbf4234588fb05d43be065a82ec",
+      "e3606fd495f83c80f689b432f5e9d713e7482ede"
+    ],
+    "mergeBases": [
+      "357a04b2599c9bbf4234588fb05d43be065a82ec"
+    ],
+    "expectedTree": "2c4a80d0ffd8bff2ea2de5185d812bb4a7bbbd77",
+    "actualTree": "2c4a80d0ffd8bff2ea2de5185d812bb4a7bbbd77",
+    "matches": true
+  }
+}

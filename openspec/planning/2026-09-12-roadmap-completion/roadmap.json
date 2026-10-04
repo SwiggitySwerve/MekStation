@@ -8464,13 +8464,25 @@
       "receipt": null,
       "acceptance": [
         "Full genuine CNI0/CNI1 candidate intake and portable archives, complete debt discharge, exact-head delivery/main proof and cleanup before separate current-main Task1 qualification",
-        "CNI3A first-three CNI1 receipts are frozen by CNI3.ordinaryPublicationComponents.CNI3A in units.json under the registered ordinary task. This finite publication leaves canonical CNI1 blocked/OPEN, four later receipts null and canonical CNI3/discharge blocked. All delivery gates remain pending."
+        "CNI3A first-three CNI1 receipts are frozen by CNI3.ordinaryPublicationComponents.CNI3A in units.json under the registered ordinary task. This finite publication leaves canonical CNI1 blocked/OPEN, four later receipts null and canonical CNI3/discharge blocked. All delivery gates remain pending.",
+        "CNI3A was actually delivered in PR2125 Source400689cc25bce10598ce7082b09f20de58166582/merge50b8c415f87f11adf7f1ec080e79f8ed889cccd6 with five publication files plus separately admitted CNI3F fixture correction, actual Main/custody/cleanup. CNI3B exact eleven later evidence buffers and historical CNI1 e360/622 complete candidate are frozen by CNI3.ordinaryPublicationComponents.CNI3B in units.json; fresh public consumption and CNI3B own delivery remain pending. CNI0/CNI3 and native debt remain blocked/OPEN; no original Task1 release."
       ],
       "registration": "evidence/cni-registration-20261002.json",
       "ownershipExceptions": [
         "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-admission-20261004.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-red-20261004.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-local-20261004.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-local-20261004.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-review-20261004.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-lane-a-review-20261004.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-e84105a99a699fe5bf405820d15b0ab0a3f4438ed5cf9f83b78f6b5baa811454.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-b3c0afb63366923c6cc75f636a7c797d203e84c704e7295c4df71b9a8847deba.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-502b4847dbba8730e3f3e120c7301666832e64fdd6d21d19cecb95cb97e8beaa.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-25f98a9de258e6ac7b978428c49d9f57840581bbe3bc23487704d959bfed6391.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-review-identity-72431485c6cb4abde67e7d16a0a94052c47ed973677645813a63b2cc90d0d227.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-merge-20261004.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-mainproof-20261004.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-tick-20261004.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-logs-20261004.json"
       ]
     }
   ],

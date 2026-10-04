@@ -163,6 +163,10 @@ function fixture(): IFixture {
   // Mutations below are deliberate fixture setup, never canonical ledger edits.
   unit.taskKeys = [];
   unit.reviewClasses = ['routine'];
+  unit.state = 'planned';
+  unit.baseline = null;
+  unit.prHead = null;
+  unit.mergeSha = null;
   unit.stageReceipts = {
     admission: null,
     red: null,

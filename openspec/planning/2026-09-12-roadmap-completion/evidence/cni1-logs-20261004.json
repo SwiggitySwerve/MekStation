@@ -1,0 +1,75 @@
+{
+  "unit": "CNI1",
+  "date": "20261004",
+  "at": "2026-10-04T10:15:07.888Z",
+  "runDir": "../cni1-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni1-20261003-01a0febd/closure-preparation-20261004/proof",
+  "preservedDir": "../../MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/cni3a-private-closure-log-custody-20261004/CNI1-20261004",
+  "files": [
+    {
+      "file": "build.log",
+      "bytes": 7081,
+      "sha256": "1bdfaddf4749d2c91266d4eeca8d07d66fa58a20879f460ff004a63ea235ac3a"
+    },
+    {
+      "file": "git-check.log",
+      "bytes": 76,
+      "sha256": "e604fb1b5bb7eaad75730f7fa89375caac87dca6de9d0ef566f3f34fae7c3357"
+    },
+    {
+      "file": "github.log",
+      "bytes": 76,
+      "sha256": "e604fb1b5bb7eaad75730f7fa89375caac87dca6de9d0ef566f3f34fae7c3357"
+    },
+    {
+      "file": "next.log",
+      "bytes": 5,
+      "sha256": "e99e17bac5f767eec0124459c86411ad5efa05b7d82b738f57a7d201b2c30650"
+    },
+    {
+      "file": "openspec-strict.log",
+      "bytes": 6811,
+      "sha256": "9ca58d5988581dd3de39d1f251ab3b4e85271cd35e067c898bb258ce7748a181"
+    },
+    {
+      "file": "playwright.log",
+      "bytes": 793,
+      "sha256": "7d3fb2b807f71536d9f9f15a3e96a3da2f73b6fd7999c4c140db7960fe197ff0"
+    },
+    {
+      "file": "qc-openspec-ci.log",
+      "bytes": 191,
+      "sha256": "21c1181842878b6c171cc9f496ad0f18fdaf7636c2d91ecc439a1da7b51589e6"
+    },
+    {
+      "file": "qc-pin.log",
+      "bytes": 499,
+      "sha256": "c586c772ded3048491dee17a3f529bb9366dfa9918aac61ee474b016f6879389"
+    },
+    {
+      "file": "sha256.txt",
+      "bytes": 958,
+      "sha256": "e1a9f812c9b4cc40b14c6f7d14745c9c8440b9547fbbbef4bae80ba77af82309"
+    },
+    {
+      "file": "smoke.log",
+      "bytes": 4135,
+      "sha256": "d936b59d324d665c2d1cf94da2e832ab51c80e7d5bb140c86b83ae9b085f7f05"
+    },
+    {
+      "file": "tsc.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "validator-historical.log",
+      "bytes": 76,
+      "sha256": "e604fb1b5bb7eaad75730f7fa89375caac87dca6de9d0ef566f3f34fae7c3357"
+    },
+    {
+      "file": "validator.log",
+      "bytes": 76,
+      "sha256": "e604fb1b5bb7eaad75730f7fa89375caac87dca6de9d0ef566f3f34fae7c3357"
+    }
+  ],
+  "bytes": 20777
+}
