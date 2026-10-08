@@ -1,0 +1,101 @@
+{
+  "unit": "CNI0",
+  "stage": "mainProof",
+  "at": "2026-10-08T11:26:26.315Z",
+  "mergeCommit": "83525164532b61ef5af18937a635dc53bde2591a",
+  "checkout": "exact historical merged835 checkout",
+  "runtime": {
+    "build": "Historical own835 npm run build exited0, from 2026-10-03T22:50:32.402Z through 2026-10-03T22:53:38.683Z; original stdout and stderr retained without repetition.",
+    "e2eBundleMarker": "Historical own835 bundle marker: 2296288 bytes, SHA256 e32105fc0987d32ddd3b940c094738533caa3ffa2e3c7df08280fab663f7d86f; build artifact identity only.",
+    "playwright": "own835 Jest unit pin: conditional15-test command; observer REFUSED: Tests:       15 passed, 15 total",
+    "tsc": "Successful readonly type command belongs to current producer d68858607928f50f4fe30b56481f26b8618a6fc1 on 2026-10-08. No own835 type execution is claimed.",
+    "retainedComponents": {
+      "build": {
+        "subject": "83525164532b61ef5af18937a635dc53bde2591a",
+        "eventDate": "2026-10-03",
+        "parentWitness": {
+          "path": "E:/Projects/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/cni0-own835-build-parent-final-witness.json",
+          "bytes": 6011,
+          "sha256": "bdac278978d15e7a921a07051d2c4e2eb3a45597f2ca971a8f553ddb8bcfab92"
+        }
+      },
+      "strictSmoke": {
+        "subject": "83525164532b61ef5af18937a635dc53bde2591a",
+        "eventAt": "2026-10-04T00:33:49.138Z",
+        "passed": 3,
+        "failed": 0,
+        "parentWitness": {
+          "path": "E:/Projects/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/cni0-own835-ladder-parent-final-witness.json",
+          "bytes": 13283,
+          "sha256": "e7a471e201a80621347a60058428a0409ec85a4e68497848e18535976dbecf6d"
+        }
+      },
+      "defaultGmQc": {
+        "subject": "83525164532b61ef5af18937a635dc53bde2591a",
+        "eventStart": "2026-10-04T01:12:48.555Z",
+        "eventEnd": "2026-10-04T01:13:39.141Z",
+        "suites": 2,
+        "passed": 30,
+        "failed": 0,
+        "pending": 0,
+        "parentWitness": {
+          "path": "E:/Projects/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/cni0-own835-default-gm-parent-final-witness.json",
+          "bytes": 14243,
+          "sha256": "ba64d11866e7d76fd05fd7cda1e9a28bbac38984996a1a26d59fbbfe75f9e579"
+        }
+      }
+    },
+    "jestObserver": {
+      "status": "REFUSED",
+      "aggregatePass": false,
+      "fixtureIdentityQualified": false,
+      "unknownCallbacks": 93,
+      "controllerExit": 1,
+      "conditionalJest": {
+        "subject": "83525164532b61ef5af18937a635dc53bde2591a",
+        "start": "2026-10-03T21:22:58.244Z",
+        "end": "2026-10-03T21:23:10.047Z",
+        "exit": 0,
+        "passed": 15,
+        "total": 15
+      },
+      "parentWitness": {
+        "path": "E:/Projects/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/cni0-own835-runtime-component-parent-final-witness.json",
+        "bytes": 30805,
+        "sha256": "56cf87cea8bc1cd46fb43ef6f790ddcc0803f4acec08574e01b058c26e0aff7f"
+      }
+    },
+    "completionLimits": [
+      "Conditional15 pin is one qualified command, not recovered complete observer or fullE2E80",
+      "Historical runtime dates and subjects retained; current A type subject distinct",
+      "Formatter EXCLUDED_NOT_PASS remains unchanged",
+      "This extension is Root evidence attribution, not fresh runtime or canonical debt discharge"
+    ],
+    "canonicalDebt": "OPEN"
+  },
+  "commands": {
+    "validator": "ROADMAP VALIDATION PASSED: 79 nodes, 13 packages, 381 tasks, 40 triage rows",
+    "gitAncestry": "ROADMAP VALIDATION PASSED: 79 nodes, 13 packages, 381 tasks, 40 triage rows (--git)",
+    "next": "U24b",
+    "openspecStrict": "Totals: 229 passed, 0 failed (229 items)",
+    "qcOpenspecCi": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+    "qcPin": "Tests:       15 passed, 15 total"
+  },
+  "logs": "../cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-private-closure-20261008-path-r2-01a0febd/proof/ (local; sha256 below)",
+  "logHashes": [
+    "8ecc11edfe12da5f440534c76a03fa96872970ec287b334bc98451089e6bb2ee  playwright.log",
+    "e604fb1b5bb7eaad75730f7fa89375caac87dca6de9d0ef566f3f34fae7c3357  validator.log",
+    "e604fb1b5bb7eaad75730f7fa89375caac87dca6de9d0ef566f3f34fae7c3357  git-check.log",
+    "e99e17bac5f767eec0124459c86411ad5efa05b7d82b738f57a7d201b2c30650  next.log",
+    "9ca58d5988581dd3de39d1f251ab3b4e85271cd35e067c898bb258ce7748a181  openspec-strict.log",
+    "21c1181842878b6c171cc9f496ad0f18fdaf7636c2d91ecc439a1da7b51589e6  qc-openspec-ci.log",
+    "8ecc11edfe12da5f440534c76a03fa96872970ec287b334bc98451089e6bb2ee  qc-pin.log",
+    "8eb84541b18ecb56ffaba1e1c6271a968fe3f0886f5f8fda1fec8614f9f910f1  build.log",
+    "0f2093e1ff8bfb048afa3772bec7877debd4ce20097edbd36b46af2ff350c79f  build.stderr.log",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  current-a-tsc.stdout",
+    "2e945f2af5ca3fb42082c0c85a131492297583885e8458f10e3b22cdb43887a1  log-source-map.json",
+    "e8979e8700db3222cab412b5a35475e88e09e8cccaa9c77dd8f35c3cec4c0ae3  component-disclosure.json",
+    "636eaf33f3c0a50b08e3ec33487fd19df1bdc13aed4b8b4720bce34eb2d3ad2a  extra-runtime.json"
+  ],
+  "verdict": "PASS"
+}

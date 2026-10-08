@@ -1,0 +1,80 @@
+{
+  "unit": "CNI0",
+  "date": "20261008",
+  "at": "2026-10-08T11:27:57.324Z",
+  "runDir": "../cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-private-closure-20261008-path-r2-01a0febd/proof",
+  "preservedDir": "../../MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/cni3c-preserved-closure-logs-20261008/CNI0-20261008",
+  "files": [
+    {
+      "file": "build.log",
+      "bytes": 7153,
+      "sha256": "8eb84541b18ecb56ffaba1e1c6271a968fe3f0886f5f8fda1fec8614f9f910f1"
+    },
+    {
+      "file": "build.stderr.log",
+      "bytes": 3172569,
+      "sha256": "0f2093e1ff8bfb048afa3772bec7877debd4ce20097edbd36b46af2ff350c79f"
+    },
+    {
+      "file": "component-disclosure.json",
+      "bytes": 4803,
+      "sha256": "e8979e8700db3222cab412b5a35475e88e09e8cccaa9c77dd8f35c3cec4c0ae3"
+    },
+    {
+      "file": "current-a-tsc.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "extra-runtime.json",
+      "bytes": 3088,
+      "sha256": "636eaf33f3c0a50b08e3ec33487fd19df1bdc13aed4b8b4720bce34eb2d3ad2a"
+    },
+    {
+      "file": "git-check.log",
+      "bytes": 76,
+      "sha256": "e604fb1b5bb7eaad75730f7fa89375caac87dca6de9d0ef566f3f34fae7c3357"
+    },
+    {
+      "file": "log-source-map.json",
+      "bytes": 18187,
+      "sha256": "2e945f2af5ca3fb42082c0c85a131492297583885e8458f10e3b22cdb43887a1"
+    },
+    {
+      "file": "next.log",
+      "bytes": 5,
+      "sha256": "e99e17bac5f767eec0124459c86411ad5efa05b7d82b738f57a7d201b2c30650"
+    },
+    {
+      "file": "openspec-strict.log",
+      "bytes": 6811,
+      "sha256": "9ca58d5988581dd3de39d1f251ab3b4e85271cd35e067c898bb258ce7748a181"
+    },
+    {
+      "file": "playwright.log",
+      "bytes": 1466,
+      "sha256": "8ecc11edfe12da5f440534c76a03fa96872970ec287b334bc98451089e6bb2ee"
+    },
+    {
+      "file": "qc-openspec-ci.log",
+      "bytes": 191,
+      "sha256": "21c1181842878b6c171cc9f496ad0f18fdaf7636c2d91ecc439a1da7b51589e6"
+    },
+    {
+      "file": "qc-pin.log",
+      "bytes": 1466,
+      "sha256": "8ecc11edfe12da5f440534c76a03fa96872970ec287b334bc98451089e6bb2ee"
+    },
+    {
+      "file": "sha256.txt",
+      "bytes": 1073,
+      "sha256": "7793381fd526b466b084a4b4dd06e29f37c033bd2000e679a353cd810627197a"
+    },
+    {
+      "file": "validator.log",
+      "bytes": 76,
+      "sha256": "e604fb1b5bb7eaad75730f7fa89375caac87dca6de9d0ef566f3f34fae7c3357"
+    }
+  ],
+  "bytes": 3216964
+}

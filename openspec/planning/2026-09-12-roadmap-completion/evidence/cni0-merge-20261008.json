@@ -1,0 +1,23 @@
+{
+  "unit": "CNI0",
+  "stage": "merge",
+  "at": "2026-10-08T11:26:26.314Z",
+  "pr": 2114,
+  "title": "docs(roadmap): register Codex-native execution prerequisite",
+  "head": "ac84f0e9e9faf493ecad03b099b55660885e9e13",
+  "mergeSha": "83525164532b61ef5af18937a635dc53bde2591a",
+  "mergedAt": "2026-10-03T04:57:56Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "original single-parent squash",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "treeIntegration": {
+    "parent": "2fe46eaae9de7be054395021c9dc89dc6798293c",
+    "mergeBases": [
+      "2fe46eaae9de7be054395021c9dc89dc6798293c"
+    ],
+    "expectedTree": "58b54ce13414655e43da3acd4ee22b5191d5933d",
+    "actualTree": "58b54ce13414655e43da3acd4ee22b5191d5933d",
+    "matches": true
+  }
+}
