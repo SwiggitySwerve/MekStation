@@ -5298,7 +5298,16 @@
         "openspec/planning/2026-09-12-roadmap-completion/units.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cc-admission-20261002.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cc-red-20261002.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cc-local-20261002.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cc-local-20261002.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cc-lane-a-review-20261002.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cc-review-20261002.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cc-merge-20261002.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cc-mainproof-20261002.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cc-tick-20261002.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/identity-cc61b5aa54b319aa8c200b51584122e986cea07ae5905929d261d086974325d5.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/identity-dd35f38fbd91c7a70033df906af7633d2f916defd04576121bf467da54754360.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/review-identity-bac0b59a0096cacf5c70d83c1fc603e08209a94e7b31d2dda38a9b7d5ed063e4.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cc-logs-20261002.json"
       ],
       "lifecycleOwnershipLimit": "Prospective own-P2CC lifecycle/state/baseline/head/merge/stage-receipt and bound authentic actor-census fields only, effective after this registration receives independent exact-head review, all 31 required CI checks, parent pinned merge and independent exact-main proof. No other-unit, packet, holder, behavior, ownership, cap, prerequisite, historical receipt or P2-release edits. Any canonical packet change requires separately authorized actual parent-ruling/closure scope. Two normative source files and this lifecycle file count together within maxFiles3 and the unchanged 300 added non-generated-line cap; shared-file additions count, with no capException or broad node grant. No current lifecycle receipt or PASS is manufactured.",
       "ciClass": "product",
@@ -5310,7 +5319,7 @@
         "concurrency"
       ],
       "caps": {
-        "maxFiles": 6,
+        "maxFiles": 10,
         "maxNonGeneratedLines": 300
       },
       "state": "local-verified",
@@ -5373,6 +5382,40 @@
         "effectiveOnlyAfter": "Independent exact-head registration review, all31CI, standing parent ruling, parent pinned merge, all required postmerge workflows, independent exact-main registration proof and genuine owned teardown; parent alone accepts Task70 and re-admits Task67.",
         "prospectiveAccounting": "Supersedes only Task66's three-total-file accounting sentences in behavior, lifecycleOwnershipLimit and admissionRequires after acceptance: two unchanged named normative source paths, exact own-lifecycle units.json and the three appended own canonical admission/red/local-20261002.json receipt paths count as six actual files. Ordinary maxFiles6/maxNonGeneratedLines300; lifecycle metadata additions count in300 and canonical evidence additions are separately reported under unchanged shipped line accounting. No file-count exemption, capException or broad directory grant.",
         "publicationLimit": "Only authentic own-P2CC admission/red/local receipts at the three exact appended paths; no other date, stage, identity archive, source path, other-unit, packet, holder, prerequisite, history, behavior or P2-release edit. Existing lifecycle subtree restriction and all five review classes remain binding. No source fold, admission, stage receipt, PASS, P2C registration or P2/U38 release is supplied by this amendment."
+      },
+      "closurePublication20261002": {
+        "planTask": 71,
+        "registrationBaseline": "014cc79b23b1b132895cdc3090a3f827993f3b15",
+        "recordedAt": "2026-10-08",
+        "closureDate": "20261002",
+        "evidence": "evidence/p2cc-closure-publication-registration-20261002.json",
+        "effectiveOnlyAfter": "Independent exact-head registration review, all current required CI checks (31 at registration), standing parent ruling, parent pinned merge, required postmerge workflows, independent exact-main registration proof, preserved evidence custody and scoped owned-resource cleanup. Separate authentic closure admission remains required; NEXT is selection only.",
+        "prospectiveAccounting": "Only separately admitted modern closure uses ordinary maxFiles10: exact own units.json plus the nine appended literal closure targets. Preserve the historical six-file source/three-receipt grant and all its text and evidence. The unchanged unit300 added non-generated-line limit remains stricter than R6 node15files/500lines. Evidence additions remain separately reported, but every evidence file counts in the actual ten-file census. No capException, wildcard, directory grant or file-count exemption.",
+        "sourceHead": "da253299d4f1bdc621f1bad6553cb901bdd96c6b",
+        "sourceMerge": "2fe46eaae9de7be054395021c9dc89dc6798293c",
+        "frozenIdentity": {
+          "authorSha256": "cc61b5aa54b319aa8c200b51584122e986cea07ae5905929d261d086974325d5",
+          "reviewerSha256": "dd35f38fbd91c7a70033df906af7633d2f916defd04576121bf467da54754360",
+          "manifestBytes": 740,
+          "manifestSha256": "bac0b59a0096cacf5c70d83c1fc603e08209a94e7b31d2dda38a9b7d5ed063e4"
+        },
+        "futureLifecycleFields": [
+          "state",
+          "prHead",
+          "mergeSha",
+          "stageReceipts.review",
+          "stageReceipts.merge",
+          "stageReceipts.mainProof",
+          "stageReceipts.tick"
+        ],
+        "futurePacketRecordingScope": {
+          "packet": "PK-p2cc-ruling",
+          "fields": ["decision", "ruling"],
+          "actualSourceHead": "da253299d4f1bdc621f1bad6553cb901bdd96c6b",
+          "actualParentComment": 5960557830,
+          "notPopulatedByRegistration": true
+        },
+        "publicationLimit": "The nine exact D20261002 paths and authentic own closure lifecycle fields only. Future packet recording may faithfully incorporate the actual source-head parent comment5960557830 into only PK-p2cc-ruling decision/ruling; every other packet/holder field is protected. Preserve original source actors, baseline, admission/red/local receipts, census, task keys and other units/root fields. Changed date/hash needs a reviewed exact-name amendment. No closure artifact, ruling, PASS, completion, P2C registration or P2/U38 release is supplied here."
       }
     },
     {
