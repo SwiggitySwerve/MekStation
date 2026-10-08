@@ -1,0 +1,34 @@
+{
+  "unit": "P2CC",
+  "stage": "mainProof",
+  "at": "2026-10-08T22:44:49.138Z",
+  "mergeCommit": "2fe46eaae9de7be054395021c9dc89dc6798293c",
+  "checkout": "accepted historical exact2fe source proof; current closure metadata owned independently",
+  "runtime": {
+    "build": "<s> [webpack.Progress] 94% sealing after seal WellKnownErrorsPlugin",
+    "e2eBundleMarker": "not stated by the closer",
+    "playwright": "source-contract (historical Jest): Tests:       52 passed, 52 total",
+    "tsc": "> tsc --noEmit --skipLibCheck"
+  },
+  "commands": {
+    "validator": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows",
+    "gitAncestry": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows (--git)",
+    "next": "U24b",
+    "openspecStrict": "Totals: 229 passed, 0 failed (229 items)",
+    "qcOpenspecCi": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+    "qcPin": "(no log)"
+  },
+  "logs": "../../.omo/evidence/task4-p2cc-closure-20261008-01a0febd/closure-input-logs/ (local; sha256 below)",
+  "logHashes": [
+    "5d4e2632ad433b598282457f50f016260282736419f55973bd91f704a9ef25a1  validator.log",
+    "5d4e2632ad433b598282457f50f016260282736419f55973bd91f704a9ef25a1  git-check.log",
+    "e99e17bac5f767eec0124459c86411ad5efa05b7d82b738f57a7d201b2c30650  next.log",
+    "0f108407fd7e8df1e11d1749682d984df5509504e47416de22fb09eb40e90539  playwright.log",
+    "32cb6d45d3ae0c016972db690f750faf2112f2f540e4da318cae63d64cd44125  build.log",
+    "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f  tsc.log",
+    "f3675c62768e79a29e8e9fc9bf083f0578c5c83de8715b72eae2eb88432494a1  openspec-strict.log",
+    "4c2dafd093b946290aa4abe001ad8b3d65671b17c7682722c55a510ecc04f91e  qc-openspec-ci.log",
+    "54c8ff2bc57afe9d63fdf4c759924dd5770942b1182212f3d3593bb50d002515  provenance.json"
+  ],
+  "verdict": "PASS"
+}

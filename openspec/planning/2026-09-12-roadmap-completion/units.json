@@ -5322,10 +5322,10 @@
         "maxFiles": 10,
         "maxNonGeneratedLines": 300
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "20dc4859da6542fc2c5f659e3bc5b68fb7d0fbf7",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "da253299d4f1bdc621f1bad6553cb901bdd96c6b",
+      "mergeSha": "2fe46eaae9de7be054395021c9dc89dc6798293c",
       "stageReceipts": {
         "admission": {
           "path": "evidence/p2cc-admission-20261002.json",
@@ -5353,10 +5353,37 @@
             }
           ]
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/p2cc-review-20261002.json",
+          "head": "da253299d4f1bdc621f1bad6553cb901bdd96c6b",
+          "reviewedHead": "da253299d4f1bdc621f1bad6553cb901bdd96c6b",
+          "reviewerModel": "chatgpt-subscription/gpt-6.1-sol",
+          "implementerModel": "chatgpt-subscription/gpt-6.1-sol",
+          "outputSha256": "01fbc66fb44a72baa35cf426720e98fb262ba1170aaf1cbe9c305f72c2506111",
+          "verdict": "APPROVE",
+          "reviewContractVersion": 2,
+          "identityEvidence": {
+            "path": "evidence/review-identity-bac0b59a0096cacf5c70d83c1fc603e08209a94e7b31d2dda38a9b7d5ed063e4.json",
+            "sha256": "bac0b59a0096cacf5c70d83c1fc603e08209a94e7b31d2dda38a9b7d5ed063e4",
+            "bytes": 740
+          }
+        },
+        "merge": {
+          "path": "evidence/p2cc-merge-20261002.json",
+          "pr": 2112,
+          "head": "da253299d4f1bdc621f1bad6553cb901bdd96c6b",
+          "mergeSha": "2fe46eaae9de7be054395021c9dc89dc6798293c"
+        },
+        "mainProof": {
+          "path": "evidence/p2cc-mainproof-20261002.json",
+          "mergeCommit": "2fe46eaae9de7be054395021c9dc89dc6798293c",
+          "verdict": "PASS",
+          "runtime": "Tests:       52 passed, 52 total"
+        },
+        "tick": {
+          "path": "evidence/p2cc-tick-20261002.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "admissionRequires": "Registration requires independent exact-head review, all 31 required CI checks, parent-only pinned merge and independent exact-main registration proof before source admission or the prospective own-lifecycle exception becomes effective. Parent freshly verifies P2B, PAIC, P2A and audited PRI complete with PASS mainProof receipts, closure and merge ancestry on fetched origin/main, exact existing R6.umbrella ownership and no in-flight overlap. Selection is not admission; NEXT does not enforce documentary unit predecessors. The source candidate must remain limited to the named requirement and design crosswalk plus authentic own-P2CC lifecycle metadata under ordinary three-total-file/300-counted-added-line caps, preserve convergence/N+1/privacy rules and choose no guessed storage representation. The exact units.json ownership exception is documentary-limited by lifecycleOwnershipLimit; it grants no other-unit, packet, holder, prerequisite, historical receipt, product path or P2-release edit. PK-p2cc-ruling stays decision-free until an independently approved green exact source head exists; source delivery retains audited independent identity, required CI, exact-head standing parent owner-ruling, --github, pinned merge, exact-main PASS and truthful closure gates. P2 remains blocked after P2CC closure: a separately registered and implemented current-lineage convergence repair with exact-main PASS, ancestry and closure is also required before parent release. P2C is not registered by this increment. Any additional path, source-contract scope, storage/schema ownership or cap requires a separately reviewed registration amendment.",
@@ -5410,7 +5437,10 @@
         ],
         "futurePacketRecordingScope": {
           "packet": "PK-p2cc-ruling",
-          "fields": ["decision", "ruling"],
+          "fields": [
+            "decision",
+            "ruling"
+          ],
           "actualSourceHead": "da253299d4f1bdc621f1bad6553cb901bdd96c6b",
           "actualParentComment": 5960557830,
           "notPopulatedByRegistration": true
@@ -11539,8 +11569,19 @@
       ],
       "agentRecommendation": "Rule only a future independently approved green source head preserving authenticated current-lineage application, durable baseline recovery and privacy. This registration contains no source head or owner decision; standing parent authority is unchanged.",
       "revertCost": "Low: revert the future two-file source-contract change; no product or persisted data change belongs to P2CC, and P2 remains blocked.",
-      "decision": null,
-      "ruling": null
+      "decision": {
+        "option": "rule the exact source head",
+        "at": "2026-10-02T20:05:50Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2112#issuecomment-5960557830"
+      },
+      "ruling": {
+        "ruledHead": "da253299d4f1bdc621f1bad6553cb901bdd96c6b",
+        "pr": 2112,
+        "commentId": 5960557830,
+        "author": "SwiggitySwerve",
+        "bodySha256": "49caaf9e75093f46ef597fc1f6418195d1ae6075f3828e7f21b1a788a50e37b2"
+      }
     },
     {
       "id": "PK-p2bc-ruling",
