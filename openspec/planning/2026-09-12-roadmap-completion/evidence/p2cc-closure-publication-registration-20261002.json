@@ -1,0 +1,68 @@
+{
+  "event": "p2cc-closure-publication-registration",
+  "planTask": 71,
+  "currentPlanTask": 3,
+  "unit": "P2CC",
+  "registrationOnly": true,
+  "recordedAt": "2026-10-08",
+  "retainedArtifactDate": "20261002",
+  "baseline": "014cc79b23b1b132895cdc3090a3f827993f3b15",
+  "originalGrant": "E:/Projects/MekStation/.omo/ulw-execute/handoffs/task-71-p2cc-closure-publication-registration-admitted-20261002.json",
+  "currentAdmission": "E:/Projects/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task3-execution-admission-20261008.json",
+  "verifiedTargetWitness": "E:/Projects/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task2-parent-witness-20261008.json",
+  "registrationActor": {
+    "agentPath": "/root/task3_registration_writer",
+    "nativeSession": "01a11d56-fe42-7a01-bfbb-72e27780dd4c",
+    "parentSession": "01a0febd-d278-7081-aeca-2343ba7af891",
+    "provider": "cliproxy",
+    "model": "gpt-6.1-sol",
+    "effort": "high"
+  },
+  "identityBoundary": "Current Codex registration successor only. Original source author/reviewer identities retain their historical chatgpt-subscription model/provider bindings and are not replaced, aliased or adopted by this actor.",
+  "prospectiveDelta": {
+    "exactTargetOwner": "units.json P2CC.ownershipExceptions: nine appended literal paths only",
+    "maxFilesFrom": 6,
+    "maxFilesTo": 10,
+    "application": "Separately admitted modern closure after registration delivery acceptance",
+    "unchangedMaxNonGeneratedLines": 300,
+    "unchangedOwnerNodeMaxFiles": 15,
+    "actualClosureFiles": 10,
+    "actualClosureCensus": "Exact units.json plus the nine literal future artifacts; no artifacts are created by registration",
+    "manifestBytes": 740,
+    "manifestSha256": "bac0b59a0096cacf5c70d83c1fc603e08209a94e7b31d2dda38a9b7d5ed063e4",
+    "otherEightTargetNames": "unchanged from admitted Task71 grant and verified Task2 target comparison",
+    "noCapException": true,
+    "noBroadGrant": true,
+    "historicalSixFileSourceGrant": "unchanged; source125 counted additions and156 evidence additions remain historical"
+  },
+  "futurePacketRecordingScope": {
+    "packet": "PK-p2cc-ruling",
+    "fields": ["decision", "ruling"],
+    "actualSourceHead": "da253299d4f1bdc621f1bad6553cb901bdd96c6b",
+    "actualParentComment": 5960557830,
+    "notPopulatedByRegistration": true,
+    "allOtherPacketAndHolderFieldsProtected": true
+  },
+  "preservation": {
+    "P2CCState": "local-verified",
+    "P2CCBaseline": "20dc4859da6542fc2c5f659e3bc5b68fb7d0fbf7",
+    "P2CCHeadMergeAndFinalStages": "prHead/mergeSha/review/merge/mainProof/tick remain null",
+    "originalAdmissionRedLocalActorsCensus": "unchanged",
+    "historicalRegistrationsAndExceptions": "unchanged",
+    "allOtherUnitsRootPacketsHoldersAndSourceFiles": "unchanged",
+    "PKp2ccDecisionAndRuling": "both null"
+  },
+  "registrationBudget": {
+    "actualFiles": 3,
+    "maxCountedAddedLines": 150,
+    "evidenceAdditionsSeparatelyReported": true,
+    "everyEvidenceFileCounts": true
+  },
+  "delivery": "Independent exact-head registration review, all current required CI checks (31 at registration), standing parent ruling, parent pinned merge, required postmerge workflows, independent exact-main registration proof, preserved evidence custody and scoped owned-resource cleanup remain required. Separate authentic closure admission is mandatory; NEXT cannot supply it.",
+  "dateAndHashBoundary": "D20261002 is retained under the original truthful admission and corrected target witness. A changed date/hash or serialization requires a reviewed exact-name amendment, never a wildcard or directory grant.",
+  "Task71Complete": false,
+  "P2CCClosurePublished": false,
+  "P2CRegistered": false,
+  "P2Admitted": false,
+  "U38Admitted": false
+}
