@@ -698,11 +698,30 @@
           "actual exact-Main proof, full byte reopen/public consumption and owned custody/cleanup"
         ],
         "freezeRule": "Before public writes/review/merge, freeze literal actual paths/bytes/SHA256/full physical lines/raw diff/concern, exclusive writer and predecessor evidence in bounded owned unit/node component metadata consistent with this contract. Naming vocabulary is never wildcard authority.",
-        "status": null,
-        "owner": null,
-        "admission": null,
+        "status": "admitted-prior-agreement",
+        "owner": "/root/cni3d_agreement_writer",
+        "admission": {
+          "at": "2026-10-08T18:54:03.506Z",
+          "authority": {
+            "path": "E:/Projects/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/cni3d-execution-admission-20261008.json",
+            "bytes": 5630,
+            "sha256": "b56300f5d7a8840a24406b70dd0fb5929d02402984791da38b29ff3e37c2ae5e",
+            "physicalLines": 110,
+            "scope": "Root exclusive three-file writer admission after authentic predecessor cleanup."
+          },
+          "base": "01373be6e7e7c35070600e13fccb05941ddd5d59",
+          "branch": "codex/cni3d-prior-component-agreement-20261008",
+          "writer": "/root/cni3d_agreement_writer",
+          "exactPaths": [
+            "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+            "openspec/planning/2026-09-12-roadmap-completion/evidence/cni-registration-20261002.json"
+          ]
+        },
         "frozenEvidenceFiles": [],
-        "predecessorProof": null,
+        "predecessorProof": {
+          "agreementRef": "evidence/cni-registration-20261002.json#ordinaryPublicationMilestones.nativeDebtDischarge"
+        },
         "delivery": null,
         "behavior": "Prior-component debt agreement and ordinary discharge milestone",
         "dependsOn": [
@@ -717,17 +736,307 @@
         ],
         "evidenceCategories": [],
         "sourceUnit": null,
-        "outcome": "Agreement uses authentic already observed component proof; own future Main remains unclaimed; original Task1 fetched-current-Main qualification remains separate."
+        "outcome": "Agreement uses authentic already observed component proof; own future Main remains unclaimed; original Task1 fetched-current-Main qualification remains separate.",
+        "canonicalOutcome": "Prior public CNI0/CNI1 acceptance and CNI3B/CNI3C actual publication lifecycles are agreed by the referenced milestone; own delivery and debt discharge remain pending.",
+        "measurementsRef": ".omo/evidence/CNI3D-source-20261008/candidate-freeze.json",
+        "measurementRule": "External private full candidate byte/SHA256/physical-line/raw diff/concern freeze under admitted planningSizing; avoids planning self-hash cycles. No line-budget discharge or executable sizing gate is claimed."
       }
     }
   },
   "ordinaryPublicationMilestones": {
     "nativeDebtDischarge": {
-      "status": null,
-      "componentProofs": null,
-      "canonicalAcceptance": null,
+      "status": "prior-components-agreed",
+      "componentProofs": {
+        "CNI3B": {
+          "status": "observed-complete",
+          "pr": 2126,
+          "source": "46e7babf6d2e62b39ecceb57951aa7023fb5c57a",
+          "merge": "520ac2c76dab614635263f64081bd4f28ac2d225",
+          "tree": "cbde7f121ac2d567294db98326cef03257376154",
+          "observedAt": "2026-10-04T15:47:50.704Z",
+          "mainProof": {
+            "path": "E:/Projects/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/preserved-cni3b-main-20261004/payload/evidence/CNI3B-main-20261004-01a0febd/proof.json",
+            "bytes": 79462,
+            "sha256": "738652a5e0ca4d7294230d7fec072f7feb53516177812b35407aa6962686ae53",
+            "physicalLines": 1184,
+            "scope": "Actual PR2126 Main, complete public CNI1 consumption, authority/privacy review and head-bound ruling/31 CI inputs, full argv/direct exits/streams, portable62 and corrupt/stale refused-restored controls."
+          },
+          "archive": {
+            "path": "E:/Projects/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/preserved-cni3b-main-20261004/payload/evidence/CNI3B-main-20261004-01a0febd/evidence-manifest.json",
+            "bytes": 1511221,
+            "sha256": "b3b0300ed922e4c3283c7823f358f379a1fca1ca14b7b61d1956e802f37f533e",
+            "physicalLines": 46672,
+            "scope": "All4231 retained manifest rows directly reopened; preserved original subjects, failures and scope."
+          },
+          "mainWitness": {
+            "path": "E:/Projects/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/cni3b-main-parent-witness.json",
+            "bytes": 1380,
+            "sha256": "5c0e7a3230f9b338614532979b6d8dca405d499bcab25428cdcf973d41167c63",
+            "physicalLines": 32,
+            "scope": "Closed predecessor record; latest final cleanup supersedes its earlier pending snapshots."
+          },
+          "sourceCustody": {
+            "path": "E:/Projects/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/cni3b-source-custody-parent-witness.json",
+            "bytes": 619,
+            "sha256": "495f45b50af5394f2ed3977634d7a884033ff0063df40588927fdb9a5fac22df",
+            "physicalLines": 17,
+            "scope": "Closed predecessor record; latest final cleanup supersedes its earlier pending snapshots."
+          },
+          "mainCustody": {
+            "path": "E:/Projects/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/cni3b-main-custody-parent-witness.json",
+            "bytes": 325,
+            "sha256": "59cc41c103137296217b88c4eb82d8c51beb08c24b0b81d719515945e326bb35",
+            "physicalLines": 1,
+            "scope": "Closed predecessor record; latest final cleanup supersedes its earlier pending snapshots."
+          },
+          "cleanup": {
+            "path": "E:/Projects/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/cni3b-final-cleanup-audit.json",
+            "bytes": 1050,
+            "sha256": "6f2585ade1596df26baaeb98129b763ad875486d3bcc32ab1fb0961c60a8bacb",
+            "physicalLines": 33,
+            "scope": "Closed predecessor record; latest final cleanup supersedes its earlier pending snapshots."
+          },
+          "qualification": "Exact-head review/ruling and31 required successful CI are retained in mainProof.prerequisites with full inputs; whole integration tree equals Source. Independent Root witness reopened actual complete streams and native/App proof. Older pending flags are historical. Detached controller OS exit and short-lived descendants remain unqualified as recorded; no new or repeated suite claim."
+        },
+        "CNI3C": {
+          "status": "observed-complete",
+          "pr": 2128,
+          "source": "251a48987dff231dd6e28c2c44a8bd45ef524c06",
+          "merge": "01373be6e7e7c35070600e13fccb05941ddd5d59",
+          "tree": "dc703cf14482c2f086e147329c760ee0a35b4ab5",
+          "observedAt": "2026-10-08T18:37:16.699Z",
+          "review": {
+            "path": "E:/Projects/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/cni3c-refreshed-review-parent-witness-20261008.json",
+            "bytes": 1923,
+            "sha256": "f21d98ea6afa9517c173c0e9159f975c7f0256c67ac81f108b1814b15166cdc1",
+            "physicalLines": 49,
+            "scope": "Closed predecessor record; latest final cleanup supersedes its earlier pending snapshots."
+          },
+          "reviewOutput": {
+            "path": "E:/Projects/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/cni3c-refreshed-exact-head-review-20261008.md",
+            "bytes": 8235,
+            "sha256": "9fd7d2e4c7a08952ebbc1c58d59b09940dc6b0b4844f313b9309c06a2baa2818",
+            "physicalLines": 53,
+            "scope": "Closed predecessor record; latest final cleanup supersedes its earlier pending snapshots."
+          },
+          "headBoundRulingAndCI": {
+            "path": "E:/Projects/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/cni3c-refreshed-premerge-output-20261008.json",
+            "bytes": 169755,
+            "sha256": "b03731549f88422ccbfe0fabb818261f83a6a87554dbb95a02ed9e7488e94f8f",
+            "physicalLines": 4370,
+            "scope": "Closed predecessor record; latest final cleanup supersedes its earlier pending snapshots."
+          },
+          "integration": {
+            "path": "E:/Projects/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/cni3c-actual-publisher-integration-20261008.raw.json",
+            "bytes": 449,
+            "sha256": "efa7844c8343618587d42bcb929c42bbe96017be5592d7a9745d486244888561",
+            "physicalLines": 1,
+            "scope": "Closed predecessor record; latest final cleanup supersedes its earlier pending snapshots."
+          },
+          "mainProof": {
+            "path": "E:/Projects/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/cni3c-custody-20261008-01a0febd/main/payload/evidence/CNI3C-main-20261008-01a0febd/result.json",
+            "bytes": 6522,
+            "sha256": "e50598a61b90196391254a58a0e7d962fff6ec546c6318b51f4f03821a52471c",
+            "physicalLines": 147,
+            "scope": "Actual PR2128 Main01373 direct public consumers, fourteen public buffers and sibling logs; complete streams at preserved paths."
+          },
+          "archive": {
+            "path": "E:/Projects/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/cni3c-custody-20261008-01a0febd/main/payload/evidence/CNI3C-main-20261008-01a0febd/manifest.json",
+            "bytes": 67958,
+            "sha256": "989b570d07a779104511e6e6917a60ca07b671d9becc7571fd35ab0fe8352282",
+            "physicalLines": 1306,
+            "scope": "All260 retained manifest rows directly reopened through disposed Main mapping."
+          },
+          "mainWitness": {
+            "path": "E:/Projects/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/cni3c-main-parent-witness-20261008.json",
+            "bytes": 8213,
+            "sha256": "24c4c6a2b77ae47be02c16d15194360e5365d32680095025cbea06262e510a3b",
+            "physicalLines": 195,
+            "scope": "Closed predecessor record; latest final cleanup supersedes its earlier pending snapshots."
+          },
+          "custodyAndCleanup": {
+            "path": "E:/Projects/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/cni3c-final-cleanup-audit-20261008.json",
+            "bytes": 7345,
+            "sha256": "df9db844beeba350d7aa28c81e408d8eb8ae0982ef7b46cb8eeacc3a903b3470",
+            "physicalLines": 190,
+            "scope": "Closed predecessor record; latest final cleanup supersedes its earlier pending snapshots."
+          },
+          "qualification": "Fresh251 exact-head authority/privacy review; actual owner-ruling6065624178/loginSwiggitySwerve/bodySHA6abc6b9239ab4b417f126ad2976e789eb1d358eec2eb400d998520cf42f17752 and31 successful required checks on251. Whole merged tree equals Source; independent Root full-byte Main/native/App reopening and later exact cleanup. Source544 observations and original timeout/controller limitations remain historical, not fresh251/Main proof."
+        }
+      },
+      "canonicalAcceptance": {
+        "CNI0": {
+          "status": "accepted-public-native-v3",
+          "source": "ac84f0e9e9faf493ecad03b099b55660885e9e13",
+          "historicalMain": "83525164532b61ef5af18937a635dc53bde2591a",
+          "stages": {
+            "admission": {
+              "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-admission-20261008.json",
+              "bytes": 6009,
+              "sha256": "2bae9dfa92845b76b1130a6d1da16634aefa1177174b8edd826b63047035879e",
+              "physicalLines": 130,
+              "scope": "Immutable historical CNI0 admission receipt."
+            },
+            "red": {
+              "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-red-20261008.json",
+              "bytes": 6836,
+              "sha256": "327f5260b69ce86dca42b00ee24b6a100e5375e770e5b834f5454f8ab9f6ffbb",
+              "physicalLines": 153,
+              "scope": "Immutable historical CNI0 red receipt."
+            },
+            "local": {
+              "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-local-20261008.json",
+              "bytes": 45474,
+              "sha256": "49bd9ef9efe86da94b3035ae13531c20f97a5bff2bd657daf935dab9176a40a8",
+              "physicalLines": 976,
+              "scope": "Immutable historical CNI0 local receipt."
+            },
+            "review": {
+              "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-review-20261008.json",
+              "bytes": 1085,
+              "sha256": "a6880c78a597da7a0c884ddc9b1ef1aab95604d05a2f23ad9cdb9326128d121c",
+              "physicalLines": 23,
+              "scope": "Immutable historical CNI0 review receipt."
+            },
+            "merge": {
+              "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-merge-20261008.json",
+              "bytes": 759,
+              "sha256": "2ec47cff0c30d36b4260cb35935f991cf858663f7acc5914e063bea4999791d7",
+              "physicalLines": 23,
+              "scope": "Immutable historical CNI0 merge receipt."
+            },
+            "mainProof": {
+              "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-mainproof-20261008.json",
+              "bytes": 5502,
+              "sha256": "f5f86879b419a4d54c1cf24ffd94489b02e07ee2b53e3c4a68abe0e2aa3062b3",
+              "physicalLines": 101,
+              "scope": "Immutable historical CNI0 mainProof receipt."
+            },
+            "tick": {
+              "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-tick-20261008.json",
+              "bytes": 211,
+              "sha256": "6fae024d1017612804034c5ae99b3548fe36fd6720461bb835f50fc2b2e519ef",
+              "physicalLines": 8,
+              "scope": "Immutable historical CNI0 tick receipt."
+            }
+          },
+          "identity": {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-review-identity-99b825a348d9584e30375147395f2f9db6128c0140bda982f267b85ffe312311.json",
+            "bytes": 762,
+            "sha256": "99b825a348d9584e30375147395f2f9db6128c0140bda982f267b85ffe312311",
+            "physicalLines": 18,
+            "scope": "Version3 author/reviewer/every actual finisher observation manifest."
+          },
+          "reviewOutput": {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-lane-a-review-20261008.md",
+            "bytes": 9385,
+            "sha256": "3288299b8a79200537552cb3d22fe5f9b158e71669aae4952c817855bbdac147",
+            "physicalLines": 56,
+            "scope": "Full independent historical canonical review output."
+          },
+          "logs": {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-logs-20261008.json",
+            "bytes": 2522,
+            "sha256": "9321e661abb714d5ab02460d6f615162aff50da48ae4b9038bf0a2ef8f686a6a",
+            "physicalLines": 80,
+            "scope": "Matching immutable closure-log manifest; preservedDir used after disposed runDir."
+          },
+          "publicAcceptanceRef": "componentProofs.CNI3C",
+          "limits": "Historical canonical subjects remain distinct from publisher Source/Main; nativeClosureDebt remains OPEN pending actual CNI3D lifecycle and separate Task1 qualification."
+        },
+        "CNI1": {
+          "status": "accepted-public-native-v3",
+          "source": "e3606fd495f83c80f689b432f5e9d713e7482ede",
+          "historicalMain": "622f46cdbe505fd57cfd5e0a9635496a343baf3e",
+          "stages": {
+            "admission": {
+              "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-admission-20261004.json",
+              "bytes": 2356,
+              "sha256": "454e880bac9689a438bdc3a3e45416eddee1fc09024dcacdc4e327a0b9694421",
+              "physicalLines": 54,
+              "scope": "Immutable historical CNI1 admission receipt."
+            },
+            "red": {
+              "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-red-20261004.json",
+              "bytes": 2469,
+              "sha256": "a187fc1a23306fcfda2806cd4b9922c42e4d87311701781edfd967a2a5b61980",
+              "physicalLines": 59,
+              "scope": "Immutable historical CNI1 red receipt."
+            },
+            "local": {
+              "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-local-20261004.json",
+              "bytes": 204550,
+              "sha256": "39b1083632e52a58f98eb976621fd659f5cb7ca5f5ba76900c79d657ad312d8f",
+              "physicalLines": 5529,
+              "scope": "Immutable historical CNI1 local receipt."
+            },
+            "review": {
+              "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-review-20261004.json",
+              "bytes": 1218,
+              "sha256": "291d5fb7e183ec833f24520eab1de192e25972178b87258f353d6091d669177f",
+              "physicalLines": 23,
+              "scope": "Immutable historical CNI1 review receipt."
+            },
+            "merge": {
+              "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-merge-20261004.json",
+              "bytes": 923,
+              "sha256": "85cac7fff7541dd6d3e7eac0bfccc96eb78a732ae04d1f957b7fb4dc4404ff1f",
+              "physicalLines": 27,
+              "scope": "Immutable historical CNI1 merge receipt."
+            },
+            "mainProof": {
+              "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-mainproof-20261004.json",
+              "bytes": 2467,
+              "sha256": "e5be0330d3668bded379456280e8e836e76e8d6ed29bd6de55551ab0c440dc7c",
+              "physicalLines": 37,
+              "scope": "Immutable historical CNI1 mainProof receipt."
+            },
+            "tick": {
+              "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-tick-20261004.json",
+              "bytes": 211,
+              "sha256": "477806ba4cb13ae1844700cbdd1db67bcd92c0525160d0657353434f0abc7ac7",
+              "physicalLines": 8,
+              "scope": "Immutable historical CNI1 tick receipt."
+            }
+          },
+          "identity": {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-review-identity-72431485c6cb4abde67e7d16a0a94052c47ed973677645813a63b2cc90d0d227.json",
+            "bytes": 1210,
+            "sha256": "72431485c6cb4abde67e7d16a0a94052c47ed973677645813a63b2cc90d0d227",
+            "physicalLines": 29,
+            "scope": "Version3 author/reviewer/every actual finisher observation manifest."
+          },
+          "reviewOutput": {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-lane-a-review-20261004.md",
+            "bytes": 6999,
+            "sha256": "810370662bebe786380d21773bbc714c0acbae2e797588a34f32be670c770b16",
+            "physicalLines": 22,
+            "scope": "Full independent historical canonical review output."
+          },
+          "logs": {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-logs-20261004.json",
+            "bytes": 2336,
+            "sha256": "4375bb43b7a1c5494ff9e3dce21be344754797dec59769991e30f8a9b7e16cf0",
+            "physicalLines": 75,
+            "scope": "Matching immutable closure-log manifest; preservedDir used after disposed runDir."
+          },
+          "publicAcceptanceRef": "componentProofs.CNI3B",
+          "limits": "Historical canonical subjects remain distinct from publisher Source/Main; nativeClosureDebt remains OPEN pending actual CNI3D lifecycle and separate Task1 qualification."
+        }
+      },
       "dischargeFollowup": null,
-      "rule": "Only genuine already observed complete CNI0/CNI1 canonical public acceptance and CNI3B/CNI3C actual Main/custody/cleanup support CNI3D prior-proof agreement. CNI3D own actual lifecycle is recorded after observation, never in its own future source. Canonical CNI3 stays blocked/unreceipted; original Task1 is separately freshly qualified afterward."
+      "rule": "Only genuine already observed complete CNI0/CNI1 canonical public acceptance and CNI3B/CNI3C actual Main/custody/cleanup support CNI3D prior-proof agreement. CNI3D own actual lifecycle is recorded after observation, never in its own future source. Canonical CNI3 stays blocked/unreceipted; original Task1 is separately freshly qualified afterward.",
+      "agreedAt": "2026-10-08T19:02:22.329Z",
+      "agreementSubject": "01373be6e7e7c35070600e13fccb05941ddd5d59",
+      "debt": "OPEN",
+      "priorSnapshot": {
+        "status": null,
+        "componentProofs": null,
+        "canonicalAcceptance": null,
+        "dischargeFollowup": null,
+        "rule": "Only genuine already observed complete CNI0/CNI1 canonical public acceptance and CNI3B/CNI3C actual Main/custody/cleanup support CNI3D prior-proof agreement. CNI3D own actual lifecycle is recorded after observation, never in its own future source. Canonical CNI3 stays blocked/unreceipted; original Task1 is separately freshly qualified afterward."
+      },
+      "limits": "Completed predecessor predicates only. CNI3D own exact-head review/ruling/required CI/guarded whole-tree merge/actual Main/public-byte reopen/custody/cleanup remain pending. Canonical CNI3 stays blocked with null own ladder; original Task1 remains unreleased and requires separate fresh full fetched-current-Main qualification."
     }
   },
   "historicalRecovery": {

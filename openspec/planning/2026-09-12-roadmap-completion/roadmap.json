@@ -8484,7 +8484,8 @@
         "Full genuine CNI0/CNI1 candidate intake and portable archives, complete debt discharge, exact-head delivery/main proof and cleanup before separate current-main Task1 qualification",
         "CNI3A first-three CNI1 receipts are frozen by CNI3.ordinaryPublicationComponents.CNI3A in units.json under the registered ordinary task. This finite publication leaves canonical CNI1 blocked/OPEN, four later receipts null and canonical CNI3/discharge blocked. All delivery gates remain pending.",
         "CNI3A was actually delivered in PR2125 Source400689cc25bce10598ce7082b09f20de58166582/merge50b8c415f87f11adf7f1ec080e79f8ed889cccd6 with five publication files plus separately admitted CNI3F fixture correction, actual Main/custody/cleanup. CNI3B exact eleven later evidence buffers and historical CNI1 e360/622 complete candidate are frozen by CNI3.ordinaryPublicationComponents.CNI3B in units.json; fresh public consumption and CNI3B own delivery remain pending. CNI0/CNI3 and native debt remain blocked/OPEN; no original Task1 release.",
-        "CNI3B actual PR2126 Source46e7babf6d2e62b39ecceb57951aa7023fb5c57a/merge520ac2c76dab614635263f64081bd4f28ac2d225 Main/custody/final cleanup and closed private CNI0 stage4-7 full-byte/prospective proof precede the finite CNI3C candidate frozen by CNI3.ordinaryPublicationComponents.CNI3C in units.json. Its twelve exact evidence buffers and historical CNI0 ac84/835 complete projection still require public application/consumption and own exact-head delivery/Main/custody/cleanup. Historical acceptance text is retained; CNI3 remains blocked/null7 and CNI0/CNI1 debt stays OPEN until separate CNI3D. No original Task1 release."
+        "CNI3B actual PR2126 Source46e7babf6d2e62b39ecceb57951aa7023fb5c57a/merge520ac2c76dab614635263f64081bd4f28ac2d225 Main/custody/final cleanup and closed private CNI0 stage4-7 full-byte/prospective proof precede the finite CNI3C candidate frozen by CNI3.ordinaryPublicationComponents.CNI3C in units.json. Its twelve exact evidence buffers and historical CNI0 ac84/835 complete projection still require public application/consumption and own exact-head delivery/Main/custody/cleanup. Historical acceptance text is retained; CNI3 remains blocked/null7 and CNI0/CNI1 debt stays OPEN until separate CNI3D. No original Task1 release.",
+        "CNI3D prior-component agreement is recorded by evidence/cni-registration-20261002.json#ordinaryPublicationMilestones.nativeDebtDischarge after genuine CNI3B/CNI3C Main/public consumption/custody/cleanup. It supersedes the earlier pending snapshots above; CNI3D own lifecycle/discharge remain pending, debt OPEN and original Task1 unreleased."
       ],
       "registration": "evidence/cni-registration-20261002.json",
       "ownershipExceptions": [
@@ -8516,7 +8517,8 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-review-identity-99b825a348d9584e30375147395f2f9db6128c0140bda982f267b85ffe312311.json"
       ],
       "ordinaryPublicationTasksRef": "evidence/cni-registration-20261002.json#ordinaryPublicationTasks",
-      "ordinaryPublicationComponentsRef": "units.json#CNI3.ordinaryPublicationComponents"
+      "ordinaryPublicationComponentsRef": "units.json#CNI3.ordinaryPublicationComponents",
+      "nativeDebtDischargeRef": "evidence/cni-registration-20261002.json#ordinaryPublicationMilestones.nativeDebtDischarge"
     }
   ],
   "tasks": [

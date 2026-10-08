@@ -7158,6 +7158,21 @@
           "delivery": null,
           "canonicalOutcome": "Candidate publishes historical CNI0 sourceac84/merge835 with all seven genuine receipts. Public application/consumption and this publisher own future review/CI/Main/custody/cleanup are pending. CNI0/CNI1 debt stays OPEN until CNI3D; canonical CNI3 remains blocked/null7; original Task1 is unreleased.",
           "enforcement": "Root freezes full fourteen-buffer bytes/hashes/physical lines/raw diff in its private candidate manifest. Evidence-only hashes here avoid planning self-hash cycles. NEXT and canonical numeric caps do not authenticate ordinary task metadata."
+        },
+        "CNI3D": {
+          "id": "CNI3D",
+          "kind": "documentary ordinary task, not canonical unit",
+          "status": "admitted-prior-agreement",
+          "owner": "/root/cni3d_agreement_writer",
+          "contractRef": "evidence/cni-registration-20261002.json#ordinaryPublicationTasks.tasks.CNI3D",
+          "planningSizingRef": "evidence/cni-registration-20261002.json#planningSizing",
+          "admissionRef": "evidence/cni-registration-20261002.json#ordinaryPublicationTasks.tasks.CNI3D.admission",
+          "predecessorProof": {
+            "agreementRef": "evidence/cni-registration-20261002.json#ordinaryPublicationMilestones.nativeDebtDischarge"
+          },
+          "delivery": null,
+          "canonicalOutcome": "Prior CNI0/CNI1 public acceptance and CNI3B/CNI3C lifecycle agreement is owned by registration; supersedes earlier component pending snapshots only. CNI3D own lifecycle pending, native debt OPEN, canonical CNI3 blocked/null7 and original Task1 unreleased.",
+          "enforcement": "Root and independent exact-head review; NEXT does not select or authenticate ordinary tasks."
         }
       }
     },
