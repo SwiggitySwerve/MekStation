@@ -1,0 +1,153 @@
+{
+  "schemaVersion": 3,
+  "unit": "CNI0",
+  "baseline": "2fe46eaae9de7be054395021c9dc89dc6798293c",
+  "source": {
+    "head": "ac84f0e9e9faf493ecad03b099b55660885e9e13",
+    "tree": "58b54ce13414655e43da3acd4ee22b5191d5933d",
+    "Main": "83525164532b61ef5af18937a635dc53bde2591a",
+    "producer": "d68858607928f50f4fe30b56481f26b8618a6fc1"
+  },
+  "prospective": {
+    "root": "E:/Projects/MekStation-wt/cni0-prospective-01a0febd",
+    "head": "d68858607928f50f4fe30b56481f26b8618a6fc1",
+    "tree": "03ef50c1286078ece3d2d5df9a14b66e5ed35276"
+  },
+  "canonicalDebt": "OPEN",
+  "stage": "red",
+  "at": "2026-10-08T05:48:30.070Z",
+  "generatedAt": "2026-10-08T05:50:21.289Z",
+  "dateBasis": "20261008 denotes actual UTC recovery date, distinct from original event and owner-local preparation names",
+  "classification": "actual UTC20261008 current recovery blocked-unit guard refusal",
+  "scenario": "Unchanged actual producer fold with complete prospective ledger and absent receipt selectors refuses CNI0 blocked before receipt reads/copies or ledger writes",
+  "expected": {
+    "exit": 1,
+    "stderr": "UNIT_NOT_PLANNED: CNI0 is blocked, not planned"
+  },
+  "actual": {
+    "name": "refusal",
+    "argv": [
+      "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+      "E:\\Projects\\MekStation-wt\\cni3-producer-01a0febd\\scripts\\qc\\roadmap-unit-fold.mjs",
+      "--unit",
+      "CNI0",
+      "--date",
+      "20261008",
+      "--ledger-dir",
+      "E:\\Projects\\MekStation-wt\\cni0-prospective-01a0febd\\openspec\\planning\\2026-09-12-roadmap-completion",
+      "--receipts-dir",
+      "E:\\Projects\\MekStation-wt\\cni0-prospective-01a0febd\\.omo\\evidence\\codex-native-contract\\CNI1\\recovery-cni0-admission-20261008-01a0febd\\unmaterialized-receipts",
+      "--red-summary",
+      "E:\\Projects\\MekStation-wt\\cni0-prospective-01a0febd\\.omo\\evidence\\codex-native-contract\\CNI1\\recovery-cni0-admission-20261008-01a0febd\\unmaterialized-receipts\\red.json",
+      "--local-summary",
+      "E:\\Projects\\MekStation-wt\\cni0-prospective-01a0febd\\.omo\\evidence\\codex-native-contract\\CNI1\\recovery-cni0-admission-20261008-01a0febd\\unmaterialized-receipts\\local.json"
+    ],
+    "cwd": "E:/Projects/MekStation-wt/cni0-prospective-01a0febd",
+    "pid": 29076,
+    "start": "2026-10-08T05:48:30.000Z",
+    "end": "2026-10-08T05:48:30.070Z",
+    "exit": 1,
+    "signal": null,
+    "error": null,
+    "streamsClosed": true,
+    "stdout": {
+      "path": "raw/refusal.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "utf8": ""
+    },
+    "stderr": {
+      "path": "raw/refusal.stderr",
+      "bytes": 47,
+      "sha256": "d3cb5caed66fca022135a4ba5da7d2c76e374e3ccabde2d64391e14667b99267",
+      "utf8": "UNIT_NOT_PLANNED: CNI0 is blocked, not planned\n"
+    },
+    "wholePlanningBeforeAfterEqual": true,
+    "allSelectorsRemainAbsent": true,
+    "planningFiles": 1840,
+    "planningBytes": 23397776,
+    "sourceOriginalRedInapplicable": true,
+    "originalRedNotFabricated": true,
+    "producerHead": "d68858607928f50f4fe30b56481f26b8618a6fc1",
+    "prospectiveHead": "d68858607928f50f4fe30b56481f26b8618a6fc1"
+  },
+  "preimages": {
+    "expected": [
+      {
+        "path": "units.json",
+        "bytes": 1203004,
+        "sha256": "b9c8a386db3f8c3707fdc219943d1ca0ec9e0683850ecff3b3017588c529d71c"
+      },
+      {
+        "path": "roadmap.json",
+        "bytes": 1053291,
+        "sha256": "9e85d201c600cc63f360c2786d429de08724e3df8382cf6daa444b0a70fa613a"
+      },
+      {
+        "path": "evidence/cni-registration-20261002.json",
+        "bytes": 55973,
+        "sha256": "2f340473bd013ccfa92c404e6d4338061502bd106d378fcae1bbd2fb8976da9d"
+      }
+    ],
+    "planningFiles": 1840,
+    "planningBytes": 23397776,
+    "index": {
+      "path": "E:\\Projects\\MekStation\\.git\\worktrees\\cni0-prospective-01a0febd\\index",
+      "bytes": 2554162,
+      "sha256": "5e91d62d6ad4691115b73f70c0d9d72dd5786a18b2b65f105b9ce3d891760dfc",
+      "identity": {
+        "dev": "1458211962",
+        "ino": "281474992929989",
+        "nlink": "1",
+        "size": "2554162",
+        "birthtimeNs": "1791437686110125100",
+        "mtimeNs": "1791437686116149100"
+      }
+    },
+    "artifacts": [
+      {
+        "path": "E:/Projects/MekStation-wt/cni0-prospective-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-admission-20261008-01a0febd/planning-before-manifest.json",
+        "bytes": 745540,
+        "sha256": "b5291be2907d67e67a60bbe2e23495441a787a53a9038b9c5414cf42621d0c5c"
+      },
+      {
+        "path": "E:/Projects/MekStation-wt/cni0-prospective-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-admission-20261008-01a0febd/state-before.json",
+        "bytes": 1260321,
+        "sha256": "b64cec64a9fde06df3e8443d9b9befbe81ab2c6511c1a6e99b6b252ba15c8e52"
+      },
+      {
+        "path": "E:/Projects/MekStation-wt/cni0-prospective-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-admission-20261008-01a0febd/source-identities.json",
+        "bytes": 11759,
+        "sha256": "3fa7e867779edbef116a7f26535d409f88798e5a86a0dd1d8f13d4c57ad83220"
+      },
+      {
+        "path": "E:/Projects/MekStation-wt/cni0-prospective-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-admission-20261008-01a0febd/dependency-proof.json",
+        "bytes": 8474,
+        "sha256": "8766b3bd450d9e056e2a521ee3ac71c488b4c846c9be724e64a18491454ae82d"
+      },
+      {
+        "path": "E:/Projects/MekStation-wt/cni0-prospective-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-admission-20261008-01a0febd/raw/refusal-result.json",
+        "bytes": 1940,
+        "sha256": "10efc370202d04f555b3a1344cee89cd70f8bf0e565efff5a21e400b1527e8fc"
+      }
+    ]
+  },
+  "wholePlanningBeforeAfterEqual": true,
+  "selectorsRemainAbsent": true,
+  "owningGuard": "scripts/qc/roadmap-ledger-lib.mjs foldStages checks state before defining/invoking receipt reader",
+  "historicalLimits": {
+    "originalSourceScope": "historical six-file docs/bootstrap only; no executable product behavior changed",
+    "originalBehavioralRED": "INAPPLICABLE under delivered historicalRecovery.applicability.CNI0DocsBootstrap",
+    "missingHistory": {
+      "inspectedRecords": "0-369",
+      "prefixBytes": 4364841,
+      "prefixSha256": "c86b0e752a98dab3a6e7718de85e61e19c43b35f6e76f21143ef3f5abdc01f04",
+      "finding": "No original behavioral RED found in the bounded precommit corpus; absence outside that corpus unproved"
+    },
+    "historicalSourceUnchanged": true,
+    "old93GapObserverRemainsRefused": true
+  },
+  "notOriginalSourceRED": true,
+  "noSuccessfulFold": true,
+  "summary": "Genuine current CNI0 blocked guard refusal; docs-only original behavioral RED inapplicable; no historical failure invented"
+}

@@ -1,0 +1,976 @@
+{
+  "schemaVersion": 1,
+  "reviewContractVersion": 3,
+  "unit": "CNI0",
+  "stage": "local",
+  "status": "ready",
+  "at": "2026-10-08T06:57:18.922Z",
+  "head": "ac84f0e9e9faf493ecad03b099b55660885e9e13",
+  "tree": "58b54ce13414655e43da3acd4ee22b5191d5933d",
+  "baseline": "2fe46eaae9de7be054395021c9dc89dc6798293c",
+  "source": {
+    "root": "E:/Projects/MekStation-wt/cni0-recovery-source-01a0febd",
+    "head": "ac84f0e9e9faf493ecad03b099b55660885e9e13",
+    "tree": "58b54ce13414655e43da3acd4ee22b5191d5933d",
+    "baseline": "2fe46eaae9de7be054395021c9dc89dc6798293c",
+    "files": [
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/DELIVERY.md",
+        "bytes": 16272,
+        "sha256": "d2c89d7c08412187e264981a7df7836c2507332468e1b82ff319b4c01924e5c6"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/GOAL.md",
+        "bytes": 17476,
+        "sha256": "01aef0901e09d710f85eba287736e999d24acd14f1b2ecf70ed5741e1517f5fb"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/WORKERS.md",
+        "bytes": 23449,
+        "sha256": "64c0dc39f29f6b8560df2b382476d03dc0bc5831625f9a46f9cdf8816a8fc2df"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/cni-registration-20261002.json",
+        "bytes": 12319,
+        "sha256": "854ab8079fbbae655020d248d5f9e3e86545a5ea213effbe06db21e6023d57d9"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+        "bytes": 1048732,
+        "sha256": "96ec0f240423b3d89ceb3fa1839654a932062ebb704c892845a8c2ede2a3cf48"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "bytes": 1179634,
+        "sha256": "16132aa888e90ecc80f549f7737a99717dd0ddc5e1617a9093999b4048c24655"
+      }
+    ],
+    "index": {
+      "path": "E:\\Projects\\MekStation\\.git\\worktrees\\cni0-recovery-source-01a0febd\\index",
+      "bytes": 2549497,
+      "sha256": "64d71fc3e08e433705b25936df22fa4f3f7506f0bfb8cacfde6e65611fbdf2d3"
+    },
+    "inventory": {
+      "bytes": 2122326,
+      "sha256": "e7a448d9f7ad691996a774c010ff5ab0fb04434bcc020be2fdf6781e6e71bc94"
+    },
+    "diff": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "implementationActors": [
+    {
+      "role": "author",
+      "sessionId": "01a0fff7-e6c8-7eb2-b535-378f1525a3ab",
+      "model": "openai/gpt-6.1-sol",
+      "agentPath": "/root/cni0_policy_writer"
+    }
+  ],
+  "authorship": {
+    "soleNewLocalEditor": {
+      "sessionId": "01a0fff7-e6c8-7eb2-b535-378f1525a3ab",
+      "agentPath": "/root/cni0_policy_writer",
+      "turnId": "01a11a46-f66e-7152-8779-deb42d29cdcb",
+      "model": "gpt-6.1-sol",
+      "effort": "high"
+    },
+    "originalSourceAndOldLocalClassification": "accepted bounded named graph; QA and control observers excluded only because no actual source/local edits were found",
+    "census": {
+      "path": "E:\\Projects\\MekStation-wt\\cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd/census.json",
+      "bytes": 1085,
+      "sha256": "15ad387054141cba0a5ba9eff10f32c84800bb55cd1ab63ba66ac036396fa916"
+    },
+    "independentClassificationReview": "E:/Projects/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/cni3c-census-applicability-review-20261008.md",
+    "sourceAndNewLocalAuthorTurns": [
+      {
+        "turnId": "01a11a2b-caee-7e63-bd35-00a733789b9e",
+        "concern": "Initial new LOCAL/gate execution and actual ready/blocked edits",
+        "servedModel": "gpt-6.1-sol",
+        "effort": "high"
+      },
+      {
+        "turnId": "01a11a46-f66e-7152-8779-deb42d29cdcb",
+        "contextOrdinal": 5621,
+        "contextTimestamp": "2026-10-08T06:50:20.934Z",
+        "concern": "Finite retention and sole-author ready receipt recovery",
+        "servedModel": "gpt-6.1-sol",
+        "effort": "high"
+      }
+    ]
+  },
+  "summary": "Original-author CNI0 docs-bootstrap LOCAL ready after applicable predicates and complete finite preservation requalification. Later Root retention admits the observed single private Node cache and empty TMP directory; prior ready/blocked drafts and failed census remain preserved. Historical own835 components stay separately scoped, formatter EXCLUDED_NOT_PASS, observer REFUSED. No review/capture/fold/closure acceptance.",
+  "commands": [
+    {
+      "name": "current-validator",
+      "argv": [
+        "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+        "E:\\Projects\\MekStation-wt\\cni0-prospective-01a0febd\\openspec\\planning\\2026-09-12-roadmap-completion\\validate-roadmap.mjs",
+        "--git"
+      ],
+      "cwd": "E:/Projects/MekStation-wt/cni0-prospective-01a0febd",
+      "pid": 75332,
+      "start": "2026-10-08T05:52:11.015Z",
+      "end": "2026-10-08T05:52:31.997Z",
+      "exit": 0,
+      "signal": null,
+      "error": null,
+      "streamsClosed": true,
+      "stdout": {
+        "path": "E:\\Projects\\MekStation-wt\\cni0-recovery-source-01a0febd\\.omo\\evidence\\codex-native-contract\\CNI1\\recovery-cni0-local-20261008-01a0febd\\raw\\current-validator.stdout",
+        "bytes": 2354,
+        "sha256": "856e7bffe1aaf0a1c22856228457f400b814850f9d3db2de955ff299004a48ba"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\MekStation-wt\\cni0-recovery-source-01a0febd\\.omo\\evidence\\codex-native-contract\\CNI1\\recovery-cni0-local-20261008-01a0febd\\raw\\current-validator.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "mode": "REUSED_INPUT_EQUIVALENT",
+      "originalEvidence": "E:/Projects/MekStation-wt/cni0-prospective-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-admission-20261008-01a0febd/commands.json",
+      "disposition": "REUSED_INPUT_EQUIVALENT_PASS",
+      "subject": "E:/Projects/MekStation-wt/cni0-prospective-01a0febd"
+    },
+    {
+      "name": "current-git",
+      "argv": [
+        "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+        "E:\\Projects\\MekStation-wt\\cni0-prospective-01a0febd\\openspec\\planning\\2026-09-12-roadmap-completion\\validate-roadmap.mjs",
+        "--git"
+      ],
+      "cwd": "E:/Projects/MekStation-wt/cni0-prospective-01a0febd",
+      "pid": 75332,
+      "start": "2026-10-08T05:52:11.015Z",
+      "end": "2026-10-08T05:52:31.997Z",
+      "exit": 0,
+      "signal": null,
+      "error": null,
+      "streamsClosed": true,
+      "stdout": {
+        "path": "E:\\Projects\\MekStation-wt\\cni0-recovery-source-01a0febd\\.omo\\evidence\\codex-native-contract\\CNI1\\recovery-cni0-local-20261008-01a0febd\\raw\\current-git.stdout",
+        "bytes": 2354,
+        "sha256": "856e7bffe1aaf0a1c22856228457f400b814850f9d3db2de955ff299004a48ba"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\MekStation-wt\\cni0-recovery-source-01a0febd\\.omo\\evidence\\codex-native-contract\\CNI1\\recovery-cni0-local-20261008-01a0febd\\raw\\current-git.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "mode": "REUSED_INPUT_EQUIVALENT",
+      "originalEvidence": "E:/Projects/MekStation-wt/cni0-prospective-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-admission-20261008-01a0febd/commands.json",
+      "disposition": "REUSED_INPUT_EQUIVALENT_PASS",
+      "subject": "E:/Projects/MekStation-wt/cni0-prospective-01a0febd"
+    },
+    {
+      "name": "current-next",
+      "argv": [
+        "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+        "E:\\Projects\\MekStation-wt\\cni0-prospective-01a0febd\\openspec\\planning\\2026-09-12-roadmap-completion\\validate-roadmap.mjs",
+        "--next"
+      ],
+      "cwd": "E:/Projects/MekStation-wt/cni0-prospective-01a0febd",
+      "pid": 53984,
+      "start": "2026-10-08T05:52:31.999Z",
+      "end": "2026-10-08T05:52:47.224Z",
+      "exit": 0,
+      "signal": null,
+      "error": null,
+      "streamsClosed": true,
+      "stdout": {
+        "path": "E:\\Projects\\MekStation-wt\\cni0-recovery-source-01a0febd\\.omo\\evidence\\codex-native-contract\\CNI1\\recovery-cni0-local-20261008-01a0febd\\raw\\current-next.stdout",
+        "bytes": 5,
+        "sha256": "014fdf44eef21d7825457e3fd3ec5b865ac39f7b7289571369de03f31c10ad3e"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\MekStation-wt\\cni0-recovery-source-01a0febd\\.omo\\evidence\\codex-native-contract\\CNI1\\recovery-cni0-local-20261008-01a0febd\\raw\\current-next.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "mode": "REUSED_INPUT_EQUIVALENT",
+      "originalEvidence": "E:/Projects/MekStation-wt/cni0-prospective-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-admission-20261008-01a0febd/commands.json",
+      "disposition": "REUSED_INPUT_EQUIVALENT_PASS",
+      "subject": "E:/Projects/MekStation-wt/cni0-prospective-01a0febd"
+    },
+    {
+      "name": "type",
+      "argv": [
+        "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+        "E:/Projects/MekStation-wt/cni3-producer-01a0febd/node_modules/typescript/bin/tsc",
+        "--noEmit",
+        "--incremental",
+        "false",
+        "--skipLibCheck",
+        "--project",
+        "E:/Projects/MekStation-wt/cni3-producer-01a0febd/tsconfig.json"
+      ],
+      "cwd": "E:/Projects/MekStation-wt/cni3-producer-01a0febd",
+      "pid": 38936,
+      "start": "2026-10-08T06:38:06.625Z",
+      "end": "2026-10-08T06:38:45.610Z",
+      "exit": 0,
+      "signal": null,
+      "error": null,
+      "streamsClosed": true,
+      "environment": {
+        "GIT_OPTIONAL_LOCKS": "0",
+        "TSX_DISABLE_CACHE": "1",
+        "DISABLE_V8_COMPILE_CACHE": "1",
+        "OPENSPEC_TELEMETRY": "0",
+        "DO_NOT_TRACK": "1",
+        "TMP": "E:/Projects/MekStation-wt/cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd",
+        "TEMP": "E:/Projects/MekStation-wt/cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd",
+        "TMPDIR": "E:/Projects/MekStation-wt/cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd",
+        "removeForChildren": [
+          "NODE_OPTIONS",
+          "NODE_COMPILE_CACHE",
+          "TS_NODE_TRANSPILE_ONLY"
+        ]
+      },
+      "stdout": {
+        "path": "E:\\Projects\\MekStation-wt\\cni0-recovery-source-01a0febd\\.omo\\evidence\\codex-native-contract\\CNI1\\recovery-cni0-local-20261008-01a0febd\\raw\\type.stdout",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\MekStation-wt\\cni0-recovery-source-01a0febd\\.omo\\evidence\\codex-native-contract\\CNI1\\recovery-cni0-local-20261008-01a0febd\\raw\\type.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "disposition": "PASS",
+      "subject": "E:/Projects/MekStation-wt/cni3-producer-01a0febd"
+    },
+    {
+      "name": "qc",
+      "argv": [
+        "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+        "E:/Projects/MekStation-wt/cni3-producer-01a0febd/scripts/qc/validate-openspec-ci-quality.mjs"
+      ],
+      "cwd": "E:/Projects/MekStation-wt/cni3-producer-01a0febd",
+      "pid": 69568,
+      "start": "2026-10-08T06:38:45.611Z",
+      "end": "2026-10-08T06:38:46.306Z",
+      "exit": 0,
+      "signal": null,
+      "error": null,
+      "streamsClosed": true,
+      "environment": {
+        "GIT_OPTIONAL_LOCKS": "0",
+        "TSX_DISABLE_CACHE": "1",
+        "DISABLE_V8_COMPILE_CACHE": "1",
+        "OPENSPEC_TELEMETRY": "0",
+        "DO_NOT_TRACK": "1",
+        "TMP": "E:/Projects/MekStation-wt/cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd",
+        "TEMP": "E:/Projects/MekStation-wt/cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd",
+        "TMPDIR": "E:/Projects/MekStation-wt/cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd",
+        "removeForChildren": [
+          "NODE_OPTIONS",
+          "NODE_COMPILE_CACHE",
+          "TS_NODE_TRANSPILE_ONLY"
+        ]
+      },
+      "stdout": {
+        "path": "E:\\Projects\\MekStation-wt\\cni0-recovery-source-01a0febd\\.omo\\evidence\\codex-native-contract\\CNI1\\recovery-cni0-local-20261008-01a0febd\\raw\\qc.stdout",
+        "bytes": 191,
+        "sha256": "21c1181842878b6c171cc9f496ad0f18fdaf7636c2d91ecc439a1da7b51589e6"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\MekStation-wt\\cni0-recovery-source-01a0febd\\.omo\\evidence\\codex-native-contract\\CNI1\\recovery-cni0-local-20261008-01a0febd\\raw\\qc.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "disposition": "PASS",
+      "subject": "E:/Projects/MekStation-wt/cni3-producer-01a0febd"
+    },
+    {
+      "name": "strict",
+      "argv": [
+        "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+        "C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js",
+        "validate",
+        "--all",
+        "--strict"
+      ],
+      "cwd": "E:/Projects/MekStation-wt/cni3-producer-01a0febd",
+      "pid": 58632,
+      "start": "2026-10-08T06:38:46.311Z",
+      "end": "2026-10-08T06:38:50.716Z",
+      "exit": 0,
+      "signal": null,
+      "error": null,
+      "streamsClosed": true,
+      "environment": {
+        "GIT_OPTIONAL_LOCKS": "0",
+        "TSX_DISABLE_CACHE": "1",
+        "DISABLE_V8_COMPILE_CACHE": "1",
+        "OPENSPEC_TELEMETRY": "0",
+        "DO_NOT_TRACK": "1",
+        "TMP": "E:/Projects/MekStation-wt/cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd",
+        "TEMP": "E:/Projects/MekStation-wt/cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd",
+        "TMPDIR": "E:/Projects/MekStation-wt/cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd",
+        "removeForChildren": [
+          "NODE_OPTIONS",
+          "NODE_COMPILE_CACHE",
+          "TS_NODE_TRANSPILE_ONLY"
+        ]
+      },
+      "stdout": {
+        "path": "E:\\Projects\\MekStation-wt\\cni0-recovery-source-01a0febd\\.omo\\evidence\\codex-native-contract\\CNI1\\recovery-cni0-local-20261008-01a0febd\\raw\\strict.stdout",
+        "bytes": 6811,
+        "sha256": "9ca58d5988581dd3de39d1f251ab3b4e85271cd35e067c898bb258ce7748a181"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\MekStation-wt\\cni0-recovery-source-01a0febd\\.omo\\evidence\\codex-native-contract\\CNI1\\recovery-cni0-local-20261008-01a0febd\\raw\\strict.stderr",
+        "bytes": 16,
+        "sha256": "5bc31df123a2e521acdd2c0d9477b367feec506471a91065d0a6b32c09089ed5"
+      },
+      "disposition": "PASS",
+      "subject": "E:/Projects/MekStation-wt/cni3-producer-01a0febd"
+    },
+    {
+      "name": "purpose",
+      "argv": [
+        "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+        "E:/Projects/MekStation-wt/cni3-producer-01a0febd/node_modules/tsx/dist/cli.mjs",
+        "E:/Projects/MekStation-wt/cni3-producer-01a0febd/openspec/scripts/spec-purpose-lint.ts",
+        "--root",
+        "E:/Projects/MekStation-wt/cni3-producer-01a0febd",
+        "--json"
+      ],
+      "cwd": "E:/Projects/MekStation-wt/cni3-producer-01a0febd",
+      "pid": 73620,
+      "start": "2026-10-08T06:38:50.727Z",
+      "end": "2026-10-08T06:38:51.306Z",
+      "exit": 0,
+      "signal": null,
+      "error": null,
+      "streamsClosed": true,
+      "environment": {
+        "GIT_OPTIONAL_LOCKS": "0",
+        "TSX_DISABLE_CACHE": "1",
+        "DISABLE_V8_COMPILE_CACHE": "1",
+        "OPENSPEC_TELEMETRY": "0",
+        "DO_NOT_TRACK": "1",
+        "TMP": "E:/Projects/MekStation-wt/cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd",
+        "TEMP": "E:/Projects/MekStation-wt/cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd",
+        "TMPDIR": "E:/Projects/MekStation-wt/cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd",
+        "removeForChildren": [
+          "NODE_OPTIONS",
+          "NODE_COMPILE_CACHE",
+          "TS_NODE_TRANSPILE_ONLY"
+        ]
+      },
+      "stdout": {
+        "path": "E:\\Projects\\MekStation-wt\\cni0-recovery-source-01a0febd\\.omo\\evidence\\codex-native-contract\\CNI1\\recovery-cni0-local-20261008-01a0febd\\raw\\purpose.stdout",
+        "bytes": 1859,
+        "sha256": "d9b483e6d3f7481d1b9de927d938a9b60bcf29481be88fa2a9de6f1abe9ddfec"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\MekStation-wt\\cni0-recovery-source-01a0febd\\.omo\\evidence\\codex-native-contract\\CNI1\\recovery-cni0-local-20261008-01a0febd\\raw\\purpose.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "disposition": "PASS",
+      "subject": "E:/Projects/MekStation-wt/cni3-producer-01a0febd"
+    },
+    {
+      "name": "terminology",
+      "argv": [
+        "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+        "E:/Projects/MekStation-wt/cni3-producer-01a0febd/node_modules/ts-node/dist/bin.js",
+        "--compiler-options",
+        "{\"module\":\"CommonJS\",\"moduleResolution\":\"node\"}",
+        "E:/Projects/MekStation-wt/cni3-producer-01a0febd/openspec/scripts/terminology-tool.ts",
+        "validate",
+        "--strict",
+        "--json"
+      ],
+      "cwd": "E:/Projects/MekStation-wt/cni3-producer-01a0febd",
+      "pid": 37944,
+      "start": "2026-10-08T06:38:51.312Z",
+      "end": "2026-10-08T06:38:55.091Z",
+      "exit": 0,
+      "signal": null,
+      "error": null,
+      "streamsClosed": true,
+      "environment": {
+        "GIT_OPTIONAL_LOCKS": "0",
+        "TSX_DISABLE_CACHE": "1",
+        "DISABLE_V8_COMPILE_CACHE": "1",
+        "OPENSPEC_TELEMETRY": "0",
+        "DO_NOT_TRACK": "1",
+        "TMP": "E:/Projects/MekStation-wt/cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd",
+        "TEMP": "E:/Projects/MekStation-wt/cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd",
+        "TMPDIR": "E:/Projects/MekStation-wt/cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd",
+        "removeForChildren": [
+          "NODE_OPTIONS",
+          "NODE_COMPILE_CACHE",
+          "TS_NODE_TRANSPILE_ONLY"
+        ]
+      },
+      "stdout": {
+        "path": "E:\\Projects\\MekStation-wt\\cni0-recovery-source-01a0febd\\.omo\\evidence\\codex-native-contract\\CNI1\\recovery-cni0-local-20261008-01a0febd\\raw\\terminology.stdout",
+        "bytes": 63063,
+        "sha256": "10e963893b1e89a50042ebcd6dcc4aba0325b153a15fc913dda27ac0c82b44fb"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\MekStation-wt\\cni0-recovery-source-01a0febd\\.omo\\evidence\\codex-native-contract\\CNI1\\recovery-cni0-local-20261008-01a0febd\\raw\\terminology.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "disposition": "PASS",
+      "subject": "E:/Projects/MekStation-wt/cni3-producer-01a0febd"
+    },
+    {
+      "name": "structure",
+      "argv": [
+        "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+        "E:/Projects/MekStation-wt/cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd/run.mjs",
+        "--gate",
+        "structure"
+      ],
+      "cwd": "E:/Projects/MekStation-wt/cni0-recovery-source-01a0febd",
+      "pid": 67240,
+      "start": "2026-10-08T06:38:55.098Z",
+      "end": "2026-10-08T06:38:59.465Z",
+      "exit": 0,
+      "signal": null,
+      "error": null,
+      "streamsClosed": true,
+      "environment": {
+        "GIT_OPTIONAL_LOCKS": "0",
+        "TSX_DISABLE_CACHE": "1",
+        "DISABLE_V8_COMPILE_CACHE": "1",
+        "OPENSPEC_TELEMETRY": "0",
+        "DO_NOT_TRACK": "1",
+        "TMP": "E:/Projects/MekStation-wt/cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd",
+        "TEMP": "E:/Projects/MekStation-wt/cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd",
+        "TMPDIR": "E:/Projects/MekStation-wt/cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd",
+        "removeForChildren": [
+          "NODE_OPTIONS",
+          "NODE_COMPILE_CACHE",
+          "TS_NODE_TRANSPILE_ONLY"
+        ]
+      },
+      "stdout": {
+        "path": "E:\\Projects\\MekStation-wt\\cni0-recovery-source-01a0febd\\.omo\\evidence\\codex-native-contract\\CNI1\\recovery-cni0-local-20261008-01a0febd\\raw\\structure.stdout",
+        "bytes": 122,
+        "sha256": "81a3fd135e2db263d7f6118c78bbbb89a67c4985ef12f974d036f5819e1dff82"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\MekStation-wt\\cni0-recovery-source-01a0febd\\.omo\\evidence\\codex-native-contract\\CNI1\\recovery-cni0-local-20261008-01a0febd\\raw\\structure.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "disposition": "PASS",
+      "subject": "E:\\Projects\\MekStation-wt\\cni0-recovery-source-01a0febd"
+    },
+    {
+      "name": "format",
+      "argv": [
+        "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+        "E:/Projects/MekStation-wt/cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd/run.mjs",
+        "--gate",
+        "format"
+      ],
+      "cwd": "E:/Projects/MekStation-wt/cni0-recovery-source-01a0febd",
+      "pid": 23348,
+      "start": "2026-10-08T06:38:59.479Z",
+      "end": "2026-10-08T06:39:03.953Z",
+      "exit": 0,
+      "signal": null,
+      "error": null,
+      "streamsClosed": true,
+      "environment": {
+        "GIT_OPTIONAL_LOCKS": "0",
+        "TSX_DISABLE_CACHE": "1",
+        "DISABLE_V8_COMPILE_CACHE": "1",
+        "OPENSPEC_TELEMETRY": "0",
+        "DO_NOT_TRACK": "1",
+        "TMP": "E:/Projects/MekStation-wt/cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd",
+        "TEMP": "E:/Projects/MekStation-wt/cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd",
+        "TMPDIR": "E:/Projects/MekStation-wt/cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd",
+        "removeForChildren": [
+          "NODE_OPTIONS",
+          "NODE_COMPILE_CACHE",
+          "TS_NODE_TRANSPILE_ONLY"
+        ]
+      },
+      "stdout": {
+        "path": "E:\\Projects\\MekStation-wt\\cni0-recovery-source-01a0febd\\.omo\\evidence\\codex-native-contract\\CNI1\\recovery-cni0-local-20261008-01a0febd\\raw\\format.stdout",
+        "bytes": 621,
+        "sha256": "f176d3d75ddf05e8c9c6dbe5e78b8919eabc8b6175c1d7cb3d8fe935e9bd436d"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\MekStation-wt\\cni0-recovery-source-01a0febd\\.omo\\evidence\\codex-native-contract\\CNI1\\recovery-cni0-local-20261008-01a0febd\\raw\\format.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "disposition": "EXCLUDED_NOT_PASS",
+      "subject": "E:\\Projects\\MekStation-wt\\cni0-recovery-source-01a0febd"
+    }
+  ],
+  "applicability": {
+    "decision": "E:/Projects/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/cni0-applicability-decision-20261004.json",
+    "deliveredHead": "d68858607928f50f4fe30b56481f26b8618a6fc1",
+    "originalBehavioralRED": {
+      "applicable": false,
+      "reason": "Delivered CNI0-only docs-bootstrap applicability; no fictional historical failing behavior test",
+      "history": "No original pre-change behavioral RED located in accepted bounded inventory"
+    },
+    "recoveryRED": {
+      "applicable": true,
+      "evidence": {
+        "path": "E:\\Projects\\MekStation-wt\\cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd/inputs/red.json",
+        "bytes": 6836,
+        "sha256": "327f5260b69ce86dca42b00ee24b6a100e5375e770e5b834f5454f8ab9f6ffbb"
+      },
+      "predicate": "UNIT_NOT_PLANNED while full prospective CNI0 ledger was blocked; complete ledger unchanged"
+    },
+    "type": {
+      "subject": "current A/d688",
+      "projectInputs": 7451,
+      "allBoundGateInputs": 12217,
+      "noEmit": true,
+      "incremental": false
+    },
+    "quality": {
+      "qc": "8/8 workflows, 19/19 needs, 9/9 active changes, errors0",
+      "strict": "229 passed,0 failed",
+      "purpose": "220 specs,errors0,trackedDebt0",
+      "terminology": "304 files,0 violations/errors/warnings"
+    },
+    "structure": {
+      "subject": "historical S exact six committed files",
+      "predicate": "Full committed-byte equality, Markdown H1 and metadata, JSON parse and four CNI registrations"
+    },
+    "format": {
+      "disposition": "EXCLUDED_NOT_PASS",
+      "reason": "All six owned paths are under openspec/, explicitly excluded by actual default .prettierignore; no formatter/native load success claimed"
+    },
+    "fullE2E80": {
+      "claimed": false,
+      "reason": "Exact historical docs-only highest applicable registered rung is strict-smoke3"
+    }
+  },
+  "retainedComponents": {
+    "mode": "No rerun; unchanged accepted scoped own835 component witnesses retained as exact bytes",
+    "jest15": {
+      "evidence": {
+        "path": "E:\\Projects\\MekStation-wt\\cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd/inputs/conditional-runtime.json",
+        "bytes": 4803,
+        "sha256": "e8979e8700db3222cab412b5a35475e88e09e8cccaa9c77dd8f35c3cec4c0ae3"
+      },
+      "raw": {
+        "path": "E:\\Projects\\MekStation-wt\\cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd/inputs/playwright.log",
+        "bytes": 1466,
+        "sha256": "8ecc11edfe12da5f440534c76a03fa96872970ec287b334bc98451089e6bb2ee"
+      },
+      "invocation": {
+        "admissionPath": "E:/Projects/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/cni0-own835-Jest-execution-admission.json",
+        "cwd": "E:/Projects/MekStation-wt/cni0-recovery-main-01a0febd",
+        "argv": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "node_modules/jest/bin/jest.js",
+          "--selectProjects",
+          "unit",
+          "--runInBand",
+          "--watchAll=false",
+          "--runTestsByPath",
+          "scripts/__tests__/roadmap-loop-scripts.test.ts",
+          "--json",
+          "--outputFile=E:/Projects/MekStation-wt/cni0-recovery-main-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-main-20261003-01a0febd/own835-jest-result.json",
+          "--cacheDirectory=E:/Projects/MekStation-wt/cni0-recovery-main-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-main-20261003-01a0febd/jest-cache"
+        ],
+        "envOverrides": {
+          "TMP": "E:/Projects/MekStation-wt/cni0-recovery-main-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-main-20261003-01a0febd/tmp",
+          "TEMP": "E:/Projects/MekStation-wt/cni0-recovery-main-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-main-20261003-01a0febd/tmp",
+          "TMPDIR": "E:/Projects/MekStation-wt/cni0-recovery-main-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-main-20261003-01a0febd/tmp",
+          "PATHNodePrefix": "C:/Users/wroll/AppData/Local/nvm/v22.22.0",
+          "GIT_OPTIONAL_LOCKS": "0",
+          "NODE_OPTIONS": "--import=file:///E:/Projects/MekStation-wt/cni0-recovery-main-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-main-20261003-01a0febd/helpers/runtime-driver.mjs",
+          "CNI0_OBSERVER_MODE": "spawnSync-observe-only",
+          "CNI0_OBSERVER_RUN_ROOT": "E:/Projects/MekStation-wt/cni0-recovery-main-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-main-20261003-01a0febd",
+          "CNI0_OBSERVER_ATTEMPT": "bb265574-baf3-4a23-a598-29e072c44e3a"
+        },
+        "controllerPid": 65068,
+        "start": "2026-10-03T21:22:58.244Z",
+        "pid": 27020,
+        "end": "2026-10-03T21:23:10.047Z",
+        "exit": 0,
+        "signal": null,
+        "error": null,
+        "timedOut": false
+      },
+      "passed": 15,
+      "total": 15,
+      "exit": 0,
+      "qualification": "Conditional actual command outcome only",
+      "observer": {
+        "qualified": false,
+        "fixtureIdentityQualified": false,
+        "unknownCallbacks": 93,
+        "controllerExit": 1,
+        "completePastCoverage": false
+      }
+    },
+    "build": {
+      "evidence": {
+        "path": "E:\\Projects\\MekStation-wt\\cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd/inputs/own835-build.json",
+        "bytes": 6011,
+        "sha256": "bdac278978d15e7a921a07051d2c4e2eb3a45597f2ca971a8f553ddb8bcfab92"
+      },
+      "invocations": [
+        {
+          "id": "guard",
+          "argv": [
+            "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+            "scripts/qc/guard-node-modules-link.mjs"
+          ],
+          "cwd": "E:\\Projects\\MekStation-wt\\cni0-recovery-main-01a0febd",
+          "pid": 51608,
+          "controllerPid": 38648,
+          "started": "2026-10-03T22:49:03.973Z",
+          "hidden": true,
+          "creationObservation": "Actual native spawn PID/start/close handle; sampled CIM CreationDate where observed; short-lived descendants not exhaustively observed",
+          "environmentArtifact": "environment.json",
+          "osCreationDate": null,
+          "exit": 0,
+          "signal": null,
+          "spawnError": null,
+          "ended": "2026-10-03T22:49:04.051Z",
+          "elapsedMilliseconds": 78,
+          "stdout": {
+            "path": "raw/guard.stdout",
+            "bytes": 16,
+            "sha256": "4c1700e33a7b9c947f779776cade59af3605998805fc5fd76e6f1845d9c62aa1"
+          },
+          "stderr": {
+            "path": "raw/guard.stderr",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "id": "idle-before-build",
+          "argv": [
+            "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+            "scripts/qc/machine-idle.mjs",
+            "--wait",
+            "--timeout-ms",
+            "3600000"
+          ],
+          "cwd": "E:\\Projects\\MekStation-wt\\cni0-recovery-main-01a0febd",
+          "pid": 49828,
+          "controllerPid": 38648,
+          "started": "2026-10-03T22:49:04.053Z",
+          "hidden": true,
+          "creationObservation": "Actual native spawn PID/start/close handle; sampled CIM CreationDate where observed; short-lived descendants not exhaustively observed",
+          "environmentArtifact": "environment.json",
+          "osCreationDate": null,
+          "exit": 0,
+          "signal": null,
+          "spawnError": null,
+          "ended": "2026-10-03T22:50:32.392Z",
+          "elapsedMilliseconds": 88339,
+          "stdout": {
+            "path": "raw/idle-before-build.stdout",
+            "bytes": 13,
+            "sha256": "7d38ea0bb5ace1e63e7d44c21652acdb36d26f406c0875fa71350e59c74de48e"
+          },
+          "stderr": {
+            "path": "raw/idle-before-build.stderr",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "id": "full-package-build",
+          "argv": [
+            "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+            "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node_modules/npm/bin/npm-cli.js",
+            "run",
+            "build"
+          ],
+          "cwd": "E:\\Projects\\MekStation-wt\\cni0-recovery-main-01a0febd",
+          "pid": 57728,
+          "controllerPid": 38648,
+          "started": "2026-10-03T22:50:32.402Z",
+          "hidden": true,
+          "creationObservation": "Actual native spawn PID/start/close handle; sampled CIM CreationDate where observed; short-lived descendants not exhaustively observed",
+          "environmentArtifact": "environment.json",
+          "osCreationDate": null,
+          "exit": 0,
+          "signal": null,
+          "spawnError": null,
+          "ended": "2026-10-03T22:53:38.683Z",
+          "elapsedMilliseconds": 186281,
+          "stdout": {
+            "path": "raw/full-package-build.stdout",
+            "bytes": 7153,
+            "sha256": "8eb84541b18ecb56ffaba1e1c6271a968fe3f0886f5f8fda1fec8614f9f910f1"
+          },
+          "stderr": {
+            "path": "raw/full-package-build.stderr",
+            "bytes": 3172569,
+            "sha256": "0f2093e1ff8bfb048afa3772bec7877debd4ce20097edbd36b46af2ff350c79f"
+          }
+        }
+      ],
+      "marker": {
+        "bytes": 2296288,
+        "sha256": "e32105fc0987d32ddd3b940c094738533caa3ffa2e3c7df08280fab663f7d86f",
+        "offset": 2250903
+      },
+      "qualification": "Own835 full build and flagged marker component only"
+    },
+    "ladder": {
+      "evidence": {
+        "path": "E:\\Projects\\MekStation-wt\\cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd/inputs/own835-ladder.json",
+        "bytes": 13283,
+        "sha256": "e7a471e201a80621347a60058428a0409ec85a4e68497848e18535976dbecf6d"
+      },
+      "invocation": {
+        "id": "exact-main-ladder",
+        "argv": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "scripts/qc/validate-exact-main-regression-ladder.mjs",
+          "--sha",
+          "83525164532b61ef5af18937a635dc53bde2591a",
+          "--rerun",
+          "--evidence-dir",
+          ".omo/evidence/codex-native-contract/CNI1/recovery-ladder-20261004-01a0febd/empty-evidence",
+          "--archive-dir",
+          ".omo/evidence/codex-native-contract/CNI1/recovery-ladder-20261004-01a0febd/ladder"
+        ],
+        "cwd": "E:\\Projects\\MekStation-wt\\cni0-recovery-main-01a0febd",
+        "pid": 59632,
+        "controllerPid": 31068,
+        "started": "2026-10-04T00:33:28.032Z",
+        "hidden": true,
+        "creationObservation": "Actual native spawn PID/start/close handle; sampled CIM CreationDate where observed; short-lived descendants not exhaustively observed",
+        "environmentArtifact": "environment.json",
+        "osCreationDate": null,
+        "exit": 0,
+        "signal": null,
+        "spawnError": null,
+        "ended": "2026-10-04T00:33:49.149Z",
+        "elapsedMilliseconds": 21117,
+        "stdout": {
+          "path": "raw/exact-main-ladder.stdout",
+          "bytes": 105,
+          "sha256": "42352a934dd4d93bacf413c42408bb62ae4b9f1225cc0d3d29b9e3d6eb77a026"
+        },
+        "stderr": {
+          "path": "raw/exact-main-ladder.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "receipt": {
+        "sha": "83525164532b61ef5af18937a635dc53bde2591a",
+        "milestone": "strict-smoke",
+        "at": "2026-10-04T00:33:49.138Z",
+        "groups": [
+          {
+            "group": "smoke",
+            "passed": 3,
+            "failed": 0,
+            "logSha256": "f65d12fbe879228862fce08601a4b0793f5429b37d6f7c97c157a50e9efd767c"
+          }
+        ],
+        "verdict": "SATISFIED"
+      },
+      "qualification": "strict-smoke3, no full E2E80 claim"
+    },
+    "defaultGM": {
+      "evidence": {
+        "path": "E:\\Projects\\MekStation-wt\\cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd/inputs/own835-gm.json",
+        "bytes": 14243,
+        "sha256": "ba64d11866e7d76fd05fd7cda1e9a28bbac38984996a1a26d59fbbfe75f9e579"
+      },
+      "invocation": {
+        "id": "default-gm-jest",
+        "argv": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "node_modules/jest/bin/jest.js",
+          "--runInBand",
+          "--watchAll=false",
+          "--runTestsByPath",
+          "scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+          "src/__tests__/unit/evidence/gmTwoPlayerEvidence.test.ts",
+          "--cacheDirectory",
+          ".omo/evidence/codex-native-contract/CNI1/recovery-gm-qc-20261004-01a0febd/jest-cache",
+          "--json",
+          "--outputFile",
+          ".omo/evidence/codex-native-contract/CNI1/recovery-gm-qc-20261004-01a0febd/gm-qc-result.json"
+        ],
+        "cwd": "E:\\Projects\\MekStation-wt\\cni0-recovery-main-01a0febd",
+        "pid": 46888,
+        "controllerPid": 14740,
+        "started": "2026-10-04T01:12:48.555Z",
+        "hidden": true,
+        "creationObservation": "Actual native spawn PID/start/close handle; sampled CIM CreationDate where observed; short-lived descendants not exhaustively observed",
+        "environmentArtifact": "environment.json",
+        "osCreationDate": null,
+        "exit": 0,
+        "signal": null,
+        "spawnError": null,
+        "ended": "2026-10-04T01:13:39.141Z",
+        "elapsedMilliseconds": 50586,
+        "stdout": {
+          "path": "raw/default-gm-jest.stdout",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "path": "raw/default-gm-jest.stderr",
+          "bytes": 499,
+          "sha256": "0d2fe5eea4cdb4e5d3e967fb40f848e9ae135e8a666f34200b82a11805e2fac9"
+        }
+      },
+      "counts": {
+        "suites": 2,
+        "passed": 30,
+        "failed": 0,
+        "pending": 0
+      },
+      "qualification": "Own835 default project selection,30 passed,2 suites"
+    },
+    "originalCI": {
+      "evidence": {
+        "path": "E:\\Projects\\MekStation-wt\\cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd/inputs/original-ci.json",
+        "bytes": 11671,
+        "sha256": "705d469cee3659d4219a4c073d2e31e5dee7d27cd24455c751f67b8c7442bc81"
+      },
+      "scope": "Original exact ac84 Source CI; no fresh Main runtime inferred"
+    }
+  },
+  "preimages": {
+    "sourceBefore": {
+      "path": "E:\\Projects\\MekStation-wt\\cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd/source-before.json",
+      "bytes": 12494766,
+      "sha256": "aa7eb970314790319e388f279e4b0f7415a14ca821fe1b5b51c29a1c9bfb0c9c"
+    },
+    "sourceAfterBeforeReceipt": {
+      "path": "E:\\Projects\\MekStation-wt\\cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd/source-after.json",
+      "bytes": 12494766,
+      "sha256": "5de2f6fe8137ad9ce0205535894f7d8c29c2eca333618023eba6352c6b984420"
+    },
+    "fullSourceReadback": {
+      "path": "E:\\Projects\\MekStation-wt\\cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd/inputs/source-readback.json",
+      "bytes": 9293978,
+      "sha256": "9cb254c1563634650bbb11705cfdb4cbc921f037ef899a300e1e56ebf2bcd99f"
+    },
+    "planningBefore": {
+      "path": "E:\\Projects\\MekStation-wt\\cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd/planning-before-manifest.json",
+      "bytes": 792442,
+      "sha256": "c6732a4a49993b5d88156fbcf0283615c8e012138e760afa47436a6a106df61a"
+    },
+    "planningAfter": {
+      "path": "E:\\Projects\\MekStation-wt\\cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd/planning-after-manifest.json",
+      "bytes": 792442,
+      "sha256": "c6732a4a49993b5d88156fbcf0283615c8e012138e760afa47436a6a106df61a"
+    },
+    "dependencies": {
+      "path": "E:\\Projects\\MekStation-wt\\cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd/dependency-proof.json",
+      "bytes": 9248,
+      "sha256": "db86093142314e2b698ee1c13e3fc37c8d97ea1faf6c4af18073bc727834808d"
+    },
+    "gatePlan": {
+      "path": "E:\\Projects\\MekStation-wt\\cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd/gate-matrix.json",
+      "bytes": 8182,
+      "sha256": "888ca47be47aef638e3cdb9e39aa04d0abfc1b7575092bac9f9dab8d180cb55d"
+    },
+    "commandRecords": {
+      "path": "E:\\Projects\\MekStation-wt\\cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd/commands.json",
+      "bytes": 17721,
+      "sha256": "67e6d9ae808e866d7b0e2b8e1058875f9bf84e284e05d25fe9ee21a46dc2db9f"
+    },
+    "result": {
+      "path": "E:/Projects/MekStation-wt/cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd/result.json",
+      "bytes": 145927,
+      "sha256": "56da0ce418b805e9ab59cb0489c93f90c92cffc227eae3d22962948c8a49f976"
+    },
+    "originalLocal": {
+      "path": "E:\\Projects\\MekStation-wt\\cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd/inputs/original-local.log",
+      "bytes": 50079,
+      "sha256": "d876a747e4793ba15c171a539ddd15050089886abdd92f6cd9dafd8c1a9ccdb3"
+    },
+    "admission": {
+      "path": "E:\\Projects\\MekStation-wt\\cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd/inputs/admission.json",
+      "bytes": 6009,
+      "sha256": "2bae9dfa92845b76b1130a6d1da16634aefa1177174b8edd826b63047035879e"
+    }
+  },
+  "preservation": {
+    "sourceSixUnchanged": true,
+    "indexInventoryDiffUnchanged": true,
+    "currentGateInputsUnchanged": true,
+    "completePlanningFiles": 1842,
+    "completePlanningBytes": 23413013,
+    "completePlanningUnchanged": true,
+    "native14YamlLinksUnchanged": true
+  },
+  "limits": {
+    "oldObserver": "REFUSED;93 unnamed gaps/controller1/fixturefalse. This LOCAL does not upgrade observer coverage.",
+    "canonicalDebt": "OPEN",
+    "originalTask1Released": false,
+    "reviewAccepted": false,
+    "nativeTupleAccepted": false,
+    "foldPerformed": false,
+    "closureAccepted": false,
+    "publicPublished": false
+  },
+  "cacheRetention": {
+    "admission": {
+      "path": "E:/Projects/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/cni3c-local-cache-retention-and-seal-admission-20261008.json",
+      "bytes": 3885,
+      "sha256": "75e76b450f4fa63323828ff91ef18e849d76894284cccb4ee46ee7e99f297108"
+    },
+    "resource": {
+      "path": "node-compile-cache/v22.22.0-x64-9ac5647c/c8ba2028",
+      "bytes": 1315524,
+      "sha256": "47c4c489998a6f539d20ac4a9df133ad9a4f537f70a44a839ab6a2821e53dcef",
+      "regular": true,
+      "symlink": false,
+      "nlink": 1,
+      "insideOwnedRoot": true,
+      "origin": "Observed during actual type-check child, before its closure; Node compile cache despite intended cache-disable flags"
+    },
+    "directory": {
+      "path": "tsx-wroll",
+      "kind": "empty directory",
+      "origin": "Observed purpose-runtime TMP side effect within owned outputRoot",
+      "retention": "Retain empty/non-reparse directory and disclose actual directory census; no additional payload or path grant"
+    },
+    "actualDirectories": [
+      "inputs",
+      "node-compile-cache",
+      "node-compile-cache/v22.22.0-x64-9ac5647c",
+      "raw",
+      "tsx-wroll"
+    ],
+    "files": 43,
+    "notPreAdmitted": true,
+    "disableFlagsDidNotPreventObservedCompileCache": true,
+    "decision": "Root later admitted this exact private cache and empty TMP directory after actual census refusal; no other file or cache payload admitted",
+    "qualification": "Complete43-file finite physical census and full Source/index/inventory/diff/current gate-input/P1842/dependency/links/process preservation requalified without any quality gate rerun",
+    "proof": {
+      "path": "E:/Projects/MekStation-wt/cni0-recovery-source-01a0febd/.omo/evidence/codex-native-contract/CNI1/recovery-cni0-local-20261008-01a0febd/result.json",
+      "section": "recoverySeal"
+    },
+    "preservedReadyDraft": {
+      "bytes": 42497,
+      "sha256": "20757b2617f213ce8b9a472b2be26fc7f96b77efd11dd68ac3c2df1c71cc2ae6",
+      "section": "finalSeal.readyReceiptPreimage"
+    },
+    "preservedBlockedDraft": {
+      "bytes": 43056,
+      "sha256": "5b9d1e3b22344c003727bdbf4f8cac9198d37c940e48acfda816f3033e91419b",
+      "section": "recoverySeal.blockedLocalPreimage"
+    },
+    "preservedRefusal": "result.json.finalSeal.failedFinalReadback",
+    "qualityReruns": 0,
+    "cleanup": false
+  }
+}

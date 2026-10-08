@@ -1,0 +1,18 @@
+{
+  "reviewContractVersion": 3,
+  "unit": "CNI0",
+  "sourceHead": "ac84f0e9e9faf493ecad03b099b55660885e9e13",
+  "reviewOutputSha256": "3288299b8a79200537552cb3d22fe5f9b158e71669aae4952c817855bbdac147",
+  "localReceiptSha256": "49bd9ef9efe86da94b3035ae13531c20f97a5bff2bd657daf935dab9176a40a8",
+  "author": {
+    "path": "codex-observation-e63196768647e4ee491ecdd9f8be85be62e51ff4316fceb4d2821a6fdaa689c0.json",
+    "sha256": "e63196768647e4ee491ecdd9f8be85be62e51ff4316fceb4d2821a6fdaa689c0",
+    "bytes": 40124
+  },
+  "finishers": [],
+  "reviewer": {
+    "path": "codex-observation-d9f5ad9c98e8df686776211dd8cda8daa9386f08ef724290d2a32e2b4cfb06da.json",
+    "sha256": "d9f5ad9c98e8df686776211dd8cda8daa9386f08ef724290d2a32e2b4cfb06da",
+    "bytes": 38198
+  }
+}

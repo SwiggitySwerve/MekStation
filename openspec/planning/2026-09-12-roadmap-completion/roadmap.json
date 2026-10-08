@@ -3208,9 +3208,17 @@
       ],
       "ownershipPathsAmended20260929": {
         "unit": "P2A",
-        "planTasks": [54, 55],
+        "planTasks": [
+          54,
+          55
+        ],
         "evidence": "evidence/p2a-registration-20260929.json",
-        "paths": ["src/lib/campaign/encounter/campaignOwnedForceMaterialization.ts", "src/lib/campaign/encounter/__tests__/campaignOwnedForceMaterialization.test.ts", "src/pages-modules/api/campaignLaunchAuthorityRoute.ts", "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts"],
+        "paths": [
+          "src/lib/campaign/encounter/campaignOwnedForceMaterialization.ts",
+          "src/lib/campaign/encounter/__tests__/campaignOwnedForceMaterialization.test.ts",
+          "src/pages-modules/api/campaignLaunchAuthorityRoute.ts",
+          "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts"
+        ],
         "reason": "Validator requires existing exact unit paths verbatim on the node. Only the four materializer/route files and neighboring tests are added; broad parent ownership is not expanded. Historical node state/receipts and task holders stay unchanged."
       },
       "ownershipPathsAmended20261001P2BTask64": {
@@ -3229,9 +3237,19 @@
       },
       "ownershipPathsAmended20260929P2B": {
         "unit": "P2B",
-        "planTasks": [56, 57],
+        "planTasks": [
+          56,
+          57
+        ],
         "evidence": "evidence/p2b-registration-20260929.json",
-        "paths": ["src/lib/multiplayer/server/coopMissionAdmission.ts", "src/lib/multiplayer/server/__tests__/coopMissionCreate.fixture.ts", "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts", "src/lib/multiplayer/server/__tests__/coopMissionCreate.refusals.test.ts", "src/lib/multiplayer/server/__tests__/CoopOpponentDriver.test.ts", "src/lib/campaign/encounter/__tests__/materializeCampaignMissionEncounter.test.ts"],
+        "paths": [
+          "src/lib/multiplayer/server/coopMissionAdmission.ts",
+          "src/lib/multiplayer/server/__tests__/coopMissionCreate.fixture.ts",
+          "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+          "src/lib/multiplayer/server/__tests__/coopMissionCreate.refusals.test.ts",
+          "src/lib/multiplayer/server/__tests__/CoopOpponentDriver.test.ts",
+          "src/lib/campaign/encounter/__tests__/materializeCampaignMissionEncounter.test.ts"
+        ],
         "reason": "Validator requires existing exact unit paths verbatim on the node. These six aliases are already contained by the node's existing src/lib/multiplayer/server and src/lib/campaign parents, so effective node scope is not widened. Historical node state/receipts and task holders stay unchanged."
       }
     },
@@ -8356,7 +8374,7 @@
       "wave": 0,
       "title": "CNI0 approved docs-bootstrap delivery milestone; canonical native closure debt OPEN",
       "kind": "planning",
-        "state": "main-verified",
+      "state": "main-verified",
       "dependsOn": [],
       "ownershipPaths": [
         "openspec/planning/2026-09-12-roadmap-completion/GOAL.md",
@@ -8368,10 +8386,10 @@
       "maxFiles": 6,
       "maxNonGeneratedLines": 500,
       "taskKeys": [],
-        "receipt": {
-          "mainSha": "83525164532b61ef5af18937a635dc53bde2591a",
-          "evidence": "evidence/cni-registration-20261002.json"
-        },
+      "receipt": {
+        "mainSha": "83525164532b61ef5af18937a635dc53bde2591a",
+        "evidence": "evidence/cni-registration-20261002.json"
+      },
       "acceptance": [
         "Actual independent exact-head Sol high/xhigh docs review, required CI/owner gates, guarded merge and exact-main registration proof; no native canonical closure claim"
       ],
@@ -8465,7 +8483,8 @@
       "acceptance": [
         "Full genuine CNI0/CNI1 candidate intake and portable archives, complete debt discharge, exact-head delivery/main proof and cleanup before separate current-main Task1 qualification",
         "CNI3A first-three CNI1 receipts are frozen by CNI3.ordinaryPublicationComponents.CNI3A in units.json under the registered ordinary task. This finite publication leaves canonical CNI1 blocked/OPEN, four later receipts null and canonical CNI3/discharge blocked. All delivery gates remain pending.",
-        "CNI3A was actually delivered in PR2125 Source400689cc25bce10598ce7082b09f20de58166582/merge50b8c415f87f11adf7f1ec080e79f8ed889cccd6 with five publication files plus separately admitted CNI3F fixture correction, actual Main/custody/cleanup. CNI3B exact eleven later evidence buffers and historical CNI1 e360/622 complete candidate are frozen by CNI3.ordinaryPublicationComponents.CNI3B in units.json; fresh public consumption and CNI3B own delivery remain pending. CNI0/CNI3 and native debt remain blocked/OPEN; no original Task1 release."
+        "CNI3A was actually delivered in PR2125 Source400689cc25bce10598ce7082b09f20de58166582/merge50b8c415f87f11adf7f1ec080e79f8ed889cccd6 with five publication files plus separately admitted CNI3F fixture correction, actual Main/custody/cleanup. CNI3B exact eleven later evidence buffers and historical CNI1 e360/622 complete candidate are frozen by CNI3.ordinaryPublicationComponents.CNI3B in units.json; fresh public consumption and CNI3B own delivery remain pending. CNI0/CNI3 and native debt remain blocked/OPEN; no original Task1 release.",
+        "CNI3B actual PR2126 Source46e7babf6d2e62b39ecceb57951aa7023fb5c57a/merge520ac2c76dab614635263f64081bd4f28ac2d225 Main/custody/final cleanup and closed private CNI0 stage4-7 full-byte/prospective proof precede the finite CNI3C candidate frozen by CNI3.ordinaryPublicationComponents.CNI3C in units.json. Its twelve exact evidence buffers and historical CNI0 ac84/835 complete projection still require public application/consumption and own exact-head delivery/Main/custody/cleanup. Historical acceptance text is retained; CNI3 remains blocked/null7 and CNI0/CNI1 debt stays OPEN until separate CNI3D. No original Task1 release."
       ],
       "registration": "evidence/cni-registration-20261002.json",
       "ownershipExceptions": [
@@ -8482,8 +8501,22 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-merge-20261004.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-mainproof-20261004.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-tick-20261004.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-logs-20261004.json"
-      ]
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-logs-20261004.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-admission-20261008.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-red-20261008.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-local-20261008.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-review-20261008.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-lane-a-review-20261008.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-merge-20261008.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-mainproof-20261008.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-tick-20261008.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-logs-20261008.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-e63196768647e4ee491ecdd9f8be85be62e51ff4316fceb4d2821a6fdaa689c0.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-d9f5ad9c98e8df686776211dd8cda8daa9386f08ef724290d2a32e2b4cfb06da.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-review-identity-99b825a348d9584e30375147395f2f9db6128c0140bda982f267b85ffe312311.json"
+      ],
+      "ordinaryPublicationTasksRef": "evidence/cni-registration-20261002.json#ordinaryPublicationTasks",
+      "ordinaryPublicationComponentsRef": "units.json#CNI3.ordinaryPublicationComponents"
     }
   ],
   "tasks": [

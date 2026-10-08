@@ -1,0 +1,23 @@
+{
+  "unit": "CNI0",
+  "stage": "review",
+  "at": "2026-10-08T11:26:12.092Z",
+  "lane": "A",
+  "reviewerModel": "openai/gpt-6.1-sol",
+  "implementerModel": "openai/gpt-6.1-sol",
+  "reviewerEffort": "high",
+  "head": "ac84f0e9e9faf493ecad03b099b55660885e9e13",
+  "reviewedHead": "ac84f0e9e9faf493ecad03b099b55660885e9e13",
+  "verdict": "APPROVE",
+  "outputPath": "evidence/cni0-lane-a-review-20261008.md",
+  "outputSha256": "3288299b8a79200537552cb3d22fe5f9b158e71669aae4952c817855bbdac147",
+  "sharedContext": "isolated diff",
+  "laneB": "owner ruling PK-cni0-historical-recovery-20261008: admit bounded private recovery on ac84f0e9e9faf493ecad03b099b55660885e9e13 (PR #2114, comment 5965742052, label owner-ruled)",
+  "githubApproval": "none recorded; Lane A is engineering evidence, never a GitHub approval",
+  "reviewContractVersion": 3,
+  "identityEvidence": {
+    "path": "evidence/codex-review-identity-99b825a348d9584e30375147395f2f9db6128c0140bda982f267b85ffe312311.json",
+    "sha256": "99b825a348d9584e30375147395f2f9db6128c0140bda982f267b85ffe312311",
+    "bytes": 762
+  }
+}
