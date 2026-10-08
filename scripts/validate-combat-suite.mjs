@@ -6,7 +6,7 @@ import { pipeFilteredOutput } from './lib/known-validation-output.mjs';
 const CHANGE_ID = 'add-battlemech-combat-validation-suite';
 const CHANGE_PATH = `openspec/changes/${CHANGE_ID}`;
 const SPEC_ID = 'combat-resolution';
-const OPENSPEC_NPX_ARGS = ['--yes', '@fission-ai/openspec'];
+const OPENSPEC_NPX_ARGS = ['--yes', '@fission-ai/openspec@1.14.0'];
 
 const COMBAT_VALIDATION_TESTS = [
   'src/simulation/runner/__tests__/combatValidationCatalog.contract.test.ts',
