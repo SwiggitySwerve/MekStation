@@ -1,0 +1,18 @@
+{
+  "reviewContractVersion": 2,
+  "unit": "P2CC",
+  "sourceHead": "da253299d4f1bdc621f1bad6553cb901bdd96c6b",
+  "reviewOutputSha256": "01fbc66fb44a72baa35cf426720e98fb262ba1170aaf1cbe9c305f72c2506111",
+  "localReceiptSha256": "66131e6dd3b47da8560ee5d69ebe1577de77d34a6b0b355fd468729d8eb1a8e4",
+  "author": {
+    "path": "identity-cc61b5aa54b319aa8c200b51584122e986cea07ae5905929d261d086974325d5.json",
+    "sha256": "cc61b5aa54b319aa8c200b51584122e986cea07ae5905929d261d086974325d5",
+    "bytes": 565
+  },
+  "finishers": [],
+  "reviewer": {
+    "path": "identity-dd35f38fbd91c7a70033df906af7633d2f916defd04576121bf467da54754360.json",
+    "sha256": "dd35f38fbd91c7a70033df906af7633d2f916defd04576121bf467da54754360",
+    "bytes": 587
+  }
+}

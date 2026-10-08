@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CC",
+  "sourceHead": "da253299d4f1bdc621f1bad6553cb901bdd96c6b",
+  "reviewOutputSha256": "01fbc66fb44a72baa35cf426720e98fb262ba1170aaf1cbe9c305f72c2506111",
+  "observedAt": "2026-10-02T20:42:13.603Z",
+  "engine": {
+    "task_id": "st_01a0faf7",
+    "child_session_id": "01a0faf7-712f-7c6f-ac1d-155000f84749",
+    "model": "chatgpt-subscription/gpt-6.1-sol",
+    "execution_mode": "in-process",
+    "agent_type": null,
+    "resolved_model": {
+      "provider": "chatgpt-subscription",
+      "model_id": "gpt-6.1-sol"
+    }
+  }
+}

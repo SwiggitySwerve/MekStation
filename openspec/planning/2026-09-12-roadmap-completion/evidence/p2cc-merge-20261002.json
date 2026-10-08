@@ -1,0 +1,23 @@
+{
+  "unit": "P2CC",
+  "stage": "merge",
+  "at": "2026-10-08T22:44:49.138Z",
+  "pr": 2112,
+  "title": "Draft: preserve public applied-view convergence contract",
+  "head": "da253299d4f1bdc621f1bad6553cb901bdd96c6b",
+  "mergeSha": "2fe46eaae9de7be054395021c9dc89dc6798293c",
+  "mergedAt": "2026-10-02T20:14:06Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "not stated by the closer",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "treeIntegration": {
+    "parent": "20dc4859da6542fc2c5f659e3bc5b68fb7d0fbf7",
+    "mergeBases": [
+      "20dc4859da6542fc2c5f659e3bc5b68fb7d0fbf7"
+    ],
+    "expectedTree": "9e883554cfc3041a20c541ee5f730c26999a63aa",
+    "actualTree": "9e883554cfc3041a20c541ee5f730c26999a63aa",
+    "matches": true
+  }
+}
