@@ -1,0 +1,104 @@
+{
+  "event": "p2c-chain-registration",
+  "planTask": 8,
+  "registrationOnly": true,
+  "at": "2026-10-09",
+  "baseline": "f77c70c6319ff75873da9a4b01e83d38807f722f",
+  "actor": {
+    "agentPath": "/root/task8_registration",
+    "nativeSession": "01a11f7a-b491-78d3-9415-c3c518118645",
+    "parentSession": "01a0febd-d278-7081-aeca-2343ba7af891",
+    "servedModel": "gpt-6.1-sol",
+    "effort": "high",
+    "nativeTurnContext": "2026-10-09T07:18:22.450Z",
+    "nativeTurnContextLine": 174
+  },
+  "admission": "E:/Projects/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task8-execution-admission-20261009.json",
+  "predecessor": {
+    "task4": "confirmed-FullyDone",
+    "acceptance": "E:/Projects/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task4-final-acceptance-20261008.json",
+    "P2CC": "complete",
+    "canonicalMainProof": "evidence/p2cc-mainproof-20261002.json",
+    "verdict": "PASS",
+    "sourceMerge": "2fe46eaae9de7be054395021c9dc89dc6798293c",
+    "ancestryExit": 0
+  },
+  "scope": [
+    "openspec/planning/2026-09-12-roadmap-completion/units.json",
+    "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+    "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/p2c-chain-registration-20261009.json"
+  ],
+  "registrationBudget": {
+    "actualFiles": 4,
+    "noCapInflation": true,
+    "actualDiffMeasuredSeparately": true,
+    "everyEvidenceFileCounts": true
+  },
+  "prospectiveDelta": {
+    "addedUnits": [
+      "P2CA",
+      "P2CB",
+      "P2CD",
+      "P2CE",
+      "P2CF",
+      "P2CG1",
+      "P2CG2",
+      "P2CH",
+      "P2C"
+    ],
+    "insertImmediatelyBefore": "P2",
+    "sourceOwner": "R2.authority-live",
+    "aggregateOwner": "R0.publish",
+    "nodeAliases": [
+      "src/services/persistence",
+      "src/lib/p2p/campaignMirrorStore.ts",
+      "src/lib/p2p/__tests__/campaignMirrorStore.test.ts",
+      "src/components/campaign/coop"
+    ],
+    "knownSourceTestLifecycleSubtotals": {
+      "P2CA": 7,
+      "P2CB": 5,
+      "P2CD": 7,
+      "P2CE": 10,
+      "P2CF": 5,
+      "P2CG1": 9,
+      "P2CG2": 7,
+      "P2CH": 5
+    },
+    "sourceStates": "P2CA/P2CD planned; other six source slices and aggregate blocked",
+    "allNewSourceIDs": "baseline/prHead/mergeSha null",
+    "allSevenNewStages": "admission/red/local/review/merge/mainProof/tick null",
+    "rowless": true
+  },
+  "counts": {
+    "unitsBefore": 162,
+    "unitsAfter": 171,
+    "nodes": 79,
+    "packages": 13,
+    "originalTaskOccurrences": 376,
+    "packets": 69,
+    "deferrals": 4,
+    "findings": 185
+  },
+  "scopeClarification": {
+    "source": "Root instruction 2026-10-09 from Task9 preparation, independently re-read by registration actor at f77",
+    "path": "src/services/persistence/__tests__/SQLiteService.replayCheckpointsBranch.migration.test.ts",
+    "catalogInitializationLines": "132-134",
+    "explicitHeadAssertionLines": "260-270",
+    "observedHeadVersion": 31,
+    "reason": "This test initializes the complete production migration catalog and explicitly pins MAX(version) to31. The prospective next migration requires updating that exact assertion only after reproducing genuine source RED; preserve anti-self-adjusting coverage.",
+    "P2CAKnownSubtotal": 7,
+    "noCurrentTestEdit": true,
+    "noRuntimeFailureClaim": true,
+    "originalPreparationPreserved": true
+  },
+  "preservation": "Every old unit and relative order, ledger root metadata, node lifecycle/receipts, tasks/holders/packets/deferrals/findings, all historical receipt bytes and P2/U38 blocked state remain unchanged. Only the admitted node aliases and exact per-unit restrictions are added.",
+  "permissionBoundary": "Prospective registration only. Source admission requires accepted Task8 delivery plus genuine predecessor complete/PASS/ancestry/closure, complete literal source/test/lifecycle/stage/helper/evidence freeze and actual unique file/product/test measurements under unchanged15-file/500-product-line caps. Known subtotals are lower bounds and prove neither complete fit nor breach. No unnamed tests, broad directory permission, future hash/receipt placeholders or inflated caps. Genuine later review/identity/closure names and hashes use existing G-OWN after bytes freeze. Existing narrower separately registered ordinary-cap successor procedure applies to a measured overflow without deleting required scenarios.",
+  "aggregateBoundary": "Existing R0.publish planning parent is restricted to aggregate own units.json and exact PROGRESS.md leaves; source domain remains R2.authority-live. Full matrix and other stage/helper/identity/closure files are non-effective until Task17/G-OWN freeze. Task17 separately qualifies original P2/U38 release after the complete eight-slice P2CC-letter matrix and all historical prerequisites. No source or downstream release here.",
+  "delivery": "Independent exact-head docs review, actual current required CI, guarded pinned merge, required postmerge workflows, independent exact-main registration proof, custody and scoped cleanup remain mandatory before source admission.",
+  "Task8Accepted": false,
+  "sourceAdmitted": false,
+  "P2Released": false,
+  "U38Released": false
+}

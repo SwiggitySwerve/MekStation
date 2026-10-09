@@ -5449,6 +5449,441 @@
       }
     },
     {
+      "id": "P2CA",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Create one campaign_public_applied_view table and campaignPublicAppliedView typed owner for authenticated actual application. Key campaign/session/participant with branch, effective generation, acknowledged journal cut, viewer-authority fingerprint and accepted receiptId/appliedAt. Missing-at-zero is unacknowledged; monotone matching-lineage updates and exact duplicates are idempotent; new lineage requires a validated replacement offer. Integrate the migration catalog and rollback. Preserve the existing replay-checkpoint migration test's explicit non-self-adjusting head-version assertion after reproducing its genuine RED.",
+      "ownershipPaths": [
+        "src/lib/campaign",
+        "src/services/persistence"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "migration",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "admissionRequires": "Task8 must first complete independent exact-head docs review, current required CI, guarded merge and independent exact-main registration proof. Parent verifies documentary predecessors complete with genuine exact-main mainProof PASS, ancestry and closure on fetched main and no actual overlap before every source admission. NEXT selection supplies no permission. Prospective assignment only; source permission remains non-effective until normal finite admission freezes the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measures actual unique files and product/test additions under unchanged 15-file/500-product-added-line limits. Named source/test lists and known lower bounds are in R2.authority-live.ownershipPathsAmended20261009P2C.restrictions for this ID. No unnamed test, directory-wide grant, placeholder/hash, capException or cap inflation. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze of actual bytes/names/hashes and full census. If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required scenario.",
+      "predecessors": [
+        "P2CC"
+      ],
+      "successors": [
+        "P2CB",
+        "P2C"
+      ]
+    },
+    {
+      "id": "P2CB",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Extend the same campaignPublicAppliedView owner to materialize authorized captured cuts through existing EventHistoryBranchResolver and campaignBranchSegmentReader public contracts before launch transactions, then synchronously revalidate branch/generation/head revision+digest, retained-seat/authority fingerprints and applied rows inside the transaction. Include active GM/durable retained players, full withholding and visible no-op obligations; hidden-only suffix grants no disclosed position or artificial credit. Preserve refusal precedence and server-only domain boundaries.",
+      "ownershipPaths": [
+        "src/lib/campaign",
+        "src/lib/multiplayer/server"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "admissionRequires": "Task8 must first complete independent exact-head docs review, current required CI, guarded merge and independent exact-main registration proof. Parent verifies documentary predecessors complete with genuine exact-main mainProof PASS, ancestry and closure on fetched main and no actual overlap before every source admission. NEXT selection supplies no permission. Prospective assignment only; source permission remains non-effective until normal finite admission freezes the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measures actual unique files and product/test additions under unchanged 15-file/500-product-added-line limits. Named source/test lists and known lower bounds are in R2.authority-live.ownershipPathsAmended20261009P2C.restrictions for this ID. No unnamed test, directory-wide grant, placeholder/hash, capException or cap inflation. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze of actual bytes/names/hashes and full census. If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required scenario.",
+      "predecessors": [
+        "P2CA"
+      ],
+      "successors": [
+        "P2CE",
+        "P2C"
+      ]
+    },
+    {
+      "id": "P2CD",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Add opaque application offers and receipt-bearing CampaignAck to the existing protocol/socket. Transport exposes explicit successful confirmApplied and mirror reports actual accepted application. Successful true snapshot/ordered-event application must precede ACK; legacy revision parsing supplies no durable credit. Reject missing visible prefix and closed/rejected/delayed consumers. No new endpoint/topic/timer.",
+      "ownershipPaths": [
+        "src/types/multiplayer/Protocol.ts",
+        "src/types/multiplayer/__tests__/Protocol.test.ts",
+        "src/lib/campaign",
+        "src/lib/p2p/campaignMirrorStore.ts",
+        "src/lib/p2p/__tests__/campaignMirrorStore.test.ts"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "admissionRequires": "Task8 must first complete independent exact-head docs review, current required CI, guarded merge and independent exact-main registration proof. Parent verifies documentary predecessors complete with genuine exact-main mainProof PASS, ancestry and closure on fetched main and no actual overlap before every source admission. NEXT selection supplies no permission. Prospective assignment only; source permission remains non-effective until normal finite admission freezes the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measures actual unique files and product/test additions under unchanged 15-file/500-product-added-line limits. Named source/test lists and known lower bounds are in R2.authority-live.ownershipPathsAmended20261009P2C.restrictions for this ID. No unnamed test, directory-wide grant, placeholder/hash, capException or cap inflation. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze of actual bytes/names/hashes and full census. If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required scenario.",
+      "predecessors": [
+        "P2CC"
+      ],
+      "successors": [
+        "P2CE",
+        "P2C"
+      ]
+    },
+    {
+      "id": "P2CE",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Bind cumulative offers to admitted socket/principal/campaign/session/current authority/lineage. Successful send establishes the offer; failed/closed/backpressured send does not. Hydrate GM/first/returning viewer-safe public baseline and required launch adjuncts uniformly. Validate exact issued receipt, persist via P2CA, then confirm. Use existing connection bookkeeping and owned completion events; no durable sent cache.",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "admissionRequires": "Task8 must first complete independent exact-head docs review, current required CI, guarded merge and independent exact-main registration proof. Parent verifies documentary predecessors complete with genuine exact-main mainProof PASS, ancestry and closure on fetched main and no actual overlap before every source admission. NEXT selection supplies no permission. Prospective assignment only; source permission remains non-effective until normal finite admission freezes the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measures actual unique files and product/test additions under unchanged 15-file/500-product-added-line limits. Named source/test lists and known lower bounds are in R2.authority-live.ownershipPathsAmended20261009P2C.restrictions for this ID. No unnamed test, directory-wide grant, placeholder/hash, capException or cap inflation. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze of actual bytes/names/hashes and full census. If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required scenario.",
+      "predecessors": [
+        "P2CB",
+        "P2CD"
+      ],
+      "successors": [
+        "P2CF",
+        "P2C"
+      ]
+    },
+    {
+      "id": "P2CF",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Wire mounted GM fold plus projection and guest accepted mirror plus projection before exact offered acknowledgment. Retain required mission-launch adjuncts and await saved-record refresh without regressing current authority. Replacement baseline resets lineage/fold and reconnect cannot adopt stale held proof at zero. Duplicate/rejected/superseded/throwing application gives no false receipt.",
+      "ownershipPaths": [
+        "src/components/campaign/coop",
+        "src/lib/campaign"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "admissionRequires": "Task8 must first complete independent exact-head docs review, current required CI, guarded merge and independent exact-main registration proof. Parent verifies documentary predecessors complete with genuine exact-main mainProof PASS, ancestry and closure on fetched main and no actual overlap before every source admission. NEXT selection supplies no permission. Prospective assignment only; source permission remains non-effective until normal finite admission freezes the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measures actual unique files and product/test additions under unchanged 15-file/500-product-added-line limits. Named source/test lists and known lower bounds are in R2.authority-live.ownershipPathsAmended20261009P2C.restrictions for this ID. No unnamed test, directory-wide grant, placeholder/hash, capException or cap inflation. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze of actual bytes/names/hashes and full census. If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required scenario.",
+      "predecessors": [
+        "P2CE"
+      ],
+      "successors": [
+        "P2CG1",
+        "P2C"
+      ]
+    },
+    {
+      "id": "P2CG1",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Switch HTTP launch and socket progression to the same captured-cut durable evaluator with synchronous in-transaction revalidation. Remove MAX(acked_sequence) and public-memory ACK readiness credit while preserving branch/saga/replacement refusal precedence and typed server-only port. Genuine offer-to-consumer-to-receipt-to-SQLite readiness must work without seeded cursors.",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server",
+        "src/pages-modules/api"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "admissionRequires": "Task8 must first complete independent exact-head docs review, current required CI, guarded merge and independent exact-main registration proof. Parent verifies documentary predecessors complete with genuine exact-main mainProof PASS, ancestry and closure on fetched main and no actual overlap before every source admission. NEXT selection supplies no permission. Prospective assignment only; source permission remains non-effective until normal finite admission freezes the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measures actual unique files and product/test additions under unchanged 15-file/500-product-added-line limits. Named source/test lists and known lower bounds are in R2.authority-live.ownershipPathsAmended20261009P2C.restrictions for this ID. No unnamed test, directory-wide grant, placeholder/hash, capException or cap inflation. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze of actual bytes/names/hashes and full census. If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required scenario.",
+      "predecessors": [
+        "P2CF"
+      ],
+      "successors": [
+        "P2CG2",
+        "P2C"
+      ]
+    },
+    {
+      "id": "P2CG2",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Preserve durable retained-seat membership across disconnect/cold recovery; active GM may authenticate/hydrate/ACK while paused but cannot resume before all-seat convergence. Audited committed removal excludes the participant and every attachment immediately, including append/revoke healing gaps; expired invite cannot reopen admission. Preserve current viewer fingerprints and reject obsolete offers.",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "admissionRequires": "Task8 must first complete independent exact-head docs review, current required CI, guarded merge and independent exact-main registration proof. Parent verifies documentary predecessors complete with genuine exact-main mainProof PASS, ancestry and closure on fetched main and no actual overlap before every source admission. NEXT selection supplies no permission. Prospective assignment only; source permission remains non-effective until normal finite admission freezes the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measures actual unique files and product/test additions under unchanged 15-file/500-product-added-line limits. Named source/test lists and known lower bounds are in R2.authority-live.ownershipPathsAmended20261009P2C.restrictions for this ID. No unnamed test, directory-wide grant, placeholder/hash, capException or cap inflation. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze of actual bytes/names/hashes and full census. If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required scenario.",
+      "predecessors": [
+        "P2CG1"
+      ],
+      "successors": [
+        "P2CH",
+        "P2C"
+      ]
+    },
+    {
+      "id": "P2CH",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Extend the existing real socket/recovery and two-browser proof for actual public application, durable confirmation, membership/expired-invite, GM pause, baselines plus adjuncts and cold browser/server recovery. Withhold one valid retained-seat ACK while healthy delivery continues: CAMPAIGN_NOT_CONVERGED/zero creates, then valid all-seat ACK permits one idempotent shared create. No prepared P2 helper adoption or P2 completion.",
+      "ownershipPaths": [
+        "e2e/coop-campaign-two-browser-journey.spec.ts",
+        "src/lib/multiplayer/server"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "admissionRequires": "Task8 must first complete independent exact-head docs review, current required CI, guarded merge and independent exact-main registration proof. Parent verifies documentary predecessors complete with genuine exact-main mainProof PASS, ancestry and closure on fetched main and no actual overlap before every source admission. NEXT selection supplies no permission. Prospective assignment only; source permission remains non-effective until normal finite admission freezes the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measures actual unique files and product/test additions under unchanged 15-file/500-product-added-line limits. Named source/test lists and known lower bounds are in R2.authority-live.ownershipPathsAmended20261009P2C.restrictions for this ID. No unnamed test, directory-wide grant, placeholder/hash, capException or cap inflation. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze of actual bytes/names/hashes and full census. If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required scenario.",
+      "predecessors": [
+        "P2CG2"
+      ],
+      "successors": [
+        "P2C"
+      ]
+    },
+    {
+      "id": "P2C",
+      "node": "R0.publish",
+      "taskKeys": [],
+      "behavior": "Document aggregate genuine closure of all eight P2C slices and the full P2CC-letter matrix, including GM retention, safe hidden-only settlement, visible no-op, baseline/adjunct application, revocation, current lineage/authority, prefix/send refusal and cold/API/socket recovery. Known documentary leaves are only units.json and PROGRESS.md. Task17 owns explicit original P2/U38 readmission after every genuine source PASS/ancestry/closure and all retained prerequisites; registration itself releases neither.",
+      "ownershipPaths": [
+        "openspec/planning/2026-09-12-roadmap-completion"
+      ],
+      "ownershipExceptions": [],
+      "lifecycleOwnershipLimit": "Only this aggregate's own authentic units.json lifecycle and the exact PROGRESS.md documentary qualification. Existing planning parent is restricted to these two named leaves. Full matrix/stage/helper/identity/closure paths remain ungranted until Task17/G-OWN finite freeze; no original P2/U38 lifecycle release is granted by Task8.",
+      "ciClass": "docs",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "admissionRequires": "Task8 must first complete independent exact-head docs review, current required CI, guarded merge and independent exact-main registration proof. All eight source slices require genuine complete/PASS/ancestry/closure; original P2/U38 remain blocked until Task17 full semantic qualification and explicit original-prerequisite readmission. NEXT selection supplies no permission. No aggregate output beyond the two named documentary leaves is effective before Task17/G-OWN freeze.",
+      "predecessors": [
+        "P2CA",
+        "P2CB",
+        "P2CD",
+        "P2CE",
+        "P2CF",
+        "P2CG1",
+        "P2CG2",
+        "P2CH"
+      ],
+      "successors": []
+    },
+    {
       "id": "P2",
       "node": "R2.multiplayer-client",
       "taskKeys": [],

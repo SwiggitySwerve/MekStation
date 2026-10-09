@@ -2707,6 +2707,94 @@
     },
     {
       "id": "R2.authority-live",
+      "ownershipPathsAmended20261009P2C": {
+        "unit": "P2CA/P2CB/P2CD/P2CE/P2CF/P2CG1/P2CG2/P2CH",
+        "planTask": 8,
+        "evidence": "evidence/p2c-chain-registration-20261009.json",
+        "paths": [
+          "src/services/persistence",
+          "src/lib/p2p/campaignMirrorStore.ts",
+          "src/lib/p2p/__tests__/campaignMirrorStore.test.ts",
+          "src/components/campaign/coop"
+        ],
+        "reason": "Only existing missing aliases for the approved prospective chain. Parents are restricted to the exact per-unit source/test leaves below, not directory permission. Existing node lifecycle, dependsOn, historical paths/receipts and ordinary caps are unchanged. New leaves remain prospective until creation and normal literal-path amendment. No source admission or complete cap fit is supplied.",
+        "restrictions": {
+          "P2CA": [
+            "src/lib/campaign/sync/campaignPublicAppliedView.ts",
+            "src/services/persistence/SQLiteService.publicAppliedViews.migration.ts",
+            "src/services/persistence/SQLiteService.migrations.ts",
+            "src/lib/campaign/sync/__tests__/campaignPublicAppliedView.integration.test.ts",
+            "src/services/persistence/__tests__/SQLiteService.migrations.test.ts",
+            "src/services/persistence/__tests__/SQLiteService.replayCheckpointsBranch.migration.test.ts"
+          ],
+          "P2CB": [
+            "src/lib/campaign/sync/campaignPublicAppliedView.ts",
+            "src/lib/multiplayer/server/campaignProgressionReaders.durable.ts",
+            "src/lib/campaign/sync/__tests__/campaignPublicAppliedView.integration.test.ts",
+            "src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.crossGraph.test.ts"
+          ],
+          "P2CD": [
+            "src/types/multiplayer/Protocol.ts",
+            "src/lib/campaign/coop/campaignSyncTransport.ts",
+            "src/lib/p2p/campaignMirrorStore.ts",
+            "src/types/multiplayer/__tests__/Protocol.test.ts",
+            "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+            "src/lib/p2p/__tests__/campaignMirrorStore.test.ts"
+          ],
+          "P2CE": [
+            "src/lib/multiplayer/server/CampaignSyncSession.ts",
+            "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+            "src/lib/multiplayer/server/campaignEventWireFrame.ts",
+            "src/lib/multiplayer/server/handleRoomCodeGuestJoin.ts",
+            "src/lib/multiplayer/server/ServerMatchBroadcaster.ts",
+            "src/lib/multiplayer/server/__tests__/CampaignSyncSession.test.ts",
+            "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
+            "src/lib/multiplayer/server/__tests__/handleRoomCodeGuestJoin.test.ts",
+            "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts"
+          ],
+          "P2CG1": [
+            "src/lib/multiplayer/server/CampaignProgressionGate.ts",
+            "src/lib/multiplayer/server/campaignProgressionReaders.durable.ts",
+            "src/lib/multiplayer/server/CampaignSyncSession.ts",
+            "src/pages-modules/api/campaignLaunchProgressionGate.ts",
+            "src/pages-modules/api/campaignLaunchAuthorityRoute.ts",
+            "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts",
+            "src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.crossGraph.test.ts",
+            "src/lib/multiplayer/server/__tests__/CampaignSyncSession.test.ts"
+          ],
+          "P2CG2": [
+            "src/lib/multiplayer/server/CampaignSyncSession.ts",
+            "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+            "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+            "src/lib/multiplayer/server/__tests__/CampaignSyncSession.test.ts",
+            "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
+            "src/lib/multiplayer/server/__tests__/campaignPublicAppliedView.recovery.test.ts"
+          ],
+          "P2CH": [
+            "e2e/coop-campaign-two-browser-journey.spec.ts",
+            "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts",
+            "src/lib/multiplayer/server/__tests__/campaignPublicAppliedView.socket.test.ts",
+            "src/lib/multiplayer/server/__tests__/campaignPublicAppliedView.recovery.test.ts"
+          ],
+          "P2CF": [
+            "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+            "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+            "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx",
+            "src/lib/campaign/coop/campaignAuthoritativeFold.ts"
+          ]
+        },
+        "knownSourceTestLifecycleSubtotals": {
+          "P2CA": 7,
+          "P2CB": 5,
+          "P2CD": 7,
+          "P2CE": 10,
+          "P2CF": 5,
+          "P2CG1": 9,
+          "P2CG2": 7,
+          "P2CH": 5
+        },
+        "permissionBoundary": "Prospective assignment only; source permission remains non-effective until normal finite admission freezes the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measures actual unique files and product/test additions under unchanged 15-file/500-product-added-line limits. Named source/test lists and known lower bounds are in R2.authority-live.ownershipPathsAmended20261009P2C.restrictions for this ID. No unnamed test, directory-wide grant, placeholder/hash, capException or cap inflation. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze of actual bytes/names/hashes and full census. If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required scenario."
+      },
       "wave": 2,
       "title": "Verify complete campaign authority and two-process convergence",
       "kind": "verification",
@@ -2770,7 +2858,11 @@
         "src/lib/multiplayer/server/__tests__/CoopOpponentDriver.test.ts",
         "src/lib/campaign/encounter/__tests__/materializeCampaignMissionEncounter.test.ts",
         "src/lib/multiplayer/server/coopMissionCreate.ts",
-        "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.test.ts"
+        "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.test.ts",
+        "src/services/persistence",
+        "src/lib/p2p/campaignMirrorStore.ts",
+        "src/lib/p2p/__tests__/campaignMirrorStore.test.ts",
+        "src/components/campaign/coop"
       ],
       "acceptance": [
         "npm.cmd run typecheck",
