@@ -1,3 +1,31 @@
+## 2026-10-09 P2C implementation chain registered prospectively (Task8 candidate)
+
+> **Status:** Registration candidate; delivery acceptance pending
+> **Updated:** 2026-10-09
+
+The [four-file registration](evidence/p2c-chain-registration-20261009.json) starts
+from accepted Task4 main f77 and adds rowless P2CA/P2CB/P2CD/P2CE/P2CF/P2CG1/P2CG2/
+P2CH/P2C immediately before P2. Source scopes use existing R2.authority-live;
+the documentary aggregate uses existing R0.publish, restricted to its own
+units.json lifecycle and this PROGRESS.md. Nine new records have null source
+IDs and seven null stages. P2CA/P2CD are prospective planned candidates; the
+remaining chain and aggregate are blocked by genuine predecessor closure.
+
+Existing units, relative order, holders, packets, node lifecycle and historical
+receipts are preserved. P2/U38 remain blocked. Exact node aliases carry named
+source/test restrictions; source/stage/helper grants remain non-effective until
+normal finite admission measures the complete literal manifest under unchanged
+15-file/500-product-line caps. Known subtotals prove neither fit nor breach;
+later genuine closure outputs use the existing separate G-OWN freeze.
+
+P2CA also names the existing replay-checkpoint migration test that explicitly
+pins catalog head31; Task9 must preserve that coverage after genuine source RED.
+P2CF has exactly the connected component, its two existing host projection/refresh
+tests and authoritative fold. No source/test edit, runtime failure, browser
+proof, aggregate closure, source admission or P2/U38 release is claimed here.
+
+---
+
 ## 2026-10-02 P2CC exact canonical receipt publication proposed (task 70)
 
 **Registration amendment only; source remains unadmitted.** The [prospective amendment](evidence/p2cc-canonical-receipt-publication-registration-20261002.json) raises only P2CC ordinary maxFiles3 to6 and appends exactly its canonical admission/red/local-20261002.json evidence paths. Two named normative source files, exact own-lifecycle units.json and those three receipts count as six actual files. All source and lifecycle metadata additions stay within300; canonical evidence additions are separately reported under unchanged line accounting, never exempted from file count. No capException, broad directory grant, other date/stage or product path is authorized.
