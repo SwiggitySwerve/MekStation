@@ -12,6 +12,7 @@ import {
 } from '@/services/game-resolution/GameOutcomeCalculator';
 import { BotPlayer } from '@/simulation/ai/BotPlayer';
 import { SeededD6Roller, SeededRandom } from '@/simulation/core';
+import { MAX_TURNS } from '@/simulation/runner/SimulationRunnerConstants';
 import {
   GameSide,
   type IGameEndedPayload,
@@ -110,6 +111,8 @@ export class GameEngine {
     gameUnits: readonly IGameUnit[],
     linkage: IInteractiveSessionLinkage = {},
   ): IGameSession {
+    const autoResolveTurnLimit =
+      this.turnLimit > 0 ? this.turnLimit : MAX_TURNS;
     const weaponsByUnit = new Map<string, readonly IWeapon[]>();
     const movementByUnit = new Map<string, IMovementCapability>();
     const gunneryByUnit = new Map<string, number>();
@@ -128,7 +131,7 @@ export class GameEngine {
 
     const gameConfig: IGameConfig = {
       mapRadius: this.mapRadius,
-      turnLimit: this.turnLimit,
+      turnLimit: autoResolveTurnLimit,
       victoryConditions: [...this.victoryConditions],
       optionalRules: [...this.optionalRules],
       encounterId: linkage.encounterId ?? null,
@@ -171,7 +174,7 @@ export class GameEngine {
       };
     };
 
-    for (let turn = 0; turn < this.turnLimit; turn++) {
+    for (let turn = 0; turn < autoResolveTurnLimit; turn++) {
       session = rollInitiative(session, undefined, d6Roller);
       session = advancePhase(session);
 
