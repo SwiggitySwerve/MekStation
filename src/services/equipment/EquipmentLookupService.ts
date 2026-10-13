@@ -84,9 +84,9 @@ const AMS_WEAPON_IDS = ['ams', 'clan-ams', 'laser-ams', 'clan-laser-ams'];
  */
 export class EquipmentLookupService implements IEquipmentLookupService {
   private equipmentCache: IEquipmentItem[] | null = null;
+  private equipmentCacheSource: 'json' | 'fallback' | null = null;
   private initPromise: Promise<void> | null = null;
   private initialized = false;
-  private useJsonSource = false;
   private loadResult: IEquipmentLoadResult | null = null;
 
   /**
@@ -122,14 +122,7 @@ export class EquipmentLookupService implements IEquipmentLookupService {
         };
       }
 
-      // Use JSON source if we loaded a reasonable number of items
-      // (fallback has ~200 items, JSON should have 700+)
-      const minItemsForJson = 100;
-      this.useJsonSource =
-        this.loadResult.success &&
-        this.loadResult.itemsLoaded >= minItemsForJson;
-
-      if (!this.useJsonSource) {
+      if (this.getDataSource() === 'fallback') {
         logger.warn(
           `[EquipmentLookupService] JSON loading failed or insufficient items (${this.loadResult.itemsLoaded}), using hardcoded fallback. ` +
             `Errors: ${this.loadResult.errors.join(', ')}`,
@@ -144,7 +137,6 @@ export class EquipmentLookupService implements IEquipmentLookupService {
         '[EquipmentLookupService] Failed to initialize from JSON:',
         error,
       );
-      this.useJsonSource = false;
       this.loadResult = {
         success: false,
         itemsLoaded: 0,
@@ -169,7 +161,7 @@ export class EquipmentLookupService implements IEquipmentLookupService {
    * Get the current data source being used
    */
   getDataSource = (): 'json' | 'fallback' => {
-    return this.useJsonSource ? 'json' : 'fallback';
+    return getEquipmentLoader().getIsLoaded() ? 'json' : 'fallback';
   };
 
   /**
@@ -271,12 +263,14 @@ export class EquipmentLookupService implements IEquipmentLookupService {
    * Get cached equipment list (from JSON or fallback)
    */
   private getEquipment(): IEquipmentItem[] {
-    if (!this.equipmentCache) {
-      if (this.useJsonSource) {
+    const source = this.getDataSource();
+    if (!this.equipmentCache || this.equipmentCacheSource !== source) {
+      if (source === 'json') {
         this.equipmentCache = this.buildEquipmentItemsFromLoader();
       } else {
         this.equipmentCache = getAllEquipmentItemsFallback();
       }
+      this.equipmentCacheSource = source;
     }
     return this.equipmentCache;
   }
@@ -370,7 +364,7 @@ export class EquipmentLookupService implements IEquipmentLookupService {
    * Get all weapon definitions
    */
   getAllWeapons = (): IWeapon[] => {
-    if (this.useJsonSource) {
+    if (this.getDataSource() === 'json') {
       return getEquipmentLoader().getAllWeapons();
     }
     return getAllWeaponsFallback() as IWeapon[];
@@ -380,7 +374,7 @@ export class EquipmentLookupService implements IEquipmentLookupService {
    * Get all ammunition definitions
    */
   getAllAmmunition = (): IAmmunition[] => {
-    if (this.useJsonSource) {
+    if (this.getDataSource() === 'json') {
       return getEquipmentLoader().getAllAmmunition();
     }
     return getAllAmmunitionFallback() as IAmmunition[];
