@@ -198,6 +198,69 @@ describe('applyTurnStarted — pendingPSRs clear (regression protection)', () =>
 });
 
 describe('applyPhaseChanged — pendingPSRs preserved within turn', () => {
+  it('starts the next turn and resets turn-scoped state when End advances to Initiative', () => {
+    const initial = {
+      ...makeState({
+        'unit-1': makeUnit('unit-1', [makePSR()], ['weapon-a'], {
+          externalHeatThisTurn: 15,
+          lockState: LockState.Locked,
+          damageThisPhase: 20,
+        }),
+      }),
+      phase: GamePhase.End,
+    };
+    const event = {
+      ...makePhaseChangedEvent(GamePhase.End, GamePhase.Initiative),
+      turn: 2,
+    };
+    const result = applyPhaseChanged(initial, event, {
+      fromPhase: GamePhase.End,
+      toPhase: GamePhase.Initiative,
+    });
+
+    expect(result.turn).toBe(2);
+    expect(result.phase).toBe(GamePhase.Initiative);
+    expect(result.units['unit-1']).toMatchObject({
+      weaponsFiredThisTurn: [],
+      pendingPSRs: [],
+      externalHeatThisTurn: 0,
+      damageThisPhase: 0,
+      lockState: LockState.Pending,
+    });
+    expect(result.turnEvents).toEqual([event]);
+  });
+
+  it.each(['turn-start-first', 'phase-change-first'])(
+    'applies turn-start effects once when both boundary events exist (%s)',
+    (order) => {
+      let state = makeState({
+        'unit-1': makeUnit('unit-1', [], [], {
+          empInterferenceTurns: 3,
+          empShutdownTurns: 2,
+        }),
+      });
+      const event = {
+        ...makePhaseChangedEvent(GamePhase.End, GamePhase.Initiative),
+        turn: 2,
+      };
+      const applyPhaseBoundary = (current: IGameState) =>
+        applyPhaseChanged(current, event, {
+          fromPhase: GamePhase.End,
+          toPhase: GamePhase.Initiative,
+        });
+      if (order === 'turn-start-first') {
+        state = applyTurnStarted(state, makeTurnStartedEvent(2));
+        state = applyPhaseBoundary(state);
+      } else {
+        state = applyPhaseBoundary(state);
+        state = applyTurnStarted(state, makeTurnStartedEvent(2));
+      }
+      expect(state.turn).toBe(2);
+      expect(state.units['unit-1'].empInterferenceTurns).toBe(2);
+      expect(state.units['unit-1'].empShutdownTurns).toBe(1);
+    },
+  );
+
   it('does NOT clear pendingPSRs when transitioning from WeaponAttack to PhysicalAttack', () => {
     // Per archived `wire-piloting-skill-rolls` task 1.3: PSRs accumulate
     // through phase transitions and resolve in the End phase. Clearing them

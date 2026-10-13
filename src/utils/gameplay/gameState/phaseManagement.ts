@@ -14,7 +14,10 @@ export function applyPhaseChanged(
   event: IGameEvent,
   payload: IPhaseChangedPayload,
 ): IGameState {
-  const units = { ...state.units };
+  const startsNextTurn =
+    payload.toPhase === GamePhase.Initiative && event.turn > state.turn;
+  const phaseState = startsNextTurn ? applyTurnStarted(state, event) : state;
+  const units = { ...phaseState.units };
   for (const unitId of Object.keys(units)) {
     units[unitId] = {
       ...units[unitId],
@@ -41,11 +44,13 @@ export function applyPhaseChanged(
   }
 
   return {
-    ...state,
+    ...phaseState,
     phase: payload.toPhase,
     activationIndex: 0,
     units,
-    turnEvents: [...state.turnEvents, event],
+    turnEvents: startsNextTurn
+      ? phaseState.turnEvents
+      : [...state.turnEvents, event],
   };
 }
 
@@ -53,6 +58,8 @@ export function applyTurnStarted(
   state: IGameState,
   event: IGameEvent,
 ): IGameState {
+  if (event.turn <= state.turn) return state;
+
   const units = { ...state.units };
   for (const unitId of Object.keys(units)) {
     // Per `wire-piloting-skill-rolls` task 1.3: clear any PSRs that
