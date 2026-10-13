@@ -557,12 +557,14 @@ describe('QuickGameResults', () => {
         events: unknown[];
         winner: string;
         aiVariant: string;
+        bvTotal: number;
       };
       expect(parsed.gameId).toBe('test-game-1');
       expect(Array.isArray(parsed.events)).toBe(true);
       expect(parsed.events).toHaveLength(3);
       expect(parsed.winner).toBe('player');
       expect(parsed.aiVariant).toBe('');
+      expect(parsed.bvTotal).toBe(3909);
     });
 
     it('does NOT fire when the game is null (no game terminal state)', async () => {

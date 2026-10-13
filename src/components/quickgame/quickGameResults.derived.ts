@@ -13,6 +13,7 @@ import {
   assessUnitDamage,
 } from '@/services/game-resolution';
 import { GameSide } from '@/types/gameplay';
+import { calculateForceTotals } from '@/types/quickgame/QuickGameInterfaces';
 
 export interface QuickGameUnitRow {
   readonly unit: IQuickGameUnit;
@@ -34,6 +35,7 @@ export function buildReplayLibraryPayload(game: IQuickGameInstance): string {
     events: game.events,
     winner: game.winner,
     aiVariant: game.scenarioConfig.enemyFaction ?? '',
+    bvTotal: calculateForceTotals(listQuickGameUnits(game)).totalBV,
   });
 }
 

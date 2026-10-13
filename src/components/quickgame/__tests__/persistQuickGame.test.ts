@@ -150,6 +150,44 @@ describe('buildQuickManifestEntry', () => {
     expect(entry.turns).toBe(3);
   });
 
+  it('uses terminal turns and event turns when explicit TurnStarted events are absent', () => {
+    const terminal: IGameEvent = {
+      ...turnStartedEvent(1, 3),
+      type: GameEventType.GameEnded,
+      payload: { winner: GameSide.Player, reason: 'destruction', turns: 3 },
+    };
+    expect(
+      buildQuickManifestEntry({
+        ...baseInput,
+        events: [gameCreatedEvent([]), terminal],
+        winner: 'player',
+      }).turns,
+    ).toBe(3);
+    const phase = {
+      ...turnStartedEvent(1, 4),
+      type: GameEventType.PhaseChanged,
+      payload: {},
+    };
+    expect(
+      buildQuickManifestEntry({
+        ...baseInput,
+        events: [gameCreatedEvent([]), phase],
+        winner: null,
+      }).turns,
+    ).toBe(4);
+  });
+
+  it('accepts supplied force BV when GameCreated has no per-unit BV', () => {
+    expect(
+      buildQuickManifestEntry({
+        ...baseInput,
+        events: [gameCreatedEvent([])],
+        winner: 'player',
+        bvTotal: 3909,
+      }).bvTotal,
+    ).toBe(3909);
+  });
+
   it('falls back to turns=0 when no turn_started events', () => {
     const entry = buildQuickManifestEntry({
       ...baseInput,
@@ -201,6 +239,25 @@ describe('persistQuickGame (Node env)', () => {
     if (cwd !== '') {
       await rm(cwd, { recursive: true, force: true });
     }
+  });
+
+  it('preserves supplied BV in the new replay metadata without mutating input events', async () => {
+    const events = [gameCreatedEvent([]), turnStartedEvent(1, 1)];
+    const before = JSON.stringify(events);
+    const result = await persistQuickGame({
+      gameId: FIXTURE_GAME_ID,
+      events,
+      winner: 'player',
+      aiVariant: 'normal',
+      bvTotal: 3909,
+      cwd,
+    });
+    const saved = (await readFile(result.path!, 'utf8'))
+      .split(String.fromCharCode(10))
+      .map((line) => JSON.parse(line));
+    expect(saved[0].payload.quickMeta.bvTotal).toBe(3909);
+    expect(result.manifestEntry?.bvTotal).toBe(3909);
+    expect(JSON.stringify(events)).toBe(before);
   });
 
   it('writes the event log to simulation-reports/quick/<gameId>.jsonl', async () => {

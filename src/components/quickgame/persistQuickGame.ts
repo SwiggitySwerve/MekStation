@@ -25,7 +25,17 @@
 // when the import is `import type`, hence the deep path.
 import type { IQuickReplayManifestEntry } from '@/replay-library/types';
 
-import { GameSide, ReplaySource, type IGameEvent } from '@/types/gameplay';
+import {
+  isReplayBvTotal,
+  replayBvTotal,
+  replayTurnCount,
+} from '@/replay-library/eventMetadata';
+import {
+  GameSide,
+  ReplaySource,
+  type IGameCreatedPayload,
+  type IGameEvent,
+} from '@/types/gameplay';
 
 /**
  * Inputs required to persist a completed quick game.
@@ -39,6 +49,8 @@ export interface IPersistQuickGameInput {
   readonly events: readonly IGameEvent[];
   readonly winner: 'player' | 'opponent' | 'draw' | null;
   readonly aiVariant: string;
+  /** Recorded force total supplied by the completed Quick Game. */
+  readonly bvTotal?: number;
   /**
    * Optional override for the working directory. Tests inject a
    * tmpdir; production callers omit and we fall back to
@@ -96,30 +108,30 @@ function shouldPersistToDisk(cwdProvided: boolean): boolean {
  */
 function stampQuickReplaySource(
   events: readonly IGameEvent[],
+  bvTotal?: number,
 ): readonly IGameEvent[] {
-  return events.map((event) =>
-    event.replaySource !== undefined
-      ? event
-      : { ...event, replaySource: ReplaySource.Quick },
-  );
-}
-
-/**
- * Count `turn_started` events. Used as the `turns` fallback when the
- * `GameEnded.turns` field is missing — same ladder the swarm manifest
- * builder uses (PR 4) so build-time and read-time agree.
- */
-function countTurnStartedEvents(events: readonly IGameEvent[]): number {
-  let count = 0;
-  for (const event of events) {
-    // Use the typed enum from the existing GameEventType import path.
-    // Avoid re-importing it here to keep the module tree small — we
-    // string-compare the type field which is the wire shape.
-    if (event.type === 'turn_started') {
-      count += 1;
-    }
-  }
-  return count;
+  return events.map((event) => {
+    const stamped =
+      event.replaySource === undefined
+        ? { ...event, replaySource: ReplaySource.Quick }
+        : event;
+    if (event.type !== 'game_created' || !isReplayBvTotal(bvTotal))
+      return stamped;
+    const payload = event.payload as IGameCreatedPayload & {
+      quickMeta?: Record<string, unknown>;
+    };
+    const existingMeta = payload.quickMeta;
+    const quickMeta =
+      existingMeta &&
+      typeof existingMeta === 'object' &&
+      !Array.isArray(existingMeta)
+        ? existingMeta
+        : {};
+    return {
+      ...stamped,
+      payload: { ...payload, quickMeta: { ...quickMeta, bvTotal } },
+    };
+  });
 }
 
 /**
@@ -132,6 +144,13 @@ export function buildQuickManifestEntry(
   input: IPersistQuickGameInput,
 ): IQuickReplayManifestEntry {
   const { gameId, events, winner, aiVariant } = input;
+  const created = events.find((event) => event.type === 'game_created');
+  if (
+    created &&
+    (created.payload === null || typeof created.payload !== 'object')
+  ) {
+    throw new Error('GameCreated payload must be an object');
+  }
 
   // Winner: collapse 'draw' (and missing) to null per the manifest
   // entry contract. Quick games can end in a draw if the turn limit
@@ -140,30 +159,11 @@ export function buildQuickManifestEntry(
   if (winner === 'player') manifestWinner = GameSide.Player;
   else if (winner === 'opponent') manifestWinner = GameSide.Opponent;
 
-  // Turns: count of turn_started events. Quick game store doesn't
-  // emit a final GameEnded.turns explicitly; the count is the most
-  // robust derivation. Fallback to 0 for crashed-before-turn-1 runs.
-  const turns = countTurnStartedEvents(events);
-
-  // BV total: per Council Decision 3 + Momus MUST RESOLVE #1, BV is
-  // computed at write time. Quick games don't have a force-generator
-  // `stats.totalBV` directly accessible from the events, so for v1
-  // we sum across whatever payload.units[].bv values are on the
-  // GameCreated event. Falls back to 0 if no GameCreated or no bv
-  // fields — in which case the Library page row shows BV: 0 and a
-  // future PR can plumb the real number through.
-  let bvTotal = 0;
-  for (const event of events) {
-    if (event.type === 'game_created') {
-      const payload = event.payload as {
-        units?: ReadonlyArray<{ bv?: number }>;
-      };
-      if (payload.units !== undefined) {
-        bvTotal = payload.units.reduce((sum, u) => sum + (u.bv ?? 0), 0);
-      }
-      break;
-    }
-  }
+  const turns = replayTurnCount(events);
+  const bvTotal = isReplayBvTotal(input.bvTotal)
+    ? input.bvTotal
+    : (replayBvTotal(events.find((event) => event.type === 'game_created')) ??
+      0);
 
   return {
     id: gameId,
@@ -218,7 +218,7 @@ export async function persistQuickGame(
   // the barrel statically, we go directly to the source.
   const { appendManifestEntry } = await import('@/replay-library/index-writer');
 
-  const stampedEvents = stampQuickReplaySource(input.events);
+  const stampedEvents = stampQuickReplaySource(input.events, input.bvTotal);
   const partitionDir = path.resolve(
     input.cwd ?? process.cwd(),
     'simulation-reports',

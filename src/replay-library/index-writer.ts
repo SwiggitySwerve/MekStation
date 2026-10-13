@@ -27,7 +27,9 @@ import { randomBytes } from 'node:crypto';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
-import type { IReplayManifestEntry } from './types';
+import { ReplaySource } from '@/types/gameplay';
+
+import type { IQuickReplayManifestEntry, IReplayManifestEntry } from './types';
 
 /**
  * Options for the writer. `cwd` lets tests inject a tmpdir without polluting
@@ -169,26 +171,68 @@ export async function appendManifestEntry(
     );
     const next: IReplayManifestEntry[] = [...filtered, entry];
 
-    // Atomic write: temp file + rename. The temp filename is colocated with
-    // the index so the rename is on the same filesystem (cross-fs renames
-    // would not be atomic).
-    const tempPath = `${indexPath}.tmp-${makeTempSuffix()}`;
-    const serialized = `${JSON.stringify(next, null, 2)}\n`;
+    await writeManifest(indexPath, next);
+  });
+}
 
-    await fs.writeFile(tempPath, serialized, 'utf8');
+async function writeManifest(
+  indexPath: string,
+  entries: readonly IReplayManifestEntry[],
+): Promise<void> {
+  // Atomic write: temp file + rename. The temp filename is colocated with
+  // the index so the rename is on the same filesystem (cross-fs renames
+  // would not be atomic).
+  const tempPath = `${indexPath}.tmp-${makeTempSuffix()}`;
+  const serialized = `${JSON.stringify(entries, null, 2)}\n`;
+
+  await fs.writeFile(tempPath, serialized, 'utf8');
+  try {
+    await fs.rename(tempPath, indexPath);
+  } catch (err) {
+    // Rename failed — best-effort cleanup of the temp file so a long-lived
+    // process does not accumulate orphans. The original index is untouched
+    // (rename is the only mutation of the canonical name) so callers can
+    // safely retry.
     try {
-      await fs.rename(tempPath, indexPath);
-    } catch (err) {
-      // Rename failed — best-effort cleanup of the temp file so a long-lived
-      // process does not accumulate orphans. The original index is untouched
-      // (rename is the only mutation of the canonical name) so callers can
-      // safely retry.
-      try {
-        await fs.unlink(tempPath);
-      } catch {
-        // Swallow cleanup failure — the original error is the meaningful one.
-      }
-      throw err;
+      await fs.unlink(tempPath);
+    } catch {
+      // Swallow cleanup failure — the original error is the meaningful one.
     }
+    throw err;
+  }
+}
+
+/** Fill missing quick-replay summaries against the latest serialized index. */
+export async function repairQuickManifestMetadata(
+  candidate: Pick<IQuickReplayManifestEntry, 'id' | 'turns' | 'bvTotal'>,
+  options: IAppendManifestEntryOptions = {},
+): Promise<IQuickReplayManifestEntry> {
+  const indexPath = resolveIndexPath(options.cwd);
+  return runSerialized(indexPath, async () => {
+    const entries = await readExistingManifest(indexPath);
+    const prior = entries.find((entry) => entry.id === candidate.id);
+    if (!prior || prior.replaySource !== ReplaySource.Quick) {
+      throw new Error(
+        'Quick replay metadata repair requires an existing quick entry',
+      );
+    }
+    const repaired: IQuickReplayManifestEntry = {
+      ...prior,
+      turns:
+        prior.turns === 0 && candidate.turns > 0
+          ? candidate.turns
+          : prior.turns,
+      bvTotal:
+        prior.bvTotal === 0 && candidate.bvTotal > 0
+          ? candidate.bvTotal
+          : prior.bvTotal,
+    };
+    if (repaired.turns !== prior.turns || repaired.bvTotal !== prior.bvTotal) {
+      await writeManifest(
+        indexPath,
+        entries.map((entry) => (entry === prior ? repaired : entry)),
+      );
+    }
+    return repaired;
   });
 }

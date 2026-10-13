@@ -48,6 +48,21 @@ import { enableTestMode } from '@/utils/logger';
 // Module mock — must precede the handler import.
 // =============================================================================
 
+jest.mock('@/replay-library/index-reader', () => {
+  const actual = jest.requireActual<
+    typeof import('@/replay-library/index-reader')
+  >('@/replay-library/index-reader');
+  return { ...actual, readReplayIndex: jest.fn(actual.readReplayIndex) };
+});
+
+jest.mock('@/replay-library/index-writer', () => {
+  const actual = jest.requireActual('@/replay-library/index-writer');
+  return {
+    ...actual,
+    repairQuickManifestMetadata: jest.fn(actual.repairQuickManifestMetadata),
+  };
+});
+
 jest.mock('@/components/quickgame/persistQuickGame', () => {
   const actual = jest.requireActual<
     typeof import('@/components/quickgame/persistQuickGame')
@@ -498,5 +513,153 @@ describe('POST /api/replay-library/quick', () => {
       error: 'request body must be an object',
       code: 'BAD_BODY',
     });
+  });
+  it.each([undefined, 3909])(
+    'repairs known zero metadata without rewriting legacy replay bytes (BV %s)',
+    async (bvTotal) => {
+      const id = 'quick-repair';
+      const reports = path.join(tmpDir, 'simulation-reports');
+      const indexPath = path.join(reports, 'replay-index.json');
+      await fs.mkdir(path.join(reports, 'quick'), { recursive: true });
+      const entry = {
+        ...makeWriteSuccess(id).manifestEntry,
+        turns: 0,
+        bvTotal: 0,
+      };
+      await fs.writeFile(indexPath, JSON.stringify([entry]));
+      const replayPath = path.join(reports, 'quick', id + '.jsonl');
+      const body = validBody(id);
+      body.events = [
+        body.events[0],
+        {
+          ...body.events[1],
+          type: GameEventType.GameEnded,
+          turn: 3,
+          payload: { winner: GameSide.Player, reason: 'destruction', turns: 3 },
+        },
+      ];
+      const originalBytes = body.events
+        .map((event) => JSON.stringify(event))
+        .join(String.fromCharCode(10));
+      await fs.writeFile(replayPath, originalBytes);
+      await handler(
+        createMockRequest({
+          body: { ...body, ...(bvTotal === undefined ? {} : { bvTotal }) },
+        }),
+        createMockResponse(),
+      );
+      const repaired = JSON.parse(await fs.readFile(indexPath, 'utf8'));
+      expect(repaired).toEqual([{ ...entry, turns: 3, bvTotal: bvTotal ?? 0 }]);
+      expect(await fs.readFile(replayPath, 'utf8')).toBe(originalBytes);
+      expect(mockedPersistQuickGame).not.toHaveBeenCalled();
+    },
+  );
+
+  it('preserves rich metadata when concurrent legacy and rich requests read the same zero entry', async () => {
+    const id = 'quick-concurrent-repair';
+    const reports = path.join(tmpDir, 'simulation-reports');
+    await fs.mkdir(path.join(reports, 'quick'), { recursive: true });
+    const indexPath = path.join(reports, 'replay-index.json');
+    const entry = {
+      ...makeWriteSuccess(id).manifestEntry,
+      turns: 0,
+      bvTotal: 0,
+    };
+    await fs.writeFile(indexPath, JSON.stringify([entry]));
+    const replayPath = path.join(reports, 'quick', id + '.jsonl');
+    const originalBytes = 'preserved event history';
+    await fs.writeFile(replayPath, originalBytes);
+    const actualReader = jest.requireActual<
+      typeof import('@/replay-library/index-reader')
+    >('@/replay-library/index-reader');
+    const reader = jest.requireMock<{
+      readReplayIndex: jest.MockedFunction<typeof actualReader.readReplayIndex>;
+    }>('@/replay-library/index-reader').readReplayIndex;
+    let readCount = 0;
+    let release: () => void = () => undefined;
+    const bothRead = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    let releaseWrite: () => void = () => undefined;
+    const richWritten = new Promise<void>((resolve) => {
+      releaseWrite = resolve;
+    });
+    const rename = fs.rename.bind(fs);
+    jest.spyOn(fs, 'rename').mockImplementation(async (...args) => {
+      await rename(...args);
+      releaseWrite();
+    });
+    const readSnapshot: typeof actualReader.readReplayIndex = async (
+      ...args
+    ) => {
+      const request = ++readCount;
+      const snapshot = await actualReader.readReplayIndex(...args);
+      if (request === 2) release();
+      await bothRead;
+      if (request === 2) await richWritten;
+      return snapshot;
+    };
+    reader
+      .mockImplementationOnce(readSnapshot)
+      .mockImplementationOnce(readSnapshot);
+    const rich = createMockResponse();
+    const legacy = createMockResponse();
+    await Promise.all([
+      handler(
+        createMockRequest({ body: { ...validBody(id), bvTotal: 3909 } }),
+        rich,
+      ),
+      handler(createMockRequest({ body: validBody(id) }), legacy),
+    ]);
+    expect(readCount).toBe(2);
+    expect(rich.status).toHaveBeenCalledWith(200);
+    expect(legacy.status).toHaveBeenCalledWith(200);
+    expect(JSON.parse(await fs.readFile(indexPath, 'utf8'))).toEqual([
+      { ...entry, turns: 1, bvTotal: 3909 },
+    ]);
+    expect(await fs.readFile(replayPath, 'utf8')).toBe(originalBytes);
+    expect(mockedPersistQuickGame).not.toHaveBeenCalled();
+  });
+
+  it.each([-1, Infinity, NaN, '3909', null])(
+    'rejects invalid supplied BV %s',
+    async (bvTotal) => {
+      const res = createMockResponse();
+      await handler(
+        createMockRequest({ body: { ...validBody(), bvTotal } }),
+        res,
+      );
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(mockedPersistQuickGame).not.toHaveBeenCalled();
+    },
+  );
+
+  it('does not rewrite replay bytes when repairing index metadata fails', async () => {
+    const id = 'quick-repair-failed';
+    const reports = path.join(tmpDir, 'simulation-reports');
+    await fs.mkdir(path.join(reports, 'quick'), { recursive: true });
+    const entry = {
+      ...makeWriteSuccess(id).manifestEntry,
+      turns: 0,
+      bvTotal: 0,
+    };
+    const indexPath = path.join(reports, 'replay-index.json');
+    const indexBytes = JSON.stringify([entry]);
+    await fs.writeFile(indexPath, indexBytes);
+    const replayPath = path.join(reports, 'quick', id + '.jsonl');
+    await fs.writeFile(replayPath, 'preserve original history');
+    jest
+      .requireMock('@/replay-library/index-writer')
+      .repairQuickManifestMetadata.mockRejectedValueOnce(
+        new Error('disk refused'),
+      );
+    const res = createMockResponse();
+    await handler(createMockRequest({ body: validBody(id) }), res);
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(mockedPersistQuickGame).not.toHaveBeenCalled();
+    expect(await fs.readFile(indexPath, 'utf8')).toBe(indexBytes);
+    expect(await fs.readFile(replayPath, 'utf8')).toBe(
+      'preserve original history',
+    );
   });
 });

@@ -49,7 +49,10 @@ import {
   rejectUnexpectedMethod,
   type ApiErrorResponse,
 } from '@/pages-modules/api/routeHelpers';
+import { isReplayBvTotal } from '@/replay-library/eventMetadata';
 import { readReplayIndex } from '@/replay-library/index-reader';
+import { repairQuickManifestMetadata } from '@/replay-library/index-writer';
+import { ReplaySource } from '@/types/gameplay';
 import { isGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 import { logger } from '@/utils/logger';
 
@@ -129,7 +132,7 @@ function parseBody(
   }
   const record = body as Record<string, unknown>;
 
-  const { gameId, events, winner, aiVariant } = record;
+  const { gameId, events, winner, aiVariant, bvTotal } = record;
 
   if (typeof gameId !== 'string' || !GAME_ID_PATTERN.test(gameId)) {
     return {
@@ -185,6 +188,16 @@ function parseBody(
     };
   }
 
+  if (bvTotal !== undefined && !isReplayBvTotal(bvTotal)) {
+    return {
+      ok: false,
+      error: {
+        error: 'bvTotal must be a finite non-negative number',
+        code: 'BAD_BV_TOTAL',
+      },
+    };
+  }
+
   return {
     ok: true,
     input: {
@@ -192,6 +205,7 @@ function parseBody(
       events: events as readonly IGameEvent[],
       winner: winner as IPersistQuickGameInput['winner'],
       aiVariant,
+      ...(bvTotal !== undefined ? { bvTotal } : {}),
     },
   };
 }
@@ -247,13 +261,31 @@ export default async function handler(
   // either way).
   try {
     const existing = await readReplayIndex();
-    if (existing.some((entry) => entry.id === input.gameId)) {
-      const manifestEntry = buildQuickManifestEntry({
+    const prior = existing.find((entry) => entry.id === input.gameId);
+    if (prior) {
+      const rebuilt = buildQuickManifestEntry({
         gameId: input.gameId,
         events: input.events,
         winner: input.winner,
         aiVariant: input.aiVariant,
+        bvTotal: input.bvTotal,
       });
+      let manifestEntry = rebuilt;
+      if (prior.replaySource === ReplaySource.Quick) {
+        try {
+          manifestEntry = await repairQuickManifestMetadata(rebuilt);
+        } catch (err) {
+          logger.error('[replay-library] metadata repair failed', {
+            gameId: input.gameId,
+            err,
+          });
+          res.status(500).json({
+            error: 'failed to repair replay metadata',
+            code: 'METADATA_REPAIR_FAILED',
+          });
+          return;
+        }
+      }
       logger.debug('[replay-library] quick-game already persisted; skipping', {
         gameId: input.gameId,
       });
