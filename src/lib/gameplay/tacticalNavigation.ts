@@ -32,12 +32,11 @@ export function navigateToGameSession(
   sessionId: string,
   router?: SessionRouter,
   options: GameSessionNavigationOptions = {},
-): void {
+): ReturnType<SessionRouter['push']> {
   const href = gameSessionHref(sessionId, options);
 
   if (router) {
-    void router?.push(href);
-    return;
+    return router.push(href);
   }
 
   if (typeof window === 'undefined') {

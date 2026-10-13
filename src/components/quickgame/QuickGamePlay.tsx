@@ -7,7 +7,7 @@
  */
 
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { Button, Card } from '@/components/ui';
 import { SvgIcon } from '@/components/ui/SvgIcon';
@@ -116,48 +116,57 @@ export function QuickGamePlay(): React.ReactElement {
       window.location.pathname.startsWith('/gameplay/games/'));
 
   const persistedTacticalSession = game?.activeTacticalSession;
+  const tacticalSessionId = hasLiveTacticalSession
+    ? liveTacticalSessionId
+    : persistedTacticalSession?.id;
+  const tacticalSpectator = hasLiveTacticalSession
+    ? spectatorMode?.enabled === true
+    : persistedTacticalSession?.mode === 'spectator';
+  const tacticalRouteTarget = tacticalSessionId
+    ? JSON.stringify([tacticalSessionId, tacticalSpectator])
+    : null;
+  const requestedRoute = useRef<{ target: string } | null>(null);
+  const [failedRoute, setFailedRoute] = useState<string | null>(null);
 
   useEffect(() => {
     if (
-      game?.status === GameStatus.Active &&
-      !isLoading &&
-      !hasLiveTacticalSession &&
-      persistedTacticalSession &&
-      !isGameSessionRoute
+      game?.status !== GameStatus.Active ||
+      isLoading ||
+      !tacticalSessionId ||
+      isGameSessionRoute
     ) {
-      navigateToGameSession(persistedTacticalSession.id, router, {
-        spectator: persistedTacticalSession.mode === 'spectator',
+      return;
+    }
+
+    if (!tacticalRouteTarget || failedRoute === tacticalRouteTarget) return;
+    if (requestedRoute.current?.target === tacticalRouteTarget) return;
+
+    const request = { target: tacticalRouteTarget };
+    requestedRoute.current = request;
+    const markFailed = () => {
+      if (requestedRoute.current !== request) return;
+      requestedRoute.current = null;
+      setFailedRoute(request.target);
+    };
+    try {
+      const result = navigateToGameSession(tacticalSessionId, router, {
+        spectator: tacticalSpectator,
       });
+      void Promise.resolve(result).then((navigated) => {
+        if (navigated === false) markFailed();
+      }, markFailed);
+    } catch {
+      markFailed();
     }
   }, [
+    failedRoute,
     game?.status,
-    hasLiveTacticalSession,
     isGameSessionRoute,
     isLoading,
-    persistedTacticalSession,
     router,
-  ]);
-
-  useEffect(() => {
-    if (
-      game?.status === GameStatus.Active &&
-      hasLiveTacticalSession &&
-      liveTacticalSessionId
-    ) {
-      if (spectatorMode?.enabled) {
-        navigateToGameSession(liveTacticalSessionId, router, {
-          spectator: true,
-        });
-      } else {
-        navigateToGameSession(liveTacticalSessionId, router);
-      }
-    }
-  }, [
-    game?.status,
-    hasLiveTacticalSession,
-    liveTacticalSessionId,
-    router,
-    spectatorMode?.enabled,
+    tacticalRouteTarget,
+    tacticalSessionId,
+    tacticalSpectator,
   ]);
 
   if (!game) {
@@ -192,6 +201,27 @@ export function QuickGamePlay(): React.ReactElement {
             </h3>
             <p className="text-text-theme-muted text-sm">{error}</p>
           </div>
+        </Card>
+      </div>
+    );
+  }
+
+  if (
+    failedRoute !== null &&
+    failedRoute === tacticalRouteTarget &&
+    game.status === GameStatus.Active &&
+    !isLoading &&
+    !isGameSessionRoute
+  ) {
+    return (
+      <div className="bg-surface-deep flex min-h-screen items-center justify-center">
+        <Card className="mx-4 max-w-md p-8 text-center">
+          <p role="alert" className="text-text-theme-primary mb-4">
+            Could not open the tactical battle. Retry to continue your session.
+          </p>
+          <Button onClick={() => setFailedRoute(null)}>
+            Retry Opening Battle
+          </Button>
         </Card>
       </div>
     );

@@ -5,13 +5,9 @@
  * @spec openspec/changes/add-quick-session-mode/proposal.md
  */
 
-import { useRouter } from 'next/router';
-
 import { Button, Card } from '@/components/ui';
 import { SvgIcon } from '@/components/ui/SvgIcon';
 import { FACTION_NAMES, Faction } from '@/constants/scenario/rats';
-import { navigateToGameSession } from '@/lib/gameplay/tacticalNavigation';
-import { useGameplayStore } from '@/stores/useGameplayStore';
 import { useQuickGameSelector } from '@/stores/useQuickGameStore';
 
 // =============================================================================
@@ -205,7 +201,6 @@ function ModifierDisplay(): React.ReactElement {
 // =============================================================================
 
 export function QuickGameReview(): React.ReactElement {
-  const router = useRouter();
   const game = useQuickGameSelector((state) => state.game);
   const previousStep = useQuickGameSelector((state) => state.previousStep);
   const startGame = useQuickGameSelector((state) => state.startGame);
@@ -217,26 +212,6 @@ export function QuickGameReview(): React.ReactElement {
     (state) => state.startInteractiveSkirmish,
   );
   const isLoading = useQuickGameSelector((state) => state.isLoading);
-
-  const handleWatchAIBattle = async () => {
-    const priorSession = useGameplayStore.getState().session;
-    await startSpectatorMode();
-    const session = useGameplayStore.getState().session;
-    if (session && session !== priorSession) {
-      navigateToGameSession(session.matchId ?? session.id, router, {
-        spectator: true,
-      });
-    }
-  };
-
-  const handleInteractiveSkirmish = async () => {
-    const priorSession = useGameplayStore.getState().session;
-    await startInteractiveSkirmish();
-    const session = useGameplayStore.getState().session;
-    if (session && session !== priorSession) {
-      navigateToGameSession(session.matchId ?? session.id, router);
-    }
-  };
 
   const handleAutoResolve = () => {
     if (startGame()) {
@@ -411,7 +386,7 @@ export function QuickGameReview(): React.ReactElement {
         <div className="flex gap-3">
           <Button
             variant="secondary"
-            onClick={handleWatchAIBattle}
+            onClick={() => void startSpectatorMode()}
             disabled={isLoading}
             data-testid="watch-ai-battle-btn"
           >
@@ -419,7 +394,7 @@ export function QuickGameReview(): React.ReactElement {
           </Button>
           <Button
             variant="secondary"
-            onClick={handleInteractiveSkirmish}
+            onClick={() => void startInteractiveSkirmish()}
             disabled={isLoading}
             data-testid="interactive-skirmish-btn"
           >
