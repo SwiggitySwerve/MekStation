@@ -6,17 +6,17 @@
  * @spec openspec/specs/construction-services/spec.md
  */
 
-import type {
-  BVCalculationConfig,
-  CockpitType as BVCockpitType,
-} from '@/utils/construction/battleValueCalculations';
-
 import {
   createSingleton,
   type SingletonFactory,
 } from '@/services/core/createSingleton';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import { EngineType } from '@/types/construction/EngineType';
+import {
+  calculateTotalBV,
+  type BVCalculationConfig,
+  type CockpitType as BVCockpitType,
+} from '@/utils/construction/battleValueTotals';
 import { calculateEngineWeight } from '@/utils/construction/engineCalculations';
 import { logger } from '@/utils/logger';
 
@@ -49,21 +49,6 @@ import {
   MECH_CONSTRUCTION_MULTIPLIER,
 } from './constructionConstants';
 import { IEditableMech } from './MechBuilderService';
-
-// Lazy-loaded BV engine — avoids pulling Node.js `fs` into browser bundle
-// (equipmentBVResolver.ts reads equipment JSON from filesystem)
-type CalculateTotalBVFn = (config: BVCalculationConfig) => number;
-let _calculateTotalBV: CalculateTotalBVFn | null = null;
-void import('@/utils/construction/battleValueCalculations').then((mod) => {
-  _calculateTotalBV = mod.calculateTotalBV;
-});
-
-function calculateTotalBV(config: BVCalculationConfig): number {
-  if (_calculateTotalBV) {
-    return _calculateTotalBV(config);
-  }
-  return 0;
-}
 
 /**
  * Mech totals summary
