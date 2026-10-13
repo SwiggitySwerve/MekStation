@@ -12,7 +12,7 @@ import { InstallPrompt } from '../components/pwa/InstallPrompt';
 import { ToastProvider } from '../components/shared/Toast';
 import { useOfflineIndicator } from '../hooks/useOfflineIndicator';
 import { useServiceWorker } from '../hooks/useServiceWorker';
-import { exposeStoresForE2E } from '../lib/e2e/storeExposure';
+import { initializeE2EStores } from '../lib/initializeE2EStores';
 import { installMatchLogMaintenance } from '../lib/p2p/matchLogMaintenance';
 // Import only browser-safe services directly to avoid Node.js-only SQLite
 import { getEquipmentRegistry } from '../services/equipment/EquipmentRegistry';
@@ -129,7 +129,9 @@ export default function App({
 
   // Expose stores for E2E testing (only when NEXT_PUBLIC_E2E_MODE=true)
   useEffect(() => {
-    exposeStoresForE2E();
+    initializeE2EStores().catch((error) => {
+      logger.error('E2E store initialization failed', error);
+    });
   }, []);
 
   return (
