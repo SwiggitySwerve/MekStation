@@ -338,7 +338,10 @@ export default function GameSessionPage(): React.ReactElement {
             onHexClick={movement.handleHexClick}
             onHexHover={movement.setHoveredHex}
             canUndo={false}
-            isPlayerTurn={session.currentState.firstMover === GameSide.Player}
+            isPlayerTurn={
+              phaseQueueProjection.unresolvedUnits.length === 0 ||
+              phaseQueueProjection.activeSide === GameSide.Player
+            }
             unitWeapons={unitWeapons}
             maxArmor={maxArmor}
             maxStructure={maxStructure}

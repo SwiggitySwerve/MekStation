@@ -2,12 +2,18 @@ import 'fake-indexeddb/auto';
 import '@testing-library/jest-dom';
 import type React from 'react';
 
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  within,
+} from '@testing-library/react';
 import { IDBFactory } from 'fake-indexeddb';
 
 import type { IAdaptedUnit } from '@/engine/types';
 import type { IWeapon } from '@/simulation/ai/types';
-import type { IGameplayActionPayload } from '@/stores/useGameplayStore.helpers';
 
 jest.mock('@/engine/adapters/CompendiumAdapter', () => {
   const mockAdaptUnit = jest.fn();
@@ -24,6 +30,7 @@ import {
   flushMatchLogWrites,
   matchLogStorage,
 } from '@/lib/p2p/matchLogStorage';
+import { useGameSessionCallbacks } from '@/pages-modules/gameplay/games/gameSessionPage.helpers';
 import { useGmTacticalInterventionSurface } from '@/pages-modules/gameplay/games/gmTacticalInterventionSurface';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import {
@@ -39,7 +46,6 @@ import {
   MovementType,
   type IGameSession,
   type IGameUnit,
-  type TacticalActionPayload,
 } from '@/types/gameplay';
 
 const adapterModule = jest.requireMock(
@@ -165,7 +171,6 @@ function StoreBackedGameplayLayout({
     (state) => state.ui.selectedUnitId,
   );
   const selectUnit = useGameplaySelector((state) => state.selectUnit);
-  const handleAction = useGameplaySelector((state) => state.handleAction);
   const setSession = useGameplaySelector((state) => state.setSession);
   const interactiveSession = useGameplaySelector(
     (state) => state.interactiveSession,
@@ -185,6 +190,14 @@ function StoreBackedGameplayLayout({
     interactiveSession,
     setSession,
   });
+  const { handleInteractiveAction } = useGameSessionCallbacks({
+    ...useGameplayStore.getState(),
+    routeId: session?.id ?? null,
+    isInteractive: Boolean(interactiveSession),
+    phase: session?.currentState.phase,
+    selectedUnitId,
+    session,
+  });
 
   if (!session) return null;
 
@@ -193,9 +206,7 @@ function StoreBackedGameplayLayout({
       session={session}
       selectedUnitId={selectedUnitId}
       onUnitSelect={selectUnit}
-      onAction={(actionId: string, payload?: TacticalActionPayload) =>
-        handleAction(actionId, payload as IGameplayActionPayload | undefined)
-      }
+      onAction={handleInteractiveAction}
       isPlayerTurn={true}
       unitWeapons={unitWeapons}
       maxArmor={maxArmor}
@@ -280,6 +291,50 @@ describe('fix-battle-phase-progression Task Group 2', () => {
         ],
       ),
     ).not.toThrow();
+  });
+
+  it('advances completed movement into the weapon phase after rail confirmation', () => {
+    const confirm = jest.spyOn(window, 'confirm').mockReturnValue(false);
+    const interactiveSession = makeInteractiveSession();
+    renderAdoptedSession(interactiveSession);
+    clickSinglePlayerAdvance();
+
+    act(() => {
+      interactiveSession.runAITurn(GameSide.Opponent);
+      interactiveSession.applyMovement(
+        'atlas-as7-d',
+        { q: -2, r: 4 },
+        Facing.North,
+        MovementType.Walk,
+        [
+          { q: -2, r: 5 },
+          { q: -2, r: 4 },
+        ],
+      );
+      useGameplayStore.getState().setSession(interactiveSession.getSession());
+    });
+    expect(screen.getByTestId('sp-advance-phase-button')).toBeEnabled();
+
+    clickSinglePlayerAdvance();
+
+    expect(screen.getByRole('dialog', { name: 'End Phase?' })).toBeVisible();
+    expect(interactiveSession.getState().phase).toBe(GamePhase.Movement);
+    fireEvent.click(
+      within(screen.getByRole('dialog', { name: 'End Phase?' })).getByRole(
+        'button',
+        { name: 'Cancel' },
+      ),
+    );
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(interactiveSession.getState().phase).toBe(GamePhase.Movement);
+
+    clickSinglePlayerAdvance();
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm End Phase' }));
+
+    expect(confirm).not.toHaveBeenCalled();
+    expect(interactiveSession.getState().phase).toBe(GamePhase.WeaponAttack);
+    expect(screen.getByTestId('phase-name')).toHaveTextContent('Weapon');
+    confirm.mockRestore();
   });
 
   it('preserves Movement phase after reload through the recovery path', async () => {

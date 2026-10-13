@@ -1,0 +1,268 @@
+{
+  "id": "7c0cf10b-b97e-4542-9c1b-684a2dfad2c1",
+  "chassis": "Warhammer",
+  "model": "WHM-6R Night Watch",
+  "variant": "WHM-6R Night Watch",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "Age of War",
+  "year": 2515,
+  "tonnage": 70,
+  "mulId": 3488,
+  "sourceDefinition": {
+    "source": "canonical",
+    "id": "warhammer-whm-6r"
+  },
+  "role": "Brawler",
+  "engine": {
+    "type": "FUSION",
+    "rating": 280
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "Head": 9,
+      "Center Torso": {
+        "front": 26,
+        "rear": 9
+      },
+      "Left Torso": {
+        "front": 19,
+        "rear": 6
+      },
+      "Right Torso": {
+        "front": 19,
+        "rear": 6
+      },
+      "Left Arm": 17,
+      "Right Arm": 17,
+      "Left Leg": 24,
+      "Right Leg": 24,
+      "Center Leg": 0,
+      "Front Left Leg": 0,
+      "Front Right Leg": 0,
+      "Rear Left Leg": 0,
+      "Rear Right Leg": 0
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 18
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 0,
+    "jumpJetType": "STANDARD",
+    "enhancements": []
+  },
+  "equipment": [
+    {
+      "id": "ppc",
+      "location": "Left Arm",
+      "slots": [4, 5, 6],
+      "isRearMounted": false,
+      "isRemovable": true,
+      "isOmniPodMounted": false
+    },
+    {
+      "id": "ppc",
+      "location": "Right Arm",
+      "slots": [4, 5, 6],
+      "isRearMounted": false,
+      "isRemovable": true,
+      "isOmniPodMounted": false
+    },
+    {
+      "id": "medium-laser",
+      "location": "Left Torso",
+      "slots": [0],
+      "isRearMounted": false,
+      "isRemovable": true,
+      "isOmniPodMounted": false
+    },
+    {
+      "id": "small-laser",
+      "location": "Left Torso",
+      "slots": [1],
+      "isRearMounted": false,
+      "isRemovable": true,
+      "isOmniPodMounted": false
+    },
+    {
+      "id": "machine-gun",
+      "location": "Left Torso",
+      "slots": [2],
+      "isRearMounted": false,
+      "isRemovable": true,
+      "isOmniPodMounted": false
+    },
+    {
+      "id": "srm-6",
+      "location": "Right Torso",
+      "slots": [0, 1],
+      "isRearMounted": false,
+      "isRemovable": true,
+      "isOmniPodMounted": false
+    },
+    {
+      "id": "medium-laser",
+      "location": "Right Torso",
+      "slots": [2],
+      "isRearMounted": false,
+      "isRemovable": true,
+      "isOmniPodMounted": false
+    },
+    {
+      "id": "small-laser",
+      "location": "Right Torso",
+      "slots": [3],
+      "isRearMounted": false,
+      "isRemovable": true,
+      "isOmniPodMounted": false
+    },
+    {
+      "id": "machine-gun",
+      "location": "Right Torso",
+      "slots": [4],
+      "isRearMounted": false,
+      "isRemovable": true,
+      "isOmniPodMounted": false
+    },
+    {
+      "id": "single-heat-sink",
+      "location": "Left Arm",
+      "slots": [3],
+      "isRearMounted": false,
+      "isRemovable": false,
+      "isOmniPodMounted": false
+    },
+    {
+      "id": "single-heat-sink",
+      "location": "Right Arm",
+      "slots": [3],
+      "isRearMounted": false,
+      "isRemovable": false,
+      "isOmniPodMounted": false
+    },
+    {
+      "id": "ammo-srm-6",
+      "location": "Right Torso",
+      "slots": [5],
+      "isRearMounted": false,
+      "isRemovable": true,
+      "isOmniPodMounted": false
+    },
+    {
+      "id": "single-heat-sink",
+      "location": "Head",
+      "slots": [3],
+      "isRearMounted": false,
+      "isRemovable": false,
+      "isOmniPodMounted": false
+    },
+    {
+      "id": "single-heat-sink",
+      "location": "Left Leg",
+      "slots": [4],
+      "isRearMounted": false,
+      "isRemovable": false,
+      "isOmniPodMounted": false
+    },
+    {
+      "id": "single-heat-sink",
+      "location": "Left Leg",
+      "slots": [5],
+      "isRearMounted": false,
+      "isRemovable": false,
+      "isOmniPodMounted": false
+    },
+    {
+      "id": "single-heat-sink",
+      "location": "Right Leg",
+      "slots": [4],
+      "isRearMounted": false,
+      "isRemovable": false,
+      "isOmniPodMounted": false
+    },
+    {
+      "id": "single-heat-sink",
+      "location": "Right Leg",
+      "slots": [5],
+      "isRearMounted": false,
+      "isRemovable": false,
+      "isOmniPodMounted": false
+    }
+  ],
+  "criticalSlots": {
+    "Left Arm": [
+      "Shoulder",
+      "Upper Arm",
+      "Lower Arm",
+      "Heat Sink",
+      "PPC",
+      "PPC",
+      "PPC",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "Right Arm": [
+      "Shoulder",
+      "Upper Arm",
+      "Lower Arm",
+      "Heat Sink",
+      "PPC",
+      "PPC",
+      "PPC",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "Left Torso": [
+      "Medium Laser",
+      "Small Laser",
+      "Machine Gun",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "Right Torso": [
+      "SRM 6",
+      "SRM 6",
+      "Medium Laser",
+      "Small Laser",
+      "Machine Gun",
+      "SRM 6 Ammo",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "Head": [null, null, null, "Heat Sink", null, null],
+    "Left Leg": [null, null, null, null, "Heat Sink", "Heat Sink"],
+    "Right Leg": [null, null, null, null, "Heat Sink", "Heat Sink"]
+  },
+  "isOmni": false,
+  "baseChassisHeatSinks": -1
+}

@@ -24,10 +24,12 @@
  *   "Phase Progression Controls" ADDED requirement
  */
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import { getPhaseRailLabel } from '@/components/gameplay/EventLogDisplay.helpers';
 import { AppIcon, type AppIconName } from '@/components/ui/AppIcon';
+import { Button } from '@/components/ui/Button';
+import { DialogTemplate } from '@/components/ui/DialogTemplate';
 import {
   GamePhase,
   GameSide,
@@ -240,6 +242,13 @@ function PhaseAdvanceControl({
 }: {
   readonly control: NonNullable<TacticalTurnRailProps['phaseAdvanceControl']>;
 }): React.ReactElement {
+  const [confirmationOpen, setConfirmationOpen] = useState(false);
+  const closeConfirmation = () => setConfirmationOpen(false);
+  const confirmAdvance = () => {
+    if (control.disabled) return;
+    closeConfirmation();
+    control.onAdvance();
+  };
   const reasonId =
     control.disabled && control.disabledReason
       ? 'sp-advance-phase-button-reasons'
@@ -254,7 +263,11 @@ function PhaseAdvanceControl({
         aria-disabled={control.disabled}
         aria-describedby={reasonId}
         title={control.disabledReason ?? control.label}
-        onClick={control.onAdvance}
+        onClick={() => {
+          if (control.disabled) return;
+          if (control.requiresConfirmation) setConfirmationOpen(true);
+          else control.onAdvance();
+        }}
         className={[
           'rounded border border-white/35 px-2.5 py-1 text-xs font-semibold whitespace-nowrap uppercase transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-white',
           control.disabled
@@ -273,6 +286,23 @@ function PhaseAdvanceControl({
           {control.disabledReason}
         </span>
       )}
+      <DialogTemplate
+        isOpen={confirmationOpen}
+        onClose={closeConfirmation}
+        title={`${control.label}?`}
+        footer={
+          <>
+            <Button variant="secondary" onClick={closeConfirmation}>
+              Cancel
+            </Button>
+            <Button disabled={control.disabled} onClick={confirmAdvance}>
+              Confirm {control.label}
+            </Button>
+          </>
+        }
+      >
+        <p>{control.disabledReason ?? 'Continue to the next phase?'}</p>
+      </DialogTemplate>
     </div>
   );
 }
@@ -375,7 +405,10 @@ export function TacticalTurnRail({
           <BlockerBadge count={projection.blockers.length} phase={phase} />
         )}
         {phaseAdvanceControl && (
-          <PhaseAdvanceControl control={phaseAdvanceControl} />
+          <PhaseAdvanceControl
+            key={`${turn}-${phase}-${phaseAdvanceControl.label}`}
+            control={phaseAdvanceControl}
+          />
         )}
       </div>
 

@@ -57,11 +57,9 @@ export function buildPhaseAdvanceControl({
     disabled,
     disabledReason,
     blockerReasons,
+    requiresConfirmation: command.requiresConfirmation,
     onAdvance: () => {
       if (disabled) return;
-      if (command.requiresConfirmation && !confirmPhaseAdvance(command.label)) {
-        return;
-      }
       const result = command.commit(actionContext);
       if (result.payload === undefined) {
         onAction(result.actionId);
@@ -78,9 +76,4 @@ function phaseAdvanceBlockerReason(
 ): string {
   const unitName = unitNames.get(blocker.unitId) ?? blocker.unitId;
   return `${unitName}: ${blocker.missingAction}`;
-}
-
-function confirmPhaseAdvance(label: string): boolean {
-  if (typeof window === 'undefined') return true;
-  return window.confirm(`Confirm: ${label}?`);
 }
