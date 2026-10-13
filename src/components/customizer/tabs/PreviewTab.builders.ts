@@ -15,7 +15,10 @@ import {
 } from '@/types/construction/mechConfigHelpers';
 import { EquipmentCategory } from '@/types/equipment';
 import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
-import { getFixedSlotNames } from '@/utils/construction/slotOperations/topology';
+import {
+  getFixedSlotNames,
+  type ArmActuatorConfig,
+} from '@/utils/construction/slotOperations/topology';
 
 import {
   buildRecordSheetNameParts,
@@ -41,6 +44,7 @@ export interface PreviewUnitState extends Omit<
   enhancement: string | null | undefined;
   jumpMP: number;
   equipment: readonly IMountedEquipmentInstance[];
+  armActuators?: ArmActuatorConfig;
 }
 
 type CriticalSlot = {
@@ -70,6 +74,7 @@ export function buildCriticalSlotsFromEquipment(
   configuration: MechConfiguration,
   engineType: EngineType,
   gyroType: GyroType,
+  armActuators?: ArmActuatorConfig,
 ): Record<string, CriticalSlot[]> {
   const result: Record<string, CriticalSlot[]> = {};
 
@@ -77,9 +82,11 @@ export function buildCriticalSlotsFromEquipment(
     const slots = new Array<CriticalSlot>(
       getLocationSlotCount(location, configuration),
     ).fill(null);
-    getFixedSlotNames(location, engineType, gyroType).forEach((name, index) => {
-      slots[index] = { content: name, isSystem: true };
-    });
+    getFixedSlotNames(location, engineType, gyroType, armActuators).forEach(
+      (name, index) => {
+        slots[index] = { content: name, isSystem: true };
+      },
+    );
     result[location] = slots;
   });
 
@@ -157,6 +164,7 @@ export function buildPreviewUnitConfig(
       state.configuration,
       state.engineType,
       state.gyroType,
+      state.armActuators,
     ),
     enhancements: state.enhancement ? [state.enhancement] : [],
     battleValue,

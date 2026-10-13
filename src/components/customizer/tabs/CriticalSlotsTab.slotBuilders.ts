@@ -3,7 +3,10 @@ import type { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipme
 import { MechLocation, LOCATION_SLOT_COUNTS } from '@/types/construction';
 import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
-import { getFixedSlotNames } from '@/utils/construction/slotOperations/topology';
+import {
+  getFixedSlotNames,
+  type ArmActuatorConfig,
+} from '@/utils/construction/slotOperations/topology';
 
 import type { SlotContent } from '../critical-slots';
 
@@ -12,8 +15,9 @@ export function buildLocationSlots(
   engineType: EngineType,
   gyroType: GyroType,
   equipment: readonly IMountedEquipmentInstance[],
+  armActuators?: ArmActuatorConfig,
 ): SlotContent[] {
-  const fixed = getFixedSlotNames(location, engineType, gyroType);
+  const fixed = getFixedSlotNames(location, engineType, gyroType, armActuators);
   const filled = new Map<number, SlotContent>();
   for (const item of equipment) {
     if (item.location !== location) continue;

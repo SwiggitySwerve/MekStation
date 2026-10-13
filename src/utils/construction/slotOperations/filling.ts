@@ -8,6 +8,8 @@ import {
 } from '@/types/construction/MechConfigurationSystem';
 import { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
 
+import type { ArmActuatorConfig } from './topology';
+
 import { getAvailableSlotIndices, isUnhittableEquipment } from './queries';
 import { SlotAssignment, SlotOperationResult } from './types';
 
@@ -41,15 +43,20 @@ function createAvailableSlotsByLocation(
   engineType: EngineType,
   gyroType: GyroType,
   configuration: MechConfiguration,
+  armActuators?: ArmActuatorConfig,
 ): AvailableSlotsByLocation {
   const availableByLocation: AvailableSlotsByLocation = new Map();
   for (const location of getLocationsForConfig(configuration)) {
     const slotCount = getLocationSlotCount(location, configuration);
     availableByLocation.set(
       location,
-      getAvailableSlotIndices(location, engineType, gyroType, equipment).filter(
-        (index) => index < slotCount,
-      ),
+      getAvailableSlotIndices(
+        location,
+        engineType,
+        gyroType,
+        equipment,
+        armActuators,
+      ).filter((index) => index < slotCount),
     );
   }
   return availableByLocation;
@@ -158,6 +165,7 @@ export function fillUnhittableSlots(
   engineType: EngineType,
   gyroType: GyroType,
   configuration: MechConfiguration = MechConfiguration.BIPED,
+  armActuators?: ArmActuatorConfig,
 ): SlotOperationResult {
   const assignments: SlotAssignment[] = [];
 
@@ -171,6 +179,7 @@ export function fillUnhittableSlots(
     engineType,
     gyroType,
     configuration,
+    armActuators,
   );
   const pairedIndex = fillPairedLocations(
     unhittables,

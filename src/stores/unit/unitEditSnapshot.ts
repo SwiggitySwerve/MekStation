@@ -53,6 +53,7 @@ export function getEditableUnitSnapshot(state: UnitState): UnitEditSnapshot {
     jumpMP: state.jumpMP,
     jumpJetType: state.jumpJetType,
     equipment: state.equipment,
+    armActuators: state.armActuators,
   };
 }
 

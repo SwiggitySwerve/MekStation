@@ -3,6 +3,7 @@ import type { MutableRefObject } from 'react';
 import type { EngineType } from '@/types/construction/EngineType';
 import type { GyroType } from '@/types/construction/GyroType';
 import type { MechConfiguration } from '@/types/construction/MechConfigurationSystem';
+import type { ArmActuatorConfig } from '@/utils/construction/slotOperations/topology';
 
 import {
   compactEquipmentSlots,
@@ -31,6 +32,7 @@ interface AssignmentActionArgs {
   readonly equipment: EquipmentList;
   readonly engineType: EngineType;
   readonly gyroType: GyroType;
+  readonly armActuators?: ArmActuatorConfig;
   readonly configuration?: MechConfiguration;
   readonly isOmni?: boolean;
   readonly bulkUpdateEquipmentLocations: BulkUpdateEquipmentLocations;
@@ -77,6 +79,7 @@ export function runFillAction(args: AssignmentActionArgs): void {
       args.engineType,
       args.gyroType,
       args.configuration,
+      args.armActuators,
     ),
     args.bulkUpdateEquipmentLocations,
   );
@@ -91,6 +94,7 @@ export function runCompactAction(args: AssignmentActionArgs): void {
       args.gyroType,
       args.configuration,
       args.isOmni,
+      args.armActuators,
     ),
     args.bulkUpdateEquipmentLocations,
   );
@@ -105,6 +109,7 @@ export function runSortAction(args: AssignmentActionArgs): void {
       args.gyroType,
       args.configuration,
       args.isOmni,
+      args.armActuators,
     ),
     args.bulkUpdateEquipmentLocations,
   );
@@ -115,6 +120,7 @@ export function scheduleAutoFillUnhittables({
   equipment,
   engineType,
   gyroType,
+  armActuators,
   configuration,
   bulkUpdateEquipmentLocations,
   autoModeSettings,
@@ -128,7 +134,13 @@ export function scheduleAutoFillUnhittables({
   isAutoRunning.current = true;
   const timer = setTimeout(() => {
     applyAssignments(
-      fillUnhittableSlots(equipment, engineType, gyroType, configuration),
+      fillUnhittableSlots(
+        equipment,
+        engineType,
+        gyroType,
+        configuration,
+        armActuators,
+      ),
       bulkUpdateEquipmentLocations,
     );
     isAutoRunning.current = false;
@@ -145,6 +157,7 @@ function chooseAutoOrganizeResult({
   equipment,
   engineType,
   gyroType,
+  armActuators,
   configuration,
   isOmni,
 }: Omit<
@@ -158,6 +171,7 @@ function chooseAutoOrganizeResult({
       gyroType,
       configuration,
       isOmni,
+      armActuators,
     );
   }
   if (autoModeSettings.autoCompact) {
@@ -167,6 +181,7 @@ function chooseAutoOrganizeResult({
       gyroType,
       configuration,
       isOmni,
+      armActuators,
     );
   }
   return undefined;
@@ -192,6 +207,7 @@ export function scheduleAutoOrganizeEquipment({
   equipment,
   engineType,
   gyroType,
+  armActuators,
   configuration,
   isOmni,
   bulkUpdateEquipmentLocations,
@@ -212,6 +228,7 @@ export function scheduleAutoOrganizeEquipment({
         equipment,
         engineType,
         gyroType,
+        armActuators,
         configuration,
         isOmni,
       }),

@@ -27,6 +27,7 @@ export type CatalogPlacementState = Pick<
   | 'gyroType'
   | 'configuration'
   | 'isOmni'
+  | 'armActuators'
 >;
 
 export interface ICatalogEquipmentPlacement {
@@ -87,6 +88,7 @@ export function previewCatalogEquipmentPlacement(
           state.engineType,
           state.gyroType,
           state.equipment,
+          state.armActuators,
         ),
         state.isOmni,
         readOnly,

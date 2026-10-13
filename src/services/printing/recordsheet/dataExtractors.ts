@@ -114,13 +114,18 @@ export function extractCriticals(
   return locations.map((loc) => {
     const slotCount = LOCATION_SLOT_COUNTS[loc];
     const userSlots = unit.criticalSlots?.[loc] || [];
+    // A complete resolved table already includes the design's actual systems.
+    // Keep inferred fixed slots only for legacy callers without that table.
+    const hasResolvedTable = userSlots.length === slotCount;
 
     // Start with empty slots array
     const slots: IRecordSheetCriticalSlot[] = [];
 
     // Fill slots with fixed equipment first, then user equipment
     for (let i = 0; i < slotCount; i++) {
-      let fixedContent = getFixedSlotContent(loc, i, engineSlots, gyroSlots);
+      let fixedContent = hasResolvedTable
+        ? null
+        : getFixedSlotContent(loc, i, engineSlots, gyroSlots);
       if (fixedContent === 'ENGINE_PLACEHOLDER') {
         fixedContent = engineName;
       }

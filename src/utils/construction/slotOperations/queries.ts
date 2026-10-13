@@ -8,7 +8,7 @@ import { GyroType } from '@/types/construction/GyroType';
 import { InternalStructureType } from '@/types/construction/InternalStructureType';
 import { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
 
-import { getFixedSlotNames } from './topology';
+import { getFixedSlotNames, type ArmActuatorConfig } from './topology';
 
 const SLOTTED_STRUCTURE_TYPES: readonly InternalStructureType[] = [
   InternalStructureType.ENDO_STEEL_IS,
@@ -30,8 +30,11 @@ export function getFixedSlotIndices(
   location: MechLocation,
   engineType: EngineType,
   gyroType: GyroType,
+  armActuators?: ArmActuatorConfig,
 ): Set<number> {
-  return new Set(getFixedSlotNames(location, engineType, gyroType).keys());
+  return new Set(
+    getFixedSlotNames(location, engineType, gyroType, armActuators).keys(),
+  );
 }
 
 export function getAvailableSlotIndices(
@@ -39,9 +42,15 @@ export function getAvailableSlotIndices(
   engineType: EngineType,
   gyroType: GyroType,
   equipment: readonly IMountedEquipmentInstance[],
+  armActuators?: ArmActuatorConfig,
 ): number[] {
   const totalSlots = LOCATION_SLOT_COUNTS[location] || 0;
-  const fixedSlots = getFixedSlotIndices(location, engineType, gyroType);
+  const fixedSlots = getFixedSlotIndices(
+    location,
+    engineType,
+    gyroType,
+    armActuators,
+  );
 
   const usedSlots = new Set<number>();
   for (const eq of equipment) {

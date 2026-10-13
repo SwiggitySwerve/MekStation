@@ -5,11 +5,21 @@ import {
 } from '@/types/construction/EngineType';
 import { GyroType, getGyroDefinition } from '@/types/construction/GyroType';
 
+export type ArmActuatorConfig = Readonly<
+  Partial<
+    Record<
+      MechLocation.LEFT_ARM | MechLocation.RIGHT_ARM,
+      { readonly lowerArm: boolean; readonly hand: boolean }
+    >
+  >
+>;
+
 /** Fixed occupancy shared by the critical grid, placement and validation. */
 export function getFixedSlotNames(
   location: MechLocation,
   engineType: EngineType,
   gyroType: GyroType,
+  armActuators?: ArmActuatorConfig,
 ): ReadonlyMap<number, string> {
   const slots = new Map<number, string>();
   const put = (index: number, name: string): void => {
@@ -43,9 +53,10 @@ export function getFixedSlotNames(
       break;
     case MechLocation.LEFT_ARM:
     case MechLocation.RIGHT_ARM:
-      ['Shoulder', 'Upper Arm', 'Lower Arm', 'Hand'].forEach((name, index) =>
-        put(index, name),
-      );
+      put(0, 'Shoulder');
+      put(1, 'Upper Arm');
+      if (armActuators?.[location]?.lowerArm ?? true) put(2, 'Lower Arm');
+      if (armActuators?.[location]?.hand ?? true) put(3, 'Hand');
       break;
     case MechLocation.LEFT_LEG:
     case MechLocation.RIGHT_LEG:
