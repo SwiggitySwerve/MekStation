@@ -45,7 +45,6 @@ import {
   isDangerCommand,
   resolveAvailability,
 } from './TacticalActionDock.commandButton';
-import { createTacticalCommandDispatcher } from './TacticalActionDock.dispatch';
 import {
   GmInterventionConfirmationPanel,
   GmInterventionPlayerLog,
@@ -62,6 +61,7 @@ import {
   groupCommandsByCategory,
   useCommandRegistry,
 } from './useCommandRegistry';
+import { useTacticalCommandDispatch } from './useTacticalCommandDispatch';
 
 export interface TacticalActionDockProps {
   /** Command context — drives availability + preview. */
@@ -304,17 +304,13 @@ export function TacticalActionDock({
   // a refusal that arrived since would be invisible to the dispatch
   // path and the command would commit against a board the client
   // knows is stale - the exact silent retry the gate exists to stop.
-  const dispatchCommand = useMemo(
-    () =>
-      createTacticalCommandDispatcher({
-        ctx: effectiveCtx,
-        commandGate,
-        gmIntervention,
-        onAction,
-        onGmPreview: setGmPreviewState,
-      }),
-    [commandGate, effectiveCtx, gmIntervention, onAction],
-  );
+  const { dispatchCommand, confirmationDialog } = useTacticalCommandDispatch({
+    ctx: effectiveCtx,
+    commandGate,
+    gmIntervention,
+    onAction,
+    onGmPreview: setGmPreviewState,
+  });
 
   const approveGmPreview = useCallback(() => {
     if (!gmPreviewState || gmPreviewState.preview.status !== 'ready') return;
@@ -351,6 +347,7 @@ export function TacticalActionDock({
       aria-label="Tactical action dock"
       data-testid="tactical-action-dock"
     >
+      {confirmationDialog}
       <div className="flex min-w-0 flex-1 flex-wrap items-center gap-3">
         {intentComposer?.active && (
           // Single Movement Authority: the composer is the sole movement-

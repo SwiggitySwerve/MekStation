@@ -41,6 +41,8 @@ export interface ITacticalCommandDispatchInputs {
   readonly onAction: TacticalActionHandler;
   /** Raise the GM preview panel for a GM-category command. */
   readonly onGmPreview: (state: IGmPreviewState) => void;
+  /** Request explicit app-dialog approval; omission refuses confirmed commands. */
+  readonly onConfirmCommand?: TacticalCommandDispatcher;
 }
 
 export type TacticalCommandDispatcher = (
@@ -59,7 +61,8 @@ export type TacticalCommandDispatcher = (
 export function createTacticalCommandDispatcher(
   inputs: ITacticalCommandDispatchInputs,
 ): TacticalCommandDispatcher {
-  const { ctx, commandGate, gmIntervention, onAction, onGmPreview } = inputs;
+  const { ctx, commandGate, gmIntervention, onGmPreview, onConfirmCommand } =
+    inputs;
   return (command, trigger) => {
     const availability = resolveAvailability(command, ctx, commandGate);
     if (!availability.available) {
@@ -83,24 +86,24 @@ export function createTacticalCommandDispatcher(
       return;
     }
     if (command.requiresConfirmation) {
-      // Spec `End phase distinguishes no-op from unresolved
-      // actions` — irreversible commits route through the
-      // global confirm. Today we wrap the existing native
-      // confirm() so the dock has the gate in place without
-      // depending on a modal stack that doesn't exist yet.
-      // Wave 7.3+ replaces this with the dedicated confirm UI.
-      const ok =
-        typeof window === 'undefined'
-          ? true
-          : window.confirm(`Confirm: ${command.label}?`);
-      trigger?.focus();
-      if (!ok) return;
+      onConfirmCommand?.(command, trigger);
+      return;
     }
-    const result = command.commit(ctx);
-    if (result.payload === undefined) {
-      onAction(result.actionId);
-    } else {
-      onAction(result.actionId, result.payload);
-    }
+    commitTacticalCommand(command, inputs);
   };
+}
+
+/** Approval and immediate commands share the same current availability guard. */
+export function commitTacticalCommand(
+  command: ITacticalCommand,
+  inputs: Pick<
+    ITacticalCommandDispatchInputs,
+    'ctx' | 'commandGate' | 'onAction'
+  >,
+): void {
+  if (!resolveAvailability(command, inputs.ctx, inputs.commandGate).available)
+    return;
+  const result = command.commit(inputs.ctx);
+  if (result.payload === undefined) inputs.onAction(result.actionId);
+  else inputs.onAction(result.actionId, result.payload);
 }

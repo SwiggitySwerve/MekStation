@@ -105,6 +105,18 @@ function isTypingTarget(target: EventTarget | null): boolean {
   return false;
 }
 
+// The existing shortcuts-help overlay deliberately keeps Escape and ? active.
+// Other rendered modal dialogs own their keyboard events, including button Space.
+const INTERACTION_MODAL_SELECTOR =
+  '[role="dialog"][aria-modal="true"]:not([aria-labelledby="hotkey-help-title"]), [role="alertdialog"][aria-modal="true"], dialog[open][aria-modal="true"]';
+
+function isModalInteraction(target: EventTarget | null): boolean {
+  // Keep ownership even if Escape removes the dialog before window receives it.
+  if (target instanceof Element && target.closest(INTERACTION_MODAL_SELECTOR))
+    return true;
+  return document.querySelector(INTERACTION_MODAL_SELECTOR) !== null;
+}
+
 function preventDefaultAndRun(event: KeyboardEvent, action: () => void): void {
   event.preventDefault();
   action();
@@ -209,7 +221,12 @@ export function useGameplayHotkeys(args: UseGameplayHotkeysArgs): void {
     if (typeof window === 'undefined') return;
 
     const handler = (event: KeyboardEvent): void => {
-      if (isTypingTarget(event.target)) return;
+      if (
+        event.defaultPrevented ||
+        isTypingTarget(event.target) ||
+        isModalInteraction(event.target)
+      )
+        return;
 
       const context: GameplayHotkeyContext = {
         camera,

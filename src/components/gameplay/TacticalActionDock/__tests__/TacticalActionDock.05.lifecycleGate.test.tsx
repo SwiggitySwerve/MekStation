@@ -19,12 +19,16 @@
  * cannot take and is told neither why nor what would change it.
  */
 
-import type { CommandAvailability, ITacticalCommand } from '@/types/gameplay';
+import type {
+  CommandAvailability,
+  ITacticalCommand,
+  ITacticalCommandContext,
+} from '@/types/gameplay';
 
 import { createTacticalCommandDispatcher } from '../TacticalActionDock.dispatch';
 import * as H from './TacticalActionDock.test-helpers';
 
-const { TacticalActionDock, makeCtx, render, screen } = H;
+const { GamePhase, TacticalActionDock, fireEvent, makeCtx, render, screen } = H;
 
 const REFUSED: CommandAvailability = {
   available: false,
@@ -71,6 +75,78 @@ function commandButtons(): HTMLElement[] {
 }
 
 describe('tactical dock command gate', () => {
+  it.each<readonly [string, Partial<ITacticalCommandContext>]>([
+    ['phase', { phase: GamePhase.Movement }],
+    ['active unit', { activeUnitId: 'unit-b' }],
+    ['selected unit', { selectedUnitId: 'unit-b' }],
+    ['target', { targetUnitId: 'enemy-b' }],
+    ['action permission', { canAct: false }],
+  ])('discards pending approval when %s changes', (_name, change) => {
+    const onAction = jest.fn();
+    const ctx = makeCtx({ phase: GamePhase.WeaponAttack });
+    const { rerender } = render(
+      <TacticalActionDock ctx={ctx} shellMode="combat" onAction={onAction} />,
+    );
+    fireEvent.click(screen.getByTestId('command-btn-heat-end.end-phase'));
+    const approve = screen.getByRole('button', { name: 'Confirm End Phase' });
+
+    rerender(
+      <TacticalActionDock
+        ctx={{ ...ctx, ...change }}
+        shellMode="combat"
+        onAction={onAction}
+      />,
+    );
+    fireEvent.click(approve);
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(onAction).not.toHaveBeenCalled();
+  });
+
+  it('rechecks a newly refusing gate before a pending command can commit', () => {
+    const onAction = jest.fn();
+    const ctx = makeCtx({ phase: GamePhase.WeaponAttack });
+    const { rerender } = render(
+      <TacticalActionDock
+        ctx={ctx}
+        shellMode="combat"
+        onAction={onAction}
+        commandGate={ALLOWED}
+      />,
+    );
+    fireEvent.click(screen.getByTestId('command-btn-heat-end.end-phase'));
+    const approve = screen.getByRole('button', { name: 'Confirm End Phase' });
+
+    rerender(
+      <TacticalActionDock
+        ctx={ctx}
+        shellMode="combat"
+        onAction={onAction}
+        commandGate={REFUSED}
+      />,
+    );
+    fireEvent.click(approve);
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(onAction).not.toHaveBeenCalled();
+  });
+
+  it('refuses confirmation-required dispatch when no confirmation owner is supplied', () => {
+    const onAction = jest.fn();
+    const commit = jest.fn(COMMITTING_COMMAND.commit);
+    const dispatch = createTacticalCommandDispatcher({
+      ctx: makeCtx(),
+      commandGate: ALLOWED,
+      gmIntervention: undefined,
+      onAction,
+      onGmPreview: jest.fn(),
+    });
+
+    dispatch({ ...COMMITTING_COMMAND, commit, requiresConfirmation: true });
+
+    expect(commit).not.toHaveBeenCalled();
+    expect(onAction).not.toHaveBeenCalled();
+  });
   it('withholds every command while the gate refuses', () => {
     renderDock(REFUSED);
     const buttons = commandButtons();

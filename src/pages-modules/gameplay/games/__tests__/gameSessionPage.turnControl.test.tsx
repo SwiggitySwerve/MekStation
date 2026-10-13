@@ -213,6 +213,33 @@ it('uses the composer forecast without a separate placeholder hit-chance card', 
   expect(screen.queryByTestId('hit-chance-panel')).not.toBeInTheDocument();
 });
 
+it('advances once from the dock app dialog while cancellation preserves the real battle', async () => {
+  const battle = await createBattle();
+  battle.advancePhase();
+  expect(battle.getState().phase).toBe(GamePhase.WeaponAttack);
+  for (const unitId of ['warhammer', 'stinger-stg-3r', 'shadow-hawk-shd-2h']) {
+    battle.applyVolley(unitId, []);
+  }
+  useGameplayStore.getState().setInteractiveSession(battle);
+  render(<GameSessionPage />);
+  const nativeConfirm = jest.spyOn(window, 'confirm').mockImplementation(() => {
+    throw new Error('Native confirmation must not block the real page');
+  });
+  const before = battle.getSession().events.length;
+
+  fireEvent.click(screen.getByTestId('command-btn-heat-end.end-phase'));
+  expect(screen.getByRole('dialog', { name: 'End Phase?' })).toBeVisible();
+  fireEvent.click(screen.getByRole('button', { name: /^Cancel$/ }));
+  expect(battle.getState().phase).toBe(GamePhase.WeaponAttack);
+  expect(battle.getSession().events).toHaveLength(before);
+  fireEvent.click(screen.getByTestId('command-btn-heat-end.end-phase'));
+  fireEvent.click(screen.getByRole('button', { name: 'Confirm End Phase' }));
+
+  expect(battle.getState().phase).toBe(GamePhase.PhysicalAttack);
+  expect(nativeConfirm).not.toHaveBeenCalled();
+  nativeConfirm.mockRestore();
+});
+
 it('retains the legacy hit-chance card using the authoritative target projection', async () => {
   const battle = await createBattle();
   battle.advancePhase();

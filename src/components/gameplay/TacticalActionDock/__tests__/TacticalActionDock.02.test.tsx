@@ -198,7 +198,12 @@ describe('TacticalActionDock', () => {
 
     fireEvent.click(screen.getByTestId('command-btn-weapon.fire-volley'));
 
-    expect(confirmSpy).toHaveBeenCalledWith('Confirm: Fire Volley?');
+    expect(screen.getByRole('dialog', { name: 'Fire Volley?' })).toBeVisible();
+    expect(onAction).not.toHaveBeenCalled();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Confirm Fire Volley' }),
+    );
+    expect(confirmSpy).not.toHaveBeenCalled();
     expect(onAction).toHaveBeenCalledWith('lock', { volley: true });
     confirmSpy.mockRestore();
   });

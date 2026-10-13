@@ -15,9 +15,30 @@
 
 import { fireEvent, render, screen } from '@testing-library/react';
 
-import { GamePhase, type ITacticalCommandContext } from '@/types/gameplay';
+import type { ShellMode } from '@/types/gameplay/TacticalShellInterfaces';
+
+import {
+  GamePhase,
+  type ITacticalCommand,
+  type ITacticalCommandContext,
+} from '@/types/gameplay';
 
 import { HexContextMenu } from '../HexContextMenu';
+
+let mockHexCommands: readonly ITacticalCommand[] | null = null;
+jest.mock('../useCommandRegistry', () => {
+  const actual = jest.requireActual<typeof import('../useCommandRegistry')>(
+    '../useCommandRegistry',
+  );
+  return {
+    ...actual,
+    useCommandRegistry: (ctx: ITacticalCommandContext, shellMode: ShellMode) =>
+      mockHexCommands ?? actual.useCommandRegistry(ctx, shellMode),
+  };
+});
+afterEach(() => {
+  mockHexCommands = null;
+});
 
 function makeCtx(
   overrides: Partial<ITacticalCommandContext> = {},
@@ -34,6 +55,59 @@ function makeCtx(
 }
 
 describe('HexContextMenu', () => {
+  it('confirms a scoped hex command without committing or closing on cancellation', () => {
+    const command: ITacticalCommand = {
+      id: 'test.hex-confirm',
+      category: 'movement',
+      label: 'Apply Hex',
+      phaseConstraints: [GamePhase.Movement],
+      targetsHex: true,
+      requiresConfirmation: true,
+      undoable: false,
+      availability: () => ({ available: true }),
+      commit: (ctx) => ({
+        actionId: 'test.hex-confirm',
+        payload: { hex: ctx.hoveredHex },
+      }),
+    };
+    mockHexCommands = [command];
+    const nativeConfirm = jest
+      .spyOn(window, 'confirm')
+      .mockImplementation(() => {
+        throw new Error('Native confirmation must not block hex commands');
+      });
+    const onAction = jest.fn();
+    const onClose = jest.fn();
+    render(
+      <HexContextMenu
+        hex={{ q: 3, r: 4 }}
+        ctx={makeCtx()}
+        shellMode="combat"
+        anchor={{ x: 100, y: 100 }}
+        onClose={onClose}
+        onAction={onAction}
+      />,
+    );
+    const trigger = screen.getByTestId('hex-menu-item-test.hex-confirm');
+    fireEvent.click(trigger);
+    expect(screen.getByRole('dialog', { name: 'Apply Hex?' })).toBeVisible();
+    expect(onAction).not.toHaveBeenCalled();
+    expect(onClose).not.toHaveBeenCalled();
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(onClose).not.toHaveBeenCalled();
+    expect(onAction).not.toHaveBeenCalled();
+    expect(document.activeElement).toBe(trigger);
+    fireEvent.click(trigger);
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm Apply Hex' }));
+
+    expect(onAction).toHaveBeenCalledTimes(1);
+    expect(onAction).toHaveBeenCalledWith('test.hex-confirm', {
+      hex: { q: 3, r: 4 },
+    });
+    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(nativeConfirm).not.toHaveBeenCalled();
+    nativeConfirm.mockRestore();
+  });
   it('renders with hex coordinate data attributes', () => {
     render(
       <HexContextMenu

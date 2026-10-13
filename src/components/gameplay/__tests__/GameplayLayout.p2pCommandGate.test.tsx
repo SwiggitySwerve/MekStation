@@ -10,7 +10,7 @@
  */
 
 import '@testing-library/jest-dom';
-import { render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import React from 'react';
 
 import type { CommandAvailability } from '@/types/gameplay/TacticalCommandInterfaces';
@@ -116,9 +116,9 @@ describe('GameplayLayout command gate plumbing', () => {
     // command while the gate refuses. The dock's dispatch guard is a
     // second line behind that, and proving IT needs a handle the dock
     // does not export today (reported, not patched here).
-    const confirmSpy = jest
-      .spyOn(window, 'confirm')
-      .mockImplementation(() => true);
+    const confirmSpy = jest.spyOn(window, 'confirm').mockImplementation(() => {
+      throw new Error('Native confirmation must not block tactical commands');
+    });
     const onAction = jest.fn();
     renderLayout({ available: false, reason: REFUSAL }, onAction);
 
@@ -128,6 +128,8 @@ describe('GameplayLayout command gate plumbing', () => {
     }
 
     expect(onAction).not.toHaveBeenCalled();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(confirmSpy).not.toHaveBeenCalled();
     confirmSpy.mockRestore();
   });
 
@@ -138,18 +140,36 @@ describe('GameplayLayout command gate plumbing', () => {
     // when no gate refuses. Without this row the pair proves nothing
     // about the gate - which is the failure mode the pair exists to
     // avoid, and the one the sibling dock suite fell into.
-    const confirmSpy = jest
-      .spyOn(window, 'confirm')
-      .mockImplementation(() => true);
+    const confirmSpy = jest.spyOn(window, 'confirm').mockImplementation(() => {
+      throw new Error('Native confirmation must not block tactical commands');
+    });
     const onAction = jest.fn();
     renderLayout(undefined, onAction);
+    let confirmedCommands = 0;
 
     for (const button of commandButtons()) {
       (button as HTMLButtonElement).disabled = false;
-      button.click();
+      act(() => button.click());
+      const dialog = screen.queryByRole('dialog');
+      if (!dialog) continue;
+
+      const callsBefore = onAction.mock.calls.length;
+      fireEvent.click(within(dialog).getByRole('button', { name: /^Cancel$/ }));
+      expect(onAction).toHaveBeenCalledTimes(callsBefore);
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+
+      act(() => button.click());
+      const reopenedDialog = screen.getByRole('dialog');
+      fireEvent.click(
+        within(reopenedDialog).getByRole('button', { name: /^Confirm / }),
+      );
+      expect(onAction).toHaveBeenCalledTimes(callsBefore + 1);
+      confirmedCommands += 1;
     }
 
+    expect(confirmedCommands).toBeGreaterThan(0);
     expect(onAction).toHaveBeenCalled();
+    expect(confirmSpy).not.toHaveBeenCalled();
     confirmSpy.mockRestore();
   });
 });
