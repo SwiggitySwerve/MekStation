@@ -1,8 +1,19 @@
+import { useEffect, useRef, useState } from 'react';
+
 import type { IQuickGameUnitRequest } from '@/types/quickgame';
 
 import { Button, Card } from '@/components/ui';
 import { SvgIcon } from '@/components/ui/SvgIcon';
-import { useQuickGameSelector } from '@/stores/useQuickGameStore';
+import { SavedDesignPicker } from '@/components/units/SavedDesignPicker';
+import {
+  listQuickGameSavedDesigns,
+  loadQuickGameSavedDesign,
+} from '@/services/units/quickGameSavedDesigns';
+import {
+  useQuickGameSelector,
+  useQuickGameStore,
+} from '@/stores/useQuickGameStore';
+import { QuickGameStep } from '@/types/quickgame';
 
 import { DEMO_UNITS } from './quickGameSetup.helpers';
 
@@ -14,6 +25,57 @@ export function UnitSelectionStep(): React.ReactElement {
     (state) => state.updateUnitSkills,
   );
   const nextStep = useQuickGameSelector((state) => state.nextStep);
+  const [savedDesignError, setSavedDesignError] = useState<string | null>(null);
+  const [addingSavedDesign, setAddingSavedDesign] = useState(false);
+  const pendingRequest = useRef<symbol | null>(null);
+
+  useEffect(() => {
+    setAddingSavedDesign(false);
+    setSavedDesignError(null);
+    return () => {
+      pendingRequest.current = null;
+    };
+  }, [game?.id, game?.step]);
+
+  const handleAddSavedDesign = async (id: string): Promise<void> => {
+    const currentGame = useQuickGameStore.getState().game;
+    if (
+      pendingRequest.current ||
+      !game ||
+      currentGame?.id !== game.id ||
+      currentGame.step !== QuickGameStep.SelectUnits
+    )
+      return;
+    const request = Symbol();
+    pendingRequest.current = request;
+    const isCurrentRequest = () => {
+      const activeGame = useQuickGameStore.getState().game;
+      return (
+        pendingRequest.current === request &&
+        activeGame?.id === game.id &&
+        activeGame.step === QuickGameStep.SelectUnits
+      );
+    };
+    setAddingSavedDesign(true);
+    setSavedDesignError(null);
+    try {
+      const unit = await loadQuickGameSavedDesign(id);
+      if (isCurrentRequest()) addUnit(unit);
+    } catch (error) {
+      if (isCurrentRequest()) {
+        setSavedDesignError(
+          error instanceof Error
+            ? error.message
+            : 'Unable to load saved design.',
+        );
+      }
+    } finally {
+      if (isCurrentRequest()) {
+        pendingRequest.current = null;
+        setAddingSavedDesign(false);
+      }
+    }
+  };
 
   const handleAddUnit = (unit: IQuickGameUnitRequest) => {
     addUnit(unit);
@@ -158,11 +220,25 @@ export function UnitSelectionStep(): React.ReactElement {
         </div>
       </Card>
 
+      <Card className="mb-6 p-4">
+        <p className="text-text-theme-muted mb-3 text-sm">
+          Saved combat-ready biped BattleMechs from your library.
+        </p>
+        <SavedDesignPicker
+          loadSavedDesignIndex={listQuickGameSavedDesigns}
+          onAdd={(_name, _tonnage, id) => void handleAddSavedDesign(id)}
+        />
+        {addingSavedDesign && <p role="status">Loading saved construction…</p>}
+        {savedDesignError && <p role="alert">{savedDesignError}</p>}
+      </Card>
+
       <div className="flex justify-end">
         <Button
           variant="primary"
-          onClick={nextStep}
-          disabled={playerUnits.length === 0}
+          onClick={() => {
+            if (!pendingRequest.current) nextStep();
+          }}
+          disabled={playerUnits.length === 0 || addingSavedDesign}
           data-testid="next-step-btn"
         >
           Continue to Configuration
