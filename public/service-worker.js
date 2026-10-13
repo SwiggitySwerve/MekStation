@@ -54,6 +54,22 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Development chunks reuse URLs across builds; cached bytes can mix builds.
+  const isUnversionedNextAsset =
+    (url.pathname.startsWith('/_next/static/chunks/') ||
+      url.pathname.startsWith('/_next/static/css/')) &&
+    (request.destination === 'script' || request.destination === 'style') &&
+    /\.(?:js|css)$/i.test(url.pathname) &&
+    !/(?:\/|[-.])[a-f0-9]{8,}\.(?:js|css)$/i.test(url.pathname);
+  if (
+    isUnversionedNextAsset ||
+    url.pathname.startsWith('/_next/static/development/') ||
+    url.pathname === '/_next/webpack-hmr'
+  ) {
+    event.respondWith(fetch(request, { cache: 'no-store' }));
+    return;
+  }
+
   // Strategy 1: Cache First for static assets
   if (
     request.destination === 'image' ||
@@ -146,12 +162,19 @@ async function staleWhileRevalidate(request) {
   const cached = await cache.match(request);
 
   // Fetch in background to update cache
-  const fetchPromise = fetch(request).then((response) => {
-    if (response.ok) {
-      cache.put(request, response.clone());
-    }
-    return response;
-  });
+  const fetchPromise = fetch(request)
+    .then((response) => {
+      if (response.ok) {
+        cache.put(request, response.clone());
+      }
+      return response;
+    })
+    .catch((error) => {
+      if (cached) {
+        return cached;
+      }
+      throw error;
+    });
 
   // Return cached version immediately, or wait for network if no cache
   return cached || fetchPromise;
