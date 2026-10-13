@@ -15,12 +15,13 @@ import { act, render } from '@testing-library/react';
 import React from 'react';
 
 import type { InteractiveSession } from '@/engine/InteractiveSession';
+import type { usePhaseQueueProjection } from '@/hooks/gameplay/usePhaseQueueProjection';
 import type { CommandAvailability } from '@/types/gameplay/TacticalCommandInterfaces';
 
 import { createDemoSession } from '@/__fixtures__/gameplay';
 import { useP2PMirrorStore } from '@/lib/p2p/p2pMirrorStore';
 import { useGameplayStore } from '@/stores/useGameplayStore';
-import { GameSide } from '@/types/gameplay';
+import { GamePhase, GameSide } from '@/types/gameplay';
 
 const mockCapturedLayout: { commandGate?: CommandAvailability } = {};
 const mockRoute: { id: string } = { id: 'p2p-ROOM01' };
@@ -41,9 +42,14 @@ jest.mock('@/components/gameplay/CombatPlanningPanel', () => ({
 }));
 
 jest.mock('@/hooks/gameplay', () => ({
-  usePhaseQueueProjection: () => ({
-    activeUnitId: undefined,
+  usePhaseQueueProjection: (): ReturnType<typeof usePhaseQueueProjection> => ({
+    round: 1,
+    phase: GamePhase.Initiative,
+    activeUnitId: null,
     activeSide: GameSide.Player,
+    initiativeOrder: [],
+    unresolvedUnits: [],
+    blockers: [],
   }),
 }));
 

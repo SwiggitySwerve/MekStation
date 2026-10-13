@@ -18,6 +18,7 @@ import { render, screen } from '@testing-library/react';
 import React from 'react';
 import '@testing-library/jest-dom';
 import type { InteractiveSession } from '@/engine/InteractiveSession';
+import type { usePhaseQueueProjection } from '@/hooks/gameplay/usePhaseQueueProjection';
 
 import { createDemoSession } from '@/__fixtures__/gameplay';
 import GameSessionPage from '@/pages/gameplay/games/[id]';
@@ -33,12 +34,14 @@ import {
 const mockCapturedLayout: {
   onAction?: (actionId: string, payload?: TacticalActionPayload) => void;
 } = {};
-const mockPhaseQueueProjection: {
-  activeUnitId?: string;
-  activeSide: GameSide;
-} = {
-  activeUnitId: undefined,
+let mockPhaseQueueProjection: ReturnType<typeof usePhaseQueueProjection> = {
+  round: 1,
+  phase: GamePhase.Initiative,
+  activeUnitId: null,
   activeSide: GameSide.Player,
+  initiativeOrder: [],
+  unresolvedUnits: [],
+  blockers: [],
 };
 
 jest.mock('@/components/gameplay/GameplayLayout', () => ({
@@ -107,8 +110,11 @@ jest.mock('next/router', () => ({
 describe('game-page dispatcher payload threading', () => {
   beforeEach(() => {
     mockCapturedLayout.onAction = undefined;
-    mockPhaseQueueProjection.activeUnitId = undefined;
-    mockPhaseQueueProjection.activeSide = GameSide.Player;
+    mockPhaseQueueProjection = {
+      ...mockPhaseQueueProjection,
+      activeUnitId: null,
+      activeSide: GameSide.Player,
+    };
   });
 
   /** Seed the real store with a session and spies for the dispatcher. */
@@ -159,8 +165,11 @@ describe('game-page dispatcher payload threading', () => {
   it('dispatches the active opponent movement unit to the AI', () => {
     const session = createDemoSession();
     const runAITurn = jest.fn();
-    mockPhaseQueueProjection.activeUnitId = 'opponent-a';
-    mockPhaseQueueProjection.activeSide = GameSide.Opponent;
+    mockPhaseQueueProjection = {
+      ...mockPhaseQueueProjection,
+      activeUnitId: 'opponent-a',
+      activeSide: GameSide.Opponent,
+    };
     useGameplayStore.setState({
       session: {
         ...session,
