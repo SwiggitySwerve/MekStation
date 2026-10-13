@@ -25,9 +25,6 @@ import type { IAttackPlan } from './useGameplayStore.combatFlows';
 import { InteractivePhase } from './useGameplayStore.helpers';
 import { allowIntentInPhase } from './useGameplayStore.phaseGuard';
 
-/** Base hit chance used when the to-hit calculator hasn't run yet. */
-const DEFAULT_BASE_HIT_CHANCE = 58;
-
 /**
  * Minimal slice of the gameplay store the interaction helpers need.
  */
@@ -180,8 +177,8 @@ export function selectWeaponLogic(weaponId: string, set: SetFn): void {
  * Lock the attack target on both the legacy `ui.targetUnitId` field
  * and the structured `attackPlan.targetUnitId` so the new
  * WeaponSelector + ToHitForecastModal can read a single source of
- * truth instead of dual-tracking. Falls back to the base 58% hit
- * chance until the to-hit forecast runs.
+ * truth instead of dual-tracking. Probability comes from the live combat
+ * projection; target selection alone has no calculated hit chance.
  */
 export function selectAttackTargetLogic(
   targetUnitId: string,
@@ -195,13 +192,11 @@ export function selectAttackTargetLogic(
   const targetState = interactiveSession.getState().units[targetUnitId];
   if (!attackerState || !targetState) return;
 
-  const hitChance = DEFAULT_BASE_HIT_CHANCE;
-
   set((state) => ({
     ui: { ...state.ui, targetUnitId },
     attackPlan: { ...state.attackPlan, targetUnitId },
     interactivePhase: InteractivePhase.SelectWeapons,
-    hitChance,
+    hitChance: null,
   }));
 }
 

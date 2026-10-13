@@ -20,6 +20,7 @@ import { deriveWeaponLegalityForTarget } from '@/stores/useGameplayStore.attackI
 import { usePhysicalAttackPlanStore } from '@/stores/useGameplayStore.combatFlows';
 import { Facing, GamePhase, GameSide } from '@/types/gameplay';
 import { filterEventsForMovementAnimations } from '@/utils/gameplay/movement/eventLogSync';
+import { getTwoD6HitProbability } from '@/utils/gameplay/toHit/forecast';
 
 import type { IAttackComposerContext } from './AttackIntentComposer';
 import type { GameplayFogContactMemory } from './GameplayLayout.tokens';
@@ -486,6 +487,12 @@ export function GameplayLayout({
     heatSinks,
   ]);
 
+  const projectedToHit = commandPreviewInputs.combatInfo?.toHitNumber;
+  const legacyHitChance =
+    !attackComposerActive && activeTargetId && projectedToHit !== undefined
+      ? getTwoD6HitProbability(projectedToHit)
+      : null;
+
   return (
     <GameplayLayoutView
       className={className}
@@ -528,7 +535,7 @@ export function GameplayLayout({
       controls={controls}
       physicalAttackIntent={physicalAttackIntent}
       interactivePhase={interactivePhase}
-      hitChance={hitChance}
+      hitChance={legacyHitChance}
       maxArmor={maxArmor}
       maxStructure={maxStructure}
       pilotNames={pilotNames}

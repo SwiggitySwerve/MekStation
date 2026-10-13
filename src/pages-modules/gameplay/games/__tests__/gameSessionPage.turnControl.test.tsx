@@ -1,6 +1,7 @@
 import 'fake-indexeddb/auto';
 import '@testing-library/jest-dom';
 import {
+  act,
   cleanup,
   fireEvent,
   render,
@@ -14,6 +15,7 @@ import { serialize, deserialize } from 'node:v8';
 
 import type { IFullUnit } from '@/services/units/CanonicalUnitService';
 
+import { GameplayLayout } from '@/components/gameplay/GameplayLayout';
 import savedWarhammer from '@/engine/__tests__/fixtures/warhammer-night-watch.json';
 import {
   adaptUnit,
@@ -26,6 +28,7 @@ import {
 } from '@/lib/p2p/matchLogStorage';
 import GameSessionPage from '@/pages/gameplay/games/[id]';
 import { useAnimationQueue } from '@/stores/useAnimationQueue';
+import { InteractivePhase } from '@/stores/useGameplayStore';
 import { useGameplayStore } from '@/stores/useGameplayStore';
 import { GamePhase, GameSide, LockState } from '@/types/gameplay';
 
@@ -198,4 +201,37 @@ it('advances a completed physical activation queue to Heat after confirmation', 
   fireEvent.click(screen.getByRole('button', { name: 'Confirm End Phase' }));
   expect(battle.getState().phase).toBe(GamePhase.Heat);
   expect(screen.queryByTestId('physical-attack-panel')).not.toBeInTheDocument();
+});
+
+it('uses the composer forecast without a separate placeholder hit-chance card', async () => {
+  const battle = await createBattle();
+  battle.advancePhase();
+  useGameplayStore.getState().setInteractiveSession(battle);
+  useGameplayStore.getState().selectUnit('warhammer');
+  render(<GameSessionPage />);
+  act(() => useGameplayStore.getState().selectAttackTarget('stinger-stg-3r'));
+  expect(screen.queryByTestId('hit-chance-panel')).not.toBeInTheDocument();
+});
+
+it('retains the legacy hit-chance card using the authoritative target projection', async () => {
+  const battle = await createBattle();
+  battle.advancePhase();
+  useGameplayStore.getState().setInteractiveSession(battle);
+  useGameplayStore.getState().selectUnit('warhammer');
+  useGameplayStore.getState().selectAttackTarget('stinger-stg-3r');
+  const store = useGameplayStore.getState();
+  render(
+    <GameplayLayout
+      session={battle.getSession()}
+      selectedUnitId="warhammer"
+      onUnitSelect={() => {}}
+      onAction={() => {}}
+      isPlayerTurn={false}
+      unitWeapons={store.unitWeapons}
+      interactiveSession={battle}
+      interactivePhase={InteractivePhase.SelectWeapons}
+      hitChance={58}
+    />,
+  );
+  expect(screen.getByTestId('hit-chance-panel')).toHaveTextContent('72%');
 });
