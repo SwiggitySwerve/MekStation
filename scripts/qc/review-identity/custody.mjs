@@ -223,18 +223,59 @@ export function nativeBytes(file, prefixBytes) {
 
 // A complete inventory uses two fresh all-tag attribute checks instead of one
 // interpreter process per file. Every file still has its own handle/read checks.
-export function nativeBuffers(files) {
+function nativeInventory(files, directories = []) {
   identityCheck(
     Array.isArray(files) && new Set(files).size === files.length,
     'native inventory aliases',
   );
+  const rootsBefore = directories.map((dir) => physicalPath(dir, true));
   const before = files.map((file) => physicalPath(file));
-  checkNativeAttributes(before.flatMap((entry) => entry.identities));
+  checkNativeAttributes(
+    [...rootsBefore, ...before].flatMap((entry) => entry.identities),
+  );
   const buffers = before.map((entry) => readNativeBytes(entry));
   const after = files.map((file) => physicalPath(file));
-  checkNativeAttributes(after.flatMap((entry) => entry.identities));
+  const rootsAfter = directories.map((dir) => physicalPath(dir, true));
+  checkNativeAttributes(
+    [...rootsAfter, ...after].flatMap((entry) => entry.identities),
+  );
   before.forEach((entry, index) => stablePath(entry, after[index]));
+  rootsBefore.forEach((entry, index) =>
+    stablePath(entry, rootsAfter[index], 0),
+  );
   return buffers;
+}
+
+export function nativeBuffers(files) {
+  return nativeInventory(files);
+}
+
+export function nativeReadFiles(base, relatives, refs = []) {
+  const root = nativeSelector(base);
+  identityCheck(
+    Array.isArray(relatives) && relatives.every(relativePath),
+    'unsafe native relative artifact',
+  );
+  identityCheck(Array.isArray(refs), 'native artifact inventory invalid');
+  refs.forEach(nativeRef);
+  const referenced = new Map(refs.map((ref) => [ref.path, ref]));
+  identityCheck(
+    referenced.size === refs.length &&
+      refs.every((ref) => relatives.includes(ref.path)),
+    'native artifact ref missing or aliased in inventory',
+  );
+  const files = relatives.map((relative) => path.join(root, relative));
+  const buffers = nativeInventory(files, [root]);
+  return files.map((file, index) => {
+    const bytes = buffers[index];
+    const ref = referenced.get(relatives[index]);
+    if (!ref) return { file, bytes };
+    identityCheck(
+      bytes.length === ref.bytes && sha256(bytes) === ref.sha256,
+      'native artifact hash/bytes mismatch',
+    );
+    return { file, bytes, value: nativeJson(bytes) };
+  });
 }
 
 export function nativeFile(base, relative) {
@@ -246,14 +287,16 @@ export function nativeFile(base, relative) {
 }
 
 export function nativeArtifact(base, ref) {
-  nativeRef(ref);
-  const file = nativeFile(base, ref.path);
-  const bytes = nativeBytes(file);
-  identityCheck(
-    bytes.length === ref.bytes && sha256(bytes) === ref.sha256,
-    'native artifact hash/bytes mismatch',
+  return nativeArtifacts(base, [ref])[0];
+}
+
+export function nativeArtifacts(base, refs) {
+  identityCheck(Array.isArray(refs), 'native artifact inventory invalid');
+  return nativeReadFiles(
+    base,
+    refs.map((ref) => ref?.path),
+    refs,
   );
-  return { file, bytes, value: nativeJson(bytes) };
 }
 
 export function archiveReviewIdentity(ledgerDir, verified) {

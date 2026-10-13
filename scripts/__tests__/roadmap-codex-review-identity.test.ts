@@ -349,6 +349,9 @@ interface INativeFixture {
 }
 const nativeRpcCode = [
   "import fs from 'node:fs';",
+  "import path from 'node:path';",
+  "import cp from 'node:child_process';",
+  "import {syncBuiltinESMExports} from 'node:module';",
   "import {pathToFileURL} from 'node:url';",
   "import {createHash} from 'node:crypto';",
   'const [repo,file]=process.argv.slice(1);',
@@ -357,11 +360,24 @@ const nativeRpcCode = [
   "const facts=await import(pathToFileURL(repo+'/scripts/qc/review-identity/contract.mjs'));",
   "const sourceApi=await import(pathToFileURL(repo+'/scripts/qc/review-identity/source.mjs'));",
   "const nativeApi=await import(pathToFileURL(repo+'/scripts/qc/review-identity/native-binding.mjs'));",
+  "const custody=await import(pathToFileURL(repo+'/scripts/qc/review-identity/custody.mjs'));",
   "const hash=b=>createHash('sha256').update(b).digest('hex');",
   "const archiveCensus=ledgerDir=>{const evidence=ledgerDir+'/evidence',baseline=new Set(fs.readdirSync(evidence));return ()=>fs.readdirSync(evidence).filter(name=>!baseline.has(name)).sort().map(name=>{const b=fs.readFileSync(evidence+'/'+name);return {name,bytes:b.length,sha256:hash(b)};});};",
   'try {',
   'let result;',
-  "if(request.op==='api-transport'){",
+  "if(request.op==='native-read'){",
+  "const dir=path.join(request.base,'artifacts'),target=path.join(dir,'one.json');",
+  'const open=fs.openSync,read=fs.readSync,close=fs.closeSync,spawn=cp.spawnSync;',
+  'let selectedFd,readCount=0,attributeCalls=0,directorySwapped=false;',
+  "const swapDirectory=link=>{fs.renameSync(dir,dir+'-displaced');if(link)fs.symlinkSync(dir+'-displaced',dir,'junction');else{fs.mkdirSync(dir);for(const name of fs.readdirSync(dir+'-displaced'))fs.copyFileSync(dir+'-displaced/'+name,dir+'/'+name);}};",
+  "fs.openSync=(file,...args)=>{if(file===target&&request.fault==='handle-swap'){fs.renameSync(file,file+'.old');fs.copyFileSync(file+'.old',file);}const fd=open(file,...args);if(file===target)selectedFd=fd;return fd;};",
+  "fs.readSync=(fd,...args)=>{const n=read(fd,...args);if(fd===selectedFd&&++readCount===1&&request.fault==='byte-drift')fs.writeFileSync(target,'{\"x\":9}');return n;};",
+  "fs.closeSync=fd=>{close(fd);if(fd===selectedFd&&request.fault==='ancestor-swap'&&!directorySwapped){directorySwapped=true;selectedFd=undefined;swapDirectory(false);}};",
+  "cp.spawnSync=(command,...args)=>{if(String(command).endsWith('powershell.exe')){attributeCalls++;if((request.fault==='before-native-attribute'&&attributeCalls===1)||(request.fault==='after-native-attribute'&&attributeCalls===2))swapDirectory(true);}return spawn(command,...args);};",
+  'syncBuiltinESMExports();',
+  "result=custody.nativeReadFiles(request.base,request.paths,request.refs).map(item=>({name:item.file.split(/[\\\\/]/).at(-1),text:item.bytes.toString('utf8'),value:item.value}));",
+  '}',
+  "else if(request.op==='api-transport'){",
   "const bytes=Buffer.from(request.records.map(value=>JSON.stringify(value)+'\\n').join(''));",
   'const scan=sourceApi.scanNativeRecords(bytes);',
   'const frame=request.gitBash?sourceApi.nativeCompletion(scan,request.actor,request.callId):sourceApi.nativeApiPage(scan,request.actor,request.callId);',
@@ -370,6 +386,15 @@ const nativeRpcCode = [
   "else if(request.op==='mode') result={mode:api.reviewIdentityMode(request.value)};",
   "else if(request.op==='facts') result={privateRoots:facts.NATIVE_PRIVATE_ROOTS};",
   "else if(request.op==='external-review'){api.validateReviewReceipt(request.args.ledgerDir,request.args.unit);result={accepted:true};}",
+  "else if(request.op==='archived-intake') {",
+  'const open=fs.openSync,spawn=cp.spawnSync;let attributeCalls=0,localReads=0,swapped=false;',
+  'const local=path.join(request.args.ledgerDir,request.args.unit.stageReceipts.local.path),review=path.join(request.args.ledgerDir,request.args.unit.stageReceipts.review.path);',
+  'const originalLocal=fs.readFileSync(local);',
+  "fs.openSync=(file,...args)=>{if(file===local)localReads++;if(request.fault==='between-intakes'&&file===review){const changed=JSON.parse(originalLocal);changed.reviewContractVersion=2;fs.writeFileSync(local,JSON.stringify(changed));}if(request.fault==='between-intakes'&&file===request.manifest)fs.writeFileSync(local,originalLocal);if(request.fault==='member-swap'&&file===request.target&&!swapped&&(!request.inner||localReads===2)){swapped=true;fs.renameSync(file,file+'.displaced');fs.copyFileSync(file+'.displaced',file);}return open(file,...args);};",
+  "cp.spawnSync=(command,...args)=>{if(String(command).endsWith('powershell.exe'))attributeCalls++;return spawn(command,...args);};",
+  'syncBuiltinESMExports();',
+  'api.validateReviewReceipt(request.args.ledgerDir,request.args.unit);result={accepted:true,attributeCalls,localReads};',
+  '}',
   "else if(request.op==='legacy-reuse'){",
   'const census=archiveCensus(request.args.ledgerDir);',
   'const verified={manifest:{reviewContractVersion:2,unit:\'CNI1\'},snapshots:[{bytes:Buffer.from(\'{"fixture":"legacy-author"}\\n\')},{bytes:Buffer.from(\'{"fixture":"legacy-reviewer"}\\n\')}]};',
@@ -423,6 +448,7 @@ const nativeRpcCode = [
   "fs.writeFileSync(request.args.manifestFile,JSON.stringify(manifest,null,2)+'\\n');",
   '}',
   'const verified=api.validateReviewIdentity(request.args);',
+  "if(request.op==='revalidate-drift'){fs.appendFileSync(request.driftFile,' ');verified.revalidate();}",
   "if(request.op==='archive-residue'){",
   "const evidence=request.args.ledgerDir+'/evidence',census=archiveCensus(request.args.ledgerDir);",
   "const attempt=()=>{try{return {accepted:true,ref:api.archiveReviewIdentity(request.args.ledgerDir,verified)};}catch(error){return {accepted:false,code:error.code??'ERROR',message:String(error.message)};}};",
@@ -451,6 +477,139 @@ const nativeRpcCode = [
   "process.stderr.write(String(error.code??'ERROR')+': '+String(error.message));process.exitCode=1;",
   '}',
 ].join('\n');
+
+describe('Native custody batched relative inventory', () => {
+  function inventory(): Pick<IFixture, 'dir' | 'calls'> {
+    const dir = fs.mkdtempSync(
+      path.join(fs.realpathSync(os.tmpdir()), 'cni-native-inventory-'),
+    );
+    fs.mkdirSync(path.join(dir, 'artifacts'));
+    fs.writeFileSync(path.join(dir, 'artifacts/one.json'), '{"x":1}');
+    fs.writeFileSync(path.join(dir, 'artifacts/two.json'), '{"y":2}');
+    put(path.join(dir, 'resource.json'), {
+      root: dir,
+      ownership: 'This test only',
+    });
+    return { dir, calls: [] };
+  }
+
+  it('returns exact ordered bytes for a multi-file inventory', () => {
+    // Given: distinct physical files with independently specified contents.
+    const f = inventory();
+    // When: the public custody boundary reads a reversed inventory.
+    const result = rpc(f, 'ordered', {
+      op: 'native-read',
+      base: f.dir,
+      paths: ['artifacts/two.json', 'artifacts/one.json'],
+    });
+    // Then: the bytes and order match the requested files.
+    expect(result.exit).toBe(0);
+    expect(JSON.parse(result.stdout)).toEqual([
+      { name: 'two.json', text: '{"y":2}' },
+      { name: 'one.json', text: '{"x":1}' },
+    ]);
+  });
+
+  it('validates referenced JSON within a mixed fresh inventory', () => {
+    const f = inventory();
+    const bytes = fs.readFileSync(path.join(f.dir, 'artifacts/one.json'));
+    const result = rpc(f, 'mixed-ref', {
+      op: 'native-read',
+      base: f.dir,
+      paths: ['artifacts/two.json', 'artifacts/one.json'],
+      refs: [{ path: 'artifacts/one.json', ...blob(bytes) }],
+    });
+    expect(result.exit).toBe(0);
+    expect(JSON.parse(result.stdout)).toEqual([
+      { name: 'two.json', text: '{"y":2}' },
+      { name: 'one.json', text: '{"x":1}', value: { x: 1 } },
+    ]);
+  });
+
+  it.each(['bytes', 'hash', 'unselected'])(
+    'refuses %s metadata in a mixed fresh inventory',
+    (fault) => {
+      const f = inventory();
+      const bytes = fs.readFileSync(path.join(f.dir, 'artifacts/one.json'));
+      const ref = { path: 'artifacts/one.json', ...blob(bytes) };
+      if (fault === 'bytes') ref.bytes++;
+      if (fault === 'hash') ref.sha256 = 'f'.repeat(64);
+      if (fault === 'unselected') ref.path = 'artifacts/two.json';
+      const result = rpc(f, 'mixed-' + fault, {
+        op: 'native-read',
+        base: f.dir,
+        paths: ['artifacts/one.json'],
+        refs: [ref],
+      });
+      expect(result.exit).toBe(1);
+      expect(result.stderr).toContain('REVIEW_IDENTITY_INVALID');
+      expect(result.stdout).toBe('');
+    },
+  );
+
+  it.each([
+    {
+      name: 'unsafe',
+      paths: ['../one.json'],
+      reason: 'REVIEW_IDENTITY_INVALID',
+    },
+    {
+      name: 'duplicate',
+      paths: ['artifacts/one.json', 'artifacts/one.json'],
+      reason: 'REVIEW_IDENTITY_INVALID',
+    },
+    {
+      name: 'missing',
+      paths: ['artifacts/missing.json'],
+      reason: 'REVIEW_IDENTITY_INVALID',
+    },
+    {
+      name: 'nonfile',
+      paths: ['artifacts'],
+      reason: 'REVIEW_IDENTITY_INVALID',
+    },
+    {
+      name: 'case-alias',
+      paths: ['artifacts/ONE.json'],
+      reason: 'REVIEW_IDENTITY_INVALID',
+    },
+  ])(
+    'refuses $name selectors before accepting inventory bytes',
+    ({ name, paths, reason }) => {
+      // Given: an invalid selector within an otherwise physical inventory.
+      const f = inventory();
+      // When: the invalid selector reaches the real public custody boundary.
+      const result = rpc(f, name, { op: 'native-read', base: f.dir, paths });
+      // Then: no inventory is accepted.
+      expect(result.exit).toBe(1);
+      expect(result.stderr).toContain(reason);
+      expect(result.stdout).toBe('');
+    },
+  );
+
+  it.each([
+    'byte-drift',
+    'handle-swap',
+    'ancestor-swap',
+    ...(process.platform === 'win32'
+      ? ['before-native-attribute', 'after-native-attribute']
+      : []),
+  ])('refuses %s introduced during a fresh inventory sweep', (fault) => {
+    // Given: a controlled filesystem mutation at the actual read/guard seam.
+    const f = inventory();
+    // When: the mutation occurs during the unchanged native operations.
+    const result = rpc(f, fault, {
+      op: 'native-read',
+      base: f.dir,
+      paths: ['artifacts/one.json', 'artifacts/two.json'],
+      fault,
+    });
+    // Then: identity, bytes and native attribute guards reject the inventory.
+    expect(result.exit).toBe(1);
+    expect(result.stderr).toContain('REVIEW_IDENTITY_INVALID');
+    expect(result.stdout).toBe('');
+  });
+});
 
 function rpc(
   f: Pick<IFixture, 'dir' | 'calls'>,
@@ -1320,6 +1479,26 @@ describe('Native-v3 paired identity facade and portable consumption', () => {
         .some((name) => name.startsWith('codex-review-identity-')),
     ).toBe(false);
   });
+  it('refuses changed actual capture bytes on a fresh revalidation', () => {
+    // Given: qualified observations with an on-disk actual capture.
+    const f = nativeFixture();
+    const capture = z.string().parse(f.args.nativeObservationsDir);
+    const manifest = z
+      .object({ author: archiveRefShape })
+      .parse(json(z.string().parse(f.args.manifestFile)));
+    const retained = path.join(f.sizing.dir, 'retained');
+    fs.cpSync(capture, retained, { recursive: true });
+    f.args.manifestFile = path.join(retained, 'candidate-manifest.json');
+    // When: a real capture changes after initial identity qualification.
+    const result = rpc(f.sizing, 'capture-drift', {
+      op: 'revalidate-drift',
+      args: f.args,
+      driftFile: path.join(capture, manifest.author.path),
+    });
+    // Then: the retained revalidation invocation fails closed.
+    expect(result.exit).toBe(1);
+    expect(result.stderr).toContain('REVIEW_IDENTITY_INVALID');
+  });
   it('consumes the archived native identity under --no-evidence despite equal models', () => {
     const f = nativeFixture();
     const archived = rpc(f.sizing, 'archive', { op: 'archive', args: f.args });
@@ -1340,6 +1519,87 @@ describe('Native-v3 paired identity facade and portable consumption', () => {
       ...external,
     };
     expect(run(f.sizing, [], 120000).exit).toBe(0);
+  });
+});
+
+describe('Native-v3 fresh archived intake inventories', () => {
+  function archived() {
+    const f = nativeFixture();
+    const result = rpc(f.sizing, 'prepare-archive', {
+      op: 'archive',
+      args: f.args,
+    });
+    expect(result.exit).toBe(0);
+    const { identityEvidence } = z
+      .object({ identityEvidence: archiveRefShape })
+      .parse(JSON.parse(result.stdout));
+    const external = { ...f.review, identityEvidence };
+    put(path.join(f.sizing.dir, 'evidence/native-review.json'), external);
+    f.sizing.unit.stageReceipts.review = {
+      ...external,
+      path: 'evidence/native-review.json',
+    };
+    return { f, manifest: path.join(f.sizing.dir, identityEvidence.path) };
+  }
+
+  it('uses four fresh sweeps while reading local again for inner intake', () => {
+    const { f, manifest } = archived();
+    const result = rpc(f.sizing, 'fresh-groups', {
+      op: 'archived-intake',
+      args: f.args,
+      manifest,
+    });
+    expect(result.exit).toBe(0);
+    // Outer intake, inner intake and final revalidation each read local afresh.
+    expect(JSON.parse(result.stdout)).toEqual({
+      accepted: true,
+      attributeCalls: process.platform === 'win32' ? 8 : 0,
+      localReads: 3,
+    });
+  });
+
+  it.each([
+    'outer-local',
+    'outer-review',
+    'inner-local',
+    'inner-manifest',
+    'inner-output',
+  ])(
+    'refuses a real %s handle replacement at its fresh intake boundary',
+    (member) => {
+      const { f, manifest } = archived();
+      const target = member.endsWith('local')
+        ? path.join(f.sizing.dir, 'evidence/native-local.json')
+        : member.endsWith('review')
+          ? path.join(f.sizing.dir, 'evidence/native-review.json')
+          : member.endsWith('manifest')
+            ? manifest
+            : path.join(f.sizing.dir, z.string().parse(f.review.outputPath));
+      const result = rpc(f.sizing, member, {
+        op: 'archived-intake',
+        args: f.args,
+        manifest,
+        fault: 'member-swap',
+        target,
+        inner: member.startsWith('inner-'),
+      });
+      expect(result.exit).toBe(1);
+      expect(result.stderr).toContain('REVIEW_IDENTITY_INVALID');
+      expect(result.stdout).toBe('');
+    },
+  );
+
+  it('refuses local replacement between outer and inner intake before later restoration', () => {
+    const { f, manifest } = archived();
+    const result = rpc(f.sizing, 'between-intakes', {
+      op: 'archived-intake',
+      args: f.args,
+      manifest,
+      fault: 'between-intakes',
+    });
+    expect(result.exit).toBe(1);
+    expect(result.stderr).toContain('REVIEW_IDENTITY_INVALID');
+    expect(result.stdout).toBe('');
   });
 });
 
