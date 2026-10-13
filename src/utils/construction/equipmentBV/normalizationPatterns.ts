@@ -6,6 +6,7 @@
  */
 
 export const NORMALIZATION_PATTERNS: Array<[RegExp, string]> = [
+  [/^isammomg-full$/, 'ammo-mg-full'],
   [/^(?:is|cl)ac(\d+)$/, 'ac-$1'],
   [/^(?:is|cl)lrm(\d+)$/, 'lrm-$1'],
   [/^(?:is|cl)srm(\d+)$/, 'srm-$1'],
