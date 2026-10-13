@@ -5,6 +5,7 @@
 
 import type { IWeapon } from '@/simulation/ai/types';
 import type { CustomCombatSnapshot } from '@/types/contracts/CustomCombatSnapshot';
+import type { IAmmoConstructionData } from '@/types/gameplay/AmmoTypes';
 import type { IUnitGameState } from '@/types/gameplay/GameSessionInterfaces';
 import type {
   IHexCoordinate,
@@ -55,6 +56,8 @@ export interface IGameEngineConfig {
  * Carries weapon and movement capability info alongside the base state.
  */
 export interface IAdaptedUnit extends IUnitGameState {
+  /** Actual mounted bins, including an authoritative empty construction. */
+  readonly ammoConstruction?: readonly IAmmoConstructionData[];
   /** Validated detached construction; present only for launched custom units. */
   readonly customUnitDefinition?: CustomCombatSnapshot;
   /** Weapons equipped on this unit */

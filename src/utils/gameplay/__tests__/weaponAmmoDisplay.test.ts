@@ -46,6 +46,49 @@ function bin(
 }
 
 describe('mergeLiveAmmoIntoWeaponStatuses', () => {
+  it('shows missing MG ammunition as zero alongside an authoritative SRM bin', () => {
+    const merged = mergeLiveAmmoIntoWeaponStatuses(
+      [
+        weapon('saved-mg-1', 'Machine Gun'),
+        weapon('saved-srm-6-1', 'SRM 6'),
+        weapon('saved-ppc-1', 'PPC'),
+      ],
+      { ammo: {}, ammoState: { srm: bin('srm', 'srm-6', 15, 15) } },
+    );
+    expect(merged[0].ammoRemaining).toBe(0);
+    expect(merged[0].ammoMax).toBe(0);
+    expect(merged[1].ammoRemaining).toBe(15);
+    expect(merged[2].ammoRemaining).toBeUndefined();
+  });
+
+  it('shows zero ammo for an authoritative empty inventory but preserves an older flat record', () => {
+    const rows = [weapon('mg-1', 'Machine Gun')];
+    expect(
+      mergeLiveAmmoIntoWeaponStatuses(rows, { ammo: {}, ammoState: {} })[0]
+        .ammoRemaining,
+    ).toBe(0);
+    expect(
+      mergeLiveAmmoIntoWeaponStatuses(rows, {
+        ammo: { 'mg-1': 7 },
+        ammoState: {},
+      })[0].ammoRemaining,
+    ).toBe(7);
+  });
+
+  it('shows both MG mounts drawing on the same live pool without multiplying inventory', () => {
+    const rows = [
+      weapon('unit-mg-1', 'Machine Gun'),
+      weapon('unit-mg-2', 'Machine Gun'),
+    ];
+    const merged = mergeLiveAmmoIntoWeaponStatuses(rows, {
+      ammo: {},
+      ammoState: { mg: bin('mg', 'machine-gun', 199, 200) },
+    });
+    expect(merged.map((row) => [row.ammoRemaining, row.ammoMax])).toEqual([
+      [199, 200],
+      [199, 200],
+    ]);
+  });
   it('sums remaining and max across every bin feeding the weapon', () => {
     const merged = mergeLiveAmmoIntoWeaponStatuses([weapon('ac-20', 'AC/20')], {
       ammo: {},

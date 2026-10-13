@@ -133,6 +133,14 @@ function adaptedCombatSeedPatch(
   }
   appendAdaptedArmorSeeds(patch, unit, adapted);
   appendAdaptedHeatSinkSeeds(patch, unit, adapted);
+  if (
+    unit.ammoConstruction === undefined &&
+    adapted.ammoConstruction !== undefined
+  ) {
+    patch.ammoConstruction = adapted.ammoConstruction.map((bin) => ({
+      ...bin,
+    }));
+  }
   appendVehicleCriticalAvailabilitySeed(patch, unit, adapted);
   appendRecordedCustomCombatSnapshot(patch, unit, adapted);
 

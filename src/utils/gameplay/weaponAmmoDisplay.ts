@@ -22,7 +22,7 @@ import type {
   IWeaponStatus,
 } from '@/types/gameplay';
 
-import { normalizeAmmoWeaponType } from './ammoTracking';
+import { isEnergyWeapon, normalizeAmmoWeaponType } from './ammoTracking';
 
 /** The two live ammo sources a unit state may carry. */
 type LiveAmmoSource = Pick<IUnitGameState, 'ammo' | 'ammoState'>;
@@ -52,12 +52,13 @@ function binsFeedingWeapon(
  * Merge live ammo counters into static display weapon rows.
  *
  * - Bin state present (`ammoState`): `ammoRemaining` = Σ remainingRounds,
- *   `ammoMax` = Σ maxRounds across the bins feeding that weapon; weapons
- *   with no matching bins (energy weapons) pass through unchanged.
+ *   `ammoMax` = Σ maxRounds across the bins feeding that weapon. Ammo-fed
+ *   weapons without a matching bin show zero; energy rows stay unchanged.
  * - No bins but the legacy per-weapon `ammo` record has an entry: use it
  *   as `ammoRemaining` with no `ammoMax` (WeaponRow falls back to the
  *   flat `N rds` line).
- * - No live source at all: rows pass through unchanged.
+ * - An empty bin state without a legacy entry shows zero for ammo-fed
+ *   weapons. No live source at all leaves rows unchanged.
  *
  * Pure and allocation-light — safe to call per render at the record-sheet
  * / inspector boundary.
@@ -74,7 +75,11 @@ export function mergeLiveAmmoIntoWeaponStatuses(
   return weapons.map((weapon) => {
     if (hasBins) {
       const bins = binsFeedingWeapon(ammoState, weapon);
-      if (bins.length === 0) return weapon;
+      if (bins.length === 0) {
+        return isEnergyWeapon(weapon.name)
+          ? weapon
+          : { ...weapon, ammoRemaining: 0, ammoMax: 0 };
+      }
       return {
         ...weapon,
         ammoRemaining: bins.reduce((sum, bin) => sum + bin.remainingRounds, 0),
@@ -82,8 +87,9 @@ export function mergeLiveAmmoIntoWeaponStatuses(
       };
     }
     const legacy = legacyAmmo?.[weapon.id];
-    return typeof legacy === 'number'
-      ? { ...weapon, ammoRemaining: legacy }
+    if (typeof legacy === 'number') return { ...weapon, ammoRemaining: legacy };
+    return ammoState !== undefined && !isEnergyWeapon(weapon.name)
+      ? { ...weapon, ammoRemaining: 0, ammoMax: 0 }
       : weapon;
   });
 }
