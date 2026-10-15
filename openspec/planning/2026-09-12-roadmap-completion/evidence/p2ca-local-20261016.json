@@ -207,6 +207,20 @@
       "priorCi": "E:\\Projects\\Personal\\MekStation\\.omo\\ulw-execute\\mekstation-whole-roadmap-execution-20261002-01a0febd\\task-9-20261016\\round3-prior-ci.json",
       "historicalLogsDirectory": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-9-20261016"
     },
-    "boundary": "All listed candidate checks passed. P2CA remains implementing: validate-roadmap.mjs:556-557 refuses local-verified without a packet naming P2CA in blocks. No packet, decision, ruling, validator, hook or CI change; Root owns independent exact-head Opus review and later gates."
+    "boundary": "All listed candidate checks passed. P2CA remains implementing: validate-roadmap.mjs:556-557 refuses local-verified without a packet naming P2CA in blocks. No packet, decision, ruling, validator, hook or CI change; Root owns independent exact-head Opus review and later gates.",
+    "hookVerification": {
+      "repairCommit": "a97346a53dc72c6dffdabe9e472d70ff0f3547fa",
+      "initialState": "Normal git commit ran with core.hooksPath=.husky/_ but generated Husky launchers were absent in this worktree.",
+      "restorationCommand": "npm run prepare",
+      "configuration": "Existing .husky/_ configuration retained; no hook or gate edited.",
+      "recheckCommand": "Git Bash: npx lint-staged --diff=HEAD~1..HEAD",
+      "recheckExitCode": 0,
+      "recheckChecks": [
+        "oxlint --fix",
+        "oxfmt --write --no-error-on-unmatched-pattern",
+        "bash -c npx tsc --noEmit --skipLibCheck"
+      ],
+      "diagnostic": "The first PowerShell-launched check selected Windows WSL bash and was stopped after verifying its owned process IDs. The unchanged checks passed when launched from Git Bash. Source bytes remained unchanged."
+    }
   }
 }
