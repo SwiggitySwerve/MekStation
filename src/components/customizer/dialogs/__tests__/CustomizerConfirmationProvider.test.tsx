@@ -167,7 +167,6 @@ describe('Customizer confirmation public interaction', () => {
 
   it('clears admission before a synchronous callback can deliver a duplicate or request again', () => {
     let request!: RequestAction;
-    let oldApprove!: () => void;
     let callbackCount = 0;
     const commit = jest.fn(() => {
       callbackCount += 1;
@@ -185,7 +184,7 @@ describe('Customizer confirmation public interaction', () => {
       </CustomizerConfirmationProvider>,
     );
     fireEvent.click(screen.getByRole('button', { name: 'Request action' }));
-    oldApprove = mockApproveHandlers.at(-1)!;
+    const oldApprove = mockApproveHandlers.at(-1)!;
     fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
     expect(commit).toHaveBeenCalledTimes(1);
     expect(

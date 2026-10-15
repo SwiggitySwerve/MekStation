@@ -1,6 +1,5 @@
 import 'fake-indexeddb/auto';
 import {
-  act,
   cleanup,
   fireEvent,
   render,
