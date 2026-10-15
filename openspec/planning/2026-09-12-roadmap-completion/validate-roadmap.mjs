@@ -153,6 +153,32 @@ const cni1SourceSizing = (unit, node, directory) => {
 };
 
 
+// Task 57 registers residual scope; it does not admit product implementation.
+const validateResidualRegistration = (ledger, unitById) => {
+  if (!ledger.residualRegistration20261016) return;
+  const ceilings = { U99: [2, 120], U100: [3, 120], U101: [8, 300], U103: [6, 350], U104: [5, 220], U105: [8, 300], U101a: [8, 300], U101b: [8, 300], U101c: [8, 300], U101d: [8, 300] };
+  const tasks = [58, 59, 65, 60, 61, 66, 62, 63, 64, 65];
+  const dependencies = { U101: ['U101d'], U101b: ['U101a'], U101c: ['U101a'], U101d: ['U101b', 'U101c'] };
+  if (!same(ledger.residualRegistration20261016.units, Object.keys(ceilings))) fail('Task 57 residual holder registry must name all ten unique units');
+  for (const [index, [id, [maxFiles, maxLines]]] of Object.entries(ceilings).entries()) {
+    const unit = unitById.get(id);
+    const scope = unit?.registration20261016;
+    if (!scope) { fail(id + ' missing Task 57 registration'); continue; }
+    if (unit.caps?.maxFiles !== maxFiles || unit.caps?.maxNonGeneratedLines !== maxLines) fail(id + ' changed original residual cap');
+    if (scope.task !== tasks[index] || !same(scope.predecessors, dependencies[id] ?? [])) fail(id + ' has incorrect residual task/predecessors');
+    const files = scope.files;
+    if (!Array.isArray(files) || (id !== 'U101' && !files.length)) { fail(id + ' lacks exact residual files'); continue; }
+    if (files.length > maxFiles) fail(id + ' measured ' + files.length + ' files over cap ' + maxFiles);
+    if (new Set(files).size !== files.length) fail(id + ' has duplicate residual files');
+    for (const file of files) {
+      if (typeof file !== 'string' || !fs.existsSync(path.resolve(repoRoot, file)) || !fs.statSync(path.resolve(repoRoot, file)).isFile()) fail(id + ' residual file missing: ' + file);
+      if (!(unit.ownershipPaths ?? []).some((alias) => file === alias || file.startsWith(alias + '/'))) fail(id + ' residual file outside ownership: ' + file);
+    }
+    if (!Array.isArray(scope.selectors) || !scope.selectors.length || scope.selectors.some((command) => typeof command !== 'string' || !command.startsWith('node ') && !command.startsWith('npx '))) fail(id + ' lacks executable residual selectors');
+    if (scope.measuredAdditions !== undefined && (!Number.isInteger(scope.measuredAdditions) || scope.measuredAdditions < 0 || scope.measuredAdditions > maxLines)) fail(id + ' measured additions exceed original cap ' + maxLines);
+  }
+};
+
 const readReceipt = (node) => {
   const receipt = node && typeof node === 'object' ? node.receipt : node;
   if (receipt === null || receipt === undefined) return {};
@@ -377,6 +403,7 @@ try {
       checkUnique(packets.map((packet) => ({ value: packet.id })), 'packet id');
       checkUnique(deferrals.map((deferral) => ({ value: deferral.id })), 'deferral id');
       const unitById = new Map(units.map((unit) => [unit.id, unit]));
+      validateResidualRegistration(ledger, unitById);
       const sourceSizingByUnit = new Map();
       const packetById = new Map(packets.map((packet) => [packet.id, packet]));
       // U42: taskByKey is the roadmap.json tasks (pinned to the admission snapshot above) plus every
@@ -737,7 +764,8 @@ try {
             return state === 'main-verified' || state === 'complete';
           });
           const pathFree = !(unit.ownershipPaths || []).some((ownershipPath) => inFlightPaths.some((inFlight) => pathsOverlap(ownershipPath, inFlight)));
-          if (unit.state === 'planned' && dependenciesReady && pathFree) chosen = unit.id;
+          const predecessorsReady = (unit.registration20261016?.predecessors ?? []).every((id) => TERMINAL_UNIT_STATES.has(unitById.get(id)?.state));
+          if (unit.state === 'planned' && dependenciesReady && predecessorsReady && pathFree) chosen = unit.id;
           else blocked += 1;
         }
         if (chosen) { nextLine = chosen; nextExitCode = 0; }

@@ -2862,7 +2862,21 @@
         "src/services/persistence",
         "src/lib/p2p/campaignMirrorStore.ts",
         "src/lib/p2p/__tests__/campaignMirrorStore.test.ts",
-        "src/components/campaign/coop"
+        "src/components/campaign/coop",
+        "src/lib/api/securitySchemas.ts",
+        "src/pages/multiplayer/index.tsx",
+        "src/pages/multiplayer/lobby/[roomCode].tsx",
+        "src/pages/multiplayer/spectate/[matchId].tsx",
+        "src/pages-modules/multiplayer/multiplayerPage.helpers.ts",
+        "src/pages-modules/multiplayer/multiplayerAuthTokenStore.ts",
+        "src/lib/multiplayer/client/issuePlayerToken.ts",
+        "src/lib/multiplayer/client/__tests__/issuePlayerToken.test.ts",
+        "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+        "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+        "server.js",
+        "scripts/validate-multiplayer-packaged-socket.mjs",
+        "scripts/__tests__/validate-multiplayer-packaged-socket.test.ts",
+        "scripts/__tests__/packagedSocketValidatorCredentialMirror.test.ts"
       ],
       "acceptance": [
         "npm.cmd run typecheck",

@@ -11783,6 +11783,17 @@
         "reason": "Tasks 32-33 triage: the restricted-view convergence clause and the baseline author law need spec edits that product-spec rules assign to an owning unit.",
         "evidence": "evidence/triage-32-37-20260927.md",
         "planTask": "32,33"
+      },
+      "registration20261016": {
+        "task": 58,
+        "files": [
+          "openspec/specs/coop-campaign-sync/spec.md",
+          "openspec/changes/harden-gm-two-player-campaign-sessions/specs/gm-authority-redaction/spec.md"
+        ],
+        "selectors": [
+          "npx openspec validate harden-gm-two-player-campaign-sessions --strict"
+        ],
+        "predecessors": []
       }
     },
     {
@@ -11820,6 +11831,17 @@
         "reason": "Task 34 triage of FN-u35g-feed-reads-damaged-as-repaired: the feed copy is objectively wrong for a damaged unit.",
         "evidence": "evidence/triage-32-37-20260927.md",
         "planTask": "34"
+      },
+      "registration20261016": {
+        "task": 59,
+        "files": [
+          "src/lib/campaign/activity/campaignActivityProjection.ts",
+          "src/lib/campaign/activity/__tests__/campaignActivityProjection.test.ts"
+        ],
+        "selectors": [
+          "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --testPathPattern=campaignActivity"
+        ],
+        "predecessors": []
       }
     },
     {
@@ -11859,6 +11881,17 @@
         "reason": "Task 36 triage of FN-u29-6-3-checked-but-scoped-tokens-not-on-production-path: a checked row claims scoped tokens the production path does not mint or require.",
         "evidence": "evidence/triage-32-37-20260927.md",
         "planTask": "36"
+      },
+      "registration20261016": {
+        "task": 65,
+        "files": [],
+        "selectors": [
+          "node scripts/validate-multiplayer-packaged-socket.mjs",
+          "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --testPathPattern='auth|socketAuth|socketTokenScope'"
+        ],
+        "predecessors": [
+          "U101d"
+        ]
       }
     },
     {
@@ -11897,6 +11930,19 @@
         "reason": "Task 37 recheck of FN-u34-closure-tool-tick-receipt-does-not-tick-live-row: U17c (3b4a7b1) made the tool fail truthfully but it still does not tick the live row.",
         "evidence": "evidence/triage-32-37-20260927.md",
         "planTask": "37"
+      },
+      "registration20261016": {
+        "task": 60,
+        "files": [
+          "scripts/qc/roadmap-unit-closure.mjs",
+          "scripts/qc/roadmap-ledger-lib.mjs",
+          "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+          "scripts/__tests__/roadmap-loop-scripts.test.ts"
+        ],
+        "selectors": [
+          "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --runTestsByPath scripts/__tests__/roadmap-loop-closure-proof.test.ts scripts/__tests__/roadmap-loop-scripts.test.ts"
+        ],
+        "predecessors": []
       }
     },
     {
@@ -11936,6 +11982,19 @@
         "reason": "Task 34 triage of FN-u95-launch-route-saga-read-always-null: U95 fixed the shared reader but the launch route was never driven with a saga pending.",
         "evidence": "evidence/triage-32-37-20260927.md",
         "planTask": "34"
+      },
+      "registration20261016": {
+        "task": 61,
+        "files": [
+          "src/pages-modules/api/campaignLaunchAuthorityRoute.ts",
+          "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts",
+          "src/lib/multiplayer/server/campaignProgressionReaders.durable.ts",
+          "src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.crossGraph.test.ts"
+        ],
+        "selectors": [
+          "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --testPathPattern='campaignLaunchAuthorityRoute|campaignProgressionReaders'"
+        ],
+        "predecessors": []
       }
     },
     {
@@ -11976,6 +12035,234 @@
         "reason": "Task 34 triage of FN-u96-guests-do-not-ack-snapshot-frames: a measured convergence refusal (evidence/u92-red-20260926.json).",
         "evidence": "evidence/triage-32-37-20260927.md",
         "planTask": "34"
+      },
+      "registration20261016": {
+        "task": 66,
+        "files": [
+          "src/lib/campaign/coop/campaignSyncTransport.ts",
+          "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+          "src/lib/multiplayer/server/CampaignSyncSession.ts",
+          "src/lib/multiplayer/server/__tests__/CampaignSyncSession.test.ts"
+        ],
+        "selectors": [
+          "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --testPathPattern='campaignSyncTransport|CampaignSyncSession'"
+        ],
+        "predecessors": []
+      }
+    },
+    {
+      "id": "U101a",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Extend token minting with validated signed match/session scope using auth.ts as the sole verification owner; preserve unscoped REST identity bootstrap. No signed role claim: use existing trusted admission, seat and owner law.",
+      "ownershipPaths": [
+        "src/pages/api/multiplayer/auth",
+        "src/lib/multiplayer/server",
+        "src/lib/api/securitySchemas.ts"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy"
+      ],
+      "caps": {
+        "maxFiles": 8,
+        "maxNonGeneratedLines": 300
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "splitFrom": "U101",
+      "registration20261016": {
+        "task": 62,
+        "files": [
+          "src/pages/api/multiplayer/auth/token.ts",
+          "src/lib/multiplayer/server/auth.ts",
+          "src/lib/api/securitySchemas.ts",
+          "src/lib/multiplayer/server/__tests__/auth.test.ts",
+          "src/lib/multiplayer/server/__tests__/socketTokenScope.test.ts"
+        ],
+        "selectors": [
+          "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --runTestsByPath src/lib/multiplayer/server/__tests__/auth.test.ts src/lib/multiplayer/server/__tests__/socketTokenScope.test.ts"
+        ],
+        "predecessors": []
+      }
+    },
+    {
+      "id": "U101b",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Migrate actual combat index, lobby, spectator and shared token consumers to the known match scope, including refresh/rejoin. Do not require server scope before all consumers migrate.",
+      "ownershipPaths": [
+        "src/pages/multiplayer/index.tsx",
+        "src/pages/multiplayer/lobby/[roomCode].tsx",
+        "src/pages/multiplayer/spectate/[matchId].tsx",
+        "src/pages-modules/multiplayer/multiplayerPage.helpers.ts",
+        "src/pages-modules/multiplayer/multiplayerAuthTokenStore.ts",
+        "src/lib/multiplayer/client/issuePlayerToken.ts",
+        "src/lib/multiplayer/client/__tests__/issuePlayerToken.test.ts"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy"
+      ],
+      "caps": {
+        "maxFiles": 8,
+        "maxNonGeneratedLines": 300
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "splitFrom": "U101",
+      "registration20261016": {
+        "task": 63,
+        "files": [
+          "src/pages/multiplayer/index.tsx",
+          "src/pages/multiplayer/lobby/[roomCode].tsx",
+          "src/pages/multiplayer/spectate/[matchId].tsx",
+          "src/pages-modules/multiplayer/multiplayerPage.helpers.ts",
+          "src/pages-modules/multiplayer/multiplayerAuthTokenStore.ts",
+          "src/lib/multiplayer/client/issuePlayerToken.ts",
+          "src/lib/multiplayer/client/__tests__/issuePlayerToken.test.ts"
+        ],
+        "selectors": [
+          "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --testPathPattern='multiplayer|lobby|spectate|issuePlayerToken'"
+        ],
+        "predecessors": [
+          "U101a"
+        ]
+      }
+    },
+    {
+      "id": "U101c",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Migrate actual campaign co-op entry and token refresh to validated campaign-session scope on initial join/reconnect, preserving host/player/guest admission and REST identity bootstrap.",
+      "ownershipPaths": [
+        "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+        "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+        "src/lib/campaign"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy"
+      ],
+      "caps": {
+        "maxFiles": 8,
+        "maxNonGeneratedLines": 300
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "splitFrom": "U101",
+      "registration20261016": {
+        "task": 64,
+        "files": [
+          "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+          "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+          "src/lib/campaign/coop/coopCampaignAuthTokenStore.ts",
+          "src/lib/campaign/coop/campaignSyncTransport.ts",
+          "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts"
+        ],
+        "selectors": [
+          "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --testPathPattern='CampaignCoopEntryPanel|CampaignSyncSession|campaignSyncTransport'"
+        ],
+        "predecessors": [
+          "U101a"
+        ]
+      }
+    },
+    {
+      "id": "U101d",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "After combat and campaign consumers migrate, make server.js loadMultiplayerRuntime use the sole auth.ts verifier; remove inline production verification and migrate packaged validator minting. Require scope only on WebSocket authentication. Prove real packaged handshakes for valid seats and scopeless/wrong-match/wrong-role refusals. Refresh the callback caller census; any new outside-grant caller requires a separately reviewed prefix.",
+      "ownershipPaths": [
+        "server.js",
+        "scripts/validate-multiplayer-packaged-socket.mjs",
+        "src/lib/multiplayer/server",
+        "src/lib/api/securitySchemas.ts",
+        "scripts/__tests__/validate-multiplayer-packaged-socket.test.ts",
+        "scripts/__tests__/packagedSocketValidatorCredentialMirror.test.ts"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy"
+      ],
+      "caps": {
+        "maxFiles": 8,
+        "maxNonGeneratedLines": 300
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "splitFrom": "U101",
+      "registration20261016": {
+        "task": 65,
+        "files": [
+          "server.js",
+          "scripts/validate-multiplayer-packaged-socket.mjs",
+          "src/lib/multiplayer/server/auth.ts",
+          "src/lib/api/securitySchemas.ts",
+          "scripts/__tests__/validate-multiplayer-packaged-socket.test.ts",
+          "scripts/__tests__/packagedSocketValidatorCredentialMirror.test.ts",
+          "src/lib/multiplayer/server/__tests__/socketTokenScope.test.ts"
+        ],
+        "selectors": [
+          "node scripts/validate-multiplayer-packaged-socket.mjs",
+          "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --testPathPattern='auth|socketAuth|socketTokenScope'"
+        ],
+        "predecessors": [
+          "U101b",
+          "U101c"
+        ]
       }
     }
   ],
@@ -17036,5 +17323,22 @@
       "holder": "P2A",
       "resolution": "P2A corrected head fbd0ac4bc was independently approved and merged as 845ea72b7; exact-main proof passed 225 checks (187 registered Jest tests plus 38 production HTTP preflights), including the rejected cold-signed reproduction returning typed 409 while legacy-only controls remained 200. Initial red and rejected-head evidence are preserved."
     }
-  ]
+  ],
+  "residualRegistration20261016": {
+    "baseline": "ba8007f2dfea7786a3823145eb999e308c97f3fa",
+    "task": 57,
+    "units": [
+      "U99",
+      "U100",
+      "U101",
+      "U103",
+      "U104",
+      "U105",
+      "U101a",
+      "U101b",
+      "U101c",
+      "U101d"
+    ],
+    "rule": "Prospective registration only. Preserve triage 32-37 and all existing holders/states/receipts. Every actual new or modified file (including tests, contracts and evidence) counts toward its original file cap; count all added lines conservatively against the original line cap. A fresh exact-file measured admission must fit before product writes. Registration does not claim downstream implementation fits; no cap reset or broad directory grant. U101 remains the aggregate residual obligation and closes only after all four prefixes and full exact-Main proof."
+  }
 }

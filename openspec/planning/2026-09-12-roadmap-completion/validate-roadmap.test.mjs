@@ -556,3 +556,43 @@ test('PRI preserves invalid same-model legacy rejection', () => {
   const dir = mainVerifiedFixture('pin: 1 passed', undefined, { review: { reviewerModel: MODERN_MODEL, implementerModel: MODERN_MODEL } });
   try { assert.equal(run(dir).code, 1); } finally { fs.rmSync(dir, { recursive: true }); }
 });
+
+// Keep the six residual holders and prospective socket prefixes inside original caps.
+const residualFixture = () => {
+  const ledger = JSON.parse(fs.readFileSync(path.join(here, 'units.json'), 'utf8'));
+  return {
+    units: ledger.units.filter((entry) => entry.registration20261016),
+    residualRegistration20261016: ledger.residualRegistration20261016,
+  };
+};
+
+test('Task 57 preserves six holders and four bounded prospective prefixes', () => {
+  const result = run(makeFixture(residualFixture()), ['--next']);
+  assert.equal(result.code, 0, result.stderr);
+  assert.equal(result.stdout.trim(), 'U99');
+});
+
+for (const [name, mutate, message] of [
+  ['outside node alias', (ledger) => { ledger.units.find((entry) => entry.id === 'U101a').ownershipPaths.push('package.json'); }, /U101a owns package.json, which is not owned/],
+  ['measured additions', (ledger) => { ledger.units.find((entry) => entry.id === 'U101a').registration20261016.measuredAdditions = 301; }, /U101a measured additions exceed original cap 300/],
+  ['missing prefix', (ledger) => { ledger.units = ledger.units.filter((entry) => entry.id !== 'U101d'); }, /U101d missing Task 57 registration/],
+  ['original cap changed', (ledger) => { ledger.units.find((entry) => entry.id === 'U100').caps.maxFiles = 4; }, /U100 changed original residual cap/],
+]) {
+  test('Task 57 refuses ' + name, () => {
+    const ledger = residualFixture();
+    mutate(ledger);
+    const result = run(makeFixture(ledger), ['--next']);
+    assert.equal(result.code, 1);
+    assert.match(result.stderr, message);
+  });
+}
+
+test('Task 57 schedules minting before enforcement or residual closure', () => {
+  const ledger = residualFixture();
+  for (const entry of ledger.units) {
+    if (['U99', 'U100', 'U103', 'U104', 'U105'].includes(entry.id)) entry.state = 'blocked';
+  }
+  const result = run(makeFixture(ledger), ['--next']);
+  assert.equal(result.code, 0, result.stderr);
+  assert.equal(result.stdout.trim(), 'U101a');
+});
