@@ -140,6 +140,10 @@ describe('ScenarioGeneratorService', () => {
       expect(result1.template.id).toBe(result2.template.id);
       expect(result1.mapPreset.id).toBe(result2.mapPreset.id);
       expect(result1.seed).toBe(result2.seed);
+      expect(result1.modifiers.map((modifier) => modifier.id)).toEqual(
+        result2.modifiers.map((modifier) => modifier.id),
+      );
+      expect(result1.turnLimit).toBe(result2.turnLimit);
     });
 
     it('should calculate turn limit correctly', () => {
