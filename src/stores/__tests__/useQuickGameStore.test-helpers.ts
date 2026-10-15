@@ -7,7 +7,11 @@
 
 import { act, renderHook, waitFor } from '@testing-library/react';
 
+import { Faction } from '@/constants/scenario/rats';
 import { GameEngine } from '@/engine/GameEngine';
+import * as recovery from '@/engine/InteractiveSession.persistence';
+import { scenarioGenerator } from '@/services/generators';
+import { useGameplayStore } from '@/stores/useGameplayStore';
 import {
   GameStatus,
   GamePhase,
@@ -19,8 +23,11 @@ import {
   QuickGameStep,
   IQuickGameUnitRequest,
   createQuickGameInstance,
+  createQuickGameUnit,
+  canStartGame,
   QUICK_GAME_STORAGE_KEY,
 } from '@/types/quickgame';
+import { Era } from '@/types/temporal/Era';
 import {
   createGameSession,
   startGame,
@@ -28,6 +35,32 @@ import {
 } from '@/utils/gameplay/gameSession';
 
 import { useQuickGameStore } from '../useQuickGameStore';
+import * as quickGameHelpers from '../useQuickGameStore.helpers';
+
+jest.mock('../useQuickGameStore.helpers', () => {
+  const actual = jest.requireActual<
+    typeof import('../useQuickGameStore.helpers')
+  >('../useQuickGameStore.helpers');
+  return {
+    __esModule: true,
+    ...actual,
+    adaptUnits: (...args: Parameters<typeof actual.adaptUnits>) =>
+      actual.adaptUnits(...args),
+  };
+});
+
+jest.mock('@/engine/InteractiveSession.persistence', () => {
+  const actual = jest.requireActual<
+    typeof import('@/engine/InteractiveSession.persistence')
+  >('@/engine/InteractiveSession.persistence');
+  return {
+    __esModule: true,
+    ...actual,
+    persistInteractiveLaunchRecoveryLog: (
+      ...args: Parameters<typeof actual.persistInteractiveLaunchRecoveryLog>
+    ) => actual.persistInteractiveLaunchRecoveryLog(...args),
+  };
+});
 
 // Mock sessionStorage
 const mockSessionStorage = (() => {
@@ -63,6 +96,158 @@ const sampleUnit: IQuickGameUnitRequest = {
   maxArmor: { head: 9, ct: 47 },
   maxStructure: { head: 3, ct: 31 },
 };
+
+describe('Quick Game force admission', () => {
+  const modes = [
+    'startBattle',
+    'startSpectatorMode',
+    'startInteractiveSkirmish',
+  ] as const;
+
+  function readyGame(step = QuickGameStep.Review) {
+    const game = createQuickGameInstance();
+    game.step = step;
+    game.playerForce = {
+      name: 'Player',
+      units: [createQuickGameUnit(sampleUnit)],
+      totalBV: sampleUnit.bv,
+      totalTonnage: sampleUnit.tonnage,
+    };
+    game.opponentForce = {
+      name: 'Opponent',
+      units: [createQuickGameUnit(sampleUnit)],
+      totalBV: sampleUnit.bv,
+      totalTonnage: sampleUnit.tonnage,
+    };
+    return game;
+  }
+
+  beforeEach(() => useQuickGameStore.getState().clearGame());
+  afterEach(() => {
+    useQuickGameStore.getState().clearGame();
+    jest.restoreAllMocks();
+  });
+
+  it('refuses an empty opposing force in the public start eligibility predicate', () => {
+    const game = readyGame();
+    game.scenario = scenarioGenerator.generate({
+      playerBV: sampleUnit.bv,
+      playerUnitCount: 1,
+      difficulty: 1,
+      maxModifiers: 0,
+      allowNegativeModifiers: false,
+      faction: Faction.PIRATES,
+      era: Era.LATE_SUCCESSION_WARS,
+      seed: 54321,
+    });
+    game.opponentForce = {
+      name: 'Empty',
+      units: [],
+      totalBV: 0,
+      totalTonnage: 0,
+    };
+    expect(canStartGame(game)).toBe(false);
+  });
+
+  describe.each(modes)('%s', (mode) => {
+    it.each([
+      'empty opponent',
+      'empty player',
+      'missing opponent',
+      'missing game',
+    ] as const)(
+      'refuses %s before adaptation, engine or recovery writes',
+      async (invalid) => {
+        const game = readyGame();
+        if (invalid === 'empty opponent')
+          game.opponentForce = {
+            name: 'Empty',
+            units: [],
+            totalBV: 0,
+            totalTonnage: 0,
+          };
+        if (invalid === 'empty player')
+          game.playerForce = {
+            name: 'Empty',
+            units: [],
+            totalBV: 0,
+            totalTonnage: 0,
+          };
+        if (invalid === 'missing opponent') game.opponentForce = null;
+        useQuickGameStore.setState({
+          game: invalid === 'missing game' ? null : game,
+          error: null,
+          isLoading: false,
+        });
+        const before = useQuickGameStore.getState().game;
+        const adapt = jest
+          .spyOn(quickGameHelpers, 'adaptUnits')
+          .mockResolvedValue([]);
+        const run = jest
+          .spyOn(GameEngine.prototype, 'runToCompletion')
+          .mockImplementation(() => {
+            throw new Error('Unexpected engine call');
+          });
+        const interactive = jest
+          .spyOn(GameEngine.prototype, 'createInteractiveSession')
+          .mockImplementation(() => {
+            throw new Error('Unexpected engine call');
+          });
+        const persist = jest
+          .spyOn(recovery, 'persistInteractiveLaunchRecoveryLog')
+          .mockResolvedValue(undefined);
+
+        await useQuickGameStore.getState()[mode]();
+
+        expect(adapt).not.toHaveBeenCalled();
+        expect(run).not.toHaveBeenCalled();
+        expect(interactive).not.toHaveBeenCalled();
+        expect(persist).not.toHaveBeenCalled();
+        expect(useQuickGameStore.getState().game).toBe(before);
+        expect(useQuickGameStore.getState().error).not.toBeNull();
+      },
+    );
+
+    it('allows a valid force retry from Playing rather than requiring Review', async () => {
+      const game = readyGame(QuickGameStep.Playing);
+      useQuickGameStore.setState({ game, isLoading: false });
+      const engine = new GameEngine({
+        seed: 54321,
+        mapRadius: 7,
+        turnLimit: 1,
+      });
+      const session = engine.createInteractiveSession([], [], []);
+      const adapt = jest
+        .spyOn(quickGameHelpers, 'adaptUnits')
+        .mockResolvedValue([]);
+      const run = jest
+        .spyOn(GameEngine.prototype, 'runToCompletion')
+        .mockReturnValue(session.getSession());
+      const interactive = jest
+        .spyOn(GameEngine.prototype, 'createInteractiveSession')
+        .mockReturnValue(session);
+      const persist = jest
+        .spyOn(recovery, 'persistInteractiveLaunchRecoveryLog')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(useGameplayStore.getState(), 'setSession')
+        .mockImplementation(() => {});
+      jest
+        .spyOn(useGameplayStore.getState(), 'setInteractiveSession')
+        .mockImplementation(() => {});
+      jest
+        .spyOn(useGameplayStore.getState(), 'setSpectatorMode')
+        .mockImplementation(() => {});
+
+      await useQuickGameStore.getState()[mode]();
+
+      expect(adapt).toHaveBeenCalledTimes(2);
+      expect(run.mock.calls.length + interactive.mock.calls.length).toBe(1);
+      expect(persist).toHaveBeenCalledTimes(mode === 'startBattle' ? 0 : 1);
+      expect(useQuickGameStore.getState().error).toBeNull();
+    });
+  });
+});
 
 describe('Quick Game completion projection equivalence', () => {
   const completedAt = '2026-10-13T06:00:00.000Z';
@@ -117,12 +302,19 @@ describe('Quick Game completion projection equivalence', () => {
         .spyOn(GameEngine.prototype, 'runToCompletion')
         .mockReturnValue(session);
       const game = createQuickGameInstance();
+      game.playerForce = {
+        name: 'Player',
+        units: [createQuickGameUnit(sampleUnit)],
+        totalBV: sampleUnit.bv,
+        totalTonnage: sampleUnit.tonnage,
+      };
       game.opponentForce = {
         name: 'Opposition',
-        units: [],
-        totalBV: 0,
-        totalTonnage: 0,
+        units: [createQuickGameUnit(sampleUnit)],
+        totalBV: sampleUnit.bv,
+        totalTonnage: sampleUnit.tonnage,
       };
+      jest.spyOn(quickGameHelpers, 'adaptUnits').mockResolvedValue([]);
       useQuickGameStore.setState({
         game,
         isLoading: false,

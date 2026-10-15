@@ -244,8 +244,8 @@ export class ScenarioGeneratorService {
     const effectiveDifficulty =
       config.difficulty * template.defaultOpForMultiplier;
 
-    // Determine skill level from difficulty
-    const skillLevel = this.difficultyToSkillLevel(config.difficulty);
+    const skillLevel =
+      config.skillLevel ?? this.difficultyToSkillLevel(config.difficulty);
 
     return opForGenerator.generate(
       {

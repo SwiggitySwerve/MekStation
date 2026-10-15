@@ -13,11 +13,18 @@ import {
 import {
   IQuickGameForce,
   IQuickGameInstance,
+  type IQuickGameScenarioConfig,
   QuickGameStep,
+  QUICK_GAME_FORCE_READINESS_ERROR,
   createQuickGameUnit,
   createQuickGameInstance,
+  hasReadyQuickGameForces,
 } from '@/types/quickgame';
-import { BiomeType, ScenarioObjectiveType } from '@/types/scenario';
+import {
+  BiomeType,
+  OpForSkillLevel,
+  ScenarioObjectiveType,
+} from '@/types/scenario';
 import { Era } from '@/types/temporal/Era';
 
 import type { QuickGameStore } from './useQuickGameStore.types';
@@ -27,6 +34,27 @@ import {
   completeQuickGame,
   quickGameWinner,
 } from './useQuickGameStore.helpers';
+
+const QUICK_GAME_OBJECTIVES: Readonly<
+  Record<
+    NonNullable<IQuickGameScenarioConfig['scenarioType']>,
+    ScenarioObjectiveType
+  >
+> = {
+  Annihilation: ScenarioObjectiveType.Destroy,
+  CTF: ScenarioObjectiveType.Capture,
+  Defend: ScenarioObjectiveType.Defend,
+  Breakthrough: ScenarioObjectiveType.Breakthrough,
+};
+
+const QUICK_GAME_SKILLS: Readonly<
+  Record<NonNullable<IQuickGameScenarioConfig['aiTier']>, OpForSkillLevel>
+> = {
+  Green: OpForSkillLevel.Green,
+  Regular: OpForSkillLevel.Regular,
+  Veteran: OpForSkillLevel.Veteran,
+  Elite: OpForSkillLevel.Elite,
+};
 
 // Threads the quick-game page's `?seed=N` debug override (design D5) into
 // the engine's dice seed; `null`/`undefined` (absent/invalid query value)
@@ -125,9 +153,6 @@ export function createScenarioActions(
           const faction =
             (game.scenarioConfig.enemyFaction as Faction) || Faction.PIRATES;
           const biome = (game.scenarioConfig.biome as BiomeType) || undefined;
-          const scenarioType = game.scenarioConfig.scenarioType as
-            | ScenarioObjectiveType
-            | undefined;
 
           const scenario = scenarioGenerator.generate({
             playerBV: game.playerForce.totalBV,
@@ -138,7 +163,12 @@ export function createScenarioActions(
             maxModifiers: game.scenarioConfig.modifierCount,
             allowNegativeModifiers: game.scenarioConfig.allowNegativeModifiers,
             biome,
-            scenarioType,
+            scenarioType:
+              QUICK_GAME_OBJECTIVES[
+                game.scenarioConfig.scenarioType ?? 'Annihilation'
+              ],
+            skillLevel:
+              QUICK_GAME_SKILLS[game.scenarioConfig.aiTier ?? 'Regular'],
             seed: Date.now(),
           });
 
@@ -165,12 +195,14 @@ export function createScenarioActions(
             totalTonnage: opponentUnits.reduce((sum, u) => sum + u.tonnage, 0),
           };
 
+          const generatedGame = { ...game, scenario, opponentForce };
+          if (!hasReadyQuickGameForces(generatedGame)) {
+            set({ error: QUICK_GAME_FORCE_READINESS_ERROR, isLoading: false });
+            return;
+          }
+
           set({
-            game: {
-              ...game,
-              scenario,
-              opponentForce,
-            },
+            game: generatedGame,
             isLoading: false,
             isDirty: true,
           });
@@ -200,8 +232,12 @@ export function createBattleActions(
   return {
     startBattle: async (): Promise<void> => {
       const { game, seedOverride } = get();
-      if (!game || !game.opponentForce) {
-        set({ error: 'No active game or opponent force' });
+      if (!hasReadyQuickGameForces(game)) {
+        set({
+          error: game?.opponentForce
+            ? QUICK_GAME_FORCE_READINESS_ERROR
+            : 'No active game or opponent force',
+        });
         return;
       }
 
@@ -244,8 +280,12 @@ export function createBattleActions(
 
     startSpectatorMode: async (): Promise<void> => {
       const { game, seedOverride } = get();
-      if (!game || !game.opponentForce) {
-        set({ error: 'No active game or opponent force' });
+      if (!hasReadyQuickGameForces(game)) {
+        set({
+          error: game?.opponentForce
+            ? QUICK_GAME_FORCE_READINESS_ERROR
+            : 'No active game or opponent force',
+        });
         return;
       }
 
@@ -295,8 +335,12 @@ export function createBattleActions(
 
     startInteractiveSkirmish: async (): Promise<void> => {
       const { game, seedOverride } = get();
-      if (!game || !game.opponentForce) {
-        set({ error: 'No active game or opponent force' });
+      if (!hasReadyQuickGameForces(game)) {
+        set({
+          error: game?.opponentForce
+            ? QUICK_GAME_FORCE_READINESS_ERROR
+            : 'No active game or opponent force',
+        });
         return;
       }
 

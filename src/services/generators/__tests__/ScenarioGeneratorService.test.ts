@@ -5,7 +5,11 @@
  */
 
 import { Faction } from '@/constants/scenario/rats';
-import { BiomeType, ScenarioObjectiveType } from '@/types/scenario';
+import {
+  BiomeType,
+  OpForSkillLevel,
+  ScenarioObjectiveType,
+} from '@/types/scenario';
 import { Era } from '@/types/temporal/Era';
 
 import {
@@ -21,6 +25,54 @@ describe('ScenarioGeneratorService', () => {
   });
 
   describe('generate', () => {
+    function generatePilots(difficulty: number, skillLevel?: OpForSkillLevel) {
+      return service.generate({
+        playerBV: 2000,
+        playerUnitCount: 4,
+        faction: Faction.PIRATES,
+        era: Era.LATE_SUCCESSION_WARS,
+        scenarioType: ScenarioObjectiveType.Destroy,
+        difficulty,
+        maxModifiers: 0,
+        allowNegativeModifiers: false,
+        seed: 54321,
+        ...(skillLevel === undefined ? {} : { skillLevel }),
+      });
+    }
+
+    it.each([
+      [OpForSkillLevel.Green, 1.5, 5, 6],
+      [OpForSkillLevel.Regular, 1.5, 4, 5],
+      [OpForSkillLevel.Veteran, 1.5, 3, 4],
+      [OpForSkillLevel.Elite, 0.5, 2, 3],
+    ] as const)(
+      'prefers explicit %s pilot skills over difficulty %s',
+      (skillLevel, difficulty, gunnery, piloting) => {
+        const result = generatePilots(difficulty, skillLevel);
+        expect(result.opFor.units.length).toBeGreaterThan(0);
+        for (const unit of result.opFor.units) {
+          expect(unit.pilot).toMatchObject({ gunnery, piloting });
+        }
+      },
+    );
+
+    it.each([
+      [0.5, 5, 6],
+      [0.8, 4, 5],
+      [1.2, 3, 4],
+      [1.5, 2, 3],
+      [1.8, 1, 2],
+    ] as const)(
+      'preserves difficulty-derived pilots at %s when no override is supplied',
+      (difficulty, gunnery, piloting) => {
+        const result = generatePilots(difficulty);
+        expect(result.opFor.units.length).toBeGreaterThan(0);
+        for (const unit of result.opFor.units) {
+          expect(unit.pilot).toMatchObject({ gunnery, piloting });
+        }
+      },
+    );
+
     it('should generate a complete scenario', () => {
       const result = service.generate({
         playerBV: 5000,

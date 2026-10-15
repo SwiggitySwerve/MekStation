@@ -561,6 +561,8 @@ export interface IScenarioGeneratorConfig {
   readonly biome?: BiomeType;
   /** Difficulty level (0.5-2.0) */
   readonly difficulty: number;
+  /** Explicit opposing pilot level; omitted values derive from difficulty. */
+  readonly skillLevel?: OpForSkillLevel;
   /** Maximum modifiers to apply */
   readonly maxModifiers: number;
   /** Allow negative modifiers? */

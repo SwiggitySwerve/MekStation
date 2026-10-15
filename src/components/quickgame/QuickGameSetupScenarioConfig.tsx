@@ -330,14 +330,15 @@ export function ScenarioConfigStep(): React.ReactElement {
   const previousStep = useQuickGameSelector((state) => state.previousStep);
   const nextStep = useQuickGameSelector((state) => state.nextStep);
   const isLoading = useQuickGameSelector((state) => state.isLoading);
+  const error = useQuickGameSelector((state) => state.error);
   const wasLoadingRef = useRef(false);
 
   useEffect(() => {
-    if (wasLoadingRef.current && !isLoading && game?.scenario) {
+    if (wasLoadingRef.current && !isLoading && !error && game?.scenario) {
       nextStep();
     }
     wasLoadingRef.current = isLoading;
-  }, [isLoading, game?.scenario, nextStep]);
+  }, [isLoading, error, game?.scenario, nextStep]);
 
   const config = game?.scenarioConfig;
 
