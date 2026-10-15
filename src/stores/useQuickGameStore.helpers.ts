@@ -14,6 +14,17 @@ import {
 import { QuickGameStep } from '@/types/quickgame/QuickGameInterfaces';
 import { getGameEndedPayload } from '@/utils/gameplay/eventPayloads';
 
+export function matchesQuickGameSession(
+  game: IQuickGameInstance | null,
+  session: IGameSession | null,
+): session is IGameSession {
+  return Boolean(
+    game?.activeTacticalSession &&
+    session &&
+    game.activeTacticalSession.id === (session.matchId ?? session.id),
+  );
+}
+
 export function getQuickGameCompletion(
   game: IQuickGameInstance | null,
   expectedGameId: string,
@@ -29,7 +40,7 @@ export function getQuickGameCompletion(
     game.status !== GameStatus.Active ||
     game.step !== QuickGameStep.Playing ||
     !session ||
-    game.activeTacticalSession?.id !== (session.matchId ?? session.id) ||
+    !matchesQuickGameSession(game, session) ||
     session.currentState.status !== GameStatus.Completed ||
     !session.currentState.result
   )

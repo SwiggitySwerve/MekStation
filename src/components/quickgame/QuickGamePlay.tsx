@@ -15,7 +15,10 @@ import { navigateToGameSession } from '@/lib/gameplay/tacticalNavigation';
 import GameSessionPage from '@/pages/gameplay/games/[id]';
 import { useGameplaySelector } from '@/stores/useGameplayStore';
 import { useQuickGameSelector } from '@/stores/useQuickGameStore';
-import { getQuickGameCompletion } from '@/stores/useQuickGameStore.helpers';
+import {
+  getQuickGameCompletion,
+  matchesQuickGameSession,
+} from '@/stores/useQuickGameStore.helpers';
 import { GameStatus } from '@/types/gameplay';
 
 // =============================================================================
@@ -115,8 +118,7 @@ export function QuickGamePlay(): React.ReactElement {
   const persistedTacticalSession = game?.activeTacticalSession;
   const hasLiveTacticalSession =
     session?.currentState.status === GameStatus.Active &&
-    (!persistedTacticalSession ||
-      persistedTacticalSession.id === liveTacticalSessionId) &&
+    (!persistedTacticalSession || matchesQuickGameSession(game, session)) &&
     (Boolean(interactiveSession) || spectatorMode?.enabled === true);
   const quickGameId = game?.id;
   const hasRecordedCompletion = Boolean(
