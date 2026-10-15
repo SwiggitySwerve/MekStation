@@ -1,6 +1,8 @@
 import type { GmDecision, IGuestProposal } from '@/types/campaign/CoopCampaign';
 import type {
   ICampaignClientMessage,
+  ICampaignApplicationAck,
+  ICampaignApplicationOffer,
   ICampaignParticipationPayload,
   IServerMessage,
 } from '@/types/multiplayer/Protocol';
@@ -18,19 +20,49 @@ import {
 } from '@/types/multiplayer/Player';
 import {
   ClientMessageSchema,
+  CampaignApplicationClientMessageSchema,
+  CampaignApplicationServerMessageSchema,
   HEARTBEAT_INTERVAL_MS,
   nowIso,
-  ServerMessageSchema,
 } from '@/types/multiplayer/Protocol';
 
 import { readCoopCampaignToken } from './coopCampaignAuthTokenStore';
 
 export type CampaignSyncFrameHandler = (message: IServerMessage) => void;
 
+export type CampaignAppliedOutcome =
+  | { status: 'applied' }
+  | {
+      status: 'failed';
+      reason: 'fold-rejected' | 'projection-failed' | 'adjunct-failed';
+    };
+export type CampaignAppliedResult =
+  | { status: 'ack-sent' | 'prefix-pending' | 'already-completed' }
+  | {
+      status: 'refused';
+      reason: 'unbound' | 'unknown-offer' | 'stale-offer' | 'closed';
+    }
+  | {
+      status: 'recovery-required';
+      reason:
+        | 'application-failed'
+        | 'prefix-conflict'
+        | 'pending-overflow'
+        | 'send-failed';
+    };
+
 export interface ICampaignSyncTransport {
   readonly matchId: string;
   readonly playerId: string;
   readonly role: 'host' | 'guest';
+  readonly campaignId?: string;
+  confirmApplied?(
+    offer: ICampaignApplicationOffer,
+    outcome: CampaignAppliedOutcome,
+  ): CampaignAppliedResult;
+  onAppliedViewConfirmed?(
+    handler: (ack: ICampaignApplicationAck) => void,
+  ): () => void;
   sendProposal(proposal: IGuestProposal): void;
   sendDecision(proposalId: string, decision: GmDecision): void;
   sendHostIntent(
@@ -59,6 +91,7 @@ export type CampaignSyncSocketFactory = (
 ) => ICampaignSyncWebSocket;
 
 export interface IConnectCampaignSyncOptions {
+  readonly expectedCampaignId?: string;
   readonly matchId: string;
   readonly role: 'host' | 'guest';
   readonly playerId: string;
@@ -70,6 +103,7 @@ export interface IConnectCampaignSyncOptions {
 }
 
 export interface IConnectStoredCampaignSyncOptions {
+  readonly expectedCampaignId?: string;
   readonly matchId: string | null | undefined;
   readonly role: 'host' | 'guest';
   readonly roomCode?: string;
@@ -79,12 +113,22 @@ export interface IConnectStoredCampaignSyncOptions {
 }
 
 const activeTransports = new Map<string, ICampaignSyncTransport>();
+const MAX_PENDING_APPLICATION_OFFERS = 64;
 
 export function connectCampaignSyncTransport(
   options: IConnectCampaignSyncOptions,
 ): ICampaignSyncTransport {
+  options = { ...options };
   const listeners = new Set<CampaignSyncFrameHandler>();
   const errorListeners = new Set<(error: unknown) => void>();
+  const confirmations = new Set<(ack: ICampaignApplicationAck) => void>();
+  const pending: { frame: ICampaignApplicationOffer; applied: boolean }[] = [];
+  let latest: ICampaignApplicationOffer | null = null;
+  let sent: ICampaignApplicationOffer | null = null;
+  let failed = false;
+  let dispatching = false;
+  let receiptMode = false;
+  let awaitingBaseline = false;
   const pendingOutbound: ICampaignClientMessage[] = [];
   let lastSeq = options.lastSeq ?? -1;
   let closed = false;
@@ -119,18 +163,105 @@ export function connectCampaignSyncTransport(
   const emitError = (error: unknown): void => {
     errorListeners.forEach((handler) => handler(error));
   };
-  const sendEnvelope = (message: ICampaignClientMessage): void => {
-    if (closed) return;
+  const recover = (
+    reason: Extract<
+      CampaignAppliedResult,
+      { status: 'recovery-required' }
+    >['reason'],
+  ): CampaignAppliedResult => {
+    failed = true;
+    pending.length = 0;
+    sent = null;
+    emitError(new Error(`Campaign application recovery required: ${reason}`));
+    return { status: 'recovery-required', reason };
+  };
+  const drain = (): CampaignAppliedResult => {
+    if (dispatching) return { status: 'prefix-pending' };
+    while (pending[0]?.applied) pending.shift();
+    if (pending.length || !latest) return { status: 'prefix-pending' };
+    if (latest === sent) return { status: 'already-completed' };
+    if (closed || socket.readyState !== 1) return recover('send-failed');
+    const ack = CampaignApplicationClientMessageSchema.parse({
+      kind: 'CampaignAck',
+      matchId: options.matchId,
+      ts: nowIso(),
+      playerId: options.playerId,
+      campaignId: options.expectedCampaignId,
+      appliedView: latest.appliedView,
+    });
+    try {
+      socket.send(JSON.stringify(ack));
+    } catch {
+      return recover('send-failed');
+    }
+    sent = latest;
+    return { status: 'ack-sent' };
+  };
+  const registerOffer = (frame: ICampaignApplicationOffer): boolean => {
+    if (failed || closed) return false;
+    if (
+      !options.expectedCampaignId ||
+      frame.matchId !== options.matchId ||
+      frame.event.campaignId !== options.expectedCampaignId ||
+      !isCampaignWireEvent(frame.event)
+    ) {
+      recover('prefix-conflict');
+      return false;
+    }
+    const view = frame.appliedView;
+    const duplicate =
+      pending.find(
+        (entry) => entry.frame.appliedView.receiptId === view.receiptId,
+      )?.frame ??
+      (latest?.appliedView.receiptId === view.receiptId ? latest : null);
+    if (duplicate) {
+      if (JSON.stringify(duplicate) !== JSON.stringify(frame))
+        recover('prefix-conflict');
+      return false;
+    }
+    if (view.previousReceiptId === null) {
+      if (
+        !awaitingBaseline ||
+        latest ||
+        frame.kind !== 'CampaignSnapshot' ||
+        frame.event.type !== 'CampaignSnapshotPublished' ||
+        frame.event.sequence !== -1 ||
+        !frame.hydrationFacts
+      ) {
+        recover('prefix-conflict');
+        return false;
+      }
+      awaitingBaseline = false;
+    } else if (
+      !latest ||
+      view.viewId !== latest.appliedView.viewId ||
+      view.previousReceiptId !== latest.appliedView.receiptId
+    ) {
+      recover('prefix-conflict');
+      return false;
+    }
+    if (pending.length === MAX_PENDING_APPLICATION_OFFERS) {
+      recover('pending-overflow');
+      return false;
+    }
+    freezeApplicationFrame(frame);
+    latest = frame;
+    pending.push({ frame, applied: false });
+    return true;
+  };
+  const sendEnvelope = (message: ICampaignClientMessage): boolean => {
+    if (closed) return false;
     const parsed = ClientMessageSchema.safeParse(message);
     if (!parsed.success) {
       emitError(new Error('Campaign sync frame failed local validation'));
-      return;
+      return false;
     }
     if (socket.readyState !== 1) {
       pendingOutbound.push(parsed.data as ICampaignClientMessage);
-      return;
+      return false;
     }
     sendParsedEnvelope(parsed.data as ICampaignClientMessage);
+    return true;
   };
   const sendParsedEnvelope = (message: ICampaignClientMessage): void => {
     socket.send(JSON.stringify(message));
@@ -140,6 +271,25 @@ export function connectCampaignSyncTransport(
     matchId: options.matchId,
     playerId: options.playerId,
     role: options.role,
+    campaignId: options.expectedCampaignId,
+    confirmApplied: (offer, outcome) => {
+      if (closed) return { status: 'refused', reason: 'closed' };
+      if (!options.expectedCampaignId)
+        return { status: 'refused', reason: 'unbound' };
+      if (failed) return { status: 'refused', reason: 'stale-offer' };
+      if (offer === sent) return { status: 'already-completed' };
+      const entry = pending.find((item) => item.frame === offer);
+      if (!entry) return { status: 'refused', reason: 'unknown-offer' };
+      if (outcome.status !== 'applied') return recover('application-failed');
+      entry.applied = true;
+      return drain();
+    },
+    onAppliedViewConfirmed: (handler) => {
+      confirmations.add(handler);
+      return () => {
+        confirmations.delete(handler);
+      };
+    },
     sendProposal: (proposal) => {
       sendEnvelope({
         kind: 'CampaignProposal',
@@ -193,6 +343,8 @@ export function connectCampaignSyncTransport(
     },
     close: () => {
       closed = true;
+      pending.length = 0;
+      sent = null;
       stopHeartbeat();
       if (activeTransports.get(options.matchId) === transport) {
         activeTransports.delete(options.matchId);
@@ -203,8 +355,9 @@ export function connectCampaignSyncTransport(
   };
 
   socket.onopen = () => {
+    if (closed || failed) return;
     startHeartbeat();
-    sendEnvelope({
+    awaitingBaseline = sendEnvelope({
       kind: 'CampaignJoin',
       matchId: options.matchId,
       ts: nowIso(),
@@ -212,7 +365,7 @@ export function connectCampaignSyncTransport(
       role: options.role,
       token: wireToken,
       roomCode: options.roomCode,
-      ...(lastSeq >= 0 ? { lastSeq } : {}),
+      ...(!options.expectedCampaignId && lastSeq >= 0 ? { lastSeq } : {}),
     });
     while (pendingOutbound.length > 0 && socket.readyState === 1) {
       const next = pendingOutbound.shift();
@@ -220,21 +373,56 @@ export function connectCampaignSyncTransport(
     }
   };
   socket.onmessage = (ev) => {
-    const message = parseServerMessage(ev.data);
-    if (!message) return;
+    if (closed) return;
+    const parsed = parseServerMessage(ev.data);
+    if (parsed.receiptIntent) receiptMode = true;
+    const message = parsed.message;
+    if (!message) {
+      if (parsed.offerIntent) recover('prefix-conflict');
+      return;
+    }
+    if (message.kind === 'CampaignAck') {
+      if (
+        !failed &&
+        sent === latest &&
+        sent &&
+        message.matchId === options.matchId &&
+        message.playerId === options.playerId &&
+        message.campaignId === options.expectedCampaignId &&
+        JSON.stringify(message.appliedView) === JSON.stringify(sent.appliedView)
+      ) {
+        confirmations.forEach((handler) => handler(message));
+      }
+      return;
+    }
+    const offered =
+      (message.kind === 'CampaignSnapshot' ||
+        message.kind === 'CampaignEvent') &&
+      message.appliedView;
+    if (offered && !registerOffer(message as ICampaignApplicationOffer)) return;
     updateLastSeq(message, (sequence) => {
       lastSeq = Math.max(lastSeq, sequence);
     });
-    listeners.forEach((handler) => handler(message));
+    dispatching = true;
+    try {
+      listeners.forEach((handler) => handler(message));
+    } catch (error) {
+      if (receiptMode) {
+        recover('application-failed');
+        emitError(error);
+        return;
+      }
+      throw error;
+    } finally {
+      dispatching = false;
+    }
+    if ((offered || receiptMode) && !failed && !closed) drain();
     if (
+      !receiptMode &&
       message.kind === 'CampaignEvent' &&
       isCampaignWireEvent(message.event)
     ) {
-      // A live event is acked at its own sequence. A resync snapshot is
-      // stamped sequence -1 but leaves the client genuinely holding the
-      // state at payload.revision, so it is acked at THAT revision -
-      // without this, a large-gap rejoiner could never converge until an
-      // unrelated live event happened to land, and progression deadlocked.
+      // Temporary legacy observation, never durable application proof.
       const ackRevision =
         message.event.sequence >= 0
           ? message.event.sequence
@@ -253,6 +441,9 @@ export function connectCampaignSyncTransport(
   };
   socket.onerror = (ev) => emitError(ev);
   socket.onclose = () => {
+    closed = true;
+    pending.length = 0;
+    sent = null;
     stopHeartbeat();
     if (activeTransports.get(options.matchId) === transport) {
       activeTransports.delete(options.matchId);
@@ -275,10 +466,15 @@ export function connectStoredCampaignSyncTransport(
 ): ICampaignSyncTransport | null {
   if (!options.matchId) return null;
   const existing = getActiveCampaignSyncTransport(options.matchId);
-  if (existing) return existing;
+  if (existing)
+    return options.expectedCampaignId !== undefined &&
+      existing.campaignId !== options.expectedCampaignId
+      ? null
+      : existing;
   const token = readCoopCampaignToken(options.matchId);
   if (!token) return null;
   return connectCampaignSyncTransport({
+    expectedCampaignId: options.expectedCampaignId,
     matchId: options.matchId,
     role: options.role,
     playerId: token.playerId,
@@ -351,13 +547,34 @@ function defaultSocketFactory(): CampaignSyncSocketFactory {
   };
 }
 
-function parseServerMessage(data: unknown): IServerMessage | null {
+function freezeApplicationFrame(value: unknown): void {
+  if (!value || typeof value !== 'object') return;
+  Object.values(value).forEach(freezeApplicationFrame);
+  Object.freeze(value);
+}
+
+function parseServerMessage(data: unknown): {
+  message: IServerMessage | ICampaignApplicationAck | null;
+  receiptIntent: boolean;
+  offerIntent: boolean;
+} {
   const raw = typeof data === 'string' ? data : String(data);
   try {
-    const parsed = ServerMessageSchema.safeParse(JSON.parse(raw));
-    return parsed.success ? parsed.data : null;
+    const body: unknown = JSON.parse(raw);
+    const receiptIntent =
+      typeof body === 'object' && body !== null && 'appliedView' in body;
+    const offerIntent =
+      receiptIntent &&
+      'kind' in body &&
+      (body.kind === 'CampaignSnapshot' || body.kind === 'CampaignEvent');
+    const parsed = CampaignApplicationServerMessageSchema.safeParse(body);
+    return {
+      message: parsed.success ? parsed.data : null,
+      receiptIntent,
+      offerIntent,
+    };
   } catch {
-    return null;
+    return { message: null, receiptIntent: false, offerIntent: false };
   }
 }
 
