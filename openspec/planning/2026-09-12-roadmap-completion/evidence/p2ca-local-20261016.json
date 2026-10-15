@@ -1,0 +1,226 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CA",
+  "stage": "local",
+  "contributor": {
+    "provider": "cliproxy",
+    "model": "gpt-6.1-sol",
+    "effort": "high",
+    "task": "Task9/P2CA implementation",
+    "delegation": "mek-p3-task9-p2ca-sol-20261016-r1"
+  },
+  "command": "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --runTestsByPath src/lib/campaign/sync/__tests__/campaignPublicAppliedView.integration.test.ts src/services/persistence/__tests__/SQLiteService.migrations.test.ts src/services/persistence/__tests__/SQLiteService.replayCheckpointsBranch.migration.test.ts",
+  "exitCode": 0,
+  "suites": 3,
+  "tests": 33,
+  "log": "E:/Projects/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-9-20261016/happy.log",
+  "checks": {
+    "typecheck": "PASS",
+    "lint": "PASS (83 existing warnings, zero errors)",
+    "format": "PASS",
+    "roadmap": "PASS while implementing; local-verified promotion refused by validate-roadmap.mjs:556-557: no packet naming P2CA in blocks"
+  },
+  "boundary": "Storage-only trusted synchronous ports; receipt issuance, wire delivery and verified authority readers are later integration units. No merge/Main proof claimed.",
+  "status": "Candidate local checks only; lifecycle acceptance held for Root review packet",
+  "round3Verification": {
+    "recordedAt": "2026-10-15T20:18:48.2309116Z",
+    "inputHead": "306feb2f74499dbc6eebe9698ed0d0e33eda2df5",
+    "inputManifest": "E:\\Projects\\Personal\\MekStation\\.omo\\ulw-execute\\mekstation-whole-roadmap-execution-20261002-01a0febd\\task-9-20261016\\round3-input.json",
+    "contributor": {
+      "provider": "cliproxy",
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "threadId": "thread:delegated-task:command%3Amcp%3Afa62a435-33a0-4c52-8cf3-091cdbab1e0a%3Adelegate-task%3Amek-p3-task9-p2ca-sol-20261015-r3",
+      "runId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253Afa62a435-33a0-4c52-8cf3-091cdbab1e0a%253Adelegate-task%253Amek-p3-task9-p2ca-sol-20261015-r3:ordinal:1",
+      "observation": "E:\\Projects\\Personal\\MekStation\\.omo\\ulw-execute\\mekstation-whole-roadmap-execution-20261002-01a0febd\\task-9-20261016\\round3-actor-observation.json",
+      "resumedCancelledTask": "node:delegated-task:command%3Amcp%3Ae08ed489-24f3-4767-9bc7-6985da31a184%3Adelegate-task%3Amek-p3-task9-p2ca-sol-20261016-r2"
+    },
+    "checks": [
+      {
+        "name": "focused",
+        "command": [
+          "C:\\nvm4w\\nodejs\\node.exe",
+          "node_modules/jest/bin/jest.js",
+          "--runInBand",
+          "--watchAll=false",
+          "--runTestsByPath",
+          "src/lib/campaign/sync/__tests__/campaignPublicAppliedView.integration.test.ts",
+          "src/services/persistence/__tests__/SQLiteService.migrations.test.ts",
+          "src/services/persistence/__tests__/SQLiteService.replayCheckpointsBranch.migration.test.ts",
+          "src/services/persistence/__tests__/SQLiteService.historyBranches.migration.test.ts"
+        ],
+        "cwd": "E:/Projects/Personal/MekStation-wt/p2ca-applied-view-20261016",
+        "env": {},
+        "start": "2026-10-15T19:54:54.629Z",
+        "end": "2026-10-15T19:55:05.182Z",
+        "status": 0,
+        "signal": null,
+        "error": null,
+        "stdout": "E:\\Projects\\Personal\\MekStation\\.omo\\ulw-execute\\mekstation-whole-roadmap-execution-20261002-01a0febd\\task-9-20261016\\round3-focused.stdout.log",
+        "stderr": "E:\\Projects\\Personal\\MekStation\\.omo\\ulw-execute\\mekstation-whole-roadmap-execution-20261002-01a0febd\\task-9-20261016\\round3-focused.stderr.log",
+        "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderrSha256": "e020f0b9413f318d54767c6feeb3a33a342ed91a653b2c659b0a363ffc2b3c24"
+      },
+      {
+        "name": "full-stable",
+        "command": [
+          "C:\\nvm4w\\nodejs\\node.exe",
+          "node_modules/jest/bin/jest.js",
+          "--watchAll=false",
+          "--maxWorkers=2"
+        ],
+        "cwd": "E:/Projects/Personal/MekStation-wt/p2ca-applied-view-20261016",
+        "env": {
+          "JEST_EXCLUDE_PERF_SENSITIVE": "true"
+        },
+        "start": "2026-10-15T19:55:05.183Z",
+        "end": "2026-10-15T20:16:10.101Z",
+        "status": 0,
+        "signal": null,
+        "error": null,
+        "stdout": "E:\\Projects\\Personal\\MekStation\\.omo\\ulw-execute\\mekstation-whole-roadmap-execution-20261002-01a0febd\\task-9-20261016\\round3-full-stable.stdout.log",
+        "stderr": "E:\\Projects\\Personal\\MekStation\\.omo\\ulw-execute\\mekstation-whole-roadmap-execution-20261002-01a0febd\\task-9-20261016\\round3-full-stable.stderr.log",
+        "stdoutSha256": "ad43713afe7ed579777e7457ef65fb6517f709296966d46a429bd5bd038c86bb",
+        "stderrSha256": "52e849e123a4d6bec5c74edc0344ea817b24049363029e957a987969f257a90e"
+      },
+      {
+        "name": "typecheck",
+        "command": [
+          "npm.cmd",
+          "run",
+          "typecheck"
+        ],
+        "cwd": "E:/Projects/Personal/MekStation-wt/p2ca-applied-view-20261016",
+        "env": {},
+        "start": "2026-10-15T20:16:10.102Z",
+        "end": "2026-10-15T20:16:22.836Z",
+        "status": 0,
+        "signal": null,
+        "error": null,
+        "stdout": "E:\\Projects\\Personal\\MekStation\\.omo\\ulw-execute\\mekstation-whole-roadmap-execution-20261002-01a0febd\\task-9-20261016\\round3-typecheck.stdout.log",
+        "stderr": "E:\\Projects\\Personal\\MekStation\\.omo\\ulw-execute\\mekstation-whole-roadmap-execution-20261002-01a0febd\\task-9-20261016\\round3-typecheck.stderr.log",
+        "stdoutSha256": "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "lint",
+        "command": [
+          "npm.cmd",
+          "run",
+          "lint"
+        ],
+        "cwd": "E:/Projects/Personal/MekStation-wt/p2ca-applied-view-20261016",
+        "env": {},
+        "start": "2026-10-15T20:16:22.836Z",
+        "end": "2026-10-15T20:16:23.469Z",
+        "status": 0,
+        "signal": null,
+        "error": null,
+        "stdout": "E:\\Projects\\Personal\\MekStation\\.omo\\ulw-execute\\mekstation-whole-roadmap-execution-20261002-01a0febd\\task-9-20261016\\round3-lint.stdout.log",
+        "stderr": "E:\\Projects\\Personal\\MekStation\\.omo\\ulw-execute\\mekstation-whole-roadmap-execution-20261002-01a0febd\\task-9-20261016\\round3-lint.stderr.log",
+        "stdoutSha256": "6572d8a7cdbd7b12d2e9a7b760767e7e288e07c4fb834181f2d02f2cbd49e34b",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "format",
+        "command": [
+          "npm.cmd",
+          "run",
+          "format:check"
+        ],
+        "cwd": "E:/Projects/Personal/MekStation-wt/p2ca-applied-view-20261016",
+        "env": {},
+        "start": "2026-10-15T20:16:23.470Z",
+        "end": "2026-10-15T20:16:34.806Z",
+        "status": 0,
+        "signal": null,
+        "error": null,
+        "stdout": "E:\\Projects\\Personal\\MekStation\\.omo\\ulw-execute\\mekstation-whole-roadmap-execution-20261002-01a0febd\\task-9-20261016\\round3-format.stdout.log",
+        "stderr": "E:\\Projects\\Personal\\MekStation\\.omo\\ulw-execute\\mekstation-whole-roadmap-execution-20261002-01a0febd\\task-9-20261016\\round3-format.stderr.log",
+        "stdoutSha256": "e7ac02c89fae1efcdf92e65f73860e6626c0eeed4592ac3bf8dd97bd7a6d3672",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "roadmap",
+        "command": [
+          "C:\\nvm4w\\nodejs\\node.exe",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+        ],
+        "cwd": "E:/Projects/Personal/MekStation-wt/p2ca-applied-view-20261016",
+        "env": {},
+        "start": "2026-10-15T20:16:34.807Z",
+        "end": "2026-10-15T20:16:41.107Z",
+        "status": 0,
+        "signal": null,
+        "error": null,
+        "stdout": "E:\\Projects\\Personal\\MekStation\\.omo\\ulw-execute\\mekstation-whole-roadmap-execution-20261002-01a0febd\\task-9-20261016\\round3-roadmap.stdout.log",
+        "stderr": "E:\\Projects\\Personal\\MekStation\\.omo\\ulw-execute\\mekstation-whole-roadmap-execution-20261002-01a0febd\\task-9-20261016\\round3-roadmap.stderr.log",
+        "stdoutSha256": "e604fb1b5bb7eaad75730f7fa89375caac87dca6de9d0ef566f3f34fae7c3357",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "build",
+        "command": [
+          "npm.cmd",
+          "run",
+          "build"
+        ],
+        "cwd": "E:/Projects/Personal/MekStation-wt/p2ca-applied-view-20261016",
+        "env": {},
+        "start": "2026-10-15T20:16:41.108Z",
+        "end": "2026-10-15T20:18:26.563Z",
+        "status": 0,
+        "signal": null,
+        "error": null,
+        "stdout": "E:\\Projects\\Personal\\MekStation\\.omo\\ulw-execute\\mekstation-whole-roadmap-execution-20261002-01a0febd\\task-9-20261016\\round3-build.stdout.log",
+        "stderr": "E:\\Projects\\Personal\\MekStation\\.omo\\ulw-execute\\mekstation-whole-roadmap-execution-20261002-01a0febd\\task-9-20261016\\round3-build.stderr.log",
+        "stdoutSha256": "d7330efad7a4cdabb0809dc600edae0e2eeb19e30e4939d3990c0e021d4618f7",
+        "stderrSha256": "efbdfece829ab382dc8babe1a4f2ba69553f879e4f6339d4b2a9f8434a82175e"
+      }
+    ],
+    "focused": {
+      "suitesPassed": 4,
+      "testsPassed": 41
+    },
+    "stable": {
+      "suitesPassed": 2795,
+      "testsPassed": 37002,
+      "testsSkipped": 50,
+      "testsTotal": 37052,
+      "snapshotsPassed": 8,
+      "projects": 2,
+      "seconds": 1263.992,
+      "note": "Same stable-lane environment and both Jest projects; two workers. No tests, timeouts, exclusions or gates changed for this run."
+    },
+    "scope": {
+      "files": 12,
+      "fileCap": 15,
+      "productAddedLines": 268,
+      "lifecycleAddedLines": 16,
+      "countedAddedLines": 284,
+      "countedLineCap": 500,
+      "testAddedLines": 371
+    },
+    "preservation": {
+      "manifest": "E:\\Projects\\Personal\\MekStation\\.omo\\ulw-execute\\mekstation-whole-roadmap-execution-20261002-01a0febd\\task-9-20261016\\round3-preserved.json",
+      "round2FullStable": "Incomplete, no terminal summary or successful exit recorded; contains roadmap-codex-identity-capture.test.ts spawnSync ETIMEDOUT. Not a full PASS.",
+      "priorCi": "E:\\Projects\\Personal\\MekStation\\.omo\\ulw-execute\\mekstation-whole-roadmap-execution-20261002-01a0febd\\task-9-20261016\\round3-prior-ci.json",
+      "historicalLogsDirectory": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-9-20261016"
+    },
+    "boundary": "All listed candidate checks passed. P2CA remains implementing: validate-roadmap.mjs:556-557 refuses local-verified without a packet naming P2CA in blocks. No packet, decision, ruling, validator, hook or CI change; Root owns independent exact-head Opus review and later gates.",
+    "hookVerification": {
+      "repairCommit": "a97346a53dc72c6dffdabe9e472d70ff0f3547fa",
+      "initialState": "Normal git commit ran with core.hooksPath=.husky/_ but generated Husky launchers were absent in this worktree.",
+      "restorationCommand": "npm run prepare",
+      "configuration": "Existing .husky/_ configuration retained; no hook or gate edited.",
+      "recheckCommand": "Git Bash: npx lint-staged --diff=HEAD~1..HEAD",
+      "recheckExitCode": 0,
+      "recheckChecks": [
+        "oxlint --fix",
+        "oxfmt --write --no-error-on-unmatched-pattern",
+        "bash -c npx tsc --noEmit --skipLibCheck"
+      ],
+      "diagnostic": "The first PowerShell-launched check selected Windows WSL bash and was stopped after verifying its owned process IDs. The unchanged checks passed when launched from Git Bash. Source bytes remained unchanged."
+    }
+  }
+}

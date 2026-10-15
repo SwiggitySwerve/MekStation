@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CA",
+  "stage": "red",
+  "baseline": "ba8007f2dfea7786a3823145eb999e308c97f3fa",
+  "contributor": {
+    "provider": "cliproxy",
+    "model": "gpt-6.1-sol",
+    "effort": "high",
+    "task": "Task9/P2CA implementation",
+    "delegation": "mek-p3-task9-p2ca-sol-20261016-r1"
+  },
+  "command": "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --runTestsByPath src/lib/campaign/sync/__tests__/campaignPublicAppliedView.integration.test.ts src/services/persistence/__tests__/SQLiteService.migrations.test.ts src/services/persistence/__tests__/SQLiteService.replayCheckpointsBranch.migration.test.ts",
+  "exitCode": 1,
+  "log": "E:/Projects/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-9-20261016/failure.log",
+  "failures": [
+    "Missing owner module",
+    "Missing campaign_public_applied_view table",
+    "Migration 32 not invoked",
+    "After registration, explicit replay checkpoint head expected 31, received 32"
+  ],
+  "harnessCorrection": "Removed node-environment override after shared jest.setup required window; reran genuine absence RED before product edits."
+}

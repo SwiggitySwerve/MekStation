@@ -62,6 +62,64 @@ describe('SQLiteService migrations', () => {
     return cols.map((c) => c.name);
   }
 
+  it('creates an empty applied-view table and reapplies without losing accepted bytes', () => {
+    getSQLiteService({ path: dbPath }).initialize();
+    let db = getSQLiteService().getDatabase();
+    expect(
+      db.prepare('SELECT * FROM campaign_public_applied_view').all(),
+    ).toEqual([]);
+    expect(db.pragma('table_info(campaign_public_applied_view)')).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: 'campaign_id', pk: 1 }),
+        expect.objectContaining({ name: 'session_id', pk: 2 }),
+        expect.objectContaining({ name: 'participant_id', pk: 3 }),
+      ]),
+    );
+    db.prepare(
+      'INSERT INTO campaign_public_applied_view VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    ).run('c', 's', 'p', 'root', 0, 0, 'authority', 'receipt', '2026-10-16');
+    const before = db
+      .prepare('SELECT * FROM campaign_public_applied_view')
+      .all();
+    db.prepare('DELETE FROM migrations WHERE version = 32').run();
+    resetSQLiteService();
+    getSQLiteService({ path: dbPath }).initialize();
+    db = getSQLiteService().getDatabase();
+    expect(
+      db.prepare('SELECT * FROM campaign_public_applied_view').all(),
+    ).toEqual(before);
+    expect(
+      db
+        .prepare('SELECT COUNT(*) AS n FROM migrations WHERE version = 32')
+        .get(),
+    ).toEqual({ n: 1 });
+  });
+
+  it('rolls back the applied-view schema when its migration record is rejected', () => {
+    getSQLiteService({ path: dbPath, maxMigrationVersion: 31 }).initialize();
+    const db = getSQLiteService().getDatabase();
+    const before = db
+      .prepare('SELECT * FROM migrations ORDER BY version')
+      .all();
+    db.exec(`CREATE TRIGGER reject_applied_view_migration BEFORE INSERT ON migrations
+      WHEN NEW.version = 32 BEGIN SELECT RAISE(ABORT, 'injected migration failure'); END`);
+    resetSQLiteService();
+    expect(() => getSQLiteService({ path: dbPath }).initialize()).toThrow(
+      'injected migration failure',
+    );
+    const failed = getSQLiteService().getDatabase();
+    expect(
+      failed
+        .prepare(
+          "SELECT name FROM sqlite_master WHERE name = 'campaign_public_applied_view'",
+        )
+        .get(),
+    ).toBeUndefined();
+    expect(
+      failed.prepare('SELECT * FROM migrations ORDER BY version').all(),
+    ).toEqual(before);
+  });
+
   it('fresh initialize renames campaigns.current_date to campaign_date (CURRENT_DATE builtin shadowing)', () => {
     getSQLiteService({ path: dbPath }).initialize();
     const db = getSQLiteService().getDatabase();
