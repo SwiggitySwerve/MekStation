@@ -11884,6 +11884,7 @@
       },
       "registration20261016": {
         "task": 65,
+        "selectorNote": "Plan task 65 scopedToken has no matching file; use the existing socketTokenScope.test.ts name instead.",
         "files": [],
         "selectors": [
           "node scripts/validate-multiplayer-packaged-socket.mjs",
@@ -12045,7 +12046,8 @@
           "src/lib/multiplayer/server/__tests__/CampaignSyncSession.test.ts"
         ],
         "selectors": [
-          "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --testPathPattern='campaignSyncTransport|CampaignSyncSession'"
+          "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --testPathPattern='CampaignSnapshot|campaignAuthoritativeFold|CampaignSyncSession'",
+          "npm.cmd run verify:qc:coop-campaign-journey"
         ],
         "predecessors": []
       }
@@ -12246,6 +12248,7 @@
       "splitFrom": "U101",
       "registration20261016": {
         "task": 65,
+        "selectorNote": "Plan task 65 scopedToken has no matching file; use the existing socketTokenScope.test.ts name instead.",
         "files": [
           "server.js",
           "scripts/validate-multiplayer-packaged-socket.mjs",
