@@ -13,11 +13,13 @@ import {
   GamePhase,
   GameEventType,
   GameSide,
+  type IGameSession,
 } from '@/types/gameplay';
 import {
   QuickGameStep,
   IQuickGameUnitRequest,
   createQuickGameInstance,
+  QUICK_GAME_STORAGE_KEY,
 } from '@/types/quickgame';
 import {
   createGameSession,
@@ -160,6 +162,156 @@ describe('Quick Game completion projection equivalence', () => {
       game: null,
       error: 'No active game or opponent force',
     });
+  });
+});
+
+describe('Quick Game recorded tactical completion adoption', () => {
+  const startedAt = '2026-10-13T06:00:00.000Z';
+  const endedAt = '2026-10-13T06:02:00.000Z';
+
+  function linkedActiveSession(): IGameSession {
+    const session = {
+      ...startGame(
+        createGameSession(
+          {
+            mapRadius: 7,
+            turnLimit: 30,
+            victoryConditions: ['elimination'],
+            optionalRules: [],
+          },
+          [],
+          { id: 'terminal-session-id' },
+        ),
+        GameSide.Player,
+      ),
+      matchId: 'terminal-match-id',
+    };
+    const game = createQuickGameInstance();
+    game.status = GameStatus.Active;
+    game.step = QuickGameStep.Playing;
+    game.activeTacticalSession = { id: session.matchId, mode: 'interactive' };
+    useQuickGameStore.setState({
+      game,
+      isLoading: false,
+      isDirty: false,
+      error: null,
+    });
+    return session;
+  }
+
+  beforeEach(() => {
+    jest.useFakeTimers().setSystemTime(new Date(startedAt));
+    useQuickGameStore.getState().clearGame();
+  });
+
+  afterEach(() => jest.useRealTimers());
+
+  it.each([
+    [GameSide.Player, 'objective', 'player'],
+    [GameSide.Opponent, 'concede', 'opponent'],
+    ['draw', 'aborted', 'draw'],
+    ['draw', 'destruction', 'draw'],
+    [GameSide.Player, 'turn_limit', 'player'],
+  ] as const)(
+    'atomically preserves recorded %s/%s decisions and terminal timing',
+    async (winner, reason, expectedWinner) => {
+      const active = linkedActiveSession();
+      const game = useQuickGameStore.getState().game!;
+      jest.setSystemTime(new Date(endedAt));
+      const terminal = endGame(active, winner, reason);
+      jest.setSystemTime(new Date('2026-10-13T07:00:00.000Z'));
+      const published: unknown[] = [];
+      const unsubscribe = useQuickGameStore.subscribe((state) =>
+        published.push(state.game),
+      );
+      useQuickGameStore
+        .getState()
+        .reconcileTacticalCompletion(game.id, terminal);
+      unsubscribe();
+      const expected = {
+        ...game,
+        status: GameStatus.Completed,
+        step: QuickGameStep.Results,
+        winner: expectedWinner,
+        victoryReason: reason,
+        endedAt,
+        events: terminal.events,
+        turn: terminal.currentState.turn,
+      };
+      expect(useQuickGameStore.getState().game).toEqual(expected);
+      expect(published).toEqual([expected]);
+      expect(
+        useQuickGameStore
+          .getState()
+          .game?.events.slice(0, active.events.length),
+      ).toEqual(active.events);
+      expect(useQuickGameStore.getState().game?.startedAt).toBe(startedAt);
+      const stored = await useQuickGameStore.persist
+        .getOptions()
+        .storage!.getItem(QUICK_GAME_STORAGE_KEY);
+      expect(stored?.state).toEqual({ game: expected });
+      expect(useQuickGameStore.getState().game?.endedAt).toBe(endedAt);
+    },
+  );
+
+  it('rejects Active input and a foreign completed match without mutation', () => {
+    const active = linkedActiveSession();
+    const before = useQuickGameStore.getState();
+    before.reconcileTacticalCompletion(before.game!.id, active);
+    expect(useQuickGameStore.getState()).toBe(before);
+    const foreign = {
+      ...endGame(active, GameSide.Opponent, 'concede'),
+      matchId: 'foreign-match-id',
+    };
+    before.reconcileTacticalCompletion(before.game!.id, foreign);
+    expect(useQuickGameStore.getState()).toBe(before);
+  });
+
+  it('rejects terminal state without the agreeing authoritative terminal event', () => {
+    const active = linkedActiveSession();
+    const terminal = endGame(active, GameSide.Opponent, 'concede');
+    const before = useQuickGameStore.getState();
+    before.reconcileTacticalCompletion(before.game!.id, {
+      ...terminal,
+      events: active.events,
+    });
+    expect(useQuickGameStore.getState()).toBe(before);
+    const differentDecision = endGame(active, GameSide.Player, 'objective');
+    before.reconcileTacticalCompletion(before.game!.id, {
+      ...terminal,
+      currentState: differentDecision.currentState,
+    });
+    expect(useQuickGameStore.getState()).toBe(before);
+  });
+
+  it('keeps repeated completion and stale input after Play Again nonmutating', () => {
+    const active = linkedActiveSession();
+    const game = useQuickGameStore.getState().game!;
+    const terminal = endGame(active, GameSide.Opponent, 'concede');
+    useQuickGameStore.getState().reconcileTacticalCompletion(game.id, terminal);
+    const completed = useQuickGameStore.getState();
+    completed.reconcileTacticalCompletion(game.id, terminal);
+    expect(useQuickGameStore.getState()).toBe(completed);
+    completed.playAgain(false);
+    const setup = useQuickGameStore.getState();
+    setup.reconcileTacticalCompletion(game.id, terminal);
+    expect(useQuickGameStore.getState()).toBe(setup);
+    expect(setup.game).toMatchObject({
+      status: GameStatus.Setup,
+      step: QuickGameStep.SelectUnits,
+      activeTacticalSession: null,
+      events: [],
+    });
+  });
+
+  it('does not adopt another quick game even when its tactical link matches', () => {
+    const active = linkedActiveSession();
+    const before = useQuickGameStore.getState();
+    before.reconcileTacticalCompletion(
+      'another-quick-game',
+      endGame(active, GameSide.Opponent, 'concede'),
+    );
+    expect(useQuickGameStore.getState()).toBe(before);
   });
 });
 

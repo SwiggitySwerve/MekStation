@@ -5,8 +5,55 @@ import type {
 } from '@/types/quickgame/QuickGameInterfaces';
 
 import { adaptUnit } from '@/engine/adapters/CompendiumAdapter';
-import { GameSide, GameStatus } from '@/types/gameplay';
+import {
+  GameEventType,
+  GameSide,
+  GameStatus,
+  type IGameSession,
+} from '@/types/gameplay';
 import { QuickGameStep } from '@/types/quickgame/QuickGameInterfaces';
+import { getGameEndedPayload } from '@/utils/gameplay/eventPayloads';
+
+export function getQuickGameCompletion(
+  game: IQuickGameInstance | null,
+  expectedGameId: string,
+  session: IGameSession | null,
+): {
+  winner: 'player' | 'opponent' | 'draw';
+  reason: string;
+  endedAt: string;
+} | null {
+  if (
+    !game ||
+    game.id !== expectedGameId ||
+    game.status !== GameStatus.Active ||
+    game.step !== QuickGameStep.Playing ||
+    !session ||
+    game.activeTacticalSession?.id !== (session.matchId ?? session.id) ||
+    session.currentState.status !== GameStatus.Completed ||
+    !session.currentState.result
+  )
+    return null;
+
+  const ended = session.events.find(
+    (event) => event.type === GameEventType.GameEnded,
+  );
+  const result = ended && getGameEndedPayload(ended);
+  if (
+    !ended ||
+    ended.gameId !== session.id ||
+    !result ||
+    result.winner !== session.currentState.result.winner ||
+    result.reason !== session.currentState.result.reason
+  )
+    return null;
+
+  return {
+    winner: quickGameWinner(result.winner),
+    reason: result.reason,
+    endedAt: ended.timestamp,
+  };
+}
 
 export function quickGameWinner(
   winner: GameSide | 'draw' | undefined,

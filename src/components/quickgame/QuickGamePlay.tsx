@@ -15,6 +15,7 @@ import { navigateToGameSession } from '@/lib/gameplay/tacticalNavigation';
 import GameSessionPage from '@/pages/gameplay/games/[id]';
 import { useGameplaySelector } from '@/stores/useGameplayStore';
 import { useQuickGameSelector } from '@/stores/useQuickGameStore';
+import { getQuickGameCompletion } from '@/stores/useQuickGameStore.helpers';
 import { GameStatus } from '@/types/gameplay';
 
 // =============================================================================
@@ -102,20 +103,30 @@ export function QuickGamePlay(): React.ReactElement {
   const error = useQuickGameSelector((state) => state.error);
   const startBattle = useQuickGameSelector((state) => state.startBattle);
   const playAgain = useQuickGameSelector((state) => state.playAgain);
+  const reconcileTacticalCompletion = useQuickGameSelector(
+    (state) => state.reconcileTacticalCompletion,
+  );
   const interactiveSession = useGameplaySelector(
     (state) => state.interactiveSession,
   );
   const session = useGameplaySelector((state) => state.session);
   const spectatorMode = useGameplaySelector((state) => state.spectatorMode);
-  const hasLiveTacticalSession =
-    Boolean(interactiveSession) || spectatorMode?.enabled === true;
   const liveTacticalSessionId = session?.matchId ?? session?.id;
+  const persistedTacticalSession = game?.activeTacticalSession;
+  const hasLiveTacticalSession =
+    session?.currentState.status === GameStatus.Active &&
+    (!persistedTacticalSession ||
+      persistedTacticalSession.id === liveTacticalSessionId) &&
+    (Boolean(interactiveSession) || spectatorMode?.enabled === true);
+  const quickGameId = game?.id;
+  const hasRecordedCompletion = Boolean(
+    game && getQuickGameCompletion(game, game.id, session),
+  );
   const isGameSessionRoute =
     router.asPath?.startsWith('/gameplay/games/') === true ||
     (typeof window !== 'undefined' &&
       window.location.pathname.startsWith('/gameplay/games/'));
 
-  const persistedTacticalSession = game?.activeTacticalSession;
   const tacticalSessionId = hasLiveTacticalSession
     ? liveTacticalSessionId
     : persistedTacticalSession?.id;
@@ -129,8 +140,19 @@ export function QuickGamePlay(): React.ReactElement {
   const [failedRoute, setFailedRoute] = useState<string | null>(null);
 
   useEffect(() => {
+    if (hasRecordedCompletion && quickGameId && session)
+      reconcileTacticalCompletion(quickGameId, session);
+  }, [
+    hasRecordedCompletion,
+    quickGameId,
+    session,
+    reconcileTacticalCompletion,
+  ]);
+
+  useEffect(() => {
     if (
       game?.status !== GameStatus.Active ||
+      hasRecordedCompletion ||
       isLoading ||
       !tacticalSessionId ||
       isGameSessionRoute
@@ -161,6 +183,7 @@ export function QuickGamePlay(): React.ReactElement {
   }, [
     failedRoute,
     game?.status,
+    hasRecordedCompletion,
     isGameSessionRoute,
     isLoading,
     router,

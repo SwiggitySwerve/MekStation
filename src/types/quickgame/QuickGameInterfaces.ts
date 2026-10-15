@@ -5,7 +5,12 @@
  * @spec openspec/changes/add-quick-session-mode/proposal.md
  */
 
-import { GameStatus, GamePhase, IGameEvent } from '../gameplay';
+import {
+  GameStatus,
+  GamePhase,
+  IGameEvent,
+  type IGameSession,
+} from '../gameplay';
 import { IGeneratedScenario } from '../scenario';
 
 // =============================================================================
@@ -263,6 +268,11 @@ export interface IQuickGameActions {
   recordEvent: (event: IGameEvent) => void;
   /** End the game */
   endGame: (winner: 'player' | 'opponent' | 'draw', reason: string) => void;
+  /** Adopt a recorded terminal result only for the same linked quick game. */
+  reconcileTacticalCompletion: (
+    expectedGameId: string,
+    session: IGameSession,
+  ) => void;
   /** Reset for a new game with same units */
   playAgain: (resetUnits: boolean) => void;
   /** Clear the current game */

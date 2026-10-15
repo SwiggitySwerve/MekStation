@@ -8,11 +8,17 @@ import {
 import React from 'react';
 
 import { navigateToGameSession } from '@/lib/gameplay/tacticalNavigation';
-import { GameStatus } from '@/types/gameplay';
+import { GameStatus, GameSide, type IGameSession } from '@/types/gameplay';
 import { QuickGameStep } from '@/types/quickgame';
+import {
+  createGameSession,
+  startGame,
+  endGame,
+} from '@/utils/gameplay/gameSession';
 
 const mockStartBattle = jest.fn();
 const mockPlayAgain = jest.fn();
+const mockReconcileTacticalCompletion = jest.fn();
 const mockNavigateToGameSession = navigateToGameSession as jest.MockedFunction<
   typeof navigateToGameSession
 >;
@@ -49,10 +55,11 @@ const mockQuickGameState = {
   error: null as string | null,
   startBattle: mockStartBattle,
   playAgain: mockPlayAgain,
+  reconcileTacticalCompletion: mockReconcileTacticalCompletion,
 };
 
 const mockGameplayState = {
-  session: null as { id: string; matchId?: string } | null,
+  session: null as IGameSession | null,
   interactiveSession: null as { id: string } | null,
   spectatorMode: null as { enabled: boolean } | null,
 };
@@ -84,10 +91,30 @@ jest.mock('@/pages/gameplay/games/[id]', () => ({
 
 import { QuickGamePlay } from '../QuickGamePlay';
 
+function activeSession(id: string, matchId?: string): IGameSession {
+  return {
+    ...startGame(
+      createGameSession(
+        {
+          mapRadius: 7,
+          turnLimit: 30,
+          victoryConditions: ['elimination'],
+          optionalRules: [],
+        },
+        [],
+        { id },
+      ),
+      GameSide.Player,
+    ),
+    ...(matchId ? { matchId } : {}),
+  };
+}
+
 describe('QuickGamePlay live tactical session guard', () => {
   beforeEach(() => {
     mockStartBattle.mockClear();
     mockPlayAgain.mockClear();
+    mockReconcileTacticalCompletion.mockClear();
     mockNavigateToGameSession.mockClear();
     mockRouterPush.mockReset().mockResolvedValue(true);
     mockRouterAsPath = '/gameplay/quick';
@@ -152,7 +179,7 @@ describe('QuickGamePlay live tactical session guard', () => {
   });
 
   it('does not auto-resolve over a live interactive tactical session', async () => {
-    mockGameplayState.session = { id: 'interactive-session' };
+    mockGameplayState.session = activeSession('interactive-session');
     mockGameplayState.interactiveSession = { id: 'interactive-session' };
 
     render(<QuickGamePlay />);
@@ -169,7 +196,7 @@ describe('QuickGamePlay live tactical session guard', () => {
   });
 
   it('requests the same tactical route only once across rerenders', () => {
-    mockGameplayState.session = { id: 'interactive-session' };
+    mockGameplayState.session = activeSession('interactive-session');
     mockGameplayState.interactiveSession = { id: 'interactive-session' };
 
     const { rerender } = render(<QuickGamePlay />);
@@ -178,7 +205,7 @@ describe('QuickGamePlay live tactical session guard', () => {
 
     expect(mockNavigateToGameSession).toHaveBeenCalledTimes(1);
 
-    mockGameplayState.session = { id: 'next-session' };
+    mockGameplayState.session = activeSession('next-session');
     rerender(<QuickGamePlay />);
     expect(mockNavigateToGameSession).toHaveBeenCalledTimes(2);
     expect(mockNavigateToGameSession).toHaveBeenLastCalledWith(
@@ -189,7 +216,7 @@ describe('QuickGamePlay live tactical session guard', () => {
   });
 
   it('does not push again after reaching a tactical session route', () => {
-    mockGameplayState.session = { id: 'interactive-session' };
+    mockGameplayState.session = activeSession('interactive-session');
     mockGameplayState.interactiveSession = { id: 'interactive-session' };
     const { rerender } = render(<QuickGamePlay />);
     mockRouterAsPath = '/gameplay/games/interactive-session';
@@ -199,10 +226,10 @@ describe('QuickGamePlay live tactical session guard', () => {
   });
 
   it('does not auto-resolve over an active spectator tactical session', async () => {
-    mockGameplayState.session = {
-      id: 'spectator-session',
-      matchId: 'spectator-match',
-    };
+    mockGameplayState.session = activeSession(
+      'spectator-session',
+      'spectator-match',
+    );
     mockGameplayState.spectatorMode = { enabled: true };
 
     render(<QuickGamePlay />);
@@ -229,7 +256,7 @@ describe('QuickGamePlay live tactical session guard', () => {
             reject = no;
           }),
       );
-      mockGameplayState.session = { id: 'interactive-session' };
+      mockGameplayState.session = activeSession('interactive-session');
       mockGameplayState.interactiveSession = { id: 'interactive-session' };
       const { rerender } = render(<QuickGamePlay />);
       rerender(<QuickGamePlay />);
@@ -267,7 +294,7 @@ describe('QuickGamePlay live tactical session guard', () => {
           resolve = yes;
         }),
     );
-    mockGameplayState.session = { id: 'interactive-session' };
+    mockGameplayState.session = activeSession('interactive-session');
     mockGameplayState.interactiveSession = { id: 'interactive-session' };
     const { rerender } = render(<QuickGamePlay />);
     rerender(<QuickGamePlay />);
@@ -287,10 +314,10 @@ describe('QuickGamePlay live tactical session guard', () => {
           resolve = yes;
         }),
     );
-    mockGameplayState.session = { id: 'old-session' };
+    mockGameplayState.session = activeSession('old-session');
     mockGameplayState.interactiveSession = { id: 'old-session' };
     const { rerender } = render(<QuickGamePlay />);
-    mockGameplayState.session = { id: 'new-session' };
+    mockGameplayState.session = activeSession('new-session');
     rerender(<QuickGamePlay />);
     expect(mockRouterPush).toHaveBeenCalledTimes(2);
     await act(async () => resolve(false));
@@ -298,4 +325,48 @@ describe('QuickGamePlay live tactical session guard', () => {
     rerender(<QuickGamePlay />);
     expect(mockRouterPush).toHaveBeenCalledTimes(2);
   });
+
+  it('adopts matching recorded completion without routing from the stale Active render', () => {
+    const session = endGame(
+      activeSession('completed-session'),
+      GameSide.Opponent,
+      'concede',
+    );
+    mockQuickGameState.game.activeTacticalSession = {
+      id: session.id,
+      mode: 'interactive',
+    };
+    mockGameplayState.session = session;
+    mockGameplayState.interactiveSession = { id: session.id };
+    render(<QuickGamePlay />);
+    expect(mockReconcileTacticalCompletion).toHaveBeenCalledWith(
+      'quick-game-1',
+      session,
+    );
+    expect(mockNavigateToGameSession).not.toHaveBeenCalled();
+    expect(mockStartBattle).not.toHaveBeenCalled();
+  });
+
+  it.each([GameStatus.Active, GameStatus.Completed])(
+    'keeps the linked target when a foreign %s session is retained',
+    (status) => {
+      const active = activeSession('foreign-session');
+      mockGameplayState.session =
+        status === GameStatus.Active
+          ? active
+          : endGame(active, GameSide.Opponent, 'concede');
+      mockGameplayState.interactiveSession = { id: 'foreign-session' };
+      mockQuickGameState.game.activeTacticalSession = {
+        id: 'linked-session',
+        mode: 'spectator',
+      };
+      render(<QuickGamePlay />);
+      expect(mockReconcileTacticalCompletion).not.toHaveBeenCalled();
+      expect(mockNavigateToGameSession).toHaveBeenCalledWith(
+        'linked-session',
+        expect.objectContaining({ push: mockRouterPush }),
+        { spectator: true },
+      );
+    },
+  );
 });
