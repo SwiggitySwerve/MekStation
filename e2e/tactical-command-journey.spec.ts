@@ -44,7 +44,10 @@ test.beforeEach(async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
 });
 
-async function startInteractiveQuickSkirmish(page: Page): Promise<void> {
+async function startInteractiveQuickSkirmish(
+  page: Page,
+  unitNames: readonly RegExp[] = [/Atlas AS7-D/i, /Marauder MAD-3R/i],
+): Promise<void> {
   await page.goto('/gameplay/quick', { waitUntil: 'domcontentloaded' });
   await expect(page).toHaveURL(/\/gameplay\/quick/);
 
@@ -58,8 +61,9 @@ async function startInteractiveQuickSkirmish(page: Page): Promise<void> {
   await expect(
     page.getByRole('heading', { name: /select your units/i }),
   ).toBeVisible();
-  await page.getByRole('button', { name: /Atlas AS7-D/i }).click();
-  await page.getByRole('button', { name: /Marauder MAD-3R/i }).click();
+  for (const name of unitNames) {
+    await page.getByRole('button', { name }).click();
+  }
   await page.getByTestId('next-step-btn').click();
 
   await expect(
@@ -76,6 +80,178 @@ async function startInteractiveQuickSkirmish(page: Page): Promise<void> {
     timeout: 20_000,
   });
   await expect(page.getByTestId('tactical-action-dock')).toBeVisible();
+}
+
+interface PhysicalLayoutSession {
+  readonly events: readonly { readonly type: string }[];
+  readonly currentState: {
+    readonly phase: string;
+    readonly units: Readonly<
+      Record<
+        string,
+        {
+          readonly id: string;
+          readonly side: string;
+          readonly destroyed?: boolean;
+        }
+      >
+    >;
+  };
+}
+
+interface PhysicalLayoutStore {
+  getState: () => {
+    readonly session: PhysicalLayoutSession | null;
+    readonly interactiveSession: {
+      advancePhase: () => void;
+      completePhysicalAttack: (unitId: string) => void;
+      getSession: () => PhysicalLayoutSession;
+    } | null;
+    setSession: (session: PhysicalLayoutSession) => void;
+    selectUnit: (unitId: string) => void;
+  };
+}
+
+async function preparePhysicalLayout(page: Page): Promise<void> {
+  await page.evaluate(() => {
+    const gameplay = window.__ZUSTAND_STORES__?.gameplay as
+      | PhysicalLayoutStore
+      | undefined;
+    const interactive = gameplay?.getState().interactiveSession;
+    if (!gameplay || !interactive)
+      throw new Error('Interactive fixture missing');
+    for (let i = 0; i < 6; i += 1) {
+      if (interactive.getSession().currentState.phase === 'physical_attack')
+        break;
+      interactive.advancePhase();
+    }
+    const session = interactive.getSession();
+    if (session.currentState.phase !== 'physical_attack') {
+      throw new Error('Physical fixture did not reach the required phase');
+    }
+    const player = Object.values(session.currentState.units).find(
+      (unit) => unit.side === 'player' && !unit.destroyed,
+    );
+    if (!player) throw new Error('Physical fixture has no living player');
+    for (const unit of Object.values(session.currentState.units)) {
+      if (unit.side === 'opponent' && !unit.destroyed) {
+        interactive.completePhysicalAttack(unit.id);
+      }
+    }
+    gameplay.getState().setSession(interactive.getSession());
+    gameplay.getState().selectUnit(player.id);
+  });
+}
+
+async function readPhysicalLayoutProof(page: Page) {
+  return page.evaluate(() => {
+    const gameplay = window.__ZUSTAND_STORES__?.gameplay as
+      | PhysicalLayoutStore
+      | undefined;
+    const session = gameplay?.getState().session;
+    if (!session) throw new Error('Physical fixture session missing');
+    return {
+      phase: session.currentState.phase,
+      eventCount: session.events.length,
+      phaseChanges: session.events.filter(
+        (event) => event.type === 'phase_changed',
+      ).length,
+    };
+  });
+}
+
+for (const viewport of [
+  { width: 1280, height: 720 },
+  { width: 1018, height: 876 },
+]) {
+  test(`physical planning preserves pointer access to phase controls at ${viewport.width}x${viewport.height} @game @combat @command-screen`, async ({
+    page,
+  }, testInfo) => {
+    await page.setViewportSize(viewport);
+    const nativeDialogs: string[] = [];
+    page.on('dialog', async (dialog) => {
+      nativeDialogs.push(dialog.type());
+      await dialog.dismiss();
+    });
+    await startInteractiveQuickSkirmish(page, [/Atlas AS7-D/i]);
+    await preparePhysicalLayout(page);
+    const planning = page.getByTestId('combat-planning-panel-physical');
+    await expect(planning).toBeVisible();
+    expect(
+      await planning.locator('[data-testid^="weapon-row-"]').count(),
+    ).toBeGreaterThanOrEqual(6);
+    const skip = page.getByTestId('physical-attack-skip-button');
+    await skip.scrollIntoViewIfNeeded();
+    await skip.click();
+    const endPhase = page.getByTestId('command-btn-heat-end.end-phase');
+    await expect(endPhase).toBeEnabled();
+    const before = await readPhysicalLayoutProof(page);
+    expect(before.phase).toBe('physical_attack');
+    await endPhase.scrollIntoViewIfNeeded();
+    const hitProof = await endPhase.evaluate((button) => {
+      const rect = button.getBoundingClientRect();
+      const center = {
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2,
+      };
+      const hit = document.elementFromPoint(center.x, center.y);
+      const ancestors = [];
+      for (
+        let parent = button.parentElement;
+        parent;
+        parent = parent.parentElement
+      ) {
+        const box = parent.getBoundingClientRect();
+        const css = getComputedStyle(parent);
+        ancestors.push({
+          testId: parent.getAttribute('data-testid'),
+          rect: { x: box.x, y: box.y, width: box.width, height: box.height },
+          clientHeight: parent.clientHeight,
+          scrollHeight: parent.scrollHeight,
+          scrollTop: parent.scrollTop,
+          overflowY: css.overflowY,
+          minHeight: css.minHeight,
+        });
+      }
+      return {
+        rect: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
+        center,
+        viewport: { width: innerWidth, height: innerHeight },
+        centerInViewport:
+          center.x >= 0 &&
+          center.x < innerWidth &&
+          center.y >= 0 &&
+          center.y < innerHeight,
+        receivesPointer:
+          hit === button || (hit !== null && button.contains(hit)),
+        hitTestId: hit?.getAttribute('data-testid'),
+        hitTag: hit?.tagName,
+        ancestors,
+      };
+    });
+    await testInfo.attach('physical-dock-hit-test.json', {
+      body: JSON.stringify({ viewport, before, hitProof }, null, 2),
+      contentType: 'application/json',
+    });
+    expect(hitProof.viewport).toEqual(viewport);
+    expect(hitProof.centerInViewport).toBe(true);
+    expect(hitProof.receivesPointer, JSON.stringify(hitProof)).toBe(true);
+    await endPhase.click();
+    const dialog = page.getByRole('dialog', { name: 'End Phase?' });
+    await expect(dialog).toBeVisible();
+    await dialog.getByRole('button', { name: /^Cancel$/ }).click();
+    expect(await readPhysicalLayoutProof(page)).toEqual(before);
+    await endPhase.click();
+    await expect(dialog).toBeVisible();
+    await dialog.getByRole('button', { name: 'Confirm End Phase' }).click();
+    await expect
+      .poll(async () => (await readPhysicalLayoutProof(page)).phase)
+      .toBe('heat');
+    const after = await readPhysicalLayoutProof(page);
+    expect(after.phaseChanges).toBe(before.phaseChanges + 1);
+    await expect(dialog).toBeHidden();
+    expect(nativeDialogs).toEqual([]);
+  });
 }
 
 async function normalizeToPlayerMovementPhase(

@@ -203,6 +203,48 @@ it('advances a completed physical activation queue to Heat after confirmation', 
   expect(screen.queryByTestId('physical-attack-panel')).not.toBeInTheDocument();
 });
 
+it('keeps physical dock confirmation through animation-only parent recomposition', async () => {
+  const battle = await createBattle();
+  battle.advancePhase();
+  battle.advancePhase();
+  expect(battle.getState().phase).toBe(GamePhase.PhysicalAttack);
+  useGameplayStore.getState().setInteractiveSession(battle);
+  useGameplayStore.getState().selectUnit('warhammer');
+  render(<GameSessionPage />);
+  await waitFor(() => expect(battle.getState().activationIndex).toBe(1));
+  fireEvent.click(screen.getByTestId('physical-attack-skip-button'));
+  await waitFor(() => expect(battle.getState().activationIndex).toBe(3));
+  expect(screen.getByTestId('sp-advance-phase-button')).toBeEnabled();
+  const before = battle.getSession().events.length;
+  const nativeConfirm = jest.spyOn(window, 'confirm').mockImplementation(() => {
+    throw new Error('Native confirmation must not block the physical phase');
+  });
+  fireEvent.click(screen.getByTestId('command-btn-heat-end.end-phase'));
+  expect(screen.getByRole('dialog', { name: 'End Phase?' })).toBeVisible();
+
+  act(() => {
+    useAnimationQueue.getState().enqueue({
+      id: 'confirmation-presentation-refresh',
+      mapId: 'presentation-only',
+      kind: 'effect',
+    });
+  });
+  expect(battle.getState().phase).toBe(GamePhase.PhysicalAttack);
+  expect(battle.getSession().events).toHaveLength(before);
+  expect(screen.getByRole('dialog', { name: 'End Phase?' })).toBeVisible();
+  act(() =>
+    useAnimationQueue.getState().complete('confirmation-presentation-refresh'),
+  );
+  fireEvent.click(screen.getByRole('button', { name: /^Cancel$/ }));
+  expect(battle.getSession().events).toHaveLength(before);
+  fireEvent.click(screen.getByTestId('command-btn-heat-end.end-phase'));
+  fireEvent.click(screen.getByRole('button', { name: 'Confirm End Phase' }));
+
+  expect(battle.getState().phase).toBe(GamePhase.Heat);
+  expect(nativeConfirm).not.toHaveBeenCalled();
+  nativeConfirm.mockRestore();
+});
+
 it('uses the composer forecast without a separate placeholder hit-chance card', async () => {
   const battle = await createBattle();
   battle.advancePhase();
