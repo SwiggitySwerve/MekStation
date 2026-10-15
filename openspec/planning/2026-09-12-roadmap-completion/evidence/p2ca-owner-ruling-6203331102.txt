@@ -1,0 +1,2 @@
+OWNER-RULING 293ae722b06a1c5349d77673778a1c3f35f14a62
+Rule the exact storage head. Owner ruling on Task 9 / P2CA (durable public applied-view storage) at head 293ae722b06a1c5349d77673778a1c3f35f14a62, approved with the Opus exact-head review notes. This PR was merged (230bad2b) before this ruling was recorded; the ruling is entered on the merged head so the ledger can be closed.

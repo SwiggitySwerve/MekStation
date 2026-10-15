@@ -1,0 +1,61 @@
+{
+  "unit": "P2CA",
+  "stage": "mainProof",
+  "recordedAt": "2026-10-15T22:13:26.053Z",
+  "mergeCommit": "230bad2bfaa01f94ea9bfd877c7f8d8acc7118ff",
+  "verdict": "PASS",
+  "checkout": "E:/Projects/Personal/MekStation-wt/p2cd-offers-20261016",
+  "runtime": {
+    "playwright": "Source/Main Jest: Tests:       41 passed, 41 total",
+    "suites": "4 passed, 4 total",
+    "tsc": "npm.cmd run typecheck: exit 0"
+  },
+  "proof": {
+    "path": "evidence/p2ca-mainproof-230bad2b.bytes.json",
+    "encoding": "base64",
+    "payloadSha256": "88a538120c546728fe42b3747602f0caffe6a7c59a839f7f5bec3e4f6862d5e0",
+    "payloadBytes": 3227,
+    "originalPath": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-9-20261016/mainproof-230bad2b.md"
+  },
+  "logs": [
+    {
+      "path": "evidence/mainproof-230bad2b-tests.bytes.json",
+      "encoding": "base64",
+      "payloadSha256": "90578641dae2ceee8edf76a83b5c91b467b912ce35f0a4d55eb5e6e47407cf1c",
+      "payloadBytes": 1391
+    },
+    {
+      "path": "evidence/mainproof-230bad2b-typecheck.bytes.json",
+      "encoding": "base64",
+      "payloadSha256": "452277e651c4f2869976562ce3f5de434754eb0c262fafa76a4a412a5de75070",
+      "payloadBytes": 286
+    },
+    {
+      "path": "evidence/mainproof-230bad2b-install.bytes.json",
+      "encoding": "base64",
+      "payloadSha256": "0e0ece5bb4649fa88b86702b4e7ea095536d5af45863e44deb34b7499ab32e33",
+      "payloadBytes": 2108
+    }
+  ],
+  "scope": "Transcription of the existing exact-main storage/migration proof. No fresh runtime, browser, full-stable or generic build result is claimed.",
+  "closure": "main-verified only. taskKeys is empty; no tasks.md row is ticked and no tick receipt is invented. Source/closure owned-resource cleanup is not established by the supplied proof.",
+  "preservation": "The original mixed/CRLF proof and logs are base64 envelopes so repository LF normalization cannot alter their exact bytes. Decode data and verify payloadSha256/payloadBytes.",
+  "closureValidation": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --git --github",
+    "exitCode": 0,
+    "output": "ROADMAP VALIDATION PASSED: 79 nodes, 13 packages, 381 tasks, 40 triage rows",
+    "next": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+      "exitCode": 0,
+      "output": "P2CD"
+    },
+    "validatorTests": {
+      "command": "node --test openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
+      "exitCode": 0,
+      "tests": 86,
+      "passed": 86,
+      "failed": 0
+    },
+    "scope": "Closure metadata validation; the runtime proof remains bound to source merge 230bad2bfaa01f94ea9bfd877c7f8d8acc7118ff."
+  }
+}

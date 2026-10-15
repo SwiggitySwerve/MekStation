@@ -1,0 +1,42 @@
+{
+  "unit": "P2CA",
+  "stage": "review",
+  "recordedAt": "2026-10-15T22:13:26.053Z",
+  "head": "293ae722b06a1c5349d77673778a1c3f35f14a62",
+  "reviewedHead": "293ae722b06a1c5349d77673778a1c3f35f14a62",
+  "reviewerModel": "claude-opus-5-5",
+  "implementerModel": "gpt-6.1-sol",
+  "verdict": "APPROVE-WITH-NOTES",
+  "outputPath": "evidence/p2ca-packet-opus-review-r2-20261016.txt",
+  "outputSha256": "a1b104aed48ff79217a39db21a1472f89035fb9aded0836949607528e72ab7af",
+  "reviews": [
+    {
+      "path": "evidence/p2ca-source-opus-review-20261015.txt",
+      "sha256": "0a09c0845650f69742fe728a36cf05a61fc6fd254dca74e57406e1fdc44d20d3",
+      "bytes": 16974,
+      "originalPath": "docs/audits/2026-10-15-task9-p2ca-opus-review.md",
+      "reviewedHead": "e921a69f3cfa92f97a4aa03395fd145f0b567df6"
+    },
+    {
+      "path": "evidence/p2ca-packet-opus-review-r2-20261016.txt",
+      "sha256": "a1b104aed48ff79217a39db21a1472f89035fb9aded0836949607528e72ab7af",
+      "bytes": 20599,
+      "originalPath": "docs/audits/2026-10-16-task9-p2ca-packet-opus-review-r2.md",
+      "reviewedHead": "293ae722b06a1c5349d77673778a1c3f35f14a62"
+    }
+  ],
+  "scope": "Original storage review plus exact-head packet/merge delta review; both source artifacts preserved byte for byte.",
+  "ciQualification": "The delta review observed 29/31 passing checks. A subsequent rerun on the same unchanged head now reports all 31 successful checks in run 38810066031.",
+  "laneB": {
+    "ruledHead": "293ae722b06a1c5349d77673778a1c3f35f14a62",
+    "pr": 2135,
+    "commentId": 6203331102,
+    "author": "SwiggitySwerve",
+    "bodySha256": "9be55710da8fb3a0793bf9f60a7c4a00cf4fa64464de683b74a4ee4b4091623a",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2135#issuecomment-6203331102",
+    "bodyPath": "evidence/p2ca-owner-ruling-6203331102.txt"
+  },
+  "chronology": "The owner ruling was recorded after the source merge, as explicitly acknowledged in the ruling body. This transcription does not claim a premerge ruling.",
+  "identityScope": "Preserves the existing unversioned P2CA local receipt and actual cross-model review provenance. No v2/v3 identity manifest or engine observation is claimed.",
+  "githubApproval": "Lane A engineering evidence only; no GitHub approval claimed."
+}
