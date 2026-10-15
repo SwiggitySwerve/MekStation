@@ -424,8 +424,10 @@ describe('event history branches SQLite migration', () => {
 
     resetSQLiteService();
     const raw = new Database(dbPath);
+    // The runner resumes above MAX(version), so remove the entire ledger tail
+    // while keeping the schema intact to exercise idempotent guard replay.
     raw
-      .prepare('DELETE FROM migrations WHERE version = ?')
+      .prepare('DELETE FROM migrations WHERE version >= ?')
       .run(EVENT_HISTORY_BRANCH_INTEGRITY_MIGRATION.version);
     raw.close();
 

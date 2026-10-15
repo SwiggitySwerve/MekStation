@@ -83,6 +83,30 @@
       "bytes": null
     }
   ],
+  "scopeCorrectionRound2": {
+    "recordedAt": "2026-10-15T19:43:31Z",
+    "authority": "Explicit Task9/P2CA round-2 delegation: add the hosted-CI regression fix before writing; retain 15 files / 500 product lines.",
+    "addedPath": "src/services/persistence/__tests__/SQLiteService.historyBranches.migration.test.ts",
+    "preEditSha256": "375e2d1adf796a0e00885c0e11a444f22b53549c001457b4d1ef5428f684c729",
+    "preEditBytes": 17412,
+    "reason": "Run 38793244696 exposed a test assumption that migration 31 is latest. SQLiteService resumes above MAX(version); existing v4/v7 recovery tests delete the ledger tail. Delete records at or above the integrity migration to replay its guards with any later catalog entries.",
+    "measuredBeforeWrite": {
+      "files": 11,
+      "productAddedLines": 268,
+      "lifecycleAddedLines": 16,
+      "countedAddedLines": 284,
+      "testAddedLines": 368
+    },
+    "frozenAfterCorrection": {
+      "files": 12,
+      "productAddedLines": 268,
+      "lifecycleAddedLines": 16,
+      "countedAddedLines": 284,
+      "testAddedLines": 371
+    },
+    "accounting": "Baseline ba8007f2dfea7786a3823145eb999e308c97f3fa; additions without deletion credit. Two explanatory comments plus the changed SQL line add three test lines. Evidence additions are separate; every evidence file counts toward 15.",
+    "packetDisposition": "Proposal only: P2CA.lifecycleOwnershipLimit excludes packet edits. No validator, packet, ruling, ownership or cap edit."
+  },
   "reviewSlot": "Reserved for independent reviewer; author must not write review",
   "summary": "Ordinary admission under D1; native capture decoupled. No merge or Main claim."
 }
