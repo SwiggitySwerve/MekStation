@@ -12,6 +12,7 @@ import {
   IGameEvent,
   GameEventType,
   GameSide,
+  GameStatus,
   IGameConfig,
   IUnitGameState,
   IUnitDestroyedPayload,
@@ -35,6 +36,7 @@ export type VictoryReason =
   | 'turn_limit'
   | 'objective'
   | 'concede'
+  | 'aborted'
   | 'timeout';
 
 /**
@@ -162,6 +164,9 @@ function generateVictoryDescription(
       }
 
     case 'concede':
+      if (winner === 'draw') {
+        return 'Match ended by concession with no winner.';
+      }
       if (winner === 'player') {
         return 'Victory! Enemy forces withdrew.';
       } else {
@@ -170,6 +175,9 @@ function generateVictoryDescription(
 
     case 'timeout':
       return 'Game timed out. No winner determined.';
+
+    case 'aborted':
+      return 'Battle aborted. No winner determined.';
 
     default:
       return 'Game ended.';
@@ -193,6 +201,26 @@ function objectiveOutcomeDecision(
       objectiveOutcome.winningSide === GameSide.Player ? 'player' : 'opponent',
     reason: 'objective',
   };
+}
+
+function completedOutcomeDecision(state: IGameState): IOutcomeDecision | null {
+  const result = state.result;
+  if (state.status !== GameStatus.Completed || !result) return null;
+
+  let reason: VictoryReason;
+  if (result.reason === 'destruction') {
+    reason = result.winner === 'draw' ? 'mutual_destruction' : 'elimination';
+  } else if (
+    result.reason === 'concede' ||
+    result.reason === 'turn_limit' ||
+    result.reason === 'objective' ||
+    result.reason === 'aborted'
+  ) {
+    reason = result.reason;
+  } else {
+    return null;
+  }
+  return { winner: result.winner, reason };
 }
 
 function eliminationOutcomeDecision(
@@ -280,9 +308,10 @@ export function calculateGameOutcome(
     state.units,
   );
 
-  // Objective wins are evaluated before destruction and turn-limit paths.
+  // Recorded terminal decisions are final; evaluate objectives only when needed.
   // Markerless destroy scenarios fall through to the richer elimination labels.
   const decision =
+    completedOutcomeDecision(state) ??
     objectiveOutcomeDecision(state, config.turnLimit) ??
     eliminationOutcomeDecision(playerEliminated, opponentEliminated) ??
     turnLimitOutcomeDecision(state, events, config.turnLimit) ??

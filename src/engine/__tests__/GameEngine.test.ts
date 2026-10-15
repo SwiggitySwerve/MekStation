@@ -8,6 +8,7 @@ import { Faction } from '@/constants/scenario/rats';
 import {
   calculateGameOutcome,
   calculateCombatStats,
+  calculateOutcomeFromEvents,
 } from '@/services/game-resolution/GameOutcomeCalculator';
 import { ScenarioGeneratorService } from '@/services/generators/ScenarioGeneratorService';
 import { MAX_TURNS } from '@/simulation/runner/SimulationRunnerConstants';
@@ -24,6 +25,7 @@ import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
 import { TerrainType } from '@/types/gameplay/TerrainTypes';
 import { BiomeType, ScenarioObjectiveType } from '@/types/scenario';
 import { Era } from '@/types/temporal/Era';
+import { endGame } from '@/utils/gameplay/gameSession';
 
 import type { IAdaptedUnit } from '../types';
 
@@ -465,6 +467,70 @@ describe('GameEngine', () => {
 
     it('should return null for getResult when game not over', () => {
       expect(interactive.getResult()).toBeNull();
+    });
+
+    it.each([
+      [GameSide.Player, GameSide.Opponent],
+      [GameSide.Opponent, GameSide.Player],
+    ])(
+      'reports the recorded concession through public and replay results for %s',
+      (side, winner) => {
+        const before = interactive.getSession();
+        interactive.concede(side);
+        const completed = interactive.getSession();
+        expect(completed.currentState.result).toEqual({
+          winner,
+          reason: 'concede',
+        });
+        expect(completed.events.slice(0, before.events.length)).toEqual(
+          before.events,
+        );
+        expect(interactive.getResult()).toMatchObject({
+          winner,
+          reason: 'concede',
+        });
+        expect(
+          calculateOutcomeFromEvents(
+            completed.id,
+            completed.events,
+            completed.config,
+            completed.createdAt,
+            completed.updatedAt,
+          ),
+        ).toMatchObject({ winner, reason: 'concede' });
+      },
+    );
+
+    it('reports an actual abort without reclassifying it as an objective', () => {
+      interactive.abortMatch();
+      expect(interactive.getSession().currentState.result).toEqual({
+        winner: 'draw',
+        reason: 'aborted',
+      });
+      expect(interactive.getResult()).toMatchObject({
+        winner: 'draw',
+        reason: 'aborted',
+      });
+    });
+
+    it('preserves a public explicit draw by concession after event rehydration', () => {
+      const completed = endGame(interactive.getSession(), 'draw', 'concede');
+      const result = calculateOutcomeFromEvents(
+        completed.id,
+        completed.events,
+        completed.config,
+        completed.createdAt,
+        completed.updatedAt,
+      );
+      expect(result).toMatchObject({
+        winner: 'draw',
+        reason: 'concede',
+        description: 'Match ended by concession with no winner.',
+      });
+      expect(completed.currentState.result).toEqual({
+        winner: 'draw',
+        reason: 'concede',
+      });
     });
 
     it('threads a configured terrain grid into interactive sessions', () => {

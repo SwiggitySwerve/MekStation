@@ -160,6 +160,81 @@ function makeDamageEvent(targetUnitId: string, damage: number): IGameEvent {
 
 describe('GameOutcomeCalculator', () => {
   describe('calculateGameOutcome', () => {
+    it.each([
+      [GameSide.Opponent, 'concede', 'concede'],
+      [GameSide.Player, 'concede', 'concede'],
+      ['draw', 'concede', 'concede'],
+      [GameSide.Opponent, 'objective', 'objective'],
+      [GameSide.Player, 'turn_limit', 'turn_limit'],
+      ['draw', 'turn_limit', 'turn_limit'],
+      ['draw', 'aborted', 'aborted'],
+    ] as const)(
+      'preserves the recorded completed %s/%s decision',
+      (winner, recordedReason, reason) => {
+        const active = createMockState(
+          [{ id: 'p1', destroyed: false }],
+          [{ id: 'o1', destroyed: false }],
+          30,
+        );
+        const state: IGameState = {
+          ...active,
+          status: GameStatus.Completed,
+          result: { winner, reason: recordedReason },
+        };
+        const input = createMockInput(state, createMockConfig(20), [
+          makeDamageEvent('p1', 28),
+        ]);
+        const outcome = calculateGameOutcome(input);
+        expect(outcome.winner).toBe(winner);
+        expect(outcome.reason).toBe(reason);
+        expect(outcome.playerUnitsSurviving).toBe(1);
+        expect(outcome.opponentUnitsSurviving).toBe(1);
+        expect(outcome.opponentDamageDealt).toBe(28);
+        expect(outcome.playerDamageDealt).toBe(0);
+        expect(outcome.turnsPlayed).toBe(30);
+        expect(outcome.durationMs).toBe(3600000);
+      },
+    );
+
+    it.each([
+      [GameSide.Player, false, true, 'elimination'],
+      ['draw', true, true, 'mutual_destruction'],
+    ] as const)(
+      'retains the destruction representation for %s',
+      (winner, playerDestroyed, opponentDestroyed, reason) => {
+        const state: IGameState = {
+          ...createMockState(
+            [{ id: 'p1', destroyed: playerDestroyed }],
+            [{ id: 'o1', destroyed: opponentDestroyed }],
+          ),
+          status: GameStatus.Completed,
+          result: { winner, reason: 'destruction' },
+        };
+        expect(
+          calculateGameOutcome(createMockInput(state, createMockConfig())),
+        ).toMatchObject({
+          winner,
+          reason,
+        });
+      },
+    );
+
+    it('does not treat an Active-state stale result as a completed decision', () => {
+      const state: IGameState = {
+        ...createMockState(
+          [{ id: 'p1', destroyed: false }],
+          [{ id: 'o1', destroyed: true }],
+        ),
+        result: { winner: GameSide.Opponent, reason: 'concede' },
+      };
+      expect(
+        calculateGameOutcome(createMockInput(state, createMockConfig())),
+      ).toMatchObject({
+        winner: GameSide.Player,
+        reason: 'elimination',
+      });
+    });
+
     it('should detect player victory by elimination', () => {
       const state = createMockState(
         [{ id: 'p1', destroyed: false }],
