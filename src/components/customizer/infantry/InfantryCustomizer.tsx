@@ -10,7 +10,7 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 5.2
  */
 
-import React, { useCallback } from 'react';
+import React from 'react';
 import { StoreApi } from 'zustand';
 
 import { INFANTRY_TABS } from '@/components/customizer/shared/tabRegistry';
@@ -74,17 +74,10 @@ function InfantryCustomizerInner({
       specs: INFANTRY_TABS,
       state: { infantryMotive },
       initialTabId: initialTab,
+      onTabChange: (tabId) => onTabChange?.(tabId as InfantryTabId),
     });
 
   const tabConfigs = toCustomizerTabConfigs(visibleSpecs);
-
-  const handleTabChange = useCallback(
-    (tabId: string) => {
-      setActiveTab(tabId);
-      onTabChange?.(tabId as InfantryTabId);
-    },
-    [setActiveTab, onTabChange],
-  );
 
   const activeSpec =
     visibleSpecs.find((s) => s.id === activeTab) ?? visibleSpecs[0];
@@ -96,7 +89,7 @@ function InfantryCustomizerInner({
       <CustomizerTabs
         tabs={tabConfigs}
         activeTab={activeTab}
-        onTabChange={handleTabChange}
+        onTabChange={setActiveTab}
         readOnly={readOnly}
         dirtyTabs={dirtyTabs}
         errorTabs={errorTabs}

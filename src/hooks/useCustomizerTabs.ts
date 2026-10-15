@@ -10,8 +10,9 @@
  *   § Requirement: Validation Error Markers
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useLayoutEffect, useRef } from 'react';
 
+import { useCustomizerConfirmation } from '@/components/customizer/dialogs/CustomizerConfirmationProvider';
 import {
   TabSpec,
   filterVisibleTabs,
@@ -30,6 +31,9 @@ export interface UseCustomizerTabsOptions<TState> {
 
   /** Tab id to activate initially */
   initialTabId?: string;
+
+  /** Called only when a visible tab change is accepted. */
+  onTabChange?: (tabId: string) => void;
 }
 
 export interface UseCustomizerTabsResult<TState> {
@@ -98,6 +102,7 @@ export function useCustomizerTabs<TState>({
   specs,
   state,
   initialTabId,
+  onTabChange,
 }: UseCustomizerTabsOptions<TState>): UseCustomizerTabsResult<TState> {
   // Derive the visible tab list from specs + current state
   const visibleSpecs = filterVisibleTabs(specs, state);
@@ -115,29 +120,59 @@ export function useCustomizerTabs<TState>({
     new Map(),
   );
 
-  // Navigate to tabs in the visible set. When the current tab has unsaved
-  // changes, show a browser-native confirm before leaving so users don't lose
-  // in-flight edits. This satisfies Spec § Requirement: Tab Dirty Tracking.
+  const { requestConfirmation } = useCustomizerConfirmation();
+  const committed = useRef({
+    activeTab,
+    dirtyTabs,
+    visibleIds: visibleSpecs.map((spec) => spec.id),
+    onTabChange,
+  });
+  useLayoutEffect(() => {
+    committed.current = {
+      activeTab,
+      dirtyTabs,
+      visibleIds: visibleSpecs.map((spec) => spec.id),
+      onTabChange,
+    };
+  });
+
+  // Approval uses committed UI state, so a delayed dialog cannot route a
+  // target that disappeared or replace a different active source tab.
   const setActiveTab = useCallback(
     (tabId: string) => {
-      if (!visibleSpecs.some((s) => s.id === tabId)) return;
-      // Only prompt if navigating *away* from the current tab
-      if (tabId === activeTab) return;
-
-      if (
-        dirtyTabs.has(activeTab) &&
-        typeof window !== 'undefined' &&
-        !window.confirm('You have unsaved changes on this tab. Leave anyway?')
-      ) {
-        // User cancelled — stay on the current tab
+      const source = committed.current;
+      if (!source.visibleIds.includes(tabId) || tabId === source.activeTab)
+        return;
+      const commit = () => {
+        // Linearize accepted navigation before a reentrant callback/click.
+        committed.current = { ...committed.current, activeTab: tabId };
+        setActiveTabRaw(tabId);
+        committed.current.onTabChange?.(tabId);
+      };
+      if (!source.dirtyTabs.has(source.activeTab)) {
+        commit();
         return;
       }
-
-      setActiveTabRaw(tabId);
+      requestConfirmation({
+        title: 'Leave this tab?',
+        message: 'You have unsaved changes on this tab. Leave anyway?',
+        confirmLabel: 'Leave tab',
+        isCurrent: () => {
+          const current = committed.current;
+          return (
+            current.activeTab === source.activeTab &&
+            current.dirtyTabs.has(source.activeTab) &&
+            current.visibleIds.includes(source.activeTab) &&
+            current.visibleIds.length === source.visibleIds.length &&
+            current.visibleIds.every(
+              (id, index) => id === source.visibleIds[index],
+            )
+          );
+        },
+        onConfirm: commit,
+      });
     },
-    // activeTab and dirtyTabs are captured values; including them ensures the
-    // closure sees the latest state each render.
-    [visibleSpecs, activeTab, dirtyTabs],
+    [requestConfirmation],
   );
 
   const markDirty = useCallback((tabId: string) => {

@@ -1,5 +1,3 @@
-import { useCallback } from 'react';
-
 import type { UseCustomizerTabsResult } from '@/hooks/useCustomizerTabs';
 
 import {
@@ -36,15 +34,8 @@ export function useCustomizerTabShell<TState, TTabId extends string>({
       specs,
       state,
       initialTabId: initialTab,
+      onTabChange: (tabId) => onTabChange?.(tabId as TTabId),
     });
-
-  const handleTabChange = useCallback(
-    (tabId: string) => {
-      setActiveTab(tabId);
-      onTabChange?.(tabId as TTabId);
-    },
-    [setActiveTab, onTabChange],
-  );
 
   const activeSpec =
     visibleSpecs.find((spec) => spec.id === activeTab) ?? visibleSpecs[0];
@@ -53,7 +44,7 @@ export function useCustomizerTabShell<TState, TTabId extends string>({
     tabBarProps: {
       tabs: toCustomizerTabConfigs(visibleSpecs),
       activeTab,
-      onTabChange: handleTabChange,
+      onTabChange: setActiveTab,
       dirtyTabs,
       errorTabs,
     },

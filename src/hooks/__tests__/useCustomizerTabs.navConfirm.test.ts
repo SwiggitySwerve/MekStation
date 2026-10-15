@@ -9,8 +9,16 @@
  * @spec openspec/specs/multi-unit-tabs/spec.md
  */
 
-import { act, renderHook } from '@testing-library/react';
+import {
+  act,
+  cleanup,
+  fireEvent,
+  renderHook,
+  screen,
+} from '@testing-library/react';
+import React from 'react';
 
+import { CustomizerConfirmationProvider } from '@/components/customizer/dialogs/CustomizerConfirmationProvider';
 import { TabSpec } from '@/components/customizer/shared/TabSpec';
 
 import { useCustomizerTabs } from '../useCustomizerTabs';
@@ -28,9 +36,54 @@ const SPECS: TabSpec[] = [
   { id: 'equipment', label: 'Equipment', component: STUB },
 ];
 
+function ConfirmationWrapper({ children }: { children: React.ReactNode }) {
+  return React.createElement(CustomizerConfirmationProvider, {
+    scope: { unitId: 'unit-a', unitType: 'BattleMech' },
+    children,
+  });
+}
+
+const originalShow = Object.getOwnPropertyDescriptor(
+  HTMLDialogElement.prototype,
+  'showModal',
+);
+const originalClose = Object.getOwnPropertyDescriptor(
+  HTMLDialogElement.prototype,
+  'close',
+);
+beforeAll(() => {
+  Object.defineProperty(HTMLDialogElement.prototype, 'showModal', {
+    configurable: true,
+    value: function (this: HTMLDialogElement) {
+      this.setAttribute('open', '');
+    },
+  });
+  Object.defineProperty(HTMLDialogElement.prototype, 'close', {
+    configurable: true,
+    value: function (this: HTMLDialogElement) {
+      this.removeAttribute('open');
+    },
+  });
+});
+afterAll(() => {
+  for (const [key, descriptor] of [
+    ['showModal', originalShow],
+    ['close', originalClose],
+  ] as const) {
+    if (descriptor)
+      Object.defineProperty(HTMLDialogElement.prototype, key, descriptor);
+    else Reflect.deleteProperty(HTMLDialogElement.prototype, key);
+  }
+});
+afterEach(() => {
+  cleanup();
+  jest.restoreAllMocks();
+});
+
 function renderTabsHook(initialTabId = 'overview') {
-  return renderHook(() =>
-    useCustomizerTabs({ specs: SPECS, state: {}, initialTabId }),
+  return renderHook(
+    () => useCustomizerTabs({ specs: SPECS, state: {}, initialTabId }),
+    { wrapper: ConfirmationWrapper },
   );
 }
 
@@ -134,8 +187,9 @@ describe('useCustomizerTabs — error tracking', () => {
 
 describe('useCustomizerTabs — navigation confirm (Task 9.2)', () => {
   beforeEach(() => {
-    // Provide a clean window.confirm stub for each test
-    jest.spyOn(window, 'confirm').mockReturnValue(true);
+    jest.spyOn(window, 'confirm').mockImplementation(() => {
+      throw new Error('Native confirmation is inaccessible');
+    });
   });
 
   afterEach(() => {
@@ -149,34 +203,37 @@ describe('useCustomizerTabs — navigation confirm (Task 9.2)', () => {
     expect(result.current.activeTab).toBe('armor');
   });
 
-  it('shows confirm when navigating away from a dirty tab', () => {
+  it('opens an app dialog without switching when navigating away from a dirty tab', () => {
     const { result } = renderTabsHook('overview');
     act(() => result.current.markDirty('overview'));
     act(() => result.current.setActiveTab('armor'));
-    expect(window.confirm).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(result.current.activeTab).toBe('overview');
+    expect(window.confirm).not.toHaveBeenCalled();
   });
 
-  it('confirm message mentions unsaved changes', () => {
+  it('keeps the dirty marker after a canceled request', () => {
     const { result } = renderTabsHook('overview');
     act(() => result.current.markDirty('overview'));
     act(() => result.current.setActiveTab('armor'));
-    const [message] = (window.confirm as jest.Mock).mock.calls[0];
-    expect(message).toMatch(/unsaved changes/i);
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(result.current.dirtyTabs.has('overview')).toBe(true);
+    expect(result.current.activeTab).toBe('overview');
   });
 
   it('proceeds to the new tab when user confirms', () => {
-    (window.confirm as jest.Mock).mockReturnValue(true);
     const { result } = renderTabsHook('overview');
     act(() => result.current.markDirty('overview'));
     act(() => result.current.setActiveTab('armor'));
+    fireEvent.click(screen.getByRole('button', { name: 'Leave tab' }));
     expect(result.current.activeTab).toBe('armor');
   });
 
   it('stays on the current tab when user cancels confirm', () => {
-    (window.confirm as jest.Mock).mockReturnValue(false);
     const { result } = renderTabsHook('overview');
     act(() => result.current.markDirty('overview'));
     act(() => result.current.setActiveTab('armor'));
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(result.current.activeTab).toBe('overview');
   });
 
@@ -194,6 +251,35 @@ describe('useCustomizerTabs — navigation confirm (Task 9.2)', () => {
     act(() => result.current.setActiveTab('nonexistent'));
     expect(window.confirm).not.toHaveBeenCalled();
     expect(result.current.activeTab).toBe('overview');
+  });
+
+  it('refuses pending approval when a successful save clears source dirty state', () => {
+    const { result } = renderTabsHook();
+    act(() => result.current.markDirty('overview'));
+    act(() => result.current.setActiveTab('armor'));
+    act(() => result.current.clearDirty('overview'));
+    fireEvent.click(screen.getByRole('button', { name: 'Leave tab' }));
+    expect(result.current.activeTab).toBe('overview');
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('refuses an old approval after accepted navigation changes the active source', () => {
+    const { result } = renderTabsHook();
+    act(() => result.current.markDirty('overview'));
+    act(() => result.current.setActiveTab('armor'));
+    act(() => result.current.clearDirty('overview'));
+    act(() => result.current.setActiveTab('equipment'));
+    fireEvent.click(screen.getByRole('button', { name: 'Leave tab' }));
+    expect(result.current.activeTab).toBe('equipment');
+  });
+
+  it('rejects a second pending destination while preserving the first request', () => {
+    const { result } = renderTabsHook();
+    act(() => result.current.markDirty('overview'));
+    act(() => result.current.setActiveTab('armor'));
+    act(() => result.current.setActiveTab('equipment'));
+    fireEvent.click(screen.getByRole('button', { name: 'Leave tab' }));
+    expect(result.current.activeTab).toBe('armor');
   });
 });
 
