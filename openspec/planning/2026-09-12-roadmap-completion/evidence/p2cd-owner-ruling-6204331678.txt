@@ -1,0 +1,2 @@
+OWNER-RULING e97cfef1c8c82b3a8747e3554e64a612e42d3223
+Rule the exact storage head. Owner ruling on Task 11 / P2CD (opaque application offers and explicit consumer completion) at head e97cfef1c8c82b3a8747e3554e64a612e42d3223, approved with the Opus exact-head review notes (reviewed head f97208a9; the merged head adds one reviewer-requested drain fix verified by a failing-then-passing test). This PR was merged (bfce3c00) before this ruling was recorded; the ruling is entered on the merged head so the ledger can be closed.

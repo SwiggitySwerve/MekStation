@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CD",
+  "stage": "red",
+  "recordedAt": "2026-10-15T23:29:13.429Z",
+  "baseline": "f87430aa1f10cef5eac55848939663de0d86cfb0",
+  "contributor": {
+    "provider": "cliproxy",
+    "model": "gpt-6.1-sol",
+    "effort": "high",
+    "task": "Task11/P2CD implementation sub-agent"
+  },
+  "command": "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --runTestsByPath src/types/multiplayer/__tests__/Protocol.test.ts src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts src/lib/p2p/__tests__/campaignMirrorStore.test.ts",
+  "exitCode": 1,
+  "exitCodeSource": "round3-report.md; the RED log itself carries no exit marker",
+  "log": {
+    "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-11-p2cd-20261016/round3-red.log",
+    "sha256": "ec9c1473034e5f0a37b4c2fa6b5ec501190bd21e783bc862c9cf31c47e710ad7",
+    "bytes": 39840
+  },
+  "report": {
+    "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-11-p2cd-20261016/round3-report.md",
+    "sha256": "bd8b648d6c7cbc89238cdfef40012187643a4fd38b5e372770e8b4784c509dce",
+    "bytes": 3534
+  },
+  "suites": {
+    "failed": 3,
+    "total": 3
+  },
+  "tests": {
+    "failed": 36,
+    "passed": 59,
+    "total": 95
+  },
+  "failingGroups": [
+    {
+      "describe": "P2CD application receipt protocol",
+      "failures": 8
+    },
+    {
+      "describe": "P2CD explicit consumer completion",
+      "failures": 25
+    },
+    {
+      "describe": "P2CD nullable application result",
+      "failures": 3
+    }
+  ],
+  "genuineness": "Captured after test additions and before product edits. Every failure is a new P2CD test; no pre-existing test failed. Some negative rows passed before implementation, and five tests were added after RED (independent review finding 7).",
+  "drainFixRed": {
+    "head": "e97cfef1c8c82b3a8747e3554e64a612e42d3223",
+    "note": "The source evidence records the e97cfef1 regression test as failing without the fix, but no log was preserved. This closure reproduced it; see the local receipt drainFixReproduction."
+  }
+}

@@ -1,3 +1,36 @@
+## 2026-10-16 P2CD source verified on main; closure metadata proposed
+
+P2CD advances from planned to main-verified for source PR #2139,
+head e97cfef1c8c82b3a8747e3554e64a612e42d3223, merge bfce3c00f7ee84cd09573f2909ee3211d8613c85.
+Its baseline is the round-3 admission base f87430aa1f10cef5eac55848939663de0d86cfb0.
+The owner explicitly authorized this transcription of [comment 6204331678](https://github.com/SwiggitySwerve/MekStation/pull/2139#issuecomment-6204331678);
+its exact UTF-8 body, without an added newline, hashes to bfe52c1ec1e59ad4937fe7f3c492d431667d9372470d9ab7a45f34de2c8a722d.
+The ruling followed the merge; this record preserves that chronology.
+PK-p2cd-ruling is first recorded here, after both the merge and the ruling.
+
+The [admission](evidence/p2cd-admission-20261016.json), [red](evidence/p2cd-red-20261016.json)
+and [local](evidence/p2cd-local-20261016.json) receipts transcribe the existing
+round-3 census, RED log (36 failed / 59 passed) and green, validation and round-4
+logs by hash. No separate admission review exists. The round-4 stable run
+(2795 suites, 37049 tests) ran on the tree just before f97208a9 was committed.
+
+The [review receipt](evidence/p2cd-review-20261016.json) binds the Opus review of
+f97208a9ecc4ea563d6437f453d3edc8cd7a900e. The merged head adds one drain fix
+from that review, which was not separately re-reviewed. Its failing-then-passing
+test was reproduced at the merge and is preserved in the local receipt.
+All 31 checks on the merged head succeeded. The [merge receipt](evidence/p2cd-merge-20261016.json)
+binds both ordered parents and the matching integration tree. The [main proof](evidence/p2cd-mainproof-20261016.json)
+preserves the existing summary and adds a fresh run at the merge: three suites,
+101 tests and typecheck passed.
+
+P2CD has no task keys. Its tick remains null because source/closure cleanup
+is not established here; no tasks.md row is changed. P2CD therefore releases
+its in-flight path reservation at main-verified, while P2/U38 and all other
+unit states remain unchanged. Selection is not downstream admission.
+This closure metadata still requires its own review, CI and parent merge.
+
+---
+
 ## 2026-10-16 P2CA source verified on main; closure metadata proposed
 
 P2CA advances from local-verified to main-verified for source PR #2135,

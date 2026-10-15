@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CD",
+  "stage": "local",
+  "recordedAt": "2026-10-15T23:29:13.429Z",
+  "contributor": {
+    "provider": "cliproxy",
+    "model": "gpt-6.1-sol",
+    "effort": "high",
+    "task": "Task11/P2CD implementation sub-agent"
+  },
+  "finisher": "Root orchestrator finished delivery after the Sol lane hit its usage limit, ran round 4 and authored the e97cfef1 drain fix. The cited evidence does not record the Root model, so none is asserted.",
+  "command": "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --runTestsByPath src/types/multiplayer/__tests__/Protocol.test.ts src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts src/lib/p2p/__tests__/campaignMirrorStore.test.ts",
+  "exitCode": 0,
+  "suites": 3,
+  "tests": 100,
+  "log": {
+    "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-11-p2cd-20261016/round3-green.log",
+    "sha256": "7dbdc9a1885383de00dc581e596ac2e66d9e5b767760400332c407117abd7ab4",
+    "bytes": 755
+  },
+  "round3Validation": {
+    "log": {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-11-p2cd-20261016/round3-validation.log",
+      "sha256": "bc6ee4182408a0cb84bd641b63bbf76c6ac9daebfbcdc4d04adab234e6ed3dd5",
+      "bytes": 86869
+    },
+    "results": "typecheck exit 0; lint 84 warnings / 0 errors; touched-file format exit 0; full roadmap validator PASSED; NEXT P2CD; validator tests 86/86",
+    "note": "One initial format invocation used an invalid Windows command path and failed before the formatter ran; the corrected invocation passed (round3-report.md)."
+  },
+  "round4": {
+    "scope": "Executed on the working tree immediately before commit f97208a9ecc4ea563d6437f453d3edc8cd7a900e (log mtimes 22:59Z; commit 22:59:53Z). The logs alone cannot prove byte identity with that commit; the independent review re-ran focused suites and typecheck on the exact head.",
+    "stable": {
+      "log": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-11-p2cd-20261016/round4-stable.log",
+        "sha256": "0d143c1d1b9cd54a0e9bc45ddfc78137632ffc0d36e620323413e2fc5de23e0a",
+        "bytes": 3143714
+      },
+      "command": "npm run test:stable",
+      "exitCode": 0,
+      "suitesPassed": 2795,
+      "testsPassed": 37049,
+      "testsSkipped": 50,
+      "testsTotal": 37099,
+      "snapshotsPassed": 8,
+      "seconds": 921.466
+    },
+    "typecheck": {
+      "log": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-11-p2cd-20261016/round4-typecheck.log",
+        "sha256": "e38f4fa1fdaf45864b8b009123db8601ddc118fa20953e51800a2763dc5b9e19",
+        "bytes": 140
+      },
+      "result": "tsc --noEmit --skipLibCheck output with no diagnostics; the log has no exit marker"
+    },
+    "lint": {
+      "log": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-11-p2cd-20261016/round4-lint.log",
+        "sha256": "8cea3dde0b3cc81344d584a26ae02e3cbfd8300b6a8a1760123cd4e5a4f2faca",
+        "bytes": 80064
+      },
+      "result": "Found 84 warnings and 0 errors"
+    },
+    "format": {
+      "log": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-11-p2cd-20261016/round4-format.log",
+        "sha256": "1bbb202d60fcf8ff90f55a13ad082138f7524ac87937221ac554d1c27cb81bd4",
+        "bytes": 234
+      },
+      "result": "All matched files use the correct format (6 files)"
+    },
+    "priorStable": "round3-stable.log reached its 900-second harness wall limit (EXIT=1; TIMEOUT=true) and is not a pass."
+  },
+  "drainFixReproduction": {
+    "recordedAt": "2026-10-15T23:29:13.429Z",
+    "checkout": "E:/Projects/Personal/MekStation-wt/p2cd-closure-20261016",
+    "head": "bfce3c00f7ee84cd09573f2909ee3211d8613c85",
+    "method": "Temporarily replaced src/lib/campaign/coop/campaignSyncTransport.ts with its f97208a9ecc4ea563d6437f453d3edc8cd7a900e bytes, ran the transport suite, restored the file and reran it. Final git status was clean.",
+    "command": "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --runTestsByPath src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+    "red": {
+      "path": "evidence/p2cd-drainfix-red-bfce3c00.bytes.json",
+      "encoding": "base64",
+      "payloadSha256": "510a87818c38d91803c2b743e870177801a7dc15dcb92514e582281e4fdd6932",
+      "payloadBytes": 5106,
+      "exitCode": 1,
+      "tests": "1 failed, 43 passed, 44 total",
+      "failing": "P2CD explicit consumer completion > acknowledges a completion confirmed while a non-offer frame is being dispatched"
+    },
+    "green": {
+      "path": "evidence/p2cd-drainfix-green-bfce3c00.bytes.json",
+      "encoding": "base64",
+      "payloadSha256": "f5fa7762f90902040fb869cd0a0c10633f33f8605ed6f2b0442abb6268e01a8c",
+      "payloadBytes": 3804,
+      "exitCode": 0,
+      "tests": "44 passed, 44 total"
+    }
+  },
+  "boundary": "Dormant protocol, transport and mirror primitives only. Server offer binding, receipt persistence, mounted consumers and legacy numeric-ACK retirement belong to later units."
+}

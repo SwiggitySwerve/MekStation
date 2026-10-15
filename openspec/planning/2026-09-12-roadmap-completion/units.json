@@ -5596,7 +5596,20 @@
         "src/lib/p2p/__tests__/campaignMirrorStore.test.ts"
       ],
       "ownershipExceptions": [
-        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cd-admission-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cd-red-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cd-local-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cd-drainfix-red-bfce3c00.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cd-drainfix-green-bfce3c00.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cd-source-opus-review-20261016.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cd-owner-ruling-6204331678.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cd-review-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cd-merge-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cd-mainproof-bfce3c00.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-bfce3c00-tests.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-bfce3c00-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cd-mainproof-20261016.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -5611,17 +5624,41 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
-      "prHead": null,
-      "mergeSha": null,
+      "state": "main-verified",
+      "baseline": "f87430aa1f10cef5eac55848939663de0d86cfb0",
+      "prHead": "e97cfef1c8c82b3a8747e3554e64a612e42d3223",
+      "mergeSha": "bfce3c00f7ee84cd09573f2909ee3211d8613c85",
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "admission": {
+          "path": "evidence/p2cd-admission-20261016.json"
+        },
+        "red": {
+          "path": "evidence/p2cd-red-20261016.json"
+        },
+        "local": {
+          "path": "evidence/p2cd-local-20261016.json"
+        },
+        "review": {
+          "path": "evidence/p2cd-review-20261016.json",
+          "head": "e97cfef1c8c82b3a8747e3554e64a612e42d3223",
+          "reviewedHead": "f97208a9ecc4ea563d6437f453d3edc8cd7a900e",
+          "reviewerModel": "claude-opus-5-5",
+          "implementerModel": "gpt-6.1-sol",
+          "outputSha256": "087cdeca6bb3bb8083cbe63b2755d5e904ff1d30292dcd8f3d9eb6f5069d7f30",
+          "verdict": "APPROVE-WITH-NOTES"
+        },
+        "merge": {
+          "path": "evidence/p2cd-merge-20261016.json",
+          "pr": 2139,
+          "head": "e97cfef1c8c82b3a8747e3554e64a612e42d3223",
+          "mergeSha": "bfce3c00f7ee84cd09573f2909ee3211d8613c85"
+        },
+        "mainProof": {
+          "path": "evidence/p2cd-mainproof-20261016.json",
+          "mergeCommit": "bfce3c00f7ee84cd09573f2909ee3211d8613c85",
+          "verdict": "PASS",
+          "runtime": "Source/Main Jest: Tests:       101 passed, 101 total"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -12346,6 +12383,44 @@
         "commentId": 6203331102,
         "author": "SwiggitySwerve",
         "bodySha256": "9be55710da8fb3a0793bf9f60a7c4a00cf4fa64464de683b74a4ee4b4091623a"
+      }
+    },
+    {
+      "id": "PK-p2cd-ruling",
+      "blocks": [
+        "P2CD"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "After independent exact-head Opus review and required green CI, should the owner rule the bounded P2CD opaque application-offer and explicit consumer-completion head before guarded merge?",
+      "options": [
+        {
+          "label": "rule the exact source head",
+          "consequence": "Permit guarded P2CD protocol, transport and mirror merge and exact-main proof only; server offer binding, receipt persistence, mounted consumers, legacy numeric-ACK retirement and campaign release remain later units.",
+          "effort": "One exact-head Opus review, evidence check and owner ruling"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Hold merge until the concrete offer, completion or proof objections are fixed and fresh exact-head review, CI and owner ruling are complete.",
+          "effort": "Bounded by the concrete review objections"
+        }
+      ],
+      "agentRecommendation": "Rule only an independently approved green exact head that keeps offers opaque and pre-bound, acknowledges only a contiguous prefix after explicit successful application, refuses missing prefixes and closed, rejected or delayed consumers, and adds no endpoint, topic, timer or durable credit. This proposal grants no approval or merge permission.",
+      "revertCost": "Low: revert the six-file dormant protocol, transport and mirror change before release; P2CD adds no persistence, migration or server activation, and legacy numeric ACK parsing is preserved.",
+      "decision": {
+        "option": "rule the exact source head",
+        "at": "2026-10-15T23:21:33Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2139#issuecomment-6204331678"
+      },
+      "ruling": {
+        "ruledHead": "e97cfef1c8c82b3a8747e3554e64a612e42d3223",
+        "pr": 2139,
+        "commentId": 6204331678,
+        "author": "SwiggitySwerve",
+        "bodySha256": "bfe52c1ec1e59ad4937fe7f3c492d431667d9372470d9ab7a45f34de2c8a722d"
       }
     },
     {
