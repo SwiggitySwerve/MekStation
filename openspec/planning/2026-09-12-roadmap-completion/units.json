@@ -5478,7 +5478,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "implementing",
+      "state": "local-verified",
       "baseline": "ba8007f2dfea7786a3823145eb999e308c97f3fa",
       "prHead": null,
       "mergeSha": null,
@@ -12282,6 +12282,33 @@
     }
   ],
   "packets": [
+    {
+      "id": "PK-p2ca-ruling",
+      "blocks": [
+        "P2CA"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "After independent exact-head Opus review and required green CI, should the owner rule the bounded P2CA durable public applied-view storage head before guarded merge?",
+      "options": [
+        {
+          "label": "rule the exact storage head",
+          "consequence": "Permit guarded P2CA storage merge and exact-main proof only; receipt issuance, socket integration, convergence and campaign release remain later units.",
+          "effort": "One exact-head Opus review, evidence check and owner ruling"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Hold merge until the concrete storage or proof objections are fixed and fresh exact-head review, CI and owner ruling are complete.",
+          "effort": "Bounded by the concrete review objections"
+        }
+      ],
+      "agentRecommendation": "Rule only an independently approved green exact head preserving authenticated application, monotonic current-lineage storage, explicit replacement, transaction rollback and privacy. This proposal grants no approval or merge permission.",
+      "revertCost": "Revert the bounded storage implementation and catalog registration before release; after rows exist, reverting code alone does not remove the additive table or its data, so any data disposition needs separate owner review.",
+      "decision": null,
+      "ruling": null
+    },
     {
       "id": "PK-p2cc-ruling",
       "blocks": [
