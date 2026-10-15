@@ -7,6 +7,7 @@ import {
 } from '@testing-library/react';
 import React from 'react';
 
+import { hydrateRecoverableSessionFromMatchLog } from '@/engine/InteractiveSession.persistence';
 import { navigateToGameSession } from '@/lib/gameplay/tacticalNavigation';
 import { GameStatus, GameSide, type IGameSession } from '@/types/gameplay';
 import { QuickGameStep } from '@/types/quickgame';
@@ -19,6 +20,7 @@ import {
 const mockStartBattle = jest.fn();
 const mockPlayAgain = jest.fn();
 const mockReconcileTacticalCompletion = jest.fn();
+const mockClearGame = jest.fn();
 const mockNavigateToGameSession = navigateToGameSession as jest.MockedFunction<
   typeof navigateToGameSession
 >;
@@ -56,6 +58,7 @@ const mockQuickGameState = {
   startBattle: mockStartBattle,
   playAgain: mockPlayAgain,
   reconcileTacticalCompletion: mockReconcileTacticalCompletion,
+  clearGame: mockClearGame,
 };
 
 const mockGameplayState = {
@@ -91,6 +94,11 @@ jest.mock('@/pages/gameplay/games/[id]', () => ({
 
 import { QuickGamePlay } from '../QuickGamePlay';
 
+jest.mock('@/engine/InteractiveSession.persistence', () => ({
+  ...jest.requireActual('@/engine/InteractiveSession.persistence'),
+  hydrateRecoverableSessionFromMatchLog: jest.fn(),
+}));
+
 function activeSession(id: string, matchId?: string): IGameSession {
   return {
     ...startGame(
@@ -115,6 +123,11 @@ describe('QuickGamePlay live tactical session guard', () => {
     mockStartBattle.mockClear();
     mockPlayAgain.mockClear();
     mockReconcileTacticalCompletion.mockClear();
+    mockClearGame.mockClear();
+    jest
+      .mocked(hydrateRecoverableSessionFromMatchLog)
+      .mockReset()
+      .mockImplementation(async (id) => activeSession(id));
     mockNavigateToGameSession.mockClear();
     mockRouterPush.mockReset().mockResolvedValue(true);
     mockRouterAsPath = '/gameplay/quick';
@@ -349,7 +362,7 @@ describe('QuickGamePlay live tactical session guard', () => {
 
   it.each([GameStatus.Active, GameStatus.Completed])(
     'keeps the linked target when a foreign %s session is retained',
-    (status) => {
+    async (status) => {
       const active = activeSession('foreign-session');
       mockGameplayState.session =
         status === GameStatus.Active
@@ -362,11 +375,36 @@ describe('QuickGamePlay live tactical session guard', () => {
       };
       render(<QuickGamePlay />);
       expect(mockReconcileTacticalCompletion).not.toHaveBeenCalled();
-      expect(mockNavigateToGameSession).toHaveBeenCalledWith(
-        'linked-session',
-        expect.objectContaining({ push: mockRouterPush }),
-        { spectator: true },
+      await waitFor(() =>
+        expect(mockNavigateToGameSession).toHaveBeenCalledWith(
+          'linked-session',
+          expect.objectContaining({ push: mockRouterPush }),
+          { spectator: true },
+        ),
       );
     },
   );
+
+  it('keeps recovery failure non-destructive with explicit retry, restart and exit', async () => {
+    jest
+      .mocked(hydrateRecoverableSessionFromMatchLog)
+      .mockRejectedValueOnce(
+        new Error('Match log is corrupt and cannot be recovered'),
+      );
+    mockQuickGameState.game.activeTacticalSession = {
+      id: 'corrupt-match',
+      mode: 'interactive',
+    };
+    render(<QuickGamePlay />);
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Match log is corrupt',
+    );
+    expect(mockNavigateToGameSession).not.toHaveBeenCalled();
+    expect(mockStartBattle).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'Start New Setup' }));
+    expect(mockPlayAgain).toHaveBeenCalledWith(false);
+    fireEvent.click(screen.getByRole('button', { name: 'Exit to Games' }));
+    expect(mockClearGame).toHaveBeenCalled();
+    expect(mockRouterPush).toHaveBeenCalledWith('/gameplay/games');
+  });
 });

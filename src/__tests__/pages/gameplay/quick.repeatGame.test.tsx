@@ -12,7 +12,12 @@ import { IDBFactory } from 'fake-indexeddb';
 import type { IAdaptedUnit } from '@/engine/types';
 import type { IGameUnit } from '@/types/gameplay';
 
+import * as compendiumAdapter from '@/engine/adapters/CompendiumAdapter';
 import { GameEngine } from '@/engine/GameEngine';
+import {
+  hydrateRecoverableSessionWithReport,
+  persistInteractiveLaunchRecoveryLog,
+} from '@/engine/InteractiveSession.persistence';
 import {
   flushMatchLogWrites,
   matchLogStorage,
@@ -55,6 +60,10 @@ jest.mock('@/services/units/quickGameSavedDesigns', () => ({
   listQuickGameSavedDesigns: jest.fn(async () => []),
   loadQuickGameSavedDesign: jest.fn(),
 }));
+jest.mock('@/engine/adapters/CompendiumAdapter', () => ({
+  ...jest.requireActual('@/engine/adapters/CompendiumAdapter'),
+  adaptUnit: jest.fn(),
+}));
 
 if (typeof globalThis.structuredClone === 'undefined') {
   Object.defineProperty(globalThis, 'structuredClone', {
@@ -64,7 +73,28 @@ if (typeof globalThis.structuredClone === 'undefined') {
   });
 }
 
-function adaptedUnit(id: string, side: GameSide): IAdaptedUnit {
+const armor = {
+  head: 9,
+  center_torso: 31,
+  left_torso: 22,
+  right_torso: 22,
+  left_arm: 17,
+  right_arm: 17,
+  left_leg: 21,
+  right_leg: 21,
+};
+const structure = {
+  head: 3,
+  center_torso: 21,
+  left_torso: 14,
+  right_torso: 14,
+  left_arm: 11,
+  right_arm: 11,
+  left_leg: 14,
+  right_leg: 14,
+};
+
+function adaptedUnit(id: string, side: GameSide, armed = false): IAdaptedUnit {
   return {
     id,
     side,
@@ -73,8 +103,8 @@ function adaptedUnit(id: string, side: GameSide): IAdaptedUnit {
     heat: 0,
     movementThisTurn: MovementType.Stationary,
     hexesMovedThisTurn: 0,
-    armor: { head: 9, center_torso: 31 },
-    structure: { head: 3, center_torso: 21 },
+    armor: { ...armor },
+    structure: { ...structure },
     destroyedLocations: [],
     destroyedEquipment: [],
     ammo: {},
@@ -82,14 +112,29 @@ function adaptedUnit(id: string, side: GameSide): IAdaptedUnit {
     pilotConscious: true,
     destroyed: false,
     lockState: LockState.Pending,
-    weapons: [],
+    weapons: armed
+      ? [
+          {
+            id: `${id}-laser`,
+            name: 'Medium Laser',
+            shortRange: 9,
+            mediumRange: 12,
+            longRange: 15,
+            minRange: 0,
+            damage: 5,
+            heat: 3,
+            ammoPerTon: -1,
+            destroyed: false,
+          },
+        ]
+      : [],
     walkMP: 4,
     runMP: 6,
     jumpMP: 0,
   };
 }
 
-function installLinkedBattle() {
+function installLinkedBattle(armed = false) {
   const player = createQuickGameUnit({
     sourceUnitId: 'atlas-as7-d',
     name: 'Atlas',
@@ -99,8 +144,8 @@ function installLinkedBattle() {
     tonnage: 100,
     gunnery: 4,
     piloting: 5,
-    maxArmor: { head: 9, center_torso: 31 },
-    maxStructure: { head: 3, center_torso: 21 },
+    maxArmor: { ...armor },
+    maxStructure: { ...structure },
   });
   const opponent = createQuickGameUnit({
     sourceUnitId: 'locust-lct-1v',
@@ -111,8 +156,8 @@ function installLinkedBattle() {
     tonnage: 20,
     gunnery: 4,
     piloting: 5,
-    maxArmor: { head: 9, center_torso: 31 },
-    maxStructure: { head: 3, center_torso: 21 },
+    maxArmor: { ...armor },
+    maxStructure: { ...structure },
   });
   const units: IGameUnit[] = [
     {
@@ -121,7 +166,7 @@ function installLinkedBattle() {
       side: GameSide.Player,
       unitRef: player.sourceUnitId,
       pilotRef: 'player',
-      gunnery: 4,
+      gunnery: armed ? 0 : 4,
       piloting: 5,
     },
     {
@@ -139,7 +184,7 @@ function installLinkedBattle() {
     mapRadius: 5,
     turnLimit: 20,
   }).createInteractiveSession(
-    [adaptedUnit(player.instanceId, GameSide.Player)],
+    [adaptedUnit(player.instanceId, GameSide.Player, armed)],
     [adaptedUnit(opponent.instanceId, GameSide.Opponent)],
     units,
   );
@@ -203,6 +248,7 @@ describe('Quick Game entry after a genuine tactical completion', () => {
       spectatorMode: null,
     });
     mockRouterPush.mockReset().mockResolvedValue(true);
+    jest.mocked(compendiumAdapter.adaptUnit).mockReset();
     jest.spyOn(globalThis, 'fetch').mockResolvedValue({
       ok: true,
       status: 200,
@@ -314,5 +360,145 @@ describe('Quick Game entry after a genuine tactical completion', () => {
     const body = JSON.parse(String(calls[0][1]?.body));
     expect(body).toMatchObject({ gameId: game.id, winner: 'opponent' });
     expect(body.events).toEqual(JSON.parse(JSON.stringify(terminal.events)));
+  });
+
+  it('retains detailed results after reload without a preloaded GameplayStore session', async () => {
+    jest.useFakeTimers({
+      now: new Date('2026-10-13T06:00:00Z'),
+      doNotFake: [
+        'setTimeout',
+        'clearTimeout',
+        'setImmediate',
+        'clearImmediate',
+        'nextTick',
+        'queueMicrotask',
+      ],
+    });
+    const { interactive, game } = installLinkedBattle(true);
+    await persistInteractiveLaunchRecoveryLog(interactive.getSession());
+    interactive.advancePhase();
+    interactive.advancePhase();
+    const player = game.playerForce.units[0].instanceId;
+    const opponent = game.opponentForce!.units[0].instanceId;
+    jest.setSystemTime(new Date('2026-10-13T06:06:00Z'));
+    interactive.applyAttack(player, opponent, [`${player}-laser`]);
+    interactive.advancePhase();
+    expect(
+      interactive
+        .getSession()
+        .events.some((event) => event.type === GameEventType.DamageApplied),
+    ).toBe(true);
+    interactive.concede(GameSide.Player);
+    useGameplayStore.getState().checkGameOver();
+    await flushMatchLogWrites();
+    const recovered = await hydrateRecoverableSessionWithReport(
+      interactive.getSession().id,
+    );
+    expect(recovered.session.currentState.result).toEqual(
+      interactive.getSession().currentState.result,
+    );
+    const first = render(<QuickGamePage />);
+    expect(
+      await screen.findByText('Player conceded the battle.'),
+    ).toBeInTheDocument();
+    expect(screen.getByText('6 min')).toBeInTheDocument();
+    expect(screen.getByText('Damage Dealt')).toBeInTheDocument();
+    const before = screen.getByRole('tabpanel', {
+      name: 'Summary',
+    }).textContent;
+    const persisted = sessionStorage.getItem(QUICK_GAME_STORAGE_KEY)!;
+    first.unmount();
+    useQuickGameStore.getState().clearGame();
+    sessionStorage.setItem(QUICK_GAME_STORAGE_KEY, persisted);
+    await useQuickGameStore.persist.rehydrate();
+    useGameplayStore.setState({
+      session: null,
+      interactiveSession: null,
+      spectatorMode: null,
+    });
+    jest.setSystemTime(new Date('2026-10-13T07:00:00Z'));
+    render(<QuickGamePage />);
+    expect(
+      await screen.findByText('Player conceded the battle.'),
+    ).toBeInTheDocument();
+    expect(screen.getByText('6 min')).toBeInTheDocument();
+    expect(screen.getByRole('tabpanel', { name: 'Summary' }).textContent).toBe(
+      before,
+    );
+    expect(useGameplayStore.getState().session).toBeNull();
+    expect(mockRouterPush).not.toHaveBeenCalled();
+  });
+
+  it('opens an old terminal tactical link on the first cold Quick Game entry', async () => {
+    const { interactive, game } = installLinkedBattle();
+    await persistInteractiveLaunchRecoveryLog(interactive.getSession());
+    const persistedPlaying = sessionStorage.getItem(QUICK_GAME_STORAGE_KEY)!;
+    interactive.concede(GameSide.Player);
+    await flushMatchLogWrites();
+    useQuickGameStore.getState().clearGame();
+    sessionStorage.setItem(QUICK_GAME_STORAGE_KEY, persistedPlaying);
+    await useQuickGameStore.persist.rehydrate();
+    useGameplayStore.setState({
+      session: null,
+      interactiveSession: null,
+      spectatorMode: null,
+    });
+    render(<QuickGamePage />);
+    expect(
+      await screen.findByTestId('play-again-same-btn'),
+    ).toBeInTheDocument();
+    expect(mockRouterPush).not.toHaveBeenCalled();
+    expect(useQuickGameStore.getState().game).toMatchObject({
+      id: game.id,
+      status: GameStatus.Completed,
+      winner: 'opponent',
+    });
+    expect(useGameplayStore.getState().session).toBeNull();
+  });
+
+  it('keeps detailed Results for the current unlinked auto-resolve session', async () => {
+    const { game } = installLinkedBattle();
+    jest
+      .mocked(compendiumAdapter.adaptUnit)
+      .mockResolvedValueOnce(adaptedUnit('player', GameSide.Player))
+      .mockResolvedValueOnce(adaptedUnit('opponent', GameSide.Opponent));
+    useQuickGameStore.setState({
+      game: { ...game, activeTacticalSession: null },
+      seedOverride: 42,
+    });
+    await useQuickGameStore.getState().startBattle();
+    expect(useQuickGameStore.getState().game?.status).toBe(
+      GameStatus.Completed,
+    );
+    expect(useQuickGameStore.getState().game?.activeTacticalSession).toBeNull();
+    render(<QuickGamePage />);
+    expect(
+      await screen.findByTestId('play-again-same-btn'),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Damage Dealt')).toBeInTheDocument();
+    expect(
+      screen.queryByText(/Detailed battle results are unavailable/),
+    ).not.toBeInTheDocument();
+  });
+
+  it('keeps restart and exit usable when recorded details cannot be recovered', async () => {
+    const { game, terminal } = finishBattle(GameSide.Player);
+    useQuickGameStore.getState().reconcileTacticalCompletion(game.id, terminal);
+    useGameplayStore.setState({
+      session: null,
+      interactiveSession: null,
+      spectatorMode: null,
+    });
+    render(<QuickGamePage />);
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      /Detailed battle results are unavailable/,
+    );
+    expect(screen.getByTestId('play-again-same-btn')).toBeEnabled();
+    expect(screen.getByTestId('exit-btn')).toBeEnabled();
+    fireEvent.click(screen.getByTestId('play-again-new-btn'));
+    expect(
+      await screen.findByRole('heading', { name: 'Select Your Units' }),
+    ).toBeInTheDocument();
+    expect(useQuickGameStore.getState().game?.id).not.toBe(game.id);
   });
 });

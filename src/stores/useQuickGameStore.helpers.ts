@@ -18,10 +18,22 @@ export function matchesQuickGameSession(
   game: IQuickGameInstance | null,
   session: IGameSession | null,
 ): session is IGameSession {
+  if (!game || !session) return false;
+  if (game.activeTacticalSession) {
+    return game.activeTacticalSession.id === (session.matchId ?? session.id);
+  }
+  if (game.status !== GameStatus.Completed) return false;
+  const created = game.events.find(
+    (event) => event.type === GameEventType.GameCreated,
+  );
+  const sessionCreated = session.events.find(
+    (event) => event.type === GameEventType.GameCreated,
+  );
   return Boolean(
-    game?.activeTacticalSession &&
-    session &&
-    game.activeTacticalSession.id === (session.matchId ?? session.id),
+    created &&
+    sessionCreated &&
+    created.gameId === session.id &&
+    created.id === sessionCreated.id,
   );
 }
 
