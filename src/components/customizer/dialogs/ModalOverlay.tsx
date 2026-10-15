@@ -1,8 +1,6 @@
 /**
  * Modal Overlay Component
  *
- * Reusable modal overlay with backdrop and centering.
- *
  * @spec openspec/specs/confirmation-dialogs/spec.md
  */
 
@@ -11,25 +9,114 @@ import { createPortal } from 'react-dom';
 
 interface ModalOverlayProps {
   fullScreen?: boolean;
-  /** Whether modal is open */
+  /** Center this dialog in the native top layer; fullScreen retains precedence. */
+  topLayer?: boolean;
   isOpen: boolean;
-  /** Called when overlay is clicked or escape is pressed */
   onClose: () => void;
-  /** Prevent closing (e.g., during operation) */
   preventClose?: boolean;
-  /** Modal content */
   children: React.ReactNode;
-  /** Additional CSS classes for the modal container */
   className?: string;
-  /** ID of the element that names the dialog */
   ariaLabelledBy?: string;
-  /** ID of the element that describes the dialog */
   ariaDescribedBy?: string;
 }
 
-/**
- * Modal overlay with focus trapping
- */
+const bodyScrollLocks = new WeakMap<
+  HTMLElement,
+  { count: number; overflow: string }
+>();
+
+function acquireBodyScrollLock(): () => void {
+  const body = document.body;
+  let lock = bodyScrollLocks.get(body);
+  if (!lock) {
+    lock = { count: 0, overflow: body.style.overflow };
+    bodyScrollLocks.set(body, lock);
+  }
+  lock.count += 1;
+  body.style.overflow = 'hidden';
+  let released = false;
+  return () => {
+    if (released) return;
+    released = true;
+    lock.count -= 1;
+    if (lock.count === 0) {
+      body.style.overflow = lock.overflow;
+      bodyScrollLocks.delete(body);
+    }
+  };
+}
+
+function focusableElements(modal: HTMLElement, native: boolean): HTMLElement[] {
+  return Array.from(
+    modal.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]',
+    ),
+  ).filter((element) => {
+    const style = getComputedStyle(element);
+    return (
+      element.tabIndex >= 0 &&
+      !element.matches(':disabled') &&
+      style.visibility !== 'hidden' &&
+      style.display !== 'none' &&
+      (!native || element.getClientRects().length > 0)
+    );
+  });
+}
+
+function trapFocus(
+  event: React.KeyboardEvent<HTMLElement>,
+  native: boolean,
+): void {
+  if (event.key !== 'Tab') return;
+  const focusable = focusableElements(event.currentTarget, native);
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  if (!first) {
+    event.preventDefault();
+    event.currentTarget.focus();
+  } else if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
+}
+
+function useModalLifecycle<T extends HTMLElement>(
+  modalRef: React.RefObject<T | null>,
+  isOpen: boolean,
+  native: boolean,
+): void {
+  useLayoutEffect(() => {
+    const modal = modalRef.current;
+    if (!isOpen || !modal) return;
+    const opener = document.activeElement;
+    const releaseScroll = acquireBodyScrollLock();
+    try {
+      if (native && modal instanceof HTMLDialogElement) modal.showModal();
+      (focusableElements(modal, native)[0] ?? modal).focus();
+    } catch (error) {
+      releaseScroll();
+      throw error;
+    }
+    return () => {
+      if (native && modal instanceof HTMLDialogElement) modal.close();
+      releaseScroll();
+      if (
+        opener instanceof HTMLElement &&
+        opener.isConnected &&
+        opener.getClientRects().length > 0 &&
+        Array.from(document.querySelectorAll('dialog[open]')).every(
+          (remaining) => remaining.contains(opener),
+        )
+      ) {
+        opener.focus({ preventScroll: true });
+      }
+    };
+  }, [isOpen, modalRef, native]);
+}
+
 function CenteredModalOverlay({
   isOpen,
   onClose,
@@ -40,77 +127,49 @@ function CenteredModalOverlay({
   ariaDescribedBy,
 }: ModalOverlayProps): React.ReactElement | null {
   const modalRef = useRef<HTMLDivElement>(null);
-
-  // Handle escape key
+  useModalLifecycle(modalRef, isOpen, false);
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !preventClose) {
+    if (!isOpen) return;
+    const handleEscape = (event: KeyboardEvent) => {
+      if (
+        event.key === 'Escape' &&
+        !event.defaultPrevented &&
+        !preventClose &&
+        modalRef.current?.contains(document.activeElement) &&
+        !document.querySelector('dialog[open]')
+      ) {
+        event.preventDefault();
         onClose();
       }
     };
-
-    if (isOpen) {
-      document.addEventListener('keydown', handleKeyDown);
-      // Prevent body scroll
-      document.body.style.overflow = 'hidden';
-    }
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = '';
-    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen, onClose, preventClose]);
-
-  // Focus trap
-  useEffect(() => {
-    if (isOpen && modalRef.current) {
-      const focusableElements = modalRef.current.querySelectorAll<HTMLElement>(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-      );
-      const firstElement = focusableElements[0];
-      const lastElement = focusableElements[focusableElements.length - 1];
-
-      const handleTabKey = (e: KeyboardEvent) => {
-        if (e.key !== 'Tab') return;
-
-        if (e.shiftKey && document.activeElement === firstElement) {
-          e.preventDefault();
-          lastElement?.focus();
-        } else if (!e.shiftKey && document.activeElement === lastElement) {
-          e.preventDefault();
-          firstElement?.focus();
-        }
-      };
-
-      document.addEventListener('keydown', handleTabKey);
-      firstElement?.focus();
-
-      return () => {
-        document.removeEventListener('keydown', handleTabKey);
-      };
-    }
-  }, [isOpen]);
-
   if (!isOpen) return null;
-
-  const handleOverlayClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget && !preventClose) {
-      onClose();
-    }
-  };
-
   return (
     <div
       className="bg-surface-deep/80 fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
-      onClick={handleOverlayClick}
+      onPointerDown={(event) => event.stopPropagation()}
+      onClick={(event) => {
+        event.stopPropagation();
+        if (event.target === event.currentTarget && !preventClose) onClose();
+      }}
     >
       <div
         ref={modalRef}
+        tabIndex={-1}
         className={`bg-surface-base border-border-theme max-h-[90vh] w-full overflow-auto rounded-lg border shadow-xl ${className}`}
         role="dialog"
         aria-modal="true"
         aria-labelledby={ariaLabelledBy}
         aria-describedby={ariaDescribedBy}
+        onKeyDown={(event) => {
+          event.stopPropagation();
+          if (event.key === 'Escape') {
+            event.preventDefault();
+            if (!preventClose) onClose();
+          } else trapFocus(event, false);
+        }}
       >
         {children}
       </div>
@@ -118,7 +177,8 @@ function CenteredModalOverlay({
   );
 }
 
-function FullScreenModal({
+function NativeModal({
+  fullScreen = false,
   onClose,
   preventClose = false,
   children,
@@ -127,61 +187,36 @@ function FullScreenModal({
   ariaDescribedBy,
 }: ModalOverlayProps): React.ReactElement | null {
   const dialogRef = useRef<HTMLDialogElement>(null);
-
-  useLayoutEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-    const opener = document.activeElement;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    dialog.showModal();
-    return () => {
-      dialog.close();
-      document.body.style.overflow = previousOverflow;
-      if (
-        opener instanceof HTMLElement &&
-        opener.isConnected &&
-        opener.getClientRects().length > 0
-      ) {
-        opener.focus({ preventScroll: true });
-      }
-    };
-  }, []);
-
+  useModalLifecycle(dialogRef, true, true);
   if (typeof document === 'undefined') return null;
+  const layout = fullScreen
+    ? 'bg-surface-deep fixed inset-0 m-0 h-dvh max-h-none w-screen max-w-none overflow-hidden border-0 p-0 text-inherit'
+    : 'bg-surface-base border-border-theme fixed inset-0 m-auto max-h-[90vh] w-[calc(100%-2rem)] max-w-lg overflow-auto rounded-lg border p-0 text-inherit shadow-xl backdrop:bg-surface-deep/80';
   return createPortal(
     <dialog
       ref={dialogRef}
+      tabIndex={-1}
       aria-labelledby={ariaLabelledBy}
       aria-describedby={ariaDescribedBy}
       aria-modal="true"
-      className={`bg-surface-deep fixed inset-0 m-0 h-dvh max-h-none w-screen max-w-none overflow-hidden border-0 p-0 text-inherit ${className}`}
-      onKeyDown={(event) => {
-        if (event.key !== 'Tab') return;
-        const focusable = Array.from(
-          event.currentTarget.querySelectorAll<HTMLElement>(
-            'button, [href], input, select, textarea, [tabindex]',
-          ),
-        ).filter(
-          (element) =>
-            element.tabIndex >= 0 &&
-            !element.matches(':disabled') &&
-            element.getClientRects().length > 0 &&
-            getComputedStyle(element).visibility === 'visible',
-        );
-        const first = focusable[0];
-        const last = focusable[focusable.length - 1];
-        if (!first) {
-          event.preventDefault();
+      className={`${layout} ${className}`}
+      onPointerDown={(event) => event.stopPropagation()}
+      onClick={(event) => {
+        event.stopPropagation();
+        if (fullScreen || preventClose || event.target !== event.currentTarget)
           return;
-        }
-        if (event.shiftKey && document.activeElement === first) {
-          event.preventDefault();
-          last.focus();
-        } else if (!event.shiftKey && document.activeElement === last) {
-          event.preventDefault();
-          first.focus();
-        }
+        const rect = event.currentTarget.getBoundingClientRect();
+        if (
+          event.clientX < rect.left ||
+          event.clientX > rect.right ||
+          event.clientY < rect.top ||
+          event.clientY > rect.bottom
+        )
+          onClose();
+      }}
+      onKeyDown={(event) => {
+        event.stopPropagation();
+        trapFocus(event, true);
       }}
       onCancel={(event) => {
         event.preventDefault();
@@ -198,8 +233,8 @@ function FullScreenModal({
 export function ModalOverlay(
   props: ModalOverlayProps,
 ): React.ReactElement | null {
-  if (props.fullScreen) {
-    return props.isOpen ? <FullScreenModal {...props} /> : null;
+  if (props.fullScreen || props.topLayer) {
+    return props.isOpen ? <NativeModal {...props} /> : null;
   }
   return <CenteredModalOverlay {...props} />;
 }
