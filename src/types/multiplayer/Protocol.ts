@@ -563,9 +563,7 @@ export type ICampaignParticipation = z.infer<
 >;
 
 /**
- * Guest/host acknowledgement of an applied campaign event. `revision`
- * is that event's log sequence — the same number space
- * `evaluateScenarioLaunch` reads — not a grant delivery-epoch cursor.
+ * Legacy numeric observation only; never durable application evidence.
  */
 export const CampaignAckSchema = z.object({
   kind: z.literal('CampaignAck'),
@@ -574,8 +572,33 @@ export const CampaignAckSchema = z.object({
   playerId: z.string().min(1),
   campaignId: z.string().min(1),
   revision: z.number().int().nonnegative(),
+  appliedView: z.never().optional(),
 });
 export type ICampaignAck = z.infer<typeof CampaignAckSchema>;
+
+export const CampaignAppliedViewSchema = z
+  .object({
+    viewId: z.string().min(1),
+    receiptId: z.string().min(1),
+    previousReceiptId: z.string().min(1).nullable(),
+  })
+  .strict();
+export type ICampaignAppliedView = z.infer<typeof CampaignAppliedViewSchema>;
+
+/** Same opaque receipt in both directions; server confirmation follows commit. */
+export const CampaignApplicationAckSchema = z
+  .object({
+    kind: z.literal('CampaignAck'),
+    matchId: matchIdSchema,
+    ts: tsSchema,
+    playerId: z.string().min(1),
+    campaignId: z.string().min(1),
+    appliedView: CampaignAppliedViewSchema,
+  })
+  .strict();
+export type ICampaignApplicationAck = z.infer<
+  typeof CampaignApplicationAckSchema
+>;
 
 export const CampaignSyncClientKindSchema = z.enum([
   'CampaignJoin',
@@ -972,22 +995,60 @@ export const HostMigratedSchema = z.object({
 });
 export type IHostMigrated = z.infer<typeof HostMigratedSchema>;
 
-export const CampaignSnapshotMessageSchema = z.object({
-  kind: z.literal('CampaignSnapshot'),
-  matchId: matchIdSchema,
-  ts: tsSchema,
-  event: CampaignEventEnvelopeSchema,
-});
+export const CampaignSnapshotMessageSchema = z
+  .object({
+    kind: z.literal('CampaignSnapshot'),
+    matchId: matchIdSchema,
+    ts: tsSchema,
+    event: CampaignEventEnvelopeSchema,
+    appliedView: CampaignAppliedViewSchema.optional(),
+    hydrationFacts: z.array(CampaignEventEnvelopeSchema).optional(),
+  })
+  .superRefine((frame, ctx) => {
+    if (!frame.appliedView) return;
+    const facts = frame.hydrationFacts;
+    if (
+      frame.event.type !== 'CampaignSnapshotPublished' ||
+      (frame.event.sequence === -1) !==
+        (frame.appliedView.previousReceiptId === null) ||
+      (frame.appliedView.previousReceiptId === null &&
+        (frame.event.sequence !== -1 || !facts)) ||
+      facts?.some(
+        (fact, i) =>
+          fact.type !== 'CampaignMissionLaunched' ||
+          fact.campaignId !== frame.event.campaignId ||
+          fact.sequence < 0 ||
+          (i > 0 && fact.sequence <= facts[i - 1].sequence),
+      )
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Invalid application snapshot or hydration bundle',
+      });
+    }
+  });
 export type ICampaignSnapshotMessage = z.infer<
   typeof CampaignSnapshotMessageSchema
 >;
 
-export const CampaignEventMessageSchema = z.object({
-  kind: z.literal('CampaignEvent'),
-  matchId: matchIdSchema,
-  ts: tsSchema,
-  event: CampaignEventEnvelopeSchema,
-});
+export const CampaignEventMessageSchema = z
+  .object({
+    kind: z.literal('CampaignEvent'),
+    matchId: matchIdSchema,
+    ts: tsSchema,
+    event: CampaignEventEnvelopeSchema,
+    appliedView: CampaignAppliedViewSchema.optional(),
+  })
+  .superRefine((frame, ctx) => {
+    if (
+      frame.appliedView &&
+      (frame.event.type === 'CampaignSnapshotPublished' ||
+        frame.event.sequence < 0 ||
+        frame.appliedView.previousReceiptId === null)
+    ) {
+      ctx.addIssue({ code: 'custom', message: 'Invalid application event' });
+    }
+  });
 export type ICampaignEventMessage = z.infer<typeof CampaignEventMessageSchema>;
 
 export const CampaignProposalMessageSchema = z.object({
@@ -1046,6 +1107,20 @@ export const ServerMessageSchema = z.discriminatedUnion('kind', [
   CampaignGrantSnapshotSchema,
 ]);
 export type IServerMessage = z.infer<typeof ServerMessageSchema>;
+
+/** Staged campaign composition preserves the generic client/server kind sets. */
+export const CampaignApplicationClientMessageSchema = z.union([
+  CampaignApplicationAckSchema,
+  ClientMessageSchema,
+]);
+export const CampaignApplicationServerMessageSchema = z.union([
+  CampaignApplicationAckSchema,
+  ServerMessageSchema,
+]);
+export type ICampaignApplicationOffer = (
+  | ICampaignSnapshotMessage
+  | ICampaignEventMessage
+) & { appliedView: ICampaignAppliedView };
 
 // =============================================================================
 // Constants

@@ -53,6 +53,65 @@ beforeEach(() => {
   useCampaignMirrorStore.getState().reset();
 });
 
+describe('P2CD nullable application result', () => {
+  it('returns the installed shared fold, including a visible no-op', () => {
+    const store = useCampaignMirrorStore.getState();
+    const baseline = store.applySnapshot(snapshotEvent(-1, 20), 0);
+    expect(baseline).toEqual({
+      state: useCampaignMirrorStore.getState().campaign,
+      lastSequence: 0,
+    });
+    const applied = store.applyEvent(dayEvent(1, 0));
+    expect(applied).toEqual({
+      state: useCampaignMirrorStore.getState().campaign,
+      lastSequence: 1,
+    });
+    expect(store.applyEvent(dayEvent(1, 0))).toBeNull();
+  });
+
+  it('refuses malformed, stale and foreign frames without changing the accepted state', () => {
+    const store = useCampaignMirrorStore.getState();
+    store.applySnapshot(snapshotEvent(5, 20), 5);
+    const before = useCampaignMirrorStore.getState().campaign;
+    expect(store.applySnapshot(snapshotEvent(4, 10), 4)).toBeNull();
+    expect(
+      store.applySnapshot({ ...snapshotEvent(6, 10), campaignId: 'foreign' }),
+    ).toBeNull();
+    expect(
+      store.applySnapshot({
+        ...snapshotEvent(6, 10),
+        payload: { state: null },
+      } as unknown as ICampaignEvent),
+    ).toBeNull();
+    expect(
+      store.applyEvent({ ...dayEvent(6, 1), campaignId: 'foreign' }),
+    ).toBeNull();
+    expect(useCampaignMirrorStore.getState().campaign).toBe(before);
+  });
+
+  it('atomically installs an explicitly authorized replacement against empty fold', () => {
+    const store = useCampaignMirrorStore.getState();
+    store.applySnapshot(snapshotEvent(8, 20), 8);
+    const before = useCampaignMirrorStore.getState().campaign;
+    expect(
+      store.applySnapshot(
+        {
+          ...snapshotEvent(-1, 10),
+          payload: { state: null },
+        } as unknown as ICampaignEvent,
+        0,
+        true,
+      ),
+    ).toBeNull();
+    expect(useCampaignMirrorStore.getState().campaign).toBe(before);
+    expect(store.applySnapshot(snapshotEvent(-1, 10), 0, true)).toEqual({
+      state: useCampaignMirrorStore.getState().campaign,
+      lastSequence: 0,
+    });
+    expect(useCampaignMirrorStore.getState().campaign?.balance).toBe(10);
+  });
+});
+
 describe('isCampaignMirror', () => {
   it('is true when the local peer is the guest and a host exists', () => {
     expect(

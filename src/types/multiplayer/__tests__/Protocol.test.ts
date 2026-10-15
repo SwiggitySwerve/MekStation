@@ -16,6 +16,10 @@ import {
   CampaignJoinSchema,
   CampaignParticipationSchema,
   CampaignProposalSchema,
+  CampaignAppliedViewSchema,
+  CampaignApplicationAckSchema,
+  CampaignApplicationClientMessageSchema,
+  CampaignApplicationServerMessageSchema,
   ClientMessageSchema,
   ErrorMessageSchema,
   IntentSchema,
@@ -29,6 +33,132 @@ import {
   isCampaignClientMessage,
   nowIso,
 } from '../Protocol';
+
+describe('P2CD application receipt protocol', () => {
+  const appliedView = {
+    viewId: 'opaque-view',
+    receiptId: 'opaque-receipt',
+    previousReceiptId: null,
+  };
+  const ack = {
+    kind: 'CampaignAck',
+    matchId: 'm1',
+    ts: '2026-10-16T00:00:00.000Z',
+    playerId: 'p1',
+    campaignId: 'c1',
+    appliedView,
+  };
+  const event = {
+    type: 'CampaignSnapshotPublished',
+    campaignId: 'c1',
+    sequence: -1,
+    ts: ack.ts,
+    authorPlayerId: 'p1',
+    scope: 'campaign',
+    payload: {},
+  };
+  const snapshot = {
+    kind: 'CampaignSnapshot',
+    matchId: 'm1',
+    ts: ack.ts,
+    event,
+    appliedView,
+    hydrationFacts: [],
+  };
+
+  it('round-trips opaque receipts in both campaign directions without widening legacy unions', () => {
+    expect(CampaignAppliedViewSchema.parse(appliedView)).toEqual(appliedView);
+    expect(CampaignApplicationAckSchema.parse(ack)).toEqual(ack);
+    expect(CampaignApplicationClientMessageSchema.parse(ack)).toEqual(ack);
+    expect(CampaignApplicationServerMessageSchema.parse(ack)).toEqual(ack);
+    expect(ClientMessageSchema.safeParse(ack).success).toBe(false);
+    expect(ServerMessageSchema.safeParse(ack).success).toBe(false);
+  });
+
+  it.each([
+    null,
+    {},
+    { ...appliedView, receiptId: 1 },
+    { ...appliedView, previousReceiptId: '' },
+    { ...appliedView, journalRevision: 2 },
+  ])('rejects malformed present metadata: %j', (value) => {
+    expect(CampaignAppliedViewSchema.safeParse(value).success).toBe(false);
+    expect(
+      CampaignApplicationServerMessageSchema.safeParse({
+        ...snapshot,
+        appliedView: value,
+      }).success,
+    ).toBe(false);
+    expect(
+      ServerMessageSchema.safeParse({ ...snapshot, appliedView: value })
+        .success,
+    ).toBe(false);
+  });
+
+  it('requires explicit hydration, same-campaign ordered launch adjuncts and real discriminants', () => {
+    const fact = { ...event, type: 'CampaignMissionLaunched', sequence: 2 };
+    expect(CampaignApplicationServerMessageSchema.parse(snapshot)).toEqual(
+      snapshot,
+    );
+    expect(
+      CampaignApplicationServerMessageSchema.parse({
+        ...snapshot,
+        hydrationFacts: [fact],
+      }),
+    ).toEqual({ ...snapshot, hydrationFacts: [fact] });
+    for (const frame of [
+      { ...snapshot, hydrationFacts: undefined },
+      { ...snapshot, event: { ...event, type: 'CampaignDayAdvanced' } },
+      { ...snapshot, hydrationFacts: [{ ...fact, campaignId: 'foreign' }] },
+      { ...snapshot, hydrationFacts: [fact, fact] },
+      { ...snapshot, hydrationFacts: [event] },
+      { ...snapshot, kind: 'CampaignEvent' },
+    ])
+      expect(
+        CampaignApplicationServerMessageSchema.safeParse(frame).success,
+      ).toBe(false);
+    const { appliedView: _view, hydrationFacts: _facts, ...legacy } = snapshot;
+    expect(ServerMessageSchema.parse(legacy)).toEqual(legacy);
+  });
+
+  it('refuses mixed receipt/revision ACKs instead of downgrading them', () => {
+    for (const schema of [
+      CampaignApplicationAckSchema,
+      CampaignApplicationClientMessageSchema,
+      CampaignApplicationServerMessageSchema,
+      ClientMessageSchema,
+    ]) {
+      expect(schema.safeParse({ ...ack, revision: 5 }).success).toBe(false);
+    }
+    expect(
+      ClientMessageSchema.parse({
+        kind: 'CampaignAck',
+        matchId: 'm1',
+        ts: ack.ts,
+        playerId: 'p1',
+        campaignId: 'c1',
+        revision: 5,
+      }),
+    ).toHaveProperty('revision', 5);
+  });
+
+  it('preserves legacy unknown-field stripping without stripping receipt intent', () => {
+    const legacy = {
+      kind: 'CampaignAck',
+      matchId: 'm1',
+      ts: ack.ts,
+      playerId: 'p1',
+      campaignId: 'c1',
+      revision: 5,
+    };
+    expect(
+      ClientMessageSchema.parse({ ...legacy, oldExtension: true }),
+    ).toEqual(legacy);
+    expect(
+      ClientMessageSchema.safeParse({ ...legacy, appliedView: null }).success,
+    ).toBe(false);
+  });
+});
 
 describe('Protocol envelope schemas', () => {
   it('U4 preserves optional lobby correlation and accepts legacy frames', () => {

@@ -32,8 +32,10 @@ import type {
 } from '@/types/campaign/CampaignSync';
 
 import {
+  EMPTY_CAMPAIGN_AUTHORITATIVE_FOLD,
   foldCampaignEvent,
   foldCampaignSnapshot,
+  type ICampaignAuthoritativeFold,
 } from '@/lib/campaign/coop/campaignAuthoritativeFold';
 
 // =============================================================================
@@ -180,7 +182,11 @@ interface CampaignMirrorActions {
    * — so `applyEvent` accepts the post-snapshot live events and rejects
    * stale tail events the snapshot already folded in.
    */
-  applySnapshot: (snapshot: ICampaignEvent, resumeSequence?: number) => void;
+  applySnapshot: (
+    snapshot: ICampaignEvent,
+    resumeSequence?: number,
+    replacement?: boolean,
+  ) => ICampaignAuthoritativeFold | null;
   /**
    * Advance the mirror by ONE host-broadcast campaign event through the
    * shared `applyCampaignEvent` reducer. This is the ONLY way a guest
@@ -188,7 +194,7 @@ interface CampaignMirrorActions {
    * events (sequence <= `lastSequence`) are ignored — a replay burst
    * that arrived interleaved with live events still converges.
    */
-  applyEvent: (event: ICampaignEvent) => void;
+  applyEvent: (event: ICampaignEvent) => ICampaignAuthoritativeFold | null;
   /**
    * Apply an ordered batch of events (a replay stream or a resync
    * tail). Each event funnels through `applyEvent`, so the same
@@ -232,29 +238,43 @@ export const useCampaignMirrorStore = create<CampaignMirrorStore>()((set) => ({
     });
   },
 
-  applySnapshot: (snapshot: ICampaignEvent, resumeSequence?: number): void => {
+  applySnapshot: (snapshot, resumeSequence, replacement = false) => {
+    let accepted: ICampaignAuthoritativeFold | null = null;
     set((state) => {
+      if (
+        !replacement &&
+        state.campaign &&
+        state.campaign.campaignId !== snapshot.campaignId
+      )
+        return {};
       // The adoption rules live in `campaignAuthoritativeFold` so the
       // GM/host surface folds its own stream through the SAME reducer
       // (design D9), not a second copy that can drift from this one.
       const next = foldCampaignSnapshot(
-        { state: state.campaign, lastSequence: state.lastSequence },
+        replacement
+          ? EMPTY_CAMPAIGN_AUTHORITATIVE_FOLD
+          : { state: state.campaign, lastSequence: state.lastSequence },
         snapshot,
         resumeSequence,
       );
       if (!next) {
         return {};
       }
+      accepted = next;
       return {
         campaign: next.state,
         lastSequence: next.lastSequence,
         paused: false,
       };
     });
+    return accepted;
   },
 
-  applyEvent: (event: ICampaignEvent): void => {
+  applyEvent: (event) => {
+    let accepted: ICampaignAuthoritativeFold | null = null;
     set((state) => {
+      if (state.campaign && state.campaign.campaignId !== event.campaignId)
+        return {};
       // Out-of-order / duplicate guard — a replayed event the guest
       // also saw live during a reconnect race is dropped. Same shared
       // fold as `applySnapshot`.
@@ -265,8 +285,10 @@ export const useCampaignMirrorStore = create<CampaignMirrorStore>()((set) => ({
       if (!next) {
         return {};
       }
+      accepted = next;
       return { campaign: next.state, lastSequence: next.lastSequence };
     });
+    return accepted;
   },
 
   applyEvents: (events: readonly ICampaignEvent[]): void => {
