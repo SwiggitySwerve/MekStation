@@ -7,56 +7,27 @@
  * @spec openspec/changes/add-desktop-qol-features/specs/desktop-experience/spec.md
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React from 'react';
 
 import { ModalOverlay } from '@/components/customizer/dialogs/ModalOverlay';
 import { Button } from '@/components/ui';
+import { DialogTemplate } from '@/components/ui/DialogTemplate';
 import { SvgIcon } from '@/components/ui/SvgIcon';
-import { logger } from '@/utils/logger';
 
+import type {
+  DesktopSettingsDialogProps,
+  DesktopSettingsDialogState,
+  SettingsTab,
+} from './DesktopSettingsDialog.state';
 import type { TabContentProps } from './DesktopSettingsDialog.tabs';
-import type { IDesktopSettings } from './useElectron';
 
+import { useDesktopSettingsDialogState } from './DesktopSettingsDialog.state';
 import {
   AdvancedTab,
   BackupsTab,
   GeneralTab,
   UpdatesTab,
 } from './DesktopSettingsDialog.tabs';
-import { useDesktopSettings } from './useDesktopSettings';
-import { useElectron } from './useElectron';
-
-type SettingsTab = 'general' | 'backups' | 'updates' | 'advanced';
-
-interface DesktopSettingsDialogProps {
-  /** Whether the dialog is open */
-  isOpen: boolean;
-  /** Called when the dialog is closed */
-  onClose: () => void;
-}
-
-interface DesktopSettingsDialogState {
-  readonly api: ReturnType<typeof useElectron>;
-  readonly activeTab: SettingsTab;
-  readonly hasChanges: boolean;
-  readonly isElectron: boolean;
-  readonly isOpen: boolean;
-  readonly isLoading: boolean;
-  readonly isSaving: boolean;
-  readonly localSettings: IDesktopSettings | null;
-  readonly setActiveTab: (tab: SettingsTab) => void;
-  readonly updateLocalSetting: <K extends keyof IDesktopSettings>(
-    key: K,
-    value: IDesktopSettings[K],
-  ) => void;
-  readonly handleApply: () => Promise<void>;
-  readonly handleClose: () => void;
-  readonly handleReset: () => Promise<void>;
-  readonly handleSave: () => Promise<void>;
-  readonly handleSelectDirectory: (
-    key: 'defaultSaveDirectory' | 'backupDirectory' | 'dataDirectory',
-  ) => Promise<void>;
-}
 
 const TABS: ReadonlyArray<{
   readonly id: SettingsTab;
@@ -84,130 +55,6 @@ export function DesktopSettingsDialog({
   return <DesktopSettingsDialogShell dialog={dialog} />;
 }
 
-function useDesktopSettingsDialogState({
-  isOpen,
-  onClose,
-}: DesktopSettingsDialogProps): DesktopSettingsDialogState {
-  const api = useElectron();
-  const { settings, isLoading, updateSettings, resetSettings, isElectron } =
-    useDesktopSettings();
-  const [localSettings, setLocalSettings] = useState<IDesktopSettings | null>(
-    null,
-  );
-  const [activeTab, setActiveTab] = useState<SettingsTab>('general');
-  const [isSaving, setIsSaving] = useState(false);
-  const [hasChanges, setHasChanges] = useState(false);
-
-  useEffect(() => {
-    if (isOpen && settings) {
-      setLocalSettings({ ...settings });
-      setHasChanges(false);
-    }
-  }, [isOpen, settings]);
-
-  const updateLocalSetting = useCallback(
-    <K extends keyof IDesktopSettings>(key: K, value: IDesktopSettings[K]) => {
-      setLocalSettings((prev) => (prev ? { ...prev, [key]: value } : null));
-      setHasChanges(true);
-    },
-    [],
-  );
-
-  const handleSave = useCallback(async () => {
-    if (!localSettings) return;
-
-    setIsSaving(true);
-    try {
-      const result = await updateSettings(localSettings);
-      if (result.success) {
-        setHasChanges(false);
-        onClose();
-      }
-    } finally {
-      setIsSaving(false);
-    }
-  }, [localSettings, updateSettings, onClose]);
-
-  const handleApply = useCallback(async () => {
-    if (!localSettings) return;
-
-    setIsSaving(true);
-    try {
-      const result = await updateSettings(localSettings);
-      if (result.success) {
-        setHasChanges(false);
-      }
-    } finally {
-      setIsSaving(false);
-    }
-  }, [localSettings, updateSettings]);
-
-  const handleReset = useCallback(async () => {
-    if (
-      !confirm('Are you sure you want to reset all settings to their defaults?')
-    ) {
-      return;
-    }
-
-    setIsSaving(true);
-    try {
-      const result = await resetSettings();
-      if (result.success) {
-        setHasChanges(false);
-      }
-    } finally {
-      setIsSaving(false);
-    }
-  }, [resetSettings]);
-
-  const handleClose = useCallback(() => {
-    if (hasChanges) {
-      if (
-        !confirm('You have unsaved changes. Are you sure you want to close?')
-      ) {
-        return;
-      }
-    }
-    onClose();
-  }, [hasChanges, onClose]);
-
-  const handleSelectDirectory = useCallback(
-    async (
-      key: 'defaultSaveDirectory' | 'backupDirectory' | 'dataDirectory',
-    ) => {
-      if (!api) return;
-
-      try {
-        const result = await api.selectDirectory();
-        if (!result.canceled && result.filePaths.length > 0) {
-          updateLocalSetting(key, result.filePaths[0]);
-        }
-      } catch (error) {
-        logger.error('Failed to select directory:', error);
-      }
-    },
-    [api, updateLocalSetting],
-  );
-
-  return {
-    api,
-    activeTab,
-    hasChanges,
-    isElectron,
-    isOpen,
-    isLoading,
-    isSaving,
-    localSettings,
-    setActiveTab,
-    updateLocalSetting,
-    handleApply,
-    handleClose,
-    handleReset,
-    handleSave,
-    handleSelectDirectory,
-  };
-}
-
 function DesktopSettingsDialogShell({
   dialog,
 }: {
@@ -222,42 +69,91 @@ function DesktopSettingsDialogShell({
   };
 
   return (
-    <ModalOverlay
-      isOpen={dialog.isOpen}
-      onClose={dialog.handleClose}
-      preventClose={dialog.isSaving}
-      className="max-h-[80vh] w-[600px] overflow-hidden"
-    >
-      <div className="flex h-full flex-col">
-        <DesktopSettingsHeader
-          isSaving={dialog.isSaving}
-          onClose={dialog.handleClose}
-        />
-
-        <div className="flex flex-1 overflow-hidden">
-          <TabNavigation
-            activeTab={dialog.activeTab}
-            onTabChange={dialog.setActiveTab}
+    <>
+      <ModalOverlay
+        isOpen={dialog.isOpen}
+        onClose={dialog.handleClose}
+        preventClose={dialog.isSaving}
+        ariaLabelledBy="desktop-settings-title"
+        className="max-h-[80vh] w-[600px] overflow-hidden"
+      >
+        <div className="flex h-full flex-col">
+          <DesktopSettingsHeader
+            isSaving={dialog.isSaving}
+            onClose={dialog.handleClose}
           />
 
-          <div className="flex-1 overflow-y-auto p-6">
-            <DesktopSettingsTabContent
+          <div className="flex flex-1 overflow-hidden">
+            <TabNavigation
               activeTab={dialog.activeTab}
-              isLoading={dialog.isLoading}
-              tabContentProps={tabContentProps}
+              onTabChange={dialog.setActiveTab}
             />
-          </div>
-        </div>
 
-        <DesktopSettingsFooter
-          hasChanges={dialog.hasChanges}
-          isSaving={dialog.isSaving}
-          onApply={dialog.handleApply}
-          onClose={dialog.handleClose}
-          onSave={dialog.handleSave}
-        />
-      </div>
-    </ModalOverlay>
+            <fieldset
+              disabled={dialog.isSaving}
+              className="min-w-0 flex-1 overflow-y-auto border-0 p-6"
+            >
+              <DesktopSettingsTabContent
+                activeTab={dialog.activeTab}
+                isLoading={dialog.isLoading}
+                tabContentProps={tabContentProps}
+              />
+            </fieldset>
+          </div>
+
+          {dialog.resetStatus && (
+            <p
+              role={dialog.resetStatus.error ? 'alert' : 'status'}
+              className="text-text-theme-primary px-6 py-2 text-sm"
+            >
+              {dialog.resetStatus.message}
+            </p>
+          )}
+          <DesktopSettingsFooter
+            hasChanges={dialog.hasChanges}
+            isSaving={dialog.isSaving}
+            onApply={dialog.handleApply}
+            onClose={dialog.handleClose}
+            onSave={dialog.handleSave}
+          />
+        </div>
+      </ModalOverlay>
+      <DialogTemplate
+        topLayer
+        isOpen={dialog.isOpen && dialog.decision !== null}
+        onClose={dialog.dismissDecision}
+        preventClose={dialog.isSaving}
+        title={
+          dialog.decision?.action === 'reset'
+            ? 'Reset desktop settings?'
+            : 'Discard unsaved changes?'
+        }
+        footer={
+          <>
+            <Button
+              variant="secondary"
+              onClick={dialog.dismissDecision}
+              disabled={dialog.isSaving}
+            >
+              {dialog.decision?.action === 'reset' ? 'Cancel' : 'Keep editing'}
+            </Button>
+            <Button
+              variant="danger"
+              onClick={dialog.approveDecision}
+              disabled={dialog.isSaving}
+            >
+              {dialog.decision?.action === 'reset'
+                ? 'Reset settings'
+                : 'Discard changes'}
+            </Button>
+          </>
+        }
+      >
+        {dialog.decision?.action === 'reset'
+          ? 'Restore all desktop settings to their defaults?'
+          : 'Your unsaved settings changes will be lost.'}
+      </DialogTemplate>
+    </>
   );
 }
 
@@ -270,10 +166,14 @@ function DesktopSettingsHeader({
 }): React.ReactElement {
   return (
     <div className="border-border-theme-subtle flex items-center justify-between border-b px-6 py-4">
-      <h2 className="text-text-theme-primary text-xl font-semibold">
+      <h2
+        id="desktop-settings-title"
+        className="text-text-theme-primary text-xl font-semibold"
+      >
         Preferences
       </h2>
       <button
+        aria-label="Close preferences"
         onClick={onClose}
         className="text-text-theme-secondary hover:text-text-theme-primary rounded p-1"
         disabled={isSaving}
