@@ -5,6 +5,15 @@ for (const width of [1351, 1055, 768]) {
     page,
   }, testInfo) => {
     await page.setViewportSize({ width, height: 912 });
+    expect(await page.evaluate(() => [innerWidth, innerHeight])).toEqual([
+      width,
+      912,
+    ]);
+    const nativeDialogs: string[] = [];
+    page.on('dialog', async (dialog) => {
+      nativeDialogs.push(`${dialog.type()}: ${dialog.message()}`);
+      await dialog.dismiss();
+    });
     await page.goto('/customizer');
     await page
       .getByRole('button', { name: 'Load from Library', exact: true })
@@ -37,6 +46,8 @@ for (const width of [1351, 1055, 768]) {
         .getByRole('button', { name: 'Open loadout drawer', exact: true })
         .click();
     }
+    const fixedHeader = page.getByRole('button', { name: /^Fixed systems/ });
+    await fixedHeader.click();
     await trigger.click();
     const menu = page.locator('#loadout-actions');
     await expect(menu).toBeVisible();
@@ -81,19 +92,105 @@ for (const width of [1351, 1055, 768]) {
     await expect(
       menu.getByRole('button', { name: 'category', exact: true }),
     ).toHaveAttribute('aria-pressed', 'true');
-    const confirm = page.waitForEvent('dialog').then(async (dialog) => {
-      const message = dialog.message();
-      await dialog.dismiss();
-      return message;
+    await trigger.click();
+    await expect(menu).toBeHidden();
+    const fixedGroups = fixedHeader.locator('..').getByRole('button', {
+      name: /^Show \d+ instances/,
     });
-    await menu.getByRole('button', { name: /^Remove all removable/ }).click();
-    expect(await confirm).toMatch(
-      /^Remove all \d+ removable equipment items\?$/,
+    const fixedGroupCount = await fixedGroups.count();
+    for (let group = 0; group < fixedGroupCount; group += 1) {
+      await fixedGroups.first().click();
+    }
+    await trigger.click();
+    await expect(menu).toBeVisible();
+    const removeAll = menu.getByRole('button', {
+      name: /^Remove all removable/,
+    });
+    const removableCount = Number(
+      (await removeAll.innerText()).match(/\d+/)![0],
     );
+    expect(removableCount).toBeGreaterThan(0);
+    const fixedNames = () =>
+      page
+        .locator('[title="Managed by configuration"]')
+        .evaluateAll((locks) =>
+          locks
+            .map((lock) =>
+              lock
+                .parentElement!.parentElement!.querySelector('button')!
+                .getAttribute('aria-label'),
+            )
+            .sort(),
+        );
+    const fixedBefore = await fixedNames();
+    expect(fixedBefore.length).toBeGreaterThan(0);
+    await removeAll.click();
+    const confirmation = page.getByRole('dialog', {
+      name: 'Remove removable equipment?',
+      exact: true,
+    });
+    await expect(confirmation).toBeVisible();
+    await expect(confirmation).toHaveAttribute('aria-modal', 'true');
+    await expect(confirmation).toContainText(
+      `Remove all ${removableCount} removable equipment items?`,
+    );
+    await confirmation
+      .getByRole('button', { name: 'Cancel', exact: true })
+      .click();
+    await expect(confirmation).toBeHidden();
+    await expect(removeAll).toBeFocused();
     await expect(menu).toBeVisible();
     await page.keyboard.press('Escape');
     await expect(menu).toBeHidden();
     expect(await storedDraft()).toBe(before);
+    await trigger.click();
+    await removeAll.click();
+    await expect(confirmation).toBeVisible();
+    await confirmation.screenshot({
+      path: testInfo.outputPath('remove-confirmation.png'),
+    });
+    await confirmation
+      .getByRole('button', { name: 'Remove equipment', exact: true })
+      .click();
+    await expect(confirmation).toBeHidden();
+    await expect(menu).toBeHidden();
+    await trigger.click();
+    await expect(removeAll).toHaveText('Remove all removable (0)');
+    await expect(removeAll).toBeDisabled();
+    expect(await fixedNames()).toEqual(fixedBefore);
+    const after = await storedDraft();
+    const beforeEquipment = JSON.parse(before!).state.equipment as {
+      instanceId: string;
+    }[];
+    const afterEquipment = JSON.parse(after!).state.equipment as {
+      instanceId: string;
+    }[];
+    expect(beforeEquipment.length - afterEquipment.length).toBe(removableCount);
+    expect(
+      afterEquipment.every((item) =>
+        beforeEquipment.some(
+          (previous) => previous.instanceId === item.instanceId,
+        ),
+      ),
+    ).toBe(true);
+    await page.keyboard.press('Escape');
+    await page.reload();
+    expect(await storedDraft()).toBe(after);
+    expect(nativeDialogs).toEqual([]);
+    await testInfo.attach('removal-state.json', {
+      body: JSON.stringify(
+        {
+          removableCount,
+          fixedBefore,
+          beforeEquipment,
+          afterEquipment,
+          nativeDialogs,
+        },
+        null,
+        2,
+      ),
+      contentType: 'application/json',
+    });
     await testInfo.attach('loadout-menu-measurements.json', {
       body: JSON.stringify(measurements, null, 2),
       contentType: 'application/json',

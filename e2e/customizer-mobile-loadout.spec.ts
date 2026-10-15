@@ -1,9 +1,111 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page, type Locator } from '@playwright/test';
+
+const nativeDialogs = new WeakMap<Page, string[]>();
+test.beforeEach(async ({ page }) => {
+  const events: string[] = [];
+  nativeDialogs.set(page, events);
+  page.on('dialog', async (dialog) => {
+    events.push(`${dialog.type()}: ${dialog.message()}`);
+    await dialog.dismiss();
+  });
+});
+test.afterEach(async ({ page }, testInfo) => {
+  const events = nativeDialogs.get(page) ?? [];
+  await testInfo.attach('native-dialogs.json', {
+    body: JSON.stringify(events),
+    contentType: 'application/json',
+  });
+  expect(events).toEqual([]);
+});
+
+async function assertViewport(page: Page, width = 390, height = 844) {
+  expect(await page.evaluate(() => [innerWidth, innerHeight])).toEqual([
+    width,
+    height,
+  ]);
+}
+
+async function loadStock(
+  page: Page,
+  search = 'Atlas AS7-D',
+  variant = 'AS7-D',
+  fromCurrentUnit = false,
+) {
+  if (!fromCurrentUnit) await page.goto('/customizer');
+  const previousUnitId = new URL(page.url()).pathname.split('/')[2];
+  await page
+    .getByRole('button', {
+      name: fromCurrentUnit ? 'Add unit (Ctrl+O)' : 'Load from Library',
+      exact: true,
+    })
+    .click();
+  const library = page.getByRole('dialog', { name: 'Add unit', exact: true });
+  await library.getByRole('combobox').first().selectOption('canonical');
+  await library
+    .getByPlaceholder('Search by chassis or variant...')
+    .fill(search);
+  await library.getByText(variant, { exact: true }).click();
+  await library.getByRole('button', { name: 'Load Unit', exact: true }).click();
+  await expect(library).toBeHidden();
+  await expect(page).toHaveURL(/\/customizer\/[0-9a-f-]{36}(?:\/[^/]+)?$/);
+  await expect
+    .poll(() => new URL(page.url()).pathname.split('/')[2])
+    .not.toBe(previousUnitId);
+  return new URL(page.url()).pathname;
+}
+
+async function storedEquipment(page: Page, route?: string) {
+  return page.evaluate((pathname) => {
+    const id = (pathname ?? location.pathname).split('/')[2];
+    const raw = localStorage.getItem(`megamek-unit-${id}`);
+    if (!raw) throw new Error(`No saved draft for ${id}`);
+    return JSON.parse(raw).state.equipment as { instanceId: string }[];
+  }, route);
+}
+
+async function openMobile(page: Page) {
+  await page
+    .getByRole('button', { name: 'Expand loadout', exact: true })
+    .click();
+  const drawer = page.getByRole('dialog', {
+    name: 'Equipment Loadout',
+    exact: true,
+  });
+  await expect(drawer).toBeVisible();
+  await expect(drawer).toHaveAttribute('open', '');
+  return drawer;
+}
+
+async function openClear(page: Page, drawer: Locator) {
+  await drawer.getByRole('button', { name: 'Clear All', exact: true }).click();
+  const child = page.getByRole('dialog', {
+    name: 'Clear equipment loadout?',
+    exact: true,
+  });
+  await expect(child).toBeVisible();
+  await expect(child).toHaveAttribute('open', '');
+  await expect(child).toHaveAttribute('aria-modal', 'true');
+  return child;
+}
+
+async function pointerHits(button: Locator) {
+  await expect
+    .poll(() =>
+      button.evaluate((el) => {
+        const r = el.getBoundingClientRect();
+        return el.contains(
+          document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2),
+        );
+      }),
+    )
+    .toBe(true);
+}
 
 test('mobile loadout is a keyboard modal above navigation @customizer', async ({
   page,
 }, testInfo) => {
   await page.setViewportSize({ width: 390, height: 844 });
+  await assertViewport(page);
   await page.goto('/customizer');
   await page.getByRole('button', { name: 'Load from Library' }).click();
   await page
@@ -63,6 +165,7 @@ test('mobile loadout is a keyboard modal above navigation @customizer', async ({
     fullPage: true,
   });
   await page.setViewportSize({ width: 1280, height: 900 });
+  await assertViewport(page, 1280, 900);
   await expect(drawer).toBeHidden();
   await expect(
     page.getByRole('tab', { name: 'Equipment', exact: true }),
@@ -73,6 +176,7 @@ test('mobile equipment actions retain identity and focus through mounting and re
   page,
 }, testInfo) => {
   await page.setViewportSize({ width: 390, height: 844 });
+  await assertViewport(page);
   await page.goto('/customizer');
   await page.getByRole('button', { name: 'Load from Library' }).click();
   await page
@@ -209,4 +313,223 @@ test('mobile equipment actions retain identity and focus through mounting and re
   expect(
     (await equipment()).some((item) => item.instanceId === instance.instanceId),
   ).toBe(false);
+});
+
+test('mobile bulk confirmation is centered above its parent and persists only approval @customizer', async ({
+  page,
+}, testInfo) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await assertViewport(page);
+  await loadStock(page);
+  const before = await storedEquipment(page);
+  const baselineOverflow = await page.evaluate(
+    () => document.body.style.overflow,
+  );
+  expect(baselineOverflow).not.toBe('hidden');
+  const drawer = await openMobile(page);
+  await expect
+    .poll(() => page.evaluate(() => document.body.style.overflow))
+    .toBe('hidden');
+  const clear = drawer.getByRole('button', { name: 'Clear All', exact: true });
+  let child = await openClear(page, drawer);
+  await expect
+    .poll(() => page.evaluate(() => document.body.style.overflow))
+    .toBe('hidden');
+  const geometry = await child.evaluate((el) => {
+    const r = el.getBoundingClientRect();
+    return {
+      x: r.x,
+      y: r.y,
+      width: r.width,
+      height: r.height,
+      centerX: r.x + r.width / 2,
+      centerY: r.y + r.height / 2,
+      position: getComputedStyle(el).position,
+    };
+  });
+  expect(Math.abs(geometry.centerX - 195)).toBeLessThanOrEqual(1);
+  expect(Math.abs(geometry.centerY - 422)).toBeLessThanOrEqual(1);
+  expect(geometry.position).toBe('fixed');
+  const cancel = child.getByRole('button', { name: 'Cancel', exact: true });
+  const approve = child.getByRole('button', {
+    name: 'Clear equipment',
+    exact: true,
+  });
+  await pointerHits(cancel);
+  await pointerHits(approve);
+  const first = child.getByRole('button', {
+    name: 'Close dialog',
+    exact: true,
+  });
+  await expect(first).toBeFocused();
+  await first.press('Shift+Tab');
+  await expect(approve).toBeFocused();
+  await approve.press('Tab');
+  await expect(first).toBeFocused();
+  await first.press('Tab');
+  await expect(cancel).toBeFocused();
+  await cancel.press('Escape');
+  await expect(child).toBeHidden();
+  await expect(drawer).toBeVisible();
+  await expect(clear).toBeFocused();
+  await expect
+    .poll(() => page.evaluate(() => document.body.style.overflow))
+    .toBe('hidden');
+  expect(await storedEquipment(page)).toEqual(before);
+  child = await openClear(page, drawer);
+  await pointerHits(child.getByRole('button', { name: 'Cancel', exact: true }));
+  await child.getByRole('button', { name: 'Cancel', exact: true }).click();
+  await expect(child).toBeHidden();
+  await expect(clear).toBeFocused();
+  await expect
+    .poll(() => page.evaluate(() => document.body.style.overflow))
+    .toBe('hidden');
+  expect(await storedEquipment(page)).toEqual(before);
+  child = await openClear(page, drawer);
+  const count = Number(
+    (await child.innerText()).match(/Remove all (\d+) equipment/)![1],
+  );
+  expect(count).toBeGreaterThan(0);
+  await child.screenshot({
+    path: testInfo.outputPath('mobile-bulk-confirmation.png'),
+  });
+  await pointerHits(
+    child.getByRole('button', { name: 'Clear equipment', exact: true }),
+  );
+  await child
+    .getByRole('button', { name: 'Clear equipment', exact: true })
+    .click();
+  await expect(child).toBeHidden();
+  await expect(drawer).toBeVisible();
+  await expect(clear).toHaveCount(0);
+  await expect
+    .poll(() => page.evaluate(() => document.body.style.overflow))
+    .toBe('hidden');
+  const after = await storedEquipment(page);
+  expect(before.length - after.length).toBe(count);
+  expect(
+    after.every((item) =>
+      before.some((old) => old.instanceId === item.instanceId),
+    ),
+  ).toBe(true);
+  await expect(
+    drawer.getByRole('button', { name: /^Select /, pressed: true }),
+  ).toHaveCount(0);
+  await drawer.getByRole('button', { name: 'Close', exact: true }).click();
+  await expect
+    .poll(() => page.evaluate(() => document.body.style.overflow))
+    .toBe(baselineOverflow);
+  await page.reload();
+  await expect(
+    page.getByRole('button', { name: 'Expand loadout', exact: true }),
+  ).toBeVisible();
+  expect(await storedEquipment(page)).toEqual(after);
+  await testInfo.attach('bulk-state.json', {
+    body: JSON.stringify(
+      { before, after, count, geometry, baselineOverflow },
+      null,
+      2,
+    ),
+    contentType: 'application/json',
+  });
+});
+
+test('mobile pending confirmation is discarded when its parent disappears on the same unit @customizer', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await assertViewport(page);
+  const route = await loadStock(page);
+  const before = await storedEquipment(page);
+  const initialOverflow = await page.evaluate(
+    () => document.body.style.overflow,
+  );
+  expect(initialOverflow).not.toBe('hidden');
+  const drawer = await openMobile(page);
+  await expect
+    .poll(() => page.evaluate(() => document.body.style.overflow))
+    .toBe('hidden');
+  const child = await openClear(page, drawer);
+  await expect
+    .poll(() => page.evaluate(() => document.body.style.overflow))
+    .toBe('hidden');
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await assertViewport(page, 1280, 900);
+  await expect(drawer).toBeHidden();
+  await expect(child).toBeHidden();
+  expect(new URL(page.url()).pathname).toBe(route);
+  expect(await storedEquipment(page)).toEqual(before);
+  await expect
+    .poll(() => page.evaluate(() => document.body.style.overflow))
+    .toBe(initialOverflow);
+  expect(await page.evaluate(() => document.activeElement?.isConnected)).toBe(
+    true,
+  );
+  await page.setViewportSize({ width: 390, height: 844 });
+  await assertViewport(page);
+  const reopened = drawer;
+  await expect(reopened).toBeVisible();
+  await expect(reopened).toHaveAttribute('open', '');
+  const fresh = await openClear(page, reopened);
+  await fresh.getByRole('button', { name: 'Cancel', exact: true }).click();
+  expect(await storedEquipment(page)).toEqual(before);
+});
+
+test('mobile pending confirmation is discarded across same-document unit history @customizer', async ({
+  page,
+}, testInfo) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await assertViewport(page);
+  const atlas = await loadStock(page);
+  const atlasBefore = await storedEquipment(page);
+  const timeOrigin = await page.evaluate(() => performance.timeOrigin);
+  expect(new URL(page.url()).pathname.endsWith('/armor')).toBe(false);
+  await page.getByRole('tab', { name: 'Armor', exact: true }).click();
+  await expect(page).toHaveURL(/\/armor$/);
+  const enforcer = await loadStock(page, 'Enforcer ENF-4R', 'ENF-4R', true);
+  const enforcerBefore = await storedEquipment(page);
+  expect(enforcer).not.toBe(atlas);
+  expect(await page.evaluate(() => performance.timeOrigin)).toBe(timeOrigin);
+  const drawer = await openMobile(page);
+  const pending = await openClear(page, drawer);
+  await page.goBack();
+  await expect
+    .poll(() => new URL(page.url()).pathname.split('/')[2])
+    .toBe(atlas.split('/')[2]);
+  expect(await page.evaluate(() => performance.timeOrigin)).toBe(timeOrigin);
+  await expect(
+    page.locator('[aria-label="Open units"] [aria-selected="true"]'),
+  ).toHaveAttribute('aria-label', /Atlas/);
+  await expect(pending).toBeHidden();
+  expect(await storedEquipment(page, atlas)).toEqual(atlasBefore);
+  expect(await storedEquipment(page, enforcer)).toEqual(enforcerBefore);
+  await page.goForward();
+  await expect
+    .poll(() => new URL(page.url()).pathname.split('/')[2])
+    .toBe(enforcer.split('/')[2]);
+  expect(await page.evaluate(() => performance.timeOrigin)).toBe(timeOrigin);
+  await expect(
+    page.locator('[aria-label="Open units"] [aria-selected="true"]'),
+  ).toHaveAttribute('aria-label', /Enforcer/);
+  await expect(pending).toBeHidden();
+  const returned = (await drawer.isVisible()) ? drawer : await openMobile(page);
+  const fresh = await openClear(page, returned);
+  await fresh.getByRole('button', { name: 'Cancel', exact: true }).click();
+  expect(await storedEquipment(page, atlas)).toEqual(atlasBefore);
+  expect(await storedEquipment(page, enforcer)).toEqual(enforcerBefore);
+  await testInfo.attach('same-document-history.json', {
+    body: JSON.stringify(
+      {
+        atlas,
+        enforcer,
+        timeOrigin,
+        afterTimeOrigin: await page.evaluate(() => performance.timeOrigin),
+        atlasBefore,
+        enforcerBefore,
+      },
+      null,
+      2,
+    ),
+    contentType: 'application/json',
+  });
 });

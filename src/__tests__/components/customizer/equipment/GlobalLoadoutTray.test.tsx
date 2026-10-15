@@ -1,7 +1,15 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  within,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 
+import { CustomizerConfirmationProvider } from '@/components/customizer/dialogs/CustomizerConfirmationProvider';
 import {
   GlobalLoadoutTray,
   LoadoutEquipmentItem,
@@ -38,6 +46,65 @@ describe('GlobalLoadoutTray', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
+
+  const originalShow = Object.getOwnPropertyDescriptor(
+    HTMLDialogElement.prototype,
+    'showModal',
+  );
+  const originalClose = Object.getOwnPropertyDescriptor(
+    HTMLDialogElement.prototype,
+    'close',
+  );
+  beforeAll(() => {
+    Object.defineProperty(HTMLDialogElement.prototype, 'showModal', {
+      configurable: true,
+      value: function (this: HTMLDialogElement) {
+        this.setAttribute('open', '');
+      },
+    });
+    Object.defineProperty(HTMLDialogElement.prototype, 'close', {
+      configurable: true,
+      value: function (this: HTMLDialogElement) {
+        this.removeAttribute('open');
+      },
+    });
+  });
+  afterAll(() => {
+    for (const [key, descriptor] of [
+      ['showModal', originalShow],
+      ['close', originalClose],
+    ] as const) {
+      if (descriptor)
+        Object.defineProperty(HTMLDialogElement.prototype, key, descriptor);
+      else Reflect.deleteProperty(HTMLDialogElement.prototype, key);
+    }
+  });
+  afterEach(() => {
+    cleanup();
+    jest.restoreAllMocks();
+  });
+
+  function confirmedTray(
+    props: React.ComponentProps<typeof GlobalLoadoutTray> = defaultProps,
+    unitId = 'unit-a',
+  ) {
+    return (
+      <CustomizerConfirmationProvider
+        scope={{ unitId, unitType: 'BattleMech' }}
+      >
+        <GlobalLoadoutTray {...props} />
+      </CustomizerConfirmationProvider>
+    );
+  }
+  function requestRemoval() {
+    fireEvent.click(
+      screen.getByRole('button', { name: 'More loadout actions' }),
+    );
+    fireEvent.click(
+      screen.getByRole('button', { name: /Remove all removable/ }),
+    );
+    return screen.getByRole('dialog', { name: 'Remove removable equipment?' });
+  }
 
   it('should render equipment tray', () => {
     render(<GlobalLoadoutTray {...defaultProps} />);
@@ -351,8 +418,8 @@ describe('GlobalLoadoutTray', () => {
 
     it('moves bulk removal into the loadout actions overflow', async () => {
       const user = userEvent.setup();
-      const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
-      render(<GlobalLoadoutTray {...defaultProps} />);
+      const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(false);
+      render(confirmedTray());
 
       expect(
         screen.queryByRole('button', { name: /remove all removable/i }),
@@ -365,8 +432,143 @@ describe('GlobalLoadoutTray', () => {
         screen.getByRole('button', { name: 'Remove all removable (1)' }),
       );
 
+      expect(defaultProps.onRemoveAllEquipment).not.toHaveBeenCalled();
+      await user.click(
+        within(
+          screen.getByRole('dialog', { name: 'Remove removable equipment?' }),
+        ).getByRole('button', { name: 'Remove equipment' }),
+      );
       expect(defaultProps.onRemoveAllEquipment).toHaveBeenCalledTimes(1);
+      expect(confirmSpy).not.toHaveBeenCalled();
       confirmSpy.mockRestore();
+    });
+  });
+
+  describe('bulk removal confirmation scope', () => {
+    it('refuses a raw optional pod flag change with unchanged removable count', () => {
+      const initial = {
+        ...defaultProps,
+        equipment: [createEquipment({ isOmniPodMounted: undefined })],
+      };
+      const view = render(confirmedTray(initial));
+      const child = requestRemoval();
+      view.rerender(
+        confirmedTray({
+          ...initial,
+          equipment: [createEquipment({ isOmniPodMounted: true })],
+        }),
+      );
+      fireEvent.click(
+        within(child).getByRole('button', { name: 'Remove equipment' }),
+      );
+      expect(defaultProps.onRemoveAllEquipment).not.toHaveBeenCalled();
+    });
+    it('Cancel leaves selection and the actions overflow unchanged', () => {
+      render(confirmedTray());
+      const dialog = requestRemoval();
+      fireEvent.click(within(dialog).getByRole('button', { name: 'Cancel' }));
+      expect(defaultProps.onRemoveAllEquipment).not.toHaveBeenCalled();
+      expect(defaultProps.onSelectEquipment).not.toHaveBeenCalled();
+      expect(
+        screen.getByRole('button', { name: 'More loadout actions' }),
+      ).toHaveAttribute('aria-expanded', 'true');
+    });
+    it.each(['replacement', 'removable', 'pod', 'omni', 'collapsed'] as const)(
+      'refuses changed %s policy even with unchanged count',
+      (change) => {
+        const initial = [
+          createEquipment({ instanceId: 'one', isOmniPodMounted: true }),
+          createEquipment({ instanceId: 'two', isRemovable: false }),
+        ];
+        const props = {
+          ...defaultProps,
+          equipment: initial,
+          equipmentCount: 2,
+        };
+        const view = render(confirmedTray(props));
+        const dialog = requestRemoval();
+        let equipment = initial.map((item) => ({ ...item }));
+        if (change === 'replacement')
+          equipment[0] = { ...initial[0], instanceId: 'different' };
+        if (change === 'removable')
+          equipment = equipment.map((item) => ({
+            ...item,
+            isRemovable: !item.isRemovable,
+          }));
+        if (change === 'pod')
+          equipment[0] = { ...initial[0], isOmniPodMounted: false };
+        view.rerender(
+          confirmedTray({
+            ...props,
+            equipment,
+            isOmni: change === 'omni',
+            isExpanded: change !== 'collapsed',
+          }),
+        );
+        fireEvent.click(
+          within(dialog).getByRole('button', { name: 'Remove equipment' }),
+        );
+        expect(defaultProps.onRemoveAllEquipment).not.toHaveBeenCalled();
+        expect(defaultProps.onSelectEquipment).not.toHaveBeenCalled();
+      },
+    );
+    it('accepts copied reordered policy and invokes current callbacks once in original order', () => {
+      const initial = [
+        createEquipment({ instanceId: 'one' }),
+        createEquipment({ instanceId: 'two' }),
+      ];
+      const props = { ...defaultProps, equipment: initial, equipmentCount: 2 };
+      const view = render(confirmedTray(props));
+      const dialog = requestRemoval();
+      const calls: string[] = [];
+      const remove = jest.fn(() => calls.push('remove'));
+      const select = jest.fn(() => calls.push('select'));
+      view.rerender(
+        confirmedTray({
+          ...props,
+          equipment: [...initial]
+            .reverse()
+            .map((item) => ({ ...item, name: 'renamed' })),
+          onRemoveAllEquipment: remove,
+          onSelectEquipment: select,
+        }),
+      );
+      const approve = within(dialog).getByRole('button', {
+        name: 'Remove equipment',
+      });
+      act(() => {
+        approve.click();
+        approve.click();
+      });
+      expect(calls).toEqual(['remove', 'select']);
+      expect(select).toHaveBeenCalledWith(null);
+      expect(defaultProps.onRemoveAllEquipment).not.toHaveBeenCalled();
+      expect(
+        screen.getByRole('button', { name: 'More loadout actions' }),
+      ).toHaveAttribute('aria-expanded', 'false');
+    });
+    it('is a no-op when no item is removable', () => {
+      render(
+        confirmedTray({
+          ...defaultProps,
+          equipment: [createEquipment({ isRemovable: false })],
+        }),
+      );
+      fireEvent.click(
+        screen.getByRole('button', { name: 'More loadout actions' }),
+      );
+      expect(
+        screen.getByRole('button', { name: /Remove all removable/ }),
+      ).toBeDisabled();
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(defaultProps.onRemoveAllEquipment).not.toHaveBeenCalled();
+    });
+    it('disposes the request on rendered unit change', () => {
+      const view = render(confirmedTray());
+      requestRemoval();
+      view.rerender(confirmedTray(defaultProps, 'unit-b'));
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(defaultProps.onRemoveAllEquipment).not.toHaveBeenCalled();
     });
   });
 });

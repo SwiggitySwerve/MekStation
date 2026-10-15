@@ -1,6 +1,7 @@
 import React, {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -8,6 +9,10 @@ import React, {
 
 import { AppIcon } from '@/components/ui/AppIcon';
 import { MechLocation } from '@/types/construction';
+import {
+  captureEquipmentMutationPolicy,
+  matchesEquipmentMutationPolicy,
+} from '@/utils/construction/equipmentMutationPolicy';
 
 import type {
   EquipmentDisplayGroup,
@@ -19,6 +24,7 @@ import type {
   LoadoutEquipmentItem,
 } from './GlobalLoadoutTray.types';
 
+import { useCustomizerConfirmation } from '../dialogs/CustomizerConfirmationProvider';
 import { groupEquipment, isFixedSystem } from './GlobalLoadoutTray.helpers';
 import { trayStyles } from './GlobalLoadoutTray.styles';
 import { GlobalLoadoutTrayAllocationSection } from './GlobalLoadoutTrayAllocationSection';
@@ -170,18 +176,50 @@ export function GlobalLoadoutTray({
   );
 
   const removableCount = equipment.filter((item) => item.isRemovable).length;
+  const { requestConfirmation } = useCustomizerConfirmation();
+  const committed = useRef<{
+    readonly equipment: readonly LoadoutEquipmentItem[];
+    readonly isOmni: boolean;
+    readonly isExpanded: boolean;
+    readonly removableCount: number;
+    readonly onRemoveAllEquipment: () => void;
+    readonly onSelectEquipment: GlobalLoadoutTrayProps['onSelectEquipment'];
+  } | null>(null);
+  useLayoutEffect(() => {
+    committed.current = {
+      equipment,
+      isOmni,
+      isExpanded,
+      removableCount,
+      onRemoveAllEquipment,
+      onSelectEquipment,
+    };
+  });
   const handleRemoveAll = useCallback(() => {
-    if (removableCount === 0) {
-      return;
-    }
-    if (
-      window.confirm(`Remove all ${removableCount} removable equipment items?`)
-    ) {
-      onRemoveAllEquipment();
-      onSelectEquipment?.(null);
-      setIsActionsOpen(false);
-    }
-  }, [removableCount, onRemoveAllEquipment, onSelectEquipment]);
+    const requested = committed.current;
+    if (!requested?.isExpanded || requested.removableCount === 0) return;
+    const policies = captureEquipmentMutationPolicy(requested.equipment);
+    requestConfirmation({
+      title: 'Remove removable equipment?',
+      message: `Remove all ${requested.removableCount} removable equipment items?`,
+      confirmLabel: 'Remove equipment',
+      isCurrent: () => {
+        const current = committed.current;
+        return (
+          !!current?.isExpanded &&
+          current.isOmni === requested.isOmni &&
+          matchesEquipmentMutationPolicy(policies, current.equipment)
+        );
+      },
+      onConfirm: () => {
+        const current = committed.current;
+        if (!current) return;
+        current.onRemoveAllEquipment();
+        current.onSelectEquipment?.(null);
+        setIsActionsOpen(false);
+      },
+    });
+  }, [requestConfirmation]);
 
   const renderGroups = (
     groups: EquipmentDisplayGroup[],
