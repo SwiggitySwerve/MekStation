@@ -5702,7 +5702,9 @@
         "src/pages-modules/api"
       ],
       "ownershipExceptions": [
-        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "src/lib/campaign/coop/campaignSyncTransport.ts",
+        "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",

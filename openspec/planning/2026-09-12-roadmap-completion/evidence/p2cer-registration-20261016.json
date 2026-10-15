@@ -1,0 +1,124 @@
+{
+  "event": "p2cer-registration",
+  "task": "P2CER",
+  "registrationOnly": true,
+  "at": "2026-10-15T21:11:00.549Z",
+  "baseline": "8a62fe84d248af155f52b94ba9b035d499f9efba",
+  "actor": {
+    "role": "implementation sub-agent",
+    "provider": "openai",
+    "servedModel": "gpt-6.1-sol",
+    "effort": "high",
+    "identitySource": "Current T3 Code/Codex harness runtime; parent delegation identity and independent review are recorded separately by Root."
+  },
+  "authority": {
+    "plan": "E:/Projects/Personal/MekStation/.omo/plans/mekstation-whole-roadmap-reconciliation-20261002.md",
+    "sections": [
+      "P2CER. Register the required P2CE broadcaster send-result regression scope",
+      "P2CER combined ownership correction, 2026-10-09"
+    ],
+    "combinedDecision": {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/p2c-ownership-amendment-parent-decision-20261009.json",
+      "sha256": "82cd51d47492c9d3d79474896ce6a79f331f5a0bb155807c67c8f1f9ffd888a5"
+    },
+    "ownerDecision": {
+      "path": "E:/Projects/Personal/MekStation/.omo/plans/mekstation-phased-delivery-20261015/owner-unblock-decisions-20261016.md",
+      "sha256": "5cd83a998004cf8aba9301bbe6f154a73746ffd831e93af36473cac78a82c9a4",
+      "section": "D1",
+      "effect": "After this decision replaces after genuine NDC1 Main; the three-file registration contract and ordinary proof gates remain unchanged."
+    }
+  },
+  "census": {
+    "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/p2cer-20261016/census.md",
+    "sha256": "043370b7dc1b422d572cbaa7f176a4bf3949bcd5f83e383fbdd4842def7a1fbe"
+  },
+  "scope": [
+    "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+    "openspec/planning/2026-09-12-roadmap-completion/units.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cer-registration-20261016.json"
+  ],
+  "registrationBudget": {
+    "actualFiles": 3,
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "productFiles": 0,
+    "productAddedLines": 0,
+    "noCapInflation": true,
+    "actualDiffMeasuredSeparately": true,
+    "everyEvidenceFileCounts": true
+  },
+  "previousRegistration": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2c-chain-registration-20261009.json",
+    "bytes": 5268,
+    "sha256": "21dc7143ef8d3cf18a939a1faa65d0f1e0e0c57e098a04f470ff8d85a3e95317",
+    "evidence": "evidence/p2c-chain-registration-20261009.json",
+    "preservedByteForByte": true
+  },
+  "preimages": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "bytes": 1063051,
+      "sha256": "898811b940c31006e04ade575d3571c7140982f90e1389078cfd0308e4054af4"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "bytes": 1261287,
+      "sha256": "d3aae0d992d6f7fd7272fdffce276484988ce8e448873a1a2a1fbc9bbe19a5ad"
+    }
+  ],
+  "prospectiveDelta": {
+    "sourceOwner": "R2.authority-live",
+    "governingEvidenceBefore": "evidence/p2c-chain-registration-20261009.json",
+    "governingEvidenceAfter": "evidence/p2cer-registration-20261016.json",
+    "P2CE": {
+      "restrictionsBefore": [
+        "src/lib/multiplayer/server/CampaignSyncSession.ts",
+        "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+        "src/lib/multiplayer/server/campaignEventWireFrame.ts",
+        "src/lib/multiplayer/server/handleRoomCodeGuestJoin.ts",
+        "src/lib/multiplayer/server/ServerMatchBroadcaster.ts",
+        "src/lib/multiplayer/server/__tests__/CampaignSyncSession.test.ts",
+        "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
+        "src/lib/multiplayer/server/__tests__/handleRoomCodeGuestJoin.test.ts",
+        "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts"
+      ],
+      "restrictionsAdded": [
+        "src/lib/multiplayer/server/__tests__/ServerMatchBroadcaster.test.ts"
+      ],
+      "knownSourceTestLifecycleSubtotalBefore": 10,
+      "knownSourceTestLifecycleSubtotalAfter": 11
+    },
+    "P2CG1": {
+      "restrictionsBefore": [
+        "src/lib/multiplayer/server/CampaignProgressionGate.ts",
+        "src/lib/multiplayer/server/campaignProgressionReaders.durable.ts",
+        "src/lib/multiplayer/server/CampaignSyncSession.ts",
+        "src/pages-modules/api/campaignLaunchProgressionGate.ts",
+        "src/pages-modules/api/campaignLaunchAuthorityRoute.ts",
+        "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts",
+        "src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.crossGraph.test.ts",
+        "src/lib/multiplayer/server/__tests__/CampaignSyncSession.test.ts"
+      ],
+      "restrictionsAdded": [
+        "src/lib/campaign/coop/campaignSyncTransport.ts",
+        "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts"
+      ],
+      "ownershipExceptionsBefore": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "ownershipExceptionsAdded": [
+        "src/lib/campaign/coop/campaignSyncTransport.ts",
+        "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts"
+      ],
+      "knownSourceTestLifecycleSubtotalBefore": 9,
+      "knownSourceTestLifecycleSubtotalAfter": 11
+    }
+  },
+  "selectorNote": "This registration runs the roadmap validator and its existing validator tests only. Named product/test leaves are prospective ownership restrictions; no product test execution or source admission is claimed.",
+  "preservation": "All existing aliases, other restrictions/subtotals, unit/node IDs, states, stages, caps and other fields remain unchanged. Only P2CG1 receives the two exact transport ownershipExceptions. The Task 8 receipt is preserved byte-for-byte; it did not grant these new leaves. P2CE receives no units.json change or extra roadmap.json source leaf. The held NDC1 baseline is untouched.",
+  "permissionBoundary": "Prospective registration only. P2CE/P2CG1 product work still requires fresh finite source admission, complete source/test/lifecycle/stage/helper/evidence census and measured fit under unchanged 15-file/500-added-product-line caps. Known subtotals are lower bounds, not complete source cap-fit claims. No directory-wide grant, new alias, source release, cap exception or widened ownership is supplied.",
+  "delivery": "Independent exact-head review, actual required hosted CI, guarded regular merge, actual Main proof, evidence custody and scoped cleanup remain pending Root gates. This receipt is not an approval or a delivery claim.",
+  "sourceAdmitted": false,
+  "P2Released": false,
+  "U38Released": false
+}
