@@ -1,0 +1,190 @@
+# Task 9 / P2CA delta review r2: merge, packet and owner steps (Opus)
+
+- Subject: PR #2135 https://github.com/SwiggitySwerve/MekStation/pull/2135
+- Reviewed head: 293ae722b06a1c5349d77673778a1c3f35f14a62 (branch codex/p2ca-applied-view-20261016)
+- Previously reviewed head: e921a69f3cfa92f97a4aa03395fd145f0b567df6 (`docs/audits/2026-10-15-task9-p2ca-opus-review.md`, APPROVE-WITH-NOTES)
+- Base: origin/main 08f917efba23086d7f8c0b36d9d4b08c4b90b396. It equals the live `origin/main` after a fresh fetch, and it is the merge-base of the head.
+- Worktree: E:/Projects/Personal/MekStation-wt/p2ca-applied-view-20261016. `git status --porcelain` was empty before and after every command.
+- Reviewer: Claude Opus 5.5 (claude-opus-5-5), read-only delta-review sub-agent. This file is my only write to the repository. Scratch files went to the OS temp directory only.
+- Date: 2026-10-15 local (the ledger and round-4 artifacts are dated 2026-10-16)
+
+## Verdict
+
+**APPROVE-WITH-NOTES** on the content: the merge, the packet, the lifecycle edit and the census.
+
+**The head is not ready for an owner ruling.** Hosted CI on this exact head is red. PR Checks run 38810066031 concluded `failure`: 29/31 jobs succeeded, `Seam Anchors` failed, and the `Lint and Test` aggregator failed because of it (finding 1). I see no evidence that Task 9 caused the failure, and no branch change is requested. The fix is to rerun or investigate the failed job on the same head, which does not move the head. Until every required check is green on 293ae722, DELIVERY.md:16 forbids proceeding.
+
+This review binds only to 293ae722b06a1c5349d77673778a1c3f35f14a62. It is Lane A engineering evidence. It is not a GitHub approval and not an owner ruling, and it writes no packet field, label or comment.
+
+## Q1 - Merge cleanliness
+
+- **Topology:** `82aee1df8` is a two-parent merge with parents `e921a69f3` and `08f917efb`, in that order. `293ae722b` is its single child.
+- **Ancestry:** `git merge-base --is-ancestor 08f917ef 293ae722` succeeds.
+- **No manual changes in the merge:** `git show --remerge-diff 82aee1df` is empty. The merge tree is exactly Git's automatic resolution, with no hand edits and no conflict resolution.
+- **`git diff --numstat --no-renames 08f917ef...293ae722` matches the prior delta:** the same 12 paths with the same counts as `ba8007f2...e921a69f`. The only difference is `units.json`, which goes from +16/-6 to +43/-6. The extra +27 comes from the new packet and the one-line state change.
+- **Non-ledger tree unchanged:** excluding the five paths that main changed, `git diff e921a69f 293ae722` is empty. The product, test and evidence bytes are identical to the head reviewed last round.
+- **Main content preserved:**
+  - `roadmap.json`, `validate-roadmap.mjs`, `validate-roadmap.test.mjs` and `evidence/p2cer-registration-20261016.json` are byte-identical between 08f917ef and 293ae722.
+  - I compared `units.json` structurally, keyed by unit and packet id:
+    - **main -> merge:** only unit `P2CA` differs, in `ownershipExceptions`, `state`, `baseline` and `stageReceipts` (all Task 9 content from e921a69f). No other root field, unit or packet differs.
+    - **main -> head:** the same P2CA delta, plus packet `PK-p2ca-ruling` added (69 -> 70 packets).
+    - **merge -> head:** only `P2CA.state`, plus the added packet.
+    - **base (ba8007f2) -> main:** main never touched P2CA, so taking the branch's P2CA lost nothing. Main's own changes are all present in the merge: Task 57 `residualRegistration20261016`, the P2CG1 `ownershipExceptions`, the U99/U100/U101/U103/U104/U105 `registration20261016`, and new units U101a-U101d.
+
+**Conclusion:** the merge is clean. The diff is Task 9 content plus the packet and state edit, and no Task 57 or P2CER content was lost.
+
+## Q2 - Packet and state
+
+- **Field order matches the P2CC precedent:** `PK-p2ca-ruling` (`units.json`, inserted at hunk `@@ -12282,6 +12282,33 @@` as `packets[0]`) has the same keys in the same order as `PK-p2cc-ruling`. The order is id, blocks, nodes, taskKeys, question, options, agentRecommendation, revertCost, decision, ruling.
+- **Contents:**
+  - `blocks: ["P2CA"]`.
+  - `nodes: ["R2.authority-live"]`, which equals `P2CA.node`.
+  - `taskKeys: []`, matching P2CA's empty taskKeys.
+  - A closed question that ends in `?`.
+  - Two options, each with a consequence and an effort.
+  - A recommendation and a revert cost.
+  - **`decision: null` and `ruling: null`.**
+- **Nothing invented:** no owner provenance is fabricated. The recommendation text says "This proposal grants no approval or merge permission".
+- **Same shape as P2CC before its ruling:** this matches `PK-p2cc-ruling` exactly as it stood at the P2CC source head da253299d, where it also carried `decision: null` and `ruling: null`.
+- **P2CA lifecycle:**
+  - `state` is `local-verified`.
+  - `prHead`, `mergeSha` and `ownerGate` are `null`.
+  - `stageReceipts.review`, `merge`, `mainProof` and `tick` are `null`.
+  - The admission, red and local receipt paths are unchanged.
+- **Nothing else touched:** no other unit was changed by the branch. The only unit difference against main is P2CA. There is no merged or complete claim.
+- **`ownerGate: null` at local-verified is consistent with precedent:** P2CC, at its ruled source head, was also local-verified with `ownerGate: null` and an unanswered packet in `blocks`. The validator requires the packet from local-verified onward (`validate-roadmap.mjs:590-591`), not an `owner-gated` state.
+
+## Q3 - Recomputed census (validator's own rule)
+
+Method: I replicated `validate-roadmap.mjs:702-726` literally, including UNCOUNTED_FILES (`:107-110`), EVIDENCE_PREFIX (`:112`) and the ownership check. I applied it to `git diff --numstat --no-renames 08f917ef 293ae722`. That is the tree delta a squash onto main would produce, because main is the merge-base.
+
+| File | Class | +add | -del |
+| --- | --- | ---: | ---: |
+| src/lib/campaign/sync/campaignPublicAppliedView.ts | counted | 245 | 0 |
+| src/services/persistence/SQLiteService.publicAppliedViews.migration.ts | counted | 21 | 0 |
+| src/services/persistence/SQLiteService.migrations.ts | counted | 2 | 0 |
+| openspec/planning/2026-09-12-roadmap-completion/units.json | counted (lifecycle) | 43 | 6 |
+| src/lib/campaign/sync/__tests__/campaignPublicAppliedView.integration.test.ts | test | 309 | 0 |
+| src/services/persistence/__tests__/SQLiteService.migrations.test.ts | test | 58 | 0 |
+| src/services/persistence/__tests__/SQLiteService.historyBranches.migration.test.ts | test | 3 | 1 |
+| src/services/persistence/__tests__/SQLiteService.replayCheckpointsBranch.migration.test.ts | test | 1 | 1 |
+| evidence/p2ca-admission-20261016.json | evidence | 112 | 0 |
+| evidence/p2ca-admission-review-20261016.md | evidence | 49 | 0 |
+| evidence/p2ca-local-20261016.json | evidence | 226 | 0 |
+| evidence/p2ca-red-20261016.json | evidence | 23 | 0 |
+
+- **Files: 12 / 15.** All changed paths count, including evidence.
+- **Counted additions: 311 / 500.** That is 268 product + 43 `units.json`. Additions only, with no deletion credit.
+- **Tests: 371**, reported separately. **Evidence: 410**, reported separately.
+- **Ownership:** zero paths fall outside `ownershipPaths` (`src/lib/campaign`, `src/services/persistence`) or `ownershipExceptions`.
+- **Other checks:** no `capException`, and caps are unchanged at `{maxFiles:15, maxNonGeneratedLines:500}`. No changed file has a UTF-8 BOM. `git diff --check 08f917ef 293ae722` passes.
+
+The claimed 12/15 and 311/500 match. These numbers hold only if main does not change `units.json` before the squash. The validator recomputes them against `mergeSha^1` after merge.
+
+## Q4 - Main-side dependency change and the skipped full stable suite
+
+- **Main changed only ledger files:** `git diff --stat ba8007f2 08f917ef` lists exactly five paths, all under `openspec/planning/2026-09-12-roadmap-completion/`. Excluding that directory, the diff is empty. Nothing changed in `src/services/persistence`, `SQLiteService*`, the migration catalog, `src/lib/campaign`, `package.json`, the lockfile, Jest config or CI config.
+- **Migration 32 is still unique:** `git grep 'version: 32'` at the head finds only `SQLiteService.publicAppliedViews.migration.ts:3` and the intentional literal head assertion at `replayCheckpointsBranch.migration.test.ts:270`.
+- **The skip is accepted, with one correction to the reasoning.** "Main changed no Task 9 runtime dependencies" is true, but it is incomplete: main did change files the stable suite reads. Five stable-suite script tests read the roadmap ledger or validator:
+  - `scripts/__tests__/roadmap-codex-identity-capture.test.ts`
+  - `roadmap-codex-review-identity.test.ts`
+  - `roadmap-loop-closure-proof.test.ts`
+  - `roadmap-loop-scripts.test.ts`
+  - `validate-exact-main-regression-ladder.test.ts`
+
+  Coverage for that surface comes from two places:
+  - Hosted `Unit Tests (1/6)` through `(6/6)` all passed on 293ae722 in run 38810066031.
+  - My local Node 22 run of those five files: four passed (review-identity 417 s, identity-capture 40 s, loop-scripts 28 s, regression-ladder). `roadmap-loop-closure-proof.test.ts` had not finished when my background time limit stopped the run, so I make no local claim for it. The hosted shards cover it.
+
+  With the product and test tree byte-identical to e921a69f, the skip is acceptable. The round-3 full-stable result stays historical evidence and is not a fresh claim for this head.
+- **My reruns at 293ae722 (Node v22.22.0):**
+  - Focused four suites (`npm test -- --runInBand --watchAll=false --runTestsByPath <4 suites>`): **4 suites / 41 tests passed, 3.4 s, exit 0.**
+  - `validate-roadmap.mjs`: **exit 0**, "ROADMAP VALIDATION PASSED: 79 nodes, 13 packages, 381 tasks, 40 triage rows".
+  - `validate-roadmap.mjs --next`: **exit 0**, `U24b`.
+  - `node --test validate-roadmap.test.mjs`: **86 tests, 86 pass, 0 fail, exit 0.**
+
+## Q5 - Negative probe
+
+I used an in-memory preload outside the repository (`%TEMP%/r2/probe.cjs`). It patches `fs.readFileSync` only for `units.json`, so the ledger on disk is never written.
+
+| Mode | Mutation | Exit | Relevant output |
+| --- | --- | ---: | --- |
+| none | (control; proves the preload intercepts nothing harmful) | 0 | PASSED 79/13/381/40 |
+| merged | P2CA.state = merged | 1 | 10 issues, including **"P2CA carries sensitive classes (authority, privacy, migration, replay, idempotency, concurrency) and is merged without a packet ruling"** (`validate-roadmap.mjs:594-595`). The other nine are the absent review/merge receipts and the head/mergeSha chain. |
+| nopacket | PK-p2ca-ruling removed, state left local-verified | 1 | 1 issue: **"P2CA carries sensitive classes (...) and is local-verified with no packet naming it in blocks"** (`:590-591`) |
+
+Confirmed: the validator refuses `merged` without a packet ruling, and accepts `local-verified` only while the packet is present.
+
+## Findings
+
+1. **[major, gate] CI on the exact head is red.**
+   - Run 38810066031 (event `pull_request`, headSha 293ae722) concluded `failure`. Job `Seam Anchors` 116680986329 failed `e2e/seam-fresh-construction-no-instant-defeat.spec.ts:425`, `expect(secondRunMarkers).toEqual(firstRunMarkers)`. From the turn-3 `physical_attack` marker onward, `aliveBySide.player` was 1 in the first same-seed run and 2 in the second. `Lint and Test` failed as the aggregator. The other 29/31 jobs passed.
+   - Attribution: the non-ledger tree is byte-identical to e921a69f, which passed 31/31 (run 38801515633). The Task 9 diff touches no `e2e/`, `src/engine`, `src/simulation`, `src/utils/gameplay` or `src/pages` path, and the new owner module is imported only by its test. So I do not attribute this to Task 9.
+   - A same-seed divergence is nondeterminism, though. It is worth a separate root note outside Task 9. This spec has not failed in the last 30 PR Checks runs I listed.
+   - Required action before the owner rules: rerun the failed job on the same head, or investigate it. Do not push a new commit for it, since that voids this review. DELIVERY.md:16 requires "Required checks must complete successfully; investigate failed/cancelled/stale results."
+2. **[minor, procedure] The round-4 handoff offers an in-branch packet commit, which conflicts with the procedure.**
+   - Where: round4-report.md:75 ("If the owner chooses to commit packet fields on the source branch, that must happen before the final freeze ...").
+   - This is circular:
+     - `decision.source` is the ruling comment's URL, and `ruling.commentId` / `bodySha256` cannot exist before the comment is posted.
+     - Committing them after the comment moves the head and voids the ruling (GOAL.md:27, DELIVERY.md:14, DELIVERY.md:16).
+     - Committing a decision before the comment prefills an unreceived answer (DELIVERY.md:99).
+   - The P2CC precedent never did this. Its ruled source head da253299d carried null/null, and the provenance was written only after merge (see the owner sequence below).
+   - Recommendation: strike the in-branch option.
+3. **[minor, procedure ambiguity] Who writes the packet decision.**
+   - The rules:
+     - GOAL.md:68: "A packet is resolved only by the owner recording a decision and a head-bound ruling; an agent never fills in `decision` or `ruling`."
+     - GOAL.md:85: "The agent never writes the `OWNER-RULING` comment, the label, or the packet decision."
+   - In the P2CC precedent, the fields were transcribed in later closure PRs:
+     - #2131 (head 7ddc2168) registered closure publication paths, with a `publicationLimit` that "may faithfully incorporate the actual source-head parent comment5960557830 into only PK-p2cc-ruling decision/ruling".
+     - #2132 (head 8a9e5025, merge f77c70c63) wrote them.
+     - Each of those PRs carries its own `OWNER-RULING <its head>` from SwiggitySwerve and the `owner-ruled` label.
+   - Under GOAL.md:85, P2CA's transcription has to be owner-authored, or explicitly owner-authorized through a ruled closure registration, exactly as P2CC did. An agent may not write it on its own judgment.
+4. **[minor] The "no runtime dependency" justification is incomplete (see Q4).** The conclusion still holds through hosted shards 1-6 plus my local ledger-test runs. Future skip notes should name the ledger-consuming script tests.
+5. **[info] `bodySha256` byte convention.** For P2CC, `49caaf9e75093f46ef597fc1f6418195d1ae6075f3828e7f21b1a788a50e37b2` is the SHA-256 of the API `body` string with no trailing newline. `gh api ... --jq .body | sha256sum` appends a newline and yields `582594f7...`, which is wrong. Hash the exact body bytes.
+6. **[info] Main may move before merge.** If it does, recheck migration-32 uniqueness and the census against the eventual `mergeSha^1`. Merging main into the branch again would move the head and restart the review, CI and ruling cycle. `--squash --match-head-commit` against a moved main does not change the reviewed head.
+7. **[info] Prior notes N1-N7 still apply.** They are in `2026-10-15-task9-p2ca-opus-review.md`, and the code is unchanged. N1 in particular: `SQLiteService.migrations.test.ts:84` deletes `WHERE version = 32`, which will break silently once a migration 33 exists.
+8. **[info, cosmetic]** The packet is prepended at `packets[0]`, not next to related packets. It is harmless: the validator is order-independent.
+
+## Owner-step sequence for a merge of this head
+
+The rules, quoted:
+
+- GOAL.md:27: "Lane B is the owner ruling required for the authority, privacy, migration, replay, idempotency and concurrency classes and for any owner-gated unit: a PR comment beginning `OWNER-RULING <40-hex head>` with the `owner-ruled` label, receipted by comment id, author login, head and body sha256. ... a Lane B ruling is void the moment the head moves."
+- DELIVERY.md:14: "the owner posts it out of band as a PR comment whose first line begins `OWNER-RULING <40-hex head>` and applies the label `owner-ruled`, and the receipt stores the comment id, the author login, that head, and a sha256 of the comment body. A ruling is bound to the exact head it names and is void the moment the head changes".
+- DELIVERY.md:16: "Where a sensitive class or an owner-gated unit is in scope, wait for the Lane B ruling comment tied to that head before merging ... A new head requires fresh evaluation of review/check validity, voids any Lane B ruling naming the old head, and requires a fresh Lane A review of the new head."
+- DELIVERY.md:17: "Parent uses explicit `--squash --match-head-commit <exact-reviewed-head>` by default."
+- DELIVERY.md:99: "Decision packets have an actual question/options/consequences/recommendation/revert-cost and authentic decision/ruling provenance; never prefill an unreceived answer. Every publication/correction/follow-up head needs its own fresh source-bound ruling and actual required checks."
+- GOAL.md:68 and GOAL.md:85, as quoted in finding 3.
+
+Correct order:
+
+0. **Preconditions (root, not owner).**
+   - All required checks green on 293ae722b06a1c5349d77673778a1c3f35f14a62 (finding 1: rerun or investigate Seam Anchors).
+   - This Lane A review bound to that head.
+   - Before the owner acts, confirm the PR head is still 293ae722 and main has not forced a branch update. No commit may be pushed to the branch from here on.
+1. **Owner posts a comment on PR #2135** from the owner account (P2CC precedent author: `SwiggitySwerve`). Its first line must begin exactly:
+   `OWNER-RULING 293ae722b06a1c5349d77673778a1c3f35f14a62`
+   The rest of the comment states the chosen packet option, "rule the exact storage head", and its scope. P2CC's comment, for example, followed the head with "- APPROVE P2CC source-contract delivery. ... Parent authorizes the pinned source merge only." Make the body final when posting: its exact bytes are what gets hashed. Editing it later changes the hash.
+2. **Owner applies the label `owner-ruled`** to PR #2135.
+3. **Root merges.** Immediately before merge, re-verify the repository, base, head, checks, comment and label. Then run `gh pr merge 2135 --squash --match-head-commit 293ae722b06a1c5349d77673778a1c3f35f14a62`. P2CA lands on main as written: `local-verified`, packet `decision: null` / `ruling: null`. That matches P2CC, whose squash `2fe46eaae` landed `local-verified` with null/null.
+4. **Root runs the exact-main proof** against the squash commit (GOAL.md:29, DELIVERY.md:18).
+5. **Packet provenance and lifecycle closure, after merge.** This happens in a separately registered, separately reviewed closure PR or PRs, following the P2CC precedent (#2131 then #2132). It is never in-branch on #2135. The closure writes:
+   - `PK-p2ca-ruling.decision = { option: "rule the exact storage head", at: <comment created_at>, by: <author login>, source: "https://github.com/SwiggitySwerve/MekStation/pull/2135#issuecomment-<id>" }`
+   - `PK-p2ca-ruling.ruling = { ruledHead: "293ae722b06a1c5349d77673778a1c3f35f14a62", pr: 2135, commentId: <integer id>, author: <login>, bodySha256: <sha256 of exact body bytes, no trailing newline> }`
+   - P2CA `prHead` = 293ae722..., `mergeSha` = the squash SHA, and the `review` / `merge` / `mainProof` / `tick` receipts. The validator requires `review.head === merge.head === prHead`, `ruling.ruledHead === merge.head` (`validate-roadmap.mjs:596`), and `merge.mergeSha === mainProof.mergeCommit`.
+   - The state then advances to merged and complete.
+
+   Per GOAL.md:85, the packet decision is owner-recorded, or transcribed only under an owner-ruled closure registration that authorizes exactly that transcription, as #2131 did for P2CC. Per DELIVERY.md:99, every closure head needs its own Lane A review, green CI, its own `OWNER-RULING <closure head>` comment and the `owner-ruled` label.
+
+**On the round-4 claim** ("owner must record the real packet decision/provenance, post OWNER-RULING, apply owner-ruled; any later commit invalidates"):
+
+- What is correct: the owner posts the ruling and applies the label, and any later source-branch commit voids the ruling.
+- What contradicts the procedure:
+  - It lists "record the decision" first and allows an in-branch packet commit before the freeze (finding 2).
+  - The documented and precedented order is **comment -> label -> pinned squash merge -> main proof -> separately ruled closure that records decision and ruling**.
+  - Recording the decision in-branch either prefills an answer that has not been received, or voids the ruling.
+  - It also omits two things: green CI on this head (now red), and that the closure PRs need their own head-bound rulings.
+
+## File hash
+
+My final message reports the SHA-256 of this file. A file cannot contain its own hash.

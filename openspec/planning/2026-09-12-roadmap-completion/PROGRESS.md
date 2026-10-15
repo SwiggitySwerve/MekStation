@@ -1,3 +1,26 @@
+## 2026-10-16 P2CA source verified on main; closure metadata proposed
+
+P2CA advances from local-verified to main-verified for source PR #2135,
+head 293ae722b06a1c5349d77673778a1c3f35f14a62, merge 230bad2bfaa01f94ea9bfd877c7f8d8acc7118ff.
+The owner explicitly authorized this transcription of [comment 6203331102](https://github.com/SwiggitySwerve/MekStation/pull/2135#issuecomment-6203331102);
+its exact UTF-8 body, without an added newline, hashes to 9be55710da8fb3a0793bf9f60a7c4a00cf4fa64464de683b74a4ee4b4091623a.
+The ruling followed the merge; this record preserves that chronology.
+
+The [review receipt](evidence/p2ca-review-20261016.json) preserves both source
+reviews and their hashes. The final source head has 31 successful checks.
+The [merge receipt](evidence/p2ca-merge-20261016.json) binds both ordered parents
+and the matching native integration tree. The [main proof](evidence/p2ca-mainproof-20261016.json)
+preserves the existing exact-merge proof and logs: four suites, 41 tests and
+typecheck passed. It claims no new runtime run or modern identity archive.
+
+P2CA has no task keys. Its tick remains null because source/closure cleanup
+is not established here; no tasks.md row is changed. P2CA therefore releases
+its in-flight path reservation at main-verified, while P2/U38 and all other
+unit states remain unchanged. Selection is not downstream admission.
+This closure metadata still requires its own review, CI and parent merge.
+
+---
+
 ## 2026-10-09 P2C implementation chain registered prospectively (Task8 candidate)
 
 > **Status:** Registration candidate; delivery acceptance pending

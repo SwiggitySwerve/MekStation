@@ -5462,7 +5462,17 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ca-admission-20261016.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ca-admission-review-20261016.md",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ca-red-20261016.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ca-local-20261016.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ca-local-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ca-source-opus-review-20261015.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ca-packet-opus-review-r2-20261016.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ca-mainproof-230bad2b.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-230bad2b-tests.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-230bad2b-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-230bad2b-install.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ca-owner-ruling-6203331102.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ca-review-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ca-merge-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ca-mainproof-20261016.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -5478,10 +5488,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "main-verified",
       "baseline": "ba8007f2dfea7786a3823145eb999e308c97f3fa",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "293ae722b06a1c5349d77673778a1c3f35f14a62",
+      "mergeSha": "230bad2bfaa01f94ea9bfd877c7f8d8acc7118ff",
       "stageReceipts": {
         "admission": {
           "path": "evidence/p2ca-admission-20261016.json"
@@ -5492,9 +5502,27 @@
         "local": {
           "path": "evidence/p2ca-local-20261016.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/p2ca-review-20261016.json",
+          "head": "293ae722b06a1c5349d77673778a1c3f35f14a62",
+          "reviewedHead": "293ae722b06a1c5349d77673778a1c3f35f14a62",
+          "reviewerModel": "claude-opus-5-5",
+          "implementerModel": "gpt-6.1-sol",
+          "outputSha256": "a1b104aed48ff79217a39db21a1472f89035fb9aded0836949607528e72ab7af",
+          "verdict": "APPROVE-WITH-NOTES"
+        },
+        "merge": {
+          "path": "evidence/p2ca-merge-20261016.json",
+          "pr": 2135,
+          "head": "293ae722b06a1c5349d77673778a1c3f35f14a62",
+          "mergeSha": "230bad2bfaa01f94ea9bfd877c7f8d8acc7118ff"
+        },
+        "mainProof": {
+          "path": "evidence/p2ca-mainproof-20261016.json",
+          "mergeCommit": "230bad2bfaa01f94ea9bfd877c7f8d8acc7118ff",
+          "verdict": "PASS",
+          "runtime": "Source/Main Jest: Tests:       41 passed, 41 total"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -12306,8 +12334,19 @@
       ],
       "agentRecommendation": "Rule only an independently approved green exact head preserving authenticated application, monotonic current-lineage storage, explicit replacement, transaction rollback and privacy. This proposal grants no approval or merge permission.",
       "revertCost": "Revert the bounded storage implementation and catalog registration before release; after rows exist, reverting code alone does not remove the additive table or its data, so any data disposition needs separate owner review.",
-      "decision": null,
-      "ruling": null
+      "decision": {
+        "option": "rule the exact storage head",
+        "at": "2026-10-15T22:11:10Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2135#issuecomment-6203331102"
+      },
+      "ruling": {
+        "ruledHead": "293ae722b06a1c5349d77673778a1c3f35f14a62",
+        "pr": 2135,
+        "commentId": 6203331102,
+        "author": "SwiggitySwerve",
+        "bodySha256": "9be55710da8fb3a0793bf9f60a7c4a00cf4fa64464de683b74a4ee4b4091623a"
+      }
     },
     {
       "id": "PK-p2cc-ruling",
