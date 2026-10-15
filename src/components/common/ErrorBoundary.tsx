@@ -15,6 +15,7 @@ interface ErrorBoundaryState {
   errorId?: string;
   canRecover: boolean;
   recoveryAttempts: number;
+  reportStatus: 'idle' | 'pending' | 'success' | 'error';
 }
 
 interface ErrorBoundaryProps {
@@ -30,6 +31,9 @@ export class ErrorBoundary extends Component<
   ErrorBoundaryState
 > {
   private static readonly MAX_RECOVERY_ATTEMPTS = 3;
+  private mounted = false;
+  private reportInFlight = false;
+  private reportAttempt = 0;
 
   constructor(props: ErrorBoundaryProps) {
     super(props);
@@ -37,7 +41,22 @@ export class ErrorBoundary extends Component<
       hasError: false,
       canRecover: true,
       recoveryAttempts: 0,
+      reportStatus: 'idle',
     };
+  }
+
+  componentDidMount(): void {
+    this.mounted = true;
+  }
+
+  componentWillUnmount(): void {
+    this.mounted = false;
+    this.invalidateReport();
+  }
+
+  private invalidateReport(): void {
+    this.reportAttempt += 1;
+    this.reportInFlight = false;
   }
 
   static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
@@ -53,10 +72,12 @@ export class ErrorBoundary extends Component<
       errorId,
       canRecover,
       recoveryAttempts: 0,
+      reportStatus: 'idle',
     };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
+    this.invalidateReport();
     // CRITICAL: Log error for debugging
     logger.error(
       `[ErrorBoundary] Error caught in ${this.props.componentName || 'component'}:`,
@@ -76,6 +97,7 @@ export class ErrorBoundary extends Component<
     this.setState({
       errorInfo,
       canRecover: ErrorBoundary.isRecoverableError(error),
+      reportStatus: 'idle',
     });
   }
 
@@ -146,12 +168,13 @@ export class ErrorBoundary extends Component<
   }
 
   private handleRecovery = (): void => {
+    this.invalidateReport();
     const maxAttempts =
       this.props.maxRecoveryAttempts || ErrorBoundary.MAX_RECOVERY_ATTEMPTS;
 
     if (this.state.recoveryAttempts >= maxAttempts) {
       logger.error('[ErrorBoundary] Maximum recovery attempts reached');
-      this.setState({ canRecover: false });
+      this.setState({ canRecover: false, reportStatus: 'idle' });
       return;
     }
 
@@ -165,10 +188,12 @@ export class ErrorBoundary extends Component<
       error: undefined,
       errorInfo: undefined,
       recoveryAttempts: prevState.recoveryAttempts + 1,
+      reportStatus: 'idle',
     }));
   };
 
   private handleReset = (): void => {
+    this.invalidateReport();
     logger.debug('[ErrorBoundary] Resetting component state');
 
     // CRITICAL: Reset to initial state
@@ -179,10 +204,27 @@ export class ErrorBoundary extends Component<
       errorId: undefined,
       canRecover: true,
       recoveryAttempts: 0,
+      reportStatus: 'idle',
     });
   };
 
-  private handleReportError = (): void => {
+  private handleReportError = async (): Promise<void> => {
+    if (!this.mounted || !this.state.hasError || this.reportInFlight) return;
+    this.reportInFlight = true;
+    const attempt = ++this.reportAttempt;
+    const errorId = this.state.errorId;
+    this.setState({ reportStatus: 'pending' });
+    const publishStatus = (reportStatus: 'success' | 'error'): void => {
+      if (!this.mounted || attempt !== this.reportAttempt) return;
+      this.setState((state) =>
+        this.mounted &&
+        attempt === this.reportAttempt &&
+        state.hasError &&
+        state.errorId === errorId
+          ? { reportStatus }
+          : null,
+      );
+    };
     // CRITICAL: Generate error report for user
     const errorReport = {
       errorId: this.state.errorId,
@@ -195,18 +237,19 @@ export class ErrorBoundary extends Component<
 
     // CRITICAL: Copy error report to clipboard
     try {
-      navigator.clipboard.writeText(JSON.stringify(errorReport, null, 2));
-      alert(
-        'Error report copied to clipboard. Please include this in your bug report.',
-      );
+      if (typeof navigator.clipboard?.writeText !== 'function') {
+        throw new Error('Clipboard API is unavailable');
+      }
+      await navigator.clipboard.writeText(JSON.stringify(errorReport, null, 2));
+      publishStatus('success');
     } catch (clipboardError) {
       logger.error(
         '[ErrorBoundary] Failed to copy error report:',
         clipboardError,
       );
-      alert(
-        'Failed to copy error report. Please take a screenshot of this error.',
-      );
+      publishStatus('error');
+    } finally {
+      if (attempt === this.reportAttempt) this.reportInFlight = false;
     }
   };
 
@@ -280,11 +323,26 @@ export class ErrorBoundary extends Component<
 
             <button
               onClick={this.handleReportError}
-              className="bg-accent text-on-accent hover:bg-accent-hover min-h-[44px] rounded px-4 py-2 text-sm font-medium transition-colors"
+              disabled={this.state.reportStatus === 'pending'}
+              aria-busy={this.state.reportStatus === 'pending'}
+              className="bg-accent text-on-accent hover:bg-accent-hover min-h-[44px] rounded px-4 py-2 text-sm font-medium transition-colors disabled:cursor-wait disabled:opacity-60"
             >
               Report Error
             </button>
           </div>
+
+          {this.state.reportStatus !== 'idle' && (
+            <p
+              role={this.state.reportStatus === 'error' ? 'alert' : 'status'}
+              className={`mt-3 text-sm ${this.state.reportStatus === 'error' ? 'text-red-400' : 'text-text-theme-secondary'}`}
+            >
+              {this.state.reportStatus === 'pending'
+                ? 'Copying error report...'
+                : this.state.reportStatus === 'success'
+                  ? 'Error report copied to clipboard. Please include this in your bug report.'
+                  : 'Failed to copy error report. Please take a screenshot of this error.'}
+            </p>
+          )}
 
           {process.env.NODE_ENV === 'development' && this.state.error && (
             <details className="mt-4">
