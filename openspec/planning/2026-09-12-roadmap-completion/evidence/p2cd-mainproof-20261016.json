@@ -1,0 +1,40 @@
+{
+  "unit": "P2CD",
+  "stage": "mainProof",
+  "recordedAt": "2026-10-15T23:29:13.429Z",
+  "mergeCommit": "bfce3c00f7ee84cd09573f2909ee3211d8613c85",
+  "verdict": "PASS",
+  "checkout": "E:/Projects/Personal/MekStation-wt/p2cd-closure-20261016",
+  "runtime": {
+    "playwright": "Source/Main Jest: Tests:       101 passed, 101 total",
+    "suites": "3 passed, 3 total",
+    "tsc": "npm run typecheck: exit 0"
+  },
+  "proof": {
+    "path": "evidence/p2cd-mainproof-bfce3c00.bytes.json",
+    "encoding": "base64",
+    "payloadSha256": "90ff0cb634200477ce210bb4ff25a5a691717df8b83f35a0ff958f3cd637ff44",
+    "payloadBytes": 344,
+    "originalPath": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-11-p2cd-20261016/mainproof-bfce3c00.md",
+    "note": "Root exact-main summary: 3 suites, 101/101 tests. No log was preserved with it."
+  },
+  "logs": [
+    {
+      "path": "evidence/mainproof-bfce3c00-tests.bytes.json",
+      "encoding": "base64",
+      "payloadSha256": "9e11ec5348847487c716f11c2b7201a765def70bbfe2cd27ae5f5e12410483b3",
+      "payloadBytes": 944,
+      "note": "Fresh focused run on this clean checkout at exact merge HEAD before any closure edit."
+    },
+    {
+      "path": "evidence/mainproof-bfce3c00-typecheck.bytes.json",
+      "encoding": "base64",
+      "payloadSha256": "912e4eaec940f0e6e42fdc649eb2684d46b3cd91e2a8209d4085bd19bfeb1a1a",
+      "payloadBytes": 214,
+      "note": "Fresh typecheck on the same checkout and HEAD."
+    }
+  ],
+  "scope": "Root summary plus a fresh focused/typecheck rerun at the exact merge commit. No install, full-stable, browser or build result is claimed for main.",
+  "closure": "main-verified only. taskKeys is empty; no tasks.md row is ticked and no tick receipt is invented. Source/closure owned-resource cleanup is not established here.",
+  "preservation": "Proof and logs are base64 envelopes so repository LF normalization cannot alter their exact bytes. Decode data and verify payloadSha256/payloadBytes."
+}

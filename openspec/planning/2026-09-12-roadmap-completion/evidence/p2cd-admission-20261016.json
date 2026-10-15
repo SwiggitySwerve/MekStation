@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CD",
+  "stage": "admission",
+  "date": "20261016",
+  "recordedAt": "2026-10-15T23:29:13.429Z",
+  "baseline": "f87430aa1f10cef5eac55848939663de0d86cfb0",
+  "authority": "Round 3 frozen census: unchanged NEXT returned P2CD and the full validator passed on this base; the user explicitly admitted this unit on this base.",
+  "contributor": {
+    "provider": "cliproxy",
+    "model": "gpt-6.1-sol",
+    "effort": "high",
+    "task": "Task11/P2CD implementation sub-agent"
+  },
+  "source": {
+    "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-11-p2cd-20261016/round3-census.md",
+    "sha256": "1f3b4399d633e0c403c5d83d4d7a70df08a6b70eefae2cbda38950c5039bd9d8",
+    "bytes": 4478
+  },
+  "priorRounds": [
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-11-p2cd-20261016/census.md",
+      "sha256": "a165821a4f801b4c87664414395264d6e718227e804faa1c94b201e25566246f",
+      "bytes": 9696,
+      "note": "Round 1 census at 08f917ef; NEXT selected P2CA, so P2CD was not admitted (qa.md)."
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-11-p2cd-20261016/round2-report.md",
+      "note": "Round 2 at 230bad2b: NEXT selected U24b because local-verified P2CA reserved src/lib/campaign; not admitted."
+    }
+  ],
+  "caps": {
+    "files": 15,
+    "productAddedLines": 500
+  },
+  "frozenFiles": [
+    {
+      "path": "src/types/multiplayer/Protocol.ts",
+      "exists": true,
+      "sha256": "35268c8dde431f2430104db546d3d76561d7316cd3de2898158ad85b64b7ce70",
+      "bytes": 40932
+    },
+    {
+      "path": "src/types/multiplayer/__tests__/Protocol.test.ts",
+      "exists": true,
+      "sha256": "8bda0bc844c866945a3c10626ac0a3c3dc7e490dd1e9ff9dbade7797a4729651",
+      "bytes": 18243
+    },
+    {
+      "path": "src/lib/campaign/coop/campaignSyncTransport.ts",
+      "exists": true,
+      "sha256": "9a46cd004bf25f41515f17ffe8fd4c851436aa6879414148c2e4539bb47e37d3",
+      "bytes": 12984
+    },
+    {
+      "path": "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+      "exists": true,
+      "sha256": "2b5107f897bb35b1606196f78ddaf222148f79bfbfb73ed0f05155ea61f14564",
+      "bytes": 12149
+    },
+    {
+      "path": "src/lib/p2p/campaignMirrorStore.ts",
+      "exists": true,
+      "sha256": "7e3cc551dcba69e59f889e2315d7a6f88d7d82a6c284e754f797004a6cdf7d94",
+      "bytes": 10848
+    },
+    {
+      "path": "src/lib/p2p/__tests__/campaignMirrorStore.test.ts",
+      "exists": true,
+      "sha256": "0b8eac0eb3e820099ad31cf3222d01931d65c269eb25df22acb2eb74550dd2cf",
+      "bytes": 5779
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "exists": true,
+      "sha256": "7bc6dc203ee48ecb06676419aa1d99524c2313c81f76ede45b9afbb24b46e179",
+      "bytes": 1266016
+    }
+  ],
+  "frozenEnvelope": {
+    "files": 13,
+    "fileCap": 15,
+    "estimatedProductAddedLines": 450,
+    "productLineCap": 500,
+    "estimatedTestAddedLines": 650,
+    "note": "Six source/test leaves, units.json and six external round-3 evidence files, as listed in round3-census.md."
+  },
+  "measuredAtReviewedHead": {
+    "head": "f97208a9ecc4ea563d6437f453d3edc8cd7a900e",
+    "command": "git diff --numstat --no-renames f97208a9ecc4ea563d6437f453d3edc8cd7a900e^1 f97208a9ecc4ea563d6437f453d3edc8cd7a900e",
+    "repositoryFiles": 6,
+    "productAddedLines": 354,
+    "testAddedLines": 678,
+    "unitsJsonChanged": false
+  },
+  "measuredAtMerge": {
+    "mergeSha": "bfce3c00f7ee84cd09573f2909ee3211d8613c85",
+    "command": "git diff --numstat --no-renames bfce3c00f7ee84cd09573f2909ee3211d8613c85^1 bfce3c00f7ee84cd09573f2909ee3211d8613c85",
+    "repositoryFiles": 6,
+    "productAddedLines": 354,
+    "testAddedLines": 699,
+    "unitsJsonChanged": false,
+    "note": "The drain fix e97cfef1 replaced one transport line and added 21 test lines; product additions are unchanged."
+  },
+  "admissionReview": "No separate admission review artifact exists for P2CD. The independent Opus source review recomputed the census.",
+  "summary": "Transcription of the existing round-3 admission census. No new admission decision is made here."
+}

@@ -1,0 +1,47 @@
+{
+  "unit": "P2CD",
+  "stage": "review",
+  "recordedAt": "2026-10-15T23:29:13.429Z",
+  "head": "e97cfef1c8c82b3a8747e3554e64a612e42d3223",
+  "reviewedHead": "f97208a9ecc4ea563d6437f453d3edc8cd7a900e",
+  "reviewerModel": "claude-opus-5-5",
+  "implementerModel": "gpt-6.1-sol",
+  "verdict": "APPROVE-WITH-NOTES",
+  "outputPath": "evidence/p2cd-source-opus-review-20261016.txt",
+  "outputSha256": "087cdeca6bb3bb8083cbe63b2755d5e904ff1d30292dcd8f3d9eb6f5069d7f30",
+  "reviews": [
+    {
+      "path": "evidence/p2cd-source-opus-review-20261016.txt",
+      "sha256": "087cdeca6bb3bb8083cbe63b2755d5e904ff1d30292dcd8f3d9eb6f5069d7f30",
+      "bytes": 15917,
+      "originalPath": "docs/audits/2026-10-16-task11-p2cd-opus-review.md",
+      "reviewedHead": "f97208a9ecc4ea563d6437f453d3edc8cd7a900e"
+    }
+  ],
+  "headDelta": {
+    "from": "f97208a9ecc4ea563d6437f453d3edc8cd7a900e",
+    "to": "e97cfef1c8c82b3a8747e3554e64a612e42d3223",
+    "commit": "e97cfef1c8c82b3a8747e3554e64a612e42d3223",
+    "files": [
+      "src/lib/campaign/coop/campaignSyncTransport.ts",
+      "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts"
+    ],
+    "change": "Applies review findings 1 and 2: drain after every receipt-mode dispatch (one-line condition) with a regression test, and relabels the two legacy numeric-ACK tests.",
+    "reviewStatus": "Not separately re-reviewed. Verified by a failing-then-passing regression test; see the local receipt drainFixReproduction."
+  },
+  "ciQualification": "All 31 check runs on the merged head succeeded (run 38821879343).",
+  "laneB": {
+    "ruledHead": "e97cfef1c8c82b3a8747e3554e64a612e42d3223",
+    "pr": 2139,
+    "commentId": 6204331678,
+    "author": "SwiggitySwerve",
+    "bodySha256": "bfe52c1ec1e59ad4937fe7f3c492d431667d9372470d9ab7a45f34de2c8a722d",
+    "at": "2026-10-15T23:21:33Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2139#issuecomment-6204331678",
+    "bodyPath": "evidence/p2cd-owner-ruling-6204331678.txt"
+  },
+  "ownerRulingNote": "The ruling body names Task 11 / P2CD and the exact merged head; its first sentence reuses the P2CA phrase \"Rule the exact storage head\". It is transcribed verbatim.",
+  "chronology": "The owner ruling was recorded after the source merge, as explicitly acknowledged in the ruling body. This transcription does not claim a premerge ruling.",
+  "identityScope": "Preserves the existing unversioned P2CD evidence and actual cross-model review provenance. No v2/v3 identity manifest or engine observation is claimed.",
+  "githubApproval": "Lane A engineering evidence only; no GitHub approval claimed."
+}
