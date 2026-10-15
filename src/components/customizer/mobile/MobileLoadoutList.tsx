@@ -20,8 +20,13 @@ import React, {
 import { AppIcon } from '@/components/ui/AppIcon';
 import { useEquipmentFiltering } from '@/hooks/useEquipmentFiltering';
 import { EquipmentCategory } from '@/types/equipment';
-import { isFixedOmniEquipment } from '@/utils/construction/equipmentMutationPolicy';
+import {
+  captureEquipmentMutationPolicy,
+  isFixedOmniEquipment,
+  matchesEquipmentMutationPolicy,
+} from '@/utils/construction/equipmentMutationPolicy';
 
+import { useCustomizerConfirmation } from '../dialogs/CustomizerConfirmationProvider';
 import { ModalOverlay } from '../dialogs/ModalOverlay';
 import { CategoryFilterBar } from '../equipment/CategoryFilterBar';
 import { MobileEquipmentRow, MobileEquipmentItem } from './MobileEquipmentRow';
@@ -145,13 +150,45 @@ export function MobileLoadoutList({
         isOmniPodMounted: item.isOmniPodMounted ?? true,
       }),
   ).length;
+  const { requestConfirmation } = useCustomizerConfirmation();
+  const committed = useRef<{
+    readonly equipment: readonly MobileEquipmentItem[];
+    readonly isOmni: boolean;
+    readonly removableCount: number;
+    readonly onRemoveAllEquipment: () => void;
+  } | null>(null);
+  useLayoutEffect(() => {
+    committed.current = {
+      equipment,
+      isOmni,
+      removableCount,
+      onRemoveAllEquipment,
+    };
+  });
   const handleRemoveAll = useCallback(() => {
-    if (removableCount === 0) return;
-    if (window.confirm(`Remove all ${removableCount} equipment items?`)) {
-      pendingFocus.current = { instanceId: null };
-      onRemoveAllEquipment();
-    }
-  }, [removableCount, onRemoveAllEquipment]);
+    const requested = committed.current;
+    if (!requested || requested.removableCount === 0) return;
+    const policies = captureEquipmentMutationPolicy(requested.equipment);
+    requestConfirmation({
+      title: 'Clear equipment loadout?',
+      message: `Remove all ${requested.removableCount} equipment items?`,
+      confirmLabel: 'Clear equipment',
+      isCurrent: () => {
+        const current = committed.current;
+        return (
+          !!current &&
+          current.isOmni === requested.isOmni &&
+          matchesEquipmentMutationPolicy(policies, current.equipment)
+        );
+      },
+      onConfirm: () => {
+        const current = committed.current;
+        if (!current) return;
+        pendingFocus.current = { instanceId: null };
+        current.onRemoveAllEquipment();
+      },
+    });
+  }, [requestConfirmation]);
 
   return (
     <ModalOverlay

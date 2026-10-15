@@ -72,7 +72,7 @@ function formatToHitReason(
     .join(', ')}`;
 }
 
-function attackContextModifiers({
+export function buildAttackContextModifiers({
   attackerUnit,
   targetUnit,
   targetTerrainModifier,
@@ -354,7 +354,7 @@ export function deriveToHitProjection(
     targetUnitId,
     attackerUnit,
     targetUnit,
-    contextModifiers: attackContextModifiers({
+    contextModifiers: buildAttackContextModifiers({
       attackerUnit,
       targetUnit,
       targetTerrainModifier,

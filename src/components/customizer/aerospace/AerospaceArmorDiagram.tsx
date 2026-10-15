@@ -19,16 +19,20 @@
  *   - Per-arc inputs use the shared <ArmorAllocationInput> primitive which
  *     supports clamp + ArrowLeft/ArrowRight focus navigation between siblings
  *     in the 'aerospace-armor' group.
- *   - Auto-Allocate prompts a confirm() dialog if the user has already
+ *   - Auto-Allocate prompts an app dialog if the user has already
  *     manually allocated armor (any arc > 0).
  *
  * @spec openspec/changes/add-per-type-armor-diagrams/specs/armor-diagram/spec.md
  *        Requirement: Aerospace Diagram Geometry
  */
 
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useLayoutEffect, useMemo, useRef } from 'react';
+import { shallow } from 'zustand/vanilla/shallow';
 
-import { useAerospaceStore } from '@/stores/useAerospaceStore';
+import {
+  useAerospaceStore,
+  useAerospaceStoreApi,
+} from '@/stores/useAerospaceStore';
 import { getArmorDefinition } from '@/types/construction/ArmorType';
 import { AerospaceLocation } from '@/types/construction/UnitLocation';
 import { AerospaceSubType } from '@/types/unit/AerospaceInterfaces';
@@ -36,6 +40,7 @@ import { maxArcArmorPointsForLocation } from '@/utils/construction/aerospace/arm
 
 import { ArmorAllocationInput } from '../armor/ArmorAllocationInput';
 import { ArmorLocationBlock } from '../armor/ArmorLocationBlock';
+import { useCustomizerConfirmation } from '../dialogs/CustomizerConfirmationProvider';
 
 // =============================================================================
 // Helpers
@@ -90,13 +95,18 @@ const ARCS: { arc: AerospaceLocation; label: string }[] = [
 export function AerospaceArmorDiagram({
   className = '',
 }: AerospaceArmorDiagramProps): React.ReactElement {
+  const storeApi = useAerospaceStoreApi();
+  const committedStore = useRef(storeApi);
+  useLayoutEffect(() => {
+    committedStore.current = storeApi;
+  }, [storeApi]);
+  const { requestConfirmation } = useCustomizerConfirmation();
   const tonnage = useAerospaceStore((s) => s.tonnage);
   const armorTonnage = useAerospaceStore((s) => s.armorTonnage);
   const armorType = useAerospaceStore((s) => s.armorType);
   const subType = useAerospaceStore((s) => s.aerospaceSubType);
   const armorAllocation = useAerospaceStore((s) => s.armorAllocation);
   const setArcArmor = useAerospaceStore((s) => s.setArcArmor);
-  const autoAllocateArmor = useAerospaceStore((s) => s.autoAllocateArmor);
 
   // Deferred(add-aerospace-construction): read SI from store when available.
   const si = Math.ceil(tonnage / 10);
@@ -119,29 +129,46 @@ export function AerospaceArmorDiagram({
     [setArcArmor, tonnage, subType],
   );
 
-  // Detect any non-default arc allocation for the confirm gate
-  const hasNonDefaultArmor = useMemo(
-    () =>
-      Object.values(armorAllocation as Record<string, number>).some(
-        (v) => (v ?? 0) > 0,
-      ),
-    [armorAllocation],
-  );
-
   const availablePoints = Math.floor(armorTonnage * pointsPerTon);
 
   const handleAutoAllocate = useCallback(() => {
-    if (hasNonDefaultArmor) {
-      const ok =
-        typeof window === 'undefined' ||
-        // eslint-disable-next-line no-alert -- intentional confirm for destructive action
-        window.confirm(
-          'Auto-allocate will overwrite your current armor distribution. Continue?',
-        );
-      if (!ok) return;
+    const state = storeApi.getState();
+    if (
+      !Object.values(state.armorAllocation).some((value) => (value ?? 0) > 0)
+    ) {
+      state.autoAllocateArmor();
+      return;
     }
-    autoAllocateArmor();
-  }, [autoAllocateArmor, hasNonDefaultArmor]);
+    const requested = {
+      id: state.id,
+      unitType: state.unitType,
+      tonnage: state.tonnage,
+      subType: state.aerospaceSubType,
+      armorType: state.armorType,
+      armorTonnage: state.armorTonnage,
+      allocation: { ...state.armorAllocation },
+    };
+    requestConfirmation({
+      title: 'Auto-allocate armor?',
+      message:
+        'Auto-allocate will overwrite your current armor distribution. Continue?',
+      confirmLabel: 'Auto-Allocate',
+      isCurrent: () => {
+        if (committedStore.current !== storeApi) return false;
+        const current = committedStore.current.getState();
+        return (
+          current.id === requested.id &&
+          current.unitType === requested.unitType &&
+          current.tonnage === requested.tonnage &&
+          current.aerospaceSubType === requested.subType &&
+          current.armorType === requested.armorType &&
+          current.armorTonnage === requested.armorTonnage &&
+          shallow(current.armorAllocation, requested.allocation)
+        );
+      },
+      onConfirm: () => committedStore.current.getState().autoAllocateArmor(),
+    });
+  }, [requestConfirmation, storeApi]);
 
   return (
     <div

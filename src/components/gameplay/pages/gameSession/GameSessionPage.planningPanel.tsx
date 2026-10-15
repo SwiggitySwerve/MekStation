@@ -33,6 +33,7 @@ export function GameSessionPlanningPanel({
 
   return (
     <CombatPlanningPanel
+      className="max-h-[30vh] min-h-0 shrink-0 overflow-y-auto"
       walkMP={movement.effectiveMovementMps?.walkMP ?? 0}
       runMP={movement.effectiveMovementMps?.runMP ?? 0}
       jumpMP={movement.effectiveMovementMps?.jumpMP ?? 0}

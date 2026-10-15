@@ -7,7 +7,7 @@
  */
 
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { Button, Card } from '@/components/ui';
 import { SvgIcon } from '@/components/ui/SvgIcon';
@@ -15,7 +15,13 @@ import { navigateToGameSession } from '@/lib/gameplay/tacticalNavigation';
 import GameSessionPage from '@/pages/gameplay/games/[id]';
 import { useGameplaySelector } from '@/stores/useGameplayStore';
 import { useQuickGameSelector } from '@/stores/useQuickGameStore';
+import {
+  getQuickGameCompletion,
+  matchesQuickGameSession,
+} from '@/stores/useQuickGameStore.helpers';
 import { GameStatus } from '@/types/gameplay';
+
+import { useQuickGameSession } from './useQuickGameSession';
 
 // =============================================================================
 // Unit Card Component
@@ -102,62 +108,100 @@ export function QuickGamePlay(): React.ReactElement {
   const error = useQuickGameSelector((state) => state.error);
   const startBattle = useQuickGameSelector((state) => state.startBattle);
   const playAgain = useQuickGameSelector((state) => state.playAgain);
+  const clearGame = useQuickGameSelector((state) => state.clearGame);
+  const reconcileTacticalCompletion = useQuickGameSelector(
+    (state) => state.reconcileTacticalCompletion,
+  );
   const interactiveSession = useGameplaySelector(
     (state) => state.interactiveSession,
   );
-  const session = useGameplaySelector((state) => state.session);
+  const liveSession = useGameplaySelector((state) => state.session);
+  const recovery = useQuickGameSession(game, liveSession);
+  const session = recovery.session ?? liveSession;
   const spectatorMode = useGameplaySelector((state) => state.spectatorMode);
+  const liveTacticalSessionId = liveSession?.matchId ?? liveSession?.id;
+  const persistedTacticalSession = game?.activeTacticalSession;
   const hasLiveTacticalSession =
-    Boolean(interactiveSession) || spectatorMode?.enabled === true;
-  const liveTacticalSessionId = session?.matchId ?? session?.id;
+    liveSession?.currentState.status === GameStatus.Active &&
+    (!persistedTacticalSession || matchesQuickGameSession(game, liveSession)) &&
+    (Boolean(interactiveSession) || spectatorMode?.enabled === true);
+  const quickGameId = game?.id;
+  const hasRecordedCompletion = Boolean(
+    game && getQuickGameCompletion(game, game.id, session),
+  );
   const isGameSessionRoute =
     router.asPath?.startsWith('/gameplay/games/') === true ||
     (typeof window !== 'undefined' &&
       window.location.pathname.startsWith('/gameplay/games/'));
 
-  const persistedTacticalSession = game?.activeTacticalSession;
+  const tacticalSessionId = hasLiveTacticalSession
+    ? liveTacticalSessionId
+    : persistedTacticalSession?.id;
+  const tacticalSpectator = hasLiveTacticalSession
+    ? spectatorMode?.enabled === true
+    : persistedTacticalSession?.mode === 'spectator';
+  const tacticalRouteTarget = tacticalSessionId
+    ? JSON.stringify([tacticalSessionId, tacticalSpectator])
+    : null;
+  const requestedRoute = useRef<{ target: string } | null>(null);
+  const [failedRoute, setFailedRoute] = useState<string | null>(null);
 
   useEffect(() => {
-    if (
-      game?.status === GameStatus.Active &&
-      !isLoading &&
-      !hasLiveTacticalSession &&
-      persistedTacticalSession &&
-      !isGameSessionRoute
-    ) {
-      navigateToGameSession(persistedTacticalSession.id, router, {
-        spectator: persistedTacticalSession.mode === 'spectator',
-      });
-    }
+    if (hasRecordedCompletion && quickGameId && session)
+      reconcileTacticalCompletion(quickGameId, session);
   }, [
-    game?.status,
-    hasLiveTacticalSession,
-    isGameSessionRoute,
-    isLoading,
-    persistedTacticalSession,
-    router,
+    hasRecordedCompletion,
+    quickGameId,
+    session,
+    reconcileTacticalCompletion,
   ]);
 
   useEffect(() => {
     if (
-      game?.status === GameStatus.Active &&
-      hasLiveTacticalSession &&
-      liveTacticalSessionId
+      game?.status !== GameStatus.Active ||
+      hasRecordedCompletion ||
+      isLoading ||
+      recovery.isLoading ||
+      (recovery.error && Boolean(persistedTacticalSession)) ||
+      !tacticalSessionId ||
+      isGameSessionRoute
     ) {
-      if (spectatorMode?.enabled) {
-        navigateToGameSession(liveTacticalSessionId, router, {
-          spectator: true,
-        });
-      } else {
-        navigateToGameSession(liveTacticalSessionId, router);
-      }
+      return;
+    }
+
+    if (!tacticalRouteTarget || failedRoute === tacticalRouteTarget) return;
+    if (requestedRoute.current?.target === tacticalRouteTarget) return;
+
+    const request = { target: tacticalRouteTarget };
+    requestedRoute.current = request;
+    const markFailed = () => {
+      if (requestedRoute.current !== request) return;
+      requestedRoute.current = null;
+      setFailedRoute(request.target);
+    };
+    try {
+      const result = navigateToGameSession(tacticalSessionId, router, {
+        spectator: tacticalSpectator,
+      });
+      void Promise.resolve(result).then((navigated) => {
+        if (navigated === false) markFailed();
+      }, markFailed);
+    } catch {
+      markFailed();
     }
   }, [
+    failedRoute,
     game?.status,
-    hasLiveTacticalSession,
-    liveTacticalSessionId,
+    hasRecordedCompletion,
+    isGameSessionRoute,
+    isLoading,
+    recovery.isLoading,
+    recovery.error,
+    persistedTacticalSession,
     router,
-    spectatorMode?.enabled,
+    tacticalRouteTarget,
+    tacticalSessionId,
+    tacticalSpectator,
   ]);
 
   if (!game) {
@@ -165,6 +209,32 @@ export function QuickGamePlay(): React.ReactElement {
       <div className="flex h-64 items-center justify-center">
         <p className="text-text-theme-muted">No game in progress</p>
       </div>
+    );
+  }
+
+  if (recovery.error && persistedTacticalSession) {
+    return (
+      <Card className="mx-auto max-w-lg p-8">
+        <div role="alert">
+          <h2>Recorded battle unavailable</h2>
+          <p>{recovery.error}</p>
+        </div>
+        <Button variant="primary" onClick={recovery.retry}>
+          Retry loading battle
+        </Button>
+        <Button variant="secondary" onClick={() => playAgain(false)}>
+          Start New Setup
+        </Button>
+        <Button
+          variant="secondary"
+          onClick={() => {
+            clearGame();
+            void router.push('/gameplay/games');
+          }}
+        >
+          Exit to Games
+        </Button>
+      </Card>
     );
   }
 
@@ -192,6 +262,27 @@ export function QuickGamePlay(): React.ReactElement {
             </h3>
             <p className="text-text-theme-muted text-sm">{error}</p>
           </div>
+        </Card>
+      </div>
+    );
+  }
+
+  if (
+    failedRoute !== null &&
+    failedRoute === tacticalRouteTarget &&
+    game.status === GameStatus.Active &&
+    !isLoading &&
+    !isGameSessionRoute
+  ) {
+    return (
+      <div className="bg-surface-deep flex min-h-screen items-center justify-center">
+        <Card className="mx-4 max-w-md p-8 text-center">
+          <p role="alert" className="text-text-theme-primary mb-4">
+            Could not open the tactical battle. Retry to continue your session.
+          </p>
+          <Button onClick={() => setFailedRoute(null)}>
+            Retry Opening Battle
+          </Button>
         </Card>
       </div>
     );

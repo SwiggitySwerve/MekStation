@@ -88,6 +88,7 @@ export function useCriticalSlotsTabLogic({
   const equipment = useUnitStore((s) => s.equipment);
   const engineType = useUnitStore((s) => s.engineType);
   const gyroType = useUnitStore((s) => s.gyroType);
+  const armActuators = useUnitStore((s) => s.armActuators);
   const isOmni = useUnitStore((s) => s.isOmni);
   const tonnage = useUnitStore((s) => s.tonnage);
   const unitIsSuperheavy = tonnage > 100;
@@ -120,6 +121,7 @@ export function useCriticalSlotsTabLogic({
         excludedEquipmentId
           ? equipment.filter((item) => item.instanceId !== excludedEquipmentId)
           : equipment,
+        armActuators,
       );
       return {
         location,
@@ -128,7 +130,7 @@ export function useCriticalSlotsTabLogic({
         isSuperheavy: unitIsSuperheavy,
       };
     },
-    [equipment, engineType, gyroType, unitIsSuperheavy],
+    [equipment, engineType, gyroType, armActuators, unitIsSuperheavy],
   );
 
   const getAssignableSlots = useCallback(
@@ -213,6 +215,7 @@ export function useCriticalSlotsTabLogic({
       equipment,
       engineType,
       gyroType,
+      armActuators,
       configuration,
       isOmni,
       bulkUpdateEquipmentLocations,
@@ -222,6 +225,7 @@ export function useCriticalSlotsTabLogic({
     equipment,
     engineType,
     gyroType,
+    armActuators,
     configuration,
     isOmni,
     bulkUpdateEquipmentLocations,
@@ -233,6 +237,7 @@ export function useCriticalSlotsTabLogic({
       equipment,
       engineType,
       gyroType,
+      armActuators,
       configuration,
       isOmni,
       bulkUpdateEquipmentLocations,
@@ -242,6 +247,7 @@ export function useCriticalSlotsTabLogic({
     equipment,
     engineType,
     gyroType,
+    armActuators,
     configuration,
     isOmni,
     bulkUpdateEquipmentLocations,
@@ -253,6 +259,7 @@ export function useCriticalSlotsTabLogic({
       equipment,
       engineType,
       gyroType,
+      armActuators,
       configuration,
       isOmni,
       bulkUpdateEquipmentLocations,
@@ -262,6 +269,7 @@ export function useCriticalSlotsTabLogic({
     equipment,
     engineType,
     gyroType,
+    armActuators,
     configuration,
     isOmni,
     bulkUpdateEquipmentLocations,
@@ -280,6 +288,7 @@ export function useCriticalSlotsTabLogic({
         equipment,
         engineType,
         gyroType,
+        armActuators,
         configuration,
         isOmni,
         bulkUpdateEquipmentLocations,
@@ -294,6 +303,7 @@ export function useCriticalSlotsTabLogic({
       equipment,
       engineType,
       gyroType,
+      armActuators,
       configuration,
       isOmni,
       bulkUpdateEquipmentLocations,
@@ -312,6 +322,7 @@ export function useCriticalSlotsTabLogic({
         equipment,
         engineType,
         gyroType,
+        armActuators,
         configuration,
         isOmni,
         bulkUpdateEquipmentLocations,
@@ -325,6 +336,7 @@ export function useCriticalSlotsTabLogic({
       equipment,
       engineType,
       gyroType,
+      armActuators,
       configuration,
       isOmni,
       bulkUpdateEquipmentLocations,
@@ -354,6 +366,7 @@ export function useCriticalSlotsTabLogic({
     configuration,
     engineType,
     gyroType,
+    armActuators,
     unitIsSuperheavy,
     getLocationData,
     updateEquipmentLocation,

@@ -36,6 +36,7 @@ export function useEquipmentValidation(): EquipmentValidationData {
   const engineType = useUnitStore((s) => s.engineType);
   const gyroType = useUnitStore((s) => s.gyroType);
   const configuration = useUnitStore((s) => s.configuration);
+  const armActuators = useUnitStore((s) => s.armActuators);
 
   return useMemo(() => {
     // Build per-location slot data for critical slot validation
@@ -48,7 +49,8 @@ export function useEquipmentValidation(): EquipmentValidationData {
         configuration,
         engineType,
         gyroType,
+        armActuators,
       ),
     };
-  }, [equipment, configuration, engineType, gyroType]);
+  }, [equipment, configuration, engineType, gyroType, armActuators]);
 }

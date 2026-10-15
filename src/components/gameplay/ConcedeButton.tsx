@@ -19,6 +19,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import type { InteractiveSession } from '@/engine/InteractiveSession';
 
 import { DialogTemplate } from '@/components/ui/DialogTemplate';
+import { useGameplayStore } from '@/stores/useGameplayStore';
 import { GameEventType, GameSide } from '@/types/gameplay';
 
 // =============================================================================
@@ -67,16 +68,33 @@ export function ConcedeButton({
   // the control instead of letting the player click into a no-op.
   const isGameOver = interactiveSession.isGameOver();
 
+  const ownsCurrentSession = useCallback(() => {
+    const current = useGameplayStore.getState();
+    // Standalone callers can supply their own navigation without a store.
+    if (!current.session && !current.interactiveSession) return true;
+    return (
+      current.interactiveSession === interactiveSession &&
+      current.session?.id === sessionId &&
+      interactiveSession.getSession().id === sessionId
+    );
+  }, [interactiveSession, sessionId]);
+
   // Centralized navigation helper — uses the override if provided so
   // tests can assert without a real router.
   const navigateToVictory = useCallback(() => {
+    if (!ownsCurrentSession()) return;
+    const current = useGameplayStore.getState();
+    if (current.interactiveSession === interactiveSession) {
+      if (!current.checkGameOver()) return;
+    }
+    setHasNavigated(true);
     const path = `/gameplay/games/${sessionId}/victory`;
     if (onNavigate) {
       onNavigate(path);
     } else {
       void router.push(path);
     }
-  }, [onNavigate, router, sessionId]);
+  }, [interactiveSession, onNavigate, ownsCurrentSession, router, sessionId]);
 
   const handleOpenConfirm = useCallback(() => {
     if (isGameOver) return;
@@ -90,7 +108,7 @@ export function ConcedeButton({
   const handleConfirm = useCallback(() => {
     // Defensive: re-check before mutating in case the game ended
     // between opening the modal and clicking confirm.
-    if (interactiveSession.isGameOver()) {
+    if (!ownsCurrentSession() || interactiveSession.isGameOver()) {
       setIsConfirmOpen(false);
       return;
     }
@@ -100,7 +118,7 @@ export function ConcedeButton({
     // run the GameEnded effect below as a safety net for any other
     // game-end source (e.g. opponent destruction during AI turn).
     navigateToVictory();
-  }, [interactiveSession, playerSide, navigateToVictory]);
+  }, [interactiveSession, playerSide, navigateToVictory, ownsCurrentSession]);
 
   // Watch for `GameEnded` events that originate from sources OTHER
   // than this button (AI turn, destruction). The browser's

@@ -1,4 +1,10 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import React from 'react';
 
 import { navigateToGameSession } from '@/lib/gameplay/tacticalNavigation';
@@ -168,35 +174,32 @@ describe('QuickGameReview play options', () => {
     expect(mockStartBattle).not.toHaveBeenCalled();
   });
 
-  it('routes the interactive skirmish by its persisted match ID', async () => {
+  it('leaves interactive navigation to the Playing step after launch', async () => {
     render(<QuickGameReview />);
 
-    fireEvent.click(
-      screen.getByRole('button', { name: /interactive skirmish/i }),
-    );
+    await act(async () => {
+      fireEvent.click(
+        screen.getByRole('button', { name: /interactive skirmish/i }),
+      );
+    });
 
     await waitFor(() => {
       expect(mockStartInteractiveSkirmish).toHaveBeenCalledTimes(1);
       expect(mockStartSpectatorMode).not.toHaveBeenCalled();
-      expect(mockNavigateToGameSession).toHaveBeenCalledWith(
-        'quick-skirmish-1',
-        expect.objectContaining({ push: mockRouterPush }),
-      );
+      expect(mockNavigateToGameSession).not.toHaveBeenCalled();
     });
   });
 
-  it('preserves spectator intent in the persisted match route', async () => {
+  it('leaves spectator navigation to the Playing step after launch', async () => {
     render(<QuickGameReview />);
 
-    fireEvent.click(screen.getByRole('button', { name: /watch ai battle/i }));
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /watch ai battle/i }));
+    });
 
     await waitFor(() => {
       expect(mockStartSpectatorMode).toHaveBeenCalledTimes(1);
-      expect(mockNavigateToGameSession).toHaveBeenCalledWith(
-        'quick-skirmish-1',
-        expect.objectContaining({ push: mockRouterPush }),
-        { spectator: true },
-      );
+      expect(mockNavigateToGameSession).not.toHaveBeenCalled();
     });
   });
 

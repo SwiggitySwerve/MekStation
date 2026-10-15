@@ -57,6 +57,7 @@ export function PreviewTab({
   const enhancement = useUnitStore((s) => s.enhancement);
   const jumpMP = useUnitStore((s) => s.jumpMP);
   const equipment = useUnitStore((s) => s.equipment);
+  const armActuators = useUnitStore((s) => s.armActuators);
 
   const previewState = useMemo<PreviewUnitState>(
     () => ({
@@ -81,6 +82,7 @@ export function PreviewTab({
       enhancement,
       jumpMP,
       equipment,
+      armActuators,
     }),
     [
       name,
@@ -104,6 +106,7 @@ export function PreviewTab({
       enhancement,
       jumpMP,
       equipment,
+      armActuators,
     ],
   );
 

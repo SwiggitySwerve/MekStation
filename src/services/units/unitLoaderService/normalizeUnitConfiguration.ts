@@ -1,6 +1,7 @@
 import { UnitState, createEmptySelectionMemory } from '@/stores/unitState';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { CockpitType } from '@/types/construction/CockpitType';
+import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
@@ -29,7 +30,34 @@ import {
   mapRulesLevel,
   mapArmorAllocation,
 } from './componentMappers';
+import { getCriticalSlotsForLocation } from './criticalSlotEquipment';
 import { mapMovementConfiguration } from './movementConfiguration';
+
+function deriveArmActuators(
+  serialized: IRawSerializedUnit,
+): UnitState['armActuators'] {
+  const result: Partial<
+    Record<MechLocation, { lowerArm: boolean; hand: boolean }>
+  > = {};
+  for (const location of [
+    MechLocation.LEFT_ARM,
+    MechLocation.RIGHT_ARM,
+  ] as const) {
+    const slots = getCriticalSlotsForLocation(
+      serialized.criticalSlots,
+      location,
+    );
+    // Equipment-only older saves have no actuator evidence; retain their defaults.
+    if (!slots?.some((token) => token?.toLowerCase() === 'shoulder')) continue;
+    result[location] = {
+      lowerArm: slots.some((token) =>
+        token?.toLowerCase().startsWith('lower arm'),
+      ),
+      hand: slots.some((token) => token?.toLowerCase().startsWith('hand')),
+    };
+  }
+  return result;
+}
 
 interface IUnitTechBaseContext {
   readonly techBaseMode: UnitState['techBaseMode'];
@@ -212,5 +240,6 @@ export function normalizeUnitConfiguration(
     ...deriveArmorState(serialized, techBase),
     ...mapMovementConfiguration(serialized.movement),
     equipment,
+    armActuators: deriveArmActuators(serialized),
   };
 }

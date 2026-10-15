@@ -21,8 +21,10 @@ import {
   identityArtifact,
   identityPath,
   nativeArtifact,
+  nativeArtifacts,
+  nativeBuffers,
   nativeBytes,
-  nativeFile,
+  nativeReadFiles,
 } from './custody.mjs';
 import {
   nativeImplementationCensus,
@@ -87,19 +89,23 @@ export function implementationCensus(local) {
   return actors;
 }
 
-const localReviewEvidence = (ledgerDir, unit) => {
+const localReviewEvidence = (ledgerDir, unit, nativeInput) => {
   const inline = unit.stageReceipts.local;
   const mode = reviewIdentityMode(inline);
+  const native =
+    mode === 3
+      ? (nativeInput ?? nativeReadFiles(ledgerDir, [inline.path])[0])
+      : null;
   const file =
     mode === 3
-      ? nativeFile(ledgerDir, inline.path)
+      ? native.file
       : mode
         ? identityPath(ledgerDir, inline.path)
         : inline?.path && path.resolve(ledgerDir, inline.path);
   const bytes =
     file && fs.existsSync(file)
       ? mode === 3
-        ? nativeBytes(file)
+        ? native.bytes
         : fs.readFileSync(file)
       : null;
   const external =
@@ -159,7 +165,22 @@ function validateNativeIdentity({
       review.verdict === 'APPROVE',
     'native review unit/head/verdict or engine adapter mismatch',
   );
-  const local = localReviewEvidence(ledgerDir, unit);
+  // Archived selectors are known together; this is a new read after receipt intake.
+  const archived =
+    !manifestFile &&
+    !reviewFile &&
+    reviewIdentityMode(unit.stageReceipts.local) === 3
+      ? nativeReadFiles(
+          ledgerDir,
+          [
+            unit.stageReceipts.local.path,
+            review.identityEvidence?.path,
+            review.outputPath,
+          ],
+          [review.identityEvidence],
+        )
+      : null;
+  const local = localReviewEvidence(ledgerDir, unit, archived?.[0]);
   identityCheck(
     local.mode === 3 && local.actors,
     'paired native local census required',
@@ -173,12 +194,15 @@ function validateNativeIdentity({
         file: path.resolve(manifestFile),
         bytes: nativeBytes(path.resolve(manifestFile)),
       }
-    : nativeArtifact(ledgerDir, review.identityEvidence);
+    : (archived?.[1] ?? nativeArtifact(ledgerDir, review.identityEvidence));
   const manifest = data.value ?? nativeJson(data.bytes);
-  const outputFile = reviewFile
-    ? path.resolve(reviewFile)
-    : nativeFile(ledgerDir, review.outputPath);
-  const output = nativeBytes(outputFile);
+  const retainedOutput = reviewFile
+    ? {
+        file: path.resolve(reviewFile),
+        bytes: nativeBytes(path.resolve(reviewFile)),
+      }
+    : (archived?.[2] ?? nativeReadFiles(ledgerDir, [review.outputPath])[0]);
+  const { bytes: output } = retainedOutput;
   identityCheck(
     !reviewBytes || output.equals(reviewBytes),
     'native retained review bytes drift',
@@ -209,15 +233,16 @@ function validateNativeIdentity({
         `codex-review-identity-${review.identityEvidence.sha256}.json`,
       'native archived manifest kind mismatch',
     );
-  const snapshots = refs.map((ref) => {
-    const artifact = nativeArtifact(path.dirname(data.file), ref);
-    if (nativeObservationsDir)
+  const snapshots = nativeArtifacts(path.dirname(data.file), refs);
+  if (nativeObservationsDir) {
+    const actual = nativeArtifacts(nativeObservationsDir, refs);
+    snapshots.forEach((artifact, index) =>
       identityCheck(
-        nativeArtifact(nativeObservationsDir, ref).bytes.equals(artifact.bytes),
+        actual[index].bytes.equals(artifact.bytes),
         'native snapshot differs from actual qualified capture',
-      );
-    return artifact;
-  });
+      ),
+    );
+  }
   const bindings = validateNativeReview({
     snapshots,
     manifest,
@@ -226,25 +251,27 @@ function validateNativeIdentity({
     localSha256: sha256(local.bytes),
   });
   const revalidate = () => {
+    const frozen = [data, retainedOutput, local, ...snapshots];
+    const current = nativeBuffers(frozen.map((artifact) => artifact.file));
     identityCheck(
-      nativeBytes(data.file).equals(data.bytes) &&
-        nativeBytes(outputFile).equals(output) &&
-        nativeBytes(local.file).equals(local.bytes),
+      current.slice(0, 3).every((bytes, i) => bytes.equals(frozen[i].bytes)),
       'native frozen manifest/review/local artifact drift',
     );
-    snapshots.forEach((snapshot, i) => {
+    snapshots.forEach((snapshot, i) =>
       identityCheck(
-        nativeBytes(snapshot.file).equals(snapshot.bytes),
+        current[i + 3].equals(snapshot.bytes),
         'native frozen observation artifact drift',
-      );
-      if (nativeObservationsDir)
+      ),
+    );
+    if (nativeObservationsDir) {
+      const actual = nativeArtifacts(nativeObservationsDir, refs);
+      snapshots.forEach((snapshot, i) =>
         identityCheck(
-          nativeArtifact(nativeObservationsDir, refs[i]).bytes.equals(
-            snapshot.bytes,
-          ),
+          actual[i].bytes.equals(snapshot.bytes),
           'native actual capture artifact drift',
-        );
-    });
+        ),
+      );
+    }
   };
   revalidate();
   return { manifest, snapshots, bindings, revalidate };
@@ -369,18 +396,26 @@ export function validateReviewIdentity({
 
 export function validateReviewReceipt(ledgerDir, unit) {
   const inline = unit.stageReceipts.review;
-  const { mode: localMode } = localReviewEvidence(ledgerDir, unit);
-  if (!inline) return;
   const mode = reviewIdentityMode(inline);
+  const intake =
+    mode === 3 && reviewIdentityMode(unit.stageReceipts.local) === 3
+      ? nativeReadFiles(ledgerDir, [unit.stageReceipts.local.path, inline.path])
+      : null;
+  const { mode: localMode } = localReviewEvidence(ledgerDir, unit, intake?.[0]);
+  if (!inline) return;
+  const native =
+    mode === 3
+      ? (intake?.[1] ?? nativeReadFiles(ledgerDir, [inline.path])[0])
+      : null;
   const externalFile =
     mode === 3
-      ? nativeFile(ledgerDir, inline.path)
+      ? native.file
       : mode
         ? identityPath(ledgerDir, inline.path)
         : path.resolve(ledgerDir, inline.path);
   const external = fs.existsSync(externalFile)
     ? mode === 3
-      ? nativeJson(nativeBytes(externalFile))
+      ? nativeJson(native.bytes)
       : readJson(externalFile)
     : null;
   identityCheck(

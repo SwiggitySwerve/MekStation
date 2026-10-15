@@ -85,7 +85,8 @@ export function HeatEffectLedger({
           Volley heat <span className="font-semibold">{totals.weaponHeat}</span>
         </span>
         <span data-testid="ledger-total-heat">
-          + movement <span className="font-semibold">{totals.totalHeat}</span>
+          Total generated{' '}
+          <span className="font-semibold">{totals.totalHeat}</span>
         </span>
         <span data-testid="ledger-net-heat">
           net{' '}

@@ -25,7 +25,10 @@ import type {
 } from '../types';
 
 import { readReplayIndex } from '../index-reader';
-import { appendManifestEntry } from '../index-writer';
+import {
+  appendManifestEntry,
+  repairQuickManifestMetadata,
+} from '../index-writer';
 
 // ---------------------------------------------------------------------------
 // Tmpdir factory + fixture builders
@@ -260,5 +263,104 @@ describe('appendManifestEntry', () => {
     expect(byId['sim-a']?.turns).toBe(99);
     expect(byId['quick-b']).toBeDefined();
     expect(byId['sim-c']).toBeDefined();
+  });
+});
+
+describe('repairQuickManifestMetadata', () => {
+  afterEach(() => jest.restoreAllMocks());
+
+  it.each([false, true])(
+    'fills only zero fields with concurrent requests (legacy first: %s)',
+    async (legacyFirst) => {
+      const cwd = await makeTmpCwd();
+      try {
+        const original = {
+          ...makeQuickEntry('quick-repair'),
+          turns: 0,
+          bvTotal: 0,
+        };
+        const other = makeSwarmEntry('unchanged');
+        await writeIndexJson(cwd, [original, other]);
+        const rich = { id: original.id, turns: 3, bvTotal: 3909 };
+        const legacy = { id: original.id, turns: 3, bvTotal: 0 };
+        await Promise.all(
+          (legacyFirst ? [legacy, rich] : [rich, legacy]).map((candidate) =>
+            repairQuickManifestMetadata(candidate, { cwd }),
+          ),
+        );
+        expect(await readReplayIndex({ cwd })).toEqual([
+          { ...original, turns: 3, bvTotal: 3909 },
+          other,
+        ]);
+        const repaired = await repairQuickManifestMetadata(
+          { id: original.id, turns: 99, bvTotal: 9999 },
+          { cwd },
+        );
+        expect(repaired).toEqual({ ...original, turns: 3, bvTotal: 3909 });
+      } finally {
+        await fs.rm(cwd, { recursive: true, force: true });
+      }
+    },
+  );
+
+  it('preserves a different replay source with the same id', async () => {
+    const cwd = await makeTmpCwd();
+    try {
+      const quick = { ...makeQuickEntry('shared-id'), turns: 0, bvTotal: 0 };
+      const swarm = makeSwarmEntry('shared-id', 123);
+      await writeIndexJson(cwd, [quick, swarm]);
+      await repairQuickManifestMetadata(
+        { id: quick.id, turns: 3, bvTotal: 3909 },
+        { cwd },
+      );
+      expect(JSON.parse(await fs.readFile(indexPath(cwd), 'utf8'))).toEqual([
+        { ...quick, turns: 3, bvTotal: 3909 },
+        swarm,
+      ]);
+    } finally {
+      await fs.rm(cwd, { recursive: true, force: true });
+    }
+  });
+
+  it('keeps the original index bytes if atomic repair fails', async () => {
+    const cwd = await makeTmpCwd();
+    try {
+      const original = {
+        ...makeQuickEntry('quick-repair-failure'),
+        turns: 0,
+        bvTotal: 0,
+      };
+      await writeIndexJson(cwd, [original]);
+      const before = await fs.readFile(indexPath(cwd));
+      jest
+        .spyOn(fs, 'rename')
+        .mockRejectedValueOnce(new Error('repair rename refused'));
+      await expect(
+        repairQuickManifestMetadata(
+          { id: original.id, turns: 3, bvTotal: 3909 },
+          { cwd },
+        ),
+      ).rejects.toThrow('repair rename refused');
+      expect(await fs.readFile(indexPath(cwd))).toEqual(before);
+    } finally {
+      await fs.rm(cwd, { recursive: true, force: true });
+    }
+  });
+
+  it('does not recreate a missing entry or replace another replay source', async () => {
+    const cwd = await makeTmpCwd();
+    try {
+      const original = makeSwarmEntry('swarm-existing');
+      await writeIndexJson(cwd, [original]);
+      const before = await fs.readFile(indexPath(cwd));
+      for (const id of ['missing', original.id]) {
+        await expect(
+          repairQuickManifestMetadata({ id, turns: 3, bvTotal: 3909 }, { cwd }),
+        ).rejects.toThrow('requires an existing quick entry');
+      }
+      expect(await fs.readFile(indexPath(cwd))).toEqual(before);
+    } finally {
+      await fs.rm(cwd, { recursive: true, force: true });
+    }
   });
 });

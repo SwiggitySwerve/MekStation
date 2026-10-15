@@ -51,6 +51,7 @@ export function UnitEditorWithRouting({
   const model = useUnitStore((s) => s.model);
   const tonnage = useUnitStore((s) => s.tonnage);
   const configuration = useUnitStore((s) => s.configuration);
+  const armActuators = useUnitStore((s) => s.armActuators);
   const techBase = useUnitStore((s) => s.techBase);
   const techBaseMode = useUnitStore((s) => s.techBaseMode);
   const componentTechBases = useUnitStore((s) => s.componentTechBases);
@@ -90,6 +91,7 @@ export function UnitEditorWithRouting({
     handleQuickAssign,
     getAvailableLocationsForEquipment,
   } = useUnitEditorLoadout({
+    armActuators,
     unitId,
     configuration,
     equipment,

@@ -18,9 +18,11 @@ import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import { InternalStructureType } from '@/types/construction/InternalStructureType';
+import { getLocationsForConfig } from '@/types/construction/MechConfigurationSystem';
 import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { JumpJetType } from '@/utils/construction/movementCalculations';
+import { getFixedSlotNames } from '@/utils/construction/slotOperations/topology';
 
 const ENGINE_TYPE = {
   [EngineType.STANDARD]: 'FUSION',
@@ -150,12 +152,27 @@ function serializeEquipment(
   }));
 }
 
-function serializeCriticalSlots(
-  equipment: readonly IMountedEquipmentInstance[],
-): ISerializedCriticalSlots {
+function serializeCriticalSlots(state: UnitState): ISerializedCriticalSlots {
   const result: Record<string, (string | null)[]> = {};
+  const locations = getLocationsForConfig(state.configuration);
+  for (const location of [MechLocation.LEFT_ARM, MechLocation.RIGHT_ARM]) {
+    if (!locations.includes(location)) continue;
+    const slots: (string | null)[] = Array.from(
+      { length: LOCATION_SLOT_COUNTS[location] },
+      () => null,
+    );
+    getFixedSlotNames(
+      location,
+      state.engineType,
+      state.gyroType,
+      state.armActuators,
+    ).forEach((name, index) => {
+      slots[index] = name;
+    });
+    result[location] = slots;
+  }
 
-  for (const item of equipment) {
+  for (const item of state.equipment) {
     if (!item.location || !item.slots) {
       continue;
     }
@@ -221,7 +238,7 @@ export function serializeCustomUnitState(
       enhancements: state.enhancement ? [state.enhancement] : [],
     },
     equipment: serializeEquipment(state.equipment),
-    criticalSlots: serializeCriticalSlots(state.equipment),
+    criticalSlots: serializeCriticalSlots(state),
     isOmni: state.isOmni,
     baseChassisHeatSinks: state.baseChassisHeatSinks,
     clanName: state.clanName || undefined,

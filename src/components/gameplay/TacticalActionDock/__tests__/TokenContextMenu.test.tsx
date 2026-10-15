@@ -178,11 +178,59 @@ describe('TokenContextMenu', () => {
       />,
     );
     fireEvent.click(screen.getByTestId('token-menu-item-weapon.fire-volley'));
+    expect(screen.getByRole('dialog', { name: 'Fire Volley?' })).toBeVisible();
+    expect(onTargetEnemy).not.toHaveBeenCalled();
+    expect(onAction).not.toHaveBeenCalled();
+    expect(onClose).not.toHaveBeenCalled();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Confirm Fire Volley' }),
+    );
     expect(onTargetEnemy).toHaveBeenCalledWith('enemy-x');
     expect(onAction).toHaveBeenCalledWith('lock', { volley: true });
     expect(onClose).toHaveBeenCalled();
+    expect(confirmSpy).not.toHaveBeenCalled();
     confirmSpy.mockRestore();
   });
+
+  it.each(['Cancel', 'Escape'])(
+    '%s leaves the enemy target and menu uncommitted',
+    (method) => {
+      const onAction = jest.fn();
+      const onTargetEnemy = jest.fn();
+      const onClose = jest.fn();
+      const nativeConfirm = jest
+        .spyOn(window, 'confirm')
+        .mockImplementation(() => {
+          throw new Error('Native confirmation must not block token commands');
+        });
+      render(
+        <TokenContextMenu
+          tokenUnitId="enemy-x"
+          isFriendly={false}
+          ctx={makeCtx()}
+          shellMode="combat"
+          anchor={{ x: 100, y: 100 }}
+          onClose={onClose}
+          onAction={onAction}
+          onTargetEnemy={onTargetEnemy}
+        />,
+      );
+      const trigger = screen.getByTestId('token-menu-item-weapon.fire-volley');
+      fireEvent.click(trigger);
+
+      if (method === 'Escape') fireEvent.keyDown(document, { key: 'Escape' });
+      else fireEvent.click(screen.getByRole('button', { name: /^Cancel$/ }));
+
+      expect(onTargetEnemy).not.toHaveBeenCalled();
+      expect(onAction).not.toHaveBeenCalled();
+      expect(onClose).not.toHaveBeenCalled();
+      expect(screen.getByTestId('token-context-menu')).toBeVisible();
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(document.activeElement).toBe(trigger);
+      expect(nativeConfirm).not.toHaveBeenCalled();
+      nativeConfirm.mockRestore();
+    },
+  );
 
   it('enemy menu disables fire volley when that target projection is blocked', () => {
     const onAction = jest.fn();

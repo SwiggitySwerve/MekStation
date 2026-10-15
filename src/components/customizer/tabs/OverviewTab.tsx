@@ -36,6 +36,7 @@ import {
   IComponentValues,
 } from '../shared/TechBaseConfiguration';
 import { customizerStyles as cs } from '../styles';
+import { OverviewOmniControls } from './OverviewTab.omni';
 
 // =============================================================================
 // Types
@@ -91,11 +92,6 @@ export function OverviewTab({
   const setRulesLevel = useUnitStore((s) => s.setRulesLevel);
   const setTechBaseMode = useUnitStore((s) => s.setTechBaseMode);
   const setComponentTechBase = useUnitStore((s) => s.setComponentTechBase);
-
-  // OmniMech state and actions
-  const isOmni = useUnitStore((s) => s.isOmni);
-  const setIsOmni = useUnitStore((s) => s.setIsOmni);
-  const resetChassis = useUnitStore((s) => s.resetChassis);
 
   // Get tab manager action
   const renameTab = useTabManagerStore((s) => s.renameTab);
@@ -160,23 +156,6 @@ export function OverviewTab({
     },
     [setRulesLevel],
   );
-
-  const handleOmniMechChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setIsOmni(e.target.checked);
-    },
-    [setIsOmni],
-  );
-
-  const handleResetChassis = useCallback(() => {
-    if (
-      window.confirm(
-        'Reset to base chassis configuration? This will remove all pod-mounted equipment.',
-      )
-    ) {
-      resetChassis();
-    }
-  }, [resetChassis]);
 
   // Handler for global mode change
   const handleModeChange = useCallback(
@@ -350,34 +329,7 @@ export function OverviewTab({
             </div>
           </div>
 
-          <div
-            className="border-border-theme-subtle bg-surface-deep/35 flex flex-wrap items-center gap-x-3 gap-y-2 rounded border px-3 py-3"
-            data-testid="omnimech-section"
-          >
-            <input
-              type="checkbox"
-              id="omniMech"
-              checked={isOmni}
-              onChange={handleOmniMechChange}
-              disabled={readOnly}
-              className="border-border-theme-subtle bg-surface-deep text-accent focus:ring-accent h-4 w-4 rounded"
-              data-testid="omnimech-checkbox"
-            />
-            <label htmlFor="omniMech" className={cs.text.label}>
-              OmniMech
-            </label>
-            <span className={cs.text.secondary}>(Modular equipment pods)</span>
-            {isOmni && !readOnly && (
-              <button
-                type="button"
-                onClick={handleResetChassis}
-                className="border-border-theme-subtle bg-surface-deep hover:bg-surface-default text-content-secondary hover:text-content-primary min-h-11 rounded border px-3 py-1 text-sm transition-colors sm:ml-auto"
-                data-testid="reset-chassis-button"
-              >
-                Reset Chassis
-              </button>
-            )}
-          </div>
+          <OverviewOmniControls readOnly={readOnly} />
         </div>
       </div>
 

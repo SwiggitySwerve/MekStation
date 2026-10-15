@@ -2,12 +2,18 @@ import 'fake-indexeddb/auto';
 import '@testing-library/jest-dom';
 import type React from 'react';
 
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  within,
+} from '@testing-library/react';
 import { IDBFactory } from 'fake-indexeddb';
 
 import type { IAdaptedUnit } from '@/engine/types';
 import type { IWeapon } from '@/simulation/ai/types';
-import type { IGameplayActionPayload } from '@/stores/useGameplayStore.helpers';
 
 jest.mock('@/engine/adapters/CompendiumAdapter', () => {
   const mockAdaptUnit = jest.fn();
@@ -17,6 +23,7 @@ jest.mock('@/engine/adapters/CompendiumAdapter', () => {
   };
 });
 
+import { ConcedeButton } from '@/components/gameplay/ConcedeButton';
 import { GameplayLayout } from '@/components/gameplay/GameplayLayout';
 import { createMinimalGrid } from '@/engine/GameEngine.helpers';
 import { InteractiveSession } from '@/engine/InteractiveSession';
@@ -24,6 +31,7 @@ import {
   flushMatchLogWrites,
   matchLogStorage,
 } from '@/lib/p2p/matchLogStorage';
+import { useGameSessionCallbacks } from '@/pages-modules/gameplay/games/gameSessionPage.helpers';
 import { useGmTacticalInterventionSurface } from '@/pages-modules/gameplay/games/gmTacticalInterventionSurface';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import {
@@ -35,12 +43,14 @@ import {
   GameEventType,
   GamePhase,
   GameSide,
+  GameStatus,
   LockState,
   MovementType,
   type IGameSession,
   type IGameUnit,
-  type TacticalActionPayload,
 } from '@/types/gameplay';
+import { hydrateGameSessionFromEvents } from '@/utils/gameplay/gameSession';
+import { derivePostBattleReport } from '@/utils/gameplay/postBattleReport';
 
 const adapterModule = jest.requireMock(
   '@/engine/adapters/CompendiumAdapter',
@@ -165,7 +175,6 @@ function StoreBackedGameplayLayout({
     (state) => state.ui.selectedUnitId,
   );
   const selectUnit = useGameplaySelector((state) => state.selectUnit);
-  const handleAction = useGameplaySelector((state) => state.handleAction);
   const setSession = useGameplaySelector((state) => state.setSession);
   const interactiveSession = useGameplaySelector(
     (state) => state.interactiveSession,
@@ -185,6 +194,14 @@ function StoreBackedGameplayLayout({
     interactiveSession,
     setSession,
   });
+  const { handleInteractiveAction } = useGameSessionCallbacks({
+    ...useGameplayStore.getState(),
+    routeId: session?.id ?? null,
+    isInteractive: Boolean(interactiveSession),
+    phase: session?.currentState.phase,
+    selectedUnitId,
+    session,
+  });
 
   if (!session) return null;
 
@@ -193,9 +210,7 @@ function StoreBackedGameplayLayout({
       session={session}
       selectedUnitId={selectedUnitId}
       onUnitSelect={selectUnit}
-      onAction={(actionId: string, payload?: TacticalActionPayload) =>
-        handleAction(actionId, payload as IGameplayActionPayload | undefined)
-      }
+      onAction={handleInteractiveAction}
       isPlayerTurn={true}
       unitWeapons={unitWeapons}
       maxArmor={maxArmor}
@@ -238,6 +253,139 @@ describe('fix-battle-phase-progression Task Group 2', () => {
     cleanup();
     useGameplayStore.getState().reset();
     matchLogStorage.close();
+    jest.restoreAllMocks();
+  });
+
+  it.each([
+    [GameSide.Player, GameSide.Opponent],
+    [GameSide.Opponent, GameSide.Player],
+  ])(
+    'adopts the terminal concession before navigation for %s',
+    async (side, winner) => {
+      const nativeConfirm = jest.spyOn(window, 'confirm');
+      const battle = makeInteractiveSession();
+      useGameplayStore.getState().setInteractiveSession(battle);
+      const before = battle.getSession();
+      await persistSessionLog(before);
+      const navigationSnapshots: IGameSession[] = [];
+      const navigate = jest.fn(() => {
+        const snapshot = useGameplayStore.getState().session;
+        if (snapshot) navigationSnapshots.push(snapshot);
+      });
+      render(
+        <ConcedeButton
+          interactiveSession={battle}
+          sessionId={before.id}
+          playerSide={side}
+          onNavigate={navigate}
+        />,
+      );
+
+      fireEvent.click(screen.getByTestId('concede-button'));
+      fireEvent.click(screen.getByTestId('concede-cancel'));
+      expect(battle.getSession()).toBe(before);
+      expect(useGameplayStore.getState().session).toBe(before);
+      expect(navigationSnapshots).toHaveLength(0);
+
+      fireEvent.click(screen.getByTestId('concede-button'));
+      fireEvent.click(screen.getByTestId('concede-confirm'));
+
+      expect(navigationSnapshots).toHaveLength(1);
+      const completed = navigationSnapshots[0];
+      if (!completed)
+        throw new Error('expected the navigated session snapshot');
+      expect(completed.currentState.status).toBe(GameStatus.Completed);
+      expect(completed.currentState.result).toEqual({
+        winner,
+        reason: 'concede',
+      });
+      expect(completed.events.slice(0, before.events.length)).toEqual(
+        before.events,
+      );
+      expect(
+        completed.events.filter(
+          (event) => event.type === GameEventType.GameEnded,
+        ),
+      ).toHaveLength(1);
+      expect(derivePostBattleReport(completed)).toMatchObject({
+        winner,
+        reason: 'concede',
+      });
+      expect(navigate).toHaveBeenCalledWith(
+        `/gameplay/games/${before.id}/victory`,
+      );
+
+      await flushMatchLogWrites();
+      const persisted = await matchLogStorage.getEventsForMatch(before.id);
+      const recovered = hydrateGameSessionFromEvents(before.id, persisted);
+      expect(recovered.currentState.result).toEqual({
+        winner,
+        reason: 'concede',
+      });
+      expect(recovered.events).toEqual(completed.events);
+      expect(nativeConfirm).not.toHaveBeenCalled();
+    },
+  );
+
+  it('adopts polled completion before navigation through the same store owner', () => {
+    const pendingFrames: FrameRequestCallback[] = [];
+    const frames = jest
+      .spyOn(window, 'requestAnimationFrame')
+      .mockImplementation((callback) => {
+        pendingFrames.push(callback);
+        return pendingFrames.length;
+      });
+    const battle = makeInteractiveSession();
+    useGameplayStore.getState().setInteractiveSession(battle);
+    const navigationSnapshots: IGameSession[] = [];
+    render(
+      <ConcedeButton
+        interactiveSession={battle}
+        sessionId={battle.getSession().id}
+        playerSide={GameSide.Player}
+        onNavigate={() => {
+          const snapshot = useGameplayStore.getState().session;
+          if (snapshot) navigationSnapshots.push(snapshot);
+        }}
+      />,
+    );
+    const before = battle.getSession();
+    act(() => {
+      battle.concede(GameSide.Opponent);
+      for (const callback of [...pendingFrames]) callback(0);
+    });
+    expect(navigationSnapshots).toHaveLength(1);
+    expect(navigationSnapshots[0]?.currentState.result).toEqual({
+      winner: GameSide.Player,
+      reason: 'concede',
+    });
+    expect(
+      navigationSnapshots[0]?.events.slice(0, before.events.length),
+    ).toEqual(before.events);
+    frames.mockRestore();
+  });
+
+  it('refuses a stale concession component after another match owns the store', () => {
+    const battle = makeInteractiveSession();
+    useGameplayStore.getState().setInteractiveSession(battle);
+    const navigate = jest.fn();
+    render(
+      <ConcedeButton
+        interactiveSession={battle}
+        sessionId={battle.getSession().id}
+        playerSide={GameSide.Player}
+        onNavigate={navigate}
+      />,
+    );
+    fireEvent.click(screen.getByTestId('concede-button'));
+    const other = makeInteractiveSession();
+    act(() => useGameplayStore.getState().setInteractiveSession(other));
+    const owned = useGameplayStore.getState().session;
+    const before = battle.getSession();
+    fireEvent.click(screen.getByTestId('concede-confirm'));
+    expect(useGameplayStore.getState().session).toBe(owned);
+    expect(battle.getSession()).toBe(before);
+    expect(navigate).not.toHaveBeenCalled();
   });
 
   it('advances a fresh Initiative session to Movement through the rail control', () => {
@@ -280,6 +428,50 @@ describe('fix-battle-phase-progression Task Group 2', () => {
         ],
       ),
     ).not.toThrow();
+  });
+
+  it('advances completed movement into the weapon phase after rail confirmation', () => {
+    const confirm = jest.spyOn(window, 'confirm').mockReturnValue(false);
+    const interactiveSession = makeInteractiveSession();
+    renderAdoptedSession(interactiveSession);
+    clickSinglePlayerAdvance();
+
+    act(() => {
+      interactiveSession.runAITurn(GameSide.Opponent);
+      interactiveSession.applyMovement(
+        'atlas-as7-d',
+        { q: -2, r: 4 },
+        Facing.North,
+        MovementType.Walk,
+        [
+          { q: -2, r: 5 },
+          { q: -2, r: 4 },
+        ],
+      );
+      useGameplayStore.getState().setSession(interactiveSession.getSession());
+    });
+    expect(screen.getByTestId('sp-advance-phase-button')).toBeEnabled();
+
+    clickSinglePlayerAdvance();
+
+    expect(screen.getByRole('dialog', { name: 'End Phase?' })).toBeVisible();
+    expect(interactiveSession.getState().phase).toBe(GamePhase.Movement);
+    fireEvent.click(
+      within(screen.getByRole('dialog', { name: 'End Phase?' })).getByRole(
+        'button',
+        { name: 'Cancel' },
+      ),
+    );
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(interactiveSession.getState().phase).toBe(GamePhase.Movement);
+
+    clickSinglePlayerAdvance();
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm End Phase' }));
+
+    expect(confirm).not.toHaveBeenCalled();
+    expect(interactiveSession.getState().phase).toBe(GamePhase.WeaponAttack);
+    expect(screen.getByTestId('phase-name')).toHaveTextContent('Weapon');
+    confirm.mockRestore();
   });
 
   it('preserves Movement phase after reload through the recovery path', async () => {

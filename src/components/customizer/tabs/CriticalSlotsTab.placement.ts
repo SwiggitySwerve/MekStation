@@ -2,6 +2,7 @@ import { useCallback, useMemo } from 'react';
 
 import type { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
 import type { ICriticalSlotIssue } from '@/types/validation/UnitValidationInterfaces';
+import type { ArmActuatorConfig } from '@/utils/construction/slotOperations/topology';
 
 import { MechLocation } from '@/types/construction';
 import { EngineType } from '@/types/construction/EngineType';
@@ -34,6 +35,7 @@ interface UseCriticalSlotPlacementArgs {
   readonly configuration: MechConfiguration;
   readonly engineType: EngineType;
   readonly gyroType: GyroType;
+  readonly armActuators?: ArmActuatorConfig;
   readonly unitIsSuperheavy: boolean;
   readonly getLocationData: (
     location: MechLocation,
@@ -66,6 +68,7 @@ export function useCriticalSlotPlacement({
   configuration,
   engineType,
   gyroType,
+  armActuators,
   unitIsSuperheavy,
   getLocationData,
   updateEquipmentLocation,
@@ -78,8 +81,14 @@ export function useCriticalSlotPlacement({
   );
   const placementIssues = useMemo(
     () =>
-      getEquipmentSlotIssues(equipment, configuration, engineType, gyroType),
-    [equipment, configuration, engineType, gyroType],
+      getEquipmentSlotIssues(
+        equipment,
+        configuration,
+        engineType,
+        gyroType,
+        armActuators,
+      ),
+    [equipment, configuration, engineType, gyroType, armActuators],
   );
   const placementOptions = useMemo(
     () =>

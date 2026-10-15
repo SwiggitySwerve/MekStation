@@ -24,6 +24,7 @@ import { ErrorBoundary } from '@/components/common';
 import { CampaignCustomizerSessionProvider } from '@/components/customizer/campaign/CampaignCustomizerSessionContext';
 import { CampaignUnitUnavailableState } from '@/components/customizer/campaign/CampaignUnitUnavailableState';
 import { useCampaignCustomizerRouting } from '@/components/customizer/campaign/useCampaignCustomizerRouting';
+import { CustomizerConfirmationProvider } from '@/components/customizer/dialogs/CustomizerConfirmationProvider';
 // Components
 import { MultiUnitTabs } from '@/components/customizer/tabs';
 // Hooks
@@ -448,17 +449,24 @@ export default function CustomizerWithRouter(): React.ReactElement {
     <ErrorBoundary componentName="CustomizerWithRouter">
       <DndProvider backend={HTML5Backend}>
         <CampaignCustomizerSessionProvider session={campaignSession}>
-          <div className="bg-surface-deep flex h-full min-h-0 flex-col overflow-hidden">
-            <MultiUnitTabs>
-              <ErrorBoundary componentName="UnitTypeRouter">
-                <UnitTypeRouter
-                  activeTab={activeTab}
-                  activeTabId={effectiveTabId}
-                  onTabChange={handleTabChange}
-                />
-              </ErrorBoundary>
-            </MultiUnitTabs>
-          </div>
+          <CustomizerConfirmationProvider
+            scope={{
+              unitId: activeTab?.id ?? null,
+              unitType: activeTab?.unitType ?? null,
+            }}
+          >
+            <div className="bg-surface-deep flex h-full min-h-0 flex-col overflow-hidden">
+              <MultiUnitTabs>
+                <ErrorBoundary componentName="UnitTypeRouter">
+                  <UnitTypeRouter
+                    activeTab={activeTab}
+                    activeTabId={effectiveTabId}
+                    onTabChange={handleTabChange}
+                  />
+                </ErrorBoundary>
+              </MultiUnitTabs>
+            </div>
+          </CustomizerConfirmationProvider>
         </CampaignCustomizerSessionProvider>
       </DndProvider>
     </ErrorBoundary>

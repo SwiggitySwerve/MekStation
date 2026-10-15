@@ -29,6 +29,8 @@ import { cs } from '@/components/customizer/styles';
 import { SvgIcon } from '@/components/ui/SvgIcon';
 
 export interface DialogTemplateProps {
+  /** Use the native centered top layer above an existing modal. */
+  topLayer?: boolean;
   /** Whether dialog is open */
   isOpen: boolean;
   /** Called when dialog should close (backdrop click, escape key, close button) */
@@ -73,7 +75,8 @@ export function DialogTemplate({
   subtitle,
   children,
   footer,
-  className = 'w-full max-w-lg mx-4',
+  topLayer = false,
+  className = topLayer ? 'max-w-lg' : 'w-full max-w-lg mx-4',
   preventClose = false,
   hideCloseButton = false,
   ariaLabelledBy,
@@ -89,6 +92,7 @@ export function DialogTemplate({
 
   return (
     <ModalOverlay
+      topLayer={topLayer}
       isOpen={isOpen}
       onClose={onClose}
       preventClose={preventClose}

@@ -1,14 +1,12 @@
-﻿import { createReadStream } from 'node:fs';
+import { createReadStream } from 'node:fs';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { createInterface } from 'node:readline';
 
 import type {
   GameEventType,
-  IGameCreatedPayload,
   IGameEndedPayload,
   IGameEvent,
-  IGameUnit,
 } from '@/types/gameplay';
 
 import { GameSide, ReplaySource } from '@/types/gameplay';
@@ -23,6 +21,7 @@ import {
   buildQuickEntry,
   buildSwarmEntry,
 } from './backfill-scan.builders';
+import { replayTurnCount, replayBvTotal } from './eventMetadata';
 export type { IDerivedBaseFields, IFileSummary } from './backfill-scan.types';
 export interface IScanReplayDirectoryOptions {
   readonly cwd?: string;
@@ -247,49 +246,26 @@ function resolveWinner(gameEnded: IGameEvent | null): GameSide | null {
   return null;
 }
 function resolveTurns(summary: IFileSummary): number {
-  if (summary.gameEnded) {
-    const payload = summary.gameEnded.payload as IGameEndedPayload;
-    if (typeof payload.turns === 'number') {
-      return payload.turns;
-    }
-  }
-  let turnStartedCount = 0;
+  const events: IGameEvent[] = [];
   for (const line of summary.lines) {
-    if (!line.includes('turn_started')) continue;
     try {
-      const parsed = JSON.parse(line) as IGameEvent;
-      if (parsed.type === ('turn_started' as GameEventType)) {
-        turnStartedCount += 1;
-      }
+      const event: unknown = JSON.parse(line);
+      if (event && typeof event === 'object' && !Array.isArray(event))
+        events.push(event as IGameEvent);
     } catch {
       continue;
     }
   }
-  return turnStartedCount;
+  return replayTurnCount(events);
 }
 function computeBvTotal(
   gameCreated: IGameEvent | null,
   relativePath: string,
 ): number {
-  if (!gameCreated) return 0;
-  const payload = gameCreated.payload as IGameCreatedPayload;
-  const units = payload.units;
-  if (!Array.isArray(units) || units.length === 0) return 0;
-  let total = 0;
-  let foundAny = false;
-  for (const unit of units) {
-    const bv = (unit as IGameUnit & { bv?: number }).bv;
-    if (typeof bv === 'number' && Number.isFinite(bv)) {
-      total += bv;
-      foundAny = true;
-    }
-  }
-  if (!foundAny) {
-    logger.debug(
-      '[replay-library] backfill could not derive bvTotal â€” no unit.bv field on GameCreated',
-      { relativePath, unitCount: units.length },
-    );
-    return 0;
-  }
-  return total;
+  const total = replayBvTotal(gameCreated);
+  if (total !== undefined) return total;
+  logger.debug('[replay-library] backfill could not derive bvTotal', {
+    relativePath,
+  });
+  return 0;
 }

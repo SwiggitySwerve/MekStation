@@ -16,6 +16,7 @@ import {
   hydrateHeatSinksFromFullUnit,
   hydrateInitiativeEquipmentFromFullUnit,
 } from '@/simulation/runner/UnitHydration';
+import { hydrateAmmoStateFromFullUnit } from '@/simulation/runner/UnitHydrationAmmo';
 import { GameSide, LockState } from '@/types/gameplay/GameSessionInterfaces';
 import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
 
@@ -35,6 +36,7 @@ import {
   type AdaptedMovementState,
   calculateMovement,
 } from './CompendiumAdapter.movement';
+import { getWeaponData } from './CompendiumAdapter.weaponData';
 import {
   ammoFromWeapons,
   type AdaptableEquipmentItem,
@@ -108,7 +110,16 @@ export function adaptUnitFromData(
   const c3Equipment = hydrateC3EquipmentFromFullUnit(fullUnit);
   const movement = calculateMovement(unitData);
   const gyroType = gyroTypeFromUnitData(unitData);
-  const ammo = ammoFromWeapons(weapons);
+  const ammoState = hydrateAmmoStateFromFullUnit(fullUnit) ?? {};
+  const ammo = ammoFromWeapons(weapons, ammoState);
+  const ammoConstruction = Object.values(ammoState).map((bin) => ({
+    binId: bin.binId,
+    weaponType: bin.weaponType,
+    location: bin.location,
+    maxRounds: bin.maxRounds,
+    damagePerRound: getWeaponData(bin.weaponType)?.damage ?? 1,
+    isExplosive: bin.isExplosive,
+  }));
 
   const adapted: IAdaptedUnit = {
     id: fullUnit.id,
@@ -127,6 +138,8 @@ export function adaptUnitFromData(
     destroyedLocations: [],
     destroyedEquipment: [],
     ammo,
+    ammoState,
+    ammoConstruction,
     pilotWounds: 0,
     pilotConscious: true,
     destroyed: false,

@@ -9,7 +9,7 @@
 import { useRouter } from 'next/router';
 import { useState, useRef, useCallback, useMemo } from 'react';
 
-import { Card } from '@/components/ui';
+import { Button, Card } from '@/components/ui';
 import { useTabKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
 import { useKeyMoments } from '@/hooks/useKeyMoments';
 import { useGameplaySelector } from '@/stores/useGameplayStore';
@@ -28,13 +28,18 @@ import {
 import { ResultsTabPanels } from './QuickGameResultsPanels';
 import { ResultBanner } from './QuickGameResultsSections';
 import { useQuickGameReplayPersist } from './useQuickGameReplayPersist';
+import { useQuickGameSession } from './useQuickGameSession';
 
 export function QuickGameResults(): React.ReactElement {
   const router = useRouter();
   const game = useQuickGameSelector((state) => state.game);
   const playAgain = useQuickGameSelector((state) => state.playAgain);
   const clearGame = useQuickGameSelector((state) => state.clearGame);
-  const session = useGameplaySelector((state) => state.session);
+  const liveSession = useGameplaySelector((state) => state.session);
+  const { session, isLoading, error, retry } = useQuickGameSession(
+    game,
+    liveSession,
+  );
   const [activeTab, setActiveTab] = useState<ResultsTab>('summary');
   const tabListRef = useRef<HTMLDivElement>(null);
   const persistStatus = useQuickGameReplayPersist(game);
@@ -68,6 +73,17 @@ export function QuickGameResults(): React.ReactElement {
 
   return (
     <div className="mx-auto max-w-2xl p-4 py-8">
+      {isLoading && <p role="status">Loading recorded battle details...</p>}
+      {error && (
+        <div role="alert">
+          <p>Detailed battle results are unavailable. {error}</p>
+          {game.activeTacticalSession && (
+            <Button variant="secondary" onClick={retry}>
+              Retry loading details
+            </Button>
+          )}
+        </div>
+      )}
       <div className="mb-6">
         <ResultBanner
           winner={game.winner ?? 'draw'}

@@ -24,6 +24,7 @@ import type { ShellMode } from '@/types/gameplay/TacticalShellInterfaces';
 import { coordToKey } from '@/utils/gameplay/hexMath';
 
 import { filterCommandsForHex, useCommandRegistry } from './useCommandRegistry';
+import { useTacticalCommandDispatch } from './useTacticalCommandDispatch';
 
 export interface HexContextMenuProps {
   /** Axial hex coordinate the player right-clicked. */
@@ -47,7 +48,7 @@ export interface HexContextMenuProps {
 interface MenuItemProps {
   readonly command: ITacticalCommand;
   readonly availability: CommandAvailability;
-  readonly onActivate: () => void;
+  readonly onActivate: (trigger: HTMLButtonElement) => void;
 }
 
 function MenuItem({
@@ -61,7 +62,7 @@ function MenuItem({
       type="button"
       role="menuitem"
       disabled={disabled}
-      onClick={onActivate}
+      onClick={(event) => onActivate(event.currentTarget)}
       className={`flex w-full items-center justify-between px-3 py-2 text-left text-sm ${
         disabled
           ? 'text-text-theme-secondary cursor-not-allowed opacity-50'
@@ -114,38 +115,33 @@ export function HexContextMenu({
   const commands = useCommandRegistry(effectiveCtx, shellMode);
   const visible = filterCommandsForHex(commands);
 
-  const dispatchCommand = useCallback(
-    (command: ITacticalCommand) => {
-      const availability = command.availability(effectiveCtx);
-      if (!availability.available) return;
-      if (command.requiresConfirmation) {
-        const ok =
-          typeof window === 'undefined'
-            ? true
-            : window.confirm(`Confirm: ${command.label}?`);
-        if (!ok) return;
-      }
-      const result = command.commit(effectiveCtx);
-      if (result.payload === undefined) {
-        onAction(result.actionId);
-      } else {
-        onAction(result.actionId, result.payload);
-      }
+  const commitAction = useCallback<TacticalActionHandler>(
+    (actionId, payload) => {
+      if (payload === undefined) onAction(actionId);
+      else onAction(actionId, payload);
       onClose();
     },
-    [effectiveCtx, onAction, onClose],
+    [onAction, onClose],
   );
+  const { dispatchCommand, confirmationDialog, confirmationOpen } =
+    useTacticalCommandDispatch({
+      ctx: effectiveCtx,
+      commandGate: undefined,
+      gmIntervention: undefined,
+      onAction: commitAction,
+      onGmPreview: () => {},
+    });
 
   React.useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') {
+      if (e.key === 'Escape' && !confirmationOpen) {
         e.preventDefault();
         onClose();
       }
     }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  }, [confirmationOpen, onClose]);
 
   return (
     <div
@@ -156,6 +152,7 @@ export function HexContextMenu({
       style={{ position: 'fixed', left: anchor.x, top: anchor.y, zIndex: 50 }}
       className="bg-surface-base border-border-theme min-w-[12rem] rounded border shadow-lg"
     >
+      {confirmationDialog}
       <div className="border-border-theme text-text-theme-secondary border-b px-3 py-1 text-xs font-semibold uppercase">
         Hex ({hex.q}, {hex.r})
       </div>
@@ -173,7 +170,7 @@ export function HexContextMenu({
               key={command.id}
               command={command}
               availability={command.availability(effectiveCtx)}
-              onActivate={() => dispatchCommand(command)}
+              onActivate={(trigger) => dispatchCommand(command, trigger)}
             />
           ))}
         </div>

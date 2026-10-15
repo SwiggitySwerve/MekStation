@@ -1,10 +1,12 @@
 import type { IWeapon } from '@/simulation/ai/types';
+import type { IAmmoSlotState } from '@/types/gameplay';
 
 import {
   VehicleLocation,
   VTOLLocation,
 } from '@/types/construction/UnitLocation';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
+import { getTotalAmmo } from '@/utils/gameplay/ammoTracking';
 import { getVehicleWeaponArcs } from '@/utils/gameplay/vehicleFiringArc';
 import { logger } from '@/utils/logger';
 
@@ -70,11 +72,12 @@ export function extractWeapons(
 
 export function ammoFromWeapons(
   weapons: readonly IWeapon[],
+  ammoState: Record<string, IAmmoSlotState>,
 ): Record<string, number> {
   const ammo: Record<string, number> = {};
   for (const weapon of weapons) {
     if (weapon.ammoPerTon > 0) {
-      ammo[weapon.id] = weapon.ammoPerTon;
+      ammo[weapon.id] = getTotalAmmo(ammoState, weapon.name);
     }
   }
   return ammo;

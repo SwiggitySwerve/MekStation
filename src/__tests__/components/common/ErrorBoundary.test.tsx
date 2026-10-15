@@ -2,7 +2,13 @@
  * Tests for ErrorBoundary component
  */
 import '@testing-library/jest-dom';
-import { render, screen, fireEvent } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  act,
+  waitFor,
+} from '@testing-library/react';
 import React from 'react';
 
 import {
@@ -73,6 +79,12 @@ describe('ErrorBoundary', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockClipboard.writeText.mockReset().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: mockClipboard,
+    });
+    window.alert = jest.fn();
     mockLocalStorage.clear();
   });
 
@@ -214,6 +226,223 @@ describe('ErrorBoundary', () => {
       const clipboardContent = JSON.parse(clipboardArg) as ErrorReportData;
       expect(clipboardContent.componentName).toBe('TestComponent');
       expect(clipboardContent.errorMessage).toBe('Test error');
+      await waitFor(() =>
+        expect(screen.getByRole('status')).toHaveTextContent(
+          'Error report copied to clipboard',
+        ),
+      );
+      expect(window.alert).not.toHaveBeenCalled();
+      expect(Object.keys(clipboardContent).sort()).toEqual(
+        [
+          'errorId',
+          'componentName',
+          'errorMessage',
+          'timestamp',
+          'userAgent',
+          'url',
+        ].sort(),
+      );
+    });
+
+    function deferredCopy() {
+      let resolve: () => void = () => {};
+      let reject: (error: Error) => void = () => {};
+      const promise = new Promise<void>((resolvePromise, rejectPromise) => {
+        resolve = resolvePromise;
+        reject = rejectPromise;
+      });
+      return { promise, resolve, reject };
+    }
+
+    function renderError() {
+      return render(
+        <ErrorBoundary componentName="TestComponent">
+          <ThrowingComponent />
+        </ErrorBoundary>,
+      );
+    }
+
+    it('announces pending and success only after the clipboard settles', async () => {
+      const pending = deferredCopy();
+      mockClipboard.writeText.mockReturnValueOnce(pending.promise);
+      renderError();
+      const report = screen.getByRole('button', { name: /Report Error/i });
+
+      fireEvent.click(report);
+
+      expect(report).toBeDisabled();
+      expect(screen.getByRole('status')).toHaveTextContent(/copying/i);
+      expect(
+        screen.queryByText(/copied to clipboard/i),
+      ).not.toBeInTheDocument();
+      expect(window.alert).not.toHaveBeenCalled();
+      await act(async () => pending.resolve());
+      expect(screen.getByRole('status')).toHaveTextContent(
+        /copied to clipboard/i,
+      );
+      expect(report).toBeEnabled();
+      expect(window.alert).not.toHaveBeenCalled();
+    });
+
+    it('submits one clipboard write for queued clicks before pending UI commits', async () => {
+      const pending = deferredCopy();
+      mockClipboard.writeText.mockReturnValueOnce(pending.promise);
+      renderError();
+      const report = screen.getByRole('button', { name: /Report Error/i });
+
+      act(() => {
+        report.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        report.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      });
+
+      expect(mockClipboard.writeText).toHaveBeenCalledTimes(1);
+      await act(async () => pending.resolve());
+      expect(screen.getByRole('status')).toHaveTextContent(
+        /copied to clipboard/i,
+      );
+      expect(window.alert).not.toHaveBeenCalled();
+    });
+
+    it('shows a rejected clipboard result and permits a successful retry', async () => {
+      const pending = deferredCopy();
+      mockClipboard.writeText.mockReturnValueOnce(pending.promise);
+      renderError();
+      const report = screen.getByRole('button', { name: /Report Error/i });
+      fireEvent.click(report);
+
+      await act(async () =>
+        pending.reject(new Error('Clipboard permission denied')),
+      );
+
+      expect(screen.getByRole('alert')).toHaveTextContent(/failed to copy/i);
+      expect(
+        screen.queryByText(/copied to clipboard/i),
+      ).not.toBeInTheDocument();
+      expect(report).toBeEnabled();
+      fireEvent.click(report);
+      await waitFor(() =>
+        expect(screen.getByRole('status')).toHaveTextContent(
+          /copied to clipboard/i,
+        ),
+      );
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+      expect(mockClipboard.writeText).toHaveBeenCalledTimes(2);
+      expect(window.alert).not.toHaveBeenCalled();
+    });
+
+    it('reports a missing clipboard API without claiming success', async () => {
+      Object.defineProperty(navigator, 'clipboard', {
+        configurable: true,
+        value: undefined,
+      });
+      renderError();
+
+      fireEvent.click(screen.getByRole('button', { name: /Report Error/i }));
+
+      expect(await screen.findByRole('alert')).toHaveTextContent(
+        /take a screenshot/i,
+      );
+      expect(mockClipboard.writeText).not.toHaveBeenCalled();
+      expect(window.alert).not.toHaveBeenCalled();
+    });
+
+    it('reports a synchronous clipboard throw and remains retryable', async () => {
+      mockClipboard.writeText.mockImplementationOnce(() => {
+        throw new Error('Clipboard unavailable');
+      });
+      renderError();
+      const report = screen.getByRole('button', { name: /Report Error/i });
+
+      fireEvent.click(report);
+
+      expect(await screen.findByRole('alert')).toHaveTextContent(
+        /failed to copy/i,
+      );
+      expect(report).toBeEnabled();
+      fireEvent.click(report);
+      await waitFor(() =>
+        expect(screen.getByRole('status')).toHaveTextContent(
+          /copied to clipboard/i,
+        ),
+      );
+      expect(window.alert).not.toHaveBeenCalled();
+    });
+
+    it.each(['Reset', 'Try Again'])(
+      'ignores an old completion after %s creates a new error and copy attempt',
+      async (action) => {
+        const oldCopy = deferredCopy();
+        const newCopy = deferredCopy();
+        mockClipboard.writeText
+          .mockReturnValueOnce(oldCopy.promise)
+          .mockReturnValueOnce(newCopy.promise);
+        renderError();
+        fireEvent.click(screen.getByRole('button', { name: /Report Error/i }));
+
+        fireEvent.click(
+          screen.getByRole('button', { name: new RegExp(action) }),
+        );
+
+        const report = screen.getByRole('button', { name: /Report Error/i });
+        expect(report).toBeEnabled();
+        expect(screen.queryByRole('status')).not.toBeInTheDocument();
+        fireEvent.click(report);
+        await act(async () => oldCopy.resolve());
+        expect(screen.getByRole('status')).toHaveTextContent(/copying/i);
+        expect(report).toBeDisabled();
+        await act(async () => newCopy.resolve());
+        expect(screen.getByRole('status')).toHaveTextContent(
+          /copied to clipboard/i,
+        );
+        expect(window.alert).not.toHaveBeenCalled();
+      },
+    );
+
+    it('does not publish a late rejection after recovery succeeds', async () => {
+      const pending = deferredCopy();
+      mockClipboard.writeText.mockReturnValueOnce(pending.promise);
+      const view = render(
+        <ErrorBoundary>
+          <ThrowingComponent />
+        </ErrorBoundary>,
+      );
+      fireEvent.click(screen.getByRole('button', { name: /Report Error/i }));
+      view.rerender(
+        <ErrorBoundary>
+          <ThrowingComponent shouldThrow={false} />
+        </ErrorBoundary>,
+      );
+      fireEvent.click(screen.getByRole('button', { name: /Try Again/i }));
+      expect(screen.getByText('No error')).toBeInTheDocument();
+
+      await act(async () => pending.reject(new Error('Late denial')));
+
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+      expect(screen.queryByRole('status')).not.toBeInTheDocument();
+      expect(window.alert).not.toHaveBeenCalled();
+    });
+
+    it('does not update an unmounted boundary after clipboard completion', async () => {
+      const pending = deferredCopy();
+      mockClipboard.writeText.mockReturnValueOnce(pending.promise);
+      const boundary = React.createRef<ErrorBoundary>();
+      const view = render(
+        <ErrorBoundary ref={boundary}>
+          <ThrowingComponent />
+        </ErrorBoundary>,
+      );
+      fireEvent.click(screen.getByRole('button', { name: /Report Error/i }));
+      const instance = boundary.current;
+      if (!instance) throw new Error('Mounted boundary required');
+      const stateUpdates = jest.spyOn(instance, 'setState');
+      view.unmount();
+      stateUpdates.mockClear();
+
+      await act(async () => pending.resolve());
+
+      expect(stateUpdates).not.toHaveBeenCalled();
+      expect(window.alert).not.toHaveBeenCalled();
+      stateUpdates.mockRestore();
     });
   });
 

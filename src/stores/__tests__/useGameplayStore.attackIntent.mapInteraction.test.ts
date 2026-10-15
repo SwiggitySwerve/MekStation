@@ -16,11 +16,13 @@ import type { InteractiveSession } from '@/engine/GameEngine';
 
 import { GamePhase, GameSide } from '@/types/gameplay';
 
+import { useGameplayStore } from '../useGameplayStore';
 import { INITIAL_ATTACK_INTENT_STATE } from '../useGameplayStore.attackIntent';
 import {
   handleInteractiveTokenClickLogic,
   InteractivePhase,
 } from '../useGameplayStore.helpers';
+import { selectAttackTargetLogic } from '../useGameplayStore.interactions';
 
 function makeInteractiveSessionStub(): InteractiveSession {
   return {
@@ -117,4 +119,27 @@ describe('handleInteractiveTokenClickLogic — target-first focus (D6)', () => {
     // Legacy mirror refuses invalid targets — unchanged behavior.
     expect(selectAttackTarget).not.toHaveBeenCalled();
   });
+});
+
+it('does not invent a hit probability when only the target has been selected', () => {
+  type State = ReturnType<Parameters<typeof selectAttackTargetLogic>[1]>;
+  const initial = useGameplayStore.getState();
+  let state: State = {
+    ...initial,
+    interactiveSession: makeInteractiveSessionStub(),
+    ui: { ...initial.ui, selectedUnitId: 'a1' },
+    hitChance: 58,
+  };
+  const get: Parameters<typeof selectAttackTargetLogic>[1] = () => state;
+  const set: Parameters<typeof selectAttackTargetLogic>[2] = (
+    update: Partial<State> | ((current: State) => Partial<State>),
+  ) => {
+    state = {
+      ...state,
+      ...(typeof update === 'function' ? update(state) : update),
+    };
+  };
+  selectAttackTargetLogic('t1', get, set);
+  expect(state.hitChance).toBeNull();
+  expect(state.attackPlan.targetUnitId).toBe('t1');
 });

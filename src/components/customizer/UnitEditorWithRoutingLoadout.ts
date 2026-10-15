@@ -5,6 +5,7 @@ import type {
   LoadoutEquipmentItem,
 } from '@/components/customizer/equipment/GlobalLoadoutTray';
 import type { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
+import type { ArmActuatorConfig } from '@/utils/construction/slotOperations/topology';
 
 import { MechLocation } from '@/types/construction';
 import { EngineType } from '@/types/construction/EngineType';
@@ -43,6 +44,7 @@ interface UseUnitEditorLoadoutOptions {
   equipment: readonly IMountedEquipmentInstance[];
   engineType: EngineType;
   gyroType: GyroType;
+  armActuators?: ArmActuatorConfig;
   removeEquipment: (instanceId: string) => void;
   clearAllEquipment: () => void;
   clearEquipmentLocation: (instanceId: string) => void;
@@ -109,6 +111,7 @@ export function useUnitEditorLoadout({
   equipment,
   engineType,
   gyroType,
+  armActuators,
   removeEquipment,
   clearAllEquipment,
   clearEquipmentLocation,
@@ -169,6 +172,7 @@ export function useUnitEditorLoadout({
           engineType,
           gyroType,
           equipment.filter((candidate) => candidate.instanceId !== instanceId),
+          armActuators,
         );
         const allowed = isValidLocationForEquipment(item.equipmentId, location);
         const fits =
@@ -187,7 +191,7 @@ export function useUnitEditorLoadout({
         };
       });
     },
-    [equipment, engineType, gyroType, configuration],
+    [equipment, engineType, gyroType, configuration, armActuators],
   );
 
   const availableLocations = useMemo(
@@ -215,6 +219,7 @@ export function useUnitEditorLoadout({
         engineType,
         gyroType,
         equipment.filter((candidate) => candidate.instanceId !== instanceId),
+        armActuators,
       );
       const start = findContiguousSlotStarts(free, item.criticalSlots)[0];
       if (item.criticalSlots > 0 && start === undefined) return;
@@ -229,6 +234,7 @@ export function useUnitEditorLoadout({
       equipment,
       engineType,
       gyroType,
+      armActuators,
       getAvailableLocationsForEquipment,
       updateEquipmentLocation,
     ],

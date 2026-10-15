@@ -136,8 +136,8 @@ const nextConfig: NextConfig = {
       });
     }
 
-    // Add bundle analyzer in development
-    if (dev && !isServer && config.plugins) {
+    // Analyze development bundles only when explicitly requested.
+    if (dev && !isServer && process.env.ANALYZE === 'true' && config.plugins) {
       config.plugins.push(
         new BundleAnalyzerPlugin({
           analyzerMode: 'server',

@@ -8,6 +8,7 @@ import type { IUnitDefinitionReference } from '@/types/unit/UnitDefinition';
  * @spec openspec/specs/unit-store-architecture/spec.md
  */
 import type { ISerializedFluff } from '@/types/unit/UnitSerialization';
+import type { ArmActuatorConfig } from '@/utils/construction/slotOperations/topology';
 
 import { IArmorAllocation } from '@/types/construction/ArmorAllocation';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
@@ -196,6 +197,8 @@ export function createEmptySelectionMemory(): ISelectionMemory {
  * Each unit has its own isolated store containing this state.
  */
 export interface UnitState {
+  /** Optional actuators omitted by the source design; absence keeps standard arms. */
+  armActuators?: ArmActuatorConfig;
   // =========================================================================
   // Identity (MegaMekLab format)
   // =========================================================================

@@ -97,6 +97,18 @@ function makeBootstrapSession(): IGameSession {
 }
 
 function installLaunchableQuickGame(): void {
+  const player = createQuickGameUnit({
+    sourceUnitId: 'atlas-as7-d',
+    name: 'Atlas AS7-D',
+    chassis: 'Atlas',
+    variant: 'AS7-D',
+    bv: 1897,
+    tonnage: 100,
+    gunnery: 4,
+    piloting: 5,
+    maxArmor: {},
+    maxStructure: {},
+  });
   const opponent = createQuickGameUnit({
     sourceUnitId: 'locust-lct-1v',
     name: 'Locust LCT-1V',
@@ -114,6 +126,12 @@ function installLaunchableQuickGame(): void {
   useQuickGameStore.setState({
     game: {
       ...game,
+      playerForce: {
+        ...game.playerForce,
+        units: [player],
+        totalBV: player.bv,
+        totalTonnage: player.tonnage,
+      },
       opponentForce: {
         name: 'Opposition',
         units: [opponent],

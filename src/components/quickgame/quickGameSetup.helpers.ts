@@ -92,7 +92,7 @@ export const DEMO_UNITS: IQuickGameUnitRequest[] = [
     },
   },
   {
-    sourceUnitId: 'locust-lcn-1v',
+    sourceUnitId: 'locust-lct-1v',
     name: 'Locust LCT-1V',
     chassis: 'Locust',
     variant: 'LCT-1V',

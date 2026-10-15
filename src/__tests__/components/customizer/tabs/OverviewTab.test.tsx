@@ -3,12 +3,25 @@ import userEvent from '@testing-library/user-event';
 import React from 'react';
 
 import { OverviewTab } from '@/components/customizer/tabs/OverviewTab';
+import { createNewUnitStore } from '@/stores/unit/useUnitStore';
 import { useTabManagerStore } from '@/stores/useTabManagerStore';
-import { useUnitStore } from '@/stores/useUnitStore';
+import { useUnitStore, useUnitStoreApi } from '@/stores/useUnitStore';
+import { TechBase } from '@/types/enums/TechBase';
 
 // Mock dependencies
 jest.mock('@/stores/useUnitStore', () => ({
   useUnitStore: jest.fn(),
+  useUnitStoreApi: jest.fn(),
+}));
+jest.mock('@/stores/utils/clientSafeStorage', () => ({
+  ...jest.requireActual<typeof import('@/stores/utils/clientSafeStorage')>(
+    '@/stores/utils/clientSafeStorage',
+  ),
+  clientSafeStorage: {
+    getItem: () => null,
+    setItem: () => {},
+    removeItem: () => {},
+  },
 }));
 
 jest.mock('@/stores/useTabManagerStore', () => ({
@@ -62,6 +75,13 @@ describe('OverviewTab', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    const api = createNewUnitStore({
+      name: 'Legacy overview fixture',
+      tonnage: 100,
+      techBase: TechBase.INNER_SPHERE,
+    });
+    api.setState({ id: mockStoreValues.id });
+    jest.mocked(useUnitStoreApi).mockReturnValue(api);
     // TS: the test uses a narrowed mock state; suppress strict selector typing
     mockUseUnitStore.mockImplementation((selector) =>
       selector(mockStoreValues as unknown as Parameters<typeof selector>[0]),

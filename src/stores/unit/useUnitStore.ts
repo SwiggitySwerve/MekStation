@@ -59,6 +59,7 @@ function pickPersistedUnitState(state: UnitStore) {
     armorType: state.armorType,
     armorTonnage: state.armorTonnage,
     armorAllocation: state.armorAllocation,
+    armActuators: state.armActuators,
     enhancement: state.enhancement,
     jumpMP: state.jumpMP,
     jumpJetType: state.jumpJetType,

@@ -4,10 +4,14 @@ import type {
   IGameUnit,
 } from '@/types/gameplay/GameSessionInterfaces';
 
+import { Faction } from '@/constants/scenario/rats';
 import {
   calculateGameOutcome,
   calculateCombatStats,
+  calculateOutcomeFromEvents,
 } from '@/services/game-resolution/GameOutcomeCalculator';
+import { ScenarioGeneratorService } from '@/services/generators/ScenarioGeneratorService';
+import { MAX_TURNS } from '@/simulation/runner/SimulationRunnerConstants';
 import { TerrainPreset } from '@/types/encounter';
 import {
   GameSide,
@@ -19,6 +23,9 @@ import {
 } from '@/types/gameplay/GameSessionInterfaces';
 import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
 import { TerrainType } from '@/types/gameplay/TerrainTypes';
+import { BiomeType, ScenarioObjectiveType } from '@/types/scenario';
+import { Era } from '@/types/temporal/Era';
+import { endGame } from '@/utils/gameplay/gameSession';
 
 import type { IAdaptedUnit } from '../types';
 
@@ -201,6 +208,99 @@ describe('GameEngine', () => {
       expect(session.config.victoryConditions).toEqual(['custom:extract']);
     });
 
+    it('executes combat for a generated unlimited Standup Fight', () => {
+      const scenario = new ScenarioGeneratorService().generate({
+        playerBV: 432,
+        playerUnitCount: 1,
+        scenarioType: ScenarioObjectiveType.Destroy,
+        biome: BiomeType.Desert,
+        faction: Faction.PIRATES,
+        era: Era.LATE_SUCCESSION_WARS,
+        difficulty: 1,
+        maxModifiers: 0,
+        allowNegativeModifiers: false,
+        seed: 42,
+      });
+      expect(scenario.template.id).toBe('standup_fight');
+      expect(scenario.turnLimit).toBe(0);
+
+      const engine = new GameEngine({
+        seed: 42,
+        turnLimit: scenario.turnLimit,
+        mapRadius: 5,
+      });
+      const session = engine.runToCompletion(
+        [createTestUnit('player-1', GameSide.Player, { q: 0, r: -2 })],
+        [createTestUnit('opponent-1', GameSide.Opponent, { q: 0, r: 2 })],
+        [
+          createGameUnit('player-1', GameSide.Player),
+          createGameUnit('opponent-1', GameSide.Opponent),
+        ],
+      );
+      expect(
+        session.events.some(
+          (event) => event.type === GameEventType.InitiativeRolled,
+        ),
+      ).toBe(true);
+      expect(
+        session.events.some(
+          (event) => event.type === GameEventType.DamageApplied,
+        ),
+      ).toBe(true);
+      const ended = getGameEndedPayload(session);
+      const outcome = calculateGameOutcome({
+        state: session.currentState,
+        events: session.events,
+        config: session.config,
+        startedAt: session.createdAt,
+        endedAt: session.updatedAt,
+      });
+      expect(outcome.winner).toBe(ended.winner);
+      expect(outcome.reason).not.toBe('objective');
+    });
+
+    it('bounds unlimited auto-resolution and records a coherent stalemate draw', () => {
+      const engine = new GameEngine({ seed: 42, turnLimit: 0, mapRadius: 5 });
+      const stationary = (
+        id: string,
+        side: GameSide,
+        r: number,
+      ): IAdaptedUnit => ({
+        ...createTestUnit(id, side, { q: 0, r }),
+        weapons: [],
+        walkMP: 0,
+        runMP: 0,
+        jumpMP: 0,
+      });
+      const session = engine.runToCompletion(
+        [stationary('player-1', GameSide.Player, -3)],
+        [stationary('opponent-1', GameSide.Opponent, 3)],
+        [
+          createGameUnit('player-1', GameSide.Player),
+          createGameUnit('opponent-1', GameSide.Opponent),
+        ],
+      );
+      const ended = getGameEndedPayload(session);
+      const outcome = calculateGameOutcome({
+        state: session.currentState,
+        events: session.events,
+        config: session.config,
+        startedAt: session.createdAt,
+        endedAt: session.updatedAt,
+      });
+      expect(session.config.turnLimit).toBe(MAX_TURNS);
+      expect(ended.turns).toBe(MAX_TURNS);
+      expect(ended).toMatchObject({ winner: 'draw', reason: 'turn_limit' });
+      expect(outcome).toMatchObject({
+        winner: 'draw',
+        reason: 'turn_limit',
+        turnsPlayed: MAX_TURNS,
+        playerDamageDealt: 0,
+        opponentDamageDealt: 0,
+      });
+      expect(outcome.description).not.toContain('Defeat');
+    });
+
     it('should complete with same seed without errors', () => {
       const makeSession = () => {
         const engine = new GameEngine({
@@ -367,6 +467,70 @@ describe('GameEngine', () => {
 
     it('should return null for getResult when game not over', () => {
       expect(interactive.getResult()).toBeNull();
+    });
+
+    it.each([
+      [GameSide.Player, GameSide.Opponent],
+      [GameSide.Opponent, GameSide.Player],
+    ])(
+      'reports the recorded concession through public and replay results for %s',
+      (side, winner) => {
+        const before = interactive.getSession();
+        interactive.concede(side);
+        const completed = interactive.getSession();
+        expect(completed.currentState.result).toEqual({
+          winner,
+          reason: 'concede',
+        });
+        expect(completed.events.slice(0, before.events.length)).toEqual(
+          before.events,
+        );
+        expect(interactive.getResult()).toMatchObject({
+          winner,
+          reason: 'concede',
+        });
+        expect(
+          calculateOutcomeFromEvents(
+            completed.id,
+            completed.events,
+            completed.config,
+            completed.createdAt,
+            completed.updatedAt,
+          ),
+        ).toMatchObject({ winner, reason: 'concede' });
+      },
+    );
+
+    it('reports an actual abort without reclassifying it as an objective', () => {
+      interactive.abortMatch();
+      expect(interactive.getSession().currentState.result).toEqual({
+        winner: 'draw',
+        reason: 'aborted',
+      });
+      expect(interactive.getResult()).toMatchObject({
+        winner: 'draw',
+        reason: 'aborted',
+      });
+    });
+
+    it('preserves a public explicit draw by concession after event rehydration', () => {
+      const completed = endGame(interactive.getSession(), 'draw', 'concede');
+      const result = calculateOutcomeFromEvents(
+        completed.id,
+        completed.events,
+        completed.config,
+        completed.createdAt,
+        completed.updatedAt,
+      );
+      expect(result).toMatchObject({
+        winner: 'draw',
+        reason: 'concede',
+        description: 'Match ended by concession with no winner.',
+      });
+      expect(completed.currentState.result).toEqual({
+        winner: 'draw',
+        reason: 'concede',
+      });
     });
 
     it('threads a configured terrain grid into interactive sessions', () => {

@@ -36,9 +36,17 @@ import {
   deriveWeaponLegalityForTarget,
   type IVolleyLedgerTotals,
 } from '@/stores/useGameplayStore.attackIntent.derive';
+import { buildAttackContextModifiers } from '@/utils/gameplay/combatProjection.toHit';
 import { getTwistedFacing } from '@/utils/gameplay/firingArc';
-import { hexDistance } from '@/utils/gameplay/hexMath';
+import { coordToKey, hexDistance } from '@/utils/gameplay/hexMath';
 import { isIndirectFireCapable } from '@/utils/gameplay/indirectFire';
+import { calculateLOS } from '@/utils/gameplay/lineOfSight';
+import {
+  gameUnitUsesMekHorizontalCover,
+  gameUnitUsesMekWaterCover,
+  getTargetCoverInfo,
+} from '@/utils/gameplay/terrainCover';
+import { calculateTargetTerrainModifierFromHex } from '@/utils/gameplay/toHit';
 import { buildToHitForecast } from '@/utils/gameplay/toHit/forecast';
 import {
   buildWeaponAttackAttackerToHitState,
@@ -106,24 +114,48 @@ function forecastByWeaponId(
       attackerGeometry(unit),
       targetUnit.position,
     );
+    const targetDefinition = session.units.find(
+      (candidate) => candidate.id === group.targetId,
+    );
+    const partialCover = context.grid
+      ? getTargetCoverInfo(context.grid, unit.position, targetUnit.position, {
+          horizontalCoverEligible:
+            gameUnitUsesMekHorizontalCover(targetDefinition),
+          targetHexWaterCoverEligible:
+            gameUnitUsesMekWaterCover(targetDefinition),
+        }).partialCover
+      : false;
+    const contextModifiers = buildAttackContextModifiers({
+      attackerUnit: unit,
+      targetUnit,
+      targetTerrainModifier: calculateTargetTerrainModifierFromHex(
+        context.grid?.hexes.get(coordToKey(targetUnit.position)),
+      ),
+      interveningTerrainEffects: context.grid
+        ? calculateLOS(unit.position, targetUnit.position, context.grid)
+            .interveningTerrainEffects
+        : [],
+    });
     const forecastInputs = group.weaponIds
       .map((weaponId) => weaponsById.get(weaponId))
       .filter((weapon): weapon is IWeaponStatus => weapon !== undefined)
       .map(weaponToForecastInput);
     const rows = buildToHitForecast(
       buildWeaponAttackAttackerToHitState(unit, context.gunnery),
-      buildWeaponAttackTargetToHitState(targetUnit, false),
+      buildWeaponAttackTargetToHitState(targetUnit, partialCover),
       forecastInputs,
       hexDistance(unit.position, targetUnit.position),
       {
-        attackerForWeapon: (weapon) =>
-          buildWeaponAttackAttackerToHitState(
+        attackerForWeapon: (weapon) => ({
+          ...buildWeaponAttackAttackerToHitState(
             unit,
             context.gunnery,
             { id: weapon.weaponId, name: weapon.weaponName },
             group.targetId,
             secondaryTarget,
           ),
+          damageModifiers: contextModifiers,
+        }),
       },
     );
     for (const row of rows) {
@@ -313,7 +345,8 @@ export function buildLedgerModel(
   });
   const projectedHeat = Math.max(
     0,
-    (context.unit?.heat ?? 0) + totals.totalHeat - context.heatDissipation,
+    // Movement heat is already included in the runtime unit heat.
+    (context.unit?.heat ?? 0) + totals.weaponHeat - context.heatDissipation,
   );
 
   const shutdownTN = getShutdownTN(projectedHeat);

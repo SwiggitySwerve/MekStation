@@ -17,16 +17,17 @@
  *     <ArmorAllocationInput> primitive which clamps to the location's max
  *     and supports ArrowLeft/ArrowRight navigation between inputs in the
  *     same group ('vehicle-armor').
- *   - Auto-Allocate prompts a confirm() dialog when the diagram is not in
+ *   - Auto-Allocate prompts an app dialog when the diagram is not in
  *     its default (all-zero) state to prevent accidental loss of work.
  *
  * @spec openspec/changes/add-per-type-armor-diagrams/specs/armor-diagram/spec.md
  *        Requirement: Vehicle Diagram Geometry
  */
 
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useLayoutEffect, useMemo, useRef } from 'react';
+import { shallow } from 'zustand/vanilla/shallow';
 
-import { useVehicleStore } from '@/stores/useVehicleStore';
+import { useVehicleStore, useVehicleStoreApi } from '@/stores/useVehicleStore';
 import {
   VehicleLocation,
   VTOLLocation,
@@ -37,6 +38,7 @@ import { TurretType } from '@/types/unit/VehicleInterfaces';
 
 import { ArmorAllocationInput } from '../armor/ArmorAllocationInput';
 import { ArmorLocationBlock } from '../armor/ArmorLocationBlock';
+import { useCustomizerConfirmation } from '../dialogs/CustomizerConfirmationProvider';
 import {
   getMaxVehicleArmorForLocation,
   type VehicleArmorLocation,
@@ -69,6 +71,12 @@ const CHIN_TURRET_KEY = VehicleLocation.TURRET;
 export function VehicleArmorDiagram({
   className = '',
 }: VehicleArmorDiagramProps): React.ReactElement {
+  const storeApi = useVehicleStoreApi();
+  const committedStore = useRef(storeApi);
+  useLayoutEffect(() => {
+    committedStore.current = storeApi;
+  }, [storeApi]);
+  const { requestConfirmation } = useCustomizerConfirmation();
   const motionType = useVehicleStore((s) => s.motionType);
   const unitType = useVehicleStore((s) => s.unitType);
   const turret = useVehicleStore((s) => s.turret);
@@ -77,7 +85,6 @@ export function VehicleArmorDiagram({
   const tonnage = useVehicleStore((s) => s.tonnage);
   const armorTonnage = useVehicleStore((s) => s.armorTonnage);
   const setLocationArmor = useVehicleStore((s) => s.setLocationArmor);
-  const autoAllocateArmor = useVehicleStore((s) => s.autoAllocateArmor);
 
   const isVTOL = motionType === GroundMotionType.VTOL;
   // Support vehicles carry a Body location per spec
@@ -129,29 +136,48 @@ export function VehicleArmorDiagram({
   // Available points derived from armor tonnage (standard 16 pts/ton for display)
   const availablePoints = Math.floor(armorTonnage * 16);
 
-  // Detect "non-default" state for the confirm-on-auto-allocate UX.
-  // Default = every location at 0; if any location has armor, prompt before
-  // clobbering the user's manual allocation.
-  const hasNonDefaultArmor = useMemo(
-    () =>
-      Object.values(armorAllocation as Record<string, number>).some(
-        (v) => (v ?? 0) > 0,
-      ),
-    [armorAllocation],
-  );
-
   const handleAutoAllocate = useCallback(() => {
-    if (hasNonDefaultArmor) {
-      const ok =
-        typeof window === 'undefined' ||
-        // eslint-disable-next-line no-alert -- intentional confirm for destructive action
-        window.confirm(
-          'Auto-allocate will overwrite your current armor distribution. Continue?',
-        );
-      if (!ok) return;
+    const state = storeApi.getState();
+    if (
+      !Object.values(state.armorAllocation).some((value) => (value ?? 0) > 0)
+    ) {
+      state.autoAllocateArmor();
+      return;
     }
-    autoAllocateArmor();
-  }, [autoAllocateArmor, hasNonDefaultArmor]);
+    const requested = {
+      id: state.id,
+      unitType: state.unitType,
+      tonnage: state.tonnage,
+      motionType: state.motionType,
+      armorType: state.armorType,
+      armorTonnage: state.armorTonnage,
+      turretType: state.turret?.type,
+      secondaryTurretType: state.secondaryTurret?.type,
+      allocation: { ...state.armorAllocation },
+    };
+    requestConfirmation({
+      title: 'Auto-allocate armor?',
+      message:
+        'Auto-allocate will overwrite your current armor distribution. Continue?',
+      confirmLabel: 'Auto-Allocate',
+      isCurrent: () => {
+        if (committedStore.current !== storeApi) return false;
+        const current = committedStore.current.getState();
+        return (
+          current.id === requested.id &&
+          current.unitType === requested.unitType &&
+          current.tonnage === requested.tonnage &&
+          current.motionType === requested.motionType &&
+          current.armorType === requested.armorType &&
+          current.armorTonnage === requested.armorTonnage &&
+          current.turret?.type === requested.turretType &&
+          current.secondaryTurret?.type === requested.secondaryTurretType &&
+          shallow(current.armorAllocation, requested.allocation)
+        );
+      },
+      onConfirm: () => committedStore.current.getState().autoAllocateArmor(),
+    });
+  }, [requestConfirmation, storeApi]);
 
   return (
     <div

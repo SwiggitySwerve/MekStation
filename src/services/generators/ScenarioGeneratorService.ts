@@ -244,8 +244,8 @@ export class ScenarioGeneratorService {
     const effectiveDifficulty =
       config.difficulty * template.defaultOpForMultiplier;
 
-    // Determine skill level from difficulty
-    const skillLevel = this.difficultyToSkillLevel(config.difficulty);
+    const skillLevel =
+      config.skillLevel ?? this.difficultyToSkillLevel(config.difficulty);
 
     return opForGenerator.generate(
       {
@@ -306,7 +306,8 @@ export class ScenarioGeneratorService {
     // Intersect the two lists (modifiers that work for both)
     const applicable = BATTLE_MODIFIERS.filter(
       (m) =>
-        (scenarioModifiers.includes(m) || biomeModifiers.includes(m)) &&
+        scenarioModifiers.includes(m) &&
+        biomeModifiers.includes(m) &&
         (config.allowNegativeModifiers || m.effect !== ModifierEffect.Negative),
     );
 
@@ -361,6 +362,10 @@ export class ScenarioGeneratorService {
     template: IScenarioTemplate,
     modifiers: readonly IBattleModifier[],
   ): number {
+    if (template.turnLimit === 0) {
+      return 0;
+    }
+
     let turnLimit = template.turnLimit;
 
     for (const modifier of modifiers) {
@@ -374,12 +379,8 @@ export class ScenarioGeneratorService {
       }
     }
 
-    // Ensure at least 5 turns if there's a limit
-    if (turnLimit > 0 && turnLimit < 5) {
-      turnLimit = 5;
-    }
-
-    return turnLimit;
+    // Keep the five-turn floor when modifiers exhaust a finite limit.
+    return Math.max(5, turnLimit);
   }
 
   /**

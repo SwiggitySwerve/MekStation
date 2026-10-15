@@ -1,8 +1,108 @@
 import type { IAdaptedUnit } from '@/engine/types';
-import type { IQuickGameUnit } from '@/types/quickgame/QuickGameInterfaces';
+import type {
+  IQuickGameInstance,
+  IQuickGameUnit,
+} from '@/types/quickgame/QuickGameInterfaces';
 
 import { adaptUnit } from '@/engine/adapters/CompendiumAdapter';
-import { GameSide } from '@/types/gameplay';
+import {
+  GameEventType,
+  GameSide,
+  GameStatus,
+  type IGameSession,
+} from '@/types/gameplay';
+import { QuickGameStep } from '@/types/quickgame/QuickGameInterfaces';
+import { getGameEndedPayload } from '@/utils/gameplay/eventPayloads';
+
+export function matchesQuickGameSession(
+  game: IQuickGameInstance | null,
+  session: IGameSession | null,
+): session is IGameSession {
+  if (!game || !session) return false;
+  if (game.activeTacticalSession) {
+    return game.activeTacticalSession.id === (session.matchId ?? session.id);
+  }
+  if (game.status !== GameStatus.Completed) return false;
+  const created = game.events.find(
+    (event) => event.type === GameEventType.GameCreated,
+  );
+  const sessionCreated = session.events.find(
+    (event) => event.type === GameEventType.GameCreated,
+  );
+  return Boolean(
+    created &&
+    sessionCreated &&
+    created.gameId === session.id &&
+    created.id === sessionCreated.id,
+  );
+}
+
+export function getQuickGameCompletion(
+  game: IQuickGameInstance | null,
+  expectedGameId: string,
+  session: IGameSession | null,
+): {
+  winner: 'player' | 'opponent' | 'draw';
+  reason: string;
+  endedAt: string;
+} | null {
+  if (
+    !game ||
+    game.id !== expectedGameId ||
+    game.status !== GameStatus.Active ||
+    game.step !== QuickGameStep.Playing ||
+    !session ||
+    !matchesQuickGameSession(game, session) ||
+    session.currentState.status !== GameStatus.Completed ||
+    !session.currentState.result
+  )
+    return null;
+
+  const ended = session.events.find(
+    (event) => event.type === GameEventType.GameEnded,
+  );
+  const result = ended && getGameEndedPayload(ended);
+  if (
+    !ended ||
+    ended.gameId !== session.id ||
+    !result ||
+    result.winner !== session.currentState.result.winner ||
+    result.reason !== session.currentState.result.reason
+  )
+    return null;
+
+  return {
+    winner: quickGameWinner(result.winner),
+    reason: result.reason,
+    endedAt: ended.timestamp,
+  };
+}
+
+export function quickGameWinner(
+  winner: GameSide | 'draw' | undefined,
+): 'player' | 'opponent' | 'draw' {
+  return winner === GameSide.Player
+    ? 'player'
+    : winner === GameSide.Opponent
+      ? 'opponent'
+      : 'draw';
+}
+
+export function completeQuickGame(
+  game: IQuickGameInstance,
+  winner: 'player' | 'opponent' | 'draw',
+  reason: string,
+  endedAt: string,
+): IQuickGameInstance {
+  return {
+    ...game,
+    status: GameStatus.Completed,
+    step: QuickGameStep.Results,
+    winner,
+    victoryReason: reason,
+    endedAt,
+  };
+}
 
 export async function adaptUnits(
   units: readonly IQuickGameUnit[],

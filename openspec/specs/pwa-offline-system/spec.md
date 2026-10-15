@@ -149,10 +149,28 @@ The service worker SHALL implement multiple caching strategies based on resource
 #### Scenario: Stale-while-revalidate for JS/CSS
 
 - **WHEN** request destination is 'script' or 'style'
+- **AND** the request does not match the development-asset network exception below
 - **THEN** service worker returns cached version immediately
 - **AND** fetches fresh version in background
 - **AND** updates cache with fresh response
 - **AND** next request gets updated version
+- **AND** content-hashed production JS/CSS and production build-ID manifests retain this strategy
+- **AND** a failed background fetch leaves an available cached response usable
+- **AND** network failure propagates when no cached response is available
+
+#### Scenario: Development-asset network exception
+
+- **WHEN** a same-origin GET request matches any of the following development assets
+  - A 'script' or 'style' request under `/_next/static/chunks/` or `/_next/static/css/` with a `.js` or `.css` extension and no content hash in its filename
+  - Any request under `/_next/static/development/`
+  - A request with pathname `/_next/webpack-hmr`
+- **THEN** service worker fetches the request directly from the network with `cache: 'no-store'`
+- **AND** it does not read or write a service-worker cache for that request
+- **AND** network failure propagates instead of returning stale development bytes
+- **AND** existing cache entries and private unit data are not deleted
+- **AND** a content hash is at least eight hexadecimal characters after a slash, hyphen or dot immediately before the `.js` or `.css` extension, matched without case sensitivity
+- **AND** query strings do not change pathname-based classification
+- **AND** other asset paths and unknown extensions retain their existing caching strategies
 
 #### Scenario: Non-GET request passthrough
 
@@ -475,6 +493,8 @@ function App() {
 
 ### Service worker caching strategies
 
+The following dispatch runs after the development-asset network exception has returned. Development requests covered by that exception use the network directly; content-hashed production assets remain eligible for these offline strategies.
+
 ```javascript
 // service-worker.js
 
@@ -488,7 +508,7 @@ if (request.destination === 'document') {
   event.respondWith(networkFirst(request));
 }
 
-// Stale-while-revalidate for JS/CSS
+// Stale-while-revalidate for remaining JS/CSS
 if (request.destination === 'script' || request.destination === 'style') {
   event.respondWith(staleWhileRevalidate(request));
 }

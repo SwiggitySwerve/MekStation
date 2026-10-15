@@ -10,7 +10,7 @@ import { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
 import { isFixedOmniEquipment } from '@/utils/construction/equipmentMutationPolicy';
 
 import { getFixedSlotIndices } from './queries';
-import { findContiguousSlotStarts } from './topology';
+import { findContiguousSlotStarts, type ArmActuatorConfig } from './topology';
 import { SlotAssignment, SlotOperationResult } from './types';
 
 type EquipmentComparator = (
@@ -25,9 +25,15 @@ function createLocationAssignments(
   gyroType: GyroType,
   configuration: MechConfiguration,
   isOmni: boolean,
+  armActuators?: ArmActuatorConfig,
 ): SlotOperationResult {
   const totalSlots = getLocationSlotCount(location, configuration);
-  const fixedSlots = getFixedSlotIndices(location, engineType, gyroType);
+  const fixedSlots = getFixedSlotIndices(
+    location,
+    engineType,
+    gyroType,
+    armActuators,
+  );
   for (const item of locationEquipment) {
     if (isFixedOmniEquipment(isOmni, item)) {
       for (const slot of item.slots ?? []) fixedSlots.add(slot);
@@ -75,6 +81,7 @@ function organizeEquipment(
   configuration: MechConfiguration,
   comparator: EquipmentComparator,
   isOmni: boolean,
+  armActuators?: ArmActuatorConfig,
 ): SlotOperationResult {
   const assignments: SlotAssignment[] = [];
   const unassigned: string[] = [];
@@ -95,6 +102,7 @@ function organizeEquipment(
       gyroType,
       configuration,
       isOmni,
+      armActuators,
     );
     assignments.push(...result.assignments);
     unassigned.push(...result.unassigned);
@@ -109,6 +117,7 @@ export function compactEquipmentSlots(
   gyroType: GyroType,
   configuration: MechConfiguration = MechConfiguration.BIPED,
   isOmni = false,
+  armActuators?: ArmActuatorConfig,
 ): SlotOperationResult {
   return organizeEquipment(
     equipment,
@@ -121,6 +130,7 @@ export function compactEquipmentSlots(
       return aMin - bMin;
     },
     isOmni,
+    armActuators,
   );
 }
 
@@ -130,6 +140,7 @@ export function sortEquipmentBySize(
   gyroType: GyroType,
   configuration: MechConfiguration = MechConfiguration.BIPED,
   isOmni = false,
+  armActuators?: ArmActuatorConfig,
 ): SlotOperationResult {
   return organizeEquipment(
     equipment,
@@ -143,5 +154,6 @@ export function sortEquipmentBySize(
       return a.name.localeCompare(b.name);
     },
     isOmni,
+    armActuators,
   );
 }

@@ -30,11 +30,15 @@ import {
   Facing,
   FiringArc,
   GameSide,
+  MovementType,
+  TokenUnitType,
+  type IUnitToken,
   type IGameSession,
   type IHexGrid,
   type IUnitGameState,
   type IWeaponStatus,
 } from '@/types/gameplay';
+import { deriveCombatRangeHexes } from '@/utils/gameplay/combatProjection';
 
 import type { IAttackComposerContext } from '../composer.types';
 
@@ -128,6 +132,59 @@ function context(
     movementHeat: 0,
     ...overrides,
   };
+}
+
+function reportedShotContext(): IAttackComposerContext {
+  const unit = {
+    ...ATTACKER_STATE,
+    id: 'a1',
+    side: GameSide.Player,
+    position: { q: -2, r: 4 },
+    heat: 1,
+    gunnery: 4,
+    movementThisTurn: MovementType.Walk,
+    hexesMovedThisTurn: 1,
+    pilotConscious: true,
+  };
+  const target = {
+    ...enemyState(-2, -4),
+    id: 't1',
+    side: GameSide.Opponent,
+    movementThisTurn: MovementType.Run,
+    hexesMovedThisTurn: 5,
+    pilotConscious: true,
+  };
+  const session = makeSession();
+  session.currentState.units.a1 = unit;
+  session.currentState.units.t1 = target;
+  const grid = makeGrid();
+  grid.hexes.set('-2,-4', {
+    coord: target.position,
+    occupantId: 't1',
+    terrain: 'heavy_woods',
+    elevation: 1,
+  });
+  return context({
+    unit,
+    session,
+    grid,
+    weapons: ['ppc-left', 'ppc-right'].map((id) =>
+      weapon(id, {
+        name: 'PPC',
+        heat: 10,
+        damage: 10,
+        ranges: { minimum: 3, short: 6, medium: 12, long: 18 },
+      }),
+    ),
+    movementHeat: 1,
+    heatDissipation: 18,
+  });
+}
+
+function assignBothPPCs(): void {
+  act(() => useGameplayStore.getState().focusAttackTarget('t1'));
+  fireEvent.click(screen.getByTestId('weapon-toggle-ppc-left'));
+  fireEvent.click(screen.getByTestId('weapon-toggle-ppc-right'));
 }
 
 // =============================================================================
@@ -319,5 +376,56 @@ describe('AttackIntentComposer', () => {
 
     expect(screen.getByTestId('volley-fire-button')).toBeEnabled();
     expect(screen.queryByTestId('volley-fire-hint')).not.toBeInTheDocument();
+  });
+  it('matches the authoritative map forecast for the reported heavy-woods PPC shot', () => {
+    const ctx = reportedShotContext();
+    const tokens = Object.entries(ctx.session!.currentState.units).map(
+      ([id, unit]) =>
+        ({
+          unitId: id,
+          name: id,
+          side: unit.side,
+          position: unit.position,
+          facing: unit.facing,
+          unitType: TokenUnitType.Mech,
+          isDestroyed: false,
+          isSelected: false,
+          isValidTarget: true,
+          designation: id,
+        }) as IUnitToken,
+    );
+    const projection = deriveCombatRangeHexes({
+      attacker: tokens.find((t) => t.unitId === 'a1')!,
+      targetUnitId: 't1',
+      tokens,
+      grid: ctx.grid!,
+      hexes: [{ q: -2, r: -4 }],
+      weapons: ctx.weapons,
+      combatState: ctx.session!.currentState,
+    })[0];
+    expect(projection.toHitNumber).toBe(11);
+    render(<AttackIntentComposer context={ctx} />);
+    assignBothPPCs();
+    expect(screen.getByTestId('weapon-forecast-ppc-left')).toHaveTextContent(
+      /TN 11.*8%/,
+    );
+    expect(screen.getByTestId('weapon-forecast-ppc-right')).toHaveTextContent(
+      /TN 11.*8%/,
+    );
+  });
+
+  it('counts banked movement heat once and labels the combined generated heat', () => {
+    render(<AttackIntentComposer context={reportedShotContext()} />);
+    assignBothPPCs();
+    expect(screen.getByTestId('ledger-weapon-heat')).toHaveTextContent(
+      'Volley heat 20',
+    );
+    expect(screen.getByTestId('ledger-net-heat')).toHaveTextContent('net +3');
+    expect(screen.getByTestId('ledger-projected-heat')).toHaveTextContent(
+      'projected 3',
+    );
+    expect(screen.getByTestId('ledger-total-heat')).toHaveTextContent(
+      'Total generated 21',
+    );
   });
 });

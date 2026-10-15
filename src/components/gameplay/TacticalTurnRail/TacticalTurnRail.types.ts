@@ -51,6 +51,7 @@ export interface PhaseAdvanceControlProps {
   readonly disabled: boolean;
   readonly disabledReason?: string;
   readonly blockerReasons: readonly string[];
+  readonly requiresConfirmation?: boolean;
   readonly onAdvance: () => void;
 }
 

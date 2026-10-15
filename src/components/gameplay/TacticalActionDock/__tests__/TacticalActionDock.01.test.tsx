@@ -1,3 +1,5 @@
+import { within } from '@testing-library/react';
+
 import * as H from './TacticalActionDock.test-helpers';
 
 const {
@@ -22,6 +24,28 @@ type IPhysicalAttackOption = H.IPhysicalAttackOption;
 type ITacticalCommandContext = H.ITacticalCommandContext;
 type IWeaponStatus = H.IWeaponStatus;
 describe('TacticalActionDock', () => {
+  it('opens an app dialog for End Phase without invoking native confirmation', () => {
+    const onAction = jest.fn();
+    const nativeConfirm = jest
+      .spyOn(window, 'confirm')
+      .mockImplementation(() => {
+        throw new Error('Native confirmation must not block tactical commands');
+      });
+    render(
+      <TacticalActionDock
+        ctx={makeCtx({ phase: GamePhase.WeaponAttack })}
+        shellMode="combat"
+        onAction={onAction}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId('command-btn-heat-end.end-phase'));
+
+    expect(screen.getByRole('dialog', { name: 'End Phase?' })).toBeVisible();
+    expect(onAction).not.toHaveBeenCalled();
+    expect(nativeConfirm).not.toHaveBeenCalled();
+    nativeConfirm.mockRestore();
+  });
   it('renders the dock with the tactical-action-dock testid', () => {
     const onAction = jest.fn();
     render(
@@ -110,7 +134,13 @@ describe('TacticalActionDock', () => {
     fireEvent.focus(concede);
     fireEvent.click(concede);
 
-    expect(confirmSpy).toHaveBeenCalledWith('Confirm: Concede?');
+    expect(screen.getByRole('dialog', { name: 'Concede?' })).toBeVisible();
+    fireEvent.click(
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: /^Cancel$/,
+      }),
+    );
+    expect(confirmSpy).not.toHaveBeenCalled();
     expect(onAction).not.toHaveBeenCalled();
     expect(document.activeElement).toBe(concede);
     confirmSpy.mockRestore();
@@ -161,7 +191,7 @@ describe('TacticalActionDock', () => {
     );
   });
 
-  it('confirm-gated commands route through window.confirm', () => {
+  it('cancelled app confirmation leaves the volley uncommitted', () => {
     const onAction = jest.fn();
     const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(false);
     render(
@@ -175,9 +205,13 @@ describe('TacticalActionDock', () => {
       />,
     );
     fireEvent.click(screen.getByTestId('command-btn-weapon.fire-volley'));
-    expect(confirmSpy).toHaveBeenCalled();
-    // confirm returned false -> no dispatch (spec: 'Cancel returns to
-    // neutral selection state').
+    expect(screen.getByRole('dialog', { name: 'Fire Volley?' })).toBeVisible();
+    fireEvent.click(
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: /^Cancel$/,
+      }),
+    );
+    expect(confirmSpy).not.toHaveBeenCalled();
     expect(onAction).not.toHaveBeenCalled();
     confirmSpy.mockRestore();
   });
@@ -230,9 +264,97 @@ describe('TacticalActionDock', () => {
       />,
     );
     fireEvent.click(screen.getByTestId('command-btn-weapon.fire-volley'));
+    expect(onAction).not.toHaveBeenCalled();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Confirm Fire Volley' }),
+    );
     expect(onAction).toHaveBeenCalledWith('lock', { volley: true });
+    expect(confirmSpy).not.toHaveBeenCalled();
     confirmSpy.mockRestore();
   });
+
+  it.each([
+    ['eject', 'Eject'],
+    ['withdraw', 'Withdraw'],
+    ['concede', 'Concede'],
+  ])('requires explicit approval exactly once for %s', (actionId, label) => {
+    const onAction = jest.fn();
+    render(
+      <TacticalActionDock
+        ctx={makeCtx()}
+        shellMode="combat"
+        onAction={onAction}
+      />,
+    );
+    fireEvent.click(screen.getByTestId(`command-btn-utility.${actionId}`));
+    expect(screen.getByRole('dialog', { name: `${label}?` })).toBeVisible();
+    expect(onAction).not.toHaveBeenCalled();
+    const approve = screen.getByRole('button', { name: `Confirm ${label}` });
+
+    fireEvent.click(approve);
+    fireEvent.click(approve);
+
+    expect(onAction).toHaveBeenCalledTimes(1);
+    expect(onAction).toHaveBeenCalledWith(actionId, {});
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it.each([
+    ['eject', 'Eject'],
+    ['withdraw', 'Withdraw'],
+  ])('cancellation leaves %s uncommitted', (actionId, label) => {
+    const onAction = jest.fn();
+    render(
+      <TacticalActionDock
+        ctx={makeCtx()}
+        shellMode="combat"
+        onAction={onAction}
+      />,
+    );
+    const trigger = screen.getByTestId(`command-btn-utility.${actionId}`);
+    fireEvent.click(trigger);
+    expect(screen.getByRole('dialog', { name: `${label}?` })).toBeVisible();
+
+    fireEvent.click(
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: /^Cancel$/,
+      }),
+    );
+
+    expect(onAction).not.toHaveBeenCalled();
+    expect(document.activeElement).toBe(trigger);
+  });
+
+  it.each(['Escape', 'backdrop', 'close'])(
+    '%s dismisses without committing',
+    (method) => {
+      const onAction = jest.fn();
+      render(
+        <TacticalActionDock
+          ctx={makeCtx()}
+          shellMode="combat"
+          onAction={onAction}
+        />,
+      );
+      const trigger = screen.getByTestId('command-btn-utility.concede');
+      fireEvent.click(trigger);
+      const dialog = screen.getByRole('dialog', { name: 'Concede?' });
+
+      if (method === 'Escape') fireEvent.keyDown(document, { key: 'Escape' });
+      else if (method === 'backdrop') {
+        const backdrop = dialog.parentElement;
+        if (!backdrop) throw new Error('Dialog backdrop is missing');
+        fireEvent.click(backdrop);
+      } else
+        fireEvent.click(
+          within(dialog).getByRole('button', { name: 'Close dialog' }),
+        );
+
+      expect(onAction).not.toHaveBeenCalled();
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(document.activeElement).toBe(trigger);
+    },
+  );
 
   it('renders the Initiative begin-round command and dispatches it', () => {
     const onAction = jest.fn();

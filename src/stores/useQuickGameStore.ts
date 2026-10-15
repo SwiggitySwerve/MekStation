@@ -26,6 +26,10 @@ import {
   createScenarioActions,
   createBattleActions,
 } from './useQuickGameStore.actions';
+import {
+  completeQuickGame,
+  getQuickGameCompletion,
+} from './useQuickGameStore.helpers';
 import { QuickGameStore, initialState } from './useQuickGameStore.types';
 
 export * from './useQuickGameStore.selectors';
@@ -269,14 +273,36 @@ export const useQuickGameStore = create<QuickGameStore>()(
         if (!game) return;
 
         set({
-          game: {
-            ...game,
-            status: GameStatus.Completed,
-            step: QuickGameStep.Results,
+          game: completeQuickGame(
+            game,
             winner,
-            victoryReason: reason,
-            endedAt: new Date().toISOString(),
+            reason,
+            new Date().toISOString(),
+          ),
+          isDirty: true,
+        });
+      },
+
+      reconcileTacticalCompletion: (expectedGameId, session) => {
+        const { game } = get();
+        const completion = getQuickGameCompletion(
+          game,
+          expectedGameId,
+          session,
+        );
+        if (!game || !completion) return;
+        set({
+          game: {
+            ...completeQuickGame(
+              game,
+              completion.winner,
+              completion.reason,
+              completion.endedAt,
+            ),
+            events: [...session.events],
+            turn: session.currentState.turn,
           },
+          isLoading: false,
           isDirty: true,
         });
       },

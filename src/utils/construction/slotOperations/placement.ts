@@ -12,6 +12,8 @@ import {
   UnitValidationSeverity,
 } from '@/types/validation/UnitValidationInterfaces';
 
+import type { ArmActuatorConfig } from './topology';
+
 import { getFixedSlotIndices } from './queries';
 
 export function hasAssignedCriticalSlots(
@@ -37,6 +39,7 @@ export function getEquipmentSlotIssues(
   configuration: MechConfiguration,
   engineType: EngineType,
   gyroType: GyroType,
+  armActuators?: ArmActuatorConfig,
 ): ICriticalSlotIssue[] {
   const issues: ICriticalSlotIssue[] = [];
   const locations = getLocationsForConfig(configuration);
@@ -86,7 +89,12 @@ export function getEquipmentSlotIssues(
           ? UnitValidationSeverity.ERROR
           : UnitValidationSeverity.WARNING,
       );
-    const fixed = getFixedSlotIndices(location, engineType, gyroType);
+    const fixed = getFixedSlotIndices(
+      location,
+      engineType,
+      gyroType,
+      armActuators,
+    );
     const slots = item.slots ?? [];
     for (const index of slots) {
       if (

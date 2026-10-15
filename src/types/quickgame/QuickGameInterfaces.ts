@@ -5,7 +5,12 @@
  * @spec openspec/changes/add-quick-session-mode/proposal.md
  */
 
-import { GameStatus, GamePhase, IGameEvent } from '../gameplay';
+import {
+  GameStatus,
+  GamePhase,
+  IGameEvent,
+  type IGameSession,
+} from '../gameplay';
 import { IGeneratedScenario } from '../scenario';
 
 // =============================================================================
@@ -263,6 +268,11 @@ export interface IQuickGameActions {
   recordEvent: (event: IGameEvent) => void;
   /** End the game */
   endGame: (winner: 'player' | 'opponent' | 'draw', reason: string) => void;
+  /** Adopt a recorded terminal result only for the same linked quick game. */
+  reconcileTacticalCompletion: (
+    expectedGameId: string,
+    session: IGameSession,
+  ) => void;
   /** Reset for a new game with same units */
   playAgain: (resetUnits: boolean) => void;
   /** Clear the current game */
@@ -355,13 +365,26 @@ export function calculateForceTotals(units: readonly IQuickGameUnit[]): {
   );
 }
 
+export const QUICK_GAME_FORCE_READINESS_ERROR =
+  'Both forces need at least one unit. Add more BV, increase difficulty, or choose a different AI tier, then generate again.';
+
+export function hasReadyQuickGameForces(
+  game: IQuickGameInstance | null,
+): game is IQuickGameInstance & { readonly opponentForce: IQuickGameForce } {
+  return (
+    game !== null &&
+    game.playerForce.units.length > 0 &&
+    game.opponentForce !== null &&
+    game.opponentForce.units.length > 0
+  );
+}
+
 /**
  * Check if a quick game can advance to playing.
  */
 export function canStartGame(game: IQuickGameInstance): boolean {
   return (
-    game.playerForce.units.length > 0 &&
-    game.opponentForce !== null &&
+    hasReadyQuickGameForces(game) &&
     game.scenario !== null &&
     game.step === QuickGameStep.Review
   );
