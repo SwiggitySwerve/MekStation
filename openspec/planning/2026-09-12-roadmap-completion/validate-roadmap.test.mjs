@@ -556,3 +556,60 @@ test('PRI preserves invalid same-model legacy rejection', () => {
   const dir = mainVerifiedFixture('pin: 1 passed', undefined, { review: { reviewerModel: MODERN_MODEL, implementerModel: MODERN_MODEL } });
   try { assert.equal(run(dir).code, 1); } finally { fs.rmSync(dir, { recursive: true }); }
 });
+
+// Keep the six residual holders and prospective socket prefixes inside original caps.
+const residualFixture = () => {
+  const ledger = JSON.parse(fs.readFileSync(path.join(here, 'units.json'), 'utf8'));
+  return {
+    units: ledger.units.filter((entry) => entry.registration20261016),
+    residualRegistration20261016: ledger.residualRegistration20261016,
+  };
+};
+
+test('Task 57 preserves six holders and four bounded prospective prefixes', () => {
+  const result = run(makeFixture(residualFixture()), ['--next']);
+  assert.equal(result.code, 0, result.stderr);
+  assert.equal(result.stdout.trim(), 'U99');
+});
+
+for (const [name, mutate, message] of [
+  ['outside node alias', (ledger) => { ledger.units.find((entry) => entry.id === 'U101a').ownershipPaths.push('package.json'); }, /U101a owns package.json, which is not owned/],
+  ['measured additions', (ledger) => { ledger.units.find((entry) => entry.id === 'U101a').registration20261016.measuredAdditions = 301; }, /U101a measured additions exceed original cap 300/],
+  ['missing prefix', (ledger) => { ledger.units = ledger.units.filter((entry) => entry.id !== 'U101d'); }, /U101d missing Task 57 registration/],
+  ['original cap changed', (ledger) => { ledger.units.find((entry) => entry.id === 'U100').caps.maxFiles = 4; }, /U100 changed original residual cap/],
+  ['marker removed', (ledger) => { delete ledger.residualRegistration20261016; }, /Task 57 residual registration marker required/],
+  ['marker removed with changed cap', (ledger) => { delete ledger.residualRegistration20261016; ledger.units.find((entry) => entry.id === 'U101').caps.maxNonGeneratedLines = 500; }, /U101 changed original residual cap/],
+  ['unmarked registration', (ledger) => { ledger.residualRegistration20261016.units = ledger.residualRegistration20261016.units.filter((id) => id !== 'U101a'); }, /U101a has unmarked Task 57 registration/],
+  ['extra registration', (ledger) => { const extra = structuredClone(ledger.units.find((entry) => entry.id === 'U101a')); extra.id = 'U101e'; ledger.units.push(extra); }, /U101e has unmarked Task 57 registration/],
+]) {
+  test('Task 57 refuses ' + name, () => {
+    const ledger = residualFixture();
+    mutate(ledger);
+    const result = run(makeFixture(ledger), ['--next']);
+    assert.equal(result.code, 1);
+    assert.match(result.stderr, message);
+  });
+}
+
+for (const prefix of ['node ', 'npx ', 'npm run ', 'npm.cmd run ', 'npm ', 'npm.cmd ', 'npm run-script ', 'npm.cmd run-script ', 'npm-run ', 'nodejs ', 'npxx ', ' npm run ', 'npm run\t', 'npm.cmd run\t']) {
+  test('Task 57 checks exact selector prefix ' + JSON.stringify(prefix), () => {
+    const ledger = residualFixture();
+    ledger.units.find((entry) => entry.id === 'U100').registration20261016.selectors = [prefix + 'verify:qc:coop-campaign-journey'];
+    const dir = makeFixture(ledger);
+    try {
+      const result = run(dir, ['--next']);
+      if (['node ', 'npx ', 'npm run ', 'npm.cmd run '].includes(prefix)) { assert.equal(result.code, 0, result.stderr); assert.equal(result.stdout.trim(), 'U99'); }
+      else { assert.equal(result.code, 1); assert.match(result.stderr, /U100 lacks executable residual selectors/); }
+    } finally { fs.rmSync(dir, { recursive: true }); }
+  });
+}
+
+test('Task 57 schedules minting before enforcement or residual closure', () => {
+  const ledger = residualFixture();
+  for (const entry of ledger.units) {
+    if (['U99', 'U100', 'U103', 'U104', 'U105'].includes(entry.id)) entry.state = 'blocked';
+  }
+  const result = run(makeFixture(ledger), ['--next']);
+  assert.equal(result.code, 0, result.stderr);
+  assert.equal(result.stdout.trim(), 'U101a');
+});
