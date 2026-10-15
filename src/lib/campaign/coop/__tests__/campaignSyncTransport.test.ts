@@ -537,6 +537,25 @@ describe('P2CD explicit consumer completion', () => {
     },
   );
 
+  it('acknowledges a completion confirmed while a non-offer frame is being dispatched', () => {
+    const s = setup();
+    s.socket.inject(baseline());
+    s.socket.inject(event(1));
+    expect(s.offers).toHaveLength(2);
+    expect(apply(s.offers[0])).not.toBeNull();
+    expect(apply(s.offers[1])).not.toBeNull();
+    s.transport.onFrame((frame) => {
+      if (frame.kind === 'CampaignEvent' && !frame.appliedView) {
+        s.complete(s.offers[0]);
+        s.complete(s.offers[1]);
+      }
+    });
+    const plain = { ...event(2), appliedView: undefined };
+    s.socket.inject(plain as unknown as ICampaignApplicationOffer);
+    expect(s.acks()).toEqual([
+      expect.objectContaining({ appliedView: s.offers[1].appliedView }),
+    ]);
+  });
   it('refuses retargeting a cached transport to another campaign binding', () => {
     const s = setup();
     expect(
@@ -793,7 +812,7 @@ describe('campaignSyncTransport', () => {
     });
   });
 
-  it('acks a resync snapshot with the revision it carries', () => {
+  it('legacy compatibility: observes a resync snapshot revision without proving application', () => {
     // A large-gap resync delivers a CampaignSnapshotPublished baseline
     // stamped sequence -1 and nothing else. Acking only sequence >= 0
     // frames left the rejoiner permanently behind the gate: the server
@@ -833,7 +852,7 @@ describe('campaignSyncTransport', () => {
     });
   });
 
-  it('acks each applied CampaignEvent with that event sequence', () => {
+  it('legacy compatibility: observes each CampaignEvent sequence without proving application', () => {
     const sockets = makeSocketFactory();
     const transport = connectCampaignSyncTransport({
       matchId: 'match-1',

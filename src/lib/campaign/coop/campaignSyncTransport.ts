@@ -416,7 +416,7 @@ export function connectCampaignSyncTransport(
     } finally {
       dispatching = false;
     }
-    if (offered && !failed && !closed) drain();
+    if ((offered || receiptMode) && !failed && !closed) drain();
     if (
       !receiptMode &&
       message.kind === 'CampaignEvent' &&
