@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CA",
+  "stage": "admission",
+  "date": "20261016",
+  "baseline": "ba8007f2dfea7786a3823145eb999e308c97f3fa",
+  "authority": "Owner D1: .omo/plans/mekstation-phased-delivery-20261015/owner-unblock-decisions-20261016.md and explicit Task9 implementation delegation",
+  "contributor": {
+    "provider": "cliproxy",
+    "model": "gpt-6.1-sol",
+    "effort": "high",
+    "task": "Task9 / P2CA implementation sub-agent"
+  },
+  "caps": {
+    "files": 15,
+    "productAddedLines": 500
+  },
+  "frozenFiles": [
+    {
+      "path": "src/lib/campaign/sync/campaignPublicAppliedView.ts",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    },
+    {
+      "path": "src/services/persistence/SQLiteService.publicAppliedViews.migration.ts",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    },
+    {
+      "path": "src/services/persistence/SQLiteService.migrations.ts",
+      "exists": true,
+      "sha256": "220fa101e4b7a043fa6c6b5a64f570f3b772cec74d0ad4810cf9f494eaa96bfe",
+      "bytes": 18218
+    },
+    {
+      "path": "src/lib/campaign/sync/__tests__/campaignPublicAppliedView.integration.test.ts",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    },
+    {
+      "path": "src/services/persistence/__tests__/SQLiteService.migrations.test.ts",
+      "exists": true,
+      "sha256": "db08c531c1b2025ea85face690eea9596b6394c98e2d98f1322134b42ebc799f",
+      "bytes": 6247
+    },
+    {
+      "path": "src/services/persistence/__tests__/SQLiteService.replayCheckpointsBranch.migration.test.ts",
+      "exists": true,
+      "sha256": "9b056349323d5532d3929c739e59757fea8c50c1f67cb6dcf029429ef1d8c951",
+      "bytes": 9373
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "exists": true,
+      "sha256": "11e5d43c27704eccdcd9d6337cfa62251b004b2d7c02faecb9eec901a60a6777",
+      "bytes": 1249461
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ca-admission-20261016.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ca-admission-review-20261016.md",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ca-red-20261016.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ca-local-20261016.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    }
+  ],
+  "reviewSlot": "Reserved for independent reviewer; author must not write review",
+  "summary": "Ordinary admission under D1; native capture decoupled. No merge or Main claim."
+}

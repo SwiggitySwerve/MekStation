@@ -30,6 +30,7 @@ import { CAMPAIGN_PARTICIPANT_CURSORS_MIGRATION } from './SQLiteService.particip
 import { PRIVATE_ACCESS_WRITE_MIGRATION } from './SQLiteService.privateAccessWrite.migration';
 import { PRIVATE_RECORD_REJECTION_ONCE_MIGRATION } from './SQLiteService.privateRecordRejectionOnce.migration';
 import { PRIVATE_RECORDS_MIGRATION } from './SQLiteService.privateRecords.migration';
+import { CAMPAIGN_PUBLIC_APPLIED_VIEWS_MIGRATION } from './SQLiteService.publicAppliedViews.migration';
 import { REPLAY_CHECKPOINTS_MIGRATION } from './SQLiteService.replayCheckpoints.migration';
 import { REPLAY_CHECKPOINTS_BRANCH_MIGRATION } from './SQLiteService.replayCheckpointsBranch.migration';
 import { CAMPAIGN_SESSION_FORCE_CLAIMS_MIGRATION } from './SQLiteService.sessionForceClaims.migration';
@@ -409,4 +410,5 @@ export const MIGRATIONS: readonly IMigration[] = [
   PRIVATE_RECORD_REJECTION_ONCE_MIGRATION,
   EVENT_HISTORY_ARTIFACT_MANIFEST_KINDS_MIGRATION,
   EVENT_HISTORY_BRANCH_INTEGRITY_MIGRATION,
+  CAMPAIGN_PUBLIC_APPLIED_VIEWS_MIGRATION,
 ];
