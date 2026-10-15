@@ -7,12 +7,23 @@
 
 import { act, renderHook, waitFor } from '@testing-library/react';
 
-import { GameStatus, GamePhase, GameEventType } from '@/types/gameplay';
+import { GameEngine } from '@/engine/GameEngine';
+import {
+  GameStatus,
+  GamePhase,
+  GameEventType,
+  GameSide,
+} from '@/types/gameplay';
 import {
   QuickGameStep,
   IQuickGameUnitRequest,
   createQuickGameInstance,
 } from '@/types/quickgame';
+import {
+  createGameSession,
+  startGame,
+  endGame,
+} from '@/utils/gameplay/gameSession';
 
 import { useQuickGameStore } from '../useQuickGameStore';
 
@@ -50,6 +61,107 @@ const sampleUnit: IQuickGameUnitRequest = {
   maxArmor: { head: 9, ct: 47 },
   maxStructure: { head: 3, ct: 31 },
 };
+
+describe('Quick Game completion projection equivalence', () => {
+  const completedAt = '2026-10-13T06:00:00.000Z';
+
+  beforeEach(() => {
+    jest.useFakeTimers().setSystemTime(new Date(completedAt));
+    useQuickGameStore.getState().clearGame();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+    jest.useRealTimers();
+  });
+
+  it.each(['player', 'opponent', 'draw'] as const)(
+    'preserves every existing endGame field for %s',
+    (winner) => {
+      useQuickGameStore.getState().startNewGame();
+      const before = useQuickGameStore.getState().game!;
+      useQuickGameStore.getState().endGame(winner, 'objective');
+      expect(useQuickGameStore.getState().game).toEqual({
+        ...before,
+        status: GameStatus.Completed,
+        step: QuickGameStep.Results,
+        winner,
+        victoryReason: 'objective',
+        endedAt: completedAt,
+      });
+      expect(useQuickGameStore.getState().isDirty).toBe(true);
+    },
+  );
+
+  it.each([GameSide.Player, GameSide.Opponent, 'draw', null] as const)(
+    'preserves auto-resolve completion fields and guards for %s',
+    async (winner) => {
+      const active = startGame(
+        createGameSession(
+          {
+            mapRadius: 7,
+            turnLimit: 30,
+            victoryConditions: ['elimination'],
+            optionalRules: [],
+          },
+          [],
+          { id: 'projection-equivalence-session' },
+        ),
+        GameSide.Player,
+      );
+      const session =
+        winner === null ? active : endGame(active, winner, 'objective');
+      jest
+        .spyOn(GameEngine.prototype, 'runToCompletion')
+        .mockReturnValue(session);
+      const game = createQuickGameInstance();
+      game.opponentForce = {
+        name: 'Opposition',
+        units: [],
+        totalBV: 0,
+        totalTonnage: 0,
+      };
+      useQuickGameStore.setState({
+        game,
+        isLoading: false,
+        error: 'old error',
+      });
+      await useQuickGameStore.getState().startBattle();
+      expect(useQuickGameStore.getState().game).toEqual({
+        ...game,
+        status: GameStatus.Completed,
+        step: QuickGameStep.Results,
+        winner:
+          winner === GameSide.Player
+            ? 'player'
+            : winner === GameSide.Opponent
+              ? 'opponent'
+              : 'draw',
+        victoryReason:
+          session.currentState.result?.reason ?? 'Battle concluded',
+        endedAt: completedAt,
+        events: session.events,
+        turn: session.currentState.turn,
+      });
+      expect(useQuickGameStore.getState()).toMatchObject({
+        isLoading: false,
+        error: null,
+        isDirty: true,
+      });
+    },
+  );
+
+  it('keeps absent-game guards nonmutating apart from the existing auto-resolve error', async () => {
+    const before = useQuickGameStore.getState();
+    before.endGame('draw', 'objective');
+    expect(useQuickGameStore.getState()).toBe(before);
+    await useQuickGameStore.getState().startBattle();
+    expect(useQuickGameStore.getState()).toMatchObject({
+      game: null,
+      error: 'No active game or opponent force',
+    });
+  });
+});
 
 describe('useQuickGameStore', () => {
   beforeEach(() => {

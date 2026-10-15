@@ -22,7 +22,11 @@ import { Era } from '@/types/temporal/Era';
 
 import type { QuickGameStore } from './useQuickGameStore.types';
 
-import { adaptUnits } from './useQuickGameStore.helpers';
+import {
+  adaptUnits,
+  completeQuickGame,
+  quickGameWinner,
+} from './useQuickGameStore.helpers';
 
 // Threads the quick-game page's `?seed=N` debug override (design D5) into
 // the engine's dice seed; `null`/`undefined` (absent/invalid query value)
@@ -215,23 +219,14 @@ export function createBattleActions(
 
         useGameplayStore.getState().setSession(session);
 
-        const winner = session.currentState.result?.winner;
-        const winnerStr: 'player' | 'opponent' | 'draw' =
-          winner === GameSide.Player
-            ? 'player'
-            : winner === GameSide.Opponent
-              ? 'opponent'
-              : 'draw';
-
         set({
           game: {
-            ...game,
-            status: GameStatus.Completed,
-            step: QuickGameStep.Results,
-            winner: winnerStr,
-            victoryReason:
+            ...completeQuickGame(
+              game,
+              quickGameWinner(session.currentState.result?.winner),
               session.currentState.result?.reason ?? 'Battle concluded',
-            endedAt: new Date().toISOString(),
+              new Date().toISOString(),
+            ),
             events: session.events as IGameEvent[],
             turn: session.currentState.turn,
           },
