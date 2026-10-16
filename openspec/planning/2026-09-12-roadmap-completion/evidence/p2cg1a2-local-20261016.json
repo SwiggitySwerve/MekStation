@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CG1A2",
+  "stage": "local",
+  "baseline": "ace667bff5b9e6857b60a608e5b89a5baabfdcc6",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "Task14 / P2CG1A2 implementation sub-agent"
+  },
+  "runtime": "node v22.22.0",
+  "commands": [
+    "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --testPathPattern='campaignLaunchAuthorityRoute|campaignProgressionReaders.durable|CampaignSyncSession' --json --outputFile green-selector.json",
+    "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --json --outputFile green-callers.json --runTestsByPath <the same 31 caller suites as the red receipt>",
+    "node rows.cjs post-results.json green-selector.json green-callers.json; node rows.cjs --compare base-results.json post-results.json"
+  ],
+  "exitCode": 0,
+  "result": "Task 14 selector 4 suites, 96 tests passed; caller suites 31 suites, 273 tests passed; combined 35 suites, 369 tests passed. The sorted list of suite, full test name and status is identical to the baseline list in base-results.json (369 = 369; 0 only-base, 0 only-post; results-compare.json). No test file changed",
+  "productBytes": {
+    "src/lib/multiplayer/server/bindCampaignSyncConnection.ts": "bc2abdc1b8abacbe2802141dee5bdf9dedf3c19e2ac6b8264615fcaa40183022",
+    "src/lib/multiplayer/server/campaignApplicationConnection.ts": "e28fd1c0acb886627629fe3b6a6436ecf2886a03634916b7145259afd922d412"
+  },
+  "moveProof": {
+    "script": {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-14-p2cg1a2-20261016/move-proof.cjs",
+      "sha256": "af29d63a1f39b52ac673e17db25fb6f48614a7513cab554cd9ad394c2934f540"
+    },
+    "output": {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-14-p2cg1a2-20261016/move-proof.json",
+      "sha256": "2f9669d72d258eed7b23fb2336199eacaf0ab7f3b4d57d45501c9327b661712b"
+    },
+    "verdict": "PASS",
+    "checks": [
+      "The new file declares the twelve slice-1 names in base order, then the class, and nothing else besides imports",
+      "Class CampaignApplicationConnection with its doc comment (base 1579-1917, 339 physical lines) is byte-equal to the base binder block once one export keyword is removed (sha256 73705475... on both sides); its code tokens, syntax tree (node kinds and leaf texts) and comment list are equal too",
+      "Six slice-1 declarations keep their export and are byte-equal to the base slice-1 file: ICampaignApplicationReceiptPort, NOT_OFFERED, isApplicationAck, IPublicCut, errorFrame, send",
+      "Six lose only their export keyword: IApplicationCandidate, IApplicationView, COMMIT_ATTEMPTS, HEAD_DRIFT, preparePublicCut, sameAppliedView. Each equals the base slice-1 text minus export modulo formatter layout, with equal tokens (modulo a trailing comma) and syntax tree, and each is byte-equal to its d0a7dd8b6 binder text. Five are byte-equal to base minus export; sameAppliedView is not, because without export its head fits in 80 columns again and the formatter unwraps it to the original one-line head (the P2CG1A1 wrap is undone)",
+      "The binder outside its import header equals the base outside its import header with the class removed, statement by statement with leading comments (43 statements, including the existing type re-export of ICampaignApplicationReceiptPort)",
+      "Every import binding binds the same name to the same module as at base, except that the binder imports CampaignApplicationConnection from the new module and the new file imports IWireCampaignSocket and ICampaignSessionMembershipPort from the binder, type-only; no import is unused and no dropped binder import is still referenced",
+      "The binder exports the same nine names as at base; the new module exports the base set minus the six plus CampaignApplicationConnection",
+      "No value-import path leads from the new file back to the binder (transitive closure of 150 files over value imports)"
+    ],
+    "probes": {
+      "output": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-14-p2cg1a2-20261016/move-proof-probes.json",
+        "sha256": "2355b22bab3eea497234f7c038a6feffc6f392476db2012c0a973a06bc2c9190"
+      },
+      "result": "14 of 14 in-memory one-token or one-statement injections fail the script, each on the check aimed at it, and only after the unmutated head passes: in the class a loop bound < to <=, a string literal, a doc-comment word (comment-only), an inner line-comment word (comment-only), one statement's indentation (whitespace-only) and a !== to ===; in the slice-1 code sameAppliedView && to ||, HEAD_DRIFT keeping its export and send readyState 1 to 0; the binder import turned into a value import (caught as a value import and as a runtime cycle); in the binder remainder a Heartbeat === to !== and a comment word (comment-only); an extra export in the binder and in the new file",
+      "scriptHistory": "The first run of the script reported a false failure on sameAppliedView: its token scan kept whitespace trivia. The scanner was set to skip trivia (comments stay covered by byte equality, the layout gate and the comment list), and probes now run only when the unmutated head passes, so no probe can be caught by a failure that is not its own. The hash above is the fixed script that produced both outputs"
+    }
+  },
+  "runtimeLoad": "require of tsx/cjs then of both TypeScript modules, as server.js loads the binder: the binder's runtime exports are bindCampaignSyncConnection (unchanged); the new module exports CampaignApplicationConnection, NOT_OFFERED, errorFrame, isApplicationAck and send (tsx-smoke.log)",
+  "cycles": "madge 8.0.0 with the same flags as the red receipt: from the two leaves 174 -> 175 chains, from all of src 202 -> 203; the only added chain is bindCampaignSyncConnection.ts > campaignApplicationConnection.ts and none is removed (A1 review M4 and carry-forward 6). The madge API with skipTypeImports (madge-runtime.cjs) finds 7 runtime chains, none touching either leaf, so the added chain is type-only and the runtime graph stays acyclic around the leaves; the move proof's own value-import closure agrees",
+  "census": {
+    "files": "7 of 15 (6 in this change plus the reserved review slot)",
+    "productAddedLines": "379 of 500 (campaignApplicationConnection.ts 361, bindCampaignSyncConnection.ts 2, units.json 16), git diff --numstat --no-renames against baseline; the binder loses 361 lines and the new file 10; no test additions; evidence additions are not counted",
+    "estimate": "The frozen admission estimate was about 382, the registration 370-410 and the A1 review 372-380; the measured 379 is inside all three"
+  },
+  "checks": {
+    "typecheck": "PASS",
+    "lint": "PASS (0 errors; 86 warnings repo-wide, the same count as the baseline. Exactly two warnings changed, by a warning-set diff of lint-base.log and lint-post.log: the explicit-module-boundary-types warning on sameAppliedView is gone, as A1 review M3 expected, and campaignApplicationConnection.ts gains max-lines at 476 counted lines, the warning the registration expects and accepts (no further split, no override). The binder keeps its max-lines warning, down from 1638 to 1321 counted lines. The count does not return to 85, because the registration's own expected max-lines warning takes the removed warning's place; the registration estimated about 404 counted lines for the new file, the measured figure is 476)",
+    "format": "PASS (npm run format:check)",
+    "lintUnits": "PASS (scripts/qc/lint-units.mjs: LINT_UNITS_PASS 17899/17899, src-tests 17783/17783, ceilings unchanged)",
+    "roadmap": "validate-roadmap.mjs, --next and validate-roadmap.test.mjs recorded in the attempt directory",
+    "testStable": "npm run test:stable runs once after this receipt is frozen, so the roadmap script suites validate these exact bytes; its result is recorded in the attempt directory and the pull request, not here"
+  },
+  "logs": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-14-p2cg1a2-20261016/",
+  "boundary": "Move only. No logic, signature or test change; server.js composes no applicationReceipts, so production stays legacy. No merge or Main proof claimed.",
+  "status": "Candidate local checks only; independent exact-head review pending"
+}

@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CG1A2",
+  "stage": "red",
+  "baseline": "ace667bff5b9e6857b60a608e5b89a5baabfdcc6",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "Task14 / P2CG1A2 implementation sub-agent"
+  },
+  "runtime": "node v22.22.0",
+  "redKind": "move-only unit: no behaviour changes, so no test can fail and none was written. As the registration prescribes (P2CG1A1 precedent), this slot records the pre-move baseline: the registered suites passing on the unmodified base, the base bytes of both leaves, base lint and cycle counts, and the per-test results the post-move run must reproduce",
+  "baseBytes": {
+    "src/lib/multiplayer/server/bindCampaignSyncConnection.ts": "212bf491afdc4cfe491d402cf7fb6695d067621ea757c1d35d72c16d6fd7dab7",
+    "src/lib/multiplayer/server/campaignApplicationConnection.ts": "d5b10779aff6d2cae00a35264eab11e82707b104662c7cd86e9387341bfaecd3"
+  },
+  "commands": [
+    "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --testPathPattern='campaignLaunchAuthorityRoute|campaignProgressionReaders.durable|CampaignSyncSession' --json --outputFile red-selector.json",
+    "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --json --outputFile red-callers.json --runTestsByPath <31 caller suites in caller-scan-transitive.txt>",
+    "node rows.cjs base-results.json red-selector.json red-callers.json"
+  ],
+  "exitCode": 0,
+  "result": "Task 14 selector 4 suites, 96 tests passed; caller suites 31 suites, 273 tests passed; combined 35 suites, 369 tests, 369 passed, 0 failed (same totals as the P2CG1A1 baseline)",
+  "callerSuites": "Every test file under src that reaches either leaf through any import (value, type-only, re-export, require, dynamic import or jest.mock specifier), from a reverse import graph (caller-scan.cjs): 31 files, identical to the P2CG1A1 caller-suites.txt; includes bindCampaignSyncConnection.test.ts and coopMissionAnnouncement.reconnect.test.ts (registration move-only selector). Outside src only comments and test-path strings name the binder; server.js requires the binder and uses bindCampaignSyncConnection only",
+  "files": {
+    "callerSuites": {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-14-p2cg1a2-20261016/caller-scan-transitive.txt",
+      "sha256": "61df091154705b15b9fb4813c2d8ea2296b713f0956e37e10dbab05b26feb9bd"
+    },
+    "log": {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-14-p2cg1a2-20261016/red-raw.log",
+      "sha256": "7c6a0339ccee26d17d7d78865448fa96ba429ad40a267b9d1ff72397a26a95fa",
+      "note": "Written through PowerShell 5.1 *>> redirection, so its jest body is UTF-16 after a UTF-8 header; the per-test record is the JSON below. The post-move run used cmd redirection (plain text)"
+    },
+    "baseResults": {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-14-p2cg1a2-20261016/base-results.json",
+      "sha256": "13be29a24382445b368314e338db5812b8f5d3a77fd2dc3957d8dcd38875ae69"
+    }
+  },
+  "baseLint": "oxlint on the baseline: 86 warnings, 0 errors (lint-base.log). Leaf warnings: explicit-module-boundary-types on the exported sameAppliedView (from P2CG1A1) and the binder's max-lines warning at 1638 counted lines",
+  "baseCycles": "madge 8.0.0 --circular --extensions ts --ts-config tsconfig.json from the two leaves: 174 chains (the A1 review's figure); over all of src with --extensions ts,tsx: 202 chains. The only chain touching a leaf is bindCampaignSyncConnection.ts > handleRoomCodeGuestJoin.ts"
+}
