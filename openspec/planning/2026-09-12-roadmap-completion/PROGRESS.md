@@ -1,3 +1,48 @@
+## 2026-10-16 P2CE2 source verified on main; closure metadata proposed
+
+P2CE2 advances from implementing to main-verified for source PR #2150,
+head c6d7293642e2c923c7f244a32464c942f0f4db36, merge 38f3c125925baa254f27788b30efa88d5915648c.
+Its baseline remains the admission base 249779306c1f6336bf2b5ffa23cf7f453b5aa228.
+The owner explicitly authorized this ruling in chat, and it was posted as [comment 6209504917](https://github.com/SwiggitySwerve/MekStation/pull/2150#issuecomment-6209504917);
+its exact UTF-8 body, without an added newline, hashes to 98f5b94ce953243cd900038c2b318bd4ef9b19180f2b5d00394124ee34b5f1a0.
+The merge (06:25:57Z) preceded the ruling (06:26:05Z); this record preserves that chronology.
+PK-p2ce2-ruling is first recorded here, after both the merge and the ruling.
+
+The admission, red and local receipts came with the source PR and are unchanged.
+The [review receipt](evidence/p2ce2-review-20261016.json) binds the Fable 5.1 review
+of the exact merged head (APPROVE-WITH-NOTES, no blockers or majors; author Opus 5.5), preserved byte for byte.
+The reviewer re-ran the two test leaves (45/45) and the registered QA selector (7 suites, 155 tests).
+The author's stable run (2795 suites, 37095 passed) ran on leaf bytes equal to the committed blobs.
+bindCampaignSyncConnection.ts keeps its pre-existing max-lines warning (1585 counted lines).
+The reserved p2ce2-admission-review-20261016.md slot stays unwritten.
+
+The review's carry-forward wording, verbatim, is recorded under successorNotes in the review receipt:
+
+- Task 14 hard composition precondition (C1, convergence gate): "Task 14 MUST NOT compose `applicationReceipts` into `bindCampaignSyncConnection` until the launch/readiness doors read `campaign_public_applied_view` rows for convergence; receipt-mode participants are not retained by `CampaignSyncSession` and the legacy numeric gate cannot see them."
+- Task 14 hard composition precondition and P2CE3 (C2/N3, same-connection seat read): "`ICampaignApplicationReceiptPort.database()` MUST return the same better-sqlite3 connection `getSQLiteService().getDatabase()` returns (or P2CE3 must pass the handle into the seat read); the same-cut guarantee of `preparePublicCut` depends on it."
+- Task 14 hard composition precondition (N4, branch backfill): "Every campaign served in receipt mode MUST have its effective-head branch backfilled before `applicationReceipts` is composed; otherwise joins fail closed."
+- P2CE3 (N1): "P2CE3 ACK admission MUST re-prepare the verified cut (head, generation, path, seat, committed removal) before P2CA `accept`, and MUST refuse an ACK naming a `viewId` other than the live view's."
+- P2CE3 (N2): "A one-line fix in P2CE3 (return without the Error when `application` is set, since `fail` has already closed on a real failure) fits P2CE3's binder leaf; not required here."
+- Task 13/14 (C3): "Before production composition, measure `preparePublicCut` on a long campaign with N views and either accept a budget or replace the per-commit full materialization with a tail read from the last offered cut under the same digest check."
+- Task 13 or later (C5): "When a production re-seat/re-bind path lands (Task 13 or later), add a reconnect test that drives it instead of the `bound_at` fixture."
+- After P2CE3 (C4): "After P2CE3 main-verifies, register a narrow move-only unit that extracts `CampaignApplicationConnection`, `preparePublicCut` and `ICampaignApplicationReceiptPort` into `src/lib/multiplayer/server/campaignApplicationConnection.ts` with no behavior change."
+
+P2CE3 has no notes field and stays blocked; it is not edited here.
+
+All 31 checks on the merged head succeeded. The [merge receipt](evidence/p2ce2-merge-20261016.json)
+binds both ordered parents and the matching integration tree. The [main proof](evidence/p2ce2-mainproof-20261016.json)
+is a fresh run at the merge before any closure edit: seven suites, 155 tests,
+typecheck and the validator passed. It references the attempt logs by hash.
+
+P2CE2 has no task keys. Its tick remains null because source/closure cleanup
+is not established here; no tasks.md row is changed. P2CE2 therefore releases
+its in-flight src/lib/multiplayer/server reservation at main-verified, while
+P2CE3, P2C and all other unit states remain unchanged.
+Selection is not downstream admission.
+This closure metadata still requires its own review, CI and parent merge.
+
+---
+
 ## 2026-10-16 P2CE1 source verified on main; closure metadata proposed
 
 P2CE1 advances from implementing to main-verified for source PR #2147,

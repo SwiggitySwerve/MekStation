@@ -1,0 +1,78 @@
+{
+  "unit": "P2CE2",
+  "stage": "review",
+  "recordedAt": "2026-10-16T06:40:00.000Z",
+  "head": "c6d7293642e2c923c7f244a32464c942f0f4db36",
+  "reviewedHead": "c6d7293642e2c923c7f244a32464c942f0f4db36",
+  "reviewerModel": "claude-fable-5-1",
+  "implementerModel": "claude-opus-5-5",
+  "verdict": "APPROVE-WITH-NOTES",
+  "outputPath": "evidence/p2ce2-source-fable-review-20261016.txt",
+  "outputSha256": "6d0b29c3619ad67d4e0a0623a965e7bb2971e95ebfdbb9632da1f20e96fe6cac",
+  "reviews": [
+    {
+      "path": "evidence/p2ce2-source-fable-review-20261016.txt",
+      "sha256": "6d0b29c3619ad67d4e0a0623a965e7bb2971e95ebfdbb9632da1f20e96fe6cac",
+      "bytes": 29869,
+      "originalPath": "docs/audits/2026-10-16-p2ce2-fable-review.md",
+      "reviewedHead": "c6d7293642e2c923c7f244a32464c942f0f4db36"
+    }
+  ],
+  "reviewReruns": "On the exact head under Node v22.22.0 the reviewer re-ran the two P2CE2 test leaves (2 suites, 45/45), the registered QA selector ServerMatchBroadcaster|CampaignSyncSession|bindCampaignSyncConnection|handleRoomCodeGuestJoin|coopMissionAnnouncement.reconnect (7 suites, 155/155), typecheck, lint (0 errors), format:check, the validator, --next (U25) and the validator tests (86/86), plus seven adversarial scenarios of its own in a throwaway worktree (S1-S6; S2b and S3 recorded as notes N2 and N1). The full stable suite was not re-run.",
+  "stableSuiteNote": "The author stable run (2795/2795 suites, 37095 passed, 50 skipped, 947 s, exit 0) started 2026-10-16T05:50:56Z and ended 06:06:46Z, before commit c6d72936 was created at 06:07:00Z (00:07:00-06:00). The review verified that the four committed leaf blobs equal the author green-hashes.txt byte for byte, so that run covers the committed leaf bytes.",
+  "ownerFileNote": "bindCampaignSyncConnection.ts carries a pre-existing max-lines warning (1276 physical lines at baseline; 1984 physical / 1585 counted at head, soft max 400). It is not introduced by this slice (review concern C4); the extraction needs its own registration after P2CE3 main-verifies.",
+  "successorNotes": {
+    "P2CE3": [
+      "P2CE3 ACK admission MUST re-prepare the verified cut (head, generation, path, seat, committed removal) before P2CA `accept`, and MUST refuse an ACK naming a `viewId` other than the live view's.",
+      "`ICampaignApplicationReceiptPort.database()` MUST return the same better-sqlite3 connection `getSQLiteService().getDatabase()` returns (or P2CE3 must pass the handle into the seat read); the same-cut guarantee of `preparePublicCut` depends on it.",
+      "A one-line fix in P2CE3 (return without the Error when `application` is set, since `fail` has already closed on a real failure) fits P2CE3's binder leaf; not required here."
+    ],
+    "afterP2CE3": [
+      "After P2CE3 main-verifies, register a narrow move-only unit that extracts `CampaignApplicationConnection`, `preparePublicCut` and `ICampaignApplicationReceiptPort` into `src/lib/multiplayer/server/campaignApplicationConnection.ts` with no behavior change."
+    ],
+    "Task13": [
+      "Before production composition, measure `preparePublicCut` on a long campaign with N views and either accept a budget or replace the per-commit full materialization with a tail read from the last offered cut under the same digest check.",
+      "When a production re-seat/re-bind path lands (Task 13 or later), add a reconnect test that drives it instead of the `bound_at` fixture."
+    ],
+    "Task14": {
+      "hardCompositionPreconditions": [
+        {
+          "concern": "C1 convergence-gate blindness of receipt-mode participants",
+          "wording": "Task 14 MUST NOT compose `applicationReceipts` into `bindCampaignSyncConnection` until the launch/readiness doors read `campaign_public_applied_view` rows for convergence; receipt-mode participants are not retained by `CampaignSyncSession` and the legacy numeric gate cannot see them."
+        },
+        {
+          "concern": "C2 / N3 same-connection seat read",
+          "wording": "`ICampaignApplicationReceiptPort.database()` MUST return the same better-sqlite3 connection `getSQLiteService().getDatabase()` returns (or P2CE3 must pass the handle into the seat read); the same-cut guarantee of `preparePublicCut` depends on it."
+        },
+        {
+          "concern": "N4 effective-head branch backfill",
+          "wording": "Every campaign served in receipt mode MUST have its effective-head branch backfilled before `applicationReceipts` is composed; otherwise joins fail closed."
+        }
+      ],
+      "beforeProductionComposition": [
+        "Before production composition, measure `preparePublicCut` on a long campaign with N views and either accept a budget or replace the per-commit full materialization with a tail read from the last offered cut under the same digest check."
+      ]
+    },
+    "readmissionFlow": [
+      "If a readmission flow is ever added, this must become \"removed after the current seat's `boundAt`\". Record it with that flow, not here."
+    ],
+    "note": "Each entry is the reviewer's exact carry-forward wording (sections 6 and 7 of the preserved review). P2CE3 stays blocked and is not edited here; these notes are carried here and in PROGRESS.md for P2CE3, Task 13 and Task 14 to honour at their own admission. No other unit is edited."
+  },
+  "reviewNotes": "N1 (committed removal caught one chain step after an unsettled write), N2 (GM double-join spurious campaign-session-unavailable Error frame), N3 (same-cut atomicity rests on the seat read sharing the transaction connection), N4 (receipt mode requires an effective-head branch backfill), N5 (removed is computed over the whole verified history) are notes; N6 and N7 and N8 are informational. No blockers or majors.",
+  "reservedSlot": "evidence/p2ce2-admission-review-20261016.md stays unwritten. The reviewer did not write it, and this closure preserves the review byte for byte at the outputPath instead of authoring reviewer text.",
+  "ciQualification": "All 31 check runs on the merged head succeeded (run 38859456315).",
+  "laneB": {
+    "ruledHead": "c6d7293642e2c923c7f244a32464c942f0f4db36",
+    "pr": 2150,
+    "commentId": 6209504917,
+    "author": "SwiggitySwerve",
+    "bodySha256": "98f5b94ce953243cd900038c2b318bd4ef9b19180f2b5d00394124ee34b5f1a0",
+    "at": "2026-10-16T06:26:05Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2150#issuecomment-6209504917",
+    "bodyPath": "evidence/p2ce2-owner-ruling-6209504917.txt"
+  },
+  "ownerRulingNote": "The ruling body names the exact merged head and the P2CE2 slice reviewed APPROVE-WITH-NOTES with no blockers or majors, and carries the three Task 14 composition preconditions as worded in the review. The owner authorized the ruling in chat; it is transcribed verbatim.",
+  "chronology": "The owner ruling was recorded after the source merge, as the ruling body acknowledges. This transcription does not claim a premerge ruling.",
+  "identityScope": "Preserves the existing unversioned P2CE2 evidence and the actual cross-model review provenance. No v2/v3 identity manifest or engine observation is claimed.",
+  "githubApproval": "Lane A engineering evidence only; no GitHub approval claimed."
+}
