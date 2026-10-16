@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CE3",
+  "stage": "admission",
+  "date": "20261016",
+  "baseline": "842257c0b664138c560ef17f36df40c0c8e220da",
+  "authority": "Root Task12/P2CE3 implementation delegation after the P2CE split registration (PR #2146, merge cb4af3aa, receipt evidence/p2ce-split-registration-20261016.json), P2CE1 main-verified (PR #2147 merge 86d4b69a, closure PR #2148 merge f4eb2e68), P2CE2 main-verified (PR #2150 merge 38f3c125, closure PR #2151 merge eb6df341) and the P2CE3 release to planned (PR #2152, merge 842257c0)",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "Task12 / P2CE3 implementation sub-agent"
+  },
+  "predecessors": {
+    "P2CE2": "main-verified, mergeSha 38f3c125925baa254f27788b30efa88d5915648c, mainProof PASS, ancestor of baseline"
+  },
+  "caps": {
+    "files": 15,
+    "productAddedLines": 500
+  },
+  "restriction": {
+    "container": "R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CE3",
+    "leaves": 3,
+    "knownSourceTestLifecycleSubtotal": 4
+  },
+  "sourceCandidate": {
+    "patch": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce-20261016/p2ce-full-implementation-717.patch",
+    "storedSha256": "505899e1256b368f8bafbf9cd2380a90eb3ec95fa7b7f3c3c828b583e06e0afd",
+    "normalizedSha256": "c396b1f487dd29de3b8c381848eaea1ef8318f8feb2eb406cbefd811ebc9d67a",
+    "slice": "From bindCampaignSyncConnection.ts: the strict receipt-ACK parse, isApplicationAck, the CampaignAck receipt branch and numeric refusal, the in-flight and early-ACK slots, acknowledge, processAck, and commit with P2CA accept, bounded head-drift retry and confirmation, built on the merged P2CE2 view. The candidate's prepare() refactor and view.cut watermark are not re-included (P2CE2 keeps view.latest.cut). The binder test block is the candidate's; the reconnect cases are P2CE3 additions inside the merged P2CE2 receipt harness. Added beyond the candidate: the P2CE2 review N2 fix (no Error frame when a GM application open is superseded) and its test, plus head-drift, revoked-at-commit, delta-in-flight ACK, other-session and other-principal cases."
+  },
+  "frozenFiles": [
+    {
+      "path": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+      "exists": true,
+      "sha256": "68768d3425d97db35a3c0945cf79c769e8a6704f27a909d4ef6f3b00cf0f0d99",
+      "bytes": 63252
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
+      "exists": true,
+      "sha256": "ddbb4a456175498a59c7b70a8273837d8126282f2366842b144f0a18a3ae3ae2",
+      "bytes": 82506
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts",
+      "exists": true,
+      "sha256": "ef2cd18bee613c8a74339b2bfce5ff39526032362897cfbdfaa61760e5452812",
+      "bytes": 42408
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "exists": true,
+      "sha256": "b4779acc34bc681e6f5ab5a79f5d5869ceab42a84bf5c9d1440a8461b63dfad3",
+      "bytes": 1301172
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ce3-admission-20261016.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ce3-admission-review-20261016.md",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ce3-red-20261016.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ce3-local-20261016.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    }
+  ],
+  "overlap": "gh pr list --state open (2 open PRs: #2113 docs/audits, #1886 e2e): none touches a P2CE3 leaf or units.json; no remote branch matching *p2ce3* at baseline",
+  "reviewCarryForwards": {
+    "N1": "Handled: commit re-runs preparePublicCut (head, generation, path, seat, committed removal) on every attempt before P2CA accept, and acknowledge admits only the live view's exact in-flight or latest appliedView, so an ACK naming any other viewId is refused.",
+    "N2": "Handled: the GM arm returns without the campaign-session-unavailable Error when application is set and open() is false (a real failure has already closed through fail; a superseded open needs no frame).",
+    "C2": "Not closable inside the three leaves: the participant store has no handle-taking seat read and is not a P2CE3 leaf. It stays the recorded Task 14 hard composition precondition."
+  },
+  "reviewSlot": "Reserved for independent reviewer; author must not write review",
+  "summary": "Ordinary admission of the 8 frozen leaves (3 restriction leaves, units.json, 4 evidence including the reserved review slot). No cap exception, no unnamed leaf, no merge or Main claim."
+}

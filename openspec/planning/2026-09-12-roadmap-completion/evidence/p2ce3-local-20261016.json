@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CE3",
+  "stage": "local",
+  "baseline": "842257c0b664138c560ef17f36df40c0c8e220da",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "Task12 / P2CE3 implementation sub-agent"
+  },
+  "runtime": "node v22.22.0",
+  "command": "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --runTestsByPath src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts",
+  "exitCode": 0,
+  "suites": 2,
+  "tests": 99,
+  "qaSelector": "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --testPathPattern='ServerMatchBroadcaster|CampaignSyncSession|bindCampaignSyncConnection|handleRoomCodeGuestJoin|coopMissionAnnouncement.reconnect': 7 suites, 173 tests, exit 0",
+  "task12Qa": {
+    "happy": "plan Task 12 selector --testPathPattern='CampaignSyncSession|bindCampaignSyncConnection|handleRoomCodeGuestJoin|coopMissionAnnouncement.reconnect': 6 suites, 153 tests, exit 0",
+    "failure": "same selector filtered to the refusal, revocation, removal, failed-write, drift, superseded, other-socket/principal/session, stale and numeric cases: 56 passed, 97 skipped, exit 0; each asserts the campaign_public_applied_view rows and confirmation frames before and after"
+  },
+  "adjacentLegacyCallers": "Every other non-e2e suite naming bindCampaignSyncConnection, handleRoomCodeGuestJoin, IWireCampaignSocket, 'CampaignAck', CampaignApplicationClientMessageSchema or campaignPublicAppliedView, plus the other coopMission* suites: 25 suites, 239 tests, exit 0",
+  "mutationProbe": "26 source mutations (legacy parse, numeric fallback for a receipt ACK on a non-receipt connection, numeric ACK accepted in receipt mode, other-campaign ACK admitted, inexact receipt admitted, no early-ACK slot, previous-latest ACK dropped while a delta is in flight, in-flight ACK never committed, commit regardless of naming the latest, resolver ignoring the latest, confirmation before commit, stale confirms, refused confirms, not-admitted not stopped, duplicate not confirmed, drift not retried, unbounded and single retry, drift not detected, preparation hoisted out of the retry loop, committed removal ignored, membership read from the prepared cut, failed confirmation not closing, failed confirmation deleting the row, N2 spurious GM error restored, confirmation naming a different receipt): 25 killed after three tests and one assertion were added for round-one survivors. One survives: the resolver's own latest-offer check is equivalent here, because commit checks view.latest === offer synchronously immediately before the synchronous P2CA accept and nothing can interleave between them",
+  "census": {
+    "files": "8 of 15 (7 in this change plus the reserved review slot)",
+    "productAddedLines": "238 of 500 (product: bindCampaignSyncConnection.ts 222; units.json 16), git diff --numstat against baseline; test additions 636 and evidence additions reported separately"
+  },
+  "checks": {
+    "typecheck": "PASS",
+    "lint": "PASS (0 errors; the one touched-file warning is the existing max-lines on bindCampaignSyncConnection.ts, now 1773 counted lines)",
+    "format": "PASS (npm run format:check)",
+    "roadmap": "validate-roadmap.mjs, --next and validate-roadmap.test.mjs recorded in the attempt directory",
+    "testStable": "npm run test:stable runs once after this receipt is frozen, so the roadmap script suites validate these exact bytes; its result is recorded in the attempt directory and the pull request, not here"
+  },
+  "logs": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/",
+  "boundary": "Dormant until composed: receipt ACKs are admitted only on a connection whose binder received both membership and applicationReceipts, and server.js is unchanged and passes no applicationReceipts. The confirmation is a CampaignAck frame sent through the entry's paired broadcaster's sendConfirmed, never a sequenced match Event frame. No endpoint, timer, queue or durable sent cache. No merge or Main proof claimed.",
+  "status": "Candidate local checks only; independent exact-head review pending"
+}

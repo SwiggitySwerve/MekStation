@@ -2694,3 +2694,106 @@ function readCampaignEventType(message: IServerMessage): string | null {
   const event = message.event as { type?: unknown };
   return typeof event.type === 'string' ? event.type : null;
 }
+
+describe('bindCampaignSyncConnection — application receipt staging (P2CE3)', () => {
+  const appliedView = {
+    viewId: 'view-guessed',
+    receiptId: 'receipt-guessed',
+    previousReceiptId: null,
+  };
+
+  async function joinedLegacyGuest() {
+    const registry = await makeRegistry();
+    const entry = registry.get('match-campaign')!;
+    const socket = new MockWireSocket();
+    await bindCampaignSyncConnection({
+      socket,
+      registry,
+      matchId: 'match-campaign',
+      verifiedPlayerId: 'pid_guest',
+      logger: quietLogger,
+      replicaStore: null,
+    });
+    const joined = new Promise<void>((resolve) => {
+      const send = socket.send.bind(socket);
+      socket.send = (data: string) => {
+        send(data);
+        if (socket.sent.at(-1)?.kind === 'CampaignSnapshot') resolve();
+      };
+    });
+    socket.inbound({
+      kind: 'CampaignJoin',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_guest',
+      role: 'guest',
+      roomCode: 'ABC234',
+    });
+    await joined;
+    const acknowledged = jest.spyOn(
+      entry.syncSession,
+      'noteParticipantAcknowledged',
+    );
+    return { socket, acknowledged };
+  }
+
+  function receiptAck(extra: Record<string, unknown> = {}) {
+    return {
+      kind: 'CampaignAck',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_guest',
+      campaignId: 'campaign-sync',
+      appliedView,
+      ...extra,
+    };
+  }
+
+  it('refuses a receipt ACK on a connection that was offered nothing, with no numeric fallback', async () => {
+    const { socket, acknowledged } = await joinedLegacyGuest();
+    const before = socket.sent.length;
+
+    // The refusal is sent synchronously by the inbound handler itself.
+    socket.inbound(receiptAck());
+
+    expect(socket.sent.slice(before)).toEqual([
+      expect.objectContaining({
+        kind: 'Error',
+        code: 'INVALID_INTENT',
+        reason: 'campaign-application-not-offered',
+      }),
+    ]);
+    expect(acknowledged).not.toHaveBeenCalled();
+    expect(socket.closes).toEqual([]);
+  });
+
+  it.each([
+    ['mixed receipt and revision', { revision: 3 }],
+    ['malformed present appliedView', { appliedView: { viewId: 'v' } }],
+  ])('refuses a %s ACK without downgrading it', async (_label, extra) => {
+    const { socket, acknowledged } = await joinedLegacyGuest();
+    const before = socket.sent.length;
+
+    socket.inbound(receiptAck(extra));
+
+    expect(socket.sent.slice(before)).toEqual([
+      expect.objectContaining({ kind: 'Error', code: 'BAD_ENVELOPE' }),
+    ]);
+    expect(acknowledged).not.toHaveBeenCalled();
+  });
+
+  it('keeps the metadata-absent numeric ACK on a legacy connection', async () => {
+    const { socket, acknowledged } = await joinedLegacyGuest();
+
+    socket.inbound({
+      kind: 'CampaignAck',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_guest',
+      campaignId: 'campaign-sync',
+      revision: 0,
+    });
+
+    expect(acknowledged).toHaveBeenCalledWith('pid_guest', 0);
+  });
+});
