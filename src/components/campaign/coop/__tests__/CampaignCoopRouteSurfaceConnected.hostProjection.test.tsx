@@ -17,19 +17,30 @@
  * @spec openspec/changes/design-campaign-authority-and-sync/specs/coop-campaign-sync/spec.md
  */
 
-import { act, cleanup, render } from '@testing-library/react';
+import { act, cleanup, render, screen } from '@testing-library/react';
 import React from 'react';
 
 import type {
   CampaignSyncFrameHandler,
   ICampaignSyncTransport,
+  ICampaignSyncWebSocket,
   IConnectStoredCampaignSyncOptions,
 } from '@/lib/campaign/coop/campaignSyncTransport';
 import type { ICampaign } from '@/types/campaign/Campaign';
-import type { ICampaignAuthoritativeState } from '@/types/campaign/CampaignSync';
-import type { IServerMessage } from '@/types/multiplayer/Protocol';
+import type {
+  ICampaignAuthoritativeState,
+  ICampaignEvent,
+} from '@/types/campaign/CampaignSync';
+import type {
+  ICampaignApplicationOffer,
+  IServerMessage,
+} from '@/types/multiplayer/Protocol';
 
-import { connectStoredCampaignSyncTransport } from '@/lib/campaign/coop/campaignSyncTransport';
+import {
+  _resetCampaignSyncTransportsForTest,
+  connectCampaignSyncTransport,
+  connectStoredCampaignSyncTransport,
+} from '@/lib/campaign/coop/campaignSyncTransport';
 import { storeCoopCampaignToken } from '@/lib/campaign/coop/coopCampaignAuthTokenStore';
 import { useCampaignMirrorStore } from '@/lib/p2p/campaignMirrorStore';
 import {
@@ -236,6 +247,7 @@ describe('CampaignCoopRouteSurfaceConnected — host view folds its own stream',
 
   afterEach(() => {
     cleanup();
+    _resetCampaignSyncTransportsForTest();
     useCampaignMirrorStore.getState().reset();
     resetCampaignStore();
     window.sessionStorage.clear();
@@ -402,7 +414,7 @@ describe('CampaignCoopRouteSurfaceConnected — host view folds its own stream',
     expect(standing?.history).toHaveLength(1);
   });
 
-  it('quotes the cursor it holds when the host surface reconnects', async () => {
+  it('starts every host binding from an empty fold, so a reconnect adopts the baseline it is hydrated with', async () => {
     const host = hostCampaign();
     useCampaignStore().getState().switchCampaign(host);
     const socket = installTransport('host');
@@ -419,8 +431,10 @@ describe('CampaignCoopRouteSurfaceConnected — host view folds its own stream',
       socket.emit(fundsChangedFrame(7, 700_000));
     });
 
-    // A rotated invite re-runs the connect effect on a live surface: the
-    // reconnect quotes the sequence the fold reached.
+    // A rotated invite re-runs the connect effect on a live surface. The
+    // new binding holds nothing (P2CF2 closes the reconnect-at-zero
+    // residual), so it quotes no cursor and adopts its hydration baseline
+    // at 0 instead of refusing it against the cursor the old one reached.
     mounted.rerender(
       <CampaignCoopRouteSurfaceConnected
         campaign={{
@@ -431,9 +445,18 @@ describe('CampaignCoopRouteSurfaceConnected — host view folds its own stream',
       />,
     );
     await flush();
+    await act(async () => {
+      socket.emit(
+        baselineFrame(9, {
+          ...createEmptyCampaignState(CAMPAIGN_ID),
+          balance: 640_000,
+        }),
+      );
+    });
 
     expect(socket.connects).toHaveLength(2);
-    expect(socket.connects[1]?.lastSeq).toBe(7);
+    expect(socket.connects[1]?.lastSeq).toBe(-1);
+    expect(storedBalance()).toBe(640_000);
   });
 
   it('leaves a single-player campaign alone', async () => {
@@ -451,5 +474,583 @@ describe('CampaignCoopRouteSurfaceConnected — host view folds its own stream',
 
     expect(connectMock).not.toHaveBeenCalled();
     expect(storedBalance()).toBe(START_BALANCE);
+  });
+});
+
+// --- P2CF2: application refusals stay off the refusal posture ---
+
+/** A guest proposal the GM review surface lists with an Approve control. */
+function proposalFrame(): IServerMessage {
+  return {
+    kind: 'CampaignProposal',
+    matchId: MATCH_ID,
+    ts: '3025-01-01T00:00:00.000Z',
+    playerId: 'guest-player',
+    proposal: {
+      proposalId: 'p-day',
+      campaignId: CAMPAIGN_ID,
+      proposingPlayerId: 'guest-player',
+      ts: '3025-01-01T00:00:00.000Z',
+      intent: {
+        kind: 'AdvanceDay',
+        campaignId: CAMPAIGN_ID,
+        intentId: 'intent-p-day',
+        payload: { days: 1 },
+      },
+    },
+  } as IServerMessage;
+}
+
+function errorFrame(
+  code: string,
+  reason?: string,
+  recoveryAction?: string,
+): IServerMessage {
+  return {
+    kind: 'Error',
+    matchId: MATCH_ID,
+    ts: '3025-01-01T00:00:01.000Z',
+    code,
+    ...(reason === undefined ? {} : { reason }),
+    ...(recoveryAction === undefined ? {} : { recoveryAction }),
+  } as IServerMessage;
+}
+
+const APPLICATION_REFUSALS: readonly IServerMessage[] = [
+  errorFrame('INVALID_INTENT', 'campaign-application-head-drift'),
+  errorFrame(
+    'INVALID_INTENT',
+    'campaign-application-unknown-receipt',
+    'rejoin-campaign',
+  ),
+  errorFrame('INTERNAL_ERROR', 'campaign-application-unavailable'),
+];
+
+describe('CampaignCoopRouteSurfaceConnected - application refusals never set or clear the refusal posture', () => {
+  beforeEach(() => {
+    connectMock.mockReset();
+    useCampaignMirrorStore.getState().reset();
+    resetCampaignStore();
+    window.sessionStorage.clear();
+    storeCoopCampaignToken({
+      matchId: MATCH_ID,
+      playerId: 'host-player',
+      wireToken: 'wire-token',
+      displayName: 'GM',
+    });
+  });
+
+  afterEach(() => {
+    cleanup();
+    useCampaignMirrorStore.getState().reset();
+    resetCampaignStore();
+    window.sessionStorage.clear();
+  });
+
+  it('keeps the GM gated on the server refusal it holds', async () => {
+    const host = hostCampaign();
+    useCampaignStore().getState().switchCampaign(host);
+    const socket = installTransport('host');
+    render(
+      <CampaignCoopRouteSurfaceConnected
+        campaign={host}
+        routeId="dashboard"
+        dashboardMount
+      />,
+    );
+    await flush();
+    await act(async () => {
+      socket.emit(proposalFrame());
+      socket.emit(
+        errorFrame(
+          'CAMPAIGN_STALE_HEAD',
+          'expected revision 3, active head is revision 4',
+          'resync-to-active-head',
+        ),
+      );
+    });
+    expect(screen.getByTestId('approve-p-day')).toBeDisabled();
+
+    await act(async () => {
+      APPLICATION_REFUSALS.forEach(socket.emit);
+    });
+
+    expect(screen.getByTestId('gm-lifecycle-state')).toHaveAttribute(
+      'data-state',
+      'blocked',
+    );
+    expect(screen.getByTestId('approve-p-day')).toBeDisabled();
+    expect(
+      screen.getByText('Server instruction: resync-to-active-head'),
+    ).toBeInTheDocument();
+  });
+
+  it('does not gate a GM who holds no refusal', async () => {
+    const host = hostCampaign();
+    useCampaignStore().getState().switchCampaign(host);
+    const socket = installTransport('host');
+    render(
+      <CampaignCoopRouteSurfaceConnected
+        campaign={host}
+        routeId="dashboard"
+        dashboardMount
+      />,
+    );
+    await flush();
+    await act(async () => {
+      socket.emit(proposalFrame());
+      socket.emit(
+        errorFrame('INVALID_INTENT', 'campaign-application-head-drift', 'x'),
+      );
+    });
+
+    expect(screen.getByTestId('gm-lifecycle-state')).not.toHaveAttribute(
+      'data-state',
+      'blocked',
+    );
+    expect(screen.queryByText('Server instruction: x')).toBeNull();
+  });
+
+  it('keeps the guest commands blocked on the server refusal it holds', async () => {
+    const guest = guestCampaign();
+    useCampaignStore().getState().switchCampaign(guest);
+    const socket = installTransport('guest');
+    render(
+      <CampaignCoopRouteSurfaceConnected campaign={guest} routeId="finances" />,
+    );
+    await flush();
+    await act(async () => {
+      socket.emit(baselineFrame(0, createEmptyCampaignState(CAMPAIGN_ID)));
+      socket.emit(errorFrame('PROJECTION_REBUILDING'));
+    });
+    const reason = screen.getByTestId(
+      'guest-command-blocked-reason',
+    ).textContent;
+
+    await act(async () => {
+      APPLICATION_REFUSALS.forEach(socket.emit);
+    });
+
+    expect(screen.getByTestId('guest-command-blocked-reason').textContent).toBe(
+      reason,
+    );
+  });
+});
+
+// --- P2CF2: the mounted receipt consumer over a real bound transport ---
+
+interface IMockSocket extends ICampaignSyncWebSocket {
+  readonly sentRaw: string[];
+  /** The projected campaign-store balance at the moment each frame was sent. */
+  readonly balanceAtSend: (number | undefined)[];
+  inject(message: unknown): void;
+}
+
+interface IBoundConnection {
+  readonly sockets: IMockSocket[];
+  readonly transports: ICampaignSyncTransport[];
+  readonly connects: IConnectStoredCampaignSyncOptions[];
+  /** Delivers a frame on the newest socket. */
+  readonly inject: (message: unknown) => void;
+  /** Receipt ids of every CampaignAck sent on socket `index`, in order. */
+  readonly acks: (index?: number) => string[];
+}
+
+function mockSocket(): IMockSocket {
+  const socket: IMockSocket = {
+    readyState: 1,
+    onopen: null,
+    onmessage: null,
+    onerror: null,
+    onclose: null,
+    sentRaw: [],
+    balanceAtSend: [],
+    send(data: string) {
+      socket.sentRaw.push(data);
+      socket.balanceAtSend.push(storedBalance());
+    },
+    close() {
+      socket.readyState = 3;
+      socket.onclose?.({});
+    },
+    inject(message: unknown) {
+      socket.onmessage?.({ data: JSON.stringify(message) });
+    },
+  };
+  return socket;
+}
+
+/** Each sent receipt ACK with the store balance it left behind. */
+function sentAcks(
+  socket: IMockSocket,
+): { readonly receiptId: string; readonly balance: number | undefined }[] {
+  return socket.sentRaw.flatMap((raw, index) => {
+    const frame = JSON.parse(raw) as {
+      readonly kind: string;
+      readonly appliedView?: { readonly receiptId: string };
+    };
+    return frame.kind === 'CampaignAck' && frame.appliedView
+      ? [
+          {
+            receiptId: frame.appliedView.receiptId,
+            balance: socket.balanceAtSend[index],
+          },
+        ]
+      : [];
+  });
+}
+
+/**
+ * Every connect the surface makes gets a REAL transport bound to
+ * `expectedCampaignId` over a mock socket: what Task 14 will do at every
+ * creator. Production creators stay unbound in Task 13.
+ */
+function installBoundTransport(
+  role: 'host' | 'guest',
+  expectedCampaignId: string | null = CAMPAIGN_ID,
+): IBoundConnection {
+  const sockets: IMockSocket[] = [];
+  const transports: ICampaignSyncTransport[] = [];
+  const connects: IConnectStoredCampaignSyncOptions[] = [];
+  connectMock.mockImplementation((input) => {
+    connects.push(input);
+    const transport = connectCampaignSyncTransport({
+      expectedCampaignId: expectedCampaignId ?? undefined,
+      matchId: MATCH_ID,
+      role,
+      playerId: role === 'host' ? 'host-player' : 'guest-player',
+      wireToken: 'wire-token',
+      roomCode: input.roomCode,
+      lastSeq: input.lastSeq,
+      socketFactory: () => {
+        const socket = mockSocket();
+        sockets.push(socket);
+        return socket;
+      },
+    });
+    sockets[sockets.length - 1].onopen?.({});
+    transports.push(transport);
+    return transport;
+  });
+  return {
+    sockets,
+    transports,
+    connects,
+    inject: (message) => sockets[sockets.length - 1].inject(message),
+    acks: (index = sockets.length - 1) =>
+      sentAcks(sockets[index]).map((ack) => ack.receiptId),
+  };
+}
+
+function launchFact(sequence: number): ICampaignEvent {
+  return {
+    type: 'CampaignMissionLaunched',
+    sequence,
+    campaignId: CAMPAIGN_ID,
+    ts: '3025-01-01T00:00:00.000Z',
+    authorPlayerId: 'host-player',
+    scope: 'campaign',
+    payload: {
+      missionId: `mission-${sequence}`,
+      missionMatchId: `tactical-${sequence}`,
+      acceptedHead: {
+        branchId: 'main',
+        revision: sequence,
+        effectiveGeneration: 1,
+      },
+      deployingPlayerIds: ['host-player'],
+    },
+  } as ICampaignEvent;
+}
+
+/** A view's opening offer: the baseline plus its complete launch bundle. */
+function baselineOffer(
+  viewId: string,
+  balance: number,
+  hydrationFacts: readonly ICampaignEvent[] = [],
+  campaignId: string = CAMPAIGN_ID,
+): ICampaignApplicationOffer {
+  return {
+    kind: 'CampaignSnapshot',
+    matchId: MATCH_ID,
+    ts: '3025-01-01T00:00:00.000Z',
+    event: {
+      sequence: -1,
+      campaignId,
+      ts: '3025-01-01T00:00:00.000Z',
+      authorPlayerId: 'host-player',
+      type: 'CampaignSnapshotPublished',
+      scope: 'campaign',
+      payload: {
+        matchId: MATCH_ID,
+        state: { ...createEmptyCampaignState(campaignId), balance },
+      },
+    },
+    hydrationFacts: [...hydrationFacts],
+    appliedView: {
+      viewId,
+      receiptId: `${viewId}-r0`,
+      previousReceiptId: null,
+    },
+  } as ICampaignApplicationOffer;
+}
+
+/** A linked offer of one committed event, receipt `n` of `viewId`. */
+function linkedOffer(
+  viewId: string,
+  n: number,
+  event: ICampaignEvent,
+): ICampaignApplicationOffer {
+  return {
+    kind: 'CampaignEvent',
+    matchId: MATCH_ID,
+    ts: '3025-01-01T00:00:00.000Z',
+    event,
+    appliedView: {
+      viewId,
+      receiptId: `${viewId}-r${n}`,
+      previousReceiptId: `${viewId}-r${n - 1}`,
+    },
+  } as ICampaignApplicationOffer;
+}
+
+function fundsEvent(sequence: number, balance: number): ICampaignEvent {
+  return (fundsChangedFrame(sequence, balance) as { event: ICampaignEvent })
+    .event;
+}
+
+async function inject(
+  connection: IBoundConnection,
+  ...frames: unknown[]
+): Promise<void> {
+  await act(async () => {
+    frames.forEach(connection.inject);
+  });
+}
+
+describe('CampaignCoopRouteSurfaceConnected - a guest applies each offer before its exact ACK', () => {
+  beforeEach(() => {
+    connectMock.mockReset();
+    useCampaignMirrorStore.getState().reset();
+    resetCampaignStore();
+    window.sessionStorage.clear();
+    storeCoopCampaignToken({
+      matchId: MATCH_ID,
+      playerId: 'guest-player',
+      wireToken: 'wire-token',
+      displayName: 'Guest',
+    });
+    useCampaignStore().getState().switchCampaign(guestCampaign());
+  });
+
+  afterEach(() => {
+    cleanup();
+    _resetCampaignSyncTransportsForTest();
+    useCampaignMirrorStore.getState().reset();
+    resetCampaignStore();
+    window.sessionStorage.clear();
+  });
+
+  async function mountGuest(
+    expectedCampaignId: string | null = CAMPAIGN_ID,
+  ): Promise<IBoundConnection> {
+    const connection = installBoundTransport('guest', expectedCampaignId);
+    render(
+      <CampaignCoopRouteSurfaceConnected
+        campaign={guestCampaign()}
+        routeId="dashboard"
+      />,
+    );
+    await flush();
+    return connection;
+  }
+
+  it('projects the baseline, a live fact and a visible no-op before one exact ACK each', async () => {
+    const connection = await mountGuest();
+
+    await inject(connection, baselineOffer('v1', 800_000, [launchFact(2)]));
+    await inject(
+      connection,
+      linkedOffer('v1', 1, fundsEvent(3, 750_000)),
+      linkedOffer('v1', 1, fundsEvent(3, 750_000)),
+    );
+    await inject(connection, linkedOffer('v1', 2, launchFact(4)));
+
+    // One ACK per offer, each sent only once its state was on the store.
+    expect(sentAcks(connection.sockets[0])).toEqual([
+      { receiptId: 'v1-r0', balance: 800_000 },
+      { receiptId: 'v1-r1', balance: 750_000 },
+      { receiptId: 'v1-r2', balance: 750_000 },
+    ]);
+    expect(useCampaignMirrorStore.getState().launchFacts).toEqual([
+      launchFact(2),
+      launchFact(4),
+    ]);
+    expect(connection.connects).toHaveLength(1);
+  });
+
+  it.each([
+    [
+      'an invalid launch bundle',
+      () => undefined,
+      [{ ...launchFact(2), payload: { missionId: 'm' } } as ICampaignEvent],
+    ],
+    [
+      'a throwing campaign-store observer',
+      () => {
+        let thrown = false;
+        useCampaignStore().subscribe(() => {
+          if (thrown) return;
+          thrown = true;
+          throw new Error('observer failed');
+        });
+      },
+      [],
+    ],
+    [
+      'a campaign store that holds another campaign',
+      () =>
+        useCampaignStore()
+          .getState()
+          .switchCampaign({ ...guestCampaign(), id: 'campaign-other' }),
+      [],
+    ],
+  ])(
+    'never acknowledges a baseline it could not apply (%s) and rejoins',
+    async (_label, arrange, facts) => {
+      const connection = await mountGuest();
+      arrange();
+
+      await inject(connection, baselineOffer('v1', 800_000, facts));
+
+      expect(connection.acks(0)).toEqual([]);
+      expect(connection.sockets[0].readyState).toBe(3);
+      expect(connection.connects).toHaveLength(2);
+    },
+  );
+
+  it('leaves an offer unacknowledged when a later frame observer throws', async () => {
+    const connection = await mountGuest();
+    connection.transports[0].onFrame(() => {
+      throw new Error('later observer failed');
+    });
+
+    await inject(connection, baselineOffer('v1', 800_000));
+
+    expect(connection.acks(0)).toEqual([]);
+    expect(connection.connects).toHaveLength(2);
+  });
+
+  it('re-sends on head-drift without a rejoin, and rejoins from EMPTY on unknown-receipt', async () => {
+    const connection = await mountGuest();
+    await inject(connection, baselineOffer('v1', 800_000));
+    await inject(connection, linkedOffer('v1', 1, fundsEvent(5, 700_000)));
+    expect(connection.acks(0)).toEqual(['v1-r0', 'v1-r1']);
+
+    await inject(
+      connection,
+      errorFrame('INVALID_INTENT', 'campaign-application-head-drift'),
+    );
+    expect(connection.acks(0)).toEqual(['v1-r0', 'v1-r1', 'v1-r1']);
+    expect(connection.connects).toHaveLength(1);
+
+    await inject(
+      connection,
+      errorFrame('INVALID_INTENT', 'campaign-application-unknown-receipt'),
+    );
+    expect(connection.sockets[0].readyState).toBe(3);
+    expect(connection.connects).toHaveLength(2);
+
+    // The new view's baseline replaces the mirror that held cursor 5.
+    await inject(connection, baselineOffer('v2', 300_000));
+    expect(connection.acks(1)).toEqual(['v2-r0']);
+    expect(storedBalance()).toBe(300_000);
+    expect(useCampaignMirrorStore.getState().campaign?.balance).toBe(300_000);
+  });
+
+  it('applies a first event at sequence 0 after the baseline', async () => {
+    const connection = await mountGuest();
+    await inject(connection, baselineOffer('v1', 800_000));
+
+    await inject(connection, linkedOffer('v1', 1, fundsEvent(0, 790_000)));
+
+    expect(connection.acks(0)).toEqual(['v1-r0', 'v1-r1']);
+    expect(storedBalance()).toBe(790_000);
+  });
+
+  it('does not fold an unoffered campaign frame once offers flow', async () => {
+    const connection = await mountGuest();
+    await inject(connection, baselineOffer('v1', 800_000));
+
+    await inject(connection, fundsChangedFrame(1, 100_000));
+
+    expect(storedBalance()).toBe(800_000);
+    expect(useCampaignMirrorStore.getState().campaign?.balance).toBe(800_000);
+    expect(connection.acks(0)).toEqual(['v1-r0']);
+  });
+
+  it('leaves the shared transport alone once the surface unmounts', async () => {
+    const connection = await mountGuest();
+    await inject(connection, baselineOffer('v1', 800_000));
+
+    cleanup();
+    await inject(
+      connection,
+      errorFrame('INVALID_INTENT', 'campaign-application-unknown-receipt'),
+    );
+
+    expect(connection.sockets[0].readyState).toBe(1);
+    expect(connection.connects).toHaveLength(1);
+  });
+
+  it('rejoins when the server ends the view with an application error', async () => {
+    const connection = await mountGuest();
+    await inject(connection, baselineOffer('v1', 800_000));
+
+    await inject(
+      connection,
+      errorFrame('INTERNAL_ERROR', 'campaign-application-replaced'),
+    );
+
+    expect(connection.sockets[0].readyState).toBe(3);
+    expect(connection.connects).toHaveLength(2);
+  });
+
+  it('never consumes a transport bound to another campaign', async () => {
+    const connection = await mountGuest('campaign-other');
+
+    await inject(
+      connection,
+      baselineOffer('v1', 800_000, [], 'campaign-other'),
+    );
+
+    expect(connection.acks(0)).toEqual([]);
+    expect(useCampaignMirrorStore.getState().campaign).toBeNull();
+    expect(storedBalance()).toBe(START_BALANCE);
+  });
+
+  it('keeps legacy traffic on an unbound transport: folded, numeric observation ACK, no receipt', async () => {
+    const connection = await mountGuest(null);
+
+    await inject(
+      connection,
+      baselineFrame(0, createEmptyCampaignState(CAMPAIGN_ID)),
+      fundsChangedFrame(1, 900_000),
+    );
+
+    const acks = connection.sockets[0].sentRaw
+      .map((raw) => JSON.parse(raw) as Record<string, unknown>)
+      .filter((frame) => frame.kind === 'CampaignAck');
+    expect(storedBalance()).toBe(900_000);
+    expect(
+      acks.map((frame) => ({
+        revision: frame.revision,
+        receipt: 'appliedView' in frame,
+      })),
+    ).toEqual([
+      { revision: 0, receipt: false },
+      { revision: 1, receipt: false },
+    ]);
+    expect(connection.connects).toHaveLength(1);
   });
 });

@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CF2",
+  "stage": "admission",
+  "date": "20261016",
+  "baseline": "d823114d7c01aeebb846b51074cf6d7b66c59f6f",
+  "authority": "Root Task13/P2CF2 implementation delegation after the P2CF split registration (PR #2158, merge a1d2293b, receipt evidence/p2cf-split-registration-20261016.json; review docs/audits/2026-10-16-p2cf-split-registration-fable-review.md sha256 baa947a8ac6e786e534e16e5e4a639587da0d2c279918920d2a4764060fb4d08, APPROVE-WITH-NOTES), P2CF1 main-verified (PR #2159 merge 4895b2c3, closure #2160 merge 641d3004; review docs/audits/2026-10-16-p2cf1-fable-review.md sha256 bc16d36d9a510192b98bd0a6afa7149290abcaa774274731a70e3ec931156e5e, APPROVE-WITH-NOTES) and the P2CF2 release blocked->planned (PR #2161, merge d823114d); validate-roadmap --next printed P2CF2 at the baseline",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "Task13 / P2CF2 implementation sub-agent"
+  },
+  "predecessors": {
+    "P2CF1": "main-verified, mergeSha 4895b2c3664a9d1f802ef947f05b90aac29862a0, mainProof PASS, ancestor of baseline"
+  },
+  "caps": {
+    "files": 15,
+    "productAddedLines": 500
+  },
+  "restriction": {
+    "container": "R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CF2",
+    "leaves": 7,
+    "knownSourceTestLifecycleSubtotal": 8
+  },
+  "sourceCandidate": "None preserved; this slice is authored red-first against the baseline",
+  "census": {
+    "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-13-p2cf2-20261016/census.md",
+    "bytes": 8746,
+    "sha256": "062f2a58b362758d8634de7a1d03754a721d97d090461ea2b7306a909b461e83",
+    "frozenBefore": "any source, test, lifecycle or evidence edit"
+  },
+  "frozenFiles": [
+    {
+      "path": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+      "exists": true,
+      "sha256": "c332fd251e0340cc2512318b748c668aa80e00eac56c32a97b5bd607b25f8487",
+      "bytes": 17729
+    },
+    {
+      "path": "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    },
+    {
+      "path": "src/stores/campaign/useCampaignPersistenceStore.ts",
+      "exists": true,
+      "sha256": "e50e9013edd3730555b999b41936550ab3e9db5b9055f4cbd491976abe08a2f1",
+      "bytes": 56265
+    },
+    {
+      "path": "src/stores/campaign/campaignUnitMaxStates.ts",
+      "exists": true,
+      "sha256": "28d1f41624a3903d9c475029e5813dd472381ad7815068bc43dabc9a34e9d805",
+      "bytes": 2086
+    },
+    {
+      "path": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+      "exists": true,
+      "sha256": "392723d8cae8d2c76d49929128f4bce608a6d67ae9acc8562fdc5c53016da43f",
+      "bytes": 14604
+    },
+    {
+      "path": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx",
+      "exists": true,
+      "sha256": "e64f9057d7d68e60981d79fe3d3712f97bb37c3371177607c88f5a306a8e0cf9",
+      "bytes": 30693
+    },
+    {
+      "path": "src/stores/campaign/__tests__/campaignCommandAckRefresh.test.ts",
+      "exists": true,
+      "sha256": "e71ea9dd33601e24f0d6858f981931bb54e3089d6a70fbb8acb8a49cfa15e8bc",
+      "bytes": 17907
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "exists": true,
+      "sha256": "4f2019f8cc98917e24696011056359615a3923a8bfd61817184c56107eb5e5e0",
+      "bytes": 1325054
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cf2-admission-20261016.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cf2-admission-review-20261016.md",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cf2-red-20261016.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cf2-local-20261016.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    }
+  ],
+  "notTouched": "The P2CF1 leaves (fold, transport, mirror store and their tests), campaignMirrorProjection.ts, CampaignBaselineSchemaPack.ts, Protocol.ts, useCampaignStore.actions.ts, CampaignCoopEntryPanel.tsx, the mission launch page, every server file and server.js. campaignUnitMaxStates.test.tsx and CampaignCoopEntryPanel.test.tsx run unmodified",
+  "overlap": "gh pr list --state open (#2154, #2153, #2113, #1886): none touches a P2CF2 leaf or units.json; no remote branch matching *p2cf2* at baseline",
+  "activationPredicate": "The consumer is active only on a transport whose campaignId (expectedCampaignId) equals the mounted campaignId and which exposes confirmApplied; it settles only transport-registered offers, which the transport dispatches only on such a bound connection. No production creator binds expectedCampaignId in Task 13 (CampaignCoopEntryPanel, this component's two connect calls and the mission launch page connect unbound) and server.js composes no applicationReceipts, so production joins keep lastSeq and the legacy numeric observation ACK",
+  "legacyVisibleChange": "One, by design (registration review note 6, P2CF1 review CF1): the host fold resets to EMPTY on every binding, so a roomCode or matchId change without unmounting quotes no cursor and adopts the hydration baseline at 0 instead of refusing it against the old binding's cursor. The guest mirror is not reset on a legacy binding: the entry panel seeds it and the guest join keeps quoting its lastSequence; on a receipt binding the baseline is adopted as an authorized replacement from EMPTY instead",
+  "reviewNotes": {
+    "registrationNote3": "Honoured: the ordinary runLoad path keeps calling ensureCampaignUnitMaxStates; only the guarded refresh uses prepareCampaignUnitMaxStates; campaignUnitMaxStates.test.tsx is unmodified",
+    "registrationNote6": "Honoured: per-binding host fold reset recorded here and proved in CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+    "registrationNote7": "Honoured: launch facts stay in the fold and the mirror; no projection helper change",
+    "registrationNote8": "Honoured: both frame handlers filter on message.reason?.startsWith('campaign-application-'); the consumer also handles the transport onError recovery signal",
+    "P2CF1-CF1": "Honoured for the host; the guest mirror is replaced at adoption (CF3) rather than reset through beginMirror on a legacy binding, which would drop the entry panel's seeded mirror and its quoted lastSeq",
+    "P2CF1-CF2": "Honoured: recovery-required transport errors, INTERNAL_ERROR campaign-application-* frames and refused/recovery confirmApplied results (closed socket) rejoin once; none reaches lastRefusalCode",
+    "P2CF1-CF3": "Honoured with one deviation: the baseline is adopted with replacement=true and the frame's bundle, at resume cursor -1 instead of 0, so a first event at sequence 0 is not refused; the receipt chain, not the cursor, orders offers",
+    "P2CF1-CF4": "Honoured: no confirmation is awaited",
+    "P2CF1-CF5": "Honoured: baseline facts must equal the bundle, a launch must end the held facts; the persistence store never writes launchFacts",
+    "P2CF1-CF6": "Honoured: one confirmApplied per offer in receipt order through a serial per-binding queue",
+    "P2CF1-M1": "Not closed here: option (a) is a campaignSyncTransport.ts rule, a P2CF1 leaf outside P2CF2's restriction. It stays the recorded Task 14 precondition (CF7). The consumer's automatic, idempotent rejoin bounds each hit to one rejoin"
+  },
+  "reviewSlot": "Reserved for independent reviewer; author must not write review",
+  "summary": "Ordinary admission of the 12 frozen paths (7 restriction leaves, units.json, 4 evidence including the reserved review slot). No cap exception, no unnamed leaf, no merge or Main claim."
+}

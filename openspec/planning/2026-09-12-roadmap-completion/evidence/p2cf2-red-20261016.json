@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CF2",
+  "stage": "red",
+  "baseline": "d823114d7c01aeebb846b51074cf6d7b66c59f6f",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "Task13 / P2CF2 implementation sub-agent"
+  },
+  "runtime": "node v22.22.0",
+  "command": "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --runTestsByPath src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx src/stores/campaign/__tests__/campaignCommandAckRefresh.test.ts",
+  "exitCode": 1,
+  "result": "34 failed, 28 passed, 62 total; final test bytes (hostProjection 791084d4..., hostRecordRefresh 6423c2dc..., campaignCommandAckRefresh bf74d386...) against the three existing product leaves byte-identical to baseline (component c332fd25..., persistence store e50e9013..., maxima owner 28d1f416...) with the new hook absent",
+  "initial": {
+    "result": "Per-suite first-text REDs: campaignCommandAckRefresh 8 failed / 10 passed; hostProjection 11 failed / 8 passed; hostRecordRefresh 5 failed / 9 passed",
+    "note": "Two test texts were corrected after the first green run (baseline and first event injected in one act correctly yield one cumulative ACK; a store observer that throws on every write also broke the component's own later writes). Before the first probe, planning the mutations added tests for a reset before the queued start, a subscriber invalidating between writes, unoffered frames after offers flow, a spontaneous socket close, a stale binding reporting on a shared transport, reprojection over an older record and a first event at sequence 0. Probe round one (38 of 45 killed) left five non-equivalent survivors, killed by added tests for a 404 on a stale read, no maxima lookup after a stale JSON body, a roster-write invalidation, a reset followed by markDirty and a guest unmount. The one test:stable run then failed lint-units.test.ts (src-tests 17785 findings over the 17783 ceiling): two new helpers called useCampaignStore() (rules-of-hooks). The guest suite now seeds the store in its beforeEach and the GM arrange reuses mountSurface(); RED, green and the probe were re-run on that final text with the same counts. The final-text RED above supersedes every earlier one."
+  },
+  "passingAtRed": "The 24 pre-existing cases of the three suites, and four new regression guards: the guarded refresh completing on its own writes, a GM holding no refusal staying ungated, an unmounted surface leaving the shared transport alone, and legacy traffic on an unbound transport folding with the numeric observation ACK",
+  "logs": [
+    "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-13-p2cf2-20261016/red.log"
+  ],
+  "failures": [
+    "refreshAfterCommittedCommand ignores a context: a stale binding still reads, adopts, writes status and error, re-arms autosave and resolves maxima through updateCampaign",
+    "A later load, a reset, or a synchronous subscriber invalidating the binding between writes does not stop a queued or in-flight refresh",
+    "A roomCode change keeps the host fold, so the reconnect quotes cursor 7 and refuses its own hydration baseline",
+    "campaign-application-* Error frames overwrite lastRefusalCode, clearing a real refusal and un-gating GM and guest controls",
+    "No mounted consumer: offers on a bound transport are never applied before an ACK, so no receipt is sent; failures, unknown-receipt, INTERNAL_ERROR and a closed socket never rejoin; a transport bound to another campaign is folded by the legacy path"
+  ]
+}

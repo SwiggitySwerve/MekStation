@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CF2",
+  "stage": "local",
+  "baseline": "d823114d7c01aeebb846b51074cf6d7b66c59f6f",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "Task13 / P2CF2 implementation sub-agent"
+  },
+  "runtime": "node v22.22.0",
+  "command": "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --runTestsByPath src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx src/stores/campaign/__tests__/campaignCommandAckRefresh.test.ts",
+  "exitCode": 0,
+  "suites": 3,
+  "tests": 62,
+  "productBytes": {
+    "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx": "80cb4d849a1827bfd69b58f93ee87fd3fc012c44e70e3ebff6567ce959a31e97",
+    "src/components/campaign/coop/useCampaignApplicationConsumer.ts": "4798100d184e3b564998203203dfc66c68dc3b2be3a219fcfadf740af1fa9c53",
+    "src/stores/campaign/useCampaignPersistenceStore.ts": "3a7d2066a1edd240553d0e4d7e520d481010950e9a2d2a19179daf1082ad6481",
+    "src/stores/campaign/campaignUnitMaxStates.ts": "1479e184c32a2d7920e5ca91efaf75d0c249f006498aa3ff633a1ba07a82397b"
+  },
+  "qaSelector": "P2CF2 registration selector --testPathPattern='CampaignCoopRouteSurfaceConnected|campaignAuthoritativeFold|campaignMirrorStore|campaignSyncTransport|campaignCommandAckRefresh|campaignUnitMaxStates': 7 suites, 155 tests, exit 0 (campaignUnitMaxStates.test.tsx unmodified)",
+  "task13Qa": "plan Task 13 selector --testPathPattern='CampaignCoopRouteSurfaceConnected|campaignAuthoritativeFold': 3 suites, 54 tests, exit 0 (full Task 13 QA selector at completion)",
+  "adjacentLegacyCallers": "Every suite importing the component, the hook, the persistence store, the maxima owner, CampaignCoopEntryPanel, the fold, the mirror store or the transport: plus scripts/__tests__/lint-units.test.ts: 48 suites, 483 tests, exit 0; campaignUnitMaxStates.test.tsx and CampaignCoopEntryPanel.test.tsx unmodified",
+  "mutationProbe": "45 source mutations over the four product leaves (consumer: projection skipped, refresh not awaited, no reprojection, every outcome applied, throw swallowed, stale binding still reporting, no rejoin on a refused result, on a recovery error or on an INTERNAL_ERROR frame, unoffered frames folded after offers flow, any-campaign activation, concurrent settling, guest and GM baselines without replacement, adjunct check removed, inactive binding claiming frames, dispose leaving the binding live, baseline cursor 0; component: per-binding reset removed, either refusal filter removed, offered frames also legacy-folded by either role, either cleanup not disposing, either rejoin dependency removed; persistence: stale context still starting, generation and campaign checks off, re-arm unguarded, saving status announced, updateCampaign maxima path, roster ignored, each post-await and post-write check removed, error written when stale, load and reset not bumping the generation; maxima: prepare resolving nothing). Round one 38 of 45 killed; final 43 of 45 killed, product bytes restored and re-hashed after every mutation. Survivors, both equivalent: H14 (GM baseline without replacement; the per-binding reset already empties the fold and a connection admits one baseline) and H15 (adjunct check removed; P2CF1's fold already refuses a bundle or launch it would not retain)",
+  "legacyVisibleChange": "One, by design: the host fold resets per binding (registration review note 6). A roomCode or matchId change without unmounting now quotes no cursor and adopts its hydration baseline at 0. Pinned by the rewritten hostProjection reconnect case. Unbound transports keep the legacy fold, lastSeq and numeric observation ACK (pinned by the unbound-transport case and every pre-existing case); campaign-application-* Error frames no longer touch lastRefusalCode, which no production server sends",
+  "census": {
+    "files": "12 of 15 (11 in this change plus the reserved review slot)",
+    "productAddedLines": "453 of 500 (useCampaignApplicationConsumer.ts 258, useCampaignPersistenceStore.ts 94, CampaignCoopRouteSurfaceConnected.tsx 63, campaignUnitMaxStates.ts 22, units.json 16), git diff --numstat --no-renames against baseline; test additions 1569 (hostProjection 609, hostRecordRefresh 485, campaignCommandAckRefresh 475) and evidence additions reported separately",
+    "estimateOverrun": "The frozen admission estimate was about 226-341; the measured 453 is above it (consumer 258 against 130-180, persistence 94 against 40-70) and stays under the unchanged 500 cap with no scope change"
+  },
+  "checks": {
+    "typecheck": "PASS",
+    "lint": "PASS (0 errors; 85 warnings repo-wide; the only one on a touched file is the max-lines warning useCampaignPersistenceStore.ts already had at baseline, 1509 physical lines; the component stays under the warning)",
+    "format": "PASS (npm run format:check)",
+    "lintUnits": "PASS (scripts/qc/lint-units.mjs: LINT_UNITS_PASS 17899/17899, src-tests 17783/17783; the three edited suites carry the same 5 pre-existing rules-of-hooks findings as baseline)",
+    "roadmap": "validate-roadmap.mjs, --next and validate-roadmap.test.mjs recorded in the attempt directory",
+    "testStable": "npm run test:stable runs once after this receipt is frozen, so the roadmap script suites validate these exact bytes; its result is recorded in the attempt directory and the pull request, not here"
+  },
+  "logs": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-13-p2cf2-20261016/",
+  "boundary": "Receipt mode stays off in production: nothing passes expectedCampaignId until Task 14 binds every creator together with server composition. M1 (superseded-ACK unknown-receipt) remains the recorded Task 14 precondition because its client rule lives in the P2CF1 transport leaf. No server, server.js, Protocol or P2CF1 leaf change. No merge or Main proof claimed.",
+  "status": "Candidate local checks only; independent exact-head review pending"
+}
