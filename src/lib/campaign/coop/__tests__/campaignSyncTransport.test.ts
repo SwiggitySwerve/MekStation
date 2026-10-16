@@ -573,6 +573,165 @@ describe('P2CD explicit consumer completion', () => {
       }),
     ).toBe(s.transport);
   });
+
+  describe('P2CF1 typed application refusals', () => {
+    const refusal = (reason: string, code = 'INVALID_INTENT') => ({
+      kind: 'Error',
+      matchId: 'm1',
+      ts,
+      code,
+      reason: `campaign-application-${reason}`,
+    });
+    const ackRaw = (s: ReturnType<typeof setup>) =>
+      s.socket.sentRaw.filter((raw) => JSON.parse(raw).kind === 'CampaignAck');
+    function acked() {
+      const s = setup();
+      s.socket.inject(baseline());
+      apply(s.offers[0]);
+      expect(s.complete(s.offers[0]).status).toBe('ack-sent');
+      return s;
+    }
+
+    it('re-sends the identical latest unconfirmed ACK on head-drift and still dispatches the refusal', () => {
+      const s = acked();
+      const frames = jest.fn();
+      s.transport.onFrame(frames);
+      s.socket.inject(refusal('head-drift'));
+      s.socket.inject(refusal('head-drift'));
+      s.socket.inject(refusal('head-drift', 'INTERNAL_ERROR'));
+      const raw = ackRaw(s);
+      expect(raw).toHaveLength(3);
+      expect(raw[1]).toBe(raw[0]);
+      expect(raw[2]).toBe(raw[0]);
+      expect(s.errors).toEqual([]);
+      expect(frames).toHaveBeenCalledWith(refusal('head-drift'));
+      s.socket.inject(event(1, 'r0'));
+      apply(s.offers[1]);
+      expect(s.complete(s.offers[1]).status).toBe('ack-sent');
+    });
+
+    it('does not re-send an ACK the server has confirmed, but does re-send a newer unconfirmed one', () => {
+      const s = acked();
+      s.socket.inject({
+        kind: 'CampaignAck',
+        matchId: 'm1',
+        ts,
+        playerId: 'guest',
+        campaignId: 'c1',
+        appliedView: baseline().appliedView,
+      });
+      s.socket.inject(refusal('head-drift'));
+      expect(ackRaw(s)).toHaveLength(1);
+      s.socket.inject(event(1, 'r0'));
+      apply(s.offers[1]);
+      expect(s.complete(s.offers[1]).status).toBe('ack-sent');
+      s.socket.inject(refusal('head-drift'));
+      const raw = ackRaw(s);
+      expect(raw).toHaveLength(3);
+      expect(raw[2]).toBe(raw[1]);
+    });
+
+    it('acts on typed refusals only on a receipt-mode connection created with expectedCampaignId', () => {
+      const bound = setup();
+      bound.socket.inject(refusal('unknown-receipt'));
+      expect(bound.errors).toEqual([]);
+      const sockets = makeSocketFactory();
+      const unbound = connectCampaignSyncTransport({
+        matchId: 'm2',
+        playerId: 'guest',
+        role: 'guest',
+        wireToken: 'token',
+        socketFactory: sockets.factory,
+      });
+      const errors = jest.fn();
+      unbound.onError(errors);
+      sockets.lastSocket().fireOpen();
+      sockets.lastSocket().inject({
+        kind: 'CampaignAck',
+        matchId: 'm2',
+        ts,
+        playerId: 'guest',
+        campaignId: 'c1',
+        appliedView: baseline().appliedView,
+      });
+      sockets
+        .lastSocket()
+        .inject({ ...refusal('unknown-receipt'), matchId: 'm2' });
+      expect(errors).not.toHaveBeenCalled();
+    });
+
+    it('re-sends nothing older while a newer offer is latest, then ACKs that offer when ready', () => {
+      const s = acked();
+      s.socket.inject(event(1, 'r0'));
+      s.socket.inject(refusal('head-drift'));
+      expect(ackRaw(s)).toHaveLength(1);
+      apply(s.offers[1]);
+      expect(s.complete(s.offers[1]).status).toBe('ack-sent');
+      expect(s.acks().map((ack) => ack.appliedView.receiptId)).toEqual([
+        'r0',
+        'r1',
+      ]);
+      s.socket.inject(refusal('head-drift'));
+      const raw = ackRaw(s);
+      expect(raw).toHaveLength(3);
+      expect(raw[2]).toBe(raw[1]);
+    });
+
+    it.each([
+      'unknown-receipt',
+      'not-offered',
+      'receipt-required',
+      'current-authority',
+    ])('never retries %s and ends the view as recovery-required', (reason) => {
+      const s = acked();
+      s.socket.inject(event(1, 'r0'));
+      s.socket.inject(refusal(reason));
+      expect(ackRaw(s)).toHaveLength(1);
+      expect(s.errors).toEqual([
+        new Error(
+          'Campaign application recovery required: application-refused',
+        ),
+      ]);
+      apply(s.offers[1]);
+      expect(s.complete(s.offers[1])).toEqual({
+        status: 'refused',
+        reason: 'stale-offer',
+      });
+      s.socket.inject(refusal('head-drift'));
+      expect(ackRaw(s)).toHaveLength(1);
+    });
+
+    it('leaves an unbound legacy connection untouched by application refusals', () => {
+      const sockets = makeSocketFactory();
+      const transport = connectCampaignSyncTransport({
+        matchId: 'm1',
+        playerId: 'guest',
+        role: 'guest',
+        wireToken: 'token',
+        lastSeq: 99,
+        socketFactory: sockets.factory,
+      });
+      const socket = sockets.lastSocket();
+      const frames = jest.fn();
+      const errors = jest.fn();
+      transport.onFrame(frames);
+      transport.onError(errors);
+      socket.fireOpen();
+      const { appliedView: _view, ...legacy } = event(1);
+      socket.inject(legacy);
+      socket.inject(refusal('head-drift'));
+      socket.inject(refusal('unknown-receipt'));
+      socket.inject({ ...legacy, event: { ...legacy.event, sequence: 6 } });
+      const sent = socket.sentRaw.map((raw) => JSON.parse(raw));
+      expect(sent[0]).toMatchObject({ kind: 'CampaignJoin', lastSeq: 99 });
+      expect(sent.slice(1)).toEqual([
+        expect.objectContaining({ kind: 'CampaignAck', revision: 3 }),
+        expect.objectContaining({ kind: 'CampaignAck', revision: 6 }),
+      ]);
+      expect(errors).not.toHaveBeenCalled();
+      expect(frames).toHaveBeenCalledWith(refusal('unknown-receipt'));
+    });
+  });
 });
 
 describe('campaignSyncTransport', () => {

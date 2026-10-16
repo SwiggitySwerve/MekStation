@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CF1",
+  "stage": "admission",
+  "date": "20261016",
+  "baseline": "a1d2293b941b5aaf2b618f451294cbb2dae4f1b4",
+  "authority": "Root Task13/P2CF1 implementation delegation after the P2CF split registration (PR #2158, merge a1d2293b, receipt evidence/p2cf-split-registration-20261016.json) and its independent review docs/audits/2026-10-16-p2cf-split-registration-fable-review.md (sha256 baa947a8ac6e786e534e16e5e4a639587da0d2c279918920d2a4764060fb4d08, APPROVE-WITH-NOTES); validate-roadmap --next printed P2CF1 at the baseline",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "Task13 / P2CF1 implementation sub-agent"
+  },
+  "predecessors": {
+    "P2CE1": "main-verified, mergeSha 86d4b69a71633e68f71eebe3fac4981706567ce6, mainProof PASS, ancestor of baseline",
+    "P2CE2": "main-verified, mergeSha 38f3c125925baa254f27788b30efa88d5915648c, mainProof PASS, ancestor of baseline",
+    "P2CE3": "main-verified, mergeSha 285e710d6316bb212c23b3f7275c547132cab245, mainProof PASS, ancestor of baseline"
+  },
+  "caps": {
+    "files": 15,
+    "productAddedLines": 500
+  },
+  "restriction": {
+    "container": "R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CF1",
+    "leaves": 6,
+    "knownSourceTestLifecycleSubtotal": 7
+  },
+  "sourceCandidate": "None preserved (the stopped P2CF attempt made no edit); this slice is authored red-first against the baseline",
+  "census": {
+    "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-13-p2cf1-20261016/census.md",
+    "bytes": 8070,
+    "sha256": "2cb7cc2b759fe8a1713ef982988eccff1925f374965b4e8da04a141143ce414b",
+    "frozenBefore": "any source, test, lifecycle or evidence edit"
+  },
+  "frozenFiles": [
+    {
+      "path": "src/lib/campaign/coop/campaignAuthoritativeFold.ts",
+      "exists": true,
+      "sha256": "d569a8ca6c63bc6d30ebb7ba9cbc0e83e730a1bf15afad8d1cfea61e90a55c48",
+      "bytes": 4991
+    },
+    {
+      "path": "src/lib/campaign/coop/campaignSyncTransport.ts",
+      "exists": true,
+      "sha256": "9ec26ebd4007ddbbb9c43b5ef11d3713c9d92812e4bd1a18c58310116dd200de",
+      "bytes": 19990
+    },
+    {
+      "path": "src/lib/p2p/campaignMirrorStore.ts",
+      "exists": true,
+      "sha256": "2794a5405eb1d7d4ea810d3b1079666406f898374881fdf9872582e4548178f4",
+      "bytes": 11505
+    },
+    {
+      "path": "src/lib/campaign/coop/__tests__/campaignAuthoritativeFold.test.ts",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    },
+    {
+      "path": "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+      "exists": true,
+      "sha256": "84ea271b9bc92bf67b69ddb327bfa08ee303b7a8aa7656f7475d9cdbfeab0422",
+      "bytes": 29316
+    },
+    {
+      "path": "src/lib/p2p/__tests__/campaignMirrorStore.test.ts",
+      "exists": true,
+      "sha256": "62d120e772768178d6ff9865c0f5c71c07934971b7363606529645d334f1370b",
+      "bytes": 7952
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "exists": true,
+      "sha256": "9346b56c44088003d47b80e57afe40c172cbd21d90f9300bb05787e70b2c60ba",
+      "bytes": 1319937
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cf1-admission-20261016.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cf1-admission-review-20261016.md",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cf1-red-20261016.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cf1-local-20261016.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    }
+  ],
+  "notTouched": "campaignMirrorProjection.ts (review note 7: P2CF1 projects nothing), CampaignBaselineSchemaPack.ts (note 5: only the existing exported CAMPAIGN_BASELINE_SCHEMA_PACK parse is used), Protocol.ts, the mounted component, its hook, the persistence store, the maxima owner, every server file and server.js. Unregistered callers CampaignCoopEntryPanel.tsx (beginMirror, applySnapshot(snapshot, 0)) and CampaignCoopRouteSurfaceConnected.tsx compile and pass unedited",
+  "overlap": "gh pr list --state open (#2154, #2153, #2113, #1886): none touches a P2CF1 leaf or units.json; no remote branch matching *p2cf1* at baseline",
+  "reviewNotes": {
+    "minor1": "Not applied: P2CE3.successors still names P2CF. Editing another unit's field is outside P2CF1's lifecycleOwnershipLimit; it resolves through P2CF.superseded20261016.by as the review states",
+    "minor2": "Honoured: applySnapshot(snapshot, resumeSequence?, replacement?) and beginMirror(peers, localPeerId) keep their positional shape; the bundle is an optional fourth argument. CampaignCoopEntryPanel and the component are unedited",
+    "note4": "Honoured: launchFacts is installed inside the existing set with campaign and lastSequence",
+    "note5": "Honoured: launchFacts is optional on ICampaignAuthoritativeFold, so EMPTY_CAMPAIGN_AUTHORITATIVE_FOLD and legacy folds keep the exact { state, lastSequence } shape; the mirror store's two literal constructions pass the held facts",
+    "note6": "The per-binding host fold reset is a P2CF2 component change. P2CF1 ships its owner primitive only (foldCampaignHydration(..., replacement=true) starts from EMPTY) and has no production-path behaviour change: no production creator passes expectedCampaignId and server.js composes no applicationReceipts",
+    "note9": "Honoured: confirmed flag set from the matching CampaignAck; re-send only while the sent ACK is the latest and unconfirmed; a newer offer is ACKed by drain once ready"
+  },
+  "reviewSlot": "Reserved for independent reviewer; author must not write review",
+  "summary": "Ordinary admission of the 11 frozen leaves (6 restriction leaves, units.json, 4 evidence including the reserved review slot). No cap exception, no unnamed leaf, no merge or Main claim."
+}

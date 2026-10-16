@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CF1",
+  "stage": "local",
+  "baseline": "a1d2293b941b5aaf2b618f451294cbb2dae4f1b4",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "Task13 / P2CF1 implementation sub-agent"
+  },
+  "runtime": "node v22.22.0",
+  "command": "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --runTestsByPath src/lib/campaign/coop/__tests__/campaignAuthoritativeFold.test.ts src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts src/lib/p2p/__tests__/campaignMirrorStore.test.ts",
+  "exitCode": 0,
+  "suites": 3,
+  "tests": 87,
+  "productBytes": {
+    "src/lib/campaign/coop/campaignAuthoritativeFold.ts": "5dc9ecc399baff8d4042f7ce9e9a768bfb78da6c1908a8e07bab60b11fc1a84c",
+    "src/lib/campaign/coop/campaignSyncTransport.ts": "042b6ef3714cb99f00e5bc1707e0be74dab101355ea4dba7d84577e5c729e1e8",
+    "src/lib/p2p/campaignMirrorStore.ts": "a9502caafcdee85fea70e32a1b52ee2f6bda05371e8953a597bae34376ffeba8"
+  },
+  "qaSelector": "P2CF1 registration selector --testPathPattern='CampaignCoopRouteSurfaceConnected|campaignAuthoritativeFold|campaignMirrorStore|campaignSyncTransport': 5 suites, 103 tests, exit 0",
+  "task13Qa": "plan Task 13 selector --testPathPattern='CampaignCoopRouteSurfaceConnected|campaignAuthoritativeFold': 3 suites, 32 tests, exit 0 (the campaignAuthoritativeFold term now matches a file; the mounted Task 13 scenarios are P2CF2's)",
+  "adjacentLegacyCallers": "Every other non-e2e suite importing the fold, mirror store or transport, plus CampaignCoopEntryPanel, both component suites, campaignUnitMaxStates and campaignCommandAckRefresh as unmodified controls: 26 suites, 179 tests, exit 0, no caller edited",
+  "mutationProbe": "33 source mutations over the three product leaves (fold: replacement reusing the held lineage, linked snapshot or later event dropping facts, omitted bundle accepted, no pack parse, no campaign check, no order check, held facts droppable, held live launch re-accepted, legacy fold collecting facts, negative sequence accepted, facts moving the cursor; mirror: facts not installed, applyEvent not passing facts, refused snapshot resetting facts, beginMirror keeping facts, bundle ignored, positional signature reordered; transport: re-send of a confirmed ACK, re-send of a no-longer-latest ACK, every refusal retried, non-retry refusal not ending the view, receipt-mode and binding gates removed together and each alone, INTERNAL_ERROR treated as a refusal, rebuilt instead of identical ACK bytes, confirmation never recorded, confirmed flag not reset by a newer ACK, refusal not dispatched to listeners, legacy join losing lastSeq, bound join sending lastSeq, legacy numeric ACK removed). Round one on the first test text: 29 killed, 4 survived (negative sequence masked by its fixture payload, each single gate removal, confirmed-flag reset). After the final test text: 33 of 33 killed; product bytes restored and re-hashed after every mutation",
+  "legacyVisibleChange": "None on any production path. No production creator passes expectedCampaignId and server.js composes no applicationReceipts, so the transport's refusal handling never runs in production; folds and the mirror without a hydration bundle keep the exact legacy shape and launch handling (pinned by the legacy-shape fold case, the mirror legacy-positional case and the unbound transport case, all passing at RED). The mirror state gains a launchFacts key whose value stays undefined until a bundle is adopted. The per-binding host fold reset the review names (note 6) ships in P2CF2; P2CF1 ships its owner primitive, replacement from EMPTY, pinned by the fold replacement case and the mirror invalid-replacement case",
+  "census": {
+    "files": "11 of 15 (10 in this change plus the reserved review slot)",
+    "productAddedLines": "194 of 500 (product: campaignAuthoritativeFold.ts 96, campaignSyncTransport.ts 34, campaignMirrorStore.ts 48; units.json 16), git diff --numstat against baseline; test additions 506 (new fold test 236, transport 159, mirror 111) and evidence additions reported separately"
+  },
+  "checks": {
+    "typecheck": "PASS",
+    "lint": "PASS (0 errors; 85 warnings repo-wide; the only one on a touched file is the max-lines warning campaignSyncTransport.ts already had at baseline, 636 physical lines)",
+    "format": "PASS (oxfmt --check on every touched file)",
+    "roadmap": "validate-roadmap.mjs, --next and validate-roadmap.test.mjs recorded in the attempt directory",
+    "testStable": "npm run test:stable runs once after this receipt is frozen, so the roadmap script suites validate these exact bytes; its result is recorded in the attempt directory and the pull request, not here"
+  },
+  "logs": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-13-p2cf1-20261016/",
+  "boundary": "Dormant owner primitives: nothing calls foldCampaignHydration, the mirror bundle argument or confirmApplied in production until P2CF2 mounts them, and receipt traffic stays inactive until Task 14 binds expectedCampaignId at every creator together with server composition. No component, hook, persistence-store, maxima, Protocol or server change. No merge or Main proof claimed.",
+  "status": "Candidate local checks only; independent exact-head review pending"
+}

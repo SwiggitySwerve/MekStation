@@ -112,6 +112,117 @@ describe('P2CD nullable application result', () => {
   });
 });
 
+describe('P2CF1 mission-launch adjunct', () => {
+  function launchEvent(sequence: number): ICampaignEvent {
+    return {
+      type: 'CampaignMissionLaunched',
+      sequence,
+      campaignId: CAMPAIGN_ID,
+      ts: '3025-01-01T00:00:00.000Z',
+      authorPlayerId: 'host',
+      scope: 'campaign',
+      payload: {
+        missionId: `mission-${sequence}`,
+        missionMatchId: `tactical-${sequence}`,
+        acceptedHead: {
+          branchId: 'main',
+          revision: sequence,
+          effectiveGeneration: 1,
+        },
+        deployingPlayerIds: [GUEST_PEER],
+      },
+    };
+  }
+
+  it('installs state, cursor and launch facts in one store update', () => {
+    const facts = [launchEvent(3)];
+    const updates: unknown[] = [];
+    const unsubscribe = useCampaignMirrorStore.subscribe((state) =>
+      updates.push({
+        campaign: state.campaign,
+        lastSequence: state.lastSequence,
+        launchFacts: state.launchFacts,
+      }),
+    );
+    const accepted = useCampaignMirrorStore
+      .getState()
+      .applySnapshot(snapshotEvent(-1, 20), 0, true, facts);
+    unsubscribe();
+    const installed = useCampaignMirrorStore.getState();
+    expect(updates).toEqual([
+      { campaign: installed.campaign, lastSequence: 0, launchFacts: facts },
+    ]);
+    expect(installed.campaign?.balance).toBe(20);
+    expect(accepted).toEqual({
+      state: installed.campaign,
+      lastSequence: 0,
+      launchFacts: facts,
+    });
+  });
+
+  it('keeps the facts across later events and appends a live launch', () => {
+    const store = useCampaignMirrorStore.getState();
+    store.applySnapshot(snapshotEvent(-1, 20), 0, true, [launchEvent(3)]);
+    store.applyEvent(dayEvent(5, 1));
+    expect(useCampaignMirrorStore.getState().launchFacts).toEqual([
+      launchEvent(3),
+    ]);
+    expect(store.applyEvent(launchEvent(6))?.launchFacts).toEqual([
+      launchEvent(3),
+      launchEvent(6),
+    ]);
+    expect(useCampaignMirrorStore.getState()).toMatchObject({
+      lastSequence: 6,
+      launchFacts: [launchEvent(3), launchEvent(6)],
+    });
+    expect(useCampaignMirrorStore.getState().campaign?.day).toBe(1);
+  });
+
+  it('refuses an invalid replacement bundle without resetting the held mirror', () => {
+    const store = useCampaignMirrorStore.getState();
+    store.applySnapshot(snapshotEvent(-1, 20), 0, true, [launchEvent(3)]);
+    store.applyEvent(dayEvent(5, 1));
+    const before = useCampaignMirrorStore.getState();
+    for (const bundle of [
+      [{ ...launchEvent(4), campaignId: 'foreign' }],
+      [
+        {
+          ...launchEvent(4),
+          payload: { missionId: 'x' },
+        } as unknown as ICampaignEvent,
+      ],
+    ])
+      expect(
+        store.applySnapshot(snapshotEvent(-1, 9), 0, true, bundle),
+      ).toBeNull();
+    const after = useCampaignMirrorStore.getState();
+    expect(after.campaign).toBe(before.campaign);
+    expect(after.lastSequence).toBe(5);
+    expect(after.launchFacts).toBe(before.launchFacts);
+    expect(
+      store.applySnapshot(snapshotEvent(-1, 9), 0, true, []),
+    ).not.toBeNull();
+    expect(useCampaignMirrorStore.getState()).toMatchObject({
+      lastSequence: 0,
+      launchFacts: [],
+    });
+    expect(useCampaignMirrorStore.getState().campaign?.balance).toBe(9);
+  });
+
+  it('keeps the legacy positional calls fact-free and clears facts on a new mirror', () => {
+    const store = useCampaignMirrorStore.getState();
+    const legacy = store.applySnapshot(snapshotEvent(-1, 20), 0);
+    expect(legacy && Object.keys(legacy)).toEqual(['state', 'lastSequence']);
+    expect(useCampaignMirrorStore.getState().launchFacts).toBeUndefined();
+    store.applySnapshot(snapshotEvent(-1, 20), 0, true, [launchEvent(3)]);
+    store.beginMirror(
+      { hostPeerId: HOST_PEER, guestPeerId: GUEST_PEER },
+      GUEST_PEER,
+    );
+    expect(useCampaignMirrorStore.getState().launchFacts).toBeUndefined();
+  });
+});
+
 describe('isCampaignMirror', () => {
   it('is true when the local peer is the guest and a host exists', () => {
     expect(
