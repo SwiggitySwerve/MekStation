@@ -2708,9 +2708,9 @@
     {
       "id": "R2.authority-live",
       "ownershipPathsAmended20261009P2C": {
-        "unit": "P2CA/P2CB/P2CD/P2CE/P2CF/P2CG1/P2CG2/P2CH",
+        "unit": "P2CA/P2CB/P2CD/P2CE/P2CE1/P2CE2/P2CE3/P2CF/P2CG1/P2CG2/P2CH",
         "planTask": 8,
-        "evidence": "evidence/p2cb-saga-registration-20261016.json",
+        "evidence": "evidence/p2ce-split-registration-20261016.json",
         "paths": [
           "src/services/persistence",
           "src/lib/p2p/campaignMirrorStore.ts",
@@ -2755,6 +2755,22 @@
             "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts",
             "src/lib/multiplayer/server/__tests__/ServerMatchBroadcaster.test.ts"
           ],
+          "P2CE1": [
+            "src/lib/multiplayer/server/ServerMatchBroadcaster.ts",
+            "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+            "src/lib/multiplayer/server/__tests__/ServerMatchBroadcaster.test.ts"
+          ],
+          "P2CE2": [
+            "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+            "src/lib/multiplayer/server/handleRoomCodeGuestJoin.ts",
+            "src/lib/multiplayer/server/__tests__/handleRoomCodeGuestJoin.test.ts",
+            "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts"
+          ],
+          "P2CE3": [
+            "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+            "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
+            "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts"
+          ],
           "P2CG1": [
             "src/lib/multiplayer/server/CampaignProgressionGate.ts",
             "src/lib/multiplayer/server/campaignProgressionReaders.durable.ts",
@@ -2793,6 +2809,9 @@
           "P2CB": 7,
           "P2CD": 7,
           "P2CE": 11,
+          "P2CE1": 4,
+          "P2CE2": 5,
+          "P2CE3": 4,
           "P2CF": 5,
           "P2CG1": 11,
           "P2CG2": 7,

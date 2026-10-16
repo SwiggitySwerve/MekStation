@@ -1,0 +1,293 @@
+{
+  "event": "p2ce-split-registration",
+  "unit": "P2CE",
+  "planTask": 12,
+  "registrationOnly": true,
+  "at": "2026-10-16T02:29:57.000Z",
+  "baseline": "a2280c40fda38603f5270250f182ede898b3bb6e",
+  "actor": {
+    "role": "implementation sub-agent",
+    "provider": "anthropic",
+    "servedModel": "claude-opus-5-5",
+    "identitySource": "Current T3 Code/Claude Code harness runtime; parent delegation identity and independent review are recorded separately by Root."
+  },
+  "authority": {
+    "plan": {
+      "path": "E:/Projects/Personal/MekStation/.omo/plans/mekstation-whole-roadmap-reconciliation-20261002.md",
+      "bytes": 456418,
+      "sha256": "ddfca64e7749ab42d8642defd386394ba8805451c81c6a03c5e761d7f12ede3c",
+      "sections": [
+        "12. Admit socket offers and confirm only after durable commit",
+        "Task12 corrected send/receipt preparation, 2026-10-09"
+      ]
+    },
+    "clause": "If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required scenario.",
+    "clauseLocations": [
+      "units.json P2CE.admissionRequires",
+      "roadmap.json R2.authority-live.ownershipPathsAmended20261009P2C.permissionBoundary"
+    ],
+    "precedent": {
+      "split": "P1B -> P1B1, P1B2, P1B3 (evidence/p1b-split-admission-20260927.json, PR #2061, 7d99b5517)",
+      "supersededParent": "P1B and U24 stay blocked with superseded/blocked markers; no parent completion receipts are fabricated",
+      "downstream": "P1C, PAI, P2 and U38 named P1B1, P1B2 and P1B3 in place of P1B with an amended marker",
+      "restrictionLedger": "P2CER (evidence/p2cer-registration-20261016.json) and P2CB saga (evidence/p2cb-saga-registration-20261016.json) appended exact restrictions/subtotals and re-pointed the block evidence"
+    }
+  },
+  "measurement": {
+    "source": "Sibling Task 12 implementation round, stopped at admission-by-cap before any commit; its worktree candidate is preserved and untouched by this registration.",
+    "frozenBaseline": "d945ece93e2481454cd106b92272408873907b84",
+    "files": [
+      {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce-20261016/report.md",
+        "bytes": 10293,
+        "sha256": "1418d9ef60e2cd933f0445f801686621ab0758121501731b993de7304a512362"
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce-20261016/census.md",
+        "bytes": 7623,
+        "sha256": "0473eac7a4cc141b4d81beb09c1506f27c3cc6468daa44224d541a95bc34748a"
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce-20261016/red.log",
+        "bytes": 285838,
+        "sha256": "7f320978ea81845abe859c134109e591d30ff2a8ba2d29fd2a27270ed34715cf"
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce-20261016/green.log",
+        "bytes": 268308,
+        "sha256": "292995babae07828f35c3f310468cd397980be84afed1a44ab3f68df2dee9402"
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce-20261016/validation.log",
+        "bytes": 1153,
+        "sha256": "5e60eb32cea8bbd6b36858971ef73853b5ae88b99c9f7aff4c2b8011ab2379dc"
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce-20261016/p2ce-full-implementation-717.patch",
+        "bytes": 70585,
+        "sha256": "505899e1256b368f8bafbf9cd2380a90eb3ec95fa7b7f3c3c828b583e06e0afd"
+      }
+    ],
+    "patchEncoding": "The stored patch carries a UTF-8 BOM and CRLF line endings. Stripping the BOM and converting CRLF to LF gives sha256 c396b1f487dd29de3b8c381848eaea1ef8318f8feb2eb406cbefd811ebc9d67a, the git diff hash in report.md, and that normalized patch applies cleanly (git apply --check) to a2280c40f.",
+    "countingRule": "U41: added lines from git diff --numstat --no-renames; __tests__/test files and ledger evidence uncounted; no deletion credit; every changed file counts toward maxFiles.",
+    "numstat": [
+      {
+        "path": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+        "added": 600,
+        "deleted": 22,
+        "counted": 600
+      },
+      {
+        "path": "src/lib/multiplayer/server/ServerMatchBroadcaster.ts",
+        "added": 80,
+        "deleted": 1,
+        "counted": 80
+      },
+      {
+        "path": "src/lib/multiplayer/server/handleRoomCodeGuestJoin.ts",
+        "added": 37,
+        "deleted": 0,
+        "counted": 37
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/ServerMatchBroadcaster.test.ts",
+        "added": 197,
+        "deleted": 0,
+        "counted": 0
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
+        "added": 103,
+        "deleted": 0,
+        "counted": 0
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts",
+        "added": 418,
+        "deleted": 1,
+        "counted": 0
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/handleRoomCodeGuestJoin.test.ts",
+        "added": 67,
+        "deleted": 0,
+        "counted": 0
+      }
+    ],
+    "countedProductLines": 717,
+    "changedFiles": 7,
+    "caps": {
+      "maxFiles": 15,
+      "maxNonGeneratedLines": 500
+    },
+    "lifecycleLinesPerSlice": "about 16 counted units.json lifecycle lines per slice (sibling estimate), not yet written",
+    "seamAttribution": {
+      "method": "Independent per-hunk count of + lines in the normalized patch; the 460-line class hunk of bindCampaignSyncConnection.ts segmented at its declarations.",
+      "P2CE1": {
+        "counted": 103,
+        "parts": "ServerMatchBroadcaster.ts 80; binder import of ICallbackMatchSocket and IWireCampaignSocket extension 5, lifecycle/broadcaster pair type 4, pair construction 13, destructuring 1"
+      },
+      "P2CE2": {
+        "counted": 412,
+        "parts": "binder 375 (imports about 30, activation port and threading, cleanup invalidate, construction, join routing, IPublicCut 12, preparePublicCut 75, view types, class shell/open/invalidate, wake/enqueue/fail/prepare 40, refresh 59, publish less its ACK hooks 33) + handleRoomCodeGuestJoin.ts 37"
+      },
+      "P2CE3": {
+        "counted": 202,
+        "parts": "binder only: ACK imports 6, strict parse and guard 7, envelope union 1, CampaignAck dispatch and numeric refusal 20, ACK constants/isApplicationAck 11, sameAppliedView 5, early-ACK slot fields 2, acknowledge 20, publish ACK hooks 4, processAck 10, commit and confirmation 116"
+      },
+      "total": 717,
+      "matchesSibling": "Sibling proposal: about 117 / 429 / 220 including about 16 lifecycle lines each, i.e. about 101 / 413 / 204 product lines; this count gives 103 / 412 / 202.",
+      "caveat": "Attribution of the candidate's lines, not a measurement of each future slice. A standalone slice may need small glue lines; each slice is still measured at its own admission."
+    },
+    "fitOptions": {
+      "threeWay": "P2CE1 about 119, P2CE2 about 428, P2CE3 about 218 counted lines with lifecycle; each under 500 and well under 15 files",
+      "twoWaySendPlusOffers": "about 515 product lines (about 531 with lifecycle) > 500",
+      "twoWayOffersPlusAck": "about 614 product lines > 500",
+      "twoWaySendPlusAck": "not orderable: ACK admission needs the offers slice first"
+    }
+  },
+  "scope": [
+    "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+    "openspec/planning/2026-09-12-roadmap-completion/units.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ce-split-registration-20261016.json"
+  ],
+  "registrationBudget": {
+    "actualFiles": 3,
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "productFiles": 0,
+    "productAddedLines": 0,
+    "noCapInflation": true,
+    "actualDiffMeasuredSeparately": true,
+    "everyEvidenceFileCounts": true
+  },
+  "previousRegistration": {
+    "evidence": "evidence/p2cb-saga-registration-20261016.json",
+    "preservedByteForByte": true
+  },
+  "preimages": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "bytes": 1063461,
+      "sha256": "1d150eb13b3a864e3bd5e495e2d9ca4e3b220f6967c40b0b2868a0151ef8fb0c"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "bytes": 1275490,
+      "sha256": "25ab4a4855d9679bcdaf58246cfd96912e392bf1b45912e3b02b61c7c2ab643e"
+    }
+  ],
+  "postimages": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "bytes": 1064440,
+      "sha256": "cce2c38d37f29ef99d17fa670e683a7ae8e9cf8bb3dd7338e53db3ff46306387"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "bytes": 1291715,
+      "sha256": "c42646d5b8591da6371e3c12f1fe2c5b00f99a784ae87cf3e5990a2b41380308"
+    }
+  ],
+  "prospectiveDelta": {
+    "sourceOwner": "R2.authority-live",
+    "addedUnits": [
+      "P2CE1",
+      "P2CE2",
+      "P2CE3"
+    ],
+    "insertImmediatelyAfter": "P2CE",
+    "successorStates": "P2CE1 planned (same predecessors P2CB/P2CD P2CE was released on); P2CE2 and P2CE3 blocked until each exact-main predecessor",
+    "chain": "P2CB, P2CD -> P2CE1 -> P2CE2 -> P2CE3 -> P2CF",
+    "allNewIDs": "baseline/prHead/mergeSha/ownerGate null; all seven stages null; taskKeys empty; caps 15/500; ownershipPaths, ownershipExceptions, lifecycleOwnershipLimit, ciClass and reviewClasses copied from P2CE; admissionRequires is a successor prefix plus P2CE's text verbatim",
+    "parent": {
+      "P2CE": "state planned -> blocked; adds superseded20261016 and blocked20261016; every other P2CE field, including its restriction and subtotal 11, is unchanged"
+    },
+    "downstream": {
+      "P2CF": "predecessors [P2CE] -> [P2CE1, P2CE2, P2CE3]; adds amended20261016",
+      "P2C": "predecessors P2CE replaced in place by P2CE1, P2CE2, P2CE3; admissionRequires \"All eight source slices\" -> \"All ten source slices\"; adds amended20261016",
+      "unchanged": "P2CB.successors and P2CD.successors still name P2CE (resolved through its superseded marker), as P1B's and P1's predecessors were left"
+    },
+    "restrictionsBlock": {
+      "unitBefore": "P2CA/P2CB/P2CD/P2CE/P2CF/P2CG1/P2CG2/P2CH",
+      "unitAfter": "P2CA/P2CB/P2CD/P2CE/P2CE1/P2CE2/P2CE3/P2CF/P2CG1/P2CG2/P2CH",
+      "governingEvidenceBefore": "evidence/p2cb-saga-registration-20261016.json",
+      "governingEvidenceAfter": "evidence/p2ce-split-registration-20261016.json",
+      "restrictionsAdded": {
+        "P2CE1": [
+          "src/lib/multiplayer/server/ServerMatchBroadcaster.ts",
+          "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+          "src/lib/multiplayer/server/__tests__/ServerMatchBroadcaster.test.ts"
+        ],
+        "P2CE2": [
+          "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+          "src/lib/multiplayer/server/handleRoomCodeGuestJoin.ts",
+          "src/lib/multiplayer/server/__tests__/handleRoomCodeGuestJoin.test.ts",
+          "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts"
+        ],
+        "P2CE3": [
+          "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+          "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
+          "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts"
+        ]
+      },
+      "knownSourceTestLifecycleSubtotalsAdded": {
+        "P2CE1": 4,
+        "P2CE2": 5,
+        "P2CE3": 4
+      },
+      "subtotalRule": "restricted leaves plus the unit's own units.json lifecycle file, as every existing P2C subtotal",
+      "subsetOfP2CE": true,
+      "notReassigned": [
+        "src/lib/multiplayer/server/CampaignSyncSession.ts",
+        "src/lib/multiplayer/server/campaignEventWireFrame.ts",
+        "src/lib/multiplayer/server/__tests__/CampaignSyncSession.test.ts"
+      ],
+      "notReassignedReason": "The complete candidate needed none of these three P2CE leaves; they stay in the retained P2CE restriction and in every slice's QA selector as unedited regression suites."
+    }
+  },
+  "scenarioAllocation": {
+    "P2CE1": [
+      "successful send required: only the write callback is success; closed, backpressured, serialize-failed, failed and cancelled sends report failure (primitive)",
+      "shared backpressure and behind state with legacy broadcast"
+    ],
+    "P2CE2": [
+      "captured-view offers bind admitted socket/principal/campaign/session/authority/lineage",
+      "latest cumulative offer in existing connection bookkeeping; no durable sent cache",
+      "failed/closed/backpressure path cannot establish an offer; healthy recipient delivery continues",
+      "uniform viewer-safe public hydration for first join, returning member and GM; grant replica remains internal",
+      "historical launch adjunct facts in the hydration cut",
+      "no hidden progress frame",
+      "authenticated connection gets an opaque offer"
+    ],
+    "P2CE3": [
+      "exact successful ACK commits through P2CA before confirmation",
+      "unknown/unissued/other-socket/principal/session, revoked seat, superseded offer and failed send give no commit or confirmation",
+      "duplicate accepted ACK is idempotent",
+      "early ACK of an in-flight offer held in one exact slot",
+      "no numeric fallback on a receipt connection; legacy numeric ACK kept on legacy connections",
+      "failed confirmation write keeps the row and closes for recovery",
+      "full Task 12 QA selectors pass at completion"
+    ],
+    "allRequiredScenariosAssigned": true
+  },
+  "selectors": {
+    "P2CE1": "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --testPathPattern='ServerMatchBroadcaster|CampaignSyncSession|bindCampaignSyncConnection|handleRoomCodeGuestJoin|coopMissionAnnouncement.reconnect'",
+    "P2CE2": "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --testPathPattern='ServerMatchBroadcaster|CampaignSyncSession|bindCampaignSyncConnection|handleRoomCodeGuestJoin|coopMissionAnnouncement.reconnect'",
+    "P2CE3": "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --testPathPattern='ServerMatchBroadcaster|CampaignSyncSession|bindCampaignSyncConnection|handleRoomCodeGuestJoin|coopMissionAnnouncement.reconnect'",
+    "note": "Prospective: the Task 12 QA pattern plus the broadcaster suite, as the sibling green run used. This registration runs only the roadmap validator and its tests."
+  },
+  "machineChecked": "validate-roadmap.mjs checks the new units' state, ownership paths against the node, ciClass derivation, review classes, caps range, stage ladder and --next order. It does not read splitFrom, predecessors, successors, superseded/amended markers, roadmap restrictions or subtotals; those are documentary and rest on review of this receipt.",
+  "nonclaims": [
+    "No product edits and no implementation green result claimed by this registration",
+    "No source admission; sourceAdmitted is false",
+    "No NDC1 Main, owner approval or owner ruling claimed",
+    "No cap exception, cap inflation, new alias, directory-wide grant or widened ownership",
+    "No packet or owner-ruling edit"
+  ],
+  "permissionBoundary": "Prospective registration only. P2CE1, P2CE2 and P2CE3 product work each still requires fresh finite source admission, a complete source/test/lifecycle/stage/helper/evidence census and measured fit under unchanged 15-file/500-added-product-line caps. Known subtotals are lower bounds, not cap-fit claims.",
+  "delivery": "Independent exact-head review, actual required hosted CI, guarded regular merge, actual Main proof, evidence custody and scoped cleanup remain pending Root gates. This receipt is not an approval or a delivery claim.",
+  "sourceAdmitted": false,
+  "P2Released": false,
+  "U38Released": false
+}
