@@ -14,9 +14,39 @@
  * registry.
  */
 
-import type { IServerMessage } from '@/types/multiplayer/Protocol';
+import type {
+  ICampaignApplicationAck,
+  IServerMessage,
+} from '@/types/multiplayer/Protocol';
 
 import type { IMatchSocket } from './ServerMatchSocketTypes';
+
+/**
+ * A socket whose write reports its own completion, as `ws` does. The
+ * one-argument form stays legal, so a double that ignores the callback is
+ * still a socket - it simply never earns a confirmed send.
+ */
+export interface ICallbackMatchSocket extends IMatchSocket {
+  send(data: string): void;
+  send(data: string, onSent: (error?: Error) => void): void;
+}
+
+/** What one confirmed send came to. Only `sent` is a delivered frame. */
+export type ConfirmedSendResult =
+  | { readonly kind: 'sent' }
+  | {
+      readonly kind: 'failed';
+      readonly reason:
+        | 'closed'
+        | 'backpressure'
+        | 'serialize'
+        | 'send'
+        | 'cancelled';
+    };
+
+const failedSend = (
+  reason: Extract<ConfirmedSendResult, { kind: 'failed' }>['reason'],
+): ConfirmedSendResult => ({ kind: 'failed', reason });
 
 /**
  * Per-connection outbound cap, in bytes already handed to the socket
@@ -186,6 +216,55 @@ export class ServerMatchBroadcaster {
     } catch (error) {
       traceSendFailure(message, socket, error, 'send');
     }
+  };
+
+  /**
+   * Send one frame and report whether the write itself completed (P2CE).
+   *
+   * Applies the same `admitForSend` bound once, before writing. A
+   * synchronous return is never success: only the write callback is, and
+   * a throw after an early callback still wins. Settles exactly once; an
+   * abort settles as cancelled and a later callback is ignored. Closing
+   * and recovery stay with the caller - no timer, retry or policy here.
+   */
+  sendConfirmed = (
+    socket: ICallbackMatchSocket,
+    message: IServerMessage | ICampaignApplicationAck,
+    signal: AbortSignal,
+  ): Promise<ConfirmedSendResult> => {
+    if (signal.aborted) return Promise.resolve(failedSend('cancelled'));
+    if (socket.readyState !== 1) return Promise.resolve(failedSend('closed'));
+    if (!this.admitForSend(socket)) {
+      return Promise.resolve(failedSend('backpressure'));
+    }
+    let payload: string;
+    try {
+      payload = JSON.stringify(message);
+    } catch {
+      return Promise.resolve(failedSend('serialize'));
+    }
+    return new Promise((resolve) => {
+      let returned = false;
+      let early: ConfirmedSendResult | null = null;
+      const onAbort = (): void => settle(failedSend('cancelled'));
+      const settle = (result: ConfirmedSendResult): void => {
+        signal.removeEventListener('abort', onAbort);
+        resolve(result);
+      };
+      signal.addEventListener('abort', onAbort, { once: true });
+      try {
+        socket.send(payload, (error) => {
+          const result = error ? failedSend('send') : { kind: 'sent' as const };
+          if (returned) settle(result);
+          else early = result;
+        });
+      } catch {
+        settle(failedSend('send'));
+        return;
+      }
+      returned = true;
+      if (early) settle(early);
+    });
   };
 }
 

@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CE1",
+  "stage": "local",
+  "baseline": "cb4af3aafb81790c33455fc2304ebb5cf3c36a87",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "Task12 / P2CE1 implementation sub-agent"
+  },
+  "runtime": "node v22.22.0",
+  "command": "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --runTestsByPath src/lib/multiplayer/server/__tests__/ServerMatchBroadcaster.test.ts",
+  "exitCode": 0,
+  "suites": 1,
+  "tests": 20,
+  "qaSelector": "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --testPathPattern='ServerMatchBroadcaster|CampaignSyncSession|bindCampaignSyncConnection|handleRoomCodeGuestJoin|coopMissionAnnouncement.reconnect': 7 suites, 138 tests, exit 0",
+  "adjacentLegacyCallers": "Every other non-e2e suite importing ServerMatchBroadcaster, bindCampaignSyncConnection or IWireCampaignSocket: 22 suites, 100 tests, exit 0",
+  "mutationProbe": "12 source mutations of sendConfirmed (synchronous return as success, callback error as success, early callback beating a throw, abort listener missing, closed socket admitted, pre-aborted signal admitted, backpressure skipped, saturation without behind state, serialize failure uncaught, abort listener leaked, early callback dropped, admitForSend applied twice): 11 killed; admitForSend applied twice survives as an equivalent mutant because an admitted check changes no state",
+  "census": {
+    "files": "8 of 15 (7 in this change plus the reserved review slot)",
+    "productAddedLines": "119 of 500 (product 103: ServerMatchBroadcaster.ts 80, bindCampaignSyncConnection.ts 23; units.json 16), git diff --numstat against baseline; test additions 229 and evidence additions reported separately"
+  },
+  "checks": {
+    "typecheck": "PASS",
+    "lint": "PASS (0 errors; the one touched-file warning is the existing max-lines on bindCampaignSyncConnection.ts, 1265 lines at baseline)",
+    "format": "PASS (oxfmt --check on touched files)",
+    "roadmap": "validate-roadmap.mjs, --next and validate-roadmap.test.mjs recorded in the attempt directory",
+    "testStable": "npm run test:stable runs once after this receipt is frozen, so the roadmap script suites validate these exact bytes; its result is recorded in the attempt directory and the pull request, not here"
+  },
+  "logs": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce1-20261016/",
+  "boundary": "Dormant send primitive only. No production caller of sendConfirmed exists; legacy broadcast and safeSend are byte-unchanged; the binder only stores the lifecycle's own broadcaster beside it and widens its socket type. No offer, hydration, ACK, commit, endpoint, timer or durable sent cache (P2CE2/P2CE3). No merge or Main proof claimed.",
+  "status": "Candidate local checks only; independent exact-head review pending"
+}

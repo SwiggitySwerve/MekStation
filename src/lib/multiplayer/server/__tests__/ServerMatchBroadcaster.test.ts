@@ -221,3 +221,232 @@ describe('ServerMatchBroadcaster saturation boundary', () => {
     expect(pastCap.sent).toHaveLength(0);
   });
 });
+
+/**
+ * P2CE: the result-aware send owner. A receipt offer is established only by
+ * the write's own completion callback - never by a synchronous return, a
+ * callback-ignoring double, a trace log or a closed/saturated socket.
+ */
+describe('ServerMatchBroadcaster confirmed send', () => {
+  type Callback = (error?: Error) => void;
+  function callbackSocket(bufferedAmount = 0) {
+    const socket = {
+      sent: [] as string[],
+      callbacks: [] as Callback[],
+      readyState: 1,
+      bufferedAmount,
+      throwAfterCallback: false,
+      send(data: string, onSent?: Callback) {
+        socket.sent.push(data);
+        if (onSent) socket.callbacks.push(onSent);
+        if (socket.throwAfterCallback) {
+          onSent?.();
+          throw new Error('send threw after its callback');
+        }
+      },
+      close() {},
+    };
+    return socket;
+  }
+  const settled = async (
+    result: Promise<unknown>,
+  ): Promise<unknown | 'pending'> =>
+    Promise.race([
+      result,
+      // One macrotask: a settlement could only come from the callback.
+      new Promise((resolve) => setTimeout(() => resolve('pending'), 0)),
+    ]);
+
+  it('resolves sent only after the write callback succeeds', async () => {
+    const broadcaster = new ServerMatchBroadcaster();
+    const socket = callbackSocket();
+    const result = broadcaster.sendConfirmed(
+      socket,
+      eventFrame(1),
+      new AbortController().signal,
+    );
+
+    expect(socket.sent).toHaveLength(1);
+    expect(await settled(result)).toBe('pending');
+    socket.callbacks[0]();
+    await expect(result).resolves.toEqual({ kind: 'sent' });
+  });
+
+  it('fails on a callback error', async () => {
+    const broadcaster = new ServerMatchBroadcaster();
+    const socket = callbackSocket();
+    const result = broadcaster.sendConfirmed(
+      socket,
+      eventFrame(1),
+      new AbortController().signal,
+    );
+    socket.callbacks[0](new Error('reset'));
+    await expect(result).resolves.toEqual({ kind: 'failed', reason: 'send' });
+  });
+
+  it('settles sent from a callback that fires before send returns', async () => {
+    const broadcaster = new ServerMatchBroadcaster();
+    const socket = callbackSocket();
+    socket.send = (data: string, onSent?: Callback) => {
+      socket.sent.push(data);
+      onSent?.();
+    };
+    await expect(
+      broadcaster.sendConfirmed(
+        socket,
+        eventFrame(1),
+        new AbortController().signal,
+      ),
+    ).resolves.toEqual({ kind: 'sent' });
+  });
+
+  it('releases its abort listener once the send settles', async () => {
+    const broadcaster = new ServerMatchBroadcaster();
+    const socket = callbackSocket();
+    const abort = new AbortController();
+    const added = jest.spyOn(abort.signal, 'addEventListener');
+    const removed = jest.spyOn(abort.signal, 'removeEventListener');
+    const result = broadcaster.sendConfirmed(
+      socket,
+      eventFrame(1),
+      abort.signal,
+    );
+    socket.callbacks[0]();
+    await expect(result).resolves.toEqual({ kind: 'sent' });
+    expect(removed).toHaveBeenCalledWith('abort', added.mock.calls[0][1]);
+  });
+
+  it('lets a synchronous throw win over a callback it already fired', async () => {
+    const broadcaster = new ServerMatchBroadcaster();
+    const socket = callbackSocket();
+    socket.throwAfterCallback = true;
+    await expect(
+      broadcaster.sendConfirmed(
+        socket,
+        eventFrame(1),
+        new AbortController().signal,
+      ),
+    ).resolves.toEqual({ kind: 'failed', reason: 'send' });
+  });
+
+  it('gives a callback-ignoring socket no success and cancels it on abort', async () => {
+    const broadcaster = new ServerMatchBroadcaster();
+    const ignoring = bufferedSocket(0);
+    const abort = new AbortController();
+    const result = broadcaster.sendConfirmed(
+      ignoring,
+      eventFrame(1),
+      abort.signal,
+    );
+
+    expect(ignoring.sent).toHaveLength(1);
+    expect(await settled(result)).toBe('pending');
+    abort.abort();
+    await expect(result).resolves.toEqual({
+      kind: 'failed',
+      reason: 'cancelled',
+    });
+  });
+
+  it('ignores a late callback success after abort', async () => {
+    const broadcaster = new ServerMatchBroadcaster();
+    const socket = callbackSocket();
+    const abort = new AbortController();
+    const result = broadcaster.sendConfirmed(
+      socket,
+      eventFrame(1),
+      abort.signal,
+    );
+    abort.abort();
+    socket.callbacks[0]();
+    await expect(result).resolves.toEqual({
+      kind: 'failed',
+      reason: 'cancelled',
+    });
+  });
+
+  it('writes nothing to a closed or already-aborted socket', async () => {
+    const broadcaster = new ServerMatchBroadcaster();
+    const closed = callbackSocket();
+    closed.readyState = 3;
+    const aborted = new AbortController();
+    aborted.abort();
+
+    await expect(
+      broadcaster.sendConfirmed(
+        closed,
+        eventFrame(1),
+        new AbortController().signal,
+      ),
+    ).resolves.toEqual({ kind: 'failed', reason: 'closed' });
+    await expect(
+      broadcaster.sendConfirmed(
+        callbackSocket(),
+        eventFrame(1),
+        aborted.signal,
+      ),
+    ).resolves.toEqual({ kind: 'failed', reason: 'cancelled' });
+    expect(closed.sent).toHaveLength(0);
+  });
+
+  it('shares the one backpressure rule and behind state with broadcast', async () => {
+    const broadcaster = new ServerMatchBroadcaster();
+    const atCap = callbackSocket(MAX_BUFFERED_BYTES);
+    const pastCap = callbackSocket(MAX_BUFFERED_BYTES + 1);
+    broadcaster.register(pastCap);
+    const signal = new AbortController().signal;
+
+    const ok = broadcaster.sendConfirmed(atCap, eventFrame(1), signal);
+    atCap.callbacks[0]();
+    await expect(ok).resolves.toEqual({ kind: 'sent' });
+    await expect(
+      broadcaster.sendConfirmed(pastCap, eventFrame(1), signal),
+    ).resolves.toEqual({ kind: 'failed', reason: 'backpressure' });
+    expect(pastCap.sent).toHaveLength(0);
+    expect(broadcaster.isBehind(pastCap)).toBe(true);
+
+    // Still behind after draining: only owned recovery resumes it.
+    pastCap.bufferedAmount = 0;
+    await expect(
+      broadcaster.sendConfirmed(pastCap, eventFrame(2), signal),
+    ).resolves.toEqual({ kind: 'failed', reason: 'backpressure' });
+    broadcaster.broadcast(eventFrame(3));
+    expect(pastCap.sent).toHaveLength(0);
+  });
+
+  it('fails a frame that cannot be serialized without writing', async () => {
+    const broadcaster = new ServerMatchBroadcaster();
+    const socket = callbackSocket();
+    const event: Record<string, unknown> = { sequence: 1 };
+    event.self = event;
+    const frame = { ...eventFrame(1), event };
+    await expect(
+      broadcaster.sendConfirmed(
+        socket,
+        frame as unknown as IServerMessage,
+        new AbortController().signal,
+      ),
+    ).resolves.toEqual({ kind: 'failed', reason: 'serialize' });
+    expect(socket.sent).toHaveLength(0);
+  });
+
+  it('uses the callback whether or not socket tracing is enabled', async () => {
+    const previous = process.env.MULTIPLAYER_SOCKET_TRACE;
+    delete process.env.MULTIPLAYER_SOCKET_TRACE;
+    try {
+      const broadcaster = new ServerMatchBroadcaster();
+      const socket = callbackSocket();
+      const result = broadcaster.sendConfirmed(
+        socket,
+        eventFrame(1),
+        new AbortController().signal,
+      );
+      expect(socket.callbacks).toHaveLength(1);
+      socket.callbacks[0]();
+      await expect(result).resolves.toEqual({ kind: 'sent' });
+    } finally {
+      if (previous !== undefined)
+        process.env.MULTIPLAYER_SOCKET_TRACE = previous;
+    }
+  });
+});
