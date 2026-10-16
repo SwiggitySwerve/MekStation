@@ -7,7 +7,10 @@ import { readParticipantDeliveryCursor } from '@/lib/campaign/delivery/participa
 import { signCampaignGrantToken } from '@/lib/campaign/grants/campaignGrantToken';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { generateKeyPair, toBase64 } from '@/services/vault/IdentityService';
-import { ServerMessageSchema } from '@/types/multiplayer/Protocol';
+import {
+  CampaignApplicationServerMessageSchema,
+  ServerMessageSchema,
+} from '@/types/multiplayer/Protocol';
 
 import type { ICampaignHostRegistryEntry } from '../CampaignHostRegistry';
 
@@ -25,6 +28,7 @@ import { createCampaignSessionMembershipPort } from '../campaignSessionMembershi
 import { RESYNC_SNAPSHOT_GAP } from '../CampaignSyncSession';
 import * as grantAck from '../handleCampaignGrantAck';
 import * as grantJoin from '../handleCampaignGrantJoin';
+import { MAX_BUFFERED_BYTES } from '../ServerMatchBroadcaster';
 import {
   framesOf,
   grantJoinEnvelope,
@@ -740,4 +744,423 @@ describe('durable mission launch reconnect', () => {
       );
     },
   );
+
+  /**
+   * P2CE2: socket offers over one same-cut viewer-safe public bundle, each
+   * established only by a confirmed write. Real SQLite and verified journal;
+   * the only double is a callback-aware socket whose write completion the
+   * test controls. No receipt ACK or P2CA commit exists yet (P2CE3).
+   */
+  describe('application offers (P2CE2)', () => {
+    type SendCallback = (error?: Error) => void;
+    class ReceiptSocket extends ObservedSocket {
+      mode: 'auto' | 'hold' | 'fail' = 'auto';
+      readonly held: SendCallback[] = [];
+      bufferedAmount = 0;
+      override send(data: string, onSent?: SendCallback): void {
+        super.send(data);
+        if (!onSent) return;
+        if (this.mode === 'hold') {
+          this.held.push(onSent);
+          return;
+        }
+        const error = this.mode === 'fail' ? new Error('write failed') : null;
+        queueMicrotask(() => onSent(error ?? undefined));
+      }
+    }
+    type Offer = {
+      kind: string;
+      event: ICampaignEvent;
+      appliedView: {
+        viewId: string;
+        receiptId: string;
+        previousReceiptId: string | null;
+      };
+      hydrationFacts?: ICampaignEvent[];
+    };
+    type Player = { readonly playerId: string };
+    const newcomer: Player = { playerId: 'pid-room-newcomer' };
+
+    const db = () => getSQLiteService().getDatabase();
+    const offers = (socket: ReceiptSocket): Offer[] =>
+      socket.sent.filter(
+        (frame) =>
+          (frame.kind === 'CampaignSnapshot' ||
+            frame.kind === 'CampaignEvent') &&
+          frame.appliedView !== undefined,
+      ) as unknown as Offer[];
+
+    async function bindReceipts(
+      player: Player,
+      ports: {
+        membership?: boolean;
+        receipts?: boolean;
+        adapters?: boolean;
+      } = {},
+    ) {
+      const socket = new ReceiptSocket();
+      sockets.push(socket);
+      await bindCampaignSyncConnection({
+        socket,
+        registry: getCampaignHostRegistry(),
+        matchId: fixture.entry.matchId,
+        verifiedPlayerId: player.playerId,
+        logger: quietLogger,
+        ...(ports.membership === false
+          ? {}
+          : { membership: createCampaignSessionMembershipPort() }),
+        ...(ports.receipts === false
+          ? {}
+          : { applicationReceipts: { database: db } }),
+        ...(ports.adapters === false
+          ? { grantChannel: null, replicaStore: null }
+          : {}),
+      });
+      return socket;
+    }
+
+    function joinMessage(player: Player, lastSeq?: number) {
+      return {
+        kind: 'CampaignJoin',
+        matchId: fixture.entry.matchId,
+        ts: new Date().toISOString(),
+        playerId: player.playerId,
+        role: player.playerId === fixture.host.playerId ? 'host' : 'guest',
+        roomCode: fixture.entry.roomCode ?? undefined,
+        ...(lastSeq === undefined ? {} : { lastSeq }),
+      } as const;
+    }
+
+    async function joinReceipts(
+      player: Player,
+      ports?: Parameters<typeof bindReceipts>[1],
+    ) {
+      const socket = await bindReceipts(player, ports);
+      const joined = once(socket, 'joined', signal());
+      socket.inbound(joinMessage(player));
+      await joined;
+      return socket;
+    }
+
+    /** Commit, then wait for each named socket's next delta. */
+    async function commitSeenBy(
+      recipients: ReceiptSocket[],
+      events: Parameters<typeof fixture.entry.host._commitEventsForTests>[0],
+    ) {
+      const seen = recipients.map((socket) =>
+        once(socket, 'CampaignEvent', signal()),
+      );
+      await fixture.entry.host._commitEventsForTests(events);
+      await Promise.all(seen);
+    }
+
+    const visibleFunds = (reason: string) => ({
+      type: 'FundsChanged' as const,
+      campaignId: fixture.entry.campaignId,
+      ts: new Date().toISOString(),
+      authorPlayerId: fixture.host.playerId,
+      scope: 'campaign' as const,
+      payload: { delta: 0, reason, balance: 7 },
+    });
+    const hiddenFunds = (reason: string) => ({
+      ...visibleFunds(reason),
+      scope: 'gm' as const,
+    });
+
+    it('hydrates GM, returning member and room-code newcomer from one viewer-safe public bundle, each on its own view', async () => {
+      await privateHistory();
+      const launch = await createMission();
+      const gm = await joinReceipts(fixture.host);
+      const member = await joinReceipts(fixture.guest);
+      const joiner = await joinReceipts(newcomer);
+
+      const views = new Set<string>();
+      for (const socket of [gm, member, joiner]) {
+        socket.sent.forEach((frame) =>
+          expect(
+            CampaignApplicationServerMessageSchema.safeParse(frame).success,
+          ).toBe(true),
+        );
+        // The one public bundle: no legacy replay or launch frames.
+        expect(framesOf(socket, 'CampaignEvent')).toEqual([]);
+        expect(offers(socket)).toHaveLength(1);
+        const [snapshot] = offers(socket);
+        expect(snapshot.kind).toBe('CampaignSnapshot');
+        expect(snapshot.event.sequence).toBe(-1);
+        expect(snapshot.appliedView.previousReceiptId).toBeNull();
+        expect(snapshot.hydrationFacts).toEqual([launch]);
+        // No public journal position rides the baseline.
+        expect(snapshot.event.payload).not.toHaveProperty('revision');
+        views.add(snapshot.appliedView.viewId);
+      }
+      expect(views.size).toBe(3);
+      expect(JSON.stringify(gm.sent)).toContain(SECRET);
+      expect(JSON.stringify(member.sent)).not.toContain(SECRET);
+      expect(JSON.stringify(joiner.sent)).not.toContain(SECRET);
+      // Both join paths reach the same viewer-safe state.
+      expect(offers(joiner)[0].event.payload).toEqual(
+        offers(member)[0].event.payload,
+      );
+      expect(
+        createCampaignSessionMembershipPort().isActive(
+          fixture.entry.campaignId,
+          fixture.entry.matchId,
+          newcomer.playerId,
+        ),
+      ).toBe(true);
+
+      // A returning member's new connection mints a new view.
+      member.close();
+      const returning = await joinReceipts(fixture.guest);
+      const [rebaseline] = offers(returning);
+      expect(views.has(rebaseline.appliedView.viewId)).toBe(false);
+      expect(rebaseline.appliedView.previousReceiptId).toBeNull();
+      expect(rebaseline.hydrationFacts).toEqual([launch]);
+      expect(JSON.stringify(returning.sent)).not.toContain(SECRET);
+    });
+
+    it('links each newly visible delta to the latest established offer and withholds hidden progress', async () => {
+      await privateHistory();
+      const gm = await joinReceipts(fixture.host);
+      const guest = await joinReceipts(fixture.guest);
+
+      await commitSeenBy([gm], [hiddenFunds(SECRET)]);
+      await commitSeenBy([gm, guest], [visibleFunds('first-visible')]);
+      await commitSeenBy([gm, guest], [visibleFunds('second-visible')]);
+
+      const [baseline, ...deltas] = offers(guest);
+      expect(deltas.map((offer) => offer.event.payload)).toEqual([
+        expect.objectContaining({ reason: 'first-visible' }),
+        expect.objectContaining({ reason: 'second-visible' }),
+      ]);
+      expect(deltas.map((offer) => offer.appliedView)).toEqual([
+        {
+          viewId: baseline.appliedView.viewId,
+          receiptId: expect.any(String),
+          previousReceiptId: baseline.appliedView.receiptId,
+        },
+        {
+          viewId: baseline.appliedView.viewId,
+          receiptId: expect.any(String),
+          previousReceiptId: deltas[0].appliedView.receiptId,
+        },
+      ]);
+      expect(
+        new Set(offers(guest).map((offer) => offer.appliedView.receiptId)).size,
+      ).toBe(3);
+      expect(JSON.stringify(guest.sent)).not.toContain(SECRET);
+
+      // The GM's own view carries the hidden progress, in order.
+      const [gmBaseline, ...gmDeltas] = offers(gm);
+      expect(gmDeltas.map((offer) => offer.event.payload)).toEqual([
+        expect.objectContaining({ reason: SECRET }),
+        expect.objectContaining({ reason: 'first-visible' }),
+        expect.objectContaining({ reason: 'second-visible' }),
+      ]);
+      expect(gmDeltas[0].appliedView.previousReceiptId).toBe(
+        gmBaseline.appliedView.receiptId,
+      );
+    });
+
+    it('establishes the baseline only on its confirmed write; a commit meanwhile follows it, linked to it', async () => {
+      await privateHistory();
+      const gm = await joinReceipts(fixture.host);
+      const guest = await bindReceipts(fixture.guest);
+      guest.mode = 'hold';
+      const written = once(guest, 'CampaignSnapshot', signal());
+      let joined = false;
+      const ready = once(guest, 'joined', signal()).then(() => {
+        joined = true;
+      });
+      guest.inbound(joinMessage(fixture.guest));
+      await written;
+      // The GM's delta shows the same commit has woken every view.
+      await commitSeenBy([gm], [visibleFunds('during-hydration')]);
+      expect(offers(guest)).toHaveLength(1);
+      expect(joined).toBe(false);
+
+      const delta = once(guest, 'CampaignEvent', signal());
+      guest.mode = 'auto';
+      guest.held.splice(0).forEach((callback) => callback());
+      await Promise.all([ready, delta]);
+      const [baseline, ...suffix] = offers(guest);
+      expect(suffix).toHaveLength(1);
+      expect(suffix[0].event.payload).toMatchObject({
+        reason: 'during-hydration',
+      });
+      expect(suffix[0].appliedView.previousReceiptId).toBe(
+        baseline.appliedView.receiptId,
+      );
+    });
+
+    it.each(['failed', 'backpressured', 'closing'] as const)(
+      'a %s write establishes nothing and closes for rejoin while a healthy recipient keeps receiving',
+      async (failure) => {
+        const gm = await joinReceipts(fixture.host);
+        const guest = await bindReceipts(fixture.guest);
+        if (failure === 'failed') guest.mode = 'fail';
+        if (failure === 'backpressured') {
+          guest.bufferedAmount = MAX_BUFFERED_BYTES + 1;
+        }
+        if (failure === 'closing') guest.readyState = 2;
+        const closed = once(guest, 'close', signal());
+        guest.inbound(joinMessage(fixture.guest));
+        await closed;
+        expect(guest.closes).toEqual([
+          { code: 1008, reason: 'campaign-application-send-failed' },
+        ]);
+        // A failed write was handed over; the refused ones never were.
+        expect(offers(guest)).toHaveLength(failure === 'failed' ? 1 : 0);
+        const frames = guest.sent.length;
+
+        await commitSeenBy([gm], [visibleFunds('healthy')]);
+        const [gmBaseline, gmDelta] = offers(gm);
+        expect(gmDelta.appliedView.previousReceiptId).toBe(
+          gmBaseline.appliedView.receiptId,
+        );
+        expect(guest.sent).toHaveLength(frames);
+      },
+    );
+
+    it('a committed removal ends the view, and the removed participant cannot rehydrate', async () => {
+      const gm = await joinReceipts(fixture.host);
+      const guest = await joinReceipts(fixture.guest);
+      const closed = once(guest, 'close', signal());
+      await commitSeenBy(
+        [gm],
+        [
+          {
+            type: 'ParticipantRemoved',
+            campaignId: fixture.entry.campaignId,
+            ts: new Date().toISOString(),
+            authorPlayerId: fixture.host.playerId,
+            scope: 'campaign',
+            payload: { participantId: fixture.guest.playerId },
+          },
+        ],
+      );
+      await closed;
+      expect(guest.closes).toEqual([
+        { code: 1008, reason: 'membership-revoked' },
+      ]);
+      expect(offers(guest)).toHaveLength(1);
+
+      const returning = await bindReceipts(fixture.guest);
+      const refusal = once(returning, 'Error', signal());
+      returning.inbound(joinMessage(fixture.guest));
+      await refusal;
+      expect(offers(returning)).toEqual([]);
+      expect(framesOf(returning, 'Error')).toEqual([
+        expect.objectContaining({ reason: 'membership-revoked' }),
+      ]);
+    });
+
+    it('an authority change under the view ends it for rejoin', async () => {
+      const guest = await joinReceipts(fixture.guest);
+      // A re-bound seat changes the prepared viewer authority.
+      db()
+        .prepare(
+          'UPDATE campaign_session_participant SET bound_at = ? WHERE participant_id = ?',
+        )
+        .run(new Date(Date.now() + 1000).toISOString(), fixture.guest.playerId);
+      const closed = once(guest, 'close', signal());
+      await fixture.entry.host._commitEventsForTests([
+        visibleFunds('after-reseat'),
+      ]);
+      await closed;
+      expect(guest.closes).toEqual([
+        { code: 1008, reason: 'campaign-application-replaced' },
+      ]);
+      expect(offers(guest)).toHaveLength(1);
+    });
+
+    it('a revocation while the baseline write is unsettled establishes nothing', async () => {
+      const guest = await bindReceipts(fixture.guest);
+      guest.mode = 'hold';
+      let joined = false;
+      guest.once('joined', () => {
+        joined = true;
+      });
+      const written = once(guest, 'CampaignSnapshot', signal());
+      guest.inbound(joinMessage(fixture.guest));
+      await written;
+      createCampaignSessionMembershipPort().revoke({
+        campaignId: fixture.entry.campaignId,
+        sessionId: fixture.entry.matchId,
+        participantId: fixture.guest.playerId,
+        revokedAt: new Date().toISOString(),
+      });
+      const closed = once(guest, 'close', signal());
+      guest.mode = 'auto';
+      guest.held.splice(0).forEach((callback) => callback());
+      await closed;
+      expect(guest.closes).toEqual([
+        { code: 1008, reason: 'membership-revoked' },
+      ]);
+      expect(joined).toBe(false);
+    });
+
+    it('closing the socket ends the view and releases its commit subscription', async () => {
+      const host = fixture.entry.host;
+      const subscribe = host.subscribe;
+      let live = 0;
+      jest.spyOn(host, 'subscribe').mockImplementation((subscriber) => {
+        live += 1;
+        const unsubscribe = subscribe(subscriber);
+        return () => {
+          live -= 1;
+          unsubscribe();
+        };
+      });
+      const guest = await joinReceipts(fixture.guest);
+      expect(live).toBeGreaterThan(0);
+      guest.close();
+      expect(live).toBe(0);
+    });
+
+    it('refuses to hydrate a cut whose verified history does not reach the head digest', async () => {
+      await privateHistory();
+      db()
+        .prepare(
+          "UPDATE event_journal_stream_heads SET event_digest = ? WHERE stream_type = 'campaign' AND stream_id = ?",
+        )
+        .run('f'.repeat(64), fixture.entry.campaignId);
+      const guest = await bindReceipts(fixture.guest);
+      const closed = once(guest, 'close', signal());
+      guest.inbound(joinMessage(fixture.guest));
+      await closed;
+      expect(guest.closes).toEqual([
+        { code: 1008, reason: 'campaign-application-unavailable' },
+      ]);
+      expect(offers(guest)).toEqual([]);
+      expect(JSON.stringify(guest.sent)).not.toContain(SECRET);
+    });
+
+    it('a newcomer quoting lastSeq without grant adapters still gets the public bundle, not a legacy resync', async () => {
+      await privateHistory();
+      const launch = await createMission();
+      const socket = await bindReceipts(newcomer, { adapters: false });
+      const joined = once(socket, 'joined', signal());
+      socket.inbound(joinMessage(newcomer, 0));
+      await joined;
+      expect(framesOf(socket, 'CampaignEvent')).toEqual([]);
+      const [baseline] = offers(socket);
+      expect(offers(socket)).toHaveLength(1);
+      expect(baseline.kind).toBe('CampaignSnapshot');
+      expect(baseline.hydrationFacts).toEqual([launch]);
+      expect(JSON.stringify(socket.sent)).not.toContain(SECRET);
+    });
+
+    it.each([
+      ['durable membership alone', { receipts: false }],
+      ['the receipt port alone', { membership: false }],
+    ] as const)('stays a legacy connection with %s', async (_label, ports) => {
+      await privateHistory();
+      const launch = await createMission();
+      const socket = await joinReceipts(fixture.guest, ports);
+      expect(offers(socket)).toEqual([]);
+      expect(framesOf(socket, 'CampaignSnapshot')).toHaveLength(1);
+      expect(launches(socket).map((frame) => frame.event)).toEqual([launch]);
+    });
+  });
 });

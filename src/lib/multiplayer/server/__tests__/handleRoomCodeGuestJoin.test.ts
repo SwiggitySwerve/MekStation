@@ -22,6 +22,7 @@ import { bindCampaignSyncConnection } from '@/lib/multiplayer/server/bindCampaig
 import { CampaignHostRegistry } from '@/lib/multiplayer/server/CampaignHostRegistry';
 import {
   _resetRoomCodeGuestIssuerForTest,
+  handleRoomCodeGuestJoin,
   roomCodeAdmitsGuest,
 } from '@/lib/multiplayer/server/handleRoomCodeGuestJoin';
 import { useCampaignMirrorStore } from '@/lib/p2p/campaignMirrorStore';
@@ -393,6 +394,72 @@ describe('room-code guest grant path', () => {
       sessionId: MATCH_ID,
       participantId: GUEST_ID,
       seat: 'player',
+    });
+  });
+
+  describe('receipt-mode public hydration (P2CE)', () => {
+    function receiptJoin(
+      publicHydration: () => Promise<boolean>,
+      envelope = joinEnvelope(),
+    ) {
+      const entry = registry.get(MATCH_ID)!;
+      const sent: IServerMessage[] = [];
+      const cleanupFns = new Set<() => void>();
+      const outcome = handleRoomCodeGuestJoin({
+        envelope,
+        entry,
+        matchId: MATCH_ID,
+        verifiedPlayerId: GUEST_ID,
+        cleanupFns,
+        grantChannel: harnessGrantChannel(harness, 'snapshot-plus-tail'),
+        replicaStore: replica,
+        liveSource: { subscribe: () => () => undefined },
+        send: (message) => sent.push(message),
+        closeTyped: () => undefined,
+        issuer: ISSUER,
+        publicHydration,
+      });
+      return { entry, sent, cleanupFns, outcome };
+    }
+
+    it('keeps the grant replica internal and publishes only the common bundle', async () => {
+      const entry = registry.get(MATCH_ID)!;
+      await appendGmFunds(entry.host, GM_MARKER, 5);
+      const retain = jest.spyOn(entry.syncSession, 'retainHydratedParticipant');
+      const attach = jest.spyOn(entry.syncSession, 'attachLiveParticipant');
+      let cursorAtHydration: unknown = 'not-called';
+      const join = receiptJoin(async () => {
+        cursorAtHydration = await replica.lastCursor(
+          CAMPAIGN_ID,
+          activeGuestGrantId(),
+        );
+        return true;
+      });
+
+      await expect(join.outcome).resolves.toBe('served');
+      expect(cursorAtHydration).not.toBeNull();
+      expect(cursorAtHydration).not.toBe('not-called');
+      expect(join.sent).toEqual([]);
+      expect(retain).not.toHaveBeenCalled();
+      expect(attach).not.toHaveBeenCalled();
+      join.cleanupFns.forEach((fn) => fn());
+    });
+
+    it('reports a failed receipt hydration as rejected', async () => {
+      const join = receiptJoin(async () => false);
+      await expect(join.outcome).resolves.toBe('rejected');
+      join.cleanupFns.forEach((fn) => fn());
+    });
+
+    it('never runs receipt hydration for a wrong room code', async () => {
+      const hydrate = jest.fn(async () => true);
+      const join = receiptJoin(hydrate, {
+        ...joinEnvelope(),
+        roomCode: 'ZZZ999',
+      });
+      await expect(join.outcome).resolves.toBe('rejected');
+      expect(hydrate).not.toHaveBeenCalled();
+      expect(join.sent.map((message) => message.kind)).toEqual(['Error']);
     });
   });
 });

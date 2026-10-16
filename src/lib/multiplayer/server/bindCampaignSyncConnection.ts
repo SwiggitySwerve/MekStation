@@ -1,9 +1,18 @@
+import type Database from 'better-sqlite3';
+
+import { randomUUID } from 'node:crypto';
+
 import type { ICampaignGrantLiveSource } from '@/lib/campaign/delivery/campaignGrantChannelSession';
 import type { ICampaignGrantSigner } from '@/lib/campaign/grants/ICampaignGrantStore';
 import type { SQLiteCampaignReplicaStore } from '@/lib/campaign/replica/SQLiteCampaignReplicaStore';
 import type { CampaignArtifactUseReader } from '@/lib/interventions/GmCampaignArtifactUseDurable';
-import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
 import type {
+  CampaignEventScope,
+  ICampaignAuthoritativeState,
+  ICampaignEvent,
+} from '@/types/campaign/CampaignSync';
+import type {
+  ICampaignApplicationOffer,
   ICampaignClientMessage,
   IClientMessage,
   IErrorCode,
@@ -12,8 +21,24 @@ import type {
 
 import { campaignStreamRef } from '@/lib/campaign/authority/campaignLaunchHead';
 import { reconcileCoopBattle } from '@/lib/campaign/coop/reconcileCoopBattle';
+import { campaignBranchSegmentReader } from '@/lib/campaign/rebuild/campaignBranchSegmentReader';
+import { campaignViewerAuthorityFingerprint } from '@/lib/campaign/sync/campaignPublicAppliedView';
+import { projectCampaignForViewer } from '@/lib/campaign/sync/campaignViewerProjection';
+import {
+  CAMPAIGN_STREAM_TYPE,
+  envelopeOf,
+  type ICampaignJournalEnvelope,
+} from '@/lib/campaign/sync/JournalCampaignEventStore';
+import {
+  materializeBranchPath,
+  resolveBranchPath,
+} from '@/lib/events/journal/EventHistoryBranchResolver';
+import { readEffectiveStreamHead } from '@/lib/events/journal/EventHistoryEffectiveStreamHead';
+import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
+import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
 import { readDurableCampaignArtifactUse } from '@/lib/interventions/GmCampaignArtifactUseDurable';
 import { normalizeRoomCode } from '@/lib/p2p/roomCodes';
+import { activeCampaignSessionMembership } from '@/services/campaignPersistence/CampaignSessionParticipantStore';
 import { CAMPAIGN_STALE_HEAD } from '@/types/campaign/CampaignSync';
 import {
   assertKnownCampaignSyncFrameKind,
@@ -38,8 +63,10 @@ import {
   createCampaignReplicaStoreFromSqlite,
 } from './campaignGrantChannelDeps';
 import { getCampaignHostRegistry } from './CampaignHostRegistry';
+import { selectCampaignMissionLaunches } from './campaignMissionLaunchReplay';
 import { formatCampaignProgressionRefusalReason } from './CampaignProgressionGate';
 import { refusedWhileCampaignRebuilding } from './campaignSyncRebuildAdmission';
+import { campaignScopeAdmits } from './campaignWireScopeBoundary';
 import {
   handleCampaignGrantAck,
   type IBoundGrantSession,
@@ -182,6 +209,17 @@ export interface IBindCampaignSyncConnectionDeps {
    * graph; LAW 62 forbids pulling SQLite across that seam).
    */
   artifactUse?: CampaignArtifactUseReader;
+  /**
+   * P2CE activation port. Application offers are issued only when the
+   * binder is composed with this AND `membership`; production does not
+   * compose it until the durable readiness doors read the rows (Task 14).
+   */
+  applicationReceipts?: ICampaignApplicationReceiptPort | null;
+}
+
+/** The campaign database the P2CA applied-view owner commits on. */
+export interface ICampaignApplicationReceiptPort {
+  readonly database: () => Database.Database;
 }
 
 export interface IBoundCampaignSyncConnection {
@@ -245,6 +283,7 @@ export async function bindCampaignSyncConnection({
   membership,
   forceClaims,
   artifactUse,
+  applicationReceipts,
 }: IBindCampaignSyncConnectionDeps): Promise<IBoundCampaignSyncConnection | null> {
   const entry = registry.getOrCreate
     ? await registry.getOrCreate(matchId)
@@ -274,6 +313,7 @@ export async function bindCampaignSyncConnection({
   const cleanup = (): void => {
     if (cleanedUp) return;
     cleanedUp = true;
+    application?.invalidate();
     cleanupFns.forEach((fn) => fn());
     cleanupFns.clear();
     boundGrants.clear();
@@ -281,7 +321,21 @@ export async function bindCampaignSyncConnection({
     sockets?.delete(socket);
     if (sockets?.size === 0) socketsByMatch.delete(matchId);
   };
-  const { lifecycle } = campaignSocketLifecycle(entry, matchId);
+  const { lifecycle, broadcaster } = campaignSocketLifecycle(entry, matchId);
+  const application =
+    membership && applicationReceipts
+      ? new CampaignApplicationConnection(verifiedPlayerId, {
+          socket,
+          entry,
+          matchId,
+          broadcaster,
+          membership,
+          receipts: applicationReceipts,
+          logger,
+          close: (code, reason) =>
+            closeWithTypedError({ socket, matchId, cleanup, code, reason }),
+        })
+      : null;
   lifecycle.attach(socket, verifiedPlayerId);
   cleanupFns.add(() => lifecycle.detach(socket));
 
@@ -304,6 +358,7 @@ export async function bindCampaignSyncConnection({
       membership,
       forceClaims,
       artifactUse,
+      application,
     });
   });
   socket.on('close', cleanup);
@@ -330,6 +385,7 @@ interface IHandleInboundDeps {
   membership?: ICampaignSessionMembershipPort | null;
   forceClaims?: ICampaignForceClaimPort | null;
   artifactUse?: CampaignArtifactUseReader;
+  application: CampaignApplicationConnection | null;
 }
 
 async function handleInbound({
@@ -350,6 +406,7 @@ async function handleInbound({
   membership,
   forceClaims,
   artifactUse,
+  application,
 }: IHandleInboundDeps): Promise<void> {
   // Keep the campaign path aligned with the match binder: any inbound
   // frame refreshes the connection before it reaches intent dispatch.
@@ -461,6 +518,7 @@ async function handleInbound({
       membership,
       forceClaims,
       artifactUse,
+      application,
     });
   } catch (error) {
     logger.error('[campaign-sync] dispatch failed', error);
@@ -491,6 +549,7 @@ interface IDispatchCampaignEnvelopeDeps {
   membership?: ICampaignSessionMembershipPort | null;
   forceClaims?: ICampaignForceClaimPort | null;
   artifactUse?: CampaignArtifactUseReader;
+  application: CampaignApplicationConnection | null;
 }
 
 async function dispatchCampaignEnvelope({
@@ -510,6 +569,7 @@ async function dispatchCampaignEnvelope({
   membership,
   forceClaims,
   artifactUse,
+  application,
 }: IDispatchCampaignEnvelopeDeps): Promise<void> {
   switch (envelope.kind) {
     case 'CampaignJoin':
@@ -526,6 +586,7 @@ async function dispatchCampaignEnvelope({
         replicaStore,
         roomCodeGrantIssuer,
         membership,
+        application,
       });
       return;
     case 'CampaignGrantJoin':
@@ -942,6 +1003,7 @@ async function handleCampaignJoin({
   replicaStore,
   roomCodeGrantIssuer,
   membership,
+  application,
 }: {
   envelope: Extract<ICampaignClientMessage, { kind: 'CampaignJoin' }>;
   socket: IWireCampaignSocket;
@@ -955,6 +1017,7 @@ async function handleCampaignJoin({
   replicaStore?: SQLiteCampaignReplicaStore | null;
   roomCodeGrantIssuer?: ICampaignGrantSigner;
   membership?: ICampaignSessionMembershipPort | null;
+  application: CampaignApplicationConnection | null;
 }): Promise<void> {
   // Durable membership decides first (umbrella 6.1/6.2). Two things
   // become possible only once it does:
@@ -986,6 +1049,12 @@ async function handleCampaignJoin({
       role,
       revision: entry.revision,
     });
+  };
+  // Receipt mode: every admitted role gets the same prepared public bundle.
+  const hydrateApplication = async (app: CampaignApplicationConnection) => {
+    if (!(await app.open())) return;
+    addSocketToMatch(matchId, socket);
+    acknowledge();
   };
 
   if (role === 'host') {
@@ -1032,9 +1101,13 @@ async function handleCampaignJoin({
     // retain the GM, so the launch gate never waits on the authority
     // itself. `joinMember` cannot refuse here: the session opened at
     // registration and `noteGmConnected` above cleared any pause.
-    const gmJoin = await entry.syncSession.joinMember((event) => {
-      sendCampaignEvent(socket, matchId, event);
-    }, verifiedPlayerId);
+    // Receipt mode hydrates through the application view instead; a failed
+    // open has already closed the socket, so the error below is a no-op.
+    const gmJoin = application
+      ? { ok: await application.open(), disconnect: () => undefined }
+      : await entry.syncSession.joinMember((event) => {
+          sendCampaignEvent(socket, matchId, event);
+        }, verifiedPlayerId);
     if (!gmJoin.ok) {
       send(
         socket,
@@ -1059,6 +1132,7 @@ async function handleCampaignJoin({
     // `entry.roomCode` on their behalf worked only while the invite was
     // still live, so expiring it locked out the people already inside -
     // exactly backwards, since expiry exists to stop NEWCOMERS.
+    if (application) return hydrateApplication(application);
     const rejoin = await entry.syncSession.joinMember((event) => {
       sendCampaignEvent(socket, matchId, event);
     }, verifiedPlayerId);
@@ -1095,6 +1169,7 @@ async function handleCampaignJoin({
       }),
     issuer: roomCodeGrantIssuer,
     membership,
+    publicHydration: application?.open,
   });
   if (guestOutcome === 'rejected') {
     return;
@@ -1113,7 +1188,7 @@ async function handleCampaignJoin({
   // frames this path streams raise the participant's delivered
   // watermark; their convergence still requires their OWN ack of what
   // arrived (`resyncGuest` deliberately never reseeds `acknowledged`).
-  if (envelope.lastSeq !== undefined) {
+  if (envelope.lastSeq !== undefined && !application) {
     const issued = entry.syncSession.getRoomCode();
     if (
       issued === null ||
@@ -1193,6 +1268,7 @@ async function handleCampaignJoin({
     );
     return;
   }
+  if (application) return hydrateApplication(application);
   const join = await entry.syncSession.joinGuest(
     envelope.roomCode ?? '',
     (event) => {
@@ -1476,6 +1552,287 @@ function armTimeoutOutcomeBroadcast(
       result,
     });
   });
+}
+
+/** One participant's verified public view at one captured journal cut. */
+interface IPublicCut {
+  readonly branchId: string;
+  readonly effectiveGeneration: number;
+  readonly revision: number;
+  readonly viewerAuthorityFingerprint: string;
+  readonly removed: boolean;
+  readonly state: ICampaignAuthoritativeState;
+  readonly launches: readonly ICampaignEvent[];
+  readonly visible: readonly { event: ICampaignEvent; revision: number }[];
+}
+
+/**
+ * Head, branch path and durable seat are captured in one read transaction;
+ * the captured path is materialized outside SQL and must reach the captured
+ * digest. Projection, withholding and launch selection are the existing
+ * owners'. Null when the participant holds no active seat.
+ */
+async function preparePublicCut(
+  db: Database.Database,
+  campaignId: string,
+  sessionId: string,
+  participantId: string,
+): Promise<IPublicCut | null> {
+  const stream = { streamType: CAMPAIGN_STREAM_TYPE, streamId: campaignId };
+  const branches = new SQLiteEventHistoryBranchStore(db);
+  const captured = db.transaction(() => {
+    const head = readEffectiveStreamHead(db, branches, stream);
+    return {
+      head,
+      generation: branches.requireEffectiveHead(stream).effectiveGeneration,
+      path: resolveBranchPath(branches, stream, head.branchId, head.revision),
+      membership: activeCampaignSessionMembership(
+        campaignId,
+        sessionId,
+        participantId,
+      ),
+    };
+  })();
+  if (captured.membership === null) return null;
+  const stored = await materializeBranchPath(
+    campaignBranchSegmentReader(
+      new SQLiteEventJournal<ICampaignJournalEnvelope>(db),
+    ),
+    captured.path,
+  );
+  const reached =
+    stored.at(-1)?.eventDigest ?? captured.path.segments[0].baseDigest;
+  if (reached !== captured.head.digest) {
+    throw new Error('campaign-application-history-integrity');
+  }
+  const events = stored.map(envelopeOf);
+  const viewer = { participantId, isGm: captured.membership.seat === 'gm' };
+  const admits = (scope: CampaignEventScope) =>
+    campaignScopeAdmits(scope, viewer);
+  const { visible, state } = projectCampaignForViewer(
+    campaignId,
+    events,
+    admits,
+  );
+  const revisionOf = new Map(
+    events.map((event, index) => [event, stored[index].streamRevision]),
+  );
+  return {
+    branchId: captured.head.branchId,
+    effectiveGeneration: captured.generation,
+    revision: captured.head.revision,
+    viewerAuthorityFingerprint: campaignViewerAuthorityFingerprint(
+      captured.membership,
+      viewer,
+    ),
+    // From the whole verified history, so it holds before the seat heals.
+    removed: events.some(
+      (event) =>
+        event.type === 'ParticipantRemoved' &&
+        event.payload.participantId === participantId,
+    ),
+    state,
+    // `visible` is already bounded by the captured cut.
+    launches: selectCampaignMissionLaunches(visible, Infinity, admits),
+    visible: visible.map((event) => ({
+      event,
+      revision: revisionOf.get(event) ?? 0,
+    })),
+  };
+}
+
+interface IApplicationCandidate {
+  readonly frame: ICampaignApplicationOffer;
+  readonly cut: number;
+}
+
+interface IApplicationView {
+  readonly viewId: string;
+  readonly abort: AbortController;
+  authority: Pick<
+    IPublicCut,
+    'branchId' | 'effectiveGeneration' | 'viewerAuthorityFingerprint'
+  > | null;
+  latest: IApplicationCandidate | null;
+  chain: Promise<void>;
+  refreshQueued: boolean;
+}
+
+/**
+ * P2CE: one socket's public application view. Offers bind this socket, its
+ * verified principal, campaign, session, and the prepared authority and
+ * lineage. An offer is ESTABLISHED only by a confirmed write through the
+ * lifecycle's own broadcaster, and each delta links to the latest
+ * established offer. Every step of a view runs on one serialized chain.
+ * Nothing is cached durably: deltas are re-read from the verified journal
+ * on each commit wakeup. A rejoin, close, removal, failed write or
+ * authority change ends the view; reconnecting gets a fresh baseline.
+ */
+class CampaignApplicationConnection {
+  private view: IApplicationView | null = null;
+
+  constructor(
+    private readonly participantId: string,
+    private readonly deps: {
+      readonly socket: IWireCampaignSocket;
+      readonly entry: ICampaignHostRegistryEntry;
+      readonly matchId: string;
+      readonly broadcaster: ServerMatchBroadcaster;
+      readonly membership: ICampaignSessionMembershipPort;
+      readonly receipts: ICampaignApplicationReceiptPort;
+      readonly logger: Pick<Console, 'error'>;
+      readonly close: (code: IErrorCode, reason: string) => void;
+    },
+  ) {}
+
+  /** Hydrate a fresh view; true once its baseline is established. */
+  open = async (): Promise<boolean> => {
+    this.invalidate();
+    const view: IApplicationView = {
+      viewId: randomUUID(),
+      abort: new AbortController(),
+      authority: null,
+      latest: null,
+      chain: Promise.resolve(),
+      refreshQueued: false,
+    };
+    this.view = view;
+    // Subscribed before the cut is prepared, so no commit falls between.
+    const unsubscribe = this.deps.entry.host.subscribe(() => this.wake(view));
+    view.abort.signal.addEventListener('abort', unsubscribe, { once: true });
+    await this.enqueue(view, () => this.refresh(view));
+    return this.current(view) && view.latest !== null;
+  };
+
+  invalidate = (): void => {
+    this.view?.abort.abort();
+    this.view = null;
+  };
+
+  private current = (view: IApplicationView): boolean =>
+    this.view === view && !view.abort.signal.aborted;
+
+  private wake(view: IApplicationView): void {
+    if (view.refreshQueued) return;
+    view.refreshQueued = true;
+    void this.enqueue(view, async () => {
+      view.refreshQueued = false;
+      await this.refresh(view);
+    });
+  }
+
+  private enqueue(view: IApplicationView, step: () => Promise<void>) {
+    view.chain = view.chain
+      .then(() => (this.current(view) ? step() : undefined))
+      .catch((error: unknown) => {
+        this.deps.logger.error(
+          '[campaign-sync] application view failed',
+          error,
+        );
+        this.fail(view, 'INTERNAL_ERROR', 'campaign-application-unavailable');
+      });
+    return view.chain;
+  }
+
+  private fail(view: IApplicationView, code: IErrorCode, reason: string) {
+    if (!this.current(view)) return;
+    this.invalidate();
+    this.deps.close(code, reason);
+  }
+
+  private async refresh(view: IApplicationView): Promise<void> {
+    const { matchId, entry } = this.deps;
+    const cut = await preparePublicCut(
+      this.deps.receipts.database(),
+      entry.campaignId,
+      matchId,
+      this.participantId,
+    );
+    if (!this.current(view)) return;
+    if (cut === null || cut.removed) {
+      return this.fail(view, 'AUTH_REJECTED', 'membership-revoked');
+    }
+    const authority = view.authority ?? {
+      branchId: cut.branchId,
+      effectiveGeneration: cut.effectiveGeneration,
+      viewerAuthorityFingerprint: cut.viewerAuthorityFingerprint,
+    };
+    if (
+      authority.branchId !== cut.branchId ||
+      authority.effectiveGeneration !== cut.effectiveGeneration ||
+      authority.viewerAuthorityFingerprint !== cut.viewerAuthorityFingerprint
+    ) {
+      return this.fail(view, 'INTERNAL_ERROR', 'campaign-application-replaced');
+    }
+    view.authority = authority;
+    const appliedView = (previousReceiptId: string | null) => ({
+      viewId: view.viewId,
+      receiptId: randomUUID(),
+      previousReceiptId,
+    });
+    if (view.latest === null) {
+      const ts = nowIso();
+      await this.publish(view, {
+        cut: cut.revision,
+        frame: {
+          kind: 'CampaignSnapshot',
+          matchId,
+          ts,
+          event: {
+            type: 'CampaignSnapshotPublished',
+            sequence: -1,
+            campaignId: entry.campaignId,
+            ts,
+            authorPlayerId: entry.hostPlayerId,
+            scope: 'campaign',
+            payload: { state: cut.state, matchId },
+          },
+          hydrationFacts: [...cut.launches],
+          appliedView: appliedView(null),
+        },
+      });
+      return;
+    }
+    for (const { event, revision } of cut.visible) {
+      if (revision <= view.latest.cut) continue;
+      const frame = campaignEventWireFrame(matchId, event);
+      const previous = view.latest.frame.appliedView.receiptId;
+      const candidate = { ...frame, appliedView: appliedView(previous) };
+      if (!(await this.publish(view, { cut: revision, frame: candidate }))) {
+        return;
+      }
+    }
+  }
+
+  /** Write one candidate; establish it only on a confirmed write. */
+  private async publish(
+    view: IApplicationView,
+    candidate: IApplicationCandidate,
+  ): Promise<boolean> {
+    const result = await this.deps.broadcaster.sendConfirmed(
+      this.deps.socket,
+      candidate.frame,
+      view.abort.signal,
+    );
+    if (!this.current(view)) return false;
+    if (result.kind !== 'sent') {
+      this.fail(view, 'INTERNAL_ERROR', 'campaign-application-send-failed');
+      return false;
+    }
+    const { entry, matchId } = this.deps;
+    if (
+      this.deps.membership.isRevoked(
+        entry.campaignId,
+        matchId,
+        this.participantId,
+      )
+    ) {
+      this.fail(view, 'AUTH_REJECTED', 'membership-revoked');
+      return false;
+    }
+    view.latest = candidate;
+    return true;
+  }
 }
 
 function parseJsonPayload(
