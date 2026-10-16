@@ -6214,7 +6214,17 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cf2-admission-20261016.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cf2-admission-review-20261016.md",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cf2-red-20261016.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cf2-local-20261016.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cf2-local-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cf2-source-fable-review-20261016.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cf2-owner-ruling-6218213354.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cf2-review-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cf2-merge-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ad2822ab-tests.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ad2822ab-leaves.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ad2822ab-task13.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ad2822ab-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ad2822ab-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cf2-mainproof-20261016.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -6229,10 +6239,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "implementing",
+      "state": "main-verified",
       "baseline": "d823114d7c01aeebb846b51074cf6d7b66c59f6f",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "cda526457f919bba39abe9e64847ecbf6a696958",
+      "mergeSha": "ad2822abe66faf80caab6ffaa4fd7eb66b2e8030",
       "stageReceipts": {
         "admission": {
           "path": "evidence/p2cf2-admission-20261016.json"
@@ -6243,9 +6253,27 @@
         "local": {
           "path": "evidence/p2cf2-local-20261016.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/p2cf2-review-20261016.json",
+          "head": "cda526457f919bba39abe9e64847ecbf6a696958",
+          "reviewedHead": "cda526457f919bba39abe9e64847ecbf6a696958",
+          "reviewerModel": "claude-fable-5-1",
+          "implementerModel": "claude-opus-5-5",
+          "outputSha256": "eb4962d758612601a7eaf88f7a0b47c9bad408992d1f0c6754f1c6b2a3bdfd7c",
+          "verdict": "APPROVE-WITH-NOTES"
+        },
+        "merge": {
+          "path": "evidence/p2cf2-merge-20261016.json",
+          "pr": 2162,
+          "head": "cda526457f919bba39abe9e64847ecbf6a696958",
+          "mergeSha": "ad2822abe66faf80caab6ffaa4fd7eb66b2e8030"
+        },
+        "mainProof": {
+          "path": "evidence/p2cf2-mainproof-20261016.json",
+          "mergeCommit": "ad2822abe66faf80caab6ffaa4fd7eb66b2e8030",
+          "verdict": "PASS",
+          "runtime": "Source/Main Jest: Tests:       155 passed, 155 total"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -13128,6 +13156,44 @@
         "commentId": 6215650627,
         "author": "SwiggitySwerve",
         "bodySha256": "6da52f0be8d97896824189d053f99337b1ea2db77c0344b24cee71d9a61beed3"
+      }
+    },
+    {
+      "id": "PK-p2cf2-ruling",
+      "blocks": [
+        "P2CF2"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "After independent exact-head Fable review and required green CI, should the owner rule the bounded P2CF2 mounted-wiring head (consumer hook, GM fold and guest mirror application before exact acknowledgment, guarded saved-record refresh and staged maxima) before guarded merge?",
+      "options": [
+        {
+          "label": "rule the exact source head",
+          "consequence": "Permit guarded P2CF2 dormant mounted consumer, guarded refresh and staged maxima merge and exact-main proof only, completing plan Task 13 with P2CF1; Task 14 binds expectedCampaignId at every creator, composes applicationReceipts and closes the recorded preconditions first.",
+          "effort": "One exact-head Fable review, evidence check and owner ruling"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Hold merge until the concrete authority, privacy, replay, idempotency, concurrency or proof objections are fixed and fresh exact-head review, CI and owner ruling are complete.",
+          "effort": "Bounded by the concrete review objections"
+        }
+      ],
+      "agentRecommendation": "Rule only an independently approved green exact head that applies each transport-issued offer serially in receipt order (GM fold or guest mirror, projection, launch-adjunct retention, the awaited guarded refresh and reprojection, then exactly one confirmApplied), reports a failure and gives no receipt for any null, throwing, stale, foreign or superseded application, keeps campaign-application-* errors out of lastRefusalCode, guards every post-await persistence write, stages maxima without updateCampaign or a PUT, and leaves every production creator unbound. This proposal grants no approval or merge permission.",
+      "revertCost": "Low: revert the four product leaves; P2CF2 adds no Protocol, server or server.js change, and no production creator passes expectedCampaignId, so production traffic stays legacy.",
+      "decision": {
+        "option": "rule the exact source head",
+        "at": "2026-10-16T14:55:58Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2162#issuecomment-6218213354"
+      },
+      "ruling": {
+        "ruledHead": "cda526457f919bba39abe9e64847ecbf6a696958",
+        "pr": 2162,
+        "commentId": 6218213354,
+        "author": "SwiggitySwerve",
+        "bodySha256": "94e2d3ea7ee7de1363c3dc567d244ce2f4c001a69535b381fa6eb5eaa9458a34"
       }
     },
     {

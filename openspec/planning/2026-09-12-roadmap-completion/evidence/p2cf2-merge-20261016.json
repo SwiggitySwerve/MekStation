@@ -1,0 +1,198 @@
+{
+  "unit": "P2CF2",
+  "stage": "merge",
+  "recordedAt": "2026-10-16T15:10:00.000Z",
+  "pr": 2162,
+  "title": "feat(P2CF2): mount the campaign receipt consumer with a guarded record refresh",
+  "url": "https://github.com/SwiggitySwerve/MekStation/pull/2162",
+  "head": "cda526457f919bba39abe9e64847ecbf6a696958",
+  "mergeSha": "ad2822abe66faf80caab6ffaa4fd7eb66b2e8030",
+  "mergedAt": "2026-10-16T14:55:54Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "Two-parent merge commit",
+  "parentCount": 2,
+  "treeIntegration": {
+    "parents": [
+      "d823114d7c01aeebb846b51074cf6d7b66c59f6f",
+      "cda526457f919bba39abe9e64847ecbf6a696958"
+    ],
+    "expectedTree": "574a91e60a02638a802df955839e17766e8414cc",
+    "actualTree": "574a91e60a02638a802df955839e17766e8414cc",
+    "matches": true
+  },
+  "checksObservedAt": "2026-10-16T15:00:26Z",
+  "checks": {
+    "head": "cda526457f919bba39abe9e64847ecbf6a696958",
+    "successful": 31,
+    "other": 0,
+    "run": "https://github.com/SwiggitySwerve/MekStation/actions/runs/38916655859",
+    "jobs": [
+      {
+        "name": "Lint and Test",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/38916655859/job/117028919349"
+      },
+      {
+        "name": "Build Test / linux",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/38916655859/job/117027332969"
+      },
+      {
+        "name": "Build Test / win",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/38916655859/job/117027332930"
+      },
+      {
+        "name": "Build Test / mac",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/38916655859/job/117027332869"
+      },
+      {
+        "name": "Schema Bridge",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/38916655859/job/117026058604"
+      },
+      {
+        "name": "Coverage Floor",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/38916655859/job/117026058541"
+      },
+      {
+        "name": "Seam Anchors",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/38916655859/job/117026058408"
+      },
+      {
+        "name": "Unit Tests (5/6)",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/38916655859/job/117026058281"
+      },
+      {
+        "name": "Validate Combat Suite",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/38916655859/job/117026058270"
+      },
+      {
+        "name": "Unit Tests (3/6)",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/38916655859/job/117026058250"
+      },
+      {
+        "name": "E2E Smoke",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/38916655859/job/117026058248"
+      },
+      {
+        "name": "Desktop Tests",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/38916655859/job/117026058153"
+      },
+      {
+        "name": "Determinism Audit",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/38916655859/job/117026058121"
+      },
+      {
+        "name": "Perf Budget PR",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/38916655859/job/117026058109"
+      },
+      {
+        "name": "Customizer Regressions",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/38916655859/job/117026058089"
+      },
+      {
+        "name": "Desktop Type Check",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/38916655859/job/117026058082"
+      },
+      {
+        "name": "Build Storybook",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/38916655859/job/117026058076"
+      },
+      {
+        "name": "A11y Tests",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/38916655859/job/117026058054"
+      },
+      {
+        "name": "Unit Tests (1/6)",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/38916655859/job/117026058018"
+      },
+      {
+        "name": "Validate BV Parity",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/38916655859/job/117026058002"
+      },
+      {
+        "name": "Type Check",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/38916655859/job/117026057993"
+      },
+      {
+        "name": "Unit Tests (2/6)",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/38916655859/job/117026057969"
+      },
+      {
+        "name": "Unit Tests (6/6)",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/38916655859/job/117026057955"
+      },
+      {
+        "name": "Unit Tests (4/6)",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/38916655859/job/117026057943"
+      },
+      {
+        "name": "Lint",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/38916655859/job/117026057922"
+      },
+      {
+        "name": "Format Check",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/38916655859/job/117026057885"
+      },
+      {
+        "name": "Perf Smoke Tests",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/38916655859/job/117026057781"
+      },
+      {
+        "name": "Statistical Proof PR",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/38916655859/job/117026057774"
+      },
+      {
+        "name": "Prepare Build Artifacts",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/38916655859/job/117025866535"
+      },
+      {
+        "name": "Install Dependencies",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/38916655859/job/117025732697"
+      },
+      {
+        "name": "Detect Changes",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/38916655859/job/117025732346"
+      }
+    ]
+  },
+  "ownerRuling": {
+    "ruledHead": "cda526457f919bba39abe9e64847ecbf6a696958",
+    "pr": 2162,
+    "commentId": 6218213354,
+    "author": "SwiggitySwerve",
+    "bodySha256": "94e2d3ea7ee7de1363c3dc567d244ce2f4c001a69535b381fa6eb5eaa9458a34",
+    "at": "2026-10-16T14:55:58Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2162#issuecomment-6218213354",
+    "bodyPath": "evidence/p2cf2-owner-ruling-6218213354.txt"
+  },
+  "chronology": "Merged at 14:55:54Z; the owner subsequently ruled this source head at 14:55:58Z. No premerge ruling compliance is asserted."
+}
