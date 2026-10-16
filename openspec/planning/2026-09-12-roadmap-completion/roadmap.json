@@ -2708,14 +2708,20 @@
     {
       "id": "R2.authority-live",
       "ownershipPathsAmended20261009P2C": {
-        "unit": "P2CA/P2CB/P2CD/P2CE/P2CE1/P2CE2/P2CE3/P2CF/P2CF1/P2CF2/P2CG1/P2CG2/P2CH",
+        "unit": "P2CA/P2CB/P2CD/P2CE/P2CE1/P2CE2/P2CE3/P2CF/P2CF1/P2CF2/P2CG1/P2CG1A1/P2CG1A2/P2CG1B/P2CG1C/P2CG1D/P2CG1E/P2CG1F/P2CG1G1/P2CG1G2/P2CG1H/P2CG1I1/P2CG1I2/P2CG1I3/P2CG2/P2CH",
         "planTask": 8,
-        "evidence": "evidence/p2cf-split-registration-20261016.json",
+        "evidence": "evidence/p2cg1-split-registration-20261016.json",
         "paths": [
           "src/services/persistence",
           "src/lib/p2p/campaignMirrorStore.ts",
           "src/lib/p2p/__tests__/campaignMirrorStore.test.ts",
-          "src/components/campaign/coop"
+          "src/components/campaign/coop",
+          "src/lib/events/journal/SQLiteEventJournalWriter.ts",
+          "src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx",
+          "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx",
+          "src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx",
+          "src/__tests__/api/e2ePerformanceProbeRoute.test.ts",
+          "e2e/gm-two-player-authority.pack1.spec.ts"
         ],
         "reason": "Only existing missing aliases for the approved prospective chain. Parents are restricted to the exact per-unit source/test leaves below, not directory permission. Existing node lifecycle, dependsOn, historical paths/receipts and ordinary caps are unchanged. New leaves remain prospective until creation and normal literal-path amendment. No source admission or complete cap fit is supplied.",
         "restrictions": {
@@ -2783,6 +2789,108 @@
             "src/lib/campaign/coop/campaignSyncTransport.ts",
             "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts"
           ],
+          "P2CG1A1": [
+            "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+            "src/lib/multiplayer/server/campaignApplicationConnection.ts"
+          ],
+          "P2CG1A2": [
+            "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+            "src/lib/multiplayer/server/campaignApplicationConnection.ts"
+          ],
+          "P2CG1B": [
+            "src/lib/events/journal/SQLiteEventJournalWriter.ts",
+            "src/lib/campaign/sync/ICampaignEventStore.ts",
+            "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+            "src/lib/multiplayer/server/CampaignMatchHost.ts",
+            "src/lib/multiplayer/server/CampaignMatchHost.doors.ts",
+            "src/lib/multiplayer/server/campaignHostBatchCommit.ts",
+            "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+            "src/lib/multiplayer/server/__tests__/CampaignMatchHost.pipeline.test.ts"
+          ],
+          "P2CG1C": [
+            "src/lib/multiplayer/server/IMatchStore.ts",
+            "src/lib/multiplayer/server/DurableMatchStore.ts",
+            "src/lib/multiplayer/server/coopMissionCreate.ts",
+            "src/lib/multiplayer/server/__tests__/DurableMatchStore.test.ts",
+            "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+            "src/lib/multiplayer/server/__tests__/coopMissionCreate.harness.ts",
+            "src/lib/multiplayer/server/__tests__/coopMissionCreate.fixture.ts"
+          ],
+          "P2CG1D": [
+            "src/lib/multiplayer/server/CampaignProgressionGate.ts",
+            "src/lib/multiplayer/server/campaignProgressionReaders.durable.ts",
+            "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+            "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+            "src/lib/multiplayer/server/CampaignGmArbiter.ts",
+            "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
+            "src/lib/multiplayer/server/__tests__/CampaignGmArbiter.test.ts",
+            "src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.crossGraph.test.ts",
+            "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts"
+          ],
+          "P2CG1E": [
+            "src/pages-modules/api/campaignLaunchProgressionGate.ts",
+            "src/pages-modules/api/campaignLaunchAuthorityRoute.ts",
+            "src/lib/multiplayer/server/coopMissionCreate.ts",
+            "src/lib/campaign/coop/campaignSyncTransport.ts",
+            "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts",
+            "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+            "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts"
+          ],
+          "P2CG1F": [
+            "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+            "src/stores/campaign/useCampaignPersistenceStore.ts",
+            "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx",
+            "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+            "src/stores/campaign/__tests__/campaignCommandAckRefresh.test.ts"
+          ],
+          "P2CG1G1": [
+            "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+            "src/components/campaign/coop/campaignCoopSurfaceHelpers.ts",
+            "src/lib/campaign/coop/campaignHostFoldStore.ts",
+            "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+            "src/components/campaign/coop/__tests__/CampaignLifecycleGate.test.tsx",
+            "src/components/campaign/coop/__tests__/GuestProposalSurface.test.tsx",
+            "src/components/campaign/coop/__tests__/GuestRebuildStaleGate.test.tsx"
+          ],
+          "P2CG1G2": [
+            "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+            "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+            "src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx",
+            "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+            "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx",
+            "src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx"
+          ],
+          "P2CG1H": [
+            "server.js",
+            "src/lib/multiplayer/server/campaignApplicationReceiptPort.ts",
+            "src/lib/multiplayer/server/__tests__/campaignApplicationReceiptPort.test.ts",
+            "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.globalSlot.test.ts",
+            "src/pages-modules/api/e2ePerformanceProbeRoute.ts",
+            "src/__tests__/api/e2ePerformanceProbeRoute.test.ts",
+            "e2e/coop-campaign-two-browser-journey.spec.ts",
+            "e2e/gm-two-player-authority.pack1.spec.ts"
+          ],
+          "P2CG1I1": [
+            "src/pages-modules/api/campaignLaunchProgressionGate.ts",
+            "src/lib/campaign/coop/campaignSyncTransport.ts",
+            "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts",
+            "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts"
+          ],
+          "P2CG1I2": [
+            "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test-helpers.ts",
+            "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test.ts",
+            "src/lib/multiplayer/server/__tests__/campaignLiveDeliveryUnification.test.ts",
+            "src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.integrity.test.ts",
+            "src/lib/multiplayer/server/__tests__/campaignWireScopeBoundary.test.ts",
+            "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts",
+            "src/lib/multiplayer/server/__tests__/healCommittedParticipantRemovals.test.ts"
+          ],
+          "P2CG1I3": [
+            "src/lib/multiplayer/server/CampaignSyncSession.ts",
+            "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+            "src/lib/multiplayer/server/__tests__/CampaignSyncSession.test.ts",
+            "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts"
+          ],
           "P2CG2": [
             "src/lib/multiplayer/server/CampaignSyncSession.ts",
             "src/lib/multiplayer/server/CampaignHostRegistry.ts",
@@ -2833,6 +2941,19 @@
           "P2CF1": 7,
           "P2CF2": 8,
           "P2CG1": 11,
+          "P2CG1A1": 3,
+          "P2CG1A2": 3,
+          "P2CG1B": 9,
+          "P2CG1C": 8,
+          "P2CG1D": 10,
+          "P2CG1E": 8,
+          "P2CG1F": 6,
+          "P2CG1G1": 8,
+          "P2CG1G2": 7,
+          "P2CG1H": 9,
+          "P2CG1I1": 5,
+          "P2CG1I2": 8,
+          "P2CG1I3": 5,
           "P2CG2": 7,
           "P2CH": 5
         },
@@ -2919,7 +3040,13 @@
         "server.js",
         "scripts/validate-multiplayer-packaged-socket.mjs",
         "scripts/__tests__/validate-multiplayer-packaged-socket.test.ts",
-        "scripts/__tests__/packagedSocketValidatorCredentialMirror.test.ts"
+        "scripts/__tests__/packagedSocketValidatorCredentialMirror.test.ts",
+        "src/lib/events/journal/SQLiteEventJournalWriter.ts",
+        "src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx",
+        "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx",
+        "src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx",
+        "src/__tests__/api/e2ePerformanceProbeRoute.test.ts",
+        "e2e/gm-two-player-authority.pack1.spec.ts"
       ],
       "acceptance": [
         "npm.cmd run typecheck",
