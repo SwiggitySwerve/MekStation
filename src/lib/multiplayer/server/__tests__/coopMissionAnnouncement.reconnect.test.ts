@@ -5,6 +5,9 @@ import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
 
 import { readParticipantDeliveryCursor } from '@/lib/campaign/delivery/participantDeliveryCursor';
 import { signCampaignGrantToken } from '@/lib/campaign/grants/campaignGrantToken';
+import { freezeCampaignEvent } from '@/lib/campaign/sync/campaignEventScope';
+import { CampaignPublicAppliedViewStore } from '@/lib/campaign/sync/campaignPublicAppliedView';
+import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { generateKeyPair, toBase64 } from '@/services/vault/IdentityService';
 import {
@@ -1161,6 +1164,576 @@ describe('durable mission launch reconnect', () => {
       expect(offers(socket)).toEqual([]);
       expect(framesOf(socket, 'CampaignSnapshot')).toHaveLength(1);
       expect(launches(socket).map((frame) => frame.event)).toEqual([launch]);
+    });
+
+    /**
+     * P2CE3: receipt-ACK admission and durable confirmation through the real
+     * P2CA owner. A confirmation is handed to the socket only after the row
+     * exists; every refusal leaves no row and no confirmation.
+     */
+    describe('receipt ACK admission and confirmation (P2CE3)', () => {
+      type AppliedView = Offer['appliedView'];
+      const rows = (participantId: string) =>
+        db()
+          .prepare(
+            'SELECT * FROM campaign_public_applied_view WHERE participant_id = ?',
+          )
+          .all(participantId) as Array<Record<string, unknown>>;
+      const confirmations = (socket: ReceiptSocket) =>
+        socket.sent.filter((frame) => (frame.kind as string) === 'CampaignAck');
+
+      function ack(player: Player, appliedView: AppliedView) {
+        return {
+          kind: 'CampaignAck',
+          matchId: fixture.entry.matchId,
+          ts: new Date().toISOString(),
+          playerId: player.playerId,
+          campaignId: fixture.entry.campaignId,
+          appliedView,
+        };
+      }
+
+      async function refused(
+        socket: ReceiptSocket,
+        player: Player,
+        appliedView: AppliedView,
+      ) {
+        const error = once(socket, 'Error', signal());
+        socket.inbound(ack(player, appliedView));
+        return (await error)[0] as { code: string; reason: string };
+      }
+
+      /** ACK, then capture the stored rows at the moment the confirmation is handed over. */
+      async function confirmed(
+        socket: ReceiptSocket,
+        player: Player,
+        appliedView: AppliedView,
+      ) {
+        let atConfirmation: Array<Record<string, unknown>> = [];
+        socket.once('CampaignAck', () => {
+          atConfirmation = rows(player.playerId);
+        });
+        const confirmation = once(socket, 'CampaignAck', signal());
+        socket.inbound(ack(player, appliedView));
+        const [frame] = (await confirmation) as [Record<string, unknown>];
+        return { frame, atConfirmation };
+      }
+
+      /** Observe every real P2CA accept; the hooks run around each call. */
+      function observeAccept(
+        before: (call: number) => unknown = () => undefined,
+        after: (call: number) => unknown = () => undefined,
+      ) {
+        const accept = CampaignPublicAppliedViewStore.prototype.accept;
+        const results: string[] = [];
+        jest
+          .spyOn(CampaignPublicAppliedViewStore.prototype, 'accept')
+          .mockImplementation(
+            function (this: CampaignPublicAppliedViewStore, request) {
+              const call = results.length;
+              before(call);
+              try {
+                const result = accept.call(this, request);
+                results.push(result.kind);
+                return result;
+              } catch (error) {
+                results.push('threw');
+                throw error;
+              } finally {
+                after(call);
+              }
+            },
+          );
+        return results;
+      }
+
+      /** Moves the effective head past the prepared cut for one accept call. */
+      function driftHead(by: number) {
+        db()
+          .prepare(
+            "UPDATE event_journal_stream_heads SET stream_revision = stream_revision + ? WHERE stream_type = 'campaign' AND stream_id = ?",
+          )
+          .run(by, fixture.entry.campaignId);
+      }
+
+      it('commits the latest established offer before its exact confirmation; a duplicate is idempotent and a new view refuses the old receipt', async () => {
+        await privateHistory();
+        const launch = await createMission();
+        const guest = await joinReceipts(fixture.guest);
+        const [baseline] = offers(guest);
+        expect(baseline.hydrationFacts).toEqual([launch]);
+        expect(rows(fixture.guest.playerId)).toEqual([]);
+
+        const first = await confirmed(
+          guest,
+          fixture.guest,
+          baseline.appliedView,
+        );
+        expect(first.frame).toEqual({
+          kind: 'CampaignAck',
+          matchId: fixture.entry.matchId,
+          ts: expect.any(String),
+          playerId: fixture.guest.playerId,
+          campaignId: fixture.entry.campaignId,
+          appliedView: baseline.appliedView,
+        });
+        expect(
+          CampaignApplicationServerMessageSchema.safeParse(first.frame).success,
+        ).toBe(true);
+        expect(first.atConfirmation).toEqual([
+          expect.objectContaining({
+            receipt_id: baseline.appliedView.receiptId,
+            session_id: fixture.entry.matchId,
+          }),
+        ]);
+
+        // An exact duplicate confirms again over the same row.
+        const again = await confirmed(
+          guest,
+          fixture.guest,
+          baseline.appliedView,
+        );
+        expect(again.frame.appliedView).toEqual(baseline.appliedView);
+        expect(again.atConfirmation).toEqual(first.atConfirmation);
+        expect(JSON.stringify(guest.sent)).not.toContain(SECRET);
+
+        // A new connection mints a new view; the old receipt is not transferable.
+        guest.close();
+        const returning = await joinReceipts(fixture.guest);
+        expect(
+          await refused(returning, fixture.guest, baseline.appliedView),
+        ).toMatchObject({
+          code: 'INVALID_INTENT',
+          reason: 'campaign-application-unknown-receipt',
+        });
+        expect(rows(fixture.guest.playerId)).toEqual(first.atConfirmation);
+        expect(confirmations(returning)).toEqual([]);
+
+        // The new baseline adds nothing past the stored row: stale, so no
+        // confirmation and no row change.
+        let settle!: () => void;
+        const settled = new Promise<void>((resolve) => (settle = resolve));
+        const results = observeAccept(undefined, () => settle());
+        returning.inbound(ack(fixture.guest, offers(returning)[0].appliedView));
+        await bounded(settled);
+        expect(results).toEqual(['stale']);
+        expect(confirmations(returning)).toEqual([]);
+        expect(rows(fixture.guest.playerId)).toEqual(first.atConfirmation);
+      });
+
+      it('refuses superseded, other-socket, altered and other-campaign receipts with no commit or confirmation, then commits the latest delta', async () => {
+        await privateHistory();
+        const gm = await joinReceipts(fixture.host);
+        const guest = await joinReceipts(fixture.guest);
+        await commitSeenBy([gm], [hiddenFunds(SECRET)]);
+        await commitSeenBy([gm, guest], [visibleFunds('visible')]);
+        const [baseline, delta] = offers(guest);
+        const gmReceipt = offers(gm).at(-1)!.appliedView;
+
+        for (const claim of [
+          baseline.appliedView,
+          gmReceipt,
+          { ...delta.appliedView, receiptId: 'altered' },
+          { ...delta.appliedView, viewId: gmReceipt.viewId },
+          { ...delta.appliedView, previousReceiptId: null },
+        ]) {
+          expect(await refused(guest, fixture.guest, claim)).toEqual(
+            expect.objectContaining({
+              code: 'INVALID_INTENT',
+              reason: 'campaign-application-unknown-receipt',
+            }),
+          );
+        }
+        const otherCampaign = once(guest, 'Error', signal());
+        guest.inbound({
+          ...ack(fixture.guest, delta.appliedView),
+          campaignId: 'campaign-other',
+        });
+        expect((await otherCampaign)[0]).toMatchObject({
+          code: 'INVALID_INTENT',
+          reason: 'campaign-application-not-offered',
+        });
+        expect(rows(fixture.guest.playerId)).toEqual([]);
+        expect(confirmations(guest)).toEqual([]);
+
+        const latest = await confirmed(guest, fixture.guest, delta.appliedView);
+        // The confirmation echoes the exact receipt, link included.
+        expect(latest.frame.appliedView).toEqual(delta.appliedView);
+        expect(latest.atConfirmation).toEqual([
+          expect.objectContaining({ receipt_id: delta.appliedView.receiptId }),
+        ]);
+        expect(rows(fixture.host.playerId)).toEqual([]);
+        expect(guest.closes).toEqual([]);
+      });
+
+      it.each([
+        ['other-session', { matchId: 'match-other' }, 'wrong-match'],
+        ['other-principal', { playerId: 'pid-other' }, 'player-mismatch'],
+      ] as const)(
+        'an %s ACK is refused and closed before admission',
+        async (_label, override, reason) => {
+          const guest = await joinReceipts(fixture.guest);
+          const [baseline] = offers(guest);
+          const closed = once(guest, 'close', signal());
+          guest.inbound({
+            ...ack(fixture.guest, baseline.appliedView),
+            ...override,
+          });
+          await closed;
+          expect(guest.closes).toEqual([{ code: 1008, reason }]);
+          expect(rows(fixture.guest.playerId)).toEqual([]);
+          expect(confirmations(guest)).toEqual([]);
+        },
+      );
+
+      it('holds an early ACK in its one slot until the write settles, commits once, confirms, then offers the post-cut suffix', async () => {
+        await privateHistory();
+        const order: string[] = [];
+        const results = observeAccept(() => order.push('accept'));
+        const guest = await bindReceipts(fixture.guest);
+        guest.mode = 'hold';
+        const written = once(guest, 'CampaignSnapshot', signal());
+        const joined = once(guest, 'joined', signal());
+        guest.inbound(joinMessage(fixture.guest));
+        await written;
+        const [baseline] = offers(guest);
+
+        // Only the exact in-flight receipt takes the slot.
+        expect(
+          await refused(guest, fixture.guest, {
+            ...baseline.appliedView,
+            receiptId: 'altered',
+          }),
+        ).toMatchObject({ reason: 'campaign-application-unknown-receipt' });
+        guest.inbound(ack(fixture.guest, baseline.appliedView));
+        // A commit while the baseline write is still unsettled is post-cut.
+        await fixture.entry.host._commitEventsForTests([
+          visibleFunds('during-hydration'),
+        ]);
+        expect(order).toEqual([]);
+        expect(rows(fixture.guest.playerId)).toEqual([]);
+
+        const confirmation = once(guest, 'CampaignAck', signal());
+        guest.on('CampaignAck', () => order.push('confirm'));
+        const delta = once(guest, 'CampaignEvent', signal());
+        guest.mode = 'auto';
+        order.push('released');
+        guest.held.splice(0).forEach((callback) => callback());
+        await Promise.all([joined, confirmation, delta]);
+        expect(order).toEqual(['released', 'accept', 'confirm']);
+        expect(results).toEqual(['accepted']);
+
+        const suffix = offers(guest).slice(1);
+        expect(suffix).toHaveLength(1);
+        expect(suffix[0].event.payload).toMatchObject({
+          reason: 'during-hydration',
+        });
+        expect(suffix[0].appliedView.previousReceiptId).toBe(
+          baseline.appliedView.receiptId,
+        );
+        expect(rows(fixture.guest.playerId)).toEqual([
+          expect.objectContaining({
+            receipt_id: baseline.appliedView.receiptId,
+          }),
+        ]);
+      });
+
+      it('commits an ACK of the latest offer that arrives while the next delta is in flight', async () => {
+        const gm = await joinReceipts(fixture.host);
+        const guest = await joinReceipts(fixture.guest);
+        const [baseline] = offers(guest);
+        guest.mode = 'hold';
+        const written = once(guest, 'CampaignEvent', signal());
+        await commitSeenBy([gm], [visibleFunds('in-flight')]);
+        await written;
+
+        guest.inbound(ack(fixture.guest, baseline.appliedView));
+        const confirmation = once(guest, 'CampaignAck', signal());
+        guest.mode = 'auto';
+        guest.held.splice(0).forEach((callback) => callback());
+        const [frame] = (await confirmation) as [Record<string, unknown>];
+        expect(frame.appliedView).toEqual(baseline.appliedView);
+        expect(rows(fixture.guest.playerId)).toEqual([
+          expect.objectContaining({
+            receipt_id: baseline.appliedView.receiptId,
+          }),
+        ]);
+      });
+
+      it('an ACK of the written delta that lands during the previous offer commit is admitted and committed after it', async () => {
+        const gm = await joinReceipts(fixture.host);
+        const guest = await joinReceipts(fixture.guest);
+        const [baseline] = offers(guest);
+        guest.mode = 'hold';
+        const written = once(guest, 'CampaignEvent', signal());
+        await commitSeenBy([gm], [visibleFunds('in-flight')]);
+        await written;
+        const delta = offers(guest).at(-1)!;
+
+        // The client has the delta's bytes; its ACK lands inside the
+        // baseline's P2CA accept, before the delta is established.
+        const results = observeAccept((call) => {
+          if (call === 0) guest.inbound(ack(fixture.guest, delta.appliedView));
+        });
+        guest.inbound(ack(fixture.guest, baseline.appliedView));
+        const settled = new Promise<void>((resolve) => {
+          const settle = () => {
+            const confirmed = confirmations(guest).length;
+            const errors = framesOf(guest, 'Error').length;
+            if (confirmed >= 2 || (confirmed >= 1 && errors > 0)) resolve();
+          };
+          guest.on('CampaignAck', settle);
+          guest.on('Error', settle);
+        });
+        guest.mode = 'auto';
+        guest.held.splice(0).forEach((callback) => callback());
+        await bounded(settled);
+
+        expect(framesOf(guest, 'Error')).toEqual([]);
+        expect(results).toEqual(['accepted', 'accepted']);
+        expect(confirmations(guest)).toEqual([
+          expect.objectContaining({ appliedView: baseline.appliedView }),
+          expect.objectContaining({ appliedView: delta.appliedView }),
+        ]);
+        expect(rows(fixture.guest.playerId)).toEqual([
+          expect.objectContaining({ receipt_id: delta.appliedView.receiptId }),
+        ]);
+      });
+
+      it('an early ACK of an in-flight delta commits that delta, not its predecessor, before the next delta is offered', async () => {
+        const gm = await joinReceipts(fixture.host);
+        const guest = await joinReceipts(fixture.guest);
+        guest.mode = 'hold';
+        const written = once(guest, 'CampaignEvent', signal());
+        await commitSeenBy(
+          [gm],
+          [visibleFunds('first'), visibleFunds('second')],
+        );
+        await written;
+        const first = offers(guest).at(-1)!;
+        expect(first.event.payload).toMatchObject({ reason: 'first' });
+
+        guest.inbound(ack(fixture.guest, first.appliedView));
+        const confirmation = once(guest, 'CampaignAck', signal());
+        const next = once(guest, 'CampaignEvent', signal());
+        guest.mode = 'auto';
+        guest.held.splice(0).forEach((callback) => callback());
+        const [[frame], [second]] = (await Promise.all([
+          confirmation,
+          next,
+        ])) as [[Record<string, unknown>], [Record<string, unknown>]];
+        expect(frame.appliedView).toEqual(first.appliedView);
+        expect(guest.sent.indexOf(frame as never)).toBeLessThan(
+          guest.sent.indexOf(second as never),
+        );
+        expect(rows(fixture.guest.playerId)).toEqual([
+          expect.objectContaining({ receipt_id: first.appliedView.receiptId }),
+        ]);
+      });
+
+      it('a re-seat after the offer refuses with current-authority and never confirms', async () => {
+        const guest = await joinReceipts(fixture.guest);
+        const [baseline] = offers(guest);
+        db()
+          .prepare(
+            'UPDATE campaign_session_participant SET bound_at = ? WHERE participant_id = ?',
+          )
+          .run(
+            new Date(Date.now() + 1000).toISOString(),
+            fixture.guest.playerId,
+          );
+        expect(
+          await refused(guest, fixture.guest, baseline.appliedView),
+        ).toMatchObject({
+          code: 'INVALID_INTENT',
+          reason: 'campaign-application-current-authority',
+        });
+        expect(confirmations(guest)).toEqual([]);
+        expect(rows(fixture.guest.playerId)).toEqual([]);
+      });
+
+      it('refuses numeric, unoffered and removed-participant ACKs without credit, and stops the removed participant', async () => {
+        const unjoined = await bindReceipts(fixture.guest);
+        expect(
+          await refused(unjoined, fixture.guest, {
+            viewId: 'v',
+            receiptId: 'r',
+            previousReceiptId: null,
+          }),
+        ).toMatchObject({ reason: 'campaign-application-not-offered' });
+        unjoined.close();
+
+        const guest = await joinReceipts(fixture.guest);
+        const numeric = once(guest, 'Error', signal());
+        guest.inbound({
+          kind: 'CampaignAck',
+          matchId: fixture.entry.matchId,
+          ts: new Date().toISOString(),
+          playerId: fixture.guest.playerId,
+          campaignId: fixture.entry.campaignId,
+          revision: 0,
+        });
+        expect((await numeric)[0]).toMatchObject({
+          code: 'INVALID_INTENT',
+          reason: 'campaign-application-receipt-required',
+        });
+
+        // The crash boundary: the removal is committed, but neither the
+        // durable seat revoke nor any live wakeup has run.
+        const log = fixture.entry.host.getEventLog();
+        await log.append(
+          freezeCampaignEvent({
+            type: 'ParticipantRemoved',
+            sequence: await log.nextSequence(),
+            campaignId: fixture.entry.campaignId,
+            ts: new Date().toISOString(),
+            authorPlayerId: fixture.host.playerId,
+            scope: 'campaign',
+            payload: { participantId: fixture.guest.playerId },
+          }),
+        );
+        expect(
+          createCampaignSessionMembershipPort().isActive(
+            fixture.entry.campaignId,
+            fixture.entry.matchId,
+            fixture.guest.playerId,
+          ),
+        ).toBe(true);
+        const [baseline] = offers(guest);
+        const closed = once(guest, 'close', signal());
+        expect(
+          await refused(guest, fixture.guest, baseline.appliedView),
+        ).toMatchObject({
+          code: 'INVALID_INTENT',
+          reason: 'campaign-application-not-admitted',
+        });
+        await closed;
+        expect(guest.closes).toEqual([
+          { code: 1008, reason: 'membership-revoked' },
+        ]);
+        expect(rows(fixture.guest.playerId)).toEqual([]);
+        expect(confirmations(guest)).toEqual([]);
+      });
+
+      it('a seat revoked after preparation gets no credit and is stopped', async () => {
+        const guest = await joinReceipts(fixture.guest);
+        const [baseline] = offers(guest);
+        const results = observeAccept(() =>
+          createCampaignSessionMembershipPort().revoke({
+            campaignId: fixture.entry.campaignId,
+            sessionId: fixture.entry.matchId,
+            participantId: fixture.guest.playerId,
+            revokedAt: new Date().toISOString(),
+          }),
+        );
+        const closed = once(guest, 'close', signal());
+        expect(
+          await refused(guest, fixture.guest, baseline.appliedView),
+        ).toMatchObject({ reason: 'campaign-application-not-admitted' });
+        await closed;
+        expect(results).toEqual(['refused']);
+        expect(guest.closes).toEqual([
+          { code: 1008, reason: 'membership-revoked' },
+        ]);
+        expect(rows(fixture.guest.playerId)).toEqual([]);
+        expect(confirmations(guest)).toEqual([]);
+      });
+
+      it('head drift retries with a fresh preparation at most three times, then refuses without credit', async () => {
+        const guest = await joinReceipts(fixture.guest);
+        const [baseline] = offers(guest);
+        const results = observeAccept(
+          () => driftHead(1),
+          () => driftHead(-1),
+        );
+
+        expect(
+          await refused(guest, fixture.guest, baseline.appliedView),
+        ).toMatchObject({
+          code: 'INVALID_INTENT',
+          reason: 'campaign-application-head-drift',
+        });
+        expect(results).toEqual(['threw', 'threw', 'threw']);
+        expect(rows(fixture.guest.playerId)).toEqual([]);
+        expect(confirmations(guest)).toEqual([]);
+        expect(guest.closes).toEqual([]);
+      });
+
+      it('a commit landing during the preparation drifts the head once; the retry prepares fresh and confirms', async () => {
+        await privateHistory();
+        const guest = await joinReceipts(fixture.guest);
+        const [baseline] = offers(guest);
+        const results = observeAccept();
+        const readStream = SQLiteEventJournal.prototype.readStream;
+        let drifted = false;
+        jest
+          .spyOn(SQLiteEventJournal.prototype, 'readStream')
+          .mockImplementation(
+            async function (this: SQLiteEventJournal<unknown>, query) {
+              // The commit's verified read is in progress; the head moves.
+              if (!drifted) {
+                drifted = true;
+                await fixture.entry.host._commitEventsForTests([
+                  visibleFunds('drift'),
+                ]);
+              }
+              return readStream.call(this, query);
+            },
+          );
+        const { atConfirmation } = await confirmed(
+          guest,
+          fixture.guest,
+          baseline.appliedView,
+        );
+        expect(drifted).toBe(true);
+        expect(results).toEqual(['threw', 'accepted']);
+        expect(atConfirmation).toEqual([
+          expect.objectContaining({
+            receipt_id: baseline.appliedView.receiptId,
+          }),
+        ]);
+      });
+
+      it('a failed confirmation write keeps the committed row and closes for recovery', async () => {
+        const guest = await joinReceipts(fixture.guest);
+        const [baseline] = offers(guest);
+        guest.mode = 'fail';
+        const closed = once(guest, 'close', signal());
+        guest.inbound(ack(fixture.guest, baseline.appliedView));
+        await closed;
+        expect(confirmations(guest)).toHaveLength(1);
+        expect(guest.closes).toEqual([
+          { code: 1008, reason: 'campaign-application-confirmation-failed' },
+        ]);
+        expect(rows(fixture.guest.playerId)).toEqual([
+          expect.objectContaining({
+            receipt_id: baseline.appliedView.receiptId,
+          }),
+        ]);
+      });
+
+      it('a GM join superseded by a quick second join sends no spurious error and the second view stays live', async () => {
+        const gm = await bindReceipts(fixture.host);
+        gm.mode = 'hold';
+        const firstWritten = once(gm, 'CampaignSnapshot', signal());
+        gm.inbound(joinMessage(fixture.host));
+        await firstWritten;
+        const secondWritten = once(gm, 'CampaignSnapshot', signal());
+        gm.inbound(joinMessage(fixture.host));
+        await secondWritten;
+        const joined = once(gm, 'joined', signal());
+        gm.mode = 'auto';
+        gm.held.splice(0).forEach((callback) => callback());
+        await joined;
+        await commitSeenBy([gm], [visibleFunds('after-double-join')]);
+
+        const [, second, delta] = offers(gm);
+        expect(delta.appliedView.previousReceiptId).toBe(
+          second.appliedView.receiptId,
+        );
+        expect(framesOf(gm, 'Error')).toEqual([]);
+        expect(gm.closes).toEqual([]);
+      });
     });
   });
 });

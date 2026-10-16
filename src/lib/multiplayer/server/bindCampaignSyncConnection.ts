@@ -5,6 +5,7 @@ import { randomUUID } from 'node:crypto';
 import type { ICampaignGrantLiveSource } from '@/lib/campaign/delivery/campaignGrantChannelSession';
 import type { ICampaignGrantSigner } from '@/lib/campaign/grants/ICampaignGrantStore';
 import type { SQLiteCampaignReplicaStore } from '@/lib/campaign/replica/SQLiteCampaignReplicaStore';
+import type { CampaignApplicationResult } from '@/lib/campaign/sync/campaignPublicAppliedView';
 import type { CampaignArtifactUseReader } from '@/lib/interventions/GmCampaignArtifactUseDurable';
 import type {
   CampaignEventScope,
@@ -12,6 +13,8 @@ import type {
   ICampaignEvent,
 } from '@/types/campaign/CampaignSync';
 import type {
+  ICampaignAppliedView,
+  ICampaignApplicationAck,
   ICampaignApplicationOffer,
   ICampaignClientMessage,
   IClientMessage,
@@ -22,7 +25,11 @@ import type {
 import { campaignStreamRef } from '@/lib/campaign/authority/campaignLaunchHead';
 import { reconcileCoopBattle } from '@/lib/campaign/coop/reconcileCoopBattle';
 import { campaignBranchSegmentReader } from '@/lib/campaign/rebuild/campaignBranchSegmentReader';
-import { campaignViewerAuthorityFingerprint } from '@/lib/campaign/sync/campaignPublicAppliedView';
+import {
+  campaignViewerAuthorityFingerprint,
+  CampaignPublicAppliedViewStore,
+  readCampaignPublicAppliedView,
+} from '@/lib/campaign/sync/campaignPublicAppliedView';
 import { projectCampaignForViewer } from '@/lib/campaign/sync/campaignViewerProjection';
 import {
   CAMPAIGN_STREAM_TYPE,
@@ -42,7 +49,7 @@ import { activeCampaignSessionMembership } from '@/services/campaignPersistence/
 import { CAMPAIGN_STALE_HEAD } from '@/types/campaign/CampaignSync';
 import {
   assertKnownCampaignSyncFrameKind,
-  ClientMessageSchema,
+  CampaignApplicationClientMessageSchema,
   isCampaignClientMessage,
   nowIso,
 } from '@/types/multiplayer/Protocol';
@@ -439,15 +446,19 @@ async function handleInbound({
     return;
   }
 
-  const parsedEnvelope = ClientMessageSchema.safeParse(parsedJson.value);
+  // Strict receipt ACK first, legacy second: a present appliedView can
+  // never be stripped down to a numeric ACK.
+  const parsedEnvelope = CampaignApplicationClientMessageSchema.safeParse(
+    parsedJson.value,
+  );
   if (!parsedEnvelope.success) {
     logger.warn(`[campaign-sync] malformed envelope matchId=${matchId}`);
     send(socket, errorFrame(matchId, 'BAD_ENVELOPE', 'malformed-envelope'));
     return;
   }
 
-  const envelope: IClientMessage = parsedEnvelope.data;
-  if (!isCampaignClientMessage(envelope)) {
+  const envelope = parsedEnvelope.data;
+  if (!isApplicationAck(envelope) && !isCampaignClientMessage(envelope)) {
     send(socket, errorFrame(matchId, 'BAD_ENVELOPE', 'not-campaign-sync'));
     return;
   }
@@ -533,7 +544,7 @@ async function handleInbound({
 }
 
 interface IDispatchCampaignEnvelopeDeps {
-  envelope: ICampaignClientMessage;
+  envelope: ICampaignClientMessage | ICampaignApplicationAck;
   socket: IWireCampaignSocket;
   entry: ICampaignHostRegistryEntry;
   matchId: string;
@@ -697,6 +708,26 @@ async function dispatchCampaignEnvelope({
       });
       return;
     case 'CampaignAck':
+      if (isApplicationAck(envelope)) {
+        if (application && envelope.campaignId === entry.campaignId) {
+          application.acknowledge(envelope.appliedView);
+        } else {
+          send(socket, errorFrame(matchId, 'INVALID_INTENT', NOT_OFFERED));
+        }
+        return;
+      }
+      // No numeric fallback once this connection is in receipt mode.
+      if (application) {
+        send(
+          socket,
+          errorFrame(
+            matchId,
+            'INVALID_INTENT',
+            'campaign-application-receipt-required',
+          ),
+        );
+        return;
+      }
       // envelope.playerId is the verified principal: handleInbound
       // already closed the socket on player-mismatch.
       entry.syncSession.noteParticipantAcknowledged(
@@ -1101,14 +1132,15 @@ async function handleCampaignJoin({
     // retain the GM, so the launch gate never waits on the authority
     // itself. `joinMember` cannot refuse here: the session opened at
     // registration and `noteGmConnected` above cleared any pause.
-    // Receipt mode hydrates through the application view instead; a failed
-    // open has already closed the socket, so the error below is a no-op.
+    // Receipt mode hydrates through the application view instead.
     const gmJoin = application
       ? { ok: await application.open(), disconnect: () => undefined }
       : await entry.syncSession.joinMember((event) => {
           sendCampaignEvent(socket, matchId, event);
         }, verifiedPlayerId);
     if (!gmJoin.ok) {
+      // A false open either closed already or was superseded by a rejoin.
+      if (application) return;
       send(
         socket,
         errorFrame(matchId, 'INTERNAL_ERROR', 'campaign-session-unavailable'),
@@ -1554,6 +1586,22 @@ function armTimeoutOutcomeBroadcast(
   });
 }
 
+const NOT_OFFERED = 'campaign-application-not-offered';
+const COMMIT_ATTEMPTS = 3;
+/** Thrown inside the P2CA transaction when the head moved past the prepared cut. */
+const HEAD_DRIFT = new Error('campaign-application-head-drift');
+
+function isApplicationAck(
+  message: IClientMessage | ICampaignApplicationAck,
+): message is ICampaignApplicationAck {
+  return message.kind === 'CampaignAck' && message.appliedView !== undefined;
+}
+
+const sameAppliedView = (a: ICampaignAppliedView, b: ICampaignAppliedView) =>
+  a.viewId === b.viewId &&
+  a.receiptId === b.receiptId &&
+  a.previousReceiptId === b.previousReceiptId;
+
 /** One participant's verified public view at one captured journal cut. */
 interface IPublicCut {
   readonly branchId: string;
@@ -1654,6 +1702,8 @@ interface IApplicationView {
     'branchId' | 'effectiveGeneration' | 'viewerAuthorityFingerprint'
   > | null;
   latest: IApplicationCandidate | null;
+  inFlight: IApplicationCandidate | null;
+  pendingAck: ICampaignAppliedView | null;
   chain: Promise<void>;
   refreshQueued: boolean;
 }
@@ -1663,7 +1713,10 @@ interface IApplicationView {
  * verified principal, campaign, session, and the prepared authority and
  * lineage. An offer is ESTABLISHED only by a confirmed write through the
  * lifecycle's own broadcaster, and each delta links to the latest
- * established offer. Every step of a view runs on one serialized chain.
+ * established offer. An ACK commits through P2CA only for the latest
+ * established offer (or the one in flight, held until its write settles),
+ * and the confirmation follows the commit. Every step of a view runs on one
+ * serialized chain.
  * Nothing is cached durably: deltas are re-read from the verified journal
  * on each commit wakeup. A rejoin, close, removal, failed write or
  * authority change ends the view; reconnecting gets a fresh baseline.
@@ -1693,6 +1746,8 @@ class CampaignApplicationConnection {
       abort: new AbortController(),
       authority: null,
       latest: null,
+      inFlight: null,
+      pendingAck: null,
       chain: Promise.resolve(),
       refreshQueued: false,
     };
@@ -1707,6 +1762,27 @@ class CampaignApplicationConnection {
   invalidate = (): void => {
     this.view?.abort.abort();
     this.view = null;
+  };
+
+  /** Admit only the live view's exact in-flight or latest receipt. */
+  acknowledge = (appliedView: ICampaignAppliedView): void => {
+    const view = this.view;
+    const names = (candidate: IApplicationCandidate | null) =>
+      candidate !== null &&
+      sameAppliedView(candidate.frame.appliedView, appliedView);
+    if (view === null || !(names(view.inFlight) || names(view.latest))) {
+      const reason = view
+        ? 'campaign-application-unknown-receipt'
+        : NOT_OFFERED;
+      send(
+        this.deps.socket,
+        errorFrame(this.deps.matchId, 'INVALID_INTENT', reason),
+      );
+      return;
+    }
+    // One exact slot: an ACK of the in-flight offer waits for its write.
+    view.pendingAck = appliedView;
+    void this.enqueue(view, () => this.processAck(view));
   };
 
   private current = (view: IApplicationView): boolean =>
@@ -1809,6 +1885,7 @@ class CampaignApplicationConnection {
     view: IApplicationView,
     candidate: IApplicationCandidate,
   ): Promise<boolean> {
+    view.inFlight = candidate;
     const result = await this.deps.broadcaster.sendConfirmed(
       this.deps.socket,
       candidate.frame,
@@ -1830,8 +1907,144 @@ class CampaignApplicationConnection {
       this.fail(view, 'AUTH_REJECTED', 'membership-revoked');
       return false;
     }
+    // An ACK of the previous latest that arrived meanwhile is still current;
+    // the candidate stays in flight, so its own ACK is admitted meanwhile.
+    await this.processAck(view);
+    if (!this.current(view)) return false;
     view.latest = candidate;
-    return true;
+    view.inFlight = null;
+    await this.processAck(view);
+    return this.current(view);
+  }
+
+  private async processAck(view: IApplicationView): Promise<void> {
+    const ack = view.pendingAck;
+    const latest = view.latest;
+    if (!ack || !latest || !sameAppliedView(ack, latest.frame.appliedView)) {
+      return;
+    }
+    view.pendingAck = null;
+    await this.commit(view, latest);
+  }
+
+  /**
+   * Durable commit through P2CA, then the exact confirmation. A fresh
+   * verified preparation runs outside SQL; the owner's transaction resolves
+   * only this view's latest offer and refuses if the head moved since.
+   */
+  private async commit(
+    view: IApplicationView,
+    offer: IApplicationCandidate,
+  ): Promise<void> {
+    const { socket, entry, matchId } = this.deps;
+    const receiptId = offer.frame.appliedView.receiptId;
+    const key = {
+      campaignId: entry.campaignId,
+      sessionId: matchId,
+      participantId: this.participantId,
+    };
+    const stream = {
+      streamType: CAMPAIGN_STREAM_TYPE,
+      streamId: key.campaignId,
+    };
+    for (let attempt = 0; attempt < COMMIT_ATTEMPTS; attempt += 1) {
+      const cut = await preparePublicCut(
+        this.deps.receipts.database(),
+        key.campaignId,
+        key.sessionId,
+        key.participantId,
+      );
+      if (!this.current(view) || view.latest !== offer || !view.authority) {
+        return;
+      }
+      const authority = view.authority;
+      let result: CampaignApplicationResult;
+      try {
+        result = new CampaignPublicAppliedViewStore(
+          this.deps.receipts.database(),
+          {
+            resolveDeliveredOffer: (handle, request) => {
+              if (request.receiptId !== receiptId || view.latest !== offer) {
+                return null;
+              }
+              // Every view is rooted at a complete authorized baseline, so
+              // its cumulative offer is a baseline when no row exists and
+              // otherwise validly replaces the stored row.
+              const previous = readCampaignPublicAppliedView(handle, key);
+              return {
+                ...key,
+                ...authority,
+                acknowledgedJournalCut: offer.cut,
+                receiptId,
+                kind: previous === null ? 'baseline' : 'replacement',
+                predecessorReceiptId: previous?.receiptId ?? null,
+              };
+            },
+            readCurrentContext: (handle) => {
+              const branches = new SQLiteEventHistoryBranchStore(handle);
+              const head = readEffectiveStreamHead(handle, branches, stream);
+              if (
+                cut !== null &&
+                (head.branchId !== cut.branchId ||
+                  head.revision !== cut.revision)
+              ) {
+                throw HEAD_DRIFT;
+              }
+              const membership = activeCampaignSessionMembership(
+                key.campaignId,
+                key.sessionId,
+                key.participantId,
+              );
+              return {
+                branchId: head.branchId,
+                effectiveGeneration:
+                  branches.requireEffectiveHead(stream).effectiveGeneration,
+                headRevision: head.revision,
+                viewer: {
+                  participantId: key.participantId,
+                  isGm: membership?.seat === 'gm',
+                },
+                membership,
+                participantRemoved: cut?.removed ?? true,
+              };
+            },
+          },
+        ).accept({ ...key, receiptId });
+      } catch (error) {
+        if (error === HEAD_DRIFT) continue;
+        throw error;
+      }
+      if (result.kind === 'stale') return;
+      if (result.kind === 'refused') {
+        const reason = `campaign-application-${result.reason}`;
+        send(socket, errorFrame(matchId, 'INVALID_INTENT', reason));
+        if (result.reason === 'not-admitted') {
+          this.fail(view, 'AUTH_REJECTED', 'membership-revoked');
+        }
+        return;
+      }
+      const confirmation = await this.deps.broadcaster.sendConfirmed(
+        socket,
+        {
+          kind: 'CampaignAck',
+          matchId,
+          ts: nowIso(),
+          playerId: this.participantId,
+          campaignId: entry.campaignId,
+          appliedView: offer.frame.appliedView,
+        },
+        view.abort.signal,
+      );
+      if (confirmation.kind !== 'sent') {
+        this.fail(
+          view,
+          'INTERNAL_ERROR',
+          'campaign-application-confirmation-failed',
+        );
+      }
+      return;
+    }
+    send(socket, errorFrame(matchId, 'INVALID_INTENT', HEAD_DRIFT.message));
   }
 }
 
