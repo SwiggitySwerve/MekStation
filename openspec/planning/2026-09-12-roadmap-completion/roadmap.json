@@ -8818,6 +8818,10 @@
         "src/lib/multiplayer/server/auth.ts",
         "src/services/vault/IdentityService.ts",
         "src/lib/events/checkpoints/BranchCheckpointCache.ts",
+        "src/lib/campaign/grants/campaignGrantToken.ts",
+        "src/lib/campaign/grants/redeemCampaignGrant.ts",
+        "src/__tests__/api/campaigns/campaignRedeemRoute.test.ts",
+        "src/lib/campaign/grants/__tests__/campaignShareAndRedeem.test.ts",
         "tsconfig.json",
         "desktop/tsconfig.json",
         "openspec/changes/migrate-to-typescript-7/tasks.md",
@@ -8864,7 +8868,7 @@
       "maxNonGeneratedLines": 500,
       "taskKeys": [],
       "receipt": null,
-      "decomposition": "One unit per PR-sized tasks.md package. Section 0 is folded into TS7S1's admission evidence (tasks.md: no PR). Section 2 splits into TS7S2A (ts-node to tsx) and TS7S2B (desktop @swc/jest and the Storybook proof), with the owner-gated 2.5 as TS7S2OD. Section 4 splits into TS7S4A (gate routing on the TypeScript 6 bridge) and TS7S4B (the dependency swap, the explicit entry point and the guard). Section 5 splits into TS7S5A (docs), TS7S5B (verification, spec sync, design.md archive prefix) and TS7S5C (archive completion), because one archive move counts every moved line. Section 6 is deferred with no unit (FN-ts7-typescript-7-1-followup).",
+      "decomposition": "One unit per PR-sized tasks.md package. Section 0 is folded into TS7S1B's admission evidence (tasks.md: no PR), with the 0.2 pre-fix measurement taken at TS7S1A's admission. Section 1 splits into TS7S1A (type-only source fixes, 1.1-1.2) and TS7S1B (D2 config, the zero-error proof and the ledger flip, 1.3-1.5), after the TS7S1 admission stopped at the file cap. Section 2 splits into TS7S2A (ts-node to tsx) and TS7S2B (desktop @swc/jest and the Storybook proof), with the owner-gated 2.5 as TS7S2OD. Section 4 splits into TS7S4A (gate routing on the TypeScript 6 bridge) and TS7S4B (the dependency swap, the explicit entry point and the guard). Section 5 splits into TS7S5A (docs), TS7S5B (verification, spec sync, design.md archive prefix) and TS7S5C (archive completion), because one archive move counts every moved line. Section 6 is deferred with no unit (FN-ts7-typescript-7-1-followup).",
       "registration": "evidence/ts7-track-registration-20261016.json",
       "added20261016": {
         "by": "parent-delegated registration sub-agent",
@@ -8875,6 +8879,24 @@
           "src/lib/multiplayer/server/auth.ts",
           "src/services/vault/IdentityService.ts",
           "src/lib/events/checkpoints/BranchCheckpointCache.ts",
+          "tsconfig.json",
+          "desktop/tsconfig.json",
+          "openspec/changes/migrate-to-typescript-7/tasks.md",
+          "openspec/active-change-ledger.json",
+          "openspec/changes/migrate-to-typescript-7/design.md (conditional)",
+          "desktop/tsconfig.test.json (conditional)"
+        ],
+        "TS7S1A": [
+          "src/lib/multiplayer/server/auth.ts",
+          "src/services/vault/IdentityService.ts",
+          "src/lib/events/checkpoints/BranchCheckpointCache.ts",
+          "src/lib/campaign/grants/campaignGrantToken.ts",
+          "src/lib/campaign/grants/redeemCampaignGrant.ts",
+          "src/__tests__/api/campaigns/campaignRedeemRoute.test.ts",
+          "src/lib/campaign/grants/__tests__/campaignShareAndRedeem.test.ts",
+          "openspec/changes/migrate-to-typescript-7/tasks.md"
+        ],
+        "TS7S1B": [
           "tsconfig.json",
           "desktop/tsconfig.json",
           "openspec/changes/migrate-to-typescript-7/tasks.md",
@@ -8963,6 +8985,8 @@
       },
       "knownLeafSubtotals": {
         "TS7S1": 8,
+        "TS7S1A": 9,
+        "TS7S1B": 5,
         "TS7S2A": 7,
         "TS7S2B": 5,
         "TS7S2OD": 6,
@@ -8973,7 +8997,14 @@
         "TS7S5B": 5,
         "TS7S5C": 8
       },
-      "permissionBoundary": "Exact leaves only. Paths listed here grant nothing until the owning unit's normal finite admission. The prospective archive paths (<archive-date>) are frozen into each archive unit's ownershipExceptions by literal-path amendment at that unit's admission. No directory grant, placeholder, capException or cap inflation."
+      "permissionBoundary": "Exact leaves only. Paths listed here grant nothing until the owning unit's normal finite admission. The prospective archive paths (<archive-date>) are frozen into each archive unit's ownershipExceptions by literal-path amendment at that unit's admission. No directory grant, placeholder, capException or cap inflation.",
+      "amended20261016TS7S1": {
+        "at": "2026-10-16T20:50:27.000Z",
+        "units": "TS7S1 superseded by TS7S1A/TS7S1B",
+        "evidence": "evidence/ts7s1-split-registration-20261016.json",
+        "change": "ownershipPaths gains four exact single-file aliases for TS7S1A (src/lib/campaign/grants/campaignGrantToken.ts, src/lib/campaign/grants/redeemCampaignGrant.ts, src/__tests__/api/campaigns/campaignRedeemRoute.test.ts, src/lib/campaign/grants/__tests__/campaignShareAndRedeem.test.ts); restrictions and knownLeafSubtotals gain TS7S1A and TS7S1B; the TS7S1 entries are kept as the superseded record; decomposition text updated.",
+        "reason": "Task 1.1's type-only fix needs four callers of the IdentityService exports that no TS7S1 leaf covers. The validator compares unit ownershipPaths to the node by string equality, so each is added verbatim. These are exact leaves, not a directory grant; they grant nothing until TS7S1A's normal finite admission. Every other owner of these files is blocked, planned or terminal, and none is in flight."
+      }
     }
   ],
   "tasks": [
