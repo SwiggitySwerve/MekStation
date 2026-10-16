@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CF1",
+  "stage": "red",
+  "baseline": "a1d2293b941b5aaf2b618f451294cbb2dae4f1b4",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "Task13 / P2CF1 implementation sub-agent"
+  },
+  "runtime": "node v22.22.0",
+  "command": "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --runTestsByPath src/lib/campaign/coop/__tests__/campaignAuthoritativeFold.test.ts src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts src/lib/p2p/__tests__/campaignMirrorStore.test.ts",
+  "exitCode": 1,
+  "result": "25 failed, 62 passed, 87 total; final test bytes (campaignAuthoritativeFold.test.ts 9ff1754f..., campaignSyncTransport.test.ts 7c43ab57..., campaignMirrorStore.test.ts b562c309...) against the three product leaves byte-identical to baseline (fold d569a8ca..., transport 9ec26ebd..., mirror 2794a540...)",
+  "initial": {
+    "result": "24 failed, 62 passed, 86 total",
+    "note": "First RED on the first test text. The round-one mutation probe left four survivors; the final text fixes the negative-sequence fixture (its payload also failed the strict schema, masking the sequence check), extends the confirmed-ACK case to a newer unconfirmed ACK, and adds one case for the receipt-mode and binding gates. The final-text RED above supersedes it."
+  },
+  "passingAtRed": "Regression guards that pass at baseline: the legacy fold shape and launch handling without a bundle, the mirror's legacy positional calls, the unbound legacy connection (join lastSeq, numeric ACK, refusals inert and dispatched), the receipt-mode/binding gate case, and every pre-existing transport and mirror case including the bound join without lastSeq (campaignSyncTransport.test.ts, P2CD baseline case)",
+  "logs": [
+    "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-13-p2cf1-20261016/red.log"
+  ],
+  "failures": [
+    "foldCampaignHydration is not exported, so every bundle, omission, conflict and replacement case throws TypeError",
+    "A fold never carries launch facts, so a duplicate, malformed or foreign live launch is accepted and the linked-snapshot retention case fails",
+    "applySnapshot ignores the fourth bundle argument: no launchFacts is installed or kept, and an invalid replacement bundle is adopted",
+    "A campaign-application-head-drift Error re-sends nothing, and unknown-receipt, not-offered, receipt-required and current-authority do not end the view (no recovery error; a later offer still ACKs)"
+  ]
+}

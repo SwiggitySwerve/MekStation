@@ -34,6 +34,7 @@ import type {
 import {
   EMPTY_CAMPAIGN_AUTHORITATIVE_FOLD,
   foldCampaignEvent,
+  foldCampaignHydration,
   foldCampaignSnapshot,
   type ICampaignAuthoritativeFold,
 } from '@/lib/campaign/coop/campaignAuthoritativeFold';
@@ -157,6 +158,11 @@ interface CampaignMirrorState {
   /** Highest event sequence applied — drives resync from the last seq. */
   lastSequence: number;
   /**
+   * Mission-launch facts held with `campaign`, installed in the same
+   * update; `undefined` until a hydration bundle is adopted.
+   */
+  launchFacts: ICampaignAuthoritativeFold['launchFacts'];
+  /**
    * True when the host has disconnected: the mirror is frozen (it is
    * already read-only) and the guest UI shows a paused banner (design
    * D6 / spec scenario "Host disconnect pauses the session").
@@ -181,11 +187,16 @@ interface CampaignMirrorActions {
    * passes `resumeSequence` — the live stream's next sequence minus one
    * — so `applyEvent` accepts the post-snapshot live events and rejects
    * stale tail events the snapshot already folded in.
+   *
+   * `hydrationFacts` is an application baseline's complete launch-fact
+   * bundle; when passed, the shared fold validates it before anything is
+   * installed and a refused bundle leaves the held mirror untouched.
    */
   applySnapshot: (
     snapshot: ICampaignEvent,
     resumeSequence?: number,
     replacement?: boolean,
+    hydrationFacts?: readonly ICampaignEvent[],
   ) => ICampaignAuthoritativeFold | null;
   /**
    * Advance the mirror by ONE host-broadcast campaign event through the
@@ -214,6 +225,7 @@ const INITIAL_STATE: CampaignMirrorState = {
   peers: null,
   localPeerId: null,
   lastSequence: -1,
+  launchFacts: undefined,
   paused: false,
 };
 
@@ -234,11 +246,17 @@ export const useCampaignMirrorStore = create<CampaignMirrorStore>()((set) => ({
       localPeerId,
       campaign: null,
       lastSequence: -1,
+      launchFacts: undefined,
       paused: false,
     });
   },
 
-  applySnapshot: (snapshot, resumeSequence, replacement = false) => {
+  applySnapshot: (
+    snapshot,
+    resumeSequence,
+    replacement = false,
+    hydrationFacts,
+  ) => {
     let accepted: ICampaignAuthoritativeFold | null = null;
     set((state) => {
       if (
@@ -250,13 +268,24 @@ export const useCampaignMirrorStore = create<CampaignMirrorStore>()((set) => ({
       // The adoption rules live in `campaignAuthoritativeFold` so the
       // GM/host surface folds its own stream through the SAME reducer
       // (design D9), not a second copy that can drift from this one.
-      const next = foldCampaignSnapshot(
-        replacement
-          ? EMPTY_CAMPAIGN_AUTHORITATIVE_FOLD
-          : { state: state.campaign, lastSequence: state.lastSequence },
-        snapshot,
-        resumeSequence,
-      );
+      const held = {
+        state: state.campaign,
+        lastSequence: state.lastSequence,
+        launchFacts: state.launchFacts,
+      };
+      const next = hydrationFacts
+        ? foldCampaignHydration(
+            held,
+            snapshot,
+            hydrationFacts,
+            replacement,
+            resumeSequence,
+          )
+        : foldCampaignSnapshot(
+            replacement ? EMPTY_CAMPAIGN_AUTHORITATIVE_FOLD : held,
+            snapshot,
+            resumeSequence,
+          );
       if (!next) {
         return {};
       }
@@ -264,6 +293,7 @@ export const useCampaignMirrorStore = create<CampaignMirrorStore>()((set) => ({
       return {
         campaign: next.state,
         lastSequence: next.lastSequence,
+        launchFacts: next.launchFacts,
         paused: false,
       };
     });
@@ -279,14 +309,22 @@ export const useCampaignMirrorStore = create<CampaignMirrorStore>()((set) => ({
       // also saw live during a reconnect race is dropped. Same shared
       // fold as `applySnapshot`.
       const next = foldCampaignEvent(
-        { state: state.campaign, lastSequence: state.lastSequence },
+        {
+          state: state.campaign,
+          lastSequence: state.lastSequence,
+          launchFacts: state.launchFacts,
+        },
         event,
       );
       if (!next) {
         return {};
       }
       accepted = next;
-      return { campaign: next.state, lastSequence: next.lastSequence };
+      return {
+        campaign: next.state,
+        lastSequence: next.lastSequence,
+        launchFacts: next.launchFacts,
+      };
     });
     return accepted;
   },

@@ -46,6 +46,7 @@ export type CampaignAppliedResult =
       status: 'recovery-required';
       reason:
         | 'application-failed'
+        | 'application-refused'
         | 'prefix-conflict'
         | 'pending-overflow'
         | 'send-failed';
@@ -125,6 +126,9 @@ export function connectCampaignSyncTransport(
   const pending: { frame: ICampaignApplicationOffer; applied: boolean }[] = [];
   let latest: ICampaignApplicationOffer | null = null;
   let sent: ICampaignApplicationOffer | null = null;
+  // The exact bytes of `sent`'s ACK, and whether the server confirmed it.
+  let sentAck = '';
+  let confirmed = false;
   let failed = false;
   let dispatching = false;
   let receiptMode = false;
@@ -189,13 +193,31 @@ export function connectCampaignSyncTransport(
       campaignId: options.expectedCampaignId,
       appliedView: latest.appliedView,
     });
+    const raw = JSON.stringify(ack);
     try {
-      socket.send(JSON.stringify(ack));
+      socket.send(raw);
     } catch {
       return recover('send-failed');
     }
     sent = latest;
+    sentAck = raw;
+    confirmed = false;
     return { status: 'ack-sent' };
+  };
+  // P2CE3: head-drift committed nothing and leaves the view live, so the
+  // same ACK is retried while it is still the latest and unconfirmed. A
+  // newer offer is ACKed by drain once ready. Every other typed refusal
+  // must not be retried with the same frame: the consumer rejoins.
+  const handleApplicationRefusal = (reason: string): void => {
+    if (reason !== 'campaign-application-head-drift') {
+      recover('application-refused');
+    } else if (sent && sent === latest && !confirmed) {
+      try {
+        socket.send(sentAck);
+      } catch {
+        recover('send-failed');
+      }
+    }
   };
   const registerOffer = (frame: ICampaignApplicationOffer): boolean => {
     if (failed || closed) return false;
@@ -391,6 +413,7 @@ export function connectCampaignSyncTransport(
         message.campaignId === options.expectedCampaignId &&
         JSON.stringify(message.appliedView) === JSON.stringify(sent.appliedView)
       ) {
+        confirmed = true;
         confirmations.forEach((handler) => handler(message));
       }
       return;
@@ -400,6 +423,16 @@ export function connectCampaignSyncTransport(
         message.kind === 'CampaignEvent') &&
       message.appliedView;
     if (offered && !registerOffer(message as ICampaignApplicationOffer)) return;
+    if (
+      receiptMode &&
+      options.expectedCampaignId &&
+      !failed &&
+      message.kind === 'Error' &&
+      message.code === 'INVALID_INTENT' &&
+      message.reason?.startsWith('campaign-application-')
+    ) {
+      handleApplicationRefusal(message.reason);
+    }
     updateLastSeq(message, (sequence) => {
       lastSeq = Math.max(lastSeq, sequence);
     });
