@@ -1,0 +1,1278 @@
+{
+  "event": "p2cg1-split-registration",
+  "unit": "P2CG1",
+  "planTask": 14,
+  "registrationOnly": true,
+  "at": "2026-10-16T16:15:30.000Z",
+  "baseline": "d0a7dd8b6ac0b93d9d3554d0427119a9e65ac4c1",
+  "actor": {
+    "role": "implementation sub-agent",
+    "provider": "anthropic",
+    "servedModel": "claude-opus-5-5",
+    "identitySource": "Current T3 Code/Claude Code harness runtime; parent delegation identity and independent review are recorded separately by Root."
+  },
+  "authority": {
+    "ruling": "The parent, acting on the owner's standing delegation to rule as needed, adopted the single recommended ruling in section 8 of the independent Fable sequencing review, with the instruction to follow its unit list unless verification of the real tree shows an error, and to correct, record and report any such error.",
+    "sequencingReview": {
+      "path": "E:/Projects/Personal/MekStation/docs/audits/2026-10-16-task14-sequencing-fable-review.md",
+      "bytes": 44402,
+      "sha256": "7326379690225ded22fb303b1e690a5ff982333a01aa915ff6f2cdf991cb10cc",
+      "verifiedBeforeUse": true,
+      "tracked": false
+    },
+    "plan": {
+      "path": "E:/Projects/Personal/MekStation/.omo/plans/mekstation-whole-roadmap-reconciliation-20261002.md",
+      "bytes": 456418,
+      "sha256": "ddfca64e7749ab42d8642defd386394ba8805451c81c6a03c5e761d7f12ede3c",
+      "sections": [
+        "14. Switch HTTP and socket readiness to durable application",
+        "Task11 staged application and Task14 sender retirement clarification (2026-10-09)",
+        "Task14 actual commit-boundary clarification (2026-10-09)",
+        "Task15 preparation clarification (2026-10-09), A1 amendment"
+      ]
+    },
+    "task14Decision": {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task14-preparation-parent-decision-20261009.json",
+      "bytes": 6509,
+      "sha256": "d9f1785823610e194e52fe13dc2c8d20be9e367d6307e3e6be82727813ea8fe4"
+    },
+    "task14Preparation": {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task14-durable-readiness-preparation-20261009.md",
+      "bytes": 44650,
+      "sha256": "3a98239b9d9966f8269a77e6ba30da33d862593b8273f5aeef1fc1a19e2e0d5f"
+    },
+    "clauses": [
+      "If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required scenario.",
+      "Activate receipt traffic only with the actual usable durable readiness implementation at both authority doors in Task14; no numeric/cursor translation or unowned mutable flag may bridge the gap. Freeze the concrete activation predicate within the owning task contracts before source execution.",
+      "Refresh actual accepted predecessor signatures and register concrete narrower successors/IDs/tasks before their implementation; no source grant or canonical unit is created by this clarification. Exact writer alias/authority and every genuine extra output count.",
+      "Task14 A1 must explicitly supply one default-absent actual outer-commit notification and guaranteed released-reservation cleanup through its existing writer/interface/adapter/host pipeline. Add exact CampaignMatchHost.pipeline.test.ts with real SQLite removal cases."
+    ]
+  },
+  "measurement": {
+    "source": "Task 14 implementation round, stopped at admission before any edit (no source, test, lifecycle or evidence change; nothing committed). No P2CG1 source candidate exists, so every per-slice line figure is an estimate from read code, except the extraction block, which is measured in physical lines at the base.",
+    "frozenBaseline": "d0a7dd8b6ac0b93d9d3554d0427119a9e65ac4c1",
+    "files": [
+      {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-14-p2cg1-20261016/census.md",
+        "bytes": 8482,
+        "sha256": "9fee4382a3bb5bc75525a296a84e0f095d2b75362c02f191647f47f327393977"
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-14-p2cg1-20261016/report.md",
+        "bytes": 10047,
+        "sha256": "4a859d4ab9a496d348dd3967e60063336f44fb851e832cfc4fb240cfcf32222e"
+      }
+    ],
+    "extractionBlock": {
+      "file": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+      "baseLines": 2197,
+      "slice1": {
+        "lines": "1589-1723",
+        "physicalLines": 135,
+        "plus": [
+          "ICampaignApplicationReceiptPort 228-230",
+          "errorFrame 2154-2168",
+          "send 2184-2197"
+        ]
+      },
+      "slice2": {
+        "lines": "1724-2049",
+        "physicalLines": 326,
+        "note": "CampaignApplicationConnection; uses errorFrame x3, send x4, and the types IWireCampaignSocket, ICampaignSessionMembershipPort, ICampaignApplicationReceiptPort"
+      },
+      "oneSliceVerdict": "The full block (461 lines plus the port interface, two helpers and imports) exceeds 500 counted lines as one move, so it is registered as two move-only slices."
+    },
+    "countingRule": "validate-roadmap.mjs U41: every changed file counts toward maxFiles; added lines count unless UNCOUNTED_FILES matches (__tests__/, .test./.spec., e2e/, generated) or the path is under the ledger evidence/ directory; no deletion credit. units.json counts (about 16 lines per lifecycle). \"Files\" below = leaves + units.json + admission, red and local receipts + the reserved admission-review slot.",
+    "baseLeafHashes": [
+      {
+        "path": "e2e/coop-campaign-two-browser-journey.spec.ts",
+        "lines": 502,
+        "bytes": 16707,
+        "sha256": "cf24477281833f67d518bd93a05a17704abba7643f81e5971174f62a8b2e7c19"
+      },
+      {
+        "path": "e2e/gm-two-player-authority.pack1.spec.ts",
+        "lines": 709,
+        "bytes": 24210,
+        "sha256": "22c76d8a45d3bffcd9fe4d356b9e7715a79b4376b3130c8f15b2a6881106272f"
+      },
+      {
+        "path": "server.js",
+        "lines": 904,
+        "bytes": 32625,
+        "sha256": "e4f973d2cfa7f4c25775e4ce9315b7398655a6a17cfc799793545de84a59ecf6"
+      },
+      {
+        "path": "src/__tests__/api/e2ePerformanceProbeRoute.test.ts",
+        "lines": 254,
+        "bytes": 9265,
+        "sha256": "976045b320cb55bf6775e3079487843d8b013a3db117398bf68e6ec4762e36a3"
+      },
+      {
+        "path": "src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx",
+        "lines": 521,
+        "bytes": 17599,
+        "sha256": "2fad6b5df2c763621b1e1377116d79862f7662b51ffcac7249d4c90ea8956a34"
+      },
+      {
+        "path": "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx",
+        "lines": 693,
+        "bytes": 23169,
+        "sha256": "440958350bcc4f7e88446e3cd25b3a9f2f481e152b70351cc079ee3cf1410e58"
+      },
+      {
+        "path": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+        "lines": 512,
+        "bytes": 18690,
+        "sha256": "80cb4d849a1827bfd69b58f93ee87fd3fc012c44e70e3ebff6567ce959a31e97"
+      },
+      {
+        "path": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+        "lines": 1056,
+        "bytes": 32457,
+        "sha256": "791084d44cdd41e2a5ca67e0b7bd6d7e69e674f97b6f43e1ea4be791b1d9976c"
+      },
+      {
+        "path": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx",
+        "lines": 1390,
+        "bytes": 45836,
+        "sha256": "6423c2dc3f62046f5ccd47f2d75cee93988aa16883c00c215278c962afd0d56f"
+      },
+      {
+        "path": "src/components/campaign/coop/__tests__/CampaignLifecycleGate.test.tsx",
+        "lines": 509,
+        "bytes": 16849,
+        "sha256": "337cb6073d20ca3acf475ed99982fe2c526776e6f62f9d87d185d8e4a7d9a524"
+      },
+      {
+        "path": "src/components/campaign/coop/__tests__/GuestProposalSurface.test.tsx",
+        "lines": 372,
+        "bytes": 11690,
+        "sha256": "570b935bb0b65936239397201817b26ed7f283c0a19a9daf8a4edb890212b68a"
+      },
+      {
+        "path": "src/components/campaign/coop/__tests__/GuestRebuildStaleGate.test.tsx",
+        "lines": 483,
+        "bytes": 16548,
+        "sha256": "cdc9fda2a55ea15d4c68c1c02b034a792a5347a542e6e5cfea8e4bb65f72eb7a"
+      },
+      {
+        "path": "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+        "lines": 258,
+        "bytes": 8860,
+        "sha256": "4798100d184e3b564998203203dfc66c68dc3b2be3a219fcfadf740af1fa9c53"
+      },
+      {
+        "path": "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+        "lines": 1055,
+        "bytes": 34868,
+        "sha256": "7c43ab5726288b666eb7cc50ff62933e446f8774a2a020b2e95c04c4e4b99c51"
+      },
+      {
+        "path": "src/lib/campaign/coop/campaignSyncTransport.ts",
+        "lines": 669,
+        "bytes": 21121,
+        "sha256": "042b6ef3714cb99f00e5bc1707e0be74dab101355ea4dba7d84577e5c729e1e8"
+      },
+      {
+        "path": "src/lib/campaign/sync/ICampaignEventStore.ts",
+        "lines": 243,
+        "bytes": 8953,
+        "sha256": "6925c43a7c3b0faa05f31cb1099c8596c4159b8c94ed15adbf76f3ea5a5f950f"
+      },
+      {
+        "path": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+        "lines": 575,
+        "bytes": 23437,
+        "sha256": "9c2d15c3a947ebed1a532e5c0e642cbc5c8de4423af8cc81b1e11c81b4392db9"
+      },
+      {
+        "path": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+        "lines": 784,
+        "bytes": 27452,
+        "sha256": "4016754a425f74375f52192327e1c1e86ef4646fae51d13e58b8272b142b1a51"
+      },
+      {
+        "path": "src/lib/events/journal/SQLiteEventJournalWriter.ts",
+        "lines": 510,
+        "bytes": 21444,
+        "sha256": "1beac1d6c477727667e3403b95d8be0f173f31669354e0eacfb72b6d93dfecba"
+      },
+      {
+        "path": "src/lib/multiplayer/server/CampaignGmArbiter.ts",
+        "lines": 620,
+        "bytes": 23502,
+        "sha256": "ab6482f3d854d2b6586b2a76efe89529f27b5b2d4edcfa677cdb9f0fea1f64d1"
+      },
+      {
+        "path": "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+        "lines": 454,
+        "bytes": 15953,
+        "sha256": "dd3524f45102237cec5edd0b1f4fffd990f0d1ed7624b3f576a4aead4aaabfa1"
+      },
+      {
+        "path": "src/lib/multiplayer/server/CampaignMatchHost.doors.ts",
+        "lines": 241,
+        "bytes": 7429,
+        "sha256": "04b19f7e894e6073118f4ad4ab9b94d36f3d57034d615bcd32323ecf7b54b52a"
+      },
+      {
+        "path": "src/lib/multiplayer/server/CampaignMatchHost.ts",
+        "lines": 611,
+        "bytes": 23680,
+        "sha256": "b9bb5152b979b851ded60854bc5906e8067d011c775b4e9ad5c3e6da653a5c14"
+      },
+      {
+        "path": "src/lib/multiplayer/server/CampaignProgressionGate.ts",
+        "lines": 226,
+        "bytes": 7493,
+        "sha256": "60bdc9567b77005eeeaab58ee0975deb39beda4aa5f15e1e3d127b55bed5f72d"
+      },
+      {
+        "path": "src/lib/multiplayer/server/CampaignSyncSession.ts",
+        "lines": 946,
+        "bytes": 39719,
+        "sha256": "2dbd9810a7e2464fdabe697cc873078bcdb31ae1f7e28248929d92c3e3895022"
+      },
+      {
+        "path": "src/lib/multiplayer/server/DurableMatchStore.ts",
+        "lines": 1776,
+        "bytes": 65227,
+        "sha256": "82d3bd3b7512ace10740cad54e1d5c7973ec294f5b0d7995819d748f8c936944"
+      },
+      {
+        "path": "src/lib/multiplayer/server/IMatchStore.ts",
+        "lines": 660,
+        "bytes": 24685,
+        "sha256": "6cbc18b0b41b38d52e7f77292d2415547a8b89e2eff33010138f186017080898"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/CampaignGmArbiter.test.ts",
+        "lines": 422,
+        "bytes": 15013,
+        "sha256": "ea2f924f27d54aefc1e4a46c38360f27885f63100ff94e4d16c32c8416ea2072"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.globalSlot.test.ts",
+        "lines": 74,
+        "bytes": 2632,
+        "sha256": "b051135eb7cd3abff51aa445575e497d6ce663d7486526ea69ddc9875bf99f8e"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts",
+        "lines": 401,
+        "bytes": 13916,
+        "sha256": "6bc2c9bee687e35187b3cd213e5e69a30e6e59845f58f10e710d63ccb1877cde"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/CampaignMatchHost.pipeline.test.ts",
+        "lines": 209,
+        "bytes": 7108,
+        "sha256": "9fd561aad88bb76d791a03d0996a63ad11b6d8db056d30e2031e3fd3b14204c4"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/CampaignSyncSession.test.ts",
+        "lines": 952,
+        "bytes": 32821,
+        "sha256": "85bad0834ebd1bf2ced0cb539bba9fb1435f2159547f5a4c79d997cb34bebfac"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/DurableMatchStore.test.ts",
+        "lines": 487,
+        "bytes": 17336,
+        "sha256": "15fcd506c0c51d93f86bbe1a872385bba2d2d9632e696a75abf61ccdcaf01401"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
+        "lines": 2799,
+        "bytes": 85529,
+        "sha256": "7ac89b749fff5bdaaa68f4dd344adb7f73099b067d2f96f52ace5b61d036f529"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test-helpers.ts",
+        "lines": 440,
+        "bytes": 14437,
+        "sha256": "d3891bf50cb3bd16a7e1a66df12bb247f95ed4b09919074679360914495109ca"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test.ts",
+        "lines": 206,
+        "bytes": 7247,
+        "sha256": "93ab06cdcb3843c901017c227a642a433c028205f6948076036ea2cc9a42afba"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/campaignLiveDeliveryUnification.test.ts",
+        "lines": 385,
+        "bytes": 12758,
+        "sha256": "d4f485e964456d2ca473adb7e33051ed56c595f865941ce4701457b56eb51783"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.crossGraph.test.ts",
+        "lines": 443,
+        "bytes": 15900,
+        "sha256": "3441a2c6d3040ee16c8b966550b63c492b2e12e6825000a62f81f909f2462892"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.integrity.test.ts",
+        "lines": 178,
+        "bytes": 6338,
+        "sha256": "4fe59aa61e37d981a7df71855a40c38fdcd951f95ae45ba3591f5a40f4662d5a"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/campaignWireScopeBoundary.test.ts",
+        "lines": 207,
+        "bytes": 7635,
+        "sha256": "49ea26ff95d7e209b454dd37d67231be603599670e34449080d0bad63f327d87"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts",
+        "lines": 1739,
+        "bytes": 65934,
+        "sha256": "d29db0928345b8c40c03cdec586db82f9e971277ba648e1395f62caec01c7d1e"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/coopMissionCreate.fixture.ts",
+        "lines": 252,
+        "bytes": 8681,
+        "sha256": "82118e8ebe5df12428136fbb4c51e1535f6a070e6c7df40fa04cd075cb1fcbbf"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/coopMissionCreate.harness.ts",
+        "lines": 219,
+        "bytes": 6625,
+        "sha256": "7ece3af4538927777c69bc2e8a6f1846cc41d6dd8690b9dcbd5a8c8d148f77ae"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+        "lines": 530,
+        "bytes": 18902,
+        "sha256": "46e04c6202fb02f770170ad5ef76b9b15f8de47ce1c0035d77d0ccb9d17f4ae4"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/healCommittedParticipantRemovals.test.ts",
+        "lines": 208,
+        "bytes": 6893,
+        "sha256": "7f4963827d02b6318998da0f0f6c6dd28d8e9d5e9ed7613813d8305e2c285693"
+      },
+      {
+        "path": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+        "lines": 2197,
+        "bytes": 70875,
+        "sha256": "f6a3f3b7440d66c6208789dbaca75982d4445c6b4cfa38b968a049da730869bd"
+      },
+      {
+        "path": "src/lib/multiplayer/server/campaignHostBatchCommit.ts",
+        "lines": 230,
+        "bytes": 10035,
+        "sha256": "e8ccd2cb2ffe777ea61bf5d9a8249d7c0297492bd4424ff81230aaf5acfaba66"
+      },
+      {
+        "path": "src/lib/multiplayer/server/campaignProgressionReaders.durable.ts",
+        "lines": 249,
+        "bytes": 8709,
+        "sha256": "39e6f275aaaa6092c37a7165c5851c20d024335b40f43a7b7f7b6c2e91e4529f"
+      },
+      {
+        "path": "src/lib/multiplayer/server/coopMissionCreate.ts",
+        "lines": 184,
+        "bytes": 6021,
+        "sha256": "55ab84d1c07692aa1727c3716363f07d953815385ff5e9b73b34601251ebddab"
+      },
+      {
+        "path": "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts",
+        "lines": 1369,
+        "bytes": 42971,
+        "sha256": "ad0d2e408dfdfc85e19c2181396ab9e5b29422db8ff7467ca49c8dc244c90194"
+      },
+      {
+        "path": "src/pages-modules/api/campaignLaunchAuthorityRoute.ts",
+        "lines": 312,
+        "bytes": 11353,
+        "sha256": "add67f687c10de680ad2e47000bd48a939f0582a936f3cf9342e896bddf05c48"
+      },
+      {
+        "path": "src/pages-modules/api/campaignLaunchProgressionGate.ts",
+        "lines": 256,
+        "bytes": 8696,
+        "sha256": "2e84b0ce52ea7482bd71d8d3157b6aefe3e470ea2841527f3102f57546395ab5"
+      },
+      {
+        "path": "src/pages-modules/api/e2ePerformanceProbeRoute.ts",
+        "lines": 116,
+        "bytes": 4450,
+        "sha256": "d3a2e67125a5f7855710b5501e225c9ffca0c0b02c86f98428feec45a6f88094"
+      },
+      {
+        "path": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+        "lines": 533,
+        "bytes": 18416,
+        "sha256": "c763c4d57b2ace2aedd5a867a9aaf5dd4fa579c404921dae45a4077a3e350cfe"
+      },
+      {
+        "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+        "lines": 305,
+        "bytes": 9674,
+        "sha256": "113f0779ca34dc5292b8962c62a47b34117566e67e144e5db1eef385ae635455"
+      },
+      {
+        "path": "src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx",
+        "lines": 285,
+        "bytes": 8987,
+        "sha256": "d64b4b277868b15ac3b43e66da6c7851131d6dd355e27f2b96ae28145ecd7481"
+      },
+      {
+        "path": "src/stores/campaign/__tests__/campaignCommandAckRefresh.test.ts",
+        "lines": 987,
+        "bytes": 33543,
+        "sha256": "bf74d38645517fbcf09a2d48aefcfbad5655d7a89a5acebbd61c047ecda2a362"
+      },
+      {
+        "path": "src/stores/campaign/useCampaignPersistenceStore.ts",
+        "lines": 1585,
+        "bytes": 58962,
+        "sha256": "3a7d2066a1edd240553d0e4d7e520d481010950e9a2d2a19179daf1082ad6481"
+      }
+    ]
+  },
+  "scope": [
+    "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+    "openspec/planning/2026-09-12-roadmap-completion/units.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1-split-registration-20261016.json"
+  ],
+  "registrationBudget": {
+    "actualFiles": 3,
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "productFiles": 0,
+    "productAddedLines": 0,
+    "noCapInflation": true,
+    "actualDiffMeasuredSeparately": true,
+    "everyEvidenceFileCounts": true
+  },
+  "previousRegistration": {
+    "evidence": "evidence/p2cf-split-registration-20261016.json",
+    "bytes": 33029,
+    "sha256": "eb78050cb55a34ea03f8671f02406391a4a523faa0cccf9a4229b0eb95d20a51",
+    "preservedByteForByte": true
+  },
+  "preimages": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "bytes": 1065555,
+      "sha256": "a73bf18de4bbc138ac6f2d35839fcebd9999a7c0a3176e0aa44964e358720780"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "bytes": 1330293,
+      "sha256": "4464322e70b1959259681eae1ddfe8a07b3ceef5bcde026a8679529222064d0e"
+    }
+  ],
+  "postimages": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "bytes": 1073102,
+      "sha256": "cd41e0c640529a14cc223d31e636e6cef869c19a5f4622dde822175abfd0644b"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "bytes": 1400494,
+      "sha256": "6315fa8aea0c0c6a69c840922f20f9fc78e334fb303ceb3590795144ea479691"
+    }
+  ],
+  "units": [
+    {
+      "id": "P2CG1A1",
+      "leaves": [
+        "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+        "src/lib/multiplayer/server/campaignApplicationConnection.ts"
+      ],
+      "newLeaves": [
+        "src/lib/multiplayer/server/campaignApplicationConnection.ts"
+      ],
+      "filesWithLifecycleAndReviewSlot": 7,
+      "spareFiles": 8,
+      "estimatedCountedLinesWithLifecycle": "190-240",
+      "predecessors": [
+        "P2CF1",
+        "P2CF2"
+      ],
+      "successors": [
+        "P2CG1A2",
+        "P2C"
+      ],
+      "mainAfterMerge": "Legacy intact; receipts dormant (server.js composes no applicationReceipts). Binder behaviour byte-equivalent."
+    },
+    {
+      "id": "P2CG1A2",
+      "leaves": [
+        "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+        "src/lib/multiplayer/server/campaignApplicationConnection.ts"
+      ],
+      "newLeaves": [
+        "src/lib/multiplayer/server/campaignApplicationConnection.ts"
+      ],
+      "filesWithLifecycleAndReviewSlot": 7,
+      "spareFiles": 8,
+      "estimatedCountedLinesWithLifecycle": "370-410",
+      "predecessors": [
+        "P2CG1A1"
+      ],
+      "successors": [
+        "P2CG1B",
+        "P2C"
+      ],
+      "mainAfterMerge": "Legacy intact; receipts dormant. Binder behaviour byte-equivalent; the binder no longer holds the application class."
+    },
+    {
+      "id": "P2CG1B",
+      "leaves": [
+        "src/lib/events/journal/SQLiteEventJournalWriter.ts",
+        "src/lib/campaign/sync/ICampaignEventStore.ts",
+        "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+        "src/lib/multiplayer/server/CampaignMatchHost.ts",
+        "src/lib/multiplayer/server/CampaignMatchHost.doors.ts",
+        "src/lib/multiplayer/server/campaignHostBatchCommit.ts",
+        "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+        "src/lib/multiplayer/server/__tests__/CampaignMatchHost.pipeline.test.ts"
+      ],
+      "newLeaves": [],
+      "filesWithLifecycleAndReviewSlot": 13,
+      "spareFiles": 2,
+      "estimatedCountedLinesWithLifecycle": "150-230",
+      "predecessors": [
+        "P2CG1A2"
+      ],
+      "successors": [
+        "P2CG1C",
+        "P2C"
+      ],
+      "mainAfterMerge": "Legacy intact; the guard and the borrowed journal seam are plumbed but no production caller supplies a guard."
+    },
+    {
+      "id": "P2CG1C",
+      "leaves": [
+        "src/lib/multiplayer/server/IMatchStore.ts",
+        "src/lib/multiplayer/server/DurableMatchStore.ts",
+        "src/lib/multiplayer/server/coopMissionCreate.ts",
+        "src/lib/multiplayer/server/__tests__/DurableMatchStore.test.ts",
+        "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+        "src/lib/multiplayer/server/__tests__/coopMissionCreate.harness.ts",
+        "src/lib/multiplayer/server/__tests__/coopMissionCreate.fixture.ts"
+      ],
+      "newLeaves": [],
+      "filesWithLifecycleAndReviewSlot": 12,
+      "spareFiles": 3,
+      "estimatedCountedLinesWithLifecycle": "155-215",
+      "predecessors": [
+        "P2CG1B"
+      ],
+      "successors": [
+        "P2CG1D",
+        "P2C"
+      ],
+      "mainAfterMerge": "Legacy intact; the prepared create is callable and unreached (the route still reaches only the old create)."
+    },
+    {
+      "id": "P2CG1D",
+      "leaves": [
+        "src/lib/multiplayer/server/CampaignProgressionGate.ts",
+        "src/lib/multiplayer/server/campaignProgressionReaders.durable.ts",
+        "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+        "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+        "src/lib/multiplayer/server/CampaignGmArbiter.ts",
+        "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
+        "src/lib/multiplayer/server/__tests__/CampaignGmArbiter.test.ts",
+        "src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.crossGraph.test.ts",
+        "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts"
+      ],
+      "newLeaves": [],
+      "filesWithLifecycleAndReviewSlot": 14,
+      "spareFiles": 1,
+      "estimatedCountedLinesWithLifecycle": "195-255",
+      "predecessors": [
+        "P2CG1C"
+      ],
+      "successors": [
+        "P2CG1E",
+        "P2C"
+      ],
+      "mainAfterMerge": "Legacy intact; the socket doors are dual and keyed on a port no production process installs."
+    },
+    {
+      "id": "P2CG1E",
+      "leaves": [
+        "src/pages-modules/api/campaignLaunchProgressionGate.ts",
+        "src/pages-modules/api/campaignLaunchAuthorityRoute.ts",
+        "src/lib/multiplayer/server/coopMissionCreate.ts",
+        "src/lib/campaign/coop/campaignSyncTransport.ts",
+        "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts",
+        "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+        "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts"
+      ],
+      "newLeaves": [],
+      "filesWithLifecycleAndReviewSlot": 12,
+      "spareFiles": 3,
+      "estimatedCountedLinesWithLifecycle": "125-175",
+      "predecessors": [
+        "P2CG1D"
+      ],
+      "successors": [
+        "P2CG1F",
+        "P2C"
+      ],
+      "mainAfterMerge": "Legacy intact; all doors dual on the absent port; the transport changes act only in receipt mode, which never latches."
+    },
+    {
+      "id": "P2CG1F",
+      "leaves": [
+        "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+        "src/stores/campaign/useCampaignPersistenceStore.ts",
+        "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx",
+        "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+        "src/stores/campaign/__tests__/campaignCommandAckRefresh.test.ts"
+      ],
+      "newLeaves": [],
+      "filesWithLifecycleAndReviewSlot": 10,
+      "spareFiles": 5,
+      "estimatedCountedLinesWithLifecycle": "45-70",
+      "predecessors": [
+        "P2CG1E"
+      ],
+      "successors": [
+        "P2CG1G1",
+        "P2C"
+      ],
+      "mainAfterMerge": "Legacy intact; no production transport is bound, so nothing latches receipt mode."
+    },
+    {
+      "id": "P2CG1G1",
+      "leaves": [
+        "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+        "src/components/campaign/coop/campaignCoopSurfaceHelpers.ts",
+        "src/lib/campaign/coop/campaignHostFoldStore.ts",
+        "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+        "src/components/campaign/coop/__tests__/CampaignLifecycleGate.test.tsx",
+        "src/components/campaign/coop/__tests__/GuestProposalSurface.test.tsx",
+        "src/components/campaign/coop/__tests__/GuestRebuildStaleGate.test.tsx"
+      ],
+      "newLeaves": [
+        "src/components/campaign/coop/campaignCoopSurfaceHelpers.ts",
+        "src/lib/campaign/coop/campaignHostFoldStore.ts"
+      ],
+      "filesWithLifecycleAndReviewSlot": 12,
+      "spareFiles": 3,
+      "estimatedCountedLinesWithLifecycle": "160-240",
+      "predecessors": [
+        "P2CG1F"
+      ],
+      "successors": [
+        "P2CG1G2",
+        "P2C"
+      ],
+      "mainAfterMerge": "Legacy on the wire; the host fold lives in a module-scoped store; no creator is bound."
+    },
+    {
+      "id": "P2CG1G2",
+      "leaves": [
+        "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+        "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+        "src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx",
+        "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+        "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx",
+        "src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx"
+      ],
+      "newLeaves": [],
+      "filesWithLifecycleAndReviewSlot": 11,
+      "spareFiles": 4,
+      "estimatedCountedLinesWithLifecycle": "45-90",
+      "predecessors": [
+        "P2CG1G1"
+      ],
+      "successors": [
+        "P2CG1H",
+        "P2C"
+      ],
+      "mainAfterMerge": "Legacy on the wire; every creator is bound; joins still quote lastSeq; numeric ACKs unchanged until an offer latches receipt mode."
+    },
+    {
+      "id": "P2CG1H",
+      "leaves": [
+        "server.js",
+        "src/lib/multiplayer/server/campaignApplicationReceiptPort.ts",
+        "src/lib/multiplayer/server/__tests__/campaignApplicationReceiptPort.test.ts",
+        "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.globalSlot.test.ts",
+        "src/pages-modules/api/e2ePerformanceProbeRoute.ts",
+        "src/__tests__/api/e2ePerformanceProbeRoute.test.ts",
+        "e2e/coop-campaign-two-browser-journey.spec.ts",
+        "e2e/gm-two-player-authority.pack1.spec.ts"
+      ],
+      "newLeaves": [
+        "src/lib/multiplayer/server/campaignApplicationReceiptPort.ts",
+        "src/lib/multiplayer/server/__tests__/campaignApplicationReceiptPort.test.ts"
+      ],
+      "filesWithLifecycleAndReviewSlot": 13,
+      "spareFiles": 2,
+      "estimatedCountedLinesWithLifecycle": "80-130",
+      "predecessors": [
+        "P2CG1G2"
+      ],
+      "successors": [
+        "P2CG1I1",
+        "P2C"
+      ],
+      "mainAfterMerge": "Receipts active: offers, consumer ACKs and P2CA rows; both HTTP doors, mission create and the three socket progression sites read P2CB; numeric ACKs are refused campaign-application-receipt-required. Legacy credit code is present but unreachable. Rollback is reverting the install line."
+    },
+    {
+      "id": "P2CG1I1",
+      "leaves": [
+        "src/pages-modules/api/campaignLaunchProgressionGate.ts",
+        "src/lib/campaign/coop/campaignSyncTransport.ts",
+        "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts",
+        "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts"
+      ],
+      "newLeaves": [],
+      "filesWithLifecycleAndReviewSlot": 9,
+      "spareFiles": 6,
+      "estimatedCountedLinesWithLifecycle": "25-50",
+      "predecessors": [
+        "P2CG1H"
+      ],
+      "successors": [
+        "P2CG1I2",
+        "P2C"
+      ],
+      "mainAfterMerge": "Receipts active; the HTTP cursor credit and the client numeric ACK generation are gone; readiness unchanged."
+    },
+    {
+      "id": "P2CG1I2",
+      "leaves": [
+        "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test-helpers.ts",
+        "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test.ts",
+        "src/lib/multiplayer/server/__tests__/campaignLiveDeliveryUnification.test.ts",
+        "src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.integrity.test.ts",
+        "src/lib/multiplayer/server/__tests__/campaignWireScopeBoundary.test.ts",
+        "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts",
+        "src/lib/multiplayer/server/__tests__/healCommittedParticipantRemovals.test.ts"
+      ],
+      "newLeaves": [],
+      "filesWithLifecycleAndReviewSlot": 12,
+      "spareFiles": 3,
+      "estimatedCountedLinesWithLifecycle": "16-20",
+      "predecessors": [
+        "P2CG1I1"
+      ],
+      "successors": [
+        "P2CG1I3",
+        "P2C"
+      ],
+      "mainAfterMerge": "Runtime unchanged (test-only); the migrated suites pass with or without the legacy credit."
+    },
+    {
+      "id": "P2CG1I3",
+      "leaves": [
+        "src/lib/multiplayer/server/CampaignSyncSession.ts",
+        "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+        "src/lib/multiplayer/server/__tests__/CampaignSyncSession.test.ts",
+        "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts"
+      ],
+      "newLeaves": [],
+      "filesWithLifecycleAndReviewSlot": 9,
+      "spareFiles": 6,
+      "estimatedCountedLinesWithLifecycle": "25-50",
+      "predecessors": [
+        "P2CG1I2"
+      ],
+      "successors": [
+        "P2CG2",
+        "P2C"
+      ],
+      "mainAfterMerge": "Receipts active; all legacy readiness credit removed; Task 14 aggregate outcome complete."
+    }
+  ],
+  "prospectiveDelta": {
+    "sourceOwner": "R2.authority-live",
+    "addedUnits": [
+      "P2CG1A1",
+      "P2CG1A2",
+      "P2CG1B",
+      "P2CG1C",
+      "P2CG1D",
+      "P2CG1E",
+      "P2CG1F",
+      "P2CG1G1",
+      "P2CG1G2",
+      "P2CG1H",
+      "P2CG1I1",
+      "P2CG1I2",
+      "P2CG1I3"
+    ],
+    "insertImmediatelyAfter": "P2CG1",
+    "successorStates": "P2CG1A1 planned (same predecessors P2CF1/P2CF2 that #2164 released P2CG1 on); every later successor blocked until its predecessor's exact-main mainProof and the parent's one-field release PR",
+    "chain": "P2CF1, P2CF2 -> P2CG1A1 -> P2CG1A2 -> P2CG1B -> P2CG1C -> P2CG1D -> P2CG1E -> P2CG1F -> P2CG1G1 -> P2CG1G2 -> P2CG1H -> P2CG1I1 -> P2CG1I2 -> P2CG1I3 -> P2CG2 -> P2CH -> P2C",
+    "allNewIDs": "baseline/prHead/mergeSha/ownerGate null; all seven stages null; taskKeys empty; caps 15/500; lifecycleOwnershipLimit, ciClass and all five reviewClasses copied from P2CG1; ownershipExceptions units.json only, except P2CG1E and P2CG1I1, which copy P2CG1's transport-pair exceptions; admissionRequires is a successor prefix plus P2CG1's text verbatim",
+    "ownershipPaths": {
+      "P2CG1A1": [
+        "src/lib/multiplayer/server"
+      ],
+      "P2CG1A2": [
+        "src/lib/multiplayer/server"
+      ],
+      "P2CG1B": [
+        "src/lib/campaign",
+        "src/lib/multiplayer/server",
+        "src/lib/events/journal/SQLiteEventJournalWriter.ts"
+      ],
+      "P2CG1C": [
+        "src/lib/multiplayer/server"
+      ],
+      "P2CG1D": [
+        "src/lib/multiplayer/server"
+      ],
+      "P2CG1E": [
+        "src/lib/multiplayer/server",
+        "src/pages-modules/api"
+      ],
+      "P2CG1F": [
+        "src/components/campaign/coop",
+        "src/stores/campaign"
+      ],
+      "P2CG1G1": [
+        "src/components/campaign/coop",
+        "src/lib/campaign"
+      ],
+      "P2CG1G2": [
+        "src/components/campaign/coop",
+        "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+        "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+        "src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx",
+        "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx",
+        "src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx"
+      ],
+      "P2CG1H": [
+        "server.js",
+        "src/lib/multiplayer/server",
+        "src/pages-modules/api",
+        "src/__tests__/api/e2ePerformanceProbeRoute.test.ts",
+        "e2e/coop-campaign-two-browser-journey.spec.ts",
+        "e2e/gm-two-player-authority.pack1.spec.ts"
+      ],
+      "P2CG1I1": [
+        "src/pages-modules/api"
+      ],
+      "P2CG1I2": [
+        "src/lib/multiplayer/server"
+      ],
+      "P2CG1I3": [
+        "src/lib/multiplayer/server"
+      ]
+    },
+    "p2cg1": "planned -> blocked; superseded20261016 and blocked20261016 added; behavior, restriction (10 leaves), subtotal 11, ownershipExceptions and every historical field unchanged",
+    "p2cg2": "predecessors [P2CG1] -> [P2CG1I3]; amended20261016P2CG1 marker",
+    "p2ch": "no field change except an amended20261016P2CG1 marker that assigns the narrow journey-spec wait exception to P2CG1H; predecessor P2CG2 unchanged",
+    "p2c": "P2CG1 replaced in place by the thirteen IDs (23 predecessors); \"All eleven source slices\" -> \"All twenty-three source slices\"; amended20261016P2CG1 marker (amended20261016 and amended20261016P2CF already hold the P2CE and P2CF markers)",
+    "notEdited": "P2CF2.successors and the superseded P2CF.successors still name P2CG1 and resolve through its superseded20261016.by, as #2146 and #2158 left earlier pointers; the validator does not read successors.",
+    "roadmap": {
+      "block": "R2.authority-live.ownershipPathsAmended20261009P2C",
+      "unit": "the thirteen IDs inserted after P2CG1",
+      "evidence": "evidence/p2cg1-split-registration-20261016.json",
+      "restrictionsAdded": {
+        "P2CG1A1": 2,
+        "P2CG1A2": 2,
+        "P2CG1B": 8,
+        "P2CG1C": 7,
+        "P2CG1D": 9,
+        "P2CG1E": 7,
+        "P2CG1F": 5,
+        "P2CG1G1": 7,
+        "P2CG1G2": 6,
+        "P2CG1H": 8,
+        "P2CG1I1": 4,
+        "P2CG1I2": 7,
+        "P2CG1I3": 4
+      },
+      "subtotalsAdded": {
+        "P2CG1A1": 3,
+        "P2CG1A2": 3,
+        "P2CG1B": 9,
+        "P2CG1C": 8,
+        "P2CG1D": 10,
+        "P2CG1E": 8,
+        "P2CG1F": 6,
+        "P2CG1G1": 8,
+        "P2CG1G2": 7,
+        "P2CG1H": 9,
+        "P2CG1I1": 5,
+        "P2CG1I2": 8,
+        "P2CG1I3": 5
+      },
+      "newLiteralAliases": [
+        "src/lib/events/journal/SQLiteEventJournalWriter.ts",
+        "src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx",
+        "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx",
+        "src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx",
+        "src/__tests__/api/e2ePerformanceProbeRoute.test.ts",
+        "e2e/gm-two-player-authority.pack1.spec.ts"
+      ],
+      "aliasPlacement": "Appended to both node.ownershipPaths and the block's paths list. Every alias exists on disk at the base. Each is a single file, never a directory.",
+      "permissionBoundary": "unchanged"
+    }
+  },
+  "leafOverlap": {
+    "rule": "Leaves are exact files and never directories. Restrictions overlap only where one file must change in more than one serial step; each overlap is a strict predecessor chain, so no two successors can hold a file at the same time (precedent: P2CE1/P2CE2/P2CE3 all held the binder).",
+    "sequentialOverlaps": {
+      "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx": [
+        "P2CG1G1",
+        "P2CG1G2"
+      ],
+      "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx": [
+        "P2CG1F",
+        "P2CG1G1"
+      ],
+      "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts": [
+        "P2CG1E",
+        "P2CG1I1"
+      ],
+      "src/lib/campaign/coop/campaignSyncTransport.ts": [
+        "P2CG1E",
+        "P2CG1I1"
+      ],
+      "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts": [
+        "P2CG1D",
+        "P2CG1I3"
+      ],
+      "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts": [
+        "P2CG1C",
+        "P2CG1E"
+      ],
+      "src/lib/multiplayer/server/bindCampaignSyncConnection.ts": [
+        "P2CG1A1",
+        "P2CG1A2",
+        "P2CG1D",
+        "P2CG1I3"
+      ],
+      "src/lib/multiplayer/server/campaignApplicationConnection.ts": [
+        "P2CG1A1",
+        "P2CG1A2"
+      ],
+      "src/lib/multiplayer/server/coopMissionCreate.ts": [
+        "P2CG1C",
+        "P2CG1E"
+      ],
+      "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts": [
+        "P2CG1E",
+        "P2CG1I1"
+      ],
+      "src/pages-modules/api/campaignLaunchProgressionGate.ts": [
+        "P2CG1E",
+        "P2CG1I1"
+      ]
+    },
+    "priorOwners": "Files also named by complete units (P2CD, P2CE1-3, P2CF1-2) or later units (P2CG2, P2CH) are held strictly in sequence; P2CG2 and P2CH admissions re-freeze the bytes as usual."
+  },
+  "coverage": {
+    "p2cg1Restriction": {
+      "src/lib/multiplayer/server/CampaignProgressionGate.ts": [
+        "P2CG1D"
+      ],
+      "src/lib/multiplayer/server/campaignProgressionReaders.durable.ts": [
+        "P2CG1D"
+      ],
+      "src/lib/multiplayer/server/CampaignSyncSession.ts": [
+        "P2CG1I3"
+      ],
+      "src/pages-modules/api/campaignLaunchProgressionGate.ts": [
+        "P2CG1E",
+        "P2CG1I1"
+      ],
+      "src/pages-modules/api/campaignLaunchAuthorityRoute.ts": [
+        "P2CG1E"
+      ],
+      "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts": [
+        "P2CG1E",
+        "P2CG1I1"
+      ],
+      "src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.crossGraph.test.ts": [
+        "P2CG1D"
+      ],
+      "src/lib/multiplayer/server/__tests__/CampaignSyncSession.test.ts": [
+        "P2CG1I3"
+      ],
+      "src/lib/campaign/coop/campaignSyncTransport.ts": [
+        "P2CG1E",
+        "P2CG1I1"
+      ],
+      "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts": [
+        "P2CG1E",
+        "P2CG1I1"
+      ]
+    },
+    "acceptedGroups": {
+      "A1": "P2CG1B (all seven leaves plus the Task 15 pipeline test)",
+      "B": "P2CG1C (all five leaves plus the two existing test-support files)",
+      "A2": "P2CG1D, except CampaignMatchHost.ts and CampaignMatchHost.doors.ts, which change in P2CG1B (the preparation allows reporting the smaller delta)",
+      "C": "P2CG1D (gate, readers, crossGraph test), P2CG1E (HTTP doors, transport), P2CG1I1 and P2CG1I3 (removal)"
+    }
+  },
+  "activationMechanics": {
+    "predicate": "Activation predicate (frozen): a typed ICampaignApplicationReceiptPort installed once on CampaignHostRegistry by server.js at boot; the binder composes application from it, each entry derives a graph-local CampaignLaunchView from it, and both HTTP doors key on its presence while building their own graph-bound view; no other switch exists.",
+    "installPoint": "CampaignHostRegistry, the one object all three doors already share across the tsx socket graph and the Next API graph (the Symbol.for('mekstation.multiplayer.campaignHostRegistry') slot): the binder defaults to it, the launch-authority route reads it, mission create uses it.",
+    "installTime": "server.js loadMultiplayerRuntime, first called inside app.prepare().then before createServer and server.listen (verified at server.js 520-541 and 882).",
+    "beforeP2CG1H": "The registry port is null in every process: application is null, the three socket sites use the legacy session gate, the HTTP preflight uses the legacy cursor gate (head-only for session-less bodies), mission create uses the old create, and transport hardening is unreachable because receipt mode never latches.",
+    "atP2CG1H": "One merge installs the port. Offers flow, bound clients latch receipt mode and ACK through the P2CF2 consumer, P2CA writes rows, every door reads P2CB, and numeric ACKs are refused campaign-application-receipt-required. There is no interval in which receipts flow while a door still reads legacy credit (C1 closed by construction).",
+    "ordering": "C before K: P2CG1E keeps lastSeq on bound joins before P2CG1G2 binds the creators, so binding is byte-identical on the wire against the legacy binder.",
+    "legacyDeletion": "Its own post-activation units P2CG1I1 (HTTP and client), P2CG1I2 (test migration) and P2CG1I3 (server). After P2CG1H the legacy credit is unreachable, so deletion changes no production readiness.",
+    "rollback": "Before P2CG1I1, revert the server.js install line; the predicate is the port's presence, not persisted state, and the N4 backfill is idempotent.",
+    "tests": "Tests install the port on a reset registry (_resetCampaignHostRegistry); the binder applicationReceipts dependency stays for test composition. No boolean switch exists."
+  },
+  "productionSafety": {
+    "rule": "No unit disables working legacy before activation, and every intermediate main keeps production co-op working.",
+    "mainAfterEachMerge": {
+      "P2CG1A1": "Legacy intact; receipts dormant (server.js composes no applicationReceipts). Binder behaviour byte-equivalent.",
+      "P2CG1A2": "Legacy intact; receipts dormant. Binder behaviour byte-equivalent; the binder no longer holds the application class.",
+      "P2CG1B": "Legacy intact; the guard and the borrowed journal seam are plumbed but no production caller supplies a guard.",
+      "P2CG1C": "Legacy intact; the prepared create is callable and unreached (the route still reaches only the old create).",
+      "P2CG1D": "Legacy intact; the socket doors are dual and keyed on a port no production process installs.",
+      "P2CG1E": "Legacy intact; all doors dual on the absent port; the transport changes act only in receipt mode, which never latches.",
+      "P2CG1F": "Legacy intact; no production transport is bound, so nothing latches receipt mode.",
+      "P2CG1G1": "Legacy on the wire; the host fold lives in a module-scoped store; no creator is bound.",
+      "P2CG1G2": "Legacy on the wire; every creator is bound; joins still quote lastSeq; numeric ACKs unchanged until an offer latches receipt mode.",
+      "P2CG1H": "Receipts active: offers, consumer ACKs and P2CA rows; both HTTP doors, mission create and the three socket progression sites read P2CB; numeric ACKs are refused campaign-application-receipt-required. Legacy credit code is present but unreachable. Rollback is reverting the install line.",
+      "P2CG1I1": "Receipts active; the HTTP cursor credit and the client numeric ACK generation are gone; readiness unchanged.",
+      "P2CG1I2": "Runtime unchanged (test-only); the migrated suites pass with or without the legacy credit.",
+      "P2CG1I3": "Receipts active; all legacy readiness credit removed; Task 14 aggregate outcome complete."
+    },
+    "knownResidual": "After P2CG1I1 and P2CG1I3, a process in which the port failed to install (server.js logs and continues when the runtime load throws) refuses session-bearing launch-authority requests and socket progression (fail closed). Mission create in such a process still uses the old create, which has never had a readiness check; that is existing behaviour, not legacy credit, and closing it is left open (see unsettled)."
+  },
+  "carryForwardLanding": [
+    {
+      "item": "C1 convergence-gate blindness (P2CE2/P2CE3 Task14 item 1)",
+      "unit": "P2CG1D + P2CG1H",
+      "note": "Closed structurally: the same installed port drives the binder's application and every door's P2CB branch"
+    },
+    {
+      "item": "C2/N3 same-connection seat read at two sites (P2CE3 Task14 item 2)",
+      "unit": "P2CG1H",
+      "note": "Port factory returns the composing graph's getSQLiteService().getDatabase(); its test asserts identity; no participant-store change"
+    },
+    {
+      "item": "N4 effective-head branch backfill (P2CE2/P2CE3 Task14 item 3)",
+      "unit": "P2CG1H",
+      "note": "SQLiteEventHistoryBranchStore.backfillGenesisBranches() at install (src/lib/events/journal/SQLiteEventHistoryBranchStore.ts 74-81, NOT EXISTS-guarded)"
+    },
+    {
+      "item": "Write-unchecked refusal frames (P2CE3 Task14 item 4)",
+      "unit": "P2CG1E",
+      "note": "Client option: CF8 bounded wait for a lost refusal, then rejoin"
+    },
+    {
+      "item": "Binder extraction (P2CE2 afterP2CE3; P2CE3 Task14 item 5)",
+      "unit": "P2CG1A1 + P2CG1A2",
+      "note": "Two measured move-only slices; no waiver requested"
+    },
+    {
+      "item": "preparePublicCut per-commit budget (P2CE2 C3; P2CE3 beforeProductionComposition)",
+      "unit": "P2CG1H",
+      "note": "Measured and recorded in the admission receipt; a tail-read rewrite, if needed, is a later unit on campaignApplicationConnection.ts"
+    },
+    {
+      "item": "M1 / CF7 option (a) (P2CF1, P2CF2)",
+      "unit": "P2CG1E",
+      "note": "Transport leaf, as the P2CF2 review placed it; option (a) recorded in the behaviour text"
+    },
+    {
+      "item": "M2 / CF11 host fold on a reused transport (P2CF2)",
+      "unit": "P2CG1G1",
+      "note": "Decided at registration: module-scoped host fold store; retainsLaunchFacts kept"
+    },
+    {
+      "item": "CF8 bounds (P2CF1 m1, P2CE3 item 4)",
+      "unit": "P2CG1E",
+      "note": "Transport"
+    },
+    {
+      "item": "CF9 bind every creator (P2CF1)",
+      "unit": "P2CG1G2",
+      "note": "All creators in one change"
+    },
+    {
+      "item": "CF10 rejoin re-seat (P2CF2)",
+      "unit": "P2CG1G2",
+      "note": "Entry panel and launch page resolve via getActiveCampaignSyncTransport on each use"
+    },
+    {
+      "item": "CF12 close visibility (P2CF2, m10)",
+      "unit": "P2CG1E (emit) + P2CG1F (consumer rejoin)",
+      "note": "Two halves, two leaves"
+    },
+    {
+      "item": "CF13 queue hardening (P2CF2, m9)",
+      "unit": "P2CG1F",
+      "note": "Hook"
+    },
+    {
+      "item": "CF14 adoptFlushedRevision generation (P2CF2, m11)",
+      "unit": "P2CG1F",
+      "note": "Persistence store"
+    },
+    {
+      "item": "m7 host sequence-0 case (P2CF2)",
+      "unit": "P2CG1F",
+      "note": "hostRecordRefresh"
+    },
+    {
+      "item": "m8 GM fact-bearing baseline/launch case and P1 rebind case (P2CF2)",
+      "unit": "P2CG1F (fact-bearing) + P2CG1G1 (P1 rebind, with the CF11 store behaviour)",
+      "note": "hostProjection"
+    },
+    {
+      "item": "m12 guarded refresh does not announce saving (P2CF2)",
+      "unit": "P2CG1F",
+      "note": "Decided: not announced; no code change"
+    },
+    {
+      "item": "m13 surface max-lines headroom (P2CF2)",
+      "unit": "P2CG1G1",
+      "note": "Helper extraction to campaignCoopSurfaceHelpers.ts"
+    },
+    {
+      "item": "m14 / P2CF1 m2, m3 transport branches",
+      "unit": "P2CG1E",
+      "note": "Optional registered cases while the transport leaf is open; m4-m6 closed or moot per P2CF2 m14"
+    },
+    {
+      "item": "Numeric ACK retirement (plan 2926; preparation 207)",
+      "unit": "P2CG1I1 (transport generation) + P2CG1I3 (binder typed refusal)",
+      "note": "After activation only"
+    },
+    {
+      "item": "Arbiter pending reservation and late refusal (decision refusal)",
+      "unit": "P2CG1D",
+      "note": ""
+    },
+    {
+      "item": "C-then-M commit and prepared synchronous create (decision seams)",
+      "unit": "P2CG1C",
+      "note": "Socket progression takes the same reservation in P2CG1D"
+    },
+    {
+      "item": "Borrowed synchronous journal seam (decision seams; plan 2966)",
+      "unit": "P2CG1B",
+      "note": "Exact writer alias registered"
+    },
+    {
+      "item": "Task 15 A1 amendment (plan 2971)",
+      "unit": "P2CG1B",
+      "note": "Outer-commit notification, released-reservation cleanup, pipeline test"
+    },
+    {
+      "item": "Two-browser journey proof exception (sequencing review risk 2)",
+      "unit": "P2CG1H",
+      "note": "Registered as a narrow wait-strengthening edit; P2CH marker records the assignment"
+    },
+    {
+      "item": "P2CE2 successorNotes.Task13 item 2 (production re-seat reconnect test)",
+      "unit": "P2CH",
+      "note": "Real socket/recovery proof; the production re-seat path exists from P2CG1G2 and is active from P2CG1H"
+    },
+    {
+      "item": "ThreeContextPrivacyEvidence flake follow-up (P2CE3 followUps)",
+      "unit": "not in this chain",
+      "note": "Separate test-only unit; not registered here"
+    },
+    {
+      "item": "P2CF1 N1 and P2CF2 N1 behaviour-text amendments",
+      "unit": "not absorbed",
+      "note": "No successor can edit another unit's contract (lifecycleOwnershipLimit). Left open for a packet-level ledger amendment; not applied here so this PR stays a split registration"
+    }
+  ],
+  "correctionsToSequencingReview": [
+    {
+      "id": "R1",
+      "review": "P2CG1A as one unit or two slices; recommendation two slices",
+      "correction": "Registered as P2CG1A1 and P2CG1A2. Measured: the block is 135 + 326 physical lines, and the class uses errorFrame and send, which move with slice 1 so the class has no runtime import back into the binder."
+    },
+    {
+      "id": "R2",
+      "review": "P2CG1B lists SQLiteEventJournalWriter.ts \"only if the seam needs widening\" because appendPreparedWithExtension exists",
+      "correction": "Registered as an exact leaf. The accepted decision (seams) and plan 2966 require a borrowed path that neither begins nor commits; appendPreparedWithExtension opens and commits its own IMMEDIATE transaction. Files 13, which matches plan 2971."
+    },
+    {
+      "id": "R3",
+      "review": "P2CG1G (K2) at 12-13 files; m13 helper \"name at admission\"; host fold store only if CF11 picks it",
+      "correction": "Split into P2CG1G1 and P2CG1G2. Three unregistered surface suites (CampaignLifecycleGate, GuestProposalSurface, GuestRebuildStaleGate) register fake transports without campaignId, and connectStoredCampaignSyncTransport returns null on a campaignId mismatch, so binding would detach them. index.coop.test.tsx mocks the transport module without getActiveCampaignSyncTransport, which CF10 adds to the entry panel. As one unit this is 18 files. Helper and store files are named exactly; CF11 is decided as the store."
+    },
+    {
+      "id": "R4",
+      "review": "P2CG1H at 8-9 files: server.js, port factory and test, optional globalSlot test, plus the journey wait exception",
+      "correction": "Adds src/pages-modules/api/e2ePerformanceProbeRoute.ts and its test: the probe answers evaluateScenarioLaunch, the legacy gate, which goes stale once receipt-mode participants stop being retained. Adds e2e/gm-two-player-authority.pack1.spec.ts: it sends raw numeric CampaignAck frames, which the activated binder refuses. The nightly chromium project runs both packs. 13 files."
+    },
+    {
+      "id": "R5",
+      "review": "P2CG1I (S2) at 13 files: session, API gate, transport, binder and their four tests",
+      "correction": "Split into P2CG1I1, P2CG1I2 and P2CG1I3. Seven more server suites converge through numeric CampaignAck, call noteParticipantAcknowledged or drive AdvanceDay through the binder's legacy gate: campaignHostIntentServerTime test and helpers, campaignLiveDeliveryUnification, campaignProgressionReaders.durable.integrity, campaignWireScopeBoundary, coopMissionAnnouncement.reconnect and healCommittedParticipantRemovals. As one unit this is at least 17 files. They migrate first (test-only, P2CG1I2), so the server deletion (P2CG1I3) stays small. evaluateScenarioLaunch keeps its name because e2ePerformanceProbeRoute and campaignHostIntentServerTime.test-helpers call it."
+    },
+    {
+      "id": "R6",
+      "review": "New literal aliases must include server.js, ICampaignEventStore.ts, JournalCampaignEventStore.ts and its test, CampaignCoopEntryPanel.tsx and its test",
+      "correction": "Those are already owned by R2.authority-live (server.js, src/lib/campaign and both entry-panel files are node ownership paths). The aliases actually missing are the six listed in prospectiveDelta.roadmap.newLiteralAliases."
+    },
+    {
+      "id": "R7",
+      "review": "P2CG1C test support \"(+ coopMissionCreate.harness.ts/.fixture.ts only if changed)\"",
+      "correction": "Both named as exact leaves, so a needed change does not stop the unit as an unnamed test. They count toward files only if changed."
+    }
+  ],
+  "rejectedAlternatives": [
+    {
+      "option": "Amend P2CG1 in place so its doors key on a port the binder or session receives from server composition, and move deletion into S",
+      "reason": "The HTTP door has no predicate under that wording (different module graph); the socket switch cannot live in P2CG1's leaves (the binder is A2's); deletion does not fit S's 15 files; and in-place amendment departs from the supersession procedure P2CE and P2CF followed (sequencing review section 8)"
+    },
+    {
+      "option": "S before C with a compatibility shim",
+      "reason": "The only honest shim writes cursor rows or seeds the retained map from receipts: forbidden numeric/cursor translation (plan 2924) that reproduces C1 blindness"
+    },
+    {
+      "option": "One flip unit (server.js, creators, deletion) with everything else pre-landed dormant",
+      "reason": "At least 16 code/test leaves before lifecycle; collapses into the registered H, G2 and I units"
+    },
+    {
+      "option": "Waive the binder extraction",
+      "reason": "Not requested; it would put a 2200-line binder diff under review in P2CG1D and P2CG1I3"
+    },
+    {
+      "option": "The nine-unit list as written",
+      "reason": "Real-tree verification found G at 18 files, I at 17 or more, and H missing the probe and pack1 leaves (corrections R3-R5)"
+    },
+    {
+      "option": "Fail-closed old mission create in P2CG1I1",
+      "reason": "Not legacy credit, and it would pull the coopMissionCreate, refusals, CoopOpponentDriver and announcement suites into a deletion unit; left as an open question"
+    }
+  ],
+  "selectors": {
+    "task14": "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --testPathPattern='campaignLaunchAuthorityRoute|campaignProgressionReaders.durable|CampaignSyncSession'",
+    "note": "Each successor runs the Task 14 QA pattern plus its own suites; move-only slices run bindCampaignSyncConnection and coopMissionAnnouncement.reconnect unmodified; P2CG1H adds npm run verify:qc:coop-campaign-journey and the co-op e2e specs named in its behaviour."
+  },
+  "unsettled": [
+    "Line figures are read-code estimates (except the extraction block). P2CG1D (14 files) and P2CG1I2 (12) have the least slack; P2CG1D stops if CampaignMatchHost.ts or .doors.ts must change again.",
+    "The e2e census for activation is static. Five co-op specs drive raw campaign sockets; only pack1 is shown to send numeric ACKs. If any other spec needs a change at P2CG1H, that unit stops for the successor procedure.",
+    "P2CG1I2's seven suites are identified statically (grep for CampaignAck, noteParticipantAcknowledged, evaluateScenarioLaunch and binder AdvanceDay); a suite that needs no change is reported unchanged, and a missed suite stops P2CG1I3.",
+    "Mission create in a process without the installed port keeps the old ungated create after P2CG1I*; whether to close it is an open decision.",
+    "P2CF1 N1 and P2CF2 N1 behaviour-text amendments remain open (no successor can absorb another unit's contract).",
+    "ThreeContextPrivacyEvidence flake: separate test-only unit, not registered here.",
+    "The sequencing review file is untracked in the root checkout; its hash is recorded above."
+  ],
+  "machineChecked": "validate-roadmap.mjs checks the new units' state, that each ownership path exists and is a node ownership path, node ownership paths exist on disk, ciClass derivation, review classes, caps range, stage ladder and --next order. It does not read splitFrom, predecessors, successors, superseded/amended markers, roadmap restrictions or subtotals; those are documentary and rest on review of this receipt.",
+  "nonclaims": [
+    "No product edits and no implementation green result claimed by this registration",
+    "No source admission; sourceAdmitted is false",
+    "No line measurement except the extraction block's physical lines; every other per-slice figure is an estimate",
+    "No owner approval or owner ruling claimed beyond the parent's recorded adoption under standing delegation",
+    "No cap exception, cap inflation or directory-wide grant; six single-file literal aliases added",
+    "No packet or owner-ruling edit"
+  ],
+  "permissionBoundary": "Prospective registration only. Each P2CG1 successor still requires fresh finite source admission, a complete source/test/lifecycle/stage/helper/evidence census and measured fit under unchanged 15-file/500-added-product-line caps. Known subtotals are lower bounds, not cap-fit claims.",
+  "delivery": "Under the owner's docs/ledger-only rule this PR is admin-merged after local checks; a post-merge independent review follows. This receipt is not an approval or a delivery claim.",
+  "sourceAdmitted": false,
+  "P2Released": false,
+  "U38Released": false
+}
