@@ -1,0 +1,221 @@
+{
+  "event": "p2cg1-split-registration-correction",
+  "unit": "P2CG1",
+  "planTask": 14,
+  "registrationOnly": true,
+  "at": "2026-10-16T17:06:04.000Z",
+  "baseline": "6645308f4d6bdd6a424e73761ee20ffa81f8101f",
+  "actor": {
+    "role": "implementation sub-agent",
+    "provider": "anthropic",
+    "servedModel": "claude-opus-5-5",
+    "identitySource": "Current T3 Code/Claude Code harness runtime; parent delegation identity and independent review are recorded separately by Root."
+  },
+  "authority": {
+    "ruling": "The parent, acting on the owner's standing delegation, instructed a docs/ledger-only correction PR applying exactly the corrections of the independent REQUEST-CHANGES review of PR #2165, using the review's wording where it gives it, without touching P2CG1A1 (in progress) and without releasing or changing the state of any unit.",
+    "review": {
+      "path": "E:/Projects/Personal/MekStation/docs/audits/2026-10-16-p2cg1-split-registration-fable-review.md",
+      "bytes": 30479,
+      "sha256": "ef0321130a29cecd9090e5644788d325cf9bbad2fc698469d8930aac77f1bf1f",
+      "verifiedBeforeUse": true,
+      "tracked": false,
+      "verdict": "REQUEST-CHANGES (two majors, five minors; nothing blocks P2CG1A1, P2CG1A2 or P2CG1B)"
+    },
+    "correctedRegistration": {
+      "pr": 2165,
+      "mergeSha": "6645308f4d6bdd6a424e73761ee20ffa81f8101f",
+      "evidence": "evidence/p2cg1-split-registration-20261016.json",
+      "bytes": 59702,
+      "sha256": "d0ba13e137b5a431b010d2ae20a8b45d6586c266c5ad3fe0d2a9c24b2b907ed8",
+      "preservedByteForByte": true
+    }
+  },
+  "scope": [
+    "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+    "openspec/planning/2026-09-12-roadmap-completion/units.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1-split-registration-correction-20261016.json"
+  ],
+  "registrationBudget": {
+    "actualFiles": 3,
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "productFiles": 0,
+    "productAddedLines": 0,
+    "noCapInflation": true
+  },
+  "preimages": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "bytes": 1073102,
+      "sha256": "cd41e0c640529a14cc223d31e636e6cef869c19a5f4622dde822175abfd0644b",
+      "equalsCorrectedRegistrationPostimage": true
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "bytes": 1400494,
+      "sha256": "6315fa8aea0c0c6a69c840922f20f9fc78e334fb303ceb3590795144ea479691",
+      "equalsCorrectedRegistrationPostimage": true
+    }
+  ],
+  "postimages": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "bytes": 1073811,
+      "sha256": "465955d9d957d8cc49ffc8b38cfe1427e67739cfcfb686a06335ec97063957f3"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "bytes": 1411684,
+      "sha256": "ef3e6172b0f2915f5b3097e78dff1890dff5b2a791a3a71fecd87548fbb7e565"
+    }
+  ],
+  "corrections": [
+    {
+      "id": "M1",
+      "unit": "P2CG1I1",
+      "applied": [
+        "restrictions.P2CG1I1 gains src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx (4 -> 5 leaves)",
+        "knownSourceTestLifecycleSubtotals.P2CG1I1 5 -> 6",
+        "P2CG1I1.ownershipExceptions gains the same path",
+        "P2CG1I1.behavior: 'Planned leaves (4)' list becomes 'Planned leaves (5)' with the suite, and the review's sentence is appended verbatim: 'The hostProjection legacy-traffic case is rewritten: an unbound transport still folds and sends no ACK of any kind; it is an I1 leaf in sequence after G1.'",
+        "P2CG1I1.amended20261016Correction marker"
+      ],
+      "verifiedAgainstTree": "The case at hostProjection.test.tsx 1032 ('keeps legacy traffic on an unbound transport: folded, numeric observation ACK, no receipt') expects [{revision: 0, receipt: false}, {revision: 1, receipt: false}] at 1041-1053. The path is inside node ownershipPaths through src/components/campaign/coop.",
+      "estimate": {
+        "filesWithLifecycleAndReviewSlot": 10,
+        "spareFiles": 5,
+        "estimatedCountedLinesWithLifecycle": "25-50 (unchanged; the added leaf is a test file)"
+      },
+      "sequentialOverlap": "hostProjection test: P2CG1F -> P2CG1G1 -> P2CG1I1, a strict predecessor chain"
+    },
+    {
+      "id": "M2",
+      "unit": "P2CG1I4",
+      "choice": "Registered the review's recommended fourteenth successor P2CG1I4 after P2CG1I3; not folded into P2CG1I3.",
+      "foldConditionCheck": {
+        "condition": "Review M2: folding the three definite leaves into P2CG1I3 is acceptable only if the parent can show the harness and fixture do not change.",
+        "holds": false,
+        "evidence": [
+          "src/lib/multiplayer/server/__tests__/coopMissionCreate.harness.ts openRouteFixture calls _resetCampaignHostRegistry() (lines 141 and 174 at 6645308f4) and installs no receipt port, and both coopMissionCreate.test.ts and coopMissionCreate.refusals.test.ts drive the matches route through it. Under a fail-closed rule every existing route create would refuse unless a test port is installed, and the shared harness is the natural install site.",
+          "restrictions.P2CG1C names both the harness and the fixture as leaves, so their bytes at P2CG1I3 time are not yet fixed and cannot be shown unchanged now."
+        ]
+      },
+      "applied": [
+        "New unit P2CG1I4 inserted after P2CG1I3 and before P2CG2: state blocked, predecessors [P2CG1I3], successors [P2CG2, P2C], ownershipPaths [src/lib/multiplayer/server], ownershipExceptions units.json only, splitFrom P2CG1; lifecycleOwnershipLimit, ciClass, reviewClasses and caps copied from P2CG1I3; baseline/prHead/mergeSha/ownerGate null, all seven stage receipts null, taskKeys empty; admissionRequires is P2CG1I3's text with this receipt as the registering evidence and 'P2CG1I3 must be complete'",
+        "P2CG1I4.behavior opens with the review's M2 behaviour wording verbatim, followed by a 'Planned leaves (7)' sentence",
+        "restrictions.P2CG1I4 (7 leaves) and knownSourceTestLifecycleSubtotals.P2CG1I4 = 8, both inserted after P2CG1I3",
+        "ownershipPathsAmended20261009P2C.unit gains P2CG1I4 after P2CG1I3; its evidence pointer moves to this receipt (the registration receipt stays referenced here and in every unit's source20261016)",
+        "P2CG1I3.successors [P2CG2, P2C] -> [P2CG1I4, P2C], with an amended20261016Correction marker; its behaviour text ('Thirteenth and last') is not rewritten",
+        "P2CG2.predecessors [P2CG1I3] -> [P2CG1I4]; amended20261016P2CG1 change and note extended",
+        "P2C.predecessors 23 -> 24 (P2CG1I4 inserted after P2CG1I3); admissionRequires 'All twenty-three source slices' -> 'All twenty-four source slices'; amended20261016P2CG1 change and note extended",
+        "P2CG1.superseded20261016.by gains P2CG1I4, with an amended20261016Correction marker; its note is not rewritten"
+      ],
+      "deviationFromReview": {
+        "what": "Two leaves beyond the review's five: src/lib/multiplayer/server/CampaignMatchHost.ts and src/lib/multiplayer/server/coopMissionAdmission.ts. Subtotal 8 instead of 6; 12 of 15 files instead of 10.",
+        "why": "The review's behaviour wording requires a typed CampaignMissionLaunchRefusal arm answered as 503. At 6645308f4 CampaignMissionLaunchRefusal (CampaignMatchHost.ts 108-120) has a closed code union and a fixed readonly status 409, and createCoopMissionMatch maps it to CoopMissionRefusal(409, ...) (coopMissionCreate.ts 171-182). The matches route answers only CoopMissionRefusal, with its own status (index.ts 323-324), and CoopMissionRefusal's status type is 400 | 403 | 409 (coopMissionAdmission.ts 23-31). Without these two leaves the registered wording could not be delivered and the unit would stop at admission, the same defect M1 corrects for P2CG1I1. The route needs no change, so it is not a leaf.",
+        "wordingUnchanged": true
+      },
+      "estimate": {
+        "leaves": 7,
+        "filesWithLifecycleAndReviewSlot": 12,
+        "spareFiles": 3,
+        "estimatedCountedLinesWithLifecycle": "25-60 (the review's figure; mostly deletions plus the typed arm and status widening)"
+      },
+      "sequentialOverlap": "coopMissionCreate.ts and coopMissionCreate.test.ts: P2CG1C -> P2CG1E -> P2CG1I4; harness and fixture: P2CG1C -> P2CG1I4; CampaignMatchHost.ts: P2CG1B -> P2CG1I4. coopMissionAdmission.ts is held by no other live restriction. All strict predecessor chains.",
+      "mainAfterMerge": "Receipts active; all legacy readiness credit removed; mission create fails closed without the installed port; Task 14 aggregate outcome complete.",
+      "chain": "P2CF1, P2CF2 -> P2CG1A1 -> P2CG1A2 -> P2CG1B -> P2CG1C -> P2CG1D -> P2CG1E -> P2CG1F -> P2CG1G1 -> P2CG1G2 -> P2CG1H -> P2CG1I1 -> P2CG1I2 -> P2CG1I3 -> P2CG1I4 -> P2CG2 -> P2CH -> P2C",
+      "rejectedPlacements": [
+        "Inside P2CG1I1: wrong ownership (src/pages-modules/api) and would pull four server suites into an HTTP/client deletion unit (review M2).",
+        "Inside P2CG1I3: fold condition does not hold (above); with the two extra leaves it would be 9 + 7 = 16 files, over the 15-file cap."
+      ]
+    },
+    {
+      "id": "m1",
+      "unit": "P2CG1H",
+      "applied": [
+        "P2CG1H.behavior proof run list extended from five to seven raw-socket specs: gm-two-player-membership.smoke and campaign-journal-two-process-privacy added",
+        "P2CG1H.amended20261016Correction marker"
+      ],
+      "leafChange": "none; the review expects no change to either spec, so neither is a leaf and no alias or exception is needed",
+      "correctsCorrectedReceipt": "unsettled[1] of evidence/p2cg1-split-registration-20261016.json says 'Five co-op specs drive raw campaign sockets'; the count is seven. That receipt is preserved byte-for-byte; this entry is the correction."
+    },
+    {
+      "id": "m2",
+      "unit": "P2CG1A2",
+      "applied": [
+        "P2CG1A2.behavior appends the expected oxlint max-lines warning on campaignApplicationConnection.ts (about 404 counted lines against 400, warn, .oxlintrc.json 134-137), to be recorded in the admission receipt; no further split and no lint override",
+        "P2CG1A2.amended20261016Correction marker"
+      ],
+      "leafChange": "none"
+    },
+    {
+      "id": "m3",
+      "applied": [
+        "P2CF1.amended20261016 and P2CF2.amended20261016 documentary notes carry the two closure-review N1 behaviour-text amendments; behaviour text unchanged, state unchanged"
+      ],
+      "deferredOwners": [
+        {
+          "item": "ThreeContextPrivacyEvidence flake follow-up (P2CE3 followUps)",
+          "owner": "the parent",
+          "when": "at the next registration, as a separate test-only unit",
+          "registeredHere": false
+        },
+        {
+          "item": "P2CF1 N1 behaviour-text amendment (docs/audits/2026-10-16-p2cf1-fable-review.md, sha256 bc16d36d9a510192b98bd0a6afa7149290abcaa774274731a70e3ec931156e5e)",
+          "owner": "the parent",
+          "recordedAs": "P2CF1.amended20261016 note"
+        },
+        {
+          "item": "P2CF2 N1 behaviour-text amendment (docs/audits/2026-10-16-p2cf2-fable-review.md, sha256 eb4962d758612601a7eaf88f7a0b47c9bad408992d1f0c6754f1c6b2a3bdfd7c)",
+          "owner": "the parent",
+          "recordedAs": "P2CF2.amended20261016 note"
+        }
+      ]
+    },
+    {
+      "id": "m4",
+      "applied": [],
+      "decision": "Left open. P2CF2.successors and the superseded P2CF.successors still name P2CG1; they resolve through P2CG1.superseded20261016.by, which now lists all fourteen successors. The review leaves it to the parent; #2146, #2158 and #2165 left such pointers rather than edit another unit's contract fields, and P2CF2 is main-verified. The P2CF2 note records the stale pointer."
+    },
+    {
+      "id": "m5",
+      "unit": "P2CG1G2",
+      "applied": [
+        "P2CG1G2.behavior: CampaignCoopEntryPanel.tsx 328 is now described as a direct connectCampaignSyncTransport call with a freshly minted token (not connectStoredCampaignSyncTransport); binding passes expectedCampaignId into that call, whose options already accept it",
+        "P2CG1G2.amended20261016Correction marker"
+      ],
+      "verifiedAgainstTree": "CampaignCoopEntryPanel.tsx 328 calls connectCampaignSyncTransport; the surface (159, 294) and launch.tsx (149, 177) call connectStoredCampaignSyncTransport; campaignSyncTransport.ts options carry expectedCampaignId (95, 107).",
+      "leafChange": "none"
+    }
+  ],
+  "notEdited": [
+    "P2CG1A1 (in progress on codex/p2cg1a1-extract-1-20261016); the nearest hunks are more than 20 lines from its lifecycle fields",
+    "Every unit's state; no unit is released",
+    "P2CH (predecessor P2CG2 unchanged)",
+    "P2CF.successors and P2CF2.successors (m4)",
+    "Every other unit, node, top-level key, restriction and subtotal",
+    "evidence/p2cg1-split-registration-20261016.json"
+  ],
+  "deepDiff": {
+    "unitsJson": "193 -> 194 units; P2CG1I4 added between P2CG1I3 and P2CG2; existing order kept; no top-level change. Changed paths: P2CF1.amended20261016, P2CF2.amended20261016, P2CG1.superseded20261016.by, P2CG1.amended20261016Correction, P2CG1A2.behavior, P2CG1A2.amended20261016Correction, P2CG1G2.behavior, P2CG1G2.amended20261016Correction, P2CG1H.behavior, P2CG1H.amended20261016Correction, P2CG1I1.behavior, P2CG1I1.ownershipExceptions, P2CG1I1.amended20261016Correction, P2CG1I3.successors, P2CG1I3.amended20261016Correction, P2CG2.predecessors, P2CG2.amended20261016P2CG1.change/.note, P2C.admissionRequires, P2C.predecessors, P2C.amended20261016P2CG1.change/.note",
+    "roadmapJson": "Only R2.authority-live.ownershipPathsAmended20261009P2C: unit, evidence, restrictions.P2CG1I1, restrictions.P2CG1I4, knownSourceTestLifecycleSubtotals.P2CG1I1, knownSourceTestLifecycleSubtotals.P2CG1I4. Node ownershipPaths unchanged; no alias needed (every new leaf is under src/lib/multiplayer/server or src/components/campaign/coop)."
+  },
+  "unsettled": [
+    "P2CG1I4's 503 delivery depends on CampaignMatchHost.ts and coopMissionAdmission.ts as of 6645308f4; if P2CG1B or P2CG1C reshape either refusal type first, P2CG1I4 admission re-measures and a leaf that no longer needs a change is reported unchanged.",
+    "Line figures for P2CG1I1 and P2CG1I4 are estimates; admission must measure.",
+    "The review file is untracked in the root checkout; its hash is recorded above."
+  ],
+  "machineChecked": "validate-roadmap.mjs checks P2CG1I4's state, that each ownership path exists and is a node ownership path, caps, stage ladder and --next order. It does not read splitFrom, predecessors, successors, markers, restrictions or subtotals; those rest on review of this receipt.",
+  "nonclaims": [
+    "No product edits and no implementation result claimed",
+    "No source admission; sourceAdmitted is false",
+    "No unit released and no state changed",
+    "No cap exception, cap inflation, directory-wide grant or alias",
+    "No owner ruling claimed beyond the parent's instruction under standing delegation"
+  ],
+  "permissionBoundary": "Prospective registration only. P2CG1I4, like every P2CG1 successor, requires fresh finite source admission, a complete census and measured fit under unchanged 15-file/500-added-product-line caps. Known subtotals are lower bounds, not cap-fit claims.",
+  "delivery": "Under the owner's docs/ledger-only rule this PR is admin-merged after local checks; this receipt is not an approval or a delivery claim.",
+  "sourceAdmitted": false,
+  "P2Released": false,
+  "U38Released": false
+}

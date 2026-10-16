@@ -2708,9 +2708,9 @@
     {
       "id": "R2.authority-live",
       "ownershipPathsAmended20261009P2C": {
-        "unit": "P2CA/P2CB/P2CD/P2CE/P2CE1/P2CE2/P2CE3/P2CF/P2CF1/P2CF2/P2CG1/P2CG1A1/P2CG1A2/P2CG1B/P2CG1C/P2CG1D/P2CG1E/P2CG1F/P2CG1G1/P2CG1G2/P2CG1H/P2CG1I1/P2CG1I2/P2CG1I3/P2CG2/P2CH",
+        "unit": "P2CA/P2CB/P2CD/P2CE/P2CE1/P2CE2/P2CE3/P2CF/P2CF1/P2CF2/P2CG1/P2CG1A1/P2CG1A2/P2CG1B/P2CG1C/P2CG1D/P2CG1E/P2CG1F/P2CG1G1/P2CG1G2/P2CG1H/P2CG1I1/P2CG1I2/P2CG1I3/P2CG1I4/P2CG2/P2CH",
         "planTask": 8,
-        "evidence": "evidence/p2cg1-split-registration-20261016.json",
+        "evidence": "evidence/p2cg1-split-registration-correction-20261016.json",
         "paths": [
           "src/services/persistence",
           "src/lib/p2p/campaignMirrorStore.ts",
@@ -2874,7 +2874,8 @@
             "src/pages-modules/api/campaignLaunchProgressionGate.ts",
             "src/lib/campaign/coop/campaignSyncTransport.ts",
             "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts",
-            "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts"
+            "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+            "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx"
           ],
           "P2CG1I2": [
             "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test-helpers.ts",
@@ -2890,6 +2891,15 @@
             "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
             "src/lib/multiplayer/server/__tests__/CampaignSyncSession.test.ts",
             "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts"
+          ],
+          "P2CG1I4": [
+            "src/lib/multiplayer/server/coopMissionCreate.ts",
+            "src/lib/multiplayer/server/CampaignMatchHost.ts",
+            "src/lib/multiplayer/server/coopMissionAdmission.ts",
+            "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+            "src/lib/multiplayer/server/__tests__/coopMissionCreate.refusals.test.ts",
+            "src/lib/multiplayer/server/__tests__/coopMissionCreate.harness.ts",
+            "src/lib/multiplayer/server/__tests__/coopMissionCreate.fixture.ts"
           ],
           "P2CG2": [
             "src/lib/multiplayer/server/CampaignSyncSession.ts",
@@ -2951,9 +2961,10 @@
           "P2CG1G1": 8,
           "P2CG1G2": 7,
           "P2CG1H": 9,
-          "P2CG1I1": 5,
+          "P2CG1I1": 6,
           "P2CG1I2": 8,
           "P2CG1I3": 5,
+          "P2CG1I4": 8,
           "P2CG2": 7,
           "P2CH": 5
         },
