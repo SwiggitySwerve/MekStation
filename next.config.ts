@@ -108,6 +108,12 @@ const nextConfig: NextConfig = {
   // This creates a self-contained build with all dependencies
   output: 'standalone',
 
+  // PR CI sets MEKSTATION_SKIP_NEXT_TYPECHECK: its Type Check job already
+  // gates types, so each PR `next build` skips a duplicate ~75s TypeScript pass.
+  typescript: {
+    ignoreBuildErrors: process.env.MEKSTATION_SKIP_NEXT_TYPECHECK === 'true',
+  },
+
   // Pin the file-tracing root to this app directory. Without this, Next walks
   // up to the outermost lockfile — in a git worktree under .claude/worktrees/
   // that is the main checkout, which nests the standalone server under
