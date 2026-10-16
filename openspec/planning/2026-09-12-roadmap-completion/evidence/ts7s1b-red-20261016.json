@@ -1,0 +1,174 @@
+{
+  "schemaVersion": 1,
+  "unit": "TS7S1B",
+  "stage": "red",
+  "baseline": "0929f614e3de20d89801eee90750937d6c925c13",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "TS7S1B implementation sub-agent"
+  },
+  "runtime": "node v22.22.0",
+  "redKind": "Config-only unit: no runtime behaviour changes, so no test can fail and none was written (TS7S1A, P2CG1A1/P2CG1A2 precedent). The red slot records what the edits remove (TypeScript 7 and 6 reject the unmodified configs) and the before-state of every acceptance proof that the after-state must reproduce",
+  "compilerRed": {
+    "note": "Unmodified baseline configs, scratch-prefix compilers called by path",
+    "ts7": {
+      "root": {
+        "version": "Version 7.0.2",
+        "exit": 1,
+        "errors": 2,
+        "seconds": 1,
+        "configSha256": "1c1c39ac4a0181fa6b8f0ab15e2152f7c0f939ff6818befc322f3cf84fb9c709",
+        "log": {
+          "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1b-20261016/pre-unmodified-ts7-root.log",
+          "sha256": "bfe77ea17b12ad09ff00fc914c07c053d25c188479928daa778646feb2e5ac83"
+        }
+      },
+      "desktopTsconfig": {
+        "version": "Version 7.0.2",
+        "exit": 1,
+        "errors": 1,
+        "seconds": 0.1,
+        "configSha256": "4d27b6818c77ecc40d3b5bd394b50d6b0213082774b1447d01608823948e3d4c",
+        "log": {
+          "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1b-20261016/pre-unmodified-ts7-desktop-tsconfig.json.log",
+          "sha256": "221179a67006609a786034ae09a82e9f6994cb1fbc6012f04582951bc4e5073b"
+        }
+      },
+      "desktopTsconfigTest": {
+        "version": "Version 7.0.2",
+        "exit": 1,
+        "errors": 1,
+        "seconds": 0.1,
+        "configSha256": "2dfdac7dd8d7d7c3e4034bbfdd629db53bbaef95851eada5c9fc0fe9f0e33238",
+        "log": {
+          "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1b-20261016/pre-unmodified-ts7-desktop-tsconfig.test.json.log",
+          "sha256": "a9e824ce1ce39a450734a41c18ac58e81ad192a73ed7394579f95d9fd6b100e7"
+        }
+      }
+    },
+    "ts6": {
+      "root": {
+        "version": "Version 6.0.3",
+        "exit": 2,
+        "errors": 2,
+        "seconds": 6.8,
+        "configSha256": "1c1c39ac4a0181fa6b8f0ab15e2152f7c0f939ff6818befc322f3cf84fb9c709",
+        "log": {
+          "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1b-20261016/pre-unmodified-ts6-root.log",
+          "sha256": "0a0cd148f1f507857891625dcbd2d6607af6c401d106a9a3b9a44d2dddebb50c"
+        }
+      },
+      "desktopTsconfig": {
+        "version": "Version 6.0.3",
+        "exit": 2,
+        "errors": 1,
+        "seconds": 0.5,
+        "configSha256": "4d27b6818c77ecc40d3b5bd394b50d6b0213082774b1447d01608823948e3d4c",
+        "log": {
+          "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1b-20261016/pre-unmodified-ts6-desktop-tsconfig.json.log",
+          "sha256": "78f4974578bd69311d63f533cb98bb573251a81fb9f68200d1b7b9ee4a736c6d"
+        }
+      },
+      "desktopTsconfigTest": {
+        "version": "Version 6.0.3",
+        "exit": 2,
+        "errors": 1,
+        "seconds": 0.7,
+        "configSha256": "2dfdac7dd8d7d7c3e4034bbfdd629db53bbaef95851eada5c9fc0fe9f0e33238",
+        "log": {
+          "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1b-20261016/pre-unmodified-ts6-desktop-tsconfig.test.json.log",
+          "sha256": "e0c76b902ab59ccddac066f867e1049c5487bd2b0c82f5e52f3aac7ffd5da728"
+        }
+      }
+    },
+    "summary": "TypeScript 7.0.2: root TS5108 target=ES5 removed (3,15) and TS5102 baseUrl removed (17,5); desktop/tsconfig.json and tsconfig.test.json TS5108 moduleResolution=node10 removed. TypeScript 6.0.3: root TS5107 target=ES5 and TS5101 baseUrl deprecated; desktop TS5107 moduleResolution=node10 deprecated (both configs). Only config errors: TS7S1A removed the 11 source errors"
+  },
+  "ts58": "npm run typecheck (tsc 5.8.3) exit 0 on the baseline (tasks01Baseline logs in the admission receipt)",
+  "beforeProofs": {
+    "jestSuite": {
+      "suite": "src/utils/construction/__tests__/battleValueCalculations.test.ts",
+      "result": "1 suite, 22 tests passed",
+      "json": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1b-20261016/before-jest-bvcalc.json",
+        "sha256": "589d058f337d593e8bd82f13cd114bc20f19475c1bf030e573fc209f9f179613"
+      },
+      "log": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1b-20261016/before-jest-bvcalc.log",
+        "sha256": "c3533fd733843fa5f2632e451ef04c5a674fb6334d15251fef9e5422655b57f7"
+      }
+    },
+    "tsx": {
+      "command": "npx tsx scripts/debug-sirocco.ts",
+      "result": "exit 0, 8 lines",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1b-20261016/before-tsx-debug-sirocco.log",
+        "sha256": "1bc41c6b70a6ade5b9d2a54c19621155bef7a865f82f5350f1dfb0d55628f41f"
+      },
+      "sensitivity": {
+        "command": "npx tsx --tsconfig <scratch config without paths> scripts/debug-sirocco.ts",
+        "result": "exit 1, Cannot find module '@/utils/logger'",
+        "log": {
+          "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1b-20261016/sensitivity-tsx-nopaths.log",
+          "sha256": "e33d1552d484a8d4786a13ccd67da117734f1b3dbb62a2b76e29101d4b2f2573"
+        }
+      }
+    },
+    "build": {
+      "result": "npm run build exit 0 (Next.js 16.2.11), tsconfig.json unchanged",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1b-20261016/before-build.log",
+        "sha256": "2ab0a18f362fd9dc1aa4fa8ad81ce67372ab64c83e443c3a7b8fad1143052614"
+      },
+      "manifest": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1b-20261016/before-next-manifest.json",
+        "sha256": "3c5eb4ab193548f6b299a344edb3f1394c52a6e1b480227c7b9e165c7dbd67bc"
+      },
+      "junctionAttempt": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1b-20261016/before-build-junction-attempt.log",
+        "sha256": "09f3f86c0a5f1ef60600e3ece581e0740b411483702c2de37dd1f239dbc9c517"
+      }
+    },
+    "storybook": {
+      "result": "npm run storybook:build exit 0 (8.6.18), 4599 files",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1b-20261016/before-storybook-build.log",
+        "sha256": "5e491b1d59b46cb3729628062cd35f6f8fddb5ea0e68e957cff920b33b1fa872"
+      },
+      "manifest": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1b-20261016/before-storybook-manifest.json",
+        "sha256": "3de22f7ee0aba4a40acb14c231805e32aae37a7c84d0942f6adfe43bd2c0fa38"
+      }
+    },
+    "desktopEmit": {
+      "compiler": "desktop tsc 5.9.3",
+      "dir": "E:/Projects/Personal/MekStation-wt/ts7s1b-emit/before",
+      "files": 84,
+      "manifest": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1b-20261016/desktop-emit-before.json",
+        "sha256": "c89d6211805ca7dbfe92db8fb1918910a6118722b4e6f260b4a9e43b59b1f8de"
+      }
+    },
+    "desktopJest": {
+      "result": "5 suites, 57 tests passed, no TS151002 message",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1b-20261016/base-desktop-jest.log",
+        "sha256": "da279f212041db2c1343ab76af478bea76202effa8e3da8b66140114a897a952"
+      }
+    }
+  },
+  "baseLint": {
+    "result": "npm run lint (oxlint 1.43.0) on the baseline configs: 86 warnings, 0 errors",
+    "log": {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1b-20261016/lint-base.log",
+      "sha256": "84494452781de0a1feb7cba139b998f4c2a6cb9bc413df95e69f90f47811e789"
+    }
+  },
+  "baseLintUnits": {
+    "result": "LINT_UNITS_PASS 17899/17899; src/pages/api 16/16; src-tests 17783/17783",
+    "log": {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1b-20261016/lint-units-base.log",
+      "sha256": "c5503da2fbc7a40a0794a8d78d4e3b569bcfd43e94cac25b280e9624162183b0"
+    }
+  }
+}
