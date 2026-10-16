@@ -1,0 +1,3 @@
+OWNER-RULING cda526457f919bba39abe9e64847ecbf6a696958
+
+The owner authorized this ruling in chat. PR #2162 merged before this ruling was posted. The ruling covers the P2CF2 slice (mounted GM fold and guest mirror wiring, consumer hook, guarded saved-record refresh with staged maxima; dormant, because no production creator binds expectedCampaignId), reviewed APPROVE-WITH-NOTES by an independent reviewer with no blockers and CI 31/31. Open items recorded as Task 14 preconditions in the review: M1 (in-flight ACK refused unknown-receipt after the next offer is established), M2 (host fold is component-local and resets per binding while the stored transport is reused on rebind), carry-forwards CF1-CF14 and minors m7-m14.

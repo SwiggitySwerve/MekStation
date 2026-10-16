@@ -1,0 +1,210 @@
+# P2CF2 mounted wiring and guarded refresh (PR #2162) - independent exact-head review (Fable)
+
+- Reviewer: Claude Fable 5.1 (claude-fable-5-1), independent review sub-agent; the author was Claude Opus 5.5.
+- Subject: https://github.com/SwiggitySwerve/MekStation/pull/2162 "feat(P2CF2): mount the campaign receipt consumer with a guarded record refresh", unit `P2CF2` (second and last slice of the P2CF split, plan Task 13). Exact head `cda526457f919bba39abe9e64847ecbf6a696958` (one commit; `gh pr view 2162` headRefOid matches, state OPEN, base `main`, MERGEABLE, 11 files). Base `d823114d7c01aeebb846b51074cf6d7b66c59f6f` (= `git merge-base`, the merge of the P2CF2 release PR #2161).
+- Author worktree `E:/Projects/Personal/MekStation-wt/p2cf2-mounted-wiring-20261016` was read only; `git status --porcelain` was empty before and after this review. All runs happened in a throwaway worktree `E:/Projects/Personal/MekStation-wt/p2cf2-fable-review-20261016` detached at the head with a `node_modules` junction to the author worktree, removed (junction first, shared `node_modules` verified intact) after the runs. Runtime Node v22.22.0 (`C:\Users\wroll\AppData\Local\nvm\v22.22.0`). Only this file is written; the reserved `evidence/p2cf2-admission-review-20261016.md` slot is untouched. Under `.omo/ulw-execute` only the `task-13-p2cf2-20261016` directory listing and the files named below were opened.
+- Contract read: units.json `P2CF2` (behavior, admissionRequires, lifecycleOwnershipLimit, ownershipExceptions), roadmap.json `R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CF2`, `evidence/p2cf-split-registration-20261016.json` (`scenarioAllocation.P2CF2`, `successorNotes`, `selectors`), my registration review (notes 3, 6, 7, 8, 11) and my P2CF1 review (M1, m1-m6, CF1-CF9, N1-N5), the P2CF1 closure receipt `evidence/p2cf1-review-20261016.json` `successorNotes.P2CF2/Task14`, the P2CE3 reviews (`-fable-review.md` section 8, `-r2.md` section 8) and `evidence/p2ce3-review-20261016.json` `successorNotes.Task13` + `Task13Optional`, plan Task 13 (line 1143 block) and the Task13 mounted completion clarification (line 2961) plus the Task11/Task14 clarification (line 2924), the author's `report.md`, `census.md`, `callers.log`, `mutation-probe.json`, `mutation-probe.py`, `red.log` tail and `test-stable-run1-lint-units-fail.log`.
+
+## Verdict
+
+**APPROVE-WITH-NOTES.** No blocker. One new major (M2) that is a design-level cost for Task 14, not a defect in this slice: the host fold is component-local and resets per binding, while `connectStoredCampaignSyncTransport` reuses the match's live transport, so any rebind without a reconnect (route navigation between the three host-mounting pages, a StrictMode remount, a `roomCode` change) starts a binding from EMPTY on an already-hydrated connection. In receipt mode that costs one rejoin per occurrence (fail-closed through the adjunct check, which my probe shows is load-bearing there, so the author's "H15 equivalent" claim is wrong); in legacy mode it is the pre-existing lossy seed. The test that proves the per-binding reset uses a mock that opens a new connection on every call, so it does not model the real transport's reuse. Everything else verified: the diff is exactly the seven registered leaves plus P2CF2's own lifecycle fields and three receipts; units.json deep-diffs to the P2CF2 entry only; census recomputes to 453/500 and 12/15; every author number reproduces on the exact head (62, 155, 54, 48/483, typecheck, lint 0 errors, lint:units 17899/17899 with the ceiling unchanged, format, validator full/`--next`/`--git`/86 tests); production stays legacy (nothing binds `expectedCampaignId`, `server.js` composes no `applicationReceipts`); nine adversarial probes behave as the code reads; of seven mutations I ran, five are killed, one (host baseline cursor) survives as a real test gap (m7), and one (adjunct check) survives the registered suites but is killed by my probe. M1 from P2CF1 is correctly left as the Task 14 precondition. Minors, notes and carry-forward wording follow.
+
+## 1. Scope, census, receipts
+
+`git diff --numstat --no-renames d823114d7..cda526457`:
+
+| File | Added | Deleted | Counted (U41) |
+| --- | ---: | ---: | --- |
+| src/components/campaign/coop/useCampaignApplicationConsumer.ts (new) | 258 | 0 | yes |
+| src/stores/campaign/useCampaignPersistenceStore.ts | 94 | 18 | yes |
+| src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx | 63 | 17 | yes |
+| src/stores/campaign/campaignUnitMaxStates.ts | 22 | 0 | yes |
+| openspec/planning/2026-09-12-roadmap-completion/units.json | 16 | 6 | yes |
+| ...__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx | 609 | 8 | test |
+| ...__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx | 485 | 1 | test |
+| src/stores/campaign/__tests__/campaignCommandAckRefresh.test.ts | 475 | 0 | test |
+| evidence/p2cf2-admission-20261016.json (new) | 125 | 0 | evidence dir |
+| evidence/p2cf2-local-20261016.json (new) | 43 | 0 | evidence dir |
+| evidence/p2cf2-red-20261016.json (new) | 30 | 0 | evidence dir |
+
+- Counted added lines 258 + 94 + 63 + 22 + 16 = **453 of 500**, equal to the author's census. Files: 11 in the change + the reserved review slot = **12 of 15**. The seven source/test files are exactly `restrictions.P2CF2` (printed from roadmap.json at head and compared). Test additions 1569 are uncounted.
+- units.json deep diff (parsed, per unit, 180 units, same order, same top-level keys): only `P2CF2` differs, in `ownershipExceptions` (+ admission, admission-review slot, red, local), `state` planned -> implementing, `baseline` null -> d823114d7, `stageReceipts.admission/red/local` paths. No other unit or key.
+- Not touched (checked by `git diff --name-only` filter): the P2CF1 leaves (fold, transport, mirror store and their tests), `server.js`, anything under `src/lib/multiplayer/server`, `useCampaignStore.actions.ts`, `campaignMirrorProjection.ts`, `campaignUnitMaxStates.test.tsx` (sha256 e55176c3... at head, byte-equal to base and to the registration census).
+- All eleven changed files are UTF-8 without BOM (first bytes checked). Product-leaf sha256 at head equals the local receipt's `productBytes` (component 80cb4d84..., hook 4798100d..., store 3a7d2066..., maxima 1479e184...); the admission receipt's `frozenFiles` equal the base blobs (c332fd25..., e50e9013..., 28d1f416..., tests 392723d8.../e64f9057.../e71ea9dd...).
+- Production stays legacy (verified, not asserted): `expectedCampaignId` in non-test `src/` appears only inside `campaignSyncTransport.ts`; the component's two `connectStoredCampaignSyncTransport` calls (lines 159, 294), `launch.tsx` (149, 177) and `CampaignCoopEntryPanel.tsx` 328 connect unbound; `server.js` has no `applicationReceipts`. The consumer's gate `transport.campaignId === campaignId && confirm !== undefined` is false for every production transport, and the registered test "keeps legacy traffic on an unbound transport: folded, numeric observation ACK, no receipt" pins the legacy fold and the two numeric ACKs.
+- The lint-units fix is in test text: both `useCampaignStore()` helper calls moved into `beforeEach`/`arrange`; `scripts/qc/lint-units.ceiling.json` is not in the diff and `src-tests` is still 17783 at head (recomputed PASS 17783/17783).
+
+## 2. The consumer hook (`useCampaignApplicationConsumer.ts`, read in full)
+
+| Clause | Code | Verified by |
+| --- | --- | --- |
+| One offer at a time, receipt order | `queue = queue.then(() => settle(message))` per offer; `settle` awaits the refresh before `confirm` | "holds a successor behind a delayed predecessor, then sends one cumulative ACK" (H12 killed) |
+| GM path: fold -> project -> launch-facts -> awaited guarded refresh -> reproject -> one `confirmApplied` | `applyOffer` -> `retainsLaunchFacts` -> `binding.fold.current = next` -> `project` -> `refreshAfterCommittedCommand(ack, { isCurrent: () => live })` -> `project(binding.fold.current.state)` -> `confirm` once | "acknowledges a committed event only after the refreshed row is adopted and the fold reprojected", "puts the held fold back over a refreshed record that does not carry the commit" |
+| Guest path: mirror apply -> project | `applySnapshot(event, -1, true, facts)` / `applySnapshot` / `applyEvent`, then `project` | "projects the baseline, a live fact and a visible no-op before one exact ACK each" |
+| Failure/throw/duplicate/rejected/superseded => no receipt | `fold-rejected`, `adjunct-failed`, `projection-failed`, caught throw -> `confirm(offer, { failed })` -> transport `recover('application-failed')` -> rejoin; `!live` -> report nothing | the `it.each` "never acknowledges a baseline it could not apply", "leaves an offer unacknowledged when a later frame observer throws", "gives no receipt when the refresh cannot read" |
+| Stale binding reports nothing | `if (!live \|\| !confirm) return;` after the await; `dispose()` sets `live = false` | "writes and sends nothing for an unmounted binding whose refresh was held" (H06, H17 killed) |
+| Recovery signals close and rejoin once | `onError` with `Campaign application recovery required:` prefix, INTERNAL_ERROR `campaign-application-*` frame, `refused`/`recovery-required` confirm result -> `rejoin()` guarded by `live` | "re-sends on head-drift without a rejoin, and rejoins from EMPTY on unknown-receipt", "rejoins when the server ends the view with an application error", "rejoins when the socket closes while the refresh is held" (my MG mutation: 6 failures) |
+| Replacement baseline from EMPTY at cursor -1 | `foldCampaignHydration(fold, event, facts, true, -1)`; `applySnapshot(event, -1, true, facts)` | guest "applies a first event at sequence 0 after the baseline"; host unpinned (m7) |
+| Reconnect cannot adopt stale held proof at zero | host fold reset per binding; guest replacement from EMPTY | "starts every host binding from an empty fold..." (see M2 for the mock caveat), guest v2 baseline after unknown-receipt |
+| Legacy frames not folded once offers flow | `latched` -> `consume` returns true for any campaign frame | "does not fold an unoffered campaign frame once offers flow" (my MB mutation killed) |
+| Inactive binding | `consume` returns `isOffer(message)`: an offered frame on a transport bound to another campaign is neither folded nor ACKed | "never consumes a transport bound to another campaign" (H11, H16 killed) |
+
+Cursor -1 versus CF3's literal 0 (author deviation): correct. The server frames every baseline at `sequence: -1` (`bindCampaignSyncConnection.ts` 1859, `CampaignSyncSession.ts` 932) and the log hands out sequences from 0 (`campaignHostBatchCommit.ts` 112 `sequence = await host.nextSequence()`, healed logs start at `nextSequence: 0`; the mirror store's own doc says "the following log events (sequence 0+)"). `foldCampaignEvent` refuses `event.sequence <= fold.lastSequence`, so a baseline adopted at 0 would refuse a first live event at 0 and the consumer would report `fold-rejected`, which the transport turns into `recover('application-failed')` and a rejoin loop on a fresh campaign. The legacy adopt-at-0 convention (`foldCampaignFrame`, entry panel `applySnapshot(snapshot, 0)`) carries that latent edge; the receipt path avoids it. The ordering guarantee on the receipt path comes from `registerOffer`'s receipt chain (`previousReceiptId === latest.receiptId`), not from the cursor, so -1 loses nothing. The guest side is pinned; the host side is not (m7).
+
+Privacy: the fold and mirror hold only what the viewer-scoped cut sent; `projectAuthoritativeStateOntoCampaign` projects `state` only; nothing writes `launchFacts` into the saved record (the persistence store never reads the fold). Only the host (`binding.role === 'host'`) ever reads the saved record; a guest never GETs it.
+
+## 3. The component (`CampaignCoopRouteSurfaceConnected.tsx`)
+
+- Per-binding host fold reset: `hostFold.current = EMPTY_CAMPAIGN_AUTHORITATIVE_FOLD` runs inside the host connect effect, after the mode/ids guard and before `connectStoredCampaignSyncTransport`. Pinned by the rewritten reconnect case (`lastSeq` -1, baseline at revision 9 adopted, balance 640_000). My MH mutation (reset moved after the connect call) is killed by that case because the mock reads `lastSeq` at connect time. See M2 for what the mock does not model.
+- Refusal routing: both frame handlers test `message.kind === 'Error' && !isCampaignApplicationError(message)` before `setLastRefusalCode`/`setLastRefusalAction`; `isCampaignApplicationError` is `reason?.startsWith('campaign-application-')`. Three registered cases prove a held `CAMPAIGN_STALE_HEAD` and `PROJECTION_REBUILDING` posture survives head-drift, unknown-receipt and an INTERNAL_ERROR application frame for both roles, and that a GM holding no refusal stays ungated. Legacy codes still set the posture and a `CampaignEvent` still clears it (unchanged lines).
+- Offered frames: `const applied = application.consume(message)`; host uses `applied ? hostFold.current : foldCampaignFrame(...)` so an applied frame re-projects nothing and does not trigger the legacy `refreshSavedRecordAfterCommit` (the consumer owns that refresh); guest returns before the mirror calls. No double fold, double refresh or double ACK.
+- Cleanup: `offFrame(); application.dispose();` before any rebind; both effects depend on `rejoins`, and `bind` is a stable `useCallback`. `store` is the module singleton (`useCampaignStore()` returns `campaignStoreInstance`), so it cannot re-run the effect in production.
+- Guest mirror not reset per binding (author deviation from CF1): correct, and better than my CF1 wording. The mirror store is module-scoped and holds the lineage across a rebind (probe P8: a second binding on the same live transport continues the chain and ACKs r2 with the right date and balance); `beginMirror` per binding would discard the entry panel's seeded mirror and the `lastSeq` the legacy guest join quotes; in receipt mode every baseline is an authorized replacement from EMPTY, which is the "reconnect cannot adopt stale held proof" clause at the mirror level. CF1 is corrected in section 9.
+- Size: 395 non-blank non-comment lines by my count against the 400 `max-lines` warning (oxlint emits no warning on the file at head; the only warning on a touched leaf is the persistence store's pre-existing 990). Five lines of headroom (m13).
+
+## 4. Persistence store and maxima owner
+
+- `refreshAfterCommittedCommand(ack, context?)`: a stale context (`context?.isCurrent() === false`) returns `false` before `clearAutoSaveTimer()` (test "does not start for a binding that is already stale and keeps the armed save"). The queued step captures `loadGeneration` and builds `current = context.isCurrent() && generation === loadGeneration && get().campaignId === campaignId`; `loadCampaignAction` and `reset` bump the generation.
+- `runLoad(set, id, guard?)`: the guarded path checks `current()` before the start, after the GET, after `response.json()`, after the staged maxima await, after `writeLiveCampaign`, after `restoreRosterProjection`, before `set(...)`, and in the catch before writing `error`. The 404 branch is behind the post-GET check. Every write the contract names (live record, roster, cache key, baseVersion, fence, status, error) is behind a check; the autosave re-arm in the `.then` is gated by `current()` (my MF mutation: killed by both held-GET/held-JSON cases via `putRequests()` after the debounce). My MC mutation (check before the final `set` removed) is killed by the "cache key write" subscriber case.
+- Staged maxima: `prepareCampaignUnitMaxStates(units, existing)` reuses `resolveMissingUnitMaxStates` and returns the merged map without touching any store; the guarded path builds `units` from the record's `rosterProjection` (`rosterUnitsOf`) or the roster store when the record carries none, installs the map into `loadedCampaign` before `writeLiveCampaign`, then restores the roster from the same `units`. No `updateCampaign`, no PUT, no `saveChain` wait (tests "stages missing maxima into the installed record without updateCampaign or a PUT", "starts no network-backed maxima resolution once the binding is stale", "writes nothing when the binding goes stale while maxima are resolving"). `ensureCampaignUnitMaxStates` is byte-for-byte the P2CD body; the ordinary `runLoad` path still calls it (`else if (!cacheStands)` branch); `campaignUnitMaxStates.test.tsx` is unmodified and passes (registration note 3 honoured).
+- Ordinary callers unchanged: with no context, `guard` is undefined, `current` is `() => true`, the `saving` status is set as before, `restoreRosterProjection(id, projection)` computes units exactly as before (`units ?? rosterUnitsOf(...)`), and the `.then` re-arm uses the outer `current = () => true`. The 24 pre-existing cases of the three suites and the 48 caller suites pass unmodified.
+- `saving` not announced for a guarded refresh: a deliberate difference, reachable only by a receipt-bound GM (Task 14). The final `set` still writes `saved`, so an `error` posture is cleared on success. A read is not a save, so omitting the flicker is defensible; record it (m12) so Task 14's UX pass decides.
+- Discard-flush reconciliation (`adoptFlushedRevision`) does not bump `loadGeneration` (author concern 5, untested): a guarded refresh whose GET read the pre-flush row can `set` the older `baseVersion` after the flush adoption, and the next PUT conflicts. Pre-existing for the legacy refresh (which has no guard at all) and resolved by the existing conflict flow; carry-forward CF14.
+
+## 5. M1 handling and recovery semantics
+
+- The author's placement is right. `handleApplicationRefusal` in the P2CF1 transport calls `recover('application-refused')` (view torn down, `failed = true`, `pending` cleared) before any `onError` listener runs, so the consumer cannot "ignore a superseded unknown-receipt"; option (a) can only live in `campaignSyncTransport.ts`, a P2CF1 leaf outside `restrictions.P2CF2`. Editing it would have been an unregistered leaf. CF7 stands as the Task 14 precondition.
+- "One rejoin per occurrence": `rejoin()` is idempotent per binding (`live` flag), closes the transport, and bumps `rejoins` so both effects re-run; the host resets its fold, the guest's next baseline replaces. Each M1 hit therefore costs one close + fresh join + replacement baseline; durable state is unaffected (cumulative commit already covers the refused receipt). Safe but not free; the frequency at Task 14 is why CF7 is hard.
+- Unlimited rejoins: each cycle needs a server refusal or close, so there is no tight loop; a server that refuses every join would cause a reconnect per refusal. CF8 (bounds) stands.
+- Rejoin closes the shared transport: `transport.close()` deletes it from `activeTransports`; the entry panel and the launch page keep references to the closed instance. Unreachable before Task 14 binds creators; new carry-forward CF10.
+- `confirmApplied` throwing stops the queue without a rejoin (author concern 1): confirmed by probe P4 (baseline confirm throws -> no ACK, no refresh for the next offer, `rejoins` 0, jest reports the rejection). Nothing in the shipped transport throws there (send failures are caught inside `drain`), so fail-closed today; m9.
+- Socket close with no offer in flight: confirmed invisible (probe P7, `rejoins` 0 after `onclose`). The transport's `onclose` sets `closed` and clears `pending` but emits nothing; the consumer learns only through a `refused: closed` confirm result or an INTERNAL_ERROR frame. Transport leaf; CF12.
+
+## 6. Adversarial probes and mutations
+
+Nine scratch probes against the head (a temporary test file driving the hook through `renderHook`, a real `connectCampaignSyncTransport` bound to the campaign over a mock socket, the real campaign store, and the persistence refresh replaced by a controllable promise; deleted afterwards):
+
+| Probe | Result |
+| --- | --- |
+| P1 host rebind on a live, already-hydrated bound transport (dispose A, reset fold, bind B, inject linked r2) | no ACK for r2, socket closed, one rejoin: fail-closed via `adjunct-failed` (`launchFacts` undefined on the from-empty fold). **With the adjunct check removed (H15) the same probe ACKs r2 as `applied` over a fold seeded from EMPTY** (balance 700_000, chain r0 r1 r2, no rejoin). H15 is not equivalent. |
+| P2 replacement baseline arrives while r1's refresh is held | `registerOffer` refuses the second baseline (`latest` set) -> prefix-conflict -> rejoin; after the refresh resolves no ACK for r1, fold untouched (reference-equal) |
+| P3 two bindings racing over a held refresh | old binding never confirms after its refresh resolves; new binding's fold stays EMPTY; no rejoin until a frame arrives |
+| P4 `confirmApplied` throws | see section 5 |
+| P5 foreign-campaign baseline on a bound transport | transport prefix-conflict -> rejoin; fold EMPTY, store balance untouched, no ACK |
+| P6 identical offer twice, then a byte-different duplicate | identical: one ACK, one refresh, no rejoin (the transport never dispatches it); altered: prefix-conflict -> rejoin |
+| P7 socket close with no offer in flight | invisible (section 5) |
+| P8 guest rebind on a live transport | continues the chain: ACKs r0 r1 r2, date and balance right, no rejoin (the mirror holds the lineage) |
+| P9 unoffered legacy frame on a bound transport before any offer | `consume` returns false (legacy fold applies); the transport's legacy numeric ACK still fires because `receiptMode` has not latched. Only a mis-sequenced server could produce this; noted, not a defect |
+
+Mutations on the exact head, three suites per mutation (plus the probe file for H15), bytes restored with `git checkout` and `git status` clean afterwards:
+
+| Mutation | Outcome | Killed by |
+| --- | --- | --- |
+| MB `latched` never set | killed (1) | "does not fold an unoffered campaign frame once offers flow" |
+| MC guard before the final `set` removed | killed (1) | "stops at once when a subscriber invalidates the binding on the cache key write" |
+| **MD host baseline cursor -1 -> 0** | **survived (62/62)** | nothing: the author's H18 mutated only the guest `applySnapshot(event, -1, ...)`; no GM test sends a first event at sequence 0 |
+| MF `.then` re-arm guard removed | killed (2) | both held-GET/held-JSON re-arm cases |
+| MG `transport.close()` removed from `rejoin` | killed (6) | every rejoin case |
+| MH fold reset moved after the connect call | killed (1) | the reconnect case |
+| H15 adjunct check removed | survived the 62 registered tests; killed by probe P1 | see above |
+
+The author's 43/45 reproduces for the mutations I overlapped; the two survivors are not both equivalent: H14 (GM baseline without `replacement`) is equivalent because a connection admits one baseline and the fold is EMPTY per binding; H15 is masked by the test set, not equivalent (P1).
+
+## 7. Re-runs on the exact head (Node v22.22.0, throwaway worktree, clean)
+
+| Check | Result | Author |
+| --- | --- | --- |
+| three edited suites (`--runTestsByPath`) | 3 suites, **62 passed**, exit 0 | 62 |
+| P2CF2 selector `CampaignCoopRouteSurfaceConnected\|campaignAuthoritativeFold\|campaignMirrorStore\|campaignSyncTransport\|campaignCommandAckRefresh\|campaignUnitMaxStates` | **7 suites / 155**, exit 0 | 7/155 |
+| plan Task 13 selector `CampaignCoopRouteSurfaceConnected\|campaignAuthoritativeFold` | **3 suites / 54**, exit 0 | 3/54 |
+| 47 caller suites from `callers.log` + `scripts/__tests__/lint-units.test.ts` | **48 suites / 483**, exit 0 (incl. unmodified `campaignUnitMaxStates.test.tsx`, `CampaignCoopEntryPanel.test.tsx`) | 48/483 |
+| `tsc --noEmit --skipLibCheck` | exit 0 | PASS |
+| `oxlint` repo-wide | 85 warnings, 0 errors; touched leaves: only the pre-existing persistence-store `max-lines` | same |
+| `node scripts/qc/lint-units.mjs` | `LINT_UNITS_PASS 17899/17899`, `src-tests 17783/17783` | same |
+| `oxfmt --check .` | all 8190 files formatted | PASS |
+| `validate-roadmap.mjs` / `--next` / `--git` | PASSED (79 nodes, 13 packages, 381 tasks, 40 triage rows) / `U24b` / PASSED (+ pre-existing CNI1_SOURCE_SIZING info) | PASS / U24b |
+| `node --test validate-roadmap.test.mjs` | 86 pass, 0 fail | 86 |
+
+`--next` printing `U24b` while P2CF2 is `implementing` is expected. `npm run test:stable` was not re-run per the brief; the author's run 2 (2796 suites, 37180 passed, exit 0) is taken as reported, and the run-1 failure is the genuine lint-units gate described in section 1.
+
+## 8. Findings
+
+Blockers: none.
+
+Majors:
+
+- **M2 (new; design-level, Task 14 cost, not a P2CF2 deviation). Rebind on a live transport starts from EMPTY.** `connectStoredCampaignSyncTransport` returns the match's active transport when one exists (lines 495-505); the surface's cleanup never closes it; the host fold is a `useRef` of this component and is now reset on every effect run. So every binding that is not the first on a connection (route navigation between `CampaignDashboardPage.tsx` 354, `personnel.tsx` 107 and `campaignPageShell.tsx` 358, a StrictMode remount, a `roomCode`-only change) binds an EMPTY fold with `latched = false` to an already-hydrated connection that will send no new baseline. In receipt mode the next linked offer fails the adjunct check and forces a rejoin (P1): correct state, one reconnect per navigation. In legacy mode the next event seeds the fold from empty (pre-existing for a fresh mount; new for a `roomCode`-only change, which no client code performs today: `coopSession.roomCode` is written only at creation in `CampaignCoopEntryPanel.tsx` 258/333). The registered proof ("starts every host binding from an empty fold...") installs a mock `connectStoredCampaignSyncTransport` that records a new connect per call, so it demonstrates the reset but not production's reuse. My CF1 wording ("before the new transport opens") assumed a reconnect per rebind; I correct it in section 9. Owner decision before Task 14 activation (CF11): hold the host fold in a module-scoped store as the guest mirror is, or close the transport in the surface cleanup so each binding gets its own hydration, or accept one rejoin per navigation; in every case keep the adjunct check, which is what makes the path fail closed.
+
+Minors:
+
+- **m7. Host baseline cursor is unpinned.** My MD mutation (host `foldCampaignHydration(..., true, 0)`) survives all 62 tests; the author's H18 mutated the guest call only. Add a GM case in `hostRecordRefresh.test.tsx` that sends `linkedOffer('v1', 1, fundsChangedFrame(0, ...))` after the baseline and expects the r1 ACK.
+- **m8. H15 is not an equivalent mutant and the GM adjunct path has no fact-bearing test.** All GM cases use `hydrationFacts: []` and never send a `CampaignMissionLaunched` offer; the adjunct check's only GM coverage is incidental. Register P1 (rebind on a live bound transport -> no `applied` ACK, rejoin) and one GM baseline with a non-empty bundle plus a live launch.
+- **m9. `confirmApplied` throwing rejects the serial queue** (P4; author concern 1): later offers never settle and no rejoin follows. Nothing throws there today. Add `.catch(() => rejoin())` on the queue step the next time the hook leaf is open (CF13).
+- **m10. Socket close with no offer in flight is invisible** (P7; author concern 2). Transport leaf; CF12.
+- **m11. Flush reconciliation does not supersede a guarded refresh** (author concern 5; section 4). Pre-existing for the legacy refresh; CF14.
+- **m12. The guarded refresh does not announce `saving`.** Behaviour difference for a receipt-bound GM only; decide at Task 14 and amend the behaviour text either way.
+- **m13. Component headroom is five counted lines** (395 against the 400 warning). Task 14's creator binding and any CF11 change will cross it; plan the extraction with the registration, as P2CE2 did for the binder.
+- **m14. P2CF1 minors status.** m1 (re-send bound) -> CF8 stands. m2/m3 (transport untested branches) remain; the transport was correctly not touched. m4 (byte equality on non-replacement hydration) is closed for the client: the consumer never uses the non-replacement path for a baseline. m5 (fold does not check the snapshot's campaign on non-replacement) is covered three times on the receipt path: the consumer gate, `registerOffer` (`frame.event.campaignId !== options.expectedCampaignId` -> prefix-conflict, P5) and `projectAuthoritativeStateOntoCampaign` (`current.id !== campaignId` -> null -> `projection-failed`). m6 (dropped confirmation) is moot: the consumer awaits no confirmation (CF4 honoured).
+
+Notes:
+
+- **N1.** Deviations judged: cursor -1 (section 2) and the guest mirror not reset per binding (section 3) are both correct and should become the behaviour text at closure: "the baseline is adopted as an authorized replacement from EMPTY at cursor -1; the guest mirror is replaced by the view's baseline rather than reset per binding; a guarded refresh does not announce `saving`".
+- **N2.** `consume` on an inactive binding returns `isOffer(message)`, so an offered frame on a transport bound to another campaign is neither folded nor ACKed and the transport leaves it `prefix-pending`. Fail-closed by design; the behaviour text's "foreign application ... gives no receipt" covers it.
+- **N3.** The three receipts are internally consistent with the ledger and with `report.md`/`census.md`; the red receipt's two-round story (first-text REDs, probe round one 38/45, lint-units fix, final 34 failed / 28 passed / 62) is plausible and I did not re-run RED (the base product bytes are in the admission receipt and the final test text is on the head; the mechanism is the same as P2CF1's, which I reproduced).
+- **N4.** `report.md` concern 3 ("a stale guarded refresh does not re-arm autosave is harmless because a co-op GM's `markDirty` never arms") is true for `markDirty` (`isCoopCampaign` returns early) but an armed timer can also come from the ordinary refresh's own re-arm or from flush reconciliation. The contract chose "once invalidated it does not re-arm"; conformant, and the stale paths (unmount, rejoin, later load, reset) each have their own successor write. No change needed.
+- **N5.** P9: on a bound transport before any offer has latched `receiptMode`, an unoffered `CampaignEvent` is still folded by the legacy path and still earns a numeric observation ACK from the transport. Only a server that sends an unoffered frame on a bound connection before the baseline could produce it; the Task 14 binder sends the baseline first. Documentary.
+
+## 9. Carry-forward wording
+
+For P2CF2 closure (behaviour text): N1; record M2 and m7/m8 as known gaps with the tests named.
+
+For Task 14 (P2CG1 and activation), replacing or adding to the P2CF1 list:
+
+- **CF1 (corrected).** *"On every change of the component's binding, dispose the previous consumer before the new bind. The host fold is reset to `EMPTY_CAMPAIGN_AUTHORITATIVE_FOLD` per binding; the guest mirror is module-scoped and is NOT reset: a receipt baseline replaces it from EMPTY (`applySnapshot(event, -1, true, facts)`), a legacy join keeps quoting its `lastSequence`. A rebind does not imply a reconnect: `connectStoredCampaignSyncTransport` reuses the match's active transport (see CF11)."*
+- **CF3 (corrected).** *"A baseline offer is adopted with `replacement = true` and the frame's bundle at cursor -1: `foldCampaignHydration(fold, frame.event, frame.hydrationFacts, true, -1)` for the host, `applySnapshot(frame.event, -1, true, frame.hydrationFacts)` for the guest, so a first live event at sequence 0 is admitted. The receipt chain, not the cursor, orders offers."*
+- **CF7, CF8, CF9**: unchanged from the P2CF1 review and the P2CF1 closure receipt.
+- **CF10 (new, rejoin re-seat).** *"The consumer's rejoin closes the match's shared transport and deletes it from `activeTransports`. `CampaignCoopEntryPanel.tsx` (328-344) and `launch.tsx` (149, 177) hold references to the closed instance and never learn of the replacement. Before `expectedCampaignId` is bound at those creators, either make them resolve the transport through `getActiveCampaignSyncTransport` on each use, or publish a registry change the surface's rejoin triggers, or make the mounted surface the sole creator of the bound transport."*
+- **CF11 (new, M2).** *"A host binding on an already-hydrated bound transport (route navigation between the three host-mounting pages, a StrictMode remount, any effect re-run without the transport closing) starts from EMPTY with `latched = false`; its first linked offer fails the adjunct check and forces a rejoin. Before activation decide one of: hold the host fold in a module-scoped store like the guest mirror so a rebind continues the lineage; close the transport in the surface cleanup so every binding gets its own hydration; or accept one rejoin per navigation and measure it. Keep `retainsLaunchFacts` in every case: with it removed the rebind ACKs a fold seeded from EMPTY as applied (reviewer probe P1)."*
+- **CF12 (new, close visibility).** *"`socket.onclose` sets `closed` and clears `pending` but emits nothing; a close with no offer in flight is invisible to the consumer (probe P7). When the transport leaf is next open, surface the close (an `onClose` handler or an `emitError` with a recovery-required reason) and make the consumer rejoin on it."*
+- **CF13 (new, queue hardening).** *"In `useCampaignApplicationConsumer.ts`, chain `.catch(() => rejoin())` on the per-offer queue step so a throwing `confirmApplied` (or any future throw outside `settle`'s try) ends the binding with a rejoin instead of stalling the queue (probe P4)."*
+- **CF14 (new, persistence).** *"`adoptFlushedRevision` adopts a row without bumping `loadGeneration`; a guarded refresh whose GET read the pre-flush row can install an older `baseVersion` after it. Bump the generation in `adoptFlushedRevision`, or refuse to adopt in the guarded path when `migrated.version < get().baseVersion`."*
+- **Tests to register with the next change that opens these leaves:** the host sequence-0 case (m7), P1 as a registered case and a GM fact-bearing baseline/launch case (m8).
+
+## 10. Task 13 completeness
+
+Plan Task 13 acceptance and QA clauses against registered tests at head (both slices):
+
+| Clause | Evidence |
+| --- | --- |
+| Both GM/guest successful application emits one exact receipt | guest "projects the baseline, a live fact and a visible no-op before one exact ACK each"; GM "acknowledges a committed event only after the refreshed row is adopted and the fold reprojected" |
+| Duplicate frame cannot skip a predecessor or regress state | GM "holds a successor behind a delayed predecessor, then sends one cumulative ACK"; guest duplicate injection in the first case; P2CF1 transport prefix tests |
+| Delayed refresh cannot create false applied proof | GM "writes and sends nothing for an unmounted binding whose refresh was held", "gives no receipt when the refresh cannot read..."; the 14 guarded-refresh store cases |
+| Stale fold rejection, projection exception, failed adjunct/refresh, superseded viewId emit no ACK/credit | guest `it.each` (invalid bundle, throwing observer, other campaign), "later frame observer throws", GM "refresh cannot read"; superseded view: unknown-receipt rejoin then v2 baseline (mid-view supersession only by probe P2) |
+| Required mission-launch adjunct retention | guest bundle `[launchFact(2)]` plus live `launchFact(4)` -> `launchFacts` equal; P2CF1 fold/mirror tests; GM side incidental (m8) |
+| Replacement baseline resets held lineage; reconnect cannot adopt at 0 against stale held proof | guest v2 baseline after unknown-receipt (cursor 5 held); host per-binding reset (with the M2 caveat); P2CF1 "starts an authorized replacement from EMPTY" |
+| Preserve source-only ownership fix and app public behaviour | production unbound (section 1); the single legacy-visible change is the host reset, recorded in both receipts |
+| Clarification 2961: staged maxima, no updateCampaign/PUT/saveChain cycle, ordinary callers and the preceding same-binding PUT preserved, late writes/errors/re-arm guarded | section 4 tests |
+| P2CE3 Task 13 items 1-4 and optional 5 | no confirmation awaited anywhere (1, 2); head-drift re-send is the transport's, unknown-receipt rejoins (3, 5); serial queue + transport `drain` (4) |
+| Full Task 13 QA selector | 3 suites / 54 at head |
+
+Task 13 is complete as a whole at the level the plan allows in this phase: callable, mounted, proven primitives and consumer with production traffic kept legacy (clarification 2924). What remains before P2CG1: this slice's closure (independent review receipt, merge, exact-main mainProof) with the N1 behaviour-text amendment; the Task 14 preconditions CF7 (M1), CF9 (bind every creator), CF10, CF11 (M2) and the P2CE3 Task 14 items (C1 readiness doors, C2 seat read, N4 backfill, refusal write-check, binder extraction, `preparePublicCut` budget); and the test gaps m7/m8, which should ride with whichever unit next opens the hook or the GM suite.
+
+## 11. Could not verify
+
+- `npm run test:stable` was not re-run (brief); the author's run 2 is taken as reported.
+- Hosted CI for #2162 was not polled.
+- RED (34/28/62 against base product bytes with the hook absent) was not reproduced here; the mechanism and receipts were checked, not the run.
+- The author's 45 mutations were not re-run in full; seven of mine (three overlapping) were.
+- The server half of receipt mode (bound `expectedCampaignId` against a composed binder) was not executed; all offers in the probes and tests are injected frames.
+- Whether any client flow changes `coopSession.roomCode` on a mounted host surface: `grep` over `src` found only the creation writes; not exhaustive for server-driven record changes.
+- Browser/SQLite runtime behaviour is outside this slice's dormant surface and was not run.
+
+## 12. Checks performed
+
+- `git diff --stat/--numstat --no-renames/--name-only`, `git merge-base`, `git log` base..head; `gh pr view 2162` (state, headRefOid, base, mergeable, files, title); `git status --porcelain` on the author worktree before and after.
+- Per-unit deep diff of parsed units.json head vs base (Node); roadmap.json `restrictions.P2CF2` printed and compared with the leaf set; BOM check of all eleven changed files; sha256 of the four product leaves and `campaignUnitMaxStates.test.tsx` at head against the local receipt and the registration census.
+- `grep` for `expectedCampaignId` (non-test `src`), `applicationReceipts` (`server.js`), every `connectStoredCampaignSyncTransport`/`connectCampaignSyncTransport` creator, `roomCode` writers, `lint-units.ceiling.json`.
+- Read in full: `useCampaignApplicationConsumer.ts`, `campaignAuthoritativeFold.ts`, the four product diffs, the three test diffs, the three receipts, `report.md`, `census.md`; read the relevant ranges of `CampaignCoopRouteSurfaceConnected.tsx` (55-160, 236-372), `useCampaignPersistenceStore.ts` (`runLoad` 940-1065, refresh action 1420-1485, `armAutoSaveTimer`, `adoptFlushedRevision`, `markDirtyAction`, `writeLiveCampaign`, `restoreRosterProjection`), `campaignUnitMaxStates.ts` (whole), `campaignSyncTransport.ts` (160-300, 300-394, 395-530), `campaignMirrorStore.ts` (176-214), `campaignMirrorProjection.ts` 49-56, `useCampaignStore.ts` 160-200, `bindCampaignSyncConnection.ts` 1850-1870, `CampaignSyncSession.ts` 620-640 and 925-940, `campaignHostBatchCommit.ts` 112, `CampaignCoopEntryPanel.tsx` 330-346, the author's `mutation-probe.py` cursor lines and `mutation-probe.json`, the lint-units failure in `test-stable-run1-lint-units-fail.log`.
+- Runs in section 7; nine probes; seven mutations with restore and `git status` check; throwaway worktree removed after unlinking the junction.
+
+SHA256 of this file is reported in the review message; it is not embedded because the hash is of the final bytes.

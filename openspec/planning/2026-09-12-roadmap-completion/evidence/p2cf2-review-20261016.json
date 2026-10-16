@@ -1,0 +1,195 @@
+{
+  "unit": "P2CF2",
+  "stage": "review",
+  "recordedAt": "2026-10-16T15:10:00.000Z",
+  "head": "cda526457f919bba39abe9e64847ecbf6a696958",
+  "reviewedHead": "cda526457f919bba39abe9e64847ecbf6a696958",
+  "reviewerModel": "claude-fable-5-1",
+  "implementerModel": "claude-opus-5-5",
+  "verdict": "APPROVE-WITH-NOTES",
+  "outputPath": "evidence/p2cf2-source-fable-review-20261016.txt",
+  "outputSha256": "eb4962d758612601a7eaf88f7a0b47c9bad408992d1f0c6754f1c6b2a3bdfd7c",
+  "reviews": [
+    {
+      "round": 1,
+      "path": "evidence/p2cf2-source-fable-review-20261016.txt",
+      "sha256": "eb4962d758612601a7eaf88f7a0b47c9bad408992d1f0c6754f1c6b2a3bdfd7c",
+      "bytes": 39788,
+      "originalPath": "docs/audits/2026-10-16-p2cf2-fable-review.md",
+      "reviewedHead": "cda526457f919bba39abe9e64847ecbf6a696958",
+      "verdict": "APPROVE-WITH-NOTES"
+    }
+  ],
+  "reviewHistory": "One round on the exact merged head cda52645 by an independent Fable 5.1 reviewer: APPROVE-WITH-NOTES with no blockers, one new design-level major (M2, a Task 14 cost recorded as CF11), minors m7-m14 and notes N1-N5; P2CF1's M1 stays the Task 14 precondition CF7.",
+  "reviewReruns": "On cda52645 in a throwaway worktree under Node v22.22.0: the three edited suites (3 suites, 62/62), the P2CF2 selector (7 suites, 155/155), the plan Task 13 selector (3 suites, 54/54), the 47 caller suites plus lint-units.test.ts (48 suites, 483/483), typecheck, oxlint (0 errors), lint-units (17899/17899), oxfmt --check, the validator full, --next (U24b) and --git, the validator tests (86/86), nine adversarial probes and seven mutations (five killed, MD survived as test gap m7, H15 survived the registered suites but was killed by probe P1). RED and the full stable suite were not re-run.",
+  "stableSuiteNote": "The author stable run 2 (2796/2796 suites, 37180 passed, 50 skipped, 996 s, exit 0) ended at 2026-10-16T14:32:11Z (08:32:11-06:00), before commit cda52645 was created at 14:32:25Z (08:32:25-06:00). The four product leaves at cda52645 equal candidate-hashes.txt and the local receipt productBytes, and the three edited test leaves equal red-test-hashes.txt, re-checked by this closure with git show, so that run covers the committed source and test bytes. Run 1 failed lint-units.test.ts on the then test text (src-tests 17785 against the 17783 ceiling); the fix is in test text and the ceiling is unchanged.",
+  "ownerFileNote": "useCampaignPersistenceStore.ts carries its pre-existing max-lines warning; CampaignCoopRouteSurfaceConnected.tsx emits no warning at head with five counted lines of headroom (395 against 400, m13).",
+  "successorNotes": {
+    "forP2CF2Closure": "For P2CF2 closure (behaviour text): N1; record M2 and m7/m8 as known gaps with the tests named.",
+    "Task14": {
+      "intro": "For Task 14 (P2CG1 and activation), replacing or adding to the P2CF1 list:",
+      "corrected": [
+        {
+          "id": "CF1",
+          "concern": "per-binding reset (corrected)",
+          "wording": "On every change of the component's binding, dispose the previous consumer before the new bind. The host fold is reset to `EMPTY_CAMPAIGN_AUTHORITATIVE_FOLD` per binding; the guest mirror is module-scoped and is NOT reset: a receipt baseline replaces it from EMPTY (`applySnapshot(event, -1, true, facts)`), a legacy join keeps quoting its `lastSequence`. A rebind does not imply a reconnect: `connectStoredCampaignSyncTransport` reuses the match's active transport (see CF11).",
+          "supersedes": "evidence/p2cf1-review-20261016.json successorNotes.P2CF2 CF1"
+        },
+        {
+          "id": "CF3",
+          "concern": "replacement baseline at cursor -1 (corrected)",
+          "wording": "A baseline offer is adopted with `replacement = true` and the frame's bundle at cursor -1: `foldCampaignHydration(fold, frame.event, frame.hydrationFacts, true, -1)` for the host, `applySnapshot(frame.event, -1, true, frame.hydrationFacts)` for the guest, so a first live event at sequence 0 is admitted. The receipt chain, not the cursor, orders offers.",
+          "supersedes": "evidence/p2cf1-review-20261016.json successorNotes.P2CF2 CF3"
+        }
+      ],
+      "unchanged": {
+        "wording": "**CF7, CF8, CF9**: unchanged from the P2CF1 review and the P2CF1 closure receipt.",
+        "hardPreconditions": [
+          {
+            "id": "CF7",
+            "concern": "M1 precondition (closure lives in the P2CF1 transport leaf)",
+            "wording": "Before `applicationReceipts` is composed into `bindCampaignSyncConnection` and `expectedCampaignId` is bound at every creator (CampaignCoopEntryPanel.tsx 328, CampaignCoopRouteSurfaceConnected.tsx 156 and 268, launch.tsx), close M1 by one of: (a) the client ignores `campaign-application-unknown-receipt` when a newer offer has been registered since the refused ACK (`latest !== sent`) and otherwise rejoins; (b) the binder admits an ACK of any established receipt of the live view as `stale` (no frame) and reserves `unknown-receipt` for receipts the view never issued, or names the refused `appliedView` in the refusal frame. Record the choice in the owning unit's contract before source execution.",
+            "carriedFrom": "evidence/p2cf1-review-20261016.json successorNotes.Task14.hardPreconditions CF7",
+            "placement": "The author's placement is right. `handleApplicationRefusal` in the P2CF1 transport calls `recover('application-refused')` (view torn down, `failed = true`, `pending` cleared) before any `onError` listener runs, so the consumer cannot \"ignore a superseded unknown-receipt\"; option (a) can only live in `campaignSyncTransport.ts`, a P2CF1 leaf outside `restrictions.P2CF2`. Editing it would have been an unregistered leaf. CF7 stands as the Task 14 precondition."
+          }
+        ],
+        "also": [
+          {
+            "id": "CF8",
+            "concern": "bounds",
+            "wording": "Decide the client bound for head-drift re-sends (m1) and for a lost refusal (P2CE3 Task14 item 4): either route typed refusals through `sendConfirmed` or have the consumer rejoin after a bounded wait without confirmation or refusal.",
+            "carriedFrom": "evidence/p2cf1-review-20261016.json successorNotes.Task14.also CF8"
+          },
+          {
+            "id": "CF9",
+            "concern": "binding at creators",
+            "wording": "`connectStoredCampaignSyncTransport` returns `null` when an existing transport's `campaignId` differs from the supplied `expectedCampaignId`; bind at every creator in the same change, or the mounted surface detaches from the entry panel's transport.",
+            "carriedFrom": "evidence/p2cf1-review-20261016.json successorNotes.Task14.also CF9"
+          }
+        ]
+      },
+      "new": [
+        {
+          "id": "CF10",
+          "concern": "rejoin re-seat",
+          "wording": "The consumer's rejoin closes the match's shared transport and deletes it from `activeTransports`. `CampaignCoopEntryPanel.tsx` (328-344) and `launch.tsx` (149, 177) hold references to the closed instance and never learn of the replacement. Before `expectedCampaignId` is bound at those creators, either make them resolve the transport through `getActiveCampaignSyncTransport` on each use, or publish a registry change the surface's rejoin triggers, or make the mounted surface the sole creator of the bound transport."
+        },
+        {
+          "id": "CF11",
+          "concern": "M2",
+          "wording": "A host binding on an already-hydrated bound transport (route navigation between the three host-mounting pages, a StrictMode remount, any effect re-run without the transport closing) starts from EMPTY with `latched = false`; its first linked offer fails the adjunct check and forces a rejoin. Before activation decide one of: hold the host fold in a module-scoped store like the guest mirror so a rebind continues the lineage; close the transport in the surface cleanup so every binding gets its own hydration; or accept one rejoin per navigation and measure it. Keep `retainsLaunchFacts` in every case: with it removed the rebind ACKs a fold seeded from EMPTY as applied (reviewer probe P1)."
+        },
+        {
+          "id": "CF12",
+          "concern": "close visibility",
+          "wording": "`socket.onclose` sets `closed` and clears `pending` but emits nothing; a close with no offer in flight is invisible to the consumer (probe P7). When the transport leaf is next open, surface the close (an `onClose` handler or an `emitError` with a recovery-required reason) and make the consumer rejoin on it."
+        },
+        {
+          "id": "CF13",
+          "concern": "queue hardening",
+          "wording": "In `useCampaignApplicationConsumer.ts`, chain `.catch(() => rejoin())` on the per-offer queue step so a throwing `confirmApplied` (or any future throw outside `settle`'s try) ends the binding with a rejoin instead of stalling the queue (probe P4)."
+        },
+        {
+          "id": "CF14",
+          "concern": "persistence",
+          "wording": "`adoptFlushedRevision` adopts a row without bumping `loadGeneration`; a guarded refresh whose GET read the pre-flush row can install an older `baseVersion` after it. Bump the generation in `adoptFlushedRevision`, or refuse to adopt in the guarded path when `migrated.version < get().baseVersion`."
+        }
+      ],
+      "testsToRegister": "**Tests to register with the next change that opens these leaves:** the host sequence-0 case (m7), P1 as a registered case and a GM fact-bearing baseline/launch case (m8).",
+      "majorM2": {
+        "finding": "**M2 (new; design-level, Task 14 cost, not a P2CF2 deviation). Rebind on a live transport starts from EMPTY.** `connectStoredCampaignSyncTransport` returns the match's active transport when one exists (lines 495-505); the surface's cleanup never closes it; the host fold is a `useRef` of this component and is now reset on every effect run. So every binding that is not the first on a connection (route navigation between `CampaignDashboardPage.tsx` 354, `personnel.tsx` 107 and `campaignPageShell.tsx` 358, a StrictMode remount, a `roomCode`-only change) binds an EMPTY fold with `latched = false` to an already-hydrated connection that will send no new baseline. In receipt mode the next linked offer fails the adjunct check and forces a rejoin (P1): correct state, one reconnect per navigation. In legacy mode the next event seeds the fold from empty (pre-existing for a fresh mount; new for a `roomCode`-only change, which no client code performs today: `coopSession.roomCode` is written only at creation in `CampaignCoopEntryPanel.tsx` 258/333). The registered proof (\"starts every host binding from an empty fold...\") installs a mock `connectStoredCampaignSyncTransport` that records a new connect per call, so it demonstrates the reset but not production's reuse. My CF1 wording (\"before the new transport opens\") assumed a reconnect per rebind; I correct it in section 9. Owner decision before Task 14 activation (CF11): hold the host fold in a module-scoped store as the guest mirror is, or close the transport in the surface cleanup so each binding gets its own hydration, or accept one rejoin per navigation; in every case keep the adjunct check, which is what makes the path fail closed.",
+        "verdictSummary": "One new major (M2) that is a design-level cost for Task 14, not a defect in this slice: the host fold is component-local and resets per binding, while `connectStoredCampaignSyncTransport` reuses the match's live transport, so any rebind without a reconnect (route navigation between the three host-mounting pages, a StrictMode remount, a `roomCode` change) starts a binding from EMPTY on an already-hydrated connection. In receipt mode that costs one rejoin per occurrence (fail-closed through the adjunct check, which my probe shows is load-bearing there, so the author's \"H15 equivalent\" claim is wrong); in legacy mode it is the pre-existing lossy seed. The test that proves the per-binding reset uses a mock that opens a new connection on every call, so it does not model the real transport's reuse.",
+        "probeP1": "| P1 host rebind on a live, already-hydrated bound transport (dispose A, reset fold, bind B, inject linked r2) | no ACK for r2, socket closed, one rejoin: fail-closed via `adjunct-failed` (`launchFacts` undefined on the from-empty fold). **With the adjunct check removed (H15) the same probe ACKs r2 as `applied` over a fold seeded from EMPTY** (balance 700_000, chain r0 r1 r2, no rejoin). H15 is not equivalent. |",
+        "cf1Correction": "My CF1 wording (\"before the new transport opens\") assumed a reconnect per rebind; I correct it in section 9."
+      },
+      "recoverySemantics": [
+        "\"One rejoin per occurrence\": `rejoin()` is idempotent per binding (`live` flag), closes the transport, and bumps `rejoins` so both effects re-run; the host resets its fold, the guest's next baseline replaces. Each M1 hit therefore costs one close + fresh join + replacement baseline; durable state is unaffected (cumulative commit already covers the refused receipt). Safe but not free; the frequency at Task 14 is why CF7 is hard.",
+        "Unlimited rejoins: each cycle needs a server refusal or close, so there is no tight loop; a server that refuses every join would cause a reconnect per refusal. CF8 (bounds) stands.",
+        "Rejoin closes the shared transport: `transport.close()` deletes it from `activeTransports`; the entry panel and the launch page keep references to the closed instance. Unreachable before Task 14 binds creators; new carry-forward CF10.",
+        "`confirmApplied` throwing stops the queue without a rejoin (author concern 1): confirmed by probe P4 (baseline confirm throws -> no ACK, no refresh for the next offer, `rejoins` 0, jest reports the rejection). Nothing in the shipped transport throws there (send failures are caught inside `drain`), so fail-closed today; m9.",
+        "Socket close with no offer in flight: confirmed invisible (probe P7, `rejoins` 0 after `onclose`). The transport's `onclose` sets `closed` and clears `pending` but emits nothing; the consumer learns only through a `refused: closed` confirm result or an INTERNAL_ERROR frame. Transport leaf; CF12."
+      ]
+    },
+    "minors": [
+      {
+        "id": "m7",
+        "wording": "**m7. Host baseline cursor is unpinned.** My MD mutation (host `foldCampaignHydration(..., true, 0)`) survives all 62 tests; the author's H18 mutated the guest call only. Add a GM case in `hostRecordRefresh.test.tsx` that sends `linkedOffer('v1', 1, fundsChangedFrame(0, ...))` after the baseline and expects the r1 ACK."
+      },
+      {
+        "id": "m8",
+        "wording": "**m8. H15 is not an equivalent mutant and the GM adjunct path has no fact-bearing test.** All GM cases use `hydrationFacts: []` and never send a `CampaignMissionLaunched` offer; the adjunct check's only GM coverage is incidental. Register P1 (rebind on a live bound transport -> no `applied` ACK, rejoin) and one GM baseline with a non-empty bundle plus a live launch."
+      },
+      {
+        "id": "m9",
+        "wording": "**m9. `confirmApplied` throwing rejects the serial queue** (P4; author concern 1): later offers never settle and no rejoin follows. Nothing throws there today. Add `.catch(() => rejoin())` on the queue step the next time the hook leaf is open (CF13)."
+      },
+      {
+        "id": "m10",
+        "wording": "**m10. Socket close with no offer in flight is invisible** (P7; author concern 2). Transport leaf; CF12."
+      },
+      {
+        "id": "m11",
+        "wording": "**m11. Flush reconciliation does not supersede a guarded refresh** (author concern 5; section 4). Pre-existing for the legacy refresh; CF14."
+      },
+      {
+        "id": "m12",
+        "wording": "**m12. The guarded refresh does not announce `saving`.** Behaviour difference for a receipt-bound GM only; decide at Task 14 and amend the behaviour text either way."
+      },
+      {
+        "id": "m13",
+        "wording": "**m13. Component headroom is five counted lines** (395 against the 400 warning). Task 14's creator binding and any CF11 change will cross it; plan the extraction with the registration, as P2CE2 did for the binder."
+      },
+      {
+        "id": "m14",
+        "wording": "**m14. P2CF1 minors status.** m1 (re-send bound) -> CF8 stands. m2/m3 (transport untested branches) remain; the transport was correctly not touched. m4 (byte equality on non-replacement hydration) is closed for the client: the consumer never uses the non-replacement path for a baseline. m5 (fold does not check the snapshot's campaign on non-replacement) is covered three times on the receipt path: the consumer gate, `registerOffer` (`frame.event.campaignId !== options.expectedCampaignId` -> prefix-conflict, P5) and `projectAuthoritativeStateOntoCampaign` (`current.id !== campaignId` -> null -> `projection-failed`). m6 (dropped confirmation) is moot: the consumer awaits no confirmation (CF4 honoured)."
+      }
+    ],
+    "deviationsJudged": {
+      "cursorMinusOne": "Cursor -1 versus CF3's literal 0 (author deviation): correct. The server frames every baseline at `sequence: -1` (`bindCampaignSyncConnection.ts` 1859, `CampaignSyncSession.ts` 932) and the log hands out sequences from 0 (`campaignHostBatchCommit.ts` 112 `sequence = await host.nextSequence()`, healed logs start at `nextSequence: 0`; the mirror store's own doc says \"the following log events (sequence 0+)\"). `foldCampaignEvent` refuses `event.sequence <= fold.lastSequence`, so a baseline adopted at 0 would refuse a first live event at 0 and the consumer would report `fold-rejected`, which the transport turns into `recover('application-failed')` and a rejoin loop on a fresh campaign. The legacy adopt-at-0 convention (`foldCampaignFrame`, entry panel `applySnapshot(snapshot, 0)`) carries that latent edge; the receipt path avoids it. The ordering guarantee on the receipt path comes from `registerOffer`'s receipt chain (`previousReceiptId === latest.receiptId`), not from the cursor, so -1 loses nothing. The guest side is pinned; the host side is not (m7).",
+      "guestMirrorNotResetPerBinding": "Guest mirror not reset per binding (author deviation from CF1): correct, and better than my CF1 wording. The mirror store is module-scoped and holds the lineage across a rebind (probe P8: a second binding on the same live transport continues the chain and ACKs r2 with the right date and balance); `beginMirror` per binding would discard the entry panel's seeded mirror and the `lastSeq` the legacy guest join quotes; in receipt mode every baseline is an authorized replacement from EMPTY, which is the \"reconnect cannot adopt stale held proof\" clause at the mirror level. CF1 is corrected in section 9.",
+      "N1": "**N1.** Deviations judged: cursor -1 (section 2) and the guest mirror not reset per binding (section 3) are both correct and should become the behaviour text at closure: \"the baseline is adopted as an authorized replacement from EMPTY at cursor -1; the guest mirror is replaced by the view's baseline rather than reset per binding; a guarded refresh does not announce `saving`\"."
+    },
+    "notes": [
+      {
+        "id": "N1",
+        "wording": "**N1.** Deviations judged: cursor -1 (section 2) and the guest mirror not reset per binding (section 3) are both correct and should become the behaviour text at closure: \"the baseline is adopted as an authorized replacement from EMPTY at cursor -1; the guest mirror is replaced by the view's baseline rather than reset per binding; a guarded refresh does not announce `saving`\"."
+      },
+      {
+        "id": "N2",
+        "wording": "**N2.** `consume` on an inactive binding returns `isOffer(message)`, so an offered frame on a transport bound to another campaign is neither folded nor ACKed and the transport leaves it `prefix-pending`. Fail-closed by design; the behaviour text's \"foreign application ... gives no receipt\" covers it."
+      },
+      {
+        "id": "N3",
+        "wording": "**N3.** The three receipts are internally consistent with the ledger and with `report.md`/`census.md`; the red receipt's two-round story (first-text REDs, probe round one 38/45, lint-units fix, final 34 failed / 28 passed / 62) is plausible and I did not re-run RED (the base product bytes are in the admission receipt and the final test text is on the head; the mechanism is the same as P2CF1's, which I reproduced)."
+      },
+      {
+        "id": "N4",
+        "wording": "**N4.** `report.md` concern 3 (\"a stale guarded refresh does not re-arm autosave is harmless because a co-op GM's `markDirty` never arms\") is true for `markDirty` (`isCoopCampaign` returns early) but an armed timer can also come from the ordinary refresh's own re-arm or from flush reconciliation. The contract chose \"once invalidated it does not re-arm\"; conformant, and the stale paths (unmount, rejoin, later load, reset) each have their own successor write. No change needed."
+      },
+      {
+        "id": "N5",
+        "wording": "**N5.** P9: on a bound transport before any offer has latched `receiptMode`, an unoffered `CampaignEvent` is still folded by the legacy path and still earns a numeric observation ACK from the transport. Only a server that sends an unoffered frame on a bound connection before the baseline could produce it; the Task 14 binder sends the baseline first. Documentary."
+      }
+    ],
+    "task13Completeness": "Task 13 is complete as a whole at the level the plan allows in this phase: callable, mounted, proven primitives and consumer with production traffic kept legacy (clarification 2924). What remains before P2CG1: this slice's closure (independent review receipt, merge, exact-main mainProof) with the N1 behaviour-text amendment; the Task 14 preconditions CF7 (M1), CF9 (bind every creator), CF10, CF11 (M2) and the P2CE3 Task 14 items (C1 readiness doors, C2 seat read, N4 backfill, refusal write-check, binder extraction, `preparePublicCut` budget); and the test gaps m7/m8, which should ride with whichever unit next opens the hook or the GM suite.",
+    "note": "Each CF entry is the reviewer's exact carry-forward wording from review section 9 (the quoted text, without the surrounding markdown emphasis); CF7-CF9 are unchanged per the reviewer and are carried verbatim from the P2CF1 closure receipt. M2, the recovery-semantics bullets (section 5), the judged deviations (sections 2 and 3), the minors m7-m14, the notes N1-N5 and the Task 13 completeness statement (section 10) are copied verbatim. The N1 behaviour-text amendment is not applied here: behavior is a contract field, not a lifecycle field, so this closure records it open. No successor unit is edited; P2CG1 and P2C stay as they are, and these notes are carried here and in PROGRESS.md for Task 14 to honour at its own admission."
+  },
+  "reviewNotes": "No blockers. M2 is a design-level, fail-closed Task 14 cost (one rejoin per rebind on a reused transport in receipt mode) recorded as CF11; M1 remains the hard Task 14 precondition CF7, whose client rule lives in the P2CF1 transport leaf. Minors m7-m14 and notes N1-N5 are recorded verbatim under successorNotes.",
+  "reservedSlot": "evidence/p2cf2-admission-review-20261016.md stays unwritten. The reviewer did not write it, and this closure preserves the review byte for byte at its path instead of authoring reviewer text.",
+  "ciQualification": "All 31 check runs on the merged head succeeded (run 38916655859).",
+  "laneB": {
+    "ruledHead": "cda526457f919bba39abe9e64847ecbf6a696958",
+    "pr": 2162,
+    "commentId": 6218213354,
+    "author": "SwiggitySwerve",
+    "bodySha256": "94e2d3ea7ee7de1363c3dc567d244ce2f4c001a69535b381fa6eb5eaa9458a34",
+    "at": "2026-10-16T14:55:58Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2162#issuecomment-6218213354",
+    "bodyPath": "evidence/p2cf2-owner-ruling-6218213354.txt"
+  },
+  "ownerRulingNote": "The ruling body names the exact merged head and the P2CF2 slice, records the APPROVE-WITH-NOTES review with no blockers and CI 31/31, and records M1, M2, CF1-CF14 and m7-m14 as Task 14 preconditions in the review. The owner authorized the ruling in chat; it is transcribed verbatim.",
+  "chronology": "The owner ruling was recorded after the source merge, as the ruling body acknowledges. This transcription does not claim a premerge ruling.",
+  "identityScope": "Preserves the existing unversioned P2CF2 evidence and the actual cross-model review provenance. No v2/v3 identity manifest or engine observation is claimed.",
+  "githubApproval": "Lane A engineering evidence only; no GitHub approval claimed.",
+  "task13": "With P2CF2 main-verified, both P2CF slices of plan Task 13 (P2CF1 #2159, P2CF2 #2162) are main-verified, and the full plan Task 13 QA selector passes at this merge (3 suites, 54/54). The reviewer judged Task 13 complete as a whole at the mounted-dormant level the plan allows in this phase (production traffic kept legacy). No tasks.md row is ticked here."
+}
