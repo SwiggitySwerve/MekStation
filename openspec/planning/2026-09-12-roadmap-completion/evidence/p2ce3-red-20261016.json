@@ -11,13 +11,15 @@
   "runtime": "node v22.22.0",
   "command": "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --runTestsByPath src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts",
   "exitCode": 1,
-  "result": "15 failed, 84 passed, 99 total; final test bytes (bindCampaignSyncConnection.test.ts 7ac89b74..., coopMissionAnnouncement.reconnect.test.ts 9fbd0927...) against the product leaf byte-identical to baseline (bindCampaignSyncConnection.ts 68768d34...)",
+  "result": "16 failed, 84 passed, 100 total; final test bytes (bindCampaignSyncConnection.test.ts 7ac89b74..., coopMissionAnnouncement.reconnect.test.ts d29db092...) against the product leaf byte-identical to baseline (bindCampaignSyncConnection.ts 68768d34...)",
   "initial": {
     "result": "13 failed, 84 passed, 97 total",
     "note": "First RED on the first test text. Afterwards oxfmt reflowed the reconnect file, the fake single-drift case was replaced by a real commit landing during the commit's verified read, and three cases were added to kill mutation-probe survivors (stale never confirms, current-authority refusal never confirms, an early ACK of an in-flight delta commits that delta before the next delta); one assertion pins the confirmation's exact appliedView. The final-text RED above supersedes it."
   },
   "passingAtRed": "Three binder cases pass at baseline as regression guards: a mixed receipt-plus-revision ACK and a malformed present appliedView are refused BAD_ENVELOPE without downgrade, and the metadata-absent numeric ACK on a legacy connection is kept.",
   "logs": [
+    "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/fix-b1/red-baseline.log",
+    "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/fix-b1/red-head.log",
     "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/red.log",
     "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/red-initial.log"
   ],
@@ -25,5 +27,11 @@
     "Every receipt ACK is answered BAD_ENVELOPE malformed-envelope: the baseline parses with ClientMessageSchema, whose numeric CampaignAck forbids appliedView",
     "No commit, confirmation, typed refusal, stop or close follows an ACK, so the confirmation, close and refusal waits time out",
     "A GM join superseded by a quick second join still sends a spurious INTERNAL_ERROR campaign-session-unavailable frame (P2CE2 review N2)"
-  ]
+  ],
+  "reviewFix": {
+    "review": "independent review docs/audits/2026-10-16-p2ce3-fable-review.md, untracked reviewer output, sha256 a457575514198ff5bbe39cb7dd6317ae6f8d54f94f1bddce686c288d505240a6 (REQUEST-CHANGES, B1) on head b803b5d18987acb52148a5e9681e9f537d5c7a93",
+    "result": "1 failed, 99 passed, 100 total; final test bytes against the reviewed head product leaf (bindCampaignSyncConnection.ts 869380eb...)",
+    "failure": "An ACK of the just-written delta that lands inside the previous offer's P2CA accept is refused INVALID_INTENT campaign-application-unknown-receipt and never committed, because publish cleared inFlight before the delta became latest (review B1, PROBE-A)",
+    "supersedes": "The 99-case RED (15 failed, 84 passed) on the previous test bytes (reconnect test 9fbd0927...)"
+  }
 }

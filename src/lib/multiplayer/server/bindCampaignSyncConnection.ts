@@ -1891,7 +1891,6 @@ class CampaignApplicationConnection {
       candidate.frame,
       view.abort.signal,
     );
-    view.inFlight = null;
     if (!this.current(view)) return false;
     if (result.kind !== 'sent') {
       this.fail(view, 'INTERNAL_ERROR', 'campaign-application-send-failed');
@@ -1908,10 +1907,12 @@ class CampaignApplicationConnection {
       this.fail(view, 'AUTH_REJECTED', 'membership-revoked');
       return false;
     }
-    // An ACK of the previous latest that arrived meanwhile is still current.
+    // An ACK of the previous latest that arrived meanwhile is still current;
+    // the candidate stays in flight, so its own ACK is admitted meanwhile.
     await this.processAck(view);
     if (!this.current(view)) return false;
     view.latest = candidate;
+    view.inFlight = null;
     await this.processAck(view);
     return this.current(view);
   }

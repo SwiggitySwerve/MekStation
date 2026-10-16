@@ -1460,6 +1460,46 @@ describe('durable mission launch reconnect', () => {
         ]);
       });
 
+      it('an ACK of the written delta that lands during the previous offer commit is admitted and committed after it', async () => {
+        const gm = await joinReceipts(fixture.host);
+        const guest = await joinReceipts(fixture.guest);
+        const [baseline] = offers(guest);
+        guest.mode = 'hold';
+        const written = once(guest, 'CampaignEvent', signal());
+        await commitSeenBy([gm], [visibleFunds('in-flight')]);
+        await written;
+        const delta = offers(guest).at(-1)!;
+
+        // The client has the delta's bytes; its ACK lands inside the
+        // baseline's P2CA accept, before the delta is established.
+        const results = observeAccept((call) => {
+          if (call === 0) guest.inbound(ack(fixture.guest, delta.appliedView));
+        });
+        guest.inbound(ack(fixture.guest, baseline.appliedView));
+        const settled = new Promise<void>((resolve) => {
+          const settle = () => {
+            const confirmed = confirmations(guest).length;
+            const errors = framesOf(guest, 'Error').length;
+            if (confirmed >= 2 || (confirmed >= 1 && errors > 0)) resolve();
+          };
+          guest.on('CampaignAck', settle);
+          guest.on('Error', settle);
+        });
+        guest.mode = 'auto';
+        guest.held.splice(0).forEach((callback) => callback());
+        await bounded(settled);
+
+        expect(framesOf(guest, 'Error')).toEqual([]);
+        expect(results).toEqual(['accepted', 'accepted']);
+        expect(confirmations(guest)).toEqual([
+          expect.objectContaining({ appliedView: baseline.appliedView }),
+          expect.objectContaining({ appliedView: delta.appliedView }),
+        ]);
+        expect(rows(fixture.guest.playerId)).toEqual([
+          expect.objectContaining({ receipt_id: delta.appliedView.receiptId }),
+        ]);
+      });
+
       it('an early ACK of an in-flight delta commits that delta, not its predecessor, before the next delta is offered', async () => {
         const gm = await joinReceipts(fixture.host);
         const guest = await joinReceipts(fixture.guest);
