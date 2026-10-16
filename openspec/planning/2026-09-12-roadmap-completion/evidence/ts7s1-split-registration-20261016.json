@@ -1,0 +1,558 @@
+{
+  "event": "ts7s1-split-registration",
+  "change": "migrate-to-typescript-7",
+  "registrationOnly": true,
+  "at": "2026-10-16T20:50:27.000Z",
+  "baseline": "c41ab200beba2dcadc2bbb85b2c108f706418c38",
+  "actor": {
+    "role": "implementation sub-agent",
+    "provider": "anthropic",
+    "servedModel": "claude-opus-5-5",
+    "identitySource": "Current T3 Code/Codex harness runtime; parent delegation identity and any independent review are recorded separately by the parent."
+  },
+  "authority": "Parent ruling of 2026-10-16 under the owner's standing delegation, adopting option A of the TS7S1 stop report: split TS7S1 into TS7S1A (tasks 1.1-1.2 with the four extra caller leaves) and TS7S1B (tasks 0.1-0.2 and 1.3-1.5 with the active-change-ledger flip); TS7S1 blocked and superseded; TS7S1A planned; TS7S1B blocked on TS7S1A; TS7S2A repointed to TS7S1B. Mirrors the P2CE/P2CF/P2CG1 split registrations (#2146 cb4af3aa, #2158 a1d2293b, #2165 6645308f, correction #2167) and the track registration #2170.",
+  "scope": [
+    "openspec/planning/2026-09-12-roadmap-completion/units.json",
+    "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1-split-registration-20261016.json"
+  ],
+  "registrationBudget": {
+    "actualFiles": 3,
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "productFiles": 0,
+    "productAddedLines": 0,
+    "noCapInflation": true,
+    "actualDiffMeasuredSeparately": true,
+    "everyEvidenceFileCounts": true
+  },
+  "stopReport": {
+    "summary": "The TS7S1 implementer stopped at admission before any edit or commit (worktree codex/ts7s1-prep-20261016 byte-identical to c41ab200b). Task 1.1 needs four leaves outside TS7S1 and R6.ts7-toolchain; with them the package is 16 files against the 15-file cap. Counted lines fit (about 60-70 projected); only the file cap fails.",
+    "files": [
+      {
+        "path": ".omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1-20261016/report.md",
+        "bytes": 7506,
+        "sha256": "89f0d3a88ba6887cd4aa74570b4d33296de1e5dcfb20c092513f501b350ab5ab"
+      },
+      {
+        "path": ".omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1-20261016/census.md",
+        "bytes": 6377,
+        "sha256": "a4481dedc381edbab064c1734ebc84110659faf3dd3f4b3d0dd55908d78eb909"
+      },
+      {
+        "path": ".omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1-20261016/baseline.md",
+        "bytes": 4351,
+        "sha256": "a16f25142a6df56b86f3a2d038b9be8f264064563a36dce4759dac57dc57fa73"
+      },
+      {
+        "path": ".omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1-20261016/probe4-scratch.patch",
+        "bytes": 18980,
+        "sha256": "f5e562f142534202ed20f5a81164955c3150d1aae66d614f81bd1e8ea88127e2"
+      },
+      {
+        "path": ".omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1-20261016/probe4-numstat.txt",
+        "bytes": 846,
+        "sha256": "af7a7aefe38d67cab1107d1291060608716c202625b30011333b0828818610a4"
+      },
+      {
+        "path": ".omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1-20261016/probe4-emit-proof.json",
+        "bytes": 5962,
+        "sha256": "32b32a13a3c07df1d7da8b19741e866659584fa9f1e05283b37ad6b59946d0e9"
+      },
+      {
+        "path": ".omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1-20261016/probe4-suites.txt",
+        "bytes": 2757,
+        "sha256": "fa291f537883107927c1544d0251f697a79d20e27e0c78d8782b49333ea80105"
+      },
+      {
+        "path": ".omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1-20261016/probe4-jest.log",
+        "bytes": 360651,
+        "sha256": "44b39b5fac534054d7e9a64e0296917dcb335a1dbe1878d78a5c3b7c028f5e67"
+      },
+      {
+        "path": ".omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1-20261016/emit-proof.cjs",
+        "bytes": 908,
+        "sha256": "342ffb40dacb0afd5f892f91b9258f13b4564219074ac36b9004d6ac7468044f"
+      },
+      {
+        "path": ".omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1-20261016/probe4-ts7-root.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": ".omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1-20261016/probe4-ts58-root.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": ".omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1-20261016/probe4-ts6-root.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": ".omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1-20261016/probe2-ts58-root.log",
+        "bytes": 8528,
+        "sha256": "b1f51d8cefc9027a1dd94d150e612d94745d2b94946761e469a3a0144174d939"
+      },
+      {
+        "path": ".omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1-20261016/probe-desktop-emit-diff.json",
+        "bytes": 3818,
+        "sha256": "d5a775830ecdf421f913583ab3f84ae77526e01a5ce8cba3321f5f2f0d037246"
+      }
+    ],
+    "probe4": {
+      "shape": "Producers fromBase64/getRandomBytes return Uint8Array<ArrayBuffer>; deriveKey salt Uint8Array<ArrayBuffer>; auth.ts locals annotated; signData returns Uint8Array<ArrayBuffer>; generateKeyPair return narrowed in-file; exported params of signData, verifySignature, encryptWithPassword typed BufferSource; BranchCheckpointCache path literals as const; four caller annotations narrowed to Uint8Array<ArrayBuffer>. Plus the D2 config edits (scratch only).",
+      "typeOnly": "TypeScript 5.8.3 transpileModule of the before and after text of all 7 changed source/test files: emitted JS byte-identical (probe4-emit-proof.json, script emit-proof.cjs).",
+      "compilers": "TypeScript 7.0.2: 0 errors; TypeScript 5.8.3: 0; TypeScript 6.0.3: 0 (root project, D2 scratch config; empty logs probe4-ts7/ts58/ts6-root.log).",
+      "tests": "45 suites importing IdentityService, BranchCheckpointCache, server/auth, campaignGrantToken or redeemCampaignGrant: 45 passed, 507 tests passed (probe4-jest.log lines 2214-2215).",
+      "numstat": "auth.ts +3/-3, IdentityService.ts +18/-11, BranchCheckpointCache.ts +2/-2, campaignGrantToken.ts +2/-2, redeemCampaignGrant.ts +1/-1, campaignRedeemRoute.test.ts +4/-1, campaignShareAndRedeem.test.ts +8/-2, tsconfig.json +2/-3, desktop/tsconfig.json +2/-2 (after oxfmt).",
+      "rejectedProbes": "Probe 1 (producers only): 5 TS7 errors left in IdentityService (159, 165, 182, 188, 357). Probe 2 (exported params Uint8Array<ArrayBuffer>): 21 TypeScript 5.8 errors, because TS 5.8 TextEncoder.encode returns Uint8Array<ArrayBufferLike>. Probe 3 (BufferSource + IKeyPair narrowed in VaultCoreTypes): 4 TS7 errors outside the leaves."
+    },
+    "baselineNumbersNotInRepo": "The stop report's 0.1/0.2 numbers (baseline.md) stay in the stop directory. They are not copied into the repository. TS7S1B's admission receipt records its own 0.1 numbers, and TS7S1A's admission receipt records the pre-fix 0.2 list, each re-measured on that unit's own baseline."
+  },
+  "finding": {
+    "designMdNineErrors": "design.md Context says \"9 x TS2769/TS2345\" Uint8Array errors. That count is superseded by this registration, and design.md is not edited: the real TypeScript 7 root set is the 11 listed errors (9 Uint8Array + 2 BranchCheckpointCache TS2322) plus the follow-on first-argument errors that appear once the first bad argument of a call is fixed (TS2769/TS2345 report only the first bad argument per call; e.g. IdentityService.ts 357, encryptWithPassword's data, behind the iv error at 355). The probe-4 shape fixes all of them. design.md is not a TS7S1A leaf. TS7S1B keeps it only as the 0.2 conditional leaf, which changes only if the pre-fix list differs from the 11 listed errors. TS7S1A records the real count in the tasks.md 1.1 outcome line instead.",
+    "exportedParameterWidening": "signData, verifySignature and encryptWithPassword parameters go from Uint8Array to the lib BufferSource. This is accepted as a type-level API widening beyond the literal wording of tasks.md 1.1, with identical runtime: on TS 5.8 BufferSource also admits ArrayBuffer and DataView, which Web Crypto handles; on TS 7 it is ArrayBufferView<ArrayBuffer> | ArrayBuffer. The returns of signData and generateKeyPair narrow, which no caller can observe as a break. TS7S1A must record this as a tasks.md 1.1 outcome line.",
+    "callerCensus": "git grep at c41ab200b, call sites of signData/verifySignature/encryptWithPassword outside IdentityService: campaignGrantToken.ts 90 and 228, redeemCampaignGrant.ts 142, issuePlayerToken.ts 138, pages/api/multiplayer/auth/token.ts 159, and tests (auth.test.ts 50, socketTokenScope.test.ts 75, campaignRedeemRoute.test.ts 131, campaignShareAndRedeem.test.ts 110, IdentityService.test.ts). server.js 356 calls a different verifySignature and is JavaScript. Under probe 4 only the four registered extra files needed edits (TS7 0 errors); issuePlayerToken.ts and token.ts pass TextEncoder output and need none. TS7S1A re-derives this census at its baseline; any additional caller needing an edit is an unregistered leaf, so stop and register it."
+  },
+  "ledgerMechanics": {
+    "parentTreatment": "TS7S1: state planned -> blocked; superseded20261016 and blocked20261016 added; every other field (behavior, ownershipPaths, admissionRequires, proof, predecessors, successors, source20261016) unchanged, as #2146/#2158/#2165 treated P2CE, P2CF and P2CG1. TS7S1.successors still names TS7S2A (disclosed; resolves through superseded20261016.by), as P2CE.successors and P2CF.successors were left.",
+    "nodeOwnership": "validate-roadmap.mjs requires each unit ownershipPaths entry to exist and to appear verbatim in the owner node's ownershipPaths. R6.ts7-toolchain has no separate alias block (#2170 listed every leaf verbatim in ownershipPaths), so the four extra files are added verbatim to R6.ts7-toolchain.ownershipPaths immediately after BranchCheckpointCache.ts (39 -> 43 entries). Exact files only, no directory.",
+    "nodeRecords": "restrictions and knownLeafSubtotals gain TS7S1A (8 leaves; subtotal 9 = leaves + units.json) and TS7S1B (4 leaves + 2 conditional; subtotal 5), inserted after the retained TS7S1 entries. decomposition text updated; marker amended20261016TS7S1 on the node.",
+    "next": "NEXT walks units in ledger order. TS7S1A is inserted directly after TS7S1 (index 94, TS7S1B 95). TS7S1 is now blocked, TS7S1A is planned, its node has no dependsOn, it has no registration20261016.predecessors, and no unit is in flight. So validate-roadmap --next prints TS7S1A (measured).",
+    "markers": "TS7S2A, TS7S2B, TS7S4B and TS7S5A carry amended20261016TS7S1 (distinct from any existing amended20261016 key). units.json ts7TrackRegistration20261016 gains amended20261016TS7S1. Its units array and schedulingRule text are left as the historical registration record, and the marker says to read TS7S1 as TS7S1A then TS7S1B.",
+    "referencesRepointed": [
+      "TS7S2A.predecessors [TS7S1] -> [TS7S1B]; TS7S2A.admissionRequires \"TS7S1 must be complete\" -> \"TS7S1B must be complete\"",
+      "TS7S2B.behavior and proof[9] \"the TS7S1 baseline\" -> \"the TS7S1B baseline\" (TS7S1B records the 0.1 desktop Jest count)",
+      "TS7S4B.behavior (two occurrences) and proof[13] \"the TS7S1 baseline\" -> \"the TS7S1B baseline\" (TS7S1B records 0.1 and builds the section-1 desktop baseline in 1.4)",
+      "TS7S5A.admissionRequires \"(see TS7S1)\" -> \"(see TS7S1A)\" (TS7S1A carries the full scheduling and stopping text)",
+      "R6.ts7-toolchain.decomposition: section 0 folded into TS7S1B's admission evidence, with the 0.2 pre-fix measurement at TS7S1A's admission; section 1 split into TS7S1A/TS7S1B"
+    ],
+    "taskKeysCiReview": "taskKeys [] as for every track unit. ciClass product (derived; both units own paths outside openspec/planning and docs). reviewClasses routine for both, TS7S1A with the stop-and-reclassify rule below.",
+    "fileCounting": "Files per unit = leaves + units.json + admission/red/local receipts + the reserved review slot, as in the P2CF/P2CG1 and #2170 registrations."
+  },
+  "inventory": [
+    {
+      "path": "src/lib/multiplayer/server/auth.ts",
+      "exists": true,
+      "bytes": 10116,
+      "lines": 318,
+      "sha256": "3c0b174f66b6a3b636cccbf448013a48dcb9bfb467ae0b3f40c3f1d64c34148a"
+    },
+    {
+      "path": "src/services/vault/IdentityService.ts",
+      "exists": true,
+      "bytes": 13197,
+      "lines": 505,
+      "sha256": "5d46a2146d4cc9b3ee7fa17424324ad917f7d30fe0952c24b943693b0946cb78"
+    },
+    {
+      "path": "src/lib/events/checkpoints/BranchCheckpointCache.ts",
+      "exists": true,
+      "bytes": 16742,
+      "lines": 419,
+      "sha256": "5bab6069c794854e167f488cf08bbc834528401aea8a2991a23d31d6a30640ca"
+    },
+    {
+      "path": "src/lib/campaign/grants/campaignGrantToken.ts",
+      "exists": true,
+      "bytes": 8371,
+      "lines": 255,
+      "sha256": "4b1cccb515ad4041922d2c218f3a2afce7275b952891ac0c942faa19279c2e24"
+    },
+    {
+      "path": "src/lib/campaign/grants/redeemCampaignGrant.ts",
+      "exists": true,
+      "bytes": 6563,
+      "lines": 176,
+      "sha256": "59052d504b9be514c713b3c508d18767f45b3f11a57ad04279041aa5b00574f7"
+    },
+    {
+      "path": "src/__tests__/api/campaigns/campaignRedeemRoute.test.ts",
+      "exists": true,
+      "bytes": 7788,
+      "lines": 227,
+      "sha256": "7bbe72c6805f58a74e38defcfeb9a3fafc500cd9dced4f4b414c7ab40e9d3331"
+    },
+    {
+      "path": "src/lib/campaign/grants/__tests__/campaignShareAndRedeem.test.ts",
+      "exists": true,
+      "bytes": 12849,
+      "lines": 384,
+      "sha256": "86c8cc8a4b91ef46faca57c913c2e6a56db2602d94d250513abf79ae41faaba1"
+    },
+    {
+      "path": "openspec/changes/migrate-to-typescript-7/tasks.md",
+      "exists": true,
+      "bytes": 9927,
+      "lines": 143,
+      "sha256": "f84233c626b165bab1248f7f2ee719b657a01e3d7a3979f7476a50d1b3065d39"
+    },
+    {
+      "path": "tsconfig.json",
+      "exists": true,
+      "bytes": 871,
+      "lines": 38,
+      "sha256": "1c1c39ac4a0181fa6b8f0ab15e2152f7c0f939ff6818befc322f3cf84fb9c709"
+    },
+    {
+      "path": "desktop/tsconfig.json",
+      "exists": true,
+      "bytes": 1188,
+      "lines": 44,
+      "sha256": "4d27b6818c77ecc40d3b5bd394b50d6b0213082774b1447d01608823948e3d4c"
+    },
+    {
+      "path": "openspec/active-change-ledger.json",
+      "exists": true,
+      "bytes": 14764,
+      "lines": 64,
+      "sha256": "1f7ae4ad0ee433519b320e9661f22b56f2f16f17551ec0a05d2ae3f7d67ab57b"
+    },
+    {
+      "path": "openspec/changes/migrate-to-typescript-7/design.md",
+      "exists": true,
+      "bytes": 13029,
+      "lines": 188,
+      "sha256": "2615e530ace62c6cefa4f491d2dc2d0531ceb4797d247ba31b42bd3bfc4af5f8"
+    },
+    {
+      "path": "desktop/tsconfig.test.json",
+      "exists": true,
+      "bytes": 195,
+      "lines": 8,
+      "sha256": "2dfdac7dd8d7d7c3e4034bbfdd629db53bbaef95851eada5c9fc0fe9f0e33238"
+    }
+  ],
+  "units": [
+    {
+      "id": "TS7S1",
+      "state": "blocked",
+      "supersededBy": [
+        "TS7S1A",
+        "TS7S1B"
+      ],
+      "was": "planned (released by #2172)",
+      "registeredFiles": 12,
+      "measuredFiles": 16,
+      "note": "Stop-report census: 7 leaves + units.json + 3 receipts + review slot = 12 registered; + 4 unregistered leaves = 16 of 15."
+    },
+    {
+      "id": "TS7S1A",
+      "changeTasks": "1.1-1.2",
+      "state": "planned",
+      "leaves": [
+        "src/lib/multiplayer/server/auth.ts",
+        "src/services/vault/IdentityService.ts",
+        "src/lib/events/checkpoints/BranchCheckpointCache.ts",
+        "src/lib/campaign/grants/campaignGrantToken.ts",
+        "src/lib/campaign/grants/redeemCampaignGrant.ts",
+        "src/__tests__/api/campaigns/campaignRedeemRoute.test.ts",
+        "src/lib/campaign/grants/__tests__/campaignShareAndRedeem.test.ts",
+        "openspec/changes/migrate-to-typescript-7/tasks.md"
+      ],
+      "newLeaves": [],
+      "conditionalLeaves": [],
+      "ownershipPaths": [
+        "src/lib/multiplayer/server/auth.ts",
+        "src/services/vault/IdentityService.ts",
+        "src/lib/events/checkpoints/BranchCheckpointCache.ts",
+        "src/lib/campaign/grants/campaignGrantToken.ts",
+        "src/lib/campaign/grants/redeemCampaignGrant.ts",
+        "src/__tests__/api/campaigns/campaignRedeemRoute.test.ts",
+        "src/lib/campaign/grants/__tests__/campaignShareAndRedeem.test.ts",
+        "openspec/changes/migrate-to-typescript-7/tasks.md"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "subtotalLeavesPlusUnitsJson": 9,
+      "maxFilesWithConditionals": 9,
+      "filesWithReceiptsAndReviewSlot": 13,
+      "estimatedCountedLinesWithLifecycle": [
+        45,
+        70
+      ],
+      "estimateBasis": "Measured scratch numstat (counted, src only): auth 3 + IdentityService 18 + BranchCheckpointCache 2 + campaignGrantToken 2 + redeemCampaignGrant 1 = 26; the two test files are uncounted (__tests__/, .test.). tasks.md ticks and the 1.1/1.2 outcome lines about 4-12; units.json lifecycle about 16-24 (16 measured for P2CG1A2). Receipts are in the skipped evidence directory.",
+      "predecessors": [
+        "P2CG1A2"
+      ],
+      "successors": [
+        "TS7S1B"
+      ],
+      "reviewClasses": [
+        "routine"
+      ]
+    },
+    {
+      "id": "TS7S1B",
+      "changeTasks": "0.1-0.2 and 1.3-1.5",
+      "state": "blocked",
+      "leaves": [
+        "tsconfig.json",
+        "desktop/tsconfig.json",
+        "openspec/changes/migrate-to-typescript-7/tasks.md",
+        "openspec/active-change-ledger.json"
+      ],
+      "newLeaves": [],
+      "conditionalLeaves": [
+        "openspec/changes/migrate-to-typescript-7/design.md",
+        "desktop/tsconfig.test.json"
+      ],
+      "ownershipPaths": [
+        "tsconfig.json",
+        "desktop/tsconfig.json",
+        "openspec/changes/migrate-to-typescript-7/tasks.md",
+        "openspec/active-change-ledger.json",
+        "openspec/changes/migrate-to-typescript-7/design.md",
+        "desktop/tsconfig.test.json"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "subtotalLeavesPlusUnitsJson": 5,
+      "maxFilesWithConditionals": 7,
+      "filesWithReceiptsAndReviewSlot": 9,
+      "filesWithReceiptsReviewSlotAndConditionals": 11,
+      "estimatedCountedLinesWithLifecycle": [
+        30,
+        50
+      ],
+      "estimateBasis": "Measured scratch numstat: tsconfig.json +2, desktop/tsconfig.json +2; ledger flip about 2-3; tasks.md ticks and outcome lines for 0.1-0.2 and 1.3-1.5 about 8-20; lifecycle about 16-24. Neither conditional is expected: the stop report measured the TS7 list unchanged and desktop/tsconfig.test.json at 0 errors on TS 7.0.2 and 6.0.3.",
+      "predecessors": [
+        "TS7S1A"
+      ],
+      "successors": [
+        "TS7S2A"
+      ],
+      "reviewClasses": [
+        "routine"
+      ]
+    }
+  ],
+  "capCheck": {
+    "caps": "unchanged: maxFiles 15, maxNonGeneratedLines 500 on both units; no capException",
+    "TS7S1A": "8 leaves + units.json + 3 receipts + review slot = 13 of 15 (2 spare)",
+    "TS7S1B": "4 leaves + units.json + 3 receipts + review slot = 9 of 15; 11 with both conditionals"
+  },
+  "reviewClassRule": {
+    "TS7S1A": "reviewClasses routine holds ONLY while the registration test holds: every edit is a type annotation, and the TypeScript 5.8 emitted JavaScript of every changed file is byte-identical before and after. campaignGrantToken.ts and redeemCampaignGrant.ts are campaign-grant signing and verification code. Stop rule: any runtime byte difference found at admission or review means stop and re-register TS7S1A with the authority and privacy classes. The independent reviewer must re-derive the byte-identical-emit proof with its own script, not emit-proof.cjs.",
+    "TS7S1B": "routine: config, ledger and tasks.md only. The desktop .js emit is proved byte-identical in 1.4."
+  },
+  "admissionNotes": {
+    "TS7S1A": [
+      "Run the tasks.md 0.2 scratch measurement on the pre-edit baseline (TS 7.0.x and 6.0.x from scratch prefixes, D2 edits in an uncommitted scratch copy, tsconfig.tsbuildinfo deleted) and record the list in the admission receipt. TS7S1B ticks 0.2 from it, because after TS7S1A the list is expected to be empty.",
+      "Re-derive the caller census and the importing-suite list at the baseline. Edits beyond the probe-4 shape are unregistered leaves: stop.",
+      "The probe-4 patch is scratch evidence, not a candidate; write the change fresh and measure it."
+    ],
+    "TS7S1B": [
+      "Build desktop before and after from the SAME checkout into sibling directories. The stop-report preview saw 42 .map differences only because its two builds came from different checkouts and each map embeds an absolute file:/// source URL.",
+      "Record the 0.1 baseline numbers in the admission receipt, not in the repository.",
+      "The active-change-ledger entry stays \"proposed\" (reason \"Not started\") while TS7S1A ticks 1.1-1.2. No validator reads it (scripts/qc and openspec/scripts grep for proposed/in-progress: no match). TS7S1B flips it, and may refresh the reason text in the same entry."
+    ]
+  },
+  "overlap": {
+    "rule": "Serial by NEXT path exclusion and the one-lane rule, as in #2170. No in-flight unit at c41ab200b (96 complete, 11 main-verified, 36 planned, 61 blocked before this registration). Open PRs #2113 (docs/audits only) and #1886 (one e2e spec, U2b evidence, one QC test and script) touch no leaf of either unit and not units.json' ownership.",
+    "extraFiles": [
+      {
+        "leaf": "src/lib/campaign/grants/campaignGrantToken.ts",
+        "otherOpenUnits": [
+          "P1B (blocked)",
+          "P1 (blocked)",
+          "P2CF (blocked)",
+          "P2CG1B (blocked)",
+          "P2CG1G1 (blocked)",
+          "U38 (blocked)",
+          "U45 (planned)",
+          "U56 (planned)",
+          "U100 (planned)",
+          "U105 (planned)",
+          "U101c (planned)"
+        ],
+        "note": "all others terminal"
+      },
+      {
+        "leaf": "src/lib/campaign/grants/redeemCampaignGrant.ts",
+        "otherOpenUnits": [
+          "P1B (blocked)",
+          "P1 (blocked)",
+          "P2CF (blocked)",
+          "P2CG1B (blocked)",
+          "P2CG1G1 (blocked)",
+          "U38 (blocked)",
+          "U45 (planned)",
+          "U56 (planned)",
+          "U100 (planned)",
+          "U105 (planned)",
+          "U101c (planned)"
+        ],
+        "note": "all others terminal"
+      },
+      {
+        "leaf": "src/__tests__/api/campaigns/campaignRedeemRoute.test.ts",
+        "otherOpenUnits": [],
+        "note": "owned only by terminal units U35b/U35c/U35d/U35e"
+      },
+      {
+        "leaf": "src/lib/campaign/grants/__tests__/campaignShareAndRedeem.test.ts",
+        "otherOpenUnits": [
+          "P1B (blocked)",
+          "P1 (blocked)",
+          "P2CF (blocked)",
+          "P2CG1B (blocked)",
+          "P2CG1G1 (blocked)",
+          "U38 (blocked)",
+          "U45 (planned)",
+          "U56 (planned)",
+          "U100 (planned)",
+          "U105 (planned)",
+          "U101c (planned)"
+        ],
+        "note": "all others terminal"
+      }
+    ],
+    "carried": "auth.ts, IdentityService.ts and BranchCheckpointCache.ts overlaps are unchanged from evidence/ts7-track-registration-20261016.json overlap.withOtherOpenUnits (now held by TS7S1A). tsconfig.json, desktop/tsconfig.json, tasks.md, active-change-ledger.json are held by TS7S1B and, for tasks.md, serially by every later track unit.",
+    "sequencing": "TS7S1A owns the two campaign-grant product files. Any later P-chain or U unit that edits them measures against the then-current main at its own admission, as the Task 57 rule already requires. While TS7S1A is in flight NEXT excludes U45, U56, U100, U105 and U101c, which overlap it (expected, not a defect)."
+  },
+  "admissionWarnings": [
+    {
+      "unit": "TS7S2OD",
+      "risk": "first-bad-argument undercount",
+      "detail": "Option (a) was measured at 5 TS 5.8 errors (validate-bv.ts 255:27, 255:47, 256:22, 283:9; validate-bv-calculator.ts 359:21). Three are TS2345 argument errors on two calls, which report only the first bad argument, and the transitive src imports through validate-parity.ts were not measured on TS 6/7. Re-count after each fix at admission. Any file outside scripts/tsconfig.json, package.json, validate-bv.ts and validate-bv-calculator.ts is an unregistered leaf."
+    },
+    {
+      "unit": "TS7S3",
+      "risk": "same error class on TS 6",
+      "detail": "The 0.2 TS 6.0.3 run reported the same nine Uint8Array errors. They are fixed by TS7S1A (probe 4: TS 6.0.3 0 errors), so TS7S3 has no source leaf. Any Uint8Array/BufferSource code merged on main between TS7S1A and TS7S3 would surface here under TS 6 with no owning leaf. Re-measure at admission; if errors appear, stop and register, do not fix in TS7S3."
+    },
+    {
+      "unit": "TS7S4B",
+      "risk": "checker drift on the swap",
+      "detail": "The swap makes every root gate TS 7. The zero-error proof is TS7S1B's at its merge. Re-measure TS 7.0.x on the then-current main at admission, because new code since TS7S1B may carry TS7-only errors (BranchCheckpointCache-class literal widening or Uint8Array) with no leaf in TS7S4B. roadmap-loop-closure-proof.test.ts line numbers (~1837, ~2129) are approximate."
+    },
+    {
+      "unit": "TS7S2B",
+      "risk": "possible unlisted config file",
+      "detail": "D5 puts the SWC options in desktop/jest.config.js. If @swc/jest needs a separate .swcrc (desktop/.swcrc), that file is an unregistered leaf (6 -> 7 leaves, 11 files with receipts; still under cap, but it needs registration). The desktop type-check gains tsc -p tsconfig.test.json under desktop TS 5.9.3; the stop report measured 0 errors on TS 7.0.2 and 6.0.3 only."
+    },
+    {
+      "unit": "TS7S2A, TS7S4A, TS7S5A",
+      "risk": "inventory vs leaves",
+      "detail": "git grep at c41ab200b for npx tsc / tsc --noEmit / typescript/bin/tsc / ts-node / ts-jest / \"TypeScript 5.8\" outside historical evidence finds only files already in these units' leaves (or TS7S2B/TS7S4B), plus the test-file comments design.md marks as historical. No gap found."
+    }
+  ],
+  "rejectedAlternatives": [
+    {
+      "option": "B: keep one TS7S1 unit and move task 1.4 (desktop/tsconfig.json) out",
+      "reason": "10 leaves + units.json + 3 receipts + review slot = exactly 15 with no margin. Either conditional leaf (design.md, desktop/tsconfig.test.json) breaks it, and 1.4 would need a new home that breaks the one-PR-per-section shape no better than option A."
+    },
+    {
+      "option": "Copy into a fresh ArrayBuffer inside IdentityService",
+      "reason": "A runtime change in signing/encryption code. Under the registration's own rule it forces re-registration with authority and privacy, and it is not type-only."
+    },
+    {
+      "option": "Wide overload over a narrow implementation, or call-site casts",
+      "reason": "A disguised cast, against tasks.md 1.1 (\"Do not add casts at the call sites\")."
+    },
+    {
+      "option": "Exported params Uint8Array<ArrayBuffer> (probe 2)",
+      "reason": "21 TypeScript 5.8 errors, so it is not valid on 5.8 as section 1 requires."
+    },
+    {
+      "option": "Narrow IKeyPair in VaultCoreTypes (probe 3)",
+      "reason": "Still 4 TS7 errors outside the leaves, and it adds a leaf."
+    },
+    {
+      "option": "Add design.md to TS7S1A to correct the \"9 errors\" note",
+      "reason": "Not needed for any task. The 1.1 outcome line and this receipt record the real count, and adding the file would widen the unit for documentation only."
+    },
+    {
+      "option": "capException or a 16-file TS7S1",
+      "reason": "Forbidden: caps unchanged at 15/500."
+    }
+  ],
+  "nonclaims": [
+    "No source admission and no product file change. TS7S1A is registered planned as the parent ruled; TS7S1B and every later track unit stay blocked.",
+    "Line figures are estimates from the stop report's scratch numstat and lifecycle precedents, not a cap-fit proof.",
+    "The probe-4 results are the stop report's measurements and were not re-run here.",
+    "machineChecked: the validator checks state, ownership-path existence and node membership, ciClass, review classes, caps range, stage ladder and NEXT. It does not read restrictions, subtotals, predecessors, successors, proof, markers or behavior text; those rest on this receipt and review."
+  ],
+  "unsettled": [
+    "TS7S1B ticks 0.2 from a measurement taken at TS7S1A's admission. If the parent prefers 0.2 ticked by the unit that takes the measurement, move the 0.2 tick to TS7S1A (tasks.md is already its leaf, so no file is added).",
+    "The active-change-ledger entry lags tasks.md by one unit (proposed while 1.1-1.2 are ticked). This follows the parent ruling that the flip belongs to TS7S1B. No validator reads it.",
+    "TS7S1A edits two campaign-grant product files under the routine class. That is safe only while the byte-identical-emit test holds. The stop rule and the reviewer re-derivation are the guard; the parent may still choose to add authority/privacy review at admission."
+  ],
+  "preimages": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "bytes": 1082506,
+      "sha256": "343696f4a490f632be0a35d1e384169a1fcc4cb1a309b7bfb8e4af1eafa441c4"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "bytes": 1486103,
+      "sha256": "311020123d806a2363f54b175ec15ac25a62718b89917319e3088fe3154037fa"
+    }
+  ],
+  "postimages": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "bytes": 1084988,
+      "sha256": "fe6e9b542cf92a4b38ad8ef3132d565c18edae4cd0ad9ec300d74c438b4c7659"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "bytes": 1507983,
+      "sha256": "de8525f06474c6e82489487b8def03dcc5ab508a123d8589c711b83b7dc13ade"
+    }
+  ],
+  "consulted": [
+    {
+      "path": "openspec/changes/migrate-to-typescript-7/design.md",
+      "bytes": 13029,
+      "sha256": "2615e530ace62c6cefa4f491d2dc2d0531ceb4797d247ba31b42bd3bfc4af5f8"
+    },
+    {
+      "path": "openspec/changes/migrate-to-typescript-7/tasks.md",
+      "bytes": 9927,
+      "sha256": "f84233c626b165bab1248f7f2ee719b657a01e3d7a3979f7476a50d1b3065d39"
+    },
+    {
+      "path": "openspec/active-change-ledger.json",
+      "bytes": 14764,
+      "sha256": "1f7ae4ad0ee433519b320e9661f22b56f2f16f17551ec0a05d2ae3f7d67ab57b"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "bytes": 53627,
+      "sha256": "07dcf8fbdbe599382076a4e4a934ceac5de2a2d8c77b056244cf4c54eb81f9d7"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7-track-registration-20261016.json",
+      "bytes": 46180,
+      "sha256": "bfa9668187f28794d57c70a5c2f83e8e57fb59cbfaabef1b64fd7c35df89abe6"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cf-split-registration-20261016.json",
+      "bytes": 33029,
+      "sha256": "eb78050cb55a34ea03f8671f02406391a4a523faa0cccf9a4229b0eb95d20a51"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1-split-registration-20261016.json",
+      "bytes": 59702,
+      "sha256": "d0ba13e137b5a431b010d2ae20a8b45d6586c266c5ad3fe0d2a9c24b2b907ed8"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ce-split-registration-20261016.json",
+      "bytes": 16141,
+      "sha256": "8585edaab77d5d620e3bfc7e85fda2c522879b860bad42ebeb8b756865a8d6fe"
+    }
+  ],
+  "deepDiff": {
+    "method": "node: parsed baseline (git show HEAD at c41ab200b) vs registered ledgers, JSON.stringify equality per entry and per key",
+    "units": "Top-level keys and order unchanged; only units and ts7TrackRegistration20261016 differ, the latter by +amended20261016TS7S1 only. 204 -> 206 units: TS7S1A and TS7S1B inserted at indices 94-95 directly after TS7S1; all 204 original units keep their order. Changed existing units, and only these keys: TS7S1 (~state planned->blocked, +superseded20261016, +blocked20261016); TS7S2A (~admissionRequires, ~predecessors, +amended20261016TS7S1); TS7S2B (~behavior, ~proof, +amended20261016TS7S1); TS7S4B (~behavior, ~proof, +amended20261016TS7S1); TS7S5A (~admissionRequires, +amended20261016TS7S1). Every other unit deep-equal.",
+    "roadmap": "Only nodes changed; 80 nodes, all deep-equal except R6.ts7-toolchain: ~ownershipPaths (+4, none removed: campaignGrantToken.ts, redeemCampaignGrant.ts, campaignRedeemRoute.test.ts, campaignShareAndRedeem.test.ts), ~decomposition, ~restrictions (+TS7S1A, +TS7S1B), ~knownLeafSubtotals (+TS7S1A 9, +TS7S1B 5), +amended20261016TS7S1.",
+    "ownership": "TS7S1A (8 paths) and TS7S1B (6 paths): every ownershipPaths entry exists and is listed verbatim in R6.ts7-toolchain.ownershipPaths; node restrictions equal unit ownershipPaths for both. No unit in an IN_FLIGHT_STATES state.",
+    "gitNumstat": "roadmap.json +33 -2; units.json +190 -9 (before this receipt was added)"
+  }
+}

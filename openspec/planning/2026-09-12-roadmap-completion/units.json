@@ -7640,7 +7640,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
+      "state": "blocked",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -7685,6 +7685,162 @@
         "evidence": "evidence/ts7-track-registration-20261016.json",
         "change": "migrate-to-typescript-7",
         "changeTasks": "0.1-0.2 and 1.1-1.5"
+      },
+      "superseded20261016": {
+        "at": "2026-10-16T20:50:27.000Z",
+        "by": "TS7S1A, TS7S1B",
+        "note": "Retained as the truthful record of the stopped TS7S1 admission (no edit, no commit, no receipt), following P2CF, P2CE, P1B and U24. Every tasks.md item of its package (0.1-0.2, 1.1-1.5) and every proof is delivered by exactly one successor; no TS7S1 completion receipt is fabricated. TS7S1.successors still names TS7S2A, which now hangs off TS7S1B; the pointer resolves through this marker.",
+        "evidence": "evidence/ts7s1-split-registration-20261016.json"
+      },
+      "blocked20261016": {
+        "cause": "Task 1.1 cannot reach 0 TypeScript 7 errors inside the registered leaves. design.md's 9 errors undercount the work (TS2769/TS2345 report only the first bad argument per call), and five of them come from the exported parameters of signData, verifySignature and encryptWithPassword, whose bytes come from callers. The type-only fix (stop-report probe 4: byte-identical TypeScript 5.8 emit for all 7 changed source/test files, 0 errors on TypeScript 5.8.3, 6.0.3 and 7.0.2) needs four more leaves outside TS7S1 and R6.ts7-toolchain (campaignGrantToken.ts, redeemCampaignGrant.ts, campaignRedeemRoute.test.ts, campaignShareAndRedeem.test.ts); with them the package is 16 files against the unchanged 15-file cap.",
+        "nextIndependentAction": "Admit TS7S1A; release TS7S1B after TS7S1A is complete with an exact-main mainProof PASS. TS7S1 itself is not re-admitted."
+      }
+    },
+    {
+      "id": "TS7S1A",
+      "node": "R6.ts7-toolchain",
+      "taskKeys": [],
+      "behavior": "First narrower TS7S1 successor: tasks.md 1.1-1.2 of migrate-to-typescript-7, type-only source prep valid on TypeScript 5.8, with no compiler version and no config change. 1.1 removes every TypeScript 7 Uint8Array<ArrayBufferLike> to BufferSource error in src/lib/multiplayer/server/auth.ts and src/services/vault/IdentityService.ts. The design.md Context count of 9 is a lower bound, not the work: TS2769/TS2345 report only the first bad argument of each call, so fixing the 9 listed sites exposes follow-on errors (for example the data argument of encryptWithPassword's subtle.encrypt, hidden behind the iv error), and five of the nine come from the parameters of the exported signData, verifySignature and encryptWithPassword, whose bytes come from callers. The registered fix is the probe-4 shape of the TS7S1 stop report: the producing helpers fromBase64 and getRandomBytes return Uint8Array<ArrayBuffer>; deriveKey's salt is Uint8Array<ArrayBuffer>; the auth.ts locals are annotated Uint8Array<ArrayBuffer>; signData returns Uint8Array<ArrayBuffer> and generateKeyPair's return is narrowed in-file to Uint8Array<ArrayBuffer> keys; the exported parameters of signData (data, privateKeyBytes), verifySignature (data, signature, publicKeyBytes) and encryptWithPassword (data) are typed as the lib BufferSource; and four callers that hold a value already annotated Uint8Array narrow that annotation to Uint8Array<ArrayBuffer>: src/lib/campaign/grants/campaignGrantToken.ts (publicKeyBytes, signatureBytes), src/lib/campaign/grants/redeemCampaignGrant.ts (its local fromBase64 return), src/__tests__/api/campaigns/campaignRedeemRoute.test.ts and src/lib/campaign/grants/__tests__/campaignShareAndRedeem.test.ts (the keys annotations). No call-site cast, no copy, no overload and no runtime change. Accepted deviation from the literal wording of tasks.md 1.1 (\"type the producing helpers\"): the exported-parameter widening to BufferSource is a type-level API widening only. On TypeScript 5.8 BufferSource also admits ArrayBuffer and DataView, which Web Crypto accepts at runtime; on TypeScript 7 it is ArrayBufferView<ArrayBuffer> | ArrayBuffer. The emitted JavaScript is identical, and a narrower Uint8Array<ArrayBuffer> parameter is impossible on 5.8 without casts (stop-report probe 2: 21 TypeScript 5.8 errors). When it ticks 1.1 this unit MUST add a tasks.md 1.1 outcome line that records the BufferSource widening, the four caller annotations and the measured error count (the 11 listed errors plus the follow-on first-argument errors). src/lib/multiplayer/server/__tests__/auth.test.ts and src/services/vault/__tests__/IdentityService.test.ts are not edited and pass unchanged. 1.2 fixes the two TS2322 errors in src/lib/events/checkpoints/BranchCheckpointCache.ts with 'full-replay' as const and 'checkpoint-plus-tail' as const; the Readonly target is not widened. Admission runs the tasks.md 0.2 scratch measurement (TypeScript 7.0.x and 6.0.x from scratch prefixes, D2 config edits in an uncommitted scratch copy) on this unit's own pre-edit baseline and records the error list in the admission receipt; TS7S1B ticks 0.2 from that record. If the pre-edit TypeScript 7 list differs from design.md's 11 errors, or the post-edit run reports any error, stop and register the missing leaves. Acceptance: npm run typecheck (TypeScript 5.8) reports 0 errors; for every changed .ts/.tsx file the TypeScript 5.8 transpileModule output of the before and after text is byte-identical, with both hashes per file in the local receipt; every suite that imports IdentityService, BranchCheckpointCache, server/auth, campaignGrantToken or redeemCampaignGrant passes (stop report: 45 suites, 507 tests; re-derive the list at admission); TypeScript 7.0.x and 6.0.x on the D2 scratch copy report 0 errors for the root project. tasks.md receives the 1.1 and 1.2 ticks and outcome lines only; tsconfig.json, desktop/tsconfig.json and openspec/active-change-ledger.json belong to TS7S1B. Review class routine ONLY because every edit is a type annotation whose emitted JavaScript is byte-identical. campaignGrantToken.ts and redeemCampaignGrant.ts are campaign-grant signing and verification code: if admission or review finds any runtime byte difference in any emitted file, stop and re-register this unit with the authority and privacy review classes. The independent reviewer re-derives the byte-identical-emit proof with its own script, not the implementer's. Planned leaves (8): src/lib/multiplayer/server/auth.ts, src/services/vault/IdentityService.ts, src/lib/events/checkpoints/BranchCheckpointCache.ts, src/lib/campaign/grants/campaignGrantToken.ts, src/lib/campaign/grants/redeemCampaignGrant.ts, src/__tests__/api/campaigns/campaignRedeemRoute.test.ts, src/lib/campaign/grants/__tests__/campaignShareAndRedeem.test.ts, openspec/changes/migrate-to-typescript-7/tasks.md. 13 of 15 files with units.json, the admission, red and local receipts and the reserved review slot. Estimated at about 45-70 counted lines with lifecycle (26 counted source lines in the stop-report scratch numstat; the two test files are uncounted); that is not a cap-fit proof.",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server/auth.ts",
+        "src/services/vault/IdentityService.ts",
+        "src/lib/events/checkpoints/BranchCheckpointCache.ts",
+        "src/lib/campaign/grants/campaignGrantToken.ts",
+        "src/lib/campaign/grants/redeemCampaignGrant.ts",
+        "src/__tests__/api/campaigns/campaignRedeemRoute.test.ts",
+        "src/lib/campaign/grants/__tests__/campaignShareAndRedeem.test.ts",
+        "openspec/changes/migrate-to-typescript-7/tasks.md"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "splitFrom": "TS7S1",
+      "admissionRequires": "Narrower ordinary-cap successor of TS7S1 and the first unit of the migrate-to-typescript-7 supporting track (OpenSpec change tasks 1.1-1.2), registered by evidence/ts7s1-split-registration-20261016.json after the TS7S1 admission stopped at the file cap before any edit. Registered planned: TS7S1 was released on P2CG1A2 main-verified (closure #2171, release #2172 on main c41ab200b), and the parent re-verifies that before admission. No preserved TS7S1 source candidate exists; the stop-report probe-4 patch is scratch evidence, not a candidate, and this unit runs its own red-first proof and measured admission. Scheduling (parent decision 2026-10-16, carried from TS7S1): the track runs after P2CG1A2 is main-verified and before P2CG1B is released. The parent holds P2CG1B blocked until this track's stopping condition is met or an explicit parent waiver is recorded. Stopping condition: TS7S5A main-verified; if the owner has ruled OD-scripts-tsconfig before TS7S5A closes, TS7S2OD, TS7S5B and TS7S5C also run, in order, before P2CG1B is released. Otherwise those three are a gated tail that the parent schedules at a later P-chain closure boundary, one unit at a time. The track is deliberately not a machine-readable predecessor of P2CG1B, so an open owner decision cannot stall the P-chain. Prospective assignment only; source permission remains non-effective until normal finite admission freezes the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measures actual unique files and product/test additions under unchanged 15-file/500-product-added-line limits. Named leaves and known subtotals are in R6.ts7-toolchain.restrictions and R6.ts7-toolchain.knownLeafSubtotals for this ID; a conditional leaf counts only if it changes. No unnamed test, directory-wide grant, placeholder/hash, capException or cap inflation. Parent verifies documentary predecessors complete with genuine exact-main mainProof PASS, ancestry and closure on fetched main and no actual overlap before every source admission. NEXT selection supplies no permission. One product-writing lane: no track unit is admitted while any other unit is in flight, and no other unit is admitted while a track unit is in flight. Measurements go to the PR body and the stage receipts; openspec/changes/migrate-to-typescript-7/tasks.md receives checkbox ticks and only the outcome lines its task text requires, so the archive moves in TS7S5B/TS7S5C stay inside their caps. If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required task or proof.",
+      "proof": [
+        "npm run typecheck",
+        "npm run lint",
+        "npm run format:check",
+        "npm run test:stable",
+        "npx openspec validate --all --strict",
+        "npm run qc:openspec-ci:validate",
+        "desktop/: npm run type-check",
+        "desktop/: npm test",
+        "every suite importing IdentityService, BranchCheckpointCache, server/auth, campaignGrantToken or redeemCampaignGrant (list re-derived at admission)",
+        "auth.test.ts and IdentityService.test.ts unedited and passing",
+        "TypeScript 5.8 transpileModule before/after: emitted JS byte-identical for every changed .ts/.tsx file",
+        "independent reviewer re-derives the emitted-JS equality with its own script",
+        "TypeScript 7.0.x and 6.0.x scratch prefixes on a D2 scratch copy: pre-edit error list recorded, post-edit 0 root errors"
+      ],
+      "predecessors": [
+        "P2CG1A2"
+      ],
+      "successors": [
+        "TS7S1B"
+      ],
+      "source20261016": {
+        "at": "2026-10-16T20:50:27.000Z",
+        "reason": "TS7S1 stopped at admission before any edit: task 1.1 needs four leaves outside TS7S1 and the node (two campaign-grant callers and two of their tests), and with them TS7S1 is 16 files against the 15-file cap. This slice holds the type-only source fixes of tasks 1.1-1.2.",
+        "evidence": "evidence/ts7s1-split-registration-20261016.json",
+        "change": "migrate-to-typescript-7",
+        "changeTasks": "1.1-1.2"
+      }
+    },
+    {
+      "id": "TS7S1B",
+      "node": "R6.ts7-toolchain",
+      "taskKeys": [],
+      "behavior": "Second narrower TS7S1 successor: tasks.md 0.1-0.2 and 1.3-1.5 of migrate-to-typescript-7, the config half of section 1 with the section-0 baseline and the active-change-ledger flip, valid on TypeScript 5.8 with no compiler version change. Admission records the section-0 baseline in the admission receipt, never in the repository: 0.1 cold (tsconfig.tsbuildinfo deleted) and warm npm run typecheck, desktop npm run type-check, the CI Type Check step duration of the latest green run whose Type Check step really ran, and the desktop Jest test count, each with --version. 0.2 is ticked from the pre-fix scratch TypeScript 7 and 6 measurement in TS7S1A's admission receipt, taken before TS7S1A's edits because after TS7S1A the list is expected to be empty, plus this unit's own re-run on its baseline. The design.md Context list is replaced (conditional leaf) only if that pre-fix list differed from design.md's 11 errors; the TS7S1 stop report measured it unchanged at c41ab200b. Applies D2: root tsconfig.json target es2017, baseUrl deleted, paths {\"@/*\": [\"./src/*\"]}; desktop/tsconfig.json module and moduleResolution nodenext. Flips the change's openspec/active-change-ledger.json entry from proposed to in-progress with lastReviewed. Acceptance: @/ still resolves in npm run typecheck, one @/-importing root Jest suite, npx tsx on one src-importing script, npm run build and npm run storybook:build, and one next dev run leaves tsconfig.json unrewritten. The desktop build before and after is built from the SAME checkout into two sibling directories (the stop-report preview saw 42 .map differences only because its two builds came from different checkouts and each map embeds an absolute source URL); every .js file is byte-identical and the remaining .map and .d.ts differences are listed in the PR. npm run electron:test passes. TypeScript 7.0.x from a scratch prefix reports 0 errors for root, desktop/tsconfig.json and desktop/tsconfig.test.json, with versions and times in the PR body. desktop/tsconfig.test.json reported 0 errors on TypeScript 7.0.2 and 6.0.3 in the stop report, so it is expected unchanged (conditional leaf); if it reports errors outside the config itself, stop and register the leaves. If the root TypeScript 7 run reports any error, stop: this unit fixes no source, and TS7S1A owns 1.1-1.2. Review class routine: config, ledger and tasks.md only, with emitted runtime JavaScript unchanged. Planned leaves (4): tsconfig.json, desktop/tsconfig.json, openspec/changes/migrate-to-typescript-7/tasks.md, openspec/active-change-ledger.json. Conditional leaves (2, counted only if changed): openspec/changes/migrate-to-typescript-7/design.md, desktop/tsconfig.test.json. 9 files with units.json, the three receipts and the reserved review slot, 11 with both conditionals. Estimated at about 30-50 counted lines with lifecycle; that is not a cap-fit proof.",
+      "ownershipPaths": [
+        "tsconfig.json",
+        "desktop/tsconfig.json",
+        "openspec/changes/migrate-to-typescript-7/tasks.md",
+        "openspec/active-change-ledger.json",
+        "openspec/changes/migrate-to-typescript-7/design.md",
+        "desktop/tsconfig.test.json"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "splitFrom": "TS7S1",
+      "admissionRequires": "Narrower ordinary-cap successor of TS7S1 (OpenSpec change tasks 0.1-0.2 and 1.3-1.5), registered by evidence/ts7s1-split-registration-20261016.json. TS7S1A must be complete with a genuine exact-main mainProof PASS before the parent releases this unit to planned; NEXT does not enforce these unit dependencies. Task 1.5 needs 0 TypeScript 7 errors, which only TS7S1A's merged source fixes give. Scheduling, the stopping condition and the one-lane rule are carried in TS7S1A.admissionRequires and apply unchanged. Prospective assignment only; source permission remains non-effective until normal finite admission freezes the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measures actual unique files and product/test additions under unchanged 15-file/500-product-added-line limits. Named leaves and known subtotals are in R6.ts7-toolchain.restrictions and R6.ts7-toolchain.knownLeafSubtotals for this ID; a conditional leaf counts only if it changes. No unnamed test, directory-wide grant, placeholder/hash, capException or cap inflation. Parent verifies documentary predecessors complete with genuine exact-main mainProof PASS, ancestry and closure on fetched main and no actual overlap before every source admission. NEXT selection supplies no permission. One product-writing lane: no track unit is admitted while any other unit is in flight, and no other unit is admitted while a track unit is in flight. Measurements go to the PR body and the stage receipts; openspec/changes/migrate-to-typescript-7/tasks.md receives checkbox ticks and only the outcome lines its task text requires, so the archive moves in TS7S5B/TS7S5C stay inside their caps. If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required task or proof.",
+      "proof": [
+        "npm run typecheck",
+        "npm run lint",
+        "npm run format:check",
+        "npm run test:stable",
+        "npx openspec validate --all --strict",
+        "npm run qc:openspec-ci:validate",
+        "desktop/: npm run type-check",
+        "desktop/: npm test",
+        "npm run build",
+        "npm run storybook:build",
+        "one @/-importing root Jest suite",
+        "npx tsx on one src-importing script",
+        "next dev once: tsconfig.json not rewritten",
+        "desktop build before/after from the same checkout: every .js byte-identical",
+        "npm run electron:test",
+        "TypeScript 7.0.x scratch prefix: 0 errors for tsconfig.json, desktop/tsconfig.json, desktop/tsconfig.test.json",
+        "0.1 baseline numbers with --version in the admission receipt"
+      ],
+      "predecessors": [
+        "TS7S1A"
+      ],
+      "successors": [
+        "TS7S2A"
+      ],
+      "source20261016": {
+        "at": "2026-10-16T20:50:27.000Z",
+        "reason": "TS7S1 stopped at admission before any edit: task 1.1 needs four leaves outside TS7S1 and the node, and with them TS7S1 is 16 files against the 15-file cap. This slice holds the section-0 baseline record, the D2 config edits, the TypeScript 7 zero-error proof and the active-change-ledger flip.",
+        "evidence": "evidence/ts7s1-split-registration-20261016.json",
+        "change": "migrate-to-typescript-7",
+        "changeTasks": "0.1-0.2 and 1.3-1.5"
       }
     },
     {
@@ -7726,7 +7882,7 @@
         "tick": null
       },
       "ownerGate": null,
-      "admissionRequires": "Ordinary-cap unit 2 of 10 of the migrate-to-typescript-7 supporting track (OpenSpec change tasks 2.1-2.2), registered by evidence/ts7-track-registration-20261016.json. TS7S1 must be complete with a genuine exact-main mainProof PASS before the parent releases this unit to planned; NEXT does not enforce these unit dependencies. Prospective assignment only; source permission remains non-effective until normal finite admission freezes the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measures actual unique files and product/test additions under unchanged 15-file/500-product-added-line limits. Named leaves and known subtotals are in R6.ts7-toolchain.restrictions and R6.ts7-toolchain.knownLeafSubtotals for this ID; a conditional leaf counts only if it changes. No unnamed test, directory-wide grant, placeholder/hash, capException or cap inflation. Parent verifies documentary predecessors complete with genuine exact-main mainProof PASS, ancestry and closure on fetched main and no actual overlap before every source admission. NEXT selection supplies no permission. One product-writing lane: no track unit is admitted while any other unit is in flight, and no other unit is admitted while a track unit is in flight. Measurements go to the PR body and the stage receipts; openspec/changes/migrate-to-typescript-7/tasks.md receives checkbox ticks and only the outcome lines its task text requires, so the archive moves in TS7S5B/TS7S5C stay inside their caps. If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required task or proof.",
+      "admissionRequires": "Ordinary-cap unit 2 of 10 of the migrate-to-typescript-7 supporting track (OpenSpec change tasks 2.1-2.2), registered by evidence/ts7-track-registration-20261016.json. TS7S1B must be complete with a genuine exact-main mainProof PASS before the parent releases this unit to planned; NEXT does not enforce these unit dependencies. Prospective assignment only; source permission remains non-effective until normal finite admission freezes the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measures actual unique files and product/test additions under unchanged 15-file/500-product-added-line limits. Named leaves and known subtotals are in R6.ts7-toolchain.restrictions and R6.ts7-toolchain.knownLeafSubtotals for this ID; a conditional leaf counts only if it changes. No unnamed test, directory-wide grant, placeholder/hash, capException or cap inflation. Parent verifies documentary predecessors complete with genuine exact-main mainProof PASS, ancestry and closure on fetched main and no actual overlap before every source admission. NEXT selection supplies no permission. One product-writing lane: no track unit is admitted while any other unit is in flight, and no other unit is admitted while a track unit is in flight. Measurements go to the PR body and the stage receipts; openspec/changes/migrate-to-typescript-7/tasks.md receives checkbox ticks and only the outcome lines its task text requires, so the archive moves in TS7S5B/TS7S5C stay inside their caps. If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required task or proof.",
       "proof": [
         "npm run typecheck",
         "npm run lint",
@@ -7740,7 +7896,7 @@
         "npm ls ts-node: optional-peer references only"
       ],
       "predecessors": [
-        "TS7S1"
+        "TS7S1B"
       ],
       "successors": [
         "TS7S2B"
@@ -7751,13 +7907,18 @@
         "evidence": "evidence/ts7-track-registration-20261016.json",
         "change": "migrate-to-typescript-7",
         "changeTasks": "2.1-2.2"
+      },
+      "amended20261016TS7S1": {
+        "at": "2026-10-16T20:50:27.000Z",
+        "change": "predecessor TS7S1 replaced by TS7S1B; admissionRequires release gate repointed to TS7S1B",
+        "note": "TS7S1 is superseded by TS7S1A/TS7S1B (evidence/ts7s1-split-registration-20261016.json); its absence of a mainProof is not bypassed or falsified."
       }
     },
     {
       "id": "TS7S2B",
       "node": "R6.ts7-toolchain",
       "taskKeys": [],
-      "behavior": "Section 2, part 2 (D5): desktop Jest moves from ts-jest to @swc/jest and Storybook is proved independent of the TypeScript API. desktop/package.json adds @swc/core and @swc/jest pinned to the root's major versions (reason stated in the PR body), removes ts-jest, and its type-check script also runs tsc -p tsconfig.test.json --noEmit. desktop/jest.config.js uses the @swc/jest transform with jsc.parser.decorators, jsc.transform.legacyDecorator, jsc.transform.decoratorMetadata and CommonJS module output. Acceptance: the desktop test count equals the TS7S1 baseline and all tests pass. npm run storybook:build passes and the autodocs prop table of one component with typed props is populated. Only if the docs depend on react-docgen-typescript does .storybook/main.ts gain typescript: { reactDocgen: 'react-docgen' } (conditional leaf); the tables must still be useful, and the outcome is recorded in tasks.md 2.4. Planned leaves (4): desktop/package.json, desktop/package-lock.json, desktop/jest.config.js, openspec/changes/migrate-to-typescript-7/tasks.md. Conditional leaves (1, counted only if changed): .storybook/main.ts. Estimated at about 35-55 counted lines with lifecycle; that is not a cap-fit proof.",
+      "behavior": "Section 2, part 2 (D5): desktop Jest moves from ts-jest to @swc/jest and Storybook is proved independent of the TypeScript API. desktop/package.json adds @swc/core and @swc/jest pinned to the root's major versions (reason stated in the PR body), removes ts-jest, and its type-check script also runs tsc -p tsconfig.test.json --noEmit. desktop/jest.config.js uses the @swc/jest transform with jsc.parser.decorators, jsc.transform.legacyDecorator, jsc.transform.decoratorMetadata and CommonJS module output. Acceptance: the desktop test count equals the TS7S1B baseline and all tests pass. npm run storybook:build passes and the autodocs prop table of one component with typed props is populated. Only if the docs depend on react-docgen-typescript does .storybook/main.ts gain typescript: { reactDocgen: 'react-docgen' } (conditional leaf); the tables must still be useful, and the outcome is recorded in tasks.md 2.4. Planned leaves (4): desktop/package.json, desktop/package-lock.json, desktop/jest.config.js, openspec/changes/migrate-to-typescript-7/tasks.md. Conditional leaves (1, counted only if changed): .storybook/main.ts. Estimated at about 35-55 counted lines with lifecycle; that is not a cap-fit proof.",
       "ownershipPaths": [
         "desktop/package.json",
         "desktop/package-lock.json",
@@ -7802,7 +7963,7 @@
         "desktop/: npm run type-check",
         "desktop/: npm test",
         "npm run storybook:build with a populated autodocs prop table",
-        "desktop/: test count equals the TS7S1 baseline"
+        "desktop/: test count equals the TS7S1B baseline"
       ],
       "predecessors": [
         "TS7S2A"
@@ -7817,6 +7978,11 @@
         "evidence": "evidence/ts7-track-registration-20261016.json",
         "change": "migrate-to-typescript-7",
         "changeTasks": "2.3-2.4"
+      },
+      "amended20261016TS7S1": {
+        "at": "2026-10-16T20:50:27.000Z",
+        "change": "baseline reference TS7S1 repointed to TS7S1B, whose admission receipt records the 0.1 desktop Jest count",
+        "note": "TS7S1 is superseded by TS7S1A/TS7S1B (evidence/ts7s1-split-registration-20261016.json); its absence of a mainProof is not bypassed or falsified."
       }
     },
     {
@@ -8029,7 +8195,7 @@
       "id": "TS7S4B",
       "node": "R6.ts7-toolchain",
       "taskKeys": [],
-      "behavior": "Section 4, part 2 (D3, D4): TypeScript 7 for every type-check gate. Root devDependencies become \"typescript\": \"npm:@typescript/typescript6@^6.0.3\" and \"typescript7\": \"npm:typescript@^7.0.2\", after checking current upstream versions; the package that owns node_modules/.bin/tsc is recorded in the PR body. desktop/ devDependencies become an unaliased \"typescript\": \"^7.0.2\". Proofs: desktop/node_modules/.bin/tsc --version prints 7.x, and the desktop build is byte-identical in .js to the TS7S1 baseline. scripts.typecheck becomes node node_modules/typescript7/bin/tsc --noEmit --skipLibCheck. The roadmap-main-proof.mjs tsc argv becomes ['node', 'node_modules/typescript7/bin/tsc', '--noEmit']. roadmap-loop-closure-proof.test.ts repoints its fake binary path (about line 1837) and its tsc --noEmit expectation (about line 2129) without loosening them. The new guard test scripts/__tests__/typescript-toolchain.test.ts is exactly as D4 specifies. It is proved to fail when scripts.typecheck temporarily points back at node_modules/typescript/bin/tsc, then restored. 4.6 re-runs the TS7S3 API-consumer list and proves that require('typescript').version starts with 6. and require('typescript7/package.json').version starts with 7. 4.7 records after-numbers against the TS7S1 baseline: cold and warm typecheck (including the incremental/tsbuildinfo risk), desktop type-check and the PR's CI Type Check step. Targets: root under 10s locally, CI step under 15s. roadmap-loop-closure-proof.test.ts takes about 13 minutes alone. Planned leaves (8): package.json, package-lock.json, desktop/package.json, desktop/package-lock.json, scripts/qc/roadmap-main-proof.mjs, scripts/__tests__/roadmap-loop-closure-proof.test.ts, openspec/changes/migrate-to-typescript-7/tasks.md, scripts/__tests__/typescript-toolchain.test.ts. Estimated at about 25-40 counted lines with lifecycle; that is not a cap-fit proof.",
+      "behavior": "Section 4, part 2 (D3, D4): TypeScript 7 for every type-check gate. Root devDependencies become \"typescript\": \"npm:@typescript/typescript6@^6.0.3\" and \"typescript7\": \"npm:typescript@^7.0.2\", after checking current upstream versions; the package that owns node_modules/.bin/tsc is recorded in the PR body. desktop/ devDependencies become an unaliased \"typescript\": \"^7.0.2\". Proofs: desktop/node_modules/.bin/tsc --version prints 7.x, and the desktop build is byte-identical in .js to the TS7S1B baseline. scripts.typecheck becomes node node_modules/typescript7/bin/tsc --noEmit --skipLibCheck. The roadmap-main-proof.mjs tsc argv becomes ['node', 'node_modules/typescript7/bin/tsc', '--noEmit']. roadmap-loop-closure-proof.test.ts repoints its fake binary path (about line 1837) and its tsc --noEmit expectation (about line 2129) without loosening them. The new guard test scripts/__tests__/typescript-toolchain.test.ts is exactly as D4 specifies. It is proved to fail when scripts.typecheck temporarily points back at node_modules/typescript/bin/tsc, then restored. 4.6 re-runs the TS7S3 API-consumer list and proves that require('typescript').version starts with 6. and require('typescript7/package.json').version starts with 7. 4.7 records after-numbers against the TS7S1B baseline: cold and warm typecheck (including the incremental/tsbuildinfo risk), desktop type-check and the PR's CI Type Check step. Targets: root under 10s locally, CI step under 15s. roadmap-loop-closure-proof.test.ts takes about 13 minutes alone. Planned leaves (8): package.json, package-lock.json, desktop/package.json, desktop/package-lock.json, scripts/qc/roadmap-main-proof.mjs, scripts/__tests__/roadmap-loop-closure-proof.test.ts, openspec/changes/migrate-to-typescript-7/tasks.md, scripts/__tests__/typescript-toolchain.test.ts. Estimated at about 25-40 counted lines with lifecycle; that is not a cap-fit proof.",
       "ownershipPaths": [
         "package.json",
         "package-lock.json",
@@ -8081,7 +8247,7 @@
         "scripts/__tests__/typescript-toolchain.test.ts (red when scripts.typecheck points at node_modules/typescript/bin/tsc, then green)",
         "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
         "desktop/node_modules/.bin/tsc --version prints 7.x",
-        "desktop build .js byte-identical to the TS7S1 baseline",
+        "desktop build .js byte-identical to the TS7S1B baseline",
         "require('typescript').version starts with 6.; require('typescript7/package.json').version starts with 7.",
         "the TS7S3 API-consumer list re-run"
       ],
@@ -8097,6 +8263,11 @@
         "evidence": "evidence/ts7-track-registration-20261016.json",
         "change": "migrate-to-typescript-7",
         "changeTasks": "4.1-4.7"
+      },
+      "amended20261016TS7S1": {
+        "at": "2026-10-16T20:50:27.000Z",
+        "change": "baseline references TS7S1 repointed to TS7S1B, which records the 0.1 numbers and builds the section-1 desktop baseline (task 1.4)",
+        "note": "TS7S1 is superseded by TS7S1A/TS7S1B (evidence/ts7s1-split-registration-20261016.json); its absence of a mainProof is not bypassed or falsified."
       }
     },
     {
@@ -8141,7 +8312,7 @@
         "tick": null
       },
       "ownerGate": null,
-      "admissionRequires": "Ordinary-cap unit 8 of 10 of the migrate-to-typescript-7 supporting track (OpenSpec change tasks 5.1-5.2), registered by evidence/ts7-track-registration-20261016.json. TS7S4B must be complete with a genuine exact-main mainProof PASS before the parent releases this unit to planned; NEXT does not enforce these unit dependencies. This unit's exact-main PASS is the track's stopping condition unless the owner ruled OD-scripts-tsconfig before it closed (see TS7S1). Prospective assignment only; source permission remains non-effective until normal finite admission freezes the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measures actual unique files and product/test additions under unchanged 15-file/500-product-added-line limits. Named leaves and known subtotals are in R6.ts7-toolchain.restrictions and R6.ts7-toolchain.knownLeafSubtotals for this ID; a conditional leaf counts only if it changes. No unnamed test, directory-wide grant, placeholder/hash, capException or cap inflation. Parent verifies documentary predecessors complete with genuine exact-main mainProof PASS, ancestry and closure on fetched main and no actual overlap before every source admission. NEXT selection supplies no permission. One product-writing lane: no track unit is admitted while any other unit is in flight, and no other unit is admitted while a track unit is in flight. Measurements go to the PR body and the stage receipts; openspec/changes/migrate-to-typescript-7/tasks.md receives checkbox ticks and only the outcome lines its task text requires, so the archive moves in TS7S5B/TS7S5C stay inside their caps. If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required task or proof.",
+      "admissionRequires": "Ordinary-cap unit 8 of 10 of the migrate-to-typescript-7 supporting track (OpenSpec change tasks 5.1-5.2), registered by evidence/ts7-track-registration-20261016.json. TS7S4B must be complete with a genuine exact-main mainProof PASS before the parent releases this unit to planned; NEXT does not enforce these unit dependencies. This unit's exact-main PASS is the track's stopping condition unless the owner ruled OD-scripts-tsconfig before it closed (see TS7S1A). Prospective assignment only; source permission remains non-effective until normal finite admission freezes the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measures actual unique files and product/test additions under unchanged 15-file/500-product-added-line limits. Named leaves and known subtotals are in R6.ts7-toolchain.restrictions and R6.ts7-toolchain.knownLeafSubtotals for this ID; a conditional leaf counts only if it changes. No unnamed test, directory-wide grant, placeholder/hash, capException or cap inflation. Parent verifies documentary predecessors complete with genuine exact-main mainProof PASS, ancestry and closure on fetched main and no actual overlap before every source admission. NEXT selection supplies no permission. One product-writing lane: no track unit is admitted while any other unit is in flight, and no other unit is admitted while a track unit is in flight. Measurements go to the PR body and the stage receipts; openspec/changes/migrate-to-typescript-7/tasks.md receives checkbox ticks and only the outcome lines its task text requires, so the archive moves in TS7S5B/TS7S5C stay inside their caps. If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required task or proof.",
       "proof": [
         "npm run typecheck",
         "npm run lint",
@@ -8165,6 +8336,11 @@
         "evidence": "evidence/ts7-track-registration-20261016.json",
         "change": "migrate-to-typescript-7",
         "changeTasks": "5.1-5.2"
+      },
+      "amended20261016TS7S1": {
+        "at": "2026-10-16T20:50:27.000Z",
+        "change": "stopping-condition pointer repointed from TS7S1 to TS7S1A, which now carries the full scheduling text",
+        "note": "TS7S1 is superseded by TS7S1A/TS7S1B (evidence/ts7s1-split-registration-20261016.json); its absence of a mainProof is not bypassed or falsified."
       }
     },
     {
@@ -20020,6 +20196,11 @@
     "deferrals": [
       "FN-ts7-typescript-7-1-followup (release predicate: TypeScript 7.1 ships its compiler API)"
     ],
-    "rule": "Prospective registration only. Nothing is admitted or released, and the state of no existing unit changes. Every actual new or modified file counts toward its unit's 15-file cap. Added lines count toward the 500-line cap under the U41 rule, which includes the moved lines of the archive slices. A fresh, exact-file, measured admission must fit before any product write. Registration does not claim that downstream implementation fits."
+    "rule": "Prospective registration only. Nothing is admitted or released, and the state of no existing unit changes. Every actual new or modified file counts toward its unit's 15-file cap. Added lines count toward the 500-line cap under the U41 rule, which includes the moved lines of the archive slices. A fresh, exact-file, measured admission must fit before any product write. Registration does not claim that downstream implementation fits.",
+    "amended20261016TS7S1": {
+      "at": "2026-10-16T20:50:27.000Z",
+      "evidence": "evidence/ts7s1-split-registration-20261016.json",
+      "change": "TS7S1 split into TS7S1A (tasks 1.1-1.2, registered planned) and TS7S1B (tasks 0.1-0.2 and 1.3-1.5, blocked on TS7S1A). TS7S1 is blocked and superseded. Read TS7S1 in units and schedulingRule above as TS7S1A then TS7S1B; TS7S1A carries the scheduling text and the stopping condition. The track now has 11 active units plus the superseded TS7S1."
+    }
   }
 }
