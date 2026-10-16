@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CG1A1",
+  "stage": "red",
+  "baseline": "6645308f4d6bdd6a424e73761ee20ffa81f8101f",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "Task14 / P2CG1A1 implementation sub-agent"
+  },
+  "runtime": "node v22.22.0",
+  "redKind": "move-only unit: no behaviour changes, so no test can fail and none was written. As the registration prescribes (and as U35i did for a comment-only unit), this slot records the pre-move baseline: the registered suites passing on the unmodified base, the base bytes of every moved block, and the per-test results the post-move run must reproduce",
+  "baseBytes": {
+    "src/lib/multiplayer/server/bindCampaignSyncConnection.ts": "f6a3f3b7440d66c6208789dbaca75982d4445c6b4cfa38b968a049da730869bd"
+  },
+  "commands": [
+    "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --testPathPattern='campaignLaunchAuthorityRoute|campaignProgressionReaders.durable|CampaignSyncSession'",
+    "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --runTestsByPath <31 caller suites in caller-suites.txt>",
+    "the same 35 suites once more with --json --outputFile base-results.json"
+  ],
+  "exitCode": 0,
+  "result": "Task 14 selector 4 suites, 96 tests passed; caller suites 31 suites, 273 tests passed; combined JSON 35 suites, 369 tests, 369 passed, 0 failed",
+  "callerSuites": "Every test file that imports bindCampaignSyncConnection directly, or through coopMissionAnnouncement.harness, campaignGrantChannel.test-helpers, campaignHostIntentServerTime.test-helpers, campaignSessionMembershipPort, campaignForceClaimPort or handleRoomCodeGuestJoin; includes bindCampaignSyncConnection.test.ts and coopMissionAnnouncement.reconnect.test.ts (registration move-only selector)",
+  "files": {
+    "callerSuites": {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-14-p2cg1a1-20261016/caller-suites.txt",
+      "sha256": "f050d3fa83b6aeddf0a13fbf67e0242a8837d15183bba811813695b6fd89f98b"
+    },
+    "log": {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-14-p2cg1a1-20261016/red.log",
+      "sha256": "b79390bc89a707fdab443fddde6fd530a5e26437565bcdd73d77e4956f57a60a"
+    },
+    "baseResults": {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-14-p2cg1a1-20261016/base-results.json",
+      "sha256": "378945d46a4d9fe2e2c92dccf7829f56399a6933c9fad82c89035a82a6d4fdcf"
+    }
+  },
+  "baseLint": "oxlint on the baseline: 85 warnings, 0 errors; the binder carries one max-lines warning (2197 physical lines; 1773 counted per the P2CE3 review)"
+}

@@ -1,5 +1,3 @@
-import type Database from 'better-sqlite3';
-
 import { randomUUID } from 'node:crypto';
 
 import type { ICampaignGrantLiveSource } from '@/lib/campaign/delivery/campaignGrantChannelSession';
@@ -7,42 +5,24 @@ import type { ICampaignGrantSigner } from '@/lib/campaign/grants/ICampaignGrantS
 import type { SQLiteCampaignReplicaStore } from '@/lib/campaign/replica/SQLiteCampaignReplicaStore';
 import type { CampaignApplicationResult } from '@/lib/campaign/sync/campaignPublicAppliedView';
 import type { CampaignArtifactUseReader } from '@/lib/interventions/GmCampaignArtifactUseDurable';
-import type {
-  CampaignEventScope,
-  ICampaignAuthoritativeState,
-  ICampaignEvent,
-} from '@/types/campaign/CampaignSync';
+import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
 import type {
   ICampaignAppliedView,
   ICampaignApplicationAck,
-  ICampaignApplicationOffer,
   ICampaignClientMessage,
-  IClientMessage,
   IErrorCode,
   IServerMessage,
 } from '@/types/multiplayer/Protocol';
 
 import { campaignStreamRef } from '@/lib/campaign/authority/campaignLaunchHead';
 import { reconcileCoopBattle } from '@/lib/campaign/coop/reconcileCoopBattle';
-import { campaignBranchSegmentReader } from '@/lib/campaign/rebuild/campaignBranchSegmentReader';
 import {
-  campaignViewerAuthorityFingerprint,
   CampaignPublicAppliedViewStore,
   readCampaignPublicAppliedView,
 } from '@/lib/campaign/sync/campaignPublicAppliedView';
-import { projectCampaignForViewer } from '@/lib/campaign/sync/campaignViewerProjection';
-import {
-  CAMPAIGN_STREAM_TYPE,
-  envelopeOf,
-  type ICampaignJournalEnvelope,
-} from '@/lib/campaign/sync/JournalCampaignEventStore';
-import {
-  materializeBranchPath,
-  resolveBranchPath,
-} from '@/lib/events/journal/EventHistoryBranchResolver';
+import { CAMPAIGN_STREAM_TYPE } from '@/lib/campaign/sync/JournalCampaignEventStore';
 import { readEffectiveStreamHead } from '@/lib/events/journal/EventHistoryEffectiveStreamHead';
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
-import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
 import { readDurableCampaignArtifactUse } from '@/lib/interventions/GmCampaignArtifactUseDurable';
 import { normalizeRoomCode } from '@/lib/p2p/roomCodes';
 import { activeCampaignSessionMembership } from '@/services/campaignPersistence/CampaignSessionParticipantStore';
@@ -55,6 +35,11 @@ import {
 } from '@/types/multiplayer/Protocol';
 
 import type {
+  IApplicationCandidate,
+  IApplicationView,
+  ICampaignApplicationReceiptPort,
+} from './campaignApplicationConnection';
+import type {
   CampaignHostRegistry,
   ICampaignHostRegistryEntry,
 } from './CampaignHostRegistry';
@@ -64,16 +49,24 @@ import {
   admitBoundCampaignParticipation,
   captureCampaignConnectionBaseline,
 } from './authorizeCampaignParticipation';
+import {
+  COMMIT_ATTEMPTS,
+  errorFrame,
+  HEAD_DRIFT,
+  isApplicationAck,
+  NOT_OFFERED,
+  preparePublicCut,
+  sameAppliedView,
+  send,
+} from './campaignApplicationConnection';
 import { campaignEventWireFrame } from './campaignEventWireFrame';
 import {
   createCampaignGrantChannelDepsFromSqlite,
   createCampaignReplicaStoreFromSqlite,
 } from './campaignGrantChannelDeps';
 import { getCampaignHostRegistry } from './CampaignHostRegistry';
-import { selectCampaignMissionLaunches } from './campaignMissionLaunchReplay';
 import { formatCampaignProgressionRefusalReason } from './CampaignProgressionGate';
 import { refusedWhileCampaignRebuilding } from './campaignSyncRebuildAdmission';
-import { campaignScopeAdmits } from './campaignWireScopeBoundary';
 import {
   handleCampaignGrantAck,
   type IBoundGrantSession,
@@ -224,10 +217,7 @@ export interface IBindCampaignSyncConnectionDeps {
   applicationReceipts?: ICampaignApplicationReceiptPort | null;
 }
 
-/** The campaign database the P2CA applied-view owner commits on. */
-export interface ICampaignApplicationReceiptPort {
-  readonly database: () => Database.Database;
-}
+export type { ICampaignApplicationReceiptPort } from './campaignApplicationConnection';
 
 export interface IBoundCampaignSyncConnection {
   entry: ICampaignHostRegistryEntry;
@@ -1586,128 +1576,6 @@ function armTimeoutOutcomeBroadcast(
   });
 }
 
-const NOT_OFFERED = 'campaign-application-not-offered';
-const COMMIT_ATTEMPTS = 3;
-/** Thrown inside the P2CA transaction when the head moved past the prepared cut. */
-const HEAD_DRIFT = new Error('campaign-application-head-drift');
-
-function isApplicationAck(
-  message: IClientMessage | ICampaignApplicationAck,
-): message is ICampaignApplicationAck {
-  return message.kind === 'CampaignAck' && message.appliedView !== undefined;
-}
-
-const sameAppliedView = (a: ICampaignAppliedView, b: ICampaignAppliedView) =>
-  a.viewId === b.viewId &&
-  a.receiptId === b.receiptId &&
-  a.previousReceiptId === b.previousReceiptId;
-
-/** One participant's verified public view at one captured journal cut. */
-interface IPublicCut {
-  readonly branchId: string;
-  readonly effectiveGeneration: number;
-  readonly revision: number;
-  readonly viewerAuthorityFingerprint: string;
-  readonly removed: boolean;
-  readonly state: ICampaignAuthoritativeState;
-  readonly launches: readonly ICampaignEvent[];
-  readonly visible: readonly { event: ICampaignEvent; revision: number }[];
-}
-
-/**
- * Head, branch path and durable seat are captured in one read transaction;
- * the captured path is materialized outside SQL and must reach the captured
- * digest. Projection, withholding and launch selection are the existing
- * owners'. Null when the participant holds no active seat.
- */
-async function preparePublicCut(
-  db: Database.Database,
-  campaignId: string,
-  sessionId: string,
-  participantId: string,
-): Promise<IPublicCut | null> {
-  const stream = { streamType: CAMPAIGN_STREAM_TYPE, streamId: campaignId };
-  const branches = new SQLiteEventHistoryBranchStore(db);
-  const captured = db.transaction(() => {
-    const head = readEffectiveStreamHead(db, branches, stream);
-    return {
-      head,
-      generation: branches.requireEffectiveHead(stream).effectiveGeneration,
-      path: resolveBranchPath(branches, stream, head.branchId, head.revision),
-      membership: activeCampaignSessionMembership(
-        campaignId,
-        sessionId,
-        participantId,
-      ),
-    };
-  })();
-  if (captured.membership === null) return null;
-  const stored = await materializeBranchPath(
-    campaignBranchSegmentReader(
-      new SQLiteEventJournal<ICampaignJournalEnvelope>(db),
-    ),
-    captured.path,
-  );
-  const reached =
-    stored.at(-1)?.eventDigest ?? captured.path.segments[0].baseDigest;
-  if (reached !== captured.head.digest) {
-    throw new Error('campaign-application-history-integrity');
-  }
-  const events = stored.map(envelopeOf);
-  const viewer = { participantId, isGm: captured.membership.seat === 'gm' };
-  const admits = (scope: CampaignEventScope) =>
-    campaignScopeAdmits(scope, viewer);
-  const { visible, state } = projectCampaignForViewer(
-    campaignId,
-    events,
-    admits,
-  );
-  const revisionOf = new Map(
-    events.map((event, index) => [event, stored[index].streamRevision]),
-  );
-  return {
-    branchId: captured.head.branchId,
-    effectiveGeneration: captured.generation,
-    revision: captured.head.revision,
-    viewerAuthorityFingerprint: campaignViewerAuthorityFingerprint(
-      captured.membership,
-      viewer,
-    ),
-    // From the whole verified history, so it holds before the seat heals.
-    removed: events.some(
-      (event) =>
-        event.type === 'ParticipantRemoved' &&
-        event.payload.participantId === participantId,
-    ),
-    state,
-    // `visible` is already bounded by the captured cut.
-    launches: selectCampaignMissionLaunches(visible, Infinity, admits),
-    visible: visible.map((event) => ({
-      event,
-      revision: revisionOf.get(event) ?? 0,
-    })),
-  };
-}
-
-interface IApplicationCandidate {
-  readonly frame: ICampaignApplicationOffer;
-  readonly cut: number;
-}
-
-interface IApplicationView {
-  readonly viewId: string;
-  readonly abort: AbortController;
-  authority: Pick<
-    IPublicCut,
-    'branchId' | 'effectiveGeneration' | 'viewerAuthorityFingerprint'
-  > | null;
-  latest: IApplicationCandidate | null;
-  inFlight: IApplicationCandidate | null;
-  pendingAck: ICampaignAppliedView | null;
-  chain: Promise<void>;
-  refreshQueued: boolean;
-}
-
 /**
  * P2CE: one socket's public application view. Offers bind this socket, its
  * verified principal, campaign, session, and the prepared authority and
@@ -2151,22 +2019,6 @@ function closeWithTypedError({
   cleanup();
 }
 
-function errorFrame(
-  matchId: string,
-  code: IErrorCode,
-  reason: string,
-  intentId?: string,
-): Extract<IServerMessage, { kind: 'Error' }> {
-  return {
-    kind: 'Error',
-    matchId,
-    ts: nowIso(),
-    code,
-    reason,
-    ...(intentId ? { intentId } : {}),
-  };
-}
-
 function closeFrame(
   matchId: string,
   code: IErrorCode,
@@ -2179,19 +2031,4 @@ function closeFrame(
     code,
     reason,
   };
-}
-
-function send(socket: IMatchSocket, message: IServerMessage): void {
-  if (socket.readyState !== 1) return;
-  try {
-    socket.send(JSON.stringify(message));
-  } catch {
-    // A downstream socket is allowed to fail; the SOURCE is not allowed
-    // to fail with it. A real socket throws from send when it is closing
-    // or already closed, and this helper is called from the close path
-    // itself - which runs inside a catch handler, so a throw here would
-    // escape the handler entirely and surface as an unhandled rejection
-    // in the source process. One-way data flow means a consumer can lose
-    // frames, never that it can throw into the server.
-  }
 }

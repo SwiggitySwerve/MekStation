@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CG1A1",
+  "stage": "local",
+  "baseline": "6645308f4d6bdd6a424e73761ee20ffa81f8101f",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "Task14 / P2CG1A1 implementation sub-agent"
+  },
+  "runtime": "node v22.22.0",
+  "commands": [
+    "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --testPathPattern='campaignLaunchAuthorityRoute|campaignProgressionReaders.durable|CampaignSyncSession'",
+    "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --runTestsByPath <the same 31 caller suites as the red receipt>",
+    "the same 35 suites once more with --json --outputFile post-results.json"
+  ],
+  "exitCode": 0,
+  "result": "Task 14 selector 4 suites, 96 tests passed; caller suites 31 suites, 273 tests passed; combined JSON 35 suites, 369 tests passed. The sorted list of suite, full test name and status is identical to the baseline list in base-results.json (369 = 369). No test file changed",
+  "productBytes": {
+    "src/lib/multiplayer/server/bindCampaignSyncConnection.ts": "212bf491afdc4cfe491d402cf7fb6695d067621ea757c1d35d72c16d6fd7dab7",
+    "src/lib/multiplayer/server/campaignApplicationConnection.ts": "d5b10779aff6d2cae00a35264eab11e82707b104662c7cd86e9387341bfaecd3"
+  },
+  "moveProof": {
+    "script": {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-14-p2cg1a1-20261016/move-proof.cjs",
+      "sha256": "1a81c6e979cce1c24f60bd36850e4019a2899c508b5d03a8b9987a84c308cacb"
+    },
+    "output": {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-14-p2cg1a1-20261016/move-proof.json",
+      "sha256": "27fba579393805e1c0db3f2258435c1e018bfdd58fab615d9c14a27505315dc7"
+    },
+    "verdict": "PASS",
+    "checks": [
+      "The new file declares exactly the twelve moved names in base order, each exported, and nothing else besides imports",
+      "11 of 12 declarations equal their base bytes, leading comments included, once one export keyword is removed from each side",
+      "sameAppliedView differs only in layout: adding export takes its first line past 80 columns, so the formatter wraps the two parameters and adds a trailing comma. Its text equals base modulo whitespace and that comma, its tokens equal base modulo the comma, and its syntax tree (node kinds and leaf texts) equals base",
+      "The binder outside its import header equals the base outside its import header with the twelve declarations removed, statement by statement with leading comments (43 statements); the only added statement is export type { ICampaignApplicationReceiptPort } from './campaignApplicationConnection', at the interface's old place",
+      "Every name imported by the new file and the binder binds to the same module the base binder imported it from; the binder imports only moved names from the new file",
+      "The binder exports the same names as at base",
+      "No runtime import path leads from the new file back to the binder (transitive closure of 149 files over value imports); the new file does not import the binder"
+    ],
+    "probes": {
+      "log": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-14-p2cg1a1-20261016/move-proof-probes.log",
+        "sha256": "2cd0621be8b4d1767ab3adc74a68523c2eb616fb8fe1bef011200299d4177299"
+      },
+      "result": "6 of 6 one-token or one-statement injections fail the script with exit 1: COMMIT_ATTEMPTS 3 to 4, the history-integrity !== to ===, the send readyState 1 to 0, one word in the HEAD_DRIFT doc comment, a close code in the binder remainder, and a NOT_OFFERED redeclared in the binder. The comment probe failed only after the layout check was made a gate; its first version passed it, so the gate was tightened before this final run"
+    }
+  },
+  "runtimeLoad": "require('tsx/cjs') then require of both TypeScript modules, as server.js loads the binder: binder runtime exports bindCampaignSyncConnection (unchanged), the new module exports COMMIT_ATTEMPTS, HEAD_DRIFT, NOT_OFFERED, errorFrame, isApplicationAck, preparePublicCut, sameAppliedView and send (tsx-smoke.log)",
+  "census": {
+    "files": "7 of 15 (6 in this change plus the reserved review slot)",
+    "productAddedLines": "233 of 500 (campaignApplicationConnection.ts 199, bindCampaignSyncConnection.ts 18, units.json 16), git diff --numstat --no-renames against baseline; the binder loses 181 lines; no test additions; evidence additions are not counted",
+    "estimate": "The frozen admission estimate was about 240 and the registration estimate 190-240; the measured 233 is inside both"
+  },
+  "checks": {
+    "typecheck": "PASS",
+    "lint": "PASS (0 errors; 86 warnings repo-wide against 85 at baseline. The binder keeps its max-lines warning at 1638 counted lines, down from 1773. The one new warning is typescript-eslint(explicit-module-boundary-types) on the now-exported sameAppliedView, which has no return annotation at base; adding one would change moved text, so it is left for P2CG1A2, where the class joins it and the export can be dropped)",
+    "format": "PASS (npm run format:check)",
+    "lintUnits": "PASS (scripts/qc/lint-units.mjs: LINT_UNITS_PASS 17899/17899, src-tests 17783/17783, ceilings unchanged)",
+    "circularImports": "The repository's madge script is npx-only (madge is not installed) and was not run; the move-proof script's runtime-import closure check stands in for it",
+    "roadmap": "validate-roadmap.mjs, --next and validate-roadmap.test.mjs recorded in the attempt directory",
+    "testStable": "npm run test:stable runs once after this receipt is frozen, so the roadmap script suites validate these exact bytes; its result is recorded in the attempt directory and the pull request, not here"
+  },
+  "logs": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-14-p2cg1a1-20261016/",
+  "boundary": "Move only. No logic, signature or test change; server.js composes no applicationReceipts, so production stays legacy. The class doc comment registered inside slice 1 stays with the class for P2CG1A2 (admission correction). No merge or Main proof claimed.",
+  "status": "Candidate local checks only; independent exact-head review pending"
+}

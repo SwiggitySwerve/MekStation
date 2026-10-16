@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CG1A1",
+  "stage": "admission",
+  "date": "20261016",
+  "baseline": "6645308f4d6bdd6a424e73761ee20ffa81f8101f",
+  "authority": "Root Task14/P2CG1A1 implementation delegation after the P2CG1 split registration (PR #2165, merge 6645308f, receipt evidence/p2cg1-split-registration-20261016.json; sequencing review docs/audits/2026-10-16-task14-sequencing-fable-review.md, correction R1); validate-roadmap --next printed P2CG1A1 at the baseline",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "Task14 / P2CG1A1 implementation sub-agent"
+  },
+  "predecessors": {
+    "P2CF1": "main-verified, mergeSha 4895b2c3664a9d1f802ef947f05b90aac29862a0, mainProof PASS, ancestor of baseline",
+    "P2CF2": "main-verified, mergeSha ad2822abe66faf80caab6ffaa4fd7eb66b2e8030, mainProof PASS, ancestor of baseline"
+  },
+  "caps": {
+    "files": 15,
+    "productAddedLines": 500
+  },
+  "restriction": {
+    "container": "R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1A1",
+    "leaves": 2,
+    "knownSourceTestLifecycleSubtotal": 3
+  },
+  "sourceCandidate": "None preserved; this slice is move-only, so it records unmodified passing suites and a moved-text comparison instead of a red-first proof",
+  "census": {
+    "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-14-p2cg1a1-20261016/census.md",
+    "bytes": 5140,
+    "sha256": "143b44423f3a210eba2969a75d23a485be0e838943b3c8703ecb22bf9308ae2b",
+    "frozenBefore": "any source, test, lifecycle or evidence edit"
+  },
+  "frozenFiles": [
+    {
+      "path": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+      "exists": true,
+      "sha256": "f6a3f3b7440d66c6208789dbaca75982d4445c6b4cfa38b968a049da730869bd",
+      "bytes": 70875
+    },
+    {
+      "path": "src/lib/multiplayer/server/campaignApplicationConnection.ts",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "exists": true,
+      "sha256": "6315fa8aea0c0c6a69c840922f20f9fc78e334fb303ceb3590795144ea479691",
+      "bytes": 1400494
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1a1-admission-20261016.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1a1-admission-review-20261016.md",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1a1-red-20261016.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1a1-local-20261016.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    }
+  ],
+  "movedBlocks": {
+    "file": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+    "baseLines": 2197,
+    "blocks": [
+      "ICampaignApplicationReceiptPort with its doc comment, 227-230 (4 lines)",
+      "NOT_OFFERED, COMMIT_ATTEMPTS, HEAD_DRIFT, isApplicationAck, sameAppliedView, IPublicCut, preparePublicCut, IApplicationCandidate, IApplicationView, 1589-1709 (121 lines)",
+      "errorFrame, 2154-2168 (15 lines)",
+      "send, 2184-2197 (14 lines)"
+    ],
+    "correction": "The registered slice-1 range 1589-1723 (135 lines) ends inside the doc comment of class CampaignApplicationConnection (1711-1723; the class starts at 1724). The behaviour text does not list that comment and splitting it from its class would orphan it, so it stays with the class and moves in P2CG1A2, whose block becomes 1711-2049 at this baseline (339 lines, 13 more than its registered 326)."
+  },
+  "notTouched": "Every test file, every harness and helper, server.js, CampaignHostRegistry, the Protocol types and every other server module. bindCampaignSyncConnection.test.ts and coopMissionAnnouncement.reconnect.test.ts run unmodified",
+  "overlap": "gh pr list --state open (#2154, #2153, #2113, #1886): none touches src/lib/multiplayer/server or units.json; no remote branch matching *p2cg1a1* at baseline. The binder is byte-identical to the registration base d0a7dd8b6 (sha256 f6a3f3b7...)",
+  "activationPredicate": "Unchanged: application offers are issued only when the binder is composed with applicationReceipts and membership; server.js composes no applicationReceipts, so production traffic stays legacy",
+  "reviewSlot": "Reserved for independent reviewer; author must not write review",
+  "summary": "Ordinary admission of the 7 frozen paths (2 restriction leaves, units.json, 4 evidence including the reserved review slot). No cap exception, no unnamed leaf, no merge or Main claim."
+}
