@@ -1,3 +1,37 @@
+## 2026-10-16 P2CB source verified on main; closure metadata proposed
+
+P2CB advances from implementing to main-verified for source PR #2143,
+head fcf0261a6903fd7c619ca350fab752e7c7c01636, merge b352a8e3c2b05a9295882aff76017a25e499e170.
+Its baseline remains the admission base 42e3554bdd1d36426877f6d9100d93dc7e92782f.
+The owner explicitly authorized this transcription of [comment 6205924360](https://github.com/SwiggitySwerve/MekStation/pull/2143#issuecomment-6205924360);
+its exact UTF-8 body, without an added newline, hashes to 23cd480ff400f67045d962cb40bac7f2974d6076594cab1200b2ee3a58a85e97.
+The merge (01:27:01Z) preceded the ruling (01:27:15Z); this record preserves that chronology.
+PK-p2cb-ruling is first recorded here, after both the merge and the ruling.
+
+The admission, red and local receipts came with the source PR and are unchanged.
+The [review receipt](evidence/p2cb-review-20261016.json) binds the Fable 5.1 review
+of the exact merged head (APPROVE-WITH-NOTES; author Opus 5.5), preserved byte for byte.
+The reviewer re-ran the three leaves and both caller suites (5 suites, 108 tests).
+The author's stable run (2795 suites, 37067 passed) ended 44 seconds before
+fcf0261a was committed, so it covers the pre-commit tree, not the commit object.
+campaignPublicAppliedView.ts (488 counted lines) is a registered-owner exception;
+a facade-preserving split is a future successor and is not registered here.
+The reserved p2cb-admission-review-20261016.md slot stays unwritten.
+
+All 31 checks on the merged head succeeded. The [merge receipt](evidence/p2cb-merge-20261016.json)
+binds both ordered parents and the matching integration tree. The [main proof](evidence/p2cb-mainproof-20261016.json)
+is a fresh run at the merge before any closure edit: five suites, 108 tests,
+typecheck and the validator passed. It references the attempt logs by hash.
+
+P2CB has no task keys. Its tick remains null because source/closure cleanup
+is not established here; no tasks.md row is changed. P2CB therefore releases
+its in-flight src/lib/campaign and src/lib/multiplayer/server reservation at
+main-verified, while P2/U38 and all other unit states remain unchanged.
+Selection is not downstream admission.
+This closure metadata still requires its own review, CI and parent merge.
+
+---
+
 ## 2026-10-16 P2CD source verified on main; closure metadata proposed
 
 P2CD advances from planned to main-verified for source PR #2139,
