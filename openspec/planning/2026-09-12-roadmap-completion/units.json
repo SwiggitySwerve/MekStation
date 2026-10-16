@@ -6198,6 +6198,12 @@
         "reason": "P2CF stopped at admission before any edit: full Task 13 needs 11 source/test leaves, 7 of them outside the registered P2CF restriction, and 16-17 files with lifecycle, receipts and the reserved review slot against the 15-file cap. This slice holds the fold, mirror and transport building blocks.",
         "evidence": "evidence/p2cf-split-registration-20261016.json",
         "planTask": "13"
+      },
+      "amended20261016": {
+        "at": "2026-10-16T17:06:04.000Z",
+        "change": "documentary note only; behaviour text unchanged",
+        "note": "Closure review N1 (docs/audits/2026-10-16-p2cf1-fable-review.md): the behaviour text should read \"every other campaign-application-* INVALID_INTENT\" (eleven server reasons at head: binder not-offered, receipt-required, head-drift; P2CA accept invalid-offer, unknown-receipt, offer-binding, not-admitted, current-authority, receipt-conflict, baseline-required, replacement-required) and mention foldCampaignHydration's signature (fold, snapshot, hydrationFacts, replacement?, resumeSequence?) and the mirror's fourth positional argument. Owner: the parent. Recorded under review m3 of the P2CG1 split registration review.",
+        "evidence": "evidence/p2cg1-split-registration-correction-20261016.json"
       }
     },
     {
@@ -6291,6 +6297,12 @@
         "reason": "P2CF stopped at admission before any edit: full Task 13 needs 11 source/test leaves, 7 of them outside the registered P2CF restriction, and 16-17 files with lifecycle, receipts and the reserved review slot against the 15-file cap. This slice holds the mounted consumer, the guarded saved-record refresh and the staged maxima.",
         "evidence": "evidence/p2cf-split-registration-20261016.json",
         "planTask": "13"
+      },
+      "amended20261016": {
+        "at": "2026-10-16T17:06:04.000Z",
+        "change": "documentary note only; behaviour text unchanged",
+        "note": "Closure review N1 (docs/audits/2026-10-16-p2cf2-fable-review.md): \"the baseline is adopted as an authorized replacement from EMPTY at cursor -1; the guest mirror is replaced by the view's baseline rather than reset per binding; a guarded refresh does not announce `saving`\". Owner: the parent. Recorded under review m3 of the P2CG1 split registration review. successors still names the superseded P2CG1 (review m4, left open); it resolves through P2CG1.superseded20261016.by.",
+        "evidence": "evidence/p2cg1-split-registration-correction-20261016.json"
       }
     },
     {
@@ -6350,13 +6362,19 @@
       },
       "superseded20261016": {
         "at": "2026-10-16T16:15:30.000Z",
-        "by": "P2CG1A1, P2CG1A2, P2CG1B, P2CG1C, P2CG1D, P2CG1E, P2CG1F, P2CG1G1, P2CG1G2, P2CG1H, P2CG1I1, P2CG1I2, P2CG1I3",
+        "by": "P2CG1A1, P2CG1A2, P2CG1B, P2CG1C, P2CG1D, P2CG1E, P2CG1F, P2CG1G1, P2CG1G2, P2CG1H, P2CG1I1, P2CG1I2, P2CG1I3, P2CG1I4",
         "note": "Retained as the truthful record of the stopped P2CG1 admission, following P2CE, P2CF, P1B and U24. Its complete Task 14 behaviour and every required scenario are delivered and proved by the thirteen successors; no P2CG1 completion receipts are fabricated.",
         "evidence": "evidence/p2cg1-split-registration-20261016.json"
       },
       "blocked20261016": {
         "cause": "The registered 10-leaf P2CG1 set fits 15 files with no spare, but its behaviour cannot be delivered inside it without breaking production. server.js never composes applicationReceipts, so removing MAX(acked_sequence) and the retained-memory credit refuses every co-op AdvanceDay and fails the two-browser journey. Activation, the accepted A1/B/A2 commit-door groups and the Task 13 creator carry-forwards add at least 23 more code/test leaves outside the restriction, many outside the ownershipPaths; the full union is at least 33 code/test paths against the unchanged 15-file cap. No required scenario may be dropped.",
         "nextIndependentAction": "Admit P2CG1A1; release each later successor after its predecessor is complete with an exact-main mainProof PASS. P2CG1 itself is not re-admitted."
+      },
+      "amended20261016Correction": {
+        "at": "2026-10-16T17:06:04.000Z",
+        "change": "fourteenth successor P2CG1I4 added to superseded20261016.by",
+        "note": "Review M2 (docs/audits/2026-10-16-p2cg1-split-registration-fable-review.md) registered P2CG1I4 after P2CG1I3. superseded20261016.note still says thirteen; the successor set is the fourteen in superseded20261016.by.",
+        "evidence": "evidence/p2cg1-split-registration-correction-20261016.json"
       }
     },
     {
@@ -6418,7 +6436,7 @@
       "id": "P2CG1A2",
       "node": "R2.authority-live",
       "taskKeys": [],
-      "behavior": "Second narrower P2CG1 successor, slice 2 of the move-only binder extraction. Moves the CampaignApplicationConnection class (binder lines 1724-2049 at base d0a7dd8b6, 326 physical lines) into campaignApplicationConnection.ts beside the slice-1 types, unchanged apart from export keywords and import lines; the binder imports it. IWireCampaignSocket and ICampaignSessionMembershipPort may be imported from the binder as types only; runtime helpers come from the slice-1 file. No behaviour change and no test change: the same unmodified suites and the same moved-text comparison as P2CG1A1. Planned leaves (2): src/lib/multiplayer/server/bindCampaignSyncConnection.ts and src/lib/multiplayer/server/campaignApplicationConnection.ts. Estimated at about 370-410 counted lines with lifecycle (the class alone is 326 lines); that is not a cap-fit proof. If admission measures more than 500, the class is split again through the successor procedure, never by a cap exception.",
+      "behavior": "Second narrower P2CG1 successor, slice 2 of the move-only binder extraction. Moves the CampaignApplicationConnection class (binder lines 1724-2049 at base d0a7dd8b6, 326 physical lines) into campaignApplicationConnection.ts beside the slice-1 types, unchanged apart from export keywords and import lines; the binder imports it. IWireCampaignSocket and ICampaignSessionMembershipPort may be imported from the binder as types only; runtime helpers come from the slice-1 file. No behaviour change and no test change: the same unmodified suites and the same moved-text comparison as P2CG1A1. Planned leaves (2): src/lib/multiplayer/server/bindCampaignSyncConnection.ts and src/lib/multiplayer/server/campaignApplicationConnection.ts. Estimated at about 370-410 counted lines with lifecycle (the class alone is 326 lines); that is not a cap-fit proof. If admission measures more than 500, the class is split again through the successor procedure, never by a cap exception. After the move campaignApplicationConnection.ts is about 404 non-blank non-comment lines and trips oxlint max-lines (400, warn, skipBlankLines/skipComments, .oxlintrc.json 134-137); npm run lint does not fail on warnings. Record the warning in the admission receipt; do not split further for it and do not add a lint override.",
       "ownershipPaths": [
         "src/lib/multiplayer/server"
       ],
@@ -6466,6 +6484,12 @@
         "reason": "P2CG1 stopped at admission before any edit: its registered leaves cannot carry activation or the accepted commit-door groups, and removing legacy credit without activation breaks production co-op. Main after this unit merges: Legacy intact; receipts dormant. Binder behaviour byte-equivalent; the binder no longer holds the application class.",
         "evidence": "evidence/p2cg1-split-registration-20261016.json",
         "planTask": "14"
+      },
+      "amended20261016Correction": {
+        "at": "2026-10-16T17:06:04.000Z",
+        "change": "behaviour note: expected oxlint max-lines warning on campaignApplicationConnection.ts",
+        "note": "Review m2 (docs/audits/2026-10-16-p2cg1-split-registration-fable-review.md). Leaves, ownership and estimate unchanged.",
+        "evidence": "evidence/p2cg1-split-registration-correction-20261016.json"
       }
     },
     {
@@ -6803,7 +6827,7 @@
       "id": "P2CG1G2",
       "node": "R2.authority-live",
       "taskKeys": [],
-      "behavior": "Ninth narrower P2CG1 successor: creator binding. Binds expectedCampaignId at every creator in one change (CF9): CampaignCoopEntryPanel.tsx 328, the surface's two connectStoredCampaignSyncTransport calls at 159 and 294, and launch.tsx 149 and 177. CF10: the entry panel and the launch page resolve the transport through getActiveCampaignSyncTransport on each use, so a consumer rejoin re-seats them. The unit must prove the wire is byte-identical against the legacy binder: the bound join still quotes lastSeq (P2CG1E), and numeric observation ACKs are unchanged until an offer latches receipt mode (P2CF2 N5). index.coop.test.tsx mocks the transport module without getActiveCampaignSyncTransport, so it changes with the entry panel. Planned leaves (6): src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx, src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx, src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx, src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx, src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx and src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx. Estimated at about 45-90 counted lines with lifecycle; that is not a cap-fit proof.",
+      "behavior": "Ninth narrower P2CG1 successor: creator binding. Binds expectedCampaignId at every creator in one change (CF9): CampaignCoopEntryPanel.tsx 328 (a direct connectCampaignSyncTransport call with a freshly minted token, not connectStoredCampaignSyncTransport; binding there passes expectedCampaignId into that call, whose options already accept it), the surface's two connectStoredCampaignSyncTransport calls at 159 and 294, and launch.tsx 149 and 177. CF10: the entry panel and the launch page resolve the transport through getActiveCampaignSyncTransport on each use, so a consumer rejoin re-seats them. The unit must prove the wire is byte-identical against the legacy binder: the bound join still quotes lastSeq (P2CG1E), and numeric observation ACKs are unchanged until an offer latches receipt mode (P2CF2 N5). index.coop.test.tsx mocks the transport module without getActiveCampaignSyncTransport, so it changes with the entry panel. Planned leaves (6): src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx, src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx, src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx, src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx, src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx and src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx. Estimated at about 45-90 counted lines with lifecycle; that is not a cap-fit proof.",
       "ownershipPaths": [
         "src/components/campaign/coop",
         "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
@@ -6856,13 +6880,19 @@
         "reason": "P2CG1 stopped at admission before any edit: its registered leaves cannot carry activation or the accepted commit-door groups, and removing legacy credit without activation breaks production co-op. Main after this unit merges: Legacy on the wire; every creator is bound; joins still quote lastSeq; numeric ACKs unchanged until an offer latches receipt mode.",
         "evidence": "evidence/p2cg1-split-registration-20261016.json",
         "planTask": "14"
+      },
+      "amended20261016Correction": {
+        "at": "2026-10-16T17:06:04.000Z",
+        "change": "CF9 citation corrected: CampaignCoopEntryPanel.tsx 328 calls connectCampaignSyncTransport",
+        "note": "Review m5 (docs/audits/2026-10-16-p2cg1-split-registration-fable-review.md). Documentary; no leaf change.",
+        "evidence": "evidence/p2cg1-split-registration-correction-20261016.json"
       }
     },
     {
       "id": "P2CG1H",
       "node": "R2.authority-live",
       "taskKeys": [],
-      "behavior": "Tenth narrower P2CG1 successor: activation. The new src/lib/multiplayer/server/campaignApplicationReceiptPort.ts returns a port whose database() is the composing graph's getSQLiteService().getDatabase(); that is C2/N3 by construction, and its test asserts the identity. It runs SQLiteEventHistoryBranchStore.backfillGenesisBranches() at install (N4; idempotent, NOT EXISTS-guarded). server.js installs it on getCampaignHostRegistry() inside loadMultiplayerRuntime, which app.prepare().then runs before createServer and listen. CampaignHostRegistry.globalSlot.test.ts pins that the Next API graph sees the install through the Symbol.for slot. The E2E-only probe e2ePerformanceProbeRoute answers convergence from entry.launch (P2CB) when the port is installed, else from evaluateScenarioLaunch, so the GM two-player performance pack waits on the gate the authority actually applies. e2e/gm-two-player-authority.pack1.spec.ts sends application ACKs for offered frames instead of the numeric CampaignAck the activated binder refuses. Narrow exception on the P2CH-owned e2e/coop-campaign-two-browser-journey.spec.ts: only the waits before the advance-day click are strengthened (the guest and host applied-view confirmation), so the gate sees both receipts; every scenario extension stays with P2CH. The preparePublicCut per-commit cost with N views is measured and recorded in the admission receipt (P2CE2 C3); a tail-read rewrite, if needed, is a later unit. The proof must include npm run verify:qc:coop-campaign-journey and runs of the co-op e2e specs that drive raw campaign sockets (gm-two-player-authority.pack1, gm-two-player-performance.pack, gm-two-player-authority-recovery.pack, gm-two-player-evidence.pack and campaign-journal-two-process-convergence). Any further spec that needs a change stops this unit for the successor procedure. Activation predicate (frozen): a typed ICampaignApplicationReceiptPort installed once on CampaignHostRegistry by server.js at boot; the binder composes application from it, each entry derives a graph-local CampaignLaunchView from it, and both HTTP doors key on its presence while building their own graph-bound view; no other switch exists. Planned leaves (8): server.js, src/lib/multiplayer/server/campaignApplicationReceiptPort.ts (new), src/lib/multiplayer/server/__tests__/campaignApplicationReceiptPort.test.ts (new), src/lib/multiplayer/server/__tests__/CampaignHostRegistry.globalSlot.test.ts, src/pages-modules/api/e2ePerformanceProbeRoute.ts, src/__tests__/api/e2ePerformanceProbeRoute.test.ts, e2e/coop-campaign-two-browser-journey.spec.ts (narrow wait exception) and e2e/gm-two-player-authority.pack1.spec.ts. Estimated at about 80-130 counted lines with lifecycle; that is not a cap-fit proof.",
+      "behavior": "Tenth narrower P2CG1 successor: activation. The new src/lib/multiplayer/server/campaignApplicationReceiptPort.ts returns a port whose database() is the composing graph's getSQLiteService().getDatabase(); that is C2/N3 by construction, and its test asserts the identity. It runs SQLiteEventHistoryBranchStore.backfillGenesisBranches() at install (N4; idempotent, NOT EXISTS-guarded). server.js installs it on getCampaignHostRegistry() inside loadMultiplayerRuntime, which app.prepare().then runs before createServer and listen. CampaignHostRegistry.globalSlot.test.ts pins that the Next API graph sees the install through the Symbol.for slot. The E2E-only probe e2ePerformanceProbeRoute answers convergence from entry.launch (P2CB) when the port is installed, else from evaluateScenarioLaunch, so the GM two-player performance pack waits on the gate the authority actually applies. e2e/gm-two-player-authority.pack1.spec.ts sends application ACKs for offered frames instead of the numeric CampaignAck the activated binder refuses. Narrow exception on the P2CH-owned e2e/coop-campaign-two-browser-journey.spec.ts: only the waits before the advance-day click are strengthened (the guest and host applied-view confirmation), so the gate sees both receipts; every scenario extension stays with P2CH. The preparePublicCut per-commit cost with N views is measured and recorded in the admission receipt (P2CE2 C3); a tail-read rewrite, if needed, is a later unit. The proof must include npm run verify:qc:coop-campaign-journey and runs of the co-op e2e specs that drive raw campaign sockets (gm-two-player-authority.pack1, gm-two-player-performance.pack, gm-two-player-authority-recovery.pack, gm-two-player-evidence.pack, campaign-journal-two-process-convergence, gm-two-player-membership.smoke and campaign-journal-two-process-privacy). Any further spec that needs a change stops this unit for the successor procedure. Activation predicate (frozen): a typed ICampaignApplicationReceiptPort installed once on CampaignHostRegistry by server.js at boot; the binder composes application from it, each entry derives a graph-local CampaignLaunchView from it, and both HTTP doors key on its presence while building their own graph-bound view; no other switch exists. Planned leaves (8): server.js, src/lib/multiplayer/server/campaignApplicationReceiptPort.ts (new), src/lib/multiplayer/server/__tests__/campaignApplicationReceiptPort.test.ts (new), src/lib/multiplayer/server/__tests__/CampaignHostRegistry.globalSlot.test.ts, src/pages-modules/api/e2ePerformanceProbeRoute.ts, src/__tests__/api/e2ePerformanceProbeRoute.test.ts, e2e/coop-campaign-two-browser-journey.spec.ts (narrow wait exception) and e2e/gm-two-player-authority.pack1.spec.ts. Estimated at about 80-130 counted lines with lifecycle; that is not a cap-fit proof.",
       "ownershipPaths": [
         "server.js",
         "src/lib/multiplayer/server",
@@ -6915,20 +6945,27 @@
         "reason": "P2CG1 stopped at admission before any edit: its registered leaves cannot carry activation or the accepted commit-door groups, and removing legacy credit without activation breaks production co-op. Main after this unit merges: Receipts active: offers, consumer ACKs and P2CA rows; both HTTP doors, mission create and the three socket progression sites read P2CB; numeric ACKs are refused campaign-application-receipt-required. Legacy credit code is present but unreachable. Rollback is reverting the install line.",
         "evidence": "evidence/p2cg1-split-registration-20261016.json",
         "planTask": "14"
+      },
+      "amended20261016Correction": {
+        "at": "2026-10-16T17:06:04.000Z",
+        "change": "proof run list extended with gm-two-player-membership.smoke and campaign-journal-two-process-privacy",
+        "note": "Review m1 (docs/audits/2026-10-16-p2cg1-split-registration-fable-review.md): both also open raw campaign sockets (gm-two-player-membership.smoke.spec.ts 383-391; campaign-journal-two-process-privacy through e2e/helpers/campaignJournalSocket.ts). No change is expected, so neither is a leaf; the run is the proof, and a spec that needs a change still stops this unit for the successor procedure.",
+        "evidence": "evidence/p2cg1-split-registration-correction-20261016.json"
       }
     },
     {
       "id": "P2CG1I1",
       "node": "R2.authority-live",
       "taskKeys": [],
-      "behavior": "Eleventh narrower P2CG1 successor: delete the HTTP and client legacy credit after activation. campaignLaunchProgressionGate loses MAX(acked_sequence) and listParticipantsBehind. A session-bearing launch-authority request without the installed port now fails closed with CAMPAIGN_NOT_CONVERGED; session-less requests keep the head-only answer, and the grant cursor stays in its own number space. campaignSyncTransport stops generating the numeric CampaignEvent and snapshot ACK (snapshotAckRevision and the !receiptMode branch). The route and transport tests move from seeded cursor rows to installed-port P2CA rows. Readiness in production is unchanged, because P2CG1H already made this code unreachable. Planned leaves (4): src/pages-modules/api/campaignLaunchProgressionGate.ts, src/lib/campaign/coop/campaignSyncTransport.ts, src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts and src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts. Estimated at about 25-50 counted lines with lifecycle, mostly deletions; that is not a cap-fit proof.",
+      "behavior": "Eleventh narrower P2CG1 successor: delete the HTTP and client legacy credit after activation. campaignLaunchProgressionGate loses MAX(acked_sequence) and listParticipantsBehind. A session-bearing launch-authority request without the installed port now fails closed with CAMPAIGN_NOT_CONVERGED; session-less requests keep the head-only answer, and the grant cursor stays in its own number space. campaignSyncTransport stops generating the numeric CampaignEvent and snapshot ACK (snapshotAckRevision and the !receiptMode branch). The route and transport tests move from seeded cursor rows to installed-port P2CA rows. Readiness in production is unchanged, because P2CG1H already made this code unreachable. Planned leaves (5): src/pages-modules/api/campaignLaunchProgressionGate.ts, src/lib/campaign/coop/campaignSyncTransport.ts, src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts, src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts and src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx. Estimated at about 25-50 counted lines with lifecycle, mostly deletions; that is not a cap-fit proof. The hostProjection legacy-traffic case is rewritten: an unbound transport still folds and sends no ACK of any kind; it is an I1 leaf in sequence after G1.",
       "ownershipPaths": [
         "src/pages-modules/api"
       ],
       "ownershipExceptions": [
         "openspec/planning/2026-09-12-roadmap-completion/units.json",
         "src/lib/campaign/coop/campaignSyncTransport.ts",
-        "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts"
+        "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+        "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -6971,6 +7008,12 @@
         "reason": "P2CG1 stopped at admission before any edit: its registered leaves cannot carry activation or the accepted commit-door groups, and removing legacy credit without activation breaks production co-op. Main after this unit merges: Receipts active; the HTTP cursor credit and the client numeric ACK generation are gone; readiness unchanged.",
         "evidence": "evidence/p2cg1-split-registration-20261016.json",
         "planTask": "14"
+      },
+      "amended20261016Correction": {
+        "at": "2026-10-16T17:06:04.000Z",
+        "change": "leaf added: CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx (restriction, ownershipExceptions, behaviour); subtotal 5 -> 6",
+        "note": "Review M1 (docs/audits/2026-10-16-p2cg1-split-registration-fable-review.md): the suite's legacy-traffic case asserts the numeric observation ACK this unit deletes and was outside the unit's leaves and ownership. 10 of 15 files; counted lines unchanged (test file).",
+        "evidence": "evidence/p2cg1-split-registration-correction-20261016.json"
       }
     },
     {
@@ -7071,13 +7114,73 @@
         "P2CG1I2"
       ],
       "successors": [
-        "P2CG2",
+        "P2CG1I4",
         "P2C"
       ],
       "source20261016": {
         "at": "2026-10-16T16:15:30.000Z",
         "reason": "P2CG1 stopped at admission before any edit: its registered leaves cannot carry activation or the accepted commit-door groups, and removing legacy credit without activation breaks production co-op. Main after this unit merges: Receipts active; all legacy readiness credit removed; Task 14 aggregate outcome complete.",
         "evidence": "evidence/p2cg1-split-registration-20261016.json",
+        "planTask": "14"
+      },
+      "amended20261016Correction": {
+        "at": "2026-10-16T17:06:04.000Z",
+        "change": "successor P2CG2 replaced by P2CG1I4",
+        "note": "P2CG1I3 is no longer the last P2CG1 successor: P2CG1I4 (fail-closed mission create) follows it. Its behaviour text is not rewritten; \"Thirteenth and last\" and its source20261016 \"Task 14 aggregate outcome complete\" now read through P2CG1I4.",
+        "evidence": "evidence/p2cg1-split-registration-correction-20261016.json"
+      }
+    },
+    {
+      "id": "P2CG1I4",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Fourteenth narrower P2CG1 successor: fail-closed mission create. `createCoopMissionMatch` refuses with a typed `CampaignMissionLaunchRefusal` arm, reason `campaign-readiness-port-not-installed`, answered by the matches route as 503 and never 201, whenever `getCampaignHostRegistry()` has no installed `ICampaignApplicationReceiptPort`; the old unprepared create body is deleted so the P2CG1C prepared operation is the only create. No caller may supply a substitute port, flag or environment switch. Readiness in a correctly composed process is unchanged (P2CG1H installs the port before listen); only a process whose runtime load failed changes, from an ungated create to a refusal, matching the I1 and I3 fail-closed rules. Estimated about 25-60 counted lines with lifecycle, mostly deletions. Planned leaves (7): src/lib/multiplayer/server/coopMissionCreate.ts, src/lib/multiplayer/server/CampaignMatchHost.ts (at 6645308f4 the CampaignMissionLaunchRefusal code union and its fixed status 409 live here), src/lib/multiplayer/server/coopMissionAdmission.ts (CoopMissionRefusal, whose status union 400 | 403 | 409 the matches route answers verbatim, so the route itself needs no change), src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts, src/lib/multiplayer/server/__tests__/coopMissionCreate.refusals.test.ts, src/lib/multiplayer/server/__tests__/coopMissionCreate.harness.ts and src/lib/multiplayer/server/__tests__/coopMissionCreate.fixture.ts (the last two count only if changed; the harness resets the registry in openRouteFixture, so the route tests are expected to install a test port there). That is not a cap-fit proof.",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "splitFrom": "P2CG1",
+      "admissionRequires": "Narrower ordinary-cap successor of P2CG1 (plan Task 14), registered by evidence/p2cg1-split-registration-correction-20261016.json. P2CG1I3 must be complete with a genuine exact-main mainProof PASS before the parent releases this unit to planned; NEXT does not enforce these unit dependencies. No preserved P2CG1 source candidate exists; this slice runs its own red-first proof and measured admission. Task8 must first complete independent exact-head docs review, current required CI, guarded merge and independent exact-main registration proof. Parent verifies documentary predecessors complete with genuine exact-main mainProof PASS, ancestry and closure on fetched main and no actual overlap before every source admission. NEXT selection supplies no permission. Prospective assignment only; source permission remains non-effective until normal finite admission freezes the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measures actual unique files and product/test additions under unchanged 15-file/500-product-added-line limits. Named source/test lists and known lower bounds are in R2.authority-live.ownershipPathsAmended20261009P2C.restrictions for this ID. No unnamed test, directory-wide grant, placeholder/hash, capException or cap inflation. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze of actual bytes/names/hashes and full census. If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required scenario.",
+      "predecessors": [
+        "P2CG1I3"
+      ],
+      "successors": [
+        "P2CG2",
+        "P2C"
+      ],
+      "source20261016": {
+        "at": "2026-10-16T17:06:04.000Z",
+        "reason": "The independent review of the P2CG1 split registration (M2) found mission create the one commit door left fail-open after the legacy deletions: in a process without the installed port it silently takes the old unprepared create while I1 and I3 fail closed. Main after this unit merges: Receipts active; all legacy readiness credit removed; mission create fails closed without the installed port; Task 14 aggregate outcome complete.",
+        "evidence": "evidence/p2cg1-split-registration-correction-20261016.json",
         "planTask": "14"
       }
     },
@@ -7121,7 +7224,7 @@
       "ownerGate": null,
       "admissionRequires": "Task8 must first complete independent exact-head docs review, current required CI, guarded merge and independent exact-main registration proof. Parent verifies documentary predecessors complete with genuine exact-main mainProof PASS, ancestry and closure on fetched main and no actual overlap before every source admission. NEXT selection supplies no permission. Prospective assignment only; source permission remains non-effective until normal finite admission freezes the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measures actual unique files and product/test additions under unchanged 15-file/500-product-added-line limits. Named source/test lists and known lower bounds are in R2.authority-live.ownershipPathsAmended20261009P2C.restrictions for this ID. No unnamed test, directory-wide grant, placeholder/hash, capException or cap inflation. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze of actual bytes/names/hashes and full census. If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required scenario.",
       "predecessors": [
-        "P2CG1I3"
+        "P2CG1I4"
       ],
       "successors": [
         "P2CH",
@@ -7129,8 +7232,8 @@
       ],
       "amended20261016P2CG1": {
         "at": "2026-10-16T16:15:30.000Z",
-        "change": "predecessor P2CG1 replaced by P2CG1I3, the last of its thirteen successors",
-        "note": "P2CG1 is superseded by P2CG1A1/P2CG1A2/P2CG1B/P2CG1C/P2CG1D/P2CG1E/P2CG1F/P2CG1G1/P2CG1G2/P2CG1H/P2CG1I1/P2CG1I2/P2CG1I3 (evidence/p2cg1-split-registration-20261016.json); its absence of a mainProof is not bypassed or falsified."
+        "change": "predecessor P2CG1 replaced by P2CG1I3, the last of its thirteen successors; corrected to P2CG1I4, the fourteenth and last, by evidence/p2cg1-split-registration-correction-20261016.json",
+        "note": "P2CG1 is superseded by P2CG1A1/P2CG1A2/P2CG1B/P2CG1C/P2CG1D/P2CG1E/P2CG1F/P2CG1G1/P2CG1G2/P2CG1H/P2CG1I1/P2CG1I2/P2CG1I3/P2CG1I4 (evidence/p2cg1-split-registration-20261016.json and evidence/p2cg1-split-registration-correction-20261016.json); its absence of a mainProof is not bypassed or falsified."
       }
     },
     {
@@ -7221,7 +7324,7 @@
         "tick": null
       },
       "ownerGate": null,
-      "admissionRequires": "Task8 must first complete independent exact-head docs review, current required CI, guarded merge and independent exact-main registration proof. All twenty-three source slices require genuine complete/PASS/ancestry/closure; original P2/U38 remain blocked until Task17 full semantic qualification and explicit original-prerequisite readmission. NEXT selection supplies no permission. No aggregate output beyond the two named documentary leaves is effective before Task17/G-OWN freeze.",
+      "admissionRequires": "Task8 must first complete independent exact-head docs review, current required CI, guarded merge and independent exact-main registration proof. All twenty-four source slices require genuine complete/PASS/ancestry/closure; original P2/U38 remain blocked until Task17 full semantic qualification and explicit original-prerequisite readmission. NEXT selection supplies no permission. No aggregate output beyond the two named documentary leaves is effective before Task17/G-OWN freeze.",
       "predecessors": [
         "P2CA",
         "P2CB",
@@ -7244,6 +7347,7 @@
         "P2CG1I1",
         "P2CG1I2",
         "P2CG1I3",
+        "P2CG1I4",
         "P2CG2",
         "P2CH"
       ],
@@ -7260,8 +7364,8 @@
       },
       "amended20261016P2CG1": {
         "at": "2026-10-16T16:15:30.000Z",
-        "change": "predecessor P2CG1 replaced by P2CG1A1, P2CG1A2, P2CG1B, P2CG1C, P2CG1D, P2CG1E, P2CG1F, P2CG1G1, P2CG1G2, P2CG1H, P2CG1I1, P2CG1I2, P2CG1I3",
-        "note": "P2CG1 is superseded by P2CG1A1/P2CG1A2/P2CG1B/P2CG1C/P2CG1D/P2CG1E/P2CG1F/P2CG1G1/P2CG1G2/P2CG1H/P2CG1I1/P2CG1I2/P2CG1I3 (evidence/p2cg1-split-registration-20261016.json); its absence of a mainProof is not bypassed or falsified."
+        "change": "predecessor P2CG1 replaced by P2CG1A1, P2CG1A2, P2CG1B, P2CG1C, P2CG1D, P2CG1E, P2CG1F, P2CG1G1, P2CG1G2, P2CG1H, P2CG1I1, P2CG1I2, P2CG1I3; P2CG1I4 added by evidence/p2cg1-split-registration-correction-20261016.json",
+        "note": "P2CG1 is superseded by P2CG1A1/P2CG1A2/P2CG1B/P2CG1C/P2CG1D/P2CG1E/P2CG1F/P2CG1G1/P2CG1G2/P2CG1H/P2CG1I1/P2CG1I2/P2CG1I3/P2CG1I4 (evidence/p2cg1-split-registration-20261016.json and evidence/p2cg1-split-registration-correction-20261016.json); its absence of a mainProof is not bypassed or falsified."
       }
     },
     {
