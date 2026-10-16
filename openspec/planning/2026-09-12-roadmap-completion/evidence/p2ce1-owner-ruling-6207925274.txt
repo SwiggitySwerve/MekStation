@@ -1,0 +1,3 @@
+OWNER-RULING ad30b4384a1ae05d185f217b600a1a0481770989
+
+The owner authorized this ruling in chat. PR #2147 merged before this ruling was posted. The ruling covers the P2CE1 confirmed-send slice (dormant, no production caller) reviewed APPROVE-WITH-NOTES by an independent reviewer. Notes carried to P2CE2/P2CE3: sendConfirmed does not advance the delivered-sequence cursor, and sends must go through the binder's paired broadcaster.

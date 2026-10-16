@@ -1,0 +1,47 @@
+{
+  "unit": "P2CE1",
+  "stage": "review",
+  "recordedAt": "2026-10-16T04:20:25.718Z",
+  "head": "ad30b4384a1ae05d185f217b600a1a0481770989",
+  "reviewedHead": "ad30b4384a1ae05d185f217b600a1a0481770989",
+  "reviewerModel": "claude-fable-5-1",
+  "implementerModel": "claude-opus-5-5",
+  "verdict": "APPROVE-WITH-NOTES",
+  "outputPath": "evidence/p2ce1-source-fable-review-20261016.txt",
+  "outputSha256": "8c6ba4f65953ec1940697107d63a5e6c1fccad992e7c89444eac5e6e35f38b08",
+  "reviews": [
+    {
+      "path": "evidence/p2ce1-source-fable-review-20261016.txt",
+      "sha256": "8c6ba4f65953ec1940697107d63a5e6c1fccad992e7c89444eac5e6e35f38b08",
+      "bytes": 15404,
+      "originalPath": "docs/audits/2026-10-16-p2ce1-fable-review.md",
+      "reviewedHead": "ad30b4384a1ae05d185f217b600a1a0481770989"
+    }
+  ],
+  "reviewReruns": "On the exact head under Node v22.22.0 the reviewer re-ran the P2CE1 test leaf (20/20), the registered QA selector ServerMatchBroadcaster|CampaignSyncSession|bindCampaignSyncConnection|handleRoomCodeGuestJoin|coopMissionAnnouncement.reconnect (7 suites, 138/138), typecheck, lint and format on the three leaves, the validator, --next and the validator tests (86/86). The full stable suite was not re-run.",
+  "stableSuiteNote": "The author stable run (2795/2795 suites, 37078 passed, 50 skipped, 947 s, exit 0) started 2026-10-15T21:45:04-06:00 and ended 22:00:53, before commit ad30b438 was created at 22:01:05-06:00. The review verified that the seven committed blobs equal the author pre-stable-hashes.txt byte for byte, so that run covers the committed bytes.",
+  "ownerFileNote": "bindCampaignSyncConnection.ts carries a pre-existing max-lines warning (1265 lines at baseline, 1276 at head, limit 400). It is not introduced by this slice (review finding 10); no split is registered here.",
+  "successorNotes": {
+    "P2CE2": [
+      "sendConfirmed does not advance deliveredSeq (review finding 1). A later slice must not route a sequenced match Event frame through it unless it either narrows the frame parameter to the campaign frame union or records the delivered cursor on a sent result.",
+      "P2CE2 must send through the binder's stored paired broadcaster (the { lifecycle, broadcaster } entry), never a fresh new ServerMatchBroadcaster(); otherwise a backpressure refusal can leave a permanent behind row for a socket that broadcaster never registered (review finding 2)."
+    ],
+    "note": "P2CE2 has no notes field in units.json and stays blocked; these review notes are carried here and in PROGRESS.md for P2CE2 (and P2CE3 for the cursor note) to honour at their own admission. No other unit is edited."
+  },
+  "reservedSlot": "evidence/p2ce1-admission-review-20261016.md stays unwritten. The reviewer did not write it, and this closure preserves the review byte for byte at the outputPath instead of authoring reviewer text.",
+  "ciQualification": "All 31 check runs on the merged head succeeded (run 38848486822).",
+  "laneB": {
+    "ruledHead": "ad30b4384a1ae05d185f217b600a1a0481770989",
+    "pr": 2147,
+    "commentId": 6207925274,
+    "author": "SwiggitySwerve",
+    "bodySha256": "92a65a16e6b50b8df1ddaef28fc90f2eb5083243f185a7166f2cfdd95ba324f7",
+    "at": "2026-10-16T04:14:01Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2147#issuecomment-6207925274",
+    "bodyPath": "evidence/p2ce1-owner-ruling-6207925274.txt"
+  },
+  "ownerRulingNote": "The ruling body names the exact merged head and the P2CE1 confirmed-send slice reviewed APPROVE-WITH-NOTES, and carries both review notes to P2CE2/P2CE3. The owner authorized the ruling in chat; it is transcribed verbatim.",
+  "chronology": "The owner ruling was recorded after the source merge, as the ruling body acknowledges. This transcription does not claim a premerge ruling.",
+  "identityScope": "Preserves the existing unversioned P2CE1 evidence and the actual cross-model review provenance. No v2/v3 identity manifest or engine observation is claimed.",
+  "githubApproval": "Lane A engineering evidence only; no GitHub approval claimed."
+}
