@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CG1A2",
+  "stage": "admission",
+  "date": "20261016",
+  "baseline": "ace667bff5b9e6857b60a608e5b89a5baabfdcc6",
+  "authority": "Root Task14/P2CG1A2 implementation delegation after the P2CG1A1 closure (PR #2168, merge ace667bf), which released P2CG1A2 to planned and corrected its range text to 1711-2049 / 339; registration PR #2165 with correction #2167 (evidence/p2cg1-split-registration-20261016.json, evidence/p2cg1-split-registration-correction-20261016.json); validate-roadmap --next printed P2CG1A2 at the baseline",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "Task14 / P2CG1A2 implementation sub-agent"
+  },
+  "predecessors": {
+    "P2CG1A1": "main-verified, mergeSha f11c64d98782f134380dfe6513a9eeb360aaac38, mainProof PASS (mergeCommit f11c64d9), ancestor of baseline"
+  },
+  "caps": {
+    "files": 15,
+    "productAddedLines": 500
+  },
+  "restriction": {
+    "container": "R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1A2",
+    "leaves": 2,
+    "knownSourceTestLifecycleSubtotal": 3
+  },
+  "sourceCandidate": "None preserved; this slice is move-only, so it records unmodified passing suites and a moved-text comparison instead of a red-first proof",
+  "census": {
+    "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-14-p2cg1a2-20261016/census.md",
+    "bytes": 7849,
+    "sha256": "4839f98a3a3465af6c26a6721430b4b2d14ffe103d81393ded89616f92a6f042",
+    "frozenBefore": "any source, test, lifecycle or evidence edit"
+  },
+  "frozenFiles": [
+    {
+      "path": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+      "exists": true,
+      "sha256": "212bf491afdc4cfe491d402cf7fb6695d067621ea757c1d35d72c16d6fd7dab7",
+      "bytes": 65271
+    },
+    {
+      "path": "src/lib/multiplayer/server/campaignApplicationConnection.ts",
+      "exists": true,
+      "sha256": "d5b10779aff6d2cae00a35264eab11e82707b104662c7cd86e9387341bfaecd3",
+      "bytes": 6876
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "exists": true,
+      "sha256": "5d0d89ba85a2a3f387f7354dccd064b6becc7a797efbf9c214ad5af2c6f0cb7c",
+      "bytes": 1416735
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1a2-admission-20261016.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1a2-admission-review-20261016.md",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1a2-red-20261016.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1a2-local-20261016.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    }
+  ],
+  "movedBlock": {
+    "file": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+    "baseLines": 2034,
+    "block": "class CampaignApplicationConnection with its doc comment, 1579-1917 at this baseline (339 physical lines: doc comment 1579-1591, class 1592-1917)",
+    "registered": "1724-2049 / 326 at d0a7dd8b6 in the original behavior text (class without its doc comment); 1711-2049 / 339 at d0a7dd8b6 after the #2168 correction (review M1)",
+    "measured": "1579-1917 / 339 at ace667bf, equal to the A1 review's figure at cdd84675; the binder is byte-identical since the A1 merge (sha256 212bf491..., the A1 local receipt's productBytes)"
+  },
+  "dependencyPlan": {
+    "scan": {
+      "script": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-14-p2cg1a2-20261016/dep-scan.cjs",
+      "output": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-14-p2cg1a2-20261016/dep-scan.json",
+      "outputSha256": "7ded0879b2fbe02670d20858f38dc5af4deaaeb39c149f8d9b6e1af2ce728214"
+    },
+    "binderTypesForClass": "IWireCampaignSocket and ICampaignSessionMembershipPort, both exported interfaces, type positions only; imported with import type from ./bindCampaignSyncConnection (A1 review carry-forward 2)",
+    "newImports": "randomUUID (node:crypto); CampaignPublicAppliedViewStore and readCampaignPublicAppliedView, type CampaignApplicationResult (@/lib/campaign/sync/campaignPublicAppliedView); campaignEventWireFrame (./campaignEventWireFrame); type ServerMatchBroadcaster (type position only in the class); type ICampaignHostRegistryEntry (./CampaignHostRegistry). Carry-forward 3; none reaches the binder at runtime",
+    "droppedExports": "IApplicationCandidate, IApplicationView, COMMIT_ATTEMPTS, HEAD_DRIFT, preparePublicCut, sameAppliedView: export-keyword changes only (carry-forward 4); the binder is the only importer of the new module"
+  },
+  "notTouched": "Every test file, every harness and helper, server.js, CampaignHostRegistry, ServerMatchBroadcaster, the Protocol types and every other server module. The 35 registered and caller suites run unmodified",
+  "overlap": "gh pr list --state open (#2113 docs audits, #1886 e2e wip): neither touches src/lib/multiplayer/server or units.json; no remote branch matching *p2cg1a2* at baseline. Both leaves unchanged since the A1 merge f11c64d9",
+  "requiredChecks": "N1: gh api branches/main/protection at the baseline has no required_status_checks (required conversation resolution only); pr-checks.yml job names recorded in the census. To be re-confirmed on the merge ref before any guarded merge",
+  "activationPredicate": "Unchanged: application offers are issued only when the binder is composed with applicationReceipts and membership; server.js composes no applicationReceipts, so production traffic stays legacy",
+  "reviewSlot": "Reserved for independent reviewer; author must not write review",
+  "summary": "Ordinary admission of the 7 frozen paths (2 restriction leaves, units.json, 4 evidence including the reserved review slot). No cap exception, no unnamed leaf, no merge or Main claim."
+}
