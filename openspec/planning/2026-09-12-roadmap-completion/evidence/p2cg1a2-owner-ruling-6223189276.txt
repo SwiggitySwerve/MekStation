@@ -1,0 +1,3 @@
+OWNER-RULING 27ecf768c7f6d62fe442866297baaf993ca777b7
+
+The owner authorized this ruling in chat. PR #2169 merged before this ruling was posted. The ruling covers P2CG1A2 (move-only extraction of the campaign application connection class and its doc comment from bindCampaignSyncConnection.ts into campaignApplicationConnection.ts; no behavior change, no production wiring), reviewed APPROVE-WITH-NOTES by an independent reviewer with no blockers or majors and 31/31 CI. Carry-forwards for P2CG1B are recorded in the review.

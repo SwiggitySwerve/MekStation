@@ -1,0 +1,194 @@
+{
+  "unit": "P2CG1A2",
+  "stage": "review",
+  "recordedAt": "2026-10-16T19:55:00.000Z",
+  "head": "27ecf768c7f6d62fe442866297baaf993ca777b7",
+  "reviewedHead": "27ecf768c7f6d62fe442866297baaf993ca777b7",
+  "reviewerModel": "claude-fable-5-1",
+  "implementerModel": "claude-opus-5-5",
+  "verdict": "APPROVE-WITH-NOTES",
+  "outputPath": "evidence/p2cg1a2-source-fable-review-20261016.txt",
+  "outputSha256": "d0f565928eecf5ad6a8169681b1e912b6441516f016a4ac01c7d449ff4284e6a",
+  "reviews": [
+    {
+      "round": 1,
+      "path": "evidence/p2cg1a2-source-fable-review-20261016.txt",
+      "sha256": "d0f565928eecf5ad6a8169681b1e912b6441516f016a4ac01c7d449ff4284e6a",
+      "bytes": 21169,
+      "originalPath": "docs/audits/2026-10-16-p2cg1a2-fable-review.md",
+      "reviewedHead": "27ecf768c7f6d62fe442866297baaf993ca777b7",
+      "verdict": "APPROVE-WITH-NOTES"
+    }
+  ],
+  "reviewHistory": "One round on the exact merged head 27ecf768 by an independent Fable 5.1 reviewer: APPROVE-WITH-NOTES with no blockers and no majors, three documentary minors (M1-M3) and notes N1-N2 in section 8; none requires a change to the head.",
+  "verdictText": "**APPROVE-WITH-NOTES.** No blockers, no majors. Three minors, all documentary; none requires a change to this head.",
+  "reviewReruns": "On 27ecf768 under Node v22.22.0 with base ace667bf in a throwaway worktree, the reviewer ran its own TypeScript-compiler move proof: the class block 1579-1917 (339 physical) is byte-equal once one export keyword is removed, the six kept-export slice-1 names are byte-equal, the six de-exported names are byte-equal to their pre-A1 binder text, the 43 binder statements are equal, and 15 of 15 mutation probes are caught. It also ran its own value-import closure (150 files, binder not reached), madge on head and base (175 against 174; the one added chain, bindCampaignSyncConnection.ts > campaignApplicationConnection.ts, is type-only), the Task 14 selector plus the 31 caller suites (35 suites, 369/369 on head and on base, identical sorted rows), typecheck, oxlint (0 errors, 86 warnings on head and base), format:check, lint:units (17899/17899), the validator, --next (U25) and the validator tests (86/86). npm run test:stable was not re-run.",
+  "stableSuiteNote": "The author ran npm run test:stable twice. Run 1 was killed by a session restart and has no result. Run 2, on the final bytes: 2796/2796 suites, 37180 passed, 50 skipped, 0 failed, exit 0, 996 s; no reruns were needed. The reviewer did not re-run it (section 9, quoted under stableAssessment).",
+  "stableAssessment": "`npm run test:stable` was not re-run (per brief). The author's single run (2796 suites, 37180 passed, exit 0) is taken from the PR body and receipts; the roadmap script suites that previously flaked were covered here only by the validator and its 86 tests.",
+  "ownerFileNote": "M1 (docs, review receipt): record \"campaignApplicationConnection.ts trips eslint(max-lines) at 476 counted lines (registration estimate about 404); the binder drops to 1321; repo-wide 86 warnings, 0 errors, same count as base because the accepted warning replaces the removed one.\"",
+  "lintNote": "Lint warning-set diff (rule + file, counts normalised), base to head: exactly two entries change. Gone: `typescript-eslint(explicit-module-boundary-types)` on `campaignApplicationConnection.ts` (A1's M3). New: `eslint(max-lines)` on `campaignApplicationConnection.ts`, message \"File has too many lines (476)\". The binder's max-lines message drops from 1638 to 1321. 85 other warnings unchanged. So 86 = 86 is the expected outcome, not a regression.",
+  "lintJudgment": "**(a) Lint warning count stays 86.** Correct and expected: one warning the registration accepts replaces the one A1 predicted would disappear. No action.",
+  "moveProofNote": "PASS; sameAppliedView is the only layout-only case (A1's wrap undone)",
+  "successorNotes": {
+    "P2CG1B": {
+      "intro": "## 7. Carry-forwards for P2CG1B (exact wording)",
+      "scope": "P2CG1B is the first behaviour unit (journal writer seam + CampaignMatchHost pre-append guard plumbing; registration: 8 leaves, estimate 150-230 counted lines, so 13 files with units.json and 4 evidence paths). Facts below are from `27ecf768`.",
+      "carryForwards": [
+        {
+          "id": "B-CF1",
+          "concern": "baseline and unchanged leaves",
+          "wording": "Baseline for P2CG1B is the P2CG1A2 merge commit on main. Admission must verify P2CG1A2 main-verified with a genuine exact-main mainProof PASS, and that none of B's eight leaves changed between ace667bf and that merge. At 27ecf768 none of B's six source leaves imports bindCampaignSyncConnection.ts or campaignApplicationConnection.ts, so A2 cannot have moved B's baseline bytes."
+        },
+        {
+          "id": "B-CF2",
+          "concern": "writer seam",
+          "wording": "Writer seam: SQLiteEventJournalWriter.appendWithExtension (lines 60-82) owns its IMMEDIATE transaction through db.transaction(...).immediate(); appendPreparedWithExtension (99-138) opens and commits its own transaction too and is not the borrowed seam. The new synchronous borrowed-transaction operation shares one body with appendWithExtension (AppendEventBatchSchema.parse, canonicalizeCommandIdentityV1, duplicate-eventId check, appendInTransaction) and neither begins nor commits. Red test: call it inside a caller-owned db.transaction and assert the batch is absent after the outer rollback and present only after the outer commit; this test must fail on the unmodified baseline."
+        },
+        {
+          "id": "B-CF3",
+          "concern": "store seam",
+          "wording": "Store seam: ICampaignEventStore.appendCommandBatch is optional (line 185); JournalCampaignEventStore.appendCommandBatch (line 434) reaches journal.appendWithExtension (line 325). The optional synchronous guard runs inside that transaction before the batch is written; a refusal is a typed result arm, not an Error.name match; a store without the capability fails closed when a guard is supplied (choose typed refusal or throw-before-any-write, state which, and test it in JournalCampaignEventStore.test.ts)."
+        },
+        {
+          "id": "B-CF4",
+          "concern": "host plumbing",
+          "wording": "Host plumbing: CampaignMatchHost.commitEvents (551-578) takes the batch path only when eventStore.appendCommandBatch exists and otherwise falls back to commitCampaignEventsInSequence, which has no transaction to guard; with a guard supplied the fallback must fail closed. CampaignCommitOutcome (campaignHostBatchCommit.ts:61, today 'committed' | 'lost-race') gains the typed arms for prewrite refusal, known commit, uncertain commit and post-commit cleanup; resultOfCommit maps each; every outcome.kind consumer is made exhaustive so typecheck proves no arm is dropped. No cross-file atomicity claim in code comments or receipts."
+        },
+        {
+          "id": "B-CF5",
+          "concern": "trust boundary",
+          "wording": "Trust boundary: guard and notification callbacks are server-only operation inputs. Test that canonicalizeCommandIdentityV1's digest for a batch is identical with and without a guard, and that no wire schema in @/types/multiplayer/Protocol gains a field for them."
+        },
+        {
+          "id": "B-CF6",
+          "concern": "production inertness",
+          "wording": "Production inertness: server.js composes no guard. Record that the default-absent path is behaviour-equivalent: the 35 suites of A1/A2 plus B's two named test leaves pass unchanged, and CampaignMatchHost.pipeline.test.ts carries the real-SQLite released-reservation removal cases the Task 15 amendment requires."
+        },
+        {
+          "id": "B-CF7",
+          "concern": "red-first proof",
+          "wording": "Red-first proof is required (unlike A1/A2): the red receipt must show the new assertions failing on the unmodified baseline with the failure text, not a baseline pass."
+        },
+        {
+          "id": "B-CF8",
+          "concern": "lint and madge",
+          "wording": "Lint: SQLiteEventJournalWriter.ts is 510 physical and CampaignMatchHost.ts 611 physical at 27ecf768; record their oxlint max-lines status before and after. Expect the repo-wide count to move only by warnings on B's own leaves; madge chain count from B's leaves should be unchanged because B adds no module."
+        },
+        {
+          "id": "B-CF9",
+          "concern": "required checks",
+          "wording": "Required checks: the 31 pr-checks.yml job names in section 6, verified by name on the merge ref; GitHub enforces none of them."
+        }
+      ],
+      "minors": [
+        {
+          "id": "M1",
+          "wording": "M1 (docs, review receipt): record \"campaignApplicationConnection.ts trips eslint(max-lines) at 476 counted lines (registration estimate about 404); the binder drops to 1321; repo-wide 86 warnings, 0 errors, same count as base because the accepted warning replaces the removed one.\""
+        },
+        {
+          "id": "M2",
+          "wording": "M2 (docs, optional): the P2CG1A2 `behavior` text's \"about 404\" is stale; correct only through a registration-correction PR if the parent wants ledger accuracy. Not this PR."
+        },
+        {
+          "id": "M3",
+          "wording": "M3 (process): reconcile A1's \"32 checks\" with the 31 pr-checks.yml names before the guarded merge; if a 32nd check existed on #2166 it did not come from the current PR-triggered workflow set."
+        }
+      ],
+      "notes": [
+        {
+          "id": "N1",
+          "wording": "N1: the author's `redKind` wording (\"no test can fail and none was written\") is accurate for a move-only slice; B must not inherit it (carry-forward 7)."
+        },
+        {
+          "id": "N2",
+          "wording": "N2: `IPublicCut` is now a dead export (section 2); harmless."
+        }
+      ],
+      "requiredChecks": {
+        "wording": "GitHub: `branches/main/protection` has `required_conversation_resolution` only, no `required_status_checks`; `rules/branches/main` is empty. So nothing is enforced server-side and the guarded merge must verify by name. The only PR-triggered workflow is `pr-checks.yml` (`camp01-live-adversarial.yml` runs on push to main and dispatch). The workflow is identical at base and `origin/main`, and PR #2169's run used it. **The guarded merge should require all 31 job names below to be `pass` on the merge ref's head**: Detect Changes; Install Dependencies; Lint; Format Check; Type Check; Unit Tests (1/6) ... Unit Tests (6/6); Perf Smoke Tests; Statistical Proof PR; Perf Budget PR; Coverage Floor; A11y Tests; Validate BV Parity; Validate Combat Suite; Build Storybook; Schema Bridge; Determinism Audit; E2E Smoke; Seam Anchors; Customizer Regressions; Desktop Type Check; Desktop Tests; Lint and Test; Prepare Build Artifacts; Build Test / linux; Build Test / mac; Build Test / win. `Lint and Test` is the `if: always()` aggregator, so a completed-but-failed state must be read as failure, not as \"ran\". A1 reported 32 checks on #2166; #2169 shows 31, all from pr-checks.yml; the parent should reconcile that count when it confirms the names (M3 below). |",
+        "jobNames": [
+          "Detect Changes",
+          "Install Dependencies",
+          "Lint",
+          "Format Check",
+          "Type Check",
+          "Unit Tests (1/6)",
+          "Unit Tests (2/6)",
+          "Unit Tests (3/6)",
+          "Unit Tests (4/6)",
+          "Unit Tests (5/6)",
+          "Unit Tests (6/6)",
+          "Perf Smoke Tests",
+          "Statistical Proof PR",
+          "Perf Budget PR",
+          "Coverage Floor",
+          "A11y Tests",
+          "Validate BV Parity",
+          "Validate Combat Suite",
+          "Build Storybook",
+          "Schema Bridge",
+          "Determinism Audit",
+          "E2E Smoke",
+          "Seam Anchors",
+          "Customizer Regressions",
+          "Desktop Type Check",
+          "Desktop Tests",
+          "Lint and Test",
+          "Prepare Build Artifacts",
+          "Build Test / linux",
+          "Build Test / mac",
+          "Build Test / win"
+        ],
+        "source": ".github/workflows/pr-checks.yml (blob 185ec2fd9c2f97e937263eed7b33af5a2dfcdc1f, identical at ace667bf, 27ecf768, 5d02dcab and 03349a2d). The 31 names are derived from its jobs and matrices and match the 31 check-run names on 27ecf768 one to one.",
+        "countReconciliation": {
+          "wording": "A1 reported 32 checks on #2166; #2169 shows 31, all from pr-checks.yml; the parent should reconcile that count when it confirms the names (M3 below).",
+          "finding": "On 2026-10-16 the check-runs API lists 31 check runs and 0 commit statuses on the A1 head cdd84675, and 31 on 27ecf768, all from pr-checks.yml. The A1 merge receipt already recorded 31; the 32 was the A1 review table's figure. Neither head has a 32nd check."
+        }
+      },
+      "publicCut": "**IPublicCut (author's question).** It is referenced only inside the new file (declaration line 76, return type of the now-unexported `preparePublicCut` at 98, field type at 171). No external importer, no exported referrer, no lint signal. Keeping it exported is harmless and keeps this head's six-name drop exactly equal to A1's carry-forward 4. Dropping it would be an export-keyword change the registration permits, but changing the reviewed bytes now is not worth it. Judgment: leave it; if the parent wants it unexported, do it in a later slice that already touches the file (P2CG1B does not).",
+      "estimate": "**(b) New file is 476 counted lines against the registration's \"about 404\".** The oxlint figure is 476 (my scanner gives 477 with a slightly different rule; oxlint's own message is authoritative). The 404 was an estimate error, not scope creep: the file contains exactly the registered content (12 slice-1 declarations, the class, and the imports the class needs), verified in section 1. The cap metric is added product lines (379/500), which holds. The max-lines rule is `warn`, `npm run lint` passes, and splitting the class for a lint threshold would be an unregistered behaviour-risk refactor outside a move-only unit. The registration's \"no further split, no lint override\" therefore still stands. Record the measured 476 in the review receipt (M1); a ledger text correction is optional and belongs in a registration-correction PR, not here.",
+      "openNotesForAdmission": [
+        {
+          "id": "B-OPEN-1",
+          "concern": "baseline under the TypeScript-7 hold",
+          "note": "B-CF1 names the P2CG1A2 merge commit 5d02dcab as the P2CG1B baseline. The parent holds P2CG1B blocked until the TypeScript-7 track stopping condition is met or a waiver is recorded (ts7TrackRegistration20261016.schedulingRule), so B will be admitted on a later main. None of the eight leaves differs between ace667bf and 5d02dcab (git diff --name-only, empty), and #2170 did not touch them. Admission must state its actual baseline, verify P2CG1A2 main-verified and the ancestry to that baseline, and re-measure any leaf the TypeScript-7 units changed (including the B-CF8 physical line counts, 510 and 611 at 27ecf768) instead of relying on 27ecf768 facts."
+        },
+        {
+          "id": "B-OPEN-2",
+          "concern": "location of the borrowed-transaction red test",
+          "note": "B-CF2 requires a red test of the new borrowed-transaction writer operation (outer rollback leaves no batch, outer commit keeps it). The registered leaves name only two test files, src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts and src/lib/multiplayer/server/__tests__/CampaignMatchHost.pipeline.test.ts. src/lib/events/journal/__tests__/SQLiteEventJournalWriter.test.ts is not a P2CG1B leaf, and the admission rules forbid unnamed tests. So the test belongs in one of the two named test leaves (JournalCampaignEventStore.test.ts already opens real better-sqlite3 databases), or the leaf set needs a separate registration correction before admission. This closure does not decide that and does not edit P2CG1B."
+        },
+        {
+          "id": "B-OPEN-3",
+          "concern": "\"pass unchanged\" in B-CF6",
+          "note": "B-CF6 says the 35 A1/A2 suites \"plus B's two named test leaves pass unchanged\", but B adds assertions to those two test leaves, and neither is among the 35 suites. The parent reads it as: the 35 suites pass with no test change, and the two named test leaves pass with only B's additions, their existing cases unchanged. B's admission should state the reading it uses."
+        },
+        {
+          "id": "B-OPEN-4",
+          "concern": "CampaignCommitOutcome consumers for B-CF4 exhaustiveness",
+          "note": "A grep at 5d02dcab finds outcome.kind narrowing on commit outcomes only inside B's leaves (CampaignMatchHost.ts lines 371 and 543; campaignHostBatchCommit.ts resultOfCommit line 74, used by CampaignMatchHost.doors.ts lines 73, 209 and 240) and in one non-leaf test, src/lib/campaign/rebuild/__tests__/campaignRetroactiveCorrectionCommit.test.ts lines 410-411. That test narrows with outcome.kind !== 'committed', so it compiles unchanged under a wider union. No leaf change is implied. Admission must re-run the consumer scan at its own baseline; if a consumer outside the eight leaves needs an edit, that needs a registration correction."
+        }
+      ],
+      "state": "This closure does not edit P2CG1B, which stays blocked. The parent holds its release under ts7TrackRegistration20261016.schedulingRule until the TypeScript-7 track stopping condition is met or an explicit parent waiver is recorded."
+    },
+    "note": "Every wording string under successorNotes.P2CG1B except jobNames, source, finding, openNotesForAdmission and state is a verbatim substring of evidence/p2cg1a2-source-fable-review-20261016.txt (checked by the closure generator). B-CF1 to B-CF9 are the reviewer's section 7 items 1-9 in order, without their surrounding quotation marks. M1-M3 and N1-N2 are the section 8 items. openNotesForAdmission are the parent's notes, not reviewer text: where a carry-forward bears on P2CG1B's leaves or behaviour text, the note is recorded there for B's admission instead of editing P2CG1B."
+  },
+  "reviewNotes": "No blockers and no majors. M1 is recorded as ownerFileNote. M2, an optional ledger correction of the about-404 estimate, is not applied: as the reviewer says, it belongs in a registration-correction PR. M3 is reconciled under successorNotes.P2CG1B.requiredChecks.countReconciliation. N1 and N2 are recorded verbatim. The nine section 7 carry-forwards are recorded verbatim for P2CG1B's admission.",
+  "reservedSlot": "evidence/p2cg1a2-admission-review-20261016.md stays unwritten. The reviewer did not write it, and this closure preserves the review byte for byte at its path instead of authoring reviewer text.",
+  "ciQualification": "All 31 check runs on the merged head succeeded (run 38953555934), with no commit statuses. The review table reads \"31 checks, all pass\", which matches.",
+  "laneB": {
+    "ruledHead": "27ecf768c7f6d62fe442866297baaf993ca777b7",
+    "pr": 2169,
+    "commentId": 6223189276,
+    "author": "SwiggitySwerve",
+    "bodySha256": "bd3b3967b5029f2a42626ace254c839a6f396d0570529a88971e1d8c8ab95bd9",
+    "at": "2026-10-16T19:33:28Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2169#issuecomment-6223189276",
+    "bodyPath": "evidence/p2cg1a2-owner-ruling-6223189276.txt"
+  },
+  "ownerRulingNote": "The ruling body names the exact merged head and the P2CG1A2 slice: move-only extraction of the campaign application connection class and its doc comment, no behavior change and no production wiring. It records the APPROVE-WITH-NOTES review with no blockers or majors and 31/31 CI, and says the P2CG1B carry-forwards are recorded in the review. The owner authorized the ruling in chat; it is transcribed verbatim.",
+  "chronology": "The owner ruling was recorded after the source merge (merged 2026-10-16T19:33:23Z, ruled 2026-10-16T19:33:28Z), as the ruling body acknowledges. This transcription does not claim a premerge ruling.",
+  "identityScope": "Preserves the existing unversioned P2CG1A2 evidence and the actual cross-model review provenance. No v2/v3 identity manifest or engine observation is claimed.",
+  "githubApproval": "Lane A engineering evidence only; no GitHub approval claimed.",
+  "successor": "No successor is released. P2CG1B is not edited, not even its text, and stays blocked: the parent holds it under the TypeScript-7 track (#2170) until that track's stopping condition is met or an explicit waiver is recorded."
+}

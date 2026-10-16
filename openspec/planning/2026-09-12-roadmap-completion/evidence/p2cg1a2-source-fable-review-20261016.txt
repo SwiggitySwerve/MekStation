@@ -1,0 +1,137 @@
+# P2CG1A2 independent exact-head review (PR #2169)
+
+- Reviewer: Claude Fable 5.1 (independent; not the author). Author: Claude Opus 5.5.
+- Unit: P2CG1A2, second and last move-only extraction slice of the P2CG1 chain (plan Task 14): `class CampaignApplicationConnection` with its doc comment leaves `bindCampaignSyncConnection.ts` for `campaignApplicationConnection.ts`.
+- Head reviewed: `27ecf768c7f6d62fe442866297baaf993ca777b7` (PR #2169, state OPEN, mergeable MERGEABLE, mergeStateStatus CLEAN at review time; one commit over base).
+- Base: `ace667bff5b9e6857b60a608e5b89a5baabfdcc6` (merge of #2168). `origin/main` was still `ace667bf` at review time, so base and merge ref coincide.
+- Author worktree `E:/Projects/Personal/MekStation-wt/p2cg1a2-extract-2-20261016`: HEAD `27ecf768`; `git status --porcelain` empty before and after every command I ran there. Leaf bytes in the worktree equal the commit's (binder `bc2abdc1...3022`, new file `e28fd1c0...d412`, both equal to the local receipt's `productBytes`).
+- Runtime: Node v22.22.0 (`C:\Users\wroll\AppData\Local\nvm\v22.22.0`). My scripts and logs: `E:/Projects/Personal/MekStation-wt/_fable-review-logs-a2/` (outside any repository; disposable). Base runs used a throwaway detached worktree at `ace667bf` with `node_modules` junctioned from the main checkout; junction unlinked, worktree removed and pruned afterwards; main `node_modules` intact.
+- The main checkout `E:/Projects/Personal/MekStation` had pre-existing unrelated modifications (`.claude_settings.json`, two `scripts/*.ts`, untracked `.omo/`, one unrelated audit); I did not touch them. This file is the only thing I wrote inside a repository.
+
+## Verdict
+
+**APPROVE-WITH-NOTES.** No blockers, no majors. Three minors, all documentary; none requires a change to this head.
+
+## 1. Move proof (own script, re-derived; not the author's)
+
+Script `fable-moveproof-a2.cjs` (TypeScript compiler API), inputs: binder at base and head, new file at base and head, and the pre-A1 binder at `6645308f` (A1 verified it byte-identical to the registration base `d0a7dd8b6`).
+
+| Check | Result |
+| --- | --- |
+| Base binder class block (leading doc comment + class) is binder lines **1579-1917, 339 physical** | PASS |
+| Head new-file class block byte-equal to that block once one leading `export ` is removed; token stream (comments included) equal; AST shape (node kinds + leaf texts, export modifier excluded) equal | PASS |
+| Class is the last statement of the new file; the binder no longer declares it | PASS |
+| New file declares exactly the 12 slice-1 names in base order, then the class, nothing else besides imports; no import after a declaration | PASS |
+| Six names that keep `export` (ICampaignApplicationReceiptPort, NOT_OFFERED, isApplicationAck, IPublicCut, errorFrame, send) byte-equal to the base new file | PASS |
+| Six names that lose `export` (IApplicationCandidate, IApplicationView, COMMIT_ATTEMPTS, HEAD_DRIFT, preparePublicCut, sameAppliedView) are **byte-equal to their pre-A1 binder text** and equal to the slice-1 text modulo the export keyword and formatter layout | PASS; sameAppliedView is the only layout-only case (A1's wrap undone) |
+| `sameAppliedView` signature back to the one-line form `const sameAppliedView = (a: ICampaignAppliedView, b: ICampaignAppliedView) =>` | PASS |
+| Binder remainder (imports excluded) equals base with the class removed, statement by statement with leading comments | PASS, 43 statements, nothing added (the A1 type re-export of ICampaignApplicationReceiptPort is one of the 43) |
+| New-file imports: every binding binds the name to the module one of the two base files imported it from; the only imports from the binder are `IWireCampaignSocket` and `ICampaignSessionMembershipPort`, type-only; every import added vs the slice-1 file is referenced by the class; no unused import; no value import used only in type positions | PASS. Added (9): randomUUID; type CampaignApplicationResult, CampaignPublicAppliedViewStore, readCampaignPublicAppliedView; type ICampaignSessionMembershipPort, type IWireCampaignSocket; type ICampaignHostRegistryEntry; type ServerMatchBroadcaster; campaignEventWireFrame |
+| Binder imports: runtime from the new module exactly CampaignApplicationConnection, NOT_OFFERED, errorFrame, isApplicationAck, send; type exactly ICampaignApplicationReceiptPort; every removed import unreferenced in the remainder; no unused import | PASS. Removed (15): randomUUID, type CampaignApplicationResult, type ICampaignAppliedView, CampaignPublicAppliedViewStore, readCampaignPublicAppliedView, CAMPAIGN_STREAM_TYPE, readEffectiveStreamHead, SQLiteEventHistoryBranchStore, activeCampaignSessionMembership, and the six dropped slice-1 names |
+| Binder exported names unchanged | PASS, 9: IBindCampaignSyncConnectionDeps, IBoundCampaignSyncConnection, ICampaignApplicationReceiptPort, ICampaignForceClaimPort, ICampaignHostRegistryLike, ICampaignSeatBindOutcome, ICampaignSessionMembershipPort, IWireCampaignSocket, bindCampaignSyncConnection |
+| New-file exported names = slice-1 set minus the six plus the class | PASS, 7: CampaignApplicationConnection, ICampaignApplicationReceiptPort, IPublicCut, NOT_OFFERED, errorFrame, isApplicationAck, send |
+
+Mutation probes, each applied in memory to the head text and required to fail the script: **15 of 15 caught**, each on the check aimed at it, after the unmutated head passed.
+
+1. Class doc comment, one word (comment-only) - caught (class tokens differ, AST equal).
+2. Two spaces instead of one inside `open()` (whitespace-only) - caught (class bytes differ, tokens and AST equal).
+3. `view.latest !== null` to `=== null` in `open()` (flipped branch) - caught (tokens and AST differ).
+4. `COMMIT_ATTEMPTS = 3` to `4` (changed default) - caught (not byte-equal to pre-A1 text).
+5. The two binder interfaces imported as values instead of `import type` (value-vs-type) - caught (value import from the binder, runtime cycle).
+6. `ServerMatchBroadcaster` imported as a value (value-vs-type) - caught (value import used only in type positions).
+7. `sameAppliedView` left exported - caught.
+8. Class not exported - caught.
+9. Extra `export const` appended to the new file - caught (class no longer last; unknown declaration).
+10. `// stop` appended inside `invalidate` (comment-only, inside the class) - caught.
+11. Binder remainder doc comment, one word (comment-only) - caught (statement #2).
+12. Binder `envelope.kind === 'Heartbeat'` to `!==` (flipped branch) - caught (statement #15).
+13. Binder imports the class as `type` (value-vs-type) - caught.
+14. Extra `export const` added to the binder - caught (44 statements, exports changed).
+15. `randomUUID` import re-added to the binder without a use - caught (unused import).
+
+Script history, for honesty: my first run reported a false FAIL on `sameAppliedView` because the slice-1 comparison lacked the layout tolerance A1 used (the byte check against the pre-A1 text had already passed); a probe then crashed on a declaration unknown to the slice-1 file; and probe 6 was MISSED until I added the value-position rule. The results above are from the final script (`fable-moveproof-a2.log`).
+
+## 2. Cycles and compile boundary
+
+- Own transitive closure from the new file over `src/` (value imports and non-type re-exports only; an import whose every element is `type X` counts as type-only): **150 files, binder not reached**. Including type-only imports: 965 files, binder reached (expected; the only edge is the sanctioned `import type` of the two interfaces).
+- madge 8 (`--circular --extensions ts --ts-config tsconfig.json`, entry points the two leaves): base **174** chains, head **175**; sorted chain sets differ by exactly one added line, `bindCampaignSyncConnection.ts > campaignApplicationConnection.ts`, none removed. That chain is type-only by the closure above and by my probe 5 (madge counts type imports). Matches the author and A1's M4 prediction.
+- `tsx/cjs` runtime load of both modules on head: binder runtime exports `bindCampaignSyncConnection` only; new module exports CampaignApplicationConnection, NOT_OFFERED, errorFrame, isApplicationAck, send; the class is a function.
+- Typecheck PASS on head. `tsconfig.json` includes `**/*.ts` (excluding `scripts/`, `desktop/`, `src/pages/**/__tests__`), so the binder's importers and the 31 caller suites compile unedited. Binder importers outside tests: `campaignForceClaimPort.ts`, `campaignSessionMembershipPort.ts`, `handleRoomCodeGuestJoin.ts`, and `server.js` (line 451 `require`, uses `bindCampaignSyncConnection` only). No module outside the binder imports the new file.
+- `ICampaignApplicationReceiptPort`: no importer outside the two leaves in `src`, `scripts`, `e2e`, `server.js`; the binder's type re-export keeps it on the binder's surface.
+- **IPublicCut (author's question).** It is referenced only inside the new file (declaration line 76, return type of the now-unexported `preparePublicCut` at 98, field type at 171). No external importer, no exported referrer, no lint signal. Keeping it exported is harmless and keeps this head's six-name drop exactly equal to A1's carry-forward 4. Dropping it would be an export-keyword change the registration permits, but changing the reviewed bytes now is not worth it. Judgment: leave it; if the parent wants it unexported, do it in a later slice that already touches the file (P2CG1B does not).
+
+## 3. Scope and census
+
+- `git diff --name-status ace667bf..27ecf768`: exactly six paths: the two registered leaves (both M; the new file existed since A1), `units.json` (M), three evidence receipts (A: admission, red, local). No test, harness, `server.js`, or workflow file. `.github/workflows` is identical between base and `origin/main`.
+- `units.json` id-keyed deep diff (194 units both sides, order equal, all top-level keys equal): **only P2CG1A2 differs**, in `ownershipExceptions` (+4 own evidence paths including the reserved review slot), `state` planned to implementing, `baseline` null to `ace667bf`, and `stageReceipts.admission/red/local`. Key order preserved. P2CG1A2's `behavior` already carries the #2168 correction (1711-2049 / 339).
+- Census from `git diff --numstat --no-renames`, evidence directory uncounted, no test lines: new file **361**, binder **2**, units.json **16** = **379 of 500**. Files 6 + reserved review slot = **7 of 15**. Matches the author. Binder loses 361 lines; new file loses 10 (the export keywords and the re-wrapped sameAppliedView).
+- Artifacts named in the receipts (`census.md`, `dep-scan.json`, `caller-scan-transitive.txt`, `red-raw.log`, `base-results.json`, `move-proof.cjs`, `move-proof.json`, `move-proof-probes.json`) all match their recorded sha256 and byte counts (read by exact path; no directory enumeration). I did not execute the author's scripts.
+- The reserved `p2cg1a2-admission-review-20261016.md` is listed in `ownershipExceptions` and absent at head, as required (N2 pattern).
+
+## 4. Re-runs on exact head and base
+
+| Check | Head 27ecf768 | Base ace667bf |
+| --- | --- | --- |
+| Task 14 selector (4 suites) + 31 caller suites = 35 suites | 35 passed, 369 tests, 369 passed, exit 0 | 35 passed, 369 tests, 369 passed, exit 0 |
+| Sorted (suite, full test name, status) rows | identical to base: 369 = 369, 0 only-head, 0 only-base | |
+| typecheck (`tsc --noEmit --skipLibCheck`) | PASS | |
+| oxlint | 0 errors, 86 warnings | 0 errors, 86 warnings |
+| oxfmt `--check .` | PASS | |
+| lint:units | PASS 17899/17899; src-tests 17783/17783; ceilings unchanged | |
+| validate-roadmap.mjs | PASS (79 nodes, 13 packages, 381 tasks, 40 triage rows) | |
+| validate-roadmap --next | prints U25 (P2CG1A2 is implementing) | |
+| validate-roadmap.test.mjs | 86 pass, 0 fail | |
+| madge (two leaves) | 175 chains | 174 chains |
+| PR CI (gh pr checks 2169) | 31 checks, all pass | |
+
+The 31 caller suites were re-derived on head with my own reverse import scan (value, type, re-export, require, dynamic import and `jest.mock` specifiers): identical to my A1 list and to the author's `caller-scan-transitive.txt`. The 35-suite set is exactly selector(4) plus callers(31); the selector pattern resolves to `CampaignSyncSession`, `campaignProgressionReaders.durable.crossGraph`, `campaignProgressionReaders.durable.integrity`, `campaignLaunchAuthorityRoute`.
+
+Lint warning-set diff (rule + file, counts normalised), base to head: exactly two entries change. Gone: `typescript-eslint(explicit-module-boundary-types)` on `campaignApplicationConnection.ts` (A1's M3). New: `eslint(max-lines)` on `campaignApplicationConnection.ts`, message "File has too many lines (476)". The binder's max-lines message drops from 1638 to 1321. 85 other warnings unchanged. So 86 = 86 is the expected outcome, not a regression.
+
+## 5. Judgments on the author's concerns
+
+**(a) Lint warning count stays 86.** Correct and expected: one warning the registration accepts replaces the one A1 predicted would disappear. No action.
+
+**(b) New file is 476 counted lines against the registration's "about 404".** The oxlint figure is 476 (my scanner gives 477 with a slightly different rule; oxlint's own message is authoritative). The 404 was an estimate error, not scope creep: the file contains exactly the registered content (12 slice-1 declarations, the class, and the imports the class needs), verified in section 1. The cap metric is added product lines (379/500), which holds. The max-lines rule is `warn`, `npm run lint` passes, and splitting the class for a lint threshold would be an unregistered behaviour-risk refactor outside a move-only unit. The registration's "no further split, no lint override" therefore still stands. Record the measured 476 in the review receipt (M1); a ledger text correction is optional and belongs in a registration-correction PR, not here.
+
+**(c) IPublicCut.** See section 2: keep.
+
+## 6. A1 carry-forwards N1-N2 / M1-M4
+
+| Item | Status at this head |
+| --- | --- |
+| M1 (A2 behavior range/count stale) | Done by #2168: `behavior` now reads "1711-2049 at base d0a7dd8b6, 339 physical lines"; the admission receipt records registered and measured figures (1579-1917 / 339 at ace667bf). |
+| M2 (A1 review receipt records the sameAppliedView layout exception) | Done: `evidence/p2cg1a1-review-20261016.json` on main says "sameAppliedView equal modulo layout". |
+| M3 (explicit-module-boundary-types warning disappears when A2 drops the six exports) | Done; verified by warning-set diff. |
+| M4 (madge 175, one type-only binder <-> new-file chain) | Done; verified, exact chain. |
+| N1 (confirm required-check names on the merge ref) | GitHub: `branches/main/protection` has `required_conversation_resolution` only, no `required_status_checks`; `rules/branches/main` is empty. So nothing is enforced server-side and the guarded merge must verify by name. The only PR-triggered workflow is `pr-checks.yml` (`camp01-live-adversarial.yml` runs on push to main and dispatch). The workflow is identical at base and `origin/main`, and PR #2169's run used it. **The guarded merge should require all 31 job names below to be `pass` on the merge ref's head**: Detect Changes; Install Dependencies; Lint; Format Check; Type Check; Unit Tests (1/6) ... Unit Tests (6/6); Perf Smoke Tests; Statistical Proof PR; Perf Budget PR; Coverage Floor; A11y Tests; Validate BV Parity; Validate Combat Suite; Build Storybook; Schema Bridge; Determinism Audit; E2E Smoke; Seam Anchors; Customizer Regressions; Desktop Type Check; Desktop Tests; Lint and Test; Prepare Build Artifacts; Build Test / linux; Build Test / mac; Build Test / win. `Lint and Test` is the `if: always()` aggregator, so a completed-but-failed state must be read as failure, not as "ran". A1 reported 32 checks on #2166; #2169 shows 31, all from pr-checks.yml; the parent should reconcile that count when it confirms the names (M3 below). |
+| N2 (reserved review slot absent at head) | Confirmed absent. |
+
+## 7. Carry-forwards for P2CG1B (exact wording)
+
+P2CG1B is the first behaviour unit (journal writer seam + CampaignMatchHost pre-append guard plumbing; registration: 8 leaves, estimate 150-230 counted lines, so 13 files with units.json and 4 evidence paths). Facts below are from `27ecf768`.
+
+1. "Baseline for P2CG1B is the P2CG1A2 merge commit on main. Admission must verify P2CG1A2 main-verified with a genuine exact-main mainProof PASS, and that none of B's eight leaves changed between ace667bf and that merge. At 27ecf768 none of B's six source leaves imports bindCampaignSyncConnection.ts or campaignApplicationConnection.ts, so A2 cannot have moved B's baseline bytes."
+2. "Writer seam: SQLiteEventJournalWriter.appendWithExtension (lines 60-82) owns its IMMEDIATE transaction through db.transaction(...).immediate(); appendPreparedWithExtension (99-138) opens and commits its own transaction too and is not the borrowed seam. The new synchronous borrowed-transaction operation shares one body with appendWithExtension (AppendEventBatchSchema.parse, canonicalizeCommandIdentityV1, duplicate-eventId check, appendInTransaction) and neither begins nor commits. Red test: call it inside a caller-owned db.transaction and assert the batch is absent after the outer rollback and present only after the outer commit; this test must fail on the unmodified baseline."
+3. "Store seam: ICampaignEventStore.appendCommandBatch is optional (line 185); JournalCampaignEventStore.appendCommandBatch (line 434) reaches journal.appendWithExtension (line 325). The optional synchronous guard runs inside that transaction before the batch is written; a refusal is a typed result arm, not an Error.name match; a store without the capability fails closed when a guard is supplied (choose typed refusal or throw-before-any-write, state which, and test it in JournalCampaignEventStore.test.ts)."
+4. "Host plumbing: CampaignMatchHost.commitEvents (551-578) takes the batch path only when eventStore.appendCommandBatch exists and otherwise falls back to commitCampaignEventsInSequence, which has no transaction to guard; with a guard supplied the fallback must fail closed. CampaignCommitOutcome (campaignHostBatchCommit.ts:61, today 'committed' | 'lost-race') gains the typed arms for prewrite refusal, known commit, uncertain commit and post-commit cleanup; resultOfCommit maps each; every outcome.kind consumer is made exhaustive so typecheck proves no arm is dropped. No cross-file atomicity claim in code comments or receipts."
+5. "Trust boundary: guard and notification callbacks are server-only operation inputs. Test that canonicalizeCommandIdentityV1's digest for a batch is identical with and without a guard, and that no wire schema in @/types/multiplayer/Protocol gains a field for them."
+6. "Production inertness: server.js composes no guard. Record that the default-absent path is behaviour-equivalent: the 35 suites of A1/A2 plus B's two named test leaves pass unchanged, and CampaignMatchHost.pipeline.test.ts carries the real-SQLite released-reservation removal cases the Task 15 amendment requires."
+7. "Red-first proof is required (unlike A1/A2): the red receipt must show the new assertions failing on the unmodified baseline with the failure text, not a baseline pass."
+8. "Lint: SQLiteEventJournalWriter.ts is 510 physical and CampaignMatchHost.ts 611 physical at 27ecf768; record their oxlint max-lines status before and after. Expect the repo-wide count to move only by warnings on B's own leaves; madge chain count from B's leaves should be unchanged because B adds no module."
+9. "Required checks: the 31 pr-checks.yml job names in section 6, verified by name on the merge ref; GitHub enforces none of them."
+
+## 8. Minors and notes
+
+- M1 (docs, review receipt): record "campaignApplicationConnection.ts trips eslint(max-lines) at 476 counted lines (registration estimate about 404); the binder drops to 1321; repo-wide 86 warnings, 0 errors, same count as base because the accepted warning replaces the removed one."
+- M2 (docs, optional): the P2CG1A2 `behavior` text's "about 404" is stale; correct only through a registration-correction PR if the parent wants ledger accuracy. Not this PR.
+- M3 (process): reconcile A1's "32 checks" with the 31 pr-checks.yml names before the guarded merge; if a 32nd check existed on #2166 it did not come from the current PR-triggered workflow set.
+- N1: the author's `redKind` wording ("no test can fail and none was written") is accurate for a move-only slice; B must not inherit it (carry-forward 7).
+- N2: `IPublicCut` is now a dead export (section 2); harmless.
+
+## 9. Not verified
+
+- `npm run test:stable` was not re-run (per brief). The author's single run (2796 suites, 37180 passed, exit 0) is taken from the PR body and receipts; the roadmap script suites that previously flaked were covered here only by the validator and its 86 tests.
+- The author's `.omo` scripts (`move-proof.cjs`, `dep-scan.cjs`, `rows.cjs`) were hashed, not executed; all conclusions above come from my own scripts.
+- No e2e, Electron, Storybook or production build run locally; those surfaces were read from PR #2169's 31 passing checks only.
+- The reserved admission-review slot was not written (reserved for the parent).
