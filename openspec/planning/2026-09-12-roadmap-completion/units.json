@@ -5778,7 +5778,15 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ce1-admission-20261016.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ce1-admission-review-20261016.md",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ce1-red-20261016.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ce1-local-20261016.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ce1-local-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ce1-source-fable-review-20261016.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ce1-owner-ruling-6207925274.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ce1-review-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ce1-merge-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-86d4b69a-tests.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-86d4b69a-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-86d4b69a-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ce1-mainproof-20261016.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -5793,10 +5801,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "implementing",
+      "state": "main-verified",
       "baseline": "cb4af3aafb81790c33455fc2304ebb5cf3c36a87",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "ad30b4384a1ae05d185f217b600a1a0481770989",
+      "mergeSha": "86d4b69a71633e68f71eebe3fac4981706567ce6",
       "stageReceipts": {
         "admission": {
           "path": "evidence/p2ce1-admission-20261016.json"
@@ -5807,9 +5815,27 @@
         "local": {
           "path": "evidence/p2ce1-local-20261016.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/p2ce1-review-20261016.json",
+          "head": "ad30b4384a1ae05d185f217b600a1a0481770989",
+          "reviewedHead": "ad30b4384a1ae05d185f217b600a1a0481770989",
+          "reviewerModel": "claude-fable-5-1",
+          "implementerModel": "claude-opus-5-5",
+          "outputSha256": "8c6ba4f65953ec1940697107d63a5e6c1fccad992e7c89444eac5e6e35f38b08",
+          "verdict": "APPROVE-WITH-NOTES"
+        },
+        "merge": {
+          "path": "evidence/p2ce1-merge-20261016.json",
+          "pr": 2147,
+          "head": "ad30b4384a1ae05d185f217b600a1a0481770989",
+          "mergeSha": "86d4b69a71633e68f71eebe3fac4981706567ce6"
+        },
+        "mainProof": {
+          "path": "evidence/p2ce1-mainproof-20261016.json",
+          "mergeCommit": "86d4b69a71633e68f71eebe3fac4981706567ce6",
+          "verdict": "PASS",
+          "runtime": "Source/Main Jest: Tests:       138 passed, 138 total"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -12692,6 +12718,44 @@
         "commentId": 6205924360,
         "author": "SwiggitySwerve",
         "bodySha256": "23cd480ff400f67045d962cb40bac7f2974d6076594cab1200b2ee3a58a85e97"
+      }
+    },
+    {
+      "id": "PK-p2ce1-ruling",
+      "blocks": [
+        "P2CE1"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "After independent exact-head Fable review and required green CI, should the owner rule the bounded P2CE1 result-aware confirmed-send head before guarded merge?",
+      "options": [
+        {
+          "label": "rule the exact source head",
+          "consequence": "Permit guarded P2CE1 sendConfirmed primitive and binder broadcaster-pair merge and exact-main proof only; socket offers, same-cut hydration, receipt-ACK admission and the P2CA commit remain P2CE2 and P2CE3.",
+          "effort": "One exact-head Fable review, evidence check and owner ruling"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Hold merge until the concrete settlement, refusal, backpressure or proof objections are fixed and fresh exact-head review, CI and owner ruling are complete.",
+          "effort": "Bounded by the concrete review objections"
+        }
+      ],
+      "agentRecommendation": "Rule only an independently approved green exact head whose sendConfirmed reports sent solely from the socket's own write callback, refuses aborted, not-open, backpressured and unserializable sends before any byte is written, settles exactly once, leaves broadcast and safeSend unchanged and keeps each binder entry's broadcaster beside its lifecycle. This proposal grants no approval or merge permission.",
+      "revertCost": "Low: revert the two-product-leaf change before a production caller consumes it; P2CE1 adds no migration, table, wire message or server activation, and sendConfirmed has no production caller.",
+      "decision": {
+        "option": "rule the exact source head",
+        "at": "2026-10-16T04:14:01Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2147#issuecomment-6207925274"
+      },
+      "ruling": {
+        "ruledHead": "ad30b4384a1ae05d185f217b600a1a0481770989",
+        "pr": 2147,
+        "commentId": 6207925274,
+        "author": "SwiggitySwerve",
+        "bodySha256": "92a65a16e6b50b8df1ddaef28fc90f2eb5083243f185a7166f2cfdd95ba324f7"
       }
     },
     {

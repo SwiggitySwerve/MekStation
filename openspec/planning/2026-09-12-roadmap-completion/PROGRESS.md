@@ -1,3 +1,40 @@
+## 2026-10-16 P2CE1 source verified on main; closure metadata proposed
+
+P2CE1 advances from implementing to main-verified for source PR #2147,
+head ad30b4384a1ae05d185f217b600a1a0481770989, merge 86d4b69a71633e68f71eebe3fac4981706567ce6.
+Its baseline remains the admission base cb4af3aafb81790c33455fc2304ebb5cf3c36a87.
+The owner explicitly authorized this ruling in chat, and it was posted as [comment 6207925274](https://github.com/SwiggitySwerve/MekStation/pull/2147#issuecomment-6207925274);
+its exact UTF-8 body, without an added newline, hashes to 92a65a16e6b50b8df1ddaef28fc90f2eb5083243f185a7166f2cfdd95ba324f7.
+The merge (04:13:52Z) preceded the ruling (04:14:01Z); this record preserves that chronology.
+PK-p2ce1-ruling is first recorded here, after both the merge and the ruling.
+
+The admission, red and local receipts came with the source PR and are unchanged.
+The [review receipt](evidence/p2ce1-review-20261016.json) binds the Fable 5.1 review
+of the exact merged head (APPROVE-WITH-NOTES; author Opus 5.5), preserved byte for byte.
+The reviewer re-ran the leaf (20/20) and the registered QA selector (7 suites, 138 tests).
+The author's stable run (2795 suites, 37078 passed) ran on bytes equal to the committed blobs.
+The reserved p2ce1-admission-review-20261016.md slot stays unwritten.
+
+Two review notes carry forward. sendConfirmed does not advance deliveredSeq, so a
+sequenced match Event frame must not go through it unless the frame type is narrowed or
+the cursor is recorded on sent (P2CE2/P2CE3). P2CE2 must send through the binder's stored
+paired broadcaster, never a fresh ServerMatchBroadcaster. P2CE2 has no notes field and
+stays blocked; it is not edited here.
+
+All 31 checks on the merged head succeeded. The [merge receipt](evidence/p2ce1-merge-20261016.json)
+binds both ordered parents and the matching integration tree. The [main proof](evidence/p2ce1-mainproof-20261016.json)
+is a fresh run at the merge before any closure edit: seven suites, 138 tests,
+typecheck and the validator passed. It references the attempt logs by hash.
+
+P2CE1 has no task keys. Its tick remains null because source/closure cleanup
+is not established here; no tasks.md row is changed. P2CE1 therefore releases
+its in-flight src/lib/multiplayer/server reservation at main-verified, while
+P2CE2, P2CE3, P2C and all other unit states remain unchanged.
+Selection is not downstream admission.
+This closure metadata still requires its own review, CI and parent merge.
+
+---
+
 ## 2026-10-16 P2CB source verified on main; closure metadata proposed
 
 P2CB advances from implementing to main-verified for source PR #2143,
