@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CE1",
+  "stage": "red",
+  "baseline": "cb4af3aafb81790c33455fc2304ebb5cf3c36a87",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "Task12 / P2CE1 implementation sub-agent"
+  },
+  "runtime": "node v22.22.0",
+  "command": "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --runTestsByPath src/lib/multiplayer/server/__tests__/ServerMatchBroadcaster.test.ts",
+  "exitCode": 1,
+  "result": "9 failed, 9 passed, 18 total; product leaves byte-identical to baseline",
+  "supplement": {
+    "result": "11 failed, 9 passed, 20 total",
+    "note": "Final test leaf rerun against the baseline product bytes after two tests were added to kill mutation-probe survivors (callback fired before send returns; abort listener released on settle). Every failure is a new confirmed-send test; the 9 existing backpressure tests pass."
+  },
+  "logs": [
+    "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce1-20261016/red.log"
+  ],
+  "failures": [
+    "TypeError: broadcaster.sendConfirmed is not a function (the result-aware send owner is absent at baseline)"
+  ]
+}

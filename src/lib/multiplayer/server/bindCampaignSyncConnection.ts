@@ -49,10 +49,13 @@ import {
   type ICampaignGrantChannelDeps,
 } from './handleCampaignGrantJoin';
 import { handleRoomCodeGuestJoin } from './handleRoomCodeGuestJoin';
-import { ServerMatchBroadcaster } from './ServerMatchBroadcaster';
+import {
+  ServerMatchBroadcaster,
+  type ICallbackMatchSocket,
+} from './ServerMatchBroadcaster';
 import { ServerMatchSocketLifecycle } from './ServerMatchSocketLifecycle';
 
-export interface IWireCampaignSocket extends IMatchSocket {
+export interface IWireCampaignSocket extends ICallbackMatchSocket {
   on(event: 'message', listener: (data: unknown) => void): this;
   on(event: 'close' | 'error', listener: () => void): this;
 }
@@ -189,7 +192,10 @@ const socketsByMatch = new Map<string, Set<IWireCampaignSocket>>();
 const timeoutOutcomeArmed = new WeakSet<ICampaignHostRegistryEntry>();
 const campaignSocketLifecycles = new WeakMap<
   ICampaignHostRegistryEntry,
-  ServerMatchSocketLifecycle
+  {
+    readonly lifecycle: ServerMatchSocketLifecycle;
+    readonly broadcaster: ServerMatchBroadcaster;
+  }
 >();
 /**
  * What each entry's heal pass has read of its log: the next unread sequence
@@ -208,17 +214,22 @@ const healedLogs = new WeakMap<
 function campaignSocketLifecycle(
   entry: ICampaignHostRegistryEntry,
   matchId: string,
-): ServerMatchSocketLifecycle {
+) {
   const existing = campaignSocketLifecycles.get(entry);
   if (existing) return existing;
 
-  const lifecycle = new ServerMatchSocketLifecycle({
-    matchId,
-    broadcaster: new ServerMatchBroadcaster(),
-    onLastSocketDropped: () => undefined,
-  });
-  campaignSocketLifecycles.set(entry, lifecycle);
-  return lifecycle;
+  // Kept beside the lifecycle so receipt sends share its backpressure state.
+  const broadcaster = new ServerMatchBroadcaster();
+  const pair = {
+    broadcaster,
+    lifecycle: new ServerMatchSocketLifecycle({
+      matchId,
+      broadcaster,
+      onLastSocketDropped: () => undefined,
+    }),
+  };
+  campaignSocketLifecycles.set(entry, pair);
+  return pair;
 }
 
 export async function bindCampaignSyncConnection({
@@ -270,7 +281,7 @@ export async function bindCampaignSyncConnection({
     sockets?.delete(socket);
     if (sockets?.size === 0) socketsByMatch.delete(matchId);
   };
-  const lifecycle = campaignSocketLifecycle(entry, matchId);
+  const { lifecycle } = campaignSocketLifecycle(entry, matchId);
   lifecycle.attach(socket, verifiedPlayerId);
   cleanupFns.add(() => lifecycle.detach(socket));
 
