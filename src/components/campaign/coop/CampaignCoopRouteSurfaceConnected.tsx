@@ -45,6 +45,10 @@ import {
   type CampaignCoopRouteId,
 } from './CampaignCoopRouteSurface';
 import { pendingProposalFromWire } from './pendingProposalFromWire';
+import {
+  isCampaignApplicationError,
+  useCampaignApplicationConsumer,
+} from './useCampaignApplicationConsumer';
 
 export interface CampaignCoopRouteSurfaceConnectedProps {
   readonly campaign: ICampaign | null;
@@ -101,17 +105,15 @@ export function CampaignCoopRouteSurfaceConnected({
   // quoting a cursor past that baseline's own `sequence: -1` would
   // REJECT its own hydration frame and backfill nothing.
   //
-  // RESIDUAL, deliberately not closed here: a MOUNT starts empty and so
-  // always adopts, but the effect below re-runs on a `roomCode` or
-  // `matchId` change WITHOUT unmounting, and that reconnect keeps this
-  // ref. Such a surface quotes a cursor above 0, rejects the baseline it
-  // is hydrated with, and therefore misses anything committed during the
-  // socket gap until the next full mount. Same adopt-at-0 rule the guest
-  // mirror already carries for a large-gap resync; closing it for both
-  // roles needs its own red-first row.
+  // The connect effect below resets it for every binding (P2CF2), so a
+  // reconnect on a `roomCode` or `matchId` change without unmounting also
+  // adopts its baseline at 0 instead of refusing it against old proof.
   const hostFold = useRef<ICampaignAuthoritativeFold>(
     EMPTY_CAMPAIGN_AUTHORITATIVE_FOLD,
   );
+  // Receipt-mode application (P2CF2): idle unless a transport is bound to
+  // this campaign, which no production creator does before Task 14.
+  const { rejoins, bind: bindApplication } = useCampaignApplicationConsumer();
 
   useEffect(() => {
     let cancelled = false;
@@ -153,6 +155,7 @@ export function CampaignCoopRouteSurfaceConnected({
     if (coopMode !== 'host' || !matchId || !roomCode || !campaignId) {
       return () => undefined;
     }
+    hostFold.current = EMPTY_CAMPAIGN_AUTHORITATIVE_FOLD;
     const transport = connectStoredCampaignSyncTransport({
       matchId,
       role: 'host',
@@ -183,13 +186,22 @@ export function CampaignCoopRouteSurfaceConnected({
       if (projected) store.setState({ campaign: projected });
     };
 
-    return transport.onFrame((message) => {
+    const application = bindApplication({
+      role: 'host',
+      transport,
+      campaignId,
+      store,
+      fold: hostFold,
+    });
+    const offFrame = transport.onFrame((message) => {
+      const applied = application.consume(message);
       // Umbrella 19.2: the server's refusal is the ONLY authority on
       // whether a progression command will be taken, and it arrives on
       // this same frame stream. Holding the last one is what lets the GM
       // surface gate the control the server would refuse instead of
-      // letting the host press it and find out.
-      if (message.kind === 'Error') {
+      // letting the host press it and find out. Application errors are
+      // the consumer's, never a command refusal.
+      if (message.kind === 'Error' && !isCampaignApplicationError(message)) {
         setLastRefusalCode(message.code);
         setLastRefusalAction(message.recoveryAction ?? null);
       }
@@ -217,7 +229,9 @@ export function CampaignCoopRouteSurfaceConnected({
         // 2026-08-22. `foldCampaignFrame` returns the fold unchanged
         // (by reference) for a stale or unparseable frame, so a
         // rejected frame re-projects nothing.
-        const folded = foldCampaignFrame(hostFold.current, auditable);
+        const folded = applied
+          ? hostFold.current
+          : foldCampaignFrame(hostFold.current, auditable);
         if (folded !== hostFold.current) {
           hostFold.current = folded;
           projectHostFoldToCampaign();
@@ -256,7 +270,19 @@ export function CampaignCoopRouteSurfaceConnected({
         );
       }
     });
-  }, [campaignId, coopMode, matchId, roomCode, store]);
+    return () => {
+      offFrame();
+      application.dispose();
+    };
+  }, [
+    bindApplication,
+    campaignId,
+    coopMode,
+    matchId,
+    rejoins,
+    roomCode,
+    store,
+  ]);
 
   useEffect(() => {
     if (coopMode !== 'guest' || !matchId || !roomCode || !campaignId) {
@@ -282,8 +308,16 @@ export function CampaignCoopRouteSurfaceConnected({
       if (projected) store.setState({ campaign: projected });
     };
 
+    const application = bindApplication({
+      role: 'guest',
+      transport,
+      campaignId,
+      store,
+      playerId: token.playerId,
+    });
     projectMirrorToCampaign();
-    return transport.onFrame((message) => {
+    const offFrame = transport.onFrame((message) => {
+      const applied = application.consume(message);
       // Umbrella 19.2: the guest gets the SAME refusal channel the host
       // has had since seam 1, for the same reason. The server refuses on
       // the frame stream both roles already subscribe to, and a guest
@@ -295,7 +329,7 @@ export function CampaignCoopRouteSurfaceConnected({
       // policy: hold the last Error code, and clear it optimistically on
       // the next committed campaign event, because no "you may command
       // again" frame exists and the server stays the enforcer.
-      if (message.kind === 'Error') {
+      if (message.kind === 'Error' && !isCampaignApplicationError(message)) {
         setLastRefusalCode(message.code);
         setLastRefusalAction(message.recoveryAction ?? null);
       }
@@ -304,7 +338,7 @@ export function CampaignCoopRouteSurfaceConnected({
         setLastRefusalAction(null);
       }
       const event = campaignEventFromMessage(message);
-      if (!event) return;
+      if (!event || applied) return;
       const mirrorStore = useCampaignMirrorStore.getState();
       if (event.type === 'CampaignSnapshotPublished') {
         if (!mirrorStore.peers) {
@@ -322,7 +356,19 @@ export function CampaignCoopRouteSurfaceConnected({
       }
       projectMirrorToCampaign();
     });
-  }, [campaignId, coopMode, matchId, roomCode, store]);
+    return () => {
+      offFrame();
+      application.dispose();
+    };
+  }, [
+    bindApplication,
+    campaignId,
+    coopMode,
+    matchId,
+    rejoins,
+    roomCode,
+    store,
+  ]);
 
   const proposalTransport = useCallback(
     (proposal: IGuestProposal) => {

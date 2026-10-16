@@ -26,6 +26,7 @@ import type { StoreApi } from 'zustand';
 import { createStore } from 'zustand/vanilla';
 
 import type { ICampaignCacheKey } from '@/lib/campaign/persistence/campaignCacheKey';
+import type { IFullUnit } from '@/services/units/CanonicalUnitService';
 import type { ICampaign, IMission } from '@/types/campaign/Campaign';
 import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 
@@ -40,8 +41,25 @@ import {
   useCampaignPersistenceStore,
   __resetCampaignPersistenceCoordinationForTests,
 } from '../useCampaignPersistenceStore';
+import { useCampaignRosterStore } from '../useCampaignRosterStore';
 
 jest.mock('@/components/shared/Toast', () => ({ toast: jest.fn() }));
+
+// Canonical source I/O for the staged-maxima rows: every lookup is held
+// until the test answers it, so a row can act while resolution is pending.
+const mockCanonicalLookups: Array<{
+  readonly id: string;
+  readonly answer: (unit: unknown) => void;
+}> = [];
+jest.mock('@/services/units/CanonicalUnitService', () => ({
+  getCanonicalUnitService: () => ({
+    getById: (id: string) =>
+      new Promise((answer) => {
+        mockCanonicalLookups.push({ id, answer });
+      }),
+    getIndex: async () => [],
+  }),
+}));
 
 const BASE_VERSION = 11;
 const HOST_INSTANCE_ID = 'instance-host-a';
@@ -508,5 +526,462 @@ describe('the client record is refreshed after a committed command is acknowledg
     );
     expect(key?.revision).not.toBe(RECEIPT_REVISION);
     expect(key?.revision).not.toBe(PUBLIC_HEAD);
+  });
+});
+
+// --- P2CF2: the guarded refresh a mounted receipt consumer awaits ---
+
+const CANONICAL_REF = 'test-medium-tmd-1a';
+
+/** 50-ton canonical design the staged maxima resolve through `adaptUnit`. */
+function canonicalUnit(): IFullUnit {
+  return {
+    id: CANONICAL_REF,
+    chassis: 'Testmech',
+    variant: 'TMD-1A',
+    tonnage: 50,
+    techBase: 'INNER_SPHERE',
+    era: 'SUCCESSION_WARS',
+    unitType: 'BATTLEMECH',
+    engine: { type: 'FUSION', rating: 250 },
+    armor: {
+      type: 'STANDARD',
+      allocation: {
+        HEAD: 9,
+        CENTER_TORSO: { front: 20, rear: 6 },
+        LEFT_ARM: 12,
+      },
+    },
+    structure: { type: 'STANDARD' },
+    heatSinks: { type: 'SINGLE', count: 10 },
+    movement: { walk: 5, jump: 0 },
+    equipment: [{ id: 'medium-laser', location: 'CENTER_TORSO' }],
+  } as unknown as IFullUnit;
+}
+
+interface IDeferred<T> {
+  readonly promise: Promise<T>;
+  readonly resolve: (value: T) => void;
+  readonly reject: (error: unknown) => void;
+}
+
+function deferred<T>(): IDeferred<T> {
+  let resolve!: (value: T) => void;
+  let reject!: (error: unknown) => void;
+  const promise = new Promise<T>((onResolve, onReject) => {
+    resolve = onResolve;
+    reject = onReject;
+  });
+  return { promise, resolve, reject };
+}
+
+/**
+ * The guarded receipt refresh holds its context; flipping `current` is
+ * the mounted binding becoming stale (unmount, rejoin, new view).
+ */
+function refreshContext(): { current: boolean; isCurrent: () => boolean } {
+  const context = { current: true, isCurrent: () => context.current };
+  return context;
+}
+
+/** Waits a bounded number of turns for an owner step the row can observe. */
+async function until(reached: () => boolean): Promise<void> {
+  for (let turn = 0; turn < 200; turn += 1) {
+    if (reached()) return;
+    await Promise.resolve();
+  }
+  throw new Error('the awaited owner step never happened');
+}
+
+describe('a guarded refresh never writes for a stale binding (P2CF2)', () => {
+  let campaign: ICampaign;
+  /** Answers queued GETs in order; an unanswered GET stays held. */
+  let gets: IDeferred<Response>[];
+  let getIssued: IDeferred<void>;
+  /** When set, a GET answers this record at once instead of being held. */
+  let autoAnswer: SerializedCampaign | null;
+
+  function okResponse(record: SerializedCampaign): Response {
+    return {
+      ok: true,
+      status: 200,
+      json: async () => JSON.parse(JSON.stringify(record)),
+    } as Response;
+  }
+
+  function recordAt(
+    version: number,
+    rosterUnits: SerializedCampaign['body']['rosterProjection'] = undefined,
+  ): SerializedCampaign {
+    return {
+      ...buildSerializedCampaign(
+        { ...campaign, name: `Row v${version}` },
+        'device',
+        version,
+        rosterUnits,
+        { instanceId: HOST_INSTANCE_ID, authority: sourceCampaignAuthority() },
+      ),
+      sourceReplayFence: STAMPED_FENCE,
+    };
+  }
+
+  function rosterWithMissingMaxima(): SerializedCampaign['body']['rosterProjection'] {
+    return {
+      campaignId: campaign.id,
+      units: [
+        {
+          unitId: 'unit-1',
+          unitName: 'Testmech TMD-1A',
+          chassisVariant: 'TMD-1A',
+          readiness: 'Ready',
+          unitRef: CANONICAL_REF,
+          unitSource: 'canonical',
+        },
+      ],
+      pilots: [],
+      missions: [],
+      activeMissionId: null,
+      missionCount: 0,
+    };
+  }
+
+  /** Every write a stale refresh must not make, read in one place. */
+  function observable() {
+    const state = useCampaignPersistenceStore.getState();
+    return {
+      live: liveCampaign(),
+      cachedKey: campaignStore.getState().cachedCampaignKey,
+      roster: useCampaignRosterStore.getState(),
+      campaignId: state.campaignId,
+      baseVersion: state.baseVersion,
+      fence: state.sourceReplayFence,
+      saveState: state.saveState,
+      errorMessage: state.errorMessage,
+      dirty: state.dirty,
+    };
+  }
+
+  beforeEach(() => {
+    jest.useFakeTimers();
+    captured.length = 0;
+    mockCanonicalLookups.length = 0;
+    __resetCampaignPersistenceCoordinationForTests();
+    useCampaignPersistenceStore.getState().reset();
+    useCampaignRosterStore.getState().reset();
+    campaign = buildPopulatedCampaign();
+    registerLiveCampaign(campaign);
+    gets = [];
+    getIssued = deferred<void>();
+    autoAnswer = null;
+    jest
+      .spyOn(globalThis, 'fetch')
+      .mockImplementation((input: RequestInfo | URL, init?: RequestInit) => {
+        const request: CapturedRequest = {
+          url: String(input),
+          init: init ?? {},
+        };
+        captured.push(request);
+        if (String(request.init.method ?? 'GET').toUpperCase() !== 'GET') {
+          return Promise.resolve({
+            ok: true,
+            status: 200,
+            json: async () => recordAt(BASE_VERSION + 9),
+          } as Response);
+        }
+        if (autoAnswer) return Promise.resolve(okResponse(autoAnswer));
+        const answer = deferred<Response>();
+        gets.push(answer);
+        getIssued.resolve();
+        return answer.promise;
+      });
+    useCampaignPersistenceStore.setState({
+      campaignId: campaign.id,
+      baseVersion: BASE_VERSION,
+      saveState: 'saved',
+    });
+  });
+
+  afterEach(() => {
+    useCampaignPersistenceStore.getState().reset();
+    useCampaignRosterStore.getState().reset();
+    jest.useRealTimers();
+    jest.restoreAllMocks();
+  });
+
+  function guardedRefresh(context: {
+    isCurrent: () => boolean;
+  }): Promise<boolean> {
+    return useCampaignPersistenceStore
+      .getState()
+      .refreshAfterCommittedCommand(committedAck(campaign.id), context);
+  }
+
+  it('does not start for a binding that is already stale and keeps the armed save', async () => {
+    useCampaignPersistenceStore.getState().markDirty();
+    autoAnswer = recordAt(BASE_VERSION + 1);
+    const context = refreshContext();
+    context.current = false;
+
+    const adopted = await guardedRefresh(context);
+    jest.advanceTimersByTime(AUTO_SAVE_DEBOUNCE_MS);
+    await drainMicrotasks();
+
+    expect(adopted).toBe(false);
+    expect(getRequests()).toHaveLength(0);
+    // The ordinary save the edit armed still goes out at the held token.
+    expect(putRequests().map(putBaseVersion)).toEqual([BASE_VERSION]);
+  });
+
+  it.each(['the GET', 'the JSON body'])(
+    'writes nothing and re-arms nothing when the binding goes stale while %s is held',
+    async (held) => {
+      useCampaignPersistenceStore.getState().markDirty();
+      const before = observable();
+      const context = refreshContext();
+      const refresh = guardedRefresh(context);
+      await getIssued.promise;
+      const body = deferred<SerializedCampaign>();
+      let bodyRead = false;
+
+      if (held === 'the GET') {
+        context.current = false;
+        gets[0].resolve(okResponse(recordAt(BASE_VERSION + 1)));
+      } else {
+        gets[0].resolve({
+          ok: true,
+          status: 200,
+          json: () => {
+            bodyRead = true;
+            return body.promise;
+          },
+        } as Response);
+        await until(() => bodyRead);
+        context.current = false;
+        body.resolve(recordAt(BASE_VERSION + 1));
+      }
+      const adopted = await refresh;
+      jest.advanceTimersByTime(AUTO_SAVE_DEBOUNCE_MS);
+      await drainMicrotasks();
+
+      expect(adopted).toBe(false);
+      expect(observable()).toEqual(before);
+      expect(observable().live).toBe(before.live);
+      expect(putRequests()).toHaveLength(0);
+    },
+  );
+
+  it('records no not-found status for a stale binding whose record is gone', async () => {
+    const before = observable();
+    const context = refreshContext();
+    const refresh = guardedRefresh(context);
+    await getIssued.promise;
+
+    context.current = false;
+    gets[0].resolve({ ok: false, status: 404 } as Response);
+    const adopted = await refresh;
+
+    expect(adopted).toBe(false);
+    expect(observable()).toEqual(before);
+    expect(useCampaignPersistenceStore.getState().legacyUnadopted).toBe(false);
+  });
+
+  it('starts no network-backed maxima resolution once the binding is stale', async () => {
+    const context = refreshContext();
+    const refresh = guardedRefresh(context);
+    await getIssued.promise;
+    const body = deferred<SerializedCampaign>();
+    let bodyRead = false;
+    gets[0].resolve({
+      ok: true,
+      status: 200,
+      json: () => {
+        bodyRead = true;
+        return body.promise;
+      },
+    } as Response);
+    await until(() => bodyRead);
+
+    context.current = false;
+    body.resolve(recordAt(BASE_VERSION + 1, rosterWithMissingMaxima()));
+    const adopted = await refresh;
+
+    expect(adopted).toBe(false);
+    expect(mockCanonicalLookups).toHaveLength(0);
+  });
+
+  it('records no error for a stale binding whose read fails', async () => {
+    const before = observable();
+    const context = refreshContext();
+    const refresh = guardedRefresh(context);
+    await getIssued.promise;
+
+    context.current = false;
+    gets[0].reject(new Error('network down'));
+    const adopted = await refresh;
+
+    expect(adopted).toBe(false);
+    expect(observable()).toEqual(before);
+  });
+
+  it('stages missing maxima into the installed record without updateCampaign or a PUT', async () => {
+    const updateCampaign = jest.spyOn(
+      campaignStore.getState(),
+      'updateCampaign',
+    );
+    const refresh = guardedRefresh(refreshContext());
+    await getIssued.promise;
+    gets[0].resolve(
+      okResponse(recordAt(BASE_VERSION + 1, rosterWithMissingMaxima())),
+    );
+    await until(() => mockCanonicalLookups.length > 0);
+
+    mockCanonicalLookups[0].answer(canonicalUnit());
+    const adopted = await refresh;
+
+    expect(adopted).toBe(true);
+    expect(liveCampaign()?.unitMaxStates?.['unit-1']).toBeDefined();
+    expect(useCampaignRosterStore.getState().units[0]?.unitId).toBe('unit-1');
+    expect(useCampaignPersistenceStore.getState().baseVersion).toBe(
+      BASE_VERSION + 1,
+    );
+    expect(updateCampaign).not.toHaveBeenCalled();
+    expect(putRequests()).toHaveLength(0);
+  });
+
+  it('writes nothing when the binding goes stale while maxima are resolving', async () => {
+    const updateCampaign = jest.spyOn(
+      campaignStore.getState(),
+      'updateCampaign',
+    );
+    const before = observable();
+    const context = refreshContext();
+    const refresh = guardedRefresh(context);
+    await getIssued.promise;
+    gets[0].resolve(
+      okResponse(recordAt(BASE_VERSION + 1, rosterWithMissingMaxima())),
+    );
+    await until(() => mockCanonicalLookups.length > 0);
+
+    context.current = false;
+    mockCanonicalLookups[0].answer(canonicalUnit());
+    const adopted = await refresh;
+
+    expect(adopted).toBe(false);
+    expect(observable()).toEqual(before);
+    expect(observable().live).toBe(before.live);
+    expect(updateCampaign).not.toHaveBeenCalled();
+    expect(putRequests()).toHaveLength(0);
+  });
+
+  it('does not overwrite a newer record a later load adopted while it was in flight', async () => {
+    const refresh = guardedRefresh(refreshContext());
+    await getIssued.promise;
+
+    const load = useCampaignPersistenceStore
+      .getState()
+      .loadCampaign(campaign.id);
+    await until(() => gets.length > 1);
+    gets[1].resolve(okResponse(recordAt(BASE_VERSION + 2)));
+    await load;
+    const afterLoad = observable();
+    gets[0].resolve(okResponse(recordAt(BASE_VERSION + 1)));
+    const adopted = await refresh;
+
+    expect(afterLoad.baseVersion).toBe(BASE_VERSION + 2);
+    expect(adopted).toBe(false);
+    expect(observable()).toEqual(afterLoad);
+    expect(liveCampaign()?.name).toBe(`Row v${BASE_VERSION + 2}`);
+  });
+
+  it('does not write into a store that was reset while it was in flight', async () => {
+    const refresh = guardedRefresh(refreshContext());
+    await getIssued.promise;
+
+    useCampaignPersistenceStore.getState().reset();
+    // An edit after the reset names the same campaign again; the refresh
+    // still belongs to the store state the reset discarded.
+    useCampaignPersistenceStore.getState().markDirty();
+    const afterReset = observable();
+    gets[0].resolve(okResponse(recordAt(BASE_VERSION + 1)));
+    const adopted = await refresh;
+
+    expect(afterReset.campaignId).toBe(campaign.id);
+    expect(adopted).toBe(false);
+    expect(observable()).toEqual(afterReset);
+  });
+
+  it('does not start when the store is reset before its queued start', async () => {
+    autoAnswer = recordAt(BASE_VERSION + 1);
+    const refresh = guardedRefresh(refreshContext());
+    useCampaignPersistenceStore.getState().reset();
+    const afterReset = observable();
+
+    const adopted = await refresh;
+
+    expect(adopted).toBe(false);
+    expect(getRequests()).toHaveLength(0);
+    expect(observable()).toEqual(afterReset);
+  });
+
+  it.each([
+    ['the live record', () => campaignStore.getState().campaign, true],
+    ['the roster', () => useCampaignRosterStore.getState().units, false],
+    ['the cache key', () => campaignStore.getState().cachedCampaignKey, false],
+  ])(
+    'stops at once when a subscriber invalidates the binding on %s write',
+    async (label, watched, rosterUntouched) => {
+      autoAnswer = recordAt(BASE_VERSION + 1, rosterWithMissingMaxima());
+      const context = refreshContext();
+      const held = watched();
+      const invalidate = (): void => {
+        if (watched() !== held) context.current = false;
+      };
+      campaignStore.subscribe(invalidate);
+      useCampaignRosterStore.subscribe(invalidate);
+      const before = observable();
+      const refresh = guardedRefresh(context);
+      await until(() => mockCanonicalLookups.length > 0);
+      mockCanonicalLookups[0].answer(canonicalUnit());
+
+      const adopted = await refresh;
+
+      expect(adopted).toBe(false);
+      // Nothing after the write that invalidated it.
+      expect(useCampaignRosterStore.getState() === before.roster).toBe(
+        rosterUntouched,
+      );
+      expect(useCampaignPersistenceStore.getState().baseVersion).toBe(
+        BASE_VERSION,
+      );
+      expect(
+        useCampaignPersistenceStore.getState().sourceReplayFence,
+      ).toBeNull();
+      expect(campaignStore.getState().cachedCampaignKey).toEqual(
+        label === 'the cache key'
+          ? { instanceId: HOST_INSTANCE_ID, revision: BASE_VERSION + 1 }
+          : before.cachedKey,
+      );
+    },
+  );
+
+  it('completes on its own writes when nothing supersedes it', async () => {
+    const refresh = guardedRefresh(refreshContext());
+    await getIssued.promise;
+    gets[0].resolve(okResponse(recordAt(BASE_VERSION + 1)));
+
+    const adopted = await refresh;
+
+    expect(adopted).toBe(true);
+    expect(useCampaignPersistenceStore.getState()).toMatchObject({
+      baseVersion: BASE_VERSION + 1,
+      sourceReplayFence: STAMPED_FENCE,
+      saveState: 'saved',
+      dirty: false,
+    });
+    expect(campaignStore.getState().cachedCampaignKey).toEqual({
+      instanceId: HOST_INSTANCE_ID,
+      revision: BASE_VERSION + 1,
+    });
+    expect(liveCampaign()?.name).toBe(`Row v${BASE_VERSION + 1}`);
   });
 });

@@ -12,6 +12,7 @@
 import { create, type StateCreator } from 'zustand';
 
 import type { ICampaign } from '@/types/campaign/Campaign';
+import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
 import type {
   ICampaignSaveMetadata,
   ICampaignSourceReplayFence,
@@ -39,7 +40,10 @@ import { Money } from '@/types/campaign/Money';
 import { sha256Sync, toCanonicalJson } from '@/utils/events/hashUtils';
 
 import { getCampaignStoreForRoster } from './campaignStoreAccessor';
-import { ensureCampaignUnitMaxStates } from './campaignUnitMaxStates';
+import {
+  ensureCampaignUnitMaxStates,
+  prepareCampaignUnitMaxStates,
+} from './campaignUnitMaxStates';
 import { useCampaignRosterStore } from './useCampaignRosterStore';
 
 export const AUTO_SAVE_DEBOUNCE_MS = 2000;
@@ -140,6 +144,15 @@ export interface ICampaignCommittedCommandAck {
   readonly publicHead?: number;
 }
 
+/**
+ * The binding a guarded refresh serves (P2CF2): the mounted receipt
+ * consumer that awaits it. Once `isCurrent()` is false the refresh writes
+ * nothing more and re-arms nothing.
+ */
+export interface ICampaignRefreshContext {
+  readonly isCurrent: () => boolean;
+}
+
 export type CampaignPersistenceSaveResult =
   | {
       readonly status: 'saved';
@@ -230,9 +243,13 @@ interface CampaignPersistenceActions {
    *
    * Resolves `true` when a record was read and adopted, `false` when the
    * acknowledgement was not this campaign's or the read did not answer.
+   * With a `context` the refresh is guarded: it stages missing maxima
+   * instead of saving them, and a stale context, a later load or a reset
+   * stops it before any further write.
    */
   refreshAfterCommittedCommand: (
     ack: ICampaignCommittedCommandAck,
+    context?: ICampaignRefreshContext,
   ) => Promise<boolean>;
   /**
    * Adopt the server's record and continue from there.
@@ -326,6 +343,9 @@ let issuedFlush: IIssuedCampaignFlush | null = null;
  * version the server has already moved past, so every write waits here first.
  */
 let inFlightLoad: Promise<boolean> | null = null;
+
+/** Bumped by every load and reset; a guarded refresh started under an older one is stale. */
+let loadGeneration = 0;
 
 /**
  * Tail of the serialized write chain. Two overlapping writes would both read
@@ -517,9 +537,23 @@ function readLiveRosterSnapshot(
   };
 }
 
+function rosterUnitsOf(
+  campaignId: string,
+  rosterProjection: SerializedCampaignRosterState,
+): IRosterUnitProjection[] {
+  return backfillLegacyRosterUnitRefs(
+    rosterProjection.units.map((unit) => ({ ...unit })),
+    {
+      campaignId,
+      source: 'server-roster-projection-load',
+    },
+  );
+}
+
 function restoreRosterProjection(
   campaignId: string,
   rosterProjection: SerializedCampaignRosterState | undefined,
+  units?: IRosterUnitProjection[],
 ): void {
   if (!rosterProjection) {
     const roster = useCampaignRosterStore.getState();
@@ -531,13 +565,7 @@ function restoreRosterProjection(
 
   useCampaignRosterStore.setState({
     campaignId,
-    units: backfillLegacyRosterUnitRefs(
-      rosterProjection.units.map((unit) => ({ ...unit })),
-      {
-        campaignId,
-        source: 'server-roster-projection-load',
-      },
-    ),
+    units: units ?? rosterUnitsOf(campaignId, rosterProjection),
     pilots: rosterProjection.pilots.map(deserializeRosterEntry),
     missions: rosterProjection.missions.map((mission) => ({
       ...mission,
@@ -900,6 +928,7 @@ function loadCampaignAction(
   return (id: string) => {
     // Published for the duration so a concurrent write waits for the version
     // this load establishes instead of racing it.
+    loadGeneration += 1;
     const load = runLoad(set, id);
     inFlightLoad = load;
     return load.finally(() => {
@@ -910,11 +939,22 @@ function loadCampaignAction(
   };
 }
 
-async function runLoad(set: PersistenceSet, id: string): Promise<boolean> {
+/**
+ * With a `guard` (a guarded refresh) a false check stops the load before any
+ * further write, status and error included, and maxima are staged, not saved.
+ */
+async function runLoad(
+  set: PersistenceSet,
+  id: string,
+  guard?: () => boolean,
+): Promise<boolean> {
+  const current = guard ?? (() => true);
   {
-    set({ saveState: 'saving', errorMessage: null });
+    if (!current()) return false;
+    if (!guard) set({ saveState: 'saving', errorMessage: null });
     try {
       const response = await fetchCampaignRecord(id);
+      if (!current()) return false;
       if (response.status === 404) {
         // Not every missing record is an error. A campaign the browser
         // rehydrated from storage that this server has never held is a
@@ -943,6 +983,7 @@ async function runLoad(set: PersistenceSet, id: string): Promise<boolean> {
       const migrated = migrateClientRecord(
         (await response.json()) as SerializedCampaign,
       );
+      if (!current()) return false;
       // Task 1.3: the cache is keyed, so "is this copy the same thing?"
       // is answered rather than assumed. A copy naming the same instance
       // at the same revision is the server's own record and is left
@@ -964,13 +1005,32 @@ async function runLoad(set: PersistenceSet, id: string): Promise<boolean> {
         verdict.kind === 'usable' &&
         liveCampaign?.id === migrated.campaignId &&
         liveCampaign.coopSession?.mode !== 'guest';
-      const loadedCampaign = cacheStands
+      let loadedCampaign = cacheStands
         ? liveCampaign
         : preserveGuestCoopSession(
             deserializeCampaignRecord(migrated),
             liveCampaign,
           );
-      if (!cacheStands) {
+      if (!cacheStands && guard) {
+        const projection = migrated.body.rosterProjection;
+        const roster = useCampaignRosterStore.getState();
+        const units = projection
+          ? rosterUnitsOf(id, projection)
+          : roster.campaignId === id
+            ? roster.units
+            : [];
+        loadedCampaign = {
+          ...loadedCampaign,
+          unitMaxStates: await prepareCampaignUnitMaxStates(
+            units,
+            loadedCampaign.unitMaxStates,
+          ),
+        };
+        if (!current()) return false;
+        writeLiveCampaign(loadedCampaign);
+        if (!current()) return false;
+        restoreRosterProjection(id, projection, [...units]);
+      } else if (!cacheStands) {
         writeLiveCampaign(loadedCampaign);
         restoreRosterProjection(id, migrated.body.rosterProjection);
         // An existing campaign saved before construction maxima were
@@ -979,7 +1039,9 @@ async function runLoad(set: PersistenceSet, id: string): Promise<boolean> {
         // call is idempotent and resolves nothing once they are filled.
         await ensureCampaignUnitMaxStates();
       }
+      if (!current()) return false;
       writeCachedCampaignKey(migrated);
+      if (!current()) return false;
       set({
         campaignId: id,
         dirty: false,
@@ -995,7 +1057,7 @@ async function runLoad(set: PersistenceSet, id: string): Promise<boolean> {
       return true;
     } catch (error) {
       const message = error instanceof Error ? error.message : 'load failed';
-      set({ saveState: 'error', errorMessage: message });
+      if (current()) set({ saveState: 'error', errorMessage: message });
       return false;
     }
   }
@@ -1360,15 +1422,16 @@ function refreshAfterCommittedCommandAction(
   set: PersistenceSet,
   get: PersistenceGet,
 ): CampaignPersistenceStore['refreshAfterCommittedCommand'] {
-  return (ack) => {
+  return (ack, context) => {
     const campaignId = get().campaignId;
     // An acknowledgement for another campaign is not evidence about this
     // one. Ignored rather than tolerated: refreshing on it would refetch
-    // a record no command touched.
+    // a record no command touched. A stale binding starts nothing.
     if (
       ack.kind !== 'committed' ||
       campaignId === null ||
-      ack.state.campaignId !== campaignId
+      ack.state.campaignId !== campaignId ||
+      context?.isCurrent() === false
     ) {
       return Promise.resolve(false);
     }
@@ -1384,8 +1447,20 @@ function refreshAfterCommittedCommandAction(
     // wait for the version this read establishes. Deliberately NOT
     // published as `inFlightLoad`: a write queued ahead of this read awaits
     // `inFlightLoad` when it starts, and this read waits for that write.
+    // A guarded refresh is current while its binding is, and while no load
+    // or reset has replaced the campaign this store held when it started.
+    let current = (): boolean => true;
     const refresh = saveChain
-      .then(() => runLoad(set, campaignId))
+      .then(() => {
+        const generation = loadGeneration;
+        if (context) {
+          current = () =>
+            context.isCurrent() &&
+            generation === loadGeneration &&
+            get().campaignId === campaignId;
+        }
+        return runLoad(set, campaignId, context && current);
+      })
       .then((adopted) => {
         // ...and owning it means handing it back when the read fails. A
         // refetch that did not answer leaves `dirty` exactly as it was with
@@ -1396,7 +1471,7 @@ function refreshAfterCommittedCommandAction(
         // every path for the same reason. Guarded rather than
         // unconditional only because the ADOPTING path clears `dirty`, so
         // arming there would fire a write with nothing to say.
-        if (!adopted && get().dirty) {
+        if (!adopted && get().dirty && current()) {
           armAutoSaveTimer(set, get);
         }
         return adopted;
@@ -1492,6 +1567,7 @@ function createPersistenceActions(
     },
     reset: () => {
       clearAutoSaveTimer();
+      loadGeneration += 1;
       inFlightLoad = null;
       saveChain = Promise.resolve();
       pendingFlushIssued = false;

@@ -25,6 +25,7 @@ import React from 'react';
 import type {
   CampaignSyncFrameHandler,
   ICampaignSyncTransport,
+  ICampaignSyncWebSocket,
   IConnectStoredCampaignSyncOptions,
 } from '@/lib/campaign/coop/campaignSyncTransport';
 import type { ICampaign } from '@/types/campaign/Campaign';
@@ -33,7 +34,11 @@ import type { IServerMessage } from '@/types/multiplayer/Protocol';
 
 import { toast } from '@/components/shared/Toast';
 import { sourceCampaignAuthority } from '@/lib/campaign/authority/campaignAuthority';
-import { connectStoredCampaignSyncTransport } from '@/lib/campaign/coop/campaignSyncTransport';
+import {
+  _resetCampaignSyncTransportsForTest,
+  connectCampaignSyncTransport,
+  connectStoredCampaignSyncTransport,
+} from '@/lib/campaign/coop/campaignSyncTransport';
 import { storeCoopCampaignToken } from '@/lib/campaign/coop/coopCampaignAuthTokenStore';
 import { buildSerializedCampaign } from '@/lib/campaign/persistence/campaignEnvelope';
 import { useCampaignMirrorStore } from '@/lib/p2p/campaignMirrorStore';
@@ -902,5 +907,484 @@ describe('CampaignCoopRouteSurfaceConnected - the host adopts the saved record a
       storedBalance: SPENT_BALANCE,
       toasts: [],
     });
+  });
+});
+
+// --- P2CF2: the GM's receipt consumer awaits the guarded record refresh ---
+
+interface IMockSocket extends ICampaignSyncWebSocket {
+  readonly sentRaw: string[];
+  /** What the host held when each frame left: row version and live balance. */
+  readonly heldAtSend: {
+    readonly baseVersion: number;
+    readonly balance: number | undefined;
+  }[];
+  inject(message: unknown): void;
+}
+
+interface IBoundConnection {
+  readonly sockets: IMockSocket[];
+  readonly transports: ICampaignSyncTransport[];
+  readonly connects: IConnectStoredCampaignSyncOptions[];
+  readonly inject: (message: unknown) => void;
+  /** Each receipt ACK on socket `index` with what the host held when it left. */
+  readonly acks: (index?: number) => {
+    readonly receiptId: string;
+    readonly baseVersion: number;
+    readonly balance: number | undefined;
+  }[];
+}
+
+function mockSocket(): IMockSocket {
+  const socket: IMockSocket = {
+    readyState: 1,
+    onopen: null,
+    onmessage: null,
+    onerror: null,
+    onclose: null,
+    sentRaw: [],
+    heldAtSend: [],
+    send(data: string) {
+      socket.sentRaw.push(data);
+      socket.heldAtSend.push({
+        baseVersion: useCampaignPersistenceStore.getState().baseVersion,
+        balance: liveBalance(),
+      });
+    },
+    close() {
+      socket.readyState = 3;
+      socket.onclose?.({});
+    },
+    inject(message: unknown) {
+      socket.onmessage?.({ data: JSON.stringify(message) });
+    },
+  };
+  return socket;
+}
+
+/**
+ * Every host connect gets a REAL transport bound to the campaign over a
+ * mock socket, as Task 14 will bind every creator. Production creators
+ * stay unbound in Task 13.
+ */
+function installBoundTransport(): IBoundConnection {
+  const sockets: IMockSocket[] = [];
+  const transports: ICampaignSyncTransport[] = [];
+  const connects: IConnectStoredCampaignSyncOptions[] = [];
+  connectMock.mockImplementation((input) => {
+    connects.push(input);
+    const transport = connectCampaignSyncTransport({
+      expectedCampaignId: CAMPAIGN_ID,
+      matchId: MATCH_ID,
+      role: 'host',
+      playerId: 'host-player',
+      wireToken: 'wire-token',
+      roomCode: input.roomCode,
+      socketFactory: () => {
+        const socket = mockSocket();
+        sockets.push(socket);
+        return socket;
+      },
+    });
+    sockets[sockets.length - 1].onopen?.({});
+    transports.push(transport);
+    return transport;
+  });
+  return {
+    sockets,
+    transports,
+    connects,
+    inject: (message) => sockets[sockets.length - 1].inject(message),
+    acks: (index = sockets.length - 1) =>
+      sockets[index].sentRaw.flatMap((raw, at) => {
+        const frame = JSON.parse(raw) as {
+          readonly kind: string;
+          readonly appliedView?: { readonly receiptId: string };
+        };
+        return frame.kind === 'CampaignAck' && frame.appliedView
+          ? [
+              {
+                receiptId: frame.appliedView.receiptId,
+                ...sockets[index].heldAtSend[at],
+              },
+            ]
+          : [];
+      }),
+  };
+}
+
+function baselineOffer(viewId: string, balance: number): IServerMessage {
+  const frame = baselineFrame() as {
+    event: { payload: Record<string, unknown> };
+  };
+  return {
+    ...frame,
+    event: {
+      ...frame.event,
+      payload: {
+        matchId: MATCH_ID,
+        state: { ...createEmptyCampaignState(CAMPAIGN_ID), balance },
+      },
+    },
+    hydrationFacts: [],
+    appliedView: { viewId, receiptId: `${viewId}-r0`, previousReceiptId: null },
+  } as unknown as IServerMessage;
+}
+
+function linkedOffer(
+  viewId: string,
+  n: number,
+  frame: IServerMessage,
+): IServerMessage {
+  return {
+    ...frame,
+    appliedView: {
+      viewId,
+      receiptId: `${viewId}-r${n}`,
+      previousReceiptId: `${viewId}-r${n - 1}`,
+    },
+  } as IServerMessage;
+}
+
+const realRefresh =
+  useCampaignPersistenceStore.getState().refreshAfterCommittedCommand;
+
+/** Captures every guarded refresh the consumer starts, forwarding the real promise. */
+function captureRefreshes(): Promise<boolean>[] {
+  const refreshes: Promise<boolean>[] = [];
+  useCampaignPersistenceStore.setState({
+    refreshAfterCommittedCommand: (ack, context) => {
+      const refresh = realRefresh(ack, context);
+      refreshes.push(refresh);
+      return refresh;
+    },
+  });
+  return refreshes;
+}
+
+/** Holds every GET response until `release` is called. */
+function holdGetResponses(): { readonly release: () => void } {
+  const spy = globalThis.fetch as unknown as jest.Mock;
+  const inner = spy.getMockImplementation() as (
+    input: RequestInfo | URL,
+    init?: RequestInit,
+  ) => Promise<Response>;
+  const held: Array<() => void> = [];
+  spy.mockImplementation((input: RequestInfo | URL, init?: RequestInit) => {
+    if (String(init?.method ?? 'GET').toUpperCase() !== 'GET') {
+      return inner(input, init);
+    }
+    return new Promise<Response>((resolve) => {
+      held.push(() => resolve(inner(input, init)));
+    });
+  });
+  return {
+    release: () => {
+      spy.mockImplementation(inner);
+      held.splice(0).forEach((resolve) => resolve());
+    },
+  };
+}
+
+async function inject(
+  connection: IBoundConnection,
+  ...frames: IServerMessage[]
+): Promise<void> {
+  await act(async () => {
+    frames.forEach(connection.inject);
+  });
+}
+
+/** Waits a bounded number of turns for an owner step the row can observe. */
+async function until(reached: () => boolean): Promise<void> {
+  for (let turn = 0; turn < 200 && !reached(); turn += 1) {
+    await act(async () => {
+      await Promise.resolve();
+    });
+  }
+  if (!reached()) throw new Error('the awaited owner step never happened');
+}
+
+describe('CampaignCoopRouteSurfaceConnected - the GM refreshes the saved record before its exact ACK', () => {
+  beforeEach(() => {
+    connectMock.mockReset();
+    toastMock.mockReset();
+    useCampaignMirrorStore.getState().reset();
+    resetCampaignStore();
+    __resetCampaignPersistenceCoordinationForTests();
+    useCampaignPersistenceStore.getState().reset();
+    window.sessionStorage.clear();
+    storeCoopCampaignToken({
+      matchId: MATCH_ID,
+      playerId: 'host-player',
+      wireToken: 'wire-token',
+      displayName: 'GM',
+    });
+    installCampaignPersistenceWiring();
+  });
+
+  afterEach(() => {
+    cleanup();
+    _resetCampaignSyncTransportsForTest();
+    useCampaignPersistenceStore.setState({
+      refreshAfterCommittedCommand: realRefresh,
+    });
+    uninstallCampaignPersistenceWiring();
+    useCampaignPersistenceStore.getState().reset();
+    __resetCampaignPersistenceCoordinationForTests();
+    useCampaignMirrorStore.getState().reset();
+    resetCampaignStore();
+    window.sessionStorage.clear();
+    jest.restoreAllMocks();
+  });
+
+  /** A loaded journal-native GM whose first view's baseline is ACKed. */
+  async function arrange(): Promise<{
+    readonly row: IFakeCampaignsRow;
+    readonly connection: IBoundConnection;
+    readonly refreshes: Promise<boolean>[];
+    readonly unmount: () => void;
+  }> {
+    const row = installCampaignsRow(loadedRecord(hostCampaign()));
+    await loadAs(hostCampaign());
+    const connection = installBoundTransport();
+    const refreshes = captureRefreshes();
+    mountSurface();
+    await settle();
+    await inject(connection, baselineOffer('v1', START_BALANCE));
+    return { row, connection, refreshes, unmount: cleanup };
+  }
+
+  it('acknowledges a committed event only after the refreshed row is adopted and the fold reprojected', async () => {
+    const { row, connection, refreshes } = await arrange();
+    const readsBefore = requestsSince(row, 0, 'GET').length;
+
+    commitCoopCommand(row, { balance: SPENT_BALANCE });
+    await inject(
+      connection,
+      linkedOffer('v1', 1, fundsChangedFrame(1, SPENT_BALANCE)),
+    );
+    await act(async () => {
+      await Promise.all(refreshes);
+    });
+
+    expect({
+      acks: connection.acks(),
+      readsForBaseline: readsBefore,
+      reads: requestsSince(row, readsBefore, 'GET').length,
+      puts: requestsSince(row, 0, 'PUT').length,
+      connects: connection.connects.length,
+    }).toEqual({
+      acks: [
+        {
+          receiptId: 'v1-r0',
+          baseVersion: LOADED_VERSION,
+          balance: START_BALANCE,
+        },
+        {
+          receiptId: 'v1-r1',
+          baseVersion: LOADED_VERSION + 1,
+          balance: SPENT_BALANCE,
+        },
+      ],
+      readsForBaseline: 1,
+      reads: 1,
+      puts: 0,
+      connects: 1,
+    });
+  });
+
+  it('puts the held fold back over a refreshed record that does not carry the commit', async () => {
+    const { row, connection, refreshes } = await arrange();
+    // Another writer moved the row; the commit itself went to the journal
+    // only (snapshot authority), so the record the refresh adopts is behind.
+    row.record = {
+      ...row.record,
+      version: row.record.version + 1,
+      body: { ...row.record.body, name: 'Other Tab' },
+    };
+
+    await inject(
+      connection,
+      linkedOffer('v1', 1, fundsChangedFrame(1, SPENT_BALANCE)),
+    );
+    await act(async () => {
+      await Promise.all(refreshes);
+    });
+
+    expect(connection.acks()[1]).toEqual({
+      receiptId: 'v1-r1',
+      baseVersion: LOADED_VERSION + 1,
+      balance: SPENT_BALANCE,
+    });
+    expect(useCampaignStore().getState().campaign?.name).toBe('Other Tab');
+  });
+
+  it('holds a successor behind a delayed predecessor, then sends one cumulative ACK', async () => {
+    const { row, connection, refreshes } = await arrange();
+    const hold = holdGetResponses();
+
+    commitCoopCommand(row, { balance: SPENT_BALANCE });
+    await inject(
+      connection,
+      linkedOffer('v1', 1, fundsChangedFrame(1, SPENT_BALANCE)),
+    );
+    commitCoopCommand(row, { balance: SPENT_BALANCE, currentDate: NEXT_DAY });
+    await inject(connection, linkedOffer('v1', 2, dayAdvancedFrame(2, 1)));
+    const whileHeld = {
+      acks: connection.acks().map((ack) => ack.receiptId),
+      date: useCampaignStore().getState().campaign?.currentDate.toISOString(),
+      refreshes: refreshes.length,
+    };
+
+    await act(async () => {
+      hold.release();
+      await refreshes[0];
+    });
+    await until(() => refreshes.length === 2);
+    await act(async () => {
+      await refreshes[1];
+    });
+
+    expect(whileHeld).toEqual({
+      acks: ['v1-r0'],
+      date: START_DATE,
+      refreshes: 1,
+    });
+    expect(connection.acks()).toEqual([
+      {
+        receiptId: 'v1-r0',
+        baseVersion: LOADED_VERSION,
+        balance: START_BALANCE,
+      },
+      {
+        receiptId: 'v1-r2',
+        baseVersion: LOADED_VERSION + 2,
+        balance: SPENT_BALANCE,
+      },
+    ]);
+    expect(
+      useCampaignStore().getState().campaign?.currentDate.toISOString(),
+    ).toBe(NEXT_DAY);
+  });
+
+  it('lets a rename PUT already on the wire land before the refresh reads, and keeps its row', async () => {
+    const { row, connection, refreshes } = await arrange();
+    const beforeEdit = row.requests.length;
+    const hold = holdPutResponses();
+    const rename = await hostStartsRename('Renamed');
+
+    commitCoopCommand(row, { balance: SPENT_BALANCE });
+    await inject(
+      connection,
+      linkedOffer('v1', 1, fundsChangedFrame(1, SPENT_BALANCE)),
+    );
+    const whilePutHeld = {
+      reads: requestsSince(row, beforeEdit, 'GET').length,
+      acks: connection.acks().map((ack) => ack.receiptId),
+    };
+    await act(async () => {
+      hold.release();
+      await rename.done;
+      await refreshes[0];
+    });
+
+    expect(whilePutHeld).toEqual({ reads: 0, acks: ['v1-r0'] });
+    expect(connection.acks()[1]).toEqual({
+      receiptId: 'v1-r1',
+      baseVersion: LOADED_VERSION + 2,
+      balance: SPENT_BALANCE,
+    });
+    expect({
+      puts: requestsSince(row, beforeEdit, 'PUT').map((put) => put.status),
+      liveName: useCampaignStore().getState().campaign?.name,
+      fence: useCampaignPersistenceStore.getState().sourceReplayFence,
+      toasts: toastMessages(),
+    }).toEqual({
+      puts: [200],
+      liveName: 'Renamed',
+      fence: null,
+      toasts: [],
+    });
+  });
+
+  it('writes and sends nothing for an unmounted binding whose refresh was held', async () => {
+    const { row, connection, refreshes, unmount } = await arrange();
+    const hold = holdGetResponses();
+    commitCoopCommand(row, { balance: SPENT_BALANCE });
+    await inject(
+      connection,
+      linkedOffer('v1', 1, fundsChangedFrame(1, SPENT_BALANCE)),
+    );
+    const cachedKey = useCampaignStore().getState().cachedCampaignKey;
+    // The transport outlives the surface (the entry panel shares it), so
+    // the old binding must not end its view either.
+    const transportErrors: unknown[] = [];
+    connection.transports[0].onError((error) => transportErrors.push(error));
+
+    unmount();
+    let adopted: boolean | undefined;
+    await act(async () => {
+      hold.release();
+      adopted = await refreshes[0];
+    });
+
+    expect(adopted).toBe(false);
+    expect(transportErrors).toEqual([]);
+    expect(connection.acks().map((ack) => ack.receiptId)).toEqual(['v1-r0']);
+    expect(useCampaignPersistenceStore.getState().baseVersion).toBe(
+      LOADED_VERSION,
+    );
+    expect(useCampaignStore().getState().cachedCampaignKey).toEqual(cachedKey);
+  });
+
+  it('rejoins when the socket closes while the refresh is held', async () => {
+    const { row, connection, refreshes } = await arrange();
+    const hold = holdGetResponses();
+    commitCoopCommand(row, { balance: SPENT_BALANCE });
+    await inject(
+      connection,
+      linkedOffer('v1', 1, fundsChangedFrame(1, SPENT_BALANCE)),
+    );
+
+    connection.sockets[0].close();
+    await act(async () => {
+      hold.release();
+      await refreshes[0];
+    });
+    await until(() => connection.connects.length === 2);
+
+    expect(connection.acks(0).map((ack) => ack.receiptId)).toEqual(['v1-r0']);
+    expect(connection.connects).toHaveLength(2);
+  });
+
+  it('gives no receipt when the refresh cannot read, rejoins, and adopts the new view from EMPTY', async () => {
+    const { row, connection, refreshes } = await arrange();
+    const spy = globalThis.fetch as unknown as jest.Mock;
+    const inner = spy.getMockImplementation() as (
+      input: RequestInfo | URL,
+      init?: RequestInit,
+    ) => Promise<Response>;
+    spy.mockImplementation((input: RequestInfo | URL, init?: RequestInit) =>
+      String(init?.method ?? 'GET').toUpperCase() === 'GET'
+        ? Promise.resolve({ ok: false, status: 500 } as Response)
+        : inner(input, init),
+    );
+
+    commitCoopCommand(row, { balance: SPENT_BALANCE });
+    await inject(
+      connection,
+      linkedOffer('v1', 1, fundsChangedFrame(1, SPENT_BALANCE)),
+    );
+    await act(async () => {
+      await refreshes[0];
+    });
+    await until(() => connection.connects.length === 2);
+    await inject(connection, baselineOffer('v2', 420_000));
+
+    expect(connection.acks(0).map((ack) => ack.receiptId)).toEqual(['v1-r0']);
+    expect(connection.sockets[0].readyState).toBe(3);
+    expect(connection.acks(1).map((ack) => ack.receiptId)).toEqual(['v2-r0']);
+    expect(liveBalance()).toBe(420_000);
   });
 });

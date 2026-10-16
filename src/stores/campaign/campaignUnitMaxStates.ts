@@ -17,10 +17,32 @@
  * @spec openspec/specs/campaign-unit-combat-state/spec.md
  */
 
+import type { IMaxStateRosterUnit } from '@/lib/campaign/maxState/unitMaxStateResolver';
+import type { ICampaign } from '@/types/campaign/Campaign';
+
 import { resolveMissingUnitMaxStates } from '@/lib/campaign/maxState/unitMaxStateResolver';
 
 import { getCampaignStoreForRoster } from './campaignStoreAccessor';
 import { useCampaignRosterStore } from './useCampaignRosterStore';
+
+/**
+ * The staged form, for a caller that installs the campaign itself: the
+ * maxima `existing` would hold once the missing entries resolve, without
+ * touching any store or saving. A caller that must not write when it has
+ * gone stale (the guarded saved-record refresh) checks after this await
+ * and adopts the result with the record, so no `updateCampaign` or PUT
+ * runs on its behalf.
+ */
+export async function prepareCampaignUnitMaxStates(
+  units: readonly IMaxStateRosterUnit[],
+  existing: ICampaign['unitMaxStates'],
+): Promise<ICampaign['unitMaxStates']> {
+  if (units.length === 0) return existing;
+  const resolved = await resolveMissingUnitMaxStates(units, existing);
+  return Object.keys(resolved).length === 0
+    ? existing
+    : { ...existing, ...resolved };
+}
 
 /**
  * Fill in `campaign.unitMaxStates` for roster units that have no entry.
