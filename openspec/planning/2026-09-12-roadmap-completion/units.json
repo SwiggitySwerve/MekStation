@@ -6390,7 +6390,17 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1a1-admission-20261016.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1a1-admission-review-20261016.md",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1a1-red-20261016.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1a1-local-20261016.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1a1-local-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1a1-source-fable-review-20261016.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1a1-owner-ruling-6221546750.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1a1-review-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1a1-merge-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-f11c64d9-tests.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-f11c64d9-selector.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-f11c64d9-callers.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-f11c64d9-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-f11c64d9-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1a1-mainproof-20261016.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -6405,10 +6415,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "implementing",
+      "state": "main-verified",
       "baseline": "6645308f4d6bdd6a424e73761ee20ffa81f8101f",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "cdd846752139220d6d531ea0fa6e0d5bad65a111",
+      "mergeSha": "f11c64d98782f134380dfe6513a9eeb360aaac38",
       "stageReceipts": {
         "admission": {
           "path": "evidence/p2cg1a1-admission-20261016.json"
@@ -6419,9 +6429,27 @@
         "local": {
           "path": "evidence/p2cg1a1-local-20261016.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/p2cg1a1-review-20261016.json",
+          "head": "cdd846752139220d6d531ea0fa6e0d5bad65a111",
+          "reviewedHead": "cdd846752139220d6d531ea0fa6e0d5bad65a111",
+          "reviewerModel": "claude-fable-5-1",
+          "implementerModel": "claude-opus-5-5",
+          "outputSha256": "99846b38e2528d859660f76c65fddee077cb27d7f38891bc2a46f599ab95e21d",
+          "verdict": "APPROVE-WITH-NOTES"
+        },
+        "merge": {
+          "path": "evidence/p2cg1a1-merge-20261016.json",
+          "pr": 2166,
+          "head": "cdd846752139220d6d531ea0fa6e0d5bad65a111",
+          "mergeSha": "f11c64d98782f134380dfe6513a9eeb360aaac38"
+        },
+        "mainProof": {
+          "path": "evidence/p2cg1a1-mainproof-20261016.json",
+          "mergeCommit": "f11c64d98782f134380dfe6513a9eeb360aaac38",
+          "verdict": "PASS",
+          "runtime": "Source/Main Jest: Tests:       369 passed, 369 total"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -6446,7 +6474,7 @@
       "id": "P2CG1A2",
       "node": "R2.authority-live",
       "taskKeys": [],
-      "behavior": "Second narrower P2CG1 successor, slice 2 of the move-only binder extraction. Moves the CampaignApplicationConnection class (binder lines 1724-2049 at base d0a7dd8b6, 326 physical lines) into campaignApplicationConnection.ts beside the slice-1 types, unchanged apart from export keywords and import lines; the binder imports it. IWireCampaignSocket and ICampaignSessionMembershipPort may be imported from the binder as types only; runtime helpers come from the slice-1 file. No behaviour change and no test change: the same unmodified suites and the same moved-text comparison as P2CG1A1. Planned leaves (2): src/lib/multiplayer/server/bindCampaignSyncConnection.ts and src/lib/multiplayer/server/campaignApplicationConnection.ts. Estimated at about 370-410 counted lines with lifecycle (the class alone is 326 lines); that is not a cap-fit proof. If admission measures more than 500, the class is split again through the successor procedure, never by a cap exception. After the move campaignApplicationConnection.ts is about 404 non-blank non-comment lines and trips oxlint max-lines (400, warn, skipBlankLines/skipComments, .oxlintrc.json 134-137); npm run lint does not fail on warnings. Record the warning in the admission receipt; do not split further for it and do not add a lint override.",
+      "behavior": "Second narrower P2CG1 successor, slice 2 of the move-only binder extraction. Moves the CampaignApplicationConnection class with its doc comment (binder lines 1711-2049 at base d0a7dd8b6, 339 physical lines) into campaignApplicationConnection.ts beside the slice-1 types, unchanged apart from export keywords and import lines; the binder imports it. IWireCampaignSocket and ICampaignSessionMembershipPort may be imported from the binder as types only; runtime helpers come from the slice-1 file. No behaviour change and no test change: the same unmodified suites and the same moved-text comparison as P2CG1A1. Planned leaves (2): src/lib/multiplayer/server/bindCampaignSyncConnection.ts and src/lib/multiplayer/server/campaignApplicationConnection.ts. Estimated at about 370-410 counted lines with lifecycle (the class alone is 326 lines); that is not a cap-fit proof. If admission measures more than 500, the class is split again through the successor procedure, never by a cap exception. After the move campaignApplicationConnection.ts is about 404 non-blank non-comment lines and trips oxlint max-lines (400, warn, skipBlankLines/skipComments, .oxlintrc.json 134-137); npm run lint does not fail on warnings. Record the warning in the admission receipt; do not split further for it and do not add a lint override.",
       "ownershipPaths": [
         "src/lib/multiplayer/server"
       ],
@@ -6466,7 +6494,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -14067,6 +14095,44 @@
         "commentId": 6218213354,
         "author": "SwiggitySwerve",
         "bodySha256": "94e2d3ea7ee7de1363c3dc567d244ce2f4c001a69535b381fa6eb5eaa9458a34"
+      }
+    },
+    {
+      "id": "PK-p2cg1a1-ruling",
+      "blocks": [
+        "P2CG1A1"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "After independent exact-head Fable review and required green CI, should the owner rule the bounded P2CG1A1 move-only head (twelve declarations, including errorFrame and send, moved from bindCampaignSyncConnection.ts into campaignApplicationConnection.ts unchanged apart from export keywords and import lines) before guarded merge?",
+      "options": [
+        {
+          "label": "rule the exact source head",
+          "consequence": "Permit guarded P2CG1A1 move-only merge and exact-main proof only; P2CG1A2 moves the class next, with the review carry-forwards recorded for its admission.",
+          "effort": "One exact-head Fable review, evidence check and owner ruling"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Hold merge until the concrete move-proof, import-boundary, cycle or proof objections are fixed and fresh exact-head review, CI and owner ruling are complete.",
+          "effort": "Bounded by the concrete review objections"
+        }
+      ],
+      "agentRecommendation": "Rule only an independently approved green exact head whose moved declarations equal base once the export keyword is removed (formatter layout aside, named), whose binder remainder equals base statement by statement, whose exported names are unchanged, whose new module imports nothing from the binder at runtime, and whose registered selector and binder-user suites pass unmodified. This proposal grants no approval or merge permission.",
+      "revertCost": "Low: revert the two product leaves; P2CG1A1 changes no behaviour, test, Protocol, server.js or production wiring, and server.js composes no applicationReceipts, so production traffic stays legacy.",
+      "decision": {
+        "option": "rule the exact source head",
+        "at": "2026-10-16T17:57:02Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2166#issuecomment-6221546750"
+      },
+      "ruling": {
+        "ruledHead": "cdd846752139220d6d531ea0fa6e0d5bad65a111",
+        "pr": 2166,
+        "commentId": 6221546750,
+        "author": "SwiggitySwerve",
+        "bodySha256": "19460810121eda1055890bc812b94798539290f717c8da22983a772f2483739c"
       }
     },
     {
