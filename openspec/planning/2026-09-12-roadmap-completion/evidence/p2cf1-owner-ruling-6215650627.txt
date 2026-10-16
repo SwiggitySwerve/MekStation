@@ -1,0 +1,3 @@
+OWNER-RULING 000295a1d9e1b28d5f98dd5aea6f58b5bc65d6f3
+
+The owner authorized this ruling in chat. PR #2159 merged before this ruling was posted. The ruling covers the P2CF1 slice (client building blocks: fold owner, mirror store launch facts, head-drift-only ACK re-send; no production path changed because no creator passes expectedCampaignId), reviewed APPROVE-WITH-NOTES by an independent reviewer with no blockers and CI 31/31. The reviewer's major M1 (an in-flight ACK of the previous offer is refused unknown-receipt after the next offer is established, and the client ends the view on that refusal) is dormant and recorded as a hard Task 14 precondition, with carry-forwards CF1-CF9 for P2CF2 and Task 14 in the review.
