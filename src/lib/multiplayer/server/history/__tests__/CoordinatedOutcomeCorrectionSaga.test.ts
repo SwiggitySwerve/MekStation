@@ -36,8 +36,11 @@ import {
 import { _setCombatJournalAuthorityModeForTests } from '../../matchJournalAuthority';
 import {
   blockCoordinatedCorrection,
+  COORDINATED_CORRECTION_SAGA_TABLE,
   firstSupersededMatchSequence,
   readCoordinatedCorrectionSaga,
+  readCoordinatedCorrectionSagaByOutcomeId,
+  readCoordinatedCorrectionSagaByOutcomeIdStrict,
   readRecordedOutcomeJson,
   recordCoordinatedCorrectionSource,
   sealCoordinatedCorrectionManifest,
@@ -583,5 +586,65 @@ describe('sealCoordinatedCorrectionManifest', () => {
         journalDb,
       ).readArtifactManifest(STREAM, candidateBranchId),
     ).toBeNull();
+  });
+});
+
+describe('strict saga lookup by outcome id', () => {
+  let store: DurableMatchStore;
+
+  beforeEach(() => {
+    store = new DurableMatchStore({ path: ':memory:' });
+  });
+
+  afterEach(() => {
+    if (matchDatabase(store).open) store.close();
+  });
+
+  it('answers known absence before the saga table exists, without creating it', () => {
+    const db = matchDatabase(store);
+    expect(readCoordinatedCorrectionSagaByOutcomeIdStrict(db, OUTCOME)).toBe(
+      null,
+    );
+    expect(
+      db
+        .prepare(`SELECT 1 FROM sqlite_master WHERE name = ?`)
+        .get(COORDINATED_CORRECTION_SAGA_TABLE),
+    ).toBeUndefined();
+  });
+
+  it('answers the latest saga row, and null for an outcome with none, on an empty match tail', async () => {
+    const db = matchDatabase(store);
+    // The saga row needs its match row; with no events the supersede tail
+    // is empty and the empty outbox slot classifies as a write.
+    await store.createMatch({
+      matchId: MATCH_ID,
+      hostPlayerId: 'gm-1',
+      playerIds: ['gm-1'],
+      sideAssignments: [{ playerId: 'gm-1', side: 'player' }],
+      status: 'active',
+      createdAt: AT,
+      updatedAt: AT,
+      config: { mapRadius: 4, turnLimit: 5 },
+    });
+    expect(await liveSequences(store)).toEqual([]);
+    expect(record(store).kind).toBe('recorded');
+    expect(readCoordinatedCorrectionSagaByOutcomeId(db, OUTCOME)?.state).toBe(
+      'source-recorded',
+    );
+    expect(
+      readCoordinatedCorrectionSagaByOutcomeIdStrict(db, OUTCOME)?.state,
+    ).toBe('source-recorded');
+    expect(readCoordinatedCorrectionSagaByOutcomeIdStrict(db, 'other')).toBe(
+      null,
+    );
+  });
+
+  it('throws a read failure the legacy reader still reads as no saga', () => {
+    const db = matchDatabase(store);
+    store.close();
+    expect(() =>
+      readCoordinatedCorrectionSagaByOutcomeIdStrict(db, OUTCOME),
+    ).toThrow('The database connection is not open');
+    expect(readCoordinatedCorrectionSagaByOutcomeId(db, OUTCOME)).toBeNull();
   });
 });

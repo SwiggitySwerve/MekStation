@@ -379,18 +379,39 @@ export function readCoordinatedCorrectionSagaByOutcomeId(
   outcomeId: string,
 ): ICoordinatedCorrectionSaga | null {
   try {
-    const row = matchDb
-      .prepare(
-        `SELECT ${SAGA_COLUMNS} FROM ${COORDINATED_CORRECTION_SAGA_TABLE}
-          WHERE outcome_id = ?
-          ORDER BY outcome_version DESC, updated_at DESC
-          LIMIT 1`,
-      )
-      .get(outcomeId) as ICoordinatedCorrectionSaga | undefined;
-    return row === undefined ? null : row;
+    return readCoordinatedCorrectionSagaByOutcomeIdStrict(matchDb, outcomeId);
   } catch {
     return null;
   }
+}
+
+/**
+ * The same lookup for a strict launch context, where a failed read is not
+ * "no saga". A store whose saga table was never created holds no saga
+ * (known absence); every other read failure throws. Does not migrate.
+ *
+ * Absent table = known absence relies on an invariant: only the saga
+ * operations here (and the target steps) create the table, lazily, through
+ * `migrateCoordinatedCorrectionSaga`. DurableMatchStore construction does
+ * not. A constructor-time migration would make that branch dead, not wrong.
+ */
+export function readCoordinatedCorrectionSagaByOutcomeIdStrict(
+  matchDb: Database.Database,
+  outcomeId: string,
+): ICoordinatedCorrectionSaga | null {
+  const table = matchDb
+    .prepare(`SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?`)
+    .get(COORDINATED_CORRECTION_SAGA_TABLE);
+  if (table === undefined) return null;
+  const row = matchDb
+    .prepare(
+      `SELECT ${SAGA_COLUMNS} FROM ${COORDINATED_CORRECTION_SAGA_TABLE}
+        WHERE outcome_id = ?
+        ORDER BY outcome_version DESC, updated_at DESC
+        LIMIT 1`,
+    )
+    .get(outcomeId) as ICoordinatedCorrectionSaga | undefined;
+  return row === undefined ? null : row;
 }
 
 export function blockCoordinatedCorrection(
