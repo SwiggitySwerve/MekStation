@@ -8806,6 +8806,174 @@
       "ordinaryPublicationTasksRef": "evidence/cni-registration-20261002.json#ordinaryPublicationTasks",
       "ordinaryPublicationComponentsRef": "units.json#CNI3.ordinaryPublicationComponents",
       "nativeDebtDischargeRef": "evidence/cni-registration-20261002.json#ordinaryPublicationMilestones.nativeDebtDischarge"
+    },
+    {
+      "id": "R6.ts7-toolchain",
+      "wave": 6,
+      "title": "migrate-to-typescript-7 supporting track: TypeScript 7 for every type-check gate, TypeScript 6 kept only for API consumers",
+      "kind": "implementation",
+      "state": "planned",
+      "dependsOn": [],
+      "ownershipPaths": [
+        "src/lib/multiplayer/server/auth.ts",
+        "src/services/vault/IdentityService.ts",
+        "src/lib/events/checkpoints/BranchCheckpointCache.ts",
+        "tsconfig.json",
+        "desktop/tsconfig.json",
+        "openspec/changes/migrate-to-typescript-7/tasks.md",
+        "openspec/active-change-ledger.json",
+        "openspec/changes/migrate-to-typescript-7/design.md",
+        "desktop/tsconfig.test.json",
+        "package.json",
+        "package-lock.json",
+        "scripts/compare-pip-distributions.ts",
+        "openspec/scripts/terminology-tool.ts",
+        "openspec/scripts/terminology-tool.output.js",
+        "desktop/package.json",
+        "desktop/package-lock.json",
+        "desktop/jest.config.js",
+        ".storybook/main.ts",
+        "scripts/tsconfig.json",
+        "scripts/validate-bv.ts",
+        "scripts/validate-bv-calculator.ts",
+        "openspec/changes/migrate-to-typescript-7/proposal.md",
+        ".github/workflows/pr-checks.yml",
+        "scripts/qc/openspec-ci-contracts.mjs",
+        "scripts/__tests__/precommit-no-build.test.ts",
+        "scripts/metrics/validate-refactoring-metrics.js",
+        ".husky/pre-commit",
+        "scripts/qc/roadmap-main-proof.mjs",
+        "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+        "README.md",
+        "docs/development/getting-started.md",
+        "docs/development/troubleshooting.md",
+        "docs/development/git-hooks.md",
+        "docs/overview.md",
+        "openspec/config.yaml",
+        "src/docs/Introduction.mdx",
+        "openspec/scripts/README.md",
+        "openspec/specs/bv-validation-tooling/spec.md",
+        "openspec/changes/migrate-to-typescript-7"
+      ],
+      "acceptance": [
+        "Every TS7S unit passes: npm run typecheck, npm run lint, npm run format:check, npm run test:stable, npx openspec validate --all --strict, npm run qc:openspec-ci:validate, and desktop/ npm run type-check and npm test; every section 3 and 4 unit, and any other unit whose proof list names them, also passes npm run build and npm run storybook:build",
+        "Each unit delivers exactly its tasks.md package; the archive slices TS7S5B and TS7S5C leave openspec/changes/migrate-to-typescript-7 archived, the canonical typescript-toolchain spec synced, and the active-change-ledger entry removed"
+      ],
+      "owner": "parent; bounded worker lanes per WORKERS.md",
+      "maxFiles": 15,
+      "maxNonGeneratedLines": 500,
+      "taskKeys": [],
+      "receipt": null,
+      "decomposition": "One unit per PR-sized tasks.md package. Section 0 is folded into TS7S1's admission evidence (tasks.md: no PR). Section 2 splits into TS7S2A (ts-node to tsx) and TS7S2B (desktop @swc/jest and the Storybook proof), with the owner-gated 2.5 as TS7S2OD. Section 4 splits into TS7S4A (gate routing on the TypeScript 6 bridge) and TS7S4B (the dependency swap, the explicit entry point and the guard). Section 5 splits into TS7S5A (docs), TS7S5B (verification, spec sync, design.md archive prefix) and TS7S5C (archive completion), because one archive move counts every moved line. Section 6 is deferred with no unit (FN-ts7-typescript-7-1-followup).",
+      "registration": "evidence/ts7-track-registration-20261016.json",
+      "added20261016": {
+        "by": "parent-delegated registration sub-agent",
+        "why": "No existing node owns tsconfig.json, desktop/**, scripts/tsconfig.json, scripts/metrics, .storybook, README.md, docs/overview.md, openspec/config.yaml, openspec/scripts or src/docs. R6.loop-harness owns package.json, .husky and pr-checks.yml, but its acceptance forbids src/ edits beyond its own amendments. A dedicated node keeps the track's exact leaves together without widening any existing node."
+      },
+      "restrictions": {
+        "TS7S1": [
+          "src/lib/multiplayer/server/auth.ts",
+          "src/services/vault/IdentityService.ts",
+          "src/lib/events/checkpoints/BranchCheckpointCache.ts",
+          "tsconfig.json",
+          "desktop/tsconfig.json",
+          "openspec/changes/migrate-to-typescript-7/tasks.md",
+          "openspec/active-change-ledger.json",
+          "openspec/changes/migrate-to-typescript-7/design.md (conditional)",
+          "desktop/tsconfig.test.json (conditional)"
+        ],
+        "TS7S2A": [
+          "package.json",
+          "package-lock.json",
+          "scripts/compare-pip-distributions.ts",
+          "openspec/scripts/terminology-tool.ts",
+          "openspec/scripts/terminology-tool.output.js",
+          "openspec/changes/migrate-to-typescript-7/tasks.md"
+        ],
+        "TS7S2B": [
+          "desktop/package.json",
+          "desktop/package-lock.json",
+          "desktop/jest.config.js",
+          "openspec/changes/migrate-to-typescript-7/tasks.md",
+          ".storybook/main.ts (conditional)"
+        ],
+        "TS7S2OD": [
+          "scripts/tsconfig.json",
+          "openspec/changes/migrate-to-typescript-7/tasks.md",
+          "package.json (conditional)",
+          "scripts/validate-bv.ts (conditional)",
+          "scripts/validate-bv-calculator.ts (conditional)",
+          "openspec/changes/migrate-to-typescript-7/proposal.md (conditional)",
+          "openspec/changes/migrate-to-typescript-7/specs/bv-validation-tooling/spec.md (conditional)"
+        ],
+        "TS7S3": [
+          "package.json",
+          "package-lock.json",
+          "desktop/package.json",
+          "desktop/package-lock.json",
+          "openspec/changes/migrate-to-typescript-7/tasks.md"
+        ],
+        "TS7S4A": [
+          "package.json",
+          ".github/workflows/pr-checks.yml",
+          "scripts/qc/openspec-ci-contracts.mjs",
+          "scripts/__tests__/precommit-no-build.test.ts",
+          "scripts/metrics/validate-refactoring-metrics.js",
+          ".husky/pre-commit"
+        ],
+        "TS7S4B": [
+          "package.json",
+          "package-lock.json",
+          "desktop/package.json",
+          "desktop/package-lock.json",
+          "scripts/qc/roadmap-main-proof.mjs",
+          "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+          "openspec/changes/migrate-to-typescript-7/tasks.md",
+          "scripts/__tests__/typescript-toolchain.test.ts"
+        ],
+        "TS7S5A": [
+          "README.md",
+          "docs/development/getting-started.md",
+          "docs/development/troubleshooting.md",
+          "docs/development/git-hooks.md",
+          "docs/overview.md",
+          "openspec/config.yaml",
+          "src/docs/Introduction.mdx",
+          "openspec/scripts/README.md",
+          "openspec/changes/migrate-to-typescript-7/tasks.md"
+        ],
+        "TS7S5B": [
+          "openspec/changes/migrate-to-typescript-7/tasks.md",
+          "openspec/changes/migrate-to-typescript-7/design.md",
+          "openspec/specs/typescript-toolchain/spec.md",
+          "openspec/changes/archive/<archive-date>-migrate-to-typescript-7/design.md",
+          "openspec/specs/bv-validation-tooling/spec.md (conditional)"
+        ],
+        "TS7S5C": [
+          "openspec/changes/migrate-to-typescript-7/proposal.md",
+          "openspec/changes/migrate-to-typescript-7/tasks.md",
+          "openspec/changes/migrate-to-typescript-7/specs/typescript-toolchain/spec.md",
+          "openspec/active-change-ledger.json",
+          "openspec/changes/archive/<archive-date>-migrate-to-typescript-7/proposal.md",
+          "openspec/changes/archive/<archive-date>-migrate-to-typescript-7/tasks.md",
+          "openspec/changes/archive/<archive-date>-migrate-to-typescript-7/specs/typescript-toolchain/spec.md",
+          "openspec/changes/archive/<archive-date>-migrate-to-typescript-7/specs/bv-validation-tooling/spec.md (conditional)",
+          "openspec/changes/migrate-to-typescript-7/specs/bv-validation-tooling/spec.md (conditional)"
+        ]
+      },
+      "knownLeafSubtotals": {
+        "TS7S1": 8,
+        "TS7S2A": 7,
+        "TS7S2B": 5,
+        "TS7S2OD": 6,
+        "TS7S3": 6,
+        "TS7S4A": 7,
+        "TS7S4B": 9,
+        "TS7S5A": 10,
+        "TS7S5B": 5,
+        "TS7S5C": 8
+      },
+      "permissionBoundary": "Exact leaves only. Paths listed here grant nothing until the owning unit's normal finite admission. The prospective archive paths (<archive-date>) are frozen into each archive unit's ownershipExceptions by literal-path amendment at that unit's admission. No directory grant, placeholder, capException or cap inflation."
     }
   ],
   "tasks": [

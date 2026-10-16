@@ -1,0 +1,1206 @@
+{
+  "event": "ts7-track-registration",
+  "change": "migrate-to-typescript-7",
+  "registrationOnly": true,
+  "at": "2026-10-16T19:08:29.000Z",
+  "baseline": "ace667bff5b9e6857b60a608e5b89a5baabfdcc6",
+  "actor": {
+    "role": "implementation sub-agent",
+    "provider": "anthropic",
+    "servedModel": "claude-opus-5-5",
+    "identitySource": "Current T3 Code/Claude Code harness runtime; parent delegation identity and any independent review are recorded separately by the parent."
+  },
+  "authority": "Parent instruction of 2026-10-16: register the OpenSpec change migrate-to-typescript-7 (PR #2154, merge 9f8e706e; CI pipeline optimization PR #2153, merge 45f0b90b, already on main) as a new finite supporting track of ordinary-cap units, scheduled after P2CG1A2 is main-verified and before P2CG1B is released; register every unit blocked; keep the track out of P2CG1B's machine-readable predecessors; hold OD-scripts-tsconfig as an owner-gated unit and OD-next-upgrade as an owner-held finding without ruling either; defer tasks.md section 6 with no unit.",
+  "scope": [
+    "openspec/planning/2026-09-12-roadmap-completion/units.json",
+    "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7-track-registration-20261016.json"
+  ],
+  "registrationBudget": {
+    "actualFiles": 3,
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "productFiles": 0,
+    "productAddedLines": 0,
+    "noCapInflation": true,
+    "actualDiffMeasuredSeparately": true,
+    "everyEvidenceFileCounts": true
+  },
+  "consulted": [
+    {
+      "path": "openspec/changes/migrate-to-typescript-7/proposal.md",
+      "bytes": 3591,
+      "sha256": "0f911be9facf092ef1fa9dd1bc0b6e2002a604bae5c4d5e8b48ecab7b66befd1"
+    },
+    {
+      "path": "openspec/changes/migrate-to-typescript-7/design.md",
+      "bytes": 13029,
+      "sha256": "2615e530ace62c6cefa4f491d2dc2d0531ceb4797d247ba31b42bd3bfc4af5f8"
+    },
+    {
+      "path": "openspec/changes/migrate-to-typescript-7/tasks.md",
+      "bytes": 9927,
+      "sha256": "f84233c626b165bab1248f7f2ee719b657a01e3d7a3979f7476a50d1b3065d39"
+    },
+    {
+      "path": "openspec/changes/migrate-to-typescript-7/specs/typescript-toolchain/spec.md",
+      "bytes": 4259,
+      "sha256": "dd4e77fa647a19f540b0a8bfa12e5aff54a44bdf9cf49c8c2394e4105cebb0c3"
+    },
+    {
+      "path": "openspec/active-change-ledger.json",
+      "bytes": 14764,
+      "sha256": "1f7ae4ad0ee433519b320e9661f22b56f2f16f17551ec0a05d2ae3f7d67ab57b"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "bytes": 53627,
+      "sha256": "07dcf8fbdbe599382076a4e4a934ceac5de2a2d8c77b056244cf4c54eb81f9d7"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/DELIVERY.md",
+      "bytes": 22173,
+      "sha256": "6214cb61dc3305f0dd6acb16e73cde3a5fdcd69b67ab103b91027e669348b587"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1-split-registration-20261016.json",
+      "bytes": 59702,
+      "sha256": "d0ba13e137b5a431b010d2ae20a8b45d6586c266c5ad3fe0d2a9c24b2b907ed8"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1-split-registration-correction-20261016.json",
+      "bytes": 15601,
+      "sha256": "ee7f29ac743a0e97ccd743c4cfe0d01bf06e88b504c5a041c92544f25857768e"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cf-split-registration-20261016.json",
+      "bytes": 33029,
+      "sha256": "eb78050cb55a34ea03f8671f02406391a4a523faa0cccf9a4229b0eb95d20a51"
+    }
+  ],
+  "preimages": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "bytes": 1073811,
+      "sha256": "465955d9d957d8cc49ffc8b38cfe1427e67739cfcfb686a06335ec97063957f3"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "bytes": 1416735,
+      "sha256": "5d0d89ba85a2a3f387f7354dccd064b6becc7a797efbf9c214ad5af2c6f0cb7c"
+    }
+  ],
+  "postimages": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "bytes": 1082506,
+      "sha256": "343696f4a490f632be0a35d1e384169a1fcc4cb1a309b7bfb8e4af1eafa441c4"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "bytes": 1480862,
+      "sha256": "e6c241d126e1f18256ba54991e34a726ddbfb7131c57bfa3c05be7ff7cdfc281"
+    }
+  ],
+  "ledgerMechanics": {
+    "nodeOwnership": "validate-roadmap.mjs requires each unit ownershipPaths entry to exist and to appear verbatim in the owner node's ownershipPaths (string equality, not containment); the P2CF registration was bitten by this. Each track unit's ownershipPaths entry is an exact existing file, except TS7S5C, which owns the change directory it moves. Each entry is listed verbatim in R6.ts7-toolchain.ownershipPaths. Prospective files (the guard test, the canonical spec, the option (b) delta spec) are in the unit's ownershipExceptions, which the validator neither existence-checks nor compares to the node. The --git merge check accepts exact exception matches.",
+    "whyNewNode": "No existing node owns tsconfig.json, desktop/**, scripts/tsconfig.json, scripts/metrics/validate-refactoring-metrics.js, .storybook/main.ts, README.md, docs/overview.md, openspec/config.yaml, openspec/scripts/** or src/docs/Introduction.mdx. R6.loop-harness owns package.json, .husky and pr-checks.yml, but its acceptance line 1 forbids src/ edits outside its listed amendments, and TS7S1 must edit three src files. Amending it would widen a node that 20+ open units already use.",
+    "taskKeys": "tasks.md of migrate-to-typescript-7 is not in the admission snapshot or any supplement snapshot, so no task key exists. Every track unit carries taskKeys [] like the P2C* units, and maps to tasks.md through behavior, source20261016.changeTasks and this receipt. A supplement snapshot was rejected (see rejectedAlternatives).",
+    "ciClass": "Every unit owns at least one path outside openspec/planning/ and docs/, so the derived ciClass is product for all ten.",
+    "reviewClasses": "routine for all ten: the existing non-sensitive class used by the CI/infra units (U64-U85) that own the same tooling files. TS7S1 touches auth.ts and IdentityService.ts with type-only edits and carries a stop-and-reclassify rule if admission finds a runtime change.",
+    "deferralsArray": "ledger.deferrals requires non-empty taskKeys and a deferredToNode, which a track with no task keys cannot supply. The OD-next-upgrade and section 6 deferrals are therefore findings with holder and releasePredicate, the shape FN-p2-* findings use for holder.",
+    "next": "NEXT walks units in ledger order and chooses the first planned unit whose node dependencies are ready and whose paths are free of in-flight units; it ignores predecessors except registration20261016.predecessors. Blocked track units are skipped, so NEXT is unchanged. The units are inserted after P2 and before U38, before the first planned non-chain unit (U24b at index 109 before insertion). So once the parent releases TS7S1 (and P2CG1A2 is terminal), NEXT selects TS7S1 ahead of U24b and the later planned units.",
+    "fileCounting": "Files per unit = leaves + units.json + admission/red/local receipts + the reserved review slot, as in the P2CF/P2CG1 registrations. Lockfiles count as files; their added lines are uncounted (package-lock.json pattern, which also matches desktop/package-lock.json). Under --no-renames a moved file counts as two files (deleted path and added path) and all of its lines count as added."
+  },
+  "inventory": [
+    {
+      "path": "src/lib/multiplayer/server/auth.ts",
+      "exists": true,
+      "lines": 318
+    },
+    {
+      "path": "src/services/vault/IdentityService.ts",
+      "exists": true,
+      "lines": 505
+    },
+    {
+      "path": "src/lib/events/checkpoints/BranchCheckpointCache.ts",
+      "exists": true,
+      "lines": 419
+    },
+    {
+      "path": "tsconfig.json",
+      "exists": true,
+      "lines": 38
+    },
+    {
+      "path": "desktop/tsconfig.json",
+      "exists": true,
+      "lines": 44
+    },
+    {
+      "path": "openspec/changes/migrate-to-typescript-7/tasks.md",
+      "exists": true,
+      "lines": 143
+    },
+    {
+      "path": "openspec/active-change-ledger.json",
+      "exists": true,
+      "lines": 64
+    },
+    {
+      "path": "openspec/changes/migrate-to-typescript-7/design.md",
+      "exists": true,
+      "lines": 188
+    },
+    {
+      "path": "desktop/tsconfig.test.json",
+      "exists": true,
+      "lines": 8
+    },
+    {
+      "path": "package.json",
+      "exists": true,
+      "lines": 349
+    },
+    {
+      "path": "package-lock.json",
+      "exists": true,
+      "lines": 18391
+    },
+    {
+      "path": "scripts/compare-pip-distributions.ts",
+      "exists": true,
+      "lines": 506
+    },
+    {
+      "path": "openspec/scripts/terminology-tool.ts",
+      "exists": true,
+      "lines": 310
+    },
+    {
+      "path": "openspec/scripts/terminology-tool.output.js",
+      "exists": true,
+      "lines": 104
+    },
+    {
+      "path": "desktop/package.json",
+      "exists": true,
+      "lines": 82
+    },
+    {
+      "path": "desktop/package-lock.json",
+      "exists": true,
+      "lines": 7579
+    },
+    {
+      "path": "desktop/jest.config.js",
+      "exists": true,
+      "lines": 24
+    },
+    {
+      "path": ".storybook/main.ts",
+      "exists": true,
+      "lines": 52
+    },
+    {
+      "path": "scripts/tsconfig.json",
+      "exists": true,
+      "lines": 35
+    },
+    {
+      "path": "scripts/validate-bv.ts",
+      "exists": true,
+      "lines": 445
+    },
+    {
+      "path": "scripts/validate-bv-calculator.ts",
+      "exists": true,
+      "lines": 692
+    },
+    {
+      "path": "openspec/changes/migrate-to-typescript-7/proposal.md",
+      "exists": true,
+      "lines": 55
+    },
+    {
+      "path": "openspec/changes/migrate-to-typescript-7/specs/bv-validation-tooling/spec.md",
+      "exists": false
+    },
+    {
+      "path": ".github/workflows/pr-checks.yml",
+      "exists": true,
+      "lines": 984
+    },
+    {
+      "path": "scripts/qc/openspec-ci-contracts.mjs",
+      "exists": true,
+      "lines": 174
+    },
+    {
+      "path": "scripts/__tests__/precommit-no-build.test.ts",
+      "exists": true,
+      "lines": 42
+    },
+    {
+      "path": "scripts/metrics/validate-refactoring-metrics.js",
+      "exists": true,
+      "lines": 594
+    },
+    {
+      "path": ".husky/pre-commit",
+      "exists": true,
+      "lines": 10
+    },
+    {
+      "path": "scripts/qc/roadmap-main-proof.mjs",
+      "exists": true,
+      "lines": 390
+    },
+    {
+      "path": "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+      "exists": true,
+      "lines": 2484
+    },
+    {
+      "path": "scripts/__tests__/typescript-toolchain.test.ts",
+      "exists": false
+    },
+    {
+      "path": "README.md",
+      "exists": true,
+      "lines": 180
+    },
+    {
+      "path": "docs/development/getting-started.md",
+      "exists": true,
+      "lines": 207
+    },
+    {
+      "path": "docs/development/troubleshooting.md",
+      "exists": true,
+      "lines": 215
+    },
+    {
+      "path": "docs/development/git-hooks.md",
+      "exists": true,
+      "lines": 144
+    },
+    {
+      "path": "docs/overview.md",
+      "exists": true,
+      "lines": 215
+    },
+    {
+      "path": "openspec/config.yaml",
+      "exists": true,
+      "lines": 115
+    },
+    {
+      "path": "src/docs/Introduction.mdx",
+      "exists": true,
+      "lines": 119
+    },
+    {
+      "path": "openspec/scripts/README.md",
+      "exists": true,
+      "lines": 330
+    },
+    {
+      "path": "openspec/specs/typescript-toolchain/spec.md",
+      "exists": false
+    },
+    {
+      "path": "openspec/specs/bv-validation-tooling/spec.md",
+      "exists": true,
+      "lines": 713
+    },
+    {
+      "path": "openspec/changes/migrate-to-typescript-7/specs/typescript-toolchain/spec.md",
+      "exists": true,
+      "lines": 82
+    },
+    {
+      "path": "openspec/changes/archive/<archive-date>-migrate-to-typescript-7/specs/bv-validation-tooling/spec.md",
+      "exists": false
+    },
+    {
+      "path": "scripts/maintenance/scan-maintenance.mjs",
+      "exists": true,
+      "lines": 1101
+    },
+    {
+      "path": "scripts/qc/validate-flow-audit.mjs",
+      "exists": true,
+      "lines": 410
+    },
+    {
+      "path": "scripts/__tests__/ux-walkthrough-recorder-privacy.test.ts",
+      "exists": true,
+      "lines": 217
+    },
+    {
+      "path": "next-env.d.ts",
+      "exists": true,
+      "lines": 6
+    }
+  ],
+  "inventoryGaps": [
+    "docs/overview.md:61 \"TypeScript 5.8\" (TS7S5A)",
+    "src/docs/Introduction.mdx:13 \"TypeScript 5.8\" (TS7S5A)",
+    "openspec/config.yaml:19 \"Language: TypeScript 5.8\" (TS7S5A)",
+    "openspec/scripts/README.md: npx ts-node usage for the terminology tool (TS7S5A)",
+    "openspec/scripts/terminology-tool.ts:1 shebang \"#!/usr/bin/env npx ts-node\" and usage comment lines 16-18 (TS7S2A)",
+    "openspec/scripts/terminology-tool.output.js:79-102 help text naming npx ts-node (TS7S2A)",
+    "scripts/validate-bv-calculator.ts: one TS 5.8 error under the OD-scripts-tsconfig option (a) include list, not named by design.md (TS7S2OD option a)"
+  ],
+  "measurements": {
+    "odScriptsTsconfigOptionA": "TypeScript 5.8.3 (node_modules/typescript/bin/tsc --version), scratch config scripts/tsconfig.probe-ts7reg.json = scripts/tsconfig.json with include [validate-bv.ts, validate-parity.ts, data-migration/**/*.ts] and exclude [node_modules], removed after the run: exit 2, 5 errors: scripts/validate-bv.ts 255:27, 255:47, 256:22 (TS2345), 283:9 (TS2322); scripts/validate-bv-calculator.ts 359:21 (TS2552 MechLocation). scripts/data-migration has no .ts file. Not measured on TypeScript 6/7.",
+    "archiveSeamProbe": "In this worktree at the baseline, removed after each run: (1) a canonical openspec/specs/typescript-toolchain/spec.md built from the change delta, with a Purpose section, while the change stays active: npx openspec validate --all --strict 231 passed, 0 failed (change/migrate-to-typescript-7 and spec/typescript-toolchain both pass). (2) design.md moved into openspec/changes/archive/2099-01-01-migrate-to-typescript-7/: 230 passed, 0 failed; npm run qc:openspec-ci:validate errors=0. openspec 1.5.0; archive supports --skip-specs.",
+    "archiveLineBudget": "Change files at registration: proposal.md 55, design.md 188, tasks.md 143 and specs/typescript-toolchain/spec.md 82 lines, 468 in total. A single archive PR would count the moved 468, plus outcome lines, the canonical spec (about 90) and the lifecycle (16, as measured on the P2CG1A1 merge f11c64d98): about 575. That is over 500, so the archive is split: TS7S5B (design.md 188 + spec about 90 + record about 10 + 16) and TS7S5C (proposal 55 + tasks about 160 + spec 82, + option (b) delta about 25, + 16).",
+    "nextBefore": "validate-roadmap.mjs --next at the baseline: P2CG1A2 (exit 0).",
+    "nextSimulationBefore": "With P2CG1A2 temporarily set blocked at the baseline (file restored byte-for-byte), --next printed U24b. The track units must therefore precede index 109 to be selected when released.",
+    "nextAfter": "validate-roadmap.mjs --next after registration: P2CG1A2 (exit 0), unchanged from the baseline.",
+    "nextSimulationAfter": "Post-registration simulations on the registered units.json, restored byte-for-byte after each (sha256 compared): (1) P2CG1A2 set blocked and TS7S1 set planned: --next printed TS7S1. (2) TS7S1 blocked and P2CG1B set planned: --next printed P2CG1B."
+  },
+  "units": [
+    {
+      "id": "TS7S1",
+      "changeTasks": "0.1-0.2 and 1.1-1.5",
+      "state": "blocked",
+      "leaves": [
+        "src/lib/multiplayer/server/auth.ts",
+        "src/services/vault/IdentityService.ts",
+        "src/lib/events/checkpoints/BranchCheckpointCache.ts",
+        "tsconfig.json",
+        "desktop/tsconfig.json",
+        "openspec/changes/migrate-to-typescript-7/tasks.md",
+        "openspec/active-change-ledger.json"
+      ],
+      "newLeaves": [],
+      "archiveLeaves": [],
+      "conditionalLeaves": [
+        "openspec/changes/migrate-to-typescript-7/design.md",
+        "desktop/tsconfig.test.json"
+      ],
+      "ownershipPaths": [
+        "src/lib/multiplayer/server/auth.ts",
+        "src/services/vault/IdentityService.ts",
+        "src/lib/events/checkpoints/BranchCheckpointCache.ts",
+        "tsconfig.json",
+        "desktop/tsconfig.json",
+        "openspec/changes/migrate-to-typescript-7/tasks.md",
+        "openspec/active-change-ledger.json",
+        "openspec/changes/migrate-to-typescript-7/design.md",
+        "desktop/tsconfig.test.json"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "subtotalLeavesPlusUnitsJson": 8,
+      "maxFilesWithConditionals": 10,
+      "filesWithReceiptsAndReviewSlot": 14,
+      "estimatedCountedLinesWithLifecycle": [
+        40,
+        70
+      ],
+      "predecessors": [
+        "P2CG1A2"
+      ],
+      "successors": [
+        "TS7S2A"
+      ]
+    },
+    {
+      "id": "TS7S2A",
+      "changeTasks": "2.1-2.2",
+      "state": "blocked",
+      "leaves": [
+        "package.json",
+        "package-lock.json",
+        "scripts/compare-pip-distributions.ts",
+        "openspec/scripts/terminology-tool.ts",
+        "openspec/scripts/terminology-tool.output.js",
+        "openspec/changes/migrate-to-typescript-7/tasks.md"
+      ],
+      "newLeaves": [],
+      "archiveLeaves": [],
+      "conditionalLeaves": [],
+      "ownershipPaths": [
+        "package.json",
+        "package-lock.json",
+        "scripts/compare-pip-distributions.ts",
+        "openspec/scripts/terminology-tool.ts",
+        "openspec/scripts/terminology-tool.output.js",
+        "openspec/changes/migrate-to-typescript-7/tasks.md"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "subtotalLeavesPlusUnitsJson": 7,
+      "maxFilesWithConditionals": 7,
+      "filesWithReceiptsAndReviewSlot": 11,
+      "estimatedCountedLinesWithLifecycle": [
+        25,
+        40
+      ],
+      "predecessors": [
+        "TS7S1"
+      ],
+      "successors": [
+        "TS7S2B"
+      ]
+    },
+    {
+      "id": "TS7S2B",
+      "changeTasks": "2.3-2.4",
+      "state": "blocked",
+      "leaves": [
+        "desktop/package.json",
+        "desktop/package-lock.json",
+        "desktop/jest.config.js",
+        "openspec/changes/migrate-to-typescript-7/tasks.md"
+      ],
+      "newLeaves": [],
+      "archiveLeaves": [],
+      "conditionalLeaves": [
+        ".storybook/main.ts"
+      ],
+      "ownershipPaths": [
+        "desktop/package.json",
+        "desktop/package-lock.json",
+        "desktop/jest.config.js",
+        "openspec/changes/migrate-to-typescript-7/tasks.md",
+        ".storybook/main.ts"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "subtotalLeavesPlusUnitsJson": 5,
+      "maxFilesWithConditionals": 6,
+      "filesWithReceiptsAndReviewSlot": 10,
+      "estimatedCountedLinesWithLifecycle": [
+        35,
+        55
+      ],
+      "predecessors": [
+        "TS7S2A"
+      ],
+      "successors": [
+        "TS7S3",
+        "TS7S2OD"
+      ]
+    },
+    {
+      "id": "TS7S2OD",
+      "changeTasks": "2.5",
+      "state": "blocked",
+      "holder": "owner",
+      "releasePredicate": "The owner rules OD-scripts-tsconfig (openspec/changes/migrate-to-typescript-7/design.md, Owner decisions): option (a) keep scripts/tsconfig.json, narrow it to the named harness files, make it clean and add it to the root typecheck; or option (b) delete it, prove every validate:* script still runs under tsx, and modify the bv-validation-tooling scenario \"IndexUnit interface matches the real index schema\" through a delta spec in this change. AND TS7S2B is complete with a genuine exact-main mainProof PASS.",
+      "leaves": [
+        "scripts/tsconfig.json",
+        "openspec/changes/migrate-to-typescript-7/tasks.md"
+      ],
+      "newLeaves": [],
+      "archiveLeaves": [],
+      "conditionalLeaves": [
+        "package.json",
+        "scripts/validate-bv.ts",
+        "scripts/validate-bv-calculator.ts",
+        "openspec/changes/migrate-to-typescript-7/proposal.md",
+        "openspec/changes/migrate-to-typescript-7/specs/bv-validation-tooling/spec.md"
+      ],
+      "optionLeaves": {
+        "a": [
+          "scripts/tsconfig.json",
+          "package.json",
+          "scripts/validate-bv.ts",
+          "scripts/validate-bv-calculator.ts",
+          "openspec/changes/migrate-to-typescript-7/tasks.md"
+        ],
+        "b": [
+          "scripts/tsconfig.json",
+          "openspec/changes/migrate-to-typescript-7/specs/bv-validation-tooling/spec.md",
+          "openspec/changes/migrate-to-typescript-7/proposal.md",
+          "openspec/changes/migrate-to-typescript-7/tasks.md"
+        ]
+      },
+      "ownershipPaths": [
+        "scripts/tsconfig.json",
+        "openspec/changes/migrate-to-typescript-7/tasks.md",
+        "package.json",
+        "scripts/validate-bv.ts",
+        "scripts/validate-bv-calculator.ts",
+        "openspec/changes/migrate-to-typescript-7/proposal.md"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/changes/migrate-to-typescript-7/specs/bv-validation-tooling/spec.md"
+      ],
+      "subtotalLeavesPlusUnitsJson": 6,
+      "maxFilesWithConditionals": 6,
+      "filesWithReceiptsAndReviewSlot": 10,
+      "estimatedCountedLinesWithLifecycle": [
+        35,
+        60
+      ],
+      "predecessors": [
+        "TS7S2B"
+      ],
+      "successors": [
+        "TS7S5B"
+      ]
+    },
+    {
+      "id": "TS7S3",
+      "changeTasks": "3.1-3.3",
+      "state": "blocked",
+      "leaves": [
+        "package.json",
+        "package-lock.json",
+        "desktop/package.json",
+        "desktop/package-lock.json",
+        "openspec/changes/migrate-to-typescript-7/tasks.md"
+      ],
+      "newLeaves": [],
+      "archiveLeaves": [],
+      "conditionalLeaves": [],
+      "ownershipPaths": [
+        "package.json",
+        "package-lock.json",
+        "desktop/package.json",
+        "desktop/package-lock.json",
+        "openspec/changes/migrate-to-typescript-7/tasks.md"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "subtotalLeavesPlusUnitsJson": 6,
+      "maxFilesWithConditionals": 6,
+      "filesWithReceiptsAndReviewSlot": 10,
+      "estimatedCountedLinesWithLifecycle": [
+        20,
+        35
+      ],
+      "predecessors": [
+        "TS7S2B"
+      ],
+      "successors": [
+        "TS7S4A"
+      ]
+    },
+    {
+      "id": "TS7S4A",
+      "changeTasks": "4.3 and 4.4 (gate-routing half; the boxes tick in TS7S4B)",
+      "state": "blocked",
+      "leaves": [
+        "package.json",
+        ".github/workflows/pr-checks.yml",
+        "scripts/qc/openspec-ci-contracts.mjs",
+        "scripts/__tests__/precommit-no-build.test.ts",
+        "scripts/metrics/validate-refactoring-metrics.js",
+        ".husky/pre-commit"
+      ],
+      "newLeaves": [],
+      "archiveLeaves": [],
+      "conditionalLeaves": [],
+      "ownershipPaths": [
+        "package.json",
+        ".github/workflows/pr-checks.yml",
+        "scripts/qc/openspec-ci-contracts.mjs",
+        "scripts/__tests__/precommit-no-build.test.ts",
+        "scripts/metrics/validate-refactoring-metrics.js",
+        ".husky/pre-commit"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "subtotalLeavesPlusUnitsJson": 7,
+      "maxFilesWithConditionals": 7,
+      "filesWithReceiptsAndReviewSlot": 11,
+      "estimatedCountedLinesWithLifecycle": [
+        20,
+        35
+      ],
+      "predecessors": [
+        "TS7S3"
+      ],
+      "successors": [
+        "TS7S4B"
+      ]
+    },
+    {
+      "id": "TS7S4B",
+      "changeTasks": "4.1-4.7",
+      "state": "blocked",
+      "leaves": [
+        "package.json",
+        "package-lock.json",
+        "desktop/package.json",
+        "desktop/package-lock.json",
+        "scripts/qc/roadmap-main-proof.mjs",
+        "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+        "openspec/changes/migrate-to-typescript-7/tasks.md"
+      ],
+      "newLeaves": [
+        "scripts/__tests__/typescript-toolchain.test.ts"
+      ],
+      "archiveLeaves": [],
+      "conditionalLeaves": [],
+      "ownershipPaths": [
+        "package.json",
+        "package-lock.json",
+        "desktop/package.json",
+        "desktop/package-lock.json",
+        "scripts/qc/roadmap-main-proof.mjs",
+        "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+        "openspec/changes/migrate-to-typescript-7/tasks.md"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "scripts/__tests__/typescript-toolchain.test.ts"
+      ],
+      "subtotalLeavesPlusUnitsJson": 9,
+      "maxFilesWithConditionals": 9,
+      "filesWithReceiptsAndReviewSlot": 13,
+      "estimatedCountedLinesWithLifecycle": [
+        25,
+        40
+      ],
+      "predecessors": [
+        "TS7S4A"
+      ],
+      "successors": [
+        "TS7S5A"
+      ]
+    },
+    {
+      "id": "TS7S5A",
+      "changeTasks": "5.1-5.2",
+      "state": "blocked",
+      "leaves": [
+        "README.md",
+        "docs/development/getting-started.md",
+        "docs/development/troubleshooting.md",
+        "docs/development/git-hooks.md",
+        "docs/overview.md",
+        "openspec/config.yaml",
+        "src/docs/Introduction.mdx",
+        "openspec/scripts/README.md",
+        "openspec/changes/migrate-to-typescript-7/tasks.md"
+      ],
+      "newLeaves": [],
+      "archiveLeaves": [],
+      "conditionalLeaves": [],
+      "ownershipPaths": [
+        "README.md",
+        "docs/development/getting-started.md",
+        "docs/development/troubleshooting.md",
+        "docs/development/git-hooks.md",
+        "docs/overview.md",
+        "openspec/config.yaml",
+        "src/docs/Introduction.mdx",
+        "openspec/scripts/README.md",
+        "openspec/changes/migrate-to-typescript-7/tasks.md"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "subtotalLeavesPlusUnitsJson": 10,
+      "maxFilesWithConditionals": 10,
+      "filesWithReceiptsAndReviewSlot": 14,
+      "estimatedCountedLinesWithLifecycle": [
+        40,
+        60
+      ],
+      "predecessors": [
+        "TS7S4B"
+      ],
+      "successors": [
+        "TS7S5B"
+      ]
+    },
+    {
+      "id": "TS7S5B",
+      "changeTasks": "5.3 (exact-main verification, canonical spec sync, archive prefix)",
+      "state": "blocked",
+      "leaves": [
+        "openspec/changes/migrate-to-typescript-7/tasks.md",
+        "openspec/changes/migrate-to-typescript-7/design.md"
+      ],
+      "newLeaves": [
+        "openspec/specs/typescript-toolchain/spec.md"
+      ],
+      "archiveLeaves": [
+        "openspec/changes/archive/<archive-date>-migrate-to-typescript-7/design.md"
+      ],
+      "conditionalLeaves": [
+        "openspec/specs/bv-validation-tooling/spec.md"
+      ],
+      "ownershipPaths": [
+        "openspec/changes/migrate-to-typescript-7/tasks.md",
+        "openspec/changes/migrate-to-typescript-7/design.md",
+        "openspec/specs/bv-validation-tooling/spec.md"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/specs/typescript-toolchain/spec.md"
+      ],
+      "subtotalLeavesPlusUnitsJson": 5,
+      "maxFilesWithConditionals": 6,
+      "filesWithReceiptsAndReviewSlot": 10,
+      "estimatedCountedLinesWithLifecycle": [
+        300,
+        330
+      ],
+      "predecessors": [
+        "TS7S5A",
+        "TS7S2OD"
+      ],
+      "successors": [
+        "TS7S5C"
+      ]
+    },
+    {
+      "id": "TS7S5C",
+      "changeTasks": "5.3 (archive completion)",
+      "state": "blocked",
+      "leaves": [
+        "openspec/changes/migrate-to-typescript-7/proposal.md",
+        "openspec/changes/migrate-to-typescript-7/tasks.md",
+        "openspec/changes/migrate-to-typescript-7/specs/typescript-toolchain/spec.md",
+        "openspec/active-change-ledger.json"
+      ],
+      "newLeaves": [],
+      "archiveLeaves": [
+        "openspec/changes/archive/<archive-date>-migrate-to-typescript-7/proposal.md",
+        "openspec/changes/archive/<archive-date>-migrate-to-typescript-7/tasks.md",
+        "openspec/changes/archive/<archive-date>-migrate-to-typescript-7/specs/typescript-toolchain/spec.md"
+      ],
+      "conditionalLeaves": [
+        "openspec/changes/archive/<archive-date>-migrate-to-typescript-7/specs/bv-validation-tooling/spec.md",
+        "openspec/changes/migrate-to-typescript-7/specs/bv-validation-tooling/spec.md"
+      ],
+      "ownershipPaths": [
+        "openspec/changes/migrate-to-typescript-7",
+        "openspec/active-change-ledger.json"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/changes/migrate-to-typescript-7/specs/bv-validation-tooling/spec.md"
+      ],
+      "subtotalLeavesPlusUnitsJson": 8,
+      "maxFilesWithConditionals": 10,
+      "filesWithReceiptsAndReviewSlot": 14,
+      "estimatedCountedLinesWithLifecycle": [
+        320,
+        350
+      ],
+      "predecessors": [
+        "TS7S5B"
+      ],
+      "successors": []
+    }
+  ],
+  "overlap": {
+    "rule": "The validator's no-overlap mechanism is NEXT path exclusion against in-flight units (validate-roadmap.mjs, the inFlightPaths check). Units never hold a file at the same time because (1) the parent runs one product-writing lane, (2) every track unit is blocked until released one at a time, and (3) NEXT will not select any planned unit whose paths overlap an in-flight track unit, and the reverse. Every overlap below is serial. No ownershipExceptions, no amendment and no edit to another unit's contract fields is needed or made. An open unit that later edits a file the track changed must measure against the then-current main at its own admission, as the Task 57 rule already requires for U101a/U101d.",
+    "withOtherOpenUnits": [
+      {
+        "leaf": "src/lib/multiplayer/server/auth.ts",
+        "trackUnits": [
+          "TS7S1"
+        ],
+        "otherOpenUnits": [
+          "P1B (blocked)",
+          "P1 (blocked)",
+          "P2CE (blocked)",
+          "P2CG1 (blocked)",
+          "P2CG1A2 (planned)",
+          "P2CG1B (blocked)",
+          "P2CG1C (blocked)",
+          "P2CG1D (blocked)",
+          "P2CG1E (blocked)",
+          "P2CG1H (blocked)",
+          "P2CG1I2 (blocked)",
+          "P2CG1I3 (blocked)",
+          "P2CG1I4 (blocked)",
+          "P2CG2 (blocked)",
+          "P2CH (blocked)",
+          "U38 (blocked)",
+          "U24 (blocked)",
+          "U24b (planned)",
+          "U44 (planned)",
+          "U45 (planned)",
+          "U26 (planned)",
+          "U46 (planned)",
+          "U47 (planned)",
+          "U48 (planned)",
+          "U49 (planned)",
+          "U56 (planned)",
+          "U101 (planned)",
+          "U104 (planned)",
+          "U105 (planned)",
+          "U101a (planned)",
+          "U101d (planned)"
+        ]
+      },
+      {
+        "leaf": "src/lib/events/checkpoints/BranchCheckpointCache.ts",
+        "trackUnits": [
+          "TS7S1"
+        ],
+        "otherOpenUnits": [
+          "U45 (planned)"
+        ]
+      },
+      {
+        "leaf": "package.json",
+        "trackUnits": [
+          "TS7S2A",
+          "TS7S2OD",
+          "TS7S3",
+          "TS7S4A",
+          "TS7S4B"
+        ],
+        "otherOpenUnits": [
+          "U12 (blocked)",
+          "U63 (planned)",
+          "U75 (blocked)",
+          "U80 (blocked)",
+          "U83 (blocked)",
+          "U84 (blocked)"
+        ]
+      },
+      {
+        "leaf": ".github/workflows/pr-checks.yml",
+        "trackUnits": [
+          "TS7S4A"
+        ],
+        "otherOpenUnits": [
+          "U64 (blocked)",
+          "U66 (blocked)",
+          "U75 (blocked)",
+          "U81 (blocked)"
+        ]
+      },
+      {
+        "leaf": "scripts/qc/openspec-ci-contracts.mjs",
+        "trackUnits": [
+          "TS7S4A"
+        ],
+        "otherOpenUnits": [
+          "U2 (blocked)",
+          "U2b (blocked)",
+          "U28 (planned)",
+          "U53 (planned)",
+          "U55 (planned)",
+          "U57 (planned)",
+          "U12 (blocked)",
+          "U63 (planned)",
+          "U65 (blocked)",
+          "U66 (blocked)",
+          "U75 (blocked)",
+          "U76 (blocked)",
+          "U77 (blocked)",
+          "U78 (blocked)",
+          "U79 (planned)",
+          "U103 (planned)"
+        ]
+      },
+      {
+        "leaf": "scripts/__tests__/precommit-no-build.test.ts",
+        "trackUnits": [
+          "TS7S4A"
+        ],
+        "otherOpenUnits": [
+          "U57 (planned)",
+          "U12 (blocked)",
+          "U63 (planned)",
+          "U64 (blocked)",
+          "U65 (blocked)",
+          "U66 (blocked)",
+          "U67 (blocked)",
+          "U68 (blocked)",
+          "U69 (blocked)",
+          "U70 (blocked)",
+          "U71 (blocked)",
+          "U72 (blocked)",
+          "U74 (blocked)",
+          "U75 (blocked)",
+          "U76 (blocked)",
+          "U77 (blocked)",
+          "U78 (blocked)",
+          "U79 (planned)",
+          "U80 (blocked)",
+          "U81 (blocked)",
+          "U82 (blocked)",
+          "U103 (planned)"
+        ]
+      },
+      {
+        "leaf": "scripts/qc/roadmap-main-proof.mjs",
+        "trackUnits": [
+          "TS7S4B"
+        ],
+        "otherOpenUnits": [
+          "U2 (blocked)",
+          "U2b (blocked)",
+          "U28 (planned)",
+          "U53 (planned)",
+          "U55 (planned)",
+          "U57 (planned)",
+          "U12 (blocked)",
+          "U63 (planned)",
+          "U65 (blocked)",
+          "U66 (blocked)",
+          "U75 (blocked)",
+          "U76 (blocked)",
+          "U77 (blocked)",
+          "U78 (blocked)",
+          "U79 (planned)",
+          "U103 (planned)"
+        ]
+      },
+      {
+        "leaf": "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+        "trackUnits": [
+          "TS7S4B"
+        ],
+        "otherOpenUnits": [
+          "U57 (planned)",
+          "U12 (blocked)",
+          "U63 (planned)",
+          "U64 (blocked)",
+          "U65 (blocked)",
+          "U66 (blocked)",
+          "U67 (blocked)",
+          "U68 (blocked)",
+          "U69 (blocked)",
+          "U70 (blocked)",
+          "U71 (blocked)",
+          "U72 (blocked)",
+          "U74 (blocked)",
+          "U75 (blocked)",
+          "U76 (blocked)",
+          "U77 (blocked)",
+          "U78 (blocked)",
+          "U79 (planned)",
+          "U80 (blocked)",
+          "U81 (blocked)",
+          "U82 (blocked)",
+          "U103 (planned)"
+        ]
+      },
+      {
+        "leaf": "scripts/__tests__/typescript-toolchain.test.ts",
+        "trackUnits": [
+          "TS7S4B"
+        ],
+        "otherOpenUnits": [
+          "U57 (planned)",
+          "U12 (blocked)",
+          "U63 (planned)",
+          "U64 (blocked)",
+          "U65 (blocked)",
+          "U66 (blocked)",
+          "U67 (blocked)",
+          "U68 (blocked)",
+          "U69 (blocked)",
+          "U70 (blocked)",
+          "U71 (blocked)",
+          "U72 (blocked)",
+          "U74 (blocked)",
+          "U75 (blocked)",
+          "U76 (blocked)",
+          "U77 (blocked)",
+          "U78 (blocked)",
+          "U79 (planned)",
+          "U80 (blocked)",
+          "U81 (blocked)",
+          "U82 (blocked)",
+          "U103 (planned)"
+        ]
+      }
+    ],
+    "withinTrack": [
+      {
+        "leaf": "openspec/changes/migrate-to-typescript-7/tasks.md",
+        "units": [
+          "TS7S1",
+          "TS7S2A",
+          "TS7S2B",
+          "TS7S2OD",
+          "TS7S3",
+          "TS7S4B",
+          "TS7S5A",
+          "TS7S5B",
+          "TS7S5C"
+        ]
+      },
+      {
+        "leaf": "openspec/active-change-ledger.json",
+        "units": [
+          "TS7S1",
+          "TS7S5C"
+        ]
+      },
+      {
+        "leaf": "openspec/changes/migrate-to-typescript-7/design.md",
+        "units": [
+          "TS7S1",
+          "TS7S5B"
+        ]
+      },
+      {
+        "leaf": "package.json",
+        "units": [
+          "TS7S2A",
+          "TS7S2OD",
+          "TS7S3",
+          "TS7S4A",
+          "TS7S4B"
+        ]
+      },
+      {
+        "leaf": "package-lock.json",
+        "units": [
+          "TS7S2A",
+          "TS7S3",
+          "TS7S4B"
+        ]
+      },
+      {
+        "leaf": "desktop/package.json",
+        "units": [
+          "TS7S2B",
+          "TS7S3",
+          "TS7S4B"
+        ]
+      },
+      {
+        "leaf": "desktop/package-lock.json",
+        "units": [
+          "TS7S2B",
+          "TS7S3",
+          "TS7S4B"
+        ]
+      },
+      {
+        "leaf": "openspec/changes/migrate-to-typescript-7/proposal.md",
+        "units": [
+          "TS7S2OD",
+          "TS7S5C"
+        ]
+      },
+      {
+        "leaf": "openspec/changes/migrate-to-typescript-7/specs/bv-validation-tooling/spec.md",
+        "units": [
+          "TS7S2OD",
+          "TS7S5C"
+        ]
+      }
+    ],
+    "note": "package.json is also owned by U12, U63, U75, U80, U83 and U84; .github/workflows/pr-checks.yml by U64, U66, U75 and U81; roadmap-loop-closure-proof.test.ts by U103 and the scripts/__tests__ owners; auth.ts by U101a and U101d and every src/lib/multiplayer/server unit, including P2CG1A2, which is in flight now and must be main-verified before TS7S1 is released, and P2CG1B-P2CG1I4, P2CG2 and P2CH, which stay blocked until after the stopping point. All of them are blocked or planned future units, and none is edited."
+  },
+  "scheduling": {
+    "insertionPoint": "after P2CG1A2 main-verified, before P2CG1B release",
+    "rule": "Runs after P2CG1A2 is main-verified and before P2CG1B is released. Every track unit is registered blocked. The parent releases TS7S1 with a one-field edit when P2CG1A2 closes, and releases each next unit when its predecessor closes, exactly like the P2C* chain. The parent holds P2CG1B blocked until the stopping condition is met or an explicit parent waiver is recorded. No machine-readable edge joins the track and P2CG1B.",
+    "stoppingCondition": "TS7S5A main-verified; if the owner has ruled OD-scripts-tsconfig before TS7S5A closes, TS7S2OD, TS7S5B and TS7S5C also run, in order, before P2CG1B is released.",
+    "encodedIn": [
+      "TS7S1.admissionRequires (full scheduling text)",
+      "TS7S5A.admissionRequires (stopping-condition pointer)",
+      "units.json ts7TrackRegistration20261016.schedulingRule and .stoppingCondition",
+      "this receipt"
+    ],
+    "notEncodedIn": "P2CG1B (no field touched: no predecessor, marker or text) and P2CG1A2 (no successor added), so neither concurrent edit can conflict. TS7S1.predecessors names P2CG1A2 documentarily and is not mirrored in P2CG1A2.successors.",
+    "release": "Each release is a one-field state edit (blocked to planned) by the parent, as in the P2C* chain. TS7S2OD also requires the owner's ruling."
+  },
+  "ownerDecisionsHeld": [
+    {
+      "id": "OD-scripts-tsconfig",
+      "heldBy": "unit TS7S2OD (state blocked, holder owner, releasePredicate literal)",
+      "recommendation": "design.md recommends (a): keep and fix scripts/tsconfig.json, scoped to the named harness files. Recorded as a recommendation only; not ruled here."
+    },
+    {
+      "id": "OD-next-upgrade",
+      "heldBy": "finding FN-ts7-od-next-upgrade (holder owner, releasePredicate \"after migrate-to-typescript-7 archives\"); no unit, no predecessor edge",
+      "recommendation": "design.md recommends a separate change after this one archives. Recorded as a recommendation only; not ruled here."
+    }
+  ],
+  "deferrals": [
+    {
+      "id": "FN-ts7-typescript-7-1-followup",
+      "source": "tasks.md section 6 (6.1, 6.2)",
+      "releasePredicate": "TypeScript 7.1 ships its compiler API",
+      "unit": null
+    }
+  ],
+  "rejectedAlternatives": [
+    {
+      "option": "One unit per numbered section (5 or 6 units)",
+      "reason": "Section 4 is 14 leaves with units.json, 18 files with receipts and the review slot, over the 15-file cap. Section 5's archive move counts about 575 lines, over 500. Sections 2 and 5 also carry inventory gaps that would push them to 15-16 files with no margin."
+    },
+    {
+      "option": "Merge sections 0-1 with section 2, or 3 with 4",
+      "reason": "Breaks the change's rule that sections 1-4 land in order, one PR each. It also mixes a 5.8-valid prep with a compiler bump, and loses the one-revert rollback per phase (D8)."
+    },
+    {
+      "option": "Split section 4 by package (desktop vs root) instead of routing vs swap",
+      "reason": "The root half alone is still 16 files with receipts. Routing the gates through npm run typecheck while on the TypeScript 6 bridge leaves every intermediate main consistent: all gates on 6, then all on 7 in one swap."
+    },
+    {
+      "option": "Track as a machine-readable predecessor of P2CG1B",
+      "reason": "The parent rejected it: an open owner decision (TS7S2OD) on the track's tail could then stall the P-chain. The insertion point is text only."
+    },
+    {
+      "option": "Run the track after P3 exits",
+      "reason": "The parent chose a defined stopping point inside the chain. The track edits package.json, the lockfiles, CI, hooks and the roadmap main proof that every unit closure runs, so it needs a quiet single-lane window, which exists between P2CG1A2 and P2CG1B."
+    },
+    {
+      "option": "Run the track in parallel with P2CG1 units",
+      "reason": "Violates the single product-writing lane rule. TS7S4B also edits roadmap-main-proof.mjs and roadmap-loop-closure-proof.test.ts, which every unit closure runs."
+    },
+    {
+      "option": "Host the units on R6.loop-harness",
+      "reason": "Its acceptance forbids src/ edits outside listed amendments. It lacks tsconfig.json, desktop/**, docs and openspec paths, and widening it would grant those paths to 20+ unrelated open units."
+    },
+    {
+      "option": "Supplement snapshot of the change's tasks.md (U42) so units hold real task keys",
+      "reason": "It activates the package under the holders rule and pins tasks.md bytes that the units must edit (ticks, outcome lines). Section 6 is plain text, not checkboxes. taskKeys [] with explicit changeTasks mapping matches the P2C* precedent the parent named."
+    },
+    {
+      "option": "ledger.deferrals entries for OD-next-upgrade and section 6",
+      "reason": "The validator requires non-empty taskKeys and deferredToNode for a deferral, and there is no task key. Findings with holder and releasePredicate carry the same information."
+    },
+    {
+      "option": "A packet (PK-*) plus ownerGate for OD-scripts-tsconfig",
+      "reason": "The parent specified state blocked with holder owner and a literal release predicate. The decision text already lives in the change's design.md, and a packet would duplicate it and carry ruling machinery this registration must not exercise."
+    },
+    {
+      "option": "A single archive unit with a capException, or with openspec archive in one PR",
+      "reason": "No cap exception may be used, and the single move counts about 575 lines. The two-slice seam (design.md first) was probed valid under openspec validate --all --strict and qc:openspec-ci:validate."
+    },
+    {
+      "option": "Directory ownership (scripts/__tests__, openspec/changes/archive, openspec/specs) for prospective files",
+      "reason": "That would be a directory-wide grant. Exact exceptions are used for the named new files, and literal-path amendment at admission for the dated archive paths."
+    }
+  ],
+  "nonclaims": [
+    "No source admission, no unit release and no state change of any existing unit; P2CG1A2 and P2CG1B are untouched.",
+    "Line figures are estimates from read code and file sizes, except the archive line budget (measured file sizes) and the option (a) error probe (measured on TypeScript 5.8.3 only).",
+    "No owner decision is ruled; both recommendations are design.md's.",
+    "machineChecked: the validator checks state, ownership-path existence and node membership, ciClass, review classes, caps range, stage ladder and NEXT. It does not read restrictions, subtotals, predecessors, successors, holder, releasePredicate, proof, the marker or findings; those rest on this receipt and review."
+  ],
+  "unsettled": [
+    "TS7S1 assumes the 0.2 re-run still finds the same 11 errors. A changed list may add src leaves; stop and register them if so.",
+    "TS7S2OD option (a) was measured on TypeScript 5.8 only. Under TypeScript 6 or 7, the types default of [] and the transitive src imports through validate-parity.ts may add errors and files.",
+    "TS7S5B/TS7S5C replace the literal \"openspec archive\" in tasks.md 5.3 with a two-slice git mv plus a pre-synced spec, because of the U41 line rule. The parent may prefer to record that deviation in tasks.md when TS7S5B is admitted.",
+    "Under option (a), roadmap-main-proof.mjs calls the compiler by argv on the root tsconfig only, so scripts/tsconfig.json joins npm run typecheck but not the exact-main proof. The change does not ask for that, and it is noted only."
+  ],
+  "deepDiff": {
+    "method": "node: parsed baseline (git show HEAD) vs registered ledgers, JSON.stringify equality per entry",
+    "units": "Top-level keys: ts7TrackRegistration20261016 added last; every other top-level key besides units/findings equal. 10 units added at indices 93-102, between P2 and U38; all 194 original units deep-equal and in original order (P2CG1A2 and P2CG1B unchanged). findings: the original 185 are a deep-equal prefix, and FN-ts7-od-next-upgrade and FN-ts7-typescript-7-1-followup are appended.",
+    "roadmap": "Only nodes changed: the original 79 nodes are a deep-equal prefix, and R6.ts7-toolchain is appended. No other top-level key changed.",
+    "gitNumstat": "roadmap.json +168 -0; units.json +737 -0 (additions only)"
+  }
+}
