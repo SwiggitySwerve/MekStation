@@ -1,3 +1,74 @@
+## 2026-10-16 P2CF1 source verified on main; closure metadata proposed
+
+P2CF1 advances from implementing to main-verified for source PR #2159,
+head 000295a1d9e1b28d5f98dd5aea6f58b5bc65d6f3, merge 4895b2c3664a9d1f802ef947f05b90aac29862a0.
+Its baseline remains the admission base a1d2293b941b5aaf2b618f451294cbb2dae4f1b4.
+The owner explicitly authorized this ruling in chat, and it was posted as [comment 6215650627](https://github.com/SwiggitySwerve/MekStation/pull/2159#issuecomment-6215650627);
+its exact UTF-8 body, without an added newline, hashes to 6da52f0be8d97896824189d053f99337b1ea2db77c0344b24cee71d9a61beed3.
+The merge (12:37:05Z) preceded the ruling (12:37:09Z); this record preserves that chronology.
+PK-p2cf1-ruling is first recorded here, after both the merge and the ruling.
+
+P2CF1 is the first of the two P2CF slices of plan Task 13; Task 13 is not complete until P2CF2 lands.
+
+The admission, red and local receipts came with the source PR and are unchanged.
+The [review receipt](evidence/p2cf1-review-20261016.json) binds the Fable 5.1 review of the exact merged head, preserved byte for byte
+(APPROVE-WITH-NOTES, no blockers, one dormant contract-level major M1, six minors; author Opus 5.5; sha256 bc16d36d9a510192b98bd0a6afa7149290abcaa774274731a70e3ec931156e5e).
+The reviewer re-ran the three test leaves (87 tests), the P2CF1 selector (5 suites, 103 tests), the plan Task 13 selector
+(3 suites, 32 tests), the 26 unmodified caller suites (179 tests) and RED (25 failed / 62 passed) on the head.
+The author's stable run (2796 suites, 37143 passed) ran on source and test bytes equal to the committed blobs.
+campaignSyncTransport.ts keeps its pre-existing max-lines warning (669 physical lines at head).
+The reserved p2cf1-admission-review-20261016.md slot stays unwritten.
+
+The review's carry-forward wording, verbatim (section 9, with M1 and the minors from sections 4 and 8), is recorded under successorNotes in the review receipt:
+
+- P2CF2 CF1 (per-binding fold reset): "On every change of the component's binding (matchId, roomCode, role or campaignId) and before the new transport opens, reset the host fold to `EMPTY_CAMPAIGN_AUTHORITATIVE_FOLD` and the guest mirror through `beginMirror(peers, localPeerId)`, so the join quotes no stale cursor and the first baseline is adopted from EMPTY. This is P2CF2's sole production-visible behaviour change (registration review note 6): record it in the admission receipt and prove it in `CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx` (a `roomCode` change without unmount must not keep `hostFold`)."
+- P2CF2 CF2 (refusal routing and recovery): "At both frame handlers, before `setLastRefusalCode`/`setLastRefusalAction`, return early for any `Error` whose `reason?.startsWith('campaign-application-')`; no such reason may set `lastRefusalCode` or gate GM controls. Treat every transport `onError` whose message starts with `Campaign application recovery required:` (application-refused, application-failed, prefix-conflict, pending-overflow, send-failed) and every socket close as an automatic, idempotent rejoin: close the transport, reset fold/mirror per CF1, reconnect and adopt the new baseline as a replacement. Do not surface these as user-facing refusals."
+- P2CF2 CF3 (replacement authorization and bundle passing): "A baseline offer (`appliedView.previousReceiptId === null`) is adopted with `replacement = true`: `foldCampaignHydration(fold, frame.event, frame.hydrationFacts, true, 0)` for the host, `applySnapshot(frame.event, 0, true, frame.hydrationFacts)` for the guest. Never pass `undefined` for `hydrationFacts` on an offered baseline, and never use the non-replacement path for a new view. A `null` result is `confirmApplied(offer, { status: 'failed', reason: 'fold-rejected' })` and sends no ACK. Track the view's `viewId` with the held fold so a baseline of another view is recognised as a replacement, not as a conflict."
+- P2CF2 CF4 (confirmations): "`onAppliedViewConfirmed` is cumulative and at-least-once: a confirmation naming receipt R covers every earlier receipt of the same `viewId`; duplicates occur; an ACK superseded by a later offer before its confirmation arrived, and a rebaseline whose cut the stored row already covers, receive no confirmation at all. Never block UI, persistence or progression on a per-ACK confirmation; never wait after a rebaseline ACK."
+- P2CF2 CF5 (adjunct retention and persistence): "Before `confirmApplied(offer, { status: 'applied' })`: for a baseline offer, the fold/mirror result's `launchFacts` must deep-equal `frame.hydrationFacts`; for a `CampaignMissionLaunched` offer, the result's `launchFacts` must end with `frame.event`; otherwise report `adjunct-failed`. Launch facts live only in the fold and the mirror store (in memory); the persistence store must not write `launchFacts` into the saved campaign record, and the staged maxima prepare ignores them."
+- P2CF2 CF6 (ACK discipline): "Call `confirmApplied` in receipt order and exactly once per offer; the transport ACKs only `latest` once the whole pending prefix is applied, which is the cumulative ACK the server expects."
+- Task 14 hard precondition CF7 (M1 precondition): "Before `applicationReceipts` is composed into `bindCampaignSyncConnection` and `expectedCampaignId` is bound at every creator (CampaignCoopEntryPanel.tsx 328, CampaignCoopRouteSurfaceConnected.tsx 156 and 268, launch.tsx), close M1 by one of: (a) the client ignores `campaign-application-unknown-receipt` when a newer offer has been registered since the refused ACK (`latest !== sent`) and otherwise rejoins; (b) the binder admits an ACK of any established receipt of the live view as `stale` (no frame) and reserves `unknown-receipt` for receipts the view never issued, or names the refused `appliedView` in the refusal frame. Record the choice in the owning unit's contract before source execution."
+- Task 14 CF8 (bounds): "Decide the client bound for head-drift re-sends (m1) and for a lost refusal (P2CE3 Task14 item 4): either route typed refusals through `sendConfirmed` or have the consumer rejoin after a bounded wait without confirmation or refusal."
+- Task 14 CF9 (binding at creators): "`connectStoredCampaignSyncTransport` returns `null` when an existing transport's `campaignId` differs from the supplied `expectedCampaignId`; bind at every creator in the same change, or the mounted surface detaches from the entry panel's transport."
+- Major M1 (closure is a hard Task 14 precondition): "**M1. Superseded-ACK refusal tears down a live view** (section 4). Contract-level, inherited from P2CE3's admission rule plus the Task 13/P2CF1 refusal wording; P2CF1 is conformant. Owner decision required: option (a) in this PR or P2CF2, or option (b) in Task 14; in all cases before `applicationReceipts` is composed. Recorded as a hard Task 14 precondition in CF7."
+- M1 resolution: "Resolution options, owner's call, to be closed before Task 14 activation:"
+- M1 option (a): "(a) Client rule in the transport leaf (this PR or P2CF2's transport touch, three lines + one test): *"On `campaign-application-unknown-receipt`, if a newer offer has been registered since the refused ACK was sent (`latest !== sent`), the refusal concerns a superseded ACK: ignore it and let `drain` ACK the latest offer; otherwise end the view as recovery-required. Never re-send on unknown-receipt."* This keeps "never retried with the same frame" and "rejoin when the refusal concerns the current ACK"; it requires a one-sentence amendment of the P2CF1 behaviour text at closure."
+- M1 option (b): "(b) Server rule in Task 14 (binder leaf): *"Admit an ACK naming any receipt of the live view's established chain; for a receipt older than `latest` return `stale` and send nothing (cumulative commit already covers it). Reserve `unknown-receipt` for receipts the view never issued."* Or: *"Typed refusal frames carry the refused `appliedView` so the client can discard refusals of superseded ACKs."*"
+- M1, either way: "Either way, P2CF2's consumer must treat every `onError` recovery-required as an automatic, idempotent rejoin (CF2), so the cost of M1 is bounded until it is fixed."
+- Correction of P2CE3 optional Task 13 item 5: "My own P2CE3 optional item 5 ("never a server-side timing race") was too strong: it holds for ACKs the client sends after receiving Y, not for an ACK already in flight when Y is established. I correct it here."
+- Minor m1: "**m1. No client-side bound on head-drift re-sends** (P8). Each cycle is gated by a server refusal after three commit attempts, so it is not a tight loop, and a visible new offer ends it; but a hidden-only tail under sustained churn re-sends indefinitely. Decide a bound or rely on the Task 14 "bound its wait and rejoin" wording (P2CE3 Task14 item 4)."
+- Minor m2: "**m2. Untested branch: `socket.send` throwing inside the re-send** -> `recover('send-failed')` (author concern 4; probe P5 confirms the behaviour). Worth one registered case the next time the transport leaf is open."
+- Minor m3: "**m3. Re-send has no `socket.readyState !== 1` guard**, unlike `drain`. On a CLOSING socket browsers discard silently; `onclose` then marks the transport closed, so no incorrect state results. Cosmetic consistency."
+- Minor m4: "**m4. Held-fact equality is byte equality** (`JSON.stringify`), so a re-sent fact with a different payload key order is refused on a non-replacement bundle (F1). Fail-closed and only reachable on a non-replacement rebaseline, which `registerOffer` does not admit on a live connection; a reconnect uses `replacement`. Record in CF3 so P2CF2 never relies on the non-replacement path for a new view."
+- Minor m5: "**m5. The fold does not check the snapshot's `campaignId` on non-replacement adoption** (F3; pre-existing P2CD). Guarded by the mirror store and by `registerOffer` (`prefix-conflict` on a foreign `event.campaignId`); the host fold path in the component relies on the transport. No change needed in P2CF1; note for P2CF2's consumer gate (`transport.campaignId === campaignId`)."
+- Minor m6: "**m6. A confirmation of `sent` is dropped when a newer offer is already registered** (P3; pre-existing P2CD filter, now also leaves `confirmed` false). Harmless for the re-send rule (the same condition blocks the re-send), but the consumer never hears that confirmation and must rely on cumulative semantics (CF4)."
+- Note N1 (for this closure, not applied): "**N1.** Amend the P2CF1 behaviour text at closure to the eleven-reason wording in section 7 and to mention `foldCampaignHydration`'s signature `(fold, snapshot, hydrationFacts, replacement?, resumeSequence?)` and the mirror's fourth positional argument."
+
+M1 is dormant and fail-closed: no production creator binds expectedCampaignId and server.js composes no applicationReceipts.
+The P2CE3 review receipt is not edited; the correction above supersedes its optional Task 13 item 5 for an ACK already in flight
+when the next offer is established. Notes N2-N5 are in the review receipt. N1 (amend the P2CF1 behavior text) is not applied,
+because behavior is a contract field rather than a lifecycle field; it stays open.
+
+Two registration review minors stay open (docs/audits/2026-10-16-p2cf-split-registration-fable-review.md):
+P2CE3.successors and P2CE.successors still name P2CF, and P2CF1's successorNotes do not name the unregistered callers
+CampaignCoopEntryPanel.tsx and CampaignCoopRouteSurfaceConnected.tsx whose signatures must stay compatible.
+Both are other-unit or contract fields and are not edited here; the reviewer confirmed both callers compile and pass unedited.
+
+All 31 checks on the merged head succeeded. The [merge receipt](evidence/p2cf1-merge-20261016.json)
+binds both ordered parents and the matching integration tree. The [main proof](evidence/p2cf1-mainproof-20261016.json)
+is a fresh run at the merge before any closure edit: the three P2CF1 leaves (87 tests), the P2CF1 registration
+selector (five suites, 103 tests), the plan Task 13 selector (three suites, 32 tests),
+typecheck and the validator passed. It references the attempt logs by hash.
+
+P2CF1 has no task keys. Its tick remains null because source/closure cleanup
+is not established here; no tasks.md row is changed. P2CF1 therefore releases
+its in-flight src/lib/campaign and campaignMirrorStore reservations at main-verified, while
+P2CF2, P2C and all other unit states remain unchanged.
+Selection is not downstream admission.
+This closure metadata still requires its own review, CI and parent merge.
+
+---
+
 ## 2026-10-16 P2CE3 source verified on main; Task 12 complete; closure metadata proposed
 
 P2CE3 advances from implementing to main-verified for source PR #2155,
