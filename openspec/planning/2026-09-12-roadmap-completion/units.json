@@ -5959,7 +5959,18 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ce3-admission-20261016.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ce3-admission-review-20261016.md",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ce3-red-20261016.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ce3-local-20261016.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ce3-local-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ce3-source-fable-review-20261016.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ce3-source-fable-review-r2-20261016.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ce3-owner-ruling-6212872642.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ce3-review-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ce3-merge-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-285e710d-tests.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-285e710d-leaves.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-285e710d-task12.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-285e710d-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-285e710d-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ce3-mainproof-20261016.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -5974,10 +5985,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "implementing",
+      "state": "main-verified",
       "baseline": "842257c0b664138c560ef17f36df40c0c8e220da",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "b0077efae37a69e555a1b39062fd8438a2ce9a38",
+      "mergeSha": "285e710d6316bb212c23b3f7275c547132cab245",
       "stageReceipts": {
         "admission": {
           "path": "evidence/p2ce3-admission-20261016.json"
@@ -5988,9 +5999,27 @@
         "local": {
           "path": "evidence/p2ce3-local-20261016.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/p2ce3-review-20261016.json",
+          "head": "b0077efae37a69e555a1b39062fd8438a2ce9a38",
+          "reviewedHead": "b0077efae37a69e555a1b39062fd8438a2ce9a38",
+          "reviewerModel": "claude-fable-5-1",
+          "implementerModel": "claude-opus-5-5",
+          "outputSha256": "3698ffe8c175157fd1f29c9e8c746f7a0a07a95ef4a7034496d0dff7ac649f30",
+          "verdict": "APPROVE-WITH-NOTES"
+        },
+        "merge": {
+          "path": "evidence/p2ce3-merge-20261016.json",
+          "pr": 2155,
+          "head": "b0077efae37a69e555a1b39062fd8438a2ce9a38",
+          "mergeSha": "285e710d6316bb212c23b3f7275c547132cab245"
+        },
+        "mainProof": {
+          "path": "evidence/p2ce3-mainproof-20261016.json",
+          "mergeCommit": "285e710d6316bb212c23b3f7275c547132cab245",
+          "verdict": "PASS",
+          "runtime": "Source/Main Jest: Tests:       174 passed, 174 total"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -12840,6 +12869,44 @@
         "commentId": 6209504917,
         "author": "SwiggitySwerve",
         "bodySha256": "98f5b94ce953243cd900038c2b318bd4ef9b19180f2b5d00394124ee34b5f1a0"
+      }
+    },
+    {
+      "id": "PK-p2ce3-ruling",
+      "blocks": [
+        "P2CE3"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "After independent exact-head Fable review and required green CI, should the owner rule the bounded P2CE3 receipt-ACK admission, P2CA commit and durable confirmation head before guarded merge?",
+      "options": [
+        {
+          "label": "rule the exact source head",
+          "consequence": "Permit guarded P2CE3 dormant receipt-ACK admission, P2CA commit and confirmation-after-commit merge and exact-main proof only, completing plan Task 12; the client consumer remains Task 13 and production composition of applicationReceipts remains Task 14.",
+          "effort": "One exact-head Fable review, evidence check and owner ruling"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Hold merge until the concrete authority, privacy, replay, idempotency, concurrency or proof objections are fixed and fresh exact-head review, CI and owner ruling are complete.",
+          "effort": "Bounded by the concrete review objections"
+        }
+      ],
+      "agentRecommendation": "Rule only an independently approved green exact head that parses ACKs strictly receipt-first, admits only the live view's in-flight or latest established offer, commits through a fresh verified preparation and P2CA accept with bounded head-drift retry, confirms through the paired broadcaster's sendConfirmed only after the row exists, never confirms stale or refused, stops revoked or removed participants, and leaves server.js unchanged. This proposal grants no approval or merge permission.",
+      "revertCost": "Low: revert the one-product-leaf change before Task 14 composes applicationReceipts; P2CE3 adds no migration, table, wire message type or server activation, and server.js passes no applicationReceipts.",
+      "decision": {
+        "option": "rule the exact source head",
+        "at": "2026-10-16T09:52:19Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2155#issuecomment-6212872642"
+      },
+      "ruling": {
+        "ruledHead": "b0077efae37a69e555a1b39062fd8438a2ce9a38",
+        "pr": 2155,
+        "commentId": 6212872642,
+        "author": "SwiggitySwerve",
+        "bodySha256": "f5ecc01a508d38683104d26cd9879496d886eefc1d7be827a411f7b3609c2d64"
       }
     },
     {

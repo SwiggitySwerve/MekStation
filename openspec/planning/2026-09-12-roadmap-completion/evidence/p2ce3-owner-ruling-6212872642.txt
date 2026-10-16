@@ -1,0 +1,3 @@
+OWNER-RULING b0077efae37a69e555a1b39062fd8438a2ce9a38
+
+The owner authorized this ruling in chat. PR #2155 merged before this ruling was posted. The ruling covers the P2CE3 slice (receipt-ACK admission, P2CA commit and durable confirmation, dormant: server.js unchanged and no applicationReceipts port wired). Round 1 review on b803b5d1 returned REQUEST-CHANGES for blocker B1; the fix on b0077efa was re-reviewed APPROVE-WITH-NOTES by the same independent reviewer, and CI is 31/31. Carry-forwards for Task 13 and Task 14 are recorded in the review.

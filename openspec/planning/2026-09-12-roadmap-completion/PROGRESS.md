@@ -1,3 +1,64 @@
+## 2026-10-16 P2CE3 source verified on main; Task 12 complete; closure metadata proposed
+
+P2CE3 advances from implementing to main-verified for source PR #2155,
+head b0077efae37a69e555a1b39062fd8438a2ce9a38, merge 285e710d6316bb212c23b3f7275c547132cab245.
+Its baseline remains the admission base 842257c0b664138c560ef17f36df40c0c8e220da.
+The owner explicitly authorized this ruling in chat, and it was posted as [comment 6212872642](https://github.com/SwiggitySwerve/MekStation/pull/2155#issuecomment-6212872642);
+its exact UTF-8 body, without an added newline, hashes to f5ecc01a508d38683104d26cd9879496d886eefc1d7be827a411f7b3609c2d64.
+The merge (09:52:16Z) preceded the ruling (09:52:19Z); this record preserves that chronology.
+PK-p2ce3-ruling is first recorded here, after both the merge and the ruling.
+
+With P2CE3 main-verified, plan Task 12 is complete: all three P2CE slices
+(P2CE1 #2147, P2CE2 #2150, P2CE3 #2155) are main-verified, and the plan Task 12
+selector passes at this merge (6 suites, 154 tests).
+
+The admission, red and local receipts came with the source PR and are unchanged.
+The [review receipt](evidence/p2ce3-review-20261016.json) binds both Fable 5.1 review rounds, preserved byte for byte:
+round 1 on b803b5d1 (REQUEST-CHANGES, blocker B1: a written offer was refused during the previous offer's commit)
+and round 2 on the exact merged head (APPROVE-WITH-NOTES, B1 fixed, no blockers or majors; author Opus 5.5).
+The reviewer re-ran the two test leaves (100/100), the registered QA selector (7 suites, 174 tests)
+and the plan Task 12 selector (6 suites, 154 tests) on the final head.
+The author's fix-round stable run (2795 suites, 37114 passed) ran on leaf bytes equal to the committed blobs.
+bindCampaignSyncConnection.ts keeps its pre-existing max-lines warning (2197 physical / 1773 counted lines).
+The reserved p2ce3-admission-review-20261016.md slot stays unwritten.
+
+The review's carry-forward wording, verbatim (round 1 section 8 with the round 2 updates), is recorded under successorNotes in the review receipt:
+
+- Task 13 (client): "The client MUST NOT wait for a confirmation of a rebaseline ACK. When the stored `campaign_public_applied_view` row already covers the new baseline's cut (returning member, or rejoin after `campaign-application-confirmation-failed`), P2CA returns `stale` and the server sends nothing. Absence of a confirmation after a rebaseline means covered, never pending."
+- Task 13 (client): "Confirmations are cumulative and at-least-once per committed receipt, not one per ACK. An ACK superseded in the single early-ACK slot by a later exact ACK of the same view receives neither a confirmation nor a refusal, and two racing ACKs of one receipt may produce one confirmation. A confirmation naming receipt R covers every earlier receipt of the same `viewId`."
+- Task 13 (client): "`campaign-application-head-drift` leaves the view live and commits nothing; the client MUST re-send the same ACK (or ACK the next offer) to retry. `unknown-receipt`, `not-offered`, `receipt-required` and `current-authority` MUST NOT be retried with the same frame; rejoin for a fresh view."
+- Task 13 (client): "ACKs MUST be sent in receipt order on one connection; the server's slot and commit ordering assume it."
+- Task 13 (client, optional, round 2): "While a connection's view is live, every offer whose bytes the client has received is admissible: the offer in flight (until its write and the previous offer's commit settle) or the latest established offer. A `campaign-application-unknown-receipt` refusal therefore means the view changed (rejoin, supersession, or an altered or foreign receipt), never a server-side timing race; the client MUST treat it as a rejoin signal, not a retry signal."
+- Task 14 hard composition precondition (C1, convergence gate, unchanged): "Task 14 MUST NOT compose `applicationReceipts` into `bindCampaignSyncConnection` until the launch/readiness doors read `campaign_public_applied_view` rows for convergence; receipt-mode participants are not retained by `CampaignSyncSession` and the legacy numeric gate cannot see them."
+- Task 14 hard composition precondition (C2/N3, same-connection seat read, now guarding two sites): "`ICampaignApplicationReceiptPort.database()` MUST return the same better-sqlite3 connection `getSQLiteService().getDatabase()` returns, or the participant store must gain a handle-taking seat read that P2CE3's `preparePublicCut` and `readCurrentContext` both use. Two seat reads now run on the singleton inside transactions on the port's handle (the capture in `preparePublicCut` and P2CA's `accept`); the same-cut and same-context guarantees depend on them being one connection."
+- Task 14 hard composition precondition (N4, branch backfill, unchanged): "Every campaign served in receipt mode MUST have its effective-head branch backfilled before `applicationReceipts` is composed; otherwise joins fail closed with `campaign-application-unavailable`."
+- Task 14 (refusal frames are not write-checked): "Typed refusals (`INVALID_INTENT campaign-application-*`) go through the legacy `send`, which swallows socket errors; a lost refusal is indistinguishable from a commit still in progress. Before composition either route refusals through `sendConfirmed` (closing on failure) or require the Task 13 client to bound its wait and rejoin."
+- Task 14 (binder size, round 2 wording): "`bindCampaignSyncConnection.ts` is 2197 physical / 1773 counted lines (max-lines 400 warning). Register the move-only extraction of `CampaignApplicationConnection`, `preparePublicCut`, `IApplicationView` and `ICampaignApplicationReceiptPort` into `src/lib/multiplayer/server/campaignApplicationConnection.ts` (P2CE2 `successorNotes.afterP2CE3`) and land it before Task 14 touches the binder again."
+- Task 14 (performance, P2CE2 C3, unchanged): "measure `preparePublicCut` per commit with N views before composition; P2CE3 runs it once more per ACK attempt."
+- Follow-up (CI flake, round 2 section 7): "`ThreeContextPrivacyEvidence.test.ts`: journal revisions are asserted absent as bare decimal substrings (`71001`, `71003`, `72011`, `72012`) over a blob that contains random 32-hex ids (`opaqueRef`, `deliveryEpochId`). A random id containing one of those digit runs fails the suite (CI run 38874217230, PR #2155, about 2e-4 per run). Fix: assert revision absence structurally (walk the parsed history page, timeline and export and require no number or numeric string equal to a forbidden revision), or match JSON-delimited tokens (`:71003,`/`:71003}`/`"71003"`) instead of raw substrings; keep substring scans for the marker strings and `RAW_FIELD_NAMES`. Confirm with the forced-tail setup hook from the P2CE3 ci-flake attempt (`force-710036.setup.js`) that the fixed test passes with the colliding tail and still fails if a real `committedLastRevision` is injected."
+
+The CI flake is pre-existing and unrelated to P2CE3. The suite forbids bare revision
+substrings such as 71003 in output that contains a random 16-byte hex opaqueRef, so about
+1-2 runs in 10,000 fail. It failed one shard on b803b5d1. The fix needs its own registered
+scope that matches revisions as JSON-delimited tokens; nothing is registered or changed here.
+The binder extraction (P2CE2 successorNotes.afterP2CE3) is now due, and it must land before any further binder work.
+P2CE2's other successorNotes stay in force and are not restated.
+
+All 31 checks on the merged head succeeded. The [merge receipt](evidence/p2ce3-merge-20261016.json)
+binds both ordered parents and the matching integration tree. The [main proof](evidence/p2ce3-mainproof-20261016.json)
+is a fresh run at the merge before any closure edit: the two P2CE3 leaves (100 tests), the registered
+QA selector (seven suites, 174 tests), the plan Task 12 selector (six suites, 154 tests),
+typecheck and the validator passed. It references the attempt logs by hash.
+
+P2CE3 has no task keys. Its tick remains null because source/closure cleanup
+is not established here; no tasks.md row is changed. P2CE3 therefore releases
+its in-flight src/lib/multiplayer/server reservation at main-verified, while
+P2CF, P2C and all other unit states remain unchanged.
+Selection is not downstream admission.
+This closure metadata still requires its own review, CI and parent merge.
+
+---
+
 ## 2026-10-16 P2CE2 source verified on main; closure metadata proposed
 
 P2CE2 advances from implementing to main-verified for source PR #2150,

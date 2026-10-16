@@ -1,0 +1,100 @@
+{
+  "unit": "P2CE3",
+  "stage": "review",
+  "recordedAt": "2026-10-16T10:00:28.000Z",
+  "head": "b0077efae37a69e555a1b39062fd8438a2ce9a38",
+  "reviewedHead": "b0077efae37a69e555a1b39062fd8438a2ce9a38",
+  "reviewerModel": "claude-fable-5-1",
+  "implementerModel": "claude-opus-5-5",
+  "verdict": "APPROVE-WITH-NOTES",
+  "outputPath": "evidence/p2ce3-source-fable-review-r2-20261016.txt",
+  "outputSha256": "3698ffe8c175157fd1f29c9e8c746f7a0a07a95ef4a7034496d0dff7ac649f30",
+  "reviews": [
+    {
+      "round": 1,
+      "path": "evidence/p2ce3-source-fable-review-20261016.txt",
+      "sha256": "a457575514198ff5bbe39cb7dd6317ae6f8d54f94f1bddce686c288d505240a6",
+      "bytes": 28254,
+      "originalPath": "docs/audits/2026-10-16-p2ce3-fable-review.md",
+      "reviewedHead": "b803b5d18987acb52148a5e9681e9f537d5c7a93",
+      "verdict": "REQUEST-CHANGES"
+    },
+    {
+      "round": 2,
+      "path": "evidence/p2ce3-source-fable-review-r2-20261016.txt",
+      "sha256": "3698ffe8c175157fd1f29c9e8c746f7a0a07a95ef4a7034496d0dff7ac649f30",
+      "bytes": 25389,
+      "originalPath": "docs/audits/2026-10-16-p2ce3-fable-review-r2.md",
+      "reviewedHead": "b0077efae37a69e555a1b39062fd8438a2ce9a38",
+      "verdict": "APPROVE-WITH-NOTES"
+    }
+  ],
+  "reviewHistory": "Round 1 on b803b5d1 returned REQUEST-CHANGES for blocker B1: publish cleared view.inFlight before the written offer became view.latest, so an ACK of that offer arriving during the previous offer commit was refused campaign-application-unknown-receipt and never committed. The author fix b0077efa keeps the candidate in flight until it is established and registers a PROBE-A-shaped reconnect case. Round 2, by the same independent reviewer on b0077efa, found B1 fixed with no blockers or majors.",
+  "reviewReruns": "Round 1 on b803b5d1 under Node v22.22.0: the two P2CE3 test leaves (99/99), the registered QA selector (7 suites, 173/173), the plan Task 12 selector (6 suites, 153/153), typecheck, lint (0 errors), format:check, the validator, --next (U25) and the validator tests (86/86), plus seven adversarial scenarios (A-G; PROBE-A reproduced B1). Round 2 on b0077efa in throwaway worktrees: the leaves (100/100), the QA selector (7 suites, 174/174), the plan Task 12 selector (6 suites, 154/154), typecheck, lint, format:check, the validator, --next (U25), the validator tests (86/86), RED against the reviewed-head binder (1/99/100) and the base binder (16/84/100), mutations M27/M28 (killed) and M29/M10 (survived, equivalent), and eleven probes (A-K) of which all six round-1 probes now pass. The full stable suite was not re-run in either round.",
+  "stableSuiteNote": "The author fix-round stable run (2795/2795 suites, 37114 passed, 50 skipped, 941 s, exit 0) started 2026-10-16T09:15:50Z and ended 09:31:33Z, before commit b0077efa was created at 09:31:46Z (03:31:46-06:00). Its pre-stable-hashes.txt and green-hashes.txt equal the committed b0077efa blobs of the three leaves and the local and red receipts, re-checked by this closure with git show, so that run covers the committed bytes.",
+  "ownerFileNote": "bindCampaignSyncConnection.ts carries the pre-existing max-lines warning (2197 physical / 1773 counted lines at head, soft max 400). It is not introduced by this slice; the move-only extraction needs its own registration before further binder work (successorNotes.Task14 binder size).",
+  "successorNotes": {
+    "Task13": [
+      "The client MUST NOT wait for a confirmation of a rebaseline ACK. When the stored `campaign_public_applied_view` row already covers the new baseline's cut (returning member, or rejoin after `campaign-application-confirmation-failed`), P2CA returns `stale` and the server sends nothing. Absence of a confirmation after a rebaseline means covered, never pending.",
+      "Confirmations are cumulative and at-least-once per committed receipt, not one per ACK. An ACK superseded in the single early-ACK slot by a later exact ACK of the same view receives neither a confirmation nor a refusal, and two racing ACKs of one receipt may produce one confirmation. A confirmation naming receipt R covers every earlier receipt of the same `viewId`.",
+      "`campaign-application-head-drift` leaves the view live and commits nothing; the client MUST re-send the same ACK (or ACK the next offer) to retry. `unknown-receipt`, `not-offered`, `receipt-required` and `current-authority` MUST NOT be retried with the same frame; rejoin for a fresh view.",
+      "ACKs MUST be sent in receipt order on one connection; the server's slot and commit ordering assume it."
+    ],
+    "Task13Optional": [
+      "While a connection's view is live, every offer whose bytes the client has received is admissible: the offer in flight (until its write and the previous offer's commit settle) or the latest established offer. A `campaign-application-unknown-receipt` refusal therefore means the view changed (rejoin, supersession, or an altered or foreign receipt), never a server-side timing race; the client MUST treat it as a rejoin signal, not a retry signal."
+    ],
+    "Task14": {
+      "hardCompositionPreconditions": [
+        {
+          "concern": "C1 convergence-gate blindness of receipt-mode participants (unchanged)",
+          "wording": "Task 14 MUST NOT compose `applicationReceipts` into `bindCampaignSyncConnection` until the launch/readiness doors read `campaign_public_applied_view` rows for convergence; receipt-mode participants are not retained by `CampaignSyncSession` and the legacy numeric gate cannot see them."
+        },
+        {
+          "concern": "C2 / N3 same-connection seat read (updated: now guards two sites)",
+          "wording": "`ICampaignApplicationReceiptPort.database()` MUST return the same better-sqlite3 connection `getSQLiteService().getDatabase()` returns, or the participant store must gain a handle-taking seat read that P2CE3's `preparePublicCut` and `readCurrentContext` both use. Two seat reads now run on the singleton inside transactions on the port's handle (the capture in `preparePublicCut` and P2CA's `accept`); the same-cut and same-context guarantees depend on them being one connection."
+        },
+        {
+          "concern": "N4 effective-head branch backfill (unchanged)",
+          "wording": "Every campaign served in receipt mode MUST have its effective-head branch backfilled before `applicationReceipts` is composed; otherwise joins fail closed with `campaign-application-unavailable`."
+        },
+        {
+          "concern": "Refusal frames are not write-checked",
+          "wording": "Typed refusals (`INVALID_INTENT campaign-application-*`) go through the legacy `send`, which swallows socket errors; a lost refusal is indistinguishable from a commit still in progress. Before composition either route refusals through `sendConfirmed` (closing on failure) or require the Task 13 client to bound its wait and rejoin."
+        },
+        {
+          "concern": "Binder size (round 2 replacement wording)",
+          "wording": "`bindCampaignSyncConnection.ts` is 2197 physical / 1773 counted lines (max-lines 400 warning). Register the move-only extraction of `CampaignApplicationConnection`, `preparePublicCut`, `IApplicationView` and `ICampaignApplicationReceiptPort` into `src/lib/multiplayer/server/campaignApplicationConnection.ts` (P2CE2 `successorNotes.afterP2CE3`) and land it before Task 14 touches the binder again."
+        }
+      ],
+      "beforeProductionComposition": [
+        "Performance (P2CE2 C3, unchanged): measure `preparePublicCut` per commit with N views before composition; P2CE3 runs it once more per ACK attempt."
+      ]
+    },
+    "followUps": [
+      {
+        "concern": "CI flake: ThreeContextPrivacyEvidence random-collision (review round 2 section 7, N12)",
+        "wording": "`ThreeContextPrivacyEvidence.test.ts`: journal revisions are asserted absent as bare decimal substrings (`71001`, `71003`, `72011`, `72012`) over a blob that contains random 32-hex ids (`opaqueRef`, `deliveryEpochId`). A random id containing one of those digit runs fails the suite (CI run 38874217230, PR #2155, about 2e-4 per run). Fix: assert revision absence structurally (walk the parsed history page, timeline and export and require no number or numeric string equal to a forbidden revision), or match JSON-delimited tokens (`:71003,`/`:71003}`/`\"71003\"`) instead of raw substrings; keep substring scans for the marker strings and `RAW_FIELD_NAMES`. Confirm with the forced-tail setup hook from the P2CE3 ci-flake attempt (`force-710036.setup.js`) that the fixed test passes with the colliding tail and still fails if a real `committedLastRevision` is injected.",
+        "note": "Pre-existing and independent of P2CE3: the suite forbids bare revision substrings such as 71003 in output that contains a random 16-byte hex opaqueRef (and deliveryEpochId), so roughly 1-2 runs in 10,000 fail (author analytic 1.07e-4 and Monte Carlo 1.16e-4 for one random hex, 2.16e-4 for two; reviewer about 2e-4). It failed Unit Tests (1/6) on b803b5d1 (run 38874217230, opaqueRef 3bfa84e81e8a6d2cde4ea5788c710036); the final head b0077efa is 31/31 green. The fix needs its own registered scope that matches revisions as JSON-delimited tokens (or structurally); it is outside P2CE3 and is not registered or changed here."
+      }
+    ],
+    "note": "Each entry is the reviewer's exact carry-forward wording: round 1 section 8 with the round 2 section 8 updates (binder size replaced; optional Task 13 item 5 added; Task 13 items 1-4 and Task 14 items 1-4 and 6 unchanged, C2/N3 keeping the two-site wording) and the round 2 section 7 follow-up ticket. P2CE2's successorNotes (Task13 C5, readmissionFlow, afterP2CE3) stay in force in evidence/p2ce2-review-20261016.json and are not restated; its afterP2CE3 extraction becomes due with this closure. No successor unit is edited; these notes are carried here and in PROGRESS.md for Task 13, Task 14 and the extraction unit to honour at their own admission."
+  },
+  "reviewNotes": "B1 (round 1 blocker) is fixed on b0077efa and pinned by a registered test. Minors M1 (cumulative, at-least-once confirmations), M2 (drift exhaustion relies on a client re-ACK), M3 (silent stale rebaseline after confirmation-failed) and M4 (two singleton seat-read sites) are wording-only for Task 13/14. Notes N5-N12 are informational (N8 partially addressed; N12 is the CI flake follow-up). No blockers or majors on the final head.",
+  "reservedSlot": "evidence/p2ce3-admission-review-20261016.md stays unwritten. The reviewer did not write it, and this closure preserves both review rounds byte for byte at their paths instead of authoring reviewer text.",
+  "ciQualification": "All 31 check runs on the merged head succeeded (run 38881139855). The earlier head b803b5d1 had one failed shard (run 38874217230) from the pre-existing ThreeContextPrivacyEvidence flake recorded under successorNotes.followUps.",
+  "laneB": {
+    "ruledHead": "b0077efae37a69e555a1b39062fd8438a2ce9a38",
+    "pr": 2155,
+    "commentId": 6212872642,
+    "author": "SwiggitySwerve",
+    "bodySha256": "f5ecc01a508d38683104d26cd9879496d886eefc1d7be827a411f7b3609c2d64",
+    "at": "2026-10-16T09:52:19Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2155#issuecomment-6212872642",
+    "bodyPath": "evidence/p2ce3-owner-ruling-6212872642.txt"
+  },
+  "ownerRulingNote": "The ruling body names the exact merged head and the P2CE3 slice, records the round 1 REQUEST-CHANGES for B1 and the round 2 APPROVE-WITH-NOTES by the same independent reviewer, CI 31/31, and points to the review for the Task 13 and Task 14 carry-forwards. The owner authorized the ruling in chat; it is transcribed verbatim.",
+  "chronology": "The owner ruling was recorded after the source merge, as the ruling body acknowledges. This transcription does not claim a premerge ruling.",
+  "identityScope": "Preserves the existing unversioned P2CE3 evidence and the actual cross-model review provenance. No v2/v3 identity manifest or engine observation is claimed.",
+  "githubApproval": "Lane A engineering evidence only; no GitHub approval claimed.",
+  "task12": "With P2CE3 main-verified, all three P2CE slices of plan Task 12 (P2CE1 #2147, P2CE2 #2150, P2CE3 #2155) are main-verified, and the plan Task 12 selector passes at this merge (6 suites, 154/154). No tasks.md row is ticked here."
+}
