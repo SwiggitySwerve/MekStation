@@ -5731,7 +5731,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
+      "state": "blocked",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -5753,7 +5753,180 @@
       "successors": [
         "P2CF",
         "P2C"
-      ]
+      ],
+      "superseded20261016": {
+        "at": "2026-10-16T02:29:57.000Z",
+        "by": "P2CE1, P2CE2, P2CE3",
+        "note": "Retained as the truthful record of the measured P2CE implementation, following P1B and U24. Its complete Task 12 behavior and every required scenario are delivered and proved by all three successors; no P2CE completion receipts are fabricated.",
+        "evidence": "evidence/p2ce-split-registration-20261016.json"
+      },
+      "blocked20261016": {
+        "cause": "The complete working candidate on the frozen P2CE scope measures 717 counted product-added lines (bindCampaignSyncConnection.ts 600, ServerMatchBroadcaster.ts 80, handleRoomCodeGuestJoin.ts 37; 7 of 15 files) against the unchanged 500-line cap. No required scenario may be dropped, and a two-way split (send owner plus offers, about 515 before lifecycle lines) does not fit either.",
+        "nextIndependentAction": "Admit P2CE1; release P2CE2 and then P2CE3 after each exact-main predecessor. P2CE itself is not re-admitted."
+      }
+    },
+    {
+      "id": "P2CE1",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "First narrower P2CE successor: the result-aware send owner. ServerMatchBroadcaster gains a callback socket type and sendConfirmed(socket, frame, signal): open check, the existing admitForSend bound exactly once, serialize, then the real write callback. A synchronous return is never success, a throw after an early callback wins, an abort settles as cancelled and ignores a late callback, and the result settles exactly once. Legacy broadcast and safeSend are unchanged. The campaign binder keeps the lifecycle's own broadcaster beside it, so later receipt sends share its backpressure and behind state, and its wire socket type extends the callback socket. No offer, hydration, ACK or commit behavior. Planned leaves (3): src/lib/multiplayer/server/ServerMatchBroadcaster.ts, src/lib/multiplayer/server/bindCampaignSyncConnection.ts and src/lib/multiplayer/server/__tests__/ServerMatchBroadcaster.test.ts. The preserved candidate slice measures about 103 counted product lines; that is not a cap-fit proof.",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "splitFrom": "P2CE",
+      "admissionRequires": "Narrower ordinary-cap successor of P2CE (plan Task 12), registered by evidence/p2ce-split-registration-20261016.json. Predecessors P2CB and P2CD are the ones P2CE was released on (main-verified on main a2280c40f); the parent re-verifies them before admission. The preserved P2CE candidate (hashes in the registration receipt) may be reused for this slice's leaves only; this slice still runs its own red-first proof and measured admission. Task8 must first complete independent exact-head docs review, current required CI, guarded merge and independent exact-main registration proof. Parent verifies documentary predecessors complete with genuine exact-main mainProof PASS, ancestry and closure on fetched main and no actual overlap before every source admission. NEXT selection supplies no permission. Prospective assignment only; source permission remains non-effective until normal finite admission freezes the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measures actual unique files and product/test additions under unchanged 15-file/500-product-added-line limits. Named source/test lists and known lower bounds are in R2.authority-live.ownershipPathsAmended20261009P2C.restrictions for this ID. No unnamed test, directory-wide grant, placeholder/hash, capException or cap inflation. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze of actual bytes/names/hashes and full census. If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required scenario.",
+      "predecessors": [
+        "P2CB",
+        "P2CD"
+      ],
+      "successors": [
+        "P2CE2",
+        "P2C"
+      ],
+      "source20261016": {
+        "at": "2026-10-16T02:29:57.000Z",
+        "reason": "P2CE stopped at admission-by-cap before any commit: its complete candidate measures 717 counted product lines against 500. This slice holds the result-aware send owner.",
+        "evidence": "evidence/p2ce-split-registration-20261016.json",
+        "planTask": "12"
+      }
+    },
+    {
+      "id": "P2CE2",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Second narrower P2CE successor: socket offers and same-cut public hydration, dormant until composed. Offers are issued only when the binder is composed with both durable membership and a new applicationReceipts port (the P2CA owner's campaign database); otherwise the connection stays legacy, and server.js is not changed here. Each admitted socket gets one application view bound to its socket, verified principal, campaign, session and prepared authority and lineage; a rejoin mints a new view id. GM, returning member and room-code newcomer hydrate uniformly from one same-cut viewer-safe public bundle: one read transaction captures head, generation, branch path and seat; the path is materialized outside SQL and checked against the head digest; projection uses projectCampaignForViewer with campaignScopeAdmits; hydrationFacts come from selectCampaignMissionLaunches; the grant replica stays internal. Deltas are each newly visible event after the last offered cut, linked to the latest established offer; hidden events produce no frame or offer. Only a confirmed write (P2CE1 sendConfirmed) establishes an offer; a failed, closed or backpressured write establishes nothing and closes for rejoin, removal and authority change also end the view, and healthy recipients keep receiving. The latest cumulative offer lives in existing connection bookkeeping: no durable sent cache, timer or queue. No receipt-ACK admission, P2CA commit or confirmation. Planned leaves (4): src/lib/multiplayer/server/bindCampaignSyncConnection.ts, src/lib/multiplayer/server/handleRoomCodeGuestJoin.ts, src/lib/multiplayer/server/__tests__/handleRoomCodeGuestJoin.test.ts and src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts. The preserved candidate slice measures about 412 counted product lines; that is not a cap-fit proof.",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "splitFrom": "P2CE",
+      "admissionRequires": "Narrower ordinary-cap successor of P2CE (plan Task 12), registered by evidence/p2ce-split-registration-20261016.json. P2CE1 must be complete with a genuine exact-main mainProof PASS before the parent releases this unit to planned; NEXT does not enforce these unit dependencies. The preserved P2CE candidate (hashes in the registration receipt) may be reused for this slice's leaves only; this slice still runs its own red-first proof and measured admission. Task8 must first complete independent exact-head docs review, current required CI, guarded merge and independent exact-main registration proof. Parent verifies documentary predecessors complete with genuine exact-main mainProof PASS, ancestry and closure on fetched main and no actual overlap before every source admission. NEXT selection supplies no permission. Prospective assignment only; source permission remains non-effective until normal finite admission freezes the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measures actual unique files and product/test additions under unchanged 15-file/500-product-added-line limits. Named source/test lists and known lower bounds are in R2.authority-live.ownershipPathsAmended20261009P2C.restrictions for this ID. No unnamed test, directory-wide grant, placeholder/hash, capException or cap inflation. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze of actual bytes/names/hashes and full census. If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required scenario.",
+      "predecessors": [
+        "P2CE1"
+      ],
+      "successors": [
+        "P2CE3",
+        "P2C"
+      ],
+      "source20261016": {
+        "at": "2026-10-16T02:29:57.000Z",
+        "reason": "P2CE stopped at admission-by-cap before any commit: its complete candidate measures 717 counted product lines against 500. This slice holds the offer, same-cut hydration and delivery clauses.",
+        "evidence": "evidence/p2ce-split-registration-20261016.json",
+        "planTask": "12"
+      }
+    },
+    {
+      "id": "P2CE3",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Third narrower P2CE successor: receipt-ACK admission and durable confirmation. Client ACKs parse through CampaignApplicationClientMessageSchema, strict receipt ACK first and legacy second; a mixed or malformed ACK is refused. An ACK naming the in-flight offer waits in one exact early-ACK slot until its write settles; an ACK naming the latest established offer commits; an unknown, unissued, superseded, other-socket, other-principal, other-session or altered receipt gets a typed refusal with no commit or confirmation. A numeric ACK on a receipt connection and a receipt ACK on a non-receipt connection are refused; the metadata-absent numeric ACK on a legacy connection is kept. The commit runs a fresh verified preparation outside SQL, then P2CA CampaignPublicAppliedViewStore.accept, resolving only this view's latest offer and reading current membership, removal and head on the handle; head drift retries with a fresh preparation a bounded number of times, then refuses. accepted and duplicate send the exact confirmation through sendConfirmed after the row exists, so a duplicate accepted ACK is idempotent; stale and refused never confirm; a revoked seat or removed participant gets no credit and is stopped; a failed confirmation write keeps the row and closes for recovery. Completes Task 12 under its full QA selectors. Planned leaves (3): src/lib/multiplayer/server/bindCampaignSyncConnection.ts, src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts and src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts. The preserved candidate slice measures about 202 counted product lines; that is not a cap-fit proof.",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "splitFrom": "P2CE",
+      "admissionRequires": "Narrower ordinary-cap successor of P2CE (plan Task 12), registered by evidence/p2ce-split-registration-20261016.json. P2CE2 must be complete with a genuine exact-main mainProof PASS before the parent releases this unit to planned; NEXT does not enforce these unit dependencies. The preserved P2CE candidate (hashes in the registration receipt) may be reused for this slice's leaves only; this slice still runs its own red-first proof and measured admission. Task8 must first complete independent exact-head docs review, current required CI, guarded merge and independent exact-main registration proof. Parent verifies documentary predecessors complete with genuine exact-main mainProof PASS, ancestry and closure on fetched main and no actual overlap before every source admission. NEXT selection supplies no permission. Prospective assignment only; source permission remains non-effective until normal finite admission freezes the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measures actual unique files and product/test additions under unchanged 15-file/500-product-added-line limits. Named source/test lists and known lower bounds are in R2.authority-live.ownershipPathsAmended20261009P2C.restrictions for this ID. No unnamed test, directory-wide grant, placeholder/hash, capException or cap inflation. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze of actual bytes/names/hashes and full census. If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required scenario.",
+      "predecessors": [
+        "P2CE2"
+      ],
+      "successors": [
+        "P2CF",
+        "P2C"
+      ],
+      "source20261016": {
+        "at": "2026-10-16T02:29:57.000Z",
+        "reason": "P2CE stopped at admission-by-cap before any commit: its complete candidate measures 717 counted product lines against 500. This slice holds the receipt-ACK admission, durable commit and confirmation clauses.",
+        "evidence": "evidence/p2ce-split-registration-20261016.json",
+        "planTask": "12"
+      }
     },
     {
       "id": "P2CF",
@@ -5796,12 +5969,19 @@
       "ownerGate": null,
       "admissionRequires": "Task8 must first complete independent exact-head docs review, current required CI, guarded merge and independent exact-main registration proof. Parent verifies documentary predecessors complete with genuine exact-main mainProof PASS, ancestry and closure on fetched main and no actual overlap before every source admission. NEXT selection supplies no permission. Prospective assignment only; source permission remains non-effective until normal finite admission freezes the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measures actual unique files and product/test additions under unchanged 15-file/500-product-added-line limits. Named source/test lists and known lower bounds are in R2.authority-live.ownershipPathsAmended20261009P2C.restrictions for this ID. No unnamed test, directory-wide grant, placeholder/hash, capException or cap inflation. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze of actual bytes/names/hashes and full census. If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required scenario.",
       "predecessors": [
-        "P2CE"
+        "P2CE1",
+        "P2CE2",
+        "P2CE3"
       ],
       "successors": [
         "P2CG1",
         "P2C"
-      ]
+      ],
+      "amended20261016": {
+        "at": "2026-10-16T02:29:57.000Z",
+        "change": "predecessor P2CE replaced by P2CE1, P2CE2 and P2CE3",
+        "note": "P2CE is superseded by P2CE1/P2CE2/P2CE3 (evidence/p2ce-split-registration-20261016.json); its absence of a mainProof is not bypassed or falsified."
+      }
     },
     {
       "id": "P2CG1",
@@ -5983,18 +6163,25 @@
         "tick": null
       },
       "ownerGate": null,
-      "admissionRequires": "Task8 must first complete independent exact-head docs review, current required CI, guarded merge and independent exact-main registration proof. All eight source slices require genuine complete/PASS/ancestry/closure; original P2/U38 remain blocked until Task17 full semantic qualification and explicit original-prerequisite readmission. NEXT selection supplies no permission. No aggregate output beyond the two named documentary leaves is effective before Task17/G-OWN freeze.",
+      "admissionRequires": "Task8 must first complete independent exact-head docs review, current required CI, guarded merge and independent exact-main registration proof. All ten source slices require genuine complete/PASS/ancestry/closure; original P2/U38 remain blocked until Task17 full semantic qualification and explicit original-prerequisite readmission. NEXT selection supplies no permission. No aggregate output beyond the two named documentary leaves is effective before Task17/G-OWN freeze.",
       "predecessors": [
         "P2CA",
         "P2CB",
         "P2CD",
-        "P2CE",
+        "P2CE1",
+        "P2CE2",
+        "P2CE3",
         "P2CF",
         "P2CG1",
         "P2CG2",
         "P2CH"
       ],
-      "successors": []
+      "successors": [],
+      "amended20261016": {
+        "at": "2026-10-16T02:29:57.000Z",
+        "change": "predecessor P2CE replaced by P2CE1, P2CE2 and P2CE3",
+        "note": "P2CE is superseded by P2CE1/P2CE2/P2CE3 (evidence/p2ce-split-registration-20261016.json); its absence of a mainProof is not bypassed or falsified."
+      }
     },
     {
       "id": "P2",
