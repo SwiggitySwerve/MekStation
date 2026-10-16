@@ -2708,9 +2708,9 @@
     {
       "id": "R2.authority-live",
       "ownershipPathsAmended20261009P2C": {
-        "unit": "P2CA/P2CB/P2CD/P2CE/P2CE1/P2CE2/P2CE3/P2CF/P2CG1/P2CG2/P2CH",
+        "unit": "P2CA/P2CB/P2CD/P2CE/P2CE1/P2CE2/P2CE3/P2CF/P2CF1/P2CF2/P2CG1/P2CG2/P2CH",
         "planTask": 8,
-        "evidence": "evidence/p2ce-split-registration-20261016.json",
+        "evidence": "evidence/p2cf-split-registration-20261016.json",
         "paths": [
           "src/services/persistence",
           "src/lib/p2p/campaignMirrorStore.ts",
@@ -2802,6 +2802,23 @@
             "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
             "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx",
             "src/lib/campaign/coop/campaignAuthoritativeFold.ts"
+          ],
+          "P2CF1": [
+            "src/lib/campaign/coop/campaignAuthoritativeFold.ts",
+            "src/lib/campaign/coop/campaignSyncTransport.ts",
+            "src/lib/p2p/campaignMirrorStore.ts",
+            "src/lib/campaign/coop/__tests__/campaignAuthoritativeFold.test.ts",
+            "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+            "src/lib/p2p/__tests__/campaignMirrorStore.test.ts"
+          ],
+          "P2CF2": [
+            "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+            "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+            "src/stores/campaign/useCampaignPersistenceStore.ts",
+            "src/stores/campaign/campaignUnitMaxStates.ts",
+            "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+            "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx",
+            "src/stores/campaign/__tests__/campaignCommandAckRefresh.test.ts"
           ]
         },
         "knownSourceTestLifecycleSubtotals": {
@@ -2813,6 +2830,8 @@
           "P2CE2": 5,
           "P2CE3": 4,
           "P2CF": 5,
+          "P2CF1": 7,
+          "P2CF2": 8,
           "P2CG1": 11,
           "P2CG2": 7,
           "P2CH": 5

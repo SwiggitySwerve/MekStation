@@ -6064,7 +6064,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
+      "state": "blocked",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -6092,6 +6092,129 @@
         "at": "2026-10-16T02:29:57.000Z",
         "change": "predecessor P2CE replaced by P2CE1, P2CE2 and P2CE3",
         "note": "P2CE is superseded by P2CE1/P2CE2/P2CE3 (evidence/p2ce-split-registration-20261016.json); its absence of a mainProof is not bypassed or falsified."
+      },
+      "superseded20261016": {
+        "at": "2026-10-16T10:43:39.000Z",
+        "by": "P2CF1, P2CF2",
+        "note": "Retained as the truthful record of the stopped P2CF admission, following P2CE, P1B and U24. Its complete Task 13 behavior and every required scenario are delivered and proved by both successors; no P2CF completion receipts are fabricated.",
+        "evidence": "evidence/p2cf-split-registration-20261016.json"
+      },
+      "blocked20261016": {
+        "cause": "Full Task 13 needs 11 source/test leaves. The registered P2CF restriction names 4, and 5 of the other 7 lie outside its ownershipPaths. With units.json and the admission, red and local receipts the package is 15 files before the reserved admission-review slot, and 16-17 with that slot or a same-package roadmap.json amendment, against the unchanged 15-file cap. No required scenario may be dropped.",
+        "nextIndependentAction": "Admit P2CF1; release P2CF2 after P2CF1 is complete with an exact-main mainProof PASS. P2CF itself is not re-admitted."
+      }
+    },
+    {
+      "id": "P2CF1",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "First narrower P2CF successor: the client application building blocks, dormant until P2CF2 mounts them. The fold owner campaignAuthoritativeFold.ts stays the one nullable adoption owner for GM and guest and gains one readonly mission-launch adjunct value carried with the fold. A hydration bundle is validated synchronously through CAMPAIGN_BASELINE_SCHEMA_PACK before adoption: an explicit empty bundle is accepted, and an invalid or conflicting bundle is refused and keeps the prior fold. An authorized replacement baseline starts from EMPTY and never from the held lineage, so a reconnect cannot adopt at zero against stale held proof. campaignMirrorStore installs the accepted state, lastSequence and launch facts atomically in one set, keeps the facts across later events, and does not reset before replacement validation. On a receipt-mode connection campaignSyncTransport handles the typed application refusals: on campaign-application-head-drift it re-sends the identical last ACK while that ACK is still the latest sent and unconfirmed (a newer ready offer is ACKed instead); unknown-receipt, not-offered, receipt-required and current-authority are never retried with the same frame and end the view as recovery-required so the consumer rejoins. Legacy connections are unchanged, and the lastSeq omission on an expectedCampaignId-bound join stays as P2CD shipped it. No component, persistence-store or maxima change. Planned leaves (6): src/lib/campaign/coop/campaignAuthoritativeFold.ts, src/lib/campaign/coop/campaignSyncTransport.ts, src/lib/p2p/campaignMirrorStore.ts, src/lib/campaign/coop/__tests__/campaignAuthoritativeFold.test.ts (new), src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts and src/lib/p2p/__tests__/campaignMirrorStore.test.ts. Estimated from the read code at about 105-175 counted product lines; no candidate exists, so that is not a cap-fit proof.",
+      "ownershipPaths": [
+        "src/lib/campaign",
+        "src/lib/p2p/campaignMirrorStore.ts",
+        "src/lib/p2p/__tests__/campaignMirrorStore.test.ts"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "splitFrom": "P2CF",
+      "admissionRequires": "Narrower ordinary-cap successor of P2CF (plan Task 13), registered by evidence/p2cf-split-registration-20261016.json. Predecessors P2CE1, P2CE2 and P2CE3 are the ones P2CF was released on (main-verified; P2CE3 closure #2156 and the P2CF release #2157 on main db24bd9fd); the parent re-verifies them before admission. No preserved P2CF source candidate exists; this slice runs its own red-first proof and measured admission. Task8 must first complete independent exact-head docs review, current required CI, guarded merge and independent exact-main registration proof. Parent verifies documentary predecessors complete with genuine exact-main mainProof PASS, ancestry and closure on fetched main and no actual overlap before every source admission. NEXT selection supplies no permission. Prospective assignment only; source permission remains non-effective until normal finite admission freezes the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measures actual unique files and product/test additions under unchanged 15-file/500-product-added-line limits. Named source/test lists and known lower bounds are in R2.authority-live.ownershipPathsAmended20261009P2C.restrictions for this ID. No unnamed test, directory-wide grant, placeholder/hash, capException or cap inflation. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze of actual bytes/names/hashes and full census. If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required scenario.",
+      "predecessors": [
+        "P2CE1",
+        "P2CE2",
+        "P2CE3"
+      ],
+      "successors": [
+        "P2CF2",
+        "P2C"
+      ],
+      "source20261016": {
+        "at": "2026-10-16T10:43:39.000Z",
+        "reason": "P2CF stopped at admission before any edit: full Task 13 needs 11 source/test leaves, 7 of them outside the registered P2CF restriction, and 16-17 files with lifecycle, receipts and the reserved review slot against the 15-file cap. This slice holds the fold, mirror and transport building blocks.",
+        "evidence": "evidence/p2cf-split-registration-20261016.json",
+        "planTask": "13"
+      }
+    },
+    {
+      "id": "P2CF2",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Second narrower P2CF successor: mounted GM and guest application before exact acknowledgment, with the guarded saved-record refresh. A new sibling hook useCampaignApplicationConsumer.ts holds the per-binding serial consumer, so the component stays under the max-lines warning. For each transport-issued offer, in receipt order: GM fold plus store projection, or guest accepted mirror plus store projection; required launch-adjunct retention; the awaited guarded saved-record refresh and reprojection of the held fold; then exactly one confirmApplied(offer, outcome). A null, throwing, rejected, duplicate, superseded or foreign application, a projection exception, a failed adjunct or a failed or stale refresh reports a failure outcome and gives no receipt. Cleanup invalidates the binding before any rebind, and the fold resets per binding, closing the documented reconnect-at-zero residual. useCampaignPersistenceStore gains an optional refresh context, checked before the queued start and before every post-await mutation (live record, roster, cache key, baseVersion, sourceReplayFence, status and error); once invalidated it does not re-arm autosave, and ordinary callers are unchanged. campaignUnitMaxStates.ts gains a staged prepare that returns maxima for adoption, so the receipt refresh never calls updateCampaign, never PUTs and never waits on a saveChain cycle; ensureCampaignUnitMaxStates keeps its behavior and its existing test runs unmodified. Error frames whose reason starts with campaign-application- never set or clear lastRefusalCode or lastRefusalAction and never gate GM controls; they go to the consumer, where head-drift is the P2CF1 transport re-send and the others rejoin. Successor notes honoured: no wait for a confirmation after a rebaseline ACK (a covered stale baseline sends nothing); confirmations are cumulative and at-least-once; ACKs in receipt order; retry only on head-drift; unknown-receipt is a rejoin signal. Activation: the receipt path runs only on a transport bound with expectedCampaignId equal to the mounted campaignId and latched into receipt mode by an appliedView frame. No production creator binds it in Task 13 (CampaignCoopEntryPanel, this component and the mission launch page connect without it), so the production join keeps lastSeq and the legacy numeric observation ACK; activation belongs to Task 14 with both authority doors. Completes Task 13 under its full QA selector. Planned leaves (7): src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx, src/components/campaign/coop/useCampaignApplicationConsumer.ts (new), src/stores/campaign/useCampaignPersistenceStore.ts, src/stores/campaign/campaignUnitMaxStates.ts, src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx, src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx and src/stores/campaign/__tests__/campaignCommandAckRefresh.test.ts. Estimated from the read code at about 210-320 counted product lines; no candidate exists, so that is not a cap-fit proof.",
+      "ownershipPaths": [
+        "src/components/campaign/coop",
+        "src/stores/campaign"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "splitFrom": "P2CF",
+      "admissionRequires": "Narrower ordinary-cap successor of P2CF (plan Task 13), registered by evidence/p2cf-split-registration-20261016.json. P2CF1 must be complete with a genuine exact-main mainProof PASS before the parent releases this unit to planned; NEXT does not enforce these unit dependencies. No preserved P2CF source candidate exists; this slice runs its own red-first proof and measured admission. Task8 must first complete independent exact-head docs review, current required CI, guarded merge and independent exact-main registration proof. Parent verifies documentary predecessors complete with genuine exact-main mainProof PASS, ancestry and closure on fetched main and no actual overlap before every source admission. NEXT selection supplies no permission. Prospective assignment only; source permission remains non-effective until normal finite admission freezes the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measures actual unique files and product/test additions under unchanged 15-file/500-product-added-line limits. Named source/test lists and known lower bounds are in R2.authority-live.ownershipPathsAmended20261009P2C.restrictions for this ID. No unnamed test, directory-wide grant, placeholder/hash, capException or cap inflation. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze of actual bytes/names/hashes and full census. If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required scenario.",
+      "predecessors": [
+        "P2CF1"
+      ],
+      "successors": [
+        "P2CG1",
+        "P2C"
+      ],
+      "source20261016": {
+        "at": "2026-10-16T10:43:39.000Z",
+        "reason": "P2CF stopped at admission before any edit: full Task 13 needs 11 source/test leaves, 7 of them outside the registered P2CF restriction, and 16-17 files with lifecycle, receipts and the reserved review slot against the 15-file cap. This slice holds the mounted consumer, the guarded saved-record refresh and the staged maxima.",
+        "evidence": "evidence/p2cf-split-registration-20261016.json",
+        "planTask": "13"
       }
     },
     {
@@ -6137,12 +6260,18 @@
       "ownerGate": null,
       "admissionRequires": "Task8 must first complete independent exact-head docs review, current required CI, guarded merge and independent exact-main registration proof. Parent verifies documentary predecessors complete with genuine exact-main mainProof PASS, ancestry and closure on fetched main and no actual overlap before every source admission. NEXT selection supplies no permission. Prospective assignment only; source permission remains non-effective until normal finite admission freezes the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measures actual unique files and product/test additions under unchanged 15-file/500-product-added-line limits. Named source/test lists and known lower bounds are in R2.authority-live.ownershipPathsAmended20261009P2C.restrictions for this ID. No unnamed test, directory-wide grant, placeholder/hash, capException or cap inflation. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze of actual bytes/names/hashes and full census. If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required scenario.",
       "predecessors": [
-        "P2CF"
+        "P2CF1",
+        "P2CF2"
       ],
       "successors": [
         "P2CG2",
         "P2C"
-      ]
+      ],
+      "amended20261016": {
+        "at": "2026-10-16T10:43:39.000Z",
+        "change": "predecessor P2CF replaced by P2CF1 and P2CF2",
+        "note": "P2CF is superseded by P2CF1/P2CF2 (evidence/p2cf-split-registration-20261016.json); its absence of a mainProof is not bypassed or falsified."
+      }
     },
     {
       "id": "P2CG2",
@@ -6274,7 +6403,7 @@
         "tick": null
       },
       "ownerGate": null,
-      "admissionRequires": "Task8 must first complete independent exact-head docs review, current required CI, guarded merge and independent exact-main registration proof. All ten source slices require genuine complete/PASS/ancestry/closure; original P2/U38 remain blocked until Task17 full semantic qualification and explicit original-prerequisite readmission. NEXT selection supplies no permission. No aggregate output beyond the two named documentary leaves is effective before Task17/G-OWN freeze.",
+      "admissionRequires": "Task8 must first complete independent exact-head docs review, current required CI, guarded merge and independent exact-main registration proof. All eleven source slices require genuine complete/PASS/ancestry/closure; original P2/U38 remain blocked until Task17 full semantic qualification and explicit original-prerequisite readmission. NEXT selection supplies no permission. No aggregate output beyond the two named documentary leaves is effective before Task17/G-OWN freeze.",
       "predecessors": [
         "P2CA",
         "P2CB",
@@ -6282,7 +6411,8 @@
         "P2CE1",
         "P2CE2",
         "P2CE3",
-        "P2CF",
+        "P2CF1",
+        "P2CF2",
         "P2CG1",
         "P2CG2",
         "P2CH"
@@ -6292,6 +6422,11 @@
         "at": "2026-10-16T02:29:57.000Z",
         "change": "predecessor P2CE replaced by P2CE1, P2CE2 and P2CE3",
         "note": "P2CE is superseded by P2CE1/P2CE2/P2CE3 (evidence/p2ce-split-registration-20261016.json); its absence of a mainProof is not bypassed or falsified."
+      },
+      "amended20261016P2CF": {
+        "at": "2026-10-16T10:43:39.000Z",
+        "change": "predecessor P2CF replaced by P2CF1 and P2CF2",
+        "note": "P2CF is superseded by P2CF1/P2CF2 (evidence/p2cf-split-registration-20261016.json); its absence of a mainProof is not bypassed or falsified."
       }
     },
     {
