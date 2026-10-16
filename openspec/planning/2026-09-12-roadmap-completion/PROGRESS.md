@@ -1,3 +1,63 @@
+## 2026-10-16 P2CG1A1 source verified on main; P2CG1A2 released; closure metadata proposed
+
+P2CG1A1 advances from implementing to main-verified for source PR #2166,
+head cdd846752139220d6d531ea0fa6e0d5bad65a111, merge f11c64d98782f134380dfe6513a9eeb360aaac38.
+Its baseline remains the admission base 6645308f4d6bdd6a424e73761ee20ffa81f8101f.
+The owner explicitly authorized this ruling in chat, and it was posted as [comment 6221546750](https://github.com/SwiggitySwerve/MekStation/pull/2166#issuecomment-6221546750);
+its exact UTF-8 body (603 bytes), without an added newline, hashes to 19460810121eda1055890bc812b94798539290f717c8da22983a772f2483739c.
+The merge (17:56:58Z) preceded the ruling (17:57:02Z); this record preserves that chronology.
+PK-p2cg1a1-ruling is first recorded here, after both the merge and the ruling.
+
+The admission, red and local receipts came with the source PR and are unchanged.
+The [review receipt](evidence/p2cg1a1-review-20261016.json) binds the Fable 5.1 review of the exact merged head, preserved byte for byte
+(APPROVE-WITH-NOTES, no blockers, no majors, minors M1-M4, notes N1-N2; author Opus 5.5; sha256 99846b38e2528d859660f76c65fddee077cb27d7f38891bc2a46f599ab95e21d).
+The reviewer re-ran its own move proof (11 of 11 mutations caught), madge on head and base (174 chains each, identical),
+the Task 14 selector plus the 31 caller suites on head and base (35 suites, 369 tests, identical rows), typecheck, lint, lint:units and the validator.
+The author's stable run had three spawnSync timeouts in the two roadmap script suites, which pass alone (52/52, 146/146); the reviewer judged that credible.
+Move-proof wording (review M2): "sameAppliedView equals base modulo formatter wrap and a trailing comma; the other eleven are byte-equal."
+The reserved p2cg1a1-admission-review-20261016.md slot stays unwritten.
+
+The review's carry-forward wording for P2CG1A2, verbatim (section 7 items 1-7, the section 4(a) fit paragraph,
+the minors M1-M4 and notes N1-N2 from section 6), is recorded under successorNotes in the review receipt:
+
+- P2CG1A2 A2-CF1 (block to move): "Block to move: class CampaignApplicationConnection with its doc comment, binder lines 1711-2049 at d0a7dd8b6 (339 physical lines), lines 1579-1917 at cdd846752; re-measure at the A2 baseline and record both the registered 1724-2049/326 and the measured figures in the admission receipt."
+- P2CG1A2 A2-CF2 (type-only binder imports): "The class uses only IWireCampaignSocket and ICampaignSessionMembershipPort from the binder, both as types; import them with `import type` from './bindCampaignSyncConnection'. Runtime names come from campaignApplicationConnection.ts only."
+- P2CG1A2 A2-CF3 (new imports): "New imports the slice-1 file needs for the class: randomUUID (node:crypto); ServerMatchBroadcaster; campaignEventWireFrame; CampaignPublicAppliedViewStore and readCampaignPublicAppliedView, and type CampaignApplicationResult (@/lib/campaign/sync/campaignPublicAppliedView); type ICampaignHostRegistryEntry (./CampaignHostRegistry). None of these modules reaches the binder at runtime."
+- P2CG1A2 A2-CF4 (drop six exports): "After the move the binder no longer uses IApplicationCandidate, IApplicationView, COMMIT_ATTEMPTS, HEAD_DRIFT, preparePublicCut or sameAppliedView; drop those six exports (permitted as export-keyword changes), which returns sameAppliedView to base bytes and removes the explicit-module-boundary-types warning. Binder imports from the new module then: NOT_OFFERED, errorFrame, isApplicationAck, send, plus the ICampaignApplicationReceiptPort type re-export."
+- P2CG1A2 A2-CF5 (moved-text comparison wording): "Moved-text comparison wording: each moved block equals base modulo the export keyword and formatter layout; state which blocks, if any, are not byte-equal."
+- P2CG1A2 A2-CF6 (expected lint and madge): "Expected lint: binder max-lines warning drops further; campaignApplicationConnection.ts trips max-lines at about 400 counted lines (per #2167); madge chain count 175 (one new type-only binder <-> new-file chain) unless the parent rules otherwise."
+- P2CG1A2 A2-CF7 (counted-line estimate): "Counted-line estimate 372-380 of 500; 7 of 15 files with the reserved review slot."
+- P2CG1A2 block range and fit (section 4(a)): "**(a) Registered range 1589-1723 ends inside the class doc comment.** Verified at base: moved block 1589-1709, class doc comment 1711-1723, class 1724-2049. Keeping the comment with its class is correct; the alternative orphans a doc comment. A2's block is therefore 1711-2049 (339 physical) at base d0a7dd8b6, and sits at 1579-1917 in the head binder. PR #2167 did not correct A2's text: `P2CG1A2.behavior` still reads "binder lines 1724-2049 ... 326 physical lines". A2 fit: my dependency scan of the class shows it uses only two binder declarations (IWireCampaignSocket, ICampaignSessionMembershipPort, both interfaces, both exported, type-only use) and needs these imports the new file lacks: randomUUID, ServerMatchBroadcaster, campaignEventWireFrame, CampaignPublicAppliedViewStore + readCampaignPublicAppliedView, and the types ICampaignHostRegistryEntry and CampaignApplicationResult; none of those modules reaches the binder at runtime. Estimate: 339 + roughly 15-20 import lines + 1-3 binder import lines + 16 lifecycle, about 372-380 counted lines. Inside the registered 370-410 and under 500 with margin. A2's admission must re-measure at its own baseline: block start/end lines in the post-A1 binder, physical count 339, and the counted total."
+- P2CG1A2 exports and warning (section 4(b)): "**(b) explicit-module-boundary-types warning on exported sameAppliedView.** Verified: base 85 warnings, head 86, 0 errors both; the single new warning is this one; the binder's max-lines warning drops from 1773 to 1638 counted lines. Acceptable for a move-only slice: a return annotation would change moved text. After A2 the class is the only consumer of sameAppliedView (and of IApplicationCandidate, IApplicationView, COMMIT_ATTEMPTS, HEAD_DRIFT, preparePublicCut), so A2 can drop those six exports, which returns sameAppliedView to one line and base bytes and removes the warning. The registration's "unchanged apart from export keywords" covers that."
+- Minor M1: "M1 (docs, A2): `P2CG1A2.behavior` range and count are stale (1724-2049 / 326; actual 1711-2049 / 339 at d0a7dd8b6; 1579-1917 at this head). #2167 did not fix it. Amend in the A2 release-to-planned PR or record in A2's admission receipt as A1 did."
+- Minor M2: "M2 (docs, parent review receipt): record the sameAppliedView layout exception in one sentence (section 4c)."
+- Minor M3: "M3 (lint, A2): one new explicit-module-boundary-types warning; disappears when A2 drops the six exports only the class uses."
+- Minor M4: "M4 (madge, A2): importing IWireCampaignSocket and ICampaignSessionMembershipPort as types from the binder will add exactly one madge chain (binder <-> new file, type-only; madge counts type imports, as the existing `bindCampaignSyncConnection.ts > handleRoomCodeGuestJoin.ts` chain shows). Runtime closure stays acyclic. A2's receipt should expect 175, not 174, or move the two interfaces, which the registration does not currently allow."
+- Note N1: "N1: `.github/workflows/pr-checks.yml` changed on main after this base (#2153). The PR's green run used the head's workflow set; the parent should confirm the required-check names on the merge ref before the guarded merge."
+- Note N2: "N2: the ownershipExceptions edit lists the reserved `p2cg1a1-admission-review-20261016.md` slot; it is absent at head, as required."
+
+All 31 checks on the merged head succeeded (run 38941078224). The [merge receipt](evidence/p2cg1a1-merge-20261016.json)
+binds both ordered parents and the matching integration tree; GitHub enforces no required-check names on main (N1 stays for P2CG1A2).
+The [main proof](evidence/p2cg1a1-mainproof-20261016.json) is a fresh run at the merge before any closure edit:
+the Task 14 selector and the 31 binder-user suites together (35 suites, 369 tests), the selector alone (4 suites, 96 tests),
+the callers alone (31 suites, 273 tests), typecheck and the validator passed. It references the attempt logs by hash.
+
+P2CG1A1 has no task keys. Its tick remains null because source/closure cleanup
+is not established here; no tasks.md row is changed. P2CG1A1 therefore releases
+its in-flight src/lib/multiplayer/server reservation at main-verified.
+
+Successor release and range correction (separate from the closure, on owner instruction to reduce ceremony):
+P2CG1A2 moves from blocked to planned; its only predecessor, P2CG1A1, is main-verified in this same change set.
+Its behavior text's stale range (review M1) is corrected in one sentence, from
+"Moves the CampaignApplicationConnection class (binder lines 1724-2049 at base d0a7dd8b6, 326 physical lines) into campaignApplicationConnection.ts" to
+"Moves the CampaignApplicationConnection class with its doc comment (binder lines 1711-2049 at base d0a7dd8b6, 339 physical lines) into campaignApplicationConnection.ts".
+Nothing else in P2CG1A2 changes; "the class alone is 326 lines" stays, because the declaration without its doc comment is 326 lines.
+P2CG1B, P2C and all other unit states remain unchanged.
+Selection is not downstream admission.
+This closure metadata still requires its own review, CI and parent merge.
+
+---
+
 ## 2026-10-16 P2CF2 source verified on main; Task 13 complete; closure metadata proposed
 
 P2CF2 advances from implementing to main-verified for source PR #2162,

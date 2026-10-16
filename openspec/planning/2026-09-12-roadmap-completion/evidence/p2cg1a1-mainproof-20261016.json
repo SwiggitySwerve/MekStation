@@ -1,0 +1,159 @@
+{
+  "unit": "P2CG1A1",
+  "stage": "mainProof",
+  "recordedAt": "2026-10-16T18:10:00.000Z",
+  "mergeCommit": "f11c64d98782f134380dfe6513a9eeb360aaac38",
+  "verdict": "PASS",
+  "checkout": "E:/Projects/Personal/MekStation-wt/p2cg1a1-closure-20261016",
+  "runtime": {
+    "playwright": "Source/Main Jest: Tests:       369 passed, 369 total",
+    "suites": "35 passed, 35 total",
+    "tsc": "npm run typecheck: exit 0",
+    "node": "v22.22.0"
+  },
+  "proof": {
+    "path": "evidence/mainproof-f11c64d9-tests.bytes.json",
+    "payloadSha256": "fa7e5131e7136972cede4bcaf3322633fb2b20ae77242b06908538231f81d18b",
+    "payloadBytes": 380062,
+    "note": "Fresh run at exact merge HEAD on a clean checkout before any closure edit: the registered Task 14 selector suites (campaignLaunchAuthorityRoute, CampaignSyncSession, campaignProgressionReaders.durable crossGraph and integrity) and the 31 binder-user caller suites from the author's caller-suites.txt (including bindCampaignSyncConnection.test.ts and coopMissionAnnouncement.reconnect.test.ts), all 35 by path in one jest invocation: 35 suites, 369/369, the same count as the author's and the reviewer's head and base runs."
+  },
+  "logs": [
+    {
+      "path": "evidence/mainproof-f11c64d9-selector.bytes.json",
+      "payloadSha256": "94ed8c30e41897db202b693860be06a1ad0966256ebbec7ba506df156a871e0c",
+      "payloadBytes": 47278,
+      "note": "Fresh run of the registered Task 14 selector --testPathPattern='campaignLaunchAuthorityRoute|campaignProgressionReaders.durable|CampaignSyncSession' on the same checkout and HEAD: 4 suites, 96/96."
+    },
+    {
+      "path": "evidence/mainproof-f11c64d9-callers.bytes.json",
+      "payloadSha256": "895d2e549b7cdbe71d0ffcd8024550016328b966ab96b906b06ec7c868921d10",
+      "payloadBytes": 332917,
+      "note": "Fresh run of the 31 binder-user caller suites by path on the same checkout and HEAD: 31 suites, 273/273."
+    },
+    {
+      "path": "evidence/mainproof-f11c64d9-typecheck.bytes.json",
+      "payloadSha256": "6e330201ad28efe4232140558c8dabd16643e9a08f4ff7de9a63581d18146662",
+      "payloadBytes": 300,
+      "note": "Fresh typecheck on the same checkout and HEAD."
+    },
+    {
+      "path": "evidence/mainproof-f11c64d9-validator.bytes.json",
+      "payloadSha256": "867d7b2d82e7378aa4084cedda8ffac39e6ec2227cc15a53447289e791b8d7ff",
+      "payloadBytes": 457,
+      "note": "Fresh validator and --next on the unedited ledger at the same HEAD (PASSED; --next U25, because P2CG1A1 was still implementing)."
+    }
+  ],
+  "attemptLogs": [
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-14-p2cg1a1-20261016/census.md",
+      "sha256": "143b44423f3a210eba2969a75d23a485be0e838943b3c8703ecb22bf9308ae2b",
+      "bytes": 5140,
+      "note": "Author census frozen before edits"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-14-p2cg1a1-20261016/move-proof.cjs",
+      "sha256": "1a81c6e979cce1c24f60bd36850e4019a2899c508b5d03a8b9987a84c308cacb",
+      "bytes": 11687,
+      "note": "Author move-proof script"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-14-p2cg1a1-20261016/move-proof.json",
+      "sha256": "27fba579393805e1c0db3f2258435c1e018bfdd58fab615d9c14a27505315dc7",
+      "bytes": 4178,
+      "note": "Author move-proof output: PASS"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-14-p2cg1a1-20261016/move-proof-probes.log",
+      "sha256": "2cd0621be8b4d1767ab3adc74a68523c2eb616fb8fe1bef011200299d4177299",
+      "bytes": 1382,
+      "note": "Author move-proof probes: 6 of 6 injections fail the script"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-14-p2cg1a1-20261016/caller-suites.txt",
+      "sha256": "f050d3fa83b6aeddf0a13fbf67e0242a8837d15183bba811813695b6fd89f98b",
+      "bytes": 2257,
+      "note": "The 31 binder-user caller suites; identical to the reviewer's independent scan"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-14-p2cg1a1-20261016/base-results.json",
+      "sha256": "378945d46a4d9fe2e2c92dccf7829f56399a6933c9fad82c89035a82a6d4fdcf",
+      "bytes": 164219,
+      "note": "Baseline 35 suites, 369 tests (sorted rows)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-14-p2cg1a1-20261016/red.log",
+      "sha256": "b79390bc89a707fdab443fddde6fd530a5e26437565bcdd73d77e4956f57a60a",
+      "bytes": 377518,
+      "note": "Pre-move baseline run: 35 suites, 369/369 (move-only slice; no red-first proof)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-14-p2cg1a1-20261016/green.log",
+      "sha256": "a6966e7301e0d53d0084eec52782b9b10b7b673d51e5b78623061cbde023ff86",
+      "bytes": 377439,
+      "note": "Post-move run: 35 suites, 369/369"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-14-p2cg1a1-20261016/post-results.json",
+      "sha256": "e728fdb08d1e76e6765300181ee4d9bee38b495e2c82be0674e5075e9ea5d339",
+      "bytes": 164218,
+      "note": "Post-move sorted rows; identical to base-results.json"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-14-p2cg1a1-20261016/tsx-smoke.log",
+      "sha256": "8e00d3b1e3aaa420e983ed3f170e49e5a4e0dc42c80b36f9b7df1e2a1fbd4654",
+      "bytes": 161,
+      "note": "Runtime load through tsx/cjs"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-14-p2cg1a1-20261016/lint-full.log",
+      "sha256": "402365a6185838809eb86ba94300e5d8bb77b5747ab18c6daf07f4c01098fb3e",
+      "bytes": 39460,
+      "note": "Author lint: 0 errors, 86 warnings (85 at base)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-14-p2cg1a1-20261016/validation.log",
+      "sha256": "2973c643b6e8b6a53e330f0a312425cd31860561edc1f286394daaf35820ccb9",
+      "bytes": 919,
+      "note": "Author typecheck, lint, format:check and lint:units"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-14-p2cg1a1-20261016/roadmap-validation.log",
+      "sha256": "35453a495b53581363eabb8df0c0b6568fced20c72bcccb305154621651bfe5c",
+      "bytes": 2659,
+      "note": "Author validator, --git, --next (U25) and validator tests"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-14-p2cg1a1-20261016/stable.log",
+      "sha256": "1408d82bbca68c23ac91d1d6223e1eb0b37703bd5ead597b6d79f044a5dcaf2a",
+      "bytes": 1729267,
+      "note": "Author stable run: 2794/2796 suites, 37177 passed, 50 skipped, 3 failed (spawnSync timeouts), exit 1"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-14-p2cg1a1-20261016/stable-rerun.log",
+      "sha256": "e3422462c5489130d5d72cd99f7687ceeb25474df0bf48f1d4cc56d581266861",
+      "bytes": 351,
+      "note": "The two timed-out suites alone: 52/52 and 146/146"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-14-p2cg1a1-20261016/stable-pre-status.txt",
+      "sha256": "24a2d0663917e81c98508c9a9e4f11ff053c83c1409b240073d82cb7018905ec",
+      "bytes": 451,
+      "note": "Worktree status before the stable run"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-14-p2cg1a1-20261016/stable-post-status.txt",
+      "sha256": "24a2d0663917e81c98508c9a9e4f11ff053c83c1409b240073d82cb7018905ec",
+      "bytes": 451,
+      "note": "Worktree status after the stable run; equal to the pre-run status"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-14-p2cg1a1-20261016/report.md",
+      "sha256": "cc96f71a5fdd28a4d26df58658226c77dc7fd6cae9ba44eea5b2cc9ed1560041",
+      "bytes": 3513,
+      "note": "Author report"
+    }
+  ],
+  "scope": "Fresh registered-selector and caller-suite runs (combined and separate) and typecheck at the exact merge commit, plus hash references to the author attempt logs. No install, full-stable at main, browser or build result is claimed for main.",
+  "closure": "main-verified only. taskKeys is empty; no tasks.md row is ticked and no tick receipt is invented. Source/closure owned-resource cleanup is not established here.",
+  "preservation": "Proof and logs are base64 envelopes so repository LF normalization cannot alter their exact bytes. Decode data and verify payloadSha256/payloadBytes."
+}

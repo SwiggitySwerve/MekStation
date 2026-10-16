@@ -1,0 +1,3 @@
+OWNER-RULING cdd846752139220d6d531ea0fa6e0d5bad65a111
+
+The owner authorized this ruling in chat. PR #2166 merged before this ruling was posted. The ruling covers P2CG1A1 (move-only extraction of twelve symbols, including errorFrame and send, from bindCampaignSyncConnection.ts into campaignApplicationConnection.ts; no behavior change, no production wiring), reviewed APPROVE-WITH-NOTES by an independent reviewer with no blockers or majors and CI green. Carry-forwards for P2CG1A2 (stale block range 1711-2049 / 339 lines, drop six now-unused exports, one extra madge chain) are recorded in the review.
