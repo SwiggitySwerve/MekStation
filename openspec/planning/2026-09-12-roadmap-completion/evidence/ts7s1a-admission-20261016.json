@@ -1,0 +1,221 @@
+{
+  "schemaVersion": 1,
+  "unit": "TS7S1A",
+  "stage": "admission",
+  "date": "20261016",
+  "baseline": "4bf26f7b2688bc0b14a52e36f957ff030eae9151",
+  "authority": "Registered planned by the TS7S1 split registration PR #2173 (merge 4bf26f7b2, evidence/ts7s1-split-registration-20261016.json); validate-roadmap --next printed TS7S1A at the baseline; parent implementation delegation",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "TS7S1A implementation sub-agent"
+  },
+  "predecessors": {
+    "P2CG1A2": "main-verified, mergeSha 5d02dcab6ff2b1a62b2d73355a0bc3345aec2ae2, mainProof PASS (evidence/p2cg1a2-mainproof-20261016.json), ancestor of baseline"
+  },
+  "caps": {
+    "files": 15,
+    "productAddedLines": 500
+  },
+  "restriction": {
+    "container": "R6.ts7-toolchain.restrictions.TS7S1A",
+    "leaves": 8,
+    "knownLeafSubtotal": 9
+  },
+  "sourceCandidate": "None preserved. The TS7S1 probe-4 scratch patch was a reference only; the edits were re-derived with an exact-match script and oxfmt and compare equal to probe 4 for all 7 files",
+  "census": {
+    "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/census.md",
+    "sha256": "74b2058041b1fd26413d466b8201d3244dda8632475acac381158c79d7c530f5",
+    "frozenBefore": "any source, test, lifecycle or evidence edit"
+  },
+  "frozenFiles": [
+    {
+      "path": "src/lib/multiplayer/server/auth.ts",
+      "exists": true,
+      "sha256": "3c0b174f66b6a3b636cccbf448013a48dcb9bfb467ae0b3f40c3f1d64c34148a",
+      "bytes": 10116
+    },
+    {
+      "path": "src/services/vault/IdentityService.ts",
+      "exists": true,
+      "sha256": "5d46a2146d4cc9b3ee7fa17424324ad917f7d30fe0952c24b943693b0946cb78",
+      "bytes": 13197
+    },
+    {
+      "path": "src/lib/events/checkpoints/BranchCheckpointCache.ts",
+      "exists": true,
+      "sha256": "5bab6069c794854e167f488cf08bbc834528401aea8a2991a23d31d6a30640ca",
+      "bytes": 16742
+    },
+    {
+      "path": "src/lib/campaign/grants/campaignGrantToken.ts",
+      "exists": true,
+      "sha256": "4b1cccb515ad4041922d2c218f3a2afce7275b952891ac0c942faa19279c2e24",
+      "bytes": 8371
+    },
+    {
+      "path": "src/lib/campaign/grants/redeemCampaignGrant.ts",
+      "exists": true,
+      "sha256": "59052d504b9be514c713b3c508d18767f45b3f11a57ad04279041aa5b00574f7",
+      "bytes": 6563
+    },
+    {
+      "path": "src/__tests__/api/campaigns/campaignRedeemRoute.test.ts",
+      "exists": true,
+      "sha256": "7bbe72c6805f58a74e38defcfeb9a3fafc500cd9dced4f4b414c7ab40e9d3331",
+      "bytes": 7788
+    },
+    {
+      "path": "src/lib/campaign/grants/__tests__/campaignShareAndRedeem.test.ts",
+      "exists": true,
+      "sha256": "86c8cc8a4b91ef46faca57c913c2e6a56db2602d94d250513abf79ae41faaba1",
+      "bytes": 12849
+    },
+    {
+      "path": "openspec/changes/migrate-to-typescript-7/tasks.md",
+      "exists": true,
+      "sha256": "f84233c626b165bab1248f7f2ee719b657a01e3d7a3979f7476a50d1b3065d39",
+      "bytes": 9927
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "exists": true,
+      "sha256": "de8525f06474c6e82489487b8def03dcc5ab508a123d8589c711b83b7dc13ade",
+      "bytes": 1507983
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1a-admission-20261016.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1a-admission-review-20261016.md",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1a-red-20261016.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1a-local-20261016.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    }
+  ],
+  "notToChange": {
+    "src/lib/multiplayer/server/__tests__/auth.test.ts": "8d456967ddb3c91233feab29b3658edd82b79c549e2e03d9ef120fa8e3f41695",
+    "src/services/vault/__tests__/IdentityService.test.ts": "abe982edfb24e0b190d54f5ab8e0f883a1fe7105cadaa0ff5ea7b1ce23c87aeb",
+    "tsconfig.json": "1c1c39ac4a0181fa6b8f0ab15e2152f7c0f939ff6818befc322f3cf84fb9c709",
+    "desktop/tsconfig.json": "4d27b6818c77ecc40d3b5bd394b50d6b0213082774b1447d01608823948e3d4c",
+    "openspec/active-change-ledger.json": "1f7ae4ad0ee433519b320e9661f22b56f2f16f17551ec0a05d2ae3f7d67ab57b",
+    "package.json": "651fe50e8bfecb692d408c34bf831aa3d4d337d208e874d5fa6359ad6fad0f19"
+  },
+  "fileCensus": "13 of 15: 8 leaves + units.json + 3 receipts + the reserved review slot; no conditional leaf, no unnamed file",
+  "lineEstimate": "about 52-58 of 500 counted lines before editing (TS7S1 probe-4 source 26 + tasks.md + units.json lifecycle); not a cap-fit proof",
+  "tasks02Measurement": {
+    "compilers": {
+      "ts7": "typescript@7.0.2 in %TEMP%/ts7s1a-tsc7 (tsc --version: Version 7.0.2; npm latest 7.0.2)",
+      "ts6": "typescript@6.0.3 in %TEMP%/ts7s1a-tsc6 (Version 6.0.3)",
+      "repo": "5.8.3"
+    },
+    "command": "node <prefix>/node_modules/typescript/bin/tsc -p <config> --noEmit --skipLibCheck",
+    "scratchCopy": "detached worktree E:/Projects/Personal/MekStation-wt/ts7s1a-scratch-d2 at the baseline with the D2 edits uncommitted (root target es2017, baseUrl deleted, paths @/* -> ./src/*; desktop module/moduleResolution nodenext)",
+    "pre": {
+      "ts7": {
+        "root": {
+          "errors": 11,
+          "seconds": 4.2,
+          "list": [
+            "src/lib/events/checkpoints/BranchCheckpointCache.ts(352,7) TS2322 path literal widened",
+            "src/lib/events/checkpoints/BranchCheckpointCache.ts(377,5) TS2322 path literal widened",
+            "src/lib/multiplayer/server/auth.ts(215,7) TS2769 publicKeyBytes",
+            "src/lib/multiplayer/server/auth.ts(223,7) TS2345 signatureBytes",
+            "src/services/vault/IdentityService.ts(159,5) TS2769 privateKeyBytes",
+            "src/services/vault/IdentityService.ts(165,69) TS2345 data",
+            "src/services/vault/IdentityService.ts(182,5) TS2769 publicKeyBytes",
+            "src/services/vault/IdentityService.ts(188,53) TS2345 signature",
+            "src/services/vault/IdentityService.ts(330,7) TS2769 salt",
+            "src/services/vault/IdentityService.ts(355,24) TS2322 iv",
+            "src/services/vault/IdentityService.ts(384,24) TS2322 iv"
+          ]
+        },
+        "desktopTsconfig": 0,
+        "desktopTsconfigTest": 0
+      },
+      "ts6": {
+        "root": {
+          "errors": 9,
+          "seconds": 36.5,
+          "list": "the 9 BufferSource errors of the ts7 list (auth.ts 215, 223; IdentityService.ts 159, 165, 182, 188, 330, 355, 384); no BranchCheckpointCache error; no TS5101/TS5107 with D2"
+        },
+        "desktopTsconfig": 0,
+        "desktopTsconfigTest": 0
+      },
+      "followOnFirstBadArgument": {
+        "method": "followon-probe.cjs: wrap each reported argument (x as any) in the scratch copy and re-run until no BufferSource error remains; reverted with git checkout -- src",
+        "ts7": [
+          "src/services/vault/IdentityService.ts(188,73) TS2345 data (verifySignature verify, behind signature)",
+          "src/services/vault/IdentityService.ts(357,5) TS2345 data (encryptWithPassword encrypt, behind iv)",
+          "src/services/vault/IdentityService.ts(386,5) TS2345 ciphertext (decryptWithPassword decrypt, behind iv)"
+        ],
+        "ts6": "same three",
+        "total": "9 listed + 3 follow-on = 12 BufferSource arguments; 14 with the 2 TS2322"
+      }
+    },
+    "matchesDesignMd": "yes: same 11 errors, files, lines and codes as design.md Context; design.md is not changed",
+    "record": {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/baseline-0.2.md",
+      "sha256": "12b82f7fcd738b1d7850b123bd784f39ec37ece3396a5767f60a3ab975bb57dd"
+    },
+    "logs": {
+      "ts7Root": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/pre-ts7-root.log",
+        "sha256": "8b10d266ede95087c2460a72376b5e6a5eace6c240799d1de29b089b050e6356"
+      },
+      "ts6Root": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/pre-ts6-root.log",
+        "sha256": "2255571343ed435d10959efb939aee192b9519820918e810b3ad6e9a0e823915"
+      },
+      "followOnTs7": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/followon-probe.json",
+        "sha256": "197b99cb60ff7376e02026173054d74392479e208aef586d056f814db52fc55b"
+      },
+      "followOnTs6": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/followon-probe-ts6.json",
+        "sha256": "3453108e607a1d43f67becbd2b8d7c3629cf0c816f3cd443ba5536a2a0a943ae"
+      },
+      "probeScript": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/followon-probe.cjs",
+        "sha256": "4d70d1aa98a4254549fd03a5d03844a8d6fbf9d55e11dcbf0502e35729e22df4"
+      },
+      "runner": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/measure-d2.ps1",
+        "sha256": "610745776f838a900a603fd208bf7be3f83e381c9e28d16408c4891b088c0093"
+      }
+    }
+  },
+  "suites": {
+    "script": {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/suite-scan.cjs",
+      "sha256": "e01b2e549458f86e020cbdc677455e01c3065cd61bf815e2587c807bcf5537cb"
+    },
+    "list": {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/suites-direct.txt",
+      "sha256": "0711a13ceaac38dfd6162f8a40b75fb9629a11589a626c73e09063b6e27c130c"
+    },
+    "count": 46,
+    "method": "TS 5.8 parser; import, export-from, require, dynamic import, import type and jest.mock-family specifiers resolved to files; a module that re-exports (export ... from) a leaf counts as the leaf (AuthorityRecoveryPort.ts, services/vault/index.ts)",
+    "delta": "the TS7S1 45 plus src/lib/events/checkpoints/__tests__/authorityQuarantine.test.ts"
+  },
+  "overlap": "gh pr list --state open: #2113 (docs/audits), #1886 (e2e WIP); neither touches a leaf or units.json. No remote branch *ts7*. No unit in flight (96 complete, 11 main-verified, 36 planned, 63 blocked); every other owner of a leaf is planned, blocked or complete",
+  "requiredChecks": "Not re-read here; the parent confirms branch protection on the merge ref before any guarded merge",
+  "reviewClass": "routine, held only because every edit is a type annotation with byte-identical emit (local receipt). campaignGrantToken.ts and redeemCampaignGrant.ts are campaign-grant signing and verification code; any runtime byte difference would stop this unit for re-registration with the authority and privacy classes",
+  "reviewSlot": "Reserved for the independent reviewer; the author must not write it",
+  "summary": "Ordinary admission of the 13 frozen paths. The pre-edit TypeScript 7 list equals design.md (11 errors) and adds 3 hidden first-bad-argument errors in a registered leaf, so no missing leaf. No cap exception, no unnamed leaf, no merge or Main claim."
+}

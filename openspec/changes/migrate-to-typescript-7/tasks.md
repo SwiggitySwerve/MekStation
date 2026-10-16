@@ -26,10 +26,11 @@
 
 ## 1. Code and config prep that is valid on 5.8 (PR 1)
 
-- [ ] 1.1 Fix the 9 `Uint8Array<ArrayBufferLike>` → `BufferSource` errors in `src/lib/multiplayer/server/auth.ts` and `src/services/vault/IdentityService.ts`.
+- [x] 1.1 Fix the 9 `Uint8Array<ArrayBufferLike>` → `BufferSource` errors in `src/lib/multiplayer/server/auth.ts` and `src/services/vault/IdentityService.ts`.
   - Type the producing helpers as `Uint8Array<ArrayBuffer>`, for example by allocating from an `ArrayBuffer`. Do not add casts at the call sites.
   - Existing tests for both files must pass unchanged.
-- [ ] 1.2 Fix the 2 `TS2322` errors in `src/lib/events/checkpoints/BranchCheckpointCache.ts`:
+  - Outcome: on the D2 scratch config TypeScript 7.0.2 reported the 11 errors in Context; the 9 listed here hid 3 more behind the first bad argument of a call (`IdentityService.ts` `verifySignature` `data`, `encryptWithPassword` `data`, `decryptWithPassword` `ciphertext`), so 12 arguments were fixed. Besides the producing helpers, the exported parameters of `signData`, `verifySignature` and `encryptWithPassword` are typed as the lib `BufferSource`: on 5.8 this also admits `ArrayBuffer` and `DataView`, which Web Crypto accepts. A `Uint8Array<ArrayBuffer>` parameter is impossible on 5.8 without casts. Four callers narrow an existing `Uint8Array` annotation to `Uint8Array<ArrayBuffer>`: `campaignGrantToken.ts`, `redeemCampaignGrant.ts`, `campaignRedeemRoute.test.ts` and `campaignShareAndRedeem.test.ts`. With 1.2, TypeScript 7.0.2 and 6.0.3 then report 0 root errors on that config, and the emitted JavaScript is byte-identical on 5.8.
+- [x] 1.2 Fix the 2 `TS2322` errors in `src/lib/events/checkpoints/BranchCheckpointCache.ts`:
   - give the literal `path` its literal type (`as const` or an annotated constant);
   - do not widen the `Readonly<...>` target type.
 - [ ] 1.3 Apply the root `tsconfig.json` edits from D2:

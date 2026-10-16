@@ -1,0 +1,326 @@
+{
+  "schemaVersion": 1,
+  "unit": "TS7S1A",
+  "stage": "local",
+  "baseline": "4bf26f7b2688bc0b14a52e36f957ff030eae9151",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "TS7S1A implementation sub-agent"
+  },
+  "runtime": "node v22.22.0",
+  "commands": [
+    "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --json --outputFile=green-results.json --runTestsByPath <the same 46 suites as the red receipt>",
+    "npm run typecheck (tsc 5.8.3)",
+    "powershell measure-d2.ps1 -Label post (TS 7.0.2 and 6.0.3 on the D2 scratch copy with source.patch applied)",
+    "node emit-tsc.cjs before|after; node emit-equality.cjs; node emit-sensitivity.cjs"
+  ],
+  "exitCode": 0,
+  "result": "46 suites, 520 tests passed; the sorted list of suite, full test name and status equals the red baseline (520 = 520, 0 differences). auth.test.ts and IdentityService.test.ts are unedited (sha256 unchanged) and pass",
+  "files": {
+    "results": {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/green-results.json",
+      "sha256": "59add0cbbc10f1b115cea09d94462a12a6bc383423ec675656091dc06e0573da"
+    },
+    "log": {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/green.log",
+      "sha256": "1b0c973dbb2e627dc09cb1c642323fdb283dceee5b1bf8686dcb1f68751be22d"
+    },
+    "patch": {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/source.patch",
+      "sha256": "5f79c8db4cec6e5d91d4aca29c64ba5d4d218c68b02511fee5e233fb85b44ea6"
+    }
+  },
+  "productBytes": {
+    "openspec/changes/migrate-to-typescript-7/tasks.md": "f34b7766522f6aab83ae1c98195dd24d356f0ec67fbde0800446c5c4adaa173f",
+    "openspec/planning/2026-09-12-roadmap-completion/units.json": "3a5933ed183abbe8364697c4cba00c4831f1751e4466446ecd9231d8940a55b3",
+    "src/__tests__/api/campaigns/campaignRedeemRoute.test.ts": "f75f0f6d50504b4b066d15dec9f99708f8b4ef2ea3914ae584e2451bb39c6b34",
+    "src/lib/campaign/grants/__tests__/campaignShareAndRedeem.test.ts": "7a5f0d218865cca09a1ebcfe6b0e18b8cc3693420303c5142e7633a297a61ce8",
+    "src/lib/campaign/grants/campaignGrantToken.ts": "bc52ab52434cdc976651a98a0798c984aea65c1c153450104fd87e947a8de6d8",
+    "src/lib/campaign/grants/redeemCampaignGrant.ts": "3a88f18f2d87a876479cf360d4cd6f2bf52c94e74f2c124b38ca637c67a17d09",
+    "src/lib/events/checkpoints/BranchCheckpointCache.ts": "a56570aed2d93b6057849b0506f744186826674cd20f5f7e5cc7680c3c8820d0",
+    "src/lib/multiplayer/server/auth.ts": "661c7d1cf98a94c6afb9df4525128ebe3a8ac4e39a2bcf5b20ac22a8d6bb2672",
+    "src/services/vault/IdentityService.ts": "117e4d58191a504bad0935d2730c0c5fd6e667918877f9e97e94876f55f676fd"
+  },
+  "typeOnly": {
+    "edits": "auth.ts: fromBase64 returns Uint8Array<ArrayBuffer>, publicKeyBytes/signatureBytes locals annotated Uint8Array<ArrayBuffer>. IdentityService.ts: getRandomBytes and fromBase64 return Uint8Array<ArrayBuffer>; generateKeyPair returns IKeyPair & { publicKey/privateKey: Uint8Array<ArrayBuffer> }; signData(data, privateKeyBytes: BufferSource): Promise<Uint8Array<ArrayBuffer>>; verifySignature(data, signature, publicKeyBytes: BufferSource); deriveKey salt Uint8Array<ArrayBuffer>; encryptWithPassword data BufferSource. BranchCheckpointCache.ts: path literals as const (Readonly target unchanged). campaignGrantToken.ts: publicKeyBytes/signatureBytes locals Uint8Array<ArrayBuffer>. redeemCampaignGrant.ts: local fromBase64 returns Uint8Array<ArrayBuffer>. The two grant test files: keys annotations Uint8Array<ArrayBuffer>. No cast, copy, overload or runtime change",
+    "equalsProbe4": "the re-derived diff equals the TS7S1 probe-4 scratch patch for all 7 files (index lines aside)"
+  },
+  "emitEquality": {
+    "compiler": "5.8.3",
+    "method1": {
+      "description": "full-program tsc emit with the root compiler options for the 7 changed files as roots, before and after; every emitted .js compared byte for byte",
+      "filesBefore": 1017,
+      "filesAfter": 1017,
+      "jsCompared": 983,
+      "differing": 0,
+      "verdict": "PASS",
+      "perFile": [
+        {
+          "file": "src/__tests__/api/campaigns/campaignRedeemRoute.test.ts",
+          "jsBefore": "a135ec229e6d50a1aed445db3eb4757ea6f9eac8f6fddc706472437f331973ba",
+          "jsAfter": "a135ec229e6d50a1aed445db3eb4757ea6f9eac8f6fddc706472437f331973ba"
+        },
+        {
+          "file": "src/lib/campaign/grants/__tests__/campaignShareAndRedeem.test.ts",
+          "jsBefore": "d9ad347057211d68ad9a00bca7a1524bc842072b1bebc0fd9b2b661366c872e6",
+          "jsAfter": "d9ad347057211d68ad9a00bca7a1524bc842072b1bebc0fd9b2b661366c872e6"
+        },
+        {
+          "file": "src/lib/campaign/grants/campaignGrantToken.ts",
+          "jsBefore": "afe46b0e57664586ce2b02bc2bea8eda61af14bd23ccc3beae6f593b4be95146",
+          "jsAfter": "afe46b0e57664586ce2b02bc2bea8eda61af14bd23ccc3beae6f593b4be95146"
+        },
+        {
+          "file": "src/lib/campaign/grants/redeemCampaignGrant.ts",
+          "jsBefore": "7dce981e5778f49edfb86bc0c8b937a769ba679b01bd1ec2b949dee1c7273a7b",
+          "jsAfter": "7dce981e5778f49edfb86bc0c8b937a769ba679b01bd1ec2b949dee1c7273a7b"
+        },
+        {
+          "file": "src/lib/events/checkpoints/BranchCheckpointCache.ts",
+          "jsBefore": "abb583e8f63469eab84907d1be3b32507dfff8fd88aa00dae398a7a87fdd0839",
+          "jsAfter": "abb583e8f63469eab84907d1be3b32507dfff8fd88aa00dae398a7a87fdd0839"
+        },
+        {
+          "file": "src/lib/multiplayer/server/auth.ts",
+          "jsBefore": "2e599152dd63a21dcb3d0ad4698242f49385d1a894a9317b98b244a63ad3f3b5",
+          "jsAfter": "2e599152dd63a21dcb3d0ad4698242f49385d1a894a9317b98b244a63ad3f3b5"
+        },
+        {
+          "file": "src/services/vault/IdentityService.ts",
+          "jsBefore": "8bb51c25081f2300508116251a6ffab645bd0ca299285e5759efcc9d455d2238",
+          "jsAfter": "8bb51c25081f2300508116251a6ffab645bd0ca299285e5759efcc9d455d2238"
+        }
+      ]
+    },
+    "method2": {
+      "description": "ts.transpileModule of the baseline blob and of the working-tree text with the parsed root compilerOptions, and again with target ES2017",
+      "verdict": "PASS",
+      "perFile": [
+        {
+          "file": "src/__tests__/api/campaigns/campaignRedeemRoute.test.ts",
+          "srcBefore": "7bbe72c6805f58a74e38defcfeb9a3fafc500cd9dced4f4b414c7ab40e9d3331",
+          "srcAfter": "f75f0f6d50504b4b066d15dec9f99708f8b4ef2ea3914ae584e2451bb39c6b34",
+          "jsBefore": "876aa12a4cfbc118346522f3732087f1102979d9b29e91e9ec62908428fb46c8",
+          "jsAfter": "876aa12a4cfbc118346522f3732087f1102979d9b29e91e9ec62908428fb46c8",
+          "es2017Equal": true
+        },
+        {
+          "file": "src/lib/campaign/grants/__tests__/campaignShareAndRedeem.test.ts",
+          "srcBefore": "86c8cc8a4b91ef46faca57c913c2e6a56db2602d94d250513abf79ae41faaba1",
+          "srcAfter": "7a5f0d218865cca09a1ebcfe6b0e18b8cc3693420303c5142e7633a297a61ce8",
+          "jsBefore": "3ff104f26a31b7ee1baa93040fcb2cf3517dbc88611f5bba2fb01e089a9ed3d7",
+          "jsAfter": "3ff104f26a31b7ee1baa93040fcb2cf3517dbc88611f5bba2fb01e089a9ed3d7",
+          "es2017Equal": true
+        },
+        {
+          "file": "src/lib/campaign/grants/campaignGrantToken.ts",
+          "srcBefore": "4b1cccb515ad4041922d2c218f3a2afce7275b952891ac0c942faa19279c2e24",
+          "srcAfter": "bc52ab52434cdc976651a98a0798c984aea65c1c153450104fd87e947a8de6d8",
+          "jsBefore": "f27eda837b1a4f77c82f2977c60731c67970ee681552317728be4ef116deab72",
+          "jsAfter": "f27eda837b1a4f77c82f2977c60731c67970ee681552317728be4ef116deab72",
+          "es2017Equal": true
+        },
+        {
+          "file": "src/lib/campaign/grants/redeemCampaignGrant.ts",
+          "srcBefore": "59052d504b9be514c713b3c508d18767f45b3f11a57ad04279041aa5b00574f7",
+          "srcAfter": "3a88f18f2d87a876479cf360d4cd6f2bf52c94e74f2c124b38ca637c67a17d09",
+          "jsBefore": "d8effa9022851c1f7efb71dd283e9afe9f66112870296204bdb9be9d05bfb720",
+          "jsAfter": "d8effa9022851c1f7efb71dd283e9afe9f66112870296204bdb9be9d05bfb720",
+          "es2017Equal": true
+        },
+        {
+          "file": "src/lib/events/checkpoints/BranchCheckpointCache.ts",
+          "srcBefore": "5bab6069c794854e167f488cf08bbc834528401aea8a2991a23d31d6a30640ca",
+          "srcAfter": "a56570aed2d93b6057849b0506f744186826674cd20f5f7e5cc7680c3c8820d0",
+          "jsBefore": "4e5ed15607159073e99d04708562fadada0c8c319da38f1a584540b8e9742a6d",
+          "jsAfter": "4e5ed15607159073e99d04708562fadada0c8c319da38f1a584540b8e9742a6d",
+          "es2017Equal": true
+        },
+        {
+          "file": "src/lib/multiplayer/server/auth.ts",
+          "srcBefore": "3c0b174f66b6a3b636cccbf448013a48dcb9bfb467ae0b3f40c3f1d64c34148a",
+          "srcAfter": "661c7d1cf98a94c6afb9df4525128ebe3a8ac4e39a2bcf5b20ac22a8d6bb2672",
+          "jsBefore": "e11124499123dcf8954fa6e4335ff863ac6b5bd38749f625450fb9fc7878941c",
+          "jsAfter": "e11124499123dcf8954fa6e4335ff863ac6b5bd38749f625450fb9fc7878941c",
+          "es2017Equal": true
+        },
+        {
+          "file": "src/services/vault/IdentityService.ts",
+          "srcBefore": "5d46a2146d4cc9b3ee7fa17424324ad917f7d30fe0952c24b943693b0946cb78",
+          "srcAfter": "117e4d58191a504bad0935d2730c0c5fd6e667918877f9e97e94876f55f676fd",
+          "jsBefore": "2b64b91eb055ba8112805d289559f761f3b237d11e421175539365f212865bcc",
+          "jsAfter": "2b64b91eb055ba8112805d289559f761f3b237d11e421175539365f212865bcc",
+          "es2017Equal": true
+        }
+      ]
+    },
+    "sensitivity": "four one-token mutations of IdentityService.ts: the three runtime ones change the transpiled output, the type-only one does not (emit-sensitivity.json)",
+    "record": {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/emit-equality.md",
+      "sha256": "b25665232e4fedbc2c9c0fc66246ce76b6eed238578108a95e82fcea62451572"
+    },
+    "json": {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/emit-equality.json",
+      "sha256": "865a55896fd955591d49ee9b0fd70abe7ab373ff298e9992eed747319301b2ee"
+    },
+    "scripts": {
+      "tsc": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/emit-tsc.cjs",
+        "sha256": "ad1fed008826b26bde25447a9f6f7cdb39c1b31e8a3ddf501d56d7b310769d6b"
+      },
+      "equality": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/emit-equality.cjs",
+        "sha256": "b66570d331e3680c2f1b6e3663a778ec9d067f10bb9a985d2ef0c52dcdadfdc4"
+      },
+      "sensitivity": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/emit-sensitivity.cjs",
+        "sha256": "a8140cfff50440588e5319c3bf9d65afa5f0e5b35ba7aa3eab4b3d658d81b914"
+      }
+    },
+    "verdict": "No runtime byte differs in any emitted file, including campaignGrantToken.ts and redeemCampaignGrant.ts; the routine review class holds"
+  },
+  "postTs7Ts6": {
+    "ts7": {
+      "root": {
+        "version": "Version 7.0.2",
+        "exit": 0,
+        "errors": 0,
+        "seconds": 4.1,
+        "log": {
+          "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/post-ts7-root.log",
+          "sha256": "abbdb9d2686e66e72e48b1dcda5d52c8441dc2845d6ffb747b1ba4518871063a"
+        }
+      },
+      "desktopTsconfig": {
+        "version": "Version 7.0.2",
+        "exit": 0,
+        "errors": 0,
+        "seconds": 0.1,
+        "log": {
+          "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/post-ts7-desktop-tsconfig.json.log",
+          "sha256": "e8e8ae49634ea3007eeba9cc6f5f475ac5029ca71411d84dc176abea94f664ad"
+        }
+      },
+      "desktopTsconfigTest": {
+        "version": "Version 7.0.2",
+        "exit": 0,
+        "errors": 0,
+        "seconds": 0.1,
+        "log": {
+          "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/post-ts7-desktop-tsconfig.test.json.log",
+          "sha256": "a9feb5f614ad82c09d4a29c1ece1641d247c4275469b4747f6442b51f87e48b4"
+        }
+      }
+    },
+    "ts6": {
+      "root": {
+        "version": "Version 6.0.3",
+        "exit": 0,
+        "errors": 0,
+        "seconds": 34.6,
+        "log": {
+          "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/post-ts6-root.log",
+          "sha256": "c9132217fd34e9e7997b6dbb97b7662df3b4b00c2c471b5b3af2a06908db6453"
+        }
+      },
+      "desktopTsconfig": {
+        "version": "Version 6.0.3",
+        "exit": 0,
+        "errors": 0,
+        "seconds": 0.8,
+        "log": {
+          "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/post-ts6-desktop-tsconfig.json.log",
+          "sha256": "1f0d06b4db54e491e0b8543f64cb5467c63a0d56699b6376e2578b135de0ad1b"
+        }
+      },
+      "desktopTsconfigTest": {
+        "version": "Version 6.0.3",
+        "exit": 0,
+        "errors": 0,
+        "seconds": 0.9,
+        "log": {
+          "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/post-ts6-desktop-tsconfig.test.json.log",
+          "sha256": "2fb06b695692e000f9b0fd4b6e42c5d8087dc12507f4ac1a64a4d1271e5f94e3"
+        }
+      }
+    },
+    "note": "D2 scratch copy only; the committed tsconfig.json and desktop/tsconfig.json are unchanged (TS7S1B)"
+  },
+  "census": {
+    "files": "13 of 15 (12 in this change: 9 non-evidence files + admission, red and local receipts; plus the reserved review slot)",
+    "productAddedLines": "45 of 500 (git diff --numstat --no-renames against the baseline, evidence directory skipped, __tests__/ and *.test.* uncounted)",
+    "rows": [
+      {
+        "file": "openspec/changes/migrate-to-typescript-7/tasks.md",
+        "added": 3,
+        "deleted": 2,
+        "counted": 3
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "added": 16,
+        "deleted": 6,
+        "counted": 16
+      },
+      {
+        "file": "src/__tests__/api/campaigns/campaignRedeemRoute.test.ts",
+        "added": 4,
+        "deleted": 1,
+        "counted": 0
+      },
+      {
+        "file": "src/lib/campaign/grants/__tests__/campaignShareAndRedeem.test.ts",
+        "added": 8,
+        "deleted": 2,
+        "counted": 0
+      },
+      {
+        "file": "src/lib/campaign/grants/campaignGrantToken.ts",
+        "added": 2,
+        "deleted": 2,
+        "counted": 2
+      },
+      {
+        "file": "src/lib/campaign/grants/redeemCampaignGrant.ts",
+        "added": 1,
+        "deleted": 1,
+        "counted": 1
+      },
+      {
+        "file": "src/lib/events/checkpoints/BranchCheckpointCache.ts",
+        "added": 2,
+        "deleted": 2,
+        "counted": 2
+      },
+      {
+        "file": "src/lib/multiplayer/server/auth.ts",
+        "added": 3,
+        "deleted": 3,
+        "counted": 3
+      },
+      {
+        "file": "src/services/vault/IdentityService.ts",
+        "added": 18,
+        "deleted": 11,
+        "counted": 18
+      }
+    ],
+    "estimate": "admission estimate about 52-58; measured 45"
+  },
+  "checks": {
+    "typecheck": "PASS (npm run typecheck, tsc 5.8.3, 0 errors; typecheck.log)",
+    "lint": "PASS (0 errors; 86 warnings, the baseline count; lint-post.log equals lint-base.log line for line apart from the timing line; no warning on a leaf)",
+    "format": "PASS (npm run format:check)",
+    "lintUnits": "PASS (LINT_UNITS_PASS 17899/17899; src/pages/api 16/16; src-tests 17783/17783; ceilings unchanged)",
+    "openspec": "PASS (npx openspec validate --all --strict: 230 passed, 0 failed)",
+    "openspecCi": "PASS (npm run qc:openspec-ci:validate: errors=0)",
+    "desktop": "PASS (desktop/ npm run type-check exit 0; desktop/ npm test 5 suites, 57 tests passed; desktop is unchanged)",
+    "untouched": "auth.test.ts, IdentityService.test.ts, tsconfig.json, desktop/tsconfig.json, package.json and openspec/active-change-ledger.json have no diff against the baseline",
+    "roadmap": "validate-roadmap.mjs, --next and validate-roadmap.test.mjs recorded in the attempt directory",
+    "testStable": "npm run test:stable runs once after this receipt is frozen; its result is recorded in the attempt directory and the pull request, not here"
+  },
+  "logs": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/",
+  "boundary": "Type annotations only, valid on TypeScript 5.8; no compiler version or config change (TS7S1B). No merge or Main proof claimed.",
+  "status": "Candidate local checks only; independent exact-head review pending"
+}

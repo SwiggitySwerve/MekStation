@@ -350,7 +350,7 @@ export class BranchCheckpointCache {
       const everything = await history.readTail(0);
       const replayed = runFullReplay(registry, projector, everything);
       return Object.freeze({
-        path: 'full-replay',
+        path: 'full-replay' as const,
         state: replayed.state,
         stateDigest: replayed.stateDigest,
         appliedRevisions: replayed.appliedRevisions,
@@ -375,7 +375,7 @@ export class BranchCheckpointCache {
       );
     }
     return Object.freeze({
-      path: 'checkpoint-plus-tail',
+      path: 'checkpoint-plus-tail' as const,
       baseRevision: offer.metadata.revision,
       state: outcome.result.state,
       stateDigest: outcome.result.stateDigest,

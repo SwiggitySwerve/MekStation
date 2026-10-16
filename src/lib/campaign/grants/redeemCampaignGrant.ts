@@ -87,7 +87,7 @@ function asToken(value: unknown): ICampaignGrantToken | null {
 }
 
 /** Base64 to bytes without assuming a browser or Node-only global. */
-function fromBase64(value: string): Uint8Array {
+function fromBase64(value: string): Uint8Array<ArrayBuffer> {
   return Uint8Array.from(Buffer.from(value, 'base64'));
 }
 
