@@ -7717,7 +7717,15 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1a-admission-20261016.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1a-admission-review-20261016.md",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1a-red-20261016.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1a-local-20261016.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1a-local-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1a-source-fable-review-20261016.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1a-owner-ruling-6225844972.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1a-review-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1a-merge-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-c60ad495-tests.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-c60ad495-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-c60ad495-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1a-mainproof-20261016.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -7728,10 +7736,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "implementing",
+      "state": "main-verified",
       "baseline": "4bf26f7b2688bc0b14a52e36f957ff030eae9151",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "3f2de76f58b0554820823c974e9437246286d847",
+      "mergeSha": "c60ad495b4e4a98a48ec00c2fe7de363682764c1",
       "stageReceipts": {
         "admission": {
           "path": "evidence/ts7s1a-admission-20261016.json"
@@ -7742,9 +7750,27 @@
         "local": {
           "path": "evidence/ts7s1a-local-20261016.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/ts7s1a-review-20261016.json",
+          "head": "3f2de76f58b0554820823c974e9437246286d847",
+          "reviewedHead": "3f2de76f58b0554820823c974e9437246286d847",
+          "reviewerModel": "claude-fable-5-1",
+          "implementerModel": "claude-opus-5-5",
+          "outputSha256": "ced08d01532c342c189c607958a67e53f3d426fe24e6283c8bd735d2e39a909f",
+          "verdict": "APPROVE-WITH-NOTES"
+        },
+        "merge": {
+          "path": "evidence/ts7s1a-merge-20261016.json",
+          "pr": 2174,
+          "head": "3f2de76f58b0554820823c974e9437246286d847",
+          "mergeSha": "c60ad495b4e4a98a48ec00c2fe7de363682764c1"
+        },
+        "mainProof": {
+          "path": "evidence/ts7s1a-mainproof-20261016.json",
+          "mergeCommit": "c60ad495b4e4a98a48ec00c2fe7de363682764c1",
+          "verdict": "PASS",
+          "runtime": "Source/Main Jest: Tests:       520 passed, 520 total"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -7804,7 +7830,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -15078,6 +15104,44 @@
         "commentId": 6223189276,
         "author": "SwiggitySwerve",
         "bodySha256": "bd3b3967b5029f2a42626ace254c839a6f396d0570529a88971e1d8c8ab95bd9"
+      }
+    },
+    {
+      "id": "PK-ts7s1a-ruling",
+      "blocks": [
+        "TS7S1A"
+      ],
+      "nodes": [
+        "R6.ts7-toolchain"
+      ],
+      "taskKeys": [],
+      "question": "After independent exact-head Fable review and required green CI, should the owner rule the bounded TS7S1A type-only head (tasks 1.1-1.2 of migrate-to-typescript-7: Uint8Array<ArrayBuffer> annotations and narrowed returns, the exported signData, verifySignature and encryptWithPassword parameters widened to the lib BufferSource, four caller annotations and two as const path literals in BranchCheckpointCache, with emitted JavaScript byte-identical on TypeScript 5.8.3) before guarded merge?",
+      "options": [
+        {
+          "label": "rule the exact source head",
+          "consequence": "Permit the guarded TS7S1A type-only merge and the exact-main proof only. TS7S1B is released to planned only after TS7S1A is main-verified, with the review carry-forwards recorded for its admission. P2CG1B stays blocked under the parent hold.",
+          "effort": "One exact-head Fable review, an evidence check and an owner ruling"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Hold the merge until the concrete emit-equality, type-only, scope or proof objections are fixed, and fresh exact-head review, CI and owner ruling are complete. If any emitted runtime byte differs, re-register the unit under the authority and privacy review classes.",
+          "effort": "Bounded by the concrete review objections"
+        }
+      ],
+      "agentRecommendation": "Rule only an independently approved green exact head that meets all of these: every edit is a type annotation or the as const that task 1.2 names; the emitted JavaScript of every changed file is byte-identical under TypeScript 5.8.3, re-derived by the reviewer with its own script; TypeScript 7.0.x and 6.0.x report 0 root errors on the D2 scratch copy; npm run typecheck reports 0; and every suite that imports the five source leaves passes. This proposal grants no approval or merge permission.",
+      "revertCost": "Low: revert the seven type-annotated leaves and the tasks.md ticks. TS7S1A changes no emitted JavaScript, compiler version, config, Protocol, server.js or production wiring.",
+      "decision": {
+        "option": "rule the exact source head",
+        "at": "2026-10-16T22:24:23Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2174#issuecomment-6225844972"
+      },
+      "ruling": {
+        "ruledHead": "3f2de76f58b0554820823c974e9437246286d847",
+        "pr": 2174,
+        "commentId": 6225844972,
+        "author": "SwiggitySwerve",
+        "bodySha256": "b013731c0a9a7ada11a913a62c6f7b112b98986a78493fa399bcb5e6b11a85d2"
       }
     },
     {

@@ -1,0 +1,183 @@
+{
+  "unit": "TS7S1A",
+  "stage": "mainProof",
+  "recordedAt": "2026-10-16T22:40:00.000Z",
+  "mergeCommit": "c60ad495b4e4a98a48ec00c2fe7de363682764c1",
+  "verdict": "PASS",
+  "checkout": "E:/Projects/Personal/MekStation-wt/ts7s1a-closure-20261016",
+  "runtime": {
+    "playwright": "Source/Main Jest: Tests:       520 passed, 520 total",
+    "suites": "46 passed, 46 total",
+    "tsc": "npm run typecheck (tsc 5.8.3, the repo gate): exit 0",
+    "node": "v22.22.0"
+  },
+  "proof": {
+    "path": "evidence/mainproof-c60ad495-tests.bytes.json",
+    "payloadSha256": "19400d6945ce7f995da4c6713d4ac14acc214b436831334ac62a449b1a978ca3",
+    "payloadBytes": 363819,
+    "note": "Fresh run at the exact merge HEAD on a clean checkout before any closure edit: the 46 suites that import IdentityService, BranchCheckpointCache, server/auth, campaignGrantToken or redeemCampaignGrant, by path in one jest invocation, from the author list suites-direct.txt (sha256 0711a13c..., the same list the admission receipt cites; the independent reviewer scan is set-equal). Result: 46 suites, 520/520, the same count as the author red and green runs and the reviewer base and head runs."
+  },
+  "logs": [
+    {
+      "path": "evidence/mainproof-c60ad495-typecheck.bytes.json",
+      "payloadSha256": "33de0efdb094ff6e646ce7163abd88467562ebf425eee7a6e6c8a4e6b07b4338",
+      "payloadBytes": 363,
+      "note": "Fresh tsc --version (Version 5.8.3) and npm run typecheck on the same checkout and HEAD: exit 0."
+    },
+    {
+      "path": "evidence/mainproof-c60ad495-validator.bytes.json",
+      "payloadSha256": "a944ceeb5633e8cead888b95118eed2f83a01ccf7424622ec19398544361d4fe",
+      "payloadBytes": 456,
+      "note": "Fresh validator and --next on the unedited ledger at the same HEAD (PASSED, 80 nodes; --next U25, because TS7S1A was still implementing)."
+    }
+  ],
+  "attemptLogs": [
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/census.md",
+      "sha256": "74b2058041b1fd26413d466b8201d3244dda8632475acac381158c79d7c530f5",
+      "bytes": 6757,
+      "note": "Author census frozen before edits"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/suites-direct.txt",
+      "sha256": "0711a13ceaac38dfd6162f8a40b75fb9629a11589a626c73e09063b6e27c130c",
+      "bytes": 2777,
+      "note": "The 46 direct-importer suites of the five source leaves; the reviewer independent scan is set-equal"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/suite-scan.json",
+      "sha256": "6304465467425945a015653e698177f104a24477204b193c182364e1fdcd74f5",
+      "bytes": 59523,
+      "note": "Author suite scan output"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/baseline-0.2.md",
+      "sha256": "12b82f7fcd738b1d7850b123bd784f39ec37ece3396a5767f60a3ab975bb57dd",
+      "bytes": 5369,
+      "note": "Author tasks.md 0.2 scratch measurement record (admission tasks02Measurement)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/pre-ts7-root.log",
+      "sha256": "8b10d266ede95087c2460a72376b5e6a5eace6c240799d1de29b089b050e6356",
+      "bytes": 6682,
+      "note": "Pre-edit TypeScript 7.0.2 root on the D2 scratch copy: 11 errors"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/pre-ts6-root.log",
+      "sha256": "2255571343ed435d10959efb939aee192b9519820918e810b3ad6e9a0e823915",
+      "bytes": 6400,
+      "note": "Pre-edit TypeScript 6.0.3 root on the D2 scratch copy: 9 errors"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/followon-probe.json",
+      "sha256": "197b99cb60ff7376e02026173054d74392479e208aef586d056f814db52fc55b",
+      "bytes": 3204,
+      "note": "Hidden first-bad-argument probe, TypeScript 7.0.2: 3 more IdentityService.ts sites"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/followon-probe-ts6.json",
+      "sha256": "3453108e607a1d43f67becbd2b8d7c3629cf0c816f3cd443ba5536a2a0a943ae",
+      "bytes": 2769,
+      "note": "Hidden first-bad-argument probe, TypeScript 6.0.3: the same 3"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/post-ts7-root.log",
+      "sha256": "abbdb9d2686e66e72e48b1dcda5d52c8441dc2845d6ffb747b1ba4518871063a",
+      "bytes": 255,
+      "note": "Post-edit TypeScript 7.0.2 root: 0 errors"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/post-ts6-root.log",
+      "sha256": "c9132217fd34e9e7997b6dbb97b7662df3b4b00c2c471b5b3af2a06908db6453",
+      "bytes": 256,
+      "note": "Post-edit TypeScript 6.0.3 root: 0 errors"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/red-results.json",
+      "sha256": "1ea609226b59a04c47afd5f0c22c27af5d83729af6196521e0f275207d24d71a",
+      "bytes": 213654,
+      "note": "Baseline 46 suites, 520 tests"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/red-raw.log",
+      "sha256": "37963d371a887af2f36eb9ad350373d131f8aef6ddfe9507098d8d883a786c13",
+      "bytes": 361042,
+      "note": "Baseline run log: 46 suites, 520/520"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/green-results.json",
+      "sha256": "59add0cbbc10f1b115cea09d94462a12a6bc383423ec675656091dc06e0573da",
+      "bytes": 213650,
+      "note": "Post-edit 46 suites, 520 tests; sorted rows equal the baseline"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/green.log",
+      "sha256": "1b0c973dbb2e627dc09cb1c642323fdb283dceee5b1bf8686dcb1f68751be22d",
+      "bytes": 361086,
+      "note": "Post-edit run log: 46 suites, 520/520"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/emit-equality.md",
+      "sha256": "b25665232e4fedbc2c9c0fc66246ce76b6eed238578108a95e82fcea62451572",
+      "bytes": 6140,
+      "note": "Author emit-equality record (TypeScript 5.8.3, two methods, 0 differing)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/emit-equality.json",
+      "sha256": "865a55896fd955591d49ee9b0fd70abe7ab373ff298e9992eed747319301b2ee",
+      "bytes": 7868,
+      "note": "Author emit-equality output"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/emit-sensitivity.json",
+      "sha256": "b22a30ac33670cfdad7c2bbf64e0563ae2bb765e6852dd5c8a608eb4e020058d",
+      "bytes": 441,
+      "note": "Author emit sensitivity: runtime mutations flagged, type-only not"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/lint-base.log",
+      "sha256": "bfdd3f8bd68b17eb1a33a2e1044445413e4adc1326edc8d72b297965f3283cdd",
+      "bytes": 39377,
+      "note": "Author lint at base: 0 errors, 86 warnings"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/lint-post.log",
+      "sha256": "66711f47c1f54634edb19993da6f09f0672f8a92927b1fb5aa57db04ce60b362",
+      "bytes": 39377,
+      "note": "Author lint at head: 0 errors, 86 warnings"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/typecheck.log",
+      "sha256": "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f",
+      "bytes": 65,
+      "note": "Author typecheck (5.8.3)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/desktop-typecheck.log",
+      "sha256": "1c84aef8f008eb87873642349d0bea96f93036ed269f3ebe58dd42a2b1ca48cb",
+      "bytes": 55,
+      "note": "Author desktop type-check"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/desktop-jest.log",
+      "sha256": "c2d83fff8b4cc1f381907c4260281b17c42fd085027cf225725206b649b64529",
+      "bytes": 21166,
+      "note": "Author desktop Jest: 5 suites, 57 tests"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/test-stable.log",
+      "sha256": "9815dbc60d79d025477540e38048acde1bed75e067d1157617e95a8f09f3ac99",
+      "bytes": 1597558,
+      "note": "Author npm run test:stable on the final bytes: 2796/2796 suites, 37180 passed, 50 skipped, 0 failed"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/report.md",
+      "sha256": "2b71f58236667cf41188077dad24ed629d37574d30c72e749366f7485f86cda7",
+      "bytes": 5704,
+      "note": "Author report"
+    }
+  ],
+  "scope": "Fresh importing-suite run, typecheck (repo TypeScript 5.8.3) and validator at the exact merge commit, plus hash references to the author attempt logs. The TypeScript 7.0.2/6.0.3 scratch measurements and the emit-equality proof are the author and reviewer results on the head, whose tree equals the merge tree for every source leaf; they were not re-run at main. No install, full-stable at main, desktop, browser or build result is claimed for main.",
+  "closure": "main-verified only. taskKeys is empty; tasks.md 1.1 and 1.2 were ticked by the source PR, no tasks.md row changes here and no tick receipt is invented. Source/closure owned-resource cleanup is not established here.",
+  "preservation": "Proof and logs are base64 envelopes so repository LF normalization cannot alter their exact bytes. Decode data and verify payloadSha256/payloadBytes."
+}
