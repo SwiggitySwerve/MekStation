@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CB",
+  "stage": "admission",
+  "date": "20261016",
+  "baseline": "42e3554bdd1d36426877f6d9100d93dc7e92782f",
+  "authority": "Root Task10/P2CB round-2 implementation delegation after the P2CB saga-leaf registration (PR #2142, merge 42e3554b, receipt evidence/p2cb-saga-registration-20261016.json) and its independent review docs/audits/2026-10-16-p2cb-saga-registration-fable-review.md (APPROVE-WITH-NOTES)",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "Task10 / P2CB implementation sub-agent, round 2"
+  },
+  "caps": {
+    "files": 15,
+    "productAddedLines": 500
+  },
+  "restriction": {
+    "container": "R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CB",
+    "leaves": 6,
+    "knownSourceTestLifecycleSubtotal": 7
+  },
+  "frozenFiles": [
+    {
+      "path": "src/lib/campaign/sync/campaignPublicAppliedView.ts",
+      "exists": true,
+      "sha256": "fab760d1270757b3111408ff2ccc9fc14804937747b42c9ce8b315a4e118a151",
+      "bytes": 9099
+    },
+    {
+      "path": "src/lib/multiplayer/server/campaignProgressionReaders.durable.ts",
+      "exists": true,
+      "sha256": "10cc7c4ee856be690254beba252c7fc1f05722af49ab4d09ca059912ff51ae2d",
+      "bytes": 5650
+    },
+    {
+      "path": "src/lib/multiplayer/server/history/CoordinatedOutcomeCorrectionSaga.ts",
+      "exists": true,
+      "sha256": "7804d4af9f5d68dd11d547cab41a3816dcc2fc503b337e64b76d245056c93012",
+      "bytes": 14308
+    },
+    {
+      "path": "src/lib/campaign/sync/__tests__/campaignPublicAppliedView.integration.test.ts",
+      "exists": true,
+      "sha256": "8a9a8b5ec69286fd283c013794c17aba80270d265a6f7e1f76589b7e4acc6b6b",
+      "bytes": 10406
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.crossGraph.test.ts",
+      "exists": true,
+      "sha256": "f6c377c5b139fafdae85a675500cc0779b4f584333661f85070cb877bad21c8d",
+      "bytes": 4965
+    },
+    {
+      "path": "src/lib/multiplayer/server/history/__tests__/CoordinatedOutcomeCorrectionSaga.test.ts",
+      "exists": true,
+      "sha256": "d8b2211c1b07dde96af39310eab92f0ad19b83b5e710b34887c994d37c850fc9",
+      "bytes": 18881
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "exists": true,
+      "sha256": "b694f1d1a52b0f987f892f4d57431eec5c1a43f69b057a38e434f400709895d0",
+      "bytes": 1270686
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cb-admission-20261016.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cb-admission-review-20261016.md",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cb-red-20261016.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cb-local-20261016.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    }
+  ],
+  "overlap": "gh pr list --state open over the three product leaves returned []; no remote p2cb branch at baseline",
+  "reviewSlot": "Reserved for independent reviewer; author must not write review",
+  "summary": "Ordinary admission of the 11 frozen leaves (6 restriction leaves, units.json, 4 evidence). No cap exception, no unnamed leaf, no merge or Main claim."
+}

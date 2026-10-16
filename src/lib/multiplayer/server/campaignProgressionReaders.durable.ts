@@ -13,12 +13,17 @@
 import type Database from 'better-sqlite3';
 
 import { campaignStreamRef } from '@/lib/campaign/authority/campaignLaunchHead';
+import {
+  CampaignLaunchView,
+  type CampaignLaunchPrecedence,
+} from '@/lib/campaign/sync/campaignPublicAppliedView';
 import { SQLiteEventHistoryArtifactManifestStore } from '@/lib/events/journal/EventHistoryArtifactManifest';
 import {
   EventHistoryBranchError,
   type IEventHistoryStreamRef,
 } from '@/lib/events/journal/EventHistoryBranchContract';
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
+import { listActiveCampaignSessionParticipants } from '@/services/campaignPersistence/CampaignSessionParticipantStore';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 
 import type {
@@ -29,8 +34,12 @@ import type { DurableMatchStore } from './DurableMatchStore';
 import type { ICoordinatedCorrectionSaga } from './history/CoordinatedOutcomeCorrectionSaga';
 import type { IMatchStore } from './IMatchStore';
 
+import { evaluateCampaignProgressionClauses } from './CampaignProgressionGate';
 import { getDefaultMatchStore } from './getDefaultMatchStore';
-import { readCoordinatedCorrectionSagaByOutcomeId } from './history/CoordinatedOutcomeCorrectionSaga';
+import {
+  readCoordinatedCorrectionSagaByOutcomeId,
+  readCoordinatedCorrectionSagaByOutcomeIdStrict,
+} from './history/CoordinatedOutcomeCorrectionSaga';
 
 /**
  * Production readers. Each call returns null when SQLiteService has not
@@ -63,9 +72,79 @@ export function createDurableCampaignProgressionReaders(): ICampaignProgressionR
       }
     },
     readSagaForCampaign: (campaignId) => readDurableSagaForCampaign(campaignId),
-    readManifestVerdict: (campaignId, branchId) =>
-      readDurableManifestVerdict(campaignStreamRef(campaignId), branchId),
+    readManifestVerdict: (campaignId, branchId) => {
+      const db = journalDbOrNull();
+      if (db === null) return null;
+      return readDurableManifestVerdict(
+        db,
+        campaignStreamRef(campaignId),
+        branchId,
+      );
+    },
   };
+}
+
+/**
+ * P2CB's launch view, composed in THIS module graph on its own campaign
+ * handle and membership reader. A view retained by a host keeps that
+ * graph's handle; another graph's handle is refused, never adopted.
+ */
+export function createDurableCampaignLaunchView(): CampaignLaunchView | null {
+  const db = journalDbOrNull();
+  if (db === null) return null;
+  return new CampaignLaunchView(db, {
+    currentDb: journalDbOrNull,
+    listRoster: listActiveCampaignSessionParticipants,
+    readPrecedence: readStrictCampaignLaunchPrecedence,
+  });
+}
+
+/**
+ * The same three clauses on one explicit campaign handle for a strict
+ * launch context. Unlike the readers above, no read failure becomes "no
+ * saga": an inbox outcome whose match store is not durable, a saga or
+ * inbox read that throws, or a branch read that throws is `unavailable`.
+ * Known absence is zero inbox rows or a saga table never created. The
+ * legacy numeric refusal detail is dropped; only the reason is carried.
+ */
+export function readStrictCampaignLaunchPrecedence(
+  db: Database.Database,
+  campaignId: string,
+): CampaignLaunchPrecedence {
+  const stream = campaignStreamRef(campaignId);
+  const branches = new SQLiteEventHistoryBranchStore(db);
+  try {
+    const refusal = evaluateCampaignProgressionClauses({
+      campaignId,
+      requiredRevision: 0,
+      readers: {
+        readEffectiveHead: () => branches.readEffectiveHead(stream),
+        readBranch: (_campaignId, branchId) =>
+          branches.readBranch(stream, branchId),
+        readSagaForCampaign: () => readStrictSagaForCampaign(db, campaignId),
+        readManifestVerdict: (_campaignId, branchId) =>
+          readDurableManifestVerdict(db, stream, branchId),
+      },
+    });
+    return refusal === null
+      ? { kind: 'clear' }
+      : { kind: 'blocked', reason: refusal.reason };
+  } catch {
+    return { kind: 'unavailable' };
+  }
+}
+
+function readStrictSagaForCampaign(
+  journal: Database.Database,
+  campaignId: string,
+): ICoordinatedCorrectionSaga | null {
+  const outcomeId = readLatestInboxOutcomeIdStrict(journal, campaignId);
+  if (outcomeId === null) return null;
+  const matchDb = matchStoreDbOrNull();
+  if (matchDb === null) {
+    throw new Error(`Outcome ${outcomeId} has no durable match store saga`);
+  }
+  return readCoordinatedCorrectionSagaByOutcomeIdStrict(matchDb, outcomeId);
 }
 
 function nullUnlessBranchIntegrity(error: unknown): null {
@@ -128,27 +207,34 @@ function readLatestInboxOutcomeId(
   campaignId: string,
 ): string | null {
   try {
-    const row = journal
-      .prepare(
-        `SELECT outcome_id AS outcomeId
-           FROM campaign_combat_outcome_inbox
-          WHERE campaign_id = ?
-          ORDER BY received_at DESC, outcome_version DESC
-          LIMIT 1`,
-      )
-      .get(campaignId) as { readonly outcomeId: string } | undefined;
-    return row === undefined ? null : row.outcomeId;
+    return readLatestInboxOutcomeIdStrict(journal, campaignId);
   } catch {
     return null;
   }
 }
 
+/** The inbox table is migrated with the service, so a throw here is a real failure. */
+function readLatestInboxOutcomeIdStrict(
+  journal: Database.Database,
+  campaignId: string,
+): string | null {
+  const row = journal
+    .prepare(
+      `SELECT outcome_id AS outcomeId
+         FROM campaign_combat_outcome_inbox
+        WHERE campaign_id = ?
+        ORDER BY received_at DESC, outcome_version DESC
+        LIMIT 1`,
+    )
+    .get(campaignId) as { readonly outcomeId: string } | undefined;
+  return row === undefined ? null : row.outcomeId;
+}
+
 function readDurableManifestVerdict(
+  db: Database.Database,
   stream: IEventHistoryStreamRef,
   branchId: string,
-): CampaignManifestVerdict | null {
-  const db = journalDbOrNull();
-  if (db === null) return null;
+): CampaignManifestVerdict {
   try {
     const manifests = new SQLiteEventHistoryArtifactManifestStore(db);
     if (manifests.readArtifactManifest(stream, branchId) === null) {

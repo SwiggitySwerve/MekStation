@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CB",
+  "stage": "local",
+  "baseline": "42e3554bdd1d36426877f6d9100d93dc7e92782f",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "Task10 / P2CB implementation sub-agent, round 2"
+  },
+  "runtime": "node v22.22.0",
+  "command": "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --runTestsByPath src/lib/campaign/sync/__tests__/campaignPublicAppliedView.integration.test.ts src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.crossGraph.test.ts src/lib/multiplayer/server/history/__tests__/CoordinatedOutcomeCorrectionSaga.test.ts",
+  "exitCode": 0,
+  "suites": 3,
+  "tests": 51,
+  "adjacentLegacyCallers": "campaignProgressionReaders.durable.integrity.test.ts and campaignLaunchAuthorityRoute.test.ts with the three leaves: 5 suites, 108 tests, exit 0",
+  "mutationProbe": "14 source mutations (no-op obligation, hidden-suffix credit, committed removal, viewer policy, launch ceiling, input compare, foreign handle, GM requirement, head digest, authority fingerprint, strict saga/inbox/match-store, absent-table probe): all killed",
+  "census": {
+    "files": "11 of 15 (10 in this change plus the reserved review slot)",
+    "productAddedLines": "470 of 500 (product 454: owner 322, durable 102, saga 30; units.json 16), git diff --numstat against baseline; test additions 854 and evidence additions reported separately"
+  },
+  "checks": {
+    "typecheck": "PASS",
+    "lint": "PASS (0 errors; adds one max-lines warning: campaignPublicAppliedView.ts 488 > 400, not split because a new module would be an unregistered leaf)",
+    "format": "PASS (oxfmt --check on touched files)",
+    "roadmap": "validate-roadmap.mjs, --next and validate-roadmap.test.mjs recorded in the attempt directory",
+    "testStable": "npm run test:stable exit 0: 2795/2795 suites, 37067 passed, 50 skipped (run 2; run 1 was invalid because this receipt did not yet exist and the roadmap script suites validate the live ledger)"
+  },
+  "logs": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-10-p2cb-20261016/",
+  "boundary": "Callable launch preparation/revalidation primitive and graph-local composition only. No production caller is switched (Task14 owns both readiness doors); no wire, offer or receipt issuance (Task11/12). Saga and campaign stores are separate SQLite files: the recheck detects drift, it does not make them atomic. No merge or Main proof claimed.",
+  "status": "Candidate local checks only; independent exact-head review pending"
+}
