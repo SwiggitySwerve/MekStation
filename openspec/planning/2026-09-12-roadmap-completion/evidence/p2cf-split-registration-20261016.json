@@ -1,0 +1,497 @@
+{
+  "event": "p2cf-split-registration",
+  "unit": "P2CF",
+  "planTask": 13,
+  "registrationOnly": true,
+  "at": "2026-10-16T10:43:39.000Z",
+  "baseline": "db24bd9fdd5d0adc054fe8fff1c9ea71ec7db859",
+  "actor": {
+    "role": "implementation sub-agent",
+    "provider": "anthropic",
+    "servedModel": "claude-opus-5-5",
+    "identitySource": "Current T3 Code/Claude Code harness runtime; parent delegation identity and independent review are recorded separately by Root."
+  },
+  "authority": {
+    "plan": {
+      "path": "E:/Projects/Personal/MekStation/.omo/plans/mekstation-whole-roadmap-reconciliation-20261002.md",
+      "bytes": 456418,
+      "sha256": "ddfca64e7749ab42d8642defd386394ba8805451c81c6a03c5e761d7f12ede3c",
+      "sections": [
+        "13. Wire mounted GM and guest application before acknowledgment",
+        "Task13 mounted completion clarification (2026-10-09)",
+        "Task11 staged application and Task14 sender retirement clarification (2026-10-09)"
+      ]
+    },
+    "clauses": [
+      "If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required scenario.",
+      "Future same-package finite R-prefix grants the five exact additional owner/test leaves and P2CF restriction/subtotal5->10 ... Any genuine sixteenth path ... requires the existing measured ordinary split/successor.",
+      "Task12 and Task13 may land callable producer/consumer primitives while retaining legacy production traffic. Activate receipt traffic only with the actual usable durable readiness implementation at both authority doors in Task14; no numeric/cursor translation or unowned mutable flag may bridge the gap. Freeze the concrete activation predicate within the owning task contracts before source execution."
+    ],
+    "clauseLocations": [
+      "units.json P2CF.admissionRequires",
+      "roadmap.json R2.authority-live.ownershipPathsAmended20261009P2C.permissionBoundary",
+      "plan line 2961 (Task13 clarification)",
+      "plan Task11/Task14 clarification (2026-10-09)"
+    ],
+    "precedent": {
+      "split": "P2CE -> P2CE1, P2CE2, P2CE3 (evidence/p2ce-split-registration-20261016.json, PR #2146, cb4af3aa), itself following P1B -> P1B1..3 (PR #2061)",
+      "supersededParent": "P2CE stays blocked with superseded20261016/blocked20261016 markers; no parent completion receipts are fabricated",
+      "downstream": "P2CF and P2C named P2CE1/P2CE2/P2CE3 in place of P2CE with an amended20261016 marker; P2CB/P2CD successors were left naming P2CE",
+      "release": "First successor registered planned on the predecessors the parent was released on; later successors blocked until the parent's one-field release PR (P2CE2 #2149, P2CE3 #2152, P2CF #2157)",
+      "reviewOfPrecedent": "docs/audits/2026-10-16-p2ce-split-registration-fable-review.md (APPROVE-WITH-NOTES)"
+    }
+  },
+  "measurement": {
+    "source": "Task 13 implementation round, stopped at admission before any edit (no source, test, lifecycle or evidence change; nothing committed). No P2CF source candidate exists, so the per-slice line figures below are estimates from read code, not measurements.",
+    "frozenBaseline": "db24bd9fdd5d0adc054fe8fff1c9ea71ec7db859",
+    "files": [
+      {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-13-p2cf-20261016/census.md",
+        "bytes": 9725,
+        "sha256": "75312998d14ac536733ac80e7eb105c63df6400a397b18ae1a42642c267d45a5"
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-13-p2cf-20261016/report.md",
+        "bytes": 8006,
+        "sha256": "6aa0621ad7cc5f516748207aafb20cf201ed84c2414ba0f48b4c5bd5cc1bffe9"
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-13-p2cf-20261016/validation.log",
+        "bytes": 488,
+        "sha256": "457b4fd227301c93c3eda3475b16d0ca19948e4d4d5aacd4d859381a4ab3452f"
+      }
+    ],
+    "preparationInputs": [
+      {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task13-mounted-application-preparation-20261009.md",
+        "bytes": 31830,
+        "sha256": "d1fbbb1b3de49065766fb0b06eb6472bb549bb065461a62d903e9cffaf768b25"
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task13-mounted-application-independent-review-20261009.md",
+        "bytes": 27367,
+        "sha256": "ecfdf1f023475c01527e8f8095aacb2b848ba37676e89950a4130f71b22cbe47"
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task13-preparation-parent-decision-20261009.json",
+        "bytes": 2681,
+        "sha256": "d1fe42796389d14fa7c1f196c896afa703e7b3b8c2b4400dc037b4eb17292533"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ce3-review-20261016.json",
+        "bytes": 12368,
+        "sha256": "b426750743c2d1ceba67edc93d472ebb720f7015b32503c2959c8d4849402fb8",
+        "used": "successorNotes.Task13, successorNotes.Task13Optional, successorNotes.Task14"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2ce2-review-20261016.json",
+        "bytes": 7186,
+        "sha256": "6008f6f8a081251ff7f635c00d932354fd7592f1a7dc8ba48c3a73cd20ae0f4c",
+        "used": "successorNotes.Task13, successorNotes.afterP2CE3"
+      }
+    ],
+    "countingRule": "U41: added lines from git diff --numstat --no-renames; __tests__/test files and ledger evidence uncounted; no deletion credit; every changed file counts toward maxFiles.",
+    "leafCensus": [
+      {
+        "path": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+        "exists": true,
+        "bytes": 17729,
+        "lines": 466,
+        "sha256": "c332fd251e0340cc2512318b748c668aa80e00eac56c32a97b5bd607b25f8487",
+        "inP2CFRestriction": true,
+        "slice": "P2CF2",
+        "estimatedCounted": "20-35 (glue, refusal filter, per-binding fold reset; the consumer lives in the hook)"
+      },
+      {
+        "path": "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+        "exists": false,
+        "inP2CFRestriction": false,
+        "slice": "P2CF2",
+        "estimatedCounted": "130-180 (new consumer code only; no existing component code is moved, because moved lines would count again)"
+      },
+      {
+        "path": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+        "exists": true,
+        "bytes": 14604,
+        "lines": 455,
+        "sha256": "392723d8cae8d2c76d49929128f4bce608a6d67ae9acc8562fdc5c53016da43f",
+        "inP2CFRestriction": true,
+        "slice": "P2CF2",
+        "estimatedCounted": "0 (test)"
+      },
+      {
+        "path": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx",
+        "exists": true,
+        "bytes": 30693,
+        "lines": 906,
+        "sha256": "e64f9057d7d68e60981d79fe3d3712f97bb37c3371177607c88f5a306a8e0cf9",
+        "inP2CFRestriction": true,
+        "slice": "P2CF2",
+        "estimatedCounted": "0 (test)"
+      },
+      {
+        "path": "src/lib/campaign/coop/campaignAuthoritativeFold.ts",
+        "exists": true,
+        "bytes": 4991,
+        "lines": 130,
+        "sha256": "d569a8ca6c63bc6d30ebb7ba9cbc0e83e730a1bf15afad8d1cfea61e90a55c48",
+        "inP2CFRestriction": true,
+        "slice": "P2CF1",
+        "estimatedCounted": "60-100"
+      },
+      {
+        "path": "src/lib/campaign/coop/__tests__/campaignAuthoritativeFold.test.ts",
+        "exists": false,
+        "inP2CFRestriction": false,
+        "slice": "P2CF1",
+        "estimatedCounted": "0 (test)",
+        "why": "Direct bundle/replacement/adjunct coverage for the fold owner; today the Task 13 QA selector term campaignAuthoritativeFold matches no test file."
+      },
+      {
+        "path": "src/lib/p2p/campaignMirrorStore.ts",
+        "exists": true,
+        "bytes": 11505,
+        "lines": 312,
+        "sha256": "2794a5405eb1d7d4ea810d3b1079666406f898374881fdf9872582e4548178f4",
+        "inP2CFRestriction": false,
+        "outsideP2CFOwnershipPaths": true,
+        "slice": "P2CF1",
+        "estimatedCounted": "30-45"
+      },
+      {
+        "path": "src/lib/p2p/__tests__/campaignMirrorStore.test.ts",
+        "exists": true,
+        "bytes": 7952,
+        "lines": 241,
+        "sha256": "62d120e772768178d6ff9865c0f5c71c07934971b7363606529645d334f1370b",
+        "inP2CFRestriction": false,
+        "outsideP2CFOwnershipPaths": true,
+        "slice": "P2CF1",
+        "estimatedCounted": "0 (test)"
+      },
+      {
+        "path": "src/lib/campaign/coop/campaignSyncTransport.ts",
+        "exists": true,
+        "bytes": 19990,
+        "lines": 636,
+        "sha256": "9ec26ebd4007ddbbb9c43b5ef11d3713c9d92812e4bd1a18c58310116dd200de",
+        "inP2CFRestriction": false,
+        "outsideP2CFOwnershipPaths": false,
+        "slice": "P2CF1",
+        "estimatedCounted": "15-30 (head-drift same-ACK re-send plus non-retry refusal classification; the census's 10-20 covered only the re-send)"
+      },
+      {
+        "path": "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+        "exists": true,
+        "bytes": 29316,
+        "lines": 896,
+        "sha256": "84ea271b9bc92bf67b69ddb327bfa08ee303b7a8aa7656f7475d9cdbfeab0422",
+        "inP2CFRestriction": false,
+        "outsideP2CFOwnershipPaths": false,
+        "slice": "P2CF1",
+        "estimatedCounted": "0 (test)"
+      },
+      {
+        "path": "src/stores/campaign/useCampaignPersistenceStore.ts",
+        "exists": true,
+        "bytes": 56265,
+        "lines": 1509,
+        "sha256": "e50e9013edd3730555b999b41936550ab3e9db5b9055f4cbd491976abe08a2f1",
+        "inP2CFRestriction": false,
+        "outsideP2CFOwnershipPaths": true,
+        "slice": "P2CF2",
+        "estimatedCounted": "40-70"
+      },
+      {
+        "path": "src/stores/campaign/__tests__/campaignCommandAckRefresh.test.ts",
+        "exists": true,
+        "bytes": 17907,
+        "lines": 512,
+        "sha256": "e71ea9dd33601e24f0d6858f981931bb54e3089d6a70fbb8acb8a49cfa15e8bc",
+        "inP2CFRestriction": false,
+        "outsideP2CFOwnershipPaths": true,
+        "slice": "P2CF2",
+        "estimatedCounted": "0 (test)"
+      },
+      {
+        "path": "src/stores/campaign/campaignUnitMaxStates.ts",
+        "exists": true,
+        "bytes": 2086,
+        "lines": 53,
+        "sha256": "28d1f41624a3903d9c475029e5813dd472381ad7815068bc43dabc9a34e9d805",
+        "inP2CFRestriction": false,
+        "outsideP2CFOwnershipPaths": true,
+        "slice": "P2CF2",
+        "estimatedCounted": "20-35"
+      }
+    ],
+    "unregisteredAttemptLeavesPlacement": {
+      "P2CF1": [
+        "src/lib/p2p/campaignMirrorStore.ts",
+        "src/lib/p2p/__tests__/campaignMirrorStore.test.ts",
+        "src/lib/campaign/coop/campaignSyncTransport.ts",
+        "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts"
+      ],
+      "P2CF2": [
+        "src/stores/campaign/useCampaignPersistenceStore.ts",
+        "src/stores/campaign/__tests__/campaignCommandAckRefresh.test.ts",
+        "src/stores/campaign/campaignUnitMaxStates.ts"
+      ],
+      "note": "All seven census leaves outside the P2CF restriction are placed. The 2026-10-09 plan clarification names five of them (mirror pair, persistence pair, maxima owner); the transport pair comes from P2CE3 successorNotes.Task13 item 3."
+    },
+    "notRegistered": [
+      {
+        "path": "src/stores/campaign/__tests__/campaignUnitMaxStates.test.tsx",
+        "bytes": 10345,
+        "lines": 319,
+        "sha256": "e55176c3ab3b87ea2b1fd344e513b474843ac8a02e1517ce9cd968f096995192",
+        "reason": "Existing test the attempt census did not list. The accepted 2026-10-09 independent review says to run it unmodified as compatibility coverage and to test the staged seam through campaignCommandAckRefresh.test.ts; it stays in the P2CF2 selector as an unedited regression suite."
+      },
+      {
+        "path": "src/stores/campaign/useCampaignStore.actions.ts",
+        "reason": "Conditional leaf of task13-preparation-parent-decision (only if refused or superseded saves route through updateCampaignAction). The staged-maxima design avoids that path. If P2CF2 admission finds it is needed, P2CF2 rises to 13 files with the reserved slot and needs a one-leaf restriction amendment before source edits; no cap change."
+      }
+    ],
+    "censusCorrections": [
+      "Maxima owner continuity: the 2026-10-09 preparation hash table (lines 144-153) records no hash for src/stores/campaign/campaignUnitMaxStates.ts, so the census's byte-identity claim for it is not supported by that table. Continuity is proved by git instead: no commit touches the file between the preparation base 07990c0aa and db24bd9fd, and its blob sha256 is 28d1f416... at both. The other six byte-identity claims (component, two component tests, fold owner, persistence store, ACK-refresh test) match the preparation table exactly; the mirror store and its test changed only in P2CD f97208a9e.",
+      "The census omitted the existing src/stores/campaign/__tests__/campaignUnitMaxStates.test.tsx; it is recorded under notRegistered.",
+      "Author concern 1 is wider than lastSeq: connectStoredCampaignSyncTransport (campaignSyncTransport.ts 464-487) returns null when an active transport for the match has a different campaignId, and CampaignCoopEntryPanel.tsx 328 creates the guest's transport without expectedCampaignId. Binding expectedCampaignId only in the mounted component would therefore detach the guest surface from its live transport, in addition to dropping lastSeq from the join (campaignSyncTransport.ts 368). This fixes the activation predicate below.",
+      "Component size: 466 physical lines, 348 non-blank non-comment lines, against the oxlint max-lines warning at 400 (skipBlankLines, skipComments). +150-215 consumer lines inline would cross it; hence the sibling hook leaf."
+    ],
+    "fileArithmetic": {
+      "fullTask13": "11 source/test leaves + units.json + admission/red/local receipts = 15; 16 with the reserved admission-review slot; 17 with a same-package roadmap.json amendment. Over the 15-file cap on file count alone.",
+      "P2CF1": {
+        "restrictedLeaves": 6,
+        "knownSubtotal": 7,
+        "withReceipts": 10,
+        "withReservedReviewSlot": 11,
+        "estimatedCountedProduct": "105-175",
+        "estimatedWithLifecycle": "about 121-191 (about 16 units.json lifecycle lines)"
+      },
+      "P2CF2": {
+        "restrictedLeaves": 7,
+        "knownSubtotal": 8,
+        "withReceipts": 11,
+        "withReservedReviewSlot": 12,
+        "estimatedCountedProduct": "210-320",
+        "estimatedWithLifecycle": "about 226-336 (about 16 units.json lifecycle lines)"
+      },
+      "receiptConvention": "Source PRs carry units.json plus admission, red and local receipts (P2CE3 PR #2155); the admission-review .md slot is reserved, as P2CE3 registered it.",
+      "caveat": "Estimates from read code, not measurements. Each slice is measured at its own admission under unchanged 15/500."
+    },
+    "fitOptions": {
+      "chosenTwoWay": "P2CF1 11 files / about 121-191 lines; P2CF2 12 files / about 226-336 lines; both under 15/500 with 3-4 spare files and at least 164 spare lines",
+      "attemptTwoWay": "Attempt grouping (persistence and maxima in P2CF1, component only in P2CF2) also fits: P2CF1 9 leaves -> 14 files with the reserved slot and the direct fold test, about 181-296 lines (the attempt's 176-286 with the transport re-estimate); P2CF2 4 leaves -> 9 files",
+      "threeWay": "Not needed: both two-way slices fit with margin; a third slice adds a release cycle with no cap need",
+      "single": "Rejected: 16-17 files"
+    }
+  },
+  "scope": [
+    "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+    "openspec/planning/2026-09-12-roadmap-completion/units.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cf-split-registration-20261016.json"
+  ],
+  "registrationBudget": {
+    "actualFiles": 3,
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "productFiles": 0,
+    "productAddedLines": 0,
+    "noCapInflation": true,
+    "actualDiffMeasuredSeparately": true,
+    "everyEvidenceFileCounts": true
+  },
+  "previousRegistration": {
+    "evidence": "evidence/p2ce-split-registration-20261016.json",
+    "bytes": 16141,
+    "sha256": "8585edaab77d5d620e3bfc7e85fda2c522879b860bad42ebeb8b756865a8d6fe",
+    "preservedByteForByte": true
+  },
+  "preimages": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "bytes": 1064440,
+      "sha256": "cce2c38d37f29ef99d17fa670e683a7ae8e9cf8bb3dd7338e53db3ff46306387"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "bytes": 1306316,
+      "sha256": "a056106b24803e57f17f0461322991e3bea285fd1606cddefb71a7d736c9ab1f"
+    }
+  ],
+  "postimages": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "bytes": 1065555,
+      "sha256": "a73bf18de4bbc138ac6f2d35839fcebd9999a7c0a3176e0aa44964e358720780"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "bytes": 1319937,
+      "sha256": "9346b56c44088003d47b80e57afe40c172cbd21d90f9300bb05787e70b2c60ba"
+    }
+  ],
+  "prospectiveDelta": {
+    "sourceOwner": "R2.authority-live",
+    "addedUnits": [
+      "P2CF1",
+      "P2CF2"
+    ],
+    "insertImmediatelyAfter": "P2CF",
+    "successorStates": "P2CF1 planned (same predecessors P2CE1/P2CE2/P2CE3 P2CF was released on by #2157); P2CF2 blocked until P2CF1's exact-main mainProof and the parent's release PR",
+    "chain": "P2CE1, P2CE2, P2CE3 -> P2CF1 -> P2CF2 -> P2CG1",
+    "allNewIDs": "baseline/prHead/mergeSha/ownerGate null; all seven stages null; taskKeys empty; caps 15/500; lifecycleOwnershipLimit, ciClass and all five reviewClasses copied from P2CF; ownershipExceptions units.json only, as P2CF; admissionRequires is a successor prefix plus P2CF's text verbatim",
+    "ownershipPaths": {
+      "P2CF1": [
+        "src/lib/campaign",
+        "src/lib/p2p/campaignMirrorStore.ts",
+        "src/lib/p2p/__tests__/campaignMirrorStore.test.ts"
+      ],
+      "P2CF2": [
+        "src/components/campaign/coop",
+        "src/stores/campaign"
+      ],
+      "rule": "Each entry is an existing R2.authority-live node ownershipPath (the validator requires exact node entries): the exact mirror aliases and the existing store parent named by the 2026-10-09 accepted review. No new alias, holder or node path. Each slice keeps only the entries its leaves need; the restriction below narrows every directory entry to exact leaves."
+    },
+    "parent": {
+      "P2CF": "state planned -> blocked; adds superseded20261016 and blocked20261016; every other P2CF field, including its restriction (4 leaves) and subtotal 5, is unchanged"
+    },
+    "downstream": {
+      "P2CG1": "predecessors [P2CF] -> [P2CF1, P2CF2]; adds amended20261016",
+      "P2C": "predecessor P2CF replaced in place by P2CF1, P2CF2; admissionRequires \"All ten source slices\" -> \"All eleven source slices\" (eleven counted); adds amended20261016P2CF because amended20261016 already holds the P2CE marker",
+      "unchanged": "P2CE3.successors (and the superseded P2CE.successors) still name P2CF, resolved through its superseded marker, as #2146 left P2CB/P2CD naming P2CE; main-verified units' fields are not edited by a registration"
+    },
+    "restrictionsBlock": {
+      "unitBefore": "P2CA/P2CB/P2CD/P2CE/P2CE1/P2CE2/P2CE3/P2CF/P2CG1/P2CG2/P2CH",
+      "unitAfter": "P2CA/P2CB/P2CD/P2CE/P2CE1/P2CE2/P2CE3/P2CF/P2CF1/P2CF2/P2CG1/P2CG2/P2CH",
+      "governingEvidenceBefore": "evidence/p2ce-split-registration-20261016.json",
+      "governingEvidenceAfter": "evidence/p2cf-split-registration-20261016.json",
+      "restrictionsAdded": {
+        "P2CF1": [
+          "src/lib/campaign/coop/campaignAuthoritativeFold.ts",
+          "src/lib/campaign/coop/campaignSyncTransport.ts",
+          "src/lib/p2p/campaignMirrorStore.ts",
+          "src/lib/campaign/coop/__tests__/campaignAuthoritativeFold.test.ts",
+          "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+          "src/lib/p2p/__tests__/campaignMirrorStore.test.ts"
+        ],
+        "P2CF2": [
+          "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+          "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+          "src/stores/campaign/useCampaignPersistenceStore.ts",
+          "src/stores/campaign/campaignUnitMaxStates.ts",
+          "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+          "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx",
+          "src/stores/campaign/__tests__/campaignCommandAckRefresh.test.ts"
+        ]
+      },
+      "knownSourceTestLifecycleSubtotalsAdded": {
+        "P2CF1": 7,
+        "P2CF2": 8
+      },
+      "subtotalRule": "restricted leaves plus the unit's own units.json lifecycle file, as every existing P2C subtotal",
+      "relationToP2CF": "The union of the two lists is P2CF's four leaves plus the five leaves the plan's R-prefix names (mirror pair, persistence pair, maxima owner), the transport pair from P2CE3 successorNotes.Task13, and two new prospective leaves (direct fold test, sibling consumer hook). Unlike P2CE's split this is a superset of the parent restriction, which is the reason the plan requires a registered R-prefix rather than admission-time widening. The two lists are disjoint, and every P2CF leaf is assigned.",
+      "prospectiveNewLeaves": [
+        "src/lib/campaign/coop/__tests__/campaignAuthoritativeFold.test.ts",
+        "src/components/campaign/coop/useCampaignApplicationConsumer.ts"
+      ]
+    }
+  },
+  "scenarioAllocation": {
+    "P2CF1": [
+      "hydration bundle: explicit empty bundle accepted; invalid or conflicting bundle refused and the prior fold kept (owner level)",
+      "authorized replacement baseline starts from EMPTY; historic facts retained without refolding",
+      "guest launch adjunct facts installed atomically with the accepted state and kept across later events; no reset before replacement validation",
+      "head-drift re-sends the identical ACK while it is the latest sent and unconfirmed; a newer ready offer is ACKed instead",
+      "unknown-receipt, not-offered, receipt-required and current-authority are never retried with the same frame and end the view as recovery-required",
+      "legacy connections unchanged; lastSeq omission on a bound join unchanged; duplicate/foreign/copied offer refusal kept as P2CD regression"
+    ],
+    "P2CF2": [
+      "GM and guest baseline, live fact and visible no-op: projection and complete facts precede one exact offered completion",
+      "delayed known predecessor with a latest successor: no successor application or ACK over the pending predecessor, then the latest cumulative ACK only",
+      "held GET and separately held JSON across a new campaign or view: no old live/roster/cache/baseVersion/fence/error write, no timer re-arm, no offered success",
+      "same-campaign view change during network-backed maxima resolution: no helper-triggered PUT, no cyclic save wait, no old completion",
+      "a legitimate same-binding rename PUT precedes the refresh and its returned row and fence are kept",
+      "load or record supersession while the refresh is queued or in flight",
+      "null or throwing fold, projection, install or refresh, and a later throwing observer: no successful receipt",
+      "unmount, close, reconnect and current-view replacement: old queue cancelled, listeners removed, new replacement installs from EMPTY; reconnect-at-zero residual closed",
+      "duplicate, foreign or copied offer and legacy staging: no double fold/refresh/ACK; legacy earns no durable credit; production traffic stays legacy",
+      "campaign-application refusals routed to the consumer, never to lastRefusalCode or GM control gating",
+      "no wait for a confirmation after a rebaseline ACK; confirmations cumulative and at-least-once; ACKs in receipt order; unknown-receipt rejoins",
+      "full Task 13 QA selectors pass at completion"
+    ],
+    "allRequiredScenariosAssigned": true,
+    "source": "Task 13 acceptance and QA failure clauses (plan lines 1143-1153), the accepted 2026-10-09 review's required-proof table, and P2CE3 successorNotes.Task13/Task13Optional"
+  },
+  "settledConcerns": {
+    "activationPredicate": "The mounted receipt consumer runs only when the active transport for the match was created with expectedCampaignId equal to the mounted campaignId (transport.campaignId === campaignId) and that transport has latched receipt mode on an appliedView frame, which a server sends only when it composes applicationReceipts. In Task 13 no production creator binds expectedCampaignId (CampaignCoopEntryPanel.tsx 328, the component's two connectStoredCampaignSyncTransport calls, the mission launch page), and server.js does not compose applicationReceipts. Production joins therefore keep sending lastSeq, legacy frames keep the numeric observation ACK, and no confirmApplied runs. P2CF2 tests exercise the receipt path by registering a bound transport before mount; P2CF1 keeps the lastSeq omission on a bound join as P2CD shipped and tested it. Binding expectedCampaignId at the creators belongs to Task 14 together with composition; on a composed server the binder skips the lastSeq resync arm for application connections (bindCampaignSyncConnection.ts 1223), so the omission loses nothing there.",
+    "refusalRouting": "campaign-application-* refusals arrive as Error frames, code INVALID_INTENT, reason campaign-application-<kind> (bindCampaignSyncConnection.ts errorFrame). P2CF1's transport acts on them only on a receipt-mode connection: head-drift -> identical ACK re-send; unknown-receipt, not-offered, receipt-required, current-authority -> no re-send, view ends as recovery-required. P2CF2's component never stores a campaign-application-* Error in lastRefusalCode/lastRefusalAction, and those frames neither set nor clear the GM control gate; the consumer handles them (rejoin on recovery). INTERNAL_ERROR campaign-application-unavailable/replaced/send-failed/confirmation-failed close the socket and reach the consumer as a close, which also rejoins.",
+    "componentSize": "Sibling hook src/components/campaign/coop/useCampaignApplicationConsumer.ts is registered in P2CF2 (12 files with the reserved slot). It holds only new consumer code; moving existing component code into it would count those lines again under U41."
+  },
+  "successorNotes": {
+    "P2CF1": [
+      "Ship the new fold test so the Task 13 selector term campaignAuthoritativeFold matches a file.",
+      "Keep campaignSyncTransport.test.ts line 231 (no lastSeq on a bound join) passing unchanged."
+    ],
+    "P2CF2": [
+      "Honour P2CE3 successorNotes.Task13 items 1-4 and Task13Optional as written in the behavior text.",
+      "If useCampaignStore.actions.ts becomes necessary, stop and register the one leaf before source edits (13 files with the reserved slot; no cap change)."
+    ],
+    "Task14OrExtraction": [
+      "P2CE2 successorNotes.Task13 item 1 (measure preparePublicCut per commit with N views, or replace it with a tail read under the same digest check) is a server-side, before-composition obligation. It belongs to Task 14 / P2CG1 or the campaignApplicationConnection extraction unit, not to P2CF1 or P2CF2, and is already restated in P2CE3 successorNotes.Task14.beforeProductionComposition.",
+      "P2CE2 successorNotes.Task13 item 2 (a reconnect test that drives a production re-seat/re-bind path instead of the bound_at fixture) is server-side too. Neither client slice adds a production re-seat path, so it belongs to whichever unit lands that path, at the latest Task 14 / P2CG1 or the extraction unit.",
+      "Receipt activation: Task 14 must bind expectedCampaignId at every campaign transport creator for the match (CampaignCoopEntryPanel.tsx, the mounted component's connect calls, the mission launch page) in the same change that composes applicationReceipts. Those leaves are not registered here.",
+      "P2CE3 successorNotes.Task14 'Refusal frames are not write-checked' stays a Task 14 choice. P2CF2's consumer never blocks application on a confirmation, but a lost head-drift refusal would leave that receipt uncommitted until the next offer's ACK; Task 14 either routes refusals through sendConfirmed or adds a bounded client wait with its own registration."
+    ]
+  },
+  "rejectedAlternatives": [
+    {
+      "option": "Single P2CF with a same-package R-prefix",
+      "reason": "16-17 files against the 15-file cap (fileArithmetic.fullTask13)"
+    },
+    {
+      "option": "Attempt grouping: persistence store and maxima in P2CF1, component only in P2CF2",
+      "reason": "Fits, but P2CF1 reaches 14 files with the reserved slot and the direct fold test (one spare), and it proves the delayed-refresh barrier in two halves, the store guard without its only consumer. The chosen grouping keeps the guard with the consumer that supplies its context and leaves 3-4 spare files per slice."
+    },
+    {
+      "option": "Three-way split",
+      "reason": "No cap need: both two-way slices fit with spare files and lines; a third slice adds a release cycle"
+    },
+    {
+      "option": "Bind expectedCampaignId in the mounted component in Task 13",
+      "reason": "Drops lastSeq from the production join and returns null against the entry panel's unbound transport; the plan reserves receipt activation for Task 14 at both doors"
+    },
+    {
+      "option": "Make the transport always quote lastSeq on a bound join",
+      "reason": "Reverses P2CD's tested omission without need, because activation stays in Task 14 and a composed server ignores lastSeq on application connections"
+    },
+    {
+      "option": "Register campaignUnitMaxStates.test.tsx or useCampaignStore.actions.ts now",
+      "reason": "The accepted 2026-10-09 review runs the maxima test unmodified; the actions leaf is conditional and avoided by the staged-maxima design"
+    },
+    {
+      "option": "capException, cap inflation, directory-wide grant or a new node alias",
+      "reason": "Forbidden by P2CF admissionRequires and the restrictions permissionBoundary"
+    }
+  ],
+  "selectors": {
+    "task13": "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --testPathPattern='CampaignCoopRouteSurfaceConnected|campaignAuthoritativeFold'",
+    "P2CF1": "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --testPathPattern='CampaignCoopRouteSurfaceConnected|campaignAuthoritativeFold|campaignMirrorStore|campaignSyncTransport'",
+    "P2CF2": "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --testPathPattern='CampaignCoopRouteSurfaceConnected|campaignAuthoritativeFold|campaignMirrorStore|campaignSyncTransport|campaignCommandAckRefresh|campaignUnitMaxStates'",
+    "note": "Prospective: the Task 13 QA pattern plus each slice's owning suites; P2CF2 also runs the unmodified maxima suite. This registration runs only the roadmap validator, its tests, format:check and test:stable."
+  },
+  "machineChecked": "validate-roadmap.mjs checks the new units' state, ownership paths against the node, ciClass derivation, review classes, caps range, stage ladder and --next order. It does not read splitFrom, predecessors, successors, superseded/amended markers, roadmap restrictions or subtotals; those are documentary and rest on review of this receipt.",
+  "nonclaims": [
+    "No product edits and no implementation green result claimed by this registration",
+    "No source admission; sourceAdmitted is false",
+    "No line measurement: no P2CF candidate exists, so every per-slice line figure is an estimate",
+    "No NDC1 Main, owner approval or owner ruling claimed",
+    "No cap exception, cap inflation, new alias, directory-wide grant or new node ownership path",
+    "No packet or owner-ruling edit"
+  ],
+  "permissionBoundary": "Prospective registration only. P2CF1 and P2CF2 product work each still requires fresh finite source admission, a complete source/test/lifecycle/stage/helper/evidence census and measured fit under unchanged 15-file/500-added-product-line caps. Known subtotals are lower bounds, not cap-fit claims.",
+  "delivery": "Independent exact-head review, actual required hosted CI, guarded regular merge, actual Main proof, evidence custody and scoped cleanup remain pending Root gates. This receipt is not an approval or a delivery claim.",
+  "sourceAdmitted": false,
+  "P2Released": false,
+  "U38Released": false
+}
