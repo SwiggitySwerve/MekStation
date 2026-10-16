@@ -1,0 +1,164 @@
+# TS7S1A independent exact-head review (PR #2174)
+
+- Reviewer: Claude Fable 5.1 (independent; not the author). Author: Claude Opus 5.5.
+- Unit: TS7S1A, tasks 1.1-1.2 of `migrate-to-typescript-7`: type-only source prep so TypeScript 7 reports no `Uint8Array<ArrayBufferLike>` -> `BufferSource` errors and no `BranchCheckpointCache` TS2322 errors, valid on the repo's TypeScript 5.8.3, with no compiler or config change.
+- Head reviewed: `3f2de76f58b0554820823c974e9437246286d847` (PR #2174 `codex/ts7s1a-type-fixes-20261016`, state OPEN, mergeable MERGEABLE, not draft; exactly one commit over base; `gh pr view` lists the same 12 files as `git diff --name-status`).
+- Base: `4bf26f7b2688bc0b14a52e36f957ff030eae9151` = `origin/main` at review time (fetched) = merge-base, so base and merge ref coincide.
+- Author worktree `E:/Projects/Personal/MekStation-wt/ts7s1a-type-fixes-20261016`: HEAD `3f2de76f5`, `git status --short` empty before and after the review. I ran nothing in it and wrote nothing to it.
+- Runtime: Node v22.22.0 (`C:\Users\wroll\AppData\Local\nvm\v22.22.0`) for every command. Repo TypeScript `node_modules/typescript/bin/tsc --version` = 5.8.3. Scratch compilers installed outside any repository with `npm i --prefix E:/Projects/Personal/fable-ts7s1a-scratch/tsc7 typescript@7` (prints `Version 7.0.2`, package `typescript@7.0.2`) and `.../tsc6 typescript@6` (`Version 6.0.3`, package `typescript@6.0.3`), always invoked by path; `npx tsc` never used; repo `node_modules` untouched (no `@typescript/typescript6` present: `Test-Path node_modules/@typescript/typescript6` = False).
+- Heavy runs used two throwaway detached worktrees `MekStation-wt/fable-ts7s1a-base` (at base) and `fable-ts7s1a-head` (at head) with `node_modules` and `desktop/node_modules` junctioned from the main checkout. D2 config edits were applied to those copies only and reverted before the Jest/gate runs. Junctions were unlinked (`rmdir`), both worktrees removed and pruned; main `node_modules` intact. My scripts and logs live in `E:/Projects/Personal/fable-ts7s1a-scratch/` (outside any repository; disposable). I did not enumerate `.omo/ulw-execute`; five author evidence files were read by exact path only (section 5).
+- This file is the only thing I wrote inside a repository. The reserved slot `evidence/ts7s1a-admission-review-20261016.md` is untouched.
+
+## Verdict
+
+**APPROVE-WITH-NOTES.** No blockers, no majors. Four minors, all documentary; none requires a change to this head.
+
+**The `routine` review class is justified on this head.** Every edit is a type annotation (or the `as const` that task 1.2 names); the emitted JavaScript of the whole root project is byte-identical between base and head under the repo compiler, re-derived here with my own scripts and matched hash-for-hash against the author's receipt; the two campaign-grant files and the auth/identity crypto code emit identical bytes; and the one exported-signature change (the `BufferSource` widening) cannot change any runtime path (section 2). Should any later revision of this branch touch a runtime token, the re-registration under the authority and privacy classes that the unit text prescribes applies.
+
+## 1. Emit equality (own scripts, re-derived; not the author's)
+
+### 1a. Whole-project tsc emit, TypeScript 5.8.3 (`emit-program.cjs`)
+
+Method: `ts.parseJsonConfigFileContent` of each tree's own `tsconfig.json` (plugins stripped) with overrides `noEmit:false, outDir, rootDir:<tree>, incremental:false, declaration:false, sourceMap:false`; `ts.createProgram` on the **full root project** (not just the changed files as roots); `program.emit()` with a write callback; sha256 of every emitted file into a manifest; manifests compared by key set and hash; the seven changed files' emits additionally compared with `Buffer.compare`.
+
+| | Base | Head |
+| --- | --- | --- |
+| Root names / program source files | 7,492 / 8,655 | 7,492 / 8,655 |
+| `getPreEmitDiagnostics` (5.8.3) | 0 | 0 |
+| Emitted files (`.js` 7,495, `.json` 42, `.mjs` 3) | 7,540 | 7,540 |
+| Emit seconds | 93.6 | 91.1 |
+| Manifest sha256 | `a9a0de63ccf2c9ddb8f8f969468243a5085cd3bb71c60190c8d68f0964879bfd` | identical |
+
+Result: **0 one-sided files, 0 differing files out of 7,540.** The seven changed files' emits are byte-equal (`Buffer.compare` = 0): `auth.js` 14,350 B `2e599152...`, `IdentityService.js` 20,971 B `8bb51c25...`, `BranchCheckpointCache.js` 20,010 B `abb583e8...`, `campaignGrantToken.js` 12,435 B `afe46b0e...`, `redeemCampaignGrant.js` 9,718 B `7dce981e...`, `campaignRedeemRoute.test.js` 14,391 B `a135ec22...`, `campaignShareAndRedeem.test.js` 22,709 B `d9ad3470...`. These seven hashes equal the author's `emitEquality.method1.perFile` hashes exactly, although my program is the whole project (the author's used the 7 files as roots and emitted 1,017 files); that is an independent reproduction, not a reuse.
+
+Full-program sensitivity: mutating `token.publicKey !== issuerPublicKey` to `===` in the head copy of `campaignGrantToken.ts` (one token, inside grant verification) and re-emitting the whole program produced **exactly one differing file** (`src/lib/campaign/grants/campaignGrantToken.js`); the copy was then reverted (`git checkout -- src`, status clean).
+
+### 1b. Per-file `ts.transpileModule`, three option sets (`transpile-compare.cjs`)
+
+Inputs are the git blobs of base and head (not working trees). Option sets: (i) the parsed root `tsconfig.json` options (target ES5, module ESNext, isolatedModules), (ii) the same with `target: ES2017`, (iii) `target/module ESNext` as a pure type-erasure view. All seven files: source changed, output **equal in all three sets**. Root-option hashes (head = base): auth `e1112449...`, IdentityService `2b64b91e...`, BranchCheckpointCache `4e5ed156...`, campaignGrantToken `f27eda83...`, redeemCampaignGrant `d8effa90...`, campaignRedeemRoute.test `876aa12a...`, campaignShareAndRedeem.test `3ff104f2...`; these equal the author's `method2` hashes. The ES2017 hashes (`bf6d67c9...`, `01a5a5d5...`, `96660eb0...`, `ebc5be24...`, `70b70a38...`, `9078c457...`, `1f192b9a...`) are also equal head = base.
+
+Sensitivity, each mutation applied in memory to the head blob, required to flip (or not flip) the output in **all three** option sets:
+
+| Id | File / mutation | Kind | Expected | Result |
+| --- | --- | --- | --- | --- |
+| M1 | campaignGrantToken.ts `!==` -> `===` on the issuer-key equality guard | logic in verification code | flagged | flagged (3/3) |
+| M2 | redeemCampaignGrant.ts `'base64'` -> `'base64url'` in `fromBase64` | string literal | flagged | flagged (3/3) |
+| M3 | auth.ts `nowMs: number = Date.now()` -> `= 0` | changed default | flagged | flagged (3/3) |
+| M4 | IdentityService.ts `getRandomBytes(12)` -> `(16)` (IV length) | numeric literal | flagged | flagged (3/3) |
+| M5 | IdentityService.ts `signData(data: BufferSource` -> `data: Uint8Array` | type-only | not flagged | not flagged (0/3) |
+| M6 | campaignGrantToken.ts `let publicKeyBytes: Uint8Array<ArrayBuffer>` -> `: Uint8Array` | type-only | not flagged | not flagged (0/3) |
+| M7 | BranchCheckpointCache.ts `'full-replay' as const` -> `'full-replay'` | const assertion only | not flagged | not flagged (0/3) |
+
+Both methods therefore discriminate a single runtime token from a type-only change on these very files. Byte-identical emit is proven for this head by two independent methods plus the whole-program manifest.
+
+## 2. Diff read line by line (all 8 files)
+
+Source diff is 12 hunks, 30 added / 22 deleted lines in `src/` and 3 added / 2 deleted in `tasks.md`.
+
+| File | Hunk | What changed | Class |
+| --- | --- | --- | --- |
+| `IdentityService.ts` | `getRandomBytes` | return `Promise<Uint8Array>` -> `Promise<Uint8Array<ArrayBuffer>>` (body already `new Uint8Array(length)`) | return narrowed, internal |
+| | `fromBase64` | return -> `Uint8Array<ArrayBuffer>` (bodies already `new Uint8Array(Buffer.from(...))` / `new Uint8Array(n)`) | return narrowed, internal |
+| | `generateKeyPair` | return `Promise<IKeyPair>` -> `Promise<IKeyPair & { publicKey: Uint8Array<ArrayBuffer>; privateKey: Uint8Array<ArrayBuffer> }>` (body already `new Uint8Array(exported)`) | return narrowed, exported |
+| | `signData` | params `data`, `privateKeyBytes`: `Uint8Array` -> `BufferSource`; return -> `Uint8Array<ArrayBuffer>` | **params widened, exported**; return narrowed |
+| | `verifySignature` | params `data`, `signature`, `publicKeyBytes`: `Uint8Array` -> `BufferSource` | **params widened, exported** |
+| | `deriveKey` | param `salt`: `Uint8Array` -> `Uint8Array<ArrayBuffer>` | param narrowed, non-exported |
+| | `encryptWithPassword` | param `data`: `Uint8Array` -> `BufferSource` | **param widened, exported** |
+| `auth.ts` | `fromBase64` | return -> `Uint8Array<ArrayBuffer>` | return narrowed, internal |
+| | `verifyPlayerToken` | locals `publicKeyBytes`, `signatureBytes` annotated `Uint8Array<ArrayBuffer>` | local annotation |
+| `campaignGrantToken.ts` | `verifyTokenSignature` | locals `publicKeyBytes`, `signatureBytes` annotated `Uint8Array<ArrayBuffer>` | local annotation |
+| `redeemCampaignGrant.ts` | `fromBase64` | return -> `Uint8Array<ArrayBuffer>` (body `Uint8Array.from(Buffer.from(...))` unchanged) | return narrowed, internal |
+| `BranchCheckpointCache.ts` | two `Object.freeze({ path: ... })` | `'full-replay' as const`, `'checkpoint-plus-tail' as const`; the `Readonly<...>` target is not widened | const assertion (erased) |
+| two test files | `keys` annotations | `Uint8Array` -> `Uint8Array<ArrayBuffer>` on object-type members | local annotation |
+| `tasks.md` | 1.1, 1.2 | `[ ]` -> `[x]` twice; one 1.1 `Outcome:` line | lifecycle |
+
+Token scan of every added line in `src/` (`\bas\b`, `<T>` assertions, non-null `!`, `any`, `unknown`, `.slice(`, `new Uint8Array(`, `Buffer.from`, `.subarray`, `.buffer`): the only hits are the two `as const` lines. Findings:
+
+- **No type assertion** (`x as T`, `<T>x`), no non-null `!`, no `any`/`unknown` laundering, no new allocation or copy, no overload, no helper added, no import changed. `as const` is a const assertion, is explicitly the form task 1.2 names, and M7 shows it is erased.
+- **Signature changes beyond annotation narrowing** are exactly the accepted widening: six exported parameters (`signData` x2, `verifySignature` x3, `encryptWithPassword` x1) from `Uint8Array` to the lib `BufferSource`. Narrowings of returns (`generateKeyPair`, `signData`, the three `fromBase64`, `getRandomBytes`) and of the non-exported `deriveKey` parameter are strictly safer for consumers.
+- **Can the widening change behaviour for a real caller?** No. In all three functions the parameter flows unmodified into `crypto.subtle.importKey` / `sign` / `verify` / `encrypt`, whose runtime contract is `BufferSource` already; there is no `.length`, `.byteLength`, `instanceof`, index access or copy on `data`, `signature`, `privateKeyBytes` or `publicKeyBytes` anywhere in the three bodies (read in full at head). So no guard that assumed `Uint8Array` existed to weaken. On 5.8 the widening admits `ArrayBuffer`/`DataView`, which Web Crypto accepts; on TypeScript 7 `BufferSource` is `ArrayBufferView<ArrayBuffer> | ArrayBuffer`, i.e. narrower than the old `Uint8Array<ArrayBufferLike>`, so no caller gains the ability to pass something the runtime rejects. Every caller in the tree still passes a `Uint8Array`: `campaignGrantToken.ts:90` (`signData`) and `:228` (`verifySignature`) with `fromBase64`/`TextEncoder` bytes; `redeemCampaignGrant.ts:142` (`verifySignature`); `issuePlayerToken.ts:138` and `pages/api/multiplayer/auth/token.ts:159` (`signData` with `TextEncoder().encode` payload and `fromBase64` key); `IdentityService.ts:412` (`encryptWithPassword` with the generated private key), `:488` (`signMessage`), `:505` (`verifyMessage`); tests `auth.test.ts:50`, `socketTokenScope.test.ts:75`, `campaignRedeemRoute.test.ts:134`, `campaignShareAndRedeem.test.ts:113`, `IdentityService.test.ts` (268-381), `securityBoundary.test.ts:46` (mocked). `server.js:26/356` binds a different `verifySignature` (node:crypto `verify`) and is unrelated. No caller passes `ArrayBuffer` or `DataView`.
+- `generateKeyPair` narrows via an intersection with `IKeyPair` rather than editing `IKeyPair` (`src/types/vault/VaultCoreTypes.ts:60`, keys typed `Uint8Array`); that file is not a leaf, and `IKeyPair & {...}` resolves to `Uint8Array<ArrayBuffer>` members on 5.8, so the choice is correct for the registered scope (note N3).
+
+## 3. TypeScript 7.0.2 / 6.0.3 / 5.8.3 results
+
+D2 scratch edits applied by my `apply-d2.cjs` to the throwaway copies only (root: `target es2017`, `baseUrl` deleted, `paths @/* -> ./src/*`; desktop: `module`/`moduleResolution nodenext`); every run `node <prefix>/node_modules/typescript/bin/tsc -p <config> --noEmit --skipLibCheck --incremental false`, `--version` printed per run (`measure.ps1`).
+
+| Tree | Compiler | root | `desktop/tsconfig.json` | `desktop/tsconfig.test.json` |
+| --- | --- | --- | --- | --- |
+| base | 7.0.2 | **11 errors**, exit 1, 3.8 s | 0, 0.1 s | 0, 0.1 s |
+| base | 6.0.3 | **9 errors**, exit 2, 32.9 s | 0, 1.0 s | 0, 1.0 s |
+| head | 7.0.2 | **0**, exit 0, 4.1 s | 0 | 0 |
+| head | 6.0.3 | **0**, exit 0, 31.9 s | 0, 0.9 s | 0, 0.9 s |
+| head | 5.8.3 `npm run typecheck` (committed config) | **0**, exit 0, 32 s | desktop `npm run type-check` 0 (desktop's own tsc is **5.9.3**, note N4) | - |
+
+The base TS7 list is file-, line- and code-identical to `design.md` Context: `BranchCheckpointCache.ts(352,7)`, `(377,5)` TS2322; `auth.ts(215,7)` TS2769, `(223,7)` TS2345; `IdentityService.ts(159,5)` TS2769, `(165,69)` TS2345, `(182,5)` TS2769, `(188,53)` TS2345, `(330,7)` TS2769, `(355,24)` TS2322, `(384,24)` TS2322. Base TS6 reports the 9 `BufferSource` errors and not the two TS2322, as design.md says; no TS5101/TS5107 once D2 is applied.
+
+Hidden first-bad-argument errors (`followon-probe.cjs`, my own: TS 5.8 parser locates the identifier at each reported position, rewrites a call argument to `(x as any)` or a shorthand property to `x: (x as any)`, re-runs, repeats; `git checkout -- src` afterwards, status back to the two D2 files): round 1 neutralises the 9, round 2 exposes **3 more** (`IdentityService.ts` `verify(... data)` on line 188, `encrypt(... data)` 357, `decrypt(... ciphertext)` 386), round 3 leaves only the two TS2322 under TS7 and nothing under TS6. **12 distinct `BufferSource` sites under both 7.0.2 and 6.0.3**, matching the author and the tasks.md outcome line. Position note: the second-round `data` on line 188 is reported at column 73 only because the first-round wrap lengthened the line; in the pristine base text it sits at (188,63). The author's receipts quote 73 (minor N1).
+
+**Does design.md's "9 x TS2769/TS2345" need a follow-up edit?** Not as a correction: the sentence describes what TypeScript 7 *reports*, and it still reports exactly 9 + 2 on the unmodified base. The registration receipt's `designMdNineErrors` treats the count as superseded by the unit text and routes design.md to TS7S1B's 0.2 conditional leaf, which fires only if the list changed; it did not. The tasks.md 1.1 outcome line now carries the real count (12 arguments) in the file an implementer reads first, which satisfies the unit's MUST. A one-sentence clarification in design.md is optional and belongs to TS7S1B if the owner wants design.md self-contained (carry-forward C1 gives the wording); nothing on this head is wrong.
+
+## 4. Scope and census
+
+- `git diff --name-status base..head`: exactly 12 paths = the 8 registered leaves (5 source, 2 tests, `tasks.md`) + `units.json` + the admission, red and local receipts. **No** diff on `tsconfig.json`, `desktop/tsconfig.json`, `package.json`, `openspec/active-change-ledger.json`, `auth.test.ts`, `IdentityService.test.ts` or `design.md` (checked explicitly; empty).
+- `units.json` id-keyed deep diff (own script): top-level keys and order unchanged (10), 206 -> 206 units, id order unchanged, **only `TS7S1A` differs**, and only in `ownershipExceptions` (+4: the three receipts and the reserved review slot, as P2CG1A1/P2CG1A2 did), `state planned -> implementing`, `baseline null -> 4bf26f7b...`, `stageReceipts.admission/red/local` set; `review`, `merge`, `mainProof`, `tick` still null; `prHead`, `mergeSha` still null. No other unit, packet, holder or historical receipt touched.
+- Census (`git diff --numstat --no-renames`, evidence directory skipped, `__tests__/` and `*.test.*` uncounted): `tasks.md` 3, `units.json` 16, `campaignGrantToken.ts` 2, `redeemCampaignGrant.ts` 1, `BranchCheckpointCache.ts` 2, `auth.ts` 3, `IdentityService.ts` 18 = **45 of 500** (source 26, tasks.md 3, units.json 16); test files 4 and 8 added lines uncounted. Files: 12 in the change + the reserved review slot = **13 of 15**. Matches the local receipt.
+- `tasks.md`: only 1.1 and 1.2 ticked; exactly one `Outcome:` line, under 1.1, naming the measured count (11 listed + 3 hidden = 12 arguments), the `BufferSource` widening with its 5.8 rationale, and the four caller annotations. Nothing else in the file changed (3 added / 2 deleted lines in total).
+- The nine `productBytes` sha256 values in the local receipt equal the head blobs (9/9 match, own hashing); the seven `baseBytes` in the red receipt and the seven source `frozenFiles` sha256 values in the admission receipt equal my own sha256 of the base blobs (7/7, `basebytes-check.cjs`).
+
+## 5. Re-runs on exact head and base
+
+| Check | Base | Head |
+| --- | --- | --- |
+| Direct importers of the 5 source leaves (own `suite-scan.cjs`: TS 5.8 parser; import / export-from / require / dynamic import / `jest.mock` family; `@/` and relative resolution; `export ... from` barrels count as the leaf; 2,791 test files scanned) | 46 suites | 46 suites; set-equal to the author's `suites-direct.txt` |
+| Jest on those 46 (`--runTestsByPath`, `--json`) | 46 passed, **520/520**, exit 0, 12 s | 46 passed, **520/520**, exit 0, 13 s; sorted (suite :: full name :: status) lists **identical**, 0 only-base, 0 only-head |
+| `npm run typecheck` (5.8.3) | - | 0 errors, exit 0 |
+| `npm run lint` (oxlint) | 86 warnings / 0 errors | 86 warnings / 0 errors; the 86 `(file:line:col, rule)` findings are an **identical multiset** (oxlint prints in nondeterministic order, so I compared sorted sets, not lines); **0** findings on any leaf |
+| `npm run lint:units` | - | `LINT_UNITS_PASS 17899/17899` (scripts 50/50, src/pages/api 16/16, src-tests 17783/17783) |
+| `npm run format:check` | - | pass, 8,191 files |
+| `npx openspec validate --all --strict` | - | 230 passed, 0 failed |
+| `npm run qc:openspec-ci:validate` | - | errors=0 (8/8 contracts, 1/1 job, 19/19 needs, 10/10 active changes) |
+| `desktop/ npm run type-check`; `npm test` | - | exit 0; 5 suites / **57** tests passed |
+| `validate-roadmap.mjs`; `--next`; `node --test validate-roadmap.test.mjs` | `--next` = **TS7S1A** | PASSED 80 nodes / 13 packages / 381 tasks / 40 triage rows; `--next` = **U25** (TS7S1A now implementing); tests **86/86** |
+
+Author evidence read by exact path (no enumeration) under `.omo/ulw-execute/.../task-ts7s1a-20261016/`: `census.md`, `suites-direct.txt`, `emit-equality.json`, `green-results.json`, `pre-ts7-root.log` all **sha256-match** the values cited in the receipts.
+
+## 6. Carry-forwards (exact wording)
+
+For **TS7S1B** (tasks 0.1, 0.2 tick, 1.3-1.5, ledger flip):
+
+- C1. "Tick 0.2 from the TS7S1A admission receipt `tasks02Measurement` (pre-edit: TypeScript 7.0.2 root 11 errors equal to design.md Context; 6.0.3 root 9; desktop 0/0; the TS7S1A fable review re-measured the same on base `4bf26f7b`) and state that the list did not change, so the 0.2 conditional design.md leaf is not exercised. Optional, only if the owner wants design.md self-contained: append to the `9 x TS2769/TS2345` bullet the sentence `TS2345/TS2769 report only the first bad argument of a call; neutralising these 9 exposes 3 more in IdentityService.ts (verify data at 188, encrypt data at 357, decrypt ciphertext at 386), 12 arguments in all, fixed by TS7S1A (PR #2174).` If appended, design.md becomes a TS7S1B leaf and counts in its census."
+- C2. "After 1.3 lands the committed root `tsconfig.json`, re-run TypeScript 7.0.2 and 6.0.3 by path on the **committed** configs (not a D2 scratch copy) for root, `desktop/tsconfig.json` and `desktop/tsconfig.test.json`, with `--version` and seconds, and record 0/0/0 in the 1.5 tick; also record that `npm run typecheck` (5.8.3) still reports 0 on the committed config."
+- C3. "For the 1.3 `next dev` rewrite check, record sha256 of `tsconfig.json` before and after the run, not a prose statement."
+- C4. "For 1.4 desktop emit equality, emit both builds into separate directories, hash every output file into a manifest, and report one-sided files, differing `.js` (must be 0) and the named `.map`/`.d.ts` differences; the TS7S1A review's whole-project manifest method is a usable pattern."
+- C5. "Print `desktop/node_modules/typescript/bin/tsc --version` in every desktop measurement: the desktop lockfile currently resolves TypeScript **5.9.3**, not the root's 5.8.3, so design.md's `TS 5.8 today` column is root-only."
+
+For later units (TS7S2*/TS7S3*/TS7S4*):
+
+- C6. "When root `typescript` becomes the TS 6 alias, produce once (evidence, not a gate) a whole-project emit manifest under 5.8.3 and under 6.0.3 for the root project and record differing `.js` count; D8's `no emitted runtime JS changes` claim is currently proven only for desktop."
+- C7. "If a unit ever edits `src/types/vault/VaultCoreTypes.ts`, consider typing `IKeyPair.publicKey/privateKey` as `Uint8Array<ArrayBuffer>` and dropping the `generateKeyPair` intersection; not required."
+
+Additions I would make to the admission warnings for any future `routine`-by-byte-identical-emit unit:
+
+- W1. "The admission receipt must name the emit-proof roots (whole project vs changed-file roots) and the option sets, and the independent reviewer must reproduce the per-file output hashes, not only the PASS verdict."
+- W2. "Quote compiler error positions from the pristine baseline text; label any position measured after an in-place neutralisation as such."
+- W3. "The sensitivity set must include at least one mutation inside the security-relevant leaf's control flow and one type-only change that must not be flagged, run through the same script that produced the equality verdict."
+
+## 7. Minors and notes
+
+- M1 (documentary). Red and admission receipts cite the hidden `verifySignature` `data` error at `IdentityService.ts(188,73)`; in the unmodified base text the argument is at column 63; 73 is the column after the probe wrapped `signature`. The outcome line in tasks.md does not cite the column, so nothing in the committed tree is wrong.
+- M2 (documentary). The local receipt's method-1 count ("1017 emitted files, 983 .js") describes a 7-root program; the whole-project program emits 7,540 files. Both show 0 differences; a future receipt should state the roots (W1).
+- M3 (documentary). The admission `lineEstimate` ("52-58") and the unit text ("45-70") bracket the measured 45; fine, noted only because the estimate wording says "not a cap-fit proof" and the receipt then proves 45.
+- M4 (toolchain). Desktop's own TypeScript is 5.9.3 (C5). Not this unit's concern; design.md's measurement table does not say so.
+- N1. `as const` is the only `as` in the diff; it is a const assertion, erased (M7), and is the exact form task 1.2 prescribes.
+- N2. The unit text's "45 suites, 507 tests" from the stop report was re-derived by the author to 46/520 (delta `authorityQuarantine.test.ts`); my independent scan agrees with 46/520.
+- N3. `generateKeyPair` intersection return type rather than an `IKeyPair` edit: correct for the registered leaves (C7).
+- N4. `--next` flips from TS7S1A (base) to U25 (head) because TS7S1A is now `implementing`; that is the expected validator behaviour, not a successor claim.
+
+## 8. Not verified
+
+- `npm run test:stable` on head (author: 2,796 suites, 37,180 tests, exit 0); per instruction I did not run it. My 46-suite per-test comparison plus whole-project emit equality cover the behavioural surface of this diff.
+- CI (`pr-checks`) results on the PR head; branch protection on the merge ref (the parent confirms before merge per the admission receipt).
+- The author's `.omo` logs other than the five files hashed in section 5; their `measure-d2.ps1`, `emit-*.cjs` and `followon-probe.cjs` were neither read nor run (by design: this review re-derives).
+- TypeScript 7.1 nightly behaviour on head (design.md says nightlies matched 7.0; outside this unit).
+- `next build` / `storybook:build` (sections 3-4 gates, not this PR's).
+- The browser `atob` branch of the three `fromBase64` helpers at runtime (no browser test touches it in the 46 suites); the emit proof shows its JavaScript is unchanged, so this is a pre-existing coverage gap, not a regression risk introduced here.

@@ -1,0 +1,207 @@
+{
+  "unit": "TS7S1A",
+  "stage": "review",
+  "recordedAt": "2026-10-16T22:40:00.000Z",
+  "head": "3f2de76f58b0554820823c974e9437246286d847",
+  "reviewedHead": "3f2de76f58b0554820823c974e9437246286d847",
+  "reviewerModel": "claude-fable-5-1",
+  "implementerModel": "claude-opus-5-5",
+  "verdict": "APPROVE-WITH-NOTES",
+  "outputPath": "evidence/ts7s1a-source-fable-review-20261016.txt",
+  "outputSha256": "ced08d01532c342c189c607958a67e53f3d426fe24e6283c8bd735d2e39a909f",
+  "reviews": [
+    {
+      "round": 1,
+      "path": "evidence/ts7s1a-source-fable-review-20261016.txt",
+      "sha256": "ced08d01532c342c189c607958a67e53f3d426fe24e6283c8bd735d2e39a909f",
+      "bytes": 24908,
+      "originalPath": "docs/audits/2026-10-16-ts7s1a-fable-review.md",
+      "reviewedHead": "3f2de76f58b0554820823c974e9437246286d847",
+      "verdict": "APPROVE-WITH-NOTES"
+    }
+  ],
+  "reviewHistory": "One round on the exact merged head 3f2de76f by an independent Fable 5.1 reviewer (run through cliproxy): APPROVE-WITH-NOTES with no blockers and no majors, four documentary minors (M1-M4) and notes N1-N4 in section 7; none requires a change to the head.",
+  "verdictText": "**APPROVE-WITH-NOTES.** No blockers, no majors. Four minors, all documentary; none requires a change to this head.",
+  "routineClass": {
+    "statement": "**The `routine` review class is justified on this head.** Every edit is a type annotation (or the `as const` that task 1.2 names); the emitted JavaScript of the whole root project is byte-identical between base and head under the repo compiler, re-derived here with my own scripts and matched hash-for-hash against the author's receipt; the two campaign-grant files and the auth/identity crypto code emit identical bytes; and the one exported-signature change (the `BufferSource` widening) cannot change any runtime path (section 2). Should any later revision of this branch touch a runtime token, the re-registration under the authority and privacy classes that the unit text prescribes applies.",
+    "note": "The reviewer confirms the routine review class on this head: whole-project emit under TypeScript 5.8.3 is byte-identical (0 of 7,540 emitted files differ), and the seven changed files match the author per-file hashes. The re-registration under the authority and privacy classes that the unit text prescribes is not triggered."
+  },
+  "reviewReruns": "On 3f2de76f and base 4bf26f7b under Node v22.22.0, in throwaway worktrees, the reviewer used its own scripts. It ran a whole-project TypeScript 5.8.3 emit manifest (7,540 files, 0 differing, manifest a9a0de63... on both sides; one full-program sensitivity mutation changed exactly one file). It ran per-file transpileModule under three option sets with seven mutations (four runtime ones flagged 3/3, three type-only ones not flagged). It ran TypeScript 7.0.2/6.0.3 on D2 scratch copies (base 11/9, head 0/0; desktop configs 0) and its own first-bad-argument probe (12 BufferSource sites). It ran its own importer scan (46 suites, set-equal to the author list), with Jest on base and head (46 suites, 520/520 each, identical sorted rows). It also ran typecheck, lint (86 warnings and 0 errors on both sides, identical multiset), lint:units, format:check, openspec strict, qc:openspec-ci, desktop type-check and tests (57), the validator, --next and the validator tests (86/86). It did not re-run npm run test:stable.",
+  "stableSuiteNote": "The author ran npm run test:stable once on the final bytes: 2796/2796 suites, 37180 passed, 50 skipped, 0 failed, 1005 s (test-stable.log, hashed in the mainProof attemptLogs). The reviewer did not re-run it (section 8).",
+  "stableAssessment": "`npm run test:stable` on head (author: 2,796 suites, 37,180 tests, exit 0); per instruction I did not run it. My 46-suite per-test comparison plus whole-project emit equality cover the behavioural surface of this diff.",
+  "emitEquality": "Result: **0 one-sided files, 0 differing files out of 7,540.**",
+  "tasks02Measurement": {
+    "result": "Task 0.2 scratch measurement on the TS7S1A pre-edit baseline 4bf26f7b with the D2 config edits in an uncommitted scratch copy. TypeScript 7.0.2 root: 11 errors, exactly the design.md Context list (BranchCheckpointCache.ts 352, 377 TS2322; auth.ts 215, 223; IdentityService.ts 159, 165, 182, 188, 330, 355, 384). TypeScript 6.0.3 root: 9, the BufferSource ones only. Desktop tsconfig.json and tsconfig.test.json: 0 on both. TS2769/TS2345 report only the first bad argument of a call, and three more errors were hidden behind them, all in IdentityService.ts: the verifySignature verify data argument at line 188, the encryptWithPassword encrypt data argument at 357 and the decryptWithPassword decrypt ciphertext argument at 386. That makes 12 BufferSource sites on both compilers. After the TS7S1A edits, TypeScript 7.0.2 and 6.0.3 report 0/0/0 for root, desktop/tsconfig.json and desktop/tsconfig.test.json, and npm run typecheck (5.8.3) reports 0.",
+    "columnNote": "The author receipts quote the hidden verify data error at (188,73). In the pristine base text it sits at column 63; 73 is the column after the probe wrapped the signature argument (review M1 and W2). The tasks.md 1.1 outcome line cites no column.",
+    "sources": [
+      "evidence/ts7s1a-admission-20261016.json tasks02Measurement",
+      "evidence/ts7s1a-red-20261016.json compilerRed",
+      "evidence/ts7s1a-local-20261016.json postTs7Ts6",
+      "review section 3"
+    ],
+    "reviewerBaseList": "The base TS7 list is file-, line- and code-identical to `design.md` Context: `BranchCheckpointCache.ts(352,7)`, `(377,5)` TS2322; `auth.ts(215,7)` TS2769, `(223,7)` TS2345; `IdentityService.ts(159,5)` TS2769, `(165,69)` TS2345, `(182,5)` TS2769, `(188,53)` TS2345, `(330,7)` TS2769, `(355,24)` TS2322, `(384,24)` TS2322. Base TS6 reports the 9 `BufferSource` errors and not the two TS2322, as design.md says; no TS5101/TS5107 once D2 is applied.",
+    "reviewerHiddenErrors": "Hidden first-bad-argument errors (`followon-probe.cjs`, my own: TS 5.8 parser locates the identifier at each reported position, rewrites a call argument to `(x as any)` or a shorthand property to `x: (x as any)`, re-runs, repeats; `git checkout -- src` afterwards, status back to the two D2 files): round 1 neutralises the 9, round 2 exposes **3 more** (`IdentityService.ts` `verify(... data)` on line 188, `encrypt(... data)` 357, `decrypt(... ciphertext)` 386), round 3 leaves only the two TS2322 under TS7 and nothing under TS6. **12 distinct `BufferSource` sites under both 7.0.2 and 6.0.3**, matching the author and the tasks.md outcome line. Position note: the second-round `data` on line 188 is reported at column 73 only because the first-round wrap lengthened the line; in the pristine base text it sits at (188,63). The author's receipts quote 73 (minor N1).",
+    "reviewerDesignMd": "**Does design.md's \"9 x TS2769/TS2345\" need a follow-up edit?** Not as a correction: the sentence describes what TypeScript 7 *reports*, and it still reports exactly 9 + 2 on the unmodified base. The registration receipt's `designMdNineErrors` treats the count as superseded by the unit text and routes design.md to TS7S1B's 0.2 conditional leaf, which fires only if the list changed; it did not. The tasks.md 1.1 outcome line now carries the real count (12 arguments) in the file an implementer reads first, which satisfies the unit's MUST. A one-sentence clarification in design.md is optional and belongs to TS7S1B if the owner wants design.md self-contained (carry-forward C1 gives the wording); nothing on this head is wrong.",
+    "designMdChanged": false
+  },
+  "successorNotes": {
+    "TS7S1B": {
+      "intro": "For **TS7S1B** (tasks 0.1, 0.2 tick, 1.3-1.5, ledger flip):",
+      "carryForwards": [
+        {
+          "id": "C1",
+          "wording": "Tick 0.2 from the TS7S1A admission receipt `tasks02Measurement` (pre-edit: TypeScript 7.0.2 root 11 errors equal to design.md Context; 6.0.3 root 9; desktop 0/0; the TS7S1A fable review re-measured the same on base `4bf26f7b`) and state that the list did not change, so the 0.2 conditional design.md leaf is not exercised. Optional, only if the owner wants design.md self-contained: append to the `9 x TS2769/TS2345` bullet the sentence `TS2345/TS2769 report only the first bad argument of a call; neutralising these 9 exposes 3 more in IdentityService.ts (verify data at 188, encrypt data at 357, decrypt ciphertext at 386), 12 arguments in all, fixed by TS7S1A (PR #2174).` If appended, design.md becomes a TS7S1B leaf and counts in its census.",
+          "concern": "task 0.2 tick and the optional design.md sentence"
+        },
+        {
+          "id": "C2",
+          "wording": "After 1.3 lands the committed root `tsconfig.json`, re-run TypeScript 7.0.2 and 6.0.3 by path on the **committed** configs (not a D2 scratch copy) for root, `desktop/tsconfig.json` and `desktop/tsconfig.test.json`, with `--version` and seconds, and record 0/0/0 in the 1.5 tick; also record that `npm run typecheck` (5.8.3) still reports 0 on the committed config.",
+          "concern": "TypeScript 7 and 6 on the committed configs for the 1.5 tick"
+        },
+        {
+          "id": "C3",
+          "wording": "For the 1.3 `next dev` rewrite check, record sha256 of `tsconfig.json` before and after the run, not a prose statement.",
+          "concern": "next dev rewrite check by hash"
+        },
+        {
+          "id": "C4",
+          "wording": "For 1.4 desktop emit equality, emit both builds into separate directories, hash every output file into a manifest, and report one-sided files, differing `.js` (must be 0) and the named `.map`/`.d.ts` differences; the TS7S1A review's whole-project manifest method is a usable pattern.",
+          "concern": "desktop emit equality by manifest"
+        },
+        {
+          "id": "C5",
+          "wording": "Print `desktop/node_modules/typescript/bin/tsc --version` in every desktop measurement: the desktop lockfile currently resolves TypeScript **5.9.3**, not the root's 5.8.3, so design.md's `TS 5.8 today` column is root-only.",
+          "concern": "desktop TypeScript is 5.9.3, not 5.8.3"
+        }
+      ],
+      "desktopCompiler": "desktop `npm run type-check` 0 (desktop's own tsc is **5.9.3**, note N4)",
+      "minors": [
+        {
+          "id": "M1",
+          "wording": "M1 (documentary). Red and admission receipts cite the hidden `verifySignature` `data` error at `IdentityService.ts(188,73)`; in the unmodified base text the argument is at column 63; 73 is the column after the probe wrapped `signature`. The outcome line in tasks.md does not cite the column, so nothing in the committed tree is wrong."
+        },
+        {
+          "id": "M2",
+          "wording": "M2 (documentary). The local receipt's method-1 count (\"1017 emitted files, 983 .js\") describes a 7-root program; the whole-project program emits 7,540 files. Both show 0 differences; a future receipt should state the roots (W1)."
+        },
+        {
+          "id": "M3",
+          "wording": "M3 (documentary). The admission `lineEstimate` (\"52-58\") and the unit text (\"45-70\") bracket the measured 45; fine, noted only because the estimate wording says \"not a cap-fit proof\" and the receipt then proves 45."
+        },
+        {
+          "id": "M4",
+          "wording": "M4 (toolchain). Desktop's own TypeScript is 5.9.3 (C5). Not this unit's concern; design.md's measurement table does not say so."
+        }
+      ],
+      "notes": [
+        {
+          "id": "N1",
+          "wording": "N1. `as const` is the only `as` in the diff; it is a const assertion, erased (M7), and is the exact form task 1.2 prescribes."
+        },
+        {
+          "id": "N2",
+          "wording": "N2. The unit text's \"45 suites, 507 tests\" from the stop report was re-derived by the author to 46/520 (delta `authorityQuarantine.test.ts`); my independent scan agrees with 46/520."
+        },
+        {
+          "id": "N3",
+          "wording": "N3. `generateKeyPair` intersection return type rather than an `IKeyPair` edit: correct for the registered leaves (C7)."
+        },
+        {
+          "id": "N4",
+          "wording": "N4. `--next` flips from TS7S1A (base) to U25 (head) because TS7S1A is now `implementing`; that is the expected validator behaviour, not a successor claim."
+        }
+      ],
+      "routineClass": "**The `routine` review class is justified on this head.** Every edit is a type annotation (or the `as const` that task 1.2 names); the emitted JavaScript of the whole root project is byte-identical between base and head under the repo compiler, re-derived here with my own scripts and matched hash-for-hash against the author's receipt; the two campaign-grant files and the auth/identity crypto code emit identical bytes; and the one exported-signature change (the `BufferSource` widening) cannot change any runtime path (section 2). Should any later revision of this branch touch a runtime token, the re-registration under the authority and privacy classes that the unit text prescribes applies.",
+      "tasks02MeasurementRef": "tasks02Measurement above: the 0.2 tick source C1 names. Pre-edit 11 (TS7) / 9 (TS6) / desktop 0, plus 3 hidden = 12 BufferSource sites; after 0/0/0.",
+      "openNotesForAdmission": [
+        {
+          "id": "TS7S1B-OPEN-1",
+          "concern": "C1 optional design.md sentence versus the registered design.md trigger",
+          "note": "TS7S1B registers design.md as a conditional leaf that fires only if the pre-fix TypeScript 7 list differed from design.md's 11 errors. It did not differ (TS7S1A admission and the review, base 4bf26f7b), so that trigger is not exercised. C1 adds a second, optional trigger: append one clarifying sentence if the owner wants design.md self-contained. TS7S1B's behavior text does not name that trigger. Its admission must state whether the owner wants the sentence. If so, it must state the reading that the existing conditional design.md leaf covers it, or register a correction first. With design.md it stays within the registered bound (11 files with both conditionals). This closure does not edit TS7S1B text."
+        },
+        {
+          "id": "TS7S1B-OPEN-2",
+          "concern": "C2 committed-config runs and TypeScript 6.0.3",
+          "note": "TS7S1B's acceptance and proof name a TypeScript 7.0.x scratch-prefix run with 0 errors for the three configs. C2 asks for the run on the committed configs after 1.3 lands, adds TypeScript 6.0.3, --version and seconds, and asks the 1.5 tick to record that npm run typecheck (5.8.3) still reports 0. These are added evidence within the registered leaves; record them in the receipts and the PR body. No text change is implied."
+        },
+        {
+          "id": "TS7S1B-OPEN-3",
+          "concern": "C3 and C4 proof form",
+          "note": "C3 (sha256 of tsconfig.json before and after the next dev run) and C4 (per-file manifest of the two same-checkout desktop builds, 0 differing .js, named .map/.d.ts differences) refine the registered proof items \"next dev once: tsconfig.json not rewritten\" and \"desktop build before/after from the same checkout: every .js byte-identical\". Admission should adopt them as the measurement method."
+        },
+        {
+          "id": "TS7S1B-OPEN-4",
+          "concern": "C5 and M4 desktop compiler version",
+          "note": "Desktop resolves its own TypeScript 5.9.3, not the root 5.8.3. TS7S1B's 0.1 baseline must print desktop/node_modules/typescript/bin/tsc --version for every desktop measurement. design.md's \"TS 5.8 today\" column is root-only. A design.md wording fix for that would be another design.md edit under the same conditional leaf, so admission decides it together with TS7S1B-OPEN-1. It is not edited here."
+        },
+        {
+          "id": "TS7S1B-OPEN-5",
+          "concern": "baseline",
+          "note": "TS7S1B is released on the TS7S1A merge c60ad495 (main-verified in this change set). Admission must state its actual baseline (a later main that includes this closure) and re-verify TS7S1A main-verified and ancestry there. Its own 0.2 re-run on that baseline is expected to report 0 errors, because TS7S1A's fixes are merged."
+        }
+      ],
+      "state": "Released blocked -> planned in this change set (successorRelease below). No other TS7S1B field changes."
+    },
+    "laterUnits": {
+      "intro": "For later units (TS7S2*/TS7S3*/TS7S4*):",
+      "carryForwards": [
+        {
+          "id": "C6",
+          "wording": "When root `typescript` becomes the TS 6 alias, produce once (evidence, not a gate) a whole-project emit manifest under 5.8.3 and under 6.0.3 for the root project and record differing `.js` count; D8's `no emitted runtime JS changes` claim is currently proven only for desktop.",
+          "concern": "whole-project emit manifest when root typescript becomes the TS 6 alias"
+        },
+        {
+          "id": "C7",
+          "wording": "If a unit ever edits `src/types/vault/VaultCoreTypes.ts`, consider typing `IKeyPair.publicKey/privateKey` as `Uint8Array<ArrayBuffer>` and dropping the `generateKeyPair` intersection; not required.",
+          "concern": "IKeyPair typing if VaultCoreTypes.ts is ever edited"
+        }
+      ],
+      "admissionWarningsIntro": "Additions I would make to the admission warnings for any future `routine`-by-byte-identical-emit unit:",
+      "admissionWarnings": [
+        {
+          "id": "W1",
+          "wording": "The admission receipt must name the emit-proof roots (whole project vs changed-file roots) and the option sets, and the independent reviewer must reproduce the per-file output hashes, not only the PASS verdict."
+        },
+        {
+          "id": "W2",
+          "wording": "Quote compiler error positions from the pristine baseline text; label any position measured after an in-place neutralisation as such."
+        },
+        {
+          "id": "W3",
+          "wording": "The sensitivity set must include at least one mutation inside the security-relevant leaf's control flow and one type-only change that must not be flagged, run through the same script that produced the equality verdict."
+        }
+      ],
+      "state": "No later unit is edited or released. TS7S2A and every other TS7S2* unit, TS7S3, TS7S4*, TS7S5* and P2CG1B stay as they are."
+    },
+    "note": "Every wording string under successorNotes except concern, tasks02MeasurementRef, openNotesForAdmission and state is a verbatim substring of evidence/ts7s1a-source-fable-review-20261016.txt; the closure generator checked this. C1-C7 and W1-W3 are the section 6 items in order, without their surrounding quotation marks. M1-M4 and N1-N4 are the section 7 items. openNotesForAdmission are the parent's notes, not reviewer text. Where a carry-forward bears on TS7S1B's leaves or text, the note is recorded here for its admission instead of editing TS7S1B. The TS7 track has no PROGRESS.md of its own, so these notes are recorded in this receipt only."
+  },
+  "reviewNotes": "No blockers and no majors. M1 (the 188,73 column) is recorded under tasks02Measurement.columnNote. M2 (the method-1 roots) and M3 (the estimate bracket) are documentary and recorded verbatim. M4 (desktop TypeScript 5.9.3) is carried as C5 and TS7S1B-OPEN-4. N1-N4 are recorded verbatim. The section 6 carry-forwards C1-C5 (TS7S1B), C6-C7 and W1-W3 (later units) are recorded verbatim.",
+  "reservedSlot": "evidence/ts7s1a-admission-review-20261016.md stays unwritten. The reviewer did not write it, and this closure preserves the review byte for byte at its path instead of authoring reviewer text.",
+  "ciQualification": "All 31 check runs on the merged head succeeded (run 38972913148), with no commit statuses. The reviewer did not verify CI (section 8); the merge receipt records the 31 names.",
+  "laneB": {
+    "ruledHead": "3f2de76f58b0554820823c974e9437246286d847",
+    "pr": 2174,
+    "commentId": 6225844972,
+    "author": "SwiggitySwerve",
+    "bodySha256": "b013731c0a9a7ada11a913a62c6f7b112b98986a78493fa399bcb5e6b11a85d2",
+    "at": "2026-10-16T22:24:23Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2174#issuecomment-6225844972",
+    "bodyPath": "evidence/ts7s1a-owner-ruling-6225844972.txt"
+  },
+  "ownerRulingNote": "The ruling body names the exact merged head and TS7S1A: type-only fixes for tasks 1.1-1.2, the BufferSource widening of the exported signData/verifySignature/encryptWithPassword parameters, and byte-identical emitted JavaScript on TypeScript 5.8.3. It also records the APPROVE-WITH-NOTES review with its own emit-equality re-derivation and the routine-class confirmation, and CI 31/31. The owner authorized the ruling in chat; it is transcribed verbatim.",
+  "chronology": "The owner ruling was recorded after the source merge (merged 2026-10-16T22:24:20Z, ruled 2026-10-16T22:24:23Z), as the ruling body acknowledges. This transcription does not claim a premerge ruling.",
+  "identityScope": "Preserves the existing unversioned TS7S1A evidence and the actual cross-model review provenance. No v2/v3 identity manifest or engine observation is claimed.",
+  "githubApproval": "Lane A engineering evidence only; no GitHub approval claimed.",
+  "successorRelease": {
+    "label": "successor release",
+    "scope": "Separate from the TS7S1A closure. This change set also releases TS7S1B. No other TS7S1B field changes and no other unit is released.",
+    "release": {
+      "unit": "TS7S1B",
+      "field": "state",
+      "from": "blocked",
+      "to": "planned",
+      "basis": "TS7S1B's only predecessor, TS7S1A, is main-verified in this same change set with a genuine exact-main mainProof PASS at c60ad495b4e4a98a48ec00c2fe7de363682764c1, as TS7S1B.admissionRequires demands. TS7S1A has no task keys, so its tick stays null. This is the standard on which P2CG1A2 was released (#2168) and on which ts7TrackRegistration20261016.schedulingRule releases each next track unit when its predecessor closes.",
+      "permission": "Release to planned only. Selection is not admission. TS7S1B source work still requires its own normal finite admission at its own baseline. P2CG1B stays blocked under the parent hold, and no TS7S2* unit is released."
+    }
+  }
+}

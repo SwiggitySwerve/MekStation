@@ -1,0 +1,3 @@
+OWNER-RULING 3f2de76f58b0554820823c974e9437246286d847
+
+The owner authorized this ruling in chat. PR #2174 merged before this ruling was posted. The ruling covers TS7S1A (tasks 1.1-1.2 of migrate-to-typescript-7: type-only fixes so TypeScript 7 reports no BufferSource or BranchCheckpointCache errors; exported params of signData/verifySignature/encryptWithPassword widened to BufferSource at the type level; emitted JavaScript byte-identical on the repo's TypeScript 5.8.3), reviewed APPROVE-WITH-NOTES by an independent reviewer who re-derived the emit-equality proof with its own scripts (0 differing emitted files, runtime mutations flagged, type-only mutations not) and confirmed the routine review class is justified. CI 31/31.
