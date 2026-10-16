@@ -1,0 +1,402 @@
+{
+  "unit": "P2CE3",
+  "stage": "mainProof",
+  "recordedAt": "2026-10-16T10:00:28.000Z",
+  "mergeCommit": "285e710d6316bb212c23b3f7275c547132cab245",
+  "verdict": "PASS",
+  "checkout": "E:/Projects/Personal/MekStation-wt/p2ce3-closure-20261016",
+  "runtime": {
+    "playwright": "Source/Main Jest: Tests:       174 passed, 174 total",
+    "suites": "7 passed, 7 total",
+    "tsc": "npm run typecheck: exit 0",
+    "node": "v22.22.0"
+  },
+  "proof": {
+    "path": "evidence/mainproof-285e710d-tests.bytes.json",
+    "payloadSha256": "6e665df0c7ff7af72b4ee909d0f4ffdd88b179dea1b5b8870c99fa8c448a2f60",
+    "payloadBytes": 301971,
+    "note": "Fresh run at exact merge HEAD on a clean checkout before any closure edit: the registered QA selector --testPathPattern='ServerMatchBroadcaster|CampaignSyncSession|bindCampaignSyncConnection|handleRoomCodeGuestJoin|coopMissionAnnouncement.reconnect' (ServerMatchBroadcaster, CampaignSyncSession, bindCampaignSyncConnection and its rebuild and reconcile suites, handleRoomCodeGuestJoin, coopMissionAnnouncement.reconnect), which includes both P2CE3 test leaves."
+  },
+  "logs": [
+    {
+      "path": "evidence/mainproof-285e710d-leaves.bytes.json",
+      "payloadSha256": "d75536883f139e41b780860a9080720e229d0699918ab3f282faed4407bf4e42",
+      "payloadBytes": 300329,
+      "note": "Fresh run of the two P2CE3 test leaves (bindCampaignSyncConnection.test.ts, coopMissionAnnouncement.reconnect.test.ts) on the same checkout and HEAD: 2 suites, 100/100."
+    },
+    {
+      "path": "evidence/mainproof-285e710d-task12.bytes.json",
+      "payloadSha256": "0e5e2f4a6d09a8d588549cc6dd7b3334c994b717401e69711a4dd8ff7d5401ed",
+      "payloadBytes": 301614,
+      "note": "Fresh run of the plan Task 12 selector --testPathPattern='CampaignSyncSession|bindCampaignSyncConnection|handleRoomCodeGuestJoin|coopMissionAnnouncement.reconnect' on the same checkout and HEAD: 6 suites, 154/154."
+    },
+    {
+      "path": "evidence/mainproof-285e710d-typecheck.bytes.json",
+      "payloadSha256": "69b33fe486acec4a95519e91f19f0a5927ed30b8ef23988ea5da3ee2bd03c94d",
+      "payloadBytes": 298,
+      "note": "Fresh typecheck on the same checkout and HEAD."
+    },
+    {
+      "path": "evidence/mainproof-285e710d-validator.bytes.json",
+      "payloadSha256": "4d92105777d7e71e5d3f214164581ab411b2ff00dc5cfb27c30c9c2c6591806f",
+      "payloadBytes": 455,
+      "note": "Fresh validator and --next on the unedited ledger at the same HEAD (PASSED; --next U25)."
+    }
+  ],
+  "attemptLogs": [
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/red-initial.log",
+      "sha256": "6a88339565afbead8c84de537b9847127dca173796fc264ced92d81172ab2128",
+      "bytes": 314013,
+      "note": "Round 1 RED on the initial test text against the baseline binder: 13 failed / 84 passed / 97 (superseded)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/red.log",
+      "sha256": "6c65a7ed304afddbe95fd8abdb1ca000e0db83a14c8530fd4094579b9928b544",
+      "bytes": 319628,
+      "note": "Round 1 RED on the round-1 final test text against the baseline binder: 15 failed / 84 passed / 99"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/red-hashes.txt",
+      "sha256": "dcf6299643beaf131e8a80a024ce82448fad9710a1aced586240e63eddf747f4",
+      "bytes": 406,
+      "note": "Round 1 hashes at RED"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/green-leaves.log",
+      "sha256": "a5b530673ab1374befb3e57ec0ed47f8aaf0892f4c73dd7b81cf9be51d8758ff",
+      "bytes": 298401,
+      "note": "Round 1 GREEN leaves on b803b5d1 bytes: 2 suites, 99/99"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/green.log",
+      "sha256": "5eeaceacd234ce8e31ad70c99c6d305559b57763228b4451601387f03b074afc",
+      "bytes": 299886,
+      "note": "Round 1 GREEN registered QA selector: 7 suites, 173/173"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/happy.log",
+      "sha256": "648e34f184ceeb9b3acd9334f800ebf1f550fecdcc6d9ab655122c37ffcff59f",
+      "bytes": 313360,
+      "note": "Round 1 plan Task 12 selector: 6 suites, 153/153"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/failure.log",
+      "sha256": "f86c0718ef780d1453fc0dd6fb3aabcaf4527ad9a2e3ecd73c90376ed8213602",
+      "bytes": 43266,
+      "note": "Round 1 plan Task 12 negative subset: 56 passed / 97 skipped"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/green-hashes.txt",
+      "sha256": "e49d704ed1eef1ccd3668e701b870e0426e44332e8ce1788d99a153ff96fb598",
+      "bytes": 406,
+      "note": "Round 1 hashes at GREEN"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/callers.txt",
+      "sha256": "0e32b105910654feedbb3ff45d780a0a8c30224d19ac268430066c8d9c4467e2",
+      "bytes": 1769,
+      "note": "Adjacent legacy caller suite list"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/callers.log",
+      "sha256": "0fb53dff20b773556383be1b2c5218f1278b2c6acaf4890d2fb617264a3fad37",
+      "bytes": 110566,
+      "note": "Round 1 adjacent legacy callers: 25 suites, 239/239"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/mutation-probe.mjs",
+      "sha256": "d208b311210155ff9b564bc9be27f07b263cfb57edac0f43b7574095bda2dc88",
+      "bytes": 7716,
+      "note": "Round 1 mutation probe script"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/mutation.log",
+      "sha256": "f444f0c724470b7f4389a5fc2bd5400a37dad750025537f65b6a027070f6780f",
+      "bytes": 2477,
+      "note": "Round 1 mutation probe round one"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/mutation-round2.log",
+      "sha256": "48943a32f5c89a7474ca0e144c4b96635c1084dd17222cd943eb5ba2752496b7",
+      "bytes": 1076,
+      "note": "Round 1 mutation probe round two: 25 of 26 killed; M10 survives (equivalent)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/typecheck.log",
+      "sha256": "2c0d20c4ed9c50ef1cd8f146989adbd863c8a446e1271669b7911a07da7909a8",
+      "bytes": 72,
+      "note": "Round 1 author typecheck PASS"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/lint.log",
+      "sha256": "1396ab384dd4c66d93d1fc22d59ce80091d5c4c4a8fc1fe29fc6f3ad190c32c4",
+      "bytes": 39180,
+      "note": "Round 1 author lint: 0 errors"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/lint-touched.log",
+      "sha256": "423be2844be8c892500c364d90eabaf4898cc00a0452da1b95e45370398cd26e",
+      "bytes": 297,
+      "note": "Round 1 author lint on the touched binder: pre-existing max-lines warning"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/format.log",
+      "sha256": "43da7cbecbdeb76c3b8079c66d76303db22999239c21fac1e81a5c3554c19ce9",
+      "bytes": 180,
+      "note": "Round 1 author format:check pass"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/validation.log",
+      "sha256": "8983b1e6bbcd4d789b8fb02d592a314f54a3c990c0a9ffe0db7042bbcd601b3b",
+      "bytes": 94,
+      "note": "Round 1 author validator and --next (U25)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/validator-tests.log",
+      "sha256": "0c4e53ee9fb7d7fd8f23c2d1b55eea31ff8b3747a3cef6f63f20053ec0e05e55",
+      "bytes": 16292,
+      "note": "Round 1 author validator tests 86/86"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/stable-start.txt",
+      "sha256": "6d0cc38a66c9c86f5b323aa80dff13aad71feed55c9a8c29c8629b7419f49fe7",
+      "bytes": 66,
+      "note": "Round 1 stable run start and end times"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/stable.log",
+      "sha256": "b4aa8f235e0ba74603bf7d0e94ea4c61c1ef927e23ae8e03ac1c7e691d9d1e95",
+      "bytes": 1729796,
+      "note": "Round 1 stable run on b803b5d1 bytes: 2795/2795 suites, 37113 passed, 50 skipped, exit 0"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/census.md",
+      "sha256": "811c5c6b4343a1e18d812dd327e2ff0830304b9819c5a27172f5022bcc84de45",
+      "bytes": 7072,
+      "note": "Author census"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/qa.md",
+      "sha256": "2d3c73b45a6508825d3762370c6d180bbac856bb68af71d413260f8e6f3e23d8",
+      "bytes": 2996,
+      "note": "Author QA notes"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/report.md",
+      "sha256": "31d1354b5df1e870712a22f3b64e8728c5e998a171b2d5b7be98fb50679b8b0d",
+      "bytes": 2763,
+      "note": "Round 1 author report"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/fix-b1/red.log",
+      "sha256": "5e9f6b79fdda232e7daaf28b8b68a323bf5a9a5d6be7b875537d7d7c6226f860",
+      "bytes": 301347,
+      "note": "Fix round RED: the new B1 case against the reviewed-head binder 869380eb: 1 failed / 99 passed / 100"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/fix-b1/red-head.log",
+      "sha256": "abc93be14f04375fad3c3864a1d74a2faa6043e97a864167e8813a09fed50737",
+      "bytes": 301302,
+      "note": "Fix round RED re-run against the reviewed-head binder 869380eb: 1 failed / 99 passed / 100"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/fix-b1/red-head-hashes.txt",
+      "sha256": "e72b4f6b6a6142401df827e2e60eee9a1194d492316d7385fef61e4d8199bcd7",
+      "bytes": 406,
+      "note": "Hashes at the reviewed-head RED"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/fix-b1/red-baseline.log",
+      "sha256": "d250ce39004c5256a130fd13993fd16e6d98481e66400bfebf993d8e8d6e0ea5",
+      "bytes": 322025,
+      "note": "Fix round stage RED against the baseline binder 68768d34: 16 failed / 84 passed / 100"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/fix-b1/red-baseline-hashes.txt",
+      "sha256": "7e128778f0c3b744ac0473a9eb4c2c60f3edc9c793132d6f060a445fcb4627b1",
+      "bytes": 406,
+      "note": "Hashes at the baseline RED"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/fix-b1/green-leaves.log",
+      "sha256": "3fca856accd9c5aff61f19bbc5fd10cd561f9f091f4444ebccd97db39d1c7f80",
+      "bytes": 299904,
+      "note": "Fix round GREEN leaves on b0077efa bytes: 2 suites, 100/100"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/fix-b1/green.log",
+      "sha256": "0802f4c4cfa8b4ccbc2f767ad1f4497011fbb9bcdc82c657be2d8da67997e6d9",
+      "bytes": 301481,
+      "note": "Fix round GREEN registered QA selector: 7 suites, 174/174"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/fix-b1/happy.log",
+      "sha256": "1f99ab803805b4a29c59b599c846ac1696cb6fa1646301262b8573d56e88a352",
+      "bytes": 301330,
+      "note": "Fix round plan Task 12 selector: 6 suites, 154/154"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/fix-b1/failure.log",
+      "sha256": "2b1d45133c2705a90233d9d9cfefeff4940d5b499b6cdaaa5737719019086a2b",
+      "bytes": 29078,
+      "note": "Fix round plan Task 12 negative subset: 60 passed / 94 skipped"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/fix-b1/green-hashes.txt",
+      "sha256": "cc909910e2f265c865eef1aa62ce69007657faad64ed3f012b5ea728504fc1db",
+      "bytes": 406,
+      "note": "Hashes of the three leaves at GREEN; equal to the committed b0077efa blobs"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/fix-b1/callers.log",
+      "sha256": "37eb5c7bf0ed8d63ed4d12cff93750443fec56b8334bdd55125518c38e830b7d",
+      "bytes": 110576,
+      "note": "Fix round adjacent legacy callers: 25 suites, 239/239"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/fix-b1/mutation-probe-r3.mjs",
+      "sha256": "1701c1f67110bc928b76755daa12180e5272a25c065462965da94d0829acb0b4",
+      "bytes": 8685,
+      "note": "Fix round mutation probe script"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/fix-b1/mutation.log",
+      "sha256": "233fbca816c3bde30c902cf79b6b8503374481f30ecdfd5059a4304cd58efa6a",
+      "bytes": 2759,
+      "note": "Fix round mutation probe: 27 of 29 killed; M10 and M29 survive (equivalent)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/fix-b1/census-numstat.txt",
+      "sha256": "f977b3419f1b81a5e68f3dd812e2fcbc932eaedd554e4ff6bdbebd4ee4d2e4aa",
+      "bytes": 557,
+      "note": "Fix round census numstat: 239 / 500 counted, 8 / 15 files"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/fix-b1/typecheck.log",
+      "sha256": "a3245abc354fd6d19db042f0ef0f79999f5b1d192733b0f4808df200bad685b4",
+      "bytes": 82,
+      "note": "Fix round author typecheck PASS"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/fix-b1/lint-touched.log",
+      "sha256": "6fe3cc233ea82d0e76d3e6a258265692c5a1eb8c4a13eca63d8ab214aadc54f6",
+      "bytes": 309,
+      "note": "Fix round author lint on the touched binder: max-lines warning, 1773 counted lines"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/fix-b1/format.log",
+      "sha256": "adf3547190c8e68311a9888011ae8765786969c665809dac706b12b92f86bde3",
+      "bytes": 181,
+      "note": "Fix round author format:check pass"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/fix-b1/validation.log",
+      "sha256": "8983b1e6bbcd4d789b8fb02d592a314f54a3c990c0a9ffe0db7042bbcd601b3b",
+      "bytes": 94,
+      "note": "Fix round author validator and --next (U25)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/fix-b1/validator-tests.log",
+      "sha256": "144a5d0a7614667f40ce1e9f878fa6d308f356385f5ed5fa868a2cf3ecdec3a0",
+      "bytes": 16287,
+      "note": "Fix round author validator tests 86/86"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/fix-b1/pre-stable-hashes.txt",
+      "sha256": "2f78eb90742fac7d286a3209c4754a280d0982af10204ee6bfac8e39d9ad2e9a",
+      "bytes": 632,
+      "note": "Fix round hashes frozen before the stable run; equal to the committed b0077efa blobs"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/fix-b1/stable-start.txt",
+      "sha256": "352595c8de4de0817910a7bca0c307446424f39dff6c7b85d4ef9c83e84806ba",
+      "bytes": 66,
+      "note": "Fix round stable run start and end times"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/fix-b1/stable.log",
+      "sha256": "140afabd13a8dc2b47b9f785b60d6fc6ff8b27842450ac2af9a38b8bbfb13b7a",
+      "bytes": 1735209,
+      "note": "Fix round stable run on b0077efa bytes: 2795/2795 suites, 37114 passed, 50 skipped, exit 0"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/fix-b1/successor-notes-draft.json",
+      "sha256": "3771da7d433613ef68afc7b06b6282d8a8664af49a5fe8d47f28b4f74b571d72",
+      "bytes": 4470,
+      "note": "Author staging copy of the round-1 section 8 carry-forward wording"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/fix-b1/final-summary.txt",
+      "sha256": "5b0be9a1111ebedd4b204dca2015497a40772e45f6a23a3174e811ea2aff2617",
+      "bytes": 1641,
+      "note": "Fix round final summary"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/fix-b1/report.md",
+      "sha256": "80bd548a9d7a337f5340ffe00e33f35c99dd444801d44fbd759c084effceca40",
+      "bytes": 2130,
+      "note": "Fix round author report"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/ci-flake/report.md",
+      "sha256": "82365c54e64ef365e162eb4e5b29b41dc14bf5253c5c74732c2d65d5d6c370e7",
+      "bytes": 3392,
+      "note": "Root cause of the b803b5d1 CI failure: pre-existing ThreeContextPrivacyEvidence random-collision flake"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/ci-flake/summary.txt",
+      "sha256": "0835dd886143d40fdef2709f773fcedee38e34a1c1f23cf824a40aea18503c08",
+      "bytes": 3722,
+      "note": "CI flake reproduction summary: isolated, forced-tail, control and shard runs on main and head"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/ci-flake/force-710036.setup.js",
+      "sha256": "3e879847587eb1288d6a5881dbe2fb0cc6fa155faa3cdcb93f8e6442df37dd52",
+      "bytes": 523,
+      "note": "Setup hook forcing randomBytes(16) to end in 71 00 36"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/ci-flake/montecarlo.mjs",
+      "sha256": "e67313e3acec372a5d66cb4b6f91ff7bb007464a7c9de207e9af460cc0a1c7a4",
+      "bytes": 739,
+      "note": "Monte Carlo estimate of the collision rate"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce3-20261016/ci-flake/shard1.log",
+      "sha256": "fa262128b580db9c687a3c478fd5b25bb1e18bf5c0c148135b81b8de62603d5f",
+      "bytes": 308425,
+      "note": "CI log of the failed Unit Tests (1/6) job on b803b5d1"
+    }
+  ],
+  "scope": "Fresh focused leaf, registered-selector, plan Task 12 selector and typecheck runs at the exact merge commit, plus hash references to the author attempt logs. No install, full-stable at main, browser or build result is claimed for main.",
+  "closure": "main-verified only. taskKeys is empty; no tasks.md row is ticked and no tick receipt is invented. Source/closure owned-resource cleanup is not established here.",
+  "preservation": "Proof and logs are base64 envelopes so repository LF normalization cannot alter their exact bytes. Decode data and verify payloadSha256/payloadBytes.",
+  "closureValidation": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --git --github",
+    "exitCode": 0,
+    "output": "ROADMAP VALIDATION PASSED: 79 nodes, 13 packages, 381 tasks, 40 triage rows",
+    "full": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "output": "ROADMAP VALIDATION PASSED: 79 nodes, 13 packages, 381 tasks, 40 triage rows"
+    },
+    "next": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+      "exitCode": 0,
+      "output": "U24b"
+    },
+    "validatorTests": {
+      "command": "node --test openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
+      "exitCode": 0,
+      "tests": 86,
+      "passed": 86,
+      "failed": 0
+    },
+    "formatCheck": {
+      "command": "npm run format:check",
+      "exitCode": 0
+    },
+    "scope": "Closure metadata validation; the runtime proof remains bound to source merge 285e710d6316bb212c23b3f7275c547132cab245."
+  }
+}

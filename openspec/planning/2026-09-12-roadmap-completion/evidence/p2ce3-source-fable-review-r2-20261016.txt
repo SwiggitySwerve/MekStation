@@ -1,0 +1,162 @@
+# Task 12 / P2CE3 receipt-ACK admission, P2CA commit and durable confirmation - independent exact-head review, round 2 (Fable)
+
+- **Subject:** PR #2155 <https://github.com/SwiggitySwerve/MekStation/pull/2155>, "feat(P2CE3): admit receipt ACKs and confirm only after the P2CA commit" (roadmap Task 12, unit `P2CE3`), after the author's B1 fix round.
+- **Head:** `b0077efae37a69e555a1b39062fd8438a2ce9a38` ("fix(P2CE3): keep a written offer in flight until it is established"), one commit on the previously reviewed `b803b5d18987acb52148a5e9681e9f537d5c7a93`. GitHub `headRefOid` matches; PR OPEN, base `main`, MERGEABLE, no reviews or comments posted.
+- **Base:** `842257c0b664138c560ef17f36df40c0c8e220da` (`origin/main`); `git merge-base HEAD origin/main` is the base.
+- **Round 1:** `docs/audits/2026-10-16-p2ce3-fable-review.md`, sha256 `a457575514198ff5bbe39cb7dd6317ae6f8d54f94f1bddce686c288d505240a6` (re-hashed, matches), verdict REQUEST-CHANGES with blocker B1.
+- **Author reports read:** `.omo/.../task-12-p2ce3-20261016/fix-b1/` (`report.md`, `final-summary.txt`, `mutation.log`, `mutation-final-M29.log`, `mutation-probe-r3.mjs`, `red-head.log`, `red-head.txt`, `red-head-hashes.txt`, `green-hashes.txt`, `red-baseline-hashes.txt`, `census-numstat.txt`, `selectors.txt`, `successor-notes-draft.json`) and `ci-flake/` (`report.md`, `summary.txt`, `force-710036.setup.js`, `probe.jest.config.js`, `related-head.txt`, grep of `shard1.log`), plus those two directory listings. Nothing else under `.omo/` was enumerated.
+- **Reviewer:** Claude Fable 5.1 (`claude-fable-5-1`), read-only review sub-agent, a different model from the author (Claude Opus 5.5). I wrote only this file. The author worktree `E:/Projects/Personal/MekStation-wt/p2ce3-ack-commit-20261016` was clean before and after (`git status --porcelain` empty) and I ran nothing in it. All runs used two throwaway detached worktrees at the new head with a `node_modules` junction to the author's (`MekStation-wt/p2ce3-review-probe-r2` for the pristine-bytes checks, `-r2b` for RED, mutation and probe runs); both were removed afterwards and `git worktree list` shows neither. Node v22.22.0. I did not run `test:stable` (author: exit 0, 2795 suites, 37114 passed) or the 25-suite callers selector.
+
+## Verdict: **APPROVE-WITH-NOTES**
+
+B1 is fixed on the exact head and pinned by a registered test that fails on the previous head's binder bytes and passes on the new ones. The fix is the one-line move I asked for and opens no new hazard that I could construct: eleven interleavings (my six round-1 probes plus five new ones built around the widened in-flight window) behave as the contract requires. The round-2 diff is exactly the four files named in the brief; `units.json` is unchanged; census is 239/500 and 8/15 under the validator's counting rule. All nine checks reproduce the author's numbers. The CI failure on the previous head is a pre-existing random-collision flake in an unrelated suite; the new head's full CI, including the shard that flaked, is green. No blockers, no majors. Notes and the carry-forward wording follow; one wording update (binder size) and one optional Task 13 addition.
+
+## 1. Round-2 diff and census (verified)
+
+**`git diff --stat b803b5d1..b0077efa`:** 4 files, 68 insertions, 13 deletions.
+
+| File | Change | Verified |
+| --- | --- | --- |
+| `src/lib/multiplayer/server/bindCampaignSyncConnection.ts` | +3 / -2: `view.inFlight = null;` deleted after `sendConfirmed` and re-inserted after `view.latest = candidate;`; the one-line comment above the pre-establishment `processAck` becomes two lines. Nothing else. | Yes (full hunk read) |
+| `src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts` | +40: one new case, "an ACK of the written delta that lands during the previous offer commit is admitted and committed after it". | Yes |
+| `evidence/p2ce3-red-20261016.json` | `result` 15/84/99 -> 16/84/100 with the final reconnect-test hash `d29db092`; two fix-round logs added; new `reviewFix` block (reviewed-head binder `869380eb`, 1/99/100, failure text, supersedes note). | Yes |
+| `evidence/p2ce3-local-20261016.json` | leaves 99 -> 100, QA 173 -> 174, happy 153 -> 154, failure subset re-described (60 passed / 94 skipped), mutation text extended (M27-M29), census 238 -> 239 and 636 -> 676 test lines, logs pointer, new `reviewFix` block (B1, `notAddedAsTests`, `carryForward`). | Yes |
+
+`units.json` is byte-identical between the two heads (`git diff --quiet` exit 0). No other file differs.
+
+**Hashes.** Binder sha256: base `68768d34...`, reviewed head `869380eb...`, new head `f6a3f3b7...` (all match the author's `red-baseline-hashes.txt`, `red-head-hashes.txt`, `green-hashes.txt`). Binder test `7ac89b74...` unchanged since round 1; reconnect test `d29db092...`.
+
+**Census** (`git diff --numstat --no-renames base..head`): binder 223 added / 10 removed; `units.json` 16 / 6; tests 103 + 573 (uncounted: `UNCOUNTED_FILES` matches `__tests__/` and `.test.ts`); evidence 89 + 43 + 37 (skipped: `EVIDENCE_PREFIX`). Counted = **239 / 500**. Files = 7 changed + the reserved `p2ce3-admission-review-20261016.md` slot = **8 / 15**. As in round 1, the validator applies this rule at merge time to `mergeSha^1..mergeSha`; `base..head` is the pre-merge proxy. Binder: **2197 physical lines** (`wc -l`), **1773 counted** (oxlint `max-lines` message at `bindCampaignSyncConnection.ts:2197`).
+
+## 2. Re-runs on the exact head (pristine bytes, throwaway worktree)
+
+| Check | Author | Mine |
+| --- | --- | --- |
+| P2CE3 leaves (2 suites) | 100/100 | **100 passed / 100**, exit 0 |
+| Registered QA selector (incl. ServerMatchBroadcaster) | 7 suites, 174 | **7 suites, 174/174**, exit 0 |
+| Plan Task 12 selector | 6 suites, 154 | **6 suites, 154/154**, exit 0 |
+| `npm run typecheck` | 0 | **exit 0** |
+| `npm run lint` | 0 errors | **85 warnings, 0 errors**, exit 0 (binder max-lines 1773 is the only touched-file warning) |
+| `npm run format:check` | PASS | **PASS**, 8188 files |
+| `validate-roadmap.mjs` | PASSED | **PASSED: 79 nodes, 13 packages, 381 tasks, 40 triage rows** |
+| `--next` | U25 | **U25** |
+| `validate-roadmap.test.mjs` | 86/86 | **86 pass, 0 fail** |
+| RED: final test bytes vs reviewed-head binder `869380eb` | 1 failed / 99 passed / 100 | **1 failed / 99 passed / 100**; the one failure is the new case, `campaign-application-unknown-receipt` in the Error frames |
+| RED: final test bytes vs base binder `68768d34` | 16 failed / 84 passed / 100 | **16 failed / 84 passed / 100** |
+| Mutations M27, M28 | killed 1/99/100 each | **killed, 1 failed / 99 passed / 100 each** |
+| Mutations M29, M10 | survived | **survived** |
+
+`git status --porcelain` in the throwaway was empty after the checks; binder restored to `f6a3f3b7` after each RED and mutation run.
+
+## 3. B1 - fixed, and the widened window opens nothing new
+
+**Code at head** (`publish`, binder 1884-1918):
+
+```ts
+view.inFlight = candidate;
+const result = await this.deps.broadcaster.sendConfirmed(socket, candidate.frame, view.abort.signal);
+if (!this.current(view)) return false;
+if (result.kind !== 'sent') { fail(send-failed); return false; }
+if (isRevoked) { fail(membership-revoked); return false; }
+await this.processAck(view);          // may run commit(previous latest); candidate still in flight
+if (!this.current(view)) return false;
+view.latest = candidate;
+view.inFlight = null;
+await this.processAck(view);
+return this.current(view);
+```
+
+`inFlight` is read in exactly one place, `acknowledge` (binder 1773: `names(view.inFlight) || names(view.latest)`); it is written at 1749 (open), 1888 and 1915. So the fix changes admission only: during the pre-establishment `processAck` the just-written candidate is now admissible, which is the B1 window. I checked each hazard the brief lists:
+
+- **Stale `inFlight` on a live view.** Every exit of `publish` that does not reach line 1915 either follows `fail()` (view invalidated) or a false `current(view)` (view already dead). An exception inside `processAck`/`commit` propagates to `enqueue`'s catch, which calls `fail`. `refresh` is the only caller of `publish` and awaits it inside the serialized chain. Hence on a live view `inFlight !== null` holds only between lines 1888 and 1915 of one `publish`, i.e. exactly while a write or the previous offer's commit is pending. No stale value can survive on a live view.
+- **A second `publish` while `inFlight` is set.** Impossible: `publish` is awaited sequentially inside `refresh`'s loop, `refresh` runs as one chain step, and `wake` enqueues rather than interleaves (PROBE-J has a real third commit land during the first commit; its offer is published only after the delta is established, linked to the delta).
+- **Failure / close / supersede with the slot full.** `fail` -> `invalidate` nulls `this.view`, so `acknowledge` on the dead view returns `not-offered`; the enqueued `processAck` is skipped by `enqueue`'s `current` check; `sendConfirmed` with the aborted signal returns `cancelled`. A stale `inFlight` on the dead view object is unreachable (PROBE-I: confirmation write fails during the window; PROBE-K: a second join supersedes the view during the window).
+- **Early-ACK slot interplay.** An ACK of the candidate during the window sets `pendingAck` and enqueues a `processAck` behind the running `refresh`; the pre-establishment `processAck` does not match it (latest is still the previous offer); the post-establishment one commits it; the enqueued copy is then a no-op (PROBE-A/G/J). An ACK of the previous latest during the window (duplicate) is admitted, but the slot entry never matches again once the candidate is established, so it receives neither a confirmation nor a refusal and does not block the next ACK (PROBE-H). This is identical to the pre-fix behaviour (that ACK was admissible as `latest` before too) and is covered by the Task 13 "cumulative, at-least-once" wording.
+- **ACK naming the just-established offer after `inFlight` cleared.** It is `latest`, so admitted; the post-establishment `processAck` has already run with an empty slot and the ACK's own enqueued `processAck` commits it. Ordinary path; exercised by every sequential test.
+- **Head-drift exhaustion of the previous offer during the window.** The refusal for the previous offer is sent, `publish` continues, the candidate is established and its slotted ACK commits cumulatively (reasoned from `commit`'s `continue`/fall-through; PROBE-J covers the single-drift-then-retry variant).
+
+**Conclusion:** the only behavioural change is the intended one. The admitted set during the window grows by exactly the candidate the socket has already received.
+
+## 4. Probes on the new head (throwaway worktree, real SQLite journal, author's `ReceiptSocket` double)
+
+Both leaf files plus 11 probes: 111 tests, 110 passed; the one failure is my own PROBE-I assertion about the test double (explained in the row). All six round-1 probes now pass, including PROBE-A, which failed on the previous head.
+
+| # | Scenario | Result on `b0077efa` | Verdict |
+| --- | --- | --- | --- |
+| A | ACK of latest while the next delta is in flight; delta ACK injected inside the first P2CA `accept` | `results ['accepted','accepted']`, no Error, confirmations `[baseline, delta]`, row at delta | **B1 fixed** (was `unknown-receipt`, row at baseline) |
+| B | Two ACKs of the same latest racing | one `accepted`, one confirmation, row correct | unchanged, acceptable (M1) |
+| C | ACK latest then ACK in-flight before the write settles (slot overwrite) | one `accepted` for the delta, delta confirmed, row at delta | unchanged, acceptable (M1) |
+| D | `ParticipantRemoved` committed between preparation and `accept` | `['threw','refused']`, `not-admitted`, close `membership-revoked`, no row, no confirmation | unchanged, correct |
+| E | Drift on attempts 1-2, success on the third | `['threw','threw','accepted']`, exact confirmation, row present | unchanged, correct |
+| F | Duplicate ACK after a failed confirmation write, then rejoin | old receipt `unknown-receipt`; rebaseline `stale`, no confirmation, row kept | unchanged (M3) |
+| **G** (new) | A, then an exact duplicate ACK of the delta after both settle | `['accepted','accepted','duplicate']`, three confirmations `[baseline, delta, delta]`, row at delta, rows at confirmation time already at delta | correct: the fix does not disturb duplicate idempotency on the formerly-in-flight offer |
+| **H** (new) | Duplicate ACK of the baseline injected inside the baseline's `accept` while the delta is in flight; delta ACK sent later | midway: `['accepted']`, confirmations `[baseline]`, row at baseline, no Error; after: `['accepted','accepted']`, row at delta | correct; the stale slot entry is inert (note N10) |
+| **I** (new) | Delta ACK injected inside the baseline's `accept`, and the baseline's confirmation write then fails | `['accepted']`; close `campaign-application-confirmation-failed`; Error frame of the same reason; row kept at baseline; the slotted delta ACK is never processed and gets no refusal. Rejoin: old delta `unknown-receipt`; rebaseline (whose cut now includes the delta) `accepted` as a replacement and confirmed; row at rebaseline | correct. My assertion `errors == []` was wrong about the double: `ReceiptSocket.send` records the frame before erroring the callback, and `fail` emits an Error frame before closing. Binder behaviour matches the contract ("failed confirmation write keeps the row and closes") |
+| **J** (new) | Delta ACK injected inside the baseline's first `accept` while a real third commit lands inside its verified read | `['threw','accepted','accepted']` then `'accepted'` for the third; confirmations `[baseline, delta, third]`; third offer's `previousReceiptId` = delta; row ends at third; no Error | correct: drift retry, window admission, wake-after-establish and lineage all compose |
+| **K** (new) | Second `CampaignJoin` on the same socket injected inside the baseline's `accept` while the delta is in flight | baseline confirmed (its write preceded the supersede); no close; new view's baseline offered; old delta and old baseline both `unknown-receipt`; rebaseline `accepted` and confirmed; row at rebaseline; no confirmation ever names the dead view's delta | correct: `acknowledge` reads `this.view`, so a non-null `inFlight` on the superseded view object admits nothing |
+
+Probe log: `C:/Users/wroll/AppData/Local/Temp/p2ce3-review-r2/probes-head.log`; probe source `probes-r2.ts` there (not committed, not part of the PR).
+
+## 5. The new regression test
+
+- **RED/GREEN re-verified** (section 2): 1/99/100 against `869380eb`, 100/100 against `f6a3f3b7`, and 16/84/100 against the base binder (the red receipt's updated number).
+- **Pins behaviour, not implementation.** It drives the binder only through its public seams: receipt-mode joins, held socket writes, inbound ACK frames, and the `CampaignPublicAppliedViewStore.prototype.accept` spy the suite already uses as the P2CA observation point. It never reads or sets `inFlight`. It asserts the client-visible contract: no Error frame, two `accepted` results in order, confirmations `[baseline, delta]` in order, and the durable row at the delta. A regression that silently dropped the delta ACK (no refusal, no commit) would also fail: `settled` resolves only on two confirmations or a confirmation plus an error, otherwise `bounded` rejects after 10 s.
+- **Shape equals PROBE-A** except that the baseline ACK is sent after the spy is installed (equivalent: the spy's `call === 0` is the baseline's `accept` either way).
+- **Minor gaps:** it does not assert `delta.appliedView.previousReceiptId === baseline.receiptId` (other cases do) and does not assert the slot's single-use (`results` length 2 implies no third commit, which suffices). No change requested.
+- The author's `notAddedAsTests` reasoning for PROBE-B/C/F/E is acceptable: those pin consumer-facing consequences that the Task 13 wording governs, and the attempt-count mutations bound PROBE-E. My round-1 N8 stands as a suggestion, not a condition.
+
+## 6. Mutation claims and M29
+
+Re-ran the author's `mutation-probe-r3.mjs` (copied, root and output path redirected to the throwaway) for M27, M28, M29, M10 on the final test bytes: **M27 killed (1/99/100), M28 killed (1/99/100), M29 survived, M10 survived**, matching `mutation.log` (27/29 killed). I did not re-run M1-M26 this round; their anchors are unchanged except M7/M8, which the author moved to the fixed bytes, and round 1 reproduced them on the previous head.
+
+**M29** ("in-flight never cleared after establishment") is **equivalent on this code**, as the author says: `inFlight` has a single reader (`acknowledge`), and after line 1914 `latest === inFlight` would admit exactly the same receipts as `latest` alone until the next `publish` overwrites `inFlight` at 1888. The clear at 1915 is therefore an invariant statement ("in flight" means "write or predecessor commit pending"), not an observable behaviour; its presence is right and its mutation cannot be killed without adding a reader. **M10** remains equivalent for the round-1 reason (`commit` checks `view.latest !== offer` synchronously before the synchronous `accept`).
+
+## 7. CI failure on `b803b5d1` (run 38874217230)
+
+- **Code path verified.** `readPrincipalViews` builds `blob` as the JSON of the history page, the timeline and the viewer export concatenated. The export's `privateRecords[].opaqueRef` is `generateOpaqueRef()` = `randomBytes(16).toString('hex')` (`src/lib/events/privacy/privateRecordGuards.ts:81-83`). `assertAbsent(views.blob, forbiddenAuthorityFragments(...))` scans that whole string with `expect(blob).not.toContain(fragment)`, and the fragments include the bare decimals `"71001"`, `"71003"`, `"72011"`, `"72012"`. The CI value `3bfa84e81e8a6d2cde4ea5788c710036` contains `71003` at offset 26. So the failing test does scan output that contains the random `opaqueRef`, and no revision leaked.
+- **Not touched by the PR.** `ThreeContextPrivacyEvidence.test.ts` is byte-identical to base and last changed by `d585638e3` (PR #1311, 2026-08-22). Nothing under `src/lib/multiplayer/server/history/` or `src/lib/events/privacy/` imports the binder or `campaignPublicAppliedView`; the author's `--findRelatedTests` for the binder lists 24 suites on both trees and this is not one of them. The PR's product change is inside a class that is never constructed in that suite.
+- **Author's reproduction is sound:** forcing `randomBytes(16)` to end in `71 00 36` fails the same test identically on base and head; the control hook passes; 10 isolated runs and 3 shard-1 runs pass on each tree. The analytic rate is 28 positions x 4 fragments / 16^5 ≈ 1.07e-4 per 32-hex string; the blob also carries `deliveryEpochId`, another `randomBytes(16)` hex (`deliveryEpochGuards.ts:110`), so roughly 2e-4 per execution of that test, i.e. about one failure in 5000 runs. The 64-hex digests in the blob are deterministic sha256 values; since the suite passes they never contain a fragment.
+- **Re-run is a legitimate response**, and it has already happened: the new head's CI shows Unit Tests (1/6) and every other job SUCCESS, including the `Lint and Test` aggregate. No fix belongs in this PR (outside the three leaves; test-only, unrelated unit).
+- **Follow-up ticket (suggested wording, test-only, one file):** *"`ThreeContextPrivacyEvidence.test.ts`: journal revisions are asserted absent as bare decimal substrings (`71001`, `71003`, `72011`, `72012`) over a blob that contains random 32-hex ids (`opaqueRef`, `deliveryEpochId`). A random id containing one of those digit runs fails the suite (CI run 38874217230, PR #2155, about 2e-4 per run). Fix: assert revision absence structurally (walk the parsed history page, timeline and export and require no number or numeric string equal to a forbidden revision), or match JSON-delimited tokens (`:71003,`/`:71003}`/`"71003"`) instead of raw substrings; keep substring scans for the marker strings and `RAW_FIELD_NAMES`. Confirm with the forced-tail setup hook from the P2CE3 ci-flake attempt (`force-710036.setup.js`) that the fixed test passes with the colliding tail and still fails if a real `committedLastRevision` is injected."*
+
+## 8. Carry-forward placement and wording
+
+**Placement.** The author is right. In this packet the `successorNotes` live in the unit's review receipt, written by the closure PR: `evidence/p2ce2-review-20261016.json` carries `successorNotes` with keys `P2CE3`, `afterP2CE3`, `Task13`, `Task14`, `readmissionFlow`, `note` (checked at head), and P2CE3's `ownershipExceptions` name only `units.json`, the admission, red and local receipts and the reserved admission-review slot. So the wording below is for the P2CE3 closure PR's review receipt (`successorNotes.Task13` / `successorNotes.Task14`); `fix-b1/successor-notes-draft.json` reproduces round-1 section 8 verbatim and is a correct staging copy.
+
+**Wording.** Round-1 section 8 stands with these changes:
+
+- **Task 14 item 5 (binder size), replace with:** *"`bindCampaignSyncConnection.ts` is 2197 physical / 1773 counted lines (max-lines 400 warning). Register the move-only extraction of `CampaignApplicationConnection`, `preparePublicCut`, `IApplicationView` and `ICampaignApplicationReceiptPort` into `src/lib/multiplayer/server/campaignApplicationConnection.ts` (P2CE2 `successorNotes.afterP2CE3`) and land it before Task 14 touches the binder again."*
+- **Task 13, optional item 5 (new, a consequence of the fix the client may rely on):** *"While a connection's view is live, every offer whose bytes the client has received is admissible: the offer in flight (until its write and the previous offer's commit settle) or the latest established offer. A `campaign-application-unknown-receipt` refusal therefore means the view changed (rejoin, supersession, or an altered or foreign receipt), never a server-side timing race; the client MUST treat it as a rejoin signal, not a retry signal."*
+- Task 13 items 1-4 and Task 14 items 1-4 and 6: unchanged (C2/N3 keeps the two-site wording).
+
+## 9. Findings
+
+### Blockers
+- None. B1 closed (sections 3-5).
+
+### Majors
+- None.
+
+### Minors (carried from round 1, unchanged, all wording-only for Task 13/14)
+- **M1.** Slot overwrite and racing duplicates make confirmations cumulative / at-least-once (PROBE-B, C, H). Task 13 items 2 and 4.
+- **M2.** Drift exhaustion refuses with no server-side retry; recovery is a client re-ACK. Task 13 item 3.
+- **M3.** After `confirmation-failed`, a rejoin that adds no events gets a silent `stale` (PROBE-F); one that does add events gets a normal `accepted` replacement (PROBE-I). Task 13 item 1.
+- **M4.** Two singleton seat-read sites inside port-handle transactions. Task 14 item 2.
+
+### Notes
+- **N10 (new).** `processAck` leaves a non-matching `pendingAck` in place (PROBE-H: a duplicate of the predecessor admitted during the window stays in the slot after the candidate is established). It is inert because `receiptId`s are random UUIDs and admission requires an exact match on `latest`, and it is overwritten by the next ACK. If the slot ever gains a second reader, clear it when it names neither `inFlight` nor `latest`. No action now.
+- **N11 (new).** M29's survival documents that `inFlight`'s clear is an invariant, not a behaviour. A one-line comment at 1915 ("in flight means a write or predecessor commit is pending") would make the intent explicit; optional.
+- **N12 (new).** The CI flake needs the follow-up ticket in section 7; it will recur at roughly 2e-4 per run of that suite until fixed.
+- **N5-N9** from round 1 stand (N8 partially addressed: PROBE-A is now registered; B/C/E remain unregistered by the author's stated choice).
+
+## 10. What I could not verify
+- `npm run test:stable` on `b0077efa` (author: exit 0, 2795 suites, 37114 passed, 50 skipped). The leaves, both selectors and the 465-suite CI shard are green.
+- The 25-suite callers selector (author: 239/239) was not re-run.
+- Mutations M1-M26 were not re-run on the new head (M27-M29 and M10 were); the author's log records them killed with the moved M7/M8 anchors.
+- Production composition does not exist, so C1, C2/N3, N4 and the refusal-frame path remain code properties.
+- The B1 window's width against a real `ws` socket was not timed; the fix removes the window entirely, so this no longer matters for correctness.
+- The closure PR's review receipt (where section 8 lands) does not exist yet; the owner ruling is outside this file.
+
+## 11. Artifacts (not committed)
+- `C:/Users/wroll/AppData/Local/Temp/p2ce3-review-r2/`: `summary.txt`, `leaves.log`, `qa.log`, `plan.log`, `typecheck.log`, `lint.log`, `format.log`, `validator.log`, `next.log`, `validator-tests.log`, `status-after.txt` (pristine-bytes checks); `red-head-b803.log`, `red-baseline.log` (RED re-verification); `mutation-M27.log`, `mutation-M28.log`, `mutation-M29.log`, `mutation-M10.log`, `mutation-probe-r3-copy.mjs`; `probes-r2.ts`, `insert.py`, `probes-head.log` (11 probes).
+- Throwaway worktrees `MekStation-wt/p2ce3-review-probe-r2` and `-r2b` removed (`git worktree remove --force`, `git worktree prune`; the `node_modules` junction links were then deleted as links and the empty folders removed). The author's `node_modules` is itself a junction to the root checkout's; its target was verified intact afterwards (595 entries, `jest/bin/jest.js` present).
