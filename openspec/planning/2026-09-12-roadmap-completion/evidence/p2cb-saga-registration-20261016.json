@@ -1,0 +1,128 @@
+{
+  "event": "p2cb-saga-registration",
+  "task": "10",
+  "unit": "P2CB",
+  "registrationOnly": true,
+  "at": "2026-10-16T00:00:04.212Z",
+  "baseline": "b72883f797f732dba8a144aed70dacc1b92fdb45",
+  "actor": {
+    "role": "implementation sub-agent",
+    "provider": "anthropic",
+    "servedModel": "claude-opus-5-5",
+    "identitySource": "Current T3 Code/Claude Code harness runtime; parent delegation identity and independent review are recorded separately by Root."
+  },
+  "authority": {
+    "plan": "E:/Projects/Personal/MekStation/.omo/plans/mekstation-whole-roadmap-reconciliation-20261002.md",
+    "planSha256": "ddfca64e7749ab42d8642defd386394ba8805451c81c6a03c5e761d7f12ede3c",
+    "sections": [
+      "Task10 corrected public-view preparation, 2026-10-09",
+      "P2CER combined ownership correction, 2026-10-09 (shape precedent only)"
+    ],
+    "planClause": "Before source admission, resolve strict saga/inbox known-absence versus hidden-read-failure through adequate public owner contracts, with any real extra leaves named and measured; no cross-store atomicity claim.",
+    "preparationDecision": {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task10-preparation-parent-decision-20261009.json",
+      "sha256": "16844dbd83a6ef7a56715e36db394ff8c0adcef1cf1ea06acb4f70f54c84afd1",
+      "limitsClause": "Strict saga/inbox absence versus swallowed read errors needs an adequate public owner contract before source admission; name/register any genuine extra owner/test/roadmap leaves, no foreign SQL or invented availability."
+    },
+    "precedent": {
+      "registration": "evidence/p2cer-registration-20261016.json",
+      "pr": "https://github.com/SwiggitySwerve/MekStation/pull/2137"
+    }
+  },
+  "reason": {
+    "admissionStop": {
+      "report": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-10-p2cb-20261016/report.md",
+        "bytes": 3216,
+        "sha256": "1fafae919babd58ac27fb2d6e163a931b30a8df177a06bc3ddff08676fc58e20"
+      },
+      "census": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-10-p2cb-20261016/census.md",
+        "bytes": 12813,
+        "sha256": "18228d3b4f563425904ec419f7c8a16b4729c6553988fb0f4f8d7eaee206bf24"
+      }
+    },
+    "finding": "The only by-outcome public saga reader, readCoordinatedCorrectionSagaByOutcomeId, returns null for an absent table, an absent row and every read failure alike. The other public reader, readCoordinatedCorrectionSaga, needs a matchId the inbox row does not carry and migrates schema as a side effect. P2CB therefore cannot separate known absence from hidden read failure without an owner-side strict reader, and the accepted review forbids foreign saga SQL or an invented distinction. Inbox, head/branch, match handle and manifest strictness fit inside the existing named P2CB leaves.",
+    "extraLeavesMeasured": {
+      "src/lib/multiplayer/server/history/CoordinatedOutcomeCorrectionSaga.ts": {
+        "kind": "product",
+        "preimageBytes": 14308,
+        "preimageSha256": "7804d4af9f5d68dd11d547cab41a3816dcc2fc503b337e64b76d245056c93012",
+        "draftNumstat": "+25/-9"
+      },
+      "src/lib/multiplayer/server/history/__tests__/CoordinatedOutcomeCorrectionSaga.test.ts": {
+        "kind": "test",
+        "preimageBytes": 18881,
+        "preimageSha256": "d8b2211c1b07dde96af39310eab92f0ad19b83b5e710b34887c994d37c850fc9",
+        "draftNumstat": "+49/-0"
+      },
+      "measurementNote": "Draft numstat comes from the sibling admission census. The draft was formatted but never executed; it is a size measurement, not evidence of behavior."
+    },
+    "prospectiveFit": "About 11 of 15 files and about 300-385 of 500 counted lines with these two leaves, per the sibling census estimate. Not a cap-fit claim."
+  },
+  "scope": [
+    "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cb-saga-registration-20261016.json"
+  ],
+  "unitsJsonUnchanged": "Both new leaves lie under src/lib/multiplayer/server, which is already in P2CB ownershipPaths, so no ownershipExceptions entry is needed. P2CER added P2CG1 exceptions only because its transport leaves were outside P2CG1 ownershipPaths.",
+  "registrationBudget": {
+    "actualFiles": 2,
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "productFiles": 0,
+    "productAddedLines": 0,
+    "noCapInflation": true,
+    "actualDiffMeasuredSeparately": true,
+    "everyEvidenceFileCounts": true
+  },
+  "previousRegistration": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cer-registration-20261016.json",
+    "bytes": 6701,
+    "sha256": "314b0d0ae5c3169293f06f8c64fff1c7ce38cd3f7ef05fe0ea751fca0de47390",
+    "evidence": "evidence/p2cer-registration-20261016.json",
+    "preservedByteForByte": true,
+    "chainNote": "The Task 8 receipt evidence/p2c-chain-registration-20261009.json (5268 bytes, sha256 21dc7143ef8d3cf18a939a1faa65d0f1e0e0c57e098a04f470ff8d85a3e95317) stays reachable through the P2CER receipt and is also preserved byte-for-byte."
+  },
+  "preimages": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "bytes": 1063270,
+      "sha256": "b2441e1618b0b2aae331dce21ffc1ab2a5ae97e7fc5ee30905f752f401f18494"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "bytes": 1270686,
+      "sha256": "b694f1d1a52b0f987f892f4d57431eec5c1a43f69b057a38e434f400709895d0",
+      "changed": false
+    }
+  ],
+  "prospectiveDelta": {
+    "sourceOwner": "R2.authority-live",
+    "governingEvidenceBefore": "evidence/p2cer-registration-20261016.json",
+    "governingEvidenceAfter": "evidence/p2cb-saga-registration-20261016.json",
+    "P2CB": {
+      "restrictionsBefore": [
+        "src/lib/campaign/sync/campaignPublicAppliedView.ts",
+        "src/lib/multiplayer/server/campaignProgressionReaders.durable.ts",
+        "src/lib/campaign/sync/__tests__/campaignPublicAppliedView.integration.test.ts",
+        "src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.crossGraph.test.ts"
+      ],
+      "restrictionsAdded": [
+        "src/lib/multiplayer/server/history/CoordinatedOutcomeCorrectionSaga.ts",
+        "src/lib/multiplayer/server/history/__tests__/CoordinatedOutcomeCorrectionSaga.test.ts"
+      ],
+      "ownershipExceptionsAdded": [],
+      "knownSourceTestLifecycleSubtotalBefore": 5,
+      "knownSourceTestLifecycleSubtotalAfter": 7,
+      "subtotalArithmetic": "6 listed source/test leaves + 1 lifecycle file (units.json) = 7"
+    }
+  },
+  "selectorNote": "This registration runs the roadmap validator and its existing validator tests only. Named product/test leaves are prospective ownership restrictions; no product test execution or source admission is claimed.",
+  "preservation": "All existing aliases, other restrictions/subtotals, unit/node IDs, states, stages, caps and other fields remain unchanged. P2CB stays planned. units.json is unchanged. The P2CER and Task 8 receipts are preserved byte-for-byte; neither granted these new leaves. No other unit gains a leaf.",
+  "permissionBoundary": "Prospective registration only. P2CB product work still requires fresh finite source admission, complete source/test/lifecycle/stage/helper/evidence census and measured fit under unchanged 15-file/500-added-product-line caps. Known subtotals are lower bounds, not complete source cap-fit claims. No directory-wide grant, new alias, source release, cap exception or widened ownership is supplied. No cross-store atomicity is claimed.",
+  "ndc1AndApproval": "No NDC1 Main, owner approval or owner ruling is claimed or relied on by this receipt. No packet or owner-ruling file is edited.",
+  "delivery": "Independent exact-head review, actual required hosted CI, guarded regular merge, actual Main proof, evidence custody and scoped cleanup remain pending Root gates. This receipt is not an approval or a delivery claim.",
+  "sourceAdmitted": false,
+  "P2Released": false,
+  "U38Released": false
+}
