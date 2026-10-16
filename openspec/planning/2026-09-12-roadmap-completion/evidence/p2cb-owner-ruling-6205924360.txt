@@ -1,0 +1,2 @@
+OWNER-RULING fcf0261a6903fd7c619ca350fab752e7c7c01636
+Rule the exact source head. Owner ruling on Task 10 / P2CB (authorized cut materialization and durable convergence evaluator) at head fcf0261a6903fd7c619ca350fab752e7c7c01636, approved with the Fable 5.1 exact-head review notes. This PR was merged (b352a8e3) before this ruling was recorded; the ruling is entered on the merged head so the ledger can be closed.

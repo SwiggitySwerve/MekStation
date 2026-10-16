@@ -5549,7 +5549,15 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cb-admission-20261016.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cb-admission-review-20261016.md",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cb-red-20261016.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cb-local-20261016.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cb-local-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cb-source-fable-review-20261016.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cb-owner-ruling-6205924360.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cb-review-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cb-merge-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-b352a8e3-tests.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-b352a8e3-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-b352a8e3-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cb-mainproof-20261016.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -5564,10 +5572,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "implementing",
+      "state": "main-verified",
       "baseline": "42e3554bdd1d36426877f6d9100d93dc7e92782f",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "fcf0261a6903fd7c619ca350fab752e7c7c01636",
+      "mergeSha": "b352a8e3c2b05a9295882aff76017a25e499e170",
       "stageReceipts": {
         "admission": {
           "path": "evidence/p2cb-admission-20261016.json"
@@ -5578,9 +5586,27 @@
         "local": {
           "path": "evidence/p2cb-local-20261016.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/p2cb-review-20261016.json",
+          "head": "fcf0261a6903fd7c619ca350fab752e7c7c01636",
+          "reviewedHead": "fcf0261a6903fd7c619ca350fab752e7c7c01636",
+          "reviewerModel": "claude-fable-5-1",
+          "implementerModel": "claude-opus-5-5",
+          "outputSha256": "653d06a7cdbfc485357d99a82856f3856531f41537d3c54ee9ba768f4a4bc71f",
+          "verdict": "APPROVE-WITH-NOTES"
+        },
+        "merge": {
+          "path": "evidence/p2cb-merge-20261016.json",
+          "pr": 2143,
+          "head": "fcf0261a6903fd7c619ca350fab752e7c7c01636",
+          "mergeSha": "b352a8e3c2b05a9295882aff76017a25e499e170"
+        },
+        "mainProof": {
+          "path": "evidence/p2cb-mainproof-20261016.json",
+          "mergeCommit": "b352a8e3c2b05a9295882aff76017a25e499e170",
+          "verdict": "PASS",
+          "runtime": "Source/Main Jest: Tests:       108 passed, 108 total"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -12431,6 +12457,44 @@
         "commentId": 6204331678,
         "author": "SwiggitySwerve",
         "bodySha256": "bfe52c1ec1e59ad4937fe7f3c492d431667d9372470d9ab7a45f34de2c8a722d"
+      }
+    },
+    {
+      "id": "PK-p2cb-ruling",
+      "blocks": [
+        "P2CB"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "After independent exact-head Fable review and required green CI, should the owner rule the bounded P2CB captured-cut materialization and in-transaction launch revalidation head before guarded merge?",
+      "options": [
+        {
+          "label": "rule the exact source head",
+          "consequence": "Permit guarded P2CB launch-view owner, strict precedence and strict saga reader merge and exact-main proof only; the production caller switch, offer and receipt issuance, cross-store atomicity and the owner-file split remain later units.",
+          "effort": "One exact-head Fable review, evidence check and owner ruling"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Hold merge until the concrete materialization, revalidation, precedence or proof objections are fixed and fresh exact-head review, CI and owner ruling are complete.",
+          "effort": "Bounded by the concrete review objections"
+        }
+      ],
+      "agentRecommendation": "Rule only an independently approved green exact head that materializes authorized captured cuts through the existing resolver and segment reader outside SQL, synchronously revalidates roster, applied rows, branch, generation, head revision and digest and authority fingerprints inside the caller's transaction on the same handle, still owes visible no-ops, gives a hidden-only suffix no position or credit, and maps strict precedence failures to typed refusals. This proposal grants no approval or merge permission.",
+      "revertCost": "Low: revert the three-product-leaf change before a production caller consumes it; P2CB adds no migration, table, wire message or server activation, and the legacy readers keep their base behaviour.",
+      "decision": {
+        "option": "rule the exact source head",
+        "at": "2026-10-16T01:27:15Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2143#issuecomment-6205924360"
+      },
+      "ruling": {
+        "ruledHead": "fcf0261a6903fd7c619ca350fab752e7c7c01636",
+        "pr": 2143,
+        "commentId": 6205924360,
+        "author": "SwiggitySwerve",
+        "bodySha256": "23cd480ff400f67045d962cb40bac7f2974d6076594cab1200b2ee3a58a85e97"
       }
     },
     {

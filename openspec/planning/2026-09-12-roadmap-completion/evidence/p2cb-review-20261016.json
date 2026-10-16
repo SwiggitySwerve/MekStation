@@ -1,0 +1,40 @@
+{
+  "unit": "P2CB",
+  "stage": "review",
+  "recordedAt": "2026-10-16T01:35:09.212Z",
+  "head": "fcf0261a6903fd7c619ca350fab752e7c7c01636",
+  "reviewedHead": "fcf0261a6903fd7c619ca350fab752e7c7c01636",
+  "reviewerModel": "claude-fable-5-1",
+  "implementerModel": "claude-opus-5-5",
+  "verdict": "APPROVE-WITH-NOTES",
+  "outputPath": "evidence/p2cb-source-fable-review-20261016.txt",
+  "outputSha256": "653d06a7cdbfc485357d99a82856f3856531f41537d3c54ee9ba768f4a4bc71f",
+  "reviews": [
+    {
+      "path": "evidence/p2cb-source-fable-review-20261016.txt",
+      "sha256": "653d06a7cdbfc485357d99a82856f3856531f41537d3c54ee9ba768f4a4bc71f",
+      "bytes": 25751,
+      "originalPath": "docs/audits/2026-10-16-task10-p2cb-fable-review.md",
+      "reviewedHead": "fcf0261a6903fd7c619ca350fab752e7c7c01636"
+    }
+  ],
+  "reviewReruns": "On the exact head under Node v22.22.0 the reviewer re-ran the three P2CB test leaves with campaignProgressionReaders.durable.integrity and campaignLaunchAuthorityRoute (5 suites, 108/108), typecheck, lint, format, the validator, --next and the validator tests. The full stable suite was not re-run.",
+  "stableSuiteNote": "The author stable run 2 (2795/2795 suites, 37067 passed, 50 skipped) ended at 2026-10-15T19:09:56-06:00, 44 seconds before commit fcf0261a was created at 19:10:40-06:00. It covers the pre-commit working tree, not the commit object (review N6). The exact-head reviewer re-runs and the fresh exact-main run in the mainProof receipt cover the leaves and both callers.",
+  "ownerFileNote": "src/lib/campaign/sync/campaignPublicAppliedView.ts is 488 lint-counted lines (555 physical), over the 400 soft max and under the 500 guardrail. It is accepted as a registered-owner exception, because the P2CB restriction is a closed six-leaf list. A facade-preserving split, re-exported from this owner, is a future separately registered successor; it is not registered here (review N1).",
+  "reservedSlot": "evidence/p2cb-admission-review-20261016.md stays unwritten. The reviewer did not write it, and this closure preserves the review byte for byte at the outputPath instead of authoring reviewer text.",
+  "ciQualification": "All 31 check runs on the merged head succeeded (run 38833760093).",
+  "laneB": {
+    "ruledHead": "fcf0261a6903fd7c619ca350fab752e7c7c01636",
+    "pr": 2143,
+    "commentId": 6205924360,
+    "author": "SwiggitySwerve",
+    "bodySha256": "23cd480ff400f67045d962cb40bac7f2974d6076594cab1200b2ee3a58a85e97",
+    "at": "2026-10-16T01:27:15Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2143#issuecomment-6205924360",
+    "bodyPath": "evidence/p2cb-owner-ruling-6205924360.txt"
+  },
+  "ownerRulingNote": "The ruling body names Task 10 / P2CB and the exact merged head, and approves with the Fable 5.1 exact-head review notes. It is transcribed verbatim.",
+  "chronology": "The owner ruling was recorded after the source merge, as the ruling body acknowledges. This transcription does not claim a premerge ruling.",
+  "identityScope": "Preserves the existing unversioned P2CB evidence and the actual cross-model review provenance. No v2/v3 identity manifest or engine observation is claimed.",
+  "githubApproval": "Lane A engineering evidence only; no GitHub approval claimed."
+}
