@@ -1,0 +1,159 @@
+# Task 12 / P2CE2 socket offers and same-cut public hydration - independent exact-head review (Fable)
+
+- **Subject:** PR #2150 <https://github.com/SwiggitySwerve/MekStation/pull/2150>, "feat(P2CE2): add socket application offers over same-cut public hydration" (roadmap Task 12, unit `P2CE2`, second slice of the P2CE split registered by PR #2146).
+- **Head:** `c6d7293642e2c923c7f244a32464c942f0f4db36` (branch `codex/p2ce2-offers-hydration-20261016`, one commit on the baseline). GitHub `headRefOid` matches; PR state OPEN, base `main`, MERGEABLE.
+- **Base:** `249779306c1f6336bf2b5ffa23cf7f453b5aa228` (`main`, merge of PR #2149 which released P2CE2 to planned). `git merge-base` of head and base is the base.
+- **Reviewer:** Claude Fable 5.1 (`claude-fable-5-1`), read-only review sub-agent, a different model from the author (Claude Opus 5.5). I wrote only this file. No product, test, ledger, evidence or `.omo` file was touched; the reserved `evidence/p2ce2-admission-review-20261016.md` slot stays absent. The author worktree `E:/Projects/Personal/MekStation-wt/p2ce2-offers-hydration-20261016` was clean before and after every run (`git status --short` empty). My own scenario tests ran in a throwaway detached worktree at the same head with a `node_modules` junction, which I removed afterwards (`git worktree list` shows no trace). Under `.omo/` I read only the named files of `task-12-p2ce2-20261016/` (`report.md`, `census.md`, `stable.log` tail, `stable-start.txt`, `green-hashes.txt`, `p2ce-full-normalized.patch`) and the listing of that one directory.
+- **Contract:** `units.json` unit `P2CE2` (`behavior`, `admissionRequires`, caps 15 files / 500 counted lines, review classes authority, privacy, replay, idempotency, concurrency); `roadmap.json` `R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CE2` (4 leaves, subtotal 5); registration receipt `evidence/p2ce-split-registration-20261016.json`; registration review `docs/audits/2026-10-16-p2ce-split-registration-fable-review.md` (line 79: E2 references nothing from E3; line 124: E2 must author E2-only reconnect variants); P2CE1 review `docs/audits/2026-10-16-p2ce1-fable-review.md` (note 1: never route a sequenced match `Event` through `sendConfirmed`; note 2: always send through the paired broadcaster).
+
+## Verdict: **APPROVE-WITH-NOTES**
+
+No blockers, no majors in this slice. The diff is exactly the four registered P2CE2 leaves plus P2CE2's own `units.json` lifecycle fields and three dated evidence receipts; the census recomputes to the author's 416 / 500 and 9 / 15. The slice is dormant: `server.js` is unchanged and passes no `applicationReceipts`, and the binder issues offers only when both `membership` and `applicationReceipts` are composed. Every claim in the behavior text that this slice owns is implemented and pinned by a test on real SQLite and the verified journal. Every author number I could recompute reproduces on the exact head under Node v22.22.0. Seven adversarial scenarios of my own pass or behave acceptably; two of them expose bounded windows that are notes, not defects, and both are carried forward below. The author's five concerns are classified in section 6; three of them are composition constraints that must be stated as hard preconditions for Task 14, and I give the wording.
+
+## 1. Scope and census
+
+**Changed files (`git diff --numstat --no-renames 24977930 c6d72936`, validator rule reproduced from `validate-roadmap.mjs` lines 106-112 and 705-726: every changed file counts toward `maxFiles`; added lines count unless `UNCOUNTED_FILES` matches or the path starts with the evidence prefix; no deletion credit):**
+
+| # | Path | Kind | +/- | Counted | Head SHA-256 |
+|---|---|---|---:|---:|---|
+| 1 | `src/lib/multiplayer/server/bindCampaignSyncConnection.ts` | product (leaf 1) | +363/-6 | 363 | `68768d3425d97db35a3c0945cf79c769e8a6704f27a909d4ef6f3b00cf0f0d99` |
+| 2 | `src/lib/multiplayer/server/handleRoomCodeGuestJoin.ts` | product (leaf 2) | +37/-0 | 37 | `dc52df82a670c1285091b9e12a672d8d8daa6c7005b838dcd09662c0be9a798e` |
+| 3 | `openspec/planning/2026-09-12-roadmap-completion/units.json` | lifecycle | +16/-6 | 16 | `1034d271fd9f2cea21e39627b7d5fce7b6ce0f2aeeb30abc66cc9b7519c25047` |
+| 4 | `src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts` | test (leaf 4) | +424/-1 | 0 | `ef2cd18bee613c8a74339b2bfce5ff39526032362897cfbdfaa61760e5452812` |
+| 5 | `src/lib/multiplayer/server/__tests__/handleRoomCodeGuestJoin.test.ts` | test (leaf 3) | +67/-0 | 0 | `414d5f73c004769f2a4600e864548b677be4224407971b827b95fe7f5f8ffc47` |
+| 6 | `.../evidence/p2ce2-admission-20261016.json` | evidence | +90 | 0 | `8a5c4859222e85239ac3d449c0ced0a0a2eeed4567ffab919c23f77115e2a212` |
+| 7 | `.../evidence/p2ce2-red-20261016.json` | evidence | +29 | 0 | `2bd1b862e14679b5c7ecf33a088fda082cd1f747750cf160be8f6fcb7d5bad61` |
+| 8 | `.../evidence/p2ce2-local-20261016.json` | evidence | +33 | 0 | `680df603410610a8f270eda50bd07420af04fd53dc08137051f87d925cc3450a` |
+| 9 | `.../evidence/p2ce2-admission-review-20261016.md` | reserved review slot | not in diff | 0 | (absent; listed in `ownershipExceptions`, not authored) |
+
+**Totals:** 8 files changed + 1 reserved slot = **9 of 15**. Counted lines **416 of 500** (363 + 37 + 16). Test additions 491 and evidence additions 152, both uncounted. Equal to the author's census and local receipt. The two product leaves and two test leaves are exactly the four `restrictions.P2CE2` paths; every other changed path is named in `ownershipExceptions`. `server.js`, `roadmap.json`, `Protocol.ts`, `ServerMatchBroadcaster.ts`, `bindCampaignSyncConnection.test.ts` (a P2CE3 leaf) and every other file are untouched.
+
+**Hash chain:** the five base blobs equal the admission receipt's `frozenFiles` hashes and the author's `census.md` (`93ff88f7...`, `4d663843...`, `629aa11b...`, `1a291144...`, `2acb5e37...`). The four head leaf hashes equal the author's `green-hashes.txt`, so `test:stable` ran on the committed bytes.
+
+**`units.json` deep diff (programmatic, base vs head, all 178 units compared):** exactly one unit differs, index 69 = `P2CE2`, four fields: `state` planned -> implementing; `baseline` null -> `24977930...`; `ownershipExceptions` 1 -> 5 entries (the three receipts in the diff plus the reserved review slot); `stageReceipts.admission/red/local` null -> `{path}`. No top-level key, other unit, packet, holder, cap, prerequisite or historical receipt moved. `prHead`, `mergeSha`, `review`, `merge`, `mainProof`, `tick` remain null, correct for this stage.
+
+**No P2CE3 content:** grepping the head binder for `pendingAck`, `processAck`, `NOT_OFFERED`, `isApplicationAck`, `sameAppliedView`, `CampaignPublicAppliedViewStore`, `readCampaignPublicAppliedView`, `CampaignApplicationResult`, `COMMIT_ATTEMPTS`, `HEAD_DRIFT` finds nothing. The only `acknowledge()` hits are the pre-existing local `captureCampaignConnectionBaseline` closure. No `CampaignAck` dispatch branch was added. Diffing the committed `CampaignApplicationConnection` class (166 lines) against the preserved patch's class (325 lines) shows the removals are precisely the E3 members (`inFlight`, `pendingAck`, `acknowledge`, `processAck`, `commit`, the `prepare()` wrapper the commit loop needed) plus one equivalent simplification: the patch's separate `view.cut` watermark is replaced by `view.latest.cut`, which is identical here because `latest` is set on every confirmed publish. `handleRoomCodeGuestJoin.ts` and its test hunk are the patch's verbatim.
+
+**Dormancy:** `server.js:658-665` composes `membership` and `forceClaims` only. `grep -rn applicationReceipts src --include=*.ts` outside tests hits only the binder. The activation condition is `membership && applicationReceipts` (binder line ~326); both "legacy with membership alone" and "legacy with the receipt port alone" are pinned by the `it.each` regression guard, which passed at RED.
+
+## 2. Re-runs on the exact head (Node v22.22.0 from `C:\Users\wroll\AppData\Local\nvm\v22.22.0`, author worktree, no file changed)
+
+| Check | Command (abridged) | Result |
+|---|---|---|
+| P2CE2 suites | jest `--runInBand --runTestsByPath` the two test leaves | **2 suites, 45/45 passed, exit 0** (12.8 s) |
+| Registered QA selector | jest `--testPathPattern='ServerMatchBroadcaster\|CampaignSyncSession\|bindCampaignSyncConnection\|handleRoomCodeGuestJoin\|coopMissionAnnouncement.reconnect'` | **7 suites, 155/155 passed, exit 0** |
+| Typecheck | `npm run typecheck` (`tsc --noEmit --skipLibCheck`) | **exit 0** |
+| Lint | `npm run lint` (oxlint, 3839 files) | **0 errors, 85 warnings**; the binder's `max-lines` warning is pre-existing (1276 physical lines at base, 1984 now, soft max 400) |
+| Format | `npm run format:check` (oxfmt, 8188 files) | **pass** |
+| Roadmap validator | `validate-roadmap.mjs` | **PASSED: 79 nodes, 13 packages, 381 tasks, 40 triage rows** |
+| Validator `--next` | `validate-roadmap.mjs --next` | **U25** (P2CE2 is in flight, so no longer NEXT) |
+| Validator tests | `node --test validate-roadmap.test.mjs` | **86/86 pass** |
+| `test:stable` | not re-run (per brief); author's `stable.log` | start `2026-10-16T05:50:56Z`, end `06:06:46Z`; `2795 passed, 2795 total` suites, `37095 passed, 50 skipped`, 947 s; leaf hashes at green equal head |
+| Reviewer scenarios | 7 cases in a throwaway worktree at head (section 5) | 6 pass as expected; S3 records a one-step window |
+
+Author RED claims verified from the receipt text (I did not re-stage RED): final-text RED 13 failed / 32 passed / 45 with product leaves at baseline hashes; four regression guards passing at RED are the ones a correct legacy path should pass.
+
+## 3. Review classes
+
+### Authority
+
+- **Binding.** The view is constructed per socket in `bindCampaignSyncConnection` from the server-verified `verifiedPlayerId`, the registry `entry` (campaign) and `matchId` (session); `preparePublicCut` looks the seat up for that principal only (`activeCampaignSessionMembership(campaignId, sessionId, participantId)`) and the authority triple (`branchId`, `effectiveGeneration`, `viewerAuthorityFingerprint` over seat, `boundAt`, viewer identity) is captured on the first cut and compared on every later one; drift ends the view with `campaign-application-replaced`. Lineage is the `appliedView` chain (`viewId`, fresh `receiptId`, `previousReceiptId` = the latest established receipt).
+- **Seat before cut.** GM: `membership.bind(gm)` precedes `application.open()`; `gm-seat-taken` returns before any hydration. Returning member: `isActive` gate precedes `hydrateApplication`. Room-code newcomer (both the grant-adapter path and the no-adapter fallback): room code is verified and `bind(player)` claims the seat before `publicHydration` / `hydrateApplication`; `tactical-seats-full` refuses first. `isRevoked` is checked at the top of every join.
+- **Rejoin mints a new view id.** `open()` always calls `invalidate()` then `randomUUID()`; pinned by the test (`views.has(rebaseline.viewId)` false) and by my S2a/S2b.
+- **Removal / revocation / authority change end the view.** `cut === null` (no active seat), `cut.removed` (a committed `ParticipantRemoved` anywhere in the verified history), post-write `isRevoked`, and the authority triple comparison all route to `fail` -> `closeWithTypedError` (1008). Pinned by the committed-removal, authority-change and unsettled-revocation tests.
+- **No client-resolved actions.** The `lastSeq` resync arm is skipped in receipt mode (`envelope.lastSeq !== undefined && !application`), so a client-claimed cursor never selects the cut; pinned by "newcomer quoting lastSeq ... still gets the public bundle". No new inbound frame kind is parsed in this slice.
+
+### Privacy
+
+- **Same cut, one transaction.** `db.transaction(() => ({ head, generation, path, membership }))()` on `receipts.database()`; the path is materialized outside SQL by `materializeBranchPath` and `reached` (last stored digest, or the first segment's base digest for an empty path) must equal `captured.head.digest`, otherwise `campaign-application-history-integrity` throws into the chain and the connection closes `campaign-application-unavailable` with nothing sent (pinned by the digest-mismatch test, which also asserts the secret never leaves). See note N3 on the seat read's connection.
+- **Projection.** `projectCampaignForViewer(campaignId, events, campaignScopeAdmits(scope, {participantId, isGm}))`; `isGm` comes from the durable seat, not the registry. The snapshot payload is `cut.state` (the fold of the visible set only) and carries no journal position (`payload` has no `revision`, asserted). `hydrationFacts` = `selectCampaignMissionLaunches(visible, Infinity, admits)`, launch facts only, already bounded by the cut.
+- **Hidden events produce no frame and no offer.** Deltas iterate `cut.visible` only, so a `gm`-scoped event never becomes a frame; the watermark only advances on sent frames. Pinned by "withholds hidden progress" and by my S5 (a hidden-only commit writes zero bytes to the guest and the next visible delta links straight to the baseline).
+- **Grant replica stays internal.** In receipt mode `handleRoomCodeGuestJoin` still runs `hydrateFirstJoin` (grant-scoped snapshot into the replica) and `attachRoomCodeGuestLiveSession` (replica catch-up), but `sendGuestSnapshot`, `sendReplicaSnapshot`, `releaseSnapshot` and the legacy launch replay are never reached; the test asserts `sent` is empty and the replica cursor exists at hydration time. The grant channel has not carried client frames since delivery unification, so nothing else can leak through it.
+- **Sequence gaps.** Delta frames carry the event's own campaign `sequence`, exactly as the legacy member arm does; a restricted viewer can infer that something was withheld from a gap, as before. Not new to this slice and not a receipt leak. No new log line prints frame content.
+
+### Replay
+
+- **Deltas.** After the baseline (`cut` = head revision), each refresh re-reads the verified journal and sends every visible event with `streamRevision > latest.cut`, in path order, each linked to the receipt of the frame established just before it (`view.latest` is updated inside `publish`, so the loop links correctly within one refresh). Checkpoints (`CampaignSnapshotPublished` that `campaignBaselineReachesViewer` admits) ride the `CampaignSnapshot` kind via `campaignEventWireFrame` with `sequence >= 0` and a non-null `previousReceiptId`, which `CampaignSnapshotMessageSchema` accepts (my S6).
+- **Nothing durable.** `latest` lives on the in-memory view; no map keyed by socket survives the view, no timer, no queue beyond the per-view promise chain, no `setInterval`/`setTimeout` in the diff.
+- **P2CE1 note 1 honored.** The sole `sendConfirmed` caller is `publish` and its argument is typed `ICampaignApplicationOffer` (`CampaignSnapshot | CampaignEvent` with `appliedView`), so a sequenced match `Event` cannot reach it and `deliveredSeq` semantics are untouched.
+
+### Idempotency
+
+- An offer is **established only** when `sendConfirmed` returns `sent` and the post-write `isRevoked` check passes; `failed`, `backpressure`, `not-open` and `cancelled` all leave `latest` unchanged and (when the view is still current) close 1008 `campaign-application-send-failed`. Pinned by the `it.each(['failed','backpressured','closing'])` test (a failed write hands the frame over but establishes nothing; refused writes hand nothing over) and by my S4 (backpressure on the first delta after an established baseline).
+- A superseded view's `fail` is a no-op (`current(view)` false), so a rejoin never closes the socket it just replaced.
+
+### Concurrency
+
+- **Serialized per view.** `enqueue` chains every step on `view.chain`; `wake` coalesces commits with `refreshQueued`; the subscription is taken **before** the first cut is prepared, so a commit landing between the read transaction and the write is picked up by the queued refresh (pinned by "a commit meanwhile follows it, linked to it" and my S1 for the delta-held case: 'b' is sent exactly once, after 'a' settles, linked to 'a').
+- **Abort is the release.** `invalidate()` aborts the signal; the `abort` listener unsubscribes from the host (pinned by the subscription-count test); `sendConfirmed` receives the same signal, so a rejoin cancels an unsettled write instead of waiting on it.
+- **Healthy recipients unaffected.** Each socket has its own view and chain; a bad socket's failure closes only that socket. Pinned by the `it.each` test's GM delta assertion and my S4.
+- **Errors.** `enqueue`'s `catch` logs and fails the view, so the chain never rejects unhandled. The only path that could throw inside the `catch` is `deps.close` itself (`socket.close` on a dead handle); `ws` tolerates that, and the mock does too.
+
+## 4. P2CE1 notes
+
+1. **Match `Event` frames never go through `sendConfirmed`.** Verified by type and by grep (one caller, section 3 Replay).
+2. **All sends use the broadcaster stored beside the lifecycle.** `const { lifecycle, broadcaster } = campaignSocketLifecycle(entry, matchId)` widens P2CE1's destructuring; the view is constructed with that `broadcaster` and `publish` calls `this.deps.broadcaster.sendConfirmed(this.deps.socket, ...)`. The only `new ServerMatchBroadcaster()` in the file is line 260 inside `campaignSocketLifecycle`, the pair's own construction. The author's mutation M12 (fresh broadcaster) is unobservable through the binder seam, as they say; I confirm by reading that the stored pair is what the view holds. Closing frames go through the legacy `send` in `closeWithTypedError`, which is the pre-existing seam for error/close frames and is not an offer.
+
+## 5. Reviewer adversarial scenarios (throwaway worktree at head, real SQLite journal, same `ReceiptSocket` double as the author's)
+
+| # | Scenario | Result | Covered by a registered test? |
+|---|---|---|---|
+| S1 | Delta write for 'a' is held; commit 'b' lands meanwhile | Nothing written while 'a' is unsettled (2 offers); on release 'a' then 'b' arrive once each, `b.previous = a`, `a.previous = baseline`; no close | **No** (the registered case holds the baseline, not a delta). Behaves correctly. |
+| S2a | Two `CampaignJoin` frames from one guest socket before the first baseline write settles | Two snapshots with different `viewId`s written; exactly one `joined`; no close, no Error frame; the next delta links to the second snapshot's receipt and view | **No**. Behaves correctly. |
+| S2b | Same for the GM | Same as S2a **plus** one spurious `Error: campaign-session-unavailable` frame on the healthy socket (the superseded `open()` returned false and the host arm reports it as a session failure); no close; later deltas link to the live view | **No**. Note N2. |
+| S3 | Committed `ParticipantRemoved` lands while the guest's baseline write is held | Baseline is established (post-write `isRevoked` is still false because durable revocation is applied by the binder only after the intent returns), `open()` returns true, `joined` fires, then the already-queued refresh reads `cut.removed` and closes 1008 `membership-revoked`; offers = 1; the `ParticipantRemoved` frame is never offered to the removed participant | **Partly**: the registered "revocation while unsettled" test uses `membership.revoke` directly (durable first), which does not exercise this ordering. Note N1. |
+| S4 | Backpressure on the **first delta** (baseline already established) | Close 1008 `campaign-application-send-failed`; offers stay 1; GM's chain continues and the guest receives nothing further | **No** (registered `it.each` fails the baseline). Behaves correctly. |
+| S5 | Hidden-only commit after the baseline | Zero frames written to the guest; next visible delta links straight to the baseline; secret absent | Effectively yes ("withholds hidden progress"). |
+| S6 | Visible checkpoint (`CampaignSnapshotPublished`, scope campaign) after the baseline | Rides as a linked `CampaignSnapshot` with `sequence >= 0`, no close, GM gets it too | **No**. Behaves correctly and schema-valid. |
+
+## 6. The author's five concerns, classified
+
+| # | Concern | Class | Disposition |
+|---|---|---|---|
+| C1 | Receipt-mode participants are not retained or attached in `CampaignSyncSession` (`retainHydratedParticipant`, `attachLiveParticipant`, `joinMember` are skipped), so the legacy launch-convergence gate never sees them | **Note here; hard precondition for Task 14** | Correct for this slice (the contract says offers replace legacy frames, and P2CE3/Task 13 own convergence). But composing `applicationReceipts` in production before the readiness doors read receipt rows would make launch convergence blind to every receipt-mode participant. Carry-forward wording: *"Task 14 MUST NOT compose `applicationReceipts` into `bindCampaignSyncConnection` until the launch/readiness doors read `campaign_public_applied_view` rows for convergence; receipt-mode participants are not retained by `CampaignSyncSession` and the legacy numeric gate cannot see them."* |
+| C2 | The seat read (`activeCampaignSessionMembership`) uses `getSQLiteService().getDatabase()` while the capture transaction runs on `applicationReceipts.database()`; the capture is atomic only when they are the same connection | **Minor here; hard precondition for Task 14** | True by reading: the seat read is on the service singleton, not the handle. In every present composition (the tests pass `{ database: () => getSQLiteService().getDatabase() }`) they are one connection and the same-cut claim holds. If Task 14 ever hands the binder a different connection, the seat can be read outside the transaction's snapshot. Carry-forward wording: *"`ICampaignApplicationReceiptPort.database()` MUST return the same better-sqlite3 connection `getSQLiteService().getDatabase()` returns (or P2CE3 must pass the handle into the seat read); the same-cut guarantee of `preparePublicCut` depends on it."* P2CE3 can close this cheaply by threading `db` into a handle-taking variant of the seat read if the participant store gains one; that is a P2CA/P2CB owner leaf, so it is a registration question, not a P2CE2 defect. |
+| C3 | `preparePublicCut` re-materializes the full verified history on every commit for every view and duplicates the P2CB steps | **Minor (performance), carry to Task 13/14** | Correctness is unaffected (the re-read is what makes "no durable sent cache" hold). Cost is O(views x history) per commit with no bound. Carry-forward wording: *"Before production composition, measure `preparePublicCut` on a long campaign with N views and either accept a budget or replace the per-commit full materialization with a tail read from the last offered cut under the same digest check."* The P2CB duplication would be resolved by a shared helper in a P2CB-owned leaf; not registrable here. |
+| C4 | Binder at 1585 counted / 1984 physical lines (soft max 400) | **Note (pre-existing warning)** | The registration review already said a dedicated `campaignApplicationConnection.ts` leaf needs its own registration. P2CE3's leaves are binder + binder test + reconnect test, so the extraction cannot happen in P2CE3 without amendment. Carry-forward wording: *"After P2CE3 main-verifies, register a narrow move-only unit that extracts `CampaignApplicationConnection`, `preparePublicCut` and `ICampaignApplicationReceiptPort` into `src/lib/multiplayer/server/campaignApplicationConnection.ts` with no behavior change."* |
+| C5 | The authority-change test re-seats by updating `bound_at` directly; no production re-seat path exists | **Note** | The test pins the fingerprint law (`boundAt` is part of `campaignViewerAuthorityFingerprint`), which is the right thing to pin while no production path exists. Carry-forward wording: *"When a production re-seat/re-bind path lands (Task 13 or later), add a reconnect test that drives it instead of the `bound_at` fixture."* |
+
+## 7. Findings
+
+### N1. [NOTE] A committed removal that lands while a write is unsettled is caught one chain step after the write, not at the write (S3)
+
+`publish` establishes on `sent` and then checks `membership.isRevoked`. Durable revocation for a committed `ParticipantRemoved` is applied by `applyCommittedParticipantRemovals` (binder line ~983) after the host returns, i.e. after the host has already fanned the event out and `wake` has queued the next refresh. So in S3 the baseline is established, `open()` returns true, `hydrateApplication` runs `addSocketToMatch` + `acknowledge()`, and the queued refresh then closes the view with `membership-revoked`. No offer or campaign frame reaches the removed participant (my assertion), and the window is a few microtasks on one chain. The only thing that could reach them in that window is the legacy `broadcast(matchId, ...)` fan-out of `CampaignDecision`/timeout frames, because the socket was momentarily in `socketsByMatch`. This is consistent with the contract clause "removal ... also end[s] the view" and is not a leak of the public bundle. **Carry to P2CE3:** the ACK/commit path must not rely on `isRevoked` alone; it must re-prepare the cut (the preserved patch's `commit` does: it calls `prepare()` and P2CA's context carries `participantRemoved`). Suggested wording: *"P2CE3 ACK admission MUST re-prepare the verified cut (head, generation, path, seat, committed removal) before P2CA `accept`, and MUST refuse an ACK naming a `viewId` other than the live view's."*
+
+### N2. [NOTE] GM double-join sends a spurious `campaign-session-unavailable` Error frame (S2b)
+
+The host arm maps `application.open()` returning false onto the legacy `joinMember` failure. `open()` also returns false when a later join superseded the view, so a GM that sends two `CampaignJoin` frames quickly receives one misleading Error frame on a socket whose second view is live and continues correctly. Guest arms are clean because `hydrateApplication` returns silently. Root cause is pre-existing: `socket.on('message', () => void handleInbound(...))` does not serialize joins per socket. Harmless to authority and privacy; the client should ignore it. A one-line fix in P2CE3 (return without the Error when `application` is set, since `fail` has already closed on a real failure) fits P2CE3's binder leaf; not required here.
+
+### N3. [NOTE] Same-cut atomicity rests on the seat read sharing the transaction's connection
+
+See C2. Wording for Task 14 given there.
+
+### N4. [NOTE] Receipt mode requires an effective-head branch backfill
+
+`readEffectiveStreamHead` returns a genesis placeholder for an un-backfilled stream, but the very next line `branches.requireEffectiveHead(stream)` throws, so a campaign without `event_history_branches` rows closes every receipt-mode join with `campaign-application-unavailable`. The legacy path has no such requirement. Correct fail-closed behavior for a verified cut, and disclosed by the author ("requireEffectiveHead throw on ... missing branch"). **Carry to Task 14:** *"Every campaign served in receipt mode MUST have its effective-head branch backfilled before `applicationReceipts` is composed; otherwise joins fail closed."*
+
+### N5. [NOTE] `removed` is computed over the whole verified history
+
+`cut.removed` is true if any `ParticipantRemoved` for this participant exists on the path, regardless of order. Today that is exactly right: `bind` refuses a revoked row (`{ kind: 'revoked' }`) and no readmission path exists, so a removed participant can never hold an active seat again. If a readmission flow is ever added, this must become "removed after the current seat's `boundAt`". Record it with that flow, not here.
+
+### N6. [INFO] Written-but-cancelled frames can reach the client on a rapid rejoin
+
+P2CE1's abort-then-late-callback path settles `cancelled`, but the bytes may already be on the wire, so a client that rejoins fast can see two baselines with different `viewId`s (S2a/S2b show exactly that). The server holds only the second. P2CE3's ACK admission must refuse the first view's receipt (the preserved patch's `acknowledge` only names `latest`/`inFlight` of the live view, so it will). Captured in the N1 wording.
+
+### N7. [INFO] Dormant composition risk is correctly zero today
+
+Nothing in `src/` outside the binder names `applicationReceipts`; `server.js` is untouched. The port type (`{ database(): Database.Database }`) is the P2CA owner's handle shape. The two legacy regression guards pin that composing either port alone leaves the connection legacy.
+
+### N8. [INFO] Test design
+
+The reconnect cases are E2-only variants (no ACK, no commit, no confirmation assertions), as the registration review required (line 124). They run on real SQLite and the verified journal with a single callback-aware socket double; the barriers are signal-based rather than timer-based. The four mutation-killing additions (unsettled revocation, subscription release, digest mismatch, lastSeq newcomer) each pin a distinct clause. Admitted equivalent mutant M2 (establish before settle) is equivalent for the reason the author gives: every read of `latest` runs on the chain after the write settles, and every non-sent result ends the view.
+
+## 8. What I could not verify
+
+- `test:stable` was not re-run; I relied on the author's `stable.log` (2795 suites, exit 0) plus the hash equality between `green-hashes.txt` and the committed leaves.
+- CI was not polled beyond one `gh pr view` snapshot (OPEN, MERGEABLE, head matches).
+- The production composition (Task 14) does not exist, so C1, C2 and N4 are verified as code properties, not as production behavior.
+- The P2CE3 commit/confirmation path is not in this diff; statements about it refer to the preserved candidate patch and are carry-forward requirements, not verified behavior.
+- RED was not re-staged; the receipt's failure list is consistent with the legacy code I read (no `appliedView`, no closes on failed writes, `publicHydration` ignored).
