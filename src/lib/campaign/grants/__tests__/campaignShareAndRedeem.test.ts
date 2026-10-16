@@ -95,7 +95,10 @@ function seatGm(campaignId: string): void {
 /** Signs a token for `grant` with `keys`, optionally widening scopes. */
 async function signTokenFor(
   grant: ICampaignGrant,
-  keys: { publicKey: Uint8Array; privateKey: Uint8Array },
+  keys: {
+    publicKey: Uint8Array<ArrayBuffer>;
+    privateKey: Uint8Array<ArrayBuffer>;
+  },
   overrides: { scopes?: readonly string[] } = {},
 ): Promise<Record<string, unknown>> {
   const signedScopes = grant.scopes;
@@ -127,7 +130,10 @@ async function signTokenFor(
 
 describe('campaign share and redeem', () => {
   let dir: string;
-  let keys: { publicKey: Uint8Array; privateKey: Uint8Array };
+  let keys: {
+    publicKey: Uint8Array<ArrayBuffer>;
+    privateKey: Uint8Array<ArrayBuffer>;
+  };
 
   beforeEach(async () => {
     dir = await mkdtemp(path.join(tmpdir(), 'campaign-share-'));

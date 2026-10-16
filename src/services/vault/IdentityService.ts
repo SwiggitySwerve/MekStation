@@ -73,7 +73,9 @@ async function getCrypto(): Promise<Crypto> {
 /**
  * Generate cryptographically secure random bytes
  */
-async function getRandomBytes(length: number): Promise<Uint8Array> {
+async function getRandomBytes(
+  length: number,
+): Promise<Uint8Array<ArrayBuffer>> {
   const crypto = await getCrypto();
   const bytes = new Uint8Array(length);
   crypto.getRandomValues(bytes);
@@ -98,7 +100,7 @@ function toBase64(bytes: Uint8Array): string {
 /**
  * Convert base64 string to Uint8Array
  */
-function fromBase64(base64: string): Uint8Array {
+function fromBase64(base64: string): Uint8Array<ArrayBuffer> {
   if (typeof Buffer !== 'undefined') {
     return new Uint8Array(Buffer.from(base64, 'base64'));
   }
@@ -118,7 +120,12 @@ function fromBase64(base64: string): Uint8Array {
 /**
  * Generate a new Ed25519 keypair
  */
-export async function generateKeyPair(): Promise<IKeyPair> {
+export async function generateKeyPair(): Promise<
+  IKeyPair & {
+    publicKey: Uint8Array<ArrayBuffer>;
+    privateKey: Uint8Array<ArrayBuffer>;
+  }
+> {
   const crypto = await getCrypto();
 
   const keyPair = await crypto.subtle.generateKey(
@@ -149,9 +156,9 @@ export async function generateKeyPair(): Promise<IKeyPair> {
  * Sign data with a private key
  */
 export async function signData(
-  data: Uint8Array,
-  privateKeyBytes: Uint8Array,
-): Promise<Uint8Array> {
+  data: BufferSource,
+  privateKeyBytes: BufferSource,
+): Promise<Uint8Array<ArrayBuffer>> {
   const crypto = await getCrypto();
 
   const privateKey = await crypto.subtle.importKey(
@@ -171,9 +178,9 @@ export async function signData(
  * Verify a signature with a public key
  */
 export async function verifySignature(
-  data: Uint8Array,
-  signature: Uint8Array,
-  publicKeyBytes: Uint8Array,
+  data: BufferSource,
+  signature: BufferSource,
+  publicKeyBytes: BufferSource,
 ): Promise<boolean> {
   const crypto = await getCrypto();
 
@@ -309,7 +316,7 @@ export function friendCodeMatchesPublicKey(
  */
 async function deriveKey(
   password: string,
-  salt: Uint8Array,
+  salt: Uint8Array<ArrayBuffer>,
 ): Promise<CryptoKey> {
   const crypto = await getCrypto();
 
@@ -342,7 +349,7 @@ async function deriveKey(
  * Encrypt data with a password
  */
 export async function encryptWithPassword(
-  data: Uint8Array,
+  data: BufferSource,
   password: string,
 ): Promise<IEncryptedData> {
   const crypto = await getCrypto();

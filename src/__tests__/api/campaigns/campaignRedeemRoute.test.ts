@@ -77,7 +77,10 @@ async function call(body: Body): Promise<{ status: number; json: unknown }> {
 const REDEEM_ISSUER_GM = 'pid-redeem-gm';
 
 describe('campaign redeem route', () => {
-  let keys: { publicKey: Uint8Array; privateKey: Uint8Array };
+  let keys: {
+    publicKey: Uint8Array<ArrayBuffer>;
+    privateKey: Uint8Array<ArrayBuffer>;
+  };
 
   beforeEach(async () => {
     resetSQLiteService();

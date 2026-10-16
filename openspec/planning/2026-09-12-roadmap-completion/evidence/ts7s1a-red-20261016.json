@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "unit": "TS7S1A",
+  "stage": "red",
+  "baseline": "4bf26f7b2688bc0b14a52e36f957ff030eae9151",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "TS7S1A implementation sub-agent"
+  },
+  "runtime": "node v22.22.0",
+  "redKind": "Type-only unit: no runtime behaviour changes, so no test can fail and none was written (move-only precedent P2CG1A1/P2CG1A2). The red slot records the pre-edit TypeScript 7 and 6 errors the unit removes, and the registered suites passing on the unmodified baseline with the per-test results the post-edit run must reproduce",
+  "compilerRed": {
+    "ts7Root": {
+      "version": "7.0.2",
+      "errors": 11,
+      "list": [
+        "src/lib/events/checkpoints/BranchCheckpointCache.ts(352,7) TS2322 path literal widened",
+        "src/lib/events/checkpoints/BranchCheckpointCache.ts(377,5) TS2322 path literal widened",
+        "src/lib/multiplayer/server/auth.ts(215,7) TS2769 publicKeyBytes",
+        "src/lib/multiplayer/server/auth.ts(223,7) TS2345 signatureBytes",
+        "src/services/vault/IdentityService.ts(159,5) TS2769 privateKeyBytes",
+        "src/services/vault/IdentityService.ts(165,69) TS2345 data",
+        "src/services/vault/IdentityService.ts(182,5) TS2769 publicKeyBytes",
+        "src/services/vault/IdentityService.ts(188,53) TS2345 signature",
+        "src/services/vault/IdentityService.ts(330,7) TS2769 salt",
+        "src/services/vault/IdentityService.ts(355,24) TS2322 iv",
+        "src/services/vault/IdentityService.ts(384,24) TS2322 iv"
+      ],
+      "followOn": [
+        "src/services/vault/IdentityService.ts(188,73) TS2345 data (verifySignature verify, behind signature)",
+        "src/services/vault/IdentityService.ts(357,5) TS2345 data (encryptWithPassword encrypt, behind iv)",
+        "src/services/vault/IdentityService.ts(386,5) TS2345 ciphertext (decryptWithPassword decrypt, behind iv)"
+      ]
+    },
+    "ts6Root": {
+      "version": "6.0.3",
+      "errors": 9
+    },
+    "ts58": "npm run typecheck (5.8.3) passes on the baseline; the errors exist only under 6/7 with the D2 scratch config",
+    "logs": {
+      "ts7": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/pre-ts7-root.log",
+        "sha256": "8b10d266ede95087c2460a72376b5e6a5eace6c240799d1de29b089b050e6356"
+      },
+      "ts6": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/pre-ts6-root.log",
+        "sha256": "2255571343ed435d10959efb939aee192b9519820918e810b3ad6e9a0e823915"
+      }
+    }
+  },
+  "baseBytes": {
+    "src/lib/multiplayer/server/auth.ts": "3c0b174f66b6a3b636cccbf448013a48dcb9bfb467ae0b3f40c3f1d64c34148a",
+    "src/services/vault/IdentityService.ts": "5d46a2146d4cc9b3ee7fa17424324ad917f7d30fe0952c24b943693b0946cb78",
+    "src/lib/events/checkpoints/BranchCheckpointCache.ts": "5bab6069c794854e167f488cf08bbc834528401aea8a2991a23d31d6a30640ca",
+    "src/lib/campaign/grants/campaignGrantToken.ts": "4b1cccb515ad4041922d2c218f3a2afce7275b952891ac0c942faa19279c2e24",
+    "src/lib/campaign/grants/redeemCampaignGrant.ts": "59052d504b9be514c713b3c508d18767f45b3f11a57ad04279041aa5b00574f7",
+    "src/__tests__/api/campaigns/campaignRedeemRoute.test.ts": "7bbe72c6805f58a74e38defcfeb9a3fafc500cd9dced4f4b414c7ab40e9d3331",
+    "src/lib/campaign/grants/__tests__/campaignShareAndRedeem.test.ts": "86c8cc8a4b91ef46faca57c913c2e6a56db2602d94d250513abf79ae41faaba1"
+  },
+  "commands": [
+    "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --json --outputFile=red-results.json --runTestsByPath <46 suites in suites-direct.txt>"
+  ],
+  "exitCode": 0,
+  "result": "46 suites, 520 tests, 520 passed, 0 failed on the unmodified baseline",
+  "files": {
+    "suites": {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/suites-direct.txt",
+      "sha256": "0711a13ceaac38dfd6162f8a40b75fb9629a11589a626c73e09063b6e27c130c"
+    },
+    "results": {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/red-results.json",
+      "sha256": "1ea609226b59a04c47afd5f0c22c27af5d83729af6196521e0f275207d24d71a"
+    },
+    "log": {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1a-20261016/red-raw.log",
+      "sha256": "37963d371a887af2f36eb9ad350373d131f8aef6ddfe9507098d8d883a786c13"
+    }
+  },
+  "baseLint": "npm run lint on the baseline: 86 warnings, 0 errors; none on a leaf (lint-base.log)",
+  "baseLintUnits": "LINT_UNITS_PASS 17899/17899; src/pages/api 16/16; src-tests 17783/17783 (lint-units-base.log)"
+}

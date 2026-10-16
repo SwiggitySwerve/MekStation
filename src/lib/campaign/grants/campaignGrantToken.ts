@@ -208,8 +208,8 @@ async function verifyTokenSignature(
   // key, so a mismatch surfaces as bad-signature instead of appearing
   // to succeed under a key the presenter did not claim.
   if (token.publicKey !== issuerPublicKey) return false;
-  let publicKeyBytes: Uint8Array;
-  let signatureBytes: Uint8Array;
+  let publicKeyBytes: Uint8Array<ArrayBuffer>;
+  let signatureBytes: Uint8Array<ArrayBuffer>;
   try {
     publicKeyBytes = fromBase64(issuerPublicKey);
     signatureBytes = fromBase64(token.signature);

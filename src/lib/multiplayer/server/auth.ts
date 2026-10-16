@@ -59,7 +59,7 @@ async function getCrypto(): Promise<Crypto> {
   return nodeCrypto.webcrypto as Crypto;
 }
 
-function fromBase64(value: string): Uint8Array {
+function fromBase64(value: string): Uint8Array<ArrayBuffer> {
   if (typeof Buffer !== 'undefined') {
     return new Uint8Array(Buffer.from(value, 'base64'));
   }
@@ -176,7 +176,7 @@ export async function verifyPlayerToken(
   }
 
   // 3. playerId must be derived from publicKey — prevents id swap.
-  let publicKeyBytes: Uint8Array;
+  let publicKeyBytes: Uint8Array<ArrayBuffer>;
   try {
     publicKeyBytes = fromBase64(token.publicKey);
   } catch {
@@ -193,7 +193,7 @@ export async function verifyPlayerToken(
   }
 
   // 4. Ed25519 signature check.
-  let signatureBytes: Uint8Array;
+  let signatureBytes: Uint8Array<ArrayBuffer>;
   try {
     signatureBytes = fromBase64(token.signature);
   } catch {
