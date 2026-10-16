@@ -2710,7 +2710,7 @@
       "ownershipPathsAmended20261009P2C": {
         "unit": "P2CA/P2CB/P2CD/P2CE/P2CF/P2CG1/P2CG2/P2CH",
         "planTask": 8,
-        "evidence": "evidence/p2cer-registration-20261016.json",
+        "evidence": "evidence/p2cb-saga-registration-20261016.json",
         "paths": [
           "src/services/persistence",
           "src/lib/p2p/campaignMirrorStore.ts",
@@ -2731,7 +2731,9 @@
             "src/lib/campaign/sync/campaignPublicAppliedView.ts",
             "src/lib/multiplayer/server/campaignProgressionReaders.durable.ts",
             "src/lib/campaign/sync/__tests__/campaignPublicAppliedView.integration.test.ts",
-            "src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.crossGraph.test.ts"
+            "src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.crossGraph.test.ts",
+            "src/lib/multiplayer/server/history/CoordinatedOutcomeCorrectionSaga.ts",
+            "src/lib/multiplayer/server/history/__tests__/CoordinatedOutcomeCorrectionSaga.test.ts"
           ],
           "P2CD": [
             "src/types/multiplayer/Protocol.ts",
@@ -2788,7 +2790,7 @@
         },
         "knownSourceTestLifecycleSubtotals": {
           "P2CA": 7,
-          "P2CB": 5,
+          "P2CB": 7,
           "P2CD": 7,
           "P2CE": 11,
           "P2CF": 5,
