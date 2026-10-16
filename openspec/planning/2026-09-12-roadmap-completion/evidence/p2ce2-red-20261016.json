@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CE2",
+  "stage": "red",
+  "baseline": "249779306c1f6336bf2b5ffa23cf7f453b5aa228",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "Task12 / P2CE2 implementation sub-agent"
+  },
+  "runtime": "node v22.22.0",
+  "command": "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --runTestsByPath src/lib/multiplayer/server/__tests__/handleRoomCodeGuestJoin.test.ts src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts",
+  "exitCode": 1,
+  "result": "13 failed, 32 passed, 45 total; final test bytes against product leaves byte-identical to baseline (bindCampaignSyncConnection.ts 93ff88f7..., handleRoomCodeGuestJoin.ts 4d663843...)",
+  "initial": {
+    "result": "10 failed, 31 passed, 41 total",
+    "note": "First RED on the first test text. Afterwards one barrier changed from setImmediate (absent in this Jest environment) to a GM view observing the same commit, and four tests were added to kill mutation-probe survivors (revocation during an unsettled write, socket close releasing the commit subscription, head digest mismatch, lastSeq newcomer without grant adapters). The final-text RED above supersedes it."
+  },
+  "passingAtRed": "Four new cases pass at baseline as regression guards: legacy connection with durable membership alone, legacy connection with the receipt port alone, wrong room code never hydrating, and socket close releasing every commit subscription.",
+  "logs": [
+    "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce2-20261016/red.log",
+    "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce2-20261016/red-initial.log"
+  ],
+  "failures": [
+    "Receipt-mode joins get legacy replay frames with no appliedView instead of one CampaignSnapshot offer (no applicationReceipts port at baseline)",
+    "Failed, backpressured, closing, removed, revoked, re-seated and integrity-failed connections are never closed (the legacy path never closes them), so the close waits time out",
+    "handleRoomCodeGuestJoin ignores publicHydration: it is never called and a failed hydration still reports served"
+  ]
+}

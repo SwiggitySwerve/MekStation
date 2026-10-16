@@ -61,6 +61,11 @@ export interface IHandleRoomCodeGuestJoinDeps {
   readonly closeTyped: (code: IErrorCode, reason: string) => void;
   readonly issuer?: ICampaignGrantSigner;
   readonly membership?: ICampaignSessionMembershipPort | null;
+  /**
+   * P2CE receipt mode: the common public bundle replaces this path's
+   * replica snapshot and launch replay; the grant replica stays internal.
+   */
+  readonly publicHydration?: () => Promise<boolean>;
 }
 
 let cachedRoomCodeGuestIssuer: ICampaignGrantSigner | null = null;
@@ -167,6 +172,38 @@ export async function handleRoomCodeGuestJoin(
   const projectDeps = projectDepsOverHostLog(channel.projectDeps, deps.entry);
   const principal = mintVerifiedPrincipal(grant.participantId);
   const lastCursor = await replica.lastCursor(grant.campaignId, grant.grantId);
+
+  if (deps.publicHydration) {
+    const fanout = liveFanoutDeps(
+      deps,
+      grant.campaignId,
+      grant.grantId,
+      principal,
+      projectDeps,
+      replica,
+    );
+    if (lastCursor === null) {
+      const hydrated = await hydrateFirstJoin({
+        deps,
+        replica,
+        grantId: grant.grantId,
+        projectDeps,
+        principal,
+        nowIso,
+      });
+      if (!hydrated) return 'rejected';
+      await attachRoomCodeGuestLiveSession(fanout, {
+        deliveryEpochId: hydrated.deliveryEpochId,
+        afterSequence: hydrated.projectorHead,
+      });
+    } else {
+      await attachRoomCodeGuestLiveSession(
+        fanout,
+        grantCursorFromReplicaCursor(lastCursor),
+      );
+    }
+    return (await deps.publicHydration()) ? 'served' : 'rejected';
+  }
 
   const pendingLive: IServerMessage[] = [];
   const replayedLaunches = new Set<number>();

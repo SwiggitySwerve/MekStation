@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CE2",
+  "stage": "local",
+  "baseline": "249779306c1f6336bf2b5ffa23cf7f453b5aa228",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "Task12 / P2CE2 implementation sub-agent"
+  },
+  "runtime": "node v22.22.0",
+  "command": "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --runTestsByPath src/lib/multiplayer/server/__tests__/handleRoomCodeGuestJoin.test.ts src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts",
+  "exitCode": 0,
+  "suites": 2,
+  "tests": 45,
+  "qaSelector": "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --testPathPattern='ServerMatchBroadcaster|CampaignSyncSession|bindCampaignSyncConnection|handleRoomCodeGuestJoin|coopMissionAnnouncement.reconnect': 7 suites, 155 tests, exit 0",
+  "adjacentLegacyCallers": "Every other non-e2e suite naming bindCampaignSyncConnection, handleRoomCodeGuestJoin or IWireCampaignSocket, plus the other coopMission* suites on the announcement harness: 21 suites, 116 tests, exit 0",
+  "mutationProbe": "20 source mutations (failed/closed/backpressured write established, offer established before the write settles, projection admits every scope, delta re-sends the last cut, delta linked to the baseline, view id stable across rejoin, receipt mode without membership, receipt mode without the receipt port, committed removal ignored, post-write revocation ignored, authority change ignored, fresh broadcaster instead of the paired one, cleanup not ending the view, head digest check skipped, empty hydrationFacts, lastSeq resync in receipt mode, room-code legacy snapshot in receipt mode, room-code hydration result ignored, GM legacy joinMember, member legacy joinMember): 18 killed after four tests were added for round-one survivors. Two survive: establishing before the write settles is equivalent here, because every read of the latest offer runs on the view's serialized chain and every non-sent result ends the view; a fresh broadcaster is not observable through the binder's public seam, so P2CE1 review note 2 rests on the code taking broadcaster from the stored pair",
+  "census": {
+    "files": "9 of 15 (8 in this change plus the reserved review slot)",
+    "productAddedLines": "416 of 500 (product 400: bindCampaignSyncConnection.ts 363, handleRoomCodeGuestJoin.ts 37; units.json 16), git diff --numstat against baseline; test additions 491 and evidence additions reported separately"
+  },
+  "checks": {
+    "typecheck": "PASS",
+    "lint": "PASS (0 errors; the one touched-file warning is the existing max-lines on bindCampaignSyncConnection.ts, now 1585 counted lines)",
+    "format": "PASS (npm run format:check)",
+    "roadmap": "validate-roadmap.mjs, --next and validate-roadmap.test.mjs recorded in the attempt directory",
+    "testStable": "npm run test:stable runs once after this receipt is frozen, so the roadmap script suites validate these exact bytes; its result is recorded in the attempt directory and the pull request, not here"
+  },
+  "logs": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-12-p2ce2-20261016/",
+  "boundary": "Dormant until composed: offers are issued only when the binder receives both membership and applicationReceipts, and server.js is unchanged and passes no applicationReceipts. Offers are CampaignSnapshot/CampaignEvent frames sent through the entry's paired broadcaster's sendConfirmed, never a sequenced match Event frame. No receipt-ACK parsing or admission, P2CA commit, confirmation, endpoint, timer, queue or durable sent cache (P2CE3). No merge or Main proof claimed.",
+  "status": "Candidate local checks only; independent exact-head review pending"
+}
