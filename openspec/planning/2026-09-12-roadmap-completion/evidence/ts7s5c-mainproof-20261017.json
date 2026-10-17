@@ -1,0 +1,49 @@
+{
+  "unit": "TS7S5C",
+  "stage": "mainProof",
+  "recordedAt": "2026-10-17T10:07:37.000Z",
+  "mergeCommit": "835af5526cf6cc36294f81a9219eeb0ca682db14",
+  "verdict": "PASS",
+  "checkout": "E:/Projects/Personal/MekStation-wt/ts7s5c-closure-20261017",
+  "runtime": {
+    "playwright": "Source/Main checks: 14 passed (machine-idle only the Root-allowed PID 47516; fresh root and desktop npm ci exit 0; openspec/changes/migrate-to-typescript-7 absent from the Git tree and filesystem; archive 2026-10-17-migrate-to-typescript-7 holds exactly design.md, proposal.md, tasks.md, specs/typescript-toolchain/spec.md and specs/bv-validation-tooling/spec.md; proposal.md and both delta specs equal their 6b700bbb pre-move blobs, design.md equals its cf06e954 pre-move blob, and tasks.md differs from its pre-move blob only by the 5.3 tick; openspec/active-change-ledger.json has no migrate-to-typescript-7 entry and equals the baseline minus only that entry; openspec list excludes migrate-to-typescript-7; canonical typescript-toolchain spec has a nonempty Purpose, its requirement body equals the archived ADDED delta with 4 requirements and 7 scenarios, and it and bv-validation-tooling validate --strict; npm run typecheck exits 0 running node node_modules/typescript7/bin/tsc for the root and scripts projects; typescript7 --version 7.0.2 and the root typescript module version 6.0.3, wrapper @typescript/typescript6 6.0.2; desktop tsc 7.0.2 and npm run type-check exit 0; desktop npm test 57/57 in 5 suites; every TS7 unit merge is an ancestor of 835af552 with its reviewed head as a merge parent, 12/12; validate-roadmap.mjs PASSED and --git PASSED; openspec validate --all --strict 230 passed; qc:openspec-ci:validate errors=0; 0 failed)",
+    "machine": "node scripts/qc/machine-idle.mjs printed MACHINE_BUSY 1 for exactly one process, PID 47516, the idle pre-existing node.exe server.js that Root allowed; node scripts/qc/machine-idle.mjs --own-pid 47516 printed MACHINE_IDLE, both before the installs and again before the archive checks. This closure neither started nor stopped any other process and ran no build or broad Jest suite.",
+    "install": "End-state proof on a physical dependency tree: npm ci --no-audit --no-fund at the root (HUSKY=0 so the shared Git hook configuration is not touched; added 1078 packages) and in desktop/ (added 558 packages, including its postinstall and prepare build), both exit 0. node_modules and desktop/node_modules are real directories, not junctions.",
+    "archive": "The checker (source printed in the log) passes 22/22 at 835af552: HEAD is the #2202 merge with ordered parents 6b700bbb, b0a3a635 and its tree 240ab87d equals git merge-tree --write-tree of them; openspec/changes/migrate-to-typescript-7 is absent from the Git tree and the filesystem; the archive directory holds exactly the five files; proposal.md (9938d8a7), specs/typescript-toolchain/spec.md (c734421f) and specs/bv-validation-tooling/spec.md (5a00c347) equal their 6b700bbb pre-move blobs; design.md (e79fc639) equals both its 6b700bbb archived blob and its cf06e954 pre-move blob; tasks.md (2ad4d4ee) differs from its pre-move blob (e3f2c7de) on line 132 only, and replacing '- [ ] 5.3 ' with '- [x] 5.3 ' reproduces it exactly; no unchecked task remains. The log also prints git diff -M 6b700bbb HEAD (similarity 100% for the three unchanged files, 99% for tasks.md with the single 5.3 tick hunk).",
+    "activeLedger": "openspec/active-change-ledger.json at the merge has no migrate-to-typescript-7 entry (findstr prints NO_LEDGER_ENTRY; 9 entries) and deep-equals the 6b700bbb ledger with only that entry removed. npx openspec list excludes migrate-to-typescript-7.",
+    "canonicalSpec": "openspec/specs/typescript-toolchain/spec.md has a nonempty Purpose and its body from the first Requirement heading equals the archived ADDED delta body (4 requirements, 7 scenarios); openspec/specs/bv-validation-tooling/spec.md contains the full archived MODIFIED requirement, naming npm run typecheck. npx openspec validate typescript-toolchain --type spec --strict and bv-validation-tooling --type spec --strict: both valid.",
+    "toolchain": "npm run typecheck exit 0, printing node node_modules/typescript7/bin/tsc --noEmit --skipLibCheck && node node_modules/typescript7/bin/tsc -p scripts/tsconfig.json --noEmit (root and scripts projects). node node_modules/typescript7/bin/tsc --version: Version 7.0.2 (package typescript 7.0.2). Root require('typescript').version: 6.0.3; typescript/package.json is @typescript/typescript6 6.0.2.",
+    "desktop": "desktop/: typescript 7.0.2, npx tsc --version Version 7.0.2; npm run type-check (tsc --noEmit && tsc -p tsconfig.test.json --noEmit) exit 0; npm test: 5 suites, 57/57 passed.",
+    "track": "A second checker (source printed in the log) rechecks every TS7 unit at 835af552: TS7S1 stays the blocked superseded record; TS7S1A through TS7S5B are main-verified with PASS mainProof, merge receipts naming their mergeSha and review receipts naming their prHead; for each, the merge is an ancestor of 835af552 and the reviewed head is a parent of the merge; TS7S5C (local-verified before this closure) has b0a3a635 as a parent of 835af552. 12/12; every unit has empty taskKeys.",
+    "validator": "validate-roadmap.mjs PASSED (80 nodes, 13 packages, 381 tasks, 40 triage rows); --git PASSED; --next printed U24b on the unedited ledger (advisory only; the validator does not model the one-lane rule).",
+    "openspec": "npx openspec validate --all --strict: 230 passed, 0 failed (one fewer item than before the archive). npm run qc:openspec-ci:validate: errors=0 (activeOpenSpecChanges=9, accounted 9).",
+    "recapture": "The first toolchain capture was discarded because PowerShell stripped the quotes from the node -p commands (they exited 1 as malformed); the stored toolchain log is the re-capture of the same commands through a Node driver, which ran npm run typecheck a second time (warm). The docs log was likewise re-captured once to add the track checker. No result changed between captures.",
+    "node": "v22.22.0",
+    "npm": "11.6.2"
+  },
+  "proof": {
+    "path": "evidence/mainproof-835af552-docs.bytes.json",
+    "payloadSha256": "7e15406781caf25cb02851d1cba6da81381e7f73e74fd1f41c7f970458f89efe",
+    "payloadBytes": 24455,
+    "note": "machine-idle (plain and --own-pid 47516), git ls-tree of the active change, archive and canonical specs, the active-directory absence check, git diff -M of the archive move and of the active ledger, git rev-parse of each moved blob against its pre-move blob, the ledger findstr, both checker sources and their runs (22/22, 12/12), openspec list and the two strict spec validations, all at the exact merge HEAD. Concatenated logs."
+  },
+  "logs": [
+    {
+      "path": "evidence/mainproof-835af552-toolchain.bytes.json",
+      "payloadSha256": "a0bfa6e07f39d935fe0bbeb90165f18fb72b0f46367e7dc0806832271eba9b03",
+      "payloadBytes": 27559,
+      "note": "machine-idle, root and desktop npm ci, then npm run typecheck, the typescript7 and typescript versions, desktop tsc version, desktop type-check and desktop npm test (57/57) at the exact merge HEAD. Concatenated logs."
+    },
+    {
+      "path": "evidence/mainproof-835af552-validator.bytes.json",
+      "payloadSha256": "c9ce9d8ab75336ff44495f3c3948d4f7e7e5916501d18a2e06b1a9a3bbefa610",
+      "payloadBytes": 10967,
+      "note": "validate-roadmap.mjs, --git and --next on the unedited ledger at the merge HEAD (PASSED, PASSED, --next U24b); npx openspec validate --all --strict (230 passed, 0 failed); npm run qc:openspec-ci:validate (errors=0)."
+    }
+  ],
+  "headProof": "Not re-run at the merge commit (lean cadence): lint, format:check and test:stable. This unit changed no code, configuration or dependency; they were covered on PR head b0a3a635 by CI run 39022524728 (Lint, Format Check, Type Check, Unit Tests 1-6/6, A11y Tests, Desktop Type Check, Desktop Tests, Build Test win/mac/linux, Build Storybook, E2E Smoke and Lint and Test: all 32 check runs success). The merge tree equals the merge-tree of the first parent and the head (merge receipt).",
+  "scope": "Lean cadence (docs/audits/2026-10-17-council-roadmap-decision.md, item 2), as the end-state proof of the track: a real root and desktop npm ci, then the exact-Main checks TS7S5C's proof list names (archive inventory and content, active directory, ledger and list absence, canonical specs, typecheck, desktop type-check and tests, strict OpenSpec and QC) plus the roadmap validator and a track-wide ancestry recheck. The explicit inventory and content checks are needed because validate-roadmap.mjs existence-checks only ownershipPaths (TS7S5B carry-forward; source review M3). No builds, no full Jest, no maintenance scan, no local roadmap-suite replays; CI on the closure PR covers the roadmap suites.",
+  "inheritedEvidence": "The integrated sweep (tasks.md 5.3, evidence/ts7s5b-sweep-20261017.json) ran on db607a7f, the last product merge; this closure does not claim it ran on 835af552. The maintenance regression gate stays red against baseline 0 (72 findings, 10 regression rows) and is not re-run or relabeled.",
+  "closure": "main-verified only. taskKeys is empty, so no tick receipt is invented; the 5.3 tick is the source unit's own change in the archived tasks.md.",
+  "preservation": "Proof and logs are base64 envelopes so repository LF normalization cannot alter their exact bytes. Decode data and verify payloadSha256/payloadBytes. Logs were captured through cmd, so non-ASCII console glyphs may appear mis-decoded; the bytes are kept as captured."
+}

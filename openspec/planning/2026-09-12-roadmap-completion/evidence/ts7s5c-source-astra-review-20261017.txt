@@ -1,0 +1,115 @@
+PASS — exact-head source review of PR #2202; no blocking archive defect found.
+
+Independent review, 2026-10-17. Reviewed head: `b0a3a635a7b35d809624ae40b59f648095ca8d16`. Baseline: `6b700bbb03abfbcd46500fbcbd1965adc832c895`. GitHub PR metadata and `git ls-remote origin refs/heads/main refs/pull/2202/head` confirmed both identities. All repository-relative references below refer to that exact head unless another revision is named.
+
+Reviewer: GPT-6 Astra, high reasoning effort, in the T3 Code Codex harness. S5C's implementation receipt identifies GPT-6.1 Sol. This reviewer did not implement the source change.
+
+This is source-review evidence, not a merge receipt, approval of a later head, or S5C exact-main proof. The separate track-exit review explains why the final lifecycle closure remains necessary. At the last GitHub snapshot, all 31 completed individual checks succeeded; the `Lint and Test` aggregate was still queued. This review does not replace that remaining merge gate.
+
+**Scope and method.** Read the TS7S5C unit, its frozen admission manifest, TS7S5B's review receipt including all five `successorNotes.TS7S5C.wording` bullets and its detector-limit paragraph, the #2197 correction, the archived change, canonical specs, and the relevant validator code. Used a detached disposable checkout at the requested head. Existing worktrees were read-only; mutants were confined to the disposable checkout and restored. No commits, pushes, merges, or PR comments were made. The requested audit files are the only durable authored repository artifacts.
+
+**Measured scope.** `git diff --numstat --no-renames 6b700bbb b0a3a635a` gives 13 unique paths, 834 raw additions and 330 raw deletions. The counted-added-line total is 337, not 834: the three evidence receipts contribute 497 additions excluded from the line total under the existing ledger rule, while all three still count as files. No deletion is subtracted from the addition count. Both sides of every rename count as separate paths.
+
+| Path, with archive prefix abbreviated as `archive/2026-10-17-migrate-to-typescript-7/` | Added | Deleted | Counted additions |
+| --- | ---: | ---: | ---: |
+| `openspec/active-change-ledger.json` | 0 | 6 | 0 |
+| archive `proposal.md` | 55 | 0 | 55 |
+| archive `specs/bv-validation-tooling/spec.md` | 31 | 0 | 31 |
+| archive `specs/typescript-toolchain/spec.md` | 82 | 0 | 82 |
+| archive `tasks.md` | 150 | 0 | 150 |
+| active `proposal.md` | 0 | 55 | 0 |
+| active `specs/bv-validation-tooling/spec.md` | 0 | 31 | 0 |
+| active `specs/typescript-toolchain/spec.md` | 0 | 82 | 0 |
+| active `tasks.md` | 0 | 150 | 0 |
+| `evidence/ts7s5c-admission-20261017.json` | 152 | 0 | 0 |
+| `evidence/ts7s5c-local-20261017.json` | 322 | 0 | 0 |
+| `evidence/ts7s5c-red-20261017.json` | 23 | 0 | 0 |
+| `openspec/planning/2026-09-12-roadmap-completion/units.json` | 19 | 6 | 19 |
+| **Total** | **834** | **330** | **337** |
+
+The unchanged caps are 15 files / 500 counted additions. The exact changed-path set equals the admission's 13-path `frozenManifest`, and every path belongs to the union of S5C's literal ownership paths and exceptions. Deep comparison of parsed ledgers found changes only to S5C: four dated archive destinations, three own evidence paths, baseline, state and admission/red/local receipt references. All other units and non-unit top-level data are unchanged. The final receipt's 13/337 census is correct; its separately labelled earlier 10/323 preparation census is not the final-head measurement.
+
+**Rename/content proof.** These are the per-file results of `git diff -M 6b700bbb b0a3a635a -- <old-path> <new-path>`, independently checked against raw Git blob bytes:
+
+```diff
+similarity index 100%
+rename from openspec/changes/migrate-to-typescript-7/proposal.md
+rename to openspec/changes/archive/2026-10-17-migrate-to-typescript-7/proposal.md
+
+similarity index 100%
+rename from openspec/changes/migrate-to-typescript-7/specs/typescript-toolchain/spec.md
+rename to openspec/changes/archive/2026-10-17-migrate-to-typescript-7/specs/typescript-toolchain/spec.md
+
+similarity index 100%
+rename from openspec/changes/migrate-to-typescript-7/specs/bv-validation-tooling/spec.md
+rename to openspec/changes/archive/2026-10-17-migrate-to-typescript-7/specs/bv-validation-tooling/spec.md
+
+similarity index 99%
+rename from openspec/changes/migrate-to-typescript-7/tasks.md
+rename to openspec/changes/archive/2026-10-17-migrate-to-typescript-7/tasks.md
+@@ -129,7 +129,7 @@
+-- [ ] 5.3 Exact-main verification after the last PR merges:
++- [x] 5.3 Exact-main verification after the last PR merges:
+```
+
+There are no new outcome lines in this PR. Replacing precisely that one checkbox in the baseline tasks blob reproduces the entire archived tasks blob. The inherited checkpoint, failed full stable attempt, accepted split proof, CI attribution and red maintenance disclosure remain byte-for-byte intact. Git records snapshots, not the shell command used; its rename detection and blob identity establish the required move semantics.
+
+| File | Baseline SHA-256 | Archived SHA-256 |
+| --- | --- | --- |
+| `proposal.md` | `923f5601df5b87ccc67f86410a481fcc3ddd21056b0284313ee161349368de43` | same |
+| `specs/typescript-toolchain/spec.md` | `dd4e77fa647a19f540b0a8bfa12e5aff54a44bdf9cf49c8c2394e4105cebb0c3` | same |
+| `specs/bv-validation-tooling/spec.md` | `9e3670d4502d1c3b0c121f00b5b29de4b2e37aab9bd144a12c35d4b6770c9090` | same |
+| `tasks.md` | `869683964a2d551e7c3ced8c0d76d7ff279c6c6691c09fcd3eedefeb406f2aaa` | `d4cfda376924f63ee578a8b1badd065567aa9db066994971efbc9ec41205fee4` |
+
+The existing archived `design.md` is unchanged, SHA-256 `6356b47adbf56b3fd52ce9ab666ec72696c181c15cf4d1c7c0e7bca12671da1a`. Both canonical specs are unchanged from the baseline: TypeScript toolchain `71cb5ca3ad4db2762624e754c66812256771d4410b285e394388aff9abdcf3c1`; BV tooling `066e6a4d7f1983ac5691cf6904f6e067178df18dac8a8e34918f42f737d1b1a2`.
+
+**Explicit inventory and canonical synchronization.** The Git tree and filesystem contain exactly these five files in the frozen archive directory: `design.md`, `proposal.md`, `tasks.md`, `specs/typescript-toolchain/spec.md`, and `specs/bv-validation-tooling/spec.md`. The active directory is absent from both the Git tree and filesystem. Parsing the active-change ledger and removing only the baseline `migrate-to-typescript-7` entry reproduces the head ledger exactly. Fresh `openspec list --json` lists nine other changes and omits this change.
+
+`openspec/specs/typescript-toolchain/spec.md` has a nonempty Purpose and its complete requirement body equals the archived ADDED delta: four requirements and seven scenarios. The canonical BV spec contains the entire archived MODIFIED requirement, including the `npm run typecheck` scenario. This is a full-text comparison, not merely a matching heading or a structural validator pass.
+
+The BV delta must move under option (a). The old unit prose describing it as option-(b)-conditional is superseded by the concrete option-(a) implementation, admission and explicit S5B carry-forward. S2OD retained a narrowed scripts project; S5B corrected the canonical BV command; S5C preserves and archives that existing 31-line delta. Deleting it, leaving it active, or applying it a second time would be wrong. The candidate does none of those things.
+
+**Five carry-forward obligations.**
+
+1. Predecessor and lane: S5B is `main-verified`, source merge `ff3c85efb869339816cbe76fe83e36f7096af0e5`, with matching PASS main-proof and closure #2201 at the stated baseline. The baseline is an ancestor of the candidate. The ledger has no competing TS7 unit in flight. `--next` is advisory and cannot prove the broader one-writer reservation; the admission explicitly attests that check.
+2. Frozen destination: only `archive/2026-10-17-migrate-to-typescript-7` is used. All four destination leaves, including BV, are exact exceptions in the admitted manifest. The source history carries these literal destination grants with the corresponding preparation commits. The admission expressly distinguishes authorized local preparation from release/publication after S5B closure; this review does not invent an earlier admission timestamp from Git author dates.
+3. Preservation and completion: design bytes and historical source exceptions are preserved; all four remaining files move; only task 5.3 is ticked; ledger removal and active-directory removal occur in the same bounded source PR. No one-shot archive command is needed and no historical receipt is remapped.
+4. Caps: independently measured 13/337 under `--no-renames`; no cap exception or directory-wide archive grant.
+5. Proof and disclosure: strict OpenSpec, QC, default/`--git`/`--next` roadmap validation, inventory and content checks all pass. The integrated sweep remains attributed to `db607a7f`, not this candidate or its eventual merge. Maintenance remains a failing deferred gate. F1 remains outside S5C's scope.
+
+**#2197 ownership correction.** GitHub identifies correction head `2a97155b2583878952c75640fd7ec222f42dc73f`, merge `cf06e9547f87c929d63cc23194b4ce7d67c3ef15`. It precedes S5B admission and this candidate. Its three-file diff changes only `roadmap.json`, `units.json` and its new correction receipt. Deep comparison across that merge confirms every unit's state, baseline, prHead, mergeSha, stage receipts and caps were preserved. Disappearing active-file grants became exact exceptions, and the disappearing S5C directory grant was narrowed to actual leaves. The validator itself was not relaxed. This candidate does not fold in any further other-unit ownership correction.
+
+**Fresh checks at the exact candidate.** Node was v24.15.0; installed OpenSpec CLI was 1.5.0. The historical sweep used Node 22.22.0, so these observations are not presented as a timing comparison.
+
+| Command/check | Result |
+| --- | --- |
+| `node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs` | exit 0; 80 nodes, 13 packages, 381 tasks, 40 triage rows |
+| Same command with `--git` | exit 0; historical Git ownership/count checks passed |
+| Same command with `--next` | exit 0; `U24b`, advisory only |
+| `openspec validate --all --strict` | exit 0; 230 passed, 0 failed |
+| `openspec validate typescript-toolchain --type spec --strict` | exit 0; valid |
+| `openspec validate bv-validation-tooling --type spec --strict` | exit 0; valid |
+| `npm run qc:openspec-ci:validate` | exit 0; 9 active, 9 accounted, errors=0 |
+| `openspec list --json` | exit 0; change absent |
+| `git diff --check 6b700bbb b0a3a635a` | exit 0 |
+| Explicit census, own-unit ledger, raw-blob, inventory and canonical-body assertions | all passed |
+| Fresh root `npm ci --no-audit --no-fund`, with `HUSKY=0` | exit 0; physical isolated dependency tree |
+| Fresh `npm run typecheck` | exit 0; both projects via TS7; observed 6.145 seconds |
+| `require('typescript').version` / explicit TS7 `--version` | 6.0.3 / 7.0.2 |
+
+Before installation, process enumeration and a three-second CPU sample showed existing Node services inactive during the sample, no compiler/test/build command, about 30 GB free RAM and 12% aggregate CPU load. No unrelated process was stopped. `HUSKY=0` prevented installation from changing the shared Git hook configuration. No build, broad Jest suite, desktop installation, maintenance scan or baseline rewrite was run for this review.
+
+**Independent mutants.** Positive inventory/content assertions passed before and after mutations. M1-M3 changed only disposable-checkout files, with original bytes restored in `finally` blocks. M4 was in-memory.
+
+| Mutant | Explicit check | Ordinary detector |
+| --- | --- | --- |
+| M1: restore the baseline active ledger entry | rejects `active ledger resurrected` | QC exits 1: `stale-active-openspec-ledger-entry`, naming `migrate-to-typescript-7` |
+| M2: create active `migrate-to-typescript-7/stray-review-mutant.txt` | rejects `active directory exists` | QC exits 1: `active-openspec-changes-present`, naming the change |
+| M3: remove archived `design.md` | rejects `archive inventory mismatch` | roadmap validator still exits 0 |
+| M4: replace canonical `major version is 7` with `major version is 6` | complete canonical/delta body equality rejects it | no ordinary-validator claim made |
+
+M3 independently reproduces the disclosed detector limit: `validate-roadmap.mjs:515-518` existence-checks `ownershipPaths`, not archive `ownershipExceptions`. A green roadmap result alone cannot establish preservation of the archive. The explicit inventory/content assertions are therefore necessary, and this review supplies them.
+
+**Nonblocking carry-forward.** The inherited F1 at `openspec/specs/typescript-toolchain/spec.md:19` is real: bare root `tsc` selects TS6, but `node_modules/typescript/bin/tsc` is absent in wrapper 6.0.2 and fails rather than selecting TS6. The prohibition and explicit TS7 command are correct. S5C correctly preserves the frozen historical bytes; a separately authorized canonical wording correction can clarify this. No source change to #2202 is requested by this review.
+
+S5C's own review/merge/mainProof fields are intentionally still null at this source head. After a genuine merge, the parent must record this exact-head review, actual merge identity, focused exact-main proof and separate closure. Passing this review does not manufacture those receipts or satisfy the strict phase-exit condition by itself.
