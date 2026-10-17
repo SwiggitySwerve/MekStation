@@ -8253,7 +8253,14 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s3-admission-20261017.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s3-red-20261017.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s3-local-20261017.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s3-admission-review-20261017.md"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s3-admission-review-20261017.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s3-source-astra-review-20261017.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s3-review-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s3-merge-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-9aea87cd-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-9aea87cd-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-9aea87cd-deps.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s3-mainproof-20261017.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -8264,10 +8271,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "implementing",
+      "state": "main-verified",
       "baseline": "d72b141d93e1cdb2ef9f2aa8fc0b3cf907328fd4",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "041cb6838542768336657bb26d7dd11079028b2c",
+      "mergeSha": "9aea87cdccc7252b8c94d94b3ddad6ede0dbda93",
       "stageReceipts": {
         "admission": {
           "path": "evidence/ts7s3-admission-20261017.json"
@@ -8278,9 +8285,27 @@
         "local": {
           "path": "evidence/ts7s3-local-20261017.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/ts7s3-review-20261017.json",
+          "head": "041cb6838542768336657bb26d7dd11079028b2c",
+          "reviewedHead": "041cb6838542768336657bb26d7dd11079028b2c",
+          "reviewerModel": "gpt-6-astra",
+          "implementerModel": "gpt-6.1-sol",
+          "outputSha256": "2dc3651e90e8fd300ab6fa9333c6a3e9d86786fda4a0d798542a0e6828a36a31",
+          "verdict": "APPROVE-WITH-NOTES"
+        },
+        "merge": {
+          "path": "evidence/ts7s3-merge-20261017.json",
+          "pr": 2187,
+          "head": "041cb6838542768336657bb26d7dd11079028b2c",
+          "mergeSha": "9aea87cdccc7252b8c94d94b3ddad6ede0dbda93"
+        },
+        "mainProof": {
+          "path": "evidence/ts7s3-mainproof-20261017.json",
+          "mergeCommit": "9aea87cdccc7252b8c94d94b3ddad6ede0dbda93",
+          "verdict": "PASS",
+          "runtime": "Source/Main checks: 7 passed (fresh npm ci root and desktop exit 0; root and desktop tsc --version 6.0.3; npm run typecheck exit 0 with both projects; desktop npm run type-check exit 0 with both projects; desktop npm test 5 suites / 57 tests passed; no ignoreDeprecations in any tsconfig*.json; validator PASSED, openspec validate --all --strict 230 passed and qc:openspec-ci:validate errors=0; 0 failed)"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -8340,7 +8365,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
