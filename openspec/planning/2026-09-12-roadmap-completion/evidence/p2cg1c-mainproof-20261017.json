@@ -1,0 +1,293 @@
+{
+  "unit": "P2CG1C",
+  "stage": "mainProof",
+  "recordedAt": "2026-10-17T19:14:03.000Z",
+  "mergeCommit": "4690f67408d3e4e7cc2025db6799d034786b41a1",
+  "verdict": "PASS",
+  "checkout": "E:/Projects/Personal/MekStation-wt/p2cg1c-closure-20261017",
+  "runtime": {
+    "playwright": "Source/Main Jest: Tests:       466 passed, 466 total",
+    "suites": "39 passed, 39 total",
+    "tsc": "npm run typecheck: exit 0 (TypeScript 7, root and scripts projects)",
+    "node": "v22.22.0",
+    "install": "real npm ci in the checkout (added 1078 packages), Node v22.22.0"
+  },
+  "machine": "node scripts/qc/machine-idle.mjs --own-pid 47516 --own-pid 52460 printed MACHINE_IDLE before the runs. PID 47516 is the Root-allowed idle server.js and PID 52460 the T3 headless chrome. This closure neither started nor stopped any other process.",
+  "proof": {
+    "path": "evidence/mainproof-4690f674-tests.bytes.json",
+    "payloadSha256": "85c6cdf3a7bf096130ec5673fce5dadda47b02cb9555323f633a2f007afc34d9",
+    "payloadBytes": 410519,
+    "note": "Fresh run at the exact merge HEAD on a clean checkout before any closure edit: P2CG1C's two registered test leaves, P2CG1B's two registered test leaves and the 35 A1/A2 suites (the 4 Task 14 selector suites and the 31 binder-user caller suites, the list of P2CG1A2's and P2CG1B's main proofs), all 39 by path in one jest invocation. Result: 39 suites, 466/466 = 52 + 45 + 369, the same split as the author's and the reviewer's head runs. None of the 35 suites changed between 5d02dcab and 4690f674, the P2CG1B leaves equal their c0c97c13 blobs, and the P2CG1C test and product leaves equal the local receipt's hashes."
+  },
+  "logs": [
+    {
+      "path": "evidence/mainproof-4690f674-leaves.bytes.json",
+      "payloadSha256": "834f0b63c85c5da939b29790cfb3dad050401fbed7b57dacb81318c0bd392f15",
+      "payloadBytes": 49764,
+      "note": "Fresh run of the two registered test leaves (DurableMatchStore.test.ts and coopMissionCreate.test.ts) on the same checkout and HEAD: 2 suites, 52/52."
+    },
+    {
+      "path": "evidence/mainproof-4690f674-selector.bytes.json",
+      "payloadSha256": "80b2ef19697f0e43367eaa6e6b20bf95154d168839bdec37b83756f4b11f8349",
+      "payloadBytes": 40405,
+      "note": "Fresh run of the registered Task 14 selector --testPathPattern='campaignLaunchAuthorityRoute|campaignProgressionReaders.durable|CampaignSyncSession' on the same checkout and HEAD, with the pattern passed to node as one argument: 4 suites, 96/96."
+    },
+    {
+      "path": "evidence/mainproof-4690f674-p2cg1b.bytes.json",
+      "payloadSha256": "485a85c72b6d8ebff141e5c9ec13d5ad12d9f627e4c51a68f86b3ec680214f41",
+      "payloadBytes": 877,
+      "note": "Fresh run of the two P2CG1B test leaves (JournalCampaignEventStore.test.ts, including the CF-C7 identity-equality fixture, and CampaignMatchHost.pipeline.test.ts), unmodified, on the same checkout and HEAD: 2 suites, 45/45."
+    },
+    {
+      "path": "evidence/mainproof-4690f674-predecessors.bytes.json",
+      "payloadSha256": "bdc29e0315088ec5d95d45ed41cfeb4825332b7083f1952ebc3e6162d6e72cd4",
+      "payloadBytes": 360875,
+      "note": "Fresh run of the 35 A1/A2 suites by path on the same checkout and HEAD, unmodified: 35 suites, 369/369."
+    },
+    {
+      "path": "evidence/mainproof-4690f674-typecheck.bytes.json",
+      "payloadSha256": "5e893fb1267116bb81a754a3f860cfe429ce74b82f1a36bd991b528bf808ec03",
+      "payloadBytes": 408,
+      "note": "Fresh typecheck on the same checkout and HEAD."
+    },
+    {
+      "path": "evidence/mainproof-4690f674-validator.bytes.json",
+      "payloadSha256": "d9ac41ce1deafb824935198bd88262941aa45d00ee4f43db8f3d088368a6c588",
+      "payloadBytes": 456,
+      "note": "Fresh validator and --next on the unedited ledger at the same HEAD (PASSED; --next U25, advisory, while P2CG1C was still implementing)."
+    }
+  ],
+  "attemptLogs": [
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/census.md",
+      "sha256": "a8ac06a4ff2abd2fe845e4e7e1c605f4e76013f99f6183fc02af4e7b2fbbb1fd",
+      "bytes": 9870,
+      "note": "Author admission census, hashed in the local receipt"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/census.template.md",
+      "sha256": "403cd90d08a38414bd794ecffcbb5f90520a762d6e71b086d3da84f089d5c60c",
+      "bytes": 7286,
+      "note": "Author proof artefact, hashed in the local receipt"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/draft-related.json",
+      "sha256": "4b2b9aaace40fd4b3ba45793f229876b2170858ac74d1058427ff68eef44de45",
+      "bytes": 652104,
+      "note": "Author proof artefact, hashed in the local receipt"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/format-post.log",
+      "sha256": "9cfce3ba9fa667e312905f388b2de0a829010f7905e349054ada6daf13bae3f2",
+      "bytes": 364,
+      "note": "Author format:check at head"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/green-35.json",
+      "sha256": "638c459b5e2252abd948990b8a226b6a0010321cbaf2435615a2ece680d883df",
+      "bytes": 164022,
+      "note": "Author green 35 A1/A2 suites, unmodified: 369/369"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/green-35.log",
+      "sha256": "483ab464319ab7393e7a20fa5136f17aa0ee330ee04b3cfc745e9cf2fb76543b",
+      "bytes": 720674,
+      "note": "Author proof artefact, hashed in the local receipt"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/green-b2.json",
+      "sha256": "0980e821d451b3aa2f16b094e9dbb062f62094fb1421ac7efdb3efdee6b958dc",
+      "bytes": 23790,
+      "note": "Author green P2CG1B suites, unchanged: 2 suites, 45/45"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/green-b2.log",
+      "sha256": "322e60535ea0b3789005cf5bcc43ba1451e9a5081eb4fec1a61d6bf7752ade97",
+      "bytes": 1758,
+      "note": "Author proof artefact, hashed in the local receipt"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/green-raw.log",
+      "sha256": "bbee86b06372df9f956a2545ffe65bbbba773e3db19d6c3183e0133769711323",
+      "bytes": 100988,
+      "note": "Author proof artefact, hashed in the local receipt"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/green-related-run1-flake.json",
+      "sha256": "b35e27ed4ff1816e8d28f0bae3b58de729066ad0b8e09c4523c305c212676eaf",
+      "bytes": 659438,
+      "note": "Author first parallel related-callers run, kept: one failure (SqliteError database is locked in seedJournalFromInitialEvents, the cross-process case; review section 6 item 1, N3, CF-D5)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/green-related-run3.json",
+      "sha256": "a00832af5d4b86a505a415ab2b9f6d6ac49d14b985631b4f3f9421601b296638",
+      "bytes": 657984,
+      "note": "Author repeated related-callers run after the stabilisation: 196 suites, 1488 passed, 0 failed"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/green-related-run3.log",
+      "sha256": "aea0bb3293dc1aa79f5a8395ed550bd8bc8850e5528b7d46d72449b6a6f9bb9d",
+      "bytes": 1800576,
+      "note": "Author proof artefact, hashed in the local receipt"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/green-related.json",
+      "sha256": "d94f81de95da0a05c9a910de06f1d336e2e7eda448f2fc1415399d0c83fda2f4",
+      "bytes": 657963,
+      "note": "Author --findRelatedTests over the three product leaves (maxWorkers=6): 196 suites, 1488 passed, 2 pending, 0 failed"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/green-related.log",
+      "sha256": "1d84b5606575ff37452e0bdef49dac8f58357baf79f49bce6513a16a7e4f4a03",
+      "bytes": 1786004,
+      "note": "Author proof artefact, hashed in the local receipt"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/green-selector.json",
+      "sha256": "5ea1898dce0ac9314f985060b5b24b0c51d67e77ca981c0a2d415bfcd129d41d",
+      "bytes": 42252,
+      "note": "Author green Task 14 selector: 4 suites, 96/96"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/green-selector.log",
+      "sha256": "310c42a9645ed19d355706f64a0a0e8a8229e88a91413de3125023b7ac0c4150",
+      "bytes": 82340,
+      "note": "Author proof artefact, hashed in the local receipt"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/green-two-suites.json",
+      "sha256": "24e29a72f39b12d7fa1e7afda537e8552b4ae5c1b44fa87c111badf36befc4a7",
+      "bytes": 23521,
+      "note": "Author green run of the two registered test leaves: 2 suites, 52/52"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/lint-base.log",
+      "sha256": "ecbef2b31aa272dbfda6fc6bf6cc799e03376d998b20df7614b8c6c18e7ce81b",
+      "bytes": 81374,
+      "note": "Author lint at baseline: 0 errors, 87 warnings"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/lint-post.log",
+      "sha256": "02477a0a82fee38cede33d3f80800e1e8160b96d27e7fbda6e7c7be2b3ebfb3b",
+      "bytes": 81374,
+      "note": "Author lint at head: 0 errors, 87 warnings"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/lint-units.log",
+      "sha256": "00edcd4a99414da1171d11f814ff35548d27d3b2b2afb445afd91449e16a55da",
+      "bytes": 730,
+      "note": "Author lint:units at head"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/madge-base.log",
+      "sha256": "160df3fe831bb6c4b6bc2001f43b0e265bf0ab4a8347139710cbe9b6a02087e4",
+      "bytes": 231190,
+      "note": "Author madge from the three product leaves at baseline: 174 chains"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/madge-post.log",
+      "sha256": "4fadca1f2e805acde0db51c062b8c2e8e7bfe062647808b19098acda38347477",
+      "bytes": 231190,
+      "note": "Author madge from the three product leaves at head: 174 chains"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/mutants.json",
+      "sha256": "06fadd780016bb01f895da3acd29aae2cc6ee76cba2c6fe90054da0288b64419",
+      "bytes": 3807,
+      "note": "Author mutation probes MU1-MU12: 12/12 caught"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/npm-ci.log",
+      "sha256": "4fa5107f3b2ad1ea783b7c8ac432db4d5c9bae6d2bf2008af738ffb9e9273074",
+      "bytes": 2450,
+      "note": "Author proof artefact, hashed in the local receipt"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/openspec-ci.log",
+      "sha256": "19b2046de400eaefd184fb58e7072d1816b6ccef3ba1f1ea040c0f9ec8ec2c60",
+      "bytes": 594,
+      "note": "Author qc:openspec-ci:validate: errors=0"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/openspec.log",
+      "sha256": "89a3784befdc45a1fb8b4cac58d9703373655afb9d5fa537f58176fbd9cad0c0",
+      "bytes": 13904,
+      "note": "Author openspec validate --all --strict: 230 passed"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/product-check.patch",
+      "sha256": "f563b5113e049c2e924fdc3515ad32e07dae2bd94fd63f2393c0fbaeb7ff8154",
+      "bytes": 15501,
+      "note": "Author proof artefact, hashed in the local receipt"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/product-draft.patch",
+      "sha256": "f563b5113e049c2e924fdc3515ad32e07dae2bd94fd63f2393c0fbaeb7ff8154",
+      "bytes": 15501,
+      "note": "Author proof artefact, hashed in the local receipt"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/product-final.patch",
+      "sha256": "f563b5113e049c2e924fdc3515ad32e07dae2bd94fd63f2393c0fbaeb7ff8154",
+      "bytes": 15501,
+      "note": "Author proof artefact, hashed in the local receipt"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/red-raw.log",
+      "sha256": "e103207e91b4e6270118194c77f6b0559fa58b51f1b699dbe2965109019ccb97",
+      "bytes": 137008,
+      "note": "Author proof artefact, hashed in the local receipt"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/red-two-suites.json",
+      "sha256": "9ae4110c3e7753062bbb775605c9744423dd0be42397d5e9a1d1a1802a00fc88",
+      "bytes": 82898,
+      "note": "Author red run on unchanged product: 52 tests, 31 passed, 21 failed"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/suites35.txt",
+      "sha256": "146494263be940d1639608d56d4d4e65dc79febe50de23b15b7d775c64421201",
+      "bytes": 2571,
+      "note": "The 35 A1/A2 suite paths used for the predecessor runs"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/tests-final.patch",
+      "sha256": "4129ddaa85e8817355e82fc839ca73cea53fc82cbefb2b169c24e5e2644faa8f",
+      "bytes": 45601,
+      "note": "Author proof artefact, hashed in the local receipt"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/typecheck-post.log",
+      "sha256": "8102a14cf3245ac2b0d67c588affb25efaebfcd3485f9a46a751595d9a774951",
+      "bytes": 358,
+      "note": "Author typecheck at head"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/typecheck-red.log",
+      "sha256": "85f3b651aba76c66d3f089564a7fbeaf740b0f2108dbd5b6dff7e025bf69048c",
+      "bytes": 6774,
+      "note": "Author typecheck at red (fails before the operations exist; reason for the red --no-verify)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/validator-git.log",
+      "sha256": "8334eb5ca69d8e1d087d34582a3138c3c68a69a32d6c67914441a48eaf64c460",
+      "bytes": 4714,
+      "note": "Author validator --git at head"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/validator-test.log",
+      "sha256": "5dd1760a7214e1c5c084cf2fb5068f2714ccadc692463ce7d41ce3b0b37f0da1",
+      "bytes": 33638,
+      "note": "Author validator tests at head: 86/86"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/validator.log",
+      "sha256": "3c8a526f2cfa587e259a090767acd1fce1930d20d5c4b368cebf78dcf23cca7b",
+      "bytes": 156,
+      "note": "Author validator at head"
+    }
+  ],
+  "scope": "Fresh runs at the exact merge commit of the unit's registered proof scope (the split registration's selectors note: the Task 14 selector plus the unit's own suites), of the P2CG1B suites (CF-C7) and of the 35 A1/A2 predecessor suites, combined and separately, plus typecheck and the validator, with hash references to the author's proof logs. No full-stable, --findRelatedTests, lint, madge, browser or build result is claimed for main; the author's related-tests runs and the reviewer's re-run are on the head, and CI covers the rest.",
+  "closure": "main-verified only. taskKeys is empty; no tasks.md row is ticked and no tick receipt is invented. Source/closure owned-resource cleanup is not established here.",
+  "preservation": "Proof and logs are base64 envelopes so repository LF normalization cannot alter their exact bytes. Decode data and verify payloadSha256/payloadBytes."
+}

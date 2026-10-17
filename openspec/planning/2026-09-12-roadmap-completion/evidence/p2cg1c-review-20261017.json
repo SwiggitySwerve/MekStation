@@ -1,0 +1,274 @@
+{
+  "unit": "P2CG1C",
+  "stage": "review",
+  "recordedAt": "2026-10-17T19:14:03.000Z",
+  "head": "ed7fb95be593b7372793451fb6f91f1feff79e36",
+  "reviewedHead": "ed7fb95be593b7372793451fb6f91f1feff79e36",
+  "reviewerModel": "claude-fable-5-1",
+  "implementerModel": "claude-opus-5-5",
+  "verdict": "APPROVE-WITH-NOTES",
+  "outputPath": "evidence/p2cg1c-source-fable-review-20261017.txt",
+  "outputSha256": "c4cfeaca4feb9dace3dda6d49f99abd760e6e71807c55d49d793823d8d4bf46f",
+  "reviews": [
+    {
+      "round": 1,
+      "path": "evidence/p2cg1c-source-fable-review-20261017.txt",
+      "sha256": "c4cfeaca4feb9dace3dda6d49f99abd760e6e71807c55d49d793823d8d4bf46f",
+      "bytes": 39834,
+      "originalPath": "docs/audits/2026-10-17-p2cg1c-review.md",
+      "reviewedHead": "ed7fb95be593b7372793451fb6f91f1feff79e36",
+      "verdict": "APPROVE-WITH-NOTES"
+    }
+  ],
+  "reviewerSubstitution": "The independent reviewer was Claude Fable 5.1 at high reasoning effort, substituting for GPT Astra during a GPT quota outage. The ruling comment discloses the substitution. The reviewer is not the author (Claude Opus 5.5).",
+  "reviewHistory": "One round on the exact merged head ed7fb95b by an independent Fable 5.1 reviewer: APPROVE-WITH-NOTES with no blockers and no majors, five minors (M1-M5) and notes N1-N6 in section 8; none requires a change to the head.",
+  "verdictText": "**APPROVE-WITH-NOTES.** No blockers, no majors. The three product leaves implement the registered behaviour; the red-first proof is genuine; the census fits (10 of 15 files, 336 of 500 counted lines, re-derived); the seven restriction leaves (two of them unchanged) and the unit's own lifecycle fields are the only changes; the route still reaches only the old create; the new public codes carry no private state; 5 of 7 of my behaviour mutants are caught by the registered suites and the 2 survivors are coverage gaps, not defects. Decision point 1 (the post-red stabilisation of the cross-process case) is ruled a disclosed, assertion-monotone harness change that does not weaken what the case proves; the RED-byte test file passes 3/3 against the head product in the registered run mode, so the product is proven against the red bytes as well. Minors M1-M5 and notes N1-N6 require no change to this head. Carry-forwards for P2CG1D are in section 7.",
+  "reviewClasses": [
+    "authority",
+    "privacy",
+    "replay",
+    "idempotency",
+    "concurrency"
+  ],
+  "reviewClassEvidence": {
+    "note": "The unit's five sensitive review classes, each with the reviewer's section 5 finding verbatim. The reviewer records no finding in any class; concurrency carries two design hazards for successors (N2, N3) as carry-forwards CF-D5 and CF-D7. Each verdict field is the closure's reading of the finding, not reviewer text.",
+    "authority": {
+      "verdict": "PASS (no finding)",
+      "finding": "**Authority.** No new trust surface. `actorId` comes from the route's authenticated player; `createPreparedCoopMissionMatch` is a server module export with no route, socket or client reach (section 6 item 4). Membership is re-checked at the same three points as the baseline; admission, roster and fingerprint identity rules are shared with the route path through one body rather than copied. The P2CB preparation is opaque (a `WeakMap` capture inside `campaignPublicAppliedView.ts`), is revalidated only by the view that created it, and only on that graph's own handle inside an open transaction; a second module graph's view on the same file is refused `context-mismatch` -> `COOP_MISSION_LAUNCH_REFUSED` with both files unwritten (tested, including a cold reopen). The old route-reached create needs no readiness and still answers 201 (positive control in the first case). No finding."
+    },
+    "privacy": {
+      "verdict": "PASS (no finding)",
+      "finding": "**Privacy.** The three new public codes `COOP_MISSION_LAUNCH_UNSUPPORTED`, `COOP_MISSION_NOT_CONVERGED` and `COOP_MISSION_LAUNCH_REFUSED` are `CoopMissionRefusal(409, code)` instances whose only own properties are `status`, `code`, `name` and `message === code`; the verdict's `reason`, `participantIds`, cuts, digests and hydration are dropped at `launchRefusal` (`expectPublicOnly` pins the serialised shape; my RM4 shows the pin discriminates). The route maps `CoopMissionRefusal` to `{error: code, code}` and everything else, including `CoopMissionCommitError` (whose `errors` can carry SQLite messages), to a fixed `500 COOP_MISSION_STORE_FAILURE` after server-side logging. `ICampaignLaunchPreparation` carries no journal position, digest or row fingerprint (its own doc comment and the capture design). No finding."
+    },
+    "replay": {
+      "verdict": "PASS (no finding)",
+      "finding": "**Replay.** Match id, request fingerprint, owner map, side assignments and the opening events are derived by the same code as the route path; the lock-order case proves one deterministic match and opening log through a cold reopen (`GameCreated`, `GameStarted` prefix equal across the owning store and an independent handle). The seed after release is the baseline `seedJournalFromInitialEvents` (idempotent on its receipt). The route then reaches the same stored identity through the old door without a second match or a second launch event. No finding."
+    },
+    "idempotency": {
+      "verdict": "PASS (no finding)",
+      "finding": "**Idempotency.** Exact retry after a precommit failure creates once; after a known M commit with a failed C release, the retry settles from the stored row (`prepare` not called: no new readiness granted), announces once and appends one launch; after an uncertain outcome the retry's readback finds no row and creates once; after campaign advancement the stored identity is returned with no append and identity/membership still apply (divergent config -> `COOP_MISSION_IDENTITY_CONFLICT`; revoked seat -> 403). `holdMatchConnection.release` and the reservation's `release` are idempotent and inert after the microtask. No finding."
+    },
+    "concurrency": {
+      "verdict": "PASS (no finding on this head; carry-forwards CF-D5 and CF-D7)",
+      "finding": "**Concurrency.** Lock order is C IMMEDIATE then M IMMEDIATE, pinned by the exec trail `C:BEGIN IMMEDIATE, M:BEGIN IMMEDIATE, M:COMMIT, C:ROLLBACK` and by the observation that during the guard both handles are in a transaction and a separate connection cannot take either file's write lock; at M COMMIT the row is visible on the owning connection and not yet on a read-only one, and C is still held. A real second process sees BUSY on both files during the hold and acquires each lock only after the corresponding release (match after M COMMIT, campaign after C ROLLBACK). A competing process that commits first makes the IMMEDIATE acquisition wait and the revalidation refuse `COOP_MISSION_NOT_CONVERGED` with an unchanged census, while a deferred reader on the same file keeps its stale snapshot and cannot upgrade (`SQLITE_BUSY*`). There is no `await` between `BEGIN IMMEDIATE` on C and `ROLLBACK` on C (the write callback is synchronous; `create` is the synchronous store method; `revalidate` is synchronous and thenables are rejected). Nothing holds M across an `await` either: the store's microtask release is proven by the forgotten-hold case (a write made inside a forgotten reservation is rolled back by the next microtask and a stale release is inert). Finding: none on this head; two design hazards for successors are recorded as N2 (stuck transaction after a throwing ROLLBACK) and N3 (deferred read-then-write on M under external writers), with carry-forwards CF-D5 and CF-D7."
+    }
+  },
+  "ledgerDiscipline": {
+    "red": "PASS per the red receipt (52 tests: 31 pre-existing passed, 21 new failed, exit 1), accepted on the strength of the product-bytes identity above and the failure classes it lists (two `createMatchPrepared` property-absence errors, four `toBe`/`toThrow` on absent capabilities, fifteen `createPreparedCoopMissionMatch is not a function`). Not re-run by me at 8f0955f8: with product bytes equal to the baseline the new cases cannot pass, and the receipt's per-test table is complete.",
+    "greenHead": "PASS, re-run: 2 suites, **52/52** (31 pre-existing + 21 new).",
+    "greenRedBytes": "PASS, re-run: `coopMissionCreate.test.ts` at red bytes `c7961472...` (verified by sha256 after copy) against the head product, `--runInBand`, three consecutive runs: **28/28, 28/28, 28/28**. Head bytes restored and re-hashed `cb26564c...`.",
+    "testBytesVersusRed": "PASS for `DurableMatchStore.test.ts` (byte-identical red -> head). DEVIATION, DISCLOSED for `coopMissionCreate.test.ts`: head `cb26564c...` differs from red by +23/-2 inside the one cross-process case; the local receipt records the diff, the cause, the kept flake log and `testBytes` equal to the head blob. Ruled in section 6 item 1.",
+    "censusFiles": "PASS. `git diff --name-only --no-renames 8fde3b97 ed7fb95b` lists exactly 9 paths: 3 source leaves, 2 test leaves, `units.json`, admission/red/local receipts. Plus the reserved, author-unwritten `p2cg1c-admission-review-20261017.md` slot = **10 of 15**. Every changed path is a registered leaf or an admitted lifecycle path.",
+    "censusLines": "PASS. `git diff --numstat --no-renames`, non-exempt additions, no deletion credit: units.json 16 + DurableMatchStore 102 + IMatchStore 41 + coopMissionCreate 177 = **336 of 500**. Matches the local receipt line for line. Tests (+229, +953) and evidence (+162, +408, +279) exempt."
+  },
+  "decisionPoint1": "**Decision point 1: the test changed after the RED commit.** The diff between 8f0955f8 and ed7fb95b in `coopMissionCreate.test.ts` is +23/-2, all inside the `blocked` branch of the spawned child script and the `blocks writers in other processes ...` case. Red version: after observing BUSY, the child immediately did `BEGIN IMMEDIATE` (busy_timeout 15 s), wrote a probe row and committed, so the saga writer's commit could land on matches.db while the parent's post-release `seedJournalFromInitialEvents` had a DEFERRED read transaction open. Head version: the child proves the lock is free with `BEGIN IMMEDIATE`/`ROLLBACK` (recording `acquiredAt`), waits for a `.done` marker the parent writes after `create()` resolves, then commits its probe; one assertion is added (`committedAt >= acquiredAt`), none removed or loosened. The kept flake log (`green-related-run1-flake.json`, sha256 verified) shows exactly one failure in 1490 tests: `SqliteError: database is locked` thrown at `DurableMatchStore.ts:1260` inside `seedJournalFromInitialEvents`'s `db.transaction` (the INSERT after the receipt SELECT), i.e. `SQLITE_BUSY_SNAPSHOT` on a deferred write upgrade, which `busy_timeout` does not retry. Ruling: (a) this is not a violation of the red/green discipline's purpose. The discipline exists so that the product is proven against tests the author did not tune after seeing it fail; here the product never failed the case in the registered run mode (my 3/3 runs of the RED-byte file against the head product, and the author's two-suite green), the only failure was a timing race between two OS processes in a parallel selection the discipline does not register, the change is to the child harness's scheduling and is assertion-monotone, and it was disclosed with the raw evidence. It is a recorded deviation from byte-identity, not a hidden one, and the author's mutation probes ran against the red bytes. (b) The case still proves what its title says: `busyAt <= guardAt` (both writers were refused during the hold), `saga.acquiredAt >= matchCommit` and `campaign.acquiredAt >= campaignRelease` (each lock became takeable only after the matching release) are unchanged, and the commit now lands after the parent's post-release work rather than concurrently with it. What moved is only that \"then lets them commit\" is no longer demonstrated to be concurrent with the parent's seed, which was never the claim. (c) The underlying behaviour the flake exposed is real but baseline: every `this.db.transaction(fn)()` on DurableMatchStore is BEGIN DEFERRED and reads before it writes, so under any concurrent writer in another process on matches.db a write upgrade can fail with `SQLITE_BUSY_SNAPSHOT` instead of waiting. Production runs one server process on matches.db and the route path has the same exposure, so this is not C's defect and not in C's leaves to fix; it is recorded as N3 and carried to D as CF-D5 (D must not add a deferred read-then-write on M, and E's route switch must keep seed/recovery/announce after both releases). I would have preferred the stabilisation to be committed as a separate, visibly labelled fourth commit rather than folded into the implementation commit; that is M1, a docs/ledger minor.",
+  "reviewReruns": "On ed7fb95b under Node v22.22.0 after a fresh npm ci in a throwaway detached worktree, the reviewer re-ran (all --runInBand): the two registered suites (52/52), the Task 14 selector (4 suites, 96/96), the unchanged P2CG1B suites (45/45), the exact 35 A1/A2 suites (369/369), --findRelatedTests over the three product leaves (196 suites, 1488 passed, 2 skipped, 0 failed), the RED-byte coopMissionCreate.test.ts against the head product three times (28/28 each), typecheck, lint (87 against 87), madge (174 against 174), the validator plain and --git, and oxfmt --check on the five changed files. It also ran 7 single-site mutation probes against the registered suites.",
+  "rerunRows": {
+    "registeredSuites": "2 suites, **52/52**, 8.4 s.",
+    "p2cg1bSuites": "2 suites, **45/45** (includes the CF-C7 identity-equality fixture).",
+    "predecessor35": "35 suites, **369/369**. Same totals as the A2, B and C receipts."
+  },
+  "mutationNote": "Caught 5 of 7. The author's own twelve mutants (MU1-MU12, `mutants.json` sha256 verified) cover the complementary surface (deferred M, C released before the M write, guard ignored, no readback, no microtask, idle-connection refusals on both handles, thenable guard, committed despite a failed C release, skipped preflight, uncertain-as-committed); my RM1 overlaps MU1 as a control and reproduces its 8 failures. Together the two sets leave only the two coverage gaps above, neither of which is a product defect: the head's `readmit()` call is present and ordered before the C hold, and the head's readback is the strict identity check.",
+  "relatedTests": "196 suites, **1488 passed, 2 skipped (pre-existing `mintFastForwardPack` focus), 0 failed**, 155.8 s. The author's one-off flake in this selection (parallel `--maxWorkers=6`) did not reproduce in band.",
+  "stableSuiteNote": "The author did not run npm run test:stable; the local receipt claims none. The reviewer did not run it either (section 9, quoted under stableAssessment). The PR CI unit shards on the head stand in for it.",
+  "stableAssessment": "`npm run test:stable`, `npm run lint:units`, `npx openspec validate --all --strict`, `npm run qc:openspec-ci:validate` (the author's logs are hashed in the local receipt; CI's 32 green checks on the head cover the stable run, lint-units and the OpenSpec validators by name).",
+  "ownerFileNote": "**M1 (ledger, docs):** the post-red stabilisation of the cross-process case is folded into the implementation commit `ed7fb95b` rather than a separately labelled commit; it is disclosed in the local receipt's `testBytesVersusRed` and in the kept flake log. Future units should commit any post-red test edit on its own with the reason in the message so the ledger shows the deviation without reading the receipt. Not this PR.",
+  "lintNote": "**0 errors, 87 warnings** (baseline 87); `DurableMatchStore.ts` max-lines 1394 counted (baseline 1312, already warned); `IMatchStore.ts` and `coopMissionCreate.ts` do not warn.",
+  "madgeNote": "992 files, **174 chains** (baseline 174).",
+  "judgments": [
+    "**Decision point 1: the test changed after the RED commit.** The diff between 8f0955f8 and ed7fb95b in `coopMissionCreate.test.ts` is +23/-2, all inside the `blocked` branch of the spawned child script and the `blocks writers in other processes ...` case. Red version: after observing BUSY, the child immediately did `BEGIN IMMEDIATE` (busy_timeout 15 s), wrote a probe row and committed, so the saga writer's commit could land on matches.db while the parent's post-release `seedJournalFromInitialEvents` had a DEFERRED read transaction open. Head version: the child proves the lock is free with `BEGIN IMMEDIATE`/`ROLLBACK` (recording `acquiredAt`), waits for a `.done` marker the parent writes after `create()` resolves, then commits its probe; one assertion is added (`committedAt >= acquiredAt`), none removed or loosened. The kept flake log (`green-related-run1-flake.json`, sha256 verified) shows exactly one failure in 1490 tests: `SqliteError: database is locked` thrown at `DurableMatchStore.ts:1260` inside `seedJournalFromInitialEvents`'s `db.transaction` (the INSERT after the receipt SELECT), i.e. `SQLITE_BUSY_SNAPSHOT` on a deferred write upgrade, which `busy_timeout` does not retry. Ruling: (a) this is not a violation of the red/green discipline's purpose. The discipline exists so that the product is proven against tests the author did not tune after seeing it fail; here the product never failed the case in the registered run mode (my 3/3 runs of the RED-byte file against the head product, and the author's two-suite green), the only failure was a timing race between two OS processes in a parallel selection the discipline does not register, the change is to the child harness's scheduling and is assertion-monotone, and it was disclosed with the raw evidence. It is a recorded deviation from byte-identity, not a hidden one, and the author's mutation probes ran against the red bytes. (b) The case still proves what its title says: `busyAt <= guardAt` (both writers were refused during the hold), `saga.acquiredAt >= matchCommit` and `campaign.acquiredAt >= campaignRelease` (each lock became takeable only after the matching release) are unchanged, and the commit now lands after the parent's post-release work rather than concurrently with it. What moved is only that \"then lets them commit\" is no longer demonstrated to be concurrent with the parent's seed, which was never the claim. (c) The underlying behaviour the flake exposed is real but baseline: every `this.db.transaction(fn)()` on DurableMatchStore is BEGIN DEFERRED and reads before it writes, so under any concurrent writer in another process on matches.db a write upgrade can fail with `SQLITE_BUSY_SNAPSHOT` instead of waiting. Production runs one server process on matches.db and the route path has the same exposure, so this is not C's defect and not in C's leaves to fix; it is recorded as N3 and carried to D as CF-D5 (D must not add a deferred read-then-write on M, and E's route switch must keep seed/recovery/announce after both releases). I would have preferred the stabilisation to be committed as a separate, visibly labelled fourth commit rather than folded into the implementation commit; that is M1, a docs/ledger minor.",
+    "**C-OPEN-1 / CF-C1 non-applicability.** Confirmed by the code and by the trail: the only SQL C issues on the campaign handle is `BEGIN IMMEDIATE` and `ROLLBACK` (the `traceExec` spy records every `exec`, and `holdCampaign`'s write callback cannot reach `appendInBorrowedTransaction` or any journal writer: the create module imports no campaign sync or journal module, only the type-only `campaignPublicAppliedView`). `revalidate` reads the branch store, effective head, roster and applied-view rows and writes nothing (the only INSERT/UPDATE in `campaignPublicAppliedView.ts` is in `accept`, not on this path). CF-C1 therefore does not arise; no leaf outside the seven is implied.",
+    "**Refusal precedence and ordering.** Not ready at `prepare` (fresh-request, participants-behind, saga/precedence refusal, context-mismatch, integrity) refuses before any SQL; `readmit()` (STALE_HEAD) runs after the preparation and before the C hold, outside SQL; inside the hold the guard's order is context -> precedence (saga/branch/manifest, `unavailable` distinct from known absence: the unreadable-saga case) -> input drift (`not-converged fresh-request`), and the five drift cases pin the public code for each. STALE_HEAD before the hold is the right place (the re-admission reads in-memory host state, not SQL), but it is not covered on the prepared path (RM2); see M4.",
+    "**Dormancy (CF-C8, re-run at the head).** `git grep` over `src` and `server.js` excluding `__tests__` and B's six leaves for `applyHostIntentWithControls|appendControlledCommandBatch|appendInBorrowedTransaction|afterRelease|CAMPAIGN_APPEND_CONTROLS_UNSUPPORTED` finds only declarations (`ICampaignEventStore.ts:137/236`, `campaignHostBatchCommit.ts:91`), no caller. `createPreparedCoopMissionMatch`, `createMatchPrepared`, `reserveMatchProgression` and `CoopMissionCommitError` have no production caller; the only production use of the create module is `src/pages/api/multiplayer/matches/index.ts:315 -> createCoopMissionMatch`. `bindCampaignSyncConnection.ts:910` and `CampaignGmArbiter.ts:453` still call the uncontrolled `applyHostIntent`; `server.js`, the registry, binder, arbiter, Protocol and receipt port are unchanged. The first case also proves the route still reaches the old create at runtime (201 with `createMatchPrepared` never called).",
+    "**Guidance for P2CG1D (\"`reserveMatchProgression` inside B's guard, release in `onCommitted`\") is sound, with three conditions.** (i) It is synchronous end to end: B's `guard(db)` runs inside `appendWithExtension`'s `.immediate()` transaction (writer lines 74-82) and the writer calls `onCommitted` synchronously after COMMIT before the promise settles, so a reservation taken in the guard is still held at `onCommitted`; the store's microtask release fires only after that whole span. (ii) The adapter calls D's `onCommitted` only when a batch was actually recorded (`committed !== null`, `JournalCampaignEventStore.ts:393-401`): on a refused guard or a duplicate the explicit release never runs and the microtask releases M. That is safe but D should release explicitly on its refusal return too and treat the microtask as the net. (iii) `reserveMatchProgression()` throws when M is already in a transaction, and a throw inside B's guard is `commit-uncertain` (CF-C2), so D's guard must catch and return a typed refusal. Lock order is the same C-then-M in both units, so the two paths cannot deadlock across processes, and within a process neither spans an await. CF-D1..CF-D4 carry the exact wording.",
+    "**Carry-forward compliance.** CF-C1 N/A (item 2). CF-C2 honoured in spirit at the match owner: `refused` is the only nothing-written arm, a guard throw is a precommit throw (nothing written, original error kept), a failed COMMIT is resolved by owner readback, `uncertain` only when the readback itself fails, and the create-level `CoopMissionCommitError('uncertain')` is settled on retry by `readMission` readback, never by compensation. CF-C3 honoured: the optional method is the capability, no boolean, memory store refused before effects. CF-C4 N/A (no controlled door is called); the outcome arms added here are the match-side analogue and `settlePreparedCreate` switches them exhaustively (`result.kind` narrowing plus `HeldCreate`). CF-C5 N/A (no `afterRelease`); the reservation release is idempotent and readback-observable as CF-C5 will require. CF-C6 N/A (no writer `onCommitted` caller). CF-C7 honoured: no Protocol/wire/identity change; the B identity-equality fixture passes unchanged (45/45). CF-C8 honoured (item 4). CF-C9 honoured and recorded in the admission and local receipts; my figures agree (section 3). CF-C10 honoured: 32 names verified on the exact head. C-OPEN-2 honoured (M4 not absorbed; `JournalCampaignEventStore.test.ts` untouched). C-OPEN-3 honoured (B main-verified in the baseline ledger; grep and lint/madge re-measured at 8fde3b97). B's M1-M4 and N1-N5 were informational for C except M4 (not absorbed, correctly) and N1 (see N2 below, which gives N1 a new way to arise)."
+  ],
+  "successorNotes": {
+    "P2CG1D": {
+      "intro": "## 7. Carry-forwards for P2CG1D (exact wording)",
+      "carryForwards": [
+        {
+          "id": "CF-D1",
+          "concern": "reservation is write-free and synchronous",
+          "wording": "**CF-D1 (reservation is write-free and synchronous).** `reserveMatchProgression()` is `BEGIN IMMEDIATE` on DurableMatchStore's own M connection with only `release()` (ROLLBACK, idempotent) and no commit; a queued microtask rolls back whatever its synchronous span left open. Any M write made while the reservation is held (including store methods such as `appendEvents`/`appendCommandBatch`, which nest as SAVEPOINTs via `db.transaction`) is discarded by the release while the method reports success. D must make no M write inside the reservation, and the span from `reserveMatchProgression()` to `release()` must contain no `await`."
+        },
+        {
+          "id": "CF-D2",
+          "concern": "placement inside B's guard",
+          "wording": "**CF-D2 (placement inside B's guard).** B's `guard(db)` runs synchronously inside `appendWithExtension`'s `.immediate()` transaction on C and the writer calls `onCommitted` synchronously after COMMIT in the same span (`SQLiteEventJournalWriter.ts:74-82`), so a reservation taken in the guard is still held at `onCommitted`. The adapter invokes D's `onCommitted` only when a batch was actually recorded (`committed !== null`); on a refused guard or a duplicate the explicit release never runs and the microtask releases M. Release explicitly on both the guard's refusal return and `onCommitted`; treat the microtask only as the safety net."
+        },
+        {
+          "id": "CF-D3",
+          "concern": "M-busy must be a refusal, not an uncertain commit",
+          "wording": "**CF-D3 (M-busy must be a refusal, not an uncertain commit).** `reserveMatchProgression()` throws `Match reservation needs an idle match connection` when M is already in a transaction. A throw from inside B's guard is classified `commit-uncertain` (CF-C2) and demands a receipt readback. D's guard must catch that throw and return a typed `{kind:'refused', reason}` arm."
+        },
+        {
+          "id": "CF-D4",
+          "concern": "lock order",
+          "wording": "**CF-D4 (lock order).** C's prepared create takes C IMMEDIATE then M IMMEDIATE; D's door takes C IMMEDIATE (the writer's `.immediate()`) then M (the reservation inside the guard). Keep C-then-M in every new door; never take M before C on a path that can later touch C; never hold either across an await."
+        },
+        {
+          "id": "CF-D5",
+          "concern": "deferred reads on M",
+          "wording": "**CF-D5 (deferred reads on M).** Every existing `this.db.transaction(fn)()` on DurableMatchStore is BEGIN DEFERRED and reads before it writes; under a concurrent writer in another process the write upgrade fails with `SQLITE_BUSY_SNAPSHOT` (message `database is locked`), which `busy_timeout` does not retry. This is baseline exposure (the kept flake `green-related-run1-flake.json`: `seedJournalFromInitialEvents` at `DurableMatchStore.ts:1260`), not a C defect. D must not add a deferred read-then-write on M on any reservation path, and E's route switch must keep seed, recovery and announcement after both releases exactly as C does."
+        },
+        {
+          "id": "CF-D6",
+          "concern": "readback and identity",
+          "wording": "**CF-D6 (readback and identity).** `createMatchPrepared` classifies a failed COMMIT by `getMatchRow(meta.matchId).meta_json === JSON.stringify(meta)` (exact identity, not row presence) and answers `uncertain` only when the release or the readback itself threw. D's analogue on C is B's `getCommandReceipt`; do not add a presence-only check anywhere on either side."
+        },
+        {
+          "id": "CF-D7",
+          "concern": "stuck-transaction hazard",
+          "wording": "**CF-D7 (stuck-transaction hazard).** `holdMatchConnection.release` and `holdCampaign` mark the hold released before ROLLBACK; a throwing ROLLBACK leaves that connection in a transaction nothing retries. The next prepared hold on it refuses (`needs an idle ... connection`), which is fail-closed, but ordinary `db.transaction()` callers on the same connection would then nest as SAVEPOINTs without durability (B's N1). D's door must keep B's `onCommitted` request (which forces the writer's in-transaction refusal) and must treat `db.inTransaction === true` before its BEGIN as a refusal, never as a nested transaction."
+        },
+        {
+          "id": "CF-D8",
+          "concern": "production inertness, re-verify at D's baseline",
+          "wording": "**CF-D8 (production inertness, re-verify at D's baseline).** At ed7fb95b the only production caller of the create module is `src/pages/api/multiplayer/matches/index.ts:315 -> createCoopMissionMatch`; `createPreparedCoopMissionMatch`, `createMatchPrepared`, `reserveMatchProgression` and `CoopMissionCommitError` have no production caller; `bindCampaignSyncConnection.ts:910` and `CampaignGmArbiter.ts:453` still call the uncontrolled `applyHostIntent`; `server.js` installs no port and composes no guard. D is the first production caller of the B and C operations: re-run this grep at D's baseline and record it."
+        },
+        {
+          "id": "CF-D9",
+          "concern": "lint and cycles",
+          "wording": "**CF-D9 (lint and cycles).** Head figures: `DurableMatchStore.ts` 1875 physical / 1394 counted (max-lines, already warned at the baseline's 1312); `IMatchStore.ts` and `coopMissionCreate.ts` not warned; repo-wide 87 warnings, 0 errors (baseline 87, identical set); madge 992 files / 174 chains from C's three leaves (baseline 174, identical sets). D's leaves include `bindCampaignSyncConnection.ts` (1675 physical at the scope snapshot), so expect an existing max-lines warning there; record before/after."
+        },
+        {
+          "id": "CF-D10",
+          "concern": "required checks",
+          "wording": "**CF-D10 (required checks).** 32 check runs on ed7fb95b, all `completed/success`, 0 commit statuses; the names are identical to the P2CG1B list; `pr-checks.yml` blob `a82fe0f7` unchanged since B. Branch protection: `required_status_checks.contexts = [\"Lint and Test\"]`, strict false, conversation resolution required, 0 approvals. The guarded merge should require all 32 names `success` on the merge ref's head."
+        },
+        {
+          "id": "CF-D11",
+          "concern": "coverage gaps for whoever next owns the test leaves",
+          "wording": "**CF-D11 (coverage gaps for whoever next owns the test leaves).** (a) The prepared path's STALE_HEAD re-admission (`readmit()` before the C hold) has no case: removing the call survives both suites (RM2). E owns `coopMissionCreate.test.ts` next; add a case that drifts the host's contribution between catalog IO and the C hold on the prepared path and expects `COOP_MISSION_STALE_HEAD` with nothing written. (b) The exact-meta readback has no discriminating case: a presence-only check survives (RM6). It belongs in `DurableMatchStore.test.ts` (a foreign row under the same id inserted after the ROLLBACK and before the readback must not read back as `committed`). Neither is a defect on this head."
+        }
+      ],
+      "minors": [
+        {
+          "id": "M1",
+          "wording": "**M1 (ledger, docs):** the post-red stabilisation of the cross-process case is folded into the implementation commit `ed7fb95b` rather than a separately labelled commit; it is disclosed in the local receipt's `testBytesVersusRed` and in the kept flake log. Future units should commit any post-red test edit on its own with the reason in the message so the ledger shows the deviation without reading the receipt. Not this PR."
+        },
+        {
+          "id": "M2",
+          "wording": "**M2 (docs, interface comment):** `IMatchStore.ts` says of a failed COMMIT \"its row present is `committed`\" while the implementation requires the identical `meta_json`; the implementation is the correct, stricter rule. Reword the comment when the leaf is next open."
+        },
+        {
+          "id": "M3",
+          "wording": "**M3 (layering, optional):** `DurableMatchStore.ts` now value-imports `rejectPreparedThenable` from `@/lib/events/journal/SQLiteEventJournalWriter`, a campaign/journal module, for a four-line helper. No cycle (madge unchanged), but the match store did not previously depend on the journal writer at value level; a later unit that owns both could move the helper to a neutral module."
+        },
+        {
+          "id": "M4",
+          "wording": "**M4 (test, successor):** see CF-D11(a): STALE_HEAD on the prepared path is uncovered (RM2 survived)."
+        },
+        {
+          "id": "M5",
+          "wording": "**M5 (test, successor):** see CF-D11(b): the exact-meta readback is uncovered (RM6 survived)."
+        }
+      ],
+      "notes": [
+        {
+          "id": "N1",
+          "wording": "**N1:** the duplicate pre-check in `writeMatchRows` runs inside the IMMEDIATE hold on the prepared path and outside any transaction on the async path (baseline behaviour, where the UNIQUE constraint remains the backstop); this is why `refuses a borrowed transaction and a duplicate id without writing` can assert `already exists` with nothing written."
+        },
+        {
+          "id": "N2",
+          "wording": "**N2:** both `holdMatchConnection.release` and `holdCampaign` set `held=false` (or return) before ROLLBACK runs; if ROLLBACK itself threw, the connection would remain in a transaction with no retry, and only the next prepared hold would notice (fail-closed). ROLLBACK failing in better-sqlite3 requires an I/O error or an open statement iterator, neither of which this code can produce; this is a design note for CF-D7, not a finding."
+        },
+        {
+          "id": "N3",
+          "wording": "**N3:** the flake's root cause is the DEFERRED `db.transaction` in `seedJournalFromInitialEvents` (and every other `db.transaction` on M) under a concurrent external writer; see section 6 item 1(c) and CF-D5. In the single-process deployment there is no external writer on matches.db; operational scripts opened against a live file would be the only way to reach it today."
+        },
+        {
+          "id": "N4",
+          "wording": "**N4:** `CoopMissionCommitError` extends `AggregateError` with `errors` in the order [uncertain error, ...release errors] for `uncertain` and [...release errors] for `committed`; the route would log it and answer the fixed 500 code, so the SQLite text never reaches a client even if E later routes the prepared path."
+        },
+        {
+          "id": "N5",
+          "wording": "**N5:** the child process in the cross-process cases is an inline `node -e` script using the installed `better-sqlite3`; no new worker fixture file, so the harness/fixture leaves stayed unchanged as the admission planned. The 15 s child deadlines mean a parent failure before `.done` degrades to a slow test failure, not a hang."
+        },
+        {
+          "id": "N6",
+          "wording": "**N6:** `validate-roadmap --next` was not consulted; the plain and `--git` validators pass at the head."
+        }
+      ],
+      "requiredChecks": {
+        "wording": "**CF-D10 (required checks).** 32 check runs on ed7fb95b, all `completed/success`, 0 commit statuses; the names are identical to the P2CG1B list; `pr-checks.yml` blob `a82fe0f7` unchanged since B. Branch protection: `required_status_checks.contexts = [\"Lint and Test\"]`, strict false, conversation resolution required, 0 approvals. The guarded merge should require all 32 names `success` on the merge ref's head.",
+        "checkRunsRow": "**32 check runs, all `completed/success`, 0 commit statuses**; the 32 names are identical to the P2CG1B list (CF-C10); `pr-checks.yml` blob `a82fe0f7` unchanged since B. Branch protection: `required_status_checks.contexts = [\"Lint and Test\"]`, strict false, conversation resolution required, 0 approvals.",
+        "jobNames": [
+          "Detect Changes",
+          "Install Dependencies",
+          "Lint",
+          "Format Check",
+          "Validate Roadmap Ledger",
+          "Type Check",
+          "Unit Tests (1/6)",
+          "Unit Tests (2/6)",
+          "Unit Tests (3/6)",
+          "Unit Tests (4/6)",
+          "Unit Tests (5/6)",
+          "Unit Tests (6/6)",
+          "Perf Smoke Tests",
+          "Statistical Proof PR",
+          "Perf Budget PR",
+          "Coverage Floor",
+          "A11y Tests",
+          "Validate BV Parity",
+          "Validate Combat Suite",
+          "Build Storybook",
+          "Schema Bridge",
+          "Determinism Audit",
+          "E2E Smoke",
+          "Seam Anchors",
+          "Customizer Regressions",
+          "Desktop Type Check",
+          "Desktop Tests",
+          "Lint and Test",
+          "Prepare Build Artifacts",
+          "Build Test / linux",
+          "Build Test / mac",
+          "Build Test / win"
+        ],
+        "source": ".github/workflows/pr-checks.yml (blob a82fe0f72c613ed0f5fa87078c568ffc69f0aff0, identical at P2CG1B head c0c97c13, baseline 8fde3b97, head ed7fb95b and merge 4690f674). The 32 check-run names on ed7fb95b equal, one to one, the 32 names recorded for P2CG1B (successorNotes.P2CG1C.requiredChecks.jobNames in evidence/p2cg1b-review-20261017.json)."
+      },
+      "openNotesForAdmission": [
+        {
+          "id": "D-OPEN-1",
+          "label": "Root",
+          "concern": "unregistered test-helper leaf",
+          "note": "P2CG1D admission is held until a separate parent literal-path amendment registers src/lib/multiplayer/server/__tests__/campaignGrantChannel.test-helpers.ts as a P2CG1D leaf (roadmap.json R2.authority-live restrictions.P2CG1D 9->10 leaves; knownSourceTestLifecycleSubtotals.P2CG1D 10->11; units.json P2CG1D behavior 'Planned leaves (9)' -> 10): the registered required field launch: CampaignLaunchView | null makes that helper fail TS2741 at line 175 (one-line `launch: null,`). Census with it is 15/15."
+        }
+      ],
+      "state": "P2CG1D moves from blocked to planned in this change set (successorRelease). Its behaviour text, leaves and every other field are not edited; D-OPEN-1 records the held admission instead."
+    },
+    "note": "Every wording string under successorNotes.P2CG1D except jobNames, source, openNotesForAdmission and state is a verbatim substring of evidence/p2cg1c-source-fable-review-20261017.txt (checked by the closure generator). CF-D1 to CF-D11 are the reviewer's section 7 items 1-11 in order, without their list numbers. M1-M5 and N1-N6 are the section 8 items. requiredChecks.wording is section 7 item 10 (CF-D10), and checkRunsRow is the section 3 GitHub check-runs row. openNotesForAdmission is a Root note, not reviewer text: D-OPEN-1 records a registration gap in P2CG1D's leaves for its admission instead of editing P2CG1D."
+  },
+  "reviewNotes": "No blockers and no majors. M1 (post-red test edit folded into the implementation commit) is recorded as ownerFileNote, and the decision point 1 ruling is recorded verbatim under decisionPoint1. M2 (interface comment wording) and M3 (journal-writer value import) are documentary and not applied here. M4 and M5 (coverage gaps RM2 and RM6) are carried as CF-D11 to whichever successor next owns coopMissionCreate.test.ts or DurableMatchStore.test.ts. N1-N6 are recorded verbatim. The eleven section 7 carry-forwards are recorded verbatim for P2CG1D's admission.",
+  "reservedSlot": "evidence/p2cg1c-admission-review-20261017.md stays unwritten. The reviewer wrote its audit to docs/audits/2026-10-17-p2cg1c-review.md in the root checkout (untracked there); this closure preserves it byte for byte at evidence/p2cg1c-source-fable-review-20261017.txt instead of authoring reviewer text.",
+  "ciQualification": "All 32 check runs on the merged head succeeded (run 39058063119), with no commit statuses. The review's check-runs row reads 32 check runs, all completed/success, which matches.",
+  "laneB": {
+    "ruledHead": "ed7fb95be593b7372793451fb6f91f1feff79e36",
+    "pr": 2218,
+    "commentId": 6239129525,
+    "author": "SwiggitySwerve",
+    "bodySha256": "4c5db80c0c2f7a7b47595bef64a685c299b8484d9a228766b8963cd1b2620c22",
+    "at": "2026-10-17T19:02:08Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2218#issuecomment-6239129525",
+    "bodyPath": "evidence/p2cg1c-owner-ruling-6239129525.txt"
+  },
+  "ownerRulingNote": "The ruling body names the exact merged head and P2CG1C: the co-op mission create holds the campaign lock and commits the match while it is held, the campaign lock is released only by ROLLBACK with nothing written to the campaign database, and convergence and launch refusals are typed; it is dormant with no production caller; review classes authority, privacy, replay, idempotency and concurrency. It records the independent APPROVE-WITH-NOTES review (with the Fable-for-Astra substitution and the review sha256), the decision point 1 ruling and minor M1, the 5 of 7 mutation result, the CF-D1..CF-D11 carry-forwards to P2CG1D and CI 32/32, and approves merging this exact head. The comment states its authorization: the owner's chat instruction in T3 thread 6db2c314-6cd3-40c5-8fbd-7c42bc27ed35 on 2026-10-17, quoted in the comment, under which Root posts OWNER-RULING comments for sensitive units. It is transcribed verbatim.",
+  "chronology": "The owner ruling was posted at 2026-10-17T19:02:08Z, before the head-guarded merge at 2026-10-17T19:02:15Z (7 seconds later). This records a premerge ruling on the exact merged head.",
+  "identityScope": "Preserves the existing unversioned P2CG1C evidence and the actual cross-model review provenance. No v2/v3 identity manifest or engine observation is claimed.",
+  "githubApproval": "Lane A engineering evidence only; no GitHub approval claimed.",
+  "successorRelease": {
+    "label": "successor release",
+    "scope": "Separate from the P2CG1C closure. This change set also releases P2CG1D (successor release). No other field of P2CG1D changes and no other unit is released; P2CG1E and P2C stay as they are.",
+    "release": {
+      "unit": "P2CG1D",
+      "field": "state",
+      "from": "blocked",
+      "to": "planned",
+      "basis": "P2CG1D's only predecessor, P2CG1C, is main-verified in this same change set with a genuine exact-main mainProof PASS at 4690f67408d3e4e7cc2025db6799d034786b41a1, as P2CG1D.admissionRequires demands. P2CG1C has no task keys, so its tick stays null. This is the standard on which P2CG1B (#2214) and P2CG1C (#2217) were released.",
+      "permission": "Release to planned only. Selection is not admission. P2CG1D source work still requires its own normal finite admission at its own baseline (containing 4690f674 and this closure), with the review's CF-D1 to CF-D11 addressed. Root note D-OPEN-1 holds that admission until the separate parent literal-path amendment it names has landed; this change set does not make that amendment."
+    }
+  }
+}
