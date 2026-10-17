@@ -6583,7 +6583,18 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1b-admission-20261017.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1b-admission-review-20261017.md",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1b-red-20261017.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1b-local-20261017.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1b-local-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1b-source-fable-review-20261017.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1b-owner-ruling-6237415300.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1b-review-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1b-merge-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ce5fd2ae-tests.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ce5fd2ae-leaves.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ce5fd2ae-selector.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ce5fd2ae-predecessors.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ce5fd2ae-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ce5fd2ae-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1b-mainproof-20261017.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -6598,10 +6609,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "implementing",
+      "state": "main-verified",
       "baseline": "3826f7cb78179cf01d4e935c3ef886cee4f755da",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "c0c97c135004532412c3c6a0b41124ce51761941",
+      "mergeSha": "ce5fd2ae130a9f41027603823ef4903c5dad5d95",
       "stageReceipts": {
         "admission": {
           "path": "evidence/p2cg1b-admission-20261017.json"
@@ -6612,9 +6623,27 @@
         "local": {
           "path": "evidence/p2cg1b-local-20261017.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/p2cg1b-review-20261017.json",
+          "head": "c0c97c135004532412c3c6a0b41124ce51761941",
+          "reviewedHead": "c0c97c135004532412c3c6a0b41124ce51761941",
+          "reviewerModel": "claude-fable-5-1",
+          "implementerModel": "claude-opus-5-5",
+          "outputSha256": "bd59452be0b247b72c4fe38846d0b040fed76534377d21d2fc56178a885ee4c0",
+          "verdict": "APPROVE-WITH-NOTES"
+        },
+        "merge": {
+          "path": "evidence/p2cg1b-merge-20261017.json",
+          "pr": 2216,
+          "head": "c0c97c135004532412c3c6a0b41124ce51761941",
+          "mergeSha": "ce5fd2ae130a9f41027603823ef4903c5dad5d95"
+        },
+        "mainProof": {
+          "path": "evidence/p2cg1b-mainproof-20261017.json",
+          "mergeCommit": "ce5fd2ae130a9f41027603823ef4903c5dad5d95",
+          "verdict": "PASS",
+          "runtime": "Source/Main Jest: Tests:       414 passed, 414 total"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -6658,7 +6687,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -15475,6 +15504,44 @@
         "commentId": 6223189276,
         "author": "SwiggitySwerve",
         "bodySha256": "bd3b3967b5029f2a42626ace254c839a6f396d0570529a88971e1d8c8ab95bd9"
+      }
+    },
+    {
+      "id": "PK-p2cg1b-ruling",
+      "blocks": [
+        "P2CG1B"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "After independent exact-head review across its five sensitive classes and required green CI, should the owner rule the bounded P2CG1B head (synchronous borrowed-transaction journal append; optional campaign append guard run inside the writer-owned transaction before the write, with a typed refusal and a fail-closed capability check; classified commit outcomes for prewrite refusal, known, uncertain and unsettled commit; and the default-absent actual-commit notification and post-release cleanup seam, with no production caller) before guarded merge?",
+      "options": [
+        {
+          "label": "rule the exact source head",
+          "consequence": "Permit guarded P2CG1B merge and exact-main proof only; the plumbing stays dormant with no production caller, and P2CG1C may be released to planned only after that proof, with the review carry-forwards recorded for its admission.",
+          "effort": "One independent exact-head review across authority, privacy, replay, idempotency and concurrency, evidence check and owner ruling"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Hold merge until the concrete authority, privacy, replay, idempotency, concurrency or proof objections are fixed and fresh exact-head review, CI and owner ruling are complete.",
+          "effort": "Bounded by the concrete review objections"
+        }
+      ],
+      "agentRecommendation": "Rule only an independently approved green exact head that meets all of these: the new assertions fail on unchanged product and pass with byte-identical tests; the borrowed append never begins, commits, releases a savepoint or notifies; the guard runs on the writer handle inside the writer-owned transaction before the write and a refusal is a typed arm; a store without the capability is refused before any write; controls never reach the journal payload, the command identity or any wire type; every commit outcome is consumed exhaustively and no failure arm maps to success; and no production module calls the new operations. This proposal grants no approval or merge permission.",
+      "revertCost": "Low: revert the six product leaves and two test leaves; P2CG1B changes no Protocol type, server.js composition or production caller, so production traffic stays on the uncontrolled doors. The only production-visible changes are the reviewed error aggregation and delivery to every subscriber before a rethrow (review section 6 item 3).",
+      "decision": {
+        "option": "rule the exact source head",
+        "at": "2026-10-17T17:16:57Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2216#issuecomment-6237415300"
+      },
+      "ruling": {
+        "ruledHead": "c0c97c135004532412c3c6a0b41124ce51761941",
+        "pr": 2216,
+        "commentId": 6237415300,
+        "author": "SwiggitySwerve",
+        "bodySha256": "0eda51a37bfd074a166c239621fb2d1a375d8a8b96f21b40b51c45f31b98287a"
       }
     },
     {
