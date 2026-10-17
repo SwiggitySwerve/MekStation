@@ -233,6 +233,23 @@ const routeProofs: readonly RouteProof[] = [
     ],
   },
   {
+    path: '/compendium/chassis',
+    label: 'compendium chassis',
+    heading: 'Chassis index',
+    affordances: [
+      { label: 'chassis search', role: 'textbox', name: /Search chassis/i },
+      { label: 'weight class filter', role: 'combobox', name: /Weight class/i },
+      {
+        label: 'clear chassis filters',
+        role: 'button',
+        name: /Clear filters/i,
+      },
+    ],
+    stateAffordances: [
+      { label: 'chassis result count', text: /\d+ chassis found/i },
+    ],
+  },
+  {
     path: '/units',
     label: 'custom units',
     pageTitle: 'Custom Units',
@@ -474,47 +491,52 @@ const recoveryRoutePaths = new Set(
   appShellRouteManifest.recoveryRoutes.map((route) => route.path),
 );
 
+/**
+ * Manifest/proof mismatches are collected here and asserted by a single test
+ * below. Throwing at module scope aborts collection of every spec in the run.
+ */
+const routeProofProblems: string[] = [];
+
 for (const proof of routeProofs) {
   if (
     !appShellRoutePaths.has(proof.path) &&
     !recoveryRoutePaths.has(proof.path)
   ) {
-    throw new Error(
+    routeProofProblems.push(
       `Route proof ${proof.path} is not registered in app-shell-route-manifest.json`,
     );
   }
 }
 
-const primaryRoutes: readonly RouteProof[] =
-  appShellRouteManifest.primaryRoutes.map((manifestRoute) => {
+function resolveManifestProofs(
+  manifestRoutes: readonly { path: string; label: string }[],
+): RouteProof[] {
+  const resolved: RouteProof[] = [];
+  for (const manifestRoute of manifestRoutes) {
     const proof = routeProofByPath.get(manifestRoute.path);
     if (!proof) {
-      throw new Error(
+      routeProofProblems.push(
         `Missing browser route proof details for ${manifestRoute.path}`,
       );
+      continue;
     }
     if (proof.label !== manifestRoute.label) {
-      throw new Error(
+      routeProofProblems.push(
         `Route proof label mismatch for ${manifestRoute.path}: manifest="${manifestRoute.label}" proof="${proof.label}"`,
       );
+      continue;
     }
-    return proof;
-  });
-const recoveryRoutes: readonly RouteProof[] =
-  appShellRouteManifest.recoveryRoutes.map((manifestRoute) => {
-    const proof = routeProofByPath.get(manifestRoute.path);
-    if (!proof) {
-      throw new Error(
-        `Missing browser route proof details for ${manifestRoute.path}`,
-      );
-    }
-    if (proof.label !== manifestRoute.label) {
-      throw new Error(
-        `Route proof label mismatch for ${manifestRoute.path}: manifest="${manifestRoute.label}" proof="${proof.label}"`,
-      );
-    }
-    return proof;
-  });
+    resolved.push(proof);
+  }
+  return resolved;
+}
+
+const primaryRoutes: readonly RouteProof[] = resolveManifestProofs(
+  appShellRouteManifest.primaryRoutes,
+);
+const recoveryRoutes: readonly RouteProof[] = resolveManifestProofs(
+  appShellRouteManifest.recoveryRoutes,
+);
 
 const desktopDropdowns = appShellRouteManifest.desktopDropdowns;
 const mobileNavItems = appShellRouteManifest.mobileNavItems;
@@ -775,6 +797,10 @@ async function expectMobileShellAndRoute(
   await expectCurrentPath(page, route.path);
   await expectRouteIdentity(page, route);
 }
+
+test('app-shell route manifest and browser proofs agree @app-shell', () => {
+  expect(routeProofProblems).toEqual([]);
+});
 
 test.describe('App shell route proof @app-shell', () => {
   test.describe.configure({ mode: 'serial' });
