@@ -88,37 +88,38 @@
 
 ## 4. TypeScript 7 for every type-check gate (PR 4)
 
-- [ ] 4.1 Root `devDependencies` per D3:
-  - `"typescript": "npm:@typescript/typescript6@^6.0.3"`;
+- [x] 4.1 Root `devDependencies` per D3:
+  - `"typescript": "npm:@typescript/typescript6@^6.0.2"`;
   - `"typescript7": "npm:typescript@^7.0.2"`.
   - Check the current upstream versions first.
   - Then confirm which package owns `node_modules/.bin/tsc`, and record it in the PR body.
-- [ ] 4.2 Set desktop `devDependencies` to `"typescript": "^7.0.2"`, unaliased.
+- [x] 4.2 Set desktop `devDependencies` to `"typescript": "^7.0.2"`, unaliased.
   - Prove `desktop/node_modules/.bin/tsc --version` prints 7.x.
   - Prove `npm run build` emit is byte-identical in `.js` to the section 1 baseline.
-- [ ] 4.3 Route every root gate through the explicit entry point (D4):
-  - `scripts.typecheck` = `node node_modules/typescript7/bin/tsc --noEmit --skipLibCheck`;
+- [x] 4.3 Route every root gate through the explicit entry point (D4):
+  - `scripts.typecheck` = `node node_modules/typescript7/bin/tsc --noEmit --skipLibCheck && node node_modules/typescript7/bin/tsc -p scripts/tsconfig.json --noEmit`;
   - lint-staged `*.{ts,tsx}` last entry = `bash -c 'npm run typecheck'`.
     - Keep the `bash -c` wrapper. lint-staged appends the staged filenames to the command, and `tsc` ignores `tsconfig.json` when it is given file arguments.
   - `.github/workflows/pr-checks.yml` `Type Check` step `run: npm run typecheck`;
   - `scripts/qc/roadmap-main-proof.mjs` tsc step argv = `['node', 'node_modules/typescript7/bin/tsc', '--noEmit']`;
   - `scripts/metrics/validate-refactoring-metrics.js:216` = `npm run typecheck`;
   - update the `.husky/pre-commit` comment.
-- [ ] 4.4 Update the pins:
+- [x] 4.4 Update the pins:
   - `scripts/qc/openspec-ci-contracts.mjs` contract `typecheck-runs-typescript` token becomes `run: npm run typecheck`;
   - `scripts/__tests__/precommit-no-build.test.ts` `TSC_ENTRY`;
   - `scripts/__tests__/roadmap-loop-closure-proof.test.ts`: the fake binary path at ~1837 and the `tsc --noEmit` expectation at ~2129.
   - Do not loosen those assertions; repoint them.
-- [ ] 4.5 Add the guard test `scripts/__tests__/typescript-toolchain.test.ts` exactly as specified in D4.
+- [x] 4.5 Add the guard test `scripts/__tests__/typescript-toolchain.test.ts` exactly as specified in D4.
   - Prove it fails when `scripts.typecheck` is temporarily pointed back at `node_modules/typescript/bin/tsc`, then restore it.
-- [ ] 4.6 Prove TS 6 still serves the API consumers by re-running the 3.3 list.
+- [x] 4.6 Prove TS 6 still serves the API consumers by re-running the 3.3 list.
   - Prove `require('typescript').version` starts with `6.`.
   - Prove `require('typescript7/package.json').version` starts with `7.`.
-- [ ] 4.7 Record after-numbers against 0.1:
+- [x] 4.7 Record after-numbers against 0.1:
   - `npm run typecheck`, cold and warm (check the `incremental` risk in `design.md`);
   - desktop `type-check`;
   - the CI `Type Check` step on the PR.
   - Acceptance targets: root type check under 10s locally, and the CI step under 15s.
+  - Local outcome: TypeScript 7.0.2 checks both root projects in 6.09s cold / 1.52s warm; desktop checks both projects in 0.49s. CI Type Check passed in 13s (PR #2192, run 39013571294, source head c6f2aaee3d499736e134a49233fd7efc7534abf9); S1B recorded 51s.
 
 ## 5. Docs and close-out (PR 5, or folded into PR 4)
 
