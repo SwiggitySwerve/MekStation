@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "unit": "TS7S3",
+  "baseline": "d72b141d93e1cdb2ef9f2aa8fc0b3cf907328fd4",
+  "contributor": {
+    "provider": "openai",
+    "model": "gpt-6.1-sol",
+    "task": "TS7S3 implementation sub-agent"
+  },
+  "stage": "admission",
+  "date": "20261017",
+  "authority": "User explicitly authorized source preparation immediately from origin/main before the concurrent TS7S2OD ledger closure, with formal admission rebased onto that closure before PR creation. This receipt records that later admission without claiming preparation started from the closure.",
+  "preparationBaseline": "97c3281f5a3d943adee64e3516a538d466d50f8e",
+  "originalPreparationBaseline": "08555b7a1b22f1bc10f9e6335c3ea7edd79c98da",
+  "predecessors": {
+    "TS7S2OD": {
+      "state": "main-verified",
+      "mergeSha": "97c3281f5a3d943adee64e3516a538d466d50f8e",
+      "mainProof": {
+        "path": "evidence/ts7s2od-mainproof-20261017.json",
+        "mergeCommit": "97c3281f5a3d943adee64e3516a538d466d50f8e",
+        "verdict": "PASS",
+        "runtime": "Source/Main checks: 6 passed (npm run typecheck exit 0 with both projects; tsc -p scripts/tsconfig.json --noEmit exit 0; validate:bv exit 0 with all accuracy gates passed; validate:parity exit 0 with 4227 of 4227 passed; validator PASSED; openspec validate --all --strict 230 passed and qc:openspec-ci:validate errors=0; 0 failed)"
+      },
+      "receiptSha256": "96553aac38375700c363c922218ec24ab4279f8b0130791ec6e014f9583ea7eb"
+    }
+  },
+  "caps": {
+    "maxNonGeneratedLines": 500,
+    "maxFiles": 15
+  },
+  "frozenFiles": [
+    {
+      "path": "package.json",
+      "role": "source leaf",
+      "existsAtPreparation": true,
+      "preparationSha256": "ff43dad4fe63f9af369f1f758ff15362b4fef003706c724d162165a41fab90ad"
+    },
+    {
+      "path": "package-lock.json",
+      "role": "source leaf",
+      "existsAtPreparation": true,
+      "preparationSha256": "d478b16db97afcc66dcb98a56e36435094afa2a17b63ab900bb22f54ffcdee2e"
+    },
+    {
+      "path": "desktop/package.json",
+      "role": "source leaf",
+      "existsAtPreparation": true,
+      "preparationSha256": "f465bc870943f1ca9310493d72fbe94b62eea4864fb71d283175b7e3bfdb477c"
+    },
+    {
+      "path": "desktop/package-lock.json",
+      "role": "source leaf",
+      "existsAtPreparation": true,
+      "preparationSha256": "d1fd7e2572f131d2222813163815fe5e4556d685bcffd7aa823f5addcec7d9f1"
+    },
+    {
+      "path": "openspec/changes/migrate-to-typescript-7/tasks.md",
+      "role": "source leaf",
+      "existsAtPreparation": true,
+      "preparationSha256": "b8fb9f73ac1c3f311f80c864a868c431ba2328972a5624a4def88c4c94d79f28"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "role": "own lifecycle",
+      "existsAtPreparation": true,
+      "preparationSha256": "d6ab3572e393b9cdb945f089951ec37e259a37822737d663871517e397d59b56"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s3-admission-20261017.json",
+      "role": "stage receipt",
+      "existsAtPreparation": false,
+      "preparationSha256": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s3-red-20261017.json",
+      "role": "stage receipt",
+      "existsAtPreparation": false,
+      "preparationSha256": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s3-local-20261017.json",
+      "role": "stage receipt",
+      "existsAtPreparation": false,
+      "preparationSha256": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s3-admission-review-20261017.md",
+      "role": "reserved independent review slot",
+      "existsAtPreparation": false,
+      "preparationSha256": null
+    }
+  ],
+  "notToChange": {
+    "tsconfig.json": "6c41dc2afe0792a6a918f6193e0ed498653807895033b24c270e532984d4a0dd",
+    "scripts/tsconfig.json": "9f55f8e064a9756da2a886ab7ff505a15a88e0821f73ee552c5a69ebc127de39",
+    "desktop/tsconfig.json": "fb796ee713a91fd9c9c883a92bcea746ae152f4c4ae53c140f8bee89befd6972",
+    "desktop/tsconfig.test.json": "2dfdac7dd8d7d7c3e4034bbfdd629db53bbaef95851eada5c9fc0fe9f0e33238",
+    "desktop/jest.config.js": "eb30c06e30e5bfc473957bf38a1089dcd10486041f777ea576ce20591fa993f7",
+    ".storybook/main.ts": "63c41a9fc8f531cc3824e5b9541704b8e48eff72caf0fa0f7077107ad15a082a"
+  },
+  "fileCensus": "10 of 15 including 5 source leaves, own units.json lifecycle, 3 receipts, and reserved independent-review slot (not written by author).",
+  "lineCounting": "Count product/test added lines and own units.json lifecycle; package-lock.json files are uncounted under UNCOUNTED_FILES and evidence prefix is skipped. No cap exception.",
+  "overlap": "Only this track unit is admitted after the TS7S2OD closure; shared package/task leaves remain serial. No other-unit edits.",
+  "helpers": [
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/ts7s3-proof-20261017/run.ps1",
+      "sha256": "4d7321f7fcaf2d436b56d256221cd48a81964bafce67e3e937fe5cb67476310c"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/ts7s3-proof-20261017/finalize.cjs",
+      "sha256": "9f2986b592b38269c3dd36c8b1c3c821714dbeb5194c59b214b74f9e796b66c3"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/ts7s3-proof-20261017/manifest.json",
+      "sha256": "8498509235f83eaa19a15e66553cbc15826fd832035ded88a37d86fb7126f1ae"
+    }
+  ],
+  "predecessorCarryForward": {
+    "wording": "- TS7S3: admit on a baseline containing TS7S2OD's merge and closure; revalidate both root\n  and scripts projects with TS 6, plus both desktop projects. Retain explicit node types,\n  relative paths, strictness and no ignoreDeprecations. Register any new diagnostic leaf.",
+    "concern": "TS7S3 admission and proof",
+    "applies": "TS7S3 is already planned (released by #2181). No TS7S3 field changes here. Its admission must start from a baseline containing 97c3281f and this closure, and its TS 6 proof must cover both root projects (root and scripts/tsconfig.json) as well as both desktop projects, keeping the scripts project in the gate."
+  },
+  "carryForwards": {
+    "S3-1": "Both desktop tsc steps pass on 6.0.3, with no ignoreDeprecations.",
+    "S3-2": "Preserve @swc/core 1.15.30 (root and desktop) by in-place npm 11.19.1 lock regeneration. Keep the existing range; do not freshly resolve to 1.16.18 in a TypeScript-only unit.",
+    "S3-3": "Desktop tsc checks, npm test (5/57), and tsc build pass.",
+    "S3-4": "Both lockfiles change only root devDependency metadata and node_modules/typescript. All API-consumer gates are included.",
+    "S3-5": "Root npx tsc and desktop .bin/tsc both print Version 6.0.3."
+  },
+  "reviewSlot": "Reserved for independent reviewer; author does not write it."
+}

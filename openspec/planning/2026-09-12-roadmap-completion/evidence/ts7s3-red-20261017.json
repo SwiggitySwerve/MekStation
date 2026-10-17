@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "unit": "TS7S3",
+  "baseline": "d72b141d93e1cdb2ef9f2aa8fc0b3cf907328fd4",
+  "contributor": {
+    "provider": "openai",
+    "model": "gpt-6.1-sol",
+    "task": "TS7S3 implementation sub-agent"
+  },
+  "stage": "red",
+  "meaning": "Before-state measurement, not an injected source failure: requested unaliased ^6.0.3/version contract is false on baseline.",
+  "preparationBaseline": "97c3281f5a3d943adee64e3516a538d466d50f8e",
+  "originalPreparationBaseline": "08555b7a1b22f1bc10f9e6335c3ea7edd79c98da",
+  "historicalPreS2OD": {
+    "baseline": "08555b7a1b22f1bc10f9e6335c3ea7edd79c98da",
+    "rootCold": {
+      "name": "baseline-root-cold",
+      "command": "node node_modules/typescript/bin/tsc --version && npm run typecheck",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s3-ts6-20261017",
+      "started": "2026-10-17T04:51:24.8599382Z",
+      "seconds": 78.882,
+      "exit": 0,
+      "log": "E:/Projects/Personal/MekStation-wt/ts7s3-proof-20261017/baseline-root-cold.log",
+      "sha256": "25d1ef188fe226e0eefa4828f883ce417c8372204cd111407ad22acf29f49195"
+    },
+    "rootWarm": {
+      "name": "baseline-root-warm",
+      "command": "node node_modules/typescript/bin/tsc --version && npm run typecheck",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s3-ts6-20261017",
+      "started": "2026-10-17T04:53:08.0960145Z",
+      "seconds": 12.752,
+      "exit": 0,
+      "log": "E:/Projects/Personal/MekStation-wt/ts7s3-proof-20261017/baseline-root-warm.log",
+      "sha256": "25d1ef188fe226e0eefa4828f883ce417c8372204cd111407ad22acf29f49195"
+    },
+    "desktop": {
+      "name": "baseline-desktop",
+      "command": "node node_modules/typescript/bin/tsc --version && npm run type-check && npm test -- --runInBand",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s3-ts6-20261017/desktop",
+      "started": "2026-10-17T04:51:18.2756357Z",
+      "seconds": 4.005,
+      "exit": 0,
+      "log": "E:/Projects/Personal/MekStation-wt/ts7s3-proof-20261017/baseline-desktop.log",
+      "sha256": "110ecd7c5d2a19bdc18962baf1b8de4fdd24984d4888a36513f0904d378f6cbc"
+    },
+    "note": "Earlier baseline before S2OD added the scripts project; retained as historical measurements, not a fresh two-project baseline."
+  },
+  "versions": {
+    "root": "5.8.3",
+    "desktop": "5.9.3"
+  },
+  "desktopCount": {
+    "suites": 5,
+    "tests": 57
+  },
+  "baselineFiles": [
+    {
+      "path": "package.json",
+      "sha256": "ff43dad4fe63f9af369f1f758ff15362b4fef003706c724d162165a41fab90ad"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "d478b16db97afcc66dcb98a56e36435094afa2a17b63ab900bb22f54ffcdee2e"
+    },
+    {
+      "path": "desktop/package.json",
+      "sha256": "f465bc870943f1ca9310493d72fbe94b62eea4864fb71d283175b7e3bfdb477c"
+    },
+    {
+      "path": "desktop/package-lock.json",
+      "sha256": "d1fd7e2572f131d2222813163815fe5e4556d685bcffd7aa823f5addcec7d9f1"
+    },
+    {
+      "path": "openspec/changes/migrate-to-typescript-7/tasks.md",
+      "sha256": "b8fb9f73ac1c3f311f80c864a868c431ba2328972a5624a4def88c4c94d79f28"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "sha256": "d6ab3572e393b9cdb945f089951ec37e259a37822737d663871517e397d59b56"
+    },
+    {
+      "path": "tsconfig.json",
+      "sha256": "6c41dc2afe0792a6a918f6193e0ed498653807895033b24c270e532984d4a0dd"
+    },
+    {
+      "path": "scripts/tsconfig.json",
+      "sha256": "9f55f8e064a9756da2a886ab7ff505a15a88e0821f73ee552c5a69ebc127de39"
+    },
+    {
+      "path": "desktop/tsconfig.json",
+      "sha256": "fb796ee713a91fd9c9c883a92bcea746ae152f4c4ae53c140f8bee89befd6972"
+    },
+    {
+      "path": "desktop/tsconfig.test.json",
+      "sha256": "2dfdac7dd8d7d7c3e4034bbfdd629db53bbaef95851eada5c9fc0fe9f0e33238"
+    },
+    {
+      "path": "desktop/jest.config.js",
+      "sha256": "eb30c06e30e5bfc473957bf38a1089dcd10486041f777ea576ce20591fa993f7"
+    },
+    {
+      "path": ".storybook/main.ts",
+      "sha256": "63c41a9fc8f531cc3824e5b9541704b8e48eff72caf0fa0f7077107ad15a082a"
+    }
+  ]
+}
