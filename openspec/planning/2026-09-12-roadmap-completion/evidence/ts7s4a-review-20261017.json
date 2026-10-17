@@ -1,0 +1,71 @@
+{
+  "unit": "TS7S4A",
+  "stage": "review",
+  "recordedAt": "2026-10-17T06:56:00.000Z",
+  "head": "5583b3c4e381748ac212889d05069fdda16204fd",
+  "reviewedHead": "5583b3c4e381748ac212889d05069fdda16204fd",
+  "reviewerModel": "gpt-6-astra",
+  "reviewerEffort": "high",
+  "implementerModel": "gpt-6.1-sol",
+  "verdict": "APPROVE-WITH-NOTES",
+  "outputPath": "evidence/ts7s4a-source-astra-review-20261017.txt",
+  "outputSha256": "69f6021be97ead3f3b947f9f3f19562f858f346c41da34300db970cb2bcccf3e",
+  "reviews": [
+    {
+      "round": 1,
+      "path": "evidence/ts7s4a-source-astra-review-20261017.txt",
+      "sha256": "69f6021be97ead3f3b947f9f3f19562f858f346c41da34300db970cb2bcccf3e",
+      "bytes": 5205,
+      "originalPath": "docs/audits/2026-10-17-ts7s4a-review.md",
+      "reviewedHead": "5583b3c4e381748ac212889d05069fdda16204fd",
+      "verdict": "APPROVE-WITH-NOTES"
+    }
+  ],
+  "reviewHistory": "One round on the exact merged head 5583b3c4 by an independent GPT-6 Astra reviewer at high effort (routine review class, council lean cadence): APPROVE-WITH-NOTES with no blockers, no majors and one completion note (N1); nothing requires a change to the head.",
+  "verdictText": "Findings: no blockers or majors; no source change requested.",
+  "reviewClass": "routine",
+  "reviewedScope": "Independent routine review of PR #2189 at 5583b3c4e381748ac212889d05069fdda16204fd against admission baseline 7d6519657a25bb919f335a30a549d7a941f9f6c7. GitHub and the detached review worktree matched this head. Applied the council's 2026-10-17 lean cadence and TS7S2OD/TS7S3 successorNotes. Verdict applies only to this head.",
+  "findings": {
+    "N1": {
+      "text": "Completion note N1 — openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4a-local-20261017.json:211: the receipt accurately leaves CI proof pending. At the final review snapshot, exact-head run https://github.com/SwiggitySwerve/MekStation/actions/runs/39010778486 had all six Unit Tests shards, A11y Tests, Type Check and Lint and Test successful. Build Test / win and Build Test / mac remained in progress. Record their completion before merging; this review does not claim all CI gates complete. No additional local stable run is needed under the council cadence.",
+      "applies": "Closed outside the review: run 39010778486 on head 5583b3c4 finished with Build Test / win, Build Test / mac and every other check run successful (32/32) before the head-guarded merge. See the merge receipt."
+    }
+  },
+  "mutants": "- Mutant 3: append a string-to-number assignment in scripts/validate-bv.ts:448 => `npm run typecheck` exit 2, TS2322. With an actual staged .ts file, lint-staged also exited 1 with that diagnostic. Restore scripts bytes => actual lint-staged exit 0.",
+  "mutantsNote": "The review also killed Mutant 1 (old CI `run: npx tsc --noEmit` => validator exit 1, workflow-token-missing/typecheck-runs-typescript) and Mutant 2 (old lint-staged direct-compiler entry => precommit pin suite exit 1); the quoted text is the scripts-only mutant through the routed gate.",
+  "stagedArgv": "- A NODE_OPTIONS preload captured real compiler argv for all three runs: each root invocation had only `--noEmit --skipLibCheck`, each scripts invocation only `-p scripts/tsconfig.json --noEmit`. Neither received the staged filename.",
+  "notVerified": [
+    "No local build, Playwright, full Jest, commits, pushes, merges or PR comments.",
+    "Metrics routing was inspected, not run as a broad metrics sweep."
+  ],
+  "notVerifiedNote": "Parent note: build, Storybook, full Jest, desktop and E2E were proved on the PR head by CI run 39010778486 (Build Test win/mac/linux, Build Storybook, Unit Tests 1-6/6, A11y Tests, Desktop Type Check, Desktop Tests, E2E Smoke), all success. They were not re-run at the merge commit; the mainProof receipt says so.",
+  "successorNotes": {
+    "TS7S4B": {
+      "wording": "- package.json:26; openspec/changes/migrate-to-typescript-7/tasks.md:99: the compiler swap changes ONE scripts.typecheck string for the routed gates, preserving two invocations: `node node_modules/typescript7/bin/tsc --noEmit --skipLibCheck && node node_modules/typescript7/bin/tsc -p scripts/tsconfig.json --noEmit`. Do not copy the root-only task sketch over it. Keep CI, metrics and lint-staged delegating to this script. The separately registered roadmap main-proof command and its pins still require S4B's explicit update.\n- Guard BOTH invocations against TS6 fallback; independently mutate each entry and repeat a scripts-only error through the routed gate. Preserve bash -c filename isolation and the scoped scripts project. Retain TS7S3's remaining S4B proofs: API alias=6, gate=7, desktop unaliased=7, bin ownership, desktop emit comparison, API consumers, cold/warm timing and affected local suites; regenerate locks in place and classify SWC drift. Admit only after TS7S4A merge/closure/main proof.",
+      "concern": "compiler swap changes one scripts.typecheck string and keeps the routed two-project gate",
+      "applies": "TS7S4B is released to planned by this change set. At its own admission: scripts.typecheck becomes the two-invocation typescript7 string, CI, metrics and lint-staged keep delegating to it, the roadmap main-proof command and its pins are updated explicitly, both invocations are guarded against TS6 fallback and mutated independently, a scripts-only error is repeated through the routed gate, bash -c filename isolation and the scoped scripts project are preserved, and TS7S3's remaining S4B proofs (API alias=6, gate=7, desktop unaliased=7, bin ownership, desktop emit comparison, API consumers, cold/warm timing, affected local suites, in-place lock regeneration, SWC drift classification) are part of its proof.",
+      "rootCarryForward": {
+        "source": "Root (parent orchestrator) carry-forward, quoted verbatim. Not reviewer text.",
+        "text": "TS7S4B uses npm:@typescript/typescript6@^6.0.2 because the wrapper's latest is 6.0.2; it depends on @typescript/old npm:typescript@^6 which resolves 6.0.3, matching D3's measured version; TS7S5A corrects D3's ^6.0.3 wording"
+      }
+    },
+    "note": "Every wording, verdictText, reviewedScope, findings text, mutants, stagedArgv and notVerified string is a verbatim substring of evidence/ts7s4a-source-astra-review-20261017.txt (the generator checked this). concern, applies, rootCarryForward and every note are parent notes, not reviewer text. The TS7 track has no PROGRESS.md of its own, so these notes are recorded in this receipt only."
+  },
+  "reservedSlot": "evidence/ts7s4a-admission-review-20261017.md stays unwritten. The reviewer wrote its audit to docs/audits/2026-10-17-ts7s4a-review.md in the root checkout (untracked there); this closure preserves it byte for byte at evidence/ts7s4a-source-astra-review-20261017.txt instead of authoring reviewer text.",
+  "ciQualification": "All 32 check runs on the merged head succeeded (run 39010778486), with no commit statuses. The reviewer saw an in-progress snapshot only (N1: Build Test / win and / mac still running); the merge receipt records the 32 completed names.",
+  "identityScope": "Preserves the existing unversioned TS7S4A evidence and the actual cross-model review provenance. No v2/v3 identity manifest or engine observation is claimed.",
+  "githubApproval": "Lane A engineering evidence only; no GitHub approval claimed.",
+  "ownerRuling": "Routine review class: no OWNER-RULING comment is required or posted for this unit.",
+  "successorRelease": {
+    "label": "successor release",
+    "scope": "Separate from the TS7S4A closure. This change set also releases TS7S4B (successor release). No other field of TS7S4B changes and no other unit is released.",
+    "release": {
+      "unit": "TS7S4B",
+      "field": "state",
+      "from": "blocked",
+      "to": "planned",
+      "basis": "TS7S4B's only predecessor, TS7S4A, is main-verified in this same change set with a genuine exact-main mainProof PASS at de9419356c740f3d89cc350f9812f8c87b03bdc9, as TS7S4B.admissionRequires demands. TS7S4A has no task keys, so its tick stays null. This is the standard on which TS7S4A was released (#2188), TS7S3 (#2181), TS7S2B (#2179), TS7S2A (#2177) and TS7S1B (#2175) before it.",
+      "permission": "Release to planned only. Selection is not admission. TS7S4B source work still requires its own normal finite admission at its own baseline (containing de941935 and this closure). No other TS7 unit is released."
+    }
+  }
+}

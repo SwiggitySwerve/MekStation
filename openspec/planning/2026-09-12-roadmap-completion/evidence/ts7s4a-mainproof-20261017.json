@@ -1,0 +1,46 @@
+{
+  "unit": "TS7S4A",
+  "stage": "mainProof",
+  "recordedAt": "2026-10-17T06:56:00.000Z",
+  "mergeCommit": "de9419356c740f3d89cc350f9812f8c87b03bdc9",
+  "verdict": "PASS",
+  "checkout": "E:/Projects/Personal/MekStation-wt/ts7s4a-closure-20261017",
+  "runtime": {
+    "playwright": "Source/Main checks: 7 passed (fresh root npm ci exit 0; tsc --version 6.0.3; npm run typecheck exit 0 with both projects; scripts.typecheck unchanged, lint-staged *.{ts,tsx} last entry bash -c 'npm run typecheck' and pr-checks.yml Type Check runs npm run typecheck; precommit-no-build.test.ts alone 2/2; openspec-ci-quality-qc.test.ts alone 37/37; validator PASSED, openspec validate --all --strict 230 passed and qc:openspec-ci:validate errors=0; 0 failed)",
+    "tsc": "npx --no-install tsc --version printed Version 6.0.3 and require(typescript/package.json).version 6.0.3: the routed gates still run TypeScript 6.",
+    "typecheck": "npm run typecheck = tsc --noEmit --skipLibCheck && tsc -p scripts/tsconfig.json --noEmit (byte-unchanged): exit 0, both projects ran on TS 6.0.3.",
+    "routing": "package.json scripts.typecheck printed unchanged with both invocations; the lint-staged *.{ts,tsx} last entry printed exactly bash -c 'npm run typecheck'; findstr on .github/workflows/pr-checks.yml shows 186 \"- name: Run type check\" and 188 \"run: npm run typecheck\".",
+    "precommit": "npx jest --selectProjects unit --runInBand --no-coverage --runTestsByPath scripts/__tests__/precommit-no-build.test.ts alone: 1 suite, 2 tests passed. This is the unit's repointed exact-entry pin (the last *.{ts,tsx} entry is the bash -c npm run typecheck string). Staged-filename isolation was not re-run as a live lint-staged commit at the merge commit; the unit's local receipt (ts7s4a-local-20261017.json gates lint-staged-ts6, stagedFilenameIsolation) and the reviewer's argv capture (each root invocation only --noEmit --skipLibCheck, each scripts invocation only -p scripts/tsconfig.json --noEmit, no staged filename) cover it, and the merged lint-staged string is identical to the reviewed head.",
+    "ciContracts": "npx jest --selectProjects unit --runInBand --no-coverage --runTestsByPath scripts/__tests__/openspec-ci-quality-qc.test.ts alone: 1 suite, 37 tests passed (covers the repointed openspec-ci-contracts.mjs typecheck-runs-typescript token). npm run qc:openspec-ci:validate: errors=0.",
+    "openspec": "npx openspec validate --all --strict: 230 passed, 0 failed.",
+    "validator": "validate-roadmap.mjs PASSED; --git PASSED; --next printed U24b on the unedited ledger while TS7S4A was implementing (the validator does not model the one-lane rule; TS7S2B N2 disclosure).",
+    "dependencies": "Fresh root npm ci (with lifecycle scripts) at the merge commit in this worktree, no junction to the root checkout (whose node_modules is still TypeScript 5.8.3). desktop/ is untouched by this unit and was not installed. Log in the deps envelope.",
+    "machine": "node scripts/qc/machine-idle.mjs was polled until the TS7S4B prep agent's Next.js build in another worktree had exited; it then printed MACHINE_BUSY 1 for exactly one process before the install and before the proof: PID 47516, an idle pre-existing node.exe server.js (port 8300), which Root allowed. This closure neither started nor stopped any other process.",
+    "node": "v22.22.0",
+    "npm": "11.6.2"
+  },
+  "proof": {
+    "path": "evidence/mainproof-de941935-typecheck.bytes.json",
+    "payloadSha256": "07781b20fb3ceedb67048a9ef6b16713e515a5dc055c405f57d1dac38495df01",
+    "payloadBytes": 6054,
+    "note": "machine-idle, tsc --version and package version (6.0.3), npm run typecheck (both projects), the routing print (scripts.typecheck, lint-staged last entry, pr-checks.yml Type Check), then precommit-no-build.test.ts and openspec-ci-quality-qc.test.ts each run alone, all at the exact merge HEAD. Concatenated logs."
+  },
+  "logs": [
+    {
+      "path": "evidence/mainproof-de941935-validator.bytes.json",
+      "payloadSha256": "6456533e821793d5bf4a46704b5caf481bf3aa401bbd2419179489ef07e01c1e",
+      "payloadBytes": 10974,
+      "note": "validate-roadmap.mjs, --git and --next on the unedited ledger at the merge HEAD (PASSED, PASSED, --next U24b); npx openspec validate --all --strict (230 passed, 0 failed); npm run qc:openspec-ci:validate (errors=0)."
+    },
+    {
+      "path": "evidence/mainproof-de941935-deps.bytes.json",
+      "payloadSha256": "f7292104dc17c74813876c72cb3f06714a56b5fcb51578282740dcab162191d9",
+      "payloadBytes": 1418,
+      "note": "Root npm ci at the merge HEAD under Node v22.22.0 / npm 11.6.2: exit 0."
+    }
+  ],
+  "headProof": "Not re-run at the merge commit (lean cadence): npm run lint, npm run format:check, npm run test:stable, desktop type-check and tests, npm run build and npm run storybook:build. They were proved on PR head 5583b3c4 by the author where light (evidence/ts7s4a-local-20261017.json gates lint-ts6, format-ts6, lint-staged-ts6) and by CI run 39010778486 on that head (Lint, Format Check, Type Check, Unit Tests 1-6/6, A11y Tests, Desktop Type Check, Desktop Tests, Build Test win/mac/linux, Build Storybook, E2E Smoke: all success). The merge tree equals the merge-tree of base and head (merge receipt).",
+  "scope": "Lean cadence (docs/audits/2026-10-17-council-roadmap-decision.md, item 2): exact-Main proof focused on what TS7S4A changed (the routed gates still resolve TS 6.0.3 and check both projects, the CI Type Check and lint-staged routing, the repointed precommit and CI-contract pins each run alone), plus validator and OpenSpec. No local roadmap-suite replays and no npm run test:stable; CI on the closure PR covers them.",
+  "closure": "main-verified only. taskKeys is empty; tasks.md 4.3 and 4.4 tick in TS7S4B, so no tasks.md row changes here and no tick receipt is invented.",
+  "preservation": "Proof and logs are base64 envelopes so repository LF normalization cannot alter their exact bytes. Decode data and verify payloadSha256/payloadBytes. Logs were captured through cmd and PowerShell, so non-ASCII console glyphs may appear mis-decoded; the bytes are kept as captured."
+}
