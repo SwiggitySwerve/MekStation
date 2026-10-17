@@ -1,0 +1,1473 @@
+{
+  "event": "ts7-archive-ownership-correction",
+  "registrationOnly": true,
+  "at": "2026-10-17T08:45:37.736Z",
+  "baseline": "89b642ea0e1bd21e58d83acde02a2b8b0900793c",
+  "actor": {
+    "role": "implementation sub-agent",
+    "provider": "openai",
+    "servedModel": "gpt-6.1-sol",
+    "reasoningEffort": "high",
+    "identitySource": "Current T3 Code Codex harness runtime",
+    "gitAuthor": "Wes Rollings <wrollings@gmail.com>"
+  },
+  "authority": {
+    "instruction": "Prepare the isolated three-file parent ledger correction, prove both archive seams with the real validator, then deliver after S5A closure and before S5B admission.",
+    "design": {
+      "path": "E:/Projects/Personal/MekStation/docs/audits/2026-10-17-ts7-archive-ownership-fix.md",
+      "bytes": 21756,
+      "sha256": "949fa662531f887bd36423da697baa895d05c5c7dfaf2cc30d839e0661a99373",
+      "verifiedBeforeUse": true,
+      "sourceLines": [
+        "# TS7 archive ownership correction\n",
+        "\n",
+        "Date: 2026-10-17. Research only; no implementation, source permission, closure, or release is claimed.\n",
+        "\n",
+        "**Decision.** Land a separate, three-file parent registration-correction PR after genuine TS7S5A closure and before TS7S5B admission. Move every disappearing TS7 source-file grant from `ownershipPaths` to exact `ownershipExceptions`, remove the four corresponding active-change entries from the roadmap node, and narrow TS7S5C's disappearing directory grant to its four actual source leaves. Keep all stable ownership paths. At the already-required S5B/S5C literal-path admissions, add only each unit's dated archive destinations. This fixes both seams without changing the validator, editing another unit inside an archive PR, rewriting historical receipts, or needing a new product unit.\n",
+        "\n",
+        "Use the ledger's existing exact-exception mechanism and separate parent-correction precedent. Do not silently fold this into S5A closure or label an otherwise unauthorized S5B other-unit edit a parent amendment.\n",
+        "\n",
+        "**Inspected baseline and evidence.** `origin/main` was `0dd080241e552acdc845d60d61d38281cbf646d0` (PR #2193, TS7S4B closure). The supplied C: worktree HEAD was older, so substantive ledger/history reads used `git show origin/main:...`. The prepared E: S5B worktree was at the pinned main commit with only the supplied staged archive/spec/tasks draft. The report destination checkout was behind main and had unrelated changes; none were used as current authority or modified.\n",
+        "\n",
+        "Read `E:/Projects/Personal/MekStation-wt/ts7s5b-evidence-20261017/STOPPED.json`, the prepared worktree, original TS7 registration, current units/node, GOAL/DELIVERY/WORKERS, archive history, and the fold/park/closure helpers. No fetch, checkout, install, build, product test suite, OpenSpec run, Git write, or repository edit was performed. The only authored file is this requested audit.\n",
+        "\n",
+        "The STOPPED receipt correctly distinguishes OpenSpec success (231 passed), QC's missing-`yaml` dependency failure, and the roadmap ownership failure. QC was not a successful prepared-worktree seam proof. The registration's `measurements.archiveSeamProbe` at line 359 proves only the two recorded OpenSpec/QC shapes, not validate-roadmap after moving files. Its normal NEXT checks occurred separately. Preserve that receipt and correct its interpretation in a new receipt rather than rewriting history.\n",
+        "\n",
+        "**What the earlier archives actually did.** Both requested searches were performed against origin/main:\n",
+        "\n",
+        "```text\n",
+        "git log -p -S 'openspec/changes/archive' origin/main -- openspec/planning/2026-09-12-roadmap-completion/units.json\n",
+        "git log -p -S 'openspec/changes/archive' origin/main -- openspec/planning/2026-09-12-roadmap-completion/roadmap.json\n",
+        "```\n",
+        "\n",
+        "The unit search contains TS7 registration (`8170a1e38`) and U85's prose about possibly moving archives to a history repository (`6cbf68525`); it does not establish a historical verified-unit archive remap. No current unit has an archive path in `ownershipPaths`.\n",
+        "\n",
+        "The concrete archive precedent is `0d55ca92cc6b112f40bc55870159217d64c93b13`, PR #1781. In the same PR as the moves, it replaced the active directory with the dated archive directory in `roadmap.json` for R1.infantry, R1.ci, and R2.receipts, and appended `archive20260916` records containing `originalPath`, `archivePath`, task hash, timestamp, and PR. It did not edit `units.json`. That proves nodes must lose vanished ownership paths; it does not prove that simply renaming a verified unit's grant preserves historical merge checks. R1.route already had its archive path at the initial published ledger; R1.archives owns broad existing parent directories. Neither supplies TS7's permission to widen ownership to a parent directory.\n",
+        "\n",
+        "The `archive-chassis-*` receipts describe five blob-preserving moves plus removal of the active-ledger entry. Admission is dated September 13; the recorded merge is `c3b4cc1e3ace35ff95b7999d9680a5d657ca344f`, PR #1669, September 15. Its actual source files did not include roadmap.json or units.json; it predates publication of this planning ledger in #1776. The local acceptance and post-hoc merge receipt cannot establish a later unit-ledger path-remapping feature.\n",
+        "\n",
+        "The validator comment at line 567, \"Modern archives are mandatory even under --no-evidence\", calls `validateReviewReceipt` and concerns portable review-identity evidence. It has no relationship to `openspec/changes/archive`. Fold sets `local-verified`, park sets `blocked`, and closure sets `complete`; none supplies an OpenSpec ownership remapper. `archived` is a recognized terminal state, but still incurs the unconditional path checks, needs the full stage ladder including tick, and remains subject to `--git`. Changing unit state cannot solve this failure.\n",
+        "\n",
+        "**Why old grants must survive.** At the pinned main, validate-roadmap.mjs checks node existence at 356-357 and unit nonempty/existence/node-membership at 515-519. Unit ownership membership is literal equality against its owner node. `ciClass` derives from `ownershipPaths` at 521-522. Exact `ownershipExceptions` are not existence-checked or required on the node, and are accepted by the historical merge check at 714-720. This is explicitly documented in the original TS7 registration's `ledgerMechanics.nodeOwnership` (line 106).\n",
+        "\n",
+        "Line 676 is the separate CNI1 sizing branch. Ordinary TS7 merges use line 709: `git diff --numstat --no-renames <mergeSha>^1 <mergeSha>`. It checks the current union of path grants and exact exceptions against historical first-parent changed paths, and recomputes additions independently. A rename does not rewrite those old paths. Unit ownership changes do not themselves alter implementation-actor census fields or bound local/review bytes; leave those bytes and summaries untouched.\n",
+        "\n",
+        "Direct Git inspection found:\n",
+        "\n",
+        "| Unit | Recorded merge | Active-change files actually changed (+/-) | All U41 counted additions |\n",
+        "| --- | --- | --- | ---: |\n",
+        "| TS7S1A | c60ad495b4e4a98a48ec00c2fe7de363682764c1 | tasks.md +3/-2 | 45 |\n",
+        "| TS7S1B | 3d9c45365bfc34d27930acb1ff3411b91af17cb9 | tasks.md +5/-5; design.md not changed | 27 |\n",
+        "| TS7S2A | 2c909b0016d86426572c02d5a1e3186eda7203b5 | tasks.md +2/-2 | 33 |\n",
+        "| TS7S2B | 08555b7a1b22f1bc10f9e6335c3ea7edd79c98da | tasks.md +3/-2 | 42 |\n",
+        "| TS7S2OD | 97c3281f5a3d943adee64e3516a538d466d50f8e | tasks.md +2/-2; proposal.md +1/-1; specs/bv-validation-tooling/spec.md +31/-0 | 60 |\n",
+        "| TS7S3 | 9aea87cdccc7252b8c94d94b3ddad6ede0dbda93 | tasks.md +3/-3 | 21 |\n",
+        "| TS7S4A | de9419356c740f3d89cc350f9812f8c87b03bdc9 | none | 22 |\n",
+        "| TS7S4B | 7898c40ed633076c8f9931dfb56a33eeeab4ca2d | tasks.md +10/-9 | 31 |\n",
+        "\n",
+        "All these counts are below the unchanged 500 cap. TS7S1 is blocked/superseded with no merge; S5A is planned, S5B/S5C blocked, with no recorded merge at this baseline. No recorded TS7 implementation merge changed design.md. Therefore a design-only remap would not retrospectively invalidate S1B's merge, but S5B's own eventual deletion still needs the old design path. A naive full old-to-archive replacement breaks eight historical path checks across seven units: seven tasks.md occurrences and TS7S2OD's proposal.md. The old BV delta is already an exact TS7S2OD exception and must remain one.\n",
+        "\n",
+        "Future S5A and S5B merges will also need the old tasks.md grant after S5C. Do not stop the correction at today's seven terminal units.\n",
+        "\n",
+        "**Exact parent correction.** All paths below are repository-relative. Abbreviations expand literally; never write the abbreviations or globs into JSON:\n",
+        "\n",
+        "```text\n",
+        "P = openspec/planning/2026-09-12-roadmap-completion\n",
+        "S = openspec/changes/migrate-to-typescript-7\n",
+        "A = openspec/changes/archive/2026-10-17-migrate-to-typescript-7\n",
+        "```\n",
+        "\n",
+        "The correction PR changes exactly these three files:\n",
+        "\n",
+        "```text\n",
+        "openspec/planning/2026-09-12-roadmap-completion/units.json\n",
+        "openspec/planning/2026-09-12-roadmap-completion/roadmap.json\n",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7-archive-ownership-correction-20261017.json\n",
+        "```\n",
+        "\n",
+        "In `units.json.units`, select by `id`, remove the following entries from `ownershipPaths`, and append those identical literal file paths to `ownershipExceptions` if absent. Preserve every other array entry and its order. This transfers an existing grant; it does not remove historical authorization or grant an archive destination to a historical unit.\n",
+        "\n",
+        "| Unit | Source leaves transferred from paths to exceptions |\n",
+        "| --- | --- |\n",
+        "| TS7S1 | S/tasks.md; S/design.md |\n",
+        "| TS7S1A | S/tasks.md |\n",
+        "| TS7S1B | S/tasks.md; S/design.md |\n",
+        "| TS7S2A | S/tasks.md |\n",
+        "| TS7S2B | S/tasks.md |\n",
+        "| TS7S2OD | S/tasks.md; S/proposal.md |\n",
+        "| TS7S3 | S/tasks.md |\n",
+        "| TS7S4B | S/tasks.md |\n",
+        "| TS7S5A | S/tasks.md |\n",
+        "| TS7S5B | S/tasks.md; S/design.md |\n",
+        "\n",
+        "TS7S4A is unchanged. TS7S2OD's existing `S/specs/bv-validation-tooling/spec.md` exception is unchanged. Superseded TS7S1 must be included because path validation does not exempt blocked units.\n",
+        "\n",
+        "For TS7S5C, replace only the disappearing directory ownership with exact source leaves. Its resulting `ownershipPaths` is:\n",
+        "\n",
+        "```json\n",
+        "[\"openspec/active-change-ledger.json\"]\n",
+        "```\n",
+        "\n",
+        "Keep its existing `ownershipExceptions` (units.json and the BV delta). Append these three source paths, without duplicates:\n",
+        "\n",
+        "```json\n",
+        "[\n",
+        "  \"openspec/changes/migrate-to-typescript-7/proposal.md\",\n",
+        "  \"openspec/changes/migrate-to-typescript-7/tasks.md\",\n",
+        "  \"openspec/changes/migrate-to-typescript-7/specs/typescript-toolchain/spec.md\"\n",
+        "]\n",
+        "```\n",
+        "\n",
+        "Do not put the old directory itself into exceptions: the validator's exception check is exact-file equality, not directory containment. No design.md source grant is needed by S5C because S5B already moves it.\n",
+        "\n",
+        "For `roadmap.json.nodes[id=\"R6.ts7-toolchain\"].ownershipPaths`, remove exactly these four entries:\n",
+        "\n",
+        "```json\n",
+        "[\n",
+        "  \"openspec/changes/migrate-to-typescript-7/tasks.md\",\n",
+        "  \"openspec/changes/migrate-to-typescript-7/design.md\",\n",
+        "  \"openspec/changes/migrate-to-typescript-7/proposal.md\",\n",
+        "  \"openspec/changes/migrate-to-typescript-7\"\n",
+        "]\n",
+        "```\n",
+        "\n",
+        "Leave all other ownership entries, restrictions, source-leaf subtotals, dependencies and acceptance clauses intact. The source paths remain in the finite restrictions and are represented in the units' exact exceptions. Do not add nonexistent archive paths to node ownership, add an archive-directory grant, or introduce a node exception field the validator does not consume.\n",
+        "\n",
+        "All affected units retain nonempty stable ownership paths already listed verbatim on the node. In particular S5B retains `openspec/specs/bv-validation-tooling/spec.md`; S5C retains `openspec/active-change-ledger.json`. Every unit still derives `ciClass: \"product\"`. No added anchor or ciClass change is needed.\n",
+        "\n",
+        "For traceability, add the following same annotation to the ledger root as `ts7ArchiveOwnershipCorrection20261017` and to the TS7 node as `archiveOwnershipCorrection20261017`:\n",
+        "\n",
+        "```json\n",
+        "{\n",
+        "  \"evidence\": \"evidence/ts7-archive-ownership-correction-20261017.json\",\n",
+        "  \"sourcePath\": \"openspec/changes/migrate-to-typescript-7\",\n",
+        "  \"archivePath\": \"openspec/changes/archive/2026-10-17-migrate-to-typescript-7\",\n",
+        "  \"rule\": \"Disappearing source leaves are retained as exact unit ownershipExceptions; stable ownershipPaths remain. Dated destinations are granted only to TS7S5B/TS7S5C by their registered literal-path admissions. No state or receipt is changed. Parent serial admission checks ownershipPaths plus ownershipExceptions.\"\n",
+        "}\n",
+        "```\n",
+        "\n",
+        "These are explanatory annotations, not new executable policy fields. The correction receipt must record the actual author/baseline, complete field-level diff, pre/post byte hashes, the STOPPED evidence, historical path/count checks, the original registration's untested-roadmap seam, and the staged probes. Explicitly supersede the original registration's overlap claim insofar as it relied on path-only NEXT exclusion for these transferred files. Preserve the original registration and all bound historical evidence byte-for-byte. Generate actual hashes/times; do not prefill future review/merge/mainProof or claim admission.\n",
+        "\n",
+        "No edits to state, baseline, prHead, mergeSha, stageReceipts, implementationActors, local/review identity evidence, capException, caps, ciClass, lifecycleOwnershipLimit, holders, packets, predecessor/release logic, or P-chain contracts belong in this correction.\n",
+        "\n",
+        "**Literal archive admissions after that correction.** At S5B admission, the parent appends this one exact destination to `TS7S5B.ownershipExceptions`, under the existing literal-path-amendment authorization:\n",
+        "\n",
+        "```json\n",
+        "[\"openspec/changes/archive/2026-10-17-migrate-to-typescript-7/design.md\"]\n",
+        "```\n",
+        "\n",
+        "Its existing canonical-spec exception stays; old tasks/design source exceptions stay. The S5B source PR therefore needs only its ordinary own-unit lifecycle changes and the registered own-unit literal admission amendment in units.json, plus its source/evidence manifest. It does not touch roadmap.json or another unit.\n",
+        "\n",
+        "At S5C admission, append these four destinations only to `TS7S5C.ownershipExceptions`:\n",
+        "\n",
+        "```json\n",
+        "[\n",
+        "  \"openspec/changes/archive/2026-10-17-migrate-to-typescript-7/proposal.md\",\n",
+        "  \"openspec/changes/archive/2026-10-17-migrate-to-typescript-7/tasks.md\",\n",
+        "  \"openspec/changes/archive/2026-10-17-migrate-to-typescript-7/specs/typescript-toolchain/spec.md\",\n",
+        "  \"openspec/changes/archive/2026-10-17-migrate-to-typescript-7/specs/bv-validation-tooling/spec.md\"\n",
+        "]\n",
+        "```\n",
+        "\n",
+        "The BV delta is present on this main (31 lines, from merged S2OD), so it is an actual fourth S5C move, not an omitted hypothetical. Retain all four old source exceptions. Reuse S5B's frozen archive date even if S5C runs on a later calendar date. The admission freezes any remaining `<archive-date>` manifest placeholders into those literal files; placeholders are never executable grants.\n",
+        "\n",
+        "Yes, S5C requires treatment of every TS7 unit still owning a disappearing source, including historical units and superseded S1, not just S5C itself. This proposal performs all that treatment in the preceding parent correction, so S5C itself needs no second cross-unit amendment. Eleven of the twelve TS7 entries change ownership representation; S4A does not.\n",
+        "\n",
+        "**PR ownership, sequence and intermediate validity.** The separate correction is a registration-only planning change, following `evidence/p2cg1-split-registration-correction-20261016.json`: that precedent names only roadmap.json, units.json and a new correction receipt, preserves the corrected registration's bytes, and makes prospective contract corrections without releasing units. It is not a new source behavior requiring a product unit. Use independent exact-head review and the applicable actual CI/merge/main-proof process; no special merge bypass is justified here.\n",
+        "\n",
+        "Keep S5A closure limited to its genuine closure. After it is merged/proved, land the correction before S5B admission. S5B is still blocked and its STOPPED draft has no folded lifecycle, so this does not widen an in-flight unit. If current main has advanced to an admitted S5B, the parent must stop and re-establish the registration/admission boundary rather than amend it silently in flight. Rebase/reprepare only through the parent while preserving the supplied draft; this research does not mutate that worktree.\n",
+        "\n",
+        "`lifecycleOwnershipLimit` explicitly says \"Only this unit's own authentic units.json lifecycle fields ...; no other-unit, packet, holder, historical receipt or prerequisite edit.\" A worker's units.json file exception is not carte blanche. S5A closure does not automatically own this correction. A parent-labelled S5B change would additionally need pre-approved cross-unit/node scope, ownership, a fresh measured manifest, and new review; it is unnecessary and increases the archive cap burden. Choose the separate PR.\n",
+        "\n",
+        "| Main state | Ownership result |\n",
+        "| --- | --- |\n",
+        "| Before correction, before moves | Existing source paths exist; original ledger passes. |\n",
+        "| After correction, before moves | Stable paths still exist; source exceptions retain exact old grants. S5B/S5C remain unadmitted. |\n",
+        "| After S5B | Missing source design.md is not in any node/unit ownershipPaths. Source deletion and archive addition are both covered by S5B exceptions. Active tasks/proposal/deltas remain available. |\n",
+        "| After S5C | No ownershipPaths refers to the removed active directory or its files. S5C source deletions and archive additions are exact exceptions. Earlier merge diffs still match their original source paths. |\n",
+        "\n",
+        "Keep terminal source exceptions permanently; deleting them after archive would recreate the historical `--git` failure. Do not rewrite frozen task-source snapshots. Every TS7 `taskKeys` array is empty, so these archive moves do not require a task-key/source-path remap for the tick checker. The ordinary task/verification evidence requirements remain.\n",
+        "\n",
+        "The one-lane rule is essential: validator NEXT checks only ownershipPaths (760, 773), not exception reservations or most documentary unit predecessors. Once source grants become exceptions, the parent must explicitly freeze/check the full union of paths and exceptions and prohibit any other product admission while S5B or S5C is in flight. Also serialize the correction's shared-ledger writer with closure writers. Keep S5C blocked until S5B's genuine main proof/closure; do not use a NEXT result as source permission. This is the same procedural enforcement already required for the track's prospective exceptions, now stated accurately for its source files too.\n",
+        "\n",
+        "**Read-only verification performed.** A same-realm Node harness executed the actual prepared-worktree validator source with only its imports supplied and import.meta.url resolved to that real file. Its LF-normalized SHA-256 equalled origin/main: `07dcf8fbdbe599382076a4e4a934ceac5de2a2d8c77b056244cf4c54eb81f9d7`. Filesystem reads for the two ledgers and existence checks for the exact moved source/archive paths were overlaid in memory. Review-identity consumers remained real and enabled. Git ancestry/numstat queries were real and cached within the harness. No repo file was temporarily edited.\n",
+        "\n",
+        "| Probe | Exit/result |\n",
+        "| --- | --- |\n",
+        "| Original ledger, virtual pre-move existence | 0, ROADMAP VALIDATION PASSED |\n",
+        "| Original ledger, actual prepared S5B absence | 1, exactly the four STOPPED missing-design errors |\n",
+        "| Corrected ledger, before moves, no new archive destination exceptions | 0, ROADMAP VALIDATION PASSED |\n",
+        "| Corrected ledger, after S5B, only its dated destination added | 0, ROADMAP VALIDATION PASSED |\n",
+        "| Corrected ledger, after S5C, its four destinations also added | 0, ROADMAP VALIDATION PASSED |\n",
+        "| Corrected final shape with --git, against all currently recorded merges | 0, ROADMAP VALIDATION PASSED; 256 real cached Git queries |\n",
+        "| Corrected final shape with --next, original states preserved | 0, TS7S5A, correctly reflecting this baseline rather than a fabricated release |\n",
+        "\n",
+        "All successful validator probes reported the unchanged census: 80 nodes, 13 packages, 381 tasks, 40 triage rows. A separate naive-remap check reproduced the eight old-path historical ownership failures listed above. Without any correction, removing the full active tree would leave 19 missing ownership entries across the node/units; with the correction there are none.\n",
+        "\n",
+        "An initial isolated-VM harness produced unrelated review-census errors because cross-realm object prototypes failed the real deep comparisons. That harness was discarded; the same-realm rerun above reproduced the exact four known errors and then passed the unmodified identity consumers. Those initial harness errors are not repository defects.\n",
+        "\n",
+        "These are structural seam and existing-history proofs, not executed future S5A/B/C merges or fresh OpenSpec/QC/runtime proofs. The probe does not fabricate missing S5A/B/C lifecycle or receipts. The parent must rerun unchanged default, --git and --next validators on actual current-source heads and merged commits as those units land, alongside their required OpenSpec/QC/runtime evidence. Correction remeasurement must include the actual later S5A merge if it has landed by then.\n",
+        "\n",
+        "**Sizing and delivery checks.** The correction has three actual files and zero source/product edits; record its real diff and review it as the precedent's bounded parent planning correction. It must not be charged as unreviewed extra scope in an archive product unit. Existing canonical unit/node caps remain 15 files/500 counted additions. In source admissions, count the own-unit JSON changes and all actual lifecycle/evidence files; evidence is excluded from U41 added-line totals, not from the complete file census. Moves count both deletion and destination paths and all destination lines under --no-renames.\n",
+        "\n",
+        "The supplied prepared S5B index currently measures five no-renames paths and 279 counted additions before lifecycle/evidence (189 archived design + 88 canonical spec + one tasks line + one BV canonical line). That is not its final admission census. At the pinned main, S5C's four moved texts total 314 lines (55 proposal + 146 tasks + 82 toolchain delta + 31 BV delta), before later task outcomes and lifecycle. Its eight move paths plus active ledger and units.json already make ten paths before receipts. Measure the real finite manifest; these figures are not a waiver of the 15-file/500-line rules. If a slice cannot fit, use the registered narrower-successor process rather than changing caps or dropping required evidence.\n",
+        "\n",
+        "No minimal validator change is needed. An archive alias engine, terminal-state existence exemption, broad parent-directory ownership, fabricated source stub, or post-move-only correction would add policy or leave an invalid intermediate main. The existing exact-exception mechanism preserves the historical checks and lets the already-registered archive slices finish within their own scopes.\n"
+      ],
+      "reconstruction": "Join sourceLines without a separator and encode UTF-8 to reproduce the pinned design bytes and SHA-256."
+    },
+    "precedent": "evidence/p2cg1-split-registration-correction-20261016.json"
+  },
+  "scope": [
+    "openspec/planning/2026-09-12-roadmap-completion/units.json",
+    "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7-archive-ownership-correction-20261017.json"
+  ],
+  "preimages": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "bytes": 1544771,
+      "sha256": "8e331f57362176324475181e5e6482054255a8f868eb731606cfe15e94c07719"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "bytes": 1084988,
+      "sha256": "fe6e9b542cf92a4b38ad8ef3132d565c18edae4cd0ad9ec300d74c438b4c7659"
+    }
+  ],
+  "postimages": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "bytes": 1545521,
+      "sha256": "f87dbd6fe71e74e7d0550dcc79eabe8642eb96c4d491bfc45f221e224cad6f7a"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "bytes": 1085360,
+      "sha256": "6f4253220a9ffe93634c694acc19f1e9836c2bcef09f51fc7560cf77b4d0b93c"
+    }
+  ],
+  "fieldChanges": [
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "selector": "units[id=TS7S1].ownershipPaths",
+      "before": [
+        "src/lib/multiplayer/server/auth.ts",
+        "src/services/vault/IdentityService.ts",
+        "src/lib/events/checkpoints/BranchCheckpointCache.ts",
+        "tsconfig.json",
+        "desktop/tsconfig.json",
+        "openspec/changes/migrate-to-typescript-7/tasks.md",
+        "openspec/active-change-ledger.json",
+        "openspec/changes/migrate-to-typescript-7/design.md",
+        "desktop/tsconfig.test.json"
+      ],
+      "after": [
+        "src/lib/multiplayer/server/auth.ts",
+        "src/services/vault/IdentityService.ts",
+        "src/lib/events/checkpoints/BranchCheckpointCache.ts",
+        "tsconfig.json",
+        "desktop/tsconfig.json",
+        "openspec/active-change-ledger.json",
+        "desktop/tsconfig.test.json"
+      ]
+    },
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "selector": "units[id=TS7S1].ownershipExceptions",
+      "before": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "after": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/changes/migrate-to-typescript-7/tasks.md",
+        "openspec/changes/migrate-to-typescript-7/design.md"
+      ]
+    },
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "selector": "units[id=TS7S1A].ownershipPaths",
+      "before": [
+        "src/lib/multiplayer/server/auth.ts",
+        "src/services/vault/IdentityService.ts",
+        "src/lib/events/checkpoints/BranchCheckpointCache.ts",
+        "src/lib/campaign/grants/campaignGrantToken.ts",
+        "src/lib/campaign/grants/redeemCampaignGrant.ts",
+        "src/__tests__/api/campaigns/campaignRedeemRoute.test.ts",
+        "src/lib/campaign/grants/__tests__/campaignShareAndRedeem.test.ts",
+        "openspec/changes/migrate-to-typescript-7/tasks.md"
+      ],
+      "after": [
+        "src/lib/multiplayer/server/auth.ts",
+        "src/services/vault/IdentityService.ts",
+        "src/lib/events/checkpoints/BranchCheckpointCache.ts",
+        "src/lib/campaign/grants/campaignGrantToken.ts",
+        "src/lib/campaign/grants/redeemCampaignGrant.ts",
+        "src/__tests__/api/campaigns/campaignRedeemRoute.test.ts",
+        "src/lib/campaign/grants/__tests__/campaignShareAndRedeem.test.ts"
+      ]
+    },
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "selector": "units[id=TS7S1A].ownershipExceptions",
+      "before": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1a-admission-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1a-admission-review-20261016.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1a-red-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1a-local-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1a-source-fable-review-20261016.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1a-owner-ruling-6225844972.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1a-review-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1a-merge-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-c60ad495-tests.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-c60ad495-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-c60ad495-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1a-mainproof-20261016.json"
+      ],
+      "after": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1a-admission-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1a-admission-review-20261016.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1a-red-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1a-local-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1a-source-fable-review-20261016.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1a-owner-ruling-6225844972.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1a-review-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1a-merge-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-c60ad495-tests.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-c60ad495-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-c60ad495-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1a-mainproof-20261016.json",
+        "openspec/changes/migrate-to-typescript-7/tasks.md"
+      ]
+    },
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "selector": "units[id=TS7S1B].ownershipPaths",
+      "before": [
+        "tsconfig.json",
+        "desktop/tsconfig.json",
+        "openspec/changes/migrate-to-typescript-7/tasks.md",
+        "openspec/active-change-ledger.json",
+        "openspec/changes/migrate-to-typescript-7/design.md",
+        "desktop/tsconfig.test.json"
+      ],
+      "after": [
+        "tsconfig.json",
+        "desktop/tsconfig.json",
+        "openspec/active-change-ledger.json",
+        "desktop/tsconfig.test.json"
+      ]
+    },
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "selector": "units[id=TS7S1B].ownershipExceptions",
+      "before": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1b-admission-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1b-admission-review-20261016.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1b-red-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1b-local-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1b-source-fable-review-20261016.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1b-owner-ruling-6227371325.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1b-review-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1b-merge-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-3d9c4536-tests.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-3d9c4536-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-3d9c4536-ts7.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-3d9c4536-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1b-mainproof-20261016.json"
+      ],
+      "after": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1b-admission-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1b-admission-review-20261016.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1b-red-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1b-local-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1b-source-fable-review-20261016.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1b-owner-ruling-6227371325.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1b-review-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1b-merge-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-3d9c4536-tests.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-3d9c4536-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-3d9c4536-ts7.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-3d9c4536-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1b-mainproof-20261016.json",
+        "openspec/changes/migrate-to-typescript-7/tasks.md",
+        "openspec/changes/migrate-to-typescript-7/design.md"
+      ]
+    },
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "selector": "units[id=TS7S2A].ownershipPaths",
+      "before": [
+        "package.json",
+        "package-lock.json",
+        "scripts/compare-pip-distributions.ts",
+        "openspec/scripts/terminology-tool.ts",
+        "openspec/scripts/terminology-tool.output.js",
+        "openspec/changes/migrate-to-typescript-7/tasks.md"
+      ],
+      "after": [
+        "package.json",
+        "package-lock.json",
+        "scripts/compare-pip-distributions.ts",
+        "openspec/scripts/terminology-tool.ts",
+        "openspec/scripts/terminology-tool.output.js"
+      ]
+    },
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "selector": "units[id=TS7S2A].ownershipExceptions",
+      "before": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2a-admission-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2a-admission-review-20261016.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2a-red-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2a-local-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2a-source-fable-review-20261016.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2a-owner-ruling-6228416167.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2a-review-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2a-merge-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-2c909b00-terminology.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-2c909b00-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-2c909b00-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-2c909b00-deps.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2a-mainproof-20261016.json"
+      ],
+      "after": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2a-admission-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2a-admission-review-20261016.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2a-red-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2a-local-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2a-source-fable-review-20261016.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2a-owner-ruling-6228416167.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2a-review-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2a-merge-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-2c909b00-terminology.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-2c909b00-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-2c909b00-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-2c909b00-deps.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2a-mainproof-20261016.json",
+        "openspec/changes/migrate-to-typescript-7/tasks.md"
+      ]
+    },
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "selector": "units[id=TS7S2B].ownershipPaths",
+      "before": [
+        "desktop/package.json",
+        "desktop/package-lock.json",
+        "desktop/jest.config.js",
+        "openspec/changes/migrate-to-typescript-7/tasks.md",
+        ".storybook/main.ts"
+      ],
+      "after": [
+        "desktop/package.json",
+        "desktop/package-lock.json",
+        "desktop/jest.config.js",
+        ".storybook/main.ts"
+      ]
+    },
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "selector": "units[id=TS7S2B].ownershipExceptions",
+      "before": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2b-admission-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2b-admission-review-20261016.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2b-red-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2b-local-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2b-source-fable-review-20261016.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2b-owner-ruling-6229514549.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2b-review-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2b-merge-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-08555b7a-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-08555b7a-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-08555b7a-desktop.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-08555b7a-deps.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2b-mainproof-20261016.json"
+      ],
+      "after": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2b-admission-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2b-admission-review-20261016.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2b-red-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2b-local-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2b-source-fable-review-20261016.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2b-owner-ruling-6229514549.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2b-review-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2b-merge-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-08555b7a-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-08555b7a-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-08555b7a-desktop.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-08555b7a-deps.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2b-mainproof-20261016.json",
+        "openspec/changes/migrate-to-typescript-7/tasks.md"
+      ]
+    },
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "selector": "units[id=TS7S2OD].ownershipPaths",
+      "before": [
+        "scripts/tsconfig.json",
+        "openspec/changes/migrate-to-typescript-7/tasks.md",
+        "package.json",
+        "scripts/validate-bv.ts",
+        "scripts/validate-bv-calculator.ts",
+        "openspec/changes/migrate-to-typescript-7/proposal.md"
+      ],
+      "after": [
+        "scripts/tsconfig.json",
+        "package.json",
+        "scripts/validate-bv.ts",
+        "scripts/validate-bv-calculator.ts"
+      ]
+    },
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "selector": "units[id=TS7S2OD].ownershipExceptions",
+      "before": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/changes/migrate-to-typescript-7/specs/bv-validation-tooling/spec.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2od-admission-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2od-admission-review-20261017.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2od-red-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2od-local-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2od-source-astra-review-20261017.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2od-review-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2od-merge-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-97c3281f-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-97c3281f-bv.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-97c3281f-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2od-mainproof-20261017.json"
+      ],
+      "after": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/changes/migrate-to-typescript-7/specs/bv-validation-tooling/spec.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2od-admission-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2od-admission-review-20261017.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2od-red-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2od-local-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2od-source-astra-review-20261017.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2od-review-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2od-merge-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-97c3281f-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-97c3281f-bv.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-97c3281f-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2od-mainproof-20261017.json",
+        "openspec/changes/migrate-to-typescript-7/tasks.md",
+        "openspec/changes/migrate-to-typescript-7/proposal.md"
+      ]
+    },
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "selector": "units[id=TS7S3].ownershipPaths",
+      "before": [
+        "package.json",
+        "package-lock.json",
+        "desktop/package.json",
+        "desktop/package-lock.json",
+        "openspec/changes/migrate-to-typescript-7/tasks.md"
+      ],
+      "after": [
+        "package.json",
+        "package-lock.json",
+        "desktop/package.json",
+        "desktop/package-lock.json"
+      ]
+    },
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "selector": "units[id=TS7S3].ownershipExceptions",
+      "before": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s3-admission-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s3-red-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s3-local-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s3-admission-review-20261017.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s3-source-astra-review-20261017.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s3-review-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s3-merge-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-9aea87cd-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-9aea87cd-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-9aea87cd-deps.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s3-mainproof-20261017.json"
+      ],
+      "after": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s3-admission-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s3-red-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s3-local-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s3-admission-review-20261017.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s3-source-astra-review-20261017.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s3-review-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s3-merge-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-9aea87cd-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-9aea87cd-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-9aea87cd-deps.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s3-mainproof-20261017.json",
+        "openspec/changes/migrate-to-typescript-7/tasks.md"
+      ]
+    },
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "selector": "units[id=TS7S4B].ownershipPaths",
+      "before": [
+        "package.json",
+        "package-lock.json",
+        "desktop/package.json",
+        "desktop/package-lock.json",
+        "scripts/qc/roadmap-main-proof.mjs",
+        "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+        "openspec/changes/migrate-to-typescript-7/tasks.md"
+      ],
+      "after": [
+        "package.json",
+        "package-lock.json",
+        "desktop/package.json",
+        "desktop/package-lock.json",
+        "scripts/qc/roadmap-main-proof.mjs",
+        "scripts/__tests__/roadmap-loop-closure-proof.test.ts"
+      ]
+    },
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "selector": "units[id=TS7S4B].ownershipExceptions",
+      "before": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "scripts/__tests__/typescript-toolchain.test.ts",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4b-admission-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4b-red-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4b-local-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4b-admission-review-20261017.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4b-source-astra-review-20261017.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4b-review-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4b-merge-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-7898c40e-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-7898c40e-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-7898c40e-deps.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4b-mainproof-20261017.json"
+      ],
+      "after": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "scripts/__tests__/typescript-toolchain.test.ts",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4b-admission-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4b-red-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4b-local-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4b-admission-review-20261017.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4b-source-astra-review-20261017.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4b-review-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4b-merge-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-7898c40e-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-7898c40e-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-7898c40e-deps.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4b-mainproof-20261017.json",
+        "openspec/changes/migrate-to-typescript-7/tasks.md"
+      ]
+    },
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "selector": "units[id=TS7S5A].ownershipPaths",
+      "before": [
+        "README.md",
+        "docs/development/getting-started.md",
+        "docs/development/troubleshooting.md",
+        "docs/development/git-hooks.md",
+        "docs/overview.md",
+        "openspec/config.yaml",
+        "src/docs/Introduction.mdx",
+        "openspec/scripts/README.md",
+        "openspec/changes/migrate-to-typescript-7/tasks.md",
+        "openspec/changes/migrate-to-typescript-7/design.md"
+      ],
+      "after": [
+        "README.md",
+        "docs/development/getting-started.md",
+        "docs/development/troubleshooting.md",
+        "docs/development/git-hooks.md",
+        "docs/overview.md",
+        "openspec/config.yaml",
+        "src/docs/Introduction.mdx",
+        "openspec/scripts/README.md"
+      ]
+    },
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "selector": "units[id=TS7S5A].ownershipExceptions",
+      "before": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5a-admission-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5a-red-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5a-local-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5a-source-astra-review-20261017.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5a-review-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5a-merge-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-db607a7f-docs.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-db607a7f-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5a-mainproof-20261017.json"
+      ],
+      "after": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5a-admission-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5a-red-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5a-local-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5a-source-astra-review-20261017.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5a-review-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5a-merge-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-db607a7f-docs.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-db607a7f-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5a-mainproof-20261017.json",
+        "openspec/changes/migrate-to-typescript-7/tasks.md",
+        "openspec/changes/migrate-to-typescript-7/design.md"
+      ]
+    },
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "selector": "units[id=TS7S5B].ownershipPaths",
+      "before": [
+        "openspec/changes/migrate-to-typescript-7/tasks.md",
+        "openspec/changes/migrate-to-typescript-7/design.md",
+        "openspec/specs/bv-validation-tooling/spec.md"
+      ],
+      "after": [
+        "openspec/specs/bv-validation-tooling/spec.md"
+      ]
+    },
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "selector": "units[id=TS7S5B].ownershipExceptions",
+      "before": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/specs/typescript-toolchain/spec.md"
+      ],
+      "after": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/specs/typescript-toolchain/spec.md",
+        "openspec/changes/migrate-to-typescript-7/tasks.md",
+        "openspec/changes/migrate-to-typescript-7/design.md"
+      ]
+    },
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "selector": "units[id=TS7S5C].ownershipPaths",
+      "before": [
+        "openspec/changes/migrate-to-typescript-7",
+        "openspec/active-change-ledger.json"
+      ],
+      "after": [
+        "openspec/active-change-ledger.json"
+      ]
+    },
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "selector": "units[id=TS7S5C].ownershipExceptions",
+      "before": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/changes/migrate-to-typescript-7/specs/bv-validation-tooling/spec.md"
+      ],
+      "after": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/changes/migrate-to-typescript-7/specs/bv-validation-tooling/spec.md",
+        "openspec/changes/migrate-to-typescript-7/proposal.md",
+        "openspec/changes/migrate-to-typescript-7/tasks.md",
+        "openspec/changes/migrate-to-typescript-7/specs/typescript-toolchain/spec.md"
+      ]
+    },
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "selector": "ts7ArchiveOwnershipCorrection20261017",
+      "before": null,
+      "after": {
+        "evidence": "evidence/ts7-archive-ownership-correction-20261017.json",
+        "sourcePath": "openspec/changes/migrate-to-typescript-7",
+        "archivePath": "openspec/changes/archive/2026-10-17-migrate-to-typescript-7",
+        "rule": "Disappearing source leaves are retained as exact unit ownershipExceptions; stable ownershipPaths remain. Dated destinations are granted only to TS7S5B/TS7S5C by their registered literal-path admissions. No state or receipt is changed. Parent serial admission checks ownershipPaths plus ownershipExceptions."
+      }
+    },
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "selector": "nodes[id=R6.ts7-toolchain].ownershipPaths",
+      "before": [
+        "src/lib/multiplayer/server/auth.ts",
+        "src/services/vault/IdentityService.ts",
+        "src/lib/events/checkpoints/BranchCheckpointCache.ts",
+        "src/lib/campaign/grants/campaignGrantToken.ts",
+        "src/lib/campaign/grants/redeemCampaignGrant.ts",
+        "src/__tests__/api/campaigns/campaignRedeemRoute.test.ts",
+        "src/lib/campaign/grants/__tests__/campaignShareAndRedeem.test.ts",
+        "tsconfig.json",
+        "desktop/tsconfig.json",
+        "openspec/changes/migrate-to-typescript-7/tasks.md",
+        "openspec/active-change-ledger.json",
+        "openspec/changes/migrate-to-typescript-7/design.md",
+        "desktop/tsconfig.test.json",
+        "package.json",
+        "package-lock.json",
+        "scripts/compare-pip-distributions.ts",
+        "openspec/scripts/terminology-tool.ts",
+        "openspec/scripts/terminology-tool.output.js",
+        "desktop/package.json",
+        "desktop/package-lock.json",
+        "desktop/jest.config.js",
+        ".storybook/main.ts",
+        "scripts/tsconfig.json",
+        "scripts/validate-bv.ts",
+        "scripts/validate-bv-calculator.ts",
+        "openspec/changes/migrate-to-typescript-7/proposal.md",
+        ".github/workflows/pr-checks.yml",
+        "scripts/qc/openspec-ci-contracts.mjs",
+        "scripts/__tests__/precommit-no-build.test.ts",
+        "scripts/metrics/validate-refactoring-metrics.js",
+        ".husky/pre-commit",
+        "scripts/qc/roadmap-main-proof.mjs",
+        "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+        "README.md",
+        "docs/development/getting-started.md",
+        "docs/development/troubleshooting.md",
+        "docs/development/git-hooks.md",
+        "docs/overview.md",
+        "openspec/config.yaml",
+        "src/docs/Introduction.mdx",
+        "openspec/scripts/README.md",
+        "openspec/specs/bv-validation-tooling/spec.md",
+        "openspec/changes/migrate-to-typescript-7"
+      ],
+      "after": [
+        "src/lib/multiplayer/server/auth.ts",
+        "src/services/vault/IdentityService.ts",
+        "src/lib/events/checkpoints/BranchCheckpointCache.ts",
+        "src/lib/campaign/grants/campaignGrantToken.ts",
+        "src/lib/campaign/grants/redeemCampaignGrant.ts",
+        "src/__tests__/api/campaigns/campaignRedeemRoute.test.ts",
+        "src/lib/campaign/grants/__tests__/campaignShareAndRedeem.test.ts",
+        "tsconfig.json",
+        "desktop/tsconfig.json",
+        "openspec/active-change-ledger.json",
+        "desktop/tsconfig.test.json",
+        "package.json",
+        "package-lock.json",
+        "scripts/compare-pip-distributions.ts",
+        "openspec/scripts/terminology-tool.ts",
+        "openspec/scripts/terminology-tool.output.js",
+        "desktop/package.json",
+        "desktop/package-lock.json",
+        "desktop/jest.config.js",
+        ".storybook/main.ts",
+        "scripts/tsconfig.json",
+        "scripts/validate-bv.ts",
+        "scripts/validate-bv-calculator.ts",
+        ".github/workflows/pr-checks.yml",
+        "scripts/qc/openspec-ci-contracts.mjs",
+        "scripts/__tests__/precommit-no-build.test.ts",
+        "scripts/metrics/validate-refactoring-metrics.js",
+        ".husky/pre-commit",
+        "scripts/qc/roadmap-main-proof.mjs",
+        "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+        "README.md",
+        "docs/development/getting-started.md",
+        "docs/development/troubleshooting.md",
+        "docs/development/git-hooks.md",
+        "docs/overview.md",
+        "openspec/config.yaml",
+        "src/docs/Introduction.mdx",
+        "openspec/scripts/README.md",
+        "openspec/specs/bv-validation-tooling/spec.md"
+      ]
+    },
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "selector": "nodes[id=R6.ts7-toolchain].archiveOwnershipCorrection20261017",
+      "before": null,
+      "after": {
+        "evidence": "evidence/ts7-archive-ownership-correction-20261017.json",
+        "sourcePath": "openspec/changes/migrate-to-typescript-7",
+        "archivePath": "openspec/changes/archive/2026-10-17-migrate-to-typescript-7",
+        "rule": "Disappearing source leaves are retained as exact unit ownershipExceptions; stable ownershipPaths remain. Dated destinations are granted only to TS7S5B/TS7S5C by their registered literal-path admissions. No state or receipt is changed. Parent serial admission checks ownershipPaths plus ownershipExceptions."
+      }
+    }
+  ],
+  "baselineDrift": {
+    "includedAdditionalS5ADesignGrant": true,
+    "explanation": "S5A implementation #2194 added design.md to ownershipPaths after the pinned research baseline. Its source grant must also survive the S5B move; no new grant or lifecycle edit is introduced."
+  },
+  "stoppedEvidence": {
+    "path": "E:/Projects/Personal/MekStation-wt/ts7s5b-evidence-20261017/STOPPED.json",
+    "bytes": 2686,
+    "sha256": "12e38b8d5e3ce21b2686d18ae58aa61f28c56aa231cc395f6ebcb1083419191e",
+    "contents": {
+      "status": "STOPPED_ON_INTERMEDIATE_VALIDATION",
+      "baseline": "0dd080241e552acdc845d60d61d38281cbf646d0",
+      "branch": "codex/ts7s5b-archive-20261017",
+      "worktree": "E:/Projects/Personal/MekStation-wt/ts7s5b-archive-20261017",
+      "archiveDate": "2026-10-17",
+      "lifecycleEdited": false,
+      "prOpened": false,
+      "integratedSweepStarted": false,
+      "openspec": {
+        "log": "E:/Projects/Personal/MekStation-wt/ts7s5b-evidence-20261017/prep-openspec-all.log",
+        "exitCode": 0,
+        "command": "npx --no-install openspec validate --all --strict",
+        "failed": 0,
+        "passed": 231
+      },
+      "qc": {
+        "exitCode": 1,
+        "command": "npm run qc:openspec-ci:validate",
+        "log": "E:/Projects/Personal/MekStation-wt/ts7s5b-evidence-20261017/prep-qc-openspec.log",
+        "cause": "ERR_MODULE_NOT_FOUND: yaml; no node_modules installed in this fresh worktree"
+      },
+      "roadmap": {
+        "exitCode": 1,
+        "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+        "locations": [
+          "validate-roadmap.mjs:356-357",
+          "validate-roadmap.mjs:515-519"
+        ],
+        "resolution": "Parent registration/ownership correction needed before partial archive. Literal destination ownershipExceptions alone do not resolve missing ownershipPaths. S5B own-lifecycle-only scope cannot edit historical units or roadmap node.",
+        "failures": [
+          "R6.ts7-toolchain ownership path missing: openspec/changes/migrate-to-typescript-7/design.md",
+          "TS7S1 ownership path missing: openspec/changes/migrate-to-typescript-7/design.md",
+          "TS7S1B ownership path missing: openspec/changes/migrate-to-typescript-7/design.md",
+          "TS7S5B ownership path missing: openspec/changes/migrate-to-typescript-7/design.md"
+        ]
+      },
+      "pending": [
+        "Install dependencies and rerun QC after parent addresses blocking contract",
+        "S5A implementation PR #2194 merge and once-only integrated sweep",
+        "S5A closure merge and S5B release/admission",
+        "S5B evidence, lifecycle, complete cap count, and PR"
+      ]
+    }
+  },
+  "originalRegistration": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7-track-registration-20261016.json",
+    "bytes": 46180,
+    "sha256": "bfa9668187f28794d57c70a5c2f83e8e57fb59cbfaabef1b64fd7c35df89abe6",
+    "preservedByteForByte": true,
+    "seamCorrection": "measurements.archiveSeamProbe records OpenSpec/QC shapes, not validate-roadmap after moves. Its normal NEXT runs do not establish archive-path validity.",
+    "overlapCorrection": "Supersedes overlap.rule insofar as path-only NEXT exclusion was claimed for transferred source grants. NEXT does not reserve ownershipExceptions. Parent must freeze and check the union of ownershipPaths and exact ownershipExceptions, prohibit other product admission while S5B/S5C is in flight, serialize shared-ledger writers, and keep S5C blocked until S5B genuine main proof/closure."
+  },
+  "historicalMergeChecks": [
+    {
+      "unit": "TS7S1A",
+      "mergeSha": "c60ad495b4e4a98a48ec00c2fe7de363682764c1",
+      "sourceChanges": [
+        {
+          "file": "openspec/changes/migrate-to-typescript-7/tasks.md",
+          "added": 3,
+          "deleted": 2
+        }
+      ],
+      "countedAdditions": 45,
+      "cap": 500,
+      "ownershipViolations": []
+    },
+    {
+      "unit": "TS7S1B",
+      "mergeSha": "3d9c45365bfc34d27930acb1ff3411b91af17cb9",
+      "sourceChanges": [
+        {
+          "file": "openspec/changes/migrate-to-typescript-7/tasks.md",
+          "added": 5,
+          "deleted": 5
+        }
+      ],
+      "countedAdditions": 27,
+      "cap": 500,
+      "ownershipViolations": []
+    },
+    {
+      "unit": "TS7S2A",
+      "mergeSha": "2c909b0016d86426572c02d5a1e3186eda7203b5",
+      "sourceChanges": [
+        {
+          "file": "openspec/changes/migrate-to-typescript-7/tasks.md",
+          "added": 2,
+          "deleted": 2
+        }
+      ],
+      "countedAdditions": 33,
+      "cap": 500,
+      "ownershipViolations": []
+    },
+    {
+      "unit": "TS7S2B",
+      "mergeSha": "08555b7a1b22f1bc10f9e6335c3ea7edd79c98da",
+      "sourceChanges": [
+        {
+          "file": "openspec/changes/migrate-to-typescript-7/tasks.md",
+          "added": 3,
+          "deleted": 2
+        }
+      ],
+      "countedAdditions": 42,
+      "cap": 500,
+      "ownershipViolations": []
+    },
+    {
+      "unit": "TS7S2OD",
+      "mergeSha": "97c3281f5a3d943adee64e3516a538d466d50f8e",
+      "sourceChanges": [
+        {
+          "file": "openspec/changes/migrate-to-typescript-7/proposal.md",
+          "added": 1,
+          "deleted": 1
+        },
+        {
+          "file": "openspec/changes/migrate-to-typescript-7/specs/bv-validation-tooling/spec.md",
+          "added": 31,
+          "deleted": 0
+        },
+        {
+          "file": "openspec/changes/migrate-to-typescript-7/tasks.md",
+          "added": 2,
+          "deleted": 2
+        }
+      ],
+      "countedAdditions": 60,
+      "cap": 500,
+      "ownershipViolations": []
+    },
+    {
+      "unit": "TS7S3",
+      "mergeSha": "9aea87cdccc7252b8c94d94b3ddad6ede0dbda93",
+      "sourceChanges": [
+        {
+          "file": "openspec/changes/migrate-to-typescript-7/tasks.md",
+          "added": 3,
+          "deleted": 3
+        }
+      ],
+      "countedAdditions": 21,
+      "cap": 500,
+      "ownershipViolations": []
+    },
+    {
+      "unit": "TS7S4A",
+      "mergeSha": "de9419356c740f3d89cc350f9812f8c87b03bdc9",
+      "sourceChanges": [],
+      "countedAdditions": 22,
+      "cap": 500,
+      "ownershipViolations": []
+    },
+    {
+      "unit": "TS7S4B",
+      "mergeSha": "7898c40ed633076c8f9931dfb56a33eeeab4ca2d",
+      "sourceChanges": [
+        {
+          "file": "openspec/changes/migrate-to-typescript-7/tasks.md",
+          "added": 10,
+          "deleted": 9
+        }
+      ],
+      "countedAdditions": 31,
+      "cap": 500,
+      "ownershipViolations": []
+    },
+    {
+      "unit": "TS7S5A",
+      "mergeSha": "db607a7fc80a87b1dbe0d033e34b5d201e018840",
+      "sourceChanges": [
+        {
+          "file": "openspec/changes/migrate-to-typescript-7/design.md",
+          "added": 2,
+          "deleted": 2
+        },
+        {
+          "file": "openspec/changes/migrate-to-typescript-7/tasks.md",
+          "added": 2,
+          "deleted": 2
+        }
+      ],
+      "countedAdditions": 52,
+      "cap": 500,
+      "ownershipViolations": []
+    }
+  ],
+  "preserved": [
+    "All states, baselines, prHeads, mergeShas, stageReceipts, implementationActors and bound identity evidence",
+    "All caps, ciClass, lifecycleOwnershipLimit, holders, packets, dependencies, restrictions, subtotals, acceptance and P-chain contracts",
+    "TS7S4A unchanged; original registration and all existing evidence byte-for-byte"
+  ],
+  "permissionBoundary": "No source admission or destination grant. Only S5B may later receive the literal archived design.md exception; only S5C may later receive its four literal archived leaves, using the frozen date 2026-10-17. Terminal source exceptions are permanent. NEXT is not source permission.",
+  "sourceAdmitted": false,
+  "productFiles": 0,
+  "validation": {
+    "verifiedAt": "2026-10-17T08:47:13.087Z",
+    "method": "Real unmodified validator CLIs, real filesystem, actual Git history and default evidence/identity consumers. Scratch is a detached worktree, not an in-memory overlay. No future lifecycle or merge receipt is fabricated.",
+    "scenarios": [
+      "As-is corrected source tree, no archive destinations granted in the candidate",
+      "S5B: byte-identical design.md move and only S5B literal destination exception in scratch",
+      "S5C: byte-identical proposal/tasks/both spec moves, empty active source directory removed, only four S5C destination exceptions added in scratch"
+    ],
+    "results": [
+      {
+        "name": "as-is-plain",
+        "at": "2026-10-17T08:45:46.576Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-20261017",
+        "command": [
+          "node",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-evidence-20261017/post-closure-as-is-plain.log",
+        "logSha256": "567feb20b9f85c902a3c4492eb3274c970f2370ccbbc6d3390088ad10923b947",
+        "summary": "ROADMAP VALIDATION PASSED: 80 nodes, 13 packages, 381 tasks, 40 triage rows"
+      },
+      {
+        "name": "as-is-git",
+        "at": "2026-10-17T08:45:50.430Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-20261017",
+        "command": [
+          "node",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+          "--git"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-evidence-20261017/post-closure-as-is-git.log",
+        "logSha256": "0d7d99319c662d2b64fa0c98e73d2d6254bad922234f2c7a68c71758fc9fa890",
+        "summary": "ROADMAP VALIDATION PASSED: 80 nodes, 13 packages, 381 tasks, 40 triage rows"
+      },
+      {
+        "name": "as-is-next",
+        "at": "2026-10-17T08:46:00.629Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-20261017",
+        "command": [
+          "node",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+          "--next"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-evidence-20261017/post-closure-as-is-next.log",
+        "logSha256": "678bd88d5948491d5590565cb9906a0f6f7388cd94b5858d758671e46c2a7da0",
+        "summary": "TS7S5B"
+      },
+      {
+        "name": "s5b-plain",
+        "at": "2026-10-17T08:46:04.542Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-probe-20261017",
+        "command": [
+          "node",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-evidence-20261017/post-closure-s5b-plain.log",
+        "logSha256": "567feb20b9f85c902a3c4492eb3274c970f2370ccbbc6d3390088ad10923b947",
+        "summary": "ROADMAP VALIDATION PASSED: 80 nodes, 13 packages, 381 tasks, 40 triage rows"
+      },
+      {
+        "name": "s5b-git",
+        "at": "2026-10-17T08:46:08.402Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-probe-20261017",
+        "command": [
+          "node",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+          "--git"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-evidence-20261017/post-closure-s5b-git.log",
+        "logSha256": "0d7d99319c662d2b64fa0c98e73d2d6254bad922234f2c7a68c71758fc9fa890",
+        "summary": "ROADMAP VALIDATION PASSED: 80 nodes, 13 packages, 381 tasks, 40 triage rows"
+      },
+      {
+        "name": "s5b-next",
+        "at": "2026-10-17T08:46:18.657Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-probe-20261017",
+        "command": [
+          "node",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+          "--next"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-evidence-20261017/post-closure-s5b-next.log",
+        "logSha256": "678bd88d5948491d5590565cb9906a0f6f7388cd94b5858d758671e46c2a7da0",
+        "summary": "TS7S5B"
+      },
+      {
+        "name": "s5c-plain",
+        "at": "2026-10-17T08:46:22.532Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-probe-20261017",
+        "command": [
+          "node",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-evidence-20261017/post-closure-s5c-plain.log",
+        "logSha256": "567feb20b9f85c902a3c4492eb3274c970f2370ccbbc6d3390088ad10923b947",
+        "summary": "ROADMAP VALIDATION PASSED: 80 nodes, 13 packages, 381 tasks, 40 triage rows"
+      },
+      {
+        "name": "s5c-git",
+        "at": "2026-10-17T08:46:26.400Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-probe-20261017",
+        "command": [
+          "node",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+          "--git"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-evidence-20261017/post-closure-s5c-git.log",
+        "logSha256": "0d7d99319c662d2b64fa0c98e73d2d6254bad922234f2c7a68c71758fc9fa890",
+        "summary": "ROADMAP VALIDATION PASSED: 80 nodes, 13 packages, 381 tasks, 40 triage rows"
+      },
+      {
+        "name": "s5c-next",
+        "at": "2026-10-17T08:46:36.694Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-probe-20261017",
+        "command": [
+          "node",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+          "--next"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-evidence-20261017/post-closure-s5c-next.log",
+        "logSha256": "678bd88d5948491d5590565cb9906a0f6f7388cd94b5858d758671e46c2a7da0",
+        "summary": "TS7S5B"
+      },
+      {
+        "name": "validator-tests",
+        "at": "2026-10-17T08:46:40.655Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-20261017",
+        "command": [
+          "node",
+          "--test",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-evidence-20261017/post-closure-validator-tests.log",
+        "logSha256": "6f517b0536c0adbc738de94bf79ab539a4da20b08188a7a1eca2a91e05193977",
+        "summary": "ℹ tests 86"
+      },
+      {
+        "name": "openspec",
+        "at": "2026-10-17T08:46:50.032Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-20261017",
+        "command": [
+          "node",
+          "C:\\Users\\wroll\\AppData\\Roaming\\npm\\node_modules\\@fission-ai\\openspec\\bin\\openspec.js",
+          "validate",
+          "--all",
+          "--strict"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-evidence-20261017/post-closure-openspec.log",
+        "logSha256": "6371b8b0b534838e20ac1bf866cac2ef6558476e72fd8ea5420caf688dbd21c0",
+        "summary": "Totals: 230 passed, 0 failed (230 items)"
+      }
+    ],
+    "candidateAsIs": [
+      {
+        "name": "as-is-plain",
+        "at": "2026-10-17T08:45:46.576Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-20261017",
+        "command": [
+          "node",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-evidence-20261017/post-closure-as-is-plain.log",
+        "logSha256": "567feb20b9f85c902a3c4492eb3274c970f2370ccbbc6d3390088ad10923b947",
+        "summary": "ROADMAP VALIDATION PASSED: 80 nodes, 13 packages, 381 tasks, 40 triage rows"
+      },
+      {
+        "name": "as-is-git",
+        "at": "2026-10-17T08:45:50.430Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-20261017",
+        "command": [
+          "node",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+          "--git"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-evidence-20261017/post-closure-as-is-git.log",
+        "logSha256": "0d7d99319c662d2b64fa0c98e73d2d6254bad922234f2c7a68c71758fc9fa890",
+        "summary": "ROADMAP VALIDATION PASSED: 80 nodes, 13 packages, 381 tasks, 40 triage rows"
+      },
+      {
+        "name": "as-is-next",
+        "at": "2026-10-17T08:46:00.629Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-20261017",
+        "command": [
+          "node",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+          "--next"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-evidence-20261017/post-closure-as-is-next.log",
+        "logSha256": "678bd88d5948491d5590565cb9906a0f6f7388cd94b5858d758671e46c2a7da0",
+        "summary": "TS7S5B"
+      }
+    ],
+    "next": {
+      "beforeCorrection": "TS7S5B",
+      "observed": [
+        {
+          "name": "as-is-next",
+          "value": "TS7S5B"
+        },
+        {
+          "name": "s5b-next",
+          "value": "TS7S5B"
+        },
+        {
+          "name": "s5c-next",
+          "value": "TS7S5B"
+        }
+      ],
+      "reason": "S5A closure #2196 is on the baseline; S5A is main-verified, S5B planned and S5C blocked. NEXT remains TS7S5B before the correction and in every simulated shape. No NEXT output grants source admission."
+    },
+    "negativeBaselineDriftProbes": {
+      "baseline": "db607a7fc80a87b1dbe0d033e34b5d201e018840",
+      "results": [
+        {
+          "name": "as-is-plain",
+          "at": "2026-10-17T08:23:20.583Z",
+          "cwd": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-20261017",
+          "command": [
+            "node",
+            "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+          ],
+          "exitCode": 1,
+          "log": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-evidence-20261017/initial-as-is-plain.log",
+          "logSha256": "4b167060605de8dc6dc47e7e8ee8cc71acee3969463c56e0f8322817efa10163",
+          "summary": "ROADMAP VALIDATION FAILED (1 issue)\n- TS7S5A owns openspec/changes/migrate-to-typescript-7/design.md, which is not owned by R6.ts7-toolchain"
+        },
+        {
+          "name": "as-is-git",
+          "at": "2026-10-17T08:23:29.382Z",
+          "cwd": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-20261017",
+          "command": [
+            "node",
+            "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+            "--git"
+          ],
+          "exitCode": 1,
+          "log": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-evidence-20261017/initial-as-is-git.log",
+          "logSha256": "3783364bd68e51f0f440156e07eb0b0ca22c0b1491272dade91bb3533cc5092e",
+          "summary": "ROADMAP VALIDATION FAILED (1 issue)\n- TS7S5A owns openspec/changes/migrate-to-typescript-7/design.md, which is not owned by R6.ts7-toolchain"
+        },
+        {
+          "name": "as-is-next",
+          "at": "2026-10-17T08:23:40.880Z",
+          "cwd": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-20261017",
+          "command": [
+            "node",
+            "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+            "--next"
+          ],
+          "exitCode": 1,
+          "log": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-evidence-20261017/initial-as-is-next.log",
+          "logSha256": "4b167060605de8dc6dc47e7e8ee8cc71acee3969463c56e0f8322817efa10163",
+          "summary": "ROADMAP VALIDATION FAILED (1 issue)\n- TS7S5A owns openspec/changes/migrate-to-typescript-7/design.md, which is not owned by R6.ts7-toolchain"
+        },
+        {
+          "name": "s5b-plain",
+          "at": "2026-10-17T08:23:46.460Z",
+          "cwd": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-probe-20261017",
+          "command": [
+            "node",
+            "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+          ],
+          "exitCode": 1,
+          "log": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-evidence-20261017/initial-s5b-plain.log",
+          "logSha256": "f9cc9b51b0ffd3f2b45c8cf7230e7283bda76e8ce51db11f71c1b456f1f78cac",
+          "summary": "ROADMAP VALIDATION FAILED (1 issue)\n- TS7S5A ownership path missing: openspec/changes/migrate-to-typescript-7/design.md"
+        },
+        {
+          "name": "s5b-git",
+          "at": "2026-10-17T08:23:55.767Z",
+          "cwd": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-probe-20261017",
+          "command": [
+            "node",
+            "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+            "--git"
+          ],
+          "exitCode": 1,
+          "log": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-evidence-20261017/initial-s5b-git.log",
+          "logSha256": "3eb83a9e86222fa3ddc8cf055728e0d800f24a39cddb9199f916455500ebfdd9",
+          "summary": "ROADMAP VALIDATION FAILED (1 issue)\n- TS7S5A ownership path missing: openspec/changes/migrate-to-typescript-7/design.md"
+        },
+        {
+          "name": "s5b-next",
+          "at": "2026-10-17T08:24:09.283Z",
+          "cwd": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-probe-20261017",
+          "command": [
+            "node",
+            "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+            "--next"
+          ],
+          "exitCode": 1,
+          "log": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-evidence-20261017/initial-s5b-next.log",
+          "logSha256": "f9cc9b51b0ffd3f2b45c8cf7230e7283bda76e8ce51db11f71c1b456f1f78cac",
+          "summary": "ROADMAP VALIDATION FAILED (1 issue)\n- TS7S5A ownership path missing: openspec/changes/migrate-to-typescript-7/design.md"
+        },
+        {
+          "name": "s5c-plain",
+          "at": "2026-10-17T08:24:14.125Z",
+          "cwd": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-probe-20261017",
+          "command": [
+            "node",
+            "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+          ],
+          "exitCode": 1,
+          "log": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-evidence-20261017/initial-s5c-plain.log",
+          "logSha256": "f9cc9b51b0ffd3f2b45c8cf7230e7283bda76e8ce51db11f71c1b456f1f78cac",
+          "summary": "ROADMAP VALIDATION FAILED (1 issue)\n- TS7S5A ownership path missing: openspec/changes/migrate-to-typescript-7/design.md"
+        },
+        {
+          "name": "s5c-git",
+          "at": "2026-10-17T08:24:26.951Z",
+          "cwd": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-probe-20261017",
+          "command": [
+            "node",
+            "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+            "--git"
+          ],
+          "exitCode": 1,
+          "log": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-evidence-20261017/initial-s5c-git.log",
+          "logSha256": "3eb83a9e86222fa3ddc8cf055728e0d800f24a39cddb9199f916455500ebfdd9",
+          "summary": "ROADMAP VALIDATION FAILED (1 issue)\n- TS7S5A ownership path missing: openspec/changes/migrate-to-typescript-7/design.md"
+        },
+        {
+          "name": "s5c-next",
+          "at": "2026-10-17T08:25:04.100Z",
+          "cwd": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-probe-20261017",
+          "command": [
+            "node",
+            "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+            "--next"
+          ],
+          "exitCode": 1,
+          "log": "E:/Projects/Personal/MekStation-wt/ts7-archive-correction-evidence-20261017/initial-s5c-next.log",
+          "logSha256": "f9cc9b51b0ffd3f2b45c8cf7230e7283bda76e8ce51db11f71c1b456f1f78cac",
+          "summary": "ROADMAP VALIDATION FAILED (1 issue)\n- TS7S5A ownership path missing: openspec/changes/migrate-to-typescript-7/design.md"
+        }
+      ]
+    },
+    "lifecyclePreservedByDeepComparison": true,
+    "historicalEvidencePreserved": "Git changed-file census includes only the two ledgers and this new receipt; no existing evidence file is modified.",
+    "limits": "Structural seam/current historical merge proofs only. Not a future S5B/S5C delivery, runtime sweep, or source admission. The separate integrated sweep is not rerun here."
+  },
+  "measurements": {
+    "actualFiles": 3,
+    "productFiles": 0,
+    "ledgerDiff": [
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+        "added": 7,
+        "deleted": 5
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "added": 41,
+        "deleted": 33
+      }
+    ],
+    "evidenceExcludedFromCountedAdditions": true,
+    "maxFilesUnchanged": 15,
+    "maxNonGeneratedLinesUnchanged": 500
+  }
+}

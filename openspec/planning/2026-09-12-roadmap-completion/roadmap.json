@@ -8824,9 +8824,7 @@
         "src/lib/campaign/grants/__tests__/campaignShareAndRedeem.test.ts",
         "tsconfig.json",
         "desktop/tsconfig.json",
-        "openspec/changes/migrate-to-typescript-7/tasks.md",
         "openspec/active-change-ledger.json",
-        "openspec/changes/migrate-to-typescript-7/design.md",
         "desktop/tsconfig.test.json",
         "package.json",
         "package-lock.json",
@@ -8840,7 +8838,6 @@
         "scripts/tsconfig.json",
         "scripts/validate-bv.ts",
         "scripts/validate-bv-calculator.ts",
-        "openspec/changes/migrate-to-typescript-7/proposal.md",
         ".github/workflows/pr-checks.yml",
         "scripts/qc/openspec-ci-contracts.mjs",
         "scripts/__tests__/precommit-no-build.test.ts",
@@ -8856,8 +8853,7 @@
         "openspec/config.yaml",
         "src/docs/Introduction.mdx",
         "openspec/scripts/README.md",
-        "openspec/specs/bv-validation-tooling/spec.md",
-        "openspec/changes/migrate-to-typescript-7"
+        "openspec/specs/bv-validation-tooling/spec.md"
       ],
       "acceptance": [
         "Every TS7S unit passes: npm run typecheck, npm run lint, npm run format:check, npm run test:stable, npx openspec validate --all --strict, npm run qc:openspec-ci:validate, and desktop/ npm run type-check and npm test; every section 3 and 4 unit, and any other unit whose proof list names them, also passes npm run build and npm run storybook:build",
@@ -9004,6 +9000,12 @@
         "evidence": "evidence/ts7s1-split-registration-20261016.json",
         "change": "ownershipPaths gains four exact single-file aliases for TS7S1A (src/lib/campaign/grants/campaignGrantToken.ts, src/lib/campaign/grants/redeemCampaignGrant.ts, src/__tests__/api/campaigns/campaignRedeemRoute.test.ts, src/lib/campaign/grants/__tests__/campaignShareAndRedeem.test.ts); restrictions and knownLeafSubtotals gain TS7S1A and TS7S1B; the TS7S1 entries are kept as the superseded record; decomposition text updated.",
         "reason": "Task 1.1's type-only fix needs four callers of the IdentityService exports that no TS7S1 leaf covers. The validator compares unit ownershipPaths to the node by string equality, so each is added verbatim. These are exact leaves, not a directory grant; they grant nothing until TS7S1A's normal finite admission. Every other owner of these files is blocked, planned or terminal, and none is in flight."
+      },
+      "archiveOwnershipCorrection20261017": {
+        "evidence": "evidence/ts7-archive-ownership-correction-20261017.json",
+        "sourcePath": "openspec/changes/migrate-to-typescript-7",
+        "archivePath": "openspec/changes/archive/2026-10-17-migrate-to-typescript-7",
+        "rule": "Disappearing source leaves are retained as exact unit ownershipExceptions; stable ownershipPaths remain. Dated destinations are granted only to TS7S5B/TS7S5C by their registered literal-path admissions. No state or receipt is changed. Parent serial admission checks ownershipPaths plus ownershipExceptions."
       }
     }
   ],

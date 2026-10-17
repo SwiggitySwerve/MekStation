@@ -7623,13 +7623,13 @@
         "src/lib/events/checkpoints/BranchCheckpointCache.ts",
         "tsconfig.json",
         "desktop/tsconfig.json",
-        "openspec/changes/migrate-to-typescript-7/tasks.md",
         "openspec/active-change-ledger.json",
-        "openspec/changes/migrate-to-typescript-7/design.md",
         "desktop/tsconfig.test.json"
       ],
       "ownershipExceptions": [
-        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/changes/migrate-to-typescript-7/tasks.md",
+        "openspec/changes/migrate-to-typescript-7/design.md"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -7709,8 +7709,7 @@
         "src/lib/campaign/grants/campaignGrantToken.ts",
         "src/lib/campaign/grants/redeemCampaignGrant.ts",
         "src/__tests__/api/campaigns/campaignRedeemRoute.test.ts",
-        "src/lib/campaign/grants/__tests__/campaignShareAndRedeem.test.ts",
-        "openspec/changes/migrate-to-typescript-7/tasks.md"
+        "src/lib/campaign/grants/__tests__/campaignShareAndRedeem.test.ts"
       ],
       "ownershipExceptions": [
         "openspec/planning/2026-09-12-roadmap-completion/units.json",
@@ -7725,7 +7724,8 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-c60ad495-tests.bytes.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-c60ad495-typecheck.bytes.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-c60ad495-validator.bytes.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1a-mainproof-20261016.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1a-mainproof-20261016.json",
+        "openspec/changes/migrate-to-typescript-7/tasks.md"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -7813,9 +7813,7 @@
       "ownershipPaths": [
         "tsconfig.json",
         "desktop/tsconfig.json",
-        "openspec/changes/migrate-to-typescript-7/tasks.md",
         "openspec/active-change-ledger.json",
-        "openspec/changes/migrate-to-typescript-7/design.md",
         "desktop/tsconfig.test.json"
       ],
       "ownershipExceptions": [
@@ -7832,7 +7830,9 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-3d9c4536-typecheck.bytes.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-3d9c4536-ts7.bytes.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-3d9c4536-validator.bytes.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1b-mainproof-20261016.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1b-mainproof-20261016.json",
+        "openspec/changes/migrate-to-typescript-7/tasks.md",
+        "openspec/changes/migrate-to-typescript-7/design.md"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -7926,8 +7926,7 @@
         "package-lock.json",
         "scripts/compare-pip-distributions.ts",
         "openspec/scripts/terminology-tool.ts",
-        "openspec/scripts/terminology-tool.output.js",
-        "openspec/changes/migrate-to-typescript-7/tasks.md"
+        "openspec/scripts/terminology-tool.output.js"
       ],
       "ownershipExceptions": [
         "openspec/planning/2026-09-12-roadmap-completion/units.json",
@@ -7943,7 +7942,8 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-2c909b00-typecheck.bytes.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-2c909b00-validator.bytes.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-2c909b00-deps.bytes.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2a-mainproof-20261016.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2a-mainproof-20261016.json",
+        "openspec/changes/migrate-to-typescript-7/tasks.md"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -8033,7 +8033,6 @@
         "desktop/package.json",
         "desktop/package-lock.json",
         "desktop/jest.config.js",
-        "openspec/changes/migrate-to-typescript-7/tasks.md",
         ".storybook/main.ts"
       ],
       "ownershipExceptions": [
@@ -8050,7 +8049,8 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-08555b7a-validator.bytes.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-08555b7a-desktop.bytes.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-08555b7a-deps.bytes.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2b-mainproof-20261016.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2b-mainproof-20261016.json",
+        "openspec/changes/migrate-to-typescript-7/tasks.md"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -8139,11 +8139,9 @@
       "behavior": "Task 2.5: implements the owner's OD-scripts-tsconfig ruling, whichever option it is. Option (a): scripts/tsconfig.json includes only validate-bv.ts, validate-parity.ts and data-migration/**, follows D2 (no baseUrl; explicit types so the TypeScript 6/7 types default of [] does not break it), checks clean on the compiler current at admission, and is added to the root typecheck script. A TypeScript 7 gate keeps calling node_modules/typescript7/bin/tsc by path, so the guard test still holds. Registration measured TypeScript 5.8.3 on the narrowed include list: exit 2, 5 errors in 2 files (4 in scripts/validate-bv.ts, 1 in scripts/validate-bv-calculator.ts). scripts/data-migration holds no .ts file today. Admission must re-measure; if more files need fixes, stop and register them. Option (b): scripts/tsconfig.json is deleted; every validate:* script is proved to run under tsx with the root config; a new delta spec modifies the bv-validation-tooling scenario so that it names a check that really runs; and proposal.md Modified Capabilities names it. Leaves are the union of both options; each option counts only its own leaves. Planned leaves (2): scripts/tsconfig.json, openspec/changes/migrate-to-typescript-7/tasks.md. Conditional leaves (5, counted only if changed): package.json, scripts/validate-bv.ts, scripts/validate-bv-calculator.ts, openspec/changes/migrate-to-typescript-7/proposal.md, openspec/changes/migrate-to-typescript-7/specs/bv-validation-tooling/spec.md. Estimated at about 35-60 counted lines with lifecycle; that is not a cap-fit proof.",
       "ownershipPaths": [
         "scripts/tsconfig.json",
-        "openspec/changes/migrate-to-typescript-7/tasks.md",
         "package.json",
         "scripts/validate-bv.ts",
-        "scripts/validate-bv-calculator.ts",
-        "openspec/changes/migrate-to-typescript-7/proposal.md"
+        "scripts/validate-bv-calculator.ts"
       ],
       "ownershipExceptions": [
         "openspec/planning/2026-09-12-roadmap-completion/units.json",
@@ -8158,7 +8156,9 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-97c3281f-typecheck.bytes.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-97c3281f-bv.bytes.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-97c3281f-validator.bytes.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2od-mainproof-20261017.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2od-mainproof-20261017.json",
+        "openspec/changes/migrate-to-typescript-7/tasks.md",
+        "openspec/changes/migrate-to-typescript-7/proposal.md"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -8245,8 +8245,7 @@
         "package.json",
         "package-lock.json",
         "desktop/package.json",
-        "desktop/package-lock.json",
-        "openspec/changes/migrate-to-typescript-7/tasks.md"
+        "desktop/package-lock.json"
       ],
       "ownershipExceptions": [
         "openspec/planning/2026-09-12-roadmap-completion/units.json",
@@ -8260,7 +8259,8 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-9aea87cd-typecheck.bytes.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-9aea87cd-validator.bytes.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-9aea87cd-deps.bytes.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s3-mainproof-20261017.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s3-mainproof-20261017.json",
+        "openspec/changes/migrate-to-typescript-7/tasks.md"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -8454,8 +8454,7 @@
         "desktop/package.json",
         "desktop/package-lock.json",
         "scripts/qc/roadmap-main-proof.mjs",
-        "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
-        "openspec/changes/migrate-to-typescript-7/tasks.md"
+        "scripts/__tests__/roadmap-loop-closure-proof.test.ts"
       ],
       "ownershipExceptions": [
         "openspec/planning/2026-09-12-roadmap-completion/units.json",
@@ -8470,7 +8469,8 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-7898c40e-typecheck.bytes.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-7898c40e-validator.bytes.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-7898c40e-deps.bytes.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4b-mainproof-20261017.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4b-mainproof-20261017.json",
+        "openspec/changes/migrate-to-typescript-7/tasks.md"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -8570,9 +8570,7 @@
         "docs/overview.md",
         "openspec/config.yaml",
         "src/docs/Introduction.mdx",
-        "openspec/scripts/README.md",
-        "openspec/changes/migrate-to-typescript-7/tasks.md",
-        "openspec/changes/migrate-to-typescript-7/design.md"
+        "openspec/scripts/README.md"
       ],
       "ownershipExceptions": [
         "openspec/planning/2026-09-12-roadmap-completion/units.json",
@@ -8584,7 +8582,9 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5a-merge-20261017.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-db607a7f-docs.bytes.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-db607a7f-validator.bytes.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5a-mainproof-20261017.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5a-mainproof-20261017.json",
+        "openspec/changes/migrate-to-typescript-7/tasks.md",
+        "openspec/changes/migrate-to-typescript-7/design.md"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -8670,13 +8670,13 @@
       "taskKeys": [],
       "behavior": "Section 5, part 2, the first of two slices of 5.3. A single openspec archive move would count every moved line under the U41 --no-renames rule. At registration that is 468 lines in the change plus about 16 lifecycle lines, before outcome lines and the canonical spec, so the archive is split along a seam that keeps every intermediate main valid. Both seams were probed at registration: openspec validate --all --strict and qc:openspec-ci:validate pass with the canonical spec present while the change is active, and with design.md moved into the archive directory. This unit: (1) re-runs the section-0 measurements and the full gate list on the exact merge commit of the last product unit and records them compactly in tasks.md 5.3. (2) Syncs the change's ADDED requirements into a new canonical openspec/specs/typescript-toolchain/spec.md, with a Purpose section. If the owner ruled option (b), it also applies the bv-validation-tooling MODIFIED scenario to openspec/specs/bv-validation-tooling/spec.md (conditional leaf). (3) Moves design.md with git mv into openspec/changes/archive/<archive-date>-migrate-to-typescript-7/design.md. The archive date is frozen at admission, and that one literal path is added to this unit's ownershipExceptions by a normal literal-path amendment before the move; there is no directory grant. TS7S5C must reuse the same directory. Estimated about 300-330 counted lines with lifecycle: the moved design.md is 188 today and the spec about 90. That is not a cap-fit proof. Planned leaves (4): openspec/changes/migrate-to-typescript-7/tasks.md, openspec/changes/migrate-to-typescript-7/design.md, openspec/specs/typescript-toolchain/spec.md, openspec/changes/archive/<archive-date>-migrate-to-typescript-7/design.md. Conditional leaves (1, counted only if changed): openspec/specs/bv-validation-tooling/spec.md.",
       "ownershipPaths": [
-        "openspec/changes/migrate-to-typescript-7/tasks.md",
-        "openspec/changes/migrate-to-typescript-7/design.md",
         "openspec/specs/bv-validation-tooling/spec.md"
       ],
       "ownershipExceptions": [
         "openspec/planning/2026-09-12-roadmap-completion/units.json",
-        "openspec/specs/typescript-toolchain/spec.md"
+        "openspec/specs/typescript-toolchain/spec.md",
+        "openspec/changes/migrate-to-typescript-7/tasks.md",
+        "openspec/changes/migrate-to-typescript-7/design.md"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -8737,12 +8737,14 @@
       "taskKeys": [],
       "behavior": "Section 5, part 3, the second of the two slices of 5.3. tasks.md 5.3 is ticked. git mv moves proposal.md, tasks.md and specs/typescript-toolchain/spec.md, plus specs/bv-validation-tooling/spec.md under option (b), into the archive directory TS7S5B created. openspec archive is not used, because the target directory already exists and TS7S5B already synced the specs. In the same PR the migrate-to-typescript-7 entry is removed from openspec/active-change-ledger.json, and openspec/changes/migrate-to-typescript-7 no longer exists afterwards. As with TS7S5B, the literal archive paths are added to this unit's ownershipExceptions by literal-path amendment at admission. Estimated about 320-350 counted lines with lifecycle (moved text 55 + 143 + 82 today, plus the recorded outcome lines and the option (b) delta spec); that is not a cap-fit proof. After merge, OD-next-upgrade (FN-ts7-od-next-upgrade) becomes eligible for the owner, and the TypeScript 7.1 follow-up (FN-ts7-typescript-7-1-followup) waits for its release predicate. Planned leaves (7): openspec/changes/migrate-to-typescript-7/proposal.md, openspec/changes/migrate-to-typescript-7/tasks.md, openspec/changes/migrate-to-typescript-7/specs/typescript-toolchain/spec.md, openspec/active-change-ledger.json, openspec/changes/archive/<archive-date>-migrate-to-typescript-7/proposal.md, openspec/changes/archive/<archive-date>-migrate-to-typescript-7/tasks.md, openspec/changes/archive/<archive-date>-migrate-to-typescript-7/specs/typescript-toolchain/spec.md. Conditional leaves (2, counted only if changed): openspec/changes/archive/<archive-date>-migrate-to-typescript-7/specs/bv-validation-tooling/spec.md, openspec/changes/migrate-to-typescript-7/specs/bv-validation-tooling/spec.md.",
       "ownershipPaths": [
-        "openspec/changes/migrate-to-typescript-7",
         "openspec/active-change-ledger.json"
       ],
       "ownershipExceptions": [
         "openspec/planning/2026-09-12-roadmap-completion/units.json",
-        "openspec/changes/migrate-to-typescript-7/specs/bv-validation-tooling/spec.md"
+        "openspec/changes/migrate-to-typescript-7/specs/bv-validation-tooling/spec.md",
+        "openspec/changes/migrate-to-typescript-7/proposal.md",
+        "openspec/changes/migrate-to-typescript-7/tasks.md",
+        "openspec/changes/migrate-to-typescript-7/specs/typescript-toolchain/spec.md"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -20675,5 +20677,11 @@
       "evidence": "evidence/ts7s1-split-registration-20261016.json",
       "change": "TS7S1 split into TS7S1A (tasks 1.1-1.2, registered planned) and TS7S1B (tasks 0.1-0.2 and 1.3-1.5, blocked on TS7S1A). TS7S1 is blocked and superseded. Read TS7S1 in units and schedulingRule above as TS7S1A then TS7S1B; TS7S1A carries the scheduling text and the stopping condition. The track now has 11 active units plus the superseded TS7S1."
     }
+  },
+  "ts7ArchiveOwnershipCorrection20261017": {
+    "evidence": "evidence/ts7-archive-ownership-correction-20261017.json",
+    "sourcePath": "openspec/changes/migrate-to-typescript-7",
+    "archivePath": "openspec/changes/archive/2026-10-17-migrate-to-typescript-7",
+    "rule": "Disappearing source leaves are retained as exact unit ownershipExceptions; stable ownershipPaths remain. Dated destinations are granted only to TS7S5B/TS7S5C by their registered literal-path admissions. No state or receipt is changed. Parent serial admission checks ownershipPaths plus ownershipExceptions."
   }
 }
