@@ -185,7 +185,7 @@ jobs:
 
       - name: Run type check
         if: needs.detect-changes.outputs.code == 'true'
-        run: npx tsc --noEmit
+        run: npm run typecheck
 
   unit-test-shards:
     name: Unit Tests (${{ matrix.shard }}/6)

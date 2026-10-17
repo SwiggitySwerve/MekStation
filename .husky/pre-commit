@@ -3,8 +3,8 @@
 #
 # Runs lint-staged (package.json "lint-staged") on the staged files: oxfmt
 # --write on each matching file, oxlint --fix on staged *.ts/tsx/js/jsx and,
-# when a *.ts or *.tsx file is staged, a whole-project
-# `tsc --noEmit --skipLibCheck`. The hook runs no production build; the
+# when a *.ts or *.tsx file is staged, `npm run typecheck` checks both
+# the root and scoped scripts projects. The hook runs no production build; the
 # pr-checks workflow runs `npm run build` for code changes.
 
 npx lint-staged

@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "unit": "TS7S4A",
+  "stage": "local",
+  "baseline": "7d6519657a25bb919f335a30a549d7a941f9f6c7",
+  "runtime": {
+    "node": "v22.22.0",
+    "npm": "11.6.2",
+    "compiler": "6.0.3",
+    "installation": "Fresh physical npm ci in this worktree after removing only the root node_modules junction; neither root checkout nor donor install changed.",
+    "rootLockSha256": "0c7c0e8340e7ef46c78283985954d7c8552ccc41e06a5163026ac962123375a7"
+  },
+  "gates": {
+    "npm-ci-ts6": {
+      "command": "npm ci",
+      "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4a-gates-20261017",
+      "started": "2026-10-17T06:37:07.541Z",
+      "ended": "2026-10-17T06:37:49.528Z",
+      "exit": 0,
+      "stdoutPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s4a-20261017\\npm-ci-ts6.stdout.txt",
+      "stdoutSha256": "004f8b6fd69f8c173c0ffc6a211197b52d6f1647e52f2045832674f06fac689f",
+      "stderrPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s4a-20261017\\npm-ci-ts6.stderr.txt",
+      "stderrSha256": "f50b4253754c76ed8f5ca7b3c2f939aadedb10fff34b58cef03e6c27f967b5fb"
+    },
+    "idle-before-ts6": {
+      "command": "node scripts/qc/machine-idle.mjs --own-pid 47516",
+      "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4a-gates-20261017",
+      "started": "2026-10-17T06:37:54.535Z",
+      "ended": "2026-10-17T06:37:54.972Z",
+      "exit": 0,
+      "stdoutPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s4a-20261017\\idle-before-ts6.stdout.txt",
+      "stdoutSha256": "7d38ea0bb5ace1e63e7d44c21652acdb36d26f406c0875fa71350e59c74de48e",
+      "stderrPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s4a-20261017\\idle-before-ts6.stderr.txt",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "typecheck-ts6": {
+      "command": "npm run typecheck",
+      "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4a-gates-20261017",
+      "started": "2026-10-17T06:37:55.009Z",
+      "ended": "2026-10-17T06:38:45.598Z",
+      "exit": 0,
+      "stdoutPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s4a-20261017\\typecheck-ts6.stdout.txt",
+      "stdoutSha256": "648a82d00552ab57dc215edfeff93c46a85a583d5510681465584907acf85d9f",
+      "stderrPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s4a-20261017\\typecheck-ts6.stderr.txt",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "lint-staged-ts6": {
+      "command": "npx lint-staged --debug --concurrent false",
+      "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4a-gates-20261017",
+      "started": "2026-10-17T06:39:01.696Z",
+      "ended": "2026-10-17T06:39:13.385Z",
+      "exit": 0,
+      "stdoutPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s4a-20261017\\lint-staged-ts6.stdout.txt",
+      "stdoutSha256": "23df3f4f4a9848f15f33e62ab0b0bac1e4f2bda2745d2e57d1d98fd3aff3dc7e",
+      "stderrPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s4a-20261017\\lint-staged-ts6.stderr.txt",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "precommit-test-ts6": {
+      "command": "npx jest --selectProjects unit --runInBand --no-coverage --runTestsByPath scripts/__tests__/precommit-no-build.test.ts",
+      "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4a-gates-20261017",
+      "started": "2026-10-17T06:38:19.136Z",
+      "ended": "2026-10-17T06:38:21.253Z",
+      "exit": 0,
+      "stdoutPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s4a-20261017\\precommit-test-ts6.stdout.txt",
+      "stdoutSha256": "ad5041414338223be9b2b2b5af0d92856a0f6b2740cbfcdf972e95777907fbc6",
+      "stderrPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s4a-20261017\\precommit-test-ts6.stderr.txt",
+      "stderrSha256": "e95f84f94e50d2df5b3ee5b58a0f38e4d691cd504f7fcf03d2a8b91004c57e75"
+    },
+    "ci-contracts-ts6": {
+      "command": "npx jest --selectProjects unit --runInBand --no-coverage --runTestsByPath scripts/__tests__/openspec-ci-quality-qc.test.ts",
+      "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4a-gates-20261017",
+      "started": "2026-10-17T06:38:21.290Z",
+      "ended": "2026-10-17T06:38:27.172Z",
+      "exit": 0,
+      "stdoutPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s4a-20261017\\ci-contracts-ts6.stdout.txt",
+      "stdoutSha256": "ad5041414338223be9b2b2b5af0d92856a0f6b2740cbfcdf972e95777907fbc6",
+      "stderrPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s4a-20261017\\ci-contracts-ts6.stderr.txt",
+      "stderrSha256": "1f84d12c7400075b893fe5c45ae806a56866eeaa1f2fce1081f519757a64afcc"
+    },
+    "lint-ts6": {
+      "command": "npm run lint",
+      "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4a-gates-20261017",
+      "started": "2026-10-17T06:39:18.984Z",
+      "ended": "2026-10-17T06:39:19.491Z",
+      "exit": 0,
+      "stdoutPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s4a-20261017\\lint-ts6.stdout.txt",
+      "stdoutSha256": "c7fad26ed572e9cc18220dcf882adfa7f944a36a0982cd82bf3ada4768a3b76f",
+      "stderrPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s4a-20261017\\lint-ts6.stderr.txt",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "openspec-ci-ts6": {
+      "command": "npm run qc:openspec-ci:validate",
+      "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4a-gates-20261017",
+      "started": "2026-10-17T06:39:19.533Z",
+      "ended": "2026-10-17T06:39:19.873Z",
+      "exit": 0,
+      "stdoutPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s4a-20261017\\openspec-ci-ts6.stdout.txt",
+      "stdoutSha256": "7acdb382bf82a0e49558d771ed7cc7009cd45b38e824867607852896ce2245da",
+      "stderrPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s4a-20261017\\openspec-ci-ts6.stderr.txt",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "openspec-ts6": {
+      "command": "npx openspec validate --all --strict",
+      "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4a-gates-20261017",
+      "started": "2026-10-17T06:39:19.930Z",
+      "ended": "2026-10-17T06:39:21.269Z",
+      "exit": 0,
+      "stdoutPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s4a-20261017\\openspec-ts6.stdout.txt",
+      "stdoutSha256": "f0ed162c969d01fe74d7cee8d133c14c01151bbb82e7a18c3a5b3e8a2678ac79",
+      "stderrPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s4a-20261017\\openspec-ts6.stderr.txt",
+      "stderrSha256": "5bc31df123a2e521acdd2c0d9477b367feec506471a91065d0a6b32c09089ed5"
+    },
+    "roadmap-ts6": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4a-gates-20261017",
+      "started": "2026-10-17T06:39:21.307Z",
+      "ended": "2026-10-17T06:39:25.616Z",
+      "exit": 0,
+      "stdoutPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s4a-20261017\\roadmap-ts6.stdout.txt",
+      "stdoutSha256": "567feb20b9f85c902a3c4492eb3274c970f2370ccbbc6d3390088ad10923b947",
+      "stderrPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s4a-20261017\\roadmap-ts6.stderr.txt",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "format-ts6": {
+      "command": "npm run format:check",
+      "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4a-gates-20261017",
+      "started": "2026-10-17T06:39:35.940Z",
+      "ended": "2026-10-17T06:39:45.723Z",
+      "exit": 0,
+      "stdoutPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s4a-20261017\\format-ts6.stdout.txt",
+      "stdoutSha256": "651b2225996b70f0213f5314b8680228fdc3b130a27c163d8635e49c781eba5d",
+      "stderrPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s4a-20261017\\format-ts6.stderr.txt",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "roadmap-final": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4a-gates-20261017",
+      "started": "2026-10-17T06:39:45.762Z",
+      "ended": "2026-10-17T06:39:49.808Z",
+      "exit": 0,
+      "stdoutPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s4a-20261017\\roadmap-final.stdout.txt",
+      "stdoutSha256": "567feb20b9f85c902a3c4492eb3274c970f2370ccbbc6d3390088ad10923b947",
+      "stderrPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s4a-20261017\\roadmap-final.stderr.txt",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "preservedTypecheck": "tsc --noEmit --skipLibCheck && tsc -p scripts/tsconfig.json --noEmit",
+  "stagedCompilerArgv": [
+    {
+      "argv": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "E:\\Projects\\Personal\\MekStation-wt\\ts7s4a-gates-20261017\\node_modules\\typescript\\bin\\tsc",
+        "--noEmit",
+        "--skipLibCheck"
+      ],
+      "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4a-gates-20261017"
+    },
+    {
+      "argv": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "E:\\Projects\\Personal\\MekStation-wt\\ts7s4a-gates-20261017\\node_modules\\typescript\\bin\\tsc",
+        "-p",
+        "scripts/tsconfig.json",
+        "--noEmit"
+      ],
+      "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4a-gates-20261017"
+    },
+    {
+      "argv": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "E:\\Projects\\Personal\\MekStation-wt\\ts7s4a-gates-20261017\\node_modules\\typescript\\bin\\tsc",
+        "--noEmit",
+        "--skipLibCheck"
+      ],
+      "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4a-gates-20261017"
+    },
+    {
+      "argv": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "E:\\Projects\\Personal\\MekStation-wt\\ts7s4a-gates-20261017\\node_modules\\typescript\\bin\\tsc",
+        "-p",
+        "scripts/tsconfig.json",
+        "--noEmit"
+      ],
+      "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4a-gates-20261017"
+    }
+  ],
+  "stagedFilenameIsolation": "The final two processes are the successful restored run: root tsc --noEmit --skipLibCheck and tsc -p scripts/tsconfig.json --noEmit. Neither argv contains the staged precommit-no-build.test.ts path.",
+  "restoration": [
+    {
+      "file": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4a-gates-20261017\\scripts\\validate-bv.ts",
+      "before": "feb25e4357be586004508e87771c5206ddadb0df1400259b2571da7b72aab65f",
+      "after": "feb25e4357be586004508e87771c5206ddadb0df1400259b2571da7b72aab65f",
+      "equal": true
+    },
+    {
+      "file": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4a-gates-20261017\\scripts\\__tests__\\precommit-no-build.test.ts",
+      "before": "af641780ad0b7a9be04919aaa07f51d24f3bb702f8a16e8a64f6551cd8b0f6ec",
+      "after": "af641780ad0b7a9be04919aaa07f51d24f3bb702f8a16e8a64f6551cd8b0f6ec",
+      "equal": true
+    }
+  ],
+  "carryForwards": "Both TS6 compiler invocations preserved unchanged; scripts-only mutant rejected through routed lint-staged; bash -c retained; exact CI and precommit pins repointed without weakening. TypeScript 7 paths/guard remain TS7S4B.",
+  "unchanged": [
+    "package/desktop dependency declarations and lockfiles",
+    "root and scripts compiler projects/configs",
+    "roadmap main proof command",
+    "task 4.3/4.4 checkboxes",
+    "other units and top-level ledger metadata"
+  ],
+  "proofPlacement": "User-authorized light local proof. No local test:stable, build, Storybook or desktop suite; exact-head CI shards/a11y remain pending in the PR body. No review, merge or Main claim.",
+  "testCounts": {
+    "precommit": 2,
+    "ciContracts": 37
+  },
+  "lint": "86 warnings, 0 errors",
+  "openspec": "230 passed, 0 failed",
+  "openspecCi": "errors=0; 10/10 active changes accounted",
+  "census": {
+    "retainedFiles": 10,
+    "includingReservedReview": 11,
+    "includingTemporaryRestoredProbe": 12,
+    "countedAdditions": 25,
+    "limits": {
+      "files": 15,
+      "countedAdditions": 500
+    },
+    "method": "git diff baseline --numstat --no-renames; roadmap evidence excluded from counted lines only; final staged measurement recorded in PR body"
+  }
+}

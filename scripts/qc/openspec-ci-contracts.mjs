@@ -57,7 +57,7 @@ export const requiredWorkflowTokens = [
   },
   {
     id: 'typecheck-runs-typescript',
-    tokens: ['name: Type Check', 'run: npx tsc --noEmit'],
+    tokens: ['name: Type Check', 'run: npm run typecheck'],
   },
   {
     id: 'schema-bridge-is-strict',
