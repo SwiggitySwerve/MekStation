@@ -11,7 +11,7 @@ import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 import { logger } from '@/utils/logger';
 
 // =============================================================================
-// Splitter â€” Contract Branch
+// Splitter — Contract Branch
 // =============================================================================
 
 /**
@@ -22,19 +22,19 @@ import { logger } from '@/utils/logger';
 function clampSalvagePercent(raw: number, contractId: string | null): number {
   if (Number.isNaN(raw)) {
     logger.warn(
-      `[salvageEngine] NaN salvagePercent on contract ${contractId ?? '<null>'} â€” defaulting to 0.`,
+      `[salvageEngine] NaN salvagePercent on contract ${contractId ?? '<null>'} — defaulting to 0.`,
     );
     return 0;
   }
   if (raw < 0) {
     logger.warn(
-      `[salvageEngine] salvagePercent ${raw} < 0 on contract ${contractId ?? '<null>'} â€” clamping to 0.`,
+      `[salvageEngine] salvagePercent ${raw} < 0 on contract ${contractId ?? '<null>'} — clamping to 0.`,
     );
     return 0;
   }
   if (raw > 100) {
     logger.warn(
-      `[salvageEngine] salvagePercent ${raw} > 100 on contract ${contractId ?? '<null>'} â€” clamping to 100.`,
+      `[salvageEngine] salvagePercent ${raw} > 100 on contract ${contractId ?? '<null>'} — clamping to 100.`,
     );
     return 100;
   }
@@ -46,7 +46,7 @@ function clampSalvagePercent(raw: number, contractId: string | null): number {
  * explicit `salvagePercent` first; otherwise maps the legacy enum.
  *
  * Mapping (Wave 3 MVP):
- *   `None` â†’ 0, `Exchange` â†’ 50, `Integrated` â†’ 50.
+ *   `None` → 0, `Exchange` → 50, `Integrated` → 50.
  */
 export function resolveSalvagePercent(contract: IContract | null): number {
   if (!contract) return 0;
@@ -96,7 +96,7 @@ function sumAward(candidates: readonly ISalvageCandidate[]): {
  * each candidate to whichever side is currently furthest below its
  * target. Deterministic for fixed inputs (no RNG, no map iteration).
  *
- * Per spec: total value within Â±10% of target is acceptable; the greedy
+ * Per spec: total value within ±10% of target is acceptable; the greedy
  * algorithm hits this on any non-degenerate pool.
  */
 export function splitByContract(
@@ -106,7 +106,7 @@ export function splitByContract(
   const clamped = clampSalvagePercent(mercenaryPercent, pool.contractId);
   const targetMercenaryValue = pool.totalEstimatedValue * (clamped / 100);
 
-  // 0% short-circuit â†’ employer keeps everything.
+  // 0% short-circuit → employer keeps everything.
   if (clamped === 0) {
     const employerCandidates = pool.candidates.map((c) =>
       withDisposition(c, 'employer', 'awarded'),
@@ -125,7 +125,7 @@ export function splitByContract(
     };
   }
 
-  // 100% short-circuit â†’ mercenary keeps everything.
+  // 100% short-circuit → mercenary keeps everything.
   if (clamped === 100) {
     const mercCandidates = pool.candidates.map((c) =>
       withDisposition(c, 'mercenary', 'awarded'),
@@ -147,7 +147,7 @@ export function splitByContract(
   // Best-fit greedy distribution. Sort by recoveredValue desc; ties broken
   // by source/unitId/designation so the result is fully deterministic.
   // After each placement, push the next candidate to whichever side has
-  // the larger remaining shortfall vs. its target â€” this minimises
+  // the larger remaining shortfall vs. its target — this minimises
   // total error vs. the requested split for any non-degenerate pool.
   const sorted = [...pool.candidates].sort(candidateRankingDesc);
 
@@ -216,12 +216,12 @@ function withDisposition(
 }
 
 // =============================================================================
-// Splitter â€” Auction Branch
+// Splitter — Auction Branch
 // =============================================================================
 
 /**
  * Run an alternating draft. Per spec: employer picks first, then
- * alternating; same pool + same seed â†’ deep-equal allocation. Seed only
+ * alternating; same pool + same seed → deep-equal allocation. Seed only
  * affects tie-break ordering, not the picking pattern itself.
  */
 export function splitByAuction(
@@ -231,7 +231,7 @@ export function splitByAuction(
   const sorted = [...pool.candidates].sort((a, b) => {
     const primary = candidateRankingDesc(a, b);
     if (primary !== 0) return primary;
-    // Tie-breaker uses seed â†’ deterministic per (pool, seed).
+    // Tie-breaker uses seed → deterministic per (pool, seed).
     return ((a.unitId.length + seed) % 2) - ((b.unitId.length + seed) % 2);
   });
 
@@ -274,9 +274,9 @@ export function splitByAuction(
  * Halve the mercenary award when the player withdrew from hostile
  * territory. Implementation drops candidates from the mercenary award
  * starting at the *lowest* recovered-value end so the player loses the
- * marginal items first â€” keeps the high-value salvage they fought for.
+ * marginal items first — keeps the high-value salvage they fought for.
  *
- * Dropped candidates are added to the employer award (per spec Â§5: the
+ * Dropped candidates are added to the employer award (per spec §5: the
  * remaining half stays on the battlefield, awarded to employer).
  */
 export function applyHostileTerritoryModifier(

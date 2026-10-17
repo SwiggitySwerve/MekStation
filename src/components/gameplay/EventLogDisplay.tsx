@@ -94,10 +94,12 @@ export function EventLogDisplay({
     readonly IFormattedEventWithGrouping[]
   >(() => {
     const filtered = filterEvents(events, filter);
-    const formatted = filtered.map((e) => formatEvent(e, weaponLookup));
+    const formatted = filtered.map((e) =>
+      formatEvent(e, weaponLookup, actorLookup),
+    );
     const grouped = annotateGroupedEvents(filtered, formatted);
     return [...grouped].reverse();
-  }, [events, filter, weaponLookup]);
+  }, [events, filter, weaponLookup, actorLookup]);
 
   return (
     <div

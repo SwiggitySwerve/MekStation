@@ -45,6 +45,10 @@ export function extractWeapons(
       continue;
     }
 
+    // Custom/saved units list ammo bins and heat sinks in the same equipment
+    // array as weapons; they are not weapons, so skip them without warning.
+    if (isNonWeaponMount(sourceWeaponId)) continue;
+
     const canonicalId = canonicalizeWeaponId(sourceWeaponId);
     const data = getWeaponData(sourceWeaponId);
     if (!data) {
@@ -68,6 +72,12 @@ export function extractWeapons(
   }
 
   return weapons;
+}
+
+const NON_WEAPON_MOUNT_PATTERN = /(^|[-_\s])ammo($|[-_\s])|heat[-_\s]?sink/i;
+
+function isNonWeaponMount(equipmentId: string): boolean {
+  return NON_WEAPON_MOUNT_PATTERN.test(equipmentId);
 }
 
 export function ammoFromWeapons(

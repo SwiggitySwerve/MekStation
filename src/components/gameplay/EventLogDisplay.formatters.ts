@@ -21,6 +21,8 @@ import {
 
 interface IEventFormatContext {
   readonly weaponLookup: Record<string, string>;
+  /** Resolve a unit id to its display name (falls back to the raw id). */
+  readonly unitName: (unitId: string) => string;
 }
 
 interface IEventFormatParts {
@@ -166,12 +168,15 @@ function formatAttackResolved(
   return { unitId: payload.attackerId, text: outcome };
 }
 
-function formatPhysicalAttackDeclared(event: IGameEvent): IEventFormatParts {
+function formatPhysicalAttackDeclared(
+  event: IGameEvent,
+  { unitName }: IEventFormatContext,
+): IEventFormatParts {
   const payload = event.payload as IPhysicalAttackDeclaredPayload;
   const limbSuffix = payload.limb ? ` (${payload.limb})` : '';
   return {
     unitId: payload.attackerId,
-    text: `Physical attack declared: ${payload.attackType}${limbSuffix} vs ${payload.targetId}, TN ${payload.toHitNumber}+`,
+    text: `Physical attack declared: ${payload.attackType}${limbSuffix} vs ${unitName(payload.targetId)}, TN ${payload.toHitNumber}+`,
   };
 }
 
@@ -197,11 +202,14 @@ function formatPhysicalAttackHit(
   return `Physical ${payload.attackType} HIT (${payload.roll} vs ${payload.toHitNumber})${locationPart}`;
 }
 
-function formatDamageApplied(event: IGameEvent): IEventFormatParts {
+function formatDamageApplied(
+  event: IGameEvent,
+  { unitName }: IEventFormatContext,
+): IEventFormatParts {
   const payload = event.payload as IDamageAppliedPayload;
   return {
     unitId: payload.unitId,
-    text: formatDamageEntry(payload, (id) => id),
+    text: formatDamageEntry(payload, unitName),
   };
 }
 
@@ -231,30 +239,39 @@ function formatHeatDissipated(event: IGameEvent): IEventFormatParts {
 
 function formatCriticalHit(event: IGameEvent): IEventFormatParts {
   const payload = event.payload as { unitId: string };
-  return { unitId: payload.unitId, text: 'âš  Critical hit!' };
+  return { unitId: payload.unitId, text: '⚠ Critical hit!' };
 }
 
-function formatCriticalHitResolved(event: IGameEvent): IEventFormatParts {
+function formatCriticalHitResolved(
+  event: IGameEvent,
+  { unitName }: IEventFormatContext,
+): IEventFormatParts {
   const payload = event.payload as ICriticalHitResolvedPayload;
   return {
     unitId: payload.unitId,
-    text: formatCriticalEntry(payload, (id) => id),
+    text: formatCriticalEntry(payload, unitName),
   };
 }
 
-function formatUnitDestroyed(event: IGameEvent): IEventFormatParts {
+function formatUnitDestroyed(
+  event: IGameEvent,
+  { unitName }: IEventFormatContext,
+): IEventFormatParts {
   const payload = event.payload as IUnitDestroyedPayload;
   return {
     unitId: payload.unitId,
-    text: formatUnitDestroyedEntry(payload, (id) => id),
+    text: formatUnitDestroyedEntry(payload, unitName),
   };
 }
 
-function formatPilotHit(event: IGameEvent): IEventFormatParts {
+function formatPilotHit(
+  event: IGameEvent,
+  { unitName }: IEventFormatContext,
+): IEventFormatParts {
   const payload = event.payload as IPilotHitPayload;
   return {
     unitId: payload.unitId,
-    text: formatPilotHitEntry(payload, (id) => id),
+    text: formatPilotHitEntry(payload, unitName),
   };
 }
 
@@ -269,6 +286,7 @@ function formatGameEnded(event: IGameEvent): IEventFormatParts {
 
 function formatIndirectFireSpotterSelected(
   event: IGameEvent,
+  { unitName }: IEventFormatContext,
 ): IEventFormatParts {
   const payload = event.payload as {
     attackerId: string;
@@ -278,7 +296,7 @@ function formatIndirectFireSpotterSelected(
   };
   return {
     unitId: payload.attackerId,
-    text: `Indirect fire: spotted by ${payload.spotterId} (+${payload.toHitPenalty} TN)`,
+    text: `Indirect fire: spotted by ${unitName(payload.spotterId)} (+${payload.toHitPenalty} TN)`,
   };
 }
 
@@ -296,6 +314,7 @@ function formatIndirectFireNarcOverride(event: IGameEvent): IEventFormatParts {
 
 function formatIndirectFireForwardObserver(
   event: IGameEvent,
+  { unitName }: IEventFormatContext,
 ): IEventFormatParts {
   const payload = event.payload as {
     attackerId: string;
@@ -303,11 +322,14 @@ function formatIndirectFireForwardObserver(
   };
   return {
     unitId: payload.attackerId,
-    text: `Indirect fire: Forward Observer ${payload.spotterId} cancels walking penalty`,
+    text: `Indirect fire: Forward Observer ${unitName(payload.spotterId)} cancels walking penalty`,
   };
 }
 
-function formatIndirectFireSpotterLost(event: IGameEvent): IEventFormatParts {
+function formatIndirectFireSpotterLost(
+  event: IGameEvent,
+  { unitName }: IEventFormatContext,
+): IEventFormatParts {
   const payload = event.payload as {
     attackerId: string;
     spotterId: string;
@@ -315,7 +337,7 @@ function formatIndirectFireSpotterLost(event: IGameEvent): IEventFormatParts {
   };
   return {
     unitId: payload.attackerId,
-    text: `Indirect fire: spotter ${payload.spotterId} lost â€” attack misses (${payload.reason})`,
+    text: `Indirect fire: spotter ${unitName(payload.spotterId)} lost — attack misses (${payload.reason})`,
   };
 }
 
@@ -350,10 +372,12 @@ const EVENT_FORMATTERS: Partial<Record<GameEventType, EventFormatter>> = {
 export function formatEvent(
   event: IGameEvent,
   weaponLookup: Record<string, string> = {},
+  actorLookup: Record<string, string> = {},
 ): IFormattedEvent {
+  const unitName = (unitId: string): string => actorLookup[unitId] ?? unitId;
   const formatter = EVENT_FORMATTERS[event.type];
   const formatted = formatter
-    ? formatter(event, { weaponLookup })
+    ? formatter(event, { weaponLookup, unitName })
     : { text: event.type.replace(/_/g, ' ') };
 
   return {
