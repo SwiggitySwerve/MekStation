@@ -8358,7 +8358,14 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4a-admission-20261017.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4a-red-20261017.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4a-local-20261017.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4a-admission-review-20261017.md"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4a-admission-review-20261017.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4a-source-astra-review-20261017.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4a-review-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4a-merge-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-de941935-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-de941935-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-de941935-deps.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4a-mainproof-20261017.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -8369,10 +8376,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "implementing",
+      "state": "main-verified",
       "baseline": "7d6519657a25bb919f335a30a549d7a941f9f6c7",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "5583b3c4e381748ac212889d05069fdda16204fd",
+      "mergeSha": "de9419356c740f3d89cc350f9812f8c87b03bdc9",
       "stageReceipts": {
         "admission": {
           "path": "evidence/ts7s4a-admission-20261017.json"
@@ -8383,9 +8390,27 @@
         "local": {
           "path": "evidence/ts7s4a-local-20261017.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/ts7s4a-review-20261017.json",
+          "head": "5583b3c4e381748ac212889d05069fdda16204fd",
+          "reviewedHead": "5583b3c4e381748ac212889d05069fdda16204fd",
+          "reviewerModel": "gpt-6-astra",
+          "implementerModel": "gpt-6.1-sol",
+          "outputSha256": "69f6021be97ead3f3b947f9f3f19562f858f346c41da34300db970cb2bcccf3e",
+          "verdict": "APPROVE-WITH-NOTES"
+        },
+        "merge": {
+          "path": "evidence/ts7s4a-merge-20261017.json",
+          "pr": 2189,
+          "head": "5583b3c4e381748ac212889d05069fdda16204fd",
+          "mergeSha": "de9419356c740f3d89cc350f9812f8c87b03bdc9"
+        },
+        "mainProof": {
+          "path": "evidence/ts7s4a-mainproof-20261017.json",
+          "mergeCommit": "de9419356c740f3d89cc350f9812f8c87b03bdc9",
+          "verdict": "PASS",
+          "runtime": "Source/Main checks: 7 passed (fresh root npm ci exit 0; tsc --version 6.0.3; npm run typecheck exit 0 with both projects; scripts.typecheck unchanged, lint-staged *.{ts,tsx} last entry bash -c 'npm run typecheck' and pr-checks.yml Type Check runs npm run typecheck; precommit-no-build.test.ts alone 2/2; openspec-ci-quality-qc.test.ts alone 37/37; validator PASSED, openspec validate --all --strict 230 passed and qc:openspec-ci:validate errors=0; 0 failed)"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -8445,7 +8470,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
