@@ -1,0 +1,694 @@
+{
+  "schemaVersion": 1,
+  "unit": "TS7S2B",
+  "stage": "local",
+  "baseline": "b4a1fc5c75b1bfe6f9b45b9e023b458d1c5843c0",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "TS7S2B implementation sub-agent"
+  },
+  "runtime": "node v22.22.0",
+  "changes": {
+    "desktop/package.json": "devDependencies + @swc/core ^1.15.30, + @swc/jest ^0.2.39 (the root ranges), - ts-jest ^29.4.6; scripts.type-check = tsc --noEmit && tsc -p tsconfig.test.json --noEmit",
+    "desktop/package-lock.json": "npm 11.19.1: npm install --save-dev @swc/core@1.15.30 @swc/jest@0.2.39, then npm uninstall ts-jest. Package diff +23 / -9 / 1 changed (the root devDependencies entry); npm install --package-lock-only afterwards leaves it unchanged; rebuilt twice from the base lockfile to the same sha256 d1fd7e2572f131d2222813163815fe5e4556d685bcffd7aa823f5addcec7d9f1",
+    "desktop/jest.config.js": "ts-jest preset/transform -> @swc/jest with swcrc: false, jsc.parser { syntax: 'typescript', decorators: true }, jsc.transform { legacyDecorator, decoratorMetadata, useDefineForClassFields: false }, jsc.target 'es2020', module { type: 'commonjs', lazy: ['electron'] }",
+    "openspec/changes/migrate-to-typescript-7/tasks.md": "2.3 and 2.4 ticked; one 2.4 outcome line (the task text asks for the outcome)",
+    ".storybook/main.ts": "unchanged (conditional leaf not used)"
+  },
+  "lockfile": {
+    "diff": {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/desktop-lock-diff.json",
+      "sha256": "8ebcd9770acc13599c588649bb6eeadd1671c6b6610f4504e4454ce580c316bc"
+    },
+    "npm": "11.19.1 (C:/Users/wroll/AppData/Local/nvm/v24.15.0/node_modules/npm/bin/npm-cli.js under node v22.22.0)",
+    "install": {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-npm-install-swc.stdout.txt",
+      "sha256": "4d8667e167cf89b601045557f79a1df5cf5766c9465a6b53495d6113fd474d42"
+    },
+    "uninstall": {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-npm-uninstall-tsjest.stdout.txt",
+      "sha256": "df3c5749b239097f8ba81be82029c4cd730b6bda0e16316b2a9f457506bd7e57"
+    },
+    "swcVersions": "desktop resolves its own copies: @swc/core 1.15.30 and its 12 platform packages, @swc/jest 0.2.39, @swc/counter 0.1.3 and jsonc-parser 3.3.1 have the same version and integrity as the root lockfile; transitive drift @swc/types 0.1.28 (root 0.1.26) and @jest/create-cache-key-function 30.5.1 (root 30.3.0)",
+    "npmLs": {
+      "command": "npm ls typescript ts-jest @swc/core @swc/jest --all",
+      "cwd": "<worktree>/desktop",
+      "exit": 0,
+      "stdoutSha256": "7f1bc14f866f66e5ce7ddf5e6ef771fa099daa6e8ac8fbc55ae29be4ff8e2c47",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutLines": 6,
+      "stderrLines": 0,
+      "meta": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-desktop-npm-ls-typescript.meta.json",
+        "sha256": "42fbc351f442982d1ad3ffc3e838d216f121c1f517122643cd19d76caab68f87"
+      },
+      "stdout": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-desktop-npm-ls-typescript.stdout.txt",
+        "sha256": "7f1bc14f866f66e5ce7ddf5e6ef771fa099daa6e8ac8fbc55ae29be4ff8e2c47"
+      },
+      "stderr": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-desktop-npm-ls-typescript.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "result": "desktop tree: @swc/core 1.15.30, @swc/jest 0.2.39, typescript 5.9.3; ts-jest absent"
+    }
+  },
+  "desktopTestsAfter": {
+    "noCacheWorkers": {
+      "command": "npm test -- --no-cache --json --outputFile=E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-desktop-test-nocache.jest.json",
+      "cwd": "<worktree>/desktop",
+      "exit": 0,
+      "stdoutSha256": "b48a99b777c493a4b695a1b45dfa7fe438555da82fdf41b604e9b92d4e21415c",
+      "stderrSha256": "c5678eb08d37b837527d025117a1d38e36e4c2c5625fb06cb9be0824d5031b4e",
+      "stdoutLines": 4,
+      "stderrLines": 718,
+      "meta": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-desktop-test-nocache.meta.json",
+        "sha256": "28e84aae4ca87e9381f4b53b206d9c80f17e865a3f9c23d58f748c0bbefdc1fa"
+      },
+      "stdout": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-desktop-test-nocache.stdout.txt",
+        "sha256": "b48a99b777c493a4b695a1b45dfa7fe438555da82fdf41b604e9b92d4e21415c"
+      },
+      "stderr": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-desktop-test-nocache.stderr.txt",
+        "sha256": "c5678eb08d37b837527d025117a1d38e36e4c2c5625fb06cb9be0824d5031b4e"
+      },
+      "result": "5 suites, 57 passed, 0 TS151002",
+      "summary": {
+        "suites": 5,
+        "passedSuites": 5,
+        "tests": 57,
+        "passed": 57,
+        "failed": 0,
+        "TS151002": 0,
+        "jestJson": {
+          "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-desktop-test-nocache.jest.json",
+          "sha256": "6cc5746d285f652ff16aa9be2abba96ce25c7676273e66611d2c5fd0d75d9ec5"
+        },
+        "names": {
+          "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-desktop-test-nocache.names.txt",
+          "sha256": "7cc672205300f54da9f0bfca85c83680aff8b68a2f27661843218565ce3b0e48"
+        }
+      }
+    },
+    "noCacheInBand": {
+      "command": "npm test -- --no-cache -i --json --outputFile=E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-desktop-test-nocache-inband.jest.json",
+      "cwd": "<worktree>/desktop",
+      "exit": 0,
+      "stdoutSha256": "ce6abc16a4e96c9171126d2f5c20c933d26ec623d38f8fd76be17a9118621140",
+      "stderrSha256": "ace9455747ff3912dc61a871d0b6a3aa7328ab9d4949cec3f44dedc41d73103c",
+      "stdoutLines": 4,
+      "stderrLines": 718,
+      "meta": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-desktop-test-nocache-inband.meta.json",
+        "sha256": "bd51169b4ac3dfa5b707d78c5a452d965da864ebc03b9281f13f06446d4e2f4c"
+      },
+      "stdout": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-desktop-test-nocache-inband.stdout.txt",
+        "sha256": "ce6abc16a4e96c9171126d2f5c20c933d26ec623d38f8fd76be17a9118621140"
+      },
+      "stderr": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-desktop-test-nocache-inband.stderr.txt",
+        "sha256": "ace9455747ff3912dc61a871d0b6a3aa7328ab9d4949cec3f44dedc41d73103c"
+      },
+      "result": "5 suites, 57 passed, 0 TS151002",
+      "summary": {
+        "suites": 5,
+        "passedSuites": 5,
+        "tests": 57,
+        "passed": 57,
+        "failed": 0,
+        "TS151002": 0,
+        "jestJson": {
+          "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-desktop-test-nocache-inband.jest.json",
+          "sha256": "4ebe4e14bce31c595ce9ebbffe395cf13f190e6d6fa47f36ab44096ed28f9430"
+        },
+        "names": {
+          "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-desktop-test-nocache-inband.names.txt",
+          "sha256": "7cc672205300f54da9f0bfca85c83680aff8b68a2f27661843218565ce3b0e48"
+        }
+      }
+    },
+    "warm": {
+      "command": "npm test -- --json --outputFile=E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-desktop-test-warm.jest.json",
+      "cwd": "<worktree>/desktop",
+      "exit": 0,
+      "stdoutSha256": "2e6756a05bdfe595e75dce4593eb51421b2b6138e0fd5124d073374b8776cbf3",
+      "stderrSha256": "e098c957cec01cc3e4a41895a0d3eed463babca0357315429e0726bb8b2e8d25",
+      "stdoutLines": 4,
+      "stderrLines": 718,
+      "meta": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-desktop-test-warm.meta.json",
+        "sha256": "7b20279d0bbcd38266941aae8006e922822fb2a84a133fe99e2f38bd0f5a9c98"
+      },
+      "stdout": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-desktop-test-warm.stdout.txt",
+        "sha256": "2e6756a05bdfe595e75dce4593eb51421b2b6138e0fd5124d073374b8776cbf3"
+      },
+      "stderr": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-desktop-test-warm.stderr.txt",
+        "sha256": "e098c957cec01cc3e4a41895a0d3eed463babca0357315429e0726bb8b2e8d25"
+      },
+      "result": "5 suites, 57 passed, 0 TS151002",
+      "summary": {
+        "suites": 5,
+        "passedSuites": 5,
+        "tests": 57,
+        "passed": 57,
+        "failed": 0,
+        "TS151002": 0,
+        "jestJson": {
+          "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-desktop-test-warm.jest.json",
+          "sha256": "69f3e86933dece97d0472eaea3ebbc56f30fbda9f78dffeafc8a86f9d323644c"
+        },
+        "names": {
+          "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-desktop-test-warm.names.txt",
+          "sha256": "7cc672205300f54da9f0bfca85c83680aff8b68a2f27661843218565ce3b0e48"
+        }
+      }
+    },
+    "plainNoCache": {
+      "command": "npm test -- --no-cache",
+      "cwd": "<worktree>/desktop",
+      "exit": 0,
+      "stdoutSha256": "5c0955ec59e591424252385fd345ed0ef530ca055e0dfa3b2368bea529feac0a",
+      "stderrSha256": "c6e7b9fc9b82948bab490e4bfd244adf6cb8acb4bb0b6800280574d06da61cc9",
+      "stdoutLines": 627,
+      "stderrLines": 94,
+      "meta": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-desktop-test-plain-nocache.meta.json",
+        "sha256": "291542efff550f0ff9cc702a198d73ce63bd023f7b4f82bbe28bb8d36e9c42a9"
+      },
+      "stdout": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-desktop-test-plain-nocache.stdout.txt",
+        "sha256": "5c0955ec59e591424252385fd345ed0ef530ca055e0dfa3b2368bea529feac0a"
+      },
+      "stderr": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-desktop-test-plain-nocache.stderr.txt",
+        "sha256": "c6e7b9fc9b82948bab490e4bfd244adf6cb8acb4bb0b6800280574d06da61cc9"
+      },
+      "result": "npm test -- --no-cache: 5 suites, 57 passed, 0 TS151002 (C3 / TS7S2B-OPEN-1)"
+    },
+    "electronTest": {
+      "command": "npm run electron:test",
+      "cwd": "<worktree>",
+      "exit": 0,
+      "stdoutSha256": "1b397b8b141d5770a801fb65b16cb928c07e55aae80ecf91ba3154fdb47b7634",
+      "stderrSha256": "ca7b6fd7acb6d194ae735fac34f979303d24ef6d4b938421d4412eca7d4c5a4b",
+      "stdoutLines": 631,
+      "stderrLines": 94,
+      "meta": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/electron-test.meta.json",
+        "sha256": "ccbd2a9aa65f31494fead00e13ff302c57f1368b8b91dbd3a0ea710b475c8619"
+      },
+      "stdout": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/electron-test.stdout.txt",
+        "sha256": "1b397b8b141d5770a801fb65b16cb928c07e55aae80ecf91ba3154fdb47b7634"
+      },
+      "stderr": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/electron-test.stderr.txt",
+        "sha256": "ca7b6fd7acb6d194ae735fac34f979303d24ef6d4b938421d4412eca7d4c5a4b"
+      },
+      "result": "npm run electron:test from the root: 5 suites, 57 passed"
+    },
+    "namesSha256": "7cc672205300f54da9f0bfca85c83680aff8b68a2f27661843218565ce3b0e48",
+    "namesEqual": "the 57 sorted file :: fullName :: status lines are byte-identical before and after (count equals the TS7S1B baseline 5 / 57)",
+    "coverage": {
+      "command": "npx jest --no-cache --coverage --coverageReporters=json-summary --coverageDirectory=E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/cov-after",
+      "cwd": "<worktree>/desktop",
+      "exit": 0,
+      "stdoutSha256": "97f7114a2ae0af8998fc9a52d81e28e8d7f9ae753028336b7f1780d7cec6213e",
+      "stderrSha256": "bf4c198c8fe3dd386afd0cbd6d5e51f3ac7125ceac5f884dfd010e0ca4132deb",
+      "stdoutLines": 623,
+      "stderrLines": 94,
+      "meta": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-desktop-coverage.meta.json",
+        "sha256": "fa681a258baae484f83b2f5cfff35f82d9eb0db75c9a55ca2e940ff4ccb6df26"
+      },
+      "stdout": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-desktop-coverage.stdout.txt",
+        "sha256": "97f7114a2ae0af8998fc9a52d81e28e8d7f9ae753028336b7f1780d7cec6213e"
+      },
+      "stderr": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-desktop-coverage.stderr.txt",
+        "sha256": "bf4c198c8fe3dd386afd0cbd6d5e51f3ac7125ceac5f884dfd010e0ca4132deb"
+      },
+      "result": "functions 76/374 and branches 83/424, identical per file; line/statement totals differ only by emit shape",
+      "summary": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/cov-after/coverage-summary.json",
+        "sha256": "65db577e6eb2ffead0ad274d2673cba97fb24e4527e1a602bc8305e7ca15c0ec"
+      },
+      "compare": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/coverage-compare.txt",
+        "sha256": "c28fe9fac8278fe9b8f3a5361a0f877f953c66483a3b0b3d258c20662b2b4f60"
+      }
+    }
+  },
+  "lazyElectron": {
+    "withoutLazy": {
+      "command": "npx jest --no-cache --json --outputFile=E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/swc-nolazy-desktop-test.jest.json",
+      "cwd": "<worktree>/desktop",
+      "exit": 1,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "50146f009a3340414073beb03b8611ebbb1e904b476c3824e3c75b3a64301af9",
+      "stdoutLines": 0,
+      "stderrLines": 584,
+      "meta": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/swc-nolazy-desktop-test.meta.json",
+        "sha256": "cdfe67dd85aff8391a9ea89f6dc6f9244ba7c45bda8268f046234915ec1382a8"
+      },
+      "stdout": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/swc-nolazy-desktop-test.stdout.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/swc-nolazy-desktop-test.stderr.txt",
+        "sha256": "50146f009a3340414073beb03b8611ebbb1e904b476c3824e3c75b3a64301af9"
+      },
+      "result": "D5 options without module.lazy: 3 suites fail to load (ReferenceError: Cannot access mockIpcHandle / mockApp / mockQuit before initialization), 2 pass, 41 tests",
+      "summary": {
+        "suites": 5,
+        "passedSuites": 2,
+        "tests": 41,
+        "passed": 41,
+        "failed": 0,
+        "TS151002": 0,
+        "jestJson": {
+          "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/swc-nolazy-desktop-test.jest.json",
+          "sha256": "8f4d36925b0599d586b0349672387ddf711d35db48db4ec43fc4f7cf29ef7f58"
+        },
+        "names": {
+          "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/swc-nolazy-desktop-test.names.txt",
+          "sha256": "a00f78044a07979caabfafcf85cb7b14ac9193f26b87ae72d00e241f94a8028c"
+        }
+      }
+    },
+    "cause": "ts-jest (TypeScript CommonJS emit) kept each import at its source position, so the late import of ../main.ipc, ../main.window and ../main.behavior ran after the const mock* objects existed; SWC hoists imports (ES module order), so electron was required, and the hoisted jest.mock factory read those consts, while they were still in their temporal dead zone",
+    "fix": "module.lazy: ['electron'] lazy-initialises only imports whose source is electron (first use, inside the code under test); every other import stays eager like tsc; the tests stay byte-identical",
+    "alternatives": {
+      "lazyAll": {
+        "command": "npx jest --no-cache",
+        "cwd": "<worktree>/desktop",
+        "exit": 0,
+        "stdoutSha256": "c2e51b57ed6f71f3753fd301fdff811eba7de6aa6e866bdcfe26cc7f05d9a983",
+        "stderrSha256": "aacf2701f2285d496df9dc59fdb0e8762938a20b2eadccd5286e7e0f8e2f22cc",
+        "stdoutLines": 623,
+        "stderrLines": 94,
+        "meta": {
+          "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/alt-lazy-desktop-test.meta.json",
+          "sha256": "dbb854969e6a90b6e927962cf9e88062ebb2fd608b21f503b15ea81e5a29060d"
+        },
+        "stdout": {
+          "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/alt-lazy-desktop-test.stdout.txt",
+          "sha256": "c2e51b57ed6f71f3753fd301fdff811eba7de6aa6e866bdcfe26cc7f05d9a983"
+        },
+        "stderr": {
+          "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/alt-lazy-desktop-test.stderr.txt",
+          "sha256": "aacf2701f2285d496df9dc59fdb0e8762938a20b2eadccd5286e7e0f8e2f22cc"
+        },
+        "result": "module.lazy: true: 5 suites, 57 passed; rejected as broader than needed"
+      },
+      "testGetters": {
+        "patch": {
+          "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/prototype-test-getters.patch",
+          "sha256": "3054b7410e57251db2a1b0569996dde9834e611668d961cedcc32cb29f6859f2"
+        },
+        "run": {
+          "command": "npm test -- --no-cache --json --outputFile=E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/proto-desktop-test-nocache.jest.json",
+          "cwd": "<worktree>/desktop",
+          "exit": 0,
+          "stdoutSha256": "333fe46eac0ff17dcc5541ed3522a1c185dc2647cee3e32f4c1e0edff51e45a0",
+          "stderrSha256": "44f258980065e4e946a5217e73b405c50a2cb3e2e31eba56ed9f8324c0778713",
+          "stdoutLines": 4,
+          "stderrLines": 718,
+          "meta": {
+            "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/proto-desktop-test-nocache.meta.json",
+            "sha256": "94f97d1bd175f9abaafaa2fb838c88c921516e3f3434303a819147853d635814"
+          },
+          "stdout": {
+            "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/proto-desktop-test-nocache.stdout.txt",
+            "sha256": "333fe46eac0ff17dcc5541ed3522a1c185dc2647cee3e32f4c1e0edff51e45a0"
+          },
+          "stderr": {
+            "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/proto-desktop-test-nocache.stderr.txt",
+            "sha256": "44f258980065e4e946a5217e73b405c50a2cb3e2e31eba56ed9f8324c0778713"
+          },
+          "result": "getter factories in the 3 electron tests (+30/-10): 5 suites, 57 passed, same names sha; rejected because the tests are not TS7S2B leaves"
+        }
+      }
+    }
+  },
+  "typeCheckAfter": {
+    "typeCheck": {
+      "command": "npm run type-check",
+      "cwd": "<worktree>/desktop",
+      "exit": 0,
+      "stdoutSha256": "02cdd4a7de45897628941ac76b776ab0c171986dcbb80dffe7150ba4fed1fb58",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutLines": 4,
+      "stderrLines": 0,
+      "meta": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-desktop-typecheck.meta.json",
+        "sha256": "042c9c1a2db5fdf57327ef72e90a19c50e51115c101769dc4bed37536ff55f36"
+      },
+      "stdout": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-desktop-typecheck.stdout.txt",
+        "sha256": "02cdd4a7de45897628941ac76b776ab0c171986dcbb80dffe7150ba4fed1fb58"
+      },
+      "stderr": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-desktop-typecheck.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "result": "npm run type-check exit 0 (both tsc steps)"
+    },
+    "injectedTypeError": {
+      "jest": {
+        "command": "npx jest --no-cache services/local/__tests__/SettingsService.test.ts",
+        "cwd": "<worktree>/desktop",
+        "exit": 0,
+        "stdoutSha256": "95c11e8d43cbf647231020ca5c4cbf3919f9e1740366ee23520432d24397c23f",
+        "stderrSha256": "7fdf39c8d04a782671868de3f9d1e934f5ce3609c6ad9b02cac112b995811e23",
+        "stdoutLines": 180,
+        "stderrLines": 33,
+        "meta": {
+          "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-inject-jest.meta.json",
+          "sha256": "15be6a97aab9fd97d28adede840881a364831a143b54cbe19aef5e897dca8f5c"
+        },
+        "stdout": {
+          "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-inject-jest.stdout.txt",
+          "sha256": "95c11e8d43cbf647231020ca5c4cbf3919f9e1740366ee23520432d24397c23f"
+        },
+        "stderr": {
+          "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-inject-jest.stderr.txt",
+          "sha256": "7fdf39c8d04a782671868de3f9d1e934f5ce3609c6ad9b02cac112b995811e23"
+        },
+        "result": "@swc/jest strips types: SettingsService suite passes 17/17 with the injected TS2322"
+      },
+      "typeCheck": {
+        "command": "npm run type-check",
+        "cwd": "<worktree>/desktop",
+        "exit": 2,
+        "stdoutSha256": "c1e55a495b3f81e618e8c1687fbb24420c1b5dafe15515a96051b4e3458f7711",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdoutLines": 5,
+        "stderrLines": 0,
+        "meta": {
+          "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-inject-typecheck.meta.json",
+          "sha256": "e168a376e8a9b28e870a70861b1da1fcd8bfcd7261552a1c86301a2589fcf468"
+        },
+        "stdout": {
+          "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-inject-typecheck.stdout.txt",
+          "sha256": "c1e55a495b3f81e618e8c1687fbb24420c1b5dafe15515a96051b4e3458f7711"
+        },
+        "stderr": {
+          "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-inject-typecheck.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "result": "npm run type-check exit 2: SettingsService.test.ts(16,7) TS2322 from tsc -p tsconfig.test.json --noEmit"
+      },
+      "restored": "SettingsService.test.ts restored to sha256 75b8fc8e78737b2bba41a5f015a38024a5e5abf947be21b7bfc19c96562b8a62"
+    },
+    "build": {
+      "command": "npm run build",
+      "cwd": "<worktree>/desktop",
+      "exit": 0,
+      "stdoutSha256": "aa317115bf2087b6d4fd350c45315a319aaeb894ea8b99ac816e4ba45abbf5c4",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutLines": 4,
+      "stderrLines": 0,
+      "meta": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-desktop-build.meta.json",
+        "sha256": "0c5eee8e7842caf9b4ec1f5630fcd9cf053a19dc340da380b1578b52f96df978"
+      },
+      "stdout": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-desktop-build.stdout.txt",
+        "sha256": "aa317115bf2087b6d4fd350c45315a319aaeb894ea8b99ac816e4ba45abbf5c4"
+      },
+      "stderr": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-desktop-build.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "result": "desktop npm run build (tsc) exit 0"
+    }
+  },
+  "decorators": {
+    "usage": "git grep finds no decorator, reflect-metadata or Reflect.*Metadata use in desktop/electron, desktop/services or desktop/types",
+    "probe": {
+      "source": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/decorator-probe/probe.ts",
+        "sha256": "f69a9cb139f6aac6f8c0945efe4716b9ebcc92fa4e6c3f9e080a6819b3df9de1"
+      },
+      "compare": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/decorator-probe/compare.js",
+        "sha256": "5b3eead729c1cada8808e1ed99b5bfc5858bc9da48a84ce8bb616662007812b8"
+      },
+      "tsc": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/decorator-probe/probe.tsc.out.json",
+        "sha256": "1dd200fd40e848b0e14830911edf4f45c2157745f5a9398913ec9812df6be0fa"
+      },
+      "swc": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/decorator-probe/probe.swc.out.json",
+        "sha256": "2c0767fabfb36a54f9d6be826c9dde35e2ce0c6789c3ef9bf0668ce8b9db3a63"
+      },
+      "result": "with the exact desktop/jest.config.js options, SWC 1.15.30 and tsc 5.9.3 give identical decorator call order, design:type, design:paramtypes, design:returntype and [[Set]] class-field semantics; SWC additionally records design:type = Function on the decorated class itself, which tsc does not"
+    }
+  },
+  "storybook": {
+    "build": {
+      "command": "npm run storybook:build",
+      "cwd": "<worktree>",
+      "exit": 0,
+      "stdoutSha256": "cc46e0794728a55868c63b7211b6d2d2615b8f6a101f0943266b460aa540f6cd",
+      "stderrSha256": "dee81f4a56753457d1a98a1c60f2b9cf64c513cdd2a64b4086e07b775af0e4a1",
+      "stdoutLines": 269,
+      "stderrLines": 22,
+      "meta": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/storybook-build.meta.json",
+        "sha256": "d4fe98794a383ef4dfd2791562d2bb68a02eb932d219328279eff8bcf0bf2199"
+      },
+      "stdout": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/storybook-build.stdout.txt",
+        "sha256": "cc46e0794728a55868c63b7211b6d2d2615b8f6a101f0943266b460aa540f6cd"
+      },
+      "stderr": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/storybook-build.stderr.txt",
+        "sha256": "dee81f4a56753457d1a98a1c60f2b9cf64c513cdd2a64b4086e07b775af0e4a1"
+      },
+      "result": "npm run storybook:build exit 0 at the head"
+    },
+    "docgen": {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/storybook-overwriteconfirmdialog-docgen.txt",
+      "sha256": "5d6880b05344b47520811415760ade8b723c25596687bc5288fce15236618883"
+    },
+    "screenshot": {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/storybook-overwriteconfirmdialog-argstable.png",
+      "sha256": "148039ac981b6d14d0a51bd62ec4c5343b5a6a52e05fc6eda3b788affe3409de"
+    },
+    "record": {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/storybook-docgen.md",
+      "sha256": "884b567605cb0f6867d799bf4d76ef5a3f91cdba95be2798729ce91569d414e2"
+    },
+    "result": "OverwriteConfirmDialog (6 typed props, story without argTypes): __docgenInfo from react-docgen with tsType and JSDoc for all six props; the rendered autodocs table lists them with required markers, types, descriptions and typed controls. Storybook 8.6.18 defaults typescript.reactDocgen to react-docgen; react-docgen-typescript is never loaded; .storybook/main.ts unchanged"
+  },
+  "checks": {
+    "typecheck": {
+      "command": "npm run typecheck",
+      "cwd": "<worktree>",
+      "exit": 0,
+      "stdoutSha256": "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutLines": 4,
+      "stderrLines": 0,
+      "meta": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/typecheck.meta.json",
+        "sha256": "51adce4ac91d6074c0882c6f063cc1c553ce66b97161557b1a46c044c6a5441d"
+      },
+      "stdout": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/typecheck.stdout.txt",
+        "sha256": "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f"
+      },
+      "stderr": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/typecheck.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "result": "PASS tsc 5.8.3 exit 0"
+    },
+    "lint": {
+      "command": "npm run lint",
+      "cwd": "<worktree>",
+      "exit": 0,
+      "stdoutSha256": "0a0f664528fb15e0cedef3d68b498ac1bbee06af9dc256c200c3c2a3efda21d8",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutLines": 1068,
+      "stderrLines": 0,
+      "meta": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/lint.meta.json",
+        "sha256": "12812778a613a3ce7c22e04de15b9fc328793bf72b9d54cc4e6644c0b468a87e"
+      },
+      "stdout": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/lint.stdout.txt",
+        "sha256": "0a0f664528fb15e0cedef3d68b498ac1bbee06af9dc256c200c3c2a3efda21d8"
+      },
+      "stderr": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/lint.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "result": "PASS oxlint 0 errors, 86 warnings; 1068 lines identical to the TS7S2A lint-post output apart from the timing line"
+    },
+    "lintUnits": {
+      "command": "npm run lint:units",
+      "cwd": "<worktree>",
+      "exit": 0,
+      "stdoutSha256": "e53b479047c58f2bd97ee0546f27b8eeb99dbe38ed0290ce9c8edbd81d45cab3",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutLines": 9,
+      "stderrLines": 0,
+      "meta": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/lint-units.meta.json",
+        "sha256": "8a7f4b72656a565e2dcd7bc640d2891dff05e9568551dfd5f3da497f1ce72ae0"
+      },
+      "stdout": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/lint-units.stdout.txt",
+        "sha256": "e53b479047c58f2bd97ee0546f27b8eeb99dbe38ed0290ce9c8edbd81d45cab3"
+      },
+      "stderr": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/lint-units.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "result": "PASS LINT_UNITS_PASS 17899/17899; ceilings unchanged"
+    },
+    "format": {
+      "command": "npm run format:check",
+      "cwd": "<worktree>",
+      "exit": 0,
+      "stdoutSha256": "caa0483a82b0c4241ec0f3245ac77024030b8961907401910d3a4ad171a2e375",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutLines": 8,
+      "stderrLines": 0,
+      "meta": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/format-check.meta.json",
+        "sha256": "4bce21cef2a7debc6fd20e11074ee43f9f086a551ea7c798bedbb843f1414725"
+      },
+      "stdout": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/format-check.stdout.txt",
+        "sha256": "caa0483a82b0c4241ec0f3245ac77024030b8961907401910d3a4ad171a2e375"
+      },
+      "stderr": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/format-check.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "result": "PASS oxfmt: all matched files use the correct format (8191 files)"
+    },
+    "openspec": {
+      "command": "npx openspec validate --all --strict",
+      "cwd": "<worktree>",
+      "exit": 0,
+      "stdoutSha256": "f0ed162c969d01fe74d7cee8d133c14c01151bbb82e7a18c3a5b3e8a2678ac79",
+      "stderrSha256": "5bc31df123a2e521acdd2c0d9477b367feec506471a91065d0a6b32c09089ed5",
+      "stdoutLines": 231,
+      "stderrLines": 1,
+      "meta": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/openspec-validate.meta.json",
+        "sha256": "571c631d6cc64be762432ffd16f7ff212dfc56d802b066549d31ad3ad2a72875"
+      },
+      "stdout": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/openspec-validate.stdout.txt",
+        "sha256": "f0ed162c969d01fe74d7cee8d133c14c01151bbb82e7a18c3a5b3e8a2678ac79"
+      },
+      "stderr": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/openspec-validate.stderr.txt",
+        "sha256": "5bc31df123a2e521acdd2c0d9477b367feec506471a91065d0a6b32c09089ed5"
+      },
+      "result": "PASS 230 passed, 0 failed"
+    },
+    "openspecCi": {
+      "command": "npm run qc:openspec-ci:validate",
+      "cwd": "<worktree>",
+      "exit": 0,
+      "stdoutSha256": "732887ec992b4e8a8a71532d48162be7a45d559054dfaf424aaaf091a2b5fc25",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutLines": 5,
+      "stderrLines": 0,
+      "meta": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/openspec-ci.meta.json",
+        "sha256": "dde5ba16febdf8beead5c7af4fc926959a7a74a1bc942ebce6bb228ca83c9cae"
+      },
+      "stdout": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/openspec-ci.stdout.txt",
+        "sha256": "732887ec992b4e8a8a71532d48162be7a45d559054dfaf424aaaf091a2b5fc25"
+      },
+      "stderr": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/openspec-ci.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "result": "PASS activeOpenSpecChanges=10 accounted=10 errors=0"
+    },
+    "desktopLint": {
+      "command": "npm run lint",
+      "cwd": "<worktree>/desktop",
+      "exit": 0,
+      "stdoutSha256": "bb29ac12ca18c9f0334e6087299e957ea705e034c39f84b1f931b9009af0a786",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutLines": 6,
+      "stderrLines": 0,
+      "meta": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/desktop-lint.meta.json",
+        "sha256": "8113f816ce4c6626664c16ac66f0ff7a8ad1d4f5695a4669f3afb141babdd551"
+      },
+      "stdout": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/desktop-lint.stdout.txt",
+        "sha256": "bb29ac12ca18c9f0334e6087299e957ea705e034c39f84b1f931b9009af0a786"
+      },
+      "stderr": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/desktop-lint.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "result": "PASS 0 warnings, 0 errors (desktop oxlint matches 0 files, as at the baseline)"
+    },
+    "roadmap": "validate-roadmap.mjs full, --next and node --test validate-roadmap.test.mjs recorded in the attempt directory (validation.log) after this receipt is frozen",
+    "testStable": "npm run test:stable runs once after this receipt is frozen; its result is recorded in the attempt directory and the pull request, not here"
+  },
+  "census": {
+    "files": "9 of 15 (8 in this change: 5 non-evidence files + admission, red and local receipts; plus the reserved review slot); .storybook/main.ts unchanged and not counted",
+    "productAddedLines": "42 of 500 (git diff --numstat --no-renames against the baseline, evidence directory skipped, desktop/package-lock.json uncounted)",
+    "rows": [
+      {
+        "file": "desktop/jest.config.js",
+        "added": 20,
+        "deleted": 3,
+        "counted": 20
+      },
+      {
+        "file": "desktop/package-lock.json",
+        "added": 383,
+        "deleted": 144,
+        "counted": 0
+      },
+      {
+        "file": "desktop/package.json",
+        "added": 3,
+        "deleted": 2,
+        "counted": 3
+      },
+      {
+        "file": "openspec/changes/migrate-to-typescript-7/tasks.md",
+        "added": 3,
+        "deleted": 2,
+        "counted": 3
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "added": 16,
+        "deleted": 6,
+        "counted": 16
+      }
+    ],
+    "estimate": "admission estimate about 37-47; measured 42"
+  },
+  "environment": "Root node_modules is a junction to the root checkout node_modules (its lockfile differs from the baseline only by TS7S2A ts-node removal; root packages are not changed here). desktop/node_modules is a physical install in the worktree: npm 11.19.1 npm ci of the baseline lockfile for the before-state, then npm install/uninstall for the after-state; the root checkout desktop/node_modules was never written",
+  "logs": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/",
+  "boundary": "desktop test transform, desktop devDependencies with the npm-generated desktop lockfile, desktop type-check script, and tasks.md; no product source, test, tsconfig, root package or Storybook config change. No merge or Main proof claimed.",
+  "status": "Candidate local checks only; independent exact-head review pending"
+}
