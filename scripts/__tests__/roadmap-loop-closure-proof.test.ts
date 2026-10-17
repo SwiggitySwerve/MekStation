@@ -1834,7 +1834,7 @@ if (step === 'runtime' && scenario === 'failed-runtime' || step === 'idle' && sc
       );
     // Controlled leaf fixtures; orchestration, marker scan, Git and children remain real.
     write(
-      'node_modules/typescript/bin/tsc',
+      'node_modules/typescript7/bin/tsc',
       "console.log(JSON.stringify({step:'tsc',argv:process.argv.slice(2)}));\n",
     );
     write(
@@ -2126,7 +2126,9 @@ describe('roadmap-main-proof --dry-run', () => {
     // No step names a .cmd launcher any more: npm and npx are npm's own
     // JavaScript entry points run by node (see the fake-step pin below).
     expect(result.stdout).not.toContain('.cmd');
-    expect(result.stdout).toContain('tsc --noEmit');
+    expect(result.stdout).toContain(
+      'node node_modules/typescript7/bin/tsc --noEmit',
+    );
     expect(result.stdout).toContain(
       `openspec/planning/${LEDGER_NAME}/validate-roadmap.mjs --git`,
     );

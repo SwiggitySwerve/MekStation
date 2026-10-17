@@ -192,7 +192,7 @@ export function ladder(options, logDirRelative) {
     },
     {
       name: 'tsc',
-      argv: ['node', 'node_modules/typescript/bin/tsc', '--noEmit'],
+      argv: ['node', 'node_modules/typescript7/bin/tsc', '--noEmit'],
     },
     { name: 'validator', argv: ['node', validator] },
     { name: 'git-check', argv: ['node', validator, '--git'] },
