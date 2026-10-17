@@ -34,7 +34,7 @@ Waiting for 7.1 is unnecessary. Most of what loads the API here can be replaced 
 
 ### Modified Capabilities
 
-- None in this change. The `bv-validation-tooling` scenario that names `npx tsc --noEmit` depends on owner decision OD-scripts-tsconfig (`design.md`). The task that implements that decision updates the scenario, if it needs to change.
+- `bv-validation-tooling`: name `npm run typecheck` as the compiler gate that checks the BV harness and its index schema, implementing OD-scripts-tsconfig option (a).
 
 ## Non-goals
 

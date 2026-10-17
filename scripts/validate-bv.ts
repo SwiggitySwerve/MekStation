@@ -250,7 +250,7 @@ async function main(): Promise<void> {
     }
     for (const [, variants] of Array.from(byChassis.entries())) {
       if (variants.length < 3) continue;
-      const bvCounts = new Map<number, string[]>();
+      const bvCounts = new Map<number | undefined, string[]>();
       for (const v of variants) {
         if (!bvCounts.has(v.bv)) bvCounts.set(v.bv, []);
         bvCounts.get(v.bv)!.push(v.id);
@@ -280,7 +280,8 @@ async function main(): Promise<void> {
         chassis: iu.chassis,
         model: iu.model,
         tonnage: iu.tonnage,
-        indexBV: iu.bv,
+        // Preserve the existing missing-file report value, including absent legacy BV.
+        indexBV: iu.bv!,
         calculatedBV: null,
         difference: null,
         percentDiff: null,

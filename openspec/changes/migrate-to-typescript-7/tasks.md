@@ -67,8 +67,8 @@
   - Run `npm run storybook:build`, then confirm that the autodocs prop tables for one component with typed props are populated.
   - If docs depend on `react-docgen-typescript`, set `typescript: { reactDocgen: 'react-docgen' }` in `.storybook/main.ts`, check that the tables are still useful, and record the outcome here.
   - Outcome: no `reactDocgen` change. Storybook 8.6.18 already defaults `typescript.reactDocgen` to `'react-docgen'` (Babel). `storybook build` never loads `react-docgen-typescript` or its Vite plugin, and the `OverwriteConfirmDialog` autodocs table lists all six typed props with their types and JSDoc descriptions. `.storybook/main.ts` is unchanged.
-- [ ] 2.5 Implement owner decision OD-scripts-tsconfig (`design.md`), once the owner has ruled.
-  - Option (a): narrow the include list, make it clean, and add it to the root `typecheck`.
+- [x] 2.5 Implement owner decision OD-scripts-tsconfig (`design.md`), once the owner has ruled.
+  - Option (a): narrow the include list, make it clean, add it to the root `typecheck`, and name `npm run typecheck` in the `bv-validation-tooling` scenario.
   - Option (b): delete the file, prove every `validate:*` script still runs under `tsx`, and modify the `bv-validation-tooling` "IndexUnit interface matches the real index schema" scenario through a delta spec in this change.
 
 ## 3. TypeScript 6.0 bridge (PR 3)

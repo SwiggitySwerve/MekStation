@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2020",
-    "lib": ["es2020"],
+    "lib": ["es2020", "dom"],
     "module": "esnext",
     "moduleResolution": "bundler",
     "strict": true,
@@ -12,18 +12,12 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
-    "baseUrl": "../src",
     "paths": {
-      "@/*": ["./*"]
-    }
+      "@/*": ["../src/*"]
+    },
+    "types": ["node"]
   },
-  "include": [
-    "validate-bv.ts",
-    "validate-parity.ts",
-    "data-migration/**/*.ts",
-    "../src/**/*.ts",
-    "../src/**/*.tsx"
-  ],
+  "include": ["validate-bv.ts", "validate-parity.ts", "data-migration/**/*.ts"],
   "exclude": [
     "node_modules",
     "../src/**/__tests__/**",

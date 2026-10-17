@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "unit": "TS7S2OD",
+  "baseline": "437db72aab57009f2ba5b73a86220cb2dc65615a",
+  "contributor": {
+    "provider": "openai",
+    "model": "gpt-6.1-sol",
+    "task": "TS7S2OD implementation sub-agent"
+  },
+  "stage": "admission",
+  "date": "20261017",
+  "authority": "Owner option (a) ruling and release in PR #2181, merged at 437db72aab57009f2ba5b73a86220cb2dc65615a; root implementation instruction to proceed on that baseline.",
+  "frozenAt": "2026-10-17T05:43:42.415Z",
+  "frozenFiles": [
+    {
+      "path": "scripts/tsconfig.json",
+      "exists": true,
+      "sha256": "cef7f7d81309b4e930c859b74df46adb4965f13e3843e9848d89ffe12af20ff4"
+    },
+    {
+      "path": "scripts/validate-bv.ts",
+      "exists": true,
+      "sha256": "b04956555e9949e48f5c5faadcb1168ee9ff348aa81cd4d5761b05588e05cb99"
+    },
+    {
+      "path": "scripts/validate-bv-calculator.ts",
+      "exists": true,
+      "sha256": "eaf3b97b9d88d2768a09f4a841db3f8af55eab2db616d9fe7028e685997536b1"
+    },
+    {
+      "path": "package.json",
+      "exists": true,
+      "sha256": "0dbf2813a02c7349177733939da11be21d6cbeb2f178df151886622fba7ad004"
+    },
+    {
+      "path": "openspec/changes/migrate-to-typescript-7/tasks.md",
+      "exists": true,
+      "sha256": "b3d42df75176467b71eaf945b521ee4acaa83f57c53e42f824d419dcd50c4b53"
+    },
+    {
+      "path": "openspec/changes/migrate-to-typescript-7/proposal.md",
+      "exists": true,
+      "sha256": "0f911be9facf092ef1fa9dd1bc0b6e2002a604bae5c4d5e8b48ecab7b66befd1"
+    },
+    {
+      "path": "openspec/changes/migrate-to-typescript-7/specs/bv-validation-tooling/spec.md",
+      "exists": false,
+      "sha256": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "exists": true,
+      "sha256": "dd9fc059bab7c945caa6f3a5acbb4580fd9dd4b80e41f6e596873af9f49a3d84"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2od-admission-20261017.json",
+      "exists": false,
+      "sha256": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2od-red-20261017.json",
+      "exists": false,
+      "sha256": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2od-local-20261017.json",
+      "exists": false,
+      "sha256": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2od-admission-review-20261017.md",
+      "exists": false,
+      "sha256": null
+    }
+  ],
+  "caps": {
+    "files": 15,
+    "productAddedLines": 500
+  },
+  "census": "11 actual files; 12 including reserved independent review slot. Seven source/spec/task leaves, units.json, three receipts; estimated below 100 counted additions before editing.",
+  "predecessors": {
+    "TS7S2B": "main-verified, mainProof PASS, merge 08555b7a1b22f1bc10f9e6335c3ea7edd79c98da; git merge-base --is-ancestor to baseline exited 0."
+  },
+  "overlap": "No in-flight units at admission. TS7S3 is planned and remains untouched; source units run serially.",
+  "dependencies": {
+    "node": "v22.22.0",
+    "npm": "11.6.2",
+    "rootCompiler": "5.8.3",
+    "desktopCompiler": "5.9.3",
+    "rootNodeModules": "E:\\Projects\\Personal\\MekStation\\node_modules",
+    "desktopNodeModules": "E:\\Projects\\Personal\\MekStation-wt\\ts7s2b-swc-20261016\\desktop\\node_modules",
+    "rootLockHash": "d478b16db97afcc66dcb98a56e36435094afa2a17b63ab900bb22f54ffcdee2e",
+    "desktopLockHash": "d1fd7e2572f131d2222813163815fe5e4556d685bcffd7aa823f5addcec7d9f1",
+    "desktopDonorLockHash": "d1fd7e2572f131d2222813163815fe5e4556d685bcffd7aa823f5addcec7d9f1"
+  },
+  "machineIdleOverride": {
+    "pid": 47516,
+    "command": "node.exe server.js",
+    "started": "2026-10-15 15:33 (root-supplied)",
+    "port": 8300,
+    "cpuSample": "0 CPU-seconds over 10 seconds",
+    "workingSet": "39 MB",
+    "ruling": "Root explicitly ruled this pre-existing idle server is not contention and authorized excluding PID 47516. Do not stop it. Continue to respect every other process.",
+    "commandUsed": "node scripts/qc/machine-idle.mjs --own-pid 47516",
+    "result": "MACHINE_IDLE"
+  },
+  "proofPlacement": "Per owner instruction and council-roadmap-decision: no local test:stable. CI unit shards plus a11y must execute on the exact submitted head; their run IDs are recorded in the PR body. No CI PASS is claimed here.",
+  "reviewSlot": "evidence/ts7s2od-admission-review-20261017.md reserved for independent reviewer; author does not write it.",
+  "restriction": "Only TS7S2OD lifecycle fields; no predecessor, successor, holder, admission policy or ownership scope change beyond adding this unit evidence paths.",
+  "proofClass": "light",
+  "proofClassReason": "Type-only and tooling/config unit; both TS edits emit identical JavaScript and harness outputs match. Applied DELIVERY.md proof lanes adopted by #2183."
+}

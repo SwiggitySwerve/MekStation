@@ -1,0 +1,294 @@
+{
+  "schemaVersion": 1,
+  "unit": "TS7S2OD",
+  "stage": "local",
+  "baseline": "437db72aab57009f2ba5b73a86220cb2dc65615a",
+  "runtime": {
+    "node": "v22.22.0",
+    "npm": "11.6.2",
+    "rootCompiler": "5.8.3",
+    "desktopCompiler": "5.9.3",
+    "rootNodeModules": "E:\\Projects\\Personal\\MekStation\\node_modules",
+    "desktopNodeModules": "E:\\Projects\\Personal\\MekStation-wt\\ts7s2b-swc-20261016\\desktop\\node_modules",
+    "rootLockHash": "d478b16db97afcc66dcb98a56e36435094afa2a17b63ab900bb22f54ffcdee2e",
+    "desktopLockHash": "d1fd7e2572f131d2222813163815fe5e4556d685bcffd7aa823f5addcec7d9f1",
+    "desktopDonorLockHash": "d1fd7e2572f131d2222813163815fe5e4556d685bcffd7aa823f5addcec7d9f1"
+  },
+  "changes": {
+    "scriptsConfig": "Only validate-bv.ts, validate-parity.ts, data-migration/**/*.ts included; no baseUrl; relative @/* alias; explicit node types; DOM library for transitive browser imports; strict retained.",
+    "typeFixes": "Map keys admit existing undefined legacy BV values; missing-file result keeps the exact previous runtime value via a non-null assertion; MechLocation type-only import. No casts to any and no change to optional bv in IndexUnit.",
+    "gate": "Root npm typecheck runs both projects with &&, using current TypeScript 5.8.3.",
+    "spec": "BV scenario names npm run typecheck through a MODIFIED requirement delta and proposal Modified Capabilities.",
+    "tasks": "Only task 2.5 tick and option (a) command-spec correction; no extra outcome narrative."
+  },
+  "gates": {
+    "typecheck": {
+      "command": "npm run typecheck",
+      "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s2od-scripts-20261017",
+      "started": "2026-10-17T05:45:05.900Z",
+      "ended": "2026-10-17T05:46:36.318Z",
+      "exit": 0,
+      "stdoutSha256": "648a82d00552ab57dc215edfeff93c46a85a583d5510681465584907acf85d9f",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\typecheck.stdout.txt",
+      "stderrPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\typecheck.stderr.txt"
+    },
+    "typecheck-restored": {
+      "command": "npm run typecheck",
+      "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s2od-scripts-20261017",
+      "started": "2026-10-17T05:46:53.347Z",
+      "ended": "2026-10-17T05:47:04.684Z",
+      "exit": 0,
+      "stdoutSha256": "648a82d00552ab57dc215edfeff93c46a85a583d5510681465584907acf85d9f",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\typecheck-restored.stdout.txt",
+      "stderrPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\typecheck-restored.stderr.txt"
+    },
+    "after-bv": {
+      "command": "npm run validate:bv -- --output C:/Users/wroll/AppData/Local/Temp/ts7s2od-20261017/bv-artifacts",
+      "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s2od-scripts-20261017",
+      "started": "2026-10-17T05:47:05.100Z",
+      "ended": "2026-10-17T05:47:08.486Z",
+      "exit": 0,
+      "stdoutSha256": "4f554ae5c325dafcea9c08fa5a0591b7eaf4c71b82dc342fcfb3a96ac4bc8cad",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\after-bv.stdout.txt",
+      "stderrPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\after-bv.stderr.txt"
+    },
+    "after-parity": {
+      "command": "npm run validate:parity -- --mm-data E:/Projects/Personal/mm-data --output C:/Users/wroll/AppData/Local/Temp/ts7s2od-20261017/parity-artifacts",
+      "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s2od-scripts-20261017",
+      "started": "2026-10-17T05:47:08.962Z",
+      "ended": "2026-10-17T05:47:14.544Z",
+      "exit": 0,
+      "stdoutSha256": "314ae5d7622848fb315728b451115a3923f80e02fef5ebaae7a0dbcbf36726b5",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\after-parity.stdout.txt",
+      "stderrPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\after-parity.stderr.txt"
+    },
+    "lint": {
+      "command": "npm run lint",
+      "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s2od-scripts-20261017",
+      "started": "2026-10-17T05:47:14.972Z",
+      "ended": "2026-10-17T05:47:16.184Z",
+      "exit": 0,
+      "stdoutSha256": "0ae71a44412fc6e981a16fda517d629d0eb7ed3c6ad2aceb1cf8d94314372e43",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\lint.stdout.txt",
+      "stderrPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\lint.stderr.txt"
+    },
+    "desktop-typecheck": {
+      "command": "npm run type-check",
+      "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s2od-scripts-20261017\\desktop",
+      "started": "2026-10-17T05:47:16.593Z",
+      "ended": "2026-10-17T05:47:21.243Z",
+      "exit": 0,
+      "stdoutSha256": "02cdd4a7de45897628941ac76b776ab0c171986dcbb80dffe7150ba4fed1fb58",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\desktop-typecheck.stdout.txt",
+      "stderrPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\desktop-typecheck.stderr.txt"
+    },
+    "desktop-test": {
+      "command": "npm test",
+      "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s2od-scripts-20261017\\desktop",
+      "started": "2026-10-17T05:47:21.651Z",
+      "ended": "2026-10-17T05:47:29.989Z",
+      "exit": 0,
+      "stdoutSha256": "ee0f8714c914b6a0cdc5f82b08f0e2c686305bc68f4cc2af29fb8f6e024344ba",
+      "stderrSha256": "76de442a153f7965343c72184ff86c4694f22cd292fffde597b56e43eee7419d",
+      "stdoutPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\desktop-test.stdout.txt",
+      "stderrPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\desktop-test.stderr.txt"
+    },
+    "openspec": {
+      "command": "npx openspec validate --all --strict",
+      "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s2od-scripts-20261017",
+      "started": "2026-10-17T05:47:41.976Z",
+      "ended": "2026-10-17T05:47:44.102Z",
+      "exit": 0,
+      "stdoutSha256": "f0ed162c969d01fe74d7cee8d133c14c01151bbb82e7a18c3a5b3e8a2678ac79",
+      "stderrSha256": "5bc31df123a2e521acdd2c0d9477b367feec506471a91065d0a6b32c09089ed5",
+      "stdoutPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\openspec.stdout.txt",
+      "stderrPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\openspec.stderr.txt"
+    },
+    "openspec-ci": {
+      "command": "npm run qc:openspec-ci:validate",
+      "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s2od-scripts-20261017",
+      "started": "2026-10-17T05:47:44.541Z",
+      "ended": "2026-10-17T05:47:45.544Z",
+      "exit": 0,
+      "stdoutSha256": "732887ec992b4e8a8a71532d48162be7a45d559054dfaf424aaaf091a2b5fc25",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\openspec-ci.stdout.txt",
+      "stderrPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\openspec-ci.stderr.txt"
+    },
+    "format": {
+      "command": "npm run format:check",
+      "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s2od-scripts-20261017",
+      "started": "2026-10-17T05:47:56.479Z",
+      "ended": "2026-10-17T05:48:09.656Z",
+      "exit": 0,
+      "stdoutSha256": "306efcb11fe137d1deed7326bc010fce0fe90913c5d5db39b5d2a079581630bd",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\format.stdout.txt",
+      "stderrPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\format.stderr.txt"
+    },
+    "openspec-final": {
+      "command": "npx openspec validate --all --strict",
+      "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s2od-scripts-20261017",
+      "started": "2026-10-17T05:48:10.109Z",
+      "ended": "2026-10-17T05:48:11.409Z",
+      "exit": 0,
+      "stdoutSha256": "f0ed162c969d01fe74d7cee8d133c14c01151bbb82e7a18c3a5b3e8a2678ac79",
+      "stderrSha256": "5bc31df123a2e521acdd2c0d9477b367feec506471a91065d0a6b32c09089ed5",
+      "stdoutPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\openspec-final.stdout.txt",
+      "stderrPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\openspec-final.stderr.txt"
+    },
+    "roadmap": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s2od-scripts-20261017",
+      "started": "2026-10-17T05:48:11.848Z",
+      "ended": "2026-10-17T05:48:18.971Z",
+      "exit": 0,
+      "stdoutSha256": "567feb20b9f85c902a3c4492eb3274c970f2370ccbbc6d3390088ad10923b947",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\roadmap.stdout.txt",
+      "stderrPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\roadmap.stderr.txt"
+    },
+    "typecheck-rebased": {
+      "command": "npm run typecheck",
+      "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s2od-scripts-20261017",
+      "started": "2026-10-17T05:48:44.659Z",
+      "ended": "2026-10-17T05:48:54.540Z",
+      "exit": 0,
+      "stdoutSha256": "648a82d00552ab57dc215edfeff93c46a85a583d5510681465584907acf85d9f",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\typecheck-rebased.stdout.txt",
+      "stderrPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\typecheck-rebased.stderr.txt"
+    },
+    "lint-rebased": {
+      "command": "npm run lint",
+      "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s2od-scripts-20261017",
+      "started": "2026-10-17T05:49:05.343Z",
+      "ended": "2026-10-17T05:49:05.896Z",
+      "exit": 0,
+      "stdoutSha256": "05027d8b77b62bdf786ce7ff0fd22e9773d1de3d8ce85871ddee47a1d7d91a64",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\lint-rebased.stdout.txt",
+      "stderrPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\lint-rebased.stderr.txt"
+    },
+    "format-rebased": {
+      "command": "npm run format:check",
+      "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s2od-scripts-20261017",
+      "started": "2026-10-17T05:49:06.294Z",
+      "ended": "2026-10-17T05:49:17.278Z",
+      "exit": 0,
+      "stdoutSha256": "1f923efe0b20aed3aa430f0dc9bc5b809b40876ab01a1d5e42d1560940dfd0f4",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\format-rebased.stdout.txt",
+      "stderrPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\format-rebased.stderr.txt"
+    },
+    "openspec-rebased": {
+      "command": "npx openspec validate --all --strict",
+      "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s2od-scripts-20261017",
+      "started": "2026-10-17T05:49:17.712Z",
+      "ended": "2026-10-17T05:49:18.953Z",
+      "exit": 0,
+      "stdoutSha256": "f0ed162c969d01fe74d7cee8d133c14c01151bbb82e7a18c3a5b3e8a2678ac79",
+      "stderrSha256": "5bc31df123a2e521acdd2c0d9477b367feec506471a91065d0a6b32c09089ed5",
+      "stdoutPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\openspec-rebased.stdout.txt",
+      "stderrPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\openspec-rebased.stderr.txt"
+    },
+    "openspec-ci-rebased": {
+      "command": "npm run qc:openspec-ci:validate",
+      "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s2od-scripts-20261017",
+      "started": "2026-10-17T05:49:19.381Z",
+      "ended": "2026-10-17T05:49:19.761Z",
+      "exit": 0,
+      "stdoutSha256": "732887ec992b4e8a8a71532d48162be7a45d559054dfaf424aaaf091a2b5fc25",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\openspec-ci-rebased.stdout.txt",
+      "stderrPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\openspec-ci-rebased.stderr.txt"
+    },
+    "roadmap-rebased": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s2od-scripts-20261017",
+      "started": "2026-10-17T05:49:20.196Z",
+      "ended": "2026-10-17T05:49:24.408Z",
+      "exit": 0,
+      "stdoutSha256": "567feb20b9f85c902a3c4492eb3274c970f2370ccbbc6d3390088ad10923b947",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\roadmap-rebased.stdout.txt",
+      "stderrPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\roadmap-rebased.stderr.txt"
+    }
+  },
+  "failurePropagation": {
+    "command": "npm run typecheck",
+    "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s2od-scripts-20261017",
+    "started": "2026-10-17T05:46:42.259Z",
+    "ended": "2026-10-17T05:46:52.925Z",
+    "exit": 2,
+    "stdoutSha256": "4675af6f8f3763c37bd81bace1acfa1a8ff7bcb82613f37b5bf0cd2f9f717256",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdoutPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\failure-propagation.stdout.txt",
+    "stderrPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\failure-propagation.stderr.txt",
+    "expected": "exit 2: scripts/validate-bv.ts TS2322; probe restored byte-for-byte in finally before the clean run."
+  },
+  "comparison": {
+    "bv": {
+      "stdoutByteIdentical": true,
+      "normalizedStdoutEqual": true,
+      "normalizations": [
+        "elapsed-time line (parity only)",
+        "generated-at line (parity only)",
+        "CRLF normalization"
+      ],
+      "normalizedStdoutSha256": "f40a8be449656c1be5583d3e2fdbf5e9bb79b723651113a66423f1cf0ed9ee3f",
+      "artifactCount": 3,
+      "artifactMismatch": [],
+      "artifactNormalization": "JSON generatedAt fields only; every other value and non-JSON byte checked"
+    },
+    "parity": {
+      "stdoutByteIdentical": false,
+      "normalizedStdoutEqual": true,
+      "normalizations": [
+        "elapsed-time line (parity only)",
+        "generated-at line (parity only)",
+        "CRLF normalization"
+      ],
+      "normalizedStdoutSha256": "b02c2874e3fccfc7e274deccbe9902a04c01a0bde0c677bc63b911d81cc12ad7",
+      "artifactCount": 4229,
+      "artifactMismatch": [],
+      "artifactNormalization": "JSON generatedAt fields only; every other value and non-JSON byte checked"
+    }
+  },
+  "emitComparison": {
+    "compiler": "TypeScript 5.8.3 transpileModule, ES2020/ESNext, removeComments:true",
+    "results": {
+      "scripts/validate-bv.ts": true,
+      "scripts/validate-bv-calculator.ts": true
+    }
+  },
+  "desktopTestResult": "5 suites, 57 tests passed; 0 TS151002",
+  "lintResult": "86 warnings, 0 errors",
+  "ciProof": "Pending exact-head CI unit shards and a11y; intentionally no local test:stable per owner/council. CI status and run IDs belong to the PR body; this receipt makes no CI or Main claim.",
+  "reviewNotes": [
+    "The missing-file error result historically emitted undefined indexBV when the legacy index field was absent; the assertion retains this behavior rather than changing error-report output. The shared ValidationResult type still declares number; correcting that pre-existing contract is outside this no-behavior-change unit.",
+    "The later TS7 gate migration must preserve both projects and explicit TypeScript 7 entry points.",
+    "No Main, review, merge or closure evidence is claimed."
+  ],
+  "integration": {
+    "admissionBaseline": "437db72aab57009f2ba5b73a86220cb2dc65615a",
+    "rebasedOnto": "fe382ab0f986e04ea639833034ee30adba2df740",
+    "change": "Independent #2182 changed only e2e/app-shell-route-proof.spec.ts, scripts/__tests__/camp01-git-trust.test.ts and scripts/qc/camp01-git-trust.mjs; no owned source, dependency or input changed. Typecheck, lint, format and structural validators rerun after rebase. Harness and desktop proofs above remain on identical source/input/dependency bytes.",
+    "finalBase": "244c9d2fe",
+    "finalRebase": "Rebased onto #2183 immediately before PR creation. Only DELIVERY.md changed; all source, config, dependencies and tested inputs are byte-identical to the proved candidate. Admission proofClass light added to follow the new policy."
+  },
+  "census": {
+    "actualFiles": 11,
+    "includingReservedReviewSlot": 12,
+    "countedAddedLines": 60,
+    "maxFiles": 15,
+    "maxCountedAddedLines": 500,
+    "method": "git diff --cached --numstat --no-renames; roadmap evidence directory excluded from line count only"
+  }
+}
