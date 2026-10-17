@@ -129,7 +129,7 @@
   - `docs/development/git-hooks.md:21` describes the new pre-commit entry.
   - Add one sentence to the getting-started doc about the optional `TypeScriptTeam.native-preview` VS Code extension.
 - [x] 5.2 Note in `docs/development/troubleshooting.md` that `npx tsc` runs TypeScript 6 in the root package, and that `npm run typecheck` is the gate.
-- [ ] 5.3 Exact-main verification after the last PR merges:
+- [x] 5.3 Exact-main verification after the last PR merges:
   - rerun the section-0 measurements and the full gate list on the merge commit;
   - record them in this file.
   - Checkpoint `db607a7f` (2026-10-17; Node 22.22.0; TS7 7.0.2 / TS6 API 6.0.3): root two-project typecheck 6.96s cold / 1.89s warm; desktop type-check 0.61s. PR #2194 CI Type Check took 8s (run 39016629176); its head and this merge share tree `e0499dd7`, so this is inherited PR-head timing.

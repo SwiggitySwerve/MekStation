@@ -8779,7 +8779,14 @@
         "openspec/changes/migrate-to-typescript-7/specs/bv-validation-tooling/spec.md",
         "openspec/changes/migrate-to-typescript-7/proposal.md",
         "openspec/changes/migrate-to-typescript-7/tasks.md",
-        "openspec/changes/migrate-to-typescript-7/specs/typescript-toolchain/spec.md"
+        "openspec/changes/migrate-to-typescript-7/specs/typescript-toolchain/spec.md",
+        "openspec/changes/archive/2026-10-17-migrate-to-typescript-7/proposal.md",
+        "openspec/changes/archive/2026-10-17-migrate-to-typescript-7/tasks.md",
+        "openspec/changes/archive/2026-10-17-migrate-to-typescript-7/specs/typescript-toolchain/spec.md",
+        "openspec/changes/archive/2026-10-17-migrate-to-typescript-7/specs/bv-validation-tooling/spec.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5c-admission-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5c-red-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5c-local-20261017.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -8790,14 +8797,20 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "local-verified",
+      "baseline": "6b700bbb03abfbcd46500fbcbd1965adc832c895",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/ts7s5c-admission-20261017.json"
+        },
+        "red": {
+          "path": "evidence/ts7s5c-red-20261017.json"
+        },
+        "local": {
+          "path": "evidence/ts7s5c-local-20261017.json"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,

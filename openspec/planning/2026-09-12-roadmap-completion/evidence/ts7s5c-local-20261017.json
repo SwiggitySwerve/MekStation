@@ -1,0 +1,322 @@
+{
+  "schemaVersion": 1,
+  "unit": "TS7S5C",
+  "stage": "local",
+  "at": "2026-10-17T09:47:34.955Z",
+  "baseline": "6b700bbb03abfbcd46500fbcbd1965adc832c895",
+  "proofClass": "light",
+  "contributor": {
+    "provider": "openai",
+    "model": "gpt-6.1-sol",
+    "reasoningEffort": "high",
+    "task": "TS7S5C implementation sub-agent"
+  },
+  "verdict": "PASS",
+  "testedSourceHead": "a71faab6a8b138562bdc7f79321f1e2789dea012",
+  "validationScope": "Light candidate proof after rebase. Final commit metadata is revalidated before publication; no compiler/build/full-Jest sweep is claimed.",
+  "checks": [
+    {
+      "id": "validator",
+      "argv": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+      ],
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s5c-archive-20261017",
+      "startedAt": "2026-10-17T09:46:57.275Z",
+      "elapsedSeconds": 3.875,
+      "exit": 0,
+      "pass": true,
+      "error": null,
+      "log": "rebased-validator.log",
+      "sha256": "567feb20b9f85c902a3c4492eb3274c970f2370ccbbc6d3390088ad10923b947"
+    },
+    {
+      "id": "validator-git",
+      "argv": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+        "--git"
+      ],
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s5c-archive-20261017",
+      "startedAt": "2026-10-17T09:47:01.152Z",
+      "elapsedSeconds": 10.438,
+      "exit": 0,
+      "pass": true,
+      "error": null,
+      "log": "rebased-validator-git.log",
+      "sha256": "0d7d99319c662d2b64fa0c98e73d2d6254bad922234f2c7a68c71758fc9fa890"
+    },
+    {
+      "id": "validator-tests",
+      "argv": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "--test",
+        "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs"
+      ],
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s5c-archive-20261017",
+      "startedAt": "2026-10-17T09:47:11.590Z",
+      "elapsedSeconds": 9.523,
+      "exit": 0,
+      "pass": true,
+      "error": null,
+      "log": "rebased-validator-tests.log",
+      "sha256": "4f7b880ab05a2cdc4ff7fe523fc97919fad8bf355559aaa9026f6fb20cefd76e"
+    },
+    {
+      "id": "canonical-typescript",
+      "argv": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node_modules/npm/bin/npx-cli.js",
+        "--no-install",
+        "openspec",
+        "validate",
+        "typescript-toolchain",
+        "--type",
+        "spec",
+        "--strict"
+      ],
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s5c-archive-20261017",
+      "startedAt": "2026-10-17T09:47:21.114Z",
+      "elapsedSeconds": 1.185,
+      "exit": 0,
+      "pass": true,
+      "error": null,
+      "log": "rebased-canonical-typescript.log",
+      "sha256": "83e0371e530af027e981177fb331343cbedfd34f4b4d3431a765b7abead1a176"
+    },
+    {
+      "id": "canonical-bv",
+      "argv": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node_modules/npm/bin/npx-cli.js",
+        "--no-install",
+        "openspec",
+        "validate",
+        "bv-validation-tooling",
+        "--type",
+        "spec",
+        "--strict"
+      ],
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s5c-archive-20261017",
+      "startedAt": "2026-10-17T09:47:22.300Z",
+      "elapsedSeconds": 0.878,
+      "exit": 0,
+      "pass": true,
+      "error": null,
+      "log": "rebased-canonical-bv.log",
+      "sha256": "d1c11ee82e34255d2e1a6de0465782fbe4a553faf3e8101175fff3e7f71208de"
+    },
+    {
+      "id": "openspec-all",
+      "argv": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node_modules/npm/bin/npx-cli.js",
+        "--no-install",
+        "openspec",
+        "validate",
+        "--all",
+        "--strict"
+      ],
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s5c-archive-20261017",
+      "startedAt": "2026-10-17T09:47:23.179Z",
+      "elapsedSeconds": 0.911,
+      "exit": 0,
+      "pass": true,
+      "error": null,
+      "log": "rebased-openspec-all.log",
+      "sha256": "3f957310c0c3835ba3d5704458ddc03218d48f0b205252ed6d52ca87951ba4f5"
+    },
+    {
+      "id": "openspec-ci",
+      "argv": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "qc:openspec-ci:validate"
+      ],
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s5c-archive-20261017",
+      "startedAt": "2026-10-17T09:47:24.091Z",
+      "elapsedSeconds": 0.225,
+      "exit": 0,
+      "pass": true,
+      "error": null,
+      "log": "rebased-openspec-ci.log",
+      "sha256": "5b8f564706d4d1758110b42749f598120cc028d713f83d2c9c79b43af3738c93"
+    },
+    {
+      "id": "purpose",
+      "argv": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "spec:purpose:validate:strict"
+      ],
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s5c-archive-20261017",
+      "startedAt": "2026-10-17T09:47:24.317Z",
+      "elapsedSeconds": 0.806,
+      "exit": 0,
+      "pass": true,
+      "error": null,
+      "log": "rebased-purpose.log",
+      "sha256": "e943a6193e1402b76a237cabdd41f8efb46a9d586829e97e88e7be475d238603"
+    },
+    {
+      "id": "list",
+      "argv": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node_modules/npm/bin/npx-cli.js",
+        "--no-install",
+        "openspec",
+        "list",
+        "--json"
+      ],
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s5c-archive-20261017",
+      "startedAt": "2026-10-17T09:47:25.123Z",
+      "elapsedSeconds": 0.892,
+      "exit": 0,
+      "pass": true,
+      "error": null,
+      "log": "rebased-list.log",
+      "sha256": "558029088480bcead2a424d020842065a240a5d625d348b0273806c57c003e62"
+    }
+  ],
+  "next": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "exit": 0,
+    "output": "��T\u0000S\u00007\u0000S\u00005\u0000C\u0000\r\u0000\n\u0000"
+  },
+  "mechanicalProof": {
+    "baseline": "6b700bbb",
+    "head": "a71faab6a8b138562bdc7f79321f1e2789dea012",
+    "status": "local preparation; not an admission receipt",
+    "pairs": [
+      {
+        "from": "openspec/changes/migrate-to-typescript-7/proposal.md",
+        "to": "openspec/changes/archive/2026-10-17-migrate-to-typescript-7/proposal.md",
+        "beforeSha256": "923f5601df5b87ccc67f86410a481fcc3ddd21056b0284313ee161349368de43",
+        "afterSha256": "923f5601df5b87ccc67f86410a481fcc3ddd21056b0284313ee161349368de43",
+        "identical": true,
+        "onlyCheckboxDiff": false
+      },
+      {
+        "from": "openspec/changes/migrate-to-typescript-7/tasks.md",
+        "to": "openspec/changes/archive/2026-10-17-migrate-to-typescript-7/tasks.md",
+        "beforeSha256": "869683964a2d551e7c3ced8c0d76d7ff279c6c6691c09fcd3eedefeb406f2aaa",
+        "afterSha256": "d4cfda376924f63ee578a8b1badd065567aa9db066994971efbc9ec41205fee4",
+        "identical": false,
+        "onlyCheckboxDiff": true
+      },
+      {
+        "from": "openspec/changes/migrate-to-typescript-7/specs/typescript-toolchain/spec.md",
+        "to": "openspec/changes/archive/2026-10-17-migrate-to-typescript-7/specs/typescript-toolchain/spec.md",
+        "beforeSha256": "dd4e77fa647a19f540b0a8bfa12e5aff54a44bdf9cf49c8c2394e4105cebb0c3",
+        "afterSha256": "dd4e77fa647a19f540b0a8bfa12e5aff54a44bdf9cf49c8c2394e4105cebb0c3",
+        "identical": true,
+        "onlyCheckboxDiff": false
+      },
+      {
+        "from": "openspec/changes/migrate-to-typescript-7/specs/bv-validation-tooling/spec.md",
+        "to": "openspec/changes/archive/2026-10-17-migrate-to-typescript-7/specs/bv-validation-tooling/spec.md",
+        "beforeSha256": "9e3670d4502d1c3b0c121f00b5b29de4b2e37aab9bd144a12c35d4b6770c9090",
+        "afterSha256": "9e3670d4502d1c3b0c121f00b5b29de4b2e37aab9bd144a12c35d4b6770c9090",
+        "identical": true,
+        "onlyCheckboxDiff": false
+      }
+    ],
+    "unchanged": [
+      {
+        "path": "openspec/changes/archive/2026-10-17-migrate-to-typescript-7/design.md",
+        "sha256": "6356b47adbf56b3fd52ce9ab666ec72696c181c15cf4d1c7c0e7bca12671da1a"
+      },
+      {
+        "path": "openspec/specs/typescript-toolchain/spec.md",
+        "sha256": "71cb5ca3ad4db2762624e754c66812256771d4410b285e394388aff9abdcf3c1"
+      },
+      {
+        "path": "openspec/specs/bv-validation-tooling/spec.md",
+        "sha256": "066e6a4d7f1983ac5691cf6904f6e067178df18dac8a8e34918f42f737d1b1a2"
+      }
+    ],
+    "archive": [
+      "openspec/changes/archive/2026-10-17-migrate-to-typescript-7/design.md",
+      "openspec/changes/archive/2026-10-17-migrate-to-typescript-7/proposal.md",
+      "openspec/changes/archive/2026-10-17-migrate-to-typescript-7/specs/bv-validation-tooling/spec.md",
+      "openspec/changes/archive/2026-10-17-migrate-to-typescript-7/specs/typescript-toolchain/spec.md",
+      "openspec/changes/archive/2026-10-17-migrate-to-typescript-7/tasks.md"
+    ],
+    "filesystemAndGitTreeAbsence": true,
+    "ledgerRemovalOnly": true,
+    "census": {
+      "files": 10,
+      "countedAdditions": 323,
+      "rows": [
+        {
+          "path": "openspec/active-change-ledger.json",
+          "additions": 0,
+          "deletions": 6
+        },
+        {
+          "path": "openspec/changes/archive/2026-10-17-migrate-to-typescript-7/proposal.md",
+          "additions": 55,
+          "deletions": 0
+        },
+        {
+          "path": "openspec/changes/archive/2026-10-17-migrate-to-typescript-7/specs/bv-validation-tooling/spec.md",
+          "additions": 31,
+          "deletions": 0
+        },
+        {
+          "path": "openspec/changes/archive/2026-10-17-migrate-to-typescript-7/specs/typescript-toolchain/spec.md",
+          "additions": 82,
+          "deletions": 0
+        },
+        {
+          "path": "openspec/changes/archive/2026-10-17-migrate-to-typescript-7/tasks.md",
+          "additions": 150,
+          "deletions": 0
+        },
+        {
+          "path": "openspec/changes/migrate-to-typescript-7/proposal.md",
+          "additions": 0,
+          "deletions": 55
+        },
+        {
+          "path": "openspec/changes/migrate-to-typescript-7/specs/bv-validation-tooling/spec.md",
+          "additions": 0,
+          "deletions": 31
+        },
+        {
+          "path": "openspec/changes/migrate-to-typescript-7/specs/typescript-toolchain/spec.md",
+          "additions": 0,
+          "deletions": 82
+        },
+        {
+          "path": "openspec/changes/migrate-to-typescript-7/tasks.md",
+          "additions": 0,
+          "deletions": 150
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "additions": 5,
+          "deletions": 1
+        }
+      ]
+    }
+  },
+  "explicitAssertions": [
+    "Exactly five named archive files exist in both filesystem and Git tree.",
+    "The active change directory is absent in filesystem and Git tree.",
+    "The parsed active ledger differs only by removing migrate-to-typescript-7.",
+    "OpenSpec list JSON omits migrate-to-typescript-7.",
+    "Proposal and both delta blobs preserved; tasks differ only by the 5.3 checkbox.",
+    "Archived design and both canonical specs preserved byte-for-byte.",
+    "Canonical TS requirement body equals archived ADDED delta; canonical BV contains the complete archived MODIFIED requirement."
+  ],
+  "inheritedLimitations": "Preserves TS7S5B split stable/CI disclosures and the failing pre-existing maintenance backlog (72 critical/high findings in 10 categories). Does not relabel that gate green, change its baseline, or fix F1 wording outside this unit.",
+  "nonClaims": "No merge, final main proof, follow-up release, independent review, OWNER-RULING or fresh integrated sweep is claimed.",
+  "finalCensus": {
+    "files": 13,
+    "countedProductAddedLines": 337,
+    "rule": "git diff --numstat --no-renames against 6b700bbb; all evidence paths count as files and are exempt only from product-added-line total"
+  }
+}

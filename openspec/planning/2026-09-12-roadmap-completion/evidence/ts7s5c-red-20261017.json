@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "unit": "TS7S5C",
+  "stage": "red",
+  "at": "2026-10-17T09:47:34.955Z",
+  "baseline": "6b700bbb03abfbcd46500fbcbd1965adc832c895",
+  "kind": "Observed documentation/archive before-state; no fabricated failing product test.",
+  "before": {
+    "activeFiles": [
+      "proposal.md",
+      "tasks.md",
+      "specs/typescript-toolchain/spec.md",
+      "specs/bv-validation-tooling/spec.md"
+    ],
+    "archiveFiles": [
+      "design.md"
+    ],
+    "task53Checked": false,
+    "activeLedgerEntry": true
+  },
+  "baselineTask53": "- [ ] 5.3 Exact-main verification after the last PR merges:",
+  "detectorLimit": "Ordinary roadmap validation does not existence-check ownershipExceptions. Explicit filesystem/Git-tree inventory, content hashes, canonical/delta equality and list/ledger assertions are required and recorded in local proof."
+}

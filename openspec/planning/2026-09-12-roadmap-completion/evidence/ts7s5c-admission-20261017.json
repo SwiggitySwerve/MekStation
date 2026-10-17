@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "unit": "TS7S5C",
+  "stage": "admission",
+  "at": "2026-10-17T09:47:34.955Z",
+  "baseline": "6b700bbb03abfbcd46500fbcbd1965adc832c895",
+  "proofClass": "light",
+  "contributor": {
+    "provider": "openai",
+    "model": "gpt-6.1-sol",
+    "reasoningEffort": "high",
+    "task": "TS7S5C implementation sub-agent"
+  },
+  "authority": "Root explicitly opened the PR gate after TS7S5B closure #2201 at 6b700bbb and authorized the final TS7 unit. Prepared local moves were replayed onto that closure; the temporary local S5B merge is not in the source stack.",
+  "archiveDate": "2026-10-17",
+  "predecessor": {
+    "unit": "TS7S5B",
+    "state": "main-verified",
+    "sourceMerge": "ff3c85efb869339816cbe76fe83e36f7096af0e5",
+    "closureMerge": "6b700bbb03abfbcd46500fbcbd1965adc832c895",
+    "mainProof": {
+      "path": "evidence/ts7s5b-mainproof-20261017.json",
+      "mergeCommit": "ff3c85efb869339816cbe76fe83e36f7096af0e5",
+      "verdict": "PASS",
+      "runtime": "Source/Main checks: 9 passed (machine-idle only the Root-allowed PID 47516; canonical openspec/specs/typescript-toolchain/spec.md exists with a nonempty Purpose, its requirement body equals the ADDED delta body, 4 requirements and 7 scenarios, and openspec validate typescript-toolchain --type spec --strict is valid; archived openspec/changes/archive/2026-10-17-migrate-to-typescript-7/design.md exists and its blob e79fc639 equals the pre-move cf06e954 design.md blob by git rev-parse, and the active design.md is absent; the active change retains proposal.md, tasks.md and both delta specs and openspec validate migrate-to-typescript-7 --type change --strict is valid; tasks.md 5.3 stays unchecked and records the integrated db607a7f sweep at lines 135-138; canonical bv-validation-tooling names npm run typecheck; validator PASSED and --git PASSED with the #2197 correction; openspec validate --all --strict 231 passed and qc:openspec-ci:validate errors=0; 0 failed)"
+    }
+  },
+  "frozenManifest": [
+    {
+      "path": "openspec/active-change-ledger.json",
+      "baselineBlob": "a44f21c75690319a688e287916f5112040eabd65"
+    },
+    {
+      "path": "openspec/changes/archive/2026-10-17-migrate-to-typescript-7/proposal.md",
+      "baselineBlob": null
+    },
+    {
+      "path": "openspec/changes/archive/2026-10-17-migrate-to-typescript-7/specs/bv-validation-tooling/spec.md",
+      "baselineBlob": null
+    },
+    {
+      "path": "openspec/changes/archive/2026-10-17-migrate-to-typescript-7/specs/typescript-toolchain/spec.md",
+      "baselineBlob": null
+    },
+    {
+      "path": "openspec/changes/archive/2026-10-17-migrate-to-typescript-7/tasks.md",
+      "baselineBlob": null
+    },
+    {
+      "path": "openspec/changes/migrate-to-typescript-7/proposal.md",
+      "baselineBlob": "9938d8a7a021ebbea2f73ed08d39110fa436fb18"
+    },
+    {
+      "path": "openspec/changes/migrate-to-typescript-7/specs/bv-validation-tooling/spec.md",
+      "baselineBlob": "5a00c347cbbb0b4635f687aa5bc99a954408a2f0"
+    },
+    {
+      "path": "openspec/changes/migrate-to-typescript-7/specs/typescript-toolchain/spec.md",
+      "baselineBlob": "c734421fec0c176307a859ff470686b325fb9cb4"
+    },
+    {
+      "path": "openspec/changes/migrate-to-typescript-7/tasks.md",
+      "baselineBlob": "e3f2c7deef38219c81293b1ab061dbd7415f8432"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "baselineBlob": "e48b95d7cae4b28e0109356d4bd484ba7356c7e1"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5c-admission-20261017.json",
+      "baselineBlob": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5c-red-20261017.json",
+      "baselineBlob": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5c-local-20261017.json",
+      "baselineBlob": null
+    }
+  ],
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500
+  },
+  "sourceCensusBeforeLifecycle": {
+    "files": 10,
+    "countedAdditions": 323,
+    "rows": [
+      {
+        "path": "openspec/active-change-ledger.json",
+        "additions": 0,
+        "deletions": 6
+      },
+      {
+        "path": "openspec/changes/archive/2026-10-17-migrate-to-typescript-7/proposal.md",
+        "additions": 55,
+        "deletions": 0
+      },
+      {
+        "path": "openspec/changes/archive/2026-10-17-migrate-to-typescript-7/specs/bv-validation-tooling/spec.md",
+        "additions": 31,
+        "deletions": 0
+      },
+      {
+        "path": "openspec/changes/archive/2026-10-17-migrate-to-typescript-7/specs/typescript-toolchain/spec.md",
+        "additions": 82,
+        "deletions": 0
+      },
+      {
+        "path": "openspec/changes/archive/2026-10-17-migrate-to-typescript-7/tasks.md",
+        "additions": 150,
+        "deletions": 0
+      },
+      {
+        "path": "openspec/changes/migrate-to-typescript-7/proposal.md",
+        "additions": 0,
+        "deletions": 55
+      },
+      {
+        "path": "openspec/changes/migrate-to-typescript-7/specs/bv-validation-tooling/spec.md",
+        "additions": 0,
+        "deletions": 31
+      },
+      {
+        "path": "openspec/changes/migrate-to-typescript-7/specs/typescript-toolchain/spec.md",
+        "additions": 0,
+        "deletions": 82
+      },
+      {
+        "path": "openspec/changes/migrate-to-typescript-7/tasks.md",
+        "additions": 0,
+        "deletions": 150
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "additions": 5,
+        "deletions": 1
+      }
+    ]
+  },
+  "scope": "Four git mv operations, task 5.3 tick, active-ledger removal, four literal archive destination exceptions and own lifecycle/three receipts. No other unit, historical receipt, canonical spec, archived design or product code changes.",
+  "successorNotes": {
+    "wording": "- Keep S5C blocked until S5B has its own genuine merge/main-proof/closure. Preserve one product-writing lane and check the union of ownershipPaths and exact exceptions; NEXT alone does not enforce those documentary dependencies/reservations.\n- Reuse only openspec/changes/archive/2026-10-17-migrate-to-typescript-7, even if implementation happens later. Freeze the four exact destination grants for proposal.md, tasks.md, specs/typescript-toolchain/spec.md and specs/bv-validation-tooling/spec.md before moving them. The BV delta exists under option (a) and must move too.\n- Preserve existing archived design bytes and historical source exceptions. Move the remaining files with git mv, tick 5.3 only after the required evidence, remove the active-ledger entry in the same bounded PR, and verify the active directory/list entry is absent. Do not run a one-shot archive command against the existing destination or remap other units' historical receipts.\n- Count both sides of every rename with --no-renames, every destination addition, own-unit lifecycle lines, and every evidence file in the file census. Retain 15 files/500 counted additions; use the registered narrower-successor process if actual measured scope cannot fit.\n- Rerun strict OpenSpec, QC and default/--git/--next roadmap validation; explicitly check archive inventory/content and canonical synchronization. Preserve the split stable/CI/maintenance disclosures and distinguish inherited db607a7f sweep evidence from S5C's own candidate and eventual main proof. Carry the maintenance backlog separately without changing its baseline to hide it. F1 is optional follow-up requiring its own authorized wording scope, not permission to edit the archived design or broaden S5C.",
+    "detectorLimit": "Important detector limit, not a new blocking defect: openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs:518 existence-checks ownershipPaths, while the archive destination is intentionally an ownershipException. A separate fs.existsSync overlay hiding only the archive design copy still produced ROADMAP VALIDATION PASSED (exit 0). Thus I do NOT claim that deleting the archive makes the ordinary roadmap validator fail. The explicit archive-content assertion catches it. OpenSpec structural validation is likewise not a substitute for canonical/delta content equality. S5C must retain explicit inventory and content checks alongside normal validators.",
+    "concern": "reuse only archive/2026-10-17-migrate-to-typescript-7 and freeze the four exact destination grants (including the option-(a) BV delta) before moving; --no-renames accounting for both sides of every rename; explicit archive inventory/content and canonical-sync checks alongside the validators, because validate-roadmap.mjs does not existence-check ownershipExceptions",
+    "applies": "TS7S5C is released to planned by this change set. At its own admission these notes bind: one product-writing lane, the frozen archive directory and four literal destination grants, git mv of the remaining files with design bytes and historical exceptions preserved, 5.3 ticked only after evidence, the active-ledger entry removed in the same bounded PR, 15 files/500 counted additions, and explicit inventory/content checks in addition to strict OpenSpec, QC and default/--git/--next roadmap validation. The split stable/CI/maintenance disclosures stay distinct; the maintenance backlog stays a failing/deferred gate and is never relabeled green. F1 is optional follow-up outside S5C."
+  },
+  "overlap": "Published predecessor PASS and ancestry verified; no other unit is in-flight. Exact source/destination/lifecycle/evidence paths checked against the union of ownershipPaths and ownershipExceptions; NEXT is not permission.",
+  "bvDisposition": "The option-(a) delta exists. PLAN, #2197 and TS7S5B successor notes explicitly require archiving it unchanged.",
+  "inheritedEvidence": "The integrated compiler/API/build sweep belongs to TS7S5B and checkpoint db607a7f. No heavy run is performed by S5C."
+}
