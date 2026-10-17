@@ -256,11 +256,11 @@ for (const platform of PLATFORMS) {
       }
     }
 
-    // Use electron-builder directly with --dir flag and skip signing
-    // signAndEditExecutable: false should prevent winCodeSign download
+    // Keep executable icon/metadata editing enabled, matching release builds.
+    // signExecutable=false skips code signing without skipping those resources.
     const packCommand =
       platform === 'win'
-        ? `npx electron-builder --win --x64 --dir ${OUTPUT_FLAG} --config.win.signExecutable=false --config.win.signAndEditExecutable=false`
+        ? `npx electron-builder --win --x64 --dir ${OUTPUT_FLAG} --config.win.signExecutable=false`
         : platform === 'mac'
           ? `npx electron-builder --mac --dir ${OUTPUT_FLAG} --config.mac.sign=false`
           : `npx electron-builder --linux --dir ${OUTPUT_FLAG}`;
