@@ -1,0 +1,71 @@
+{
+  "unit": "TS7S5B",
+  "stage": "review",
+  "recordedAt": "2026-10-17T09:40:00.000Z",
+  "head": "c45cd1833160ef9867ff0dbafc57157e9c6d33e2",
+  "reviewedHead": "c45cd1833160ef9867ff0dbafc57157e9c6d33e2",
+  "reviewerModel": "gpt-6-astra",
+  "reviewerEffort": "high",
+  "implementerModel": "gpt-6.1-sol",
+  "verdict": "PASS WITH ONE NONBLOCKING WORDING FINDING",
+  "outputPath": "evidence/ts7s5b-source-astra-review-20261017.txt",
+  "outputSha256": "ec1f52c85fdd8e05109b961b30b0eeb164066aef584b685af4e8b49e63a47847",
+  "reviews": [
+    {
+      "round": 1,
+      "path": "evidence/ts7s5b-source-astra-review-20261017.txt",
+      "sha256": "ec1f52c85fdd8e05109b961b30b0eeb164066aef584b685af4e8b49e63a47847",
+      "bytes": 14516,
+      "originalPath": "docs/audits/2026-10-17-ts7s5b-review.md",
+      "reviewedHead": "c45cd1833160ef9867ff0dbafc57157e9c6d33e2",
+      "verdict": "PASS WITH ONE NONBLOCKING WORDING FINDING"
+    }
+  ],
+  "reviewHistory": "One round on the exact merged head c45cd183 by an independent GPT-6 Astra reviewer at high effort (routine review class, council lean cadence): PASS with no blocking findings and one low, nonblocking wording finding (F1) in the canonical toolchain spec rationale, copied faithfully from the ADDED delta; nothing requires a change to the head.",
+  "verdictText": "PASS WITH ONE NONBLOCKING WORDING FINDING — PR #2198 at c45cd1833160ef9867ff0dbafc57157e9c6d33e2.",
+  "verdictNote": "verdict is the reviewer's own first-line verdict, recorded exactly as written (the reviewer did not use the APPROVE/APPROVE-WITH-NOTES vocabulary; this is the equivalent of APPROVE-WITH-NOTES). verdictText is the complete first line.",
+  "reviewClass": "routine (no Lane B owner ruling required for this unit)",
+  "reviewedScope": "Independent routine review, 2026-10-17. Baseline: cf06e9547f87c929d63cc23194b4ce7d67c3ef15 (#2197). Integrated product checkpoint: db607a7fc80a87b1dbe0d033e34b5d201e018840 (#2194 merge). GitHub confirmed the requested PR head and base. This verdict covers this exact source head; it is not approval of a later head, a merge receipt, an exact-main proof of the eventual S5B merge, or permission to release S5C.",
+  "findings": {
+    "F1": {
+      "text": "- F1 (low, nonblocking), openspec/specs/typescript-toolchain/spec.md:19: the explanation groups `node_modules/typescript/bin/tsc` with commands that resolve to the TS6 compatibility compiler. The actual 6.0.2 wrapper has no bin/tsc there; that invocation fails MODULE_NOT_FOUND. Bare root tsc/npx tsc resolve through @typescript/old to 6.0.3. The sweep records this distinction, and I independently confirmed the missing path and installed wrapper/API versions. The prohibition and required TS7 routing are correct. This wording was copied faithfully from the existing ADDED delta, so it does not block synchronization/archive. A future authorized wording correction should say these invocations either select TS6 or fail, and should not rewrite frozen historical design bytes.",
+      "applies": "Not a requested change to the merged head; the reviewer states it does not block synchronization/archive. Any future correction needs its own authorized wording scope and must not rewrite the frozen archived design bytes. It is not part of TS7S5C's scope."
+    }
+  },
+  "sweepDisclosure": "The sweep disclosure is acceptable as a genuine integrated checkpoint on db607a7f, with the following precise limits. tasks.md:135 records the exact merge, compiler versions, cold/warm root two-project measurements (6.9627525s / 1.8910267s) and desktop check (0.6080128s). The receipt preserves command stdout/stderr, failures, times and provenance. I decompressed and verified the declared byte lengths and SHA-256 values of all 212 embedded log/helper envelopes across the sweep and local receipts; integrity checking alone is not a fresh execution of those product gates.",
+  "checkpointBoundary": "There is also an honest boundary between checkpoint and candidate. evidence/ts7s5b-local-20261017.json:600 expressly says the broad sweep ran on db607a7f, not the later documentation candidate. A diff from db607a7f to cf06e954 contains the closure/correction records and an intervening playwright.config.ts revert; the candidate receipt includes a fresh two-project typecheck covering that configuration. Nothing here warrants claiming the full stable/build sweep was rerun on c45cd183. This matches the registered last-product-merge checkpoint and the requested review scope.",
+  "freshChecks": "Fresh lightweight checks performed at the exact candidate:\n\n- Roadmap validator default: PASS, 80 nodes / 13 packages / 381 tasks / 40 triage rows.\n- Roadmap validator --git: PASS, including historical ownership and counted-addition checks.\n- Roadmap validator --next: exit 0, U24b. This is advisory selection and grants no parallel product admission or S5C release.\n- `openspec validate typescript-toolchain --type spec --strict`: valid.\n- `openspec validate --all --strict`: 231 passed, zero failed.\n- `node scripts/qc/validate-openspec-ci-quality.mjs`: errors=0; all ten active changes accounted for.\n- `git diff --check cf06e954 c45cd183`: clean.\n- Exact manifest/ownership set comparison, own-unit-only ledger comparison, canonical/delta content comparison, installed compiler identity/config checks, design blob equality, and final clean Git status: PASS.",
+  "mutants": "Mutation evidence is read-only and independently executed. A Node stdin harness read the exact Git blobs, required the archive copy, compared its bytes with baseline design.md, required a nonempty Purpose, and compared the entire canonical requirement body with the delta. Positive control passed. Four in-memory mutants were rejected by assertions: (M1) archive buffer absent -> archive copy missing; (M2) change `major version is 7` to `major version is 6` in canonical text -> requirement-body mismatch; (M3) append one byte to archived design -> byte mismatch; (M4) rename Purpose heading to Overview -> Purpose check failure. No repository file was changed for a mutant.",
+  "detectorLimit": "Important detector limit, not a new blocking defect: openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs:518 existence-checks ownershipPaths, while the archive destination is intentionally an ownershipException. A separate fs.existsSync overlay hiding only the archive design copy still produced ROADMAP VALIDATION PASSED (exit 0). Thus I do NOT claim that deleting the archive makes the ordinary roadmap validator fail. The explicit archive-content assertion catches it. OpenSpec structural validation is likewise not a substitute for canonical/delta content equality. S5C must retain explicit inventory and content checks alongside normal validators.",
+  "verifiedBlobs": "Verified Git-blob SHA-256 values:\n\n- Canonical toolchain spec: 71cb5ca3ad4db2762624e754c66812256771d4410b285e394388aff9abdcf3c1\n- Archived design: 6356b47adbf56b3fd52ce9ab666ec72696c181c15cf4d1c7c0e7bca12671da1a\n- Committed sweep receipt: 8d780898a364d8cdde6dd2c0db838a9b06bf6a077fc014f5e177d26690c22854",
+  "notVerified": [
+    "No checkout, install, junction creation, product build, full test rerun, tracked mutation, or Git state change was performed."
+  ],
+  "notVerifiedNote": "Parent note: the integrated sweep is recorded by the unit in tasks.md 5.3 (lines 135-138) and evidence/ts7s5b-sweep-20261017.json; it ran on db607a7f, the last product merge. Lint, format:check, typecheck, test:stable and the desktop gates were covered on PR head c45cd183 by CI run 39020947572, all 32 check runs success. The mainProof receipt records the focused exact-Main proof at ff3c85ef.",
+  "successorNotes": {
+    "TS7S5C": {
+      "wording": "- Keep S5C blocked until S5B has its own genuine merge/main-proof/closure. Preserve one product-writing lane and check the union of ownershipPaths and exact exceptions; NEXT alone does not enforce those documentary dependencies/reservations.\n- Reuse only openspec/changes/archive/2026-10-17-migrate-to-typescript-7, even if implementation happens later. Freeze the four exact destination grants for proposal.md, tasks.md, specs/typescript-toolchain/spec.md and specs/bv-validation-tooling/spec.md before moving them. The BV delta exists under option (a) and must move too.\n- Preserve existing archived design bytes and historical source exceptions. Move the remaining files with git mv, tick 5.3 only after the required evidence, remove the active-ledger entry in the same bounded PR, and verify the active directory/list entry is absent. Do not run a one-shot archive command against the existing destination or remap other units' historical receipts.\n- Count both sides of every rename with --no-renames, every destination addition, own-unit lifecycle lines, and every evidence file in the file census. Retain 15 files/500 counted additions; use the registered narrower-successor process if actual measured scope cannot fit.\n- Rerun strict OpenSpec, QC and default/--git/--next roadmap validation; explicitly check archive inventory/content and canonical synchronization. Preserve the split stable/CI/maintenance disclosures and distinguish inherited db607a7f sweep evidence from S5C's own candidate and eventual main proof. Carry the maintenance backlog separately without changing its baseline to hide it. F1 is optional follow-up requiring its own authorized wording scope, not permission to edit the archived design or broaden S5C.",
+      "detectorLimit": "Important detector limit, not a new blocking defect: openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs:518 existence-checks ownershipPaths, while the archive destination is intentionally an ownershipException. A separate fs.existsSync overlay hiding only the archive design copy still produced ROADMAP VALIDATION PASSED (exit 0). Thus I do NOT claim that deleting the archive makes the ordinary roadmap validator fail. The explicit archive-content assertion catches it. OpenSpec structural validation is likewise not a substitute for canonical/delta content equality. S5C must retain explicit inventory and content checks alongside normal validators.",
+      "concern": "reuse only archive/2026-10-17-migrate-to-typescript-7 and freeze the four exact destination grants (including the option-(a) BV delta) before moving; --no-renames accounting for both sides of every rename; explicit archive inventory/content and canonical-sync checks alongside the validators, because validate-roadmap.mjs does not existence-check ownershipExceptions",
+      "applies": "TS7S5C is released to planned by this change set. At its own admission these notes bind: one product-writing lane, the frozen archive directory and four literal destination grants, git mv of the remaining files with design bytes and historical exceptions preserved, 5.3 ticked only after evidence, the active-ledger entry removed in the same bounded PR, 15 files/500 counted additions, and explicit inventory/content checks in addition to strict OpenSpec, QC and default/--git/--next roadmap validation. The split stable/CI/maintenance disclosures stay distinct; the maintenance backlog stays a failing/deferred gate and is never relabeled green. F1 is optional follow-up outside S5C."
+    },
+    "note": "Every wording, detectorLimit, verdictText, reviewedScope, findings text, sweepDisclosure, checkpointBoundary, freshChecks, mutants, verifiedBlobs and notVerified string is a verbatim substring of evidence/ts7s5b-source-astra-review-20261017.txt (the generator checked this). concern, applies and every note are parent notes, not reviewer text. The TS7 track has no PROGRESS.md of its own, so these notes are recorded in this receipt only."
+  },
+  "reservedSlot": "The reviewer wrote its audit to docs/audits/2026-10-17-ts7s5b-review.md in the root checkout (untracked there); this closure preserves it byte for byte at evidence/ts7s5b-source-astra-review-20261017.txt instead of authoring reviewer text.",
+  "ciQualification": "All 32 check runs on the merged head succeeded (run 39020947572), with no commit statuses. The merge receipt records the 32 names.",
+  "identityScope": "Preserves the existing unversioned TS7S5B evidence and the actual cross-model review provenance. No v2/v3 identity manifest or engine observation is claimed.",
+  "githubApproval": "Lane A engineering evidence only; no GitHub approval claimed.",
+  "ownerRuling": "Routine review class: no OWNER-RULING comment is required or posted for this unit.",
+  "successorRelease": {
+    "label": "successor release",
+    "scope": "Separate from the TS7S5B closure. This change set also releases TS7S5C (successor release). No other field of TS7S5C changes and no other unit is released; TS7S5C is the last unit of the track.",
+    "release": {
+      "unit": "TS7S5C",
+      "field": "state",
+      "from": "blocked",
+      "to": "planned",
+      "basis": "TS7S5C's only predecessor is TS7S5B, as TS7S5C.admissionRequires demands. TS7S5B is main-verified in this same change set with a genuine exact-main mainProof PASS at ff3c85efb869339816cbe76fe83e36f7096af0e5. TS7S5B has no task keys, so its tick stays null. This is the standard on which TS7S5B was released (#2196), TS7S5A (#2193), TS7S4B (#2190), TS7S4A (#2188), TS7S3 (#2181), TS7S2B (#2179), TS7S2A (#2177) and TS7S1B (#2175) before it.",
+      "permission": "Release to planned only. Selection is not admission. TS7S5C source work still requires its own normal finite admission at its own baseline (containing ff3c85ef and this closure), with the four literal archive destination grants frozen by literal-path amendment before any move."
+    }
+  }
+}
