@@ -27,6 +27,8 @@ npm run dev
 
 Open [http://localhost:3600](http://localhost:3600) to view the application.
 
+For TypeScript 7 editor support in VS Code, optionally install the `TypeScriptTeam.native-preview` extension.
+
 ## Asset Management
 
 Record sheet templates and armor pips are externalized to MegaMek's [mm-data](https://github.com/MegaMek/mm-data) repository. You have two options for asset workflow:
@@ -139,7 +141,7 @@ npm run build           # Build for production
 npm run fetch:assets    # Download mm-data assets from CDN
 npm run lint            # Run ESLint
 npm run test            # Run tests
-npx tsc --noEmit        # Type check without building
+npm run typecheck       # TypeScript 7 checks for root and scripts projects
 npm run storybook       # Start Storybook dev server
 npm run storybook:build # Build Storybook for production
 ```

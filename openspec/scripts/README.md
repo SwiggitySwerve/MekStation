@@ -31,6 +31,8 @@ npm run terminology:fix:dry-run
 
 A comprehensive TypeScript-based tool that combines validation, fixing, and reporting into a single unified interface.
 
+The tool runs under `tsx`, which does not type-check on load; a green terminology run validates terminology only, so run `npm run typecheck` for TypeScript checks.
+
 ### Features
 
 - ✅ **Smart context detection** - Skips code blocks, comments, deprecated examples
@@ -44,25 +46,25 @@ A comprehensive TypeScript-based tool that combines validation, fixing, and repo
 
 ```bash
 # Basic validation
-npx ts-node openspec/scripts/terminology-tool.ts validate
+npx tsx openspec/scripts/terminology-tool.ts validate
 
 # Validation with strict mode (fails on errors)
-npx ts-node openspec/scripts/terminology-tool.ts validate --strict
+npx tsx openspec/scripts/terminology-tool.ts validate --strict
 
 # Show what would be fixed (dry run)
-npx ts-node openspec/scripts/terminology-tool.ts fix --dry-run
+npx tsx openspec/scripts/terminology-tool.ts fix --dry-run
 
 # Fix violations automatically
-npx ts-node openspec/scripts/terminology-tool.ts fix
+npx tsx openspec/scripts/terminology-tool.ts fix
 
 # Check only files changed in git
-npx ts-node openspec/scripts/terminology-tool.ts validate --changed-only
+npx tsx openspec/scripts/terminology-tool.ts validate --changed-only
 
 # Include TypeScript source files
-npx ts-node openspec/scripts/terminology-tool.ts validate --source
+npx tsx openspec/scripts/terminology-tool.ts validate --source
 
 # Output as JSON
-npx ts-node openspec/scripts/terminology-tool.ts validate --json
+npx tsx openspec/scripts/terminology-tool.ts validate --json
 ```
 
 ### Commands
@@ -221,10 +223,10 @@ Add these scripts to your `package.json`:
 ```json
 {
   "scripts": {
-    "terminology:validate": "npx ts-node openspec/scripts/terminology-tool.ts validate",
-    "terminology:validate:strict": "npx ts-node openspec/scripts/terminology-tool.ts validate --strict",
-    "terminology:fix": "npx ts-node openspec/scripts/terminology-tool.ts fix",
-    "terminology:fix:dry-run": "npx ts-node openspec/scripts/terminology-tool.ts fix --dry-run"
+    "terminology:validate": "npx tsx openspec/scripts/terminology-tool.ts validate",
+    "terminology:validate:strict": "npx tsx openspec/scripts/terminology-tool.ts validate --strict",
+    "terminology:fix": "npx tsx openspec/scripts/terminology-tool.ts fix",
+    "terminology:fix:dry-run": "npx tsx openspec/scripts/terminology-tool.ts fix --dry-run"
   }
 }
 ```
@@ -235,7 +237,7 @@ Add to `.git/hooks/pre-commit`:
 
 ```bash
 #!/bin/bash
-npx ts-node openspec/scripts/terminology-tool.ts validate --strict --changed-only
+npx tsx openspec/scripts/terminology-tool.ts validate --strict --changed-only
 if [ $? -ne 0 ]; then
   echo "❌ Terminology validation failed. Please fix violations before committing."
   exit 1
@@ -246,7 +248,7 @@ fi
 
 ```yaml
 - name: Validate Terminology
-  run: npx ts-node openspec/scripts/terminology-tool.ts validate --strict
+  run: npx tsx openspec/scripts/terminology-tool.ts validate --strict
 ```
 
 ---
@@ -299,13 +301,13 @@ python openspec/scripts/fix_terminology.py openspec/specs
 
 ```bash
 # Verbose output
-npx ts-node openspec/scripts/terminology-tool.ts validate --verbose
+npx tsx openspec/scripts/terminology-tool.ts validate --verbose
 
 # JSON output for programmatic use
-npx ts-node openspec/scripts/terminology-tool.ts validate --json | jq
+npx tsx openspec/scripts/terminology-tool.ts validate --json | jq
 
 # Check specific file
-npx ts-node openspec/scripts/terminology-tool.ts validate openspec/specs/gyro-system/spec.md
+npx tsx openspec/scripts/terminology-tool.ts validate openspec/specs/gyro-system/spec.md
 ```
 
 ---

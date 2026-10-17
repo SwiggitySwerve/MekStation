@@ -18,7 +18,9 @@ Current behaviour:
 | Step | Action                                                                                                                                                                  |
 | ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 1    | `npx lint-staged` runs `oxlint --fix` and `oxfmt --write` on staged `.ts` / `.tsx` / `.js` / `.jsx` files, and `oxfmt --write` on staged `.json` / `.md` / `.css` files |
-| 2    | When any `.ts` / `.tsx` file is staged, lint-staged ends with a whole-project `tsc --noEmit --skipLibCheck`, which catches type errors                                  |
+| 2    | When any `.ts` / `.tsx` file is staged, lint-staged ends with `bash -c 'npm run typecheck'`, which checks both root and scripts projects with TypeScript 7              |
+
+The `bash -c` wrapper keeps staged filenames out of the compiler arguments so both checks use their tsconfig files.
 
 The hook runs no production build (owner decision of 2026-09-23, roadmap unit U62). The pr-checks workflow runs `npm run build` on every pull request that changes code, together with the lint, format, type and test gates.
 

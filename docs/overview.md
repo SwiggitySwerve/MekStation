@@ -58,7 +58,7 @@ OpenSpec Specs → TypeScript Types → Services → Components
 | Database    | SQLite (better-sqlite3)      |
 | PDF         | jsPDF                        |
 | Testing     | Jest + React Testing Library |
-| Language    | TypeScript 5.8               |
+| Language    | TypeScript 7                 |
 
 ### Project Structure (summary)
 
