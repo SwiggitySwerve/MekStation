@@ -1,0 +1,660 @@
+{
+  "schemaVersion": 1,
+  "registrationOnly": true,
+  "at": "2026-10-17T23:11:37.910Z",
+  "baseline": "a64c6f1c9e77ecf2d6be38f2dd00316241557a85",
+  "branch": "codex/ichain-amendment-20261018",
+  "actor": {
+    "role": "implementation sub-agent acting for the parent",
+    "provider": "openai",
+    "servedModel": "gpt-6-astra",
+    "gitAuthor": "Wes Rollings <wrollings@gmail.com> 1792278697 -0600",
+    "identitySource": "T3 Code runtime; this is not independent review"
+  },
+  "authority": {
+    "instruction": "User requested a local-only batch parent literal-path amendment for P2CG1I1..I4, registering only demonstrated needs and recording unproven predecessor-dependent paths as NOT registered yet. No push or PR.",
+    "precedent": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1d-grant-helper-literal-path-amendment-20261017.json",
+    "documentaryInputs": [
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1i-scope-20261017/SCOPE.md",
+        "bytes": 73201,
+        "sha256": "c8855aae7748fcc049dfda36dfdb8171f754b41ee0afe7cc809c82d2fb8cff17"
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation/docs/audits/2026-10-17-p2cg1d-admission-stop-report.md",
+        "bytes": 2707,
+        "sha256": "d7a8fb9ae88d5c4e0f6ab66ff2c93fd3afc6614ffb1a66a8e6bb4f75e42c63e6"
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation/docs/audits/2026-10-17-pr2220-review.md",
+        "bytes": 13135,
+        "sha256": "7b4a6f4db4f4c74bdd06f932818a8b0273155bb8aa22854620c931c966aed547"
+      }
+    ]
+  },
+  "defect": {
+    "method": "Static, assertion-backed precise reading; no runtime tests, no TS mutation, no claim of compiler errors. Exact anchors and blob hashes permit reproduction.",
+    "probes": [
+      {
+        "id": "I2-CREATE-SETUP",
+        "unit": "P2CG1I2",
+        "path": "src/lib/multiplayer/server/__tests__/coopMissionCreate.harness.ts",
+        "decision": "register",
+        "method": "precise reading of the existing registered reconnect proof call path",
+        "obligation": "Twelfth narrower P2CG1 successor: test migration before the server deletion. Some server suites converge through the numeric CampaignAck or noteParticipantAcknowledged, or drive AdvanceDay through the binder's legacy gate. They move to the installed-port receipt path (port installed on a reset registry, real application ACKs, P2CA rows), so they pass both before and after P2CG1I3. Test-only; no product file changes. A suite in this list that turns out to need no change is reported unchanged. Planned leaves (7), all under src/lib/multiplayer/server/__tests__/: campaignHostIntentServerTime.test-helpers.ts, campaignHostIntentServerTime.test.ts, campaignLiveDeliveryUnification.test.ts, campaignProgressionReaders.durable.integrity.test.ts, campaignWireScopeBoundary.test.ts, coopMissionAnnouncement.reconnect.test.ts and healCommittedParticipantRemovals.test.ts. Estimated at about 16-20 counted lines (units.json only); that is not a cap-fit proof.",
+        "anchors": [
+          {
+            "path": "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts",
+            "line": 101,
+            "text": "fixture = await openAnnouncementFixture();"
+          },
+          {
+            "path": "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.harness.ts",
+            "line": 54,
+            "text": "const fixture = await openRouteFixture();"
+          },
+          {
+            "path": "src/lib/multiplayer/server/__tests__/coopMissionCreate.harness.ts",
+            "line": 122,
+            "text": "export async function openRouteFixture(): Promise<"
+          },
+          {
+            "path": "src/lib/multiplayer/server/__tests__/coopMissionCreate.harness.ts",
+            "line": 141,
+            "text": "_resetCampaignHostRegistry();\n  _resetMatchHostRegistry();"
+          },
+          {
+            "path": "src/lib/multiplayer/server/__tests__/coopMissionCreate.harness.ts",
+            "line": 144,
+            "text": "getSQLiteService({ path: campaignPath }).initialize();"
+          },
+          {
+            "path": "src/lib/multiplayer/server/__tests__/coopMissionCreate.harness.ts",
+            "line": 184,
+            "text": "const vessel = await post(vesselRequest(state), host);"
+          },
+          {
+            "path": "src/lib/multiplayer/server/__tests__/coopMissionCreate.harness.ts",
+            "line": 187,
+            "text": "const entry = getCampaignHostRegistry().get(matchId);\n    assert.ok(entry);"
+          },
+          {
+            "path": "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+            "line": 301,
+            "text": "if (this.entries.size > 0) {\n      throw new Error(\n        'Campaign application receipt port needs an empty registry',"
+          },
+          {
+            "path": "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+            "line": 508,
+            "text": "delete global[CAMPAIGN_HOST_REGISTRY_SLOT_KEY];"
+          }
+        ],
+        "result": "The existing reconnect beforeEach obtains its entry through both helpers. Installing before openRouteFixture is erased by its reset; installing after it resolves is rejected because the vessel entry already exists. The existing proof fixture therefore needs an opt-in installation seam between database initialization and vessel creation in this file. Its current zero-argument implementation has no such seam.",
+        "minimalRepair": "Add an optional/defaulted receipt setup option and install the real port after reset/database initialization, before the vessel POST. Preserve default legacy behavior and existing returned fields for non-I2 consumers.",
+        "alternative": "A test can discard/reconstruct the returned registry/entry or duplicate fixture setup. That is a different fixture implementation, not a compiler impossibility. This amendment selects the minimal shared-fixture migration of the registered reconnect proof; it does not fabricate a required interface field or TS diagnostic."
+      },
+      {
+        "id": "I2-ANNOUNCEMENT-CONFIRM",
+        "unit": "P2CG1I2",
+        "path": "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.harness.ts",
+        "decision": "register",
+        "method": "precise reading of required confirmed-write and applied-ACK proof",
+        "anchors": [
+          {
+            "path": "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.harness.ts",
+            "line": 54,
+            "text": "const fixture = await openRouteFixture();"
+          },
+          {
+            "path": "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.harness.ts",
+            "line": 24,
+            "text": "override send(data: string): void {\n    super.send(data);"
+          },
+          {
+            "path": "src/lib/multiplayer/server/__tests__/campaignGrantChannel.test-helpers.ts",
+            "line": 50,
+            "text": "send(data: string): void {\n    this.sent.push(JSON.parse(data) as IServerMessage);"
+          },
+          {
+            "path": "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.harness.ts",
+            "line": 60,
+            "text": "const socket = new ObservedSocket();"
+          },
+          {
+            "path": "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.harness.ts",
+            "line": 70,
+            "text": "const ready = nextFrame(socket, 'CampaignSnapshot');"
+          },
+          {
+            "path": "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.harness.ts",
+            "line": 79,
+            "text": "await ready;\n    return socket;"
+          },
+          {
+            "path": "src/lib/multiplayer/server/ServerMatchBroadcaster.ts",
+            "line": 256,
+            "text": "socket.send(payload, (error) => {"
+          },
+          {
+            "path": "src/lib/multiplayer/server/campaignApplicationConnection.ts",
+            "line": 390,
+            "text": "const result = await this.deps.broadcaster.sendConfirmed("
+          },
+          {
+            "path": "src/lib/multiplayer/server/campaignApplicationConnection.ts",
+            "line": 415,
+            "text": "view.latest = candidate;\n    view.inFlight = null;\n    await this.processAck(view);"
+          },
+          {
+            "path": "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts",
+            "line": 306,
+            "text": "const gm = await fixture.join(getCampaignHostRegistry(), fixture.host);"
+          },
+          {
+            "path": "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts",
+            "line": 332,
+            "text": "const live = await fixture.join();"
+          },
+          {
+            "path": "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts",
+            "line": 468,
+            "text": "const ack = source.syncSession.noteParticipantAcknowledged("
+          },
+          {
+            "path": "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts",
+            "line": 764,
+            "text": "super.send(data);\n        if (!onSent) return;"
+          }
+        ],
+        "result": "Forwarding the opt-in setup requires this intermediate helper. Its existing join constructs ObservedSocket internally: that send ignores the broadcaster callback, and join only waits for frame arrival. The receipt connection cannot establish the offer or accept its real applied ACK on that path. The registered reconnect migration needs callback-aware writes and explicit apply/confirmation readiness here, not numeric credit or treating snapshot arrival as convergence.",
+        "minimalRepair": "Thread the optional setup option into openRouteFixture; let ObservedSocket invoke an optional completion callback and let receipt-mode joins/creation await real durable ACK confirmation. Keep ReceiptSocket hold/fail controls: it calls super.send(data) WITHOUT its callback and must remain the sole owner of its callback.",
+        "alternative": "In-test replacement of join/socket/setup is a different fixture implementation. No global product API/type change is required and no amendment to the base grant-channel helper is justified."
+      },
+      {
+        "id": "I1-ROUTE-CONDITIONAL",
+        "unit": "P2CG1I1",
+        "path": "src/pages-modules/api/campaignLaunchAuthorityRoute.ts",
+        "decision": "NOT registered yet",
+        "method": "precise reading; predecessor implementation absent",
+        "anchors": [
+          {
+            "path": "src/pages-modules/api/campaignLaunchAuthorityRoute.ts",
+            "line": 258,
+            "text": "const gate = evaluateCampaignLaunchProgression({"
+          },
+          {
+            "path": "src/pages-modules/api/campaignLaunchAuthorityRoute.ts",
+            "line": 266,
+            "text": "if (!gate.ok) {\n          res.status(409).json("
+          }
+        ],
+        "predecessorState": "planned",
+        "condition": "Recheck after E exact-main proof. Register only if E inlines no-port success or otherwise prevents the already-owned campaignLaunchProgressionGate helper from refusing a session-bearing no-port request while preserving the route API and session-less answer.",
+        "result": "At this baseline the route delegates to the I1-owned helper and serializes its refusal. E is planned, so no mandatory route edit is proven."
+      },
+      {
+        "id": "I4-ANNOUNCEMENT-CONDITIONAL",
+        "unit": "P2CG1I4",
+        "path": "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.harness.ts",
+        "decision": "NOT registered yet",
+        "method": "precise reading; predecessor migration can discharge need",
+        "anchors": [
+          {
+            "path": "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.harness.ts",
+            "line": 54,
+            "text": "const fixture = await openRouteFixture();"
+          },
+          {
+            "path": "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.harness.ts",
+            "line": 105,
+            "text": "assert.equal(response.status, 201, JSON.stringify(response.body));"
+          }
+        ],
+        "condition": "Recheck after I2 exact-main proof. Register only if its reusable setup/socket/join helpers cannot support I4 receipt-ready default creation through the already-owned create harness without changing this file.",
+        "result": "The current helper has the confirmed-write defect proved for I2, which this amendment assigns there. No second independent I4 edit is proven before that migration exists."
+      },
+      {
+        "id": "I4-RECONNECT-CONDITIONAL",
+        "unit": "P2CG1I4",
+        "path": "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts",
+        "decision": "NOT registered yet",
+        "method": "precise reading of reset and negative controls",
+        "anchors": [
+          {
+            "path": "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts",
+            "line": 190,
+            "text": "_resetCampaignHostRegistry();\n    const registry = getCampaignHostRegistry();"
+          },
+          {
+            "path": "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts",
+            "line": 193,
+            "text": "const entry = await registry.getOrCreate(fixture.entry.matchId);"
+          },
+          {
+            "path": "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts",
+            "line": 1158,
+            "text": "['durable membership alone', { receipts: false }],"
+          },
+          {
+            "path": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+            "line": 320,
+            "text": "const receipts = applicationReceipts ?? registry.applicationReceipts;"
+          },
+          {
+            "path": "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts",
+            "line": 170,
+            "text": "const matchId = await fixture.create(missionRequest(entry, missionId));"
+          }
+        ],
+        "condition": "Recheck after I2 exact-main proof. Register only if reconnect still creates missions after resetting without reinstalling the port, or its receipts:false negative control assumes that omitting the binder override disables an installed registry port. I2 already owns this test and should separate no-port delivery controls from receipt-ready mission creation.",
+        "result": "Real hazards exist in the current test, but I2 is explicitly responsible for this migration. An I4 change cannot yet be proven necessary."
+      }
+    ],
+    "sourceBlobs": [
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "sha256": "6a78594a25b7e1490ee1dfd1c8fbe1b8a452bcd5c380846d1aabe98540fab195",
+        "gitBlob": "3a5e49c7013a7c5736982268ab5791ddeb43889d"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts",
+        "sha256": "d29db0928345b8c40c03cdec586db82f9e971277ba648e1395f62caec01c7d1e",
+        "gitBlob": "9ff6e51dcacff80b0d40bfb79ea6c9011f70c103"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.harness.ts",
+        "sha256": "83773258f2c8d6c2564e76a1220d01dfa2245e72ec66d547abf4017b5a2ebc10",
+        "gitBlob": "13764bdfa1e8b844b38f4830c22ee5b70c0243e4"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/coopMissionCreate.harness.ts",
+        "sha256": "7ece3af4538927777c69bc2e8a6f1846cc41d6dd8690b9dcbd5a8c8d148f77ae",
+        "gitBlob": "7525221e0ebe9571f5418383bb7c35d93ec09d6f"
+      },
+      {
+        "path": "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+        "sha256": "7293d6b928cd510301e5e39abeb2636dea7f1bc80ea5718426dbb71e1a2e355f",
+        "gitBlob": "17883778b99e62b0fe01a5be458c7317b035be90"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/campaignGrantChannel.test-helpers.ts",
+        "sha256": "c8618fc39e0954c153f401b44ecf61e83e4faa5abef3789e73368d4d0e37ced4",
+        "gitBlob": "d8a2af8d789e88a765cc27f1b9a1b7072471c855"
+      },
+      {
+        "path": "src/lib/multiplayer/server/ServerMatchBroadcaster.ts",
+        "sha256": "1def8e2160969c22b5e9dc94a06104d487adb4c6f6b9442ebf2345392856d45b",
+        "gitBlob": "0d5ca7932b630b91618b7395fef5fc220b70a339"
+      },
+      {
+        "path": "src/lib/multiplayer/server/campaignApplicationConnection.ts",
+        "sha256": "e28fd1c0acb886627629fe3b6a6436ecf2886a03634916b7145259afd922d412",
+        "gitBlob": "1dcdf03a17097787c8853607b765d0b9a9dbf875"
+      },
+      {
+        "path": "src/pages-modules/api/campaignLaunchAuthorityRoute.ts",
+        "sha256": "add67f687c10de680ad2e47000bd48a939f0582a936f3cf9342e896bddf05c48",
+        "gitBlob": "b7aa3fbda4221d9d750f8f680fe3ea8350fb6733"
+      },
+      {
+        "path": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+        "sha256": "5a38f49ee930b5e59543553c08cf5d776269cfff2df9d4b91ef1f26a3556edbd",
+        "gitBlob": "3874c5c49f8c20a01e24ed5c09fe726e406330de"
+      }
+    ],
+    "probeScript": {
+      "path": "E:/Projects/Personal/MekStation-wt/ichain-amendment-evidence-20261018/probe.mjs",
+      "bytes": 9408,
+      "sha256": "cc6dce31922d5d2691c8bef606bd4c0d4e7728d9a0e29a5a0666da181fc97bff"
+    },
+    "probeResult": {
+      "path": "E:/Projects/Personal/MekStation-wt/ichain-amendment-evidence-20261018/probes.json",
+      "bytes": 15217,
+      "sha256": "0aac40eb973e7d41ed30121445fe097926bce2631ec93b56e3e2c53a13d2213b"
+    }
+  },
+  "changes": [
+    {
+      "unit": "P2CG1I2",
+      "restriction": "7 -> 9; append only",
+      "registered": [
+        "src/lib/multiplayer/server/__tests__/coopMissionCreate.harness.ts",
+        "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.harness.ts"
+      ],
+      "knownSourceTestLifecycleSubtotal": "8 -> 10",
+      "behavior": "Planned leaves (7) -> (9), named helpers, labelled parent amendment; all other behavior text preserved"
+    }
+  ],
+  "deferredConditionals": [
+    {
+      "id": "I1-ROUTE-CONDITIONAL",
+      "unit": "P2CG1I1",
+      "path": "src/pages-modules/api/campaignLaunchAuthorityRoute.ts",
+      "decision": "NOT registered yet",
+      "method": "precise reading; predecessor implementation absent",
+      "anchors": [
+        {
+          "path": "src/pages-modules/api/campaignLaunchAuthorityRoute.ts",
+          "line": 258,
+          "text": "const gate = evaluateCampaignLaunchProgression({"
+        },
+        {
+          "path": "src/pages-modules/api/campaignLaunchAuthorityRoute.ts",
+          "line": 266,
+          "text": "if (!gate.ok) {\n          res.status(409).json("
+        }
+      ],
+      "predecessorState": "planned",
+      "condition": "Recheck after E exact-main proof. Register only if E inlines no-port success or otherwise prevents the already-owned campaignLaunchProgressionGate helper from refusing a session-bearing no-port request while preserving the route API and session-less answer.",
+      "result": "At this baseline the route delegates to the I1-owned helper and serializes its refusal. E is planned, so no mandatory route edit is proven."
+    },
+    {
+      "id": "I4-ANNOUNCEMENT-CONDITIONAL",
+      "unit": "P2CG1I4",
+      "path": "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.harness.ts",
+      "decision": "NOT registered yet",
+      "method": "precise reading; predecessor migration can discharge need",
+      "anchors": [
+        {
+          "path": "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.harness.ts",
+          "line": 54,
+          "text": "const fixture = await openRouteFixture();"
+        },
+        {
+          "path": "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.harness.ts",
+          "line": 105,
+          "text": "assert.equal(response.status, 201, JSON.stringify(response.body));"
+        }
+      ],
+      "condition": "Recheck after I2 exact-main proof. Register only if its reusable setup/socket/join helpers cannot support I4 receipt-ready default creation through the already-owned create harness without changing this file.",
+      "result": "The current helper has the confirmed-write defect proved for I2, which this amendment assigns there. No second independent I4 edit is proven before that migration exists."
+    },
+    {
+      "id": "I4-RECONNECT-CONDITIONAL",
+      "unit": "P2CG1I4",
+      "path": "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts",
+      "decision": "NOT registered yet",
+      "method": "precise reading of reset and negative controls",
+      "anchors": [
+        {
+          "path": "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts",
+          "line": 190,
+          "text": "_resetCampaignHostRegistry();\n    const registry = getCampaignHostRegistry();"
+        },
+        {
+          "path": "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts",
+          "line": 193,
+          "text": "const entry = await registry.getOrCreate(fixture.entry.matchId);"
+        },
+        {
+          "path": "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts",
+          "line": 1158,
+          "text": "['durable membership alone', { receipts: false }],"
+        },
+        {
+          "path": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+          "line": 320,
+          "text": "const receipts = applicationReceipts ?? registry.applicationReceipts;"
+        },
+        {
+          "path": "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts",
+          "line": 170,
+          "text": "const matchId = await fixture.create(missionRequest(entry, missionId));"
+        }
+      ],
+      "condition": "Recheck after I2 exact-main proof. Register only if reconnect still creates missions after resetting without reinstalling the port, or its receipts:false negative control assumes that omitting the binder override disables an installed registry port. I2 already owns this test and should separate no-port delivery controls from receipt-ready mission creation.",
+      "result": "Real hazards exist in the current test, but I2 is explicitly responsible for this migration. An I4 change cannot yet be proven necessary."
+    }
+  ],
+  "ownership": {
+    "coveredByExistingDirectory": true,
+    "noOwnershipPathOrExceptionChanges": true,
+    "sequentialOverlap": "I2 newly shares the create harness already assigned to I4. I2 precedes I3, which precedes I4; this does not authorize concurrent source admission."
+  },
+  "caps": {
+    "unchanged": true,
+    "capException": false,
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "census": [
+      {
+        "unit": "P2CG1I1",
+        "sourceTestLeaves": 5,
+        "knownSourceTestLifecycleSubtotal": 6,
+        "ancillaryFiles": 5,
+        "sourceStageFiles": 10,
+        "maxFiles": 15,
+        "spareFiles": 5,
+        "state": "blocked"
+      },
+      {
+        "unit": "P2CG1I2",
+        "sourceTestLeaves": 9,
+        "knownSourceTestLifecycleSubtotal": 10,
+        "ancillaryFiles": 5,
+        "sourceStageFiles": 14,
+        "maxFiles": 15,
+        "spareFiles": 1,
+        "state": "blocked"
+      },
+      {
+        "unit": "P2CG1I3",
+        "sourceTestLeaves": 4,
+        "knownSourceTestLifecycleSubtotal": 5,
+        "ancillaryFiles": 5,
+        "sourceStageFiles": 9,
+        "maxFiles": 15,
+        "spareFiles": 6,
+        "state": "blocked"
+      },
+      {
+        "unit": "P2CG1I4",
+        "sourceTestLeaves": 7,
+        "knownSourceTestLifecycleSubtotal": 8,
+        "ancillaryFiles": 5,
+        "sourceStageFiles": 12,
+        "maxFiles": 15,
+        "spareFiles": 3,
+        "state": "blocked"
+      }
+    ],
+    "ancillaryAccounting": "Five reserved files per unit: units.json, admission/red/local receipts, one independent admission-review slot. Includes unchanged restricted leaves conservatively; later G-OWN outputs require separate actual-name/byte/hash census.",
+    "conditionalCensus": "I1 route, if later proved: 11/15. I4 announcement helper only: 13/15; reconnect only: 13/15; both: 14/15. No current or listed conditional combination exceeds 15. Extra files must be counted; split rather than inflate caps if a measured manifest exceeds 15.",
+    "lineAccounting": "Test harness changes are line-exempt but file-counted. This amendment measures no future implementation; the 500-added-line admission limit and existing estimates remain unchanged."
+  },
+  "preserved": [
+    "All I1, I3 and I4 fields, restrictions and subtotals",
+    "I2 state, lifecycle/stage receipts, baseline, prHead, mergeSha, ownerGate, caps, admissionRequires, ownership, predecessors and successors",
+    "All other units, nodes, restrictions, subtotals and existing evidence",
+    "No product, test, helper, dependency or lockfile edits"
+  ],
+  "permissionBoundary": "Registration only. All four units remain blocked. No source admission or lifecycle release. Parent must finish review/merge/exact-main registration proof and each predecessor before finite source admission. Deferred paths are not authorized by this receipt.",
+  "sourceAdmitted": false,
+  "productFiles": 0,
+  "scope": [
+    "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+    "openspec/planning/2026-09-12-roadmap-completion/units.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1i-literal-path-amendment-20261018.json"
+  ],
+  "preimages": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "bytes": 1086459,
+      "sha256": "5fe02eb83b8c76273f270fa18675dc799407586c59a2983704d0a16940c7e774"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "bytes": 1591244,
+      "sha256": "6a78594a25b7e1490ee1dfd1c8fbe1b8a452bcd5c380846d1aabe98540fab195"
+    }
+  ],
+  "postimages": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "bytes": 1086628,
+      "sha256": "c3c3a609faea92a15105722aef021293873b7fac36660c97437e32b1d23a7ddb"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "bytes": 1592071,
+      "sha256": "dcd21823555a57042d584e49410620e28ff780b47a1f781b6dbcf475a440a3b7"
+    }
+  ],
+  "fieldDiff": {
+    "method": "Recursive comparison of parsed baseline and candidate JSON, arrays by index. Asserted exact four-leaf allowlist.",
+    "changedLeafCount": 4,
+    "entries": [
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+        "path": "$.nodes[13].ownershipPathsAmended20261009P2C.restrictions.P2CG1I2[7]",
+        "after": "src/lib/multiplayer/server/__tests__/coopMissionCreate.harness.ts"
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+        "path": "$.nodes[13].ownershipPathsAmended20261009P2C.restrictions.P2CG1I2[8]",
+        "after": "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.harness.ts"
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+        "path": "$.nodes[13].ownershipPathsAmended20261009P2C.knownSourceTestLifecycleSubtotals.P2CG1I2",
+        "before": 8,
+        "after": 10
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "path": "$.units[88].behavior",
+        "before": "Twelfth narrower P2CG1 successor: test migration before the server deletion. Some server suites converge through the numeric CampaignAck or noteParticipantAcknowledged, or drive AdvanceDay through the binder's legacy gate. They move to the installed-port receipt path (port installed on a reset registry, real application ACKs, P2CA rows), so they pass both before and after P2CG1I3. Test-only; no product file changes. A suite in this list that turns out to need no change is reported unchanged. Planned leaves (7), all under src/lib/multiplayer/server/__tests__/: campaignHostIntentServerTime.test-helpers.ts, campaignHostIntentServerTime.test.ts, campaignLiveDeliveryUnification.test.ts, campaignProgressionReaders.durable.integrity.test.ts, campaignWireScopeBoundary.test.ts, coopMissionAnnouncement.reconnect.test.ts and healCommittedParticipantRemovals.test.ts. Estimated at about 16-20 counted lines (units.json only); that is not a cap-fit proof.",
+        "after": "Twelfth narrower P2CG1 successor: test migration before the server deletion. Some server suites converge through the numeric CampaignAck or noteParticipantAcknowledged, or drive AdvanceDay through the binder's legacy gate. They move to the installed-port receipt path (port installed on a reset registry, real application ACKs, P2CA rows), so they pass both before and after P2CG1I3. Test-only; no product file changes. A suite in this list that turns out to need no change is reported unchanged. Planned leaves (9), all under src/lib/multiplayer/server/__tests__/: campaignHostIntentServerTime.test-helpers.ts, campaignHostIntentServerTime.test.ts, campaignLiveDeliveryUnification.test.ts, campaignProgressionReaders.durable.integrity.test.ts, campaignWireScopeBoundary.test.ts, coopMissionAnnouncement.reconnect.test.ts, healCommittedParticipantRemovals.test.ts, coopMissionCreate.harness.ts and coopMissionAnnouncement.harness.ts. Estimated at about 16-20 counted lines (units.json only); that is not a cap-fit proof. Parent literal-path amendment 2026-10-18 (evidence/p2cg1i-literal-path-amendment-20261018.json): the registered reconnect proof obtains its entry and sockets through these two shared harnesses. Its installed-port migration needs an opt-in port installation seam after the create harness resets the registry and before vessel registration, plus callback-completing sockets and real application ACK confirmation in the announcement harness. Preserve legacy defaults for other callers and the reconnect hold/fail controls; frame arrival alone is not readiness. Nine source/test leaves plus units.json, admission/red/local receipts and one admission-review slot reserve 14 of 15 source-stage files; caps are unchanged. This registration grants no source admission."
+      }
+    ]
+  },
+  "measurements": {
+    "actualFiles": 3,
+    "productFiles": 0,
+    "sourceTestHelperEdits": 0,
+    "ledgerDiff": "4\t2\topenspec/planning/2026-09-12-roadmap-completion/roadmap.json\n1\t1\topenspec/planning/2026-09-12-roadmap-completion/units.json"
+  },
+  "validation": {
+    "status": "PASS",
+    "method": "Real unmodified validators executed with candidate receipt present. This final receipt update records the results. Validator tests use node --test, never Jest. Candidate source files were never edited; the necessity probes use the permitted precise-reading method, not invented TS errors.",
+    "results": [
+      {
+        "name": "validate-roadmap-plain",
+        "at": "2026-10-17T23:11:56.959Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/ichain-amendment-20261018",
+        "command": [
+          "node",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/ichain-amendment-evidence-20261018/validate-roadmap-plain.log",
+        "logSha256": "567feb20b9f85c902a3c4492eb3274c970f2370ccbbc6d3390088ad10923b947",
+        "summary": "ROADMAP VALIDATION PASSED: 80 nodes, 13 packages, 381 tasks, 40 triage rows"
+      },
+      {
+        "name": "validate-roadmap-git",
+        "at": "2026-10-17T23:12:04.029Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/ichain-amendment-20261018",
+        "command": [
+          "node",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+          "--git"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/ichain-amendment-evidence-20261018/validate-roadmap-git.log",
+        "logSha256": "0d7d99319c662d2b64fa0c98e73d2d6254bad922234f2c7a68c71758fc9fa890",
+        "summary": "ROADMAP VALIDATION PASSED: 80 nodes, 13 packages, 381 tasks, 40 triage rows"
+      },
+      {
+        "name": "validator-tests",
+        "at": "2026-10-17T23:12:16.293Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/ichain-amendment-20261018",
+        "command": [
+          "node",
+          "--test",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/ichain-amendment-evidence-20261018/validator-tests.log",
+        "logSha256": "27e118837d6135437cf1f9f7bd8fee91ed7eb14c391bbe7373ab3e7b16724c92",
+        "summary": "✔ (1) expectedReds and runtime.failedRows that name different E2E ids fail (87.511ms)\nℹ tests 86\nℹ pass 86\nℹ fail 0"
+      },
+      {
+        "name": "openspec-strict",
+        "at": "2026-10-17T23:12:27.562Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/ichain-amendment-20261018",
+        "command": [
+          "node",
+          "C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js",
+          "validate",
+          "--all",
+          "--strict"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/ichain-amendment-evidence-20261018/openspec-strict.log",
+        "logSha256": "3f957310c0c3835ba3d5704458ddc03218d48f0b205252ed6d52ca87951ba4f5",
+        "summary": "Totals: 230 passed, 0 failed (230 items)"
+      },
+      {
+        "name": "qc-openspec-ci",
+        "at": "2026-10-17T23:12:29.308Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/ichain-amendment-20261018",
+        "command": [
+          "node",
+          "scripts/qc/validate-openspec-ci-quality.mjs"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/ichain-amendment-evidence-20261018/qc-openspec-ci.log",
+        "logSha256": "f2ecacc6006cdd0cc60052c81384bf785d65970c200c0bcc8ebcbc4834c1a61a",
+        "summary": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=20/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0"
+      },
+      {
+        "name": "git-diff-check",
+        "at": "2026-10-17T23:12:29.459Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/ichain-amendment-20261018",
+        "command": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/ichain-amendment-evidence-20261018/git-diff-check.log",
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "summary": ""
+      }
+    ],
+    "typechecks": {
+      "compiler": "TypeScript 7.0.2",
+      "compilerEntrypoint": "E:/Projects/Personal/MekStation-wt/b4-fog-history-20261017/node_modules/typescript7/bin/tsc",
+      "node": "v24.15.0",
+      "dependencyNote": "Requested node_modules junction points to the root checkout, which lacks typescript7. Used an existing TS7 compiler from b4-fog-history-20261017; module resolution remains through the requested root dependency junction. No root dependency or lockfile changes; not a clean npm-ci dependency proof.",
+      "results": [
+        {
+          "name": "ts7-app-baseline",
+          "command": [
+            "node",
+            "E:/Projects/Personal/MekStation-wt/b4-fog-history-20261017/node_modules/typescript7/bin/tsc",
+            "--noEmit",
+            "--skipLibCheck",
+            "--incremental",
+            "false"
+          ],
+          "log": "E:/Projects/Personal/MekStation-wt/ichain-amendment-evidence-20261018/ts7-baseline.log",
+          "idle": "E:/Projects/Personal/MekStation-wt/ichain-amendment-evidence-20261018/idle.json",
+          "exitCode": 0,
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "summary": "No diagnostics",
+          "idleSha256": "418e298e71d4b1bc10034afa37552d62e636b2a8026c7db735f066851067b610"
+        }
+      ],
+      "scriptsProject": "NOT RUN: optional scripts-project check was withheld after three idle preflights exceeded the 15% CPU threshold (32%, 25%, 22%). No scripts changed."
+    },
+    "reproducibility": {
+      "probeScript": "E:/Projects/Personal/MekStation-wt/ichain-amendment-evidence-20261018/probe.mjs",
+      "amendmentScript": "E:/Projects/Personal/MekStation-wt/ichain-amendment-evidence-20261018/amend.mjs",
+      "validatorScript": "E:/Projects/Personal/MekStation-wt/ichain-amendment-evidence-20261018/validate.mjs",
+      "fieldDiffLog": "E:/Projects/Personal/MekStation-wt/ichain-amendment-evidence-20261018/field-diff.json",
+      "noProcessesStopped": true
+    }
+  }
+}
