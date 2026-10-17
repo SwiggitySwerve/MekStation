@@ -1,0 +1,483 @@
+{
+  "event": "h-prereq-registration",
+  "at": "2026-10-17T22:32:01.918Z",
+  "baseline": "526cf6d063d6639118aa7056c511bf17fc3c0f65",
+  "registrationOnly": true,
+  "sourceAdmitted": false,
+  "productFiles": 0,
+  "proofClass": "ledger",
+  "actor": {
+    "role": "research sub-agent (user-requested role)",
+    "provider": "openai",
+    "model": "gpt-6-astra",
+    "reasoningEffort": "high",
+    "identitySource": "Current T3 Code Codex harness; no independent review claimed."
+  },
+  "authority": "User request: prepare local registration and design only; no push or PR. Existing H-OPEN-1 repair option selected; B10 is a follow-up to PR2212 review r2 note 3. This receipt is not source admission or an owner ruling.",
+  "scope": [
+    "openspec/planning/2026-09-12-roadmap-completion/units.json",
+    "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/h-prereq-registration-20261017.json",
+    "docs/audits/2026-10-17-h-prereq-registration-design.md"
+  ],
+  "preimages": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "bytes": 1576922,
+      "sha256": "cd7bbba9e95bcc3406df5d0119dddc26e182b61f458e65e609ba630ab61b1ec7"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "bytes": 1085449,
+      "sha256": "b42695274f112a41e329fe9f5c4b83311834e0902b03137703f26d24468d7109"
+    }
+  ],
+  "postimages": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "bytes": 1591244,
+      "physicalLines": 21232,
+      "sha256": "6a78594a25b7e1490ee1dfd1c8fbe1b8a452bcd5c380846d1aabe98540fab195"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "bytes": 1086459,
+      "physicalLines": 17935,
+      "sha256": "5fe02eb83b8c76273f270fa18675dc799407586c59a2983704d0a16940c7e774"
+    }
+  ],
+  "consulted": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "bytes": 53627,
+      "physicalLines": 806,
+      "sha256": "07dcf8fbdbe599382076a4e4a934ceac5de2a2d8c77b056244cf4c54eb81f9d7"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
+      "bytes": 36989,
+      "physicalLines": 615,
+      "sha256": "efd3a17cea64b29a3566aa13051e8300083abef32f359547a1e9f53d6cdb35c3"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/DELIVERY.md",
+      "bytes": 24130,
+      "physicalLines": 111,
+      "sha256": "764ac978295b8befec2135d6e1cfaa9daf4a2f0d3d39d24a0e6cd72586ddd646"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/GOAL.md",
+      "bytes": 21221,
+      "physicalLines": 108,
+      "sha256": "91794a5bb668c707ccf416036de10ef61ea57d14bebc3278012401368ad4a3cc"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1-split-registration-20261016.json",
+      "bytes": 59702,
+      "physicalLines": 1278,
+      "sha256": "d0ba13e137b5a431b010d2ae20a8b45d6586c266c5ad3fe0d2a9c24b2b907ed8"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1-split-registration-correction-20261016.json",
+      "bytes": 15601,
+      "physicalLines": 221,
+      "sha256": "ee7f29ac743a0e97ccd743c4cfe0d01bf06e88b504c5a041c92544f25857768e"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7-track-registration-20261016.json",
+      "bytes": 46180,
+      "physicalLines": 1206,
+      "sha256": "bfa9668187f28794d57c70a5c2f83e8e57fb59cbfaabef1b64fd7c35df89abe6"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1d-grant-helper-literal-path-amendment-20261017.json",
+      "bytes": 19291,
+      "physicalLines": 251,
+      "sha256": "68867be3dffdf14c0b21e371dad2b5e9a215800f2b4df74118b8b20796c4a0a7"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1d-review-20261017.json",
+      "bytes": 48328,
+      "physicalLines": 407,
+      "sha256": "bd3a27e3cc0529022ae9251c28bc832b4bfc76e328b3acf619045d515ed11865"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/docs/audits/2026-10-17-p2cg1d-review.md",
+      "bytes": 37779,
+      "physicalLines": 125,
+      "sha256": "ac9583630d9828924e5a69f57d47b373b8490c7c1592d3945c3ca20eff4dce55"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/docs/audits/2026-10-17-pr2212-review-r2.md",
+      "bytes": 14212,
+      "physicalLines": 90,
+      "sha256": "3428de17a1503c798e4576117fd2d8f6eb36a44d96337b639a43486643e03178"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/docs/audits/2026-10-17-pr2220-review.md",
+      "bytes": 13135,
+      "physicalLines": 87,
+      "sha256": "7b4a6f4db4f4c74bdd06f932818a8b0273155bb8aa22854620c931c966aed547"
+    },
+    {
+      "path": "src/lib/multiplayer/server/campaignHostBatchCommit.ts",
+      "bytes": 12587,
+      "physicalLines": 309,
+      "sha256": "cf0232632e7cc666d38a55edf9663128ce07f36442d0d8ec7f4fd1a8fc6b6f0d"
+    },
+    {
+      "path": "src/lib/multiplayer/server/CampaignMatchHost.doors.ts",
+      "bytes": 8412,
+      "physicalLines": 269,
+      "sha256": "6dcc96d52ad7d58937dcbfddafea74bb27630b7bccefed8aef92094c89b70e1d"
+    },
+    {
+      "path": "src/lib/multiplayer/server/authorization/MatchSeatMembershipSource.ts",
+      "bytes": 7786,
+      "physicalLines": 228,
+      "sha256": "010dd429f935181c088478db5f120618dac9fc21f9525af8aec22a3d1315d81c"
+    },
+    {
+      "path": "src/lib/multiplayer/server/projection/FogAwareMatchProjection.ts",
+      "bytes": 13407,
+      "physicalLines": 366,
+      "sha256": "18c9356f6ae43bc395f60f8be6ee229808a7819c4996cf7913b7a1d367efa1cf"
+    },
+    {
+      "path": "src/lib/multiplayer/server/projection/ViewerPublicationBoundary.ts",
+      "bytes": 14362,
+      "physicalLines": 417,
+      "sha256": "0fb8428f0c7546716c823a3f79485e97358d08921e325263105bbbeffcf1a5d3"
+    }
+  ],
+  "measurements": {
+    "countingRule": "U41: all actual files count; added lines without deletion credit, excluding ledger evidence, generated files and tests; units.json additions count. Source-stage census reserves units.json plus admission/red/local/admission-review (five files above source/test leaves); G-OWN later freezes actual review/identity/closure outputs separately and measures their whole census.",
+    "P2CG1R": {
+      "leaves": [
+        {
+          "path": "src/lib/campaign/sync/ICampaignEventStore.ts",
+          "bytes": 10920,
+          "physicalLines": 295,
+          "sha256": "29a066f49694b1095ab5c54a2ef9dec472972800140a4bb0781c1370be71b035"
+        },
+        {
+          "path": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+          "bytes": 26660,
+          "physicalLines": 660,
+          "sha256": "906c8d06f7450b227c52d735367c029aee30db0080e54c00cfad48ebf4139f29"
+        },
+        {
+          "path": "src/lib/multiplayer/server/CampaignMatchHost.ts",
+          "bytes": 26624,
+          "physicalLines": 699,
+          "sha256": "2b914410d2960170d0c0f1fe9661cbb63a91c563353cd5e860556922670ce349"
+        },
+        {
+          "path": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+          "bytes": 57589,
+          "physicalLines": 1829,
+          "sha256": "5a38f49ee930b5e59543553c08cf5d776269cfff2df9d4b91ef1f26a3556edbd"
+        },
+        {
+          "path": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+          "bytes": 44927,
+          "physicalLines": 1290,
+          "sha256": "f9e7c7756d1f15eefc5b440ee016f315d68a032dab832de1c62d553a8199d844"
+        },
+        {
+          "path": "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
+          "bytes": 109287,
+          "physicalLines": 3460,
+          "sha256": "94ea988c248be00589120a9e224a5a0467f215df14b8dfbeff6f23981033cb46"
+        },
+        {
+          "path": "src/lib/multiplayer/server/__tests__/CampaignMatchHost.pipeline.test.ts",
+          "bytes": 21645,
+          "physicalLines": 633,
+          "sha256": "e9b2494ce5dfeb07f5b2b3dba159e41facabc517b97e45b3f78fa762cb449ebc"
+        }
+      ],
+      "productAddedLinesEstimate": [
+        31,
+        80
+      ],
+      "lifecycleAddedLinesEstimate": [
+        16,
+        35
+      ],
+      "countedLinesEstimate": [
+        47,
+        115
+      ],
+      "testAddedLinesEstimate": [
+        180,
+        300
+      ],
+      "knownSourceTestLifecycleSubtotal": 8,
+      "sourceStageFilesEstimate": 12,
+      "remainingSourceStageSlots": 3,
+      "perProductLeafEstimates": [
+        {
+          "file": "src/lib/campaign/sync/ICampaignEventStore.ts",
+          "addedLines": [
+            3,
+            8
+          ],
+          "reason": "Optional control and synchronous semantics comment, lines 155-160."
+        },
+        {
+          "file": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+          "addedLines": [
+            20,
+            50
+          ],
+          "reason": "Controlled capability detection and synchronous non-commit/catch branch, lines 354-391."
+        },
+        {
+          "file": "src/lib/multiplayer/server/CampaignMatchHost.ts",
+          "addedLines": [
+            6,
+            15
+          ],
+          "reason": "Destructure, capability detection and appendControlled argument, lines 627-640."
+        },
+        {
+          "file": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+          "addedLines": [
+            2,
+            7
+          ],
+          "reason": "Wire onNotCommitted to existing idempotent release, lines 836-886."
+        }
+      ]
+    },
+    "P2CG1S": {
+      "leaves": [
+        {
+          "path": "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+          "bytes": 5653,
+          "physicalLines": 175,
+          "sha256": "5f4960d3f7080fe1202efafcfd68047d508476b14ba4c193f71b6eb474e2c5f9"
+        },
+        {
+          "path": "src/lib/multiplayer/server/ServerMatchHostReplay.ts",
+          "bytes": 15251,
+          "physicalLines": 493,
+          "sha256": "0c931c26c787ab0c344431e7a116acdea0988f66addf7e209151ac1f18c0340b"
+        },
+        {
+          "path": "src/lib/multiplayer/server/ServerMatchHostEvents.ts",
+          "bytes": 16918,
+          "physicalLines": 464,
+          "sha256": "085985a42baea3912daa98806eea771e5af423f38670c4faa69a5da34b421ee5"
+        },
+        {
+          "path": "src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts",
+          "bytes": 8206,
+          "physicalLines": 265,
+          "sha256": "b5bab4fb76a0070f99404c8363be7e2d8b2d211fa75e9cf78cb68a53d8586c6f"
+        },
+        {
+          "path": "src/lib/multiplayer/server/__tests__/sealedChoiceDelivery.test.ts",
+          "bytes": 15488,
+          "physicalLines": 479,
+          "sha256": "2b587a1454760493a4720c7b00462328aaefb2a6c7e236501f23e0181ef247f2"
+        }
+      ],
+      "productAddedLinesEstimate": [
+        15,
+        40
+      ],
+      "lifecycleAddedLinesEstimate": [
+        16,
+        35
+      ],
+      "countedLinesEstimate": [
+        31,
+        75
+      ],
+      "testAddedLinesEstimate": [
+        160,
+        280
+      ],
+      "knownSourceTestLifecycleSubtotal": 6,
+      "sourceStageFilesEstimate": 10,
+      "remainingSourceStageSlots": 5,
+      "perProductLeafEstimates": [
+        {
+          "file": "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+          "addedLines": [
+            7,
+            18
+          ],
+          "reason": "Seat context and exclusion before gm/assignment shortcut, lines 48-81."
+        },
+        {
+          "file": "src/lib/multiplayer/server/ServerMatchHostReplay.ts",
+          "addedLines": [
+            4,
+            11
+          ],
+          "reason": "Pass current meta.seats in replay context, lines 478-487."
+        },
+        {
+          "file": "src/lib/multiplayer/server/ServerMatchHostEvents.ts",
+          "addedLines": [
+            4,
+            11
+          ],
+          "reason": "Pass current meta.seats (not fogMeta-only seats) in broadcast context, lines 284-299."
+        }
+      ]
+    },
+    "note": "Static estimates from named live code, not implemented diffs, cap-fit proof or runtime reproductions."
+  },
+  "preserved": [
+    "All existing states, heads and stage receipts",
+    "All historical evidence bytes",
+    "All task holders, packets, deferrals and findings",
+    "All caps and parent ownershipPaths",
+    "E/F/G1/G2/H source/test leaf restrictions and activation predicate",
+    "No GOAL/DELIVERY/validator/spec contract changes"
+  ],
+  "permissionBoundary": "Registered by evidence/h-prereq-registration-20261017.json, under existing R2.authority-live authority and ordinary 15-file/500-product-added-line caps. Registration is prospective only: blocked, no source admission, no residual acceptance and no release. Parent must verify each documentary predecessor is main-verified (or complete/archived) with a genuine exact-main mainProof PASS, fetched-main ancestry and closure before release to planned. NEXT does not enforce these predecessor arrays and supplies no permission. One product-writing lane: no admission while another unit or its closure is in flight, including E/F/G1/G2 and L1/L2 work. Freeze the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measure actual unique files and U41 added lines before writes; tests are counted as files and their additions reported separately. Only the named restrictions for this ID are product/test leaves; ownershipPaths are navigation aliases, not directory-wide permission. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze of actual bytes/names/hashes and full census. No placeholder evidence, historical receipt edits, capException or cap inflation. If scope cannot fit, stop for a narrower separately registered ordinary-cap successor; do not omit a required proof. All existing sensitive review and owner gates remain; classify actual implementation proof at admission. This registration itself is proofClass ledger.",
+  "ordering": {
+    "at": "2026-10-17T22:32:01.918Z",
+    "baseline": "526cf6d063d6639118aa7056c511bf17fc3c0f65",
+    "evidence": "evidence/h-prereq-registration-20261017.json",
+    "registrationOnly": true,
+    "node": "R2.authority-live",
+    "package": "P2CG1",
+    "units": [
+      "P2CG1R",
+      "P2CG1S"
+    ],
+    "order": [
+      "P2CG1E",
+      "P2CG1F",
+      "P2CG1G1",
+      "P2CG1G2",
+      "P2CG1R",
+      "P2CG1S",
+      "P2CG1H"
+    ],
+    "rule": "New blocked finite supporting units under existing contracts; E/F/G1/G2 order and leaves unchanged. Parent releases R after G2 and S after R, then H only after both exact-main proofs. No product permission and no waiver. One product-writing lane including closure; NEXT does not enforce these documentary edges.",
+    "releaseHold": "B10 is already live: no spectator-bearing shipment or P3 exit may claim readiness until P2CG1S exact-main PASS, even if a release bypasses H. If a spectator release is brought forward, Root must explicitly resequence this serialized repair before it; no risk acceptance is recorded.",
+    "sourceNote": "H-OPEN-1 is in evidence/p2cg1d-review-20261017.json successorNotes.P2CG1H, referenced by P2CG1D.stageReceipts.review; not inline in units.json at this baseline."
+  },
+  "validation": {
+    "status": "PASS",
+    "checks": [
+      {
+        "check": "plain",
+        "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+        "exitCode": 0,
+        "elapsedMs": 5477,
+        "node": "v24.15.0",
+        "log": "E:\\Projects\\Personal\\MekStation-wt\\register-h-prereqs-evidence-20261017/plain.log",
+        "logSha256": "5359c31fc6927d067cf93f9297ab343422c5e58301de6b9138ea56e5d84802e5",
+        "result": "80 nodes / 13 packages / 381 tasks / 40 triage rows"
+      },
+      {
+        "check": "git",
+        "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --git",
+        "exitCode": 0,
+        "elapsedMs": 14046,
+        "node": "v24.15.0",
+        "log": "E:\\Projects\\Personal\\MekStation-wt\\register-h-prereqs-evidence-20261017/git.log",
+        "logSha256": "75e52b05701960216048b4b2b8e9507c585d8acbca6add48c17b4a94746cc0cb",
+        "result": "80 nodes / 13 packages / 381 tasks / 40 triage rows"
+      },
+      {
+        "check": "next",
+        "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+        "exitCode": 0,
+        "elapsedMs": 5357,
+        "node": "v24.15.0",
+        "log": "E:\\Projects\\Personal\\MekStation-wt\\register-h-prereqs-evidence-20261017/next.log",
+        "logSha256": "9988da11a38f72b55122199b34fa91a71c352b7236b4fd31dfcc4acbfea3dcd5",
+        "result": "P2CG1E"
+      },
+      {
+        "check": "tests",
+        "command": "node --test openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
+        "exitCode": 0,
+        "elapsedMs": 12265,
+        "node": "v24.15.0",
+        "log": "E:\\Projects\\Personal\\MekStation-wt\\register-h-prereqs-evidence-20261017/tests.log",
+        "logSha256": "851d119ecabb3595670b27e2c6fb5ad5b66adc6f97b4c05d502fdd34906eccfe",
+        "result": "86 passed / 0 failed"
+      },
+      {
+        "check": "openspec",
+        "command": "node C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js validate --all --strict",
+        "exitCode": 0,
+        "elapsedMs": 855,
+        "node": "v24.15.0",
+        "log": "E:\\Projects\\Personal\\MekStation-wt\\register-h-prereqs-evidence-20261017/openspec.log",
+        "logSha256": "32ad3c6e7c28524cdab92cd638a370c9d2ac3011f7543ed081ab926eb39fe33e",
+        "result": "230 passed / 0 failed"
+      },
+      {
+        "check": "qc",
+        "command": "node scripts/qc/validate-openspec-ci-quality.mjs",
+        "exitCode": 0,
+        "elapsedMs": 120,
+        "node": "v24.15.0",
+        "log": "E:\\Projects\\Personal\\MekStation-wt\\register-h-prereqs-evidence-20261017/qc.log",
+        "logSha256": "ffe111c06fd3dc56c6cfc52ef7b1dc42fe0204d89051aa6e642f624dbc3c1547",
+        "result": "errors=0"
+      }
+    ],
+    "scopeAudit": {
+      "pass": true,
+      "existingUnitFieldsChanged": [
+        "P2CG1G2.successors",
+        "P2CG1H.admissionRequires",
+        "P2CG1H.predecessors",
+        "P2C.admissionRequires",
+        "P2C.predecessors"
+      ],
+      "newUnits": [
+        "P2CG1R",
+        "P2CG1S"
+      ],
+      "existingStatesHeadsReceiptsHoldersCapsPreserved": true,
+      "existingUnitOrderPreserved": true,
+      "nodeOwnershipPathsPreserved": true,
+      "onlyNamedRestrictionAndSubtotalAdditions": true
+    },
+    "notClaimed": "Independent review, source admission, product runtime proofs, remote CI or exact-main closure of this local registration."
+  },
+  "limitations": [
+    "No product tests, mutation execution, build, browser, runtime repro or remote CI performed for this registration-only design.",
+    "Root checkout is read-only except the explicitly requested standalone design audit copy.",
+    "Dependency enforcement is documentary, not provided by NEXT."
+  ],
+  "staticFindings": [
+    "H-OPEN-1 historical note points at B controls and D binder, but actual host reconstructs controls and must be registered too. ICampaignCommitControls inheritance alone does not carry a new property across that runtime literal.",
+    "Spectator membership brands are player or gm. Current meta.seats exclusion must precede the gm shortcut and assignment ownership; fog-off broadcasts need seats too."
+  ],
+  "design": {
+    "path": "docs/audits/2026-10-17-h-prereq-registration-design.md",
+    "bytes": 16245,
+    "physicalLines": 93,
+    "sha256": "eeb86ba3d75f559a6bf9b801e107f2506591e0ab5603152d9aad8becdd59e8ff"
+  },
+  "registrationBudget": {
+    "actualFiles": 4,
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "U41CountedAddedLines": 270,
+    "countedBreakdown": {
+      "units.json": 158,
+      "roadmap.json": 19,
+      "designAudit": 93
+    },
+    "productFiles": 0,
+    "productAddedLines": 0,
+    "evidenceAddedLinesExcluded": true,
+    "noCapInflation": true,
+    "note": "git diff --cached --numstat; every receipt file counts toward files. Receipt self-length excluded by U41 and not frozen as a self-referential byte hash."
+  }
+}
