@@ -1,0 +1,268 @@
+{
+  "schemaVersion": 1,
+  "unit": "TS7S3",
+  "baseline": "d72b141d93e1cdb2ef9f2aa8fc0b3cf907328fd4",
+  "contributor": {
+    "provider": "openai",
+    "model": "gpt-6.1-sol",
+    "task": "TS7S3 implementation sub-agent"
+  },
+  "stage": "local",
+  "runtime": "Node v22.22.0; npm 11.19.1 for both lockfiles and clean installs",
+  "proofs": {
+    "s2od-typecheck": {
+      "name": "s2od-typecheck",
+      "command": "node scripts/qc/machine-idle.mjs --own-pid 47516 && node node_modules/typescript/bin/tsc --version && npm run typecheck",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s3-ts6-20261017",
+      "started": "2026-10-17T05:58:51.3240172Z",
+      "seconds": 60.81,
+      "exit": 0,
+      "log": "E:/Projects/Personal/MekStation-wt/ts7s3-proof-20261017/s2od-typecheck.log",
+      "sha256": "d2cfe4e035a0e33f0edee0473e172eedc6d71db3b06f180e6998407074982cbb"
+    },
+    "s2od-lint": {
+      "name": "s2od-lint",
+      "command": "npm run lint",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s3-ts6-20261017",
+      "started": "2026-10-17T05:59:11.5213813Z",
+      "seconds": 0.671,
+      "exit": 0,
+      "log": "E:/Projects/Personal/MekStation-wt/ts7s3-proof-20261017/s2od-lint.log",
+      "sha256": "04e716105a1654a1a4408db0fbcc03701e57c8f9c161fc86ba748f496e8cf589"
+    },
+    "s2od-format": {
+      "name": "s2od-format",
+      "command": "npm run format:check",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s3-ts6-20261017",
+      "started": "2026-10-17T05:59:12.2797263Z",
+      "seconds": 10.977,
+      "exit": 0,
+      "log": "E:/Projects/Personal/MekStation-wt/ts7s3-proof-20261017/s2od-format.log",
+      "sha256": "b2695939165ab34a0e122143ee8361d5dbb7c81175ea101ca99186f4b8309838"
+    },
+    "s2od-openspec": {
+      "name": "s2od-openspec",
+      "command": "npx openspec validate --all --strict",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s3-ts6-20261017",
+      "started": "2026-10-17T05:59:23.2679908Z",
+      "seconds": 1.383,
+      "exit": 0,
+      "log": "E:/Projects/Personal/MekStation-wt/ts7s3-proof-20261017/s2od-openspec.log",
+      "sha256": "b71c9be6b0b6b335f67e84f93f3f82dfab821e1d3101f8983122f21ee72db74f"
+    },
+    "s2od-openspec-ci": {
+      "name": "s2od-openspec-ci",
+      "command": "npm run qc:openspec-ci:validate",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s3-ts6-20261017",
+      "started": "2026-10-17T05:59:24.6620644Z",
+      "seconds": 0.371,
+      "exit": 0,
+      "log": "E:/Projects/Personal/MekStation-wt/ts7s3-proof-20261017/s2od-openspec-ci.log",
+      "sha256": "266234c06be5534d67accb673baec7651bbe8ea5eb6a4b5aa78f4aea535f3bb2"
+    },
+    "s2od-desktop": {
+      "name": "s2od-desktop",
+      "command": "node ../scripts/qc/machine-idle.mjs --own-pid 47516 && node node_modules/typescript/bin/tsc --version && npm run type-check && npm test -- --runInBand",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s3-ts6-20261017/desktop",
+      "started": "2026-10-17T05:58:38.3495457Z",
+      "seconds": 6.774,
+      "exit": 0,
+      "log": "E:/Projects/Personal/MekStation-wt/ts7s3-proof-20261017/s2od-desktop.log",
+      "sha256": "f148c6b6d60f2cb7e0409e8d96927099a536c792657dd2d04925b5225c2d96bb"
+    },
+    "s2od-build": {
+      "name": "s2od-build",
+      "command": "node scripts/qc/machine-idle.mjs --own-pid 47516 && npm run build",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s3-ts6-20261017",
+      "started": "2026-10-17T06:00:10.1113941Z",
+      "seconds": 150.076,
+      "exit": 0,
+      "log": "E:/Projects/Personal/MekStation-wt/ts7s3-proof-20261017/s2od-build.log",
+      "sha256": "304062b8898ea6d266ac6ec8c62c88a2c181be6613877b8e9ac47602a0c744ed"
+    },
+    "s2od-storybook": {
+      "name": "s2od-storybook",
+      "command": "node scripts/qc/machine-idle.mjs --own-pid 47516 && npm run storybook:build",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s3-ts6-20261017",
+      "started": "2026-10-17T06:02:40.1993425Z",
+      "seconds": 46.457,
+      "exit": 0,
+      "log": "E:/Projects/Personal/MekStation-wt/ts7s3-proof-20261017/s2od-storybook.log",
+      "sha256": "fc3e7a6ebfaf854ba6aa68ab2070892aee7c21b0ea1aaef31ce571178a26cd20"
+    },
+    "s2od-maintenance": {
+      "name": "s2od-maintenance",
+      "command": "node scripts/qc/machine-idle.mjs --own-pid 47516 && node scripts/maintenance/scan-maintenance.mjs",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s3-ts6-20261017",
+      "started": "2026-10-17T05:59:56.8550800Z",
+      "seconds": 9.378,
+      "exit": 0,
+      "log": "E:/Projects/Personal/MekStation-wt/ts7s3-proof-20261017/s2od-maintenance.log",
+      "sha256": "19f60f497efe5236f7cef81e9069543b1d0c8e3d0cfa4f8efff8e42ae3a541d8"
+    },
+    "s2od-flow-audit": {
+      "name": "s2od-flow-audit",
+      "command": "node scripts/qc/validate-flow-audit.mjs",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s3-ts6-20261017",
+      "started": "2026-10-17T06:00:06.3121008Z",
+      "seconds": 0.539,
+      "exit": 0,
+      "log": "E:/Projects/Personal/MekStation-wt/ts7s3-proof-20261017/s2od-flow-audit.log",
+      "sha256": "fc35bad7c2c6f7f343c3c7f1ef73645d43d592cc0af2e2082789f8e6a8476a2c"
+    },
+    "s2od-privacy": {
+      "name": "s2od-privacy",
+      "command": "node scripts/qc/machine-idle.mjs --own-pid 47516 && npm test -- --runInBand --runTestsByPath scripts/__tests__/ux-walkthrough-recorder-privacy.test.ts",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s3-ts6-20261017",
+      "started": "2026-10-17T06:00:06.8595594Z",
+      "seconds": 3.243,
+      "exit": 0,
+      "log": "E:/Projects/Personal/MekStation-wt/ts7s3-proof-20261017/s2od-privacy.log",
+      "sha256": "077900273decb63a95b32fd0f001d542812bbf4219401138339596e28eb4d584"
+    },
+    "identity-idle": {
+      "name": "identity-idle",
+      "command": "npm test -- --runInBand --runTestsByPath scripts/__tests__/roadmap-codex-identity-capture.test.ts",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s3-ts6-20261017",
+      "started": "2026-10-17T05:27:10.8337641Z",
+      "seconds": 43.67,
+      "exit": 0,
+      "log": "E:/Projects/Personal/MekStation-wt/ts7s3-proof-20261017/identity-idle.log",
+      "sha256": "0d2f128ac0c5c529e15a2f7ba3e02fabb9a4383caf1c300cf5cafe43d0f1afab"
+    }
+  },
+  "stableProof": {
+    "source": "CI exact PR head",
+    "status": "pending at PR creation",
+    "authority": "User cadence update and docs/audits/2026-10-17-council-roadmap-decision.md; six unit shards plus a11y replace another full local run; run IDs/results will be recorded in PR body."
+  },
+  "noIgnore": {
+    "command": "rg -uuu -n --glob tsconfig*.json --glob !**/node_modules/** --glob !**/.git/** ignoreDeprecations .",
+    "exit": 1,
+    "expectedExit": 1,
+    "pass": true,
+    "matches": [],
+    "seconds": 0.0611779
+  },
+  "compilerResolution": {
+    "name": "s2od-compiler-resolution",
+    "command": "node --version && npx -y npm@11.19.1 --version && npx tsc --version && desktop\\node_modules\\.bin\\tsc.cmd --version",
+    "cwd": "E:/Projects/Personal/MekStation-wt/ts7s3-ts6-20261017",
+    "started": "2026-10-17T06:00:31.1450486Z",
+    "seconds": 1.992,
+    "exit": 0,
+    "log": "E:/Projects/Personal/MekStation-wt/ts7s3-proof-20261017/s2od-compiler-resolution.log",
+    "sha256": "5f5d027723a8a0dc0950f9d45f35f823f7aa36f62bcd4d7b4790c30f5ff8b43a"
+  },
+  "contention": {
+    "loadedFull": {
+      "path": "E:/Projects/Personal/MekStation-wt/ts7s3-proof-20261017/test-stable-isolated.log",
+      "sha256": "d232378451e7b78994d99c648cf8076d463c7f58cb814ba60330138643dc5a21",
+      "result": "Stopped with 2785 passed-suite lines and one failed suite (two spawnSync ETIMEDOUT probes). Excluded from accepted proof."
+    },
+    "loadedRetry": {
+      "name": "identity-timeout-retry",
+      "command": "npm test -- --runInBand --runTestsByPath scripts/__tests__/roadmap-codex-identity-capture.test.ts -t \"producer readback selects|producer chunk wrapper forwards\"",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s3-ts6-20261017",
+      "started": "2026-10-17T05:02:15.4003182Z",
+      "seconds": 67.185,
+      "exit": 1,
+      "log": "E:/Projects/Personal/MekStation-wt/ts7s3-proof-20261017/identity-timeout-retry.log",
+      "sha256": "d0c44fbf5dd1e3b41df5e492a4b1cdf0a99feda0d5625ddd364d1e3cd5bad441"
+    },
+    "idleFullFile": {
+      "name": "identity-idle",
+      "command": "npm test -- --runInBand --runTestsByPath scripts/__tests__/roadmap-codex-identity-capture.test.ts",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s3-ts6-20261017",
+      "started": "2026-10-17T05:27:10.8337641Z",
+      "seconds": 43.67,
+      "exit": 0,
+      "log": "E:/Projects/Personal/MekStation-wt/ts7s3-proof-20261017/identity-idle.log",
+      "sha256": "0d2f128ac0c5c529e15a2f7ba3e02fabb9a4383caf1c300cf5cafe43d0f1afab"
+    },
+    "observations": {
+      "path": "E:/Projects/Personal/MekStation-wt/ts7s3-proof-20261017/idle-observations.jsonl",
+      "sha256": "9f0f28a12f642dee9b2866b15098c2a8e097ef0181a9e015779c98d757098b28"
+    }
+  },
+  "cleanInstalls": {
+    "root": {
+      "name": "s2od-root-ci",
+      "command": "npx -y npm@11.19.1 ci",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s3-ts6-20261017",
+      "started": "2026-10-17T05:57:15.0238209Z",
+      "seconds": 96.213,
+      "exit": 0,
+      "log": "E:/Projects/Personal/MekStation-wt/ts7s3-proof-20261017/s2od-root-ci.log",
+      "sha256": "ab8f7863387b959b85713414337fd1f7656fddb7fac2ad3cf012e6f4db70ee78"
+    },
+    "desktop": {
+      "name": "s2od-desktop-ci",
+      "command": "npx -y npm@11.19.1 ci",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s3-ts6-20261017/desktop",
+      "started": "2026-10-17T05:57:16.2191665Z",
+      "seconds": 82.04,
+      "exit": 0,
+      "log": "E:/Projects/Personal/MekStation-wt/ts7s3-proof-20261017/s2od-desktop-ci.log",
+      "sha256": "d1061fb83d819946eed97be3d9f20a6414590032fbeb04322e202c58db3aa438"
+    }
+  },
+  "lockfile": {
+    "idempotence": [
+      {
+        "cwd": "E:/Projects/Personal/MekStation-wt/ts7s3-ts6-20261017",
+        "exit": 0,
+        "seconds": 0.9921692,
+        "sha256Before": "0C7C0E8340E7EF46C78283985954D7C8552CCC41E06A5163026AC962123375A7",
+        "sha256After": "0C7C0E8340E7EF46C78283985954D7C8552CCC41E06A5163026AC962123375A7"
+      },
+      {
+        "cwd": "E:/Projects/Personal/MekStation-wt/ts7s3-ts6-20261017/desktop",
+        "exit": 0,
+        "seconds": 0.6778826,
+        "sha256Before": "6B2E1171CDB135443CFCD89E4E32C3211367176D10A4448A7CDFA1DFBED14FA9",
+        "sha256After": "6B2E1171CDB135443CFCD89E4E32C3211367176D10A4448A7CDFA1DFBED14FA9"
+      }
+    ],
+    "changedPackageEntries": [
+      "",
+      "node_modules/typescript"
+    ],
+    "packageAdds": 0,
+    "packageRemovals": 0,
+    "rootFrom": "5.8.3",
+    "desktopFrom": "5.9.3",
+    "to": "6.0.3",
+    "swc": "Root and desktop remain 1.15.30; no non-TypeScript entries change."
+  },
+  "changes": "Root and desktop unaliased typescript ^6.0.3, minimal locks, only 3.1-3.3 checkboxes, and own lifecycle/receipts.",
+  "sourceDiagnostics": 0,
+  "discardedAttempts": {
+    "maintenance": "An extra baseline --fail-on-regression scan failed against pre-existing findings; the required normal-argument scanner passes. No scan policy or source changed.",
+    "install": "package-lock-only updated hidden lock metadata without replacing compiler files; clean npm ci in both trees installed and verified 6.0.3 before accepted proofs.",
+    "concurrency": "The first build overlapped Jest and removed a .next test fixture. That build and test attempt are excluded. Only the owned test process tree was stopped; the accepted build ran separately. Subsequent local stable run also encountered contention; user replaced another local full run with exact-head CI shards after an idle file retry."
+  },
+  "notToChangeVerified": {
+    "tsconfig.json": "6c41dc2afe0792a6a918f6193e0ed498653807895033b24c270e532984d4a0dd",
+    "scripts/tsconfig.json": "9f55f8e064a9756da2a886ab7ff505a15a88e0821f73ee552c5a69ebc127de39",
+    "desktop/tsconfig.json": "fb796ee713a91fd9c9c883a92bcea746ae152f4c4ae53c140f8bee89befd6972",
+    "desktop/tsconfig.test.json": "2dfdac7dd8d7d7c3e4034bbfdd629db53bbaef95851eada5c9fc0fe9f0e33238",
+    "desktop/jest.config.js": "eb30c06e30e5bfc473957bf38a1089dcd10486041f777ea576ce20591fa993f7",
+    ".storybook/main.ts": "63c41a9fc8f531cc3824e5b9541704b8e48eff72caf0fa0f7077107ad15a082a"
+  },
+  "census": {
+    "maxFiles": 15,
+    "actualChangedFiles": 9,
+    "filesIncludingReservedReview": 10,
+    "maxNonGeneratedLines": 500,
+    "actualAddedLines": 21,
+    "breakdown": {
+      "package.json": 1,
+      "desktop/package.json": 1,
+      "tasks.md": 3,
+      "units.json": 16
+    },
+    "excluded": "Both package-lock.json files and evidence-prefix added lines are excluded by the validator."
+  },
+  "claim": "Local implementation evidence only. No independent-review, CI, merge, or Main verification claim."
+}

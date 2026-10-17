@@ -73,12 +73,12 @@
 
 ## 3. TypeScript 6.0 bridge (PR 3)
 
-- [ ] 3.1 Set root and `desktop/` to the unaliased `"typescript": "^6.0.3"`, then reinstall both lockfiles.
-- [ ] 3.2 Prove there are 0 errors and no `ignoreDeprecations` anywhere:
+- [x] 3.1 Set root and `desktop/` to the unaliased `"typescript": "^6.0.3"`, then reinstall both lockfiles.
+- [x] 3.2 Prove there are 0 errors and no `ignoreDeprecations` anywhere:
   - `grep -r ignoreDeprecations --include=tsconfig*.json .` excluding `node_modules`, which must find nothing;
   - `npm run typecheck`;
   - `desktop/ npm run type-check`.
-- [ ] 3.3 Prove every API consumer works on TypeScript 6:
+- [x] 3.3 Prove every API consumer works on TypeScript 6:
   - `npm run build`, which includes Next's type check;
   - `npm run storybook:build`;
   - `node scripts/maintenance/scan-maintenance.mjs`, run with its normal arguments;

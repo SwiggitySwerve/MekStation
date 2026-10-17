@@ -8249,7 +8249,11 @@
         "openspec/changes/migrate-to-typescript-7/tasks.md"
       ],
       "ownershipExceptions": [
-        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s3-admission-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s3-red-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s3-local-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s3-admission-review-20261017.md"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -8260,14 +8264,20 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "implementing",
+      "baseline": "d72b141d93e1cdb2ef9f2aa8fc0b3cf907328fd4",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/ts7s3-admission-20261017.json"
+        },
+        "red": {
+          "path": "evidence/ts7s3-red-20261017.json"
+        },
+        "local": {
+          "path": "evidence/ts7s3-local-20261017.json"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
