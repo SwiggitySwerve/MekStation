@@ -6,6 +6,7 @@ import {
   _resetActiveCoopHosts,
   getActiveCoopHost,
 } from '@/lib/campaign/coop/coopHostRegistry';
+import { CampaignLaunchView } from '@/lib/campaign/sync/campaignPublicAppliedView';
 import {
   readCampaignSessionState,
   writeCampaignSessionState,
@@ -397,5 +398,93 @@ describe('CampaignHostRegistry', () => {
         readCampaignSessionState('campaign-registry', 'match-campaign'),
       ).toBeNull();
     });
+  });
+});
+
+describe('CampaignHostRegistry ? receipt port and launch view (P2CG1D)', () => {
+  let dir: string | null = null;
+  const port = { database: () => getSQLiteService().getDatabase() };
+
+  afterEach(async () => {
+    _resetCampaignHostRegistry();
+    _resetActiveCoopHosts();
+    resetSQLiteService();
+    if (dir !== null) await rm(dir, { recursive: true, force: true });
+    dir = null;
+  });
+
+  async function durable(): Promise<void> {
+    dir = await mkdtemp(path.join(tmpdir(), 'registry-launch-'));
+    getSQLiteService({ path: path.join(dir, 'campaign.db') }).initialize();
+  }
+
+  it('starts with no port, and an entry registered without it keeps the legacy gate', async () => {
+    await durable();
+    const registry = new CampaignHostRegistry();
+    expect(registry.applicationReceipts).toBeNull();
+    const entry = await registry.register('match-campaign', snapshot());
+    expect(entry.launch).toBeNull();
+  });
+
+  it('installs one typed port on the process registry; only the explicit test reset clears it', () => {
+    _resetCampaignHostRegistry();
+    getCampaignHostRegistry().installApplicationReceipts(port);
+    expect(getCampaignHostRegistry().applicationReceipts).toBe(port);
+    expect(() =>
+      getCampaignHostRegistry().installApplicationReceipts({
+        database: port.database,
+      }),
+    ).toThrow('Campaign application receipt port is already installed');
+    expect(getCampaignHostRegistry().applicationReceipts).toBe(port);
+    // Closing every entry is not an uninstall, and there is no setter.
+    getCampaignHostRegistry()._reset();
+    expect(getCampaignHostRegistry().applicationReceipts).toBe(port);
+    expect(
+      Object.getOwnPropertyDescriptor(
+        CampaignHostRegistry.prototype,
+        'applicationReceipts',
+      )?.set,
+    ).toBeUndefined();
+    _resetCampaignHostRegistry();
+    expect(getCampaignHostRegistry().applicationReceipts).toBeNull();
+  });
+
+  it('refuses a port installed after an entry exists, so no receipt flows beside a legacy-only entry', async () => {
+    await durable();
+    const registry = new CampaignHostRegistry();
+    const entry = await registry.register('match-campaign', snapshot());
+    expect(() => registry.installApplicationReceipts(port)).toThrow(
+      'Campaign application receipt port needs an empty registry',
+    );
+    expect(registry.applicationReceipts).toBeNull();
+    expect(entry.launch).toBeNull();
+  });
+
+  it("gives every new and cold-rebuilt entry its own launch view on this graph's campaign handle", async () => {
+    await durable();
+    const store = new InMemoryMatchStore({ quiet: true });
+    await store.createMatch({ ...matchMeta(), matchId: 'match-cold' });
+    const registry = new CampaignHostRegistry({ matchStore: store });
+    registry.installApplicationReceipts(port);
+    const fresh = await registry.register('match-campaign', snapshot());
+    const cold = await registry.getOrCreate('match-cold');
+    expect(fresh.launch).toBeInstanceOf(CampaignLaunchView);
+    expect(cold?.launch).toBeInstanceOf(CampaignLaunchView);
+    expect(cold?.launch).not.toBe(fresh.launch);
+    for (const view of [fresh.launch, cold?.launch]) {
+      expect(Reflect.get(view ?? {}, 'db')).toBe(
+        getSQLiteService().getDatabase(),
+      );
+    }
+  });
+
+  it('refuses to register under an installed port without a campaign database, never falling back to legacy', async () => {
+    const registry = new CampaignHostRegistry();
+    registry.installApplicationReceipts(port);
+    await expect(
+      registry.register('match-campaign', snapshot()),
+    ).rejects.toThrow('Campaign launch view needs the campaign database');
+    expect(registry.size()).toBe(0);
+    expect(getActiveCoopHost('campaign-registry')).toBeUndefined();
   });
 });

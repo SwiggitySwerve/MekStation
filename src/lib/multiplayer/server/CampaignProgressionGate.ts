@@ -224,3 +224,36 @@ export function formatCampaignProgressionRefusalReason(
       );
   }
 }
+
+const LATE_REFUSAL = 'campaign-progression-late-refusal' as const;
+
+/**
+ * P2CG1D: a guarded progression append refused inside its own transaction,
+ * so nothing was written. Server-only: thrown after the rollback to the
+ * socket layer, never put on a wire union. Recognised by its whole shape,
+ * not its class, so another module graph's refusal is still one.
+ */
+export interface ICampaignProgressionLateRefusal {
+  readonly code: typeof LATE_REFUSAL;
+  /** A kebab-case reason code; never a cut, digest or count. */
+  readonly reason: string;
+}
+
+export function campaignProgressionLateRefusal(
+  reason: string,
+): Error & ICampaignProgressionLateRefusal {
+  return Object.assign(new Error(LATE_REFUSAL), { code: LATE_REFUSAL, reason });
+}
+
+export function isCampaignProgressionLateRefusal(
+  value: unknown,
+): value is ICampaignProgressionLateRefusal {
+  if (!(typeof value === 'object' && value !== null)) return false;
+  const reason: unknown = Reflect.get(value, 'reason');
+  return (
+    Object.keys(value).sort().join() === 'code,reason' &&
+    Reflect.get(value, 'code') === LATE_REFUSAL &&
+    typeof reason === 'string' &&
+    /^[a-z]+(-[a-z]+)*$/.test(reason)
+  );
+}

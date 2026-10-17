@@ -18,8 +18,15 @@ import type {
 import type { IGuestProposal } from '@/types/campaign/CoopCampaign';
 
 import { InMemoryCampaignEventStore } from '@/lib/campaign/sync/InMemoryCampaignEventStore';
-import { CampaignGmArbiter } from '@/lib/multiplayer/server/CampaignGmArbiter';
+import {
+  CampaignGmArbiter,
+  type CampaignGuardedCommit,
+} from '@/lib/multiplayer/server/CampaignGmArbiter';
 import { CampaignMatchHost } from '@/lib/multiplayer/server/CampaignMatchHost';
+import {
+  campaignProgressionLateRefusal,
+  isCampaignProgressionLateRefusal,
+} from '@/lib/multiplayer/server/CampaignProgressionGate';
 import { createEmptyCampaignState } from '@/types/campaign/CampaignSync';
 import { PROPOSAL_VETOED } from '@/types/campaign/CoopCampaign';
 
@@ -417,6 +424,311 @@ describe('CampaignGmArbiter — host-review proposal timeout (gap #3)', () => {
       expect(arbiter.getPendingProposals()).toHaveLength(1);
     } finally {
       jest.useRealTimers();
+    }
+  });
+});
+
+/**
+ * P2CG1D: guarded AdvanceDay approvals. The commit itself (B's guard, the
+ * C/M locks, real SQLite) is proven in bindCampaignSyncConnection.test.ts;
+ * here a scripted guarded commit drives the arbiter's reservation,
+ * coalescing and invalidation, with a recording timer pair and explicit
+ * promise barriers.
+ */
+describe('CampaignGmArbiter ? guarded AdvanceDay reservation (P2CG1D)', () => {
+  type Reservation = Parameters<CampaignGuardedCommit>[1];
+  type Outcome = Awaited<ReturnType<CampaignGuardedCommit>>;
+
+  function advanceProposal(id = 'p-advance'): IGuestProposal {
+    return {
+      proposalId: id,
+      campaignId: CAMPAIGN_ID,
+      proposingPlayerId: GUEST_ID,
+      ts: '2026-05-19T10:00:00.000Z',
+      intent: {
+        kind: 'AdvanceDay',
+        campaignId: CAMPAIGN_ID,
+        intentId: `intent-${id}`,
+        payload: { days: 1 },
+      },
+    };
+  }
+
+  /** A recording timer pair: armed handles, cleared handles, and a manual fire. */
+  function recordingTimers() {
+    const armed: Array<{ handler: () => void; ms: number; id: number }> = [];
+    const cleared: unknown[] = [];
+    return {
+      armed,
+      cleared,
+      timers: {
+        setTimeout: (handler: () => void, ms: number) => {
+          const timer = { handler, ms, id: armed.length };
+          armed.push(timer);
+          return timer;
+        },
+        clearTimeout: (handle: unknown) => {
+          cleared.push(handle);
+        },
+      },
+    };
+  }
+
+  /**
+   * A scripted guarded commit: waits on `gate`, then plays the real door's
+   * order ? the guard reads `valid()`; a commit calls `consumed()` in the
+   * commit's own span ? and answers `outcome` for a valid reservation.
+   */
+  function scripted(outcome: (r: Reservation) => Outcome) {
+    let open!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      open = resolve;
+    });
+    let entered!: () => void;
+    const reached = new Promise<void>((resolve) => {
+      entered = resolve;
+    });
+    const commit = jest.fn<Promise<Outcome>, Parameters<CampaignGuardedCommit>>(
+      async (_intent, reservation) => {
+        entered();
+        await gate;
+        if (!reservation.valid()) {
+          return {
+            kind: 'refused',
+            refusal: {
+              kind: 'refused',
+              reason: 'proposal-reservation-invalid',
+            },
+          };
+        }
+        const answer = outcome(reservation);
+        if (answer.kind === 'committed') reservation.consumed();
+        return answer;
+      },
+    );
+    return { commit, open, reached };
+  }
+
+  const committed = (): Outcome => ({ kind: 'committed', events: [] });
+  const refused = (reason: string): Outcome => ({
+    kind: 'refused',
+    refusal: { kind: 'refused', reason },
+  });
+
+  async function reviewArbiter() {
+    const host = new CampaignMatchHost({
+      campaignId: CAMPAIGN_ID,
+      hostPlayerId: HOST_ID,
+      eventStore: new InMemoryCampaignEventStore(),
+      initialState: stateWith({ balance: 600_000 }),
+    });
+    await host.open();
+    const recorded = recordingTimers();
+    const arbiter = new CampaignGmArbiter(host, 'host-review', {
+      proposalTimeoutMs: 60_000,
+      timers: recorded.timers,
+    });
+    const resolved: unknown[] = [];
+    arbiter.subscribeResolved((result) => resolved.push(result));
+    expect(await arbiter.submitProposal(advanceProposal())).toEqual({
+      status: 'pending',
+      proposalId: 'p-advance',
+    });
+    const [pending] = arbiter.getPendingProposals();
+    return { arbiter, host, pending, resolved, ...recorded };
+  }
+
+  it('keeps the pending entry and its original timer through preparation; the commit consumes it once', async () => {
+    const { arbiter, pending, armed, cleared } = await reviewArbiter();
+    const notified: number[] = [];
+    arbiter.subscribePending((rows) => notified.push(rows.length));
+    const guarded = scripted(committed);
+    const decided = arbiter.decide('p-advance', 'approve', guarded.commit);
+    await guarded.reached;
+    expect(arbiter.getPendingProposals()).toEqual([pending]);
+    expect(armed).toHaveLength(1);
+    expect(cleared).toEqual([]);
+    expect(notified).toEqual([]);
+    guarded.open();
+    expect(await decided).toEqual({
+      status: 'committed',
+      proposalId: 'p-advance',
+      events: [],
+    });
+    expect(arbiter.getPendingProposals()).toEqual([]);
+    expect(cleared).toEqual([armed[0]]);
+    expect(notified).toEqual([0]);
+    expect(guarded.commit).toHaveBeenCalledTimes(1);
+    expect(
+      await arbiter.decide('p-advance', 'approve', guarded.commit),
+    ).toBeNull();
+  });
+
+  it('coalesces concurrent identical approvals into one attempt', async () => {
+    const { arbiter } = await reviewArbiter();
+    const guarded = scripted(committed);
+    const first = arbiter.decide('p-advance', 'approve', guarded.commit);
+    const second = arbiter.decide('p-advance', 'approve', guarded.commit);
+    const third = arbiter.decide('p-advance', 'approve');
+    guarded.open();
+    expect(await first).toEqual(
+      expect.objectContaining({ status: 'committed' }),
+    );
+    expect(await second).toBeNull();
+    expect(await third).toBeNull();
+    expect(guarded.commit).toHaveBeenCalledTimes(1);
+  });
+
+  it('a late refusal leaves the still-valid pending entry and deadline untouched, shared by coalesced approvals; a retry does not re-arm', async () => {
+    const { arbiter, pending, armed, cleared } = await reviewArbiter();
+    const guarded = scripted(() => refused('participants-behind'));
+    const first = arbiter.decide('p-advance', 'approve', guarded.commit);
+    const second = arbiter.decide('p-advance', 'approve', guarded.commit);
+    guarded.open();
+    for (const attempt of [first, second]) {
+      const error: unknown = await attempt.catch((caught: unknown) => caught);
+      expect(isCampaignProgressionLateRefusal(error)).toBe(true);
+      expect(error).toEqual(
+        expect.objectContaining({ reason: 'participants-behind' }),
+      );
+    }
+    expect(arbiter.getPendingProposals()).toEqual([pending]);
+    expect(armed).toHaveLength(1);
+    expect(cleared).toEqual([]);
+    const retry = scripted(committed);
+    const retried = arbiter.decide('p-advance', 'approve', retry.commit);
+    retry.open();
+    expect(await retried).toEqual(
+      expect.objectContaining({ status: 'committed' }),
+    );
+    expect(armed).toHaveLength(1);
+  });
+
+  it('a timeout during preparation invalidates the reservation before any write', async () => {
+    const { arbiter, armed, resolved } = await reviewArbiter();
+    const consume = jest.fn();
+    const guarded = scripted(() => {
+      consume();
+      return committed();
+    });
+    const decided = arbiter.decide('p-advance', 'approve', guarded.commit);
+    await guarded.reached;
+    armed[0].handler();
+    expect(resolved).toEqual([
+      expect.objectContaining({ status: 'vetoed', proposalId: 'p-advance' }),
+    ]);
+    guarded.open();
+    expect(await decided).toBeNull();
+    expect(consume).not.toHaveBeenCalled();
+    expect(arbiter.getPendingProposals()).toEqual([]);
+  });
+
+  it('a veto during preparation wins; the approval then commits nothing', async () => {
+    const { arbiter } = await reviewArbiter();
+    const consume = jest.fn();
+    const guarded = scripted(() => {
+      consume();
+      return committed();
+    });
+    const decided = arbiter.decide('p-advance', 'approve', guarded.commit);
+    await guarded.reached;
+    expect(await arbiter.decide('p-advance', 'veto')).toEqual(
+      expect.objectContaining({ status: 'vetoed' }),
+    );
+    guarded.open();
+    expect(await decided).toBeNull();
+    expect(consume).not.toHaveBeenCalled();
+  });
+
+  it('close during preparation means the approval can never commit', async () => {
+    const { arbiter } = await reviewArbiter();
+    const consume = jest.fn();
+    const guarded = scripted(() => {
+      consume();
+      return committed();
+    });
+    const decided = arbiter.decide('p-advance', 'approve', guarded.commit);
+    await guarded.reached;
+    arbiter.close();
+    guarded.open();
+    expect(await decided).toBeNull();
+    expect(consume).not.toHaveBeenCalled();
+  });
+
+  it('an uncertain commit consumes the proposal and rethrows; it can never authorize a fresh attempt', async () => {
+    const { arbiter } = await reviewArbiter();
+    const lost = new Error('append threw');
+    const guarded = scripted(() => ({
+      kind: 'commit-uncertain',
+      commandId: 'intent-p-advance',
+      error: lost,
+    }));
+    const decided = arbiter.decide('p-advance', 'approve', guarded.commit);
+    guarded.open();
+    await expect(decided).rejects.toBe(lost);
+    expect(arbiter.getPendingProposals()).toEqual([]);
+    expect(
+      await arbiter.decide('p-advance', 'approve', guarded.commit),
+    ).toBeNull();
+    expect(guarded.commit).toHaveBeenCalledTimes(1);
+  });
+
+  it('guards only AdvanceDay: auto-approve refusal is the late refusal, SpendFunds and unknown ids keep the legacy paths', async () => {
+    const { arbiter } = await makeArbiter(
+      'auto-approve',
+      stateWith({ balance: 600_000 }),
+    );
+    const guarded = scripted(() => refused('fresh-request'));
+    guarded.open();
+    const error: unknown = await arbiter
+      .submitProposal(advanceProposal('p-auto'), guarded.commit)
+      .catch((caught: unknown) => caught);
+    expect(isCampaignProgressionLateRefusal(error)).toBe(true);
+    expect(
+      await arbiter.submitProposal(
+        spendProposal(10, 'p-spend'),
+        guarded.commit,
+      ),
+    ).toEqual(expect.objectContaining({ status: 'committed' }));
+    expect(guarded.commit).toHaveBeenCalledTimes(1);
+    expect(
+      await arbiter.decide('unknown', 'approve', guarded.commit),
+    ).toBeNull();
+    // A malformed proposal is still mechanically rejected before any guard.
+    expect(
+      await arbiter.submitProposal({ proposalId: 'bad' }, guarded.commit),
+    ).toEqual(expect.objectContaining({ status: 'mechanically-rejected' }));
+    expect(guarded.commit).toHaveBeenCalledTimes(1);
+  });
+
+  it('recognises the late refusal by its whole structure, not its class or name', () => {
+    expect(
+      isCampaignProgressionLateRefusal(
+        campaignProgressionLateRefusal('fresh-request'),
+      ),
+    ).toBe(true);
+    expect(
+      isCampaignProgressionLateRefusal({
+        code: 'campaign-progression-late-refusal',
+        reason: 'fresh-request',
+      }),
+    ).toBe(true);
+    for (const spoof of [
+      Object.assign(new Error('campaign-progression-late-refusal'), {
+        name: 'campaign-progression-late-refusal',
+      }),
+      { code: 'campaign-progression-late-refusal', reason: 'cut 12 digest ab' },
+      { code: 'campaign-progression-late-refusal', reason: 7 },
+      {
+        code: 'campaign-progression-late-refusal',
+        reason: 'fresh-request',
+        cut: 3,
+      },
+      { code: 'other', reason: 'fresh-request' },
+      null,
+      'campaign-progression-late-refusal',
+    ]) {
+      expect(isCampaignProgressionLateRefusal(spoof)).toBe(false);
     }
   });
 });

@@ -1,3 +1,6 @@
+import type Database from 'better-sqlite3';
+
+import type { CampaignLaunchView } from '@/lib/campaign/sync/campaignPublicAppliedView';
 import type { ICampaignAuthoritativeState } from '@/types/campaign/CampaignSync';
 import type {
   CoopParticipationChoice,
@@ -27,7 +30,10 @@ import {
 } from './CampaignGmArbiter';
 import { CampaignMatchHost } from './CampaignMatchHost';
 import { participationIsFresh } from './campaignParticipationFreshness';
-import { createDurableCampaignProgressionReaders } from './campaignProgressionReaders.durable';
+import {
+  createDurableCampaignLaunchView,
+  createDurableCampaignProgressionReaders,
+} from './campaignProgressionReaders.durable';
 import { CampaignSyncSession } from './CampaignSyncSession';
 import { selectCampaignEventStore } from './getCampaignEventStore';
 import { getDefaultMatchStore } from './getDefaultMatchStore';
@@ -62,6 +68,15 @@ interface IParticipationBucket {
   readonly listeners: Set<CampaignParticipationListener>;
 }
 
+/**
+ * The P2CE receipt port: ICampaignApplicationReceiptPort, restated here
+ * because campaignApplicationConnection imports this module; the binder
+ * hands it on as that type, so the two cannot drift.
+ */
+export interface ICampaignApplicationReceiptPort {
+  readonly database: () => Database.Database;
+}
+
 export interface ICampaignHostRegistryEntry {
   readonly matchId: string;
   readonly campaignId: string;
@@ -80,6 +95,12 @@ export interface ICampaignHostRegistryEntry {
    * adapter for authority it can rebuild from.
    */
   readonly eventStoreDurability: CampaignEventStoreDurability;
+  /**
+   * P2CG1D: this entry's P2CB launch view, built in the registry's own
+   * module graph when the receipt port is installed; null keeps the legacy
+   * progression gate. Its handle is never swapped for another graph's.
+   */
+  readonly launch: CampaignLaunchView | null;
   readonly publishParticipation: (record: ICampaignParticipationRecord) => void;
   readonly subscribeParticipation: (
     missionId: string,
@@ -106,6 +127,7 @@ class CampaignHostRegistryEntry implements ICampaignHostRegistryEntry {
   readonly syncSession: CampaignSyncSession;
   readonly arbiter: CampaignGmArbiter;
   readonly eventStoreDurability: CampaignEventStoreDurability;
+  readonly launch: CampaignLaunchView | null;
 
   private currentRevision: number;
   private currentActiveBranch: string | null;
@@ -124,6 +146,7 @@ class CampaignHostRegistryEntry implements ICampaignHostRegistryEntry {
     readonly syncSession: CampaignSyncSession;
     readonly arbiter: CampaignGmArbiter;
     readonly eventStoreDurability: CampaignEventStoreDurability;
+    readonly launch: CampaignLaunchView | null;
     readonly unregisterActiveHost: () => void;
   }) {
     this.matchId = input.matchId;
@@ -134,6 +157,7 @@ class CampaignHostRegistryEntry implements ICampaignHostRegistryEntry {
     this.syncSession = input.syncSession;
     this.arbiter = input.arbiter;
     this.eventStoreDurability = input.eventStoreDurability;
+    this.launch = input.launch;
     this.unregisterActiveHost = input.unregisterActiveHost;
     this.campaignId = input.host.campaignId;
     this.hostPlayerId = input.host.getHostPlayerId();
@@ -253,10 +277,34 @@ class CampaignHostRegistryEntry implements ICampaignHostRegistryEntry {
 export class CampaignHostRegistry {
   private readonly entries = new Map<string, CampaignHostRegistryEntry>();
   private readonly matchStore?: IMatchStore;
+  private receipts: ICampaignApplicationReceiptPort | null = null;
 
   constructor(deps: { readonly matchStore?: IMatchStore } = {}) {
     this.matchStore = deps.matchStore;
   }
+
+  /** P2CG1D activation port; null until installed. Never uninstalled. */
+  get applicationReceipts(): ICampaignApplicationReceiptPort | null {
+    return this.receipts;
+  }
+
+  /**
+   * Installs the typed receipt port once, before any entry exists, so no
+   * receipt can flow beside an entry built without a launch view.
+   */
+  installApplicationReceipts = (
+    port: ICampaignApplicationReceiptPort,
+  ): void => {
+    if (this.receipts !== null) {
+      throw new Error('Campaign application receipt port is already installed');
+    }
+    if (this.entries.size > 0) {
+      throw new Error(
+        'Campaign application receipt port needs an empty registry',
+      );
+    }
+    this.receipts = port;
+  };
 
   register = async (
     matchId: string,
@@ -280,6 +328,12 @@ export class CampaignHostRegistry {
       return existing;
     }
 
+    // Installed port: a view on this graph's handle, or no entry at all.
+    const launch =
+      this.receipts === null ? null : createDurableCampaignLaunchView();
+    if (this.receipts !== null && launch === null) {
+      throw new Error('Campaign launch view needs the campaign database');
+    }
     // The environment decides which log this campaign writes to, and it
     // says which one it picked. A process that promised durability and
     // cannot deliver it throws here rather than hosting the campaign on
@@ -328,6 +382,7 @@ export class CampaignHostRegistry {
       syncSession,
       arbiter,
       eventStoreDurability: eventStore.durability,
+      launch,
       unregisterActiveHost,
     });
     // A REBUILT session starts paused: it has no GM connection, so the

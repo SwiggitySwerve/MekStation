@@ -27,6 +27,7 @@ import {
   getSQLiteService,
   resetSQLiteService,
 } from '@/services/persistence/SQLiteService';
+import { createEmptyCampaignState } from '@/types/campaign/CampaignSync';
 
 import type { IMatchMeta } from '../IMatchStore';
 
@@ -210,6 +211,8 @@ interface ICampaignGraph {
   readonly members: typeof import('@/services/campaignPersistence/CampaignSessionParticipantStore');
   readonly applied: typeof import('@/lib/campaign/sync/campaignPublicAppliedView');
   readonly readers: typeof import('../campaignProgressionReaders.durable');
+  readonly registry: typeof import('../CampaignHostRegistry');
+  readonly gate: typeof import('../CampaignProgressionGate');
   readonly db: Database.Database;
 }
 
@@ -223,6 +226,8 @@ function campaignGraph(dbPath: string): ICampaignGraph {
       members: require('@/services/campaignPersistence/CampaignSessionParticipantStore'),
       applied: require('@/lib/campaign/sync/campaignPublicAppliedView'),
       readers: require('../campaignProgressionReaders.durable'),
+      registry: require('../CampaignHostRegistry'),
+      gate: require('../CampaignProgressionGate'),
     };
     /* eslint-enable @typescript-eslint/no-require-imports */
   });
@@ -396,6 +401,70 @@ describe('P2CB launch view across two real campaign graphs', () => {
     expect(ack(b, 'p1', 1)).toEqual({ kind: 'accepted' });
     expect(tx(a, () => viewA.revalidate(a.db, preparedA))).toEqual(FRESH);
     expect((await viewA.prepare(KEY)).verdict).toEqual(READY);
+  });
+
+  it("P2CG1D: an entry graph A's registry built keeps A's view and append handle when graph B reaches it; B's handle or preparation is refused", async () => {
+    a.registry._resetCampaignHostRegistry();
+    const shared = a.registry.getCampaignHostRegistry();
+    shared.installApplicationReceipts({ database: () => a.db });
+    const entry = await shared.register(SESSION_ID, {
+      campaignId: CAMPAIGN_ID,
+      hostPlayerId: 'gm',
+      roomCode: null,
+      state: createEmptyCampaignState(CAMPAIGN_ID),
+    });
+    try {
+      // B's graph reaches the same process registry, port and entry.
+      const reached = b.registry.getCampaignHostRegistry();
+      expect(reached).toBe(shared);
+      expect(reached.get(SESSION_ID)).toBe(entry);
+      expect(reached.applicationReceipts).toBe(shared.applicationReceipts);
+      const view = entry.launch!;
+      expect(view).toBeInstanceOf(a.applied.CampaignLaunchView);
+      expect(view).not.toBeInstanceOf(b.applied.CampaignLaunchView);
+      ack(a, 'gm', 1);
+      ack(a, 'p1', 1);
+      const prepared = await view.prepare(KEY);
+      expect(prepared.verdict).toEqual(READY);
+      const preparedB = await b.readers
+        .createDurableCampaignLaunchView()!
+        .prepare(KEY);
+      expect(preparedB.verdict).toEqual(READY);
+      // Never adopted: B's handle and B's preparation are context mismatches.
+      expect(tx(b, () => view.revalidate(b.db, prepared))).toEqual(MISMATCH);
+      expect(tx(a, () => view.revalidate(a.db, preparedB))).toEqual(MISMATCH);
+
+      // The retained host appends on A's handle, which A's view accepts.
+      const guarded: Array<[Database.Database, string]> = [];
+      const outcome = await entry.host.applyHostIntentWithControls(
+        {
+          kind: 'AdvanceDay',
+          campaignId: CAMPAIGN_ID,
+          intentId: 'advance-cross-graph',
+          payload: { days: 1 },
+        },
+        {
+          guard: (db) => {
+            const verdict = view.revalidate(db, prepared);
+            guarded.push([db, verdict.kind]);
+            return verdict.kind === 'ready'
+              ? null
+              : { kind: 'refused', reason: verdict.reason };
+          },
+        },
+      );
+      // The guard ran once, on A's handle, and admitted the append.
+      expect(guarded).toEqual([[a.db, 'ready']]);
+      expect(outcome.kind).not.toBe('refused');
+      // A late refusal thrown in A's graph is recognised by B's gate by shape.
+      expect(
+        b.gate.isCampaignProgressionLateRefusal(
+          a.gate.campaignProgressionLateRefusal('context-mismatch'),
+        ),
+      ).toBe(true);
+    } finally {
+      a.registry._resetCampaignHostRegistry();
+    }
   });
 
   it('a saga recorded after preparation refuses when rechecked, and both stores survive a cold reopen', async () => {

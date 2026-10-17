@@ -1,0 +1,148 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CG1D",
+  "stage": "red",
+  "date": "20261017",
+  "baseline": "0cfd627c97cdce61ea8c7ed7ee06685fb8aaccb3",
+  "admissionCommit": "d321cdaa34f9654ee937ca1bcbb46721e9dd2ccd",
+  "runtime": {
+    "node": "v24.15.0",
+    "command": "npx jest --selectProjects unit --runInBand <the four registered test leaves>",
+    "machineIdle": "Checked before the run: no other jest/tsc/oxlint/madge process (PID 47516 excluded), CPU about 5%"
+  },
+  "product": {
+    "rule": "Every product source leaf byte-identical to the baseline at this commit",
+    "files": [
+      {
+        "path": "src/lib/multiplayer/server/CampaignProgressionGate.ts",
+        "sha256": "60bdc9567b77005eeeaab58ee0975deb39beda4aa5f15e1e3d127b55bed5f72d",
+        "identicalToBaseline": true
+      },
+      {
+        "path": "src/lib/multiplayer/server/campaignProgressionReaders.durable.ts",
+        "sha256": "39e6f275aaaa6092c37a7165c5851c20d024335b40f43a7b7f7b6c2e91e4529f",
+        "identicalToBaseline": true
+      },
+      {
+        "path": "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+        "sha256": "dd3524f45102237cec5edd0b1f4fffd990f0d1ed7624b3f576a4aead4aaabfa1",
+        "identicalToBaseline": true
+      },
+      {
+        "path": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+        "sha256": "bc2abdc1b8abacbe2802141dee5bdf9dedf3c19e2ac6b8264615fcaa40183022",
+        "identicalToBaseline": true
+      },
+      {
+        "path": "src/lib/multiplayer/server/CampaignGmArbiter.ts",
+        "sha256": "ab6482f3d854d2b6586b2a76efe89529f27b5b2d4edcfa677cdb9f0fea1f64d1",
+        "identicalToBaseline": true
+      }
+    ]
+  },
+  "result": {
+    "total": 119,
+    "passed": 93,
+    "failed": 26,
+    "newCases": 26,
+    "preExistingPassed": 93,
+    "suites": [
+      {
+        "suite": "src/lib/multiplayer/server/__tests__/CampaignGmArbiter.test.ts",
+        "total": 26,
+        "passed": 17,
+        "failed": [
+          "keeps the pending entry and its original timer through preparation; the commit consumes it once",
+          "coalesces concurrent identical approvals into one attempt",
+          "a late refusal leaves the still-valid pending entry and deadline untouched, shared by coalesced approvals; a retry does not re-arm",
+          "a timeout during preparation invalidates the reservation before any write",
+          "a veto during preparation wins; the approval then commits nothing",
+          "close during preparation means the approval can never commit",
+          "an uncertain commit consumes the proposal and rethrows; it can never authorize a fresh attempt",
+          "guards only AdvanceDay: auto-approve refusal is the late refusal, SpendFunds and unknown ids keep the legacy paths",
+          "recognises the late refusal by its whole structure, not its class or name"
+        ]
+      },
+      {
+        "suite": "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
+        "total": 65,
+        "passed": 54,
+        "failed": [
+          "composes application from the installed port; a numeric cursor cannot authorize, genuine receipts commit host AdvanceDay once",
+          "keeps the legacy session gate without the port, and an explicit port still composes offers",
+          "holds C then M inside the guard on the exact handles, commits C under M, and releases M before any publication",
+          "refuses a change made after preparation inside the guard, rolling back with nothing written or fanned out",
+          "answers a busy match connection as a typed refusal, never an uncertain commit",
+          "refuses before any write when the match store has no progression reservation",
+          "keeps a known commit when publication then fails: no refusal, released M, and a retry does not append again",
+          "guards an auto-approved AdvanceDay proposal and leaves SpendFunds proposals unguarded",
+          "keeps a refused GM approval pending with its timer, then coalesces concurrent approvals into one commit",
+          "a GM veto while an approval is being prepared invalidates it before any write",
+          "a late refusal of a GM approval preserves the still-valid pending proposal"
+        ]
+      },
+      {
+        "suite": "src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.crossGraph.test.ts",
+        "total": 6,
+        "passed": 5,
+        "failed": [
+          "P2CG1D: an entry graph A's registry built keeps A's view and append handle when graph B reaches it; B's handle or preparation is refused"
+        ]
+      },
+      {
+        "suite": "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts",
+        "total": 22,
+        "passed": 17,
+        "failed": [
+          "starts with no port, and an entry registered without it keeps the legacy gate",
+          "installs one typed port on the process registry; only the explicit test reset clears it",
+          "refuses a port installed after an entry exists, so no receipt flows beside a legacy-only entry",
+          "gives every new and cold-rebuilt entry its own launch view on this graph's campaign handle",
+          "refuses to register under an installed port without a campaign database, never falling back to legacy"
+        ]
+      }
+    ]
+  },
+  "interpretation": "All 26 new cases fail and all 93 pre-existing cases in the four leaves pass on unmodified product. The failures are the missing registry port slot and entry launch view, the missing guarded doors (with the port installed the binder still takes the legacy gate and offers no receipts from the registry), the missing arbiter reservation/coalescing argument and the missing gate late refusal. The RED is mostly a missing-capability RED; the local stage adds mutation probes to show the cases discriminate behaviour",
+  "typecheck": {
+    "result": "FAIL as expected before the operations exist: 62 TS errors, all in the five test files (including TS2353 launch on the helper literal)",
+    "log": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/red-typecheck.log",
+      "sha256": "45102278c2a5d2f3992327b1846f94c298c2c4eb836f88329cec8cf5fca7347d"
+    },
+    "commitNote": "Committed with --no-verify because the pre-commit typecheck cannot pass before the new operations exist"
+  },
+  "logs": [
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/red-jest.json",
+      "sha256": "f68fba492767ed9e1d0cbb6570800a7f4e03855ccd0b846731bddfef10aabb9a"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/red-jest.log",
+      "sha256": "bcbca28f2eab3eb8a481b815f020d567d4e308219011d24e1037580ca113f67d"
+    }
+  ],
+  "testFiles": [
+    {
+      "path": "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
+      "sha256": "94ea988c248be00589120a9e224a5a0467f215df14b8dfbeff6f23981033cb46"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/CampaignGmArbiter.test.ts",
+      "sha256": "2fb5bc8009cea2019ec806865b0d309d174a7b713563db5799784616dce1977c"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts",
+      "sha256": "f2450ac3249d5003ae1a9cbf4e4ead96375416c38faa437a48a3d0624cdda29f"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.crossGraph.test.ts",
+      "sha256": "be2041d12120641136051b2ed43c5f92597aa5b7b235be0c67318a0d93612fbf"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/campaignGrantChannel.test-helpers.ts",
+      "sha256": "c8618fc39e0954c153f401b44ecf61e83e4faa5abef3789e73368d4d0e37ced4"
+    }
+  ],
+  "helper": "src/lib/multiplayer/server/__tests__/campaignGrantChannel.test-helpers.ts gains exactly one line, launch: null (registered leaf, #2220)"
+}

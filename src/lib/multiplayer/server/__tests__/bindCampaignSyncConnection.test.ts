@@ -1,4 +1,6 @@
-import { EventEmitter } from 'node:events';
+import Database from 'better-sqlite3';
+import assert from 'node:assert/strict';
+import { EventEmitter, once } from 'node:events';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
@@ -8,6 +10,8 @@ import type {
 } from '@/types/multiplayer/Protocol';
 
 import { reconcileCoopBattle } from '@/lib/campaign/coop/reconcileCoopBattle';
+import { CampaignLaunchView } from '@/lib/campaign/sync/campaignPublicAppliedView';
+import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { createEmptyCampaignState } from '@/types/campaign/CampaignSync';
 import {
   HEARTBEAT_INTERVAL_MS,
@@ -15,10 +19,20 @@ import {
   nowIso,
 } from '@/types/multiplayer/Protocol';
 
+import type { ICampaignHostRegistryEntry } from '../CampaignHostRegistry';
 import type { IMatchSocket } from '../ServerMatchSocketTypes';
 
 import { bindCampaignSyncConnection } from '../bindCampaignSyncConnection';
-import { CampaignHostRegistry } from '../CampaignHostRegistry';
+import {
+  _resetCampaignHostRegistry,
+  CampaignHostRegistry,
+  getCampaignHostRegistry,
+} from '../CampaignHostRegistry';
+import { createCampaignSessionMembershipPort } from '../campaignSessionMembershipPort';
+import { _setDefaultMatchStoreForTests } from '../getDefaultMatchStore';
+import { InMemoryMatchStore } from '../InMemoryMatchStore';
+import { ObservedSocket } from './coopMissionAnnouncement.harness';
+import { openRouteFixture } from './coopMissionCreate.harness';
 
 class MockWireSocket extends EventEmitter implements IMatchSocket {
   readonly sent: IServerMessage[] = [];
@@ -2795,5 +2809,652 @@ describe('bindCampaignSyncConnection — application receipt staging (P2CE3)', (
     });
 
     expect(acknowledged).toHaveBeenCalledWith('pid_guest', 0);
+  });
+});
+
+/**
+ * P2CG1D: the three socket progression doors with the receipt port
+ * installed on a reset registry, over real campaign.db / matches.db files
+ * and real receipt ACKs. Readiness comes only from accepted P2CA offers.
+ */
+/** Confirms each write, so application offers can be established. */
+class ConfirmingSocket extends ObservedSocket {
+  override send(data: string, onSent?: (error?: Error) => void): void {
+    super.send(data);
+    if (onSent) queueMicrotask(() => onSent());
+  }
+}
+
+describe('P2CG1D guarded progression doors (installed receipt port)', () => {
+  let fixture: Awaited<ReturnType<typeof openRouteFixture>> | undefined;
+  let entry: ICampaignHostRegistryEntry;
+  const sockets: ObservedSocket[] = [];
+  const signal = () => ({ signal: AbortSignal.timeout(10000) });
+  const campaignDb = () => getSQLiteService().getDatabase();
+  const route = () => {
+    assert.ok(fixture);
+    return fixture;
+  };
+  const matchDb = () => route().store.getDatabase();
+  const port = { database: campaignDb };
+
+  async function open(
+    arbitrationMode: 'auto-approve' | 'host-review',
+    install = true,
+  ) {
+    fixture = await openRouteFixture();
+    const meta = await fixture.store.getMatchMeta(fixture.entry.matchId);
+    assert.ok(meta.coopCampaign);
+    // A reset registry, with the port installed explicitly before any entry.
+    _resetCampaignHostRegistry();
+    if (install) getCampaignHostRegistry().installApplicationReceipts(port);
+    entry = await getCampaignHostRegistry().register(fixture.entry.matchId, {
+      campaignId: meta.coopCampaign.campaignId,
+      hostPlayerId: meta.hostPlayerId,
+      roomCode: meta.roomCode ?? null,
+      state: meta.coopCampaign.state,
+      arbitrationMode,
+    });
+  }
+
+  afterEach(async () => {
+    sockets.splice(0).forEach((socket) => socket.close());
+    jest.restoreAllMocks();
+    await fixture?.close();
+    fixture = undefined;
+  });
+
+  async function join(
+    player: { readonly playerId: string },
+    deps: { readonly applicationReceipts?: typeof port } = {},
+  ) {
+    const socket = new ConfirmingSocket();
+    sockets.push(socket);
+    await bindCampaignSyncConnection({
+      socket,
+      registry: getCampaignHostRegistry(),
+      matchId: entry.matchId,
+      verifiedPlayerId: player.playerId,
+      logger: quietLogger,
+      membership: createCampaignSessionMembershipPort(),
+      ...deps,
+    });
+    const ready = once(socket, 'CampaignSnapshot', signal());
+    socket.inbound({
+      kind: 'CampaignJoin',
+      matchId: entry.matchId,
+      ts: nowIso(),
+      playerId: player.playerId,
+      role: player.playerId === entry.hostPlayerId ? 'host' : 'guest',
+      roomCode: entry.roomCode ?? undefined,
+    });
+    await ready;
+    return socket;
+  }
+
+  /** The next frame of `kind`; an unexpected Error frame or close fails with the recent frames. */
+  function next(socket: ObservedSocket, kind: string) {
+    return new Promise<void>((resolve, reject) => {
+      const fail = (why: string) => () => {
+        clearTimeout(timer);
+        reject(
+          new Error(
+            `${why} awaiting ${kind}: ${JSON.stringify(socket.sent.slice(-3))}`,
+          ),
+        );
+      };
+      const timer = setTimeout(fail('timeout'), 10000);
+      socket.once(kind, () => {
+        clearTimeout(timer);
+        resolve();
+      });
+      socket.once('Error', fail('error'));
+      socket.once('close', fail('close'));
+    });
+  }
+
+  type Offered = { readonly appliedView?: Record<string, unknown> };
+  /** The connection's latest application offer, from the composed receipt port. */
+  function latestOffer(socket: ObservedSocket) {
+    return [...socket.sent]
+      .reverse()
+      .map((frame) => frame as unknown as Offered)
+      .find((frame) => frame.appliedView !== undefined)?.appliedView;
+  }
+
+  /** A real receipt ACK of the latest offer, awaited to its confirmation. */
+  async function ack(socket: ObservedSocket, playerId: string) {
+    const appliedView = latestOffer(socket);
+    assert.ok(appliedView, 'no application offer on this connection');
+    const confirmed = next(socket, 'CampaignAck');
+    socket.inbound({
+      kind: 'CampaignAck',
+      matchId: entry.matchId,
+      ts: nowIso(),
+      playerId,
+      campaignId: entry.campaignId,
+      appliedView,
+    });
+    await confirmed;
+  }
+
+  async function joinedAndReady() {
+    const gm = await join(route().host);
+    const guest = await join(route().guest);
+    await ack(gm, route().host.playerId);
+    await ack(guest, route().guest.playerId);
+    return { gm, guest };
+  }
+
+  /** Every durable fact a refused progression must leave untouched. */
+  function census() {
+    const db = new Database(path.join(route().root, 'campaign.db'), {
+      readonly: true,
+    });
+    try {
+      const rows = (sql: string) => db.prepare(sql).all();
+      return {
+        batches: rows('SELECT command_id FROM event_journal_batches'),
+        heads: rows('SELECT * FROM event_journal_stream_heads'),
+        applied: rows('SELECT * FROM campaign_public_applied_view'),
+        day: entry.host.getState().day,
+        log: entry.host.getState(),
+      };
+    } finally {
+      db.close();
+    }
+  }
+
+  const days = () =>
+    census().batches.filter((row) => JSON.stringify(row).includes('advance-'))
+      .length;
+
+  /** Whether a separate connection could take the file's write lock now. */
+  function writable(file: string): boolean {
+    const other = new Database(file, { timeout: 0 });
+    try {
+      other.exec('BEGIN IMMEDIATE');
+      other.exec('ROLLBACK');
+      return true;
+    } catch (error) {
+      expect(String(error)).toMatch(/SQLITE_BUSY|database is locked/);
+      return false;
+    } finally {
+      other.close();
+    }
+  }
+
+  function intent(kind: 'AdvanceDay' | 'SpendFunds', intentId: string) {
+    return {
+      kind,
+      campaignId: entry.campaignId,
+      intentId,
+      payload:
+        kind === 'AdvanceDay' ? { days: 1 } : { amount: 10, reason: 'Parts' },
+    };
+  }
+
+  /** A host SpendFunds committed directly, moving the head under a held preparation. */
+  const spend = (intentId: string) => ({
+    kind: 'SpendFunds' as const,
+    campaignId: entry.campaignId,
+    intentId,
+    payload: { amount: 10, reason: 'Parts' },
+  });
+
+  function hostIntent(
+    socket: ObservedSocket,
+    kind: 'AdvanceDay' | 'SpendFunds',
+    intentId: string,
+  ) {
+    socket.inbound({
+      kind: 'CampaignHostIntent',
+      matchId: entry.matchId,
+      ts: nowIso(),
+      playerId: entry.hostPlayerId,
+      intent: intent(kind, intentId),
+    });
+  }
+
+  function propose(
+    socket: ObservedSocket,
+    kind: 'AdvanceDay' | 'SpendFunds',
+    proposalId: string,
+  ) {
+    socket.inbound({
+      kind: 'CampaignProposal',
+      matchId: entry.matchId,
+      ts: nowIso(),
+      playerId: route().guest.playerId,
+      proposal: {
+        proposalId,
+        campaignId: entry.campaignId,
+        proposingPlayerId: route().guest.playerId,
+        ts: nowIso(),
+        intent: intent(
+          kind,
+          `${kind === 'AdvanceDay' ? 'advance' : 'spend'}-${proposalId}`,
+        ),
+      },
+    });
+  }
+
+  function approve(socket: ObservedSocket, proposalId: string) {
+    socket.inbound({
+      kind: 'CampaignDecision',
+      matchId: entry.matchId,
+      ts: nowIso(),
+      playerId: entry.hostPlayerId,
+      proposalId,
+      decision: 'approve',
+    });
+  }
+
+  type ErrorFrame = { code: string; reason: string } & Record<string, unknown>;
+  const nextError = (socket: ObservedSocket) =>
+    once(socket, 'Error', signal()).then(([frame]) => frame as ErrorFrame);
+  /** The day-advance fan-out, failing fast (with the frames) on an error or close. */
+  const dayAdvanced = (socket: ObservedSocket) =>
+    next(socket, 'CampaignDayAdvanced');
+
+  /**
+   * Records M's transaction control with whether C is still open, plus a
+   * microtask queued at BEGIN: an explicit release lands before `tick`,
+   * the reservation's microtask safety net only after it.
+   */
+  function traceMatch(trail: string[], onRollback: () => void = () => {}) {
+    const exec = matchDb().exec.bind(matchDb());
+    jest.spyOn(matchDb(), 'exec').mockImplementation((sql: string) => {
+      if (/^(BEGIN|COMMIT|ROLLBACK)/.test(sql)) {
+        trail.push(`M:${sql}:C-open=${String(campaignDb().inTransaction)}`);
+        if (sql === 'BEGIN IMMEDIATE') queueMicrotask(() => trail.push('tick'));
+        if (sql === 'ROLLBACK') onRollback();
+      }
+      return exec(sql);
+    });
+  }
+
+  /** Holds the next real P2CB preparation until `release` resolves. */
+  function holdPreparation() {
+    assert.ok(entry.launch);
+    const real = entry.launch.prepare.bind(entry.launch);
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    let prepared!: () => void;
+    const reached = new Promise<void>((resolve) => {
+      prepared = resolve;
+    });
+    jest.spyOn(entry.launch, 'prepare').mockImplementationOnce(async (key) => {
+      const result = await real(key);
+      prepared();
+      await gate;
+      return result;
+    });
+    return { reached, release };
+  }
+
+  it('composes application from the installed port; a numeric cursor cannot authorize, genuine receipts commit host AdvanceDay once', async () => {
+    await open('host-review');
+    expect(entry.launch).toBeInstanceOf(CampaignLaunchView);
+    const gm = await join(route().host);
+    const guest = await join(route().guest);
+    // No explicit applicationReceipts: the registry port composed the offers.
+    expect(latestOffer(gm)).toBeDefined();
+    expect(latestOffer(guest)).toBeDefined();
+    // The installed port is the only switch: the legacy session gate is never asked.
+    const legacyGate = jest.spyOn(entry.syncSession, 'evaluateScenarioLaunch');
+    const before = census();
+    const refused = nextError(gm);
+    hostIntent(gm, 'AdvanceDay', 'advance-unready');
+    expect(await refused).toEqual(
+      expect.objectContaining({
+        code: 'CAMPAIGN_NOT_CONVERGED',
+        reason: 'participants-behind',
+        intentId: 'advance-unready',
+      }),
+    );
+    expect(census()).toEqual(before);
+    // A receipt connection never downgrades to a numeric ACK.
+    const numeric = nextError(guest);
+    guest.inbound({
+      kind: 'CampaignAck',
+      matchId: entry.matchId,
+      ts: nowIso(),
+      playerId: route().guest.playerId,
+      campaignId: entry.campaignId,
+      revision: 999,
+    });
+    expect((await numeric).code).toBe('INVALID_INTENT');
+    const stillRefused = nextError(gm);
+    hostIntent(gm, 'AdvanceDay', 'advance-numeric');
+    expect((await stillRefused).reason).toBe('participants-behind');
+    expect(census()).toEqual(before);
+
+    await ack(gm, route().host.playerId);
+    await ack(guest, route().guest.playerId);
+    const seen = dayAdvanced(guest);
+    hostIntent(gm, 'AdvanceDay', 'advance-ready');
+    await seen;
+    expect(entry.host.getState().day).toBe(before.day + 1);
+    expect(days()).toBe(1);
+    // A retry of the committed intent replays; it is never refused or re-run.
+    const replayed = census();
+    hostIntent(gm, 'AdvanceDay', 'advance-ready');
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(census()).toEqual(replayed);
+    expect(gm.sent.filter((frame) => frame.kind === 'Error')).toHaveLength(2);
+    expect(legacyGate).not.toHaveBeenCalled();
+    expect(matchDb().inTransaction).toBe(false);
+    expect(campaignDb().inTransaction).toBe(false);
+  });
+
+  it('keeps the legacy session gate without the port, and an explicit port still composes offers', async () => {
+    await open('host-review', false);
+    expect(getCampaignHostRegistry().applicationReceipts).toBeNull();
+    expect(entry.launch).toBeNull();
+    const legacy = await join(route().guest);
+    expect(latestOffer(legacy)).toBeUndefined();
+    const explicit = await join(route().host, { applicationReceipts: port });
+    expect(latestOffer(explicit)).toBeDefined();
+    const prepare = jest.spyOn(CampaignLaunchView.prototype, 'prepare');
+    const legacyGate = jest.spyOn(entry.syncSession, 'evaluateScenarioLaunch');
+    const seen = dayAdvanced(explicit);
+    hostIntent(explicit, 'AdvanceDay', 'advance-legacy');
+    await seen;
+    expect(prepare).not.toHaveBeenCalled();
+    expect(legacyGate).toHaveBeenCalledTimes(1);
+    expect(days()).toBe(1);
+  });
+
+  it('holds C then M inside the guard on the exact handles, commits C under M, and releases M before any publication', async () => {
+    await open('host-review');
+    const { gm, guest } = await joinedAndReady();
+    assert.ok(entry.launch);
+    const campaignFile = path.join(route().root, 'campaign.db');
+    const trail: string[] = [];
+    const revalidate = entry.launch.revalidate.bind(entry.launch);
+    jest
+      .spyOn(entry.launch, 'revalidate')
+      .mockImplementation((db, prepared) => {
+        expect(db).toBe(campaignDb());
+        expect(db.inTransaction).toBe(true);
+        expect(matchDb().inTransaction).toBe(true);
+        expect(writable(campaignFile)).toBe(false);
+        expect(writable(route().matchPath)).toBe(false);
+        trail.push('guard');
+        return revalidate(db, prepared);
+      });
+    traceMatch(trail, () => {
+      // C has committed, durably, and nothing has been published yet.
+      expect(days()).toBe(1);
+      expect(
+        guest.sent.some(
+          (f) =>
+            f.kind === 'CampaignEvent' &&
+            JSON.stringify(f).includes('CampaignDayAdvanced'),
+        ),
+      ).toBe(false);
+    });
+    const seen = dayAdvanced(guest);
+    hostIntent(gm, 'AdvanceDay', 'advance-locked');
+    await seen;
+    // C IMMEDIATE, then M, the guard under both, M released in the commit's span.
+    expect(trail).toEqual([
+      'M:BEGIN IMMEDIATE:C-open=true',
+      'guard',
+      'M:ROLLBACK:C-open=false',
+      'tick',
+    ]);
+    expect(matchDb().inTransaction).toBe(false);
+    expect(writable(route().matchPath)).toBe(true);
+  });
+
+  it('refuses a change made after preparation inside the guard, rolling back with nothing written or fanned out', async () => {
+    await open('host-review');
+    const { gm, guest } = await joinedAndReady();
+    const held = holdPreparation();
+    const trail: string[] = [];
+    traceMatch(trail);
+    const refused = nextError(gm);
+    hostIntent(gm, 'AdvanceDay', 'advance-drift');
+    await held.reached;
+    // The head moves between preparation and the append.
+    expect((await entry.host.applyHostIntent(spend('spend-drift'))).ok).toBe(
+      true,
+    );
+    const before = census();
+    held.release();
+    expect(await refused).toEqual(
+      expect.objectContaining({
+        code: 'CAMPAIGN_NOT_CONVERGED',
+        reason: 'fresh-request',
+        intentId: 'advance-drift',
+      }),
+    );
+    expect(census()).toEqual(before);
+    expect(days()).toBe(0);
+    // The refusal released M explicitly, inside C, before C rolled back.
+    expect(trail).toEqual([
+      'M:BEGIN IMMEDIATE:C-open=true',
+      'M:ROLLBACK:C-open=true',
+      'tick',
+    ]);
+    expect(JSON.stringify(guest.sent)).not.toContain('CampaignDayAdvanced');
+    expect(matchDb().inTransaction).toBe(false);
+    expect(campaignDb().inTransaction).toBe(false);
+    // Public reason only: no cut, digest, count or participant list.
+    expect(
+      JSON.stringify(gm.sent.filter((f) => f.kind === 'Error')),
+    ).not.toMatch(/digest|revision|requiredRevision/i);
+  });
+
+  it('answers a busy match connection as a typed refusal, never an uncertain commit', async () => {
+    await open('host-review');
+    const { gm } = await joinedAndReady();
+    const before = census();
+    matchDb().exec('BEGIN');
+    const refused = nextError(gm);
+    hostIntent(gm, 'AdvanceDay', 'advance-busy');
+    const frame = await refused;
+    matchDb().exec('ROLLBACK');
+    expect(frame).toEqual(
+      expect.objectContaining({
+        code: 'CAMPAIGN_NOT_CONVERGED',
+        reason: 'progression-reservation-busy',
+      }),
+    );
+    expect(census()).toEqual(before);
+    expect(gm.closes).toEqual([]);
+    const seen = dayAdvanced(gm);
+    hostIntent(gm, 'AdvanceDay', 'advance-busy');
+    await seen;
+    expect(days()).toBe(1);
+  });
+
+  it('refuses before any write when the match store has no progression reservation', async () => {
+    await open('host-review');
+    const { gm } = await joinedAndReady();
+    _setDefaultMatchStoreForTests(new InMemoryMatchStore({ quiet: true }));
+    const before = census();
+    const refused = nextError(gm);
+    hostIntent(gm, 'AdvanceDay', 'advance-unsupported');
+    expect((await refused).reason).toBe('progression-unsupported');
+    expect(census()).toEqual(before);
+    _setDefaultMatchStoreForTests(route().store);
+  });
+
+  it('keeps a known commit when publication then fails: no refusal, released M, and a retry does not append again', async () => {
+    await open('host-review');
+    const { gm } = await joinedAndReady();
+    const unsubscribe = entry.host.subscribe((event) => {
+      if (event.type === 'CampaignDayAdvanced')
+        throw new Error('publish failed');
+    });
+    const closed = once(gm, 'close', signal());
+    hostIntent(gm, 'AdvanceDay', 'advance-unsettled');
+    await closed;
+    unsubscribe();
+    expect(days()).toBe(1);
+    expect(
+      gm.sent.some(
+        (f) => f.kind === 'Error' && f.code === 'CAMPAIGN_NOT_CONVERGED',
+      ),
+    ).toBe(false);
+    expect(matchDb().inTransaction).toBe(false);
+    const after = census();
+    const again = await join(route().host);
+    hostIntent(again, 'AdvanceDay', 'advance-unsettled');
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(census().batches).toEqual(after.batches);
+  });
+
+  it('guards an auto-approved AdvanceDay proposal and leaves SpendFunds proposals unguarded', async () => {
+    await open('auto-approve');
+    const gm = await join(route().host);
+    const guest = await join(route().guest);
+    const prepare = jest.spyOn(CampaignLaunchView.prototype, 'prepare');
+    const legacyGate = jest.spyOn(entry.syncSession, 'evaluateScenarioLaunch');
+    const refused = nextError(guest);
+    propose(guest, 'AdvanceDay', 'auto-unready');
+    expect(await refused).toEqual(
+      expect.objectContaining({
+        code: 'CAMPAIGN_NOT_CONVERGED',
+        reason: 'participants-behind',
+        intentId: 'auto-unready',
+      }),
+    );
+    expect(entry.arbiter.getPendingProposals()).toEqual([]);
+    expect(days()).toBe(0);
+    const calls = prepare.mock.calls.length;
+    const spent = once(guest, 'CampaignDecision', signal());
+    propose(guest, 'SpendFunds', 'auto-spend');
+    await spent;
+    expect(prepare.mock.calls.length).toBe(calls);
+    await ack(gm, route().host.playerId);
+    await ack(guest, route().guest.playerId);
+    const seen = dayAdvanced(guest);
+    propose(guest, 'AdvanceDay', 'auto-ready');
+    await seen;
+    expect(days()).toBe(1);
+    expect(legacyGate).not.toHaveBeenCalled();
+  });
+
+  it('keeps a refused GM approval pending with its timer, then coalesces concurrent approvals into one commit', async () => {
+    await open('host-review');
+    const gm = await join(route().host);
+    const guest = await join(route().guest);
+    const queued = once(guest, 'CampaignDecision', signal());
+    propose(guest, 'AdvanceDay', 'review-advance');
+    await queued;
+    const [pending] = entry.arbiter.getPendingProposals();
+    const legacyGate = jest.spyOn(entry.syncSession, 'evaluateScenarioLaunch');
+    const refused = nextError(gm);
+    approve(gm, 'review-advance');
+    expect(await refused).toEqual(
+      expect.objectContaining({
+        code: 'CAMPAIGN_NOT_CONVERGED',
+        reason: 'participants-behind',
+      }),
+    );
+    expect(entry.arbiter.getPendingProposals()).toEqual([pending]);
+    expect(days()).toBe(0);
+
+    await ack(gm, route().host.playerId);
+    await ack(guest, route().guest.playerId);
+    const held = holdPreparation();
+    const decided = once(guest, 'CampaignDecision', signal());
+    approve(gm, 'review-advance');
+    await held.reached;
+    // Reserved, not removed: the pending item stays until the commit consumes it.
+    expect(entry.arbiter.getPendingProposals()).toEqual([pending]);
+    const pendingAtRelease: number[] = [];
+    traceMatch([], () =>
+      pendingAtRelease.push(entry.arbiter.getPendingProposals().length),
+    );
+    const duplicate = nextError(gm);
+    approve(gm, 'review-advance');
+    held.release();
+    expect((await decided)[0]).toEqual(
+      expect.objectContaining({
+        proposalId: 'review-advance',
+        result: expect.objectContaining({ status: 'committed' }),
+      }),
+    );
+    expect(await duplicate).toEqual(
+      expect.objectContaining({
+        code: 'BAD_ENVELOPE',
+        reason: 'unknown-proposal',
+      }),
+    );
+    expect(days()).toBe(1);
+    // Consumed in the commit's own span, so no timeout can resolve it again.
+    expect(pendingAtRelease).toEqual([0]);
+    expect(legacyGate).not.toHaveBeenCalled();
+    expect(entry.arbiter.getPendingProposals()).toEqual([]);
+  });
+
+  it('a GM veto while an approval is being prepared invalidates it before any write', async () => {
+    await open('host-review');
+    const { gm, guest } = await joinedAndReady();
+    const queued = once(guest, 'CampaignDecision', signal());
+    propose(guest, 'AdvanceDay', 'review-veto');
+    await queued;
+    const held = holdPreparation();
+    const stale = nextError(gm);
+    approve(gm, 'review-veto');
+    await held.reached;
+    const vetoed = once(guest, 'CampaignDecision', signal());
+    gm.inbound({
+      kind: 'CampaignDecision',
+      matchId: entry.matchId,
+      ts: nowIso(),
+      playerId: entry.hostPlayerId,
+      proposalId: 'review-veto',
+      decision: 'veto',
+    });
+    expect((await vetoed)[0]).toEqual(
+      expect.objectContaining({
+        result: expect.objectContaining({ status: 'vetoed' }),
+      }),
+    );
+    const before = census();
+    held.release();
+    expect(await stale).toEqual(
+      expect.objectContaining({
+        code: 'BAD_ENVELOPE',
+        reason: 'unknown-proposal',
+      }),
+    );
+    expect(census()).toEqual(before);
+    expect(days()).toBe(0);
+  });
+
+  it('a late refusal of a GM approval preserves the still-valid pending proposal', async () => {
+    await open('host-review');
+    const { gm, guest } = await joinedAndReady();
+    const queued = once(guest, 'CampaignDecision', signal());
+    propose(guest, 'AdvanceDay', 'review-drift');
+    await queued;
+    const [pending] = entry.arbiter.getPendingProposals();
+    const held = holdPreparation();
+    const refused = nextError(gm);
+    approve(gm, 'review-drift');
+    await held.reached;
+    expect((await entry.host.applyHostIntent(spend('spend-review'))).ok).toBe(
+      true,
+    );
+    const before = census();
+    held.release();
+    expect(await refused).toEqual(
+      expect.objectContaining({
+        code: 'CAMPAIGN_NOT_CONVERGED',
+        reason: 'fresh-request',
+        intentId: 'review-drift',
+      }),
+    );
+    expect(census()).toEqual(before);
+    expect(entry.arbiter.getPendingProposals()).toEqual([pending]);
   });
 });

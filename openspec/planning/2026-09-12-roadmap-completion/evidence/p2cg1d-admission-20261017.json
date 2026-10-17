@@ -1,0 +1,210 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CG1D",
+  "stage": "admission",
+  "date": "20261017",
+  "baseline": "0cfd627c97cdce61ea8c7ed7ee06685fb8aaccb3",
+  "authority": "Root delegation (L1 chain unit 3 of 17). Closure #2219 (merge f1ee3fcc) recorded P2CG1C main-verified and released P2CG1D to planned; parent literal-path amendment #2220 (merge 0cfd627c) registered the grant-channel helper as the tenth leaf (subtotal 11). Root directed admission on 0cfd627c",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "L1 / P2CG1D implementation sub-agent"
+  },
+  "predecessors": {
+    "P2CG1C": "main-verified, mergeSha 4690f67408d3e4e7cc2025db6799d034786b41a1, mainProof PASS (evidence/p2cg1c-mainproof-20261017.json), closure #2219 merge f1ee3fcc; 4690f674, f1ee3fcc, ce5fd2ae (P2CG1B) and 0cfd627c are ancestors of the baseline (git merge-base --is-ancestor)"
+  },
+  "registration": {
+    "amendment": "#2220 merge 0cfd627c97cdce61ea8c7ed7ee06685fb8aaccb3 (evidence/p2cg1d-grant-helper-literal-path-amendment-20261017.json): roadmap.json restrictions.P2CG1D 9 -> 10 leaves, knownSourceTestLifecycleSubtotals.P2CG1D 10 -> 11, units.json behavior Planned leaves (10); caps unchanged",
+    "stopReport": {
+      "path": "E:/Projects/Personal/MekStation/docs/audits/2026-10-17-p2cg1d-admission-stop-report.md",
+      "sha256": "d7a8fb9ae88d5c4e0f6ab66ff2c93fd3afc6614ffb1a66a8e6bb4f75e42c63e6",
+      "note": "N1: the earlier STOP (TS7 probe: TS2741 at campaignGrantChannel.test-helpers.ts:175) that the amendment resolved"
+    },
+    "amendmentReview": {
+      "path": "E:/Projects/Personal/MekStation/docs/audits/2026-10-17-pr2220-review.md",
+      "sha256": "7b4a6f4db4f4c74bdd06f932818a8b0273155bb8aa22854620c931c966aed547",
+      "verdict": "APPROVE-WITH-NOTES"
+    },
+    "D-OPEN-1": "Resolved by #2220 before this admission"
+  },
+  "carryForwards": {
+    "source": "P2CG1C review (E:/Projects/Personal/MekStation/docs/audits/2026-10-17-p2cg1c-review.md section 7, sha256 c4cfeaca4feb9dace3dda6d49f99abd760e6e71807c55d49d793823d8d4bf46f; evidence/p2cg1c-review-20261017.json successorNotes.P2CG1D): CF-D1..CF-D11, M1-M5, N1-N6, D-OPEN-1",
+    "CF-D1": "Reservation is taken inside B's synchronous guard and released on the guard's refusal return or in onCommitted, both in the same synchronous span; D makes no M write; no await between reserve and those releases",
+    "CF-D2": "Explicit release on the guard refusal return and in onCommitted; the microtask is only the safety net (and afterRelease releases idempotently). Residual, disclosed: when the guard admits but the append itself then reports a revision conflict or throws, B's adapter does not call onCommitted, so M is released by C's microtask; no D-owned seam can release earlier without editing B leaves",
+    "CF-D3": "reserveMatchProgression() is called in try/catch inside the guard; any throw (including the idle-connection refusal) returns {kind:refused, reason:progression-reservation-busy}, never commit-uncertain",
+    "CF-D4": "C IMMEDIATE (writer .immediate()) then M (reservation in the guard); never M before C; neither held across an await",
+    "CF-D5": "No deferred read-then-write on M; the guard only reads (strict saga precedence) on the reserved M connection",
+    "CF-D6": "No presence-only readback added; committed/uncertain classification stays B's",
+    "CF-D7": "onCommitted is always requested (forces the writer in-transaction refusal); M in a transaction before BEGIN is a typed refusal",
+    "CF-D8": "Re-run at 0cfd627c (cfd8-grep-base.txt): only definitions of B/C operations, no production caller; bindCampaignSyncConnection.ts:910 and CampaignGmArbiter.ts:453 call uncontrolled applyHostIntent; server.js installs no port and composes no guard. D becomes the first caller of applyHostIntentWithControls and reserveMatchProgression, reached only through entry.launch, which no production process builds",
+    "CF-D9": "Baseline lint 87 warnings / 0 errors, bindCampaignSyncConnection.ts already max-lines (1321 counted); madge 8.0.0 from D's five source leaves: 976 files, 175 circular chains",
+    "CF-D10": "Branch protection at admission: required contexts [Lint and Test], strict false, conversation resolution true, 0 approvals; all pr-checks.yml names to be verified by name on the exact head",
+    "CF-D11": "Not absorbed: coopMissionCreate.test.ts and DurableMatchStore.test.ts are not D leaves (E and a later owner)",
+    "M1": "Any post-RED test edit is committed on its own with the reason in the message",
+    "M2-M5": "Not D leaves (IMatchStore.ts, DurableMatchStore.ts, coop create tests); not absorbed",
+    "N1-N6": "Noted; N2/CF-D7 fail-closed design accepted"
+  },
+  "caps": {
+    "files": 15,
+    "productAddedLines": 500
+  },
+  "restriction": {
+    "container": "R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1D",
+    "leaves": 10,
+    "knownSubtotal": 11
+  },
+  "manifest": {
+    "count": 15,
+    "spare": 0,
+    "reservedUnchanged": 1,
+    "note": "10 restriction leaves (5 source, 4 test, 1 helper) + units.json (own lifecycle fields only) + admission/red/local receipts + reserved admission-review slot = 15/15. campaignProgressionReaders.durable.ts is a restriction leaf planned unchanged. No CampaignMatchHost.ts / CampaignMatchHost.doors.ts / roadmap.json / server.js / Protocol edit"
+  },
+  "countingConvention": "N3: U41 counted lines = added physical lines (git diff --numstat --no-renames baseline..HEAD, no deletion credit) in the product source leaves and units.json. __tests__/ files (4 test leaves + the helper) and evidence/ contents are line-exempt; every changed file counts toward 15",
+  "census": {
+    "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/census.md",
+    "bytes": 6246,
+    "sha256": "5d6020779f447c8aa2b10d38c1b42e7628c98cfd7284811ed008011179f73c28",
+    "frozenBefore": "any source, test, lifecycle or evidence edit in this branch"
+  },
+  "frozenFiles": [
+    {
+      "path": "src/lib/multiplayer/server/CampaignProgressionGate.ts",
+      "exists": true,
+      "sha256": "60bdc9567b77005eeeaab58ee0975deb39beda4aa5f15e1e3d127b55bed5f72d",
+      "bytes": 7493,
+      "physicalLines": 226
+    },
+    {
+      "path": "src/lib/multiplayer/server/campaignProgressionReaders.durable.ts",
+      "exists": true,
+      "sha256": "39e6f275aaaa6092c37a7165c5851c20d024335b40f43a7b7f7b6c2e91e4529f",
+      "bytes": 8709,
+      "physicalLines": 249
+    },
+    {
+      "path": "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+      "exists": true,
+      "sha256": "dd3524f45102237cec5edd0b1f4fffd990f0d1ed7624b3f576a4aead4aaabfa1",
+      "bytes": 15953,
+      "physicalLines": 454
+    },
+    {
+      "path": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+      "exists": true,
+      "sha256": "bc2abdc1b8abacbe2802141dee5bdf9dedf3c19e2ac6b8264615fcaa40183022",
+      "bytes": 52737,
+      "physicalLines": 1675
+    },
+    {
+      "path": "src/lib/multiplayer/server/CampaignGmArbiter.ts",
+      "exists": true,
+      "sha256": "ab6482f3d854d2b6586b2a76efe89529f27b5b2d4edcfa677cdb9f0fea1f64d1",
+      "bytes": 23502,
+      "physicalLines": 620
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
+      "exists": true,
+      "sha256": "7ac89b749fff5bdaaa68f4dd344adb7f73099b067d2f96f52ace5b61d036f529",
+      "bytes": 85529,
+      "physicalLines": 2799
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/CampaignGmArbiter.test.ts",
+      "exists": true,
+      "sha256": "ea2f924f27d54aefc1e4a46c38360f27885f63100ff94e4d16c32c8416ea2072",
+      "bytes": 15013,
+      "physicalLines": 422
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.crossGraph.test.ts",
+      "exists": true,
+      "sha256": "3441a2c6d3040ee16c8b966550b63c492b2e12e6825000a62f81f909f2462892",
+      "bytes": 15900,
+      "physicalLines": 443
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts",
+      "exists": true,
+      "sha256": "6bc2c9bee687e35187b3cd213e5e69a30e6e59845f58f10e710d63ccb1877cde",
+      "bytes": 13916,
+      "physicalLines": 401
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/campaignGrantChannel.test-helpers.ts",
+      "exists": true,
+      "sha256": "9a86b60e36191314de624d874c4570098fb09b81203d783cc9b872e7a7eeae15",
+      "bytes": 11100,
+      "physicalLines": 334
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "exists": true,
+      "sha256": "56f7f56646733a37e0e469377c48465c188b41f926469277e87f010b2cc7f9b2",
+      "bytes": 1570103,
+      "physicalLines": 20999
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1d-admission-20261017.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null,
+      "physicalLines": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1d-red-20261017.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null,
+      "physicalLines": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1d-local-20261017.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null,
+      "physicalLines": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1d-admission-review-20261017.md",
+      "exists": false,
+      "sha256": null,
+      "bytes": null,
+      "physicalLines": null
+    }
+  ],
+  "estimate": "Registration 195-255; scope research 285-445. Pre-gate draft measured 359 product lines plus lifecycle; final figures only at the local stage",
+  "baselineMeasurements": {
+    "lint": {
+      "command": "npx oxlint (npm run lint first stage)",
+      "result": "87 warnings, 0 errors",
+      "leafWarnings": "bindCampaignSyncConnection.ts eslint(max-lines) 1321 counted (already warned); other D leaves do not warn",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/lint-base.log",
+        "sha256": "ec5fbf22636da027f4508cfa6c84fb9dfaab6acfb0e69e7a31d12b10991dfb52"
+      }
+    },
+    "cycles": {
+      "command": "npx -y madge@8.0.0 --circular --extensions ts --ts-config tsconfig.json <D five source leaves>",
+      "result": "Processed 976 files, 175 circular chains",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/madge-base.log",
+        "sha256": "818e9a31c921f57fa4bd1ca4c8927e2ace0da4ee5761ee334e62b67b3e62e293"
+      }
+    },
+    "cfd8": {
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/cfd8-grep-base.txt",
+        "sha256": "9233304bad17a510eb5af6ec25de3dea47076a1f3a8cf2ea1df4b74b1af8e4c6"
+      }
+    }
+  },
+  "overlap": "gh pr list --state open: #2113 (docs audits) and #1886 (e2e wip); neither touches src/lib/multiplayer/server or units.json. No other roadmap unit is admitted or implementing",
+  "baselineOpenNotes": {
+    "D-PREP": "Before the gate opened the RED cases and implementation were drafted in this worktree (no commit, no PR, no lifecycle field). At admission the worktree was reset to 0cfd627c; drafts are held off-tree as patches (tests.patch, product.patch) and are re-applied only after this admission commit (tests first, product after the RED commit)"
+  },
+  "activationPredicate": "Unchanged and uninstalled: a typed ICampaignApplicationReceiptPort installed once on CampaignHostRegistry by server.js at boot. D adds the slot and the dual doors; it does not install the port, so production keeps the legacy session gate",
+  "requiredChecks": "gh api branches/main/protection at admission: required_status_checks.contexts [\"Lint and Test\"] (strict false), required_conversation_resolution true, 0 required approvals",
+  "reviewSlot": "Reserved for the independent reviewer; author must not write review",
+  "summary": "Ordinary admission of the 15 frozen paths under unchanged caps. No cap exception, no unnamed leaf, no merge or Main claim."
+}

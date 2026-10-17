@@ -1,8 +1,12 @@
 import type { ICampaignGrantLiveSource } from '@/lib/campaign/delivery/campaignGrantChannelSession';
 import type { ICampaignGrantSigner } from '@/lib/campaign/grants/ICampaignGrantStore';
 import type { SQLiteCampaignReplicaStore } from '@/lib/campaign/replica/SQLiteCampaignReplicaStore';
+import type { CampaignLaunchView } from '@/lib/campaign/sync/campaignPublicAppliedView';
 import type { CampaignArtifactUseReader } from '@/lib/interventions/GmCampaignArtifactUseDurable';
-import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
+import type {
+  CampaignHostCommand,
+  ICampaignEvent,
+} from '@/types/campaign/CampaignSync';
 import type {
   ICampaignApplicationAck,
   ICampaignClientMessage,
@@ -24,9 +28,15 @@ import {
 
 import type { ICampaignApplicationReceiptPort } from './campaignApplicationConnection';
 import type {
+  CampaignGuardedCommit,
+  ICampaignProposalReservation,
+} from './CampaignGmArbiter';
+import type {
   CampaignHostRegistry,
   ICampaignHostRegistryEntry,
 } from './CampaignHostRegistry';
+import type { CampaignDoorOutcome } from './CampaignMatchHost.doors';
+import type { IMatchProgressionReservation } from './IMatchStore';
 import type { IMatchSocket } from './ServerMatchSocketTypes';
 
 import {
@@ -46,8 +56,13 @@ import {
   createCampaignReplicaStoreFromSqlite,
 } from './campaignGrantChannelDeps';
 import { getCampaignHostRegistry } from './CampaignHostRegistry';
-import { formatCampaignProgressionRefusalReason } from './CampaignProgressionGate';
+import { resultOfDoor } from './CampaignMatchHost.doors';
+import {
+  formatCampaignProgressionRefusalReason,
+  isCampaignProgressionLateRefusal,
+} from './CampaignProgressionGate';
 import { refusedWhileCampaignRebuilding } from './campaignSyncRebuildAdmission';
+import { getDefaultMatchStore } from './getDefaultMatchStore';
 import {
   handleCampaignGrantAck,
   type IBoundGrantSession,
@@ -73,6 +88,7 @@ export interface ICampaignHostRegistryLike {
   getOrCreate?(
     matchId: string | undefined,
   ): Promise<ICampaignHostRegistryEntry | null>;
+  readonly applicationReceipts?: ICampaignApplicationReceiptPort | null;
 }
 
 /**
@@ -146,7 +162,7 @@ export interface IBindCampaignSyncConnectionDeps {
   matchId: string;
   verifiedPlayerId: string;
   registry?:
-    | Pick<CampaignHostRegistry, 'get' | 'getOrCreate'>
+    | Pick<CampaignHostRegistry, 'get' | 'getOrCreate' | 'applicationReceipts'>
     | ICampaignHostRegistryLike;
   logger?: Pick<Console, 'error' | 'warn' | 'log'>;
   /**
@@ -300,15 +316,17 @@ export async function bindCampaignSyncConnection({
     if (sockets?.size === 0) socketsByMatch.delete(matchId);
   };
   const { lifecycle, broadcaster } = campaignSocketLifecycle(entry, matchId);
+  // An explicit port wins; otherwise the registry's installed one.
+  const receipts = applicationReceipts ?? registry.applicationReceipts;
   const application =
-    membership && applicationReceipts
+    membership && receipts
       ? new CampaignApplicationConnection(verifiedPlayerId, {
           socket,
           entry,
           matchId,
           broadcaster,
           membership,
-          receipts: applicationReceipts,
+          receipts,
           logger,
           close: (code, reason) =>
             closeWithTypedError({ socket, matchId, cleanup, code, reason }),
@@ -799,6 +817,112 @@ async function refuseUnconvergedProgression(
   return true;
 }
 
+const OPEN_RESERVATION: ICampaignProposalReservation = {
+  valid: () => true,
+  consumed: () => undefined,
+};
+
+const appendRefusal = (reason: string) =>
+  ({ kind: 'refused', reason }) as const;
+
+/**
+ * P2CG1D guarded progression: the P2CB view is prepared outside SQL; B's
+ * guard, inside the append's IMMEDIATE campaign transaction (C), takes the
+ * P2CG1C match reservation (M) and revalidates. C commits while M is held;
+ * the refusal return and the commit notification release M in that same
+ * synchronous span. A throwing reservation is a refusal, never uncertain.
+ * Every refusal is the guard's, so a duplicate replays before any of them.
+ */
+async function commitGuardedProgression(
+  entry: ICampaignHostRegistryEntry,
+  launch: CampaignLaunchView,
+  intent: CampaignHostCommand,
+  reservation: ICampaignProposalReservation = OPEN_RESERVATION,
+): Promise<CampaignDoorOutcome> {
+  const matches = getDefaultMatchStore();
+  const reserve = matches.reserveMatchProgression?.bind(matches);
+  const prepared = await launch.prepare({
+    campaignId: entry.campaignId,
+    sessionId: entry.matchId,
+  });
+  let held: IMatchProgressionReservation | null = null;
+  const release = () => {
+    const hold = held;
+    held = null;
+    hold?.release();
+  };
+  return entry.host.applyHostIntentWithControls(intent, {
+    guard: (db) => {
+      if (!reservation.valid()) {
+        return appendRefusal('proposal-reservation-invalid');
+      }
+      if (reserve === undefined)
+        return appendRefusal('progression-unsupported');
+      const { verdict } = prepared;
+      if (verdict.kind !== 'ready') return appendRefusal(verdict.reason);
+      try {
+        held = reserve();
+      } catch {
+        return appendRefusal('progression-reservation-busy');
+      }
+      try {
+        const current = launch.revalidate(db, prepared);
+        if (current.kind === 'ready') return null;
+        release();
+        return appendRefusal(current.reason);
+      } catch (error) {
+        release();
+        throw error;
+      }
+    },
+    onCommitted: () => {
+      try {
+        reservation.consumed();
+      } finally {
+        release();
+      }
+    },
+    afterRelease: release,
+  });
+}
+
+function guardedCommit(
+  entry: ICampaignHostRegistryEntry,
+): CampaignGuardedCommit | undefined {
+  const { launch } = entry;
+  if (launch === null) return undefined;
+  return (intent, reservation) =>
+    commitGuardedProgression(entry, launch, intent, reservation);
+}
+
+function sendNotConverged(
+  socket: IWireCampaignSocket,
+  matchId: string,
+  reason: string,
+  correlationId?: string,
+): void {
+  send(
+    socket,
+    errorFrame(matchId, 'CAMPAIGN_NOT_CONVERGED', reason, correlationId),
+  );
+}
+
+/** Answers the gate's late refusal (thrown after rollback); null if refused. */
+async function unlessLateRefused<T>(
+  socket: IWireCampaignSocket,
+  matchId: string,
+  correlationId: string | undefined,
+  run: Promise<T>,
+): Promise<{ readonly value: T } | null> {
+  try {
+    return { value: await run };
+  } catch (error) {
+    if (!isCampaignProgressionLateRefusal(error)) throw error;
+    sendNotConverged(socket, matchId, error.reason, correlationId);
+    return null;
+  }
+}
+
 async function handleCampaignHostIntent({
   envelope,
   socket,
@@ -827,8 +951,10 @@ async function handleCampaignHostIntent({
     return;
   }
 
+  const launch = envelope.intent.kind === 'AdvanceDay' ? entry.launch : null;
   if (
     envelope.intent.kind === 'AdvanceDay' &&
+    launch === null &&
     (await refuseUnconvergedProgression(
       entry,
       socket,
@@ -907,7 +1033,19 @@ async function handleCampaignHostIntent({
     return;
   }
 
-  const result = await entry.host.applyHostIntent(envelope.intent);
+  const outcome =
+    launch === null
+      ? null
+      : await commitGuardedProgression(entry, launch, envelope.intent);
+  if (outcome?.kind === 'refused') {
+    const { reason } = outcome.refusal;
+    sendNotConverged(socket, matchId, reason, envelope.intent.intentId);
+    return;
+  }
+  const result =
+    outcome === null
+      ? await entry.host.applyHostIntent(envelope.intent)
+      : resultOfDoor(outcome);
   if (result.ok) {
     // This command's committed batch is already in hand. Apply its durable
     // revocation synchronously rather than rescanning the journal, so the
@@ -1340,7 +1478,10 @@ async function handleCampaignProposal({
     );
     return;
   }
+  const guarded = guardedCommit(entry);
+  const proposalId = readStringField(envelope.proposal, 'proposalId');
   if (
+    guarded === undefined &&
     entry.arbiter.arbitrationMode === 'auto-approve' &&
     readProposalIntentKind(envelope.proposal) === 'AdvanceDay' &&
     (await refuseUnconvergedProgression(
@@ -1352,7 +1493,14 @@ async function handleCampaignProposal({
   ) {
     return;
   }
-  const result = await entry.arbiter.submitProposal(envelope.proposal);
+  const submitted = await unlessLateRefused(
+    socket,
+    matchId,
+    proposalId ?? undefined,
+    entry.arbiter.submitProposal(envelope.proposal, guarded),
+  );
+  if (submitted === null) return;
+  const result = submitted.value;
   send(socket, {
     kind: 'CampaignDecision',
     matchId,
@@ -1403,7 +1551,9 @@ async function handleCampaignDecision({
     );
     return;
   }
+  const guarded = guardedCommit(entry);
   if (
+    guarded === undefined &&
     envelope.decision === 'approve' &&
     pendingAdvanceDayProposal(entry, envelope.proposalId) &&
     (await refuseUnconvergedProgression(
@@ -1416,10 +1566,14 @@ async function handleCampaignDecision({
     return;
   }
 
-  const result = await entry.arbiter.decide(
+  const decided = await unlessLateRefused(
+    socket,
+    matchId,
     envelope.proposalId,
-    envelope.decision,
+    entry.arbiter.decide(envelope.proposalId, envelope.decision, guarded),
   );
+  if (decided === null) return;
+  const result = decided.value;
   if (!result) {
     send(socket, errorFrame(matchId, 'BAD_ENVELOPE', 'unknown-proposal'));
     return;
