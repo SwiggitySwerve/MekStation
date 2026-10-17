@@ -8782,7 +8782,8 @@
         "openspec/changes/migrate-to-typescript-7/specs/typescript-toolchain/spec.md",
         "openspec/changes/archive/2026-10-17-migrate-to-typescript-7/proposal.md",
         "openspec/changes/archive/2026-10-17-migrate-to-typescript-7/tasks.md",
-        "openspec/changes/archive/2026-10-17-migrate-to-typescript-7/specs/typescript-toolchain/spec.md"
+        "openspec/changes/archive/2026-10-17-migrate-to-typescript-7/specs/typescript-toolchain/spec.md",
+        "openspec/changes/archive/2026-10-17-migrate-to-typescript-7/specs/bv-validation-tooling/spec.md"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
