@@ -460,9 +460,9 @@
   ],
   "design": {
     "path": "docs/audits/2026-10-17-h-prereq-registration-design.md",
-    "bytes": 16235,
+    "bytes": 16245,
     "physicalLines": 93,
-    "sha256": "3877c227bcb1cc82cb1e5ddab78f34c46bf63b2a9786934f8b8bcfc7ff861118"
+    "sha256": "eeb86ba3d75f559a6bf9b801e107f2506591e0ab5603152d9aad8becdd59e8ff"
   },
   "registrationBudget": {
     "actualFiles": 4,

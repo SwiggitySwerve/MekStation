@@ -32,9 +32,9 @@ Literal source/test leaves (7):
 - src/lib/campaign/sync/JournalCampaignEventStore.ts
 - src/lib/multiplayer/server/CampaignMatchHost.ts
 - src/lib/multiplayer/server/bindCampaignSyncConnection.ts
-- src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts
-- src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts
-- src/lib/multiplayer/server/__tests__/CampaignMatchHost.pipeline.test.ts
+- `src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts`
+- `src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts`
+- `src/lib/multiplayer/server/__tests__/CampaignMatchHost.pipeline.test.ts`
 
 Add the optional synchronous server-only onNotCommitted callback, detect it as a controlled append, invoke it synchronously when append returns a non-committed result or throws, and wire the binder's existing idempotent release function. Keep the successful outer-commit notification, late cleanup and microtask fallback. Callback identity never enters a command fingerprint, payload or wire frame. Preserve duplicate-first behavior and typed outcomes.
 
@@ -51,8 +51,8 @@ Literal source/test leaves (5):
 - src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts
 - src/lib/multiplayer/server/ServerMatchHostReplay.ts
 - src/lib/multiplayer/server/ServerMatchHostEvents.ts
-- src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts
-- src/lib/multiplayer/server/__tests__/sealedChoiceDelivery.test.ts
+- `src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts`
+- `src/lib/multiplayer/server/__tests__/sealedChoiceDelivery.test.ts`
 
 The review repro is fog on + spectator seat + stale opponent side assignment naming that spectator + an unrevealed opponent AttackDeclared + actual ServerMatchHost.sendReplay. Reported baseline result: live replay contains six events including attack_declared#e10; the corrected HTTP export contains five public events and withholds it. This design statically traces that result; it does not claim to have rerun the probe.
 
