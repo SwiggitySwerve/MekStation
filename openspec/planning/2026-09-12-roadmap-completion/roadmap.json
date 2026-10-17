@@ -2825,7 +2825,8 @@
             "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
             "src/lib/multiplayer/server/__tests__/CampaignGmArbiter.test.ts",
             "src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.crossGraph.test.ts",
-            "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts"
+            "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts",
+            "src/lib/multiplayer/server/__tests__/campaignGrantChannel.test-helpers.ts"
           ],
           "P2CG1E": [
             "src/pages-modules/api/campaignLaunchProgressionGate.ts",
@@ -2955,7 +2956,7 @@
           "P2CG1A2": 3,
           "P2CG1B": 9,
           "P2CG1C": 8,
-          "P2CG1D": 10,
+          "P2CG1D": 11,
           "P2CG1E": 8,
           "P2CG1F": 6,
           "P2CG1G1": 8,
