@@ -151,6 +151,37 @@ describe('MovementIntentComposer', () => {
     });
   });
 
+  it('lets a 0 MP unit lock in a stationary turn without composing anything (L0-04)', () => {
+    // Heat 20 -> floor(20/5) = 4 MP penalty: Walk 4 -> 0, Run -> 0.
+    const commitSpy = jest.fn();
+    useGameplayStore.setState({ commitComposedMovement: commitSpy });
+    const walk4 = { ...capability, walkMP: 4, runMP: 6 };
+    const unit = { ...proneUnit, prone: false, heat: 20 } as IUnitGameState;
+    const commands = commandContext({ activeUnitProne: false });
+    render(
+      <MovementIntentComposer
+        context={context({ capability: walk4, unit, commandContext: commands })}
+      />,
+    );
+
+    expect(screen.getByTestId('budget-option-walk')).toHaveTextContent('0 MP');
+    const lockIn = screen.getByTestId('movement-lock-in-btn');
+    expect(lockIn).toBeEnabled();
+    expect(lockIn).toHaveAccessibleName('Lock in movement as Stationary');
+    expect(screen.getByTestId('movement-lock-in-hint')).toHaveTextContent(
+      /stationary/i,
+    );
+
+    // Even if a 0 MP budget is highlighted first, nothing moved: Stationary.
+    fireEvent.click(screen.getByTestId('budget-option-walk'));
+    fireEvent.click(lockIn);
+
+    expect(commitSpy).toHaveBeenCalledTimes(1);
+    const [intentArg, modeArg] = commitSpy.mock.calls[0];
+    expect(intentArg.items).toHaveLength(0);
+    expect(modeArg).toBe(MovementType.Stationary);
+  });
+
   it('adds a posture via its hotkey and removes it from the ledger', () => {
     render(<MovementIntentComposer context={context()} />);
     // "s" is the Stand Up hotkey (task 4.5). Fire a global keydown.

@@ -40,6 +40,8 @@ export interface BudgetResolverProps {
    * the world-change recompose state (ledger over every budget).
    */
   readonly lockBlocked: boolean;
+  /** Nothing composed: Lock-In needs no budget pick and commits Stationary. */
+  readonly stationaryLockIn?: boolean;
   /** Pick (highlight) a mode — never auto-called; explicit player choice. */
   readonly onPickMode: (mode: MovementType) => void;
   /** Commit the composed sequence at `pendingMode` atomically. */
@@ -116,12 +118,14 @@ export function BudgetResolver({
   affordableBudgets,
   pendingMode,
   lockBlocked,
+  stationaryLockIn = false,
   onPickMode,
   onLockIn,
   hint = null,
 }: BudgetResolverProps): React.ReactElement {
   const forced = affordableBudgets.length === 1;
-  const lockInDisabled = lockBlocked || pendingMode === null;
+  const lockInDisabled =
+    lockBlocked || (pendingMode === null && !stationaryLockIn);
 
   return (
     <div
@@ -161,16 +165,20 @@ export function BudgetResolver({
           type="button"
           disabled={lockInDisabled}
           onClick={() => {
-            if (pendingMode !== null && !lockBlocked) onLockIn(pendingMode);
+            if (lockBlocked) return;
+            if (stationaryLockIn) onLockIn(MovementType.Stationary);
+            else if (pendingMode !== null) onLockIn(pendingMode);
           }}
           data-testid="movement-lock-in-btn"
           aria-disabled={lockInDisabled}
           aria-label={
             lockBlocked
               ? 'Lock in movement (blocked: composition exceeds every budget)'
-              : pendingMode === null
-                ? 'Lock in movement (select a budget first)'
-                : `Lock in movement at ${MODE_LABEL[pendingMode]}`
+              : stationaryLockIn
+                ? 'Lock in movement as Stationary'
+                : pendingMode === null
+                  ? 'Lock in movement (select a budget first)'
+                  : `Lock in movement at ${MODE_LABEL[pendingMode]}`
           }
           // Disabled state keeps BUTTON chrome (border + fill) so it reads as
           // a disabled control, not stray dim text (re-audit VD-03/A11Y-R8).

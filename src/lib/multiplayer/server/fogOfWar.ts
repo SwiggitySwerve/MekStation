@@ -122,14 +122,27 @@ export function filterEventForPlayer(
 
   if (event.type === GameEventType.GameCreated) {
     const payload = event.payload as IGameCreatedPayload;
-    if (payload.units.some((unit) => unit.customUnitDefinition !== undefined)) {
+    // Construction secrets: the saved design and its per-slot critical
+    // layout (component names, weapon/ammo ids) are owner-only. The server
+    // resolves crits; a fogged client replays without the enemy manifest.
+    if (
+      payload.units.some(
+        (unit) =>
+          unit.customUnitDefinition !== undefined ||
+          unit.criticalSlotManifest !== undefined,
+      )
+    ) {
       return {
         ...event,
         payload: {
           ...payload,
           units: payload.units.map((unit) => {
             if (isUnitOwnedByPlayer(playerId, unit.id, state)) return unit;
-            const { customUnitDefinition: _snapshot, ...publicUnit } = unit;
+            const {
+              customUnitDefinition: _snapshot,
+              criticalSlotManifest: _manifest,
+              ...publicUnit
+            } = unit;
             return publicUnit;
           }),
         },

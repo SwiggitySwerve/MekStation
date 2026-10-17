@@ -13,6 +13,7 @@ import { parseCustomCombatDefinition } from '@/services/units/customCombatDefini
 import { customUnitApiService } from '@/services/units/CustomUnitApiService';
 import {
   hydrateC3EquipmentFromFullUnit,
+  hydrateCriticalSlotManifestFromFullUnit,
   hydrateHeatSinksFromFullUnit,
   hydrateInitiativeEquipmentFromFullUnit,
 } from '@/simulation/runner/UnitHydration';
@@ -112,6 +113,13 @@ export function adaptUnitFromData(
   const gyroType = gyroTypeFromUnitData(unitData);
   const ammoState = hydrateAmmoStateFromFullUnit(fullUnit) ?? {};
   const ammo = ammoFromWeapons(weapons, ammoState);
+  // Real critical layout (catalog or saved custom unit), not the legacy
+  // XL-shaped default manifest (L0-06).
+  // @spec openspec/specs/critical-hit-resolution/spec.md (Critical Slot Selection)
+  const criticalSlotManifest = hydrateCriticalSlotManifestFromFullUnit(
+    fullUnit,
+    weapons,
+  );
   const ammoConstruction = Object.values(ammoState).map((bin) => ({
     binId: bin.binId,
     weaponType: bin.weaponType,
@@ -151,6 +159,7 @@ export function adaptUnitFromData(
     walkMP: movement.walkMP,
     runMP: movement.runMP,
     jumpMP: movement.jumpMP,
+    ...(criticalSlotManifest !== undefined ? { criticalSlotManifest } : {}),
   };
   return {
     ...adapted,

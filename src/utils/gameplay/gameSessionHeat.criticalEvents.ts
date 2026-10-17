@@ -14,6 +14,7 @@ import {
   createUnitDestroyedEvent,
 } from './gameEvents';
 import { createEventBase } from './gameEvents/base';
+import { hasUnitDestroyedEvent } from './gameSessionAttackResolutionHelpers';
 import { appendEvent } from './gameSessionCore';
 
 function createHeatCriticalHitEvent(
@@ -164,7 +165,11 @@ export function emitHeatCriticalEvents(
       continue;
     }
 
-    if (event.type === 'unit_destroyed') {
+    // Once per unit (L0-05): a unit already destroyed is not destroyed again.
+    if (
+      event.type === 'unit_destroyed' &&
+      !hasUnitDestroyedEvent(currentSession, unitId)
+    ) {
       currentSession = appendEvent(
         currentSession,
         createUnitDestroyedEvent(

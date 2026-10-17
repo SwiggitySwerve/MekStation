@@ -1,3 +1,8 @@
+import {
+  EngineType,
+  getEngineDefinition,
+} from '@/types/construction/EngineType';
+import { GyroType, getGyroDefinition } from '@/types/construction/GyroType';
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 
 import type {
@@ -6,6 +11,7 @@ import type {
   ICriticalSlotEntry,
 } from './types';
 
+/** Legacy fallback for engine-less fixtures: its side torsos are XL-shaped. */
 export function buildDefaultCriticalSlotManifest(): CriticalSlotManifest {
   return {
     head: [
@@ -247,10 +253,58 @@ export function buildDefaultCriticalSlotManifest(): CriticalSlotManifest {
   };
 }
 
+const fixedSlots = (
+  start: number,
+  count: number,
+  componentType: 'engine' | 'gyro',
+): ICriticalSlotEntry[] =>
+  Array.from({ length: Math.max(0, count) }, (_, i) => ({
+    slotIndex: start + i,
+    componentType,
+    componentName: componentType === 'engine' ? 'Engine' : 'Gyro',
+    destroyed: false,
+  }));
+
+export interface IStructuralCriticalSlotOptions {
+  readonly engineType: EngineType;
+  readonly gyroType?: GyroType;
+}
+
+/**
+ * Engine-aware fixed slots (L0-06): engine fills CT 0-2, the gyro follows,
+ * remaining CT engine slots follow the gyro; only XL/Light/XXL engines occupy
+ * side-torso slots. Head and limb actuators match the legacy default.
+ *
+ * @spec openspec/specs/engine-system/spec.md (Engine Type Classification)
+ * @spec openspec/specs/critical-slot-allocation/spec.md (Fixed Component Placement; Side Torso Engine Slots)
+ */
+export function buildStructuralCriticalSlotManifest(
+  options: IStructuralCriticalSlotOptions,
+): CriticalSlotManifest {
+  const engine = getEngineDefinition(options.engineType);
+  const ctEngineSlots = engine?.ctSlots ?? 6;
+  const sideTorsoSlots = engine?.sideTorsoSlots ?? 0;
+  const gyroSlots =
+    getGyroDefinition(options.gyroType ?? GyroType.STANDARD)?.criticalSlots ??
+    4;
+  const lead = Math.min(3, ctEngineSlots);
+  return {
+    ...buildDefaultCriticalSlotManifest(),
+    center_torso: [
+      ...fixedSlots(0, lead, 'engine'),
+      ...fixedSlots(lead, gyroSlots, 'gyro'),
+      ...fixedSlots(lead + gyroSlots, ctEngineSlots - lead, 'engine'),
+    ],
+    left_torso: fixedSlots(0, sideTorsoSlots, 'engine'),
+    right_torso: fixedSlots(0, sideTorsoSlots, 'engine'),
+  };
+}
+
 export function buildCriticalSlotManifest(
   customSlots?: Partial<Record<string, readonly ICriticalSlotEntry[]>>,
+  baseManifest?: CriticalSlotManifest,
 ): CriticalSlotManifest {
-  const base = buildDefaultCriticalSlotManifest();
+  const base = baseManifest ?? buildDefaultCriticalSlotManifest();
   if (!customSlots) return base;
 
   const result: Record<string, readonly ICriticalSlotEntry[]> = { ...base };
