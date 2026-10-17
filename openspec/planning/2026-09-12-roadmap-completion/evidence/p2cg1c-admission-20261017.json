@@ -1,0 +1,162 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CG1C",
+  "stage": "admission",
+  "date": "20261017",
+  "baseline": "8fde3b975fad16dc2af91faa16c49356ada9f921",
+  "authority": "Root delegation (L1 chain unit 2 of 17). Closure #2217 (merge 8fde3b97) recorded P2CG1B main-verified and moved P2CG1C blocked->planned; Root announced the gate open and directed admission on 8fde3b97",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "L1 / P2CG1C implementation sub-agent"
+  },
+  "predecessors": {
+    "P2CG1B": "main-verified, mergeSha ce5fd2ae130a9f41027603823ef4903c5dad5d95, mainProof PASS (evidence/p2cg1b-mainproof-20261017.json), closure #2217 merge 8fde3b97; ce5fd2ae and 8fde3b97 are ancestors of the baseline (git merge-base --is-ancestor)"
+  },
+  "carryForwards": {
+    "source": "P2CG1B review receipt evidence/p2cg1b-review-20261017.json successorNotes.P2CG1C (CF-C1..CF-C10, M1-M4, N1-N5, C-OPEN-1..3)",
+    "C-OPEN-1": "C appends no campaign batch inside C: C is held IMMEDIATE only for revalidation while M commits, then released by ROLLBACK, never written. CF-C1 borrowed append therefore does not arise and no leaf outside the seven is implied",
+    "C-OPEN-2": "M4 is not absorbed: JournalCampaignEventStore.test.ts is not a P2CG1C leaf",
+    "C-OPEN-3": "P2CG1B main-verified with mainProof PASS verified on fetched main; CF-C8 grep and CF-C9 figures re-measured at this baseline (below)",
+    "CF-C2..C7": "C calls no controlled campaign door or writer onCommitted and changes no wire/identity type; its match-side outcome classification follows the same refused-only-means-nothing-written rule; capability = presence of optional method, no boolean switch",
+    "CF-C8": "Re-run at 8fde3b97: git grep of applyHostIntentWithControls|appendControlledCommandBatch|appendInBorrowedTransaction|afterRelease|CAMPAIGN_APPEND_CONTROLS_UNSUPPORTED over src and server.js outside __tests__ and B's six leaves finds nothing; bindCampaignSyncConnection.ts:910 and CampaignGmArbiter.ts:453 still call uncontrolled applyHostIntent; server.js composes no guard",
+    "CF-C9": "Baseline: repo-wide 87 warnings, 0 errors; DurableMatchStore.ts already warned (max-lines 1312 counted); madge 8.0.0 from C's three source leaves: 992 files, 174 circular chains",
+    "CF-C10": "Verify the 32 pr-checks.yml names on the PR head; branch protection now: required contexts [Lint and Test], strict false, conversation resolution, 0 approvals"
+  },
+  "baselineOpenNotes": {
+    "C-PREP": "Before the gate opened, the RED cases and implementation were drafted in this worktree on #2216's head (no commit, no PR, no lifecycle field). At admission the worktree was reset to 8fde3b97; product and test drafts are held off-tree as patches and are re-applied only after this admission commit (tests first, product after the RED commit). The two P2CG1C-relevant paths between c0c97c13 and 8fde3b97 outside C's leaves are fog projection files (#2212), no overlap",
+    "C-OPEN-SCOPE": "SCOPE.md (written before P2CG1B existed) re-verified: B leaves are untouched; the seven C leaves still exist with the restriction text unchanged; harness and fixture are expected to stay unchanged"
+  },
+  "caps": {
+    "files": 15,
+    "productAddedLines": 500
+  },
+  "restriction": {
+    "container": "R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1C",
+    "leaves": 7
+  },
+  "manifest": {
+    "count": 10,
+    "reservedUnchanged": 2,
+    "spare": 5,
+    "note": "3 source leaves + 2 test leaves + units.json (own lifecycle fields only) + admission/red/local receipts + reserved admission-review slot = 10; harness and fixture are restriction leaves planned unchanged (12 if ever touched). No worker fixture, helper, roadmap.json, route, registry, binder, Protocol or server.js change"
+  },
+  "census": {
+    "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/census.md",
+    "bytes": 9870,
+    "sha256": "a8ac06a4ff2abd2fe845e4e7e1c605f4e76013f99f6183fc02af4e7b2fbbb1fd",
+    "frozenBefore": "any source, test, lifecycle or evidence edit in this branch"
+  },
+  "frozenFiles": [
+    {
+      "path": "src/lib/multiplayer/server/IMatchStore.ts",
+      "exists": true,
+      "sha256": "6cbc18b0b41b38d52e7f77292d2415547a8b89e2eff33010138f186017080898",
+      "bytes": 24685,
+      "physicalLines": 660
+    },
+    {
+      "path": "src/lib/multiplayer/server/DurableMatchStore.ts",
+      "exists": true,
+      "sha256": "82d3bd3b7512ace10740cad54e1d5c7973ec294f5b0d7995819d748f8c936944",
+      "bytes": 65227,
+      "physicalLines": 1776
+    },
+    {
+      "path": "src/lib/multiplayer/server/coopMissionCreate.ts",
+      "exists": true,
+      "sha256": "55ab84d1c07692aa1727c3716363f07d953815385ff5e9b73b34601251ebddab",
+      "bytes": 6021,
+      "physicalLines": 184
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/DurableMatchStore.test.ts",
+      "exists": true,
+      "sha256": "15fcd506c0c51d93f86bbe1a872385bba2d2d9632e696a75abf61ccdcaf01401",
+      "bytes": 17336,
+      "physicalLines": 487
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+      "exists": true,
+      "sha256": "46e04c6202fb02f770170ad5ef76b9b15f8de47ce1c0035d77d0ccb9d17f4ae4",
+      "bytes": 18902,
+      "physicalLines": 530
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/coopMissionCreate.harness.ts",
+      "exists": true,
+      "sha256": "7ece3af4538927777c69bc2e8a6f1846cc41d6dd8690b9dcbd5a8c8d148f77ae",
+      "bytes": 6625,
+      "physicalLines": 219
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/coopMissionCreate.fixture.ts",
+      "exists": true,
+      "sha256": "82118e8ebe5df12428136fbb4c51e1535f6a070e6c7df40fa04cd075cb1fcbbf",
+      "bytes": 8681,
+      "physicalLines": 252
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "exists": true,
+      "sha256": "99a28cd5350637608735f4a5575c001edfd51b1844bdab30f014079eb9011e99",
+      "bytes": 1563349,
+      "physicalLines": 20921
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1c-admission-20261017.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null,
+      "physicalLines": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1c-red-20261017.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null,
+      "physicalLines": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1c-local-20261017.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null,
+      "physicalLines": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1c-admission-review-20261017.md",
+      "exists": false,
+      "sha256": null,
+      "bytes": null,
+      "physicalLines": null
+    }
+  ],
+  "estimate": "Registration 155-215 counted lines with lifecycle; scope research 245-390. The pre-gate draft measured 320 product lines (IMatchStore 41, DurableMatchStore 102, coopMissionCreate 177) plus lifecycle; final figures only at the local stage",
+  "baselineMeasurements": {
+    "lint": {
+      "command": "npm run lint (oxlint)",
+      "result": "87 warnings, 0 errors",
+      "leafWarnings": "DurableMatchStore.ts eslint(max-lines) 1312 counted (already warned); IMatchStore.ts and coopMissionCreate.ts do not warn",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/lint-base.log",
+        "sha256": "ecbef2b31aa272dbfda6fc6bf6cc799e03376d998b20df7614b8c6c18e7ce81b"
+      }
+    },
+    "cycles": {
+      "command": "npx -y madge@8.0.0 --circular --extensions ts --ts-config tsconfig.json <the three source leaves>",
+      "result": "Processed 992 files, 174 circular chains",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/madge-base.log",
+        "sha256": "160df3fe831bb6c4b6bc2001f43b0e265bf0ab4a8347139710cbe9b6a02087e4"
+      }
+    }
+  },
+  "overlap": "gh pr list --state open: #2113 (docs audits) and #1886 (e2e wip); neither touches a P2CG1C leaf, units.json or src/lib/multiplayer/server. No other roadmap unit is admitted or implementing",
+  "operations": "Frozen in the census (section \"Frozen operations\"): IMatchStore optional createMatchPrepared/reserveMatchProgression with MatchPreparedCreateResult and IMatchProgressionReservation; DurableMatchStore shared writeMatchRows, owned IMMEDIATE hold on M with microtask release, owner readback classification; coopMissionCreate shared body, unchanged route-reached createCoopMissionMatch, new createPreparedCoopMissionMatch(body, actorId, launch) with C-then-M IMMEDIATE, revalidate on C while M held, M commit while C held, C released unwritten, CoopMissionCommitError for committed/uncertain identities",
+  "activationPredicate": "None. Callable and unreached: the route still reaches only createCoopMissionMatch; no registry/binder/arbiter/server.js/receipt-port change",
+  "requiredChecks": "gh api branches/main/protection at admission: required_status_checks.contexts [\"Lint and Test\"] (strict false), required_conversation_resolution true, 0 required approvals. All 32 pr-checks.yml names to be verified by name on the exact head",
+  "reviewSlot": "Reserved for the independent reviewer; author must not write review",
+  "summary": "Ordinary admission of the 10 frozen paths (plus 2 restriction leaves planned unchanged) under unchanged caps. No cap exception, no unnamed leaf, no merge or Main claim."
+}
