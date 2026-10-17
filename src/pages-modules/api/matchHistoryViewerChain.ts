@@ -32,6 +32,7 @@ import { HumanActionAuthorizationError } from '@/lib/multiplayer/server/authoriz
 import { MatchSeatMembershipSource } from '@/lib/multiplayer/server/authorization/MatchSeatMembershipSource';
 import { SQLiteDeliveryEpochStore } from '@/lib/multiplayer/server/delivery/SQLiteDeliveryEpochStore';
 import { getDefaultMatchStore } from '@/lib/multiplayer/server/getDefaultMatchStore';
+import { FogAwareMatchProjectionService } from '@/lib/multiplayer/server/history/MatchHistoryFogProjection';
 import {
   projectViewerHistoryLineage,
   type IViewerHistoryLineage,
@@ -44,7 +45,6 @@ import {
   type IViewerAudienceEventDecision,
   type IViewerAudienceProjectorDefinition,
 } from '@/lib/multiplayer/server/projection/ViewerAudienceProjector';
-import { ViewerProjectionService } from '@/lib/multiplayer/server/projection/ViewerProjectionService';
 import {
   initializeApiDatabase,
   queryStringParam,
@@ -127,9 +127,13 @@ export function createViewerHistoryServiceOver(
   registry.register(historyProofAudienceDefinition());
   return new ViewerHistoryService({
     resolver: new AuthorizedViewerResolver(membership),
-    projection: new ViewerProjectionService({
+    // Fog-aware: a fog-on `match` stream is filtered per viewer exactly
+    // as the live wire filters it (review N6). Every other stream, and
+    // fog off, is the plain projection unchanged.
+    projection: new FogAwareMatchProjectionService({
       journal: new SQLiteEventJournal(db, () => new Date().toISOString()),
       registry,
+      matchMeta: getDefaultMatchStore(),
     }),
     epochStore: new SQLiteDeliveryEpochStore(db, () =>
       new Date().toISOString(),
