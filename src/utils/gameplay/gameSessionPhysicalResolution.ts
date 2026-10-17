@@ -15,6 +15,7 @@ import {
   createPhysicalAttackResolvedEvent,
   createUnitDestroyedEvent,
 } from './gameEvents';
+import { hasUnitDestroyedEvent } from './gameSessionAttackResolutionHelpers';
 import { appendEvent } from './gameSessionCore';
 import { appendPhysicalAttackDamageEvents } from './gameSessionPhysicalDamageEvents';
 import { appendDfaMissFallDamage } from './gameSessionPhysicalDfaMiss';
@@ -258,7 +259,9 @@ function appendImpossibleDisplacementDestruction(options: {
     options;
   if (
     impossibleDisplacementDestroyedUnitId === undefined ||
-    session.currentState.units[impossibleDisplacementDestroyedUnitId]?.destroyed
+    session.currentState.units[impossibleDisplacementDestroyedUnitId]
+      ?.destroyed ||
+    hasUnitDestroyedEvent(session, impossibleDisplacementDestroyedUnitId)
   ) {
     return session;
   }

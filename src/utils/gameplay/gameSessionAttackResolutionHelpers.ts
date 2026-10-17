@@ -200,7 +200,10 @@ export function emitCriticalEvents(
 
 // Checks the event log, not currentState.destroyed: a fatal PilotHit marks the
 // unit destroyed before its UnitDestroyed event is appended.
-function hasUnitDestroyedEvent(session: IGameSession, unitId: string): boolean {
+export function hasUnitDestroyedEvent(
+  session: IGameSession,
+  unitId: string,
+): boolean {
   return session.events.some(
     (event) =>
       event.type === GameEventType.UnitDestroyed &&

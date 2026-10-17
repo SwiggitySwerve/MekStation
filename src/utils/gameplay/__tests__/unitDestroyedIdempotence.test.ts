@@ -18,6 +18,7 @@ import { createPilotHitEvent } from '@/utils/gameplay/gameEvents';
 import { createGameSession } from '@/utils/gameplay/gameSession';
 import { appendUnitDestroyedEvent } from '@/utils/gameplay/gameSessionAttackResolutionHelpers';
 import { appendEvent } from '@/utils/gameplay/gameSessionCore';
+import { emitHeatCriticalEvents } from '@/utils/gameplay/gameSessionHeat.criticalEvents';
 import { derivePostBattleReport } from '@/utils/gameplay/postBattleReport';
 
 const unit = (id: string, side: GameSide) => ({
@@ -95,6 +96,19 @@ describe('L0-05 one destroyed unit is one kill', () => {
     expect(s.currentState.units.hbk.destroyed).toBe(true);
     s = appendUnitDestroyedEvent(s, { ...destroy, cause: 'pilot_death' });
     expect(destroyedCount(s)).toBe(1);
+  });
+
+  it('heat-phase critical destruction does not re-destroy a destroyed unit', () => {
+    const s = battle((x) =>
+      appendUnitDestroyedEvent(x, { ...destroy, cause: 'damage' }),
+    );
+    const heat = emitHeatCriticalEvents(
+      s,
+      [{ type: 'unit_destroyed', payload: { unitId: 'hbk', cause: 'damage' } }],
+      7,
+      'hbk',
+    );
+    expect(destroyedCount(heat)).toBe(1);
   });
 
   it('replays a v2.1.0 log with three UnitDestroyed events for one unit as kills: 1', () => {

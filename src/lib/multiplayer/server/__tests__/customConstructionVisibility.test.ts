@@ -10,6 +10,18 @@ import { deriveState } from '@/utils/gameplay/gameState';
 
 import { filterEventForPlayer, filterEventForSpectator } from '../fogOfWar';
 
+/** Hidden per-slot layout seeded into GameCreated (PR #2211 review B1). */
+const manifest = (owner: string) => ({
+  right_torso: [
+    {
+      slotIndex: 0,
+      componentType: 'weapon',
+      componentName: `${owner}-construction-slot`,
+      destroyed: false,
+    },
+  ],
+});
+
 function fixture() {
   const baseline = JSON.parse(
     JSON.stringify(VALID_COMBAT_LIFECYCLE_EVENT_PAYLOADS.game_created),
@@ -34,6 +46,7 @@ function fixture() {
             id: 'custom-owner',
             privateMarker: 'owner-construction',
           },
+          criticalSlotManifest: manifest('owner'),
         },
         {
           ...baseline.units[0],
@@ -44,6 +57,7 @@ function fixture() {
             id: 'custom-opponent',
             privateMarker: 'opponent-construction',
           },
+          criticalSlotManifest: manifest('opponent'),
         },
       ],
     },
@@ -69,9 +83,15 @@ describe('custom construction visibility', () => {
       expect(JSON.stringify(filtered)).not.toContain(
         `${viewer === 'owner' ? 'opponent' : 'owner'}-construction`,
       );
-      expect(
-        (filtered?.payload as IGameCreatedPayload).units.map((unit) => unit.id),
-      ).toEqual(['owner-unit', 'opponent-unit']);
+      const units = (filtered?.payload as IGameCreatedPayload).units;
+      expect(units.map((unit) => unit.id)).toEqual([
+        'owner-unit',
+        'opponent-unit',
+      ]);
+      // The viewer keeps its own critical layout; the other side's is gone.
+      const own = viewer === 'owner' ? 0 : 1;
+      expect(units[own].criticalSlotManifest).toBeDefined();
+      expect(units[1 - own].criticalSlotManifest).toBeUndefined();
       expect(JSON.stringify(event)).toBe(original);
     },
   );
@@ -85,8 +105,37 @@ describe('custom construction visibility', () => {
     for (const projected of [spectator, unknown]) {
       expect(projected).not.toBeNull();
       expect(JSON.stringify(projected)).not.toContain('customUnitDefinition');
+      expect(JSON.stringify(projected)).not.toContain('criticalSlotManifest');
       expect((projected?.payload as IGameCreatedPayload).units).toHaveLength(2);
     }
+  });
+
+  it('replays a fogged log with no enemy manifest without errors', () => {
+    const { event, state } = fixture();
+    const created = filterEventForPlayer(event, 'owner', state, {
+      fogOfWar: true,
+    }) as IGameEvent;
+    const crit = {
+      ...event,
+      id: 'crit',
+      sequence: 1,
+      type: GameEventType.CriticalHitResolved,
+      phase: GamePhase.WeaponAttack,
+      payload: {
+        unitId: 'opponent-unit',
+        location: 'right_torso',
+        slotIndex: 0,
+        componentType: 'weapon',
+        componentName: 'Weapon',
+        effect: 'Weapon destroyed',
+        destroyed: true,
+      },
+    } as IGameEvent;
+    const replayed = deriveState(event.gameId, [created, crit]);
+    expect(
+      replayed.units['opponent-unit'].criticalSlotManifest,
+    ).toBeUndefined();
+    expect(replayed.units['owner-unit'].criticalSlotManifest).toBeDefined();
   });
 
   it('preserves the existing full-visibility contract when fog is off', () => {
