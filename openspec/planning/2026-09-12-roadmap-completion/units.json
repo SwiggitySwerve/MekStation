@@ -8151,7 +8151,14 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2od-admission-20261017.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2od-admission-review-20261017.md",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2od-red-20261017.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2od-local-20261017.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2od-local-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2od-source-astra-review-20261017.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2od-review-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2od-merge-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-97c3281f-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-97c3281f-bv.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-97c3281f-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2od-mainproof-20261017.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -8162,10 +8169,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "implementing",
+      "state": "main-verified",
       "baseline": "437db72aab57009f2ba5b73a86220cb2dc65615a",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "80ac1ae97c39d10668d7e1e7d266ebdc1112dd43",
+      "mergeSha": "97c3281f5a3d943adee64e3516a538d466d50f8e",
       "stageReceipts": {
         "admission": {
           "path": "evidence/ts7s2od-admission-20261017.json"
@@ -8176,9 +8183,27 @@
         "local": {
           "path": "evidence/ts7s2od-local-20261017.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/ts7s2od-review-20261017.json",
+          "head": "80ac1ae97c39d10668d7e1e7d266ebdc1112dd43",
+          "reviewedHead": "80ac1ae97c39d10668d7e1e7d266ebdc1112dd43",
+          "reviewerModel": "gpt-6-astra",
+          "implementerModel": "gpt-6.1-sol",
+          "outputSha256": "96b1bad2e4cb3f3efe221abb8bab7579ab16665ff949e27b87b9d50e55dab81e",
+          "verdict": "APPROVE-WITH-NOTES"
+        },
+        "merge": {
+          "path": "evidence/ts7s2od-merge-20261017.json",
+          "pr": 2184,
+          "head": "80ac1ae97c39d10668d7e1e7d266ebdc1112dd43",
+          "mergeSha": "97c3281f5a3d943adee64e3516a538d466d50f8e"
+        },
+        "mainProof": {
+          "path": "evidence/ts7s2od-mainproof-20261017.json",
+          "mergeCommit": "97c3281f5a3d943adee64e3516a538d466d50f8e",
+          "verdict": "PASS",
+          "runtime": "Source/Main checks: 6 passed (npm run typecheck exit 0 with both projects; tsc -p scripts/tsconfig.json --noEmit exit 0; validate:bv exit 0 with all accuracy gates passed; validate:parity exit 0 with 4227 of 4227 passed; validator PASSED; openspec validate --all --strict 230 passed and qc:openspec-ci:validate errors=0; 0 failed)"
+        },
         "tick": null
       },
       "ownerGate": null,
