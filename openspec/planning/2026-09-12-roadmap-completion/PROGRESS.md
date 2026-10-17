@@ -1,3 +1,73 @@
+## 2026-10-17 P2CG1D source verified on main; P2CG1E released; closure metadata proposed
+
+P2CG1D advances from implementing to main-verified for source PR #2221,
+head bc87e5b3150703967e378be495cd6e8967d994d8, merge 1c49312ddcf8079c4e6560201ab58eb3b7af196f.
+Its baseline remains the admission base 0cfd627c97cdce61ea8c7ed7ee06685fb8aaccb3 (the merge of the parent literal-path amendment #2220), which is also the merge's first parent.
+The owner authorized this ruling in chat, and it was posted as [comment 6241608318](https://github.com/SwiggitySwerve/MekStation/pull/2221#issuecomment-6241608318), which quotes that instruction;
+its exact UTF-8 body (1755 bytes), without an added newline, hashes to 145b77f394383080479b8c14ec2c7cb157114f27dca1e50a2c6c906798d7c6d4.
+The ruling (21:41:49Z) preceded the head-guarded merge (21:41:56Z), and PR #2221 carries the owner-ruled label.
+PK-p2cg1d-ruling records that ruling. It accepts decision point 1 only on condition that an in-span onNotCommitted hook on P2CG1B's append controls lands before P2CG1H activation, or Root records an explicit acceptance then.
+
+The admission, red and local receipts came with the source PR and are unchanged.
+The [review receipt](evidence/p2cg1d-review-20261017.json) binds the independent review of the exact merged head, preserved byte for byte
+(APPROVE-WITH-NOTES, no blockers, minors M1-M3, notes N1-N5; reviewer Claude Fable 5.1 high, substituting for GPT Astra during a quota outage; author Opus 5.5; sha256 ac9583630d9828924e5a69f57d47b373b8490c7c1592d3945c3ca20eff4dce55).
+It records the five sensitive review classes (authority, privacy, replay, idempotency, concurrency) with the reviewer's section 5 findings verbatim; four record no defect, and concurrency records one accepted dormant residual (decision point 1, CF-E1).
+The reviewer re-derived the ledger discipline (admission freeze first, product byte-identical at red, no test byte changed after red, 13 changed + 2 reserved = 15/15 files, 385/500 counted lines),
+replayed RED independently (26 failed / 93 passed, names identical to the receipt),
+re-ran the four registered suites (119/119), the Task 14 selector (97/97), the P2CG1C suites (a 1 ms clock-order flake on run 1, CF-E2), the P2CG1B suites, the 35 A1/A2 suites (381/381), the 164 related suites, typecheck, lint, format, lint:units, madge, the validators and OpenSpec,
+and caught 6 of 9 independent mutants; the three survivors (RM1, RM8, RM9) are release-path test pins (CF-E7, CF-E1). Neither the author nor the reviewer ran npm run test:stable; the CI unit shards stand in for it.
+Lint (review section 3): "87 warnings, 0 errors; bindCampaignSyncConnection.ts max-lines 1459 counted (1321 at baseline, already warned); DurableMatchStore.ts 1394"
+The reserved p2cg1d-admission-review-20261017.md slot stays unwritten.
+
+The review's carry-forward wording for P2CG1E is recorded verbatim under successorNotes.P2CG1E in the review receipt:
+section 7 items 1-11, and minors M1-M3 and notes N1-N5 from section 8.
+CF-E1, CF-E5 and CF-E6 are directed at P2CG1H and CF-E7 at the next owner of bindCampaignSyncConnection.test.ts, as the review's owner brackets say.
+
+- P2CG1E CF-E1 (in-span release on a post-admit append failure) [B leaves + binder; prerequisite or recorded acceptance for P2CG1H]: "**CF-E1 (in-span release on a post-admit append failure) [B leaves + binder; prerequisite or recorded acceptance for P2CG1H].** The admit-then-conflict and admit-then-throw paths leave M in `BEGIN IMMEDIATE` until `holdMatchConnection`'s microtask; `afterRelease` is a no-op by then. Add `onNotCommitted?: () => void` to `ICampaignAppendControls`, call it synchronously inside `appendControlledCampaignBatch`'s extend when `appended.kind !== 'committed'` and in a catch around `append()`, wire `onNotCommitted: release` in `commitGuardedProgression`, and pin `[M:BEGIN IMMEDIATE:C-open=true, guard, M:ROLLBACK:C-open=true, tick]` for a revision conflict injected after the guard admitted. None of E's seven leaves can carry this. H must not install the port before this lands or Root records the acceptance with the section 6.1 analysis."
+- P2CG1E CF-E2 (coopMissionCreate.test.ts clock-order flake) [E owns the file]: "**CF-E2 (coopMissionCreate.test.ts clock-order flake) [E owns the file].** `blocks writers in other processes while C and M are held, then lets them commit` fails about one run in three (two of six recorded runs across author and reviewer) at the `>=` comparisons of child `acquiredAt` against parent `times.matchCommit` / `times.campaignRelease`. Move the two parent samples into `traceExec`'s `before` hook. Record the flake rate before and after in E's local receipt."
+- P2CG1E CF-E3 (graph-local views for the HTTP doors): "**CF-E3 (graph-local views for the HTTP doors).** The API graph must build its own `createDurableCampaignLaunchView()` and never adopt `entry.launch` from the registry (another graph's handle is refused `context-mismatch`, pinned in crossGraph). Both HTTP doors key on `getCampaignHostRegistry().applicationReceipts !== null`, the same slot the binder reads; no second switch."
+- P2CG1E CF-E4 (lock order and placement in the prepared create route): "**CF-E4 (lock order and placement in the prepared create route).** Keep C IMMEDIATE then M, revalidate on C while M is held, seed/recovery/announcement after both releases (CF-D5 stands); no deferred read-then-write on M on any reservation path; a throwing reservation is a typed refusal."
+- P2CG1E CF-E5 (boot order) [P2CG1H]: "**CF-E5 (boot order) [P2CG1H].** Install the port before `runtime.bootstrapMultiplayerServer()` (`server.js:537`) and after the campaign SQLite service is initialised; `installApplicationReceipts` throws on a non-empty registry and `register` throws under an installed port without a campaign database. Pin both in `CampaignHostRegistry.globalSlot.test.ts`."
+- P2CG1E CF-E6 (one port type) [P2CG1H]: "**CF-E6 (one port type) [P2CG1H].** Make `campaignApplicationReceiptPort.ts` the single definition of `ICampaignApplicationReceiptPort`; have `CampaignHostRegistry.ts` and `campaignApplicationConnection.ts` import the type from it; re-run madge (expect no new chain)."
+- P2CG1E CF-E7 (release-path pins) [next owner of bindCampaignSyncConnection.test.ts: P2CG1I3 or P2CG2]: "**CF-E7 (release-path pins) [next owner of bindCampaignSyncConnection.test.ts: P2CG1I3 or P2CG2].** Trace M in the preparation-refusal (`participants-behind`), veto-during-preparation and invalid-reservation cases and assert the trail is `[]`; RM1 and RM8 survive today."
+- P2CG1E CF-E8 (wire reasons on the HTTP doors): "**CF-E8 (wire reasons on the HTTP doors).** D's socket refusals are code-only; the legacy HTTP gate (`campaignLaunchProgressionGate.ts:148-161`) still carries `requiredRevision` and behind rows. Decide and document E's payload shape; prefer code-only in receipt mode, matching D, and keep the legacy shape only on the legacy branch."
+- P2CG1E CF-E9 (lint and cycles): "**CF-E9 (lint and cycles).** Head figures: 87 warnings / 0 errors (identical set); `bindCampaignSyncConnection.ts` 1459 counted (max-lines, warned since before B); `DurableMatchStore.ts` 1394; madge from D's five leaves 976 files / 175 chains, identical set. E's leaves (`coopMissionCreate.ts`, `campaignLaunchAuthorityRoute.ts`, `campaignSyncTransport.ts`) are not warned today; record before/after."
+- P2CG1E CF-E10 (required checks): "**CF-E10 (required checks).** 32 check runs on bc87e5b3, all success, names identical to B and C; protection `["Lint and Test"]`, strict false, conversation resolution required, 0 approvals. Verify all 32 names by name on E's exact head."
+- P2CG1E CF-E11 (CF-D11 still open) [E owns coopMissionCreate.test.ts]: "**CF-E11 (CF-D11 still open) [E owns coopMissionCreate.test.ts].** Add the STALE_HEAD re-admission case on the prepared path (CF-D11(a)); CF-D11(b) remains with the next owner of `DurableMatchStore.test.ts`."
+- Minor M1: "**M1 (cosmetic, test leaves).** Two new describe titles and two comments use a literal `?` where the file's other titles use an em dash: `CampaignGmArbiter.test.ts` (`'CampaignGmArbiter ? guarded AdvanceDay reservation (P2CG1D)'`, `order ? the guard`, `span ? and answers`) and `CampaignHostRegistry.test.ts` (`'CampaignHostRegistry ? receipt port and launch view (P2CG1D)'`). Byte check: the files contain U+003F there and U+2014 elsewhere. Fix when the leaves next open; not this PR (a post-RED test edit would need its own commit)."
+- Minor M2: "**M2 (binder store selection).** `commitGuardedProgression` reserves on `getDefaultMatchStore()` while `CampaignHostRegistry` accepts an injected `matchStore` (used only for `getMatchMeta`). They coincide in production (one globalThis singleton) and in tests (`_setDefaultMatchStoreForTests`); a future injected store would not be the reserved connection. Note for I3/P2CG2."
+- Minor M3: "**M3 (dead defensive arm).** `submitProposal`'s `throw campaignProgressionLateRefusal('proposal-reservation-invalid')` after `commitGuarded` returns null is unreachable for auto-approve (`entry === undefined` never yields null); harmless."
+- Note N1: "**N1.** `_reset()` keeps the port by design (instance-level), so a test that reuses the global registry across cases must call `_resetCampaignHostRegistry()`; the D cases do."
+- Note N2: "**N2.** The coalesced approver's answer is null -> `BAD_ENVELOPE unknown-proposal`, which is exactly legacy's answer for an approve that arrives after the entry left the queue; the GM UI already handles it."
+- Note N3: "**N3 (hardening).** `ICampaignAppendRefusal.reason` is `string`; the host-intent path forwards it to the wire without the kebab-case check the arbiter path gets. All current sources are constants. Route both through one check or narrow the type when the leaf is next open."
+- Note N4: "**N4.** `appendControlledCampaignBatch` COMMITs an empty C transaction on a post-guard revision conflict (nothing written); that is B's behaviour and is why the conflict is a result rather than a throw."
+- Note N5: "**N5.** The two `pending` skips in the related run are pre-existing (same as the author's run)."
+
+Root note on the P2CG1H successor chain (not reviewer text; recorded under successorNotes.P2CG1H; it travels to H and does not hold P2CG1E admission):
+
+- H-OPEN-1 (Root): Before P2CG1H activation, an in-span onNotCommitted hook on P2CG1B's ICampaignAppendControls/JournalCampaignEventStore must be wired in the binder so the admit-then-fail path releases the match reservation explicitly (P2CG1D review decision point 1 and OWNER-RULING issuecomment-6241608318), or Root must record an explicit acceptance at H's admission. The hook's files are B leaves, not D/E leaves: it needs its own registered unit or literal-path amendment.
+
+All 32 checks on the merged head succeeded (run 39068420033); the 32 names equal P2CG1C's and match pr-checks.yml one to one:
+Detect Changes; Install Dependencies; Lint; Format Check; Validate Roadmap Ledger; Type Check; Unit Tests (1/6); Unit Tests (2/6); Unit Tests (3/6); Unit Tests (4/6); Unit Tests (5/6); Unit Tests (6/6); Perf Smoke Tests; Statistical Proof PR; Perf Budget PR; Coverage Floor; A11y Tests; Validate BV Parity; Validate Combat Suite; Build Storybook; Schema Bridge; Determinism Audit; E2E Smoke; Seam Anchors; Customizer Regressions; Desktop Type Check; Desktop Tests; Lint and Test; Prepare Build Artifacts; Build Test / linux; Build Test / mac; Build Test / win.
+GitHub enforces only Lint and Test; each name was verified individually.
+The [merge receipt](evidence/p2cg1d-merge-20261017.json) binds both ordered parents and the matching integration tree.
+The [main proof](evidence/p2cg1d-mainproof-20261017.json) is a fresh run at the merge before any closure edit, after a real npm ci under Node v22.22.0:
+the four registered test leaves, P2CG1C's two leaves, P2CG1B's two leaves and the 35 A1/A2 suites together (41 unique suites, 526 tests), the four leaves alone (4 suites, 119 tests),
+the Task 14 selector alone (4 suites, 97 tests), the P2CG1C leaves alone (2 suites, 52 tests), the P2CG1B leaves alone (2 suites, 45 tests), the 35 suites alone (35 suites, 381 tests), typecheck and the validator passed.
+It references the author's proof logs by hash.
+
+P2CG1D has no task keys. Its tick remains null because source/closure cleanup
+is not established here; no tasks.md row is changed. P2CG1D therefore releases
+its in-flight src/lib/multiplayer/server reservations at main-verified.
+
+Successor release (separate from the closure): P2CG1E moves from blocked to planned;
+its only predecessor, P2CG1D, is main-verified with a genuine exact-main mainProof PASS in this same change set.
+No other P2CG1E field changes. P2CG1H, P2C and every other unit state are unchanged.
+Selection is not downstream admission.
+This closure metadata still requires its own CI and parent merge.
+
+---
+
 ## 2026-10-17 P2CG1C source verified on main; P2CG1D released; closure metadata proposed
 
 P2CG1C advances from implementing to main-verified for source PR #2218,

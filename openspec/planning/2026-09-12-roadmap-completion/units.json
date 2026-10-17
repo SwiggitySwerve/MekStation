@@ -6770,7 +6770,20 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1d-admission-20261017.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1d-admission-review-20261017.md",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1d-red-20261017.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1d-local-20261017.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1d-local-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1d-source-fable-review-20261017.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1d-owner-ruling-6241608318.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1d-review-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1d-merge-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-1c49312d-tests.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-1c49312d-leaves.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-1c49312d-selector.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-1c49312d-p2cg1c.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-1c49312d-p2cg1b.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-1c49312d-predecessors.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-1c49312d-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-1c49312d-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1d-mainproof-20261017.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -6785,10 +6798,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "implementing",
+      "state": "main-verified",
       "baseline": "0cfd627c97cdce61ea8c7ed7ee06685fb8aaccb3",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "bc87e5b3150703967e378be495cd6e8967d994d8",
+      "mergeSha": "1c49312ddcf8079c4e6560201ab58eb3b7af196f",
       "stageReceipts": {
         "admission": {
           "path": "evidence/p2cg1d-admission-20261017.json"
@@ -6799,9 +6812,27 @@
         "local": {
           "path": "evidence/p2cg1d-local-20261017.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/p2cg1d-review-20261017.json",
+          "head": "bc87e5b3150703967e378be495cd6e8967d994d8",
+          "reviewedHead": "bc87e5b3150703967e378be495cd6e8967d994d8",
+          "reviewerModel": "claude-fable-5-1",
+          "implementerModel": "claude-opus-5-5",
+          "outputSha256": "ac9583630d9828924e5a69f57d47b373b8490c7c1592d3945c3ca20eff4dce55",
+          "verdict": "APPROVE-WITH-NOTES"
+        },
+        "merge": {
+          "path": "evidence/p2cg1d-merge-20261017.json",
+          "pr": 2221,
+          "head": "bc87e5b3150703967e378be495cd6e8967d994d8",
+          "mergeSha": "1c49312ddcf8079c4e6560201ab58eb3b7af196f"
+        },
+        "mainProof": {
+          "path": "evidence/p2cg1d-mainproof-20261017.json",
+          "mergeCommit": "1c49312ddcf8079c4e6560201ab58eb3b7af196f",
+          "verdict": "PASS",
+          "runtime": "Source/Main Jest: Tests:       526 passed, 526 total"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -6848,7 +6879,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -15630,6 +15661,44 @@
         "commentId": 6239129525,
         "author": "SwiggitySwerve",
         "bodySha256": "4c5db80c0c2f7a7b47595bef64a685c299b8484d9a228766b8963cd1b2620c22"
+      }
+    },
+    {
+      "id": "PK-p2cg1d-ruling",
+      "blocks": [
+        "P2CG1D"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "After independent exact-head review across its five sensitive classes and required green CI, should the owner rule the bounded P2CG1D head (an install-once typed receipt port on CampaignHostRegistry with no setter and no uninstall; a per-entry graph-local CampaignLaunchView built only when the port is installed; the binder composing application from the explicit port or the registry's; the three socket progression doors, namely the host AdvanceDay intent, the auto-approved AdvanceDay proposal and the GM approval, taking P2CG1B's guard with P2CG1C's match reservation when entry.launch exists and the legacy session gate otherwise; the arbiter reserving and coalescing pending AdvanceDay approvals; and the gate's structural late refusal, all dormant because no production process installs the port) before guarded merge, given that the admit-then-fail path relies on P2CG1C's microtask release of the match reservation?",
+      "options": [
+        {
+          "label": "rule the exact source head",
+          "consequence": "Permit guarded P2CG1D merge and exact-main proof only; the doors stay dormant with no production installer, and P2CG1E may be released to planned only after that proof, with the review carry-forwards recorded for its admission. Decision point 1 is accepted as a residual only on condition that an in-span onNotCommitted hook on P2CG1B's append controls lands before P2CG1H activation, or Root records an explicit acceptance then.",
+          "effort": "One independent exact-head review across authority, privacy, replay, idempotency and concurrency, evidence check and owner ruling"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Hold merge until the concrete authority, privacy, replay, idempotency, concurrency or proof objections are fixed and fresh exact-head review, CI and owner ruling are complete.",
+          "effort": "Bounded by the concrete review objections"
+        }
+      ],
+      "agentRecommendation": "Rule only an independently approved green exact head that meets all of these: the new assertions fail on unchanged product and no test byte changes after the red commit; the port is installed once, only on an empty registry, with no setter, no uninstall and no envelope or boolean switch; the reservation is taken inside B's guard after C IMMEDIATE opened and released in the same synchronous span on refusal and commit, and a busy match connection is a typed refusal; duplicates replay before any refusal; the arbiter keeps a pending approval, its timer and deadline through a refusal and coalesces concurrent approvals; public refusals carry only a code; and without the port every door is byte-for-byte legacy, with no production installer. Any residual on the admit-then-fail path must be named with an owner and a condition before activation. This proposal grants no approval or merge permission.",
+      "revertCost": "Low: revert the four changed product leaves, the four test leaves and the one-line helper; P2CG1D changes no route, Protocol type, server.js composition or production caller, and no production process installs the port, so every door is already the legacy one.",
+      "decision": {
+        "option": "rule the exact source head",
+        "at": "2026-10-17T21:41:49Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2221#issuecomment-6241608318"
+      },
+      "ruling": {
+        "ruledHead": "bc87e5b3150703967e378be495cd6e8967d994d8",
+        "pr": 2221,
+        "commentId": 6241608318,
+        "author": "SwiggitySwerve",
+        "bodySha256": "145b77f394383080479b8c14ec2c7cb157114f27dca1e50a2c6c906798d7c6d4"
       }
     },
     {

@@ -1,0 +1,203 @@
+{
+  "unit": "P2CG1D",
+  "stage": "mainProof",
+  "recordedAt": "2026-10-17T22:05:00Z",
+  "mergeCommit": "1c49312ddcf8079c4e6560201ab58eb3b7af196f",
+  "verdict": "PASS",
+  "checkout": "E:/Projects/Personal/MekStation-wt/p2cg1d-closure-20261017",
+  "runtime": {
+    "playwright": "Source/Main Jest: Tests:       526 passed, 526 total",
+    "suites": "41 passed, 41 total",
+    "tsc": "npm run typecheck: exit 0 (TypeScript 7, root and scripts projects)",
+    "node": "v22.22.0",
+    "install": "real npm ci in the checkout (1078 packages), Node v22.22.0"
+  },
+  "machine": "node scripts/qc/machine-idle.mjs --own-pid 47516 --own-pid 52460 printed MACHINE_IDLE before the runs. PID 47516 is the Root-allowed idle server.js and PID 52460 the T3 headless chrome. This closure neither started nor stopped any other process.",
+  "proof": {
+    "path": "evidence/mainproof-1c49312d-tests.bytes.json",
+    "payloadSha256": "81ce8482bfcd3f39a98f3836426902dcedc552633961e91ba8940c62d267f583",
+    "payloadBytes": 424241,
+    "note": "Fresh run at the exact merge HEAD on a clean checkout before any closure edit: P2CG1D's four registered test leaves, P2CG1C's two registered test leaves, P2CG1B's two registered test leaves and the 35 A1/A2 suites, by path in one jest invocation. Two of the 35 (bindCampaignSyncConnection.test.ts and campaignProgressionReaders.durable.crossGraph.test.ts) are also D leaves and are listed once, so the run has 41 unique suites. Result: 41 suites, 526/526 = 119 (D) + 52 (C) + 45 (B) + 381 (the 35) - 71 (the two shared suites, 65 + 6 per the author's green-leaves.json). Between the P2CG1C merge 4690f674 and 1c49312d only those two of the 35 changed; the P2CG1B leaves equal their c0c97c13 blobs, the P2CG1C leaves equal their ed7fb95b blobs, and the P2CG1D test and product leaves equal the local receipt's hashes."
+  },
+  "logs": [
+    {
+      "path": "evidence/mainproof-1c49312d-leaves.bytes.json",
+      "payloadSha256": "c3ec84bebcb9fb7997ef3ea0c747a4e16607e6a564a82c7466b7b4a37caa9d78",
+      "payloadBytes": 17890,
+      "note": "Fresh run of the four registered test leaves (bindCampaignSyncConnection.test.ts, CampaignGmArbiter.test.ts, CampaignHostRegistry.test.ts, campaignProgressionReaders.durable.crossGraph.test.ts) on the same checkout and HEAD: 4 suites, 119/119."
+    },
+    {
+      "path": "evidence/mainproof-1c49312d-selector.bytes.json",
+      "payloadSha256": "9ce415a252d58d0d825f955b9e8f3cb8dbf987741a969f0fab599145fc3090fb",
+      "payloadBytes": 40406,
+      "note": "Fresh run of the registered Task 14 selector --testPathPattern='campaignLaunchAuthorityRoute|campaignProgressionReaders.durable|CampaignSyncSession' on the same checkout and HEAD, with the pattern passed to node as one argument: 4 suites, 97/97."
+    },
+    {
+      "path": "evidence/mainproof-1c49312d-p2cg1c.bytes.json",
+      "payloadSha256": "248b11eff07359488646f569da209173dfdd6f3c89929cbf5f52f57fdc093fe2",
+      "payloadBytes": 49778,
+      "note": "Fresh run of the two P2CG1C test leaves (DurableMatchStore.test.ts, coopMissionCreate.test.ts), unmodified, on the same checkout and HEAD: 2 suites, 52/52 on the first and only run. The CF-E2 clock-order flake did not occur here; one green run does not change its recorded rate."
+    },
+    {
+      "path": "evidence/mainproof-1c49312d-p2cg1b.bytes.json",
+      "payloadSha256": "8d0715e0465017950867dd1d20a9cab37c59b5d5935394c25cd297cf31377e6c",
+      "payloadBytes": 877,
+      "note": "Fresh run of the two P2CG1B test leaves (JournalCampaignEventStore.test.ts, CampaignMatchHost.pipeline.test.ts), unmodified, on the same checkout and HEAD: 2 suites, 45/45."
+    },
+    {
+      "path": "evidence/mainproof-1c49312d-predecessors.bytes.json",
+      "payloadSha256": "88b2708e048ee280bae4605d1b71664fb4830b87489212ac3f98cc2ddfc60b9f",
+      "payloadBytes": 373242,
+      "note": "Fresh run of the 35 A1/A2 suites by path on the same checkout and HEAD (two of them now carry D cases): 35 suites, 381/381."
+    },
+    {
+      "path": "evidence/mainproof-1c49312d-typecheck.bytes.json",
+      "payloadSha256": "ad1dadfc3603d981db94fd793177589940a34be1a6e140daef741272988bb515",
+      "payloadBytes": 408,
+      "note": "Fresh typecheck on the same checkout and HEAD."
+    },
+    {
+      "path": "evidence/mainproof-1c49312d-validator.bytes.json",
+      "payloadSha256": "f3f8b157a537d9e02a04bb0559127eaa4e9568c9e10bdb68e39d3f3966b19cc7",
+      "payloadBytes": 456,
+      "note": "Fresh validator and --next on the unedited ledger at the same HEAD (PASSED; --next U25, advisory, while P2CG1D was still implementing)."
+    }
+  ],
+  "attemptLogs": [
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/green-leaves.json",
+      "sha256": "5f2294315cd29206f49b33fd7a1aae89d870c3b88717ac63df9b3f40d32f06d9",
+      "bytes": 51266,
+      "note": "Author green run of the four registered test leaves: 4 suites, 119/119 (bindCampaignSyncConnection 65, CampaignGmArbiter 26, CampaignHostRegistry 22, crossGraph 6)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/task14.json",
+      "sha256": "d40b72978f74446747dab0c560b60a9325df2bd5edaac9a1dd65c4cc962c212f",
+      "bytes": 42818,
+      "note": "Author green Task 14 selector: 4 suites, 97/97"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/p2cg1c-run1-flake.json",
+      "sha256": "55febc3d76bd3f8914f5b21857e319c1967e67b505c49e2b555b6a69a7e6dcf9",
+      "bytes": 24962,
+      "note": "Author first P2CG1C run, kept: 51/52, the 1 ms clock-order flake in the C-owned cross-process case (review section 6 item 4, CF-E2)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/p2cg1c-run2.json",
+      "sha256": "9b8f44da239b2bfdaa44cb37c293c3668aed8eed57a4f856288ea5ff9528e3be",
+      "bytes": 23522,
+      "note": "Author second P2CG1C run: 52/52"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/p2cg1c-run3.json",
+      "sha256": "158aab52ab4e71c9b817f839dc97b7064f56093e4667b7d5e28e9ad800fe4c42",
+      "bytes": 23521,
+      "note": "Author third P2CG1C run: 52/52"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/p2cg1b.json",
+      "sha256": "66f0dcc0e412075b7911c97cfacf097d6cc64b999bc6501faccaebcce134b9b0",
+      "bytes": 23791,
+      "note": "Author green P2CG1B suites, unchanged: 2 suites, 45/45"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/suites35.json",
+      "sha256": "30c4f1c1e6ff60272da984ba4de480e03f10beb2cdf86384e59fb33ac731e1a0",
+      "bytes": 170042,
+      "note": "Author green 35 A1/A2 suites: 35 suites, 381/381"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/related.json",
+      "sha256": "3821bbde693c51e15e66b9cb6c49eecc7110137619bff6cc15c356ed26bd06fc",
+      "bytes": 584668,
+      "note": "Author --findRelatedTests over the five source leaves (maxWorkers=6): 164 suites, 1283 passed, 2 pending, 0 failed"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/mutants.json",
+      "sha256": "d9b5802f5b642e911db8dd3ee3b56771a8c7855d2ae303ed9b3b445362da25f1",
+      "bytes": 2237,
+      "note": "Author mutation probes (16 mutants)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/typecheck.log",
+      "sha256": "8102a14cf3245ac2b0d67c588affb25efaebfcd3485f9a46a751595d9a774951",
+      "bytes": 358,
+      "note": "Author typecheck at head"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/lint.log",
+      "sha256": "6a19b801bbccc1d9a01f06abf2f6c8d307fe99c665792ba1341e15767ba71b4f",
+      "bytes": 81374,
+      "note": "Author lint at head: 0 errors, 87 warnings, identical set to baseline"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/format.log",
+      "sha256": "e8e0b1fee53bb8d1f78db7356ffd2584fd0dfc941ec3f8b03f0e76a95aaa0158",
+      "bytes": 364,
+      "note": "Author format:check at head"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/lint-units.log",
+      "sha256": "00edcd4a99414da1171d11f814ff35548d27d3b2b2afb445afd91449e16a55da",
+      "bytes": 730,
+      "note": "Author lint:units at head: LINT_UNITS_PASS 17899/17899"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/madge-head.log",
+      "sha256": "22abc45134c6f10cf846a5228ef29cee514c6b2334b9c192aae5e1bd120019f8",
+      "bytes": 231326,
+      "note": "Author madge from the five source leaves at head: 976 files, 175 chains"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/validator-plain.log",
+      "sha256": "3c8a526f2cfa587e259a090767acd1fce1930d20d5c4b368cebf78dcf23cca7b",
+      "bytes": 156,
+      "note": "Author validator at head"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/validator-git.log",
+      "sha256": "8334eb5ca69d8e1d087d34582a3138c3c68a69a32d6c67914441a48eaf64c460",
+      "bytes": 4714,
+      "note": "Author validator --git at head"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/validator-tests.log",
+      "sha256": "c545c401a0c5dddb1e6d3151844b8bf4ee2836b5f9f411ee1556269764a709ec",
+      "bytes": 33634,
+      "note": "Author validator tests at head: 86/86"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/openspec.log",
+      "sha256": "89a3784befdc45a1fb8b4cac58d9703373655afb9d5fa537f58176fbd9cad0c0",
+      "bytes": 13904,
+      "note": "Author openspec validate --all --strict: 230 passed"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/qc-openspec.log",
+      "sha256": "19b2046de400eaefd184fb58e7072d1816b6ccef3ba1f1ea040c0f9ec8ec2c60",
+      "bytes": 594,
+      "note": "Author qc:openspec-ci:validate: errors=0"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/idle.log",
+      "sha256": "e1729fe3435ddf39efa6e918b68d86491539edb3778cbbbbf49093fea027810a",
+      "bytes": 658,
+      "note": "Author machine-idle log before each Jest run"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/product-final.patch",
+      "sha256": "d4a50cebec0ab5a6986a1673774874aaab607dbe3cf037f85eee30eab8e5bcdb",
+      "bytes": 24372,
+      "note": "Author final product patch (the four changed product leaves)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/suites35.txt",
+      "sha256": "146494263be940d1639608d56d4d4e65dc79febe50de23b15b7d775c64421201",
+      "bytes": 2571,
+      "note": "The 35 A1/A2 suite paths used for the predecessor runs. Not hashed in the P2CG1D local receipt; its sha256 equals the suites35.txt hash in evidence/p2cg1c-local-20261017.json (logs.files), so it is the same list."
+    }
+  ],
+  "scope": "Fresh runs at the exact merge commit of the unit's registered proof scope (the four registered suites plus the Task 14 selector), of the P2CG1C and P2CG1B suites and of the 35 A1/A2 predecessor suites, combined and separately, plus typecheck and the validator, with hash references to the author's proof logs. No full-stable, --findRelatedTests, lint, madge, browser or build result is claimed for main; the author's related-tests run and the reviewer's re-run are on the head, and CI covers the rest.",
+  "closure": "main-verified only. taskKeys is empty; no tasks.md row is ticked and no tick receipt is invented. Source/closure owned-resource cleanup is not established here.",
+  "preservation": "Proof and logs are base64 envelopes so repository LF normalization cannot alter their exact bytes. Decode data and verify payloadSha256/payloadBytes."
+}
