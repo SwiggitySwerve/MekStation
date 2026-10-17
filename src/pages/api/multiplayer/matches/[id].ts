@@ -1,16 +1,16 @@
 /**
  * Multiplayer Matches API — single-match endpoints.
  *
- * `GET /api/multiplayer/matches/:id` — returns the match meta blob so
- * the lobby can render participants + status. Requires authentication
- * but no further authorization (any logged-in player can see lobbies).
+ * `GET /api/multiplayer/matches/:id` — full metadata for the host and
+ * seated human players only (the stored roster for pre-seat matches).
+ * Discovery and joining use the public lobby/invite summaries instead.
  *
  * `DELETE /api/multiplayer/matches/:id` — host-only close. Wave 2
  * verifies the Ed25519 bearer token, then asserts the verified
  * `playerId === meta.hostPlayerId`.
  *
- * @spec openspec/changes/add-player-identity-and-auth/specs/player-identity/spec.md
- * @spec openspec/changes/add-multiplayer-server-infrastructure/specs/multiplayer-server/spec.md
+ * @spec openspec/specs/player-identity/spec.md
+ * @spec openspec/specs/multiplayer-server/spec.md
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
@@ -79,6 +79,22 @@ export default async function handler(
     }
     try {
       const meta = await store.getMatchMeta(id);
+      // Use the same durable seat occupancy as the WS membership source,
+      // but never its open-lobby invitee or spectator admission: neither
+      // grants access to bootstrap positions/skills or campaign state.
+      // The co-op GM is the host and need not occupy a playing seat.
+      const participant =
+        meta.hostPlayerId === auth.playerId ||
+        (meta.seats === undefined
+          ? meta.playerIds.includes(auth.playerId)
+          : meta.seats.some(
+              (seat) =>
+                seat.kind === 'human' &&
+                seat.occupant?.playerId === auth.playerId,
+            ));
+      if (!participant) {
+        throw new MatchNotFoundError(id);
+      }
       res.status(200).json({ meta });
       return;
     } catch (e) {
