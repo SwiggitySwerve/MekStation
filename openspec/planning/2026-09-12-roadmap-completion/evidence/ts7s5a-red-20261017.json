@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 1,
+  "unit": "TS7S5A",
+  "stage": "red",
+  "baseline": "0dd080241e552acdc845d60d61d38281cbf646d0",
+  "kind": "Documentation before-state. No runtime test or mutant is appropriate for this docs-only unit.",
+  "observedBefore": [
+    {
+      "path": "README.md",
+      "line": 128,
+      "text": "| Language  | TypeScript 5.8               |"
+    },
+    {
+      "path": "docs/development/getting-started.md",
+      "line": 142,
+      "text": "npx tsc --noEmit        # Type check without building"
+    },
+    {
+      "path": "docs/development/troubleshooting.md",
+      "line": 11,
+      "text": "npx tsc --noEmit"
+    },
+    {
+      "path": "docs/overview.md",
+      "line": 61,
+      "text": "| Language    | TypeScript 5.8               |"
+    },
+    {
+      "path": "openspec/config.yaml",
+      "line": 19,
+      "text": "  - Language: TypeScript 5.8"
+    },
+    {
+      "path": "src/docs/Introduction.mdx",
+      "line": 13,
+      "text": "- **Next.js 16** + **React 19** + **TypeScript 5.8**"
+    },
+    {
+      "path": "openspec/scripts/README.md",
+      "line": 47,
+      "text": "npx ts-node openspec/scripts/terminology-tool.ts validate"
+    },
+    {
+      "path": "openspec/scripts/README.md",
+      "line": 50,
+      "text": "npx ts-node openspec/scripts/terminology-tool.ts validate --strict"
+    },
+    {
+      "path": "openspec/scripts/README.md",
+      "line": 53,
+      "text": "npx ts-node openspec/scripts/terminology-tool.ts fix --dry-run"
+    },
+    {
+      "path": "openspec/scripts/README.md",
+      "line": 56,
+      "text": "npx ts-node openspec/scripts/terminology-tool.ts fix"
+    },
+    {
+      "path": "openspec/scripts/README.md",
+      "line": 59,
+      "text": "npx ts-node openspec/scripts/terminology-tool.ts validate --changed-only"
+    },
+    {
+      "path": "openspec/scripts/README.md",
+      "line": 62,
+      "text": "npx ts-node openspec/scripts/terminology-tool.ts validate --source"
+    },
+    {
+      "path": "openspec/scripts/README.md",
+      "line": 65,
+      "text": "npx ts-node openspec/scripts/terminology-tool.ts validate --json"
+    },
+    {
+      "path": "openspec/scripts/README.md",
+      "line": 224,
+      "text": "    \"terminology:validate\": \"npx ts-node openspec/scripts/terminology-tool.ts validate\","
+    },
+    {
+      "path": "openspec/scripts/README.md",
+      "line": 225,
+      "text": "    \"terminology:validate:strict\": \"npx ts-node openspec/scripts/terminology-tool.ts validate --strict\","
+    },
+    {
+      "path": "openspec/scripts/README.md",
+      "line": 226,
+      "text": "    \"terminology:fix\": \"npx ts-node openspec/scripts/terminology-tool.ts fix\","
+    },
+    {
+      "path": "openspec/scripts/README.md",
+      "line": 227,
+      "text": "    \"terminology:fix:dry-run\": \"npx ts-node openspec/scripts/terminology-tool.ts fix --dry-run\""
+    },
+    {
+      "path": "openspec/scripts/README.md",
+      "line": 238,
+      "text": "npx ts-node openspec/scripts/terminology-tool.ts validate --strict --changed-only"
+    },
+    {
+      "path": "openspec/scripts/README.md",
+      "line": 249,
+      "text": "  run: npx ts-node openspec/scripts/terminology-tool.ts validate --strict"
+    },
+    {
+      "path": "openspec/scripts/README.md",
+      "line": 302,
+      "text": "npx ts-node openspec/scripts/terminology-tool.ts validate --verbose"
+    },
+    {
+      "path": "openspec/scripts/README.md",
+      "line": 305,
+      "text": "npx ts-node openspec/scripts/terminology-tool.ts validate --json | jq"
+    },
+    {
+      "path": "openspec/scripts/README.md",
+      "line": 308,
+      "text": "npx ts-node openspec/scripts/terminology-tool.ts validate openspec/specs/gyro-system/spec.md"
+    },
+    {
+      "path": "openspec/changes/migrate-to-typescript-7/design.md",
+      "line": 62,
+      "text": "  - `README.md` \"TypeScript 5.8\";"
+    },
+    {
+      "path": "openspec/changes/migrate-to-typescript-7/design.md",
+      "line": 81,
+      "text": "These all work on TypeScript 5.8, so they land in phase 0."
+    },
+    {
+      "path": "openspec/changes/migrate-to-typescript-7/design.md",
+      "line": 96,
+      "text": "\"typescript\": \"npm:@typescript/typescript6@^6.0.3\","
+    }
+  ]
+}

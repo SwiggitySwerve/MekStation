@@ -123,12 +123,12 @@
 
 ## 5. Docs and close-out (PR 5, or folded into PR 4)
 
-- [ ] 5.1 Update the docs:
+- [x] 5.1 Update the docs:
   - `README.md` "TypeScript 5.8" becomes TypeScript 7;
   - `docs/development/getting-started.md:142` and `docs/development/troubleshooting.md:11` become `npm run typecheck`;
   - `docs/development/git-hooks.md:21` describes the new pre-commit entry.
   - Add one sentence to the getting-started doc about the optional `TypeScriptTeam.native-preview` VS Code extension.
-- [ ] 5.2 Note in `docs/development/troubleshooting.md` that `npx tsc` runs TypeScript 6 in the root package, and that `npm run typecheck` is the gate.
+- [x] 5.2 Note in `docs/development/troubleshooting.md` that `npx tsc` runs TypeScript 6 in the root package, and that `npm run typecheck` is the gate.
 - [ ] 5.3 Exact-main verification after the last PR merges:
   - rerun the section-0 measurements and the full gate list on the merge commit;
   - record them in this file.

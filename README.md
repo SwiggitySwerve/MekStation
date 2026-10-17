@@ -125,7 +125,7 @@ See [Getting Started](docs/development/getting-started.md) for detailed setup in
 | Database  | SQLite (better-sqlite3)      |
 | Desktop   | Electron                     |
 | Testing   | Jest + React Testing Library |
-| Language  | TypeScript 5.8               |
+| Language  | TypeScript 7                 |
 
 ---
 

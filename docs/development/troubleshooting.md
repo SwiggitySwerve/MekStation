@@ -8,7 +8,7 @@ Solutions for common issues when developing the MekStation.
 
 ```bash
 # Check for TypeScript errors
-npx tsc --noEmit
+npm run typecheck
 
 # Check for linting errors
 npm run lint
@@ -17,6 +17,8 @@ npm run lint
 rm -rf .next node_modules/.cache
 npm run build
 ```
+
+In the root package, `npx tsc` runs TypeScript 6, which remains installed for compiler API consumers. Use `npm run typecheck` as the TypeScript 7 gate: it invokes `node node_modules/typescript7/bin/tsc` explicitly for both the root and `scripts/tsconfig.json` projects.
 
 ### Type Errors
 
