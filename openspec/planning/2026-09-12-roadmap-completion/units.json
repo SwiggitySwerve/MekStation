@@ -20757,5 +20757,88 @@
     "sourcePath": "openspec/changes/migrate-to-typescript-7",
     "archivePath": "openspec/changes/archive/2026-10-17-migrate-to-typescript-7",
     "rule": "Disappearing source leaves are retained as exact unit ownershipExceptions; stable ownershipPaths remain. Dated destinations are granted only to TS7S5B/TS7S5C by their registered literal-path admissions. No state or receipt is changed. Parent serial admission checks ownershipPaths plus ownershipExceptions."
+  },
+  "layerRegistration20261017L1": {
+    "at": "2026-10-17T11:14:39.833Z",
+    "baseline": "c5172fdc7be7289172dc21304cfd7a2331bd0f21",
+    "layer": "L1",
+    "title": "first shared mission (release v2.2.0)",
+    "authority": "PLAN.md Revision 2026-10-17 step 3 (owner-directed council roadmap); council decision 2026-10-17 item 6; council B Q3 checked against this ledger in docs/audits/2026-10-17-l1-amendment-draft.md.",
+    "registrationOnly": true,
+    "units": [
+      "P2CG1B",
+      "P2CG1C",
+      "P2CG1D",
+      "P2CG1E",
+      "P2CG1F",
+      "P2CG1G1",
+      "P2CG1G2",
+      "P2CG1H",
+      "P2CG1I1",
+      "P2CG1I2",
+      "P2CG1I3",
+      "P2CG1I4",
+      "P2CG2",
+      "P2CH",
+      "P2C",
+      "P2",
+      "U38"
+    ],
+    "planTasks": {
+      "14": [
+        "P2CG1B",
+        "P2CG1C",
+        "P2CG1D",
+        "P2CG1E",
+        "P2CG1F",
+        "P2CG1G1",
+        "P2CG1G2",
+        "P2CG1H",
+        "P2CG1I1",
+        "P2CG1I2",
+        "P2CG1I3",
+        "P2CG1I4"
+      ],
+      "15": ["P2CG2"],
+      "16": ["P2CH"],
+      "17": ["P2C"],
+      "18": ["P2"],
+      "19": ["U38"]
+    },
+    "order": "The registered predecessor order, unchanged: each unit is released by the parent only after its predecessor is main-verified on fetched Main; P2 is readmitted by P2C (Task 17) under P2.appliedViewConvergenceBlocked20261002 and P2C.behavior; U38 follows P2.",
+    "entry": "ts7TrackRegistration20261016.stoppingCondition is met: at baseline all eleven active TS7 units (TS7S1A through TS7S5C, including TS7S2OD, TS7S5B and TS7S5C) are main-verified, so the TS7 track is complete. L0 (v2.1.0) is published (tag v2.1.0 at e308fb2a44d8cbea3317acbf165bd536b31e45cb, GitHub release 2026-10-17T11:11:29Z) and is independent of this layer.",
+    "releasePredicate": "U38 main-verified with an exact-main mainProof PASS; npm run verify:qc:coop-campaign-journey PASS on that exact Main (P2's registered proof) and the Task 19 selector PASS; then v2.2.0 minted by auto-version workflow_dispatch (bump_type=minor), the L0 installer smoke repeated on the v2.2.0 installer and a playtest/ session recorded where two players and a non-playing GM launch, play to Results and reload one shared mission. The release is a layer boundary, not a phase exit: P3 stays open until its full exit contract (PLAN.md P3 Exit) is met.",
+    "acceptance": {
+      "spec": "e2e/coop-campaign-two-browser-journey.spec.ts via npm run verify:qc:coop-campaign-journey",
+      "observes": [
+        "receipt-based AdvanceDay convergence (data-sync-state live after guest and host applied-view confirmation)",
+        "one server match per launch; a repeat launch or reload rejoins the announced missionMatchId with no second create",
+        "both deploying browsers on /multiplayer/mission/<matchId> with one matchId; command-hq on /gameplay/campaigns/<id>",
+        "GM connection preserved without playing",
+        "opponent turn advances without any browser AI or opponent-control grant",
+        "U38 jest: own-unit commands succeed both seats; foreign, unknown and ownerless commands AUTH_REJECTED unit-not-owned with head, digest and receipt census unchanged"
+      ],
+      "notClaimed": [
+        "browser E2E-31/32 on the co-op fixture (U53, P5)",
+        "terminal mission to next scenario (Tasks 76/81, P6)",
+        "P3 exit (L2)"
+      ]
+    },
+    "checkpoint": "Independent Astra-high review at P2CG1H, the first behaviour-changing merge, in addition to H's registered review, PK-p2cg1h-ruling packet and OWNER-RULING; it adds no gate to any other unit.",
+    "deferredToL2": [
+      "U99",
+      "U100",
+      "U104",
+      "U101a",
+      "U101b",
+      "U101c",
+      "U101d",
+      "U101",
+      "P2CER row tick (plan accounting; its restriction effect is already registered)",
+      "P3 exit review"
+    ],
+    "schedulingRule": "While an L1 unit is admitted or its closure is open, no L2 unit is admitted (the existing one-product-lane rule). L2 units keep their own contracts and eligibility; NEXT selection supplies no permission either way. No machine-readable edge, state, cap, holder, packet, predecessor or ownership entry of any unit changes under this key.",
+    "rule": "Documentary release-point registration only. Nothing is admitted or released, and the state of no existing unit changes. Every unit's behaviour, caps (15 files / 500 non-generated lines), review classes, admissionRequires and predecessors stay as registered. If L1 must be shorter than this chain, that is a separate owner-approved contract amendment (see the draft's section 7), not an edit under this key.",
+    "evidence": "evidence/l1-release-point-registration-20261017.json"
   }
 }

@@ -1,0 +1,385 @@
+{
+  "event": "l1-release-point-registration",
+  "registrationOnly": true,
+  "at": "2026-10-17T11:14:39.833Z",
+  "baseline": "c5172fdc7be7289172dc21304cfd7a2331bd0f21",
+  "actor": {
+    "role": "implementation sub-agent",
+    "provider": "openai",
+    "servedModel": "gpt-6.1-sol",
+    "identitySource": "Current T3 Code/Codex harness runtime (gpt-6.1-sol, high reasoning effort); parent delegation and independent review are separate."
+  },
+  "rebase": {
+    "role": "implementation sub-agent (rebase and publication)",
+    "provider": "anthropic",
+    "servedModel": "claude-opus-5-5",
+    "preparedCommit": "837d46581e52d90513fac049df42e049c0868145",
+    "preparedBaseline": "01911c97f0cbe79c42e1f7c85eb594370c7ddb11",
+    "onto": "c5172fdc7be7289172dc21304cfd7a2331bd0f21",
+    "resolution": "units.json conflict resolved by taking origin/main's file byte-for-byte and re-appending only the top-level layerRegistration20261017L1 key; its at, baseline and entry fields were refreshed. The 17 registered units and their predecessors, states and review classes are identical at both baselines.",
+    "context": {
+      "ts7TrackComplete": true,
+      "ts7Evidence": "At c5172fdc7be7289172dc21304cfd7a2331bd0f21 all eleven active TS7 units (TS7S1A, TS7S1B, TS7S2A, TS7S2B, TS7S2OD, TS7S3, TS7S4A, TS7S4B, TS7S5A, TS7S5B, TS7S5C) are main-verified; TS7S1 stays blocked and superseded. ts7TrackRegistration20261016.stoppingCondition is met.",
+      "l0Release": {
+        "tag": "v2.1.0",
+        "commit": "e308fb2a44d8cbea3317acbf165bd536b31e45cb",
+        "publishedAt": "2026-10-17T11:11:29Z",
+        "url": "https://github.com/SwiggitySwerve/MekStation/releases/tag/v2.1.0"
+      }
+    }
+  },
+  "authority": "PLAN.md Revision 2026-10-17 step 3 (owner-directed council roadmap) and council decision 2026-10-17 item 6: P3 is delivered in two layers, with a docs-only L1 amendment checked against units.json. The 17-unit correction is the L1 amendment draft section 6; no contract amendment from section 7 is authorized.",
+  "scope": [
+    "openspec/planning/2026-09-12-roadmap-completion/units.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-release-point-registration-20261017.json",
+    "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md"
+  ],
+  "registrationBudget": {
+    "actualFiles": 3,
+    "productFiles": 0,
+    "productAddedLines": 0,
+    "noCapInflation": true,
+    "actualDiffMeasuredSeparately": true,
+    "everyEvidenceFileCounts": true
+  },
+  "consulted": [
+    {
+      "path": ".omo/plans/mekstation-phased-delivery-20261015/PLAN.md",
+      "bytes": 22484,
+      "sha256": "38170b4a5275a734011ce1a72bd5c0e0a439b9d3654c2a7f4e9ce7ee2bed0d40",
+      "source": "Read-only root checkout input; not changed or included in this commit."
+    },
+    {
+      "path": "docs/audits/2026-10-17-council-B-roadmap.md",
+      "bytes": 16852,
+      "sha256": "a5796dcff6c7950cb7ecb9fd37cd12b6a1c5acd613635ad2401baf584a7a8152",
+      "source": "Read-only root checkout input; not changed or included in this commit."
+    },
+    {
+      "path": "docs/audits/2026-10-17-council-roadmap-decision.md",
+      "bytes": 2052,
+      "sha256": "cf5a108f999a32a7e67d7ea1308ac989ab0c699d1377929c72306584b6217937",
+      "source": "Read-only root checkout input; not changed or included in this commit."
+    },
+    {
+      "path": "docs/audits/2026-10-17-l1-amendment-draft.md",
+      "bytes": 29701,
+      "sha256": "476d0993ed99a4710f02cd54689eb646c3b4c9d12aeb223d7221a3210daec77f",
+      "source": "Read-only root checkout input; not changed or included in this commit."
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "commit": "c5172fdc7be7289172dc21304cfd7a2331bd0f21",
+      "bytes": 1552779,
+      "sha256": "86584ba3c9d4ae5fefbe94f073bd47b7b2c3765e205bad1c16c15340f627e1c4"
+    }
+  ],
+  "chain": [
+    {
+      "id": "P2CG1B",
+      "predecessors": ["P2CG1A2"],
+      "state": "blocked",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ]
+    },
+    {
+      "id": "P2CG1C",
+      "predecessors": ["P2CG1B"],
+      "state": "blocked",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ]
+    },
+    {
+      "id": "P2CG1D",
+      "predecessors": ["P2CG1C"],
+      "state": "blocked",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ]
+    },
+    {
+      "id": "P2CG1E",
+      "predecessors": ["P2CG1D"],
+      "state": "blocked",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ]
+    },
+    {
+      "id": "P2CG1F",
+      "predecessors": ["P2CG1E"],
+      "state": "blocked",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ]
+    },
+    {
+      "id": "P2CG1G1",
+      "predecessors": ["P2CG1F"],
+      "state": "blocked",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ]
+    },
+    {
+      "id": "P2CG1G2",
+      "predecessors": ["P2CG1G1"],
+      "state": "blocked",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ]
+    },
+    {
+      "id": "P2CG1H",
+      "predecessors": ["P2CG1G2"],
+      "state": "blocked",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ]
+    },
+    {
+      "id": "P2CG1I1",
+      "predecessors": ["P2CG1H"],
+      "state": "blocked",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ]
+    },
+    {
+      "id": "P2CG1I2",
+      "predecessors": ["P2CG1I1"],
+      "state": "blocked",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ]
+    },
+    {
+      "id": "P2CG1I3",
+      "predecessors": ["P2CG1I2"],
+      "state": "blocked",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ]
+    },
+    {
+      "id": "P2CG1I4",
+      "predecessors": ["P2CG1I3"],
+      "state": "blocked",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ]
+    },
+    {
+      "id": "P2CG2",
+      "predecessors": ["P2CG1I4"],
+      "state": "blocked",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ]
+    },
+    {
+      "id": "P2CH",
+      "predecessors": ["P2CG2"],
+      "state": "blocked",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ]
+    },
+    {
+      "id": "P2C",
+      "predecessors": [
+        "P2CA",
+        "P2CB",
+        "P2CD",
+        "P2CE1",
+        "P2CE2",
+        "P2CE3",
+        "P2CF1",
+        "P2CF2",
+        "P2CG1A1",
+        "P2CG1A2",
+        "P2CG1B",
+        "P2CG1C",
+        "P2CG1D",
+        "P2CG1E",
+        "P2CG1F",
+        "P2CG1G1",
+        "P2CG1G2",
+        "P2CG1H",
+        "P2CG1I1",
+        "P2CG1I2",
+        "P2CG1I3",
+        "P2CG1I4",
+        "P2CG2",
+        "P2CH"
+      ],
+      "state": "blocked",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ]
+    },
+    {
+      "id": "P2",
+      "predecessors": [
+        "P1A",
+        "P1B1",
+        "P1B2",
+        "P1B3",
+        "P1C",
+        "PAI",
+        "P2A",
+        "P2B",
+        "P2CC"
+      ],
+      "state": "blocked",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ]
+    },
+    {
+      "id": "U38",
+      "predecessors": ["P1A", "P1B1", "P1B2", "P1B3", "P1C", "PAI", "P2"],
+      "state": "blocked",
+      "reviewClasses": ["authority"]
+    }
+  ],
+  "validator": {
+    "baseline": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "stdout": "ROADMAP VALIDATION PASSED: 80 nodes, 13 packages, 381 tasks, 40 triage rows\n",
+      "stderr": ""
+    },
+    "baselineNext": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+      "exitCode": 0,
+      "stdout": "U24b\n",
+      "stderr": ""
+    },
+    "amendment": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "stdout": "ROADMAP VALIDATION PASSED: 80 nodes, 13 packages, 381 tasks, 40 triage rows\n",
+      "stderr": ""
+    },
+    "git": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --git",
+      "exitCode": 0,
+      "stdout": "CNI1_SOURCE_SIZING {\"mergeSha\":\"622f46cdbe505fd57cfd5e0a9635496a343baf3e\",\"fileCount\":13,\"maxFiles\":13,\"targetLines\":[250,350],\"reviewGuidanceLines\":500,\"files\":[{\"path\":\"openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs\",\"lines\":771,\"bytes\":50501,\"deleted\":false,\"exempt\":false,\"legacyWiring\":true,\"requiresSizingReview\":false},{\"path\":\"scripts/__tests__/roadmap-codex-identity-capture.test.ts\",\"lines\":1124,\"bytes\":59501,\"deleted\":false,\"exempt\":true,\"legacyWiring\":false,\"requiresSizingReview\":false},{\"path\":\"scripts/__tests__/roadmap-codex-review-identity.test.ts\",\"lines\":1644,\"bytes\":54141,\"deleted\":false,\"exempt\":true,\"legacyWiring\":false,\"requiresSizingReview\":false},{\"path\":\"scripts/__tests__/roadmap-loop-closure-proof.test.ts\",\"lines\":2484,\"bytes\":89940,\"deleted\":false,\"exempt\":true,\"legacyWiring\":false,\"requiresSizingReview\":false},{\"path\":\"scripts/qc/review-identity/contract.mjs\",\"lines\":387,\"bytes\":12768,\"deleted\":false,\"exempt\":false,\"legacyWiring\":false,\"requiresSizingReview\":false},{\"path\":\"scripts/qc/review-identity/custody.mjs\",\"lines\":384,\"bytes\":12331,\"deleted\":false,\"exempt\":false,\"legacyWiring\":false,\"requiresSizingReview\":false},{\"path\":\"scripts/qc/review-identity/native-binding.mjs\",\"lines\":531,\"bytes\":17059,\"deleted\":false,\"exempt\":false,\"legacyWiring\":false,\"requiresSizingReview\":true},{\"path\":\"scripts/qc/review-identity/review.mjs\",\"lines\":415,\"bytes\":12727,\"deleted\":false,\"exempt\":false,\"legacyWiring\":false,\"requiresSizingReview\":false},{\"path\":\"scripts/qc/review-identity/source.mjs\",\"lines\":503,\"bytes\":15058,\"deleted\":false,\"exempt\":false,\"legacyWiring\":false,\"requiresSizingReview\":true},{\"path\":\"scripts/qc/roadmap-codex-identity-capture.mjs\",\"lines\":535,\"bytes\":17027,\"deleted\":false,\"exempt\":false,\"legacyWiring\":false,\"requiresSizingReview\":true},{\"path\":\"scripts/qc/roadmap-ledger-lib.mjs\",\"lines\":184,\"bytes\":5486,\"deleted\":false,\"exempt\":false,\"legacyWiring\":false,\"requiresSizingReview\":false},{\"path\":\"scripts/qc/roadmap-loop-runtime.mjs\",\"lines\":75,\"bytes\":2288,\"deleted\":false,\"exempt\":false,\"legacyWiring\":false,\"requiresSizingReview\":false},{\"path\":\"scripts/qc/roadmap-unit-closure.mjs\",\"lines\":638,\"bytes\":22382,\"deleted\":false,\"exempt\":false,\"legacyWiring\":true,\"requiresSizingReview\":false}]}\nROADMAP VALIDATION PASSED: 80 nodes, 13 packages, 381 tasks, 40 triage rows\n",
+      "stderr": ""
+    },
+    "next": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+      "exitCode": 0,
+      "stdout": "U24b\n",
+      "stderr": ""
+    },
+    "nextUnchanged": true,
+    "scope": "The rebased amendment working tree before the publication commit; these checks validate ledger documentation and do not execute L1 runtime acceptance.",
+    "tests": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
+      "passed": 86,
+      "failed": 0,
+      "exitCode": 0
+    },
+    "openspec": {
+      "command": "openspec validate --all --strict",
+      "passed": 230,
+      "failed": 0,
+      "exitCode": 0
+    },
+    "formatting": "The repository excludes openspec/ from oxfmt. Scoped format:check therefore skips the three files. Forced oxfmt checks use an empty ignore file for this new receipt and isolated copies of the new registration and appended section; pre-existing units.json/PROGRESS.md fail forced checks at baseline and are preserved without formatting churn."
+  },
+  "limits": [
+    "No unit field changed.",
+    "No release; no admission; no P2/U38 readmission; P3 not closed.",
+    "Prepared locally at 01911c97f0cbe79c42e1f7c85eb594370c7ddb11; published only after the TS7 track completed and v2.1.0 was released, rebased onto c5172fdc7be7289172dc21304cfd7a2331bd0f21. Publication is this docs-only PR; nothing else is admitted or released.",
+    "The root checkout and its PLAN.md/STATUS.md overlays were read only; section 6.4 overlay updates are outside this three-file amendment.",
+    "The registered L1 runtime proofs, release and installer/manual playtest are future acceptance requirements; none was run or claimed by this docs-only registration."
+  ],
+  "acceptance": {
+    "command": "npm run verify:qc:coop-campaign-journey",
+    "spec": "e2e/coop-campaign-two-browser-journey.spec.ts",
+    "ownershipSelector": "src/lib/multiplayer/server/__tests__/ServerMatchHostUnitOwnership.test.ts",
+    "manualPlaytest": "A playtest/ session entry for two players and a non-playing GM installing v2.2.0, launching one shared campaign mission, playing to Results and reloading mid-mission; record the release URL and tag SHA. These are future release-point observations, not acceptance claimed by this registration."
+  },
+  "jsonDiff": {
+    "baseline": "c5172fdc7be7289172dc21304cfd7a2331bd0f21",
+    "addedTopLevelKeys": ["layerRegistration20261017L1"],
+    "removedTopLevelKeys": [],
+    "changedExistingTopLevelKeys": [],
+    "unitCount": 206,
+    "changedUnitIds": [],
+    "unitsSha256Before": "c4f3038ef0f8ea0d6cc615353e4c8af35e1f42fa9a2f7825a2f8b4c46a68ed43",
+    "unitsSha256After": "c4f3038ef0f8ea0d6cc615353e4c8af35e1f42fa9a2f7825a2f8b4c46a68ed43",
+    "unitsSha256Method": "sha256 of JSON.stringify(units)",
+    "existingTextPrefixByteIdentical": true,
+    "comparison": "node:assert/strict deepEqual on the full units array and on the entire ledger after removing only layerRegistration20261017L1"
+  }
+}
