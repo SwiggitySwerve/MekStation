@@ -30,11 +30,7 @@ import { getPhaseRailLabel } from '@/components/gameplay/EventLogDisplay.helpers
 import { AppIcon, type AppIconName } from '@/components/ui/AppIcon';
 import { Button } from '@/components/ui/Button';
 import { DialogTemplate } from '@/components/ui/DialogTemplate';
-import {
-  GamePhase,
-  GameSide,
-  LockState,
-} from '@/types/gameplay/GameSessionCoreTypes';
+import { GamePhase, GameSide } from '@/types/gameplay/GameSessionCoreTypes';
 
 import type {
   IRailUnit,
@@ -43,6 +39,7 @@ import type {
 } from './TacticalTurnRail.types';
 
 import { ForceGroup } from './TacticalTurnRail.forceGroup';
+import { deriveUnitStatus, railStatusLabel } from './TacticalTurnRail.status';
 
 function getPhaseBgClass(phase: GamePhase): string {
   switch (phase) {
@@ -61,26 +58,6 @@ function getPhaseBgClass(phase: GamePhase): string {
     default:
       return 'bg-surface-raised';
   }
-}
-
-// ---------------------------------------------------------------------------
-// Unit status derivation
-// ---------------------------------------------------------------------------
-
-function deriveUnitStatus(
-  unitId: string,
-  activeUnitId: string | null,
-  unitStates: TacticalTurnRailProps['unitStates'],
-): UnitRailStatus {
-  const state = unitStates[unitId];
-  if (!state) return 'upcoming';
-
-  if (state.destroyed) return 'destroyed';
-  if (state.hasRetreated || state.isWithdrawing) return 'withdrawn';
-  if (state.shutdown || state.prone) return 'skipped';
-  if (state.lockState === LockState.Resolved) return 'completed';
-  if (unitId === activeUnitId) return 'active';
-  return 'upcoming';
 }
 
 // ---------------------------------------------------------------------------
@@ -109,15 +86,6 @@ const STATUS_ICON: Partial<Record<UnitRailStatus, AppIconName>> = {
   skipped: 'remove',
 };
 
-const STATUS_LABEL: Record<UnitRailStatus, string> = {
-  active: 'Active',
-  upcoming: 'Ready',
-  completed: 'Acted',
-  skipped: 'Skipped',
-  destroyed: 'Eliminated',
-  withdrawn: 'Withdrawn',
-};
-
 // ---------------------------------------------------------------------------
 // RailToken sub-component
 // ---------------------------------------------------------------------------
@@ -140,7 +108,7 @@ function RailToken({
     ? SIDE_BADGE_CLASSES[unit.side]
     : 'bg-surface-raised';
   const icon = STATUS_ICON[unit.status];
-  const statusLabel = STATUS_LABEL[unit.status];
+  const statusLabel = railStatusLabel(unit);
 
   // In replay / spectator mode we still allow selection for inspection
   // but active-unit pulsing is suppressed (the cursor drives focus instead).
@@ -350,6 +318,7 @@ export function TacticalTurnRail({
         side: unitStates[unitId]?.side ?? gameUnit?.side ?? null,
         status,
         isActive: status === 'active',
+        prone: unitStates[unitId]?.prone === true,
       };
     });
   }, [

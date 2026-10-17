@@ -36,6 +36,7 @@ import {
   buildMovementEventPath,
   maxMovementCostForCapability,
 } from '@/utils/gameplay/movement/eventPath';
+import { gridWithUnitOccupants } from '@/utils/gameplay/movement/occupancy';
 import { validateMovement } from '@/utils/gameplay/movement/validation';
 import {
   getAllowedPhysicalAttackCount,
@@ -150,14 +151,24 @@ function runInteractiveSessionMovementAI(
     session = context.getSession();
     const refreshedUnit = session.currentState.units[unitId];
     const aiUnit = toAIUnitState(refreshedUnit, weapons, gunnery);
+    // V211-01: plan and validate against live occupancy (every unit's
+    // current position, including moves already declared/locked this turn)
+    // so the bot can never end movement stacked on another unit. The
+    // static context grid only carries terrain, never occupants.
+    // @spec openspec/specs/movement-system/spec.md — committed validation
+    //   occupancy/stacking gate (same grid the player commit path uses).
+    const occupiedGrid = gridWithUnitOccupants(
+      context.grid,
+      session.currentState.units,
+    );
     const moveEvt = context.botPlayer.playMovementPhase(
       aiUnit,
-      context.grid,
+      occupiedGrid,
       cap,
     );
     if (moveEvt) {
       const validation = validateMovement(
-        context.grid,
+        occupiedGrid,
         {
           unitId,
           coord: refreshedUnit.position,
@@ -180,7 +191,7 @@ function runInteractiveSessionMovementAI(
       }
 
       const eventPath = buildMovementEventPath({
-        grid: context.grid,
+        grid: occupiedGrid,
         from: refreshedUnit.position,
         to: moveEvt.payload.to,
         movementType: moveEvt.payload.movementType,
