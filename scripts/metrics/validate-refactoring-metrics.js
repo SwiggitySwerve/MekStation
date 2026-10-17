@@ -213,7 +213,7 @@ function validateCodeQualityMetrics() {
 
   // TypeScript coverage check
   try {
-    execSync('npx tsc --noEmit', { stdio: 'pipe' });
+    execSync('npm run typecheck', { stdio: 'pipe' });
     logSuccess('TypeScript coverage = 100% (no compilation errors)');
   } catch (error) {
     logWarning('TypeScript compilation issues detected');

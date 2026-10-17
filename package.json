@@ -332,7 +332,7 @@
     "*.{ts,tsx}": [
       "oxlint --fix",
       "oxfmt --write --no-error-on-unmatched-pattern",
-      "bash -c 'npx tsc --noEmit --skipLibCheck'"
+      "bash -c 'npm run typecheck'"
     ],
     "*.{js,jsx}": [
       "oxlint --fix",

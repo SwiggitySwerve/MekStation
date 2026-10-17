@@ -3,11 +3,11 @@ import * as path from 'node:path';
 
 // Pins owner decision OD-precommit-drop-full-build: .husky/pre-commit runs no
 // production build, and the lint-staged run it keeps still ends its
-// *.{ts,tsx} list with the whole-project `tsc --noEmit` type check.
+// *.{ts,tsx} list with `npm run typecheck` for both compiler projects.
 const repoRoot = path.resolve(__dirname, '../..');
 const hookPath = path.join(repoRoot, '.husky', 'pre-commit');
 const packagePath = path.join(repoRoot, 'package.json');
-const TSC_ENTRY = "bash -c 'npx tsc --noEmit --skipLibCheck'";
+const TSC_ENTRY = "bash -c 'npm run typecheck'";
 
 // Returns the hook's non-blank lines that do not start with `#`, trimmed and
 // prefixed with their 1-based line number ("17: npm run build").
@@ -30,7 +30,7 @@ describe('pre-commit hook (OD-precommit-drop-full-build)', () => {
     ).toEqual([]);
   });
 
-  it('keeps `npx lint-staged`, whose *.{ts,tsx} list ends with the whole-project tsc --noEmit', () => {
+  it('keeps `npx lint-staged`, whose *.{ts,tsx} list ends with npm run typecheck', () => {
     expect(
       hookCommandLines().some((line) => /^\d+: npx lint-staged$/.test(line)),
     ).toBe(true);
