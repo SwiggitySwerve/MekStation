@@ -279,7 +279,7 @@ jobs:
         working-directory: desktop
         shell: bash
         # The standalone native payload is rebuilt for this x64 runner only.
-        run: npx electron-builder --win --x64 --config.extraMetadata.version="$APP_VERSION" --publish never
+        run: npx electron-builder --win nsis portable --x64 --config.extraMetadata.version="$APP_VERSION" --publish never
 
       - name: Build Electron application (macOS)
         if: startsWith(matrix.platform, 'mac')
