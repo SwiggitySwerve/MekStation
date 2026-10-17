@@ -1,7 +1,7 @@
 # Delivery, verification, and cleanup contract
 > **Status:** Active; named CNI0 bootstrap only
 > **Created:** 2026-09-15
-> **Updated:** 2026-10-03
+> **Updated:** 2026-10-17
 
 This roadmap is authorized by the user's 2026-09-12 request for implementation, verification, incremental PRs, merging, cleanup, and completion. The parent owns decomposition, integration, acceptance, and Git delivery. Workers own only their assigned files or evidence question.
 
@@ -45,6 +45,16 @@ CNI2P is the three-file prior-prefix follow-up; CNI3R is a separately registered
 U17e registration, SOURCE and closure each retain normal parent head-guarded squash delivery, independent exact-head review, full required CI, actual one-parent/whole-tree witnesses, exact-main proof and genuine own v2 closure. No bootstrap exemption, source-only completion claim or reuse of a historical PMP review as U17e approval. CLOSE U17e before later PMP closure.
 
 For that later closure, run the accepted new producer and current ledger from the closed-U17e lineage, with `--repo-root` pointing at a clean exact historical b034 checkout. Pass the preserved original proof directory as absolute `--proof-dir` and a new owned external `--preserved-root`; reopen/hash actual old logs. Preserve original source, baseline, merge identities and proof checkout bytes. Do not use a false `--reproof-commit`: the new producer/current-ledger root and the historical runtime-proof root are distinct. Fresh native ordered-parent/whole-tree attestation and modern review identity/prospective consumption are still required; this seam never invents approval or reruns historical delivery.
+
+## Proof lanes (2026-10-17)
+
+Adopted on the owner's 2026-10-17 instruction to continue with the council-recommended options (Council B, `docs/audits/2026-10-16-council-B-process.md`). Each unit records `proofClass: light | full | ledger` in its admission receipt; the classification is reviewable. These lanes size proof to risk. They do not change caps, the one-product-writing-lane rule, or any rule above for authority, privacy, migration, replay, idempotency or concurrency units.
+
+- **light** – dormant behind an uninstalled port, emit- or AST-identical, type-only, move-only, or tooling/config units with no production call path change. Proof: a mechanical equivalence proof (byte-identical emit, injected-mutation move proof, before/after command hash, test-count equality) in the PR body, green CI on the exact head, and a passing validator. No independent model review, no local `test:stable` (CI runs it), no OWNER-RULING. Closure receipts may land in the next ledger PR.
+- **full** – any change to a path a user or socket can reach on main (activation, legacy deletion, cutovers, single-player loop UI fixes). Proof: red-first test, focused suites, green CI, independent review by a different model, and for authority/migration classes an owner ruling obtained before merge (a chat approval transcribed with its timestamp counts; a comment posted after merge does not gate anything). Add a main-side runtime smoke: start the built server and exercise the changed route.
+- **ledger** – registrations, releases, closures and corrections. Combine them per unit or per day. Proof: `validate-roadmap.mjs` (plain and `--next`) and `validate-roadmap.test.mjs`. Admin-merge is permitted without waiting for CI. A review body the ledger hashes is archived under `evidence/` in the same PR.
+
+The 14-minute `roadmap-loop-closure-proof` suite is already in the CI unit shards; run it locally on a closure only when `scripts/qc/roadmap-*.mjs` changed.
 
 ## State and evidence
 
