@@ -8786,7 +8786,15 @@
         "openspec/changes/archive/2026-10-17-migrate-to-typescript-7/specs/bv-validation-tooling/spec.md",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5c-admission-20261017.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5c-red-20261017.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5c-local-20261017.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5c-local-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5c-source-astra-review-20261017.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7-track-exit-astra-review-20261017.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5c-review-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5c-merge-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-835af552-docs.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-835af552-toolchain.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-835af552-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5c-mainproof-20261017.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -8797,10 +8805,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "main-verified",
       "baseline": "6b700bbb03abfbcd46500fbcbd1965adc832c895",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "b0a3a635a7b35d809624ae40b59f648095ca8d16",
+      "mergeSha": "835af5526cf6cc36294f81a9219eeb0ca682db14",
       "stageReceipts": {
         "admission": {
           "path": "evidence/ts7s5c-admission-20261017.json"
@@ -8811,9 +8819,27 @@
         "local": {
           "path": "evidence/ts7s5c-local-20261017.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/ts7s5c-review-20261017.json",
+          "head": "b0a3a635a7b35d809624ae40b59f648095ca8d16",
+          "reviewedHead": "b0a3a635a7b35d809624ae40b59f648095ca8d16",
+          "reviewerModel": "gpt-6-astra",
+          "implementerModel": "gpt-6.1-sol",
+          "outputSha256": "02762e05efb5c0654d11d738fc1a6757d16a7ad16282c2516b5c603d6df32daa",
+          "verdict": "PASS"
+        },
+        "merge": {
+          "path": "evidence/ts7s5c-merge-20261017.json",
+          "pr": 2202,
+          "head": "b0a3a635a7b35d809624ae40b59f648095ca8d16",
+          "mergeSha": "835af5526cf6cc36294f81a9219eeb0ca682db14"
+        },
+        "mainProof": {
+          "path": "evidence/ts7s5c-mainproof-20261017.json",
+          "mergeCommit": "835af5526cf6cc36294f81a9219eeb0ca682db14",
+          "verdict": "PASS",
+          "runtime": "Source/Main checks: 14 passed (machine-idle only the Root-allowed PID 47516; fresh root and desktop npm ci exit 0; openspec/changes/migrate-to-typescript-7 absent from the Git tree and filesystem; archive 2026-10-17-migrate-to-typescript-7 holds exactly design.md, proposal.md, tasks.md, specs/typescript-toolchain/spec.md and specs/bv-validation-tooling/spec.md; proposal.md and both delta specs equal their 6b700bbb pre-move blobs, design.md equals its cf06e954 pre-move blob, and tasks.md differs from its pre-move blob only by the 5.3 tick; openspec/active-change-ledger.json has no migrate-to-typescript-7 entry and equals the baseline minus only that entry; openspec list excludes migrate-to-typescript-7; canonical typescript-toolchain spec has a nonempty Purpose, its requirement body equals the archived ADDED delta with 4 requirements and 7 scenarios, and it and bv-validation-tooling validate --strict; npm run typecheck exits 0 running node node_modules/typescript7/bin/tsc for the root and scripts projects; typescript7 --version 7.0.2 and the root typescript module version 6.0.3, wrapper @typescript/typescript6 6.0.2; desktop tsc 7.0.2 and npm run type-check exit 0; desktop npm test 57/57 in 5 suites; every TS7 unit merge is an ancestor of 835af552 with its reviewed head as a merge parent, 12/12; validate-roadmap.mjs PASSED and --git PASSED; openspec validate --all --strict 230 passed; qc:openspec-ci:validate errors=0; 0 failed)"
+        },
         "tick": null
       },
       "ownerGate": null,

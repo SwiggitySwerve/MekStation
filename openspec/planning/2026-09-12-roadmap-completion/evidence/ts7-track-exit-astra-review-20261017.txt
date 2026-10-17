@@ -1,0 +1,103 @@
+TRACK-EXIT FAIL
+
+The compiler migration and archive source state pass review, but the requested strict phase-exit condition is not yet satisfied. Even if PR #2202 merges unchanged, its ledger leaves TS7S5C `local-verified` with null `prHead`, `mergeSha`, review, merge and mainProof receipts. A merge alone cannot make that unit main-verified. This is a remaining lifecycle obligation, not a blocking source defect in #2202. After a genuine S5C exact-main proof and separate closure, the technical evidence reviewed here supports PASS-WITH-NOTES, subject to checking that actual merge and retaining the residuals below.
+
+Independent review, 2026-10-17. Observed `origin/main`: `6b700bbb03abfbcd46500fbcbd1965adc832c895`. Candidate: `b0a3a635a7b35d809624ae40b59f648095ca8d16`, PR #2202, confirmed against GitHub and remote refs. The baseline is the candidate's merge base, so the unchanged prospective merge has the candidate tree; no synthetic merge or invented main-proof receipt was created. References are to this exact tree unless qualified. The companion source review is `E:/Projects/Personal/MekStation/docs/audits/2026-10-17-ts7s5c-review.md`.
+
+Reviewer: GPT-6 Astra, high reasoning effort, in the T3 Code Codex harness. This was independent read-only review of the supplied source and evidence, not implementation or a delegated approval round.
+
+**Stopping-condition assessment.**
+
+| Required outcome | Finding |
+| --- | --- |
+| `npm run typecheck` runs TypeScript 7 on Main | PASS: already present on observed main; fresh exact-candidate execution confirms both root and scripts projects |
+| All ten current track units plus S2OD main-verified | NOT MET: nine non-OD units plus S2OD are main-verified; S5C remains local-verified |
+| Change archived | PASS for the prospective candidate: exact five-file archive, canonical specs synchronized, active directory/ledger/list entry absent |
+| Genuine final merge/main-proof closure | NOT YET AVAILABLE: #2202 was still open during review; unchanged merge contents do not fill lifecycle fields |
+
+The original TS7S1 record remains blocked with an explicit supersession marker naming S1A/S1B. This is truthful history, not another unfinished product unit. Registration explicitly says the split produces 11 active units plus the superseded record. The owner chose OD-scripts-tsconfig option (a), so the gated tail cannot be treated as waived. The registration's stopping text requires S2OD/S5B/S5C to run after the ruling; the requested phase-exit standard additionally requires their genuine main-verified closure. The separate closure requirement also appears in the council decision; it should not be folded into an imagined source merge.
+
+**Fresh end-state proof.** In a detached disposable checkout at the exact candidate, one fresh root `npm ci --no-audit --no-fund` succeeded. `HUSKY=0` prevented a shared hook-configuration change. Process enumeration, a three-second CPU sample and memory/load readings were taken first; existing Node services showed no CPU increase during that sample, no compiler/test/build command was active, about 30 GB RAM was free and aggregate CPU load was 12%. No unrelated process was stopped.
+
+Fresh `npm run typecheck` exited 0 in 6.145 seconds and printed exactly:
+
+```text
+node node_modules/typescript7/bin/tsc --noEmit --skipLibCheck && node node_modules/typescript7/bin/tsc -p scripts/tsconfig.json --noEmit
+```
+
+The explicit compiler printed `Version 7.0.2`. `require('typescript').version` printed `6.0.3`; its full API exposes `createProgram`, `transpileModule`, `createSourceFile` and `isIdentifier`. Installed `typescript/package.json` names wrapper `@typescript/typescript6` version 6.0.2; its underlying `@typescript/old` is 6.0.3. The root lockfile agrees. This fresh run used Node v24.15.0, whereas the accepted integrated checkpoint used v22.22.0. It is a fresh execution result, not a comparative performance benchmark or replacement for the recorded Node 22 proof.
+
+The compiler/dependency/configuration/API-consumer surfaces compared from checkpoint `db607a7f` through this head are unchanged: root manifests/lock, all desktop files, root/scripts configs, `.storybook`, `next.config.ts`, maintenance scanner, flow audit, roadmap main-proof and `src`. Intervening changes include unrelated E2E source work. Therefore the checkpoint is relevant inherited product evidence, but a broad sweep at that older checkpoint is not a fresh full-product execution of the later candidate.
+
+**Gate routing.** Searched root `package.json` scripts and lint-staged, `.husky`, every `.github/workflows` file and `scripts/qc`; also inspected the metrics caller. No root gate in those surfaces invokes the ambiguous compiler by bare `tsc` or `npx tsc`.
+
+| Gate | Actual command/selection |
+| --- | --- |
+| Root package, `package.json:26` | two explicit `node_modules/typescript7/bin/tsc` invocations |
+| lint-staged, `package.json:336` | `bash -c 'npm run typecheck'`; filenames cannot become compiler file arguments |
+| `.husky/pre-commit` | invokes lint-staged; comment correctly describes both projects |
+| PR Type Check, `.github/workflows/pr-checks.yml:188` | `npm run typecheck` |
+| Roadmap proof, `scripts/qc/roadmap-main-proof.mjs:195` | `['node', 'node_modules/typescript7/bin/tsc', '--noEmit']` |
+| Metrics, `scripts/metrics/validate-refactoring-metrics.js:216` | `npm run typecheck` |
+| Desktop `type-check` | `tsc --noEmit && tsc -p tsconfig.test.json --noEmit`, using the separate unaliased TS7 dependency |
+| Desktop `build` | `tsc`, using the separate unaliased TS7 dependency |
+
+The remaining `name: 'tsc'` and receipt/log key `tsc` in QC are labels, not executable selection by name. Desktop's bare `tsc` is intentional: its manifest is `typescript: ^7.0.2`, and its own lock resolves 7.0.2. The root prohibition does not ban that isolated package's command. No fresh desktop install or test suite was run here; exact-main S4B proof and the integrated S5B sweep supply desktop runtime evidence, including 57/57 tests and both desktop projects.
+
+All four maintained tsconfig files were inspected. Root target is es2017 with bundler resolution and `@/* -> ./src/*`; scripts uses es2020/bundler and `@/* -> ../src/*`, with includes for BV, parity and data-migration; desktop uses ES2020/nodenext and test config extends it. No maintained config contains `baseUrl`, es5 target, node/node10 module resolution or `ignoreDeprecations`. Keeping scripts as the second root invocation satisfies option (a); checking only root would miss its explicitly excluded scripts tree.
+
+**API consumers and build boundary.**
+
+- Next remains the intentional exception: the installed Next checker uses `typescript.createProgram`; ordinary unskipped `next build` still checks through the TS6 API. `next.config.ts:111-114` skips that duplicate check only when the CI environment flag is true. The integrated sweep preserved an unskipped successful build and its `Running TypeScript ...` output. The TS7 named gate and Next's internal TS6 check can disagree; OD-next-upgrade is still owner-held.
+- Storybook remains on its existing Babel `react-docgen` path, not a newly required TS compiler API path. `.storybook/main.ts` has no override; accepted evidence records six typed props for `OverwriteConfirmDialog` and successful Storybook build. Do not describe the prop-table proof as proof that every Storybook feature uses TS7.
+- `tsx` replaces `ts-node` for terminology tooling and scripts. `ts-node` is absent from root devDependencies. `tsx` is a transpilation/runtime integration, not the type-check gate and not an extra compiler-API compatibility proof. The receipts preserve terminology output equivalence and successful flow-audit sidecar execution.
+- `scripts/maintenance/scan-maintenance.mjs` and `scripts/qc/validate-flow-audit.mjs` still parse through the TS6 API. The integrated bare scanner invocation and flow audit passed; the latter reports six flows, six of six subsystems, zero errors/warnings. The stricter scanner regression gate remains red, as discussed under B1. The parser-based privacy test is included in the accepted stable proof.
+
+**Canonical specs and live docs.** The full canonical TypeScript requirement body matches the archived ADDED delta. Both canonical specs validate strictly, and the complete BV MODIFIED requirement is already present, naming `npm run typecheck`. Actual compiler routing, config state, API split and recorded desktop emit proof match the implemented migration. The sweep compares all 21 emitted desktop JavaScript files with the section-1 baseline, with zero JS differences and separately enumerated permitted map/declaration differences.
+
+README says TypeScript 7; getting-started names the two-project gate and optional native-preview editor extension; troubleshooting explains the root TS6 `npx tsc` trap; git-hooks describes the preserved bash wrapper. These are truthful. Historical design/proposal measurements remain historical, not current timing claims.
+
+Two wording limits remain: (1) inherited F1 at canonical spec line 19 says the wrapper's `node_modules/typescript/bin/tsc` resolves to TS6, whereas that path is absent; only the bare root shim selects TS6. (2) broad wording about "every" gate/"no" API diagnostics must be read with the enumerated named gates and the explicit Next non-goal. An authorized canonical clarification should make the Next exception explicit. Neither warrants rewriting archived historical bytes or denying that the requested root gate now runs TS7.
+
+**Ledger and receipt coherence.** The following are full stored source-head and merge identities. All ten completed active units have review, merge and PASS mainProof receipts. I checked review-head/merge-head equality against their unit, actual merge-parent inclusion, merge ancestry in the observed main baseline, and SHA-256 equality of every referenced independent review output. No completed unit was accepted merely because its state string says main-verified.
+
+| Unit | PR | prHead | mergeSha | State |
+| --- | ---: | --- | --- | --- |
+| TS7S1A | 2174 | `3f2de76f58b0554820823c974e9437246286d847` | `c60ad495b4e4a98a48ec00c2fe7de363682764c1` | main-verified |
+| TS7S1B | 2176 | `07e61c70404d9da5d0dad5582c06a17e6c77b401` | `3d9c45365bfc34d27930acb1ff3411b91af17cb9` | main-verified |
+| TS7S2A | 2178 | `38e0541301c8a90bec3558b0f7b9db69a8a1c234` | `2c909b0016d86426572c02d5a1e3186eda7203b5` | main-verified |
+| TS7S2B | 2180 | `dd9a54dbe4bcdeec06f6d1aea6fe03246015d9f5` | `08555b7a1b22f1bc10f9e6335c3ea7edd79c98da` | main-verified |
+| TS7S2OD | 2184 | `80ac1ae97c39d10668d7e1e7d266ebdc1112dd43` | `97c3281f5a3d943adee64e3516a538d466d50f8e` | main-verified |
+| TS7S3 | 2187 | `041cb6838542768336657bb26d7dd11079028b2c` | `9aea87cdccc7252b8c94d94b3ddad6ede0dbda93` | main-verified |
+| TS7S4A | 2189 | `5583b3c4e381748ac212889d05069fdda16204fd` | `de9419356c740f3d89cc350f9812f8c87b03bdc9` | main-verified |
+| TS7S4B | 2192 | `2d35fb67e47f34c17afebd23bec293fcb3750558` | `7898c40ed633076c8f9931dfb56a33eeeab4ca2d` | main-verified |
+| TS7S5A | 2194 | `db86f46ef61b5b13bbfe88ea905984d82f1331f6` | `db607a7fc80a87b1dbe0d033e34b5d201e018840` | main-verified |
+| TS7S5B | 2198 | `c45cd1833160ef9867ff0dbafc57157e9c6d33e2` | `ff3c85efb869339816cbe76fe83e36f7096af0e5` | main-verified |
+| TS7S5C | 2202 | null in ledger; reviewed source is `b0a3a635a7b35d809624ae40b59f648095ca8d16` | null | local-verified |
+
+Fresh roadmap validation passed both plain and `--git`; `--next` returned U24b, not authority to release another writer. The validator permits an in-flight unit and does not certify track exit. All units have empty `taskKeys`, so absent tick receipts are intentional; do not invent completion ticks for them. S5C needs actual review/merge/mainProof closure, not a fabricated task-key receipt.
+
+I additionally decoded and checked all 212 gzip/base64 log/helper envelopes in the TS7 JSON receipts: every declared byte count and SHA-256 matched. Spot-checked the exact-main S4B and S5B base64 proof envelopes against their declared hashes/lengths: 40,523, 10,974 and 3,347 bytes for S4B; 7,769 and 11,004 for S5B. This establishes retained-byte integrity, not independent re-execution of all recorded commands. The fresh source review supplies separate inventory/content mutants because `--git` does not establish archive preservation on its own.
+
+**Honesty of the five disclosed deviations.**
+
+1. Lean cadence is explicit in the inspected `E:/Projects/Personal/MekStation/docs/audits/2026-10-17-council-roadmap-decision.md`, items 2-3 and its resolved disagreement: exact-head CI shards count as stable proof for routine units; changed test infrastructure additionally gets its affected local suite; exact-main checks focus on changed behavior; S5B keeps the integrated checkpoint. Later receipts distinguish inherited head proof from fresh main proof. Earlier owner rulings remain as history; later routine units correctly have no newly invented OWNER-RULING. The wrapper and OD decisions are substantive user decisions, distinct from a ritual GitHub ruling comment. This review inspected the decision artifact and receipt attestations; it does not claim independent access to the original conversation.
+2. The Windows identity-capture failure is retained, not erased. The original stable command exits 1 and contains `spawnSync ... node.exe ETIMEDOUT` in `producer readback selects a second committed finite unit and preserves default CNI1`. The accepted isolated run passes 52/52; the remaining faithful stable lane passes 2,796 suites / 37,133 tests with 50 skipped. The unsuccessful first split launch, caused by the Windows environment-value whitespace/perf-exclusion mistake, remains explicitly rejected. The accepted helper preserves the normal exclusions and adds exactly the identity suite. Existing Jest config and identity test are unchanged across `08555b7a..head`. This is a disclosed mitigation, not proof that the Windows flake is fixed.
+3. The maintenance failure is distinct from API compatibility. The archived task and sweep say the bare scanner passed while `--scope=src --baseline=docs/qc/maintenance-baseline.json --fail-on-regression` exited 1. Decoded logs show 72 critical/high findings against baseline 0 and ten regression rows. More precisely, those ten rows are one aggregate plus nine severity/category comparisons, not ten distinct scanner categories. Root's baseline reproduction is attributed to Root at `08555b7a1` with TS5.8.3, with the same counts; the worker expressly says it did not repeat that historical run. I verified the older manifest's TS5.8.3 dependency and unchanged scanner/baseline files across the interval. I did not independently rerun the old scan; do not relabel that attestation as a fresh reviewer reproduction.
+4. The `^6.0.2` wrapper ruling is technically sound. S4B's authority records the user's explicit authorization after upstream checking. Wrapper version 6.0.2 and API version 6.0.3 are different package identities, freshly reproduced here. The lock resolves the wrapper to 6.0.2, underlying compiler to 6.0.3 and TS7 alias to 7.0.2. Root `.bin/tsc` ownership is therefore not proof of the TS7 gate; the explicit path is necessary.
+5. The archive-ownership correction was a separate parent PR #2197 before S5B, not an unauthorized lifecycle rewrite in S5B/S5C. Its three-file scope leaves validator code, every unit's lifecycle/receipts and caps unchanged. Default and Git-aware validation now pass across the actual archived state. The remaining inability to detect a missing exception-owned archive file is disclosed and independently reproduced by the companion review's M3.
+
+For CI attribution, GitHub independently confirmed run `39016629176` at head `db86f46ef61b5b13bbfe88ea905984d82f1331f6`: overall success, all six unit shards and Type Check successful. The receipt's head and merge share tree `e0499dd79dc3f5ae7acb04090c0657a1e49750ba`. That justifies inherited PR-head CI, not a claim that a main-push job ran. At the #2202 snapshot, 31 individual checks were complete/successful and the aggregate remained queued; no completed merge is claimed.
+
+**Residuals and backlog.**
+
+- **Exit blocker E1: S5C closure.** After the actual unchanged merge, bind the exact reviewed head and real merge SHA, run focused checks on that merge, preserve this review's bytes/hash, and land the separate ledger closure marking S5C main-verified. Recheck ancestry and all unit states before declaring track exit or satisfying the deferred Next-upgrade release predicate. This report authorizes no merge or downstream release.
+- **B1: maintenance regression gate red versus reviewed baseline 0.** Carry the 72 findings and ten regression rows as explicit debt; do not increase the baseline to hide them. The category totals are complexity 33, design violation 20, file bloat 5, code smell 6, dead code 1 and type safety 7. Separate remediation/calibration work must establish when the gate returns green. The pre-existing status prevents attributing it to TS7 but does not make general release readiness green.
+- **B2: Windows identity-capture flake.** Investigate child-process startup/readback timing and resource sensitivity using the preserved failure and isolated-pass case. Retain bounded timeouts and full test intent; a later fix should prove the unsplit stable lane under representative Windows conditions. The accepted split is not a permanent fix.
+- **F1/spec wording:** correct the absent-wrapper-bin explanation in the canonical spec under separate scope, and clarify that Next's internal TS6 diagnostics are the explicit exception. Preserve archive bytes.
+- **OD-next-upgrade:** remains owner-held; no Next upgrade is silently included. The actual eligibility predicate names S5C main-verified, not archive-file presence alone.
+- **TS7.1 follow-up:** remains release/API/ecosystem gated. Its historical one-command sketch must not be copied in a way that drops the scripts project; preserve the two-project requirement when replacing the alias and updating guards. Resolve the owner/release conditions in a new change.
+- **BV result typing:** S2OD's accepted M1 remains in its review receipt: `iu.bv!` on an error row preserves existing behavior but should later be represented explicitly in the shared result type without substituting zero or changing missing-file JSON semantics.
+- **Continuous guard coverage:** the present guard checks root command pins and the desktop dependency range; it does not assert desktop script bodies. The current scripts are correct, but a future desktop command redirection deserves a negative test. This is a static coverage observation, not a fresh Jest mutant result.
+
+**Limits and disposition.** No fresh full stable suite, build, Storybook build, desktop suite, historical maintenance reproduction or browser exercise was performed. Those remain clearly attributed prior evidence. Fresh root installation/typecheck, source and lock inspection, Git/receipt checks, strict OpenSpec (230/230), QC (zero errors), and independent archive/content mutants support the technical migration result. No commits, pushes, merges, PR comments, source fixes or baseline edits were made. The disposable checkout was restored clean before removal. The only reason this strict track-exit verdict is FAIL is that E1 is still required; B1/B2 and the other notes must remain visible when the eventual closure is reviewed.
