@@ -1,0 +1,39 @@
+{
+  "unit": "TS7S5A",
+  "stage": "mainProof",
+  "recordedAt": "2026-10-17T08:35:00.000Z",
+  "mergeCommit": "db607a7fc80a87b1dbe0d033e34b5d201e018840",
+  "verdict": "PASS",
+  "checkout": "E:/Projects/Personal/MekStation-wt/ts7s5a-closure-20261017",
+  "runtime": {
+    "playwright": "Source/Main checks: 8 passed (machine-idle only the Root-allowed PID 47516; contributor-doc grep of the eight named doc leaves finds only the intentional troubleshooting.md:21 warning that root npx tsc is TypeScript 6 and npm run typecheck is the TypeScript 7 gate; tracked-file grep outside historical evidence finds no TypeScript 5.8 or npx ts-node; remaining npx tsc matches classified as the troubleshooting warning, two historical PROGRESS/CLOSED records in another change, and canonical bv-validation-tooling spec.md:406, the explicit TS7S5B carry-forward; all ten named leaves contain their required statements, 20/20; package.json scripts.typecheck is the two-project TypeScript 7 command; validator PASSED and --git PASSED; openspec validate --all --strict 230 passed and qc:openspec-ci:validate errors=0; 0 failed)",
+    "machine": "node scripts/qc/machine-idle.mjs printed MACHINE_BUSY 1 for exactly one process, PID 47516, the idle pre-existing node.exe server.js that Root allowed; node scripts/qc/machine-idle.mjs --own-pid 47516 printed MACHINE_IDLE. This closure neither started nor stopped any other process and ran no heavy work.",
+    "contributorDocs": "git grep -n -I -E \"TypeScript 5\\.8|ts-node|npx tsc\" over README.md, docs/development/getting-started.md, docs/development/troubleshooting.md, docs/development/git-hooks.md, docs/overview.md, openspec/config.yaml, src/docs/Introduction.mdx and openspec/scripts/README.md printed exactly one line: docs/development/troubleshooting.md:21, the required 5.2 warning that root npx tsc runs TypeScript 6 and that npm run typecheck is the TypeScript 7 gate. No current doc names TypeScript 5.8, npx ts-node, or npx tsc as the gate.",
+    "trackedDocs": "git grep for \"TypeScript 5\\.8|npx ts-node\" over all tracked files, excluding historical evidence (docs/qc, docs/audits, docs/plans/archive, openspec/changes/archive, openspec/planning, openspec/changes/migrate-to-typescript-7 before-state/history, __tests__ and *.test.*): no match. The same scope for \"npx tsc\" prints four lines: troubleshooting.md:21 (the intentional warning), openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md:599 and :645 (dated PROGRESS/CLOSED historical records), and openspec/specs/bv-validation-tooling/spec.md:406, which the reviewer assigns to TS7S5B.",
+    "leaves": "A checker (source printed in the log) asserts 20 literal statements across the ten named leaves: README.md, docs/overview.md, openspec/config.yaml and src/docs/Introduction.mdx name TypeScript 7; getting-started names npm run typecheck and TypeScriptTeam.native-preview; troubleshooting names npm run typecheck, that npx tsc runs TypeScript 6, and node node_modules/typescript7/bin/tsc; git-hooks names bash -c 'npm run typecheck'; openspec/scripts/README.md uses npx tsx, says tsx does not type-check on load, and lacks ts-node; design.md D3 gives npm:@typescript/typescript6@^6.0.2, explains resolution to TypeScript 6.0.3, and lacks ^6.0.3 for the wrapper; tasks.md ticks 5.1 and 5.2 and leaves 5.3 open. LEAF_STATEMENTS PASSED failures=0.",
+    "typecheckScript": "Printed package.json scripts.typecheck = node node_modules/typescript7/bin/tsc --noEmit --skipLibCheck && node node_modules/typescript7/bin/tsc -p scripts/tsconfig.json --noEmit, the gate the docs name. Not executed: this unit changed no code, configuration or dependency.",
+    "validator": "validate-roadmap.mjs PASSED (80 nodes, 13 packages, 381 tasks, 40 triage rows); --git PASSED; --next printed U24b on the unedited ledger while TS7S5A was local-verified (the validator does not model the one-lane rule; TS7S2B N2 disclosure).",
+    "openspec": "npx openspec validate --all --strict: 230 passed, 0 failed. npm run qc:openspec-ci:validate: errors=0.",
+    "dependencies": "Docs-only unit with no lockfile change: node_modules is a junction to the root checkout's node_modules, used only for the dependency-light CLIs (openspec, the QC validator and its yaml dependency, oxfmt). It is not runtime evidence for any compiler or package version, and none is claimed.",
+    "node": "v22.22.0",
+    "npm": "11.6.2"
+  },
+  "proof": {
+    "path": "evidence/mainproof-db607a7f-docs.bytes.json",
+    "payloadSha256": "33efbd530d30bdb8a9967ecef90e440b29a61da639b5ee3f69a4672fddbfe2ed",
+    "payloadBytes": 14559,
+    "note": "machine-idle (plain and --own-pid 47516), the contributor-doc grep, the tracked-file historical-excluded greps, the leaf checker source and its 20/20 run, and the scripts.typecheck print, all at the exact merge HEAD. Concatenated logs."
+  },
+  "logs": [
+    {
+      "path": "evidence/mainproof-db607a7f-validator.bytes.json",
+      "payloadSha256": "d6b3b10535833b7a3b42bb1ecd588971e0e3a88df7bb4ce079b5653b7f0cbaf3",
+      "payloadBytes": 10974,
+      "note": "validate-roadmap.mjs, --git and --next on the unedited ledger at the merge HEAD (PASSED, PASSED, --next U24b); npx openspec validate --all --strict (230 passed, 0 failed); npm run qc:openspec-ci:validate (errors=0)."
+    }
+  ],
+  "headProof": "Not re-run at the merge commit (lean cadence): lint, format:check, typecheck, test:stable and the desktop gates. This docs-only unit changed no code, configuration or dependency; they were covered on PR head db86f46e by CI run 39016629176 (Lint, Format Check, Type Check, Unit Tests 1-6/6, A11y Tests, Desktop Type Check, Desktop Tests, Build Test win/mac/linux, Build Storybook, E2E Smoke: all success). The merge tree equals the merge-tree of the first parent and the head (merge receipt).",
+  "scope": "Lean cadence (docs/audits/2026-10-17-council-roadmap-decision.md, item 2): exact-Main proof focused on what TS7S5A changed (current-doc greps with historical evidence excluded, the required statement in each named leaf, the D3 wrapper correction, the 5.1/5.2 ticks), plus validator and OpenSpec. No heavy runs, no local roadmap-suite replays and no npm run test:stable; CI on the closure PR covers them.",
+  "closure": "main-verified only. taskKeys is empty, so no tick receipt is invented; the tasks.md 5.1/5.2 ticks changed by #2194 are already on main.",
+  "preservation": "Proof and logs are base64 envelopes so repository LF normalization cannot alter their exact bytes. Decode data and verify payloadSha256/payloadBytes. Logs were captured through cmd, so non-ASCII console glyphs may appear mis-decoded; the bytes are kept as captured."
+}
