@@ -2,6 +2,7 @@ import { BackupService } from '../services/local/BackupService';
 import { LocalStorageService } from '../services/local/LocalStorageService';
 import { RecentFilesService } from '../services/local/RecentFilesService';
 import { SettingsService } from '../services/local/SettingsService';
+import { stopEmbeddedServer } from './main.server';
 
 interface ICleanupServicesContext {
   readonly backupService: BackupService | null;
@@ -33,5 +34,7 @@ export async function cleanupServices({
     console.log('Cleanup completed');
   } catch (error) {
     console.error('Cleanup failed:', error);
+  } finally {
+    stopEmbeddedServer();
   }
 }

@@ -16,7 +16,7 @@
  * - Recent files tracking
  */
 
-import { app, BrowserWindow, Tray, protocol } from 'electron';
+import { app, BrowserWindow, Tray, protocol, shell } from 'electron';
 import { autoUpdater } from 'electron-updater';
 
 import { BackupService } from '../services/local/BackupService';
@@ -57,7 +57,11 @@ import { setupIpcHandlers } from './main.ipc';
 import { registerAppEvents } from './main.lifecycle';
 import { initializeDesktopServices } from './main.services';
 import { buildTrayMenu } from './main.tray';
-import { initializeAutoUpdater as initializeAutoUpdaterEvents } from './main.updater';
+import {
+  initializeAutoUpdater as initializeAutoUpdaterEvents,
+  isAutoUpdateSupported,
+  RELEASES_PAGE_URL,
+} from './main.updater';
 import { createMainWindow } from './main.window';
 import { MenuManager } from './MenuManager';
 
@@ -139,7 +143,6 @@ class MekStationApp {
       cleanup: () => this.cleanup(),
       createMainWindow: () => this.createMainWindow(),
       getMainWindow: () => this.mainWindow,
-      isCleaningUp: () => this.isCleaningUp,
     });
   }
 
@@ -175,9 +178,7 @@ class MekStationApp {
    */
   private initializeAutoUpdater(): void {
     initializeAutoUpdaterEvents({
-      checkForUpdates: () => this.checkForUpdates(),
       notifyUpdateAvailable: (info) => this.notifyUpdateAvailable(info),
-      notifyUpdateError: (error) => this.notifyUpdateError(error),
       notifyUpdateReady: () => this.notifyUpdateReady(),
       resetProgressBar: () => this.resetProgressBar(),
       updateCheckIntervalMs: this.config.updateCheckIntervalMs,
@@ -186,9 +187,13 @@ class MekStationApp {
   }
 
   /**
-   * Check for updates without auto-download
+   * User-initiated update check (menu, tray, IPC) without auto-download.
    */
   private async checkForUpdates(): Promise<void> {
+    if (!isAutoUpdateSupported()) {
+      await shell.openExternal(RELEASES_PAGE_URL);
+      return;
+    }
     try {
       await autoUpdater.checkForUpdates();
     } catch (error) {
@@ -334,8 +339,6 @@ class MekStationApp {
         void this.sendToRenderer(channel, ...args);
       },
       settingsService: this.settingsService,
-      shouldHideToTray: () =>
-        this.config.enableSystemTray && process.platform !== 'darwin',
       userDataPath: this.userDataPath,
     });
   }
@@ -348,7 +351,13 @@ class MekStationApp {
 
     console.log('Creating system tray...');
 
-    this.tray = new Tray(this.getTrayIcon());
+    try {
+      this.tray = new Tray(this.getTrayIcon());
+    } catch (error) {
+      // A missing tray icon must not abort startup (IPC setup runs after this).
+      console.error('System tray unavailable:', error);
+      return;
+    }
     this.updateTrayMenu();
     this.tray.setToolTip('MekStation');
 

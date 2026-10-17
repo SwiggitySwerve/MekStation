@@ -1,17 +1,19 @@
 import { app, BrowserWindow } from 'electron';
 
+import { stopEmbeddedServer } from './main.server';
+
+const CLEANUP_TIMEOUT_MS = 10_000;
+
 interface IAppEventContext {
   readonly cleanup: () => Promise<void>;
   readonly createMainWindow: () => Promise<void>;
   readonly getMainWindow: () => BrowserWindow | null;
-  readonly isCleaningUp: () => boolean;
 }
 
 export function registerAppEvents({
   cleanup,
   createMainWindow,
   getMainWindow,
-  isCleaningUp,
 }: IAppEventContext): void {
   if (!app.requestSingleInstanceLock()) {
     app.quit();
@@ -39,13 +41,28 @@ export function registerAppEvents({
     }
   });
 
-  app.on('before-quit', async () => {
-    await cleanup();
+  // Electron does not await async before-quit handlers, so hold the quit,
+  // finish cleanup (bounded), then quit for real. Cancelling will-quit while
+  // cleanup ran used to abort the quit and leave the app + server running.
+  let cleanupState: 'idle' | 'running' | 'done' = 'idle';
+  app.on('before-quit', (event: Electron.Event) => {
+    if (cleanupState === 'done') return;
+    event.preventDefault();
+    if (cleanupState === 'running') return;
+    cleanupState = 'running';
+    const timeout = new Promise<void>((resolve) =>
+      setTimeout(resolve, CLEANUP_TIMEOUT_MS).unref?.(),
+    );
+    void Promise.race([cleanup(), timeout])
+      .catch((error: unknown) => console.error('Cleanup failed:', error))
+      .finally(() => {
+        cleanupState = 'done';
+        app.quit();
+      });
   });
 
-  app.on('will-quit', (event) => {
-    if (isCleaningUp()) {
-      event.preventDefault();
-    }
+  // Last line of defence: never leave the embedded server orphaned.
+  app.on('will-quit', () => {
+    stopEmbeddedServer();
   });
 }
