@@ -1,0 +1,251 @@
+{
+  "event": "p2cg1d-grant-helper-literal-path-amendment",
+  "kind": "parent literal-path amendment",
+  "unit": "P2CG1D",
+  "node": "R2.authority-live",
+  "registrationOnly": true,
+  "at": "2026-10-17T19:49:19.467Z",
+  "baseline": "f1ee3fcc4dd5847cd093c331f863b3ba94065160",
+  "branch": "codex/p2cg1d-amendment-20261017",
+  "actor": {
+    "role": "implementation sub-agent acting for the parent (Root)",
+    "provider": "anthropic",
+    "servedModel": "claude-opus-5-5",
+    "identitySource": "Current T3 Code Codex harness runtime; Root runs the independent docs review separately.",
+    "gitAuthor": "Wes Rollings <wrollings@gmail.com>"
+  },
+  "authority": {
+    "instruction": "Root instructed a docs-only parent literal-path amendment registering the grant-channel test helper as a P2CG1D leaf, after P2CG1C closure merges and before P2CG1D admission, matching the earlier parent literal-path amendment and registration-correction receipts. No product code; no state, lifecycle, cap or other-unit change.",
+    "stopReport": "P2CG1D prep STOP report (Root-held, not committed): admission stopped before any source edit because the registered behavior breaks a file outside the nine restricted leaves.",
+    "rootNote": "Root note D-OPEN-1, landed with the P2CG1C closure (#2219, merge f1ee3fcc4dd5847cd093c331f863b3ba94065160) in evidence/p2cg1c-review-20261017.json successorNotes.P2CG1D.openNotesForAdmission and PROGRESS.md, holds P2CG1D admission until this separate parent literal-path amendment lands and names exactly these three changes.",
+    "precedents": [
+      "evidence/p2cg1-split-registration-correction-20261016.json (M1: a test the registered wording forces to change, added to the unit restriction with subtotal +1 and the behavior leaves sentence renumbered)",
+      "evidence/p2b-announcement-test-ownership-amendment-20261001.json (docs-only registration of one test path for an already-registered unit)",
+      "evidence/ts7-archive-ownership-correction-20261017.json (#2197; three-file registration-only receipt format with pre/post hashes, field diff and real-validator results)"
+    ]
+  },
+  "defect": {
+    "registeredBehavior": "P2CG1D.behavior adds a per-entry graph-local launch: CampaignLaunchView | null to ICampaignHostRegistryEntry (CampaignHostRegistry.ts, a registered leaf).",
+    "consequence": "src/lib/multiplayer/server/__tests__/campaignGrantChannel.test-helpers.ts line 175 builds a typed ICampaignHostRegistryEntry object literal in registryForHost; once launch is a required property it fails TS2741 (property 'launch' is missing). The minimal fix is one added line, launch: null, in that literal.",
+    "helperPath": "src/lib/multiplayer/server/__tests__/campaignGrantChannel.test-helpers.ts",
+    "helperBlobAtBaseline": "d7018768b64bdf8d853edfbd5475f84fa557192c",
+    "expectedBlob": "d7018768b64bdf8d853edfbd5475f84fa557192c",
+    "blobMatches": true,
+    "tscProbe": {
+      "source": "P2CG1D prep STOP report",
+      "compiler": "TypeScript 7 (TS7) tsc probe with the registered launch field applied in the prep worktree",
+      "result": "exactly one error outside the nine restricted leaves: TS2741 at campaignGrantChannel.test-helpers.ts:175",
+      "rerunByThisAuthor": false,
+      "reason": "Light validation only for this registration; a concurrent closure is running Jest."
+    },
+    "staticCorroboration": "git grep at the baseline finds ICampaignHostRegistryEntry object literals outside CampaignHostRegistry.ts only at campaignGrantChannel.test-helpers.ts:175; every other use is a parameter, field or return type that a new required property does not break.",
+    "whyAmendmentNotAdmissionEdit": "restrictions.P2CG1D names nine leaves and admissionRequires forbids any unnamed test, so the admission cannot add the helper itself; without it the unit cannot deliver its registered behavior and stops at admission."
+  },
+  "changes": [
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "field": "nodes[id=R2.authority-live].ownershipPathsAmended20261009P2C.restrictions.P2CG1D",
+      "change": "appended src/lib/multiplayer/server/__tests__/campaignGrantChannel.test-helpers.ts (9 -> 10 leaves); the existing nine leaves are unchanged and in order"
+    },
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "field": "nodes[id=R2.authority-live].ownershipPathsAmended20261009P2C.knownSourceTestLifecycleSubtotals.P2CG1D",
+      "change": "10 -> 11"
+    },
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "field": "units[id=P2CG1D].behavior",
+      "change": "Parent-authored contract text change: 'Planned leaves (9)' becomes 'Planned leaves (10)' naming the helper; the spare-file parenthetical becomes 'with the helper registered this unit has no spare file'; a labelled 'Parent literal-path amendment 2026-10-17' sentence cites this receipt. All other behavior text is byte-identical."
+    }
+  ],
+  "ownership": {
+    "unitOwnershipPaths": [
+      "src/lib/multiplayer/server"
+    ],
+    "unitOwnershipExceptions": [
+      "openspec/planning/2026-09-12-roadmap-completion/units.json"
+    ],
+    "helperCoveredByUnitAndNodeOwnershipPaths": true,
+    "note": "The helper is under src/lib/multiplayer/server, which both the unit and R2.authority-live already own, so no ownershipPaths or ownershipExceptions change is needed (unlike P2CG1I1 in the split correction, whose ownership did not cover its added test).",
+    "sequentialOverlap": "No other live restriction in ownershipPathsAmended20261009P2C names the helper."
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "unchanged": true,
+    "capException": false,
+    "census": {
+      "withHelper": 15,
+      "maxFiles": 15,
+      "spareFiles": 0,
+      "source": "P2CG1D prep STOP report census with the helper registered"
+    },
+    "estimateNote": "The helper adds one counted test line; the behavior text estimate (about 195-255 counted lines with lifecycle) is unchanged and is not a cap-fit proof."
+  },
+  "preserved": [
+    "P2CG1D state, baseline, prHead, mergeSha, stageReceipts, ownerGate, caps, ciClass, reviewClasses, lifecycleOwnershipLimit, admissionRequires, predecessors, successors, ownershipPaths, ownershipExceptions and source20261016",
+    "Every other unit, node, restriction and subtotal; ownershipPathsAmended20261009P2C.unit, evidence and permissionBoundary",
+    "All existing evidence byte-for-byte; no product, test or helper file is edited by this amendment"
+  ],
+  "permissionBoundary": "Registration only. No source admission, release or state change. P2CG1D admission still freezes its own literal manifest under the unchanged 15-file/500-line caps; the helper edit itself happens only inside that admitted unit.",
+  "sourceAdmitted": false,
+  "productFiles": 0,
+  "scope": [
+    "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+    "openspec/planning/2026-09-12-roadmap-completion/units.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1d-grant-helper-literal-path-amendment-20261017.json"
+  ],
+  "preimages": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "bytes": 1085360,
+      "sha256": "6f4253220a9ffe93634c694acc19f1e9836c2bcef09f51fc7560cf77b4d0b93c"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "bytes": 1569693,
+      "sha256": "a74f58bc93ace5682aa36a7942cf690aea074fcd7fe6193af6d7ba5a17e82801"
+    }
+  ],
+  "postimages": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "bytes": 1085449,
+      "sha256": "b42695274f112a41e329fe9f5c4b83311834e0902b03137703f26d24468d7109"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "bytes": 1570103,
+      "sha256": "56f7f56646733a37e0e469377c48465c188b41f926469277e87f010b2cc7f9b2"
+    }
+  ],
+  "fieldDiff": {
+    "method": "Recursive deep comparison of parsed baseline and postimage JSON; arrays compared by index, objects by key.",
+    "changedLeafCount": 3,
+    "entries": [
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+        "path": ".nodes[13][id=R2.authority-live].ownershipPathsAmended20261009P2C.restrictions.P2CG1D[9]",
+        "after": "src/lib/multiplayer/server/__tests__/campaignGrantChannel.test-helpers.ts"
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+        "path": ".nodes[13][id=R2.authority-live].ownershipPathsAmended20261009P2C.knownSourceTestLifecycleSubtotals.P2CG1D",
+        "before": 10,
+        "after": 11
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "path": ".units[79][id=P2CG1D].behavior",
+        "before": "Fifth narrower P2CG1 successor: accepted Task 14 group A2, the socket half, with dual doors keyed on the uninstalled port. CampaignHostRegistry gains the install-once typed ICampaignApplicationReceiptPort slot (set once, no uninstall outside _resetCampaignHostRegistry) and a per-entry graph-local launch: CampaignLaunchView | null built only when the port is installed. campaignProgressionReaders.durable exposes the launch-view factory, and CampaignProgressionGate owns the structural server-only readiness refusal caught after rollback. bindCampaignSyncConnection composes application from applicationReceipts ?? the registry port. Its three progression sites (the host AdvanceDay intent, the auto-approved proposal and the GM approval) take one of two paths. With entry.launch: prepare the P2CB view, take the P2CG1C progression reservation, run the P2CG1B guard inside the append, and translate a late refusal into CAMPAIGN_NOT_CONVERGED. Without it: the legacy session gate, unchanged. CampaignGmArbiter reserves and coalesces a pending AdvanceDay approval without deleting it or moving its timer or deadline; reservation validity reaches the pre-append guard; duplicate, authentication and recovery semantics are preserved. Tests install the port explicitly on a reset registry, as they pass applicationReceipts today; no test sets a boolean. The crossGraph test pins that a foreign-graph handle is refused context-mismatch. Activation predicate (frozen): a typed ICampaignApplicationReceiptPort installed once on CampaignHostRegistry by server.js at boot; the binder composes application from it, each entry derives a graph-local CampaignLaunchView from it, and both HTTP doors key on its presence while building their own graph-bound view; no other switch exists. Planned leaves (9): src/lib/multiplayer/server/CampaignProgressionGate.ts, src/lib/multiplayer/server/campaignProgressionReaders.durable.ts, src/lib/multiplayer/server/CampaignHostRegistry.ts, src/lib/multiplayer/server/bindCampaignSyncConnection.ts, src/lib/multiplayer/server/CampaignGmArbiter.ts and the tests __tests__/bindCampaignSyncConnection.test.ts, __tests__/CampaignGmArbiter.test.ts, __tests__/campaignProgressionReaders.durable.crossGraph.test.ts and __tests__/CampaignHostRegistry.test.ts under src/lib/multiplayer/server. CampaignMatchHost.ts and CampaignMatchHost.doors.ts, which the accepted A2 group also named, are P2CG1B leaves; if either must change again here, stop and use the successor procedure (this unit has one spare file). Estimated at about 195-255 counted lines with lifecycle; that is not a cap-fit proof.",
+        "after": "Fifth narrower P2CG1 successor: accepted Task 14 group A2, the socket half, with dual doors keyed on the uninstalled port. CampaignHostRegistry gains the install-once typed ICampaignApplicationReceiptPort slot (set once, no uninstall outside _resetCampaignHostRegistry) and a per-entry graph-local launch: CampaignLaunchView | null built only when the port is installed. campaignProgressionReaders.durable exposes the launch-view factory, and CampaignProgressionGate owns the structural server-only readiness refusal caught after rollback. bindCampaignSyncConnection composes application from applicationReceipts ?? the registry port. Its three progression sites (the host AdvanceDay intent, the auto-approved proposal and the GM approval) take one of two paths. With entry.launch: prepare the P2CB view, take the P2CG1C progression reservation, run the P2CG1B guard inside the append, and translate a late refusal into CAMPAIGN_NOT_CONVERGED. Without it: the legacy session gate, unchanged. CampaignGmArbiter reserves and coalesces a pending AdvanceDay approval without deleting it or moving its timer or deadline; reservation validity reaches the pre-append guard; duplicate, authentication and recovery semantics are preserved. Tests install the port explicitly on a reset registry, as they pass applicationReceipts today; no test sets a boolean. The crossGraph test pins that a foreign-graph handle is refused context-mismatch. Activation predicate (frozen): a typed ICampaignApplicationReceiptPort installed once on CampaignHostRegistry by server.js at boot; the binder composes application from it, each entry derives a graph-local CampaignLaunchView from it, and both HTTP doors key on its presence while building their own graph-bound view; no other switch exists. Planned leaves (10): src/lib/multiplayer/server/CampaignProgressionGate.ts, src/lib/multiplayer/server/campaignProgressionReaders.durable.ts, src/lib/multiplayer/server/CampaignHostRegistry.ts, src/lib/multiplayer/server/bindCampaignSyncConnection.ts, src/lib/multiplayer/server/CampaignGmArbiter.ts and the tests __tests__/bindCampaignSyncConnection.test.ts, __tests__/CampaignGmArbiter.test.ts, __tests__/campaignProgressionReaders.durable.crossGraph.test.ts and __tests__/CampaignHostRegistry.test.ts, and the test helper __tests__/campaignGrantChannel.test-helpers.ts, under src/lib/multiplayer/server. CampaignMatchHost.ts and CampaignMatchHost.doors.ts, which the accepted A2 group also named, are P2CG1B leaves; if either must change again here, stop and use the successor procedure (with the helper registered this unit has no spare file). Parent literal-path amendment 2026-10-17 (evidence/p2cg1d-grant-helper-literal-path-amendment-20261017.json): the required launch field makes the helper's ICampaignHostRegistryEntry literal in registryForHost fail TS2741, so it is registered as the tenth leaf for one added line, launch: null; caps are unchanged. Estimated at about 195-255 counted lines with lifecycle; that is not a cap-fit proof."
+      }
+    ]
+  },
+  "measurements": {
+    "actualFiles": 3,
+    "productFiles": 0,
+    "ledgerDiff": [
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+        "added": 3,
+        "deleted": 2
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "added": 1,
+        "deleted": 1
+      }
+    ],
+    "evidenceExcludedFromCountedAdditions": true
+  },
+  "validation": {
+    "method": "Real unmodified validator CLIs and real Git history against the candidate worktree with both ledger edits and a prior generation of this receipt present; the receipt is regenerated afterwards only to record these results and hashes.",
+    "results": [
+      {
+        "name": "validate-roadmap-plain",
+        "at": "2026-10-17T19:48:51.267Z",
+        "cwd": "E:\\Projects\\Personal\\MekStation-wt\\p2cg1d-amendment-20261017",
+        "command": [
+          "node.exe",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/p2cg1d-amendment-evidence-20261017/validate-roadmap-plain.log",
+        "logSha256": "567feb20b9f85c902a3c4492eb3274c970f2370ccbbc6d3390088ad10923b947",
+        "summary": "ROADMAP VALIDATION PASSED: 80 nodes, 13 packages, 381 tasks, 40 triage rows"
+      },
+      {
+        "name": "validate-roadmap-git",
+        "at": "2026-10-17T19:48:55.093Z",
+        "cwd": "E:\\Projects\\Personal\\MekStation-wt\\p2cg1d-amendment-20261017",
+        "command": [
+          "node.exe",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+          "--git"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/p2cg1d-amendment-evidence-20261017/validate-roadmap-git.log",
+        "logSha256": "0d7d99319c662d2b64fa0c98e73d2d6254bad922234f2c7a68c71758fc9fa890",
+        "summary": "ROADMAP VALIDATION PASSED: 80 nodes, 13 packages, 381 tasks, 40 triage rows"
+      },
+      {
+        "name": "validate-roadmap-next",
+        "at": "2026-10-17T19:49:05.611Z",
+        "cwd": "E:\\Projects\\Personal\\MekStation-wt\\p2cg1d-amendment-20261017",
+        "command": [
+          "node.exe",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+          "--next"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/p2cg1d-amendment-evidence-20261017/validate-roadmap-next.log",
+        "logSha256": "cfd6a71dbae8dc95bbbcf084310d0714b4d1358b719ff13e3d95ec816c4e3e16",
+        "summary": "P2CG1D"
+      },
+      {
+        "name": "validator-tests",
+        "at": "2026-10-17T19:49:09.455Z",
+        "cwd": "E:\\Projects\\Personal\\MekStation-wt\\p2cg1d-amendment-20261017",
+        "command": [
+          "node.exe",
+          "--test",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/p2cg1d-amendment-evidence-20261017/validator-tests.log",
+        "logSha256": "76e91c878174704fcec00d5b36339cb50fc5248b7aa3ddcf95b29d1c62336597",
+        "summary": "✔ U59 a solo gate with a valid OWNER-RULING on a node outside R2.camp-0..8 fails (77.3448ms)\nℹ tests 86\nℹ pass 86\nℹ fail 0"
+      },
+      {
+        "name": "openspec-validate-all-strict",
+        "at": "2026-10-17T19:49:18.592Z",
+        "cwd": "E:\\Projects\\Personal\\MekStation-wt\\p2cg1d-amendment-20261017",
+        "command": [
+          "node.exe",
+          "C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js",
+          "validate",
+          "--all",
+          "--strict"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/p2cg1d-amendment-evidence-20261017/openspec-validate-all-strict.log",
+        "logSha256": "3f957310c0c3835ba3d5704458ddc03218d48f0b205252ed6d52ca87951ba4f5",
+        "summary": "Totals: 230 passed, 0 failed (230 items)"
+      },
+      {
+        "name": "qc-openspec-ci-validate",
+        "at": "2026-10-17T19:49:19.362Z",
+        "cwd": "E:\\Projects\\Personal\\MekStation-wt\\p2cg1d-amendment-20261017",
+        "command": [
+          "node.exe",
+          "scripts/qc/validate-openspec-ci-quality.mjs"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/p2cg1d-amendment-evidence-20261017/qc-openspec-ci-validate.log",
+        "logSha256": "f2ecacc6006cdd0cc60052c81384bf785d65970c200c0bcc8ebcbc4834c1a61a",
+        "summary": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=20/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0"
+      }
+    ]
+  }
+}
