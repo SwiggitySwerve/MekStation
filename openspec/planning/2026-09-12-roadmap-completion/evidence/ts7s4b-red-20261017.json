@@ -1,0 +1,161 @@
+{
+  "schemaVersion": 1,
+  "unit": "TS7S4B",
+  "baseline": "c929780d9d45b74249c24eec6380d6d777cbe3b6",
+  "recordedAt": "2026-10-17T07:24:01.153Z",
+  "contributor": {
+    "provider": "openai",
+    "model": "gpt-6.1-sol",
+    "task": "TS7S4B implementation sub-agent"
+  },
+  "stage": "red",
+  "meaning": "Deliberately replace both explicit typescript7 paths with typescript/bin/tsc; the guard rejects the complete two-project command. Restore original bytes in finally, and rerun the same assertion. After S4A closure, independently replace only the root invocation, then only the scripts invocation, and prove both rejected.",
+  "wrongCompiler": {
+    "name": "guard-red",
+    "command": "node node_modules/jest/bin/jest.js --selectProjects unit --runInBand --runTestsByPath scripts/__tests__/typescript-toolchain.test.ts -t checks",
+    "cwd": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017",
+    "started": "2026-10-17T06:46:56.5289907Z",
+    "seconds": 48.535,
+    "exit": 1,
+    "log": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-proof-20261017\\guard-red.log",
+    "sha256": "14629e4317865af56c5884f9e9962b5b52936999e317f9fdba8c380ca4426da6"
+  },
+  "restored": {
+    "name": "guard-restored",
+    "command": "node node_modules/jest/bin/jest.js --selectProjects unit --runInBand --runTestsByPath scripts/__tests__/typescript-toolchain.test.ts -t checks",
+    "cwd": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017",
+    "started": "2026-10-17T06:47:45.9639978Z",
+    "seconds": 2.031,
+    "exit": 0,
+    "log": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-proof-20261017\\guard-restored.log",
+    "sha256": "e61397c9321b822fc8e014bb74338c9a87072914cd004a015842d4d8c04e4e58"
+  },
+  "independentInvocations": {
+    "root": {
+      "name": "guard-red-root",
+      "command": "node node_modules/jest/bin/jest.js --selectProjects unit --runInBand --runTestsByPath scripts/__tests__/typescript-toolchain.test.ts -t checks",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017",
+      "started": "2026-10-17T07:09:02.6127501Z",
+      "seconds": 1.465,
+      "exit": 1,
+      "log": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-proof-20261017\\guard-red-root.log",
+      "sha256": "6e50d01a2ceb7f2cc409cf39e1b7db20d6fedec9ff8fbb8b0d3c787aa0eded54"
+    },
+    "scripts": {
+      "name": "guard-red-scripts",
+      "command": "node node_modules/jest/bin/jest.js --selectProjects unit --runInBand --runTestsByPath scripts/__tests__/typescript-toolchain.test.ts -t checks",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017",
+      "started": "2026-10-17T07:09:04.6085533Z",
+      "seconds": 1.445,
+      "exit": 1,
+      "log": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-proof-20261017\\guard-red-scripts.log",
+      "sha256": "cf6b1bf854708b2eb166c716fcfc7a95d8eddce2b68b0c09b18536fdddc8747a"
+    }
+  },
+  "scriptsOnlyRouting": {
+    "npm": {
+      "name": "scripts-mutant",
+      "command": "npm run typecheck",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017",
+      "started": "2026-10-17T07:09:41.1539669Z",
+      "seconds": 1.532,
+      "exit": 1,
+      "log": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-proof-20261017\\scripts-mutant.log",
+      "sha256": "84d7f86db53817dd292d6693acc4b93c2847768bba970d19d4da80a4d4dc0f15"
+    },
+    "staged": {
+      "name": "staged-mutant",
+      "command": "node node_modules/lint-staged/bin/lint-staged.js --no-stash --no-revert --concurrent false",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017",
+      "started": "2026-10-17T07:09:43.2837809Z",
+      "seconds": 2.372,
+      "exit": 1,
+      "log": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-proof-20261017\\staged-mutant.log",
+      "sha256": "2278ef7f566ddd2f091ea754c5d1423622d5036d259a4324bfee89cb7aeaaa55"
+    },
+    "restoredStaged": {
+      "name": "staged-valid",
+      "command": "node node_modules/lint-staged/bin/lint-staged.js --no-stash --no-revert --concurrent false",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017",
+      "started": "2026-10-17T07:09:46.1480330Z",
+      "seconds": 2.345,
+      "exit": 0,
+      "log": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-proof-20261017\\staged-valid.log",
+      "sha256": "c03601feeca812ef10c9138d8057c629e20af9462803fa0664978c88cfe84d8a"
+    },
+    "argv": {
+      "rows": [
+        {
+          "label": "npm-mutant",
+          "entry": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017/node_modules/typescript7/bin/tsc",
+          "argv": [
+            "--noEmit",
+            "--skipLibCheck"
+          ],
+          "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-ts7-20261017"
+        },
+        {
+          "label": "npm-mutant",
+          "entry": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017/node_modules/typescript7/bin/tsc",
+          "argv": [
+            "-p",
+            "scripts/tsconfig.json",
+            "--noEmit"
+          ],
+          "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-ts7-20261017"
+        },
+        {
+          "label": "staged-mutant",
+          "entry": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017/node_modules/typescript7/bin/tsc",
+          "argv": [
+            "--noEmit",
+            "--skipLibCheck"
+          ],
+          "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-ts7-20261017"
+        },
+        {
+          "label": "staged-mutant",
+          "entry": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017/node_modules/typescript7/bin/tsc",
+          "argv": [
+            "-p",
+            "scripts/tsconfig.json",
+            "--noEmit"
+          ],
+          "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-ts7-20261017"
+        },
+        {
+          "label": "staged-valid",
+          "entry": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017/node_modules/typescript7/bin/tsc",
+          "argv": [
+            "--noEmit",
+            "--skipLibCheck"
+          ],
+          "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-ts7-20261017"
+        },
+        {
+          "label": "staged-valid",
+          "entry": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017/node_modules/typescript7/bin/tsc",
+          "argv": [
+            "-p",
+            "scripts/tsconfig.json",
+            "--noEmit"
+          ],
+          "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-ts7-20261017"
+        }
+      ],
+      "pass": true,
+      "stagedFilenameAbsent": true
+    }
+  },
+  "upstream": {
+    "name": "upstream",
+    "command": "node --version && npx -y npm@11.19.1 --version && npx -y npm@11.19.1 view typescript dist-tags versions --json && npx -y npm@11.19.1 view @typescript/typescript6 version versions dependencies --json",
+    "cwd": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017",
+    "started": "2026-10-17T06:44:11.3288414Z",
+    "seconds": 6.58,
+    "exit": 0,
+    "log": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-proof-20261017\\upstream.log",
+    "sha256": "525a5580abad74eccfa5cd73eb9411632b55b651abe75518c1405226dbd5d05d"
+  },
+  "discardedAttempts": "Initial unavailable ^6.0.3 wrapper query was resolved by the user’s explicit ^6.0.2 compatibility-wrapper ruling. Initial lock-only install retained unaliased TS6 due to overlapping version ranges; explicit wrapper 6.0.2 regeneration, restoring ^6.0.2, and a new clean npm ci produced the verified graph. Shell quoting setup errors did not produce accepted proof."
+}

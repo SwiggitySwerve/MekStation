@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "unit": "TS7S4B",
+  "baseline": "c929780d9d45b74249c24eec6380d6d777cbe3b6",
+  "recordedAt": "2026-10-17T07:24:01.153Z",
+  "contributor": {
+    "provider": "openai",
+    "model": "gpt-6.1-sol",
+    "task": "TS7S4B implementation sub-agent"
+  },
+  "stage": "admission",
+  "authority": "User authorized preparation before S4A closure, then admission/rebase/PR only after S4A is main-verified and S4B is released on main. User explicitly authorized npm:@typescript/typescript6@^6.0.2 after checking upstream: wrapper 6.0.2 forwards to @typescript/old 6.0.3. No OWNER-RULING requested or created.",
+  "preparationBaseline": "7d6519657a25bb919f335a30a549d7a941f9f6c7",
+  "predecessors": {
+    "TS7S4A": {
+      "state": "main-verified",
+      "mergeSha": "de9419356c740f3d89cc350f9812f8c87b03bdc9",
+      "mainProof": {
+        "path": "evidence/ts7s4a-mainproof-20261017.json",
+        "mergeCommit": "de9419356c740f3d89cc350f9812f8c87b03bdc9",
+        "verdict": "PASS",
+        "runtime": "Source/Main checks: 7 passed (fresh root npm ci exit 0; tsc --version 6.0.3; npm run typecheck exit 0 with both projects; scripts.typecheck unchanged, lint-staged *.{ts,tsx} last entry bash -c 'npm run typecheck' and pr-checks.yml Type Check runs npm run typecheck; precommit-no-build.test.ts alone 2/2; openspec-ci-quality-qc.test.ts alone 37/37; validator PASSED, openspec validate --all --strict 230 passed and qc:openspec-ci:validate errors=0; 0 failed)"
+      }
+    }
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500
+  },
+  "frozenFiles": [
+    {
+      "path": "package.json",
+      "existsAtPreparation": true,
+      "preparationSha256": "81b0a5356f7129b7bf9f1afcbe5cda763a4a9197598e671070d884e1918357b9",
+      "existsAtAdmission": true,
+      "admissionSha256": "162684a86f92a5fb30f410141c7276d6f5b734d2c14771e0d1c95082985d49f7"
+    },
+    {
+      "path": "package-lock.json",
+      "existsAtPreparation": true,
+      "preparationSha256": "0c7c0e8340e7ef46c78283985954d7c8552ccc41e06a5163026ac962123375a7",
+      "existsAtAdmission": true,
+      "admissionSha256": "0c7c0e8340e7ef46c78283985954d7c8552ccc41e06a5163026ac962123375a7"
+    },
+    {
+      "path": "desktop/package.json",
+      "existsAtPreparation": true,
+      "preparationSha256": "5db5c3088b5476a66afbaf2d935fb7cc4ae20f3b6dc865598ba732d798bae92e",
+      "existsAtAdmission": true,
+      "admissionSha256": "5db5c3088b5476a66afbaf2d935fb7cc4ae20f3b6dc865598ba732d798bae92e"
+    },
+    {
+      "path": "desktop/package-lock.json",
+      "existsAtPreparation": true,
+      "preparationSha256": "6b2e1171cdb135443cfcd89e4e32c3211367176d10a4448a7cdfa1dfbed14fa9",
+      "existsAtAdmission": true,
+      "admissionSha256": "6b2e1171cdb135443cfcd89e4e32c3211367176d10a4448a7cdfa1dfbed14fa9"
+    },
+    {
+      "path": "scripts/qc/roadmap-main-proof.mjs",
+      "existsAtPreparation": true,
+      "preparationSha256": "34ade804d97393c3e98e41cc8d252a59325d4578eb64ee8482083c4d65b4699a",
+      "existsAtAdmission": true,
+      "admissionSha256": "34ade804d97393c3e98e41cc8d252a59325d4578eb64ee8482083c4d65b4699a"
+    },
+    {
+      "path": "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+      "existsAtPreparation": true,
+      "preparationSha256": "90e29bd2de9297f05a8cc0d900b37e737af7a1b0b174b7342128b70bcfcfbf87",
+      "existsAtAdmission": true,
+      "admissionSha256": "90e29bd2de9297f05a8cc0d900b37e737af7a1b0b174b7342128b70bcfcfbf87"
+    },
+    {
+      "path": "openspec/changes/migrate-to-typescript-7/tasks.md",
+      "existsAtPreparation": true,
+      "preparationSha256": "0a2d12a379d3f51d0cb91570e0b1eb425cc61131d139414dedfe19a1c665076f",
+      "existsAtAdmission": true,
+      "admissionSha256": "0a2d12a379d3f51d0cb91570e0b1eb425cc61131d139414dedfe19a1c665076f"
+    },
+    {
+      "path": "scripts/__tests__/typescript-toolchain.test.ts",
+      "existsAtPreparation": false,
+      "preparationSha256": null,
+      "existsAtAdmission": false,
+      "admissionSha256": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "existsAtPreparation": false,
+      "preparationSha256": null,
+      "existsAtAdmission": true,
+      "admissionSha256": "3526722fde1518310f1165afb6237a0595d8593721c9e7f95514911920219513"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4b-admission-20261017.json",
+      "existsAtPreparation": false,
+      "preparationSha256": null,
+      "existsAtAdmission": false,
+      "admissionSha256": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4b-red-20261017.json",
+      "existsAtPreparation": false,
+      "preparationSha256": null,
+      "existsAtAdmission": false,
+      "admissionSha256": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4b-local-20261017.json",
+      "existsAtPreparation": false,
+      "preparationSha256": null,
+      "existsAtAdmission": false,
+      "admissionSha256": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4b-admission-review-20261017.md",
+      "existsAtPreparation": false,
+      "preparationSha256": null,
+      "existsAtAdmission": false,
+      "admissionSha256": null
+    }
+  ],
+  "filesIncludingReservedReview": 13,
+  "carryForwards": {
+    "TS7S3": "Both typecheck invocations explicitly use typescript7; scripts -p remains. Guard equality rejects fallback in either. Full API=6.0.3, gate=7.0.2, desktop=7.0.2; bin collision, desktop emit, cold/warm, consumers, locks and unchanged SWC proved.",
+    "TS7S5A": "Correct design.md D3 package example from @typescript/typescript6@^6.0.3 to ^6.0.2. The wrapper package version and forwarded compiler/API version differ. Root .bin/tsc is still TS6; npm run typecheck is the gate."
+  },
+  "predecessorEvidence": {
+    "review": {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4a-review-20261017.json",
+      "sha256": "1d6d1035f43dd7f1caa071eddc81f4362a473349df3bd292da73539b364d9907",
+      "successorNotes": {
+        "wording": "- package.json:26; openspec/changes/migrate-to-typescript-7/tasks.md:99: the compiler swap changes ONE scripts.typecheck string for the routed gates, preserving two invocations: `node node_modules/typescript7/bin/tsc --noEmit --skipLibCheck && node node_modules/typescript7/bin/tsc -p scripts/tsconfig.json --noEmit`. Do not copy the root-only task sketch over it. Keep CI, metrics and lint-staged delegating to this script. The separately registered roadmap main-proof command and its pins still require S4B's explicit update.\n- Guard BOTH invocations against TS6 fallback; independently mutate each entry and repeat a scripts-only error through the routed gate. Preserve bash -c filename isolation and the scoped scripts project. Retain TS7S3's remaining S4B proofs: API alias=6, gate=7, desktop unaliased=7, bin ownership, desktop emit comparison, API consumers, cold/warm timing and affected local suites; regenerate locks in place and classify SWC drift. Admit only after TS7S4A merge/closure/main proof.",
+        "concern": "compiler swap changes one scripts.typecheck string and keeps the routed two-project gate",
+        "applies": "TS7S4B is released to planned by this change set. At its own admission: scripts.typecheck becomes the two-invocation typescript7 string, CI, metrics and lint-staged keep delegating to it, the roadmap main-proof command and its pins are updated explicitly, both invocations are guarded against TS6 fallback and mutated independently, a scripts-only error is repeated through the routed gate, bash -c filename isolation and the scoped scripts project are preserved, and TS7S3's remaining S4B proofs (API alias=6, gate=7, desktop unaliased=7, bin ownership, desktop emit comparison, API consumers, cold/warm timing, affected local suites, in-place lock regeneration, SWC drift classification) are part of its proof.",
+        "rootCarryForward": {
+          "source": "Root (parent orchestrator) carry-forward, quoted verbatim. Not reviewer text.",
+          "text": "TS7S4B uses npm:@typescript/typescript6@^6.0.2 because the wrapper's latest is 6.0.2; it depends on @typescript/old npm:typescript@^6 which resolves 6.0.3, matching D3's measured version; TS7S5A corrects D3's ^6.0.3 wording"
+        }
+      }
+    },
+    "mainProof": {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4a-mainproof-20261017.json",
+      "sha256": "8f7eb7c0613b5a609f6aa8e13827d5bef88feaa18eec5a7fee03dd46fa5036d6",
+      "mergeCommit": "de9419356c740f3d89cc350f9812f8c87b03bdc9",
+      "verdict": "PASS"
+    }
+  }
+}

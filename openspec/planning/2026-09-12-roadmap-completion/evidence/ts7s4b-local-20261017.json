@@ -1,0 +1,737 @@
+{
+  "schemaVersion": 1,
+  "unit": "TS7S4B",
+  "baseline": "c929780d9d45b74249c24eec6380d6d777cbe3b6",
+  "recordedAt": "2026-10-17T07:24:01.153Z",
+  "contributor": {
+    "provider": "openai",
+    "model": "gpt-6.1-sol",
+    "task": "TS7S4B implementation sub-agent"
+  },
+  "stage": "local",
+  "preparationBaseline": "7d6519657a25bb919f335a30a549d7a941f9f6c7",
+  "authority": "User authorized preparation before S4A closure, then admission/rebase/PR only after S4A is main-verified and S4B is released on main. User explicitly authorized npm:@typescript/typescript6@^6.0.2 after checking upstream: wrapper 6.0.2 forwards to @typescript/old 6.0.3. No OWNER-RULING requested or created.",
+  "proofs": {
+    "root-ci-final": {
+      "name": "root-ci-final",
+      "command": "npx -y npm@11.19.1 ci",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017",
+      "started": "2026-10-17T06:44:53.8491265Z",
+      "seconds": 81.707,
+      "exit": 0,
+      "log": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-proof-20261017\\root-ci-final.log",
+      "sha256": "fdf1d0b8cb6794c90ef09b22020d9d50e5cb97c22271ac1521cf98d29add7492"
+    },
+    "desktop-ci": {
+      "name": "desktop-ci",
+      "command": "npx -y npm@11.19.1 ci",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017/desktop",
+      "started": "2026-10-17T06:46:19.1932324Z",
+      "seconds": 20.853,
+      "exit": 0,
+      "log": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-proof-20261017\\desktop-ci.log",
+      "sha256": "ea3e2aaf2235eca1ada06a6df2bf8111468e9a212f5409313f737dc922cd27c7"
+    },
+    "typecheck-cold": {
+      "name": "typecheck-cold",
+      "command": "npm run typecheck",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017",
+      "started": "2026-10-17T06:48:05.0510233Z",
+      "seconds": 6.088,
+      "exit": 0,
+      "log": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-proof-20261017\\typecheck-cold.log",
+      "sha256": "ba7f4cf1b69aa31ee4aca01a936e8503eb1b94d066a4dee3a5e166712563bcd0"
+    },
+    "typecheck-warm": {
+      "name": "typecheck-warm",
+      "command": "npm run typecheck",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017",
+      "started": "2026-10-17T06:48:14.4069952Z",
+      "seconds": 1.52,
+      "exit": 0,
+      "log": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-proof-20261017\\typecheck-warm.log",
+      "sha256": "ba7f4cf1b69aa31ee4aca01a936e8503eb1b94d066a4dee3a5e166712563bcd0"
+    },
+    "desktop-typecheck": {
+      "name": "desktop-typecheck",
+      "command": "npm run type-check",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017/desktop",
+      "started": "2026-10-17T06:53:46.6402142Z",
+      "seconds": 0.487,
+      "exit": 0,
+      "log": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-proof-20261017\\desktop-typecheck.log",
+      "sha256": "e9b6a4b3605d6f8d1d98201d8fc3cfb2d994bfebbfd7b461c384c939f392e42a"
+    },
+    "desktop-tests": {
+      "name": "desktop-tests",
+      "command": "npm test -- --runInBand",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017/desktop",
+      "started": "2026-10-17T06:53:47.6468458Z",
+      "seconds": 1.002,
+      "exit": 0,
+      "log": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-proof-20261017\\desktop-tests.log",
+      "sha256": "86c711a0662c7793ec4fdcc3360e1d3b07a5dedef93717d62c628012b789689e"
+    },
+    "next-build": {
+      "name": "next-build",
+      "command": "set MEKSTATION_SKIP_NEXT_TYPECHECK=false&& npm run build",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017",
+      "started": "2026-10-17T06:48:23.5451171Z",
+      "seconds": 143.903,
+      "exit": 0,
+      "log": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-proof-20261017\\next-build.log",
+      "sha256": "3f8e880f3cb8515ae68eafd5d84926e4c2792cac345b6eca1ebeaa9fbd0170ac"
+    },
+    "storybook-build": {
+      "name": "storybook-build",
+      "command": "npm run storybook:build",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017",
+      "started": "2026-10-17T06:50:51.2585671Z",
+      "seconds": 65.565,
+      "exit": 0,
+      "log": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-proof-20261017\\storybook-build.log",
+      "sha256": "f02e38d5b2057cd607d37ddd9156468e0ae538564dbaa778c6ed69d9a4c801e7"
+    },
+    "maintenance": {
+      "name": "maintenance",
+      "command": "node scripts/maintenance/scan-maintenance.mjs",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017",
+      "started": "2026-10-17T06:53:29.3229014Z",
+      "seconds": 8.915,
+      "exit": 0,
+      "log": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-proof-20261017\\maintenance.log",
+      "sha256": "02e0365d517b17b5136a6710855b8b56ed68c24bc0f1d176e3d6dc6d93123b41"
+    },
+    "flow-audit": {
+      "name": "flow-audit",
+      "command": "node scripts/qc/validate-flow-audit.mjs",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017",
+      "started": "2026-10-17T06:53:38.8038334Z",
+      "seconds": 0.603,
+      "exit": 0,
+      "log": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-proof-20261017\\flow-audit.log",
+      "sha256": "2e79693fad7eac649d53393f47c44b302710010cbf315764c644e8a796ba0745"
+    },
+    "privacy": {
+      "name": "privacy",
+      "command": "node node_modules/jest/bin/jest.js --selectProjects unit --runInBand --runTestsByPath scripts/__tests__/ux-walkthrough-recorder-privacy.test.ts",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017",
+      "started": "2026-10-17T06:53:39.8887954Z",
+      "seconds": 1.688,
+      "exit": 0,
+      "log": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-proof-20261017\\privacy.log",
+      "sha256": "14913c528d4970c0ac1adaaad71f6ca91e6870447787fb28baa5571c7856363d"
+    },
+    "closure-proof": {
+      "name": "closure-proof",
+      "command": "node node_modules/jest/bin/jest.js --selectProjects unit --runInBand --runTestsByPath scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017",
+      "started": "2026-10-17T06:54:12.3758888Z",
+      "seconds": 821.645,
+      "exit": 0,
+      "log": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-proof-20261017\\closure-proof.log",
+      "sha256": "143e1c19112471d81d9554777424e536494e77514d9bf9b53920237cf38d4f14"
+    },
+    "lint": {
+      "name": "lint",
+      "command": "npm run lint",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017",
+      "started": "2026-10-17T06:53:49.1126606Z",
+      "seconds": 0.521,
+      "exit": 0,
+      "log": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-proof-20261017\\lint.log",
+      "sha256": "ab446a71612f4549670949504f208de4fe186d6ac8aee72a0cb37af72ab445d7"
+    },
+    "format": {
+      "name": "format",
+      "command": "npm run format:check",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017",
+      "started": "2026-10-17T06:53:50.1040589Z",
+      "seconds": 9.354,
+      "exit": 0,
+      "log": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-proof-20261017\\format.log",
+      "sha256": "e7a59537d69f7bffe2d3084c84d476384ebbf2bb4ba044fe2cdb804dd1b3ffbe"
+    },
+    "openspec": {
+      "name": "openspec",
+      "command": "npx openspec validate --all --strict",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017",
+      "started": "2026-10-17T06:54:01.2194517Z",
+      "seconds": 1.104,
+      "exit": 0,
+      "log": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-proof-20261017\\openspec.log",
+      "sha256": "7d038ecec2dbbfd0afced7f19c13a6bedc468cb3787bfa2058888f4ff27ab375"
+    },
+    "openspec-ci": {
+      "name": "openspec-ci",
+      "command": "npm run qc:openspec-ci:validate",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017",
+      "started": "2026-10-17T06:54:02.8878140Z",
+      "seconds": 0.371,
+      "exit": 0,
+      "log": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-proof-20261017\\openspec-ci.log",
+      "sha256": "ae8a7e7c1be34cff8356d53a986f884174a0ab1a3cafc7d771c78d46a54c31ad"
+    },
+    "validator": {
+      "name": "validator",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017",
+      "started": "2026-10-17T06:54:03.7558304Z",
+      "seconds": 3.883,
+      "exit": 0,
+      "log": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-proof-20261017\\validator.log",
+      "sha256": "ac5ae611277c9f377171fbbeb7ab1c4bb95009b20cc2be5845a37b03757a2425"
+    }
+  },
+  "compilerResolution": {
+    "node": "v22.22.0",
+    "wrapper": {
+      "name": "@typescript/typescript6",
+      "version": "6.0.2",
+      "dependencies": {
+        "@typescript/old": "npm:typescript@^6"
+      }
+    },
+    "old": "6.0.3",
+    "apiVersion": "6.0.3",
+    "functions": [
+      "createProgram",
+      "transpileModule",
+      "createSourceFile",
+      "forEachChild",
+      "isIdentifier"
+    ],
+    "ts7": "7.0.2",
+    "desktop": "7.0.2",
+    "rootShim": "@ECHO off\r\nGOTO start\r\n:find_dp0\r\nSET dp0=%~dp0\r\nEXIT /b\r\n:start\r\nSETLOCAL\r\nCALL :find_dp0\r\n\r\nIF EXIST \"%dp0%\\node.exe\" (\r\n  SET \"_prog=%dp0%\\node.exe\"\r\n) ELSE (\r\n  SET \"_prog=node\"\r\n  SET PATHEXT=%PATHEXT:;.JS;=;%\r\n)\r\n\r\nendLocal & goto #_undefined_# 2>NUL || title %COMSPEC% & \"%_prog%\"  \"%dp0%\\..\\@typescript\\old\\bin\\tsc\" %*\r\n",
+    "desktopShim": "@ECHO off\r\nGOTO start\r\n:find_dp0\r\nSET dp0=%~dp0\r\nEXIT /b\r\n:start\r\nSETLOCAL\r\nCALL :find_dp0\r\n\r\nIF EXIST \"%dp0%\\node.exe\" (\r\n  SET \"_prog=%dp0%\\node.exe\"\r\n) ELSE (\r\n  SET \"_prog=node\"\r\n  SET PATHEXT=%PATHEXT:;.JS;=;%\r\n)\r\n\r\nendLocal & goto #_undefined_# 2>NUL || title %COMSPEC% & \"%_prog%\"  \"%dp0%\\..\\typescript\\bin\\tsc\" %*\r\n"
+  },
+  "lockfiles": {
+    "entries": [
+      {
+        "file": "package-lock.json",
+        "sha256": "9b5881bbd63f6ee8347935f843543ec230185eac706d43bb93c3aca3c0f51a80",
+        "changed": [
+          "",
+          "node_modules/typescript",
+          "node_modules/@typescript/old",
+          "node_modules/@typescript/typescript-aix-ppc64",
+          "node_modules/@typescript/typescript-darwin-arm64",
+          "node_modules/@typescript/typescript-darwin-x64",
+          "node_modules/@typescript/typescript-freebsd-arm64",
+          "node_modules/@typescript/typescript-freebsd-x64",
+          "node_modules/@typescript/typescript-linux-arm",
+          "node_modules/@typescript/typescript-linux-arm64",
+          "node_modules/@typescript/typescript-linux-loong64",
+          "node_modules/@typescript/typescript-linux-mips64el",
+          "node_modules/@typescript/typescript-linux-ppc64",
+          "node_modules/@typescript/typescript-linux-riscv64",
+          "node_modules/@typescript/typescript-linux-s390x",
+          "node_modules/@typescript/typescript-linux-x64",
+          "node_modules/@typescript/typescript-netbsd-arm64",
+          "node_modules/@typescript/typescript-netbsd-x64",
+          "node_modules/@typescript/typescript-openbsd-arm64",
+          "node_modules/@typescript/typescript-openbsd-x64",
+          "node_modules/@typescript/typescript-sunos-x64",
+          "node_modules/@typescript/typescript-win32-arm64",
+          "node_modules/@typescript/typescript-win32-x64",
+          "node_modules/typescript7"
+        ],
+        "unrelated": [],
+        "swc": "1.15.30"
+      },
+      {
+        "file": "desktop/package-lock.json",
+        "sha256": "65075eb582a0d8f0c14c7c83de2f057c096c21504ff05869261bfc0da53ca08a",
+        "changed": [
+          "",
+          "node_modules/typescript",
+          "node_modules/@typescript/typescript-aix-ppc64",
+          "node_modules/@typescript/typescript-darwin-arm64",
+          "node_modules/@typescript/typescript-darwin-x64",
+          "node_modules/@typescript/typescript-freebsd-arm64",
+          "node_modules/@typescript/typescript-freebsd-x64",
+          "node_modules/@typescript/typescript-linux-arm",
+          "node_modules/@typescript/typescript-linux-arm64",
+          "node_modules/@typescript/typescript-linux-loong64",
+          "node_modules/@typescript/typescript-linux-mips64el",
+          "node_modules/@typescript/typescript-linux-ppc64",
+          "node_modules/@typescript/typescript-linux-riscv64",
+          "node_modules/@typescript/typescript-linux-s390x",
+          "node_modules/@typescript/typescript-linux-x64",
+          "node_modules/@typescript/typescript-netbsd-arm64",
+          "node_modules/@typescript/typescript-netbsd-x64",
+          "node_modules/@typescript/typescript-openbsd-arm64",
+          "node_modules/@typescript/typescript-openbsd-x64",
+          "node_modules/@typescript/typescript-sunos-x64",
+          "node_modules/@typescript/typescript-win32-arm64",
+          "node_modules/@typescript/typescript-win32-x64"
+        ],
+        "unrelated": [],
+        "swc": "1.15.30"
+      }
+    ],
+    "idempotence": "Repeating npm 11.19.1 in-place lock-only regeneration leaves both SHA256s unchanged. All changed entries are package metadata or TypeScript packages, including the 20 TS7 native platform optionals; no unrelated dependency churn. @swc/core remains 1.15.30.",
+    "initialStaleAlias": "An overlapping 6.x semver range initially preserved the old non-wrapper package. Pinning the wrapper to exact 6.0.2 once, restoring the requested caret range, and clean npm ci corrected it. Only root-ci-final is accepted."
+  },
+  "timings": {
+    "ts7": {
+      "cold": 6.088,
+      "warm": 1.52,
+      "desktop": 0.487
+    },
+    "TS7S1B": {
+      "cold": [
+        77.1,
+        36.5
+      ],
+      "warm": [
+        7.7,
+        7.4
+      ],
+      "desktop": [
+        1.2,
+        1
+      ],
+      "ci": 51,
+      "source": "evidence/ts7s1b-admission-20261016.json#tasks01Baseline"
+    },
+    "qualification": "TS7 cold run had no tsconfig.tsbuildinfo, after fresh installs and before Next/TS6; saved warm cache identifies version 7.0.2. Cold means no incremental cache, not an OS disk-cache flush. S1B first cold run had cold OS cache; its 36.5s run is the comparable compiler-cache-cold number. S4B includes scripts/tsconfig.json, absent from S1B. Timings are observations, not controlled same-scope causal benchmarks."
+  },
+  "desktopEmit": {
+    "baselineFile": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1b-20261016/desktop-emit-after.json",
+    "baselineSha256": "ca9a4f917773e4fb5eb985abf190cdc79cb04ce02ebe2c104bda1d83cf12ad39",
+    "files": 84,
+    "jsCompared": 21,
+    "jsDifferences": [],
+    "jsHashes": {
+      "electron/main.actions.js": "1189c86c31303e7731c2609a61871124f1d112cac8b70bfdea8d161df8b4629a",
+      "electron/main.behavior.js": "9264648c5ea9ea1b06dc9d69d8a7651336838bff2e715da22731cf3f2fafe50c",
+      "electron/main.cleanup.js": "4fcfa9b5f86da61e57f11722a1f6dbf3dfebd81c85310f1d17c0a7c241f7b0d5",
+      "electron/main.config.js": "898c3ece0652d2cbf77fa4350642a85132a512d778f601a986fe62b0e96e4d92",
+      "electron/main.ipc.js": "782250f99f1f0d014bce1888bbd77fdf12e21e98818cc2286e2598118bcc53e8",
+      "electron/main.js": "6928d8bea5f0e16799ff4038808db74c9efe3fcbf660abcd090bc8599a9fc725",
+      "electron/main.lifecycle.js": "9fff6b2b0eda9d860c3419ba2fae85543ce6ffb98d239ad0b9763869729be7f3",
+      "electron/main.services.js": "862ab62bf82d371c0e1618d06eb439994291f75938aa0ea53a9750b1a8e30891",
+      "electron/main.tray.js": "9f9fe6b74c5d77aed4aab5619bf769f8a87df8e91ebe9e582453e46bd1f19308",
+      "electron/main.updater.js": "660e1d40817353be8a40e42d1f0ece147f8c192f07ce840b87b11ebfa715462b",
+      "electron/main.window.js": "91c78e4c8f2b5333050f49a4b740db0940b04868bb741ea3e1ae07b56de070e1",
+      "electron/MenuManager.js": "aa3f6fba35378b23a5270fc3f540f3b309251efac448b1248bb103af8e2edb04",
+      "electron/pathSandbox.js": "007ea2fa49d7573a899e5bbba4d25054c016deb6d684ba6e9b38296c8a9848a9",
+      "electron/preload.js": "2029bae21de12cd717bf723f243ff3905a9b1c758a401ca5380158c221d64248",
+      "electron/securityPolicy.js": "d529782b77f8139720d1c47880d625aa57aff0784750fbd1e0ac64b36f2b1836",
+      "services/local/BackupService.archive.js": "a27611a038616bdf8d7e454b5e081602b43db4eaa7aa2d59881fdecc307db822",
+      "services/local/BackupService.js": "ca46a865ba66bf0742ab1977c4c68830be1db17e3d476e219404baa27c048e40",
+      "services/local/LocalStorageService.js": "b4bcc6222dc18b59b0f9688b45b177a439642684481090431a3889448031fd6c",
+      "services/local/RecentFilesService.js": "a11355a150fcd7b2770693c82082e3875186b655a0e8a00c2d7d80b5d05ad387",
+      "services/local/SettingsService.js": "20e15aa4c4102d1440b5b3ca5b77fa544075ffc38b17a8932675e4197027cef1",
+      "types/BaseTypes.js": "3db785b3f7328d32835bcbc510bf1da60bee2ea7f33f43a6e790153d971b3847"
+    },
+    "otherDifferences": "42 maps differ: 15 source paths only, 27 paths plus mappings. types/BaseTypes.d.ts differs only in quote spelling. All 21 .js files are byte-identical."
+  },
+  "storybook": {
+    "file": "storybook-static\\assets\\OverwriteConfirmDialog.stories-Bg1Zoneu.js",
+    "sha256": "1d05c1dfec3c383d569fd684ba09fd791a9a2c4e213a49527aacb0458b102dbe",
+    "metadata": {
+      "description": "",
+      "methods": [],
+      "displayName": "OverwriteConfirmDialog",
+      "props": {
+        "isOpen": {
+          "required": true,
+          "tsType": {
+            "name": "boolean"
+          },
+          "description": "Whether dialog is open"
+        },
+        "newUnitName": {
+          "required": true,
+          "tsType": {
+            "name": "string"
+          },
+          "description": "Name of the unit being saved"
+        },
+        "existingUnitName": {
+          "required": true,
+          "tsType": {
+            "name": "string"
+          },
+          "description": "Name of the existing unit that would be overwritten"
+        },
+        "onOverwrite": {
+          "required": true,
+          "tsType": {
+            "name": "signature",
+            "type": "function",
+            "raw": "() => void",
+            "signature": {
+              "arguments": [],
+              "return": {
+                "name": "void"
+              }
+            }
+          },
+          "description": "Called when user chooses to overwrite"
+        },
+        "onSaveAsNew": {
+          "required": true,
+          "tsType": {
+            "name": "signature",
+            "type": "function",
+            "raw": "() => void",
+            "signature": {
+              "arguments": [],
+              "return": {
+                "name": "void"
+              }
+            }
+          },
+          "description": "Called when user chooses to save as new (different name)"
+        },
+        "onCancel": {
+          "required": true,
+          "tsType": {
+            "name": "signature",
+            "type": "function",
+            "raw": "() => void",
+            "signature": {
+              "arguments": [],
+              "return": {
+                "name": "void"
+              }
+            }
+          },
+          "description": "Called when user cancels"
+        }
+      }
+    },
+    "result": "Six required typed props and descriptions remain in generated __docgenInfo; Babel react-docgen default; .storybook/main.ts unchanged."
+  },
+  "preservation": [
+    {
+      "file": "tsconfig.json",
+      "sha256": "6c41dc2afe0792a6a918f6193e0ed498653807895033b24c270e532984d4a0dd",
+      "unchanged": true
+    },
+    {
+      "file": "scripts/tsconfig.json",
+      "sha256": "9f55f8e064a9756da2a886ab7ff505a15a88e0821f73ee552c5a69ebc127de39",
+      "unchanged": true
+    },
+    {
+      "file": "desktop/tsconfig.json",
+      "sha256": "fb796ee713a91fd9c9c883a92bcea746ae152f4c4ae53c140f8bee89befd6972",
+      "unchanged": true
+    },
+    {
+      "file": "desktop/tsconfig.test.json",
+      "sha256": "2dfdac7dd8d7d7c3e4034bbfdd629db53bbaef95851eada5c9fc0fe9f0e33238",
+      "unchanged": true
+    },
+    {
+      "file": "desktop/jest.config.js",
+      "sha256": "eb30c06e30e5bfc473957bf38a1089dcd10486041f777ea576ce20591fa993f7",
+      "unchanged": true
+    },
+    {
+      "file": ".storybook/main.ts",
+      "sha256": "63c41a9fc8f531cc3824e5b9541704b8e48eff72caf0fa0f7077107ad15a082a",
+      "unchanged": true
+    }
+  ],
+  "stableProof": {
+    "source": "Exact PR-head CI: six unit shards plus a11y",
+    "status": "Pending PR creation; no local test:stable run, per user instruction."
+  },
+  "claim": "Local source proof only. No independent review, CI, merge or Main verification claimed.",
+  "successorNotes": {
+    "TS7S5A": "Correct design.md D3 package example from @typescript/typescript6@^6.0.3 to ^6.0.2. The wrapper package version and forwarded compiler/API version differ. Root .bin/tsc is still TS6; npm run typecheck is the gate.",
+    "mainProof": "Use the explicit TS7 path for both root and scripts projects; preserve the direct root-only roadmap argv and include scripts separately in scoped Main proof. Verify wrapper/API/bin provenance, desktop and guard. Inherit unchanged broad head build evidence honestly."
+  },
+  "carryForwardMutants": {
+    "rootOnlyFallback": {
+      "name": "guard-red-root",
+      "command": "node node_modules/jest/bin/jest.js --selectProjects unit --runInBand --runTestsByPath scripts/__tests__/typescript-toolchain.test.ts -t checks",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017",
+      "started": "2026-10-17T07:09:02.6127501Z",
+      "seconds": 1.465,
+      "exit": 1,
+      "log": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-proof-20261017\\guard-red-root.log",
+      "sha256": "6e50d01a2ceb7f2cc409cf39e1b7db20d6fedec9ff8fbb8b0d3c787aa0eded54"
+    },
+    "scriptsOnlyFallback": {
+      "name": "guard-red-scripts",
+      "command": "node node_modules/jest/bin/jest.js --selectProjects unit --runInBand --runTestsByPath scripts/__tests__/typescript-toolchain.test.ts -t checks",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017",
+      "started": "2026-10-17T07:09:04.6085533Z",
+      "seconds": 1.445,
+      "exit": 1,
+      "log": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-proof-20261017\\guard-red-scripts.log",
+      "sha256": "cf6b1bf854708b2eb166c716fcfc7a95d8eddce2b68b0c09b18536fdddc8747a"
+    },
+    "scriptsDiagnostic": {
+      "name": "scripts-mutant",
+      "command": "npm run typecheck",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017",
+      "started": "2026-10-17T07:09:41.1539669Z",
+      "seconds": 1.532,
+      "exit": 1,
+      "log": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-proof-20261017\\scripts-mutant.log",
+      "sha256": "84d7f86db53817dd292d6693acc4b93c2847768bba970d19d4da80a4d4dc0f15"
+    },
+    "stagedDiagnostic": {
+      "name": "staged-mutant",
+      "command": "node node_modules/lint-staged/bin/lint-staged.js --no-stash --no-revert --concurrent false",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017",
+      "started": "2026-10-17T07:09:43.2837809Z",
+      "seconds": 2.372,
+      "exit": 1,
+      "log": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-proof-20261017\\staged-mutant.log",
+      "sha256": "2278ef7f566ddd2f091ea754c5d1423622d5036d259a4324bfee89cb7aeaaa55"
+    },
+    "stagedRestored": {
+      "name": "staged-valid",
+      "command": "node node_modules/lint-staged/bin/lint-staged.js --no-stash --no-revert --concurrent false",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017",
+      "started": "2026-10-17T07:09:46.1480330Z",
+      "seconds": 2.345,
+      "exit": 0,
+      "log": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-proof-20261017\\staged-valid.log",
+      "sha256": "c03601feeca812ef10c9138d8057c629e20af9462803fa0664978c88cfe84d8a"
+    },
+    "argv": {
+      "rows": [
+        {
+          "label": "npm-mutant",
+          "entry": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017/node_modules/typescript7/bin/tsc",
+          "argv": [
+            "--noEmit",
+            "--skipLibCheck"
+          ],
+          "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-ts7-20261017"
+        },
+        {
+          "label": "npm-mutant",
+          "entry": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017/node_modules/typescript7/bin/tsc",
+          "argv": [
+            "-p",
+            "scripts/tsconfig.json",
+            "--noEmit"
+          ],
+          "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-ts7-20261017"
+        },
+        {
+          "label": "staged-mutant",
+          "entry": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017/node_modules/typescript7/bin/tsc",
+          "argv": [
+            "--noEmit",
+            "--skipLibCheck"
+          ],
+          "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-ts7-20261017"
+        },
+        {
+          "label": "staged-mutant",
+          "entry": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017/node_modules/typescript7/bin/tsc",
+          "argv": [
+            "-p",
+            "scripts/tsconfig.json",
+            "--noEmit"
+          ],
+          "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-ts7-20261017"
+        },
+        {
+          "label": "staged-valid",
+          "entry": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017/node_modules/typescript7/bin/tsc",
+          "argv": [
+            "--noEmit",
+            "--skipLibCheck"
+          ],
+          "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-ts7-20261017"
+        },
+        {
+          "label": "staged-valid",
+          "entry": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017/node_modules/typescript7/bin/tsc",
+          "argv": [
+            "-p",
+            "scripts/tsconfig.json",
+            "--noEmit"
+          ],
+          "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-ts7-20261017"
+        }
+      ],
+      "pass": true,
+      "stagedFilenameAbsent": true
+    },
+    "restoration": "All temporary package and scripts/validate-bv.ts bytes were restored, and the probe index entry was restored to HEAD. Git status was clean before the post-rebase closure proof."
+  },
+  "environmentNotes": {
+    "acceptedShell": "Git Bash 5.3.9 on Windows, Node 22.22.0. PATH placed C:/Program Files/Git/bin before the WSL bash shim for the staged-gate proof.",
+    "discardedStagedRun": "The first attempt selected C:/Windows/System32/bash.exe, ran WSL Node 22.23.2 against Windows-installed dependencies, and could not find the Linux native TS7 package. Excluded from proof; corrected shell selection without repository changes. TS7 exits 1 (not TS6’s 2) on the intentionally introduced TS2322.",
+    "preparationCommit": "HUSKY=0 for the local preparation-only commit on the pre-S4A baseline; manual TS7 compiler, lint, format, API/build and closure-suite proofs were already complete. Final source is rebased onto the routed hook."
+  },
+  "postRebase": {
+    "post-rebase-typecheck": {
+      "name": "post-rebase-typecheck",
+      "command": "npm run typecheck",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017",
+      "started": "2026-10-17T07:08:44.1231788Z",
+      "seconds": 5.428,
+      "exit": 0,
+      "log": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-proof-20261017\\post-rebase-typecheck.log",
+      "sha256": "ba7f4cf1b69aa31ee4aca01a936e8503eb1b94d066a4dee3a5e166712563bcd0"
+    },
+    "post-rebase-guard": {
+      "name": "post-rebase-guard",
+      "command": "node node_modules/jest/bin/jest.js --selectProjects unit --runInBand --runTestsByPath scripts/__tests__/typescript-toolchain.test.ts",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017",
+      "started": "2026-10-17T07:08:50.0714598Z",
+      "seconds": 1.53,
+      "exit": 0,
+      "log": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-proof-20261017\\post-rebase-guard.log",
+      "sha256": "86b6128a4973c8bb61d72aa810ce12e28537c5de06ed20e7f2d67ea7261c7d2e"
+    },
+    "post-rebase-closure": {
+      "name": "post-rebase-closure",
+      "command": "node node_modules/jest/bin/jest.js --selectProjects unit --runInBand --runTestsByPath scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017",
+      "started": "2026-10-17T07:09:53.8541227Z",
+      "seconds": 833.487,
+      "exit": 0,
+      "log": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-proof-20261017\\post-rebase-closure.log",
+      "sha256": "8454be6e574864bad6c564ff3d39209575cebd46a0f5003254fe42cc083350b8"
+    }
+  },
+  "census": {
+    "maxFiles": 15,
+    "actualChangedFiles": 12,
+    "filesIncludingReservedReview": 13,
+    "maxNonGeneratedLines": 500,
+    "countedAddedLines": 30,
+    "rows": [
+      {
+        "file": "desktop/package-lock.json",
+        "added": 368,
+        "deleted": 7,
+        "exempt": true
+      },
+      {
+        "file": "desktop/package.json",
+        "added": 1,
+        "deleted": 1,
+        "exempt": false
+      },
+      {
+        "file": "openspec/changes/migrate-to-typescript-7/tasks.md",
+        "added": 9,
+        "deleted": 8,
+        "exempt": false
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "added": 16,
+        "deleted": 6,
+        "exempt": false
+      },
+      {
+        "file": "package-lock.json",
+        "added": 399,
+        "deleted": 7,
+        "exempt": true
+      },
+      {
+        "file": "package.json",
+        "added": 3,
+        "deleted": 2,
+        "exempt": false
+      },
+      {
+        "file": "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+        "added": 4,
+        "deleted": 2,
+        "exempt": true
+      },
+      {
+        "file": "scripts/__tests__/typescript-toolchain.test.ts",
+        "added": 67,
+        "deleted": 0,
+        "exempt": true
+      },
+      {
+        "file": "scripts/qc/roadmap-main-proof.mjs",
+        "added": 1,
+        "deleted": 1,
+        "exempt": false
+      }
+    ],
+    "files": [
+      "desktop/package-lock.json",
+      "desktop/package.json",
+      "openspec/changes/migrate-to-typescript-7/tasks.md",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4b-admission-20261017.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4b-local-20261017.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4b-red-20261017.json",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "package-lock.json",
+      "package.json",
+      "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+      "scripts/__tests__/typescript-toolchain.test.ts",
+      "scripts/qc/roadmap-main-proof.mjs"
+    ]
+  },
+  "finalChecks": {
+    "format-final": {
+      "name": "format-final",
+      "command": "npm run format:check",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017",
+      "started": "2026-10-17T07:24:13.3079006Z",
+      "seconds": 11.401,
+      "exit": 0,
+      "log": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-proof-20261017\\format-final.log",
+      "sha256": "04122000101b25be74b116c28ad28bf65e6788f039f11b40c55b1dacfd813dbf"
+    },
+    "openspec-final": {
+      "name": "openspec-final",
+      "command": "npx openspec validate --all --strict",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017",
+      "started": "2026-10-17T07:24:25.3251192Z",
+      "seconds": 1.537,
+      "exit": 0,
+      "log": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-proof-20261017\\openspec-final.log",
+      "sha256": "7d038ecec2dbbfd0afced7f19c13a6bedc468cb3787bfa2058888f4ff27ab375"
+    },
+    "openspec-ci-final": {
+      "name": "openspec-ci-final",
+      "command": "npm run qc:openspec-ci:validate",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017",
+      "started": "2026-10-17T07:24:27.3668897Z",
+      "seconds": 0.374,
+      "exit": 0,
+      "log": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-proof-20261017\\openspec-ci-final.log",
+      "sha256": "ae8a7e7c1be34cff8356d53a986f884174a0ab1a3cafc7d771c78d46a54c31ad"
+    },
+    "validator-final": {
+      "name": "validator-final",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --git",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s4b-ts7-20261017",
+      "started": "2026-10-17T07:24:28.2548611Z",
+      "seconds": 10.69,
+      "exit": 0,
+      "log": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4b-proof-20261017\\validator-final.log",
+      "sha256": "b098d6a65df7cd6ee54968c0395179416fc14b6364be2498b67e6977ac2bb8eb"
+    }
+  },
+  "sourceHashes": {
+    "package.json": "aad2269569ddc16d07f913e8637aeeb9d46464758c18688f6ef54ee17bd14696",
+    "package-lock.json": "9b5881bbd63f6ee8347935f843543ec230185eac706d43bb93c3aca3c0f51a80",
+    "desktop/package.json": "63cf6c1a065519563e6aa119f64edd4c55dd9b77cd61215270a4087944e10ac0",
+    "desktop/package-lock.json": "65075eb582a0d8f0c14c7c83de2f057c096c21504ff05869261bfc0da53ca08a",
+    "scripts/qc/roadmap-main-proof.mjs": "f35945aee504c736a3cc51986ac17fe52bc417f01659a41a74aa1d8a37a1e1bd",
+    "scripts/__tests__/roadmap-loop-closure-proof.test.ts": "6e8343a69f58ff8db6458712f0946d4516d296d11e1eefa4a56fcc6f16848b15",
+    "openspec/changes/migrate-to-typescript-7/tasks.md": "12a7752f0d534ce5a9e916befc0147d5c2cf805ddbf6962cc61198647f9a00bf",
+    "scripts/__tests__/typescript-toolchain.test.ts": "807a2d4c8eb1d9959b28168269be6a069f022b691ba490c7303dfc0ee58abb95"
+  },
+  "physicalInstalls": {
+    "rootSymlink": false,
+    "desktopSymlink": false
+  }
+}
