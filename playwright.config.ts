@@ -1,5 +1,4 @@
 import { defineConfig, devices } from '@playwright/test';
-import path from 'node:path';
 
 const e2ePort = Number.parseInt(process.env.MEKSTATION_E2E_PORT ?? '3600', 10);
 if (!Number.isInteger(e2ePort) || e2ePort < 1 || e2ePort > 65535) {
@@ -36,13 +35,10 @@ const playwrightSnapshots =
   campRuntimeRouted && process.env.CAMP01_PLAYWRIGHT_SNAPSHOT_DIR
     ? process.env.CAMP01_PLAYWRIGHT_SNAPSHOT_DIR
     : '.sisyphus/evidence/screenshots';
-// Absolute on purpose: the standalone server (server.js) chdirs into
-// .next/standalone, so a relative path would put the databases there while
-// the specs read them from the repo root.
 const e2eRuntimeDir =
   campRuntimeRouted && process.env.CAMP01_DATABASE_DIR
     ? process.env.CAMP01_DATABASE_DIR
-    : path.resolve(`.sisyphus/e2e-runtime/${e2eRunId}`).replace(/\\/g, '/');
+    : `./.sisyphus/e2e-runtime/${e2eRunId}`;
 
 /**
  * Playwright configuration for MekStation E2E tests
