@@ -1,0 +1,28 @@
+APPROVE-WITH-NOTES
+
+Independent routine review of PR #2187 at 041cb6838542768336657bb26d7dd11079028b2c against admission baseline d72b141d93e1cdb2ef9f2aa8fc0b3cf907328fd4. Verdict applies only to this head. Repository paths below refer to that head; "evidence/" is under openspec/planning/2026-09-12-roadmap-completion/.
+
+Blockers: none found.
+Majors: none found.
+Minor / completion note N1 — evidence/ts7s3-local-20261017.json:134: full stable proof remains pending, accurately disclosed. Run https://github.com/SwiggitySwerve/MekStation/actions/runs/39009173359 is bound to the reviewed head. At the review snapshot, unit shards 1/6, 3/6, 5/6, 6/6 and A11y Tests succeeded; 2/6 and 4/6 were still running. Record successful completion of all six plus a11y before claiming the stable gate complete or merging; this report is not a CI PASS or merge authorization. The council's routine cadence legitimately substitutes those lanes for another local test:stable run.
+
+Checks and evidence:
+- Scope/caps: nine changed files; ten including the reserved unwritten review slot; 21 counted added lines against 15 files/500 lines. The raw +535/-19 diff includes exempt lockfiles and evidence. Verified the validator's UNCOUNTED_FILES/EVIDENCE_PREFIX rules. All leaves are named; only TS7S3 changes in units.json, specifically ownershipExceptions, state, baseline and stageReceipts. Future-stage fields remain unset. Both predecessor source merges and the S2OD closure are present in the admission ancestry; predecessor records are main-verified.
+- package.json:322 and desktop/package.json:70 contain unaliased typescript ^6.0.3. Each lockfile is exactly +4/-4: only root devDependency metadata and the TypeScript version/resolved URL/integrity change. Package counts remain 1261 root/577 desktop, with no unrelated entry changes. SWC stays 1.15.30 in both. S3-2's in-place npm 11.19.1 rationale is sound: avoid a needless compiler-transform upgrade and peer/libc churn. The preserved ^1.15.30 range is not an exact manifest pin.
+- tasks.md:76 changes only checkboxes 3.1-3.3. Root/scripts and both desktop configs remain byte-unchanged, retaining strictness, relative paths and explicit scripts node types. Recursive tsconfig*.json scan excluding node_modules/.git found no ignoreDeprecations.
+- All 18 referenced local proof/installation/contention log hashes match available files. The unit proof list is covered except pending full stable CI: root/scripts typecheck; desktop's two checks and 5 suites/57 tests; lint; formatting; OpenSpec 230/230; OpenSpec CI validation; Next build including its explicit TypeScript phase, 71 pages and hydration; Storybook build; normal-argument maintenance scan (122 findings, not a clean-code claim); flow audit 6/6; privacy 4/4. Desktop npm ci's prepare hook runs its tsc build, satisfying S3-3. Storybook is a smoke proof, not evidence it consumes the TS API.
+- evidence/ts7s3-local-20261017.json:157 discloses the stopped contended stable run, failed focused retry and entire-file idle 52/52 pass. Logs show the two ETIMEDOUT probes and the subsequent idle process snapshot. This supports contention as the explanation without proving exclusive causality; the successful retry alone is not full stable proof. Earlier pre-S2OD timing measurements are explicitly historical. The final rebase changes workflow/ledger evidence, not locally exercised product inputs.
+
+Independent executable checks:
+- Detached throwaway worktree at the exact head; Node v22.22.0, npm 11.6.2. Real npm ci --ignore-scripts --no-audit --no-fund installed 1075 root and 557 desktop packages. Lifecycle hooks were deliberately disabled to honor this review's no-build constraint; no borrowed node_modules or lock-only install. Both lockfile hashes remained identical to the committed receipt.
+- Root and desktop npx --no-install tsc --version each printed Version 6.0.3. Root npm run typecheck and desktop npm run type-check passed, covering all four projects.
+- Mutant 1: root tsconfig.json baseUrl "." => npm run typecheck exit 2, TS5101 (TS6 deprecation).
+- Mutant 2: desktop tsconfig.json baseUrl "." => npm run type-check exit 2, TS5101.
+- Mutant 3: append const ts7s3ReviewMutant: number = 'intentional type error' to scripts/validate-bv.ts => npm run typecheck exit 2, TS2322 at 448:7. The scripts project is genuinely gated.
+- Restored exact original bytes; both typecheck commands passed again; Git diff/status were clean and the no-ignore scan still had no matches. No Jest, build or Playwright commands were run by this reviewer. No other processes were stopped. Review worktree removed.
+
+Carry-forwards:
+- TS7S4A — package.json:26; .github/workflows/pr-checks.yml:188: retain BOTH root and scripts invocations unchanged on TS6 while routing CI, lint-staged and metrics through npm run typecheck. Preserve bash -c staged-file isolation and repoint assertions without loosening them. Repeat the scripts-only error mutant through the routed gate. The predecessor note's TS7-path wording belongs to S4B's compiler swap, not S4A.
+- TS7S4B — package.json:26; openspec/changes/migrate-to-typescript-7/tasks.md:99: do not copy the root-only sketch over the two-project gate. Explicitly call node_modules/typescript7/bin/tsc for BOTH invocations, preserving -p scripts/tsconfig.json; guard against a TS6 fallback in either. Recheck root API alias=6, gate=7, desktop unaliased=7, bin ownership, desktop emit baseline, API consumers, cold/warm timings and the affected local test suites. Regenerate locks in place with the recorded npm version and classify any SWC drift explicitly.
+
+Only this audit was written outside the disposable review worktree; no commits, pushes, merges or PR comments.

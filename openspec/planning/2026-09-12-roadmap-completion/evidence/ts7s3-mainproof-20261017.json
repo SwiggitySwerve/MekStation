@@ -1,0 +1,45 @@
+{
+  "unit": "TS7S3",
+  "stage": "mainProof",
+  "recordedAt": "2026-10-17T06:40:00.000Z",
+  "mergeCommit": "9aea87cdccc7252b8c94d94b3ddad6ede0dbda93",
+  "verdict": "PASS",
+  "checkout": "E:/Projects/Personal/MekStation-wt/ts7s3-closure-20261017",
+  "runtime": {
+    "playwright": "Source/Main checks: 7 passed (fresh npm ci root and desktop exit 0; root and desktop tsc --version 6.0.3; npm run typecheck exit 0 with both projects; desktop npm run type-check exit 0 with both projects; desktop npm test 5 suites / 57 tests passed; no ignoreDeprecations in any tsconfig*.json; validator PASSED, openspec validate --all --strict 230 passed and qc:openspec-ci:validate errors=0; 0 failed)",
+    "tsc": "Root: npx --no-install tsc --version printed Version 6.0.3 and require(typescript/package.json).version 6.0.3. Desktop: npx --no-install tsc --version printed Version 6.0.3.",
+    "typecheck": "npm run typecheck = tsc --noEmit --skipLibCheck && tsc -p scripts/tsconfig.json --noEmit: exit 0, both projects ran on TS 6.0.3.",
+    "desktop": "desktop npm run type-check = tsc --noEmit && tsc -p tsconfig.test.json --noEmit: exit 0. desktop npm test: 5 suites, 57 tests passed, exit 0.",
+    "noIgnoreDeprecations": "Recursive scan of every tsconfig*.json outside node_modules/.git/.next (tsconfig.json, scripts/tsconfig.json, desktop/tsconfig.json, desktop/tsconfig.test.json): 4 scanned, 0 matches. git grep over tracked tsconfig*.json: no match. A first findstr attempt used invalid @file syntax and proved nothing; it is kept in the typecheck envelope as a disclosure and not counted.",
+    "openspec": "npx openspec validate --all --strict: 230 passed, 0 failed. npm run qc:openspec-ci:validate: errors=0.",
+    "validator": "validate-roadmap.mjs PASSED; --git PASSED; --next printed U24b on the unedited ledger while TS7S3 was implementing (the validator does not model the one-lane rule; TS7S2B N2 disclosure).",
+    "dependencies": "Fresh npm ci (with lifecycle scripts) at the merge commit in this worktree, root and desktop/, no junction to the root checkout (whose node_modules is still TypeScript 5.8.3). Logs in the deps envelope.",
+    "machine": "node scripts/qc/machine-idle.mjs before the installs and before the proof printed MACHINE_BUSY 1 for exactly one process: PID 47516, an idle pre-existing node.exe server.js (port 8300), which Root allowed. This closure neither started nor stopped it.",
+    "node": "v22.22.0",
+    "npm": "11.6.2"
+  },
+  "proof": {
+    "path": "evidence/mainproof-9aea87cd-typecheck.bytes.json",
+    "payloadSha256": "d40031c16e486b6802b65cffaa2ecd27f18ee3cbc165d39967973062b227fc5b",
+    "payloadBytes": 24581,
+    "note": "Root tsc --version and package version (6.0.3), npm run typecheck (both projects), desktop tsc --version (6.0.3), desktop npm run type-check (both projects), desktop npm test (57/57), then the ignoreDeprecations scans, all at the exact merge HEAD. Concatenated logs."
+  },
+  "logs": [
+    {
+      "path": "evidence/mainproof-9aea87cd-validator.bytes.json",
+      "payloadSha256": "2c22e94f570a6fac2fea0db75aaafd2b7c0a3d1d61cbd194dd1b87f8dc5f90e6",
+      "payloadBytes": 10545,
+      "note": "validate-roadmap.mjs, --git and --next on the unedited ledger at the merge HEAD (PASSED, PASSED, --next U24b); npx openspec validate --all --strict (230 passed, 0 failed); npm run qc:openspec-ci:validate (errors=0)."
+    },
+    {
+      "path": "evidence/mainproof-9aea87cd-deps.bytes.json",
+      "payloadSha256": "255de839db53764e52f0d3761d4b96b88a8ec10f82c92d34d13fb0f1780f2425",
+      "payloadBytes": 3657,
+      "note": "npm ci at the root and in desktop/ at the merge HEAD under Node v22.22.0 / npm 11.6.2: both exit 0. Captured with PowerShell Out-File (UTF-8 with BOM); no header lines."
+    }
+  ],
+  "headProof": "Not re-run at the merge commit (lean cadence): npm run build (including Next type check), npm run storybook:build, scan-maintenance, flow audit, the privacy test and the full root Jest run. They were proved on PR head 041cb683 by the author (evidence/ts7s3-local-20261017.json proofs s2od-build, s2od-storybook, s2od-maintenance, s2od-flow-audit, s2od-privacy, s2od-desktop) and by CI run 39009173359 on that head (Build Test win/mac/linux, Build Storybook, Unit Tests 1-6/6, A11y Tests, Desktop Tests, E2E Smoke: all success). The merge tree equals the merge-tree of base and head (merge receipt).",
+  "scope": "Lean cadence (docs/audits/2026-10-17-council-roadmap-decision.md, item 2): exact-Main proof focused on what TS7S3 changed (dependencies, both compilers, all four type-check projects, desktop Jest, the no-ignoreDeprecations rule), plus validator and OpenSpec. No local roadmap-suite replays and no npm run test:stable; CI on the closure PR covers them.",
+  "closure": "main-verified only. taskKeys is empty; tasks.md 3.1-3.3 were ticked by the source PR, so no tasks.md row changes here and no tick receipt is invented.",
+  "preservation": "Proof and logs are base64 envelopes so repository LF normalization cannot alter their exact bytes. Decode data and verify payloadSha256/payloadBytes. Logs were captured through cmd and PowerShell, so non-ASCII console glyphs may appear mis-decoded; the bytes are kept as captured."
+}
