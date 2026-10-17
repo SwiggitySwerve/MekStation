@@ -1,0 +1,220 @@
+{
+  "unit": "TS7S2A",
+  "stage": "review",
+  "recordedAt": "2026-10-17T02:31:00.000Z",
+  "head": "38e0541301c8a90bec3558b0f7b9db69a8a1c234",
+  "reviewedHead": "38e0541301c8a90bec3558b0f7b9db69a8a1c234",
+  "reviewerModel": "claude-fable-5-1",
+  "implementerModel": "claude-opus-5-5",
+  "verdict": "APPROVE-WITH-NOTES",
+  "outputPath": "evidence/ts7s2a-source-fable-review-20261016.txt",
+  "outputSha256": "4f9747266f5503c61eead4377b70522d43a6db87f34f5f08aee4fef74a427d71",
+  "reviews": [
+    {
+      "round": 1,
+      "path": "evidence/ts7s2a-source-fable-review-20261016.txt",
+      "sha256": "4f9747266f5503c61eead4377b70522d43a6db87f34f5f08aee4fef74a427d71",
+      "bytes": 25723,
+      "originalPath": "docs/audits/2026-10-16-ts7s2a-fable-review.md",
+      "reviewedHead": "38e0541301c8a90bec3558b0f7b9db69a8a1c234",
+      "verdict": "APPROVE-WITH-NOTES"
+    }
+  ],
+  "reviewHistory": "One round on the exact merged head 38e05413 by an independent Fable 5.1 reviewer (run through cliproxy): APPROVE-WITH-NOTES with no blockers and no majors, three documentary minors M1-M3 and notes N1-N7; none requires a change to the head.",
+  "verdictText": "Verdict: APPROVE-WITH-NOTES. Blockers: none. Majors: none. Minors: M1-M3 (documentary, none requires a change to this PR). Notes N1-N7. Carry-forwards for TS7S2B/S3/S4B/S5A/S2OD: section 7.",
+  "behaviourEquality": {
+    "statement": "The three stdout hashes match the author's red/local receipts (8bf31f80..., 2d000d64..., da8a0fc5...). stderr: base prints the 4-line Node MODULE_TYPELESS_PACKAGE_JSON warning (its pid and path vary, so its hash varies per run; it vanished when the tool called process.exit(1) synchronously); head prints nothing. No tool output goes to stderr on either side.",
+    "note": "The reviewer re-ran the four terminology commands plus validate report, --json and --help on base 35b962d7 (ts-node) and head 38e05413 (tsx) with stdout and stderr captured as raw bytes, and a deliberate-violation probe on both trees: stdout and exit codes are identical apart from the six intended --help lines (section 2)."
+  },
+  "findings": {
+    "typeCheckOnLoad": {
+      "wording": "Type-checking on load. ts-node type-checks by default and did so here: a copy of the tool with one appended `const x: number = 'x'` fails under npx ts-node with TSError TS2322 even for --help (exit 1, no stdout); the same file under tsx on both trees runs (exit 0, help printed). No TS_NODE_TRANSPILE_ONLY, tsconfig \"ts-node\" key, or --transpile-only flag is in the tree, so the old npm scripts were type-checking the tool on every run and the new ones do not. This is covered elsewhere: `tsc --noEmit --skipLibCheck --listFilesOnly` on the head lists openspec/scripts/terminology-tool.ts, terminology-tool.types.ts, spec-purpose-lint.ts and (allowJs) terminology-tool.core.js/.fixers.js/.output.js, because the root tsconfig includes **/*.ts and excludes only scripts/** and desktop/**. npm run typecheck exits 0 on the head. So the tool stays type-checked by the gate that CI and the pre-commit hook run; nothing is lost. (N1)",
+      "minor": "M2",
+      "note": "N1"
+    },
+    "moduleSyntaxDetection": {
+      "wording": "What ts-node was actually doing on the base is worth recording, because it shows the swap removes fragility rather than adding it. With the root tsconfig (module esnext, moduleResolution bundler, target es2017) ts-node 10.9.2 emits ESM: `require('ts-node').create().compile(...)` on terminology-tool.ts yields `import * as fs from 'fs'; ...` (236 lines). ts-node then hands that to the CommonJS loader, and the run only succeeds because Node 22.22 detects module syntax, re-parses the file as ESM (hence the MODULE_TYPELESS_PACKAGE_JSON warning) and loads a .ts URL through its type-stripping format table. Evidence: on the base, `npx ts-node ... validate` with NODE_OPTIONS=--no-experimental-detect-module fails with \"SyntaxError: Cannot use import statement outside a module\" (exit 1), and with NODE_OPTIONS=--no-experimental-strip-types fails with ERR_UNKNOWN_FILE_EXTENSION \".ts\" (exit 1). On the head, `npx tsx ... validate` passes under both flags with the identical stdout 8bf31f80... (exit 0). The package engines field is node >=22.12.0; type stripping was unflagged only in 22.18, so the base command was likely broken on 22.12-22.17 (I could not test those versions: nvm has 20.20.0, 22.22.0, 24.13.0, 24.15.0 only). The head does not depend on either Node feature. (N2)",
+      "minor": "M3",
+      "note": "N2"
+    },
+    "summary": "Two findings from section 2. (1) ts-node type-checked the tool on every load and tsx does not; the root tsc --noEmit gate covers it because the root tsconfig includes openspec/scripts/*.ts and the allowJs .js modules. (2) The base ts-node run worked only through Node module-syntax detection, require(esm) and type stripping; tsx does not depend on either feature."
+  },
+  "lockfile": {
+    "reproduced": "The head package-lock.json (blob 0bc4b876) is reproduced byte for byte from the base by `node <nvm v24.15.0>/node_modules/npm/bin/npm-cli.js uninstall ts-node --package-lock-only --ignore-scripts --no-audit --no-fund` (npm 11.19.1 under Node 22.22.0) in a clean worktree with no node_modules; the resulting package.json is also byte-identical to the head's (blob ce821c60). git diff --numstat: 9/154 as stated.",
+    "idempotent": "Idempotent: `npm install --package-lock-only --ignore-scripts` with npm 11.19.1 on the head prints \"up to date\" and leaves 0 lines changed. With npm 11.6.2 (the npm bundled with Node 22.22.0) the same command rewrites the head lockfile by +80/-196 and the base lockfile by +90/-205 (libc/peer/dev flag churn): the churn the author discarded is a property of npm 11.6.2 against this lockfile at either commit, not of this change. (N3)",
+    "authorConcern": "Lockfile npm version: verified above; 11.19.1 reproduces and is idempotent, 11.6.2 churns both commits equally. Recording the generating npm version in the receipt, as the author did, is the right practice and should continue for TS7S3/TS7S4B (section 7)."
+  },
+  "reviewReruns": "On 38e05413 and base 35b962d7 under Node v22.22.0, in throwaway worktrees (base node_modules junctioned to the root checkout with ts-node 10.9.2 and tsx 4.22.4; head node_modules junctioned to the author npm ci tree with no ts-node), the reviewer used its own capture harness. It ran the four terminology commands and validate report/--json/--help on both trees, a deliberate-violation probe on both trees, an argv runner-identity probe, a type-error injection (TS2322) under ts-node and tsx, --no-experimental-detect-module and --no-experimental-strip-types sensitivity runs, an @/ alias probe under tsx with both tsconfigs, a lockfile reproduction from base with npm 11.19.1, idempotence checks with npm 11.19.1 and 11.6.2, a JSON-level lockfile diff, npm ci --dry-run --ignore-scripts with both npm versions, a ts-node reference scan, and the gates npm run typecheck, lint, lint:units, format:check, openspec strict, qc:openspec-ci, desktop type-check and desktop npm test (warm and --no-cache, 57/57), the validator, --next and the validator tests (86/86). It did not re-run npm run test:stable, a full real npm ci, build, storybook:build or next dev (section 9).",
+  "notVerified": [
+    "npm run test:stable (not re-run; author's single run 2796/2796 suites, 37180 passed).",
+    "A full real `npm ci` from the head lockfile into an empty directory (only --dry-run with two npm versions plus the author's existing physical tree, validated by npm ls).",
+    "Behaviour of the base command on Node 22.12-22.17 (versions not installed); the head does not depend on the features in question.",
+    "npm run build, storybook:build, next dev: out of scope for a script-runner swap and unaffected by the diff."
+  ],
+  "stableSuiteNote": "The author ran npm run test:stable once on the final bytes: 2796/2796 suites, 37180 passed, 50 skipped, 0 failed (green.log and stable.log, hashed in the mainProof attemptLogs; green.log cites the stable.log sha256). The reviewer did not re-run it (section 9).",
+  "openNotesResolution": {
+    "TS7S2A-OPEN-1": "The three stdout hashes match the author's red/local receipts (8bf31f80..., 2d000d64..., da8a0fc5...). stderr: base prints the 4-line Node MODULE_TYPELESS_PACKAGE_JSON warning (its pid and path vary, so its hash varies per run; it vanished when the tool called process.exit(1) synchronously); head prints nothing. No tool output goes to stderr on either side.",
+    "TS7S2A-OPEN-2": "tsconfig handling by tsx: tsx loads the tsconfig from the cwd (register-*.mjs: loadTsconfig(process.env.TSX_TSCONFIG_PATH); npm run sets cwd to the repository root) and uses it for paths, jsx, useDefineForClassFields and the like; its esbuild target is `node${process.versions.node}` (index-*.mjs), not the tsconfig target, so target es2017 does not downlevel anything at run time. A probe file importing `{ UI_THEMES } from '@/constants/appearance'` resolves under tsx with the root tsconfig (paths without baseUrl) and, with TSX_TSCONFIG_PATH=scripts/tsconfig.json, with the baseUrl form too; the same probe under ts-node on the base fails (\"Cannot find package '@/constants'\"), so tsx is strictly more capable here. The terminology tool itself imports only node builtins and relative files (./terminology-tool.{core,fixers,output}.js and a type-only import of ./terminology-tool.types), so no alias is exercised by the four commands.",
+    "TS7S2A-OPEN-3": "Desktop TS151002 count: confirmed cache-dependent (my 14 warm / 16 cold against the author's 0 / 13 / 16); ts-jest emits them per transformed file not served from cache. No diagnostics.ignoreCodes added; desktop untouched (hashes unchanged). The 0 assertion belongs to the 2.3 receipt (C3 carried).",
+    "TS7S2A-OPEN-4": "No import/require line is added anywhere.",
+    "TS7S2A-OPEN-5": "TS7S1B merge 3d9c4536 is an ancestor of the baseline (merge-base --is-ancestor exit 0)."
+  },
+  "successorNotes": {
+    "TS7S2B": {
+      "heading": "## 7. Carry-forwards, exact wording",
+      "intro": "For TS7S2B (tasks 2.3-2.4):",
+      "carryForwards": [
+        {
+          "id": "C3",
+          "tag": "carried, tightened",
+          "wording": "desktop `npm test` prints a cache-dependent number of ts-jest TS151002 messages (reviewers measured 0, 13, 14 and 16 on the same tree). After ts-jest -> @swc/jest, the 2.3 receipt must assert 0 TS151002 on `npm test -- --no-cache`, not on a warm-cache run, and must not add diagnostics.ignoreCodes to desktop/jest.config.js.",
+          "concern": "cache-dependent TS151002 count; 0 asserted on npm test -- --no-cache; no diagnostics.ignoreCodes",
+          "applies": "TS7S2B (task 2.3)"
+        },
+        {
+          "id": "S2B-1",
+          "wording": "Root devDependencies already carry @swc/core ^1.15.30 and @swc/jest ^0.2.39 (root package.json, unchanged by TS7S2A). When adding both to desktop/package.json, pin the same majors and state in the PR body whether desktop resolves its own copies (desktop has a separate lockfile) so the two SWC versions do not drift. Root package.json and package-lock.json are not TS7S2B leaves; do not touch them.",
+          "concern": "pin @swc/core and @swc/jest to the root majors and say whether desktop resolves its own copies; root package.json and package-lock.json are not leaves",
+          "applies": "TS7S2B (task 2.3)"
+        },
+        {
+          "id": "S2B-2",
+          "wording": "Regenerate desktop/package-lock.json with npm 11.19.1 (node <nvm v24.15.0>/node_modules/npm/bin/npm-cli.js under Node 22) or record the npm version used: npm 11.6.2 rewrites the root lockfile by about +80/-196 lines on this main with no dependency change, and the desktop lockfile is likely to behave the same way.",
+          "concern": "desktop/package-lock.json regenerated with npm 11.19.1, or the npm version recorded",
+          "applies": "TS7S2B (task 2.3)"
+        },
+        {
+          "id": "S2B-3",
+          "tag": "task 2.4",
+          "wording": "The root lockfile contains @joshwooding/vite-plugin-react-docgen-typescript 0.5.0 -> react-docgen-typescript, so Storybook autodocs currently depend on the TypeScript compiler API. The 2.4 proof must run `npm run storybook:build` and show one populated prop table for a component with typed props; if `typescript: { reactDocgen: 'react-docgen' }` is adopted, .storybook/main.ts must be a registered leaf of the unit making the edit (it was a notToChange hash for TS7S2A).",
+          "concern": "storybook:build plus one populated prop table; .storybook/main.ts a registered leaf if reactDocgen is changed",
+          "applies": "TS7S2B (task 2.4)"
+        }
+      ],
+      "openNotesForAdmission": [
+        {
+          "id": "TS7S2B-OPEN-1",
+          "concern": "C3 tightened: TS151002 count on --no-cache",
+          "note": "The desktop npm test TS151002 count depends on the ts-jest/Jest cache (0, 13, 14 and 16 measured on the same tree), so a warm-cache 0 proves nothing. TS7S2B's task 2.3 receipt asserts 0 TS151002 messages on desktop npm test -- --no-cache after ts-jest -> @swc/jest, and desktop/jest.config.js gains no diagnostics.ignoreCodes. This refines the registered desktop/: npm test proof item; no TS7S2B text change is implied."
+        },
+        {
+          "id": "TS7S2B-OPEN-2",
+          "concern": "S2B-1: SWC version pinning",
+          "note": "desktop/package.json pins @swc/core and @swc/jest to the root majors (root devDependencies @swc/core ^1.15.30 and @swc/jest ^0.2.39), as the TS7S2B behavior already requires, and the PR body states whether desktop resolves its own copies through its separate lockfile. Root package.json and package-lock.json are not TS7S2B leaves and stay untouched."
+        },
+        {
+          "id": "TS7S2B-OPEN-3",
+          "concern": "S2B-2: desktop lockfile npm version",
+          "note": "desktop/package-lock.json is regenerated with npm 11.19.1 (npm-cli.js from nvm v24.15.0 run under Node 22.22.0), or the receipts record the npm version used. npm 11.6.2 (Node 22.22.0's own) rewrites the root lockfile by about +80/-196 lines with no dependency change, so an unrelated libc/peer-flag diff in desktop/package-lock.json would otherwise need classifying."
+        },
+        {
+          "id": "TS7S2B-OPEN-4",
+          "concern": "S2B-3: Storybook docgen and the .storybook/main.ts leaf",
+          "note": "The root lockfile carries @joshwooding/vite-plugin-react-docgen-typescript -> react-docgen-typescript, so autodocs currently use the TypeScript compiler API. The task 2.4 proof runs npm run storybook:build and shows one populated prop table for a component with typed props. .storybook/main.ts is already a registered conditional leaf of TS7S2B (ownershipPaths), counted only if changed; it changes only if reactDocgen: 'react-docgen' is adopted, with the outcome recorded in tasks.md 2.4."
+        },
+        {
+          "id": "TS7S2B-OPEN-5",
+          "concern": "baseline",
+          "note": "TS7S2B is released on the TS7S2A merge 2c909b00 (main-verified in this change set). Admission must state its actual baseline (a later main that includes this closure), re-verify TS7S2A main-verified and ancestry there, and take the TS7S1B-baseline desktop test count (5 suites, 57 tests, also measured on the TS7S2A head) as the count to match."
+        }
+      ],
+      "state": "Released blocked -> planned in this change set (successorRelease below). No other TS7S2B field changes."
+    },
+    "TS7S3/TS7S4B": {
+      "scope": "shared package.json and package-lock.json leaves",
+      "wording": "TS7S2A's package-lock.json is idempotent under npm 11.19.1 (`npm install --package-lock-only` prints 'up to date', 0 lines). Any later reinstall of the root lockfile should use the same npm and say so, or expect an unrelated libc/peer-flag diff of about 200 lines from npm 11.6.2 that reviewers will have to classify. There is no other package.json interplay: TS7S2A touched only the four terminology:* scripts and the ts-node devDependency; tsx 4.22.4 and typescript ^5.8.3 lines are unchanged.",
+      "applies": "TS7S3 and TS7S4B (shared package.json and package-lock.json leaves)"
+    },
+    "TS7S2OD": {
+      "scope": "scripts/tsconfig.json",
+      "wording": "tsx resolves the `@/*` alias correctly from both the root tsconfig (paths without baseUrl) and scripts/tsconfig.json (baseUrl ../src form) when pointed at it with TSX_TSCONFIG_PATH; the terminology tool needs neither. Deleting or narrowing scripts/tsconfig.json therefore cannot change any tsx-run script's module resolution, which confirms C2 from the tsx side.",
+      "applies": "TS7S2OD (task 2.5, OD-scripts-tsconfig)"
+    },
+    "TS7S5A": {
+      "scope": "docs",
+      "wording": "openspec/scripts/README.md lines 47, 50, 53, 56, 59, 62, 65, 224-227, 238, 249, 302, 305, 308 say npx ts-node; replace with npx tsx (the package.json excerpt at 224-227 should match the live scripts).",
+      "minors": [
+        "M1",
+        "M2"
+      ],
+      "applies": "TS7S5A (docs): the README lines, plus the M2 sentence that a green terminology run is not a type-check"
+    },
+    "minors": [
+      {
+        "id": "M1",
+        "wording": "M1. openspec/scripts/README.md still documents npx ts-node (17 lines). Registered to TS7S5A; stale but not broken."
+      },
+      {
+        "id": "M2",
+        "wording": "M2. The tool is no longer type-checked at run time (ts-node did; tsx does not). Covered by root `npm run typecheck`, which includes openspec/scripts/*.ts and the allowJs .js modules (verified with --listFilesOnly). Worth one sentence in the TS7S5A docs so nobody reads a green terminology run as a type-check."
+      },
+      {
+        "id": "M3",
+        "wording": "M3. The receipts record the MODULE_TYPELESS_PACKAGE_JSON warning but not why it appeared (ts-node emitting ESM under module esnext and Node rescuing it). Section 2 above records it; nothing to change."
+      }
+    ],
+    "notes": [
+      {
+        "id": "N1",
+        "wording": "N1. Type-check-on-load difference verified by injection (TS2322): ts-node exit 1 even for --help; tsx exit 0."
+      },
+      {
+        "id": "N2",
+        "wording": "N2. Base ts-node run depended on Node's module-syntax detection, require(esm) and type-stripping format table; fails under --no-experimental-detect-module and --no-experimental-strip-types. Head tsx passes under both. Engines node >=22.12.0 makes the base command suspect on 22.12-22.17 (not tested)."
+      },
+      {
+        "id": "N3",
+        "wording": "N3. npm 11.6.2 lockfile churn is pre-existing at the base, not introduced here."
+      },
+      {
+        "id": "N4",
+        "wording": "N4. Shebang form unchanged in property, non-executable file, repository convention."
+      },
+      {
+        "id": "N5",
+        "wording": "N5. `validate --json` embeds absolute paths; byte-identical modulo the checkout directory name."
+      },
+      {
+        "id": "N6",
+        "wording": "N6. @emnapi/runtime and @img/sharp-wasm32 show as extraneous in both the root and the author's trees; unrelated."
+      },
+      {
+        "id": "N7",
+        "wording": "N7. The author's `npm ci --dry-run` without --ignore-scripts failed only because husky's prepare runs before node_modules exists; the --ignore-scripts form passes under both npm versions, as I reproduced."
+      }
+    ],
+    "laterUnits": {
+      "state": "No later unit is edited or released. TS7S2OD, TS7S3, TS7S4*, TS7S5* and P2CG1B stay as they are."
+    },
+    "note": "Every heading, intro, tag, scope and wording string under successorNotes is a verbatim substring of evidence/ts7s2a-source-fable-review-20261016.txt; the closure generator checked this. C3 and S2B-1..3 are the section 7 TS7S2B items in order, without their surrounding quotation marks; the TS7S3/TS7S4B, TS7S2OD and TS7S5A wordings are the section 7 quotations. M1-M3 and N1-N7 are the section 8 items. The concern, applies, minors, state and openNotesForAdmission fields and laterUnits are the parent's notes, not reviewer text. Where a carry-forward bears on TS7S2B's leaves or proof, the note is recorded here for its admission instead of editing TS7S2B. The TS7 track has no PROGRESS.md of its own, so these notes are recorded in this receipt only."
+  },
+  "reviewNotes": "No blockers and no majors. M1 (openspec/scripts/README.md still says npx ts-node) is carried to TS7S5A. M2 (no type-check on load under tsx) is recorded under findings.typeCheckOnLoad and carried to TS7S5A as one docs sentence. M3 (why the MODULE_TYPELESS_PACKAGE_JSON warning appeared) is recorded under findings.moduleSyntaxDetection; nothing to change. N1-N7 are recorded verbatim. The section 7 carry-forwards are recorded verbatim under TS7S2B, TS7S3/TS7S4B, TS7S2OD and TS7S5A.",
+  "reservedSlot": "evidence/ts7s2a-admission-review-20261016.md stays unwritten. The reviewer did not write it, and this closure preserves the review byte for byte at its path instead of authoring reviewer text.",
+  "ciQualification": "All 31 check runs on the merged head succeeded (run 38992408577), with no commit statuses. The reviewer did not verify CI; the merge receipt records the 31 names.",
+  "laneB": {
+    "ruledHead": "38e0541301c8a90bec3558b0f7b9db69a8a1c234",
+    "pr": 2178,
+    "commentId": 6228416167,
+    "author": "SwiggitySwerve",
+    "bodySha256": "c991812465163768decc4d9346bb919d8509a4940004fd98b276f7e45f9791e6",
+    "at": "2026-10-17T02:18:46Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2178#issuecomment-6228416167",
+    "bodyPath": "evidence/ts7s2a-owner-ruling-6228416167.txt"
+  },
+  "ownerRulingNote": "The ruling body names the exact merged head and TS7S2A: tasks 2.1-2.2 (the four terminology scripts run with tsx instead of ts-node, ts-node removed from root devDependencies, package-lock.json regenerated by npm). It also records the APPROVE-WITH-NOTES review with no blockers or majors, the reviewer's base and head re-runs of all four commands with byte-identical output and exit codes, the byte-for-byte lockfile reproduction from base, the root tsc gate covering ts-node's type-check-on-load, and CI 31/31. The owner authorized the ruling in chat; it is transcribed verbatim.",
+  "chronology": "The owner ruling was recorded after the source merge (merged 2026-10-17T02:18:42Z, ruled 2026-10-17T02:18:46Z), as the ruling body acknowledges. This transcription does not claim a premerge ruling.",
+  "identityScope": "Preserves the existing unversioned TS7S2A evidence and the actual cross-model review provenance. No v2/v3 identity manifest or engine observation is claimed.",
+  "githubApproval": "Lane A engineering evidence only; no GitHub approval claimed.",
+  "successorRelease": {
+    "label": "successor release",
+    "scope": "Separate from the TS7S2A closure. This change set also releases TS7S2B. No other TS7S2B field changes and no other unit is released.",
+    "release": {
+      "unit": "TS7S2B",
+      "field": "state",
+      "from": "blocked",
+      "to": "planned",
+      "basis": "TS7S2B's only predecessor, TS7S2A, is main-verified in this same change set with a genuine exact-main mainProof PASS at 2c909b0016d86426572c02d5a1e3186eda7203b5, as TS7S2B.admissionRequires demands. TS7S2A has no task keys, so its tick stays null. This is the standard on which TS7S2A was released (#2177) and TS7S1B before it (#2175), and on which ts7TrackRegistration20261016.schedulingRule releases each next track unit when its predecessor closes.",
+      "permission": "Release to planned only. Selection is not admission. TS7S2B source work still requires its own normal finite admission at its own baseline. P2CG1B stays blocked under the parent hold, and no other TS7 unit is released."
+    }
+  }
+}

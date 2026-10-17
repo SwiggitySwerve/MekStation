@@ -1,0 +1,222 @@
+{
+  "unit": "TS7S2A",
+  "stage": "mainProof",
+  "recordedAt": "2026-10-17T02:31:00.000Z",
+  "mergeCommit": "2c909b0016d86426572c02d5a1e3186eda7203b5",
+  "verdict": "PASS",
+  "checkout": "E:/Projects/Personal/MekStation-wt/ts7s2a-closure-20261016",
+  "runtime": {
+    "playwright": "Source/Main checks: 6 passed (npm run typecheck exit 0; validator PASSED; npm run -s terminology:validate exit 0 and npm run -s terminology:validate:strict exit 0, stdout 8bf31f80 each; npm ls ts-node empty; package-lock.json blob 0bc4b876 equal to the PR head; 0 failed)",
+    "terminology": "npm run -s terminology:validate and npm run -s terminology:validate:strict, run through npx tsx: exit 0 and exit 0, stdout sha256 8bf31f80951a7de88d35f307ac4a8468025d5f6a7e9303a55c4d0b4f04130d31 (189 bytes, 308 files scanned, no violations) for both, 0 stderr bytes; the same hash the author base (ts-node) and head (tsx) runs and the reviewer base and head runs record",
+    "tsc": "npm run typecheck (tsc 5.8.3, the repo gate): exit 0",
+    "npmLsTsNode": "npm ls ts-node and npm ls ts-node --all: (empty), npm exit 1 (no match); node_modules/ts-node absent; the only lockfile references are jest-config peerDependencies \">=9.0.0\" and peerDependenciesMeta optional",
+    "lockfile": "package-lock.json blob 0bc4b87625c1314e93599adde7b7d56a8326a4e1 at main equals the PR head blob (git diff --quiet 38e05413 HEAD -- package-lock.json package.json exits 0); base blob 439b3e2c; working-tree hash-object equals the blob",
+    "node": "v22.22.0",
+    "npm": "11.6.2"
+  },
+  "proof": {
+    "path": "evidence/mainproof-2c909b00-terminology.bytes.json",
+    "payloadSha256": "574259ceafc33f65221abe20e97a2884a1946b4ef287e095941c0f6edb231079",
+    "payloadBytes": 2465,
+    "note": "Fresh run at the exact merge HEAD on a clean checkout before any closure edit: the four terminology:* script strings (all npx tsx, none npx ts-node), npm run -s terminology:validate and npm run -s terminology:validate:strict with stdout and stderr captured separately as raw bytes, then git status --porcelain (empty). Both commands exit 0 with stdout sha256 8bf31f80951a7de88d35f307ac4a8468025d5f6a7e9303a55c4d0b4f04130d31, the acceptance hash of the unit (author base ts-node and head tsx, reviewer base and head)."
+  },
+  "logs": [
+    {
+      "path": "evidence/mainproof-2c909b00-typecheck.bytes.json",
+      "payloadSha256": "1a5b0ca5ee27886259e49fda2a5551c05d168f513e220dc53374ae0f8f1936e2",
+      "payloadBytes": 363,
+      "note": "Fresh tsc --version (Version 5.8.3) and npm run typecheck on the same checkout and HEAD: exit 0."
+    },
+    {
+      "path": "evidence/mainproof-2c909b00-validator.bytes.json",
+      "payloadSha256": "56fada40a95a0ad09cb78b12de065f303e81f8e3f0edabbe9d11927c2578158d",
+      "payloadBytes": 457,
+      "note": "Fresh validator and --next on the unedited ledger at the same HEAD (PASSED, 80 nodes; --next U24b, because TS7S2A was still implementing)."
+    },
+    {
+      "path": "evidence/mainproof-2c909b00-deps.bytes.json",
+      "payloadSha256": "8651cd16b55a2b4d3a221bf1bb4dcc62d37074593cca7533ceb941ef2425a2f9",
+      "payloadBytes": 5493,
+      "note": "Fresh npm --version (11.6.2), npm ls ts-node and npm ls ts-node --all ((empty), npm exit 1 for no match), npm ls tsx (tsx 4.22.4), node_modules provenance (a junction to the author worktree tree installed by npm ci from the head lockfile; ts-node absent there and in its hidden lockfile), lockfile and package.json blob equality against the PR head and base, and the remaining ts-node references in package-lock.json (jest-config optional peer only)."
+    }
+  ],
+  "attemptLogs": [
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2a-20261016/census.md",
+      "sha256": "f98b446659e6e614fdb447a92a2197bd303da740685d9fa853333eb458251ee8",
+      "bytes": 4315,
+      "note": "Author census frozen before edits (11 of 15 files, 33 of 500 counted lines; package-lock.json uncounted)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2a-20261016/ts-node-refs.md",
+      "sha256": "70163d0a7e011b3c4743e5e43ff5657911477724b9016a05796374b42f0c779f",
+      "bytes": 11747,
+      "note": "Author ts-node reference inventory before and after"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2a-20261016/before-after-terminology.md",
+      "sha256": "d27a9175729b4242d30555429df6114e72ab4d811f305a9b2d633c01afe36c5b",
+      "bytes": 7290,
+      "note": "Author acceptance record: the four npm -s commands, the violation probe and the C1 runner comparison"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2a-20261016/before-s-terminology-validate.stdout.txt",
+      "sha256": "8bf31f80951a7de88d35f307ac4a8468025d5f6a7e9303a55c4d0b4f04130d31",
+      "bytes": 189,
+      "note": "Base (ts-node) npm run -s terminology:validate stdout"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2a-20261016/after-s-terminology-validate.stdout.txt",
+      "sha256": "8bf31f80951a7de88d35f307ac4a8468025d5f6a7e9303a55c4d0b4f04130d31",
+      "bytes": 189,
+      "note": "Head (tsx) npm run -s terminology:validate stdout"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2a-20261016/before-s-terminology-validate-strict.stdout.txt",
+      "sha256": "8bf31f80951a7de88d35f307ac4a8468025d5f6a7e9303a55c4d0b4f04130d31",
+      "bytes": 189,
+      "note": "Base (ts-node) npm run -s terminology:validate:strict stdout"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2a-20261016/after-s-terminology-validate-strict.stdout.txt",
+      "sha256": "8bf31f80951a7de88d35f307ac4a8468025d5f6a7e9303a55c4d0b4f04130d31",
+      "bytes": 189,
+      "note": "Head (tsx) npm run -s terminology:validate:strict stdout"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2a-20261016/before-c1-tsnode-validate.stdout.txt",
+      "sha256": "8bf31f80951a7de88d35f307ac4a8468025d5f6a7e9303a55c4d0b4f04130d31",
+      "bytes": 189,
+      "note": "C1: baseline npx ts-node terminology-tool.ts validate stdout"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2a-20261016/before-c1-tsx-validate.stdout.txt",
+      "sha256": "8bf31f80951a7de88d35f307ac4a8468025d5f6a7e9303a55c4d0b4f04130d31",
+      "bytes": 189,
+      "note": "C1: baseline npx tsx terminology-tool.ts validate stdout"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2a-20261016/after-c1-tsx-validate.stdout.txt",
+      "sha256": "8bf31f80951a7de88d35f307ac4a8468025d5f6a7e9303a55c4d0b4f04130d31",
+      "bytes": 189,
+      "note": "C1: head npx tsx terminology-tool.ts validate stdout"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2a-20261016/before-npm-ls-ts-node.stdout.txt",
+      "sha256": "439b5d2e54b36007f168d971367b018f77939f7ae3573583a8b16f7681d1684c",
+      "bytes": 145,
+      "note": "Base npm ls ts-node (ts-node 10.9.2 present)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2a-20261016/after-npm-ls-ts-node.stdout.txt",
+      "sha256": "456fa53a841514a6a4ed607a4d8034b0f134bdb3a671af658d67c0fd4ce4eb26",
+      "bytes": 95,
+      "note": "Head npm ls ts-node: (empty)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2a-20261016/after-npm-ls-tsx.stdout.txt",
+      "sha256": "9c85ac0c9636fe49112e49d60e31014b826d1094d05fd91f7767e575df70d30e",
+      "bytes": 197,
+      "note": "Head npm ls tsx: tsx 4.22.4"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2a-20261016/npm-uninstall-ts-node-lockonly-npm11.19.1.stdout.txt",
+      "sha256": "c0cba485535af7c432efba6ed390139e3412d911743949367fe3f07e4b5e4d79",
+      "bytes": 345,
+      "note": "Author lockfile regeneration: npm uninstall ts-node --package-lock-only with npm 11.19.1"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2a-20261016/after-npm-ci.stdout.txt",
+      "sha256": "36644dcfd7c81c11bbab96d0845ad244c6410c1ee5d08d16fea5e0493324788c",
+      "bytes": 531,
+      "note": "Author npm ci of the head lockfile (the physical tree this main proof reuses through a junction)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2a-20261016/typecheck-base.stdout.txt",
+      "sha256": "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f",
+      "bytes": 65,
+      "note": "Base npm run typecheck"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2a-20261016/typecheck-post.stdout.txt",
+      "sha256": "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f",
+      "bytes": 65,
+      "note": "Head npm run typecheck"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2a-20261016/lint-base.stdout.txt",
+      "sha256": "4c2474c1ead6971f37b470e97e4fb20b92a55e210fd3d55cea01f29e6fe3ede4",
+      "bytes": 39376,
+      "note": "Base npm run lint (86 warnings, 0 errors)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2a-20261016/lint-post.stdout.txt",
+      "sha256": "dd25455d5985b3ac6209cce215285e7bf41648b3ed57673744e47101dfabc6ab",
+      "bytes": 39377,
+      "note": "Head npm run lint (86 warnings, 0 errors)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2a-20261016/format-check.stdout.txt",
+      "sha256": "cf0a6e48d97b4861481d8b8ec49e6bfdb941756ad2a73aac8f9c6674cdf05f12",
+      "bytes": 173,
+      "note": "Head npm run format:check"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2a-20261016/openspec-validate.stdout.txt",
+      "sha256": "f0ed162c969d01fe74d7cee8d133c14c01151bbb82e7a18c3a5b3e8a2678ac79",
+      "bytes": 6846,
+      "note": "Head npx openspec validate --all --strict (230 passed, 0 failed)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2a-20261016/openspec-ci.stdout.txt",
+      "sha256": "732887ec992b4e8a8a71532d48162be7a45d559054dfaf424aaaf091a2b5fc25",
+      "bytes": 293,
+      "note": "Head npm run qc:openspec-ci:validate (errors=0)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2a-20261016/desktop-typecheck-post.stdout.txt",
+      "sha256": "1c84aef8f008eb87873642349d0bea96f93036ed269f3ebe58dd42a2b1ca48cb",
+      "bytes": 55,
+      "note": "Head desktop npm run type-check"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2a-20261016/desktop-test-post.stdout.txt",
+      "sha256": "4fc7ee99f0025f2efc7a5067f4502af3803a1dfe49110cea9a58af5fddcbc3c7",
+      "bytes": 17053,
+      "note": "Head desktop npm test (5 suites, 57 passed, warm cache)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2a-20261016/desktop-test-post-nocache.stdout.txt",
+      "sha256": "c1ba07cde2c10a8746c6b4f6ea4a58a1a75afd4c6aa4ac18f5df1ead8605c461",
+      "bytes": 17064,
+      "note": "Head desktop npm test -- --no-cache (5 suites, 57 passed)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2a-20261016/validation.log",
+      "sha256": "e8888edbe91fc181cd175d01c27af614ced62a5ccb71e67909457ae96c928daa",
+      "bytes": 2132,
+      "note": "Author validator, --next and validator tests (86/86)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2a-20261016/green.log",
+      "sha256": "29c45de88bfb4816e1796ee754ea9bdb717e075dc5f9f79080719129bc481a83",
+      "bytes": 937,
+      "note": "Author npm run test:stable summary: 2796/2796 suites, 37180 passed, 50 skipped, exit 0"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2a-20261016/stable.log",
+      "sha256": "396e9b3c512944692b05098859cfe48989b1591174a4e52701c682deb90b6bbe",
+      "bytes": 1595799,
+      "note": "Author npm run test:stable full output on the final bytes"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2a-20261016/report.md",
+      "sha256": "fb260e09b0df112d8ae6838ee6abeaf7fbc559fddec591008659f36237210394",
+      "bytes": 1599,
+      "note": "Author report"
+    }
+  ],
+  "scope": "Fresh terminology:validate and terminology:validate:strict (tsx), typecheck (repo TypeScript 5.8.3), validator, npm ls ts-node and the lockfile blob check at the exact merge commit, plus hash references to the author attempt logs (25 of them cross-checked against the hashes the admission, red and local receipts cite). node_modules is the author's physical npm ci tree of the head lockfile, whose blob equals main's, reused through a junction; no fresh npm ci is claimed for main. terminology:fix, terminology:fix:dry-run, the violation probe, lint, format, OpenSpec, desktop type-check and desktop npm test are the author and reviewer results on the head, whose tree equals the merge tree for every leaf; they were not re-run at main. No full-stable, desktop, browser or build result is claimed for main.",
+  "closure": "main-verified only. taskKeys is empty; tasks.md 2.1 and 2.2 were ticked by the source PR, no tasks.md row changes here and no tick receipt is invented. Source/closure owned-resource cleanup is not established here.",
+  "preservation": "Proof and logs are base64 envelopes so repository LF normalization cannot alter their exact bytes. Decode data and verify payloadSha256/payloadBytes."
+}
