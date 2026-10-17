@@ -53,7 +53,8 @@ export function getAppIcon(baseDir: string): string {
       : process.platform === 'darwin'
         ? 'icon.icns'
         : 'icon.png';
-  return path.join(baseDir, '../assets/icons', iconName);
+  // Compiled main lives in <app>/dist/electron; assets live in <app>/assets.
+  return path.join(baseDir, '../../assets/icons', iconName);
 }
 
 export function getTrayIcon(baseDir: string): string {
@@ -63,5 +64,5 @@ export function getTrayIcon(baseDir: string): string {
       : process.platform === 'darwin'
         ? 'tray.png'
         : 'tray.png';
-  return path.join(baseDir, '../assets/icons', iconName);
+  return path.join(baseDir, '../../assets/icons', iconName);
 }

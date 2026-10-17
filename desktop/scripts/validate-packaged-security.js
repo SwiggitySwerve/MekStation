@@ -213,12 +213,13 @@ function validateAsarArtifact(appAsarPath) {
     "HOSTNAME: '127.0.0.1'",
     'Packaged Next server binds to loopback.',
   );
-  assertContains(
+  addResult(
     results,
     artifact,
     'packaged-server:loopback-url',
-    mainWindow,
-    "loadURL('http://127.0.0.1:3001')",
+    mainWindow.includes(
+      "const PACKAGED_APP_ORIGIN = 'http://127.0.0.1:3001'",
+    ) && mainWindow.includes('loadURL(PACKAGED_APP_ORIGIN)'),
     'Packaged renderer loads the loopback app URL.',
   );
 
