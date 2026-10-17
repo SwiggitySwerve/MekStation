@@ -183,7 +183,11 @@ jobs:
 
       - name: Run full Playwright e2e suite
         env:
-          MEKSTATION_E2E_SERVER_COMMAND: 'node .next/standalone/server.js'
+          # The authority-recovery and restart packs kill the server on purpose
+          # (process-exit-after-commit) and wait for it to come back. Playwright
+          # cannot restart a dead webServer, so run the standalone server under
+          # the relaunching wrapper the QC plans already use.
+          MEKSTATION_E2E_SERVER_COMMAND: 'cd .next/standalone && node ../../scripts/e2e/relaunching-server.mjs'
           HOSTNAME: '127.0.0.1'
         run: node scripts/playwright/run-playwright.mjs test --project=chromium --ignore-snapshots
 
