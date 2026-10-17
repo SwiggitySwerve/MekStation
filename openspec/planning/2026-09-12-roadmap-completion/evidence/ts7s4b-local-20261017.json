@@ -440,8 +440,10 @@
     }
   ],
   "stableProof": {
-    "source": "Exact PR-head CI: six unit shards plus a11y",
-    "status": "Pending PR creation; no local test:stable run, per user instruction."
+    "source": "Exact final PR-head CI: six unit shards plus a11y",
+    "status": "Pending when this CI-timing receipt is committed. No local test:stable run, per user instruction. The PR body identifies the final-head run.",
+    "measuredSourceHead": "c6f2aaee3d499736e134a49233fd7efc7534abf9",
+    "measuredRun": 39013571294
   },
   "claim": "Local source proof only. No independent review, CI, merge or Main verification claimed.",
   "successorNotes": {
@@ -606,7 +608,7 @@
     "actualChangedFiles": 12,
     "filesIncludingReservedReview": 13,
     "maxNonGeneratedLines": 500,
-    "countedAddedLines": 30,
+    "countedAddedLines": 31,
     "rows": [
       {
         "file": "desktop/package-lock.json",
@@ -622,9 +624,27 @@
       },
       {
         "file": "openspec/changes/migrate-to-typescript-7/tasks.md",
-        "added": 9,
-        "deleted": 8,
+        "added": 10,
+        "deleted": 9,
         "exempt": false
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4b-admission-20261017.json",
+        "added": 149,
+        "deleted": 0,
+        "exempt": true
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4b-local-20261017.json",
+        "added": 737,
+        "deleted": 0,
+        "exempt": true
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4b-red-20261017.json",
+        "added": 161,
+        "deleted": 0,
+        "exempt": true
       },
       {
         "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
@@ -727,11 +747,29 @@
     "desktop/package-lock.json": "65075eb582a0d8f0c14c7c83de2f057c096c21504ff05869261bfc0da53ca08a",
     "scripts/qc/roadmap-main-proof.mjs": "f35945aee504c736a3cc51986ac17fe52bc417f01659a41a74aa1d8a37a1e1bd",
     "scripts/__tests__/roadmap-loop-closure-proof.test.ts": "6e8343a69f58ff8db6458712f0946d4516d296d11e1eefa4a56fcc6f16848b15",
-    "openspec/changes/migrate-to-typescript-7/tasks.md": "12a7752f0d534ce5a9e916befc0147d5c2cf805ddbf6962cc61198647f9a00bf",
+    "openspec/changes/migrate-to-typescript-7/tasks.md": "c19d2d68fd4643fcdbf5e3130c051bdcb1baade71f376a3e532235bf204894d1",
     "scripts/__tests__/typescript-toolchain.test.ts": "807a2d4c8eb1d9959b28168269be6a069f022b691ba490c7303dfc0ee58abb95"
   },
   "physicalInstalls": {
     "rootSymlink": false,
     "desktopSymlink": false
+  },
+  "ciTypecheckProof": {
+    "runId": 39013571294,
+    "runUrl": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39013571294",
+    "head": "c6f2aaee3d499736e134a49233fd7efc7534abf9",
+    "jobId": 117341139351,
+    "jobUrl": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39013571294/job/117341139351",
+    "step": {
+      "completedAt": "2026-10-17T07:27:04Z",
+      "conclusion": "success",
+      "name": "Run type check",
+      "number": 5,
+      "startedAt": "2026-10-17T07:26:51Z",
+      "status": "completed"
+    },
+    "seconds": 13,
+    "conclusion": "success",
+    "snapshotSha256": "62f995cf384a42c464d3ef005521542ff80c7172b3015fa599a5a505638c3d19"
   }
 }

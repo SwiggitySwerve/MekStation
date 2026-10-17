@@ -114,12 +114,12 @@
 - [x] 4.6 Prove TS 6 still serves the API consumers by re-running the 3.3 list.
   - Prove `require('typescript').version` starts with `6.`.
   - Prove `require('typescript7/package.json').version` starts with `7.`.
-- [ ] 4.7 Record after-numbers against 0.1:
+- [x] 4.7 Record after-numbers against 0.1:
   - `npm run typecheck`, cold and warm (check the `incremental` risk in `design.md`);
   - desktop `type-check`;
   - the CI `Type Check` step on the PR.
   - Acceptance targets: root type check under 10s locally, and the CI step under 15s.
-  - Local outcome: TypeScript 7.0.2 checks both root projects in 6.09s cold / 1.52s warm; desktop checks both projects in 0.49s. CI Type Check timing is pending this PR.
+  - Local outcome: TypeScript 7.0.2 checks both root projects in 6.09s cold / 1.52s warm; desktop checks both projects in 0.49s. CI Type Check passed in 13s (PR #2192, run 39013571294, source head c6f2aaee3d499736e134a49233fd7efc7534abf9); S1B recorded 51s.
 
 ## 5. Docs and close-out (PR 5, or folded into PR 4)
 
