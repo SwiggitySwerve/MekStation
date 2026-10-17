@@ -91,8 +91,8 @@ export function annotateGroupedEvents(
       const prevLocation = lastDamageLocation.get(attackId);
       lastDamageLocation.set(attackId, payload.location);
       const transferPrefix = prevLocation
-        ? `â†’ overflow to ${humanLocation(payload.location)}`
-        : `â†’ ${humanLocation(payload.location)}`;
+        ? `→ overflow to ${humanLocation(payload.location)}`
+        : `→ ${humanLocation(payload.location)}`;
       result.push({
         ...base,
         indentLevel: 1,
@@ -115,7 +115,7 @@ export function annotateGroupedEvents(
         result.push({
           ...base,
           indentLevel: 1,
-          transferPrefix: 'â†’ structure breach',
+          transferPrefix: '→ structure breach',
         });
         continue;
       }
@@ -131,11 +131,11 @@ export function annotateGroupedEvents(
  * Returns a display priority for an event so the feed can sort or
  * badge critical rows when collapsed.
  *
- * Tiers (high â†’ low):
- *   critical â€” UnitDestroyed, AmmoExplosion, GameEnded (irreversible combat outcomes)
- *   high     â€” CriticalHit, CriticalHitResolved, HeatEffectApplied (pivotal mid-battle signals)
- *   normal   â€” AttackResolved, DamageApplied, PhysicalAttackResolved, PhaseChanged (standard combat loop)
- *   low      â€” MovementDeclared, MovementLocked, HeatGenerated, HeatDissipated, TurnStarted,
+ * Tiers (high → low):
+ *   critical — UnitDestroyed, AmmoExplosion, GameEnded (irreversible combat outcomes)
+ *   high     — CriticalHit, CriticalHitResolved, HeatEffectApplied (pivotal mid-battle signals)
+ *   normal   — AttackResolved, DamageApplied, PhysicalAttackResolved, PhaseChanged (standard combat loop)
+ *   low      — MovementDeclared, MovementLocked, HeatGenerated, HeatDissipated, TurnStarted,
  *              TurnEnded, InitiativeRolled, FacingChanged (ambient bookkeeping)
  *
  * @spec openspec/changes/add-tactical-map-lenses-feed-replay/specs/tactical-map-interface/spec.md

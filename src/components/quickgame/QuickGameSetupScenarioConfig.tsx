@@ -27,17 +27,17 @@ const BIOME_OPTIONS = Object.values(BiomeType).map((b) => ({
 // selectors. Both default to the pre-6.2 implicit value so users that
 // skip the controls get unchanged behavior.
 const SCENARIO_TYPE_OPTIONS = [
-  { value: 'Annihilation', label: 'Annihilation â€” destroy all enemies' },
-  { value: 'CTF', label: 'Capture the Flag â€” seize objectives' },
-  { value: 'Defend', label: 'Defend â€” survive until the timer' },
-  { value: 'Breakthrough', label: 'Breakthrough â€” exit the far edge' },
+  { value: 'Annihilation', label: 'Annihilation — destroy all enemies' },
+  { value: 'CTF', label: 'Capture the Flag — seize objectives' },
+  { value: 'Defend', label: 'Defend — survive until the timer' },
+  { value: 'Breakthrough', label: 'Breakthrough — exit the far edge' },
 ];
 
 const AI_TIER_OPTIONS = [
-  { value: 'Green', label: 'Green â€” gunnery 5 / piloting 6' },
-  { value: 'Regular', label: 'Regular â€” gunnery 4 / piloting 5' },
-  { value: 'Veteran', label: 'Veteran â€” gunnery 3 / piloting 4' },
-  { value: 'Elite', label: 'Elite â€” gunnery 2 / piloting 3' },
+  { value: 'Green', label: 'Green — gunnery 5 / piloting 6' },
+  { value: 'Regular', label: 'Regular — gunnery 4 / piloting 5' },
+  { value: 'Veteran', label: 'Veteran — gunnery 3 / piloting 4' },
+  { value: 'Elite', label: 'Elite — gunnery 2 / piloting 3' },
 ];
 
 const DIFFICULTY_LABELS: Record<number, string> = {

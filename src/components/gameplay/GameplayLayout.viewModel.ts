@@ -31,7 +31,9 @@ export function buildEventActorLookup(
 ): Record<string, string> {
   const lookup: Record<string, string> = {};
   for (const unit of units) {
-    lookup[unit.id] = unit.unitRef || unit.name;
+    // `unitRef` is a catalog/library id (e.g. `shadow-hawk-shd-2h`,
+    // `custom-<uuid>`); the display name is what players recognize.
+    lookup[unit.id] = unit.name || unit.unitRef;
   }
   return lookup;
 }

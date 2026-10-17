@@ -28,13 +28,13 @@ import { awardKillXP, awardScenarioXP } from '../progression/xpAwards';
  * `CampaignPilotStatus`.
  *
  * Wounded with `wounds >= 5` escalates to `Critical` so the lossy
- * Criticalâ†’Wounded round-trip the legacy bridge introduced is fixed
+ * Critical→Wounded round-trip the legacy bridge introduced is fixed
  * (see PR4 of `wire-iperson-hard-cutover` regression test). Active
  * returns null because we want to *preserve* the existing roster entry
  * status (the pilot may have been on extended recovery before the
  * battle and a clean Active flip would lose that context).
  *
- * `Captured` (POW) has no `CampaignPilotStatus` representation today â€”
+ * `Captured` (POW) has no `CampaignPilotStatus` representation today —
  * MIA is the closest analog; future-state wants a dedicated POW status.
  */
 function pilotFinalToRosterStatus(
@@ -54,7 +54,7 @@ function pilotFinalToRosterStatus(
     case PilotFinalStatus.MIA:
       return CampaignPilotStatus.MIA;
     case PilotFinalStatus.Captured:
-      // No POW variant on CampaignPilotStatus â€” collapse to MIA so the
+      // No POW variant on CampaignPilotStatus — collapse to MIA so the
       // pilot is at least excluded from the active roster. Tracked for
       // future-state expansion.
       return CampaignPilotStatus.MIA;
@@ -70,15 +70,15 @@ function pilotFinalToRosterStatus(
  * caller commits via `applyPilotPatches`. The personnel Map is gone.
  *
  * NPC rule: XP helpers (awardScenarioXP / awardKillXP) return null when
- * `pilot === null` â€” NPCs don't earn XP.
+ * `pilot === null` — NPCs don't earn XP.
  *
  * Per audit finding D-8 (2026-06-09, W3.4): the patch also increments
  * `campaignMissions` (every applied outcome counts as one mission for
- * the pilot) and `campaignKills` by `killCount` â€” the unit's kill total
- * from the after-action report â€” so kill/mission auto-awards
+ * the pilot) and `campaignKills` by `killCount` — the unit's kill total
+ * from the after-action report — so kill/mission auto-awards
  * (`awards/categoryCheckers.ts`) can ever fire.
  *
- * Returns `null` when the pilot id can't be resolved to a roster entry â€”
+ * Returns `null` when the pilot id can't be resolved to a roster entry —
  * non-fatal; the rest of the outcome continues processing.
  */
 export function applyPilotDelta(context: {
@@ -101,12 +101,12 @@ export function applyPilotDelta(context: {
   } = context;
   if (!entry) {
     logger.warn(
-      `[postBattleProcessor] Unknown pilot id "${pilotId}" â€” skipping pilot updates.`,
+      `[postBattleProcessor] Unknown pilot id "${pilotId}" — skipping pilot updates.`,
     );
     return null;
   }
 
-  // 1. XP â€” scenario participation always, kill bonus when present.
+  // 1. XP — scenario participation always, kill bonus when present.
   // NPC rule: awardScenarioXP / awardKillXP return null when pilot===null.
   let xpDelta = 0;
   let campaignXpDelta = 0;
@@ -132,7 +132,7 @@ export function applyPilotDelta(context: {
     }
   }
 
-  // 2. Wound counter â€” accumulates on top of any pre-battle wounds.
+  // 2. Wound counter — accumulates on top of any pre-battle wounds.
   const newWounds = Math.min(6, entry.wounds + delta.pilotState.wounds);
 
   // 3. Status mapping (escalates to Critical when wounds >= 5).
@@ -142,7 +142,7 @@ export function applyPilotDelta(context: {
   );
   const newStatus = mappedStatus ?? entry.status;
 
-  // 4. WOUNDED â†’ seed recovery time = wounds * 7 (matches legacy formula).
+  // 4. WOUNDED → seed recovery time = wounds * 7 (matches legacy formula).
   const isWounded =
     delta.pilotState.finalStatus === PilotFinalStatus.Wounded ||
     delta.pilotState.finalStatus === PilotFinalStatus.Unconscious;
@@ -171,7 +171,7 @@ export function applyPilotDelta(context: {
 
 /**
  * Merge a single delta into the persisted combat state for the unit.
- * Always returns a fresh state object â€” never mutates inputs.
+ * Always returns a fresh state object — never mutates inputs.
  */
 export function applyUnitDelta(
   existing: IUnitCombatState | undefined,
@@ -188,7 +188,7 @@ export function applyUnitDelta(
       ammoPerBin: delta.ammoRemaining,
     });
 
-  // Armor: take the delta's snapshot directly (clamped â‰¥ 0). The delta
+  // Armor: take the delta's snapshot directly (clamped ≥ 0). The delta
   // is the *remaining* armor at end of battle, so it already reflects
   // damage dealt during this match.
   const nextArmor: Record<string, number> = { ...base.currentArmorPerLocation };
@@ -214,8 +214,8 @@ export function applyUnitDelta(
   );
 
   // Destroyed components: append new ones with this matchId stamped,
-  // dedupe by name (we don't have slot info on the delta â€” Wave 5 will
-  // enrich). The dedup key is `${name}` â€” replays of the same outcome
+  // dedupe by name (we don't have slot info on the delta — Wave 5 will
+  // enrich). The dedup key is `${name}` — replays of the same outcome
   // re-stamp the same name and the Set collapses them.
   const seenNames = new Set(base.destroyedComponents.map((c) => c.name));
   const newComponents = delta.destroyedComponents
@@ -260,7 +260,7 @@ export function applyUnitDelta(
 export function playerWon(outcome: ICombatOutcome): boolean {
   // The composed report contains the original session winner.
   // `IPostBattleReport.winner` is required + already typed as
-  // `GameSide | 'draw'` â€” the previous double-cast was a no-op
+  // `GameSide | 'draw'` — the previous double-cast was a no-op
   // defensive shim from before the report shape was tightened.
   return outcome.report.winner === GameSide.Player;
 }
@@ -285,7 +285,7 @@ export function applyContractDelta(
   const mission = missions.get(outcome.contractId);
   if (!mission) {
     logger.warn(
-      `[postBattleProcessor] Unknown contract id "${outcome.contractId}" â€” skipping contract update.`,
+      `[postBattleProcessor] Unknown contract id "${outcome.contractId}" — skipping contract update.`,
     );
     return null;
   }
@@ -294,7 +294,7 @@ export function applyContractDelta(
   }
 
   // Only flip status on terminal end reasons. Withdrawal leaves the
-  // contract Active for now â€” the player can re-engage. TurnLimit is a
+  // contract Active for now — the player can re-engage. TurnLimit is a
   // soft terminal: flip to PARTIAL so downstream payout logic treats
   // it as a draw outcome rather than leaving the mission Active.
   const previousStatus = mission.status;
@@ -314,7 +314,7 @@ export function applyContractDelta(
     outcome.endReason === CombatEndReason.TurnLimit ||
     outcome.endReason === CombatEndReason.Aborted
   ) {
-    // Turn-limit and reconnect-aborted matches are draws by construction â€” map
+    // Turn-limit and reconnect-aborted matches are draws by construction — map
     // to "PARTIAL" rather than leaving the mission Active.
     nextStatus = MissionStatus.PARTIAL;
   }
@@ -326,10 +326,10 @@ export function applyContractDelta(
   };
   missions.set(updated.id, updated);
 
-  // Per `wire-encounter-to-campaign-round-trip` Wave 5 Â§9: a flip
+  // Per `wire-encounter-to-campaign-round-trip` Wave 5 §9: a flip
   // from a non-terminal status (Active / Pending) to any terminal one
   // (Success / Partial / Failed) signals contract fulfillment.
-  // Status that didn't change at all does NOT publish â€” re-runs are
+  // Status that didn't change at all does NOT publish — re-runs are
   // a no-op for the bus.
   const isTerminal =
     nextStatus === MissionStatus.SUCCESS ||

@@ -27,42 +27,13 @@ import {
   ShieldIcon,
   SpeedIcon,
 } from '@/pages-modules/units/detail.icons';
+import {
+  parseUnitFields,
+  resolveWeightClass,
+  type IParsedUnitFields,
+} from '@/pages-modules/units/detail.parse';
 
 type BadgeVariant = React.ComponentProps<typeof Badge>['variant'];
-
-interface ParsedUnitFields {
-  readonly engine?: { type?: string; rating?: number };
-  readonly movement?: { walkMP?: number; runMP?: number; jumpMP?: number };
-  readonly armor?: Record<string, number>;
-  readonly totalArmor?: number;
-  readonly equipment?: Array<{ name: string; location: string }>;
-  readonly heatSinks?: { type?: string; total?: number };
-  readonly structure?: { type?: string };
-  readonly quirks?: string[];
-  readonly role?: string;
-}
-
-function parseUnitFields(unit: UnitData): ParsedUnitFields {
-  const parsedData = unit.parsedData;
-
-  return {
-    engine: parsedData.engine as { type?: string; rating?: number } | undefined,
-    movement: parsedData.movement as
-      | { walkMP?: number; runMP?: number; jumpMP?: number }
-      | undefined,
-    armor: parsedData.armorAllocation as Record<string, number> | undefined,
-    totalArmor: parsedData.totalArmorPoints as number | undefined,
-    equipment: parsedData.equipment as
-      | Array<{ name: string; location: string }>
-      | undefined,
-    heatSinks: parsedData.heatSinks as
-      | { type?: string; total?: number }
-      | undefined,
-    structure: parsedData.structure as { type?: string } | undefined,
-    quirks: parsedData.quirks as string[] | undefined,
-    role: (parsedData.metadata as { role?: string } | undefined)?.role,
-  };
-}
 
 function UnitHeaderActions({ unit }: { readonly unit: UnitData }) {
   const typeDisplay = getUnitTypeDisplay(unit.unitType);
@@ -74,7 +45,7 @@ function UnitHeaderActions({ unit }: { readonly unit: UnitData }) {
           {typeDisplay.label}
         </Badge>
         <TechBaseBadge techBase={unit.techBase} />
-        <WeightClassBadge weightClass={unit.weightClass} />
+        <WeightClassBadge weightClass={resolveWeightClass(unit)} />
         <Badge variant="muted">{unit.rulesLevel.replace(/_/g, ' ')}</Badge>
       </div>
       <Link href={`/customizer?id=${encodeURIComponent(unit.id)}`}>
@@ -93,14 +64,14 @@ function PhysicalPropertiesCard({
   engine,
 }: {
   readonly unit: UnitData;
-  readonly structure?: ParsedUnitFields['structure'];
-  readonly engine?: ParsedUnitFields['engine'];
+  readonly structure?: IParsedUnitFields['structure'];
+  readonly engine?: IParsedUnitFields['engine'];
 }) {
   return (
     <StatCard title="Physical Properties" icon={<CubeIcon />} variant="emerald">
       <StatList>
         <StatRow label="Tonnage" value={`${unit.tonnage} tons`} highlight />
-        <StatRow label="Weight Class" value={unit.weightClass} />
+        <StatRow label="Weight Class" value={resolveWeightClass(unit)} />
         {structure?.type && (
           <StatRow
             label="Internal Structure"
@@ -121,7 +92,7 @@ function PhysicalPropertiesCard({
 function MovementCard({
   movement,
 }: {
-  readonly movement?: ParsedUnitFields['movement'];
+  readonly movement?: IParsedUnitFields['movement'];
 }) {
   return (
     <StatCard title="Movement" icon={<SpeedIcon />} variant="cyan">
@@ -144,8 +115,8 @@ function ArmorCard({
   armor,
   totalArmor,
 }: {
-  readonly armor?: ParsedUnitFields['armor'];
-  readonly totalArmor?: ParsedUnitFields['totalArmor'];
+  readonly armor?: IParsedUnitFields['armor'];
+  readonly totalArmor?: IParsedUnitFields['totalArmor'];
 }) {
   return (
     <StatCard title="Armor" icon={<ShieldIcon />} variant="rose">
@@ -169,7 +140,7 @@ function ArmorCard({
 function HeatManagementCard({
   heatSinks,
 }: {
-  readonly heatSinks?: ParsedUnitFields['heatSinks'];
+  readonly heatSinks?: IParsedUnitFields['heatSinks'];
 }) {
   if (!heatSinks) return null;
 
@@ -190,7 +161,7 @@ function HeatManagementCard({
 function EquipmentCard({
   equipment,
 }: {
-  readonly equipment?: ParsedUnitFields['equipment'];
+  readonly equipment?: IParsedUnitFields['equipment'];
 }) {
   if (!equipment || equipment.length === 0) return null;
 

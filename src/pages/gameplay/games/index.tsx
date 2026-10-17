@@ -18,6 +18,10 @@ import { PageLayout, Card, Button, EmptyState, Badge } from '@/components/ui';
 import { SvgIcon } from '@/components/ui/SvgIcon';
 import { normalizeRoomCode } from '@/lib/p2p/roomCodes';
 import { useSyncRoomSelector } from '@/lib/p2p/useSyncRoomStore';
+import {
+  victoryReasonLabel,
+  type IPostBattleReport,
+} from '@/utils/gameplay/postBattleReport';
 
 // =============================================================================
 // Types
@@ -28,14 +32,37 @@ export interface GameSummary {
   name: string;
   status: 'active' | 'completed' | 'abandoned';
   turn: number;
-  playerForce: string;
-  opponentForce: string;
+  /** Legacy force summaries; absent for match-log rows. */
+  playerForce?: string;
+  opponentForce?: string;
+  /** Match-log result, e.g. "Opponent victory". */
+  resultLabel?: string;
+  /** Match-log end reason, e.g. "Last side standing". */
+  reasonLabel?: string;
   createdAt: string;
   updatedAt: string;
 }
 
 interface GamesListPageProps {
   readonly games: readonly GameSummary[];
+}
+
+function winnerLabel(winner: string | null | undefined): string {
+  switch (winner) {
+    case 'player':
+      return 'Player victory';
+    case 'opponent':
+      return 'Opponent victory';
+    case 'draw':
+      return 'Draw';
+    default:
+      return 'No winner';
+  }
+}
+
+function endReasonLabel(reason: string | undefined): string {
+  if (!reason) return 'Battle logged';
+  return victoryReasonLabel(reason as IPostBattleReport['reason']);
 }
 
 function mapMatchLogToGame(summary: MatchLogSummary): GameSummary {
@@ -45,8 +72,8 @@ function mapMatchLogToGame(summary: MatchLogSummary): GameSummary {
     name: `Match ${summary.id}`,
     status: 'completed',
     turn: summary.turnCount,
-    playerForce: summary.winner ? `Winner: ${summary.winner}` : 'No winner',
-    opponentForce: summary.reason || 'Battle logged',
+    resultLabel: winnerLabel(summary.winner),
+    reasonLabel: endReasonLabel(summary.reason),
     createdAt,
     updatedAt: createdAt,
   };
@@ -102,14 +129,32 @@ function GameCard({ game, onClick }: GameCardProps): React.ReactElement {
           <span className="text-text-theme-primary font-medium">Turn:</span>{' '}
           {game.turn}
         </p>
-        <p>
-          <span className="text-text-theme-primary font-medium">Player:</span>{' '}
-          {game.playerForce}
-        </p>
-        <p>
-          <span className="text-text-theme-primary font-medium">Opponent:</span>{' '}
-          {game.opponentForce}
-        </p>
+        {game.resultLabel !== undefined && (
+          <p>
+            <span className="text-text-theme-primary font-medium">Result:</span>{' '}
+            {game.resultLabel}
+          </p>
+        )}
+        {game.reasonLabel !== undefined && (
+          <p>
+            <span className="text-text-theme-primary font-medium">Reason:</span>{' '}
+            {game.reasonLabel}
+          </p>
+        )}
+        {game.playerForce !== undefined && (
+          <p>
+            <span className="text-text-theme-primary font-medium">Player:</span>{' '}
+            {game.playerForce}
+          </p>
+        )}
+        {game.opponentForce !== undefined && (
+          <p>
+            <span className="text-text-theme-primary font-medium">
+              Opponent:
+            </span>{' '}
+            {game.opponentForce}
+          </p>
+        )}
       </div>
       <div className="border-border-theme-subtle text-text-theme-muted mt-4 border-t pt-3 text-xs">
         Last played: {new Date(game.updatedAt).toLocaleDateString()}

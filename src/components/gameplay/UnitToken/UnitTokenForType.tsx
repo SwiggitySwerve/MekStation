@@ -1,5 +1,5 @@
 /**
- * UnitTokenForType â€” central dispatcher for per-type hex map tokens.
+ * UnitTokenForType — central dispatcher for per-type hex map tokens.
  *
  * Receives a single `IUnitToken` and routes to the correct per-type renderer
  * based on `token.unitType`. Handles:
@@ -8,11 +8,11 @@
  *   - Pixel-coordinate translation from hex coords
  *   - Click handler delegation
  *
- * This is the ONLY component HexMapDisplay should import for unit tokens â€”
+ * This is the ONLY component HexMapDisplay should import for unit tokens —
  * the per-type components are internal implementation details.
  *
  * @spec openspec/changes/add-per-type-hex-tokens/specs/tactical-map-interface/spec.md
- *        Â§Per-Type Token Rendering â€” dispatcher routes to correct renderer
+ *        §Per-Type Token Rendering — dispatcher routes to correct renderer
  */
 
 import React, { useEffect, useMemo } from 'react';
@@ -60,10 +60,10 @@ import { UnitTokenWrapper } from './UnitTokenForType.wrapper';
 export interface UnitTokenForTypeProps {
   /** The token descriptor for the unit to render. */
   token: IUnitToken;
-  /** Click handler â€” called with the unitId of the token that was clicked. */
+  /** Click handler — called with the unitId of the token that was clicked. */
   onClick: (unitId: string) => void;
   /**
-   * Double-click handler â€” per `add-minimap-and-camera-controls`
+   * Double-click handler — per `add-minimap-and-camera-controls`
    * task 2.3, double-clicking a unit centers the camera on it and
    * selects it. The dispatcher stops propagation so the map's own
    * pan-drag doesn't also fire.
@@ -156,7 +156,7 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
     [onDoubleClick, token.unitId],
   );
 
-  // Wave 8 PR-K8 â€” G1: subscribe to elected-spotter state from the shell
+  // Wave 8 PR-K8 — G1: subscribe to elected-spotter state from the shell
   // context. When this token's unit is currently spotting for an
   // indirect-fire attack, render a yellow/amber ring overlay. Cleared
   // automatically on IndirectFireSpotterLost / turn rollover.
@@ -164,7 +164,7 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
   // Hook MUST be called BEFORE the conditional BA-mounted early return
   // below so React's rules-of-hooks ordering invariant is preserved.
   // `useElectedSpotters` returns [] when no TacticalCommandShell is in
-  // the ancestry â€” token degrades to no-ring in storybook / standalone.
+  // the ancestry — token degrades to no-ring in storybook / standalone.
   const shellSpotters = useElectedSpotters();
   const isSpotter = shellSpotters.some((s) => s.spotterId === token.unitId);
 
