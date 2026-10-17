@@ -1,0 +1,317 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CG1B",
+  "stage": "red",
+  "baseline": "3826f7cb78179cf01d4e935c3ef886cee4f755da",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "L1 / P2CG1B implementation sub-agent"
+  },
+  "runtime": "node v22.22.0",
+  "redKind": "Genuine red-first (B-CF7, unlike A1/A2): the two registered test leaves gain the new cases; the six product leaves are byte-identical to the baseline (sha256 below) when they run. Every new case fails on the baseline; every pre-existing case in both leaves passes unchanged",
+  "productBytesAtRed": {
+    "src/lib/events/journal/SQLiteEventJournalWriter.ts": "1beac1d6c477727667e3403b95d8be0f173f31669354e0eacfb72b6d93dfecba",
+    "src/lib/campaign/sync/ICampaignEventStore.ts": "6925c43a7c3b0faa05f31cb1099c8596c4159b8c94ed15adbf76f3ea5a5f950f",
+    "src/lib/campaign/sync/JournalCampaignEventStore.ts": "9c2d15c3a947ebed1a532e5c0e642cbc5c8de4423af8cc81b1e11c81b4392db9",
+    "src/lib/multiplayer/server/CampaignMatchHost.ts": "b9bb5152b979b851ded60854bc5906e8067d011c775b4e9ad5c3e6da653a5c14",
+    "src/lib/multiplayer/server/CampaignMatchHost.doors.ts": "04b19f7e894e6073118f4ad4ab9b94d36f3d57034d615bcd32323ecf7b54b52a",
+    "src/lib/multiplayer/server/campaignHostBatchCommit.ts": "e8ccd2cb2ffe777ea61bf5d9a8249d7c0297492bd4424ff81230aaf5acfaba66"
+  },
+  "testBytesAtRed": {
+    "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts": "f9e7c7756d1f15eefc5b440ee016f315d68a032dab832de1c62d553a8199d844",
+    "src/lib/multiplayer/server/__tests__/CampaignMatchHost.pipeline.test.ts": "e9b2494ce5dfeb07f5b2b3dba159e41facabc517b97e45b3f78fa762cb449ebc"
+  },
+  "command": "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --json --outputFile=red-two-suites.json --runTestsByPath src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts src/lib/multiplayer/server/__tests__/CampaignMatchHost.pipeline.test.ts",
+  "exitCode": 1,
+  "result": "45 tests: 22 passed, 23 failed. New P2CG1B cases 23: 23 failed, 0 passed. Pre-existing cases 22: 22 passed",
+  "genuineBehaviourReds": [
+    "Owning wrapper inside a caller transaction: on the baseline appendWithExtension silently degrades to a SAVEPOINT and resolves (received \"resolved\"); the new case requires a refusal before writing whenever a commit notification is requested, because a released savepoint is not a commit",
+    "Borrowed append rollback/no-transaction/validation cases fail on the baseline because no operation appends inside a caller-owned transaction without opening its own (expect(...).toThrow mismatches and TypeError), i.e. the seam B-CF2 names does not exist",
+    "The remaining cases fail on the missing typed capability (appendControlledCommandBatch / applyHostIntentWithControls): their assertions on rollback, refusal, notification order, cleanup and committed-unsettled classification can only pass after implementation, and the local receipt records them passing"
+  ],
+  "tests": [
+    {
+      "suite": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+      "name": "JournalCampaignEventStore (in-memory journal) conforms to the ICampaignEventStore read/write contract",
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+      "name": "JournalCampaignEventStore (in-memory journal) matches the in-memory store observable behavior on the same script",
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+      "name": "JournalCampaignEventStore (in-memory journal) rejects a sequence collision with the typed error and an untouched log",
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+      "name": "JournalCampaignEventStore (in-memory journal) commits a multi-event command batch atomically with the digest on the terminal event",
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+      "name": "JournalCampaignEventStore (in-memory journal) loses an expected-revision race cleanly with nothing applied",
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+      "name": "JournalCampaignEventStore (in-memory journal) rejects divergent reuse of a command id without re-applying",
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+      "name": "JournalCampaignEventStore (in-memory journal) rejects an empty or non-contiguous batch before touching the journal",
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+      "name": "JournalCampaignEventStore (in-memory journal) state digests detect divergence and ignore key order",
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+      "name": "JournalCampaignEventStore (in-memory journal) hands a caller with a journal factory the journal store now that the flag is on",
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+      "name": "journal-backed campaign command-batch contract replays the accepted receipt and rejects divergent identity reuse",
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+      "name": "in-memory campaign command-batch contract replays the accepted receipt and rejects divergent identity reuse",
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+      "name": "JournalCampaignEventStore (real SQLite restart) recovers the committed batch and digest envelope across a process restart",
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+      "name": "source-only private envelope (real SQLite reopen) recovers the full contract and market from the private field while envelopeOf stays compact",
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+      "name": "source-only private envelope (real SQLite reopen) leaves a legacy envelope byte-identical and its digests unchanged",
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+      "name": "source-only private envelope (real SQLite reopen) refuses an unsupported private schema version rather than falling back",
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+      "name": "source-only private envelope (real SQLite reopen) refuses a captured baseline whose digest does not match its own body",
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+      "name": "source-only private envelope (real SQLite reopen) refuses to replay a stream that carries no private payload",
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+      "name": "P2CG1B borrowed append, prewrite guard and actual-commit signal (real SQLite) borrowed append writes inside the caller transaction, synchronously, and vanishes with its rollback",
+      "status": "failed",
+      "failure": "Error: expect(received).toThrow(expected)"
+    },
+    {
+      "suite": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+      "name": "P2CG1B borrowed append, prewrite guard and actual-commit signal (real SQLite) borrowed append is durable only through the outer owner commit and survives a reopen",
+      "status": "failed",
+      "failure": "TypeError: journal.appendInBorrowedTransaction is not a function"
+    },
+    {
+      "suite": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+      "name": "P2CG1B borrowed append, prewrite guard and actual-commit signal (real SQLite) borrowed append refuses without an active transaction, and a released savepoint is not durable",
+      "status": "failed",
+      "failure": "Error: expect(received).toThrow(expected)"
+    },
+    {
+      "suite": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+      "name": "P2CG1B borrowed append, prewrite guard and actual-commit signal (real SQLite) borrowed append shares the validation body: duplicate ids throw before writing, conflicts stay typed",
+      "status": "failed",
+      "failure": "Error: expect(received).toThrow(expected)"
+    },
+    {
+      "suite": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+      "name": "P2CG1B borrowed append, prewrite guard and actual-commit signal (real SQLite) the owning wrapper never notifies a savepoint: inside a caller transaction it refuses a commit notification before writing",
+      "status": "failed",
+      "failure": "Error: expect(received).toMatchObject(expected)"
+    },
+    {
+      "suite": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+      "name": "P2CG1B borrowed append, prewrite guard and actual-commit signal (real SQLite) a guard runs on the append transaction handle before the batch is written; a typed refusal changes nothing",
+      "status": "failed",
+      "failure": "TypeError: store.appendControlledCommandBatch is not a function"
+    },
+    {
+      "suite": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+      "name": "P2CG1B borrowed append, prewrite guard and actual-commit signal (real SQLite) a passing guard allows exactly one append; an exact retry neither re-runs the guard nor re-notifies",
+      "status": "failed",
+      "failure": "TypeError: store.appendControlledCommandBatch is not a function"
+    },
+    {
+      "suite": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+      "name": "P2CG1B borrowed append, prewrite guard and actual-commit signal (real SQLite) a throwing guard, a thenable guard result and a throwing saved-record extension all roll back with no notification",
+      "status": "failed",
+      "failure": "TypeError: store.appendControlledCommandBatch is not a function"
+    },
+    {
+      "suite": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+      "name": "P2CG1B borrowed append, prewrite guard and actual-commit signal (real SQLite) notifies once after the native COMMIT with a frozen plain identity an independent connection can already read",
+      "status": "failed",
+      "failure": "TypeError: store.appendControlledCommandBatch is not a function"
+    },
+    {
+      "suite": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+      "name": "P2CG1B borrowed append, prewrite guard and actual-commit signal (real SQLite) a throwing notification is reported on the committed result and never undoes the batch",
+      "status": "failed",
+      "failure": "TypeError: store.appendControlledCommandBatch is not a function"
+    },
+    {
+      "suite": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+      "name": "P2CG1B borrowed append, prewrite guard and actual-commit signal (real SQLite) controls on a journal or store without the capability fail closed before any write",
+      "status": "failed",
+      "failure": "TypeError: memoryStore.appendControlledCommandBatch is not a function"
+    },
+    {
+      "suite": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+      "name": "P2CG1B borrowed append, prewrite guard and actual-commit signal (real SQLite) controls never reach the journal payload or the command identity",
+      "status": "failed",
+      "failure": "TypeError: (intermediate value).appendControlledCommandBatch is not a function"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/CampaignMatchHost.pipeline.test.ts",
+      "name": "CampaignMatchHost over a batch-capable journal store commits a multi-event hire as one atomic journal command with the digest on the terminal event",
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/CampaignMatchHost.pipeline.test.ts",
+      "name": "CampaignMatchHost over a batch-capable journal store journals nothing for a rejected intent",
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/CampaignMatchHost.pipeline.test.ts",
+      "name": "CampaignMatchHost over a batch-capable journal store replays a stable client intent without a second journal batch or broadcast",
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/CampaignMatchHost.pipeline.test.ts",
+      "name": "CampaignMatchHost over a batch-capable journal store reprojects the stream to exactly the live authoritative state",
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/CampaignMatchHost.pipeline.test.ts",
+      "name": "CampaignMatchHost over a batch-capable journal store on verify-after-apply divergence: no broadcast, journal-rebuilt state, batch retained",
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/CampaignMatchHost.pipeline.test.ts",
+      "name": "CampaignMatchHost controlled commits over a file-backed SQLite journal (P2CG1B) a late guard refusal returns typed with no append, projection move or subscriber call; the same operation then commits once",
+      "status": "failed",
+      "failure": "TypeError: host.applyHostIntentWithControls is not a function"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/CampaignMatchHost.pipeline.test.ts",
+      "name": "CampaignMatchHost controlled commits over a file-backed SQLite journal (P2CG1B) a guard on a store without the capability refuses before the first event, on the plain batch store and on the per-event fallback",
+      "status": "failed",
+      "failure": "TypeError: memoryHost.applyHostIntentWithControls is not a function"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/CampaignMatchHost.pipeline.test.ts",
+      "name": "CampaignMatchHost controlled commits over a file-backed SQLite journal (P2CG1B) a genuine removal notifies after the native commit and before publication; cleanup runs after the lock releases; the receipt survives a reopen",
+      "status": "failed",
+      "failure": "TypeError: host.applyHostIntentWithControls is not a function"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/CampaignMatchHost.pipeline.test.ts",
+      "name": "CampaignMatchHost controlled commits over a file-backed SQLite journal (P2CG1B) after a genuine removal commit, verification drift keeps the durable removal, drains the other steps and reports committed-unsettled",
+      "status": "failed",
+      "failure": "TypeError: host.applyHostIntentWithControls is not a function"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/CampaignMatchHost.pipeline.test.ts",
+      "name": "CampaignMatchHost controlled commits over a file-backed SQLite journal (P2CG1B) after a genuine removal commit, verification drift with a failed rebuild keeps the durable removal, drains the other steps and reports committed-unsettled",
+      "status": "failed",
+      "failure": "TypeError: host.applyHostIntentWithControls is not a function"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/CampaignMatchHost.pipeline.test.ts",
+      "name": "CampaignMatchHost controlled commits over a file-backed SQLite journal (P2CG1B) after a genuine removal commit, a failed subscriber keeps the durable removal, drains the other steps and reports committed-unsettled",
+      "status": "failed",
+      "failure": "TypeError: host.applyHostIntentWithControls is not a function"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/CampaignMatchHost.pipeline.test.ts",
+      "name": "CampaignMatchHost controlled commits over a file-backed SQLite journal (P2CG1B) after a genuine removal commit, a failed commit notification keeps the durable removal, drains the other steps and reports committed-unsettled",
+      "status": "failed",
+      "failure": "TypeError: host.applyHostIntentWithControls is not a function"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/CampaignMatchHost.pipeline.test.ts",
+      "name": "CampaignMatchHost controlled commits over a file-backed SQLite journal (P2CG1B) after a genuine removal commit, a failed cleanup callback keeps the durable removal, drains the other steps and reports committed-unsettled",
+      "status": "failed",
+      "failure": "TypeError: host.applyHostIntentWithControls is not a function"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/CampaignMatchHost.pipeline.test.ts",
+      "name": "CampaignMatchHost controlled commits over a file-backed SQLite journal (P2CG1B) a precommit extension failure rolls back: no removal row, no notification, commit-uncertain with the original error, cleanup still runs",
+      "status": "failed",
+      "failure": "TypeError: host.applyHostIntentWithControls is not a function"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/CampaignMatchHost.pipeline.test.ts",
+      "name": "CampaignMatchHost controlled commits over a file-backed SQLite journal (P2CG1B) an uncertain outcome is resolved only by genuine readback, which finds the committed removal",
+      "status": "failed",
+      "failure": "Error: Property `appendControlledCommandBatch` does not exist in the provided object"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/CampaignMatchHost.pipeline.test.ts",
+      "name": "CampaignMatchHost controlled commits over a file-backed SQLite journal (P2CG1B) an exact duplicate removal answers from the original receipt: one journal effect, no second application, broadcast or notification, and the next door still runs",
+      "status": "failed",
+      "failure": "TypeError: host.applyHostIntentWithControls is not a function"
+    }
+  ],
+  "files": {
+    "json": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1b-proof-20261017/red-two-suites.json",
+      "sha256": "4135d498e37aa45d811a3e0c6cad0a08561abfe246a803745517bc7f281c2d5f"
+    },
+    "log": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1b-proof-20261017/red-raw.log",
+      "sha256": "9decec0ad34d948943752b57bb3259b53ada1e6cc841bf6effde2be24fc9f71c"
+    }
+  },
+  "commit": "This red snapshot is committed with git commit --no-verify: the repository pre-commit hook runs npm run typecheck, which a red-first commit cannot pass because the new cases reference operations that do not exist yet (TS2339/TS2305 on appendInBorrowedTransaction, appendControlledCommandBatch, applyHostIntentWithControls, CAMPAIGN_APPEND_CONTROLS_UNSUPPORTED, ICampaignCommittedBatch, and TS2554 on the three-argument appendWithExtension). oxfmt reported no change to either test leaf. Every later commit runs the hook normally",
+  "note": "The pipeline file's existing applyCampaignEvent mock gains one additive branch behind a new flag (armRemovalApplyDrift) that no pre-existing case sets; the five pre-existing pipeline cases pass unchanged at red. One case was added after the first red run (the owning-wrapper savepoint case) and a setImmediate call in it was replaced with setTimeout because the suite environment has no setImmediate; the run recorded here is the final red run of the frozen test bytes above"
+}

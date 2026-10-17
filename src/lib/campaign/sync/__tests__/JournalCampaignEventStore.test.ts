@@ -28,6 +28,7 @@ import type {
 import type { IContract } from '@/types/campaign/Mission';
 
 import { canonicalizeJsonV1 } from '@/lib/events/journal/EventJournalCanonicalizer';
+import { canonicalizeCommandIdentityV1 } from '@/lib/events/journal/EventJournalCommandIdentity';
 import { InMemoryEventJournal } from '@/lib/events/journal/InMemoryEventJournal';
 import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
 import { EVENT_JOURNAL_MIGRATION } from '@/services/persistence/SQLiteService.eventJournal.migration';
@@ -46,7 +47,9 @@ import {
   replayCampaignSourceContracts,
 } from '../../authority/campaignSourcePrivateEnvelope';
 import {
+  CAMPAIGN_APPEND_CONTROLS_UNSUPPORTED,
   CampaignEventSequenceCollisionError,
+  type ICampaignCommittedBatch,
   type ICampaignEventStore,
 } from '../ICampaignEventStore';
 import { InMemoryCampaignEventStore } from '../InMemoryCampaignEventStore';
@@ -57,6 +60,7 @@ import {
   createDefaultCampaignEventStore,
   envelopeOf,
   JournalCampaignEventStore,
+  toJournalBatch,
   type ICampaignJournalEnvelope,
 } from '../JournalCampaignEventStore';
 
@@ -780,5 +784,507 @@ describe('source-only private envelope (real SQLite reopen)', () => {
       'no-private-payload',
     );
     reopened.db.close();
+  });
+});
+
+/**
+ * P2CG1B: the borrowed-transaction journal operation, the prewrite guard
+ * threaded through the campaign store, and the actual-commit notification,
+ * all against real file-backed SQLite. Every row reads durable tables
+ * directly (or through a second connection after the native COMMIT), so
+ * an in-process cache cannot stand in for a rollback or a commit.
+ */
+describe('P2CG1B borrowed append, prewrite guard and actual-commit signal (real SQLite)', () => {
+  let directory: string;
+
+  beforeEach(() => {
+    directory = mkdtempSync(path.join(tmpdir(), 'campaign-p2cg1b-'));
+  });
+  afterEach(() => {
+    rmSync(directory, { recursive: true, force: true });
+  });
+
+  function openFile(
+    name: string,
+    migrate = true,
+  ): {
+    readonly file: string;
+    readonly db: Database.Database;
+    readonly journal: SQLiteEventJournal<ICampaignJournalEnvelope>;
+  } {
+    const file = path.join(directory, name);
+    const db = new Database(file);
+    db.pragma('journal_mode = WAL');
+    db.pragma('foreign_keys = ON');
+    if (migrate) db.exec(EVENT_JOURNAL_MIGRATION.up);
+    return {
+      file,
+      db,
+      journal: new SQLiteEventJournal<ICampaignJournalEnvelope>(db, () => NOW),
+    };
+  }
+
+  /** Every durable table an append touches, read on the given handle. */
+  function durableCounts(db: Database.Database): Record<string, number> {
+    const count = (sql: string): number =>
+      (db.prepare(sql).get() as { readonly n: number }).n;
+    return {
+      batches: count('SELECT COUNT(*) AS n FROM event_journal_batches'),
+      events: count('SELECT COUNT(*) AS n FROM event_journal_events'),
+      heads: count('SELECT COUNT(*) AS n FROM event_journal_stream_heads'),
+      refs: count('SELECT COUNT(*) AS n FROM event_journal_entity_refs'),
+      highWater: count(
+        'SELECT last_commit_position AS n FROM event_journal_store_state WHERE singleton_id = 1',
+      ),
+    };
+  }
+
+  function batchFor(commandId: string, sequence = 0) {
+    return toJournalBatch({
+      campaignId: 'campaign-journal',
+      commandId,
+      events: [campaignEvent(sequence)],
+      expectedPostStateDigest: null,
+    });
+  }
+
+  function commandInput(commandId: string, sequence = 0) {
+    return {
+      commandId,
+      intentFingerprint: `${commandId}-fingerprint`,
+      events: [campaignEvent(sequence)],
+      expectedPostStateDigest: 'd'.repeat(64),
+    };
+  }
+
+  it('borrowed append writes inside the caller transaction, synchronously, and vanishes with its rollback', () => {
+    const { db, journal } = openFile('borrowed-rollback.sqlite');
+    const empty = durableCounts(db);
+    let inside: Record<string, number> | undefined;
+    let returned: unknown;
+
+    expect(() =>
+      db.transaction(() => {
+        returned = journal.appendInBorrowedTransaction(
+          batchFor('command-borrowed-rollback'),
+        );
+        inside = durableCounts(db);
+        throw new Error('outer body fails after the borrowed append');
+      })(),
+    ).toThrow('outer body fails after the borrowed append');
+
+    // Synchronous: a plain result, not a promise or thenable.
+    expect(returned).toMatchObject({ kind: 'committed' });
+    expect((returned as { readonly then?: unknown }).then).toBeUndefined();
+    expect(inside).toMatchObject({
+      batches: 1,
+      events: 1,
+      heads: 1,
+      highWater: 1,
+    });
+    // The receipt, events, head, high-water and entity refs all rolled back.
+    expect(durableCounts(db)).toEqual(empty);
+    db.close();
+  });
+
+  it('borrowed append is durable only through the outer owner commit and survives a reopen', async () => {
+    const { db, journal } = openFile('borrowed-commit.sqlite');
+
+    db.transaction(() => {
+      const result = journal.appendInBorrowedTransaction(
+        batchFor('command-borrowed-commit'),
+      );
+      expect(result.kind).toBe('committed');
+      // It neither began nor ended a transaction of its own: the caller's
+      // transaction is still the open one.
+      expect(db.inTransaction).toBe(true);
+    })();
+    expect(db.inTransaction).toBe(false);
+    db.close();
+
+    const reopened = openFile('borrowed-commit.sqlite', false);
+    expect(durableCounts(reopened.db)).toMatchObject({
+      batches: 1,
+      events: 1,
+      heads: 1,
+      highWater: 1,
+    });
+    expect(
+      (await reopened.journal.getCommandReceipt('command-borrowed-commit'))
+        ?.eventCount,
+    ).toBe(1);
+    reopened.db.close();
+  });
+
+  it('borrowed append refuses without an active transaction, and a released savepoint is not durable', () => {
+    const { db, journal } = openFile('borrowed-no-transaction.sqlite');
+    const empty = durableCounts(db);
+
+    expect(() =>
+      journal.appendInBorrowedTransaction(batchFor('command-no-transaction')),
+    ).toThrow(/active transaction/);
+    expect(durableCounts(db)).toEqual(empty);
+
+    expect(() =>
+      db.transaction(() => {
+        // A nested better-sqlite3 transaction is a SAVEPOINT; releasing it
+        // commits nothing durable while the outer transaction is open.
+        db.transaction(() => {
+          journal.appendInBorrowedTransaction(batchFor('command-savepoint'));
+        })();
+        expect(durableCounts(db).batches).toBe(1);
+        throw new Error('outer rollback after the savepoint released');
+      })(),
+    ).toThrow('outer rollback after the savepoint released');
+    expect(durableCounts(db)).toEqual(empty);
+    db.close();
+  });
+
+  it('borrowed append shares the validation body: duplicate ids throw before writing, conflicts stay typed', () => {
+    const { db, journal } = openFile('borrowed-validation.sqlite');
+    const first = batchFor('command-validation-a');
+    const duplicateIds = {
+      ...batchFor('command-validation-dup'),
+      events: [
+        first.events[0],
+        { ...first.events[0], occurredAt: '3025-01-04T00:00:00.000Z' },
+      ],
+    };
+
+    db.transaction(() => {
+      expect(() => journal.appendInBorrowedTransaction(duplicateIds)).toThrow(
+        'Duplicate eventId',
+      );
+      expect(durableCounts(db).batches).toBe(0);
+      expect(journal.appendInBorrowedTransaction(first).kind).toBe('committed');
+      expect(
+        journal.appendInBorrowedTransaction({
+          ...batchFor('command-validation-stale'),
+          expectedRevision: 0,
+        }),
+      ).toEqual({
+        kind: 'revision-conflict',
+        expectedRevision: 0,
+        actualRevision: 1,
+      });
+      expect(
+        journal.appendInBorrowedTransaction({
+          ...first,
+          expectedRevision: 1,
+        }),
+      ).toEqual({
+        kind: 'command-identity-conflict',
+        commandId: 'command-validation-a',
+      });
+    })();
+    expect(durableCounts(db)).toMatchObject({ batches: 1, events: 1 });
+    db.close();
+  });
+
+  it('the owning wrapper never notifies a savepoint: inside a caller transaction it refuses a commit notification before writing', async () => {
+    const { db, journal } = openFile('savepoint-notify.sqlite');
+    const notified: unknown[] = [];
+    let settled: unknown = 'pending';
+
+    db.transaction(() => {
+      // Inside an open transaction better-sqlite3 turns the wrapper's own
+      // IMMEDIATE transaction into a SAVEPOINT, whose release is not a
+      // durable commit. A notification there would be a false commit.
+      journal
+        .appendWithExtension(
+          batchFor('command-savepoint-notify'),
+          (_handle, append) => append(),
+          (result: unknown) => notified.push(result),
+        )
+        .then(
+          () => {
+            settled = 'resolved';
+          },
+          (error: unknown) => {
+            settled = error;
+          },
+        );
+    })();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(notified).toEqual([]);
+    expect(settled).toMatchObject({
+      message: expect.stringMatching(/outer transaction/),
+    });
+    expect(durableCounts(db).batches).toBe(0);
+    db.close();
+  });
+
+  it('a guard runs on the append transaction handle before the batch is written; a typed refusal changes nothing', async () => {
+    const { db, journal } = openFile('guard-refused.sqlite');
+    const store = new JournalCampaignEventStore(journal);
+    const empty = durableCounts(db);
+    const seen: unknown[] = [];
+    const notified: ICampaignCommittedBatch[] = [];
+    const refusal = { kind: 'refused' as const, reason: 'not-converged' };
+
+    const result = await store.appendControlledCommandBatch!(
+      'campaign-journal',
+      commandInput('command-guard-refused'),
+      {
+        guard: (handle) => {
+          seen.push({
+            inTransaction: handle.inTransaction,
+            sameHandle: handle === db,
+            batchesBeforeWrite: durableCounts(handle).batches,
+          });
+          return refusal;
+        },
+        onCommitted: (batch) => notified.push(batch),
+      },
+    );
+
+    expect(result).toEqual(refusal);
+    expect(seen).toEqual([
+      { inTransaction: true, sameHandle: true, batchesBeforeWrite: 0 },
+    ]);
+    expect(notified).toEqual([]);
+    expect(durableCounts(db)).toEqual(empty);
+    expect(
+      await store.getCommandReceipt(
+        'campaign-journal',
+        'command-guard-refused',
+      ),
+    ).toBeNull();
+    db.close();
+  });
+
+  it('a passing guard allows exactly one append; an exact retry neither re-runs the guard nor re-notifies', async () => {
+    const { db, journal } = openFile('guard-passed.sqlite');
+    const store = new JournalCampaignEventStore(journal);
+    let guardCalls = 0;
+    const notified: ICampaignCommittedBatch[] = [];
+    const controls = {
+      guard: () => {
+        guardCalls += 1;
+        return null;
+      },
+      onCommitted: (batch: ICampaignCommittedBatch) => notified.push(batch),
+    };
+
+    const first = await store.appendControlledCommandBatch!(
+      'campaign-journal',
+      commandInput('command-guard-passed'),
+      controls,
+    );
+    const retry = await store.appendControlledCommandBatch!(
+      'campaign-journal',
+      commandInput('command-guard-passed'),
+      controls,
+    );
+
+    expect(first.kind).toBe('committed');
+    expect(retry).toMatchObject({
+      kind: 'duplicate-command',
+      receipt: { commandId: 'command-guard-passed' },
+    });
+    expect(guardCalls).toBe(1);
+    expect(notified).toHaveLength(1);
+    expect(durableCounts(db)).toMatchObject({ batches: 1, events: 1 });
+    db.close();
+  });
+
+  it('a throwing guard, a thenable guard result and a throwing saved-record extension all roll back with no notification', async () => {
+    const { db, journal } = openFile('guard-rollback.sqlite');
+    const store = new JournalCampaignEventStore(journal);
+    const empty = durableCounts(db);
+    const notified: ICampaignCommittedBatch[] = [];
+    const onCommitted = (batch: ICampaignCommittedBatch) =>
+      notified.push(batch);
+
+    await expect(
+      store.appendControlledCommandBatch!(
+        'campaign-journal',
+        commandInput('command-guard-throws'),
+        {
+          guard: () => {
+            throw new Error('guard exploded');
+          },
+          onCommitted,
+        },
+      ),
+    ).rejects.toThrow('guard exploded');
+    await expect(
+      store.appendControlledCommandBatch!(
+        'campaign-journal',
+        commandInput('command-guard-thenable'),
+        { guard: () => Promise.resolve(null) as never, onCommitted },
+      ),
+    ).rejects.toThrow(/synchronously/);
+    store.rewriteRecordAfterCommand = () => {
+      throw new Error('saved-record rewrite failed');
+    };
+    await expect(
+      store.appendControlledCommandBatch!(
+        'campaign-journal',
+        commandInput('command-extension-throws'),
+        { guard: () => null, onCommitted },
+      ),
+    ).rejects.toThrow('saved-record rewrite failed');
+
+    expect(notified).toEqual([]);
+    expect(durableCounts(db)).toEqual(empty);
+    db.close();
+  });
+
+  it('notifies once after the native COMMIT with a frozen plain identity an independent connection can already read', async () => {
+    const { file, db, journal } = openFile('notify.sqlite');
+    const store = new JournalCampaignEventStore(journal);
+    const observed: unknown[] = [];
+
+    const result = await store.appendControlledCommandBatch!(
+      'campaign-journal',
+      commandInput('command-notify'),
+      {
+        onCommitted: (batch) => {
+          const other = new Database(file);
+          try {
+            observed.push({
+              batch: { ...batch },
+              frozen: Object.isFrozen(batch),
+              ownerInTransaction: db.inTransaction,
+              visibleElsewhere: other
+                .prepare(
+                  'SELECT command_id AS commandId FROM event_journal_batches WHERE command_id = ?',
+                )
+                .get('command-notify'),
+            });
+          } finally {
+            other.close();
+          }
+        },
+      },
+    );
+
+    expect(result.kind).toBe('committed');
+    const receipt = await journal.getCommandReceipt('command-notify');
+    expect(observed).toEqual([
+      {
+        batch: {
+          campaignId: 'campaign-journal',
+          commandId: 'command-notify',
+          commandDigest: receipt?.commandDigest,
+          firstCommitPosition: 1,
+          lastCommitPosition: 1,
+          eventCount: 1,
+        },
+        frozen: true,
+        ownerInTransaction: false,
+        visibleElsewhere: { commandId: 'command-notify' },
+      },
+    ]);
+    db.close();
+  });
+
+  it('a throwing notification is reported on the committed result and never undoes the batch', async () => {
+    const { db, journal } = openFile('notify-throws.sqlite');
+    const store = new JournalCampaignEventStore(journal);
+    const failure = new Error('commit observer failed');
+
+    const result = await store.appendControlledCommandBatch!(
+      'campaign-journal',
+      commandInput('command-notify-throws'),
+      {
+        onCommitted: () => {
+          throw failure;
+        },
+      },
+    );
+
+    expect(result).toMatchObject({
+      kind: 'committed',
+      notificationError: { error: failure },
+    });
+    db.close();
+    const reopened = openFile('notify-throws.sqlite', false);
+    expect(durableCounts(reopened.db)).toMatchObject({ batches: 1, events: 1 });
+    reopened.db.close();
+  });
+
+  it('controls on a journal or store without the capability fail closed before any write', async () => {
+    const memoryStore = new JournalCampaignEventStore(
+      new InMemoryEventJournal<ICampaignJournalEnvelope>(() => NOW),
+    );
+    let guardCalls = 0;
+
+    const guarded = await memoryStore.appendControlledCommandBatch!(
+      'campaign-journal',
+      commandInput('command-no-capability'),
+      {
+        guard: () => {
+          guardCalls += 1;
+          return null;
+        },
+      },
+    );
+    const notifyOnly = await memoryStore.appendControlledCommandBatch!(
+      'campaign-journal',
+      commandInput('command-no-capability'),
+      { onCommitted: () => undefined },
+    );
+
+    expect(CAMPAIGN_APPEND_CONTROLS_UNSUPPORTED).toBe(
+      'append-controls-unsupported',
+    );
+    expect(guarded).toEqual({
+      kind: 'refused',
+      reason: CAMPAIGN_APPEND_CONTROLS_UNSUPPORTED,
+    });
+    expect(notifyOnly).toEqual(guarded);
+    expect(guardCalls).toBe(0);
+    expect(await memoryStore.getEvents('campaign-journal')).toEqual([]);
+
+    // A store with only the plain batch capability is not guard-capable:
+    // it exposes no controlled operation the host could mistake for one.
+    const plain: ICampaignEventStore = new InMemoryCampaignEventStore();
+    expect(typeof plain.appendCommandBatch).toBe('function');
+    expect(plain.appendControlledCommandBatch).toBeUndefined();
+  });
+
+  it('controls never reach the journal payload or the command identity', async () => {
+    const guarded = openFile('identity-guarded.sqlite');
+    const plain = openFile('identity-plain.sqlite');
+    const input = commandInput('command-identity');
+
+    const controlled = await new JournalCampaignEventStore(guarded.journal)
+      .appendControlledCommandBatch!('campaign-journal', input, {
+      guard: () => null,
+      onCommitted: () => undefined,
+    });
+    const uncontrolled = await new JournalCampaignEventStore(
+      plain.journal,
+    ).appendCommandBatch('campaign-journal', input);
+    expect(controlled.kind).toBe('committed');
+    expect(uncontrolled.kind).toBe('committed');
+
+    const rows = (db: Database.Database) =>
+      db
+        .prepare(
+          'SELECT event_id AS eventId, payload_json AS payloadJson, event_digest AS eventDigest FROM event_journal_events ORDER BY commit_position',
+        )
+        .all() as Array<{ readonly payloadJson: string }>;
+    const digests = (db: Database.Database) =>
+      db
+        .prepare(
+          'SELECT command_digest AS commandDigest FROM event_journal_batches',
+        )
+        .all() as Array<{ readonly commandDigest: string }>;
+    expect(rows(guarded.db)).toEqual(rows(plain.db));
+    expect(digests(guarded.db)).toEqual(digests(plain.db));
+    expect(digests(plain.db)[0].commandDigest).toBe(
+      canonicalizeCommandIdentityV1(
+        toJournalBatch({ campaignId: 'campaign-journal', ...input }),
+      ).digest,
+    );
+    for (const row of rows(guarded.db)) {
+      expect(row.payloadJson).not.toMatch(/guard|onCommitted|afterRelease/);
+    }
+    guarded.db.close();
+    plain.db.close();
   });
 });

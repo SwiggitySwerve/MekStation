@@ -28,7 +28,7 @@ function integrity(message: string): never {
   throw new Error(`SQLite event journal integrity error: ${message}`);
 }
 
-function rejectPreparedThenable(value: unknown): void {
+export function rejectPreparedThenable(value: unknown): void {
   if (
     (typeof value === 'object' || typeof value === 'function') &&
     value !== null &&
@@ -56,6 +56,9 @@ export class SQLiteEventJournalWriter<TPayload = unknown> {
    * Append a journal command inside a caller-owned extension of the same
    * SQLite transaction. Durable consumers use this to make a receipt and the
    * corresponding journal batch indivisible without exposing journal writes.
+   * `onCommitted` (P2CG1B) runs only after this wrapper's own COMMIT, before
+   * the promise settles. Nested in a caller's transaction the wrapper is a
+   * SAVEPOINT, not a commit, so a notification request there is refused.
    */
   public async appendWithExtension<TResult>(
     raw: Journal.IAppendEventBatch<TPayload>,
@@ -63,22 +66,36 @@ export class SQLiteEventJournalWriter<TPayload = unknown> {
       db: Database.Database,
       append: () => Journal.EventJournalAppendResult<TPayload>,
     ) => TResult,
+    onCommitted?: (result: TResult) => void,
   ): Promise<TResult> {
-    const parsed = Schemas.AppendEventBatchSchema.parse(raw) as typeof raw;
-    const identity = canonicalizeCommandIdentityV1(parsed);
-    const eventIds = new Set(
-      identity.command.events.map(({ eventId }) => eventId),
-    );
-    if (eventIds.size !== identity.command.events.length) {
-      throw new Error('Duplicate eventId');
+    if (onCommitted !== undefined && this.db.inTransaction) {
+      throw new Error('Commit notification needs an outer transaction');
     }
-    return this.db
+    const identity = this.validatedIdentity(raw);
+    const result = this.db
       .transaction(() =>
         extend(this.db, () =>
           this.appendInTransaction(identity.command, identity.digest),
         ),
       )
       .immediate();
+    onCommitted?.(result);
+    return result;
+  }
+
+  /**
+   * P2CG1B borrowed append: the shared body, run synchronously inside the
+   * caller's open transaction on this handle. It never begins, commits or
+   * notifies; only the real outer owner can announce its own commit.
+   */
+  public appendInBorrowedTransaction(
+    raw: Journal.IAppendEventBatch<TPayload>,
+  ): Journal.EventJournalAppendResult<TPayload> {
+    if (!this.db.inTransaction) {
+      throw new Error('Borrowed append needs an active transaction to join');
+    }
+    const identity = this.validatedIdentity(raw);
+    return this.appendInTransaction(identity.command, identity.digest);
   }
 
   /**
@@ -118,16 +135,7 @@ export class SQLiteEventJournalWriter<TPayload = unknown> {
           rejectPreparedThenable(prepared.result);
           return prepared.result;
         }
-        const parsed = Schemas.AppendEventBatchSchema.parse(
-          prepared.raw,
-        ) as typeof prepared.raw;
-        const identity = canonicalizeCommandIdentityV1(parsed);
-        const eventIds = new Set(
-          identity.command.events.map(({ eventId }) => eventId),
-        );
-        if (eventIds.size !== identity.command.events.length) {
-          throw new Error('Duplicate eventId');
-        }
+        const identity = this.validatedIdentity(prepared.raw);
         const result = extend(this.db, prepared.context, () =>
           this.appendInTransaction(identity.command, identity.digest),
         );
@@ -167,6 +175,19 @@ export class SQLiteEventJournalWriter<TPayload = unknown> {
       return integrity('Journal high-water singleton is missing or invalid');
     }
     return { commitPosition: Number(row?.commitPosition) };
+  }
+
+  /** The one validation body every append path shares, before any write. */
+  private validatedIdentity(raw: Journal.IAppendEventBatch<TPayload>) {
+    const parsed = Schemas.AppendEventBatchSchema.parse(raw) as typeof raw;
+    const identity = canonicalizeCommandIdentityV1(parsed);
+    const eventIds = new Set(
+      identity.command.events.map(({ eventId }) => eventId),
+    );
+    if (eventIds.size !== identity.command.events.length) {
+      throw new Error('Duplicate eventId');
+    }
+    return identity;
   }
 
   private appendInTransaction(

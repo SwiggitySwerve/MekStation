@@ -47,11 +47,15 @@ import type {
 
 import { applyCampaignEvent } from '@/lib/campaign/sync/applyCampaignEvent';
 import { CampaignEventLog } from '@/lib/campaign/sync/campaignEventLog';
-import { type ICampaignEventStore } from '@/lib/campaign/sync/ICampaignEventStore';
+import {
+  CAMPAIGN_APPEND_CONTROLS_UNSUPPORTED,
+  type ICampaignEventStore,
+} from '@/lib/campaign/sync/ICampaignEventStore';
 
 import type {
   CampaignCommitOutcome,
   ICampaignBatchCommitHost,
+  ICampaignCommitControls,
 } from './campaignHostBatchCommit';
 import type {
   CampaignRosterChangeKind,
@@ -65,14 +69,18 @@ import type { IMatchMeta } from './IMatchStore';
 import {
   commitCampaignEventBatch,
   commitCampaignEventsInSequence,
+  throwCommitFailure,
 } from './campaignHostBatchCommit';
+import { intentCommandIdentity } from './campaignIntentIdentity';
 import {
+  type CampaignDoorOutcome,
   type ICampaignMatchHostLockedContext,
   applyHostIntentLocked,
   applyRosterUnitChangeLocked,
   creditSalvagePoolLocked,
   handleIntentLocked,
   openLocked,
+  resultOfDoor,
 } from './CampaignMatchHost.doors';
 import {
   commitCampaignOutcomeConsequences,
@@ -200,7 +208,8 @@ export class CampaignMatchHost {
   private batchDoors(): ICampaignHostBatchDoors {
     const ctx = this.doorContext();
     return {
-      applyHostIntent: (intent) => applyHostIntentLocked(ctx, intent),
+      applyHostIntent: async (intent) =>
+        resultOfDoor(await applyHostIntentLocked(ctx, intent)),
       creditSalvagePool: (value, reason) =>
         creditSalvagePoolLocked(ctx, value, reason),
       applyRosterUnitChange: (campaignId, change, unit, intentTag) =>
@@ -220,7 +229,8 @@ export class CampaignMatchHost {
       },
       readState: () => this.state,
       nextSequence: () => this.log.nextSequence(),
-      commitEvents: (events, identity) => this.commitEvents(events, identity),
+      commitEvents: (events, identity, controls) =>
+        this.commitEvents(events, identity, controls),
     };
   }
 
@@ -371,7 +381,9 @@ export class CampaignMatchHost {
       if (outcome.kind === 'lost-race') {
         throw new CampaignMissionLaunchRefusal('COOP_MISSION_STALE_HEAD');
       }
-      return outcome.events;
+      return outcome.kind === 'committed'
+        ? outcome.events
+        : throwCommitFailure(outcome);
     });
 
   /** The campaign event log facade — for the sync-session replay path. */
@@ -421,7 +433,54 @@ export class CampaignMatchHost {
   applyHostIntent = async (
     intent: CampaignHostCommand,
   ): Promise<CampaignIntentResult> =>
-    this.runExclusive(() => applyHostIntentLocked(this.doorContext(), intent));
+    this.runExclusive(async () =>
+      resultOfDoor(await applyHostIntentLocked(this.doorContext(), intent)),
+    );
+
+  /**
+   * P2CG1B: `applyHostIntent` with server-only controls (no production
+   * caller yet), answering with the classified outcome. `afterRelease` runs
+   * once after the lock is released; its failure hides no other failure.
+   */
+  applyHostIntentWithControls = async (
+    intent: CampaignHostCommand,
+    controls: ICampaignCommitControls,
+  ): Promise<CampaignDoorOutcome> => {
+    const settled = await this.runExclusive(() =>
+      applyHostIntentLocked(this.doorContext(), intent, controls),
+    ).then(
+      (outcome) => ({ outcome }),
+      (error: unknown) => ({ error }),
+    );
+    let cleanupError: { readonly error: unknown } | undefined;
+    try {
+      controls.afterRelease?.();
+    } catch (error) {
+      cleanupError = { error };
+    }
+    if ('error' in settled) {
+      throw cleanupError === undefined
+        ? settled.error
+        : new AggregateError([settled.error, cleanupError.error]);
+    }
+    const { outcome } = settled;
+    if (cleanupError === undefined) return outcome;
+    if (outcome.kind === 'committed') {
+      return {
+        kind: 'committed-unsettled',
+        commandId:
+          intentCommandIdentity(this.campaignId, intent)?.commandId ?? null,
+        events: outcome.events,
+        errors: [cleanupError.error],
+      };
+    }
+    if (outcome.kind === 'committed-unsettled') {
+      return { ...outcome, errors: [...outcome.errors, cleanupError.error] };
+    }
+    throw new AggregateError([cleanupError.error], 'Door cleanup failed', {
+      cause: outcome,
+    });
+  };
 
   /**
    * Adopt the host browser's whole-campaign save (roadmap unit U96).
@@ -545,12 +604,15 @@ export class CampaignMatchHost {
         // array would read as "committed nothing".
         throw new Error('commit lost a race to another writer');
       }
-      return outcome.events;
+      return outcome.kind === 'committed'
+        ? outcome.events
+        : throwCommitFailure(outcome);
     });
 
   private async commitEvents(
     events: readonly UnsequencedCampaignEvent[],
     identity?: ICampaignIntentCommandIdentity,
+    controls?: ICampaignCommitControls,
   ): Promise<CampaignCommitOutcome> {
     // The enforcement of the single-writer claim the collision throw
     // below already asserts. Reaching a commit without the lock means a
@@ -560,6 +622,22 @@ export class CampaignMatchHost {
     if (this.lockDepth === 0) {
       throw new Error(
         'CampaignMatchHost.commitEvents reached without the single-writer lock held',
+      );
+    }
+    const { guard, onCommitted } = controls ?? {};
+    if (guard !== undefined || onCommitted !== undefined) {
+      const appendControlled = this.eventStore.appendControlledCommandBatch;
+      // Fail closed before any event, the per-event fallback included.
+      if (appendControlled === undefined) {
+        const reason = CAMPAIGN_APPEND_CONTROLS_UNSUPPORTED;
+        return { kind: 'refused', refusal: { kind: 'refused', reason } };
+      }
+      return commitCampaignEventBatch(
+        this.batchHost(),
+        events,
+        (campaignId, input) =>
+          appendControlled(campaignId, input, { guard, onCommitted }),
+        identity,
       );
     }
     if (this.eventStore.appendCommandBatch) {
@@ -587,9 +665,19 @@ export class CampaignMatchHost {
    * from the durable journal, and never deletes or compensates the
    * committed batch.
    */
-  /** Fan one committed event out to every subscriber. */
+  /** Fan one committed event out to every subscriber; a throw starves none. */
   private publish(event: ICampaignEvent): void {
-    this.subscribers.forEach((subscriber) => subscriber(event));
+    const errors: unknown[] = [];
+    this.subscribers.forEach((subscriber) => {
+      try {
+        subscriber(event);
+      } catch (error) {
+        errors.push(error);
+      }
+    });
+    if (errors.length > 0) {
+      throw errors.length === 1 ? errors[0] : new AggregateError(errors);
+    }
   }
 
   /** The five things the batch pipeline reads and moves, named once. */

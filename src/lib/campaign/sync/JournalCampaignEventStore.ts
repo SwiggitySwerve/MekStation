@@ -57,7 +57,10 @@ import {
   type IResolvedJournalPrincipal,
   type IStoredEvent,
 } from '@/lib/events/journal/EventJournalContract';
-import { SQLiteEventJournalWriter } from '@/lib/events/journal/SQLiteEventJournalWriter';
+import {
+  rejectPreparedThenable,
+  SQLiteEventJournalWriter,
+} from '@/lib/events/journal/SQLiteEventJournalWriter';
 
 import type { JournalCapabilityPortsBinder } from './journalCapabilityPorts';
 
@@ -70,10 +73,14 @@ import {
   type ICampaignJournalHead,
 } from './campaignJournalReads';
 import {
+  CAMPAIGN_APPEND_CONTROLS_UNSUPPORTED,
   CampaignEventSequenceCollisionError,
   type CampaignCombatOutcomeInboxResult,
+  type ICampaignAppendControls,
+  type ICampaignAppendRefusal,
   type ICampaignCommandBatchInput,
   type ICampaignCommandReceipt,
+  type ICampaignCommittedBatch,
   type ICampaignEventStore,
 } from './ICampaignEventStore';
 import { InMemoryCampaignEventStore } from './InMemoryCampaignEventStore';
@@ -129,6 +136,8 @@ export type CampaignBatchAppendResult =
       readonly kind: 'committed';
       readonly receipt: ICommandReceipt & ICampaignCommandReceipt;
       readonly expectedPostStateDigest: string | null;
+      /** The P2CG1B commit notification threw; the batch is durable regardless. */
+      readonly notificationError?: { readonly error: unknown };
     }
   | {
       readonly kind: 'duplicate-command';
@@ -276,6 +285,24 @@ export type CampaignCommandCommitHook = (
   },
 ) => void;
 
+/** The append below with no operation controls; its result cannot be a refusal. */
+export async function appendCampaignCommandBatch(
+  journal: IEventJournal<ICampaignJournalEnvelope>,
+  input: Parameters<typeof appendControlledCampaignBatch>[1],
+  afterCommit?: CampaignCommandCommitHook,
+): Promise<CampaignBatchAppendResult> {
+  const result = await appendControlledCampaignBatch(
+    journal,
+    input,
+    afterCommit,
+    {},
+  );
+  if (result.kind === 'refused') {
+    throw new Error('Only a supplied append control can refuse a batch');
+  }
+  return result;
+}
+
 /**
  * Append one campaign command's WHOLE event batch atomically at the
  * expected head. The first event's `sequence` must equal the current
@@ -288,8 +315,11 @@ export type CampaignCommandCommitHook = (
  * recorded batch before
  * (the writer answers a recorded id with that batch, which must not run the
  * hook twice); any other journal appends as before.
+ * P2CG1B controls ride that transaction: `guard` runs before an unrecorded
+ * id is written; `onCommitted` fires from the writer after its COMMIT, a
+ * throw reported, not raised. A non-SQLite journal refuses controls.
  */
-export async function appendCampaignCommandBatch(
+async function appendControlledCampaignBatch(
   journal: IEventJournal<ICampaignJournalEnvelope>,
   input: {
     readonly campaignId: string;
@@ -317,25 +347,61 @@ export async function appendCampaignCommandBatch(
      */
     readonly expectedRevision?: number;
   },
-  afterCommit?: CampaignCommandCommitHook,
-): Promise<CampaignBatchAppendResult> {
+  afterCommit: CampaignCommandCommitHook | undefined,
+  controls: ICampaignAppendControls,
+): Promise<CampaignBatchAppendResult | ICampaignAppendRefusal> {
   const batch = toJournalBatch(input);
+  const { guard, onCommitted } = controls;
+  const controlled = guard !== undefined || onCommitted !== undefined;
+  if (controlled && !(journal instanceof SQLiteEventJournalWriter)) {
+    return { kind: 'refused', reason: CAMPAIGN_APPEND_CONTROLS_UNSUPPORTED };
+  }
+  let committed: ICampaignCommittedBatch | null = null;
+  let notificationError: { readonly error: unknown } | undefined;
   const result =
-    afterCommit !== undefined && journal instanceof SQLiteEventJournalWriter
-      ? await journal.appendWithExtension(batch, (db, append) => {
-          const recorded =
-            db
-              .prepare(
-                'SELECT 1 AS ok FROM event_journal_batches WHERE command_id = ?',
-              )
-              .get(batch.commandId) !== undefined;
-          const appended = append();
-          if (!recorded && appended.kind === 'committed') {
-            afterCommit(db, input.campaignId, input);
-          }
-          return appended;
-        })
+    (afterCommit !== undefined || controlled) &&
+    journal instanceof SQLiteEventJournalWriter
+      ? await journal.appendWithExtension(
+          batch,
+          (db, append) => {
+            const recorded =
+              db
+                .prepare(
+                  'SELECT 1 AS ok FROM event_journal_batches WHERE command_id = ?',
+                )
+                .get(batch.commandId) !== undefined;
+            if (!recorded && guard !== undefined) {
+              const refusal = guard(db);
+              rejectPreparedThenable(refusal);
+              if (refusal !== null) return refusal;
+            }
+            const appended = append();
+            if (!recorded && appended.kind === 'committed') {
+              afterCommit?.(db, input.campaignId, input);
+              const { receipt } = appended;
+              committed = Object.freeze({
+                campaignId: input.campaignId,
+                commandId: receipt.commandId,
+                commandDigest: receipt.commandDigest,
+                firstCommitPosition: receipt.firstCommitPosition,
+                lastCommitPosition: receipt.lastCommitPosition,
+                eventCount: receipt.eventCount,
+              });
+            }
+            return appended;
+          },
+          onCommitted &&
+            (() => {
+              if (committed === null) return;
+              try {
+                onCommitted(committed);
+              } catch (error) {
+                notificationError = { error };
+              }
+            }),
+        )
       : await journal.append(batch);
+  if (result.kind === 'refused') return result;
   if ('kind' in result && result.kind === 'committed') {
     return {
       kind: 'committed',
@@ -345,6 +411,7 @@ export async function appendCampaignCommandBatch(
         events: result.events.map(envelopeOf),
       },
       expectedPostStateDigest: input.expectedPostStateDigest,
+      ...(notificationError === undefined ? {} : { notificationError }),
     };
   }
   if (result.kind === 'revision-conflict') {
@@ -435,6 +502,23 @@ export class JournalCampaignEventStore implements ICampaignEventStore {
     campaignId: string,
     input: ICampaignCommandBatchInput,
   ): Promise<CampaignBatchAppendResult> => {
+    const result = await this.appendControlledCommandBatch(
+      campaignId,
+      input,
+      {},
+    );
+    if (result.kind === 'refused') {
+      throw new Error('Only a supplied append control can refuse a batch');
+    }
+    return result;
+  };
+
+  /** P2CG1B: same order, so a duplicate is never guarded, notified or refused. */
+  appendControlledCommandBatch = async (
+    campaignId: string,
+    input: ICampaignCommandBatchInput,
+    controls: ICampaignAppendControls,
+  ): Promise<CampaignBatchAppendResult | ICampaignAppendRefusal> => {
     // Before the duplicate check: a command naming the wrong branch is
     // refused whether or not it was seen before.
     const branchId = this.resolveBranchId(campaignId, input.branchId);
@@ -447,7 +531,7 @@ export class JournalCampaignEventStore implements ICampaignEventStore {
             commandId: input.commandId,
           };
     }
-    return appendCampaignCommandBatch(
+    return appendControlledCampaignBatch(
       this.journal,
       {
         campaignId,
@@ -460,6 +544,7 @@ export class JournalCampaignEventStore implements ICampaignEventStore {
         gmInterventionId: input.gmInterventionId,
       },
       this.rewriteRecordAfterCommand,
+      controls,
     );
   };
 

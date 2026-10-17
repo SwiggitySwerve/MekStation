@@ -25,6 +25,8 @@
  * @spec openspec/changes/add-shared-campaign-state/design.md (D2)
  */
 
+import type Database from 'better-sqlite3';
+
 import type {
   ICampaignSessionParticipantPort,
   IEventHistoryBranchPort,
@@ -125,6 +127,49 @@ export interface ICampaignCommandBatchInput {
   readonly gmInterventionId?: string;
 }
 
+/** A prewrite refusal (P2CG1B), a result arm, not an Error: nothing written. */
+export interface ICampaignAppendRefusal {
+  readonly kind: 'refused';
+  readonly reason: string;
+}
+
+/** Controls were supplied to a store or journal that cannot honour them. */
+export const CAMPAIGN_APPEND_CONTROLS_UNSUPPORTED =
+  'append-controls-unsupported';
+
+/** The plain committed identity an actual-commit notification carries. */
+export interface ICampaignCommittedBatch {
+  readonly campaignId: string;
+  readonly commandId: string;
+  readonly commandDigest: string;
+  readonly firstCommitPosition: number;
+  readonly lastCommitPosition: number;
+  readonly eventCount: number;
+}
+
+/**
+ * Trusted server-only controls for one append (P2CG1B): a separate,
+ * default-absent argument, never in the batch, payload, command identity
+ * or any wire message.
+ */
+export interface ICampaignAppendControls {
+  /** Synchronous, on the append's own handle inside its transaction, before the write; a throw rolls back. */
+  readonly guard?: (db: Database.Database) => ICampaignAppendRefusal | null;
+  /** Runs once, after the real outer COMMIT of a newly written batch. */
+  readonly onCommitted?: (batch: ICampaignCommittedBatch) => void;
+}
+
+/** What the controlled batch capability answers. */
+export type CampaignControlledBatchResult =
+  | Exclude<CampaignCommandBatchResult, { readonly kind: 'committed' }>
+  | {
+      readonly kind: 'committed';
+      readonly receipt: ICampaignCommandReceipt;
+      /** The commit notification threw; the batch is durable regardless. */
+      readonly notificationError?: { readonly error: unknown };
+    }
+  | ICampaignAppendRefusal;
+
 /** Durable receipt proving one combat outcome version reached campaign authority. */
 export interface ICampaignCombatOutcomeReceipt {
   readonly outcomeId: string;
@@ -186,6 +231,13 @@ export interface ICampaignEventStore
     campaignId: string,
     input: ICampaignCommandBatchInput,
   ) => Promise<CampaignCommandBatchResult>;
+
+  /** P2CG1B explicit capability; a store without it can run no guard. */
+  readonly appendControlledCommandBatch?: (
+    campaignId: string,
+    input: ICampaignCommandBatchInput,
+    controls: ICampaignAppendControls,
+  ) => Promise<CampaignControlledBatchResult>;
 
   /** Return the accepted receipt for a client command id, if one exists. */
   readonly getCommandReceipt?: (

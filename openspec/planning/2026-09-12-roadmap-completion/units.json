@@ -6579,7 +6579,11 @@
         "src/lib/events/journal/SQLiteEventJournalWriter.ts"
       ],
       "ownershipExceptions": [
-        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1b-admission-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1b-admission-review-20261017.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1b-red-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1b-local-20261017.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -6594,14 +6598,20 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "implementing",
+      "baseline": "3826f7cb78179cf01d4e935c3ef886cee4f755da",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/p2cg1b-admission-20261017.json"
+        },
+        "red": {
+          "path": "evidence/p2cg1b-red-20261017.json"
+        },
+        "local": {
+          "path": "evidence/p2cg1b-local-20261017.json"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
