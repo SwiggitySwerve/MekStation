@@ -1,0 +1,206 @@
+{
+  "unit": "P2CG1C",
+  "stage": "merge",
+  "recordedAt": "2026-10-17T19:14:03.000Z",
+  "pr": 2218,
+  "title": "feat(P2CG1C): prepared co-op mission create and match-side reservation",
+  "url": "https://github.com/SwiggitySwerve/MekStation/pull/2218",
+  "head": "ed7fb95be593b7372793451fb6f91f1feff79e36",
+  "mergeSha": "4690f67408d3e4e7cc2025db6799d034786b41a1",
+  "mergedAt": "2026-10-17T19:02:15Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "Two-parent merge commit (gh pr merge --merge --match-head-commit, head-guarded)",
+  "parentCount": 2,
+  "treeIntegration": {
+    "parents": [
+      "8fde3b975fad16dc2af91faa16c49356ada9f921",
+      "ed7fb95be593b7372793451fb6f91f1feff79e36"
+    ],
+    "expectedTree": "ad3ad95751d0e9ad3092e6496e30cd7879e282a5",
+    "actualTree": "ad3ad95751d0e9ad3092e6496e30cd7879e282a5",
+    "matches": true,
+    "note": "The first parent is main at merge time, which is the admission baseline 8fde3b975fad16dc2af91faa16c49356ada9f921 itself (main had not moved since the P2CG1B closure #2217). merge-base(head, first parent) is the baseline, and the three head commits above it are the admission, red and implementation commits. expectedTree is git merge-tree --write-tree of the two parents; it also equals the head's own tree."
+  },
+  "checksObservedAt": "2026-10-17T19:07:14Z",
+  "checks": {
+    "head": "ed7fb95be593b7372793451fb6f91f1feff79e36",
+    "successful": 32,
+    "other": 0,
+    "statuses": 0,
+    "run": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39058063119",
+    "jobs": [
+      {
+        "name": "Lint and Test",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39058063119/job/117470966233"
+      },
+      {
+        "name": "Build Test / mac",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39058063119/job/117470578784"
+      },
+      {
+        "name": "Build Test / linux",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39058063119/job/117470578779"
+      },
+      {
+        "name": "Build Test / win",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39058063119/job/117470578733"
+      },
+      {
+        "name": "Perf Smoke Tests",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39058063119/job/117470135547"
+      },
+      {
+        "name": "Statistical Proof PR",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39058063119/job/117470135490"
+      },
+      {
+        "name": "Coverage Floor",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39058063119/job/117470135470"
+      },
+      {
+        "name": "Build Storybook",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39058063119/job/117470135466"
+      },
+      {
+        "name": "Lint",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39058063119/job/117470135465"
+      },
+      {
+        "name": "Seam Anchors",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39058063119/job/117470135446"
+      },
+      {
+        "name": "E2E Smoke",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39058063119/job/117470135443"
+      },
+      {
+        "name": "Validate BV Parity",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39058063119/job/117470135428"
+      },
+      {
+        "name": "Desktop Type Check",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39058063119/job/117470135424"
+      },
+      {
+        "name": "Desktop Tests",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39058063119/job/117470135416"
+      },
+      {
+        "name": "Customizer Regressions",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39058063119/job/117470135409"
+      },
+      {
+        "name": "Validate Combat Suite",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39058063119/job/117470135404"
+      },
+      {
+        "name": "Determinism Audit",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39058063119/job/117470135398"
+      },
+      {
+        "name": "A11y Tests",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39058063119/job/117470135395"
+      },
+      {
+        "name": "Schema Bridge",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39058063119/job/117470135377"
+      },
+      {
+        "name": "Type Check",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39058063119/job/117470135372"
+      },
+      {
+        "name": "Unit Tests (3/6)",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39058063119/job/117470135338"
+      },
+      {
+        "name": "Format Check",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39058063119/job/117470135257"
+      },
+      {
+        "name": "Unit Tests (4/6)",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39058063119/job/117470135239"
+      },
+      {
+        "name": "Unit Tests (2/6)",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39058063119/job/117470135233"
+      },
+      {
+        "name": "Unit Tests (1/6)",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39058063119/job/117470135217"
+      },
+      {
+        "name": "Unit Tests (6/6)",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39058063119/job/117470135212"
+      },
+      {
+        "name": "Unit Tests (5/6)",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39058063119/job/117470135194"
+      },
+      {
+        "name": "Perf Budget PR",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39058063119/job/117470135151"
+      },
+      {
+        "name": "Prepare Build Artifacts",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39058063119/job/117470094242"
+      },
+      {
+        "name": "Detect Changes",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39058063119/job/117470051086"
+      },
+      {
+        "name": "Install Dependencies",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39058063119/job/117470050997"
+      },
+      {
+        "name": "Validate Roadmap Ledger",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39058063119/job/117470050835"
+      }
+    ]
+  },
+  "requiredChecks": "Observed 2026-10-17T19:07:14Z. GET branches/main/protection: required_status_checks.contexts [\"Lint and Test\"] (strict false), required_conversation_resolution enabled, required_pull_request_reviews with 0 required approvals (dismiss stale). GET rules/branches/main returns no rules. So GitHub enforces only Lint and Test, the if: always() aggregator. Review CF-D10 asks for all 32 names on the merge ref's head. The 32 check-run names on ed7fb95b match, one to one, the 32 names recorded for P2CG1B (P2CG1A2's 31 plus Validate Roadmap Ledger), derived from .github/workflows/pr-checks.yml, whose blob a82fe0f7 is identical at the P2CG1B head, baseline, head and merge. Every one concluded success, including Lint and Test.",
+  "ownerRuling": {
+    "ruledHead": "ed7fb95be593b7372793451fb6f91f1feff79e36",
+    "pr": 2218,
+    "commentId": 6239129525,
+    "author": "SwiggitySwerve",
+    "bodySha256": "4c5db80c0c2f7a7b47595bef64a685c299b8484d9a228766b8963cd1b2620c22",
+    "at": "2026-10-17T19:02:08Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2218#issuecomment-6239129525",
+    "bodyPath": "evidence/p2cg1c-owner-ruling-6239129525.txt"
+  },
+  "chronology": "Ruled at 19:02:08Z on the exact head; merged at 19:02:15Z with the head guard. The ruling preceded the merge."
+}
