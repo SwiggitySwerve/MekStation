@@ -1,0 +1,44 @@
+{
+  "unit": "TS7S2OD",
+  "stage": "mainProof",
+  "recordedAt": "2026-10-17T06:10:00.000Z",
+  "mergeCommit": "97c3281f5a3d943adee64e3516a538d466d50f8e",
+  "verdict": "PASS",
+  "checkout": "E:/Projects/Personal/MekStation-wt/ts7s2od-closure-20261017",
+  "runtime": {
+    "playwright": "Source/Main checks: 6 passed (npm run typecheck exit 0 with both projects; tsc -p scripts/tsconfig.json --noEmit exit 0; validate:bv exit 0 with all accuracy gates passed; validate:parity exit 0 with 4227 of 4227 passed; validator PASSED; openspec validate --all --strict 230 passed and qc:openspec-ci:validate errors=0; 0 failed)",
+    "tsc": "node node_modules/typescript/bin/tsc --version: Version 5.8.3 (the repo gate; the compiler current at admission). npm run typecheck = tsc --noEmit --skipLibCheck && tsc -p scripts/tsconfig.json --noEmit: exit 0, both projects ran.",
+    "scriptsProject": "node node_modules/typescript/bin/tsc -p scripts/tsconfig.json --noEmit: exit 0.",
+    "bv": "npm run validate:bv: exit 0. 4225 units, exact 4019 (95.8%), within 1% 99.9% (target 95.0%), within 2% 100.0% (target 99.0%), within 3% 100.0% (target 99.5%): ALL ACCURACY GATES PASSED.",
+    "parity": "npm run validate:parity -- --mm-data E:/Projects/Personal/mm-data --output <out-of-tree logs dir>: exit 0, mm-data commit b67baa5, 4227 validated, 4227 passed, 0 issues, 0 errors. A first run without --mm-data found no mm-data next to this worktree and validated 0 units; it is disclosed in the bv envelope and not counted.",
+    "openspec": "npx openspec validate --all --strict: 230 passed, 0 failed. npm run qc:openspec-ci:validate: errors=0.",
+    "validator": "validate-roadmap.mjs PASSED; --git PASSED (plus the existing CNI1_SOURCE_SIZING info line); --next printed U24b on the unedited ledger while TS7S2OD was implementing (the validator does not model the one-lane rule; TS7S2B N2 disclosure).",
+    "dependencies": "Root node_modules is a junction (cmd /c mklink /J) to E:/Projects/Personal/MekStation/node_modules, typescript 5.8.3. Root package-lock.json blob 0bc4b876 is identical at base 244c9d2f, head 80ac1ae9 and merge; no fresh npm ci at main is claimed.",
+    "machine": "node scripts/qc/machine-idle.mjs before the heavy commands printed MACHINE_BUSY 1 for exactly one process: PID 47516, an idle pre-existing node.exe server.js (port 8300), which Root allowed. This closure neither started nor stopped it.",
+    "node": "v22.22.0",
+    "npm": "11.6.2"
+  },
+  "proof": {
+    "path": "evidence/mainproof-97c3281f-typecheck.bytes.json",
+    "payloadSha256": "6bfae8ecb4fc61d4e46228c2ecbc26f61dbfc04cada7974e395cc4425061ab90",
+    "payloadBytes": 694,
+    "note": "Fresh tsc --version (Version 5.8.3) and npm run typecheck (tsc --noEmit --skipLibCheck && tsc -p scripts/tsconfig.json --noEmit, both projects) at the exact merge HEAD: exit 0; then node node_modules/typescript/bin/tsc -p scripts/tsconfig.json --noEmit alone: exit 0. Concatenated logs."
+  },
+  "logs": [
+    {
+      "path": "evidence/mainproof-97c3281f-bv.bytes.json",
+      "payloadSha256": "763a8a405d8d0f42043f55bf222800e9238eeeeaa829e4409e108b7c430b8220",
+      "payloadBytes": 9000,
+      "note": "npm run validate:bv: exit 0, 4225 units, exact 4019 (95.8%), within 1% 99.9% / 2% 100.0% / 3% 100.0%, ALL ACCURACY GATES PASSED. npm run validate:parity -- --mm-data E:/Projects/Personal/mm-data (the data path the author used; mm-data commit b67baa5): exit 0, 4227 validated, 4227 passed, 0 issues, 0 errors. Third log: a first parity run with the default mm-data path, which does not exist next to this worktree, so it validated 0 units (exit 0); kept for disclosure, not counted as proof."
+    },
+    {
+      "path": "evidence/mainproof-97c3281f-validator.bytes.json",
+      "payloadSha256": "d46a39151caecd6b71884474d5bc92d6d7351eee5c217af27108af5cc9fca65e",
+      "payloadBytes": 10551,
+      "note": "validate-roadmap.mjs, --git and --next on the unedited ledger at the merge HEAD (PASSED, PASSED with the existing CNI1_SOURCE_SIZING line, --next U24b); npx openspec validate --all --strict (230 passed, 0 failed); npm run qc:openspec-ci:validate (errors=0)."
+    }
+  ],
+  "scope": "Lean cadence (docs/audits/2026-10-17-council-roadmap-decision.md, item 2): exact-Main proof focused on what TS7S2OD changed (both typecheck projects, the scripts project alone, and the BV and parity harnesses it gates), plus validator and OpenSpec. No local roadmap-suite replays and no npm run test:stable; CI on the closure PR covers them.",
+  "closure": "main-verified only. taskKeys is empty; tasks.md 2.5 was ticked by the source PR, so no tasks.md row changes here and no tick receipt is invented.",
+  "preservation": "Proof and logs are base64 envelopes so repository LF normalization cannot alter their exact bytes. Decode data and verify payloadSha256/payloadBytes. Each log was captured through cmd and PowerShell, so non-ASCII console glyphs appear mis-decoded; the bytes are kept as captured."
+}

@@ -1,0 +1,70 @@
+{
+  "unit": "TS7S2OD",
+  "stage": "review",
+  "recordedAt": "2026-10-17T06:10:00.000Z",
+  "head": "80ac1ae97c39d10668d7e1e7d266ebdc1112dd43",
+  "reviewedHead": "80ac1ae97c39d10668d7e1e7d266ebdc1112dd43",
+  "reviewerModel": "gpt-6-astra",
+  "reviewerEffort": "high",
+  "implementerModel": "gpt-6.1-sol",
+  "verdict": "APPROVE-WITH-NOTES",
+  "outputPath": "evidence/ts7s2od-source-astra-review-20261017.txt",
+  "outputSha256": "96b1bad2e4cb3f3efe221abb8bab7579ab16665ff949e27b87b9d50e55dab81e",
+  "reviews": [
+    {
+      "round": 1,
+      "path": "evidence/ts7s2od-source-astra-review-20261017.txt",
+      "sha256": "96b1bad2e4cb3f3efe221abb8bab7579ab16665ff949e27b87b9d50e55dab81e",
+      "bytes": 6853,
+      "originalPath": "docs/audits/2026-10-17-ts7s2od-review.md",
+      "reviewedHead": "80ac1ae97c39d10668d7e1e7d266ebdc1112dd43",
+      "verdict": "APPROVE-WITH-NOTES"
+    }
+  ],
+  "reviewHistory": "One round on the exact merged head 80ac1ae9 by an independent GPT-6 Astra reviewer at high effort (routine/light review class, council lean cadence): APPROVE-WITH-NOTES with no blockers, no majors and one minor (M1); nothing requires a change to the head.",
+  "verdictText": "Blockers: none. Majors: none.",
+  "reviewClass": "routine",
+  "reviewedScope": "Reviewed head: 80ac1ae97c39d10668d7e1e7d266ebdc1112dd43 (GitHub and detached checkout matched).",
+  "findings": {
+    "M1": {
+      "text": "Minor M1 — scripts/validate-bv.ts:284; scripts/validate-bv-types.ts:32:\n`iu.bv!` suppresses a real optional-value mismatch; it does not establish that BV exists.\nAccept for this bounded, behavior-preserving migration: the prior branch already returned\nundefined, the row remains `status: 'error'`, and reporting excludes it from calculated\ncoverage (scripts/validate-bv-reporting.ts:113). JSON still omits indexBV/ref when absent.\nThe assertion does not silently exclude a successful unit or change the gate's outcome.\nA later unit owning the shared result type should model absent BV on error rows explicitly;\ndo not replace this with `?? 0` here, which would change the existing report contract.",
+      "applies": "Accepted as shipped by the reviewer for this bounded, behaviour-preserving migration. Carried to the later unit that owns the shared BV result type (successorNotes.laterUnits)."
+    }
+  },
+  "mutants": "Neither mutant survived.",
+  "notVerified": [
+    "Full BV/parity runs were not independently repeated; those runtime results remain\n  author evidence, supplemented here by independent JavaScript emit equality.",
+    "This review does not claim completed\n  CI/stable proof or authorize bypassing the remaining merge gates."
+  ],
+  "notVerifiedNote": "Parent note: both gaps are closed outside the review. CI on 80ac1ae9 finished 31/31 success before the merge (merge receipt), and this closure ran validate:bv and validate:parity fresh at the exact merge commit (mainProof receipt).",
+  "successorNotes": {
+    "TS7S3": {
+      "wording": "- TS7S3: admit on a baseline containing TS7S2OD's merge and closure; revalidate both root\n  and scripts projects with TS 6, plus both desktop projects. Retain explicit node types,\n  relative paths, strictness and no ignoreDeprecations. Register any new diagnostic leaf.",
+      "concern": "TS7S3 admission and proof",
+      "applies": "TS7S3 is already planned (released by #2181). No TS7S3 field changes here. Its admission must start from a baseline containing 97c3281f and this closure, and its TS 6 proof must cover both root projects (root and scripts/tsconfig.json) as well as both desktop projects, keeping the scripts project in the gate."
+    },
+    "TS7S4A": {
+      "wording": "- TS7S4A: package.json:26 must retain BOTH compiler invocations, each using\n  `node node_modules/typescript7/bin/tsc`; the second must retain `-p scripts/tsconfig.json`.\n  tasks.md:99 currently sketches only the root invocation: do not copy it over this gate.\n  Route CI (.github/workflows/pr-checks.yml:167 currently checks root only) and other gates\n  without losing scripts coverage. Repeat a scripts-only error mutant through the routed\n  gate and ensure guard coverage rejects a TS6 fallback in either invocation.",
+      "concern": "routed gate must keep the scripts project",
+      "applies": "TS7S4A must keep BOTH compiler invocations in npm run typecheck and must route CI (pr-checks.yml Type Check) without losing scripts/tsconfig.json coverage; repeat a scripts-only error mutant through the routed gate."
+    },
+    "laterUnits": {
+      "wording": "- Later result-type owner: resolve M1 without changing missing-file JSON semantics.",
+      "concern": "M1",
+      "applies": "Whichever later unit owns the shared BV result type (scripts/validate-bv-types.ts)."
+    },
+    "TS7S5B": {
+      "state": "Stays blocked. TS7S2OD is one of its two predecessors; the other, TS7S5A, is not complete, so nothing is released."
+    },
+    "note": "Every wording, verdictText, reviewedScope, findings text, mutants and notVerified string is a verbatim substring of evidence/ts7s2od-source-astra-review-20261017.txt (the generator checked this; wrapped lines keep their newline and indentation). concern, applies, state and every note are the parent notes, not reviewer text. The TS7 track has no PROGRESS.md of its own, so these notes are recorded in this receipt only."
+  },
+  "reservedSlot": "evidence/ts7s2od-admission-review-20261017.md stays unwritten. The reviewer wrote its audit to docs/audits/2026-10-17-ts7s2od-review.md in the root checkout (untracked there); this closure preserves it byte for byte at evidence/ts7s2od-source-astra-review-20261017.txt instead of authoring reviewer text.",
+  "ciQualification": "All 31 check runs on the merged head succeeded (run 39007702377), with no commit statuses. The reviewer saw an in-progress snapshot only; the merge receipt records the 31 completed names.",
+  "identityScope": "Preserves the existing unversioned TS7S2OD evidence and the actual cross-model review provenance. No v2/v3 identity manifest or engine observation is claimed.",
+  "githubApproval": "Lane A engineering evidence only; no GitHub approval claimed.",
+  "ownerRuling": "Routine review class: no OWNER-RULING comment is required or posted for this unit. The OD-scripts-tsconfig ruling is on main via #2181.",
+  "successorRelease": {
+    "label": "none",
+    "note": "No unit is released by this closure. TS7S2OD has one successor, TS7S5B, which also requires TS7S5A, and TS7S5A is not complete. TS7S3 is already planned."
+  }
+}

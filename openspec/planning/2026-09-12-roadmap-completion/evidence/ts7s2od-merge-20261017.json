@@ -1,0 +1,192 @@
+{
+  "unit": "TS7S2OD",
+  "stage": "merge",
+  "recordedAt": "2026-10-17T06:10:00.000Z",
+  "pr": 2184,
+  "title": "chore(TS7S2OD): gate scoped BV and parity scripts",
+  "url": "https://github.com/SwiggitySwerve/MekStation/pull/2184",
+  "head": "80ac1ae97c39d10668d7e1e7d266ebdc1112dd43",
+  "mergeSha": "97c3281f5a3d943adee64e3516a538d466d50f8e",
+  "mergedAt": "2026-10-17T05:56:19Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "Two-parent merge commit (regular merge, head-guarded with --match-head-commit)",
+  "parentCount": 2,
+  "treeIntegration": {
+    "parents": [
+      "244c9d2fe90587481551726cd2704b4cc889a5a3",
+      "80ac1ae97c39d10668d7e1e7d266ebdc1112dd43"
+    ],
+    "expectedTree": "b22228a81143980157cb3b1b567f3d52e932aabe",
+    "actualTree": "b22228a81143980157cb3b1b567f3d52e932aabe",
+    "matches": true,
+    "method": "git merge-tree --write-tree of the ordered parents equals the merge commit tree"
+  },
+  "checksObservedAt": "2026-10-17T06:02:00Z",
+  "checks": {
+    "head": "80ac1ae97c39d10668d7e1e7d266ebdc1112dd43",
+    "successful": 31,
+    "other": 0,
+    "commitStatuses": 0,
+    "run": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39007702377",
+    "jobs": [
+      {
+        "name": "Lint and Test",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39007702377/job/117324413498"
+      },
+      {
+        "name": "Build Test / win",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39007702377/job/117323806470"
+      },
+      {
+        "name": "Build Test / mac",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39007702377/job/117323806468"
+      },
+      {
+        "name": "Build Test / linux",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39007702377/job/117323806467"
+      },
+      {
+        "name": "Validate Combat Suite",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39007702377/job/117323522295"
+      },
+      {
+        "name": "Desktop Type Check",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39007702377/job/117323522276"
+      },
+      {
+        "name": "E2E Smoke",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39007702377/job/117323522271"
+      },
+      {
+        "name": "Customizer Regressions",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39007702377/job/117323522228"
+      },
+      {
+        "name": "Unit Tests (6/6)",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39007702377/job/117323522218"
+      },
+      {
+        "name": "Validate BV Parity",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39007702377/job/117323522215"
+      },
+      {
+        "name": "Unit Tests (2/6)",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39007702377/job/117323522214"
+      },
+      {
+        "name": "A11y Tests",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39007702377/job/117323522193"
+      },
+      {
+        "name": "Desktop Tests",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39007702377/job/117323522188"
+      },
+      {
+        "name": "Unit Tests (1/6)",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39007702377/job/117323522168"
+      },
+      {
+        "name": "Unit Tests (5/6)",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39007702377/job/117323522165"
+      },
+      {
+        "name": "Coverage Floor",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39007702377/job/117323522157"
+      },
+      {
+        "name": "Unit Tests (3/6)",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39007702377/job/117323522134"
+      },
+      {
+        "name": "Unit Tests (4/6)",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39007702377/job/117323522128"
+      },
+      {
+        "name": "Determinism Audit",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39007702377/job/117323522082"
+      },
+      {
+        "name": "Statistical Proof PR",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39007702377/job/117323522072"
+      },
+      {
+        "name": "Format Check",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39007702377/job/117323522066"
+      },
+      {
+        "name": "Seam Anchors",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39007702377/job/117323522062"
+      },
+      {
+        "name": "Schema Bridge",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39007702377/job/117323522055"
+      },
+      {
+        "name": "Build Storybook",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39007702377/job/117323522052"
+      },
+      {
+        "name": "Perf Smoke Tests",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39007702377/job/117323522044"
+      },
+      {
+        "name": "Lint",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39007702377/job/117323522032"
+      },
+      {
+        "name": "Type Check",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39007702377/job/117323522003"
+      },
+      {
+        "name": "Perf Budget PR",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39007702377/job/117323521991"
+      },
+      {
+        "name": "Prepare Build Artifacts",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39007702377/job/117323487045"
+      },
+      {
+        "name": "Install Dependencies",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39007702377/job/117323443190"
+      },
+      {
+        "name": "Detect Changes",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39007702377/job/117323442997"
+      }
+    ]
+  },
+  "requiredChecks": "Observed 2026-10-17T06:02Z. GET branches/main/protection/required_status_checks returns 404 (required status checks not enabled), and GET rules/branches/main returns no rules, so GitHub enforces no required-check names on main and the names were verified one by one. The 31 check-run names on 80ac1ae9 are the same 31 names recorded for TS7S2B (evidence/ts7s2b-merge-20261016.json), derived from .github/workflows/pr-checks.yml, whose blob 185ec2fd is identical at base 244c9d2f, head 80ac1ae9 and merge 97c3281f. Every one concluded success, including Type Check, Validate BV Parity and the if: always() aggregator Lint and Test. GET commits/80ac1ae9/status lists 0 commit statuses.",
+  "ownerRuling": null,
+  "ownerRulingNote": "Routine review class. No OWNER-RULING comment is required or posted for this unit; the owner ruling of OD-scripts-tsconfig (option a) that released TS7S2OD is already recorded on main by #2181 (evidence/ts7s2b-review-20261016.json successorRelease.ownerRulingRelease)."
+}
