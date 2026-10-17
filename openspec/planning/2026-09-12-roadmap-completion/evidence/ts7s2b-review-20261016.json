@@ -1,0 +1,326 @@
+{
+  "unit": "TS7S2B",
+  "stage": "review",
+  "recordedAt": "2026-10-17T04:28:00.000Z",
+  "head": "dd9a54dbe4bcdeec06f6d1aea6fe03246015d9f5",
+  "reviewedHead": "dd9a54dbe4bcdeec06f6d1aea6fe03246015d9f5",
+  "reviewerModel": "claude-fable-5-1",
+  "implementerModel": "claude-opus-5-5",
+  "verdict": "APPROVE-WITH-NOTES",
+  "outputPath": "evidence/ts7s2b-source-fable-review-20261016.txt",
+  "outputSha256": "a80b31af55d1f2b7530b0d94120dac7a5b3fb6a840ef0eef14efe655bd973a09",
+  "reviews": [
+    {
+      "round": 1,
+      "path": "evidence/ts7s2b-source-fable-review-20261016.txt",
+      "sha256": "a80b31af55d1f2b7530b0d94120dac7a5b3fb6a840ef0eef14efe655bd973a09",
+      "bytes": 27356,
+      "originalPath": "docs/audits/2026-10-16-ts7s2b-fable-review.md",
+      "reviewedHead": "dd9a54dbe4bcdeec06f6d1aea6fe03246015d9f5",
+      "verdict": "APPROVE-WITH-NOTES"
+    }
+  ],
+  "reviewHistory": "One round on the exact merged head dd9a54db by an independent Fable 5.1 reviewer (run through cliproxy): APPROVE-WITH-NOTES with no blockers and no majors, three minors M1-M3 and notes N1-N8; none requires a change to the head.",
+  "verdictText": "No blockers. No majors. Three minors (M1-M3), notes N1-N8, and TS7S3 carry-forwards in section 10. Nothing requires a change to head `dd9a54dbe` before merge.",
+  "reviewedScope": "Head reviewed: `dd9a54dbe4bcdeec06f6d1aea6fe03246015d9f5` (tree `29a19c155107d9d570aee1f8cf6002b7e639402d`). Base: `b4a1fc5c75b1bfe6f9b45b9e023b458d1c5843c0` = `origin/main` at review time (fetched); base is an ancestor of head; exactly 1 commit between them.",
+  "behaviourEquality": {
+    "namesEqual": "Sorted `file :: fullName :: status` lists (57 lines) from the two `--json` reports are byte-identical: sha256 `ec5bc1aca83a14abae36cdd35000c767c7de80dc4f297f6d50e7cc263ce375ef` on both sides (my formatting differs from the author's `7cc67220...` list; equality within each measurement is what matters). Count equals the TS7S1B 0.1 baseline (57 passed, recorded in `ts7s1b-admission-20261016.json`).",
+    "baselineCount": "Count equals the TS7S1B 0.1 baseline (57 passed, recorded in `ts7s1b-admission-20261016.json`).",
+    "noDiagnostics": "`desktop/jest.config.js` has no `diagnostics` key at all; C3 / TS7S2B-OPEN-1 satisfied on a cold cache.",
+    "note": "The reviewer ran desktop npm test -- --no-cache on fresh npm ci installs of base b4a1fc5c (ts-jest 29.4.6) and head dd9a54db (@swc/jest 0.2.39): 5/5 suites and 57/57 tests on both sides, byte-identical sorted name/status lists, 16 TS151002 on base and 0 on head with no TS diagnostic of any kind (section 3)."
+  },
+  "findings": {
+    "moduleLazyElectron": {
+      "acceptAsShipped": "Accept `module: { type: 'commonjs', lazy: ['electron'] }` as shipped in head dd9a54dbe. Do not widen it to `lazy: true` and do not edit the three electron tests in this unit. Record M1 below as a carry-forward so that a later desktop-test unit, with `desktop/electron/__tests__/main.behavior.test.ts`, `main.ipc.security.test.ts` and `main.window.security.test.ts` as registered leaves, may convert the `jest.mock('electron')` factories to getter form (the author's `prototype-test-getters.patch`, +30/-10) and then delete `lazy: ['electron']`; until then the option stays.",
+      "judgement": "Judgement: `lazy: ['electron']` is correct, minimal in effect (one module specifier, Jest-only, no test edit, no production emit change), stable (SWC's `module.lazy` is the documented analogue of Babel's `lazy` option), and the regression-detection power of the three suites is unchanged. It is a config-side workaround for a latent test-authoring dependency, and the in-file comment in `jest.config.js` states that honestly.",
+      "moduleIdentity": "Module identity: no. Jest's registry still returns one `electron` mock object per test file; `_electron()` memoises the same object per importing module, so `mockIpcHandle`, `mockApp`, etc. are the very objects the production code sees.",
+      "minor": "M1",
+      "note": "The decision item of the review (section 2). The reviewer reproduced the three electron suites failing to load without lazy, traced the cause to SWC import hoisting, measured lazy: true, the getter-form test patch and var mocks, and ran production mutants against the shipped config. The accept-as-shipped wording above is the reviewer's exact recommendation."
+    },
+    "survivingMutants": {
+      "wording": "Two `main.behavior.ts` mutants survive on head AND on base: `'file:quit': () => undefined` (app.quit never called) and `setLoginItemSettings` not called. Both suites pass 5/5 on both sides, so this is a pre-existing assertion gap in `main.behavior.test.ts`, not an effect of `lazy` or of the transform swap (M2).",
+      "minor": "M2",
+      "note": "Pre-existing on base (ts-jest) as well as head; not introduced or worsened by TS7S2B."
+    },
+    "typeCheckRelocation": {
+      "injection": "Injection (`const ts7s2bReviewInjected: number = 'not a number';` in `SettingsService.test.ts`, restored to sha256 `75b8fc8e...` afterwards): `npx jest --no-cache` on that suite exit 0, 17/17 (SWC strips types); `npm run type-check` exit **2** with `services/local/__tests__/SettingsService.test.ts(15,7): error TS2322`; plain `tsc --noEmit` alone exit 0 (tsconfig.json excludes `**/*.test.ts`), which is exactly the gap the new step closes.",
+      "ci": "CI: `.github/workflows/pr-checks.yml` job `desktop-typecheck` (\"Desktop Type Check\") runs `working-directory: desktop`, `run: npm run type-check`, on Node 22 after `npm ci` in desktop (`.github/actions/setup-node-and-install`), so the new step is in CI without a workflow change; `desktop-tests` runs `npm test -- --runInBand`. Root `electron:typecheck` still delegates to the same script (exit 0 on head). PR #2180 checks: 31/31 SUCCESS at head `dd9a54dbe` (`gh pr view`).",
+      "buildEmit": "Build emit: `desktop/dist` produced by each tree's own `tsc` (prepare step of `npm ci`, and a fresh `npm run build` on head, exit 0): 84 files each (21 `.js` + `.d.ts` + maps), identical file sets, 0 differing hashes."
+    },
+    "coverage": "Coverage (`--coverage --coverageReporters=json-summary`, both sides): 20 instrumented files; covered/total **functions identical in all 20 files** (76/374 total) and **branches identical in all 20** (83/424 total); line/statement totals differ in 15 files (1424 -> 1346 lines, 1463 -> 1387 statements) purely from emit shape. `desktop/jest.config.js` has `collectCoverageFrom` and `coverageDirectory` but **no `coverageThreshold`**, and no workflow runs desktop coverage, so nothing enforces these numbers.",
+    "summary": "No blockers or majors. The module.lazy: ['electron'] Jest-only setting is accepted as shipped (M1 records the later getter-form end state). Two main.behavior.ts mutants survive on base and head alike (M2, pre-existing). @swc/core ^1.15.30 now resolves to 1.16.18 on a fresh resolution (M3, carried as S3-2)."
+  },
+  "lockfile": {
+    "entries": "`lockfileVersion` 3 -> 3. Package-entry diff computed from parsed JSON: **+23**: `@swc/core@1.15.30` and its 12 platform packages, `@swc/jest@0.2.39`, `@swc/counter@0.1.3`, `@swc/types@0.1.28`, `jsonc-parser@3.3.1`, `@jest/create-cache-key-function@30.5.1` with five nested jest-30 packages (`@jest/pattern` 30.5.0, `@jest/schemas` 30.5.0, `@jest/types` 30.5.1, `@sinclair/typebox` 0.34.52, `jest-regex-util` 30.5.0). **-9**: `ts-jest@29.4.6`, `ts-jest/node_modules/type-fest@4.41.0`, `bs-logger`, `handlebars`, `lodash.memoize`, `make-error`, `neo-async`, `uglify-js`, `wordwrap`; every removed package was reachable only from ts-jest (handlebars and its three deps via ts-jest -> handlebars). **~1**: the root entry's devDependencies. Nothing else changes, so no libc/peer-flag churn.",
+    "swcPins": "@swc/core 1.15.30 (all 13 entries), @swc/jest 0.2.39, @swc/counter 0.1.3 and jsonc-parser 3.3.1 have the same version **and integrity** as the root lockfile. Drift is confined to two transitive packages: `@swc/types` 0.1.28 vs root 0.1.26 (type-declaration package, range `^0.1.26` from @swc/core) and `@jest/create-cache-key-function` 30.5.1 vs root 30.3.0 (range `^30.0.0` from @swc/jest; it only feeds the cache key). Acceptable: neither affects transform output, and desktop's Jest itself stays 29.7.0.",
+    "idempotence": "Idempotence: on head, `npm install --package-lock-only` with npm 11.19.1 prints \"up to date\" and the file hash is unchanged (`d1fd7e2572f131d2222813163815fe5e4556d685bcffd7aa823f5addcec7d9f1`, equal to the author's recorded sha256). With npm 11.6.2 (Node 22's bundled npm) the same command rewrites +6/-31 lines (peer/libc flags); the base lockfile shows the same class of churn (+7/-13) under 11.6.2, so this is pre-existing and not introduced here (N3).",
+    "reproduction": "Reproduction from base: head `desktop/package.json` on the base lockfile + `npm install --package-lock-only` (11.19.1) reproduces every entry except that `@swc/core` resolves to **1.16.18** today (the `^1.15.30` range now admits 1.16.x). The author pinned 1.15.30 explicitly (`npm install --save-dev @swc/core@1.15.30 @swc/jest@0.2.39`), which is why the committed file matches root; see M3 for the TS7S3 implication.",
+    "npmCi": "`npm ci` in a clean throwaway desktop dir: exit 0 under npm 11.19.1 (557 packages; base 554) and exit 0 under npm 11.6.2/Node 22.22.0 (the CI path); resulting tree has @swc/core 1.15.30, @swc/jest 0.2.39, typescript 5.9.3, ts-jest absent."
+  },
+  "storybook": {
+    "tracedBuild": "`npm run storybook:build` on head: exit 0 (Storybook core 8.6.18, react-vite 8.6.18), with `NODE_OPTIONS=--require` of a `Module._load` tracer in every Node process npm spawned. The `storybook build` process loaded 642 modules; the only hit for `/typescript|react-docgen-typescript|@joshwooding\\/vite-plugin-react-docgen-typescript|react-docgen/` was `node_modules/react-docgen/dist/main.js`. No `node_modules/typescript/` file and no `react-docgen-typescript` file was loaded. Limitation: the hook sees CommonJS loads; `@storybook/react-vite/dist/preset.js` is CJS and would have gone through it, so the negative is meaningful for the docgen plugin path.",
+    "populatedTable": "Populated table: the built chunk `storybook-static/assets/OverwriteConfirmDialog.stories-*.js` carries react-docgen `__docgenInfo` (`tsType`, JSDoc `description`, `required: true`) for all six props. I served `storybook-static` locally and read the rendered autodocs iframe (`iframe.html?id=customizer-dialogs-overwriteconfirmdialog--docs&viewMode=docs`): the ArgTypes table has header `Name | Description | Default | Control` and six rows `onOverwrite*`, `onSaveAsNew*`, `onCancel*` (`() => void`), `isOpen*` (`boolean`, boolean control), `newUnitName*`, `existingUnitName*` (`string`), each with its JSDoc description. The story defines no `argTypes`, so this content is docgen-derived.",
+    "outcomeLine": "The tasks.md 2.4 outcome line (\"no `reactDocgen` change. Storybook 8.6.18 already defaults `typescript.reactDocgen` to `'react-docgen'` (Babel). `storybook build` never loads `react-docgen-typescript` or its Vite plugin, and the `OverwriteConfirmDialog` autodocs table lists all six typed props with their types and JSDoc descriptions. `.storybook/main.ts` is unchanged.\") is accurate on every clause."
+  },
+  "reviewReruns": "On dd9a54db and base b4a1fc5c under Node v22.22.0, in throwaway worktrees (root node_modules junctioned from the root checkout; desktop node_modules installed fresh by npm ci with npm 11.19.1 on each side), the reviewer ran desktop npm test -- --no-cache on both trees (and -i and root electron:test on head) with --json name lists, a no-lazy run, lazy: true, var-mock and getter-patch alternatives, an SWC transform dump, production mutants on head and base, a type-error injection into a desktop test file, a desktop build emit comparison, coverage on both sides, a parsed desktop lockfile diff, idempotence with npm 11.19.1 and 11.6.2, reproduction from base, npm ci with both npm versions, a traced storybook:build and a rendered autodocs table, and the gates npm run typecheck, lint, lint:units, format:check, openspec strict, qc:openspec-ci, desktop type-check/test/build, electron:test/typecheck, the validator, --next and the validator tests (86/86). It did not re-run npm run test:stable (section 8 and Not verified).",
+  "notVerified": [
+    "`npm run test:stable` (by instruction; author's single run 2796/2796, 37180 passed).",
+    "The author's out-of-repo decorator probe (tsc vs SWC metadata parity); moot for the repository, which has no decorators.",
+    "GitHub Actions job logs beyond the 31/31 SUCCESS rollup at head `dd9a54dbe`.",
+    "Linux `npm ci` behaviour (my installs ran on Windows; CI ran it on ubuntu-latest and passed).",
+    "The author's `.omo` attempt-directory artefacts other than `prototype-test-getters.patch` (hash matched); I rebuilt every number from scratch instead of trusting them.",
+    "Warm-cache behaviour of the new transform (only cold `--no-cache` and the `-i` form were run; the author's warm run reports 0 TS151002 as well, which is expected since @swc/jest emits no TS diagnostics at all)."
+  ],
+  "stableSuiteNote": "The author ran npm run test:stable once on the final bytes: 2796/2796 suites, 37180 passed, 50 skipped, 0 failed (green.log and test-stable.stdout.txt, hashed in the mainProof attemptLogs; green.log cites the test-stable.stdout.txt sha256). The reviewer did not re-run it.",
+  "validatorDisclosure": {
+    "next": "| `validate-roadmap.mjs --next` | `U24b` on head (prints `TS7S2B` on the base) |",
+    "authorNote": "`--next` moving to `U24b` while TS7S2B is `implementing` confirms what the admission text says: NEXT does not enforce the one-lane rule and grants no permission (N2).",
+    "note": "N2: the validator does not model the track's one-writing-lane rule. While TS7S2B was implementing, --next printed U24b on the head (and TS7S2B on the base); the fresh main proof at 08555b7a also printed U24b on the unedited ledger. NEXT selection grants no permission either way."
+  },
+  "openNotesResolution": {
+    "TS7S2B-OPEN-1": "`desktop/jest.config.js` has no `diagnostics` key at all; C3 / TS7S2B-OPEN-1 satisfied on a cold cache.",
+    "TS7S2B-OPEN-2": "@swc/core 1.15.30 (all 13 entries), @swc/jest 0.2.39, @swc/counter 0.1.3 and jsonc-parser 3.3.1 have the same version **and integrity** as the root lockfile. Drift is confined to two transitive packages: `@swc/types` 0.1.28 vs root 0.1.26 (type-declaration package, range `^0.1.26` from @swc/core) and `@jest/create-cache-key-function` 30.5.1 vs root 30.3.0 (range `^30.0.0` from @swc/jest; it only feeds the cache key). Acceptable: neither affects transform output, and desktop's Jest itself stays 29.7.0.",
+    "TS7S2B-OPEN-3": "Idempotence: on head, `npm install --package-lock-only` with npm 11.19.1 prints \"up to date\" and the file hash is unchanged (`d1fd7e2572f131d2222813163815fe5e4556d685bcffd7aa823f5addcec7d9f1`, equal to the author's recorded sha256). With npm 11.6.2 (Node 22's bundled npm) the same command rewrites +6/-31 lines (peer/libc flags); the base lockfile shows the same class of churn (+7/-13) under 11.6.2, so this is pre-existing and not introduced here (N3).",
+    "TS7S2B-OPEN-4": "The tasks.md 2.4 outcome line (\"no `reactDocgen` change. Storybook 8.6.18 already defaults `typescript.reactDocgen` to `'react-docgen'` (Babel). `storybook build` never loads `react-docgen-typescript` or its Vite plugin, and the `OverwriteConfirmDialog` autodocs table lists all six typed props with their types and JSDoc descriptions. `.storybook/main.ts` is unchanged.\") is accurate on every clause.",
+    "TS7S2B-OPEN-5": "Count equals the TS7S1B 0.1 baseline (57 passed, recorded in `ts7s1b-admission-20261016.json`)."
+  },
+  "successorNotes": {
+    "TS7S3": {
+      "heading": "## 10. Carry-forwards for TS7S3 (TypeScript 6.0 bridge), exact wording",
+      "carryForwards": [
+        {
+          "id": "S3-1",
+          "tag": "desktop type-check now has two tsc steps",
+          "wording": "desktop `npm run type-check` is `tsc --noEmit && tsc -p tsconfig.test.json --noEmit` since TS7S2B. The TS7S3 proof item `desktop/: npm run type-check` therefore gates both `desktop/tsconfig.json` and `desktop/tsconfig.test.json` under TypeScript 6; any TS 6 deprecation or default change (for example the `types` default, `experimentalDecorators`/`emitDecoratorMetadata`, which desktop enables without using decorators) must be clean in both files, with no `ignoreDeprecations`. Note that the test tsconfig already lists `types: ['node', 'jest']` explicitly.",
+          "concern": "desktop npm run type-check now gates both desktop/tsconfig.json and desktop/tsconfig.test.json; both clean under TypeScript 6 with no ignoreDeprecations",
+          "applies": "TS7S3 (desktop/package.json leaf; proof item desktop/: npm run type-check)"
+        },
+        {
+          "id": "S3-2",
+          "tag": "desktop lockfile interplay",
+          "wording": "After TS7S2B the desktop lockfile pins `@swc/core` 1.15.30 and `@swc/jest` 0.2.39 to the root-resolved versions, but the range `^1.15.30` already admits 1.16.x (a fresh resolution picks 1.16.18). When TS7S3 reinstalls `desktop/package-lock.json` for `typescript ^6.0.3`, do it in place with npm 11.19.1 (`npm install --save-dev typescript@<exact 6.0.x>` or edit `package.json` then `npm install --package-lock-only`), not by deleting the lockfile; otherwise `@swc/core` drifts from the root and a reviewer has to classify 13 unrelated entries. Expect npm 11.6.2 to rewrite peer/libc flags (+6/-31 at this head) if it is used instead; say which npm wrote the file.",
+          "concern": "reinstall desktop/package-lock.json in place with npm 11.19.1; @swc/core ^1.15.30 now resolves to 1.16.18 on a fresh resolution; say which npm wrote the file",
+          "applies": "TS7S3 (desktop/package.json and desktop/package-lock.json leaves)"
+        },
+        {
+          "id": "S3-3",
+          "tag": "desktop TypeScript consumers are now tsc only",
+          "wording": "After TS7S2B nothing in `desktop/` loads the TypeScript API at test time: `@swc/jest` strips types, and `npm ls` shows no package in the desktop tree depending on `typescript` except the root devDependency. The desktop TypeScript consumers to prove under TS 6 are exactly `tsc --noEmit`, `tsc -p tsconfig.test.json --noEmit` and `npm run build` (`tsc`); desktop `npm test` is TypeScript-version independent and its 5/57 count must still match.",
+          "concern": "desktop TypeScript consumers are tsc only; desktop npm test is TypeScript-version independent and its 5/57 count must still match",
+          "applies": "TS7S3 (desktop proof items)"
+        },
+        {
+          "id": "S3-4",
+          "tag": "root package.json / lockfile",
+          "wording": "TS7S2B touched neither root `package.json` nor root `package-lock.json` (both sha256-frozen in the admission and unchanged at head). The root lockfile's only `typescript` peer ranges are `>= 4.3.x` (`@joshwooding/vite-plugin-react-docgen-typescript`, `react-docgen-typescript`) and `>= 4.2.x` (`@storybook/react`); no root package declares an upper bound below 6, so the TS 6 bridge should install without peer conflicts. Storybook's build never loads `typescript` or `react-docgen-typescript` (TS7S2B traced build), so `npm run storybook:build` is a smoke check for TS 6, not an API consumer; `next build`, `scan-maintenance.mjs`, `validate-flow-audit.mjs` and `scripts/__tests__/ux-walkthrough-recorder-privacy.test.ts` remain the real API consumers to prove.",
+          "concern": "root peer ranges admit TypeScript 6; storybook:build is a smoke check, not an API consumer; the real root API consumers are named",
+          "applies": "TS7S3 (package.json and package-lock.json leaves; API-consumer acceptance)"
+        },
+        {
+          "id": "S3-5",
+          "tag": "desktop TS 5.9.3 vs the bridge",
+          "wording": "desktop currently resolves `typescript ^5.8.3` to 5.9.3 while the root gate runs 5.8.3; TS7S3 sets both to the unaliased `^6.0.3`, which collapses that split. Record both `tsc --version` outputs (root `npx tsc --version`, `desktop/node_modules/.bin/tsc --version`) in the TS7S3 receipts, since D3/TS7S4A later alias the root `typescript` and need the desktop one unaliased.",
+          "concern": "record root and desktop tsc --version in the TS7S3 receipts",
+          "applies": "TS7S3 receipts; context for TS7S4A (D3 alias)"
+        }
+      ],
+      "openNotesForAdmission": [
+        {
+          "id": "TS7S3-OPEN-1",
+          "concern": "S3-1: two desktop tsc steps under TypeScript 6",
+          "note": "desktop/: npm run type-check is now tsc --noEmit && tsc -p tsconfig.test.json --noEmit, so the TS7S3 proof item gates both desktop/tsconfig.json and desktop/tsconfig.test.json under TypeScript 6, each clean with no ignoreDeprecations. This refines the registered proof item; no TS7S3 text change is implied."
+        },
+        {
+          "id": "TS7S3-OPEN-2",
+          "concern": "S3-2 / M3: desktop lockfile rewrite and @swc/core drift",
+          "note": "desktop/package-lock.json pins @swc/core 1.15.30 and @swc/jest 0.2.39, but @swc/core ^1.15.30 now resolves to 1.16.18 on a fresh resolution. TS7S3 reinstalls desktop/package-lock.json in place with npm 11.19.1 (npm install --save-dev typescript@<exact 6.0.x>, or edit package.json then npm install --package-lock-only), not by deleting it, and the receipts say which npm wrote the file. npm 11.6.2 rewrites peer/libc flags (+6/-31 at the TS7S2B head)."
+        },
+        {
+          "id": "TS7S3-OPEN-3",
+          "concern": "S3-3: desktop TypeScript consumers",
+          "note": "The desktop TypeScript consumers to prove under TypeScript 6 are tsc --noEmit, tsc -p tsconfig.test.json --noEmit and npm run build (tsc). desktop npm test no longer loads the TypeScript API (@swc/jest strips types) and its count must still be 5 suites and 57 tests."
+        },
+        {
+          "id": "TS7S3-OPEN-4",
+          "concern": "S3-4: root peer ranges and API consumers",
+          "note": "TS7S2B left root package.json and package-lock.json untouched (blob 0bc4b876 at 08555b7a, re-verified in this closure). npm run storybook:build never loads typescript or react-docgen-typescript, so it is a smoke check under TypeScript 6; next build, scan-maintenance.mjs, validate-flow-audit.mjs and scripts/__tests__/ux-walkthrough-recorder-privacy.test.ts remain the real API consumers to prove. The TS7S2A review carry-forward for TS7S3/TS7S4B (root lockfile idempotent under npm 11.19.1; evidence/ts7s2a-review-20261016.json successorNotes[\"TS7S3/TS7S4B\"]) still applies to the root lockfile reinstall."
+        },
+        {
+          "id": "TS7S3-OPEN-5",
+          "concern": "S3-5: record both tsc versions",
+          "note": "desktop resolves typescript ^5.8.3 to 5.9.3 while the root gate runs 5.8.3 (both re-measured at 08555b7a in this closure). The TS7S3 receipts record root npx tsc --version and desktop/node_modules/.bin/tsc --version, since D3/TS7S4A later alias the root typescript and need the desktop one unaliased."
+        },
+        {
+          "id": "TS7S3-OPEN-6",
+          "concern": "baseline and lane",
+          "note": "TS7S3 is released on the TS7S2B merge 08555b7a (main-verified in this change set). Because the owner ruled OD-scripts-tsconfig before TS7S3 was released, TS7S2OD runs first: TS7S3 is admitted only after TS7S2OD is main-verified, at a baseline that includes TS7S2OD's merge and closure. Admission must state that actual baseline, re-verify TS7S2B and TS7S2OD main-verified and their ancestry there, revalidate any evidence prepared on an earlier baseline (the TS7S2OD change to root package.json typecheck and scripts/tsconfig.json bears on the TypeScript 6 typecheck proof), and take 5 desktop suites and 57 tests as the count to match. The validator does not model the one-lane rule (N2), so the parent checks it."
+        }
+      ],
+      "state": "Released blocked -> planned in this change set (successorRelease below). No other TS7S3 field changes. TS7S2OD runs before it (see successorRelease.ownerRulingRelease.order)."
+    },
+    "TS7S4A": {
+      "wording": "since D3/TS7S4A later alias the root `typescript` and need the desktop one unaliased",
+      "source": "S3-5",
+      "applies": "TS7S4A (D3 root typescript alias): context only, from the S3-5 carry-forward; the review writes no separate TS7S4A item."
+    },
+    "TS7S4B": {
+      "wording": null,
+      "note": "The review names no carry-forward for TS7S4B (the generator checked that the string TS7S4B does not occur in it). The TS7S2A review carry-forward for TS7S3/TS7S4B on main still applies."
+    },
+    "TS7S5A": {
+      "wording": null,
+      "note": "The review names no carry-forward for TS7S5A (the generator checked that the string TS7S5A does not occur in it)."
+    },
+    "minors": [
+      {
+        "id": "M1",
+        "wording": "**M1.** `lazy: ['electron']` is a correct Jest-only workaround for the three electron tests' latent dependence on tsc's source-order `require` emit (Jest leaves on-time initialisation of `mock*` factory variables to the test). It should stay for TS7S2B. A later unit that registers `desktop/electron/__tests__/main.behavior.test.ts`, `main.ipc.security.test.ts` and `main.window.security.test.ts` as leaves may apply the author's getter patch (+30/-10) and remove `lazy`; either end state is acceptable, and the config comment already explains the dependency.",
+        "applies": "A later desktop-test unit: drop lazy: ['electron'] only when a unit registers desktop/electron/__tests__/main.behavior.test.ts, main.ipc.security.test.ts and main.window.security.test.ts as leaves and applies the getter form. No such unit is registered today; until then the option stays."
+      },
+      {
+        "id": "M2",
+        "wording": "**M2.** Pre-existing assertion gap in `main.behavior.test.ts`: `app.quit()` for `file:quit` and `app.setLoginItemSettings` can be removed from `main.behavior.ts` without failing any test, on the base (ts-jest) as well as on the head. Not introduced or worsened here; for whichever unit next owns the desktop tests.",
+        "applies": "Pre-existing gap: the app.quit (file:quit) and setLoginItemSettings mutants survive on base (ts-jest) too, not only on head. For whichever unit next owns the desktop tests; no unit is assigned here."
+      },
+      {
+        "id": "M3",
+        "wording": "**M3.** `^1.15.30` already resolves to `@swc/core` 1.16.18 on a fresh resolution; the committed lockfile is correct and pinned at 1.15.30 only because the author installed an exact version. Carried as S3-2 so the next desktop lockfile rewrite does not drift from root.",
+        "applies": "Carried as S3-2 to TS7S3 (TS7S3-OPEN-2)."
+      }
+    ],
+    "notes": [
+      {
+        "id": "N1",
+        "wording": "**N1.** tasks.md 2.3 and 2.4 ticks and the 2.4 outcome line are accurate; no extra prose beyond what the task text asks."
+      },
+      {
+        "id": "N2",
+        "wording": "**N2.** `validate-roadmap.mjs --next` prints `U24b` at head; the validator does not model the track's one-writing-lane rule, exactly as `admissionRequires` says. Disclosed by the author."
+      },
+      {
+        "id": "N3",
+        "wording": "**N3.** npm 11.6.2 rewrites the desktop lockfile's peer/libc flags on both base and head; pre-existing class of churn, irrelevant to `npm ci`."
+      },
+      {
+        "id": "N4",
+        "wording": "**N4.** desktop `oxlint` lints 0 files on both sides; pre-existing, not a TS7S2B concern."
+      },
+      {
+        "id": "N5",
+        "wording": "**N5.** `@storybook/react-vite` calls `require.resolve(\"typescript\")` (a path lookup, not a load) in `viteFinal`; the traced build confirms no TypeScript module is executed."
+      },
+      {
+        "id": "N6",
+        "wording": "**N6.** My names-list hash (`ec5bc1ac...`) differs from the author's (`7cc67220...`) only in line format; both measurements show byte-identical before/after lists."
+      },
+      {
+        "id": "N7",
+        "wording": "**N7.** The root `node_modules` used for root gates was junctioned from the root checkout (its lockfile differs from base only by TS7S2A's ts-node removal); desktop `node_modules` were fresh `npm ci` installs on each side, so the desktop equality claims rest on clean installs."
+      },
+      {
+        "id": "N8",
+        "wording": "**N8.** The storybook `__docgenInfo` uses react-docgen's `tsType` shape, not react-docgen-typescript's `type.name` shape, which independently confirms which docgen produced it."
+      }
+    ],
+    "laterUnits": {
+      "state": "TS7S3 and TS7S2OD are released to planned (TS7S2OD on the owner ruling of OD-scripts-tsconfig, option (a)); TS7S2OD runs first. TS7S4*, TS7S5* and P2CG1B stay blocked and unchanged."
+    },
+    "note": "Every heading, tag, wording, accept-as-shipped and quoted string under successorNotes, findings, lockfile, storybook, validatorDisclosure, behaviourEquality (except note) and openNotesResolution is a verbatim substring of evidence/ts7s2b-source-fable-review-20261016.txt; the closure generator checked this. S3-1..S3-5 are the section 10 items in order, without their bold labels and surrounding quotation marks; M1-M3 and N1-N8 are the Findings items including their bold labels. The concern, applies, source, state, openNotesForAdmission and laterUnits fields and every note are the parent's notes, not reviewer text. Where a carry-forward bears on TS7S3's leaves or proof, it is recorded here for its admission instead of editing TS7S3. The TS7 track has no PROGRESS.md of its own, so these notes are recorded in this receipt only.",
+    "TS7S2OD": {
+      "state": "Released blocked -> planned in this change set on the owner ruling of OD-scripts-tsconfig, option (a) (successorRelease.ownerRulingRelease). No other TS7S2OD field changes.",
+      "wording": null,
+      "note": "The review names no carry-forward for TS7S2OD (the generator checked that the string TS7S2OD does not occur in it). The TS7S2A review carry-forward for TS7S2OD (tsx resolves @/* from both tsconfigs; evidence/ts7s2a-review-20261016.json successorNotes.TS7S2OD) still applies.",
+      "openNotesForAdmission": [
+        {
+          "id": "TS7S2OD-OPEN-1",
+          "concern": "order",
+          "note": "TS7S2OD runs right after TS7S2B, before TS7S3, because the ruling preceded TS7S3's release. Admission baseline is a main that includes this closure; re-verify TS7S2B main-verified and ancestry there."
+        },
+        {
+          "id": "TS7S2OD-OPEN-2",
+          "concern": "compiler current at admission",
+          "note": "TS7S3 is not yet admitted, so the compiler current at TS7S2OD admission is the repo gate TypeScript 5.8.3 (root) unless that changes first. Option (a)'s proof item names node_modules/typescript7/bin/tsc \"(or the current compiler)\"; use the current one and record its tsc --version."
+        },
+        {
+          "id": "TS7S2OD-OPEN-3",
+          "concern": "BV spec compiler command (council A)",
+          "note": "The bv-validation-tooling scenario says npx tsc --noEmit type-checks the harness, but root tsconfig excludes scripts. Under option (a) correct the scenario command to npm run typecheck through a small delta spec in the change (openspec/changes/migrate-to-typescript-7/specs/bv-validation-tooling/spec.md, already a registered TS7S2OD exception), and name the modified capability in proposal.md (registered conditional leaf), if the correction is needed."
+        },
+        {
+          "id": "TS7S2OD-OPEN-4",
+          "concern": "proof shape (council A)",
+          "note": "Prove the narrowed scripts project checks clean, that npm run typecheck executes both projects and propagates failure (a temporary harness type error must fail the root gate, then be restored), and that the named BV/parity harness behavior is intact. Registration measured 5 errors in 2 files on TypeScript 5.8.3; re-measure at admission and stop on any wider set."
+        }
+      ]
+    }
+  },
+  "reviewNotes": "No blockers and no majors. M1 (module.lazy: ['electron'] stays; a later unit that registers the three electron tests as leaves may apply the getter patch and drop it) is recorded with the accept-as-shipped wording. M2 (app.quit and setLoginItemSettings mutants survive on base and head) is a pre-existing gap for the next desktop-test owner. M3 (@swc/core ^1.15.30 resolves to 1.16.18 on a fresh resolution) is carried to TS7S3 as S3-2. N1-N8 are recorded verbatim; N2 is the validator one-lane disclosure.",
+  "reservedSlot": "evidence/ts7s2b-admission-review-20261016.md stays unwritten. The reviewer did not write it, and this closure preserves the review byte for byte at its path instead of authoring reviewer text.",
+  "ciQualification": "All 31 check runs on the merged head succeeded (run 38999634888), with no commit statuses. The reviewer recorded the 31/31 rollup only; the merge receipt records the 31 names.",
+  "laneB": {
+    "ruledHead": "dd9a54dbe4bcdeec06f6d1aea6fe03246015d9f5",
+    "pr": 2180,
+    "commentId": 6229514549,
+    "author": "SwiggitySwerve",
+    "bodySha256": "5ae6a032422e5d28452c6860a5cbaf8527a070c013ee427d01bcd64fcd3c39c1",
+    "at": "2026-10-17T04:14:41Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2180#issuecomment-6229514549",
+    "bodyPath": "evidence/ts7s2b-owner-ruling-6229514549.txt"
+  },
+  "ownerRulingNote": "The ruling body names the exact merged head and TS7S2B: tasks 2.3-2.4 (desktop Jest on @swc/jest instead of ts-jest, desktop type-check gains tsc -p tsconfig.test.json --noEmit, no Storybook reactDocgen change). It also records the APPROVE-WITH-NOTES review with no blockers or majors, the 5-suite/57-test equality with byte-identical names and statuses, the 16-to-0 TS151002 change, the type-check relocation, the byte-identical desktop build, the lockfile diff, the Storybook prop table without react-docgen-typescript, the reviewer's accept-as-shipped recommendation for module.lazy electron, and CI 31/31. The owner authorized the ruling in chat; it is transcribed verbatim.",
+  "chronology": "The owner ruling was recorded after the source merge (merged 2026-10-17T04:14:38Z, ruled 2026-10-17T04:14:41Z), as the ruling body acknowledges. This transcription does not claim a premerge ruling.",
+  "identityScope": "Preserves the existing unversioned TS7S2B evidence and the actual cross-model review provenance. No v2/v3 identity manifest or engine observation is claimed.",
+  "githubApproval": "Lane A engineering evidence only; no GitHub approval claimed.",
+  "successorRelease": {
+    "label": "successor release",
+    "scope": "Separate from the TS7S2B closure. This change set also releases TS7S3 (successor release) and TS7S2OD (successor release on the owner ruling of OD-scripts-tsconfig). No other field of either unit changes and no other unit is released.",
+    "release": {
+      "unit": "TS7S3",
+      "field": "state",
+      "from": "blocked",
+      "to": "planned",
+      "basis": "TS7S3's only predecessor, TS7S2B, is main-verified in this same change set with a genuine exact-main mainProof PASS at 08555b7a1b22f1bc10f9e6335c3ea7edd79c98da, as TS7S3.admissionRequires demands. TS7S2B has no task keys, so its tick stays null. This is the standard on which TS7S2B was released (#2179), TS7S2A (#2177) and TS7S1B (#2175) before it, and on which ts7TrackRegistration20261016.schedulingRule releases each next track unit when its predecessor closes.",
+      "permission": "Release to planned only. Selection is not admission. TS7S3 source work still requires its own normal finite admission at its own baseline, after TS7S2OD (see order below). P2CG1B stays blocked under the parent hold, and no other TS7 unit is released."
+    },
+    "ownerRulingRelease": {
+      "label": "successor release (owner ruling OD-scripts-tsconfig)",
+      "release": {
+        "unit": "TS7S2OD",
+        "field": "state",
+        "from": "blocked",
+        "to": "planned"
+      },
+      "basis": "TS7S2OD.releasePredicate has two halves: (1) the owner rules OD-scripts-tsconfig, option (a) or (b), and (2) TS7S2B is complete with a genuine exact-main mainProof PASS. Half (2) is met by this change set (TS7S2B main-verified at 08555b7a1b22f1bc10f9e6335c3ea7edd79c98da). Half (1) is the owner ruling recorded below. TS7S2OD.admissionRequires: \"The parent records the ruling verbatim, with its source, in the release edit.\"",
+      "ruling": {
+        "decisionId": "OD-scripts-tsconfig",
+        "option": "a",
+        "optionText": "Option (a): keep scripts/tsconfig.json, narrow it to validate-bv.ts, validate-parity.ts and data-migration/**, follow D2 (no baseUrl; explicit types), make it check clean on the compiler current at admission, and add it to the root typecheck script; including the council-A correction of the bv-validation-tooling spec's compiler command (the scenario that says npx tsc --noEmit type-checks the harness) through a delta spec if needed.",
+        "ownerVerbatim": "continue with recommended options and fix the issues that come up, publish as needed",
+        "ownerMessage": {
+          "thread": "6db2c314-6cd3-40c5-8fbd-7c42bc27ed35",
+          "messageId": "324938a1-d8fc-47f4-b80d-1c13551bdbc9",
+          "at": "2026-10-17T05:31:15.659Z",
+          "author": "owner (T3 web user)",
+          "channel": "owner chat in T3 thread 6db2c314-6cd3-40c5-8fbd-7c42bc27ed35"
+        },
+        "question": {
+          "verbatim": "1. **OD-scripts-tsconfig:** I need a ruling before TypeScript 7 can finish. All three members recommend option (a): keep `scripts/tsconfig.json`, narrow it to the validation scripts, fix their 5 type errors, and add it to `npm run typecheck`.",
+          "by": "Root orchestrator",
+          "thread": "6db2c314-6cd3-40c5-8fbd-7c42bc27ed35",
+          "messageId": "message:provider:codex:native-item:msg_msg_011Cg7FnRUQVe9nPxG9kRaUk_0",
+          "at": "2026-10-17T05:27:33.923Z",
+          "note": "Item 1 of \"Decisions for you\" in the Root message that reported the council result. The owner answered the next message with the verbatim text above, which adopts the recommended option (a)."
+        },
+        "councilRecommendation": {
+          "verbatim": "4. **OD-scripts-tsconfig: option (a)**, including correcting the BV spec's compiler command (A). The owner rules.",
+          "source": "docs/audits/2026-10-17-council-roadmap-decision.md (root checkout, untracked)",
+          "detail": "docs/audits/2026-10-17-council-A-ts7-path.md section 3 (OD-scripts-tsconfig: choose (a), with a small correctness correction)"
+        },
+        "interpretation": "The owner text names no option letter; it accepts \"recommended options\", and the only recommendation put to the owner for OD-scripts-tsconfig was option (a), unanimous across the three council members. Recorded as option (a) by the parent on that basis."
+      },
+      "order": "The ruling arrived (2026-10-17T05:31:15Z) before TS7S3 was released: TS7S3 was still blocked on main 08555b7a, and its release lands only in this same change set. Under TS7S2OD.admissionRequires (\"If the ruling arrives before TS7S3 is released, this unit runs right after TS7S2B, in tasks.md order\"), the registered order is TS7S2B -> TS7S2OD -> TS7S3 -> TS7S4A -> TS7S4B -> TS7S5A -> TS7S5B -> TS7S5C. Both TS7S2OD and TS7S3 are released to planned here; the one-writing-lane rule is enforced at admission, not release, so TS7S2OD is admitted first and TS7S3 is admitted only after TS7S2OD is main-verified.",
+      "permission": "Release to planned only. Selection is not admission. TS7S2OD source work still requires its own normal finite admission at its own baseline, with the 5-error re-measurement its behavior text requires (stop and register a successor if more files need fixes)."
+    },
+    "conflictingSteer": "A parent steer received during this closure asked to park the TS7 track (leave TS7S3 blocked and add a parkedAt note to ts7TrackRegistration20261016), citing the 2026-10-16 council-A/B/C reports. It was superseded by the later Root scope change in the same session, which matches the owner's 2026-10-17 instructions in thread 6db2c314-6cd3-40c5-8fbd-7c42bc27ed35 (\"finish TS 7 migration before anything, quickly, and stop dallying\" at 04:48:25Z, then the ruling above) and the 2026-10-17 council decision (\"TS7 first\"). No parkedAt note is written and the track is not parked."
+  }
+}

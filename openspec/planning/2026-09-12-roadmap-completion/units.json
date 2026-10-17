@@ -8041,7 +8041,16 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2b-admission-20261016.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2b-admission-review-20261016.md",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2b-red-20261016.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2b-local-20261016.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2b-local-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2b-source-fable-review-20261016.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2b-owner-ruling-6229514549.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2b-review-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2b-merge-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-08555b7a-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-08555b7a-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-08555b7a-desktop.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-08555b7a-deps.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2b-mainproof-20261016.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -8052,10 +8061,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "implementing",
+      "state": "main-verified",
       "baseline": "b4a1fc5c75b1bfe6f9b45b9e023b458d1c5843c0",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "dd9a54dbe4bcdeec06f6d1aea6fe03246015d9f5",
+      "mergeSha": "08555b7a1b22f1bc10f9e6335c3ea7edd79c98da",
       "stageReceipts": {
         "admission": {
           "path": "evidence/ts7s2b-admission-20261016.json"
@@ -8066,9 +8075,27 @@
         "local": {
           "path": "evidence/ts7s2b-local-20261016.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/ts7s2b-review-20261016.json",
+          "head": "dd9a54dbe4bcdeec06f6d1aea6fe03246015d9f5",
+          "reviewedHead": "dd9a54dbe4bcdeec06f6d1aea6fe03246015d9f5",
+          "reviewerModel": "claude-fable-5-1",
+          "implementerModel": "claude-opus-5-5",
+          "outputSha256": "a80b31af55d1f2b7530b0d94120dac7a5b3fb6a840ef0eef14efe655bd973a09",
+          "verdict": "APPROVE-WITH-NOTES"
+        },
+        "merge": {
+          "path": "evidence/ts7s2b-merge-20261016.json",
+          "pr": 2180,
+          "head": "dd9a54dbe4bcdeec06f6d1aea6fe03246015d9f5",
+          "mergeSha": "08555b7a1b22f1bc10f9e6335c3ea7edd79c98da"
+        },
+        "mainProof": {
+          "path": "evidence/ts7s2b-mainproof-20261016.json",
+          "mergeCommit": "08555b7a1b22f1bc10f9e6335c3ea7edd79c98da",
+          "verdict": "PASS",
+          "runtime": "Source/Main checks: 6 passed (npm run typecheck exit 0; validator PASSED; desktop npm run type-check exit 0 with both tsc steps; desktop npm test 5 suites and 57 tests passed; desktop npm test -- --no-cache 5 suites and 57 tests passed with 0 TS151002; desktop/package-lock.json blob 85fc3512 equal to the PR head; 0 failed)"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -8131,7 +8158,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -8198,7 +8225,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -15302,6 +15329,44 @@
         "commentId": 6228416167,
         "author": "SwiggitySwerve",
         "bodySha256": "c991812465163768decc4d9346bb919d8509a4940004fd98b276f7e45f9791e6"
+      }
+    },
+    {
+      "id": "PK-ts7s2b-ruling",
+      "blocks": [
+        "TS7S2B"
+      ],
+      "nodes": [
+        "R6.ts7-toolchain"
+      ],
+      "taskKeys": [],
+      "question": "After independent exact-head Fable review and required green CI, should the owner rule the bounded TS7S2B head (tasks 2.3-2.4 of migrate-to-typescript-7: desktop Jest moves from ts-jest to @swc/jest with @swc/core and @swc/jest pinned to the root-resolved versions and ts-jest removed from desktop devDependencies; desktop/jest.config.js uses the @swc/jest transform with the D5 decorator options, CommonJS output and a Jest-only module.lazy for electron; desktop/package-lock.json is regenerated by npm; the desktop type-check script also runs tsc -p tsconfig.test.json --noEmit; Storybook is proved independent of react-docgen-typescript with no reactDocgen change; the desktop test count stays at 5 suites and 57 tests with 0 TS151002 messages on npm test -- --no-cache) before guarded merge?",
+      "options": [
+        {
+          "label": "rule the exact source head",
+          "consequence": "Permit the guarded TS7S2B merge and the exact-main proof only. TS7S3 is released to planned only after TS7S2B is main-verified, with the review carry-forwards recorded for its admission. TS7S2OD stays blocked until the owner rules OD-scripts-tsconfig, and P2CG1B stays blocked under the parent hold.",
+          "effort": "One exact-head Fable review, an evidence check and an owner ruling"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Hold the merge until the concrete transform, lockfile, type-check, Storybook, ledger or proof objections are fixed, and fresh exact-head review, CI and owner ruling are complete.",
+          "effort": "Bounded by the concrete review objections"
+        }
+      ],
+      "agentRecommendation": "Rule only an independently approved green exact head that meets all of these: the edits are exactly the four registered leaves (and .storybook/main.ts only if reactDocgen changes) plus the unit's own lifecycle and receipts; desktop npm test passes 5 suites and 57 tests with the same names and statuses as the ts-jest baseline and 0 TS151002 messages on npm test -- --no-cache, with no diagnostics.ignoreCodes; a type error in a desktop test file fails desktop npm run type-check; desktop/package-lock.json changes only by adding the SWC packages and removing ts-jest and the packages only it needed; npm run storybook:build passes with a populated autodocs prop table; and npm run typecheck, lint, format:check and the OpenSpec gates pass. This proposal grants no approval or merge permission.",
+      "revertCost": "Low: revert desktop/jest.config.js to the ts-jest preset, restore ts-jest and drop @swc/core and @swc/jest in desktop/package.json and desktop/package-lock.json, restore the single-step desktop type-check script, and untick tasks.md 2.3 and 2.4. TS7S2B changes no product source, root package.json or lockfile, compiler version, tsconfig, desktop test file, Storybook config, Protocol, server.js or production wiring.",
+      "decision": {
+        "option": "rule the exact source head",
+        "at": "2026-10-17T04:14:41Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2180#issuecomment-6229514549"
+      },
+      "ruling": {
+        "ruledHead": "dd9a54dbe4bcdeec06f6d1aea6fe03246015d9f5",
+        "pr": 2180,
+        "commentId": 6229514549,
+        "author": "SwiggitySwerve",
+        "bodySha256": "5ae6a032422e5d28452c6860a5cbaf8527a070c013ee427d01bcd64fcd3c39c1"
       }
     },
     {

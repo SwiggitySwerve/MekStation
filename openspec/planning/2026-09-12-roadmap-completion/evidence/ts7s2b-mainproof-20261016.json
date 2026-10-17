@@ -1,0 +1,277 @@
+{
+  "unit": "TS7S2B",
+  "stage": "mainProof",
+  "recordedAt": "2026-10-17T04:28:00.000Z",
+  "mergeCommit": "08555b7a1b22f1bc10f9e6335c3ea7edd79c98da",
+  "verdict": "PASS",
+  "checkout": "E:/Projects/Personal/MekStation-wt/ts7s2b-closure-20261016",
+  "runtime": {
+    "playwright": "Source/Main checks: 6 passed (npm run typecheck exit 0; validator PASSED; desktop npm run type-check exit 0 with both tsc steps; desktop npm test 5 suites and 57 tests passed; desktop npm test -- --no-cache 5 suites and 57 tests passed with 0 TS151002; desktop/package-lock.json blob 85fc3512 equal to the PR head; 0 failed)",
+    "desktopInstall": "Fresh npm ci in E:/Projects/Personal/MekStation-wt/ts7s2b-closure-20261016/desktop before any closure edit (desktop/node_modules did not exist beforehand): exit 0, added 557 packages, npm 11.6.2 (Node v22.22.0's bundled npm, the CI path). desktop/node_modules is a physical directory inside this worktree (not a link; the root checkout's desktop/node_modules was not used). Installed: @swc/core 1.15.30, @swc/jest 0.2.39, typescript 5.9.3, jest 29.7.0, ts-jest absent.",
+    "desktopTypeCheck": "desktop npm run type-check = tsc --noEmit && tsc -p tsconfig.test.json --noEmit (desktop tsc 5.9.3): exit 0",
+    "desktopTest": "desktop npm test: 5 of 5 suites, 57 of 57 tests passed, exit 0; desktop npm test -- --no-cache: 5 of 5 suites, 57 of 57 tests passed, exit 0. TS151002 occurrences in stdout+stderr: 0 on both runs, and no TS<digits> diagnostic code of any kind. The count equals the TS7S1B baseline (5 suites, 57 tests).",
+    "tsc": "npm run typecheck (root tsc 5.8.3, the repo gate): exit 0",
+    "lockfile": "desktop/package-lock.json blob 85fc3512357e4c5387ab84e3755b7d972a6b745b at main equals the PR head blob (git diff --quiet dd9a54db HEAD -- desktop/package-lock.json desktop/package.json desktop/jest.config.js exits 0); base blob 9d9af2df; working-tree hash-object equals the blob. The lockfile pins @swc/core 1.15.30 and @swc/jest 0.2.39 and has no ts-jest entry. Root package-lock.json (blob 0bc4b876) and package.json are unchanged from base b4a1fc5c.",
+    "node": "v22.22.0",
+    "npm": "11.6.2"
+  },
+  "proof": {
+    "path": "evidence/mainproof-08555b7a-desktop.bytes.json",
+    "payloadSha256": "08cac6d35e22bbdf60a44f990c3458867e5ed72668807d60bde4a66e26464297",
+    "payloadBytes": 51171,
+    "note": "Fresh run at the exact merge HEAD on a clean checkout before any closure edit: npm --version, a fresh desktop npm ci inside this worktree, the installed desktop toolchain versions, the desktop type-check and test script strings, desktop tsc --version, desktop npm run type-check, desktop npm test and desktop npm test -- --no-cache with stdout and stderr captured separately as raw bytes and the TS151002 and TS<digits> occurrences counted, then git status --porcelain (empty)."
+  },
+  "logs": [
+    {
+      "path": "evidence/mainproof-08555b7a-typecheck.bytes.json",
+      "payloadSha256": "0f022075e767ae5c0086f938ebb4d1e61a8fdd4b9981404c89958b26a1491d46",
+      "payloadBytes": 363,
+      "note": "Fresh tsc --version (Version 5.8.3) and npm run typecheck on the same checkout and HEAD: exit 0."
+    },
+    {
+      "path": "evidence/mainproof-08555b7a-validator.bytes.json",
+      "payloadSha256": "28f77986692ab0a140f7188a029bdf95bac610291896eed544ebf720d3e3a354",
+      "payloadBytes": 457,
+      "note": "Fresh validator and --next on the unedited ledger at the same HEAD (PASSED, 80 nodes; --next U24b, because TS7S2B was still implementing and the validator does not model the one-lane rule)."
+    },
+    {
+      "path": "evidence/mainproof-08555b7a-deps.bytes.json",
+      "payloadSha256": "59d493a37149f2799e0c88a88e14b21d8cc3fbe2b830697bcf37b7e979dc071f",
+      "payloadBytes": 5497,
+      "note": "Fresh desktop/package-lock.json, desktop/package.json and desktop/jest.config.js blob equality against the PR head and base, root package-lock.json and package.json equality against base, the desktop lockfile @swc/core, @swc/jest, typescript, jest and ts-jest entries, and root node_modules provenance (a junction to the TS7S2A author tree installed by npm ci from root lockfile blob 0bc4b876, the same blob as main; typescript 5.8.3)."
+    }
+  ],
+  "attemptLogs": [
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/census.md",
+      "sha256": "e82e29434b1cb308114406d9e172f3bd099e19078ba8878b52ce94f0478639f0",
+      "bytes": 4440,
+      "note": "Author census frozen before edits (9 of 15 files, 42 of 500 counted lines; desktop/package-lock.json uncounted)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/desktop-jest-before-after.md",
+      "sha256": "9bb8a9d3b2db163fd375b932356b53fef16bd7f4fc849a04ffc8a81a297e3103",
+      "bytes": 6260,
+      "note": "Author acceptance record: ts-jest (before) vs @swc/jest (after) counts, names, TS151002 counts and the module.lazy rationale"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/before-desktop-test-nocache.stdout.txt",
+      "sha256": "0ca3d99dd9a701aeb75cd4f162f272b23735ea2f6333659914e7d6978c8898a0",
+      "bytes": 233,
+      "note": "Baseline (ts-jest) desktop npm test -- --no-cache stdout"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/before-desktop-test-nocache.stderr.txt",
+      "sha256": "d4d3c1aa6edbb456aae1c8c832ffe993e07c13fe0e25c965ea8cc9727545f284",
+      "bytes": 27692,
+      "note": "Baseline (ts-jest) desktop npm test -- --no-cache stderr (16 TS151002)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/before-desktop-test-nocache.names.txt",
+      "sha256": "7cc672205300f54da9f0bfca85c83680aff8b68a2f27661843218565ce3b0e48",
+      "bytes": 7517,
+      "note": "Baseline sorted test names and statuses (57 lines)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-desktop-test-nocache.stdout.txt",
+      "sha256": "b48a99b777c493a4b695a1b45dfa7fe438555da82fdf41b604e9b92d4e21415c",
+      "bytes": 232,
+      "note": "Head (@swc/jest) desktop npm test -- --no-cache stdout"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-desktop-test-nocache.stderr.txt",
+      "sha256": "c5678eb08d37b837527d025117a1d38e36e4c2c5625fb06cb9be0824d5031b4e",
+      "bytes": 21681,
+      "note": "Head (@swc/jest) desktop npm test -- --no-cache stderr (0 TS151002)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-desktop-test-nocache.names.txt",
+      "sha256": "7cc672205300f54da9f0bfca85c83680aff8b68a2f27661843218565ce3b0e48",
+      "bytes": 7517,
+      "note": "Head sorted test names and statuses (57 lines, identical to the baseline list)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-desktop-test-plain-nocache.stdout.txt",
+      "sha256": "5c0955ec59e591424252385fd345ed0ef530ca055e0dfa3b2368bea529feac0a",
+      "bytes": 17447,
+      "note": "Head plain desktop npm test -- --no-cache stdout"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-desktop-test-plain-nocache.stderr.txt",
+      "sha256": "c6e7b9fc9b82948bab490e4bfd244adf6cb8acb4bb0b6800280574d06da61cc9",
+      "bytes": 4105,
+      "note": "Head plain desktop npm test -- --no-cache stderr (0 TS151002)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/swc-nolazy-desktop-test.stderr.txt",
+      "sha256": "50146f009a3340414073beb03b8611ebbb1e904b476c3824e3c75b3a64301af9",
+      "bytes": 19032,
+      "note": "Head D5 options without module.lazy: three electron suites fail to load"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/alt-lazy-desktop-test.stdout.txt",
+      "sha256": "c2e51b57ed6f71f3753fd301fdff811eba7de6aa6e866bdcfe26cc7f05d9a983",
+      "bytes": 17395,
+      "note": "Alternative lazy: true measured (5 suites, 57 passed; rejected as broader)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/prototype-test-getters.patch",
+      "sha256": "3054b7410e57251db2a1b0569996dde9834e611668d961cedcc32cb29f6859f2",
+      "bytes": 2499,
+      "note": "Author getter-form test patch (+30/-10), not applied; the M1 end state for a later desktop-test unit"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/desktop-lock-diff.json",
+      "sha256": "8ebcd9770acc13599c588649bb6eeadd1671c6b6610f4504e4454ce580c316bc",
+      "bytes": 2570,
+      "note": "Author desktop/package-lock.json package-entry diff"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-npm-install-swc.stdout.txt",
+      "sha256": "4d8667e167cf89b601045557f79a1df5cf5766c9465a6b53495d6113fd474d42",
+      "bytes": 740,
+      "note": "Author npm install --save-dev @swc/core@1.15.30 @swc/jest@0.2.39 in desktop"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-npm-uninstall-tsjest.stdout.txt",
+      "sha256": "df3c5749b239097f8ba81be82029c4cd730b6bda0e16316b2a9f457506bd7e57",
+      "bytes": 742,
+      "note": "Author npm uninstall ts-jest in desktop"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-desktop-typecheck.stdout.txt",
+      "sha256": "02cdd4a7de45897628941ac76b776ab0c171986dcbb80dffe7150ba4fed1fb58",
+      "bytes": 93,
+      "note": "Head desktop npm run type-check (both tsc steps)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-inject-jest.stdout.txt",
+      "sha256": "95c11e8d43cbf647231020ca5c4cbf3919f9e1740366ee23520432d24397c23f",
+      "bytes": 5140,
+      "note": "Head injected TS2322 in a test file: Jest passes (SWC strips types)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-inject-typecheck.stdout.txt",
+      "sha256": "c1e55a495b3f81e618e8c1687fbb24420c1b5dafe15515a96051b4e3458f7711",
+      "bytes": 214,
+      "note": "Head injected TS2322 in a test file: desktop npm run type-check fails on the new tsconfig.test.json step"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/after-desktop-build.stdout.txt",
+      "sha256": "aa317115bf2087b6d4fd350c45315a319aaeb894ea8b99ac816e4ba45abbf5c4",
+      "bytes": 41,
+      "note": "Head desktop npm run build (tsc)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/coverage-compare.txt",
+      "sha256": "c28fe9fac8278fe9b8f3a5361a0f877f953c66483a3b0b3d258c20662b2b4f60",
+      "bytes": 3242,
+      "note": "Author desktop coverage comparison (functions and branches identical)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/electron-test.stdout.txt",
+      "sha256": "1b397b8b141d5770a801fb65b16cb928c07e55aae80ecf91ba3154fdb47b7634",
+      "bytes": 17500,
+      "note": "Head root npm run electron:test (5 suites, 57 passed)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/storybook-build-traced.stdout.txt",
+      "sha256": "ee1954b2506c139e9f271546ce2cab908512b6d186313a7a1f94e930f07d215c",
+      "bytes": 25728,
+      "note": "Traced npm run storybook:build at the baseline (root unchanged by this unit)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/storybook-build.stdout.txt",
+      "sha256": "cc46e0794728a55868c63b7211b6d2d2615b8f6a101f0943266b460aa540f6cd",
+      "bytes": 25728,
+      "note": "Head npm run storybook:build"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/storybook-docgen.md",
+      "sha256": "884b567605cb0f6867d799bf4d76ef5a3f91cdba95be2798729ce91569d414e2",
+      "bytes": 4064,
+      "note": "Author task 2.4 record: Storybook docgen is react-docgen, no reactDocgen change"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/storybook-overwriteconfirmdialog-docgen.txt",
+      "sha256": "5d6880b05344b47520811415760ade8b723c25596687bc5288fce15236618883",
+      "bytes": 975,
+      "note": "OverwriteConfirmDialog __docgenInfo extract (six typed props)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/storybook-overwriteconfirmdialog-argstable.png",
+      "sha256": "148039ac981b6d14d0a51bd62ec4c5343b5a6a52e05fc6eda3b788affe3409de",
+      "bytes": 47457,
+      "note": "Rendered OverwriteConfirmDialog autodocs ArgTypes table"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/typecheck.stdout.txt",
+      "sha256": "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f",
+      "bytes": 65,
+      "note": "Head npm run typecheck"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/lint.stdout.txt",
+      "sha256": "0a0f664528fb15e0cedef3d68b498ac1bbee06af9dc256c200c3c2a3efda21d8",
+      "bytes": 39377,
+      "note": "Head npm run lint (86 warnings, 0 errors)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/lint-units.stdout.txt",
+      "sha256": "e53b479047c58f2bd97ee0546f27b8eeb99dbe38ed0290ce9c8edbd81d45cab3",
+      "bytes": 355,
+      "note": "Head npm run lint:units"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/format-check.stdout.txt",
+      "sha256": "caa0483a82b0c4241ec0f3245ac77024030b8961907401910d3a4ad171a2e375",
+      "bytes": 173,
+      "note": "Head npm run format:check"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/openspec-validate.stdout.txt",
+      "sha256": "f0ed162c969d01fe74d7cee8d133c14c01151bbb82e7a18c3a5b3e8a2678ac79",
+      "bytes": 6846,
+      "note": "Head npx openspec validate --all --strict"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/openspec-ci.stdout.txt",
+      "sha256": "732887ec992b4e8a8a71532d48162be7a45d559054dfaf424aaaf091a2b5fc25",
+      "bytes": 293,
+      "note": "Head npm run qc:openspec-ci:validate"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/desktop-lint.stdout.txt",
+      "sha256": "bb29ac12ca18c9f0334e6087299e957ea705e034c39f84b1f931b9009af0a786",
+      "bytes": 133,
+      "note": "Head desktop npm run lint (0 files linted; pre-existing, N4)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/validation.log",
+      "sha256": "9b3caae1ecadcbe87409df2eb4895952d95395f4ae385aec381ffe74c70426d3",
+      "bytes": 229,
+      "note": "Author validator, --next (U24b) and validator tests (86/86)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/green.log",
+      "sha256": "4f05912c6340f8b2cc95f742a84529824dcaa652e9a702afcb187cb7e5479a7e",
+      "bytes": 538,
+      "note": "Author npm run test:stable summary: 2796/2796 suites, 37180 passed, 50 skipped, exit 0"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/test-stable.stdout.txt",
+      "sha256": "bdaf1b2aab9e024feb9758ed84f97fd446a705c83f677fac0099ac1e41e46d05",
+      "bytes": 241806,
+      "note": "Author npm run test:stable full stdout on the final bytes"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2b-20261016/report.md",
+      "sha256": "048e61b4b41ff2487ea7c812bcf9e51945660a10276197078b4356784283a4f4",
+      "bytes": 1868,
+      "note": "Author report"
+    }
+  ],
+  "scope": "Fresh root typecheck (repo TypeScript 5.8.3), validator, a fresh desktop npm ci inside this worktree, desktop type-check, desktop npm test (warm and --no-cache, 5 suites and 57 tests each, 0 TS151002) and the desktop lockfile blob check at the exact merge commit, plus hash references to the author attempt logs (33 of them cross-checked against the hashes the admission, red and local receipts cite). Root node_modules is the TS7S2A author's physical npm ci tree of root lockfile blob 0bc4b876, whose blob equals main's, reused through a junction; no fresh root npm ci is claimed for main. Lint, format, OpenSpec, storybook:build, desktop build, coverage and test:stable are the author and reviewer results on the head, whose tree equals the merge tree; they were not re-run at main. No full-stable, browser or build result is claimed for main.",
+  "closure": "main-verified only. taskKeys is empty; tasks.md 2.3 and 2.4 were ticked by the source PR, no tasks.md row changes here and no tick receipt is invented. Source/closure owned-resource cleanup is not established here.",
+  "preservation": "Proof and logs are base64 envelopes so repository LF normalization cannot alter their exact bytes. Decode data and verify payloadSha256/payloadBytes."
+}
