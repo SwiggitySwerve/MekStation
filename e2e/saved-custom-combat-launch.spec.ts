@@ -140,6 +140,23 @@ async function seedMissionOnCampaign(
   page: Page,
   missionId: string,
 ): Promise<void> {
+  // The e2e stores are exposed after an async import, so wait for them
+  // instead of reading them straight after navigation.
+  await page.waitForFunction(
+    () => {
+      const stores = (
+        window as unknown as {
+          __ZUSTAND_STORES__?: {
+            campaign?: unknown;
+            campaignPersistence?: unknown;
+          };
+        }
+      ).__ZUSTAND_STORES__;
+      return Boolean(stores?.campaign && stores.campaignPersistence);
+    },
+    undefined,
+    { timeout: 20_000 },
+  );
   const status = await page.evaluate(async (id) => {
     type StoreApi = { getState: () => Record<string, unknown> };
     type Exposed = { campaign?: StoreApi; campaignPersistence?: StoreApi };

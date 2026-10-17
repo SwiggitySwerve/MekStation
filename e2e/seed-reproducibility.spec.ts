@@ -211,7 +211,12 @@ async function runAutoResolveOnce(
   await page.getByTestId('auto-resolve-btn').click();
 
   await page.waitForURL(/\/gameplay\/games\/[^?]+$/, { timeout: 30_000 });
-  await expect(page.getByTestId('game-completed')).toBeVisible({
+  // A finished game that is not campaign-bound redirects from the session
+  // page to the victory screen; campaign-bound games stay on the completed
+  // surface. Either is the completed state.
+  await expect(
+    page.getByTestId('game-completed').or(page.getByTestId('victory-screen')),
+  ).toBeVisible({
     timeout: 30_000,
   });
 
