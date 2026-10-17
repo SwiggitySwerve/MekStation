@@ -26,7 +26,12 @@
  * `commitEvents` asserts that before delegating here.
  */
 
-import type { ICampaignEventStore } from '@/lib/campaign/sync/ICampaignEventStore';
+import type {
+  CampaignControlledBatchResult,
+  ICampaignAppendControls,
+  ICampaignAppendRefusal,
+  ICampaignCommandBatchInput,
+} from '@/lib/campaign/sync/ICampaignEventStore';
 import type {
   CampaignIntentResult,
   ICampaignAuthoritativeState,
@@ -60,20 +65,66 @@ import { CampaignIntentIdentityConflictError } from './campaignIntentIdentity';
  */
 export type CampaignCommitOutcome =
   | { readonly kind: 'committed'; readonly events: readonly ICampaignEvent[] }
-  | { readonly kind: 'lost-race'; readonly head: ICampaignHeadRef };
+  | { readonly kind: 'lost-race'; readonly head: ICampaignHeadRef }
+  /** P2CG1B prewrite refusal: nothing was written. */
+  | { readonly kind: 'refused'; readonly refusal: ICampaignAppendRefusal }
+  /**
+   * The append threw: durability unknown until the owner reads the command
+   * back. Not a refusal; nothing was applied or published.
+   */
+  | {
+      readonly kind: 'commit-uncertain';
+      readonly commandId: string;
+      readonly error: unknown;
+    }
+  /** Durable, then a later step failed: never compensated or retried; errors kept in order. */
+  | {
+      readonly kind: 'committed-unsettled';
+      /** Null only when no single client command identity exists. */
+      readonly commandId: string | null;
+      readonly events: readonly ICampaignEvent[];
+      readonly errors: readonly unknown[];
+    };
+
+/** P2CG1B: append controls plus one cleanup after the lock is released. */
+export interface ICampaignCommitControls extends ICampaignAppendControls {
+  readonly afterRelease?: () => void;
+}
 
 /**
  * One commit outcome as one door's answer.
  *
  * Folded because all four committing doors said exactly this, and four
- * copies is four chances for one of them to drop the head.
+ * copies is four chances for one of them to drop the head. Failures
+ * rethrow as they always did; only the controlled door can be refused.
  */
 export function resultOfCommit(
   outcome: CampaignCommitOutcome,
 ): CampaignIntentResult {
-  return outcome.kind === 'lost-race'
-    ? campaignStaleHeadRefusal(outcome.head)
-    : { ok: true, events: outcome.events };
+  switch (outcome.kind) {
+    case 'committed':
+      return { ok: true, events: outcome.events };
+    case 'lost-race':
+      return campaignStaleHeadRefusal(outcome.head);
+    default:
+      return throwCommitFailure(outcome);
+  }
+}
+
+/** Rethrow a failed commit's original error(s); typed so no arm is dropped. */
+export function throwCommitFailure(
+  outcome: Exclude<
+    CampaignCommitOutcome,
+    { readonly kind: 'committed' | 'lost-race' }
+  >,
+): never {
+  if (outcome.kind === 'refused') {
+    throw new Error(`Uncontrolled door refused: ${outcome.refusal.reason}`);
+  }
+  if (outcome.kind === 'commit-uncertain') throw outcome.error;
+  throw outcome.errors.length === 1
+    ? outcome.errors[0]
+    : new AggregateError(outcome.errors, 'Committed batch did not settle');
 }
 
 export interface ICampaignBatchCommitHost {
@@ -135,7 +186,10 @@ export async function commitCampaignEventsInSequence(
 export async function commitCampaignEventBatch(
   host: ICampaignBatchCommitHost,
   events: readonly UnsequencedCampaignEvent[],
-  appendCommandBatch: NonNullable<ICampaignEventStore['appendCommandBatch']>,
+  appendCommandBatch: (
+    campaignId: string,
+    input: ICampaignCommandBatchInput,
+  ) => Promise<CampaignControlledBatchResult>,
   identity?: ICampaignIntentCommandIdentity,
 ): Promise<CampaignCommitOutcome> {
   const base = await host.nextSequence();
@@ -153,13 +207,15 @@ export async function commitCampaignEventBatch(
   }
   const expectedDigest = computeCampaignStateDigest(expected);
   const firstEvent = sequenced[0];
-  const result = await appendCommandBatch(host.campaignId, {
-    // A supplied client identity is namespaced by campaign so its derived
-    // journal event ids cannot collide in the journal's global id space.
-    // The sequence fallback is for server events or legacy callers without
-    // an intent id; it never dedupes by design because no retry identity was
-    // offered.
-    commandId: identity?.commandId ?? `campaign-cmd:${host.campaignId}:${base}`,
+  // A supplied client identity is namespaced by campaign so its derived
+  // journal event ids cannot collide in the journal's global id space.
+  // The sequence fallback is for server events or legacy callers without
+  // an intent id; it never dedupes by design because no retry identity was
+  // offered.
+  const commandId =
+    identity?.commandId ?? `campaign-cmd:${host.campaignId}:${base}`;
+  const append = appendCommandBatch(host.campaignId, {
+    commandId,
     intentFingerprint: identity?.intentFingerprint,
     // An ApplyGmIntervention's id, for the saved-record rewrite's history.
     ...(identity?.gmInterventionId === undefined
@@ -173,6 +229,13 @@ export async function commitCampaignEventBatch(
       ? {}
       : { expectedRevision: firstEvent.sequence }),
   });
+  let result: CampaignControlledBatchResult;
+  try {
+    result = await append;
+  } catch (error) {
+    return { kind: 'commit-uncertain', commandId, error };
+  }
+  if (result.kind === 'refused') return { kind: 'refused', refusal: result };
   if (result.kind === 'duplicate-command') {
     return { kind: 'committed', events: result.receipt.events };
   }
@@ -203,6 +266,9 @@ export async function commitCampaignEventBatch(
       },
     };
   }
+  // Known commit: every later step is drained; no failure hides another.
+  const errors: unknown[] = [];
+  if (result.notificationError) errors.push(result.notificationError.error);
   // Verify-after-apply: re-apply the COMMITTED batch to the live
   // projection and compare digests. Inequality means the projection can
   // no longer be trusted (nondeterministic reducer, concurrent
@@ -215,16 +281,29 @@ export async function commitCampaignEventBatch(
   const appliedDigest = computeCampaignStateDigest(applied);
   if (appliedDigest !== expectedDigest) {
     host.markDivergence();
-    host.writeState(await host.rebuildState());
-    throw new CampaignProjectionDivergenceError(
-      host.campaignId,
-      expectedDigest,
-      appliedDigest,
+    errors.push(
+      new CampaignProjectionDivergenceError(
+        host.campaignId,
+        expectedDigest,
+        appliedDigest,
+      ),
     );
+    try {
+      host.writeState(await host.rebuildState());
+    } catch (error) {
+      errors.push(error);
+    }
+  } else {
+    host.writeState(applied);
+    for (const event of sequenced) {
+      try {
+        host.publish(event);
+      } catch (error) {
+        errors.push(error);
+      }
+    }
   }
-  host.writeState(applied);
-  for (const event of sequenced) {
-    host.publish(event);
-  }
-  return { kind: 'committed', events: sequenced };
+  return errors.length === 0
+    ? { kind: 'committed', events: sequenced }
+    : { kind: 'committed-unsettled', commandId, events: sequenced, errors };
 }

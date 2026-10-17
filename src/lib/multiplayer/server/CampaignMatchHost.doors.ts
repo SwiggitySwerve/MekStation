@@ -20,7 +20,10 @@ import { INVALID_CAMPAIGN_INTENT } from '@/types/campaign/CampaignSync';
 import { parseCampaignIntent } from '@/types/campaign/campaignSyncSchemas';
 import { nowIso } from '@/types/multiplayer/Protocol';
 
-import type { CampaignCommitOutcome } from './campaignHostBatchCommit';
+import type {
+  CampaignCommitOutcome,
+  ICampaignCommitControls,
+} from './campaignHostBatchCommit';
 import type {
   CampaignRosterChangeKind,
   ICampaignRosterUnitChange,
@@ -28,7 +31,7 @@ import type {
 import type { ICampaignIntentCommandIdentity } from './campaignIntentIdentity';
 import type { UnsequencedCampaignEvent } from './CampaignMatchHostIntent';
 
-import { resultOfCommit } from './campaignHostBatchCommit';
+import { resultOfCommit, throwCommitFailure } from './campaignHostBatchCommit';
 import {
   CampaignIntentIdentityConflictError,
   campaignIntentIdentityDeps,
@@ -53,7 +56,24 @@ export interface ICampaignMatchHostLockedContext {
   readonly commitEvents: (
     events: readonly UnsequencedCampaignEvent[],
     identity?: ICampaignIntentCommandIdentity,
+    controls?: ICampaignCommitControls,
   ) => Promise<CampaignCommitOutcome>;
+}
+
+/** P2CG1B: a door's answer before any commit, or the commit's outcome. */
+export type CampaignDoorOutcome =
+  | { readonly kind: 'answered'; readonly result: CampaignIntentResult }
+  | CampaignCommitOutcome;
+
+/** A door outcome as an uncontrolled door's wire result. */
+export function resultOfDoor(
+  outcome: CampaignDoorOutcome,
+): CampaignIntentResult {
+  return outcome.kind === 'answered' ? outcome.result : resultOfCommit(outcome);
+}
+
+function answered(result: CampaignIntentResult): CampaignDoorOutcome {
+  return { kind: 'answered', result };
 }
 
 function sessionClosed(): CampaignIntentResult {
@@ -68,15 +88,15 @@ async function commitValidated(
   host: ICampaignMatchHostLockedContext,
   events: readonly UnsequencedCampaignEvent[],
   identity?: ICampaignIntentCommandIdentity,
-): Promise<CampaignIntentResult> {
+  controls?: ICampaignCommitControls,
+): Promise<CampaignDoorOutcome> {
   try {
-    return resultOfCommit(await host.commitEvents(events, identity));
+    return await host.commitEvents(events, identity, controls);
   } catch (error) {
     if (error instanceof CampaignIntentIdentityConflictError) {
-      return campaignIntentIdentityDeps(
-        host.campaignId,
-        host.eventStore,
-      ).conflict();
+      return answered(
+        campaignIntentIdentityDeps(host.campaignId, host.eventStore).conflict(),
+      );
     }
     throw error;
   }
@@ -92,7 +112,7 @@ export async function openLocked(
   // not append a second genesis snapshot merely because a new host
   // instance opened around it.
   if ((await host.nextSequence()) > 0) return;
-  await host.commitEvents([
+  const outcome = await host.commitEvents([
     {
       type: 'CampaignSnapshotPublished',
       campaignId: host.campaignId,
@@ -103,6 +123,10 @@ export async function openLocked(
       payload: { state: host.readState() },
     },
   ]);
+  // A failure rethrows and a lost race is ignored, as before.
+  if (outcome.kind !== 'committed' && outcome.kind !== 'lost-race') {
+    throwCommitFailure(outcome);
+  }
 }
 
 /** Guest path: closed-check, zod parse, validate, commit, broadcast. */
@@ -140,10 +164,12 @@ export async function handleIntentLocked(
   );
   if (!validation.ok) return validation;
 
-  return commitValidated(
-    host,
-    validation.events,
-    intentCommandIdentity(host.campaignId, intent),
+  return resultOfDoor(
+    await commitValidated(
+      host,
+      validation.events,
+      intentCommandIdentity(host.campaignId, intent),
+    ),
   );
 }
 
@@ -155,13 +181,14 @@ export async function handleIntentLocked(
 export async function applyHostIntentLocked(
   host: ICampaignMatchHostLockedContext,
   intent: CampaignHostCommand,
-): Promise<CampaignIntentResult> {
-  if (host.isClosed()) return sessionClosed();
+  controls?: ICampaignCommitControls,
+): Promise<CampaignDoorOutcome> {
+  if (host.isClosed()) return answered(sessionClosed());
   const retry = await replayCommittedIntent(
     campaignIntentIdentityDeps(host.campaignId, host.eventStore),
     intent,
   );
-  if (retry) return retry;
+  if (retry) return answered(retry);
   const validation = validateCampaignIntent(
     intent,
     host.readState(),
@@ -169,11 +196,12 @@ export async function applyHostIntentLocked(
     nowIso(),
     host.hostPlayerId,
   );
-  if (!validation.ok) return validation;
+  if (!validation.ok) return answered(validation);
   return commitValidated(
     host,
     validation.events,
     intentCommandIdentity(host.campaignId, intent),
+    controls,
   );
 }
 

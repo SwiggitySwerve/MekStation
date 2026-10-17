@@ -1,0 +1,161 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CG1B",
+  "stage": "local",
+  "baseline": "3826f7cb78179cf01d4e935c3ef886cee4f755da",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "L1 / P2CG1B implementation sub-agent"
+  },
+  "runtime": "node v22.22.0, npm 11.6.2, real npm ci in the worktree",
+  "productBytes": {
+    "src/lib/events/journal/SQLiteEventJournalWriter.ts": "541748203807e279fa8697e769aee72ac1c45f53688f58471f0401c35a1dbb68",
+    "src/lib/campaign/sync/ICampaignEventStore.ts": "29a066f49694b1095ab5c54a2ef9dec472972800140a4bb0781c1370be71b035",
+    "src/lib/campaign/sync/JournalCampaignEventStore.ts": "906c8d06f7450b227c52d735367c029aee30db0080e54c00cfad48ebf4139f29",
+    "src/lib/multiplayer/server/CampaignMatchHost.ts": "2b914410d2960170d0c0f1fe9661cbb63a91c563353cd5e860556922670ce349",
+    "src/lib/multiplayer/server/CampaignMatchHost.doors.ts": "6dcc96d52ad7d58937dcbfddafea74bb27630b7bccefed8aef92094c89b70e1d",
+    "src/lib/multiplayer/server/campaignHostBatchCommit.ts": "cf0232632e7cc666d38a55edf9663128ce07f36442d0d8ec7f4fd1a8fc6b6f0d"
+  },
+  "testBytes": {
+    "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts": "f9e7c7756d1f15eefc5b440ee016f315d68a032dab832de1c62d553a8199d844",
+    "src/lib/multiplayer/server/__tests__/CampaignMatchHost.pipeline.test.ts": "e9b2494ce5dfeb07f5b2b3dba159e41facabc517b97e45b3f78fa762cb449ebc"
+  },
+  "testBytesEqualRed": "Both test leaves are byte-identical to the red commit 83964556 (git diff empty): the cases that failed at red are the cases that pass here, unedited",
+  "delivered": {
+    "writer": "SQLiteEventJournalWriter: one private validatedIdentity body (schema parse, canonical command identity, duplicate eventId) now shared by appendWithExtension, appendPreparedWithExtension and the new synchronous appendInBorrowedTransaction, which requires db.inTransaction, never begins/commits/notifies. appendWithExtension takes an optional onCommitted, called with the extension result after its own .immediate() COMMIT returned and before the promise settles; a notification request inside a caller transaction (where the wrapper is only a SAVEPOINT) is refused before writing. rejectPreparedThenable is exported unchanged",
+    "storeContract": "ICampaignEventStore: ICampaignAppendRefusal {kind:refused, reason}, CAMPAIGN_APPEND_CONTROLS_UNSUPPORTED, ICampaignCommittedBatch (plain identity), ICampaignAppendControls {guard?, onCommitted?}, CampaignControlledBatchResult, and the explicit optional capability appendControlledCommandBatch. InMemoryCampaignEventStore is untouched and therefore not guard-capable",
+    "adapter": "JournalCampaignEventStore: appendCampaignCommandBatch keeps its exported signature (thin wrapper, six outside callers unchanged) over the in-place body now named appendControlledCampaignBatch. On a SQLite writer the guard runs on the transaction handle after the recorded-id check and before append(); a refusal returns before any write; thenables are rejected; the saved-record afterCommit hook still runs inside SQL after the append (rollback-capable); a frozen committed identity is built inside the transaction and onCommitted fires from the writer after COMMIT with its throw captured as notificationError. Non-SQLite journal + any control: typed append-controls-unsupported refusal before any write. The class keeps branch-before-duplicate and prior-receipt order for both appendCommandBatch and appendControlledCommandBatch, so a genuine duplicate is never guarded, notified or refused",
+    "host": "campaignHostBatchCommit: CampaignCommitOutcome gains refused, commit-uncertain {commandId, error} and committed-unsettled {commandId, events, errors}; resultOfCommit is a switch whose default hands the remaining arms to throwCommitFailure(never), so typecheck proves no arm is dropped; append rejection -> commit-uncertain (projection untouched, nothing published); after a known commit the notification error, divergence, rebuild failure and each publish failure are collected in order and the batch is never compensated. CampaignMatchHost.doors: CampaignDoorOutcome (answered | commit outcome), resultOfDoor, controls threaded through commitEvents/commitValidated/applyHostIntentLocked, openLocked now maps failures instead of dropping them. CampaignMatchHost: commitEvents refuses guard/onCommitted before the first event when the store lacks appendControlledCommandBatch (plain batch store and per-event fallback); new door applyHostIntentWithControls (same lock/replay/validation/identity order) answers with the classified outcome and runs afterRelease once after the single-writer lock is released; publish now delivers to every subscriber before rethrowing; announceMissionLaunched and _commitEventsForTests use throwCommitFailure"
+  },
+  "behaviourChanges": [
+    "Uncontrolled doors keep their CampaignIntentResult contract and still throw the same error object for a single failure (e.g. CampaignProjectionDivergenceError); with several post-commit failures they now throw an AggregateError of all of them instead of only the first",
+    "CampaignMatchHost.publish delivers an event to every subscriber even when one throws, then rethrows (single error as-is, several as AggregateError); previously the first throwing subscriber stopped delivery to the rest",
+    "After a verification divergence whose rebuild also fails, the divergence error is kept alongside the rebuild error (previously the rebuild error replaced it)",
+    "openLocked previously ignored the commit outcome value; failures were already thrown and still are"
+  ],
+  "designNotes": [
+    "commit-uncertain leaves the live projection untouched (as today) rather than re-reading it from the journal. A re-read was tried and reverted: it changed the existing campaignHostSerialization \"keeps serving doors after one of them throws\" case, whose poisoned store makes the next door validate against the pre-failure projection. Readback/recovery of an uncertain command is left to the owner via the carried commandId (the uncertain-readback pipeline case shows it)",
+    "afterRelease failure: on committed it yields committed-unsettled (commandId from the intent identity, null when the intent offered none); on committed-unsettled it is appended to errors; on any other outcome the door throws an AggregateError carrying the outcome as cause; on a thrown door it is aggregated with the original error",
+    "A refusal can only be produced on the controlled path; resultOfCommit/throwCommitFailure throw if one ever reaches an uncontrolled door (fail closed, never success)"
+  ],
+  "commands": [
+    "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --json --runTestsByPath src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts src/lib/multiplayer/server/__tests__/CampaignMatchHost.pipeline.test.ts",
+    "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --testPathPattern='campaignLaunchAuthorityRoute|campaignProgressionReaders.durable|CampaignSyncSession'",
+    "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --runTestsByPath <the 35 A1/A2 suites, unmodified>",
+    "node node_modules/jest/bin/jest.js --watchAll=false --maxWorkers=6 --findRelatedTests <the six product leaves>",
+    "npm run typecheck; npm run lint; npm run format:check; npm run lint:units; npx -y madge@8.0.0 --circular --extensions ts --ts-config tsconfig.json <six product leaves>",
+    "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs (plain, --git, --next); node --test validate-roadmap.test.mjs; npx openspec validate --all --strict; npm run qc:openspec-ci:validate"
+  ],
+  "results": {
+    "twoLeaves": "2 suites, 45 tests: 45 passed, 0 failed, 0 pending (22 pre-existing + 23 new; red was 22 passed / 23 failed)",
+    "task14Selector": "4 suites, 96 tests: 96 passed, 0 failed, 0 pending",
+    "predecessor35": "35 suites, 369 tests: 369 passed, 0 failed, 0 pending; no test file among them changed (git diff empty); same totals as the A2 evidence",
+    "relatedCallers": "340 suites, 2708 tests: 2706 passed, 0 failed, 2 pending; every test Jest maps to the six product leaves, the 35 included. The 2 pending and mintFastForwardPack.test.ts (status focused) are pre-existing skips"
+  },
+  "checks": {
+    "typecheck": "PASS (TypeScript 7, root and scripts projects)",
+    "lint": "PASS: 0 errors, 87 warnings (baseline 86). Warning-set diff: exactly one added, eslint(max-lines) on JournalCampaignEventStore.ts at 446 counted lines (max 400); SQLiteEventJournalWriter.ts stays warned, 435 -> 445; CampaignMatchHost.ts stays under 400 counted (611 -> 699 physical). No other warning moved",
+    "format": "PASS (npm run format:check)",
+    "lintUnits": "PASS (LINT_UNITS_PASS 17899/17899, ceilings unchanged)",
+    "cycles": "madge 8.0.0 from the six product leaves: 171 -> 171 chains, identical sets (no module added)",
+    "roadmap": "validate-roadmap PASSED (80 nodes, 13 packages, 381 tasks, 40 triage rows); --git PASSED; --next printed U25 (advisory; the validator does not model the one-lane rule); validate-roadmap.test.mjs 86/86",
+    "openspec": "openspec validate --all --strict 230 passed, 0 failed; qc:openspec-ci:validate errors=0",
+    "staticBoundary": "git grep outside the six leaves and tests finds no caller of applyHostIntentWithControls, appendControlledCommandBatch, appendInBorrowedTransaction, afterRelease or CAMPAIGN_APPEND_CONTROLS_UNSUPPORTED: no production caller supplies controls. server.js, src/types (Protocol and campaign wire types) and every non-manifest path are unchanged",
+    "machine": "scripts/qc/machine-idle.mjs printed MACHINE_IDLE with --own-pid 47516 (Root-allowed idle server.js) and --own-pid 52460 (T3 headless chrome) before the heavy runs; no other process was touched"
+  },
+  "census": {
+    "files": "12 actual (8 restriction leaves, units.json, admission/red/local receipts) + the reserved, author-unwritten admission-review slot = 13 of 15",
+    "productAddedLines": "456 of 500 (git diff --numstat --no-renames vs baseline; tests and evidence exempt; no deletion credit)",
+    "numstat": [
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1b-admission-20261017.json",
+        "added": 163,
+        "deleted": 0,
+        "exempt": true
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1b-red-20261017.json",
+        "added": 317,
+        "deleted": 0,
+        "exempt": true
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "added": 16,
+        "deleted": 6,
+        "exempt": false
+      },
+      {
+        "path": "src/lib/campaign/sync/ICampaignEventStore.ts",
+        "added": 52,
+        "deleted": 0,
+        "exempt": false
+      },
+      {
+        "path": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+        "added": 104,
+        "deleted": 19,
+        "exempt": false
+      },
+      {
+        "path": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+        "added": 506,
+        "deleted": 0,
+        "exempt": true
+      },
+      {
+        "path": "src/lib/events/journal/SQLiteEventJournalWriter.ts",
+        "added": 40,
+        "deleted": 19,
+        "exempt": false
+      },
+      {
+        "path": "src/lib/multiplayer/server/CampaignMatchHost.doors.ts",
+        "added": 45,
+        "deleted": 17,
+        "exempt": false
+      },
+      {
+        "path": "src/lib/multiplayer/server/CampaignMatchHost.ts",
+        "added": 96,
+        "deleted": 8,
+        "exempt": false
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/CampaignMatchHost.pipeline.test.ts",
+        "added": 424,
+        "deleted": 0,
+        "exempt": true
+      },
+      {
+        "path": "src/lib/multiplayer/server/campaignHostBatchCommit.ts",
+        "added": 103,
+        "deleted": 24,
+        "exempt": false
+      }
+    ],
+    "estimate": "Registration 150-230 and research 225-340 were estimates; measured is above both because the full outcome classification, the controlled door and cleanup handling were required in addition to the plumbing"
+  },
+  "logs": {
+    "directory": "E:/Projects/Personal/MekStation-wt/p2cg1b-proof-20261017/",
+    "files": {
+      "green-two-suites.json": "69607ae09a7935145a5b0d9e7e8f344dc644d08e6962fd0799825ce5738fa9e3",
+      "green-selector.json": "9da81e565cf9321a35c6056bfa772185cca9c99546aab5e11613d7f346fd6873",
+      "green-35.json": "23209906851c924bb7b5a3b04591c5fcd7a1d252365e496285d549669935f4a8",
+      "green-related.json": "a06fbb79e0c46ffee92ae5832d3e427efd0db80fc47237120d6b462e3640fb87",
+      "typecheck-post.log": "ee29abd3809772d6a70e1e4db10615e6c04e36b469fc8075f6dd66f56956838c",
+      "lint-post.log": "695605ba3a58c564241029d324c5ea6fc234212010a27b26d23994eb23a04180",
+      "format-post.log": "9df2c992ae1874403a9c431a7180c15945c519a0cb024f0f259ded9ca479cf8f",
+      "lint-units.log": "38a3ce7efa63340f7ebe13a253cae13aa94adefd8c927577f5104002b063fb91",
+      "madge-post.log": "aecfb818d4c638d5a06013cec0e67929cf940ec17b2692b67c7624c3d02154a9",
+      "validator.log": "567feb20b9f85c902a3c4492eb3274c970f2370ccbbc6d3390088ad10923b947",
+      "validator-git.log": "0d7d99319c662d2b64fa0c98e73d2d6254bad922234f2c7a68c71758fc9fa890",
+      "validator-test.log": "86e084e7defa9c522200ad45b8a2faab535154d134920eb3a69c355852194b75",
+      "openspec.log": "fd47a21118ed60eedc45c31821d6c48a6fc31bdb8c31b9b84436716ebfa8a9f1",
+      "openspec-ci.log": "5b8f564706d4d1758110b42749f598120cc028d713f83d2c9c79b43af3738c93"
+    }
+  },
+  "boundary": "Dormant plumbing only. No guard composition in server.js, no registry/binder/arbiter wiring, no receipt port, no client rebinding, no MAX/numeric ACK credit change, no mission-create change. No merge or Main claim",
+  "status": "Candidate local checks only; independent exact-head review, OWNER-RULING, guarded merge and exact-main proof pending"
+}
