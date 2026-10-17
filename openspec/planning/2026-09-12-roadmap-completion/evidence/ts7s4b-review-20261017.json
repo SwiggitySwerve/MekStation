@@ -1,0 +1,76 @@
+{
+  "unit": "TS7S4B",
+  "stage": "review",
+  "recordedAt": "2026-10-17T08:00:00.000Z",
+  "head": "2d35fb67e47f34c17afebd23bec293fcb3750558",
+  "reviewedHead": "2d35fb67e47f34c17afebd23bec293fcb3750558",
+  "reviewerModel": "gpt-6-astra",
+  "reviewerEffort": "high",
+  "implementerModel": "gpt-6.1-sol",
+  "verdict": "APPROVE-WITH-NOTES",
+  "outputPath": "evidence/ts7s4b-source-astra-review-20261017.txt",
+  "outputSha256": "57bb9cdebe23f32039ac02e9dad84fbe1514b5f5262cb1ace00a1bfd4b24632b",
+  "reviews": [
+    {
+      "round": 1,
+      "path": "evidence/ts7s4b-source-astra-review-20261017.txt",
+      "sha256": "57bb9cdebe23f32039ac02e9dad84fbe1514b5f5262cb1ace00a1bfd4b24632b",
+      "bytes": 11942,
+      "originalPath": "docs/audits/2026-10-17-ts7s4b-review.md",
+      "reviewedHead": "2d35fb67e47f34c17afebd23bec293fcb3750558",
+      "verdict": "APPROVE-WITH-NOTES"
+    }
+  ],
+  "reviewHistory": "One round on the exact merged head 2d35fb67 by an independent GPT-6 Astra reviewer at high effort (major-checkpoint review depth, routine review class, council lean cadence): APPROVE-WITH-NOTES with no blockers, no majors and one minor (M1), which is the already-authorized TS7S5A documentation carry-forward; nothing requires a change to the head.",
+  "verdictText": "Blockers: none. Majors: none.",
+  "reviewClass": "routine (major-checkpoint review depth; no Lane B owner ruling required for this unit)",
+  "reviewedScope": "This independent major-checkpoint review covers PR #2192 at `2d35fb67e47f34c17afebd23bec293fcb3750558`, obtained with `gh pr view 2192 --json headRefOid` and reconfirmed after testing. Admission baseline: `c929780d9d45b74249c24eec6380d6d777cbe3b6`. Reviewed the head's TS7S4B entry, D3/D4, the TS7S3 and TS7S4A review receipts' successorNotes, the separately attributed rootCarryForward, and section 4 of `E:/Projects/Personal/MekStation/docs/audits/2026-10-17-council-A-ts7-path.md`. The S4A source merge `de9419356c740f3d89cc350f9812f8c87b03bdc9` is an ancestor. Verdict applies only to the reviewed head.",
+  "findings": {
+    "M1": {
+      "text": "Minor M1 — openspec/changes/migrate-to-typescript-7/design.md:96: D3 still gives the unpublished compatibility-wrapper range `npm:@typescript/typescript6@^6.0.3`. The implemented `^6.0.2` is correct. This is the already-authorized TS7S5A documentation carry-forward, not a requested change to this head. The live registry reports wrapper latest 6.0.2; its dependency `@typescript/old: npm:typescript@^6` resolves to compiler/API 6.0.3. This satisfies D3's express requirement to recheck the published 6.0.x wrapper and retain the full API. Do not confuse the wrapper version with the compiler it exports.",
+      "applies": "Not a requested change to the merged head. Carried to TS7S5A through successorNotes.TS7S5A below (D3 example becomes ^6.0.2 with the wrapper 6.0.2 versus API 6.0.3 explanation)."
+    }
+  },
+  "mutants": "4. Append `const reviewScriptsTypeError: number = \"review-only-error\";` to scripts/validate-bv.ts. The npm gate exits 1 with TS2322 at temporary line 448, proving the scripts project is checked and its failure propagates. SHA256 `087f81d98d0cf858b99d1e68650d0d8a60b0d8bf49e7c1794b2ea07cced5b2cf`. Restored npm gate and guard pass.\n5. Change only roadmap-main-proof.mjs:195 back to the TS6 path. Run the closure file with `-t \"prints the jest ladder without running anything\"`: exit 1, 1 failed/145 skipped, specifically at :2129 because actual output contains `node node_modules/typescript/bin/tsc --noEmit` instead of the complete TS7 path. SHA256 `902d766f6709804affee188c9103a8e53da0c23d4d9c6bb84120bdcb8ce7b4e7`. The preceding unmodified full-file GREEN SHA256 is `2faf7344d15e36b09c61f4912b60722c95e565cad8d9f2ca3f5fb4fd1f7f7d39`.",
+  "mutantsNote": "The review also killed Mutants 1-3 (bare tsc for the root invocation, node_modules/typescript/bin/tsc for the scripts invocation, node_modules/typescript/bin/tsc for the root invocation: the toolchain guard exits 1, 2 failed/2 passed each); the quoted text is the scripts-only mutant through the routed gate and the roadmap main-proof argv mutant.",
+  "ciEvidence": "Exact-head CI is complete: all 32 check runs succeeded on `2d35fb67e47f34c17afebd23bec293fcb3750558`, run https://github.com/SwiggitySwerve/MekStation/actions/runs/39013739582. Type Check job 117341590080's executed `Run type check` step ran from `2026-10-17T07:29:22Z` to `2026-10-17T07:29:35Z`: 13 seconds, success. Its downloaded log shows both explicit TS7 invocations. This meets the under-15s target and independently replaces the receipt's earlier-head timing snapshot with exact-head evidence. The six unit shards and a11y succeeded; the recorded cadence uses this CI coverage in place of a local full `test:stable` run. No local full stable run is claimed here.",
+  "notVerified": [
+    "No root production build, Storybook rebuild or Playwright run was performed during this review.",
+    "This audit does not claim fresh merge/Main verification."
+  ],
+  "notVerifiedNote": "Parent note: the root production build (unskipped Next type check), Storybook and the API consumers were proved on PR head 2d35fb67 (PR #2192 body and local receipt ts7s4b-local-20261017.json, inspected and hash-checked by the reviewer) and by CI run 39013739582 on that head (Build Test win/mac/linux, Build Storybook, Unit Tests 1-6/6, A11y Tests, Type Check, Desktop Type Check, Desktop Tests, E2E Smoke), all success. They were not re-run at the merge commit; the mainProof receipt says so.",
+  "successorNotes": {
+    "TS7S5A": {
+      "wording": "- TS7S5A — design.md:96; package.json:26,322; docs/development/troubleshooting.md:11: correct the D3 example to `^6.0.2`, explain wrapper 6.0.2 versus API 6.0.3, and retain `npm run typecheck` as the root gate. Root bare `tsc` is TS6. Preserve the two-project command and historical evidence. Because design.md is not in S5A's current nine-leaf ownership list, explicitly add that literal leaf and recount the finite admission before editing it; the carry-forward is not a directory-wide grant.",
+      "concern": "D3 wrapper range wording (^6.0.2 versus API 6.0.3) and the explicit design.md leaf before editing it",
+      "applies": "TS7S5A is released to planned by this change set. At its own admission: the D3 example in design.md becomes ^6.0.2 with an explanation of wrapper 6.0.2 versus compiler/API 6.0.3, npm run typecheck stays the root gate (root bare tsc is TS6), the two-project command and historical evidence are preserved, and design.md is added as an explicit literal leaf with the finite admission recounted before it is edited (no directory-wide grant).",
+      "rootCarryForward": {
+        "source": "Root (parent orchestrator) carry-forward, quoted verbatim from successorNotes.TS7S4B.rootCarryForward in evidence/ts7s4a-review-20261017.json. Not reviewer text.",
+        "text": "TS7S4B uses npm:@typescript/typescript6@^6.0.2 because the wrapper's latest is 6.0.2; it depends on @typescript/old npm:typescript@^6 which resolves 6.0.3, matching D3's measured version; TS7S5A corrects D3's ^6.0.3 wording"
+      }
+    },
+    "TS7S5B": {
+      "wording": "- TS7S5B — scripts/qc/roadmap-main-proof.mjs:195; openspec/specs/bv-validation-tooling/spec.md:406: the direct roadmap argv deliberately checks only the root project. The exact-main integrated sweep must additionally check `scripts/tsconfig.json`, or execute the complete npm gate. Preserve the TS7 gate/TS6 API split, independent desktop install and test-project gate, desktop JavaScript comparison, unskipped Next check, Storybook prop metadata, parser/tsx execution, and separately identified cold/warm caches. Sync the existing option-(a) BV delta's `npm run typecheck` wording even though S5B's old behavior text still describes the conditional scenario as option (b). Record fresh merge-commit evidence separately from inherited source evidence; retain the bounded partial-archive sequence and frozen archive date.",
+      "concern": "the roadmap main-proof argv checks only the root project; the exact-main integrated sweep must also check scripts/tsconfig.json or run the full npm gate",
+      "applies": "Recorded for TS7S5B. TS7S5B stays blocked: its predecessor TS7S5A is not main-verified. Only when TS7S5A closes with a genuine exact-main mainProof PASS can TS7S5B be released, and these notes then bind its admission."
+    },
+    "note": "Every wording, verdictText, reviewedScope, findings text, mutants, ciEvidence and notVerified string is a verbatim substring of evidence/ts7s4b-source-astra-review-20261017.txt (the generator checked this). concern, applies, rootCarryForward and every note are parent notes, not reviewer text. The TS7 track has no PROGRESS.md of its own, so these notes are recorded in this receipt only."
+  },
+  "reservedSlot": "evidence/ts7s4b-admission-review-20261017.md stays unwritten. The reviewer wrote its audit to docs/audits/2026-10-17-ts7s4b-review.md in the root checkout (untracked there); this closure preserves it byte for byte at evidence/ts7s4b-source-astra-review-20261017.txt instead of authoring reviewer text.",
+  "ciQualification": "All 32 check runs on the merged head succeeded (run 39013739582), with no commit statuses. The reviewer observed the completed exact-head run; the merge receipt records the 32 names.",
+  "identityScope": "Preserves the existing unversioned TS7S4B evidence and the actual cross-model review provenance. No v2/v3 identity manifest or engine observation is claimed.",
+  "githubApproval": "Lane A engineering evidence only; no GitHub approval claimed.",
+  "ownerRuling": "Routine review class: no OWNER-RULING comment is required or posted for this unit.",
+  "successorRelease": {
+    "label": "successor release",
+    "scope": "Separate from the TS7S4B closure. This change set also releases TS7S5A (successor release). No other field of TS7S5A changes and no other unit is released; TS7S5B stays blocked behind TS7S5A.",
+    "release": {
+      "unit": "TS7S5A",
+      "field": "state",
+      "from": "blocked",
+      "to": "planned",
+      "basis": "TS7S5A's only predecessor, TS7S4B, is main-verified in this same change set with a genuine exact-main mainProof PASS at 7898c40ed633076c8f9931dfb56a33eeeab4ca2d, as TS7S5A.admissionRequires demands. TS7S4B has no task keys, so its tick stays null. This is the standard on which TS7S4B was released (#2190), TS7S4A (#2188), TS7S3 (#2181), TS7S2B (#2179), TS7S2A (#2177) and TS7S1B (#2175) before it.",
+      "permission": "Release to planned only. Selection is not admission. TS7S5A source work still requires its own normal finite admission at its own baseline (containing 7898c40e and this closure), including the explicit design.md leaf the reviewer requires. No other TS7 unit is released."
+    }
+  }
+}
