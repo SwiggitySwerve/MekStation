@@ -77,7 +77,7 @@ dmg:
 # Windows Configuration
 # =============================================================================
 win:
-  # icon: assets/icons/icon.ico  # TODO: Generate .ico from SVG
+  icon: assets/icons/icon.ico
   target:
     - target: nsis
       arch:
@@ -87,8 +87,8 @@ win:
       arch:
         - x64
   verifyUpdateCodeSignature: false
-  # Prevent resource editing and code signing in unsigned builds.
-  signAndEditExecutable: false
+  # Embed the application icon/version resources, while keeping builds unsigned.
+  signAndEditExecutable: true
   signExecutable: false
 
 nsis:
@@ -98,9 +98,9 @@ nsis:
   allowToChangeInstallationDirectory: true
   createDesktopShortcut: true
   createStartMenuShortcut: true
-  # installerIcon: assets/icons/icon.ico  # TODO: Generate .ico from SVG
-  # uninstallerIcon: assets/icons/icon.ico
-  # installerHeaderIcon: assets/icons/icon.ico
+  installerIcon: assets/icons/icon.ico
+  uninstallerIcon: assets/icons/icon.ico
+  installerHeaderIcon: assets/icons/icon.ico
   deleteAppDataOnUninstall: false
   runAfterFinish: true
   shortcutName: MekStation
