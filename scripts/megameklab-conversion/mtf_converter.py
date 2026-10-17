@@ -224,8 +224,20 @@ def main():
     parser.add_argument('--output', '-o', required=True, help='Output directory for JSON files')
     parser.add_argument('--era', '-e', help='Filter by era folder name')
     parser.add_argument('--generate-index', '-i', action='store_true', help='Generate index.json after conversion')
+    parser.add_argument('--regenerate-text', action='store_true', help='Regenerate corrupt text and paths from UTF-8 MTF sources, preserving shipped IDs and construction data')
+    parser.add_argument('--check', action='store_true', help='Check text regeneration and index consistency without writing (requires --regenerate-text)')
     
     args = parser.parse_args()
+
+    if args.check and not args.regenerate_text:
+        parser.error('--check requires --regenerate-text')
+    if args.regenerate_text:
+        from mtf_text_regeneration import regenerate_text
+        changes = regenerate_text(args.source, args.output, check=args.check)
+        print(f'Text regeneration: {changes} files {"need regeneration" if args.check else "regenerated"}')
+        if args.check and changes:
+            raise SystemExit(1)
+        return
     
     print(f"Converting MTF files from: {args.source}")
     print(f"Output directory: {args.output}")

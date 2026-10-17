@@ -68,6 +68,7 @@ scripts/**
 !scripts/megameklab-conversion/enum_mapping_tables.py
 !scripts/megameklab-conversion/mtf_parser.py
 !scripts/megameklab-conversion/mtf_parser_builders.py
+!scripts/megameklab-conversion/mtf_text_regeneration.py
 !scripts/__tests__/
 !scripts/__tests__/**
 

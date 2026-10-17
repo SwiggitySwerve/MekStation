@@ -72,7 +72,7 @@ class MTFParser:
     def parse_file(self, filepath: str) -> Optional[SerializedUnit]:
         """Parse an MTF file and return a SerializedUnit."""
         try:
-            with open(filepath, 'r', encoding='latin-1', errors='ignore') as f:
+            with open(filepath, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
 
             return self._parse_lines(lines, filepath)

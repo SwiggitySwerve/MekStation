@@ -67,7 +67,7 @@ def parse_blk_file(filepath, output_dir_for_log):
     if "clan" in path_lower: file_tech_base = "Clan"
 
     try:
-        with open(filepath, 'r', encoding='latin-1', errors='ignore') as f: content = f.read()
+        with open(filepath, 'r', encoding='utf-8') as f: content = f.read()
         content = re.sub(r"<!--.*?-->", "", content, flags=re.DOTALL)
         content = re.sub(r"#ifs?.*?#endifs?", "", content, flags=re.DOTALL | re.IGNORECASE)
         content = re.sub(r"#.*?(\r?\n|$)", "", content) # More careful comment removal

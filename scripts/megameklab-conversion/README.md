@@ -2,6 +2,54 @@
 
 This directory contains the PostgreSQL-based version of the MegaMekLab data conversion scripts. These scripts were used for initial development but have been superseded by the SQLite version in the `mekstation-app/data` directory.
 
+## Current MTF unit conversion and encoding repair
+
+The historical PostgreSQL notes below do not describe the shipped BattleMech
+pipeline. `mtf_converter.py` and `mtf_parser.py` produce the JSON under
+`public/data/units/battlemechs`. MTF and BLK inputs are UTF-8; invalid input must
+fail decoding rather than silently discard bytes.
+
+For a new corpus, use the active converter:
+
+```powershell
+npm.cmd run convert:mtf -- --source E:/Projects/Personal/mm-data/data/mekfiles/meks --output validation-output/converted-meks --generate-index
+```
+
+For the B7 release repair, regenerate only corrupt display text and filenames
+from the UTF-8 sources. This preserves later construction/equipment corrections,
+all shipped IDs, index metadata, and existing newline styles:
+
+```powershell
+npm.cmd run convert:mtf -- --source E:/Projects/Personal/mm-data/data/mekfiles/meks --output public/data/units/battlemechs --regenerate-text
+npm.cmd run convert:mtf -- --source E:/Projects/Personal/mm-data/data/mekfiles/meks --output public/data/units/battlemechs --regenerate-text --check
+python -m unittest discover -s scripts/__tests__ -p test_mtf_text_regeneration.py
+```
+
+`--check` performs no writes and exits nonzero if regeneration is needed. Both
+modes validate index coverage, unique IDs, source availability, and filename
+collisions before writing. Repairs must match a freshly parsed source value;
+source disagreement fails the run. Mixed valid Unicode is preserved. The old
+parser also trimmed the NBSP half of some misread UTF-8 sequences at field ends;
+the remaining orphan character is removed only when the result matches source.
+
+The B7 regeneration used the existing local `MegaMek/mm-data` checkout at
+`b67baa5ecc765435425fd8cb703a6da909478b7a` without downloading assets. It updated
+668 unit files plus the index and renamed eight files. Full reconversion was
+verified separately (4,227 successful inputs), but would replace subsequent
+construction corrections in the 4,225 shipped records. The text-only mode
+verifies each repair against those same sources while retaining those corrections.
+
+Compatibility: canonical index IDs are persisted as campaign `unitRef` and
+resolved through `CanonicalUnitService.getById`. Eight legacy index IDs contain
+lowercased encoding artifacts and differ from the ASCII IDs inside their unit
+files. Both forms remain unchanged. Correcting these opaque keys requires a
+separate saved-data migration; display text and file paths can be fixed safely
+through the index. The data encoding guard freezes the exact eight legacy keys
+as the sole text-scan exceptions and checks their corresponding file IDs.
+
+Generated data is ignored by default. Stage the eight renamed UTF-8 JSON paths
+explicitly with `git add -f` after reviewing the generator diff.
+
 ## Files
 
 - `data_converter.py` - Converts MegaMekLab MTF/BLK files to JSON format

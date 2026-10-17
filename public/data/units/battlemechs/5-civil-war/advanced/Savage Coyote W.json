@@ -196,12 +196,12 @@
     "capabilities": "This assault 'Mech uses an XL Engine to save enough weight to devote forty-five tons of space to modular equipment and fifteen tons of armor. The base chassis contains fourteen fixed double heat sinks.",
     "history": "Following the development of Advanced Tactical Missile technology. The creation of the Savage Coyote was a direct result of both the warriors of Clan Coyote clamoring for new weapons to use and the election of Khan Sullivan Koga in 3052.",
     "deployment": "Like the J configuration, this version uses five Improved Jump Jets. It also has twenty double heat sinks. It's equipped with four Large Pulse Lasers, two Small Pulse Lasers, two Flamers, and an ER Medium Laser. It also has a Light TAG and Light Active Probe.",
-    "manufacturer": "Landen, Picuris, and Zuni âMech Production Complexes",
+    "manufacturer": "Landen, Picuris, and Zuni ’Mech Production Complexes",
     "systemManufacturer": {
       "CHASSIS": "Assault Series SXG",
       "ENGINE": "Type 255 Extralight",
       "ARMOR": "Forging ZK11 Standard",
-      "COMMUNICATIONS": "TJ6 âBellâ Integrated Communications System",
+      "COMMUNICATIONS": "TJ6 “Bell” Integrated Communications System",
       "TARGETING": "TRTTS Mark II CWS"
     }
   },

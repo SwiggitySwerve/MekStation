@@ -44,7 +44,7 @@ def parse_mtf_file(filepath, output_dir_for_log):
     line_number = 0
 
     try:
-        with open(filepath, 'r', encoding='latin-1', errors='ignore') as f: lines = f.readlines()
+        with open(filepath, 'r', encoding='utf-8') as f: lines = f.readlines()
 
         for line_content in lines:
             line_strip = line_content.strip()

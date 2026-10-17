@@ -1,6 +1,6 @@
 {
   "id": "ga1n-gn-2oa",
-  "chassis": "GÃ¹n",
+  "chassis": "Gùn",
   "model": "GN-2OA",
   "unitType": "BattleMech",
   "configuration": "Biped",
@@ -127,7 +127,14 @@
       "Fusion Engine",
       "Fusion Engine"
     ],
-    "HEAD": ["Life Support", "Sensors", "Cockpit", "Sensors", null, null],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "Sensors",
+      null,
+      null
+    ],
     "LEFT_LEG": [
       "Hip",
       "Upper Leg Actuator",
@@ -145,7 +152,9 @@
       "IS Endo Steel"
     ]
   },
-  "quirks": ["imp_target_short"],
+  "quirks": [
+    "imp_target_short"
+  ],
   "mulId": 6451,
   "role": "Sniper",
   "source": "TR:3145:CC"
