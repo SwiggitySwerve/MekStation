@@ -22,6 +22,7 @@ import type {
 import type { IMatchHostBootstrap } from './ServerMatchHostBootstrap';
 
 import { getCampaignHostRegistry } from './CampaignHostRegistry';
+import { createDurableCampaignLaunchView } from './campaignProgressionReaders.durable';
 import {
   admitCoopMission,
   CoopMissionRefusal,
@@ -103,11 +104,23 @@ const createDirect: CoopMissionWrite = async (
   }
 };
 
+/**
+ * The route's create. The installed receipt port is the only switch: with
+ * it, the P2CG1C prepared create on a view this graph builds (never an
+ * entry's), failing closed without a capability; without it, the old one.
+ */
 export function createCoopMissionMatch(
   body: CreateCoopMissionMatchBody,
   actorId: string,
 ): Promise<IMatchMeta> {
-  return runCoopMissionCreate(body, actorId, createDirect);
+  if (getCampaignHostRegistry().applicationReceipts === null)
+    return runCoopMissionCreate(body, actorId, createDirect);
+  getSQLiteService().initialize();
+  return createPreparedCoopMissionMatch(
+    body,
+    actorId,
+    createDurableCampaignLaunchView(),
+  );
 }
 
 const launchRefusal = (verdict: CampaignLaunchVerdict) =>
@@ -119,7 +132,7 @@ const launchRefusal = (verdict: CampaignLaunchVerdict) =>
   );
 
 /**
- * P2CG1C prepared create, callable and not route-reached. After all async
+ * P2CG1C prepared create, route-reached under the receipt port. After all async
  * work, holds campaign C then match M IMMEDIATE, revalidates the P2CB
  * preparation on C while M is held, and commits M before releasing C.
  * Two files, two commits: no cross-file atomicity is claimed. `launch`
