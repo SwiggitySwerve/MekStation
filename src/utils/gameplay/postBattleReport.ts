@@ -122,6 +122,11 @@ export function derivePostBattleReport(
   }
 
   const damageAttribution = new Map<string, string>();
+  // A unit is destroyed once. Logs written before L0-05 can carry repeated
+  // UnitDestroyed events for the same unit; credit only the first so those
+  // stored matches replay to the right kill count.
+  // @spec openspec/specs/combat-analytics/spec.md (Kill Credit Tracking)
+  const destroyedUnitIds = new Set<string>();
   for (const event of session.events) {
     if (event.type === GameEventType.AttackResolved) {
       const p = event.payload as { attackerId: string; targetId: string };
@@ -151,6 +156,8 @@ export function derivePostBattleReport(
     }
     if (event.type === GameEventType.UnitDestroyed) {
       const p = event.payload as IUnitDestroyedPayload;
+      if (destroyedUnitIds.has(p.unitId)) continue;
+      destroyedUnitIds.add(p.unitId);
       const attackerId = damageAttribution.get(p.unitId);
       if (attackerId) {
         const attacker = reports.get(attackerId);

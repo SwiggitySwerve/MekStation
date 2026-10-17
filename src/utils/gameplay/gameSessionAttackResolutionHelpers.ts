@@ -6,6 +6,7 @@ import type {
 import {
   CombatLocation,
   FiringArc,
+  GameEventType,
   GamePhase,
   IGameSession,
   IUnitGameState,
@@ -197,6 +198,21 @@ export function emitCriticalEvents(
   return currentSession;
 }
 
+// Checks the event log, not currentState.destroyed: a fatal PilotHit marks the
+// unit destroyed before its UnitDestroyed event is appended.
+function hasUnitDestroyedEvent(session: IGameSession, unitId: string): boolean {
+  return session.events.some(
+    (event) =>
+      event.type === GameEventType.UnitDestroyed &&
+      (event.payload as IUnitDestroyedPayload).unitId === unitId,
+  );
+}
+
+/**
+ * Idempotent per unit (L0-05): later hits in the same phase still apply
+ * damage, but a unit is destroyed, and credited as a kill, exactly once.
+ * @spec openspec/specs/combat-analytics/spec.md (Kill Credit Tracking)
+ */
 export function appendUnitDestroyedEvent(
   session: IGameSession,
   input: {
@@ -206,6 +222,7 @@ export function appendUnitDestroyedEvent(
     readonly cause: IUnitDestroyedPayload['cause'];
   },
 ): IGameSession {
+  if (hasUnitDestroyedEvent(session, input.unitId)) return session;
   return appendEvent(
     session,
     createUnitDestroyedEvent(

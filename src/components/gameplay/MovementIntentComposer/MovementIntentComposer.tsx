@@ -127,6 +127,11 @@ export function MovementIntentComposer({
   const overEveryBudget =
     movementIntent.items.length > 0 && affordableBudgets.length === 0;
 
+  // Nothing composed: Lock-In commits a Stationary activation. Before, a 0 MP
+  // unit (heat 20) could not lock in at all and End Phase stayed blocked (L0-04).
+  // @spec openspec/specs/movement-system/spec.md (Stationary unit generates no movement heat)
+  const stationaryLockIn = movementIntent.items.length === 0;
+
   // Keep the pending mode valid: if a world change makes it unaffordable, clear
   // it so Lock-In cannot fire against a stale choice (never re-pick for them).
   useEffect(() => {
@@ -148,11 +153,18 @@ export function MovementIntentComposer({
   const handleLockIn = useCallback(
     (mode: MovementType) => {
       if (overEveryBudget) return;
-      lockIn(mode);
-      commitComposedMovement(movementIntent, mode);
+      const committedMode = stationaryLockIn ? MovementType.Stationary : mode;
+      lockIn(committedMode);
+      commitComposedMovement(movementIntent, committedMode);
       setPendingMode(null);
     },
-    [overEveryBudget, lockIn, commitComposedMovement, movementIntent],
+    [
+      overEveryBudget,
+      stationaryLockIn,
+      lockIn,
+      commitComposedMovement,
+      movementIntent,
+    ],
   );
 
   // Posture hotkeys (task 4.5). Ignored while typing in a field; only the LEGAL,
@@ -222,13 +234,14 @@ export function MovementIntentComposer({
           affordableBudgets={affordableBudgets}
           pendingMode={pendingMode}
           lockBlocked={overEveryBudget}
+          stationaryLockIn={stationaryLockIn}
           // The enablement hint lives NEXT TO Lock In (re-audit VD-03/UXF-03:
           // it previously floated ~450px away in the dock's trailing region).
           hint={
             overEveryBudget
               ? 'Over budget — remove items.'
-              : movementIntent.items.length === 0
-                ? 'Pick a movement path or posture to begin.'
+              : stationaryLockIn
+                ? 'Lock In to stay stationary (no movement heat), or pick a path or posture.'
                 : pendingMode === null
                   ? 'Choose a budget, then lock in.'
                   : null

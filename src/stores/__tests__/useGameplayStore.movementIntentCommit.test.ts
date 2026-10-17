@@ -9,19 +9,31 @@
 
 import type { InteractiveSession } from '@/engine/GameEngine';
 
+import { applyInteractiveSessionMovement } from '@/engine/InteractiveSession.actions';
 import { useAnimationQueue } from '@/stores/useAnimationQueue';
 import { useGameplayStore } from '@/stores/useGameplayStore';
-import { appendWaypointReducer } from '@/stores/useGameplayStore.movementIntent';
+import {
+  appendWaypointReducer,
+  intentToMovementDeclaration,
+} from '@/stores/useGameplayStore.movementIntent';
 import {
   Facing,
   GameEventType,
   GamePhase,
+  GameSide,
   GameStatus,
+  LockState,
   MovementType,
   type IGameSession,
   type ILocomotionLeg,
   type IMovementIntentState,
 } from '@/types/gameplay';
+import {
+  advancePhase,
+  createGameSession,
+  startGame,
+} from '@/utils/gameplay/gameSession';
+import { createHexGrid } from '@/utils/gameplay/hexGrid';
 
 interface RecordedMovement {
   unitId: string;
@@ -192,6 +204,55 @@ describe('commitComposedMovement (task 1.4)', () => {
       items: [],
       lockedMode: null,
     });
+  });
+
+  it('the engine accepts the empty-composition Stationary declaration for a heat-20, 0 MP mech (L0-04)', () => {
+    // Walk 4 at heat 20 leaves 0 MP; standing still must still declare + lock
+    // so End Phase unblocks (movement-system: Heat Reduces Effective Movement).
+    const mech = (id: string, side: GameSide) => ({
+      ...{ id, name: id, side, unitRef: id, pilotRef: id },
+      ...{ gunnery: 4, piloting: 5 },
+    });
+    const config = { mapRadius: 4, turnLimit: 0, optionalRules: [] };
+    const session = advancePhase(
+      startGame(
+        createGameSession({ ...config, victoryConditions: ['elimination'] }, [
+          mech('hbk', GameSide.Player),
+          mech('shd', GameSide.Opponent),
+        ]),
+        GameSide.Player,
+      ),
+    );
+    const units = session.currentState.units;
+    units.hbk = { ...units.hbk, position: { q: 0, r: 0 }, heat: 20 };
+    units.shd = { ...units.shd, position: { q: 3, r: 0 } };
+    const declaration = intentToMovementDeclaration(
+      { items: [], lockedMode: null },
+      MovementType.Walk,
+      { q: 0, r: 0 },
+      units.hbk.facing,
+    );
+    if (!declaration) throw new Error('expected a Stationary declaration');
+
+    const result = applyInteractiveSessionMovement({
+      session,
+      grid: createHexGrid({ radius: 4 }),
+      movementByUnit: new Map([['hbk', { walkMP: 4, runMP: 6, jumpMP: 0 }]]),
+      unitId: 'hbk',
+      to: declaration.destination,
+      facing: declaration.facing,
+      movementType: declaration.movementType,
+      path: declaration.path,
+    });
+
+    const declared = result.events
+      .slice(session.events.length)
+      .find((event) => event.type === GameEventType.MovementDeclared);
+    expect(declared?.payload).toMatchObject({
+      movementType: MovementType.Stationary,
+      heatGenerated: 0,
+    });
+    expect(result.currentState.units.hbk.lockState).toBe(LockState.Locked);
   });
 
   it('is a no-op (no applyMovement) with no session or selected unit', () => {

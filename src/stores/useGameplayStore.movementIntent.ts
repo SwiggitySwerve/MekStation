@@ -328,8 +328,12 @@ export interface IComposedMovementDeclaration {
  * `IPlannedMovement` carries. Posture-only intents (no locomotion) declare a
  * zero-hex move at the start hex, mirroring `standActiveUnit`.
  *
- * Returns `null` when there is nothing to commit (empty composition with no
- * posture actions), so the caller can no-op rather than emit an empty move.
+ * An empty composition declares a zero-hex Stationary move whatever budget
+ * was highlighted, so a 0 MP unit (heat 20) can finish its activation (L0-04).
+ * The nullable return is kept for defensive callers only.
+ *
+ * @spec openspec/specs/movement-system/spec.md (Stationary unit generates no movement heat)
+ * @spec openspec/specs/tactical-movement-intent/spec.md (Budget Resolver and Explicit Lock-In)
  */
 export function intentToMovementDeclaration(
   state: IMovementIntentState,
@@ -344,13 +348,12 @@ export function intentToMovementDeclaration(
   const hasPosture = state.items.some((item) => item.kind === 'posture');
 
   if (!locomotion || locomotion.legs.length === 0) {
-    // Posture-only (or empty) composition: nothing to commit unless a posture
-    // action was composed, in which case declare a zero-hex move in place.
-    if (!hasPosture) return null;
+    // Posture-only (or empty) composition: declare a zero-hex move in place.
+    // With nothing composed at all the unit stood still -> Stationary.
     return {
       destination: startHex,
       facing: startFacing,
-      movementType: lockedMode,
+      movementType: hasPosture ? lockedMode : MovementType.Stationary,
       path: [startHex],
     };
   }

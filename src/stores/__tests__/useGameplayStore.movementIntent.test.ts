@@ -342,14 +342,19 @@ describe('intentToMovementDeclaration (task 1.4)', () => {
     });
   });
 
-  it('returns null for a fully empty composition', () => {
+  it('declares a Stationary zero-hex move for an empty composition (L0-04)', () => {
     expect(
       intentToMovementDeclaration(
         INITIAL_MOVEMENT_INTENT_STATE,
         MovementType.Walk,
-        { q: 0, r: 0 },
-        Facing.North,
+        { q: 2, r: -1 },
+        Facing.Southwest,
       ),
-    ).toBeNull();
+    ).toEqual({
+      destination: { q: 2, r: -1 },
+      facing: Facing.Southwest,
+      movementType: MovementType.Stationary,
+      path: [{ q: 2, r: -1 }],
+    });
   });
 });

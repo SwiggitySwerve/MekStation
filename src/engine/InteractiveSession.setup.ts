@@ -141,6 +141,13 @@ function adaptedCombatSeedPatch(
       ...bin,
     }));
   }
+  if (
+    unit.criticalSlotManifest === undefined &&
+    adapted.criticalSlotManifest !== undefined
+  ) {
+    // Seed through GameCreated so replay/recovery derive the same manifest.
+    patch.criticalSlotManifest = adapted.criticalSlotManifest;
+  }
   appendVehicleCriticalAvailabilitySeed(patch, unit, adapted);
   appendRecordedCustomCombatSnapshot(patch, unit, adapted);
 
