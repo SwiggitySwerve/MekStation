@@ -400,6 +400,27 @@ export function hasViewerDeliveryAcknowledgementStore(
 }
 
 // =============================================================================
+// Prepared create and progression reservation (P2CG1C)
+// =============================================================================
+
+/**
+ * What a prepared create answers, classified by the store that owns the
+ * match connection. `refused` and a thrown error wrote nothing. A COMMIT
+ * that reports failure is read back: its row present is `committed`, and
+ * `uncertain` means that readback itself failed.
+ */
+export type MatchPreparedCreateResult<TRefusal> =
+  | { readonly kind: 'refused'; readonly refusal: TRefusal }
+  | { readonly kind: 'committed' }
+  | { readonly kind: 'uncertain'; readonly error: unknown };
+
+/** A write-free IMMEDIATE hold on the match connection. */
+export interface IMatchProgressionReservation {
+  /** Roll back and release; idempotent. */
+  release(): void;
+}
+
+// =============================================================================
 // Errors
 // =============================================================================
 
@@ -646,6 +667,26 @@ export interface IMatchStore
   listViewerDeliveryRecords?(
     matchId: string,
   ): Promise<readonly IViewerDeliveryRecord[]>;
+
+  /**
+   * P2CG1C prepared create, synchronous on the store's own match
+   * connection: BEGIN IMMEDIATE, run `guard` (non-null refuses), insert
+   * exactly as `createMatch`, then COMMIT. OPTIONAL as a structural flag:
+   * a store without it cannot join a guarded launch, and callers refuse
+   * before any effect. Never nested in a transaction on that connection.
+   */
+  createMatchPrepared?<TRefusal>(
+    meta: IMatchMeta,
+    initialEvents: readonly IGameEvent[],
+    guard: () => TRefusal | null,
+  ): MatchPreparedCreateResult<TRefusal>;
+
+  /**
+   * P2CG1C progression reservation: the M-side hold a campaign append
+   * takes while it commits (P2CG1D). It writes nothing and cannot outlive
+   * its synchronous span: if not released, the next microtask releases it.
+   */
+  reserveMatchProgression?(): IMatchProgressionReservation;
 }
 
 // =============================================================================

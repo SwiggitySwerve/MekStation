@@ -13,6 +13,11 @@
  * path including the `(match_id, sequence)` unique constraint.
  */
 
+import Database from 'better-sqlite3';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+
 import {
   CombatEndReason,
   type ICombatOutcome,
@@ -32,7 +37,9 @@ import {
   MatchNotFoundError,
   MatchStoreSequenceCollisionError,
   type IMatchMeta,
+  type IMatchStore,
 } from '../IMatchStore';
+import { InMemoryMatchStore } from '../InMemoryMatchStore';
 
 function makeMeta(
   matchId: string,
@@ -483,5 +490,227 @@ describe('DurableMatchStore', () => {
       MatchNotFoundError,
     );
     await expect(store.getMatchMeta('fresh')).resolves.toBeDefined();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// P2CG1C prepared create and progression reservation
+// ---------------------------------------------------------------------------
+
+describe('DurableMatchStore prepared create and progression reservation (P2CG1C)', () => {
+  let dir: string;
+  let dbPath: string;
+  let store: DurableMatchStore;
+  let other: Database.Database;
+
+  beforeEach(() => {
+    dir = mkdtempSync(path.join(tmpdir(), 'mp-prepared-'));
+    dbPath = path.join(dir, 'matches.db');
+    store = new DurableMatchStore({ path: dbPath });
+    other = new Database(dbPath, { timeout: 0 });
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+    other.close();
+    store.close();
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  /** Rows another connection on the same file can see. */
+  const committedMatches = (): number =>
+    (
+      other.prepare('SELECT COUNT(*) AS n FROM mp_matches').get() as {
+        n: number;
+      }
+    ).n;
+
+  /** Whether another connection can take the write lock right now. */
+  function otherCanWrite(): boolean {
+    try {
+      other.exec('BEGIN IMMEDIATE');
+      other.exec('ROLLBACK');
+      return true;
+    } catch (error) {
+      expect(String(error)).toMatch(/SQLITE_BUSY|database is locked/);
+      return false;
+    }
+  }
+
+  it('offers both capabilities only on the durable store', () => {
+    // Given
+    const memory: IMatchStore = new InMemoryMatchStore({ quiet: true });
+    // Then
+    expect(typeof store.createMatchPrepared).toBe('function');
+    expect(typeof store.reserveMatchProgression).toBe('function');
+    expect(memory.createMatchPrepared).toBeUndefined();
+    expect(memory.reserveMatchProgression).toBeUndefined();
+  });
+
+  it('commits meta and opening events inside one IMMEDIATE hold, visible to others only after COMMIT', async () => {
+    // Given
+    const meta = makeMeta('prepared-1', { status: 'active' });
+    const db = store.getDatabase();
+    const seen: unknown[] = [];
+    const exec = db.exec.bind(db);
+    jest.spyOn(db, 'exec').mockImplementation((sql: string) => {
+      if (sql === 'COMMIT') {
+        seen.push({
+          own: store.size(),
+          others: committedMatches(),
+          otherCanWrite: otherCanWrite(),
+        });
+      }
+      return exec(sql);
+    });
+    // When
+    const result = store.createMatchPrepared(
+      meta,
+      [makeEvent('prepared-1', 0), makeEvent('prepared-1', 1)],
+      () => {
+        seen.push({ guardInTransaction: db.inTransaction });
+        seen.push({ otherCanWrite: otherCanWrite() });
+        return null;
+      },
+    );
+    // Then
+    expect(result).toEqual({ kind: 'committed' });
+    expect(seen).toEqual([
+      { guardInTransaction: true },
+      { otherCanWrite: false },
+      { own: 1, others: 0, otherCanWrite: false },
+    ]);
+    expect(db.inTransaction).toBe(false);
+    expect(committedMatches()).toBe(1);
+    expect(otherCanWrite()).toBe(true);
+    expect(await store.getMatchMeta('prepared-1')).toEqual(meta);
+    expect(
+      (await store.getEvents('prepared-1')).map((event) => event.sequence),
+    ).toEqual([0, 1]);
+  });
+
+  it('writes nothing when the guard refuses, throws, or answers a thenable', () => {
+    // Given
+    const db = store.getDatabase();
+    const meta = makeMeta('prepared-refused');
+    // When
+    const refused = store.createMatchPrepared(meta, [], () => ({
+      reason: 'drifted',
+    }));
+    const thrown = () =>
+      store.createMatchPrepared(meta, [], () => {
+        throw new Error('guard failed');
+      });
+    const thenable = () =>
+      store.createMatchPrepared(meta, [], () => Promise.resolve(null));
+    // Then
+    expect(refused).toEqual({
+      kind: 'refused',
+      refusal: { reason: 'drifted' },
+    });
+    expect(thrown).toThrow('guard failed');
+    expect(thenable).toThrow(/thenable/);
+    expect(db.inTransaction).toBe(false);
+    expect(committedMatches()).toBe(0);
+    expect(otherCanWrite()).toBe(true);
+  });
+
+  it('refuses a borrowed transaction and a duplicate id without writing', async () => {
+    // Given
+    const db = store.getDatabase();
+    await store.createMatch(makeMeta('dup-prepared'));
+    // When
+    const nested = () =>
+      db.transaction(() =>
+        store.createMatchPrepared(makeMeta('nested'), [], () => null),
+      )();
+    const duplicate = () =>
+      store.createMatchPrepared(makeMeta('dup-prepared'), [], () => null);
+    const nestedHold = () =>
+      db.transaction(() => store.reserveMatchProgression())();
+    // Then
+    expect(nested).toThrow(/idle match connection/);
+    expect(duplicate).toThrow(/already exists/);
+    expect(nestedHold).toThrow(/idle match connection/);
+    expect(db.inTransaction).toBe(false);
+    expect(committedMatches()).toBe(1);
+  });
+
+  it('classifies a failed COMMIT by reading the row back', () => {
+    // Given
+    const db = store.getDatabase();
+    const exec = db.exec.bind(db);
+    const prepare = db.prepare.bind(db);
+    let mode: 'refuse' | 'committed-then-throw' | 'refuse-unreadable' =
+      'refuse';
+    jest.spyOn(db, 'exec').mockImplementation((sql: string) => {
+      if (sql !== 'COMMIT') return exec(sql);
+      if (mode === 'committed-then-throw') exec(sql);
+      throw new Error(`commit failed (${mode})`);
+    });
+    let unreadable = false;
+    jest.spyOn(db, 'prepare').mockImplementation((sql: string) => {
+      if (unreadable && sql.startsWith('SELECT * FROM mp_matches')) {
+        throw new Error('readback failed');
+      }
+      return prepare(sql);
+    });
+    const create = (id: string, after?: () => void) =>
+      store.createMatchPrepared(makeMeta(id), [], () => {
+        after?.();
+        return null;
+      });
+    // When / Then: refused COMMIT left the hold open; rollback, row absent.
+    expect(() => create('not-committed')).toThrow('commit failed (refuse)');
+    expect(db.inTransaction).toBe(false);
+    expect(committedMatches()).toBe(0);
+    // A COMMIT that landed but reported failure reads back as committed.
+    mode = 'committed-then-throw';
+    expect(create('landed')).toEqual({ kind: 'committed' });
+    expect(committedMatches()).toBe(1);
+    // An unreadable outcome is uncertain, carrying the original error.
+    mode = 'refuse-unreadable';
+    const uncertain = create('unknown', () => {
+      unreadable = true;
+    });
+    expect(uncertain).toEqual({
+      kind: 'uncertain',
+      error: new Error('commit failed (refuse-unreadable)'),
+    });
+    expect(db.inTransaction).toBe(false);
+    expect(committedMatches()).toBe(1);
+  });
+
+  it('holds the match connection for a progression reservation and never past its synchronous span', async () => {
+    // Given
+    const db = store.getDatabase();
+    // When: an explicit release, twice.
+    const held = store.reserveMatchProgression();
+    const blockedWhileHeld = otherCanWrite();
+    held.release();
+    held.release();
+    // Then
+    expect(blockedWhileHeld).toBe(false);
+    expect(db.inTransaction).toBe(false);
+    expect(otherCanWrite()).toBe(true);
+    // When: a forgotten hold, with a write made inside it.
+    const forgotten = store.reserveMatchProgression();
+    db.prepare(
+      `INSERT INTO mp_matches
+         (match_id, status, room_code, created_at, updated_at, meta_json)
+       VALUES ('inside-hold', 'lobby', NULL, 'x', 'x', '{}')`,
+    ).run();
+    expect(otherCanWrite()).toBe(false);
+    await Promise.resolve();
+    // Then: the microtask rolled it back and a stale release is inert.
+    expect(db.inTransaction).toBe(false);
+    expect(otherCanWrite()).toBe(true);
+    expect(committedMatches()).toBe(0);
+    await store.createMatch(makeMeta('after-hold'));
+    db.exec('BEGIN');
+    forgotten.release();
+    expect(db.inTransaction).toBe(true);
+    db.exec('COMMIT');
+    expect(committedMatches()).toBe(1);
   });
 });

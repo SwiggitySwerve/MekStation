@@ -1,0 +1,408 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CG1C",
+  "stage": "red",
+  "baseline": "8fde3b975fad16dc2af91faa16c49356ada9f921",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "L1 / P2CG1C implementation sub-agent"
+  },
+  "runtime": "node v22.22.0",
+  "redKind": "Red-first: the two registered test leaves gain the new cases; the three product leaves are byte-identical to the baseline (sha256 below, equal to git show 8fde3b97) when they run. Every new case fails on the baseline; every pre-existing case in both leaves passes unchanged. Harness and fixture are unchanged",
+  "productBytesAtRed": {
+    "src/lib/multiplayer/server/IMatchStore.ts": "6cbc18b0b41b38d52e7f77292d2415547a8b89e2eff33010138f186017080898",
+    "src/lib/multiplayer/server/DurableMatchStore.ts": "82d3bd3b7512ace10740cad54e1d5c7973ec294f5b0d7995819d748f8c936944",
+    "src/lib/multiplayer/server/coopMissionCreate.ts": "55ab84d1c07692aa1727c3716363f07d953815385ff5e9b73b34601251ebddab"
+  },
+  "testBytesAtRed": {
+    "src/lib/multiplayer/server/__tests__/DurableMatchStore.test.ts": "14361e8a16f7a5226adcc07eaf51acfe76497bdb78ef0b083e2e7330de942cb0",
+    "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts": "c7961472d83050811408549fe07ec00770e9887e8bee319971cf6aa543f77e2b"
+  },
+  "command": "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --json --outputFile=red-two-suites.json --runTestsByPath src/lib/multiplayer/server/__tests__/DurableMatchStore.test.ts src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+  "exitCode": 1,
+  "result": "52 tests: 31 passed, 21 failed. New P2CG1C cases 21: 21 failed, 0 passed. Pre-existing cases 31: 31 passed",
+  "redNature": "These reds are capability-absence reds: on the baseline neither IMatchStore capability nor createPreparedCoopMissionMatch exists, so every new case fails at the missing operation (TypeError / expected function). Behavioural discrimination is shown at the local stage by GREEN on byte-identical tests plus mutation probes against the implementation (DEFERRED C, M commit after C release, no owner readback, no microtask release, no idle-connection refusal), recorded in the local receipt",
+  "tests": [
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+      "name": "co-op mission create through real auth, SQLite and combat hosts creates an owner-bound combat match when both contributors deployed",
+      "new": false,
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+      "name": "co-op mission create through real auth, SQLite and combat hosts excludes a command-HQ contribution from the combat bootstrap",
+      "new": false,
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+      "name": "co-op mission create through real auth, SQLite and combat hosts retains opening events and owners in the memory store",
+      "new": false,
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+      "name": "co-op mission create through real auth, SQLite and combat hosts leaves no memory-store match when opening event sequences collide",
+      "new": false,
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+      "name": "co-op mission create through real auth, SQLite and combat hosts ignores client player and side assignments when deriving mission owners",
+      "new": false,
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+      "name": "co-op mission create through real auth, SQLite and combat hosts advances player -> server opponent -> next player in a player-only route-created match",
+      "new": false,
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+      "name": "co-op mission create through real auth, SQLite and combat hosts normalizes exact and omitted assertions without mutating caller parameters",
+      "new": false,
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+      "name": "co-op mission create through real auth, SQLite and combat hosts validates a durable race winner when divergent=false",
+      "new": false,
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+      "name": "co-op mission create through real auth, SQLite and combat hosts validates a durable race winner when divergent=true",
+      "new": false,
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+      "name": "co-op mission create through real auth, SQLite and combat hosts returns the stored identity without appending when the campaign advanced",
+      "new": false,
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+      "name": "co-op mission create through real auth, SQLite and combat hosts creates once when identical requests queue behind the campaign authority lock",
+      "new": false,
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+      "name": "co-op mission create through real auth, SQLite and combat hosts recovers the same owner map and combat kind through an independent durable handle",
+      "new": false,
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+      "name": "co-op mission create through real auth, SQLite and combat hosts keeps vessel requests distinct when their bodies are repeated",
+      "new": false,
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+      "name": "P2CG1C prepared co-op mission create (callable, not route-reached) refuses before any effect without a capability, a view or readiness, and the route keeps the old create",
+      "new": true,
+      "status": "failed",
+      "failure": "Error: Property `createMatchPrepared` does not exist in the provided object"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+      "name": "P2CG1C prepared co-op mission create (callable, not route-reached) holds C then M IMMEDIATE, commits M while C is held, and releases both before seed, recovery and announcement",
+      "new": true,
+      "status": "failed",
+      "failure": "Error: Property `createMatchPrepared` does not exist in the provided object"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+      "name": "P2CG1C prepared co-op mission create (callable, not route-reached) refuses inside the held guard after a newly bound seat, with nothing written",
+      "new": true,
+      "status": "failed",
+      "failure": "TypeError: (0 , _coopMissionCreate.createPreparedCoopMissionMatch) is not a function"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+      "name": "P2CG1C prepared co-op mission create (callable, not route-reached) refuses inside the held guard after a revoked membership incarnation, with nothing written",
+      "new": true,
+      "status": "failed",
+      "failure": "TypeError: (0 , _coopMissionCreate.createPreparedCoopMissionMatch) is not a function"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+      "name": "P2CG1C prepared co-op mission create (callable, not route-reached) refuses inside the held guard after a changed applied row, with nothing written",
+      "new": true,
+      "status": "failed",
+      "failure": "TypeError: (0 , _coopMissionCreate.createPreparedCoopMissionMatch) is not a function"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+      "name": "P2CG1C prepared co-op mission create (callable, not route-reached) refuses inside the held guard after an open correction saga, with nothing written",
+      "new": true,
+      "status": "failed",
+      "failure": "TypeError: (0 , _coopMissionCreate.createPreparedCoopMissionMatch) is not a function"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+      "name": "P2CG1C prepared co-op mission create (callable, not route-reached) refuses inside the held guard after an unreadable saga context (unavailable, not known absence), with nothing written",
+      "new": true,
+      "status": "failed",
+      "failure": "TypeError: (0 , _coopMissionCreate.createPreparedCoopMissionMatch) is not a function"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+      "name": "P2CG1C prepared co-op mission create (callable, not route-reached) blocks writers in other processes while C and M are held, then lets them commit",
+      "new": true,
+      "status": "failed",
+      "failure": "TypeError: (0 , _coopMissionCreate.createPreparedCoopMissionMatch) is not a function"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+      "name": "P2CG1C prepared co-op mission create (callable, not route-reached) refuses when a competing writer commits first, where a deferred snapshot stays stale",
+      "new": true,
+      "status": "failed",
+      "failure": "TypeError: (0 , _coopMissionCreate.createPreparedCoopMissionMatch) is not a function"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+      "name": "P2CG1C prepared co-op mission create (callable, not route-reached) rolls back every precommit failure, keeps the original error, and creates once on retry",
+      "new": true,
+      "status": "failed",
+      "failure": "TypeError: (0 , _coopMissionCreate.createPreparedCoopMissionMatch) is not a function"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+      "name": "P2CG1C prepared co-op mission create (callable, not route-reached) keeps a known M commit through uncertain completion, C finalization and post-release failures",
+      "new": true,
+      "status": "failed",
+      "failure": "TypeError: (0 , _coopMissionCreate.createPreparedCoopMissionMatch) is not a function"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+      "name": "P2CG1C prepared co-op mission create (callable, not route-reached) keeps the match and the original error when announcement fails after release, then announces once on retry",
+      "new": true,
+      "status": "failed",
+      "failure": "TypeError: (0 , _coopMissionCreate.createPreparedCoopMissionMatch) is not a function"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+      "name": "P2CG1C prepared co-op mission create (callable, not route-reached) reports an unreadable commit outcome as uncertain and resolves it by readback on retry",
+      "new": true,
+      "status": "failed",
+      "failure": "TypeError: (0 , _coopMissionCreate.createPreparedCoopMissionMatch) is not a function"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+      "name": "P2CG1C prepared co-op mission create (callable, not route-reached) reuses the stored identity after campaign advancement and still applies identity and membership",
+      "new": true,
+      "status": "failed",
+      "failure": "TypeError: (0 , _coopMissionCreate.createPreparedCoopMissionMatch) is not a function"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+      "name": "P2CG1C prepared co-op mission create (callable, not route-reached) refuses another module graph's view on this graph's handle and leaves both files unwritten",
+      "new": true,
+      "status": "failed",
+      "failure": "TypeError: (0 , _coopMissionCreate.createPreparedCoopMissionMatch) is not a function"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/DurableMatchStore.test.ts",
+      "name": "DurableMatchStore creates a match and exposes meta",
+      "new": false,
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/DurableMatchStore.test.ts",
+      "name": "DurableMatchStore rejects duplicate createMatch with the same id",
+      "new": false,
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/DurableMatchStore.test.ts",
+      "name": "DurableMatchStore appends events in ascending order",
+      "new": false,
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/DurableMatchStore.test.ts",
+      "name": "DurableMatchStore rejects a sequence collision with MatchStoreSequenceCollisionError",
+      "new": false,
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/DurableMatchStore.test.ts",
+      "name": "DurableMatchStore leaves the store untouched after a rejected colliding append",
+      "new": false,
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/DurableMatchStore.test.ts",
+      "name": "DurableMatchStore returns events filtered by fromSeq",
+      "new": false,
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/DurableMatchStore.test.ts",
+      "name": "DurableMatchStore throws MatchNotFoundError for an unknown match",
+      "new": false,
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/DurableMatchStore.test.ts",
+      "name": "DurableMatchStore updateMatchMeta merges patch + bumps updatedAt",
+      "new": false,
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/DurableMatchStore.test.ts",
+      "name": "DurableMatchStore updateMatchMeta clears roomCode on explicit null",
+      "new": false,
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/DurableMatchStore.test.ts",
+      "name": "DurableMatchStore closeMatch is idempotent and flips status to completed",
+      "new": false,
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/DurableMatchStore.test.ts",
+      "name": "DurableMatchStore closeMatch on an unknown match is a no-op",
+      "new": false,
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/DurableMatchStore.test.ts",
+      "name": "DurableMatchStore resolves a match by its room code only while in lobby",
+      "new": false,
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/DurableMatchStore.test.ts",
+      "name": "DurableMatchStore leaves no trace of a batch that failed mid-transaction, across a reopen",
+      "new": false,
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/DurableMatchStore.test.ts",
+      "name": "DurableMatchStore a crash at the head-update statement takes the whole batch down, across a reopen",
+      "new": false,
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/DurableMatchStore.test.ts",
+      "name": "DurableMatchStore keeps a terminal outcome row atomic, durable, and write-once",
+      "new": false,
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/DurableMatchStore.test.ts",
+      "name": "DurableMatchStore survives a process restart (re-open) with the full event log intact",
+      "new": false,
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/DurableMatchStore.test.ts",
+      "name": "DurableMatchStore enumerates only active matches via listActiveMatches",
+      "new": false,
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/DurableMatchStore.test.ts",
+      "name": "DurableMatchStore prunes completed matches older than the 7-day retention window",
+      "new": false,
+      "status": "passed",
+      "failure": null
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/DurableMatchStore.test.ts",
+      "name": "DurableMatchStore prepared create and progression reservation (P2CG1C) offers both capabilities only on the durable store",
+      "new": true,
+      "status": "failed",
+      "failure": "Error: expect(received).toBe(expected) // Object.is equality"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/DurableMatchStore.test.ts",
+      "name": "DurableMatchStore prepared create and progression reservation (P2CG1C) commits meta and opening events inside one IMMEDIATE hold, visible to others only after COMMIT",
+      "new": true,
+      "status": "failed",
+      "failure": "TypeError: store.createMatchPrepared is not a function"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/DurableMatchStore.test.ts",
+      "name": "DurableMatchStore prepared create and progression reservation (P2CG1C) writes nothing when the guard refuses, throws, or answers a thenable",
+      "new": true,
+      "status": "failed",
+      "failure": "TypeError: store.createMatchPrepared is not a function"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/DurableMatchStore.test.ts",
+      "name": "DurableMatchStore prepared create and progression reservation (P2CG1C) refuses a borrowed transaction and a duplicate id without writing",
+      "new": true,
+      "status": "failed",
+      "failure": "Error: expect(received).toThrow(expected)"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/DurableMatchStore.test.ts",
+      "name": "DurableMatchStore prepared create and progression reservation (P2CG1C) classifies a failed COMMIT by reading the row back",
+      "new": true,
+      "status": "failed",
+      "failure": "Error: expect(received).toThrow(expected)"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/DurableMatchStore.test.ts",
+      "name": "DurableMatchStore prepared create and progression reservation (P2CG1C) holds the match connection for a progression reservation and never past its synchronous span",
+      "new": true,
+      "status": "failed",
+      "failure": "TypeError: store.reserveMatchProgression is not a function"
+    }
+  ],
+  "files": {
+    "json": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/red-two-suites.json",
+      "sha256": "9ae4110c3e7753062bbb775605c9744423dd0be42397d5e9a1d1a1802a00fc88"
+    },
+    "log": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/red-raw.log",
+      "sha256": "e103207e91b4e6270118194c77f6b0559fa58b51f1b699dbe2965109019ccb97"
+    },
+    "typecheck": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/typecheck-red.log",
+      "sha256": "85f3b651aba76c66d3f089564a7fbeaf740b0f2108dbd5b6dff7e025bf69048c"
+    }
+  },
+  "commit": "This red snapshot is committed with git commit --no-verify: the pre-commit hook runs npm run typecheck, which a red-first commit cannot pass because the new cases reference operations that do not exist yet (TS2339/TS2305 on createMatchPrepared, reserveMatchProgression, createPreparedCoopMissionMatch, CoopMissionCommitError; see typecheck-red.log). Every other commit runs the hooks",
+  "note": "The tests were drafted before the gate opened on #2216's head and re-applied unchanged onto 8fde3b97 after the admission commit. Cross-process concurrency uses an inline node -e child process with the installed better-sqlite3 (no new worker file)"
+}
