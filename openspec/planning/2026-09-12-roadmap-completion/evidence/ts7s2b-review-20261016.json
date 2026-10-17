@@ -153,10 +153,10 @@
         {
           "id": "TS7S3-OPEN-6",
           "concern": "baseline and lane",
-          "note": "TS7S3 is released on the TS7S2B merge 08555b7a (main-verified in this change set). Admission must state its actual baseline (a later main that includes this closure), re-verify TS7S2B main-verified and ancestry there, and take 5 desktop suites and 57 tests as the count to match. TS7S2OD, the other TS7S2B successor, stays blocked on the unruled owner decision OD-scripts-tsconfig, so it is not in flight; the validator does not model the one-lane rule (N2), so the parent checks it."
+          "note": "TS7S3 is released on the TS7S2B merge 08555b7a (main-verified in this change set). Because the owner ruled OD-scripts-tsconfig before TS7S3 was released, TS7S2OD runs first: TS7S3 is admitted only after TS7S2OD is main-verified, at a baseline that includes TS7S2OD's merge and closure. Admission must state that actual baseline, re-verify TS7S2B and TS7S2OD main-verified and their ancestry there, revalidate any evidence prepared on an earlier baseline (the TS7S2OD change to root package.json typecheck and scripts/tsconfig.json bears on the TypeScript 6 typecheck proof), and take 5 desktop suites and 57 tests as the count to match. The validator does not model the one-lane rule (N2), so the parent checks it."
         }
       ],
-      "state": "Released blocked -> planned in this change set (successorRelease below). No other TS7S3 field changes."
+      "state": "Released blocked -> planned in this change set (successorRelease below). No other TS7S3 field changes. TS7S2OD runs before it (see successorRelease.ownerRulingRelease.order)."
     },
     "TS7S4A": {
       "wording": "since D3/TS7S4A later alias the root `typescript` and need the desktop one unaliased",
@@ -223,9 +223,36 @@
       }
     ],
     "laterUnits": {
-      "state": "Only TS7S3 is released. TS7S2OD stays blocked and unchanged under the unruled owner decision OD-scripts-tsconfig (holder: owner). TS7S4*, TS7S5* and P2CG1B stay as they are."
+      "state": "TS7S3 and TS7S2OD are released to planned (TS7S2OD on the owner ruling of OD-scripts-tsconfig, option (a)); TS7S2OD runs first. TS7S4*, TS7S5* and P2CG1B stay blocked and unchanged."
     },
-    "note": "Every heading, tag, wording, accept-as-shipped and quoted string under successorNotes, findings, lockfile, storybook, validatorDisclosure, behaviourEquality (except note) and openNotesResolution is a verbatim substring of evidence/ts7s2b-source-fable-review-20261016.txt; the closure generator checked this. S3-1..S3-5 are the section 10 items in order, without their bold labels and surrounding quotation marks; M1-M3 and N1-N8 are the Findings items including their bold labels. The concern, applies, source, state, openNotesForAdmission and laterUnits fields and every note are the parent's notes, not reviewer text. Where a carry-forward bears on TS7S3's leaves or proof, it is recorded here for its admission instead of editing TS7S3. The TS7 track has no PROGRESS.md of its own, so these notes are recorded in this receipt only."
+    "note": "Every heading, tag, wording, accept-as-shipped and quoted string under successorNotes, findings, lockfile, storybook, validatorDisclosure, behaviourEquality (except note) and openNotesResolution is a verbatim substring of evidence/ts7s2b-source-fable-review-20261016.txt; the closure generator checked this. S3-1..S3-5 are the section 10 items in order, without their bold labels and surrounding quotation marks; M1-M3 and N1-N8 are the Findings items including their bold labels. The concern, applies, source, state, openNotesForAdmission and laterUnits fields and every note are the parent's notes, not reviewer text. Where a carry-forward bears on TS7S3's leaves or proof, it is recorded here for its admission instead of editing TS7S3. The TS7 track has no PROGRESS.md of its own, so these notes are recorded in this receipt only.",
+    "TS7S2OD": {
+      "state": "Released blocked -> planned in this change set on the owner ruling of OD-scripts-tsconfig, option (a) (successorRelease.ownerRulingRelease). No other TS7S2OD field changes.",
+      "wording": null,
+      "note": "The review names no carry-forward for TS7S2OD (the generator checked that the string TS7S2OD does not occur in it). The TS7S2A review carry-forward for TS7S2OD (tsx resolves @/* from both tsconfigs; evidence/ts7s2a-review-20261016.json successorNotes.TS7S2OD) still applies.",
+      "openNotesForAdmission": [
+        {
+          "id": "TS7S2OD-OPEN-1",
+          "concern": "order",
+          "note": "TS7S2OD runs right after TS7S2B, before TS7S3, because the ruling preceded TS7S3's release. Admission baseline is a main that includes this closure; re-verify TS7S2B main-verified and ancestry there."
+        },
+        {
+          "id": "TS7S2OD-OPEN-2",
+          "concern": "compiler current at admission",
+          "note": "TS7S3 is not yet admitted, so the compiler current at TS7S2OD admission is the repo gate TypeScript 5.8.3 (root) unless that changes first. Option (a)'s proof item names node_modules/typescript7/bin/tsc \"(or the current compiler)\"; use the current one and record its tsc --version."
+        },
+        {
+          "id": "TS7S2OD-OPEN-3",
+          "concern": "BV spec compiler command (council A)",
+          "note": "The bv-validation-tooling scenario says npx tsc --noEmit type-checks the harness, but root tsconfig excludes scripts. Under option (a) correct the scenario command to npm run typecheck through a small delta spec in the change (openspec/changes/migrate-to-typescript-7/specs/bv-validation-tooling/spec.md, already a registered TS7S2OD exception), and name the modified capability in proposal.md (registered conditional leaf), if the correction is needed."
+        },
+        {
+          "id": "TS7S2OD-OPEN-4",
+          "concern": "proof shape (council A)",
+          "note": "Prove the narrowed scripts project checks clean, that npm run typecheck executes both projects and propagates failure (a temporary harness type error must fail the root gate, then be restored), and that the named BV/parity harness behavior is intact. Registration measured 5 errors in 2 files on TypeScript 5.8.3; re-measure at admission and stop on any wider set."
+        }
+      ]
+    }
   },
   "reviewNotes": "No blockers and no majors. M1 (module.lazy: ['electron'] stays; a later unit that registers the three electron tests as leaves may apply the getter patch and drop it) is recorded with the accept-as-shipped wording. M2 (app.quit and setLoginItemSettings mutants survive on base and head) is a pre-existing gap for the next desktop-test owner. M3 (@swc/core ^1.15.30 resolves to 1.16.18 on a fresh resolution) is carried to TS7S3 as S3-2. N1-N8 are recorded verbatim; N2 is the validator one-lane disclosure.",
   "reservedSlot": "evidence/ts7s2b-admission-review-20261016.md stays unwritten. The reviewer did not write it, and this closure preserves the review byte for byte at its path instead of authoring reviewer text.",
@@ -246,18 +273,54 @@
   "githubApproval": "Lane A engineering evidence only; no GitHub approval claimed.",
   "successorRelease": {
     "label": "successor release",
-    "scope": "Separate from the TS7S2B closure. This change set also releases TS7S3. No other TS7S3 field changes and no other unit is released.",
+    "scope": "Separate from the TS7S2B closure. This change set also releases TS7S3 (successor release) and TS7S2OD (successor release on the owner ruling of OD-scripts-tsconfig). No other field of either unit changes and no other unit is released.",
     "release": {
       "unit": "TS7S3",
       "field": "state",
       "from": "blocked",
       "to": "planned",
       "basis": "TS7S3's only predecessor, TS7S2B, is main-verified in this same change set with a genuine exact-main mainProof PASS at 08555b7a1b22f1bc10f9e6335c3ea7edd79c98da, as TS7S3.admissionRequires demands. TS7S2B has no task keys, so its tick stays null. This is the standard on which TS7S2B was released (#2179), TS7S2A (#2177) and TS7S1B (#2175) before it, and on which ts7TrackRegistration20261016.schedulingRule releases each next track unit when its predecessor closes.",
-      "permission": "Release to planned only. Selection is not admission. TS7S3 source work still requires its own normal finite admission at its own baseline. P2CG1B stays blocked under the parent hold, and no other TS7 unit is released."
+      "permission": "Release to planned only. Selection is not admission. TS7S3 source work still requires its own normal finite admission at its own baseline, after TS7S2OD (see order below). P2CG1B stays blocked under the parent hold, and no other TS7 unit is released."
     },
-    "notReleased": {
-      "unit": "TS7S2OD",
-      "note": "TS7S2OD is the other successor of TS7S2B, but its releasePredicate also requires the owner to rule OD-scripts-tsconfig (holder: owner). The owner has not ruled it, so TS7S2OD stays blocked and unchanged; only the TS7S2B half of its predicate is now met."
-    }
+    "ownerRulingRelease": {
+      "label": "successor release (owner ruling OD-scripts-tsconfig)",
+      "release": {
+        "unit": "TS7S2OD",
+        "field": "state",
+        "from": "blocked",
+        "to": "planned"
+      },
+      "basis": "TS7S2OD.releasePredicate has two halves: (1) the owner rules OD-scripts-tsconfig, option (a) or (b), and (2) TS7S2B is complete with a genuine exact-main mainProof PASS. Half (2) is met by this change set (TS7S2B main-verified at 08555b7a1b22f1bc10f9e6335c3ea7edd79c98da). Half (1) is the owner ruling recorded below. TS7S2OD.admissionRequires: \"The parent records the ruling verbatim, with its source, in the release edit.\"",
+      "ruling": {
+        "decisionId": "OD-scripts-tsconfig",
+        "option": "a",
+        "optionText": "Option (a): keep scripts/tsconfig.json, narrow it to validate-bv.ts, validate-parity.ts and data-migration/**, follow D2 (no baseUrl; explicit types), make it check clean on the compiler current at admission, and add it to the root typecheck script; including the council-A correction of the bv-validation-tooling spec's compiler command (the scenario that says npx tsc --noEmit type-checks the harness) through a delta spec if needed.",
+        "ownerVerbatim": "continue with recommended options and fix the issues that come up, publish as needed",
+        "ownerMessage": {
+          "thread": "6db2c314-6cd3-40c5-8fbd-7c42bc27ed35",
+          "messageId": "324938a1-d8fc-47f4-b80d-1c13551bdbc9",
+          "at": "2026-10-17T05:31:15.659Z",
+          "author": "owner (T3 web user)",
+          "channel": "owner chat in T3 thread 6db2c314-6cd3-40c5-8fbd-7c42bc27ed35"
+        },
+        "question": {
+          "verbatim": "1. **OD-scripts-tsconfig:** I need a ruling before TypeScript 7 can finish. All three members recommend option (a): keep `scripts/tsconfig.json`, narrow it to the validation scripts, fix their 5 type errors, and add it to `npm run typecheck`.",
+          "by": "Root orchestrator",
+          "thread": "6db2c314-6cd3-40c5-8fbd-7c42bc27ed35",
+          "messageId": "message:provider:codex:native-item:msg_msg_011Cg7FnRUQVe9nPxG9kRaUk_0",
+          "at": "2026-10-17T05:27:33.923Z",
+          "note": "Item 1 of \"Decisions for you\" in the Root message that reported the council result. The owner answered the next message with the verbatim text above, which adopts the recommended option (a)."
+        },
+        "councilRecommendation": {
+          "verbatim": "4. **OD-scripts-tsconfig: option (a)**, including correcting the BV spec's compiler command (A). The owner rules.",
+          "source": "docs/audits/2026-10-17-council-roadmap-decision.md (root checkout, untracked)",
+          "detail": "docs/audits/2026-10-17-council-A-ts7-path.md section 3 (OD-scripts-tsconfig: choose (a), with a small correctness correction)"
+        },
+        "interpretation": "The owner text names no option letter; it accepts \"recommended options\", and the only recommendation put to the owner for OD-scripts-tsconfig was option (a), unanimous across the three council members. Recorded as option (a) by the parent on that basis."
+      },
+      "order": "The ruling arrived (2026-10-17T05:31:15Z) before TS7S3 was released: TS7S3 was still blocked on main 08555b7a, and its release lands only in this same change set. Under TS7S2OD.admissionRequires (\"If the ruling arrives before TS7S3 is released, this unit runs right after TS7S2B, in tasks.md order\"), the registered order is TS7S2B -> TS7S2OD -> TS7S3 -> TS7S4A -> TS7S4B -> TS7S5A -> TS7S5B -> TS7S5C. Both TS7S2OD and TS7S3 are released to planned here; the one-writing-lane rule is enforced at admission, not release, so TS7S2OD is admitted first and TS7S3 is admitted only after TS7S2OD is main-verified.",
+      "permission": "Release to planned only. Selection is not admission. TS7S2OD source work still requires its own normal finite admission at its own baseline, with the 5-error re-measurement its behavior text requires (stop and register a successor if more files need fixes)."
+    },
+    "conflictingSteer": "A parent steer received during this closure asked to park the TS7 track (leave TS7S3 blocked and add a parkedAt note to ts7TrackRegistration20261016), citing the 2026-10-16 council-A/B/C reports. It was superseded by the later Root scope change in the same session, which matches the owner's 2026-10-17 instructions in thread 6db2c314-6cd3-40c5-8fbd-7c42bc27ed35 (\"finish TS 7 migration before anything, quickly, and stop dallying\" at 04:48:25Z, then the ruling above) and the 2026-10-17 council decision (\"TS7 first\"). No parkedAt note is written and the track is not parked."
   }
 }
