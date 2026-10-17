@@ -169,6 +169,27 @@ describe('deriveWeaponLegalityForTarget — twist-aware legality at source', () 
     expect(outOfRange.available).toBe(false);
     expect(outOfRange.blockedReason).toBe('out of range');
   });
+
+  it('V211-01: blocks every weapon against a same-hex target with the engine SameHex reason', () => {
+    // The engine rejects any ranged attack at range 0 (`attack_invalid`
+    // SameHex); the composer must not offer an assignment it will refuse.
+    const rows = deriveWeaponLegalityForTarget({
+      weapons: [
+        weapon('w1'),
+        weapon('w2', { ranges: { short: 1, medium: 2, long: 3 } }),
+      ],
+      attacker: ATTACKER,
+      composedTwist: null,
+      targetPosition: ATTACKER.position,
+      grid: makeGrid(),
+      minimumRangeApplies: true,
+    });
+    expect(rows.map((row) => row.available)).toEqual([false, false]);
+    expect(rows.map((row) => row.blockedReason)).toEqual([
+      'Attacker and target occupy the same hex',
+      'Attacker and target occupy the same hex',
+    ]);
+  });
 });
 
 describe('deriveSecondaryTargetContext (secondary-target-tracking, consumed as-is)', () => {

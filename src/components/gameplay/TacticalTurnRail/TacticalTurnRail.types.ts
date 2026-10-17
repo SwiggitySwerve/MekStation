@@ -29,7 +29,7 @@ export type UnitRailStatus =
   | 'active' // it is this unit's turn RIGHT NOW
   | 'upcoming' // waiting to act in this phase
   | 'completed' // has acted this phase (lockState Resolved)
-  | 'skipped' // shutdown/prone — acts last or is auto-resolved
+  | 'skipped' // shutdown/unconscious — cannot act this phase
   | 'destroyed' // unit is dead
   | 'withdrawn'; // retreated or withdrawing
 
@@ -44,6 +44,8 @@ export interface IRailUnit {
   /** True when this is the currently-active unit (same as status === 'active'
    *  but explicit for clarity in template expressions). */
   readonly isActive: boolean;
+  /** Prone units still act (stand attempt); the token flags the posture. */
+  readonly prone?: boolean;
 }
 
 export interface PhaseAdvanceControlProps {
