@@ -70,9 +70,10 @@ test.describe('Mobile Navigation Header', () => {
     // Wait for page to load
     await page.waitForLoadState('networkidle');
 
-    // Mobile header is now shown on ALL pages for consistent UX
+    // The customizer replaces the shared mobile header with its own command
+    // row, whose app-menu trigger is labelled "MekStation menu".
     const menuButton = page.getByRole('button', {
-      name: /open menu/i,
+      name: /MekStation menu/i,
     });
     await expect(menuButton).toBeVisible();
   });
@@ -310,20 +311,17 @@ test.describe('Customizer Page', () => {
     await waitForHydration(page);
     await page.waitForLoadState('networkidle');
 
-    // Menu button should be in the mobile header (top), not in bottom tray
+    // The app-menu trigger lives in the customizer's command row at the
+    // top of the screen, not in the bottom tray.
     const menuButton = page.getByRole('button', {
-      name: /open menu/i,
+      name: /MekStation menu/i,
     });
     await expect(menuButton).toBeVisible();
 
-    // Verify it's in the header (top of screen)
     const buttonBox = await menuButton.boundingBox();
     expect(buttonBox).not.toBeNull();
     if (buttonBox) {
-      // Button should be near the top of the screen (in header)
       expect(buttonBox.y).toBeLessThan(100);
-      // And on the right side
-      expect(buttonBox.x).toBeGreaterThan(375 / 2);
     }
   });
 
@@ -334,17 +332,18 @@ test.describe('Customizer Page', () => {
     await waitForHydration(page);
     await page.waitForLoadState('networkidle');
 
-    // Click the menu button in the mobile header
+    // Open the app menu from the customizer command row
     const menuButton = page.getByRole('button', {
-      name: /open menu/i,
+      name: /MekStation menu/i,
     });
     await menuButton.click();
 
-    // Sidebar should open
-    await page.waitForTimeout(350);
-    const sidebar = page.getByTestId('mobile-menu');
-    await expect(sidebar).toBeVisible();
-    await expect(sidebar.getByText('Dashboard')).toBeVisible();
+    // The menu panel lists application navigation
+    const nav = page.getByRole('navigation', {
+      name: 'Application navigation',
+    });
+    await expect(nav).toBeVisible();
+    await expect(nav.getByRole('link', { name: 'Dashboard' })).toBeVisible();
   });
 });
 

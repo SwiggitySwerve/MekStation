@@ -753,8 +753,13 @@ async function expectShellAndRoute(
   route: RouteProof,
 ): Promise<void> {
   await expect(page.locator('header').first()).toBeVisible();
+  // The customizer's command row exposes the brand as a "MekStation menu"
+  // button instead of a header link.
   await expect(
-    page.getByRole('link', { name: /MekStation/i }).first(),
+    page
+      .getByRole('link', { name: /MekStation/i })
+      .or(page.getByRole('button', { name: /MekStation menu/i }))
+      .first(),
   ).toBeVisible();
   await expect(page.locator('body')).not.toContainText(
     /This page could not be found|Application error/i,
