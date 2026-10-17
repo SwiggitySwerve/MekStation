@@ -105,9 +105,10 @@ export function deriveWeaponLegalityForTarget({
     weapon: IWeaponStatus,
   ) => string | undefined;
 }): readonly ICombatWeaponRangeOption[] {
-  return deriveCombatWeaponRangeOptions({
+  const distance = hexDistance(attacker.position, targetPosition);
+  const options = deriveCombatWeaponRangeOptions({
     weapons,
-    distance: hexDistance(attacker.position, targetPosition),
+    distance,
     targetArc: deriveTargetArcUnderIntent(
       attacker,
       composedTwist,
@@ -119,7 +120,23 @@ export function deriveWeaponLegalityForTarget({
     minimumRangeApplies,
     weaponRuleBlockedReason,
   });
+  // V211-01: the engine rejects every ranged attack at range 0
+  // (`applyInteractiveSessionAttack` -> AttackInvalid SameHex, mirrored by
+  // `deriveAttackInvalidState`), so the composer must block the
+  // assignment at source instead of forecasting a shot that cannot fire.
+  // @spec openspec/specs/tactical-attack-intent/spec.md (Weapon Palette
+  //   Legality at Source: illegal assignments blocked with the reason)
+  if (distance !== 0) return options;
+  return options.map((option) => ({
+    ...option,
+    available: false,
+    blockedReason: SAME_HEX_ATTACK_DETAILS,
+  }));
 }
+
+/** Engine `AttackInvalid { SameHex }` details, surfaced verbatim. */
+export const SAME_HEX_ATTACK_DETAILS =
+  'Attacker and target occupy the same hex';
 
 /**
  * The `ISecondaryTarget` context an assignment against `targetId` feeds

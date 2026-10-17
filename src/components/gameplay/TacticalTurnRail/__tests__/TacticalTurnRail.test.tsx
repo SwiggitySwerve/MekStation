@@ -165,3 +165,44 @@ describe('TacticalTurnRail force framing', () => {
     ]);
   });
 });
+
+describe('TacticalTurnRail activation-eligible prone units (V211-03)', () => {
+  // A fallen (prone) 'Mech still owes its phase action — it may attempt to
+  // stand — so the rail must never label it Skipped. Only units that cannot
+  // act (shut down / unconscious pilot) are skipped, mirroring the engine's
+  // `isPhaseActivationEligible` gate.
+  const withAllied = (patch: Partial<IUnitGameState>) => ({
+    ...UNIT_STATES,
+    'allied-live': state('allied-live', GameSide.Player, patch),
+  });
+
+  it('keeps a prone active unit active and prompts a stand attempt', () => {
+    renderRail({ unitStates: withAllied({ prone: true }) });
+    const token = byId('rail-unit-allied-live');
+    expect(token).toHaveAttribute('data-status', 'active');
+    expect(token).toHaveAttribute('aria-current', 'true');
+    expect(token).toHaveTextContent('Prone');
+  });
+
+  it('shows a prone unit that has not activated yet as upcoming', () => {
+    renderRail({
+      activeUnitId: 'opposing-live',
+      unitStates: withAllied({ prone: true }),
+    });
+    expect(byId('rail-unit-allied-live')).toHaveAttribute(
+      'data-status',
+      'upcoming',
+    );
+  });
+
+  it.each([
+    ['shut down', { shutdown: true }],
+    ['unconscious', { pilotConscious: false }],
+  ] as const)('still skips a %s unit', (_label, patch) => {
+    renderRail({ unitStates: withAllied({ prone: true, ...patch }) });
+    expect(byId('rail-unit-allied-live')).toHaveAttribute(
+      'data-status',
+      'skipped',
+    );
+  });
+});

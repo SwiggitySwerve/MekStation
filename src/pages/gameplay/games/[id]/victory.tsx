@@ -17,7 +17,7 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import type { IGameSession } from '@/types/gameplay';
 
@@ -229,6 +229,55 @@ export function VictoryScreen({
 // Page Wrapper
 // =============================================================================
 
+/**
+ * V211-02: after a reload the in-memory session is gone, but completed
+ * matches are persisted server-side. Probe `GET /api/matches/:id` (the
+ * loader the reload-safe `/gameplay/matches/<id>` report uses) and hand
+ * off to that route; only fall back to the no-session guidance when
+ * nothing was persisted.
+ *
+ * @spec openspec/specs/game-session-management/spec.md "Session Publishes
+ *   Outcome Ready Event" (completed outcome is POSTed to /api/matches)
+ */
+function usePersistedReportRecovery(
+  needsRecovery: boolean,
+  matchId: string,
+): 'idle' | 'probing' | 'missing' {
+  const router = useRouter();
+  const replaceRef = useRef(router.replace);
+  replaceRef.current = router.replace;
+  const [state, setState] = useState<'idle' | 'probing' | 'missing'>('idle');
+
+  useEffect(() => {
+    if (!needsRecovery) {
+      setState('idle');
+      return;
+    }
+    let cancelled = false;
+    setState('probing');
+    const reportRoute = `/gameplay/matches/${matchId}`;
+    fetch(`/api/matches/${matchId}`)
+      .then((res) => {
+        if (cancelled) return;
+        if (res.ok) {
+          void replaceRef.current(reportRoute);
+          return;
+        }
+        setState('missing');
+      })
+      .catch(() => {
+        if (!cancelled) setState('missing');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [needsRecovery, matchId]);
+
+  // The first client render precedes the probe effect; never flash the
+  // no-session guidance before the persisted copy has been checked.
+  return needsRecovery && state === 'idle' ? 'probing' : state;
+}
+
 export default function VictoryPage(): React.ReactElement {
   const router = useRouter();
   const { id } = router.query;
@@ -243,8 +292,12 @@ export default function VictoryPage(): React.ReactElement {
 
   const session = useGameplayStore((s) => s.session);
   const pilotNames = useGameplayStore((s) => s.pilotNames);
+  const recovery = usePersistedReportRecovery(
+    isClient && Boolean(sessionId) && (!session || session.id !== sessionId),
+    sessionId,
+  );
 
-  if (!isClient) {
+  if (!isClient || recovery === 'probing') {
     return (
       <div
         className="bg-surface-deep flex h-screen items-center justify-center"
