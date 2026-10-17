@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "unit": "TS7S5A",
+  "stage": "admission",
+  "at": "2026-10-17T08:13:48.058Z",
+  "baseline": "0dd080241e552acdc845d60d61d38281cbf646d0",
+  "contributor": {
+    "provider": "openai",
+    "model": "gpt-6.1-sol",
+    "task": "TS7S5A implementation sub-agent"
+  },
+  "authority": "User authorized early docs-only preparation and admission on S4B closure 0dd08024, with light local checks only. User instructed honoring S4B successorNotes.TS7S5A, which explicitly adds the literal design.md leaf before its D3 correction.",
+  "preparationBaseline": "de9419356c740f3d89cc350f9812f8c87b03bdc9",
+  "preparedCommit": "2f9a5b000653f7698db845cd52696e6426995db0",
+  "rebasedPreparationCommit": "13f823623c56d96bdff205aedca6d7814df69a63",
+  "predecessor": {
+    "unit": "TS7S4B",
+    "state": "main-verified",
+    "mergeSha": "7898c40ed633076c8f9931dfb56a33eeeab4ca2d",
+    "mainProof": {
+      "path": "evidence/ts7s4b-mainproof-20261017.json",
+      "mergeCommit": "7898c40ed633076c8f9931dfb56a33eeeab4ca2d",
+      "verdict": "PASS",
+      "runtime": "Source/Main checks: 10 passed (fresh physical root and desktop npm ci exit 0; root typescript7 tsc --version 7.0.2; root typescript API version 6.0.3 via wrapper @typescript/typescript6 6.0.2; root node_modules/.bin/tsc owned by @typescript/old, TS6; npm run typecheck exit 0 running node node_modules/typescript7/bin/tsc for both root and scripts projects; desktop npx tsc --version 7.0.2, unaliased typescript 7.0.2; desktop npm run type-check exit 0 and npm test 57/57; typescript-toolchain.test.ts alone 4/4; roadmap-main-proof.mjs:195 argv node_modules/typescript7/bin/tsc and the closure-proof jest-ladder assertion alone 1 passed/145 skipped; validator PASSED, openspec validate --all --strict 230 passed and qc:openspec-ci:validate errors=0; 0 failed)"
+    },
+    "receiptSha256": "7a2e8c2f93a060dc652dd08ed1529519c0ae16df0121bf1737e5bbb35019f63a"
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500
+  },
+  "frozenManifest": [
+    {
+      "path": "README.md",
+      "role": "documentation",
+      "baselineSha256": "49c3dd5283c01dcc34b5d5143be308f0ca4aa343cace90341dcf80f331585dd8"
+    },
+    {
+      "path": "docs/development/getting-started.md",
+      "role": "documentation",
+      "baselineSha256": "069daf8ab27b80add0c55e7b2ee38ab94bd528bb362f48c07a0a50d3a580e38b"
+    },
+    {
+      "path": "docs/development/troubleshooting.md",
+      "role": "documentation",
+      "baselineSha256": "c1f546234defb715878a5936d0c596bd1f334d51f6b576b29150e9d3ecdbad85"
+    },
+    {
+      "path": "docs/development/git-hooks.md",
+      "role": "documentation",
+      "baselineSha256": "99f10a4baa4e177f8f82a1981e07ed5fa92cb7243d83c0072676dafe78f1f091"
+    },
+    {
+      "path": "docs/overview.md",
+      "role": "documentation",
+      "baselineSha256": "fc7f0c35af21d78056dca8a0896191d00c262482eebd4444a0b14de0aac68040"
+    },
+    {
+      "path": "openspec/config.yaml",
+      "role": "documentation",
+      "baselineSha256": "b653ad6beed80fe4d188d067dd60f162d7c394bfd1db0e047e75fcae5bfb5e99"
+    },
+    {
+      "path": "src/docs/Introduction.mdx",
+      "role": "documentation",
+      "baselineSha256": "12246d247a5503a4d8482f7e966ed540097b35b7e2d4315d3300ce191991f645"
+    },
+    {
+      "path": "openspec/scripts/README.md",
+      "role": "documentation",
+      "baselineSha256": "f13b8187267ed572d3914991b6a621e806e9e955af6f9479bb5d38c5a301d548"
+    },
+    {
+      "path": "openspec/changes/migrate-to-typescript-7/tasks.md",
+      "role": "documentation",
+      "baselineSha256": "c19d2d68fd4643fcdbf5e3130c051bdcb1baade71f376a3e532235bf204894d1"
+    },
+    {
+      "path": "openspec/changes/migrate-to-typescript-7/design.md",
+      "role": "documentation",
+      "baselineSha256": "2615e530ace62c6cefa4f491d2dc2d0531ceb4797d247ba31b42bd3bfc4af5f8"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "role": "own lifecycle",
+      "baselineSha256": "356bbdf28a1d5290f024d3ea6ebf940c516082f622631c04d2c79e0e4a112ba1"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5a-admission-20261017.json",
+      "role": "stage receipt",
+      "baselineSha256": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5a-red-20261017.json",
+      "role": "stage receipt",
+      "baselineSha256": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5a-local-20261017.json",
+      "role": "stage receipt",
+      "baselineSha256": null
+    }
+  ],
+  "scope": "Ten documentation leaves, own units.json lifecycle fields and three receipts only. No product, package, lockfile, CI, historical-evidence or other-unit edits.",
+  "accounting": "14 unique files frozen before design.md is edited. Final actual additions measured after receipts are written, without deletion credit.",
+  "overlap": "S4B is main-verified with an exact-merge PASS and verified ancestry. Rebase preserves its shared tasks.md changes. S5B and S5C remain blocked.",
+  "carryForwards": {
+    "S2A": "Replace terminology-tool npx ts-node usage with npx tsx and explain that a green terminology run is not a type-check.",
+    "S2OD_S3_S4A": "Preserve two-project TypeScript gate and bash -c filename isolation.",
+    "S4B": "Correct D3 wrapper range to ^6.0.2; explain wrapper 6.0.2 versus API 6.0.3. Root bare tsc is TS6. Literal design.md leaf frozen above.",
+    "S5B": "Canonical bv-validation-tooling/spec.md:406 still requires npx tsc. S4B successorNotes.TS7S5B assigns npm run typecheck wording sync to S5B."
+  }
+}

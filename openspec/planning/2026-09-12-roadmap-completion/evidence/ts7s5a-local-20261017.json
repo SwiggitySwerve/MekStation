@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "unit": "TS7S5A",
+  "stage": "local",
+  "baseline": "0dd080241e552acdc845d60d61d38281cbf646d0",
+  "at": "2026-10-17T08:14:09.696Z",
+  "verdict": "PASS",
+  "validationScope": "Docs-only, light checks explicitly authorized by user; no npm ci, build, Jest, typecheck, lint or desktop runs.",
+  "environment": "Node v24.15.0. Existing root node_modules junction used only for oxfmt and the yaml dependency of the OpenSpec CI contract checker. No dependency installation.",
+  "checks": [
+    {
+      "id": "format",
+      "command": "$changed=@(git diff --name-only 0dd08024); & './node_modules/.bin/oxfmt.cmd' --check @changed",
+      "startedAt": "2026-10-17 08:13:56 UTC",
+      "exit": 0,
+      "elapsedSeconds": 0.4399596,
+      "output": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 217ms on 6 files using 16 threads."
+    },
+    {
+      "id": "openspec",
+      "command": "npx.cmd --no-install openspec validate --all --strict",
+      "startedAt": "2026-10-17 08:13:56 UTC",
+      "exit": 0,
+      "elapsedSeconds": 1.3279121,
+      "output": "Totals: 230 passed, 0 failed (230 items)"
+    },
+    {
+      "id": "openspecCi",
+      "command": "npm.cmd run qc:openspec-ci:validate",
+      "startedAt": "2026-10-17 08:13:56 UTC",
+      "exit": 0,
+      "elapsedSeconds": 0.3906612,
+      "output": "> mekstation-app@0.1.1 qc:openspec-ci:validate\n> node scripts/qc/validate-openspec-ci-quality.mjs\n\n[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=20/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=10 accountedActiveOpenSpecChanges=10 errors=0"
+    },
+    {
+      "id": "validator",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "startedAt": "2026-10-17 08:13:56 UTC",
+      "exit": 0,
+      "elapsedSeconds": 4.1675347,
+      "output": "ROADMAP VALIDATION PASSED: 80 nodes, 13 packages, 381 tasks, 40 triage rows"
+    },
+    {
+      "id": "docScan",
+      "command": "$hits=@(rg -n 'TypeScript 5\\.8|npx ts-node|npx tsc' README.md docs src/docs openspec/scripts openspec/config.yaml -g '*.md' -g '*.mdx' -g '*.yaml' -g '!**/audits/**' -g '!**/archive/**' -g '!**/archives/**' -g '!**/qc/**' -g '!**/planning/**'); $hits; if($hits.Count -ne 1 -or $hits[0] -notmatch 'troubleshooting.md:21:.*runs TypeScript 6') { exit 1 }; Write-Output 'PASS: only the intentional TypeScript 6 warning remains in current contributor docs.'",
+      "startedAt": "2026-10-17 08:13:56 UTC",
+      "exit": 0,
+      "elapsedSeconds": 0.1252384,
+      "output": "docs\\development\\troubleshooting.md:21:In the root package, `npx tsc` runs TypeScript 6, which remains installed for compiler API consumers. Use `npm run typecheck` as the TypeScript 7 gate: it invokes `node node_modules/typescript7/bin/tsc` explicitly for both the root and `scripts/tsconfig.json` projects.\r\nPASS: only the intentional TypeScript 6 warning remains in current contributor docs."
+    }
+  ],
+  "contentSha256": {
+    "README.md": "3e67d0827e1f7942b4c92e7a8e5f61e93534a98cec92e63c97bf6c16f33e15ab",
+    "docs/development/getting-started.md": "870b1af67717989de41093efc5eac2143e656048da7180db9fd6ade85aa2c47c",
+    "docs/development/troubleshooting.md": "7bc5a4403ec3c90adcb8e34d8d5697188b118fe8c958d53dfd0e53fc693a3322",
+    "docs/development/git-hooks.md": "baeac409ca2c036445d07691f7470319a707d008472c618b89a82595378f7f24",
+    "docs/overview.md": "6c98238e46616a5a8d27fb083d29416c58e2db0f72303522dbd0cd9400428bfe",
+    "openspec/config.yaml": "8fc4dc1b8336be641e650106edaff24a1df18fd091f71d85f0d5579dbd47df7c",
+    "src/docs/Introduction.mdx": "22505c4e0a27932aec0c864454338ece8b2772c746b3a053989b959b6e4c7af9",
+    "openspec/scripts/README.md": "7fc8c33e72e39953a84b7e6cd315cb56bb48e02fb66cd082e3f1ccee5577ba23",
+    "openspec/changes/migrate-to-typescript-7/tasks.md": "856aef42caa746fba05c57c243d0d0335d19c19245edd784da69a840316957a4",
+    "openspec/changes/migrate-to-typescript-7/design.md": "6356b47adbf56b3fd52ce9ab666ec72696c181c15cf4d1c7c0e7bca12671da1a"
+  },
+  "formatScope": "oxfmt checks the six non-OpenSpec files. The four OpenSpec docs and lifecycle/receipt files are excluded by the existing .prettierignore; strict OpenSpec and roadmap validation cover their applicable contracts.",
+  "preparationChecks": "Earlier on de9419356: same light checks passed after creating the permitted dependency junction. First CI-contract invocation failed with ERR_MODULE_NOT_FOUND for yaml before the junction; corrected invocation passed. First format check found three table alignment changes; oxfmt corrected those named files.",
+  "carryForwards": "S4B successorNotes.TS7S5A honored: design.md admitted before its D3 correction; wrapper 6.0.2 and compiler API 6.0.3 distinguished. Canonical BV npx tsc wording remains assigned to TS7S5B; historical text retained.",
+  "runtimeNonClaim": "These are documentation and structural checks, not a fresh compiler/runtime proof. Compiler behavior is supported by the S4B exact-main receipt pinned in admission.",
+  "scopeMeasurement": {
+    "files": 14,
+    "addedLines": 372,
+    "deletedLines": 34
+  }
+}

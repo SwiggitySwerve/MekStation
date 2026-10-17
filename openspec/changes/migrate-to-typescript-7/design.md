@@ -93,12 +93,12 @@ These all work on TypeScript 5.8, so they land in phase 0.
 Root `package.json` `devDependencies`:
 
 ```json
-"typescript": "npm:@typescript/typescript6@^6.0.3",
+"typescript": "npm:@typescript/typescript6@^6.0.2",
 "typescript7": "npm:typescript@^7.0.2"
 ```
 
 - The alias key `typescript7` is local to this repository. It is deliberately not under the `@typescript/` scope, so it cannot be mistaken for a real upstream package.
-- Re-check the current version of `@typescript/typescript6` at implementation time. It must be the 6.0.x line and provide the full API.
+- The `@typescript/typescript6` wrapper is version 6.0.2; its `@typescript/old` dependency (`npm:typescript@^6`) resolves to TypeScript 6.0.3, so `require('typescript').version` reports 6.0.3. The wrapper range is `^6.0.2`, distinct from the compiler/API version.
 
 `desktop/package.json`:
 
