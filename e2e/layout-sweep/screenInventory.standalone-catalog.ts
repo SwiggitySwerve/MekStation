@@ -69,6 +69,28 @@ export const standaloneCatalogEntries: readonly SweptScreenEntry[] = [
     quarantine: [],
   },
   {
+    id: 'compendium-chassis',
+    class: 'standalone',
+    label: 'compendium chassis',
+    manifestPaths: ['/compendium/chassis'],
+    goto: '/compendium/chassis',
+    primaryAffordances: [
+      affordance({
+        label: 'chassis search',
+        role: 'textbox',
+        name: /Search chassis/i,
+      }),
+    ],
+    overlapTargets: [
+      affordance({
+        label: 'chassis search',
+        role: 'textbox',
+        name: /Search chassis/i,
+      }),
+    ],
+    quarantine: [],
+  },
+  {
     id: 'compendium-equipment',
     class: 'standalone',
     label: 'compendium equipment',
