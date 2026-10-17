@@ -17,12 +17,12 @@
 
 ## 0. Baseline (no PR)
 
-- [ ] 0.1 Record baseline numbers on current `main`, with `--version` printed for each:
+- [x] 0.1 Record baseline numbers on current `main`, with `--version` printed for each:
   - wall-clock time for `npm run typecheck` (cold, after deleting `tsconfig.tsbuildinfo`, and warm);
   - wall-clock time for `desktop/ npm run type-check`;
   - the CI `Type Check` step duration from the latest green `main` run;
   - the desktop Jest test count.
-- [ ] 0.2 Re-run TypeScript 7 and 6 from a scratch prefix against current `main` with the D2 config edits applied in a scratch copy. Replace the error list in `design.md` Context if it changed. Do not commit anything from this step.
+- [x] 0.2 Re-run TypeScript 7 and 6 from a scratch prefix against current `main` with the D2 config edits applied in a scratch copy. Replace the error list in `design.md` Context if it changed. Do not commit anything from this step.
 
 ## 1. Code and config prep that is valid on 5.8 (PR 1)
 
@@ -33,7 +33,7 @@
 - [x] 1.2 Fix the 2 `TS2322` errors in `src/lib/events/checkpoints/BranchCheckpointCache.ts`:
   - give the literal `path` its literal type (`as const` or an annotated constant);
   - do not widen the `Readonly<...>` target type.
-- [ ] 1.3 Apply the root `tsconfig.json` edits from D2:
+- [x] 1.3 Apply the root `tsconfig.json` edits from D2:
   - `target: "es2017"`;
   - delete `baseUrl`;
   - `paths: { "@/*": ["./src/*"] }`.
@@ -44,10 +44,10 @@
     - `npm run build`;
     - `npm run storybook:build`.
   - Then run `next dev` once and confirm Next did not rewrite `tsconfig.json`.
-- [ ] 1.4 Apply the `desktop/tsconfig.json` edit from D2 (`module` / `moduleResolution: "nodenext"`).
+- [x] 1.4 Apply the `desktop/tsconfig.json` edit from D2 (`module` / `moduleResolution: "nodenext"`).
   - Prove the emit is unchanged: build `desktop/` before and after into two directories, and diff every `.js` file byte for byte. `.map` and `.d.ts` differences are acceptable; list them in the PR.
   - Run `npm run electron:test`.
-- [ ] 1.5 Confirm TypeScript 7.0.x (scratch prefix) reports **0 errors** for root, `desktop/tsconfig.json` and `desktop/tsconfig.test.json`.
+- [x] 1.5 Confirm TypeScript 7.0.x (scratch prefix) reports **0 errors** for root, `desktop/tsconfig.json` and `desktop/tsconfig.test.json`.
   - `desktop/tsconfig.test.json` was not measured in the 2026-10-16 trial.
   - Record the compiler versions and times in the PR body.
 

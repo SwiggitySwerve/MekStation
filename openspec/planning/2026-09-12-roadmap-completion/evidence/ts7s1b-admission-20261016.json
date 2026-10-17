@@ -1,0 +1,224 @@
+{
+  "schemaVersion": 1,
+  "unit": "TS7S1B",
+  "stage": "admission",
+  "date": "20261016",
+  "baseline": "0929f614e3de20d89801eee90750937d6c925c13",
+  "authority": "Released blocked -> planned by the TS7S1A closure PR #2175 (merge 0929f614e, evidence/ts7s1a-review-20261016.json successorRelease); registered by evidence/ts7s1-split-registration-20261016.json; validate-roadmap --next printed TS7S1B at the baseline; parent implementation delegation",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "TS7S1B implementation sub-agent"
+  },
+  "predecessors": {
+    "TS7S1A": "main-verified, mergeSha c60ad495b4e4a98a48ec00c2fe7de363682764c1, mainProof PASS (evidence/ts7s1a-mainproof-20261016.json), ancestor of the baseline (git merge-base --is-ancestor exit 0); the baseline is the later main that includes the closure (TS7S1B-OPEN-5)"
+  },
+  "caps": {
+    "files": 15,
+    "productAddedLines": 500
+  },
+  "restriction": {
+    "container": "R6.ts7-toolchain.restrictions.TS7S1B",
+    "leaves": 4,
+    "conditionalLeaves": 2,
+    "knownLeafSubtotal": 5
+  },
+  "census": {
+    "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1b-20261016/census.md",
+    "sha256": "e8380ef8a12e911784e2195fcf2a79685f1709ce38b313b7293e8273dbbdf9fb",
+    "frozenBefore": "any config, lifecycle or evidence edit"
+  },
+  "frozenFiles": [
+    {
+      "path": "tsconfig.json",
+      "exists": true,
+      "sha256": "1c1c39ac4a0181fa6b8f0ab15e2152f7c0f939ff6818befc322f3cf84fb9c709",
+      "bytes": 871
+    },
+    {
+      "path": "desktop/tsconfig.json",
+      "exists": true,
+      "sha256": "4d27b6818c77ecc40d3b5bd394b50d6b0213082774b1447d01608823948e3d4c",
+      "bytes": 1188
+    },
+    {
+      "path": "openspec/changes/migrate-to-typescript-7/tasks.md",
+      "exists": true,
+      "sha256": "f34b7766522f6aab83ae1c98195dd24d356f0ec67fbde0800446c5c4adaa173f",
+      "bytes": 10871
+    },
+    {
+      "path": "openspec/active-change-ledger.json",
+      "exists": true,
+      "sha256": "1f7ae4ad0ee433519b320e9661f22b56f2f16f17551ec0a05d2ae3f7d67ab57b",
+      "bytes": 14764
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "exists": true,
+      "sha256": "bbea6b635f875bbc9fd0acfbbc2bb81af0a3f9a5f623b54a383a62df365e80de",
+      "bytes": 1513181
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1b-admission-20261016.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1b-admission-review-20261016.md",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1b-red-20261016.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1b-local-20261016.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    }
+  ],
+  "conditionalLeaves": {
+    "openspec/changes/migrate-to-typescript-7/design.md": {
+      "sha256": "2615e530ace62c6cefa4f491d2dc2d0531ceb4797d247ba31b42bd3bfc4af5f8",
+      "changed": false,
+      "reason": "Registered trigger (the pre-fix TypeScript 7 list differs from the 11 errors in Context) not met: TS7S1A admission tasks02Measurement and the TS7S1A fable review both measured exactly those 11 on 4bf26f7b. TS7S1B-OPEN-1 (C1 optional sentence) and TS7S1B-OPEN-4 (C5 desktop TypeScript 5.9.3 wording): no owner direction to add either was received, so neither is appended. Had the owner wanted them, the reading would be that the existing conditional design.md leaf covers them (11 files with both conditionals, inside the registered bound); no registration correction is needed for that reading."
+    },
+    "desktop/tsconfig.test.json": {
+      "sha256": "2dfdac7dd8d7d7c3e4034bbfdd629db53bbaef95851eada5c9fc0fe9f0e33238",
+      "changed": false,
+      "reason": "Extends desktop/tsconfig.json and reports 0 on TypeScript 7.0.2, 6.0.3 and desktop 5.9.3 after the edit; nothing to change"
+    }
+  },
+  "notToChange": {
+    "package.json": "651fe50e8bfecb692d408c34bf831aa3d4d337d208e874d5fa6359ad6fad0f19",
+    "package-lock.json": "f923ca53a2d9fc69d56cd59b9f86d26fd4b3756ac488c138b64163f787bd7d36",
+    "desktop/package.json": "e1f89e2d0129e6562384ad8c189dade741b461af1183f0b1e890fb55a7d66aba",
+    "desktop/package-lock.json": "b5fae6f839baed68382276ffaa1ee55fe2fb1cb47dfbeb34a46357bd353bb7f1",
+    "scripts/tsconfig.json": "cef7f7d81309b4e930c859b74df46adb4965f13e3843e9848d89ffe12af20ff4",
+    "next-env.d.ts": "6270cb0e77bf8b6add74edb5e90994381850fabaf82f3480e6dd0721eacbd40b"
+  },
+  "fileCensus": "9 of 15: 4 planned leaves + units.json + 3 receipts + the reserved review slot; no conditional leaf, no unnamed file",
+  "lineEstimate": "about 27-31 of 500 counted lines before editing (configs 4, tasks.md 5 ticks, ledger 2, units.json lifecycle 16-20); not a cap-fit proof",
+  "tasks01Baseline": {
+    "note": "Task 0.1 numbers, recorded here and not in the repository (unit behavior). Unmodified baseline configs, Node v22.22.0, each log headed by the tool --version",
+    "typecheckCold": {
+      "version": "tsc 5.8.3",
+      "seconds": [
+        77.1,
+        36.5
+      ],
+      "note": "77.1 s is the first run after the fresh checkout (OS file cache cold); 36.5 s deleted tsconfig.tsbuildinfo again with the OS cache warm",
+      "logs": [
+        {
+          "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1b-20261016/base-typecheck-cold.log",
+          "sha256": "56c544ad007a59fb41b4b642bc7cf7381a688ee16e6647ba58cca58ef48dd7d8"
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1b-20261016/base-typecheck-cold2.log",
+          "sha256": "0d2bb2ddf796c8b725cd9596139916d1ebc5a50a6efda6c3eda38283bbe73fa4"
+        }
+      ]
+    },
+    "typecheckWarm": {
+      "version": "tsc 5.8.3",
+      "seconds": [
+        7.7,
+        7.4
+      ],
+      "logs": [
+        {
+          "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1b-20261016/base-typecheck-warm1.log",
+          "sha256": "b803674839dbe5f124aedbfd3f946a98d0c7c0ea0bf0d2feb1bd5f5e63efd2c2"
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1b-20261016/base-typecheck-warm2.log",
+          "sha256": "af4522d91e70f79a6162fe4cb9a16f4c765660e8f719a498acc92080f5cb36af"
+        }
+      ]
+    },
+    "desktopTypeCheck": {
+      "version": "desktop tsc 5.9.3 (desktop/node_modules/typescript/bin/tsc --version; C5)",
+      "seconds": [
+        1.2,
+        1
+      ],
+      "logs": [
+        {
+          "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1b-20261016/base-desktop-typecheck.log",
+          "sha256": "e101abe380c74b85f19f749d6631c079659c5f3be344b687b393d84deefe9f8b"
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1b-20261016/base-desktop-typecheck2.log",
+          "sha256": "c271c4bc13037b69e1b55666c95224f6cf7a6413422ded89f5adbc7ab7b48c5c"
+        }
+      ]
+    },
+    "ciTypeCheck": {
+      "run": 38972913148,
+      "job": 117215519422,
+      "pr": 2174,
+      "head": "3f2de76f58b0554820823c974e9437246286d847",
+      "step": "Run type check (npx tsc --noEmit)",
+      "seconds": 51,
+      "window": "2026-10-16T21:59:47Z-22:00:38Z",
+      "versions": "node v22.23.3 (job log); typescript 5.8.3 (package-lock.json)",
+      "choice": "Latest green run whose Type Check step really ran. The newer green run 38979103337 (PR #2175) skipped the step (docs-only change). Type Check runs in PR Checks, not on main pushes",
+      "json": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1b-20261016/ci-run-38972913148.json",
+        "sha256": "b0b13862f65f5acf3ef0a5d9acc8059f170d87ce049996104c3c487db68edfca"
+      },
+      "skippedRunJson": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1b-20261016/ci-run-38979103337.json",
+        "sha256": "c6e0dc130509a26bdff993750f3f5712a9a9526cb5d886a0e51863451b27273b"
+      }
+    },
+    "desktopJest": {
+      "version": "jest 29.7.0, ts-jest 29.4.6, desktop tsc 5.9.3",
+      "suites": 5,
+      "tests": 57,
+      "passed": 57,
+      "log": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1b-20261016/base-desktop-jest.log",
+        "sha256": "da279f212041db2c1343ab76af478bea76202effa8e3da8b66140114a897a952"
+      }
+    },
+    "record": {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1b-20261016/baseline-0.1.md",
+      "sha256": "583f80fc1dea0e54c7cd9a5f6f80b9fb6ada4aa7ce16fec2ecd5112c4df2be03"
+    }
+  },
+  "tasks02": {
+    "tick": "Ticked from TS7S1A admission tasks02Measurement (C1): pre-edit on 4bf26f7b with D2 in a scratch copy, TypeScript 7.0.2 root 11 errors equal to design.md Context, 6.0.3 root 9, desktop 0/0; the TS7S1A fable review re-measured the same. The list did not change, so the 0.2 conditional design.md leaf is not exercised",
+    "ownRerun": "This unit's own re-run on its baseline 0929f614 with the D2 edits applied in the uncommitted worktree (the bytes later committed): TypeScript 7.0.2 and 6.0.3 report 0 errors for root, desktop/tsconfig.json and desktop/tsconfig.test.json (local receipt postTs7Ts6), as TS7S1B-OPEN-5 expected after TS7S1A's merged fixes",
+    "compilers": {
+      "ts7": "typescript@7.0.2 in %TEMP%/ts7s1b-tsc7 (npm latest 7.0.2; tsc --version: Version 7.0.2)",
+      "ts6": "typescript@6.0.3 in %TEMP%/ts7s1b-tsc6 (Version 6.0.3)",
+      "command": "node <prefix>/node_modules/typescript/bin/tsc -p <config> --noEmit --skipLibCheck",
+      "runner": {
+        "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s1b-20261016/measure-ts.ps1",
+        "sha256": "e7fccf484190a24fc5dd870a434cad79f24f609b2b2feec8ed59bd958d0124a2"
+      }
+    }
+  },
+  "carryForwards": {
+    "C1": "adopted: 0.2 tick source as above; optional design.md sentence not appended (TS7S1B-OPEN-1, no owner direction)",
+    "C2": "adopted (TS7S1B-OPEN-2): TypeScript 7.0.2 and 6.0.3 by path on the edited configs that are committed (config sha256 recorded per log), with --version and seconds, plus npm run typecheck 5.8.3 = 0; recorded in the local receipt and the PR body. The tasks.md 1.5 box is ticked without an outcome line: OPEN-2 implies no text change and the unit allows only outcome lines the task text requires",
+    "C3": "adopted: sha256 of tsconfig.json before and after next dev",
+    "C4": "adopted: per-file manifest of the two same-checkout desktop builds",
+    "C5": "adopted: desktop tsc 5.9.3 printed in every desktop measurement; design.md wording not changed (TS7S1B-OPEN-4)",
+    "M1-M4,N1-N4": "TS7S1A documentary items; nothing to do in this unit",
+    "C6,C7,W1-W3": "later units; W1 applied in spirit (the emit proofs name their roots and methods)"
+  },
+  "overlap": "gh pr list --state open: #2113 (docs/audits), #1886 (e2e WIP); neither touches a leaf or units.json. No remote branch *ts7*. No unit in flight (96 complete, 12 main-verified, 36 planned, 62 blocked)",
+  "requiredChecks": "Not re-read here; the parent confirms branch protection on the merge ref before any guarded merge",
+  "reviewClass": "routine: config, ledger and tasks.md only; emitted runtime JavaScript unchanged (desktop emit byte-identical, Next build .js identical after build-id normalization, storybook output identical)",
+  "reviewSlot": "Reserved for the independent reviewer; the author must not write it",
+  "summary": "Ordinary admission of the 9 frozen paths. No conditional leaf, no unnamed leaf, no cap exception, no merge or Main claim."
+}
