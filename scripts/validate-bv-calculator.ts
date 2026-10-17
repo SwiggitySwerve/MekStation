@@ -14,6 +14,7 @@ import {
   calculateExplosivePenalties,
   getCockpitModifier,
   type CockpitType,
+  type MechLocation,
 } from '../src/utils/construction/battleValueCalculations';
 import {
   normalizeEquipmentId,

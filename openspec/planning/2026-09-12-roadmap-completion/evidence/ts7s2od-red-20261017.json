@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "unit": "TS7S2OD",
+  "baseline": "437db72aab57009f2ba5b73a86220cb2dc65615a",
+  "contributor": {
+    "provider": "openai",
+    "model": "gpt-6.1-sol",
+    "task": "TS7S2OD implementation sub-agent"
+  },
+  "stage": "red",
+  "runtime": {
+    "node": "v22.22.0",
+    "npm": "11.6.2",
+    "rootCompiler": "5.8.3",
+    "desktopCompiler": "5.9.3",
+    "rootNodeModules": "E:\\Projects\\Personal\\MekStation\\node_modules",
+    "desktopNodeModules": "E:\\Projects\\Personal\\MekStation-wt\\ts7s2b-swc-20261016\\desktop\\node_modules",
+    "rootLockHash": "d478b16db97afcc66dcb98a56e36435094afa2a17b63ab900bb22f54ffcdee2e",
+    "desktopLockHash": "d1fd7e2572f131d2222813163815fe5e4556d685bcffd7aa823f5addcec7d9f1",
+    "desktopDonorLockHash": "d1fd7e2572f131d2222813163815fe5e4556d685bcffd7aa823f5addcec7d9f1"
+  },
+  "redKind": "Narrowed project diagnostics on admitted compiler and unchanged harness before-runs; no product behavior or test-infrastructure change.",
+  "initialExplicitNodeProbe": {
+    "command": "node node_modules/typescript/bin/tsc -p scripts/tsconfig.json --noEmit",
+    "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s2od-scripts-20261017",
+    "started": "2026-10-17T05:44:48.212Z",
+    "ended": "2026-10-17T05:44:50.044Z",
+    "exit": 2,
+    "stdoutSha256": "437e84beba6d9eb7bda2ad382dd86fbbf3c389dc1cc68cde40b7ce839ccf1674",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdoutPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\narrow-red.stdout.txt",
+    "stderrPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\narrow-red.stderr.txt"
+  },
+  "ambientFix": "The node-only explicit types exposed six window-name errors in a transitive browser storage import. Adding DOM to lib in the owned scripts config fixes them without changing a source file.",
+  "narrowedDiagnostics": {
+    "command": "node node_modules/typescript/bin/tsc -p scripts/tsconfig.json --noEmit",
+    "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s2od-scripts-20261017",
+    "started": "2026-10-17T05:44:59.101Z",
+    "ended": "2026-10-17T05:45:00.674Z",
+    "exit": 2,
+    "stdoutSha256": "3e403abccd7748a1a36be8b8a71184c4ea8a15f6d7db584a5aab3431c24f3b1f",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdoutPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\narrow-red-dom.stdout.txt",
+    "stderrPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\narrow-red-dom.stderr.txt"
+  },
+  "diagnosticSummary": "Five errors in the registered two files: four validate-bv.ts errors (optional legacy index bv), one validate-bv-calculator.ts missing MechLocation type import.",
+  "beforeBv": {
+    "command": "npm run validate:bv -- --output C:/Users/wroll/AppData/Local/Temp/ts7s2od-20261017/bv-artifacts",
+    "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s2od-scripts-20261017",
+    "started": "2026-10-17T05:43:46.225Z",
+    "ended": "2026-10-17T05:44:07.556Z",
+    "exit": 0,
+    "stdoutSha256": "4f554ae5c325dafcea9c08fa5a0591b7eaf4c71b82dc342fcfb3a96ac4bc8cad",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdoutPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\before-bv.stdout.txt",
+    "stderrPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\before-bv.stderr.txt"
+  },
+  "beforeParity": {
+    "command": "npm run validate:parity -- --mm-data E:/Projects/Personal/mm-data --output C:/Users/wroll/AppData/Local/Temp/ts7s2od-20261017/parity-artifacts",
+    "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s2od-scripts-20261017",
+    "started": "2026-10-17T05:44:18.397Z",
+    "ended": "2026-10-17T05:44:42.444Z",
+    "exit": 0,
+    "stdoutSha256": "184d559fe906cb351b3b98ee362371928b0c5e05db8b6762c4fd8d9f8ed86a5a",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdoutPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\before-parity.stdout.txt",
+    "stderrPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s2od-20261017\\before-parity.stderr.txt"
+  }
+}
