@@ -1,0 +1,163 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CG1B",
+  "stage": "admission",
+  "date": "20261017",
+  "baseline": "3826f7cb78179cf01d4e935c3ef886cee4f755da",
+  "authority": "Root delegation (L1 chain unit 1 of 17) after the one-field successor release #2214 (merge 3826f7cb) moved P2CG1B blocked->planned; layerRegistration20261017L1 (#2207) lists P2CG1B first; validate-roadmap --next printed P2CG1B at the baseline (advisory, no permission)",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "L1 / P2CG1B implementation sub-agent"
+  },
+  "predecessors": {
+    "P2CG1A2": "main-verified, mergeSha 5d02dcab6ff2b1a62b2d73355a0bc3345aec2ae2, mainProof PASS, closure #2171 (merge e7af8ba7); merge and closure are ancestors of the baseline",
+    "P2CG1A1": "main-verified, mergeSha f11c64d98782f134380dfe6513a9eeb360aaac38, mainProof PASS, ancestor of the baseline"
+  },
+  "holdRelease": "TS7 hold: ts7TrackRegistration20261016.stoppingCondition met (all eleven active TS7 units main-verified; last closure #2203 de687647; re-check audit docs/audits/2026-10-17-ts7-track-exit-recheck.md in the root checkout, sha256 a3416f7801b6715e0e083854bc13d8bc4183038f6d0fa62e54f2ab4d6592a5b4, PASS-WITH-NOTES). Release hold: v2.1.0 published 2026-10-17T11:11:29Z, v2.1.1 2026-10-17T13:30:41Z, L0 playtests #2208/#2213",
+  "baselineOpenNotes": {
+    "B-OPEN-1": "Actual baseline is 3826f7cb, not 5d02dcab. git diff --name-only 5d02dcab..3826f7cb over the eight leaves is empty: no TS7 unit or release changed them, so the B-CF8 physical counts (writer 510, host 611) still hold and are re-measured below",
+    "B-OPEN-2": "The borrowed-transaction writer tests live in JournalCampaignEventStore.test.ts (it already opens real better-sqlite3 files); SQLiteEventJournalWriter.test.ts is not a leaf and is not touched",
+    "B-OPEN-3": "Reading used: the 35 A1/A2 suites run with no test change; B's two leaves keep every existing case byte-identical and only gain B's new cases (plus one additive arm in the pipeline file's existing reducer mock, guarded by a new flag that existing cases never set)",
+    "B-OPEN-4": "Consumer scan re-run at 3826f7cb: every CampaignCommitOutcome consumer is inside the six source leaves; the one non-leaf test (campaignRetroactiveCorrectionCommit.test.ts:396-411) narrows with kind !== committed and compiles unchanged. applyReconcileEvents named by the research scope does not exist at this baseline"
+  },
+  "caps": {
+    "files": 15,
+    "productAddedLines": 500
+  },
+  "restriction": {
+    "container": "R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1B",
+    "leaves": 8,
+    "knownSourceTestLifecycleSubtotal": 9
+  },
+  "manifest": {
+    "count": 13,
+    "spare": 2,
+    "note": "8 restriction leaves + units.json (own lifecycle fields only) + admission/red/local receipts + the reserved admission-review slot. No prospective source or test file; no helper; no roadmap.json, Protocol or server.js change"
+  },
+  "census": {
+    "path": "E:/Projects/Personal/MekStation-wt/p2cg1b-proof-20261017/census.md",
+    "bytes": 8322,
+    "sha256": "146ba05e715e26ce7eb7df37d3febd0e2e56fadc560f8e6ee997e405157c327a",
+    "frozenBefore": "any source, test, lifecycle or evidence edit"
+  },
+  "frozenFiles": [
+    {
+      "path": "src/lib/events/journal/SQLiteEventJournalWriter.ts",
+      "exists": true,
+      "sha256": "1beac1d6c477727667e3403b95d8be0f173f31669354e0eacfb72b6d93dfecba",
+      "bytes": 21444,
+      "physicalLines": 510
+    },
+    {
+      "path": "src/lib/campaign/sync/ICampaignEventStore.ts",
+      "exists": true,
+      "sha256": "6925c43a7c3b0faa05f31cb1099c8596c4159b8c94ed15adbf76f3ea5a5f950f",
+      "bytes": 8953,
+      "physicalLines": 243
+    },
+    {
+      "path": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+      "exists": true,
+      "sha256": "9c2d15c3a947ebed1a532e5c0e642cbc5c8de4423af8cc81b1e11c81b4392db9",
+      "bytes": 23437,
+      "physicalLines": 575
+    },
+    {
+      "path": "src/lib/multiplayer/server/CampaignMatchHost.ts",
+      "exists": true,
+      "sha256": "b9bb5152b979b851ded60854bc5906e8067d011c775b4e9ad5c3e6da653a5c14",
+      "bytes": 23680,
+      "physicalLines": 611
+    },
+    {
+      "path": "src/lib/multiplayer/server/CampaignMatchHost.doors.ts",
+      "exists": true,
+      "sha256": "04b19f7e894e6073118f4ad4ab9b94d36f3d57034d615bcd32323ecf7b54b52a",
+      "bytes": 7429,
+      "physicalLines": 241
+    },
+    {
+      "path": "src/lib/multiplayer/server/campaignHostBatchCommit.ts",
+      "exists": true,
+      "sha256": "e8ccd2cb2ffe777ea61bf5d9a8249d7c0297492bd4424ff81230aaf5acfaba66",
+      "bytes": 10035,
+      "physicalLines": 230
+    },
+    {
+      "path": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+      "exists": true,
+      "sha256": "4016754a425f74375f52192327e1c1e86ef4646fae51d13e58b8272b142b1a51",
+      "bytes": 27452,
+      "physicalLines": 784
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/CampaignMatchHost.pipeline.test.ts",
+      "exists": true,
+      "sha256": "9fd561aad88bb76d791a03d0996a63ad11b6d8db056d30e2031e3fd3b14204c4",
+      "bytes": 7108,
+      "physicalLines": 209
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "exists": true,
+      "sha256": "b5901f6a63cd2da05f2d0219032b0728ee5fd307e29883c4940007a7ddf69369",
+      "bytes": 1557458,
+      "physicalLines": 20844
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1b-admission-20261017.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null,
+      "physicalLines": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1b-red-20261017.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null,
+      "physicalLines": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1b-local-20261017.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null,
+      "physicalLines": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1b-admission-review-20261017.md",
+      "exists": false,
+      "sha256": null,
+      "bytes": null,
+      "physicalLines": null
+    }
+  ],
+  "estimate": "Registration 150-230 counted lines with lifecycle; research planning range 225-340. Measured only at the local stage",
+  "baselineMeasurements": {
+    "lint": {
+      "command": "npm run lint (oxlint)",
+      "result": "86 warnings, 0 errors",
+      "leafWarnings": "SQLiteEventJournalWriter.ts eslint(max-lines) 435 counted lines (max 400, skipBlankLines+skipComments); no other leaf warns (CampaignMatchHost.ts is 611 physical but under 400 counted)",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1b-proof-20261017/lint-base.log",
+        "sha256": "b78fffc526edfcef9fbabf1d97a740152c92a23daa5b460083cfb46211fc470f"
+      }
+    },
+    "cycles": {
+      "command": "npx -y madge@8.0.0 --circular --extensions ts --ts-config tsconfig.json <the six source leaves>",
+      "result": "Processed 908 files, 171 circular chains",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1b-proof-20261017/madge-base.log",
+        "sha256": "77ce961d9c94ac454cfcf9ca5093f6e884a364d7d26292979a685bbac093e2e7"
+      }
+    }
+  },
+  "overlap": "gh pr list --state open: #2212 (4 files, fog history projection/**, history/**), #2113 (docs audits), #1886 (e2e wip); none touches a P2CG1B leaf or units.json. No other roadmap unit is admitted, implementing, local-verified or closure-open (states at baseline: complete, main-verified, planned, blocked only). The v2.1.2 gameplay work touches src/engine/InteractiveSession.ai.ts / MoveAI, outside this manifest",
+  "operations": "Frozen in the census (section \"Frozen operations\"): writer borrowed operation + shared validation body + post-COMMIT onCommitted; store capability appendControlledCommandBatch with typed refusal (append-controls-unsupported before any write); host CampaignCommitOutcome arms refused / commit-uncertain / committed-unsettled with exhaustive resultOfCommit; door outcome + applyHostIntentWithControls; afterRelease after the single-writer lock releases",
+  "activationPredicate": "None. No production caller supplies controls; server.js composes no guard; legacy readiness, numeric ACK credit and the mission-create path are untouched",
+  "requiredChecks": "gh api branches/main/protection at admission: required_conversation_resolution enabled and required_status_checks contexts [\"Lint and Test\"] (strict false). A2 recorded no required status checks, so this changed after A2. Lint and Test is the if: always() aggregator, so a completed-but-failed state is a failure; every pr-checks.yml job name is still to be verified by name on the exact head before any guarded merge (the release PR #2214 head showed 32 check runs, all SUCCESS, including Validate Roadmap Ledger)",
+  "reviewSlot": "Reserved for the independent reviewer; author must not write review",
+  "summary": "Ordinary admission of the 13 frozen paths under unchanged caps. No cap exception, no unnamed leaf, no merge or Main claim."
+}
