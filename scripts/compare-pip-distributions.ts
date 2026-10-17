@@ -4,7 +4,7 @@
  * Extracts pip positions from MegaMekLab pre-made SVG files and compares
  * them against our Poisson disk sampling algorithm at various densities.
  *
- * Usage: npx ts-node scripts/compare-pip-distributions.ts
+ * Usage: npx tsx scripts/compare-pip-distributions.ts
  *
  * Output:
  * - Comparison SVGs showing legacy vs Poisson side-by-side

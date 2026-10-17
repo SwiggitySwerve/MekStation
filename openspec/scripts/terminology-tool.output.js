@@ -76,7 +76,7 @@ export function showHelp() {
 ${c.bold('OpenSpec Terminology Tool')} - Validate and fix terminology violations
 
 ${c.bold('Usage:')}
-  npx ts-node terminology-tool.ts <command> [options] [path]
+  npx tsx terminology-tool.ts <command> [options] [path]
 
 ${c.bold('Commands:')}
   validate    Check for terminology violations (default)
@@ -95,10 +95,10 @@ ${c.bold('Options:')}
   --config PATH   Use custom config file
 
 ${c.bold('Examples:')}
-  npx ts-node terminology-tool.ts validate
-  npx ts-node terminology-tool.ts validate --strict
-  npx ts-node terminology-tool.ts fix --dry-run
-  npx ts-node terminology-tool.ts fix
-  npx ts-node terminology-tool.ts validate --source --changed-only
+  npx tsx terminology-tool.ts validate
+  npx tsx terminology-tool.ts validate --strict
+  npx tsx terminology-tool.ts fix --dry-run
+  npx tsx terminology-tool.ts fix
+  npx tsx terminology-tool.ts validate --source --changed-only
 `);
 }

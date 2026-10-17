@@ -53,10 +53,10 @@
 
 ## 2. Remove replaceable compiler-API consumers (PR 2)
 
-- [ ] 2.1 Change `terminology:validate`, `terminology:validate:strict`, `terminology:fix` and `terminology:fix:dry-run` from `npx ts-node` to `npx tsx`.
+- [x] 2.1 Change `terminology:validate`, `terminology:validate:strict`, `terminology:fix` and `terminology:fix:dry-run` from `npx ts-node` to `npx tsx`.
   - Fix the usage comment in `scripts/compare-pip-distributions.ts`.
   - Prove that `npm run terminology:validate` gives the same output before and after.
-- [ ] 2.2 Remove `ts-node` from root `devDependencies` (D6).
+- [x] 2.2 Remove `ts-node` from root `devDependencies` (D6).
   - Lockfile check: `npm ls ts-node` shows only optional-peer references, if any.
 - [ ] 2.3 Desktop: replace `ts-jest` with `@swc/jest` per D5.
   - Add `@swc/core` and `@swc/jest` to `desktop/package.json`; state the reason in the PR body.

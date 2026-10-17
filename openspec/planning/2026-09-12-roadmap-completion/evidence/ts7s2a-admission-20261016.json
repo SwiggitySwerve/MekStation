@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 1,
+  "unit": "TS7S2A",
+  "stage": "admission",
+  "date": "20261016",
+  "baseline": "35b962d79a4d6a69f03de820150b277ddeaab85d",
+  "authority": "Released blocked -> planned by the TS7S1B closure PR #2177 (merge 35b962d79, evidence/ts7s1b-review-20261016.json successorRelease); registered by evidence/ts7-track-registration-20261016.json; predecessor repointed TS7S1 -> TS7S1B by evidence/ts7s1-split-registration-20261016.json; validate-roadmap --next printed TS7S2A at the baseline (exit 0); parent implementation delegation",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "TS7S2A implementation sub-agent"
+  },
+  "predecessors": {
+    "TS7S1B": "main-verified, mergeSha 3d9c45365bfc34d27930acb1ff3411b91af17cb9, mainProof PASS (evidence/ts7s1b-mainproof-20261016.json), ancestor of the baseline (git merge-base --is-ancestor exit 0). TS7S2A-OPEN-5: the actual baseline is 35b962d79 (origin/main after git fetch = the #2177 closure merge, a later main that includes the closure), not 3d9c4536"
+  },
+  "caps": {
+    "files": 15,
+    "productAddedLines": 500
+  },
+  "restriction": {
+    "container": "R6.ts7-toolchain.restrictions.TS7S2A",
+    "leaves": 6,
+    "conditionalLeaves": 0,
+    "knownLeafSubtotal": 7
+  },
+  "census": {
+    "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2a-20261016/census.md",
+    "sha256": "f98b446659e6e614fdb447a92a2197bd303da740685d9fa853333eb458251ee8",
+    "frozenBefore": "any package, source, lifecycle or evidence edit"
+  },
+  "frozenFiles": [
+    {
+      "path": "package.json",
+      "exists": true,
+      "sha256": "651fe50e8bfecb692d408c34bf831aa3d4d337d208e874d5fa6359ad6fad0f19",
+      "bytes": 35708
+    },
+    {
+      "path": "package-lock.json",
+      "exists": true,
+      "sha256": "f923ca53a2d9fc69d56cd59b9f86d26fd4b3756ac488c138b64163f787bd7d36",
+      "bytes": 649530
+    },
+    {
+      "path": "scripts/compare-pip-distributions.ts",
+      "exists": true,
+      "sha256": "ea2e3f2ec10f691f52f0fba66744d9a2bedc8f38f0ab260c46edf6f54f6ea87c",
+      "bytes": 15589
+    },
+    {
+      "path": "openspec/scripts/terminology-tool.ts",
+      "exists": true,
+      "sha256": "95d29b91ce8636f2886a1a02454cec2089f7a47a4ccc5f5a51910f0595147942",
+      "bytes": 8228
+    },
+    {
+      "path": "openspec/scripts/terminology-tool.output.js",
+      "exists": true,
+      "sha256": "aaa94f5846144ad0724880212fb0a17140989ea2f76fb7df8d7c73a7ba929212",
+      "bytes": 3232
+    },
+    {
+      "path": "openspec/changes/migrate-to-typescript-7/tasks.md",
+      "exists": true,
+      "sha256": "ef219f320919200d92f9181da43c913fa96bb72a240b89301ecdec77c18ed62e",
+      "bytes": 10871
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "exists": true,
+      "sha256": "3fcba096c43151cada7cfa7aa2acb1723bbece927002a221e4ac30d994ccfe6b",
+      "bytes": 1518661
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2a-admission-20261016.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2a-admission-review-20261016.md",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2a-red-20261016.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s2a-local-20261016.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null
+    }
+  ],
+  "notToChange": {
+    "scripts/tsconfig.json": "cef7f7d81309b4e930c859b74df46adb4965f13e3843e9848d89ffe12af20ff4",
+    "tsconfig.json": "6c41dc2afe0792a6a918f6193e0ed498653807895033b24c270e532984d4a0dd",
+    "desktop/package.json": "e1f89e2d0129e6562384ad8c189dade741b461af1183f0b1e890fb55a7d66aba",
+    "desktop/package-lock.json": "b5fae6f839baed68382276ffaa1ee55fe2fb1cb47dfbeb34a46357bd353bb7f1",
+    "desktop/jest.config.js": "dbdbc33cfc34e7cd4c17d1db59e83f1f56209bb46f31fc3f7c9a597e27773d3e",
+    "jest.config.js": "562e7a320f0547dda21dd2e8ec93e6c68db615f32522de42a293fc58a44b8a76",
+    "playwright.config.ts": "d483179811287e17adfcc835513ca7842aa8e356dc6006a68c5aa6c805c8604c",
+    ".storybook/main.ts": "63c41a9fc8f531cc3824e5b9541704b8e48eff72caf0fa0f7077107ad15a082a",
+    "openspec/scripts/README.md": "f13b8187267ed572d3914991b6a621e806e9e955af6f9479bb5d38c5a301d548",
+    "openspec/changes/migrate-to-typescript-7/design.md": "2615e530ace62c6cefa4f491d2dc2d0531ceb4797d247ba31b42bd3bfc4af5f8"
+  },
+  "fileCensus": "11 of 15: 6 planned leaves + units.json + 3 receipts + the reserved review slot; no conditional leaf, no unnamed file",
+  "lineCounting": "package-lock.json is a leaf and counts as a file, but its added lines are not counted: validate-roadmap.mjs UNCOUNTED_FILES matches /(^|\\/)package-lock\\.json$/ (U41 cap counting rule); the evidence directory is skipped",
+  "lineEstimate": "about 33-37 of 500 counted lines before editing (package.json 4, compare-pip-distributions.ts 1, terminology-tool.ts 4, terminology-tool.output.js 6, tasks.md 2 ticks, units.json lifecycle about 16-20); not a cap-fit proof",
+  "dependencyCheck": {
+    "rule": "D6 / task 2.2: remove ts-node only after a lockfile check shows no non-optional dependent",
+    "lockfile": "baseline package-lock.json names ts-node only as the root devDependency (:94), its own entry (:16895) and node_modules/jest-config peerDependencies ts-node >=9.0.0 with peerDependenciesMeta optional true (:10867/:10873)",
+    "npmLs": "npm ls ts-node at the baseline: ts-node@10.9.2 from the root project only; npm explain: dev ts-node@\"^10.9.2\" from the root project",
+    "implicitLoaders": "one installed loader: jest-config readConfigFileAndSetRootDir.js:178 import('ts-node'), reached only for a .ts Jest config; tracked Jest configs are jest.config.js and desktop/jest.config.js. No tsconfig ts-node key, ts-node/register, --loader ts-node, TS_NODE_* or .mocharc in tracked files",
+    "verdict": "no unexpected ts-node dependency; removal admissible",
+    "record": {
+      "path": "E:/Projects/Personal/MekStation/.omo/ulw-execute/mekstation-whole-roadmap-execution-20261002-01a0febd/task-ts7s2a-20261016/ts-node-refs.md",
+      "sha256": "70163d0a7e011b3c4743e5e43ff5657911477724b9016a05796374b42f0c779f"
+    }
+  },
+  "overlap": "package.json is also named by U12 (blocked), U63 (planned), U75 (blocked), U80 (blocked), U83 (blocked) and U84 (blocked); package-lock.json within the track by TS7S3 and TS7S4B (blocked). Handling per evidence/ts7-track-registration-20261016.json overlap.rule: serial through the one product-writing lane and NEXT inFlightPaths exclusion; no ownershipExceptions, amendment or other-unit edit. At the baseline no unit is in flight (96 complete, 13 main-verified, 36 planned, 61 blocked); while TS7S2A is implementing, NEXT excludes U63 (expected, not a defect). gh pr list --state open: #2113 (docs/audits), #1886 (e2e WIP); neither touches a manifest path. No remote branch for this unit before push",
+  "openNotes": {
+    "TS7S2A-OPEN-1": "adopted: npm run terminology:validate run once with ts-node and once with tsx on the baseline, plus the four npm scripts before (ts-node) and after (tsx); stdout diff and both exit codes in the local receipt",
+    "TS7S2A-OPEN-2": "adopted: scripts/tsconfig.json not a leaf and untouched (sha256 frozen); tsx reads the tsconfig from the cwd (repository root for npm run), terminology-tool.ts imports only node builtins and relative files, and a TSX_TSCONFIG_PATH=scripts/tsconfig.json sensitivity run prints the same stdout (local receipt)",
+    "TS7S2A-OPEN-3": "adopted: desktop npm test at the baseline passes with 13 TS151002 messages, recorded as the baseline, not a regression; desktop/jest.config.js not a leaf, no diagnostics.ignoreCodes. The count depends on the ts-jest/Jest cache state (local receipt)",
+    "TS7S2A-OPEN-4": "adopted: the diff adds no import/require line (git diff -U0 added lines matching import|require: 0); terminology-tool.ts, terminology-tool.output.js and compare-pip-distributions.ts import only node builtins and relative files; desktop/package.json not edited, so the C6 condition does not arise",
+    "TS7S2A-OPEN-5": "adopted: baseline 35b962d79 stated above; TS7S1B main-verified and ancestry re-verified there"
+  },
+  "carryForwards": {
+    "C1": "adopted (TS7S2A-OPEN-1)",
+    "C2": "adopted: scripts/tsconfig.json untouched (TS7S2A-OPEN-2)",
+    "C3": "adopted for the desktop npm test proof: no diagnostics.ignoreCodes; count recorded (TS7S2A-OPEN-3); the 0 assertion belongs to the task 2.3 receipt (TS7S2B)",
+    "C4": "not applicable: no emit-equality build in this unit",
+    "C5": "not applicable: compiler-version units only",
+    "C6": "not applicable: desktop/package.json not edited",
+    "C7": "not applicable: the test helper is not edited",
+    "M1-M4,N1-N6": "TS7S1B documentary items; N4 is retired by this unit (ts-node removed); nothing else to do here"
+  },
+  "reviewClass": "routine: npm script runner swap, devDependency removal with an npm-generated lockfile, comment/help text; terminology tool stdout and exit codes identical before and after",
+  "reviewSlot": "Reserved for the independent reviewer; the author must not write it",
+  "summary": "Ordinary admission of the 11 frozen paths. No conditional leaf, no unnamed leaf, no cap exception, no merge or Main claim."
+}
