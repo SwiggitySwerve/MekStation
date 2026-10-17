@@ -72,7 +72,9 @@ export async function notifyUpdateAvailable(
 
   if (choice.response === 0) {
     updateDownloadProgress(0);
-    autoUpdater.downloadUpdate();
+    autoUpdater.downloadUpdate().catch((error: unknown) => {
+      notifyUpdateError(mainWindow, error);
+    });
   }
 }
 

@@ -1,11 +1,13 @@
-import { spawn } from 'child_process';
 import { app, BrowserWindow, dialog, screen, session, shell } from 'electron';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
+import type { EmbeddedServer } from './main.server';
+
 import { RecentFilesService } from '../services/local/RecentFilesService';
 import { SettingsService } from '../services/local/SettingsService';
 import { IDesktopAppConfig } from './main.config';
+import { getEmbeddedServer, SERVER_READY_TIMEOUT_MS } from './main.server';
 import { buildSecurityHeaders } from './securityPolicy';
 
 interface ICreateMainWindowContext {
@@ -16,9 +18,18 @@ interface ICreateMainWindowContext {
   readonly recentFilesService: RecentFilesService | null;
   readonly sendToRenderer: (channel: string, ...args: unknown[]) => void;
   readonly settingsService: SettingsService | null;
-  readonly shouldHideToTray: () => boolean;
   readonly userDataPath: string;
 }
+
+const PACKAGED_APP_ORIGIN = 'http://127.0.0.1:3001';
+const LOADING_PAGE_URL = `data:text/html;charset=utf-8,${encodeURIComponent(
+  '<!doctype html><html><head><meta charset="utf-8"><title>MekStation</title></head>' +
+    '<body style="margin:0;height:100vh;display:flex;align-items:center;justify-content:center;' +
+    'background:#0f172a;color:#e2e8f0;font-family:system-ui,sans-serif;text-align:center">' +
+    '<div><h1 style="font-weight:600">MekStation</h1>' +
+    '<p style="opacity:.75">Starting the local server&hellip; the first launch can take a minute.</p>' +
+    '</div></body></html>',
+)}`;
 
 let securityHeadersInstalled = false;
 
@@ -30,13 +41,12 @@ export async function createMainWindow({
   recentFilesService,
   sendToRenderer,
   settingsService,
-  shouldHideToTray,
   userDataPath,
 }: ICreateMainWindowContext): Promise<BrowserWindow> {
   console.log('Creating main window...');
   const appOrigin = config.developmentMode
     ? 'http://localhost:3600'
-    : 'http://127.0.0.1:3001';
+    : PACKAGED_APP_ORIGIN;
 
   installDesktopSecurityHeaders(config.developmentMode);
 
@@ -102,11 +112,15 @@ export async function createMainWindow({
     if (currentSettings.reopenLastUnit) {
       const lastUnit = recentFilesService.getMostRecent();
       if (lastUnit) {
-        mainWindow.webContents.once('did-finish-load', () => {
+        // The packaged window first shows a local loading page; wait for the app.
+        const onLoad = (): void => {
+          if (!mainWindow.webContents.getURL().startsWith(appOrigin)) return;
+          mainWindow.webContents.off('did-finish-load', onLoad);
           setTimeout(() => {
             sendToRenderer('open-unit', lastUnit.id);
           }, 1000);
-        });
+        };
+        mainWindow.webContents.on('did-finish-load', onLoad);
       }
     }
   }
@@ -124,16 +138,9 @@ export async function createMainWindow({
     mainWindow.focus();
   });
 
-  if (config.developmentMode) {
-    await mainWindow.loadURL(appOrigin);
-    mainWindow.webContents.openDevTools();
-  } else {
-    await loadPackagedUi(mainWindow, appPath, userDataPath);
-  }
-
   mainWindow.on('closed', onClosed);
 
-  mainWindow.on('close', async (event) => {
+  mainWindow.on('close', async () => {
     if (settingsService) {
       const bounds = mainWindow.getBounds();
       await settingsService.updateWindowBounds({
@@ -143,11 +150,6 @@ export async function createMainWindow({
         height: bounds.height,
         isMaximized: mainWindow.isMaximized(),
       });
-    }
-
-    if (shouldHideToTray()) {
-      event.preventDefault();
-      mainWindow.hide();
     }
   });
 
@@ -163,6 +165,14 @@ export async function createMainWindow({
     }
     return { action: 'deny' };
   });
+
+  if (config.developmentMode) {
+    await mainWindow.loadURL(appOrigin);
+    mainWindow.webContents.openDevTools();
+  } else {
+    // Not awaited: tray and IPC setup must not wait for the server cold start.
+    void loadPackagedUi(mainWindow, packagedServer(appPath, userDataPath));
+  }
 
   console.log('Main window created successfully');
   return mainWindow;
@@ -199,68 +209,88 @@ function isAllowedExternalUrl(url: string): boolean {
   }
 }
 
-async function loadPackagedUi(
-  mainWindow: BrowserWindow,
+function packagedServer(
   appPath: string,
   userDataPath: string,
-): Promise<void> {
+): Pick<EmbeddedServer, 'waitUntilReady'> {
   const serverCwd = app.isPackaged
     ? path.join(process.resourcesPath, 'next-standalone')
     : path.join(appPath, '..', '.next', 'standalone');
-  const serverPath = path.join(serverCwd, 'server.js');
   const dataDir = path.join(userDataPath, 'data');
-  const databasePath = path.join(dataDir, 'mekstation.db');
 
-  await fs.mkdir(dataDir, { recursive: true });
-
-  const server = spawn(process.execPath, [serverPath], {
+  const server = getEmbeddedServer({
+    cwd: serverCwd,
     env: {
       ...process.env,
       ELECTRON_RUN_AS_NODE: '1',
       PORT: '3001',
       HOSTNAME: '127.0.0.1',
-      DATABASE_PATH: databasePath,
+      DATABASE_PATH: path.join(dataDir, 'mekstation.db'),
     },
-    cwd: serverCwd,
+    serverPath: path.join(serverCwd, 'server.js'),
+  });
+  return {
+    waitUntilReady: async (timeoutMs) => {
+      await fs.mkdir(dataDir, { recursive: true });
+      await server.waitUntilReady(timeoutMs);
+    },
+  };
+}
+
+interface ILoadPackagedUiOptions {
+  readonly readyTimeoutMs?: number;
+  readonly retryDelayMs?: number;
+}
+
+/**
+ * Shows a loading page, waits for the embedded server's readiness marker, then
+ * loads the app. Failures offer Retry (keep waiting / restart the server) or
+ * Quit instead of leaving a blank window behind a one-shot error dialog.
+ */
+export async function loadPackagedUi(
+  mainWindow: BrowserWindow,
+  server: Pick<EmbeddedServer, 'waitUntilReady'>,
+  {
+    readyTimeoutMs = SERVER_READY_TIMEOUT_MS,
+    retryDelayMs = 1000,
+  }: ILoadPackagedUiOptions = {},
+): Promise<void> {
+  await mainWindow.loadURL(LOADING_PAGE_URL).catch((error: unknown) => {
+    console.warn('Failed to show the startup loading page:', error);
   });
 
-  server.on('error', (error: Error) => {
-    console.error('Failed to start Next.js server:', error);
-    if (!mainWindow.isDestroyed()) {
-      void dialog.showMessageBox(mainWindow, {
+  for (;;) {
+    try {
+      await server.waitUntilReady(readyTimeoutMs);
+      // A just-bound listener can still refuse the first connection.
+      for (let attempt = 1; ; attempt++) {
+        try {
+          await mainWindow.loadURL(PACKAGED_APP_ORIGIN);
+          return;
+        } catch (error) {
+          if (attempt >= 3 || mainWindow.isDestroyed()) throw error;
+          await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
+        }
+      }
+    } catch (error) {
+      if (mainWindow.isDestroyed()) return;
+      const message = error instanceof Error ? error.message : String(error);
+      console.error('Failed to load MekStation UI:', message);
+      const { response } = await dialog.showMessageBox(mainWindow, {
         type: 'error',
         title: 'Startup Error',
-        message:
-          'Failed to start the local web server required to run MekStation.',
-        detail: error.message,
-        buttons: ['OK'],
+        message: 'MekStation could not start its local server.',
+        detail: `${message}\n\nRetry keeps waiting (restarting the server if it stopped). Quit closes MekStation.`,
+        buttons: ['Retry', 'Quit'],
+        defaultId: 0,
+        cancelId: 1,
+        noLink: true,
       });
+      if (mainWindow.isDestroyed()) return;
+      if (response !== 0) {
+        app.quit();
+        return;
+      }
     }
-  });
-
-  server.stdout?.on('data', (data: Buffer) => {
-    console.log(`Server: ${data.toString()}`);
-  });
-
-  server.stderr?.on('data', (data: Buffer) => {
-    console.error(`Server Error: ${data.toString()}`);
-  });
-
-  await new Promise((resolve) => setTimeout(resolve, 2000));
-  try {
-    await mainWindow.loadURL('http://127.0.0.1:3001');
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    console.error('Failed to load MekStation UI:', message);
-    if (!mainWindow.isDestroyed()) {
-      await dialog.showMessageBox(mainWindow, {
-        type: 'error',
-        title: 'Startup Error',
-        message: 'MekStation failed to load its UI.',
-        detail: message,
-        buttons: ['OK'],
-      });
-    }
-    throw error;
   }
 }

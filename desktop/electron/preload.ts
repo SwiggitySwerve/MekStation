@@ -14,18 +14,45 @@
 
 import { contextBridge, ipcRenderer } from 'electron';
 
-// Import types
-import {
+// Type-only: a sandboxed preload cannot require relative modules at runtime.
+import type * as SharedTypes from '../types/BaseTypes';
+import type {
   IDesktopSettings,
   IRecentFile,
-  MenuCommand,
-  SETTINGS_IPC_CHANNELS,
-  RECENT_FILES_IPC_CHANNELS,
-  MENU_IPC_CHANNELS,
-  APP_IPC_CHANNELS,
   ISettingsChangeEvent,
+  MenuCommand,
   UnitType,
 } from '../types/BaseTypes';
+
+// IPC channel names inlined from ../types/BaseTypes; `satisfies` keeps them
+// identical to the shared constants at compile time.
+const SETTINGS_IPC_CHANNELS = {
+  GET: 'settings:get',
+  SET: 'settings:set',
+  RESET: 'settings:reset',
+  GET_VALUE: 'settings:get-value',
+  ON_CHANGE: 'settings:on-change',
+} as const satisfies typeof SharedTypes.SETTINGS_IPC_CHANNELS;
+
+const RECENT_FILES_IPC_CHANNELS = {
+  LIST: 'recent-files:list',
+  ADD: 'recent-files:add',
+  REMOVE: 'recent-files:remove',
+  CLEAR: 'recent-files:clear',
+  ON_UPDATE: 'recent-files:on-update',
+} as const satisfies typeof SharedTypes.RECENT_FILES_IPC_CHANNELS;
+
+const MENU_IPC_CHANNELS = {
+  COMMAND: 'menu:command',
+  UPDATE_RECENT: 'menu:update-recent',
+  UPDATE_STATE: 'menu:update-state',
+} as const satisfies typeof SharedTypes.MENU_IPC_CHANNELS;
+
+const APP_IPC_CHANNELS = {
+  OPEN_SETTINGS: 'app:open-settings',
+  SHOW_ABOUT: 'app:show-about',
+  GET_INFO: 'app:get-info',
+} as const satisfies typeof SharedTypes.APP_IPC_CHANNELS;
 
 // Recent file params type for add operation
 interface IAddRecentFileParams {
