@@ -36,9 +36,11 @@ jobs:
 
       - name: Resolve release tag
         id: resolve_tag
+        env:
+          TAG_INPUT: ${{ inputs.release_tag }}
+          TRIGGER_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
           set -euo pipefail
-          TAG_INPUT="${{ inputs.release_tag }}"
 
           git fetch --tags
 
@@ -46,10 +48,18 @@ jobs:
             TAG="$TAG_INPUT"
           elif [ "${GITHUB_EVENT_NAME}" = "push" ]; then
             TAG="${GITHUB_REF_NAME}"
+          elif [ "${GITHUB_EVENT_NAME}" = "workflow_run" ]; then
+            # GITHUB_TOKEN tag pushes do not trigger push workflows. Resolve
+            # the tag minted at this run's head, even if main has advanced.
+            TAG=$(git tag --points-at "$TRIGGER_SHA" -l 'v*' --sort=-version:refname | sed -n 1p)
+            if [ -z "$TAG" ]; then
+              echo "No version tag at triggering head $TRIGGER_SHA; skipping release."
+              exit 0
+            fi
           else
             # sed -n 1p (not head -n 1): head closes the pipe early and git
             # dies with SIGPIPE under `set -euo pipefail` (exit 141), which
-            # killed every workflow_run release since v1.4.225.
+            # caused historical release-context failures.
             TAG=$(git tag -l 'v*' --sort=-version:refname | sed -n 1p)
           fi
 
@@ -58,15 +68,16 @@ jobs:
             exit 1
           fi
 
+          git rev-parse --verify "refs/tags/${TAG}^{commit}" >/dev/null
+
           # workflow_run fires on EVERY auto-version completion, including
           # runs that minted no tag. Without this guard, every merge to main
           # rebuilt the latest existing tag (~60-90 runner-min each). Only
           # proceed when the resolved tag points at the exact commit the
-          # triggering auto-version run processed — i.e. the run that minted
-          # it. Empty tag output makes every downstream job skip via the
+          # triggering auto-version run processed. Empty tag output makes
+          # every downstream job skip via the
           # startsWith(tag, 'v') conditions.
           if [ "${GITHUB_EVENT_NAME}" = "workflow_run" ]; then
-            TRIGGER_SHA="${{ github.event.workflow_run.head_sha }}"
             TAG_SHA=$(git rev-parse "${TAG}^{commit}" 2>/dev/null || echo "")
             if [ "$TAG_SHA" != "$TRIGGER_SHA" ]; then
               echo "Tag $TAG ($TAG_SHA) does not match triggering head ($TRIGGER_SHA) — no new tag minted by this run; skipping release." >&2
@@ -77,8 +88,8 @@ jobs:
             fi
           fi
 
-          # Find the previous v* tag (second in sorted list, or empty if none)
-          PREV_TAG=$(git tag -l 'v*' --sort=-version:refname | grep -v "^${TAG}$" | head -n 1 || true)
+          # Pick the next older version, including when retrying an older tag.
+          PREV_TAG=$(git tag -l 'v*' --sort=-version:refname | awk -v tag="$TAG" '$0 == tag { found = 1; next } found && !printed { print; printed = 1 }')
 
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "ref=refs/tags/$TAG" >> "$GITHUB_OUTPUT"
@@ -116,7 +127,7 @@ jobs:
           path: |
             node_modules
             desktop/node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json', 'desktop/package-lock.json') }}
+          key: ${{ runner.os }}-${{ runner.arch }}-node-modules-${{ hashFiles('package-lock.json', 'desktop/package-lock.json') }}
 
       - name: Install root dependencies
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
@@ -154,6 +165,9 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: web-build
+          # Next.js output and its nested .next directories are hidden.
+          include-hidden-files: true
+          if-no-files-found: error
           path: |
             .next/standalone
             .next/static
@@ -165,17 +179,21 @@ jobs:
     needs: [release-context, prepare-build]
     runs-on: ${{ matrix.os }}
     if: startsWith(needs.release-context.outputs.tag, 'v')
+    env:
+      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: ubuntu-latest
             platform: linux
           - os: windows-latest
             platform: win
-          - os: macos-latest
+          - os: macos-15
             platform: mac-arm64
             mac_arch: arm64
-          - os: macos-latest
+          # Native rebuilds use process.arch, so each Mac needs a matching host.
+          - os: macos-15-intel
             platform: mac-x64
             mac_arch: x64
 
@@ -209,9 +227,9 @@ jobs:
             ~/Library/Caches/electron-builder
             ~/AppData/Local/electron/Cache
             ~/AppData/Local/electron-builder/Cache
-          key: ${{ runner.os }}-electron-${{ hashFiles('desktop/package-lock.json') }}
+          key: ${{ runner.os }}-${{ runner.arch }}-electron-${{ hashFiles('desktop/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-electron-
+            ${{ runner.os }}-${{ runner.arch }}-electron-
 
       - name: Cache node_modules
         uses: actions/cache@v5
@@ -220,7 +238,7 @@ jobs:
           path: |
             node_modules
             desktop/node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json', 'desktop/package-lock.json') }}
+          key: ${{ runner.os }}-${{ runner.arch }}-node-modules-${{ hashFiles('package-lock.json', 'desktop/package-lock.json') }}
 
       - name: Install root dependencies
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
@@ -260,7 +278,8 @@ jobs:
         if: matrix.platform == 'win'
         working-directory: desktop
         shell: bash
-        run: npx electron-builder --win --config.extraMetadata.version="$APP_VERSION" --publish never
+        # The standalone native payload is rebuilt for this x64 runner only.
+        run: npx electron-builder --win nsis portable --x64 --config.extraMetadata.version="$APP_VERSION" --publish never
 
       - name: Build Electron application (macOS)
         if: startsWith(matrix.platform, 'mac')
@@ -296,10 +315,69 @@ jobs:
             exit 1
           fi
 
+      - name: Validate installer inventory
+        working-directory: desktop
+        shell: bash
+        env:
+          PLATFORM: ${{ matrix.platform }}
+          MAC_ARCH: ${{ matrix.mac_arch }}
+        run: |
+          set -euo pipefail
+          require_artifact() {
+            local pattern="$1" file
+            for file in release-upload/$pattern; do
+              if [ -s "$file" ]; then return 0; fi
+            done
+            echo "Missing or empty installer: $pattern" >&2
+            exit 1
+          }
+          case "$PLATFORM" in
+            linux)
+              require_artifact '*.AppImage'
+              require_artifact '*.deb'
+              require_artifact '*.tar.gz'
+              ;;
+            win)
+              require_artifact "MekStation-${APP_VERSION}-win-x64.exe"
+              require_artifact "MekStation-${APP_VERSION}-portable.exe"
+              ;;
+            mac-*)
+              require_artifact "MekStation-${APP_VERSION}-mac-${MAC_ARCH}.dmg"
+              require_artifact "MekStation-${APP_VERSION}-mac-${MAC_ARCH}.zip"
+              ;;
+          esac
+
+      - name: Validate update manifest assets
+        working-directory: desktop
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const { parse } = require('yaml');
+          const directory = 'release-upload';
+          for (const name of fs.readdirSync(directory).filter(name => /^latest.*\.yml$/.test(name))) {
+            const manifest = parse(fs.readFileSync(path.join(directory, name), 'utf8'));
+            const assets = [
+              ...(manifest.files || []).map(file => file.url),
+              manifest.path,
+              ...Object.values(manifest.packages || {}).map(pkg => pkg.path),
+            ].filter(Boolean);
+            if (!assets.length) throw new Error(`${name}: no referenced assets`);
+            for (const asset of assets) {
+              const file = path.join(directory, decodeURIComponent(asset));
+              if (!fs.existsSync(file) || !fs.statSync(file).isFile() || !fs.statSync(file).size) {
+                throw new Error(`${name}: missing or empty asset ${asset}`);
+              }
+            }
+          }
+          NODE
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.platform }}-artifacts
+          if-no-files-found: error
           path: |
             desktop/release-upload/*
           retention-days: 30
@@ -401,7 +479,8 @@ jobs:
           cache-from: type=gha
 
   release:
-    needs: [release-context, build, docker-push]
+    # Container publication must not block the installer release.
+    needs: [release-context, build]
     runs-on: ubuntu-latest
     if: startsWith(needs.release-context.outputs.tag, 'v')
     permissions:
@@ -432,25 +511,25 @@ jobs:
           PREV_TAG="${{ needs.release-context.outputs.prev_tag }}"
 
           # Ensure current tag exists
-          if ! git rev-parse "${CURRENT_TAG}^{tag}" >/dev/null 2>&1; then
+          if ! git rev-parse --verify "refs/tags/${CURRENT_TAG}^{commit}" >/dev/null 2>&1; then
             echo "Tag ${CURRENT_TAG} not found. Ensure it is pushed before releasing." >&2
             exit 1
           fi
 
           # If previous tag is missing or not found, treat as initial release
-          if [ -n "$PREV_TAG" ] && ! git rev-parse "${PREV_TAG}^{tag}" >/dev/null 2>&1; then
+          if [ -n "$PREV_TAG" ] && ! git rev-parse --verify "refs/tags/${PREV_TAG}^{commit}" >/dev/null 2>&1; then
             echo "Previous tag ${PREV_TAG} not found; treating as initial release." >&2
             PREV_TAG=""
           fi
 
           if [ -z "$PREV_TAG" ]; then
             # No previous tag - this is the initial release
-            echo "Initial release - listing all commits up to $CURRENT_TAG"
-            git log "$CURRENT_TAG" --pretty=format:"- %s (%h)" > commits.md
+            echo "Initial release - listing latest 100 commits up to $CURRENT_TAG"
+            git log -100 "$CURRENT_TAG" --pretty=format:"- %s (%h)" > commits.md
           else
-            # Generate commit list between previous and current tag
+            # Bound the commit list to leave room in the release body.
             echo "Generating commits from $PREV_TAG to $CURRENT_TAG"
-            git log "${PREV_TAG}..${CURRENT_TAG}" --pretty=format:"- %s (%h)" > commits.md
+            git log -100 "${PREV_TAG}..${CURRENT_TAG}" --pretty=format:"- %s (%h)" > commits.md
           fi
 
           # Check if we have any commits
@@ -462,31 +541,45 @@ jobs:
         id: notes
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CURRENT_TAG: ${{ needs.release-context.outputs.tag }}
+          PREV_TAG: ${{ needs.release-context.outputs.prev_tag }}
         run: |
           set -euo pipefail
-          gh api repos/${{ github.repository }}/releases/generate-notes \
-            -f tag_name=${{ needs.release-context.outputs.tag }} > notes.json
-          body=$(jq -r '.body' notes.json)
+          args=(-f "tag_name=$CURRENT_TAG")
+          if [ -n "$PREV_TAG" ]; then
+            args+=(-f "previous_tag_name=$PREV_TAG")
+            HISTORY_URL="https://github.com/${{ github.repository }}/compare/${PREV_TAG}...${CURRENT_TAG}"
+          else
+            HISTORY_URL="https://github.com/${{ github.repository }}/commits/${CURRENT_TAG}"
+          fi
+          gh api repos/${{ github.repository }}/releases/generate-notes "${args[@]}" > notes.json
+          # Leave room below GitHub's 125k body limit for the commit appendix.
+          body=$(jq -r '.body[:50000]' notes.json)
           {
             echo "$body"
             echo ""
+            echo "Generated notes are limited to 50,000 characters; full history is linked below."
             echo "---"
-            echo "## Commits in this release"
+            echo "Full history: $HISTORY_URL"
+            echo ""
+            echo "## Latest 100 commits in this release"
             echo ""
             cat commits.md
             echo ""
             echo "---"
             echo "## Docker images"
+            echo "Built and published separately; check the Docker jobs for this tag before pulling."
             echo "- Docker Hub: https://hub.docker.com/r/anaklumos/mekstation"
             echo "- GHCR: https://ghcr.io/${{ github.repository_owner }}/mekstation"
           } > release-notes.md
           echo "body_path=release-notes.md" >> "$GITHUB_OUTPUT"
 
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ needs.release-context.outputs.tag }}
           files: artifacts/**/*
+          fail_on_unmatched_files: true
           body_path: ${{ steps.notes.outputs.body_path }}
           draft: false
           prerelease: false
