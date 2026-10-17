@@ -141,6 +141,27 @@ jobs:
       - name: Check formatting
         run: npm run format:check
 
+  validate-roadmap:
+    name: Validate Roadmap Ledger
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Validate roadmap ledger
+        run: node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs
+
+      - name: Validate ledger validator tests
+        run: node --test openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs
   typecheck:
     name: Type Check
     needs: [detect-changes, install-deps]
@@ -805,6 +826,7 @@ jobs:
       [
         lint,
         format-check,
+        validate-roadmap,
         typecheck,
         unit-test-shards,
         perf-smoke-tests,
