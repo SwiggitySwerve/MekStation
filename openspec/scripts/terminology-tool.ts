@@ -1,4 +1,4 @@
-#!/usr/bin/env npx ts-node
+#!/usr/bin/env npx tsx
 /**
  * Unified OpenSpec Terminology Tool
  *
@@ -13,9 +13,9 @@
  * - Git integration for checking only changed files
  *
  * Usage:
- *   npx ts-node openspec/scripts/terminology-tool.ts validate [options]
- *   npx ts-node openspec/scripts/terminology-tool.ts fix [options]
- *   npx ts-node openspec/scripts/terminology-tool.ts report [options]
+ *   npx tsx openspec/scripts/terminology-tool.ts validate [options]
+ *   npx tsx openspec/scripts/terminology-tool.ts fix [options]
+ *   npx tsx openspec/scripts/terminology-tool.ts report [options]
  *
  * Options:
  *   --fix           Apply fixes automatically
