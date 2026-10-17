@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "unit": "TS7S4A",
+  "stage": "admission",
+  "baseline": "7d6519657a25bb919f335a30a549d7a941f9f6c7",
+  "frozenAt": "2026-10-17T06:37:50.281Z",
+  "contributor": {
+    "provider": "openai",
+    "model": "gpt-6.1-sol",
+    "task": "TS7S4A implementation sub-agent"
+  },
+  "authority": "User explicitly authorized isolated preparation before release; closure #2188 released TS7S4A to planned, and the user instructed admission/rebase on 7d651965. Preparation commit was rebased without conflict before admission.",
+  "frozenFiles": [
+    {
+      "path": "package.json",
+      "exists": true,
+      "sha256": "81b0a5356f7129b7bf9f1afcbe5cda763a4a9197598e671070d884e1918357b9"
+    },
+    {
+      "path": ".github/workflows/pr-checks.yml",
+      "exists": true,
+      "sha256": "1412dac33bf98fcac7df40dc0baf19b71f2de742217f2cf782a046b4c99f76e8"
+    },
+    {
+      "path": "scripts/qc/openspec-ci-contracts.mjs",
+      "exists": true,
+      "sha256": "ae81b758ae37fe0a796cd77c5e5a17a5fac0bd6d1a8b488b4d5955fca1234a99"
+    },
+    {
+      "path": "scripts/__tests__/precommit-no-build.test.ts",
+      "exists": true,
+      "sha256": "c08f07ed1d3e5dc14992444972ed0d55988df0d67ca48d03148c84092bb2bffb"
+    },
+    {
+      "path": "scripts/metrics/validate-refactoring-metrics.js",
+      "exists": true,
+      "sha256": "6eaf395288cfed35594bcf36c76afdee291f6cb238a2adfca61c3ac749a17148"
+    },
+    {
+      "path": ".husky/pre-commit",
+      "exists": true,
+      "sha256": "eb2ff9415e9b404d3eeea872f78d9d6153c6d92c6013824d820ab436096730a2"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "exists": true,
+      "sha256": "69e3f89ff14bb3f1bf1f989c23c92473f3cae449218af0e0fa36c251fe697137"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4a-admission-20261017.json",
+      "exists": false,
+      "sha256": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4a-red-20261017.json",
+      "exists": false,
+      "sha256": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4a-local-20261017.json",
+      "exists": false,
+      "sha256": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4a-admission-review-20261017.md",
+      "exists": false,
+      "sha256": null
+    }
+  ],
+  "proofOnlyMutation": {
+    "path": "scripts/validate-bv.ts",
+    "purpose": "Required predecessor scripts-only error mutant through the routed lint-staged gate; restore exact original bytes in finally; no retained diff."
+  },
+  "caps": {
+    "files": 15,
+    "productAddedLines": 500
+  },
+  "census": "10 retained files; 11 including reserved independent review slot; 12 conservatively including the temporary restored proof-only mutation path. Six implementation leaves add 9 lines. Final lifecycle additions measured before publication.",
+  "predecessors": {
+    "TS7S3": {
+      "state": "main-verified",
+      "mergeSha": "9aea87cdccc7252b8c94d94b3ddad6ede0dbda93",
+      "mainProof": {
+        "path": "evidence/ts7s3-mainproof-20261017.json",
+        "mergeCommit": "9aea87cdccc7252b8c94d94b3ddad6ede0dbda93",
+        "verdict": "PASS",
+        "runtime": "Source/Main checks: 7 passed (fresh npm ci root and desktop exit 0; root and desktop tsc --version 6.0.3; npm run typecheck exit 0 with both projects; desktop npm run type-check exit 0 with both projects; desktop npm test 5 suites / 57 tests passed; no ignoreDeprecations in any tsconfig*.json; validator PASSED, openspec validate --all --strict 230 passed and qc:openspec-ci:validate errors=0; 0 failed)"
+      },
+      "closure": "7d6519657a25bb919f335a30a549d7a941f9f6c7"
+    },
+    "TS7S2OD": "main-verified; both compiler projects remain unchanged"
+  },
+  "carryForwards": {
+    "sources": [
+      "evidence/ts7s2od-review-20261017.json#successorNotes.TS7S4A",
+      "evidence/ts7s3-review-20261017.json#successorNotes.TS7S4A"
+    ],
+    "resolution": "Keep BOTH current TS6 compiler invocations unchanged; retain -p scripts/tsconfig.json; route CI, lint-staged and metrics through npm run typecheck; retain bash -c; repoint exact pins; repeat scripts-only error mutant. TS7 entry paths and fallback guard belong to TS7S4B."
+  },
+  "overlap": "No other unit is in flight in the admission ledger.",
+  "proofClass": "light",
+  "proofClassReason": "Gate routing and exact command pins only; no dependency declarations or runtime changes. User explicitly requested light proofs and CI shards as stable proof, with no local test:stable/build/Storybook/desktop suite.",
+  "proofPlacement": "Local typecheck, actual staged TS lint-staged negative/restored proof, isolated contract suites, lint/format/OpenSpec/CI and roadmap validators. Exact-head CI stable shards/a11y remain pending until PR creation.",
+  "machineIdleOverride": {
+    "pid": 47516,
+    "authority": "User: idle server.js on port 8300 is root-allowed; never stop other processes",
+    "command": "node scripts/qc/machine-idle.mjs --own-pid 47516",
+    "result": "MACHINE_IDLE"
+  },
+  "reviewSlot": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4a-admission-review-20261017.md",
+  "restriction": "Only TS7S4A authentic lifecycle fields and this unit evidence paths; no task ticks, predecessor/successor edits, or scope expansion."
+}

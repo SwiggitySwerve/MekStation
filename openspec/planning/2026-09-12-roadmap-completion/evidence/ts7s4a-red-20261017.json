@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "unit": "TS7S4A",
+  "stage": "red",
+  "baseline": "7d6519657a25bb919f335a30a549d7a941f9f6c7",
+  "commandPinRed": {
+    "command": "npx jest --selectProjects unit --runInBand --no-coverage --runTestsByPath scripts/__tests__/precommit-no-build.test.ts",
+    "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4a-gates-20261017",
+    "started": "2026-10-17T06:14:19.179Z",
+    "ended": "2026-10-17T06:15:09.585Z",
+    "exit": 1,
+    "stdoutPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s4a-20261017\\red-precommit.stdout.txt",
+    "stdoutSha256": "ad5041414338223be9b2b2b5af0d92856a0f6b2740cbfcdf972e95777907fbc6",
+    "stderrPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s4a-20261017\\red-precommit.stderr.txt",
+    "stderrSha256": "6160943efc37eb2169bc27d56ea6cc322b5f6cb8d2217ac5da096fc324a3664a"
+  },
+  "commandPinExpected": "The updated exact TSC_ENTRY assertion failed on the former direct-compiler lint-staged command before routing changed; 1 failed / 1 passed.",
+  "routedScriptsOnlyMutant": {
+    "command": "npx lint-staged --debug --concurrent false",
+    "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4a-gates-20261017",
+    "started": "2026-10-17T06:38:49.481Z",
+    "ended": "2026-10-17T06:39:01.617Z",
+    "exit": 1,
+    "stdoutPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s4a-20261017\\routed-mutant-ts6.stdout.txt",
+    "stdoutSha256": "6dbfbd101ec199472296bf1b3abcc999e0294c86de2dfc8c61210900cdd443d9",
+    "stderrPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s4a-20261017\\routed-mutant-ts6.stderr.txt",
+    "stderrSha256": "becfa8a59dfd6391ceafe25281e55a1af1b729f084ec4a310be5eeaf1f52d903"
+  },
+  "diagnostic": "scripts/validate-bv.ts(448,7): error TS2322: Type 'string' is not assignable to type 'number'.",
+  "mutation": "Temporary const ts7s4aFailureProbe: number = 'deliberate scripts-only gate error' in scripts/validate-bv.ts; the root project finished and the scoped scripts project rejected it through bash -c 'npm run typecheck' run by actual lint-staged.",
+  "restoration": [
+    {
+      "file": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4a-gates-20261017\\scripts\\validate-bv.ts",
+      "before": "feb25e4357be586004508e87771c5206ddadb0df1400259b2571da7b72aab65f",
+      "after": "feb25e4357be586004508e87771c5206ddadb0df1400259b2571da7b72aab65f",
+      "equal": true
+    },
+    {
+      "file": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4a-gates-20261017\\scripts\\__tests__\\precommit-no-build.test.ts",
+      "before": "af641780ad0b7a9be04919aaa07f51d24f3bb702f8a16e8a64f6551cd8b0f6ec",
+      "after": "af641780ad0b7a9be04919aaa07f51d24f3bb702f8a16e8a64f6551cd8b0f6ec",
+      "equal": true
+    }
+  ],
+  "restoredGate": {
+    "command": "npx lint-staged --debug --concurrent false",
+    "cwd": "E:\\Projects\\Personal\\MekStation-wt\\ts7s4a-gates-20261017",
+    "started": "2026-10-17T06:39:01.696Z",
+    "ended": "2026-10-17T06:39:13.385Z",
+    "exit": 0,
+    "stdoutPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s4a-20261017\\lint-staged-ts6.stdout.txt",
+    "stdoutSha256": "23df3f4f4a9848f15f33e62ab0b0bac1e4f2bda2745d2e57d1d98fd3aff3dc7e",
+    "stderrPath": "C:\\Users\\wroll\\AppData\\Local\\Temp\\ts7s4a-20261017\\lint-staged-ts6.stderr.txt",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "limitation": "lint-staged emitted a missing-wmic process-cleanup diagnostic after the deliberate compiler failure; the expected scripts TS2322 was present and both probe files were restored byte-for-byte. The clean rerun exited 0 without that diagnostic."
+}
