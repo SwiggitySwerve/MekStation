@@ -1,0 +1,264 @@
+{
+  "unit": "P2CG1B",
+  "stage": "review",
+  "recordedAt": "2026-10-17T17:33:10.000Z",
+  "head": "c0c97c135004532412c3c6a0b41124ce51761941",
+  "reviewedHead": "c0c97c135004532412c3c6a0b41124ce51761941",
+  "reviewerModel": "claude-fable-5-1",
+  "implementerModel": "claude-opus-5-5",
+  "verdict": "APPROVE-WITH-NOTES",
+  "outputPath": "evidence/p2cg1b-source-fable-review-20261017.txt",
+  "outputSha256": "bd59452be0b247b72c4fe38846d0b040fed76534377d21d2fc56178a885ee4c0",
+  "reviews": [
+    {
+      "round": 1,
+      "path": "evidence/p2cg1b-source-fable-review-20261017.txt",
+      "sha256": "bd59452be0b247b72c4fe38846d0b040fed76534377d21d2fc56178a885ee4c0",
+      "bytes": 33701,
+      "originalPath": "docs/audits/2026-10-17-p2cg1b-review.md",
+      "reviewedHead": "c0c97c135004532412c3c6a0b41124ce51761941",
+      "verdict": "APPROVE-WITH-NOTES"
+    }
+  ],
+  "reviewerSubstitution": "The independent reviewer was Claude Fable 5.1 at high reasoning effort, substituting for GPT Astra during a GPT quota outage. The ruling comment discloses the substitution. The reviewer is not the author (Claude Opus 5.5).",
+  "reviewHistory": "One round on the exact merged head c0c97c13 by an independent Fable 5.1 reviewer: APPROVE-WITH-NOTES with no blockers and no majors, four minors (M1-M4) and notes N1-N5 in section 8; none requires a change to the head.",
+  "verdictText": "**APPROVE-WITH-NOTES.** No blockers, no majors. Every registered behaviour is implemented, red-first proof is genuine, the census fits, the eight leaves and the unit's own lifecycle fields are the only changes, and 11 of 12 behaviour mutants are caught by the registered tests. Four minors (M1-M4) and notes N1-N5; none requires a change to this head. Per-class findings are in section 5; the carry-forwards for P2CG1C are in section 7.",
+  "reviewClasses": [
+    "authority",
+    "privacy",
+    "replay",
+    "idempotency",
+    "concurrency"
+  ],
+  "reviewClassEvidence": {
+    "note": "The unit's five sensitive review classes, each with the reviewer's section 5 finding verbatim. All five pass; concurrency passes with carry-forward CF-C5.",
+    "authority": {
+      "verdict": "PASS",
+      "finding": "**Authority.** Controls are accepted only on server-side operations (`applyHostIntentWithControls`, `appendControlledCommandBatch`, `appendWithExtension`'s third argument). The guest wire door `handleIntentLocked` and the socket binder are unchanged; no wire schema, Protocol type or `server.js` composition changed. The guard runs on the writer's own handle inside the writer-owned IMMEDIATE transaction after the recorded-id check and before `append()`, so a D-side `CampaignLaunchView.revalidate(db, preparation)`-style recheck would be genuinely pre-write under the file write lock, not a preflight. A store that cannot run a guard is refused typed before any event (both the plain batch store and the per-event fallback). An uncontrolled door can never observe `refused`; if it did, `throwCommitFailure` throws (fail closed, never a false success). PASS."
+    },
+    "privacy": {
+      "verdict": "PASS",
+      "finding": "**Privacy.** `toJournalBatch` and the command identity do not see the controls: the guarded and unguarded fixtures produce byte-identical `payload_json`/`event_digest` rows and identical `command_digest`, equal to `canonicalizeCommandIdentityV1(...)`; payload rows contain no `guard|onCommitted|afterRelease`. `ICampaignCommittedBatch` is a frozen plain identity (ids, digest, positions, count), carries no payload, is never a wire message and never reveals anything a client cannot already derive from its own command. `committed-unsettled.events` are the same sequenced server events the `committed` arm already returned; `commit-uncertain.error` and the `errors` list stay on the server side (resultOfDoor rethrows them on uncontrolled doors exactly as the baseline threw). `envelopeOf` narrowing and the private envelope path are untouched. PASS."
+    },
+    "replay": {
+      "verdict": "PASS",
+      "finding": "**Replay.** Journal bytes are independent of controls, so replay/rebuild from the journal is unaffected; the divergence path still rebuilds from the durable log and keeps the committed batch; the recovered receipt survives file reopen in both leaves; the drift fixture (`armRemovalApplyDrift`) is additive behind a flag that no pre-existing case sets and the five pre-existing pipeline cases pass unchanged. An uncertain commit is resolved only by readback (`getCommandReceipt` finds the committed removal in the injected post-COMMIT-throw case and finds nothing in the rollback case). PASS."
+    },
+    "idempotency": {
+      "verdict": "PASS",
+      "finding": "**Idempotency.** Branch-before-duplicate and prior-receipt order is preserved on both store operations; an exact retry answers from the original receipt with one journal effect, no second application, broadcast, guard run or notification, and the next door still runs (host and store tests). The in-transaction `recorded` check additionally protects the pre-check/transaction window (my probe). The sequence-fallback `commandId` (`campaign-cmd:<campaign>:<base>`) still never dedupes by design, unchanged; a `commit-uncertain` on such a command carries that generated id, which the journal does record, so readback remains possible. PASS."
+    },
+    "concurrency": {
+      "verdict": "PASS with carry-forward CF-C5",
+      "finding": "**Concurrency.** `runExclusive`/`lockDepth` single-writer discipline is intact: `commitEvents` still throws without the lock; `applyHostIntentWithControls` takes the same lock; the guard and `afterCommit` run inside the IMMEDIATE transaction; `onCommitted` runs after the native COMMIT and before mapping, verification and publication (`owner-in-transaction:false`, independent-connection visibility); `afterRelease` runs after the lock chain has moved on (lockDepth 0). Ordering of duplicate/auth/validation is unchanged in both doors. The `AggregateError` and publish-to-all changes do not mask errors: a single failure still throws/returns the same error object, several are all retained in order, and every subscriber still receives every event. One sharp edge for successors: `afterRelease` is scheduled by promise continuation, so the next queued door may begin (up to its first await) before `afterRelease` runs; nothing in B depends on that, but D's reservation release must not assume ordering against the next door's guard (CF-C5). PASS with that carry-forward."
+    }
+  },
+  "ledgerDiscipline": {
+    "red": "PASS, re-run by me at 83964556: 45 tests, **22 passed / 23 failed**, exit 1; all 23 P2CG1B cases failed, 0 pre-existing cases failed. Failure classes: 3x `expect(...).toThrow` (borrowed rollback / no-transaction / validation), 1x `toMatchObject` (owning wrapper resolved instead of refusing: the genuine behavioural red), and 19x missing-member TypeErrors (`appendInBorrowedTransaction`, `appendControlledCommandBatch`, `applyHostIntentWithControls`). Same shape as the red receipt. |",
+    "green": "PASS, re-run: 2 suites, **45/45**, 23 of them P2CG1B cases. |",
+    "censusFiles": "PASS. `git diff --numstat --no-renames 3826f7cb c0c97c13` lists exactly 12 paths: the 8 restriction leaves (equal to `roadmap.json` `ownershipPathsAmended20261009P2C.restrictions.P2CG1B`), `units.json`, and the admission/red/local receipts. Plus the reserved, author-unwritten `p2cg1b-admission-review-20261017.md` slot = **13 of 15**. |",
+    "censusLines": "PASS. Non-exempt additions: units.json 16 + ICampaignEventStore 52 + JournalCampaignEventStore 104 + writer 40 + doors 45 + host 96 + batch commit 103 = **456 of 500** (no deletion credit; tests and evidence exempt). Matches the local receipt line for line. |"
+  },
+  "reviewReruns": "On c0c97c13 under Node v22.22.0, with the red commit 83964556 (product bytes equal to the baseline) in a second throwaway worktree, the reviewer re-ran: the two registered leaves (45/45 at head; 22 passed and 23 failed at red, all failures P2CG1B cases), the Task 14 selector (4 suites, 96/96), the exact 35 A1/A2 suites (369/369), --findRelatedTests over the six product leaves (340 suites, 2706 passed, 2 skipped, 0 failed), typecheck, lint (87 against 86), format:check, lint:units, madge (171 against 171, identical sets), the validator plain, --git and --next (U25), the validator tests (86/86) and openspec validate --all --strict (230 passed). It also ran 12 single-site mutation probes against the registered suites.",
+  "mutationNote": "11 of 12 caught, each on the case aimed at it. M5 survived because `JournalCampaignEventStore.appendControlledCommandBatch` answers an exact retry from `getCommandReceipt` before the journal is reached, so the in-transaction `recorded` check is a second line of defence the registered tests never exercise. I wrote a throwaway probe (deleted afterwards) that forces the out-of-transaction pre-check to miss a recorded command (`getCommandReceipt` mocked to null once, as a second writer landing in the window would cause): on the head the retry answers `committed` from the recorded batch with **guardCalls 0, notified 0, batches 1**; under M5 the guard runs once. So the head's code is correct for the race window and the surviving mutant marks a coverage gap, not a defect (N2).",
+  "staticBoundary": "`git grep` outside the six leaves and their two tests finds no caller of `applyHostIntentWithControls`, `appendControlledCommandBatch`, `appendInBorrowedTransaction`, `afterRelease`, `ICampaignAppendControls`, `ICampaignCommitControls` or `CAMPAIGN_APPEND_CONTROLS_UNSUPPORTED`. `server.js` has no reference to the host/store seams; `src/types` (Protocol and campaign wire types) unchanged; `package-lock.json` unchanged. The production guest path (`bindCampaignSyncConnection.ts:910` -> `applyHostIntent`) and the GM arbiter (`CampaignGmArbiter.ts:453`) still call the uncontrolled door. |",
+  "relatedTests": "340 suites, 2706 passed, 2 skipped (pre-existing), 0 failed, 224 s |",
+  "stableSuiteNote": "The author did not run npm run test:stable; the local receipt claims none. The reviewer did not run it either (section 9, quoted under stableAssessment). The PR CI unit shards on the head stand in for it.",
+  "stableAssessment": "`npm run test:stable` was not re-run; the PR's CI shards (Unit Tests 1/6..6/6, all success) stand in for it as they did for A2.",
+  "ownerFileNote": "**M1 (docs, review receipt):** record \"JournalCampaignEventStore.ts trips eslint(max-lines) at 446 counted lines (new); SQLiteEventJournalWriter.ts stays warned, 435 -> 445; CampaignMatchHost.ts 699 physical, under 400 counted; repo-wide 87 warnings, 0 errors (base 86).\"",
+  "lintNote": "0 errors, 87 / 86 warnings. Warning-set diff (rule + message + file): exactly one added `eslint(max-lines)` on `JournalCampaignEventStore.ts` (446 counted); the writer's existing warning moves 435 -> 445; nothing else changes. `CampaignMatchHost.ts` stays under 400 counted at 699 physical. |",
+  "madgeNote": "908 files, 171 / 171 chains, sorted chain sets identical (no module added) |",
+  "judgments": [
+    "**commit-uncertain leaves the live projection untouched; readback is the owner's.** Correct. The projection was never moved before the append (scratch `expected` only), so leaving it is the baseline behaviour; a speculative re-read inside the door would have changed the existing `campaignHostSerialization` poisoned-store case, as the author found. The arm carries `commandId` and the original error, which is exactly what readback needs; `getCommandReceipt` resolves both directions in the tests. Note that the classification is deliberately conservative: a *known* pre-write throw (guard throw, thenable guard, stale branch, saved-record rewrite throw) is also reported as `commit-uncertain`, so the only \"nothing was written\" signal with certainty is the typed `refused` arm. That is fail-safe (readback finds nothing and the command may be retried under the same identity), but D's guard should return refusals rather than throw if it wants the precise arm (CF-C2). Accept.",
+    "**Cleanup failure classification.** Accept. `committed` + cleanup failure -> `committed-unsettled` with the intent's identity (null only when none exists) is the honest reading: the batch is durable, something after it failed. Two sharp edges, neither blocking: (a) a `lost-race`, `refused` or `commit-uncertain` outcome plus a cleanup failure is converted into a thrown `AggregateError` whose `errors` holds only the cleanup error and whose `cause` holds the outcome, so the primary uncertain error lives one level down and an answerable lost race becomes a throw; (b) D must read `cause` to recover the outcome. Record as M3 (documentary) and CF-C4.",
+    "**Behaviour changes (AggregateError; publish to all; divergence error kept alongside rebuild error; openLocked no longer ignores the outcome).** Accept. The single-failure case throws the identical object, so no existing `instanceof` consumer changes (grep finds no non-test `instanceof CampaignProjectionDivergenceError` or `instanceof AggregateError` anyway); the 340 related suites and 35 predecessor suites pass; delivering to every subscriber before rethrowing is strictly more faithful to \"every committed event reaches every subscriber\" and the error is still raised. `openLocked`'s new throw on the failure arms is equivalent to the baseline, where the same errors propagated out of `commitCampaignEventBatch` before the outcome was ever built.",
+    "**max-lines warning on JournalCampaignEventStore.ts (446).** Accept, same ruling as A2's 476: the rule is `warn`, `npm run lint` passes, and removing it would need a new module outside the eight-leaf restriction. The writer's existing warning moving 435 -> 445 is the expected cost of the shared body plus the two new operations. Record the measured numbers in the review receipt (M1).",
+    "**Refusal on uncontrolled doors throws.** Correct and fail closed. By construction no uncontrolled path produces `refused` (`commitEvents` without controls never returns it; the uncontrolled adapter wrapper throws, which surfaces as `commit-uncertain` and is rethrown). Keeping the throw rather than a silent mapping is the right choice.",
+    "**No rebase over #2212.** Accept. The admitted baseline is 3826f7cb; `merge-tree` against the current `origin/main` is conflict-free; none of the 14 files changed on main since the baseline (fog-history projection, tactical rail, AI occupancy, victory page) touches a leaf, a campaign sync/journal module, `units.json` or the proof selectors. The exact-main proof must still run on the actual merge commit, as always.",
+    "**32 checks.** Verified by name on c0c97c13: 32 check runs, all success, zero commit statuses; the set is A2's 31 plus `Validate Roadmap Ledger`, which `pr-checks.yml` gained after A2 (this closes the reconciliation A2's M3 asked for: the A1 \"32\" was a table figure; a real 32nd check only exists now). GitHub enforces only `Lint and Test` (the `if: always()` aggregator; a completed-but-failed state is a failure) plus conversation resolution and a zero-approval review requirement. The guarded merge should require all 32 names `success` on the merge ref's head."
+  ],
+  "successorNotes": {
+    "P2CG1C": {
+      "intro": "## 7. Carry-forwards for P2CG1C (exact wording)",
+      "carryForwards": [
+        {
+          "id": "CF-C1",
+          "concern": "borrowed seam contract",
+          "wording": "**CF-C1 (borrowed seam contract).** `SQLiteEventJournalWriter.appendInBorrowedTransaction(raw)` is synchronous, requires `db.inTransaction === true` on the writer's own handle, shares `validatedIdentity` with the owning wrappers, and never begins, commits, releases a savepoint or notifies. C's ordered \"campaign C IMMEDIATE then match M IMMEDIATE\" must open the C transaction itself on the journal's handle and call this operation inside it; only that outer owner may announce the C commit, after its own COMMIT returns. Do not use `appendWithExtension`/`appendPreparedWithExtension` for the borrowed role: both own an IMMEDIATE transaction and, when nested, silently become a SAVEPOINT (unchanged baseline behaviour when no `onCommitted` is requested; refused before writing when one is)."
+        },
+        {
+          "id": "CF-C2",
+          "concern": "refusal versus throw",
+          "wording": "**CF-C2 (refusal versus throw).** The only \"nothing written with certainty\" signal is the typed `refused` arm; any throw from the append (including a throwing guard, a thenable guard result, a stale branch or a saved-record rewrite failure) is classified `commit-uncertain {commandId, error}` and must be resolved by `getCommandReceipt` readback, never by compensation or a fresh command. A guard that wants the precise arm must return `{kind:'refused', reason}` rather than throw."
+        },
+        {
+          "id": "CF-C3",
+          "concern": "capability fail-closed",
+          "wording": "**CF-C3 (capability fail-closed).** Controls are honoured only by `JournalCampaignEventStore` over a `SQLiteEventJournalWriter`; `InMemoryCampaignEventStore`, a non-SQLite journal, and any store exposing `appendCommandBatch` without `appendControlledCommandBatch` are refused with `append-controls-unsupported` before any write, at both the adapter and the host (`commitEvents`, including the per-event fallback). C and D must not add a second capability flag or a boolean switch; the presence of `appendControlledCommandBatch` is the capability."
+        },
+        {
+          "id": "CF-C4",
+          "concern": "outcome consumption",
+          "wording": "**CF-C4 (outcome consumption).** `applyHostIntentWithControls` answers `CampaignDoorOutcome = answered | committed | lost-race | refused | commit-uncertain | committed-unsettled`, and throws only for a door-level throw or a cleanup failure on a non-committed outcome, in which case the thrown `AggregateError.cause` is the outcome and `errors[0]` is the cleanup error (an identity conflict is mapped to `answered` inside the door). Consumers must switch exhaustively (typecheck enforces it through `throwCommitFailure`), must treat `committed-unsettled` as durable-plus-unfinished (errors retained in order: notification, divergence, rebuild, publishes, cleanup), and must never map any failure arm to a public success or a zero-append answer."
+        },
+        {
+          "id": "CF-C5",
+          "concern": "cleanup ordering",
+          "wording": "**CF-C5 (cleanup ordering).** `afterRelease` runs once per door after the single-writer lock chain has advanced (lockDepth 0) and after `onCommitted` and publication, but it is a promise continuation: the next queued door may already have started (up to its first await) when it runs. A reservation release placed in `afterRelease` must therefore be idempotent and observable by readback, and the next door's guard must tolerate a not-yet-released prior reservation by refusing (fail closed) rather than assuming order."
+        },
+        {
+          "id": "CF-C6",
+          "concern": "writer-level onCommitted",
+          "wording": "**CF-C6 (writer-level onCommitted).** At the writer, `appendWithExtension`'s `onCommitted` is called un-wrapped after COMMIT; a throw there rejects the promise although the batch is durable. The adapter wraps it into `notificationError`; any new direct writer caller must either not throw from `onCommitted` or wrap it the same way, and must not read a rejection as \"nothing committed\"."
+        },
+        {
+          "id": "CF-C7",
+          "concern": "trust boundary",
+          "wording": "**CF-C7 (trust boundary).** Controls (`guard`, `onCommitted`, `afterRelease`) are server-only operation arguments; `toJournalBatch`, `canonicalizeCommandIdentityV1`, the private envelope and every Protocol/wire type are unchanged and must stay so. The identity-equality fixture (guarded versus plain journal rows and digests) in `JournalCampaignEventStore.test.ts` is the regression the successors should keep green rather than re-derive."
+        },
+        {
+          "id": "CF-C8",
+          "concern": "production inertness, re-verify at C's baseline",
+          "wording": "**CF-C8 (production inertness, re-verify at C's baseline).** At c0c97c13 no production module calls the new operations, `server.js` composes no guard, and the guest wire door and GM arbiter still use the uncontrolled `applyHostIntent`. C's admission must re-run this grep at its own baseline; the first production caller of a controlled door belongs to D/H, not C."
+        },
+        {
+          "id": "CF-C9",
+          "concern": "lint and cycles",
+          "wording": "**CF-C9 (lint and cycles).** Head figures: writer 531 physical / 445 counted (warned), adapter 660 / 446 (newly warned), host 699 / under 400, batch commit 309; repo-wide 87 warnings, 0 errors; madge 171 chains from the six leaves, unchanged sets. C adds files, so expect the madge count to move only by C's own modules; record before/after."
+        },
+        {
+          "id": "CF-C10",
+          "concern": "required checks",
+          "wording": "**CF-C10 (required checks).** 32 `pr-checks.yml` job names (A2's 31 plus `Validate Roadmap Ledger`), verified by name on the merge ref's head; GitHub enforces only `Lint and Test` plus conversation resolution and a zero-approval review gate."
+        }
+      ],
+      "minors": [
+        {
+          "id": "M1",
+          "wording": "**M1 (docs, review receipt):** record \"JournalCampaignEventStore.ts trips eslint(max-lines) at 446 counted lines (new); SQLiteEventJournalWriter.ts stays warned, 435 -> 445; CampaignMatchHost.ts 699 physical, under 400 counted; repo-wide 87 warnings, 0 errors (base 86).\""
+        },
+        {
+          "id": "M2",
+          "wording": "**M2 (docs, optional):** the refusal message `Commit notification needs an outer transaction` reads backwards (the request is refused *because* an outer transaction is open, so the wrapper would be a savepoint). The test matches `/outer transaction/`, so a later wording such as `Commit notification cannot run inside an outer transaction` would stay green. Not this PR."
+        },
+        {
+          "id": "M3",
+          "wording": "**M3 (docs, successor contract):** the cleanup-failure fold for non-committed outcomes places the primary outcome in `AggregateError.cause` and only the cleanup error in `errors`; document that for D (CF-C4) rather than change the head."
+        },
+        {
+          "id": "M4",
+          "wording": "**M4 (test, successor):** add a case that exercises the in-transaction `recorded` check with a stale pre-check (the race window), so that mutant M5 is caught; it belongs in `JournalCampaignEventStore.test.ts` when a successor already owns that leaf."
+        }
+      ],
+      "notes": [
+        {
+          "id": "N1",
+          "wording": "**N1:** without an `onCommitted`, `appendWithExtension` nested inside a caller transaction still degrades to a savepoint exactly as on the baseline; this preserves the existing 2-argument callers and is why the refusal is conditional. A guard-only controlled append nested that way would run its guard inside the savepoint and report `committed` without durability; no production caller can reach that today (JS is single-threaded and better-sqlite3 is synchronous, so a door never runs with the journal handle mid-transaction), and the `onCommitted` request D will supply forces the refusal."
+        },
+        {
+          "id": "N2",
+          "wording": "**N2:** mutant M5 survived at the registered suites only because the store's out-of-transaction receipt pre-check shadows the in-transaction `recorded` check; my probe confirms the head's code is correct inside the window (guard 0, notify 0, one batch). Coverage gap, not a defect."
+        },
+        {
+          "id": "N3",
+          "wording": "**N3:** the mock in `CampaignMatchHost.pipeline.test.ts` gains the `armRemovalApplyDrift` branch; it is the only edit to an existing line in either test leaf and no pre-existing case sets it; the five pre-existing pipeline cases pass at both red and green."
+        },
+        {
+          "id": "N4",
+          "wording": "**N4:** `commit-uncertain` for the sequence-fallback identity carries the generated `campaign-cmd:<campaign>:<base>` id, which the journal records, so readback works; `committed-unsettled.commandId` from `applyHostIntentWithControls` uses the intent identity and is null only when the intent offers none."
+        },
+        {
+          "id": "N5",
+          "wording": "**N5:** `validate-roadmap --next` prints U25 at this head; advisory only, the validator does not model the one-lane rule. Not a finding."
+        }
+      ],
+      "requiredChecks": {
+        "wording": "**32 checks.** Verified by name on c0c97c13: 32 check runs, all success, zero commit statuses; the set is A2's 31 plus `Validate Roadmap Ledger`, which `pr-checks.yml` gained after A2 (this closes the reconciliation A2's M3 asked for: the A1 \"32\" was a table figure; a real 32nd check only exists now). GitHub enforces only `Lint and Test` (the `if: always()` aggregator; a completed-but-failed state is a failure) plus conversation resolution and a zero-approval review requirement. The guarded merge should require all 32 names `success` on the merge ref's head.",
+        "checkRunsRow": "32 check runs, all `completed/success`, 0 commit statuses: the 31 A2 names plus `Validate Roadmap Ledger` (added to `pr-checks.yml` since A2, +23 lines). Branch protection: `required_status_checks.contexts = [\"Lint and Test\"]` (strict false), conversation resolution required, pull-request reviews required with 0 approvals (dismiss stale). |",
+        "jobNames": [
+          "Detect Changes",
+          "Install Dependencies",
+          "Lint",
+          "Format Check",
+          "Validate Roadmap Ledger",
+          "Type Check",
+          "Unit Tests (1/6)",
+          "Unit Tests (2/6)",
+          "Unit Tests (3/6)",
+          "Unit Tests (4/6)",
+          "Unit Tests (5/6)",
+          "Unit Tests (6/6)",
+          "Perf Smoke Tests",
+          "Statistical Proof PR",
+          "Perf Budget PR",
+          "Coverage Floor",
+          "A11y Tests",
+          "Validate BV Parity",
+          "Validate Combat Suite",
+          "Build Storybook",
+          "Schema Bridge",
+          "Determinism Audit",
+          "E2E Smoke",
+          "Seam Anchors",
+          "Customizer Regressions",
+          "Desktop Type Check",
+          "Desktop Tests",
+          "Lint and Test",
+          "Prepare Build Artifacts",
+          "Build Test / linux",
+          "Build Test / mac",
+          "Build Test / win"
+        ],
+        "source": ".github/workflows/pr-checks.yml (blob a82fe0f72c613ed0f5fa87078c568ffc69f0aff0, identical at baseline 3826f7cb, head c0c97c13, main parent 1a22b98f and merge ce5fd2ae). The 32 names are derived from its jobs and matrices and match the 32 check-run names on c0c97c13 one to one: P2CG1A2's 31 plus Validate Roadmap Ledger."
+      },
+      "openNotesForAdmission": [
+        {
+          "id": "C-OPEN-1",
+          "concern": "scope of CF-C1 for C",
+          "note": "CF-C1 tells C to open the campaign C transaction itself on the journal's handle and to use appendInBorrowedTransaction for any campaign append inside it. C's registered behaviour commits only the match row while C is held, and C's seven leaves include no campaign sync or journal module. C's admission must state whether C appends any campaign batch inside C. If it does, the append uses the borrowed operation as CF-C1 says; if that needs a leaf outside the seven, it needs a registration correction first."
+        },
+        {
+          "id": "C-OPEN-2",
+          "concern": "placement of review M4",
+          "note": "Review M4's race-window case belongs in src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts, which is not a P2CG1C leaf. It waits for a later successor that owns that leaf; C's admission does not absorb it."
+        },
+        {
+          "id": "C-OPEN-3",
+          "concern": "baseline and re-measurement",
+          "note": "C's baseline will be a main that contains ce5fd2ae and this closure. Admission must verify P2CG1B main-verified with this mainProof PASS, re-run the CF-C8 production-inertness grep, and record the CF-C9 lint and madge figures at its own baseline instead of relying on c0c97c13 facts."
+        }
+      ],
+      "state": "P2CG1C moves from blocked to planned in this change set (successorRelease). Its behaviour text, leaves and every other field are not edited."
+    },
+    "note": "Every wording string under successorNotes.P2CG1C except jobNames, source, openNotesForAdmission and state is a verbatim substring of evidence/p2cg1b-source-fable-review-20261017.txt (checked by the closure generator). CF-C1 to CF-C10 are the reviewer's section 7 items 1-10 in order, without their list numbers. M1-M4 and N1-N5 are the section 8 items. requiredChecks.wording is section 6 item 7, and checkRunsRow is the section 3 check-runs row. openNotesForAdmission are the parent's notes, not reviewer text: where a carry-forward bears on P2CG1C's leaves or behaviour text, the note is recorded here for C's admission instead of editing P2CG1C."
+  },
+  "reviewNotes": "No blockers and no majors. M1 is recorded as ownerFileNote. M2 (refusal-message wording) and M3 (cleanup-failure fold) are documentary and not applied here; M3 is carried as CF-C4. M4 (race-window test) is carried to a successor that owns JournalCampaignEventStore.test.ts (C-OPEN-2). N1-N5 are recorded verbatim. The ten section 7 carry-forwards are recorded verbatim for P2CG1C's admission.",
+  "reservedSlot": "evidence/p2cg1b-admission-review-20261017.md stays unwritten. The reviewer wrote its audit to docs/audits/2026-10-17-p2cg1b-review.md in the root checkout (untracked there); this closure preserves it byte for byte at evidence/p2cg1b-source-fable-review-20261017.txt instead of authoring reviewer text.",
+  "ciQualification": "All 32 check runs on the merged head succeeded (run 39050343896), with no commit statuses. The review's check-runs row reads 32 check runs, all completed/success, which matches.",
+  "laneB": {
+    "ruledHead": "c0c97c135004532412c3c6a0b41124ce51761941",
+    "pr": 2216,
+    "commentId": 6237415300,
+    "author": "SwiggitySwerve",
+    "bodySha256": "0eda51a37bfd074a166c239621fb2d1a375d8a8b96f21b40b51c45f31b98287a",
+    "at": "2026-10-17T17:16:57Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2216#issuecomment-6237415300",
+    "bodyPath": "evidence/p2cg1b-owner-ruling-6237415300.txt"
+  },
+  "ownerRulingNote": "The ruling body names the exact merged head and P2CG1B: transaction-bound campaign guard plumbing plus the generic actual-commit lifecycle seam, dormant with no production caller, review classes authority, privacy, replay, idempotency and concurrency. It records the independent APPROVE-WITH-NOTES review (with the Fable-for-Astra substitution and the review sha256), the 11 of 12 mutation result, the accepted decision points, the CF-C1..CF-C10 carry-forwards to P2CG1C and CI 32/32, and approves merging this exact head. The comment states its authorization: the owner's chat instruction in T3 thread 6db2c314-6cd3-40c5-8fbd-7c42bc27ed35 on 2026-10-17, quoted in the comment, under which Root posts OWNER-RULING comments for sensitive units. It is transcribed verbatim.",
+  "chronology": "The owner ruling was posted at 2026-10-17T17:16:57Z, before the head-guarded merge at 2026-10-17T17:17:04Z (7 seconds later). This records a premerge ruling on the exact merged head.",
+  "identityScope": "Preserves the existing unversioned P2CG1B evidence and the actual cross-model review provenance. No v2/v3 identity manifest or engine observation is claimed.",
+  "githubApproval": "Lane A engineering evidence only; no GitHub approval claimed.",
+  "successorRelease": {
+    "label": "successor release",
+    "scope": "Separate from the P2CG1B closure. This change set also releases P2CG1C (successor release). No other field of P2CG1C changes and no other unit is released; P2CG1D and P2C stay as they are.",
+    "release": {
+      "unit": "P2CG1C",
+      "field": "state",
+      "from": "blocked",
+      "to": "planned",
+      "basis": "P2CG1C's only predecessor, P2CG1B, is main-verified in this same change set with a genuine exact-main mainProof PASS at ce5fd2ae130a9f41027603823ef4903c5dad5d95, as P2CG1C.admissionRequires demands. P2CG1B has no task keys, so its tick stays null. This is the standard on which P2CG1A2 (#2168) and P2CG1B (#2214) were released.",
+      "permission": "Release to planned only. Selection is not admission. P2CG1C source work still requires its own normal finite admission at its own baseline (containing ce5fd2ae and this closure), with the review's CF-C1 to CF-C10 and the parent notes C-OPEN-1 to C-OPEN-3 addressed."
+    }
+  }
+}

@@ -1,3 +1,74 @@
+## 2026-10-17 P2CG1B source verified on main; P2CG1C released; closure metadata proposed
+
+P2CG1B advances from implementing to main-verified for source PR #2216,
+head c0c97c135004532412c3c6a0b41124ce51761941, merge ce5fd2ae130a9f41027603823ef4903c5dad5d95.
+Its baseline remains the admission base 3826f7cb78179cf01d4e935c3ef886cee4f755da; the merge's first parent is main at merge time, 1a22b98fd4310bce9b6643350469c7c6db73a65e.
+The owner authorized this ruling in chat, and it was posted as [comment 6237415300](https://github.com/SwiggitySwerve/MekStation/pull/2216#issuecomment-6237415300), which quotes that instruction;
+its exact UTF-8 body (1347 bytes), without an added newline, hashes to 0eda51a37bfd074a166c239621fb2d1a375d8a8b96f21b40b51c45f31b98287a.
+The ruling (17:16:57Z) preceded the head-guarded merge (17:17:04Z), and PR #2216 carries the owner-ruled label.
+PK-p2cg1b-ruling records that ruling.
+
+The admission, red and local receipts came with the source PR and are unchanged.
+The [review receipt](evidence/p2cg1b-review-20261017.json) binds the independent review of the exact merged head, preserved byte for byte
+(APPROVE-WITH-NOTES, no blockers, no majors, minors M1-M4, notes N1-N5; reviewer Claude Fable 5.1 high, substituting for GPT Astra during a quota outage; author Opus 5.5; sha256 bd59452be0b247b72c4fe38846d0b040fed76534377d21d2fc56178a885ee4c0).
+It records the five sensitive review classes (authority, privacy, replay, idempotency, concurrency) with the reviewer's section 5 findings verbatim; all five pass, concurrency with carry-forward CF-C5.
+The reviewer re-derived the ledger discipline (RED 23 failing on unchanged product, GREEN 45/45 with byte-identical tests, 13/15 files, 456/500 counted lines),
+re-ran the registered leaves, the Task 14 selector, the 35 A1/A2 suites, the 340 related suites, typecheck, lint, madge and the validator,
+and caught 11 of 12 mutants; the survivor is a coverage gap, not a defect (N2). Neither the author nor the reviewer ran npm run test:stable; the CI unit shards stand in for it.
+Lint wording (review M1): "**M1 (docs, review receipt):** record "JournalCampaignEventStore.ts trips eslint(max-lines) at 446 counted lines (new); SQLiteEventJournalWriter.ts stays warned, 435 -> 445; CampaignMatchHost.ts 699 physical, under 400 counted; repo-wide 87 warnings, 0 errors (base 86).""
+The reserved p2cg1b-admission-review-20261017.md slot stays unwritten.
+
+The review's carry-forward wording for P2CG1C is recorded verbatim under successorNotes in the review receipt:
+section 7 items 1-10, minors M1-M4 and notes N1-N5 from section 8, and section 6 item 7 on required checks.
+
+- P2CG1C CF-C1 (borrowed seam contract): "**CF-C1 (borrowed seam contract).** `SQLiteEventJournalWriter.appendInBorrowedTransaction(raw)` is synchronous, requires `db.inTransaction === true` on the writer's own handle, shares `validatedIdentity` with the owning wrappers, and never begins, commits, releases a savepoint or notifies. C's ordered "campaign C IMMEDIATE then match M IMMEDIATE" must open the C transaction itself on the journal's handle and call this operation inside it; only that outer owner may announce the C commit, after its own COMMIT returns. Do not use `appendWithExtension`/`appendPreparedWithExtension` for the borrowed role: both own an IMMEDIATE transaction and, when nested, silently become a SAVEPOINT (unchanged baseline behaviour when no `onCommitted` is requested; refused before writing when one is)."
+- P2CG1C CF-C2 (refusal versus throw): "**CF-C2 (refusal versus throw).** The only "nothing written with certainty" signal is the typed `refused` arm; any throw from the append (including a throwing guard, a thenable guard result, a stale branch or a saved-record rewrite failure) is classified `commit-uncertain {commandId, error}` and must be resolved by `getCommandReceipt` readback, never by compensation or a fresh command. A guard that wants the precise arm must return `{kind:'refused', reason}` rather than throw."
+- P2CG1C CF-C3 (capability fail-closed): "**CF-C3 (capability fail-closed).** Controls are honoured only by `JournalCampaignEventStore` over a `SQLiteEventJournalWriter`; `InMemoryCampaignEventStore`, a non-SQLite journal, and any store exposing `appendCommandBatch` without `appendControlledCommandBatch` are refused with `append-controls-unsupported` before any write, at both the adapter and the host (`commitEvents`, including the per-event fallback). C and D must not add a second capability flag or a boolean switch; the presence of `appendControlledCommandBatch` is the capability."
+- P2CG1C CF-C4 (outcome consumption): "**CF-C4 (outcome consumption).** `applyHostIntentWithControls` answers `CampaignDoorOutcome = answered | committed | lost-race | refused | commit-uncertain | committed-unsettled`, and throws only for a door-level throw or a cleanup failure on a non-committed outcome, in which case the thrown `AggregateError.cause` is the outcome and `errors[0]` is the cleanup error (an identity conflict is mapped to `answered` inside the door). Consumers must switch exhaustively (typecheck enforces it through `throwCommitFailure`), must treat `committed-unsettled` as durable-plus-unfinished (errors retained in order: notification, divergence, rebuild, publishes, cleanup), and must never map any failure arm to a public success or a zero-append answer."
+- P2CG1C CF-C5 (cleanup ordering): "**CF-C5 (cleanup ordering).** `afterRelease` runs once per door after the single-writer lock chain has advanced (lockDepth 0) and after `onCommitted` and publication, but it is a promise continuation: the next queued door may already have started (up to its first await) when it runs. A reservation release placed in `afterRelease` must therefore be idempotent and observable by readback, and the next door's guard must tolerate a not-yet-released prior reservation by refusing (fail closed) rather than assuming order."
+- P2CG1C CF-C6 (writer-level onCommitted): "**CF-C6 (writer-level onCommitted).** At the writer, `appendWithExtension`'s `onCommitted` is called un-wrapped after COMMIT; a throw there rejects the promise although the batch is durable. The adapter wraps it into `notificationError`; any new direct writer caller must either not throw from `onCommitted` or wrap it the same way, and must not read a rejection as "nothing committed"."
+- P2CG1C CF-C7 (trust boundary): "**CF-C7 (trust boundary).** Controls (`guard`, `onCommitted`, `afterRelease`) are server-only operation arguments; `toJournalBatch`, `canonicalizeCommandIdentityV1`, the private envelope and every Protocol/wire type are unchanged and must stay so. The identity-equality fixture (guarded versus plain journal rows and digests) in `JournalCampaignEventStore.test.ts` is the regression the successors should keep green rather than re-derive."
+- P2CG1C CF-C8 (production inertness, re-verify at C's baseline): "**CF-C8 (production inertness, re-verify at C's baseline).** At c0c97c13 no production module calls the new operations, `server.js` composes no guard, and the guest wire door and GM arbiter still use the uncontrolled `applyHostIntent`. C's admission must re-run this grep at its own baseline; the first production caller of a controlled door belongs to D/H, not C."
+- P2CG1C CF-C9 (lint and cycles): "**CF-C9 (lint and cycles).** Head figures: writer 531 physical / 445 counted (warned), adapter 660 / 446 (newly warned), host 699 / under 400, batch commit 309; repo-wide 87 warnings, 0 errors; madge 171 chains from the six leaves, unchanged sets. C adds files, so expect the madge count to move only by C's own modules; record before/after."
+- P2CG1C CF-C10 (required checks): "**CF-C10 (required checks).** 32 `pr-checks.yml` job names (A2's 31 plus `Validate Roadmap Ledger`), verified by name on the merge ref's head; GitHub enforces only `Lint and Test` plus conversation resolution and a zero-approval review gate."
+- Minor M1: "**M1 (docs, review receipt):** record "JournalCampaignEventStore.ts trips eslint(max-lines) at 446 counted lines (new); SQLiteEventJournalWriter.ts stays warned, 435 -> 445; CampaignMatchHost.ts 699 physical, under 400 counted; repo-wide 87 warnings, 0 errors (base 86).""
+- Minor M2: "**M2 (docs, optional):** the refusal message `Commit notification needs an outer transaction` reads backwards (the request is refused *because* an outer transaction is open, so the wrapper would be a savepoint). The test matches `/outer transaction/`, so a later wording such as `Commit notification cannot run inside an outer transaction` would stay green. Not this PR."
+- Minor M3: "**M3 (docs, successor contract):** the cleanup-failure fold for non-committed outcomes places the primary outcome in `AggregateError.cause` and only the cleanup error in `errors`; document that for D (CF-C4) rather than change the head."
+- Minor M4: "**M4 (test, successor):** add a case that exercises the in-transaction `recorded` check with a stale pre-check (the race window), so that mutant M5 is caught; it belongs in `JournalCampaignEventStore.test.ts` when a successor already owns that leaf."
+- Note N1: "**N1:** without an `onCommitted`, `appendWithExtension` nested inside a caller transaction still degrades to a savepoint exactly as on the baseline; this preserves the existing 2-argument callers and is why the refusal is conditional. A guard-only controlled append nested that way would run its guard inside the savepoint and report `committed` without durability; no production caller can reach that today (JS is single-threaded and better-sqlite3 is synchronous, so a door never runs with the journal handle mid-transaction), and the `onCommitted` request D will supply forces the refusal."
+- Note N2: "**N2:** mutant M5 survived at the registered suites only because the store's out-of-transaction receipt pre-check shadows the in-transaction `recorded` check; my probe confirms the head's code is correct inside the window (guard 0, notify 0, one batch). Coverage gap, not a defect."
+- Note N3: "**N3:** the mock in `CampaignMatchHost.pipeline.test.ts` gains the `armRemovalApplyDrift` branch; it is the only edit to an existing line in either test leaf and no pre-existing case sets it; the five pre-existing pipeline cases pass at both red and green."
+- Note N4: "**N4:** `commit-uncertain` for the sequence-fallback identity carries the generated `campaign-cmd:<campaign>:<base>` id, which the journal records, so readback works; `committed-unsettled.commandId` from `applyHostIntentWithControls` uses the intent identity and is null only when the intent offers none."
+- Note N5: "**N5:** `validate-roadmap --next` prints U25 at this head; advisory only, the validator does not model the one-lane rule. Not a finding."
+- Required checks (section 6 item 7): "**32 checks.** Verified by name on c0c97c13: 32 check runs, all success, zero commit statuses; the set is A2's 31 plus `Validate Roadmap Ledger`, which `pr-checks.yml` gained after A2 (this closes the reconciliation A2's M3 asked for: the A1 "32" was a table figure; a real 32nd check only exists now). GitHub enforces only `Lint and Test` (the `if: always()` aggregator; a completed-but-failed state is a failure) plus conversation resolution and a zero-approval review requirement. The guarded merge should require all 32 names `success` on the merge ref's head."
+
+Parent notes for P2CG1C's admission (not reviewer text; P2CG1C's behaviour text is not edited):
+
+- C-OPEN-1 (scope of CF-C1 for C): CF-C1 tells C to open the campaign C transaction itself on the journal's handle and to use appendInBorrowedTransaction for any campaign append inside it. C's registered behaviour commits only the match row while C is held, and C's seven leaves include no campaign sync or journal module. C's admission must state whether C appends any campaign batch inside C. If it does, the append uses the borrowed operation as CF-C1 says; if that needs a leaf outside the seven, it needs a registration correction first.
+- C-OPEN-2 (placement of review M4): Review M4's race-window case belongs in src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts, which is not a P2CG1C leaf. It waits for a later successor that owns that leaf; C's admission does not absorb it.
+- C-OPEN-3 (baseline and re-measurement): C's baseline will be a main that contains ce5fd2ae and this closure. Admission must verify P2CG1B main-verified with this mainProof PASS, re-run the CF-C8 production-inertness grep, and record the CF-C9 lint and madge figures at its own baseline instead of relying on c0c97c13 facts.
+
+All 32 checks on the merged head succeeded (run 39050343896); the 32 names are P2CG1A2's 31 plus Validate Roadmap Ledger and match pr-checks.yml one to one:
+Detect Changes; Install Dependencies; Lint; Format Check; Validate Roadmap Ledger; Type Check; Unit Tests (1/6); Unit Tests (2/6); Unit Tests (3/6); Unit Tests (4/6); Unit Tests (5/6); Unit Tests (6/6); Perf Smoke Tests; Statistical Proof PR; Perf Budget PR; Coverage Floor; A11y Tests; Validate BV Parity; Validate Combat Suite; Build Storybook; Schema Bridge; Determinism Audit; E2E Smoke; Seam Anchors; Customizer Regressions; Desktop Type Check; Desktop Tests; Lint and Test; Prepare Build Artifacts; Build Test / linux; Build Test / mac; Build Test / win.
+GitHub enforces only Lint and Test; each name was verified individually.
+The [merge receipt](evidence/p2cg1b-merge-20261017.json) binds both ordered parents and the matching integration tree.
+The [main proof](evidence/p2cg1b-mainproof-20261017.json) is a fresh run at the merge before any closure edit, after a real npm ci under Node v22.22.0:
+the two registered test leaves and the 35 A1/A2 suites together (37 suites, 414 tests), the two leaves alone (2 suites, 45 tests),
+the Task 14 selector alone (4 suites, 96 tests), the 35 suites alone (35 suites, 369 tests), typecheck and the validator passed.
+It references the author's proof logs by hash.
+
+P2CG1B has no task keys. Its tick remains null because source/closure cleanup
+is not established here; no tasks.md row is changed. P2CG1B therefore releases
+its in-flight src/lib/campaign, src/lib/multiplayer/server and SQLiteEventJournalWriter.ts reservations at main-verified.
+
+Successor release (separate from the closure): P2CG1C moves from blocked to planned;
+its only predecessor, P2CG1B, is main-verified with a genuine exact-main mainProof PASS in this same change set.
+No other P2CG1C field changes. P2CG1D, P2C and every other unit state are unchanged.
+Selection is not downstream admission.
+This closure metadata still requires its own CI and parent merge.
+
+---
+
 ## 2026-10-16 P2CG1A2 source verified on main; P2CG1B stays held; closure metadata proposed
 
 P2CG1A2 advances from implementing to main-verified for source PR #2169,
