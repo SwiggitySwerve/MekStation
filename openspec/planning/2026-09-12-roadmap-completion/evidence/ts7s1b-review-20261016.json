@@ -1,0 +1,210 @@
+{
+  "unit": "TS7S1B",
+  "stage": "review",
+  "recordedAt": "2026-10-17T00:41:00.000Z",
+  "head": "07e61c70404d9da5d0dad5582c06a17e6c77b401",
+  "reviewedHead": "07e61c70404d9da5d0dad5582c06a17e6c77b401",
+  "reviewerModel": "claude-fable-5-1",
+  "implementerModel": "claude-opus-5-5",
+  "verdict": "APPROVE-WITH-NOTES",
+  "outputPath": "evidence/ts7s1b-source-fable-review-20261016.txt",
+  "outputSha256": "5e7d0710e36c2aab730d0ee67484531e9127792c698a70b77cc46655b07149d0",
+  "reviews": [
+    {
+      "round": 1,
+      "path": "evidence/ts7s1b-source-fable-review-20261016.txt",
+      "sha256": "5e7d0710e36c2aab730d0ee67484531e9127792c698a70b77cc46655b07149d0",
+      "bytes": 23466,
+      "originalPath": "docs/audits/2026-10-16-ts7s1b-fable-review.md",
+      "reviewedHead": "07e61c70404d9da5d0dad5582c06a17e6c77b401",
+      "verdict": "APPROVE-WITH-NOTES"
+    }
+  ],
+  "reviewHistory": "One round on the exact merged head 07e61c70 by an independent Fable 5.1 reviewer (run through cliproxy): APPROVE-WITH-NOTES with no blockers and no majors, four minors M1-M4 (M4 is labelled toolchain in section 11) and notes N1-N6; none requires a change to the head.",
+  "verdictText": "Blockers: none. Majors: none. Minors: M1-M4 (documentary). Notes: N1-N6. Carry-forwards for TS7S2A: section 9.",
+  "routineClass": {
+    "statement": "Routine review class is justified on this head: config, ledger, tasks.md and lifecycle only; desktop .js emit byte-identical under the repo's own desktop compiler (re-derived here); product bundles are SWC/esbuild outputs that do not read the changed options (re-derived for esbuild, source-cited for Next); every gate green.",
+    "note": "The reviewer confirms the routine review class on this head: the desktop .js emit is byte-identical under desktop's own TypeScript 5.9.3 (84 files, re-derived in-tree), the esbuild path is transform-identical base vs head (0 of 7,820 files, with a 223-file sensitivity), and Next reads no tsconfig target (source-cited).",
+    "emitConclusion": "Conclusion: emitted runtime JavaScript of the product is unchanged; the es2017 target changes only what the type-checker downlevel-diagnoses (and ts-node's transient transpile).",
+    "desktopEmit": "Output: 84 files each, 0 one-sided; 21 .js, 42 .map (.js.map + .d.ts.map), 21 .d.ts; 0 differing in every class; whole-manifest sha256 a98b6494... on both sides. Every .js is byte-identical; there are no .map or .d.ts differences to list.",
+    "esbuildEquality": "Independent re-derivation: esbuild.transform of all 7,820 .ts/.tsx files under src, .storybook and scripts with tsconfigRaw {jsx: react-jsx, target: es5} vs {jsx: react-jsx, target: es2017} (the exact meaningful-field sets of base and head): 0 files differ, 0 transform errors. Sensitivity: head vs head with target es2022 flips 223 class-bearing files, so the comparison can see the class-field effect."
+  },
+  "reviewReruns": "On 07e61c70 and base 0929f614 under Node v22.22.0, in throwaway in-tree worktrees, the reviewer used its own scripts. It ran the desktop emit with desktop TypeScript 5.9.3 in both trees (84 files each, 0 differing, manifest a98b6494... both; a module/moduleResolution sensitivity flagged 21/21 .js), an esbuild transform of 7,820 files under the base and head tsconfigRaw (0 differ; target es2022 flips 223), TypeScript 7.0.2/6.0.3 on base and head for the three configs (base: config-option errors only; head 0/0/0), npm run typecheck (35.3 s cold, 7.3 s warm), the battleValueCalculations suite (22/22), npx tsx scripts/debug-sirocco.ts (identical base vs head), terminology:validate under ts-node (identical), playwright --list on two @/-importing specs, lint (86 warnings, 0 errors, line-identical), lint:units, format:check, openspec strict, qc:openspec-ci, desktop type-check and tests (5 suites, 57), the validator, --next and the validator tests (86/86). It did not re-run npm run test:stable, npm run build, npm run storybook:build or next dev (section 10).",
+  "stableSuiteNote": "The author ran npm run test:stable once on the final bytes: 2796/2796 suites, 37180 passed, 50 skipped, 0 failed (test-stable.log, hashed in the mainProof attemptLogs, which now puts the run in a receipt). The reviewer did not re-run it (section 10).",
+  "stableAssessment": "npm run test:stable was not run (instruction). The author's single run (2796/2796 suites, 37180 passed, 50 skipped) is in the PR body, not in a receipt (the local receipt says it is recorded in the attempt directory and the PR). Not re-checked.",
+  "tsVersions": "Before the edit both compilers reject only the config options named in D2 (TS6 compiled the whole root program in 39.7 s and reported no source error, confirming TS7S1A's fixes are in the baseline); after the edit 0/0/0 on both. This reproduces the red and local receipts exactly (same codes and positions). module commonjs is still accepted by 7.0.2; only moduleResolution node10 is removed, so the desktop module edit is a D2 choice, not a TS7 requirement (the emit is proven unchanged either way).",
+  "openNotesResolution": {
+    "TS7S1B-OPEN-1": "design.md left alone (TS7S1B-OPEN-1 / OPEN-4): correct. The registered trigger (pre-fix list differs from the 11 in Context) was not met; C1's sentence is explicitly optional and conditional on owner direction, which was not given; the C5 \"TS 5.8 today is root-only\" wording is M4 of the TS7S1A review, \"not this unit's concern\". Neither must be added now. Both stay optional and should be folded into the first later unit that opens design.md for another reason (the OD decisions or the D3 package-layout unit), so no extra leaf is spent here. The admission receipt states the reading the parent asked for (the existing conditional leaf would cover it, 11 files, inside the bound).",
+    "TS7S1B-OPEN-2": "OPEN-2 tick handling (1.5 ticked without an outcome line; measurements in receipts and PR body): correct; the task text asks for the PR body, and TS7S1B-OPEN-2 says no text change is implied.",
+    "TS7S1B-OPEN-3": "Adopted as the measurement method: next dev tsconfig.json hashes before/after (6c41dc2a... both) and the same-checkout desktop emit manifest, both hash-matched by the reviewer (sections 3 and 4).",
+    "TS7S1B-OPEN-4": "Desktop TypeScript 5.9.3 printed in every desktop measurement (admission carryForwards.C5; review section 4). The design.md wording is left to the first later unit that opens design.md, per the TS7S1B-OPEN-1 entry above.",
+    "TS7S1B-OPEN-5": "Baseline stated as 0929f614 (the TS7S1A closure merge, with TS7S1A main-verified); the own 0.2 re-run reported 0/0/0 as expected (admission tasks02.ownRerun; review section 5)."
+  },
+  "successorNotes": {
+    "TS7S2A": {
+      "intro": "Carry-forwards for TS7S2A (ts-node -> tsx and related), exact wording",
+      "carryForwards": [
+        {
+          "id": "C1",
+          "wording": "ts-node is the only in-tree consumer whose transpile follows the root tsconfig target (npx ts-node --showConfig now reports target es2017, module esnext, moduleResolution bundler, paths without baseUrl). Before replacing npx ts-node in the four terminology:* scripts with tsx, run npm run terminology:validate once with ts-node and once with tsx and diff stdout; record both exit codes and the diff in the local receipt.",
+          "concern": "terminology:validate with ts-node and with tsx, stdout diff and both exit codes",
+          "applies": "TS7S2A (task 2.1)"
+        },
+        {
+          "id": "C2",
+          "wording": "scripts/tsconfig.json still carries baseUrl ../src and paths {\"@/*\": [\"./*\"]}; TypeScript 7.0.2 rejects it with TS5102. No in-tree runner references it (tsx resolves the root tsconfig from cwd). Leave it to TS7S2OD (OD-scripts-tsconfig); if kept, the D2 form is paths {\"@/*\": [\"../src/*\"]} with baseUrl deleted. Do not let TS7S2A touch it.",
+          "concern": "scripts/tsconfig.json keeps baseUrl for TS7S2OD; TS7S2A must not touch it",
+          "applies": "TS7S2A (must not touch) and TS7S2OD (task 2.5, OD-scripts-tsconfig)"
+        },
+        {
+          "id": "C3",
+          "wording": "The 13 ts-jest TS151002 messages in desktop npm test are informational (ts-jest forces CommonJS + Node10 for non-ESM runs). They disappear with task 2.3 (ts-jest -> @swc/jest). Until that unit lands, do not add diagnostics.ignoreCodes to desktop/jest.config.js; after it lands, assert in the 2.3 receipt that the message count is 0.",
+          "concern": "13 informational ts-jest TS151002 messages until task 2.3; no diagnostics.ignoreCodes; 0 asserted in the 2.3 receipt",
+          "applies": "TS7S2A (desktop npm test proof) and TS7S2B (task 2.3)"
+        },
+        {
+          "id": "C4",
+          "wording": "An emit-equality receipt that builds into out-of-tree sibling directories must say that each .map's sources entry embeds the checkout directory name relative to the outDir, so per-file .map hashes are reproducible only from the same path. When base and head are different checkouts, build into each tree's own dist (sources become ../../...) so a reviewer can match .map hashes too.",
+          "concern": "out-of-tree emit builds embed the checkout name in .map sources",
+          "applies": "any later emit-equality receipt"
+        },
+        {
+          "id": "C5",
+          "wording": "The Next build emit is produced by SWC with env.targets from browserslist and reads no tsconfig target (next/dist/build/swc/options.js); the C6 whole-project emit manifest when root typescript becomes the TS 6 alias is still worth producing once for tsc itself, but a Next output comparison is not needed for a compiler-version change.",
+          "concern": "no Next output comparison needed for a compiler-version change; a tsc whole-project emit manifest is still worth producing once",
+          "applies": "TS7S3 and TS7S4* (compiler-version units)"
+        },
+        {
+          "id": "C6",
+          "wording": "Desktop nodenext emit identity rests on desktop/package.json having no \"type\": \"module\"; any unit that adds it must redo the 1.4 byte-for-byte proof, because nodenext would then emit ESM.",
+          "concern": "desktop nodenext emit identity rests on no \"type\": \"module\" in desktop/package.json",
+          "applies": "any unit that edits desktop/package.json"
+        },
+        {
+          "id": "C7",
+          "wording": "If a unit edits src/lib/multiplayer/server/__tests__/reconnectPersistence.integration.test-helpers.ts for another reason, drop the dead jest.mock('src/lib/p2p/matchLogStorage', ...) that precedes the effective jest.mock('@/lib/p2p/matchLogStorage', ...). Not required.",
+          "concern": "dead jest.mock('src/lib/p2p/matchLogStorage') in a test helper; optional",
+          "applies": "any unit that edits that test helper for another reason"
+        }
+      ],
+      "minors": [
+        {
+          "id": "M1",
+          "wording": "M1 (documentary): the author's desktop .map per-file hashes are path-bound (sibling-directory build embeds the checkout name in sources); their before/after equality is valid, but a reviewer from another path can match only the 42 .js/.d.ts hashes, which I did. See C4."
+        },
+        {
+          "id": "M2",
+          "wording": "M2 (documentary): removing baseUrl also removes <root>/src from Next's webpack resolve.modules (explicit-baseUrl-only behaviour). 0 bare src-subdirectory imports exist, so no effect; design.md D2 does not mention this resolver side effect. No edit requested now."
+        },
+        {
+          "id": "M3",
+          "wording": "M3 (documentary): scripts/tsconfig.json retains baseUrl; TS7 would reject it; OD-gated for TS7S2OD; correctly not a leaf here. See C2."
+        },
+        {
+          "id": "M4",
+          "wording": "M4 (toolchain): 13 informational TS151002 messages in desktop jest; harmless; removed by task 2.3. See C3."
+        }
+      ],
+      "notes": [
+        {
+          "id": "N1",
+          "wording": "N1: dead jest.mock('src/lib/p2p/matchLogStorage') in a test helper; pre-existing; see C7."
+        },
+        {
+          "id": "N2",
+          "wording": "N2: --next flips TS7S1B -> U24b at head; expected validator behaviour, not a successor claim."
+        },
+        {
+          "id": "N3",
+          "wording": "N3: ledger lastReviewed unchanged because it already equals 2026-10-16."
+        },
+        {
+          "id": "N4",
+          "wording": "N4: ts-node is the only consumer whose transpile target changed; terminology:validate output identical; TS7S2A retires it."
+        },
+        {
+          "id": "N5",
+          "wording": "N5: desktop nodenext = CommonJS emit because desktop/package.json has no \"type\": \"module\"."
+        },
+        {
+          "id": "N6",
+          "wording": "N6: the tsx stdout sha256 in the receipts (8cbce3ca...) and mine (4cee95e4...) differ only by capture (line endings); the 8 content lines are identical to the author's log."
+        }
+      ],
+      "resolverSideEffect": {
+        "wording": "One real resolver change: webpack-config.js pushes the baseUrl onto resolve.modules only when it is explicit (\"Only add the baseUrl if it's explicitly set\"), so bare imports rooted at a src subdirectory (e.g. 'utils/logger') would no longer resolve in webpack. My scan of 8,291 ts/tsx/js files under src, e2e, scripts, .storybook, server.js, next.config.ts, playwright.config.ts, desktop/electron, desktop/services and openspec/scripts found 0 such imports (and tsc under the old baseUrl was the only thing that ever accepted them), so no effect (M2).",
+        "minor": "M2 above",
+        "summary": "Next webpack drops <root>/src from resolve.modules when baseUrl is implicit; 0 bare src-subdirectory imports rely on it, so there is no effect today."
+      },
+      "tsJestMessages": {
+        "wording": "npm run electron:test (desktop jest): base 5 suites / 57 tests, 0 TS151002; head 5 suites / 57 tests, 13 TS151002 messages. ts-jest 29.4.6 source (legacy/compiler/ts-compiler.js): fixupCompilerOptionsForModuleKind forces module CommonJS and moduleResolution Node10 for every non-ESM run regardless of the tsconfig module, and the TS151002 message is raised purely because the initial module kind is Node16/NodeNext. Informational; acceptable until task 2.3 replaces ts-jest (M4).",
+        "authorConcern": "ts-jest TS151002 (13 informational messages): acceptable until task 2.3; the compile is forced to CommonJS/Node10 anyway (section 4). Suppressing via diagnostics.ignoreCodes would need desktop/jest.config.js, which is not a leaf; do not add it here.",
+        "count": 13,
+        "summary": "desktop npm test (npm run electron:test) prints 13 informational ts-jest TS151002 messages since TS7S1B. They are expected until task 2.3 (TS7S2B) replaces ts-jest and are not a regression. See C3 and M4."
+      },
+      "routineClass": "Routine review class is justified on this head: config, ledger, tasks.md and lifecycle only; desktop .js emit byte-identical under the repo's own desktop compiler (re-derived here); product bundles are SWC/esbuild outputs that do not read the changed options (re-derived for esbuild, source-cited for Next); every gate green.",
+      "openNotesForAdmission": [
+        {
+          "id": "TS7S2A-OPEN-1",
+          "concern": "C1 and N4: terminology:validate under ts-node and tsx",
+          "note": "TS7S2A's acceptance already requires npm run terminology:validate to print the same output before and after, both captured in the local receipt. C1 refines the method: run it once with ts-node and once with tsx on the TS7S2A baseline (ts-node now transpiles with the TS7S1B target es2017, module esnext, moduleResolution bundler), diff stdout, and record both exit codes and the diff in the local receipt. This is added evidence within the registered proof item; no TS7S2A text change is implied."
+        },
+        {
+          "id": "TS7S2A-OPEN-2",
+          "concern": "C2 and M3: scripts/tsconfig.json",
+          "note": "scripts/tsconfig.json is not a TS7S2A leaf and must stay untouched; it belongs to TS7S2OD (task 2.5, OD-scripts-tsconfig). Admission should confirm that tsx resolves the root tsconfig from the repository root for the four terminology:* scripts and the terminology-tool.ts shebang, so the scripts/tsconfig.json baseUrl does not bear on the TS7S2A proof."
+        },
+        {
+          "id": "TS7S2A-OPEN-3",
+          "concern": "C3 and M4: 13 ts-jest TS151002 messages in desktop npm test",
+          "note": "desktop/: npm test is a TS7S2A proof item. At the TS7S2A baseline it is expected to pass with the 13 informational TS151002 messages that TS7S1B introduced; the receipts should record the count as the baseline, not as a regression. desktop/jest.config.js is not a TS7S2A leaf, so no diagnostics.ignoreCodes is added; the count goes to 0 with task 2.3 (TS7S2B)."
+        },
+        {
+          "id": "TS7S2A-OPEN-4",
+          "concern": "M2 resolver side effect and C6",
+          "note": "With baseUrl removed, Next webpack no longer puts <root>/src on resolve.modules, and 0 bare src-subdirectory imports exist. TS7S2A edits only script and package leaves run through tsx and npm, so it should add no such import; admission can confirm with the same scan. TS7S2A does not edit desktop/package.json, so the C6 \"type\": \"module\" condition does not arise."
+        },
+        {
+          "id": "TS7S2A-OPEN-5",
+          "concern": "baseline",
+          "note": "TS7S2A is released on the TS7S1B merge 3d9c4536 (main-verified in this change set). Admission must state its actual baseline (a later main that includes this closure) and re-verify TS7S1B main-verified and ancestry there."
+        }
+      ],
+      "state": "Released blocked -> planned in this change set (successorRelease below). No other TS7S2A field changes."
+    },
+    "laterUnits": {
+      "carryForwards": "C2 (TS7S2OD), C3 (TS7S2B, task 2.3: assert 0 TS151002 messages in its receipt), C4 (any emit-equality receipt), C5 (TS7S3/TS7S4*: a tsc whole-project emit manifest, no Next output comparison), C6 (any unit that edits desktop/package.json) and C7 (optional, any unit that edits that test helper) are recorded verbatim under TS7S2A.carryForwards, in the reviewer's order.",
+      "state": "No later unit is edited or released. TS7S2B, TS7S2OD, TS7S3, TS7S4*, TS7S5* and P2CG1B stay as they are."
+    },
+    "note": "Every intro and wording string under successorNotes, plus routineClass and tsJestMessages.authorConcern, is a verbatim substring of evidence/ts7s1b-source-fable-review-20261016.txt; the closure generator checked this. C1-C7 are the section 9 items in order, without their surrounding quotation marks. M1-M4 and N1-N6 are the section 11 items. The concern, applies, summary, minor and count fields, laterUnits and openNotesForAdmission are the parent's notes, not reviewer text. Where a carry-forward bears on TS7S2A's leaves or proof, the note is recorded here for its admission instead of editing TS7S2A. The TS7 track has no PROGRESS.md of its own, so these notes are recorded in this receipt only."
+  },
+  "reviewNotes": "No blockers and no majors. M1 (path-bound desktop .map hashes) is carried as C4. M2 (the webpack resolve.modules side effect) is recorded under successorNotes.TS7S2A.resolverSideEffect and TS7S2A-OPEN-4. M3 (scripts/tsconfig.json) is carried as C2 and TS7S2A-OPEN-2. M4 (13 TS151002 messages) is carried as C3, tsJestMessages and TS7S2A-OPEN-3. N1-N6 are recorded verbatim. The section 9 carry-forwards C1-C7 are recorded verbatim.",
+  "reservedSlot": "evidence/ts7s1b-admission-review-20261016.md stays unwritten. The reviewer did not write it, and this closure preserves the review byte for byte at its path instead of authoring reviewer text.",
+  "ciQualification": "All 31 check runs on the merged head succeeded (run 38983871304), with no commit statuses. The reviewer did not verify CI; the merge receipt records the 31 names.",
+  "laneB": {
+    "ruledHead": "07e61c70404d9da5d0dad5582c06a17e6c77b401",
+    "pr": 2176,
+    "commentId": 6227371325,
+    "author": "SwiggitySwerve",
+    "bodySha256": "d0e8cf547c367cf216810eaccf566e74f706d5cc836332172be50938933c43b8",
+    "at": "2026-10-17T00:31:42Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2176#issuecomment-6227371325",
+    "bodyPath": "evidence/ts7s1b-owner-ruling-6227371325.txt"
+  },
+  "ownerRulingNote": "The ruling body names the exact merged head and TS7S1B: tasks 0.1, 0.2 tick, 1.3-1.5 and the active-change-ledger flip (root tsconfig target es2017, baseUrl removed with an explicit @/* mapping, desktop tsconfig nodenext). It also records the APPROVE-WITH-NOTES review with no blockers or majors, the reviewer's desktop emit equality (84 files), the esbuild transform equality (0 of 7,820) and 0 errors under TypeScript 7.0.2 and 6.0.3, and CI 31/31. The owner authorized the ruling in chat; it is transcribed verbatim.",
+  "chronology": "The owner ruling was recorded after the source merge (merged 2026-10-17T00:31:38Z, ruled 2026-10-17T00:31:42Z), as the ruling body acknowledges. This transcription does not claim a premerge ruling.",
+  "identityScope": "Preserves the existing unversioned TS7S1B evidence and the actual cross-model review provenance. No v2/v3 identity manifest or engine observation is claimed.",
+  "githubApproval": "Lane A engineering evidence only; no GitHub approval claimed.",
+  "successorRelease": {
+    "label": "successor release",
+    "scope": "Separate from the TS7S1B closure. This change set also releases TS7S2A. No other TS7S2A field changes and no other unit is released.",
+    "release": {
+      "unit": "TS7S2A",
+      "field": "state",
+      "from": "blocked",
+      "to": "planned",
+      "basis": "TS7S2A's only predecessor, TS7S1B, is main-verified in this same change set with a genuine exact-main mainProof PASS at 3d9c45365bfc34d27930acb1ff3411b91af17cb9, as TS7S2A.admissionRequires demands. TS7S1B has no task keys, so its tick stays null. This is the standard on which TS7S1B was released (#2175) and on which ts7TrackRegistration20261016.schedulingRule releases each next track unit when its predecessor closes.",
+      "permission": "Release to planned only. Selection is not admission. TS7S2A source work still requires its own normal finite admission at its own baseline. P2CG1B stays blocked under the parent hold, and no other TS7 unit is released."
+    }
+  }
+}
