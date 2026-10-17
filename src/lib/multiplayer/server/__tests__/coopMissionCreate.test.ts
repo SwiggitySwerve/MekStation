@@ -1064,11 +1064,15 @@ describe('P2CG1C prepared co-op mission create (callable, not route-reached)', (
         // Prove the lock is free after release without committing yet: a
         // write committed under the parent's later deferred reads would
         // turn them into SQLITE_BUSY_SNAPSHOT, which is not this test.
+        // The parent marks each release just before issuing it, so the
+        // marker proves the order with no clock shared across processes.
         let acquiredAt = null;
+        let releaseMarked = null;
         while (acquiredAt === null && Date.now() < deadline) {
           try {
             db.exec('BEGIN IMMEDIATE');
             acquiredAt = Date.now();
+            releaseMarked = fs.existsSync(marker + '.released');
             db.exec('ROLLBACK');
           } catch (error) {
             if (error.code !== 'SQLITE_BUSY') throw error;
@@ -1082,7 +1086,9 @@ describe('P2CG1C prepared co-op mission create (callable, not route-reached)', (
         db.prepare('INSERT INTO p2cg1c_probe VALUES (?)').run(acquiredAt);
         db.exec('COMMIT');
         const committedAt = Date.now();
-        process.stdout.write(JSON.stringify({ busyAt, acquiredAt, committedAt }));
+        process.stdout.write(
+          JSON.stringify({ busyAt, acquiredAt, releaseMarked, committedAt }),
+        );
       }`;
     const child = spawn(
       process.execPath,
@@ -1095,7 +1101,7 @@ describe('P2CG1C prepared co-op mission create (callable, not route-reached)', (
     child.stderr.on('data', (chunk: Buffer) => (err += chunk.toString()));
     return once(child, 'exit').then(([exitCode]) => {
       expect({ exitCode, err }).toEqual({ exitCode: 0, err: '' });
-      return JSON.parse(out) as Record<string, number | null>;
+      return JSON.parse(out) as Record<string, number | boolean | null>;
     });
   }
 
@@ -1137,12 +1143,13 @@ describe('P2CG1C prepared co-op mission create (callable, not route-reached)', (
       guardAt = Date.now();
       return revalidate(db, prepared);
     });
-    const times: Record<string, number> = {};
+    // CF-E2: mark each release before issuing it; a writer that acquires
+    // must then see the mark (no cross-process clock comparison).
     traceExec(matchDb(), 'M', [], (sql) => {
-      if (sql === 'COMMIT') times.matchCommit = Date.now();
+      if (sql === 'COMMIT') writeFileSync(`${marks.match}.released`, '');
     });
     traceExec(campaignDb(), 'C', [], (sql) => {
-      if (sql === 'ROLLBACK') times.campaignRelease = Date.now();
+      if (sql === 'ROLLBACK') writeFileSync(`${marks.campaign}.released`, '');
     });
     // When
     const created = await create(launch);
@@ -1154,11 +1161,11 @@ describe('P2CG1C prepared co-op mission create (callable, not route-reached)', (
     assert.ok(campaign.busyAt !== null && saga.busyAt !== null);
     expect(campaign.busyAt).toBeLessThanOrEqual(guardAt);
     expect(saga.busyAt).toBeLessThanOrEqual(guardAt);
-    expect(saga.acquiredAt).toBeGreaterThanOrEqual(times.matchCommit);
-    expect(campaign.acquiredAt).toBeGreaterThanOrEqual(times.campaignRelease);
-    expect(saga.committedAt).toBeGreaterThanOrEqual(saga.acquiredAt ?? 0);
+    expect(saga.releaseMarked).toBe(true);
+    expect(campaign.releaseMarked).toBe(true);
+    expect(saga.committedAt).toBeGreaterThanOrEqual(Number(saga.acquiredAt));
     expect(campaign.committedAt).toBeGreaterThanOrEqual(
-      campaign.acquiredAt ?? 0,
+      Number(campaign.acquiredAt),
     );
   });
 
@@ -1200,7 +1207,7 @@ describe('P2CG1C prepared co-op mission create (callable, not route-reached)', (
       // Then: IMMEDIATE waited for the competing commit and saw it.
       expect(error).toEqual(refusal('COOP_MISSION_NOT_CONVERGED'));
       assert.ok(committedAt !== null);
-      expect(acquiredAt).toBeGreaterThanOrEqual(committedAt);
+      expect(acquiredAt).toBeGreaterThanOrEqual(Number(committedAt));
       expect(census()).toEqual(before);
       // A deferred reader keeps its pre-commit snapshot and cannot upgrade.
       expect(snapshot).not.toBe('competing');
@@ -1472,6 +1479,111 @@ describe('P2CG1C prepared co-op mission create (callable, not route-reached)', (
     }
     // This graph's own view still succeeds on the same readiness.
     expect((await create()).matchId).toBe(missionId());
+  });
+
+  /** P2CG1E: the receipt port, installed once on an emptied registry. */
+  async function installReceiptPort(): Promise<ICampaignHostRegistryEntry> {
+    const registry = getCampaignHostRegistry();
+    registry.dispose(fixture.entry.matchId);
+    registry.installApplicationReceipts({ database: campaignDb });
+    const rebuilt = await registry.getOrCreate(fixture.entry.matchId);
+    assert.ok(rebuilt?.launch);
+    acceptFixtureParticipation(rebuilt, fixture.contributors);
+    return rebuilt;
+  }
+
+  it('P2CG1E: the route selects the prepared create on the installed port, on its own view, and fails closed', async () => {
+    // Given
+    const entry = await installReceiptPort();
+    const before = census();
+    const prepared = jest.spyOn(fixture.store, 'createMatchPrepared');
+    const direct = jest.spyOn(fixture.store, 'createMatch');
+    const prepare = jest.spyOn(launchViewPrototype(), 'prepare');
+    // When: genuine membership but no accepted application offer.
+    const unready = await post(fixture.request, fixture.host);
+    // Then: withheld application authorizes nothing.
+    expect(unready).toMatchObject({
+      status: 409,
+      body: { code: 'COOP_MISSION_NOT_CONVERGED' },
+    });
+    expect(prepare).toHaveBeenCalledTimes(1);
+    expect(prepared).not.toHaveBeenCalled();
+    expect(census()).toEqual(before);
+    // When: ready, but the store lacks the capability: no old-create fallback.
+    acknowledgeAll(entry);
+    const ready = census();
+    const memory = new InMemoryMatchStore({ quiet: true });
+    _setDefaultMatchStoreForTests(memory);
+    const unsupported = await post(fixture.request, fixture.host);
+    _setDefaultMatchStoreForTests(fixture.store);
+    expect(unsupported).toMatchObject({
+      status: 409,
+      body: { code: 'COOP_MISSION_LAUNCH_UNSUPPORTED' },
+    });
+    expect(await memory.listMatches()).toEqual([]);
+    expect(census()).toEqual(ready);
+    // When: ready on the durable store.
+    const routed = await post(fixture.request, fixture.host);
+    // Then: the prepared create, never the old one, on a view this graph built.
+    expect(routed.status).toBe(201);
+    expect(MissionReplySchema.parse(routed.body).missionMatchId).toBe(
+      missionId(),
+    );
+    expect(prepared).toHaveBeenCalledTimes(1);
+    expect(direct).not.toHaveBeenCalled();
+    expect(prepare).toHaveBeenCalledTimes(2);
+    expect(prepare.mock.contexts).not.toContain(entry.launch);
+    expect(census().matches).toBe(ready.matches + 1);
+    expect(census().launches).toBe(ready.launches + 1);
+    // When: a stored retry after the campaign advanced.
+    const advanced = await entry.host.applyHostIntent({
+      kind: 'AdvanceDay',
+      campaignId: entry.campaignId,
+      intentId: 'p2cg1e-advance',
+      payload: { days: 1 },
+    });
+    expect(advanced.ok).toBe(true);
+    const created = census();
+    const retried = await post(fixture.request, fixture.host);
+    // Then: the stored identity, with no second match, launch or preparation.
+    expect(MissionReplySchema.parse(retried.body).missionMatchId).toBe(
+      missionId(),
+    );
+    expect(census()).toEqual(created);
+    expect(prepared).toHaveBeenCalledTimes(1);
+    expect(prepare).toHaveBeenCalledTimes(2);
+    expect(direct).not.toHaveBeenCalled();
+  });
+
+  it('P2CG1E (CF-D11a): refuses STALE_HEAD on the prepared path when re-admission drifts after preparation', async () => {
+    // Given: the selection drifts after preparation, before the C hold.
+    acknowledgeAll();
+    const before = census();
+    const launch = view();
+    const prepare = launch.prepare.bind(launch);
+    const actual = selector.selectOpponentUnits;
+    jest.spyOn(launch, 'prepare').mockImplementation(async (key) => {
+      const ready = await prepare(key);
+      jest.spyOn(selector, 'selectOpponentUnits').mockImplementation((input) =>
+        actual(input).map((unit) => ({
+          ...unit,
+          unitRef:
+            unit.unitRef === 'locust-lct-1v' ? 'atlas-as7-d' : 'locust-lct-1v',
+        })),
+      );
+      return ready;
+    });
+    const trail: string[] = [];
+    traceExec(campaignDb(), 'C', trail);
+    traceExec(matchDb(), 'M', trail);
+    // When
+    const error = await create(launch).catch((caught: unknown) => caught);
+    // Then: re-admission refuses before either lock; nothing is written.
+    expect(error).toEqual(refusal('COOP_MISSION_STALE_HEAD'));
+    expectPublicOnly(error);
+    expect(trail).toEqual([]);
+    expect(census()).toEqual(before);
+    await expect(fixture.store.getMatchMeta(missionId())).rejects.toThrow();
   });
 });
 

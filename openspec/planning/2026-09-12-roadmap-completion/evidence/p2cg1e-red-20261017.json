@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CG1E",
+  "stage": "red",
+  "date": "20261017",
+  "baseline": "a64c6f1c9e77ecf2d6be38f2dd00316241557a85",
+  "admissionCommit": "78b58d6884a3e467e3b3327be0f9e7021c7d5e9e",
+  "runtime": {
+    "node": "v22.22.0 (C:/Users/wroll/AppData/Local/nvm/v22.22.0), real npm ci",
+    "command": "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --runTestsByPath <the three registered test leaves>",
+    "machineIdle": "Checked before the run (idle.log): no other jest/tsc/oxlint/madge node process, PID 47516 excluded"
+  },
+  "product": {
+    "rule": "Every product leaf byte-identical to the baseline at this commit",
+    "files": [
+      {
+        "path": "src/pages-modules/api/campaignLaunchProgressionGate.ts",
+        "sha256": "2e84b0ce52ea7482bd71d8d3157b6aefe3e470ea2841527f3102f57546395ab5",
+        "identicalToBaseline": true
+      },
+      {
+        "path": "src/pages-modules/api/campaignLaunchAuthorityRoute.ts",
+        "sha256": "add67f687c10de680ad2e47000bd48a939f0582a936f3cf9342e896bddf05c48",
+        "identicalToBaseline": true
+      },
+      {
+        "path": "src/lib/multiplayer/server/coopMissionCreate.ts",
+        "sha256": "dd3e06ae9f7bdc8a1bd82a7a048b713cf9309c809058849c851e47045eb35bbd",
+        "identicalToBaseline": true
+      },
+      {
+        "path": "src/lib/campaign/coop/campaignSyncTransport.ts",
+        "sha256": "042b6ef3714cb99f00e5bc1707e0be74dab101355ea4dba7d84577e5c729e1e8",
+        "identicalToBaseline": true
+      }
+    ]
+  },
+  "testFiles": [
+    {
+      "path": "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts",
+      "sha256": "6ddef67910fcb4f27fd48f3a9a0ec12ac56fd6d52f5f04715a03c7b237c82a99",
+      "baselineSha256": "ad0d2e408dfdfc85e19c2181396ab9e5b29422db8ff7467ca49c8dc244c90194"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+      "sha256": "6c204622290a53ef162c31cf4c1962ace4c0946d2b64d855ab3deeb439102a36",
+      "baselineSha256": "cb26564cde8864d62df8f3d381d7fb225988f55e995d946c14db35448dc1a6f1"
+    },
+    {
+      "path": "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+      "sha256": "0924d081536053955034e64a320d38fcd46a15047ccdea557b583316648c6936",
+      "baselineSha256": "7c43ab5726288b666eb7cc50ff62933e446f8774a2a020b2e95c04c4e4b99c51"
+    }
+  ],
+  "result": {
+    "total": 156,
+    "passed": 139,
+    "failed": 17,
+    "suites": [
+      {
+        "suite": "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts",
+        "total": 60,
+        "passed": 54,
+        "failed": [
+          "keys a session preflight on accepted receipts, not cursors, and answers code-only",
+          "prepares this graph's own view outside the read transaction and revalidates it inside",
+          "refuses a changed applied row that lands between preparation and revalidation, before materializing",
+          "refuses a newly bound seat that lands between preparation and revalidation, before materializing",
+          "refuses an open correction saga that lands between preparation and revalidation, before materializing",
+          "keeps saga precedence over convergence and fails closed without a view"
+        ]
+      },
+      {
+        "suite": "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+        "total": 66,
+        "passed": 56,
+        "failed": [
+          "waits for actual baseline, projection and adjunct completion (bundle=false)",
+          "waits for actual baseline, projection and adjunct completion (bundle=true)",
+          "P2CG1E CF7: ignores unknown-receipt for an ACK a newer offer superseded, then completes that offer",
+          "P2CG1E CF8: caps identical head-drift re-sends, recovers once, and a new ACK gets a fresh budget",
+          "times the sent ACK out exactly once and leaves no late effect",
+          "is cancelled by the exact confirmation only, and by close",
+          "re-arms only for a new ACK; a newer pending offer cannot hide a stuck current receipt",
+          "P2CG1E CF12: a remote receipt-mode close signals recovery once; an intentional close stays quiet",
+          "P2CG1E: a bound join with remembered lastSeq=0 quotes 0",
+          "P2CG1E: a bound join with remembered lastSeq=5 quotes 5"
+        ]
+      },
+      {
+        "suite": "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+        "total": 30,
+        "passed": 29,
+        "failed": [
+          "P2CG1E: the route selects the prepared create on the installed port, on its own view, and fails closed"
+        ]
+      }
+    ],
+    "newCases": "All P2CG1E-titled cases plus the two rewritten bound-join expectations (bundle=false/true) fail. Passing new controls: CF7 latest-ACK refusals x4 (pre-existing behaviour kept), lastSeq undefined/-1 omitted, the CF-D11a STALE_HEAD prepared-path case (existing behaviour, newly pinned; it catches the RM2 mutant at the local stage), and the CF-E2 causal rewrite of the cross-process case",
+    "changedExistingExpectations": [
+      "campaignSyncTransport.test.ts \"waits for actual baseline...\" (x2): a bound join now quotes lastSeq 99 (was: no lastSeq)",
+      "campaignSyncTransport.test.ts \"never retries %s ...\": unknown-receipt removed from this newer-offer list (CF7 option a, the one narrow exception the scope names); the other three refusals keep the case and all four are re-pinned with latest === sent",
+      "coopMissionCreate.test.ts \"blocks writers in other processes...\": the two cross-process clock comparisons replaced by a causal release marker (CF-E2); committedAt >= acquiredAt stays same-process; the competing-writer case only wraps committedAt in Number() for the widened JSON type"
+    ],
+    "failureClassification": "All 17 are assertion failures against the unchanged product (toEqual, toMatchObject, toHaveLength, toBe), except one RangeError in \"re-arms only for a new ACK; a newer pending offer cannot hide a stuck current receipt\": the fake clock is advanced by APPLICATION_CONFIRMATION_TIMEOUT_MS, which is undefined before the implementation exports it, so nowIso() sees an invalid time. That is the missing behaviour, not a harness fault",
+    "reproducesPriorRed": "Identical failure set, counts and test bytes to the superseded r1 RED on 526cf6d0 (proof prior-526cf6d0/p2cg1e-red-20261017.json)"
+  },
+  "typecheck": {
+    "result": "2 TS2305 errors, both in campaignSyncTransport.test.ts (MAX_HEAD_DRIFT_RESENDS and APPLICATION_CONFIRMATION_TIMEOUT_MS are not exported before the implementation)",
+    "log": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1e-proof2-20261017/red-typecheck.log",
+      "sha256": "17b1606539c5c3d74b182de835851d25a82c3f2a41213e610a10fd6430c982ce",
+      "bytes": 523
+    }
+  },
+  "noVerify": "The RED commit uses --no-verify because the pre-commit typecheck cannot pass before the two constants exist",
+  "logs": {
+    "jestJson": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1e-proof2-20261017/red-jest.json",
+      "sha256": "414f4729fd563a4956c805311b7728652c381619bbdc4e9a57e394f0d8b62f62",
+      "bytes": 143200
+    },
+    "jestLog": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1e-proof2-20261017/red-jest.log",
+      "sha256": "6f8aebadfc21e222583d8037f8f06f29cd1541acd0d39412fea500f28bde4354",
+      "bytes": 122873
+    },
+    "idle": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1e-proof2-20261017/idle.log",
+      "sha256": "82a04a2310195d7a7592a43a6bb03c8a33f08813adced51a1e7aafe26bed5267",
+      "bytes": 284
+    }
+  }
+}

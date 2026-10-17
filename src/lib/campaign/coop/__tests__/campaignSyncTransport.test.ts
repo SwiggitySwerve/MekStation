@@ -17,10 +17,13 @@ import { HEARTBEAT_INTERVAL_MS } from '@/types/multiplayer/Protocol';
 import type { ICampaignSyncWebSocket } from '../campaignSyncTransport';
 
 import {
+  APPLICATION_CONFIRMATION_TIMEOUT_MS,
   campaignSnapshotFromMessage,
   connectCampaignSyncTransport,
   _resetCampaignSyncTransportsForTest,
   connectStoredCampaignSyncTransport,
+  getActiveCampaignSyncTransport,
+  MAX_HEAD_DRIFT_RESENDS,
 } from '../campaignSyncTransport';
 
 interface IMockSocket extends ICampaignSyncWebSocket {
@@ -228,7 +231,11 @@ describe('P2CD explicit consumer completion', () => {
           appliedView: offered.appliedView,
         },
       ]);
-      expect(s.socket.sentRaw[0]).not.toContain('lastSeq');
+      // P2CG1E: a bound join quotes its remembered cursor like any join.
+      expect(JSON.parse(s.socket.sentRaw[0])).toMatchObject({
+        kind: 'CampaignJoin',
+        lastSeq: 99,
+      });
     },
   );
 
@@ -677,29 +684,226 @@ describe('P2CD explicit consumer completion', () => {
       expect(raw[2]).toBe(raw[1]);
     });
 
+    // P2CG1E CF7 (a): unknown-receipt after a newer offer is covered below.
+    it.each(['not-offered', 'receipt-required', 'current-authority'])(
+      'never retries %s and ends the view as recovery-required',
+      (reason) => {
+        const s = acked();
+        s.socket.inject(event(1, 'r0'));
+        s.socket.inject(refusal(reason));
+        expect(ackRaw(s)).toHaveLength(1);
+        expect(s.errors).toEqual([
+          new Error(
+            'Campaign application recovery required: application-refused',
+          ),
+        ]);
+        apply(s.offers[1]);
+        expect(s.complete(s.offers[1])).toEqual({
+          status: 'refused',
+          reason: 'stale-offer',
+        });
+        s.socket.inject(refusal('head-drift'));
+        expect(ackRaw(s)).toHaveLength(1);
+      },
+    );
+
+    const recovery = (reason: string) =>
+      new Error(`Campaign application recovery required: ${reason}`);
+    const recoveries = (s: ReturnType<typeof setup>) =>
+      s.errors.filter(
+        (error) =>
+          error instanceof Error &&
+          error.message.startsWith('Campaign application recovery required'),
+      );
+    const confirmation = (receiptId: string, previousReceiptId = null) => ({
+      kind: 'CampaignAck',
+      matchId: 'm1',
+      ts,
+      playerId: 'guest',
+      campaignId: 'c1',
+      appliedView: { viewId: 'view', receiptId, previousReceiptId },
+    });
+
+    it('P2CG1E CF7: ignores unknown-receipt for an ACK a newer offer superseded, then completes that offer', () => {
+      const s = acked();
+      s.socket.inject(event(1, 'r0'));
+      s.socket.inject(refusal('unknown-receipt'));
+      // No recovery, no re-send of r0 and no premature ACK of unapplied r1.
+      expect(s.errors).toEqual([]);
+      expect(ackRaw(s)).toHaveLength(1);
+      apply(s.offers[1]);
+      expect(s.complete(s.offers[1]).status).toBe('ack-sent');
+      expect(s.acks().map((ack) => ack.appliedView.receiptId)).toEqual([
+        'r0',
+        'r1',
+      ]);
+      // Wrong code and pre-receipt traffic stay as they were.
+      s.socket.inject(refusal('unknown-receipt', 'INTERNAL_ERROR'));
+      expect(s.errors).toEqual([]);
+    });
+
     it.each([
       'unknown-receipt',
       'not-offered',
       'receipt-required',
       'current-authority',
-    ])('never retries %s and ends the view as recovery-required', (reason) => {
+    ])(
+      'P2CG1E CF7: %s for the latest ACK still ends the view as recovery-required',
+      (reason) => {
+        const s = acked();
+        s.socket.inject(refusal(reason));
+        expect(s.errors).toEqual([recovery('application-refused')]);
+        expect(ackRaw(s)).toHaveLength(1);
+      },
+    );
+
+    it('P2CG1E CF8: caps identical head-drift re-sends, recovers once, and a new ACK gets a fresh budget', () => {
       const s = acked();
-      s.socket.inject(event(1, 'r0'));
-      s.socket.inject(refusal(reason));
-      expect(ackRaw(s)).toHaveLength(1);
-      expect(s.errors).toEqual([
-        new Error(
-          'Campaign application recovery required: application-refused',
-        ),
-      ]);
-      apply(s.offers[1]);
-      expect(s.complete(s.offers[1])).toEqual({
-        status: 'refused',
-        reason: 'stale-offer',
-      });
+      for (let sent = 0; sent < MAX_HEAD_DRIFT_RESENDS; sent += 1)
+        s.socket.inject(refusal('head-drift'));
+      const raw = ackRaw(s);
+      expect(raw).toHaveLength(1 + MAX_HEAD_DRIFT_RESENDS);
+      expect(new Set(raw).size).toBe(1);
+      expect(s.errors).toEqual([]);
+      // Exhausted: one recovery, then nothing more is sent or signalled.
       s.socket.inject(refusal('head-drift'));
-      expect(ackRaw(s)).toHaveLength(1);
+      s.socket.inject(refusal('head-drift'));
+      expect(ackRaw(s)).toHaveLength(1 + MAX_HEAD_DRIFT_RESENDS);
+      expect(s.errors).toEqual([recovery('head-drift-exhausted')]);
+      // A new receipt starts its own budget.
+      const fresh = acked();
+      for (let sent = 0; sent < MAX_HEAD_DRIFT_RESENDS; sent += 1)
+        fresh.socket.inject(refusal('head-drift'));
+      fresh.socket.inject(event(1, 'r0'));
+      apply(fresh.offers[1]);
+      expect(fresh.complete(fresh.offers[1]).status).toBe('ack-sent');
+      for (let sent = 0; sent < MAX_HEAD_DRIFT_RESENDS; sent += 1)
+        fresh.socket.inject(refusal('head-drift'));
+      expect(fresh.errors).toEqual([]);
+      expect(ackRaw(fresh)).toHaveLength(2 + 2 * MAX_HEAD_DRIFT_RESENDS);
     });
+
+    describe('P2CG1E CF8: bounded wait for a lost confirmation or refusal', () => {
+      beforeEach(() => jest.useFakeTimers());
+      afterEach(() => jest.useRealTimers());
+
+      it('times the sent ACK out exactly once and leaves no late effect', () => {
+        const s = acked();
+        jest.advanceTimersByTime(APPLICATION_CONFIRMATION_TIMEOUT_MS - 1);
+        expect(s.errors).toEqual([]);
+        jest.advanceTimersByTime(1);
+        expect(s.errors).toEqual([recovery('confirmation-timeout')]);
+        jest.advanceTimersByTime(3 * APPLICATION_CONFIRMATION_TIMEOUT_MS);
+        expect(s.errors).toHaveLength(1);
+        expect(ackRaw(s)).toHaveLength(1);
+        expect(s.complete(s.offers[0])).toEqual({
+          status: 'refused',
+          reason: 'stale-offer',
+        });
+      });
+
+      it('is cancelled by the exact confirmation only, and by close', () => {
+        const foreign = acked();
+        foreign.socket.inject(confirmation('r9'));
+        jest.advanceTimersByTime(APPLICATION_CONFIRMATION_TIMEOUT_MS);
+        expect(foreign.errors).toEqual([recovery('confirmation-timeout')]);
+        const exact = acked();
+        const armed = jest.getTimerCount();
+        exact.socket.inject(confirmation('r0'));
+        // The exact confirmation clears its wait at once, not when it fires.
+        expect(jest.getTimerCount()).toBe(armed - 1);
+        jest.advanceTimersByTime(2 * APPLICATION_CONFIRMATION_TIMEOUT_MS);
+        expect(exact.errors).toEqual([]);
+        const closing = acked();
+        closing.transport.close();
+        jest.advanceTimersByTime(2 * APPLICATION_CONFIRMATION_TIMEOUT_MS);
+        expect(closing.errors).toEqual([]);
+        foreign.transport.close();
+        exact.transport.close();
+        expect(jest.getTimerCount()).toBe(0);
+      });
+
+      it('re-arms only for a new ACK; a newer pending offer cannot hide a stuck current receipt', () => {
+        const s = acked();
+        jest.advanceTimersByTime(APPLICATION_CONFIRMATION_TIMEOUT_MS / 2);
+        s.socket.inject(event(1, 'r0'));
+        // The old wait does not fire against the newer, still pending, work.
+        jest.advanceTimersByTime(APPLICATION_CONFIRMATION_TIMEOUT_MS);
+        expect(s.errors).toEqual([]);
+        apply(s.offers[1]);
+        expect(s.complete(s.offers[1]).status).toBe('ack-sent');
+        // r1's own wait is fresh; a head-drift re-send does not extend it.
+        jest.advanceTimersByTime(APPLICATION_CONFIRMATION_TIMEOUT_MS / 2);
+        s.socket.inject(refusal('head-drift'));
+        jest.advanceTimersByTime(APPLICATION_CONFIRMATION_TIMEOUT_MS / 2 - 1);
+        expect(s.errors).toEqual([]);
+        jest.advanceTimersByTime(1);
+        expect(s.errors).toEqual([recovery('confirmation-timeout')]);
+      });
+    });
+
+    it('P2CG1E CF12: a remote receipt-mode close signals recovery once; an intentional close stays quiet', () => {
+      const s = acked();
+      s.socket.readyState = 3;
+      s.socket.onclose?.({});
+      s.socket.onclose?.({});
+      s.socket.onerror?.({});
+      s.socket.inject(refusal('not-offered'));
+      expect(recoveries(s)).toEqual([recovery('socket-closed')]);
+      expect(getActiveCampaignSyncTransport('m1')).toBeNull();
+      expect(s.complete(s.offers[0])).toEqual({
+        status: 'refused',
+        reason: 'closed',
+      });
+      // Intentional close, pre-receipt close and legacy close stay quiet.
+      const intentional = acked();
+      intentional.transport.close();
+      const preReceipt = setup();
+      preReceipt.socket.onclose?.({});
+      const sockets = makeSocketFactory();
+      const legacy = connectCampaignSyncTransport({
+        matchId: 'm2',
+        playerId: 'guest',
+        role: 'guest',
+        wireToken: 'token',
+        socketFactory: sockets.factory,
+      });
+      const legacyErrors: unknown[] = [];
+      legacy.onError((error) => legacyErrors.push(error));
+      sockets.lastSocket().fireOpen();
+      sockets.lastSocket().onclose?.({});
+      expect([intentional, preReceipt].map(recoveries)).toEqual([[], []]);
+      expect(legacyErrors).toEqual([]);
+    });
+
+    it.each([
+      [0, 0],
+      [5, 5],
+      [undefined, undefined],
+      [-1, undefined],
+    ])(
+      'P2CG1E: a bound join with remembered lastSeq=%s quotes %s',
+      (remembered, quoted) => {
+        const sockets = makeSocketFactory();
+        connectCampaignSyncTransport({
+          matchId: 'm1',
+          playerId: 'guest',
+          role: 'guest',
+          wireToken: 'token',
+          expectedCampaignId: 'c1',
+          ...(remembered === undefined ? {} : { lastSeq: remembered }),
+          socketFactory: sockets.factory,
+        });
+        sockets.lastSocket().fireOpen();
+        const join = JSON.parse(sockets.lastSocket().sentRaw[0]) as {
+          readonly kind: string;
+          readonly lastSeq?: number;
+        };
+        expect(join.kind).toBe('CampaignJoin');
+        expect(join.lastSeq).toBe(quoted);
+        expect('lastSeq' in join).toBe(quoted !== undefined);
+      },
+    );
 
     it('leaves an unbound legacy connection untouched by application refusals', () => {
       const sockets = makeSocketFactory();
