@@ -1,7 +1,7 @@
 {
   "id": "alfar-al-d1-dakkalfar",
   "chassis": "Alfar",
-  "model": "AL-D1 'DÃ¶kkÃ¡lfar'",
+  "model": "AL-D1 'Dökkálfar'",
   "unitType": "BattleMech",
   "configuration": "Biped",
   "techBase": "INNER_SPHERE",
@@ -156,7 +156,9 @@
       "Heat Sink"
     ]
   },
-  "quirks": ["non_standard"],
+  "quirks": [
+    "non_standard"
+  ],
   "fluff": {
     "history": "This unit is technically unofficial and has been included for completeness, the tech level has also been changed to a 5 until an official record sheet is available."
   },

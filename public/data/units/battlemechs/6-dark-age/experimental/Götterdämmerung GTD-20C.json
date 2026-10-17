@@ -1,11 +1,11 @@
 {
-  "id": "gatterdammerung-gtd-20s",
-  "chassis": "GÃ¶tterdÃ¤mmerung",
-  "model": "GTD-20S",
+  "id": "gatterdammerung-gtd-20c",
+  "chassis": "Götterdämmerung",
+  "model": "GTD-20C",
   "unitType": "BattleMech",
   "configuration": "Biped",
-  "techBase": "INNER_SPHERE",
-  "rulesLevel": "ADVANCED",
+  "techBase": "MIXED",
+  "rulesLevel": "EXPERIMENTAL",
   "era": "DARK_AGE",
   "year": 3138,
   "tonnage": 75,
@@ -21,7 +21,7 @@
     "type": "ENDO_STEEL"
   },
   "armor": {
-    "type": "HEAVY_FERRO_FIBROUS",
+    "type": "FERRO_FIBROUS_CLAN",
     "allocation": {
       "LEFT_ARM": 24,
       "RIGHT_ARM": 24,
@@ -86,12 +86,12 @@
       "Upper Arm Actuator",
       "Lower Arm Actuator",
       "Hand Actuator",
-      "IS Heavy Ferro-Fibrous",
-      "IS Heavy Ferro-Fibrous",
-      "IS Heavy Ferro-Fibrous",
-      "IS Heavy Ferro-Fibrous",
-      "IS Heavy Ferro-Fibrous",
-      "IS Heavy Ferro-Fibrous",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
       null,
       null
     ],
@@ -100,12 +100,12 @@
       "Upper Arm Actuator",
       "Lower Arm Actuator",
       "Hand Actuator",
-      "ISERPPC",
-      "ISERPPC",
-      "ISERPPC",
-      "IS Heavy Ferro-Fibrous",
-      "IS Heavy Ferro-Fibrous",
-      "IS Heavy Ferro-Fibrous",
+      "CLERPPC",
+      "CLERPPC",
+      null,
+      null,
+      null,
+      null,
       null,
       null
     ],
@@ -118,10 +118,10 @@
       "IS Endo Steel",
       "IS Endo Steel",
       "IS Endo Steel",
-      "IS Heavy Ferro-Fibrous",
-      "IS Heavy Ferro-Fibrous",
-      "IS Heavy Ferro-Fibrous",
-      "IS Heavy Ferro-Fibrous"
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor"
     ],
     "RIGHT_TORSO": [
       "Life Support",
@@ -132,10 +132,10 @@
       "IS Endo Steel",
       "IS Endo Steel",
       "IS Endo Steel",
-      "IS Heavy Ferro-Fibrous",
-      "IS Heavy Ferro-Fibrous",
-      "IS Heavy Ferro-Fibrous",
-      "IS Heavy Ferro-Fibrous"
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor"
     ],
     "CENTER_TORSO": [
       "Fusion Engine",
@@ -145,39 +145,37 @@
       "Gyro",
       "Cockpit",
       "Sensors",
-      "ISERMediumLaser",
-      "ISERMediumLaser",
-      "ISERMediumLaser",
-      "ISERMediumLaser",
-      "ISERMediumLaser"
+      "CLERMediumLaser",
+      "CLERMediumLaser",
+      "CLERMediumLaser",
+      "CLERMediumLaser",
+      "CLERMediumLaser"
     ],
     "HEAD": [
       "Sensors",
       "Sensors",
-      "LRM 15",
-      "LRM 15",
-      "LRM 15",
-      "IS Ammo LRM-15"
+      "CLLRM15",
+      "CLLRM15",
+      "Clan Ammo LRM-15",
+      null
     ],
     "LEFT_LEG": [
       "Hip",
       "Upper Leg Actuator",
       "Lower Leg Actuator",
       "Foot Actuator",
-      "IS Heavy Ferro-Fibrous",
-      "IS Heavy Ferro-Fibrous"
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor"
     ],
     "RIGHT_LEG": [
       "Hip",
       "Upper Leg Actuator",
       "Lower Leg Actuator",
       "Foot Actuator",
-      "IS Heavy Ferro-Fibrous",
-      "IS Heavy Ferro-Fibrous"
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor"
     ]
   },
-  "quirks": ["difficult_eject"],
-  "mulId": 6629,
-  "role": "Brawler",
+  "mulId": 8061,
   "source": "TR:3145:LC"
 }

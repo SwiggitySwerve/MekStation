@@ -205,19 +205,23 @@
       "ISAntiPersonnelPod"
     ]
   },
-  "quirks": ["command_mech", "distracting", "searchlight"],
+  "quirks": [
+    "command_mech",
+    "distracting",
+    "searchlight"
+  ],
   "fluff": {
-    "overview": "<p>The Poseidon represents a groundbreaking achievement in BattleMech engineering, successfully surpassing the â100-ton barrierâ that had long been a limit for Mech design. Emergent from the chaos of the Jihad and the technological innovations of the Word of Blake, the Poseidon was developed by the Republic of the Sphere as part of the ambitious Rhodes Project. This super-heavy tripod Mech, often referred to as a \"Colossal,\" embodies the culmination of efforts to create a Mech that is bigger, stronger, and more formidable than any predecessor. It stands as a testament to the Republic's readiness to embrace advanced warfare technology in the wake of the Blackout and the subsequent Fortress Republic initiative.</p>",
-    "capabilities": "<p>The PSD-V2 Poseidon, drawing inspiration from the Orca project and the Word of Blakeâs Omega, features reengineered endo steel bones and reinforced actuators for enhanced stability and battlefield flexibility. Unlike its spiritual predecessor, the Orca, the Poseidon boasts greater stability and flexibility, making it a formidable presence on the battlefield. This super-heavy tripod is designed not just for raw power but also for operational versatility, showcasing the pinnacle of Mech engineering in the post-Jihad era.</p>",
-    "history": "<p>\nThe Poseidon BattleMech, emerging in the wake of the Jihad and amid the complex political landscape of the Fortress Republic, represents a significant milestone in the evolution of BattleMech technology. Developed as part of the Republic of the Sphere's ambitious Rhodes Project, the Poseidon broke through the â100-ton barrier,â a long-standing limitation in Mech design, to become a symbol of the Republic's commitment to advanced warfare technology.",
+    "overview": "<p>The Poseidon represents a groundbreaking achievement in BattleMech engineering, successfully surpassing the “100-ton barrier” that had long been a limit for Mech design. Emergent from the chaos of the Jihad and the technological innovations of the Word of Blake, the Poseidon was developed by the Republic of the Sphere as part of the ambitious Rhodes Project. This super-heavy tripod Mech, often referred to as a \"Colossal,\" embodies the culmination of efforts to create a Mech that is bigger, stronger, and more formidable than any predecessor. It stands as a testament to the Republic's readiness to embrace advanced warfare technology in the wake of the Blackout and the subsequent Fortress Republic initiative.</p>",
+    "capabilities": "<p>The PSD-V2 Poseidon, drawing inspiration from the Orca project and the Word of Blake’s Omega, features reengineered endo steel bones and reinforced actuators for enhanced stability and battlefield flexibility. Unlike its spiritual predecessor, the Orca, the Poseidon boasts greater stability and flexibility, making it a formidable presence on the battlefield. This super-heavy tripod is designed not just for raw power but also for operational versatility, showcasing the pinnacle of Mech engineering in the post-Jihad era.</p>",
+    "history": "<p>\nThe Poseidon BattleMech, emerging in the wake of the Jihad and amid the complex political landscape of the Fortress Republic, represents a significant milestone in the evolution of BattleMech technology. Developed as part of the Republic of the Sphere's ambitious Rhodes Project, the Poseidon broke through the “100-ton barrier,” a long-standing limitation in Mech design, to become a symbol of the Republic's commitment to advanced warfare technology.",
     "manufacturer": "Rhodes Foundry",
-    "primaryFactory": "Devilâs Rock",
+    "primaryFactory": "Devil’s Rock",
     "systemManufacturer": {
       "CHASSIS": "Rhodes-P Endo Steel",
       "ENGINE": "PlasmaStar 375 XL",
       "ARMOR": "Maximillian 320 with CASE II",
-      "COMMUNICATIONS": "Titanâs Shout Mk. IVA",
-      "TARGETING": "Titanâs Vantage Mk. II with Apollo FCS"
+      "COMMUNICATIONS": "Titan’s Shout Mk. IVA",
+      "TARGETING": "Titan’s Vantage Mk. II with Apollo FCS"
     }
   },
   "mulId": 6684,

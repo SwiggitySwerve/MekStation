@@ -281,13 +281,13 @@
     {
       "id": "alfar-al-d1-dã¶kkã¡lfar",
       "chassis": "Alfar",
-      "model": "AL-D1 'DÃ¶kkÃ¡lfar'",
+      "model": "AL-D1 'Dökkálfar'",
       "tonnage": 55,
       "techBase": "INNER_SPHERE",
       "year": 2573,
       "role": "Sniper",
       "rulesLevel": "UNOFFICIAL",
-      "path": "2-star-league/standard/Alfar AL-D1 'DÃ¶kkÃ¡lfar'.json"
+      "path": "2-star-league/standard/Alfar AL-D1 'Dökkálfar'.json"
     },
     {
       "id": "alpha-wolf-a",
@@ -764,14 +764,14 @@
     },
     {
       "id": "araã±a-ara-s-1-militiamech",
-      "chassis": "AraÃ±a",
+      "chassis": "Araña",
       "model": "ARA-S-1 MilitiaMech",
       "tonnage": 40,
       "techBase": "CLAN",
       "year": 3087,
       "role": "",
       "rulesLevel": "EXPERIMENTAL",
-      "path": "6-dark-age/experimental/AraÃ±a ARA-S-1 MilitiaMech.json"
+      "path": "6-dark-age/experimental/Araña ARA-S-1 MilitiaMech.json"
     },
     {
       "id": "arbalest-2",
@@ -16978,69 +16978,69 @@
     },
     {
       "id": "gã¶tterdã¤mmerung-gtd-20c",
-      "chassis": "GÃ¶tterdÃ¤mmerung",
+      "chassis": "Götterdämmerung",
       "model": "GTD-20C",
       "tonnage": 75,
       "techBase": "MIXED",
       "year": 3138,
       "role": "",
       "rulesLevel": "EXPERIMENTAL",
-      "path": "6-dark-age/experimental/GÃ¶tterdÃ¤mmerung GTD-20C.json"
+      "path": "6-dark-age/experimental/Götterdämmerung GTD-20C.json"
     },
     {
       "id": "gã¶tterdã¤mmerung-gtd-20s",
-      "chassis": "GÃ¶tterdÃ¤mmerung",
+      "chassis": "Götterdämmerung",
       "model": "GTD-20S",
       "tonnage": 75,
       "techBase": "INNER_SPHERE",
       "year": 3138,
       "role": "Brawler",
       "rulesLevel": "ADVANCED",
-      "path": "6-dark-age/advanced/GÃ¶tterdÃ¤mmerung GTD-20S.json"
+      "path": "6-dark-age/advanced/Götterdämmerung GTD-20S.json"
     },
     {
       "id": "gã¶tterdã¤mmerung-gtd-30s",
-      "chassis": "GÃ¶tterdÃ¤mmerung",
+      "chassis": "Götterdämmerung",
       "model": "GTD-30S",
       "tonnage": 75,
       "techBase": "INNER_SPHERE",
       "year": 3138,
       "role": "",
       "rulesLevel": "ADVANCED",
-      "path": "6-dark-age/advanced/GÃ¶tterdÃ¤mmerung GTD-30S.json"
+      "path": "6-dark-age/advanced/Götterdämmerung GTD-30S.json"
     },
     {
       "id": "gã¹n-gn-2o",
-      "chassis": "GÃ¹n",
+      "chassis": "Gùn",
       "model": "GN-2O",
       "tonnage": 20,
       "techBase": "INNER_SPHERE",
       "year": 3134,
       "role": "Striker",
       "rulesLevel": "ADVANCED",
-      "path": "6-dark-age/advanced/GÃ¹n GN-2O.json"
+      "path": "6-dark-age/advanced/Gùn GN-2O.json"
     },
     {
       "id": "gã¹n-gn-2oa",
-      "chassis": "GÃ¹n",
+      "chassis": "Gùn",
       "model": "GN-2OA",
       "tonnage": 20,
       "techBase": "INNER_SPHERE",
       "year": 3134,
       "role": "Sniper",
       "rulesLevel": "ADVANCED",
-      "path": "6-dark-age/advanced/GÃ¹n GN-2OA.json"
+      "path": "6-dark-age/advanced/Gùn GN-2OA.json"
     },
     {
       "id": "gã¹n-gn-2ob",
-      "chassis": "GÃ¹n",
+      "chassis": "Gùn",
       "model": "GN-2OB",
       "tonnage": 20,
       "techBase": "INNER_SPHERE",
       "year": 3134,
       "role": "Sniper",
       "rulesLevel": "EXPERIMENTAL",
-      "path": "6-dark-age/experimental/GÃ¹n GN-2OB.json"
+      "path": "6-dark-age/experimental/Gùn GN-2OB.json"
     },
     {
       "id": "ha-otoko-2",
