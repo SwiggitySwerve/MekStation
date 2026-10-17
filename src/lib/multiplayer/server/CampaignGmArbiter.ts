@@ -36,7 +36,10 @@
  * @spec openspec/changes/add-coop-campaign-play/design.md (D3, D4, D5, D6, D7)
  */
 
-import type { ICampaignAuthoritativeState } from '@/types/campaign/CampaignSync';
+import type {
+  CampaignIntentResult,
+  ICampaignAuthoritativeState,
+} from '@/types/campaign/CampaignSync';
 import type { ICampaignMechanicalRejection } from '@/types/campaign/CampaignSync';
 import type {
   GmArbitrationMode,
@@ -53,12 +56,18 @@ import { toProposalVetoError } from '@/types/campaign/CoopCampaign';
 import { parseGuestProposal } from '@/types/campaign/coopCampaignSchemas';
 
 import type { CampaignMatchHost } from './CampaignMatchHost';
+import type { CampaignDoorOutcome } from './CampaignMatchHost.doors';
 
 import {
   defaultArbiterTimers,
   type ICampaignGmArbiterTimers,
 } from './campaignGmArbiterTimeout';
+import { resultOfDoor } from './CampaignMatchHost.doors';
 import { validateCampaignIntent } from './CampaignMatchHostIntent';
+import {
+  campaignProgressionLateRefusal,
+  isCampaignProgressionLateRefusal,
+} from './CampaignProgressionGate';
 
 export { PRODUCTION_PROPOSAL_TIMEOUT_MS } from './campaignGmArbiterTimeout';
 
@@ -111,6 +120,21 @@ export type PendingProposalListener = (
  * uses those same paths instead of discarding the result.
  */
 export type ProposalResolvedListener = (result: GuestProposalResult) => void;
+
+/**
+ * P2CG1D: one guarded progression commit. `valid` is read inside the
+ * pre-append guard; `consumed` runs from the commit notification, in the
+ * same synchronous span as the COMMIT.
+ */
+export interface ICampaignProposalReservation {
+  readonly valid: () => boolean;
+  readonly consumed: () => void;
+}
+
+export type CampaignGuardedCommit = (
+  intent: IGuestProposal['intent'],
+  reservation: ICampaignProposalReservation,
+) => Promise<CampaignDoorOutcome>;
 
 // =============================================================================
 // Arbiter
@@ -174,6 +198,12 @@ export class CampaignGmArbiter {
    * the proposal before timeout fires.
    */
   private readonly timers = new Map<string, unknown>();
+  /** P2CG1D: the one guarded attempt per pending approval. */
+  private readonly approving = new Map<
+    string,
+    Promise<GuestProposalResult | null>
+  >();
+  private closed = false;
 
   constructor(
     host: CampaignMatchHost,
@@ -255,6 +285,7 @@ export class CampaignGmArbiter {
    * timeout handle that keeps the process alive.
    */
   close = (): void => {
+    this.closed = true;
     for (const proposalId of Array.from(this.timers.keys())) {
       this.cancelTimeoutFor(proposalId);
     }
@@ -285,6 +316,7 @@ export class CampaignGmArbiter {
    */
   submitProposal = async (
     rawProposal: unknown,
+    guarded?: CampaignGuardedCommit,
   ): Promise<GuestProposalResult> => {
     // Step 1 — parse the proposal envelope (and its wrapped intent).
     const proposal = parseGuestProposal(rawProposal);
@@ -317,7 +349,12 @@ export class CampaignGmArbiter {
 
     // Step 3 — mode branch.
     if (this.mode === 'auto-approve') {
-      return this.commitProposal(proposal);
+      if (guarded === undefined || proposal.intent.kind !== 'AdvanceDay') {
+        return this.commitProposal(proposal);
+      }
+      const result = await this.commitGuarded(proposal, guarded);
+      if (result !== null) return result;
+      throw campaignProgressionLateRefusal('proposal-reservation-invalid');
     }
 
     // `host-review` — queue the proposal with the campaign context the
@@ -347,10 +384,39 @@ export class CampaignGmArbiter {
   decide = async (
     proposalId: string,
     decision: GmDecision,
+    guarded?: CampaignGuardedCommit,
   ): Promise<GuestProposalResult | null> => {
+    const inflight = this.approving.get(proposalId);
+    if (decision === 'approve' && inflight !== undefined) {
+      // Coalesced: shares the attempt's refusal, else is a duplicate.
+      return inflight.then(
+        () => null,
+        (error: unknown) => {
+          if (isCampaignProgressionLateRefusal(error)) throw error;
+          return null;
+        },
+      );
+    }
     const entry = this.pending.get(proposalId);
     if (entry === undefined) {
       return null;
+    }
+    if (
+      decision === 'approve' &&
+      guarded !== undefined &&
+      entry.proposal.intent.kind === 'AdvanceDay'
+    ) {
+      const attempt: Promise<GuestProposalResult | null> = this.commitGuarded(
+        entry.proposal,
+        guarded,
+        entry,
+      ).finally(() => {
+        if (this.approving.get(proposalId) === attempt) {
+          this.approving.delete(proposalId);
+        }
+      });
+      this.approving.set(proposalId, attempt);
+      return attempt;
     }
     // The proposal leaves the queue regardless of the decision.
     this.pending.delete(proposalId);
@@ -450,7 +516,55 @@ export class CampaignGmArbiter {
   private async commitProposal(
     proposal: IGuestProposal,
   ): Promise<GuestProposalResult> {
-    const result = await this.host.applyHostIntent(proposal.intent);
+    return this.proposalResult(
+      proposal,
+      await this.host.applyHostIntent(proposal.intent),
+    );
+  }
+
+  /**
+   * P2CG1D guarded commit. A pending approval keeps its entry, timer and
+   * deadline until the commit consumes it; timeout, veto or close make
+   * `valid` false, so the guard refuses before any write. A refusal leaves
+   * a still-valid entry as it was and throws the gate's late refusal; null
+   * means another path already resolved the proposal.
+   */
+  private async commitGuarded(
+    proposal: IGuestProposal,
+    guarded: CampaignGuardedCommit,
+    entry?: IPendingProposal,
+  ): Promise<GuestProposalResult | null> {
+    const { proposalId } = proposal;
+    const valid = () =>
+      !this.closed &&
+      (entry === undefined || this.pending.get(proposalId) === entry);
+    let consumed = false;
+    const consume = () => {
+      if (consumed || entry === undefined || !valid()) return;
+      consumed = true;
+      this.pending.delete(proposalId);
+      this.cancelTimeoutFor(proposalId);
+    };
+    const outcome = await guarded(proposal.intent, {
+      valid,
+      consumed: consume,
+    });
+    if (outcome.kind === 'refused') {
+      if (entry !== undefined && !valid()) return null;
+      throw campaignProgressionLateRefusal(outcome.refusal.reason);
+    }
+    const unwritten =
+      outcome.kind === 'answered' || outcome.kind === 'lost-race';
+    if (unwritten && entry !== undefined && !consumed && !valid()) return null;
+    consume();
+    if (consumed) this.notifyPending();
+    return this.proposalResult(proposal, resultOfDoor(outcome));
+  }
+
+  private proposalResult(
+    proposal: IGuestProposal,
+    result: CampaignIntentResult,
+  ): GuestProposalResult {
     if (result.ok) {
       return {
         status: 'committed',

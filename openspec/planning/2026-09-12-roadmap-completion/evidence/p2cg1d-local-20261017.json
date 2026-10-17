@@ -1,0 +1,356 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CG1D",
+  "stage": "local",
+  "date": "20261017",
+  "baseline": "0cfd627c97cdce61ea8c7ed7ee06685fb8aaccb3",
+  "commits": {
+    "admission": "d321cdaa3",
+    "red": "6a5cb664d061142deb775f65325453b5b1e8bc11"
+  },
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "L1 / P2CG1D implementation sub-agent"
+  },
+  "runtime": {
+    "node": "v24.15.0",
+    "install": "real npm ci (Node v22.22.0)",
+    "machineIdle": "Idle checked before every Jest run (no other jest process, PID 47516 excluded, CPU < 40%); idle.log hashed below"
+  },
+  "productBytes": [
+    {
+      "path": "src/lib/multiplayer/server/CampaignProgressionGate.ts",
+      "sha256": "42117f3810abb6cc53438c4b1c2b2cdba776e0c815b8907915401ea567a707ef",
+      "changed": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/campaignProgressionReaders.durable.ts",
+      "sha256": "39e6f275aaaa6092c37a7165c5851c20d024335b40f43a7b7f7b6c2e91e4529f",
+      "changed": false
+    },
+    {
+      "path": "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+      "sha256": "7293d6b928cd510301e5e39abeb2636dea7f1bc80ea5718426dbb71e1a2e355f",
+      "changed": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+      "sha256": "5a38f49ee930b5e59543553c08cf5d776269cfff2df9d4b91ef1f26a3556edbd",
+      "changed": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/CampaignGmArbiter.ts",
+      "sha256": "87535829f2b9afd7da1123a87225a3f64f812a28d4f1b3c338b110ffc6e792d6",
+      "changed": true
+    }
+  ],
+  "testBytes": [
+    {
+      "path": "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
+      "sha256": "94ea988c248be00589120a9e224a5a0467f215df14b8dfbeff6f23981033cb46"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/CampaignGmArbiter.test.ts",
+      "sha256": "2fb5bc8009cea2019ec806865b0d309d174a7b713563db5799784616dce1977c"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts",
+      "sha256": "f2450ac3249d5003ae1a9cbf4e4ead96375416c38faa437a48a3d0624cdda29f"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.crossGraph.test.ts",
+      "sha256": "be2041d12120641136051b2ed43c5f92597aa5b7b235be0c67318a0d93612fbf"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/campaignGrantChannel.test-helpers.ts",
+      "sha256": "c8618fc39e0954c153f401b44ecf61e83e4faa5abef3789e73368d4d0e37ced4"
+    }
+  ],
+  "testBytesVersusRed": "Identical: no test, helper or fixture byte changed after the RED commit (git diff --quiet RED -- __tests__)",
+  "delivered": {
+    "registry": "CampaignHostRegistry: applicationReceipts getter (null until installed); installApplicationReceipts(port) once, refused when already installed or when any entry exists; no setter/uninstall (only _resetCampaignHostRegistry drops the slot). register builds entry.launch = createDurableCampaignLaunchView() in the registry graph when the port is installed and throws (no entry) when no campaign database exists. ICampaignHostRegistryEntry.launch: CampaignLaunchView | null (required). ICampaignApplicationReceiptPort is restated structurally in the registry (one field, database) because campaignApplicationConnection imports the registry; importing it added 5 madge chains, restating adds none; the binder passes it on as the original type",
+    "binder": "receipts = applicationReceipts ?? registry.applicationReceipts composes CampaignApplicationConnection. Host AdvanceDay intent, auto-approved AdvanceDay proposal and GM approval of a pending AdvanceDay proposal: with entry.launch, commitGuardedProgression prepares the P2CB view outside SQL and calls host.applyHostIntentWithControls; its guard (inside the append IMMEDIATE transaction on C) refuses an invalid proposal reservation, a store without reserveMatchProgression, or a non-ready preparation, then takes the M reservation (any throw -> typed refusal progression-reservation-busy), revalidates on the exact C handle and releases M on its refusal return; onCommitted consumes the proposal then releases M in the commit span; afterRelease releases idempotently. All refusals live in the guard so a duplicate replays first. A refused outcome or the gate late refusal is answered CAMPAIGN_NOT_CONVERGED with the existing correlation id (intentId field) and a kebab-case reason only. Without entry.launch the legacy session gate is unchanged",
+    "arbiter": "submitProposal/decide take an optional guarded commit used only for AdvanceDay. One attempt per pending approval: concurrent approvals share it (its late refusal, else null = duplicate). The pending entry, its original timer and deadline stay until the commit consumes them in the commit span; timeout/veto/close make valid() false so the guard refuses before any write and the approval returns null; a late refusal keeps a still-valid entry and throws the gate late refusal; answered/lost-race consume like legacy; commit-uncertain/unsettled consume and rethrow (never a fresh attempt)",
+    "gate": "campaignProgressionLateRefusal(reason) / isCampaignProgressionLateRefusal(value): exactly own enumerable keys code,reason, fixed code, kebab-case reason; no new imports (browser-safe)",
+    "readers": "Unchanged: createDurableCampaignLaunchView already exported",
+    "activation": "No production install: server.js untouched; production entries have launch null and keep the legacy gate"
+  },
+  "carryForwards": {
+    "CF-D1": "Pinned: the M trail on a commit is [M BEGIN IMMEDIATE (C open), guard, M ROLLBACK (C committed), tick]; no await between reserve and release; D writes nothing on M",
+    "CF-D2": "Pinned: explicit release on the guard refusal ([BEGIN (C open), ROLLBACK (C open), tick]) and in onCommitted (before tick); mutants removing either are caught. Residual (decision point 1): guard admitted then append revision-conflict or throw -> B does not call onCommitted, M released by the C microtask",
+    "CF-D3": "Pinned: M already in a transaction -> CAMPAIGN_NOT_CONVERGED progression-reservation-busy, nothing written, socket kept; a mutant rethrowing is caught (uncertain -> socket closed)",
+    "CF-D4": "C IMMEDIATE then M; pinned by C-open=true at M BEGIN and writable()=false for both files inside the guard",
+    "CF-D5": "No deferred read-then-write added on M",
+    "CF-D6": "No presence-only readback added",
+    "CF-D7": "onCommitted always requested; M busy before BEGIN is a typed refusal",
+    "CF-D8": "Baseline grep recorded at admission; head: D is the first caller of applyHostIntentWithControls and reserveMatchProgression (bindCampaignSyncConnection.ts), reached only through entry.launch, which no production process builds; server.js unchanged",
+    "CF-D9": "lint 87 -> 87 warnings, identical (rule, file) set; bindCampaignSyncConnection.ts max-lines 1321 -> 1459 counted (already warned); madge 976 files, 175 -> 175 chains, identical sets",
+    "CF-D10": "To verify all pr-checks.yml names on the exact head",
+    "CF-D11": "Not absorbed (not D leaves)"
+  },
+  "mutationProbes": {
+    "note": "Each alone, product restored after each (mutants.js); the four registered suites",
+    "results": [
+      {
+        "name": "refusal-release-removed",
+        "status": "CAUGHT",
+        "tests": "Tests: 1 failed, 118 passed, 119 total"
+      },
+      {
+        "name": "commit-release-removed",
+        "status": "CAUGHT",
+        "tests": "Tests: 1 failed, 118 passed, 119 total"
+      },
+      {
+        "name": "busy-throw-not-refusal",
+        "status": "CAUGHT",
+        "tests": "Tests: 1 failed, 118 passed, 119 total"
+      },
+      {
+        "name": "validity-unchecked",
+        "status": "CAUGHT",
+        "tests": "Tests: 1 failed, 118 passed, 119 total"
+      },
+      {
+        "name": "consume-not-in-commit-span",
+        "status": "CAUGHT",
+        "tests": "Tests: 1 failed, 118 passed, 119 total"
+      },
+      {
+        "name": "registry-port-not-composed",
+        "status": "CAUGHT",
+        "tests": "Tests: 10 failed, 109 passed, 119 total"
+      },
+      {
+        "name": "host-intent-unguarded",
+        "status": "CAUGHT",
+        "tests": "Tests: 5 failed, 114 passed, 119 total"
+      },
+      {
+        "name": "early-prepare-refusal",
+        "status": "CAUGHT",
+        "tests": "Tests: 1 failed, 118 passed, 119 total"
+      },
+      {
+        "name": "revalidate-skipped",
+        "status": "CAUGHT",
+        "tests": "Tests: 3 failed, 116 passed, 119 total"
+      },
+      {
+        "name": "legacy-gate-also-with-port",
+        "status": "CAUGHT",
+        "tests": "Tests: 1 failed, 118 passed, 119 total"
+      },
+      {
+        "name": "install-after-entry-allowed",
+        "status": "CAUGHT",
+        "tests": "Tests: 1 failed, 118 passed, 119 total"
+      },
+      {
+        "name": "entry-launch-never-built",
+        "status": "CAUGHT",
+        "tests": "Tests: 12 failed, 107 passed, 119 total"
+      },
+      {
+        "name": "refusal-deletes-pending",
+        "status": "CAUGHT",
+        "tests": "Tests: 3 failed, 116 passed, 119 total"
+      },
+      {
+        "name": "no-coalescing",
+        "status": "CAUGHT",
+        "tests": "Tests: 1 failed, 118 passed, 119 total"
+      },
+      {
+        "name": "close-does-not-invalidate",
+        "status": "CAUGHT",
+        "tests": "Tests: 1 failed, 118 passed, 119 total"
+      },
+      {
+        "name": "refusal-recognised-loosely",
+        "status": "CAUGHT",
+        "tests": "Tests: 1 failed, 118 passed, 119 total"
+      }
+    ],
+    "summary": "16/16 caught"
+  },
+  "commands": [
+    "node node_modules/jest/bin/jest.js --selectProjects unit --runInBand --runTestsByPath <the four registered test leaves>",
+    "node node_modules/jest/bin/jest.js --runInBand --testPathPattern='campaignLaunchAuthorityRoute|campaignProgressionReaders.durable|CampaignSyncSession' (Task 14 selector)",
+    "node node_modules/jest/bin/jest.js --runInBand --runTestsByPath DurableMatchStore.test.ts coopMissionCreate.test.ts (P2CG1C)",
+    "node node_modules/jest/bin/jest.js --runInBand --runTestsByPath JournalCampaignEventStore.test.ts CampaignMatchHost.pipeline.test.ts (P2CG1B)",
+    "node node_modules/jest/bin/jest.js --runInBand --runTestsByPath <35 A1/A2 suites, suites35.txt, incl. coopMissionAnnouncement.reconnect.test.ts>",
+    "node node_modules/jest/bin/jest.js --maxWorkers=6 --findRelatedTests <the five source leaves>",
+    "npm run typecheck; npm run lint; npm run format:check; npm run lint:units; npx -y madge@8.0.0 --circular --extensions ts --ts-config tsconfig.json <five source leaves>",
+    "node validate-roadmap.mjs (plain, --git); node --test validate-roadmap.test.mjs; npx openspec validate --all --strict; npm run qc:openspec-ci:validate"
+  ],
+  "results": {
+    "red": "4 suites, 119 tests: 93 passed, 26 failed (all 26 new; product byte-identical to baseline)",
+    "registeredLeaves": "4 suites, 119 tests: 119 passed, 0 failed, 0 pending",
+    "task14Selector": "4 suites, 97 tests: 97 passed, 0 failed, 0 pending",
+    "p2cg1c": "2 suites, 52 tests: 52 passed, 0 failed, 0 pending (run 1: 51/52, a 1 ms clock-order flake in the C-owned cross-process case, see decision point 4; runs 2 and 3: 52/52)",
+    "p2cg1b": "2 suites, 45 tests: 45 passed, 0 failed, 0 pending",
+    "predecessor35": "35 suites, 381 tests: 381 passed, 0 failed, 0 pending",
+    "relatedCallers": "164 suites, 1285 tests: 1283 passed, 0 failed, 2 pending (2 pending pre-existing)"
+  },
+  "checks": {
+    "typecheck": "PASS (TS7, npm run typecheck)",
+    "lint": "0 errors, 87 warnings = baseline, identical set",
+    "format": "PASS",
+    "lintUnits": "LINT_UNITS_PASS 17899/17899",
+    "madge": "976 files, 175 chains = baseline, identical sets",
+    "validator": "plain PASSED, --git PASSED, validate-roadmap.test.mjs 86/86",
+    "openspec": "230 passed, 0 failed",
+    "qcOpenspecCi": "errors=0"
+  },
+  "census": {
+    "rule": "U41: git diff --numstat --no-renames 0cfd627c97cdce61ea8c7ed7ee06685fb8aaccb3..HEAD; __tests__/ and evidence/ line-exempt, every changed file counted",
+    "files": {
+      "actual": 13,
+      "reservedUnchanged": [
+        "src/lib/multiplayer/server/campaignProgressionReaders.durable.ts",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1d-admission-review-20261017.md"
+      ],
+      "total": 15,
+      "cap": 15
+    },
+    "countedLines": {
+      "total": 385,
+      "cap": 500,
+      "byFile": [
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "added": 16
+        },
+        {
+          "path": "src/lib/multiplayer/server/CampaignGmArbiter.ts",
+          "added": 117
+        },
+        {
+          "path": "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+          "added": 56
+        },
+        {
+          "path": "src/lib/multiplayer/server/CampaignProgressionGate.ts",
+          "added": 33
+        },
+        {
+          "path": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+          "added": 163
+        }
+      ]
+    },
+    "testLines": [
+      {
+        "path": "src/lib/multiplayer/server/__tests__/CampaignGmArbiter.test.ts",
+        "added": 313
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts",
+        "added": 89
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
+        "added": 663
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/campaignGrantChannel.test-helpers.ts",
+        "added": 1
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.crossGraph.test.ts",
+        "added": 69
+      }
+    ],
+    "note": "units.json count includes this local stage edit; the local receipt itself is evidence (line-exempt)"
+  },
+  "logs": [
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/green-leaves.json",
+      "sha256": "5f2294315cd29206f49b33fd7a1aae89d870c3b88717ac63df9b3f40d32f06d9"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/task14.json",
+      "sha256": "d40b72978f74446747dab0c560b60a9325df2bd5edaac9a1dd65c4cc962c212f"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/p2cg1c-run1-flake.json",
+      "sha256": "55febc3d76bd3f8914f5b21857e319c1967e67b505c49e2b555b6a69a7e6dcf9"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/p2cg1c-run2.json",
+      "sha256": "9b8f44da239b2bfdaa44cb37c293c3668aed8eed57a4f856288ea5ff9528e3be"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/p2cg1c-run3.json",
+      "sha256": "158aab52ab4e71c9b817f839dc97b7064f56093e4667b7d5e28e9ad800fe4c42"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/p2cg1b.json",
+      "sha256": "66f0dcc0e412075b7911c97cfacf097d6cc64b999bc6501faccaebcce134b9b0"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/suites35.json",
+      "sha256": "30c4f1c1e6ff60272da984ba4de480e03f10beb2cdf86384e59fb33ac731e1a0"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/related.json",
+      "sha256": "3821bbde693c51e15e66b9cb6c49eecc7110137619bff6cc15c356ed26bd06fc"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/mutants.json",
+      "sha256": "d9b5802f5b642e911db8dd3ee3b56771a8c7855d2ae303ed9b3b445362da25f1"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/typecheck.log",
+      "sha256": "8102a14cf3245ac2b0d67c588affb25efaebfcd3485f9a46a751595d9a774951"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/lint.log",
+      "sha256": "6a19b801bbccc1d9a01f06abf2f6c8d307fe99c665792ba1341e15767ba71b4f"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/format.log",
+      "sha256": "e8e0b1fee53bb8d1f78db7356ffd2584fd0dfc941ec3f8b03f0e76a95aaa0158"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/lint-units.log",
+      "sha256": "00edcd4a99414da1171d11f814ff35548d27d3b2b2afb445afd91449e16a55da"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/madge-head.log",
+      "sha256": "22abc45134c6f10cf846a5228ef29cee514c6b2334b9c192aae5e1bd120019f8"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/validator-plain.log",
+      "sha256": "3c8a526f2cfa587e259a090767acd1fce1930d20d5c4b368cebf78dcf23cca7b"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/validator-git.log",
+      "sha256": "8334eb5ca69d8e1d087d34582a3138c3c68a69a32d6c67914441a48eaf64c460"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/validator-tests.log",
+      "sha256": "c545c401a0c5dddb1e6d3151844b8bf4ee2836b5f9f411ee1556269764a709ec"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/openspec.log",
+      "sha256": "89a3784befdc45a1fb8b4cac58d9703373655afb9d5fa537f58176fbd9cad0c0"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/qc-openspec.log",
+      "sha256": "19b2046de400eaefd184fb58e7072d1816b6ccef3ba1f1ea040c0f9ec8ec2c60"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/idle.log",
+      "sha256": "e1729fe3435ddf39efa6e918b68d86491539edb3778cbbbbf49093fea027810a"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1d-proof-20261017/product-final.patch",
+      "sha256": "d4a50cebec0ab5a6986a1673774874aaab607dbe3cf037f85eee30eab8e5bcdb"
+    }
+  ],
+  "boundary": "No CampaignMatchHost.ts / CampaignMatchHost.doors.ts / roadmap.json / server.js / Protocol / client edit; no merge or Main claim; the admission-review slot is left to the independent reviewer",
+  "status": "local GREEN; ready for push and independent exact-head review"
+}
