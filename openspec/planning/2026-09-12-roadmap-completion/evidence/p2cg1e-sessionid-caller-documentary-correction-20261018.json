@@ -1,0 +1,231 @@
+{
+  "event": "p2cg1e-sessionid-caller-documentary-correction",
+  "kind": "parent documentary correction",
+  "unit": "P2CG1E",
+  "node": "R2.authority-live",
+  "documentaryOnly": true,
+  "at": "2026-10-17T23:37:25.018Z",
+  "baseline": "b843b5ac465ee84c30b4e05e1cbf4d99c3a54b4b",
+  "branch": "codex/edoc1-p2cg1e-doc-20261018",
+  "actor": {
+    "role": "implementation sub-agent acting for the parent",
+    "provider": "openai",
+    "servedModel": "gpt-6.1-sol",
+    "identitySource": "T3 Code Codex harness runtime; this is not independent review",
+    "gitAuthor": "Wes Rollings <wrollings@gmail.com> 1792280245 -0600"
+  },
+  "authority": {
+    "instruction": "User authorized E-DOC-1: prepare and commit locally, wait up to five hours for P2CG1E closure on origin/main, then rebase preserving main lifecycle fields, validate, push and open a docs-only PR; do not merge.",
+    "precedents": [
+      "#2220: evidence/p2cg1d-grant-helper-literal-path-amendment-20261017.json",
+      "#2227: evidence/p2cg1i-literal-path-amendment-20261018.json"
+    ]
+  },
+  "defect": {
+    "id": "E-DOC-1",
+    "reportedBy": "P2CG1E implementer (user-provided report)",
+    "statement": "Coverage gap recorded: no shipped client sends sessionId, so the session-bearing P2CB preflight is exercised only by tests until a client does.",
+    "finding": "The shipped co-op mission-launch path already supplies sessionId: matchId to resolveLaunchForces. For a head result, that resolver forwards sessionId to requestLaunchAuthority, whose JSON POST body includes it; the route accepts it. The blanket no-shipped-caller assertion and its tests-only conclusion are factually wrong.",
+    "method": "Static source evidence on fetched main, not a runtime or activation proof.",
+    "probes": [
+      {
+        "path": "src/pages-modules/gameplay/campaigns/missionLaunchPage.launch.ts",
+        "blob": "6cdbd181f957c0a4dfaf44f7e8c8aa5c0f9e0f4c",
+        "command": [
+          "git",
+          "grep",
+          "-n",
+          "-E",
+          "resolveLaunchForces|sessionId: matchId",
+          "b843b5ac465ee84c30b4e05e1cbf4d99c3a54b4b",
+          "--",
+          "src/pages-modules/gameplay/campaigns/missionLaunchPage.launch.ts"
+        ],
+        "output": "b843b5ac465ee84c30b4e05e1cbf4d99c3a54b4b:src/pages-modules/gameplay/campaigns/missionLaunchPage.launch.ts:22:  resolveLaunchForces,\nb843b5ac465ee84c30b4e05e1cbf4d99c3a54b4b:src/pages-modules/gameplay/campaigns/missionLaunchPage.launch.ts:235:    const ownedForces = await resolveLaunchForces({\nb843b5ac465ee84c30b4e05e1cbf4d99c3a54b4b:src/pages-modules/gameplay/campaigns/missionLaunchPage.launch.ts:239:      sessionId: matchId,\nb843b5ac465ee84c30b4e05e1cbf4d99c3a54b4b:src/pages-modules/gameplay/campaigns/missionLaunchPage.launch.ts:267:                sessionId: matchId,\nb843b5ac465ee84c30b4e05e1cbf4d99c3a54b4b:src/pages-modules/gameplay/campaigns/missionLaunchPage.launch.ts:326:    const ownedForces = await resolveLaunchForces({"
+      },
+      {
+        "path": "src/lib/campaign/encounter/requestLaunchAuthority.ts",
+        "blob": "1cad6648e81b58faece306fe0317975ba8730699",
+        "command": [
+          "git",
+          "grep",
+          "-n",
+          "-E",
+          "launchHead === null|await requestLaunchAuthority|input.sessionId|encodeURIComponent\\(campaignId\\)|method: 'POST'|sessionId === undefined",
+          "b843b5ac465ee84c30b4e05e1cbf4d99c3a54b4b",
+          "--",
+          "src/lib/campaign/encounter/requestLaunchAuthority.ts"
+        ],
+        "output": "b843b5ac465ee84c30b4e05e1cbf4d99c3a54b4b:src/lib/campaign/encounter/requestLaunchAuthority.ts:107:      `/api/campaigns/${encodeURIComponent(campaignId)}/launch-authority`,\nb843b5ac465ee84c30b4e05e1cbf4d99c3a54b4b:src/lib/campaign/encounter/requestLaunchAuthority.ts:109:        method: 'POST',\nb843b5ac465ee84c30b4e05e1cbf4d99c3a54b4b:src/lib/campaign/encounter/requestLaunchAuthority.ts:114:          ...(sessionId === undefined ? {} : { sessionId }),\nb843b5ac465ee84c30b4e05e1cbf4d99c3a54b4b:src/lib/campaign/encounter/requestLaunchAuthority.ts:209:  if (launchHead === null || launchHead.kind !== 'head') return undefined;\nb843b5ac465ee84c30b4e05e1cbf4d99c3a54b4b:src/lib/campaign/encounter/requestLaunchAuthority.ts:211:    await requestLaunchAuthority({\nb843b5ac465ee84c30b4e05e1cbf4d99c3a54b4b:src/lib/campaign/encounter/requestLaunchAuthority.ts:223:      ...(input.sessionId === undefined ? {} : { sessionId: input.sessionId }),"
+      },
+      {
+        "path": "src/pages/api/campaigns/[id]/launch-authority.ts",
+        "blob": "0d0d78d3224c0f2c55c70d464fa36a4291bbce35",
+        "command": [
+          "git",
+          "grep",
+          "-n",
+          "-E",
+          "campaignLaunchAuthorityRoute",
+          "b843b5ac465ee84c30b4e05e1cbf4d99c3a54b4b",
+          "--",
+          "src/pages/api/campaigns/[id]/launch-authority.ts"
+        ],
+        "output": "b843b5ac465ee84c30b4e05e1cbf4d99c3a54b4b:src/pages/api/campaigns/[id]/launch-authority.ts:1:export { default } from '@/pages-modules/api/campaignLaunchAuthorityRoute';"
+      },
+      {
+        "path": "src/pages-modules/api/campaignLaunchAuthorityRoute.ts",
+        "blob": "b7aa3fbda4221d9d750f8f680fe3ea8350fb6733",
+        "command": [
+          "git",
+          "grep",
+          "-n",
+          "-E",
+          "body.sessionId !== undefined|typeof body.sessionId === 'string'|sessionId: body.sessionId",
+          "b843b5ac465ee84c30b4e05e1cbf4d99c3a54b4b",
+          "--",
+          "src/pages-modules/api/campaignLaunchAuthorityRoute.ts"
+        ],
+        "output": "b843b5ac465ee84c30b4e05e1cbf4d99c3a54b4b:src/pages-modules/api/campaignLaunchAuthorityRoute.ts:134:  if (body.sessionId !== undefined && typeof body.sessionId !== 'string') {\nb843b5ac465ee84c30b4e05e1cbf4d99c3a54b4b:src/pages-modules/api/campaignLaunchAuthorityRoute.ts:140:    ...(typeof body.sessionId === 'string'\nb843b5ac465ee84c30b4e05e1cbf4d99c3a54b4b:src/pages-modules/api/campaignLaunchAuthorityRoute.ts:141:      ? { sessionId: body.sessionId }\nb843b5ac465ee84c30b4e05e1cbf4d99c3a54b4b:src/pages-modules/api/campaignLaunchAuthorityRoute.ts:260:          sessionId: body.sessionId,\nb843b5ac465ee84c30b4e05e1cbf4d99c3a54b4b:src/pages-modules/api/campaignLaunchAuthorityRoute.ts:301:          sessionId: body.sessionId,"
+      }
+    ]
+  },
+  "changes": [
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "field": "units[id=P2CG1E].behavior",
+      "beforeSentence": "Coverage gap recorded: no shipped client sends sessionId, so the session-bearing P2CB preflight is exercised only by tests until a client does.",
+      "afterSentence": "Parent documentary correction 2026-10-18 (evidence/p2cg1e-sessionid-caller-documentary-correction-20261018.json): the shipped co-op mission-launch page already passes sessionId: matchId through resolveLaunchForces and requestLaunchAuthority to POST /api/campaigns/[id]/launch-authority when an authoritative launch head is available.",
+      "beforeSentenceSha256": "0a6f0bf4b5975ed1bf7ee8eabcf3d01147b7ae46adbab9694561e7bcdef27a4d",
+      "afterSentenceSha256": "584d046ca8c2cf27112932efe4d9f5d16946b7d63f1f3ec6d3a5359e85434365",
+      "beforeBehaviorSha256": "2d5d88a2e42e21ddc47bae6f4cc2fc5b3fdb54fb0f5c436560cf96b0d92554b0",
+      "afterBehaviorSha256": "fbe68eab7ae74a64dde7758ab6b3b0adaeb19c6d8069231e9cb1e9374902fda1",
+      "hashEncoding": "SHA-256 of exact UTF-8 decoded text, no trailing newline"
+    }
+  ],
+  "preimages": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "bytes": 1592071,
+      "sha256": "dcd21823555a57042d584e49410620e28ff780b47a1f781b6dbcf475a440a3b7"
+    }
+  ],
+  "postimages": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "bytes": 1592261,
+      "sha256": "ba86052a19540616a4b19c89e4af15bf01aee976b1464d9c71e7acae1cc06cac"
+    }
+  ],
+  "fieldDiff": {
+    "method": "Deep comparison of the complete parsed baseline units.json with the postimage after restoring only P2CG1E.behavior; equality asserted. roadmap.json compared byte-for-byte.",
+    "changedLeafCount": 1,
+    "entries": [
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "path": ".units[80][id=P2CG1E].behavior",
+        "before": "Sixth narrower P2CG1 successor: both HTTP doors keyed on the installed registry port, plus transport hardening. The campaignLaunchAuthorityRoute handler becomes async. When the port is installed and the body carries sessionId, it prepares the P2CB view in its own graph (createDurableCampaignLaunchView; a foreign-graph handle is never adopted) outside the existing read transaction and revalidates it inside, keeping branch, saga and replacement refusal precedence. Otherwise it keeps the legacy cursor gate, which is today's behaviour, including the head-only answer for session-less bodies. campaignLaunchProgressionGate exposes both branches. createCoopMissionMatch selects the P2CG1C prepared operation when the port is installed, else the old create. campaignSyncTransport changes, effective only in receipt mode: CF7 option (a), which ignores campaign-application-unknown-receipt when a newer offer was registered since the refused ACK (latest !== sent) and otherwise rejoins; CF8 bounds, a capped number of head-drift re-sends and a bounded wait for a lost refusal, then recovery-required so the consumer rejoins (the client answer to the P2CE3 write-unchecked refusal frames); CF12, the socket close surfaced as a recovery-required signal; and an expectedCampaignId-bound join keeps quoting lastSeq (the server ignores it in receipt mode, so the client-claimed cursor never selects the cut). P2CF1 m2/m3 may be registered as cases while the transport leaf is open. Numeric-ACK retirement is not part of this unit. Coverage gap recorded: no shipped client sends sessionId, so the session-bearing P2CB preflight is exercised only by tests until a client does. Activation predicate (frozen): a typed ICampaignApplicationReceiptPort installed once on CampaignHostRegistry by server.js at boot; the binder composes application from it, each entry derives a graph-local CampaignLaunchView from it, and both HTTP doors key on its presence while building their own graph-bound view; no other switch exists. Planned leaves (7): src/pages-modules/api/campaignLaunchProgressionGate.ts, src/pages-modules/api/campaignLaunchAuthorityRoute.ts, src/lib/multiplayer/server/coopMissionCreate.ts, src/lib/campaign/coop/campaignSyncTransport.ts, src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts, src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts and src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts. Estimated at about 125-175 counted lines with lifecycle; that is not a cap-fit proof.",
+        "after": "Sixth narrower P2CG1 successor: both HTTP doors keyed on the installed registry port, plus transport hardening. The campaignLaunchAuthorityRoute handler becomes async. When the port is installed and the body carries sessionId, it prepares the P2CB view in its own graph (createDurableCampaignLaunchView; a foreign-graph handle is never adopted) outside the existing read transaction and revalidates it inside, keeping branch, saga and replacement refusal precedence. Otherwise it keeps the legacy cursor gate, which is today's behaviour, including the head-only answer for session-less bodies. campaignLaunchProgressionGate exposes both branches. createCoopMissionMatch selects the P2CG1C prepared operation when the port is installed, else the old create. campaignSyncTransport changes, effective only in receipt mode: CF7 option (a), which ignores campaign-application-unknown-receipt when a newer offer was registered since the refused ACK (latest !== sent) and otherwise rejoins; CF8 bounds, a capped number of head-drift re-sends and a bounded wait for a lost refusal, then recovery-required so the consumer rejoins (the client answer to the P2CE3 write-unchecked refusal frames); CF12, the socket close surfaced as a recovery-required signal; and an expectedCampaignId-bound join keeps quoting lastSeq (the server ignores it in receipt mode, so the client-claimed cursor never selects the cut). P2CF1 m2/m3 may be registered as cases while the transport leaf is open. Numeric-ACK retirement is not part of this unit. Parent documentary correction 2026-10-18 (evidence/p2cg1e-sessionid-caller-documentary-correction-20261018.json): the shipped co-op mission-launch page already passes sessionId: matchId through resolveLaunchForces and requestLaunchAuthority to POST /api/campaigns/[id]/launch-authority when an authoritative launch head is available. Activation predicate (frozen): a typed ICampaignApplicationReceiptPort installed once on CampaignHostRegistry by server.js at boot; the binder composes application from it, each entry derives a graph-local CampaignLaunchView from it, and both HTTP doors key on its presence while building their own graph-bound view; no other switch exists. Planned leaves (7): src/pages-modules/api/campaignLaunchProgressionGate.ts, src/pages-modules/api/campaignLaunchAuthorityRoute.ts, src/lib/multiplayer/server/coopMissionCreate.ts, src/lib/campaign/coop/campaignSyncTransport.ts, src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts, src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts and src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts. Estimated at about 125-175 counted lines with lifecycle; that is not a cap-fit proof."
+      }
+    ]
+  },
+  "preserved": [
+    "All remaining P2CG1E behavior text, including the frozen activation predicate and planned leaves",
+    "Every contract, cap, literal leaf, ownership, state, baseline, prHead, mergeSha, stageReceipts, ownerGate and other lifecycle field",
+    "All other units, roadmap.json, existing evidence, source and tests"
+  ],
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "unchanged": true,
+    "capException": false
+  },
+  "permissionBoundary": "Documentary correction only; no contract, cap, leaf, state or lifecycle change; no source admission, release, implementation completion or activation claim.",
+  "sourceAdmitted": false,
+  "productFiles": 0,
+  "scope": [
+    "openspec/planning/2026-09-12-roadmap-completion/units.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1e-sessionid-caller-documentary-correction-20261018.json"
+  ],
+  "sequencing": {
+    "publishOnlyAfterClosure": true,
+    "observedMainState": "planned",
+    "observedMainProof": null,
+    "closureSeen": false,
+    "note": "Prepared locally first. Publication must follow closure on fetched main; all main lifecycle fields are preserved by the deep comparison above."
+  },
+  "validation": {
+    "results": [
+      {
+        "name": "validate-roadmap",
+        "at": "2026-10-17T23:37:25.189Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/edoc1-20261018",
+        "command": [
+          "node",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/edoc1-evidence-20261018/validate-roadmap.log",
+        "logSha256": "567feb20b9f85c902a3c4492eb3274c970f2370ccbbc6d3390088ad10923b947",
+        "summary": "ROADMAP VALIDATION PASSED: 80 nodes, 13 packages, 381 tasks, 40 triage rows"
+      },
+      {
+        "name": "validate-roadmap-git",
+        "at": "2026-10-17T23:37:34.106Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/edoc1-20261018",
+        "command": [
+          "node",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+          "--git"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/edoc1-evidence-20261018/validate-roadmap-git.log",
+        "logSha256": "0d7d99319c662d2b64fa0c98e73d2d6254bad922234f2c7a68c71758fc9fa890",
+        "summary": "CNI1_SOURCE_SIZING {\"mergeSha\":\"622f46cdbe505fd57cfd5e0a9635496a343baf3e\",\"fileCount\":13,\"maxFiles\":13,\"targetLines\":[250,350],\"reviewGuidanceLines\":500,\"files\":[{\"path\":\"openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs\",\"lines\":771,\"bytes\":50501,\"deleted\":false,\"exempt\":false,\"legacyWiring\":true,\"requiresSizingReview\":false},{\"path\":\"scripts/__tests__/roadmap-codex-identity-capture.test.ts\",\"lines\":1124,\"bytes\":59501,\"deleted\":false,\"exempt\":true,\"legacyWiring\":false,\"requiresSizingReview\":false},{\"path\":\"scripts/__tests__/roadmap-codex-review-identity.test.ts\",\"lines\":1644,\"bytes\":54141,\"deleted\":false,\"exempt\":true,\"legacyWiring\":false,\"requiresSizingReview\":false},{\"path\":\"scripts/__tests__/roadmap-loop-closure-proof.test.ts\",\"lines\":2484,\"bytes\":89940,\"deleted\":false,\"exempt\":true,\"legacyWiring\":false,\"requiresSizingReview\":false},{\"path\":\"scripts/qc/review-identity/contract.mjs\",\"lines\":387,\"bytes\":12768,\"deleted\":false,\"exempt\":false,\"legacyWiring\":false,\"requiresSizingReview\":false},{\"path\":\"scripts/qc/review-identity/custody.mjs\",\"lines\":384,\"bytes\":12331,\"deleted\":false,\"exempt\":false,\"legacyWiring\":false,\"requiresSizingReview\":false},{\"path\":\"scripts/qc/review-identity/native-binding.mjs\",\"lines\":531,\"bytes\":17059,\"deleted\":false,\"exempt\":false,\"legacyWiring\":false,\"requiresSizingReview\":true},{\"path\":\"scripts/qc/review-identity/review.mjs\",\"lines\":415,\"bytes\":12727,\"deleted\":false,\"exempt\":false,\"legacyWiring\":false,\"requiresSizingReview\":false},{\"path\":\"scripts/qc/review-identity/source.mjs\",\"lines\":503,\"bytes\":15058,\"deleted\":false,\"exempt\":false,\"legacyWiring\":false,\"requiresSizingReview\":true},{\"path\":\"scripts/qc/roadmap-codex-identity-capture.mjs\",\"lines\":535,\"bytes\":17027,\"deleted\":false,\"exempt\":false,\"legacyWiring\":false,\"requiresSizingReview\":true},{\"path\":\"scripts/qc/roadmap-ledger-lib.mjs\",\"lines\":184,\"bytes\":5486,\"deleted\":false,\"exempt\":false,\"legacyWiring\":false,\"requiresSizingReview\":false},{\"path\":\"scripts/qc/roadmap-loop-runtime.mjs\",\"lines\":75,\"bytes\":2288,\"deleted\":false,\"exempt\":false,\"legacyWiring\":false,\"requiresSizingReview\":false},{\"path\":\"scripts/qc/roadmap-unit-closure.mjs\",\"lines\":638,\"bytes\":22382,\"deleted\":false,\"exempt\":false,\"legacyWiring\":true,\"requiresSizingReview\":false}]}\nROADMAP VALIDATION PASSED: 80 nodes, 13 packages, 381 tasks, 40 triage rows"
+      },
+      {
+        "name": "validator-tests",
+        "at": "2026-10-17T23:38:03.369Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/edoc1-20261018",
+        "command": [
+          "node",
+          "--test",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/edoc1-evidence-20261018/validator-tests.log",
+        "logSha256": "f7e42e3b3dc512541df3761fb08d5c5895429bf2798403f85000444a6447b5dc",
+        "summary": "ℹ suites 0\nℹ pass 86\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 15407.5852"
+      },
+      {
+        "name": "openspec-validate-all-strict",
+        "at": "2026-10-17T23:38:18.865Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/edoc1-20261018",
+        "command": [
+          "node",
+          "C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js",
+          "validate",
+          "--all",
+          "--strict"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/edoc1-evidence-20261018/openspec-validate-all-strict.log",
+        "logSha256": "3f957310c0c3835ba3d5704458ddc03218d48f0b205252ed6d52ca87951ba4f5",
+        "summary": "✓ spec/vault-sync\n✓ spec/vehicle-unit-system\n✓ spec/weapon-resolution-system\n✓ spec/weapon-system\n✓ spec/weight-class-system\nTotals: 230 passed, 0 failed (230 items)\n- Validating..."
+      },
+      {
+        "name": "qc-openspec-ci-validate",
+        "at": "2026-10-17T23:38:20.463Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/edoc1-20261018",
+        "command": [
+          "node",
+          "scripts/qc/validate-openspec-ci-quality.mjs"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/edoc1-evidence-20261018/qc-openspec-ci-validate.log",
+        "logSha256": "f2ecacc6006cdd0cc60052c81384bf785d65970c200c0bcc8ebcbc4834c1a61a",
+        "summary": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=20/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0"
+      }
+    ]
+  }
+}
