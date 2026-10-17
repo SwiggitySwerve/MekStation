@@ -8681,7 +8681,13 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5b-admission-20261017.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5b-red-20261017.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5b-local-20261017.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5b-sweep-20261017.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5b-sweep-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5b-source-astra-review-20261017.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5b-review-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5b-merge-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ff3c85ef-docs.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ff3c85ef-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5b-mainproof-20261017.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -8692,10 +8698,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "main-verified",
       "baseline": "cf06e9547f87c929d63cc23194b4ce7d67c3ef15",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "c45cd1833160ef9867ff0dbafc57157e9c6d33e2",
+      "mergeSha": "ff3c85efb869339816cbe76fe83e36f7096af0e5",
       "stageReceipts": {
         "admission": {
           "path": "evidence/ts7s5b-admission-20261017.json"
@@ -8706,9 +8712,27 @@
         "local": {
           "path": "evidence/ts7s5b-local-20261017.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/ts7s5b-review-20261017.json",
+          "head": "c45cd1833160ef9867ff0dbafc57157e9c6d33e2",
+          "reviewedHead": "c45cd1833160ef9867ff0dbafc57157e9c6d33e2",
+          "reviewerModel": "gpt-6-astra",
+          "implementerModel": "gpt-6.1-sol",
+          "outputSha256": "ec1f52c85fdd8e05109b961b30b0eeb164066aef584b685af4e8b49e63a47847",
+          "verdict": "PASS WITH ONE NONBLOCKING WORDING FINDING"
+        },
+        "merge": {
+          "path": "evidence/ts7s5b-merge-20261017.json",
+          "pr": 2198,
+          "head": "c45cd1833160ef9867ff0dbafc57157e9c6d33e2",
+          "mergeSha": "ff3c85efb869339816cbe76fe83e36f7096af0e5"
+        },
+        "mainProof": {
+          "path": "evidence/ts7s5b-mainproof-20261017.json",
+          "mergeCommit": "ff3c85efb869339816cbe76fe83e36f7096af0e5",
+          "verdict": "PASS",
+          "runtime": "Source/Main checks: 9 passed (machine-idle only the Root-allowed PID 47516; canonical openspec/specs/typescript-toolchain/spec.md exists with a nonempty Purpose, its requirement body equals the ADDED delta body, 4 requirements and 7 scenarios, and openspec validate typescript-toolchain --type spec --strict is valid; archived openspec/changes/archive/2026-10-17-migrate-to-typescript-7/design.md exists and its blob e79fc639 equals the pre-move cf06e954 design.md blob by git rev-parse, and the active design.md is absent; the active change retains proposal.md, tasks.md and both delta specs and openspec validate migrate-to-typescript-7 --type change --strict is valid; tasks.md 5.3 stays unchecked and records the integrated db607a7f sweep at lines 135-138; canonical bv-validation-tooling names npm run typecheck; validator PASSED and --git PASSED with the #2197 correction; openspec validate --all --strict 231 passed and qc:openspec-ci:validate errors=0; 0 failed)"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -8766,7 +8790,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
