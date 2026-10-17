@@ -7823,7 +7823,16 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1b-admission-20261016.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1b-admission-review-20261016.md",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1b-red-20261016.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1b-local-20261016.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1b-local-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1b-source-fable-review-20261016.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1b-owner-ruling-6227371325.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1b-review-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1b-merge-20261016.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-3d9c4536-tests.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-3d9c4536-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-3d9c4536-ts7.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-3d9c4536-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s1b-mainproof-20261016.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -7834,10 +7843,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "implementing",
+      "state": "main-verified",
       "baseline": "0929f614e3de20d89801eee90750937d6c925c13",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "07e61c70404d9da5d0dad5582c06a17e6c77b401",
+      "mergeSha": "3d9c45365bfc34d27930acb1ff3411b91af17cb9",
       "stageReceipts": {
         "admission": {
           "path": "evidence/ts7s1b-admission-20261016.json"
@@ -7848,9 +7857,27 @@
         "local": {
           "path": "evidence/ts7s1b-local-20261016.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/ts7s1b-review-20261016.json",
+          "head": "07e61c70404d9da5d0dad5582c06a17e6c77b401",
+          "reviewedHead": "07e61c70404d9da5d0dad5582c06a17e6c77b401",
+          "reviewerModel": "claude-fable-5-1",
+          "implementerModel": "claude-opus-5-5",
+          "outputSha256": "5e7d0710e36c2aab730d0ee67484531e9127792c698a70b77cc46655b07149d0",
+          "verdict": "APPROVE-WITH-NOTES"
+        },
+        "merge": {
+          "path": "evidence/ts7s1b-merge-20261016.json",
+          "pr": 2176,
+          "head": "07e61c70404d9da5d0dad5582c06a17e6c77b401",
+          "mergeSha": "3d9c45365bfc34d27930acb1ff3411b91af17cb9"
+        },
+        "mainProof": {
+          "path": "evidence/ts7s1b-mainproof-20261016.json",
+          "mergeCommit": "3d9c45365bfc34d27930acb1ff3411b91af17cb9",
+          "verdict": "PASS",
+          "runtime": "Source/Main Jest: Tests:       22 passed, 22 total"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -7914,7 +7941,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -15152,6 +15179,44 @@
         "commentId": 6225844972,
         "author": "SwiggitySwerve",
         "bodySha256": "b013731c0a9a7ada11a913a62c6f7b112b98986a78493fa399bcb5e6b11a85d2"
+      }
+    },
+    {
+      "id": "PK-ts7s1b-ruling",
+      "blocks": [
+        "TS7S1B"
+      ],
+      "nodes": [
+        "R6.ts7-toolchain"
+      ],
+      "taskKeys": [],
+      "question": "After independent exact-head Fable review and required green CI, should the owner rule the bounded TS7S1B config head (tasks 0.1, 0.2 and 1.3-1.5 of migrate-to-typescript-7 plus the active-change-ledger flip: root tsconfig.json target es2017 with baseUrl deleted and paths {\"@/*\": [\"./src/*\"]}, desktop/tsconfig.json module and moduleResolution nodenext, with emitted runtime JavaScript unchanged and TypeScript 7.0.x reporting 0 errors for root, desktop/tsconfig.json and desktop/tsconfig.test.json) before guarded merge?",
+      "options": [
+        {
+          "label": "rule the exact source head",
+          "consequence": "Permit the guarded TS7S1B config merge and the exact-main proof only. TS7S2A is released to planned only after TS7S1B is main-verified, with the review carry-forwards recorded for its admission. P2CG1B stays blocked under the parent hold.",
+          "effort": "One exact-head Fable review, an evidence check and an owner ruling"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Hold the merge until the concrete config, @/ resolution, emit-equality, ledger or proof objections are fixed, and fresh exact-head review, CI and owner ruling are complete. If any emitted runtime JavaScript differs, the routine review class no longer holds and the unit is re-registered before merge.",
+          "effort": "Bounded by the concrete review objections"
+        }
+      ],
+      "agentRecommendation": "Rule only an independently approved green exact head that meets all of these: the edits are exactly design.md D2 plus the tasks.md ticks and the ledger flip; @/ still resolves in npm run typecheck, one @/-importing root Jest suite, npx tsx, npm run build and npm run storybook:build, and next dev leaves tsconfig.json unrewritten; every desktop .js is byte-identical between two builds from the same checkout on desktop's own compiler; TypeScript 7.0.x reports 0 errors for the three configs; and npm run electron:test passes. This proposal grants no approval or merge permission.",
+      "revertCost": "Low: revert the two tsconfig edits, the five tasks.md ticks and the ledger entry. TS7S1B changes no emitted runtime JavaScript, compiler version, package, source, Protocol, server.js or production wiring.",
+      "decision": {
+        "option": "rule the exact source head",
+        "at": "2026-10-17T00:31:42Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2176#issuecomment-6227371325"
+      },
+      "ruling": {
+        "ruledHead": "07e61c70404d9da5d0dad5582c06a17e6c77b401",
+        "pr": 2176,
+        "commentId": 6227371325,
+        "author": "SwiggitySwerve",
+        "bodySha256": "d0e8cf547c367cf216810eaccf566e74f706d5cc836332172be50938933c43b8"
       }
     },
     {

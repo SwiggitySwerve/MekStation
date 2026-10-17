@@ -1,0 +1,3 @@
+OWNER-RULING 07e61c70404d9da5d0dad5582c06a17e6c77b401
+
+The owner authorized this ruling in chat. PR #2176 merged before this ruling was posted. The ruling covers TS7S1B (migrate-to-typescript-7 tasks 0.1, 0.2 tick, 1.3-1.5 and the active-change-ledger flip: root tsconfig target es2017 with baseUrl removed and an explicit @/* path mapping, desktop tsconfig nodenext), reviewed APPROVE-WITH-NOTES by an independent reviewer with no blockers or majors who reproduced the desktop emit equality (84 files byte-identical on desktop's own compiler), the base-vs-head transform equality for the esbuild path (0 of 7,820 files differ) and zero errors under TypeScript 7.0.2 and 6.0.3. CI 31/31.
