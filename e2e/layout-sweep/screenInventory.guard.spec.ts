@@ -132,15 +132,15 @@ test.describe('Viewport layout sweep -- screen inventory guard', () => {
       counts.set(entry.class, (counts.get(entry.class) ?? 0) + 1);
     }
 
-    // 28 standalone (unique primary route files) + 2 recovery + 3 static-catalog
-    // + 18 pack-seeded + 13 excluded = 64 entries; 5 harness patterns are
+    // 29 standalone (unique primary route files) + 2 recovery + 3 static-catalog
+    // + 18 pack-seeded + 13 excluded = 65 entries; 5 harness patterns are
     // auto-excluded and never enter the inventory (design D5 context).
-    expect(counts.get('standalone')).toBe(28);
+    expect(counts.get('standalone')).toBe(29);
     expect(counts.get('recovery')).toBe(2);
     expect(counts.get('static-catalog')).toBe(3);
     expect(counts.get('pack-seeded')).toBe(18);
     expect(counts.get('excluded')).toBe(13);
-    expect(SCREEN_INVENTORY.length).toBe(64);
-    expect(SWEPT_NOW_ENTRIES.length).toBe(33);
+    expect(SCREEN_INVENTORY.length).toBe(65);
+    expect(SWEPT_NOW_ENTRIES.length).toBe(34);
   });
 });
