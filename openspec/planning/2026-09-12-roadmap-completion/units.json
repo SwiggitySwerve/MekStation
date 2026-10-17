@@ -7068,6 +7068,7 @@
         "P2CG1G1"
       ],
       "successors": [
+        "P2CG1R",
         "P2CG1H",
         "P2C"
       ],
@@ -7082,6 +7083,122 @@
         "change": "CF9 citation corrected: CampaignCoopEntryPanel.tsx 328 calls connectCampaignSyncTransport",
         "note": "Review m5 (docs/audits/2026-10-16-p2cg1-split-registration-fable-review.md). Documentary; no leaf change.",
         "evidence": "evidence/p2cg1-split-registration-correction-20261016.json"
+      }
+    },
+    {
+      "id": "P2CG1R",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Pre-activation reservation-release repair for H-OPEN-1 / CF-E1, a finite supporting unit of the P2CG1 package. Add the trusted, server-only, default-absent synchronous onNotCommitted?: () => void control to ICampaignAppendControls. JournalCampaignEventStore includes it in capability detection and invokes it inside the synchronous append extension when the post-guard append returns non-committed or throws; do not move cleanup to an await continuation. Preserve duplicate-first semantics, actual outer-commit notification, typed refusal and commit-uncertain outcomes. ICampaignCommitControls already extends the append controls, but CampaignMatchHost.commitEvents destructures and reconstructs only guard/onCommitted: include the new hook in its capability check and forward it unchanged. No writer product edit is planned. Bind commitGuardedProgression with onNotCommitted: release; retain idempotent onCommitted/afterRelease cleanup and the reservation microtask fallback. No activation or cross-file atomicity claim. Planned leaves (7): src/lib/campaign/sync/ICampaignEventStore.ts, src/lib/campaign/sync/JournalCampaignEventStore.ts, src/lib/multiplayer/server/CampaignMatchHost.ts, src/lib/multiplayer/server/bindCampaignSyncConnection.ts, src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts, src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts, src/lib/multiplayer/server/__tests__/CampaignMatchHost.pipeline.test.ts. Estimate: 31-80 product added lines plus 16-35 units.json lifecycle additions (47-115 counted), 180-300 test additions; source-stage file estimate 12/15 including four evidence/review slots and units.json. These are estimates, not admission proof.",
+      "ownershipPaths": [
+        "src/lib/campaign",
+        "src/lib/multiplayer/server"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "admissionRequires": "Registered by evidence/h-prereq-registration-20261017.json, under existing R2.authority-live authority and ordinary 15-file/500-product-added-line caps. Registration is prospective only: blocked, no source admission, no residual acceptance and no release. Parent must verify each documentary predecessor is main-verified (or complete/archived) with a genuine exact-main mainProof PASS, fetched-main ancestry and closure before release to planned. NEXT does not enforce these predecessor arrays and supplies no permission. One product-writing lane: no admission while another unit or its closure is in flight, including E/F/G1/G2 and L1/L2 work. Freeze the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measure actual unique files and U41 added lines before writes; tests are counted as files and their additions reported separately. Only the named restrictions for this ID are product/test leaves; ownershipPaths are navigation aliases, not directory-wide permission. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze of actual bytes/names/hashes and full census. No placeholder evidence, historical receipt edits, capException or cap inflation. If scope cannot fit, stop for a narrower separately registered ordinary-cap successor; do not omit a required proof. All existing sensitive review and owner gates remain; classify actual implementation proof at admission. This registration itself is proofClass ledger.",
+      "predecessors": [
+        "P2CG1G2",
+        "P2CG1B",
+        "P2CG1D"
+      ],
+      "successors": [
+        "P2CG1S",
+        "P2CG1H",
+        "P2C"
+      ],
+      "registration20261017HPrereqs": {
+        "evidence": "evidence/h-prereq-registration-20261017.json",
+        "obligation": "H-OPEN-1 / CF-E1",
+        "proofs": [
+          "Red-first real SQLite post-guard revision-conflict and append-throw cases: trail M:BEGIN IMMEDIATE:C-open=true, guard, M:ROLLBACK:C-open=true, tick; assert release before any queued foreign M write can nest and be discarded. Remove onNotCommitted to make the regression fail.",
+          "Exercise binder host AdvanceDay, auto-approved AdvanceDay proposal and GM approval of pending AdvanceDay; cleanup is idempotent, pending proposal consumption happens only on known commit. Pin preparation/veto/reservation refusals and late guard refusal with no leaked M transaction.",
+          "Adapter and host pipeline: successful commit notification once, duplicate replay without re-guard/cleanup side effects, unsupported capability (including hook-only controls) fails closed, unchanged command identity and no serialized callback. Preserve throw/refusal/known-commit distinctions; inspect afterCommit-extension and outer-COMMIT failures at admission and register any writer-level widening separately.",
+          "Focused JournalCampaignEventStore, bindCampaignSyncConnection and CampaignMatchHost.pipeline suites; typecheck, lint/format on owned leaves, exact-head required CI and applicable independent sensitive review/owner gates; exact-main proof before H release."
+        ]
+      }
+    },
+    {
+      "id": "P2CG1S",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Pre-activation live-wire spectator sealed-choice privacy repair for B10, a finite supporting unit of the P2CG1 package under R2.authority-live. In the shared MatchWireSealedChoices context, a current spectator seat never owns a sealed declaration, even with a stale sideAssignments entry or a gm-branded viewer. Mirror FogAwareMatchProjection seat exclusion before actor ownership, using isSpectatorPlayer on current meta.seats, not viewer.role (spectators are branded player or gm). Thread current seat data from both ServerMatchHostReplay and ServerMatchHostEvents into the shared context, including fog-off delivery; preserve ordinary actor visibility and authoritative reveal behavior. No HTTP export rewrite, spectator role redesign or removal of unrelated GM authority. Planned leaves (5): src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts, src/lib/multiplayer/server/ServerMatchHostReplay.ts, src/lib/multiplayer/server/ServerMatchHostEvents.ts, src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts, src/lib/multiplayer/server/__tests__/sealedChoiceDelivery.test.ts. Estimate: 15-40 product added lines plus 16-35 units.json lifecycle additions (31-75 counted), 160-280 test additions; source-stage file estimate 10/15 including four evidence/review slots and units.json. These are estimates, not admission proof.",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "admissionRequires": "Registered by evidence/h-prereq-registration-20261017.json, under existing R2.authority-live authority and ordinary 15-file/500-product-added-line caps. Registration is prospective only: blocked, no source admission, no residual acceptance and no release. Parent must verify each documentary predecessor is main-verified (or complete/archived) with a genuine exact-main mainProof PASS, fetched-main ancestry and closure before release to planned. NEXT does not enforce these predecessor arrays and supplies no permission. One product-writing lane: no admission while another unit or its closure is in flight, including E/F/G1/G2 and L1/L2 work. Freeze the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measure actual unique files and U41 added lines before writes; tests are counted as files and their additions reported separately. Only the named restrictions for this ID are product/test leaves; ownershipPaths are navigation aliases, not directory-wide permission. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze of actual bytes/names/hashes and full census. No placeholder evidence, historical receipt edits, capException or cap inflation. If scope cannot fit, stop for a narrower separately registered ordinary-cap successor; do not omit a required proof. All existing sensitive review and owner gates remain; classify actual implementation proof at admission. This registration itself is proofClass ledger.",
+      "predecessors": [
+        "P2CG1R"
+      ],
+      "successors": [
+        "P2CG1H",
+        "P2C"
+      ],
+      "registration20261017HPrereqs": {
+        "evidence": "evidence/h-prereq-registration-20261017.json",
+        "obligation": "B10",
+        "proofs": [
+          "Red-first repro from PR2212 review r2 note 3: fog on, current spectator seat, stale opponent sideAssignments naming that spectator, unrevealed opponent AttackDeclared, actual ServerMatchHost.sendReplay. Secret event id/payload must be absent; preserve public events and compare the matching HTTP export event set (existing matchHistoryFog suite is read-only proof).",
+          "Exercise the actual live Event broadcast as well as ReplayChunk for the same stale-seat fixture; cover MovementDeclared, AttackDeclared and PhysicalAttackDeclared; fog on/off and player/gm viewer brands. Spectator seat exclusion precedes gm/assignment actor shortcuts; remove the exclusion to kill the regression.",
+          "Positive controls: current human actor retains own unrevealed declaration, displaced player gains no stale assignment privilege, spectators receive eligible authoritative reveals/public facts under existing visibility rules, no hidden placeholders/authority sequence leak or delivery-cursor gap. Preserve non-spectating GM policy.",
+          "Focused ServerMatchHost.spectator, sealedChoiceDelivery, ServerMatchHost.fogOfWarIntegration, ServerMatchHost.gmNoPromotion, ViewerPublicationBoundary and matchHistoryFog suites; typecheck, lint/format, full exact-head CI and sensitive review/owner gates; exact-main built-server socket smoke before H or any spectator-bearing shipment."
+        ]
       }
     },
     {
@@ -7128,9 +7245,11 @@
       },
       "ownerGate": null,
       "splitFrom": "P2CG1",
-      "admissionRequires": "Narrower ordinary-cap successor of P2CG1 (plan Task 14), registered by evidence/p2cg1-split-registration-20261016.json. P2CG1G2 must be complete with a genuine exact-main mainProof PASS before the parent releases this unit to planned; NEXT does not enforce these unit dependencies. No preserved P2CG1 source candidate exists; this slice runs its own red-first proof and measured admission. Task8 must first complete independent exact-head docs review, current required CI, guarded merge and independent exact-main registration proof. Parent verifies documentary predecessors complete with genuine exact-main mainProof PASS, ancestry and closure on fetched main and no actual overlap before every source admission. NEXT selection supplies no permission. Prospective assignment only; source permission remains non-effective until normal finite admission freezes the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measures actual unique files and product/test additions under unchanged 15-file/500-product-added-line limits. Named source/test lists and known lower bounds are in R2.authority-live.ownershipPathsAmended20261009P2C.restrictions for this ID. No unnamed test, directory-wide grant, placeholder/hash, capException or cap inflation. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze of actual bytes/names/hashes and full census. If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required scenario.",
+      "admissionRequires": "Narrower ordinary-cap successor of P2CG1 (plan Task 14), registered by evidence/p2cg1-split-registration-20261016.json. P2CG1G2 must be complete with a genuine exact-main mainProof PASS before the parent releases this unit to planned; NEXT does not enforce these unit dependencies. No preserved P2CG1 source candidate exists; this slice runs its own red-first proof and measured admission. Task8 must first complete independent exact-head docs review, current required CI, guarded merge and independent exact-main registration proof. Parent verifies documentary predecessors complete with genuine exact-main mainProof PASS, ancestry and closure on fetched main and no actual overlap before every source admission. NEXT selection supplies no permission. Prospective assignment only; source permission remains non-effective until normal finite admission freezes the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measures actual unique files and product/test additions under unchanged 15-file/500-product-added-line limits. Named source/test lists and known lower bounds are in R2.authority-live.ownershipPathsAmended20261009P2C.restrictions for this ID. No unnamed test, directory-wide grant, placeholder/hash, capException or cap inflation. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze of actual bytes/names/hashes and full census. If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required scenario. Additional hard pre-activation prerequisites registered 2026-10-17: P2CG1R (H-OPEN-1 / CF-E1) and P2CG1S (B10) must both have genuine exact-main mainProof PASS before H admission or port installation. This design selects repair, not the historical residual-acceptance option; any proposed waiver is a separate explicit Root/owner decision, never inferred from NEXT. See evidence/h-prereq-registration-20261017.json.",
       "predecessors": [
-        "P2CG1G2"
+        "P2CG1G2",
+        "P2CG1R",
+        "P2CG1S"
       ],
       "successors": [
         "P2CG1I1",
@@ -7520,7 +7639,7 @@
         "tick": null
       },
       "ownerGate": null,
-      "admissionRequires": "Task8 must first complete independent exact-head docs review, current required CI, guarded merge and independent exact-main registration proof. All twenty-four source slices require genuine complete/PASS/ancestry/closure; original P2/U38 remain blocked until Task17 full semantic qualification and explicit original-prerequisite readmission. NEXT selection supplies no permission. No aggregate output beyond the two named documentary leaves is effective before Task17/G-OWN freeze.",
+      "admissionRequires": "Task8 must first complete independent exact-head docs review, current required CI, guarded merge and independent exact-main registration proof. All twenty-four source slices require genuine complete/PASS/ancestry/closure; original P2/U38 remain blocked until Task17 full semantic qualification and explicit original-prerequisite readmission. NEXT selection supplies no permission. No aggregate output beyond the two named documentary leaves is effective before Task17/G-OWN freeze. The aggregate prerequisite census also includes P2CG1R and P2CG1S with exact-main PASS, registered by evidence/h-prereq-registration-20261017.json.",
       "predecessors": [
         "P2CA",
         "P2CB",
@@ -7539,6 +7658,8 @@
         "P2CG1F",
         "P2CG1G1",
         "P2CG1G2",
+        "P2CG1R",
+        "P2CG1S",
         "P2CG1H",
         "P2CG1I1",
         "P2CG1I2",
@@ -21073,6 +21194,39 @@
     ],
     "schedulingRule": "While an L1 unit is admitted or its closure is open, no L2 unit is admitted (the existing one-product-lane rule). L2 units keep their own contracts and eligibility; NEXT selection supplies no permission either way. No machine-readable edge, state, cap, holder, packet, predecessor or ownership entry of any unit changes under this key.",
     "rule": "Documentary release-point registration only. Nothing is admitted or released, and the state of no existing unit changes. Every unit's behaviour, caps (15 files / 500 non-generated lines), review classes, admissionRequires and predecessors stay as registered. If L1 must be shorter than this chain, that is a separate owner-approved contract amendment (see the draft's section 7), not an edit under this key.",
-    "evidence": "evidence/l1-release-point-registration-20261017.json"
+    "evidence": "evidence/l1-release-point-registration-20261017.json",
+    "amended20261017HPrereqs": {
+      "evidence": "evidence/h-prereq-registration-20261017.json",
+      "additionalUnits": [
+        "P2CG1R",
+        "P2CG1S"
+      ],
+      "order": "G2 -> R -> S -> H; both are L1 supporting prerequisites, covered by the existing one-lane rule. Original task holders, release acceptance and H checkpoint remain unchanged.",
+      "checkpointQualification": "The original description of H as the first behaviour-changing merge predates B10 registration. S changes an already-live privacy boundary and requires full proof; H retains its independent activation checkpoint. No new owner decision or gate relaxation is made."
+    }
+  },
+  "hPrereqRegistration20261017": {
+    "at": "2026-10-17T22:32:01.918Z",
+    "baseline": "526cf6d063d6639118aa7056c511bf17fc3c0f65",
+    "evidence": "evidence/h-prereq-registration-20261017.json",
+    "registrationOnly": true,
+    "node": "R2.authority-live",
+    "package": "P2CG1",
+    "units": [
+      "P2CG1R",
+      "P2CG1S"
+    ],
+    "order": [
+      "P2CG1E",
+      "P2CG1F",
+      "P2CG1G1",
+      "P2CG1G2",
+      "P2CG1R",
+      "P2CG1S",
+      "P2CG1H"
+    ],
+    "rule": "New blocked finite supporting units under existing contracts; E/F/G1/G2 order and leaves unchanged. Parent releases R after G2 and S after R, then H only after both exact-main proofs. No product permission and no waiver. One product-writing lane including closure; NEXT does not enforce these documentary edges.",
+    "releaseHold": "B10 is already live: no spectator-bearing shipment or P3 exit may claim readiness until P2CG1S exact-main PASS, even if a release bypasses H. If a spectator release is brought forward, Root must explicitly resequence this serialized repair before it; no risk acceptance is recorded.",
+    "sourceNote": "H-OPEN-1 is in evidence/p2cg1d-review-20261017.json successorNotes.P2CG1H, referenced by P2CG1D.stageReceipts.review; not inline in units.json at this baseline."
   }
 }
