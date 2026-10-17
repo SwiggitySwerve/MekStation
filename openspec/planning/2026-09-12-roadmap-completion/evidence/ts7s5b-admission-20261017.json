@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 1,
+  "unit": "TS7S5B",
+  "stage": "admission",
+  "at": "2026-10-17T09:20:57.604Z",
+  "baseline": "cf06e9547f87c929d63cc23194b4ce7d67c3ef15",
+  "proofClass": "light",
+  "contributor": {
+    "provider": "openai",
+    "model": "gpt-6.1-sol",
+    "reasoningEffort": "high",
+    "task": "TS7S5B implementation sub-agent"
+  },
+  "archiveDate": "2026-10-17",
+  "frozenManifest": [
+    {
+      "path": "openspec/changes/migrate-to-typescript-7/tasks.md",
+      "baselineBlob": "14e9fc9ceb793e356b373afbbe1aeaea176e017f"
+    },
+    {
+      "path": "openspec/changes/migrate-to-typescript-7/design.md",
+      "baselineBlob": "e79fc6398e054576f3bd2004404330f6235ca2b4"
+    },
+    {
+      "path": "openspec/specs/typescript-toolchain/spec.md",
+      "baselineBlob": null
+    },
+    {
+      "path": "openspec/specs/bv-validation-tooling/spec.md",
+      "baselineBlob": "1cbe2bc1799f4d922f2676e0aba295b776400322"
+    },
+    {
+      "path": "openspec/changes/archive/2026-10-17-migrate-to-typescript-7/design.md",
+      "baselineBlob": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "baselineBlob": "86fb75f62231a71ecf2e5f0c23c4eb6518a659bb"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5b-admission-20261017.json",
+      "baselineBlob": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5b-red-20261017.json",
+      "baselineBlob": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5b-local-20261017.json",
+      "baselineBlob": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5b-sweep-20261017.json",
+      "baselineBlob": null
+    }
+  ],
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500
+  },
+  "authority": "Root authorized implementation after S5A closure #2196 and parent archive-ownership correction #2197, with literal archive admission and the integrated sweep pinned to db607a7f. No other unit/node is edited.",
+  "predecessors": [
+    {
+      "id": "TS7S5A",
+      "state": "main-verified",
+      "mergeSha": "db607a7fc80a87b1dbe0d033e34b5d201e018840",
+      "mainProof": {
+        "path": "evidence/ts7s5a-mainproof-20261017.json",
+        "mergeCommit": "db607a7fc80a87b1dbe0d033e34b5d201e018840",
+        "verdict": "PASS",
+        "runtime": "Source/Main checks: 8 passed (machine-idle only the Root-allowed PID 47516; contributor-doc grep of the eight named doc leaves finds only the intentional troubleshooting.md:21 warning that root npx tsc is TypeScript 6 and npm run typecheck is the TypeScript 7 gate; tracked-file grep outside historical evidence finds no TypeScript 5.8 or npx ts-node; remaining npx tsc matches classified as the troubleshooting warning, two historical PROGRESS/CLOSED records in another change, and canonical bv-validation-tooling spec.md:406, the explicit TS7S5B carry-forward; all ten named leaves contain their required statements, 20/20; package.json scripts.typecheck is the two-project TypeScript 7 command; validator PASSED and --git PASSED; openspec validate --all --strict 230 passed and qc:openspec-ci:validate errors=0; 0 failed)"
+      }
+    },
+    {
+      "id": "TS7S2OD",
+      "state": "main-verified",
+      "mergeSha": "97c3281f5a3d943adee64e3516a538d466d50f8e",
+      "mainProof": {
+        "path": "evidence/ts7s2od-mainproof-20261017.json",
+        "mergeCommit": "97c3281f5a3d943adee64e3516a538d466d50f8e",
+        "verdict": "PASS",
+        "runtime": "Source/Main checks: 6 passed (npm run typecheck exit 0 with both projects; tsc -p scripts/tsconfig.json --noEmit exit 0; validate:bv exit 0 with all accuracy gates passed; validate:parity exit 0 with 4227 of 4227 passed; validator PASSED; openspec validate --all --strict 230 passed and qc:openspec-ci:validate errors=0; 0 failed)"
+      }
+    }
+  ],
+  "sourcePreparation": "Prepared at 0dd08024, then rebased onto cf06e954. Archived design preserves S5A corrected D3 blob unchanged.",
+  "scope": "Five source paths plus own lifecycle and four evidence files. Full finite manifest is 10 paths; every evidence file counts as a file, and --no-renames product additions are measured after writing.",
+  "overlap": "No other TS7 unit is in flight; the parent supplied serial admission authority. The parent correction retains disappearing source grants as exact exceptions.",
+  "sweep": {
+    "implementationMergeSha": "db607a7fc80a87b1dbe0d033e34b5d201e018840",
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5b-sweep-20261017.json",
+    "sha256": "8d780898a364d8cdde6dd2c0db838a9b06bf6a077fc014f5e177d26690c22854"
+  }
+}

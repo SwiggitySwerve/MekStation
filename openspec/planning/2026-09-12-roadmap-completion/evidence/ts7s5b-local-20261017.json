@@ -1,0 +1,768 @@
+{
+  "schemaVersion": 1,
+  "unit": "TS7S5B",
+  "stage": "local",
+  "status": "ready",
+  "verdict": "PASS",
+  "at": "2026-10-17T09:22:39.701Z",
+  "baseline": "cf06e9547f87c929d63cc23194b4ce7d67c3ef15",
+  "proofClass": "light",
+  "contributor": {
+    "provider": "openai",
+    "model": "gpt-6.1-sol",
+    "reasoningEffort": "high",
+    "task": "TS7S5B implementation sub-agent"
+  },
+  "scope": "Canonical TypeScript toolchain specification, one BV command correction, byte-preserving design archive prefix, compact task 5.3 outcomes and own-unit lifecycle only.",
+  "checks": [
+    {
+      "id": "install-source-root",
+      "command": "npm ci",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s5b-archive-20261017",
+      "startedAt": "2026-10-17T09:20:58.042Z",
+      "endedAt": "2026-10-17T09:21:33.671Z",
+      "durationSeconds": 35.629283900000004,
+      "exitCode": 0,
+      "stdout": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\install-source-root.stdout.log",
+        "sha256": "6506d7ec01264b90695e464c97185e74db841b7811a5ed0fd8c274e83c95af19",
+        "bytes": 531,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACnWPQW7UQBBF93WKv5yRbGecySiExShniDhAKu6yXbjdbbrKEUi5BVtOx0nQOAQUCbb1Sl/v0RmzTObsmlPNy3J/aNqmxZLNNZlzjHRGykFgXdHF7Wqe68DOV90o3VSzmbg1nw0vL/CyCtHPH9/x+wmvGEsRk+TYPR+aY9NWOF3foNcotif6n0KRhYvQGeNq0zci4hAkoD3cfsDC3cSDWAVOAbwG9Vd09wdBE44nI7o+3P49chHEnCdNA/pc0K8paBoIKGvCY1rm7fS4wSDOGo3odMTzGpMUftKormLY3WHOQQq7VLhpMeowVjiiK+racdwTfcrgEIqYQc1WMfjIjpCRsqPIl1WLgN0lXdqri8JHAi4SWxJ6/fpuhmN8m9pp6uJ6ccdTEd6CupHTILb/9xLqus+lE6KHt9SNvWtt6BdBEwwKEwIAAA=="
+      },
+      "stderr": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\install-source-root.stderr.log",
+        "sha256": "f50b4253754c76ed8f5ca7b3c2f939aadedb10fff34b58cef03e6c27f967b5fb",
+        "bytes": 664,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACm2SzW7bMBCE73mKuSUBXEJ2f9L4ZCBJCxToye0DrMi1RIjiMlzSgt6+kGIgCOobD8NvZ2Y3phET5QjHKbOlwg4+noLv+nLYmsZ82+NP7xWjuBoYXhGlQGtKkgu7DSg6BKZBMfIoeTZ4llVTleGLwVPPdoDUgpDrJ0u2Z/gTZqmYKBYQOhG3cgrrYmCiGUVghQKrZZDO0SLza2UtinYGYeAZZwqVN5h6b/vF2Vhtj1Eyw8qYMvcc1Z95RSeZOJ9qMDfxSuQgjrQ3Xvm1Ujh8MV9NcwmeyA7UrcnfPxj8VV4d+cx3t1Ec72vx4fbeeH1mTseSvS0vCw0+amFy1yd3QdrDg9mZz3v8DNLizFm9REXKXvLSw/kRlBlRECR2nN/bv0qs1bvDo2nMdv/23jZrAy0Hmd4W+B/IAD8k4+X4G1Yct6SsG9TkqPBiYeUEWvZzkT7JOEr8dfygV75M3OKurQUtg6bFe1mavCTD5ENA8AOHeVF8uDzsmt33e3PzD4XIjvqYAgAA"
+      }
+    },
+    {
+      "id": "source-partial-idle",
+      "command": "node scripts/qc/machine-idle.mjs --own-pid 47516",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s5b-sweep-20261017",
+      "startedAt": "2026-10-17T09:21:43.132Z",
+      "endedAt": "2026-10-17T09:21:43.540Z",
+      "durationSeconds": 0.40743799999999997,
+      "exitCode": 0,
+      "stdout": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-partial-idle.stdout.log",
+        "sha256": "7d38ea0bb5ace1e63e7d44c21652acdb36d26f406c0875fa71350e59c74de48e",
+        "bytes": 13,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACvN1dPbw9HON93TxceUCAKUi12wNAAAA"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-partial-idle.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACgMAAAAAAAAAAAA="
+      }
+    },
+    {
+      "id": "source-partial",
+      "command": "node E:/Projects/Personal/MekStation-wt/ts7s5b-evidence-20261017/verify-partial.mjs E:/Projects/Personal/MekStation-wt/ts7s5b-archive-20261017",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s5b-archive-20261017",
+      "startedAt": "2026-10-17T09:21:43.546Z",
+      "endedAt": "2026-10-17T09:21:43.681Z",
+      "durationSeconds": 0.13443170000000004,
+      "exitCode": 0,
+      "stdout": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-partial.stdout.log",
+        "sha256": "f689f7c5f5da56fa39ae9b7f7c4bfb7465cbddac7ffdbada1fc54fdc3f69e44a",
+        "bytes": 552,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACp2Qy4rcMBBF9/4K4fU4tvV09zIEhuwCQ1Yhi1KpbItxSx5JY2iG/HuwuxtCssuy7r116vFRMVYDFr/R17BRKDFd6zP7UTHGWL2muMYMy6eLq59uUl4Jc2u3ZoPFOyg+hqbEuPgwtbv3T7RcV8qY/FqOHM7gw9/JAvk173XF2M+nY6WEs9+oPrM6rhT2fIszhIlye/da3nHd9F3Tm+bipwSFmhKbP+aZ1lH2U3hMelCfffm8RLvDyZxG1OI0UKekMnoU1vGuk7KTQnSj5kIhcCtv/RYyLT78PwAhxOARlpcZuNI7wPRoFYIAJ53lRnPNJRklUeuh51xpY3onZd9ZPigSJymGAcbxBNbhKLC/gRO9vftEFwol12cmDzEjBUg+7oo5lP3RSnwPOBO+kqvPrKR3ut12LfQtUaa0+TB9OR5396tf1W8HeNvRKAIAAA=="
+      },
+      "stderr": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-partial.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACgMAAAAAAAAAAAA="
+      }
+    },
+    {
+      "id": "source-spec-ts-idle",
+      "command": "node scripts/qc/machine-idle.mjs --own-pid 47516",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s5b-sweep-20261017",
+      "startedAt": "2026-10-17T09:21:43.723Z",
+      "endedAt": "2026-10-17T09:21:44.125Z",
+      "durationSeconds": 0.4003461,
+      "exitCode": 0,
+      "stdout": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-spec-ts-idle.stdout.log",
+        "sha256": "7d38ea0bb5ace1e63e7d44c21652acdb36d26f406c0875fa71350e59c74de48e",
+        "bytes": 13,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACvN1dPbw9HON93TxceUCAKUi12wNAAAA"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-spec-ts-idle.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACgMAAAAAAAAAAAA="
+      }
+    },
+    {
+      "id": "source-spec-ts",
+      "command": "npx --no-install openspec validate typescript-toolchain --type spec --strict",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s5b-archive-20261017",
+      "startedAt": "2026-10-17T09:21:44.127Z",
+      "endedAt": "2026-10-17T09:21:45.383Z",
+      "durationSeconds": 1.2556650999999999,
+      "exitCode": 0,
+      "stdout": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-spec-ts.stdout.log",
+        "sha256": "83e0371e530af027e981177fb331343cbedfd34f4b4d3431a765b7abead1a176",
+        "bytes": 46,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACgsuSE3OTMtMTizJzM9TUC+pLEgtTi7KLCjRLcnPz0nOSMzMU1fILFYoS8zJTOECAEfSBWcuAAAA"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-spec-ts.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACgMAAAAAAAAAAAA="
+      }
+    },
+    {
+      "id": "source-spec-bv-idle",
+      "command": "node scripts/qc/machine-idle.mjs --own-pid 47516",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s5b-sweep-20261017",
+      "startedAt": "2026-10-17T09:21:45.446Z",
+      "endedAt": "2026-10-17T09:21:45.869Z",
+      "durationSeconds": 0.4214103,
+      "exitCode": 0,
+      "stdout": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-spec-bv-idle.stdout.log",
+        "sha256": "7d38ea0bb5ace1e63e7d44c21652acdb36d26f406c0875fa71350e59c74de48e",
+        "bytes": 13,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACvN1dPbw9HON93TxceUCAKUi12wNAAAA"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-spec-bv-idle.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACgMAAAAAAAAAAAA="
+      }
+    },
+    {
+      "id": "source-spec-bv",
+      "command": "npx --no-install openspec validate bv-validation-tooling --type spec --strict",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s5b-archive-20261017",
+      "startedAt": "2026-10-17T09:21:45.871Z",
+      "endedAt": "2026-10-17T09:21:46.853Z",
+      "durationSeconds": 0.9818333,
+      "exitCode": 0,
+      "stdout": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-spec-bv.stdout.log",
+        "sha256": "d1c11ee82e34255d2e1a6de0465782fbe4a553faf3e8101175fff3e7f71208de",
+        "bytes": 47,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACgsuSE3OTMtMTizJzM9TUE8q0y1LzMlMAXN1S/LzczLz0tUVMosVwMJcAAsJfW8vAAAA"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-spec-bv.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACgMAAAAAAAAAAAA="
+      }
+    },
+    {
+      "id": "source-change-idle",
+      "command": "node scripts/qc/machine-idle.mjs --own-pid 47516",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s5b-sweep-20261017",
+      "startedAt": "2026-10-17T09:21:46.893Z",
+      "endedAt": "2026-10-17T09:21:47.277Z",
+      "durationSeconds": 0.38334520000000005,
+      "exitCode": 0,
+      "stdout": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-change-idle.stdout.log",
+        "sha256": "7d38ea0bb5ace1e63e7d44c21652acdb36d26f406c0875fa71350e59c74de48e",
+        "bytes": 13,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACvN1dPbw9HON93TxceUCAKUi12wNAAAA"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-change-idle.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACgMAAAAAAAAAAAA="
+      }
+    },
+    {
+      "id": "source-change",
+      "command": "npx --no-install openspec validate migrate-to-typescript-7 --strict",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s5b-archive-20261017",
+      "startedAt": "2026-10-17T09:21:47.280Z",
+      "endedAt": "2026-10-17T09:21:48.260Z",
+      "durationSeconds": 0.9802669,
+      "exitCode": 0,
+      "stdout": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-change.stdout.log",
+        "sha256": "22f009ba21f56fa6cf180a3d4eacd07e6a0caf9b37355b95a7009bbd1ba41684",
+        "bytes": 42,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACnPOSMxLT1VQz81ML0osSdUtydctqSxILU4uyiwo0TVXV8gsVihLzMlM4QIAdfA8tioAAAA="
+      },
+      "stderr": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-change.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACgMAAAAAAAAAAAA="
+      }
+    },
+    {
+      "id": "source-all-idle",
+      "command": "node scripts/qc/machine-idle.mjs --own-pid 47516",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s5b-sweep-20261017",
+      "startedAt": "2026-10-17T09:21:48.302Z",
+      "endedAt": "2026-10-17T09:21:48.688Z",
+      "durationSeconds": 0.3852994,
+      "exitCode": 0,
+      "stdout": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-all-idle.stdout.log",
+        "sha256": "7d38ea0bb5ace1e63e7d44c21652acdb36d26f406c0875fa71350e59c74de48e",
+        "bytes": 13,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACvN1dPbw9HON93TxceUCAKUi12wNAAAA"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-all-idle.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACgMAAAAAAAAAAAA="
+      }
+    },
+    {
+      "id": "source-all",
+      "command": "npx --no-install openspec validate --all --strict",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s5b-archive-20261017",
+      "startedAt": "2026-10-17T09:21:48.700Z",
+      "endedAt": "2026-10-17T09:21:50.718Z",
+      "durationSeconds": 2.0182111,
+      "exitCode": 0,
+      "stdout": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-all.stdout.log",
+        "sha256": "e766e0417c6870855371fdf44bb6041c862a22931e9b0736dda4f08ca3dff44d",
+        "bytes": 6876,
+        "encoding": "gzip+base64",
+        "data": "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"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-all.stderr.log",
+        "sha256": "5bc31df123a2e521acdd2c0d9477b367feec506471a91065d0a6b32c09089ed5",
+        "bytes": 16,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACtNVCEvMyUxJLMnMS9fT0+MCADh3RlUQAAAA"
+      }
+    },
+    {
+      "id": "source-qc-idle",
+      "command": "node scripts/qc/machine-idle.mjs --own-pid 47516",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s5b-sweep-20261017",
+      "startedAt": "2026-10-17T09:21:50.760Z",
+      "endedAt": "2026-10-17T09:21:51.144Z",
+      "durationSeconds": 0.3824113,
+      "exitCode": 0,
+      "stdout": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-qc-idle.stdout.log",
+        "sha256": "7d38ea0bb5ace1e63e7d44c21652acdb36d26f406c0875fa71350e59c74de48e",
+        "bytes": 13,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACvN1dPbw9HON93TxceUCAKUi12wNAAAA"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-qc-idle.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACgMAAAAAAAAAAAA="
+      }
+    },
+    {
+      "id": "source-qc",
+      "command": "npm run qc:openspec-ci:validate",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s5b-archive-20261017",
+      "startedAt": "2026-10-17T09:21:51.147Z",
+      "endedAt": "2026-10-17T09:21:51.513Z",
+      "durationSeconds": 0.3663221,
+      "exitCode": 0,
+      "stdout": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-qc.stdout.log",
+        "sha256": "7acdb382bf82a0e49558d771ed7cc7009cd45b38e824867607852896ce2245da",
+        "bytes": 293,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACnWOu04DMRBFe3+Ff2DXa0IRIjkCpUsRipSIYhgPjtmNx+uZJPD3CCFeBe09R0fXrO2RRlHQzKWDWm+H3vfezrjiSkUqYYd5dYYpR1Aya1s4khVsuaq4Gd0X6n753XyCKetbf3wRYx7+xh7thdv4PPFlw0UboEpYuuX3uuWnH+Cdt5BSowTKbUcUJVwNzt/Y2lgJleKHTK8q4dpWwBES7T/fhYVbWEDNZ7qvVPaVcHOAkkiCHywg8qkoxbv/DGqNm4TBvAMDT9NmJQEAAA=="
+      },
+      "stderr": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-qc.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACgMAAAAAAAAAAAA="
+      }
+    },
+    {
+      "id": "source-purpose-idle",
+      "command": "node scripts/qc/machine-idle.mjs --own-pid 47516",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s5b-sweep-20261017",
+      "startedAt": "2026-10-17T09:21:51.556Z",
+      "endedAt": "2026-10-17T09:21:51.932Z",
+      "durationSeconds": 0.3754345,
+      "exitCode": 0,
+      "stdout": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-purpose-idle.stdout.log",
+        "sha256": "7d38ea0bb5ace1e63e7d44c21652acdb36d26f406c0875fa71350e59c74de48e",
+        "bytes": 13,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACvN1dPbw9HON93TxceUCAKUi12wNAAAA"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-purpose-idle.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACgMAAAAAAAAAAAA="
+      }
+    },
+    {
+      "id": "source-purpose",
+      "command": "npm run spec:purpose:validate:strict",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s5b-archive-20261017",
+      "startedAt": "2026-10-17T09:21:51.935Z",
+      "endedAt": "2026-10-17T09:21:52.909Z",
+      "durationSeconds": 0.9740495000000001,
+      "exitCode": 0,
+      "stdout": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-purpose.stdout.log",
+        "sha256": "1973ed40f7b57b3a86339bb4e392ebde3bab19d955bac50035d0200db38c0a05",
+        "bytes": 275,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACk2OQWrDQAxF93MKXWA8tqENzCJ0k+5KA+kFJrJKpnZGQpLTHL+4BNrl/+9/eGEPV5rNi1dusYi89N3QDWBCmGVVYaN8K0udilM214oe9tDkDm53YKG2TZOhVnFLW4iPX1xq884thHehdhJC+I9hw+G3VmbPcMjpqPxF6JaOpMatLOmN5tPD7tuT286ezrEoXuqN4tiPz0M/7NKfhxBaeK0LGRiW1mjKMI5DOKiyWoY+fGjBmSYwXhUp8md0Xf0CE5194z/17WkWEwEAAA=="
+      },
+      "stderr": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-purpose.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACgMAAAAAAAAAAAA="
+      }
+    },
+    {
+      "id": "source-typecheck-idle",
+      "command": "node scripts/qc/machine-idle.mjs --own-pid 47516",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s5b-sweep-20261017",
+      "startedAt": "2026-10-17T09:21:52.960Z",
+      "endedAt": "2026-10-17T09:21:53.387Z",
+      "durationSeconds": 0.42591480000000004,
+      "exitCode": 0,
+      "stdout": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-typecheck-idle.stdout.log",
+        "sha256": "7d38ea0bb5ace1e63e7d44c21652acdb36d26f406c0875fa71350e59c74de48e",
+        "bytes": 13,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACvN1dPbw9HON93TxceUCAKUi12wNAAAA"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-typecheck-idle.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACgMAAAAAAAAAAAA="
+      }
+    },
+    {
+      "id": "source-typecheck",
+      "command": "node node_modules/typescript7/bin/tsc --version && npm run typecheck",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s5b-archive-20261017",
+      "startedAt": "2026-10-17T09:21:53.390Z",
+      "endedAt": "2026-10-17T09:21:59.997Z",
+      "durationSeconds": 6.6073294,
+      "exitCode": 0,
+      "stdout": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-typecheck.stdout.log",
+        "sha256": "79926a96e1a5bb388b500ce25bda41714b33fc604422b8f82e6dd758412d6b6a",
+        "bytes": 188,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACo2MsQ7CMAxE93yFp25JWpZuFRJiY+6K2jSACbWt2gz8PQpIzCwn3T3dG/OmyAR9aMPOuQHWXNQmQyY/iezb0IUO7CU53XIqbgDiJX/ivPLyfGSNlWraUKyPM1I0TeA98XFFA++1oJxwPtQ/NM2/AoHvpLUyXfAa7sr0Mzv3Bi/7uFe8AAAA"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-typecheck.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACgMAAAAAAAAAAAA="
+      }
+    },
+    {
+      "id": "source-format-idle",
+      "command": "node scripts/qc/machine-idle.mjs --own-pid 47516",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s5b-sweep-20261017",
+      "startedAt": "2026-10-17T09:22:00.040Z",
+      "endedAt": "2026-10-17T09:22:00.425Z",
+      "durationSeconds": 0.3846827,
+      "exitCode": 0,
+      "stdout": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-format-idle.stdout.log",
+        "sha256": "7d38ea0bb5ace1e63e7d44c21652acdb36d26f406c0875fa71350e59c74de48e",
+        "bytes": 13,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACvN1dPbw9HON93TxceUCAKUi12wNAAAA"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-format-idle.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACgMAAAAAAAAAAAA="
+      }
+    },
+    {
+      "id": "source-format",
+      "command": "npm run format:check",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s5b-archive-20261017",
+      "startedAt": "2026-10-17T09:22:00.428Z",
+      "endedAt": "2026-10-17T09:22:11.621Z",
+      "durationSeconds": 11.1925737,
+      "exitCode": 0,
+      "stdout": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-format.stdout.log",
+        "sha256": "6f5286ac4da458abe49b7554fb84d040e4435fcd94eb4c77ca4eea0bddb56314",
+        "bytes": 174,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACj2NQQqDMBBF93OKfwEHU2jRLqRF6D1CHE3QJJJMoccvFunuP3iPTwOirFWthpwau++Plg0bzLlEq3fnxa00IH/mqGiaH4OJxmOEtJyihrQwM9Fz2xCtOi8T5rBJxbsK1AtcLkWcngHTK6RQDy0kmLbrr7EiJ3Smv/zL48DcoL6InSrTF/EoboKuAAAA"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-format.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACgMAAAAAAAAAAAA="
+      }
+    },
+    {
+      "id": "source-validator-idle",
+      "command": "node scripts/qc/machine-idle.mjs --own-pid 47516",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s5b-sweep-20261017",
+      "startedAt": "2026-10-17T09:22:11.687Z",
+      "endedAt": "2026-10-17T09:22:12.072Z",
+      "durationSeconds": 0.3842554,
+      "exitCode": 0,
+      "stdout": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-validator-idle.stdout.log",
+        "sha256": "7d38ea0bb5ace1e63e7d44c21652acdb36d26f406c0875fa71350e59c74de48e",
+        "bytes": 13,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACvN1dPbw9HON93TxceUCAKUi12wNAAAA"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-validator-idle.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACgMAAAAAAAAAAAA="
+      }
+    },
+    {
+      "id": "source-validator",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s5b-archive-20261017",
+      "startedAt": "2026-10-17T09:22:12.079Z",
+      "endedAt": "2026-10-17T09:22:19.026Z",
+      "durationSeconds": 6.9465807,
+      "exitCode": 0,
+      "stdout": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-validator.stdout.log",
+        "sha256": "567feb20b9f85c902a3c4492eb3274c970f2370ccbbc6d3390088ad10923b947",
+        "bytes": 76,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACgvyd3TxdQxQCHP08XRxDPH091MIcAwOdnWxUrAwUMjLT0kt1lEwNFYoSEzOTkwHcYwtDBVKEouzi3UUTAwUSooyE9NTFYryy4u5AAoEPZRMAAAA"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-validator.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACgMAAAAAAAAAAAA="
+      }
+    },
+    {
+      "id": "source-validator-git-idle",
+      "command": "node scripts/qc/machine-idle.mjs --own-pid 47516",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s5b-sweep-20261017",
+      "startedAt": "2026-10-17T09:22:19.065Z",
+      "endedAt": "2026-10-17T09:22:19.451Z",
+      "durationSeconds": 0.3850842,
+      "exitCode": 0,
+      "stdout": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-validator-git-idle.stdout.log",
+        "sha256": "7d38ea0bb5ace1e63e7d44c21652acdb36d26f406c0875fa71350e59c74de48e",
+        "bytes": 13,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACvN1dPbw9HON93TxceUCAKUi12wNAAAA"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-validator-git-idle.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACgMAAAAAAAAAAAA="
+      }
+    },
+    {
+      "id": "source-validator-git",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --git",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s5b-archive-20261017",
+      "startedAt": "2026-10-17T09:22:19.454Z",
+      "endedAt": "2026-10-17T09:22:29.854Z",
+      "durationSeconds": 10.3995805,
+      "exitCode": 0,
+      "stdout": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-validator-git.stdout.log",
+        "sha256": "0d7d99319c662d2b64fa0c98e73d2d6254bad922234f2c7a68c71758fc9fa890",
+        "bytes": 2354,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACsXV3W+bMBAA8Pf+FcjPUAzGfOQtarsqUtdWzT6kTVXk4IN6BZvapk1W9X+fMtKEZFO3Sqh9PGzgx935ODqfBLPpxeero5PZdPJtcn7qPKIadAnTG4ZGKA7DIopzPgeKacFpkhecAmZZTGiUxYxEZM4KAshFhajgSLXSolFAXFSzxQdRgekiy3QJ9kzI1YXvIcUuofjaRRruBTyctoIzmcN6nWLcPW619xE1zN6gEVINSNNA7jcVk1LI0g9xGHs484LQ04rxmjVeruqmAiuU9O9ZJTiz8Lx2WP8wyEVV944kCVw0X9rufRQHLuJQgQWORgWrDLgIFlA3dhNWULJ8+VVoIUs0srqFFf+uFRrMVPwUsrz6/THrG57cjdzkWjTW+LOZBWPNbOZvuRwWnuAgrbBLL2eNbTUcrrYd2p42CMJoy81e5HayXe16yzDcrmYb9V+0cdTTRkH0PtpKqcbLK2VaDV6jlSr+pIZRuqWmWRbhN6De5f5eDv1cSatZbneblKTJBheESZy+skkH07XGKr7cx0U9HCGvPUFD4SSz4h68uZBcyHLXSMn2lAcJptmQxlU//B+xi3dpUUD7tQ2Td0qfUa3OYS9tmGxtFNNB++6FtL08FfcqS/uVHTZ9/yZWwEvQXiXmu6wg7U++NH6rovZHnm6lFfVevpJtusIwfbNBsna1UtjnUbzriknag5E0HPw/fP10cHUxPv44vnS+jM8mx+NPk4tz53I8nZ4cj5wUO1JxMK4TEKdh+S0rVwFJA8cyc2tcJ8KO1YKV4Gj1YA5+AauqznIyCQAA"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\source-validator-git.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACgMAAAAAAAAAAAA="
+      }
+    }
+  ],
+  "partialArchive": {
+    "activeInventory": [
+      "proposal.md",
+      "specs/bv-validation-tooling/spec.md",
+      "specs/typescript-toolchain/spec.md",
+      "tasks.md"
+    ],
+    "archive": "openspec/changes/archive/2026-10-17-migrate-to-typescript-7/design.md",
+    "archiveGitBlob": "e79fc6398e054576f3bd2004404330f6235ca2b4",
+    "baselineGitBlob": "e79fc6398e054576f3bd2004404330f6235ca2b4",
+    "canonicalSha256": "71cb5ca3ad4db2762624e754c66812256771d4410b285e394388aff9abdcf3c1",
+    "requirements": 4,
+    "scenarios": 7,
+    "task53Unchecked": true,
+    "bytePreservingDesign": true
+  },
+  "sourceHashes": [
+    {
+      "path": "openspec/changes/migrate-to-typescript-7/tasks.md",
+      "present": true,
+      "sha256": "869683964a2d551e7c3ced8c0d76d7ff279c6c6691c09fcd3eedefeb406f2aaa"
+    },
+    {
+      "path": "openspec/changes/migrate-to-typescript-7/design.md",
+      "present": false,
+      "sha256": null
+    },
+    {
+      "path": "openspec/specs/typescript-toolchain/spec.md",
+      "present": true,
+      "sha256": "71cb5ca3ad4db2762624e754c66812256771d4410b285e394388aff9abdcf3c1"
+    },
+    {
+      "path": "openspec/specs/bv-validation-tooling/spec.md",
+      "present": true,
+      "sha256": "066e6a4d7f1983ac5691cf6904f6e067178df18dac8a8e34918f42f737d1b1a2"
+    },
+    {
+      "path": "openspec/changes/archive/2026-10-17-migrate-to-typescript-7/design.md",
+      "present": true,
+      "sha256": "6356b47adbf56b3fd52ce9ab666ec72696c181c15cf4d1c7c0e7bca12671da1a"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "present": true,
+      "sha256": "19b5fb9386280b401cccc97e8574a4bf30a7371da3d3831fd4d19830eb5bedf7"
+    }
+  ],
+  "sweep": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5b-sweep-20261017.json",
+    "sha256": "8d780898a364d8cdde6dd2c0db838a9b06bf6a077fc014f5e177d26690c22854",
+    "implementationMergeSha": "db607a7fc80a87b1dbe0d033e34b5d201e018840",
+    "nonClaim": "The integrated compiler/build/test sweep executed on db607a7f, not on this later documentation candidate. Fresh source typecheck also covers the intervening Playwright configuration revert."
+  },
+  "followUp": "5.3 remains unchecked. S5C retains proposal/tasks/both delta moves and active-ledger removal after S5B main verification/closure. No S5C or other-unit lifecycle fields changed.",
+  "sourceScopeComparison": "Only TS7S5B own-unit fields and exact admission exceptions changed in units.json; roadmap.json and historical receipts unchanged.",
+  "runtimeExceptions": "Original stable ETIMEDOUT, abandoned harness launch and unchanged pre-TS7 maintenance baseline failure are preserved in the sweep receipt. No unrelated product or baseline fix.",
+  "census": {
+    "command": "git diff --cached --numstat --no-renames cf06e9547f87c929d63cc23194b4ce7d67c3ef15",
+    "files": 10,
+    "countedAddedLines": 299,
+    "rawAdded": 3590,
+    "rawDeleted": 196,
+    "rows": [
+      {
+        "path": "openspec/changes/archive/2026-10-17-migrate-to-typescript-7/design.md",
+        "added": 188,
+        "deleted": 0,
+        "counted": true
+      },
+      {
+        "path": "openspec/changes/migrate-to-typescript-7/design.md",
+        "added": 0,
+        "deleted": 188,
+        "counted": true
+      },
+      {
+        "path": "openspec/changes/migrate-to-typescript-7/tasks.md",
+        "added": 5,
+        "deleted": 1,
+        "counted": true
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5b-admission-20261017.json",
+        "added": 94,
+        "deleted": 0,
+        "counted": false
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5b-local-20261017.json",
+        "added": 768,
+        "deleted": 0,
+        "counted": false
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5b-red-20261017.json",
+        "added": 18,
+        "deleted": 0,
+        "counted": false
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5b-sweep-20261017.json",
+        "added": 2411,
+        "deleted": 0,
+        "counted": false
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "added": 17,
+        "deleted": 6,
+        "counted": true
+      },
+      {
+        "path": "openspec/specs/bv-validation-tooling/spec.md",
+        "added": 1,
+        "deleted": 1,
+        "counted": true
+      },
+      {
+        "path": "openspec/specs/typescript-toolchain/spec.md",
+        "added": 88,
+        "deleted": 0,
+        "counted": true
+      }
+    ]
+  },
+  "finalLedgerChecks": [
+    {
+      "id": "final-validator-idle",
+      "command": "node scripts/qc/machine-idle.mjs --own-pid 47516",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s5b-sweep-20261017",
+      "startedAt": "2026-10-17T09:22:39.967Z",
+      "endedAt": "2026-10-17T09:22:40.354Z",
+      "durationSeconds": 0.38596929999999996,
+      "exitCode": 0,
+      "stdout": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\final-validator-idle.stdout.log",
+        "sha256": "7d38ea0bb5ace1e63e7d44c21652acdb36d26f406c0875fa71350e59c74de48e",
+        "bytes": 13,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACvN1dPbw9HON93TxceUCAKUi12wNAAAA"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\final-validator-idle.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACgMAAAAAAAAAAAA="
+      }
+    },
+    {
+      "id": "final-validator",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s5b-archive-20261017",
+      "startedAt": "2026-10-17T09:22:40.356Z",
+      "endedAt": "2026-10-17T09:22:44.241Z",
+      "durationSeconds": 3.8841361,
+      "exitCode": 0,
+      "stdout": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\final-validator.stdout.log",
+        "sha256": "567feb20b9f85c902a3c4492eb3274c970f2370ccbbc6d3390088ad10923b947",
+        "bytes": 76,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACgvyd3TxdQxQCHP08XRxDPH091MIcAwOdnWxUrAwUMjLT0kt1lEwNFYoSEzOTkwHcYwtDBVKEouzi3UUTAwUSooyE9NTFYryy4u5AAoEPZRMAAAA"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\final-validator.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACgMAAAAAAAAAAAA="
+      }
+    },
+    {
+      "id": "final-validator-git-idle",
+      "command": "node scripts/qc/machine-idle.mjs --own-pid 47516",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s5b-sweep-20261017",
+      "startedAt": "2026-10-17T09:22:44.279Z",
+      "endedAt": "2026-10-17T09:22:44.667Z",
+      "durationSeconds": 0.3872557,
+      "exitCode": 0,
+      "stdout": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\final-validator-git-idle.stdout.log",
+        "sha256": "7d38ea0bb5ace1e63e7d44c21652acdb36d26f406c0875fa71350e59c74de48e",
+        "bytes": 13,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACvN1dPbw9HON93TxceUCAKUi12wNAAAA"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\final-validator-git-idle.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACgMAAAAAAAAAAAA="
+      }
+    },
+    {
+      "id": "final-validator-git",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --git",
+      "cwd": "E:/Projects/Personal/MekStation-wt/ts7s5b-archive-20261017",
+      "startedAt": "2026-10-17T09:22:44.670Z",
+      "endedAt": "2026-10-17T09:22:55.222Z",
+      "durationSeconds": 10.5520601,
+      "exitCode": 0,
+      "stdout": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\final-validator-git.stdout.log",
+        "sha256": "0d7d99319c662d2b64fa0c98e73d2d6254bad922234f2c7a68c71758fc9fa890",
+        "bytes": 2354,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACsXV3W+bMBAA8Pf+FcjPUAzGfOQtarsqUtdWzT6kTVXk4IN6BZvapk1W9X+fMtKEZFO3Sqh9PGzgx935ODqfBLPpxeero5PZdPJtcn7qPKIadAnTG4ZGKA7DIopzPgeKacFpkhecAmZZTGiUxYxEZM4KAshFhajgSLXSolFAXFSzxQdRgekiy3QJ9kzI1YXvIcUuofjaRRruBTyctoIzmcN6nWLcPW619xE1zN6gEVINSNNA7jcVk1LI0g9xGHs484LQ04rxmjVeruqmAiuU9O9ZJTiz8Lx2WP8wyEVV944kCVw0X9rufRQHLuJQgQWORgWrDLgIFlA3dhNWULJ8+VVoIUs0srqFFf+uFRrMVPwUsrz6/THrG57cjdzkWjTW+LOZBWPNbOZvuRwWnuAgrbBLL2eNbTUcrrYd2p42CMJoy81e5HayXe16yzDcrmYb9V+0cdTTRkH0PtpKqcbLK2VaDV6jlSr+pIZRuqWmWRbhN6De5f5eDv1cSatZbneblKTJBheESZy+skkH07XGKr7cx0U9HCGvPUFD4SSz4h68uZBcyHLXSMn2lAcJptmQxlU//B+xi3dpUUD7tQ2Td0qfUa3OYS9tmGxtFNNB++6FtL08FfcqS/uVHTZ9/yZWwEvQXiXmu6wg7U++NH6rovZHnm6lFfVevpJtusIwfbNBsna1UtjnUbzriknag5E0HPw/fP10cHUxPv44vnS+jM8mx+NPk4tz53I8nZ4cj5wUO1JxMK4TEKdh+S0rVwFJA8cyc2tcJ8KO1YKV4Gj1YA5+AauqznIyCQAA"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\ts7s5b-evidence-20261017\\final-validator-git.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "encoding": "gzip+base64",
+        "data": "H4sIAAAAAAAACgMAAAAAAAAAAAA="
+      }
+    }
+  ]
+}

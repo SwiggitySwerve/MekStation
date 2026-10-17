@@ -132,7 +132,11 @@
 - [ ] 5.3 Exact-main verification after the last PR merges:
   - rerun the section-0 measurements and the full gate list on the merge commit;
   - record them in this file.
-  - Then archive the change with `openspec archive migrate-to-typescript-7`, and remove its `openspec/active-change-ledger.json` entry in the same PR.
+  - Checkpoint `db607a7f` (2026-10-17; Node 22.22.0; TS7 7.0.2 / TS6 API 6.0.3): root two-project typecheck 6.96s cold / 1.89s warm; desktop type-check 0.61s. PR #2194 CI Type Check took 8s (run 39016629176); its head and this merge share tree `e0499dd7`, so this is inherited PR-head timing.
+  - The full stable attempt hit the repeated Windows identity-capture child `ETIMEDOUT`. Root-approved split passed: that suite 52/52 alone, remaining stable lane 2796 suites / 37133 passed / 50 skipped. Full PR CI passed all six unit shards; desktop Jest passed 57/57.
+  - Lint, format, OpenSpec/QC, unskipped Next build, Storybook (six typed props), flow audit, scripts TS7, BV, parity (4227/4227), terminology and desktop build passed. All 21 desktop JavaScript files match the section-1 baseline; map/declaration differences are listed in the sweep receipt. Scratch TS6/TS7 checks reported zero diagnostics for all four configurations.
+  - Bare maintenance API scan passed. The stricter regression gate failed with 72 critical/high findings in 10 categories; Root reproduced identical 72/10 on pre-TS7 `08555b7a1` / TS5.8.3. This pre-existing backlog debt is outside TS7; no baseline or product change was made.
+  - TS7S5B syncs the canonical specs and moves `design.md` into `archive/2026-10-17-migrate-to-typescript-7/`; TS7S5C then moves the remaining files, removes the active-ledger entry, and ticks 5.3 after verification.
 
 ## Follow-up after archive: TypeScript 7.1 (not tracked as checkboxes here)
 

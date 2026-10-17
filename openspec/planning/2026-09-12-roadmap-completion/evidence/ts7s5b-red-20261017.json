@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "unit": "TS7S5B",
+  "stage": "red",
+  "at": "2026-10-17T09:20:57.604Z",
+  "baseline": "cf06e9547f87c929d63cc23194b4ce7d67c3ef15",
+  "kind": "Documentation before-state; no product test or fabricated mutant for a spec synchronization and archive move.",
+  "observedBefore": {
+    "canonicalTypeScriptSpec": "Absent from baseline tree",
+    "bvScenario": "`npx tsc --noEmit` SHALL type-check the harness against the real schema.",
+    "task53": "Unchecked; obsolete one-shot openspec archive instruction still present.",
+    "design": "Active at openspec/changes/migrate-to-typescript-7/design.md, with S5A D3 already corrected."
+  },
+  "priorFailures": {
+    "intermediate": "Original draft failed ownership validation before parent correction #2197; correction preserves old grants as exceptions.",
+    "integrated": "Original full stable run timed out in second finite-unit identity readback; exact failure and the Root-authorized split rerun are preserved in the sweep receipt."
+  }
+}

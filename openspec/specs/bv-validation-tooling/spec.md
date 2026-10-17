@@ -403,7 +403,7 @@ gate green.
 - **WHEN** the harness types the index entries via the `IndexUnit` interface
 - **THEN** the interface SHALL NOT declare a required `bv: number` field that the
   data does not provide
-- **AND** `npx tsc --noEmit` SHALL type-check the harness against the real schema.
+- **AND** `npm run typecheck` SHALL type-check the harness against the real schema.
 
 #### Scenario: Missing reference is counted, never silently excluded
 
