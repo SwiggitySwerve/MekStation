@@ -32,13 +32,16 @@ import { HumanActionAuthorizationError } from '@/lib/multiplayer/server/authoriz
 import { MatchSeatMembershipSource } from '@/lib/multiplayer/server/authorization/MatchSeatMembershipSource';
 import { SQLiteDeliveryEpochStore } from '@/lib/multiplayer/server/delivery/SQLiteDeliveryEpochStore';
 import { getDefaultMatchStore } from '@/lib/multiplayer/server/getDefaultMatchStore';
-import { FogAwareMatchProjectionService } from '@/lib/multiplayer/server/history/MatchHistoryFogProjection';
 import {
   projectViewerHistoryLineage,
   type IViewerHistoryLineage,
   type IViewerHistoryLineageStores,
 } from '@/lib/multiplayer/server/history/ViewerHistoryLineage';
 import { ViewerHistoryService } from '@/lib/multiplayer/server/history/ViewerHistoryService';
+import {
+  FogAwareMatchProjectionService,
+  type IMatchHistoryHeadStores,
+} from '@/lib/multiplayer/server/projection/FogAwareMatchProjection';
 import { matchWireAudienceDefinition } from '@/lib/multiplayer/server/projection/MatchWireAudienceCatalog';
 import {
   ViewerAudienceProjectorRegistry,
@@ -127,13 +130,18 @@ export function createViewerHistoryServiceOver(
   registry.register(historyProofAudienceDefinition());
   return new ViewerHistoryService({
     resolver: new AuthorizedViewerResolver(membership),
-    // Fog-aware: a fog-on `match` stream is filtered per viewer exactly
-    // as the live wire filters it (review N6). Every other stream, and
-    // fog off, is the plain projection unchanged.
+    // Fog-aware: a fog-on `match` stream is read at its effective head
+    // and filtered per viewer as the live wire filters it (review N6).
+    // Every other stream, and fog off, is the plain projection unchanged.
     projection: new FogAwareMatchProjectionService({
       journal: new SQLiteEventJournal(db, () => new Date().toISOString()),
       registry,
       matchMeta: getDefaultMatchStore(),
+      heads: createMatchHistoryHeadStores(),
+      // Seats, never the caller's membership: the private-preview route
+      // passes a host-as-GM wrapper, and that brand must not unlock
+      // sealed choices the live wire withholds from the same host.
+      seatMembership: new MatchSeatMembershipSource(getDefaultMatchStore()),
     }),
     epochStore: new SQLiteDeliveryEpochStore(db, () =>
       new Date().toISOString(),
@@ -141,6 +149,21 @@ export function createViewerHistoryServiceOver(
     auditRepo: new SQLiteActionAuditRepository(db),
     privateRepo: new SQLitePrivateRecordRepository(db),
   });
+}
+
+/**
+ * The effective-head reads the fog-aware projection follows. Same
+ * handle and the same `readEffectiveStreamHead` binding as the lineage
+ * stores below and `GET /api/matches/:id/head`.
+ */
+function createMatchHistoryHeadStores(): IMatchHistoryHeadStores {
+  const db = getSQLiteService().getDatabase();
+  const branches = new SQLiteEventHistoryBranchStore(db);
+  return {
+    branches,
+    readEffectiveStreamHead: (stream) =>
+      readEffectiveStreamHead(db, branches, stream),
+  };
 }
 
 /** The production graph: membership comes from durable match seats. */

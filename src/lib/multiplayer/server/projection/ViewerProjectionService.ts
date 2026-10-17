@@ -227,7 +227,7 @@ export class ViewerProjectionService {
    * Journal infrastructure errors become projection-failed so Zod or
    * storage messages cannot leak through this boundary.
    */
-  private async readAuthorizedStream(
+  protected async readAuthorizedStream(
     request: IViewerProjectionRequest,
   ): Promise<readonly IStoredEvent[]> {
     const afterRevision = request.afterRevision ?? 0;
