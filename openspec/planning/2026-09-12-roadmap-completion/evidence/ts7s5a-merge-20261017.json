@@ -1,0 +1,198 @@
+{
+  "unit": "TS7S5A",
+  "stage": "merge",
+  "recordedAt": "2026-10-17T08:35:00.000Z",
+  "pr": 2194,
+  "title": "docs(TS7S5A): document TypeScript 7 gates and compatibility API",
+  "url": "https://github.com/SwiggitySwerve/MekStation/pull/2194",
+  "head": "db86f46ef61b5b13bbfe88ea905984d82f1331f6",
+  "mergeSha": "db607a7fc80a87b1dbe0d033e34b5d201e018840",
+  "mergedAt": "2026-10-17T08:20:02Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "Two-parent merge commit (regular merge, head-guarded with --match-head-commit)",
+  "parentCount": 2,
+  "treeIntegration": {
+    "parents": [
+      "0dd080241e552acdc845d60d61d38281cbf646d0",
+      "db86f46ef61b5b13bbfe88ea905984d82f1331f6"
+    ],
+    "expectedTree": "e0499dd79dc3f5ae7acb04090c0657a1e49750ba",
+    "actualTree": "e0499dd79dc3f5ae7acb04090c0657a1e49750ba",
+    "matches": true,
+    "method": "git merge-tree --write-tree of the ordered parents equals the merge commit tree"
+  },
+  "firstParentNote": "The first parent is the admission baseline 0dd08024 itself (merge of #2193, the TS7S4B closure); main did not advance between admission and merge.",
+  "checksObservedAt": "2026-10-17T08:30:00Z",
+  "checks": {
+    "head": "db86f46ef61b5b13bbfe88ea905984d82f1331f6",
+    "successful": 32,
+    "other": 0,
+    "commitStatuses": 0,
+    "run": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39016629176",
+    "jobs": [
+      {
+        "conclusion": "success",
+        "name": "Lint and Test",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39016629176/job/117350899848"
+      },
+      {
+        "conclusion": "success",
+        "name": "Build Test / linux",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39016629176/job/117350520264"
+      },
+      {
+        "conclusion": "success",
+        "name": "Build Test / mac",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39016629176/job/117350520232"
+      },
+      {
+        "conclusion": "success",
+        "name": "Build Test / win",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39016629176/job/117350520190"
+      },
+      {
+        "conclusion": "success",
+        "name": "Build Storybook",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39016629176/job/117350044775"
+      },
+      {
+        "conclusion": "success",
+        "name": "Validate BV Parity",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39016629176/job/117350044624"
+      },
+      {
+        "conclusion": "success",
+        "name": "Unit Tests (2/6)",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39016629176/job/117350044601"
+      },
+      {
+        "conclusion": "success",
+        "name": "Desktop Tests",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39016629176/job/117350044449"
+      },
+      {
+        "conclusion": "success",
+        "name": "A11y Tests",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39016629176/job/117350044437"
+      },
+      {
+        "conclusion": "success",
+        "name": "Unit Tests (5/6)",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39016629176/job/117350044431"
+      },
+      {
+        "conclusion": "success",
+        "name": "Validate Combat Suite",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39016629176/job/117350044411"
+      },
+      {
+        "conclusion": "success",
+        "name": "Customizer Regressions",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39016629176/job/117350044368"
+      },
+      {
+        "conclusion": "success",
+        "name": "E2E Smoke",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39016629176/job/117350044367"
+      },
+      {
+        "conclusion": "success",
+        "name": "Unit Tests (1/6)",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39016629176/job/117350044356"
+      },
+      {
+        "conclusion": "success",
+        "name": "Seam Anchors",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39016629176/job/117350044349"
+      },
+      {
+        "conclusion": "success",
+        "name": "Determinism Audit",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39016629176/job/117350044340"
+      },
+      {
+        "conclusion": "success",
+        "name": "Desktop Type Check",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39016629176/job/117350044328"
+      },
+      {
+        "conclusion": "success",
+        "name": "Unit Tests (6/6)",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39016629176/job/117350044326"
+      },
+      {
+        "conclusion": "success",
+        "name": "Schema Bridge",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39016629176/job/117350044323"
+      },
+      {
+        "conclusion": "success",
+        "name": "Statistical Proof PR",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39016629176/job/117350044279"
+      },
+      {
+        "conclusion": "success",
+        "name": "Coverage Floor",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39016629176/job/117350044268"
+      },
+      {
+        "conclusion": "success",
+        "name": "Unit Tests (3/6)",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39016629176/job/117350044264"
+      },
+      {
+        "conclusion": "success",
+        "name": "Unit Tests (4/6)",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39016629176/job/117350044248"
+      },
+      {
+        "conclusion": "success",
+        "name": "Type Check",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39016629176/job/117350044242"
+      },
+      {
+        "conclusion": "success",
+        "name": "Perf Smoke Tests",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39016629176/job/117350044230"
+      },
+      {
+        "conclusion": "success",
+        "name": "Perf Budget PR",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39016629176/job/117350044220"
+      },
+      {
+        "conclusion": "success",
+        "name": "Format Check",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39016629176/job/117350044192"
+      },
+      {
+        "conclusion": "success",
+        "name": "Lint",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39016629176/job/117350044184"
+      },
+      {
+        "conclusion": "success",
+        "name": "Prepare Build Artifacts",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39016629176/job/117350004821"
+      },
+      {
+        "conclusion": "success",
+        "name": "Install Dependencies",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39016629176/job/117349971334"
+      },
+      {
+        "conclusion": "success",
+        "name": "Detect Changes",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39016629176/job/117349971291"
+      },
+      {
+        "conclusion": "success",
+        "name": "Validate Roadmap Ledger",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39016629176/job/117349971144"
+      }
+    ]
+  },
+  "requiredChecks": "Observed 2026-10-17T08:30Z. GET branches/main/protection/required_status_checks returns strict=false with one required context, \"Lint and Test\", and GET rules/branches/main returns no rules. \"Lint and Test\" succeeded on db86f46e, and every other name was verified one by one: all 32 check runs concluded success. .github/workflows is byte-unchanged between the first parent and the merge. GET commits/db86f46e/status lists 0 commit statuses.",
+  "ownerRuling": null,
+  "ownerRulingNote": "Routine review class. No OWNER-RULING comment is required or posted for this unit."
+}

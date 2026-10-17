@@ -8578,7 +8578,13 @@
         "openspec/planning/2026-09-12-roadmap-completion/units.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5a-admission-20261017.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5a-red-20261017.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5a-local-20261017.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5a-local-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5a-source-astra-review-20261017.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5a-review-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5a-merge-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-db607a7f-docs.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-db607a7f-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5a-mainproof-20261017.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -8589,10 +8595,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "main-verified",
       "baseline": "0dd080241e552acdc845d60d61d38281cbf646d0",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "db86f46ef61b5b13bbfe88ea905984d82f1331f6",
+      "mergeSha": "db607a7fc80a87b1dbe0d033e34b5d201e018840",
       "stageReceipts": {
         "admission": {
           "path": "evidence/ts7s5a-admission-20261017.json"
@@ -8603,9 +8609,27 @@
         "local": {
           "path": "evidence/ts7s5a-local-20261017.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/ts7s5a-review-20261017.json",
+          "head": "db86f46ef61b5b13bbfe88ea905984d82f1331f6",
+          "reviewedHead": "db86f46ef61b5b13bbfe88ea905984d82f1331f6",
+          "reviewerModel": "gpt-6-astra",
+          "implementerModel": "gpt-6.1-sol",
+          "outputSha256": "a8b94143c6f57b0f5d7c08fff380ea69f880fdd59c3349a3b882ae49475cfcc8",
+          "verdict": "APPROVE-WITH-NOTES"
+        },
+        "merge": {
+          "path": "evidence/ts7s5a-merge-20261017.json",
+          "pr": 2194,
+          "head": "db86f46ef61b5b13bbfe88ea905984d82f1331f6",
+          "mergeSha": "db607a7fc80a87b1dbe0d033e34b5d201e018840"
+        },
+        "mainProof": {
+          "path": "evidence/ts7s5a-mainproof-20261017.json",
+          "mergeCommit": "db607a7fc80a87b1dbe0d033e34b5d201e018840",
+          "verdict": "PASS",
+          "runtime": "Source/Main checks: 8 passed (machine-idle only the Root-allowed PID 47516; contributor-doc grep of the eight named doc leaves finds only the intentional troubleshooting.md:21 warning that root npx tsc is TypeScript 6 and npm run typecheck is the TypeScript 7 gate; tracked-file grep outside historical evidence finds no TypeScript 5.8 or npx ts-node; remaining npx tsc matches classified as the troubleshooting warning, two historical PROGRESS/CLOSED records in another change, and canonical bv-validation-tooling spec.md:406, the explicit TS7S5B carry-forward; all ten named leaves contain their required statements, 20/20; package.json scripts.typecheck is the two-project TypeScript 7 command; validator PASSED and --git PASSED; openspec validate --all --strict 230 passed and qc:openspec-ci:validate errors=0; 0 failed)"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -8663,7 +8687,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,

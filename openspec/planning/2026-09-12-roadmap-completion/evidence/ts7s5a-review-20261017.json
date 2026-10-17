@@ -1,0 +1,72 @@
+{
+  "unit": "TS7S5A",
+  "stage": "review",
+  "recordedAt": "2026-10-17T08:35:00.000Z",
+  "head": "db86f46ef61b5b13bbfe88ea905984d82f1331f6",
+  "reviewedHead": "db86f46ef61b5b13bbfe88ea905984d82f1331f6",
+  "reviewerModel": "gpt-6-astra",
+  "reviewerEffort": "high",
+  "implementerModel": "gpt-6.1-sol",
+  "verdict": "APPROVE-WITH-NOTES",
+  "outputPath": "evidence/ts7s5a-source-astra-review-20261017.txt",
+  "outputSha256": "a8b94143c6f57b0f5d7c08fff380ea69f880fdd59c3349a3b882ae49475cfcc8",
+  "reviews": [
+    {
+      "round": 1,
+      "path": "evidence/ts7s5a-source-astra-review-20261017.txt",
+      "sha256": "a8b94143c6f57b0f5d7c08fff380ea69f880fdd59c3349a3b882ae49475cfcc8",
+      "bytes": 6282,
+      "originalPath": "docs/audits/2026-10-17-ts7s5a-review.md",
+      "reviewedHead": "db86f46ef61b5b13bbfe88ea905984d82f1331f6",
+      "verdict": "APPROVE-WITH-NOTES"
+    }
+  ],
+  "reviewHistory": "One round on the exact merged head db86f46e by an independent GPT-6 Astra reviewer at high effort (routine review class, council lean cadence): APPROVE-WITH-NOTES with no blockers, no majors and one minor (M1) about the red receipt's characterization of mutants; nothing requires a change to the head.",
+  "verdictText": "APPROVE-WITH-NOTES - no blockers or major findings.",
+  "reviewClass": "routine (no Lane B owner ruling required for this unit)",
+  "reviewedScope": "Independent routine review of PR #2194, exact head `db86f46ef61b5b13bbfe88ea905984d82f1331f6`, baseline `0dd080241e552acdc845d60d61d38281cbf646d0`. GitHub head/base and the clean source worktree were verified; the head was reconfirmed after checks.",
+  "findings": {
+    "M1": {
+      "text": "- Minor M1 - `openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s5a-red-20261017.json:6` says no mutant is appropriate for this docs-only unit. That is overbroad: the content/manifest mutants below are useful and were independently killed. Narrow this characterization in future receipts; the review supplies the requested mutation evidence, so this does not block this head.",
+      "applies": "Not a requested change to the merged head; the review supplies the mutation evidence. Future TS7 receipts narrow any no-mutant characterization accordingly."
+    }
+  },
+  "freshChecks": "Fresh checks: strict OpenSpec **230 passed / 0 failed**, repeated after mutations; roadmap validator **PASS (80 nodes, 13 packages, 381 tasks, 40 triage rows)**; qc:openspec-ci:validate **errors=0**; git diff --check clean. Working-tree/index status remained clean at the pinned head.",
+  "mutants": "Independent mutants used exact-head git blobs in memory, never repository edits. Each had a passing original control, a failing mutated assertion, and a passing restored control:\n\n1. README TypeScript 7 -> TypeScript 5.8: stale-doc regex killed it.\n2. Getting-started npm run typecheck -> npx tsc --noEmit: stale-gate regex killed it.\n3. D3 wrapper ^6.0.2 -> ^6.0.3: comparison with package.json killed it.\n4. First terminology example tsx -> ts-node: obsolete-runner regex killed it.\n5. Remove design.md from the allowed leaf set: exact changed-file/manifest comparison killed it.",
+  "notVerified": [
+    "No compiler sweep, dependency installation, build or Jest run.",
+    "This review corroborates those inherited runtime results against unchanged configuration; it does not claim a fresh installation proof."
+  ],
+  "notVerifiedNote": "Parent note: lint, format:check, typecheck, test:stable and the desktop gates were covered on PR head db86f46e by CI run 39016629176, all 32 check runs success. This docs-only unit changed no code, configuration or dependency; the mainProof receipt records the focused exact-Main doc proof.",
+  "successorNotes": {
+    "TS7S5B": {
+      "wording": "- **TS7S5B** - `openspec/specs/bv-validation-tooling/spec.md:406` still names npx tsc. Sync the existing option-(a) delta's npm run typecheck wording despite the older option-(b) conditional description. On the required exact merge commit, run the full two-project gate; `scripts/qc/roadmap-main-proof.mjs:195` alone covers only root. Preserve TS7 gates/TS6 API separation, independent desktop install and both desktop project checks, desktop JS comparison, unskipped Next check, Storybook prop metadata, parser/tsx execution, and explicit cold/warm cache measurements. Separate fresh merge evidence from inherited source evidence; record only required task outcomes. Freeze the literal archive date/path, sync canonical specs and move only design.md within recounted caps after predecessor closure.",
+      "concern": "canonical bv-validation-tooling spec.md:406 still names npx tsc; the exact-merge sweep must run the full two-project gate; archive date/path frozen and design.md moved within recounted caps",
+      "applies": "TS7S5B is released to planned by this change set. At its own admission these notes bind: sync the option-(a) delta wording, run the full two-project gate on the exact merge commit, preserve the listed proofs and the TS7 gate/TS6 API split, separate fresh merge evidence from inherited source evidence, and freeze the literal archive date/path.",
+      "rootNote": "Root (parent orchestrator) note, not reviewer text: TS7S5B admission also waits for the separate parent registration-correction PR described in docs/audits/2026-10-17-ts7-archive-ownership-fix.md (root checkout). The validator requires every ownershipPaths entry to exist, so the archive moves of design.md (TS7S5B) and the remaining change files (TS7S5C) would fail it until disappearing TS7 source leaves are moved to exact ownershipExceptions. That correction is deliberately not part of this closure; it lands after this closure and before any TS7S5B admission."
+    },
+    "TS7S5C": {
+      "wording": "- **TS7S5C** - reuse S5B's frozen archive directory; complete the remaining bounded moves, tick 5.3 only after evidence, remove the active-ledger entry and active change directory, and validate strict/list absence. Use --no-renames accounting for every moved line, preserve historical bytes, and close only this unit's lifecycle after its own exact-main proof. No archive action or successor release is approved by this source review alone.",
+      "concern": "reuse S5B's frozen archive directory; --no-renames accounting for every moved line; tick 5.3 only after evidence",
+      "applies": "Recorded for TS7S5C. TS7S5C stays blocked: its predecessor TS7S5B is not main-verified. These notes bind its admission once TS7S5B closes with a genuine exact-main mainProof PASS. The same Root archive-ownership correction (successorNotes.TS7S5B.rootNote) also precedes any TS7S5C admission."
+    },
+    "note": "Every wording, verdictText, reviewedScope, findings text, freshChecks, mutants and notVerified string is a verbatim substring of evidence/ts7s5a-source-astra-review-20261017.txt (the generator checked this). concern, applies, rootNote and every note are parent notes, not reviewer text. The TS7 track has no PROGRESS.md of its own, so these notes are recorded in this receipt only."
+  },
+  "reservedSlot": "The reviewer wrote its audit to docs/audits/2026-10-17-ts7s5a-review.md in the root checkout (untracked there); this closure preserves it byte for byte at evidence/ts7s5a-source-astra-review-20261017.txt instead of authoring reviewer text.",
+  "ciQualification": "All 32 check runs on the merged head succeeded (run 39016629176), with no commit statuses. The merge receipt records the 32 names.",
+  "identityScope": "Preserves the existing unversioned TS7S5A evidence and the actual cross-model review provenance. No v2/v3 identity manifest or engine observation is claimed.",
+  "githubApproval": "Lane A engineering evidence only; no GitHub approval claimed.",
+  "ownerRuling": "Routine review class: no OWNER-RULING comment is required or posted for this unit.",
+  "successorRelease": {
+    "label": "successor release",
+    "scope": "Separate from the TS7S5A closure. This change set also releases TS7S5B (successor release). No other field of TS7S5B changes and no other unit is released; TS7S5C stays blocked behind TS7S5B.",
+    "release": {
+      "unit": "TS7S5B",
+      "field": "state",
+      "from": "blocked",
+      "to": "planned",
+      "basis": "TS7S5B's predecessors are TS7S5A and TS7S2OD, as TS7S5B.admissionRequires demands. TS7S5A is main-verified in this same change set with a genuine exact-main mainProof PASS at db607a7fc80a87b1dbe0d033e34b5d201e018840; TS7S2OD is already main-verified with a genuine exact-main mainProof PASS at 97c3281f5a3d943adee64e3516a538d466d50f8e (evidence/ts7s2od-mainproof-20261017.json). TS7S5A has no task keys, so its tick stays null. This is the standard on which TS7S5A was released (#2193), TS7S4B (#2190), TS7S4A (#2188), TS7S3 (#2181), TS7S2B (#2179), TS7S2A (#2177) and TS7S1B (#2175) before it.",
+      "permission": "Release to planned only. Selection is not admission. TS7S5B source work still requires its own normal finite admission at its own baseline (containing db607a7f and this closure), and, per the Root note in successorNotes.TS7S5B.rootNote, waits for the separate parent archive-ownership correction PR. No other TS7 unit is released."
+    }
+  }
+}
