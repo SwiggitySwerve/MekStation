@@ -57,6 +57,7 @@ import { readDurableStreamRebuild } from '@/lib/events/journal/EventHistoryDurab
 import { readEffectiveStreamHead } from '@/lib/events/journal/EventHistoryEffectiveStreamHead';
 import { canonicalizeJsonV1 } from '@/lib/events/journal/EventJournalCanonicalizer';
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
+import { rejectPreparedThenable } from '@/lib/events/journal/SQLiteEventJournalWriter';
 import { normalizeRoomCode } from '@/lib/p2p/roomCodes';
 import { isSqliteUniqueConstraintError } from '@/services/persistence/sqliteConstraintErrors';
 
@@ -106,8 +107,10 @@ import {
   type IMatchMetaPatch,
   type IMatchCombatOutcomeOutbox,
   type IMatchPublication,
+  type IMatchProgressionReservation,
   type IMatchStore,
   type IMatchStreamRebuildStore,
+  type MatchPreparedCreateResult,
   type IPublicationOutboxStore,
   type IViewerDeliveryAcknowledgement,
   type IViewerDeliveryRecord,
@@ -722,7 +725,17 @@ export class DurableMatchStore
   createMatch = async (
     meta: IMatchMeta,
     initialEvents: readonly IGameEvent[] = [],
-  ): Promise<string> => {
+  ): Promise<string> =>
+    this.writeMatchRows(meta, initialEvents, (write) =>
+      this.db.transaction(write)(),
+    );
+
+  /** The rows `createMatch` writes; `transact` owns their transaction. */
+  private writeMatchRows(
+    meta: IMatchMeta,
+    initialEvents: readonly IGameEvent[],
+    transact: (write: () => void) => void,
+  ): string {
     const existing = this.db
       .prepare('SELECT match_id FROM mp_matches WHERE match_id = ?')
       .get(meta.matchId);
@@ -745,7 +758,7 @@ export class DurableMatchStore
     const insertEvent = this.db.prepare(
       'INSERT INTO mp_match_events (match_id, sequence, event_json) VALUES (?, ?, ?)',
     );
-    this.db.transaction(() => {
+    transact(() => {
       insertMatch.run(
         meta.matchId,
         meta.status,
@@ -757,9 +770,59 @@ export class DurableMatchStore
       for (const event of initialEvents) {
         insertEvent.run(meta.matchId, event.sequence, JSON.stringify(event));
       }
-    })();
+    });
     return meta.matchId;
+  }
+
+  /**
+   * P2CG1C prepared create: one IMMEDIATE transaction on this store's own
+   * connection, never a savepoint in a borrowed one. A failed COMMIT is
+   * rolled back if still open and classified by reading the row back.
+   */
+  createMatchPrepared = <TRefusal>(
+    meta: IMatchMeta,
+    initialEvents: readonly IGameEvent[],
+    guard: () => TRefusal | null,
+  ): MatchPreparedCreateResult<TRefusal> => {
+    const hold = this.holdMatchConnection();
+    try {
+      const refusal = guard();
+      rejectPreparedThenable(refusal);
+      if (refusal !== null) {
+        hold.release();
+        return { kind: 'refused', refusal };
+      }
+      this.writeMatchRows(meta, initialEvents, (write) => write());
+    } catch (error) {
+      try {
+        hold.release();
+      } catch (releaseError) {
+        throw new AggregateError([error, releaseError], 'Match hold failed');
+      }
+      throw error;
+    }
+    try {
+      hold.commit();
+      return { kind: 'committed' };
+    } catch (error) {
+      let stored: IMatchRow | undefined;
+      try {
+        hold.release();
+        stored = this.getMatchRow(meta.matchId);
+      } catch {
+        return { kind: 'uncertain', error };
+      }
+      if (stored?.meta_json === JSON.stringify(meta)) {
+        return { kind: 'committed' };
+      }
+      throw error;
+    }
   };
+
+  /** P2CG1C: a write-free hold on this store's connection (see IMatchStore). */
+  reserveMatchProgression = (): IMatchProgressionReservation => ({
+    release: this.holdMatchConnection().release,
+  });
 
   /**
    * Append one command's events atomically (PR 1, tasks 1.1-1.2).
@@ -1750,6 +1813,42 @@ export class DurableMatchStore
   // ---------------------------------------------------------------------------
   // Internals
   // ---------------------------------------------------------------------------
+
+  /**
+   * BEGIN IMMEDIATE on this connection, refusing one already in a
+   * transaction. Release rolls back only while this hold owns it; the
+   * queued microtask releases a hold its synchronous span left open.
+   */
+  private holdMatchConnection(): {
+    readonly commit: () => void;
+    readonly release: () => void;
+  } {
+    if (this.db.inTransaction) {
+      throw new Error('Match reservation needs an idle match connection');
+    }
+    this.db.exec('BEGIN IMMEDIATE');
+    let held = true;
+    const release = (): void => {
+      if (!held) return;
+      held = false;
+      if (this.db.inTransaction) this.db.exec('ROLLBACK');
+    };
+    queueMicrotask(() => {
+      try {
+        release();
+      } catch {
+        // A late release has no caller to tell; the next hold refuses.
+      }
+    });
+    return {
+      commit: () => {
+        if (!held) throw new Error('Match reservation already released');
+        this.db.exec('COMMIT');
+        held = false;
+      },
+      release,
+    };
+  }
 
   private getMatchRow(matchId: string): IMatchRow | undefined {
     return this.db

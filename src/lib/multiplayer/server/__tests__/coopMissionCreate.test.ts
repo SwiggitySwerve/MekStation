@@ -1061,13 +1061,28 @@ describe('P2CG1C prepared co-op mission create (callable, not route-reached)', (
             fs.writeFileSync(marker + '.busy', '');
           }
         }
+        // Prove the lock is free after release without committing yet: a
+        // write committed under the parent's later deferred reads would
+        // turn them into SQLITE_BUSY_SNAPSHOT, which is not this test.
+        let acquiredAt = null;
+        while (acquiredAt === null && Date.now() < deadline) {
+          try {
+            db.exec('BEGIN IMMEDIATE');
+            acquiredAt = Date.now();
+            db.exec('ROLLBACK');
+          } catch (error) {
+            if (error.code !== 'SQLITE_BUSY') throw error;
+            pause(2);
+          }
+        }
+        while (!fs.existsSync(marker + '.done') && Date.now() < deadline) pause(5);
         db.pragma('busy_timeout = 15000');
         db.exec('BEGIN IMMEDIATE');
-        const acquiredAt = Date.now();
         db.exec('CREATE TABLE IF NOT EXISTS p2cg1c_probe (at INTEGER)');
         db.prepare('INSERT INTO p2cg1c_probe VALUES (?)').run(acquiredAt);
         db.exec('COMMIT');
-        process.stdout.write(JSON.stringify({ busyAt, acquiredAt }));
+        const committedAt = Date.now();
+        process.stdout.write(JSON.stringify({ busyAt, acquiredAt, committedAt }));
       }`;
     const child = spawn(
       process.execPath,
@@ -1131,6 +1146,8 @@ describe('P2CG1C prepared co-op mission create (callable, not route-reached)', (
     });
     // When
     const created = await create(launch);
+    writeFileSync(`${marks.campaign}.done`, '');
+    writeFileSync(`${marks.match}.done`, '');
     const [campaign, saga] = await Promise.all([campaignWriter, sagaWriter]);
     // Then: each writer saw BUSY during the hold and committed after it.
     expect(created.matchId).toBe(missionId());
@@ -1139,6 +1156,10 @@ describe('P2CG1C prepared co-op mission create (callable, not route-reached)', (
     expect(saga.busyAt).toBeLessThanOrEqual(guardAt);
     expect(saga.acquiredAt).toBeGreaterThanOrEqual(times.matchCommit);
     expect(campaign.acquiredAt).toBeGreaterThanOrEqual(times.campaignRelease);
+    expect(saga.committedAt).toBeGreaterThanOrEqual(saga.acquiredAt ?? 0);
+    expect(campaign.committedAt).toBeGreaterThanOrEqual(
+      campaign.acquiredAt ?? 0,
+    );
   });
 
   it('refuses when a competing writer commits first, where a deferred snapshot stays stale', async () => {

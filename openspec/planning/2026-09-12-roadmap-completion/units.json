@@ -6702,7 +6702,9 @@
         "red": {
           "path": "evidence/p2cg1c-red-20261017.json"
         },
-        "local": null,
+        "local": {
+          "path": "evidence/p2cg1c-local-20261017.json"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,

@@ -1,0 +1,279 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CG1C",
+  "stage": "local",
+  "baseline": "8fde3b975fad16dc2af91faa16c49356ada9f921",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "L1 / P2CG1C implementation sub-agent"
+  },
+  "runtime": "node v22.22.0, real npm ci in the worktree at the baseline (exit 0)",
+  "productBytes": {
+    "src/lib/multiplayer/server/IMatchStore.ts": "beb13efd217ee162bf69a52769dfe41f2b16a8a505d07464671ff51a0351425d",
+    "src/lib/multiplayer/server/DurableMatchStore.ts": "942b6143aa9d25097ce392203d1c29cc0b92d0a2298fb70b4ebbfc9658aff475",
+    "src/lib/multiplayer/server/coopMissionCreate.ts": "dd3e06ae9f7bdc8a1bd82a7a048b713cf9309c809058849c851e47045eb35bbd"
+  },
+  "testBytes": {
+    "src/lib/multiplayer/server/__tests__/DurableMatchStore.test.ts": "14361e8a16f7a5226adcc07eaf51acfe76497bdb78ef0b083e2e7330de942cb0",
+    "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts": "cb26564cde8864d62df8f3d381d7fb225988f55e995d946c14db35448dc1a6f1"
+  },
+  "testBytesVersusRed": "DurableMatchStore.test.ts is byte-identical to the red commit 8f0955f8. coopMissionCreate.test.ts differs from red by one stabilisation inside the cross-process case only (+23/-2): the parallel related-callers run (maxWorkers=6) failed once with SqliteError database is locked in the legacy seedJournalFromInitialEvents deferred transaction, because the child \"saga writer\" committed on matches.db while that deferred read transaction was open (SQLITE_BUSY_SNAPSHOT). The child now proves the lock is free after release with BEGIN IMMEDIATE/ROLLBACK (acquiredAt) and commits its probe only after the parent signals done; the case gained a committedAt >= acquiredAt assertion. No assertion was removed or weakened; the failed run is kept as green-related-run1-flake.json. Every other case is unchanged from red",
+  "delivered": {
+    "IMatchStore": "MatchPreparedCreateResult<TRefusal> (refused | committed | uncertain), IMatchProgressionReservation { release() }, optional createMatchPrepared?<TRefusal>(meta, initialEvents, guard) and reserveMatchProgression?(); InMemoryMatchStore unchanged and offers neither",
+    "DurableMatchStore": "createMatch unchanged in behaviour; its insert body is the shared private writeMatchRows(meta, events, transact). Private holdMatchConnection on this.db (M, never capabilityDatabase): refuses a connection already in a transaction, BEGIN IMMEDIATE, release = ROLLBACK only while owned (idempotent), queued microtask releases a hold left open. createMatchPrepared: hold, guard (thenable rejected), non-null = refused with nothing written, insert, COMMIT; a precommit throw rolls back and rethrows the original; a failed COMMIT is rolled back if open and classified by owner readback (identical row = committed, absent = original error, unreadable = uncertain). reserveMatchProgression: write-free hold",
+    "coopMissionCreate": "One shared body runCoopMissionCreate(body, actorId, write). createCoopMissionMatch (route) passes the legacy write (re-admit, async createMatch, race-winner readback) and stays the only route-reached path. createPreparedCoopMissionMatch(body, actorId, launch) refuses COOP_MISSION_LAUNCH_UNSUPPORTED before any effect without a view or capability; after all async work (catalog/bootstrap, launch.prepare) and re-admission it synchronously takes this graph's campaign C IMMEDIATE (refusing a borrowed transaction), then M IMMEDIATE inside createMatchPrepared, revalidates the preparation on C while M is held, commits M while C is held, and releases C by ROLLBACK (never written). Not ready / refused -> 409 COOP_MISSION_NOT_CONVERGED / COOP_MISSION_LAUNCH_REFUSED (code only). Known commit returns the proposal and the unchanged seed/recovery/announce run after both releases. CoopMissionCommitError(matchId, committed|uncertain, errors) for uncertain completion or a failed C release after M committed; never compensated or reported as zero-create"
+  },
+  "carryForwards": {
+    "C-OPEN-1": "Confirmed by the implementation: no campaign append inside C (C exec trail is BEGIN IMMEDIATE / ROLLBACK only, pinned by the lock-order case), so CF-C1 does not arise",
+    "C-OPEN-2": "M4 not absorbed",
+    "C-OPEN-3 / CF-C8": "Re-run at the head: no production caller of the B operations or of createMatchPrepared / reserveMatchProgression / createPreparedCoopMissionMatch outside the leaves and tests; route, server.js, registry, binder and arbiter unchanged",
+    "CF-C9": "lint 87 -> 87 warnings, identical 45-entry warning set; DurableMatchStore.ts stays warned 1312 -> 1394 counted (1776 -> 1875 physical); madge 174 -> 174 chains from C's three leaves, identical sets (992 files both)",
+    "CF-C10": "32 names to be verified on the PR head"
+  },
+  "mutationProbes": {
+    "command": "Each mutant applied alone to the product, both registered suites run with --runInBand, product restored (byte-equal to the implementation patch afterwards)",
+    "caught": "12/12",
+    "mutants": [
+      {
+        "mutant": "MU1 campaign C deferred, not IMMEDIATE",
+        "caught": true,
+        "failedCases": 8,
+        "examples": [
+          "holds C then M IMMEDIATE, commits M while C is held, and releases both before seed, recovery and announcement",
+          "refuses inside the held guard after a newly bound seat, with nothing written",
+          "refuses inside the held guard after a revoked membership incarnation, with nothing written"
+        ]
+      },
+      {
+        "mutant": "MU2 C released before the M write/commit",
+        "caught": true,
+        "failedCases": 14,
+        "examples": [
+          "holds C then M IMMEDIATE, commits M while C is held, and releases both before seed, recovery and announcement",
+          "refuses inside the held guard after a newly bound seat, with nothing written",
+          "refuses inside the held guard after a revoked membership incarnation, with nothing written"
+        ]
+      },
+      {
+        "mutant": "MU3 match M deferred, not IMMEDIATE",
+        "caught": true,
+        "failedCases": 9,
+        "examples": [
+          "holds C then M IMMEDIATE, commits M while C is held, and releases both before seed, recovery and announcement",
+          "refuses inside the held guard after a newly bound seat, with nothing written",
+          "refuses inside the held guard after a revoked membership incarnation, with nothing written"
+        ]
+      },
+      {
+        "mutant": "MU4 guard refusal ignored",
+        "caught": true,
+        "failedCases": 8,
+        "examples": [
+          "refuses inside the held guard after a newly bound seat, with nothing written",
+          "refuses inside the held guard after a revoked membership incarnation, with nothing written",
+          "refuses inside the held guard after a changed applied row, with nothing written"
+        ]
+      },
+      {
+        "mutant": "MU5 no owner readback after failed COMMIT",
+        "caught": true,
+        "failedCases": 1,
+        "examples": [
+          "classifies a failed COMMIT by reading the row back"
+        ]
+      },
+      {
+        "mutant": "MU6 no microtask release",
+        "caught": true,
+        "failedCases": 1,
+        "examples": [
+          "holds the match connection for a progression reservation and never past its synchronous span"
+        ]
+      },
+      {
+        "mutant": "MU7 no idle-connection refusal on M",
+        "caught": true,
+        "failedCases": 1,
+        "examples": [
+          "refuses a borrowed transaction and a duplicate id without writing"
+        ]
+      },
+      {
+        "mutant": "MU8 thenable guard accepted",
+        "caught": true,
+        "failedCases": 1,
+        "examples": [
+          "writes nothing when the guard refuses, throws, or answers a thenable"
+        ]
+      },
+      {
+        "mutant": "MU9 committed despite failed C release",
+        "caught": true,
+        "failedCases": 1,
+        "examples": [
+          "keeps a known M commit through uncertain completion, C finalization and post-release failures"
+        ]
+      },
+      {
+        "mutant": "MU10 no idle-connection refusal on C",
+        "caught": true,
+        "failedCases": 1,
+        "examples": [
+          "refuses before any effect without a capability, a view or readiness, and the route keeps the old create"
+        ]
+      },
+      {
+        "mutant": "MU11 prepared path skips the not-ready preflight and revalidation",
+        "caught": true,
+        "failedCases": 7,
+        "examples": [
+          "refuses inside the held guard after a newly bound seat, with nothing written",
+          "refuses inside the held guard after a revoked membership incarnation, with nothing written",
+          "refuses inside the held guard after a changed applied row, with nothing written"
+        ]
+      },
+      {
+        "mutant": "MU12 uncertain reported as committed",
+        "caught": true,
+        "failedCases": 2,
+        "examples": [
+          "reports an unreadable commit outcome as uncertain and resolves it by readback on retry",
+          "classifies a failed COMMIT by reading the row back"
+        ]
+      }
+    ],
+    "note": "Probes ran before the cross-process stabilisation; that edit does not touch any assertion a mutant tripped except adding one"
+  },
+  "commands": [
+    "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --json --runTestsByPath src/lib/multiplayer/server/__tests__/DurableMatchStore.test.ts src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+    "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --testPathPattern='campaignLaunchAuthorityRoute|campaignProgressionReaders.durable|CampaignSyncSession'",
+    "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --runTestsByPath src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts src/lib/multiplayer/server/__tests__/CampaignMatchHost.pipeline.test.ts",
+    "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --runTestsByPath <the 35 A1/A2 suites (suites35.txt), unmodified>",
+    "node node_modules/jest/bin/jest.js --watchAll=false --maxWorkers=6 --findRelatedTests <the three product leaves> (twice after the stabilisation)",
+    "npm run typecheck; npm run lint; npm run format:check; npm run lint:units; npx -y madge@8.0.0 --circular --extensions ts --ts-config tsconfig.json <three product leaves>",
+    "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs (plain, --git); node --test validate-roadmap.test.mjs; npx openspec validate --all --strict; npm run qc:openspec-ci:validate"
+  ],
+  "results": {
+    "twoLeaves": "2 suites, 52 tests: 52 passed (31 pre-existing + 21 new; red was 31 passed / 21 failed)",
+    "task14Selector": "4 suites, 96 tests: 96 passed",
+    "p2cg1bLeaves": "2 suites, 45 tests: 45 passed (B suites unchanged, incl. the CF-C7 identity-equality fixture)",
+    "predecessor35": "35 suites, 369 tests: 369 passed; same totals as A2/B evidence",
+    "relatedCallers": "196 suites, 1490 tests: 1488 passed, 0 failed, 2 pending (pre-existing; mintFastForwardPack.test.ts status focused is pre-existing). Repeated: 196/1488/0. One earlier run failed once in the cross-process case (see testBytesVersusRed)"
+  },
+  "checks": {
+    "typecheck": "PASS (TypeScript 7, root and scripts)",
+    "lint": "PASS: 0 errors, 87 warnings (baseline 87), identical warning set; DurableMatchStore.ts max-lines 1312 -> 1394 counted (already warned)",
+    "format": "PASS",
+    "lintUnits": "PASS (LINT_UNITS_PASS 17899/17899)",
+    "cycles": "madge 174 -> 174, identical sets; the one new value import (DurableMatchStore -> SQLiteEventJournalWriter.rejectPreparedThenable) adds no chain; coopMissionCreate's new campaignPublicAppliedView import is type-only",
+    "roadmap": "validate-roadmap PASSED (80 nodes, 13 packages, 381 tasks, 40 triage rows); --git PASSED; validate-roadmap.test.mjs 86/86",
+    "openspec": "openspec validate --all --strict 230 passed, 0 failed; qc:openspec-ci:validate errors=0",
+    "machine": "scripts/qc/machine-idle.mjs printed MACHINE_IDLE with --own-pid 47516 and --own-pid 52460 (T3 headless chrome) before every Jest run; no other process touched"
+  },
+  "census": {
+    "files": "9 actual (3 source leaves, 2 test leaves, units.json, admission/red/local receipts) + the reserved, author-unwritten admission-review slot = 10 of 15; harness and fixture unchanged",
+    "productAddedLines": "336 of 500 (git diff --numstat --no-renames vs baseline; tests and evidence exempt; no deletion credit; units.json counted)",
+    "numstat": [
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1c-admission-20261017.json",
+        "added": 162,
+        "deleted": 0,
+        "lineExempt": true
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1c-red-20261017.json",
+        "added": 408,
+        "deleted": 0,
+        "lineExempt": true
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "added": 16,
+        "deleted": 6,
+        "lineExempt": false
+      },
+      {
+        "path": "src/lib/multiplayer/server/DurableMatchStore.ts",
+        "added": 102,
+        "deleted": 3,
+        "lineExempt": false
+      },
+      {
+        "path": "src/lib/multiplayer/server/IMatchStore.ts",
+        "added": 41,
+        "deleted": 0,
+        "lineExempt": false
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/DurableMatchStore.test.ts",
+        "added": 229,
+        "deleted": 0,
+        "lineExempt": true
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+        "added": 953,
+        "deleted": 1,
+        "lineExempt": true
+      },
+      {
+        "path": "src/lib/multiplayer/server/coopMissionCreate.ts",
+        "added": 177,
+        "deleted": 16,
+        "lineExempt": false
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1c-local-20261017.json",
+        "added": "this file",
+        "deleted": 0,
+        "lineExempt": true
+      }
+    ]
+  },
+  "logs": {
+    "directory": "E:/Projects/Personal/MekStation-wt/p2cg1c-proof-20261017/",
+    "files": {
+      "census.md": "a8ac06a4ff2abd2fe845e4e7e1c605f4e76013f99f6183fc02af4e7b2fbbb1fd",
+      "census.template.md": "403cd90d08a38414bd794ecffcbb5f90520a762d6e71b086d3da84f089d5c60c",
+      "draft-related.json": "4b2b9aaace40fd4b3ba45793f229876b2170858ac74d1058427ff68eef44de45",
+      "format-post.log": "9cfce3ba9fa667e312905f388b2de0a829010f7905e349054ada6daf13bae3f2",
+      "green-35.json": "638c459b5e2252abd948990b8a226b6a0010321cbaf2435615a2ece680d883df",
+      "green-35.log": "483ab464319ab7393e7a20fa5136f17aa0ee330ee04b3cfc745e9cf2fb76543b",
+      "green-b2.json": "0980e821d451b3aa2f16b094e9dbb062f62094fb1421ac7efdb3efdee6b958dc",
+      "green-b2.log": "322e60535ea0b3789005cf5bcc43ba1451e9a5081eb4fec1a61d6bf7752ade97",
+      "green-raw.log": "bbee86b06372df9f956a2545ffe65bbbba773e3db19d6c3183e0133769711323",
+      "green-related-run1-flake.json": "b35e27ed4ff1816e8d28f0bae3b58de729066ad0b8e09c4523c305c212676eaf",
+      "green-related-run3.json": "a00832af5d4b86a505a415ab2b9f6d6ac49d14b985631b4f3f9421601b296638",
+      "green-related-run3.log": "aea0bb3293dc1aa79f5a8395ed550bd8bc8850e5528b7d46d72449b6a6f9bb9d",
+      "green-related.json": "d94f81de95da0a05c9a910de06f1d336e2e7eda448f2fc1415399d0c83fda2f4",
+      "green-related.log": "1d84b5606575ff37452e0bdef49dac8f58357baf79f49bce6513a16a7e4f4a03",
+      "green-selector.json": "5ea1898dce0ac9314f985060b5b24b0c51d67e77ca981c0a2d415bfcd129d41d",
+      "green-selector.log": "310c42a9645ed19d355706f64a0a0e8a8229e88a91413de3125023b7ac0c4150",
+      "green-two-suites.json": "24e29a72f39b12d7fa1e7afda537e8552b4ae5c1b44fa87c111badf36befc4a7",
+      "lint-base.log": "ecbef2b31aa272dbfda6fc6bf6cc799e03376d998b20df7614b8c6c18e7ce81b",
+      "lint-post.log": "02477a0a82fee38cede33d3f80800e1e8160b96d27e7fbda6e7c7be2b3ebfb3b",
+      "lint-units.log": "00edcd4a99414da1171d11f814ff35548d27d3b2b2afb445afd91449e16a55da",
+      "madge-base.log": "160df3fe831bb6c4b6bc2001f43b0e265bf0ab4a8347139710cbe9b6a02087e4",
+      "madge-post.log": "4fadca1f2e805acde0db51c062b8c2e8e7bfe062647808b19098acda38347477",
+      "mutants.json": "06fadd780016bb01f895da3acd29aae2cc6ee76cba2c6fe90054da0288b64419",
+      "npm-ci.log": "4fa5107f3b2ad1ea783b7c8ac432db4d5c9bae6d2bf2008af738ffb9e9273074",
+      "openspec-ci.log": "19b2046de400eaefd184fb58e7072d1816b6ccef3ba1f1ea040c0f9ec8ec2c60",
+      "openspec.log": "89a3784befdc45a1fb8b4cac58d9703373655afb9d5fa537f58176fbd9cad0c0",
+      "product-check.patch": "f563b5113e049c2e924fdc3515ad32e07dae2bd94fd63f2393c0fbaeb7ff8154",
+      "product-draft.patch": "f563b5113e049c2e924fdc3515ad32e07dae2bd94fd63f2393c0fbaeb7ff8154",
+      "product-final.patch": "f563b5113e049c2e924fdc3515ad32e07dae2bd94fd63f2393c0fbaeb7ff8154",
+      "red-raw.log": "e103207e91b4e6270118194c77f6b0559fa58b51f1b699dbe2965109019ccb97",
+      "red-two-suites.json": "9ae4110c3e7753062bbb775605c9744423dd0be42397d5e9a1d1a1802a00fc88",
+      "suites35.txt": "146494263be940d1639608d56d4d4e65dc79febe50de23b15b7d775c64421201",
+      "tests-final.patch": "4129ddaa85e8817355e82fc839ca73cea53fc82cbefb2b169c24e5e2644faa8f",
+      "typecheck-post.log": "8102a14cf3245ac2b0d67c588affb25efaebfcd3485f9a46a751595d9a774951",
+      "typecheck-red.log": "85f3b651aba76c66d3f089564a7fbeaf740b0f2108dbd5b6dff7e025bf69048c",
+      "validator-git.log": "8334eb5ca69d8e1d087d34582a3138c3c68a69a32d6c67914441a48eaf64c460",
+      "validator-test.log": "5dd1760a7214e1c5c084cf2fb5068f2714ccadc692463ce7d41ce3b0b37f0da1",
+      "validator.log": "3c8a526f2cfa587e259a090767acd1fce1930d20d5c4b368cebf78dcf23cca7b"
+    }
+  },
+  "boundary": "Callable and unreached. No change to the route, registry, binder, arbiter, server.js, receipt port, Protocol/wire types, numeric ACK credit or any P2CG1B leaf. No merge or Main claim",
+  "status": "Candidate local checks only; independent exact-head review, OWNER-RULING, guarded merge and exact-main proof pending"
+}
