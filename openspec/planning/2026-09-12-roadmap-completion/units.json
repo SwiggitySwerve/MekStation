@@ -8463,7 +8463,14 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4b-admission-20261017.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4b-red-20261017.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4b-local-20261017.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4b-admission-review-20261017.md"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4b-admission-review-20261017.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4b-source-astra-review-20261017.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4b-review-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4b-merge-20261017.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-7898c40e-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-7898c40e-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-7898c40e-deps.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/ts7s4b-mainproof-20261017.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -8474,10 +8481,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "implementing",
+      "state": "main-verified",
       "baseline": "c929780d9d45b74249c24eec6380d6d777cbe3b6",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "2d35fb67e47f34c17afebd23bec293fcb3750558",
+      "mergeSha": "7898c40ed633076c8f9931dfb56a33eeeab4ca2d",
       "stageReceipts": {
         "admission": {
           "path": "evidence/ts7s4b-admission-20261017.json"
@@ -8488,9 +8495,27 @@
         "local": {
           "path": "evidence/ts7s4b-local-20261017.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/ts7s4b-review-20261017.json",
+          "head": "2d35fb67e47f34c17afebd23bec293fcb3750558",
+          "reviewedHead": "2d35fb67e47f34c17afebd23bec293fcb3750558",
+          "reviewerModel": "gpt-6-astra",
+          "implementerModel": "gpt-6.1-sol",
+          "outputSha256": "57bb9cdebe23f32039ac02e9dad84fbe1514b5f5262cb1ace00a1bfd4b24632b",
+          "verdict": "APPROVE-WITH-NOTES"
+        },
+        "merge": {
+          "path": "evidence/ts7s4b-merge-20261017.json",
+          "pr": 2192,
+          "head": "2d35fb67e47f34c17afebd23bec293fcb3750558",
+          "mergeSha": "7898c40ed633076c8f9931dfb56a33eeeab4ca2d"
+        },
+        "mainProof": {
+          "path": "evidence/ts7s4b-mainproof-20261017.json",
+          "mergeCommit": "7898c40ed633076c8f9931dfb56a33eeeab4ca2d",
+          "verdict": "PASS",
+          "runtime": "Source/Main checks: 10 passed (fresh physical root and desktop npm ci exit 0; root typescript7 tsc --version 7.0.2; root typescript API version 6.0.3 via wrapper @typescript/typescript6 6.0.2; root node_modules/.bin/tsc owned by @typescript/old, TS6; npm run typecheck exit 0 running node node_modules/typescript7/bin/tsc for both root and scripts projects; desktop npx tsc --version 7.0.2, unaliased typescript 7.0.2; desktop npm run type-check exit 0 and npm test 57/57; typescript-toolchain.test.ts alone 4/4; roadmap-main-proof.mjs:195 argv node_modules/typescript7/bin/tsc and the closure-proof jest-ladder assertion alone 1 passed/145 skipped; validator PASSED, openspec validate --all --strict 230 passed and qc:openspec-ci:validate errors=0; 0 failed)"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -8560,7 +8585,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,

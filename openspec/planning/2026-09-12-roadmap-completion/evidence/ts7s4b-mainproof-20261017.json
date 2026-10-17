@@ -1,0 +1,48 @@
+{
+  "unit": "TS7S4B",
+  "stage": "mainProof",
+  "recordedAt": "2026-10-17T08:00:00.000Z",
+  "mergeCommit": "7898c40ed633076c8f9931dfb56a33eeeab4ca2d",
+  "verdict": "PASS",
+  "checkout": "E:/Projects/Personal/MekStation-wt/ts7s4b-closure-20261017",
+  "runtime": {
+    "playwright": "Source/Main checks: 10 passed (fresh physical root and desktop npm ci exit 0; root typescript7 tsc --version 7.0.2; root typescript API version 6.0.3 via wrapper @typescript/typescript6 6.0.2; root node_modules/.bin/tsc owned by @typescript/old, TS6; npm run typecheck exit 0 running node node_modules/typescript7/bin/tsc for both root and scripts projects; desktop npx tsc --version 7.0.2, unaliased typescript 7.0.2; desktop npm run type-check exit 0 and npm test 57/57; typescript-toolchain.test.ts alone 4/4; roadmap-main-proof.mjs:195 argv node_modules/typescript7/bin/tsc and the closure-proof jest-ladder assertion alone 1 passed/145 skipped; validator PASSED, openspec validate --all --strict 230 passed and qc:openspec-ci:validate errors=0; 0 failed)",
+    "tsc": "node node_modules/typescript7/bin/tsc --version printed Version 7.0.2 and typescript7/package.json 7.0.2: the explicit gate compiler is TypeScript 7.",
+    "api": "node -e \"console.log(require('typescript').version)\" printed 6.0.3; typescript/package.json is @typescript/typescript6 6.0.2 (the compatibility wrapper) and @typescript/old/package.json is 6.0.3: the root API consumers keep the full TypeScript 6 API.",
+    "binOwnership": "Root node_modules/.bin/tsc.cmd and node_modules/.bin/tsc both exec ../@typescript/old/bin/tsc (TS6). No routed root gate uses the bare bin; scripts.typecheck names node_modules/typescript7/bin/tsc explicitly. Desktop node_modules/.bin/tsc.cmd points to ../typescript/bin/tsc (TS7).",
+    "typecheck": "Printed scripts.typecheck = node node_modules/typescript7/bin/tsc --noEmit --skipLibCheck && node node_modules/typescript7/bin/tsc -p scripts/tsconfig.json --noEmit; npm run typecheck echoed that exact command and exited 0: both the root and scripts projects ran on TypeScript 7.",
+    "desktop": "In desktop/: npx --no-install tsc --version printed Version 7.0.2 and typescript/package.json is typescript 7.0.2 (unaliased); npm run type-check exit 0; npm test: 5 suites, 57 tests passed.",
+    "guard": "npx jest --selectProjects unit --runInBand --no-coverage --runTestsByPath scripts/__tests__/typescript-toolchain.test.ts alone: 1 suite, 4 tests passed (the unit-added guard).",
+    "roadmapMainProof": "findstr shows scripts/qc/roadmap-main-proof.mjs:195 argv ['node', 'node_modules/typescript7/bin/tsc', '--noEmit'] and the closure-proof pins at roadmap-loop-closure-proof.test.ts:1837 and :2130. The focused assertion (-t \"prints the jest ladder without running anything\") ran alone: 1 passed, 145 skipped. The full 146-test file was not replayed at Main; the reviewer's 146/146 run on the head covers it.",
+    "openspec": "npx openspec validate --all --strict: 230 passed, 0 failed. npm run qc:openspec-ci:validate: errors=0.",
+    "validator": "validate-roadmap.mjs PASSED; --git PASSED; --next printed U24b on the unedited ledger while TS7S4B was implementing (the validator does not model the one-lane rule; TS7S2B N2 disclosure).",
+    "dependencies": "Fresh root npm ci and desktop npm ci (with lifecycle scripts) at the merge commit in this worktree, because the unit changed both lockfiles. Both node_modules are physical directories (lstat: not symlinks), with no junction to the root checkout. Log in the deps envelope.",
+    "machine": "node scripts/qc/machine-idle.mjs printed MACHINE_BUSY 1 for exactly one process before the install and before the proof: PID 47516, an idle pre-existing node.exe server.js (port 8300), which Root allowed. This closure neither started nor stopped any other process.",
+    "node": "v22.22.0",
+    "npm": "11.6.2"
+  },
+  "proof": {
+    "path": "evidence/mainproof-7898c40e-typecheck.bytes.json",
+    "payloadSha256": "f181a90d0cb5469fc3f65440046e910852945a39ed6ea0f126da0cd44b9e839b",
+    "payloadBytes": 40523,
+    "note": "machine-idle, TS7 and TS6/API versions, bin ownership, physical node_modules check, scripts.typecheck print and npm run typecheck, desktop tsc version, type-check and npm test, typescript-toolchain.test.ts alone, the roadmap main-proof argv grep and the focused closure-proof assertion, all at the exact merge HEAD. Concatenated logs."
+  },
+  "logs": [
+    {
+      "path": "evidence/mainproof-7898c40e-validator.bytes.json",
+      "payloadSha256": "d94d4f1a29c437571ffb9ab0b3353fb7fe7be1150b2d6b2850bb9c69885e89b3",
+      "payloadBytes": 10974,
+      "note": "validate-roadmap.mjs, --git and --next on the unedited ledger at the merge HEAD (PASSED, PASSED, --next U24b); npx openspec validate --all --strict (230 passed, 0 failed); npm run qc:openspec-ci:validate (errors=0)."
+    },
+    {
+      "path": "evidence/mainproof-7898c40e-deps.bytes.json",
+      "payloadSha256": "701266f1862d355323583242bba2c42463820d777a962d06d78d0ef8f74ece4f",
+      "payloadBytes": 3347,
+      "note": "Root and desktop npm ci at the merge HEAD under Node v22.22.0 / npm 11.6.2: both exit 0."
+    }
+  ],
+  "headProof": "Not re-run at the merge commit (lean cadence): the root production build (unskipped Next TypeScript check), Storybook build and prop metadata, API consumers (flow-audit tsx sidecar and maintenance scanner parser), desktop emit comparison, lint, format:check and test:stable. They were proved on PR head 2d35fb67 by the author (PR #2192 body; evidence/ts7s4b-local-20261017.json, whose proof-log hashes the reviewer re-verified) and by CI run 39013739582 on that head (Lint, Format Check, Type Check, Unit Tests 1-6/6, A11y Tests, Desktop Type Check, Desktop Tests, Build Test win/mac/linux, Build Storybook, E2E Smoke: all success). The merge tree equals the merge-tree of the first parent and the head (merge receipt).",
+  "scope": "Lean cadence (docs/audits/2026-10-17-council-roadmap-decision.md, item 2): exact-Main proof focused on what TS7S4B changed (TS7 gate compiler, TS6 API alias, bin ownership, the two-project npm typecheck on TS7, desktop TS7 type-check and tests, the added toolchain guard, the roadmap main-proof argv and its pin), plus validator and OpenSpec. No local roadmap-suite replays and no npm run test:stable; CI on the closure PR covers them.",
+  "closure": "main-verified only. taskKeys is empty, so no tick receipt is invented; the tasks.md rows changed by #2192 are already on main.",
+  "preservation": "Proof and logs are base64 envelopes so repository LF normalization cannot alter their exact bytes. Decode data and verify payloadSha256/payloadBytes. Logs were captured through cmd and PowerShell, so non-ASCII console glyphs may appear mis-decoded; the bytes are kept as captured."
+}
