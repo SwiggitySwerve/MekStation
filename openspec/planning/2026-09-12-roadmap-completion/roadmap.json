@@ -2885,7 +2885,9 @@
             "src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.integrity.test.ts",
             "src/lib/multiplayer/server/__tests__/campaignWireScopeBoundary.test.ts",
             "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts",
-            "src/lib/multiplayer/server/__tests__/healCommittedParticipantRemovals.test.ts"
+            "src/lib/multiplayer/server/__tests__/healCommittedParticipantRemovals.test.ts",
+            "src/lib/multiplayer/server/__tests__/coopMissionCreate.harness.ts",
+            "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.harness.ts"
           ],
           "P2CG1I3": [
             "src/lib/multiplayer/server/CampaignSyncSession.ts",
@@ -2979,7 +2981,7 @@
           "P2CG1G2": 7,
           "P2CG1H": 9,
           "P2CG1I1": 6,
-          "P2CG1I2": 8,
+          "P2CG1I2": 10,
           "P2CG1I3": 5,
           "P2CG1I4": 8,
           "P2CG2": 7,
