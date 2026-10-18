@@ -1,0 +1,362 @@
+# v2.2.0 release-readiness preparation
+
+Research only, 2026-10-18. Prepared for Root; no release, implementation, test pass, or human acceptance is asserted by this report.
+
+## Decision
+
+**Keep L1 delivery serial; parallelize the before-H socket-smoke harness, release-body preparation, and evidence/runbook preparation. v2.2.0 is not ready for acceptance.** The current release checklist requires 33 closures and remains pending; the ledger records 11 main-verified units, B14-0B still implementing, and the remaining 21 blocked. The before-H built-server smoke is explicitly still owed. [U:23811–23888; U:6612; U:7635; U:7721; P:31–42]
+
+The strongest immediate independent deliverable is a **real production standalone socket smoke for spectator sealed-choice delivery**, not another Jest run or a duplicate three-context journey. The existing packaged validator proves upgrade/replay/restart for one player, while S's obligation concerns spectator privacy in live and replay delivery. [scripts/validate-multiplayer-packaged-socket.mjs:533–586; U:7574–7578]
+
+## Evidence conventions and inspected state
+
+All repository-relative citations resolve under `E:/Projects/Personal/MekStation-wt/v220-prep-20261018`, pinned to detached Main commit **921ad8a1ec1c3ccac460ab6e6808ca5146474171**. Operational observations: `git fetch origin main`, `git switch --detach origin/main`, and `git rev-parse HEAD` established this pin; `git status --short` was empty before this sole report was written. No Jest, build, browser, installer, validator, commit, or PR operation was run. Eleven read-only `git merge-base --is-ancestor <mainProof.mergeCommit> HEAD` checks succeeded for the recorded main-verified units. These are ancestry checks, not reruns of their runtime proof.
+
+Citation abbreviations:
+
+- **U** = `openspec/planning/2026-09-12-roadmap-completion/units.json`.
+- **R** = `openspec/planning/2026-09-12-roadmap-completion/roadmap.json`.
+- **P** = `openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md`.
+- **PLAN** = `E:/Projects/Personal/MekStation/.omo/plans/mekstation-phased-delivery-20261015/PLAN.md` (read only).
+- **STATUS** = `E:/Projects/Personal/MekStation/.omo/plans/mekstation-phased-delivery-20261015/STATUS.md` (read only; live planning overlay, not commit-pinned).
+- **CHECK** = `playtest/checklists/coop-uat.md`.
+- **TEMPLATE** = `playtest/session-notes/TEMPLATE-v2.2.0-coop-l1.md`.
+- **RELEASE** = `.github/workflows/release.yml`.
+- **TOPOLOGY** = `docs/releases/v2.2.0-topology.md`.
+
+“Exists” means code/procedure is present. “Recorded PASS” means the ledger contains a prior exact-main receipt, not a fresh PASS at this research SHA. “Missing” means the required acceptance artifact/implementation is absent or explicitly pending in the inspected sources; no claim is made about uninspected private or hosted artifacts. The checklist is documentary and **not enforced by validate-roadmap/NEXT**. [U:23858]
+
+## Canonical closure gate: every one of the 33 units
+
+For each row Root must inspect authentic admission/local/review/merge/mainProof receipts, required exact-head CI and any sensitive OWNER-RULING, verify `mainProof.verdict === PASS`, verify its exact merge commit is an ancestor of fetched Main, and complete the separate closure. A merged implementation is insufficient. The common procedure is `git fetch origin main`, inspect the unit and receipt files, then `git merge-base --is-ancestor <mainProof.mergeCommit> origin/main`; repeat on the selected RC and preserve the result. The validator command `node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs` is useful structural validation but does not implement these documentary release gates. [U:23444; U:23858–23868; openspec/planning/2026-09-12-roadmap-completion/DELIVERY.md:14–18]
+
+| #   | Unit / producing lane | Inspected ledger state                                                                      | State citation                                                    |
+| --- | --------------------- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| 1   | P2CG1B                | main-verified; recorded mainProof PASS                                                      | U:6612–6645                                                       |
+| 2   | P2CG1C                | main-verified; recorded mainProof PASS                                                      | U:6706–6739                                                       |
+| 3   | P2CG1D                | main-verified; recorded mainProof PASS                                                      | U:6801–6834                                                       |
+| 4   | P2CG1E                | main-verified; recorded mainProof PASS                                                      | U:6900–6933                                                       |
+| 5   | P2CG1F                | main-verified; recorded mainProof PASS                                                      | U:6998–7031                                                       |
+| 6   | P2CG1G1               | main-verified; recorded mainProof PASS                                                      | U:7098–7131                                                       |
+| 7   | P2CG1G2A              | main-verified; recorded mainProof PASS                                                      | U:7199–7232                                                       |
+| 8   | P2CG1G2               | main-verified; recorded mainProof PASS                                                      | U:7307–7340                                                       |
+| 9   | P2CG1R                | main-verified; recorded mainProof PASS                                                      | U:7417–7450                                                       |
+| 10  | P2CG1S                | main-verified; recorded mainProof PASS; socket smoke still owed                             | U:7525–7558; P:162                                                |
+| 11  | B14-0A                | main-verified; recorded mainProof PASS; smoke not discharged                                | U:7635–7668; P:42                                                 |
+| 12  | B14-0B                | implementing; mainProof null; implementation merge is in Main history, closure not recorded | U:7721–7735; Main commit 4d9eb7213, parent of inspected 921ad8a1e |
+| 13  | B14-0                 | blocked; mainProof null                                                                     | U:7785–7799                                                       |
+| 14  | B14-HEAD              | blocked; mainProof null                                                                     | U:7844–7858                                                       |
+| 15  | P2CG1HP               | blocked; mainProof null                                                                     | U:7904–7918                                                       |
+| 16  | LSC-0                 | blocked; mainProof null                                                                     | U:7961–7975                                                       |
+| 17  | LSC-1DB               | blocked; mainProof null                                                                     | U:8021–8035                                                       |
+| 18  | LSC-1S                | blocked; mainProof null                                                                     | U:8080–8094                                                       |
+| 19  | LSC-1                 | blocked; mainProof null                                                                     | U:8141–8155                                                       |
+| 20  | LSC-2OP               | blocked; mainProof null                                                                     | U:8201–8215                                                       |
+| 21  | LSC-2                 | blocked; mainProof null                                                                     | U:8263–8277                                                       |
+| 22  | LSC-2P                | blocked; mainProof null                                                                     | U:8323–8337                                                       |
+| 23  | P2CG1H                | blocked; mainProof null                                                                     | U:8386–8400                                                       |
+| 24  | P2CG1I1               | blocked; mainProof null                                                                     | U:8452–8466                                                       |
+| 25  | P2CG1I2               | blocked; mainProof null                                                                     | U:8512–8526                                                       |
+| 26  | P2CG1I3               | blocked; mainProof null                                                                     | U:8566–8580                                                       |
+| 27  | P2CG1I4               | blocked; mainProof null                                                                     | U:8626–8640                                                       |
+| 28  | P2CG2                 | blocked; mainProof null                                                                     | U:8680–8694                                                       |
+| 29  | P2CH                  | blocked; mainProof null                                                                     | U:8764–8778                                                       |
+| 30  | P2C / Task 17         | blocked; mainProof null                                                                     | U:8813–8827                                                       |
+| 31  | P2 / Task 18          | blocked; mainProof null                                                                     | U:8925–8939                                                       |
+| 32  | U38 / Task 19         | blocked; mainProof null                                                                     | U:10406–10420                                                     |
+| 33  | P2J                   | blocked; mainProof null                                                                     | U:9084–9098                                                       |
+
+The complete ordering above is the effective ordering, not permission to admit several units together. B14 privacy acceptance requires **all four** B14 units. LSC-2 and LSC-2P closure precede P2, U38, and the human session; LSC-1S/LSC-2OP are included through their predecessor chain. [U:23444; U:23863; U:24077]
+
+PLAN's 17/19-unit counts are historical; STATUS records the later 33-unit amendment. P2J is routine test-only, so PLAN's historical “all sensitive-class” description also must not be copied into a current checklist. All original sensitive gates remain with their units. [PLAN:21; STATUS:33–38; U:9109–9131]
+
+**Safe parallel preparation:** build a read-only closure/receipt inventory outside the ledger; do not edit any lifecycle or B14/LSC/HP/H manifest. Root owns reconciliation and release disposition. [U:23858; U:23480–23481]
+
+## Release gate inventory and exact procedures
+
+### 1. Pre-H production socket smoke and H checkpoint
+
+- **Procedure:** build the exact Main candidate with `npm run build`, start its hydrated `.next/standalone/server.js`, then exercise real authenticated WebSockets, live delivery, replay and restart. The detailed proposed driver below is designed specifically to discharge S-SMOKE-1/B14A-SMOKE-1. It must pass **before H and before any spectator-bearing shipment**. [P:42; P:162; package.json:14–16]
+- **Current status:** owed; prior Main proof is Jest/typecheck/validator only. Existing `npm run validate:multiplayer:packaged-socket` is useful substrate, not spectator coverage. [P:42; package.json:73; scripts/validate-multiplayer-packaged-socket.mjs:533–586]
+- **Producer:** Root release-proof lane, discharging the S post-merge obligation. H separately needs its independent Astra-high activation checkpoint, its registered review, PK-p2cg1h-ruling and OWNER-RULING. STATUS records a historical Fable substitution when Astra was unavailable; record the actual reviewer/deviation rather than silently treating it as Astra. [U:7578; U:23467–23490; STATUS:470]
+- **Build now:** a new independent harness and synthetic assertion tests, outside protected product and existing helper paths. Run it at the admitted exact Main before H; do not move this work into H's already-full 15-file manifest. [U:8361; U:8401; design/census below]
+
+### 2. H activation proof remains a separate closure requirement
+
+- **Procedure:** the H owner runs `npm run verify:qc:coop-campaign-journey`, plus `node scripts/playwright/run-playwright.mjs test --project=chromium e2e/gm-two-player-authority.pack1.spec.ts e2e/gm-two-player-performance.pack.spec.ts e2e/gm-two-player-authority-recovery.pack.spec.ts e2e/gm-two-player-evidence.pack.spec.ts e2e/campaign-journal-two-process-convergence.spec.ts e2e/gm-two-player-membership.smoke.spec.ts e2e/campaign-journal-two-process-privacy.spec.ts --workers=1`. Preserve H's graph-local receipt-port identity, genesis backfill, global-slot, HTTP-door and measured preparePublicCut obligations through its own unit proof. [U:8361; U:8410–8422]
+- **Current status/producer:** H blocked; activation and its proof are H-owned. This is not satisfied by the proposed pre-H smoke or a generic build. [U:8386–8402]
+- **Build now:** command/evidence worksheet only; no H tests, server.js, or campaign-sync edits. [U:8363–8371; U:8401]
+
+### 3. Exact-RC co-op campaign QC selector
+
+- **Command:** `npm run verify:qc:coop-campaign-journey` on the exact RC. This runs nine named Jest files with `--runInBand`, then the two-browser journey **and** co-op UI audit through the Playwright wrapper, Chromium, one worker. The full expansion is `package.json:206`; do not silently drop its second browser spec. [package.json:206; U:23868]
+- **Current status:** selector exists; release gate remains pending. Existing journey uses seeded host/guest identities and is explicitly a host-and-guest campaign-sync test, not yet P2J's ordinary three-seat terminal mission. [U:23866–23873; e2e/coop-campaign-two-browser-journey.spec.ts:66; :260–274; :327]
+- **Producer:** H/P2CH/P2 deliver their respective activation/journey coverage, then Root runs the RC selector; P2J adds terminal three-context coverage afterward. [U:8361; U:8740–8744; U:23446; U:9065–9069]
+- **Build now:** receipt collection/runbook and command expansion review; do not edit the journey, its shared helpers/config, or owned tests. [U:9105]
+
+### 4. Exact-RC own-unit success and foreign-unit refusal
+
+- **Command:** `npm test -- --watchAll=false --runInBand --cacheDirectory=<private-cache> --runTestsByPath src/lib/multiplayer/server/__tests__/ServerMatchHostUnitOwnership.test.ts`. `npm test` maps to Jest; there is no dedicated ownership npm script in the L1 gate. [package.json:34; U:23868]
+- **Current status:** file exists and tests positive own-unit movement, cross-side refusal with no movement, and the co-op guest shared-side positive case. Current source presence does not establish complete U38 acceptance: the release contract additionally requires both seats' own actions and foreign/unknown/ownerless refusals with head, digest and receipt census unchanged. U38 remains blocked. [src/lib/multiplayer/server/__tests__/ServerMatchHostUnitOwnership.test.ts:220–253; U:23455; U:10406]
+- **Producer:** U38 / Task 19, then Root exact-RC execution. [U:23440–23441; U:23868]
+- **Build now:** define receipt fields, not ownership-test changes. [U:10390–10406]
+
+### 5. P2J three-context terminal journey, additional selector and closure
+
+- **Command:** `node scripts/playwright/run-playwright.mjs test --project=chromium e2e/coop-campaign-two-browser-journey.spec.ts --workers=1`. Keep a separate P2J exact-RC receipt even though this file also appears in the QC npm selector. `npm run test:e2e -- ...` is the general wrapper mapping, but retain the registered explicit P2J command. [U:23868; U:23463; package.json:39]
+- **Procedure:** ordinary LSC identities, three isolated contexts, one loopback authority, non-playing GM plus two deploying players; approve/reject proposal; launch; owned actions and foreign-intent refusal; server opponents; reconnect; real terminal combat; outcome once; all-seat reload agreement. No E2E identity switching, manual token transfer, injected terminal result, or substituted local engine. Keep the existing 180000ms budget. [U:9068; U:9125–9131]
+- **Current status:** registration exists, unit blocked, no mainProof; existing journey is two-seat seeded coverage. [U:9084–9098; e2e/coop-campaign-two-browser-journey.spec.ts:260–274; :327]
+- **Producer/order:** P2J after P2, U38, LSC-2/2P and retained L1 gates; registration must qualify before P2 admission; actual proof precedes installer rehearsal and human session. [U:9100–9107; U:23873]
+- **Build now:** scenario/evidence design only. Its registered sole test leaf and six-file source-stage scope must stay with P2J; no npm/config/helper grant exists. [U:9069–9071; U:9105–9124]
+
+### 6. Ordinary three-identity packaged setup
+
+- **Procedure/command:** after LSC-2 closes, install the candidate, start one Electron authority at the registered `http://127.0.0.1:3001`, then run `node scripts/playwright/run-playwright.mjs test --config=playwright.local-seat-packaged.config.ts e2e/local-seat-credentials.spec.ts --workers=1`. This is the direct invocation of the prospectively registered files, **not an existing runnable command on this Main**. Dedicated config: no webServer/globalSetup, one serial worker, unchanged 30-second timeout. Exercise provision/select, three public playerIds, reload/reconnect, renewal/expiry recovery, revoke/re-provision/re-claim. [U:8301; U:24035]
+- **Current status:** LSC-2P blocked; manifest describes future files/proof. The human checklist correctly remains blocked on ordinary identity setup; separate profiles alone cannot supply identities. [U:8323; U:24025–24035; CHECK:13–55]
+- **Producer:** LSC-0/1DB/1S/1/2OP/2 deliver the identity path; LSC-2P owns packaged proof and `docs/releases/v2.2.0-local-seat-proof.md`. [U:23444; U:8301]
+- **Build now:** draft seat/operator evidence table outside their files. Do not create the reserved config, e2e file, local-seat proof note or modify LSC UI. [U:8298–8309; U:24035]
+
+### 7. Automated refusal evidence required by the human checklist
+
+- **Command:** in addition to the U38 selector, `node scripts/playwright/run-playwright.mjs test --project=chromium e2e/gm-two-player-combat.pack1.spec.ts --grep E2E-31 --workers=1`. Existing E2E-31 asserts typed `AUTH_REJECTED` / `unit-not-owned` and an owned command control. [CHECK:77–86; TEMPLATE:113–118; e2e/gm-two-player-combat.pack1.spec.ts:298–326]
+- **Current status:** test exists; no fresh RC PASS obtained here. This established combat fixture must not be relabeled as co-op-specific E2E-31/32 proof, which the layer explicitly does not claim until U53/P5. P2J separately owns foreign-unit proof on its actual co-op journey. [U:23458; U:9068]
+- **Producer:** Root release proof using existing fixture; U38/P2J for their respective contracts. **Build now:** evidence cross-reference only. [CHECK:81–86; U:23868–23873]
+
+### 8. Installer smoke, then agent rehearsal on that installer
+
+- **Procedure:** capture installer filename, SHA-256, exact candidate source/build identity; install/launch it; repeat L0's customizer → save → reload/restart → record sheet/PDF → battle → Results → reload → repeat/exit loop, recording startup/preload/update/quit and retained defects. Then rehearse the complete three-seat script on **that packaged artifact**, with one server and three isolated identities, preserving failures/retests. An agent rehearsal is not human attestation. [PLAN:20; U:23878; TEMPLATE:21–32; playtest/session-notes/2026-10-17-v2.1.1-windows-portable-l0.md:13–19; :49–57]
+- **Supporting commands:** `Get-FileHash -Algorithm SHA256 -LiteralPath <installer>`; `npm run electron:test:build:win` is the existing packaging test entry, and `npm run validate:multiplayer:packaged-socket -- --standalone-dir=<packaged-resource-dir> --electron-node-exe=<Electron-executable>` exercises unpacked server resources. Neither substitutes for installed-app UI smoke or the three-seat rehearsal. [package.json:73; :111–112; desktop/scripts/test-build.js:297–308; scripts/validate-multiplayer-packaged-socket.mjs:53–64; :451–458]
+- **Current status:** historical v2.1.1 L0 PASS-with-defects exists; v2.2.0 installer/rehearsal gate is pending. Do not transplant the historical pass. [playtest/session-notes/2026-10-17-v2.1.1-windows-portable-l0.md:13–19; U:23876–23878]
+- **Producer:** release/desktop proof lane after P2J closure and exact-RC selectors. **Build now:** operator worksheet, artifact/hash collector, sanitized evidence layout; defer actual qualifying rehearsal until prerequisites pass. [U:23873–23878]
+
+### 9. Human three-seat session and sign-off
+
+- **Entry:** exact Main/RC/tag/artifact/hash; all required automated evidence; P2J closure/RC PASS; LSC-2 and LSC-2P closure; HP and disabled-fog landing evidence; prior agent rehearsal. Reserve 60–90 minutes, continuing until an actual terminal result or documented blocker. [U:23883; CHECK:70–95]
+- **Topology:** one Electron server (preferred) plus two browsers on its actual loopback port, or the checklist's one development-server alternative; record `MEKSTATION_LISTENER_READY`, `127.0.0.1`, actual port and same origin. Three isolated profiles, three distinct non-secret playerIds. Multiple Electron instances create different servers; InPrivate windows may share storage. [CHECK:96–114]
+- **Exact procedure:** copy TEMPLATE to `playtest/session-notes/<date>-v2.2.0-coop-l1.md`; perform every numbered step below and retain its timestamped PASS/FAIL, observations and evidence. [CHECK:8–10; :118–120; TEMPLATE:78–106]
+
+| Step | Required human action / observation                                                                                                                    | Producer / current status / source                                                                                     |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| 1–3  | GM creates; P1 and P2 join same room; record distinct identities and matching campaign/membership/roster/finances/contracts                            | LSC path + human; pending; CHECK:122–136                                                                               |
+| 4–5  | P1 proposal approved once; P2 proposal rejected with no mutation in any seat                                                                           | Campaign journey + human; pending; CHECK:137–142                                                                       |
+| 6    | GM launches fog-off; distinct owned unit for each player; one match ID; GM observes                                                                    | P2/U38/P2J + human; pending; CHECK:143–146                                                                             |
+| 7–8  | Both players move and fire owned units; other seats observe authoritative result                                                                       | U38/P2J + human; pending; CHECK:147–151                                                                                |
+| 9–10 | Each player checks teammate and foreign-side UI ownership gating; no foreign order submitted; record incidental refusal toast only if actually reached | U38/P2J + human; pending; CHECK:152–167                                                                                |
+| 11   | Non-playing GM observes both accepted actions; at least three turns when mission permits                                                               | P2J + human; pending; CHECK:168–170                                                                                    |
+| 12a  | Disconnect only P2 mid-mission, including campaign sync; recover before retry exhaustion with same identity/state                                      | HP/P2CG2 + human; pending; CHECK:171–177                                                                               |
+| 12b  | Disconnect again, exhaust two retries; exact inline message only after exhaustion                                                                      | HP + human; pending; CHECK:177–181                                                                                     |
+| 12c  | Restore connection, reload campaign, re-enter same match and resume owned action; no duplicates                                                        | HP/P2CG2 + human; pending; CHECK:182–185                                                                               |
+| 13   | Play actual combat to terminal Results, no injected outcome                                                                                            | P2J + human; pending; CHECK:186–188                                                                                    |
+| 14   | Apply GM outcome once; compare actual damage/resources/rewards/status values across seats                                                              | P2J + human; pending; CHECK:189–192                                                                                    |
+| 15   | Independently reload all seats; same completed mission/result/consequences, no second application                                                      | P2J + human; pending; CHECK:193–196                                                                                    |
+| 16   | Attempt fog-on creation: disabled toggle and verbatim help text; creation followed by refusal is FAIL for this UI check                                | PR #2253 + human; code exists, human result pending; CHECK:197–203; src/components/multiplayer/CreateMatchForm.tsx:396 |
+
+- **Exit evidence:** nine screenshots (three seats × launch/end/reload), additional UI gating/recovery captures, automated refusal receipts, sanitized listener/server logs linked by campaign/match IDs, before/after/reloaded consequences, defect severity/reproductions/retests/release verdict, actual human attestation and owner sign-off. Preserve initial failures. Known V211-01/03/07 are referenced rather than refiled; they still fail a step if they prevent completion. [CHECK:57–68; :205–216; TEMPLATE:129–169]
+- **Current status/producer:** pending human/operator gate. One person may drive all three seats, explicitly labeled **“one human operating three seats”**; this does not prove three-person usability. [U:23881–23883; CHECK:3–6; TEMPLATE:36–39]
+- **Build now:** a draft session worksheet outside reserved files and a list of expected evidence. Root updates the executable script with the landed LSC UI procedure before the human runs it. [U:23883; CHECK:52–55]
+
+### 10. Actual published release notes
+
+- **Procedure:** include the four disclosures in the actual GitHub release body: same-host/loopback/no proxy or tunnel; Docker HOSTNAME refusal/unsupported hosting; fog unavailable; co-op lobby visibility. Do not merely link a private report or defer to B15. After publication, retrieve `gh release view v2.2.0 --json tagName,url,body,assets` and verify the rendered body and asset identity against the reviewed notes. [U:23888; TOPOLOGY:5–19]
+- **Current status:** topology and fog draft exists, but it lacks the required lobby disclosure; no version-complete notes file exists in the inspected `docs/releases` directory (read-only inventory found only `v2.2.0-topology.md`). The workflow generates notes from GitHub and a commit appendix; it never reads that local topology file. Thus doc presence is not proof that disclosures will ship. [TOPOLOGY:1–19; RELEASE:540–575]
+- **Producer:** Root release-publication lane. **Build now:** release-body draft in private prep space (skeleton below), plus a read-only required-text checker if separately scoped. Do not edit `docs/releases` or the release workflow without census resolution. [U:8302–8305; U:15888–15906; R:3116]
+
+### 11. Release tag and build context
+
+- **Procedure:** after qualifying the chosen release point, follow the registered minor bump: `gh workflow run auto-version.yml --ref main -f bump_type=minor`. First inspect latest stable tag and selected SHA: this workflow computes the next minor from the latest stable tag; it does not accept a literal target version. Verify the resulting tag is actually `v2.2.0` at the intended candidate. If it already exists, do not remint it. [U:23446; .github/workflows/auto-version.yml:8–18; :36–48; :99–133]
+- **Build/retry command:** `gh workflow run release.yml --ref main -f release_tag=v2.2.0` selects an **existing** tag; it does not mint one. Automatic tag-push/workflow-run triggers also exist. The workflow-run path requires success and a tag at the triggering head; each job checks out the resolved tag ref. [RELEASE:3–17; :26; :45–95; :110–115]
+- **Current status:** mechanisms exist; release checklist pending, not run by this research. **Producer:** Root release lane. **Build now:** exact-SHA/tag/artifact reconciliation worksheet; no publication needed for preparation. [U:23814; U:23446]
+
+### 12. Production assets and installer build gates
+
+These are workflow gates, not proof that L1 acceptance passed. Every platform must pass because `release` depends on the `build` matrix. [RELEASE:178–198; :481–485]
+
+| Gate                         | Exact workflow command/procedure                                                                                                                                                          | Current Main status / producer / parallel option                                                                                                               |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Dependency/asset preparation | Node 22; root `npm ci`; desktop `npm ci`; cached mm-data or `npm run fetch:assets`; `npm run validate:assets:strict`                                                                      | Implemented, candidate run unverified. Release CI. Do not run asset fetching as routine read-only prep. RELEASE:117–155; package.json:119                      |
+| Web build                    | `npm run build`                                                                                                                                                                           | Implemented; sync config → Next webpack build → standalone hydration. Heavy run unrun here. RELEASE:157–158; package.json:14                                   |
+| Desktop compilation          | In `desktop`, `npm run build`                                                                                                                                                             | Implemented; release CI. RELEASE:160–162                                                                                                                       |
+| Artifact handoff             | Upload `.next/standalone`, `.next/static`, `desktop/dist`, `public/record-sheets`, include hidden files, error on none; restore all dirs plus `mm-data-version.json`                      | Implemented; inventory worksheet can be prepared now. RELEASE:164–176; :257–265                                                                                |
+| Platform ABI                 | In `desktop`, `npm run rebuild:next-standalone` on each native runner                                                                                                                     | Implemented; keep plain-Node standalone distinct from Electron ABI copy. RELEASE:267–270; desktop/scripts/test-build.js:178–190                                |
+| Linux                        | In `desktop`, `npx electron-builder --linux --config.extraMetadata.version="$APP_VERSION" --publish never`                                                                                | Implemented; release CI, not run here. RELEASE:272–275                                                                                                         |
+| Windows                      | In `desktop`, `npx electron-builder --win nsis portable --x64 --config.extraMetadata.version="$APP_VERSION" --publish never`                                                              | Implemented, x64 only. RELEASE:277–282                                                                                                                         |
+| macOS arm64/x64              | In `desktop`, `npx electron-builder --mac dmg zip --<arm64-or-x64> --config.extraMetadata.version="$APP_VERSION" --publish never`, native matching runners                                | Implemented, separate architecture jobs. RELEASE:192–198; :284–289                                                                                             |
+| Required nonempty installers | Linux: `*.AppImage`, `*.deb`, `*.tar.gz`; Windows: `MekStation-2.2.0-win-x64.exe`, `MekStation-2.2.0-portable.exe`; each Mac: `MekStation-2.2.0-mac-<arch>.dmg` and `.zip`                | Implemented file-presence checks; not launch/install proof. RELEASE:318–348                                                                                    |
+| Update manifest references   | Rename per-arch `latest-mac.yml`; parse every emitted `latest*.yml`, require referenced files to exist and be nonempty; upload platform artifacts, error if none                          | Implemented. Manifest checker does not itself require any `latest*.yml` to exist (loop may be empty); inventory checker is separate. RELEASE:306–309; :350–383 |
+| Published release            | Tag existence; bounded generated notes/100-commit list; download matrix artifacts; `softprops/action-gh-release@v3`, `fail_on_unmatched_files: true`, `draft: false`, `prerelease: false` | Implemented, **automatically public** when job succeeds; no L1/human gate wired here. RELEASE:506–587                                                          |
+
+### 13. Docker job separation and truthful release disposition
+
+- **Procedure:** Docker build uses `docker/build-push-action@v5` with `push:false`, linux/amd64. Docker push waits for installer build and Docker build, logs into GHCR/Docker Hub, then pushes tag/latest. Installer release waits only for release-context and build, so Docker publication failure must not be described as an installer failure or silently claimed successful. [RELEASE:385–426; :428–479; :481–485]
+- **Current status:** separation exists. Even a green image build/push does not establish supported Docker runtime hosting: present configurations fail HOSTNAME admission. [TOPOLOGY:17; server.js:73–77]
+- **Producer:** release CI/Root. **Build now:** Docker status and supported-topology sections of notes. No new Docker work is an L1 prerequisite. [TOPOLOGY:19; U:23468–23480]
+
+## Reconcile these wording/automation gaps before execution
+
+1. **Publication versus acceptance:** the registered layer predicate mints before installer/human proof; the workflow immediately publishes a non-draft release and contains no checks for the documentary L1 checklist. Distinguish “artifact published, acceptance pending” from “L1 accepted.” Recommended prep: package a nonpublished RC for rehearsal where practical, and prepare the exact public body before any mint. If the final artifact differs, preserve its own identity and required installer proof; do not treat the preliminary package hash as the final asset hash. A draft-release pipeline would be a separate U81-coordinated change, not something performed here. [U:23446; U:23858; RELEASE:577–585; U:15888–15906]
+2. **Invite wording:** the ledger says create/join “by invite,” while the current human script explicitly uses a six-character room code and says not to navigate an invite link. Root should transcribe the supported landed LSC room-code UI procedure and record that this is the invite/session mechanism exercised, rather than claiming an untested link flow. [U:23883; CHECK:126–136]
+3. **Foreign refusal wording:** normal human foreign-side clicks select a target, not an order unit. Keep human UI gating plus separately recorded automated server refusal; do not ask the human to forge a forbidden intent to tick a literal refusal box. Preserve P2J's actual automated foreign-intent assertions. [U:9068; U:23883; CHECK:152–167; TEMPLATE:113–118]
+4. **Stale base descriptions:** CHECK/TEMPLATE still refer to the pre-LSC identity gap and “once #2253 lands”; #2253's disabled control is now source-present, while HP/LSC are still blocked. Refresh the eventual procedure only from landed code; do not mark expected HP text as observed. [CHECK:15; :87–92; src/components/multiplayer/CreateMatchForm.tsx:396; U:7904; U:8263; STATUS:100–106]
+5. **No automatic notes handoff:** generated GitHub notes omit local disclosure drafts unless Root adds them. Prefer a concrete reviewed release-body handoff and post-publication readback; a later workflow enhancement must respect U81. [RELEASE:540–585; TOPOLOGY:5; U:15888–15906]
+
+## Built-server socket smoke: proposed concrete design
+
+This is a proposed proof harness, not implemented or run by this report. Root should admit its finite files and evidence names separately. It discharges the existing S obligation; it neither changes H nor replaces P2J, LSC-2P, installer rehearsal, or human acceptance. [U:7578; U:23868–23883]
+
+### What must be proved
+
+| Case                           | Production observation and non-vacuous control                                                                                                                                                                                                                                              | Contract/source basis                                                                                 |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Build/boot identity            | Normal `npm run build`, hydrated custom standalone, Node 22; exactly one valid readiness record, actual IPv4 `127.0.0.1` bound port; record SHA, build ID, server/config hashes and child PID                                                                                               | package.json:14–16; scripts/hydrate-next-standalone-multiplayer-server.mjs:266–291; server.js:890     |
+| Real authenticated transport   | HTTP match creation, credential-bearing WebSocket subprotocol, SessionJoin, ReplayStart/Chunk/End; malformed/foreign credential does not join; token never in URL or retained output                                                                                                        | scripts/validate-multiplayer-packaged-socket.mjs:232–246; :275–283; :409–435                          |
+| Fog-off spectator baseline     | Current spectator receives public replay/live facts, cannot act (`spectator-cannot-act`); a real participant action succeeds, so a disconnected or universally rejecting server cannot pass                                                                                                 | src/lib/multiplayer/server/**tests**/ServerMatchHost.spectator.test.ts:212–264                        |
+| B10 negative matrix            | For MovementDeclared, AttackDeclared and PhysicalAttackDeclared, current spectator with stale side assignment receives no unrevealed event ID/payload in raw live frames **or replay chunks**. Exercise player-branded and GM-branded spectators, and GM spectator without stale assignment | U:7574–7577; src/lib/multiplayer/server/**tests**/ServerMatchHost.spectator.test.ts:319–358; :447–457 |
+| Actor/reveal positive controls | Actual owning actor sees its own declaration before reveal; non-spectating GM retains existing policy; spectator sees eligible authoritative reveal/public facts afterward. Assert specific sentinel event payloads, not just frame counts                                                  | U:7577; src/lib/multiplayer/server/**tests**/ServerMatchHost.spectator.test.ts:428–444                |
+| Seat changes/replay/restart    | Verify actual trusted seat/brand/stale assignment preconditions. Reconnect and restart the **same built process image** against the same private durable DB; forbidden declarations remain absent; public/reveal controls remain present, no hidden placeholders or visible cursor gap      | U:7574–7578; scripts/validate-multiplayer-packaged-socket.mjs:553–565                                 |
+| Unsupported fog                | On Main with all B14 containment closed, fog-on stored-match join/replay/live subscription and HTTP/head paths fail closed according to the landed contracts, with no secret bytes. Do not mock the projection capability to force fog-on delivery in production                            | U:23863; U:23770; U:24122–24125                                                                       |
+
+**Important scope distinction:** S's Jest matrix legitimately tests underlying filtering with fog-on/off, while a release production build has no supported fog-on projection and must refuse it. Therefore real socket proof should use **fog-off** for positive sealed-choice spectator/reveal delivery and the real **refusal** contract for fog-on. Never override `noPerViewerRevealProjection` or inject a test mock into the built server merely to make the smoke pass. If attempting the pre-H smoke before B14-0/HEAD lands, record its narrower observations and retain B14 containment proof as pending. [U:23770; U:24122–24125; P:42]
+
+### How it would run
+
+Proposed new files (four; no existing tracked file edits):
+
+1. `scripts/release/run-l1-built-server-smoke.mjs`: build/run orchestration, process ownership, listener parsing, time budgets, durable evidence and exit code.
+2. `scripts/release/l1-built-server-socket-cases.mjs`: HTTP/WebSocket transport and assertions, credential redaction and positive/negative cases.
+3. `scripts/release/l1-built-server-fixtures.ts`: prepare only a unique private SQLite fixture using existing production persistence/types; stale seats/assignments and phase-ready scenarios, each with explicit witnessed preconditions.
+4. `scripts/release/l1-built-server-smoke.test.mjs`: small `node:test` harness tests for missing/public-control, leaked sentinel, premature socket close, wrong build/listener, failed command propagation, and child cleanup. This checks a consequential proof tool, not product implementation mirrors.
+
+Proposed interface and execution (future commands, not commands run for this report):
+
+```powershell
+$env:PATH = 'C:\Users\wroll\AppData\Local\nvm\v22.22.0;' + $env:PATH
+node scripts/qc/machine-idle.mjs --own-pid 47516 --own-pid 55164
+if ($LASTEXITCODE -ne 0) { throw 'Machine is busy; defer heavy proof' }
+
+# Run in a dedicated clean detached RC worktree with prepared dependencies/assets.
+# The runner validates --expected-sha, creates only its own exclusive run directory,
+# invokes npm.cmd run build on Windows, and checks every child exit code.
+node scripts/release/run-l1-built-server-smoke.mjs --build --expected-sha=<full-main-sha> --output=<absolute-private-run-directory>
+
+# Small harness tests, once implemented (no Jest/build):
+node --test scripts/release/l1-built-server-smoke.test.mjs
+```
+
+The runner's production start is `node <worktree>/.next/standalone/server.js`, with cwd `.next/standalone`, `NODE_ENV=production`, `HOSTNAME=127.0.0.1`, an allocated private port, `MULTIPLAYER_STORE=durable`, and both `DATABASE_PATH` and `MULTIPLAYER_DB_PATH` directed to its private SQLite file. This follows the existing explicit standalone launch/environment mapping; the normal npm equivalent is `npm run start`. [scripts/validate-multiplayer-packaged-socket.mjs:451–484; package.json:16]
+
+Implementation requirements (proposed):
+
+- Scrub E2E/test-mode and CAMP receipt environment inherited by children; never enable `/api/e2e`, import a source ServerMatchHost into the assertion process and call it directly, or fake sockets. The standard packaged validator's special CAMP mode can rebuild/remove `.next`; do not accidentally enter or repurpose it. [CHECK:46–50; scripts/validate-multiplayer-packaged-socket.mjs:532–536]
+- Start from legal minimal match fixtures. Ordinary API provisioning/actions produce positive live behavior; use offline private DB fixtures only for otherwise unreachable stale-seat/brand and phase conditions. Stop the owned server before fixture writes. Observe all authority behavior over real HTTP/WS afterward. Synthetic fixture use is explicitly infrastructure proof and earns no LSC/human UI credit. [U:7574–7577; CHECK:49–55; U:9068]
+- Use actual accepted Intent commands to produce live declarations and reveals; retain a second actor so reveal cannot happen before the withheld-frame assertions. A public control before/after each withheld declaration and a bounded synchronization barrier must prove the spectator is connected and receiving, avoiding “no frames means privacy” false positives. Do not call broadcast/append internals in the running process as a substitute. The in-memory S test's direct broadcast/replay arrangement is a reference oracle, not the desired production execution method. [src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts:428–444]
+- During implementation, confirm a legal phase-ready fixture exists for all three declaration kinds and the trusted GM/spectator brand. Treat any inability to reach the live branch without a product seam as an explicit design blocker; retain unrun rows, and narrow/register an additional proof slice rather than weakening or claiming the matrix. This feasibility has **not** been executed here. [U:7574–7578]
+- Retain exact raw sanitized frames with case/connection IDs, expected versus observed secret sentinel checks, positive control payloads, command exit codes, source/build/hash manifest, readiness line, DB lineage and restart port/process records. Credentials must be redacted in both ordinary and failure logs. Fail on any missing case, replay timeout, parse failure, early process exit or mismatched identity.
+- Use bounded timeouts, serial sockets/cases within one runner, `windowsHide:true` for child processes, and `finally` cleanup of only owned PIDs. Retain failed evidence/DB rather than deleting proof. Confirm port release after stopping a child before restart. No global process-name kill and no cleanup outside the validated private directory.
+
+**Existing baseline, available now:** after a gated normal build, `npm run validate:multiplayer:packaged-socket -- --standalone-dir=<absolute-worktree>/.next/standalone` runs the existing one-player upgrade/replay/restart check. It writes no spectator-specific proof, and its ordinary path logs only frame kinds. Do not mark the before-H obligation closed with this command alone. [package.json:73; scripts/validate-multiplayer-packaged-socket.mjs:433–437; :533–586]
+
+### Ownership census and parallel safety
+
+Read-only census method: parse **every unit and roadmap node**, compare proposed exact paths to `ownershipPaths` and `ownershipExceptions`, including ancestor paths; inspect prospective frozen manifests and release aliases. The four proposed `scripts/release/*` filenames are absent from the tracked tree and had **no declared path/ancestor match** in that scan. This is a bounded observation, not source admission; repeat it on fetched Main before building the harness. The release-point rule forbids admitting L2 concurrently with L1 and requires literal finite scope. [U:23480–23481; openspec/planning/2026-09-12-roadmap-completion/DELIVERY.md:37]
+
+| Candidate                                        | Ownership finding / action                                                                                                                                                                                                                                                                      |
+| ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| New four `scripts/release/*` files above         | No declared unit/node path match found; no planned L1 unit names them. Best proposed separate Root release-proof lane, after finite admission/census; no package.json registration needed. S carries the **obligation**, not ownership of these new files. [U:7478–7487; U:7578; U:23480–23481] |
+| Existing packaged-socket validator and its tests | U101d is planned and owns the literal helper; also listed in R2 authority ownership. Do not extend/refactor it in the parallel prep lane. [U:16559–16580; R:3097–3099]                                                                                                                          |
+| `docs/releases/v2.2.0.md` or local-seat proof    | LSC-2P declares `docs/releases`; R1.references declares broader `docs` and R2 declares `docs/releases`. Keep the draft here/private until Root resolves finite ownership. Local-seat proof is explicitly LSC-2P's. [U:8301–8305; R:3116; R:739–750]                                             |
+| Existing topology note / co-op checklist         | B15-6 reserves both exact paths, even though remote functionality is later. Root's release-script update requirement still exists; reconcile the documentation ownership explicitly, not by implementing B15 early. [U:16888–16901; U:23883]                                                    |
+| `.github/workflows/release.yml`                  | U81 blocked reservation; no opportunistic parallel workflow edits. [U:15888–15906]                                                                                                                                                                                                              |
+| `package.json`                                   | Multiple planned/blocked holders, including U12/U63/U75/U80/U83/U84; use direct Node invocation for proposed prep harness instead of a new npm script. Existing canonical scripts remain unchanged. [U:14636; U:15120; U:15631; U:15845; U:15978; U:16017; package.json:14–16; :73; :206]       |
+| Existing journey/config/local-seat artifacts     | P2CH/P2/P2J and LSC-2P reserved; no parallel changes. H has a narrow journey-wait exception, not a general journey grant. [U:8361; U:8301; U:9068–9107]                                                                                                                                         |
+
+## Local execution rules for the eventual proof operator
+
+Prepend Node `C:\Users\wroll\AppData\Local\nvm\v22.22.0` to PATH. Before **each** heavy Jest/build run use `node scripts/qc/machine-idle.mjs --own-pid 47516 --own-pid 55164`; nonzero means defer, not raise timeouts or kill an unrelated process. This report did not launch any heavy run. [Owner task instructions; STATUS:86–87; PLAN:30]
+
+For the canonical co-op npm selector, the Jest portion already uses `--runInBand`. To supply a private cache without passing Jest flags to the chained Playwright command, run its literal two legs with the one cache-only addition shown below. Record both exits as an expanded invocation of `verify:qc:coop-campaign-journey`; stop if the first leg fails. The registered npm command itself remains unchanged. [package.json:206]
+
+```powershell
+npm.cmd test -- --watchAll=false --runTestsByPath src/types/multiplayer/__tests__/Protocol.test.ts src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts src/lib/campaign/coop/__tests__/coopRuntimeSession.test.ts src/components/campaign/coop/__tests__/GuestProposalSurface.test.tsx src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx src/__tests__/integration/coopCampaignPlay.test.ts --runInBand --cacheDirectory=<private-absolute-cache>
+if ($LASTEXITCODE -ne 0) { throw 'Co-op Jest gate failed' }
+node scripts/playwright/run-playwright.mjs test --project=chromium e2e/coop-campaign-two-browser-journey.spec.ts e2e/coop-campaign-ui-audit.spec.ts --workers=1
+if ($LASTEXITCODE -ne 0) { throw 'Co-op browser gate failed' }
+```
+
+## Draft v2.2.0 release-notes skeleton
+
+The following is **draft text** for the actual release body. Replace every placeholder from evidence; do not publish a success statement before its gate passes. Required disclosure basis: TOPOLOGY:5–19 and U:23888. Feature/proof basis: U:23446–23464, U:23868–23883. Artifact basis: RELEASE:318–348.
+
+```markdown
+# MekStation v2.2.0 — First shared mission
+
+Status: <candidate / published, acceptance pending / accepted, backed by receipts>
+Source: <full Main SHA and tag commit>
+Release date: <date>
+
+## What this release delivers
+
+<Once proved: Two players and a non-playing GM can complete one shared mission
+on one machine, apply its outcome once, and reload the same shared result.>
+
+<Summarize accepted co-op proposal, owned-unit control, server opponent,
+reconnect and local-seat behavior from the final candidate.>
+
+## Supported setup and limitations
+
+Campaign play is supported on one machine using one Electron application or
+browsers connected to one local loopback server. Use the server's actual port;
+the local development-server address is http://localhost:3600. Room codes
+identify sessions on that server and do not connect another computer to it.
+
+Campaign REST has no per-participant authorization. Do not expose the port
+through a reverse proxy or tunnel. Remote play is not supported in this release.
+
+Same-host play in a shared OS session has no inter-participant isolation.
+<Describe the landed operator-managed seat setup and recovery procedure;
+do not describe these as independent private vault accounts.>
+
+Current Docker production and uncorrected development-compose configurations
+fail the server's HOSTNAME admission check. Docker hosting is unsupported.
+Do not disable the loopback guard to make those configurations start.
+
+Fog of war is unavailable in multiplayer in this release.
+
+Co-op sessions are currently listed in the lobby browser to other users of
+the same server (fixed by B15-PRIV).
+<Clarify that B15-PRIV is a future correction, not shipped in this release.>
+
+## Downloads
+
+<Windows x64 installer and portable; Linux AppImage/deb/tar.gz;
+macOS arm64 and x64 dmg/zip; actual release links and SHA-256 inventory.>
+<State which installed artifacts were actually exercised.>
+Docker images are built/published separately; report actual job status.
+Image availability does not imply supported Docker hosting.
+
+## Verification and known issues
+
+- Exact candidate: <SHA, build ID, artifact hash>.
+- L1 closures: <33 closure receipt references>.
+- Automated RC gates: <co-op QC, U38 ownership, separate P2J receipt>.
+- Built-server spectator socket smoke: <Main SHA, command, receipt>.
+- Installed-app smoke and agent three-seat rehearsal: <receipts>.
+- Human session: <operators, topology, date, receipt, verdict and sign-off>.
+  <If applicable: one human operating three seats; no three-person usability claim.>
+- Known issues: <verified remaining defects, impact, workaround, retest status>.
+
+This is the L1 release boundary. It does not close the full P3 phase or claim
+remote hosting, restored multiplayer fog, or later complete campaign workflows.
+
+## Changes
+
+<Reviewed highlights and full comparison link. Retain the generated history
+appendix if useful, without allowing it to displace the disclosures above.>
+```
+
+## Ranked release-prep work that can run in parallel with L1 now
+
+1. **Prepare/admit the separate built-server spectator smoke harness.** Highest priority because the obligation blocks H, earlier than final release acceptance. Use the four new `scripts/release/*` leaves, preserve all existing product/helper/manifest paths, and prove one legal live declaration case before investing in the full matrix. Do not report unmeasured cap fit. Run the qualifying exact-Main smoke after required containment is ready and before H; machine-wide heavy gate still applies. [P:42; U:7578; U:23480–23481; census/design above]
+2. **Prepare the actual release body and a disclosure/asset readback checklist in private prep space.** The text can be ready now, including lobby visibility; it must be inserted into the published body because the workflow does not load local release docs. Resolve docs/U81 ownership only if promoting this into tracked docs/workflow code. [U:23888; TOPOLOGY:5; RELEASE:540–585; U:8302–8305; U:15888–15906]
+3. **Prepare one exact-RC evidence index/runbook.** Enumerate the 33 authentic closures, distinct QC/U38/P2J receipts, E2E-31 fixture receipt, H checkpoint, source→build→installer hash chain, failed attempts and defect disposition. A read-only tool or worksheet can assemble this without editing ledgers. Treat “exists,” prior recorded PASS, exact-RC PASS and human attestation as different fields. [U:23858–23883; TEMPLATE:13–32; :159–169]
+4. **Prepare the installer/human execution packet and identity-procedure reconciliation.** Reserve evidence naming/layout, nine screenshot slots, one-server/profile-seat mapping, HP retry observations, and L0 replay checklist; draft corrections for room-code joins and UI gating without modifying reserved files. Actual LSC UI verification belongs to LSC-2P; actual rehearsal waits for P2J; actual human attestation stays human. [CHECK:70–114; :152–216; TEMPLATE:129–169; U:8301; U:23873–23883]
+5. **Audit the release workflow and inventory read-only; prepare a finite future enhancement brief if needed.** Explicitly distinguish release-context/tag correctness, four-platform artifacts/update references, automatic non-draft publication, and independent Docker result. Do not run a build/installer sweep just for research, change U81's workflow, or pull L2 into the active L1 product lane. [RELEASE:23–95; :178–198; :318–383; :481–585; U:23480]
