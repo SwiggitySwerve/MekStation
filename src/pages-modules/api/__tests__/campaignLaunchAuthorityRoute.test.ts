@@ -371,7 +371,7 @@ describe('POST /api/campaigns/:id/launch-authority', () => {
     const world = await buildWorld();
     const { req, res, result } = post(world.campaign.id, bodyFor(world));
 
-    handler(req, res);
+    await handler(req, res);
 
     expect(result.statusCode).toBe(200);
     const body = result.body as { kind: string; head: { branchId: string } };
@@ -394,7 +394,7 @@ describe('POST /api/campaigns/:id/launch-authority', () => {
       }),
     );
 
-    handler(req, res);
+    await handler(req, res);
 
     expect(result.statusCode).toBe(409);
     expect(result.body).toMatchObject({
@@ -420,7 +420,7 @@ describe('POST /api/campaigns/:id/launch-authority', () => {
       }),
     );
 
-    handler(req, res);
+    await handler(req, res);
 
     expect(result.statusCode).toBe(409);
     expect(result.body).toMatchObject({ code: 'STALE_BRANCH' });
@@ -433,7 +433,7 @@ describe('POST /api/campaigns/:id/launch-authority', () => {
       bodyFor(world, { sessionId: SESSION_ID }),
     );
 
-    handler(req, res);
+    await handler(req, res);
 
     expect(result.statusCode).toBe(200);
     const body = result.body as {
@@ -461,7 +461,7 @@ describe('POST /api/campaigns/:id/launch-authority', () => {
       bodyFor(world, { sessionId: SESSION_ID }),
     );
 
-    handler(req, res);
+    await handler(req, res);
 
     expect(result.statusCode).toBe(409);
     expect(result.body).toMatchObject({ code: 'STALE_OWNERSHIP' });
@@ -477,7 +477,7 @@ describe('POST /api/campaigns/:id/launch-authority', () => {
       missionId: MISSION_ID,
     });
 
-    handler(req, res);
+    await handler(req, res);
 
     expect(result.statusCode).toBe(200);
     expect(result.body).toEqual({ kind: 'no-authoritative-stream' });
@@ -501,7 +501,7 @@ describe('POST /api/campaigns/:id/launch-authority', () => {
       bodyFor(world, { sessionId: SESSION_ID }),
     );
 
-    handler(req, res);
+    await handler(req, res);
 
     // OD-launch-head-gate: refused, not answered ungated.
     expect(result.statusCode).toBe(500);
@@ -517,7 +517,7 @@ describe('POST /api/campaigns/:id/launch-authority', () => {
       missionId: MISSION_ID,
     });
 
-    handler(req, res);
+    await handler(req, res);
 
     expect(result.statusCode).toBe(404);
   });
@@ -550,7 +550,7 @@ describe('POST /api/campaigns/:id/launch-authority', () => {
     const world = await buildWorld();
     const { req, res, result } = post(world.campaign.id, body);
 
-    handler(req, res);
+    await handler(req, res);
 
     expect(result.statusCode).toBe(400);
   });
@@ -559,7 +559,7 @@ describe('POST /api/campaigns/:id/launch-authority', () => {
     const world = await buildWorld();
     const { req, res, result } = post(world.campaign.id, bodyFor(world), 'GET');
 
-    handler(req, res);
+    await handler(req, res);
 
     expect(result.statusCode).toBe(405);
   });
@@ -575,7 +575,7 @@ describe('POST /api/campaigns/:id/launch-authority', () => {
       bodyFor(world, { sessionId: SESSION_ID }),
     );
 
-    handler(req, res);
+    await handler(req, res);
 
     expect(result.statusCode).toBe(409);
     expect(result.body).toMatchObject({
@@ -618,7 +618,7 @@ describe('POST /api/campaigns/:id/launch-authority', () => {
       bodyFor(world, { sessionId: SESSION_ID }),
     );
 
-    handler(req, res);
+    await handler(req, res);
 
     expect(result.statusCode).toBe(409);
     expect(result.body).toMatchObject({
@@ -647,7 +647,7 @@ describe('POST /api/campaigns/:id/launch-authority', () => {
       bodyFor(world, { sessionId: SESSION_ID }),
     );
 
-    handler(req, res);
+    await handler(req, res);
 
     expect(result.statusCode).toBe(409);
     expect(result.body).toMatchObject({
@@ -674,7 +674,7 @@ describe('POST /api/campaigns/:id/launch-authority', () => {
     try {
       const before = durablePreflightCensus();
 
-      const result = callSignedPreflight(world);
+      const result = await callSignedPreflight(world);
 
       expect(result.statusCode).toBe(200);
       const body = signedResponse.parse(result.body);
@@ -722,7 +722,7 @@ describe('POST /api/campaigns/:id/launch-authority', () => {
         bodyFor(world, { sessionId: SESSION_ID }),
       );
 
-      handler(request.req, request.res);
+      await handler(request.req, request.res);
 
       const after = durablePreflightCensus();
       captureClassifierEvidence(`legacy-${override}`, {
@@ -766,7 +766,7 @@ describe('POST /api/campaigns/:id/launch-authority', () => {
       missionId: MISSION_ID,
     });
 
-    handler(req, res);
+    await handler(req, res);
 
     expect(result.statusCode).toBe(404);
   });
@@ -833,7 +833,7 @@ async function signedWorld(
   }
 }
 
-function callSignedPreflight(
+async function callSignedPreflight(
   world: Awaited<ReturnType<typeof signedWorld>>,
   overrides: Record<string, unknown> = {},
 ) {
@@ -843,7 +843,7 @@ function callSignedPreflight(
     expectedHead: world.mission.expectedHead,
     ...overrides,
   });
-  handler(request.req, request.res);
+  await handler(request.req, request.res);
   return request.result;
 }
 
@@ -980,7 +980,7 @@ describe('launch preflight with real signed campaign claims (P2A)', () => {
           receipts: 0,
         });
 
-        const result = callSignedPreflight(world);
+        const result = await callSignedPreflight(world);
 
         const after = {
           ...durablePreflightCensus(),
@@ -1029,7 +1029,7 @@ describe('launch preflight with real signed campaign claims (P2A)', () => {
         }
         const before = world.census();
 
-        const result = callSignedPreflight(world);
+        const result = await callSignedPreflight(world);
 
         const after = world.census();
         expect(after).toEqual(before);
@@ -1092,7 +1092,7 @@ describe('launch preflight with real signed campaign claims (P2A)', () => {
     try {
       const before = world.census();
 
-      const result = callSignedPreflight(world);
+      const result = await callSignedPreflight(world);
 
       expect(result).toMatchObject({
         statusCode: 409,
@@ -1141,7 +1141,7 @@ describe('launch preflight with real signed campaign claims (P2A)', () => {
       acceptFixtureParticipation(rebuilt, world.contributors);
       const before = world.census();
 
-      const result = callSignedPreflight(world);
+      const result = await callSignedPreflight(world);
 
       expect(result.statusCode).toBe(200);
       expect(
@@ -1310,7 +1310,7 @@ describe('launch preflight with real signed campaign claims (P2A)', () => {
         const changes = db.prepare('SELECT total_changes() AS n').get();
         const registrySize = getCampaignHostRegistry().size();
 
-        const result = callSignedPreflight(world);
+        const result = await callSignedPreflight(world);
 
         expect(result).toMatchObject({
           statusCode: 409,
@@ -1343,7 +1343,7 @@ describe('launch preflight with real signed campaign claims (P2A)', () => {
         }[field];
         const before = world.census();
 
-        const result = callSignedPreflight(world, { expectedHead });
+        const result = await callSignedPreflight(world, { expectedHead });
 
         expect(result).toMatchObject({
           statusCode: 409,
@@ -1367,7 +1367,9 @@ describe('launch preflight with real signed campaign claims (P2A)', () => {
       try {
         const before = world.census();
 
-        const result = callSignedPreflight(world, { [field]: 'forged-owner' });
+        const result = await callSignedPreflight(world, {
+          [field]: 'forged-owner',
+        });
 
         expect(result.statusCode).toBe(400);
         expect(world.census()).toEqual(before);
@@ -1382,7 +1384,7 @@ describe('launch preflight with real signed campaign claims (P2A)', () => {
     try {
       const before = world.census();
 
-      const result = callSignedPreflight(world, {
+      const result = await callSignedPreflight(world, {
         missionId: 'unknown-mission',
       });
 
