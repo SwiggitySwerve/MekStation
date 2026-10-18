@@ -1,17 +1,20 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import type { IMatchConfig } from '@/lib/multiplayer/server/IMatchStore';
-import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
 
 import { Button } from '@/components/ui';
 import { buildCampaignAuthoritativeState } from '@/lib/campaign/coop/campaignAuthoritativeState';
 import {
-  campaignSnapshotFromMessage,
   connectCampaignSyncTransport,
   type ICampaignSyncTransport,
 } from '@/lib/campaign/coop/campaignSyncTransport';
+import {
+  boundCampaignSyncTransport,
+  type ICampaignSyncSeat,
+  waitForSeatCampaignSnapshot,
+} from '@/lib/campaign/coop/campaignSyncTransportSeat';
 import { storeCoopCampaignToken } from '@/lib/campaign/coop/coopCampaignAuthTokenStore';
 import { applyPreset } from '@/lib/campaign/presetService';
 import { useCampaignMirrorStore } from '@/lib/p2p/campaignMirrorStore';
@@ -47,11 +50,6 @@ interface ICreateMatchResponse {
     readonly matchId: string;
     readonly roomCode?: string;
   };
-}
-
-interface IInviteResponse {
-  readonly matchId: string;
-  readonly status: string;
 }
 
 type CoopErrorKind = 'vault-identity' | 'generic';
@@ -102,11 +100,14 @@ async function mintToken(password: string): Promise<ITokenState> {
   }
 }
 
-async function resolveInviteCode(
+/** G2-BOOT-1: the campaign identity, never match metadata, before any socket. */
+async function resolveInviteIdentity(
   roomCode: string,
-): Promise<{ matchId: string; roomCode: string; status: string }> {
+  wireToken: string,
+): Promise<{ matchId: string; campaignId: string }> {
   const res = await fetch(
-    `/api/multiplayer/invites/${encodeURIComponent(roomCode)}`,
+    `/api/multiplayer/invites/${encodeURIComponent(roomCode)}?campaignIdentity=1`,
+    { headers: { Authorization: `Bearer ${wireToken}` }, cache: 'no-store' },
   );
   if (res.status === 404) {
     throw new Error(`No active co-op campaign with room code ${roomCode}`);
@@ -115,36 +116,18 @@ async function resolveInviteCode(
     const data = (await res.json().catch(() => ({}))) as { error?: string };
     throw new Error(data.error ?? `HTTP ${res.status}`);
   }
-  const data = (await res.json()) as IInviteResponse;
-  return { matchId: data.matchId, roomCode, status: data.status };
-}
-
-function waitForInitialCampaignSnapshot(
-  transport: ICampaignSyncTransport,
-): Promise<ICampaignEvent<'CampaignSnapshotPublished'>> {
-  return new Promise((resolve, reject) => {
-    let offFrame = (): void => undefined;
-    let offError = (): void => undefined;
-    const timeout = setTimeout(() => {
-      cleanup();
-      reject(new Error('Timed out waiting for the host campaign snapshot'));
-    }, 10_000);
-    const cleanup = (): void => {
-      clearTimeout(timeout);
-      offFrame();
-      offError();
-    };
-    offFrame = transport.onFrame((message) => {
-      const snapshot = campaignSnapshotFromMessage(message);
-      if (!snapshot) return;
-      cleanup();
-      resolve(snapshot);
-    });
-    offError = transport.onError((error) => {
-      cleanup();
-      reject(error instanceof Error ? error : new Error('Campaign sync error'));
-    });
-  });
+  const data = (await res.json()) as Record<string, unknown>;
+  const { matchId, campaignId, status } = data;
+  if (
+    typeof matchId !== 'string' ||
+    !matchId ||
+    typeof campaignId !== 'string' ||
+    !campaignId ||
+    !['lobby', 'active', 'completed'].includes(String(status))
+  ) {
+    throw new Error(`Room code ${roomCode} did not identify a co-op campaign`);
+  }
+  return { matchId, campaignId };
 }
 
 export function CampaignCoopEntryPanel(): React.ReactElement {
@@ -167,6 +150,8 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
   const [coopTokenState, setCoopTokenState] = useState<ITokenState | null>(
     null,
   );
+  const joinAttempt = useRef<AbortController | null>(null);
+  useEffect(() => () => joinAttempt.current?.abort(), []);
 
   const handleCreateCoopCampaign = useCallback(async () => {
     setCreateCoopError(null);
@@ -316,9 +301,18 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
     setJoinError(null);
     setJoinErrorKind(null);
     let transport: ICampaignSyncTransport | null = null;
+    const attempt = (joinAttempt.current = new AbortController());
+    const roomCode = parsed;
     try {
       const auth = await mintToken(joinCoopPassword);
-      const { matchId, roomCode } = await resolveInviteCode(parsed);
+      const resolved = await resolveInviteIdentity(roomCode, auth.wireToken);
+      const { matchId, campaignId } = resolved;
+      const seat: ICampaignSyncSeat = {
+        ...resolved,
+        playerId: auth.token.playerId,
+        role: 'guest',
+      };
+      attempt.signal.throwIfAborted();
       storeCoopCampaignToken({
         matchId,
         playerId: auth.token.playerId,
@@ -326,13 +320,22 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
         displayName: auth.displayName,
       });
       transport = connectCampaignSyncTransport({
+        expectedCampaignId: campaignId,
         matchId,
         role: 'guest',
         playerId: auth.token.playerId,
         wireToken: auth.wireToken,
         roomCode,
       });
-      const snapshot = await waitForInitialCampaignSnapshot(transport);
+      const snapshot = await waitForSeatCampaignSnapshot(
+        seat,
+        attempt.signal,
+        10_000,
+      );
+      // Re-checked after the await: adopt only through the bound seat.
+      if (!boundCampaignSyncTransport(seat)) {
+        throw new Error('The co-op connection was replaced while joining');
+      }
       const mirrorStore = useCampaignMirrorStore.getState();
       mirrorStore.beginMirror(
         {
@@ -343,7 +346,7 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
       );
       mirrorStore.applySnapshot(snapshot, 0);
       const id = store.getState().createGuestMirrorCampaign(matchId, {
-        campaignId: snapshot.payload.state.campaignId,
+        campaignId,
         campaignName: defaultCoopCampaignName(roomCode),
         factionId: DEFAULT_COOP_FACTION_ID,
         roomCode,
@@ -352,7 +355,9 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
       setJoinOpen(false);
       router.push(`/gameplay/campaigns/${id}`);
     } catch (e) {
+      // Identity-guarded: closing A can never close a replacement B.
       transport?.close();
+      if (attempt.signal.aborted) return;
       setJoinError(e instanceof Error ? e.message : 'Unknown error');
       setJoinErrorKind(isVaultIdentityError(e) ? 'vault-identity' : 'generic');
     } finally {

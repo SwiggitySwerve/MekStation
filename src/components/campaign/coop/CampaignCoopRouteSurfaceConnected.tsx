@@ -149,6 +149,7 @@ export function CampaignCoopRouteSurfaceConnected({
       return () => undefined;
     }
     const transport = connectStoredCampaignSyncTransport({
+      expectedCampaignId: campaignId,
       matchId,
       role: 'host',
       roomCode,
@@ -262,6 +263,7 @@ export function CampaignCoopRouteSurfaceConnected({
     if (!token) return () => undefined;
 
     const transport = connectStoredCampaignSyncTransport({
+      expectedCampaignId: campaignId,
       matchId,
       role: 'guest',
       roomCode,

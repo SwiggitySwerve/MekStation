@@ -21,11 +21,23 @@
  */
 
 import { useRouter } from 'next/router';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import type { CoopParticipationChoice } from '@/types/campaign/CoopCampaign';
 
 import { connectStoredCampaignSyncTransport } from '@/lib/campaign/coop/campaignSyncTransport';
+import {
+  boundCampaignSyncTransport,
+  followCampaignSyncSeat,
+  type ICampaignSyncSeat,
+} from '@/lib/campaign/coop/campaignSyncTransportSeat';
+import { readCoopCampaignToken } from '@/lib/campaign/coop/coopCampaignAuthTokenStore';
 import {
   type ICoopParticipationRecord,
   publishCoopParticipation,
@@ -57,6 +69,15 @@ import {
 } from '@/pages-modules/gameplay/campaigns/missionLaunchPage.surfaces';
 import { selectRepairBay } from '@/stores/campaign/campaignBaySelectors';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
+
+function launchSeat(
+  campaignId: string,
+  matchId: string,
+  role: 'host' | 'guest',
+): ICampaignSyncSeat | null {
+  const playerId = readCoopCampaignToken(matchId)?.playerId;
+  return playerId ? { matchId, campaignId, playerId, role } : null;
+}
 
 export default function CoopMissionLaunchPage(): React.ReactElement {
   const router = useRouter();
@@ -119,6 +140,9 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
   const localDefault = defaultParticipationChoice(campaign);
   const [localChoice, setLocalChoice] =
     useState<CoopParticipationChoice>(localDefault);
+  // A replacement transport re-sends the choice current when it is seated.
+  const localChoiceRef = useRef(localChoice);
+  localChoiceRef.current = localChoice;
 
   useEffect(() => {
     setSelectedRosterUnitIds(null);
@@ -147,16 +171,20 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
     };
     publishCoopParticipation(record);
     connectStoredCampaignSyncTransport({
+      expectedCampaignId: campaign.id,
       matchId,
       role: campaign.coopSession.mode,
       roomCode: campaign.coopSession.roomCode,
-    })?.sendParticipation({
+    });
+    const seat = launchSeat(campaign.id, matchId, campaign.coopSession.mode);
+    (seat && boundCampaignSyncTransport(seat))?.sendParticipation({
       missionId: missionKey,
       forceId: localForce.id,
       choice: localChoice,
     });
   }, [
     campaign?.coopSession,
+    campaign?.id,
     localChoice,
     localForce,
     localPlayerId,
@@ -174,35 +202,51 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
       missionKey,
       setParticipationRecords,
     );
-    const transport = connectStoredCampaignSyncTransport({
+    connectStoredCampaignSyncTransport({
+      expectedCampaignId: campaign.id,
       matchId,
       role: campaign.coopSession.mode,
       roomCode: campaign.coopSession.roomCode,
     });
-    const unsubscribeTransport =
-      transport?.onFrame((message) => {
-        if (
-          message.kind !== 'CampaignParticipation' ||
-          message.participation.missionId !== missionKey
-        ) {
-          return;
-        }
-        const force = campaign.forces.get(message.participation.forceId);
-        if (!force) {
-          return;
-        }
-        publishCoopParticipation({
-          matchId: message.matchId,
-          missionId: message.participation.missionId,
-          playerId: message.playerId,
-          role: message.role,
-          choice: message.participation.choice,
-          force,
-        });
-      }) ?? (() => undefined);
+    const seat = launchSeat(campaign.id, matchId, campaign.coopSession.mode);
+    // G2-RESEAT-1: A's listener is detached before B's is attached, so a
+    // late A frame publishes nothing; B is told the current choice once.
+    const stopFollowing = seat
+      ? followCampaignSyncSeat(seat, (transport, replaced) => {
+          const force = rootForceForCampaign(campaign);
+          if (replaced && force) {
+            transport.sendParticipation({
+              missionId: missionKey,
+              forceId: force.id,
+              choice: localChoiceRef.current,
+            });
+          }
+          return transport.onFrame((message) => {
+            if (
+              message.kind !== 'CampaignParticipation' ||
+              message.matchId !== matchId ||
+              message.participation.missionId !== missionKey
+            ) {
+              return;
+            }
+            const force = campaign.forces.get(message.participation.forceId);
+            if (!force) {
+              return;
+            }
+            publishCoopParticipation({
+              matchId: message.matchId,
+              missionId: message.participation.missionId,
+              playerId: message.playerId,
+              role: message.role,
+              choice: message.participation.choice,
+              force,
+            });
+          });
+        })
+      : () => undefined;
     return () => {
       unsubscribeLocal();
-      unsubscribeTransport();
+      stopFollowing();
     };
   }, [campaign, matchId, missionKey]);
 

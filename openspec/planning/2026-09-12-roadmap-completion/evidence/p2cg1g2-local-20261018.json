@@ -1,0 +1,316 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CG1G2",
+  "stage": "local",
+  "date": "20261018",
+  "baseline": "f32626fbd2b558e1307f16590d4ab03c55668772",
+  "commits": {
+    "admission": "b72d68030c72144d5b299393301406e289362435",
+    "red": "fcba71054870409646bb920cb44a10f4feda7d4f",
+    "implementation": "this commit"
+  },
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "P2CG1G2 implementation sub-agent"
+  },
+  "runtime": {
+    "node": "v22.22.0",
+    "jest": "node node_modules/jest/bin/jest.js --selectProjects unit, --maxWorkers=2, private --cacheDirectory; every heavy run preceded by machine-idle.mjs --own-pid 47516 --own-pid <shell pid> -> MACHINE_IDLE; the mutation runner re-checks idle before each mutant"
+  },
+  "productBytes": [
+    {
+      "path": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+      "sha256": "29ffeddaeca127f3b23a9fe8f482188e05aad1d0bb646c45af24af5ee2d565f3",
+      "bytes": 18815,
+      "physicalLines": 538,
+      "added": 49,
+      "deleted": 44
+    },
+    {
+      "path": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+      "sha256": "f1af7f61eb2548bcaadfa90c28cf55e7536378e50f72b4dff438c4e49b8db599",
+      "bytes": 14183,
+      "physicalLines": 399,
+      "added": 2,
+      "deleted": 0
+    },
+    {
+      "path": "src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx",
+      "sha256": "73d48055825890497f491610e2e3017f22782bc08189045fb2079cbc3e5b866a",
+      "bytes": 10561,
+      "physicalLines": 329,
+      "added": 69,
+      "deleted": 25
+    },
+    {
+      "path": "src/lib/campaign/coop/campaignSyncTransport.ts",
+      "sha256": "a9d6325d2cfe4f5c98fdbe1417700fcd274883b31c37f4704c95c0e77c66cd88",
+      "bytes": 24142,
+      "physicalLines": 755,
+      "added": 46,
+      "deleted": 11
+    },
+    {
+      "path": "src/lib/campaign/coop/campaignSyncTransportSeat.ts",
+      "sha256": "410311758c29165546719ea60517a29315da6dff64511998194c6a7e7f8327a5",
+      "bytes": 4152,
+      "physicalLines": 124,
+      "added": 124,
+      "deleted": 0,
+      "new": true
+    }
+  ],
+  "testBytesVersusRed": "identical: no test byte changed after the RED commit (fcba7105)",
+  "delivered": [
+    "Transport (G2-RESEAT-1): registry writes go through setActiveTransport (map write, then an observer snapshot, each observer isolated with logger.warn); same-object registration is a no-op; guarded release; subscribeActiveCampaignSyncTransport; the test reset clears observers. No wire/lastSeq/ACK/latch change",
+    "Seat module: boundCampaignSyncTransport (matchId/campaignId/playerId/role), followCampaignSyncSeat (subscribe then reconcile; detach A before attach B; replaced flag; never adopts or closes a foreign transport), waitForSeatCampaignSnapshot (one fixed timeout, abort, disposal, foreign event/state rejection)",
+    "Entry panel: identity-first guest join via G2A's ?campaignIdentity=1 with the minted bearer only in Authorization and no-store; validated identity before any socket; 400/401/404 final without anonymous fallback; bound guest creator; snapshot via the seat with a post-await active-seat re-check; abort on unmount; the mirror uses the resolved campaignId",
+    "Launch page: both creators bound to campaign.id; sends via the bound seat; the listener follows the seat with a single current-choice resend to a replacement; cleanup never closes the shared socket; seat playerId from the stored co-op token",
+    "Surface: expectedCampaignId at both connectStoredCampaignSyncTransport calls (CF-H16)"
+  ],
+  "privacy": "As recorded in the admission receipt: G2 is the first in-repo consumer of G2A's identity mode and adds no disclosure beyond G2A's PRIV-1 correlation; unscoped bearer only in the Authorization header; PRIV-1 stays a B15 remote-support obligation; joinableLobbies.ts, token.ts, auth.ts, Player.ts, the route and securityBoundary.test.ts byte-identical (boundary below)",
+  "carryForwards": {
+    "CF-G2A-5": "Delivered and pinned: E1 exact URL/headers/no-store; E10a-c 400/401/404 final, exactly one invites request (the identity URL), no token=",
+    "CF-G2A-4": "Not absorbed; MR1/MR4 re-routed to B15 auth hardening (G2A-ROUTE-1). No file added",
+    "CF-G2A-7": "Baseline is the actual Main commit f32626fb (after the closure merge 36dacb34 and docs-only #2249); CF-H12 verified on this unit's exact PR head (PR comment)",
+    "CF-H6": "Pinned in creatorBinding; the consumer mutant RM-G9 (heard recorded only for offers) is caught by it (it survived both G1 review rounds)",
+    "CF-H11": {
+      "lint": "87 warnings / 0 errors before and after; max-lines counted entry panel 503 -> 507 and transport 661 -> 687 (both already warned at baseline); surface, launch and seat module not warned",
+      "madge": "four existing product leaves: 1255 files / 170 chains at baseline; with the seat module as a fifth entry 1256 files / 170 chains, identical chain set (sorted diff 0); the seat module is in no chain",
+      "logs": [
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/madge-base.log",
+          "sha256": "846868f24be37dea2a0cc7ae121b3c73b8a195787e219bf4905911eb03cc6822",
+          "bytes": 210054
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/madge-green.log",
+          "sha256": "ececf04656a85b23deee6d1a0eea1ec0590c916b470aba71ce2765124a54010d",
+          "bytes": 210054
+        }
+      ]
+    },
+    "CF-H12": {
+      "rule": "verify every required check run by name on the exact head",
+      "expectedNames": [
+        "A11y Tests",
+        "Build Storybook",
+        "Build Test / linux",
+        "Build Test / mac",
+        "Build Test / win",
+        "Coverage Floor",
+        "Customizer Regressions",
+        "Desktop Tests",
+        "Desktop Type Check",
+        "Detect Changes",
+        "Determinism Audit",
+        "E2E Smoke",
+        "Format Check",
+        "Install Dependencies",
+        "Lint",
+        "Lint and Test",
+        "Perf Budget PR",
+        "Perf Smoke Tests",
+        "Prepare Build Artifacts",
+        "Schema Bridge",
+        "Seam Anchors",
+        "Statistical Proof PR",
+        "Type Check",
+        "Unit Tests (1/6)",
+        "Unit Tests (2/6)",
+        "Unit Tests (3/6)",
+        "Unit Tests (4/6)",
+        "Unit Tests (5/6)",
+        "Unit Tests (6/6)",
+        "Validate BV Parity",
+        "Validate Combat Suite",
+        "Validate Roadmap Ledger"
+      ],
+      "expectedCount": 32,
+      "exactHead": "A receipt cannot contain the CI result of the commit that carries it; the by-name comparison against the P2CG1G1/P2CG1G2A set is posted as a PR comment and must be re-checked at review/merge"
+    },
+    "CF-H16": "Delivered: both surface creators pass expectedCampaignId; S3h/S3g pin that a stored transport bound to another campaign on the same match is refused and stays open; MSu1/MSu2 caught",
+    "CF-H2": "Cross-reference only (store owner); campaignHostFoldStore.ts unchanged",
+    "CF-H14": "Cross-reference only (consumer owner, at or before H); no mount gated on projected state added; useCampaignApplicationConsumer.ts unchanged",
+    "CF-G11": "The three G1 fake suites unchanged and green in the broad run; no confirmApplied added",
+    "CF-G4/CF-H7": "Carried unchanged to the consumer's next owner at or before H (analysis in the admission receipt)"
+  },
+  "mutationProbes": {
+    "script": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/g2-mutants.cjs",
+      "sha256": "d25c2f1b5f4ccb4fdac29f6b070f09eba8bf898ca8adc23bc26e62e24441cc09",
+      "bytes": 6735
+    },
+    "method": "Each mutant is a string edit of one GREEN file; the five G2 suites (129 rows) run per mutant; the original bytes are restored after each (git diff --numstat identical before and after the run; the consumer file unchanged)",
+    "results": [
+      "MT1 notify before the map write: 8 failed, 121 passed, 129 total",
+      "MT2 unguarded release (late A drops B): 4 failed, 125 passed, 129 total",
+      "MT3 same-object registration notifies: 1 failed, 128 passed, 129 total",
+      "MT4 a throwing observer stops the rest: 1 failed, 128 passed, 129 total",
+      "MT5 live observer set (no snapshot): 1 failed, 128 passed, 129 total",
+      "MT6 reset keeps observers: 1 failed, 128 passed, 129 total",
+      "MS1 seat ignores playerId: 1 failed, 128 passed, 129 total",
+      "MS2 attach B before detaching A: 1 failed, 128 passed, 129 total",
+      "MS3 replaced always false: 2 failed, 127 passed, 129 total",
+      "MS4 snapshot wait ignores state campaignId: 2 failed, 127 passed, 129 total",
+      "MS5 snapshot wait ignores abort: 2 failed, 127 passed, 129 total",
+      "ME1 guest creator unbound: 5 failed, 124 passed, 129 total",
+      "ME2 identity campaignId unvalidated: 3 failed, 126 passed, 129 total",
+      "ME3 no post-await active-seat recheck: 1 failed, 128 passed, 129 total",
+      "ME4 unmount does not abort the join: 1 failed, 128 passed, 129 total",
+      "ME5 identity fetch may be cached: 2 failed, 127 passed, 129 total",
+      "ME6 aborted join still sets error state: 129 passed, 129 total",
+      "ML1 launch creators unbound: 2 failed, 127 passed, 129 total",
+      "ML2 seat playerId from the role label: 2 failed, 127 passed, 129 total",
+      "ML3 no current-choice resend to B: 1 failed, 128 passed, 129 total",
+      "ML4 listener stays on the first transport: 3 failed, 126 passed, 129 total",
+      "ML5 cleanup closes the shared socket: 1 failed, 128 passed, 129 total",
+      "ML6 listener ignores the frame matchId: 129 passed, 129 total",
+      "MSu1 surface host creator unbound: 3 failed, 126 passed, 129 total",
+      "MSu2 surface guest creator unbound: 2 failed, 127 passed, 129 total",
+      "RM-G9 heard recorded only for offers (consumer, non-leaf): 1 failed, 128 passed, 129 total"
+    ],
+    "summary": "24 of 26 caught. Survivors, both equivalent: ME6 (an aborted join still sets error state: only suppresses a setState on an unmounted panel, unobservable) and ML6 (the launch listener ignores the frame matchId: a socket carries only its own match and subscribeCoopParticipation keys by matchId; kept as defence in depth)",
+    "log": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/mutants.log",
+      "sha256": "068ada611a93ca6df97bb96764ea9b9bb7c41c8cbf2fd644cd957d73eb7602c6",
+      "bytes": 5350
+    },
+    "note": "Run as a detached process on the f32626fb-based working tree; it completed all 26 before a parent-side interruption of the session, and the tree was verified unchanged afterwards (numstat identical, consumer unchanged, controls re-hashed)"
+  },
+  "results": {
+    "green": {
+      "summary": "Test Suites: 5 passed; Tests: 129 passed, 129 total",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/green.log",
+        "sha256": "dc0d5507a5d32213ee6b67ff04d081adc305dd51674c7f4e5f2cd299bf3418e4",
+        "bytes": 24830
+      },
+      "idleLog": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/idle-green.log",
+        "sha256": "315ceb46326ccdda8b3d7a4913043d09a4b22eb2dbc65560259861fe0f202a2d",
+        "bytes": 17
+      }
+    },
+    "broad": {
+      "set": "src/lib/campaign/, src/components/campaign/, src/pages-modules/gameplay/, src/__tests__/pages/gameplay/, src/__tests__/api/, src/__tests__/unit/api/, src/lib/p2p/, src/stores/campaign/, src/lib/multiplayer/server/__tests__/auth.test.ts (every F/G1/G2A suite, the G1 fake suites, the invite route and verifier suites)",
+      "summary": "Test Suites: 397 passed; Tests: 5158 passed, 5158 total",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/broad.log",
+        "sha256": "6675570f48d458b0af754d49b59d186ee78eea481743b40df08b2fd6de458d26",
+        "bytes": 1139246
+      }
+    }
+  },
+  "checks": {
+    "typecheck": {
+      "result": "PASS (npm run typecheck, typescript7) at baseline, RED and GREEN",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/typecheck-green.log",
+        "sha256": "8102a14cf3245ac2b0d67c588affb25efaebfcd3485f9a46a751595d9a774951",
+        "bytes": 358
+      }
+    },
+    "lint": {
+      "result": "0 errors, 87 warnings = baseline",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/lint-green.log",
+        "sha256": "5ff97000ec85f60cbd3c0ff078c24389f506436979417fb8168cfe425986d7dd",
+        "bytes": 81286
+      }
+    },
+    "format": {
+      "result": "PASS (npx oxfmt --check ., 8228 files)",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/format.log",
+        "sha256": "778fb35abfd0ec8f9fb3c9afa7758d413b2ca788bfc882fd4b0e90d92c0a4c08",
+        "bytes": 246
+      }
+    },
+    "lintUnits": {
+      "result": "LINT_UNITS_PASS 17899/17899 (src-tests 17783 = ceiling)",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/lint-units.log",
+        "sha256": "445a0d6546031cb8bf866d2d4c44cc69f8062a9b875de0563b00b8d819817596",
+        "bytes": 730
+      },
+      "note": "The first run of the original RED test bytes failed (src-tests 17784 > 17783: react-hooks/rules-of-hooks on useCampaignStore() inside the creatorBinding helper); fixed by amending the unpushed RED commit, see the red receipt discardedRun"
+    },
+    "validator": "validate-roadmap.mjs plain and --git PASS (81 nodes, 13 packages, 381 tasks, 40 triage rows); --next advisory",
+    "validatorTests": {
+      "result": "86/86",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/validator-tests.log",
+        "sha256": "ec463d258179cf6b7e01612ab60a46dc3d34a170d6354d578c532fbcd3d80a76",
+        "bytes": 33640
+      }
+    },
+    "openspec": {
+      "result": "230 passed, 0 failed",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/openspec.log",
+        "sha256": "89a3784befdc45a1fb8b4cac58d9703373655afb9d5fa537f58176fbd9cad0c0",
+        "bytes": 13904
+      }
+    },
+    "qc": {
+      "result": "qc:openspec-ci:validate errors=0",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/qc-openspec-ci.log",
+        "sha256": "19b2046de400eaefd184fb58e7072d1816b6ccef3ba1f1ea040c0f9ec8ec2c60",
+        "bytes": 594
+      }
+    },
+    "diffCheck": "git diff --check clean"
+  },
+  "maxLines": {
+    "rule": "oxlint max-lines warn at 400, skipBlankLines and skipComments",
+    "entryPanel": "503 -> 507 counted (533 -> 538 physical; under the 600 React-container hard limit)",
+    "transport": "661 -> 687 counted (720 -> 755 physical; over the runtime hard limit already at baseline, +35 net; the seat module is the planned extraction)",
+    "surface": "not warned (397 -> 399 physical)",
+    "launch": "not warned (285 -> 329)",
+    "seat": "not warned (124)"
+  },
+  "census": {
+    "command": "git diff --numstat --no-renames f32626fbd2b558e1307f16590d4ab03c55668772..HEAD",
+    "countedLines": {
+      "CampaignCoopEntryPanel.tsx": 49,
+      "CampaignCoopRouteSurfaceConnected.tsx": 2,
+      "launch.tsx": 69,
+      "campaignSyncTransport.ts": 46,
+      "campaignSyncTransportSeat.ts": 124,
+      "units.json": 16,
+      "total": 306,
+      "cap": 500
+    },
+    "files": {
+      "changed": 14,
+      "reservedReviewSlot": 1,
+      "total": 15,
+      "cap": 15,
+      "reserved": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2-admission-review-20261018.md (unwritten)"
+    },
+    "lineExempt": "test leaves 292 + 371 + 29 + 205 + 279 added; evidence receipts"
+  },
+  "boundary": {
+    "note": "All twelve unchanged controls frozen at admission are byte-identical (frozen-controls.json): the G2A route and securityBoundary.test.ts, joinableLobbies.ts, token.ts, auth.ts, Player.ts, the consumer, the host-fold store and the four F/G1 surface suites. units.json changes are P2CG1G2's own lifecycle fields only",
+    "census": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/frozen-controls.json",
+      "sha256": "b311ddd76aa07e1456926d17775acbca2ca9e664183d7d83bd54300705fcdd8b",
+      "bytes": 2868
+    }
+  },
+  "discardedLogs": [
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/red-discarded-rules-of-hooks.log",
+      "note": "see the red receipt discardedRun"
+    }
+  ],
+  "status": "Local proof complete; awaiting independent sensitive review (reserved slot), OWNER-RULING, CI and the CF-H12 by-name check on the exact head. Not merged",
+  "rebase": {
+    "note": "Branch rebuilt on f32626fb at Root's request (Main gained docs-only #2249). Product and test bytes are identical to the earlier 36dacb34-based commits; every GREEN check above was re-run on the new base. The 36dacb34 run logs are kept under run-36dacb34/ and not cited. The superseded head 58bec7f9 was pushed to PR #2250 before any review and is replaced by force-with-lease",
+    "previousHead": "58bec7f9de7628c12264233f2d018d6d09756868",
+    "previousRunDir": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/run-36dacb34"
+  }
+}

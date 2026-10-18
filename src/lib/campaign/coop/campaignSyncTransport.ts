@@ -26,6 +26,7 @@ import {
   HEARTBEAT_TIMEOUT_MS,
   nowIso,
 } from '@/types/multiplayer/Protocol';
+import { logger } from '@/utils/logger';
 
 import { readCoopCampaignToken } from './coopCampaignAuthTokenStore';
 
@@ -118,6 +119,7 @@ export interface IConnectStoredCampaignSyncOptions {
 }
 
 const activeTransports = new Map<string, ICampaignSyncTransport>();
+const activeObservers = new Map<string, Set<() => void>>();
 const MAX_PENDING_APPLICATION_OFFERS = 64;
 /** Identical re-sends of one unconfirmed ACK on head-drift (CF8). */
 export const MAX_HEAD_DRIFT_RESENDS = 3;
@@ -413,9 +415,7 @@ export function connectCampaignSyncTransport(
       sent = null;
       stopHeartbeat();
       stopConfirmationWait();
-      if (activeTransports.get(options.matchId) === transport) {
-        activeTransports.delete(options.matchId);
-      }
+      releaseActiveTransport(transport);
       socket.close();
     },
     lastSeq: () => lastSeq,
@@ -529,12 +529,10 @@ export function connectCampaignSyncTransport(
     sent = null;
     stopHeartbeat();
     stopConfirmationWait();
-    if (activeTransports.get(options.matchId) === transport) {
-      activeTransports.delete(options.matchId);
-    }
+    releaseActiveTransport(transport);
   };
 
-  activeTransports.set(options.matchId, transport);
+  setActiveTransport(options.matchId, transport);
   return transport;
 }
 
@@ -573,12 +571,48 @@ export function connectStoredCampaignSyncTransport(
 export function registerCampaignSyncTransport(
   transport: ICampaignSyncTransport,
 ): () => void {
-  activeTransports.set(transport.matchId, transport);
+  setActiveTransport(transport.matchId, transport);
+  return () => releaseActiveTransport(transport);
+}
+
+/**
+ * G2-RESEAT-1: notifies after the active transport for `matchId` changes
+ * identity. An invalidation signal only, never seat or receipt authority:
+ * re-read the getter on every use.
+ */
+export function subscribeActiveCampaignSyncTransport(
+  matchId: string,
+  onChange: () => void,
+): () => void {
+  const observers = activeObservers.get(matchId) ?? new Set<() => void>();
+  activeObservers.set(matchId, observers);
+  const observer = (): void => onChange();
+  observers.add(observer);
   return () => {
-    if (activeTransports.get(transport.matchId) === transport) {
-      activeTransports.delete(transport.matchId);
-    }
+    observers.delete(observer);
   };
+}
+
+function setActiveTransport(
+  matchId: string,
+  next: ICampaignSyncTransport | null,
+): void {
+  if ((activeTransports.get(matchId) ?? null) === next) return;
+  if (next) activeTransports.set(matchId, next);
+  else activeTransports.delete(matchId);
+  [...(activeObservers.get(matchId) ?? [])].forEach((observer) => {
+    try {
+      observer();
+    } catch (error) {
+      logger.warn('Campaign transport observer failed', error);
+    }
+  });
+}
+
+/** Only the active object itself may clear its slot (late A never drops B). */
+function releaseActiveTransport(transport: ICampaignSyncTransport): void {
+  if (activeTransports.get(transport.matchId) === transport)
+    setActiveTransport(transport.matchId, null);
 }
 
 function encodeCampaignSocketToken(token: string | IPlayerToken): string {
@@ -717,4 +751,5 @@ export function campaignSnapshotFromMessage(
 export function _resetCampaignSyncTransportsForTest(): void {
   activeTransports.forEach((transport) => transport.close());
   activeTransports.clear();
+  activeObservers.clear();
 }
