@@ -8354,7 +8354,9 @@
         "admission": {
           "path": "evidence/lsc-1db-admission-20261018.json"
         },
-        "red": null,
+        "red": {
+          "path": "evidence/lsc-1db-red-20261018.json"
+        },
         "local": null,
         "review": null,
         "merge": null,

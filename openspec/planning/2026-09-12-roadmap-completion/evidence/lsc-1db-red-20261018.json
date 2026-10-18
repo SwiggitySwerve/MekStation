@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "unit": "LSC-1DB",
+  "stage": "red",
+  "date": "20261018",
+  "baseline": "afcbd62bba50621ebcf37c2c11adf58ecc3bfc5f",
+  "admissionCommit": "83931a7eb8fd7cca892b44d7429e04ee43178eb1",
+  "carryIn": "CF-LSC0-6 rows (plaintext/partial key envelope, non-hex fingerprint, no password-named column), the separate NULL-CHECK row (a key missing iv or salt, a non-text iv or a null salt is refused; json_type returns NULL for a missing path and a CHECK that evaluates to NULL passes, so GREEN uses IS text) and the CF-LSC0-8 durability row (failure count and lock deadline survive close/reopen and a migration re-apply) fail at RED because the tables do not exist.",
+  "runtime": {
+    "node": "v22.22.0",
+    "jest": "node E:/Projects/Personal/MekStation-wt/_locks/heavy-run.mjs --lane lsc --class jest --cwd <repo> -- node node_modules/jest/bin/jest.js --selectProjects unit --runInBand --cacheDirectory E:/Projects/Personal/MekStation-wt/lsc-1db-proof-20261018/jest-cache --runTestsByPath <three test leaves>",
+    "idle": "heavy-run queue ran the machine-idle gate at the head of the queue"
+  },
+  "productUnchanged": {
+    "note": "Migration module absent and catalog byte-identical to the baseline at RED (git diff --quiet baseline -- SQLiteService.migrations.ts exit 0; SQLiteService.localSeatCredentials.migration.ts does not exist)."
+  },
+  "testChanges": [
+    {
+      "path": "src/services/persistence/__tests__/SQLiteService.localSeatCredentials.migration.test.ts",
+      "added": 315,
+      "deleted": 0,
+      "sha256": "43625cbce64c94d32290acef359f6018ce1ccf4cd2aff8e9c449b27adcf2a2d6",
+      "bytes": 10836
+    },
+    {
+      "path": "src/services/persistence/__tests__/SQLiteService.migrations.test.ts",
+      "added": 1,
+      "deleted": 1,
+      "sha256": "9203b93806a3d745b545735b67c7ae03f8befe2dd97408e303e89fbf115cba34",
+      "bytes": 8562
+    },
+    {
+      "path": "src/services/persistence/__tests__/SQLiteService.replayCheckpointsBranch.migration.test.ts",
+      "added": 1,
+      "deleted": 1,
+      "sha256": "e12de912d58955f09b4125c71f1394bd9db8211c2dcfba6c386fa1613cc111b2",
+      "bytes": 9373
+    }
+  ],
+  "result": {
+    "summary": "Tests:       11 failed, 12 passed, 23 total",
+    "log": {
+      "path": "E:/Projects/Personal/MekStation-wt/lsc-1db-proof-20261018/red.log",
+      "sha256": "9fe98bbf6a9af681503067cbc6273cda9a6e14be18e439017d609928292682be",
+      "bytes": 21230
+    }
+  },
+  "behaviourRows": {
+    "count": 11,
+    "rows": [
+      "replay checkpoint branch pin > R6: the migration ledger pins the head version explicitly",
+      "SQLiteService local seat credentials migration > is registered in the catalog as the head migration",
+      "SQLiteService local seat credentials migration > creates both tables on a fresh database with fencing and lockout",
+      "SQLiteService local seat credentials migration > defaults a new seat to unrevoked, unlocked and zero failures, and",
+      "SQLiteService local seat credentials migration > rejects unknown seats, non-positive generations and unknown",
+      "SQLiteService local seat credentials migration > CF-LSC0-6: stores only a ciphertext-shaped seat key and hash",
+      "SQLiteService local seat credentials migration > refuses a key envelope missing iv or salt (a CHECK that evaluates",
+      "SQLiteService local seat credentials migration > keeps the failure count and lock deadline durable across reopen",
+      "SQLiteService local seat credentials migration > upgrades a previous-head database without touching the primary",
+      "SQLiteService local seat credentials migration > re-applies idempotently after a lost record without losing seat",
+      "SQLiteService local seat credentials migration > rolls back both tables when the migration record is rejected"
+    ],
+    "shape": "Plain Jest assertion failures. The new suite looks the migration up by name in MIGRATIONS (F6), so it fails on missing behaviour (undefined migration, absent tables, version 32 head), never on module resolution; no TypeError/ReferenceError/compile failure. R6 pin expects head 33 and reads 32."
+  },
+  "controlsGreenAtRed": [
+    "SQLiteService.migrations.test.ts: all rows pass; the applied-view reapply row now deletes version >= 32 (equivalent at head 32, required once 33 lands)",
+    "replayCheckpointsBranch: every row except the R6 head pin"
+  ],
+  "log": {
+    "path": "E:/Projects/Personal/MekStation-wt/lsc-1db-proof-20261018/r3/red.err",
+    "note": "jest writes its report to stderr; red.log in the proof directory is a byte copy"
+  }
+}
