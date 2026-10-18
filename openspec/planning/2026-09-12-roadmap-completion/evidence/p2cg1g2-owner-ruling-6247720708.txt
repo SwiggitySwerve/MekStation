@@ -1,0 +1,14 @@
+OWNER-RULING 45f6d7e176daf5fa825b6ecd8dba3958cab8905b
+
+Unit: P2CG1G2 (reduced; L1; sensitive: authority/privacy/replay/concurrency). PR #2250 at exact head 45f6d7e176daf5fa825b6ecd8dba3958cab8905b.
+
+Owner text: standing instruction "continue with recommended options and fix the issues that come up, publish as needed"; direct approval 2026-10-18 "I think the recommended actions make sense for the ones that have them" (including Root posting OWNER-RULING comments). Root rules under them.
+
+Basis:
+- Independent full sensitive review (Fable 5.1): APPROVE-WITH-NOTES, docs/audits/2026-10-18-p2cg1g2-review.md, sha256 f5e75b7a193fda612913a0423045a54f2cc55f9076a362bfaff3462a73b8ac2b (18,709 bytes). Ledger discipline PASS (admission evidence+units.json only; RED fcba7105 tests only, product byte-identical, seat module absent; GREEN 45f6d7e1 product only; 15/15 files incl. reserved slot; 306/500 lines). PRIV-1/B15 controls, consumer, fold store and G1/F suites byte-identical to base. Reviewer re-ran RED 34/129 failing and GREEN 129/129; 32/32 required checks on the exact head; seat module in no madge cycle.
+- Carry-forwards genuinely discharged: CF-G2A-5, CF-H6, CF-H11, CF-H12, CF-H16; CF-H2/CF-H14 cross-ref only; MR1/MR4 routed to B15.
+- Reviewer mutants: 12, 6 caught; 6 survivors classed as test gaps/latent hardening, none a GREEN defect. ME6 equivalent; ML6 downgraded to a Low defence-in-depth gap.
+- Seam Anchors attempt-1 failure judged an engine-side flake unrelated to G2 (same assertion failed-then-passed on 2026-10-15 for a units.json-only commit).
+- Merge-tree with current Main (cf42ab56; docs-only #2251 since base) is clean.
+
+Ruling: ACCEPT and merge at this exact head. Carry-forwards CF-G2-1..11 are routed as tabulated in the review (H, R, S, B15, B14-0/HP, I1-I4/P2CG2), including N1 (seat snapshot wait ignores an already-aborted signal) -> H, N3 (superseded transport orphaned on same-seat replacement) -> H/R, N7 (CF-H16 refusal leaves surface offline) -> H, and the survived-mutant test gaps to the next owners of those leaves.

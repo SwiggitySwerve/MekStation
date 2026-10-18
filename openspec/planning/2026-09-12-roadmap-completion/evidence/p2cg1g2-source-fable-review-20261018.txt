@@ -1,0 +1,128 @@
+# P2CG1G2 independent review — PR #2250 (head 45f6d7e1, base f32626fb)
+
+Reviewer: review sub-agent (claude-fable-5-1), 2026-10-18. Read-only: nothing pushed, commented, labelled or merged. Worktree E:/Projects/Personal/MekStation-wt/review-2250-20261018 (detached at 45f6d7e176daf5fa825b6ecd8dba3958cab8905b; node_modules is a junction to p2cg1g2a-impl-20261018, whose package.json/package-lock.json are byte-identical to the head). Proof logs under E:/Projects/Personal/MekStation-wt/review-2250-proof/ (red.log, green.log, mutants.log, mutant-*.log, seam-attempt1.log, seam-293ae722b.log, madge-seat.log, rv-mutants.cjs). Root checkout E:/Projects/Personal/MekStation untouched.
+
+## Verdict: APPROVE-WITH-NOTES
+
+No blocking defect. The product bytes match the reduced P2CG1G2 contract (units.json/roadmap.json at the head): all five creators bind expectedCampaignId to the campaign id (which differs from the match id in every runtime row), the identity-first guest join consumes G2A exactly as CF-G2A-5 requires, the registry/seat design (G2-RESEAT-1) is sound under every reseat ordering I could construct, and no path adopts state or events from a foreign campaign. Ledger discipline holds commit by commit; RED (34/129) and GREEN (129/129) reproduce; 32/32 required checks succeed by name on the exact head; the byte-identical controls hold. The notes are six surviving mutants of mine (all test gaps or latent hardening, none a GREEN defect), one latent API hazard in the seat module, one orphaned-socket observation on a practically unreachable path, and the ML6 "equivalent" claim which I downgrade to a defence-in-depth test gap.
+
+## 1. Ledger discipline
+
+| Check | Result |
+| --- | --- |
+| Base ancestry | f32626fb is an ancestor of the head (merge-base --is-ancestor exit 0); PR baseRefOid = f32626fb |
+| b72d6803 admission | evidence/p2cg1g2-admission-20261018.json + units.json only; no source |
+| fcba7105 RED | five test leaves + red receipt + units.json; the four existing product leaves byte-identical to base (git diff --quiet exit 0) and the seat module absent at that commit |
+| 45f6d7e1 GREEN | five product leaves + local receipt + units.json; no test byte changed after RED (GREEN diff --name-only lists no test) |
+| Manifest | 14 files changed, every one in the frozen 15-entry manifest; the 15th (admission-review .md) is the reserved slot, unwritten. No file outside the manifest |
+| Counted lines | numstat additions: units.json 16, surface 2, transport 46, seat 124, entry 49, launch 69 = **306/500** (matches the receipt) |
+| Caps | 15/15 files, 306/500 lines; no cap exception |
+| units.json edit | only P2CG1G2's own fields (ownershipExceptions, state planned->implementing, baseline, three stage receipt paths); roadmap.json untouched by the PR (carries the S3-split contract) |
+| Unchanged controls (PRIV-1/B15) | joinableLobbies.ts, token.ts, auth.ts, Player.ts, invites/[roomCode].ts, securityBoundary.test.ts byte-identical to base and sha256 equal to the manifest. Also unchanged: useCampaignApplicationConsumer.ts, campaignHostFoldStore.ts and the four G1/F surface suites (CF-G11 fakes intact) |
+
+## 2. Reproduction
+
+Machine idle checked before each heavy run (node scripts/qc/machine-idle.mjs --own-pid 47516 --own-pid <shell>; MACHINE_IDLE every time). Jest: --selectProjects unit --runInBand --cacheDirectory E:/Projects/Personal/MekStation-wt/review-2250-proof/jest-cache. No process killed, no timeout raised.
+
+| Stage | Expected | Observed |
+| --- | --- | --- |
+| RED at fcba7105 (product == base, seat module absent) | 34 failed / 129 | **34 failed, 95 passed, 129 total**: transport 9 (new-API rows: missing seat module / export), entry 14, launch 5, creatorBinding 5, index 1 |
+| GREEN at 45f6d7e1, five G2 suites | 129/129 | **5 suites passed, 129 passed** |
+| CI on exact head | 32 required checks | 32 check runs, all completed/success, names identical to the receipt's expectedNames (CF-H12; comment 6247570491 present) |
+| oxlint on the five product leaves | unchanged | 2 warnings, 0 errors: the pre-existing max-lines on entry panel (507) and transport (687); seat/surface/launch clean |
+| madge from the seat module | no cycle through the seat | 913 files, 171 chains, **0** chains contain campaignSyncTransportSeat |
+
+Typecheck not re-run locally; "Type Check" and "Desktop Type Check" succeeded on the exact head in CI.
+
+### Seam Anchors first-attempt failure
+
+Attempt 1 of run 39109741978 failed only in Seam Anchors (and "Lint and Test" as its aggregate): e2e/seam-fresh-construction-no-instant-defeat.spec.ts:425 run-to-run marker equality, aliveBySide.player 2 vs 1 from turn 3 "heat" on. Attempt 2 passed. G2 touches no e2e/engine/simulation/gameplay file (git diff --stat f32626fb..HEAD -- e2e src/engine src/simulation src/utils/gameplay is empty). The seam journey mounts a single-player campaign, so on the G2 launch page both co-op effects return at the first guard (no coopSession) and the entry panel's join handler is never invoked. The divergence is in battle resolution, not in any co-op surface. The identical assertion failed and passed on rerun on 2026-10-15 for 293ae722b (run 38810066031), a units.json-only commit. **Conclusion: a pre-existing engine-side flake; G2 cannot plausibly affect it.** Carried as CF-G2-9 to the engine/e2e owner, not to this unit.
+
+## 3. Five-class analysis
+
+**Authority.** The client gains no authority. The guest join reads campaign identity from the server through the verified identity mode and still submits a CampaignJoin that the WS layer gates (seat/revocation unchanged; auth.ts, token.ts, Player.ts untouched). The entry panel validates matchId/campaignId/status before any socket and refuses 400/401/404 finally (E10 rows; no anonymous fallback; exactly one invites request). The launch page never closes a transport it did not create and sends only through a transport bound to its own seat (RV9 caught). The surface refuses a stored transport bound to another campaign on the same match (CF-H16 rows; MSu1/MSu2 and RV9 caught). Bound/unbound join bytes and the numeric legacy ACK are identical before any offer (pinned), so nothing is activated on the wire.
+
+**Privacy.** Bearer only in the Authorization header, URL exactly ?campaignIdentity=1, cache:'no-store' (E1 row; ME5 caught). No token= anywhere (asserted on every refusal row). No /api/multiplayer/matches/ read (asserted). The resolved campaignId is used for the mirror and the guest campaign; the identity response's layout/status are not stored. The only disclosure in play is G2A's recorded PRIV-1 correlation (campaignId to anyone with a live code and a self-signed bearer), which G2 neither widens nor narrows; it stays a B15 obligation (R-PRIV-1). Error strings shown to the user are the route's constant bodies.
+
+**Replay.** The guest adopts only the first snapshot whose event.campaignId AND payload.state.campaignId equal the identity-resolved id (MS4 and both "another campaign" rows; a mismatch rejects without touching the mirror). The transport's legacy path forwards every campaign frame regardless of campaignId (unchanged from base), so post-adoption filtering of foreign legacy events rests on campaignMirrorStore (applySnapshot/applyEvent refuse a different campaignId once set, lines 265/306) and on the host fold/consumer, which G2 does not own. Snapshot-at-revision-0 semantics are unchanged (applySnapshot(snapshot, 0)). A replacement B's listener is attached only after A's is detached, so a late A frame publishes nothing (pinned). CF-H6 is genuinely pinned: a bound host against a legacy server keeps one socket across remount at 2T, and my re-run of the consumer mutant RM-G9 fails exactly that row (1/129).
+
+**Idempotency.** Same-object registration is a no-op without notification (MT3 caught). releaseActiveTransport is identity-guarded so a late A.close() never drops B (MT2 and the stale-timeout row). settle() in the seat wait is re-entrant safe (second call clears nothing new, stopFollowing is idempotent, resolve/reject no-ops). unsubscribe deletes a per-subscription wrapper (RV5 caught). The replacement resend is sent once per seating (ML3 caught, "exactly once" row). _resetCampaignSyncTransportsForTest clears observers (MT6 caught).
+
+**Concurrency / reseat races.** I traced each ordering against the seat module:
+- Seat replaced between snapshot and adoption: the wait resolves on A's frame, the foreign takeover lands, the post-await boundCampaignSyncTransport(seat) check refuses (row pinned; RV12 caught: a weaker "any active transport" check adopts).
+- Same-seat replacement B during the wait: subscribe-then-reconcile follows to B, snapshot heard on B completes the join with no render (pinned). A is left open (note N3).
+- Foreign replacement during the wait: the follower detaches from A, seats nothing, the one fixed 10 s timeout rejects, A is closed, the foreign socket is neither adopted nor closed (pinned).
+- Unmount mid-join: the per-attempt AbortController rejects the wait, the catch closes A and returns without setState (pinned; ME4 caught).
+- Reentrant registry change inside an observer: observers are snapshotted and isolated (MT4/MT5 caught); reconcile re-reads the getter and is idempotent on next === seated; the attach-time reentrancy guard (seated !== next -> off()) is correct but unpinned (RV4 survived).
+- Server-initiated close: onclose releases the slot only if it is still the active object and notifies followers (RV6 caught by the CF12 row).
+- Registration order: setActiveTransport is the last statement of connectCampaignSyncTransport, after every socket handler is installed, so an observer never sees a half-built transport.
+- Cross-campaign binding on the same match: connectStoredCampaignSyncTransport refuses by campaignId (pre-existing G1 logic, now reachable because both surface creators pass expectedCampaignId); boundCampaignSyncTransport additionally checks playerId and role for the launch/entry seats. The stored connect itself still checks only campaignId, not role/playerId (pre-existing; note N5).
+
+## 4. Findings
+
+| # | Severity | Location | Finding |
+| --- | --- | --- | --- |
+| N1 | Low (latent API hazard) | src/lib/campaign/coop/campaignSyncTransportSeat.ts:122 | waitForSeatCampaignSnapshot registers the abort listener but never checks signal.aborted; a caller passing an already-aborted signal waits for the full timeout or, worse, a snapshot. The entry panel is safe only because of the synchronous throwIfAborted at CampaignCoopEntryPanel.tsx:315 (RV7 shows removing that line survives the suite: no row unmounts during identity resolution). One-line hardening: if (signal.aborted) { reject; return; } before subscribing. |
+| N2 | Low (test gap) | campaignSyncTransportSeat.ts:30-32 | The role check in boundCampaignSyncTransport is unpinned (RV1 survived; the author's MS1 pins playerId only). Unreachable today (one player, one role per match in a tab) but part of the registered seat contract. |
+| N3 | Low (observation) | CampaignCoopEntryPanel.tsx:330-356 | On a successful join heard through a same-seat replacement B, the superseded A is neither closed nor owned: open socket, running heartbeat, and (legacy) duplicate numeric ACKs from a second socket for the same player. Unreachable today (no second same-seat creator exists before the guest campaign is created); pre-existing registry semantics (base also overwrote without closing). |
+| N4 | Low (test gap) | launch.tsx:217-223 | The replacement resend reads localChoiceRef.current, but the "exactly once" row never changes the choice first, so RV10 (resend the default) survives. Add a row: pick command-hq, then reseat, expect command-hq. |
+| N5 | Low (cross-ref) | campaignSyncTransport.ts:551-555 | connectStoredCampaignSyncTransport refuses a stored transport only by campaignId; role/playerId mismatches on the same match are returned to the surface as-is. The seat module covers launch/entry; the surface's own binding relies on the consumer's campaignId check. Pre-existing (G1), not a G2 regression. |
+| N6 | Low (test gap) | launch.tsx:250-253, seat :70-74 | Listener lifetime after dispose is unpinned: RV11 (cleanup skips stopFollowing) and RV3 (settle keeps following) survive. Observable as a late post-unmount frame publishing participation (RV11) or listener accumulation per join (RV3). |
+| N7 | Low (liveness, design consequence) | CampaignCoopRouteSurfaceConnected.tsx:152, 267 | With CF-H16 delivered, a foreign-bound transport on the same match leaves the surface with no transport and no recovery until that transport closes (the slot stays occupied). Correct refusal; the UX/recovery of that state belongs to the consumer's next owner. |
+| N8 | Info | evidence/p2cg1g2-local-20261018.json | ML6 is not strictly equivalent: with the matchId check removed, a frame carrying a foreign matchId would be published under that foreign key (publishCoopParticipation uses message.matchId), observable by a subscriber on that key. Defence in depth, unpinnable from this page alone; Low. ME6 is equivalent under current wiring (abort only fires on unmount; the suppressed setState has no observer). |
+
+None of N1-N8 is a GREEN defect; N1 is the one I would fix first (one line, seat module owner).
+
+## 5. Carry-forwards claimed by the PR
+
+| CF | Definition (G1/G2A review) | Discharged? |
+| --- | --- | --- |
+| CF-G2A-5 | consumer calls exactly ?campaignIdentity=1, bearer only in Authorization (never ?token=), 400/401/404 distinct and final, no anonymous fallback | **Yes.** E1 pins URL+headers+no-store; E10 rows pin each status final with zero sockets, exactly one invites request, no token=. ME5/ME2 caught. |
+| CF-H6 | bound transport vs legacy server: baseline + one legacy event folded, unmount, remount, 2T -> one socket, no rejoin; must catch RM-G9 | **Yes.** creatorBinding "keeps one healthy socket..." does exactly this under fake timers; my RM-G9 re-run fails only that row (1/129). |
+| CF-H11 | lint/madge before/after on G2 leaves | **Yes.** 87/0 unchanged per receipt; my spot check: only the two pre-existing max-lines warnings; seat module in 0 of 171 chains. |
+| CF-H12 | verify all required checks by name on the exact head | **Yes.** 32/32 success on 45f6d7e1, multiset identical to expectedNames; comment 6247570491. |
+| CF-H16 | both surface creators pass expectedCampaignId; foreign stored transport refused | **Yes.** Two-line surface change; host/guest refusal rows; MSu1/MSu2/RV9 caught. |
+| CF-H2, CF-H14 | cross-reference only | Correctly left: campaignHostFoldStore.ts and useCampaignApplicationConsumer.ts byte-identical; no mount gated on projected state added. |
+| CF-G2A-4 (MR1/MR4) | route test rows | Correctly routed to B15 (G2A-ROUTE-1); no file added. |
+| CF-G11 | fake suites unchanged, no confirmApplied added | Yes (controls byte-identical). |
+| CF-G4/CF-H7 | consumer quiet-window analysis | Analysis only, as declared; stays with the consumer owner. |
+
+## 6. Mutants (mine, beyond the author's 26)
+
+Runner: review-2250-proof/rv-mutants.cjs (string edit of one GREEN file, idle check, five suites, restore, sha verified; tree clean after every run; consumer byte-identical to base afterwards).
+
+| ID | File | Mutation | Result | Killed by |
+| --- | --- | --- | --- | --- |
+| RV1 | seat | boundCampaignSyncTransport ignores role | **SURVIVED** (N2) | - |
+| RV2 | seat | follow disposer never reconciles (listener outlives dispose) | caught 1/129 | transport "follows a seat from A to B..." |
+| RV3 | seat | settle keeps following after resolve/reject | **SURVIVED** (N6) | - |
+| RV4 | seat | reentrant attach guard removed | **SURVIVED** (equivalent for every shipped attach; no attach re-enters the registry) | - |
+| RV5 | transport | unsubscribe is a no-op | caught 1/129 | "isolates a throwing observer and snapshots observers" |
+| RV6 | transport | server-initiated onclose never releases the slot | caught 1/129 | P2CG1E CF12 row |
+| RV7 | entry | throwIfAborted before the creator removed | **SURVIVED** (N1) | - |
+| RV8 | entry | failure path does not close its own A | caught 1/129 | "a stale timeout closes only its own transport" |
+| RV9 | launch | send effect uses the raw active transport, not the bound seat | caught 1/129 | "sends nothing to ... another campaign" |
+| RV10 | launch | replacement resend uses the default choice | **SURVIVED** (N4) | - |
+| RV11 | launch | cleanup never calls stopFollowing | **SURVIVED** (N6) | - |
+| RV12 | entry | post-await recheck accepts any active transport | caught 1/129 | "adopts nothing when the seat is replaced between its snapshot and adoption" |
+| RM-G9 | consumer (author's, re-run) | heard recorded only for offers | caught 1/129 | CF-H6 row |
+
+6/12 of mine caught; the six survivors are all test gaps or latent hardening, not GREEN defects. Author's claimed-equivalent survivors: **ME6 equivalent** (agree); **ML6 not strictly equivalent** (N8) but Low.
+
+## 7. Carry-forwards from this review (CF-G2-n)
+
+| CF | Owner | Item |
+| --- | --- | --- |
+| CF-G2-1 | H (next owner of campaignSyncTransportSeat.ts) | N1: handle an already-aborted signal in waitForSeatCampaignSnapshot; pin "unmount during identity resolution opens no socket" in the entry suite. |
+| CF-G2-2 | H | N2: pin the role check (same match/campaign/player, other role -> not bound). |
+| CF-G2-3 | H / R | N3: decide ownership of a superseded same-seat A after a successful join through B (close it, or have the registry close the displaced object when the seat is identical). |
+| CF-G2-4 | H | N4: pin the replacement resend with a changed choice (command-hq) so RV10 dies. |
+| CF-G2-5 | H | N6: pin listener lifetime after dispose (late post-unmount frame publishes nothing; one listener per join on the transport). |
+| CF-G2-6 | H (consumer owner) | N7: recovery/UX for the surface when the stored transport on the same match is bound to another campaign (CF-H16 refusal leaves it offline). |
+| CF-G2-7 | H | N5: connectStoredCampaignSyncTransport refuses by campaignId only; consider role/playerId in the stored refusal or route the surface through boundCampaignSyncTransport. |
+| CF-G2-8 | I1-I4 / P2CG2 | ML6 defence-in-depth: a cross-match participation frame must never publish under a foreign key; pin once a multi-match page exists. |
+| CF-G2-9 | S (engine/e2e) | Seam Anchors :425 same-seed marker inequality is a recurring flake (also 2026-10-15 on a docs-only commit); not a G2 defect. |
+| CF-G2-10 | B15 | Unchanged from G2A: PRIV-1 campaignId correlation, MR1/MR4 route rows, CF-G2A-1/2/3/6. |
+| CF-G2-11 | B14-0 / HP | Post-merge: exact-main proof must run on the actual merge commit and CF-H12 re-read there (CF-G2A-7 pattern). |
+
+No carry-forward blocks merge.
