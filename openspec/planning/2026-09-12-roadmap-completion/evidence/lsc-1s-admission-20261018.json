@@ -1,0 +1,1780 @@
+{
+  "schemaVersion": 1,
+  "unit": "LSC-1S",
+  "stage": "admission",
+  "date": "20261018",
+  "baseline": "c8d3e6aeda1073054644fd9f9f9019d69aae912b",
+  "staging": "Released by Root after closure #2295 merged with Sonnet verification PASS. Staged admission/RED are rebased here from the earlier 18319cc5 draft; fresh census and freeze below supersede the staging data.",
+  "authority": "Root GATE OPEN for LSC-1S (2026-10-18): fetch closure #2295 merge, rebase admission and RED, finish GREEN carrying CF-LSC1DB-1..5 and CF-LSC0-8/15/16/17. Owner standing instruction: continue with recommended options and fix issues, publish as needed. Full independent sensitive review and owner ruling still required before merge.",
+  "contributor": {
+    "provider": "openai",
+    "model": "gpt-6.1-sol",
+    "task": "LSC-1S implementation takeover; original staged admission and tests by claude-opus-5-5"
+  },
+  "predecessors": {
+    "LSC-1DB": "main-verified by closure #2295 at c8d3e6aeda1073054644fd9f9f9019d69aae912b; exact implementation merge 44bd8bb91 proof PASS; OWNER-RULING d1fef6cb, comment 6256147045"
+  },
+  "restriction": {
+    "container": "R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-1S",
+    "leaves": 9,
+    "registration": "units.json localSeatCredentialsSplit2Registration20261018"
+  },
+  "caps": {
+    "files": 15,
+    "productAddedLines": 500
+  },
+  "manifest": {
+    "count": 9,
+    "spare": 6,
+    "reservedUnchanged": 1,
+    "files": [
+      "src/services/vault/LocalSeatCredentialRepository.ts",
+      "src/services/vault/__tests__/LocalSeatCredentialRepository.test.ts",
+      "src/services/vault/LocalSeatCredentialService.ts",
+      "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1s-admission-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1s-red-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1s-local-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1s-admission-review-20261018.json"
+    ],
+    "note": "Exactly the nine registered literals. LocalSeatCredentialService.ts and its test are shared with LSC-1, which later adds mint, guest throttle and the API; LSC-1S ships the operator half only. No API, schema, UI or migration file."
+  },
+  "measuredFit": {
+    "method": "Prepared product drafts (outside the repo, formatted) measured in physical lines; units.json lifecycle estimated from LSC-1DB (about 22 added lines).",
+    "repository": 217,
+    "service": 237,
+    "unitsJsonEstimate": 22,
+    "total": 476,
+    "cap": 500,
+    "note": "Fits; the registration fallback (move listSeats and its public type to LSC-1, about -25 lines) is not needed. Re-measured at GREEN with git numstat.",
+    "drafts": {
+      "repository": {
+        "path": "E:/Projects/Personal/MekStation-wt/lsc-1s-proof-20261018/product/LocalSeatCredentialRepository.ts",
+        "sha256": "12cfe0729364f7eaa0ff04334ab0ae6d0e83988e0e6ccb6ae18b97588ef40b7b",
+        "bytes": 7102
+      },
+      "service": {
+        "path": "E:/Projects/Personal/MekStation-wt/lsc-1s-proof-20261018/product/LocalSeatCredentialService.ts",
+        "sha256": "098ad6680d02474ba439f7fbf5751341a743b84512643d7074319a3c341fe7d3",
+        "bytes": 7356
+      }
+    }
+  },
+  "scope": {
+    "in": [
+      "LocalSeatCredentialRepository: get, provision (upsert clears revocation and lockout), revoke (keeps the counter and lock), recordFailure (generation-fenced, durable, locks at the threshold), clearFailures (generation-fenced); every write one BEGIN IMMEDIATE transaction doing operation-id replay or refusal, generation CAS and the operation record",
+      "LocalSeatCredentialService operator half: LOCAL_SEAT_POLICY (all Root-recommended numbers bound), error taxonomy with codes only, AttemptWindow, listSeats, provision, revoke, route-wide operator window before the primary-password KDF, real primary vault verification without switching the active row, non-secret fingerprint"
+    ],
+    "out": [
+      "mint, guest window, one-in-flight mint, mint-vs-revoke fence, token signing (LSC-1)",
+      "local-seats API route, request schemas, Host/Origin/Sec-Fetch-Site guard, no-store header (LSC-1)",
+      "operator UI (LSC-2OP); chooser/recovery (LSC-2)"
+    ]
+  },
+  "carryIn": {
+    "CF-LSC0-8": "Revoke keeps failed_attempts and locked_until_ms; re-provision clears both and revocation; recordFailure and clearFailures are fenced by generation (a mint that began before a re-provision cannot touch the new seat). Rows in both suites.",
+    "CF-LSC0-15": "LOCAL_SEAT_POLICY binds 10 mint and 5 operator attempts per 60 s window, lockout after 5 failures for 60 s, seat token default and cap 1 h; a test asserts the exact numbers. The operator window is exercised here; the mint window is exercised by LSC-1.",
+    "CF-LSC0-16": "Persistence and repository semantics: only success or re-provision clears the count, so after a lock expires the next failure re-locks at once (stated in the repository and tested). The operator window counts every operator write attempt (including denied, throttled-adjacent and duplicate deliveries) before key derivation and resets 60 s after its first attempt. Whether locked-seat and second-concurrent-mint refusals consume the mint window is LSC-1.",
+    "CF-LSC0-17": "A duplicate delivery passes the operator window and the primary-password check before the repository replays the recorded outcome; a duplicate with a wrong operator password is refused, and a duplicate with a different seat password keeps the originally applied key (tested).",
+    "CF-LSC0-6 (routed share)": "Errors carry codes and numeric detail only; operation fingerprints hash non-secret parameters; no console or logger call carries a password (spied); seat rows hold only the ciphertext envelope. Request-scoped key lifetime is LSC-1 (mint).",
+    "window": "Route-wide, process-local, never keyed by client address or forwarded header (the service API takes no address).",
+    "CF-LSC1DB-1": "Bind integer generation/counter/deadline values; SQL compare-and-set requires changes === 1; stale expected generation leaves row and operation history unchanged; revoke keeps lock/counter and re-provision clears both.",
+    "CF-LSC1DB-2": "One operation per seat/result generation is now schema-enforced. Test competing writers and lost-CAS rollback with no recorded losing outcome.",
+    "CF-LSC1DB-3": "Revoked means revoked_at IS NOT NULL. Compare deadlines with the same injected wall clock used to write; clock rollback preserves a future lock, and forward jumps may shorten it.",
+    "CF-LSC1DB-4": "Operator unlocked/generated private keys stay request-local, generated mutable key bytes cleared in finally. Only encrypted envelope persisted. Logs/errors/outcomes/operation rows expose no passwords or raw key data, including exceptional dependency paths. Mint-specific key lifetime remains LSC-1.",
+    "CF-LSC1DB-5": "Only successful authentication or re-provision clears the failure count. Operator window consumes duplicate, denied, stale and failed attempts before KDF; first-attempt anchored fixed windows. Mint-specific locked/concurrent refusal consumption remains LSC-1."
+  },
+  "census": {
+    "script": {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1s-sol-logs/admission.cjs",
+      "sha256": "79620933a2f3562bdbff67f73ea43f970a1c22e63edaf86c2911dfb30220a59c"
+    },
+    "output": {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1s-sol-logs/census.json",
+      "sha256": "45db5568ca297fbc3adff09edbd06602c4ddf0610eea322669cc6f53124ec1ba"
+    },
+    "leaves": {
+      "src/services/vault/LocalSeatCredentialRepository.ts": {
+        "exists": false,
+        "claims": [
+          {
+            "path": "src/services/vault",
+            "loc": "units.LSC-1S.ownershipPaths[0]",
+            "owner": "LSC-1S",
+            "state": "planned"
+          },
+          {
+            "path": "src/services/vault",
+            "loc": "units.LSC-1.ownershipPaths[0]",
+            "owner": "LSC-1",
+            "state": "blocked"
+          },
+          {
+            "path": "src",
+            "loc": "roadmap.nodes.R1.references.ownershipPaths[0]",
+            "owner": "R1.references",
+            "state": "complete"
+          },
+          {
+            "path": "src/services",
+            "loc": "roadmap.nodes.R2.combat.ownershipPaths[1]",
+            "owner": "R2.combat",
+            "state": "main-verified"
+          },
+          {
+            "path": "src/services/vault",
+            "loc": "roadmap.nodes.R2.authority-live.ownershipPaths[86]",
+            "owner": "R2.authority-live",
+            "state": "main-verified"
+          },
+          {
+            "path": "src/services/vault/LocalSeatCredentialRepository.ts",
+            "loc": "roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-1S[0]",
+            "owner": "R2.authority-live",
+            "state": "main-verified"
+          },
+          {
+            "path": "src",
+            "loc": "roadmap.nodes.R2.camp-0.ownershipPaths[2]",
+            "owner": "R2.camp-0",
+            "state": "main-verified"
+          },
+          {
+            "path": "src",
+            "loc": "roadmap.nodes.R2.camp-1.ownershipPaths[2]",
+            "owner": "R2.camp-1",
+            "state": "main-verified"
+          },
+          {
+            "path": "src",
+            "loc": "roadmap.nodes.R2.camp-2.ownershipPaths[2]",
+            "owner": "R2.camp-2",
+            "state": "main-verified"
+          },
+          {
+            "path": "src",
+            "loc": "roadmap.nodes.R2.camp-3.ownershipPaths[2]",
+            "owner": "R2.camp-3",
+            "state": "main-verified"
+          },
+          {
+            "path": "src",
+            "loc": "roadmap.nodes.R2.camp-4.ownershipPaths[2]",
+            "owner": "R2.camp-4",
+            "state": "main-verified"
+          },
+          {
+            "path": "src",
+            "loc": "roadmap.nodes.R2.camp-5.ownershipPaths[2]",
+            "owner": "R2.camp-5",
+            "state": "main-verified"
+          },
+          {
+            "path": "src",
+            "loc": "roadmap.nodes.R2.camp-6.ownershipPaths[2]",
+            "owner": "R2.camp-6",
+            "state": "main-verified"
+          },
+          {
+            "path": "src",
+            "loc": "roadmap.nodes.R2.camp-7.ownershipPaths[2]",
+            "owner": "R2.camp-7",
+            "state": "main-verified"
+          },
+          {
+            "path": "src",
+            "loc": "roadmap.nodes.R2.camp-8.ownershipPaths[2]",
+            "owner": "R2.camp-8",
+            "state": "blocked"
+          },
+          {
+            "path": "src/services/vault/LocalSeatCredentialRepository.ts",
+            "loc": "units.localSeatCredentialsRegistration20261018.prospectiveManifests.LSC-1S.candidateSeams[0]",
+            "owner": "units:localSeatCredentialsRegistration20261018",
+            "state": "documentary"
+          }
+        ]
+      },
+      "src/services/vault/__tests__/LocalSeatCredentialRepository.test.ts": {
+        "exists": false,
+        "claims": [
+          {
+            "path": "src/services/vault",
+            "loc": "units.LSC-1S.ownershipPaths[0]",
+            "owner": "LSC-1S",
+            "state": "planned"
+          },
+          {
+            "path": "src/services/vault",
+            "loc": "units.LSC-1.ownershipPaths[0]",
+            "owner": "LSC-1",
+            "state": "blocked"
+          },
+          {
+            "path": "src",
+            "loc": "roadmap.nodes.R1.references.ownershipPaths[0]",
+            "owner": "R1.references",
+            "state": "complete"
+          },
+          {
+            "path": "src/services",
+            "loc": "roadmap.nodes.R2.combat.ownershipPaths[1]",
+            "owner": "R2.combat",
+            "state": "main-verified"
+          },
+          {
+            "path": "src/services/vault",
+            "loc": "roadmap.nodes.R2.authority-live.ownershipPaths[86]",
+            "owner": "R2.authority-live",
+            "state": "main-verified"
+          },
+          {
+            "path": "src/services/vault/__tests__/LocalSeatCredentialRepository.test.ts",
+            "loc": "roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-1S[1]",
+            "owner": "R2.authority-live",
+            "state": "main-verified"
+          },
+          {
+            "path": "src",
+            "loc": "roadmap.nodes.R2.camp-0.ownershipPaths[2]",
+            "owner": "R2.camp-0",
+            "state": "main-verified"
+          },
+          {
+            "path": "src",
+            "loc": "roadmap.nodes.R2.camp-1.ownershipPaths[2]",
+            "owner": "R2.camp-1",
+            "state": "main-verified"
+          },
+          {
+            "path": "src",
+            "loc": "roadmap.nodes.R2.camp-2.ownershipPaths[2]",
+            "owner": "R2.camp-2",
+            "state": "main-verified"
+          },
+          {
+            "path": "src",
+            "loc": "roadmap.nodes.R2.camp-3.ownershipPaths[2]",
+            "owner": "R2.camp-3",
+            "state": "main-verified"
+          },
+          {
+            "path": "src",
+            "loc": "roadmap.nodes.R2.camp-4.ownershipPaths[2]",
+            "owner": "R2.camp-4",
+            "state": "main-verified"
+          },
+          {
+            "path": "src",
+            "loc": "roadmap.nodes.R2.camp-5.ownershipPaths[2]",
+            "owner": "R2.camp-5",
+            "state": "main-verified"
+          },
+          {
+            "path": "src",
+            "loc": "roadmap.nodes.R2.camp-6.ownershipPaths[2]",
+            "owner": "R2.camp-6",
+            "state": "main-verified"
+          },
+          {
+            "path": "src",
+            "loc": "roadmap.nodes.R2.camp-7.ownershipPaths[2]",
+            "owner": "R2.camp-7",
+            "state": "main-verified"
+          },
+          {
+            "path": "src",
+            "loc": "roadmap.nodes.R2.camp-8.ownershipPaths[2]",
+            "owner": "R2.camp-8",
+            "state": "blocked"
+          },
+          {
+            "path": "src/services/vault/__tests__/LocalSeatCredentialRepository.test.ts",
+            "loc": "units.localSeatCredentialsRegistration20261018.prospectiveManifests.LSC-1S.candidateSeams[1]",
+            "owner": "units:localSeatCredentialsRegistration20261018",
+            "state": "documentary"
+          }
+        ]
+      },
+      "src/services/vault/LocalSeatCredentialService.ts": {
+        "exists": false,
+        "claims": [
+          {
+            "path": "src/services/vault",
+            "loc": "units.LSC-1S.ownershipPaths[0]",
+            "owner": "LSC-1S",
+            "state": "planned"
+          },
+          {
+            "path": "src/services/vault",
+            "loc": "units.LSC-1.ownershipPaths[0]",
+            "owner": "LSC-1",
+            "state": "blocked"
+          },
+          {
+            "path": "src",
+            "loc": "roadmap.nodes.R1.references.ownershipPaths[0]",
+            "owner": "R1.references",
+            "state": "complete"
+          },
+          {
+            "path": "src/services",
+            "loc": "roadmap.nodes.R2.combat.ownershipPaths[1]",
+            "owner": "R2.combat",
+            "state": "main-verified"
+          },
+          {
+            "path": "src/services/vault",
+            "loc": "roadmap.nodes.R2.authority-live.ownershipPaths[86]",
+            "owner": "R2.authority-live",
+            "state": "main-verified"
+          },
+          {
+            "path": "src/services/vault/LocalSeatCredentialService.ts",
+            "loc": "roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-1[0]",
+            "owner": "R2.authority-live",
+            "state": "main-verified"
+          },
+          {
+            "path": "src/services/vault/LocalSeatCredentialService.ts",
+            "loc": "roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-1S[2]",
+            "owner": "R2.authority-live",
+            "state": "main-verified"
+          },
+          {
+            "path": "src",
+            "loc": "roadmap.nodes.R2.camp-0.ownershipPaths[2]",
+            "owner": "R2.camp-0",
+            "state": "main-verified"
+          },
+          {
+            "path": "src",
+            "loc": "roadmap.nodes.R2.camp-1.ownershipPaths[2]",
+            "owner": "R2.camp-1",
+            "state": "main-verified"
+          },
+          {
+            "path": "src",
+            "loc": "roadmap.nodes.R2.camp-2.ownershipPaths[2]",
+            "owner": "R2.camp-2",
+            "state": "main-verified"
+          },
+          {
+            "path": "src",
+            "loc": "roadmap.nodes.R2.camp-3.ownershipPaths[2]",
+            "owner": "R2.camp-3",
+            "state": "main-verified"
+          },
+          {
+            "path": "src",
+            "loc": "roadmap.nodes.R2.camp-4.ownershipPaths[2]",
+            "owner": "R2.camp-4",
+            "state": "main-verified"
+          },
+          {
+            "path": "src",
+            "loc": "roadmap.nodes.R2.camp-5.ownershipPaths[2]",
+            "owner": "R2.camp-5",
+            "state": "main-verified"
+          },
+          {
+            "path": "src",
+            "loc": "roadmap.nodes.R2.camp-6.ownershipPaths[2]",
+            "owner": "R2.camp-6",
+            "state": "main-verified"
+          },
+          {
+            "path": "src",
+            "loc": "roadmap.nodes.R2.camp-7.ownershipPaths[2]",
+            "owner": "R2.camp-7",
+            "state": "main-verified"
+          },
+          {
+            "path": "src",
+            "loc": "roadmap.nodes.R2.camp-8.ownershipPaths[2]",
+            "owner": "R2.camp-8",
+            "state": "blocked"
+          },
+          {
+            "path": "src/services/vault/LocalSeatCredentialService.ts",
+            "loc": "units.localSeatCredentialsRegistration20261018.prospectiveManifests.LSC-1.candidateSeams[0]",
+            "owner": "units:localSeatCredentialsRegistration20261018",
+            "state": "documentary"
+          },
+          {
+            "path": "src/services/vault/LocalSeatCredentialService.ts",
+            "loc": "units.localSeatCredentialsRegistration20261018.prospectiveManifests.LSC-1S.candidateSeams[2]",
+            "owner": "units:localSeatCredentialsRegistration20261018",
+            "state": "documentary"
+          }
+        ]
+      },
+      "src/services/vault/__tests__/LocalSeatCredentialService.test.ts": {
+        "exists": false,
+        "claims": [
+          {
+            "path": "src/services/vault",
+            "loc": "units.LSC-1S.ownershipPaths[0]",
+            "owner": "LSC-1S",
+            "state": "planned"
+          },
+          {
+            "path": "src/services/vault",
+            "loc": "units.LSC-1.ownershipPaths[0]",
+            "owner": "LSC-1",
+            "state": "blocked"
+          },
+          {
+            "path": "src",
+            "loc": "roadmap.nodes.R1.references.ownershipPaths[0]",
+            "owner": "R1.references",
+            "state": "complete"
+          },
+          {
+            "path": "src/services",
+            "loc": "roadmap.nodes.R2.combat.ownershipPaths[1]",
+            "owner": "R2.combat",
+            "state": "main-verified"
+          },
+          {
+            "path": "src/services/vault",
+            "loc": "roadmap.nodes.R2.authority-live.ownershipPaths[86]",
+            "owner": "R2.authority-live",
+            "state": "main-verified"
+          },
+          {
+            "path": "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+            "loc": "roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-1[1]",
+            "owner": "R2.authority-live",
+            "state": "main-verified"
+          },
+          {
+            "path": "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+            "loc": "roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-1S[3]",
+            "owner": "R2.authority-live",
+            "state": "main-verified"
+          },
+          {
+            "path": "src",
+            "loc": "roadmap.nodes.R2.camp-0.ownershipPaths[2]",
+            "owner": "R2.camp-0",
+            "state": "main-verified"
+          },
+          {
+            "path": "src",
+            "loc": "roadmap.nodes.R2.camp-1.ownershipPaths[2]",
+            "owner": "R2.camp-1",
+            "state": "main-verified"
+          },
+          {
+            "path": "src",
+            "loc": "roadmap.nodes.R2.camp-2.ownershipPaths[2]",
+            "owner": "R2.camp-2",
+            "state": "main-verified"
+          },
+          {
+            "path": "src",
+            "loc": "roadmap.nodes.R2.camp-3.ownershipPaths[2]",
+            "owner": "R2.camp-3",
+            "state": "main-verified"
+          },
+          {
+            "path": "src",
+            "loc": "roadmap.nodes.R2.camp-4.ownershipPaths[2]",
+            "owner": "R2.camp-4",
+            "state": "main-verified"
+          },
+          {
+            "path": "src",
+            "loc": "roadmap.nodes.R2.camp-5.ownershipPaths[2]",
+            "owner": "R2.camp-5",
+            "state": "main-verified"
+          },
+          {
+            "path": "src",
+            "loc": "roadmap.nodes.R2.camp-6.ownershipPaths[2]",
+            "owner": "R2.camp-6",
+            "state": "main-verified"
+          },
+          {
+            "path": "src",
+            "loc": "roadmap.nodes.R2.camp-7.ownershipPaths[2]",
+            "owner": "R2.camp-7",
+            "state": "main-verified"
+          },
+          {
+            "path": "src",
+            "loc": "roadmap.nodes.R2.camp-8.ownershipPaths[2]",
+            "owner": "R2.camp-8",
+            "state": "blocked"
+          },
+          {
+            "path": "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+            "loc": "units.localSeatCredentialsRegistration20261018.prospectiveManifests.LSC-1.candidateSeams[1]",
+            "owner": "units:localSeatCredentialsRegistration20261018",
+            "state": "documentary"
+          },
+          {
+            "path": "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+            "loc": "units.localSeatCredentialsRegistration20261018.prospectiveManifests.LSC-1S.candidateSeams[3]",
+            "owner": "units:localSeatCredentialsRegistration20261018",
+            "state": "documentary"
+          }
+        ]
+      },
+      "openspec/planning/2026-09-12-roadmap-completion/units.json": {
+        "exists": true,
+        "claims": [
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "units.U0.ownershipPaths[0]",
+            "owner": "U0",
+            "state": "complete"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.U1.ownershipExceptions[0]",
+            "owner": "U1",
+            "state": "complete"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.U1b.ownershipExceptions[0]",
+            "owner": "U1b",
+            "state": "complete"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.U1c.ownershipExceptions[0]",
+            "owner": "U1c",
+            "state": "complete"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.U1e.ownershipExceptions[0]",
+            "owner": "U1e",
+            "state": "complete"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.U1d.ownershipExceptions[0]",
+            "owner": "U1d",
+            "state": "complete"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.P2B.ownershipExceptions[0]",
+            "owner": "P2B",
+            "state": "complete"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.P2CC.ownershipExceptions[0]",
+            "owner": "P2CC",
+            "state": "complete"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.P2CA.ownershipExceptions[0]",
+            "owner": "P2CA",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.P2CB.ownershipExceptions[0]",
+            "owner": "P2CB",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.P2CD.ownershipExceptions[0]",
+            "owner": "P2CD",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.P2CE.ownershipExceptions[0]",
+            "owner": "P2CE",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.P2CE1.ownershipExceptions[0]",
+            "owner": "P2CE1",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.P2CE2.ownershipExceptions[0]",
+            "owner": "P2CE2",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.P2CE3.ownershipExceptions[0]",
+            "owner": "P2CE3",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.P2CF.ownershipExceptions[0]",
+            "owner": "P2CF",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.P2CF1.ownershipExceptions[0]",
+            "owner": "P2CF1",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.P2CF2.ownershipExceptions[0]",
+            "owner": "P2CF2",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.P2CG1.ownershipExceptions[0]",
+            "owner": "P2CG1",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.P2CG1A1.ownershipExceptions[0]",
+            "owner": "P2CG1A1",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.P2CG1A2.ownershipExceptions[0]",
+            "owner": "P2CG1A2",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.P2CG1B.ownershipExceptions[0]",
+            "owner": "P2CG1B",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.P2CG1C.ownershipExceptions[0]",
+            "owner": "P2CG1C",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.P2CG1D.ownershipExceptions[0]",
+            "owner": "P2CG1D",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.P2CG1E.ownershipExceptions[0]",
+            "owner": "P2CG1E",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.P2CG1F.ownershipExceptions[0]",
+            "owner": "P2CG1F",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.P2CG1G1.ownershipExceptions[0]",
+            "owner": "P2CG1G1",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.P2CG1G2A.ownershipExceptions[0]",
+            "owner": "P2CG1G2A",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.P2CG1G2.ownershipExceptions[0]",
+            "owner": "P2CG1G2",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.P2CG1R.ownershipExceptions[0]",
+            "owner": "P2CG1R",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.P2CG1S.ownershipExceptions[0]",
+            "owner": "P2CG1S",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.B14-0A.ownershipExceptions[0]",
+            "owner": "B14-0A",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.B14-0B.ownershipExceptions[0]",
+            "owner": "B14-0B",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.B14-0.ownershipExceptions[0]",
+            "owner": "B14-0",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.B14-HEAD.ownershipExceptions[0]",
+            "owner": "B14-HEAD",
+            "state": "planned"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.MP-RECOVERY-UNITS-1.ownershipExceptions[0]",
+            "owner": "MP-RECOVERY-UNITS-1",
+            "state": "planned"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.MP-HOST-DEDUPE-1.ownershipExceptions[0]",
+            "owner": "MP-HOST-DEDUPE-1",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.L1-SMOKE-A1.ownershipExceptions[0]",
+            "owner": "L1-SMOKE-A1",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.L1-SMOKE-A2.ownershipExceptions[0]",
+            "owner": "L1-SMOKE-A2",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.L1-SMOKE-B.ownershipExceptions[0]",
+            "owner": "L1-SMOKE-B",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.P2CG1HP.ownershipExceptions[0]",
+            "owner": "P2CG1HP",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.LSC-0.ownershipExceptions[0]",
+            "owner": "LSC-0",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.LSC-1DB.ownershipExceptions[0]",
+            "owner": "LSC-1DB",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.LSC-1S.ownershipExceptions[0]",
+            "owner": "LSC-1S",
+            "state": "planned"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.LSC-1.ownershipExceptions[0]",
+            "owner": "LSC-1",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.LSC-2OP.ownershipExceptions[0]",
+            "owner": "LSC-2OP",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.LSC-2.ownershipExceptions[0]",
+            "owner": "LSC-2",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.LSC-2P.ownershipExceptions[0]",
+            "owner": "LSC-2P",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.P2CG1H.ownershipExceptions[0]",
+            "owner": "P2CG1H",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.P2CG1I1.ownershipExceptions[0]",
+            "owner": "P2CG1I1",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.P2CG1I2.ownershipExceptions[0]",
+            "owner": "P2CG1I2",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.P2CG1I3.ownershipExceptions[0]",
+            "owner": "P2CG1I3",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.P2CG1I4.ownershipExceptions[0]",
+            "owner": "P2CG1I4",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.P2CG2.ownershipExceptions[0]",
+            "owner": "P2CG2",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.P2CG2.amended20261018Tail.prospectiveSourceStage[7]",
+            "owner": "P2CG2",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.P2CH.ownershipExceptions[0]",
+            "owner": "P2CH",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "units.P2C.ownershipPaths[0]",
+            "owner": "P2C",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.P2C.qualificationNote20261018.prospectiveSourceStage[0]",
+            "owner": "P2C",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.P2J.ownershipExceptions[0]",
+            "owner": "P2J",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.P2J.registration20261018.prospectiveSourceStage[1]",
+            "owner": "P2J",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.TS7S1.ownershipExceptions[0]",
+            "owner": "TS7S1",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.TS7S1A.ownershipExceptions[0]",
+            "owner": "TS7S1A",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.TS7S1B.ownershipExceptions[0]",
+            "owner": "TS7S1B",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.TS7S2A.ownershipExceptions[0]",
+            "owner": "TS7S2A",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.TS7S2B.ownershipExceptions[0]",
+            "owner": "TS7S2B",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.TS7S2OD.ownershipExceptions[0]",
+            "owner": "TS7S2OD",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.TS7S3.ownershipExceptions[0]",
+            "owner": "TS7S3",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.TS7S4A.ownershipExceptions[0]",
+            "owner": "TS7S4A",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.TS7S4B.ownershipExceptions[0]",
+            "owner": "TS7S4B",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.TS7S5A.ownershipExceptions[0]",
+            "owner": "TS7S5A",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.TS7S5B.ownershipExceptions[0]",
+            "owner": "TS7S5B",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.TS7S5C.ownershipExceptions[0]",
+            "owner": "TS7S5C",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "units.U41.ownershipPaths[0]",
+            "owner": "U41",
+            "state": "complete"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "units.U42.ownershipPaths[0]",
+            "owner": "U42",
+            "state": "complete"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "units.U59.ownershipPaths[0]",
+            "owner": "U59",
+            "state": "complete"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.CNI0.ownershipPaths[3]",
+            "owner": "CNI0",
+            "state": "complete"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.CNI2.ownershipPaths[0]",
+            "owner": "CNI2",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.CNI3.ownershipPaths[0]",
+            "owner": "CNI3",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "units.U16.ownershipPaths[0]",
+            "owner": "U16",
+            "state": "complete"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "units.U85.ownershipPaths[0]",
+            "owner": "U85",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.B15-0.ownershipExceptions[0]",
+            "owner": "B15-0",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.B15-1.ownershipExceptions[0]",
+            "owner": "B15-1",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.B15-2.ownershipExceptions[0]",
+            "owner": "B15-2",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.B15-4.ownershipExceptions[0]",
+            "owner": "B15-4",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.B15-4J.ownershipExceptions[0]",
+            "owner": "B15-4J",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.B15-3R.ownershipExceptions[0]",
+            "owner": "B15-3R",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.B15-3.ownershipExceptions[0]",
+            "owner": "B15-3",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.B15-5.ownershipExceptions[0]",
+            "owner": "B15-5",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.B15-5R.ownershipExceptions[0]",
+            "owner": "B15-5R",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.B15-PRIV.ownershipExceptions[0]",
+            "owner": "B15-PRIV",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.B15-6.ownershipExceptions[0]",
+            "owner": "B15-6",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.FOG-S.ownershipExceptions[0]",
+            "owner": "FOG-S",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.FOG-K.ownershipExceptions[0]",
+            "owner": "FOG-K",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.FOG-B.ownershipExceptions[0]",
+            "owner": "FOG-B",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.FOG-L.ownershipExceptions[0]",
+            "owner": "FOG-L",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.FOG-R.ownershipExceptions[0]",
+            "owner": "FOG-R",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.FOG-H.ownershipExceptions[0]",
+            "owner": "FOG-H",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.FOG-X.ownershipExceptions[0]",
+            "owner": "FOG-X",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.DF-SHEET-QV.ownershipExceptions[0]",
+            "owner": "DF-SHEET-QV",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.DF-MECH-RULES.ownershipExceptions[0]",
+            "owner": "DF-MECH-RULES",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.DF-MECH-CONFIG.ownershipExceptions[0]",
+            "owner": "DF-MECH-CONFIG",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.DF-MECH-META.ownershipExceptions[0]",
+            "owner": "DF-MECH-META",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.EQ-ID.ownershipExceptions[0]",
+            "owner": "EQ-ID",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.DF-BLK-ENGINE.ownershipExceptions[0]",
+            "owner": "DF-BLK-ENGINE",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.DF-CATALOG-PIN.ownershipExceptions[0]",
+            "owner": "DF-CATALOG-PIN",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.COOP-PACK-GEN.ownershipExceptions[0]",
+            "owner": "COOP-PACK-GEN",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.CF-SMOKEA1-4.ownershipExceptions[0]",
+            "owner": "CF-SMOKEA1-4",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.CF-SMOKEA1-6.ownershipExceptions[0]",
+            "owner": "CF-SMOKEA1-6",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "roadmap.nodes.R0.plan.ownershipPaths[0]",
+            "owner": "R0.plan",
+            "state": "local-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018B14.restrictions.B14-0[6]",
+            "owner": "R2.authority-live",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018B14Head.restrictions.B14-HEAD[2]",
+            "owner": "R2.authority-live",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-0[4]",
+            "owner": "R2.authority-live",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-1[5]",
+            "owner": "R2.authority-live",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-2[7]",
+            "owner": "R2.authority-live",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-1DB[5]",
+            "owner": "R2.authority-live",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-2P[3]",
+            "owner": "R2.authority-live",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-1S[4]",
+            "owner": "R2.authority-live",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-2OP[6]",
+            "owner": "R2.authority-live",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018B14Split.restrictions.B14-0A[10]",
+            "owner": "R2.authority-live",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018B14Split.restrictions.B14-0B[10]",
+            "owner": "R2.authority-live",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018L1Smoke.restrictions.L1-SMOKE-A1[4]",
+            "owner": "R2.authority-live",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018L1Smoke.restrictions.L1-SMOKE-A2[4]",
+            "owner": "R2.authority-live",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018L1Smoke.restrictions.L1-SMOKE-B[4]",
+            "owner": "R2.authority-live",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "roadmap.nodes.R9.close.ownershipPaths[0]",
+            "owner": "R9.close",
+            "state": "planned"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "roadmap.nodes.R0.publish.ownershipPaths[0]",
+            "owner": "R0.publish",
+            "state": "complete"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "roadmap.nodes.R0.cni-registration.ownershipPaths[3]",
+            "owner": "R0.cni-registration",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "roadmap.nodes.R0.cni-evidence.ownershipPaths[0]",
+            "owner": "R0.cni-evidence",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "roadmap.nodes.R0.cni-discharge.ownershipPaths[0]",
+            "owner": "R0.cni-discharge",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.hConsumerPrereqAmendment20261018.manifest[4]",
+            "owner": "units:hConsumerPrereqAmendment20261018",
+            "state": "documentary"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.b14HeadRegistration20261018.manifest[2]",
+            "owner": "units:b14HeadRegistration20261018",
+            "state": "documentary"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.localSeatCredentialsRegistration20261018.prospectiveManifests.LSC-0.candidateSeams[4]",
+            "owner": "units:localSeatCredentialsRegistration20261018",
+            "state": "documentary"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.localSeatCredentialsRegistration20261018.prospectiveManifests.LSC-1.candidateSeams[5]",
+            "owner": "units:localSeatCredentialsRegistration20261018",
+            "state": "documentary"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.localSeatCredentialsRegistration20261018.prospectiveManifests.LSC-2.candidateSeams[7]",
+            "owner": "units:localSeatCredentialsRegistration20261018",
+            "state": "documentary"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.localSeatCredentialsRegistration20261018.prospectiveManifests.LSC-1DB.candidateSeams[5]",
+            "owner": "units:localSeatCredentialsRegistration20261018",
+            "state": "documentary"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.localSeatCredentialsRegistration20261018.prospectiveManifests.LSC-2P.candidateSeams[3]",
+            "owner": "units:localSeatCredentialsRegistration20261018",
+            "state": "documentary"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.localSeatCredentialsRegistration20261018.prospectiveManifests.LSC-1S.candidateSeams[4]",
+            "owner": "units:localSeatCredentialsRegistration20261018",
+            "state": "documentary"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.localSeatCredentialsRegistration20261018.prospectiveManifests.LSC-2OP.candidateSeams[6]",
+            "owner": "units:localSeatCredentialsRegistration20261018",
+            "state": "documentary"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.l1SmokeRegistration20261018.prospectiveManifests.L1-SMOKE-A1[4]",
+            "owner": "units:l1SmokeRegistration20261018",
+            "state": "documentary"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.l1SmokeRegistration20261018.prospectiveManifests.L1-SMOKE-A2[4]",
+            "owner": "units:l1SmokeRegistration20261018",
+            "state": "documentary"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "loc": "units.l1SmokeRegistration20261018.prospectiveManifests.L1-SMOKE-B[4]",
+            "owner": "units:l1SmokeRegistration20261018",
+            "state": "documentary"
+          }
+        ]
+      },
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1s-admission-20261018.json": {
+        "exists": false,
+        "claims": [
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "units.U0.ownershipPaths[0]",
+            "owner": "U0",
+            "state": "complete"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "units.P2C.ownershipPaths[0]",
+            "owner": "P2C",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "units.U41.ownershipPaths[0]",
+            "owner": "U41",
+            "state": "complete"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "units.U42.ownershipPaths[0]",
+            "owner": "U42",
+            "state": "complete"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "units.U59.ownershipPaths[0]",
+            "owner": "U59",
+            "state": "complete"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "units.U16.ownershipPaths[0]",
+            "owner": "U16",
+            "state": "complete"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "units.U85.ownershipPaths[0]",
+            "owner": "U85",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "roadmap.nodes.R0.plan.ownershipPaths[0]",
+            "owner": "R0.plan",
+            "state": "local-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1s-admission-20261018.json",
+            "loc": "roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-1S[5]",
+            "owner": "R2.authority-live",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "roadmap.nodes.R9.close.ownershipPaths[0]",
+            "owner": "R9.close",
+            "state": "planned"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "roadmap.nodes.R0.publish.ownershipPaths[0]",
+            "owner": "R0.publish",
+            "state": "complete"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1s-admission-20261018.json",
+            "loc": "units.localSeatCredentialsRegistration20261018.prospectiveManifests.LSC-1S.candidateSeams[5]",
+            "owner": "units:localSeatCredentialsRegistration20261018",
+            "state": "documentary"
+          }
+        ]
+      },
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1s-red-20261018.json": {
+        "exists": false,
+        "claims": [
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "units.U0.ownershipPaths[0]",
+            "owner": "U0",
+            "state": "complete"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "units.P2C.ownershipPaths[0]",
+            "owner": "P2C",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "units.U41.ownershipPaths[0]",
+            "owner": "U41",
+            "state": "complete"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "units.U42.ownershipPaths[0]",
+            "owner": "U42",
+            "state": "complete"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "units.U59.ownershipPaths[0]",
+            "owner": "U59",
+            "state": "complete"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "units.U16.ownershipPaths[0]",
+            "owner": "U16",
+            "state": "complete"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "units.U85.ownershipPaths[0]",
+            "owner": "U85",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "roadmap.nodes.R0.plan.ownershipPaths[0]",
+            "owner": "R0.plan",
+            "state": "local-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1s-red-20261018.json",
+            "loc": "roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-1S[6]",
+            "owner": "R2.authority-live",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "roadmap.nodes.R9.close.ownershipPaths[0]",
+            "owner": "R9.close",
+            "state": "planned"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "roadmap.nodes.R0.publish.ownershipPaths[0]",
+            "owner": "R0.publish",
+            "state": "complete"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1s-red-20261018.json",
+            "loc": "units.localSeatCredentialsRegistration20261018.prospectiveManifests.LSC-1S.candidateSeams[6]",
+            "owner": "units:localSeatCredentialsRegistration20261018",
+            "state": "documentary"
+          }
+        ]
+      },
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1s-local-20261018.json": {
+        "exists": false,
+        "claims": [
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "units.U0.ownershipPaths[0]",
+            "owner": "U0",
+            "state": "complete"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "units.P2C.ownershipPaths[0]",
+            "owner": "P2C",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "units.U41.ownershipPaths[0]",
+            "owner": "U41",
+            "state": "complete"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "units.U42.ownershipPaths[0]",
+            "owner": "U42",
+            "state": "complete"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "units.U59.ownershipPaths[0]",
+            "owner": "U59",
+            "state": "complete"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "units.U16.ownershipPaths[0]",
+            "owner": "U16",
+            "state": "complete"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "units.U85.ownershipPaths[0]",
+            "owner": "U85",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "roadmap.nodes.R0.plan.ownershipPaths[0]",
+            "owner": "R0.plan",
+            "state": "local-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1s-local-20261018.json",
+            "loc": "roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-1S[7]",
+            "owner": "R2.authority-live",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "roadmap.nodes.R9.close.ownershipPaths[0]",
+            "owner": "R9.close",
+            "state": "planned"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "roadmap.nodes.R0.publish.ownershipPaths[0]",
+            "owner": "R0.publish",
+            "state": "complete"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1s-local-20261018.json",
+            "loc": "units.localSeatCredentialsRegistration20261018.prospectiveManifests.LSC-1S.candidateSeams[7]",
+            "owner": "units:localSeatCredentialsRegistration20261018",
+            "state": "documentary"
+          }
+        ]
+      },
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1s-admission-review-20261018.json": {
+        "exists": false,
+        "claims": [
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "units.U0.ownershipPaths[0]",
+            "owner": "U0",
+            "state": "complete"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "units.P2C.ownershipPaths[0]",
+            "owner": "P2C",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "units.U41.ownershipPaths[0]",
+            "owner": "U41",
+            "state": "complete"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "units.U42.ownershipPaths[0]",
+            "owner": "U42",
+            "state": "complete"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "units.U59.ownershipPaths[0]",
+            "owner": "U59",
+            "state": "complete"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "units.U16.ownershipPaths[0]",
+            "owner": "U16",
+            "state": "complete"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "units.U85.ownershipPaths[0]",
+            "owner": "U85",
+            "state": "blocked"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "roadmap.nodes.R0.plan.ownershipPaths[0]",
+            "owner": "R0.plan",
+            "state": "local-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1s-admission-review-20261018.json",
+            "loc": "roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-1S[8]",
+            "owner": "R2.authority-live",
+            "state": "main-verified"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "roadmap.nodes.R9.close.ownershipPaths[0]",
+            "owner": "R9.close",
+            "state": "planned"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion",
+            "loc": "roadmap.nodes.R0.publish.ownershipPaths[0]",
+            "owner": "R0.publish",
+            "state": "complete"
+          },
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1s-admission-review-20261018.json",
+            "loc": "units.localSeatCredentialsRegistration20261018.prospectiveManifests.LSC-1S.candidateSeams[8]",
+            "owner": "units:localSeatCredentialsRegistration20261018",
+            "state": "documentary"
+          }
+        ]
+      }
+    },
+    "openPullRequests": [
+      {
+        "headRefOid": "20af77868bde12a3e5530c72121be0182e8482f5",
+        "number": 2294,
+        "title": "fix(multiplayer): contain fogged host journal-head reads (B14-HEAD)",
+        "collisions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "headRefOid": "83be0891e85dfefe1415b214c9675d33c9a2997e",
+        "number": 2292,
+        "title": "docs(roadmap): register L2 security and packaged GUI readiness",
+        "collisions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "headRefOid": "baa20ce6c3031094fc46bd9a8185e44a3a8740ab",
+        "number": 2113,
+        "title": "docs(audits): preserve complete thread-transfer history",
+        "collisions": []
+      },
+      {
+        "headRefOid": "cbb0e214e5aac4fb1e2b9cad9cb56f93fbdc387b",
+        "number": 1886,
+        "title": "wip(e2e): U2b resumed, E2E-19 green under the privacy-pack arm, E2E-25 refused at the candidate anchor (parked again)",
+        "collisions": []
+      }
+    ],
+    "disposition": "Fresh census covers the nine exact leaves, unit/node aliases, planned/blocked claims and all open PR files. Shared units.json changes are serialized; source collisions must be resolved before admission."
+  },
+  "frozenFiles": [
+    {
+      "path": "src/services/vault/LocalSeatCredentialRepository.ts",
+      "exists": false
+    },
+    {
+      "path": "src/services/vault/__tests__/LocalSeatCredentialRepository.test.ts",
+      "exists": false
+    },
+    {
+      "path": "src/services/vault/LocalSeatCredentialService.ts",
+      "exists": false
+    },
+    {
+      "path": "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+      "exists": false
+    }
+  ],
+  "frozenCensus": {
+    "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1s-sol-logs/census.json",
+    "sha256": "45db5568ca297fbc3adff09edbd06602c4ddf0610eea322669cc6f53124ec1ba"
+  },
+  "unchangedControls": {
+    "files": [
+      {
+        "path": "src/services/vault/IdentityRepository.ts",
+        "exists": true,
+        "sha256": "621e8c6c077df61fa9d2e953436ccde94e36901a6fc3d3d461f166e0695e0b48",
+        "bytes": 6808,
+        "physicalLines": 254
+      },
+      {
+        "path": "src/services/vault/IdentityService.ts",
+        "exists": true,
+        "sha256": "117e4d58191a504bad0935d2730c0c5fd6e667918877f9e97e94876f55f676fd",
+        "bytes": 13359,
+        "physicalLines": 512
+      },
+      {
+        "path": "src/services/persistence/SQLiteService.localSeatCredentials.migration.ts",
+        "exists": true,
+        "sha256": "36d3e397205b37e91778ed9e00a9bc46be6ffa775e4dc4a9e777471eeb4e25c7",
+        "bytes": 3796,
+        "physicalLines": 74
+      },
+      {
+        "path": "src/lib/multiplayer/server/playerIdFromPublicKey.ts",
+        "exists": true,
+        "sha256": "3cfe8bb53a07668cc0e375d0fb6c5e67ad73b6cb58d28b6c31d018c6f7445db3",
+        "bytes": 3481,
+        "physicalLines": 97
+      },
+      {
+        "path": "src/utils/logger.ts",
+        "exists": true,
+        "sha256": "b6ac6b9aec48391119a59321e6a1a8aa7811b4eeef312f3ab0f42a49390c9bb9",
+        "bytes": 5044,
+        "physicalLines": 195
+      }
+    ],
+    "census": {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1s-sol-logs/admission.cjs",
+      "note": "Hashes taken with git show from the exact closure merge."
+    },
+    "note": "Vault identity repository/service, the LSC-1DB migration, the playerId derivation and the logger stay byte-identical."
+  },
+  "redPlan": "RED edits the two test leaves only. Both suites load their module with jest.requireActual inside try and assert it is defined first (F6), so every row fails on an assertion, never on module resolution or a type error. GREEN adds the two product leaves and the local receipt.",
+  "heavyRuns": "Jest and typecheck via node E:/Projects/Personal/MekStation-wt/_locks/heavy-run.mjs --lane lsc (queue runs machine-idle), --runInBand, private --cacheDirectory."
+}
