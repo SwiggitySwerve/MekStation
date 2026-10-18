@@ -1,3 +1,45 @@
+## 2026-10-18 B14 host-head containment split registered
+
+Parent adopts "B14 fit ruling and draft split" from the
+[B14/HP preparation report](evidence/b14hp-prep-20261018.txt) under the standing
+owner instruction to continue with recommended options, fix issues and publish
+as needed. The report is retained byte-for-byte, SHA-256
+a9e395468f332ab5ae90e58d6c57a348a1389143746d25f16d866d98f377b787.
+This records the parent ruling; it supplies no source admission, runtime
+acceptance or future sensitive implementation OWNER-RULING.
+
+The mandatory head census proved that matchHeadRoute.ts:61/:73 returns a
+hidden-dependent journal digest (payload includes gunnery and
+expectedPostStateDigest). The route bypasses FogAwareMatchProjection. Adding it
+and its existing test to B14-0 would make 17/15 files. Register blocked
+B14-HEAD under R2.authority-live with privacy/authority/replay review: the route,
+src/pages-modules/api/__tests__/matchHeadRoute.test.ts, units.json and four
+bounded admission/red/local/admission-review outputs are seven prospective
+files under unchanged 15-file/500-counted-added-line caps. Final evidence names
+and actual fit freeze at admission; no placeholder receipts are created.
+
+B14-HEAD authorizes first, then uses B14-0's shared fogMatchAdmission decision
+to refuse fog-on and unknown-config reads with HTTP 403 and fixed reason
+fog-projection-unavailable before digest serialization. Known-off behavior is
+unchanged. B14-0 must not edit the head route or its test; its 15-file manifest
+and remaining acceptance stay unchanged. Full B14 privacy acceptance is
+discharged only after BOTH B14-0 and B14-HEAD have genuine exact-main PASS,
+fetched-main ancestry and closure.
+
+Effective L1 has 23 units: G2 -> R -> S -> B14-0 -> B14-HEAD -> P2CG1HP -> H.
+HP retains B14-0 and adds B14-HEAD as a predecessor; H adds B14-HEAD's
+main-verified/exact-main/closure admission gate. Parent release follows each
+predecessor's proof and closure; NEXT does not enforce ordinary predecessor
+arrays and supplies no permission. Preserve one product-writing lane and all
+sensitive review, required CI and exact-head OWNER-RULING obligations.
+
+Registration baseline is f32626fbd2b558e1307f16590d4ab03c55668772. Existing unit
+edits are only B14-0.admissionRequires/successors,
+P2CG1HP.admissionRequires/predecessors and P2CG1H.admissionRequires.
+P2CG1G2 and every other existing unit are unchanged. Original task holders,
+release acceptance, H activation/checkpoint and prior dated records remain.
+Validation and the exact field diff are recorded in the PR.
+
 ## 2026-10-18 Pre-H consumer recovery registered; H type scope amended
 
 Parent adopts the recommended split and concrete two-retry policy under the

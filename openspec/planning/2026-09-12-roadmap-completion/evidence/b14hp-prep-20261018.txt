@@ -1,0 +1,256 @@
+﻿# B14-0 / P2CG1HP early preparation — 2026-10-18
+
+Research result, not source admission, independent review, OWNER-RULING, Main proof, closure, or release permission.
+
+**B14-0 needs a separately registered split.** Its registered ten source/test/spec leaves measure **170 counted added lines and 461 test additions**. The complete registered prospective source-stage manifest is already **15/15 files**. The mandatory head census proves hidden-dependent digest material reaches `matchHeadRoute.ts`; containing it adds that route and its existing test, making **17 files**, despite only **178 counted source/spec additions**. Do not implement the enlarged unit under the current contract.
+
+**P2CG1HP fits as registered, prospectively.** The prototype changes exactly its four named source/test leaves: **129 counted product additions, 253 test additions**, and **9/15 prospective files** after the named lifecycle/evidence outputs. No additional store, transport, UI-component, or factory leaf is needed. Authentic lifecycle additions remain unmeasured; a conservative 35-line allowance gives 164/500. This is a fit finding, not an invented lifecycle receipt.
+
+Final measured proof: **24 RED failures with existing product files restored to Main; 185/185 GREEN on the prototype; B14 10/10 and HP 11/11 completed mutants caught, none survived.** The head-route extension was tested in scratch and is separately inventoried below. The real `server.js` network probe is a plan only.
+
+## Baseline, isolation, authority, and counting
+
+- Both requested detached worktrees were created at local `origin/main`, **f32626fbd2b558e1307f16590d4ab03c55668772**, the merge of #2249. No fetch, branch, commit, push, PR, or ledger lifecycle change was made.
+- Read-only prep: `E:/Projects/Personal/MekStation-wt/b14hp-prep-20261018`. Prototype only: `E:/Projects/Personal/MekStation-wt/b14hp-scratch-20261018`. The root working files at `E:/Projects/Personal/MekStation` and the supplied shared T3 checkout were not written by this run. Their pre-existing edits were left alone. Prep tracked/staged diffs are empty; all report/support outputs are untracked. Scratch intentionally retains its uncommitted prototype and private Jest cache.
+- Node PATH was explicitly prefixed with `C:/Users/wroll/AppData/Local/nvm/v22.22.0`. Scratch has an ignored local `node_modules` junction to the existing root dependencies; no install or dependency edit occurred.
+- Read the personal working guidance and applicable root/server/components/pages-modules/OpenSpec instructions, `TRANSPORT.md`, both JSON contracts, both registered source evidence documents, and earlier R/S and H/I fit checks. No additional agent was launched.
+- Registered order remains **G2 -> R -> S -> B14-0 -> P2CG1HP -> H**. At this baseline G2 is planned, R/S/B14-0/HP are blocked, and G2A is main-verified. These are baseline ledger states, not a fresh remote-PR status claim. Earlier units must land, receive genuine exact-main PASS and closure, and supply the rebased admission baseline. NEXT and this research provide no implementation permission.
+- U41 counts additions without deletion credit. Tests and ledger evidence are line-exempt, but every real file counts. Spec and units.json additions count. Prototype measurements are actual `git diff --numstat` plus complete new-file line counts, after formatting. No generated-file exemption, source deletion credit, receipt fabrication, or suppressed review file is used.
+- The measured source/spec totals deliberately exclude unwritten lifecycle/evidence. The frozen draft manifests include all five prospective lifecycle/evidence leaves. A 35-line units.json allowance is explicitly a reserve, not measurement. Later truthful review/identity/Main/closure outputs still require their separate G-OWN freeze and entire-stage census. Spare slots confer no unnamed-file permission.
+
+## B14-0: prototype and acceptance evidence
+
+### Implemented scratch boundary
+
+`fogMatchAdmission.ts` supplies a shared known-config decision and fixed `fog-projection-unavailable` refusal. A known legacy config with an omitted flag is off; unavailable configuration refuses. It emits existing `Close` / `AUTH_REJECTED` vocabulary and physical WS 1008. Failed terminal sends still close and permit server-side detach.
+
+The host resolves current membership before fog admission. Live publication resolves recipients before checking policy, stops attached sockets before event serialization/numbering, and detaches them. Replay checks membership before event gathering and policy before `ReplayStart`, covering SessionJoin, rejoin, direct player replay, and the no-player legacy replay entrance. The legacy reconnect callback also checks current durable membership: stale peer metadata cannot disclose fog configuration to a non-member. Terminal membership refusal uses 1008, membership infrastructure failure uses 1011, and publication infrastructure refusal has fixed secret-free wording and 1011. No protocol enum was added.
+
+The metadata GET preserves its current host/participant authorization first, then refuses fog. The history projection service checks viewer scope/current seats before policy and before journal projection. Known-off reads use the parent projection directly, so absent projection-head metadata cannot accidentally become a fog-policy refusal. In the existing HTTP error vocabulary, metadata/head policy returns 403 while export/private-preview returns 500 with the fixed refusal reason; this prototype does not invent a new HTTP error mapping.
+
+The intended playable fog projection remains unimplemented and unscheduled. The prototype deliberately retains the reusable old fog history projection helper, while its service refuses fog-on private requests. It changes no campaign authority or `src/lib/campaign/coop` file. Public lobby summaries are outside this private-state containment.
+
+### Mandatory matchHeadRoute.ts census — containment required
+
+Baseline `src/pages-modules/api/matchHeadRoute.ts:61` opens SQLite directly after host-as-GM authorization. Its transaction obtains the effective journal head and returns `digest: head.digest` at line 73. It does not call `FogAwareMatchProjectionService` or any other B14 registered source leaf. A helper existing elsewhere does not make it reachable from this route.
+
+The head is hidden-dependent, not an independent public fingerprint:
+
+1. `MatchStreamJournalMirror.ts:186` persists the complete `matchEvent`; line 187 also includes `expectedPostStateDigest` on the batch's final event.
+2. `SQLiteEventJournalWriter.ts:257` hashes each canonical event envelope. `EventJournalCanonicalizer.ts:177` / `:211` include the payload and previous digest in SHA-256 material.
+3. The scratch census reads an actual event written by the production mirror and first verifies that re-canonicalizing it reproduces its stored event digest. Changing only the second unit's gunnery changes that digest. Independently changing only `expectedPostStateDigest` changes it. All other envelope fields remain identical.
+4. The route test, using real signed-token auth and its durable effective-head fixture, observes **RED HTTP 200 with the digest** for a fog-on host, then **GREEN 403 `{error:'fog-projection-unavailable'}`** after the scratch route edit. No digest is serialized on that policy refusal.
+
+This establishes dependency, not SHA-256 inversion or a recovered secret. The contract forbids hidden-derived digest delivery even to host/GM, so privilege is not an exemption. No benign edit inside the six registered product leaves intercepts this independent route. Both the route and its retained route test are outside the 15-file manifest. The separate extension patch is diagnostic evidence, not an authorized B14-0 candidate.
+
+The audit-only timeline was also traced: its digest covers projected audit entries, and its lineage shape omits journal digests. It does not become proof that the privileged `/head` route is safe. Future admission must still inspect any changed history/lineage surfaces on fresh Main.
+
+### RED and GREEN rows
+
+Final RED uses the same final tests with every existing runtime file restored from `git show HEAD:path`; the new helper remains unreferenced by Main. It is a product-unchanged comparison. All prototype product files are restored in a `finally` block afterward.
+
+- Fog admission for host/playing/spectator identities: Main returns a viewer; prototype sends only fixed refusal and closes 1008 before private bytes.
+- Join/direct replay/no-player replay: Main emits ReplayStart/Chunk/End (and lobby baseline for join); prototype emits only Close, physically closes 1008, and detaches.
+- Pre-existing live socket: Main emits Event; prototype closes before data. A second publish sends nothing. Failed refusal writes also leave it closed and detached.
+- Stranger: Main's physical close has no status; prototype preserves generic auth wording and uses 1008 without fog detail. Membership lookup infrastructure failure uses generic 1011. Stale legacy peer metadata no longer grants a fog-policy oracle.
+- Metadata: the actual route with real token validation returns full fog-on metadata on Main; prototype refuses before unit reference/skill/hex serialization. The known-off host GET remains 200.
+- Export/private-preview for host/opponent/spectator: Main returns private combat facts; prototype refuses before projection/serialization, retaining fixed wording. Known-off parent parity remains green.
+- Unknown authoritative config refuses; known-off config with missing projection-head metadata still succeeds. No claim is made that authorization/membership unavailability should be bypassed merely because an earlier config was off.
+- The actual mirrored digest sensitivity census is green even on Main: it characterizes the unsafe dependency. The route containment assertion is RED on Main and GREEN on the extension.
+
+B14-associated final suites: **19 RED failures and 66 GREEN passes** including the separate 13-test head suite. The registered core alone covers **53 GREEN passes** across its three test leaves. Existing fog-off same-side players plus a non-playing host occupying an observer seat are exercised at the host boundary; the durable co-op GM row and full real-server mission journey are still implementation-time integration proof, not claimed by that fixture.
+
+### Real server.js WS probe plan — evidence only, not executed
+
+Record the result in the already named `openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0-local.json`. Retain no new harness file and do not edit `server.js`. A necessary server edit is another registration/split, not spare permission.
+
+1. After S and the accepted B14 split sequence have landed, rebase the candidate, gate the build and each probe job with exactly `node scripts/qc/machine-idle.mjs --own-pid 47516`, waiting on MACHINE_BUSY. Preserve the current timeouts. Never exclude another process or stop PID 47516.
+2. Seed only a private probe database through the real durable store/journal APIs, using unique match/player IDs, fixed hidden bootstrap references/skills/construction/hex and an actual hidden-dependent journal digest. Use `MULTIPLAYER_STORE=durable`, a worktree-local `MULTIPLAYER_DB_PATH`, loopback `HOSTNAME`, and an unused `PORT`. Start this candidate's real `server.js` with its normal runtime loader/build; record command, PID, source/head identity and readiness. Do not reuse somebody else's listener or stores.
+3. Drive the actual `/api/multiplayer/socket` upgrade with correctly scoped signed identities for two players, same-side players, spectator and non-playing GM. Capture raw outbound strings and actual received RFC close status/reason. A member's fog-on admission must deliver no baseline/Event/Replay frames before fixed Close/1008. Repeat with real SessionJoin/rejoin and last-held/delivery cursors. An invalid credential must fail pre-upgrade with HTTP 401; do not label that a received WS 1008.
+4. For a current-membership miss, require only generic auth refusal and no fog configuration. Include a revoked/stale member and membership infrastructure failure, pinning the audited 1008/1011 distinction. Exercise a pre-existing admitted socket with a controlled private-fixture fog/config transition before a legal event; require stopped private delivery and server-side detach.
+5. Call the actual metadata, history/export/private-preview and amended head URLs with the same identities. Assert the entire serialized output has no hidden reference, skill, deployment-derived location, construction, or hidden-dependent digest before refusal. Unknown configuration must never reach an unprojected fallback. Known-off with absent projection-only metadata remains authorized where membership is available.
+6. Run a genuine fog-off two-deploying-players-plus-non-playing-GM co-op control through the actual entry/binders, recording successful join, commands and replay. Retain S sealed-choice assertions and G2 creator/binding guarantees. Persisted match/event/head rows must remain intact after refusal.
+7. Shut down only the server process started for this probe before another test job/gate. Archive bounded, credential-free observations and exact close arguments in the existing local evidence artifact. No network, restart, browser, production-build, required-CI or exact-main result is claimed by this prep.
+
+### B14 fit ruling and draft split
+
+Measured core: six product leaves add **148** lines, the spec adds **22**, total **170**. Tests add **461**, reported separately. Authentic lifecycle is pending: with a conservative 35-line allowance, **205/500**. The registered prospective manifest is **15/15**. Adding the proven head repair/test costs **8 counted source lines and 13 test lines**, giving **178** measured counted lines but **17/15 files**. Deletions are not credited.
+
+**Recommendation: separately register B14-HEAD (draft ID), after B14-0 and before HP.** Its seven-file draft is the head route, its existing test, units.json, and four bounded distinct evidence/review outputs. Measured route/test work is 8 counted / 13 test additions; with the same illustrative lifecycle allowance it is 43/500. Preserve ordinary 15/500 caps and the same sensitive privacy/authority/replay review obligations.
+
+A separate registration must explicitly apportion `/head` to B14-HEAD and state that full B14 privacy acceptance is not discharged until BOTH units have genuine exact-main PASS and closure. Proposed order: **G2 -> R -> S -> B14-0 -> B14-HEAD -> HP -> H**. HP must depend on the new split as well as retaining B14-0; H retains all existing prerequisites. Amend units.json/roadmap.json plus a newly frozen real registration artifact in a separate documentary task. Do not silently exempt the head route, inflate B14-0 to 17 files, repurpose evidence outputs, or claim B14-0 complete first under its unchanged all-surface acceptance.
+
+The requested order remains unchanged until that amendment is accepted. This report applies no amendment and grants no source permission. If the owner prefers a different bounded partition, freeze it explicitly before implementation; the present 17-file aggregate cannot be admitted as registered.
+
+## P2CG1HP: prototype, proof, and fit
+
+### Ruled policy implemented
+
+The hook holds one mounted recovery episode keyed by **campaignId / matchId / playerId**, not by socket identity. Replacement transports consume the same **two automatic quiet-window retries**. Initial connection plus two replacements is three sockets total; the next quiet deadline closes the third, unsubscribes recovery/confirmation listeners, cancels its quiet timer, and does not increment rejoins.
+
+A validated `transport.onAppliedViewConfirmed` callback is the healthy reset. Transport parsing already checks match/player/campaign/offer equality before invoking it. Sending an ACK, receiving a heartbeat or arbitrary frame, or binding a replacement does not reset the episode. Explicit reload/remount starts a fresh hook instance and is the offered retry action; identity change starts that seat's new episode. No durable cross-route budget, new store or additional retry control is claimed.
+
+Exhaustion renders an inline paragraph with `role="status"` and `aria-live="polite"`, exactly:
+
+> Campaign sync could not connect. Reload this campaign to try again.
+
+It uses the existing connected surface, with no new UI component. A new identity clears that prior episode's visible error. Late callbacks from closed/disposed transports cannot reopen the exhausted episode. Ordinary non-quiet recovery signals retain their existing semantics; this policy bounds the specifically registered quiet-window cycle.
+
+CF-H14: consumed offers are counted immediately at **consume**, including queued work. Each settle owns an idempotent release, runs it synchronously before `confirmApplied` (which can itself schedule disposal), and also releases on every early return/throw through `finally`. Disposal marks the transport cut only if unfinished consumed work remains. CF-H15 pins same-tick consume+unmount: remount rejoins, only the baseline ACK exists, and refresh never ran. G1's `heardAt` cursor watermark remains at frame consumption; it was not moved after confirmation.
+
+### RED and GREEN rows
+
+- Five windows with no campaign frames: Main creates six sockets; prototype creates exactly three, all closed after exhaustion, and displays the exact accessible wording.
+- Heartbeats across replacement binds do not refill the budget. Explicit route reload/remount receives a fresh two-retry allowance; a validated healthy confirmation after two quiet retries also replenishes it.
+- Campaign/match identity switch starts a new episode; stale socket injection cannot revive the exhausted old one. The key also contains the transport's playerId. Direct same-match player-token rotation still needs the post-G2 creator identity test at admission; it is not represented as independently proved here.
+- CF-H14 microtask pin: confirm a linked offer, schedule `Promise.resolve().then(unmount)` from its confirm callback, remount, and require the same single healthy socket. This is RED on Main and GREEN on the prototype.
+- CF-H15 same-tick consume/dispose, held-refresh cut, ordered offers, stale-binding silence, replacement EMPTY fold, healthy bound legacy first-frame handling and G1 fake-timer/window controls remain green. H15 is a baseline-green preservation pin, not a newly reproduced Main defect.
+- CF-H8/CF-G5 is proved in the registered binder test rather than assumed discharged by R. With the real installed test receipt port and membership-admitted join, all three send-callback modes (confirmed, held, failed) keep every campaign frame offered and never invoke `joinMember`. These rows are also green on Main; they pin existing exclusivity, not a new server fix. No production port is installed by this unit.
+- CF-E7 is pinned in that same binder leaf: preparation refusal, veto during preparation and explicit invalid proposal-reservation all assert an empty M transaction trail. The invalid-reservation row injects `valid:()=>false` through the real arbiter/binder callback and preserves the pending proposal/census. No historical R/D/E receipt is rewritten or called closed by these local results.
+
+HP-associated final suites: **5 RED failures; 119 GREEN passes** (50 connected hostProjection tests plus 69 binder tests). Across both units and the head extension: **161 passed / 24 failed on unchanged Main product**, then **185 passed / 0 failed** on the prototype, six relevant suites, 5.932 seconds for the final GREEN run.
+
+### H5 reconciliation and cap ruling
+
+The consumer and `campaignHostFoldStore.ts` both require campaign binding plus `confirmApplied` for receipt activity. The fold store additionally requires the same registered transport and a non-behind cursor to continue a cached lineage. Those are intentional lineage reuse checks, not reasons to delay the consumer's heard watermark and stall a receipt chain. Preserve G2's creator guard and actual active-registry binding at the connected surface. No fold-store edit was necessary in this prototype; any demonstrated future need for that unregistered leaf requires an exact amendment first.
+
+Two product leaves add **129** lines, including formatting/indentation additions without deletion credit. Two test leaves add **253** lines. Four named source/test leaves plus units.json and the four named evidence/review outputs give **9/15 files**. Pending real units.json additions have 371 counted lines of headroom; a 35-line allowance gives **164/500**. Thus HP fits the registered source scope and measured prototype envelope, with no presently demonstrated split. Do not remove the binder test from the draft: no genuine R receipt/head/assertions were supplied to justify the conditional eight-file reduction.
+
+## Overlap and handoff census
+
+- **B14-0 vs S:** exact shared source leaves are `src/lib/multiplayer/server/ServerMatchHostEvents.ts` and `src/lib/multiplayer/server/ServerMatchHostReplay.ts`. S's `MatchWireSealedChoices.ts`, `ServerMatchHost.spectator.test.ts`, and `sealedChoiceDelivery.test.ts` are read-only here. S lands first: preserve its current-seat spectator decision for both fog states and its reveal behavior when porting B14's earlier policy checks. Fog-off containment must not undo S's correction.
+- **HP vs G2:** exact shared source is `src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx`. G2 lands first: rebase the inline status/hook return shape around its creator-binding and activation changes, preserving campaign-bound connection selection, legacy first frame, route token and seat semantics. This prototype is not tested against unmerged G2.
+- B14 has no exact literal source/test intersection with reduced G2; HP has none with S. Every unit intersects units.json lifecycle ownership, so lifecycle work remains serial.
+- G2's broad `src/components/campaign/coop` alias navigates to HP's hook/test as well; its frozen literal set grants only the connected surface among HP's four leaves. Aliases do not authorize concurrent editing or new outputs.
+- G2A already owns/landed `src/__tests__/api/securityBoundary.test.ts`; retain its signed-token/invite tests. R owns HP's `bindCampaignSyncConnection.test.ts` before HP. Later I1 owns hostProjection; I3 owns binder tests. Preserve R's real synchronous-release and success-order assertions when carrying HP pins forward.
+- U26 remains a planned holder of server/history aliases and the raw-replay/rewind work. B14 does not remove fog-off raw legacy support, change branch activation, or replace host-as-GM identity. The new head split would also touch its history route/test neighborhood and must be re-censused.
+- **Do not cherry-pick/apply these patches as an admitted candidate now.** After G2/R/S land and close, transplant/rebase the scratch changes onto fresh fetched Main; resolve shared leaves by behavior; repeat RED/GREEN, mutation, actual unique-file and counted-line census, relevant predecessor regressions and real server evidence. Review/CI/OWNER-RULING/Main/closure remain future gates, not conclusions of this research.
+
+## Reproduction and evidence limits
+
+Every Jest run first passed `node scripts/qc/machine-idle.mjs --own-pid 47516`. No other exclusion was used, no timeout was raised, and no unrelated process was stopped. The runner waits five seconds and rechecks if MACHINE_BUSY; all 47 archived automated gates observed MACHINE_IDLE. Early exploratory npm runs also gated first; their logs/results remain untracked. All runs used `--selectProjects unit --runTestsByPath <relevant leaves> --runInBand --cacheDirectory E:/Projects/Personal/MekStation-wt/b14hp-scratch-20261018/.jest-private`.
+
+`prototype-runner.cjs` restores Main product for RED, restores the prototype for GREEN, applies one mutant at a time, gates each focused Jest invocation, records named failing assertions, and always restores the prototype. `prototype-sources.json` binds its source snapshot. `red-final.json`, `green-final.json`, named mutant JSON/logs, `mutation-results.json`, `idle-gates.log` and `census.json` retain the results and additions/hashes. The explicit invalid-reservation, send-failure and stale-peer refinements are included in the final 185-test run.
+
+One preliminary broad HP05 omit-close attempt produced a React maximum-update-depth loop and exhausted the capture buffer without a Jest JSON result. It is **not** counted as a caught mutant. The completed final HP05 run uses only the relevant socket-cap test, returns an ordinary failing assertion, and is counted. This narrowing changed neither product nor timeout.
+
+Focused product lint reported **0 errors / 3 warnings**: inherited host/replay length warnings and an unused old projection type import. That trivial cleanup and stale explanatory comments remain prototype polish, not a new leaf requirement. `git diff --check` passed. No full TypeScript check, stable suite, build, browser, actual WebSocket server, restart, packaged app, required CI, independent review, or exact-main proof was run. React act warnings and existing route-fixture warning output remain visible in logs. Tests use recording sockets for combat, real token/SQLite routes for HTTP, real client transports over controlled sockets for HP, and real private database fixtures for binder proofs.
+
+## Draft literal manifests and measured file census
+
+The following names are frozen **draft proposals for later admission**, not created receipts or operative permission. All paths are repository-relative literals. No directory wildcard is an edit grant.
+
+### B14-0 ? registered 15-file draft
+
+```text
+src/lib/multiplayer/server/fogMatchAdmission.ts
+src/lib/multiplayer/server/ServerMatchHost.ts
+src/lib/multiplayer/server/ServerMatchHostReplay.ts
+src/lib/multiplayer/server/ServerMatchHostEvents.ts
+src/lib/multiplayer/server/projection/FogAwareMatchProjection.ts
+src/pages/api/multiplayer/matches/[id].ts
+src/lib/multiplayer/server/__tests__/b14FogContainment.test.ts
+src/__tests__/api/securityBoundary.test.ts
+src/pages-modules/api/__tests__/matchHistoryFog.test.ts
+openspec/specs/fog-of-war/spec.md
+openspec/planning/2026-09-12-roadmap-completion/units.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0-admission.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0-red.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0-local.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0-review.json
+```
+
+### P2CG1HP ? registered 9-file draft
+
+```text
+src/components/campaign/coop/useCampaignApplicationConsumer.ts
+src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx
+src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx
+src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts
+openspec/planning/2026-09-12-roadmap-completion/units.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-admission-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-red-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-local-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-admission-review-20261018.json
+```
+
+### Proposed B14-HEAD ? separate 7-file draft, not registered
+
+```text
+src/pages-modules/api/matchHeadRoute.ts
+src/pages-modules/api/__tests__/matchHeadRoute.test.ts
+openspec/planning/2026-09-12-roadmap-completion/units.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/b14-head-admission-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/b14-head-red-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/b14-head-local-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/b14-head-admission-review-20261018.json
+```
+
+### Actual prototype additions (deletions shown, never credited)
+
+- `openspec/specs/fog-of-war/spec.md`: +22 / -0; counted; 281 physical lines; SHA-256 `978a7c8168c2912359f7551e118c329b5759a8eda0dd2ee9701c2bea03978a3d`.
+- `src/__tests__/api/securityBoundary.test.ts`: +31 / -0; test, line-exempt; 637 physical lines; SHA-256 `67b57937091bc3f0b1d338357c39787b69dda0230b4e2c5ea49443bd2fe44e6f`.
+- `src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx`: +29 / -18; counted; 408 physical lines; SHA-256 `353565db0e96d0d128955505a453be7c7e17f568fc182e819315fb94c54c48cf`.
+- `src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx`: +168 / -1; test, line-exempt; 2019 physical lines; SHA-256 `ad1e5bc53c63eccbbc95f0facd81979905ecbf43d6df852fd1be63970b6b919e`.
+- `src/components/campaign/coop/useCampaignApplicationConsumer.ts`: +100 / -54; counted; 349 physical lines; SHA-256 `fd14ebe89ddd96c8d8b23da5995a7a554b4511bf55bf35c3d02548495a964038`.
+- `src/lib/multiplayer/server/ServerMatchHost.ts`: +12 / -4; counted; 1704 physical lines; SHA-256 `c22a9646fc4fabfe1a40d828ea379ca63f6061e905d29d5b29eb3cbbb2af0354`.
+- `src/lib/multiplayer/server/ServerMatchHostEvents.ts`: +6 / -0; counted; 470 physical lines; SHA-256 `0cd3c70b4d70a0ac74e131aab77a30d7856da7e33f311025deb9fed8a9b26264`.
+- `src/lib/multiplayer/server/ServerMatchHostReplay.ts`: +49 / -8; counted; 534 physical lines; SHA-256 `259a63875688be0f8a4862610689ec9aaab57c8b23289455cb11ba24812abece`.
+- `src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts`: +85 / -0; test, line-exempt; 3545 physical lines; SHA-256 `504ea1f8dff24dc6bdb0c968354bc878c69b6d3a3dbd4c183df66116ea1f75f7`.
+- `src/lib/multiplayer/server/projection/FogAwareMatchProjection.ts`: +29 / -97; counted; 298 physical lines; SHA-256 `a7c827a90024148f66849572016eb3a693e641b65ccd6a467993bc14db20db63`.
+- `src/pages-modules/api/__tests__/matchHeadRoute.test.ts`: +13 / -0; test, line-exempt; 364 physical lines; SHA-256 `5698748112fa3545b5214381bc2b6494a135021fbdfee42794ef0fe7b4fe406d`.
+- `src/pages-modules/api/__tests__/matchHistoryFog.test.ts`: +95 / -175; test, line-exempt; 668 physical lines; SHA-256 `81ec22a9c7d1a599a57c1096b6a6147cb615a749dbcc9bcf56b653fea18cf937`.
+- `src/pages-modules/api/matchHeadRoute.ts`: +8 / -0; counted; 92 physical lines; SHA-256 `c44a1e220085fe5bef394e0cac868c63156c09237ff0dd7b183dcf6a776f4ece`.
+- `src/pages/api/multiplayer/matches/[id].ts`: +9 / -2; counted; 156 physical lines; SHA-256 `528dda2171717406829e14106697f40e19b92653270b328a95e1d532945da615`.
+- `src/lib/multiplayer/server/fogMatchAdmission.ts`: +43 / -0; counted; 43 physical lines; SHA-256 `92415be133a5718e05009c445ada2cc8bb34066567ad51d8ffbbcb5a8f7001c0`.
+- `src/lib/multiplayer/server/__tests__/b14FogContainment.test.ts`: +335 / -0; test, line-exempt; 335 physical lines; SHA-256 `e6dca601989e35d5cac7131858ba4e1ad8f7e0bdd29b34771031dc1d3400683a`.
+
+## Executed mutation plan and results
+
+Each entry names the actual isolated source mutation and a recorded killing assertion. All completed runs exited 1 because assertions failed; none is classified from a compile failure or missing JSON. The final source snapshot was restored after every mutant. Full failure lists are in `mutation-results.json`.
+
+### B14-0 plus mandatory head extension
+
+- **B01-admission-bypass ? CAUGHT** (3 failing assertions): `B14 scratch containment refuses fog admission for pid_host before bytes`.
+- **B02-live-bypass ? CAUGHT** (2 failing assertions): `B14 scratch containment detaches and closes even if terminal refusal send fails`.
+- **B03-replay-bypass ? CAUGHT** (3 failing assertions): `B14 scratch containment blocks fog join including attached socket`.
+- **B04-legacy-bypass ? CAUGHT** (1 failing assertion): `B14 scratch containment rejects the legacy reconnect callback before replay`.
+- **B05-wrong-physical-close ? CAUGHT** (8 failing assertions): `B14 scratch containment detaches and closes even if terminal refusal send fails`.
+- **B06-metadata-bypass ? CAUGHT** (1 failing assertion): `B14 metadata fog=true refuses before private serialization`.
+- **B07-export-bypass ? CAUGHT** (5 failing assertions): `fog of war on the HTTP match-history chain fog on B14 refuses export and private preview for host`.
+- **B08-head-bypass ? CAUGHT** (1 failing assertion): `GET /api/matches/:id/head B14 head refuses a fog host before journal digest serialization`.
+- **B09-unknown-allows ? CAUGHT** (1 failing assertion): `fog of war on the HTTP match-history chain fog off B14 known-off configuration needs no projection-head metadata; unknown configuration refuses`.
+- **B10-no-detach ? CAUGHT** (2 failing assertions): `B14 scratch containment detaches and closes even if terminal refusal send fails`.
+
+### P2CG1HP
+
+- **HP01-third-retry ? CAUGHT** (4 failing assertions): `HP caps quiet replacement sockets at initial plus two, closes exhausted socket and renders status`.
+- **HP02-one-retry ? CAUGHT** (4 failing assertions): `HP caps quiet replacement sockets at initial plus two, closes exhausted socket and renders status`.
+- **HP03-rebind-resets ? CAUGHT** (4 failing assertions): `HP caps quiet replacement sockets at initial plus two, closes exhausted socket and renders status`.
+- **HP04-heartbeat-resets ? CAUGHT** (1 failing assertion): `HP heartbeat and rebind do not replenish retry budget; route reload explicitly resets it`.
+- **HP05-no-close ? CAUGHT** (1 failing assertion): `HP caps quiet replacement sockets at initial plus two, closes exhausted socket and renders status`.
+- **HP06-no-visible-text ? CAUGHT** (2 failing assertions): `HP caps quiet replacement sockets at initial plus two, closes exhausted socket and renders status`.
+- **HP07-late-settling-release ? CAUGHT** (1 failing assertion): `HP releases settling before confirm schedules microtask disposal (CF-H14)`.
+- **HP08-count-at-promise-start ? CAUGHT** (1 failing assertion): `HP counts queued consume immediately for same-tick dispose (CF-H15)`.
+- **HP09-no-healthy-reset ? CAUGHT** (1 failing assertion): `HP healthy application resets budget after two quiet retries`.
+- **HP10-no-dispose-timer-cancel ? CAUGHT** (1 failing assertion): `trades the old window for the new one across a rejoin (CF-G8)`.
+- **HP11-omit-identity-key ? CAUGHT** (1 failing assertion): `HP identity switch starts a fresh mounted-seat episode; stale sockets cannot revive exhausted episode`.
+
+## Reviewable patches and input bindings
+
+These are untracked research artifacts outside the candidate source-stage manifest. They include the complete new files, not just tracked `git diff` output. `census.json` contains each retained prototype file hash and both unit aggregates.
+
+- `E:/Projects/Personal/MekStation-wt/b14hp-prep-20261018/B14-0-prototype.patch` ? 44765 bytes; SHA-256 `427e1ce84827008b5fde434b32073d5901ef924ea5d4cc0fc00fadcf59e33e5c`.
+- `E:/Projects/Personal/MekStation-wt/b14hp-prep-20261018/B14-HEAD-prototype.patch` ? 2509 bytes; SHA-256 `3101743d7a934c8bcd8cc9d7e1477a3da03519d59f6d9a0c5b97568f0074cb69`.
+- `E:/Projects/Personal/MekStation-wt/b14hp-prep-20261018/P2CG1HP-prototype.patch` ? 23139 bytes; SHA-256 `691fe778efc6cf8ea650f32107983bdde9555d74e0a1d261dcc635dff34888c1`.
+
+Input SHA-256 values, read from the immutable prep checkout or named prior report:
+
+- `openspec/planning/2026-09-12-roadmap-completion/units.json`: `1dd1df13503b4e06b65fc61a7b43998fabf9bda30f90aa9e9922f4e5faa4edd6`.
+- `openspec/planning/2026-09-12-roadmap-completion/roadmap.json`: `7007fc716f9d8af677410426ddb0a8d49dae76131355bf698ab251f59989d71a`.
+- `openspec/planning/2026-09-12-roadmap-completion/evidence/b14-fog-scope-20261018.txt`: `fa86fc77b387a9547841bf96261f4bd5becfeca92e22c3b9050b2409142c2a21`.
+- `openspec/planning/2026-09-12-roadmap-completion/evidence/hi-prep-20261018.txt`: `6b8df3e824b27717d7db0c6f6f316ef150295d4cdb28d3861eb23a697ffb7590`.
+- `E:/Projects/Personal/MekStation-wt/rs-prep-20261018/RS-PREP.md`: `99588cc64f7117f746648809618368f4d7a6df62af3f4e54d659757b96c703eb`.
+- `E:/Projects/Personal/MekStation-wt/hi-prep-20261018/HI-PREP.md`: `6b8df3e824b27717d7db0c6f6f316ef150295d4cdb28d3861eb23a697ffb7590`.
+
+Final readback: prep and scratch remain detached at f32626fbd2b558e1307f16590d4ab03c55668772; prep has no tracked or staged changes. Scratch alone retains the prototype. No tracked campaign-coop transport/fold-store leaf, root working file, shared T3 working file, lifecycle state, credential, commit, remote branch or PR was changed by this run. The report SHA-256 is supplied separately because it cannot contain its own final hash.

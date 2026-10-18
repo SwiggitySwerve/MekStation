@@ -3612,6 +3612,26 @@
         "knownSourceTestLifecycleSubtotal": 11,
         "totalProspectiveFiles": 15,
         "rule": "Literal prospective manifest only; two new source/test files and four evidence filenames freeze at admission. Existing aliases satisfy validator path-existence rules, not broad permission. Exact metadata route and fog spec aliases added to this node; all other node contracts/holders and prior restrictions unchanged. Re-census G2A securityBoundary.test.ts and S/U26 Events/Replay overlaps before admission. Split if required proof/closure cannot fit 15 files / 500 counted additions."
+      },
+      "ownershipPathsAmended20261018B14Head": {
+        "unit": "B14-HEAD",
+        "status": "planned-gated",
+        "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/b14hp-prep-20261018.txt",
+        "sourceSha256": "a9e395468f332ab5ae90e58d6c57a348a1389143746d25f16d866d98f377b787",
+        "restrictions": {
+          "B14-HEAD": [
+            "src/pages-modules/api/matchHeadRoute.ts",
+            "src/pages-modules/api/__tests__/matchHeadRoute.test.ts",
+            "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-head-admission-20261018.json",
+            "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-head-red-20261018.json",
+            "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-head-local-20261018.json",
+            "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-head-admission-review-20261018.json"
+          ]
+        },
+        "knownSourceTestLifecycleSubtotal": 3,
+        "totalProspectiveFiles": 7,
+        "rule": "Literal prospective manifest only. Existing src/pages-modules/api alias satisfies node ownership; it grants no directory-wide permission. B14-0's existing 15-file restriction is unchanged. Freeze final evidence names and actual measured fit at admission. Re-census U26 history-route/test overlap and preserve the landed shared fogMatchAdmission decision read-only; required extra leaves need separate registration. Full B14 privacy acceptance is discharged only when BOTH B14-0 and B14-HEAD have genuine exact-main mainProof PASS, fetched-main ancestry and closure."
       }
     },
     {
@@ -18064,5 +18084,33 @@
     },
     "rBoundary": "R does not establish cross-file atomicity or comprehensive outer-COMMIT cleanup. If broader repair is required it must be separately registered before H; repair-not-implied-waiver remains.",
     "enforcement": "Documentary predecessors only: NEXT supplies no permission. Parent releases HP only after B14-0 genuine exact-main PASS, fetched-main ancestry and closure, then H only after equivalent HP proof and closure alongside existing G2/R/S/B14-0 prerequisites. Sensitive review, exact-head OWNER-RULING and required CI precede implementation merge. No source admission or receipt fabricated."
+  },
+  "b14HeadRegistration20261018": {
+    "baseline": "f32626fbd2b558e1307f16590d4ab03c55668772",
+    "status": "planned-gated",
+    "registrationOnly": true,
+    "sourceAdmitted": false,
+    "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/b14hp-prep-20261018.txt",
+    "sourceSha256": "a9e395468f332ab5ae90e58d6c57a348a1389143746d25f16d866d98f377b787",
+    "authority": "Parent adopts the recommendation in B14HP-PREP.md, section B14 fit ruling and draft split, under the owner standing instruction: continue with recommended options and fix the issues that come up, publish as needed. This records the parent ruling, not a fresh direct owner answer, future implementation OWNER-RULING or runtime acceptance.",
+    "node": "R2.authority-live",
+    "unit": "B14-HEAD",
+    "layer": "L1",
+    "order": "P2CG1G2 -> P2CG1R -> P2CG1S -> B14-0 -> B14-HEAD -> P2CG1HP -> P2CG1H",
+    "manifest": [
+      "src/pages-modules/api/matchHeadRoute.ts",
+      "src/pages-modules/api/__tests__/matchHeadRoute.test.ts",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-head-admission-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-head-red-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-head-local-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-head-admission-review-20261018.json"
+    ],
+    "knownSourceTestLifecycleSubtotal": 3,
+    "totalProspectiveFiles": 7,
+    "census": "matchHeadRoute.ts:61/:73 returns the privileged host journal-head digest; digest material includes payload, including gunnery and expectedPostStateDigest. The mandatory census proves containment is required. Adding route/test to B14-0 would make 17/15 files; this split leaves B14-0 at 15/15 and registers B14-HEAD at 7/15 under unchanged 15/500 caps.",
+    "apportionment": "B14-HEAD owns /head route containment and its existing route test; B14-0 must not edit either leaf. B14-0 retains its shared fogMatchAdmission decision and unchanged remaining acceptance. Full B14 privacy acceptance is discharged only when BOTH B14-0 and B14-HEAD have genuine exact-main mainProof PASS, fetched-main ancestry and closure.",
+    "evidenceNames": "Four prospective bounded output names only; freeze truthful final admission/red/local/admission-review evidence at admission. No placeholder receipts are created. Later review/identity/closure outputs require the existing separate G-OWN freeze and entire-stage census.",
+    "enforcement": "Parent releases B14-HEAD only after B14-0 genuine exact-main PASS, fetched-main ancestry and closure; HP requires both B14-0 and B14-HEAD equivalent proof and closure; H retains all existing prerequisites and also requires B14-HEAD main-verified with exact-main PASS, ancestry and closure. NEXT supplies no permission. Sensitive review, exact-head OWNER-RULING and required CI precede implementation merge. No source admission or completion claimed."
   }
 }
