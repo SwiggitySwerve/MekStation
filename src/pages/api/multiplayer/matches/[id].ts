@@ -16,6 +16,10 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import { authenticateRequest } from '@/lib/multiplayer/server/auth';
+import {
+  noPerViewerRevealProjection,
+  FOG_REFUSAL,
+} from '@/lib/multiplayer/server/fogMatchAdmission';
 import { getDefaultMatchStore } from '@/lib/multiplayer/server/getDefaultMatchStore';
 import {
   MatchNotFoundError,
@@ -94,6 +98,10 @@ export default async function handler(
             ));
       if (!participant) {
         throw new MatchNotFoundError(id);
+      }
+      if (noPerViewerRevealProjection(meta.config)) {
+        res.status(403).json({ error: FOG_REFUSAL });
+        return;
       }
       res.status(200).json({ meta });
       return;

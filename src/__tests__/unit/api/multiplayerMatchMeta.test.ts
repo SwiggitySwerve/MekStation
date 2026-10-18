@@ -105,7 +105,8 @@ async function seed(
     status,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    config: { mapRadius: 8, turnLimit: 20, fogOfWar: true },
+    // Full-metadata controls are known-off; fog-on refusal rows are below.
+    config: { mapRadius: 8, turnLimit: 20, fogOfWar: false },
     layout: '1v1',
     roomCode: 'ABCD23',
     seats: occupySeat(
@@ -282,5 +283,58 @@ describe('GET match metadata privacy', () => {
     expect(
       JSON.stringify([listing.result.body, invite.result.body]),
     ).not.toMatch(/unitBootstrap|coopCampaign|SECRET|987654321/);
+  });
+  describe('B14-0A fog-on containment', () => {
+    const FOG = { mapRadius: 8, turnLimit: 20, fogOfWar: true };
+    function expectFogRefused(result: { statusCode: number; body: unknown }) {
+      expect(result.statusCode).toBe(403);
+      expect(result.body).toStrictEqual({
+        error: 'fog-projection-unavailable',
+      });
+      expect(JSON.stringify(result.body)).not.toMatch(
+        /hidden-opfor|atlas-as7-d|SECRET|gunnery|startHex|987654321/,
+      );
+    }
+
+    it.each<MatchStatus>(['lobby', 'active', 'completed'])(
+      'refuses a seated player in a %s fog-on match after membership',
+      async (status) => {
+        await seed(status, { config: FOG });
+        const { req, res, result } = request(player.wire);
+        await handler(req, res);
+        expectFogRefused(result);
+      },
+    );
+
+    it('refuses the GM/host without a playing seat when fog is on', async () => {
+      await seed('active', {
+        config: FOG,
+        seats: addSpectatorSeat(
+          occupySeat(defaultSeats('1v1'), 'alpha-1', player.ref),
+          host.ref,
+        ),
+      });
+      const { req, res, result } = request(host.wire);
+      await handler(req, res);
+      expectFogRefused(result);
+    });
+
+    it('gives an outsider the generic denial, never the fog reason', async () => {
+      await seed('active', { config: FOG });
+      const { req, res, result } = request(outsider.wire);
+      await handler(req, res);
+      expectDenied(result);
+      expect(JSON.stringify(result.body)).not.toContain('fog');
+    });
+
+    it('treats a known config without the legacy flag as fog-off', async () => {
+      const meta = await seed('active', {
+        config: { mapRadius: 8, turnLimit: 20 },
+      });
+      const { req, res, result } = request(player.wire);
+      await handler(req, res);
+      expect(result.statusCode).toBe(200);
+      expect(result.body).toEqual({ meta });
+    });
   });
 });

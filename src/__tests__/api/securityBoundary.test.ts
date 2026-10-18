@@ -15,6 +15,7 @@ const mockCreateMatch = jest.fn();
 const mockListMatches = jest.fn();
 const mockCloseMatch = jest.fn();
 const mockGetMatchByRoomCode = jest.fn();
+const mockGetMatchMeta = jest.fn();
 const mockGetOrCreatePlayer = jest.fn();
 const mockGetActive = jest.fn();
 const mockUnlockIdentity = jest.fn();
@@ -37,6 +38,7 @@ jest.mock('@/lib/multiplayer/server/getDefaultMatchStore', () => ({
     getMatchByRoomCode: (...args: readonly unknown[]) =>
       mockGetMatchByRoomCode(...args),
     listMatches: mockListMatches,
+    getMatchMeta: (...args: readonly unknown[]) => mockGetMatchMeta(...args),
   }),
 }));
 
@@ -407,6 +409,45 @@ describe('API security boundaries', () => {
       };
     }
 
+    it.each([
+      [true, 'host'],
+      [false, 'host'],
+      [true, 'stranger'],
+    ] as const)(
+      'B14 metadata fog=%s caller=%s: membership first, fog-on refused before private serialization',
+      async (fogOfWar, caller) => {
+        await store.updateMatchMeta(MATCH_ID, {
+          hostPlayerId: caller === 'host' ? playerId : 'pid_SECRET_HOST',
+          config: { ...seeded.config, fogOfWar },
+        });
+        seeded = await store.getMatchMeta(MATCH_ID);
+        mockGetMatchMeta.mockImplementation(store.getMatchMeta);
+        const { default: handler } =
+          await import('@/pages/api/multiplayer/matches/[id]');
+        const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
+          method: 'GET',
+          query: { id: MATCH_ID },
+          headers: { authorization: 'Bearer ' + bearer() },
+        });
+        await handler(req, res);
+        const text = (res as unknown as { _getData: () => string })._getData();
+        if (caller === 'stranger') {
+          expect(res.statusCode).toBe(404);
+          expect(text).not.toMatch(/fog|atlas-as7-d|SECRET-PILOT/);
+        } else if (fogOfWar) {
+          expect(res.statusCode).toBe(403);
+          expect(JSON.parse(text)).toEqual({
+            error: 'fog-projection-unavailable',
+          });
+          expect(text).not.toMatch(
+            /hidden-opfor|atlas-as7-d|SECRET-PILOT|gunnery|startHex/,
+          );
+        } else {
+          expect(res.statusCode).toBe(200);
+          expect(text).toContain('atlas-as7-d');
+        }
+      },
+    );
     async function run(
       query: Record<string, string | string[]>,
       authorization?: string,
