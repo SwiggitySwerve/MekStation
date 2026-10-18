@@ -8221,7 +8221,11 @@
         "openspec/changes/design-campaign-authority-and-sync"
       ],
       "ownershipExceptions": [
-        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-admission-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-admission-review-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-red-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-local-20261018.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic lifecycle fields and frozen evidence; no other unit/packet/holder/historical receipt edits. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -8236,12 +8240,14 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "implementing",
+      "baseline": "2d576747ee8dd210e5f6a5b0f380819b153a203a",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
+        "admission": {
+          "path": "evidence/lsc-0-admission-20261018.json"
+        },
         "red": null,
         "local": null,
         "review": null,
