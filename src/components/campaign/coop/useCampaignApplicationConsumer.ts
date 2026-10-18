@@ -149,6 +149,13 @@ function retainsLaunchFacts(
  */
 const heardAt = new WeakMap<ICampaignSyncTransport, number>();
 
+/**
+ * CF-H1: transports a binding was disposed from while an offer it consumed
+ * was still settling. No binding can confirm that offer any more, so the
+ * transport withholds every later ACK; the next binding rejoins at once.
+ */
+const cutTransports = new WeakSet<ICampaignSyncTransport>();
+
 function bindCampaignApplicationConsumer(
   binding: CampaignApplicationBinding,
   onRejoin: () => void,
@@ -159,6 +166,7 @@ function bindCampaignApplicationConsumer(
   let live = active;
   let latched = false;
   let queue = Promise.resolve();
+  let settling = 0;
   // A close before receipt mode latches is silent, so a bound view that
   // hears no campaign frame within one confirmation window rejoins once.
   const quiet =
@@ -236,6 +244,8 @@ function bindCampaignApplicationConsumer(
       rejoin();
   };
 
+  if (active && cutTransports.has(transport)) rejoin();
+
   return {
     consume: (message) => {
       if (!active) return isOffer(message);
@@ -256,10 +266,17 @@ function bindCampaignApplicationConsumer(
       latched = true;
       // A step that throws, confirmApplied included, rejoins once; it never
       // rejects the queue, so later steps still run and see the dead binding.
-      queue = queue.then(() => settle(message)).catch(() => rejoin());
+      settling += 1;
+      queue = queue
+        .then(() => settle(message))
+        .catch(() => rejoin())
+        .then(() => {
+          settling -= 1;
+        });
       return true;
     },
     dispose: () => {
+      if (live && settling > 0) cutTransports.add(transport);
       live = false;
       heard();
       offError();

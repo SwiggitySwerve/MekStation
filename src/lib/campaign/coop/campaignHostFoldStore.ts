@@ -38,7 +38,12 @@ interface IHostFoldLineage extends ICampaignHostFoldBinding {
 
 let held: IHostFoldLineage | null = null;
 
-/** Bound exactly as the receipt consumer requires, and still registered. */
+/**
+ * Bound exactly as the receipt consumer requires, still registered, and
+ * current (CF-H3): a fold behind the transport cursor missed a frame while
+ * nothing was bound. A legacy baseline is adopted at 0 while the cursor
+ * stays -1, so "not behind" rather than equal.
+ */
 function continues(
   lineage: IHostFoldLineage | null,
   { campaignId, matchId, transport }: ICampaignHostFoldBinding,
@@ -50,7 +55,8 @@ function continues(
     lineage.matchId === matchId &&
     transport.campaignId === campaignId &&
     transport.confirmApplied !== undefined &&
-    getActiveCampaignSyncTransport(matchId) === transport
+    getActiveCampaignSyncTransport(matchId) === transport &&
+    lineage.cell.current.lastSequence >= transport.lastSeq()
   );
 }
 
