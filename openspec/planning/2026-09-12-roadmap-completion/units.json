@@ -8269,6 +8269,37 @@
         "at": "2026-10-16T16:15:30.000Z",
         "change": "predecessor P2CG1 replaced by P2CG1I3, the last of its thirteen successors; corrected to P2CG1I4, the fourteenth and last, by evidence/p2cg1-split-registration-correction-20261016.json",
         "note": "P2CG1 is superseded by P2CG1A1/P2CG1A2/P2CG1B/P2CG1C/P2CG1D/P2CG1E/P2CG1F/P2CG1G1/P2CG1G2/P2CG1H/P2CG1I1/P2CG1I2/P2CG1I3/P2CG1I4 (evidence/p2cg1-split-registration-20261016.json and evidence/p2cg1-split-registration-correction-20261016.json); its absence of a mainProof is not bypassed or falsified."
+      },
+      "amended20261018Tail": {
+        "source": "evidence/tail-prep-20261018.txt",
+        "sourceSha256": "7bd7dd724476ce533e0a567f760ff996ffd9623f94fefb046578caf3a2a51a2e",
+        "additionalLeaf": "src/lib/multiplayer/server/campaignApplicationConnection.ts",
+        "responsibility": "Durable application-settlement notification and receipt attachment invalidation for retained seats, paused recovery and committed removal. Notify after durable settlement (including covered returning baselines with stale/no wire confirmation), then request fresh graph-bound P2CA/P2CB preparation and synchronous current-head/seat revalidation before resume. Bind every receipt-mode attachment invalidation/close handle into the existing lifecycle so committed removal stops every tab, including durable revoke/healing gaps. Notification is not the acceptance predicate or a second readiness switch.",
+        "limits": "Preserve existing installed-port authority, viewer fingerprints, current-context revalidation and H type/handle identity. No new wire fields, persistence schema, numeric readiness, timer service or broad extraction. All original behavior, predecessors, review classes and 15-file/500-counted-added-line caps remain. More scope requires a separately registered successor; no unnamed leaves or cap inflation.",
+        "prospectiveSourceStage": [
+          "src/lib/multiplayer/server/CampaignSyncSession.ts",
+          "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+          "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+          "src/lib/multiplayer/server/campaignApplicationConnection.ts",
+          "src/lib/multiplayer/server/__tests__/CampaignSyncSession.test.ts",
+          "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
+          "src/lib/multiplayer/server/__tests__/campaignPublicAppliedView.recovery.test.ts",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg2-admission-20261018.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg2-red-20261018.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg2-local-20261018.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg2-admission-review-20261018.json"
+        ],
+        "estimatedFiles": 12,
+        "estimatedCountedAdditions": [
+          116,
+          270
+        ],
+        "estimatedTestAdditions": [
+          550,
+          950
+        ],
+        "freeze": "Draft source-stage census only; actual finite names and full stage census must be frozen at admission. No stage artifact or runtime proof is created here; later review/identity/closure outputs retain G-OWN freeze and complete census."
       }
     },
     {
@@ -8404,6 +8435,28 @@
         "at": "2026-10-16T16:15:30.000Z",
         "change": "predecessor P2CG1 replaced by P2CG1A1, P2CG1A2, P2CG1B, P2CG1C, P2CG1D, P2CG1E, P2CG1F, P2CG1G1, P2CG1G2, P2CG1H, P2CG1I1, P2CG1I2, P2CG1I3; P2CG1I4 added by evidence/p2cg1-split-registration-correction-20261016.json",
         "note": "P2CG1 is superseded by P2CG1A1/P2CG1A2/P2CG1B/P2CG1C/P2CG1D/P2CG1E/P2CG1F/P2CG1G1/P2CG1G2/P2CG1H/P2CG1I1/P2CG1I2/P2CG1I3/P2CG1I4 (evidence/p2cg1-split-registration-20261016.json and evidence/p2cg1-split-registration-correction-20261016.json); its absence of a mainProof is not bypassed or falsified."
+      },
+      "qualificationNote20261018": {
+        "source": "evidence/tail-prep-20261018.txt",
+        "sourceSha256": "7bd7dd724476ce533e0a567f760ff996ffd9623f94fefb046578caf3a2a51a2e",
+        "note": "Task17 guidance only; original behavior, admissionRequires, predecessor array, readmission authority and all earlier prerequisites remain unchanged. The explicit predecessor array contains 27 operative source units; qualify newer L1 B14-0/B14-HEAD/HP and LSC-0/LSC-1DB/LSC-1/LSC-2/LSC-2P gates as well. Superseded parent records are traced through their operative successors, not treated as fabricated missing PASS receipts.",
+        "matrix": "Freeze a finite matrix for every P2CC letter/obligation: GM retention, hidden-only settlement, visible no-op, baseline/adjunct application, committed removal/revocation, current branch/generation/viewer authority, prefix ordering/send failure and cold/API/socket recovery. Each cell binds the actual assertion, tested head, command/exit, artifact hash, source mainProof, fetched-Main ancestry and closure. Include R bounded failure and unresolved outer-COMMIT/cross-file atomicity, fog containment/head route, HP bounded recovery, LSC trust/identity model and P2J registration; every earlier carry-forward needs an explicit disposition linked to genuine owner evidence.",
+        "prospectiveSourceStage": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/p2c-admission-20261018.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/p2c-red-20261018.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/p2c-local-20261018.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/p2c-admission-review-20261018.json"
+        ],
+        "estimatedFiles": 6,
+        "estimatedCountedAdditions": [
+          100,
+          215
+        ],
+        "freeze": "Freeze the two documentary leaves and four genuine bounded artifacts; keep detailed matrix/evidence links in the local artifact. Root separately freezes exact original P2/U38 state/admission edits under Task17 authority. No product/test edit or implicit permission to rewrite another unit; authentic additional review/closure files require G-OWN freeze and recount. If scope cannot fit 15/500, separately register a documentary prefix without claiming aggregate completion.",
+        "readmission": "Before P2 source admission, independently qualify the merged P2J registration. Require LSC-2 and LSC-2P genuine exact-main PASS/ancestry/closure before P2 proof/U38 acceptance; release U38 only after P2 genuine closure. P2J execution follows P2 and U38 closure, never precedes their admission. Registration and NEXT alone release neither unit.",
+        "discrimination": "Independently refuse qualification for missing/non-PASS predecessor, non-ancestor proof, unclosed source, omitted P2CC letter, absent LSC acceptance or absent P2J registration. These are documentary qualification controls, not new executable validator coverage; unchanged validate-roadmap is not semantic enforcement. Pending installer/human/release-note gates remain pending."
       }
     },
     {
@@ -8572,6 +8625,75 @@
         "officialTask57Acceptance": "E:/Projects/MekStation/.omo/ulw-execute/evidence/task-57-p2b-official-closure-exact-main-accepted.json",
         "preservedOriginalRedSha256": "144dfb6effa612da69836aaa528d9ef713267821ac11f3afabaa9cf603ba3b4f",
         "limits": "P2 blocked-to-planned release only; all historical blockers and releases, unrelated units, packets, paths, caps and stage receipts remain unchanged. No implementation, runtime QA, source delivery, Task39 completion or whole-goal completion is claimed. U38 remains blocked. Product edits require explicit parent acceptance."
+      }
+    },
+    {
+      "id": "P2J",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Test-only three-context terminal extension of e2e/coop-campaign-two-browser-journey.spec.ts: a non-playing GM and two deploying players with distinct ordinary LSC identities in isolated browser contexts use one same-host loopback server. Create/join by invite; approve and reject a proposal; launch fog-off to one authoritative mission; both players move/fire owned units and both foreign-unit attempts refuse; server drives opponents while GM observes. Reconnect one player mid-mission, play real combat to terminal Results, apply the authoritative outcome once, reload all three seats and prove the same shared result and one consequence persist without another match/outcome. Preserve original ledger/proposal/reconciliation assertions; no E2E vault-identity switching, manual token transfer, cross-profile credential copying, injected outcome, force-win/seeded result or local-engine combat replacement.",
+      "ownershipPaths": [
+        "e2e/coop-campaign-two-browser-journey.spec.ts"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "lifecycleOwnershipLimit": "Only this unit own authentic units.json lifecycle after accepted registration and normal finite admission. No other unit, task holder, packet, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "predecessors": [
+        "P2",
+        "U38",
+        "LSC-2",
+        "LSC-2P"
+      ],
+      "successors": [],
+      "admissionRequires": "Merge and independently qualify this registration before P2 source admission, without changing Task18 original contract. Execute P2J only after P2, U38, LSC-2, LSC-2P and every retained L1 gate have genuine exact-main mainProof PASS, fetched-Main ancestry and closure. Preserve the one product-writing lane including closure. Rebase/re-census fresh Main and earlier P2CH/P2 journey ownership. NEXT does not enforce ordinary predecessors and gives no permission. Freeze every actual source/test/helper/lifecycle/evidence leaf and actual additions within 15 files / 500 counted additions; tests/evidence are line-exempt but file-counted. Later genuine review/identity/closure outputs require G-OWN freeze/full census. No product, package.json, Playwright config, shared helper or runner edits; register a separate successor for required extra scope or runtime defects.",
+      "registration20261018": {
+        "source": "evidence/tail-prep-20261018.txt",
+        "sourceSha256": "7bd7dd724476ce533e0a567f760ff996ffd9623f94fefb046578caf3a2a51a2e",
+        "classification": "Routine test-only coverage under existing ciClass product conventions; no runtime authority/privacy/replay/idempotency/concurrency implementation grant. Preserve all sensitive predecessor review/owner gates, independent exact-head review, required CI and genuine exact-main closure; reclassify/register any actual sensitive scope before admission.",
+        "prospectiveSourceStage": [
+          "e2e/coop-campaign-two-browser-journey.spec.ts",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/p2j-admission-20261018.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/p2j-red-20261018.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/p2j-local-20261018.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/p2j-admission-review-20261018.json"
+        ],
+        "estimatedFiles": 6,
+        "estimatedCountedAdditions": [
+          16,
+          35
+        ],
+        "estimatedTestAdditions": [
+          400,
+          800
+        ],
+        "selector": "node scripts/playwright/run-playwright.mjs test --project=chromium e2e/coop-campaign-two-browser-journey.spec.ts --workers=1",
+        "selectorKind": "Explicit QC Playwright-wrapper selector; record in addition to the existing npm run verify:qc:coop-campaign-journey and U38 ownership selector. No new npm script or runner is granted.",
+        "proof": "Bind exact RC SHA, one-server/process/store topology, non-secret profile/playerId mapping, campaign/mission/result IDs, observed terminal events, reload readbacks, commands/exits and hashes. Preserve 180000ms test timeout and all config/environment budgets; use a small legal mission with real dice/combat provenance. Baseline GREEN after closed predecessors must be recorded honestly. Falsify aliased identities, missing context, different/local match, opponent-control grant, accepted foreign intent, omitted reconnect, synthetic terminal, double outcome, cached/partial reload and extra match on reload using ordinary assertion failures with witnessed preconditions; restore every scratch mutation.",
+        "limits": "Same-host operator-managed trust permits operator impersonation and supplies no OS-user isolation or remote-hosting claim. Preserve B14 fog-off containment, S spectator policy, PAI server opponent and P2CG2 recovery. No human acceptance or installer rehearsal credit. If the legal journey cannot fit existing timeout/scope, report the blocker and register a bounded successor; do not weaken assertions or raise timeouts."
       }
     },
     {
@@ -22680,7 +22802,8 @@
       "P2CH",
       "P2C",
       "P2",
-      "U38"
+      "U38",
+      "P2J"
     ],
     "planTasks": {
       "14": [
@@ -22724,9 +22847,9 @@
         "U38"
       ]
     },
-    "order": "Current effective L1 order (28 units, including the R/S prerequisites, S3 G2A insertion, B14-0/B14-HEAD containment pre-H consumer recovery and local-seat credentials): P2CG1B -> P2CG1C -> P2CG1D -> P2CG1E -> P2CG1F -> P2CG1G1 -> P2CG1G2A -> P2CG1G2 -> P2CG1R -> P2CG1S -> B14-0 -> B14-HEAD -> P2CG1HP -> LSC-0 -> LSC-1DB -> LSC-1 -> LSC-2 -> LSC-2P -> P2CG1H -> P2CG1I1 -> P2CG1I2 -> P2CG1I3 -> P2CG1I4 -> P2CG2 -> P2CH -> P2C -> P2 -> U38. Each release requires predecessor genuine exact-main mainProof PASS, fetched-main ancestry and closure. The one-product-writing-lane rule and all original release acceptance/checkpoint/task holders remain. P2 readmission remains governed by P2C and its registered convergence gates.",
+    "order": "Current effective L1 order (29 units, including the R/S prerequisites, S3 G2A insertion, B14-0/B14-HEAD containment pre-H consumer recovery and local-seat credentials): P2CG1B -> P2CG1C -> P2CG1D -> P2CG1E -> P2CG1F -> P2CG1G1 -> P2CG1G2A -> P2CG1G2 -> P2CG1R -> P2CG1S -> B14-0 -> B14-HEAD -> P2CG1HP -> LSC-0 -> LSC-1DB -> LSC-1 -> LSC-2 -> LSC-2P -> P2CG1H -> P2CG1I1 -> P2CG1I2 -> P2CG1I3 -> P2CG1I4 -> P2CG2 -> P2CH -> P2C -> P2 -> U38 -> P2J. Each release requires predecessor genuine exact-main mainProof PASS, fetched-main ancestry and closure. The one-product-writing-lane rule and all original release acceptance/checkpoint/task holders remain. P2 readmission remains governed by P2C and its registered convergence gates.",
     "entry": "ts7TrackRegistration20261016.stoppingCondition is met: at baseline all eleven active TS7 units (TS7S1A through TS7S5C, including TS7S2OD, TS7S5B and TS7S5C) are main-verified, so the TS7 track is complete. L0 (v2.1.0) is published (tag v2.1.0 at e308fb2a44d8cbea3317acbf165bd536b31e45cb, GitHub release 2026-10-17T11:11:29Z) and is independent of this layer.",
-    "releasePredicate": "U38 main-verified with an exact-main mainProof PASS; npm run verify:qc:coop-campaign-journey PASS on that exact Main (P2's registered proof) and the Task 19 selector PASS; then v2.2.0 minted by auto-version workflow_dispatch (bump_type=minor), the L0 installer smoke repeated on the v2.2.0 installer and a playtest/ session recorded where two players and a non-playing GM launch, play to Results and reload one shared mission. The release is a layer boundary, not a phase exit: P3 stays open until its full exit contract (PLAN.md P3 Exit) is met. Both LSC-2 and LSC-2P must have genuine exact-main mainProof PASS, fetched-main ancestry and closure before P2 (Task 18) journey proof, U38 acceptance and the v2.2.0 two-players-plus-non-playing-GM human session.",
+    "releasePredicate": "U38 main-verified with an exact-main mainProof PASS; npm run verify:qc:coop-campaign-journey PASS on that exact Main (P2's registered proof) and the Task 19 selector PASS; then v2.2.0 minted by auto-version workflow_dispatch (bump_type=minor), the L0 installer smoke repeated on the v2.2.0 installer and a playtest/ session recorded where two players and a non-playing GM launch, play to Results and reload one shared mission. The release is a layer boundary, not a phase exit: P3 stays open until its full exit contract (PLAN.md P3 Exit) is met. Both LSC-2 and LSC-2P must have genuine exact-main mainProof PASS, fetched-main ancestry and closure before P2 (Task 18) journey proof, U38 acceptance and the v2.2.0 two-players-plus-non-playing-GM human session. P2J genuine exact-main PASS, fetched-main ancestry and closure plus its explicit QC selector PASS on the same exact release-candidate SHA are additional installer-rehearsal/human-session gates; the existing journey npm and Task19 ownership selector remain required on that exact RC.",
     "acceptance": {
       "spec": "e2e/coop-campaign-two-browser-journey.spec.ts via npm run verify:qc:coop-campaign-journey",
       "observes": [
@@ -22741,7 +22864,11 @@
         "browser E2E-31/32 on the co-op fixture (U53, P5)",
         "terminal mission to next scenario (Tasks 76/81, P6)",
         "P3 exit (L2)"
-      ]
+      ],
+      "p2j": {
+        "selector": "node scripts/playwright/run-playwright.mjs test --project=chromium e2e/coop-campaign-two-browser-journey.spec.ts --workers=1",
+        "requirement": "Automated three isolated LSC contexts (GM + two players), one loopback authority, real combat to terminal Results, authoritative outcome applied once and agreement after all three seats reload; additional to every existing acceptance selector."
+      }
     },
     "checkpoint": "Independent Astra-high review at P2CG1H, the first behaviour-changing merge, in addition to H's registered review, PK-p2cg1h-ruling packet and OWNER-RULING; it adds no gate to any other unit.",
     "deferredToL2": [
@@ -22831,6 +22958,16 @@
       "sourceSha256": "57c20caf90e9acf3c2ce0b8ba57c8dcc5178426ece806bab7c78b14e980e25ea",
       "releaseHold": "Both LSC-2 and LSC-2P must have genuine exact-main mainProof PASS, fetched-main ancestry and closure before P2 (Task 18) journey proof, U38 acceptance and the v2.2.0 two-players-plus-non-playing-GM human session.",
       "rule": "Registration only. All five LSC units remain blocked; retain sensitive independent exact-head review, OWNER-RULING, required CI, genuine exact-main PASS and closure. Prior dated amendments are historical; original task holders, H checkpoint and one product-writing lane including closure remain. See localSeatCredentialsSplitRegistration20261018."
+    },
+    "amended20261018Tail": {
+      "source": "evidence/tail-prep-20261018.txt",
+      "sourceSha256": "7bd7dd724476ce533e0a567f760ff996ffd9623f94fefb046578caf3a2a51a2e",
+      "additionalUnits": [
+        "P2J"
+      ],
+      "unitCount": 29,
+      "order": "P2 -> U38 -> P2J -> installer rehearsal / v2.2.0 human session",
+      "rule": "P2J registration is the pre-P2-admission gate; P2J execution requires P2/U38 closure. Original Task18 behavior and Task17 readmission authority remain unchanged. Registration supplies no source admission, execution PASS or release-checklist completion."
     }
   },
   "hPrereqRegistration20261017": {
@@ -23066,7 +23203,7 @@
       "ruling": "Root council-3 ruling supplied in the implementation task; this record transcribes that ruling. Pending policy questions below are not new owner decisions, source admission, exact-head OWNER-RULING or runtime acceptance."
     },
     "layer": "L1 / v2.2.0",
-    "unitCount": 28,
+    "unitCount": 29,
     "closures": [
       "P2CG1B",
       "P2CG1C",
@@ -23095,24 +23232,25 @@
       "P2CH",
       "P2C",
       "P2",
-      "U38"
+      "U38",
+      "P2J"
     ],
     "enforcement": "Documentary record only, inert to validate-roadmap/NEXT like layerRegistration20261017L1. Root owns release checks. No task contract, holder, P2CG1G2 field, release receipt or existing lifecycle changes; no claim that these gates passed.",
     "checklist": [
       {
         "id": "closures",
         "status": "pending",
-        "requirement": "All 28 listed units have genuine exact-main mainProof PASS, fetched-main ancestry and closure; preserve original L1 acceptance and H checkpoint."
+        "requirement": "All 29 listed units have genuine exact-main mainProof PASS, fetched-main ancestry and closure; preserve original L1 acceptance and H checkpoint."
       },
       {
         "id": "automated-rc",
         "status": "pending",
-        "requirement": "On the exact release-candidate SHA, pass npm run verify:qc:coop-campaign-journey and src/lib/multiplayer/server/__tests__/ServerMatchHostUnitOwnership.test.ts; bind recorded evidence to that SHA."
+        "requirement": "On the exact release-candidate SHA, pass npm run verify:qc:coop-campaign-journey and src/lib/multiplayer/server/__tests__/ServerMatchHostUnitOwnership.test.ts; bind recorded evidence to that SHA. Also pass P2J via node scripts/playwright/run-playwright.mjs test --project=chromium e2e/coop-campaign-two-browser-journey.spec.ts --workers=1 on that same exact RC and retain separate P2J evidence; this adds to both existing selectors."
       },
       {
         "id": "three-context-entry",
         "status": "pending",
-        "requirement": "Before the human session, an automated GM + two players mission journey on three isolated contexts must reach terminal state and reload, without injected outcomes replacing combat. Root must inspect P2 / Task 18 registered acceptance and, if it does not already cover this journey, register the missing coverage before P2 admission. Task 18 original contract text remains unchanged in this PR."
+        "requirement": "P2J is registered as the separate test-only coverage unit; merge and independently qualify this registration before P2 admission. After P2, U38 and all retained L1/LSC gates close, P2J must prove GM + two players with ordinary LSC identities in three isolated contexts on one loopback server, real combat to terminal state, outcome applied once and all-seat reload agreement. Require P2J genuine exact-main PASS, fetched-main ancestry and closure plus its exact-RC selector PASS before installer rehearsal and the human session. Registration does not fulfill this pending gate. Task18 original contract remains unchanged."
       },
       {
         "id": "installer-rehearsal",
@@ -23122,7 +23260,7 @@
       {
         "id": "human-session",
         "status": "pending",
-        "requirement": "Both LSC-2 and LSC-2P must have genuine exact-main mainProof PASS, fetched-main ancestry and closure before P2 (Task 18) journey proof, U38 acceptance and the v2.2.0 two-players-plus-non-playing-GM human session. Human session follows a current playtest/checklists three-seat script: GM plus two players create/join by invite, approve/reject proposal, launch fog-off, both move/fire own units and receive foreign-unit refusal, GM observes, reconnect one player mid-mission, play to terminal Results, apply outcome once, reload all three seats and verify shared result persists. Root must prepare/update the script before the session; the stale two-window coop-uat.md is not sufficient. Record actual human operators (explicitly label one human operating three seats if applicable), build/artifact identity, topology/profile-seat mapping without tokens, timestamped PASS/FAIL steps, campaign/match IDs, screenshots/logs, defects/retests and human attestation in playtest/session-notes. No human evidence is claimed by this registration."
+        "requirement": "P2J genuine exact-main PASS, fetched-main ancestry and closure and its explicit QC selector PASS on the exact RC are required before this human session. Both LSC-2 and LSC-2P must have genuine exact-main mainProof PASS, fetched-main ancestry and closure before P2 (Task 18) journey proof, U38 acceptance and the v2.2.0 two-players-plus-non-playing-GM human session. Human session follows a current playtest/checklists three-seat script: GM plus two players create/join by invite, approve/reject proposal, launch fog-off, both move/fire own units and receive foreign-unit refusal, GM observes, reconnect one player mid-mission, play to terminal Results, apply outcome once, reload all three seats and verify shared result persists. Root must prepare/update the script before the session; the stale two-window coop-uat.md is not sufficient. Record actual human operators (explicitly label one human operating three seats if applicable), build/artifact identity, topology/profile-seat mapping without tokens, timestamped PASS/FAIL steps, campaign/match IDs, screenshots/logs, defects/retests and human attestation in playtest/session-notes. No human evidence is claimed by this registration."
       },
       {
         "id": "release-notes",
@@ -23133,7 +23271,8 @@
     "evidence": [
       "evidence/council3-a-20261018.txt",
       "evidence/council3-b-20261018.txt",
-      "evidence/council3-c-20261018.txt"
+      "evidence/council3-c-20261018.txt",
+      "evidence/tail-prep-20261018.txt"
     ]
   },
   "localSeatCredentialsRegistration20261018": {

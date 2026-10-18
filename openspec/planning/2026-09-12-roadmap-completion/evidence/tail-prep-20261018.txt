@@ -1,0 +1,388 @@
+# L1 tail early fit check — 2026-10-18
+
+Read-only research for Root. This is prospective scope/fit analysis, not admission, implementation, independent review, exact-main acceptance or closure. No candidate product/test changes or mutations were made.
+
+**Task 18 answer: NO.** P2's registered acceptance does not already require a GM plus two players in three isolated contexts, using LSC identities on one server, playing real combat to terminal state and reloading. Register the separate coverage unit proposed below as **P2J before P2 admission**, preserving Task 18's original contract text. Execute P2J after P2 and U38 close; requiring P2J execution before P2 would create a dependency cycle. Its registration is the pre-P2 gate; its execution is the pre-human-session gate.
+
+| Unit | Prospective finding | Draft source-stage files | Estimated counted additions / 500 | Separate test additions |
+| --- | --- | ---: | ---: | ---: |
+| P2CG2 | Add one literal product leaf before admission; behavior need not split yet | registered 11; proposed 12 / 15 | 116–270 | 550–950 |
+| P2CH | Fits named test-only scope; genuine network/process proof required | 9 / 15 | 16–35 | 700–1,200 |
+| P2C | Fits a finite documentary qualification; Root must freeze outputs and readmission fields | 6 / 15 | 100–215 | 0 |
+| P2 | Plausible fit using the existing route test for the new page; narrow literal freeze required | 13 / 15 | 266–480 | 500–900 |
+| U38 | Fits a trusted owner-map guard plus removal of the unused local helper | 9 / 15 | 36–90 | 300–550 |
+| Proposed P2J | Separate test-only extension of the existing journey | 6 / 15 | 16–35 | 400–800 |
+
+These are estimated additions, including own units.json lifecycle, without deletion credit. No implementation diff has been measured. Upper bounds are not permission to omit cases. New source needs, formatted additions above 500, or a complete stage census above 15 require an exact amendment or a separately registered buildable successor.
+
+## Baseline and authority
+
+- Requested worktree did not exist. Created `E:/Projects/Personal/MekStation-wt/tail-prep-20261018` detached at the user-pinned `origin/main` commit **fe41f7ad8ebcdc3731a59cbec5fd69005cd1e29e**. No fetch or change to another checkout's HEAD. All file:line references below refer to this snapshot unless explicitly attributed to an earlier report.
+- Root `E:/Projects/Personal/MekStation` working files were not edited. The supplied T3 checkout already had unrelated changes in `JournalCampaignEventStore.test.ts` and `CampaignHostRegistry.ts`; they were left alone. No commits, pushes, PRs, ledger changes, dependency installation, or foreign-process termination.
+- Read personal working guidance, applicable root/OpenSpec/server/components/pages/pages-modules/E2E instructions, server TRANSPORT.md, DELIVERY.md, units.json/roadmap.json, the release checklist and LSC registration, the three earlier prep reports, and predecessor review successorNotes. Static search also checked other `*-review-*.json` records for explicit P2CG2/P2CH/Task 18/U38 handoffs; the direct P2CG2 handoff is in the D review. No extra research agent was launched.
+- Node commands explicitly prepend `C:/Users/wroll/AppData/Local/nvm/v22.22.0`; observed Node **v22.22.0**.
+- Current ledger: G2A is main-verified; reduced G2 is implementing; R/S/B14-0/B14-HEAD/HP/LSC-0/1/2/H/I1–I4 and all requested tail units remain blocked. G2 product source is present at this snapshot, but that does not establish its closure. Earlier reports have older baselines and counts; their results are attributed, never reused as this report's runtime proof.
+- Current effective L1 order is `units.json:22588`: B → C → D → E → F → G1 → G2A → G2 → R → S → B14-0 → B14-HEAD → HP → LSC-0 → LSC-1 → LSC-2 → H → I1 → I2 → I3 → I4 → P2CG2 → P2CH → P2C → P2 → U38. Here B through I4 abbreviate P2CG1-prefixed IDs. Preserve one product-writing lane **including closure**, fresh fetched-Main ancestry, genuine exact-main PASS, and explicit release at each step. NEXT does not enforce ordinary unit dependencies.
+
+Counting authority: `openspec/planning/2026-09-12-roadmap-completion/DELIVERY.md:11` (U41). Count every actual unique source/test/helper/lifecycle/evidence file; count added lines, never net lines. Tests, generated files and ledger evidence/ additions are line-exempt, but file-counted. Spec, ordinary documentation and units.json additions count. Every source-stage manifest below includes four prospective admission/red/local/admission-review artifacts; these are draft names, **not created receipts**. Later actual review/identity/merge/Main/closure outputs require their genuine G-OWN freeze and entire-stage census. Spare slots grant no unnamed files, and a combined local artifact is not permission to invent independent-review bytes.
+
+## Exact Task 18 coverage decision and release gate
+
+Primary contract anchors:
+
+- `units.json:8275` P2: shared P1A-created/P1B-announced missionMatchId; both deploying browsers join that match; HQ stays on campaign route; preserve non-playing GM connection; no opponent-control grant, including guest disconnect; stale/failed launch safe routes/no extra match; recover an already announced launch without re-POST. Registered browser expansion is launch, deploy/HQ destinations, shared identity and **active opponent turn**. There is no terminal-combat or three-context requirement in that text.
+- `roadmap.json` node `R2.multiplayer-client.acceptance` requires red-first client/route proof and relevant checks/review; it adds no terminal three-seat journey. `ownershipPathsAmended20260929` assigns the live/replayed announcement handoff to the existing mission launch route/test. `p2NewRouteBinding20260929` permits exactly `src/pages/multiplayer/mission/[matchId].tsx`, not the rest of its parent.
+- `units.json:22960`, `l1ReleaseChecklist20261018.checklist[three-context-entry]`: an automated **GM + two players**, **three isolated contexts**, **terminal state and reload**, with no injected outcome replacing combat, is an entry gate. Root must inspect P2 and register missing coverage **before P2 admission**. Task 18's original text remains unchanged.
+- `units.json:7731` LSC-2 and `:22986` LSC registration: three distinct non-secret playerIds on one same-host authority, ordinary seat claiming/renewal/recovery and packaged proof. LSC-2 exact-main PASS/ancestry/closure is mandatory before P2 journey proof, U38 acceptance and the human session. LSC establishes identity availability; it does not itself prove terminal combat.
+- `units.json:22955`: the existing `npm run verify:qc:coop-campaign-journey` and ownership selector remain required on the exact RC. A new P2J selector must be recorded **in addition**; merely adding a separate file would not make the old npm command select it.
+
+The current browser spec independently demonstrates the gap:
+
+| Current source anchor | What it actually proves / lacks |
+| --- | --- |
+| `e2e/coop-campaign-two-browser-journey.spec.ts:3`, `:12` | Documents two browsers and explicitly bounded mission/post-battle coverage. P2 owns updating the obsolete no-mission-launch comment. |
+| `:66`, `:71`, `:274`, `:327` | Uses `/api/e2e/vault-identity`, switching the server-wide active identity between host/guest setup. This cannot count as ordinary three-seat LSC acceptance. |
+| `:91`, `:270`, `:271` | Creates exactly host and guest contexts; no distinct non-playing GM context. |
+| `:422` | Guest reload proves the earlier ledger/proposal projection, before a real terminal mission exists. |
+| `:144`, `:451`, `:468` | Calls `enqueueCoopBattleOutcome` with synthetic match/outcome data. Reconciliation coverage is useful, but cannot substitute for real combat in the entry gate. |
+| `package.json:206` | Existing verification script selects this journey and the UI audit plus named Jest suites. It is not an independent specification of three-context terminal acceptance. |
+
+Preserving a GM connection in code is not observing it in a third browser context. An opponent activation is not terminal combat. Rejoining after a partial create is not reloading all three seats after a persisted result. These are distinct assertions; none can be inferred from the registered P2 acceptance.
+
+## P2CG2 — retained seats, paused recovery and committed removal
+
+Contract: `units.json:8088`; exact six source/test restrictions at `roadmap.json:2914`. Predecessor I4; successor P2CH/P2C. Registered scope has three product and three test leaves.
+
+| Current path:line | Finding and proposed responsibility |
+| --- | --- |
+| `src/services/campaignPersistence/CampaignSessionParticipantStore.ts:36`, `:167`, `:272` | Durable seats already exist, including GM, boundAt and revokedAt. Read-only authority for retention and incarnation; do not recreate retention from connected sockets or revive a revoked row. |
+| `src/lib/multiplayer/server/CampaignHostRegistry.ts:331`, `:348`, `:365`, `:388`, `:418` | Installed-port entries own graph-local launch views; cold rebuild starts paused, uses persisted membership and does not mint a new invite when roomCode is null. Preserve this graph/expiry behavior. |
+| `src/lib/multiplayer/server/CampaignSyncSession.ts:292`, `:322`, `:326` | GM connection immediately clears pause, before receipt convergence. Separate authenticated GM presence from authorization to resume; keep multiple-GM-attachment counting and last-disconnect pause. |
+| `src/lib/multiplayer/server/CampaignSyncSession.ts:785` | Audited removal drains every legacy detach, but receipt-mode views do not register through this legacy sink path. Preserve the copied-set drain and idempotency. I3 removes numeric readiness first; do not rebuild it. |
+| `src/lib/multiplayer/server/bindCampaignSyncConnection.ts:482`, `:699`, `:740`, `:1229` | Heals removals before authenticated handling, permits join/application ACK while paused, and currently marks GM connected before application.open. Gate resumed authority with current all-seat P2CA/P2CB proof, not a received ACK, hydration arrival or numeric cursor. |
+| `src/lib/multiplayer/server/bindCampaignSyncConnection.ts:1098`, `:1123`, `:1129` | Revocation runs before legacy detach; if revoke throws, detach is skipped. Retain healing retries/error classification while making committed removal immediately exclude every attachment even in this gap. |
+| `src/lib/multiplayer/server/campaignApplicationConnection.ts:243`, `:257`, `:263`, `:269`, `:436`, `:518` | Each receipt view owns its host subscription and invalidation. acknowledge currently returns void and schedules commit. Durable settlement/stale coverage is not observable to the binder as a completed operation; the final ACK need not cause any new campaign event. This is the missing literal seam. |
+| `src/lib/multiplayer/server/campaignApplicationConnection.ts:147`, `:329`, `:494` | Verified history catches committed removal before durable-seat healing; fingerprints and current-context revalidation already reject changed authority. Keep them. Re-admission after removal is not silently introduced here. |
+| `src/lib/multiplayer/server/__tests__/CampaignSyncSession.test.ts:55`, `:83`; `__tests__/bindCampaignSyncConnection.test.ts:2408`, `:2828` | Existing lifecycle/removal and installed-port fixtures; extend them after R/HP/I3 changes. |
+| `src/lib/multiplayer/server/__tests__/campaignPublicAppliedView.recovery.test.ts` | Named prospective test; absent at this baseline. Place durable disconnect/reopen/paused-ACK coverage here. A missing module is not behavioral RED. |
+
+**Scope decision:** recommend a literal amendment adding exactly `campaignApplicationConnection.ts`. Do not fake resume notification by a timer, a queued observation racing its private chain, or interpreting `acknowledge()` return as durable acceptance. An explicit settlement completion/callback can request a fresh graph-bound launch preparation, then synchronous current-head/seat revalidation before clearing recovery pause. It must also handle a covered returning baseline (`stale` without wire confirmation). Keep notification separate from the acceptance predicate: only existing installed-port P2CA/P2CB authority can permit resume. A subscriber/callback should not create a second readiness switch or be serialized into identity/wire data.
+
+Bind receipt-mode invalidation/close handles for all participant attachments into the existing server-side lifecycle, so committed removal can stop every tab before future private delivery even if durable revoke fails. Avoid a new global registry when entry/binder ownership suffices. The application leaf is already named by H for type consolidation; its new behavioral ownership must nevertheless be registered for this unit. Whether it uses an awaited operation or an entry callback is an implementation choice to prove, not a finalized API from this research.
+
+Estimate by leaf: session 20–45 + registry 10–25 + binder 60–135 + application 10–30 + own lifecycle 16–35 = **116–270** counted. Test estimate **550–950**. No new persistence schema, Protocol field, timer service, or broad extraction is assumed. Session/binder/application already have inherited modularity debt; record before/after warning and cycle sets. Required extraction means a new scope decision, not an automatic extra leaf.
+
+### RED and mutation plan
+
+1. Real durable three-seat roster: disconnect a player, advance public state through a legitimate door, rebuild the registry/database connection, reconnect GM without the missing player's current ACK. Baseline should clear pause too early; require pause remains, while GM authenticate/hydrate/ACK and healthy delivery work. ACK all valid retained seats, including GM, and require one resume. Do not substitute the in-memory connected census.
+2. Hold the final receipt write/acceptance barrier: receive an ACK while commit remains pending; no resume. Release it, inspect the persisted row and current-cut revalidation, then resume. Fail confirmation delivery separately: durable credit and transport recovery are different facts. A returning covered baseline may get no confirmation; test that case without waiting forever.
+3. Two tabs per removed principal plus another healthy participant. Commit actual ParticipantRemoved; force durable revoke to throw on the first healing pass. Require every removed attachment invalidated/detached, no later visible event or ACK credit, no reopened membership, surviving player still receives. Repeat after cold reopen, then allow healing and require idempotent completion with the original audit record.
+4. Preserve expired invite: existing active seats can rehydrate without it; newcomer using old code cannot join, and rebuild creates no replacement code. Re-seat/re-bind through a real production API when available; an edited bound_at row is only a lower-level fingerprint control, not that end-to-end proof.
+5. Exercise seat/branch/generation/fingerprint changes after preparation and before acceptance/resume. Obsolete offers refuse, zero progression/create writes. GM disconnect during preparation prevents late resume; a second GM attachment does not falsely pause while the first remains.
+6. Preserve R's synchronous post-guard cleanup/success ordering and CF-E7 empty-M trails for preparation refusal, veto and invalid reservation. Verify receipt-port/no-entry and I4 no-port refusal remain intact.
+
+Mutants to kill separately: clear pause on GM arrival; clear on ACK arrival; omit GM from roster; retain only connected players; clear pause after stale async revalidation; lose roster on rebuild; auto-mint expired invite; detach only newest tab; revoke throw skips detach; omit receipt-view invalidation; accept old incarnation/fingerprint; omit callback on covered baseline; duplicate resume side effects. Use actual assertions at durable row, pause listener, wire frame and write-census seams. No mutation executed here.
+
+Carry-forwards: **CF-E7** is directly assigned to next binder-test owner (D review successorNotes; R/HP/I3 may discharge it first, but earlier prep results alone do not). **D M2**: registry accepts injected matchStore while guarded progression reserves the default store; production currently shares the singleton. Prove identity in this unit's fixture or propagate the actual owned store deliberately within registered registry/binder leaves; do not reserve a different handle. **H-OPEN-1/CF-E1, CF-E5/E6, CF-H7/H8/H14** must already have genuine pre-H closure; preserve them. **P2CE2 Task13 C5/readmissionFlow**: production rebind proof and removal-relative-to-incarnation policy remain due if a real readmission flow is introduced; this unit must not revive removed credentials by implication.
+
+Draft amendment text:
+
+> Add exactly src/lib/multiplayer/server/campaignApplicationConnection.ts to P2CG2's literal restrictions for durable application-settlement notification and receipt attachment invalidation needed by retained-seat/paused-recovery/removal behavior. Six source/test leaves become seven, plus own units.json and four bounded evidence outputs = 12/15 files; estimated 116–270 counted additions, not measured fit. Keep I4 → P2CG2 → P2CH/P2C, the sole installed-port predicate, current authority/fingerprints, original behavior, 15/500 caps, sensitive reviews, required CI, exact-head owner ruling, exact-main PASS and closure. Freeze actual outputs at admission. No numeric readiness restoration, new wire fields, schema change or extra source grant. If an additional leaf or over-cap implementation is necessary, separately register a narrower buildable successor before editing it.
+
+## P2CH — application/recovery acceptance
+
+Contract: `units.json:8140`; four literal tests at `roadmap.json:2922`. No product grant. Predecessor P2CG2. Fits **9 files**, lifecycle **16–35** counted, tests **700–1,200**; bounded evidence approximately 200–650 raw excluded lines.
+
+| Path:line | Current boundary / planned extension |
+| --- | --- |
+| `e2e/coop-campaign-two-browser-journey.spec.ts:259`, `:365`, `:422`, `:443` | Browser UI arbitration/ledger/reload; H owns only the earlier application-confirmation waits. Extend public application/adjunct readiness and recovery; leave P2 shared tactical navigation and P2J terminal coverage with their owners. |
+| `src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts:99`, `:187`, `:330` | Existing reconnect uses recording ObservedSocket and registry reset on the same process/SQLite service. This is useful authority reconstruction, **not an actual server-process restart** or network socket. Preserve all replay/scope assertions. |
+| `.../coopMissionAnnouncement.reconnect.test.ts:1389`, `:1534`, `:1555`, `:1697` | Strong existing held-send, re-seat, removal and failed-confirmation controls. I2 owns migrating the fixture; reuse its completed receipt-ready seam rather than rewriting it back to numeric or arrival readiness. |
+| `src/lib/multiplayer/server/__tests__/campaignPublicAppliedView.socket.test.ts` | Prospective/absent. Own a real loopback HTTP+ws binding fixture inline in this test, recording raw frames and actual closes. |
+| `src/lib/multiplayer/server/__tests__/campaignPublicAppliedView.recovery.test.ts` | Prospective/absent now; shared with P2CG2 later. Add actual owned authority process/DB close/reopen evidence, in addition to same-process registry rebuild. |
+| `src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.harness.ts:24`, `:44`; `coopMissionCreate.harness.ts:122` | Read-only reusable fixtures after I2/I4. Existing ObservedSocket is a mock; no claim of network evidence from it. Any needed edit to these unlisted harnesses needs a prior literal amendment. |
+
+RED plan: add assertion-level scenarios before fixture migration where the old fixture demonstrably auto-credits arrival/numeric cursors; record actual failures, not missing imports. In the final receipt-ready system withhold one **valid retained-seat** ACK while other delivery/heartbeats continue. Require CAMPAIGN_NOT_CONVERGED, zero new matches/announcements/command receipts; release exactly that applied ACK and require one idempotent shared create across repeated/concurrent callers. Exercise GM return while paused, baseline plus launch adjunct application, disconnect/rejoin and expired invite, branch/seat drift, browser reload, registry rebuild, and genuine owned process restart using the same private durable files. Include GM and both tactical seats in server tests even where this browser spec remains a two-context predecessor proof.
+
+Mutants: ACK on arrival before fold; skip adjunct adoption; ignore withheld seat or GM; seed applied rows directly; accept numeric/grant cursor; confirm before COMMIT; lose applied row/seat after reopen; resend create instead of idempotent retry; reactivate expired invite; retain obsolete view after replacement. Withhold/held-write faults are discriminating controls, not permission to fabricate a feature defect. If newly added test-only coverage passes the post-predecessor baseline immediately, record baseline GREEN truthfully and use concrete mutants; do not manufacture a RED implementation claim.
+
+Actual process/network fixtures can remain test-local, with code embedded in the named test where needed and private temp stores/ports. If dependency setup requires a retained helper/runner, or a shared E2E helper must change, register it first and re-count; edited e2e/helpers or scripts/qc runners also trigger their importer ladder reproof obligation (DELIVERY.md). Never stop the shared idle server to simulate restart; stop/restart only a process this proof starts. Build/server/socket evidence must identify actual candidate SHA, command, PID and database paths. P2CH cannot silently fix a failing product seam in its tests-only scope.
+
+Carry-forwards: P2CE3 cumulative/at-least-once confirmations, stale covered rebaseline without confirmation, ordered ACKs, head-drift retry vs fresh-view recovery; G1/HP prefix/cut/quiet-window invariants; P2CG2 real-seat/expiry/removal proofs; H's measured preparePublicCut budget and graph identity. No prepared P2 helper adoption, P2 completion, synthetic post-battle terminal acceptance or human-session credit.
+
+## P2C / Task 17 — finite aggregate qualification and readmission
+
+Contract `units.json:8192`. Known documentary leaves are only units.json and PROGRESS.md. There are **27 explicit source predecessors**, not the stale prose count “twenty-four” and not just the original eight parents. Superseded P2CE/P2CF/P2CG1/P1/P1B records are not synthetic missing PASS receipts: enumerate their operative successors. L1's B14-0/B14-HEAD/HP/LSC dependencies and release checklist must also be qualified even where absent from P2C's older flat predecessor array.
+
+Current runtime paths are the source-owned seams above, **read-only for P2C**. Its own paths are `units.json:8192`, `:8254`, `:8275`, `:9699`, `:22588`, `:22907` and `PROGRESS.md:1953`, `:1959`. These anchors are why the qualification must reconcile newer registration records rather than copy older progress counts.
+
+Proposed qualification local artifact contains a finite matrix for every P2CC letter/obligation: GM retention; hidden-only settlement and visible no-op; baseline and adjunct application; committed removal/revocation; current branch/generation/viewer authority; prefix ordering/send failure; cold/API/socket recovery. Each cell names actual test assertion, tested head, command/exit, artifact hash, source mainProof, fetched-Main ancestry and closure. Include R's bounded failure guarantee and the expressly unresolved outer-COMMIT/cross-file-atomicity boundary, fog containment/head route, HP bounded recovery, LSC identity/trust model, and P2J registration. An aggregate narrative or list of merge SHAs is not the semantic qualification.
+
+Fit: two documentary leaves + four genuine bounded outputs = **6/15**. units.json lifecycle/readmission allowance 20–55 + concise PROGRESS qualification 80–160 = **100–215/500**. Store detailed matrix/evidence links in the named local evidence artifact, not hundreds of repeated prose lines in PROGRESS. No product or test edits; ordinary evidence additions approximately 250–800 raw line-exempt lines. If authentic archives/reviews require more files, freeze/re-count them under the ordinary stage contract.
+
+RED/discrimination plan for this documentary unit: independently attempt qualification with a missing/non-PASS predecessor, non-ancestor proof, unclosed source, omitted P2CC letter, absent LSC-2 acceptance or absent P2J registration. Root must refuse readmission in every case. These are qualification controls, not a claimed new executable validator (the checklist is inert to NEXT). Do not call an unchanged ledger validator a semantic enforcement test. Run the prescribed plain/--next validator and focused validator suite at the later ledger stage, under the current machine gate. No new validator/test file is needed or granted.
+
+Draft finite Task17 freeze/readmission text:
+
+> Freeze P2C to units.json, PROGRESS.md and the four literal artifacts listed below. Its local qualification binds the full P2CC matrix, all 27 operative source predecessors and newer L1 B14/HP/LSC gates to genuine exact-main PASS/ancestry/closure. Root separately freezes any explicit original P2/U38 state/admission field edits under Task17's readmission authority; own-lifecycle source permission is not an implicit right to rewrite another unit. Preserve both original behavior texts and all older prerequisites. Register P2J before P2 source admission, require LSC-2 closure before P2 proof/U38 acceptance, and release U38 only after P2's own genuine closure. Registration and NEXT selection alone never release either unit. If the required qualification cannot fit 15/500, publish a separately registered documentary prefix without falsely calling the aggregate complete.
+
+Carry-forwards to discharge: all earlier review obligations require an explicit disposition linked to genuine owner evidence; “prep proved it” is insufficient. CF-E7/H8/H14 and CF-F1/F2/F4 must have their required earlier owners' actual proof; H's cost, type/graph identity, boot/backfill and unauthenticated-code-only-preflight disclosure must be recorded; R/S and fog containment are pre-H gates; **P2J registration must exist before P2 admission**. Pending release rehearsal/human/release-note gates remain pending and must not be described as P2C completion evidence.
+
+## P2 / Task 18 — shared client launch and safe rejoin
+
+Contract `units.json:8275`, node/path amendment described above. No server/API/persistence change. Original behavior remains unchanged.
+
+| Current path:line | Change / read-only dependency |
+| --- | --- |
+| `src/pages-modules/gameplay/campaigns/missionLaunchPage.launch.ts:229`, `:243`, `:285` | Calls launcher, then routes deploy to local encounter using encounterId. Must consume shared missionMatchId and route deploying seats to the network mission page; HQ keeps campaign route. |
+| `src/lib/campaign/coop/launchCoopMission.ts:147`, `:200`, `:242`, `:257` | Creates server mission, then still runs local launchCampaignEncounter. Remote success followed by local failure strands client despite a durable shared match. Successful remote creation must not depend on the opponentless local launcher. Preserve explicit injected local-only test seam if still contractually needed. |
+| `src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx:196`, `:214`, `:226` | Current seat-following listener handles CampaignParticipation only. Own the live/replayed CampaignMissionLaunched subscription and mount/reload recovery; do not re-POST an already announced mission. Preserve G2 expectedCampaignId, actual principal binding and old-seat listener teardown. |
+| `src/lib/campaign/coop/campaignAuthoritativeFold.ts:46`, `:129`; `src/lib/p2p/campaignMirrorStore.ts:164`; `src/lib/campaign/coop/campaignHostFoldStore.ts:44` | Existing public launch-fact bundle and held fold, read-only reuse candidates. The host store is cached view state, not authority. Do not confuse transport.lastSeq/event sequence with journal-head readiness. |
+| `src/lib/campaign/coop/campaignSyncTransport.ts:58`, `:69` | Existing onFrame and onAppliedViewConfirmed seams. Navigation must preserve application/prefix/disposal semantics; no second consumer ACKs or snapshot-arrival readiness. Covered rebaseline can have no confirmation, so do not add an unbounded confirmation-only navigation wait. |
+| `src/hooks/useMultiplayerSession.ts:203`; `src/components/multiplayer/NetworkedGameSurface.tsx:98`, `:354`; `src/pages/multiplayer/lobby/[roomCode].tsx:293`, `:403` | Reuse existing authoritative client hook/networked rendering from the new exact mission route. Neither hook nor networked surface is assumed to need an edit. Lobby route is read-only and explicitly outside P2's parent exception. |
+| `src/pages/multiplayer/mission/[matchId].tsx` | Registered prospective new page; absent now. Resolve trusted credentials from existing campaign token store/context; URL identity parameters confer no membership/role. Cold reload must recover same shared match with a valid LSC principal. |
+| `src/pages-modules/gameplay/campaigns/__tests__/missionLaunchPage.launch.test.ts:236`, `:345`; `src/lib/campaign/coop/__tests__/launchCoopMission.test.ts:240`, `:371`; `src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx` | Existing registered suites can own new destination, local-launch-independent success, announcement/rejoin and new page mounting tests. A separate new route-test leaf is optional, not necessary to this 13-file fit. |
+| `e2e/coop-campaign-two-browser-journey.spec.ts:259` | P2 adds actual shared launch/deploy/HQ/opponent-turn assertions, preserves GM connection, and corrects coverage comment. P2J later owns the three-context terminal extension. |
+
+This corrects the conservative possibility mentioned in the progress update: a new route test would need permission, but the **existing registered route suite can test the new page**, so no extra test leaf or mandatory split is demonstrated. Freeze these exact eight leaves from the broad aliases; do not treat src/hooks or src/components/campaign/coop as open edit grants.
+
+Estimated runtime additions: launch helper 50–95; launcher 35–70; mounted launch route 65–120; new mission page 100–160; lifecycle 16–35 = **266–480**. Tests **500–900** separately. Files **8 + 5 = 13/15**. Tight counted-line headroom: reuse current auth/networked rendering, avoid copying the lobby page or extracting unrelated helpers. This is a hypothesis pending actual integration; if a source-owned fold getter/helper is required, stop to register its exact leaf and re-measure. Broad new action/HQ/GM UI cannot be hidden under these estimates.
+
+RED plan: fix assertions against existing product before launch changes. Deploy expects `/multiplayer/mission/<sharedId>` but current route is local encounter; HQ stays safe. Mock local launcher failure **after actual shared-create success** and require successful shared destination. Present an applied live launch fact and a rehydrated launch-fact bundle and require one same-match join/no create; stale/foreign mission/campaign/binding cannot navigate. Failed create/stale head gives no extra local artifact/match; concurrent retry or tab-close recovery stays idempotent. New page mounts the real hook, renders from server mirror, reuses correct credential on reload, and sends no opponent-grant request. Guest disconnect grants nothing; preserve existing host-disconnect pause policy. Browser proof requires same durable match ID and an actual server-driven opponent activation with both player connections.
+
+Mutants: use encounterId; invoke local launcher as successful-remote prerequisite; ignore announcement/replayed bundle; re-POST announced mission; consume foreign/old-seat launch; route HQ to tactical; close GM when another seat navigates; request/grant opponent control on start or guest loss; render local engine instead of server mirror. Use destination, POST census, socket identity and engine-event assertions, not navigation mocks alone.
+
+Carry-forwards: **CF-F8** user-facing conflict wording (`participants-behind`, `fresh-request`, `evidence-unavailable` and precedence reasons) belongs to the next launch client owner; P2 must discharge it or link G2's genuine completed disposition, not print raw readiness codes by accident. Preserve G2 **CF-G2A-5** authenticated identity lookup/no anonymous fallback, **CF-H16** expectedCampaignId and reseat pins, I1 no numeric ACKs, HP bounded recovery/cut timing, and P2CH readiness. **CF-H2/H5/H9/H10** remain conditional next-leaf obligations: no edit to their store/persistence/test leaves is assumed here; opening them makes the corresponding pin due and requires exact ownership. LSC-2 closure is a hard proof gate, not optional fixture setup. P2J registration is a pre-admission Root duty, not a rewrite of this contract.
+
+## U38 / Task 19 — same-side per-unit authorization
+
+Contract `units.json:9699`; P1A/P1B1–3/P1C/PAI/P2 predecessors all require genuine exact-main PASS before release. LSC-2 closure additionally precedes acceptance. U53 retains its complete strict-combat E2E-31/32 reproof.
+
+| Current path:line | Finding / narrow change |
+| --- | --- |
+| `src/lib/multiplayer/server/ServerMatchHostIntent.ts:245`, `:541`, `:549`, `:566` | Unit guard executes before dispatch/journal commit. Historical co-op exemption is now at **566**, not contract's old 552. Removing this exemption alone is insufficient. The earlier `unitSide === undefined` return must not bypass an ownerless co-op check. |
+| `src/lib/multiplayer/server/coopMissionCreate.ts:279`, `:287` | P1A mission metadata uses **coopMission**, shared `sideAssignments: player`, and persisted unitBootstrap. It is not the older coopCampaign vessel shape. Both owners otherwise pass a side-only check. Read-only, not a U38 storage rewrite. |
+| `src/lib/multiplayer/server/coopMissionAdmission.ts:101`, `:142`, `:187`, `:232`; `src/lib/multiplayer/server/IMatchStore.ts:86`, `:144` | Server derives ownerPlayerId from durable participation/owned forces and persists unitBootstrap. Use this trusted map, including after reopen; never accept client unit ownership or the local composed roster as authority. |
+| `src/lib/multiplayer/server/ServerMatchHostIntentClaims.ts:24` | Existing actor-unit extraction is read-only reuse. Cover all unit-bearing combat intent kinds, not only Move. |
+| `src/lib/multiplayer/server/ServerMatchHostIntent.ts:430` | rejectCommand records a rejection audit and emits fixed refusal. Event/command-receipt census must remain unchanged; do not falsely require zero audit rows or disable audit to satisfy the contract. |
+| `src/lib/multiplayer/server/__tests__/ServerMatchHostUnitOwnership.test.ts:112`, `:222`, `:245` | Existing fixture is memory-only, no per-unit map; last test explicitly permits the guest in an ownerless historical co-op vessel. Replace that obsolete expectation with fail-closed ownerless coverage and add a real P1A-created durable mission fixture with both own/foreign directions and restart. Preserve versus positive/negative controls. |
+| `src/lib/campaign/coop/composeCoopEncounter.ts:256`; `.../__tests__/composeCoopEncounter.test.ts:272` | ownsCoopUnit has no runtime caller. Remove the unused helper and its isolated test block rather than pretend it authorizes the server. Preserve composition/coopSeats tests. |
+
+Fit: guard **20–55** added product lines; helper deletion earns **no credit**; lifecycle **16–35** = **36–90/500**. Four source/test leaves plus five lifecycle/evidence = **9/15**. Tests **300–550**. Reuse P1A/I2/I4 harnesses read-only; if their API needs edits, register them before use. No IMatchStore, schema, server bootstrap, Protocol or PAI driver product edits are inherently required.
+
+RED: create a durable mission through P1A's real admission with player A/B units on the same player side. At valid movement/attack activations send B→A and A→B; current side-only guard admits them. Require AUTH_REJECTED `unit-not-owned`, unchanged engine/journal head, unchanged command/effect receipt census and no unit delta. Own-unit controls pass in both seats, including B even if legacy lobby side labels say bravo. Close/reopen store and reconstruct real host, repeat. Ownerless coopCampaign vessel, coopMission without unitBootstrap, missing entry, missing owner field and unknown actor all fail closed for unit combat commands. Client payload/force ownership lies cannot override stored owner. Preserve versus behavior and server-internal PAI opponent operation; no-owner opponent units must remain controllable only by the trusted server path.
+
+Mutants: restore coopCampaign exemption; apply owner guard only to coopCampaign and miss coopMission; retain side-only allow for same-side teammates; infer owner from side/host/seat; trust envelope playerId instead of verified principal; let missing map/actor bypass; break B's own units; append/receipt before refusal; lose owner map after restart; apply human guard to server-internal opponent. Keep command-rejection audit separately observable. A behavior test must distinguish “not moved because wrong phase” from authorization refusal by first establishing a legal own-unit control under the same phase/activation conditions.
+
+Carry-forwards: retain P1A owner provenance and PAI opponent identity/control, B14 fog-off containment and S spectator policy, P2 no opponent-control grant, P2CG2 GM pause/recovery. No earlier successorNote grants U38 a remote-hosting/auth-hardening or cross-stream repair mandate. The B15/PRIV-1 holds and ownerless historical-match limitation remain disclosed.
+
+## Proposed separately registered P2J — automated three-context terminal journey
+
+Minimal registration text for Root (proposal only):
+
+> Register blocked ordinary-cap P2J under R2.authority-live as the L1 three-context-entry coverage unit. Before P2 admission, merge and independently qualify this registration; leave Task 18/P2 original behavior text unchanged. Execution predecessors: P2 and U38 genuine exact-main PASS/ancestry/closure, plus LSC-2 and every retained L1 gate. After those close, extend exactly e2e/coop-campaign-two-browser-journey.spec.ts so a non-playing GM and two deploying players, each with a distinct ordinary LSC identity in three isolated browser contexts, use one same-host loopback server. Create/join by invite; approve and reject a proposal; launch fog-off to one authoritative mission; both players move/fire owned units, and both foreign-unit attempts refuse; server drives opponent; GM remains observing; reconnect one player mid-mission; play real combat to terminal Results, apply the authoritative outcome once, reload all three seats, and prove the same shared result and one consequence persist without another match/outcome. No E2E vault-identity switching, manual token transfer, cross-profile credential copying, injected outcome/force-win/seeded result, or local-engine replacement for combat. Capture exact RC SHA, one-server/process/store topology, non-secret profile/playerId mapping, campaign/mission/result identities, observed terminal events, reload readbacks, commands/exits and hashes. Keep the existing P2 verification script and U38 selector; add the explicit P2J wrapper selector to Root's release checklist. Registration gate before P2 is distinct from P2J execution after U38. Preserve sensitive review/owner/CI and exact-main closure requirements, 15 files / 500 counted additions, all human/installer/disclosure gates and no remote-hosting claim.
+
+Minimal source-stage manifest is **one existing E2E leaf + units.json + four artifacts = 6/15**. Lifecycle **16–35** counted; estimated **400–800** test additions and roughly **200–600** raw evidence lines, line-exempt. Test additions include replacing the synthetic post-battle trigger in the existing journey with actual terminal combat while preserving its original ledger/proposal/reconciliation assertions. Keep helpers inline; no package.json, Playwright config, shared helper, test runner or product change is assumed. If a cohesive extra test helper is demonstrated necessary, register its exact name and re-count (one more file remains feasible); discovered runtime defects require their own source owner/split rather than hiding under P2J.
+
+Suggested explicit selector, after its own fresh idle gate:
+
+```powershell
+node scripts/playwright/run-playwright.mjs test --project=chromium e2e/coop-campaign-two-browser-journey.spec.ts --workers=1
+```
+
+The existing test has `test.setTimeout(180_000)` at line 264. **Do not raise it**, the config timeouts or environment overrides. Use a small legal fog-off mission with enough turns for both players to move/fire and a normal engine terminal condition; preserve real dice/combat/outcome provenance. If it cannot finish within the existing budget, report the blocker and register a legitimate bounded proof arrangement; do not force a terminal outcome, skip actions, or inflate timeouts. Three Chromium contexts may share one browser process, but must have isolated storage and three distinct playerIds; persistent profile handling must follow the closed LSC contract. Same-host trust allows operator impersonation and offers no OS-user isolation; it is not private multi-user hosting.
+
+RED/mutation plan: first run the new assertions against the unchanged selected baseline and record actual results. P2/LSC omissions can yield real assertion RED on this pinned Main, but execution admission must use closed predecessors; new test coverage might then be baseline GREEN, which must be stated honestly. Separately falsify each witness: alias two identities; omit third context; route a player to another match/local encounter; grant opponent control; accept foreign-unit intent; omit reconnect; replace terminal event with synthetic reconciliation; apply outcome twice; reload only one seat or read a cached result; create another match on reload. Require ordinary assertion failures and restore each scratch mutation. A missing module or timeout without the expected witnessed preconditions is not a caught behavioral mutant.
+
+Register P2J in the L1 order/closure set (26 → **27**, if no other insertions intervene) **after U38**, and require its exact-RC PASS before installer rehearsal/human session. Do not add P2J completion as a P2/U38 predecessor. Do not mark the release checklist fulfilled merely because registration exists. The human script update and installer rehearsal are separate release-checklist work; this minimal unit does not fabricate them.
+
+## Literal draft manifests
+
+Every path below is repository-relative and literal. Evidence outputs are prospective. The P2CG2 extra leaf and P2J unit require registration; other lists still require normal finite admission/freeze. No files below were authored except this separate research report and baseline-run log.
+
+### P2CG2 — proposed 12-file source stage
+
+```text
+src/lib/multiplayer/server/CampaignSyncSession.ts
+src/lib/multiplayer/server/CampaignHostRegistry.ts
+src/lib/multiplayer/server/bindCampaignSyncConnection.ts
+src/lib/multiplayer/server/campaignApplicationConnection.ts
+src/lib/multiplayer/server/__tests__/CampaignSyncSession.test.ts
+src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts
+src/lib/multiplayer/server/__tests__/campaignPublicAppliedView.recovery.test.ts
+openspec/planning/2026-09-12-roadmap-completion/units.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg2-admission-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg2-red-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg2-local-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg2-admission-review-20261018.json
+```
+
+### P2CH — 9-file source stage
+
+```text
+e2e/coop-campaign-two-browser-journey.spec.ts
+src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts
+src/lib/multiplayer/server/__tests__/campaignPublicAppliedView.socket.test.ts
+src/lib/multiplayer/server/__tests__/campaignPublicAppliedView.recovery.test.ts
+openspec/planning/2026-09-12-roadmap-completion/units.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/p2ch-admission-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/p2ch-red-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/p2ch-local-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/p2ch-admission-review-20261018.json
+```
+
+### P2C — 6-file documentary stage, freeze required
+
+```text
+openspec/planning/2026-09-12-roadmap-completion/units.json
+openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md
+openspec/planning/2026-09-12-roadmap-completion/evidence/p2c-admission-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/p2c-red-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/p2c-local-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/p2c-admission-review-20261018.json
+```
+
+### P2 — 13-file source stage
+
+```text
+src/pages-modules/gameplay/campaigns/missionLaunchPage.launch.ts
+src/pages-modules/gameplay/campaigns/__tests__/missionLaunchPage.launch.test.ts
+src/lib/campaign/coop/launchCoopMission.ts
+src/lib/campaign/coop/__tests__/launchCoopMission.test.ts
+src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx
+src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx
+src/pages/multiplayer/mission/[matchId].tsx
+e2e/coop-campaign-two-browser-journey.spec.ts
+openspec/planning/2026-09-12-roadmap-completion/units.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/p2-admission-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/p2-red-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/p2-local-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/p2-admission-review-20261018.json
+```
+
+### U38 — 9-file source stage
+
+```text
+src/lib/multiplayer/server/ServerMatchHostIntent.ts
+src/lib/multiplayer/server/__tests__/ServerMatchHostUnitOwnership.test.ts
+src/lib/campaign/coop/composeCoopEncounter.ts
+src/lib/campaign/coop/__tests__/composeCoopEncounter.test.ts
+openspec/planning/2026-09-12-roadmap-completion/units.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/u38-admission-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/u38-red-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/u38-local-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/u38-admission-review-20261018.json
+```
+
+### Proposed P2J — 6-file source stage
+
+```text
+e2e/coop-campaign-two-browser-journey.spec.ts
+openspec/planning/2026-09-12-roadmap-completion/units.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/p2j-admission-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/p2j-red-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/p2j-local-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/p2j-admission-review-20261018.json
+```
+
+## Overlap census and serial handoffs
+
+Compare literal leaves, not directory aliases. All draft units share units.json with every earlier L1 unit; this common lifecycle collision is excluded from the source/test counts below and must remain serial. Evidence draft names are distinct. P2C also reopens PROGRESS.md, a common earlier documentary surface. Earlier literal sets came from roadmap restrictions, registered B14 manifests and the LSC prospective manifests; earlier prep-only expansions are not treated as effective grants.
+
+| Earlier L1 unit | P2CG2 proposed source/test intersection | P2CH | P2C | P2 | U38 | P2J |
+| --- | --- | --- | --- | --- | --- | --- |
+| P2CG1B | none | none | no product | none | none | none |
+| P2CG1C | none | none | no product | none | none | none |
+| P2CG1D | CampaignHostRegistry.ts; bindCampaignSyncConnection.ts; binder test (3) | none | no product | none | none | none |
+| P2CG1E | none | none | no product | none | none | none |
+| P2CG1F | none | none | no product | none | none | none |
+| P2CG1G1 | none | none | no product | none | none | none |
+| P2CG1G2A | none | none | no product | none | none | none |
+| Reduced P2CG1G2 | none | none | no product | launch route + mission-launch.coop.test.tsx (2) | none | none |
+| P2CG1R | binder + binder test (2) | none | no product | none | none | none |
+| P2CG1S | none | none | no product | none | none | none |
+| B14-0 | none | none | no product | none | none | none |
+| B14-HEAD | none | none | no product | none | none | none |
+| P2CG1HP | binder test (1) | none | no product | none | none | none |
+| LSC-0 | none | none | no product | none | none | none |
+| LSC-1 | none | none | no product | none | none | none |
+| LSC-2 | none | none | no product | none | none | none |
+| P2CG1H | registry + application module (2) | journey spec (1) | no product | journey spec (1) | none | journey spec (1) |
+| P2CG1I1 | none | none | no product | none | none | none |
+| P2CG1I2 | none | reconnect test (1) | no product | none | none | none |
+| P2CG1I3 | session + binder + their two tests (4) | none | no product | none | none | none |
+| P2CG1I4 | none | none | no product | none | none | none |
+
+Exact expanded paths for shorthand cells are in the manifests above; no new suffix wildcard is granted. Additional tail intersections: P2CG2↔P2CH recovery test (1); P2CH↔P2 journey spec (1); P2CH/P2↔P2J journey spec (1 each). U38 has no direct source/test intersection with these draft tails. Each still shares the lifecycle file.
+
+Important non-literal reservations/dependencies:
+
+- G2, HP, I1 and LSC-2 reserve broad campaign/client neighborhoods. LSC-2's `src/lib/campaign` and `e2e` aliases contain P2's launcher and the journey even though its candidate leaves differ. LSC-1's src/__tests__/api is broad but contains none of these selected tests. These aliases are not open edit grants and do not permit concurrent writing.
+- H/R/I3 all reopen the binder chain before P2CG2; preserve their R cleanup, H receipt-only join and I3 numeric-deletion assertions. H unifies the port type in applicationConnection; this proposed behavioral amendment must preserve that type import and sole activation predicate.
+- I2 changes reconnect fixtures before P2CH. I4 changes mission-create refusal/fixture defaults. U38's P1A-created test must use the post-I4 receipt-ready seam, with explicit absent-port controls kept with their owners.
+- B14-0/B14-HEAD have zero exact intersections here, but P2/P2J/U38 must remain fog-off. Their host, HTTP and head containment plus S's current-seat spectator decisions remain required; this fit does not restore fog or reopen raw replay. U26/U30 and post-L1 fog restoration retain broad server/history reservations and need fresh census before any widened edit.
+- Pre-L1 P2CE2/3 and P2CG1A2 own the application module lineage; P2CA/B own receipt/launch authority. This tail must preserve their same-handle, verified-head and removal/fingerprint semantics. They are read-only dependencies unless the proposed literal amendment applies.
+- P2's new route must reuse existing networked UI. Editing NetworkedGameSurface/turnOwnership, lobby pages, token schemas or a persistence store is outside the draft; stop and register the actual extra seam. Do not use a broad alias to absorb an unrelated playable-combat defect.
+
+## Carry-forward ledger for Root
+
+Primary records live under `openspec/planning/2026-09-12-roadmap-completion/evidence/`; names below identify actual parsed successorNotes, not invented new obligations.
+
+| Record / obligation | Required disposition at the tail |
+| --- | --- |
+| p2ce2-review-20261016.json, successorNotes.Task13 / readmissionFlow | Preserve measured long-history N-view cost prerequisite; use real production rebind when that API exists; no invented readmission of a removed incarnation. P2CG2/P2CH qualify it; P2C records evidence. |
+| p2ce3-review-20261016.json, successorNotes.Task13 / Task14 | Ordered ACKs; cumulative confirmations; stale covered baseline sends no confirmation; head-drift retry vs unknown/not-offered/current-authority fresh-view recovery; one connection for both seat/context reads; backfill before composition. P2CG2/P2CH/P2 preserve; P2C traces earlier activation proof. |
+| p2cf1/p2cf2-review-20261016.json, successorNotes.Task14 and corrected CF1/CF3 | Use the corrected replacement baseline at cursor **-1**, so sequence-zero facts remain admissible; keep the guest mirror lineage across rebind and replace it from EMPTY on a new view. Retain launch adjuncts before ACK, without persisting launchFacts in the campaign record. G1 resolves host-lineage reuse; G2 resolves creator re-seat/replacement; preserve those actual resolutions rather than reinstating the older per-bind reset wording. P2/P2CH must keep prefix ACK, cumulative/stale-confirmation and bound recovery semantics. P2C qualifies the CF7–CF12 activation dispositions and GM fact-bearing/sequence-zero pins. |
+| p2cg1b/c-review-20261017.json, successorNotes.P2CG1C/P2CG1D | Preserve typed refused vs uncertain/committed-unsettled; receipt identity readback; C→M synchronous order, no write/await under M reservation; server-only controls/digest invariance. P2CG2 may not replace these with a readiness flag. |
+| p2cg1d-review-20261017.json:179/:226, CF-E7 and D M2 | Empty M trail on preparation refusal, veto, invalid reservation; actual default/injected store identity. P2CG2 inherits if not genuinely discharged earlier; P2C cannot omit the residual. |
+| Same D successorNotes.P2CG1H, H-OPEN-1 / CF-E1/E5/E6 | R repair, boot/backfill/order, sole type/handle must close before H. R does not claim comprehensive native outer-COMMIT cleanup/cross-file atomicity. Tail verifies genuine records and preserves semantics, not a retrospective waiver. |
+| p2cg1e-review-20261018.json, CF-F1/F2/F4/F8/F9 | I1/next owners must pin port-installed/no-entry, terminal/timer behavior and awaited handler; next launch client owner P2 owes conflict wording unless already closed. P2C traces H's unauthenticated read-only code-only preflight disclosure. |
+| p2cg1f-review-20261018.json, CF-G4/G5/G6/G7/G8 | HP handles finite quiet recovery and binder first-offer exclusivity; persistence adoption, hostRecordRefresh RED shape and optional timer pins remain next-leaf obligations. Preserve rather than silently reopen unowned leaves. |
+| p2cg1g1-review-20261018.json successorNotes and carryForwards.items, H2/H5/H7/H8/H9/H10/H14/H15/H16 | Genuine HP/H/G2/I1 evidence must discharge deadlines and pin cut/settling/reseat behavior; H2/H5/H9/H10 stay attached to their actual next leaf owners. Optional H13/H17 are recorded bounded/display residuals, not invented blockers to this scope. P2C links dispositions. |
+| p2cg1g2a-review-20261018.json successorNotes.P2CG1G2 / B15 | Preserve identity-only query/auth header/distinct 400/401/404 with no anonymous fallback and G2 creator binding. B15 retains rate limiting, PRIV-1/co-op bit/correlation, strict wire base64, MR1/MR4 route tests and logging consideration. Do not mis-route those auth leaves into P2 or U38. |
+
+Earlier HI-PREP's H type/consumer split and B14HP-PREP's head-route split are now registered on this baseline; do not propose them again as missing work. Their scratch GREEN/mutation figures are research evidence from their own snapshots, not closure. R/S scope boundaries remain as recorded; source-only claims do not close actual socket/process proof. Exact required CI names must be read on each new head (historical 31/32 lists are navigation, not current acceptance).
+
+Release carry-forwards still outside the tail's implementation manifests: `units.json:22965` installer rehearsal (actual artifact SHA256, RC SHA, one authority and three isolated identities), `:22970` actual human attestation and a current three-seat checklist, and `:22975` release-note topology/fog/privacy statements. Current `playtest/checklists/coop-uat.md` is insufficient for the new three-seat script. Include “fog-of-war is unavailable in multiplayer in this release” and same-server lobby listing/PRIV-1 limitation, preserve same-host loopback/no proxy/tunnel and Docker HOSTNAME refusal wording. Agent/browser evidence is not human acceptance; LSC mint/renewal revocation is not immediate eviction of every already-issued bearer.
+
+## Verification record and limits
+
+Initial gate:
+
+```text
+node scripts/qc/machine-idle.mjs --own-pid 47516
+exit 1 — MACHINE_BUSY 1 — chrome-headless-shell.exe PID 55164, parent 50120
+```
+
+No heavy run followed that refusal. Root subsequently supplied an explicit updated ruling: PID 55164 is T3 Code's persistent html_preview renderer, parent 50120 T3 Code (Nightly).exe, started 08:42Z by Root, CPU fixed at 5.92 seconds across a five-second sample, and designated an allowed idle process alongside 47516. Authority cited: owner standing instruction “continue with recommended options and fix the issues that come up, publish as needed”. It must not be killed. This later instruction supersedes the original one-PID exclusion for this task; only repeated `--own-pid` is authorized.
+
+Updated pre-test gate and focused baseline command:
+
+```powershell
+$env:PATH = 'C:\Users\wroll\AppData\Local\nvm\v22.22.0;' + $env:PATH
+node scripts/qc/machine-idle.mjs --own-pid 47516 --own-pid 55164
+# exit 0, MACHINE_IDLE
+node node_modules/jest/bin/jest.js --selectProjects unit --runTestsByPath src/lib/multiplayer/server/__tests__/CampaignSyncSession.test.ts src/lib/multiplayer/server/__tests__/ServerMatchHostUnitOwnership.test.ts --cacheDirectory E:/Projects/Personal/MekStation-wt/tail-prep-20261018/.jest-private --runInBand
+```
+
+The worktree has an ignored node_modules junction to the existing root dependencies; no installation or tracked dependency edit. Full output is retained in the ignored, untracked support log `TAIL-PREP-baseline-tests.log`. These are unchanged-baseline regression tests, **not the proposed RED/GREEN or mutation proof**. The old ownership suite explicitly allows an ownerless co-op guest today; its passing does not satisfy U38.
+
+Observed result: **exit 0; 2 suites passed; 36 tests passed; 0 snapshots; 5.384 seconds**. The PowerShell redirect wrapped Jest's stderr PASS line in NativeCommandError text; this is shell formatting in the retained log, not a failed Jest process. The log includes the observed gate results and Root's updated authority binding, explicitly labeled as a transcription. SHA-256: `72af45c60b5372c0e416a3baee9ce603fdb6fed43c3fef0f97f1d5b33f712456`.
+
+Final static manifest readback found **12/9/6/13/9/6 distinct files** respectively for P2CG2/P2CH/P2C/P2/U38/P2J. All non-evidence paths exist except the explicitly prospective recovery/socket tests and mission page; no unexpected absent source was found. This verifies the proposed literal census, not implementation sizing. Current physical source sizes are session 946, binder 1,829, application module 550 and intent module 619 lines: preserve the inherited modularity debt and measure actual warning/cycle/addition changes at admission; a required extraction must be registered separately.
+
+Final worktree remains detached at fe41f7ad8ebcdc3731a59cbec5fd69005cd1e29e with **empty tracked and staged diffs**. The report and private Jest cache are untracked; the support log and dependency junction are ignored. No shared/root source, contract text or lifecycle field was changed.
+
+No new tests, mutations, build, full typecheck/stable suite, browser/server launch, packaged rehearsal, actual process restart, remote CI, independent review, owner ruling, or exact-main candidate proof was executed here. No timeout was raised. Future Jest runs require the currently authorized machine gate immediately before each invocation, relevant files only, --runInBand and private cache. If another busy process appears, wait/recheck; do not add exclusions or stop foreign processes. All future admission scenarios/mutants above remain plans until authentic evidence exists.
+
+## Input bindings
+
+| Input | SHA-256 |
+| --- | --- |
+| units.json at fe41f7ad8 | `51f6fe27d70b652508a7f913a6968ce8c06bbba7e89f5c2a52292ae0ce73463f` |
+| roadmap.json at fe41f7ad8 | `776373a1f0c3f8db3de93216f71ce0c82ad5f346499de7922725c2994661b8dd` |
+| E:/Projects/Personal/MekStation-wt/hi-prep-20261018/HI-PREP.md | `6b8df3e824b27717d7db0c6f6f316ef150295d4cdb28d3861eb23a697ffb7590` |
+| E:/Projects/Personal/MekStation-wt/rs-prep-20261018/RS-PREP.md | `99588cc64f7117f746648809618368f4d7a6df62af3f4e54d659757b96c703eb` |
+| E:/Projects/Personal/MekStation-wt/b14hp-prep-20261018/B14HP-PREP.md | `a9e395468f332ab5ae90e58d6c57a348a1389143746d25f16d866d98f377b787` |
+
+The report's final SHA-256 is supplied separately; a file cannot contain its own final hash.
