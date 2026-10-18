@@ -1,3 +1,62 @@
+## 2026-10-18 LSC second split registered; all seven units remain blocked
+
+Root adopts the LSC-PREP2 recommendations under the owner standing instruction
+"continue with recommended options and fix the issues that come up, publish as needed"
+and the owner's 2026-10-18 approval of recommended actions. This is a docs-only
+registration amendment on Main 3971389b3ead0cf6a7d78bdefb58604477e67ec6, not source
+admission, an implementation OWNER-RULING or runtime acceptance. The byte-for-byte
+report is [evidence/lsc-prep2-20261018.txt](evidence/lsc-prep2-20261018.txt), 23268 bytes,
+SHA-256 0f74fab0e01a78d84f28e6f34fc9a9b5d0554ad2e2e05975c3b70c13dd651043.
+
+The measured 773-line LSC-1 splits into blocked sensitive LSC-1S (repository and
+operator service, about 466 counted lines plus lifecycle) and reduced LSC-1
+(password-checked mint, throttling/lockout, API and schemas, about 307). Move
+listSeats/public type to LSC-1 if needed for margin. The measured 558-line LSC-2
+splits into blocked sensitive LSC-2OP (operator setup/re-provision/revoke UI,
+about 258) and reduced LSC-2 (chooser, join, renewal/expired-token recovery,
+about 300). LSC-2OP must add at least seven operator-UI mutants beyond C11/C12/C14
+at admission. Estimates still require fresh measurement; every unit retains
+15 files / 500 counted lines, sensitive review, CI, OWNER-RULING, exact-main proof
+and closure. No lifecycle or receipt has advanced.
+
+Literal manifests in units.json and roadmap.json agree: LSC-1DB 10 files (adds both
+migration-head test leaves; reassign version 33 at admission if another lane takes
+it), LSC-1S 9, LSC-1 10, LSC-2OP 11 and LSC-2 12. LSC-1 drops token.ts and
+localSeatToken.test.ts; LSC-2 drops coopCampaignAuthTokenStore.ts and adds
+CampaignNavigation.tsx, which covers dashboard/missions/launch/starmap/log/personnel.
+Primary vault mint stays unchanged; seat mint uses local-seats and the existing
+per-match token store. The report's draft 28 -> 30 count is historical: current L1
+and its closure checklist advance 31 -> 33. Symmetric order:
+P2CG1HP -> LSC-0 -> LSC-1DB -> LSC-1S -> LSC-1 -> LSC-2OP -> LSC-2 -> LSC-2P -> P2CG1H.
+H receives only the added LSC-1S/LSC-2OP admission requirement. The human-session
+LSC-2/LSC-2P gate is unchanged; the new units' closure follows from this order.
+
+Seat policy is recorded as owner-visible Root-adopted recommendations, which the
+owner may override: one-hour seat bearer cap (vault maximum six hours), five failed
+password attempts lock a seat for 60 seconds, reset issues a new player identity
+requiring GM re-admission, and local-seats enforces loopback Host/same-host Origin.
+Revocation refuses future mint/renewal; issued bearers keep their lifetime. The
+renewal banner covers both guests and the GM. This remains operator-managed
+same-host trust, not private multi-user hosting; PRIV-1 and B15 remain required.
+
+Carry-forwards in localSeatCredentialsSplit2Registration20261018: F1 (spoofable
+X-Forwarded-For rate-limit key) -> U101/B15; F2 (existing auth Host/Origin gap) ->
+B15/U101; F3 (one-hour co-op expiry without recovery, including GM) -> LSC-2's
+renewal banner, an open v2.2.0 human-session risk until LSC-2 lands and closes.
+CF-S-8 stays with I1-I4: LSC adds no reseat-to-spectator path; preserve S's live row
+and R1/R4 mutation anchors. Census notes cover U101a/U101d securitySchemas.ts and
+U101c/B15-2/B15-PRIV/R2.campaign-access on the entry panel, plus navigation and all
+ancestor/e2e/docs aliases. These notes do not edit those owner units. B14-0A and
+all other unrelated unit objects remain unchanged.
+
+Validation: validate-roadmap plain and --git pass; live --next selects B14-0A;
+validator tests pass 86/86; strict OpenSpec validates 230/230; npm run format:check
+passes. Selector fixtures exercise the nine positions above by simulating one
+parent release at a time; documentary predecessors remain parent-enforced and
+these fixtures do not supply closure evidence. Manifest parity/counts, blocked
+states/caps and symmetric links are checked separately. The original prep results
+remain historical evidence, not new product or packaged-session proof.
+
 ## 2026-10-18 P2CG1S source verified on main; B14-0A released; closure metadata proposed
 
 P2CG1S advances from implementing to main-verified for source PR #2264,
