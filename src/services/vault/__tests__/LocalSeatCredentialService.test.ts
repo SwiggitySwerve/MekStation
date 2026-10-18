@@ -1,0 +1,533 @@
+/**
+ * LSC-1S: operator provisioning service with real crypto and the real
+ * migrated schema. Covers the bound policy numbers (CF-LSC0-15), the
+ * route-wide operator window before key derivation, duplicate delivery
+ * that is still throttled and authenticated (CF-LSC0-17), operation-id
+ * refusal and generation CAS, revoke-keeps / re-provision-clears the
+ * lock (CF-LSC0-8), secret-free errors and logs (CF-LSC0-6) and the real
+ * primary-vault check that never switches the active row. The module is
+ * looked up at run time so RED fails on assertions (F6).
+ */
+
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+
+import {
+  getSQLiteService,
+  resetSQLiteService,
+} from '@/services/persistence/SQLiteService';
+import { IdentityRepository } from '@/services/vault/IdentityRepository';
+import { createIdentity } from '@/services/vault/IdentityService';
+import * as identityCrypto from '@/services/vault/IdentityService';
+import { logger } from '@/utils/logger';
+
+jest.mock('@/services/vault/IdentityService', () => {
+  const actual = jest.requireActual('@/services/vault/IdentityService');
+  return {
+    ...actual,
+    generateKeyPair: jest.fn(actual.generateKeyPair),
+    encryptWithPassword: jest.fn(actual.encryptWithPassword),
+    decryptWithPassword: jest.fn(actual.decryptWithPassword),
+  };
+});
+
+type SeatId = 'local-seat-1' | 'local-seat-2';
+type Verdict = 'ok' | 'denied' | 'missing';
+interface IOutcome {
+  replayed: boolean;
+  seats: Array<{
+    seatId: SeatId;
+    status: string;
+    label: string | null;
+    playerId: string | null;
+    generation: number;
+    lockedUntil: string | null;
+  }>;
+}
+interface IService {
+  listSeats(): IOutcome['seats'];
+  provision(input: {
+    operatorPassword: string;
+    seatId: SeatId;
+    password: string;
+    label: string;
+    expectedGeneration: number;
+    operationId: string;
+  }): Promise<IOutcome>;
+  revoke(input: {
+    operatorPassword: string;
+    seatId: SeatId;
+    expectedGeneration: number;
+    operationId: string;
+  }): Promise<IOutcome>;
+}
+interface IModule {
+  LOCAL_SEAT_POLICY: Record<string, number>;
+  LocalSeatCredentialService: new (deps?: {
+    verifyOperatorPassword?: (p: string) => Promise<Verdict>;
+    now?: () => number;
+  }) => IService;
+}
+interface IRepoModule {
+  LocalSeatCredentialRepository: new () => {
+    get(seatId: SeatId): {
+      publicKey: string;
+      failedAttempts: number;
+      lockedUntilMs: number;
+      generation: number;
+    } | null;
+    recordFailure(
+      seatId: SeatId,
+      generation: number,
+      nowMs: number,
+      policy: { maxFailures: number; lockoutMs: number },
+    ): void;
+  };
+}
+
+function load<T>(id: string, key: string): T {
+  let mod: Record<string, unknown> = {};
+  try {
+    mod = jest.requireActual(id);
+  } catch {
+    // Absent before GREEN; the assertion below reports it.
+  }
+  expect(mod[key]).toBeDefined();
+  return mod as T;
+}
+const service = () =>
+  load<IModule>(
+    '@/services/vault/LocalSeatCredentialService',
+    'LocalSeatCredentialService',
+  );
+const repository = () =>
+  load<IRepoModule>(
+    '@/services/vault/LocalSeatCredentialRepository',
+    'LocalSeatCredentialRepository',
+  );
+
+const OPERATOR = 'operator-password-xyz';
+const SEAT_PASSWORD = 'seat-one-pass-abc';
+const T0 = Date.parse('2026-10-18T12:00:00.000Z');
+
+describe('LocalSeatCredentialService operator writes (LSC-1S)', () => {
+  let dir: string;
+  let nowMs: number;
+  let operator: jest.Mock<Promise<Verdict>, [string]>;
+  let svc: IService;
+
+  async function code(
+    promise: Promise<unknown>,
+  ): Promise<{ code?: string; detail?: Record<string, number> }> {
+    const error = await promise.then(
+      () => null,
+      (caught: unknown) => caught,
+    );
+    expect(error).toBeInstanceOf(Error);
+    return error as { code?: string; detail?: Record<string, number> };
+  }
+
+  const provision = (
+    seatId: SeatId,
+    expectedGeneration = 0,
+    operationId = `op-${seatId}-${expectedGeneration}`,
+    operatorPassword = OPERATOR,
+    password = SEAT_PASSWORD,
+  ) =>
+    svc.provision({
+      operatorPassword,
+      seatId,
+      password,
+      label: seatId === 'local-seat-1' ? 'Player 1' : 'Player 2',
+      expectedGeneration,
+      operationId,
+    });
+
+  beforeEach(async () => {
+    const actual = jest.requireActual<typeof identityCrypto>(
+      '@/services/vault/IdentityService',
+    );
+    jest
+      .mocked(identityCrypto.generateKeyPair)
+      .mockReset()
+      .mockImplementation(actual.generateKeyPair);
+    jest
+      .mocked(identityCrypto.encryptWithPassword)
+      .mockReset()
+      .mockImplementation(actual.encryptWithPassword);
+    jest
+      .mocked(identityCrypto.decryptWithPassword)
+      .mockReset()
+      .mockImplementation(actual.decryptWithPassword);
+    dir = await mkdtemp(path.join(tmpdir(), 'local-seat-service-'));
+    resetSQLiteService();
+    getSQLiteService({ path: path.join(dir, 'seats.db') }).initialize();
+    nowMs = T0;
+    operator = jest.fn(async (password: string) =>
+      password === OPERATOR ? 'ok' : 'denied',
+    );
+  });
+
+  afterEach(async () => {
+    jest.restoreAllMocks();
+    resetSQLiteService();
+    await rm(dir, { recursive: true, force: true, maxRetries: 3 });
+  });
+
+  function make(): IService {
+    const { LocalSeatCredentialService } = service();
+    svc = new LocalSeatCredentialService({
+      verifyOperatorPassword: operator,
+      now: () => nowMs,
+    });
+    return svc;
+  }
+
+  it('binds the Root-recommended policy numbers (CF-LSC0-15)', () => {
+    expect(service().LOCAL_SEAT_POLICY).toEqual({
+      attemptWindowMs: 60_000,
+      maxMintAttemptsPerWindow: 10,
+      maxOperatorAttemptsPerWindow: 5,
+      maxFailures: 5,
+      lockoutMs: 60_000,
+      defaultTtlMs: 3_600_000,
+      maxTtlMs: 3_600_000,
+    });
+  });
+
+  it('lists both seats as unprovisioned public metadata', () => {
+    expect(make().listSeats()).toEqual([
+      {
+        seatId: 'local-seat-1',
+        status: 'unprovisioned',
+        label: null,
+        playerId: null,
+        generation: 0,
+        lockedUntil: null,
+      },
+      {
+        seatId: 'local-seat-2',
+        status: 'unprovisioned',
+        label: null,
+        playerId: null,
+        generation: 0,
+        lockedUntil: null,
+      },
+    ]);
+  });
+
+  it('requires the operator password and refuses without a primary identity, changing nothing', async () => {
+    make();
+    expect(
+      (await code(provision('local-seat-1', 0, 'op-a', 'wrong'))).code,
+    ).toBe('operator-denied');
+    operator.mockResolvedValueOnce('missing');
+    expect((await code(provision('local-seat-1', 0, 'op-b'))).code).toBe(
+      'operator-unavailable',
+    );
+    expect(svc.listSeats()[0].status).toBe('unprovisioned');
+  });
+
+  it('applies a route-wide 5-per-60s operator window before any key derivation', async () => {
+    make();
+    for (let i = 0; i < 5; i += 1) {
+      expect(
+        (
+          await code(
+            svc.revoke({
+              operatorPassword: 'guess',
+              seatId: i % 2 ? 'local-seat-2' : 'local-seat-1',
+              expectedGeneration: 1,
+              operationId: `op-g${i}`,
+            }),
+          )
+        ).code,
+      ).toBe('operator-denied');
+    }
+    const throttled = await code(provision('local-seat-1', 0, 'op-right'));
+    expect(throttled.code).toBe('throttled');
+    expect(throttled.detail?.retryAfterMs).toBe(60_000);
+    expect(operator).toHaveBeenCalledTimes(5);
+    nowMs += 60_000;
+    await expect(
+      provision('local-seat-1', 0, 'op-right'),
+    ).resolves.toMatchObject({ replayed: false });
+  });
+
+  it('anchors the window at the first attempt and keeps it closed across clock rollback', async () => {
+    nowMs = 10_000;
+    make();
+    for (let i = 0; i < 5; i++)
+      await code(provision('local-seat-1', 0, `denied-${i}`, 'wrong'));
+    nowMs = 60_000;
+    expect((await code(provision('local-seat-1'))).detail?.retryAfterMs).toBe(
+      10_000,
+    );
+    nowMs = 5_000;
+    expect((await code(provision('local-seat-1'))).detail?.retryAfterMs).toBe(
+      65_000,
+    );
+    expect(operator).toHaveBeenCalledTimes(5);
+    nowMs = 70_000;
+    await expect(provision('local-seat-1')).resolves.toMatchObject({
+      replayed: false,
+    });
+  });
+
+  it('treats every non-null revocation as revoked and preserves future lock deadlines on clock rollback', async () => {
+    make();
+    await provision('local-seat-1');
+    const db = getSQLiteService().getDatabase();
+    // Legacy/corrupt blank values are still revoked; current schema forbids new ones.
+    db.pragma('ignore_check_constraints = ON');
+    db.prepare(
+      "UPDATE local_seat_credentials SET revoked_at = '', locked_until_ms = ?",
+    ).run(T0 + 60_000);
+    db.pragma('ignore_check_constraints = OFF');
+    nowMs = T0 - 60_000;
+    expect(svc.listSeats()[0]).toMatchObject({
+      status: 'revoked',
+      lockedUntil: new Date(T0 + 60_000).toISOString(),
+    });
+  });
+
+  it('sanitizes unexpected verification and encryption failures without logging secrets', async () => {
+    const spies = [
+      jest.spyOn(console, 'error').mockImplementation(() => undefined),
+      jest.spyOn(logger, 'error').mockImplementation(() => undefined),
+    ];
+    make();
+    operator.mockRejectedValueOnce(new Error(OPERATOR));
+    const denied = await code(provision('local-seat-1'));
+    expect(denied).toMatchObject({ code: 'internal-error' });
+    expect(String(denied)).not.toContain(OPERATOR);
+    const encrypted = jest
+      .mocked(identityCrypto.encryptWithPassword)
+      .mockRejectedValueOnce(new Error(SEAT_PASSWORD));
+    const failure = await code(provision('local-seat-1'));
+    expect(failure).toMatchObject({ code: 'internal-error' });
+    expect(String(failure)).not.toContain(SEAT_PASSWORD);
+    expect(JSON.stringify(spies.flatMap((s) => s.mock.calls))).not.toMatch(
+      /operator-password-xyz|seat-one-pass-abc/,
+    );
+    encrypted.mockRestore();
+    expect(svc.listSeats()[0].status).toBe('unprovisioned');
+  });
+
+  it('erases generated private-key bytes on both encryption success and failure', async () => {
+    make();
+    const buffers: Uint8Array[] = [];
+    const generate = jest.requireActual<typeof identityCrypto>(
+      '@/services/vault/IdentityService',
+    ).generateKeyPair;
+    jest.mocked(identityCrypto.generateKeyPair).mockImplementation(async () => {
+      const pair = await generate();
+      buffers.push(pair.privateKey);
+      return pair;
+    });
+    await provision('local-seat-1');
+    expect(buffers[0].every((v) => v === 0)).toBe(true);
+    jest
+      .mocked(identityCrypto.encryptWithPassword)
+      .mockRejectedValueOnce(new Error('private-key-failure'));
+    await code(provision('local-seat-2'));
+    expect(buffers[1].every((v) => v === 0)).toBe(true);
+  });
+
+  it('records one winner when two operator requests race for the same generation', async () => {
+    make();
+    const outcomes = await Promise.allSettled([
+      provision('local-seat-1', 0, 'race-a'),
+      provision('local-seat-1', 0, 'race-b'),
+    ]);
+    expect(outcomes.filter((r) => r.status === 'fulfilled')).toHaveLength(1);
+    expect(outcomes.find((r) => r.status === 'rejected')).toMatchObject({
+      reason: { code: 'generation-conflict' },
+    });
+    expect(
+      getSQLiteService()
+        .getDatabase()
+        .prepare(
+          'SELECT result_generation FROM local_seat_credential_operations',
+        )
+        .all(),
+    ).toEqual([{ result_generation: 1 }]);
+    expect(svc.listSeats()[0].generation).toBe(1);
+  });
+
+  it('discards the decrypted operator key without changing its active identity', async () => {
+    const identities = new IdentityRepository();
+    const primary = await createIdentity('GM', OPERATOR);
+    await identities.save(primary);
+    const key = new Uint8Array([10, 20, 30]);
+    jest.mocked(identityCrypto.decryptWithPassword).mockResolvedValueOnce(key);
+    const real = new (service().LocalSeatCredentialService)({
+      now: () => nowMs,
+    });
+    await real.provision({
+      operatorPassword: OPERATOR,
+      seatId: 'local-seat-1',
+      password: SEAT_PASSWORD,
+      label: 'P1',
+      expectedGeneration: 0,
+      operationId: 'key-lifetime',
+    });
+    expect([...key]).toEqual([0, 0, 0]);
+    expect((await identities.getActive())?.id).toBe(primary.id);
+  });
+
+  it('still throttles and authenticates a duplicate delivery and replays the original outcome (CF-LSC0-17)', async () => {
+    make();
+    const first = await provision('local-seat-1', 0, 'op-dup');
+    const key = new (repository().LocalSeatCredentialRepository)().get(
+      'local-seat-1',
+    )?.publicKey;
+    expect(
+      (await code(provision('local-seat-1', 0, 'op-dup', 'wrong'))).code,
+    ).toBe('operator-denied');
+    const retry = await provision(
+      'local-seat-1',
+      0,
+      'op-dup',
+      OPERATOR,
+      'a-different-seat-pass',
+    );
+    expect(retry.replayed).toBe(true);
+    expect(retry.seats[0]).toEqual(first.seats[0]);
+    expect(
+      new (repository().LocalSeatCredentialRepository)().get('local-seat-1')
+        ?.publicKey,
+    ).toBe(key);
+    expect(operator).toHaveBeenCalledTimes(3);
+    // Replays still consume the operator window: calls 4 and 5 replay, 6 is throttled.
+    expect((await provision('local-seat-1', 0, 'op-dup')).replayed).toBe(true);
+    expect((await provision('local-seat-1', 0, 'op-dup')).replayed).toBe(true);
+    expect((await code(provision('local-seat-1', 0, 'op-dup'))).code).toBe(
+      'throttled',
+    );
+  });
+
+  it('refuses a reused operation id with different parameters and a stale generation', async () => {
+    make();
+    await provision('local-seat-1', 0, 'op-x');
+    expect((await code(provision('local-seat-2', 0, 'op-x'))).code).toBe(
+      'operation-mismatch',
+    );
+    const stale = await code(provision('local-seat-1', 0, 'op-y'));
+    expect(stale).toMatchObject({
+      code: 'generation-conflict',
+      detail: { currentGeneration: 1 },
+    });
+    expect(svc.listSeats()[1].status).toBe('unprovisioned');
+  });
+
+  it('revoke keeps the lock; re-provision clears it and rotates the player identity (CF-LSC0-8)', async () => {
+    make();
+    const before = (await provision('local-seat-1')).seats[0];
+    const repo = new (repository().LocalSeatCredentialRepository)();
+    for (let i = 0; i < 5; i += 1)
+      repo.recordFailure('local-seat-1', 1, nowMs, {
+        maxFailures: 5,
+        lockoutMs: 60_000,
+      });
+    expect(svc.listSeats()[0].lockedUntil).not.toBeNull();
+
+    const revoked = await svc.revoke({
+      operatorPassword: OPERATOR,
+      seatId: 'local-seat-1',
+      expectedGeneration: 1,
+      operationId: 'op-revoke',
+    });
+    expect(revoked.seats[0]).toMatchObject({
+      status: 'revoked',
+      generation: 2,
+    });
+    expect(repo.get('local-seat-1')).toMatchObject({
+      failedAttempts: 5,
+      lockedUntilMs: nowMs + 60_000,
+    });
+
+    const after = (await provision('local-seat-1', 2, 'op-again')).seats[0];
+    expect(after).toMatchObject({
+      status: 'active',
+      generation: 3,
+      lockedUntil: null,
+    });
+    expect(repo.get('local-seat-1')).toMatchObject({
+      failedAttempts: 0,
+      lockedUntilMs: 0,
+    });
+    expect(after.playerId).not.toBe(before.playerId);
+  });
+
+  it('keeps passwords out of errors, outcomes and logs (CF-LSC0-6)', async () => {
+    const spies = [
+      ...(['log', 'info', 'warn', 'error', 'debug'] as const).map((m) =>
+        jest.spyOn(console, m).mockImplementation(() => undefined),
+      ),
+      ...(['info', 'warn', 'error', 'debug'] as const).map((m) =>
+        jest.spyOn(logger, m).mockImplementation(() => undefined),
+      ),
+    ];
+    make();
+    const seen: unknown[] = [];
+    seen.push(
+      await code(provision('local-seat-1', 0, 'op-1', 'wrong-operator-secret')),
+    );
+    seen.push(await provision('local-seat-1', 0, 'op-2'));
+    seen.push(await code(provision('local-seat-2', 0, 'op-2')));
+    seen.push(await code(provision('local-seat-1', 0, 'op-3')));
+    for (const value of seen) {
+      const error = value as { message?: string; detail?: unknown };
+      const text =
+        JSON.stringify(value) +
+        String(error.message ?? '') +
+        JSON.stringify(error.detail ?? null);
+      expect(text).not.toContain(SEAT_PASSWORD);
+      expect(text).not.toContain(OPERATOR);
+      expect(text).not.toContain('wrong-operator-secret');
+    }
+    const logged = JSON.stringify(spies.flatMap((spy) => spy.mock.calls));
+    expect(logged).not.toContain(SEAT_PASSWORD);
+    expect(logged).not.toContain(OPERATOR);
+  });
+
+  it('verifies the real primary vault password without switching the active row', async () => {
+    const identities = new IdentityRepository();
+    const primary = await createIdentity('GM', 'primary-vault-pass');
+    await identities.save(primary);
+    const { LocalSeatCredentialService } = service();
+    const real = new LocalSeatCredentialService({ now: () => nowMs });
+
+    expect(
+      (
+        await code(
+          real.provision({
+            operatorPassword: 'wrong',
+            seatId: 'local-seat-1',
+            password: SEAT_PASSWORD,
+            label: 'P1',
+            expectedGeneration: 0,
+            operationId: 'op-r1',
+          }),
+        )
+      ).code,
+    ).toBe('operator-denied');
+    const done = await real.provision({
+      operatorPassword: 'primary-vault-pass',
+      seatId: 'local-seat-1',
+      password: SEAT_PASSWORD,
+      label: 'P1',
+      expectedGeneration: 0,
+      operationId: 'op-r2',
+    });
+    expect(done.seats[0].status).toBe('active');
+    expect((await identities.getActive())?.id).toBe(primary.id);
+    expect(await identities.getAll()).toHaveLength(1);
+    expect(
+      new (repository().LocalSeatCredentialRepository)().get('local-seat-1')
+        ?.publicKey,
+    ).not.toBe(primary.publicKey);
+  });
+});
