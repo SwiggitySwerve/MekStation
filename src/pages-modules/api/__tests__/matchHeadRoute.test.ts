@@ -348,4 +348,86 @@ describe('GET /api/matches/:id/head', () => {
     expect(result.statusCode).toBe(404);
     expect(result.body).toStrictEqual({ error: 'no head' });
   });
+  describe('B14-HEAD fog containment', () => {
+    const fogConfig = (config: IMatchMeta['config'] | undefined): void => {
+      const original = store.getMatchMeta.bind(store);
+      metaSpy = jest
+        .spyOn(store, 'getMatchMeta')
+        .mockImplementation(async (id) => {
+          const m = await original(id);
+          return { ...m, config } as IMatchMeta;
+        });
+    };
+    let metaSpy: jest.SpyInstance | undefined;
+    afterEach(() => {
+      metaSpy?.mockRestore();
+    });
+
+    it.each([
+      ['fog on', { mapRadius: 4, turnLimit: 5, fogOfWar: true }],
+      ['unknown config', undefined],
+    ] as const)(
+      'refuses the host for %s with only the fixed reason, before any digest',
+      async (_label, config) => {
+        seedActivatedHead();
+        fogConfig(config);
+        const result = await getHead(host.wire);
+        expect(result.statusCode).toBe(403);
+        expect(result.body).toStrictEqual({
+          error: 'fog-projection-unavailable',
+        });
+        const text = JSON.stringify(result.body);
+        for (const secret of [ACTIVE_DIGEST, ROOT_DIGEST, 'candidate-1']) {
+          expect(text).not.toContain(secret);
+        }
+      },
+    );
+
+    it('refuses a fog host before any head or journal read', async () => {
+      seedActivatedHead();
+      fogConfig({ mapRadius: 4, turnLimit: 5, fogOfWar: true });
+      const heads = jest.spyOn(
+        SQLiteEventHistoryBranchStore.prototype,
+        'readEffectiveHead',
+      );
+      try {
+        const result = await getHead(host.wire);
+        expect(result.statusCode).toBe(403);
+        expect(heads).not.toHaveBeenCalled();
+        // Control: the same spy sees the read once fog is off.
+        metaSpy?.mockRestore();
+        fogConfig({ mapRadius: 4, turnLimit: 5, fogOfWar: false });
+        expect((await getHead(host.wire)).statusCode).toBe(200);
+        expect(heads).toHaveBeenCalled();
+      } finally {
+        heads.mockRestore();
+      }
+    });
+
+    it('authorizes first: non-host and stranger keep the generic refusal under fog', async () => {
+      seedActivatedHead();
+      fogConfig({ mapRadius: 4, turnLimit: 5, fogOfWar: true });
+      for (const caller of [player, stranger]) {
+        const result = await getHead(caller.wire);
+        expect(result.statusCode).toBe(403);
+        expect(result.body).toStrictEqual({ error: 'Authorization refused' });
+      }
+      const anonymous = await getHead();
+      expect(anonymous.statusCode).toBe(401);
+      expect(JSON.stringify(anonymous.body)).not.toContain('fog');
+    });
+
+    it('serves an explicitly known-off host the unchanged head', async () => {
+      seedActivatedHead();
+      fogConfig({ mapRadius: 4, turnLimit: 5, fogOfWar: false });
+      const result = await getHead(host.wire);
+      expect(result.statusCode).toBe(200);
+      expect(result.body).toStrictEqual({
+        branchId: 'candidate-1',
+        revision: 2,
+        effectiveGeneration: 2,
+        digest: ACTIVE_DIGEST,
+      });
+    });
+  });
 });
