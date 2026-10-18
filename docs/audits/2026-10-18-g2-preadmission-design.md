@@ -10,7 +10,7 @@ Requested artifact date: 2026-10-18. This is a docs-only design, not source admi
 - **G2-RESEAT-1:** add a synchronous active-transport registry subscription, and migrate page subscriptions on registry identity changes. Retain the delivered getter for every actual use. Register the transport owner seam and its exact test; no F consumer edit is needed.
 - Preserve five bound creators in one G2 implementation, dormant production receipts, all authority/privacy checks, 15 files/500 counted additions, and the normal predecessor/review/closure gates.
 
-Fresh source corrects the older scope: `src/pages/api/multiplayer/matches/[id].ts:74` now authenticates and checks host/durable human seat membership at lines 86-97, then still returns `{ meta }` at line 98. Commit `7119a2f7e` added that restriction and its tests. The statement that *any* authenticated player gets the state is no longer true at this fetched baseline. The B14 concern named in the brief concerns this same raw-state surface; its outsider boundary has changed, but allowed readers still receive raw state. Do not claim B14 is wholly closed or that it supplies viewer projection. B13's DELETE work remains separate: **no writes to this route**.
+Fresh source corrects the older scope: `src/pages/api/multiplayer/matches/[id].ts:74` now authenticates and checks host/durable human seat membership at lines 86-97, then still returns `{ meta }` at line 98. Commit `7119a2f7e` added that restriction and its tests. The statement that _any_ authenticated player gets the state is no longer true at this fetched baseline. The B14 concern named in the brief concerns this same raw-state surface; its outsider boundary has changed, but allowed readers still receive raw state. Do not claim B14 is wholly closed or that it supplies viewer projection. B13's DELETE work remains separate: **no writes to this route**.
 
 Main also now has P2CG1E main-verified and F planned; G1/G2 remain blocked. The old scope predates the R/S insertion: G2 successors currently include R, H and P2C; R and S precede H. Preserve current edges verbatim. Re-read actually verified F/G1 before G2 admission, including F close/queue behavior and G1 fold/extraction. This design does not release them.
 
@@ -66,23 +66,23 @@ With a fixed clock/token, compare raw bound/unbound CampaignJoin bytes including
 
 These are conservative added-physical-line estimates, not measured implementation fit. Deletions give no credit; imports/comments/copies count. Tests/evidence are line-exempt but file-counted.
 
-| Literal leaf | Counted additions |
-| --- | ---: |
-| `src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx` | 70-115 |
-| `src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx` | 10-20 |
-| `src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx` | 65-110 |
-| `src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx` | 0 |
-| `src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx` | 0 |
-| `src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx` | 0 |
-| **Add** `src/pages/api/multiplayer/invites/[roomCode].ts` | 30-55 |
-| **Add** `src/__tests__/api/securityBoundary.test.ts` | 0 |
-| **Add** `src/lib/campaign/coop/campaignSyncTransport.ts` | 55-90 |
-| **Add** `src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts` | 0 |
-| `openspec/planning/2026-09-12-roadmap-completion/units.json` (G2 lifecycle only) | 20-35 |
-| `evidence/p2cg1g2-admission-20261018.json` (under the same planning directory) | 0 |
-| `evidence/p2cg1g2-red-20261018.json` | 0 |
-| `evidence/p2cg1g2-local-20261018.json` | 0 |
-| `evidence/p2cg1g2-admission-review-20261018.md` (independent slot) | 0 |
+| Literal leaf                                                                     | Counted additions |
+| -------------------------------------------------------------------------------- | ----------------: |
+| `src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx`                |            70-115 |
+| `src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx`             |             10-20 |
+| `src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx`              |            65-110 |
+| `src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx` |                 0 |
+| `src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx`            |                 0 |
+| `src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx`                     |                 0 |
+| **Add** `src/pages/api/multiplayer/invites/[roomCode].ts`                        |             30-55 |
+| **Add** `src/__tests__/api/securityBoundary.test.ts`                             |                 0 |
+| **Add** `src/lib/campaign/coop/campaignSyncTransport.ts`                         |             55-90 |
+| **Add** `src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts`          |                 0 |
+| `openspec/planning/2026-09-12-roadmap-completion/units.json` (G2 lifecycle only) |             20-35 |
+| `evidence/p2cg1g2-admission-20261018.json` (under the same planning directory)   |                 0 |
+| `evidence/p2cg1g2-red-20261018.json`                                             |                 0 |
+| `evidence/p2cg1g2-local-20261018.json`                                           |                 0 |
+| `evidence/p2cg1g2-admission-review-20261018.md` (independent slot)               |                 0 |
 
 **10 source/test + 5 ancillary = 15/15; 250-425/500 counted additions; no spare file.** Known source/test/lifecycle subtotal: 11. Allow roughly 500-900 test additions (exempt, not measured). The parent amendment/design is a separate docs commit, not hidden inside the later G2 source-stage census. Re-freeze real dates and the complete literal manifest at admission. Later G-OWN review/identity/closure artifacts require separate actual-name/byte/hash census; the independent review slot is not authored by this implementer.
 
