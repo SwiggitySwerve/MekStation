@@ -7620,7 +7620,9 @@
         "red": {
           "path": "evidence/b14-0a-red-20261018.json"
         },
-        "local": null,
+        "local": {
+          "path": "evidence/b14-0a-local-20261018.json"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,

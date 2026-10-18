@@ -1,6 +1,12 @@
 /**
  * Fog of war for the HTTP history chain (review N6, PR #2212 review).
  *
+ * B14 CONTAINMENT (B14-0A). No per-viewer reveal projection is available yet, so
+ * after current-seat verification a fog-on or unknown-config match stream
+ * is refused with fog-projection-unavailable before any journal read.
+ * `fogMatchHistoryProjection` below is retained for the FOG chain; it is
+ * not served. The rest of this header describes that retained design.
+ *
  * WHY THIS EXISTS. `/api/matches/:id/export` and `/private-preview`
  * project the journal's `match` stream through the match-wire catalog,
  * whose decisions are identity pass-through. The live WebSocket path
@@ -50,16 +56,6 @@
 import type { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import type { IGameEvent, IGameState } from '@/types/gameplay';
 
-import {
-  materializeBranchPath,
-  resolveBranchPath,
-  type IBranchSegmentReader,
-} from '@/lib/events/journal/EventHistoryBranchResolver';
-import {
-  EVENT_JOURNAL_MAX_PAGE_SIZE,
-  type IEventJournal,
-  type IStoredEvent,
-} from '@/lib/events/journal/EventJournalContract';
 import { applyEvent, deriveState } from '@/utils/gameplay/gameState';
 
 import type {
@@ -67,7 +63,7 @@ import type {
   IMembershipSource,
   ViewerRole,
 } from '../authorization/AuthorizedViewer';
-import type { IMatchMeta } from '../IMatchStore';
+import type { IMatchConfig, IMatchMeta } from '../IMatchStore';
 import type {
   IIdentifiedViewerFact,
   IViewerProjectionServiceDeps,
@@ -78,6 +74,8 @@ import type {
   JsonValue,
 } from './ViewerProjectionTypes';
 
+import { isAuthorizedViewer } from '../authorization/AuthorizedViewer';
+import { noPerViewerRevealProjection, FOG_REFUSAL } from '../fogMatchAdmission';
 import {
   filterEventForPlayer,
   filterEventForSpectator,
@@ -131,19 +129,22 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
+/** The envelope shape check the live wire relies on: type, game, sequence. */
+function isMatchEvent(value: unknown): value is IGameEvent {
+  return (
+    isRecord(value) &&
+    typeof value['type'] === 'string' &&
+    typeof value['gameId'] === 'string' &&
+    typeof value['sequence'] === 'number'
+  );
+}
+
 /** The match event inside a mirrored `IMatchJournalEnvelope`, or refuse. */
 function matchEventOf(payload: unknown): IGameEvent {
   if (!isRecord(payload)) projectionFailed();
   const event = payload['matchEvent'];
-  if (
-    !isRecord(event) ||
-    typeof event['type'] !== 'string' ||
-    typeof event['gameId'] !== 'string' ||
-    typeof event['sequence'] !== 'number'
-  ) {
-    projectionFailed();
-  }
-  return event as unknown as IGameEvent;
+  if (!isMatchEvent(event)) projectionFailed();
+  return event;
 }
 
 /** The live path's visibility state: engine state plus durable seats. */
@@ -164,34 +165,6 @@ function statesAfterEach(events: readonly IGameEvent[]): readonly IGameState[] {
   } catch {
     projectionFailed();
   }
-}
-
-/** Journal pages for one branch segment, any branch id. */
-function storedSegmentReader(
-  journal: IEventJournal,
-): IBranchSegmentReader<IStoredEvent> {
-  return {
-    read: async (stream, segment) => {
-      const collected: IStoredEvent[] = [];
-      let after = segment.fromRevision;
-      while (after < segment.throughRevision) {
-        const page = await journal.readStream({
-          streamType: stream.streamType,
-          streamId: stream.streamId,
-          branchId: segment.branchId,
-          afterRevision: after,
-          limit: Math.min(
-            EVENT_JOURNAL_MAX_PAGE_SIZE,
-            segment.throughRevision - after,
-          ),
-        });
-        if (page.length === 0) break;
-        collected.push(...page);
-        after = page[page.length - 1].streamRevision;
-      }
-      return collected;
-    },
-  };
 }
 
 /** Strip authority-only fields exactly as the wire does for this role. */
@@ -259,10 +232,10 @@ export function fogMatchHistoryProjection(
           });
     }
     if (visible === null) return;
-    const payload = {
+    const payload: JsonValue = {
       matchEvent: wireShaped(visible, seatRole),
       expectedPostStateDigest: null,
-    } as unknown as JsonValue;
+    };
     kept.push(
       Object.freeze({
         fact: Object.freeze({
@@ -303,64 +276,44 @@ export class FogAwareMatchProjectionService extends ViewerProjectionService {
     viewer: IAuthorizedViewer,
     request: IViewerProjectionRequest,
   ): Promise<IViewerProjectionWithIdentities> {
-    const identified = await super.projectWithIdentities(viewer, request);
-    const meta = await this.fogOnMeta(request);
-    if (meta === null) return identified;
+    if (
+      request.streamType === MATCH_STREAM_TYPE &&
+      noPerViewerRevealProjection(await this.matchConfig(request.streamId))
+    ) {
+      await this.requireCurrentSeat(viewer, request);
+      throw new ViewerProjectionError('projection-failed', FOG_REFUSAL);
+    }
+    return super.projectWithIdentities(viewer, request);
+  }
+
+  /** Authoritative config, or undefined (unknown) when unreadable. */
+  private async matchConfig(
+    matchId: string,
+  ): Promise<IMatchConfig | undefined> {
+    try {
+      return (await this.fogDeps.matchMeta.getMatchMeta(matchId)).config;
+    } catch {
+      return undefined;
+    }
+  }
+
+  /** Membership precedes fog policy: a non-member learns nothing of fog. */
+  private async requireCurrentSeat(
+    viewer: IAuthorizedViewer,
+    request: IViewerProjectionRequest,
+  ): Promise<void> {
+    if (
+      !isAuthorizedViewer(viewer) ||
+      (request.streamId !== viewer.matchId &&
+        request.streamId !== viewer.campaignSessionId)
+    ) {
+      throw new ViewerProjectionError('wrong-session', 'Authorization refused');
+    }
     const seat = await this.fogDeps.seatMembership
       .lookupMembership(viewer.principalId, request.streamId)
-      .catch(() => null);
-    if (seat === null || !seat.active) projectionFailed();
-    return fogMatchHistoryProjection(viewer, seat.role, identified, meta);
-  }
-
-  /** Fog-on match streams read their effective history; all else is root. */
-  protected override async readAuthorizedStream(
-    request: IViewerProjectionRequest,
-  ): Promise<readonly IStoredEvent[]> {
-    const meta = await this.fogOnMeta(request);
-    if (meta === null) return super.readAuthorizedStream(request);
-    try {
-      const stream = {
-        streamType: request.streamType,
-        streamId: request.streamId,
-      };
-      const head = this.fogDeps.heads.readEffectiveStreamHead(stream);
-      if (head.revision === 0) return [];
-      const path = resolveBranchPath(
-        this.fogDeps.heads.branches,
-        stream,
-        head.branchId,
-        head.revision,
-      );
-      const events = await materializeBranchPath(
-        storedSegmentReader(this.fogDeps.journal),
-        path,
-      );
-      return events.slice(0, request.limit ?? EVENT_JOURNAL_MAX_PAGE_SIZE);
-    } catch {
-      projectionFailed();
+      .catch(() => projectionFailed());
+    if (seat === null || !seat.active) {
+      throw new ViewerProjectionError('wrong-session', 'Authorization refused');
     }
-  }
-
-  /**
-   * Meta for a fog-on match stream, or null when this request is not
-   * one. Fog is immutable after launch, so the two reads per request
-   * cannot disagree.
-   */
-  private async fogOnMeta(
-    request: IViewerProjectionRequest,
-  ): Promise<IMatchMeta | null> {
-    if (request.streamType !== MATCH_STREAM_TYPE) return null;
-    let meta: IMatchMeta;
-    try {
-      meta = await this.fogDeps.matchMeta.getMatchMeta(request.streamId);
-    } catch {
-      projectionFailed();
-    }
-    if (meta.config.fogOfWar !== true) return null;
-    // Visibility is a function of the whole prefix; a page that starts
-    // mid-stream has no honest state to filter against.
-    if ((request.afterRevision ?? 0) !== 0) projectionFailed();
-    return meta;
   }
 }
