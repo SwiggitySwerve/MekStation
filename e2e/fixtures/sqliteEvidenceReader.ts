@@ -147,9 +147,18 @@ export function openSqliteEvidenceReader(
         db.pragma(`user_version = ${version}`);
         return false;
       } catch (error) {
+        // Duck-typed on purpose, never instanceof: better-sqlite3 hands its
+        // native addon the FIRST SqliteError constructor loaded in the
+        // process (setErrorConstructor runs once). Under Jest every test
+        // file gets a fresh module registry but the same addon, so in any
+        // file after the first better-sqlite3 consumer a genuine refusal
+        // is NOT an instance of this file's Database.SqliteError (or even
+        // of this realm's Error), and instanceof would report a read-only
+        // connection as unproven (PR #2283 review F-1, CI Unit Tests 6/6).
         return (
-          error instanceof Database.SqliteError &&
-          error.code === 'SQLITE_READONLY'
+          typeof error === 'object' &&
+          error !== null &&
+          (error as { readonly code?: unknown }).code === 'SQLITE_READONLY'
         );
       } finally {
         if (db.inTransaction) db.exec('ROLLBACK');
