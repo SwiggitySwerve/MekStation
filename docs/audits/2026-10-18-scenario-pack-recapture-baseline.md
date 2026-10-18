@@ -92,8 +92,9 @@ third registered pack, duplicate entries and a non-quarantined failure. A CLI
 integration row verifies both quarantine records remain in JSON with `ok: false`
 and `status: QUARANTINED`, without invoking a minter.
 
-The summary reports separate PASS/FAIL/QUARANTINED counts. Only FAIL entries cause
-a failing exit; quarantine never contributes to the PASS count. Invalid committed
+The summary reports separate PASS/FAIL/QUARANTINED counts. After configuration
+validation, any FAIL entry causes a failing exit; quarantine never contributes to
+the PASS count. Invalid committed
 schemas or pins still fail before quarantine classification.
 
 The pre-existing invariant comparators and all timeouts/assertions remain intact.
@@ -183,3 +184,36 @@ machine-idle Jest/typecheck detection gap. #2278's replay fixture-root change aw
 its independent review and will require a later rebase when Root supplies its merge
 SHA. Lane C's proposed workflow patch is now available and is folded separately,
 with its own credited commit and privacy-row proof below.
+
+## Lane C journal-armed privacy workflow integration
+
+Credit: Lane C's `nightly-diag-20261018/PRIVACY-AUTHORITY.md`, section 1, and
+`proposed-workflow-privacy.patch` (SHA256
+`c39d9edd0d18793f714aeb250886e20574725c63fbcf3b81b9c3a497381c39ec`). The supplied
+patch was applied after rebasing onto Main `1e0a34dc5...`; the only command addition
+to the proposal is explicit `--workers=1` on the new step.
+
+The full suite excludes exactly `@E2E-19|@E2E-25`. A separate file-scoped step runs
+those rows with `MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE=enabled` and the same
+production standalone command. It runs after earlier failures unless cancelled,
+so a failed full suite does not hide its result. Separate browser output and the
+`github,list` reporter preserve the full suite's HTML/results, and the existing
+always-upload step includes both result directories. No spec skip guard was added.
+
+Before U24b lands, these two rows need the fixture arm to obtain a match history
+head and send the rewind-preview request. U24b's production cutover must remove
+this separate step and the complementary full-suite exclusion together. U2b's
+privacy-history acceptance remains separately owned; no ledger closure is claimed.
+
+The two affected rows passed **2/2** locally against production standalone, with
+one worker and unchanged assertions/timeouts, in
+`.sisyphus/scenario-privacy-armed.log`. The server log also contains
+`SQLITE_CONSTRAINT_PRIMARYKEY` warnings in viewer-delivery persistence during
+rewind/replay. This is a bounded two-row privacy proof under the fixture, not a
+claim of clean server logs, production cutover, fog, or real GM-seat acceptance;
+no L1 product path was edited. Independent sensitive workflow review found no
+blocking issue in the proposed split.
+
+#2278 is still under independent review. When Root supplies its merge SHA, a
+follow-up rebase must preserve its full-suite
+`MEKSTATION_E2E_REPLAY_FIXTURE_ROOT` absolute standalone path alongside this split.
