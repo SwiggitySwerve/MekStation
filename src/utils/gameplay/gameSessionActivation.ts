@@ -32,7 +32,7 @@ export function getPhaseActivationOrder(session: IGameSession): string[] {
   // An ejection resolves lockState even if the unit never acted. Only an
   // actual phase-lock event proves its slot was consumed before it left.
   const activated = new Set(
-    session.events
+    (session.events ?? [])
       .filter(
         (event) =>
           event.turn === turn &&

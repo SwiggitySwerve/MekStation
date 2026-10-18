@@ -357,22 +357,26 @@ describe('usePhaseQueueProjection', () => {
     });
   });
 
-  it('does not emit blockers for non-alternating phases (Heat/End/Initiative)', () => {
-    act(() => {
-      useGameplayStore.setState({
-        session: buildSession({
-          phase: GamePhase.Heat,
-          unitLockStates: { p1: LockState.Pending, o1: LockState.Pending },
-        }),
+  it.each([GamePhase.Initiative, GamePhase.Heat, GamePhase.End])(
+    'has no active actor or blockers in %s',
+    (phase) => {
+      act(() => {
+        useGameplayStore.setState({
+          session: buildSession({
+            phase,
+            unitLockStates: { p1: LockState.Pending, o1: LockState.Pending },
+          }),
+        });
       });
-    });
 
-    const { result } = renderHook(() => usePhaseQueueProjection());
+      const { result } = renderHook(() => usePhaseQueueProjection());
 
-    // Initiative order still computed for display, but no blockers
-    // because Heat is automatic.
-    expect(result.current.initiativeOrder.length).toBeGreaterThan(0);
-    expect(result.current.blockers).toEqual([]);
-    expect(result.current.unresolvedUnits).toEqual([]);
-  });
+      // Initiative order still computed for display, but no blockers
+      // because Heat is automatic.
+      expect(result.current.initiativeOrder.length).toBeGreaterThan(0);
+      expect(result.current.blockers).toEqual([]);
+      expect(result.current.unresolvedUnits).toEqual([]);
+      expect(result.current.activeUnitId).toBeNull();
+    },
+  );
 });
