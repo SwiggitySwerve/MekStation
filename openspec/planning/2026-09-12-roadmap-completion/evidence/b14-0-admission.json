@@ -1,0 +1,501 @@
+{
+  "schemaVersion": 1,
+  "unit": "B14-0",
+  "stage": "admission",
+  "date": "20261018",
+  "baseline": "3328e2fa5f9bcc87da09d8fdb16fc4a20f19134b",
+  "authority": "Root GATE OPEN message for B14-0 (2026-10-18): B14-0B #2270 merged at 4d9eb7213 and its closure #2273 at 3328e2fa5; B14-0 planned; validate-roadmap --next = B14-0; other merges since are docs-only (#2271, #2274). Owner standing instruction \"continue with recommended options and fix the issues that come up, publish as needed\"; owner 2026-10-18 \"I think the recommended actions make sense for the ones that have them\" (covers the temporary B14-0 fog-on multiplayer refusal for v2.2.0); owner 2026-10-18 \"let's keep going on the main path of things using as many sub-agents as we can in parallel to go quickly\". Root asked B14-0 to address or explicitly route CF-B14B-1 (folds in CF-B14A-2), CF-S-2/CF-B14A-5, CF-S-3, CF-S-1 (shared with HP), keep 1011/1008 and the B14-0A false semantics, S seat-before-gm order, membership before policy, refusal before any journal/audit/private/epoch access with no raw fallback, unchanged known-off and flag-omitted behaviour, and to record seam necessity against the real code for B14-HEAD (CF-B14B-4). This receipt records that release; it is not an owner ruling on the implementation head.",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "B14 implementation sub-agent (B14-0)"
+  },
+  "predecessors": {
+    "B14-0B": "main-verified (merge 4d9eb7213 of #2270; closure #2273 is the baseline commit).",
+    "B14-0A": "main-verified (merge 2e61f050a of #2267).",
+    "P2CG1S": "main-verified (merge 1b8558625)."
+  },
+  "overlap": "Single product-writing lane: no unit is implementing, local-verified, pr-open, review-required, ci-running or merged at the baseline. #2272 (maintenance refactor of gameplay UI/AI/scenario files, if it lands) touches no multiplayer, server or fog file. L1-SMOKE (registration #2275 under review) adds four scripts/release leaves; none is in this manifest and none of this manifest is under scripts/. The four product leaves are byte-identical to the B14-PREP2 candidate base except ServerMatchHostEvents.ts/ServerMatchHostReplay.ts, which carry the S seat arguments (meta?.seats / meta.seats); the B14-0 hunks were re-applied onto them with git apply -3 and both seat arguments are verified present. MatchWireSealedChoices.ts (seat-before-gm), the HTTP fog projection, the metadata route, the /head route and test (B14-HEAD), the B14-0A guard in matchHistoryFog.test.ts and all 14 seamed suites are frozen controls. U26/U46/U48/U104 (planned) hold multiplayer/server aliases but are not in flight; FOG-S/FOG-X (blocked) hold the spec; the spec delta keeps the capability wording FOG-X modifies.",
+  "restriction": {
+    "container": "R2.authority-live.ownershipPathsAmended20261018B14.restrictions.B14-0",
+    "leaves": 6,
+    "registration": "b14SplitRegistration20261018 and B14-0.registration20261018B14 (splitAmendment)"
+  },
+  "caps": {
+    "files": 15,
+    "productAddedLines": 500
+  },
+  "manifest": {
+    "count": 11,
+    "spare": 4,
+    "reservedUnchanged": 1,
+    "files": [
+      "src/lib/multiplayer/server/fogMatchAdmission.ts",
+      "src/lib/multiplayer/server/ServerMatchHost.ts",
+      "src/lib/multiplayer/server/ServerMatchHostReplay.ts",
+      "src/lib/multiplayer/server/ServerMatchHostEvents.ts",
+      "src/lib/multiplayer/server/__tests__/b14FogContainment.test.ts",
+      "openspec/specs/fog-of-war/spec.md",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0-admission.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0-red.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0-local.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0-review.json"
+    ],
+    "note": "4 product leaves (fogMatchAdmission.ts, ServerMatchHost.ts, ServerMatchHostReplay.ts, ServerMatchHostEvents.ts) + b14FogContainment.test.ts (new) + fog-of-war spec + units.json (own lifecycle fields only) + admission/red/local receipts + 1 reserved, unwritten review slot (b14-0-review.json) = 11/15, exactly the frozen restriction. The four spare slots grant nothing and are not used."
+  },
+  "countingConvention": "U41 counted lines = added physical lines (git diff --numstat --no-renames baseline..HEAD, no deletion credit) in the four product leaves, the spec and units.json. The test leaf and evidence receipts are line-exempt but file-counted.",
+  "census": {
+    "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/frozen-files.json",
+    "sha256": "ad502cb11079823611b9334b5c674fb8089749c7eafdadc38cdb2a50c31e6990",
+    "bytes": 1195,
+    "frozenBefore": "any source, test, spec, lifecycle or evidence edit on the 3328e2fa5-based branch"
+  },
+  "frozenFiles": [
+    {
+      "path": "src/lib/multiplayer/server/fogMatchAdmission.ts",
+      "exists": true,
+      "sha256": "d6a8903bd3e7c3ecb9e544ab0d10f5b3debc224533771748017769813c8f090e",
+      "bytes": 683,
+      "physicalLines": 18
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHost.ts",
+      "exists": true,
+      "sha256": "9a7f9300bed3e9dd47efca51a627a6ed96cb818cf0027c5e1a9c3df4f010a26b",
+      "bytes": 64684,
+      "physicalLines": 1696
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHostReplay.ts",
+      "exists": true,
+      "sha256": "d12a58a3f1b3c79d8dfc4633d0afaaab7a35d14ada69f03ce596718ae989a20f",
+      "bytes": 15275,
+      "physicalLines": 494
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHostEvents.ts",
+      "exists": true,
+      "sha256": "44334a238bfbc5679e5665b2a33a06b3c8dd0ca4857352da1ab79a4160cf245c",
+      "bytes": 16947,
+      "physicalLines": 465
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/b14FogContainment.test.ts",
+      "exists": false
+    },
+    {
+      "path": "openspec/specs/fog-of-war/spec.md",
+      "exists": true,
+      "sha256": "d5e61ffd7fb2b94c94de6871d572afd680404c66fe91450646ea9e0fad876687",
+      "bytes": 11377,
+      "physicalLines": 259
+    }
+  ],
+  "unchangedControls": {
+    "census": {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/frozen-controls.json",
+      "sha256": "db5896852a192fda4783f214d830fcb35f4252e93d3960ce9ab10cef7560cc47",
+      "bytes": 7591
+    },
+    "files": [
+      {
+        "path": "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+        "exists": true,
+        "sha256": "6e25afc908d9396e70335b981fd69c8399d9f022f9a26b72134ec2fb680ef120",
+        "bytes": 6072,
+        "physicalLines": 184
+      },
+      {
+        "path": "src/lib/multiplayer/server/fogOfWar.ts",
+        "exists": true,
+        "sha256": "a8b7a1d381dfd087237a68780d509963ffd6c3925917041bc305fc71fbc4a6aa",
+        "bytes": 12071,
+        "physicalLines": 466
+      },
+      {
+        "path": "src/lib/multiplayer/server/projection/ViewerFrameProjector.ts",
+        "exists": true,
+        "sha256": "f19a5df823c5daa366f64dc639043287d57c5406279deb26501779648143acf5",
+        "bytes": 9592,
+        "physicalLines": 270
+      },
+      {
+        "path": "src/lib/multiplayer/server/projection/ViewerPublicationBoundary.ts",
+        "exists": true,
+        "sha256": "0fb8428f0c7546716c823a3f79485e97358d08921e325263105bbbeffcf1a5d3",
+        "bytes": 14362,
+        "physicalLines": 417
+      },
+      {
+        "path": "src/lib/multiplayer/server/projection/ViewerDeliveryCursors.ts",
+        "exists": true,
+        "sha256": "4418dbb3e994c9afbf86aa5a432590aa9e628baa6a50cfdbbb73d32239fe90ae",
+        "bytes": 10627,
+        "physicalLines": 289
+      },
+      {
+        "path": "src/lib/multiplayer/server/projection/FogAwareMatchProjection.ts",
+        "exists": true,
+        "sha256": "9066d70df0352daed25e11700ccc6938212e9aa866315075b3df4459f01e1634",
+        "bytes": 12634,
+        "physicalLines": 336
+      },
+      {
+        "path": "src/lib/multiplayer/server/bindMultiplayerSocketConnection.ts",
+        "exists": true,
+        "sha256": "f3593468e6b788a6303b9601ecc8eae2b1091f3385c27037293e017a6a61fdf4",
+        "bytes": 11604,
+        "physicalLines": 442
+      },
+      {
+        "path": "src/lib/multiplayer/server/MatchHostRegistry.ts",
+        "exists": true,
+        "sha256": "feb2576461403b3dafd68dba5631b43c4f0ba9620d0f0f006f47178b8d62cade",
+        "bytes": 11287,
+        "physicalLines": 319
+      },
+      {
+        "path": "src/lib/multiplayer/server/authorization/AuthorizedViewer.ts",
+        "exists": true,
+        "sha256": "2b8ae8feea2368090cd76a7c01ee76713f7c85e81f376f997ceb36764dec4a42",
+        "bytes": 11178,
+        "physicalLines": 300
+      },
+      {
+        "path": "src/lib/multiplayer/server/authorization/MatchSeatMembershipSource.ts",
+        "exists": true,
+        "sha256": "010dd429f935181c088478db5f120618dac9fc21f9525af8aec22a3d1315d81c",
+        "bytes": 7786,
+        "physicalLines": 228
+      },
+      {
+        "path": "src/lib/multiplayer/client.ts",
+        "exists": true,
+        "sha256": "9a85d3092a151a72b7bf6b50cbe549ea608e2c601b410774fddf957844c2c9c4",
+        "bytes": 51854,
+        "physicalLines": 1478
+      },
+      {
+        "path": "src/pages/api/multiplayer/matches/[id].ts",
+        "exists": true,
+        "sha256": "8075e431921f432ca2d75eab1b9364fa63da1e3f2ea701c03b94f74d45614d36",
+        "bytes": 4915,
+        "physicalLines": 157
+      },
+      {
+        "path": "src/pages-modules/api/matchHeadRoute.ts",
+        "exists": true,
+        "sha256": "1ba0fd513cd811faa2d88313d2a542956aca9365bc8e8fff43482b3baf7cd1b8",
+        "bytes": 3017,
+        "physicalLines": 84
+      },
+      {
+        "path": "src/pages-modules/api/__tests__/matchHeadRoute.test.ts",
+        "exists": true,
+        "sha256": "abc509c275e65918c968d5a13c71cf417c26bbba8eaf533e81a2f76e3df7f0dd",
+        "bytes": 12064,
+        "physicalLines": 351
+      },
+      {
+        "path": "src/pages-modules/api/__tests__/matchHistoryFog.test.ts",
+        "exists": true,
+        "sha256": "2d52d2487e0ba31faf26e5d545fac484960bbbcd9af0622bdfd7353459e3ad66",
+        "bytes": 30001,
+        "physicalLines": 880
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/sealedChoiceDelivery.test.ts",
+        "exists": true,
+        "sha256": "82ea39b22e8588b5ed65ad206f661385589f45b6152f63f002a584e67f54dcf4",
+        "bytes": 19346,
+        "physicalLines": 580
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/CoopOpponentDriver.test.ts",
+        "exists": true,
+        "sha256": "648d715adeebac3bac4a921beda7dfa47dfe3bafa53f9831a53ce0e67cec2ad1",
+        "bytes": 37148,
+        "physicalLines": 1061
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/customCombatRecovery.recoveryDelivery.test.ts",
+        "exists": true,
+        "sha256": "2cba52e17ba8c7a68677b89a2b6ba14ec5fa8376cf8e06259f84d6c3a282d2ff",
+        "bytes": 9756,
+        "physicalLines": 283
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/customConstructionTransport.test.ts",
+        "exists": true,
+        "sha256": "965fd92f139a896df8c6df7311edea8f43696906d8348b193d6c1bded0097f90",
+        "bytes": 5315,
+        "physicalLines": 149
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/ServerMatchHost.fogOfWarIntegration.test.ts",
+        "exists": true,
+        "sha256": "20f4ee19e2c683c1c3dd539777cd59f978b305a7e1e914714dd88b926d67c7d1",
+        "bytes": 10715,
+        "physicalLines": 368
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/viewerFrameRawNegativeSweep.test.ts",
+        "exists": true,
+        "sha256": "5cb0fd4f2f1f4957d18598293325d1cbeef91bb09d2141c8c5170c6267f70bae",
+        "bytes": 28618,
+        "physicalLines": 923
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindLiveReplay.test.ts",
+        "exists": true,
+        "sha256": "0b9ef884a191bee858d3213b3a32abd1e7d2b2a9dd248d593d51cb2c4fc54340",
+        "bytes": 25081,
+        "physicalLines": 736
+      },
+      {
+        "path": "src/lib/multiplayer/__tests__/clientAgainstFogServer.integration.test.ts",
+        "exists": true,
+        "sha256": "3c9fe0fff8f3686754cddd529f84f481e4e599441856b9cf75dbcd1ebe71f48a",
+        "bytes": 23564,
+        "physicalLines": 686
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/viewerFrameAuthorityFieldLeak.test.ts",
+        "exists": true,
+        "sha256": "b7f5b14428dd55a44bebcd7e47f9ac8476c970d7aa0267fdfb8b7afa8b313905",
+        "bytes": 10381,
+        "physicalLines": 283
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/ServerMatchHostCommandResults.test.ts",
+        "exists": true,
+        "sha256": "93871a9576b51253bcedb8b4552eea8e95ae5ecbf858e36261fb0470596e051e",
+        "bytes": 9143,
+        "physicalLines": 273
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/viewerSequenceConcealmentLeak.test.ts",
+        "exists": true,
+        "sha256": "5007f7c230aa81e024459819cf6e7d8d9b9eb487814a6b36d07a3399afc2cdd1",
+        "bytes": 8961,
+        "physicalLines": 255
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/matchmaking.integration.test.ts",
+        "exists": true,
+        "sha256": "1d4255ca4e704d704388f0624e779ae3446fdf39c9cd81c8af1dfaf592cf0b44",
+        "bytes": 8748,
+        "physicalLines": 278
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/viewerDeliverySequence.test.ts",
+        "exists": true,
+        "sha256": "83ad309ad2c9c3ea197351377dfba127f60c50cf635237c9048f80adbe10a554",
+        "bytes": 6615,
+        "physicalLines": 190
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts",
+        "exists": true,
+        "sha256": "987bdeeb8e9dbc65bb63a2cbf3b3b22c9b42decd011c169a1bfc055b0cd9d996",
+        "bytes": 19221,
+        "physicalLines": 581
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/fogViewerSequenceSparsity.test.ts",
+        "exists": true,
+        "sha256": "9c15173b874bf2a89fd61f268f76724180f5bee9cb6db68635c2aa928c80b3ef",
+        "bytes": 4827,
+        "physicalLines": 148
+      },
+      {
+        "path": "server.js",
+        "exists": true,
+        "sha256": "e4f973d2cfa7f4c25775e4ce9315b7398655a6a17cfc799793545de84a59ecf6",
+        "bytes": 32625,
+        "physicalLines": 904
+      },
+      {
+        "path": "jest.config.js",
+        "exists": true,
+        "sha256": "562e7a320f0547dda21dd2e8ec93e6c68db615f32522de42a293fc58a44b8a76",
+        "bytes": 5413,
+        "physicalLines": 146
+      },
+      {
+        "path": "jest.setup.js",
+        "exists": true,
+        "sha256": "feab814b62579b60bdd9511646e39d8461391e66885605d61e2a2f7906935e0d",
+        "bytes": 2936,
+        "physicalLines": 116
+      }
+    ]
+  },
+  "behaviourFreeHelpers": {
+    "file": "src/lib/multiplayer/server/fogMatchAdmission.ts",
+    "added": [
+      "FOG_CONFIG_UNAVAILABLE",
+      "FogRefusal",
+      "matchLacksRevealProjection (async; false | \"policy\" | \"unavailable\")",
+      "refuseFogSocket (policy: typed Close + WS 1008; unavailable: typed Error + WS 1011)"
+    ],
+    "why": "Registered in this admission commit per the B14-0A reviewer recommendation and Root's instruction, so RED stays test-only. No product file references any of them at this commit (git grep in src outside __tests__ finds only the helper itself); the 14 seams already override matchLacksRevealProjection, so the factory shape is unchanged. Existing exports (FOG_REFUSAL, noPerViewerRevealProjection) are byte-identical."
+  },
+  "design": {
+    "admission": "ServerMatchHost.admitSocket: current membership is resolved first (non-members keep the pre-existing generic AUTH_REJECTED / 1008, infrastructure 1011); then matchLacksRevealProjection is awaited; any refusal sends the fixed frame, physically closes and detaches before attachSocket, so the socket is never a broadcast recipient.",
+    "live": "ServerMatchHostEvents.publishEvent: per recipient, after viewer resolution and before any frame shaping or delivery-number assignment, noPerViewerRevealProjection(meta?.config) refuses: meta === null (unreadable) -> unavailable (Error + 1011), otherwise policy (Close + 1008); the socket is detached so later publishes send nothing. fogMeta is computed with optional chaining so a readable meta with an undefined config cannot throw.",
+    "replay": "ServerMatchHostReplay.sendReplay: membership/viewer resolution first, then matchLacksRevealProjection before any event read (getReplayEventsForPlayer / getEventsFromSeq) or ReplayStart; refusal returns false and the host detaches (join and direct replay). Legacy reconnect callback: a metadata peer triggers the config read; a policy refusal answers fog-projection-unavailable only after the durable seat confirms current membership, else the generic \"Match in progress\"; an unreadable config answers the generic reason; fog-off goes to answerReconnectRequest unchanged.",
+    "closeCodes": "Membership/policy refusal 1008; infrastructure (membership lookup failure, unreadable fog config) 1011; join membership refusal and join guard failure now also physically close (1008/1011) per closePolicy. Pre-upgrade invalid credentials remain HTTP 401 in server.js (unchanged).",
+    "seatOrder": "MatchWireSealedChoices and both S seat arguments untouched; the refusal precedes the sealed-choice audience context entirely.",
+    "knownOff": "Known-off and flag-omitted configs return false from both decisions; the fog-off two-players-plus-GM path is unchanged (pinned unmocked)."
+  },
+  "carryForwards": {
+    "CF-B14B-1 (folds in CF-B14A-2)": "Addressed in b14FogContainment.test.ts (owned leaf; matchHistoryFog.test.ts is a B14-0A frozen control and keeps its tripwire): all 14 allowlisted suites must contain the byte-exact canonical block exactly once and nothing else naming the module; the set of src test files naming fogMatchAdmission must equal the 14 + matchHistoryFog + b14FogContainment; no jest.mock/doMock/unstable_mockModule/setMock call anywhere in src tests may take a computed module path (R9); no jest.spyOn on the capability exports; jest.config.js and both setup files must not mention the module; the capability exports are asserted unmocked (jest.isMockFunction false, identity with jest.requireActual); the seam override shapes type-check against the real exports. Residual: a mock of a consumer module (e.g. ServerMatchHostEvents) is not detectable by text; the unmocked refusal rows in this suite still fail under such a mock only if it is in this suite.",
+    "CF-S-2 / CF-B14A-5": "Decided and pinned: matchLacksRevealProjection is async and awaited at every call site (mutant: a dropped await refuses every match). An unreadable fog config during live delivery withholds the frame from every recipient, including the actor, and answers with a typed Error (not a terminal Close) plus WS 1011; the real client treats Error as non-terminal and reconnects; because the withheld frame was never numbered, the actor's resume replay delivers its own sealed declaration while the opponent still does not see it. Pinned by an unmocked host row and a real-client row.",
+    "CF-S-3": "Contained, not restored: under B14-0 no fog-on audience receives any declaration, revealed or not, live or on replay (pinned). Restoring fog-on delivery must keep revealed declarations of fog-invisible units withheld; routed to the FOG chain (FOG-B/FOG-R) together with the GameCreated roster item. Seat-preservation half held (MatchWireSealedChoices and both seat arguments unchanged).",
+    "CF-S-1": "Routed to P2CG1HP (shared): fog-off HTTP history/export sealed hold lives in ViewerProjectionService/FogAwareMatchProjection, outside the B14-0 manifest (B14-0A frozen control). B14-0 neither opens nor closes it.",
+    "CF-B14B-4 (record for B14-HEAD)": "Seam necessity re-run against the real B14-0 candidate code (this tree) with all 14 seams stripped: every one of the 14 suites fails (125 failed / 162). B14-HEAD re-checks on the merged code.",
+    "CF-B14B-2 / CF-B14B-3": "FOG chain; untouched.",
+    "CF-S-7": "Not applicable: B14-0 does not edit FogAwareMatchProjection.ts.",
+    "CF-G2-9": "Pass-through; rerun and cite if the Seam Anchors spec flakes on CI.",
+    "CF-H12/CF-E10": "All required check names compared by name on the exact head and posted as a PR comment.",
+    "builtServerSocketSmoke": "Not discharged by B14-0 (exact-main built-server smoke remains owed before H or any spectator-bearing shipment). B14-0 runs the registered implementation-time probe against the real server.js entry (dev runtime, durable store) and records it in the local receipt."
+  },
+  "prep": {
+    "source": "B14-PREP2 rev 2 (b14-prep2-20261018.txt registered rev 1) and the scratch candidate; re-measured on this baseline in an uncommitted candidate: b14FogContainment 28/28; 111-suite regression 927 passed with one failure, the B14-0A guard reading the new test as an unlisted seam because it spelled the canonical block literally, fixed by spelling it through a JEST constant; then guard + new test 42/42; typecheck exit 0.",
+    "seamNecessity": {
+      "note": "All 14 seams stripped, real B14-0 candidate code",
+      "suites": [
+        {
+          "suite": "src/lib/multiplayer/server/__tests__/CoopOpponentDriver.test.ts",
+          "failedWithoutSeam": 84,
+          "total": 84
+        },
+        {
+          "suite": "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindLiveReplay.test.ts",
+          "failedWithoutSeam": 1,
+          "total": 6
+        },
+        {
+          "suite": "src/lib/multiplayer/server/__tests__/customConstructionTransport.test.ts",
+          "failedWithoutSeam": 1,
+          "total": 1
+        },
+        {
+          "suite": "src/lib/multiplayer/server/__tests__/customCombatRecovery.recoveryDelivery.test.ts",
+          "failedWithoutSeam": 1,
+          "total": 1
+        },
+        {
+          "suite": "src/lib/multiplayer/server/__tests__/viewerFrameRawNegativeSweep.test.ts",
+          "failedWithoutSeam": 6,
+          "total": 11
+        },
+        {
+          "suite": "src/lib/multiplayer/__tests__/clientAgainstFogServer.integration.test.ts",
+          "failedWithoutSeam": 5,
+          "total": 6
+        },
+        {
+          "suite": "src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts",
+          "failedWithoutSeam": 14,
+          "total": 34
+        },
+        {
+          "suite": "src/lib/multiplayer/server/__tests__/fogViewerSequenceSparsity.test.ts",
+          "failedWithoutSeam": 1,
+          "total": 1
+        },
+        {
+          "suite": "src/lib/multiplayer/server/__tests__/viewerFrameAuthorityFieldLeak.test.ts",
+          "failedWithoutSeam": 1,
+          "total": 3
+        },
+        {
+          "suite": "src/lib/multiplayer/server/__tests__/viewerDeliverySequence.test.ts",
+          "failedWithoutSeam": 3,
+          "total": 3
+        },
+        {
+          "suite": "src/lib/multiplayer/server/__tests__/viewerSequenceConcealmentLeak.test.ts",
+          "failedWithoutSeam": 2,
+          "total": 2
+        },
+        {
+          "suite": "src/lib/multiplayer/server/__tests__/ServerMatchHost.fogOfWarIntegration.test.ts",
+          "failedWithoutSeam": 4,
+          "total": 5
+        },
+        {
+          "suite": "src/lib/multiplayer/server/__tests__/ServerMatchHostCommandResults.test.ts",
+          "failedWithoutSeam": 1,
+          "total": 3
+        },
+        {
+          "suite": "src/lib/multiplayer/server/__tests__/matchmaking.integration.test.ts",
+          "failedWithoutSeam": 1,
+          "total": 2
+        }
+      ],
+      "json": {
+        "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/necessity-candidate.json",
+        "sha256": "e47f9f506679e939c4b7d5ec723d66eb872bbb21e487f5b9b8d22f2a1c7f152d",
+        "bytes": 236177
+      }
+    }
+  },
+  "baselineMeasurements": {
+    "node": "v22.22.0",
+    "idle": {
+      "command": "node scripts/qc/machine-idle.mjs --own-pid 47516 --own-pid 55164",
+      "result": "MACHINE_IDLE before every heavy run",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/idle-gates.log",
+        "sha256": "d91ac1d4ee4670e0f242beea77a059462207df2fcfe31475b4a5ed9ab406b198",
+        "bytes": 591
+      }
+    },
+    "typecheck": {
+      "command": "npm run typecheck",
+      "result": "exit 0",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/typecheck-base.log",
+        "sha256": "3b36e22e1b0478b0238ff74f78f016d01c34b3acc5ef45f73c88babce588152f",
+        "bytes": 374
+      }
+    },
+    "lint": {
+      "command": "npx oxlint",
+      "result": "86 warnings, 0 errors",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/lint-base.log",
+        "sha256": "41c7f8c03b88a52f11dfef797f1e17a209b6f255a93072d1903764fc35baa8d9",
+        "bytes": 80866
+      }
+    },
+    "lintUnits": {
+      "command": "npm run lint:units",
+      "result": "LINT_UNITS_PASS 17896/17899; src-tests 17780 / ceiling 17783",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/lint-units-base.log",
+        "sha256": "5b011cca5ee3e74186606c498e9ebe5d9b25e3ca93b017c5ac9ee8de001f3a12",
+        "bytes": 746
+      }
+    },
+    "maintenance": {
+      "result": "type-safety high 4; not a required check",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/maintenance-base.log",
+        "sha256": "84d4d1d688e590aadb24c799634a28e8d2f09dcbe9af60c8b011e5d22a75dd03",
+        "bytes": 19526
+      }
+    }
+  },
+  "plan": {
+    "red": "Commit 2 adds only b14FogContainment.test.ts plus the units.json red path and the red receipt.",
+    "green": "Commit 3 changes the three host leaves and the spec plus the units.json local path and the local receipt; no test or helper byte changes after RED.",
+    "mutants": "At least 15 single-edit mutants on GREEN against b14FogContainment (admission/live/replay/legacy bypasses, close codes, detach, reason drift, unavailable-as-policy, unreadable permits delivery, dropped await, Close instead of Error for unavailable, undefined-config crash, fog-off refused, membership-before-policy) and guard mutants (seam removed, seam byte changed, extra mock, computed-path doMock, spyOn on an export).",
+    "probe": "Real server.js (NODE_ENV=development, MULTIPLAYER_STORE=durable, proof-local databases, loopback, unused port) driven over real WebSocket upgrades with match-scoped signed tokens; recorded in b14-0-local.json; server.js not edited; no harness file retained in the repo."
+  }
+}
