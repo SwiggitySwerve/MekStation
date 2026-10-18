@@ -67,10 +67,10 @@ export function imageIdentity(repoRoot, standaloneDir) {
 }
 function gitSource(repoRoot, expectedSha) {
   const git = (...args) => spawnSync('git', ['-C', repoRoot, ...args], { encoding: 'utf8', windowsHide: true });
-  const [head, status] = [git('rev-parse', 'HEAD'), git('status', '--porcelain', '--untracked-files=no')];
+  const [head, status] = [git('rev-parse', 'HEAD'), git('status', '--porcelain')];
   if (head.status !== 0 || status.status !== 0) throw new Error(`git failed in ${repoRoot}`);
   if (head.stdout.trim() !== expectedSha) throw new Error(`wrong build source: HEAD ${head.stdout.trim()} != expected ${expectedSha}`);
-  if (status.stdout.trim()) throw new Error('wrong build source: tracked changes present');
+  if (status.stdout.trim()) throw new Error('wrong build source: uncommitted or untracked changes present');
   return { head: expectedSha, clean: true };
 }
 /** One verified run; runCases(ctx) must ctx.pass() each options.requiredCases id exactly once. */

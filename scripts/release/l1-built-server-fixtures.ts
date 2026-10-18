@@ -17,7 +17,7 @@ const alive = (pid: number) => { try { return process.kill(pid, 0); } catch (e) 
 export function openStoppedDb(dbPath: string, stoppedPid: number): OfflineDb {
   if (!path.isAbsolute(dbPath) || !fs.existsSync(dbPath)) throw new Error(`fixture: private DB missing: ${dbPath}`);
   if (!(stoppedPid > 0) || alive(stoppedPid)) throw new Error(`fixture: owning server pid ${stoppedPid} is not stopped`);
-  return new Database(dbPath, { fileMustExist: true });
+  return new Database(dbPath, { fileMustExist: true, readonly: true });
 }
 export function readMatchMeta(db: OfflineDb, matchId: string): IMatchMeta {
   const row = db.prepare('SELECT meta_json FROM mp_matches WHERE match_id = ?').get(matchId) as { meta_json: string } | undefined;

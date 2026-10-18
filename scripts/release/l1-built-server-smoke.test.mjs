@@ -124,6 +124,28 @@ test('happy path: all A1 cases pass, callbacks run, nothing retained, owned chil
   const evidence = fs.readFileSync(path.join(fixture.output, 'evidence.jsonl'), 'utf8');
   assert.match(evidence, /\[REDACTED:host-token\]/);
   assert.match(evidence, /"kind":"offline-fixture"/);
+  const offline = evidence.split('\n').filter(Boolean).map((line) => JSON.parse(line)).find((row) => row.kind === 'offline-fixture');
+  assert.equal(offline.dbAfter, offline.dbBefore, 'read-only lineage must not change the private DB');
+});
+
+test('M13: a raw credential written into the run directory by extension code fails the run', async () => {
+  const fixture = stubRepo('normal');
+  const { secrets, wrapped } = capturing(async (ctx) => {
+    await runA1Cases(ctx);
+    fs.writeFileSync(path.join(ctx.evidence.dir, 'extension.txt'), secrets[0]);
+  });
+  const failure = await harness(fixture, wrapped).then(() => null, (error) => error);
+  assert.match(failure?.message ?? '', /retained credential: extension\.txt:\[REDACTED:host-token\]/);
+  assert.equal(failure.message.includes(secrets[0]), false);
+  await assertCleaned(fixture);
+});
+
+test('R10: a private DB that pre-exists before boot fails the run', async () => {
+  const fixture = stubRepo('normal');
+  const standalone = path.join(fixture.repo, '.next', 'standalone');
+  const script = `const fs = require('fs'); for (const f of ${JSON.stringify([path.join(fixture.repo, '.next', 'BUILD_ID'), path.join(standalone, '.next', 'BUILD_ID')])}) fs.writeFileSync(f, 'stub-build-2'); fs.writeFileSync(${JSON.stringify(path.join(fixture.output, 'db', 'smoke.sqlite'))}, 'x');`;
+  await assert.rejects(harness(fixture, runA1Cases, { build: true, buildCommand: [process.execPath, '-e', script] }), /private DB already exists/);
+  assert.equal(summaryOf(fixture).processes.length, 0);
 });
 
 test('CF-SMOKE-1: stop, offline fixture, restart and reconnect callbacks are guarded and observable', async () => {
@@ -170,12 +192,15 @@ test('CF-SMOKE-1: restart refuses a changed image', async () => {
   await assertCleaned(fixture);
 });
 
-test('wrong build: SHA mismatch, dirty source, standalone BUILD_ID mismatch, missing markers, stale build', async () => {
+test('wrong build: SHA mismatch, dirty or untracked source, standalone BUILD_ID mismatch, missing markers, stale build', async () => {
   const sha = stubRepo('normal');
   await assert.rejects(harness({ ...sha, sha: 'f'.repeat(40) }, runA1Cases), /wrong build source: HEAD/);
   const dirty = stubRepo('normal');
   fs.writeFileSync(path.join(dirty.repo, 'README.md'), 'changed\n');
   await assert.rejects(harness(dirty, runA1Cases), /tracked changes/);
+  const untracked = stubRepo('normal');
+  fs.writeFileSync(path.join(untracked.repo, 'untracked.ts'), 'export {};\n');
+  await assert.rejects(harness(untracked, runA1Cases), /uncommitted or untracked changes/);
   await assert.rejects(harness(stubRepo('normal', { standaloneBuildId: 'other' }), runA1Cases), /standalone BUILD_ID/);
   await assert.rejects(harness(stubRepo('normal', { server: 'console.log(1)' }), runA1Cases), /lacks/);
   const stale = stubRepo('normal');
@@ -230,8 +255,11 @@ test('credential leakage fails on server output and frames; failure output stays
   }
 });
 
-test('missing controls cannot pass: no public replay, universal rejection, acting spectator, dropped live', async () => {
-  for (const [mode, pattern] of [['no-public', /\[spectator-replay-public\]/], ['reject-actions', /\[participant-action-accepted\]/], ['spectator-acts', /\[spectator-cannot-act\]/], ['drop-live', /timeout waiting for live public fact/]]) {
+test('missing controls cannot pass: public replay/live, actions, refusals, seat kind, HTTP echo, stalled or gapped delivery', async () => {
+  for (const [mode, pattern] of [['no-public', /\[spectator-replay-public\]/], ['reject-actions', /\[participant-action-accepted\]/], ['spectator-acts', /\[spectator-cannot-act\]/], ['drop-live', /timeout waiting for live public fact/],
+    ['accept-malformed', /\[credential-malformed-refused\]/], ['accept-url-token', /\[credential-url-refused\]/], ['accept-foreign', /\[credential-foreign-refused\]/],
+    ['seat-human', /\[spectator-seat-witnessed\]/], ['http-echo-token', /\[credential-redaction\]/], ['stall-after-refusal', /\[spectator-cannot-act\]/],
+    ['live-gap', /\[spectator-live-public\]/]]) {
     const fixture = stubRepo(mode);
     await assert.rejects(harness(fixture, runA1Cases), pattern, mode);
     assert.equal(summaryOf(fixture).verdict, 'FAIL');
@@ -251,6 +279,7 @@ test('refused upgrades and identities use the subprotocol, never the URL', async
     const id = await issueIdentity(ctx, 'probe');
     const conn = await openSocket(ctx, id, 'm1');
     assert.equal(conn.ws.url.includes(id.wire), false);
+    assert.deepEqual([...new URL(conn.ws.url).searchParams.keys()], ['matchId']);
     assert.equal(conn.ws.protocol, 'mekstation.v1');
     conn.close();
     await assert.rejects(openSocket(ctx, id, 'm1', { label: 'bad', protocols: ['mekstation.v1', 'mekstation.token.bm90'] }), (error) => error.status === 401);
@@ -299,6 +328,7 @@ const append = (id, type, payload) => { const seq = eventsOf(id).length; const e
 const decode = (b64) => { try { const t = JSON.parse(Buffer.from(b64, 'base64').toString('utf8')); return typeof t.playerId === 'string' && t.signature ? t : null; } catch { return null; } };
 const bearer = (req) => decode(String(req.headers.authorization || '').replace(/^Bearer /, ''));
 const sockets = new Set();
+const spectatorIds = new Set();
 const json = (res, status, body) => { res.writeHead(status, { 'content-type': 'application/json' }); res.end(JSON.stringify(body)); };
 const server = http.createServer((req, res) => {
   const who = bearer(req);
@@ -306,11 +336,13 @@ const server = http.createServer((req, res) => {
     const meta = { matchId: 'm1', hostPlayerId: who.playerId, status: 'lobby', config: { mapRadius: 4, turnLimit: 5, fogOfWar: false }, playerIds: [who.playerId], sideAssignments: [], seats: [{ slotId: 'alpha-1', kind: 'human', occupant: { playerId: who.playerId }, ready: false }, { slotId: 'bravo-1', kind: 'human', occupant: null, ready: false }] };
     save(meta);
     append('m1', 'game_started', { firstSide: 'player' });
-    return json(res, 201, { matchId: 'm1', wsUrl: 'ws://127.0.0.1:' + port + '/api/multiplayer/socket?matchId=m1', meta });
+    const echo = mode === 'http-echo-token' ? { echo: String(req.headers.authorization).slice(7) } : {};
+    return json(res, 201, { matchId: 'm1', wsUrl: 'ws://127.0.0.1:' + port + '/api/multiplayer/socket?matchId=m1', meta, ...echo });
   }
   if (req.method === 'POST' && req.url === '/api/multiplayer/matches/m1/spectate' && who) {
     const meta = load('m1');
-    meta.seats.push({ slotId: 'spectator-1', kind: 'spectator', occupant: { playerId: who.playerId }, ready: true });
+    meta.seats.push({ slotId: 'spectator-1', kind: mode === 'seat-human' ? 'human' : 'spectator', occupant: { playerId: who.playerId }, ready: true });
+    spectatorIds.add(who.playerId);
     save(meta);
     return json(res, 201, { slotId: 'spectator-1', matchId: 'm1' });
   }
@@ -322,21 +354,26 @@ server.on('upgrade', (req, socket, head) => {
   const entry = String(req.headers['sec-websocket-protocol'] || '').split(',').map((s) => s.trim()).find((s) => s.startsWith('mekstation.token.'));
   if (mode === 'log-token') console.log('[stub] upgrade protocol ' + req.headers['sec-websocket-protocol']);
   const reject = (status) => { socket.write('HTTP/1.1 ' + status + '\r\nContent-Length: 0\r\n\r\n'); socket.destroy(); };
-  if (url.searchParams.has('token')) return reject('400 Bad Request');
+  if (url.searchParams.has('token') && mode !== 'accept-url-token') return reject('400 Bad Request');
   const wire = entry ? Buffer.from(entry.slice(17).replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('base64') : '';
   const token = entry ? decode(wire) : null;
-  if (!token) return reject('401 Unauthorized');
-  wss.handleUpgrade(req, socket, head, (ws) => { ws.verified = token.playerId; ws.wire = wire; ws.delivery = 0; sockets.add(ws); ws.on('close', () => sockets.delete(ws)); ws.on('message', (raw) => onMessage(ws, JSON.parse(String(raw)))); });
+  if (!token && !(mode === 'accept-malformed' && entry)) return reject('401 Unauthorized');
+  wss.handleUpgrade(req, socket, head, (ws) => { ws.verified = token ? token.playerId : 'pid_malformed'; ws.wire = wire; ws.delivery = 0; sockets.add(ws); ws.on('close', () => sockets.delete(ws)); ws.on('message', (raw) => onMessage(ws, JSON.parse(String(raw)))); });
 });
 const send = (ws, message) => ws.send(JSON.stringify({ matchId: 'm1', ts: now(), ...message }));
 const lobby = (intentId) => { const meta = load('m1'); return { kind: 'LobbyUpdated', ...(intentId ? { intentId } : {}), seats: meta.seats, status: meta.status, hostPlayerId: meta.hostPlayerId }; };
-const broadcastEvent = (event) => { for (const ws of sockets) if (ws.joined && !(mode === 'drop-live' && ws.spectator)) send(ws, { kind: 'Event', event, deliverySequence: ws.delivery++ }); };
+const nextDelivery = (ws) => {
+  if (ws.spectator && mode === 'live-gap' && !ws.gapped) ws.delivery += (ws.gapped = 1);
+  return ws.spectator && ws.stalled ? ws.delivery - 1 : ws.delivery++;
+};
+const broadcastEvent = (event) => { for (const ws of sockets) if (ws.joined && !(mode === 'drop-live' && ws.spectator)) send(ws, { kind: 'Event', event, deliverySequence: nextDelivery(ws) }); };
 function onMessage(ws, m) {
   if (m.kind === 'SessionJoin') {
-    if (m.playerId !== ws.verified) { send(ws, { kind: 'Error', code: 'AUTH_REJECTED', reason: 'player-mismatch' }); send(ws, { kind: 'Close', code: 'AUTH_REJECTED', reason: 'player-mismatch' }); return ws.close(1008, 'player-mismatch'); }
+    const foreign = m.playerId !== ws.verified;
+    if (foreign && mode !== 'accept-foreign') { send(ws, { kind: 'Error', code: 'AUTH_REJECTED', reason: 'player-mismatch' }); send(ws, { kind: 'Close', code: 'AUTH_REJECTED', reason: 'player-mismatch' }); return ws.close(1008, 'player-mismatch'); }
     if (mode === 'close-on-join') return ws.terminate();
     const meta = load('m1');
-    ws.spectator = meta.seats.some((s) => s.kind === 'spectator' && s.occupant && s.occupant.playerId === ws.verified);
+    ws.spectator = spectatorIds.has(ws.verified) || meta.seats.some((s) => s.kind === 'spectator' && s.occupant && s.occupant.playerId === ws.verified);
     const events = mode === 'no-public' && ws.spectator ? [] : eventsOf('m1');
     send(ws, { kind: 'ReplayStart', totalEvents: events.length, fromDeliverySequence: 0 });
     if (events.length) send(ws, { kind: 'ReplayChunk', events, deliverySequences: events.map((_, i) => i) });
@@ -344,6 +381,7 @@ function onMessage(ws, m) {
     send(ws, { kind: 'ReplayEnd', toDeliverySequence: Math.max(0, events.length - 1), ...(mode === 'echo-token' ? { note: ws.wire } : {}) });
     ws.joined = true;
     send(ws, lobby());
+    if (foreign) { send(ws, { kind: 'Close', code: 'AUTH_REJECTED', reason: 'player-mismatch' }); return ws.close(1008, 'player-mismatch'); }
     return console.log('[mp-socket] session joined matchId=m1 playerId=' + ws.verified);
   }
   if (m.kind !== 'Intent') return;
@@ -351,6 +389,7 @@ function onMessage(ws, m) {
   const intent = m.intent;
   const reply = (message) => { for (const peer of sockets) if (peer.joined) send(peer, message); };
   if (intent.kind === 'AdvancePhase') {
+    if (ws.spectator && mode === 'stall-after-refusal') ws.stalled = true;
     if (ws.spectator && mode !== 'spectator-acts') return reply({ kind: 'Error', code: 'INVALID_INTENT', reason: 'spectator-cannot-act', intentId: m.intentId });
     if (mode === 'reject-actions') return reply({ kind: 'Error', code: 'INVALID_INTENT', reason: 'out-of-phase', intentId: m.intentId });
     return broadcastEvent(append('m1', 'phase_changed', { intentId: m.intentId }));
