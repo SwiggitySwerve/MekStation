@@ -15,8 +15,8 @@ The supplied A/B/C reports are historical research at `f32626fbd`, not fresh
 runtime proof. Their complete bytes are preserved under
 `openspec/planning/2026-09-12-roadmap-completion/evidence/`:
 
-| Seat | Evidence                                                                                                             | SHA256                                                             |
-| ---- | -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| Seat | Evidence                                                                                                          | SHA256                                                             |
+| ---- | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
 | A    | [council3-a-20261018.txt](../../openspec/planning/2026-09-12-roadmap-completion/evidence/council3-a-20261018.txt) | `260d715aea386b05b7719110212281cf74f70f56902144d430ddda460c99fe9f` |
 | B    | [council3-b-20261018.txt](../../openspec/planning/2026-09-12-roadmap-completion/evidence/council3-b-20261018.txt) | `c6b260e9810cce9e1070872b05969d32ace0501368bcc525ec34d3aba64e6202` |
 | C    | [council3-c-20261018.txt](../../openspec/planning/2026-09-12-roadmap-completion/evidence/council3-c-20261018.txt) | `b66e63e933e79327859ebe43316c3739f99c96b64614d8e5dea34f1c9e9d2ecf` |

@@ -22775,7 +22775,7 @@
       {
         "id": "release-notes",
         "status": "pending",
-        "requirement": "Actual release notes include the same-host/loopback/no-remote-proxy-or-tunnel topology statement and Docker HOSTNAME admission refusal/unsupported-hosting statement from docs/releases/v2.2.0-topology.md, plus: \"fog-of-war is unavailable in multiplayer in this release\". Do not defer disclosure to post-L1 B15-6."
+        "requirement": "Actual release notes include the same-host/loopback/no-remote-proxy-or-tunnel topology statement and Docker HOSTNAME admission refusal/unsupported-hosting statement from docs/releases/v2.2.0-topology.md, plus: \"fog-of-war is unavailable in multiplayer in this release\". Do not defer disclosure to post-L1 B15-6. Also include: \"co-op sessions are currently listed in the lobby browser to other users of the same server (fixed by B15-PRIV)\"."
       }
     ],
     "evidence": [
