@@ -1,0 +1,13 @@
+OWNER-RULING 412c09411a784fbb8985995b652ef2007e5a4a39
+
+Unit: P2CG1G2A (L1; sensitive: authority/privacy). PR #2247 at exact head 412c09411a784fbb8985995b652ef2007e5a4a39.
+
+Owner text (standing instruction): "continue with recommended options and fix the issues that come up, publish as needed". Root rules under it.
+
+Basis:
+- Independent full sensitive review (Fable 5.1): APPROVE-WITH-NOTES, docs/audits/2026-10-18-p2cg1g2a-review.md, sha256 e54904c72a239f8259595a0b6d49309219d657dd3e80408714986e708d43a0e5 (18,297 bytes). Five classes covered; ledger discipline PASS (admission 60da3dbb units.json+receipt only; RED eec0cab8 tests only, route byte-identical; GREEN 412c0941 route only; 7/15 files, 62/500 lines). RED reproduced 19 failing; GREEN 48/48; related 74 suites / 925 tests; CF-H12: 32/32 checks on the exact head, name set identical to G1's.
+- Reviewer mutants: 12, 9 caught; survivors MR1 (Bearer scheme case-insensitivity untested), MR4 (empty-string campaignId branch untested), MR15 equivalent.
+- PRIV-1 (ruling R-PRIV-1) confirmed correct and complete; nothing in G2A makes it worse. Addition: 200/404 split with a valid bearer discloses a co-op bit, subsumed by the campaignId disclosure. Recorded as B15-6 remote-hosting hold (merged #2245); v2.2.0 is loopback-only.
+- Author receipts: 10/10 author mutants caught; typecheck/lint/format/roadmap validators/openspec strict pass.
+
+Ruling: ACCEPT and merge at this exact head. Carry-forwards CF-G2A-1..7 recorded in the review are routed as written: B15 (rate limiter, PRIV-1 fix including the co-op bit, strict wire decode, accountability logging); P2CG1G2 (add two test rows killing MR1 and MR4; consumer contract); closure (exact-main proof on the actual merge commit; Main advanced only by docs-only #2245/#2246, merge-tree clean).

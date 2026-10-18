@@ -1,0 +1,623 @@
+{
+  "unit": "P2CG1G2A",
+  "stage": "review",
+  "recordedAt": "2026-10-18T07:08:56Z",
+  "head": "412c09411a784fbb8985995b652ef2007e5a4a39",
+  "reviewedHead": "412c09411a784fbb8985995b652ef2007e5a4a39",
+  "reviewerModel": "claude-fable-5-1",
+  "implementerModel": "claude-opus-5-5",
+  "verdict": "APPROVE-WITH-NOTES",
+  "outputPath": "evidence/p2cg1g2a-source-fable-review-20261018.txt",
+  "outputSha256": "e54904c72a239f8259595a0b6d49309219d657dd3e80408714986e708d43a0e5",
+  "outputBytes": 18297,
+  "originalPath": "docs/audits/2026-10-18-p2cg1g2a-review.md",
+  "originalCheckout": "E:/Projects/Personal/MekStation-wt/review-2247-20261018",
+  "reviewerSubstitution": "One independent full sensitive review round by Claude Fable 5.1 (the owner ruling names it: \"Independent full sensitive review (Fable 5.1)\"), the same substitution for GPT Astra recorded for P2CG1E, P2CG1F and P2CG1G1. The report calls itself an \"independent review sub-agent (read-only; no push/comment/label/merge)\". The reviewer is not the author (Claude Opus 5.5).",
+  "verdictText": "**APPROVE-WITH-NOTES.**",
+  "verdictNotes": "No blocking defect in the route or the tests. The implementation matches the registered P2CG1G2A behavior and the admission contract order 1-10 exactly; ledger discipline holds commit by commit; RED/GREEN/related runs reproduce; CF-H12 verified by name on the exact head. The notes are (a) three surviving mutants of mine, two of which are small test gaps and one an equivalent mutant, (b) two pre-existing verifier/wire leniencies outside the G2A manifest, and (c) PRIV-1 confirmations with two small completeness additions. Nothing in G2A makes PRIV-1 worse than the parent ruling describes.",
+  "reviewHeader": [
+    "Date: 2026-10-18",
+    "Reviewer: independent review sub-agent (read-only; no push/comment/label/merge)",
+    "PR: SwiggitySwerve/MekStation#2247 \"feat(P2CG1G2A): authenticated campaign identity invite resolution\"",
+    "Head reviewed: 412c09411a784fbb8985995b652ef2007e5a4a39 (fetched via refs/pull/2247/head; matches PR headRefOid)",
+    "Registered baseline: 58e5c31b09d7d724ef409b497f3b421d41d48a29 (merge-base confirmed)",
+    "Review worktree: E:/Projects/Personal/MekStation-wt/review-2247-20261018 (detached at head; node_modules is a junction to the identical-lockfile p2cg1g2a-impl install)",
+    "Proof artifacts: E:/Projects/Personal/MekStation-wt/review-2247-proof/ (green.log, red.log, related.log, probe.log, mutant-MR*.log, mutants-result.json, checks-head.json, review2247Probe.test.ts)",
+    "Root checkout E:/Projects/Personal/MekStation untouched."
+  ],
+  "reviewClasses": [
+    "authority",
+    "privacy",
+    "replay",
+    "idempotency",
+    "concurrency"
+  ],
+  "reviewClassEvidence": {
+    "note": "The unit's five sensitive review classes with the reviewer's section 8 lines verbatim (plus its State line). No class records a defect. Each verdict field is the closure's reading of the finding, not reviewer text.",
+    "authority": {
+      "verdict": "PASS",
+      "finding": "**Authority — PASS.** HTTP claims no seat, membership, receipt or grant; the store is read once via getMatchByRoomCode and never written (afterEach equality on getMatchMeta plus createMatch/closeMatch never called). The expected scope is derived server-side from meta.matchId (:83-86), exactly as auth.ts:305-309 prescribes; the request cannot name its own scope. WS membership/revocation/seat authority is untouched (no WS/binder file changed)."
+    },
+    "privacy": {
+      "verdict": "PASS with notes (PRIV-1 recorded as the B15 hold; completeness additions in section 7, none changing the ruling)",
+      "finding": "**Privacy — PASS with notes.** Allowlist built field by field (:96-101), never spreads meta (coopCampaign.state with full campaign state, seats, unitBootstrap, hostPlayerId all stay server-side; SECRET regex in tests, MR11 caught). Refusals disclose nothing (MR10 caught). PRIV-1 recorded as B15 hold; completeness additions in section 7."
+    },
+    "replay": {
+      "verdict": "N/A with reason (pure GET read, no effect to replay)",
+      "finding": "**Replay — N/A with reason.** The route is a pure GET read with no event stream, so event replay does not apply. Bearer replay within TTL yields the identical read-only answer; no nonce is needed because there is no effect to replay."
+    },
+    "idempotency": {
+      "verdict": "PASS",
+      "finding": "**Idempotency — PASS.** Repeated identical requests produce identical responses and no state change; proven by the afterEach invariant across 30 rows and 12 mutant runs."
+    },
+    "concurrency": {
+      "verdict": "PASS",
+      "finding": "**Concurrency — PASS.** Single store read with snapshot semantics; a lobby -> active transition between the read and the response yields at worst a stale 200 for a code the anonymous route would equally have resolved a moment earlier. No shared mutable state, no locks required."
+    },
+    "state": {
+      "verdict": "N/A (no durable state written)",
+      "finding": "**State — N/A.** No durable state is written; the only state read is the existing room-code index/meta lookup that the anonymous route already performs."
+    }
+  },
+  "contractCheck": {
+    "intro": [
+      "Read P2CG1G2A from units.json at 412c0941: ownershipPaths = exactly the route and securityBoundary.test.ts; ownershipExceptions = units.json + admission/admission-review/red/local receipts; caps 15 files / 500 product lines; reviewClasses authority, privacy, replay, idempotency, concurrency; state \"implementing\"; baseline 58e5c31b; stageReceipts admission/red/local set, review/merge/mainProof/tick null. Behavior text requires: explicit campaignIdentity=1; non-empty Bearer header; reject query token and malformed mode; verify server-derived campaign-session scope for the resolved live match; return only {matchId,status,layout,campaignId}; Cache-Control private, no-store on identity successes and failures; anonymous summary preserved exactly; no seat/membership/receipt change.",
+      "Route behaviour verified against each clause (file:line refers to src/pages/api/multiplayer/invites/[roomCode].ts at head):"
+    ],
+    "header": "| Clause | Where | Result |",
+    "rows": [
+      "| 405 non-GET unchanged | :43-47 | unchanged from base |",
+      "| identity mode = key present; Cache-Control on every identity outcome | :50-51 | set before any identity-mode exit |",
+      "| mode != '1', or token query key, or missing roomCode -> 400, no downgrade | :52-59 | arrays ('1','1'), '', '0', 'true' all 400 (tests + probes) |",
+      "| invalid code shape -> 404 | :63-67 | unchanged |",
+      "| no 'Bearer <non-space>' header -> 401 before lookup/crypto | :71-74 | tests assert store and verifier not called |",
+      "| no live lobby code -> 404 | :76-80 | unchanged |",
+      "| verifier with {kind:'campaign-session', id: meta.matchId}; failure -> 401 | :83-90 | scope derived from store meta, never from request |",
+      "| non-co-op / empty campaignId -> 404 same class | :91-95 | constant body |",
+      "| 200 built field by field, never spread | :96-101 | exactly four keys in order (probe P14) |",
+      "| anonymous summary unchanged | :105-109 | byte-identical to base; no auth call; no cache header |"
+    ]
+  },
+  "ledgerDiscipline": {
+    "header": "| Check | Result |",
+    "rows": [
+      "| 60da3dbb admission: only units.json (+14/-4) and admission receipt; no source/test | PASS |",
+      "| eec0cab8 RED: securityBoundary.test.ts (+298), red receipt, units.json (+4/-1); route byte-identical to base ('git diff --quiet 58e5c31b0 eec0cab8f -- route' exit 0) | PASS |",
+      "| 412c0941 GREEN: route (+46/-2), local receipt, units.json (+4/-1); no test byte changed | PASS (test sha 696d4b86... equals local receipt) |",
+      "| Files outside manifest | none; 6 changed files all in ownershipPaths/ownershipExceptions |",
+      "| units.json unit ids touched | only P2CG1G2A (structural JSON compare base vs head); no top-level key changed |",
+      "| Caps | files 6 changed + 1 reserved admission-review slot = 7/15; counted lines route 46 + units.json 16 = 62/500 (numstat); test +298 and evidence exempt per convention |",
+      "| Head leaf hashes | route 6ee9ec40...ce2b, test 696d4b86...d7d7 — both equal the local receipt |",
+      "| Formatting | oxfmt --check on both leaves: clean |",
+      "| Base drift | origin/main is now 69bdf0ba6 (#2245 PRIV-1 docs amendment, #2246 B14-0 registration): docs-only, no G2A leaf touched; 'git merge-tree --write-tree origin/main 412c0941' clean |"
+    ]
+  },
+  "reviewReruns": {
+    "header": "| Run | Expected | Observed |",
+    "rows": [
+      "| RED @ eec0cab8, securityBoundary.test.ts | 19 failing | **19 failed, 11 passed, 30 total** (receipt's 48-total figure includes multiplayerMatchMeta's 18 passing controls) |",
+      "| GREEN @ head, securityBoundary + multiplayerMatchMeta | 48/48 | **48 passed, 48 total** |",
+      "| Related @ head: src/__tests__/api/, src/__tests__/unit/api/, every test importing the invite route or server verifier (coopMatchRosterSourceVersion, issuePlayerToken, MatchHostRegistry.closeRoute, lobbyCorrectionSurface, index.coop, lobby-roomcode, server auth.test) | 74 suites / 925 | **74 passed / 925 passed** |",
+      "| CF-H12 by name on exact head (GitHub check-runs API, per_page=100) | 32 names | **32/32 completed success; name set identical to the receipt's expectedNames** |"
+    ],
+    "processNote": "Process note: one of my related-set invocations accidentally shadowed PowerShell's automatic $args and launched the whole unit suite; I stopped only my own jest/powershell processes and discarded that log (accidental-fullsuite-partial.log). It is not used as evidence.",
+    "closureNote": "The reviewer's accidental whole-unit-suite invocation (process note) was discarded by the reviewer and is not evidence; it is listed under reviewerProofLogs by hash only because it sits in the reviewer's proof directory."
+  },
+  "mutationRows": {
+    "header": "| Id | Mutation | Result | Caught by |",
+    "rows": [
+      "| MR1 | bearer pre-check regex drops /i (case-sensitive scheme) | **SURVIVED** | — (no lowercase-scheme row) |",
+      "| MR2 | accept mode 'true' as identity | caught (1) | malformed mode (true) |",
+      "| MR4 | 'typeof campaignId !== string || length===0' -> 'campaignId === undefined' (empty string returned 200) | **SURVIVED** | — (no empty-campaignId row) |",
+      "| MR5 | scope id bound to normalized room code instead of meta.matchId | caught (2) | allowlisted identity; scoped-to-session accept |",
+      "| MR6 | Cache-Control 'no-store' instead of 'private, no-store' | caught (18) | every identity row |",
+      "| MR7 | set Cache-Control only after mode validation | caught (18) | every identity row |",
+      "| MR9 | accept scope-mismatch | caught (2) | both wrong-scope rows |",
+      "| MR10 | 401 body adds verifier reason | caught (7) | Object.keys(body)==['error'] |",
+      "| MR11 | 200 adds hostPlayerId | caught (1) | toEqual + SECRET regex |",
+      "| MR13 | pre-check only on header absence | caught (2) | empty bearer / non-bearer scheme (store not called) |",
+      "| MR14 | 401 -> 403 on verifier failure | caught (7) | all verifier-failure rows |",
+      "| MR15 | identity 200 uses literal status 'lobby' | **SURVIVED — equivalent** | both stores' getMatchByRoomCode return lobby-status rows only (InMemoryMatchStore.ts:466-474, DurableMatchStore.ts:1693-1701) |"
+    ],
+    "summary": "9/12 caught. MR1 and MR4 are low-severity test gaps (see F1, F2); MR15 is equivalent under the store contract and is itself a privacy positive (status carries zero information in identity mode).",
+    "survivors": [
+      "MR1",
+      "MR4",
+      "MR15"
+    ],
+    "authorMutants": "10/10 caught (author M1-M10, local receipt mutationProbes)"
+  },
+  "edgeProbes": {
+    "header": "| Probe | Observed |",
+    "rows": [
+      "| lowercase 'bearer ' scheme | 200 (consistent with verifier readBearer /i) |",
+      "| tab after scheme | 200 |",
+      "| leading whitespace before scheme | 401, private no-store, no identity (Node trims OWS in production anyway) |",
+      "| Authorization as array (duplicate headers, node-mocks-http) | 200 — see F5; unreachable in production Node (duplicate Authorization is discarded) |",
+      "| 'Bearer <token> extra' | 200 — see F4; pre-existing lenient base64 in decodeTokenFromWire |",
+      "| 'Token=x' capitalised query key | not treated as token; 200 on header |",
+      "| token='' query key | 400 with cache header |",
+      "| HEAD / OPTIONS / POST / DELETE with ?campaignIdentity=1 | 405, Allow: GET, no identity, no Cache-Control (method gate precedes mode) — F7 |",
+      "| malformed code shape, no auth, identity mode | 404 with cache header before the bearer gate — F6 |",
+      "| unknown code + 'Bearer garbage' | 404 (same as anonymous 404) — liveness oracle is pre-existing, not new |",
+      "| launched (active) co-op match code | 404 (store filters lobby only) |",
+      "| lowercase 'campaignidentity=1' key | anonymous summary, no campaignId, no cache header |",
+      "| 'Bearer abc\\ndef' | 401, no 500 |",
+      "| success key set | exactly ['matchId','status','layout','campaignId'] |"
+    ]
+  },
+  "findings": {
+    "items": [
+      {
+        "id": "F1",
+        "severity": "Low (test gap)",
+        "location": "[roomCode].ts:71; securityBoundary.test.ts",
+        "finding": "MR1 survives: scheme case-insensitivity of the pre-check is untested. Not a defect (route and verifier agree on /i); a lowercase-scheme row would pin it."
+      },
+      {
+        "id": "F2",
+        "severity": "Low (test gap)",
+        "location": "[roomCode].ts:92",
+        "finding": "MR4 survives: the empty-string campaignId -> 404 branch is unexercised. Defensive guard only; no creation path observed writing ''."
+      },
+      {
+        "id": "F3",
+        "severity": "Info",
+        "location": "[roomCode].ts:98; IResolveResponse:28",
+        "finding": "Identity-mode status is always 'lobby' because both stores filter by lobby status; the type union is wider than reality. Zero-information field in identity mode (good)."
+      },
+      {
+        "id": "F4",
+        "severity": "Info, pre-existing, outside manifest",
+        "location": "src/types/multiplayer/Player.ts:170",
+        "finding": "decodeTokenFromWire uses Node's lenient base64 (stops at '=' padding): 'Bearer <token> junk' decodes to the original token. Signature still covers the decoded canonical payload, so this is wire leniency, not a bypass. Carry-forward."
+      },
+      {
+        "id": "F5",
+        "severity": "Info, pre-existing, outside manifest",
+        "location": "[roomCode].ts:71; src/lib/multiplayer/server/auth.ts:282",
+        "finding": "Regex .test/.exec on a string[] coerces to a joined string. Only reachable through test mocks; Node's HTTP parser discards duplicate Authorization headers, so req.headers.authorization is a string in production."
+      },
+      {
+        "id": "F6",
+        "severity": "Info",
+        "location": "[roomCode].ts:64-67 vs :71-74",
+        "finding": "Invalid code *shape* answers 404 before the bearer gate. This is an input-only oracle (no store read), and matches admission contract order 4<5. Unknown-but-well-formed code with a garbage bearer answers 404 after the store read and before crypto: this discloses liveness only, which the anonymous summary already discloses to everyone. Not a new leak."
+      },
+      {
+        "id": "F7",
+        "severity": "Info",
+        "location": "[roomCode].ts:43-47",
+        "finding": "405 for non-GET in identity mode carries no Cache-Control (method gate precedes mode). Body contains no identity, so no exposure; noted for completeness of \"every refusal\"."
+      },
+      {
+        "id": "F8",
+        "severity": "Info",
+        "location": "[roomCode].ts:57",
+        "finding": "400 for malformed mode / token-in-query reuses the message 'Missing or invalid room code'. Constant and non-leaking; slightly misleading to a client author."
+      },
+      {
+        "id": "F9",
+        "severity": "Info (recorded in admission receipt)",
+        "location": "[roomCode].ts:83",
+        "finding": "No rate limiter on identity mode; Ed25519 verify runs only after a live-code hit. The anonymous route has none either. Irrelevant under loopback; a B15 remote-hosting item."
+      }
+    ],
+    "note": "No finding is a G2A blocker. F4/F5 sit in files G2A may not edit and are pre-existing."
+  },
+  "priv1": {
+    "verdict": "The parent analysis (admission receipt privacy.*; R-PRIV-1; merged #2245) is **correct**:",
+    "confirmations": [
+      "Co-op campaign lobbies are listed with roomCode by GET /api/multiplayer/lobbies to any verified bearer (lobbies.ts:65; joinableLobbies.ts IJoinableLobby exposes matchId, roomCode, layout, hostDisplayName, occupancy, fogOfWar, createdAt). The room code is therefore not a secret for them. Confirmed by reading the code at head.",
+      "verifyPlayerToken derives playerId from the embedded public key and consults no registry (auth.ts:178-193); a throwaway Ed25519 key passes. The test suite itself demonstrates this with generateKeyPairSync. Unscoped tokens are accepted because the scopeless branch is a transition residual (auth.ts:233-248) and token.ts:157 mints unscoped tokens. Requiring a scope would not add authorization, since the signer chooses its own scope; it only prevents reusing a *legitimately issued* token across sessions (confused deputy), which is vacuous for the server-minted unscoped tokens today.",
+      "The gate is therefore \"possession of a live code + ability to sign anything\", i.e. no stronger than the anonymous summary in access terms; what G2A adds is the matchId -> campaignId correlation without a seat. That is exactly how the ruling describes it.",
+      "v2.2.0 is loopback-only: server.js:72-79 refuses any HOSTNAME other than localhost/127.0.0.1 (standalone pins 127.0.0.1). Under that topology PRIV-1 is not a release blocker; the B15 hold is the right place."
+    ],
+    "completenessIntro": "Completeness additions (none changes the ruling):",
+    "completenessAdditions": [
+      "**Co-op-ness bit.** With a live code and any self-signed bearer, 200 vs 404 reveals whether the lobby is a co-op campaign lobby. The lobbies listing does not expose a co-op flag, so this is a new bit — but strictly subsumed by the campaignId disclosure PRIV-1 already records.",
+      "**status/layout as oracles.** status is always 'lobby' (store filter) and layout is already in the anonymous summary and the lobbies listing. Zero new information.",
+      "**Timing/enumeration.** Crypto runs only after a live-code hit, so response time (and 404-vs-401) tells an unauthenticated caller whether a code is live. The anonymous summary already discloses liveness to anyone; code enumeration cost is unchanged from base (no limiter before or after). Not new.",
+      "**Cache.** private, no-store is set on every identity-mode outcome including 400/401/404 and 200 (18 of my mutant rows and 11 probe rows confirm); the only identity-mode response without it is the pre-mode 405, which carries no identity.",
+      "**Accountability.** The route does not log the verified playerId, so the \"identity\" gate currently yields neither authorization nor an audit trail. Worth considering alongside the B15 fix (CF-G2A-6).",
+      "**Bearer lifetime.** Up to 6h (token.ts:55); a revoked member keeps the correlation for the token lifetime. Already an accepted residual in the design doc."
+    ],
+    "conclusion": "**Does G2A make PRIV-1 worse than described? No.** Output beyond campaignId is already public; refusal bodies are constant strings with a single 'error' key; cache headers are on every identity outcome; HTTP writes nothing (afterEach store-equality invariant, verified in RED/GREEN runs and all mutant runs)."
+  },
+  "notDone": [
+    "No typecheck/lint/full verify re-run: CI on the exact head shows Type Check, Lint, Format Check and Unit Tests (1/6..6/6) green by name; the author's local receipt records the same. My runs were confined to RED, GREEN, the related set, probes and mutants.",
+    "No DurableMatchStore (SQLite) run of the identity path; the lobby-only filter was verified by reading DurableMatchStore.ts:1693-1701 and the related set includes the SQLite store tests."
+  ],
+  "carryForwards": {
+    "items": [
+      {
+        "id": "CF-G2A-1",
+        "reviewerOwner": "B15 (remote hosting)",
+        "item": "Add an abuse budget / rate limiter to the invite route (both modes) before any non-loopback hosting claim; identity mode adds Ed25519 verification per live-code hit (F9).",
+        "status": "open",
+        "directedTo": "B15 (remote hosting): an abuse budget / rate limiter on the invite route in both modes before any non-loopback hosting claim (F9). Routed as the owner ruling writes (\"B15 (rate limiter ...)\"). Recorded under successorNotes.B15; no B15 unit is edited here."
+      },
+      {
+        "id": "CF-G2A-2",
+        "reviewerOwner": "B15",
+        "item": "PRIV-1 fix as ruled (joinableLobbies / session creation) must also close the co-op-ness bit (section 7.1) and the campaignId correlation; verify after the fix that a non-member with a listed code gets 404/401 in identity mode.",
+        "status": "open",
+        "directedTo": "B15: the R-PRIV-1 remote/tunnel readiness obligation recorded on B15-6 by #2245 (fix in joinableLobbies.ts / session creation) must also close the co-op-ness bit (review section 7 item 1) and the campaignId correlation, then re-verify that a non-member with a listed code gets 404/401 in identity mode. Routed as the owner ruling writes (\"PRIV-1 fix including the co-op bit\")."
+      },
+      {
+        "id": "CF-G2A-3",
+        "reviewerOwner": "B15 / auth hardening (not a G2 leaf)",
+        "item": "decodeTokenFromWire strict base64: reject trailing bytes after padding and non-base64 characters (F4).",
+        "status": "open",
+        "directedTo": "B15 auth hardening: strict base64 in decodeTokenFromWire (src/types/multiplayer/Player.ts, a leaf of neither P2CG1G2A nor reduced P2CG1G2) (F4). Routed as the owner ruling writes (\"strict wire decode\")."
+      },
+      {
+        "id": "CF-G2A-4",
+        "reviewerOwner": "P2CG1G2 (next time the test leaf opens)",
+        "item": "Add rows for a lowercase 'bearer' scheme and an empty-string campaignId so MR1/MR4 are killed (F1, F2).",
+        "status": "open (re-routed by parent ruling)",
+        "directedTo": "B15 auth hardening, NOT reduced P2CG1G2 (Root routing note G2A-ROUTE-1, parent ruling 2026-10-18): the lowercase-scheme and empty-string-campaignId rows that kill MR1 and MR4 belong to whoever next owns src/__tests__/api/securityBoundary.test.ts and the invite route under B15 auth hardening (F1, F2)."
+      },
+      {
+        "id": "CF-G2A-5",
+        "reviewerOwner": "P2CG1G2 (consumer)",
+        "item": "Consumer must call with exactly ?campaignIdentity=1, send the bearer only in the Authorization header (never ?token=), and treat 400/401/404 as distinct classes without falling back to the anonymous summary for campaignId.",
+        "status": "open",
+        "directedTo": "reduced P2CG1G2 (its first in-repo consumer): call with exactly ?campaignIdentity=1, send the bearer only in the Authorization header (never ?token=), and treat 400/401/404 as distinct classes with no fallback to the anonymous summary for campaignId; it adds those rows in an existing G2 test. Routed as the owner ruling writes (\"consumer contract\") and confirmed by the parent ruling."
+      },
+      {
+        "id": "CF-G2A-6",
+        "reviewerOwner": "B15",
+        "item": "Consider logging the verified playerId (logger.ts, not console) on identity-mode success so the identity gate at least provides accountability.",
+        "status": "open",
+        "directedTo": "B15: consider logging the verified playerId (logger.ts, not console) on identity-mode success so the gate provides accountability. Routed as the owner ruling writes (\"accountability logging\")."
+      },
+      {
+        "id": "CF-G2A-7",
+        "reviewerOwner": "Merge / mainProof",
+        "item": "Main has moved past the baseline with docs-only commits (#2245, #2246); merge-tree is clean at 69bdf0ba6. The exact-main proof must run on the actual merge commit, and CF-H12 must be re-read on that commit, not on 412c0941.",
+        "status": "closed at this closure",
+        "directedTo": "This closure: satisfied here. The main proof ran on the actual merge commit a6b604a078e44abaf9dbb6e2c14888e90ad83d08 (first parent 69bdf0ba, after #2245 and #2246), and CF-H12 was re-read for that merge: the 32 PR checks ran on the merged head 412c0941 (pull_request event) and were verified by name; pr-checks.yml does not run on the push to main, so the merge commit carries only the push workflows, recorded in the merge receipt (mergeCommitCheckRuns)."
+      }
+    ],
+    "b15": [
+      "CF-G2A-1",
+      "CF-G2A-2",
+      "CF-G2A-3",
+      "CF-G2A-4",
+      "CF-G2A-6"
+    ],
+    "reducedP2CG1G2": [
+      "CF-G2A-5"
+    ],
+    "closedAtClosure": [
+      "CF-G2A-7"
+    ],
+    "note": "id, reviewerOwner and item are the reviewer's section 9 table cells verbatim. status and directedTo are closure text. directedTo follows the owner ruling's routing as written except CF-G2A-4, which the parent ruling re-routes to B15 auth hardening (openNotes G2A-ROUTE-1)."
+  },
+  "reviewerProofLogs": {
+    "note": "The reviewer's disposable proof directory outside any repository (named in the report header), referenced by path, sha256 and size at closure time; its jest-cache subdirectory is not listed. Not re-run by this closure.",
+    "files": [
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2247-proof/accidental-fullsuite-partial.log",
+        "sha256": "4595f42b61f7dec3d0ed75af9ad7432c183ee5befdab095ad489be2b3caf4a05",
+        "bytes": 3524326
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2247-proof/checks-head.json",
+        "sha256": "07dee95cacd47e3a868c4b349289cf8bee8a4a760365f32f33f15a0ae789e1c5",
+        "bytes": 114386
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2247-proof/green.log",
+        "sha256": "de53a36ae219028ec98467427b452ad389e07f3c142381f5b3ecdf1e77a35451",
+        "bytes": 28634
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2247-proof/mutant-MR1.log",
+        "sha256": "f43117cf078a5d0404f41ebbb256cc808aad6929418fabce5c2fe0deb4ccf218",
+        "bytes": 2584
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2247-proof/mutant-MR10.log",
+        "sha256": "1bfb61aa0f1f4d3ba81ea8b093eed6aabf93539a79674e14353115336754d594",
+        "bytes": 8744
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2247-proof/mutant-MR11.log",
+        "sha256": "e54b02f2b3043f63ad10167dcb951663ed3216d10949dd1a320d8a210fec742d",
+        "bytes": 3435
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2247-proof/mutant-MR13.log",
+        "sha256": "ee55c2fe931212b650ecbadb9b9e7de2a30e7c07e051ef92d48b9bb43a809d85",
+        "bytes": 4066
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2247-proof/mutant-MR14.log",
+        "sha256": "42390a8fbe0c515c4ae2c02fc9fabe6dd44aa45ad2de929609173b59ab710b0a",
+        "bytes": 7772
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2247-proof/mutant-MR15.log",
+        "sha256": "71e5cb88401649f6f88b4d6ae15064f1a640de9956a6aa872617ed685d71f3e9",
+        "bytes": 2563
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2247-proof/mutant-MR2.log",
+        "sha256": "161479a577f0cc27eca4144942797ff9608cfcbe7138208e292862c4730ff626",
+        "bytes": 3341
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2247-proof/mutant-MR4.log",
+        "sha256": "1e5ada95be45f94a89be1e90a4c9179a98139b34e30f5711c0159f3c59b63706",
+        "bytes": 2570
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2247-proof/mutant-MR5.log",
+        "sha256": "b683246d3f3f33e6f6b5286d77121bcb5801852419246dceda1981ee3a307e89",
+        "bytes": 5882
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2247-proof/mutant-MR6.log",
+        "sha256": "b836b9a2be70e75a5346bd7b0f10b963251abb70326cf77435d7eeeff89a7e9f",
+        "bytes": 16918
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2247-proof/mutant-MR7.log",
+        "sha256": "4cc973354ae1a9827234f8b0189fc073a13884c8f9b2624466133ea161a02db2",
+        "bytes": 16872
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2247-proof/mutant-MR9.log",
+        "sha256": "85797e217b7fc9911602f3bcbd5d2d861ac1fe09d21c87c3f03176dc75c75ea1",
+        "bytes": 4061
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2247-proof/mutants-result.json",
+        "sha256": "b2ec1d37399db679369d5ce0002da002865a873b80c91f02d12cd015f08e493b",
+        "bytes": 12106
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2247-proof/mutants.json",
+        "sha256": "2f5d03880f899e3cbe32457fa43185ee1838d1ad282436d0795abe4f80e7c28a",
+        "bytes": 1843
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2247-proof/probe.log",
+        "sha256": "6c7a76a2d54965186eccefb5b1008f3fd3a02ae09ae312e860cff3a079b4b4c1",
+        "bytes": 7026
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2247-proof/red.log",
+        "sha256": "f0bb1a7bd033547f8f76fdef9a8870454fd77f2bf34b039df489851b7b00c633",
+        "bytes": 34762
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2247-proof/related-cmd.ps1",
+        "sha256": "5df3824bc79dd88aa339d98d2d7959c35aee8d9c7e748c75cb7a7e761c0c7456",
+        "bytes": 786
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2247-proof/related.log",
+        "sha256": "878a3c56e33b6429fa7a4c8891f3ef52ff90661dd985eb86112409889425cb8c",
+        "bytes": 162696
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2247-proof/review2247Probe.test.ts",
+        "sha256": "b88a8c7d4fd11f79491ef55b389366f439d660e49707c7078fa9912cb6935f33",
+        "bytes": 6628
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2247-proof/run-mutants.cjs",
+        "sha256": "d6f24557dc91f8ab8c95fcf8cec401997ddfe0841e9248332c37445946ad97a3",
+        "bytes": 1144
+      }
+    ]
+  },
+  "successorNotes": {
+    "P2CG1G2": {
+      "fromThisReview": [
+        {
+          "id": "CF-G2A-5",
+          "reviewerOwner": "P2CG1G2 (consumer)",
+          "item": "Consumer must call with exactly ?campaignIdentity=1, send the bearer only in the Authorization header (never ?token=), and treat 400/401/404 as distinct classes without falling back to the anonymous summary for campaignId.",
+          "status": "open",
+          "directedTo": "reduced P2CG1G2 (its first in-repo consumer): call with exactly ?campaignIdentity=1, send the bearer only in the Authorization header (never ?token=), and treat 400/401/404 as distinct classes with no fallback to the anonymous summary for campaignId; it adds those rows in an existing G2 test. Routed as the owner ruling writes (\"consumer contract\") and confirmed by the parent ruling."
+        }
+      ],
+      "notFromThisReview": {
+        "CF-G2A-4": "not directed to reduced P2CG1G2 (G2A-ROUTE-1)"
+      },
+      "fromP2CG1G1Unchanged": {
+        "source": "evidence/p2cg1g1-review-20261018.json successorNotes.P2CG1G2 and carryForwards.items",
+        "items": [
+          {
+            "id": "CF-H6",
+            "concern": "legacy-server variant of W1",
+            "statusAfterRound2": "open",
+            "round2Owner": "P2CG1G2",
+            "round2Wording": "**CF-H6 (legacy-server variant of W1) - still open** [P2CG1G2]. RM-G9-rerun survives on the head; pin under fake timers: bound transport, legacy baseline and one legacy event folded by the surface, unmount, remount, 2T -> one socket, no rejoin, no window.",
+            "directedTo": "reduced P2CG1G2, which binds the creators while the server is still legacy (recorded under successorNotes.P2CG1G2)"
+          },
+          {
+            "id": "CF-H11",
+            "concern": "lint and cycles",
+            "statusAfterRound2": "open (figures updated)",
+            "round2Owner": null,
+            "round2Wording": "**CF-H11 (lint and cycles) - figures updated.** 87/0, no G1 leaf warned; surface 319 counted (unchanged), helpers 125, store 43 (74 physical), consumer 239 (303 physical); import graph unchanged since 59c1fa72 (172 / 169 chains carry). G2 records before/after on its leaves.",
+            "directedTo": "reduced P2CG1G2, which adds creator binding to the surface and records lint and cycle figures before and after on its leaves (recorded under successorNotes.P2CG1G2)"
+          },
+          {
+            "id": "CF-H12",
+            "concern": "required checks",
+            "statusAfterRound2": "open (figures updated)",
+            "round2Owner": null,
+            "round2Wording": "**CF-H12 (required checks) - figures updated.** 32 check runs on a5b4a56a, identical multiset to 59c1fa72 and B-F, all success; protection unchanged. Verify by name on G2's exact head.",
+            "directedTo": "the next unit exact head: P2CG1G2A, now the immediate successor, and then reduced P2CG1G2 (the review wrote \"G2's exact head\" before the S3 split made P2CG1G2A the next unit); recorded under successorNotes.P2CG1G2A and successorNotes.P2CG1G2"
+          },
+          {
+            "id": "CF-H16",
+            "concern": "new; bind only a transport bound to the mounted campaign",
+            "statusAfterRound2": "new",
+            "round2Owner": "P2CG1G2, which owns the host connect call",
+            "round2Wording": "**CF-H16 (new; bind only a transport bound to the mounted campaign) [P2CG1G2, which owns the host connect call].** The host `connectStoredCampaignSyncTransport` call passes no `expectedCampaignId`, so a stored transport bound to another campaign on the same match would be bound inactive, and an inactive binding swallows offers (`return isOffer(message)`) that nothing confirms, cuts or hears. F-era code, not a G1 regression, but G2 should pass `expectedCampaignId` when it binds the creator so the stored connect refuses the mismatch (the three fixture suites already exercise that branch).",
+            "directedTo": "reduced P2CG1G2, which owns the host connect call (both connected-surface connectStoredCampaignSyncTransport calls bind expectedCampaignId under its registered behaviour text); recorded under successorNotes.P2CG1G2"
+          }
+        ],
+        "leafCrossReferences": {
+          "CF-H2": "its owner bracket names the surface, a reduced-P2CG1G2 leaf; the fix lives in campaignHostFoldStore.ts, which reduced P2CG1G2 does not list, so it stays with that leaf's next owner",
+          "CF-H14": "reduced P2CG1G2 binds creators but makes no consumer edit; if it adds a mount that gates on projected state, CF-H14 must be closed by the consumer's next owner first, as the review says"
+        },
+        "note": "CF-H6, CF-H11, CF-H12 and CF-H16 are forwarded to reduced P2CG1G2 unchanged, with CF-H2 and CF-H14 cross-referenced as before. P2CG1G2A closed none of them: it changed no co-op client file (CF-H6, CF-H11, CF-H16), and it applied CF-H12 only to its own head (32/32 by name); CF-H12 still applies on the reduced P2CG1G2 exact head."
+      },
+      "requiredChecks": {
+        "jobNames": [
+          "Detect Changes",
+          "Install Dependencies",
+          "Lint",
+          "Format Check",
+          "Validate Roadmap Ledger",
+          "Type Check",
+          "Unit Tests (1/6)",
+          "Unit Tests (2/6)",
+          "Unit Tests (3/6)",
+          "Unit Tests (4/6)",
+          "Unit Tests (5/6)",
+          "Unit Tests (6/6)",
+          "Perf Smoke Tests",
+          "Statistical Proof PR",
+          "Perf Budget PR",
+          "Coverage Floor",
+          "A11y Tests",
+          "Validate BV Parity",
+          "Validate Combat Suite",
+          "Build Storybook",
+          "Schema Bridge",
+          "Determinism Audit",
+          "E2E Smoke",
+          "Seam Anchors",
+          "Customizer Regressions",
+          "Desktop Type Check",
+          "Desktop Tests",
+          "Lint and Test",
+          "Prepare Build Artifacts",
+          "Build Test / linux",
+          "Build Test / mac",
+          "Build Test / win"
+        ],
+        "verifiedOnG2AHead": "412c09411a784fbb8985995b652ef2007e5a4a39",
+        "run": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39103204265"
+      },
+      "state": "Reduced P2CG1G2 moves from blocked to planned in this change set (successorRelease). Its behaviour text, leaves and every other field are not edited."
+    },
+    "B15": {
+      "carryForwards": [
+        {
+          "id": "CF-G2A-1",
+          "reviewerOwner": "B15 (remote hosting)",
+          "item": "Add an abuse budget / rate limiter to the invite route (both modes) before any non-loopback hosting claim; identity mode adds Ed25519 verification per live-code hit (F9).",
+          "status": "open",
+          "directedTo": "B15 (remote hosting): an abuse budget / rate limiter on the invite route in both modes before any non-loopback hosting claim (F9). Routed as the owner ruling writes (\"B15 (rate limiter ...)\"). Recorded under successorNotes.B15; no B15 unit is edited here."
+        },
+        {
+          "id": "CF-G2A-2",
+          "reviewerOwner": "B15",
+          "item": "PRIV-1 fix as ruled (joinableLobbies / session creation) must also close the co-op-ness bit (section 7.1) and the campaignId correlation; verify after the fix that a non-member with a listed code gets 404/401 in identity mode.",
+          "status": "open",
+          "directedTo": "B15: the R-PRIV-1 remote/tunnel readiness obligation recorded on B15-6 by #2245 (fix in joinableLobbies.ts / session creation) must also close the co-op-ness bit (review section 7 item 1) and the campaignId correlation, then re-verify that a non-member with a listed code gets 404/401 in identity mode. Routed as the owner ruling writes (\"PRIV-1 fix including the co-op bit\")."
+        },
+        {
+          "id": "CF-G2A-3",
+          "reviewerOwner": "B15 / auth hardening (not a G2 leaf)",
+          "item": "decodeTokenFromWire strict base64: reject trailing bytes after padding and non-base64 characters (F4).",
+          "status": "open",
+          "directedTo": "B15 auth hardening: strict base64 in decodeTokenFromWire (src/types/multiplayer/Player.ts, a leaf of neither P2CG1G2A nor reduced P2CG1G2) (F4). Routed as the owner ruling writes (\"strict wire decode\")."
+        },
+        {
+          "id": "CF-G2A-4",
+          "reviewerOwner": "P2CG1G2 (next time the test leaf opens)",
+          "item": "Add rows for a lowercase 'bearer' scheme and an empty-string campaignId so MR1/MR4 are killed (F1, F2).",
+          "status": "open (re-routed by parent ruling)",
+          "directedTo": "B15 auth hardening, NOT reduced P2CG1G2 (Root routing note G2A-ROUTE-1, parent ruling 2026-10-18): the lowercase-scheme and empty-string-campaignId rows that kill MR1 and MR4 belong to whoever next owns src/__tests__/api/securityBoundary.test.ts and the invite route under B15 auth hardening (F1, F2)."
+        },
+        {
+          "id": "CF-G2A-6",
+          "reviewerOwner": "B15",
+          "item": "Consider logging the verified playerId (logger.ts, not console) on identity-mode success so the identity gate at least provides accountability.",
+          "status": "open",
+          "directedTo": "B15: consider logging the verified playerId (logger.ts, not console) on identity-mode success so the gate provides accountability. Routed as the owner ruling writes (\"accountability logging\")."
+        }
+      ],
+      "note": "Recorded for B15 (remote hosting and auth hardening). No B15 unit is edited here; the PRIV-1 hold already sits on B15-6 (merged #2245). CF-G2A-4 joins via G2A-ROUTE-1."
+    },
+    "P2CG1H": {
+      "note": "Nothing new from this review. CF-H7, CF-H8 and CF-H14 (P2CG1H-directed or due at or before P2CG1H) stay as recorded in evidence/p2cg1g1-review-20261018.json; this closure neither restates nor changes them."
+    },
+    "openNotes": [
+      {
+        "id": "G2A-ROUTE-1",
+        "label": "Root",
+        "concern": "CF-G2A-4 (MR1/MR4 route-test gaps) re-routed from P2CG1G2 to B15 auth hardening",
+        "travelsTo": "B15 auth hardening (successorNotes.B15)",
+        "source": "parent ruling, T3 thread 6db2c314-6cd3-40c5-8fbd-7c42bc27ed35, 2026-10-18",
+        "note": "Root routing note citing the parent ruling (T3 parent thread 6db2c314-6cd3-40c5-8fbd-7c42bc27ed35, relayed to this closure task on 2026-10-18 under the owner's standing instruction): CF-G2A-4 goes to B15 auth hardening, not reduced P2CG1G2. Both the reviewer's owner cell ('P2CG1G2 (next time the test leaf opens)') and the owner ruling's routing ('P2CG1G2 (add two test rows killing MR1 and MR4; consumer contract)') named P2CG1G2; the parent ruling re-routes only the MR1/MR4 half. Reason given by the parent: G2 preparation showed MR1 (Bearer scheme case-insensitivity, [roomCode].ts:71) and MR4 (empty-string coopCampaign.campaignId, [roomCode].ts:92) cannot be killed from reduced P2CG1G2's registered leaves; only a route-handler test in src/__tests__/api/securityBoundary.test.ts can observe them, that file is a P2CG1G2A leaf that reduced P2CG1G2 does not own (checked: none of its ownershipPaths covers it or the route), and reduced P2CG1G2 adds no file for it. CF-G2A-5 (consumer contract: exactly ?campaignIdentity=1, bearer only in the Authorization header, 400/401/404 as distinct classes with no fallback to the anonymous summary for campaignId) stays with reduced P2CG1G2, which adds those rows in an existing G2 test. The review bytes and the ruling bytes are preserved unchanged; only the closure's directedTo differs from their owner text for CF-G2A-4. Parent ruling text, verbatim: PARENT RULING (owner standing instruction: \"continue with recommended options and fix the issues that come up, publish as needed\"): in the G2A closure carry-forwards, route the two route-test gaps MR1 (Bearer scheme case-insensitivity untested, [roomCode].ts:71) and MR4 (empty-string coopCampaign.campaignId branch untested, [roomCode].ts:92) to B15 auth hardening, NOT to P2CG1G2: G2 prep showed they cannot be killed from G2's registered leaves (only a route-handler test in securityBoundary.test.ts, which G2 does not own, can observe them; G2 adds no file). CF-G2A-5 (consumer contract) stays with P2CG1G2 (it adds 400/401/404 rows in an existing G2 test). Record this as a Root routing note citing this ruling. No other change to your brief."
+      },
+      {
+        "id": "G2A-MAIN-1",
+        "label": "Root",
+        "concern": "main moved between baseline and merge (#2245, #2246), no rebase",
+        "travelsTo": "recorded in this closure (merge receipt treeIntegration)",
+        "source": "git log --first-parent 58e5c31b..69bdf0ba",
+        "note": "Main moved between the admission baseline 58e5c31b and the merge by two docs/ledger-only merges: #2245 (76ed00c1, G1-DOC-2 and R-PRIV-1 documentary amendments; files openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md, openspec/planning/2026-09-12-roadmap-completion/units.json; units.json changes {\"units\":[\"P2CG1G1\",\"B15-6\"],\"packets\":[],\"topLevel\":[]}) and #2246 (69bdf0ba, B14-0 fog containment registration; files openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md, openspec/planning/2026-09-12-roadmap-completion/evidence/b14-fog-scope-20261018.txt, openspec/planning/2026-09-12-roadmap-completion/roadmap.json, openspec/planning/2026-09-12-roadmap-completion/units.json; units.json changes {\"units\":[\"P2CG1S\",\"B14-0\",\"P2CG1H\"],\"packets\":[],\"topLevel\":[\"layerRegistration20261017L1\",\"hPrereqRegistration20261017\",\"b14Registration20261018\"]}). Neither touched a P2CG1G2A leaf or the P2CG1G2A or reduced P2CG1G2 entries (#2246 added B14-0 as a P2CG1H predecessor and prerequisite, which this closure leaves as it is). The PR was not rebased: the merge commit a6b604a0 has first parent 69bdf0ba (#2246) and second parent the reviewed head 412c0941; its tree 4e071053 equals git merge-tree --write-tree of the two parents (clean), and its units.json equals main's at 69bdf0ba with only the P2CG1G2A entry taken from the head. The route and test leaves are byte-identical at the head, the merge and the closure base a6b604a0 (the closure base is the merge itself; main has not moved since). The review noted this drift and the clean merge-tree (section 2, Base drift row; CF-G2A-7)."
+      },
+      {
+        "id": "G2A-CHECKS-1",
+        "label": "Root",
+        "concern": "CF-H12 re-read for the merge (CF-G2A-7)",
+        "travelsTo": "recorded in this closure; CF-H12 still applies to reduced P2CG1G2 on its exact head",
+        "source": "check-runs API on 412c0941 and a6b604a0",
+        "note": "CF-H12 / CF-G2A-7: all 32 required PR check runs on the merged head 412c0941 (run 39103204265) concluded success and their names equal, one to one, the 32 names recorded for P2CG1G1 and the P2CG1G2A local receipt expectedNames; pr-checks.yml (blob a82fe0f7) is identical at the G1 head and merge, the G2A baseline, head, main at merge, merge and closure base. The PR checks do not run on the push of the merge commit to main; at 2026-10-18T07:08:52Z the merge commit carried 10 push-workflow check runs (Live Tier Signal completed/success; release completed/skipped; Push Docker image completed/skipped; build completed/skipped; Prepare Build Artifacts completed/skipped; Build Docker image completed/skipped; Determine release tag completed/success; Publish Live Evidence (ubuntu-latest) completed/success; version-and-release completed/success; Publish Live Evidence (windows-latest) completed/success), none failed. The exact-main proof here is the fresh local run at the merge."
+      },
+      {
+        "id": "G2A-SLOT-1",
+        "label": "Root",
+        "concern": "reserved admission-review slot",
+        "travelsTo": "nothing further",
+        "source": "evidence/p2cg1g2a-admission-20261018.json manifest; evidence/p2cg1g2a-local-20261018.json census",
+        "note": "The reserved admission-review slot evidence/p2cg1g2a-admission-review-20261018.md (frozen in the admission manifest as reservedUnchanged, exists:false; local census \"unwritten\") stays unwritten. The independent review was written by the reviewer to docs/audits/2026-10-18-p2cg1g2a-review.md in its detached review worktree (untracked there); this closure preserves it byte for byte at evidence/p2cg1g2a-source-fable-review-20261018.txt (sha256 e54904c72a239f8259595a0b6d49309219d657dd3e80408714986e708d43a0e5, 18297 bytes), as the P2CG1G1 closure did, rather than authoring reviewer text into the slot or renaming the copy into it."
+      }
+    ],
+    "note": "Every reviewer string (verdictText, verdictNotes, reviewHeader, contract, ledger, rerun, mutation and probe rows, findings, priv1, class findings, carry-forward cells, notDone) is a verbatim substring of evidence/p2cg1g2a-source-fable-review-20261018.txt, checked by the closure generator; everything else is closure or Root text."
+  },
+  "reservedSlot": "The reserved admission-review slot evidence/p2cg1g2a-admission-review-20261018.md (frozen in the admission manifest as reservedUnchanged, exists:false; local census \"unwritten\") stays unwritten. The independent review was written by the reviewer to docs/audits/2026-10-18-p2cg1g2a-review.md in its detached review worktree (untracked there); this closure preserves it byte for byte at evidence/p2cg1g2a-source-fable-review-20261018.txt (sha256 e54904c72a239f8259595a0b6d49309219d657dd3e80408714986e708d43a0e5, 18297 bytes), as the P2CG1G1 closure did, rather than authoring reviewer text into the slot or renaming the copy into it.",
+  "ciQualification": "CF-H12 / CF-G2A-7: all 32 required PR check runs on the merged head 412c0941 (run 39103204265) concluded success and their names equal, one to one, the 32 names recorded for P2CG1G1 and the P2CG1G2A local receipt expectedNames; pr-checks.yml (blob a82fe0f7) is identical at the G1 head and merge, the G2A baseline, head, main at merge, merge and closure base. The PR checks do not run on the push of the merge commit to main; at 2026-10-18T07:08:52Z the merge commit carried 10 push-workflow check runs (Live Tier Signal completed/success; release completed/skipped; Push Docker image completed/skipped; build completed/skipped; Prepare Build Artifacts completed/skipped; Build Docker image completed/skipped; Determine release tag completed/success; Publish Live Evidence (ubuntu-latest) completed/success; version-and-release completed/success; Publish Live Evidence (windows-latest) completed/success), none failed. The exact-main proof here is the fresh local run at the merge.",
+  "laneB": {
+    "ruledHead": "412c09411a784fbb8985995b652ef2007e5a4a39",
+    "pr": 2247,
+    "commentId": 6246826945,
+    "author": "SwiggitySwerve",
+    "bodySha256": "6977569bcf414b4e28d4515eee032dc4118c1a003a0f27ae19ed6c687b526da6",
+    "bodyBytes": 1802,
+    "at": "2026-10-18T06:57:20Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2247#issuecomment-6246826945",
+    "bodyPath": "evidence/p2cg1g2a-owner-ruling-6246826945.txt",
+    "fetchedWith": "gh api repos/SwiggitySwerve/MekStation/issues/comments/6246826945 --jq .body, which prints the body plus one trailing LF (1803 bytes); the stored file is the exact body without that added newline, equal to the JSON body field"
+  },
+  "ownerRulingNote": "The ruling body names the exact merged head and P2CG1G2A (L1; sensitive: authority/privacy), quotes the owner standing instruction under which Root rules, cites the review by path and sha256 (18,297 bytes), the five classes, ledger discipline (7/15 files, 62/500 lines), RED 19 failing, GREEN 48/48, related 74 suites / 925 tests, CF-H12 32/32 by name, the 12 reviewer mutants with survivors MR1, MR4 and MR15 (equivalent), PRIV-1 confirmed with the co-op-bit addition recorded as the B15-6 hold, and the author receipts. It rules ACCEPT and merge at this exact head and routes CF-G2A-1..7 as written. It is transcribed verbatim; the later parent ruling re-routes only CF-G2A-4 (G2A-ROUTE-1).",
+  "chronology": "The owner ruling was posted at 2026-10-18T06:57:20Z, before the head-guarded merge at 2026-10-18T06:57:26Z (6 seconds later). This records a premerge ruling on the exact merged head.",
+  "identityScope": "Preserves the existing unversioned P2CG1G2A evidence and the actual cross-model review provenance. No v2/v3 identity manifest or engine observation is claimed.",
+  "githubApproval": "Lane A engineering evidence only; no GitHub approval claimed.",
+  "successorRelease": {
+    "label": "successor release",
+    "scope": "Separate from the P2CG1G2A closure. This change set also releases reduced P2CG1G2 (successor release). No other field of P2CG1G2 changes and no other unit is released; P2CG1R, P2CG1S, P2CG1H, P2C, every B15 unit and every other unit stay as they are.",
+    "release": {
+      "unit": "P2CG1G2",
+      "field": "state",
+      "from": "blocked",
+      "to": "planned",
+      "basis": "Reduced P2CG1G2's only predecessor, P2CG1G2A, is main-verified in this same change set with a genuine exact-main mainProof PASS at a6b604a078e44abaf9dbb6e2c14888e90ad83d08, as P2CG1G2.admissionRequires demands. P2CG1G2A has no task keys, so its tick stays null. P2CG1G2A's successors are [P2CG1G2]. This is the standard on which P2CG1G1 (#2235) and P2CG1G2A (#2244) were released.",
+      "permission": "Release to planned only. Selection is not admission. Reduced P2CG1G2 source work still requires its own normal finite admission at its own baseline (containing a6b604a0 and this closure), with the remeasure on actual post-G1/G2A main its registration requires and the one-product-writing-lane rule. CF-G2A-5 and the G1 carry-forwards CF-H6, CF-H11, CF-H12 and CF-H16 bind it (CF-H2 and CF-H14 cross-referenced); CF-G2A-4 does not (G2A-ROUTE-1)."
+    }
+  }
+}

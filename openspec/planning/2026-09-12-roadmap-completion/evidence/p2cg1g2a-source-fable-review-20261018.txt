@@ -1,0 +1,160 @@
+# P2CG1G2A independent sensitive review — PR #2247
+
+- Date: 2026-10-18
+- Reviewer: independent review sub-agent (read-only; no push/comment/label/merge)
+- PR: SwiggitySwerve/MekStation#2247 "feat(P2CG1G2A): authenticated campaign identity invite resolution"
+- Head reviewed: 412c09411a784fbb8985995b652ef2007e5a4a39 (fetched via refs/pull/2247/head; matches PR headRefOid)
+- Registered baseline: 58e5c31b09d7d724ef409b497f3b421d41d48a29 (merge-base confirmed)
+- Review worktree: E:/Projects/Personal/MekStation-wt/review-2247-20261018 (detached at head; node_modules is a junction to the identical-lockfile p2cg1g2a-impl install)
+- Proof artifacts: E:/Projects/Personal/MekStation-wt/review-2247-proof/ (green.log, red.log, related.log, probe.log, mutant-MR*.log, mutants-result.json, checks-head.json, review2247Probe.test.ts)
+- Root checkout E:/Projects/Personal/MekStation untouched.
+
+## Verdict
+
+**APPROVE-WITH-NOTES.**
+
+No blocking defect in the route or the tests. The implementation matches the registered P2CG1G2A behavior and the admission contract order 1-10 exactly; ledger discipline holds commit by commit; RED/GREEN/related runs reproduce; CF-H12 verified by name on the exact head. The notes are (a) three surviving mutants of mine, two of which are small test gaps and one an equivalent mutant, (b) two pre-existing verifier/wire leniencies outside the G2A manifest, and (c) PRIV-1 confirmations with two small completeness additions. Nothing in G2A makes PRIV-1 worse than the parent ruling describes.
+
+## 1. Unit contract check (units.json @ head)
+
+Read P2CG1G2A from units.json at 412c0941: ownershipPaths = exactly the route and securityBoundary.test.ts; ownershipExceptions = units.json + admission/admission-review/red/local receipts; caps 15 files / 500 product lines; reviewClasses authority, privacy, replay, idempotency, concurrency; state "implementing"; baseline 58e5c31b; stageReceipts admission/red/local set, review/merge/mainProof/tick null. Behavior text requires: explicit campaignIdentity=1; non-empty Bearer header; reject query token and malformed mode; verify server-derived campaign-session scope for the resolved live match; return only {matchId,status,layout,campaignId}; Cache-Control private, no-store on identity successes and failures; anonymous summary preserved exactly; no seat/membership/receipt change.
+
+Route behaviour verified against each clause (file:line refers to src/pages/api/multiplayer/invites/[roomCode].ts at head):
+
+| Clause | Where | Result |
+|---|---|---|
+| 405 non-GET unchanged | :43-47 | unchanged from base |
+| identity mode = key present; Cache-Control on every identity outcome | :50-51 | set before any identity-mode exit |
+| mode != '1', or token query key, or missing roomCode -> 400, no downgrade | :52-59 | arrays ('1','1'), '', '0', 'true' all 400 (tests + probes) |
+| invalid code shape -> 404 | :63-67 | unchanged |
+| no 'Bearer <non-space>' header -> 401 before lookup/crypto | :71-74 | tests assert store and verifier not called |
+| no live lobby code -> 404 | :76-80 | unchanged |
+| verifier with {kind:'campaign-session', id: meta.matchId}; failure -> 401 | :83-90 | scope derived from store meta, never from request |
+| non-co-op / empty campaignId -> 404 same class | :91-95 | constant body |
+| 200 built field by field, never spread | :96-101 | exactly four keys in order (probe P14) |
+| anonymous summary unchanged | :105-109 | byte-identical to base; no auth call; no cache header |
+
+## 2. Ledger discipline
+
+| Check | Result |
+|---|---|
+| 60da3dbb admission: only units.json (+14/-4) and admission receipt; no source/test | PASS |
+| eec0cab8 RED: securityBoundary.test.ts (+298), red receipt, units.json (+4/-1); route byte-identical to base ('git diff --quiet 58e5c31b0 eec0cab8f -- route' exit 0) | PASS |
+| 412c0941 GREEN: route (+46/-2), local receipt, units.json (+4/-1); no test byte changed | PASS (test sha 696d4b86... equals local receipt) |
+| Files outside manifest | none; 6 changed files all in ownershipPaths/ownershipExceptions |
+| units.json unit ids touched | only P2CG1G2A (structural JSON compare base vs head); no top-level key changed |
+| Caps | files 6 changed + 1 reserved admission-review slot = 7/15; counted lines route 46 + units.json 16 = 62/500 (numstat); test +298 and evidence exempt per convention |
+| Head leaf hashes | route 6ee9ec40...ce2b, test 696d4b86...d7d7 — both equal the local receipt |
+| Formatting | oxfmt --check on both leaves: clean |
+| Base drift | origin/main is now 69bdf0ba6 (#2245 PRIV-1 docs amendment, #2246 B14-0 registration): docs-only, no G2A leaf touched; 'git merge-tree --write-tree origin/main 412c0941' clean |
+
+## 3. Runs (all after MACHINE_IDLE with --own-pid 47516; jest --runInBand, private --cacheDirectory)
+
+| Run | Expected | Observed |
+|---|---|---|
+| RED @ eec0cab8, securityBoundary.test.ts | 19 failing | **19 failed, 11 passed, 30 total** (receipt's 48-total figure includes multiplayerMatchMeta's 18 passing controls) |
+| GREEN @ head, securityBoundary + multiplayerMatchMeta | 48/48 | **48 passed, 48 total** |
+| Related @ head: src/__tests__/api/, src/__tests__/unit/api/, every test importing the invite route or server verifier (coopMatchRosterSourceVersion, issuePlayerToken, MatchHostRegistry.closeRoute, lobbyCorrectionSurface, index.coop, lobby-roomcode, server auth.test) | 74 suites / 925 | **74 passed / 925 passed** |
+| CF-H12 by name on exact head (GitHub check-runs API, per_page=100) | 32 names | **32/32 completed success; name set identical to the receipt's expectedNames** |
+
+Process note: one of my related-set invocations accidentally shadowed PowerShell's automatic $args and launched the whole unit suite; I stopped only my own jest/powershell processes and discarded that log (accidental-fullsuite-partial.log). It is not used as evidence.
+
+## 4. My mutants on the route (beyond the author's M1-M10; securityBoundary.test.ts, 30 rows, per mutant; route restored and verified identical afterwards)
+
+| Id | Mutation | Result | Caught by |
+|---|---|---|---|
+| MR1 | bearer pre-check regex drops /i (case-sensitive scheme) | **SURVIVED** | — (no lowercase-scheme row) |
+| MR2 | accept mode 'true' as identity | caught (1) | malformed mode (true) |
+| MR4 | 'typeof campaignId !== string || length===0' -> 'campaignId === undefined' (empty string returned 200) | **SURVIVED** | — (no empty-campaignId row) |
+| MR5 | scope id bound to normalized room code instead of meta.matchId | caught (2) | allowlisted identity; scoped-to-session accept |
+| MR6 | Cache-Control 'no-store' instead of 'private, no-store' | caught (18) | every identity row |
+| MR7 | set Cache-Control only after mode validation | caught (18) | every identity row |
+| MR9 | accept scope-mismatch | caught (2) | both wrong-scope rows |
+| MR10 | 401 body adds verifier reason | caught (7) | Object.keys(body)==['error'] |
+| MR11 | 200 adds hostPlayerId | caught (1) | toEqual + SECRET regex |
+| MR13 | pre-check only on header absence | caught (2) | empty bearer / non-bearer scheme (store not called) |
+| MR14 | 401 -> 403 on verifier failure | caught (7) | all verifier-failure rows |
+| MR15 | identity 200 uses literal status 'lobby' | **SURVIVED — equivalent** | both stores' getMatchByRoomCode return lobby-status rows only (InMemoryMatchStore.ts:466-474, DurableMatchStore.ts:1693-1701) |
+
+9/12 caught. MR1 and MR4 are low-severity test gaps (see F1, F2); MR15 is equivalent under the store contract and is itself a privacy positive (status carries zero information in identity mode).
+
+## 5. Edge probes (scratch test, run against the head route with a real InMemoryMatchStore and real signed tokens; removed from the tree)
+
+| Probe | Observed |
+|---|---|
+| lowercase 'bearer ' scheme | 200 (consistent with verifier readBearer /i) |
+| tab after scheme | 200 |
+| leading whitespace before scheme | 401, private no-store, no identity (Node trims OWS in production anyway) |
+| Authorization as array (duplicate headers, node-mocks-http) | 200 — see F5; unreachable in production Node (duplicate Authorization is discarded) |
+| 'Bearer <token> extra' | 200 — see F4; pre-existing lenient base64 in decodeTokenFromWire |
+| 'Token=x' capitalised query key | not treated as token; 200 on header |
+| token='' query key | 400 with cache header |
+| HEAD / OPTIONS / POST / DELETE with ?campaignIdentity=1 | 405, Allow: GET, no identity, no Cache-Control (method gate precedes mode) — F7 |
+| malformed code shape, no auth, identity mode | 404 with cache header before the bearer gate — F6 |
+| unknown code + 'Bearer garbage' | 404 (same as anonymous 404) — liveness oracle is pre-existing, not new |
+| launched (active) co-op match code | 404 (store filters lobby only) |
+| lowercase 'campaignidentity=1' key | anonymous summary, no campaignId, no cache header |
+| 'Bearer abc\ndef' | 401, no 500 |
+| success key set | exactly ['matchId','status','layout','campaignId'] |
+
+## 6. Findings
+
+| Id | Severity | Location | Finding |
+|---|---|---|---|
+| F1 | Low (test gap) | [roomCode].ts:71; securityBoundary.test.ts | MR1 survives: scheme case-insensitivity of the pre-check is untested. Not a defect (route and verifier agree on /i); a lowercase-scheme row would pin it. |
+| F2 | Low (test gap) | [roomCode].ts:92 | MR4 survives: the empty-string campaignId -> 404 branch is unexercised. Defensive guard only; no creation path observed writing ''. |
+| F3 | Info | [roomCode].ts:98; IResolveResponse:28 | Identity-mode status is always 'lobby' because both stores filter by lobby status; the type union is wider than reality. Zero-information field in identity mode (good). |
+| F4 | Info, pre-existing, outside manifest | src/types/multiplayer/Player.ts:170 | decodeTokenFromWire uses Node's lenient base64 (stops at '=' padding): 'Bearer <token> junk' decodes to the original token. Signature still covers the decoded canonical payload, so this is wire leniency, not a bypass. Carry-forward. |
+| F5 | Info, pre-existing, outside manifest | [roomCode].ts:71; src/lib/multiplayer/server/auth.ts:282 | Regex .test/.exec on a string[] coerces to a joined string. Only reachable through test mocks; Node's HTTP parser discards duplicate Authorization headers, so req.headers.authorization is a string in production. |
+| F6 | Info | [roomCode].ts:64-67 vs :71-74 | Invalid code *shape* answers 404 before the bearer gate. This is an input-only oracle (no store read), and matches admission contract order 4<5. Unknown-but-well-formed code with a garbage bearer answers 404 after the store read and before crypto: this discloses liveness only, which the anonymous summary already discloses to everyone. Not a new leak. |
+| F7 | Info | [roomCode].ts:43-47 | 405 for non-GET in identity mode carries no Cache-Control (method gate precedes mode). Body contains no identity, so no exposure; noted for completeness of "every refusal". |
+| F8 | Info | [roomCode].ts:57 | 400 for malformed mode / token-in-query reuses the message 'Missing or invalid room code'. Constant and non-leaking; slightly misleading to a client author. |
+| F9 | Info (recorded in admission receipt) | [roomCode].ts:83 | No rate limiter on identity mode; Ed25519 verify runs only after a live-code hit. The anonymous route has none either. Irrelevant under loopback; a B15 remote-hosting item. |
+
+No finding is a G2A blocker. F4/F5 sit in files G2A may not edit and are pre-existing.
+
+## 7. PRIV-1 / R-PRIV-1 evaluation
+
+The parent analysis (admission receipt privacy.*; R-PRIV-1; merged #2245) is **correct**:
+
+- Co-op campaign lobbies are listed with roomCode by GET /api/multiplayer/lobbies to any verified bearer (lobbies.ts:65; joinableLobbies.ts IJoinableLobby exposes matchId, roomCode, layout, hostDisplayName, occupancy, fogOfWar, createdAt). The room code is therefore not a secret for them. Confirmed by reading the code at head.
+- verifyPlayerToken derives playerId from the embedded public key and consults no registry (auth.ts:178-193); a throwaway Ed25519 key passes. The test suite itself demonstrates this with generateKeyPairSync. Unscoped tokens are accepted because the scopeless branch is a transition residual (auth.ts:233-248) and token.ts:157 mints unscoped tokens. Requiring a scope would not add authorization, since the signer chooses its own scope; it only prevents reusing a *legitimately issued* token across sessions (confused deputy), which is vacuous for the server-minted unscoped tokens today.
+- The gate is therefore "possession of a live code + ability to sign anything", i.e. no stronger than the anonymous summary in access terms; what G2A adds is the matchId -> campaignId correlation without a seat. That is exactly how the ruling describes it.
+- v2.2.0 is loopback-only: server.js:72-79 refuses any HOSTNAME other than localhost/127.0.0.1 (standalone pins 127.0.0.1). Under that topology PRIV-1 is not a release blocker; the B15 hold is the right place.
+
+Completeness additions (none changes the ruling):
+
+1. **Co-op-ness bit.** With a live code and any self-signed bearer, 200 vs 404 reveals whether the lobby is a co-op campaign lobby. The lobbies listing does not expose a co-op flag, so this is a new bit — but strictly subsumed by the campaignId disclosure PRIV-1 already records.
+2. **status/layout as oracles.** status is always 'lobby' (store filter) and layout is already in the anonymous summary and the lobbies listing. Zero new information.
+3. **Timing/enumeration.** Crypto runs only after a live-code hit, so response time (and 404-vs-401) tells an unauthenticated caller whether a code is live. The anonymous summary already discloses liveness to anyone; code enumeration cost is unchanged from base (no limiter before or after). Not new.
+4. **Cache.** private, no-store is set on every identity-mode outcome including 400/401/404 and 200 (18 of my mutant rows and 11 probe rows confirm); the only identity-mode response without it is the pre-mode 405, which carries no identity.
+5. **Accountability.** The route does not log the verified playerId, so the "identity" gate currently yields neither authorization nor an audit trail. Worth considering alongside the B15 fix (CF-G2A-6).
+6. **Bearer lifetime.** Up to 6h (token.ts:55); a revoked member keeps the correlation for the token lifetime. Already an accepted residual in the design doc.
+
+**Does G2A make PRIV-1 worse than described? No.** Output beyond campaignId is already public; refusal bodies are constant strings with a single 'error' key; cache headers are on every identity outcome; HTTP writes nothing (afterEach store-equality invariant, verified in RED/GREEN runs and all mutant runs).
+
+## 8. Five-class analysis
+
+- **Authority — PASS.** HTTP claims no seat, membership, receipt or grant; the store is read once via getMatchByRoomCode and never written (afterEach equality on getMatchMeta plus createMatch/closeMatch never called). The expected scope is derived server-side from meta.matchId (:83-86), exactly as auth.ts:305-309 prescribes; the request cannot name its own scope. WS membership/revocation/seat authority is untouched (no WS/binder file changed).
+- **Privacy — PASS with notes.** Allowlist built field by field (:96-101), never spreads meta (coopCampaign.state with full campaign state, seats, unitBootstrap, hostPlayerId all stay server-side; SECRET regex in tests, MR11 caught). Refusals disclose nothing (MR10 caught). PRIV-1 recorded as B15 hold; completeness additions in section 7.
+- **Replay — N/A with reason.** The route is a pure GET read with no event stream, so event replay does not apply. Bearer replay within TTL yields the identical read-only answer; no nonce is needed because there is no effect to replay.
+- **Idempotency — PASS.** Repeated identical requests produce identical responses and no state change; proven by the afterEach invariant across 30 rows and 12 mutant runs.
+- **Concurrency — PASS.** Single store read with snapshot semantics; a lobby -> active transition between the read and the response yields at worst a stale 200 for a code the anonymous route would equally have resolved a moment earlier. No shared mutable state, no locks required.
+- **State — N/A.** No durable state is written; the only state read is the existing room-code index/meta lookup that the anonymous route already performs.
+
+## 9. Carry-forwards
+
+| Id | Owner | Item |
+|---|---|---|
+| CF-G2A-1 | B15 (remote hosting) | Add an abuse budget / rate limiter to the invite route (both modes) before any non-loopback hosting claim; identity mode adds Ed25519 verification per live-code hit (F9). |
+| CF-G2A-2 | B15 | PRIV-1 fix as ruled (joinableLobbies / session creation) must also close the co-op-ness bit (section 7.1) and the campaignId correlation; verify after the fix that a non-member with a listed code gets 404/401 in identity mode. |
+| CF-G2A-3 | B15 / auth hardening (not a G2 leaf) | decodeTokenFromWire strict base64: reject trailing bytes after padding and non-base64 characters (F4). |
+| CF-G2A-4 | P2CG1G2 (next time the test leaf opens) | Add rows for a lowercase 'bearer' scheme and an empty-string campaignId so MR1/MR4 are killed (F1, F2). |
+| CF-G2A-5 | P2CG1G2 (consumer) | Consumer must call with exactly ?campaignIdentity=1, send the bearer only in the Authorization header (never ?token=), and treat 400/401/404 as distinct classes without falling back to the anonymous summary for campaignId. |
+| CF-G2A-6 | B15 | Consider logging the verified playerId (logger.ts, not console) on identity-mode success so the identity gate at least provides accountability. |
+| CF-G2A-7 | Merge / mainProof | Main has moved past the baseline with docs-only commits (#2245, #2246); merge-tree is clean at 69bdf0ba6. The exact-main proof must run on the actual merge commit, and CF-H12 must be re-read on that commit, not on 412c0941. |
+
+## 10. What I did not do
+
+- No typecheck/lint/full verify re-run: CI on the exact head shows Type Check, Lint, Format Check and Unit Tests (1/6..6/6) green by name; the author's local receipt records the same. My runs were confined to RED, GREEN, the related set, probes and mutants.
+- No DurableMatchStore (SQLite) run of the identity path; the lobby-only filter was verified by reading DurableMatchStore.ts:1693-1701 and the related set includes the SQLite store tests.
