@@ -7566,7 +7566,8 @@
       ],
       "successors": [
         "B14-0A",
-        "P2C"
+        "P2C",
+        "L1-SMOKE-A1"
       ],
       "registration20261017HPrereqs": {
         "evidence": "evidence/h-prereq-registration-20261017.json",
@@ -7577,6 +7578,15 @@
           "Positive controls: current human actor retains own unrevealed declaration, displaced player gains no stale assignment privilege, spectators receive eligible authoritative reveals/public facts under existing visibility rules, no hidden placeholders/authority sequence leak or delivery-cursor gap. Preserve non-spectating GM policy.",
           "Focused ServerMatchHost.spectator, sealedChoiceDelivery, ServerMatchHost.fogOfWarIntegration, ServerMatchHost.gmNoPromotion, ViewerPublicationBoundary and matchHistoryFog suites; typecheck, lint/format, full exact-head CI and sensitive review/owner gates; exact-main built-server socket smoke before H or any spectator-bearing shipment."
         ]
+      },
+      "builtServerSmokeRegistration20261018": {
+        "units": [
+          "L1-SMOKE-A1",
+          "L1-SMOKE-A2",
+          "L1-SMOKE-B"
+        ],
+        "status": "owed; no discharge by registration",
+        "reference": "l1SmokeRegistration20261018.obligation"
       }
     },
     {
@@ -7843,7 +7853,8 @@
         "B14-0B"
       ],
       "successors": [
-        "B14-HEAD"
+        "B14-HEAD",
+        "L1-SMOKE-B"
       ],
       "registration20261018B14": {
         "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-fog-scope-20261018.txt",
@@ -7903,7 +7914,8 @@
         "B14-0"
       ],
       "successors": [
-        "P2CG1HP"
+        "P2CG1HP",
+        "L1-SMOKE-B"
       ],
       "registration20261018B14Head": {
         "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/b14hp-prep-20261018.txt",
@@ -7916,6 +7928,229 @@
           "Full B14 privacy acceptance is discharged only when ALL FOUR B14-0A, B14-0B, B14-0 and B14-HEAD have genuine exact-main mainProof PASS, fetched-main ancestry and closure.",
           "Consume B14-0A matchHistoryFog.test.ts hidden-dependent digest census read-only; the predicate is introduced by B14-0A. B14-0 remains the immediate predecessor."
         ]
+      }
+    },
+    {
+      "id": "L1-SMOKE-A1",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Create only its four new harness/transport/baseline proof leaves: production build/boot identity, listener/readiness, redaction, authenticated HTTP/WebSocket join/replay and fog-off spectator public facts plus spectator-cannot-act with a successful participant action. Freeze the reusable extension interface for A2/B. No B10 matrix, restart/reconnect acceptance or existing product file edits; this is partial proof only.",
+      "ownershipPaths": [
+        "scripts"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "lifecycleOwnershipLimit": "Only this unit own authentic lifecycle fields and frozen evidence; serialize ledger writes with the L1 product lane. No other unit, packet, holder or historical receipt edits. Every actual lifecycle/evidence file counts.",
+      "ciClass": "product",
+      "reviewClasses": [
+        "privacy",
+        "authority"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "predecessors": [
+        "P2CG1S"
+      ],
+      "successors": [
+        "L1-SMOKE-A2",
+        "P2CG1H"
+      ],
+      "admissionRequires": "Planned, eligible for normal finite admission after this registration merges and independently qualifies. Its sole predecessor P2CG1S already has genuine exact-main PASS/closure; recheck fetched-Main ancestry. No B14-0/B14-HEAD wait for A1 fog-off baseline work. Planned is not admitted. One separate L1 smoke proof lane may be admitted alongside the serial L1 product lane because its twelve literal new script leaves are disjoint from every existing L1 product manifest. A1, A2 and B are serial within that proof lane, including closure; no parallel smoke-unit writes and no L2 admission. Rebase and re-census fetched Main before each admission and merge. Serialize shared units.json lifecycle/closure commits with the product lane, change only the owning unit lifecycle, and preserve other-unit bytes; independent worktrees do not waive that shared-file collision. The scripts alias is validator navigation only, never ownership of existing scripts or other future leaves. Registration only; no source admission or runtime proof. Normal finite admission freezes every actual source/test/helper/lifecycle/evidence leaf and measures actual unique files and U41 counted additions. The unchanged 500-counted-added-line cap is the TOTAL per unit across all counted files, including runner, cases, fixtures and units.json lifecycle, not 500 per file; adding files or moving code between them does not increase it. Tests and ledger evidence are line-exempt but file-counted; caps remain 15 actual unique files with no deletion credit. Nine prospective source-stage files per unit and the planning budgets are not measured cap fit. Required extra leaves or aggregate overflow stop for a separately registered narrower successor; never weaken or omit proof rows. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze and full census. Sensitive privacy/authority review requires a genuine packet before local-verified, independent exact-head review, OWNER-RULING and current required CI before merge, then genuine exact-main mainProof PASS, fetched-Main ancestry and closure. ownerGate null is no waiver. NEXT does not enforce ordinary predecessor arrays and gives no admission permission. the admission freeze lists the exact leaf files as the merge-diff allowlist; any other path under the coarse scripts alias fails admission. The scripts lint ceiling has zero headroom (50/50): every new leaf must be lint-clean, with no ceiling increase or unrelated lint cleanup. Each fixtures.ts leaf runs through the already-installed tsx dependency (for example node --import tsx <owned-fixture.ts>) or contains standalone SQL used offline; do not add a loader/dependency or edit src. Fixture generation runs only against the private DB while the owned server is stopped, never as a production test-mode seam.",
+      "registration20261018L1Smoke": {
+        "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/v220-prep-20261018.txt",
+        "sourceSha256": "34c7300287de540411259987de6bc4351203abff66fbb123ac2fcebad30d8f70",
+        "sourceAdmitted": false,
+        "layer": "L1",
+        "ownerRulingRequired": true,
+        "manifest": "l1SmokeRegistration20261018.prospectiveManifests.L1-SMOKE-A1",
+        "acceptance": [
+          "Normal Node 22 npm run build, hydrated .next/standalone/server.js, production environment, IPv4 127.0.0.1 and actual bound port; exactly one valid readiness record. Bind exact SHA, build ID, server/config hashes and owned PID. Real authenticated HTTP/WebSocket subprotocol join and ReplayStart/Chunk/End; malformed/foreign credentials refuse, tokens never enter URLs or retained output.",
+          "Fog-off spectator baseline receives public replay/live facts and cannot act (spectator-cannot-act); an actual participant action succeeds. Witness authenticated identities, current spectator seat and delivered public controls so disconnected or universally rejecting transport cannot pass. The B10 three-declaration matrix, actor/reveal controls and restart/reconnect proof belong to A2.",
+          "Retain sanitized raw frames, case/connection IDs, expected/observed sentinels and controls, commands/exits, source/build/hash manifest, readiness, private DB lineage and port/process records; retain restart records when A2/B invokes the restart callbacks, without assigning their restart acceptance to A1. Redact credentials in success and failure output. Fail on omitted cases, timeouts, parse failures, early exit or identity mismatch. Bounded serial sockets, windowsHide:true, finally cleanup only of owned PIDs, verified port release, failed evidence/DB retained; no cleanup outside the validated private run directory.",
+          "Freeze and prove the reusable harness/transport interface described in extensionContract so later units add only their own new leaves. node:test falsifiers cover wrong build/listener/readiness, credential leakage on success and failure paths, missing public or participant-action controls, premature socket close, failed command propagation and owned-child cleanup. No source-host calls, fake sockets, /api/e2e, test-mode or capability mocks in the built production server."
+        ],
+        "exactScriptLeaves": [
+          "scripts/release/run-l1-built-server-smoke.mjs",
+          "scripts/release/l1-built-server-socket-cases.mjs",
+          "scripts/release/l1-built-server-fixtures.ts",
+          "scripts/release/l1-built-server-smoke.test.mjs"
+        ],
+        "extensionContract": "New-leaves-only extension: A1 freezes its four modules, including an import-safe runHarness(options, runCases) orchestration entry and reusable authenticated transport/baseline helpers. The callback receives the verified image/connection/evidence context and can request owned-process stop, offline fixture preparation, restart and reconnect through the harness. A2 owns four different new leaves and imports A1 read-only; it exports its matrix/fixture callbacks as well as its direct CLI. B owns four further new leaves and imports A1/A2 read-only, explicitly composing baseline + spectator matrix + fog-refusal cases in one verified build/image lineage. Every runner enumerates its required cases and fails on any missing row; no implicit discovery that can silently skip a predecessor matrix. A2/B must not change any A1-frozen leaf, and B must not change A2-frozen leaves. An inadequate interface is an admission blocker requiring separately registered scope, not permission to edit a predecessor.",
+        "planningCountedLineBudget": {
+          "runner": 160,
+          "cases": 150,
+          "fixtures": 90,
+          "lifecycle": 50,
+          "total": 450
+        },
+        "budgetQualification": "Unmeasured planning allocation, not fit proof or a per-file cap. Freeze and measure the complete aggregate before admission; if it exceeds 500, split again before implementation.",
+        "executionNote": "The scripts lint ceiling has zero headroom (50/50): every new leaf must be lint-clean, with no ceiling increase or unrelated lint cleanup. Each fixtures.ts leaf runs through the already-installed tsx dependency (for example node --import tsx <owned-fixture.ts>) or contains standalone SQL used offline; do not add a loader/dependency or edit src. Fixture generation runs only against the private DB while the owned server is stopped, never as a production test-mode seam."
+      }
+    },
+    {
+      "id": "L1-SMOKE-A2",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Create only its four new spectator-matrix proof leaves, importing frozen A1 modules read-only: nine B10 declaration/audience combinations in live and replay, actor/reveal/public positive controls, and reconnect/restart against the same built image and private DB. Re-run the A1 baseline. No A1 module edits, fog-on acceptance or existing product file edits; final post-B14 proof remains B-owned.",
+      "ownershipPaths": [
+        "scripts"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "lifecycleOwnershipLimit": "Only this unit own authentic lifecycle fields and frozen evidence; serialize ledger writes with the L1 product lane. No other unit, packet, holder or historical receipt edits. Every actual lifecycle/evidence file counts.",
+      "ciClass": "product",
+      "reviewClasses": [
+        "privacy",
+        "authority"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "predecessors": [
+        "L1-SMOKE-A1"
+      ],
+      "successors": [
+        "L1-SMOKE-B",
+        "P2CG1H"
+      ],
+      "admissionRequires": "Blocked. Parent releases to planned only after its sole predecessor L1-SMOKE-A1 has genuine exact-main mainProof PASS, fetched-Main ancestry and closure; then normal finite admission. No B14 wait for this fog-off matrix. Preserve A1 frozen modules byte-for-byte. One separate L1 smoke proof lane may be admitted alongside the serial L1 product lane because its twelve literal new script leaves are disjoint from every existing L1 product manifest. A1, A2 and B are serial within that proof lane, including closure; no parallel smoke-unit writes and no L2 admission. Rebase and re-census fetched Main before each admission and merge. Serialize shared units.json lifecycle/closure commits with the product lane, change only the owning unit lifecycle, and preserve other-unit bytes; independent worktrees do not waive that shared-file collision. The scripts alias is validator navigation only, never ownership of existing scripts or other future leaves. Registration only; no source admission or runtime proof. Normal finite admission freezes every actual source/test/helper/lifecycle/evidence leaf and measures actual unique files and U41 counted additions. The unchanged 500-counted-added-line cap is the TOTAL per unit across all counted files, including runner, cases, fixtures and units.json lifecycle, not 500 per file; adding files or moving code between them does not increase it. Tests and ledger evidence are line-exempt but file-counted; caps remain 15 actual unique files with no deletion credit. Nine prospective source-stage files per unit and the planning budgets are not measured cap fit. Required extra leaves or aggregate overflow stop for a separately registered narrower successor; never weaken or omit proof rows. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze and full census. Sensitive privacy/authority review requires a genuine packet before local-verified, independent exact-head review, OWNER-RULING and current required CI before merge, then genuine exact-main mainProof PASS, fetched-Main ancestry and closure. ownerGate null is no waiver. NEXT does not enforce ordinary predecessor arrays and gives no admission permission. the admission freeze lists the exact leaf files as the merge-diff allowlist; any other path under the coarse scripts alias fails admission. The scripts lint ceiling has zero headroom (50/50): every new leaf must be lint-clean, with no ceiling increase or unrelated lint cleanup. Each fixtures.ts leaf runs through the already-installed tsx dependency (for example node --import tsx <owned-fixture.ts>) or contains standalone SQL used offline; do not add a loader/dependency or edit src. Fixture generation runs only against the private DB while the owned server is stopped, never as a production test-mode seam.",
+      "registration20261018L1Smoke": {
+        "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/v220-prep-20261018.txt",
+        "sourceSha256": "34c7300287de540411259987de6bc4351203abff66fbb123ac2fcebad30d8f70",
+        "sourceAdmitted": false,
+        "layer": "L1",
+        "ownerRulingRequired": true,
+        "manifest": "l1SmokeRegistration20261018.prospectiveManifests.L1-SMOKE-A2",
+        "acceptance": [
+          "Using A1 harness and authenticated transport read-only, prove all three declaration kinds (MovementDeclared, AttackDeclared, PhysicalAttackDeclared) for current player-branded spectators with stale side assignment, GM-branded spectators with stale side assignment and GM spectators without stale assignment. Secret sentinel event IDs/payloads must be absent from raw live frames AND replay chunks in each of the nine combinations. Witness trusted seat/brand/assignment preconditions; preserve the A1 fog-off baseline.",
+          "Use actual accepted Intent commands and a second actor to withhold reveal until negative observations finish. Public controls before/after each withheld declaration and bounded synchronization prove delivery remains live. Owning actor sees its unrevealed declaration; non-spectating GM retains policy; eligible authoritative reveals/public facts reach spectators afterward. No hidden placeholders, authority sequence leak or visible delivery-cursor gap.",
+          "Reconnect and restart the same built image against the same private durable DB; retain withheld-secret and positive/public/reveal assertions. Ordinary API provisioning/actions produce positive behavior; offline fixtures only for unreachable trusted stale-seat/brand/phase conditions, with server stopped before DB writes. No source-host calls, append/broadcast internals, fake sockets, /api/e2e, test-mode or projection-capability mocks in the running production server.",
+          "First prove legal phase-ready fixtures for all three declaration kinds and trusted GM/spectator brands are reachable. If a product seam would be required, retain explicit unrun rows and stop for a separately registered proof slice; no claim of a complete matrix. Harness node:test falsifiers cover missing public controls, leaked sentinel, early socket close, wrong build/listener, failed command propagation and owned-child cleanup.",
+          "Import A1 modules without edits and use only the A2-owned new runner/cases/fixtures/test leaves. Its runner composes A1 baseline and the full A2 matrix, retaining A1 build/process/store/credential evidence guarantees; node:test falsifiers reject an omitted combination, leaked sentinel, missing actor/reveal/public control, premature close and changed image/DB on reconnect/restart. A2 alone does not discharge the final post-B14 smoke."
+        ],
+        "exactScriptLeaves": [
+          "scripts/release/run-l1-built-server-spectator-matrix.mjs",
+          "scripts/release/l1-built-server-spectator-cases.mjs",
+          "scripts/release/l1-built-server-spectator-fixtures.ts",
+          "scripts/release/l1-built-server-spectator.test.mjs"
+        ],
+        "extensionContract": "New-leaves-only extension: A1 freezes its four modules, including an import-safe runHarness(options, runCases) orchestration entry and reusable authenticated transport/baseline helpers. The callback receives the verified image/connection/evidence context and can request owned-process stop, offline fixture preparation, restart and reconnect through the harness. A2 owns four different new leaves and imports A1 read-only; it exports its matrix/fixture callbacks as well as its direct CLI. B owns four further new leaves and imports A1/A2 read-only, explicitly composing baseline + spectator matrix + fog-refusal cases in one verified build/image lineage. Every runner enumerates its required cases and fails on any missing row; no implicit discovery that can silently skip a predecessor matrix. A2/B must not change any A1-frozen leaf, and B must not change A2-frozen leaves. An inadequate interface is an admission blocker requiring separately registered scope, not permission to edit a predecessor.",
+        "planningCountedLineBudget": {
+          "runner": 60,
+          "cases": 260,
+          "fixtures": 120,
+          "lifecycle": 40,
+          "total": 480
+        },
+        "budgetQualification": "Unmeasured planning allocation, not fit proof or a per-file cap. Freeze and measure the complete aggregate before admission; if it exceeds 500, split again before implementation.",
+        "executionNote": "The scripts lint ceiling has zero headroom (50/50): every new leaf must be lint-clean, with no ceiling increase or unrelated lint cleanup. Each fixtures.ts leaf runs through the already-installed tsx dependency (for example node --import tsx <owned-fixture.ts>) or contains standalone SQL used offline; do not add a loader/dependency or edit src. Fixture generation runs only against the private DB while the owned server is stopped, never as a production test-mode seam."
+      }
+    },
+    {
+      "id": "L1-SMOKE-B",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Create only its four new fog-refusal proof leaves, importing frozen A1/A2 modules read-only. After B14 containment, re-run the A1 baseline, entire A2 spectator matrix and fog-on join/replay/live/HTTP/head refusals on one exact-Main built image after B14-HEAD and before H. This final combined proof and all three closures discharge S-SMOKE-1 / B14A-SMOKE-1 / B14B-SMOKE-1; no containment implementation or predecessor-module edits.",
+      "ownershipPaths": [
+        "scripts"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "lifecycleOwnershipLimit": "Only this unit own authentic lifecycle fields and frozen evidence; serialize ledger writes with the L1 product lane. No other unit, packet, holder or historical receipt edits. Every actual lifecycle/evidence file counts.",
+      "ciClass": "product",
+      "reviewClasses": [
+        "privacy",
+        "authority"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "predecessors": [
+        "L1-SMOKE-A2",
+        "B14-0",
+        "B14-HEAD"
+      ],
+      "successors": [
+        "P2CG1H"
+      ],
+      "admissionRequires": "Blocked. Parent releases to planned only after L1-SMOKE-A2, B14-0A, B14-0B, B14-0 and B14-HEAD have genuine exact-main mainProof PASS, fetched-Main ancestry and closure; A1 closure is required through A2. Final combined exact-Main smoke must precede P2CG1H admission/port installation and every spectator-bearing shipment. Preserve A1/A2 frozen modules byte-for-byte. One separate L1 smoke proof lane may be admitted alongside the serial L1 product lane because its twelve literal new script leaves are disjoint from every existing L1 product manifest. A1, A2 and B are serial within that proof lane, including closure; no parallel smoke-unit writes and no L2 admission. Rebase and re-census fetched Main before each admission and merge. Serialize shared units.json lifecycle/closure commits with the product lane, change only the owning unit lifecycle, and preserve other-unit bytes; independent worktrees do not waive that shared-file collision. The scripts alias is validator navigation only, never ownership of existing scripts or other future leaves. Registration only; no source admission or runtime proof. Normal finite admission freezes every actual source/test/helper/lifecycle/evidence leaf and measures actual unique files and U41 counted additions. The unchanged 500-counted-added-line cap is the TOTAL per unit across all counted files, including runner, cases, fixtures and units.json lifecycle, not 500 per file; adding files or moving code between them does not increase it. Tests and ledger evidence are line-exempt but file-counted; caps remain 15 actual unique files with no deletion credit. Nine prospective source-stage files per unit and the planning budgets are not measured cap fit. Required extra leaves or aggregate overflow stop for a separately registered narrower successor; never weaken or omit proof rows. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze and full census. Sensitive privacy/authority review requires a genuine packet before local-verified, independent exact-head review, OWNER-RULING and current required CI before merge, then genuine exact-main mainProof PASS, fetched-Main ancestry and closure. ownerGate null is no waiver. NEXT does not enforce ordinary predecessor arrays and gives no admission permission. the admission freeze lists the exact leaf files as the merge-diff allowlist; any other path under the coarse scripts alias fails admission. The scripts lint ceiling has zero headroom (50/50): every new leaf must be lint-clean, with no ceiling increase or unrelated lint cleanup. Each fixtures.ts leaf runs through the already-installed tsx dependency (for example node --import tsx <owned-fixture.ts>) or contains standalone SQL used offline; do not add a loader/dependency or edit src. Fixture generation runs only against the private DB while the owned server is stopped, never as a production test-mode seam.",
+      "registration20261018L1Smoke": {
+        "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/v220-prep-20261018.txt",
+        "sourceSha256": "34c7300287de540411259987de6bc4351203abff66fbb123ac2fcebad30d8f70",
+        "sourceAdmitted": false,
+        "layer": "L1",
+        "ownerRulingRequired": true,
+        "manifest": "l1SmokeRegistration20261018.prospectiveManifests.L1-SMOKE-B",
+        "acceptance": [
+          "Only after A2 and all four B14 units have genuine exact-main PASS, fetched-Main ancestry and closure: create only the four B-owned new leaves for fog-on stored-match join, replay/live subscription, HTTP history/metadata and privileged /head refusal rows. Import frozen A1/A2 modules read-only. Follow the landed fixed refusal/close contracts with no secret bytes, no hidden-dependent digest and no privilege bypass; preserve authentication/authorization ordering and fog-off controls.",
+          "Never override noPerViewerRevealProjection or mock the production capability to deliver fog-on frames. S underlying Jest filtering proof and unsupported production fog refusal are different contracts; both remain required. B runner explicitly composes and re-runs the A1 baseline, full A2 matrix and B fog-on refusals on one exact fetched-Main built image after B14-HEAD and before H admission/port installation or any spectator-bearing shipment. B node:test falsifiers include omitted predecessor matrix/refusal row and leaked refusal payload.",
+          "A1/A2-only proof is explicitly partial and cannot discharge S-SMOKE-1 / B14A-SMOKE-1 / B14B-SMOKE-1. Final exact-main receipt binds all three units, both matrices, commands/exits, raw sanitized evidence and source/build/process/store identity. The existing one-player packaged-socket validator alone is insufficient. No P2J, LSC-2P, installer rehearsal or human acceptance credit."
+        ],
+        "exactScriptLeaves": [
+          "scripts/release/run-l1-built-server-fog-refusal.mjs",
+          "scripts/release/l1-built-server-fog-cases.mjs",
+          "scripts/release/l1-built-server-fog-fixtures.ts",
+          "scripts/release/l1-built-server-fog.test.mjs"
+        ],
+        "extensionContract": "New-leaves-only extension: A1 freezes its four modules, including an import-safe runHarness(options, runCases) orchestration entry and reusable authenticated transport/baseline helpers. The callback receives the verified image/connection/evidence context and can request owned-process stop, offline fixture preparation, restart and reconnect through the harness. A2 owns four different new leaves and imports A1 read-only; it exports its matrix/fixture callbacks as well as its direct CLI. B owns four further new leaves and imports A1/A2 read-only, explicitly composing baseline + spectator matrix + fog-refusal cases in one verified build/image lineage. Every runner enumerates its required cases and fails on any missing row; no implicit discovery that can silently skip a predecessor matrix. A2/B must not change any A1-frozen leaf, and B must not change A2-frozen leaves. An inadequate interface is an admission blocker requiring separately registered scope, not permission to edit a predecessor.",
+        "planningCountedLineBudget": {
+          "runner": 60,
+          "cases": 240,
+          "fixtures": 100,
+          "lifecycle": 40,
+          "total": 440
+        },
+        "budgetQualification": "Unmeasured planning allocation, not fit proof or a per-file cap. Freeze and measure the complete aggregate before admission; if it exceeds 500, split again before implementation.",
+        "executionNote": "The scripts lint ceiling has zero headroom (50/50): every new leaf must be lint-clean, with no ceiling increase or unrelated lint cleanup. Each fixtures.ts leaf runs through the already-installed tsx dependency (for example node --import tsx <owned-fixture.ts>) or contains standalone SQL used offline; do not add a loader/dependency or edit src. Fixture generation runs only against the private DB while the owned server is stopped, never as a production test-mode seam."
       }
     },
     {
@@ -8440,12 +8675,15 @@
       },
       "ownerGate": null,
       "splitFrom": "P2CG1",
-      "admissionRequires": "Narrower ordinary-cap successor of P2CG1 (plan Task 14), registered by evidence/p2cg1-split-registration-20261016.json. P2CG1G2 must be complete with a genuine exact-main mainProof PASS before the parent releases this unit to planned; NEXT does not enforce these unit dependencies. No preserved P2CG1 source candidate exists; this slice runs its own red-first proof and measured admission. Task8 must first complete independent exact-head docs review, current required CI, guarded merge and independent exact-main registration proof. Parent verifies documentary predecessors complete with genuine exact-main mainProof PASS, ancestry and closure on fetched main and no actual overlap before every source admission. NEXT selection supplies no permission. Prospective assignment only; source permission remains non-effective until normal finite admission freezes the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measures actual unique files and product/test additions under unchanged 15-file/500-product-added-line limits. Named source/test lists and known lower bounds are in R2.authority-live.ownershipPathsAmended20261009P2C.restrictions for this ID. No unnamed test, directory-wide grant, placeholder/hash, capException or cap inflation. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze of actual bytes/names/hashes and full census. If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required scenario. Additional hard pre-activation prerequisites registered 2026-10-17: P2CG1R (H-OPEN-1 / CF-E1) and P2CG1S (B10) must both have genuine exact-main mainProof PASS before H admission or port installation. This design selects repair, not the historical residual-acceptance option; any proposed waiver is a separate explicit Root/owner decision, never inferred from NEXT. See evidence/h-prereq-registration-20261017.json. B14-0 and B14-HEAD must both be main-verified (or complete/archived) with genuine exact-main mainProof PASS, fetched-main ancestry and closure before P2CG1H admission or port installation. P2CG1HP must be main-verified (or complete/archived) with genuine exact-main mainProof PASS, fetched-main ancestry and closure before P2CG1H admission or port installation, alongside existing G2/R/S/B14-0 prerequisites. Its independent sensitive review and exact-head OWNER-RULING precede merge; registration is not that ruling. R does not establish cross-file atomicity or comprehensive outer-COMMIT cleanup. If broader repair is required, register it before H; no implied waiver. See evidence/hi-prep-20261018.txt and hConsumerPrereqAmendment20261018. Freeze truthful final evidence names and measured fit at admission; roadmap.json registration edits are not part of H own lifecycle source stage. LSC-2 must also be main-verified (or complete/archived) with genuine exact-main mainProof PASS, fetched-main ancestry and closure before P2CG1H admission or port installation; existing HP and all earlier prerequisites remain mandatory. See localSeatCredentialsRegistration20261018. LSC-2P must also be main-verified (or complete/archived) with genuine exact-main mainProof PASS, fetched-main ancestry and closure before P2CG1H admission or port installation; retain LSC-2, P2CG1HP and all existing prerequisite text (N6). See localSeatCredentialsSplitRegistration20261018. B14-0A and B14-0B must also have genuine exact-main mainProof PASS, fetched-main ancestry and closure before P2CG1H admission or port installation. Full B14 privacy acceptance is discharged only when ALL FOUR B14-0A, B14-0B, B14-0 and B14-HEAD have genuine exact-main mainProof PASS, fetched-main ancestry and closure. LSC-1S and LSC-2OP must also have genuine exact-main mainProof PASS, fetched-main ancestry and closure before P2CG1H admission or port installation; see localSeatCredentialsSplit2Registration20261018.",
+      "admissionRequires": "Narrower ordinary-cap successor of P2CG1 (plan Task 14), registered by evidence/p2cg1-split-registration-20261016.json. P2CG1G2 must be complete with a genuine exact-main mainProof PASS before the parent releases this unit to planned; NEXT does not enforce these unit dependencies. No preserved P2CG1 source candidate exists; this slice runs its own red-first proof and measured admission. Task8 must first complete independent exact-head docs review, current required CI, guarded merge and independent exact-main registration proof. Parent verifies documentary predecessors complete with genuine exact-main mainProof PASS, ancestry and closure on fetched main and no actual overlap before every source admission. NEXT selection supplies no permission. Prospective assignment only; source permission remains non-effective until normal finite admission freezes the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measures actual unique files and product/test additions under unchanged 15-file/500-product-added-line limits. Named source/test lists and known lower bounds are in R2.authority-live.ownershipPathsAmended20261009P2C.restrictions for this ID. No unnamed test, directory-wide grant, placeholder/hash, capException or cap inflation. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze of actual bytes/names/hashes and full census. If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required scenario. Additional hard pre-activation prerequisites registered 2026-10-17: P2CG1R (H-OPEN-1 / CF-E1) and P2CG1S (B10) must both have genuine exact-main mainProof PASS before H admission or port installation. This design selects repair, not the historical residual-acceptance option; any proposed waiver is a separate explicit Root/owner decision, never inferred from NEXT. See evidence/h-prereq-registration-20261017.json. B14-0 and B14-HEAD must both be main-verified (or complete/archived) with genuine exact-main mainProof PASS, fetched-main ancestry and closure before P2CG1H admission or port installation. P2CG1HP must be main-verified (or complete/archived) with genuine exact-main mainProof PASS, fetched-main ancestry and closure before P2CG1H admission or port installation, alongside existing G2/R/S/B14-0 prerequisites. Its independent sensitive review and exact-head OWNER-RULING precede merge; registration is not that ruling. R does not establish cross-file atomicity or comprehensive outer-COMMIT cleanup. If broader repair is required, register it before H; no implied waiver. See evidence/hi-prep-20261018.txt and hConsumerPrereqAmendment20261018. Freeze truthful final evidence names and measured fit at admission; roadmap.json registration edits are not part of H own lifecycle source stage. LSC-2 must also be main-verified (or complete/archived) with genuine exact-main mainProof PASS, fetched-main ancestry and closure before P2CG1H admission or port installation; existing HP and all earlier prerequisites remain mandatory. See localSeatCredentialsRegistration20261018. LSC-2P must also be main-verified (or complete/archived) with genuine exact-main mainProof PASS, fetched-main ancestry and closure before P2CG1H admission or port installation; retain LSC-2, P2CG1HP and all existing prerequisite text (N6). See localSeatCredentialsSplitRegistration20261018. B14-0A and B14-0B must also have genuine exact-main mainProof PASS, fetched-main ancestry and closure before P2CG1H admission or port installation. Full B14 privacy acceptance is discharged only when ALL FOUR B14-0A, B14-0B, B14-0 and B14-HEAD have genuine exact-main mainProof PASS, fetched-main ancestry and closure. LSC-1S and LSC-2OP must also have genuine exact-main mainProof PASS, fetched-main ancestry and closure before P2CG1H admission or port installation; see localSeatCredentialsSplit2Registration20261018. L1-SMOKE-A1, L1-SMOKE-A2 and L1-SMOKE-B must also have genuine exact-main mainProof PASS, fetched-Main ancestry and closure before H admission or port installation. B must run the combined fog-off/fog-on built-server smoke on exact Main after B14-HEAD; A1/A2-only evidence is partial and cannot release H. This discharges the already-owed S-SMOKE-1 / B14A-SMOKE-1 / B14B-SMOKE-1 only on genuine proof, not registration. See l1SmokeRegistration20261018; every existing H prerequisite and independent activation checkpoint remains mandatory.",
       "predecessors": [
         "P2CG1G2",
         "P2CG1R",
         "B14-0",
-        "LSC-2P"
+        "LSC-2P",
+        "L1-SMOKE-A1",
+        "L1-SMOKE-A2",
+        "L1-SMOKE-B"
       ],
       "successors": [
         "P2CG1I1",
@@ -23463,6 +23701,9 @@
       "LSC-2OP",
       "LSC-2",
       "LSC-2P",
+      "L1-SMOKE-A1",
+      "L1-SMOKE-A2",
+      "L1-SMOKE-B",
       "P2CG1H",
       "P2CG1I1",
       "P2CG1I2",
@@ -23521,7 +23762,7 @@
         "U38"
       ]
     },
-    "order": "Current effective L1 order (33 units, including the R/S prerequisites, S3 G2A insertion, B14-0A/B14-0B/B14-0/B14-HEAD containment pre-H consumer recovery and local-seat credentials): P2CG1B -> P2CG1C -> P2CG1D -> P2CG1E -> P2CG1F -> P2CG1G1 -> P2CG1G2A -> P2CG1G2 -> P2CG1R -> P2CG1S -> B14-0A -> B14-0B -> B14-0 -> B14-HEAD -> P2CG1HP -> LSC-0 -> LSC-1DB -> LSC-1S -> LSC-1 -> LSC-2OP -> LSC-2 -> LSC-2P -> P2CG1H -> P2CG1I1 -> P2CG1I2 -> P2CG1I3 -> P2CG1I4 -> P2CG2 -> P2CH -> P2C -> P2 -> U38 -> P2J. Each release requires predecessor genuine exact-main mainProof PASS, fetched-main ancestry and closure. The one-product-writing-lane rule and all original release acceptance/checkpoint/task holders remain. P2 readmission remains governed by P2C and its registered convergence gates.",
+    "order": "Current effective serial L1 product order (33 product-lane units, including the R/S prerequisites, S3 G2A insertion, B14-0A/B14-0B/B14-0/B14-HEAD containment pre-H consumer recovery and local-seat credentials): P2CG1B -> P2CG1C -> P2CG1D -> P2CG1E -> P2CG1F -> P2CG1G1 -> P2CG1G2A -> P2CG1G2 -> P2CG1R -> P2CG1S -> B14-0A -> B14-0B -> B14-0 -> B14-HEAD -> P2CG1HP -> LSC-0 -> LSC-1DB -> LSC-1S -> LSC-1 -> LSC-2OP -> LSC-2 -> LSC-2P -> P2CG1H -> P2CG1I1 -> P2CG1I2 -> P2CG1I3 -> P2CG1I4 -> P2CG2 -> P2CH -> P2C -> P2 -> U38 -> P2J. Each release requires predecessor genuine exact-main mainProof PASS, fetched-main ancestry and closure. The one-product-writing-lane rule and all original release acceptance/checkpoint/task holders remain. P2 readmission remains governed by P2C and its registered convergence gates. Additionally the separate L1-SMOKE-A1 -> L1-SMOKE-A2 -> L1-SMOKE-B proof lane brings the L1 closure set to 36; see l1SmokeRegistration20261018 for its parallel permission and post-B14-HEAD/pre-H gate. All three smoke closures are required before H; placement in the units list is a closure inventory, not a serial scheduling barrier for A1/A2.",
     "entry": "ts7TrackRegistration20261016.stoppingCondition is met: at baseline all eleven active TS7 units (TS7S1A through TS7S5C, including TS7S2OD, TS7S5B and TS7S5C) are main-verified, so the TS7 track is complete. L0 (v2.1.0) is published (tag v2.1.0 at e308fb2a44d8cbea3317acbf165bd536b31e45cb, GitHub release 2026-10-17T11:11:29Z) and is independent of this layer.",
     "releasePredicate": "U38 main-verified with an exact-main mainProof PASS; npm run verify:qc:coop-campaign-journey PASS on that exact Main (P2's registered proof) and the Task 19 selector PASS; then v2.2.0 minted by auto-version workflow_dispatch (bump_type=minor), the L0 installer smoke repeated on the v2.2.0 installer and a playtest/ session recorded where two players and a non-playing GM launch, play to Results and reload one shared mission. The release is a layer boundary, not a phase exit: P3 stays open until its full exit contract (PLAN.md P3 Exit) is met. Both LSC-2 and LSC-2P must have genuine exact-main mainProof PASS, fetched-main ancestry and closure before P2 (Task 18) journey proof, U38 acceptance and the v2.2.0 two-players-plus-non-playing-GM human session. P2J genuine exact-main PASS, fetched-main ancestry and closure plus its explicit QC selector PASS on the same exact release-candidate SHA are additional installer-rehearsal/human-session gates; the existing journey npm and Task19 ownership selector remain required on that exact RC.",
     "acceptance": {
@@ -23557,7 +23798,7 @@
       "P2CER row tick (plan accounting; its restriction effect is already registered)",
       "P3 exit review"
     ],
-    "schedulingRule": "While an L1 unit is admitted or its closure is open, no L2 unit is admitted (the existing one-product-lane rule). L2 units keep their own contracts and eligibility; NEXT selection supplies no permission either way. No machine-readable edge, state, cap, holder, packet, predecessor or ownership entry of any unit changes under this key.",
+    "schedulingRule": "While an L1 unit is admitted or its closure is open, no L2 unit is admitted (the existing one-product-lane rule). L2 units keep their own contracts and eligibility; NEXT selection supplies no permission either way. No machine-readable edge, state, cap, holder, packet, predecessor or ownership entry of any unit changes under this key. Exception registered by l1SmokeRegistration20261018: the finite smoke proof lane may run alongside the serial L1 product lane, with shared ledger writes serialized; no L2 concurrency or broader scripts permission.",
     "rule": "Documentary release-point registration only. Nothing is admitted or released, and the state of no existing unit changes. Every unit's behaviour, caps (15 files / 500 non-generated lines), review classes, admissionRequires and predecessors stay as registered. If L1 must be shorter than this chain, that is a separate owner-approved contract amendment (see the draft's section 7), not an edit under this key.",
     "evidence": "evidence/l1-release-point-registration-20261017.json",
     "amended20261017HPrereqs": {
@@ -23664,6 +23905,16 @@
       "unitCount": 33,
       "order": "P2CG1HP -> LSC-0 -> LSC-1DB -> LSC-1S -> LSC-1 -> LSC-2OP -> LSC-2 -> LSC-2P -> P2CG1H",
       "rule": "Registration only; all seven LSC units remain blocked. Prior dated amendments remain historical. Existing L1 release acceptance, task holders, H checkpoint and one product-writing lane including closure are unchanged. See localSeatCredentialsSplit2Registration20261018."
+    },
+    "amended20261018L1Smoke": {
+      "additionalUnits": [
+        "L1-SMOKE-A1",
+        "L1-SMOKE-A2",
+        "L1-SMOKE-B"
+      ],
+      "unitCount": 36,
+      "order": "P2CG1S -> L1-SMOKE-A1 -> L1-SMOKE-A2; {L1-SMOKE-A2, B14-0, B14-HEAD} -> L1-SMOKE-B; {L1-SMOKE-A1, L1-SMOKE-A2, L1-SMOKE-B, all retained H prerequisites} -> P2CG1H. The smoke records are placed after B14-HEAD so --next retains B14-0 priority on Main plus this registration; array placement does not add a B14 predecessor to A1/A2.",
+      "rule": "Registers discharge ownership for the existing S built-server obligation; no task holder, H checkpoint or product contract changes. Separate proof-lane scheduling exception is explicit in l1SmokeRegistration20261018."
     }
   },
   "hPrereqRegistration20261017": {
@@ -23899,7 +24150,7 @@
       "ruling": "Root council-3 ruling supplied in the implementation task; this record transcribes that ruling. Pending policy questions below are not new owner decisions, source admission, exact-head OWNER-RULING or runtime acceptance."
     },
     "layer": "L1 / v2.2.0",
-    "unitCount": 33,
+    "unitCount": 36,
     "closures": [
       "P2CG1B",
       "P2CG1C",
@@ -23923,6 +24174,9 @@
       "LSC-2OP",
       "LSC-2",
       "LSC-2P",
+      "L1-SMOKE-A1",
+      "L1-SMOKE-A2",
+      "L1-SMOKE-B",
       "P2CG1H",
       "P2CG1I1",
       "P2CG1I2",
@@ -23940,7 +24194,17 @@
       {
         "id": "closures",
         "status": "pending",
-        "requirement": "All 33 listed units have genuine exact-main mainProof PASS, fetched-main ancestry and closure; preserve original L1 acceptance and H checkpoint. Full B14 privacy acceptance is discharged only when ALL FOUR B14-0A, B14-0B, B14-0 and B14-HEAD have genuine exact-main mainProof PASS, fetched-main ancestry and closure."
+        "requirement": "All 36 listed units have genuine exact-main mainProof PASS, fetched-main ancestry and closure; preserve original L1 acceptance and H checkpoint. Full B14 privacy acceptance is discharged only when ALL FOUR B14-0A, B14-0B, B14-0 and B14-HEAD have genuine exact-main mainProof PASS, fetched-main ancestry and closure."
+      },
+      {
+        "id": "built-server-spectator-smoke",
+        "status": "pending",
+        "units": [
+          "L1-SMOKE-A1",
+          "L1-SMOKE-A2",
+          "L1-SMOKE-B"
+        ],
+        "requirement": "L1-SMOKE-A1, L1-SMOKE-A2 and L1-SMOKE-B genuine exact-main PASS, fetched-Main ancestry and closure; B combined fog-off spectator matrix and fog-on refusal smoke runs after B14-HEAD on exact Main before H admission/port installation and any spectator-bearing shipment. Retain the combined smoke on the exact release candidate before shipment; re-run if the candidate differs. A1/A2-only proof, existing one-player packaged-socket smoke, Jest or this registration cannot discharge S-SMOKE-1 / B14A-SMOKE-1 / B14B-SMOKE-1. See l1SmokeRegistration20261018; independent LSC-2P/P2J/installer/human gates remain."
       },
       {
         "id": "automated-rc",
@@ -23973,7 +24237,8 @@
       "evidence/council3-b-20261018.txt",
       "evidence/council3-c-20261018.txt",
       "evidence/tail-prep-20261018.txt",
-      "evidence/b14-prep2-20261018.txt"
+      "evidence/b14-prep2-20261018.txt",
+      "evidence/v220-prep-20261018.txt"
     ]
   },
   "localSeatCredentialsRegistration20261018": {
@@ -24291,5 +24556,194 @@
     "releaseClosure": "LSC-1S and LSC-2OP closure is implied by the predecessor order and explicit in the 33-unit closure checklist. The human-session LSC-2/LSC-2P gate is unchanged in substance.",
     "historicalRecords": "This amendment and current L1 lists/order/checklist supersede prior dated LSC order/count/manifest/pending-policy text, including prep draft 28 -> 30 (current ledger is 31 -> 33). Root-adopted recommendations remain owner-overridable, not direct owner answers. No other unit, lifecycle, packet, holder, prior receipt or B14-0A field changes.",
     "rule": "Blocked prospective registration only; no source admission. Parent releases to planned only after the predecessor is main-verified (or complete/archived) with genuine exact-main mainProof PASS, fetched-main ancestry and closure. Preserve all G2/R/S/B14/HP gates and one product-writing lane including closure. NEXT does not enforce ordinary predecessor arrays and supplies no permission. Rebase/re-census fresh Main, active and planned/blocked reservations, aliases and every existing/prospective source/test/helper/lifecycle/evidence leaf before admission; CampaignCoopEntryPanel.tsx and campaign co-op paths overlap G2/HP ownership, which must be closed first. Freeze exact literal manifests and truthful final evidence names at admission from localSeatCredentialsRegistration20261018; candidate seams are not directory-wide permission or measured cap fit. Caps remain 15 actual unique files / 500 counted added lines, no deletion credit; tests and ledger evidence are line-exempt but file-counted under U41. If actual required scope exceeds either cap or needs another leaf, stop and separately register a narrower successor; no omitted proof, cap inflation or unnamed outputs. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze and full census. Sensitive authority/privacy/replay/idempotency/concurrency review, genuine packet before local-verified, independent exact-head review and OWNER-RULING before merge, required CI, then genuine exact-main PASS and closure; ownerGate null is no waiver. Registration supplies no future implementation ruling or runtime acceptance."
+  },
+  "l1SmokeRegistration20261018": {
+    "baseline": "ebbea9a4ebec2b2445f7a04570a9af1517233881",
+    "registrationOnly": true,
+    "sourceAdmitted": false,
+    "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/v220-prep-20261018.txt",
+    "sourceSha256": "34c7300287de540411259987de6bc4351203abff66fbb123ac2fcebad30d8f70",
+    "designSection": "Built-server socket smoke: proposed concrete design; Ownership census and parallel safety (whole prep retained unchanged; historical 33-unit snapshot is not current acceptance)",
+    "authority": "Owner standing instruction: \"continue with recommended options and fix the issues that come up, publish as needed\"; owner 2026-10-18: \"let's keep going on the main path of things using as many sub-agents as we can in parallel to go quickly\" and \"Do the research on the units and such that we haven't imported or implemented yet\". This task explicitly authorizes registration of the disjoint smoke proof lane alongside L1. This records scheduling authority only, not future source admission, sensitive exact-head OWNER-RULING, runtime acceptance or merge approval. Root review-fix instruction for PR #2275 explicitly splits A into A1/A2, gives each proof unit distinct leaves, and preserves B14-0 selector priority; this supersedes the earlier four-leaf shared A/B implementation manifest.",
+    "node": "R2.authority-live",
+    "layer": "L1",
+    "additionalUnits": [
+      "L1-SMOKE-A1",
+      "L1-SMOKE-A2",
+      "L1-SMOKE-B"
+    ],
+    "unitCountBefore": 33,
+    "unitCountAfter": 36,
+    "states": {
+      "L1-SMOKE-A1": "planned",
+      "L1-SMOKE-A2": "blocked",
+      "L1-SMOKE-B": "blocked"
+    },
+    "order": "P2CG1S -> L1-SMOKE-A1 -> L1-SMOKE-A2; {L1-SMOKE-A2, B14-0, B14-HEAD} -> L1-SMOKE-B; {L1-SMOKE-A1, L1-SMOKE-A2, L1-SMOKE-B, all retained H prerequisites} -> P2CG1H. The smoke records are placed after B14-HEAD so --next retains B14-0 priority on Main plus this registration; array placement does not add a B14 predecessor to A1/A2.",
+    "reason": "Root review round 1 split A baseline/harness from A2 B10 matrix/restart proof because 500 counted lines is a total per-unit cap, not per-file. Three finite, separately capped new-leaf units replace the two-unit shared-file proposal; no partial gate exists in the validator.",
+    "obligation": {
+      "status": "owed; registered for future discharge only",
+      "origin": "P2CG1S.registration20261017HPrereqs.proofs[3]; evidence/p2cg1s-review-20261018.json successorNotes.builtServerSocketSmoke, successorNotes.P2CG1H.owedBeforeH and S-SMOKE-1; evidence/b14-0a-review-20261018.json B14A-SMOKE-1; evidence/b14-0b-review-20261018.json B14B-SMOKE-1",
+      "discharge": "All three smoke units must close with genuine exact-main mainProof PASS and fetched-Main ancestry; B final combined smoke re-runs A1/A2 plus fog-on refusals after B14-HEAD and before H or any spectator-bearing shipment. Registration and A1/A2-only evidence do not discharge it.",
+      "carryForwards": "S CF-S-1 through CF-S-9 retain their recorded owners and open statuses. CF-S-6 real attack/physical intent drives inform A proof but do not close the P2CG2/P2CH obligation; CF-S-4 recovery and CF-S-8 future reseat remain independently owned. No historical receipt is rewritten."
+    },
+    "parallelPermission": "One separate L1 smoke proof lane may be admitted alongside the serial L1 product lane because its twelve literal new script leaves are disjoint from every existing L1 product manifest. A1, A2 and B are serial within that proof lane, including closure; no parallel smoke-unit writes and no L2 admission. Rebase and re-census fetched Main before each admission and merge. Serialize shared units.json lifecycle/closure commits with the product lane, change only the owning unit lifecycle, and preserve other-unit bytes; independent worktrees do not waive that shared-file collision. The scripts alias is validator navigation only, never ownership of existing scripts or other future leaves.",
+    "prospectiveManifests": {
+      "L1-SMOKE-A1": [
+        "scripts/release/run-l1-built-server-smoke.mjs",
+        "scripts/release/l1-built-server-socket-cases.mjs",
+        "scripts/release/l1-built-server-fixtures.ts",
+        "scripts/release/l1-built-server-smoke.test.mjs",
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a1-admission-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a1-red-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a1-local-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a1-admission-review-20261018.json"
+      ],
+      "L1-SMOKE-A2": [
+        "scripts/release/run-l1-built-server-spectator-matrix.mjs",
+        "scripts/release/l1-built-server-spectator-cases.mjs",
+        "scripts/release/l1-built-server-spectator-fixtures.ts",
+        "scripts/release/l1-built-server-spectator.test.mjs",
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2-admission-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2-red-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2-local-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2-admission-review-20261018.json"
+      ],
+      "L1-SMOKE-B": [
+        "scripts/release/run-l1-built-server-fog-refusal.mjs",
+        "scripts/release/l1-built-server-fog-cases.mjs",
+        "scripts/release/l1-built-server-fog-fixtures.ts",
+        "scripts/release/l1-built-server-fog.test.mjs",
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-b-admission-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-b-red-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-b-local-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-b-admission-review-20261018.json"
+      ]
+    },
+    "prospectiveFileCounts": {
+      "L1-SMOKE-A1": 9,
+      "L1-SMOKE-A2": 9,
+      "L1-SMOKE-B": 9
+    },
+    "existingProductProtection": "All twelve script leaves are absent at registration. Each unit creates only its own four leaves; A2 and B import earlier frozen modules read-only through extensionContract and never edit them. No pre-existing tracked product/helper/config/package/workflow file edits, including src, server.js, existing packaged-socket validator/tests, L1 product manifests, release docs or playtest checklist. The v2.2.0 checklist reference is in this ledger only.",
+    "ownershipCensus": {
+      "baseline": "ebbea9a4ebec2b2445f7a04570a9af1517233881",
+      "scanned": "All 240 units and 82 nodes, including 110 planned/blocked/implementing units (36/74/0) and 35 such nodes (32/3/0); ownershipPaths, ownershipExceptions, ancestor aliases and prospective literal manifests.",
+      "literalScriptMatches": [],
+      "scriptsAlias": "scripts/release does not yet exist; validator requires an existing alias, so scripts is added to R2.authority-live and these units as navigation only. It overlaps 30 planned/blocked/implementing units and 6 nodes by containment, but none owns any of the twelve leaves or an ancestor of scripts/release. Only prospectiveManifests grants source scope; no broad scripts grant.",
+      "scriptsAliasUnits": [
+        "U2",
+        "U2b",
+        "U24",
+        "U24b",
+        "U28",
+        "U53",
+        "U55",
+        "U57",
+        "U12",
+        "U63",
+        "U64",
+        "U65",
+        "U66",
+        "U67",
+        "U68",
+        "U69",
+        "U70",
+        "U71",
+        "U72",
+        "U74",
+        "U75",
+        "U76",
+        "U77",
+        "U78",
+        "U79",
+        "U80",
+        "U81",
+        "U82",
+        "U103",
+        "U101d"
+      ],
+      "scriptsAliasNodes": [
+        "R2.camp-8",
+        "R2.journey",
+        "R6.umbrella",
+        "R7.provenance",
+        "R6.loop-harness",
+        "R6.ts7-toolchain"
+      ],
+      "evidenceAliases": "New l1-smoke-a1-*, l1-smoke-a2-* and l1-smoke-b-* evidence has no existing literal reservation. Broad evidence ancestors belong to blocked P2C/U85 and planned R9.close (inactive U0/U41/U42/U59/U16 and R0.plan/R0.publish also match). This registration allocates only the named new evidence leaves: P2C keeps its own lifecycle/PROGRESS/frozen p2c-* outputs, U85 its never-admitted Phase7 placeholder, R9.close its final handoff. No other-unit lifecycle or historical receipt permission. Shared units.json lifecycle updates are serialized as parallelPermission requires.",
+      "repeat": "Rebase/re-census fresh Main and every planned, blocked, implementing or otherwise in-flight holder before each admission. Distinct A1/A2/B script sets do not overlap; preserve predecessor-module hashes at admission and merge. Shared units.json writes remain serialized. B14-0B closure from #2273 is preserved byte-for-byte."
+    },
+    "selectors": {
+      "L1-SMOKE-A1": {
+        "harness": "node --test scripts/release/l1-built-server-smoke.test.mjs",
+        "smoke": "node scripts/release/run-l1-built-server-smoke.mjs --build --expected-sha=<full-main-sha> --output=<absolute-private-run-directory>"
+      },
+      "L1-SMOKE-A2": {
+        "harness": "node --test scripts/release/l1-built-server-smoke.test.mjs scripts/release/l1-built-server-spectator.test.mjs",
+        "smoke": "node scripts/release/run-l1-built-server-spectator-matrix.mjs --build --expected-sha=<full-main-sha> --output=<absolute-private-run-directory>"
+      },
+      "L1-SMOKE-B": {
+        "harness": "node --test scripts/release/l1-built-server-smoke.test.mjs scripts/release/l1-built-server-spectator.test.mjs scripts/release/l1-built-server-fog.test.mjs",
+        "smoke": "node scripts/release/run-l1-built-server-fog-refusal.mjs --build --expected-sha=<full-main-sha> --output=<absolute-private-run-directory>"
+      },
+      "heavyGate": "node scripts/qc/machine-idle.mjs --own-pid 47516 --own-pid 55164"
+    },
+    "execution": "Prepend C:/Users/wroll/AppData/Local/nvm/v22.22.0 to PATH. Gate each heavy build/Jest run with machine-idle; nonzero defers, never kills unrelated processes. Run in a clean dedicated exact-Main worktree with dependencies/assets ready, production standalone cwd and private durable DATABASE_PATH/MULTIPLAYER_DB_PATH. Freeze truthful final evidence paths; raw private artifacts are hashed/indexed by receipts, never credentials or production DBs in git. The scripts lint ceiling has zero headroom (50/50): every new leaf must be lint-clean, with no ceiling increase or unrelated lint cleanup. Each fixtures.ts leaf runs through the already-installed tsx dependency (for example node --import tsx <owned-fixture.ts>) or contains standalone SQL used offline; do not add a loader/dependency or edit src. Fixture generation runs only against the private DB while the owned server is stopped, never as a production test-mode seam.",
+    "acceptance": {
+      "L1-SMOKE-A1": [
+        "Normal Node 22 npm run build, hydrated .next/standalone/server.js, production environment, IPv4 127.0.0.1 and actual bound port; exactly one valid readiness record. Bind exact SHA, build ID, server/config hashes and owned PID. Real authenticated HTTP/WebSocket subprotocol join and ReplayStart/Chunk/End; malformed/foreign credentials refuse, tokens never enter URLs or retained output.",
+        "Fog-off spectator baseline receives public replay/live facts and cannot act (spectator-cannot-act); an actual participant action succeeds. Witness authenticated identities, current spectator seat and delivered public controls so disconnected or universally rejecting transport cannot pass. The B10 three-declaration matrix, actor/reveal controls and restart/reconnect proof belong to A2.",
+        "Retain sanitized raw frames, case/connection IDs, expected/observed sentinels and controls, commands/exits, source/build/hash manifest, readiness, private DB lineage and port/process records; retain restart records when A2/B invokes the restart callbacks, without assigning their restart acceptance to A1. Redact credentials in success and failure output. Fail on omitted cases, timeouts, parse failures, early exit or identity mismatch. Bounded serial sockets, windowsHide:true, finally cleanup only of owned PIDs, verified port release, failed evidence/DB retained; no cleanup outside the validated private run directory.",
+        "Freeze and prove the reusable harness/transport interface described in extensionContract so later units add only their own new leaves. node:test falsifiers cover wrong build/listener/readiness, credential leakage on success and failure paths, missing public or participant-action controls, premature socket close, failed command propagation and owned-child cleanup. No source-host calls, fake sockets, /api/e2e, test-mode or capability mocks in the built production server."
+      ],
+      "L1-SMOKE-A2": [
+        "Using A1 harness and authenticated transport read-only, prove all three declaration kinds (MovementDeclared, AttackDeclared, PhysicalAttackDeclared) for current player-branded spectators with stale side assignment, GM-branded spectators with stale side assignment and GM spectators without stale assignment. Secret sentinel event IDs/payloads must be absent from raw live frames AND replay chunks in each of the nine combinations. Witness trusted seat/brand/assignment preconditions; preserve the A1 fog-off baseline.",
+        "Use actual accepted Intent commands and a second actor to withhold reveal until negative observations finish. Public controls before/after each withheld declaration and bounded synchronization prove delivery remains live. Owning actor sees its unrevealed declaration; non-spectating GM retains policy; eligible authoritative reveals/public facts reach spectators afterward. No hidden placeholders, authority sequence leak or visible delivery-cursor gap.",
+        "Reconnect and restart the same built image against the same private durable DB; retain withheld-secret and positive/public/reveal assertions. Ordinary API provisioning/actions produce positive behavior; offline fixtures only for unreachable trusted stale-seat/brand/phase conditions, with server stopped before DB writes. No source-host calls, append/broadcast internals, fake sockets, /api/e2e, test-mode or projection-capability mocks in the running production server.",
+        "First prove legal phase-ready fixtures for all three declaration kinds and trusted GM/spectator brands are reachable. If a product seam would be required, retain explicit unrun rows and stop for a separately registered proof slice; no claim of a complete matrix. Harness node:test falsifiers cover missing public controls, leaked sentinel, early socket close, wrong build/listener, failed command propagation and owned-child cleanup.",
+        "Import A1 modules without edits and use only the A2-owned new runner/cases/fixtures/test leaves. Its runner composes A1 baseline and the full A2 matrix, retaining A1 build/process/store/credential evidence guarantees; node:test falsifiers reject an omitted combination, leaked sentinel, missing actor/reveal/public control, premature close and changed image/DB on reconnect/restart. A2 alone does not discharge the final post-B14 smoke."
+      ],
+      "L1-SMOKE-B": [
+        "Only after A2 and all four B14 units have genuine exact-main PASS, fetched-Main ancestry and closure: create only the four B-owned new leaves for fog-on stored-match join, replay/live subscription, HTTP history/metadata and privileged /head refusal rows. Import frozen A1/A2 modules read-only. Follow the landed fixed refusal/close contracts with no secret bytes, no hidden-dependent digest and no privilege bypass; preserve authentication/authorization ordering and fog-off controls.",
+        "Never override noPerViewerRevealProjection or mock the production capability to deliver fog-on frames. S underlying Jest filtering proof and unsupported production fog refusal are different contracts; both remain required. B runner explicitly composes and re-runs the A1 baseline, full A2 matrix and B fog-on refusals on one exact fetched-Main built image after B14-HEAD and before H admission/port installation or any spectator-bearing shipment. B node:test falsifiers include omitted predecessor matrix/refusal row and leaked refusal payload.",
+        "A1/A2-only proof is explicitly partial and cannot discharge S-SMOKE-1 / B14A-SMOKE-1 / B14B-SMOKE-1. Final exact-main receipt binds all three units, both matrices, commands/exits, raw sanitized evidence and source/build/process/store identity. The existing one-player packaged-socket validator alone is insufficient. No P2J, LSC-2P, installer rehearsal or human acceptance credit."
+      ]
+    },
+    "rule": "Registration only; no source admission or runtime proof. Normal finite admission freezes every actual source/test/helper/lifecycle/evidence leaf and measures actual unique files and U41 counted additions. The unchanged 500-counted-added-line cap is the TOTAL per unit across all counted files, including runner, cases, fixtures and units.json lifecycle, not 500 per file; adding files or moving code between them does not increase it. Tests and ledger evidence are line-exempt but file-counted; caps remain 15 actual unique files with no deletion credit. Nine prospective source-stage files per unit and the planning budgets are not measured cap fit. Required extra leaves or aggregate overflow stop for a separately registered narrower successor; never weaken or omit proof rows. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze and full census. Sensitive privacy/authority review requires a genuine packet before local-verified, independent exact-head review, OWNER-RULING and current required CI before merge, then genuine exact-main mainProof PASS, fetched-Main ancestry and closure. ownerGate null is no waiver. NEXT does not enforce ordinary predecessor arrays and gives no admission permission. the admission freeze lists the exact leaf files as the merge-diff allowlist; any other path under the coarse scripts alias fails admission.",
+    "extensionContract": "New-leaves-only extension: A1 freezes its four modules, including an import-safe runHarness(options, runCases) orchestration entry and reusable authenticated transport/baseline helpers. The callback receives the verified image/connection/evidence context and can request owned-process stop, offline fixture preparation, restart and reconnect through the harness. A2 owns four different new leaves and imports A1 read-only; it exports its matrix/fixture callbacks as well as its direct CLI. B owns four further new leaves and imports A1/A2 read-only, explicitly composing baseline + spectator matrix + fog-refusal cases in one verified build/image lineage. Every runner enumerates its required cases and fails on any missing row; no implicit discovery that can silently skip a predecessor matrix. A2/B must not change any A1-frozen leaf, and B must not change A2-frozen leaves. An inadequate interface is an admission blocker requiring separately registered scope, not permission to edit a predecessor.",
+    "planningCountedLineBudgets": {
+      "L1-SMOKE-A1": {
+        "runner": 160,
+        "cases": 150,
+        "fixtures": 90,
+        "lifecycle": 50,
+        "total": 450
+      },
+      "L1-SMOKE-A2": {
+        "runner": 60,
+        "cases": 260,
+        "fixtures": 120,
+        "lifecycle": 40,
+        "total": 480
+      },
+      "L1-SMOKE-B": {
+        "runner": 60,
+        "cases": 240,
+        "fixtures": 100,
+        "lifecycle": 40,
+        "total": 440
+      }
+    },
+    "budgetQualification": "Per-unit aggregate planning allocations only (450/480/440 including lifecycle margin), not measured fit. Each actual aggregate must be <=500 before admission; moving code to more files never raises that cap.",
+    "reviewRound1": {
+      "reviewedHead": "660756de4aff5b93bb360c87733ec10e93b4cdfa",
+      "reviewer": "Sonnet (Root-reported)",
+      "verdict": "CHANGES",
+      "response": "Rebased onto #2273; preserves B14-0 priority; A1/A2/B distinct new leaves and total aggregate caps; exact merge-diff allowlist, lint-clean zero-headroom rule and tsx/offline-SQL fixture restriction. Root will independently re-review the revised head; no approval is inferred."
+    }
   }
 }
