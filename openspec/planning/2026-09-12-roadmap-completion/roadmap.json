@@ -3115,7 +3115,8 @@
         "e2e",
         "docs/releases",
         "src/__tests__/unit/api/multiplayerMatchMeta.test.ts",
-        "src/lib/multiplayer/__tests__/clientAgainstFogServer.integration.test.ts"
+        "src/lib/multiplayer/__tests__/clientAgainstFogServer.integration.test.ts",
+        "src/components/campaign/CampaignNavigation.tsx"
       ],
       "acceptance": [
         "npm.cmd run typecheck",
@@ -3645,7 +3646,9 @@
         "units": [
           "LSC-0",
           "LSC-1DB",
+          "LSC-1S",
           "LSC-1",
+          "LSC-2OP",
           "LSC-2",
           "LSC-2P"
         ],
@@ -3665,15 +3668,11 @@
             "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-admission-review-20261018.json"
           ],
           "LSC-1": [
-            "src/services/vault/LocalSeatCredentialRepository.ts",
-            "src/services/vault/__tests__/LocalSeatCredentialRepository.test.ts",
-            "src/pages/api/multiplayer/auth/local-seats.ts",
-            "src/__tests__/api/localSeatCredentials.test.ts",
-            "src/pages/api/multiplayer/auth/token.ts",
-            "src/lib/api/securitySchemas.ts",
-            "src/__tests__/api/localSeatToken.test.ts",
             "src/services/vault/LocalSeatCredentialService.ts",
             "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+            "src/pages/api/multiplayer/auth/local-seats.ts",
+            "src/__tests__/api/localSeatCredentials.test.ts",
+            "src/lib/api/securitySchemas.ts",
             "openspec/planning/2026-09-12-roadmap-completion/units.json",
             "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1-admission-20261018.json",
             "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1-red-20261018.json",
@@ -3683,11 +3682,11 @@
           "LSC-2": [
             "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
             "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
-            "src/lib/campaign/coop/coopCampaignAuthTokenStore.ts",
             "src/lib/campaign/coop/localSeatCredentialStore.ts",
             "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
             "src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx",
             "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
+            "src/components/campaign/CampaignNavigation.tsx",
             "openspec/planning/2026-09-12-roadmap-completion/units.json",
             "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-admission-20261018.json",
             "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-red-20261018.json",
@@ -3698,6 +3697,8 @@
             "src/services/persistence/SQLiteService.localSeatCredentials.migration.ts",
             "src/services/persistence/SQLiteService.migrations.ts",
             "src/services/persistence/__tests__/SQLiteService.localSeatCredentials.migration.test.ts",
+            "src/services/persistence/__tests__/SQLiteService.migrations.test.ts",
+            "src/services/persistence/__tests__/SQLiteService.replayCheckpointsBranch.migration.test.ts",
             "openspec/planning/2026-09-12-roadmap-completion/units.json",
             "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1db-admission-20261018.json",
             "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1db-red-20261018.json",
@@ -3713,10 +3714,35 @@
             "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-red-20261018.json",
             "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-local-20261018.json",
             "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-admission-review-20261018.json"
+          ],
+          "LSC-1S": [
+            "src/services/vault/LocalSeatCredentialRepository.ts",
+            "src/services/vault/__tests__/LocalSeatCredentialRepository.test.ts",
+            "src/services/vault/LocalSeatCredentialService.ts",
+            "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+            "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1s-admission-20261018.json",
+            "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1s-red-20261018.json",
+            "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1s-local-20261018.json",
+            "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1s-admission-review-20261018.json"
+          ],
+          "LSC-2OP": [
+            "src/lib/campaign/coop/localSeatCredentialStore.ts",
+            "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+            "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+            "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+            "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+            "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+            "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2op-admission-20261018.json",
+            "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2op-red-20261018.json",
+            "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2op-local-20261018.json",
+            "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2op-admission-review-20261018.json"
           ]
         },
         "rule": "Blocked prospective registration only; no source admission. Parent releases to planned only after the predecessor is main-verified (or complete/archived) with genuine exact-main mainProof PASS, fetched-main ancestry and closure. Preserve all G2/R/S/B14/HP gates and one product-writing lane including closure. NEXT does not enforce ordinary predecessor arrays and supplies no permission. Rebase/re-census fresh Main, active and planned/blocked reservations, aliases and every existing/prospective source/test/helper/lifecycle/evidence leaf before admission; CampaignCoopEntryPanel.tsx and campaign co-op paths overlap G2/HP ownership, which must be closed first. Freeze exact literal manifests and truthful final evidence names at admission from localSeatCredentialsRegistration20261018; candidate seams are not directory-wide permission or measured cap fit. Caps remain 15 actual unique files / 500 counted added lines, no deletion credit; tests and ledger evidence are line-exempt but file-counted under U41. If actual required scope exceeds either cap or needs another leaf, stop and separately register a narrower successor; no omitted proof, cap inflation or unnamed outputs. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze and full census. Sensitive authority/privacy/replay/idempotency/concurrency review, genuine packet before local-verified, independent exact-head review and OWNER-RULING before merge, required CI, then genuine exact-main PASS and closure; ownerGate null is no waiver. Registration supplies no future implementation ruling or runtime acceptance. Binding admission notes N1-N6 from PR #2256 are retained in localSeatCredentialsSplitRegistration20261018 and the relevant unit fields.",
-        "splitAmendment": "localSeatCredentialsSplitRegistration20261018"
+        "splitAmendment": "localSeatCredentialsSplitRegistration20261018",
+        "split2Amendment": "localSeatCredentialsSplit2Registration20261018"
       },
       "ownershipPathsAmended20261018Tail": {
         "source": "evidence/tail-prep-20261018.txt",
@@ -18475,13 +18501,15 @@
     "units": [
       "LSC-0",
       "LSC-1DB",
+      "LSC-1S",
       "LSC-1",
+      "LSC-2OP",
       "LSC-2",
       "LSC-2P"
     ],
     "node": "R2.authority-live",
     "layer": "L1",
-    "order": "P2CG1S -> B14-0 -> B14-HEAD -> P2CG1HP -> LSC-0 -> LSC-1DB -> LSC-1 -> LSC-2 -> LSC-2P -> P2CG1H -> P2CG1I1",
+    "order": "P2CG1S -> B14-0 -> B14-HEAD -> P2CG1HP -> LSC-0 -> LSC-1DB -> LSC-1S -> LSC-1 -> LSC-2OP -> LSC-2 -> LSC-2P -> P2CG1H -> P2CG1I1",
     "unitCount": 28,
     "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/identity-gap-20261018.txt",
     "sourceSha256": "e16d2a29ff0d5196b9b5c3962c9fa53d4272be4e086eea58dc1a225cb4aecc76",
@@ -18489,7 +18517,8 @@
     "releaseHold": "Both LSC-2 and LSC-2P must have genuine exact-main mainProof PASS, fetched-main ancestry and closure before P2 (Task 18) journey proof, U38 acceptance and the v2.2.0 two-players-plus-non-playing-GM human session.",
     "trustModel": "Operator-managed local seats on one same-host loopback server; operator can impersonate seats and shared OS access offers no isolation. Not private multi-user hosting. Primary vault identity unchanged; ordinary verified player tokens flow through existing membership/owner checks and seat selection grants no role. B15 remains required before any remote claim; PRIV-1 unchanged.",
     "rule": "Blocked prospective registration only; no source admission. Parent releases to planned only after the predecessor is main-verified (or complete/archived) with genuine exact-main mainProof PASS, fetched-main ancestry and closure. Preserve all G2/R/S/B14/HP gates and one product-writing lane including closure. NEXT does not enforce ordinary predecessor arrays and supplies no permission. Rebase/re-census fresh Main, active and planned/blocked reservations, aliases and every existing/prospective source/test/helper/lifecycle/evidence leaf before admission; CampaignCoopEntryPanel.tsx and campaign co-op paths overlap G2/HP ownership, which must be closed first. Freeze exact literal manifests and truthful final evidence names at admission from localSeatCredentialsRegistration20261018; candidate seams are not directory-wide permission or measured cap fit. Caps remain 15 actual unique files / 500 counted added lines, no deletion credit; tests and ledger evidence are line-exempt but file-counted under U41. If actual required scope exceeds either cap or needs another leaf, stop and separately register a narrower successor; no omitted proof, cap inflation or unnamed outputs. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze and full census. Sensitive authority/privacy/replay/idempotency/concurrency review, genuine packet before local-verified, independent exact-head review and OWNER-RULING before merge, required CI, then genuine exact-main PASS and closure; ownerGate null is no waiver. Registration supplies no future implementation ruling or runtime acceptance. Binding admission notes N1-N6 from PR #2256 are retained in localSeatCredentialsSplitRegistration20261018 and the relevant unit fields.",
-    "splitAmendment": "localSeatCredentialsSplitRegistration20261018"
+    "splitAmendment": "localSeatCredentialsSplitRegistration20261018",
+    "split2Amendment": "localSeatCredentialsSplit2Registration20261018"
   },
   "localSeatCredentialsSplitRegistration20261018": {
     "baseline": "fe41f7ad8ebcdc3731a59cbec5fd69005cd1e29e",
@@ -18541,5 +18570,88 @@
     "ownershipCensus": "Blocked documentary registration only; no source admission or runtime acceptance. Parent releases to planned only after the predecessor is main-verified (or complete/archived) with genuine exact-main mainProof PASS, fetched-main ancestry and closure. NEXT does not enforce ordinary predecessor arrays and supplies no permission. Preserve G2/R/S gates and one product-writing lane including closure. Rebase and re-census all existing/prospective source/test/helper/lifecycle/evidence leaves, aliases, exceptions and planned/blocked holders on fresh Main before admission. Freeze the complete literal manifest and truthful final evidence names; aliases are navigation only, never directory-wide permission. Caps remain 15 actual unique files / 500 counted added lines, no deletion credit; tests and ledger evidence are line-exempt but file-counted under U41. Estimates are not measured cap fit. Extra leaves or overflow require a separately registered narrower successor; never suppress proof or use spare slots without a freeze. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze and full census. Genuine sensitive packet before local-verified, independent exact-head review and OWNER-RULING before merge, required CI, then genuine exact-main PASS and closure; ownerGate null is no waiver. No fabricated receipts. New ownership is limited to the literal multiplayerMatchMeta.test.ts and clientAgainstFogServer.integration.test.ts leaves, never their parent directories. B14-0B receives ServerMatchHost.spectator.test.ts only after S closes. securityBoundary.test.ts also has B15-PRIV reservation and LSC-1 alias: re-census at admission.",
     "enforcement": "Blocked documentary registration only; no source admission or runtime acceptance. Parent releases to planned only after the predecessor is main-verified (or complete/archived) with genuine exact-main mainProof PASS, fetched-main ancestry and closure. NEXT does not enforce ordinary predecessor arrays and supplies no permission. Preserve G2/R/S gates and one product-writing lane including closure. Rebase and re-census all existing/prospective source/test/helper/lifecycle/evidence leaves, aliases, exceptions and planned/blocked holders on fresh Main before admission. Freeze the complete literal manifest and truthful final evidence names; aliases are navigation only, never directory-wide permission. Caps remain 15 actual unique files / 500 counted added lines, no deletion credit; tests and ledger evidence are line-exempt but file-counted under U41. Estimates are not measured cap fit. Extra leaves or overflow require a separately registered narrower successor; never suppress proof or use spare slots without a freeze. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze and full census. Genuine sensitive packet before local-verified, independent exact-head review and OWNER-RULING before merge, required CI, then genuine exact-main PASS and closure; ownerGate null is no waiver. No fabricated receipts.",
     "historicalRecords": "Earlier dated B14/HEAD/HP/local-seat order and file-count records are historical. This amendment and the current L1 units/order/checklist supersede their order, B14 allocation and two-unit acceptance wording; no other unit contract, lifecycle, cap, holder or packet changes."
+  },
+  "localSeatCredentialsSplit2Registration20261018": {
+    "baseline": "3971389b3ead0cf6a7d78bdefb58604477e67ec6",
+    "registrationOnly": true,
+    "sourceAdmitted": false,
+    "status": "planned-gated",
+    "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-prep2-20261018.txt",
+    "sourceSha256": "0f74fab0e01a78d84f28e6f34fc9a9b5d0554ad2e2e05975c3b70c13dd651043",
+    "authority": "Root adopts the LSC-PREP2.md recommendations under the owner standing instruction \"continue with recommended options and fix the issues that come up, publish as needed\" and owner 2026-10-18 \"I think the recommended actions make sense for the ones that have them\". These are owner-visible Root-adopted recommendations; the owner may override them. This is a registration ruling only, not new direct owner answers, future source admission, sensitive exact-head OWNER-RULING or runtime acceptance.",
+    "node": "R2.authority-live",
+    "layer": "L1",
+    "additionalUnits": [
+      "LSC-1S",
+      "LSC-2OP"
+    ],
+    "unitCountBefore": 31,
+    "unitCountAfter": 33,
+    "order": "P2CG1HP -> LSC-0 -> LSC-1DB -> LSC-1S -> LSC-1 -> LSC-2OP -> LSC-2 -> LSC-2P -> P2CG1H",
+    "reason": "Prep measured LSC-1 at 773 counted lines and LSC-2 at 558, over unchanged 500 caps. Split repository/operator service (~466) from mint/API (~307), and operator UI (~258) from chooser/join/renewal (~300); lifecycle additions still require fresh measurement.",
+    "manifests": "localSeatCredentialsRegistration20261018.prospectiveManifests; identical literals in R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions",
+    "prospectiveFileCounts": {
+      "LSC-1DB": 10,
+      "LSC-1S": 9,
+      "LSC-1": 10,
+      "LSC-2OP": 11,
+      "LSC-2": 12
+    },
+    "seatPolicy": {
+      "status": "Root-adopted recommendations; owner-visible and owner-overridable",
+      "seatTokenLifetime": "Seat tokens default to and are capped at 1 hour (vault maximum 6 hours; its co-op bearer currently defaults to 1 hour). Revocation refuses the next mint/renewal; issued bearers remain valid until expiry, with no immediate eviction or retroactive invalidation. LSC-2 renewal and expired-token recovery handles re-entry for guests and GM.",
+      "lockout": "After 5 failed password attempts, lock the seat for 60 seconds. Preserve N3 brute-force throttling before KDF work; route-global limits do not trust X-Forwarded-For.",
+      "reset": "Reset/re-provision issues a new player identity; the guest must be admitted again by the GM. No key escrow or role grant from seat selection.",
+      "routeGuard": "The local-seats route enforces a loopback Host and same-host Origin check before body/KDF work; Sec-Fetch-Site must be same-origin or none. This local route guard does not repair existing auth routes.",
+      "trust": "Operator-managed same-host seats are not vault identities or private multi-user hosting. The operator can impersonate seats; shared OS access offers no isolation. Same-host callers can exhaust a window or lock a seat for up to 60 seconds; public seat metadata is readable on loopback. Primary vault semantics and PRIV-1 remain unchanged; B15 is required before remote claims."
+    },
+    "carryForwards": {
+      "F1": {
+        "status": "open",
+        "directedTo": [
+          "U101",
+          "B15"
+        ],
+        "finding": "Per-client rate limiter clientRateLimitKey trusts X-Forwarded-For; local callers can rotate it to bypass token.ts/vault-unlock KDF limits. LSC route-global limits do not discharge the existing routes."
+      },
+      "F2": {
+        "status": "open",
+        "directedTo": [
+          "B15",
+          "U101"
+        ],
+        "finding": "Existing auth routes lack Host/Origin checks (CSRF/DNS-rebinding). LSC adds the guard only to local-seats."
+      },
+      "F3": {
+        "status": "open until LSC-2 exact-main closure",
+        "directedTo": [
+          "LSC-2"
+        ],
+        "finding": "Co-op tokens expire after 1 hour without recovery, including the GM. Discharge through LSC-2 renewal/expired-token banner for primary and seat credentials; remains a v2.2.0 human-session risk until LSC-2 lands and closes."
+      },
+      "CF-S-8": {
+        "status": "open",
+        "directedTo": [
+          "P2CG1I1",
+          "P2CG1I2",
+          "P2CG1I3",
+          "P2CG1I4"
+        ],
+        "finding": "LSC adds no reseat-to-spectator path and does not change match seats or side assignments. Retain S live reseated-to-spectator row and reviewer mutants R1/R4 as regression anchors for I1-I4; no discharge by LSC."
+      }
+    },
+    "ownershipCensus": {
+      "securitySchemas": "U101a and U101d claim src/lib/api/securitySchemas.ts literally; census ancestor aliases including P1/U45. LSC-1 appends exports only; U101a scope issuance must cover local-seat mint.",
+      "entryPanel": "U101c, B15-2, B15-PRIV and R2.campaign-access claim CampaignCoopEntryPanel.tsx/test. LSC-2OP mounts the operator panel; LSC-2 adds chooser/join mint. U101c refresh migration must preserve the seat branch.",
+      "unchanged": "token.ts and localSeatToken.test.ts drop from LSC-1; coopCampaignAuthTokenStore.ts drops from LSC-2. Primary vault mint is unchanged. Seat mint goes through local-seats into the existing per-match token store.",
+      "navigation": "CampaignNavigation.tsx renders on dashboard, missions, launch, starmap, log and personnel; campaignPageShell does not cover these routes and is not a registered leaf. Census R7.context and R8.starmap directory aliases plus R2.camp-8 src alias.",
+      "aliases": "Repeat the complete fresh-Main census at admission, including planned/blocked owners and ancestors: U105 campaign alias, FOG-H multiplayer API alias, persistence aliases, bare e2e (34 live claimants in prep) and docs/releases via docs (P2C/CNI2/CNI3/U85). Prep census is evidence, not a fresh admission grant."
+    },
+    "migrationVersion": "Add SQLiteService.migrations.test.ts and SQLiteService.replayCheckpointsBranch.migration.test.ts (N2). Prep used 33; allocate from fresh Main at admission and reassign if another lane takes 33 first (report F4; parent F5 version-collision instruction).",
+    "mutationAdmission": "LSC-2OP inherits C11/C12/C14 only; add at least 7 more operator-UI mutants at admission. Other split suites require behavioral RED, not unresolved-module failures (F6). Prep results are historical and do not substitute for each unit admission/proof.",
+    "releaseHold": "Both LSC-2 and LSC-2P must have genuine exact-main mainProof PASS, fetched-main ancestry and closure before P2 (Task 18) journey proof, U38 acceptance and the v2.2.0 two-players-plus-non-playing-GM human session.",
+    "releaseClosure": "LSC-1S and LSC-2OP closure is implied by the predecessor order and explicit in the 33-unit closure checklist. The human-session LSC-2/LSC-2P gate is unchanged in substance.",
+    "historicalRecords": "This amendment and current L1 lists/order/checklist supersede prior dated LSC order/count/manifest/pending-policy text, including prep draft 28 -> 30 (current ledger is 31 -> 33). Root-adopted recommendations remain owner-overridable, not direct owner answers. No other unit, lifecycle, packet, holder, prior receipt or B14-0A field changes.",
+    "rule": "Blocked prospective registration only; no source admission. Parent releases to planned only after the predecessor is main-verified (or complete/archived) with genuine exact-main mainProof PASS, fetched-main ancestry and closure. Preserve all G2/R/S/B14/HP gates and one product-writing lane including closure. NEXT does not enforce ordinary predecessor arrays and supplies no permission. Rebase/re-census fresh Main, active and planned/blocked reservations, aliases and every existing/prospective source/test/helper/lifecycle/evidence leaf before admission; CampaignCoopEntryPanel.tsx and campaign co-op paths overlap G2/HP ownership, which must be closed first. Freeze exact literal manifests and truthful final evidence names at admission from localSeatCredentialsRegistration20261018; candidate seams are not directory-wide permission or measured cap fit. Caps remain 15 actual unique files / 500 counted added lines, no deletion credit; tests and ledger evidence are line-exempt but file-counted under U41. If actual required scope exceeds either cap or needs another leaf, stop and separately register a narrower successor; no omitted proof, cap inflation or unnamed outputs. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze and full census. Sensitive authority/privacy/replay/idempotency/concurrency review, genuine packet before local-verified, independent exact-head review and OWNER-RULING before merge, required CI, then genuine exact-main PASS and closure; ownerGate null is no waiver. Registration supplies no future implementation ruling or runtime acceptance."
   }
 }

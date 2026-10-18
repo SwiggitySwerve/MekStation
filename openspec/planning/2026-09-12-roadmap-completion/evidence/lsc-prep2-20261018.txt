@@ -1,0 +1,210 @@
+# LSC-PREP2: phase 1 early prep for LSC-0, LSC-1DB, LSC-1, LSC-2 and LSC-2P
+
+2026-10-18. This is phase 1 prep only. Nothing was admitted, committed or pushed. Main is `1b8558625` (merge of #2264, P2CG1S). Worktrees, both detached at that commit:
+
+- `E:/Projects/Personal/MekStation-wt/lsc-impl-20261018` is the implementation worktree. It has its own `npm ci`; node_modules/.package-lock.json is `7f25c528...`. It is clean except for this untracked file.
+- `E:/Projects/Personal/MekStation-wt/lsc-scratch2-20261018` is scratch. It holds the ported code at its real target paths, with node_modules linked by junction to the impl worktree. It also holds `.lsc2/`: runners, logs, census and mutant results.
+
+I did not touch the root checkout (E:/Projects/Personal/MekStation, still at d68858607). I did not kill or change any process I didn't start. I did not raise any timeout. Every heavy run went through `node scripts/qc/machine-idle.mjs --own-pid 47516 --own-pid 55164`, and every gate returned MACHINE_IDLE. Jest always ran with `--runInBand` and the private cache `.lsc2/jest-cache`.
+
+## Bottom line
+
+| Unit | Registered | Measured on ported code (counted lines, no deletion credit) | Ruling |
+| --- | --- | --- | --- |
+| LSC-0 | 9 files | 96 lines of spec/design delta, plus units.json lifecycle (estimated ~15) | **Fits.** The four deltas pass `openspec validate design-campaign-authority-and-sync --strict`. |
+| LSC-1DB | 8 files | 50 counted lines across 10 files | **Needs a manifest amendment, not a new unit.** Adding migration 33 breaks two pinned-head tests in `src/services/persistence/__tests__`, so it needs 2 more literal test leaves (N2). |
+| LSC-1 | 14 files | **773 counted** (repo 213 + service 371 + route 146 + schemas 43) | **Over 500, so it has to split.** Proposed split: **LSC-1S** (repository plus operator service, about 466) and **LSC-1** (mint, throttle and API, about 307). |
+| LSC-2 | 12 files | **558 counted** (store 174 + panel 360 + entry +17 + nav +7) | **Over 500, so it has to split.** Proposed split: **LSC-2OP** (operator provisioning UI, about 258) and **LSC-2** (chooser, join, renewal and recovery, about 300). It also needs one new leaf, `src/components/campaign/CampaignNavigation.tsx`. |
+| LSC-2P | 8 files | Not built (packaged proof). The config draft is about 18 lines. | **Fits as registered.** The proof needs a multi-phase design that attaches to the same browsers again; see the plan below. |
+
+What the ported implementation gives you: real Next API wiring, a same-host/same-origin guard, security and no-store headers, an error taxonomy, the production migration catalog, operator provisioning UI, the credential chooser, the join consumer, and renewal/expired-token recovery reachable from every campaign route (create, join, dashboard and launch).
+
+Final GREEN on scratch: **18 suites, 193 tests**, covering all LSC suites plus the neighbouring suites. `tsc` passes with exit 0. oxfmt is clean. oxlint has 0 errors; the only warning is the existing max-lines on CampaignCoopEntryPanel.tsx (507 lines on Main, 517 after the change).
+
+Mutation testing: 58 runs over 55 distinct mutants. **54 caught.** The one survivor is equivalent (M3) and is documented below. M5 and M16 survived the first run; I added tests and they were then caught.
+
+## Inputs read
+
+- units.json and roadmap.json at 1b8558625. I read all five unit records, `localSeatCredentialsRegistration20261018` and `localSeatCredentialsSplitRegistration20261018`. On the current chain, G2 and R are main-verified, S is implementing, and B14-0 has been split into B14-0A and B14-0B.
+- `evidence/identity-gap-20261018.txt` (e16d2a29...) and `lsc-prep-20261018.txt` (57c20caf...).
+- The Root receipts. On #2256 (6d1ab207): N1–N6. On #2257 (7faa9848): the census must cover the e2e/ and docs/releases aliases, the LSC-2 in-repo proof may need separate registration, and the LSC-1DB migration version comes from fresh Main.
+- The prior prep: `lsc-prep-20261018/LSC-PREP.md` and `lsc-scratch-20261018/.lsc`.
+- CF-S-8 from `review-2264-20261018/docs/audits/2026-10-18-p2cg1s-review.md`. The evidence file `p2cg1s-source-fable-review-20261018.txt` is not on Main yet.
+
+## What changed from the prototype (design decisions)
+
+1. **token.ts is not touched.** Seat mint is `POST /api/multiplayer/auth/local-seats {action:'mint'}` and goes through `LocalSeatCredentialService`. The primary vault mint stays byte-identical. This drops `token.ts` and `localSeatToken.test.ts` from LSC-1, which avoids the U101/U101a literal claim on token.ts. `coopCampaignAuthTokenStore.ts` is also unchanged and drops from LSC-2, which avoids the U101c literal claim. Seat bearers go into the existing per-match session store, so every existing consumer (launch, transport, share panel, route surface) keeps working without edits.
+2. **Schema (LSC-1DB, migration v33 = head+1 at 1b8558625).** There are two tables:
+   - `local_seat_credentials`: seat ids restricted by CHECK to `local-seat-1` and `local-seat-2`; encrypted private key; generation as the fence; `revoked_at`; durable `failed_attempts` and `locked_until_ms`.
+   - `local_seat_credential_operations`: one row per operation id, with seat, kind, fingerprint and result generation. This gives real replay, which the prototype's single column could not.
+   
+   There is no lazy CREATE TABLE. Everything goes through the transactional catalog.
+3. **Repository writes** are a single `BEGIN IMMEDIATE` transaction:
+   - An operation id that matches an existing one replays. A reused id with a different kind, seat or fingerprint is refused.
+   - Then a compare-and-set on the generation.
+   - Then the operation row is recorded.
+   
+   Revoke on an already-revoked seat is a conflict. Re-provision clears revocation and lockout. Failure counting is fenced by generation.
+4. **Service.**
+   - Every operator write verifies the primary vault password through `unlockIdentity`. It never calls `setActive`.
+   - Throttles: a route-wide mint window (10/min) and an operator window (5/min), both checked before any KDF; one in-flight mint per seat; durable lockout after 5 failures, for 60 s.
+   - The generation fence is re-checked after the KDF and again after signing.
+   - Seat tokens are ordinary unscoped tokens with a default and maximum lifetime of 1 h.
+   - The fingerprint deliberately excludes passwords. A retry with a changed password is therefore fenced by generation, and the UI generates a fresh operation id on every click.
+5. **Route guard.**
+   - The Host must be loopback (`127.0.0.1`, `localhost` or `[::1]`), which blocks DNS rebinding.
+   - `Sec-Fetch-Site` must be same-origin or none, and `Origin`, if present, must equal Host. The guard runs before the body or any KDF.
+   - `Cache-Control: no-store` plus `applySecurityHeaders`.
+   - Errors: 400 detail-free; 401 `LOCAL_SEAT_DENIED` or `OPERATOR_DENIED`; 409 `OPERATOR_IDENTITY_REQUIRED`, `GENERATION_CONFLICT` (with currentGeneration) or `OPERATION_MISMATCH`; 429 with Retry-After; generic 500.
+6. **UI.**
+   - `LocalSeatCredentialPanel` is mounted in CampaignCoopEntryPanel. It holds the per-profile choice (localStorage, public value only), the trust disclosure, and the operator provision/re-provision/revoke form. Passwords are cleared after every submit. It makes no request on mount, so existing tests are undisturbed.
+   - Join uses the seat mint only when a seat is chosen. Host create stays on the primary vault.
+   - `CoopCredentialRenewal` handles both primary and seat credentials. It warns 10 min before expiry and shows when the bearer has expired. It re-mints with the same choice, refuses a different playerId, and reloads only if no transport is live.
+7. **Mount point finding.** `CampaignPageFrame` (campaignPageShell) does **not** render on the dashboard (where a guest lands after joining), missions, launch, starmap, log or personnel. `CampaignNavigation` renders on every one of those and already receives `coopSession`. That makes it the single correct seam. It is a new leaf (src/components/campaign; claimed by R7.context and R8.starmap through directory aliases, both planned), and campaignPageShell is not needed.
+
+## Findings worth Root's attention
+
+- **F1 (pre-existing, outside LSC).** `clientRateLimitKey` trusts `X-Forwarded-For`. Any loopback caller can rotate that header and slip past the per-client KDF limiters on token.ts and vault unlock. LSC's limits are route-global and don't rely on it. Carry forward to U101/B15.
+- **F2 (pre-existing).** No auth route has a Host/Origin (CSRF or DNS-rebinding) guard. LSC adds one only on local-seats. Carry forward to B15/U101.
+- **F3 (pre-existing, affects the v2.2.0 session).** The co-op path has no expired-token recovery at all, and the GM's primary bearer defaults to 1 h. Today, any session longer than an hour loses reconnect and launch for the GM as well as the guests. LSC-2's renewal banner covers both, which matches the registered "three identities ... expired-token recovery" requirement.
+- **F4.** Migration head pins: R6 in `SQLiteService.replayCheckpointsBranch.migration.test.ts` (`{version: 32}`) and the applied-view reapply test in `SQLiteService.migrations.test.ts` (deletes version 32 and expects it to re-run). Both break as soon as any migration 33 lands. The fixes are one line each: pin 33, and `>= 32`. Any other lane that adds a migration first will collide, so re-allocate the version at admission.
+- **F5 (owner-visible trade-offs; Root recommendations, not owner answers).**
+  - Re-provision rotates the key and therefore the playerId. A guest who forgets a password comes back as a new principal and the GM has to admit them again. I rejected key escrow.
+  - Seat bearers are capped at 1 h, versus 6 h for the vault, to bound how long revocation takes to bite. In long sessions guests re-enter their password about once an hour.
+  - A same-host caller can lock a seat or exhaust a window for up to 60 s. That is accepted under the trust model.
+  - GET returns public seat metadata (labels, playerIds, lockout) to any loopback caller.
+- **F6.** Out of the box, RED fails at module resolution for any unit whose tests import new modules. LSC-1DB's test looks the migration up by name, so its RED is behavioural (below). I recommend the same lookup pattern for LSC-1S, LSC-1 and both LSC-2 units at admission.
+- **F7.** The in-flight mint guard is per process. That is fine for the single custom server, but it would need DB-level serialization if the server ever ran multiple workers.
+- **CF-S-8.** LSC adds no reseat-to-spectator path. Choosing a local seat never touches match seats or side assignments; D14 states this and keeps S's R1/R4 rows as the anchors. CF-S-8 stays with I1–I4.
+
+## N1 census (fresh Main 1b8558625; `.lsc2/census.cjs` → `.lsc2/results/census.{json,md}`)
+
+Method: I walked every unit field, every roadmap node and every top-level registration for path strings, including bare `e2e`, `src` and `docs` aliases. A match is exact equality or an ancestor/descendant relationship. Blocked does not mean unowned.
+
+- **token.ts.** Dropped. U101/U101a (planned) and FOG-H (via the multiplayer directory) are unaffected.
+- **securitySchemas.ts.** Claimed literally by U101a and U101d (planned), and through ancestors by P1 (blocked) and U45. LSC-1 only appends new exports. Carry-forward: when U101a adds scope issuance it must cover local-seat mint.
+- **CampaignCoopEntryPanel.tsx and its test.** Claimed literally by U101c (planned), B15-2, B15-PRIV (blocked) and R2.campaign-access (planned). LSC's edit is limited to the join-mint branch plus the panel mount. U101c's refresh migration must keep the seat branch.
+- **coopCampaignAuthTokenStore.ts.** Unchanged; U101c remains the sole literal owner.
+- **U105.** Only the `src/lib/campaign` alias on the new store file. No convergence logic is touched.
+- **FOG-H.** Only the `src/pages/api/multiplayer` alias on local-seats.ts. It owns HTTP/head parity, not provisioning.
+- **e2e/ alias** (receipt #2257). 34 live claimants, all through the bare `e2e` alias: U2, U2b, U25, U27, U28, U51–U55, U57, U30, U31, FOG-X, R2.camp-8, R2.journey, R4.rewind, R5.E1–E10, R6.B4–B7, R6.umbrella, R8.journey, R5.fog-restoration. None of them claims `e2e/local-seat-credentials.spec.ts` literally.
+- **docs/releases.** P2C, CNI2, CNI3 and U85 through `docs`. None claims the proof doc literally.
+- **Persistence leaves.** Only R2.camp-8 (blocked) through `src`.
+- **New leaf CampaignNavigation.tsx.** R7.context and R8.starmap (planned) through `src/components/campaign`, and R2.camp-8 through `src`.
+
+## RED / GREEN
+
+| Unit | RED (product reverted, tests kept) | GREEN |
+| --- | --- | --- |
+| LSC-1DB | `.lsc2/results/lsc1db-red.log`: **7 failed / 12 passed / 19**, all behavioural (no TypeError, ReferenceError or module error). Six new tests fail, plus the R6 pin. | 3 suites pass. The full persistence directory was 2 failed before the pin edits (`persist-green1.log`) and is green after them. |
+| LSC-1 (S+M) | Expected to fail at module resolution unless the by-name pattern is adopted (F6). Not run as a separate RED. | Repo 6, Service 17, API 18 tests pass (per-test counts from `results/green-counts.json`; API it.each rows counted individually), all on real SQLite, real crypto and the production verifier. |
+| LSC-2 (+OP) | Entry-panel seat tests fail on Main (no chooser). New-module suites behave as for LSC-1. | Store 5 (including the integration proof), Panel 13, Entry 26 (3 new), CampaignNavigation 10 tests pass; migration suite 7. LSC suites total **102/102** (`results/green-counts.json`). |
+| Neighbours | — | securityBoundary, index.coop, mission-launch.coop, campaignRouteLoader, mech-bay.bv, gm-ledger.coop, activity-feed-cutover, contract.migration, IdentityRepository, CampaignNavigation: all pass. |
+
+**In-repo three-identity integration proof** (`src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts`). One real `http` listener on 127.0.0.1 serves the real Next handlers: vault identity create, `token.ts`, and local-seats. Underneath are real SQLite and real crypto. A fixture WS endpoint runs `verifyPlayerToken` on every connect. There are three isolated profile storages, and a membership map that only the GM fixture writes. The run shows, in order:
+
+- Three distinct playerIds, with the seat's playerIds matching the seat list.
+- Seat selection admitted nobody (`not-member`) until the GM admitted the IDs.
+- Reload and reconnect gave the same three IDs.
+- No passwords, private keys or ciphertext ended up in browser storage.
+- The primary vault row was unchanged.
+- Renewal at +55 min kept the same IDs, for both a seat and the primary.
+- At +61 min the expired bearer was refused, and recovery by password worked.
+- After a SQLite reopen the seat ID was unchanged.
+- After revoke, the next mint was refused (401). The issued bearer still verified, and failed once it expired.
+- After re-provision, the old password failed, the guest got a new ID, and that ID needed admission again.
+
+Limits: these are storage facsimiles and a fixture WS, not `bindCampaignSyncConnection`, and none of this counts as packaged acceptance.
+
+## Mutation results (`.lsc2/mutate.cjs`; `results/mutants-run1.json` and `results/mutants-run2.json`)
+
+Each mutant applies one exact string edit to one file, runs that unit's suites with the gated private-cache runInBand jest, and then restores the original.
+
+| Unit | Mutants | Caught | Notes |
+| --- | ---: | ---: | --- |
+| LSC-1DB | 10 (D1–D10) | 10 | catalog drop, version gap, seat/generation/kind CHECKs, non-idempotent create, lockout column, failure default, operation-id PK, revoked_at nullability |
+| LSC-1S | 12 (R1–R12) | 12 | replay fingerprint, CAS, double revoke, re-provision keeps revocation or lockout, stale-generation failure, threshold off-by-one, operation not recorded, operator denial/missing/throttle, revoked shown active |
+| LSC-1 | 16 (M1–M16) | 15 | **M3 survives as an equivalent mutant.** Removing the post-KDF fence is masked by the fence after signing, and no token can leak either way. M5 (revoked check before the KDF) and M16 (500 leaks internals) survived the first run; adding tests killed them in run 2. |
+| LSC-2 (+OP) | 15 (C1–C15) | 15 | C14 is labelled KILLED-COMPILE by the runner's heuristic. A manual rerun showed behavioural assertion failures (shifted fetch calls). After the split, **LSC-2OP owns only C11, C12 and C14**, so it needs at least 7 more operator-UI mutants at admission. |
+
+LSC-0 is documentation only; I validated it with the OpenSpec strict validator instead of mutants. LSC-2P is unrun.
+
+## Draft frozen manifests (literals; evidence dates must be the truthful output dates)
+
+Evidence names follow the pattern `openspec/planning/2026-09-12-roadmap-completion/evidence/<unit>-{admission,red,local,admission-review}-20261018.json`, plus the shared `units.json` (own lifecycle fields only).
+
+- **LSC-0 (9):** the four registered OpenSpec paths, units.json, and 4 lsc-0 evidence files. Counted: about 96 lines plus lifecycle.
+- **LSC-1DB (10; amendment +2):**
+  - `src/services/persistence/SQLiteService.localSeatCredentials.migration.ts`
+  - `src/services/persistence/SQLiteService.migrations.ts`
+  - `src/services/persistence/__tests__/SQLiteService.localSeatCredentials.migration.test.ts`
+  - **new:** `src/services/persistence/__tests__/SQLiteService.migrations.test.ts`
+  - **new:** `src/services/persistence/__tests__/SQLiteService.replayCheckpointsBranch.migration.test.ts`
+  - units.json and 4 lsc-1db evidence files.
+- **LSC-1S (new unit; 9):**
+  - `src/services/vault/LocalSeatCredentialRepository.ts` and its test
+  - `src/services/vault/LocalSeatCredentialService.ts` and its test (operator part: list, provision, revoke, operator throttle)
+  - units.json and 4 lsc-1s evidence files.
+  - About 466 counted plus lifecycle. That is tight; to get headroom, move `listSeats` and the public type into LSC-1, which brings it to about 440.
+- **LSC-1 (10; dropped token.ts and localSeatToken.test.ts):**
+  - `LocalSeatCredentialService.ts` and its test (mint, throttle, fence)
+  - `src/pages/api/multiplayer/auth/local-seats.ts`
+  - `src/__tests__/api/localSeatCredentials.test.ts`
+  - `src/lib/api/securitySchemas.ts`
+  - units.json and 4 lsc-1 evidence files.
+  - About 307 counted plus lifecycle.
+- **LSC-2OP (new unit; 11):**
+  - `src/lib/campaign/coop/localSeatCredentialStore.ts` and its test (fetch, provision, revoke, error, types)
+  - **new name** `src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx` and its test
+  - `CampaignCoopEntryPanel.tsx` and its test (mount)
+  - units.json and 4 lsc-2op evidence files.
+  - About 258 counted plus lifecycle.
+- **LSC-2 (12; dropped coopCampaignAuthTokenStore.ts and campaignPageShell; added CampaignNavigation):**
+  - `CampaignCoopEntryPanel.tsx` and its test
+  - `localSeatCredentialStore.ts` and its test (choice, mint, freshness, and the three-identity proof)
+  - `LocalSeatCredentialPanel.tsx` and its test (chooser and renewal)
+  - **new:** `src/components/campaign/CampaignNavigation.tsx`
+  - units.json and 4 lsc-2 evidence files.
+  - About 300 counted plus lifecycle.
+- **LSC-2P (8; as registered):** `playwright.local-seat-packaged.config.ts`, `e2e/local-seat-credentials.spec.ts`, `docs/releases/v2.2.0-local-seat-proof.md`, units.json, and 4 lsc-2p evidence files. Trace, screenshot and hash receipts must be frozen under G-OWN before they are collected.
+
+### Draft amendment text (registration-only; for Root)
+
+> Register blocked LSC-1S between LSC-1DB and LSC-1. It is the seat repository plus the operator provisioning service, 15/500, with the 9 literals above. LSC-1 keeps N3 and becomes password-verified mint, throttle and lockout, the local-seats API and the request schemas. It drops token.ts and localSeatToken.test.ts (primary mint unchanged).
+>
+> Register blocked LSC-2OP between LSC-1 and LSC-2. It is the operator provisioning/re-provision/revoke UI, 15/500, with the 11 literals above.
+>
+> Amend LSC-1DB to add the two pinned-head persistence test literals.
+>
+> Amend LSC-2: drop coopCampaignAuthTokenStore.ts; add `src/components/campaign/CampaignNavigation.tsx` as the renewal mount that covers every campaign route.
+>
+> New order: HP → LSC-0 → LSC-1DB → LSC-1S → LSC-1 → LSC-2OP → LSC-2 → LSC-2P → H. L1 goes from 28 to 30. H's and the release predicate's LSC-2/LSC-2P requirements are unchanged. Every new slice keeps the sensitive review classes, OWNER-RULING, CI, exact-main proof and closure.
+
+## LSC-2P packaged-browser proof plan (unrun)
+
+1. **Preconditions.**
+   - Every source predecessor is closed on exact Main.
+   - The installer is built from that Main. Record the installer and executable SHA256, version, executable path and PID, the private userData/DB path, and the owner of the 127.0.0.1:3001 listener.
+   - Gate each automated phase on the idle check. If the packaged server's PID makes the gate busy, wait or ask for an explicit run instruction.
+2. **Profiles.** Use three Chrome instances with separate `--user-data-dir`, each with its own debugging port, launched once and **left open for the whole proof**. sessionStorage holds the bearers and does not survive a browser restart. Each phase attaches with `chromium.connectOverCDP`. The dedicated config has no webServer and no globalSetup, uses 1 worker, keeps the default 30 s timeout per test, and baseURL is `http://127.0.0.1:3001`. No E2E routes, seeding, storage injection or TTL override.
+3. **Phase A (T0).**
+   - GM profile: create and unlock the primary identity in Settings, create the co-op campaign, then provision both seats through "Manage local seats".
+   - Guest profiles: choose seat 1 or seat 2, then join through the room-code dialog.
+   - Record three public playerIds, the campaign/session and the revision.
+   - Prove a seat choice alone grants nothing until the GM admits the player through ordinary flow.
+   - Reload and reconnect all three and check the IDs are the same.
+4. **Phase B (T0 + 52 min).** The banner reads "expires soon". Renew P1 and the GM through the UI; their IDs stay the same.
+5. **Phase C (T0 + 62 min).** P2's banner reads "expired". Recover with the password: same ID, and it reconnects.
+6. **Phase D.**
+   - Operator revokes seat 1 through the UI.
+   - P1's next renewal is refused; record that the bearer issued at T0 + 52 min stays valid until it expires.
+   - Re-provision with a new password. The old password fails. Re-claim gives a new ID, and the GM admits it.
+   - Lockout: 5 wrong guesses, then 429 until 60 s have passed.
+   - Screenshots and logs must not contain any secrets.
+7. **Evidence.** A table of public IDs, session and revision per phase; artifact hashes; and real failures. All recorded in `docs/releases/v2.2.0-local-seat-proof.md`.
+
+Waiting between phases happens outside any test, so no timeout is raised. P2, Task 18, U38 and the v2.2.0 human session stay held until both LSC-2 and LSC-2P are closed on exact Main.
+
+## Status
+
+The phase 1 deliverables are complete. Nothing was admitted or committed and no units.json was edited. I'm waiting for Root's gate message per unit, and for Root's decision on the LSC-1S / LSC-2OP split and the LSC-1DB and LSC-2 manifest amendments.
