@@ -7270,7 +7270,26 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2-admission-20261018.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2-admission-review-20261018.md",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2-red-20261018.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2-local-20261018.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2-local-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2-source-fable-review-20261018.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2-owner-ruling-6247720708.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2-review-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2-merge-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-cc98179e-tests.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-cc98179e-g2.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-cc98179e-g2a.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-cc98179e-related.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-cc98179e-p2cg1g1.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-cc98179e-selector.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-cc98179e-p2cg1f.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-cc98179e-p2cg1e.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-cc98179e-p2cg1d.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-cc98179e-p2cg1c.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-cc98179e-p2cg1b.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-cc98179e-predecessors.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-cc98179e-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-cc98179e-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2-mainproof-20261018.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -7285,10 +7304,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "implementing",
+      "state": "main-verified",
       "baseline": "f32626fbd2b558e1307f16590d4ab03c55668772",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "45f6d7e176daf5fa825b6ecd8dba3958cab8905b",
+      "mergeSha": "cc98179e4d77024651bf1a16c63f077d64337273",
       "stageReceipts": {
         "admission": {
           "path": "evidence/p2cg1g2-admission-20261018.json"
@@ -7299,9 +7318,27 @@
         "local": {
           "path": "evidence/p2cg1g2-local-20261018.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/p2cg1g2-review-20261018.json",
+          "head": "45f6d7e176daf5fa825b6ecd8dba3958cab8905b",
+          "reviewedHead": "45f6d7e176daf5fa825b6ecd8dba3958cab8905b",
+          "reviewerModel": "claude-fable-5-1",
+          "implementerModel": "claude-opus-5-5",
+          "outputSha256": "f5e75b7a193fda612913a0423045a54f2cc55f9076a362bfaff3462a73b8ac2b",
+          "verdict": "APPROVE-WITH-NOTES"
+        },
+        "merge": {
+          "path": "evidence/p2cg1g2-merge-20261018.json",
+          "pr": 2250,
+          "head": "45f6d7e176daf5fa825b6ecd8dba3958cab8905b",
+          "mergeSha": "cc98179e4d77024651bf1a16c63f077d64337273"
+        },
+        "mainProof": {
+          "path": "evidence/p2cg1g2-mainproof-20261018.json",
+          "mergeCommit": "cc98179e4d77024651bf1a16c63f077d64337273",
+          "verdict": "PASS",
+          "runtime": "Source/Main Jest: Tests:       846 passed, 846 total"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -7353,7 +7390,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -17351,6 +17388,44 @@
         "commentId": 6246826945,
         "author": "SwiggitySwerve",
         "bodySha256": "6977569bcf414b4e28d4515eee032dc4118c1a003a0f27ae19ed6c687b526da6"
+      }
+    },
+    {
+      "id": "PK-p2cg1g2-ruling",
+      "blocks": [
+        "P2CG1G2"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "After independent exact-head review across its five sensitive classes and required green CI, should the owner rule the bounded reduced P2CG1G2 head (all five co-op creators bound to the actual campaign identity: the entry panel's direct connectCampaignSyncTransport, both connected-surface connectStoredCampaignSyncTransport calls (CF-H16) and both launch-page creators, with campaignId != matchId in runtime proof; the identity-first guest join consuming P2CG1G2A's ?campaignIdentity=1 with the bearer only in the Authorization header, 400/401/404 final and no anonymous fallback (CF-G2A-5); identity validated before any socket and foreign snapshots rejected before adoption, never fetching raw match metadata; G2-RESEAT-1 synchronous registry observers, identity-guarded release, idempotent same-object registration and the new campaignSyncTransportSeat.ts (seat identity checks, A-to-B follow, one fixed snapshot timeout, abort and disposal, post-await active-seat verification); cleanup never closing a foreign or replacement transport; the launch seat playerId taken from the stored co-op token; and Legacy join bytes, lastSeq and numeric ACKs unchanged before a genuine offer) before guarded merge?",
+      "options": [
+        {
+          "label": "rule the exact source head",
+          "consequence": "Permit guarded P2CG1G2 merge and exact-main proof only; P2CG1R may be released to planned only after that proof, with the review carry-forwards CF-G2-1..11 routed as tabulated (H, R, S, B15, B14-0/HP, I1-I4/P2CG2).",
+          "effort": "One independent exact-head full sensitive review across authority, privacy, replay, idempotency and concurrency, evidence check and owner ruling"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Hold merge until the concrete authority, privacy, replay, idempotency, concurrency or proof objections are fixed and fresh exact-head review, CI and owner ruling are complete.",
+          "effort": "Bounded by the concrete review objections"
+        }
+      ],
+      "agentRecommendation": "Rule only an independently approved green exact head that meets all of these: the four existing product leaves byte-identical to the baseline and the seat module absent at RED, with no test byte changed after it; every creator bound to the campaign id, never the match id; the guest join reads identity only through ?campaignIdentity=1 with the bearer in the Authorization header, treats 400/401/404 as final and never falls back to the anonymous summary; no state or event adopted from a foreign campaign; no transport closed that the caller did not create; registry observers isolated and release identity-guarded; join bytes, lastSeq and numeric ACKs unchanged before an offer; and the PRIV-1 correlation left as the B15 hold. This proposal grants no approval or merge permission.",
+      "revertCost": "Low to moderate: revert the five product and five test leaves; P2CG1G2 changes no server file, Protocol type, wire format, verifier, invite route or consumer, so a revert restores the unbound creators against the same server.",
+      "decision": {
+        "option": "rule the exact source head",
+        "at": "2026-10-18T08:38:11Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2250#issuecomment-6247720708"
+      },
+      "ruling": {
+        "ruledHead": "45f6d7e176daf5fa825b6ecd8dba3958cab8905b",
+        "pr": 2250,
+        "commentId": 6247720708,
+        "author": "SwiggitySwerve",
+        "bodySha256": "378fa2392a802bd46ebaff520565b286251117d1b7c4682edda9798f5dcdcaaf"
       }
     },
     {

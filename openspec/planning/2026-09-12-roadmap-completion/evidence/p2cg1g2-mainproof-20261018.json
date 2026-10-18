@@ -1,0 +1,433 @@
+{
+  "unit": "P2CG1G2",
+  "stage": "mainProof",
+  "recordedAt": "2026-10-18T09:44:11Z",
+  "mergeCommit": "cc98179e4d77024651bf1a16c63f077d64337273",
+  "verdict": "PASS",
+  "checkout": "E:/Projects/Personal/MekStation-wt/p2cg1g2-closure-20261018",
+  "runtime": {
+    "playwright": "Source/Main Jest: Tests:       846 passed, 846 total",
+    "suites": "54 passed, 54 total",
+    "tsc": "npm run typecheck: exit 0 (TypeScript 7, root and scripts projects)",
+    "node": "v22.22.0",
+    "install": "real npm ci in the checkout detached at cc98179e (1078 packages), Node v22.22.0; package-lock.json unchanged and the worktree clean afterwards",
+    "npmCiLog": {
+      "path": "E:/Projects/Personal/MekStation-wt/_p2cg1g2-closure-logs/npm-ci.log",
+      "sha256": "155841fb062ff834abcdf4d1cf731d370d968ad3834aab1b6e2ae624c1cbf996",
+      "bytes": 1194
+    },
+    "jestCache": "private --cacheDirectory=E:/Projects/Personal/MekStation-wt/_p2cg1g2-closure-logs/jest-cache on every jest run, --runInBand"
+  },
+  "machine": "The runner ran node scripts/qc/machine-idle.mjs before each of the 14 runs and waited (re-checking every 30 seconds) until it printed MACHINE_IDLE; --own-pid was the only exclusion flag. PID 47516 is the Root-allowed idle server.js. The first runner (gate --own-pid 47516) read MACHINE_BUSY 73 times before the first run, from 2026-10-18T08:42:21Z to 2026-10-18T09:18:54Z, every time for one process: chrome-headless-shell.exe PID 55164 (parent 50120, T3 Code), which this closure did not start; no jest ran under it. Root then ruled (machineGateRuling, verbatim) that PID 55164 is T3 Code's persistent idle html_preview renderer, verified idle by Root, not to be killed, and an allowed idle process like 47516. At 2026-10-18T09:19:25Z this closure stopped only its own waiting runner and restarted it with the gate node scripts/qc/machine-idle.mjs --own-pid 47516 --own-pid 55164; every reading after the restart printed MACHINE_IDLE on the first check, one per run. The runs were sequential (one heavy run at a time). This closure neither started nor stopped any other process.",
+  "machineReadings": {
+    "tests": {
+      "busyReadings": 73,
+      "busyProcessNames": [
+        "chrome-headless-shell.exe"
+      ],
+      "idleAt": "2026-10-18T09:19:26.314Z"
+    },
+    "g2": {
+      "busyReadings": 0,
+      "busyProcessNames": [],
+      "idleAt": "2026-10-18T09:21:05.216Z"
+    },
+    "g2a": {
+      "busyReadings": 0,
+      "busyProcessNames": [],
+      "idleAt": "2026-10-18T09:21:09.885Z"
+    },
+    "related": {
+      "busyReadings": 0,
+      "busyProcessNames": [],
+      "idleAt": "2026-10-18T09:21:13.233Z"
+    },
+    "p2cg1g1": {
+      "busyReadings": 0,
+      "busyProcessNames": [],
+      "idleAt": "2026-10-18T09:21:43.993Z"
+    },
+    "selector": {
+      "busyReadings": 0,
+      "busyProcessNames": [],
+      "idleAt": "2026-10-18T09:21:47.709Z"
+    },
+    "p2cg1f": {
+      "busyReadings": 0,
+      "busyProcessNames": [],
+      "idleAt": "2026-10-18T09:21:57.444Z"
+    },
+    "p2cg1e": {
+      "busyReadings": 0,
+      "busyProcessNames": [],
+      "idleAt": "2026-10-18T09:22:01.273Z"
+    },
+    "p2cg1d": {
+      "busyReadings": 0,
+      "busyProcessNames": [],
+      "idleAt": "2026-10-18T09:22:12.504Z"
+    },
+    "p2cg1c": {
+      "busyReadings": 0,
+      "busyProcessNames": [],
+      "idleAt": "2026-10-18T09:22:20.335Z"
+    },
+    "p2cg1b": {
+      "busyReadings": 0,
+      "busyProcessNames": [],
+      "idleAt": "2026-10-18T09:22:30.155Z"
+    },
+    "predecessors": {
+      "busyReadings": 0,
+      "busyProcessNames": [],
+      "idleAt": "2026-10-18T09:22:34.163Z"
+    },
+    "typecheck": {
+      "busyReadings": 0,
+      "busyProcessNames": [],
+      "idleAt": "2026-10-18T09:23:24.213Z"
+    },
+    "validator": {
+      "busyReadings": 0,
+      "busyProcessNames": [],
+      "idleAt": "2026-10-18T09:23:29.888Z"
+    }
+  },
+  "machineGate": "node scripts/qc/machine-idle.mjs --own-pid 47516 --own-pid 55164 (after the Root ruling; --own-pid 47516 alone before it)",
+  "machineGateRuling": {
+    "text": "PARENT RULING (Root, machine gate): PID 55164 is T3 Code's own persistent html_preview renderer (chrome-headless-shell, parent PID 50120 \"T3 Code (Nightly).exe\", started 08:42Z by a Root html_preview call). Root verified it is idle (CPU time unchanged at 5.92s over a 5 s sample). It is not a heavy run and must not be killed. Root designates it an allowed idle process exactly like 47516: run the gate as `node scripts/qc/machine-idle.mjs --own-pid 47516 --own-pid 55164` (still --own-pid only, no other exclusion flags). If the gate then reports MACHINE_IDLE, proceed with your heavy run now; if it reports some other busy process, wait as before. Record this ruling in your receipts/logs. Owner authority: standing instruction \"continue with recommended options and fix the issues that come up, publish as needed\".",
+    "sha256": "2a84cc618625a849da2e9049d7f9e2e64bb6970a65145d6d868c7e3e10eb52c2",
+    "path": "E:/Projects/Personal/MekStation-wt/_p2cg1g2-closure-logs/parent-ruling-machine-gate.txt",
+    "restart": "2026-10-18T09:19:25Z stopped own runner PID 60988 (waiting before tests; no jest started) and restarted with --own-pid 47516 --own-pid 55164 per parent-ruling-machine-gate.txt"
+  },
+  "machineLog": {
+    "path": "E:/Projects/Personal/MekStation-wt/_p2cg1g2-closure-logs/idle.log",
+    "sha256": "9603f98f09d77400ca9e13accc1c9a2e6b644868553adc1c74101a2e74009c87",
+    "bytes": 146531
+  },
+  "proof": {
+    "path": "evidence/mainproof-cc98179e-tests.bytes.json",
+    "payloadSha256": "b33f644ab667d82624f29fd23181a826540d68bb8a9b1e5dc9cd8486d8447b52",
+    "payloadBytes": 504899,
+    "counts": {
+      "suites": 54,
+      "tests": 846
+    },
+    "note": "Fresh run at the exact merge HEAD cc98179e (the closure worktree detached at the merge, clean, before any closure edit): the five reduced P2CG1G2 suites, the two P2CG1G2A suites and the 48 unique suites of the P2CG1G1/P2CG1G2A closure proof sets (G1, F, E, C, B and D leaves and the 35 A1/A2 suites), by path in one jest invocation: 54 suites, 846/846. src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts is both a P2CG1G2 leaf and a P2CG1E leaf and runs once. Since the P2CG1G2A merge (a6b604a0), whose main proof ran 50 suites / 783, only reduced P2CG1G2 test leaves changed among these suites (src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx, src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx, src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.creatorBinding.test.tsx, src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts, src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx). The five product leaves equal the local receipt hashes, the five test leaves are byte-identical to RED, and the admission unchanged controls equal their admission hashes at the merge."
+  },
+  "logs": [
+    {
+      "path": "evidence/mainproof-cc98179e-g2.bytes.json",
+      "payloadSha256": "63a2855b7d7a88c78cf6008d20df5dc4b77d18a4b98faa7e65910c47ecff9eb3",
+      "payloadBytes": 1685,
+      "counts": {
+        "suites": 5,
+        "tests": 129
+      },
+      "note": "The five reduced P2CG1G2 suites alone: 5 suites, 129/129, as the local GREEN receipt (129/129) and the reviewer (129/129) recorded on the head."
+    },
+    {
+      "path": "evidence/mainproof-cc98179e-g2a.bytes.json",
+      "payloadSha256": "eee7616ddcf17d44fa11a8a7e09ddcb0b0566b09cf16b8b5a222afcfdda60e6f",
+      "payloadBytes": 14140,
+      "counts": {
+        "suites": 2,
+        "tests": 48
+      },
+      "note": "The two P2CG1G2A suites alone: 2 suites, 48/48, unchanged from the P2CG1G2A main proof."
+    },
+    {
+      "path": "evidence/mainproof-cc98179e-related.bytes.json",
+      "payloadSha256": "d10b60187f41ead9cfeb7b39e0a87635a69e7cc12b365b10e131e6ce92fd66f6",
+      "payloadBytes": 80237,
+      "counts": {
+        "suites": 74,
+        "tests": 925
+      },
+      "note": "The P2CG1G2A related set (every test importing the invite route or the server verifier: src/__tests__/api/, src/__tests__/unit/api/, src/lib/api/__tests__/coopMatchRosterSourceVersion.test.ts, src/lib/multiplayer/client/__tests__/issuePlayerToken.test.ts, src/lib/multiplayer/server/__tests__/MatchHostRegistry.closeRoute.test.ts, src/pages-modules/multiplayer/__tests__/lobbyCorrectionSurface.test.tsx, src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx, src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx, src/lib/multiplayer/server/__tests__/auth.test.ts): 74 suites, 925/925 (74 suites / 925 at a6b604a0 too; it includes the reduced P2CG1G2 leaf index.coop.test.tsx). It overlaps the 35 A1/A2 suites in src/__tests__/api/campaigns/coopGmIntervention.test.ts, src/__tests__/api/campaigns/coopGmInterventionHistory.test.ts."
+    },
+    {
+      "path": "evidence/mainproof-cc98179e-p2cg1g1.bytes.json",
+      "payloadSha256": "166679dfc753e972ca3ede919dd95b801037e6b0f439a5271ace18ae5d9637fb",
+      "payloadBytes": 52721,
+      "counts": {
+        "suites": 4,
+        "tests": 81
+      },
+      "note": "The four P2CG1G1 test leaves: 4 suites, 81/81."
+    },
+    {
+      "path": "evidence/mainproof-cc98179e-selector.bytes.json",
+      "payloadSha256": "a05dcfa29c068ff7f0e1585b232898d8fa2f82e0a1a9d5be8049f57684d32e6a",
+      "payloadBytes": 49111,
+      "counts": {
+        "suites": 4,
+        "tests": 104
+      },
+      "note": "The registered Task 14 selector --testPathPattern='campaignLaunchAuthorityRoute|campaignProgressionReaders.durable|CampaignSyncSession': 4 suites, 104/104."
+    },
+    {
+      "path": "evidence/mainproof-cc98179e-p2cg1f.bytes.json",
+      "payloadSha256": "acb5e49eec26c380c223fb61cac7263542b104eb61bb351e7ccd79a40d6c392b",
+      "payloadBytes": 45709,
+      "counts": {
+        "suites": 3,
+        "tests": 96
+      },
+      "note": "The three P2CG1F test leaves: 3 suites, 96/96."
+    },
+    {
+      "path": "evidence/mainproof-cc98179e-p2cg1e.bytes.json",
+      "payloadSha256": "e555d5d657a3eb8fb389f1ed9a44c6a68600c771d0bff8674a6430fcfa096c24",
+      "payloadBytes": 98903,
+      "counts": {
+        "suites": 3,
+        "tests": 166
+      },
+      "note": "The three P2CG1E test leaves: 3 suites, 166/166 (156 at a6b604a0; campaignSyncTransport.test.ts is also a reduced P2CG1G2 leaf and gained rows)."
+    },
+    {
+      "path": "evidence/mainproof-cc98179e-p2cg1d.bytes.json",
+      "payloadSha256": "505515aca48e3b5fc2ab052561910342572aec43b681fb4ece68c1917cc65e34",
+      "payloadBytes": 17976,
+      "counts": {
+        "suites": 4,
+        "tests": 119
+      },
+      "note": "The four P2CG1D test leaves: 4 suites, 119/119."
+    },
+    {
+      "path": "evidence/mainproof-cc98179e-p2cg1c.bytes.json",
+      "payloadSha256": "e2f761699c2530d2d11eda7adb18c639b8525906222aeb55663966c8e0ede483",
+      "payloadBytes": 52010,
+      "counts": {
+        "suites": 2,
+        "tests": 54
+      },
+      "note": "The two P2CG1C test leaves: 2 suites, 54/54."
+    },
+    {
+      "path": "evidence/mainproof-cc98179e-p2cg1b.bytes.json",
+      "payloadSha256": "065255cd7f944e67a1e28a2b2d512b2e3fe51f4f1994a3adf8ddb319db67fa05",
+      "payloadBytes": 963,
+      "counts": {
+        "suites": 2,
+        "tests": 45
+      },
+      "note": "The two P2CG1B test leaves: 2 suites, 45/45."
+    },
+    {
+      "path": "evidence/mainproof-cc98179e-predecessors.bytes.json",
+      "payloadSha256": "9fbd40b7e4c321230567d197538d28ae8d9580828253f9d274f659588ce4c854",
+      "payloadBytes": 381882,
+      "counts": {
+        "suites": 35,
+        "tests": 388
+      },
+      "note": "The 35 A1/A2 suites by path: 35 suites, 388/388."
+    },
+    {
+      "path": "evidence/mainproof-cc98179e-typecheck.bytes.json",
+      "payloadSha256": "fc701ce8d520d5ae92918bc8060a06e373529e5b8f96cb45e2c36fdd00938609",
+      "payloadBytes": 409,
+      "note": "Fresh typecheck on the same checkout and HEAD."
+    },
+    {
+      "path": "evidence/mainproof-cc98179e-validator.bytes.json",
+      "payloadSha256": "336161d94466b9a153145a2d0a1e7a9d9cd3a582b396b2fc41b36a3a74a046aa",
+      "payloadBytes": 458,
+      "note": "Fresh validator and --next on the unedited ledger at the same HEAD (ROADMAP VALIDATION PASSED: 81 nodes, 13 packages, 381 tasks, 40 triage rows; --next U24b, advisory, while P2CG1G2 was still implementing)."
+    }
+  ],
+  "attemptLogs": [
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/frozen-files.json",
+      "sha256": "751ff4d806a796da76d23bdf0a1dadb28fbf0344da0d693c16f67720caf5c5d0",
+      "bytes": 3364,
+      "citedBy": [
+        "p2cg1g2-admission-20261018.json.census"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/frozen-controls.json",
+      "sha256": "b311ddd76aa07e1456926d17775acbca2ca9e664183d7d83bd54300705fcdd8b",
+      "bytes": 2868,
+      "citedBy": [
+        "p2cg1g2-admission-20261018.json.unchangedControls.census",
+        "p2cg1g2-local-20261018.json.boundary.census"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/idle-base.log",
+      "sha256": "315ceb46326ccdda8b3d7a4913043d09a4b22eb2dbc65560259861fe0f202a2d",
+      "bytes": 17,
+      "citedBy": [
+        "p2cg1g2-admission-20261018.json.baselineMeasurements.idle.log"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/lint-base.log",
+      "sha256": "412e32ecc380f974f81ecf3077549eb4435b22500fb818718ca77c9689de9bf2",
+      "bytes": 81288,
+      "citedBy": [
+        "p2cg1g2-admission-20261018.json.baselineMeasurements.lint.log"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/typecheck-base.log",
+      "sha256": "8102a14cf3245ac2b0d67c588affb25efaebfcd3485f9a46a751595d9a774951",
+      "bytes": 358,
+      "citedBy": [
+        "p2cg1g2-admission-20261018.json.baselineMeasurements.typecheck.log"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/madge-base.log",
+      "sha256": "846868f24be37dea2a0cc7ae121b3c73b8a195787e219bf4905911eb03cc6822",
+      "bytes": 210054,
+      "citedBy": [
+        "p2cg1g2-admission-20261018.json.baselineMeasurements.cycles.log",
+        "p2cg1g2-local-20261018.json.carryForwards.CF-H11.logs[0]"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/frozen-files-36dacb34.json",
+      "sha256": "6eb8eeaef7842eaaf7a773c1f6d4b964709c77c4872adabd7a285c72cd316420",
+      "bytes": 3364,
+      "citedBy": [
+        "p2cg1g2-admission-20261018.json.rebase.previousCensus"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/typecheck-red.log",
+      "sha256": "8102a14cf3245ac2b0d67c588affb25efaebfcd3485f9a46a751595d9a774951",
+      "bytes": 358,
+      "citedBy": [
+        "p2cg1g2-red-20261018.json.typecheckAtRed.log"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/red.log",
+      "sha256": "6562abee6bb4b1054cad503e880a4bec7f32429cecfbdb3712c80c9e5c7f5c5d",
+      "bytes": 132114,
+      "citedBy": [
+        "p2cg1g2-red-20261018.json.result.log"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/idle-red.log",
+      "sha256": "315ceb46326ccdda8b3d7a4913043d09a4b22eb2dbc65560259861fe0f202a2d",
+      "bytes": 17,
+      "citedBy": [
+        "p2cg1g2-red-20261018.json.result.idleLog"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/madge-green.log",
+      "sha256": "ececf04656a85b23deee6d1a0eea1ec0590c916b470aba71ce2765124a54010d",
+      "bytes": 210054,
+      "citedBy": [
+        "p2cg1g2-local-20261018.json.carryForwards.CF-H11.logs[1]"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/g2-mutants.cjs",
+      "sha256": "d25c2f1b5f4ccb4fdac29f6b070f09eba8bf898ca8adc23bc26e62e24441cc09",
+      "bytes": 6735,
+      "citedBy": [
+        "p2cg1g2-local-20261018.json.mutationProbes.script"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/mutants.log",
+      "sha256": "068ada611a93ca6df97bb96764ea9b9bb7c41c8cbf2fd644cd957d73eb7602c6",
+      "bytes": 5350,
+      "citedBy": [
+        "p2cg1g2-local-20261018.json.mutationProbes.log"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/green.log",
+      "sha256": "dc0d5507a5d32213ee6b67ff04d081adc305dd51674c7f4e5f2cd299bf3418e4",
+      "bytes": 24830,
+      "citedBy": [
+        "p2cg1g2-local-20261018.json.results.green.log"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/idle-green.log",
+      "sha256": "315ceb46326ccdda8b3d7a4913043d09a4b22eb2dbc65560259861fe0f202a2d",
+      "bytes": 17,
+      "citedBy": [
+        "p2cg1g2-local-20261018.json.results.green.idleLog"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/broad.log",
+      "sha256": "6675570f48d458b0af754d49b59d186ee78eea481743b40df08b2fd6de458d26",
+      "bytes": 1139246,
+      "citedBy": [
+        "p2cg1g2-local-20261018.json.results.broad.log"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/typecheck-green.log",
+      "sha256": "8102a14cf3245ac2b0d67c588affb25efaebfcd3485f9a46a751595d9a774951",
+      "bytes": 358,
+      "citedBy": [
+        "p2cg1g2-local-20261018.json.checks.typecheck.log"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/lint-green.log",
+      "sha256": "5ff97000ec85f60cbd3c0ff078c24389f506436979417fb8168cfe425986d7dd",
+      "bytes": 81286,
+      "citedBy": [
+        "p2cg1g2-local-20261018.json.checks.lint.log"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/format.log",
+      "sha256": "778fb35abfd0ec8f9fb3c9afa7758d413b2ca788bfc882fd4b0e90d92c0a4c08",
+      "bytes": 246,
+      "citedBy": [
+        "p2cg1g2-local-20261018.json.checks.format.log"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/lint-units.log",
+      "sha256": "445a0d6546031cb8bf866d2d4c44cc69f8062a9b875de0563b00b8d819817596",
+      "bytes": 730,
+      "citedBy": [
+        "p2cg1g2-local-20261018.json.checks.lintUnits.log"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/validator-tests.log",
+      "sha256": "ec463d258179cf6b7e01612ab60a46dc3d34a170d6354d578c532fbcd3d80a76",
+      "bytes": 33640,
+      "citedBy": [
+        "p2cg1g2-local-20261018.json.checks.validatorTests.log"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/openspec.log",
+      "sha256": "89a3784befdc45a1fb8b4cac58d9703373655afb9d5fa537f58176fbd9cad0c0",
+      "bytes": 13904,
+      "citedBy": [
+        "p2cg1g2-local-20261018.json.checks.openspec.log"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/qc-openspec-ci.log",
+      "sha256": "19b2046de400eaefd184fb58e7072d1816b6ccef3ba1f1ea040c0f9ec8ec2c60",
+      "bytes": 594,
+      "citedBy": [
+        "p2cg1g2-local-20261018.json.checks.qc.log"
+      ]
+    }
+  ],
+  "scope": "Fresh runs at the exact merge commit of the unit's five registered suites, the P2CG1G2A suites and related set, and the P2CG1G1/P2CG1G2A closure proof sets (G1, Task 14 selector, F, E, D, C, B and the 35 A1/A2 suites), combined and separately, plus typecheck and the validator, with hash references to the author's proof logs. The author's broad set (397 suites, 5158 tests) is referenced by hash, not re-run. No full-stable, lint, format, browser or build result is claimed for main; CI covered those on the head.",
+  "closure": "main-verified only. taskKeys is empty; no tasks.md row is ticked and no tick receipt is invented. Source/closure owned-resource cleanup is not established here.",
+  "preservation": "Proof and logs are base64 envelopes so repository LF normalization cannot alter their exact bytes. Decode data and verify payloadSha256/payloadBytes."
+}

@@ -1,0 +1,888 @@
+{
+  "unit": "P2CG1G2",
+  "stage": "review",
+  "recordedAt": "2026-10-18T09:44:11Z",
+  "head": "45f6d7e176daf5fa825b6ecd8dba3958cab8905b",
+  "reviewedHead": "45f6d7e176daf5fa825b6ecd8dba3958cab8905b",
+  "reviewerModel": "claude-fable-5-1",
+  "implementerModel": "claude-opus-5-5",
+  "verdict": "APPROVE-WITH-NOTES",
+  "outputPath": "evidence/p2cg1g2-source-fable-review-20261018.txt",
+  "outputSha256": "f5e75b7a193fda612913a0423045a54f2cc55f9076a362bfaff3462a73b8ac2b",
+  "outputBytes": 18709,
+  "originalPath": "docs/audits/2026-10-18-p2cg1g2-review.md",
+  "originalCheckout": "E:/Projects/Personal/MekStation-wt/review-2250-20261018",
+  "reviewerSubstitution": "One independent full sensitive review round by Claude Fable 5.1 (the owner ruling names it: \"Independent full sensitive review (Fable 5.1)\"), the same substitution for GPT Astra recorded for P2CG1E, P2CG1F, P2CG1G1 and P2CG1G2A. The report header calls the reviewer a \"review sub-agent (claude-fable-5-1)\" working read-only (\"nothing pushed, commented, labelled or merged\"). The reviewer is not the author (Claude Opus 5.5).",
+  "reviewTitle": "# P2CG1G2 independent review — PR #2250 (head 45f6d7e1, base f32626fb)",
+  "reviewHeader": "Reviewer: review sub-agent (claude-fable-5-1), 2026-10-18. Read-only: nothing pushed, commented, labelled or merged. Worktree E:/Projects/Personal/MekStation-wt/review-2250-20261018 (detached at 45f6d7e176daf5fa825b6ecd8dba3958cab8905b; node_modules is a junction to p2cg1g2a-impl-20261018, whose package.json/package-lock.json are byte-identical to the head). Proof logs under E:/Projects/Personal/MekStation-wt/review-2250-proof/ (red.log, green.log, mutants.log, mutant-*.log, seam-attempt1.log, seam-293ae722b.log, madge-seat.log, rv-mutants.cjs). Root checkout E:/Projects/Personal/MekStation untouched.",
+  "verdictText": "## Verdict: APPROVE-WITH-NOTES",
+  "verdictNotes": "No blocking defect. The product bytes match the reduced P2CG1G2 contract (units.json/roadmap.json at the head): all five creators bind expectedCampaignId to the campaign id (which differs from the match id in every runtime row), the identity-first guest join consumes G2A exactly as CF-G2A-5 requires, the registry/seat design (G2-RESEAT-1) is sound under every reseat ordering I could construct, and no path adopts state or events from a foreign campaign. Ledger discipline holds commit by commit; RED (34/129) and GREEN (129/129) reproduce; 32/32 required checks succeed by name on the exact head; the byte-identical controls hold. The notes are six surviving mutants of mine (all test gaps or latent hardening, none a GREEN defect), one latent API hazard in the seat module, one orphaned-socket observation on a practically unreachable path, and the ML6 \"equivalent\" claim which I downgrade to a defence-in-depth test gap.",
+  "reviewClasses": [
+    "authority",
+    "privacy",
+    "replay",
+    "idempotency",
+    "concurrency"
+  ],
+  "reviewClassEvidence": {
+    "note": "The unit's five sensitive review classes with the reviewer's section 3 paragraphs verbatim (the concurrency paragraph is followed by eight reseat-ordering bullets, also verbatim). No class records a defect. Each verdict field is the closure's reading, not reviewer text.",
+    "authority": {
+      "verdict": "PASS",
+      "finding": "**Authority.** The client gains no authority. The guest join reads campaign identity from the server through the verified identity mode and still submits a CampaignJoin that the WS layer gates (seat/revocation unchanged; auth.ts, token.ts, Player.ts untouched). The entry panel validates matchId/campaignId/status before any socket and refuses 400/401/404 finally (E10 rows; no anonymous fallback; exactly one invites request). The launch page never closes a transport it did not create and sends only through a transport bound to its own seat (RV9 caught). The surface refuses a stored transport bound to another campaign on the same match (CF-H16 rows; MSu1/MSu2 and RV9 caught). Bound/unbound join bytes and the numeric legacy ACK are identical before any offer (pinned), so nothing is activated on the wire."
+    },
+    "privacy": {
+      "verdict": "PASS (adds no disclosure; the PRIV-1 correlation stays the B15 hold, neither widened nor narrowed)",
+      "finding": "**Privacy.** Bearer only in the Authorization header, URL exactly ?campaignIdentity=1, cache:'no-store' (E1 row; ME5 caught). No token= anywhere (asserted on every refusal row). No /api/multiplayer/matches/ read (asserted). The resolved campaignId is used for the mirror and the guest campaign; the identity response's layout/status are not stored. The only disclosure in play is G2A's recorded PRIV-1 correlation (campaignId to anyone with a live code and a self-signed bearer), which G2 neither widens nor narrows; it stays a B15 obligation (R-PRIV-1). Error strings shown to the user are the route's constant bodies."
+    },
+    "replay": {
+      "verdict": "PASS with notes (post-adoption filtering of foreign legacy events rests on campaignMirrorStore and the host fold, which G2 does not own; CF-H6 pinned)",
+      "finding": "**Replay.** The guest adopts only the first snapshot whose event.campaignId AND payload.state.campaignId equal the identity-resolved id (MS4 and both \"another campaign\" rows; a mismatch rejects without touching the mirror). The transport's legacy path forwards every campaign frame regardless of campaignId (unchanged from base), so post-adoption filtering of foreign legacy events rests on campaignMirrorStore (applySnapshot/applyEvent refuse a different campaignId once set, lines 265/306) and on the host fold/consumer, which G2 does not own. Snapshot-at-revision-0 semantics are unchanged (applySnapshot(snapshot, 0)). A replacement B's listener is attached only after A's is detached, so a late A frame publishes nothing (pinned). CF-H6 is genuinely pinned: a bound host against a legacy server keeps one socket across remount at 2T, and my re-run of the consumer mutant RM-G9 fails exactly that row (1/129)."
+    },
+    "idempotency": {
+      "verdict": "PASS",
+      "finding": "**Idempotency.** Same-object registration is a no-op without notification (MT3 caught). releaseActiveTransport is identity-guarded so a late A.close() never drops B (MT2 and the stale-timeout row). settle() in the seat wait is re-entrant safe (second call clears nothing new, stopFollowing is idempotent, resolve/reject no-ops). unsubscribe deletes a per-subscription wrapper (RV5 caught). The replacement resend is sent once per seating (ML3 caught, \"exactly once\" row). _resetCampaignSyncTransportsForTest clears observers (MT6 caught)."
+    },
+    "concurrency": {
+      "verdict": "PASS with notes (reentrant attach guard correct but unpinned, RV4; N3 superseded A left open on an unreachable path)",
+      "finding": "**Concurrency / reseat races.** I traced each ordering against the seat module:",
+      "orderings": [
+        "Seat replaced between snapshot and adoption: the wait resolves on A's frame, the foreign takeover lands, the post-await boundCampaignSyncTransport(seat) check refuses (row pinned; RV12 caught: a weaker \"any active transport\" check adopts).",
+        "Same-seat replacement B during the wait: subscribe-then-reconcile follows to B, snapshot heard on B completes the join with no render (pinned). A is left open (note N3).",
+        "Foreign replacement during the wait: the follower detaches from A, seats nothing, the one fixed 10 s timeout rejects, A is closed, the foreign socket is neither adopted nor closed (pinned).",
+        "Unmount mid-join: the per-attempt AbortController rejects the wait, the catch closes A and returns without setState (pinned; ME4 caught).",
+        "Reentrant registry change inside an observer: observers are snapshotted and isolated (MT4/MT5 caught); reconcile re-reads the getter and is idempotent on next === seated; the attach-time reentrancy guard (seated !== next -> off()) is correct but unpinned (RV4 survived).",
+        "Server-initiated close: onclose releases the slot only if it is still the active object and notifies followers (RV6 caught by the CF12 row).",
+        "Registration order: setActiveTransport is the last statement of connectCampaignSyncTransport, after every socket handler is installed, so an observer never sees a half-built transport.",
+        "Cross-campaign binding on the same match: connectStoredCampaignSyncTransport refuses by campaignId (pre-existing G1 logic, now reachable because both surface creators pass expectedCampaignId); boundCampaignSyncTransport additionally checks playerId and role for the launch/entry seats. The stored connect itself still checks only campaignId, not role/playerId (pre-existing; note N5)."
+      ]
+    }
+  },
+  "ledgerDiscipline": {
+    "header": "| Check | Result |",
+    "rows": [
+      "| Base ancestry | f32626fb is an ancestor of the head (merge-base --is-ancestor exit 0); PR baseRefOid = f32626fb |",
+      "| b72d6803 admission | evidence/p2cg1g2-admission-20261018.json + units.json only; no source |",
+      "| fcba7105 RED | five test leaves + red receipt + units.json; the four existing product leaves byte-identical to base (git diff --quiet exit 0) and the seat module absent at that commit |",
+      "| 45f6d7e1 GREEN | five product leaves + local receipt + units.json; no test byte changed after RED (GREEN diff --name-only lists no test) |",
+      "| Manifest | 14 files changed, every one in the frozen 15-entry manifest; the 15th (admission-review .md) is the reserved slot, unwritten. No file outside the manifest |",
+      "| Counted lines | numstat additions: units.json 16, surface 2, transport 46, seat 124, entry 49, launch 69 = **306/500** (matches the receipt) |",
+      "| Caps | 15/15 files, 306/500 lines; no cap exception |",
+      "| units.json edit | only P2CG1G2's own fields (ownershipExceptions, state planned->implementing, baseline, three stage receipt paths); roadmap.json untouched by the PR (carries the S3-split contract) |",
+      "| Unchanged controls (PRIV-1/B15) | joinableLobbies.ts, token.ts, auth.ts, Player.ts, invites/[roomCode].ts, securityBoundary.test.ts byte-identical to base and sha256 equal to the manifest. Also unchanged: useCampaignApplicationConsumer.ts, campaignHostFoldStore.ts and the four G1/F surface suites (CF-G11 fakes intact) |"
+    ]
+  },
+  "reviewReruns": {
+    "idleLine": "Machine idle checked before each heavy run (node scripts/qc/machine-idle.mjs --own-pid 47516 --own-pid <shell>; MACHINE_IDLE every time). Jest: --selectProjects unit --runInBand --cacheDirectory E:/Projects/Personal/MekStation-wt/review-2250-proof/jest-cache. No process killed, no timeout raised.",
+    "header": "| Stage | Expected | Observed |",
+    "rows": [
+      "| RED at fcba7105 (product == base, seat module absent) | 34 failed / 129 | **34 failed, 95 passed, 129 total**: transport 9 (new-API rows: missing seat module / export), entry 14, launch 5, creatorBinding 5, index 1 |",
+      "| GREEN at 45f6d7e1, five G2 suites | 129/129 | **5 suites passed, 129 passed** |",
+      "| CI on exact head | 32 required checks | 32 check runs, all completed/success, names identical to the receipt's expectedNames (CF-H12; comment 6247570491 present) |",
+      "| oxlint on the five product leaves | unchanged | 2 warnings, 0 errors: the pre-existing max-lines on entry panel (507) and transport (687); seat/surface/launch clean |",
+      "| madge from the seat module | no cycle through the seat | 913 files, 171 chains, **0** chains contain campaignSyncTransportSeat |"
+    ],
+    "typecheckNote": "Typecheck not re-run locally; \"Type Check\" and \"Desktop Type Check\" succeeded on the exact head in CI.",
+    "seamAnchors": "Attempt 1 of run 39109741978 failed only in Seam Anchors (and \"Lint and Test\" as its aggregate): e2e/seam-fresh-construction-no-instant-defeat.spec.ts:425 run-to-run marker equality, aliveBySide.player 2 vs 1 from turn 3 \"heat\" on. Attempt 2 passed. G2 touches no e2e/engine/simulation/gameplay file (git diff --stat f32626fb..HEAD -- e2e src/engine src/simulation src/utils/gameplay is empty). The seam journey mounts a single-player campaign, so on the G2 launch page both co-op effects return at the first guard (no coopSession) and the entry panel's join handler is never invoked. The divergence is in battle resolution, not in any co-op surface. The identical assertion failed and passed on rerun on 2026-10-15 for 293ae722b (run 38810066031), a units.json-only commit. **Conclusion: a pre-existing engine-side flake; G2 cannot plausibly affect it.** Carried as CF-G2-9 to the engine/e2e owner, not to this unit."
+  },
+  "findings": {
+    "header": "| # | Severity | Location | Finding |",
+    "items": [
+      {
+        "id": "N1",
+        "severity": "Low (latent API hazard)",
+        "location": "src/lib/campaign/coop/campaignSyncTransportSeat.ts:122",
+        "finding": "waitForSeatCampaignSnapshot registers the abort listener but never checks signal.aborted; a caller passing an already-aborted signal waits for the full timeout or, worse, a snapshot. The entry panel is safe only because of the synchronous throwIfAborted at CampaignCoopEntryPanel.tsx:315 (RV7 shows removing that line survives the suite: no row unmounts during identity resolution). One-line hardening: if (signal.aborted) { reject; return; } before subscribing."
+      },
+      {
+        "id": "N2",
+        "severity": "Low (test gap)",
+        "location": "campaignSyncTransportSeat.ts:30-32",
+        "finding": "The role check in boundCampaignSyncTransport is unpinned (RV1 survived; the author's MS1 pins playerId only). Unreachable today (one player, one role per match in a tab) but part of the registered seat contract."
+      },
+      {
+        "id": "N3",
+        "severity": "Low (observation)",
+        "location": "CampaignCoopEntryPanel.tsx:330-356",
+        "finding": "On a successful join heard through a same-seat replacement B, the superseded A is neither closed nor owned: open socket, running heartbeat, and (legacy) duplicate numeric ACKs from a second socket for the same player. Unreachable today (no second same-seat creator exists before the guest campaign is created); pre-existing registry semantics (base also overwrote without closing)."
+      },
+      {
+        "id": "N4",
+        "severity": "Low (test gap)",
+        "location": "launch.tsx:217-223",
+        "finding": "The replacement resend reads localChoiceRef.current, but the \"exactly once\" row never changes the choice first, so RV10 (resend the default) survives. Add a row: pick command-hq, then reseat, expect command-hq."
+      },
+      {
+        "id": "N5",
+        "severity": "Low (cross-ref)",
+        "location": "campaignSyncTransport.ts:551-555",
+        "finding": "connectStoredCampaignSyncTransport refuses a stored transport only by campaignId; role/playerId mismatches on the same match are returned to the surface as-is. The seat module covers launch/entry; the surface's own binding relies on the consumer's campaignId check. Pre-existing (G1), not a G2 regression."
+      },
+      {
+        "id": "N6",
+        "severity": "Low (test gap)",
+        "location": "launch.tsx:250-253, seat :70-74",
+        "finding": "Listener lifetime after dispose is unpinned: RV11 (cleanup skips stopFollowing) and RV3 (settle keeps following) survive. Observable as a late post-unmount frame publishing participation (RV11) or listener accumulation per join (RV3)."
+      },
+      {
+        "id": "N7",
+        "severity": "Low (liveness, design consequence)",
+        "location": "CampaignCoopRouteSurfaceConnected.tsx:152, 267",
+        "finding": "With CF-H16 delivered, a foreign-bound transport on the same match leaves the surface with no transport and no recovery until that transport closes (the slot stays occupied). Correct refusal; the UX/recovery of that state belongs to the consumer's next owner."
+      },
+      {
+        "id": "N8",
+        "severity": "Info",
+        "location": "evidence/p2cg1g2-local-20261018.json",
+        "finding": "ML6 is not strictly equivalent: with the matchId check removed, a frame carrying a foreign matchId would be published under that foreign key (publishCoopParticipation uses message.matchId), observable by a subscriber on that key. Defence in depth, unpinnable from this page alone; Low. ME6 is equivalent under current wiring (abort only fires on unmount; the suppressed setState has no observer)."
+      }
+    ],
+    "note": "None of N1-N8 is a GREEN defect; N1 is the one I would fix first (one line, seat module owner)."
+  },
+  "carryForwardsClaimedByThePr": {
+    "header": "| CF | Definition (G1/G2A review) | Discharged? |",
+    "rows": [
+      "| CF-G2A-5 | consumer calls exactly ?campaignIdentity=1, bearer only in Authorization (never ?token=), 400/401/404 distinct and final, no anonymous fallback | **Yes.** E1 pins URL+headers+no-store; E10 rows pin each status final with zero sockets, exactly one invites request, no token=. ME5/ME2 caught. |",
+      "| CF-H6 | bound transport vs legacy server: baseline + one legacy event folded, unmount, remount, 2T -> one socket, no rejoin; must catch RM-G9 | **Yes.** creatorBinding \"keeps one healthy socket...\" does exactly this under fake timers; my RM-G9 re-run fails only that row (1/129). |",
+      "| CF-H11 | lint/madge before/after on G2 leaves | **Yes.** 87/0 unchanged per receipt; my spot check: only the two pre-existing max-lines warnings; seat module in 0 of 171 chains. |",
+      "| CF-H12 | verify all required checks by name on the exact head | **Yes.** 32/32 success on 45f6d7e1, multiset identical to expectedNames; comment 6247570491. |",
+      "| CF-H16 | both surface creators pass expectedCampaignId; foreign stored transport refused | **Yes.** Two-line surface change; host/guest refusal rows; MSu1/MSu2/RV9 caught. |",
+      "| CF-H2, CF-H14 | cross-reference only | Correctly left: campaignHostFoldStore.ts and useCampaignApplicationConsumer.ts byte-identical; no mount gated on projected state added. |",
+      "| CF-G2A-4 (MR1/MR4) | route test rows | Correctly routed to B15 (G2A-ROUTE-1); no file added. |",
+      "| CF-G11 | fake suites unchanged, no confirmApplied added | Yes (controls byte-identical). |",
+      "| CF-G4/CF-H7 | consumer quiet-window analysis | Analysis only, as declared; stays with the consumer owner. |"
+    ],
+    "items": [
+      {
+        "id": "CF-G2A-5",
+        "definition": "consumer calls exactly ?campaignIdentity=1, bearer only in Authorization (never ?token=), 400/401/404 distinct and final, no anonymous fallback",
+        "discharged": "**Yes.** E1 pins URL+headers+no-store; E10 rows pin each status final with zero sockets, exactly one invites request, no token=. ME5/ME2 caught."
+      },
+      {
+        "id": "CF-H6",
+        "definition": "bound transport vs legacy server: baseline + one legacy event folded, unmount, remount, 2T -> one socket, no rejoin; must catch RM-G9",
+        "discharged": "**Yes.** creatorBinding \"keeps one healthy socket...\" does exactly this under fake timers; my RM-G9 re-run fails only that row (1/129)."
+      },
+      {
+        "id": "CF-H11",
+        "definition": "lint/madge before/after on G2 leaves",
+        "discharged": "**Yes.** 87/0 unchanged per receipt; my spot check: only the two pre-existing max-lines warnings; seat module in 0 of 171 chains."
+      },
+      {
+        "id": "CF-H12",
+        "definition": "verify all required checks by name on the exact head",
+        "discharged": "**Yes.** 32/32 success on 45f6d7e1, multiset identical to expectedNames; comment 6247570491."
+      },
+      {
+        "id": "CF-H16",
+        "definition": "both surface creators pass expectedCampaignId; foreign stored transport refused",
+        "discharged": "**Yes.** Two-line surface change; host/guest refusal rows; MSu1/MSu2/RV9 caught."
+      },
+      {
+        "id": "CF-H2, CF-H14",
+        "definition": "cross-reference only",
+        "discharged": "Correctly left: campaignHostFoldStore.ts and useCampaignApplicationConsumer.ts byte-identical; no mount gated on projected state added."
+      },
+      {
+        "id": "CF-G2A-4 (MR1/MR4)",
+        "definition": "route test rows",
+        "discharged": "Correctly routed to B15 (G2A-ROUTE-1); no file added."
+      },
+      {
+        "id": "CF-G11",
+        "definition": "fake suites unchanged, no confirmApplied added",
+        "discharged": "Yes (controls byte-identical)."
+      },
+      {
+        "id": "CF-G4/CF-H7",
+        "definition": "consumer quiet-window analysis",
+        "discharged": "Analysis only, as declared; stays with the consumer owner."
+      }
+    ]
+  },
+  "mutationRows": {
+    "runner": "Runner: review-2250-proof/rv-mutants.cjs (string edit of one GREEN file, idle check, five suites, restore, sha verified; tree clean after every run; consumer byte-identical to base afterwards).",
+    "header": "| ID | File | Mutation | Result | Killed by |",
+    "rows": [
+      "| RV1 | seat | boundCampaignSyncTransport ignores role | **SURVIVED** (N2) | - |",
+      "| RV2 | seat | follow disposer never reconciles (listener outlives dispose) | caught 1/129 | transport \"follows a seat from A to B...\" |",
+      "| RV3 | seat | settle keeps following after resolve/reject | **SURVIVED** (N6) | - |",
+      "| RV4 | seat | reentrant attach guard removed | **SURVIVED** (equivalent for every shipped attach; no attach re-enters the registry) | - |",
+      "| RV5 | transport | unsubscribe is a no-op | caught 1/129 | \"isolates a throwing observer and snapshots observers\" |",
+      "| RV6 | transport | server-initiated onclose never releases the slot | caught 1/129 | P2CG1E CF12 row |",
+      "| RV7 | entry | throwIfAborted before the creator removed | **SURVIVED** (N1) | - |",
+      "| RV8 | entry | failure path does not close its own A | caught 1/129 | \"a stale timeout closes only its own transport\" |",
+      "| RV9 | launch | send effect uses the raw active transport, not the bound seat | caught 1/129 | \"sends nothing to ... another campaign\" |",
+      "| RV10 | launch | replacement resend uses the default choice | **SURVIVED** (N4) | - |",
+      "| RV11 | launch | cleanup never calls stopFollowing | **SURVIVED** (N6) | - |",
+      "| RV12 | entry | post-await recheck accepts any active transport | caught 1/129 | \"adopts nothing when the seat is replaced between its snapshot and adoption\" |",
+      "| RM-G9 | consumer (author's, re-run) | heard recorded only for offers | caught 1/129 | CF-H6 row |"
+    ],
+    "summary": "6/12 of mine caught; the six survivors are all test gaps or latent hardening, not GREEN defects. Author's claimed-equivalent survivors: **ME6 equivalent** (agree); **ML6 not strictly equivalent** (N8) but Low.",
+    "survivors": [
+      "RV1",
+      "RV3",
+      "RV4",
+      "RV7",
+      "RV10",
+      "RV11"
+    ],
+    "authorMutants": "24 of 26 caught (author receipt mutationProbes; ME6 and ML6 claimed equivalent, ML6 downgraded by the reviewer to a Low defence-in-depth gap, N8)"
+  },
+  "carryForwards": {
+    "header": "| CF | Owner | Item |",
+    "items": [
+      {
+        "id": "CF-G2-1",
+        "reviewerOwner": "H (next owner of campaignSyncTransportSeat.ts)",
+        "item": "N1: handle an already-aborted signal in waitForSeatCampaignSnapshot; pin \"unmount during identity resolution opens no socket\" in the entry suite.",
+        "status": "open",
+        "directedTo": "P2CG1H, as the next owner of src/lib/campaign/coop/campaignSyncTransportSeat.ts: handle an already-aborted signal in waitForSeatCampaignSnapshot and pin \"unmount during identity resolution opens no socket\" in the entry suite (N1; reviewer mutant RV7 survived). Recorded under successorNotes.P2CG1H; no P2CG1H field is edited."
+      },
+      {
+        "id": "CF-G2-2",
+        "reviewerOwner": "H",
+        "item": "N2: pin the role check (same match/campaign/player, other role -> not bound).",
+        "status": "open",
+        "directedTo": "P2CG1H: pin the role check in boundCampaignSyncTransport (same match, campaign and player, other role -> not bound) (N2; RV1 survived). Recorded under successorNotes.P2CG1H."
+      },
+      {
+        "id": "CF-G2-3",
+        "reviewerOwner": "H / R",
+        "item": "N3: decide ownership of a superseded same-seat A after a successful join through B (close it, or have the registry close the displaced object when the seat is identical).",
+        "status": "open",
+        "directedTo": "P2CG1H or P2CG1R, as tabulated (\"H / R\"): decide ownership of a superseded same-seat transport A after a successful join heard through B (close it, or have the registry close the displaced object when the seat is identical) (N3). Recorded under successorNotes.P2CG1H and successorNotes.P2CG1R; whichever of the two first owns the entry panel or the transport registry carries it."
+      },
+      {
+        "id": "CF-G2-4",
+        "reviewerOwner": "H",
+        "item": "N4: pin the replacement resend with a changed choice (command-hq) so RV10 dies.",
+        "status": "open",
+        "directedTo": "P2CG1H: pin the launch-page replacement resend with a changed choice (pick command-hq, reseat, expect command-hq) so RV10 dies (N4). Recorded under successorNotes.P2CG1H."
+      },
+      {
+        "id": "CF-G2-5",
+        "reviewerOwner": "H",
+        "item": "N6: pin listener lifetime after dispose (late post-unmount frame publishes nothing; one listener per join on the transport).",
+        "status": "open",
+        "directedTo": "P2CG1H: pin listener lifetime after dispose (a late post-unmount frame publishes nothing; one listener per join on the transport) (N6; RV3 and RV11 survived). Recorded under successorNotes.P2CG1H."
+      },
+      {
+        "id": "CF-G2-6",
+        "reviewerOwner": "H (consumer owner)",
+        "item": "N7: recovery/UX for the surface when the stored transport on the same match is bound to another campaign (CF-H16 refusal leaves it offline).",
+        "status": "open",
+        "directedTo": "P2CG1H, the consumer owner: recovery/UX for the surface when the stored transport on the same match is bound to another campaign, which the delivered CF-H16 refusal leaves offline (N7). Recorded under successorNotes.P2CG1H."
+      },
+      {
+        "id": "CF-G2-7",
+        "reviewerOwner": "H",
+        "item": "N5: connectStoredCampaignSyncTransport refuses by campaignId only; consider role/playerId in the stored refusal or route the surface through boundCampaignSyncTransport.",
+        "status": "open",
+        "directedTo": "P2CG1H: connectStoredCampaignSyncTransport refuses a stored transport by campaignId only; consider role/playerId in the stored refusal or route the surface through boundCampaignSyncTransport (N5, pre-existing since P2CG1G1). Recorded under successorNotes.P2CG1H."
+      },
+      {
+        "id": "CF-G2-8",
+        "reviewerOwner": "I1-I4 / P2CG2",
+        "item": "ML6 defence-in-depth: a cross-match participation frame must never publish under a foreign key; pin once a multi-match page exists.",
+        "status": "open",
+        "directedTo": "P2CG1I1-P2CG1I4 / P2CG2, as tabulated: once a multi-match page exists, pin that a cross-match participation frame never publishes under a foreign key (ML6 defence in depth, N8). Recorded under successorNotes.P2CG1I1toI4AndP2CG2; none of those units is edited."
+      },
+      {
+        "id": "CF-G2-9",
+        "reviewerOwner": "S (engine/e2e)",
+        "item": "Seam Anchors :425 same-seed marker inequality is a recurring flake (also 2026-10-15 on a docs-only commit); not a G2 defect.",
+        "status": "open",
+        "directedTo": "As tabulated, \"S (engine/e2e)\": the engine/e2e owner of e2e/seam-fresh-construction-no-instant-defeat.spec.ts:425 (same-seed run-to-run marker inequality, aliveBySide.player 2 vs 1 from turn 3 heat), a recurring flake (failed then passed on rerun for the units.json-only 293ae722b in run 38810066031 on 2026-10-15, and for this head in run 39109741978 attempt 1). Recorded under successorNotes.P2CG1S as routed; the registered P2CG1S (live-wire spectator sealed-choice privacy) does not own that spec or the battle-resolution path, so the item binds whichever unit next owns the seam spec or that engine path (Root note G2-SEAM-1). Not a P2CG1G2 defect; no unit is edited."
+      },
+      {
+        "id": "CF-G2-10",
+        "reviewerOwner": "B15",
+        "item": "Unchanged from G2A: PRIV-1 campaignId correlation, MR1/MR4 route rows, CF-G2A-1/2/3/6.",
+        "status": "open",
+        "directedTo": "B15, unchanged from P2CG1G2A: the PRIV-1 campaignId correlation (the R-PRIV-1 hold on B15-6), the MR1/MR4 route rows (CF-G2A-4, re-routed by G2A-ROUTE-1) and CF-G2A-1, 2, 3 and 6, as recorded in evidence/p2cg1g2a-review-20261018.json. Reduced P2CG1G2 neither widened nor narrowed PRIV-1 (review section 3, Privacy). Recorded under successorNotes.B15; no B15 unit is edited."
+      },
+      {
+        "id": "CF-G2-11",
+        "reviewerOwner": "B14-0 / HP",
+        "item": "Post-merge: exact-main proof must run on the actual merge commit and CF-H12 re-read there (CF-G2A-7 pattern).",
+        "status": "closed at this closure (routed as tabulated)",
+        "directedTo": "Routed as tabulated to B14-0 / P2CG1HP; its substance is satisfied by this closure. The exact-main proof ran on the actual merge commit cc98179e4d77024651bf1a16c63f077d64337273 (first parent cf42ab56, after the docs-only #2251), and CF-H12 was re-read for that merge: the 32 PR checks ran on the merged head 45f6d7e1 (pull_request event) and were verified by name; pr-checks.yml does not run on the push to main, so the merge commit carries only the push workflows, recorded in the merge receipt (mergeCommitCheckRuns). Nothing from this item remains open for B14-0 or P2CG1HP beyond the standing pattern that each later unit runs its own exact-main proof on its own merge commit."
+      }
+    ],
+    "noBlock": "No carry-forward blocks merge.",
+    "p2cg1h": [
+      "CF-G2-1",
+      "CF-G2-2",
+      "CF-G2-3",
+      "CF-G2-4",
+      "CF-G2-5",
+      "CF-G2-6",
+      "CF-G2-7"
+    ],
+    "p2cg1r": [
+      "CF-G2-3"
+    ],
+    "p2cg1s": [
+      "CF-G2-9"
+    ],
+    "p2cg1iAndP2cg2": [
+      "CF-G2-8"
+    ],
+    "b15": [
+      "CF-G2-10"
+    ],
+    "b14AndHp": [
+      "CF-G2-11"
+    ],
+    "closedAtClosure": [
+      "CF-G2-11"
+    ],
+    "note": "id, reviewerOwner and item are the reviewer's section 7 table cells verbatim. status and directedTo are closure text and follow the owner ruling's routing (as tabulated: H, R, S, B15, B14-0/HP, I1-I4/P2CG2). H is P2CG1H, R P2CG1R, HP P2CG1HP and I1-I4 P2CG1I1-P2CG1I4. S is recorded under P2CG1S as routed with the owner clarified (G2-SEAM-1)."
+  },
+  "carryForwardLedger": {
+    "deliveredByThisUnit": [
+      {
+        "id": "CF-G2A-5",
+        "closedBy": "reduced P2CG1G2 before merge (PR #2250, head 45f6d7e1)",
+        "reviewerSection5": {
+          "id": "CF-G2A-5",
+          "definition": "consumer calls exactly ?campaignIdentity=1, bearer only in Authorization (never ?token=), 400/401/404 distinct and final, no anonymous fallback",
+          "discharged": "**Yes.** E1 pins URL+headers+no-store; E10 rows pin each status final with zero sockets, exactly one invites request, no token=. ME5/ME2 caught."
+        }
+      },
+      {
+        "id": "CF-H6",
+        "closedBy": "reduced P2CG1G2 before merge (PR #2250, head 45f6d7e1)",
+        "reviewerSection5": {
+          "id": "CF-H6",
+          "definition": "bound transport vs legacy server: baseline + one legacy event folded, unmount, remount, 2T -> one socket, no rejoin; must catch RM-G9",
+          "discharged": "**Yes.** creatorBinding \"keeps one healthy socket...\" does exactly this under fake timers; my RM-G9 re-run fails only that row (1/129)."
+        }
+      },
+      {
+        "id": "CF-H11",
+        "closedBy": "reduced P2CG1G2 before merge (PR #2250, head 45f6d7e1)",
+        "reviewerSection5": {
+          "id": "CF-H11",
+          "definition": "lint/madge before/after on G2 leaves",
+          "discharged": "**Yes.** 87/0 unchanged per receipt; my spot check: only the two pre-existing max-lines warnings; seat module in 0 of 171 chains."
+        }
+      },
+      {
+        "id": "CF-H12",
+        "closedBy": "reduced P2CG1G2 before merge (PR #2250, head 45f6d7e1)",
+        "reviewerSection5": {
+          "id": "CF-H12",
+          "definition": "verify all required checks by name on the exact head",
+          "discharged": "**Yes.** 32/32 success on 45f6d7e1, multiset identical to expectedNames; comment 6247570491."
+        }
+      },
+      {
+        "id": "CF-H16",
+        "closedBy": "reduced P2CG1G2 before merge (PR #2250, head 45f6d7e1)",
+        "reviewerSection5": {
+          "id": "CF-H16",
+          "definition": "both surface creators pass expectedCampaignId; foreign stored transport refused",
+          "discharged": "**Yes.** Two-line surface change; host/guest refusal rows; MSu1/MSu2/RV9 caught."
+        }
+      }
+    ],
+    "deliveredNote": "Delivered by reduced P2CG1G2 and confirmed by the reviewer (section 5, \"Yes.\") and the owner ruling (\"Carry-forwards genuinely discharged: CF-G2A-5, CF-H6, CF-H11, CF-H12, CF-H16\"). CF-H12 is discharged for this head; checking every required check by name on the exact head remains the practice for each later unit.",
+    "crossReferencedOnly": [
+      "CF-H2",
+      "CF-H14"
+    ],
+    "stillOpenFromP2CG1G1": [
+      {
+        "id": "CF-H2",
+        "concern": "single-slot lineage versus per-transport heard mark",
+        "statusAfterG1Round2": "open",
+        "round2Owner": "next owner of campaignHostFoldStore.ts; the surface is a G2 leaf",
+        "directedTo": "next owner of campaignHostFoldStore.ts (a P2CG1G1 leaf; neither P2CG1G2A nor reduced P2CG1G2 lists it among its literal leaves); the surface it names is a reduced-P2CG1G2 leaf, so it is cross-referenced under successorNotes.P2CG1G2",
+        "statusAtThisClosure": "open, unchanged by reduced P2CG1G2",
+        "ownerFilesUnchangedBaseToMerge": [
+          "src/lib/campaign/coop/campaignHostFoldStore.ts"
+        ],
+        "note": "Reduced P2CG1G2 changed none of its owner files (src/lib/campaign/coop/campaignHostFoldStore.ts). Cross-referenced by reduced P2CG1G2 only (review section 5: the owner file is byte-identical)."
+      },
+      {
+        "id": "CF-H5",
+        "concern": "one activity predicate",
+        "statusAfterG1Round2": "open",
+        "round2Owner": "store + consumer owner",
+        "directedTo": "next owner of campaignHostFoldStore.ts and useCampaignApplicationConsumer.ts (P2CG1G1 leaves; neither P2CG1G2A nor reduced P2CG1G2 lists it among its literal leaves, and reduced P2CG1G2 makes no consumer edit)",
+        "statusAtThisClosure": "open, unchanged by reduced P2CG1G2",
+        "ownerFilesUnchangedBaseToMerge": [
+          "src/lib/campaign/coop/campaignHostFoldStore.ts",
+          "src/components/campaign/coop/useCampaignApplicationConsumer.ts"
+        ],
+        "note": "Reduced P2CG1G2 changed none of its owner files (src/lib/campaign/coop/campaignHostFoldStore.ts, src/components/campaign/coop/useCampaignApplicationConsumer.ts)."
+      },
+      {
+        "id": "CF-H7",
+        "concern": "quiet-window cycle bound",
+        "statusAfterG1Round2": "open",
+        "round2Owner": "consumer owner, at or before P2CG1H",
+        "directedTo": "next owner of useCampaignApplicationConsumer.ts, at or before P2CG1H (CF-G4 carried; reduced P2CG1G2 makes no consumer edit and its behaviour text keeps CF-G4 with that owner); deadline cross-referenced under successorNotes.P2CG1H",
+        "statusAtThisClosure": "open, unchanged by reduced P2CG1G2",
+        "ownerFilesUnchangedBaseToMerge": [
+          "src/components/campaign/coop/useCampaignApplicationConsumer.ts"
+        ],
+        "note": "Reduced P2CG1G2 changed none of its owner files (src/components/campaign/coop/useCampaignApplicationConsumer.ts). P2CG1HP (registered by #2249) names CF-H7/CF-G4 in its behaviour text; its owner and deadline are as recorded, and P2CG1HP is not edited here."
+      },
+      {
+        "id": "CF-H8",
+        "concern": "binder exclusivity pin",
+        "statusAfterG1Round2": "open (unchanged)",
+        "round2Owner": "bindCampaignSyncConnection.test.ts owner or P2CG1H",
+        "directedTo": "next owner of bindCampaignSyncConnection.test.ts (a P2CG1D leaf), or P2CG1H (CF-G5 carried; H-directed; cross-referenced under successorNotes.P2CG1H)",
+        "statusAtThisClosure": "open, unchanged by reduced P2CG1G2",
+        "ownerFilesUnchangedBaseToMerge": [
+          "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts"
+        ],
+        "note": "Reduced P2CG1G2 changed none of its owner files (src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts). P2CG1HP (registered by #2249) names CF-H8/CF-G5 in its behaviour text; its owner and deadline are as recorded, and P2CG1HP is not edited here."
+      },
+      {
+        "id": "CF-H9",
+        "concern": "adoption versus a newer guarded row",
+        "statusAfterG1Round2": "open (unchanged)",
+        "round2Owner": "useCampaignPersistenceStore.ts owner",
+        "directedTo": "next owner of useCampaignPersistenceStore.ts (a P2CG1F leaf; CF-G6 carried)",
+        "statusAtThisClosure": "open, unchanged by reduced P2CG1G2",
+        "ownerFilesUnchangedBaseToMerge": [
+          "src/stores/campaign/useCampaignPersistenceStore.ts"
+        ],
+        "note": "Reduced P2CG1G2 changed none of its owner files (src/stores/campaign/useCampaignPersistenceStore.ts)."
+      },
+      {
+        "id": "CF-H10",
+        "concern": "RED shape of the CF-F3 quiet case",
+        "statusAfterG1Round2": "open (unchanged)",
+        "round2Owner": "hostRecordRefresh.test.tsx owner",
+        "directedTo": "next owner of CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx (a P2CG1F leaf; CF-G7 carried)",
+        "statusAtThisClosure": "open, unchanged by reduced P2CG1G2",
+        "ownerFilesUnchangedBaseToMerge": [
+          "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx"
+        ],
+        "note": "Reduced P2CG1G2 changed none of its owner files (src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx)."
+      },
+      {
+        "id": "CF-H13",
+        "concern": "store holds one transport strongly",
+        "statusAfterG1Round2": "open (optional)",
+        "round2Owner": null,
+        "directedTo": "optional; next owner of campaignHostFoldStore.ts (neither P2CG1G2A nor reduced P2CG1G2 lists it among its literal leaves)",
+        "statusAtThisClosure": "open, unchanged by reduced P2CG1G2",
+        "ownerFilesUnchangedBaseToMerge": [
+          "src/lib/campaign/coop/campaignHostFoldStore.ts"
+        ],
+        "note": "Reduced P2CG1G2 changed none of its owner files (src/lib/campaign/coop/campaignHostFoldStore.ts)."
+      },
+      {
+        "id": "CF-H14",
+        "concern": "new; spurious cut after a confirmed settle, latent",
+        "statusAfterG1Round2": "new",
+        "round2Owner": "next owner of useCampaignApplicationConsumer.ts; before any mount that gates on projected state, and in any case at or before P2CG1H",
+        "directedTo": "next owner of useCampaignApplicationConsumer.ts, before any mount that gates on projected state and in any case at or before P2CG1H; deadline cross-referenced under successorNotes.P2CG1H and flagged for reduced P2CG1G2 should it add such a mount",
+        "statusAtThisClosure": "open, unchanged by reduced P2CG1G2",
+        "ownerFilesUnchangedBaseToMerge": [
+          "src/components/campaign/coop/useCampaignApplicationConsumer.ts"
+        ],
+        "note": "Reduced P2CG1G2 changed none of its owner files (src/components/campaign/coop/useCampaignApplicationConsumer.ts). Cross-referenced by reduced P2CG1G2 only (review section 5: the owner file is byte-identical). P2CG1HP (registered by #2249) names CF-H14 in its behaviour text; its owner and deadline are as recorded, and P2CG1HP is not edited here."
+      },
+      {
+        "id": "CF-H15",
+        "concern": "new; same-tick dispose pin",
+        "statusAfterG1Round2": "new",
+        "round2Owner": "next owner of hostProjection.test.tsx",
+        "directedTo": "next owner of CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx (a P2CG1G1 leaf; neither P2CG1G2A nor reduced P2CG1G2 lists it among its literal leaves; reduced P2CG1G2 keeps the G1 and F suites unchanged)",
+        "statusAtThisClosure": "open, unchanged by reduced P2CG1G2",
+        "ownerFilesUnchangedBaseToMerge": [
+          "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx"
+        ],
+        "note": "Reduced P2CG1G2 changed none of its owner files (src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx). P2CG1HP (registered by #2249) names CF-H15 in its behaviour text; its owner and deadline are as recorded, and P2CG1HP is not edited here."
+      },
+      {
+        "id": "CF-H17",
+        "concern": "new, optional; re-projection at a cut remount",
+        "statusAfterG1Round2": "new (optional)",
+        "round2Owner": "surface/store owner",
+        "directedTo": "optional; surface/store owner (record, do not chase, as the review says)",
+        "statusAtThisClosure": "open, unchanged by reduced P2CG1G2",
+        "ownerFilesUnchangedBaseToMerge": [],
+        "note": "Reduced P2CG1G2 changed none of its owner files (none named)."
+      }
+    ],
+    "stillOpenFromP2CG1G2A": [
+      {
+        "id": "CF-G2A-1",
+        "status": "open",
+        "directedTo": "B15 (remote hosting): an abuse budget / rate limiter on the invite route in both modes before any non-loopback hosting claim (F9). Routed as the owner ruling writes (\"B15 (rate limiter ...)\"). Recorded under successorNotes.B15; no B15 unit is edited here."
+      },
+      {
+        "id": "CF-G2A-2",
+        "status": "open",
+        "directedTo": "B15: the R-PRIV-1 remote/tunnel readiness obligation recorded on B15-6 by #2245 (fix in joinableLobbies.ts / session creation) must also close the co-op-ness bit (review section 7 item 1) and the campaignId correlation, then re-verify that a non-member with a listed code gets 404/401 in identity mode. Routed as the owner ruling writes (\"PRIV-1 fix including the co-op bit\")."
+      },
+      {
+        "id": "CF-G2A-3",
+        "status": "open",
+        "directedTo": "B15 auth hardening: strict base64 in decodeTokenFromWire (src/types/multiplayer/Player.ts, a leaf of neither P2CG1G2A nor reduced P2CG1G2) (F4). Routed as the owner ruling writes (\"strict wire decode\")."
+      },
+      {
+        "id": "CF-G2A-4",
+        "status": "open (re-routed by parent ruling)",
+        "directedTo": "B15 auth hardening, NOT reduced P2CG1G2 (Root routing note G2A-ROUTE-1, parent ruling 2026-10-18): the lowercase-scheme and empty-string-campaignId rows that kill MR1 and MR4 belong to whoever next owns src/__tests__/api/securityBoundary.test.ts and the invite route under B15 auth hardening (F1, F2)."
+      },
+      {
+        "id": "CF-G2A-6",
+        "status": "open",
+        "directedTo": "B15: consider logging the verified playerId (logger.ts, not console) on identity-mode success so the gate provides accountability. Routed as the owner ruling writes (\"accountability logging\")."
+      }
+    ],
+    "g2aClosedEarlier": [
+      "CF-G2A-7 (closed at the P2CG1G2A closure)"
+    ],
+    "notRoutedHere": {
+      "CF-G2A-4": "not absorbed by reduced P2CG1G2; stays with B15 auth hardening (G2A-ROUTE-1), restated in CF-G2-10",
+      "CF-G11": "G1 fake suites unchanged, no confirmApplied added (review section 5)",
+      "CF-G4/CF-H7": "analysis only in P2CG1G2; stays with the consumer owner at or before P2CG1H, and P2CG1HP names it"
+    },
+    "priorNotes": "H-OPEN-1, CF-E1, CF-E5 and CF-E6 remain recorded in evidence/p2cg1d-review-20261017.json, CF-F9 in evidence/p2cg1e-review-20261018.json and CF-G5 (now CF-H8) in evidence/p2cg1f-review-20261018.json, as evidence/p2cg1g1-review-20261018.json successorNotes.P2CG1H.priorNotes lists them; this closure neither restates nor changes them. P2CG1R, released here, names H-OPEN-1 / CF-E1 in its own behaviour text."
+  },
+  "reviewerProofLogs": {
+    "note": "The reviewer's disposable proof directory outside any repository (named in the report header), referenced by path, sha256 and size at closure time; its jest-cache subdirectory is not listed. Not re-run by this closure.",
+    "files": [
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2250-proof/batch2.err",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2250-proof/batch2.out",
+        "sha256": "871538739ca8cdfe8b210328fec79ca6f4f175095fac1d5057c229c2e855dc8b",
+        "bytes": 881
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2250-proof/green.log",
+        "sha256": "571173400a9e0f300f8f193dde65b2299bd08c1703e36dd638f60a7cff62f6bd",
+        "bytes": 2690
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2250-proof/madge-seat.log",
+        "sha256": "de70f722bb8021bb34ae8b12aba3072951bdf194bae5f9e679877c46e40acc69",
+        "bytes": 249844
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2250-proof/mutant-RM-G9.log",
+        "sha256": "90a55ab36c14a48dafe8377e78c334afccbe157c255d21d35484cfb45f86de3e",
+        "bytes": 3107
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2250-proof/mutant-RV1.log",
+        "sha256": "0dd69a04ba1f88b54119daed9eaa3f37a358ad2006b1b534a1ce62af0c2d9b3c",
+        "bytes": 973
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2250-proof/mutant-RV10.log",
+        "sha256": "cdf67a00f72ea0bc88f333f882c703fff8574fcc3b2df6041a6014a6e435144b",
+        "bytes": 988
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2250-proof/mutant-RV11.log",
+        "sha256": "6411776bb2f47c27afdd9dddc84f6afdd5edfd30456b27442d12c6c177d8cc3c",
+        "bytes": 973
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2250-proof/mutant-RV12.log",
+        "sha256": "02526b2e22bc0404c27aa725db35d395a11c7880cf2e3987a8bee742b7e2fe1f",
+        "bytes": 2028
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2250-proof/mutant-RV2.log",
+        "sha256": "ab219d834f85c1e3d6707a4fd882fb1e6b5ab0c4f61ce9175d1eb6e2219eb0bc",
+        "bytes": 2540
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2250-proof/mutant-RV3.log",
+        "sha256": "b75344006d6e6e0510ba4d3af3b4943d7ca99f027a3d668a918e1c811143c052",
+        "bytes": 989
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2250-proof/mutant-RV4.log",
+        "sha256": "3d13560aac53f5ef20712f813e606a711bcaa8af0120337dfc61c7f6c3096f8c",
+        "bytes": 988
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2250-proof/mutant-RV5.log",
+        "sha256": "a7bfaf06930f0fcdba720a2dc87240f98476af36550537c17d16b205c90607b8",
+        "bytes": 1742
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2250-proof/mutant-RV6.log",
+        "sha256": "56decf196c402f5f0c2b315308c71d612362d38cbb4e2ea534d99265863e7c2d",
+        "bytes": 2227
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2250-proof/mutant-RV7.log",
+        "sha256": "9d11724860b0a76c40e31173dc5a4e5425c25becadb09679f5fe9803366a0cf7",
+        "bytes": 988
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2250-proof/mutant-RV8.log",
+        "sha256": "ca2cdd1f366cdbc399904926762871771bfe194277d820833b9113a942a3a1c5",
+        "bytes": 1711
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2250-proof/mutant-RV9.log",
+        "sha256": "400bbd465cf582a7ec5f34549eb96ef91549c68edc254552bd97ef62f7267c17",
+        "bytes": 2093
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2250-proof/mutants.log",
+        "sha256": "33b1512b437ca6b3f4dd35750d36945cc562813cf1cf8a7782a05a9ec027eb6e",
+        "bytes": 1579
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2250-proof/red.log",
+        "sha256": "d1208d821eadec85ac14296d0c3b0ac7435cddc04772918a8da4160f411cf90f",
+        "bytes": 110046
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2250-proof/rv-mutants.cjs",
+        "sha256": "09711b885150023fa8fb36432293deaed11a831094012f5af040ff11248aafd5",
+        "bytes": 6037
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2250-proof/seam-293ae722b.log",
+        "sha256": "09863f107b51c117415e291378eafb43ef6c6c7b25d383bd97e380405d6be1da",
+        "bytes": 172378
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2250-proof/seam-attempt1.log",
+        "sha256": "e755990df0b8835b467cd7da6055e77ab8265fe0d6033ba079b8f14b7cecf097",
+        "bytes": 171648
+      }
+    ]
+  },
+  "successorNotes": {
+    "P2CG1R": {
+      "carryForwards": [
+        {
+          "id": "CF-G2-3",
+          "reviewerOwner": "H / R",
+          "item": "N3: decide ownership of a superseded same-seat A after a successful join through B (close it, or have the registry close the displaced object when the seat is identical).",
+          "status": "open",
+          "directedTo": "P2CG1H or P2CG1R, as tabulated (\"H / R\"): decide ownership of a superseded same-seat transport A after a successful join heard through B (close it, or have the registry close the displaced object when the seat is identical) (N3). Recorded under successorNotes.P2CG1H and successorNotes.P2CG1R; whichever of the two first owns the entry panel or the transport registry carries it."
+        }
+      ],
+      "state": "P2CG1R moves from blocked to planned in this change set (successorRelease). Its behaviour text and every other field are not edited."
+    },
+    "P2CG1H": {
+      "carryForwards": [
+        {
+          "id": "CF-G2-1",
+          "reviewerOwner": "H (next owner of campaignSyncTransportSeat.ts)",
+          "item": "N1: handle an already-aborted signal in waitForSeatCampaignSnapshot; pin \"unmount during identity resolution opens no socket\" in the entry suite.",
+          "status": "open",
+          "directedTo": "P2CG1H, as the next owner of src/lib/campaign/coop/campaignSyncTransportSeat.ts: handle an already-aborted signal in waitForSeatCampaignSnapshot and pin \"unmount during identity resolution opens no socket\" in the entry suite (N1; reviewer mutant RV7 survived). Recorded under successorNotes.P2CG1H; no P2CG1H field is edited."
+        },
+        {
+          "id": "CF-G2-2",
+          "reviewerOwner": "H",
+          "item": "N2: pin the role check (same match/campaign/player, other role -> not bound).",
+          "status": "open",
+          "directedTo": "P2CG1H: pin the role check in boundCampaignSyncTransport (same match, campaign and player, other role -> not bound) (N2; RV1 survived). Recorded under successorNotes.P2CG1H."
+        },
+        {
+          "id": "CF-G2-3",
+          "reviewerOwner": "H / R",
+          "item": "N3: decide ownership of a superseded same-seat A after a successful join through B (close it, or have the registry close the displaced object when the seat is identical).",
+          "status": "open",
+          "directedTo": "P2CG1H or P2CG1R, as tabulated (\"H / R\"): decide ownership of a superseded same-seat transport A after a successful join heard through B (close it, or have the registry close the displaced object when the seat is identical) (N3). Recorded under successorNotes.P2CG1H and successorNotes.P2CG1R; whichever of the two first owns the entry panel or the transport registry carries it."
+        },
+        {
+          "id": "CF-G2-4",
+          "reviewerOwner": "H",
+          "item": "N4: pin the replacement resend with a changed choice (command-hq) so RV10 dies.",
+          "status": "open",
+          "directedTo": "P2CG1H: pin the launch-page replacement resend with a changed choice (pick command-hq, reseat, expect command-hq) so RV10 dies (N4). Recorded under successorNotes.P2CG1H."
+        },
+        {
+          "id": "CF-G2-5",
+          "reviewerOwner": "H",
+          "item": "N6: pin listener lifetime after dispose (late post-unmount frame publishes nothing; one listener per join on the transport).",
+          "status": "open",
+          "directedTo": "P2CG1H: pin listener lifetime after dispose (a late post-unmount frame publishes nothing; one listener per join on the transport) (N6; RV3 and RV11 survived). Recorded under successorNotes.P2CG1H."
+        },
+        {
+          "id": "CF-G2-6",
+          "reviewerOwner": "H (consumer owner)",
+          "item": "N7: recovery/UX for the surface when the stored transport on the same match is bound to another campaign (CF-H16 refusal leaves it offline).",
+          "status": "open",
+          "directedTo": "P2CG1H, the consumer owner: recovery/UX for the surface when the stored transport on the same match is bound to another campaign, which the delivered CF-H16 refusal leaves offline (N7). Recorded under successorNotes.P2CG1H."
+        },
+        {
+          "id": "CF-G2-7",
+          "reviewerOwner": "H",
+          "item": "N5: connectStoredCampaignSyncTransport refuses by campaignId only; consider role/playerId in the stored refusal or route the surface through boundCampaignSyncTransport.",
+          "status": "open",
+          "directedTo": "P2CG1H: connectStoredCampaignSyncTransport refuses a stored transport by campaignId only; consider role/playerId in the stored refusal or route the surface through boundCampaignSyncTransport (N5, pre-existing since P2CG1G1). Recorded under successorNotes.P2CG1H."
+        }
+      ],
+      "stillOpenDueAtOrBeforeH": [
+        "CF-H7",
+        "CF-H14"
+      ],
+      "note": "P2CG1H stays blocked and is not edited. CF-G2-1..7 are recorded for it (CF-G2-3 shared with P2CG1R). The G1 carry-forwards CF-H7 and CF-H14 (due at or before P2CG1H) and CF-H8 stay as recorded in evidence/p2cg1g1-review-20261018.json; P2CG1HP names CF-H7/CF-G4, CF-H14, CF-H15 and CF-H8/CF-G5 in its registered behaviour text."
+    },
+    "P2CG1S": {
+      "carryForwards": [
+        {
+          "id": "CF-G2-9",
+          "reviewerOwner": "S (engine/e2e)",
+          "item": "Seam Anchors :425 same-seed marker inequality is a recurring flake (also 2026-10-15 on a docs-only commit); not a G2 defect.",
+          "status": "open",
+          "directedTo": "As tabulated, \"S (engine/e2e)\": the engine/e2e owner of e2e/seam-fresh-construction-no-instant-defeat.spec.ts:425 (same-seed run-to-run marker inequality, aliveBySide.player 2 vs 1 from turn 3 heat), a recurring flake (failed then passed on rerun for the units.json-only 293ae722b in run 38810066031 on 2026-10-15, and for this head in run 39109741978 attempt 1). Recorded under successorNotes.P2CG1S as routed; the registered P2CG1S (live-wire spectator sealed-choice privacy) does not own that spec or the battle-resolution path, so the item binds whichever unit next owns the seam spec or that engine path (Root note G2-SEAM-1). Not a P2CG1G2 defect; no unit is edited."
+        }
+      ],
+      "note": "Seam Anchors flake, recorded for its owner (CF-G2-9). Attempt 1 of run 39109741978 failed only in Seam Anchors (e2e/seam-fresh-construction-no-instant-defeat.spec.ts:425, run-to-run marker equality, aliveBySide.player 2 vs 1 from turn 3 heat) and its aggregate Lint and Test; attempt 2 passed. The reviewer found that P2CG1G2 touches no e2e, engine, simulation or gameplay file, that on a single-player campaign both G2 co-op effects return at the first guard, and that the identical assertion failed and passed on rerun for the units.json-only 293ae722b (run 38810066031, 2026-10-15); its logs are kept as seam-attempt1.log and seam-293ae722b.log in the reviewer proof directory (reviewerProofLogs). The ruling accepts it as an engine-side flake unrelated to G2. The reviewer routes it to \"S (engine/e2e)\"; P2CG1S as registered is the live-wire spectator sealed-choice privacy repair and does not own that spec, so this closure records it under successorNotes.P2CG1S as routed and names the real owner as whichever unit next owns the seam spec or the battle-resolution path. No unit is edited for it."
+    },
+    "P2CG1I1toI4AndP2CG2": {
+      "carryForwards": [
+        {
+          "id": "CF-G2-8",
+          "reviewerOwner": "I1-I4 / P2CG2",
+          "item": "ML6 defence-in-depth: a cross-match participation frame must never publish under a foreign key; pin once a multi-match page exists.",
+          "status": "open",
+          "directedTo": "P2CG1I1-P2CG1I4 / P2CG2, as tabulated: once a multi-match page exists, pin that a cross-match participation frame never publishes under a foreign key (ML6 defence in depth, N8). Recorded under successorNotes.P2CG1I1toI4AndP2CG2; none of those units is edited."
+        }
+      ],
+      "note": "Recorded for P2CG1I1-P2CG1I4 and P2CG2 as tabulated; none is edited."
+    },
+    "B15": {
+      "carryForwards": [
+        {
+          "id": "CF-G2-10",
+          "reviewerOwner": "B15",
+          "item": "Unchanged from G2A: PRIV-1 campaignId correlation, MR1/MR4 route rows, CF-G2A-1/2/3/6.",
+          "status": "open",
+          "directedTo": "B15, unchanged from P2CG1G2A: the PRIV-1 campaignId correlation (the R-PRIV-1 hold on B15-6), the MR1/MR4 route rows (CF-G2A-4, re-routed by G2A-ROUTE-1) and CF-G2A-1, 2, 3 and 6, as recorded in evidence/p2cg1g2a-review-20261018.json. Reduced P2CG1G2 neither widened nor narrowed PRIV-1 (review section 3, Privacy). Recorded under successorNotes.B15; no B15 unit is edited."
+        }
+      ],
+      "stillOpenFromP2CG1G2A": [
+        {
+          "id": "CF-G2A-1",
+          "status": "open",
+          "directedTo": "B15 (remote hosting): an abuse budget / rate limiter on the invite route in both modes before any non-loopback hosting claim (F9). Routed as the owner ruling writes (\"B15 (rate limiter ...)\"). Recorded under successorNotes.B15; no B15 unit is edited here."
+        },
+        {
+          "id": "CF-G2A-2",
+          "status": "open",
+          "directedTo": "B15: the R-PRIV-1 remote/tunnel readiness obligation recorded on B15-6 by #2245 (fix in joinableLobbies.ts / session creation) must also close the co-op-ness bit (review section 7 item 1) and the campaignId correlation, then re-verify that a non-member with a listed code gets 404/401 in identity mode. Routed as the owner ruling writes (\"PRIV-1 fix including the co-op bit\")."
+        },
+        {
+          "id": "CF-G2A-3",
+          "status": "open",
+          "directedTo": "B15 auth hardening: strict base64 in decodeTokenFromWire (src/types/multiplayer/Player.ts, a leaf of neither P2CG1G2A nor reduced P2CG1G2) (F4). Routed as the owner ruling writes (\"strict wire decode\")."
+        },
+        {
+          "id": "CF-G2A-4",
+          "status": "open (re-routed by parent ruling)",
+          "directedTo": "B15 auth hardening, NOT reduced P2CG1G2 (Root routing note G2A-ROUTE-1, parent ruling 2026-10-18): the lowercase-scheme and empty-string-campaignId rows that kill MR1 and MR4 belong to whoever next owns src/__tests__/api/securityBoundary.test.ts and the invite route under B15 auth hardening (F1, F2)."
+        },
+        {
+          "id": "CF-G2A-6",
+          "status": "open",
+          "directedTo": "B15: consider logging the verified playerId (logger.ts, not console) on identity-mode success so the gate provides accountability. Routed as the owner ruling writes (\"accountability logging\")."
+        }
+      ],
+      "note": "Recorded for B15 (remote hosting and auth hardening). No B15 unit is edited here; the PRIV-1 hold already sits on B15-6 (merged #2245)."
+    },
+    "B14_0AndP2CG1HP": {
+      "carryForwards": [
+        {
+          "id": "CF-G2-11",
+          "reviewerOwner": "B14-0 / HP",
+          "item": "Post-merge: exact-main proof must run on the actual merge commit and CF-H12 re-read there (CF-G2A-7 pattern).",
+          "status": "closed at this closure (routed as tabulated)",
+          "directedTo": "Routed as tabulated to B14-0 / P2CG1HP; its substance is satisfied by this closure. The exact-main proof ran on the actual merge commit cc98179e4d77024651bf1a16c63f077d64337273 (first parent cf42ab56, after the docs-only #2251), and CF-H12 was re-read for that merge: the 32 PR checks ran on the merged head 45f6d7e1 (pull_request event) and were verified by name; pr-checks.yml does not run on the push to main, so the merge commit carries only the push workflows, recorded in the merge receipt (mergeCommitCheckRuns). Nothing from this item remains open for B14-0 or P2CG1HP beyond the standing pattern that each later unit runs its own exact-main proof on its own merge commit."
+        }
+      ],
+      "note": "Satisfied at this closure; nothing further travels."
+    },
+    "openNotes": [
+      {
+        "id": "G2-GATE-1",
+        "label": "Root",
+        "concern": "machine gate: T3 Code html_preview renderer PID 55164 allowed like 47516",
+        "travelsTo": "recorded in this closure (main proof machine, machineGateRuling)",
+        "source": "parent ruling relayed to this closure task on 2026-10-18 under the owner standing instruction",
+        "note": "The main-proof runner waited from 2026-10-18T08:42:21Z to 2026-10-18T09:18:54Z on MACHINE_BUSY caused only by chrome-headless-shell PID 55164, which this closure did not start and did not stop. Root ruled, verbatim: PARENT RULING (Root, machine gate): PID 55164 is T3 Code's own persistent html_preview renderer (chrome-headless-shell, parent PID 50120 \"T3 Code (Nightly).exe\", started 08:42Z by a Root html_preview call). Root verified it is idle (CPU time unchanged at 5.92s over a 5 s sample). It is not a heavy run and must not be killed. Root designates it an allowed idle process exactly like 47516: run the gate as `node scripts/qc/machine-idle.mjs --own-pid 47516 --own-pid 55164` (still --own-pid only, no other exclusion flags). If the gate then reports MACHINE_IDLE, proceed with your heavy run now; if it reports some other busy process, wait as before. Record this ruling in your receipts/logs. Owner authority: standing instruction \"continue with recommended options and fix the issues that come up, publish as needed\". The runner (this closure's own process) was restarted with --own-pid 47516 --own-pid 55164 before any jest run; every run then started on MACHINE_IDLE."
+      },
+      {
+        "id": "G2-MAIN-1",
+        "label": "Root",
+        "concern": "main moved between baseline and merge (#2251), no rebase",
+        "travelsTo": "recorded in this closure (merge receipt treeIntegration)",
+        "source": "git log --first-parent f32626fb..cf42ab56",
+        "note": "Main moved between the admission baseline f32626fb (#2249) and the merge by one docs/ledger-only merge: #2251 (cf42ab56, B14 host-head containment split registration; files openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md, openspec/planning/2026-09-12-roadmap-completion/evidence/b14hp-prep-20261018.txt, openspec/planning/2026-09-12-roadmap-completion/roadmap.json, openspec/planning/2026-09-12-roadmap-completion/units.json; units.json changes {\"units\":[\"B14-0\",\"B14-HEAD\",\"P2CG1HP\",\"P2CG1H\"],\"packets\":[],\"topLevel\":[\"layerRegistration20261017L1\",\"hPrereqRegistration20261017\",\"b14HeadRegistration20261018\"]}). It touched no P2CG1G2 leaf and neither the P2CG1G2 nor the P2CG1R entry. The PR was not rebased: the merge commit cc98179e has first parent cf42ab56 (#2251) and second parent the reviewed head 45f6d7e1; its tree 82f7a168 equals git merge-tree --write-tree of the two parents (clean), its units.json equals main's at cf42ab56 with only the P2CG1G2 entry taken from the head, and roadmap.json equals main's. The five product leaves equal the local receipt hashes and the five test leaves are byte-identical from RED fcba7105 through the head, the merge and the closure base ef3209c2 (main moved after the merge by 0607d436 #2252, a2c1ff4c #2253, 21b490fd #2254, 9fa84180 #2256, fe41f7ad #2255, ef3209c2 #2257, changing docs/releases/v2.2.0-topology.md, playtest/checklists/coop-uat.md, playtest/session-notes/TEMPLATE-v2.2.0-coop-l1.md, src/components/multiplayer/CreateMatchForm.tsx, src/components/multiplayer/__tests__/CreateMatchForm.a11y.test.tsx, src/components/multiplayer/__tests__/CreateMatchForm.test.tsx, docs/audits/2026-10-18-council3-decision.md, openspec/planning/2026-09-12-roadmap-completion/evidence/.gitattributes, openspec/planning/2026-09-12-roadmap-completion/evidence/council3-a-20261018.txt, openspec/planning/2026-09-12-roadmap-completion/evidence/council3-b-20261018.txt, openspec/planning/2026-09-12-roadmap-completion/evidence/council3-c-20261018.txt, openspec/planning/2026-09-12-roadmap-completion/roadmap.json, openspec/planning/2026-09-12-roadmap-completion/units.json, openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md, openspec/planning/2026-09-12-roadmap-completion/evidence/identity-gap-20261018.txt, docs/audits/2026-10-18-maintenance-group-b.md, scripts/__tests__/roadmap-codex-review-identity.test.ts, src/__tests__/service/printing/RecordSheetService.pipeline.test.ts, src/__tests__/unit/encoding/mojibakeGuard.test.ts, src/lib/events/journal/__tests__/SQLiteEventJournalTestHarness.ts, src/lib/testing/__tests__/faultControlsStartup.test.ts, src/lib/testing/faultControls.ts, src/services/printing/RecordSheetService.ts, src/services/printing/svgRecordSheetRenderer/svgGeometry.ts, src/utils/appearanceBootstrap.ts, openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-prep-20261018.txt; none is a P2CG1G2 leaf, and the P2CG1G2, P2CG1G2A and P2CG1R entries are unchanged). The owner ruling recorded the clean merge-tree with cf42ab56 before the merge."
+      },
+      {
+        "id": "G2-CHECKS-1",
+        "label": "Root",
+        "concern": "CF-H12 re-read for the merge (CF-G2-11)",
+        "travelsTo": "recorded in this closure; CF-H12 remains the practice on every later exact head",
+        "source": "check-runs API on 45f6d7e1 (latest and filter=all) and cc98179e",
+        "note": "CF-H12 / CF-G2-11: all 32 required PR check runs on the merged head 45f6d7e1 (run 39109741978, latest attempt per check) concluded success and their names equal, one to one, the 32 names recorded for P2CG1G1 and P2CG1G2A and the P2CG1G2 local receipt expectedNames; the author posted the by-name comparison as https://github.com/SwiggitySwerve/MekStation/pull/2250#issuecomment-6247570491. Attempt 1 of that run had two failed check runs (Lint and Test failure (117624097391, started 2026-10-18T08:04:53Z); Seam Anchors failure (117623205824, started 2026-10-18T08:00:27Z)): Seam Anchors and Lint and Test, its aggregate; the filter=all listing holds 64 check runs for the head, the 32 latest all success. pr-checks.yml (blob a82fe0f7) is identical at the P2CG1G2A head and merge, the P2CG1G2 baseline, head, main at merge, merge and closure base. The PR checks do not run on the push of the merge commit to main; at 2026-10-18T08:43:20Z the merge commit carried 10 push-workflow check runs (Live Tier Signal completed/success; release completed/skipped; build completed/skipped; Push Docker image completed/skipped; Build Docker image completed/skipped; Prepare Build Artifacts completed/skipped; Determine release tag completed/success; Publish Live Evidence (ubuntu-latest) completed/success; Publish Live Evidence (windows-latest) completed/success; version-and-release completed/success), none failed. The exact-main proof here is the fresh local run at the merge."
+      },
+      {
+        "id": "G2-SEAM-1",
+        "label": "Root",
+        "concern": "Seam Anchors attempt-1 flake (CF-G2-9)",
+        "travelsTo": "successorNotes.P2CG1S as routed; real owner: next owner of the seam spec or the engine path",
+        "source": "review section 2 (Seam Anchors first-attempt failure); check-runs filter=all on 45f6d7e1",
+        "note": "Seam Anchors flake, recorded for its owner (CF-G2-9). Attempt 1 of run 39109741978 failed only in Seam Anchors (e2e/seam-fresh-construction-no-instant-defeat.spec.ts:425, run-to-run marker equality, aliveBySide.player 2 vs 1 from turn 3 heat) and its aggregate Lint and Test; attempt 2 passed. The reviewer found that P2CG1G2 touches no e2e, engine, simulation or gameplay file, that on a single-player campaign both G2 co-op effects return at the first guard, and that the identical assertion failed and passed on rerun for the units.json-only 293ae722b (run 38810066031, 2026-10-15); its logs are kept as seam-attempt1.log and seam-293ae722b.log in the reviewer proof directory (reviewerProofLogs). The ruling accepts it as an engine-side flake unrelated to G2. The reviewer routes it to \"S (engine/e2e)\"; P2CG1S as registered is the live-wire spectator sealed-choice privacy repair and does not own that spec, so this closure records it under successorNotes.P2CG1S as routed and names the real owner as whichever unit next owns the seam spec or the battle-resolution path. No unit is edited for it."
+      },
+      {
+        "id": "G2-SLOT-1",
+        "label": "Root",
+        "concern": "reserved admission-review slot",
+        "travelsTo": "nothing further",
+        "source": "evidence/p2cg1g2-admission-20261018.json manifest; evidence/p2cg1g2-local-20261018.json census",
+        "note": "The reserved admission-review slot evidence/p2cg1g2-admission-review-20261018.md (frozen in the admission manifest as the one reservedUnchanged entry; local census \"unwritten\") stays unwritten. The independent review was written by the reviewer to docs/audits/2026-10-18-p2cg1g2-review.md in its detached review worktree (untracked there); this closure preserves it byte for byte at evidence/p2cg1g2-source-fable-review-20261018.txt (sha256 f5e75b7a193fda612913a0423045a54f2cc55f9076a362bfaff3462a73b8ac2b, 18709 bytes), as the P2CG1G1 and P2CG1G2A closures did, rather than authoring reviewer text into the slot or renaming the copy into it."
+      }
+    ],
+    "note": "Every reviewer string (title, header, verdict, ledger, rerun, finding, section 5, mutation and carry-forward rows and cells, class paragraphs and reseat bullets) is a verbatim substring of evidence/p2cg1g2-source-fable-review-20261018.txt, checked by the closure generator; everything else is closure or Root text."
+  },
+  "reservedSlot": "The reserved admission-review slot evidence/p2cg1g2-admission-review-20261018.md (frozen in the admission manifest as the one reservedUnchanged entry; local census \"unwritten\") stays unwritten. The independent review was written by the reviewer to docs/audits/2026-10-18-p2cg1g2-review.md in its detached review worktree (untracked there); this closure preserves it byte for byte at evidence/p2cg1g2-source-fable-review-20261018.txt (sha256 f5e75b7a193fda612913a0423045a54f2cc55f9076a362bfaff3462a73b8ac2b, 18709 bytes), as the P2CG1G1 and P2CG1G2A closures did, rather than authoring reviewer text into the slot or renaming the copy into it.",
+  "ciQualification": "CF-H12 / CF-G2-11: all 32 required PR check runs on the merged head 45f6d7e1 (run 39109741978, latest attempt per check) concluded success and their names equal, one to one, the 32 names recorded for P2CG1G1 and P2CG1G2A and the P2CG1G2 local receipt expectedNames; the author posted the by-name comparison as https://github.com/SwiggitySwerve/MekStation/pull/2250#issuecomment-6247570491. Attempt 1 of that run had two failed check runs (Lint and Test failure (117624097391, started 2026-10-18T08:04:53Z); Seam Anchors failure (117623205824, started 2026-10-18T08:00:27Z)): Seam Anchors and Lint and Test, its aggregate; the filter=all listing holds 64 check runs for the head, the 32 latest all success. pr-checks.yml (blob a82fe0f7) is identical at the P2CG1G2A head and merge, the P2CG1G2 baseline, head, main at merge, merge and closure base. The PR checks do not run on the push of the merge commit to main; at 2026-10-18T08:43:20Z the merge commit carried 10 push-workflow check runs (Live Tier Signal completed/success; release completed/skipped; build completed/skipped; Push Docker image completed/skipped; Build Docker image completed/skipped; Prepare Build Artifacts completed/skipped; Determine release tag completed/success; Publish Live Evidence (ubuntu-latest) completed/success; Publish Live Evidence (windows-latest) completed/success; version-and-release completed/success), none failed. The exact-main proof here is the fresh local run at the merge.",
+  "laneB": {
+    "ruledHead": "45f6d7e176daf5fa825b6ecd8dba3958cab8905b",
+    "pr": 2250,
+    "commentId": 6247720708,
+    "author": "SwiggitySwerve",
+    "bodySha256": "378fa2392a802bd46ebaff520565b286251117d1b7c4682edda9798f5dcdcaaf",
+    "bodyBytes": 2061,
+    "at": "2026-10-18T08:38:11Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2250#issuecomment-6247720708",
+    "bodyPath": "evidence/p2cg1g2-owner-ruling-6247720708.txt",
+    "fetchedWith": "gh api repos/SwiggitySwerve/MekStation/issues/comments/6247720708 --jq .body, which prints the body plus one trailing LF (2062 bytes); the stored file is the exact body without that added newline, equal to the JSON body field"
+  },
+  "ownerRulingNote": "The ruling body names the exact merged head and P2CG1G2 (reduced; L1; sensitive: authority/privacy/replay/concurrency), quotes the owner standing instruction and the direct approval of 2026-10-18 under which Root rules, cites the review by path and sha256 (18,709 bytes), ledger discipline (15/15 files including the reserved slot, 306/500 lines), RED 34/129 and GREEN 129/129, 32/32 required checks, the discharged carry-forwards, the 12 reviewer mutants (6 caught; ME6 equivalent, ML6 downgraded), the Seam Anchors attempt-1 flake and the clean merge-tree with cf42ab56. It rules ACCEPT and merge at this exact head and routes CF-G2-1..11 as tabulated. It is transcribed verbatim.",
+  "chronology": "The owner ruling was posted at 2026-10-18T08:38:11Z, before the head-guarded merge at 2026-10-18T08:38:18Z (7 seconds later). This records a premerge ruling on the exact merged head.",
+  "identityScope": "Preserves the existing unversioned P2CG1G2 evidence and the actual cross-model review provenance. No v2/v3 identity manifest or engine observation is claimed.",
+  "githubApproval": "Lane A engineering evidence only; no GitHub approval claimed.",
+  "successorRelease": {
+    "label": "successor release",
+    "scope": "Separate from the P2CG1G2 closure. This change set also releases P2CG1R (successor release). No other field of P2CG1R changes and no other unit is released; P2CG1S, B14-0, B14-HEAD, P2CG1HP, P2CG1H, P2CG1I1-P2CG1I4, P2CG2, P2C, every B15 unit and every other unit stay as they are.",
+    "release": {
+      "unit": "P2CG1R",
+      "field": "state",
+      "from": "blocked",
+      "to": "planned",
+      "basis": "P2CG1R's documentary predecessors are P2CG1G2, P2CG1B and P2CG1D. P2CG1G2 is main-verified in this same change set with a genuine exact-main mainProof PASS at cc98179e4d77024651bf1a16c63f077d64337273; P2CG1B (merge ce5fd2ae, evidence/p2cg1b-mainproof-20261017.json) and P2CG1D (merge 1c49312d, evidence/p2cg1d-mainproof-20261017.json) are already main-verified with mainProof PASS and their merges are ancestors of the closure base, as P2CG1R.admissionRequires demands before release to planned. P2CG1G2 has no task keys, so its tick stays null. Of P2CG1G2's successors [P2CG1R, P2CG1H, P2C], only P2CG1R is released: P2CG1H still waits on P2CG1R, B14-0, LSC-2P, and P2C on its whole package.",
+      "permission": "Release to planned only. Selection is not admission. P2CG1R source work still requires its own normal finite admission at its own baseline (containing cc98179e and this closure), the one-product-writing-lane rule and every gate in its admissionRequires. CF-G2-3 is recorded for it (shared with P2CG1H)."
+    }
+  }
+}
