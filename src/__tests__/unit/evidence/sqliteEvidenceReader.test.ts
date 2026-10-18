@@ -100,6 +100,24 @@ describe('sqlite evidence reader', () => {
     expect(fs.readFileSync(file).equals(before)).toBe(true);
   });
 
+  it('proves its own connection refuses writes without touching the file', () => {
+    const file = seedDatabase('readonly-probe.db');
+    const before = fs.readFileSync(file);
+
+    const reader = openSqliteEvidenceReader(file);
+    try {
+      // Asked twice: the probe must leave the connection usable and
+      // answer the same way every time it is called.
+      expect(reader.refusesWrites()).toBe(true);
+      expect(reader.refusesWrites()).toBe(true);
+      expect(reader.count('receipts')).toBe(2);
+    } finally {
+      reader.close();
+    }
+
+    expect(fs.readFileSync(file).equals(before)).toBe(true);
+  });
+
   it('refuses a write statement by name rather than by driver error', () => {
     const reader = openSqliteEvidenceReader(seedDatabase('guarded.db'));
     try {

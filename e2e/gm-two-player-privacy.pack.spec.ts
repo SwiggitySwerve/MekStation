@@ -3,9 +3,10 @@
  *
  * Two isolated player browser contexts on the TACTICAL match channel,
  * with a raw-wire tap on each page that records EVERY server -> client
- * frame. The sealed choice is driven as a real `GoProne` intent through
- * the actor's own socket (see WHY A WIRE-LEVEL INTENT below), and every
- * negative assertion is absence-safe.
+ * frame. Every sealed choice is driven as a real intent through the
+ * actor's own socket (see WHY A WIRE-LEVEL INTENT below): a `Move` in
+ * E2E-20/21, a `GoProne` in E2E-22/26/27. Every negative assertion is
+ * absence-safe.
  *
  * PROVEN HERE (letters quoted from
  * openspec/changes/harden-gm-two-player-campaign-sessions/specs/e2e-testing/spec.md):
@@ -134,24 +135,41 @@
  * exactly as that page's client would send it - the server path under
  * test (ownership check, engine dispatch, audience catalog, delivery
  * numbering) is identical, and the run log shows it as an ordinary
- * `intent dispatched ... intent=GoProne`. Every assertion still reads
- * the OPPONENT's raw wire and rendered DOM.
+ * `intent dispatched ... intent=Move` (or `intent=GoProne`). Every
+ * assertion still reads the OPPONENT's raw wire and rendered DOM.
  *
- * WHY `GoProne` AND NOT `Move`, and the product finding that forced it:
- * the tactical client does not know where any unit stands until that
- * unit's first movement event. `seedAccumulator`
- * (`src/hooks/replay/useHexMapStateFromEvents.tokens.ts`) seeds every
- * token at `{q: 0, r: 0}` because `IGameUnit` carries no coordinate,
- * while the authority derives real deploy hexes in `applyGameCreated`
- * (`src/utils/gameplay/gameState/lifecycle.ts`, rows +/-5). MEASURED in
- * this pack: a `Move` aimed one hex north of the RENDERED token was
- * refused `movement_invalid / InsufficientMP - "Destination is 6 hexes
- * away, but max range for walk is 3"` with `from: {q:-2, r:5}`. On a
- * radius-4 map those authoritative rows are off the grid entirely.
- * `GoProne` declares `to === from`, so it needs no coordinate the
- * client does not have, and the sealed secret becomes the actor's TRUE
- * hex - which the opponent's board genuinely does not hold. Reported
- * rather than fixed: this is a test-authoring seam.
+ * WHY E2E-20/21 SEAL A `Move` (AND NO LONGER A `GoProne`): a board
+ * clause proves withholding only if the sealed secret is a hex the
+ * opponent could not already be showing. Since U37 (#1975) every
+ * networked token is seeded on `GameCreated` at the engine's deploy hex
+ * (`applyGameCreatedEvent` in `src/hooks/replay/useHexMapStateFromEvents.ts`,
+ * `deployPlacementsFor` in `src/utils/gameplay/gameState/initialization.ts`:
+ * player row 5 facing North, opponent row -5 facing South). That hex is
+ * computed from the PUBLIC `GameCreated` payload, so the opponent rightly
+ * renders every unit at it before anyone moves. A `GoProne` declares
+ * `to === from` - exactly that public hex - so the old board clause
+ * became false by construction with no leak at all (nightly runs from
+ * 39017508685 on: `-2,5` and `-2,-5` on the opponent board).
+ *
+ * E2E-20/21 therefore seal a `Move` whose destination is NOT public. The
+ * actor's start hex is read off the opponent's board (cross-checked
+ * against the actor's own) and its facing off the actor's token; the
+ * destination is the first hex straight ahead along that facing that
+ * lies on the map. These two rows open a radius-6 map; every other row
+ * keeps radius 4. MEASURED: on radius 4 the deploy rows sit off the
+ * grid, and every path from the guest's `-2,-5` to an on-grid hex
+ * crosses off-grid hexes, which the engine prices as blocked
+ * (`movement_invalid / TerrainBlocked - "Destination is outside map
+ * bounds"` for `-2,-5 -> -2,-2`). On radius 6 both moves are one hex
+ * straight ahead: `-2,5 -> -2,4` for the host's unit and `-2,-5 -> -2,-4`
+ * for the guest's. Before any clause is trusted, each row proves that
+ * the engine accepted the `Move` as sent (the declaration's `from` is
+ * the public hex and its `to` is the requested one) and that the two
+ * differ. The board clause is then a positive equality: after the hold
+ * the opponent still renders that unit AT the public start hex, so a
+ * token that moved, vanished or rendered the secret cannot pass.
+ * `GoProne` stays in E2E-22/26/27, whose clauses compare payloads and
+ * never read a board position.
  *
  * @tags @privacy-pack @tactical @E2E-19 @E2E-20 @E2E-21 @E2E-22 @E2E-23
  * @tags @E2E-24 @E2E-25 @E2E-26 @E2E-27 @E2E-28
@@ -166,6 +184,8 @@ import {
   type WebSocketRoute,
 } from '@playwright/test';
 import path from 'node:path';
+
+import { AXIAL_DIRECTION_DELTAS } from '@/types/gameplay/HexGridInterfaces';
 
 import { openSqliteEvidenceReader } from './fixtures/sqliteEvidenceReader';
 
@@ -185,6 +205,13 @@ const AUTHORITY_ONLY_EVENT_FIELDS = [
 const AUTHORITY_ONLY_REPLAY_FIELDS = ['fromSeq', 'toSeq'] as const;
 /** A hold long enough for a leaked frame to have arrived if one existed. */
 const WITHHOLD_HOLD_MS = 2_500;
+/** The map radius every row's lobby is created with unless it says otherwise. */
+const DEFAULT_MAP_RADIUS = 4;
+/**
+ * The map radius of the sealed-Move rows (E2E-20/21): the smallest that
+ * gives BOTH deploy hexes a one-step on-grid destination straight ahead.
+ */
+const SEALED_MOVE_MAP_RADIUS = 6;
 
 type WireFrame = Record<string, unknown>;
 type Identity = { readonly id: string; readonly displayName: string };
@@ -211,6 +238,7 @@ interface IFixture {
   readonly hostTap: IWireTap;
   readonly guestTap: IWireTap;
   readonly matchId: string;
+  readonly mapRadius: number;
   readonly hostToken: Token;
   readonly guestToken: Token;
   readonly cleanup: () => Promise<void>;
@@ -367,7 +395,12 @@ test.describe('tactical pre-serialization privacy', () => {
     request,
   }) => {
     test.setTimeout(240_000);
-    const fixture = await openPrivacyFixture(browser, request, 'Privacy A');
+    const fixture = await openPrivacyFixture(
+      browser,
+      request,
+      'Privacy A',
+      SEALED_MOVE_MAP_RADIUS,
+    );
     try {
       const actorUnitId = await unitIdOnSide(fixture.hostPage, 'player');
       const publicFactsBefore = frameCountOfType(
@@ -375,19 +408,30 @@ test.describe('tactical pre-serialization privacy', () => {
         MOVEMENT_LOCKED,
       );
 
-      declareSealedChoice(fixture.hostTap, actorUnitId);
-      const declaration = await awaitEventOfType(
-        fixture.hostTap,
-        MOVEMENT_DECLARED,
+      // The sealed secret is a Move whose destination the opponent's
+      // board does not already hold: see WHY E2E-20/21 SEAL A `Move`.
+      const plan = await planSealedMove(
+        fixture.hostPage,
+        fixture.guestPage,
+        actorUnitId,
+        fixture.mapRadius,
       );
+      declareSealedMove(fixture.hostTap, actorUnitId, plan);
+      const declaration = await awaitDeclarationOf(
+        fixture.hostTap,
+        actorUnitId,
+      );
+      expectSealedMoveAsPlanned(declaration, actorUnitId, plan);
       const sealedHex = declaredHex(declaration);
 
       // E2E-20 (a): the opponent's raw wire never carried the sealed
-      // original - neither by event identity nor by its declared hex.
+      // original - not by event identity, not as a declaration under
+      // any id, and not by its declared hex in any frame at all.
       await fixture.guestPage.waitForTimeout(WITHHOLD_HOLD_MS);
       expect(eventIds(fixture.guestTap.frames)).not.toContain(
         eventId(declaration),
       );
+      expect(frameCountOfType(fixture.guestTap, MOVEMENT_DECLARED)).toBe(0);
       expect(JSON.stringify(fixture.guestTap.frames)).not.toContain(
         hexNeedle(sealedHex),
       );
@@ -397,16 +441,10 @@ test.describe('tactical pre-serialization privacy', () => {
       expectGaplessDelivery(fixture.guestTap);
 
       // E2E-20 (c): the opponent's rendered board does not show the
-      // sealed hex. Asserted as a present-element attribute mismatch,
-      // never as missing text, so a vanished token cannot pass it.
-      const opponentView = fixture.guestPage.getByTestId(
-        `unit-token-${actorUnitId}`,
-      );
-      await expect(opponentView).toHaveCount(1);
-      await expect(opponentView).not.toHaveAttribute(
-        'data-token-map-position',
-        hexText(sealedHex),
-      );
+      // sealed hex. Asserted on a present element, never as missing
+      // text: after the hold the token is still rendered exactly at its
+      // PUBLIC start hex, and not at the sealed one.
+      await expectBoardHoldsPublicHex(fixture.guestPage, actorUnitId, plan);
 
       // E2E-23: the PUBLIC facts of the very same command published to
       // the opponent immediately, with no approval step - the opponent
@@ -462,21 +500,40 @@ test.describe('tactical pre-serialization privacy', () => {
     request,
   }) => {
     test.setTimeout(240_000);
-    const fixture = await openPrivacyFixture(browser, request, 'Privacy B');
+    const fixture = await openPrivacyFixture(
+      browser,
+      request,
+      'Privacy B',
+      SEALED_MOVE_MAP_RADIUS,
+    );
     try {
       const hostUnitId = await unitIdOnSide(fixture.hostPage, 'player');
       const guestUnitId = await unitIdOnSide(fixture.guestPage, 'opponent');
 
-      declareSealedChoice(fixture.hostTap, hostUnitId);
-      const hostDeclaration = await awaitEventOfType(
+      const hostPlan = await planSealedMove(
+        fixture.hostPage,
+        fixture.guestPage,
+        hostUnitId,
+        fixture.mapRadius,
+      );
+      declareSealedMove(fixture.hostTap, hostUnitId, hostPlan);
+      const hostDeclaration = await awaitDeclarationOf(
         fixture.hostTap,
-        MOVEMENT_DECLARED,
+        hostUnitId,
       );
-      declareSealedChoice(fixture.guestTap, guestUnitId);
-      const guestDeclaration = await awaitEventOfType(
+      expectSealedMoveAsPlanned(hostDeclaration, hostUnitId, hostPlan);
+      const guestPlan = await planSealedMove(
+        fixture.guestPage,
+        fixture.hostPage,
+        guestUnitId,
+        fixture.mapRadius,
+      );
+      declareSealedMove(fixture.guestTap, guestUnitId, guestPlan);
+      const guestDeclaration = await awaitDeclarationOf(
         fixture.guestTap,
-        MOVEMENT_DECLARED,
+        guestUnitId,
       );
+      expectSealedMoveAsPlanned(guestDeclaration, guestUnitId, guestPlan);
       expect(eventId(hostDeclaration)).not.toEqual(eventId(guestDeclaration));
       const guestHex = declaredHex(guestDeclaration);
 
@@ -486,18 +543,13 @@ test.describe('tactical pre-serialization privacy', () => {
       expect(eventIds(fixture.hostTap.frames)).not.toContain(
         eventId(guestDeclaration),
       );
+      // Player 1's wire carries exactly ONE declaration: its own.
+      expect(frameCountOfType(fixture.hostTap, MOVEMENT_DECLARED)).toBe(1);
       expect(JSON.stringify(fixture.hostTap.frames)).not.toContain(
         hexNeedle(guestHex),
       );
       expectGaplessDelivery(fixture.hostTap);
-      const player1View = fixture.hostPage.getByTestId(
-        `unit-token-${guestUnitId}`,
-      );
-      await expect(player1View).toHaveCount(1);
-      await expect(player1View).not.toHaveAttribute(
-        'data-token-map-position',
-        hexText(guestHex),
-      );
+      await expectBoardHoldsPublicHex(fixture.hostPage, guestUnitId, guestPlan);
 
       // Player 2's OWN artifacts do carry it, so the withholding above
       // is an audience decision and not a lost frame - and Player 2's
@@ -1086,6 +1138,42 @@ function wireSummary(tap: IWireTap): string {
   return `events=[${types.join(',')}] errors=[${refusals.join(',')}]`;
 }
 
+/**
+ * Waits for THIS unit's `MovementDeclared` on this tap and returns it.
+ * Keyed on the unit, not on arrival order, so a leaked declaration of
+ * another unit can never stand in for the one under test.
+ */
+async function awaitDeclarationOf(
+  tap: IWireTap,
+  unitId: string,
+): Promise<WireFrame> {
+  await expect
+    .poll(
+      () =>
+        firstDeclarationOf(tap, unitId) === null
+          ? wireSummary(tap)
+          : MOVEMENT_DECLARED,
+      { timeout: 30_000 },
+    )
+    .toBe(MOVEMENT_DECLARED);
+  const event = firstDeclarationOf(tap, unitId);
+  if (event === null) throw new Error(`No declaration of ${unitId} arrived`);
+  return event;
+}
+
+function firstDeclarationOf(tap: IWireTap, unitId: string): WireFrame | null {
+  for (const frame of tap.frames) {
+    for (const event of eventsOfFrame(frame)) {
+      if (stringField(event, 'type') !== MOVEMENT_DECLARED) continue;
+      const payload = objectField(event, 'payload');
+      if (payload !== null && stringField(payload, 'unitId') === unitId) {
+        return event;
+      }
+    }
+  }
+  return null;
+}
+
 function firstEventOfType(tap: IWireTap, type: string): WireFrame | null {
   for (const frame of tap.frames) {
     for (const event of eventsOfFrame(frame)) {
@@ -1100,9 +1188,143 @@ function firstEventOfType(tap: IWireTap, type: string): WireFrame | null {
 // ---------------------------------------------------------------------------
 
 /**
- * Issues one real `GoProne` intent through the actor page's own socket.
+ * A sealed Move the opponent's board cannot already show: the unit's
+ * PUBLIC start hex and facing, and a destination that differs from it.
+ */
+interface ISealedMovePlan {
+  readonly from: Hex;
+  readonly to: Hex;
+  readonly facing: number;
+}
+
+/**
+ * Plans the sealed Move for `unitId`. The start hex is read off the
+ * opponent's board and must match the actor's own; the destination is
+ * the first hex straight ahead of the unit along its rendered facing
+ * that lies on a `mapRadius` map (walking straight ahead needs no facing
+ * change). It never returns
+ * a destination equal to the public start hex, so the row cannot fall
+ * back to a secret the opponent already holds.
+ */
+async function planSealedMove(
+  actorPage: Page,
+  opponentPage: Page,
+  unitId: string,
+  mapRadius: number,
+): Promise<ISealedMovePlan> {
+  const actorToken = actorPage.getByTestId(`unit-token-${unitId}`);
+  const opponentToken = opponentPage.getByTestId(`unit-token-${unitId}`);
+  await expect(actorToken).toHaveCount(1);
+  await expect(opponentToken).toHaveCount(1);
+  const from = parseHex(
+    await opponentToken.getAttribute('data-token-map-position'),
+  );
+  await expect(actorToken).toHaveAttribute(
+    'data-token-map-position',
+    hexText(from),
+  );
+  const facing = Number(await actorToken.getAttribute('data-token-facing'));
+  const step = AXIAL_DIRECTION_DELTAS[facing];
+  if (!Number.isInteger(facing) || step === undefined) {
+    throw new Error(`Token ${unitId} rendered no usable facing`);
+  }
+  for (let distance = 1; distance <= 2 * mapRadius + 2; distance++) {
+    const to = { q: from.q + step.q * distance, r: from.r + step.r * distance };
+    if (hexDistance(to, { q: 0, r: 0 }) <= mapRadius) {
+      return { from, to, facing };
+    }
+  }
+  throw new Error(`No on-map hex ahead of ${unitId} at ${hexText(from)}`);
+}
+
+/**
+ * Issues one real `Move` intent through the actor page's own socket, in
+ * the shape pinned by `src/types/multiplayer/__tests__/Protocol.test.ts`.
  * The engine answers it with `MovementDeclared` (sealed to the actor
  * until the phase finalizes) plus `MovementLocked` (public).
+ */
+function declareSealedMove(
+  tap: IWireTap,
+  unitId: string,
+  plan: ISealedMovePlan,
+): void {
+  const identity = tap.identity;
+  if (identity === null) {
+    throw new Error('No envelope identity was observed on this page socket');
+  }
+  tap.send({
+    kind: 'Intent',
+    matchId: identity.matchId,
+    ts: new Date().toISOString(),
+    playerId: identity.playerId,
+    intentId: `privacy-pack-${crypto.randomUUID()}`,
+    intent: {
+      kind: 'Move',
+      unitId,
+      to: plan.to,
+      facing: plan.facing,
+      movementType: 'walk',
+    },
+  });
+}
+
+/**
+ * The engine accepted the sealed Move AS SENT: the declaration is this
+ * unit's, it starts at the public hex, and its destination - the sealed
+ * secret - is the requested hex, which is not the public one.
+ */
+function expectSealedMoveAsPlanned(
+  declaration: WireFrame,
+  unitId: string,
+  plan: ISealedMovePlan,
+): void {
+  const payload = objectField(declaration, 'payload');
+  expect(payload === null ? null : stringField(payload, 'unitId')).toBe(unitId);
+  const from = payload === null ? null : objectField(payload, 'from');
+  expect(from).toMatchObject(plan.from);
+  expect(declaredHex(declaration)).toEqual(plan.to);
+  expect(hexText(plan.to)).not.toBe(hexText(plan.from));
+}
+
+/**
+ * The viewer's board still renders `unitId` exactly at its PUBLIC start
+ * hex - present, unmoved, and not at the sealed destination. Called
+ * after the withhold hold, so a leaked declaration has had time to land.
+ */
+async function expectBoardHoldsPublicHex(
+  viewerPage: Page,
+  unitId: string,
+  plan: ISealedMovePlan,
+): Promise<void> {
+  const token = viewerPage.getByTestId(`unit-token-${unitId}`);
+  await expect(token).toHaveCount(1);
+  await expect(token).toHaveAttribute(
+    'data-token-map-position',
+    hexText(plan.from),
+  );
+  await expect(token).not.toHaveAttribute(
+    'data-token-map-position',
+    hexText(plan.to),
+  );
+}
+
+function parseHex(text: string | null): Hex {
+  const match = /^(-?\d+),(-?\d+)$/.exec(text ?? '');
+  if (match === null) throw new Error(`Unparseable map position ${text}`);
+  return { q: Number(match[1]), r: Number(match[2]) };
+}
+
+function hexDistance(a: Hex, b: Hex): number {
+  const dq = a.q - b.q;
+  const dr = a.r - b.r;
+  return Math.max(Math.abs(dq), Math.abs(dr), Math.abs(dq + dr));
+}
+
+/**
+ * Issues one real `GoProne` intent through the actor page's own socket.
+ * The engine answers it with `MovementDeclared` (sealed to the actor
+ * until the phase finalizes) plus `MovementLocked` (public). Used by
+ * the rows whose clauses never read a board position (E2E-22/26/27).
  */
 function declareSealedChoice(tap: IWireTap, unitId: string): void {
   const identity = tap.identity;
@@ -1146,6 +1368,7 @@ async function openPrivacyFixture(
   browser: Browser,
   request: APIRequestContext,
   label: string,
+  mapRadius: number = DEFAULT_MAP_RADIUS,
 ): Promise<IFixture> {
   const identities: string[] = [];
   let match: Match | null = null;
@@ -1162,7 +1385,7 @@ async function openPrivacyFixture(
     await hostPage.goto('/multiplayer');
     await hostPage.getByPlaceholder('Vault password').fill(HOST_PASSWORD);
     await hostPage.getByLabel('Display name').fill(hostName);
-    await hostPage.getByLabel('Map radius').fill('4');
+    await hostPage.getByLabel('Map radius').fill(String(mapRadius));
     await hostPage.getByLabel('Turn limit').fill('5');
     const created = hostPage.waitForResponse(
       (response) =>
@@ -1236,6 +1459,7 @@ async function openPrivacyFixture(
       hostTap,
       guestTap,
       matchId: match.matchId,
+      mapRadius,
       hostToken,
       guestToken,
       cleanup: async () => {

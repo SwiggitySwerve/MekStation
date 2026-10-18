@@ -53,6 +53,15 @@ export interface ISqliteEvidenceReader {
   readonly tables: () => readonly string[];
   /** SHA-256 of the file on disk, for proving the read changed nothing. */
   readonly fileHash: () => string;
+  /**
+   * True only when THIS connection refuses writes: the driver reports the
+   * handle read-only and an attempted header write fails with
+   * `SQLITE_READONLY`. This is the "the reader changed nothing" proof for
+   * a database a live server is still writing, where a before/after
+   * `fileHash` would measure the server's own commits and WAL
+   * checkpoints rather than the reader.
+   */
+  readonly refusesWrites: () => boolean;
   readonly close: () => void;
 }
 
@@ -125,6 +134,36 @@ export function openSqliteEvidenceReader(
       ).map((row) => row.name),
     fileHash: (): string =>
       createHash('sha256').update(fs.readFileSync(databasePath)).digest('hex'),
+    refusesWrites: (): boolean => {
+      if (!db.readonly) return false;
+      // The probe rewrites the header's current user_version inside a
+      // transaction that is always rolled back, so even a connection that
+      // wrongly accepted it would leave the file as it was. Only the
+      // driver's own read-only refusal counts; any other error (busy,
+      // locked) is not proof and answers false.
+      const version = Number(db.pragma('user_version', { simple: true }));
+      db.exec('BEGIN');
+      try {
+        db.pragma(`user_version = ${version}`);
+        return false;
+      } catch (error) {
+        // Duck-typed on purpose, never instanceof: better-sqlite3 hands its
+        // native addon the FIRST SqliteError constructor loaded in the
+        // process (setErrorConstructor runs once). Under Jest every test
+        // file gets a fresh module registry but the same addon, so in any
+        // file after the first better-sqlite3 consumer a genuine refusal
+        // is NOT an instance of this file's Database.SqliteError (or even
+        // of this realm's Error), and instanceof would report a read-only
+        // connection as unproven (PR #2283 review F-1, CI Unit Tests 6/6).
+        return (
+          typeof error === 'object' &&
+          error !== null &&
+          (error as { readonly code?: unknown }).code === 'SQLITE_READONLY'
+        );
+      } finally {
+        if (db.inTransaction) db.exec('ROLLBACK');
+      }
+    },
     close: (): void => {
       db.close();
     },
