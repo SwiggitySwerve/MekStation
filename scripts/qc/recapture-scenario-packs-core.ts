@@ -100,8 +100,8 @@ import {
   type ManifestEntry,
 } from '../../src/lib/scenarioPacks/packSchemas';
 import {
-  type GenesisClass,
   type PackRecaptureResult,
+  classifyGenesisSource,
   remintPack,
   validateAndCompareFreshStage,
   validateCommittedPayloadStage,
@@ -163,19 +163,6 @@ function provenancePathFor(payloadAbsolutePath: string): string {
 // Genesis-class dispatch (design D9's parityAnchorJourney prefixes == D7's
 // three genesis classes, 1:1)
 // =============================================================================
-
-function classifyGenesisSource(parityAnchorJourney: string): GenesisClass {
-  if (parityAnchorJourney.startsWith('flow:')) return 'flow-checkpoint';
-  if (parityAnchorJourney.startsWith('anchor:')) return 'anchor-captured';
-  if (parityAnchorJourney.startsWith('fast-forward:')) return 'fast-forward';
-  // Unreachable given parityAnchorJourneySchema's regex (already enforced at
-  // manifest module load) — fail loud rather than silently falling through
-  // to no comparison at all if a fourth prefix is ever added to the schema
-  // without a matching genesis class here.
-  throw new Error(
-    `recapture-scenario-packs: unrecognized parityAnchorJourney prefix on "${parityAnchorJourney}" — add a genesis class + invariant predicate before registering this pack`,
-  );
-}
 
 // =============================================================================
 // (a)/(b) Schema + pin re-validation (design D7 layer 3, spec: "Version
@@ -487,7 +474,7 @@ async function recapturePack(
   const payloadBackup = backupFile(payloadAbsolutePath);
   const provenanceBackup = backupFile(provenanceAbsolutePath);
   const committedSizeBytes = Buffer.byteLength(payloadBackup.content!, 'utf8');
-  const genesisClass = classifyGenesisSource(entry.parityAnchorJourney);
+  const genesisClass = classifyGenesisSource(entry);
   const issues: string[] = [];
   const deps = buildRecaptureDeps();
 

@@ -15,7 +15,20 @@ import {
 export type GenesisClass =
   | 'flow-checkpoint'
   | 'anchor-captured'
+  | 'campaign-anchor'
   | 'fast-forward';
+
+export function classifyGenesisSource(entry: ManifestEntry): GenesisClass {
+  if (entry.parityAnchorJourney.startsWith('flow:')) return 'flow-checkpoint';
+  if (entry.parityAnchorJourney.startsWith('anchor:')) {
+    return entry.kind === 'encounter' ? 'anchor-captured' : 'campaign-anchor';
+  }
+  if (entry.parityAnchorJourney.startsWith('fast-forward:'))
+    return 'fast-forward';
+  throw new Error(
+    `Unrecognized genesis source for ${entry.id}: ${entry.parityAnchorJourney}`,
+  );
+}
 
 export interface FileBackup {
   readonly absolutePath: string;
@@ -122,6 +135,11 @@ export function assertCommittedGenesisInvariants(
           `${entry.id} (committed)`,
         ),
       issues,
+    );
+  }
+  if (genesisClass === 'campaign-anchor') {
+    issues.push(
+      `${entry.id}: unsupported campaign-anchor genesis (${entry.provenance.genesisSource}); no sanctioned co-op minter or campaign checkpoint invariant is registered. Requires the co-op owner's front-door capture contract; this campaign is not a combat match log.`,
     );
   }
 }
@@ -350,13 +368,17 @@ export function validateAndCompareFreshStage(input: {
     genesisClass === 'anchor-captured'
   ) {
     assertFreshGenesisInvariants(entry, genesisClass, freshRaw, issues, deps);
-  } else {
+  } else if (genesisClass === 'fast-forward') {
     compareFastForwardFinances(entry, committedRaw, freshRaw, issues, deps);
     compareFastForwardProvenance(
       entry,
       provenanceBackup,
       provenanceAbsolutePath,
       issues,
+    );
+  } else {
+    issues.push(
+      `${entry.id}: unsupported campaign-anchor genesis; fresh campaign cannot be compared as a match log or fast-forward run`,
     );
   }
 
