@@ -7967,7 +7967,9 @@
         "red": {
           "path": "evidence/l1-smoke-a1-red-20261018.json"
         },
-        "local": null,
+        "local": {
+          "path": "evidence/l1-smoke-a1-local-20261018.json"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,

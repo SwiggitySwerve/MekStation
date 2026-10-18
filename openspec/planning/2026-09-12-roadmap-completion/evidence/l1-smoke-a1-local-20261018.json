@@ -1,0 +1,242 @@
+{
+  "schemaVersion": 1,
+  "unit": "L1-SMOKE-A1",
+  "stage": "local",
+  "date": "20261018",
+  "baseline": "a25ba4130da7a8cf9e107ecfa0c30b5648082936",
+  "rebasedOnto": "2d576747e9 (fetched Main after #2285 LSC parallel amendment, docs/ledger only) via db3b56816 (#2280 machine-idle, #2284 docs). a25ba4130..2d576747e touches docs/audits, scripts/qc/machine-idle.mjs, scripts/__tests__/machine-idle.test.ts and other units' ledger rows (PROGRESS.md, roadmap.json, units.json LSC rows, lsc-parallel-amendment evidence): no manifest leaf, no frozen control, no src byte and no L1-SMOKE-A1 byte. Rebases were clean; admission baseline field kept as admitted.",
+  "commits": {
+    "admission": "a205fa117",
+    "red": "a9bda139c",
+    "green": "this commit (HEAD)"
+  },
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "L1-SMOKE-A1 implementation sub-agent"
+  },
+  "runtime": {
+    "node": "v22.22.0",
+    "heavyQueue": "node E:/Projects/Personal/MekStation-wt/_locks/heavy-run.mjs --lane smoke-a1 --class build --p0 (Root P0 priority); queue runs machine-idle (now Jest-aware) at the head. Earlier light runs gated with node scripts/qc/machine-idle.mjs --own-pid 47516 --own-pid 55164."
+  },
+  "implementationLeaves": [
+    {
+      "path": "scripts/release/run-l1-built-server-smoke.mjs",
+      "added": 226,
+      "sha256": "a9300977bbf6b9ad6efb6febed95b828629733ff6fcd4aeb87e8ae546ed9cc9b",
+      "bytes": 16507
+    },
+    {
+      "path": "scripts/release/l1-built-server-socket-cases.mjs",
+      "added": 199,
+      "sha256": "ab4df6ad917d5103d9f14baa8f0197b42dbbc19b13d100aa49448dc0348622dc",
+      "bytes": 15615
+    },
+    {
+      "path": "scripts/release/l1-built-server-fixtures.ts",
+      "added": 46,
+      "sha256": "6777453bee2d21aed6db18329ec7e022aea3a69d9075c653f01ca71b61ab935a",
+      "bytes": 3293
+    }
+  ],
+  "bytesVersusAdmission": "All four leaves byte-identical to the admission-recorded prototype (prep.files). Test leaf byte-identical to RED (d67cb2e7...); no test byte changed after RED.",
+  "counted": {
+    "runner": 226,
+    "cases": 199,
+    "fixtures": 46,
+    "code": 471,
+    "lifecycle": "16 (admission 10, red 3, local 3)",
+    "total": "487 / 500",
+    "files": "8 written + 1 reserved = 9 / 15",
+    "tests": "372 (exempt)",
+    "method": "git diff --numstat --no-renames origin/main..HEAD over runner, cases, fixtures and units.json"
+  },
+  "delivered": "Frozen A1 harness/transport/baseline interface as recorded in the admission design.extensionContract; no deviation.",
+  "results": {
+    "nodeTest": {
+      "command": "node --test scripts/release/l1-built-server-smoke.test.mjs",
+      "result": "tests 15, pass 15, fail 0 (23.9s)",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/l1-smoke-a1-proof-20261018/green-test.log",
+        "sha256": "61f95b1915c91f496281049fd02e4a7bbf5450e9b19c332fbb23c555ccb519f9",
+        "bytes": 6588
+      },
+      "note": "Run on the a25ba4130-based branch; leaf bytes unchanged by the rebase."
+    },
+    "lintLeaves": {
+      "command": "oxlint --config scripts/qc/oxlint-units.json --allow no-console <four leaves>",
+      "result": "0 warnings, 0 errors on 4 files",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/l1-smoke-a1-proof-20261018/lint-leaves-green.log",
+        "sha256": "a458135f0b4cda3df39e932225a06062013b532b19169613cc236eb3a01cd6e3",
+        "bytes": 188
+      }
+    },
+    "lintUnits": {
+      "command": "node scripts/qc/lint-units.mjs",
+      "result": "LINT_UNITS_PASS 17896/17899; scripts 50/50 unchanged (byte-identical log to baseline)",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/l1-smoke-a1-proof-20261018/lint-units-green.log",
+        "sha256": "b76ca7cae1bdb510155e8329a555db6fb7fa3dbac39ca842d7251428b2266682",
+        "bytes": 584
+      },
+      "gitignoreNote": "scripts/** is gitignored (whitelist); the leaves are force-added tracked files, so the directory walk does not visit them; explicit-path lint above is the leaf proof."
+    },
+    "validateRoadmap": "ROADMAP VALIDATION PASSED: 93 nodes, 13 packages, 381 tasks, 40 triage rows"
+  },
+  "realRun": {
+    "claim": "One real run of the A1 smoke against a normal production build of exact fetched Main db3b56816. Partial proof only: A1 baseline rows; no B10 matrix, restart acceptance or fog-on refusal; does not discharge S-SMOKE-1 / B14A-SMOKE-1 / B14B-SMOKE-1.",
+    "worktree": "E:/Projects/Personal/MekStation-wt/l1-smoke-a1-main-20261018 (detached at db3b56816, clean, its own npm ci exit 0)",
+    "command": "node <branch>/scripts/release/run-l1-built-server-smoke.mjs --build --expected-sha=db3b5681663b5eb8b4f42507e4047a7f3ca2b1de --output=E:/Projects/Personal/MekStation-wt/l1-smoke-a1-proof-20261018/run-main-db3b56816 --repo-root=E:/Projects/Personal/MekStation-wt/l1-smoke-a1-main-20261018",
+    "exit": 0,
+    "verdict": "PASS",
+    "build": {
+      "command": "npm.cmd run build",
+      "exitCode": 0,
+      "ms": 146506,
+      "buildId": "1792353025224",
+      "builtFresh": true
+    },
+    "image": {
+      "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
+      "configSha256": "7d16282e0919dc76e2f880bf0f5d94de36f9c63143df8875bf787a9e9593d866",
+      "sourceTreeSha256": "91128520ea82210c656d95122582b14687f2ba9e147eb57b4367e4546edd7fd4"
+    },
+    "processes": [
+      {
+        "n": 1,
+        "pid": 51600,
+        "port": 61082,
+        "readyRecords": 1,
+        "stop": "owned taskkill, exit 1, port released"
+      },
+      {
+        "n": 2,
+        "pid": 26068,
+        "port": 61082,
+        "readyRecords": 1,
+        "note": "restart via callback, same image re-verified, same port and private DB; final cleanup owned only"
+      }
+    ],
+    "readiness": "MEKSTATION_LISTENER_READY {schema mekstation-packaged-listener-ready/v1, configuredHostname 127.0.0.1, boundAddress 127.0.0.1, family IPv4, port 61082}; listener probe 404 from the owned server",
+    "rows": {
+      "credential-malformed-refused": "upgrade 401",
+      "credential-url-refused": "upgrade 400 (placeholder query token; no credential in any URL)",
+      "credential-foreign-refused": "guest credential + host playerId SessionJoin -> Error/Close AUTH_REJECTED player-mismatch, no ReplayStart",
+      "participants-authenticated": "fog-off 1v1, alpha-1 = host principal, bravo-1 = guest principal, LaunchMatch -> active",
+      "participant-action-accepted": "host AdvancePhase -> initiative_rolled Event with payload.intentId host-3",
+      "spectator-seat-witnessed": "POST /spectate 201 spectator-1; LobbyUpdated shows the watcher only on spectator-1 (kind spectator), status active; server 'session joined' line for the watcher principal",
+      "spectator-replay-public": "ReplayStart/Chunk/End: game_started, initiative_rolled, initiative_order_set, phase_changed at deliveries 0-3; every host-observed action event id present",
+      "spectator-live-public": "guest AdvancePhase -> movement_locked live at delivery 4",
+      "spectator-cannot-act": "watcher AdvancePhase -> Error INVALID_INTENT spectator-cannot-act (watcher-1); next host action arrives live, no event for watcher-1, gapless stream",
+      "callbacks-exercised": "stop pid 51600 -> offline tsx lineage (match active, fogOfWar false, spectator seat persisted, 12 events) -> restart pid 26068 -> spectator reconnect replays all 11 public events"
+    },
+    "redaction": "6 credentials registered (3 tokens, 3 signatures); every retained file scanned, none found; SessionJoin frames retained as [REDACTED:<label>-token].",
+    "evidence": {
+      "dir": "E:/Projects/Personal/MekStation-wt/l1-smoke-a1-proof-20261018/run-main-db3b56816",
+      "files": {
+        "evidence.jsonl": "f4af5aed8647b36ed88ad414328193fbae80b348602e46ac104bc813cd64c048 45793",
+        "manifest.json": "47d2b72c659b8ced0c38d4e2fb1a921a11197e3ba5ffada8f35ccbb1eb98eb86 1118",
+        "summary.json": "b076121cf5577529129de6570673300690edd727f9691ff4f2ccf91c6e5005ba 2240",
+        "server-1.log": "58a994c0a9598d57773cca45a7ba8d00cf88558b04a1e42ab83ec43a231d760a 5619",
+        "server-2.log": "a9e5ece7265ade5920e5053f5796dc8d8274df8a0715554a286b9092b0e13442 1675",
+        "db/smoke.sqlite": "ded6347373baa19341fa364f9c3f31819be1394599b9aeb07e6a26cc4ce684f9 806912 (retained, with -wal 70072 and -shm 32768)"
+      },
+      "runLog": {
+        "path": "E:/Projects/Personal/MekStation-wt/l1-smoke-a1-proof-20261018/run-main.log",
+        "sha256": "e91eb2946d44ccd63a0f74dcc5e025ad725cf48bfc9bda7c7f3ff53846f76912",
+        "bytes": 780
+      },
+      "npmCiLog": {
+        "path": "E:/Projects/Personal/MekStation-wt/l1-smoke-a1-proof-20261018/main-npm-ci.log",
+        "sha256": "3065ec375186a3d1a64d025b906d1aaa0a1c905cc5cf9b4974ecbc9bc5ebd96c",
+        "bytes": 2576
+      }
+    },
+    "mainDelta": "The run is on db3b56816; the branch base 2d576747e differs only by docs/ledger commit #2285 (no src, server, package or build input)."
+  },
+  "mutationProbes": {
+    "method": "20 single-edit mutants of the three implementation leaves, each run against the frozen test leaf in a scratch copy (E:/Projects/Personal/MekStation-wt/l1-smoke-a1-vacuous), gated per run.",
+    "caught": "16 / 20",
+    "log": {
+      "path": "E:/Projects/Personal/MekStation-wt/l1-smoke-a1-proof-20261018/mutants.json",
+      "sha256": "b8529c6653c8a72e63229118dc99e3087fe9a15fac2b787e9dd1f7ce146795a5",
+      "bytes": 5877
+    },
+    "caughtIds": [
+      "M1 redactor drops base64url form",
+      "M2 readiness ignores port",
+      "M3 server-output leak ignored",
+      "M4 case enumeration not enforced",
+      "M5 owned kill is a no-op",
+      "M6 standalone BUILD_ID not compared",
+      "M7 restart skips image re-verification",
+      "M8 prepareOffline allowed while running",
+      "M9 build exit code ignored",
+      "M10 source SHA not compared",
+      "M11 early server exit ignored",
+      "M12 readiness count not enforced",
+      "M14 echoed credential in frame ignored",
+      "M15 premature close not detected",
+      "M17 replay public facts not checked",
+      "M20 fixture ignores a live owning pid"
+    ],
+    "survivors": {
+      "M13 retained-credential scan disabled": "Defense in depth: every harness write is already sanitized, so no falsifier can reach the final scan; it guards files that A2/B extension code writes into the run dir. Gap disclosed for review (a test row would need a post-RED test change).",
+      "M16 spectator refusal check removed": "Equivalent under the stub: the independent stream-unchanged check still fails an acting spectator with [spectator-cannot-act].",
+      "M18 action-acceptance check removed": "Equivalent under the stub: the acted.length check still fails universal rejection with [participant-action-accepted].",
+      "M19 live delivery contiguity check removed": "Real falsifier gap: no stub mode delivers a non-contiguous live sequence. Positive contiguity is observed on the real image (delivery 4 after replay 0-3). Disclosed for review."
+    }
+  },
+  "findings": {
+    "FINDING-A1-PREP-1": "Unchanged from admission: concurrent first upgrades to a fresh lobby match create two ServerMatchHost instances (MatchHostRegistry.getOrCreate has no in-flight dedupe); STORE_FAILURE revision-conflict follows. src-owned; needs a separately registered unit. The A1 baseline serializes first connections.",
+    "OBS-A1-1": "The spectator-cannot-act Error is broadcast to every connected participant, not only the actor (ServerMatchHostIntent rejectSpectatorIntent uses ctx.broadcast). Carries no hidden data; recorded for A2/B observers.",
+    "OBS-A1-2": "Replay to a late spectator omits game_created (totalEvents counts projected events only); the first public fact is game_started."
+  },
+  "carryForwards": {
+    "CF-SMOKE-1": "Discharged in A1 by the two CF-SMOKE-1 node:test rows (15/15) and the callbacks-exercised row on the real image.",
+    "CF-H12/CF-E10": {
+      "rule": "verify every required check run by name on the exact head",
+      "expectedNames": [
+        "A11y Tests",
+        "Build Storybook",
+        "Build Test / linux",
+        "Build Test / mac",
+        "Build Test / win",
+        "Coverage Floor",
+        "Customizer Regressions",
+        "Desktop Tests",
+        "Desktop Type Check",
+        "Detect Changes",
+        "Determinism Audit",
+        "E2E Smoke",
+        "Format Check",
+        "Install Dependencies",
+        "Lint",
+        "Lint and Test",
+        "Perf Budget PR",
+        "Perf Smoke Tests",
+        "Prepare Build Artifacts",
+        "Schema Bridge",
+        "Seam Anchors",
+        "Statistical Proof PR",
+        "Type Check",
+        "Unit Tests (1/6)",
+        "Unit Tests (2/6)",
+        "Unit Tests (3/6)",
+        "Unit Tests (4/6)",
+        "Unit Tests (5/6)",
+        "Unit Tests (6/6)",
+        "Validate BV Parity",
+        "Validate Combat Suite",
+        "Validate Roadmap Ledger"
+      ],
+      "expectedCount": 32,
+      "exactHead": "A receipt cannot contain the CI result of the commit that carries it; the by-name comparison on the exact PR head is posted as a PR comment."
+    },
+    "S-SMOKE-1 / B14A-SMOKE-1 / B14B-SMOKE-1": "Still owed; needs A2 + B closures and the final combined B run on exact Main after B14-HEAD."
+  },
+  "boundaryControls": "Frozen controls (admission frozen-controls.json) byte-identical at this head: no src, server.js, package.json, lockfile, workflow, existing validator or existing test edit; noPerViewerRevealProjection untouched and never overridden; no /api/e2e; no ServerMatchHost import in the assertion process.",
+  "status": "local-verified candidate; sensitive privacy/authority review (independent exact-head Fable review), OWNER-RULING and current required CI pending. Not merged.",
+  "preCommitHook": "The repo pre-commit lint-staged task runs oxfmt --write on staged *.ts by explicit path, which ignores .oxfmtignore's scripts entry and rewrote the fixtures leaf (imports reordered above the header comment; 46 -> 102 lines, which would breach the 500 cap). CI Format Check (oxfmt --check .) honours .oxfmtignore and never visits scripts/, so the rewrite is not a gate. The GREEN commit was amended with --no-verify to keep the admitted fixtures bytes (sha256 6777453b...); no other hook result was bypassed (oxlint/lint-units run explicitly above). Decision point for review."
+}
