@@ -7448,7 +7448,7 @@
       "id": "B14-0",
       "node": "R2.authority-live",
       "taskKeys": [],
-      "behavior": "Fail closed on unsupported fog delivery. Temporarily refuse fog-on multiplayer private battle-state reads for all playing, spectating and host audiences before baseline/event serialization: live, join, rejoin, every replay entrance including the legacy callback, participant HTTP metadata and history/export. Verify current membership first so a non-member receives only generic auth refusal and no fog configuration. Missing metadata fails closed when fog is on or its configuration is unknown; no unprojected fog fallback. Missing projection metadata alone must not cause a fog-policy refusal when authoritative fog configuration is known off; preserve otherwise-authorized fog-off reads and existing authentication/membership rules. Use existing typed refusal vocabulary with fixed reason fog-projection-unavailable and WS 1008; no new protocol enum. Existing sockets must stop fog delivery. Persisted matches remain intact and the server remains authoritative. Public lobby existence/config summaries are outside private battle-state reads. Preserve fog-off two-deploying-players-plus-non-playing-GM co-op. Full playable fog restoration is excluded and remains blocked, unscheduled, later separately registered work.",
+      "behavior": "Fail closed on unsupported fog delivery through the single capability predicate in fogMatchAdmission.ts: \"no per-viewer reveal projection available for this match\". Callers use that decision rather than scattered config checks. Temporarily refuse fog-on multiplayer private battle-state reads for all playing, spectating and host audiences before baseline/event serialization: live, join, rejoin, every replay entrance including the legacy callback, participant HTTP metadata and history/export. Verify current membership first so a non-member receives only generic auth refusal and no fog configuration. Missing metadata fails closed when fog is on or its configuration is unknown; no unprojected fog fallback. Missing projection metadata alone must not cause a fog-policy refusal when authoritative fog configuration is known off; preserve otherwise-authorized fog-off reads and existing authentication/membership rules. Use existing typed refusal vocabulary with fixed reason fog-projection-unavailable and WS 1008; no new protocol enum. Existing sockets must stop fog delivery. Persisted matches remain intact and the server remains authoritative. Public lobby existence/config summaries are outside private battle-state reads. Preserve fog-off two-deploying-players-plus-non-playing-GM co-op. Full playable fog restoration is excluded from B14-0 and registered as the blocked FOG-S/K/B/L/R/H/X chain at the head of P5, after P4 Task33 proof. The fog-of-war spec delta reads: \"fog-on private reads SHALL be served only through a per-viewer projection; when none is available, refuse with fog-projection-unavailable\". FOG-X modifies rather than removes this capability requirement. Do not add tests pinning GameCreated as a public full-roster event.",
       "ownershipPaths": [
         "src/lib/multiplayer/server",
         "src/pages/api/multiplayer/matches/[id].ts",
@@ -11371,7 +11371,12 @@
         "tick": null
       },
       "ownerGate": null,
-      "source20260922": "planned by the parent under OD-mvp-hard-cutover (owner, 2026-09-22) from the read-only cutover map of 2026-09-22 (Opus planning lane; its evidence is file:line on origin/main 31ab3c16e and is summarised in each behaviour sentence)"
+      "source20260922": "planned by the parent under OD-mvp-hard-cutover (owner, 2026-09-22) from the read-only cutover map of 2026-09-22 (Opus planning lane; its evidence is file:line on origin/main 31ab3c16e and is summarised in each behaviour sentence)",
+      "predecessors": [
+        "FOG-R",
+        "FOG-H",
+        "FOG-X"
+      ]
     },
     {
       "id": "U46",
@@ -11907,7 +11912,13 @@
         "tick": null
       },
       "ownerGate": null,
-      "source20260922": "planned by the parent under OD-mvp-hard-cutover (owner, 2026-09-22) from the read-only cutover map of 2026-09-22 (Opus planning lane; its evidence is file:line on origin/main 31ab3c16e and is summarised in each behaviour sentence)"
+      "source20260922": "planned by the parent under OD-mvp-hard-cutover (owner, 2026-09-22) from the read-only cutover map of 2026-09-22 (Opus planning lane; its evidence is file:line on origin/main 31ab3c16e and is summarised in each behaviour sentence)",
+      "predecessors": [
+        "FOG-R",
+        "FOG-H",
+        "FOG-X",
+        "U26"
+      ]
     },
     {
       "id": "U31",
@@ -15940,14 +15951,83 @@
       "ownerGate": null,
       "admissionRequires": "Blocked documentary registration, no source admission. L2/P3-exit supporting group after U38 and prior B15 predecessor exact-main PASS, fetched-main ancestry and closure. No overlap with L1, U50, U81 or U101c/d work; re-census every literal path, including exceptions and planned/blocked holders, before admission. Keep one product/closure lane. Ordinary caps are 15 actual unique files and 500 U41 added counted lines, no deletion credit. Freeze complete source/test/helper/lifecycle/evidence manifest before edits. This inventory is not cap-fit proof: if required tests, projection or evidence exceed either cap, register narrower ordinary-cap successors before implementation; never omit proof or bypass auth to fit. NEXT does not enforce documentary edges or release policy. No remote/tunnel claim before B15-3R, B15-3, B15-5 and B15-5R exact-main proof plus the complete group/hosting acceptance. Existing L1 predicate is unchanged. Sensitive: register a genuine packet before local-verified and obtain independent exact-head review plus OWNER-RULING before merge. ownerGate null is not a waiver; no unresolved choice packet is fabricated.",
       "predecessors": ["B15-5"],
-      "successors": ["B15-6"],
+      "successors": [
+        "B15-PRIV"
+      ],
       "registration20261018B15": {"evidence":"evidence/b15-ob2-registration-20261018.json","layer":"L2 = P3 exit; remote/tunnel support precondition, never an L1 prerequisite","ownerRulingRequired":true,"sourceAdmitted":false}
+    },
+    {
+      "id": "B15-PRIV",
+      "node": "R2.campaign-access",
+      "taskKeys": [],
+      "behavior": "PRIV-1 implementation: exclude co-op campaign sessions and co-op mission matches entirely from GET /api/multiplayer/lobbies (getJoinableLobbies) and spectatable listings, using meta.coopCampaign / coopMission rather than layout guesses. Stop embedding the room code in the default co-op campaign name. Invitation joining remains membership-authorized; possession of a code does not bypass campaign admission. Ordinary public lobbies remain discoverable. B15-6 owns documentation only and cites this unit exact-main PASS.",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server/joinableLobbies.ts",
+        "src/lib/multiplayer/server/__tests__/joinableLobbies.test.ts",
+        "src/__tests__/unit/api/multiplayerLobbies.test.ts",
+        "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+        "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+        "src/__tests__/api/securityBoundary.test.ts"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-priv-local.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-priv-review.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-priv-main.json"
+      ],
+      "lifecycleOwnershipLimit": "Only own authentic lifecycle after admission; prospective evidence names must be frozen at admission. Ten-file target includes six product/test leaves, ledger and three evidence files; independent outputs count and require splitting if the target cannot fit.",
+      "ciClass": "product",
+      "reviewClasses": [
+        "privacy"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "admissionRequires": "Blocked post-U38 like all B15, after B15-5R exact-main PASS, fetched-main ancestry and closure; no L1 prerequisite. Re-census every proposed literal against G2, B14, B15 and all planned/blocked holders on current Main; no current write permission to protected co-op or L1 files. Target <=10 actual files / <=300 counted additions is a hypothesis, not measured proof. Freeze the complete manifest and split if proof/closure exceeds target or ordinary 15/500 caps. Genuine sensitive packet before local-verified; independent exact-head review and OWNER-RULING before merge; exact-main PASS and closure before B15-6. No source admission or fabricated receipts.",
+      "predecessors": [
+        "B15-5R"
+      ],
+      "successors": [
+        "B15-6"
+      ],
+      "registration20261018Council3": {
+        "sourceAdmitted": false,
+        "layer": "L2 / P3 exit, blocked post-U38",
+        "targetMaxFiles": 10,
+        "budgetHypothesis": "<=300 counted additions including lifecycle/evidence; tests file-counted under U41.",
+        "acceptance": [
+          "Authenticated stranger without a campaign seat sees no co-op row, room code or matchId in joinable or spectatable responses, for both campaign-session and mission metadata.",
+          "Ordinary lobbies and spectatable matches remain unchanged.",
+          "Campaign member invite join still works with existing membership/authorization checks.",
+          "Default co-op campaign name contains no room code."
+        ],
+        "evidence": [
+          "evidence/council3-a-20261018.txt",
+          "evidence/council3-b-20261018.txt",
+          "evidence/council3-c-20261018.txt"
+        ]
+      }
     },
     {
       "id": "B15-6",
       "node": "R2.campaign-access",
       "taskKeys": [],
-      "behavior": "Docker honesty and supported hosting documentation: Make README/compose comments honest: current Docker image and dev compose service fail hostname admission; do not remove the loopback guard, enable binding, or advertise a working published-port deployment. Dockerfile stays outside the grant because U81 reserves it. Document same-host v2.2.0 limitations and, only after B15 core proof, the single-operator TLS reverse-proxy-to-loopback topology with allowlist and bootstrap route excluded. Add the remote procedure to coop UAT. Externally routed three-person mission evidence is release/playtest evidence, not a new product unit, QC script or network e2e spec. Multiple mutually untrusted operators remain unsupported pending FN-ob2 owner-column follow-up. R-PRIV-1 (PRIV-1), remote/tunnel readiness obligation: co-op campaign lobbies currently appear with roomCode and matchId in authenticated GET /api/multiplayer/lobbies. CampaignCoopEntryPanel creates them as 1v1 with a spectator host and open human seats; the campaign WS join path binds separate campaign membership and never fills meta.seats, so they remain discoverable while in lobby status. Their room codes are therefore not secrets from other authenticated players. P2CG1G2A's registered authenticated campaignIdentity=1 invite read links matchId to campaignId without requiring a campaign seat; bearer authentication alone does not close this discovery/correlation exposure. Before any remote/tunnel hosting procedure or support claim, a product fix in src/lib/multiplayer/server/joinableLobbies.ts or co-op session creation must prevent unintended co-op lobby/code discovery, with exact-main regression proof covering a valid authenticated stranger without a campaign seat and preserving intended ordinary-lobby discovery and co-op joining. Admission note only: joinableLobbies.ts and any additional regression-test leaves are outside this docs/config manifest; do not silently grant them to routine B15-6 or implement under it. Re-census and register a narrower authority/privacy slice or a reviewed owning-unit amendment within the existing 15-file/500-line caps before implementation. This note adds no leaf or source admission; all B15 units stay blocked and the existing same-host v2.2.0/L1 boundary is unchanged.",
+      "behavior": "Docker honesty and supported hosting documentation: Make README/compose comments honest: current Docker image and dev compose service fail hostname admission; do not remove the loopback guard, enable binding, or advertise a working published-port deployment. Dockerfile stays outside the grant because U81 reserves it. Document same-host v2.2.0 limitations and, only after B15 core proof, the single-operator TLS reverse-proxy-to-loopback topology with allowlist and bootstrap route excluded. Add the remote procedure to coop UAT. Externally routed three-person mission evidence is release/playtest evidence, not a new product unit, QC script or network e2e spec. Multiple mutually untrusted operators remain unsupported pending FN-ob2 owner-column follow-up. PRIV-1 product implementation belongs exclusively to sensitive B15-PRIV. Keep only discovery/privacy documentation here, citing B15-PRIV exact-main PASS, fetched-main ancestry and closure before publishing any remote/tunnel hosting procedure or support claim. No listing or default-name implementation is admitted under this routine docs/config unit; all B15 remains blocked post-U38 and L1 is unchanged.",
       "ownershipPaths": ["README.md","docker-compose.yml","playtest/checklists/coop-uat.md","docs/releases/v2.2.0-topology.md"],
       "ownershipExceptions": ["openspec/planning/2026-09-12-roadmap-completion/units.json","docs/deployment/campaign-hosting.md"],
       "lifecycleOwnershipLimit": "Own authentic lifecycle only; no other task/packet/receipt changes. Literal prospective files only, not directory-wide ownership.",
@@ -15961,9 +16041,367 @@
       "stageReceipts": {"admission":null,"red":null,"local":null,"review":null,"merge":null,"mainProof":null,"tick":null},
       "ownerGate": null,
       "admissionRequires": "Blocked documentary registration, no source admission. L2/P3-exit supporting group after U38 and prior B15 predecessor exact-main PASS, fetched-main ancestry and closure. No overlap with L1, U50, U81 or U101c/d work; re-census every literal path, including exceptions and planned/blocked holders, before admission. Keep one product/closure lane. Ordinary caps are 15 actual unique files and 500 U41 added counted lines, no deletion credit. Freeze complete source/test/helper/lifecycle/evidence manifest before edits. This inventory is not cap-fit proof: if required tests, projection or evidence exceed either cap, register narrower ordinary-cap successors before implementation; never omit proof or bypass auth to fit. NEXT does not enforce documentary edges or release policy. No remote/tunnel claim before B15-3R, B15-3, B15-5 and B15-5R exact-main proof plus the complete group/hosting acceptance. Existing L1 predicate is unchanged. Routine: ordinary independent review/CI; no sensitive OWNER-RULING required. Reclassify before any actual authority/privacy policy change.",
-      "predecessors": ["B15-5R"],
+      "predecessors": [
+        "B15-PRIV"
+      ],
       "successors": [],
       "registration20261018B15": {"evidence":"evidence/b15-ob2-registration-20261018.json","layer":"L2 = P3 exit; remote/tunnel support precondition, never an L1 prerequisite","ownerRulingRequired":false,"sourceAdmitted":false}
+    },
+    {
+      "id": "FOG-S",
+      "node": "R5.fog-restoration",
+      "taskKeys": [],
+      "behavior": "Specify the viewer knowledge model and ordered reveal/update/lost effects derived from canonical events, never appended to the canonical journal. Define own-side bootstrap and historical audience/ownership/policy facts; one deterministic projector serves live, replay, rejoin, HTTP metadata/history/export/head and viewer-derived digests only. Reconcile out-of-LOS destruction disclosure with never-seen identity privacy. Resolve applicable pending policy questions explicitly before downstream implementation. Do not pin GameCreated as a public full-roster event.",
+      "ownershipPaths": [
+        "openspec/specs/fog-of-war/spec.md"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "lifecycleOwnershipLimit": "Own authentic lifecycle only after finite admission; every actual lifecycle/evidence file counts. Navigation aliases are not directory-wide permission.",
+      "ciClass": "product",
+      "reviewClasses": [
+        "privacy",
+        "authority",
+        "replay"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "admissionRequires": "All seven units remain blocked. NEXT does not enforce documentary predecessors or this placement. Root must verify P4 Task33 exact-main authority proof, resolve applicable pending policy, re-census all ownership including U26/U30 and protected L1 paths, freeze literal manifests, and release one unit at a time after predecessor genuine exact-main PASS, fetched-main ancestry and closure. Sensitive packets, independent exact-head review and OWNER-RULING remain required. No historical U2/U22 closure or task holder changes.",
+      "predecessors": [],
+      "successors": [
+        "FOG-K"
+      ],
+      "registration20261018Council3": {
+        "sourceAdmitted": false,
+        "budgetHypothesis": "6-8 files / 250-400 counted additions",
+        "placement": "Head of P5, after P4 Task33 production journal authority proof and before U26 and Tasks 34-40. No L1/L2 insertion and no priority above P4. Preserve all original P5 prerequisites.",
+        "prerequisite": "P4 Task33 production journal authority exact-main proof; resolve applicable pending owner policy."
+      }
+    },
+    {
+      "id": "FOG-K",
+      "node": "R5.fog-restoration",
+      "taskKeys": [],
+      "behavior": "Implement trusted per-unit ownership, observer/target movement and LOS/sensor visibility transitions, and a deterministic last-known knowledge reducer. Refuse missing required visibility inputs instead of granting sight through an empty-clear-grid fallback. Historical membership, ownership, policy and audited GM grants determine the audience; do not infer ownership from the first assignment on a side.",
+      "ownershipPaths": [
+        "src/utils/gameplay",
+        "src/lib/multiplayer/server"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "lifecycleOwnershipLimit": "Own authentic lifecycle only after finite admission; every actual lifecycle/evidence file counts. Navigation aliases are not directory-wide permission.",
+      "ciClass": "product",
+      "reviewClasses": [
+        "privacy",
+        "authority",
+        "replay"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "admissionRequires": "All seven units remain blocked. NEXT does not enforce documentary predecessors or this placement. Root must verify P4 Task33 exact-main authority proof, resolve applicable pending policy, re-census all ownership including U26/U30 and protected L1 paths, freeze literal manifests, and release one unit at a time after predecessor genuine exact-main PASS, fetched-main ancestry and closure. Sensitive packets, independent exact-head review and OWNER-RULING remain required. No historical U2/U22 closure or task holder changes.",
+      "predecessors": [
+        "FOG-S"
+      ],
+      "successors": [
+        "FOG-B"
+      ],
+      "registration20261018Council3": {
+        "sourceAdmitted": false,
+        "budgetHypothesis": "10-12 files / 300-450 counted additions",
+        "placement": "Head of P5, after P4 Task33 production journal authority proof and before U26 and Tasks 34-40. No L1/L2 insertion and no priority above P4. Preserve all original P5 prerequisites.",
+        "prerequisite": "Prior FOG unit exact-main PASS and closure."
+      }
+    },
+    {
+      "id": "FOG-B",
+      "node": "R5.fog-restoration",
+      "taskKeys": [],
+      "behavior": "Define per-viewer bootstrap and entity reveal schema with permitted field tiers: own-side/authorized revealed units plus explicitly public facts; hidden units are absent, not identifying placeholders. Reveal establishes an entity before dependent events refer to it. Audit GameCreated, initiative/order, reveal batches and sealed-choice fields; unknown-unit identity and hidden-dependent hashes never enter the payload.",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server",
+        "src/types/gameplay"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "lifecycleOwnershipLimit": "Own authentic lifecycle only after finite admission; every actual lifecycle/evidence file counts. Navigation aliases are not directory-wide permission.",
+      "ciClass": "product",
+      "reviewClasses": [
+        "privacy",
+        "authority",
+        "replay"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "admissionRequires": "All seven units remain blocked. NEXT does not enforce documentary predecessors or this placement. Root must verify P4 Task33 exact-main authority proof, resolve applicable pending policy, re-census all ownership including U26/U30 and protected L1 paths, freeze literal manifests, and release one unit at a time after predecessor genuine exact-main PASS, fetched-main ancestry and closure. Sensitive packets, independent exact-head review and OWNER-RULING remain required. No historical U2/U22 closure or task holder changes.",
+      "predecessors": [
+        "FOG-K"
+      ],
+      "successors": [
+        "FOG-L"
+      ],
+      "registration20261018Council3": {
+        "sourceAdmitted": false,
+        "budgetHypothesis": "10-12 files / 300-450 counted additions",
+        "placement": "Head of P5, after P4 Task33 production journal authority proof and before U26 and Tasks 34-40. No L1/L2 insertion and no priority above P4. Preserve all original P5 prerequisites.",
+        "prerequisite": "Prior FOG unit exact-main PASS and closure."
+      }
+    },
+    {
+      "id": "FOG-L",
+      "node": "R5.fog-restoration",
+      "taskKeys": [],
+      "behavior": "Publish ordered per-viewer reveal/update/lost effects at canonical commit boundaries and fold them into a dedicated client knowledge model. Hidden movement must not update player positions; visibility loss retains only permitted stale last-known fields. Authenticate GM audience separately. Split server and client work through new registrations if measured scope exceeds either cap; no incomplete authoritative reducer masquerading as full state.",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server",
+        "src/components/multiplayer",
+        "src/utils/gameplay"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "lifecycleOwnershipLimit": "Own authentic lifecycle only after finite admission; every actual lifecycle/evidence file counts. Navigation aliases are not directory-wide permission.",
+      "ciClass": "product",
+      "reviewClasses": [
+        "privacy",
+        "authority",
+        "replay"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "admissionRequires": "All seven units remain blocked. NEXT does not enforce documentary predecessors or this placement. Root must verify P4 Task33 exact-main authority proof, resolve applicable pending policy, re-census all ownership including U26/U30 and protected L1 paths, freeze literal manifests, and release one unit at a time after predecessor genuine exact-main PASS, fetched-main ancestry and closure. Sensitive packets, independent exact-head review and OWNER-RULING remain required. No historical U2/U22 closure or task holder changes.",
+      "predecessors": [
+        "FOG-B"
+      ],
+      "successors": [
+        "FOG-R"
+      ],
+      "registration20261018Council3": {
+        "sourceAdmitted": false,
+        "budgetHypothesis": "12-15 files / 350-450 counted additions",
+        "placement": "Head of P5, after P4 Task33 production journal authority proof and before U26 and Tasks 34-40. No L1/L2 insertion and no priority above P4. Preserve all original P5 prerequisites.",
+        "prerequisite": "Prior FOG unit exact-main PASS and closure."
+      }
+    },
+    {
+      "id": "FOG-R",
+      "node": "R5.fog-restoration",
+      "taskKeys": [],
+      "behavior": "Use the common projector for historical replay/rejoin from canonical prefixes and historical audience facts, with versioned viewer checkpoints and match/viewer/branch-generation-bound cursors. Never recompute past sight from final state. Rewind reconstructs and validates candidate knowledge before atomic activation; reject old-generation cursors. Hidden-only changes cannot alter observable payloads, cursors or viewer-derived digests. Remove raw replay fallback through this boundary; U26 successors consume these receipts for both-head validation.",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "lifecycleOwnershipLimit": "Own authentic lifecycle only after finite admission; every actual lifecycle/evidence file counts. Navigation aliases are not directory-wide permission.",
+      "ciClass": "product",
+      "reviewClasses": [
+        "privacy",
+        "authority",
+        "replay"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "admissionRequires": "All seven units remain blocked. NEXT does not enforce documentary predecessors or this placement. Root must verify P4 Task33 exact-main authority proof, resolve applicable pending policy, re-census all ownership including U26/U30 and protected L1 paths, freeze literal manifests, and release one unit at a time after predecessor genuine exact-main PASS, fetched-main ancestry and closure. Sensitive packets, independent exact-head review and OWNER-RULING remain required. No historical U2/U22 closure or task holder changes.",
+      "predecessors": [
+        "FOG-L"
+      ],
+      "successors": [
+        "FOG-H"
+      ],
+      "registration20261018Council3": {
+        "sourceAdmitted": false,
+        "budgetHypothesis": "12-15 files / 350-450 counted additions",
+        "placement": "Head of P5, after P4 Task33 production journal authority proof and before U26 and Tasks 34-40. No L1/L2 insertion and no priority above P4. Preserve all original P5 prerequisites.",
+        "prerequisite": "Prior FOG unit exact-main PASS and closure."
+      }
+    },
+    {
+      "id": "FOG-H",
+      "node": "R5.fog-restoration",
+      "taskKeys": [],
+      "behavior": "Prove HTTP metadata/history/export/head parity with live/replay/rejoin using the same viewer projector and viewer-derived digests only. Own the projected replacement that lifts B14-HEAD containment; retain membership-first denial and unavailable-projection refusal. U26/U30 successors consume parity receipts without duplicate projection implementations. Capability remains guarded until FOG-X complete-boundary proof enables a surface.",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server",
+        "src/pages-modules/api",
+        "src/pages/api/multiplayer"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "lifecycleOwnershipLimit": "Own authentic lifecycle only after finite admission; every actual lifecycle/evidence file counts. Navigation aliases are not directory-wide permission.",
+      "ciClass": "product",
+      "reviewClasses": [
+        "privacy",
+        "authority",
+        "replay"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "admissionRequires": "All seven units remain blocked. NEXT does not enforce documentary predecessors or this placement. Root must verify P4 Task33 exact-main authority proof, resolve applicable pending policy, re-census all ownership including U26/U30 and protected L1 paths, freeze literal manifests, and release one unit at a time after predecessor genuine exact-main PASS, fetched-main ancestry and closure. Sensitive packets, independent exact-head review and OWNER-RULING remain required. No historical U2/U22 closure or task holder changes.",
+      "predecessors": [
+        "FOG-R"
+      ],
+      "successors": [
+        "FOG-X"
+      ],
+      "registration20261018Council3": {
+        "sourceAdmitted": false,
+        "budgetHypothesis": "10-15 files / 300-450 counted additions",
+        "placement": "Head of P5, after P4 Task33 production journal authority proof and before U26 and Tasks 34-40. No L1/L2 insertion and no priority above P4. Preserve all original P5 prerequisites.",
+        "prerequisite": "Prior FOG unit exact-main PASS and closure."
+      }
+    },
+    {
+      "id": "FOG-X",
+      "node": "R5.fog-restoration",
+      "taskKeys": [],
+      "behavior": "Prove actual browser/server wire bytes contain no hidden identities, fields or hidden-dependent digests across bootstrap, live, replay, rejoin, rewind, HTTP metadata/history/export/head and GM/player/spectator audiences. Re-prove relevant E2E-19-30 live/replay/export rows without rewriting U22 historical closure. Enable each surface only after the complete projection boundary and byte-leak regression proof pass. Modify the B14-0 capability predicate requirement rather than remove it; fog-projection-unavailable remains for matches/surfaces lacking safe projection. Preserve fog-off co-op and sealed-choice privacy.",
+      "ownershipPaths": [
+        "e2e",
+        "src/lib/multiplayer/server",
+        "openspec/specs/fog-of-war/spec.md"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "lifecycleOwnershipLimit": "Own authentic lifecycle only after finite admission; every actual lifecycle/evidence file counts. Navigation aliases are not directory-wide permission.",
+      "ciClass": "product",
+      "reviewClasses": [
+        "privacy",
+        "authority",
+        "replay"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "admissionRequires": "All seven units remain blocked. NEXT does not enforce documentary predecessors or this placement. Root must verify P4 Task33 exact-main authority proof, resolve applicable pending policy, re-census all ownership including U26/U30 and protected L1 paths, freeze literal manifests, and release one unit at a time after predecessor genuine exact-main PASS, fetched-main ancestry and closure. Sensitive packets, independent exact-head review and OWNER-RULING remain required. No historical U2/U22 closure or task holder changes.",
+      "predecessors": [
+        "FOG-H"
+      ],
+      "successors": [
+        "U26"
+      ],
+      "registration20261018Council3": {
+        "sourceAdmitted": false,
+        "budgetHypothesis": "10-13 files / 250-400 counted additions",
+        "placement": "Head of P5, after P4 Task33 production journal authority proof and before U26 and Tasks 34-40. No L1/L2 insertion and no priority above P4. Preserve all original P5 prerequisites.",
+        "prerequisite": "Prior FOG unit exact-main PASS and closure."
+      }
     }
   ],
   "packets": [
@@ -22076,7 +22514,30 @@
     "releaseHold": "B10 is already live: no spectator-bearing shipment or P3 exit may claim readiness until P2CG1S exact-main PASS, even if a release bypasses H. If a spectator release is brought forward, Root must explicitly resequence this serialized repair before it; no risk acceptance is recorded.",
     "sourceNote": "H-OPEN-1 is in evidence/p2cg1d-review-20261017.json successorNotes.P2CG1H, referenced by P2CG1D.stageReceipts.review; not inline in units.json at this baseline."
   },
-  "b15Registration20261018": {"baseline":"e52000e35d99c36691b21d31e60bf19d57de4d64","evidence":"evidence/b15-ob2-registration-20261018.json","recommendation":"A","authority":"Root parent ruling in this task, under owner standing instruction: v2.2.0 same-host/loopback; B15 after L1 and before any remote/tunnel hosting claim.","registrationOnly":true,"sourceAdmitted":false,"node":"R2.campaign-access","units":["B15-0","B15-1","B15-2","B15-4","B15-4J","B15-3R","B15-3","B15-5","B15-5R","B15-6"],"layer":"L2 = P3 exit","rationale":"Authentication/read projection hardens the shared-mission surface already completed at P3 exit. No separate user-visible layer or L1 predicate change is needed. Historical 13-package obligations stay unchanged; this additional group must close before L2/P3 exit and any remote/tunnel support claim.","order":"U38 -> B15-0 -> B15-1 -> B15-2 -> B15-4 -> B15-4J -> B15-3R -> B15-3 -> B15-5 -> B15-5R -> B15-6. Then resume eligible L2 work, including U101a-d under their original order. No concurrent U50/U81/U101c/d ownership; rebase/re-census if any lands first.","L1Unchanged":true,"supportedV220Topology":"One machine, Electron or localhost development server; existing enforced loopback listener unchanged. No inter-participant isolation on the same OS session. No remote/proxy/tunnel support in v2.2.0.","releaseNotes":"docs/releases/v2.2.0-topology.md","remoteHold":"No remote/tunnel procedure or support claim before full B15 exact-main proof, complete actor x all-method isolation including session creation, existing packaged-boundary regression, and actual intended-topology playtest evidence. B15 is single-operator only; multi-operator hosting additionally requires the separately open owner-column/identity follow-up.","findingDisposition":{"FNob2":"Original finding and OB-2 text/status unchanged. B15 addresses single-operator credential/member access only; owner-column/multi-operator identity clause remains open, not discharged.","FNu96":"B15-3 is prospective resolvedBy; finding stays recorded until genuine exact-main PASS and closure."},"enforcement":"Documentary scheduling/hosting hold; generic validator does not enforce these markers or unit predecessor arrays. Root owns release/publication checks. Routine 0/2/4/4J/6 do not acquire sensitive owner gates; sensitive 1/3R/3/5/5R retain packet and exact-head OWNER-RULING.","supersedes":"Rejected unpublished 16-unit gate-B design at 4bce669ac3112a783e99e6806a9e25a27ee6594d; challenge and parent ruling replace it. No historical Main receipt is superseded.","decisionSource":"Root parent ruling supplied in the task message headed PARENT RULING, following the independent Fable challenge; reaffirmed by Root in the review-fix instruction for PR #2237. This is parent-transcribed authority under a standing owner instruction, not a new direct owner answer.","ownerWords":"continue with recommended options and fix the issues that come up, publish as needed","parentWords":"Root adopts gate A: v2.2.0 ships on the existing enforced same-host/loopback boundary, unchanged from today's OB-2 posture, with release notes stating the supported topology; B15 is registered for delivery before any remote/tunnel hosting claim, NOT as an L1 prerequisite","disclosure":"The ownerWords quote is the standing instruction reported by Root. Gate A and L2 placement are Root's adopted recommendation, not wording attributed to a fresh owner topology choice. The design agent transcribed that ruling and the review-fix request. No future sensitive OWNER-RULING, merge approval or runtime acceptance is supplied by this provenance record.","releaseNotesShipRequirement":"Root must include both the same-host/no-proxy-or-tunnel topology statement and the Docker HOSTNAME-refusal/unsupported-hosting statement from docs/releases/v2.2.0-topology.md in the actual v2.2.0 release notes. README/compose edits remain B15-6 after L1; disclosure must not wait for that unit. This is the parent's release-note handoff, not a B15 implementation prerequisite added to the unchanged L1 predicate.","selectorDependency":"R2.campaign-access depends on already-main-verified R2.authority-live so NEXT can select each explicitly released B15 unit. U38 and ordinary unit predecessor PASS/closure remain parent-enforced admission predicates; the node edge alone does not release any unit.","reviewFixSplit":{"reviewedHead":"28ff707f1d4a55f23229cfd43af02e85206afc53","additionalUnits":["B15-4J","B15-3R","B15-5R"],"reason":"Root directed F1-F5 fixes with caps respected. Split candidate inventories instead of widening 4/3/5 above 15 files; all successors retain ordinary 15/500 caps and inherited review class."},"g2SplitComposition":{"source":"Root round-2 review handoff; merged #2238/#2239 preserved on current origin/main","baseline":"e52000e35d99c36691b21d31e60bf19d57de4d64","reviewedB15Head":"5d413f2075533441fab80fd436acbe1ff465c6ca","g1Merge":"68eb607212a099a6a707a59be6bc8654064e8534","g2SplitMerge":"969af8de89c4dd042b86d629075b022a9b1f0f96","unit":"P2CG1G2A","registeredAtBaseline":true,"paths":["src/pages/api/multiplayer/invites/[roomCode].ts","src/__tests__/api/securityBoundary.test.ts"],"directB15LeafOverlap":[],"rule":"Merged G2A owns the invite/security literals; reduced G2 retains entry panel/test overlap and its src/lib/campaign alias contains B15-1/2/5 leaves. Current L1 has 20 units and is unchanged by B15. G1 is still implementing in this baseline ledger despite its product merge, so its broad campaign alias remains an active collision; preserve lifecycle and wait for genuine closure. All B15 remains blocked post-U38, transitively after G2A/G2; re-census before admission."}},
+  "b15Registration20261018": {"baseline":"e52000e35d99c36691b21d31e60bf19d57de4d64","evidence":"evidence/b15-ob2-registration-20261018.json","recommendation":"A","authority":"Root parent ruling in this task, under owner standing instruction: v2.2.0 same-host/loopback; B15 after L1 and before any remote/tunnel hosting claim.","registrationOnly":true,"sourceAdmitted":false,"node":"R2.campaign-access","units":[
+      "B15-0",
+      "B15-1",
+      "B15-2",
+      "B15-4",
+      "B15-4J",
+      "B15-3R",
+      "B15-3",
+      "B15-5",
+      "B15-5R",
+      "B15-PRIV",
+      "B15-6"
+    ],"layer":"L2 = P3 exit","rationale":"Authentication/read projection hardens the shared-mission surface already completed at P3 exit. No separate user-visible layer or L1 predicate change is needed. Historical 13-package obligations stay unchanged; this additional group must close before L2/P3 exit and any remote/tunnel support claim.","order":"U38 -> B15-0 -> B15-1 -> B15-2 -> B15-4 -> B15-4J -> B15-3R -> B15-3 -> B15-5 -> B15-5R -> B15-PRIV -> B15-6. Then resume eligible L2 work, including U101a-d under their original order. No concurrent U50/U81/U101c/d ownership; rebase/re-census if any lands first.","L1Unchanged":true,"supportedV220Topology":"One machine, Electron or localhost development server; existing enforced loopback listener unchanged. No inter-participant isolation on the same OS session. No remote/proxy/tunnel support in v2.2.0.","releaseNotes":"docs/releases/v2.2.0-topology.md","remoteHold":"No remote/tunnel procedure or support claim before full B15 exact-main proof, complete actor x all-method isolation including session creation, existing packaged-boundary regression, and actual intended-topology playtest evidence. B15 is single-operator only; multi-operator hosting additionally requires the separately open owner-column/identity follow-up.","findingDisposition":{"FNob2":"Original finding and OB-2 text/status unchanged. B15 addresses single-operator credential/member access only; owner-column/multi-operator identity clause remains open, not discharged.","FNu96":"B15-3 is prospective resolvedBy; finding stays recorded until genuine exact-main PASS and closure."},"enforcement":"Documentary scheduling/hosting hold; generic validator does not enforce these markers or unit predecessor arrays. Root owns release/publication checks. Routine 0/2/4/4J/6 do not acquire sensitive owner gates; sensitive 1/3R/3/5/5R/PRIV retain packet and exact-head OWNER-RULING.","supersedes":"Rejected unpublished 16-unit gate-B design at 4bce669ac3112a783e99e6806a9e25a27ee6594d; challenge and parent ruling replace it. No historical Main receipt is superseded.","decisionSource":"Root parent ruling supplied in the task message headed PARENT RULING, following the independent Fable challenge; reaffirmed by Root in the review-fix instruction for PR #2237. This is parent-transcribed authority under a standing owner instruction, not a new direct owner answer.","ownerWords":"continue with recommended options and fix the issues that come up, publish as needed","parentWords":"Root adopts gate A: v2.2.0 ships on the existing enforced same-host/loopback boundary, unchanged from today's OB-2 posture, with release notes stating the supported topology; B15 is registered for delivery before any remote/tunnel hosting claim, NOT as an L1 prerequisite","disclosure":"The ownerWords quote is the standing instruction reported by Root. Gate A and L2 placement are Root's adopted recommendation, not wording attributed to a fresh owner topology choice. The design agent transcribed that ruling and the review-fix request. No future sensitive OWNER-RULING, merge approval or runtime acceptance is supplied by this provenance record.","releaseNotesShipRequirement":"Root must include both the same-host/no-proxy-or-tunnel topology statement and the Docker HOSTNAME-refusal/unsupported-hosting statement from docs/releases/v2.2.0-topology.md in the actual v2.2.0 release notes. README/compose edits remain B15-6 after L1; disclosure must not wait for that unit. This is the parent's release-note handoff, not a B15 implementation prerequisite added to the unchanged L1 predicate.","selectorDependency":"R2.campaign-access depends on already-main-verified R2.authority-live so NEXT can select each explicitly released B15 unit. U38 and ordinary unit predecessor PASS/closure remain parent-enforced admission predicates; the node edge alone does not release any unit.","reviewFixSplit":{"reviewedHead":"28ff707f1d4a55f23229cfd43af02e85206afc53","additionalUnits":["B15-4J","B15-3R","B15-5R"],"reason":"Root directed F1-F5 fixes with caps respected. Split candidate inventories instead of widening 4/3/5 above 15 files; all successors retain ordinary 15/500 caps and inherited review class."},"g2SplitComposition":{"source":"Root round-2 review handoff; merged #2238/#2239 preserved on current origin/main","baseline":"e52000e35d99c36691b21d31e60bf19d57de4d64","reviewedB15Head":"5d413f2075533441fab80fd436acbe1ff465c6ca","g1Merge":"68eb607212a099a6a707a59be6bc8654064e8534","g2SplitMerge":"969af8de89c4dd042b86d629075b022a9b1f0f96","unit":"P2CG1G2A","registeredAtBaseline":true,"paths":["src/pages/api/multiplayer/invites/[roomCode].ts","src/__tests__/api/securityBoundary.test.ts"],"directB15LeafOverlap":[],"rule":"Merged G2A owns the invite/security literals; reduced G2 retains entry panel/test overlap and its src/lib/campaign alias contains B15-1/2/5 leaves. Current L1 has 20 units and is unchanged by B15. G1 is still implementing in this baseline ledger despite its product merge, so its broad campaign alias remains an active collision; preserve lifecycle and wait for genuine closure. All B15 remains blocked post-U38, transitively after G2A/G2; re-census before admission."},
+    "council3Amendment20261018": {
+      "unit": "B15-PRIV",
+      "order": "B15-5R -> B15-PRIV -> B15-6",
+      "sourceAdmitted": false,
+      "evidence": [
+        "evidence/council3-a-20261018.txt",
+        "evidence/council3-b-20261018.txt",
+        "evidence/council3-c-20261018.txt"
+      ],
+      "rule": "PRIV-1 implementation and default-name privacy move to sensitive B15-PRIV; B15-6 retains documentation and requires B15-PRIV exact-main PASS. Blocked post-U38; L1 unchanged."
+    }},
   "b14Registration20261018": {
     "baseline": "76ed00c16063a2e28dba4e81bc0a2cf01af7c780",
     "status": "planned-gated",
@@ -22165,5 +22626,162 @@
     "apportionment": "B14-HEAD owns /head route containment and its existing route test; B14-0 must not edit either leaf. B14-0 retains its shared fogMatchAdmission decision and unchanged remaining acceptance. Full B14 privacy acceptance is discharged only when BOTH B14-0 and B14-HEAD have genuine exact-main mainProof PASS, fetched-main ancestry and closure.",
     "evidenceNames": "Four prospective bounded output names only; freeze truthful final admission/red/local/admission-review evidence at admission. No placeholder receipts are created. Later review/identity/closure outputs require the existing separate G-OWN freeze and entire-stage census.",
     "enforcement": "Parent releases B14-HEAD only after B14-0 genuine exact-main PASS, fetched-main ancestry and closure; HP requires both B14-0 and B14-HEAD equivalent proof and closure; H retains all existing prerequisites and also requires B14-HEAD main-verified with exact-main PASS, ancestry and closure. NEXT supplies no permission. Sensitive review, exact-head OWNER-RULING and required CI precede implementation merge. No source admission or completion claimed."
+  },
+  "fogRestorationRegistration20261018": {
+    "baseline": "cf42ab567",
+    "registrationOnly": true,
+    "sourceAdmitted": false,
+    "authority": {
+      "ownerStandingInstruction": "continue with recommended options and fix the issues that come up, publish as needed",
+      "owner20261018": "I think the recommended actions make sense for the ones that have them",
+      "ownerFogDirection": "Fog reveals should be incremental allowances of information revealed from GM state to player state(s) as effects that just happen upon movements or things being revealed",
+      "ruling": "Root council-3 ruling supplied in the implementation task; this record transcribes that ruling. Pending policy questions below are not new owner decisions, source admission, exact-head OWNER-RULING or runtime acceptance."
+    },
+    "evidence": [
+      {
+        "seat": "a",
+        "path": "evidence/council3-a-20261018.txt",
+        "sha256": "260d715aea386b05b7719110212281cf74f70f56902144d430ddda460c99fe9f"
+      },
+      {
+        "seat": "b",
+        "path": "evidence/council3-b-20261018.txt",
+        "sha256": "c6b260e9810cce9e1070872b05969d32ace0501368bcc525ec34d3aba64e6202"
+      },
+      {
+        "seat": "c",
+        "path": "evidence/council3-c-20261018.txt",
+        "sha256": "b66e63e933e79327859ebe43316c3739f99c96b64614d8e5dea34f1c9e9d2ecf"
+      }
+    ],
+    "node": "R5.fog-restoration",
+    "units": [
+      "FOG-S",
+      "FOG-K",
+      "FOG-B",
+      "FOG-L",
+      "FOG-R",
+      "FOG-H",
+      "FOG-X"
+    ],
+    "placement": "Head of P5, after P4 Task33 production journal authority proof and before U26 and Tasks 34-40. No L1/L2 insertion and no priority above P4. Preserve all original P5 prerequisites.",
+    "order": "P4 Task33 production journal authority proof -> FOG-S -> FOG-K -> FOG-B -> FOG-L -> FOG-R -> FOG-H -> FOG-X -> U26 -> U30 / Tasks 34-40 under their existing order and task holders.",
+    "consumers": "U26 and U30 successors consume FOG-R replay/rejoin and FOG-H HTTP/head parity receipts and the common projector rather than implementing duplicate projection paths. U26 still owns both-head rewind validation and U30 still ticks its original rows whole from U26 receipts; original contracts, states and task keys unchanged.",
+    "containment": "B14-0 and B14-HEAD remain refusal boundaries through L1/L2. FOG-H owns lifting B14-HEAD through projected HTTP/head parity; FOG-X owns guarded per-surface activation and modifies, rather than removes, the B14-0 capability requirement. No externally enabled fog surface before the complete new boundary and byte-leak proof pass.",
+    "budgets": "Council B ranges are hypotheses including source, tests, lifecycle and evidence files, not measured grants. Every unit retains 15 actual unique files / 500 U41 counted added lines, without deletion credit; tests remain file-counted. Freeze literal manifests and split further at admission rather than omit acceptance.",
+    "policyQuestions": [
+      {
+        "question": "Do allied players share sight?",
+        "status": "pending",
+        "recommendation": "Shared allied sight, using trusted per-unit ownership and explicit historical audience policy."
+      },
+      {
+        "question": "May destruction of a never-seen unit disclose its identity?",
+        "status": "pending",
+        "recommendation": "No unknown-unit identity disclosure; reconcile the existing out-of-LOS destruction unitId clause."
+      },
+      {
+        "question": "What fields are revealed at first contact?",
+        "status": "pending",
+        "recommendation": "Use the specification open/rough intel tiers; freeze exact permitted fields in FOG-S before implementation."
+      },
+      {
+        "question": "How long does last-known knowledge persist?",
+        "status": "pending",
+        "recommendation": "Until contradicted, retaining an explicit stale timestamp and only permitted fields."
+      },
+      {
+        "question": "What may spectators and the GM know?",
+        "status": "pending",
+        "recommendation": "Spectators receive public-only knowledge; authenticated GM sees all. Host identity alone grants no GM authority."
+      },
+      {
+        "question": "May the GM grant information manually?",
+        "status": "pending",
+        "recommendation": "Audited GM grants are canonical facts; their automatic viewer effects are derived and never appended to the canonical journal."
+      },
+      {
+        "question": "Should fog restoration rank above P4 production authority?",
+        "status": "pending",
+        "recommendation": "Keep the adopted head-of-P5 placement after P4 Task33 proof."
+      }
+    ],
+    "enforcement": "All seven units remain blocked. NEXT does not enforce documentary predecessors or this placement. Root must verify P4 Task33 exact-main authority proof, resolve applicable pending policy, re-census all ownership including U26/U30 and protected L1 paths, freeze literal manifests, and release one unit at a time after predecessor genuine exact-main PASS, fetched-main ancestry and closure. Sensitive packets, independent exact-head review and OWNER-RULING remain required. No historical U2/U22 closure or task holder changes."
+  },
+  "l1ReleaseChecklist20261018": {
+    "registrationOnly": true,
+    "sourceAdmitted": false,
+    "status": "pending",
+    "authority": {
+      "ownerStandingInstruction": "continue with recommended options and fix the issues that come up, publish as needed",
+      "owner20261018": "I think the recommended actions make sense for the ones that have them",
+      "ownerFogDirection": "Fog reveals should be incremental allowances of information revealed from GM state to player state(s) as effects that just happen upon movements or things being revealed",
+      "ruling": "Root council-3 ruling supplied in the implementation task; this record transcribes that ruling. Pending policy questions below are not new owner decisions, source admission, exact-head OWNER-RULING or runtime acceptance."
+    },
+    "layer": "L1 / v2.2.0",
+    "unitCount": 23,
+    "closures": [
+      "P2CG1B",
+      "P2CG1C",
+      "P2CG1D",
+      "P2CG1E",
+      "P2CG1F",
+      "P2CG1G1",
+      "P2CG1G2A",
+      "P2CG1G2",
+      "P2CG1R",
+      "P2CG1S",
+      "B14-0",
+      "B14-HEAD",
+      "P2CG1HP",
+      "P2CG1H",
+      "P2CG1I1",
+      "P2CG1I2",
+      "P2CG1I3",
+      "P2CG1I4",
+      "P2CG2",
+      "P2CH",
+      "P2C",
+      "P2",
+      "U38"
+    ],
+    "enforcement": "Documentary record only, inert to validate-roadmap/NEXT like layerRegistration20261017L1. Root owns release checks. No task contract, holder, P2CG1G2 field, release receipt or existing lifecycle changes; no claim that these gates passed.",
+    "checklist": [
+      {
+        "id": "closures",
+        "status": "pending",
+        "requirement": "All 23 listed units have genuine exact-main mainProof PASS, fetched-main ancestry and closure; preserve original L1 acceptance and H checkpoint."
+      },
+      {
+        "id": "automated-rc",
+        "status": "pending",
+        "requirement": "On the exact release-candidate SHA, pass npm run verify:qc:coop-campaign-journey and src/lib/multiplayer/server/__tests__/ServerMatchHostUnitOwnership.test.ts; bind recorded evidence to that SHA."
+      },
+      {
+        "id": "three-context-entry",
+        "status": "pending",
+        "requirement": "Before the human session, an automated GM + two players mission journey on three isolated contexts must reach terminal state and reload, without injected outcomes replacing combat. Root must inspect P2 / Task 18 registered acceptance and, if it does not already cover this journey, register the missing coverage before P2 admission. Task 18 original contract text remains unchanged in this PR."
+      },
+      {
+        "id": "installer-rehearsal",
+        "status": "pending",
+        "requirement": "Agent rehearses the same three-seat script on the packaged installer; record artifact SHA256, release-candidate SHA, one loopback server, three isolated identities, defects and retests. Repeat the existing L0 installer smoke requirement. Agent rehearsal does not substitute for the human session."
+      },
+      {
+        "id": "human-session",
+        "status": "pending",
+        "requirement": "Human session follows a current playtest/checklists three-seat script: GM plus two players create/join by invite, approve/reject proposal, launch fog-off, both move/fire own units and receive foreign-unit refusal, GM observes, reconnect one player mid-mission, play to terminal Results, apply outcome once, reload all three seats and verify shared result persists. Root must prepare/update the script before the session; the stale two-window coop-uat.md is not sufficient. Record actual human operators (explicitly label one human operating three seats if applicable), build/artifact identity, topology/profile-seat mapping without tokens, timestamped PASS/FAIL steps, campaign/match IDs, screenshots/logs, defects/retests and human attestation in playtest/session-notes. No human evidence is claimed by this registration."
+      },
+      {
+        "id": "release-notes",
+        "status": "pending",
+        "requirement": "Actual release notes include the same-host/loopback/no-remote-proxy-or-tunnel topology statement and Docker HOSTNAME admission refusal/unsupported-hosting statement from docs/releases/v2.2.0-topology.md, plus: \"fog-of-war is unavailable in multiplayer in this release\". Do not defer disclosure to post-L1 B15-6."
+      }
+    ],
+    "evidence": [
+      "evidence/council3-a-20261018.txt",
+      "evidence/council3-b-20261018.txt",
+      "evidence/council3-c-20261018.txt"
+    ]
   }
 }

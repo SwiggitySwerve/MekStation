@@ -1,0 +1,66 @@
+# Council 3, seat A: product, player experience, fog-of-war design, perceived privacy
+
+Date: 2026-10-18. Worktree `E:/Projects/Personal/MekStation-wt/council3-a-20261018`, detached at `origin/main` = `f32626fbd`. Read-only; no tracked file edited, no tests run. Read: PLAN/STATUS, units.json (B14-0, B15-*, U26, U2, U38, R/S/HP/H/I1-I4), `b14-fog-scope-20261018.txt`, B14HP-PREP.md, `fog-of-war/spec.md`, `fogOfWar.ts`, `visibility.ts`, `gameEventVisibility.ts`, `joinableLobbies.ts`, `lobbies.ts`, `CampaignCoopEntryPanel.tsx`, the two-browser e2e, `playtest/`, `v2.2.0-topology.md`, the maintenance triage.
+
+## A. Manual v2.2.0 playtest: who, when, minimum honest evidence
+
+Facts:
+- The named L1 e2e (`coop-campaign-two-browser-journey.spec.ts`) is host + guest only and, per its header, stops before mission launch. Nothing automated drives two deploying players plus a non-playing GM through a mission in browsers. The manual session is currently the *only* proof of the L1 user story; that is too much weight for one human pass.
+- The L0 "playtest" notes were operator-agent sessions over CDP. The owner's word MANUAL for L1 should mean a human sat in the seats.
+- Topology is one machine/loopback. Three Electron instances each spawn their *own* embedded server (L0: `127.0.0.1:3001` child per instance), so three Electron windows is **not** a shared session. The honest shape is one server + three clients: dev server `:3600` with three browser profiles, or one packaged Electron window (GM/host) plus two browser profiles on that instance's loopback port.
+- L0 gameplay defects (AI hex stacking V211-01, prone skip V211-03, per-unit stats V211-07) will be visible; pre-list them so they are not re-filed.
+
+Who/when: the owner alone can honestly drive three seats sequentially; BattleTech phases are sequential, so one person moving between windows genuinely tests shared state. A second human is nice-to-have. Run only after Task 17 (P2C, "real shared-mission client journey") lands with a **three-context** automated pre-check (GM + two players: launch, each moves an own unit, each is refused on the other's unit, mission ends, both reload). A human run before that is green wastes the human.
+
+Evidence for `playtest/session-notes/<date>-v2.2.0-shared-mission-l1.md` (L0 table style): build identity (tag/sha or artifact sha256); `MEKSTATION_LISTENER_READY` line showing `127.0.0.1`; who sat in each seat and which client; campaign and match ids; a PASS/FAIL step table (create campaign, guest joins by code, GM accepts contract and launches, both deploy, >=3 turns with one refused foreign-unit attempt, mission ends, all three reload and agree, campaign receives the outcome once); screenshot names per step; server log path; defects with severity; the sentence "same-host loopback; remote play not exercised". Minimum honest evidence = one complete human pass of that table with FAILs recorded, not a clean sheet.
+
+Recommendation: owner drives three seats on one machine against the packaged Electron GM window plus two browser profiles (so the released artifact is what is played), after a three-context mission journey is added under T17 and green on Main; PASS-with-defects is acceptable for L1 exit if nothing blocks the loop.
+Owner question (if any): Packaged artifact or dev server for the L1 session? Both satisfy the topology statement; only the packaged path proves what ships.
+
+## B. Co-op campaign lobby discoverability (PRIV-1)
+
+Players perceive a co-op campaign as a private table; the room code *is* the invitation. A public browser row with "Join" and the code makes the invite meaningless and lets an ordinary 1v1 joiner take the human seat meant for the campaign guest (experience hazard, not just privacy). `isJoinable` checks only lobby status, code, layout and an empty human seat; co-op vessels pass because `CampaignCoopEntryPanel` creates them as `1v1` with `hostSeatKind 'spectator'`.
+- "List without code" fails: `defaultCoopCampaignName(roomCode)` returns `Co-op Campaign <roomCode>`, so the name leaks the code, and existence of a private game is still advertised.
+- The fix is one predicate: `meta.coopCampaign` is set at creation (`matches/index.ts:247`), so `getJoinableLobbies`/`getSpectatableMatches` can exclude `coopCampaign`/`coopMission` vessels. Invite-code joining is a direct lookup and unaffected.
+
+This is a small privacy-class unit, not routine B15-6 (its admission note says so): `joinableLobbies.ts`, its test, a `securityBoundary.test.ts` row for an authenticated stranger without a campaign seat, units.json, evidence slots; about 6/15 files, well under 100 lines. Not an L1 blocker under same-host topology, but the highest privacy value per line in the backlog. Separately (routine): stop embedding the code in the default name.
+
+Recommendation: hide co-op campaign vessels and co-op mission matches entirely (invite-only); register a 6-file "PRIV-1" unit after U38, before B15-0; B15-6 keeps only the documentation sentence.
+Owner question (if any): None; this follows from "room code is the invite".
+
+## C. Fog design: incremental reveal effects from GM state to player state
+
+Reading of the direction: the server/GM state is the only full state; each player holds a *knowledge state* that changes only through explicit reveal/lose effects the server emits when something happens (movement, LOS, sensors, GM grant). The client never computes fog from data it should not hold. Today is the inverse: `GameCreated` ships every unit to every viewer, the client rebuilds full state, then the token layer hides some of it (`fogStatus 'hidden'|'lastKnown'`, `unitStateToToken.ts`). Observer-visible filtering is sound but cannot say "you now see X at hex H" because the player never legitimately had X. Tabletop double-blind (Tactical Operations) works exactly as the owner describes: the referee holds the map, players are told contacts as they appear, a lost contact becomes a last-known marker.
+
+Shape:
+1. **Viewer knowledge fold** (pure, `src/utils/gameplay/`): `foldViewerKnowledge(events, viewerId, policy)` folds canonical events through the existing `canPlayerSeeUnit` and yields a deterministic effect stream: `ContactRevealed {unitId, side, snapshot per intel policy}`, `ContactUpdated`, `ContactLost {lastKnownPosition}`, `IntelGranted` (GM allowance). Effects are derived, never appended to the canonical journal; replay, rejoin and rewind re-derive them, so one authority remains and per-viewer rewind digests (U26/P5) are simply digests of folded knowledge.
+2. **Own-side opening**: fog-on `GameCreated` to a player carries own/team units plus public config/terrain; enemies arrive only via `ContactRevealed`. This also fixes the metadata route by construction (B14-HEAD stays as interim guard).
+3. **Server emission** in `ServerMatchHostEvents`/`Replay`: after each canonical event, diff per-viewer knowledge and send effects through the existing per-viewer delivery numbering; the spec's Opponent Intel Policy (open/rough) decides snapshot content.
+4. **Client partial state**: the reducer accepts contact records (minimal `IUnitGameState` tagged by fog status); the existing token layer renders them unchanged; ghosts come from `ContactLost`, not local inference.
+5. **Team/GM/spectator**: trusted per-unit owner map (U38) with team-shared sightings; GM sees all; fog-on spectators get the GM view only on the host/GM seat, otherwise stay refused (S/B10 preserved).
+
+Mapping: B14-0 and B14-HEAD remain the interim fail-closed guard; U26 becomes "fold at both heads and digest" instead of a bespoke probe; P5 2.5 "Rewind Preserves Viewer-Specific Hidden State" and tasks 34-40 consume the same fold; U2 E2E-19..30 become the chain's acceptance; `fog-of-war/spec.md` gains a "Viewer Knowledge Effects" requirement.
+
+B14-0 change needed: only one seam and wording. Implement the refusal as a capability predicate in the new leaf `fogMatchAdmission.ts` ("no reveal projection for this match") rather than `config.fogOfWar === true` checks in six leaves, and phrase the spec delta "until a per-viewer reveal projection exists". Delete nothing in `fogOfWar.ts`/`visibility.ts`; the chain reuses them.
+
+Units (15/500 plausible each): **FOG-1** fold + effect types + tests (pure utils, 6-8 files). **FOG-2** own-side `GameCreated` and metadata projection, lifting the refusal for players only (about 12 files). **FOG-3** live/replay/rejoin emission + client partial-state reducer and token wiring (split client/server if over cap). **FOG-4** team ownership, GM view, `IntelGranted`, spectator policy. **FOG-5** U2 E2E-19..30 fog rows and spec sync. Register all five now as documentary planned-gated so B14-0, U26 and P5 are designed against them; implement none before v2.2.0 (refusal accepted; L1 already 23 sensitive units); not in L2 (P3 exit has no fog clause and already carries B15); FOG-1/2 at the head of P5 directly before U26, FOG-3..5 before tasks 36-40.
+
+Recommendation: register FOG-1..5 now as a documentary chain, make B14-0's refusal a single-seam capability predicate, implement at the head of P5 before U26.
+Owner question (if any): (1) Co-op team intel: shared sightings across same-side players (recommended; a lance shares its sensor net) or per-player? (2) May the GM grant intel manually as an effect, and does the GM always see everything? (3) First contact: identify chassis/model, or "unknown contact" until a closer band? (4) Last-known ghosts: persist until contradicted, or fade after N turns?
+
+## D. Maintenance scanner debt
+
+Lane rules (one product-writing lane, one heavy run machine-wide, rebases after every closure) make a parallel code-health backlog costly against a 23-unit chain. Group (a) sits in protected co-op paths; group (c) is real refactoring and does not belong before v2.2.0. A permanently red gate is noise that hides new regressions, the worse product outcome.
+
+Recommendation: one routine ledger PR now recording the 48 untracked findings with explicit deferral tags (gate green with acknowledged debt); group (b) test/tooling cleanups only in files outside every L1 unit alias, one open PR at a time, merged between closures; group (a) folded into the owning unit when under cap, else waived; group (c) registered as routine units at L2 start.
+Owner question (if any): May the gate go green by ledgering acknowledged deferrals, or should it stay red until repaired?
+
+## E. Other items before v2.2.0
+
+1. L1 has no automated three-seat mission proof (A). Amend Task 17's contract with the three-context journey before its admission.
+2. Default co-op campaign name leaks the room code (B); trivial routine leaf.
+3. GM results view will show V211-07 per-unit-stat defects; pre-list as known.
+4. Release notes: alongside the mandatory same-host statement, add one player-facing line that fog-of-war matches are unavailable in v2.2.0, so a player who toggles fog sees an explained refusal, not a bug.
+
+Recommendation: amend T17; add the fog-unavailable line; file the name leak and GM results items as known.
+Owner question (if any): Confirm the release notes may say "fog-of-war matches are not available in this release" (consequence of the accepted B14-0 refusal).
