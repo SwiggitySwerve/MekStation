@@ -1,0 +1,174 @@
+{
+  "schemaVersion": 1,
+  "unit": "LSC-0",
+  "stage": "local",
+  "date": "20261018",
+  "baseline": "2d576747ee8dd210e5f6a5b0f380819b153a203a",
+  "admissionCommit": "156c6cacd8a6292fe64eb54d7f551c398ac0b172",
+  "redCommit": "61c3c11929523c2cf248ae16ec521f3226891986",
+  "contractChanges": [
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/design.md",
+      "sha256": "34c7a084fec91d6495806e93d039a323ea3ecbdf4a3c7ebd0931483180b8a6f3",
+      "bytes": 44084,
+      "added": 14,
+      "deleted": 0
+    },
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/specs/user-identity/spec.md",
+      "sha256": "e8d6cf9db84a0494a185762abdd70c8c183aba60b38cbba8895ba02ff6f6a608",
+      "bytes": 1369,
+      "added": 21,
+      "deleted": 0
+    },
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/specs/player-identity/spec.md",
+      "sha256": "cdefaad3abb0fe8c78a9b184a983ebab9b2623bbd02ef1455ca474e6d4218487",
+      "bytes": 2335,
+      "added": 38,
+      "deleted": 0
+    },
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/specs/coop-campaign-sync/spec.md",
+      "sha256": "cc042afbc46a579a28784b3393d3ab1d954d765c753e88e20e2926533853f98f",
+      "bytes": 13965,
+      "added": 23,
+      "deleted": 0
+    }
+  ],
+  "caps": {
+    "files": {
+      "actualChanged": 8,
+      "reservedUnwritten": 1,
+      "manifest": 9,
+      "cap": 15
+    },
+    "countedLines": {
+      "added": 112,
+      "cap": 500,
+      "breakdown": {
+        "openspec/changes/design-campaign-authority-and-sync/design.md": {
+          "added": 14,
+          "deleted": 0
+        },
+        "openspec/changes/design-campaign-authority-and-sync/specs/coop-campaign-sync/spec.md": {
+          "added": 23,
+          "deleted": 0
+        },
+        "openspec/changes/design-campaign-authority-and-sync/specs/player-identity/spec.md": {
+          "added": 38,
+          "deleted": 0
+        },
+        "openspec/changes/design-campaign-authority-and-sync/specs/user-identity/spec.md": {
+          "added": 21,
+          "deleted": 0
+        },
+        "openspec/planning/2026-09-12-roadmap-completion/units.json": {
+          "added": 16,
+          "deleted": 6
+        }
+      },
+      "convention": "git diff --numstat --no-renames baseline..HEAD over the four OpenSpec leaves and units.json, added lines only, no deletion credit; evidence receipts line-exempt but file-counted. Includes the units.json local-stage lifecycle edit made in this commit."
+    }
+  },
+  "validatorsAtGreen": {
+    "openspecStrict": {
+      "command": "npx openspec validate --all --strict",
+      "exitCode": 0,
+      "lastLine": "\u0000",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/lsc-0-proof-20261018/green-osv.log",
+        "sha256": "89a3784befdc45a1fb8b4cac58d9703373655afb9d5fa537f58176fbd9cad0c0",
+        "bytes": 13904
+      }
+    },
+    "openspecCi": {
+      "command": "npm run --silent qc:openspec-ci:validate",
+      "exitCode": 0,
+      "lastLine": "\u0000",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/lsc-0-proof-20261018/green-ci.log",
+        "sha256": "217bf050778223aea37e060d483d06f7a1be2ff5d6b8dbd613e7cf90bdf567de",
+        "bytes": 386
+      }
+    },
+    "specPurpose": {
+      "command": "npm run --silent spec:purpose:validate",
+      "exitCode": 0,
+      "lastLine": "\u0000",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/lsc-0-proof-20261018/green-purpose.log",
+        "sha256": "f4384ef8ea0a4efa7f4ce68d88f34dc3c997b75e2cb2257a9cc22ed9f11a9bdf",
+        "bytes": 346
+      }
+    },
+    "roadmapPlain": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "note": "run after this receipt and the lifecycle edit are written; result in the PR body"
+    },
+    "formatting": "openspec/ is in .oxfmtignore; no source file changed, so typecheck/lint/jest are unaffected."
+  },
+  "contractProbe": {
+    "script": {
+      "path": "E:/Projects/Personal/MekStation-wt/lsc-0-proof-20261018/probe.cjs",
+      "sha256": "bea1e1e93864908842c5e38c9a71018f66a16d9ef11d57997c2a3fec550fe985",
+      "bytes": 3727
+    },
+    "output": {
+      "path": "E:/Projects/Personal/MekStation-wt/lsc-0-proof-20261018/green-probe.json",
+      "sha256": "5bb48894c113d6d37d7646a6262ba3b8b6b0c707aa31fccd39fbe02be501b198",
+      "bytes": 6597
+    },
+    "predicateCount": 20,
+    "allSatisfied": true,
+    "red": "noneSatisfied at RED (evidence/lsc-0-red-20261018.json)"
+  },
+  "unchangedControls": [
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/proposal.md",
+      "unchanged": true
+    },
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+      "unchanged": true
+    },
+    {
+      "path": "openspec/specs/user-identity/spec.md",
+      "unchanged": true
+    },
+    {
+      "path": "openspec/specs/player-identity/spec.md",
+      "unchanged": true
+    },
+    {
+      "path": "openspec/specs/coop-campaign-sync/spec.md",
+      "unchanged": true
+    },
+    {
+      "path": "src/pages/api/multiplayer/auth/token.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/services/vault/IdentityRepository.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/auth.ts",
+      "unchanged": true
+    }
+  ],
+  "contentSummary": {
+    "design.md": "D14 appended: seat credentials are not vault identities; local seat naming disjoint from match/spectator seats (CF-S-8: no reseat path); operator password per write with operation-id replay and generation CAS; per-mint seat password, no unlock session, ordinary unscoped token; route-wide pre-KDF throttle, one in-flight mint per seat, durable lockout (Root-recommended 10/5 per minute, 5 failures/60 s); revocation at next mint or renewal, issued bearer keeps original lifetime (max 1 h), no eviction; re-provision rotates key and playerId, ordinary re-admission; loopback/same-origin topology, operator impersonation and shared-OS disclosure; B15/PRIV-1 holds; pending owner questions with Root-recommended answers.",
+    "specs/user-identity/spec.md": "ADDED Local Seat Credentials Are Not Vault Identities (2 scenarios).",
+    "specs/player-identity/spec.md": "ADDED Password-Verified Local Seat Token Mint (2 scenarios); ADDED Local Seat Revocation and Re-provision (2 scenarios).",
+    "specs/coop-campaign-sync/spec.md": "ADDED Co-op Entry Credential Choice and Recovery (3 scenarios)."
+  },
+  "notClaimed": [
+    "No runtime behavior: LSC-1DB/LSC-1S/LSC-1/LSC-2OP/LSC-2/LSC-2P implement it",
+    "No OWNER-RULING; owner questions stay pending",
+    "No remote support, B15 or PRIV-1 discharge",
+    "Throttle numbers are Root recommendations, not owner answers"
+  ],
+  "review": "Sensitive authority/privacy/replay/idempotency/concurrency review pending on the exact head; evidence/lsc-0-admission-review-20261018.json is reserved and unwritten."
+}
