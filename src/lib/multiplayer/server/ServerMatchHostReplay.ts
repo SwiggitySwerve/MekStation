@@ -476,6 +476,7 @@ async function sealedChoiceAudienceContext(ctx: IServerMatchHostReplayContext) {
       ctx.session.getSession().events,
       withVisibilityAssignments(ctx.session.getSession().currentState, meta),
       Number.MAX_SAFE_INTEGER,
+      meta.seats ?? [],
     );
   } catch {
     return undefined;

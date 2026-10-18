@@ -7511,7 +7511,9 @@
         "red": {
           "path": "evidence/p2cg1s-red-20261018.json"
         },
-        "local": null,
+        "local": {
+          "path": "evidence/p2cg1s-local-20261018.json"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
