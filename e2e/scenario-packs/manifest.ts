@@ -26,6 +26,8 @@ import {
 /** Re-exported under the loader's own name (`scenarioPackLoading.ts` imports this type). */
 export type ScenarioPackManifestEntry = ManifestEntry;
 
+export { SCENARIO_PACK_QUARANTINES } from './quarantine';
+
 /** The registry module's own format version — see this file's header comment. */
 export const manifestVersion = MANIFEST_VERSION;
 
@@ -46,10 +48,10 @@ export const SCENARIO_PACK_MANIFEST: readonly ManifestEntry[] = [
     payloadPath: 'campaign/navigation-briefing.campaign.json',
     provenance: {
       genesisSource: 'flow:campaign-create-to-launch@contract-accepted',
-      mintedAt: '2026-07-11T08:32:56.200Z',
-      baseCommit: 'ae93394bbc54bd3a9255b5af6606e84a30321b10',
+      mintedAt: '2026-10-18T18:30:28.081Z',
+      baseCommit: '631484c8f8c4c0fbdd4fafd497a61bd35392d398',
     },
-    pins: { schemaVersion: 1 },
+    pins: { schemaVersion: 2 },
     postLoadActions: [],
   },
   {
@@ -62,10 +64,10 @@ export const SCENARIO_PACK_MANIFEST: readonly ManifestEntry[] = [
     payloadPath: 'campaign/personnel-roster.campaign.json',
     provenance: {
       genesisSource: 'flow:personnel-hiring@roster-updated',
-      mintedAt: '2026-07-11T08:34:35.867Z',
-      baseCommit: 'ae93394bbc54bd3a9255b5af6606e84a30321b10',
+      mintedAt: '2026-10-18T18:32:41.561Z',
+      baseCommit: '631484c8f8c4c0fbdd4fafd497a61bd35392d398',
     },
-    pins: { schemaVersion: 1 },
+    pins: { schemaVersion: 2 },
     postLoadActions: [],
   },
   {
@@ -81,10 +83,10 @@ export const SCENARIO_PACK_MANIFEST: readonly ManifestEntry[] = [
     payloadPath: 'campaign/experience-pilot.campaign.json',
     provenance: {
       genesisSource: 'flow:pilot-xp-progression@xp-surface-viewed',
-      mintedAt: '2026-07-11T08:34:56.971Z',
-      baseCommit: 'ae93394bbc54bd3a9255b5af6606e84a30321b10',
+      mintedAt: '2026-10-18T18:34:42.225Z',
+      baseCommit: '631484c8f8c4c0fbdd4fafd497a61bd35392d398',
     },
-    pins: { schemaVersion: 1 },
+    pins: { schemaVersion: 2 },
     postLoadActions: [],
   },
   {

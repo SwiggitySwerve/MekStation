@@ -4,7 +4,9 @@
  */
 import { spawnSync, type SpawnSyncReturns } from 'node:child_process';
 import fs from 'node:fs';
+import path from 'node:path';
 
+import type { IScenarioPackQuarantine } from '../../e2e/scenario-packs/quarantine';
 import type { ManifestEntry } from '../../src/lib/scenarioPacks/packSchemas';
 
 import {
@@ -15,7 +17,20 @@ import {
 export type GenesisClass =
   | 'flow-checkpoint'
   | 'anchor-captured'
+  | 'campaign-anchor'
   | 'fast-forward';
+
+export function classifyGenesisSource(entry: ManifestEntry): GenesisClass {
+  if (entry.parityAnchorJourney.startsWith('flow:')) return 'flow-checkpoint';
+  if (entry.parityAnchorJourney.startsWith('anchor:')) {
+    return entry.kind === 'encounter' ? 'anchor-captured' : 'campaign-anchor';
+  }
+  if (entry.parityAnchorJourney.startsWith('fast-forward:'))
+    return 'fast-forward';
+  throw new Error(
+    `Unrecognized genesis source for ${entry.id}: ${entry.parityAnchorJourney}`,
+  );
+}
 
 export interface FileBackup {
   readonly absolutePath: string;
@@ -35,10 +50,20 @@ export interface ValidationResult {
 
 export interface PackRecaptureResult {
   readonly packId: string;
+  readonly status: 'PASS' | 'FAIL' | 'QUARANTINED';
   readonly ok: boolean;
+  readonly quarantine?: IScenarioPackQuarantine;
   readonly issues: readonly string[];
   readonly committedSizeBytes: number;
   readonly freshSizeBytes: number | null;
+}
+
+export interface IPackRecaptureSummary {
+  readonly passed: number;
+  readonly failed: number;
+  readonly quarantined: number;
+  readonly total: number;
+  readonly ok: boolean;
 }
 
 export interface RecaptureStageDeps {
@@ -69,6 +94,7 @@ function failResult(
 ): PackRecaptureResult {
   return {
     packId,
+    status: 'FAIL',
     ok: false,
     issues,
     committedSizeBytes,
@@ -122,6 +148,11 @@ export function assertCommittedGenesisInvariants(
           `${entry.id} (committed)`,
         ),
       issues,
+    );
+  }
+  if (genesisClass === 'campaign-anchor') {
+    issues.push(
+      `${entry.id}: unsupported campaign-anchor genesis (${entry.provenance.genesisSource}); no sanctioned co-op minter or campaign checkpoint invariant is registered. Requires the co-op owner's front-door capture contract; this campaign is not a combat match log.`,
     );
   }
 }
@@ -246,12 +277,72 @@ export function remintPack(
   committedSizeBytes: number,
   issues: string[],
   deps: RecaptureStageDeps,
+  artifactDirectory?: string,
 ): PackRecaptureResult | null {
+  const runId = `recapture-${entry.id}-${Date.now()}-${process.pid}`;
+  const mintArgs = [deps.mintScriptPath, entry.id];
+  if (
+    artifactDirectory &&
+    !entry.parityAnchorJourney.startsWith('fast-forward:')
+  ) {
+    mintArgs.push(
+      '--output',
+      path.join(artifactDirectory, 'test-results'),
+      '--reporter=list',
+      '--trace=retain-on-failure',
+    );
+  }
   const mintResult: SpawnSyncReturns<Buffer> = spawnSync(
     process.execPath,
-    [deps.mintScriptPath, entry.id],
-    { cwd: deps.repoRoot, stdio: 'inherit' },
+    mintArgs,
+    {
+      cwd: deps.repoRoot,
+      env: {
+        ...process.env,
+        PLAYWRIGHT_E2E_RUN_ID: runId,
+        DEBUG: [process.env.DEBUG, 'pw:webserver'].filter(Boolean).join(','),
+      },
+      stdio: 'pipe',
+      maxBuffer: 64 * 1024 * 1024,
+    },
   );
+  if (mintResult.stdout) process.stdout.write(mintResult.stdout);
+  if (mintResult.stderr) process.stderr.write(mintResult.stderr);
+  if (artifactDirectory) {
+    fs.writeFileSync(
+      path.join(artifactDirectory, 'mint.stdout.log'),
+      mintResult.stdout ?? '',
+    );
+    fs.writeFileSync(
+      path.join(artifactDirectory, 'mint.stderr.log'),
+      mintResult.stderr ?? '',
+    );
+    fs.writeFileSync(
+      path.join(artifactDirectory, 'invocation.json'),
+      JSON.stringify(
+        {
+          runId,
+          command: [process.execPath, ...mintArgs],
+          serverCommand:
+            process.env.MEKSTATION_E2E_SERVER_COMMAND ?? 'npm run dev',
+          status: mintResult.status,
+          signal: mintResult.signal,
+          error: mintResult.error?.message,
+        },
+        null,
+        2,
+      ),
+    );
+    for (const relative of [`.sisyphus/e2e-runtime/${runId}`]) {
+      const source = path.join(deps.repoRoot, relative);
+      if (fs.existsSync(source))
+        fs.cpSync(
+          source,
+          path.join(artifactDirectory, path.basename(relative)),
+          { recursive: true },
+        );
+    }
+  }
   if (mintResult.error) {
     issues.push(
       `${entry.id}: re-mint failed to spawn: ${mintResult.error.message}`,
@@ -280,6 +371,7 @@ export function validateCommittedPayloadStage(
   committedSizeBytes: number,
   issues: string[],
   deps: RecaptureStageDeps,
+  quarantine?: IScenarioPackQuarantine,
 ): PackRecaptureResult | null {
   const committedValidation = deps.validatePayloadAgainstSchemaAndPins(
     entry,
@@ -293,6 +385,17 @@ export function validateCommittedPayloadStage(
       issues,
     );
     return failResult(entry.id, issues, committedSizeBytes);
+  }
+  if (quarantine) {
+    return {
+      packId: entry.id,
+      status: 'QUARANTINED',
+      ok: false,
+      quarantine,
+      issues: [quarantine.reason],
+      committedSizeBytes,
+      freshSizeBytes: null,
+    };
   }
   assertCommittedGenesisInvariants(
     entry,
@@ -350,7 +453,7 @@ export function validateAndCompareFreshStage(input: {
     genesisClass === 'anchor-captured'
   ) {
     assertFreshGenesisInvariants(entry, genesisClass, freshRaw, issues, deps);
-  } else {
+  } else if (genesisClass === 'fast-forward') {
     compareFastForwardFinances(entry, committedRaw, freshRaw, issues, deps);
     compareFastForwardProvenance(
       entry,
@@ -358,13 +461,35 @@ export function validateAndCompareFreshStage(input: {
       provenanceAbsolutePath,
       issues,
     );
+  } else {
+    issues.push(
+      `${entry.id}: unsupported campaign-anchor genesis; fresh campaign cannot be compared as a match log or fast-forward run`,
+    );
   }
 
   return {
     packId: entry.id,
+    status: issues.length === 0 ? 'PASS' : 'FAIL',
     ok: issues.length === 0,
     issues,
     committedSizeBytes,
     freshSizeBytes,
+  };
+}
+
+export function summarizeRecaptureResults(
+  results: readonly PackRecaptureResult[],
+): IPackRecaptureSummary {
+  const passed = results.filter((result) => result.status === 'PASS').length;
+  const failed = results.filter((result) => result.status === 'FAIL').length;
+  const quarantined = results.filter(
+    (result) => result.status === 'QUARANTINED',
+  ).length;
+  return {
+    passed,
+    failed,
+    quarantined,
+    total: results.length,
+    ok: failed === 0,
   };
 }

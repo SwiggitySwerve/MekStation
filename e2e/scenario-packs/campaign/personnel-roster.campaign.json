@@ -1,38 +1,43 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "campaignId": "pack:personnel-roster:campaign",
-  "savedAt": "2026-07-11T08:34:34.791Z",
-  "originDeviceId": "ec6eccb1-e1c8-4b10-9823-d9f0f2bbd768",
-  "version": 3,
+  "savedAt": "2026-10-18T18:32:40.692Z",
+  "originDeviceId": "2fd35b0c-f675-49d4-938a-1cad518e56af",
+  "version": 4,
   "body": {
     "id": "pack:personnel-roster:campaign",
-    "name": "Mint personnel-roster 1783758861945",
-    "currentDate": "2026-07-11T08:34:29.789Z",
+    "name": "Mint personnel-roster 1792348355486",
+    "currentDate": "2026-10-18T18:32:36.939Z",
     "factionId": "mercenary",
     "forces": [
       [
-        "force-1783758869789-zziuasc",
+        "force-1792348356939-u57choe",
         {
-          "id": "force-1783758869789-zziuasc",
-          "name": "Mint personnel-roster 1783758861945",
+          "id": "force-1792348356939-u57choe",
+          "name": "Mint personnel-roster 1792348355486",
           "subForceIds": [],
-          "unitIds": [],
+          "unitIds": [
+            "unit-1792348356622-wu2ae",
+            "unit-1792348356655-ti5ng",
+            "unit-1792348356688-ehsne",
+            "unit-1792348356722-wlgaq"
+          ],
           "forceType": "Standard",
           "formationLevel": "Regiment",
-          "createdAt": "2026-07-11T08:34:29.789Z",
-          "updatedAt": "2026-07-11T08:34:29.789Z"
+          "createdAt": "2026-10-18T18:32:36.939Z",
+          "updatedAt": "2026-10-18T18:32:36.975Z"
         }
       ]
     ],
-    "rootForceId": "force-1783758869789-zziuasc",
+    "rootForceId": "force-1792348356939-u57choe",
     "missions": [],
     "finances": {
       "transactions": [
         {
-          "id": "tx-hire-mint-hire-1783758870775",
+          "id": "tx-hire-mint-hire-1792348357324",
           "type": "expense",
           "amount": 25000,
-          "date": "2026-07-11T08:34:29.789Z",
+          "date": "2026-10-18T18:32:36.939Z",
           "description": "Hired Mint Pack Recruit (Pilot)"
         }
       ],
@@ -134,49 +139,182 @@
       "contractMarketMethod": "atb_monthly"
     },
     "campaignType": "mercenary",
-    "campaignStartDate": "2026-07-11T08:34:29.789Z",
-    "createdAt": "2026-07-11T08:34:29.789Z",
-    "updatedAt": "2026-07-11T08:34:31.358Z",
+    "campaignStartDate": "2026-10-18T18:32:36.939Z",
+    "createdAt": "2026-10-18T18:32:36.939Z",
+    "updatedAt": "2026-10-18T18:32:37.496Z",
     "unitCombatStates": {},
+    "unitMaxStates": {
+      "unit-1792348356622-wu2ae": {
+        "unitId": "unit-1792348356622-wu2ae",
+        "maxArmorPerLocation": {
+          "left_arm": 4,
+          "right_arm": 4,
+          "left_torso": 8,
+          "left_torso_rear": 2,
+          "right_torso": 8,
+          "right_torso_rear": 2,
+          "center_torso": 10,
+          "center_torso_rear": 2,
+          "head": 8,
+          "left_leg": 8,
+          "right_leg": 8
+        },
+        "maxStructurePerLocation": {
+          "head": 3,
+          "center_torso": 6,
+          "left_torso": 5,
+          "right_torso": 5,
+          "left_arm": 3,
+          "right_arm": 3,
+          "left_leg": 4,
+          "right_leg": 4
+        },
+        "maxAmmoPerBin": {
+          "locust-lct-1v-machine-gun-1": 200,
+          "locust-lct-1v-machine-gun-2": 200
+        }
+      },
+      "unit-1792348356655-ti5ng": {
+        "unitId": "unit-1792348356655-ti5ng",
+        "maxArmorPerLocation": {
+          "left_arm": 16,
+          "right_arm": 16,
+          "left_torso": 20,
+          "left_torso_rear": 4,
+          "right_torso": 20,
+          "right_torso_rear": 4,
+          "center_torso": 26,
+          "center_torso_rear": 5,
+          "head": 9,
+          "left_leg": 20,
+          "right_leg": 20
+        },
+        "maxStructurePerLocation": {
+          "head": 3,
+          "center_torso": 16,
+          "left_torso": 12,
+          "right_torso": 12,
+          "left_arm": 8,
+          "right_arm": 8,
+          "left_leg": 12,
+          "right_leg": 12
+        },
+        "maxAmmoPerBin": {
+          "hunchback-hbk-4g-ac-20-1": 10
+        }
+      },
+      "unit-1792348356688-ehsne": {
+        "unitId": "unit-1792348356688-ehsne",
+        "maxArmorPerLocation": {
+          "left_arm": 22,
+          "right_arm": 22,
+          "left_torso": 17,
+          "left_torso_rear": 8,
+          "right_torso": 17,
+          "right_torso_rear": 8,
+          "center_torso": 35,
+          "center_torso_rear": 10,
+          "head": 9,
+          "left_leg": 18,
+          "right_leg": 18
+        },
+        "maxStructurePerLocation": {
+          "head": 3,
+          "center_torso": 23,
+          "left_torso": 16,
+          "right_torso": 16,
+          "left_arm": 12,
+          "right_arm": 12,
+          "left_leg": 16,
+          "right_leg": 16
+        },
+        "maxAmmoPerBin": {
+          "marauder-mad-3r-autocannon-5-1": 20
+        }
+      },
+      "unit-1792348356722-wlgaq": {
+        "unitId": "unit-1792348356722-wlgaq",
+        "maxArmorPerLocation": {
+          "left_arm": 34,
+          "right_arm": 34,
+          "left_torso": 32,
+          "left_torso_rear": 10,
+          "right_torso": 32,
+          "right_torso_rear": 10,
+          "center_torso": 47,
+          "center_torso_rear": 14,
+          "head": 9,
+          "left_leg": 41,
+          "right_leg": 41
+        },
+        "maxStructurePerLocation": {
+          "head": 3,
+          "center_torso": 31,
+          "left_torso": 21,
+          "right_torso": 21,
+          "left_arm": 17,
+          "right_arm": 17,
+          "left_leg": 21,
+          "right_leg": 21
+        },
+        "maxAmmoPerBin": {
+          "atlas-as7-d-lrm-20-1": 12,
+          "atlas-as7-d-srm-6-1": 15,
+          "atlas-as7-d-ac-20-1": 10
+        }
+      }
+    },
     "rosterProjection": {
       "campaignId": "pack:personnel-roster:campaign",
       "units": [
         {
-          "unitId": "unit-1783758869441-kolkj",
+          "unitId": "unit-1792348356622-wu2ae",
           "unitName": "Locust LCT-1V",
-          "pilotId": "pilot-19d66321-560d-4354-ba1f-04e31aba79a9",
+          "pilotId": "pilot-d1bd1815-579a-4692-a5d8-e4555646aa35",
           "unitRef": "locust-lct-1v",
+          "unitSource": "canonical",
+          "sourceVersion": 1,
           "chassisVariant": "Locust LCT-1V",
-          "readiness": "Ready"
+          "readiness": "Ready",
+          "tonnage": 25
         },
         {
-          "unitId": "unit-1783758869473-hmvwn",
+          "unitId": "unit-1792348356655-ti5ng",
           "unitName": "Hunchback HBK-4G",
-          "pilotId": "pilot-a2a1a5e9-3bc7-4558-836d-ecca514e4718",
+          "pilotId": "pilot-072fa92c-9f32-4e00-95ee-9cf00e777cda",
           "unitRef": "hunchback-hbk-4g",
+          "unitSource": "canonical",
+          "sourceVersion": 1,
           "chassisVariant": "Hunchback HBK-4G",
-          "readiness": "Ready"
+          "readiness": "Ready",
+          "tonnage": 50
         },
         {
-          "unitId": "unit-1783758869507-hncnt",
+          "unitId": "unit-1792348356688-ehsne",
           "unitName": "Marauder MAD-3R",
-          "pilotId": "pilot-e576dfd4-1f71-4c18-a59d-a12d0d981850",
+          "pilotId": "pilot-99f66949-eca5-4c1d-847a-ae14c1f68609",
           "unitRef": "marauder-mad-3r",
+          "unitSource": "canonical",
+          "sourceVersion": 1,
           "chassisVariant": "Marauder MAD-3R",
-          "readiness": "Ready"
+          "readiness": "Ready",
+          "tonnage": 75
         },
         {
-          "unitId": "unit-1783758869541-0igx7",
+          "unitId": "unit-1792348356722-wlgaq",
           "unitName": "Atlas AS7-D",
-          "pilotId": "pilot-2b8b44a5-5d6b-402c-a8a5-82a0270017ad",
+          "pilotId": "pilot-84c9b620-3667-4012-88db-4b6bb33d54ce",
           "unitRef": "atlas-as7-d",
+          "unitSource": "canonical",
+          "sourceVersion": 1,
           "chassisVariant": "Atlas AS7-D",
-          "readiness": "Ready"
+          "readiness": "Ready",
+          "tonnage": 100
         }
       ],
       "pilots": [
         {
-          "pilotId": "pilot-19d66321-560d-4354-ba1f-04e31aba79a9",
+          "pilotId": "pilot-d1bd1815-579a-4692-a5d8-e4555646aa35",
           "pilotName": "MechWarrior 1",
           "status": "active",
           "wounds": 0,
@@ -187,11 +325,11 @@
           "recoveryTime": 0,
           "primaryRole": "Pilot",
           "rankIndex": 0,
-          "assignedUnitId": "unit-1783758869441-kolkj",
-          "hireDate": "2026-07-11T08:34:29.923Z"
+          "assignedUnitId": "unit-1792348356622-wu2ae",
+          "hireDate": "2026-10-18T18:32:37.012Z"
         },
         {
-          "pilotId": "pilot-a2a1a5e9-3bc7-4558-836d-ecca514e4718",
+          "pilotId": "pilot-072fa92c-9f32-4e00-95ee-9cf00e777cda",
           "pilotName": "MechWarrior 2",
           "status": "active",
           "wounds": 0,
@@ -202,11 +340,11 @@
           "recoveryTime": 0,
           "primaryRole": "Pilot",
           "rankIndex": 0,
-          "assignedUnitId": "unit-1783758869473-hmvwn",
-          "hireDate": "2026-07-11T08:34:29.923Z"
+          "assignedUnitId": "unit-1792348356655-ti5ng",
+          "hireDate": "2026-10-18T18:32:37.012Z"
         },
         {
-          "pilotId": "pilot-e576dfd4-1f71-4c18-a59d-a12d0d981850",
+          "pilotId": "pilot-99f66949-eca5-4c1d-847a-ae14c1f68609",
           "pilotName": "MechWarrior 3",
           "status": "active",
           "wounds": 0,
@@ -217,11 +355,11 @@
           "recoveryTime": 0,
           "primaryRole": "Pilot",
           "rankIndex": 0,
-          "assignedUnitId": "unit-1783758869507-hncnt",
-          "hireDate": "2026-07-11T08:34:29.923Z"
+          "assignedUnitId": "unit-1792348356688-ehsne",
+          "hireDate": "2026-10-18T18:32:37.012Z"
         },
         {
-          "pilotId": "pilot-2b8b44a5-5d6b-402c-a8a5-82a0270017ad",
+          "pilotId": "pilot-84c9b620-3667-4012-88db-4b6bb33d54ce",
           "pilotName": "MechWarrior 4",
           "status": "active",
           "wounds": 0,
@@ -232,11 +370,11 @@
           "recoveryTime": 0,
           "primaryRole": "Pilot",
           "rankIndex": 0,
-          "assignedUnitId": "unit-1783758869541-0igx7",
-          "hireDate": "2026-07-11T08:34:29.923Z"
+          "assignedUnitId": "unit-1792348356722-wlgaq",
+          "hireDate": "2026-10-18T18:32:37.012Z"
         },
         {
-          "pilotId": "hired-mint-hire-1783758870775",
+          "pilotId": "hired-mint-hire-1792348357324",
           "pilotName": "Mint Pack Recruit",
           "status": "active",
           "wounds": 0,
@@ -247,7 +385,7 @@
           "campaignMissions": 0,
           "primaryRole": "Pilot",
           "rankIndex": 0,
-          "hireDate": "2026-07-11T08:34:29.789Z"
+          "hireDate": "2026-10-18T18:32:36.939Z"
         }
       ],
       "missions": [],
@@ -260,7 +398,11 @@
     "description": "Scenario pack minter capture (generator-minted, never hand-authored).",
     "partsInventory": [],
     "dailyBattleAudit": [],
-    "rngSeed": 3512019667,
+    "rngSeed": 2435434045,
     "personnelMarket": []
+  },
+  "instanceId": "fb4f2871f9adb2fd1b8459b00847a7e3",
+  "authority": {
+    "role": "source"
   }
 }

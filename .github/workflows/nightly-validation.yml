@@ -190,7 +190,32 @@ jobs:
           MEKSTATION_E2E_SERVER_COMMAND: 'cd .next/standalone && node ../../scripts/e2e/relaunching-server.mjs'
           HOSTNAME: '127.0.0.1'
           MEKSTATION_E2E_REPLAY_FIXTURE_ROOT: ${{ github.workspace }}/.next/standalone
-        run: node scripts/playwright/run-playwright.mjs test --project=chromium --ignore-snapshots
+        # E2E-19 and E2E-25 need the combat-journal fixture arm, which the
+        # whole suite must not run under; they run armed in the next step.
+        run: node scripts/playwright/run-playwright.mjs test --project=chromium --ignore-snapshots --grep-invert "@E2E-19|@E2E-25"
+
+      # E2E-19 and E2E-25 (e2e/gm-two-player-privacy.pack.spec.ts) preview a
+      # GM rewind, which needs GET /api/matches/:id/head to name a journal
+      # head. Production combat-journal authority is off, so without the E2E
+      # fixture arm the route answers 404 {"error":"no head"}, no
+      # rewind-preview is sent, and both rows time out. This arms exactly
+      # those two rows the way scripts/qc/gm-two-player-campaign-core.cjs
+      # arms the privacy-pack group ('enabled'; the arm is honoured only with
+      # NEXT_PUBLIC_E2E_MODE=true, which the build step above sets).
+      # U24b OBLIGATION: the production combat-journal cutover retires this
+      # arm. The PR that lands U24b must delete this step and the
+      # --grep-invert above in the same change, or this step forwards a key
+      # nothing reads. Do not replace this split with a skip guard in the spec.
+      - name: Run journal-armed privacy rows (E2E-19, E2E-25)
+        if: ${{ !cancelled() }}
+        env:
+          MEKSTATION_E2E_SERVER_COMMAND: 'cd .next/standalone && node ../../scripts/e2e/relaunching-server.mjs'
+          HOSTNAME: '127.0.0.1'
+          MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE: 'enabled'
+        # CLI --reporter replaces the config's html reporter so this step
+        # does not overwrite the full suite's playwright-report, and --output
+        # keeps its artifacts out of the full suite's test-results.
+        run: node scripts/playwright/run-playwright.mjs test --project=chromium --workers=1 --ignore-snapshots --reporter=github,list --output=test-results-journal-armed e2e/gm-two-player-privacy.pack.spec.ts --grep "@E2E-19|@E2E-25"
 
       - name: Upload Playwright report
         if: always()
@@ -200,6 +225,7 @@ jobs:
           path: |
             playwright-report
             test-results
+            test-results-journal-armed
           retention-days: 7
 
   # ---------------------------------------------------------------
@@ -264,7 +290,7 @@ jobs:
   #
   # Needs the chromium browser (flow-checkpoint + anchor-captured
   # re-mints drive a live Playwright journey against the self-booted
-  # Next dev server, mirroring e2e-full's own browser-cache steps
+  # production standalone server, mirroring e2e-full's own browser-cache steps
   # above) plus a full node_modules install (fast-forward re-mints run
   # via jest, headless, no browser).
   # ---------------------------------------------------------------
@@ -303,8 +329,26 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: npx playwright install-deps chromium
 
+      - name: Build production app for recapture
+        env:
+          NEXT_PUBLIC_E2E_MODE: 'true'
+          NEXT_PUBLIC_E2E_TEST: 'true'
+        run: npm run build
+
       - name: Re-mint every registered scenario pack and diff at the invariant level
+        env:
+          MEKSTATION_E2E_SERVER_COMMAND: 'cd .next/standalone && node ../../scripts/e2e/relaunching-server.mjs'
+          HOSTNAME: '127.0.0.1'
         run: node scripts/qc/recapture-scenario-packs.mjs
+
+      - name: Upload scenario pack recapture diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: nightly-scenario-pack-recapture
+          path: .sisyphus/scenario-pack-recapture
+          include-hidden-files: true
+          retention-days: 7
 
   # ---------------------------------------------------------------
   # Per-subsystem nightly audit lanes (W6 design D8): one matrix leg

@@ -1,58 +1,63 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "campaignId": "pack:navigation-briefing:campaign",
-  "savedAt": "2026-07-11T08:32:55.120Z",
-  "originDeviceId": "2c7a9cf3-78fc-416e-953e-3d2b2c8f3128",
-  "version": 2,
+  "savedAt": "2026-10-18T18:30:25.714Z",
+  "originDeviceId": "45ec8662-1fc5-4e81-8b5f-ce249be9e6f0",
+  "version": 3,
   "body": {
     "id": "pack:navigation-briefing:campaign",
-    "name": "Mint navigation-briefing 1783758758795",
-    "currentDate": "2026-07-11T08:32:51.427Z",
+    "name": "Mint navigation-briefing 1792348220463",
+    "currentDate": "2026-10-18T18:30:23.160Z",
     "factionId": "mercenary",
     "forces": [
       [
-        "force-1783758771427-vastc4p",
+        "force-1792348223160-lo014zg",
         {
-          "id": "force-1783758771427-vastc4p",
-          "name": "Mint navigation-briefing 1783758758795",
+          "id": "force-1792348223160-lo014zg",
+          "name": "Mint navigation-briefing 1792348220463",
           "subForceIds": [],
-          "unitIds": [],
+          "unitIds": [
+            "unit-1792348222846-ixtg9",
+            "unit-1792348222878-pjpoj",
+            "unit-1792348222911-hctn6",
+            "unit-1792348222946-vs81s"
+          ],
           "forceType": "Standard",
           "formationLevel": "Regiment",
-          "createdAt": "2026-07-11T08:32:51.427Z",
-          "updatedAt": "2026-07-11T08:32:51.427Z"
+          "createdAt": "2026-10-18T18:30:23.160Z",
+          "updatedAt": "2026-10-18T18:30:23.197Z"
         }
       ]
     ],
-    "rootForceId": "force-1783758771427-vastc4p",
+    "rootForceId": "force-1792348223160-lo014zg",
     "missions": [
       [
-        "contract-1783758772973-vay5je8",
+        "contract-1792348223636-r5rc52i",
         {
-          "id": "contract-1783758772973-vay5je8",
-          "name": "Retainer for House Liao",
+          "id": "contract-1792348223636-r5rc52i",
+          "name": "Cadre Duty for House Steiner",
           "status": "Active",
           "type": "contract",
-          "systemId": "Tharkad",
+          "systemId": "Arc-Royal",
           "scenarioIds": [],
-          "startDate": "2026-07-11T08:32:51.427Z",
-          "endDate": "2027-04-07T08:32:51.427Z",
-          "employerId": "Liao",
-          "targetId": "Wolf",
+          "startDate": "2026-10-18T18:30:23.160Z",
+          "endDate": "2027-07-15T18:30:23.160Z",
+          "employerId": "Steiner",
+          "targetId": "Liao",
           "paymentTerms": {
-            "basePayment": 990000,
-            "successPayment": 1980000,
-            "partialPayment": 1485000,
-            "failurePayment": 495000,
-            "salvagePercent": 42,
+            "basePayment": 900000,
+            "successPayment": 1800000,
+            "partialPayment": 1350000,
+            "failurePayment": 450000,
+            "salvagePercent": 44,
             "transportPayment": 0,
             "supportPayment": 0
           },
           "salvageRights": "None",
           "commandRights": "House",
-          "createdAt": "2026-07-11T08:32:52.973Z",
-          "updatedAt": "2026-07-11T08:32:52.973Z",
-          "atbContractType": "retainer"
+          "createdAt": "2026-10-18T18:30:23.636Z",
+          "updatedAt": "2026-10-18T18:30:23.636Z",
+          "atbContractType": "cadre_duty"
         }
       ]
     ],
@@ -156,49 +161,182 @@
       "contractMarketMethod": "atb_monthly"
     },
     "campaignType": "mercenary",
-    "campaignStartDate": "2026-07-11T08:32:51.427Z",
-    "createdAt": "2026-07-11T08:32:51.427Z",
-    "updatedAt": "2026-07-11T08:32:53.098Z",
+    "campaignStartDate": "2026-10-18T18:30:23.160Z",
+    "createdAt": "2026-10-18T18:30:23.160Z",
+    "updatedAt": "2026-10-18T18:30:23.713Z",
     "unitCombatStates": {},
+    "unitMaxStates": {
+      "unit-1792348222846-ixtg9": {
+        "unitId": "unit-1792348222846-ixtg9",
+        "maxArmorPerLocation": {
+          "left_arm": 4,
+          "right_arm": 4,
+          "left_torso": 8,
+          "left_torso_rear": 2,
+          "right_torso": 8,
+          "right_torso_rear": 2,
+          "center_torso": 10,
+          "center_torso_rear": 2,
+          "head": 8,
+          "left_leg": 8,
+          "right_leg": 8
+        },
+        "maxStructurePerLocation": {
+          "head": 3,
+          "center_torso": 6,
+          "left_torso": 5,
+          "right_torso": 5,
+          "left_arm": 3,
+          "right_arm": 3,
+          "left_leg": 4,
+          "right_leg": 4
+        },
+        "maxAmmoPerBin": {
+          "locust-lct-1v-machine-gun-1": 200,
+          "locust-lct-1v-machine-gun-2": 200
+        }
+      },
+      "unit-1792348222878-pjpoj": {
+        "unitId": "unit-1792348222878-pjpoj",
+        "maxArmorPerLocation": {
+          "left_arm": 16,
+          "right_arm": 16,
+          "left_torso": 20,
+          "left_torso_rear": 4,
+          "right_torso": 20,
+          "right_torso_rear": 4,
+          "center_torso": 26,
+          "center_torso_rear": 5,
+          "head": 9,
+          "left_leg": 20,
+          "right_leg": 20
+        },
+        "maxStructurePerLocation": {
+          "head": 3,
+          "center_torso": 16,
+          "left_torso": 12,
+          "right_torso": 12,
+          "left_arm": 8,
+          "right_arm": 8,
+          "left_leg": 12,
+          "right_leg": 12
+        },
+        "maxAmmoPerBin": {
+          "hunchback-hbk-4g-ac-20-1": 10
+        }
+      },
+      "unit-1792348222911-hctn6": {
+        "unitId": "unit-1792348222911-hctn6",
+        "maxArmorPerLocation": {
+          "left_arm": 22,
+          "right_arm": 22,
+          "left_torso": 17,
+          "left_torso_rear": 8,
+          "right_torso": 17,
+          "right_torso_rear": 8,
+          "center_torso": 35,
+          "center_torso_rear": 10,
+          "head": 9,
+          "left_leg": 18,
+          "right_leg": 18
+        },
+        "maxStructurePerLocation": {
+          "head": 3,
+          "center_torso": 23,
+          "left_torso": 16,
+          "right_torso": 16,
+          "left_arm": 12,
+          "right_arm": 12,
+          "left_leg": 16,
+          "right_leg": 16
+        },
+        "maxAmmoPerBin": {
+          "marauder-mad-3r-autocannon-5-1": 20
+        }
+      },
+      "unit-1792348222946-vs81s": {
+        "unitId": "unit-1792348222946-vs81s",
+        "maxArmorPerLocation": {
+          "left_arm": 34,
+          "right_arm": 34,
+          "left_torso": 32,
+          "left_torso_rear": 10,
+          "right_torso": 32,
+          "right_torso_rear": 10,
+          "center_torso": 47,
+          "center_torso_rear": 14,
+          "head": 9,
+          "left_leg": 41,
+          "right_leg": 41
+        },
+        "maxStructurePerLocation": {
+          "head": 3,
+          "center_torso": 31,
+          "left_torso": 21,
+          "right_torso": 21,
+          "left_arm": 17,
+          "right_arm": 17,
+          "left_leg": 21,
+          "right_leg": 21
+        },
+        "maxAmmoPerBin": {
+          "atlas-as7-d-lrm-20-1": 12,
+          "atlas-as7-d-srm-6-1": 15,
+          "atlas-as7-d-ac-20-1": 10
+        }
+      }
+    },
     "rosterProjection": {
       "campaignId": "pack:navigation-briefing:campaign",
       "units": [
         {
-          "unitId": "unit-1783758771077-791v4",
+          "unitId": "unit-1792348222846-ixtg9",
           "unitName": "Locust LCT-1V",
-          "pilotId": "pilot-a2cb13e0-2594-4586-9834-00de51ea44d8",
+          "pilotId": "pilot-50a96ff2-da61-47b3-8229-8fc07bfd3e9e",
           "unitRef": "locust-lct-1v",
+          "unitSource": "canonical",
+          "sourceVersion": 1,
           "chassisVariant": "Locust LCT-1V",
-          "readiness": "Ready"
+          "readiness": "Ready",
+          "tonnage": 25
         },
         {
-          "unitId": "unit-1783758771110-4dz6i",
+          "unitId": "unit-1792348222878-pjpoj",
           "unitName": "Hunchback HBK-4G",
-          "pilotId": "pilot-11634b7d-f73c-47e1-9730-6c4e77dbacd2",
+          "pilotId": "pilot-3dd72bbc-bd3a-4167-8c26-32089629cd10",
           "unitRef": "hunchback-hbk-4g",
+          "unitSource": "canonical",
+          "sourceVersion": 1,
           "chassisVariant": "Hunchback HBK-4G",
-          "readiness": "Ready"
+          "readiness": "Ready",
+          "tonnage": 50
         },
         {
-          "unitId": "unit-1783758771144-sqg5g",
+          "unitId": "unit-1792348222911-hctn6",
           "unitName": "Marauder MAD-3R",
-          "pilotId": "pilot-7c5fb809-6bff-496f-96aa-9df799b42a53",
+          "pilotId": "pilot-01b3bf77-54c7-48fa-ab7b-2260f101578c",
           "unitRef": "marauder-mad-3r",
+          "unitSource": "canonical",
+          "sourceVersion": 1,
           "chassisVariant": "Marauder MAD-3R",
-          "readiness": "Ready"
+          "readiness": "Ready",
+          "tonnage": 75
         },
         {
-          "unitId": "unit-1783758771178-otmk4",
+          "unitId": "unit-1792348222946-vs81s",
           "unitName": "Atlas AS7-D",
-          "pilotId": "pilot-3cd6c2a8-2f25-4e65-a3c2-84184a46df55",
+          "pilotId": "pilot-c16c4816-f11b-4b16-b7c0-8c2ef8f1c635",
           "unitRef": "atlas-as7-d",
+          "unitSource": "canonical",
+          "sourceVersion": 1,
           "chassisVariant": "Atlas AS7-D",
-          "readiness": "Ready"
+          "readiness": "Ready",
+          "tonnage": 100
         }
       ],
       "pilots": [
         {
-          "pilotId": "pilot-a2cb13e0-2594-4586-9834-00de51ea44d8",
+          "pilotId": "pilot-50a96ff2-da61-47b3-8229-8fc07bfd3e9e",
           "pilotName": "MechWarrior 1",
           "status": "active",
           "wounds": 0,
@@ -209,11 +347,11 @@
           "recoveryTime": 0,
           "primaryRole": "Pilot",
           "rankIndex": 0,
-          "assignedUnitId": "unit-1783758771077-791v4",
-          "hireDate": "2026-07-11T08:32:51.605Z"
+          "assignedUnitId": "unit-1792348222846-ixtg9",
+          "hireDate": "2026-10-18T18:30:23.257Z"
         },
         {
-          "pilotId": "pilot-11634b7d-f73c-47e1-9730-6c4e77dbacd2",
+          "pilotId": "pilot-3dd72bbc-bd3a-4167-8c26-32089629cd10",
           "pilotName": "MechWarrior 2",
           "status": "active",
           "wounds": 0,
@@ -224,11 +362,11 @@
           "recoveryTime": 0,
           "primaryRole": "Pilot",
           "rankIndex": 0,
-          "assignedUnitId": "unit-1783758771110-4dz6i",
-          "hireDate": "2026-07-11T08:32:51.605Z"
+          "assignedUnitId": "unit-1792348222878-pjpoj",
+          "hireDate": "2026-10-18T18:30:23.257Z"
         },
         {
-          "pilotId": "pilot-7c5fb809-6bff-496f-96aa-9df799b42a53",
+          "pilotId": "pilot-01b3bf77-54c7-48fa-ab7b-2260f101578c",
           "pilotName": "MechWarrior 3",
           "status": "active",
           "wounds": 0,
@@ -239,11 +377,11 @@
           "recoveryTime": 0,
           "primaryRole": "Pilot",
           "rankIndex": 0,
-          "assignedUnitId": "unit-1783758771144-sqg5g",
-          "hireDate": "2026-07-11T08:32:51.605Z"
+          "assignedUnitId": "unit-1792348222911-hctn6",
+          "hireDate": "2026-10-18T18:30:23.257Z"
         },
         {
-          "pilotId": "pilot-3cd6c2a8-2f25-4e65-a3c2-84184a46df55",
+          "pilotId": "pilot-c16c4816-f11b-4b16-b7c0-8c2ef8f1c635",
           "pilotName": "MechWarrior 4",
           "status": "active",
           "wounds": 0,
@@ -254,8 +392,8 @@
           "recoveryTime": 0,
           "primaryRole": "Pilot",
           "rankIndex": 0,
-          "assignedUnitId": "unit-1783758771178-otmk4",
-          "hireDate": "2026-07-11T08:32:51.605Z"
+          "assignedUnitId": "unit-1792348222946-vs81s",
+          "hireDate": "2026-10-18T18:30:23.257Z"
         }
       ],
       "missions": [],
@@ -268,115 +406,119 @@
     "description": "Scenario pack minter capture (generator-minted, never hand-authored).",
     "partsInventory": [],
     "dailyBattleAudit": [],
-    "rngSeed": 4270288621,
+    "rngSeed": 3618770977,
     "contractMarket": {
       "offers": [
         {
-          "id": "contract-1783758772973-dhvb61r",
-          "name": "Diversionary Raid for Kell Hounds",
-          "status": "Pending",
-          "type": "contract",
-          "systemId": "Tharkad",
-          "scenarioIds": [],
-          "startDate": "2026-07-11T08:32:51.427Z",
-          "endDate": "2026-10-09T08:32:51.427Z",
-          "employerId": "Kell Hounds",
-          "targetId": "Kurita",
-          "paymentTerms": {
-            "basePayment": 780000,
-            "successPayment": 1560000,
-            "partialPayment": 1170000,
-            "failurePayment": 390000,
-            "salvagePercent": 43,
-            "transportPayment": 0,
-            "supportPayment": 0
-          },
-          "salvageRights": "None",
-          "commandRights": "House",
-          "createdAt": "2026-07-11T08:32:52.973Z",
-          "updatedAt": "2026-07-11T08:32:52.973Z",
-          "atbContractType": "diversionary_raid"
-        },
-        {
-          "id": "contract-1783758772973-u7qen7r",
-          "name": "Extraction Raid for Wolf's Dragoons",
-          "status": "Pending",
-          "type": "contract",
-          "systemId": "New Avalon",
-          "scenarioIds": [],
-          "startDate": "2026-07-11T08:32:51.427Z",
-          "endDate": "2026-10-09T08:32:51.427Z",
-          "employerId": "Wolf's Dragoons",
-          "targetId": "Ghost Bear",
-          "paymentTerms": {
-            "basePayment": 720000,
-            "successPayment": 1440000,
-            "partialPayment": 1080000,
-            "failurePayment": 360000,
-            "salvagePercent": 50,
-            "transportPayment": 0,
-            "supportPayment": 0
-          },
-          "salvageRights": "None",
-          "commandRights": "House",
-          "createdAt": "2026-07-11T08:32:52.973Z",
-          "updatedAt": "2026-07-11T08:32:52.973Z",
-          "atbContractType": "extraction_raid"
-        },
-        {
-          "id": "contract-1783758772973-wcuwoz4",
-          "name": "Riot Duty for House Kurita",
+          "id": "contract-1792348223636-vhj0ay8",
+          "name": "Mole Hunting for Clan Jade Falcon",
           "status": "Pending",
           "type": "contract",
           "systemId": "Arc-Royal",
           "scenarioIds": [],
-          "startDate": "2026-07-11T08:32:51.427Z",
-          "endDate": "2026-10-09T08:32:51.427Z",
-          "employerId": "Kurita",
-          "targetId": "Steiner",
+          "startDate": "2026-10-18T18:30:23.160Z",
+          "endDate": "2027-04-16T18:30:23.160Z",
+          "employerId": "Jade Falcon",
+          "targetId": "Marik",
           "paymentTerms": {
-            "basePayment": 390000,
-            "successPayment": 780000,
-            "partialPayment": 585000,
-            "failurePayment": 195000,
-            "salvagePercent": 52,
+            "basePayment": 1320000,
+            "successPayment": 2640000,
+            "partialPayment": 1980000,
+            "failurePayment": 660000,
+            "salvagePercent": 41,
             "transportPayment": 0,
             "supportPayment": 0
           },
           "salvageRights": "None",
           "commandRights": "House",
-          "createdAt": "2026-07-11T08:32:52.973Z",
-          "updatedAt": "2026-07-11T08:32:52.973Z",
-          "atbContractType": "riot_duty"
+          "createdAt": "2026-10-18T18:30:23.636Z",
+          "updatedAt": "2026-10-18T18:30:23.636Z",
+          "atbContractType": "mole_hunting"
         },
         {
-          "id": "contract-1783758772973-dtcxxkk",
-          "name": "Extraction Raid for Kell Hounds",
+          "id": "contract-1792348223636-npt3co0",
+          "name": "Objective Raid for Clan Wolf",
           "status": "Pending",
           "type": "contract",
-          "systemId": "Sian",
+          "systemId": "New Avalon",
           "scenarioIds": [],
-          "startDate": "2026-07-11T08:32:51.427Z",
-          "endDate": "2026-10-09T08:32:51.427Z",
-          "employerId": "Kell Hounds",
-          "targetId": "Wolf",
+          "startDate": "2026-10-18T18:30:23.160Z",
+          "endDate": "2027-01-16T18:30:23.160Z",
+          "employerId": "Wolf",
+          "targetId": "Marik",
           "paymentTerms": {
             "basePayment": 720000,
             "successPayment": 1440000,
             "partialPayment": 1080000,
             "failurePayment": 360000,
-            "salvagePercent": 52,
+            "salvagePercent": 55,
             "transportPayment": 0,
             "supportPayment": 0
           },
           "salvageRights": "None",
           "commandRights": "House",
-          "createdAt": "2026-07-11T08:32:52.973Z",
-          "updatedAt": "2026-07-11T08:32:52.973Z",
-          "atbContractType": "extraction_raid"
+          "createdAt": "2026-10-18T18:30:23.636Z",
+          "updatedAt": "2026-10-18T18:30:23.636Z",
+          "atbContractType": "objective_raid"
+        },
+        {
+          "id": "contract-1792348223636-nhqh3r5",
+          "name": "Garrison Duty for House Steiner",
+          "status": "Pending",
+          "type": "contract",
+          "systemId": "Terra",
+          "scenarioIds": [],
+          "startDate": "2026-10-18T18:30:23.160Z",
+          "endDate": "2028-08-08T18:30:23.160Z",
+          "employerId": "Steiner",
+          "targetId": "Jade Falcon",
+          "paymentTerms": {
+            "basePayment": 2640000,
+            "successPayment": 5280000,
+            "partialPayment": 3960000,
+            "failurePayment": 1320000,
+            "salvagePercent": 46,
+            "transportPayment": 0,
+            "supportPayment": 0
+          },
+          "salvageRights": "None",
+          "commandRights": "House",
+          "createdAt": "2026-10-18T18:30:23.636Z",
+          "updatedAt": "2026-10-18T18:30:23.636Z",
+          "atbContractType": "garrison_duty"
+        },
+        {
+          "id": "contract-1792348223636-15huym1",
+          "name": "Mole Hunting for House Kurita",
+          "status": "Pending",
+          "type": "contract",
+          "systemId": "Sian",
+          "scenarioIds": [],
+          "startDate": "2026-10-18T18:30:23.160Z",
+          "endDate": "2027-03-17T18:30:23.160Z",
+          "employerId": "Kurita",
+          "targetId": "Marik",
+          "paymentTerms": {
+            "basePayment": 1100000,
+            "successPayment": 2200000,
+            "partialPayment": 1650000,
+            "failurePayment": 550000,
+            "salvagePercent": 44,
+            "transportPayment": 0,
+            "supportPayment": 0
+          },
+          "salvageRights": "None",
+          "commandRights": "House",
+          "createdAt": "2026-10-18T18:30:23.636Z",
+          "updatedAt": "2026-10-18T18:30:23.636Z",
+          "atbContractType": "mole_hunting"
         }
       ],
       "declinedOfferIds": []
     }
+  },
+  "instanceId": "147312052c72a4257192afffb1aa236d",
+  "authority": {
+    "role": "source"
   }
 }

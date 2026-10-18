@@ -22,6 +22,7 @@ import { expect, request, type Page } from '@playwright/test';
 import {
   acceptContractAndOpenLaunch,
   createCampaignViaWizard,
+  submitCampaignWizard,
   type CampaignFlowRecorder,
   type CampaignResult,
 } from './campaignFlow';
@@ -196,10 +197,7 @@ export async function createUniqueSeamCampaignWithMirroredRoster(
     page.getByRole('heading', { name: 'Review Campaign' }),
   ).toBeVisible();
 
-  await page.getByTestId('wizard-submit-btn').click();
-  await expect(page).toHaveURL(/\/gameplay\/campaigns\/[^/]+$/, {
-    timeout: 30_000,
-  });
+  await submitCampaignWizard(page);
   await expect(page.getByTestId('campaign-save-status-card')).toBeVisible({
     timeout: 20_000,
   });

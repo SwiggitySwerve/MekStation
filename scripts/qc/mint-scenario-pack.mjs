@@ -27,7 +27,7 @@
  * @spec openspec/changes/add-scenario-packs/design.md (D7 layer 1)
  */
 
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -91,6 +91,25 @@ async function run() {
 
   console.log(`[mint-scenario-pack] minting "${packId}"...`);
 
+  // Optional machine-wide scheduling gate for coordinated local proof lanes.
+  // Each recapture child checks again; gating only the parent misses later packs.
+  const ownPids = process.env.MEKSTATION_SCENARIO_PACK_IDLE_OWN_PIDS;
+  if (ownPids) {
+    if (!/^\d+(,\d+)*$/.test(ownPids))
+      throw new Error('Invalid scenario-pack idle PID list');
+    const idle = spawnSync(
+      process.execPath,
+      [
+        path.join(repoRoot, 'scripts', 'qc', 'machine-idle.mjs'),
+        ...ownPids.split(',').flatMap((pid) => ['--own-pid', pid]),
+        '--wait',
+      ],
+      { cwd: repoRoot, stdio: 'inherit' },
+    );
+    if (idle.error) throw idle.error;
+    if (idle.status !== 0) process.exit(idle.status ?? 1);
+  }
+
   if (JEST_PACK_IDS.includes(packId)) {
     return runJestMint(packId, args.slice(1));
   }
@@ -107,6 +126,8 @@ async function runJestMint(packId, extraArgs) {
     '--runTestsByPath',
     'src/lib/scenarioPacks/__tests__/mintFastForwardPack.test.ts',
     '--runInBand',
+    '--cacheDirectory',
+    path.join(repoRoot, '.cache', 'scenario-pack-jest', packId),
     ...extraArgs,
   ];
 

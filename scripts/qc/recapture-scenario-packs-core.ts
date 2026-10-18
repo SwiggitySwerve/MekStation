@@ -1,4 +1,5 @@
 #!/usr/bin/env npx tsx
+import { execFileSync } from 'node:child_process';
 /**
  * Scenario Pack Nightly Recapture — core logic (task 6.1, design D7 layer
  * 4 / R6 / R9).
@@ -88,7 +89,12 @@ import type { TransactionType } from '../../src/types/campaign/enums/Transaction
 import {
   manifestVersion,
   SCENARIO_PACK_MANIFEST,
+  SCENARIO_PACK_QUARANTINES,
 } from '../../e2e/scenario-packs/manifest';
+import {
+  validateScenarioPackQuarantines,
+  type IQuarantineOwnerUnit,
+} from '../../e2e/scenario-packs/quarantine';
 import { type ComparableTransaction } from '../../src/lib/campaign/fastForward/invariants/comparableRunState';
 import { signFor } from '../../src/lib/campaign/fastForward/invariants/ledger';
 import { CURRENT_CAMPAIGN_SCHEMA_VERSION } from '../../src/lib/campaign/persistence/campaignMigration';
@@ -100,9 +106,10 @@ import {
   type ManifestEntry,
 } from '../../src/lib/scenarioPacks/packSchemas';
 import {
-  type GenesisClass,
   type PackRecaptureResult,
+  classifyGenesisSource,
   remintPack,
+  summarizeRecaptureResults,
   validateAndCompareFreshStage,
   validateCommittedPayloadStage,
 } from './recapture-scenario-pack-stages';
@@ -163,19 +170,6 @@ function provenancePathFor(payloadAbsolutePath: string): string {
 // Genesis-class dispatch (design D9's parityAnchorJourney prefixes == D7's
 // three genesis classes, 1:1)
 // =============================================================================
-
-function classifyGenesisSource(parityAnchorJourney: string): GenesisClass {
-  if (parityAnchorJourney.startsWith('flow:')) return 'flow-checkpoint';
-  if (parityAnchorJourney.startsWith('anchor:')) return 'anchor-captured';
-  if (parityAnchorJourney.startsWith('fast-forward:')) return 'fast-forward';
-  // Unreachable given parityAnchorJourneySchema's regex (already enforced at
-  // manifest module load) — fail loud rather than silently falling through
-  // to no comparison at all if a fourth prefix is ever added to the schema
-  // without a matching genesis class here.
-  throw new Error(
-    `recapture-scenario-packs: unrecognized parityAnchorJourney prefix on "${parityAnchorJourney}" — add a genesis class + invariant predicate before registering this pack`,
-  );
-}
 
 // =============================================================================
 // (a)/(b) Schema + pin re-validation (design D7 layer 3, spec: "Version
@@ -468,13 +462,17 @@ function buildRecaptureDeps() {
 
 async function recapturePack(
   entry: ManifestEntry,
+  artifactRoot: string,
 ): Promise<PackRecaptureResult> {
+  const artifactDirectory = path.join(artifactRoot, entry.id);
+  fs.mkdirSync(artifactDirectory, { recursive: true });
   const payloadAbsolutePath = path.join(SCENARIO_PACKS_DIR, entry.payloadPath);
   const provenanceAbsolutePath = provenancePathFor(payloadAbsolutePath);
 
   if (!fs.existsSync(payloadAbsolutePath)) {
     return {
       packId: entry.id,
+      status: 'FAIL',
       ok: false,
       issues: [
         `${entry.id}: committed payload file missing at ${payloadAbsolutePath}`,
@@ -487,9 +485,20 @@ async function recapturePack(
   const payloadBackup = backupFile(payloadAbsolutePath);
   const provenanceBackup = backupFile(provenanceAbsolutePath);
   const committedSizeBytes = Buffer.byteLength(payloadBackup.content!, 'utf8');
-  const genesisClass = classifyGenesisSource(entry.parityAnchorJourney);
+  const genesisClass = classifyGenesisSource(entry);
   const issues: string[] = [];
   const deps = buildRecaptureDeps();
+  fs.writeFileSync(
+    path.join(artifactDirectory, 'committed.payload.json'),
+    payloadBackup.content!,
+  );
+  if (provenanceBackup.content)
+    fs.writeFileSync(
+      path.join(artifactDirectory, 'committed.provenance.json'),
+      provenanceBackup.content,
+    );
+  let mintAttempted = false;
+  let mintCompleted = false;
 
   try {
     const committedRaw: unknown = JSON.parse(payloadBackup.content!);
@@ -500,17 +509,23 @@ async function recapturePack(
       committedSizeBytes,
       issues,
       deps,
+      SCENARIO_PACK_QUARANTINES.find(
+        (quarantine) => quarantine.packId === entry.id,
+      ),
     );
     if (committedFailure) return committedFailure;
 
+    mintAttempted = true;
     const remintFailure = remintPack(
       entry,
       payloadAbsolutePath,
       committedSizeBytes,
       issues,
       deps,
+      artifactDirectory,
     );
     if (remintFailure) return remintFailure;
+    mintCompleted = true;
 
     const freshContent = fs.readFileSync(payloadAbsolutePath, 'utf8');
     const freshSizeBytes = Buffer.byteLength(freshContent, 'utf8');
@@ -528,12 +543,47 @@ async function recapturePack(
       issues,
       deps,
     });
+  } catch (error) {
+    return {
+      packId: entry.id,
+      status: 'FAIL',
+      ok: false,
+      issues: [...issues, `${entry.id}: ${(error as Error).message}`],
+      committedSizeBytes,
+      freshSizeBytes: null,
+    };
   } finally {
-    // Always restore, pass or fail — a local recapture run must be
-    // re-runnable and must never leave a dirty working tree (task 6.1/6.3
-    // acceptance).
-    restoreFile(payloadBackup);
-    restoreFile(provenanceBackup);
+    try {
+      // Preserve even a partially written capture before restoring the originals.
+      if (
+        mintAttempted &&
+        fs.existsSync(payloadAbsolutePath) &&
+        (mintCompleted ||
+          fs.readFileSync(payloadAbsolutePath, 'utf8') !==
+            payloadBackup.content)
+      )
+        fs.copyFileSync(
+          payloadAbsolutePath,
+          path.join(artifactDirectory, 'fresh.payload.json'),
+        );
+      if (
+        mintAttempted &&
+        fs.existsSync(provenanceAbsolutePath) &&
+        (mintCompleted ||
+          fs.readFileSync(provenanceAbsolutePath, 'utf8') !==
+            provenanceBackup.content)
+      )
+        fs.copyFileSync(
+          provenanceAbsolutePath,
+          path.join(artifactDirectory, 'fresh.provenance.json'),
+        );
+    } finally {
+      // Always restore, including if preserving diagnostics fails — a local recapture run must be
+      // re-runnable and must never leave a dirty working tree (task 6.1/6.3
+      // acceptance).
+      restoreFile(payloadBackup);
+      restoreFile(provenanceBackup);
+    }
   }
 }
 
@@ -542,6 +592,20 @@ async function recapturePack(
 // =============================================================================
 
 async function main(): Promise<void> {
+  const ledger = JSON.parse(
+    fs.readFileSync(
+      path.join(
+        REPO_ROOT,
+        'openspec/planning/2026-09-12-roadmap-completion/units.json',
+      ),
+      'utf8',
+    ),
+  ) as { units: IQuarantineOwnerUnit[] };
+  validateScenarioPackQuarantines(
+    SCENARIO_PACK_QUARANTINES,
+    ledger.units,
+    SCENARIO_PACK_MANIFEST.map((entry) => entry.id),
+  );
   const args = process.argv.slice(2);
   const jsonMode = args.includes('--json');
   const packFlagIndex = args.indexOf('--pack');
@@ -586,31 +650,66 @@ async function main(): Promise<void> {
   );
 
   const results: PackRecaptureResult[] = [];
+  const artifactRoot = path.join(
+    REPO_ROOT,
+    '.sisyphus',
+    'scenario-pack-recapture',
+    `${Date.now()}-${process.pid}`,
+  );
+  fs.mkdirSync(artifactRoot, { recursive: true });
+  fs.writeFileSync(
+    path.join(artifactRoot, 'run.json'),
+    `${JSON.stringify(
+      {
+        head: execFileSync('git', ['rev-parse', 'HEAD'], {
+          cwd: REPO_ROOT,
+          encoding: 'utf8',
+        }).trim(),
+        node: process.version,
+        argv: process.argv,
+        packs: entries.map((entry) => entry.id),
+        serverCommand:
+          process.env.MEKSTATION_E2E_SERVER_COMMAND ?? 'npm run dev',
+      },
+      null,
+      2,
+    )}\n`,
+  );
+  console.log(`[recapture-scenario-packs] diagnostics: ${artifactRoot}`);
   for (const entry of entries) {
     console.log(
       `\n[recapture-scenario-packs] === ${entry.id} (${entry.kind}, genesis: ${entry.parityAnchorJourney}) ===`,
     );
     // eslint-disable-next-line no-await-in-loop -- packs re-mint sequentially by design (chromium-only, workers=1, design R9); parallel re-mints would contend the same shared dev server / SQLite file.
-    const result = await recapturePack(entry);
+    const result = await recapturePack(entry, artifactRoot);
     results.push(result);
+    fs.writeFileSync(
+      path.join(artifactRoot, entry.id, 'result.json'),
+      `${JSON.stringify(result, null, 2)}\n`,
+    );
     const sizeReport =
       result.freshSizeBytes !== null
         ? `committed=${formatKB(result.committedSizeBytes)} fresh=${formatKB(result.freshSizeBytes)}`
         : `committed=${formatKB(result.committedSizeBytes)}`;
     console.log(
-      `[recapture-scenario-packs] ${entry.id}: ${sizeReport} -> ${result.ok ? 'PASS' : 'FAIL'}`,
+      `[recapture-scenario-packs] ${entry.id}: ${sizeReport} -> ${result.status}${result.quarantine ? ` (ownerUnit=${result.quarantine.ownerUnit}; ${result.quarantine.reason}; diagnosis=${result.quarantine.diagnosisDoc})` : ''}`,
     );
-    if (!result.ok) {
+    if (result.status === 'FAIL') {
       for (const issue of result.issues) console.error(`  - ${issue}`);
     }
   }
 
-  const failed = results.filter((result) => !result.ok);
+  const failed = results.filter((result) => result.status === 'FAIL');
+  const summary = summarizeRecaptureResults(results);
+  fs.writeFileSync(
+    path.join(artifactRoot, 'results.json'),
+    `${JSON.stringify({ results, summary }, null, 2)}\n`,
+  );
   console.log(
-    `\n[recapture-scenario-packs] ${results.length - failed.length}/${results.length} pack(s) passed.`,
+    `\n[recapture-scenario-packs] ${summary.passed} PASS, ${summary.failed} FAIL, ${summary.quarantined} QUARANTINED (${summary.total} registered). Non-quarantined baseline: ${summary.ok ? 'PASS' : 'FAIL'}.`,
   );
   if (jsonMode) {
-    console.log(JSON.stringify({ results }, null, 2));
+    console.log(JSON.stringify({ results, summary }, null, 2));
   }
   if (failed.length > 0) {
     console.error(
