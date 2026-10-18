@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CG1G2A",
+  "stage": "red",
+  "date": "20261018",
+  "baseline": "58e5c31b09d7d724ef409b497f3b421d41d48a29",
+  "admissionCommit": "60da3dbb8e3343e65e1dfca70d03913d719bfbc2",
+  "runtime": {
+    "node": "v22.22.0",
+    "jest": "node node_modules/jest/bin/jest.js --selectProjects unit --runInBand --watchAll=false --cacheDirectory <private> --verbose --runTestsByPath src/__tests__/api/securityBoundary.test.ts src/__tests__/unit/api/multiplayerMatchMeta.test.ts",
+    "idle": "node scripts/qc/machine-idle.mjs --own-pid 47516 --own-pid <shell pid> -> MACHINE_IDLE immediately before the typecheck and Jest runs (idle-red.log)"
+  },
+  "productUnchanged": {
+    "note": "The route is byte-identical to the baseline (git diff --quiet exit 0). The tests import only modules present at the baseline",
+    "files": [
+      {
+        "path": "src/pages/api/multiplayer/invites/[roomCode].ts",
+        "sha256": "48edd26fff601aa61ad33ca5ef23076d70f5db13dd5743a7d114c4217c01dec5",
+        "bytes": 2138
+      }
+    ]
+  },
+  "testChanges": [
+    {
+      "path": "src/__tests__/api/securityBoundary.test.ts",
+      "added": 298,
+      "deleted": 0,
+      "sha256": "696d4b8699df5fda2c11d78feec587dc43d6145e6d059cff24e359be3831e7d7",
+      "bytes": 19634
+    }
+  ],
+  "fixture": [
+    "getDefaultMatchStore mock gains a hoisted getMatchByRoomCode delegate; outer beforeEach default mockResolvedValue(null)",
+    "nested describe swaps the delegates per case: a real InMemoryMatchStore({quiet:true}) room-code lookup and jest.requireActual('@/lib/multiplayer/server/auth').authenticateRequest (the actual verifier); the outer beforeEach reinstalls the defaults for every other case",
+    "in-file Ed25519 tokens: node:crypto generateKeyPairSync/sign, derivePlayerId, actual canonicalTokenPayload; unscoped, scoped, expired, foreign-signature and retargeted variants are really signed",
+    "seed: lobby co-op match (campaignId 'campaign-distinct-42' != matchId 'match-lobby-7') with secret roster/bootstrap/state markers, plus a live non-co-op match",
+    "afterEach invariant: durable meta deep-equals the seed; createMatch/closeMatch never called"
+  ],
+  "typecheckAtRed": {
+    "command": "npm run typecheck",
+    "result": "exit 0",
+    "log": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2a-proof-20261018/typecheck-red.log",
+      "sha256": "8102a14cf3245ac2b0d67c588affb25efaebfcd3485f9a46a751595d9a774951",
+      "bytes": 358
+    }
+  },
+  "result": {
+    "summary": "Test Suites: 1 failed, 1 passed, 2 total; Tests: 19 failed, 29 passed, 48 total",
+    "log": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2a-proof-20261018/red.log",
+      "sha256": "e8fdd3b2c7a209e762a17205b71f883c33173bc960a47afb519f7d823e13853c",
+      "bytes": 64778
+    },
+    "idleLog": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2a-proof-20261018/idle-red.log",
+      "sha256": "315ceb46326ccdda8b3d7a4913043d09a4b22eb2dbc65560259861fe0f202a2d",
+      "bytes": 17
+    }
+  },
+  "failingRows": [
+    {
+      "row": "A1 returns only the allowlisted identity to an unseated vault identity holding the live code",
+      "failure": "Cache-Control undefined instead of 'private, no-store' (baseline returns the anonymous summary)"
+    },
+    {
+      "row": "A2 accepts a token scoped to this campaign session",
+      "failure": "body.campaignId undefined"
+    },
+    {
+      "row": "A3a refuses a token scoped to another campaign session",
+      "failure": "200 instead of 401"
+    },
+    {
+      "row": "A3b refuses a token scoped to the match channel",
+      "failure": "200 instead of 401"
+    },
+    {
+      "row": "A4a refuses no Authorization header before any lookup or verification",
+      "failure": "200 instead of 401"
+    },
+    {
+      "row": "A4b refuses an empty bearer before any lookup or verification",
+      "failure": "200 instead of 401"
+    },
+    {
+      "row": "A4c refuses a non-bearer scheme before any lookup or verification",
+      "failure": "200 instead of 401"
+    },
+    {
+      "row": "A5a refuses an expired token without disclosing identity",
+      "failure": "200 instead of 401"
+    },
+    {
+      "row": "A5b refuses a signature from another key without disclosing identity",
+      "failure": "200 instead of 401"
+    },
+    {
+      "row": "A5c refuses a retargeted playerId without disclosing identity",
+      "failure": "200 instead of 401"
+    },
+    {
+      "row": "A5d refuses an undecodable token without disclosing identity",
+      "failure": "200 instead of 401"
+    },
+    {
+      "row": "A6 refuses query-token authentication with or without a header",
+      "failure": "200 instead of 400"
+    },
+    {
+      "row": "A7a rejects a malformed mode (0) instead of downgrading to a summary",
+      "failure": "200 instead of 400"
+    },
+    {
+      "row": "A7b rejects a malformed mode (true) instead of downgrading to a summary",
+      "failure": "200 instead of 400"
+    },
+    {
+      "row": "A7c rejects a malformed mode (empty) instead of downgrading to a summary",
+      "failure": "200 instead of 400"
+    },
+    {
+      "row": "A7d rejects a malformed mode (repeated) instead of downgrading to a summary",
+      "failure": "200 instead of 400"
+    },
+    {
+      "row": "A8a answers an unknown code with the not-found class",
+      "failure": "Cache-Control undefined (404 body already matches)"
+    },
+    {
+      "row": "A8b answers a live match without co-op identity with the not-found class",
+      "failure": "toEqual: anonymous summary instead of the not-found body"
+    },
+    {
+      "row": "A9 decides authentication before revealing whether a live code is co-op",
+      "failure": "200 instead of 401"
+    }
+  ],
+  "controlsGreenAtRed": [
+    "C1 keeps the anonymous summary exact and unauthenticated (bearer present; no cache header; verifier not called)",
+    "C2 restores the default delegates after the identity cases",
+    "the nine pre-existing securityBoundary rows",
+    "all 18 rows of multiplayerMatchMeta.test.ts (unchanged B9 privacy control, including the anonymous room-code resolution row)"
+  ],
+  "redShape": "All 19 failures are assertion failures (18 toBe, 1 toEqual); none is a compile, TypeError or missing-API failure",
+  "discardedRun": {
+    "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2a-proof-20261018/red-discarded-unformatted.log",
+    "note": "An earlier RED commit (local only, never pushed) carried the same test with one extra trailing blank line that oxfmt --check rejects. It was dropped by resetting to the admission commit before any push; the test was re-applied oxfmt-clean and RED re-run with the same 19 failed / 29 passed. The earlier log is kept and not cited"
+  }
+}
