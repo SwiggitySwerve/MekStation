@@ -1,3 +1,49 @@
+## 2026-10-18 L1-SMOKE-A1 verified on main; no successor released; closure metadata proposed
+
+L1-SMOKE-A1 advances from implementing to main-verified for PR #2287,
+head 9e22300b7eb7c565a641176f469978145d8f67f6, merge b16302d76df1ace0589bc334f9249330a25c5278.
+Its admission baseline is a25ba4130da7a8cf9e107ecfa0c30b5648082936; the head was rebased onto afcbd62bba50621ebcf37c2c11adf58ecc3bfc5f, and Main then moved (B14-0 #2281, #2282, #2279, #2289, #2278) before the merge. First parent 1c7632b18d062e1b684fc7384faa4f2668183b69; the merge tree a61cdd67 equals git merge-tree of the two parents. The four script leaves and three receipts are blob-identical at head and merge, and the L1-SMOKE-A1 unit object is JSON-identical. The admission controls ServerMatchHostReplay.ts and fogMatchAdmission.ts were changed on Main by B14-0, not by this PR.
+The owner ruling ([comment 6255513661](https://github.com/SwiggitySwerve/MekStation/pull/2287#issuecomment-6255513661), 2768 bytes, sha256 37e06bbd09576742d7679f55661f49ffa3450d06e27891d4f6f3789bc45da5d2) was posted at 2026-10-18T21:43:52Z, before the merge at 2026-10-18T21:44:00Z. It is copied byte for byte to [evidence/l1-smoke-a1-owner-ruling-6255513661.txt](evidence/l1-smoke-a1-owner-ruling-6255513661.txt). PK-l1-smoke-a1-ruling records it.
+
+The admission, red and local receipts came with PR #2287 and are unchanged.
+The [review receipt](evidence/l1-smoke-a1-admission-review-20261018.json) is written at the reserved slot name. It binds two independent Fable 5.1 reviews, both preserved byte for byte as base64 envelopes:
+
+- Round 1 on de8e97758: CHANGES REQUESTED (minor), sha256 98b68afbf08ab41b68a718042323f2aeb85f6a723d2da36bf4de49ffc3dba594, 31597 bytes. Findings were fixed in-PR by the single amendment 9e22300b7.
+- Round 2 on the merged head: APPROVE, sha256 b900dc41242ca20dac24b411a55697f85e95199686cf1794f3e6e5352a9b0482, 17508 bytes.
+
+Ledger within caps: 9/15 files, 487/500 counted lines (physical count, ruled under CF-SMOKEA1-3).
+CF-SMOKEA1-10 SHA mapping (patch-ids identical; recorded in the review receipt shaMapping): admission a205fa117 -> c7bcf92a3, RED a9bda139c -> 6ceb2da41, GREEN de8e97758 -> 8a3f4bfa3, then amendment 9e22300b7. Earlier local chains 954b3f0cc -> dd159d6c4 -> a205fa117 and f7cb34aa4 -> 29bcdf357 -> a9bda139c are recorded too.
+
+The [merge receipt](evidence/l1-smoke-a1-merge-20261018.json) binds the parents, the tree, the census, the leaves at the merge, 32/32 checks by name on the head (names equal the recorded 32) and the push runs on the merge commit.
+The [main proof](evidence/l1-smoke-a1-mainproof-20261018.json) is a fresh run at the merge, before any closure edit:
+
+- The A1 harness node:test passes 17/17.
+- One real `--build` smoke through the heavy queue (lane smoke-a1, P0) passes 10/10 on a clean detached merge worktree: BUILD_ID 1792360460809, the image includes the B14-0 src changes, one readiness record for each of the two owned processes, port released, 5 tokens redacted and none retained, and the read-only lineage left the DB unchanged.
+- validate-roadmap plain and --git pass, and --next returns LSC-1DB. The validator tests pass 86/86, lint:units passes 17896/17899, and oxlint is 0/0 on the four leaves.
+- The MP-RECOVERY-UNITS-1 boot-recovery warnings reproduce in server-2.log. A1 claims only store replay after restart.
+
+Carry-forwards (the review receipt carries the routing, as the owner ruling writes):
+
+- CF-SMOKEA1-1 [open]: MP-HOST-DEDUPE-1.
+- CF-SMOKEA1-2 [open]: MP-RECOVERY-UNITS-1; L1-SMOKE-A2 restart acceptance depends on it.
+- CF-SMOKEA1-3 [ruled]: L1-SMOKE-A2 / L1-SMOKE-B are written in normal formatted style and split on overflow.
+- CF-SMOKEA1-4 [open]: Root maintenance unit (durable gate for scripts/release).
+- CF-SMOKEA1-5 [open]: L1-SMOKE-A2 (bind standalone server.js; re-assert final readiness).
+- CF-SMOKEA1-6 [open]: Root maintenance unit (lint-staged versus .oxfmtignore).
+- CF-SMOKEA1-7 [open]: LSC-2P / P2J (InMemoryPlayerStore warning).
+- CF-SMOKEA1-8 [open]: L1-SMOKE-A2 (OBS-A1-1 / OBS-A1-2).
+- CF-SMOKEA1-9 [open]: next unit allowed to touch the A1 leaves (L1-SMOKE-A2/B by amendment): falsifiers for N1-N4.
+- CF-SMOKEA1-10 [discharged in this closure]: SHA mapping recorded.
+- L-R2-6 [discharged in this closure]: mainProof re-ran at the merge.
+
+L1-SMOKE-A1 has no task keys. Its tick remains null; no tasks.md row is changed.
+
+No successor is released. L1-SMOKE-A2 stays blocked, because its other predecessors MP-RECOVERY-UNITS-1 and MP-HOST-DEDUPE-1 are blocked. L1-SMOKE-B, P2CG1H and every other unit state are unchanged.
+A1 is partial proof: S-SMOKE-1, B14A-SMOKE-1 and B14B-SMOKE-1 remain owed to the final combined L1-SMOKE-B run.
+This closure metadata still requires its own CI and parent merge.
+
+---
+
 ## Baseline and L1 review follow-ups (2026-10-18)
 
 Docs-only registration under the standing owner direction, prioritizing ordinary-UI

@@ -1,0 +1,241 @@
+{
+  "unit": "L1-SMOKE-A1",
+  "stage": "mainProof",
+  "recordedAt": "2026-10-18T22:01:57Z",
+  "mergeCommit": "b16302d76df1ace0589bc334f9249330a25c5278",
+  "verdict": "PASS",
+  "checkout": "E:/Projects/Personal/MekStation-wt/l1-smoke-a1-main-20261018 (detached at the merge; git status --porcelain 0 lines before and after, untracked included) for the heavy runs; E:/Projects/Personal/MekStation-wt/l1-smoke-a1-20261018 at the merge, before any closure edit, for the light runs",
+  "runtime": {
+    "playwright": "Source/Main checks: 10 passed (A1 harness node:test 17/17 at the merge; real --build smoke at the merge PASS 10/10, build exit 0, BUILD_ID 1792360460809, one readiness record per owned process, 2 owned PIDs, port released, 5 tokens redacted, none retained, readonly lineage DB unchanged; validate-roadmap plain/--git PASSED, --next LSC-1DB; validator tests 86/86; lint:units PASS 17896/17899, scripts 50/50; oxlint 0/0 on the four leaves; leaves equal head and local receipt; 32/32 head checks by name; 0 failed)"
+  },
+  "machine": "Heavy runs (node:test + build + smoke) in one heavy-run ticket: node E:/Projects/Personal/MekStation-wt/_locks/heavy-run.mjs --lane smoke-a1 --class build --p0 (machine-idle gate at the queue head). Light runs (validators, lint) are node-only.",
+  "smoke": {
+    "expectedSha": "b16302d76df1ace0589bc334f9249330a25c5278",
+    "source": {
+      "head": "b16302d76df1ace0589bc334f9249330a25c5278",
+      "clean": true
+    },
+    "build": {
+      "exitCode": 0,
+      "ms": 120599,
+      "buildId": "1792360460809"
+    },
+    "image": {
+      "buildId": "1792360460809",
+      "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
+      "configSha256": "205bab00e10bea76af2af3735ae5e4da2cbd587d6541ec2e8f560f04e00be93d",
+      "sourceTreeSha256": "c5cf1dc6d94aedc39ddf4b466e14943c468eda26c614e743509d473fe55053e5"
+    },
+    "processes": [
+      {
+        "n": 1,
+        "pid": 12588,
+        "port": 57085,
+        "exit": {
+          "code": 1,
+          "signal": null
+        },
+        "readyRecords": 1
+      },
+      {
+        "n": 2,
+        "pid": 27156,
+        "port": 57085,
+        "exit": {
+          "code": 1,
+          "signal": null
+        },
+        "readyRecords": 1
+      }
+    ],
+    "rows": {
+      "credential-malformed-refused": "pass",
+      "credential-url-refused": "pass",
+      "participants-authenticated": "pass",
+      "credential-foreign-refused": "pass",
+      "participant-action-accepted": "pass",
+      "spectator-seat-witnessed": "pass",
+      "spectator-replay-public": "pass",
+      "spectator-live-public": "pass",
+      "spectator-cannot-act": "pass",
+      "callbacks-exercised": "pass"
+    },
+    "errors": [],
+    "offlineFixture": {
+      "dbBefore": "f5270551f7e2762720a9e917506b20ecb6a8e5425f33372c3eb2173ddd31ccb8",
+      "dbAfter": "f5270551f7e2762720a9e917506b20ecb6a8e5425f33372c3eb2173ddd31ccb8",
+      "unchanged": true
+    },
+    "redactionMarks": 5,
+    "h1Observed": "2 recovery warnings in server-2.log (MP-RECOVERY-UNITS-1); A1 claims only store replay after restart, which held (callbacks-exercised)",
+    "retainedDir": "E:/Projects/Personal/MekStation-wt/l1-smoke-a1-proof-20261018/mainproof-b16302d7/run"
+  },
+  "harnessTests": {
+    "result": "17 tests, 17 pass, 0 fail"
+  },
+  "leaves": [
+    {
+      "path": "scripts/release/run-l1-built-server-smoke.mjs",
+      "headSha256": "29a7ea553b939acaaef29ea21f39dbe0e527678b6b6778d129f457862ac7c27e",
+      "mergeSha256": "29a7ea553b939acaaef29ea21f39dbe0e527678b6b6778d129f457862ac7c27e",
+      "localReceiptSha256": "29a7ea553b939acaaef29ea21f39dbe0e527678b6b6778d129f457862ac7c27e",
+      "equal": true
+    },
+    {
+      "path": "scripts/release/l1-built-server-socket-cases.mjs",
+      "headSha256": "ab4df6ad917d5103d9f14baa8f0197b42dbbc19b13d100aa49448dc0348622dc",
+      "mergeSha256": "ab4df6ad917d5103d9f14baa8f0197b42dbbc19b13d100aa49448dc0348622dc",
+      "localReceiptSha256": "ab4df6ad917d5103d9f14baa8f0197b42dbbc19b13d100aa49448dc0348622dc",
+      "equal": true
+    },
+    {
+      "path": "scripts/release/l1-built-server-fixtures.ts",
+      "headSha256": "5fb94d4058c6c2da2174c63c28e029755238a304d57598ffe4b0388e6d2ddfbb",
+      "mergeSha256": "5fb94d4058c6c2da2174c63c28e029755238a304d57598ffe4b0388e6d2ddfbb",
+      "localReceiptSha256": "5fb94d4058c6c2da2174c63c28e029755238a304d57598ffe4b0388e6d2ddfbb",
+      "equal": true
+    },
+    {
+      "path": "scripts/release/l1-built-server-smoke.test.mjs",
+      "headSha256": "24c856a0b996b96335feba928a8c729cb31d9f622263dde279320bfba51138e2",
+      "mergeSha256": "24c856a0b996b96335feba928a8c729cb31d9f622263dde279320bfba51138e2",
+      "localReceiptSha256": "24c856a0b996b96335feba928a8c729cb31d9f622263dde279320bfba51138e2",
+      "equal": true
+    }
+  ],
+  "logs": [
+    {
+      "path": "evidence/mainproof-b16302d7-tests.bytes.json",
+      "label": "A1 harness node:test at the merge",
+      "command": "node --test scripts/release/l1-built-server-smoke.test.mjs (merged leaves, detached worktree at the merge)",
+      "exitCode": 0,
+      "payloadSha256": "6d48c3db544b4a6a4dbd6508e5b77438bf8b7a461bbbe8cc3f3f75dbcb58871f",
+      "payloadBytes": 7596,
+      "payloadEncoding": "UTF-16LE with BOM (PowerShell *> redirection); decode as utf16le",
+      "lastLine": "# duration_ms 31504.8738"
+    },
+    {
+      "path": "evidence/mainproof-b16302d7-smoke.bytes.json",
+      "label": "real --build smoke at the merge",
+      "command": "node scripts/release/run-l1-built-server-smoke.mjs --build --expected-sha=b16302d76df1ace0589bc334f9249330a25c5278 --output=<proof>/mainproof-b16302d7/run --repo-root=<detached merge worktree>",
+      "exitCode": 0,
+      "payloadSha256": "519ef183ab09fb905e0533857bbda6564a853d6d8933fd0bd8c2befd5fa26faf",
+      "payloadBytes": 788,
+      "payloadEncoding": "UTF-16LE with BOM (PowerShell *> redirection); decode as utf16le",
+      "lastLine": "{\"verdict\":\"PASS\",\"passed\":[\"credential-malformed-refused\",\"credential-url-refused\",\"participants-authenticated\",\"credential-foreign-refused\",\"participant-action-accepted\",\"spectator-seat-witnessed\",\"spectator-replay-public\",\"spectator-live"
+    },
+    {
+      "path": "evidence/mainproof-b16302d7-summary.bytes.json",
+      "label": "smoke run summary.json (sanitized)",
+      "command": "retained by the harness",
+      "exitCode": 0,
+      "payloadSha256": "19d5bd2cea7221a888fa14c0452a1e6f2351e5cebc9e09d4316e32f824a98068",
+      "payloadBytes": 2245,
+      "payloadEncoding": "UTF-8",
+      "lastLine": "}"
+    },
+    {
+      "path": "evidence/mainproof-b16302d7-manifest.bytes.json",
+      "label": "smoke run manifest.json (sanitized)",
+      "command": "retained by the harness",
+      "exitCode": 0,
+      "payloadSha256": "d985179cf5d7fe4c7f4ee2e58864a1ba195e7e27976ae5933e112c4fed5a1214",
+      "payloadBytes": 1123,
+      "payloadEncoding": "UTF-8",
+      "lastLine": "}"
+    },
+    {
+      "path": "evidence/mainproof-b16302d7-evidence.bytes.json",
+      "label": "smoke run evidence.jsonl (sanitized)",
+      "command": "retained by the harness",
+      "exitCode": 0,
+      "payloadSha256": "6a024af03b9b563d1c0741d46c6443bdacd7d1f26a98f1fb90b616c3aa654654",
+      "payloadBytes": 45773,
+      "payloadEncoding": "UTF-8",
+      "lastLine": "{\"at\":\"2026-10-18T21:57:17.263Z\",\"kind\":\"socket\",\"conn\":\"watcher+r2\",\"event\":\"close\",\"code\":1006,\"reason\":\"\"}"
+    },
+    {
+      "path": "evidence/mainproof-b16302d7-server1.bytes.json",
+      "label": "smoke run server-1.log (sanitized)",
+      "command": "retained by the harness",
+      "exitCode": 0,
+      "payloadSha256": "5244ca383a096977652d989d15108a399ac82a6d1100a5609a1e61574809e90d",
+      "payloadBytes": 5621,
+      "payloadEncoding": "UTF-8",
+      "lastLine": "[mp-socket] intent dispatched matchId=8a76af35-b8ec-4897-9539-9dca0a495e14 playerId=pid_f42kAzzJ96bsDfRdSqcqpXypPk8 intent=AdvancePhase"
+    },
+    {
+      "path": "evidence/mainproof-b16302d7-server2.bytes.json",
+      "label": "smoke run server-2.log (sanitized)",
+      "command": "retained by the harness",
+      "exitCode": 0,
+      "payloadSha256": "284a10375a5d803c6b16a8ae7a590d4620869aff4dd0d610fe36dc708088711f",
+      "payloadBytes": 1675,
+      "payloadEncoding": "UTF-8",
+      "lastLine": "[mp-socket] session joined matchId=8a76af35-b8ec-4897-9539-9dca0a495e14 playerId=pid_3TQthLmc7YiwFsxMkhuMcbR6o1Ag"
+    },
+    {
+      "path": "evidence/mainproof-b16302d7-vplain.bytes.json",
+      "label": "validate-roadmap",
+      "command": "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "payloadSha256": "5024cdc2300b695592c9110329650d3c669d6029413fe991bce44f23bf67f0f7",
+      "payloadBytes": 76,
+      "payloadEncoding": "UTF-8",
+      "lastLine": "ROADMAP VALIDATION PASSED: 93 nodes, 13 packages, 381 tasks, 40 triage rows"
+    },
+    {
+      "path": "evidence/mainproof-b16302d7-vgit.bytes.json",
+      "label": "validate-roadmap --git",
+      "command": "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --git",
+      "exitCode": 0,
+      "payloadSha256": "86558697a00c210916ccdb45d8b4cf66029686f4cfe58e6fd5cf5cc738de6a46",
+      "payloadBytes": 2354,
+      "payloadEncoding": "UTF-8",
+      "lastLine": "ROADMAP VALIDATION PASSED: 93 nodes, 13 packages, 381 tasks, 40 triage rows"
+    },
+    {
+      "path": "evidence/mainproof-b16302d7-vnext.bytes.json",
+      "label": "validate-roadmap --next",
+      "command": "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+      "exitCode": 0,
+      "payloadSha256": "0568c6ea784e8ab2836aa8b31374deccc3eccca0969b78e699a92e61e1907676",
+      "payloadBytes": 8,
+      "payloadEncoding": "UTF-8",
+      "lastLine": "LSC-1DB"
+    },
+    {
+      "path": "evidence/mainproof-b16302d7-vtests.bytes.json",
+      "label": "validate-roadmap tests",
+      "command": "--test openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
+      "exitCode": 0,
+      "payloadSha256": "4ed0a995b48032ad6f142d4f72376dba4c2f2b0aa7e8669e65592e575c3fcfdc",
+      "payloadBytes": 16334,
+      "payloadEncoding": "UTF-8",
+      "lastLine": "# duration_ms 11055.2599"
+    },
+    {
+      "path": "evidence/mainproof-b16302d7-lintunits.bytes.json",
+      "label": "lint:units",
+      "command": "scripts/qc/lint-units.mjs",
+      "exitCode": 0,
+      "payloadSha256": "0f18f4327484d581fd7e97c0578841b447988d99212d7fdf4b17b1b4f96ffd9b",
+      "payloadBytes": 286,
+      "payloadEncoding": "UTF-8",
+      "lastLine": "LINT_UNITS_PASS 17896/17899"
+    },
+    {
+      "path": "evidence/mainproof-b16302d7-oxlint.bytes.json",
+      "label": "oxlint (units config) on the four leaves by explicit path",
+      "command": "node_modules/oxlint/bin/oxlint --config scripts/qc/oxlint-units.json --allow no-console scripts/release/run-l1-built-server-smoke.mjs scripts/release/l1-built-server-socket-cases.mjs scripts/release/l1-built-server-fixtures.ts scripts/release/l1-built-server-smoke.test.mjs",
+      "exitCode": 0,
+      "payloadSha256": "d7512ef6d62465893f068e125b6972e820db794cd631996f3511354322e12fad",
+      "payloadBytes": 91,
+      "payloadEncoding": "UTF-8",
+      "lastLine": "Finished in 10ms on 4 files with 64 rules using 16 threads."
+    }
+  ],
+  "scope": "Fresh runs at the exact merge commit before any closure edit. The image now includes B14-0 (#2281) src changes (sourceTreeSha256 differs from the 811bfd8d4 re-run); the fog-off A1 baseline holds on it.",
+  "closure": "main-verified only. taskKeys is empty; no tasks.md row is ticked and no tick receipt is invented. Releases no unit.",
+  "preservation": "Logs are base64 envelopes so repository LF normalization cannot alter their bytes; decode data and verify payloadSha256/payloadBytes."
+}
