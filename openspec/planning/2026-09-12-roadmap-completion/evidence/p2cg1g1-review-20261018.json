@@ -1,0 +1,1576 @@
+{
+  "unit": "P2CG1G1",
+  "stage": "review",
+  "recordedAt": "2026-10-18T05:43:26Z",
+  "head": "a5b4a56a8d524cb52ca7122b087d009a6603ac92",
+  "reviewedHead": "a5b4a56a8d524cb52ca7122b087d009a6603ac92",
+  "reviewerModel": "claude-fable-5-1",
+  "implementerModel": "claude-opus-5-5",
+  "verdict": "APPROVE",
+  "outputPath": "evidence/p2cg1g1-source-fable-review-r2-20261018.txt",
+  "outputSha256": "1be03fca615b1ef567d9eb79ddc0d22ed0a21f8828d0b14fd5ae7b144cc05e14",
+  "reviews": [
+    {
+      "round": 1,
+      "path": "evidence/p2cg1g1-source-fable-review-20261018.txt",
+      "sha256": "4ad652bd9b1d7ebb853e374644f87a53b54b6718e852c46217267226e6b124cc",
+      "bytes": 41851,
+      "originalPath": "docs/audits/2026-10-18-p2cg1g1-review.md",
+      "originalCheckout": "E:/Projects/Personal/MekStation-wt/review-2238-20261018",
+      "reviewedHead": "59c1fa7258bceefe44885222bfb9cfb6858cf8a1",
+      "verdict": "APPROVE-WITH-NOTES"
+    },
+    {
+      "round": 2,
+      "path": "evidence/p2cg1g1-source-fable-review-r2-20261018.txt",
+      "sha256": "1be03fca615b1ef567d9eb79ddc0d22ed0a21f8828d0b14fd5ae7b144cc05e14",
+      "bytes": 31293,
+      "originalPath": "docs/audits/2026-10-18-p2cg1g1-review-r2.md",
+      "originalCheckout": "E:/Projects/Personal/MekStation-wt/review-2238-r2-20261018",
+      "reviewedHead": "a5b4a56a8d524cb52ca7122b087d009a6603ac92",
+      "verdict": "APPROVE"
+    }
+  ],
+  "verdictOfRecord": "Round 2 (APPROVE) on the exact merged head a5b4a56a is the verdict of record. Round 1 (APPROVE-WITH-NOTES) reviewed 59c1fa72, the head before the two review follow-up commits 8dcb9e46 (red) and a5b4a56a (fix); round 2 carries what round 1 established about a62fc69c -> 7510a82a -> 59c1fa72 except where the new commits touch it, so both reports are preserved and cited.",
+  "reviewerSubstitution": "Both rounds were written by the same independent reviewer, Claude Fable 5.1 at high reasoning effort, the same substitution for GPT Astra recorded for P2CG1E and P2CG1F. The ruling comment names the reviewer (Claude Fable 5.1 high) and both review sha256 values. The reviewer is not the author (Claude Opus 5.5).",
+  "reviewHistory": "Round 1 on 59c1fa72: APPROVE-WITH-NOTES with no blocker, three documentary items (G1-DOC-1..3), one minor (M1), notes N1-N7 and 13 carry-forwards (CF-H1..CF-H13), five of ten independent mutants surviving. It found that G1 moved a liveness hole in dormant receipt-mode code (CF-H1: a cut settle leaves a heard mark and the receipt chain stalls). Root ruled CF-H1 closed in lane as a red-first pair, with CF-H3 and CF-H4 if cheap, G1-DOC-1 and G1-DOC-3 in the local receipt and G1-DOC-2 to closure. The author added 8dcb9e46 (test-only RED) and a5b4a56a (consumer and store fix plus the local-receipt update). Round 2 on a5b4a56a: APPROVE; CF-H1, CF-H3 and CF-H4 closed; the cut design ruled better than round 1's suggested shape (N-R2-1 withdraws that claim); four new carry-forwards (CF-H14..CF-H17); four of ten new mutants surviving (two equivalent, CF-H5 and CF-H6 still open, CF-H15 new).",
+  "verdictText": "**APPROVE.** The ruling is satisfied: CF-H1 is closed in G1 by a red-first pair whose ledger is exact (8dcb9e46 touches one test leaf only, the two product leaves are byte-identical to 59c1fa72 at RED, a5b4a56a changes no test byte, 4 of 81 fail at RED with the receipt's four titles and plain assertion shapes, and the baseline product typechecks under the new tests); CF-H3 and CF-H4 are closed with pins that catch the mutants round 1 left surviving (RM-G1 is now caught); G1-DOC-1 and G1-DOC-3 are recorded in the local receipt as ruled and G1-DOC-2 is correctly deferred. The census is 353 of 500 and 13 of 15 as the receipt states; every one of the 38 hashes the updated receipt cites reconciles; the 32 check runs on a5b4a56a are the same multiset as on 59c1fa72, all success; typecheck, lint (87/0, no G1 leaf), format, lint-units, both validators and their 86 tests, OpenSpec strict and the openspec-ci QC pass on the exact head; G1+F+Task 14, the B-E batch (344), the 35 A1/A2 suites (388), the related set (163) and the 73-suite co-op sweep (764) are green.",
+  "verdictNotes": "The `cut` design is the right one and it is better than the shape I proposed in round 1. I reproduced the author's counter-evidence exactly: my \"record offers as heard only after confirm\" shape, applied to the 59c1fa72 consumer under the new tests, fails 3 of 43 hostProjection rows (with the head's CF-H3 store, 2 of 43), because a campaign frame arriving inside the re-armed window clears it and the next offer then settles behind the cut one, stalling the chain again. Round 1's `probe-fixshape.log` covered only the quiet-remount case; I withdraw the claim that the shape \"recovers the case\". The cut predicate (`live && settling > 0` at dispose) is exact for every ordering a shipped mount can produce: a disposed binding never confirms, so an unfinished step at dispose is precisely an offer nobody will ever confirm. My probes found one latent spurious-fire class (a dispose scheduled as a microtask after a successful `confirm` but before the trailing `.then(() => settling -= 1)` runs; PROBE-S1 reproduces it with a hooked confirm) that no shipped mount can reach (projection preserves `coopSession`, `store` is a stable StoreApi, and both mounts are unconditional on projected state); its cost would be one healthy socket closed and a rejoin from EMPTY, never a certification. It is carried with a one-line hardening and a pin (CF-H14). The same-tick dispose boundary (consume then unmount before the queued step starts) is handled correctly but unpinned (R2-M2 survived; PROBE-S2 is the pin; CF-H15). CF-H3's \"not behind\" is sound: a lineage ahead of the cursor is only possible through frames the fold's own ordering guard would reject, and PROBE-H3a shows it continues inside that span and starts fresh past it; the one conflation (a sequenced frame the fold rejected while mounted also reads as \"behind\", PROBE-H3b) is safe-side and equals pre-G1 behaviour. Nothing blocks merge.",
+  "verdictTextRound1": "**APPROVE-WITH-NOTES.** The ledger is exact and re-derivable (admission freeze before any edit; both existing product leaves byte-identical to the baseline at the admission and red commits and the two new leaves absent there; no test byte changed after the red commit; 12 changed files all in the frozen 13-path manifest plus the reserved admission-review slot = 13 of 15; 329 of 500 counted lines recomputed `--no-renames` from 54764673; only P2CG1G1's own lifecycle fields in units.json at each of the three commits; every hash in the three receipts reconciles with the blobs and the author's proof logs, 48 of 48; RED reproduced exactly, 3 failed / 73 passed with the receipt's three titles, all plain assertion failures, and the baseline product typechecks under the head tests). The behaviour is what the registration and the #2236 amendment asked for: one module-scoped GM fold lineage continued only on the same live transport object bound to the same campaign and match and still registered, otherwise a fresh EMPTY cell; the next linked launch folds onto the retained facts before its exact ACK; a replacement transport after a rejoin and another campaign each start from EMPTY; the m13 helpers are verbatim extractions (surface 396 -> 319 counted lines); the fixture fakes carry the mounted campaignId and no `confirmApplied`; CF-G1, CF-G2, CF-G8 (x2) and CF-G11 are pinned under fake timers; and the CF-G3 repair takes the narrower \"transport cursor unchanged since an active binding consumed a frame\" semantics with both unmount-gap rows pinned. Everything is dormant in production (no shipped creator binds `expectedCampaignId`, so the store never continues and the consumer never arms). All 76 registered cases, F's suites (91), the Task 14 selector (104), the B/C/D/E batch (344), the 35 A1/A2 suites (388), the related set (16 suites, 158) and the co-op sweep (73 suites, 759) pass on the exact head; typecheck (also at RED), lint (87/0), format, both roadmap validators and their 86 tests, OpenSpec strict, lint-units and the openspec-ci QC pass; 32 of 32 check runs succeed with names identical to B-F.",
+  "verdictNotesRound1": "The notes are real. My probes found that G1's design moves, rather than closes, a liveness hole in dormant receipt-mode code: (1) a host that unmounts while an offer's guarded refresh is awaited comes back onto the continued lineage with no quiet window (the heard mark is written at consume, before the step completes), nobody ever confirms that offer, and the transport then withholds every later ACK behind it; F recovered this case through the window or the EMPTY-fold failure, G1 recovers it only at pending overflow (64 offers). (2) The single-slot store forgets campaign A's lineage when campaign B claims, so returning to A on its still-registered transport gets a fresh EMPTY cell while the per-transport heard mark skips the window; the next linked offer then fails `adjunct-failed` and rejoins, so this one self-heals at the cost of one failed receipt. (3) The store continues a lineage that missed frames during an unmount gap and re-projects it at bind, so a stale balance can show for up to one window. None of the three certifies anything the view did not apply, sends anything new on the wire, or is reachable before P2CG1G2 binds a creator and P2CG1H installs the port; (1) must be closed by the consumer's next owner before activation, and the fix shape (record the heard cursor when the step completes, not when the frame arrives) passes every registered pin. Five of my ten mutants survived: two real coverage gaps (the unbound-transport reset and the legacy-server variant of the CF-G3 case), one store/consumer predicate-drift probe, two near-equivalents. Documentary: the red receipt records Node v24.15.0 while the local receipt, the PR body and G1-PREP say v22.22.0; the behaviour text names neither the remount re-projection nor the cursor-watermark refinement of \"already delivered a campaign frame\". Nothing blocks merge; the activation-blocking item is carried with a concrete fix and pin.",
+  "reviewClasses": [
+    "authority",
+    "privacy",
+    "replay",
+    "idempotency",
+    "concurrency"
+  ],
+  "reviewClassEvidence": {
+    "note": "The unit's five sensitive review classes, each with the reviewer's findings verbatim: round 1 section 5 (on 59c1fa72) and round 2 section 2 (the cut design on a5b4a56a). Neither round records a product defect that blocks merge. Round 1's replay finding named CF-H1 (closed before merge), CF-H2 and CF-H3 (closed); its idempotency finding named RM-G4 (CF-H5, open). Round 2 records that a cut can only cause a rejoin and never advances a receipt, that nothing new reaches the wire, and one latent spurious-fire class unreachable from the shipped mounts (CF-H14). Each verdict field is the closure's reading of the findings, not reviewer text.",
+    "authority": {
+      "verdict": "PASS (no defect; every residual withholds or restarts ACKs and never advances one)",
+      "round1Finding": "**Authority.** The fold cell is cached view state; receipts remain the transport's. A continued lineage cannot certify more than it applied: the disposed binding never confirms (settle returns on `!live` after its await), the remount confirms only what it folded, and the transport withholds any ACK behind an unapplied pending offer (C3, PROBE-A `acks [v1-r0]`). A replacement transport cannot inherit a stale lineage (RM-G2 caught), another campaign cannot read the first campaign's facts (C2), and a fresh cell is a new object the old binding's `fold` reference does not point at. `refusalFromFrame` keeps application errors out of the refusal posture (RM-G8 caught). The direction of every residual is safe-side: ACKs are withheld, never advanced.",
+      "round2Finding": "**Authority.** A cut can only cause a rejoin; it never advances a receipt. The disposed binding still confirms nothing (every `settle` path re-checks `live` before `confirm`), the remount on a cut transport confirms nothing on the dead chain (PROBE-A: confirms `[v1-r0]`, acks `[v1-r0]`), and the replacement view starts from EMPTY and is applied and ACKed on its own socket (PROBE-S3: hydration input EMPTY, acks `[v2-r0]`, balance 600000). The direction of every residual is unchanged from round 1: ACKs withheld or restarted, never advanced."
+    },
+    "privacy": {
+      "verdict": "PASS (no defect; nothing new reaches the wire)",
+      "round1Finding": "**Privacy.** Nothing new reaches the wire: the host join still quotes -1 (omitted), the store serialises nothing, the heard map holds integers keyed by transport identity (WeakMap, GC-bound; RM-G6 shows string keying would leak the mark across transports on one match). The re-projection writes only the local campaign store.",
+      "round2Finding": "**Privacy.** The cut set holds transport identities only (WeakSet, GC-bound, never serialised); the rejoin sends the same `CampaignJoin` F sends on a fresh socket (host still quotes -1, omitted). Nothing new reaches the wire. The receipt's claim of no wire change holds."
+    },
+    "replay": {
+      "verdict": "PASS at the merged head (round 1 CF-H1 closed before merge, CF-H3 closed; CF-H2 open and self-healing; RM-G9 survives as CF-H6)",
+      "round1Finding": "**Replay.** Offers still settle in receipt order on one queue; `foldCampaignEvent` rejects `sequence <= lastSequence` but accepts a gap, so a lineage that missed frames during a gap folds the next offer over an incomplete state (CF-H3) while the transport's prefix discipline keeps the ACK withheld. The heard mark is recorded at consume, before the step completes, so a consumed-but-unconfirmed offer leaves the record equal to the cursor and the remount skips the window (CF-H1). The single-slot store and the per-transport heard mark are keyed differently, so a lineage that never folded a frame can skip the window (CF-H2; PROBE-B). A duplicate or lower-sequence frame during a gap moves neither `lastSeq` nor the record, which is consistent (the fold would have rejected it).",
+      "round2Finding": "**Replay.** Receipt order is preserved: the cut chain is abandoned whole (the transport is closed with its pending list), and the replacement adopts its baseline at -1 and restarts the chain. The cut marking does not touch `heardAt`, so CF-G3's window semantics are unchanged (the window decision is made before the cut check; rejoin clears whatever was armed). Against a legacy server the surface folds campaign frames synchronously and nothing settles, so a bound legacy binding is never cut (by construction; RM-G9-rerun still survives, see CF-H6)."
+    },
+    "idempotency": {
+      "verdict": "PASS (no defect; RM-G4 survives as CF-H5)",
+      "round1Finding": "**Idempotency.** `claimCampaignHostFold` is idempotent for the same binding (same cell, `continued` true, re-projection is a pure overwrite); StrictMode double effects claim, dispose, claim and arm one window. `heard()`/`dispose`/`rejoin` keep F's once-only guards (CF-G8 pins the timer trade). RM-G4 survived: the store mirrors the consumer's `active` predicate by hand; if either side changes, they drift silently.",
+      "round2Finding": "**Idempotency.** Double dispose: the second sees `live === false` and marks nothing. StrictMode mount/cleanup/mount: no offer has been consumed at mount, so `settling` is 0 and nothing is cut. A cut transport bound twice: the first active bind rejoins and closes it; the stored connect never hands out an unregistered transport, so a second active bind cannot see it (PROBE-S4: a second remount while the held refresh is still pending rejoins at once, the third remount binds the replacement and is not cut). The set is never cleared, but every member is a closed transport reachable only through `held.transport` until the next host claim (CF-H13, unchanged)."
+    },
+    "concurrency": {
+      "verdict": "PASS (no defect; latent spurious-cut class unreachable from shipped mounts carried as CF-H14; R2-M2 same-tick pin carried as CF-H15)",
+      "round1Finding": "**Concurrency.** `held` is mutated synchronously inside the effect; the consumer writes `binding.fold.current` only in the synchronous part of `settle` before its await, so a dispose (React cleanup, a separate task) cannot interleave with that write; after the await only reads happen. The transport sets `lastSeq` before dispatch and `consume` runs inside that dispatch, so the record is exact. Liveness: a rebind on a heard transport arms no window, so the only recovery paths for a cut settle are the server's own view failure (none timed; the server never waits for an ACK, it just keeps publishing), the transport's confirmation timer (armed only after an ACK is sent, which the withheld prefix prevents), `pending-overflow` at 64 offers, or a reload. The store holds a strong reference to the last transport (one object, replaced at the next host claim); the heard map holds none.",
+      "round2Finding": "**Concurrency.** `settling` is mutated on task boundaries only (consume runs inside the transport's synchronous dispatch; the decrement is a microtask after the step). A dispose is a React cleanup, i.e. a task or a sync-lane microtask flush, so the only interleaving hazard is a dispose scheduled as a microtask between a successful `confirm` and the trailing decrement. That is the spurious-fire class below. The \"miss\" direction is closed: the predicate is evaluated at dispose, the increment precedes any yield, and R2-M3 (release the count when the step starts) is caught by all three CF-H1 rows."
+    }
+  },
+  "ledgerDiscipline": {
+    "round1": [
+      "**Commit order and content.** `git diff --numstat --no-renames` per step: `54764673..a62fc69c` touches only `evidence/p2cg1g1-admission-20261018.json` (+179) and units.json (+10/-4); `a62fc69c..7510a82a` touches only the four test leaves (+475/-1, +20, +12, +20), `evidence/p2cg1g1-red-20261018.json` (+105) and units.json (+3/-1); `7510a82a..59c1fa72` touches only the four product leaves (+57/-172, +171 new, +17/-4, +68 new), `evidence/p2cg1g1-local-20261018.json` (+262) and units.json (+3/-1). The four test-leaf blobs at 59c1fa72 hash equal to their blobs at 7510a82a and to the local receipt's `testBytes` (4/4): no test, helper or fixture byte changed after the red commit. The one deleted test line is `matchId: MATCH_ID,` in `installBoundTransport` (now `input.matchId ?? MATCH_ID`), as the red receipt's `fixtureNotes` says; no assertion was removed.",
+      "**Product identity at RED.** Both existing product leaves hash equal at 54764673, a62fc69c and 7510a82a (surface 80cb4d84... 18690 bytes; consumer 452c1b31... 9539 bytes, the blob #2236 anchored), matching the admission receipt's frozen hashes and the red receipt's `productUnchanged`; the two new leaves are absent at all three (verified by `git show` failing). At the head the four leaves hash to the local receipt's `productBytes` (2b5a1096... 14107; 95a71cfb... 6021; aa68c622... 2445; 04a9c9d3... 10102). The admission receipt's six existing frozen files (two product, four tests) and units.json (66064809... 1609788) hash equal to the 54764673 blobs (7/7); its six non-existent slots exist at the head only as the three receipts and the two new product leaves (the review slot is still reserved).",
+      "**RED reproduced independently.** In the review worktree I checked out both existing product leaves at 54764673, deleted the two new leaves (tests at the head) and ran the four registered suites `--runInBand`: 3 failed / 73 passed / 76 total, exit 1. The three failing titles are exactly the three the red receipt lists (R1 \"applies the next linked launch onto the retained fold and facts after a remount, before its exact ACK\"; R2 \"re-projects the retained fold when the remount binds, before any new frame\"; W1 \"keeps the continued lineage through a quiet confirmation window after the remount (CF-G3)\"). Shapes: `toEqual` on the confirms array (R1, W1) and `toBe` 800000 vs 1000000 (R2); no TypeError or missing-API failure, as `redShape` claims. The head tests import neither `campaignHostFoldStore` nor `campaignCoopSurfaceHelpers` (grep). Product restored to the head and re-verified via `git status` and hashes.",
+      "**Typecheck at RED.** `npm run typecheck` (TS7, both configs) with the baseline product and head tests exits 0.",
+      "**Census.** `git diff --numstat --no-renames 54764673 59c1fa72`: 12 files. Counted (added physical lines, no deletion credit) in product leaves and units.json: surface 57 + helpers 171 + store 68 + consumer 17 + units.json 16 = **329 of 500**, as the local receipt states (registration estimate 331-340). Test leaves (475 + 20 + 12 + 20) and the three receipts are line-exempt under the convention the admission receipt states. Files: 12 changed + 1 reserved unchanged (the admission-review slot) = 13 of 15, 2 spare, as the admission froze.",
+      "**Only registered leaves.** All 12 changed paths are in the frozen 13-path manifest; the 8 restriction leaves in `roadmap.json` (incl. the consumer appended as [7] by #2236) match the manifest's 8 source/test leaves exactly; `server.js`, the transport, the binder, the registry, `package-lock.json`, `.github/`, every B-F leaf and every client creator are untouched (`git diff --stat` empty over those paths). The lint max-lines warning set is unchanged (87 warnings; none on a G1 leaf).",
+      "**units.json.** Parsed each adjacent pair: 208 units each, top-level keys identical, unit id order identical; the only changed unit at every step is P2CG1G1, and only `ownershipExceptions` (the four evidence paths added), `state` (planned -> implementing), `baseline` (54764673) and `stageReceipts.admission/red/local`. No other unit, packet, holder or historical receipt is touched; `prHead`, `review`, `merge`, `mainProof`, `tick` are null, as they should be at this stage.",
+      "**Citations by hash.** Every proof log the three receipts cite exists on disk and hashes to the recorded value (19 distinct files incl. census.md, the three mutant logs, lint/madge before and after, typecheck, format, lint-units; 48 of 48 checks in my `hashes.log`). The red receipt's `idle.log` entry (759cbbcd..., 270 bytes) is the exact prefix of the 1236-byte append-only log the local receipt hashes in full (prefix sha256 recomputed). The idle log reads MACHINE_IDLE before every cited run, including the \"final product bytes\" re-runs at 21:32-21:33 after the type-only import reorder (N3).",
+      "**Pre-drafted implementation (disclosed).** The red commit is at 21:28:15 and the implementation at 21:35:39 (7 min later); the admission receipt's `prep` discloses the scratch prototyping on 66240745 and fd9891e1 (the stop report #2236 cites), with no commit, receipt or lifecycle field. The ledger order holds (product byte-identical at RED; tests unchanged after RED), so this is a disclosure, not a finding (N1).",
+      "**Discarded mojibake run (disclosed).** The first RED run carried 7 em-dashes mangled by a cp1252 read in the scratch tree; it is kept as `red-discarded-mojibake.log` (same 3 failed / 73 passed), not cited, and the cited run followed a fresh idle reading at 21:27:54. At the head the pre-existing describe title's em-dash is intact and the whole hostProjection diff from the baseline contains no mojibake bytes (0 matches for the usual cp1252 artefacts) (N2).",
+      "**Required checks (CF-G10).** 32 check runs on 59c1fa72, all `completed/success`, 0 commit statuses; the 32 names equal, one to one, the list recorded for B/C/D/E/F (`Lint and Test` present). `.github/workflows/pr-checks.yml` is blob a82fe0f7 at the head (unchanged since B). Branch protection unchanged: `required_status_checks.contexts = [\"Lint and Test\"]`, strict false, conversation resolution required, 0 approvals.",
+      "**Merge cleanliness.** `origin/main` is the baseline itself (54764673), so no re-rebase question arises; `git merge-tree --write-tree origin/main HEAD` exits 0 (tree e03a44e5). The mainProof stage will run on the merge commit as the ledger prescribes.",
+      "**Hooks (disclosed in the handoff only).** The admission commit was made with git hooks skipped. The pre-commit hook runs lint-staged, whose matchers cover only `*.{ts,tsx,js,jsx}`; the admission commit touched two JSON files, so no gate was bypassed. Neither receipt nor the PR body records the skip (G1-DOC-3)."
+    ],
+    "round2": [
+      "**Commit order and content.** `git diff --numstat --no-renames 59c1fa72 8dcb9e46`: one file, `CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx` +156/-8. `8dcb9e46 a5b4a56a`: `useCampaignApplicationConsumer.ts` +18/-1, `campaignHostFoldStore.ts` +8/-2, `evidence/p2cg1g1-local-20261018.json` +200/-33. units.json is untouched by both commits (the three stage-receipt paths are unchanged, so no new slot was needed; `state` still `implementing`, review/merge/mainProof/tick still null). No import or export line changed in `src/` between 59c1fa72 and the head (0 matches), so the madge figures round 1 recorded (1133 files / 172 chains same-entry, 169 four-entry) hold by construction; the author re-ran and reports the same.",
+      "**Product identity at RED.** Blob ids per commit (59c1fa72 / 8dcb9e46 / a5b4a56a): consumer 9d5ec538 / 9d5ec538 / 87057fbb; store 2fed7810 / 2fed7810 / 0643ef17; surface 6ac037ce at all three; helpers a1ada0d6 at all three. Both changed product leaves are byte-identical to 59c1fa72 at the RED commit.",
+      "**No test byte after RED.** hostProjection blob 783f0dec -> 335c4644 at 8dcb9e46 and 335c4644 at a5b4a56a; the other three test leaves (c0ce99d0, 9757e3d1, 97e5d4cb) are identical at all three commits. The receipt's `testBytes` hash for hostProjection (cdbfe394..., 60444 bytes) matches the working tree.",
+      "**The C3 inversion (ruling: acceptable RED evidence).** 8dcb9e46 retitles the round-1 row \"lets neither binding certify an offer whose refresh is held across the remount\" to \"... and rejoins at the remount (CF-H1)\" and replaces `confirms == [v1-r0, v1-r2]` with `confirms == [v1-r0]`, two sockets, socket 0 closed, and a replacement view hydrated from EMPTY and ACKed. GOAL.md's Red stage forbids a test that \"only repeats the implementation, weakens an assertion or converts a failure into a skip\". This is none of those: (a) the removed expectation `[v1-r0, v1-r2]` is the stall itself (r2 confirmed by the remount while the transport withholds every ACK behind the cut r1), which is exactly the defect being repaired, so a red-first repair of that behaviour must change that pin; (b) the safety assertion the old row carried (`acks(0) == [v1-r0]`, no ACK past the held one) is kept and the confirm assertion is strengthened, not weakened (the remount now confirms nothing on the dead chain); (c) the title changed, so the old name does not silently claim the new behaviour; (d) the row fails on the unmodified product with a plain `toEqual` (reproduced); (e) the receipt discloses the inversion in `reviewFollowUp.red.failing[0]` in those terms. Accepted.",
+      "**RED reproduced independently.** Consumer and store checked out at 59c1fa72 under the head tests, four registered suites `--runInBand`: 4 failed / 77 passed / 81, exit 1. Titles identical to the receipt's four (the inverted held-refresh row; \"recovers within one window when the remount stays quiet after a cut settle\"; \"... even when the next offer arrives first ...\"; \"does not re-show a lineage that missed a frame while no surface was mounted\"). Shapes: one `toEqual` (confirms), one `toBeGreaterThanOrEqual` (connects), two `toBe` (readyState 3; balance START_BALANCE); no TypeError or missing-API failure. The two control rows (legacy-baseline continuation; CF-H4 unbound reset) pass at RED as the receipt says. The author's `red-h.log` (UTF-16 with BOM) carries the same four titles and `Tests: 4 failed, 77 passed, 81 total`; its first line is `v22.22.0` (G1-DOC-1 follow-through verified).",
+      "**Typecheck at RED.** `npm run typecheck` (TS7, both configs) with the 59c1fa72 product and head tests exits 0 (the new rows use no new API).",
+      "**Census.** `git diff --numstat --no-renames 54764673 HEAD`: 12 files, same set as round 1. Added lines in product leaves and units.json: surface 57 + helpers 171 + store 74 + consumer 35 + units.json 16 = **353 of 500**, as the receipt states. Test leaves (623 + 20 + 12 + 20) and the three receipts are line-exempt under the admission convention. Files 12 changed + 1 reserved = 13 of 15, unchanged.",
+      "**Receipts and hashes.** All 38 artefacts the updated local receipt cites (4 product, 4 test, 20 logs incl. the 11 new `h/` logs, 5 review-row mutant logs, the review RED log and the reviewer-shape log) exist and hash to the recorded sha256 and byte length (38/38). The author's `idle.log` (29 lines) reads MACHINE_IDLE before every cited run, including the five MH mutants and the post-fix selector/p2cg1f/sweep/related runs. The receipt's `commits` block now names the round-1 head and this reviewer's round-1 report hash; the review RED has no separate stage receipt (it lives in `reviewFollowUp.red`), which is fine under the file cap and the validator (N-R2-3).",
+      "**Required checks (CF-H12).** 32 check runs on a5b4a56a (API `total_count` 32; my first read at the default page size showed 30, a paging artefact), all `completed/success`; the name/status/conclusion multiset is identical to the 32 on 59c1fa72 (and therefore to B-F); `Lint and Test` present. Protection unchanged: contexts `[\"Lint and Test\"]`, strict false, conversation resolution required, 0 approvals.",
+      "**Merge cleanliness.** `git merge-tree --write-tree origin/main HEAD` exits 0 (tree 374f2684); `git diff --check 54764673 HEAD` clean.",
+      "**Documentary rulings.** G1-DOC-1: recorded (`reviewFollowUp.\"G1-DOC-1\"`: the red receipt's v24.15.0 was the receipt-writing script's `process.version`; every Jest run prepended the v22.22.0 path; the historical red receipt is left unedited). Consistent with my round-1 replay and with the review RED log's first line. G1-DOC-3: recorded (admission commit with `core.hooksPath=NUL`; the lint-staged matchers cover no JSON path; later commits ran the hook). The hook-ran claim for the later commits is a disclosure I cannot derive from the tree; the lint-staged scope claim I verified (`.husky/pre-commit` runs lint-staged on `*.{ts,tsx,js,jsx}` only). G1-DOC-2: deferred to closure as ruled."
+    ]
+  },
+  "behaviourReview": [
+    "**CF11/M2, module-scoped host fold.** `claimCampaignHostFold({campaignId, matchId, transport})` holds one lineage `{campaignId, matchId, transport, cell}`; `continues` requires the same transport object, same campaignId and matchId, `transport.campaignId === campaignId`, `transport.confirmApplied !== undefined` and `getActiveCampaignSyncTransport(matchId) === transport`; otherwise it mints `{ current: EMPTY }` and replaces `held`. The surface claims after the stored connect and hands the cell to the consumer as `fold`; the legacy fold path writes the same cell. Pinned: R1 (facts `[2]`, `[2,3]`, `[2,3,4]` at each confirm; one socket, two connects, ACKs r0/r1/r2 on one open socket), C1 (replacement transport after an application error: hydration input EMPTY, `v2-r0` applied with facts `[5]`), C2 (another campaign on another match: hydration input EMPTY, `v9-r0`, balance 500000). An unbound production transport (`campaignId` undefined) never continues, so the legacy reset-at-every-bind behaviour is preserved by construction (RM-G1 shows it is not pinned).",
+    "**Remount re-projection (R2).** On `continued` the surface projects the retained fold onto the campaign store at bind, symmetric with the guest's `projectMirrorToCampaign()` at bind. Pinned (store reset to the loaded record 1000000, remount shows 800000, one socket). Ruling in section 6 item 1 (accept, with the CF-H3 guard).",
+    "**m13 helpers.** `refusalFromFrame` returns the refusal an Error frame sets (never for `campaign-application-*` reasons), `null` on a CampaignEvent (optimistic clear), `undefined` otherwise; `applyRefusal` applies it in both effects with the same two rules as before. `projectStateOntoCampaignStore`, `upsertPendingProposal`, `removePendingProposal`, `guestMirrorSummaryOf`, and the verbatim `refreshSavedRecordAfterCommit`, `submitGuestProposalOverTransport`, `isPendingProposalResult` are behaviour-identical to the inlined code I diffed them against. The helpers import the connected surface's props type only; the only server-path import is the pre-existing type-only `IPendingProposal`. RM-G8 (treating application errors as refusals) is caught by the existing refusal-posture rows, which is the fidelity check that matters.",
+    "**Fixture fakes (CF-G11).** CampaignLifecycleGate (`campaignId: CAMPAIGN_ID`), GuestProposalSurface (`guest.id`) and GuestRebuildStaleGate (`CAMPAIGN_ID`) carry the mounted campaignId and no `confirmApplied` (verified in the diff); each suite asserts `connectStoredCampaignSyncTransport({ expectedCampaignId })` returns the registered fake. The consumer therefore stays inactive on them (`active` needs `confirmApplied`), no window is armed, the suites stay on real timers, and hostProjection pins the no-window property on such a fake (no close, one connect across 2T, dispose clears nothing).",
+    "**CF-G3 consumer.** `heardAt: WeakMap<ICampaignSyncTransport, number>`; `consume` records `transport.lastSeq()` on every campaign frame an active binding consumes (the transport updates `lastSeq` before dispatch, `Math.max`, so the record is the cursor the frame carried; a baseline at -1 records -1); `bind` arms the window only if `active && heardAt.get(transport) !== transport.lastSeq()`. Pinned: W1 (two confirmed offers, remount, 2T quiet, third offer applied on one open socket), \"does not remember a first campaign frame that arrives while no surface is mounted\" (window fires at T, no confirms), \"re-arms the window when a sequenced campaign frame arrives while no surface is mounted\" (window fires at T, confirms stop at r1). The author's M1 (WeakSet semantics) and M3 (always arm) are caught by those rows; I re-ran both. The `heard()` rule (any campaign frame ends the window) and the settle/rejoin paths are unchanged from F.",
+    "**CF-G1/G2/G8 pins.** CF-G1: baseline offer applied under fake timers, 2T elapses, one connect, socket open, dispose clears no timer. CF-G2: Heartbeat + CampaignProposal + a `PROGRESSION_BLOCKED` Error, no campaign frame -> no rejoin at T-1, rejoin at T. CF-G8: timer count unchanged across a rejoin with exactly one window armed after it; no window on an unbound transport. These are pinned in hostProjection (a G1 leaf) rather than hostRecordRefresh, as the admission receipt says.",
+    "**Dormancy.** Non-test grep at the head: `expectedCampaignId` is set by no shipped caller (only the transport's own pass-through), `claimCampaignHostFold` has one caller (the surface), `installApplicationReceipts` has no caller outside the registry definition and tests, `server.js` is byte-identical. The host `CampaignJoin` still quotes `EMPTY_CAMPAIGN_AUTHORITATIVE_FOLD.lastSequence` (-1), which the transport omits: wire bytes unchanged. Production behaviour is unchanged."
+  ],
+  "cutDesign": {
+    "mechanics": "Mechanics at the head: `settling` counts offers an active binding has consumed whose step chain has not finished (incremented synchronously at consume, decremented in a trailing `.then` after `settle` resolves or `rejoin` ran). `dispose` adds the transport to a module `WeakSet` when `live && settling > 0`. `bind` on an active binding calls `rejoin()` at once when the transport is in the set (after the quiet-window decision; `rejoin` clears the window). `rejoin` closes the transport, which unregisters it, so the next effect run connects a fresh transport that is not in the set.",
+    "spuriousFire": "**Can it fire spuriously?** Healthy settle: no (the decrement microtasks drain before any task can dispose). Dispose during the awaited refresh: correct fire (the resumed step returns on `!live`). Same-tick dispose after consume, before the step starts: correct fire (PROBE-S2: refresh never called, acks withheld at `[v1-r0]`, the remount rejoins). The one spurious class: a dispose in a microtask after `confirm` returned and before the trailing decrement; PROBE-S1 hooks `confirmApplied` to unmount in `Promise.resolve().then` once v1-r1 is confirmed, and the remount rejoins (socket 0 closed) although `acks(0) == [v1-r0, v1-r1]`. In production this ordering needs a React update committed during `project()`/`confirm()` whose sync-lane flush unmounts the surface; the dashboard mount is unconditional, the shell mount keys on the route, `projectAuthoritativeStateOntoCampaign` spreads the campaign and preserves `coopSession` (so the effect deps `campaignId/coopMode/roomCode/matchId` are stable), and `store` is the singleton StoreApi. Not reachable today; latent for any future mount gated on projected state. Hardening (one-line class): release the count synchronously at the point the step can no longer confirm or has confirmed (e.g. decrement inside `settle` immediately before `confirm` and on each early return, or keep a precise \"consumed and unconfirmed\" count) and drop the trailing `.then`. Pin: PROBE-S1's shape (CF-H14).",
+    "miss": "**Can it miss?** No ordering found. Dispose before the step starts, during the await, or after a failed confirm are all covered (the last rejoins on its own). An inactive binding (`!active`) returns `isOffer(message)` without settling, so an offer it swallows is unconfirmed and uncut; that is F-era code on a transport bound to a different campaign than the mounted one, which the host connect cannot currently refuse because it passes no `expectedCampaignId` (CF-H16, a G2 design requirement, not a G1 regression).",
+    "interactions": "**Interactions.** CF-G3 cursor-record skip: unaffected (cut check follows the window decision; both gap rows still pass; the AM1/AM3/RM-G5/RM-G6 classes are untouched). F's window: a cut remount skips straight to rejoin; the replacement arms its own window as every fresh transport does, so when the server stays quiet the CF-G4 cycle continues (PROBE-A and PROBE-S4 reach three sockets by 2T; CF-H7 unchanged). Replacement transports: new objects, never in the set (PROBE-S3). Memory: WeakSet plus one integer per binding closure; the strong reference that keeps a cut transport alive is the store's `held.transport`, bounded to one (CF-H13).",
+    "displayAtCutRemount": "**Display at a cut remount (PROBE-RP).** `claimCampaignHostFold` runs before `bindApplication`, so a cut remount is `continued` and re-projects the retained fold (750000: the cut offer's state, which the disposed binding folded before its await) for the instant before the rejoin's replacement baseline lands. The server published that offer, so the value shown is the server's state; display-only, transient, nothing certified (CF-H17, optional)."
+  },
+  "notBehind": {
+    "rule": "`continues` now requires `lineage.cell.current.lastSequence >= transport.lastSeq()`. The transport cursor moves on every `CampaignSnapshot`/`CampaignEvent` with a wire event (`Math.max`), whether or not the fold accepted it. The fold's cursor moves only on accepted frames and can be adopted ahead of the wire sequence (a legacy baseline at `sequence: -1` adopts at 0 while the cursor stays -1; a sequenced snapshot adopts at `payload.revision` when present).",
+    "cases": [
+      "**Behind (the CF-H3 case).** A frame during an unmount gap moves the cursor past the lineage: not continued, no re-show, fresh cell (pinned; R2-M7 off-by-one caught by that row; MH3 caught).",
+      "**Ahead.** Only reachable through frames the fold's own ordering guard would reject (`foldCampaignEvent` refuses `sequence <= lastSequence`; `foldCampaignSnapshot` refuses an older adoption). PROBE-H3a: a snapshot at wire sequence 2 with revision 10 adopts at 10 (cursor 2); a gap frame at 7 leaves it continued (re-show 640000, correct: the fold would have rejected 7); a gap frame at 11 makes it fresh (loaded record 1000000). Equality would refuse every legacy-baseline lineage (the control row; MH4 and R2-M6 caught), so \"not behind\" is the right predicate. I found no lineage ahead of the transport that should not continue.",
+      "**Conflation (note, not a defect).** A sequenced frame the fold rejected while mounted (PROBE-H3b: an unparseable snapshot at sequence 3 on a bound legacy stream) also leaves the lineage \"behind\", so the next remount gets a fresh cell and no re-show (balance 1000000 instead of the held 640000). Safe-side and identical to pre-G1 behaviour (every bind started at EMPTY); in receipt mode such a frame is `fold-rejected` and already forces recovery. Recorded under CF-H3's closure, no action."
+    ]
+  },
+  "reviewReruns": "Round 1 on 59c1fa72 and round 2 on a5b4a56a, both under Node v22.22.0 in detached review worktrees (round 1 after a fresh npm ci; round 2 with node_modules junctioned to round 1, package-lock sha256-identical), re-ran (all --runInBand, private jest cache) the rows quoted verbatim under rerunRows, including an independent RED replay and a typecheck at RED in each round, and ran 10 independent single-site mutation probes per round.",
+  "rerunRows": {
+    "round1": [
+      {
+        "run": "Four registered suites",
+        "result": "4 suites, 76 passed / 76",
+        "authorReceipt": "76 / 76 (inside the 104 green run)"
+      },
+      {
+        "run": "RED replay (head tests over 54764673 product, new leaves deleted)",
+        "result": "3 failed / 73 passed; titles identical to the receipt",
+        "authorReceipt": "3 / 73"
+      },
+      {
+        "run": "Typecheck at RED (baseline product, head tests)",
+        "result": "PASS",
+        "authorReceipt": "not claimed"
+      },
+      {
+        "run": "P2CG1F suites (hostRecordRefresh, hostProjection, campaignCommandAckRefresh)",
+        "result": "3 suites, 91 / 91",
+        "authorReceipt": "91 / 91"
+      },
+      {
+        "run": "Task 14 selector (`campaignLaunchAuthorityRoute`, `CampaignSyncSession`, `campaignProgressionReaders.durable` x2)",
+        "result": "4 suites, 104 / 104",
+        "authorReceipt": "104 / 104"
+      },
+      {
+        "run": "P2CG1B + C + D + E suites in one batch (10 unique suites)",
+        "result": "344 / 344",
+        "authorReceipt": "not re-run by the author"
+      },
+      {
+        "run": "35 A1/A2 predecessor suites (F's `suites35.txt`, all present)",
+        "result": "35 suites, 388 / 388 (48 s)",
+        "authorReceipt": "not re-run by the author"
+      },
+      {
+        "run": "`--findRelatedTests` on the four product leaves",
+        "result": "16 suites, 158 / 158",
+        "authorReceipt": "158 / 158"
+      },
+      {
+        "run": "Co-op sweep (the author's 8 directories + Task 14 selector)",
+        "result": "73 suites, 759 / 759 (incl. 2 a11y)",
+        "authorReceipt": "759 / 759"
+      },
+      {
+        "run": "`npm run typecheck` (TS7, both configs)",
+        "result": "PASS",
+        "authorReceipt": "PASS"
+      },
+      {
+        "run": "`npm run lint` (oxlint)",
+        "result": "87 warnings, 0 errors; no G1 leaf warned",
+        "authorReceipt": "87 / 0"
+      },
+      {
+        "run": "`npm run format:check`",
+        "result": "PASS (8216 files)",
+        "authorReceipt": "PASS"
+      },
+      {
+        "run": "`npm run lint:units`",
+        "result": "LINT_UNITS_PASS 17899/17899",
+        "authorReceipt": "same"
+      },
+      {
+        "run": "`npm run qc:openspec-ci:validate`",
+        "result": "errors=0",
+        "authorReceipt": "same"
+      },
+      {
+        "run": "`git diff --check 54764673 HEAD`",
+        "result": "clean",
+        "authorReceipt": "clean"
+      },
+      {
+        "run": "`madge@8.0.0 --circular` surface + consumer",
+        "result": "1133 files, 172 chains, chain set identical to the author's after-log",
+        "authorReceipt": "1133 / 172"
+      },
+      {
+        "run": "`madge` all four product leaves",
+        "result": "169 chains, none through the two new modules",
+        "authorReceipt": "169"
+      },
+      {
+        "run": "`validate-roadmap.mjs` plain and `--git`",
+        "result": "both PASSED (80 nodes, 13 packages, 381 tasks, 40 triage rows)",
+        "authorReceipt": "PASS"
+      },
+      {
+        "run": "`node --test validate-roadmap.test.mjs`",
+        "result": "86 / 86",
+        "authorReceipt": "86 / 86"
+      },
+      {
+        "run": "`npx openspec validate --all --strict`",
+        "result": "230 passed, 0 failed",
+        "authorReceipt": "same"
+      },
+      {
+        "run": "max-lines (skipBlankLines + skipComments, my count)",
+        "result": "surface 396 -> 319, helpers 125, store 42, consumer 229",
+        "authorReceipt": "396 -> 319, 125, 42"
+      },
+      {
+        "run": "`git merge-tree --write-tree origin/main (54764673) HEAD`",
+        "result": "clean, tree e03a44e5",
+        "authorReceipt": "n/a"
+      }
+    ],
+    "round2": [
+      {
+        "run": "Four registered suites + hostRecordRefresh",
+        "result": "5 suites, 105 / 105 (81 + 24)",
+        "authorReceipt": "109 / 109 incl. reactivity"
+      },
+      {
+        "run": "RED replay (head tests over 59c1fa72 consumer + store)",
+        "result": "4 failed / 77 passed / 81; titles and shapes as the receipt",
+        "authorReceipt": "4 / 77"
+      },
+      {
+        "run": "Typecheck at RED (59c1fa72 product, head tests)",
+        "result": "PASS",
+        "authorReceipt": "not claimed"
+      },
+      {
+        "run": "P2CG1F suites (hostRecordRefresh, hostProjection, campaignCommandAckRefresh)",
+        "result": "3 suites, 96 / 96",
+        "authorReceipt": "96 / 96"
+      },
+      {
+        "run": "Task 14 selector (4 suites)",
+        "result": "104 / 104",
+        "authorReceipt": "104 / 104"
+      },
+      {
+        "run": "P2CG1B + C + D + E batch (10 unique suites)",
+        "result": "344 / 344",
+        "authorReceipt": "not re-run by the author (consumer changed; run here)"
+      },
+      {
+        "run": "35 A1/A2 predecessor suites",
+        "result": "35 suites, 388 / 388",
+        "authorReceipt": "not re-run by the author (run here)"
+      },
+      {
+        "run": "`--findRelatedTests` on the four product leaves",
+        "result": "16 suites, 163 / 163",
+        "authorReceipt": "163 / 163"
+      },
+      {
+        "run": "Co-op sweep (round-1's 73 suites incl. 2 a11y)",
+        "result": "73 suites, 764 / 764",
+        "authorReceipt": "764 / 764"
+      },
+      {
+        "run": "`npm run typecheck` (TS7, both configs)",
+        "result": "PASS",
+        "authorReceipt": "PASS"
+      },
+      {
+        "run": "`npm run lint` (oxlint)",
+        "result": "87 warnings, 0 errors; 0 on G1 leaves",
+        "authorReceipt": "87 / 0"
+      },
+      {
+        "run": "`npm run format:check`",
+        "result": "PASS (8216 files)",
+        "authorReceipt": "PASS"
+      },
+      {
+        "run": "`npm run lint:units`",
+        "result": "LINT_UNITS_PASS 17899/17899",
+        "authorReceipt": "same"
+      },
+      {
+        "run": "`validate-roadmap.mjs` plain and `--git`",
+        "result": "both PASSED (80 nodes, 13 packages, 381 tasks, 40 triage rows)",
+        "authorReceipt": "PASS"
+      },
+      {
+        "run": "`node --test validate-roadmap.test.mjs`",
+        "result": "86 / 86",
+        "authorReceipt": "86 / 86"
+      },
+      {
+        "run": "`npx openspec validate --all --strict`",
+        "result": "230 passed, 0 failed",
+        "authorReceipt": "same"
+      },
+      {
+        "run": "`npm run qc:openspec-ci:validate`",
+        "result": "errors=0",
+        "authorReceipt": "same"
+      },
+      {
+        "run": "`git diff --check 54764673 HEAD`",
+        "result": "clean",
+        "authorReceipt": "clean"
+      },
+      {
+        "run": "`git merge-tree --write-tree origin/main HEAD`",
+        "result": "clean, tree 374f2684",
+        "authorReceipt": "n/a"
+      },
+      {
+        "run": "max-lines count (skipBlankLines + skipComments)",
+        "result": "store 43 counted / 74 physical; consumer 239 / 303",
+        "authorReceipt": "43 / 74; 239 / 303"
+      },
+      {
+        "run": "madge",
+        "result": "not re-run: no import/export line changed since 59c1fa72",
+        "authorReceipt": "172 / 169, same sets"
+      }
+    ]
+  },
+  "mutationRows": {
+    "round1": [
+      "| RM-G1 | authority | store continues a lineage on an UNBOUND transport (drop `transport.campaignId === campaignId`) | **SURVIVED** 0/100 (coverage gap: the registered \"unbound legacy transport starts a fresh cell\" text is unpinned; the legacy reset row at line 453 uses a fresh fake per connect, so it never reuses one object) |",
+      "| RM-G2 | replay | store continues a lineage onto a REPLACEMENT transport object (drop `lineage.transport === transport`) | CAUGHT 1/100 (C1: hydration input must be EMPTY on the replacement) |",
+      "| RM-G3 | concurrency | store continues on a transport no longer registered (drop the registry check) | **SURVIVED** 0/100 (near-equivalent: the binding's transport comes from the stored connect, so it is registered at claim time) |",
+      "| RM-G4 | idempotency | store continues on a transport without `confirmApplied` (store and consumer activity predicates drift) | **SURVIVED** 0/100 (the three fixture fakes have campaignId and no confirmApplied but never remount) |",
+      "| RM-G5 | replay | window skipped whenever `transport.lastSeq() >= 0`, no record needed | CAUGHT 1/100 (the \"re-arms ... while no surface is mounted\" row) |",
+      "| RM-G6 | privacy | heard record keyed by `matchId` string instead of transport identity | CAUGHT 4/100 (CF-G2, CF-G8 rejoin, first-frame gap row, CF-F3 disposed window: the record leaks to the next transport on the same match, which is the defect class) |",
+      "| RM-G7 | idempotency | retained fold not re-projected at remount | CAUGHT 1/100 (R2) |",
+      "| RM-G8 | authority | `refusalFromFrame` treats application errors as command refusals (m13 fidelity) | CAUGHT 2/100 (both refusal-posture rows) |",
+      "| RM-G9 | replay | heard record written only for OFFERS, not legacy campaign frames | **SURVIVED** 0/100 (coverage gap, G2-period relevant: a bound creator against a legacy server would re-arm the window on every remount and close a healthy socket at T, the CF-G3 defect itself) |",
+      "| RM-G10 | concurrency | a fresh lineage reuses the previous cell object (reset to EMPTY) so an old writer could reach it | **SURVIVED** 0/100 (near-equivalent today: no writer writes a cell after dispose; the \"cannot reach\" claim is defence in depth) |",
+      "| AM1-rerun | replay | author's M1, WeakSet semantics (`!heardAt.has(transport)`) | CAUGHT 1/100 (same row the author reports) |",
+      "| AM3-rerun | concurrency | author's M3, always arm (F behaviour) | CAUGHT 1/100 (W1, as the author reports) |"
+    ],
+    "round2": [
+      "| R2-M1 | concurrency | cut marked without the `live` guard (a binding that already rejoined also marks the closed transport) | **SURVIVED** 0/105 (equivalent today: a rejoined binding's transport is closed and unregistered, so no active binding can see the mark) |",
+      "| R2-M2 | concurrency | `settling` incremented when the queued step STARTS, not at consume (a dispose in the consume tick marks nothing) | **SURVIVED** 0/105 (coverage gap; PROBE-S2's shape kills it: with R2-M2 applied the remount does not rejoin, socket 0 stays open with acks `[v1-r0]` withheld, `probe-m2.log`) |",
+      "| R2-M3 | concurrency | `settling` released when the step starts (a dispose during the awaited refresh marks nothing) | CAUGHT 3/105 (all three CF-H1 rows) |",
+      "| R2-M4 | idempotency | a cut transport is closed at bind but no rejoin is requested | CAUGHT 2/105 (held-refresh row; quiet-remount row) |",
+      "| R2-M5 | replay | cut checked lazily on the first consumed frame instead of at bind | CAUGHT 1/105 (quiet-remount row) |",
+      "| R2-M6 | replay | CF-H3 as strictly-ahead (`>`) | CAUGHT 3/105 (R1, R2, W1: no bound lineage continues) |",
+      "| R2-M7 | replay | CF-H3 off by one (`>= lastSeq() - 1`) | CAUGHT 1/105 (CF-H3 no-re-show row) |",
+      "| R2-M8 | authority | cut requires two unsettled offers (`settling > 1`) | CAUGHT 3/105 (all three CF-H1 rows) |",
+      "| RM-G9-rerun | replay | round-1 RM-G9: heard record written only for offers | **SURVIVED** 0/105 (CF-H6 still open) |",
+      "| RM-G4-rerun | idempotency | round-1 RM-G4: store continues without `confirmApplied` | **SURVIVED** 0/105 (CF-H5 still open) |"
+    ]
+  },
+  "mutationNote": "The author's five MH rows stand (their logs reconcile by hash; MH5 is round-1's RM-G1 now caught by the CF-H4 row; MH3/MH4 are the two CF-H3 directions, which R2-M6/R2-M7 extend).",
+  "probeNotes": {
+    "round1": "Probes (not mutants; a throwaway copy of hostProjection with extra rows, run on the head and on the F product, then deleted; source kept in my proof dir as `zzReviewProbe.hostProjection.test.tsx.txt`): PROBE-A (held refresh across the remount, then 2T quiet, then the next offer): head -> one socket, no rejoin, confirms `[v1-r0, v1-r2]`, ACKs `[v1-r0]`, balance 700000 (r2 projected, never ACKed); same under PROBE-A2 (next offer inside the window). F product -> rejoins (4 sockets over 4T, balance 750000 from the re-hydrated view). With the fix shape of CF-H1 applied to the consumer, the head recovers like F and all 100 registered cases still pass (`probe-fixshape.log`). PROBE-B (campaign A -> B -> A on live bound transports): same transport object reused, no hydration at rebind, balance at bind 1000000 (no re-show), no rejoin across 2T, the next linked offer confirms `v1-r1:failed` and rejoins (2 sockets, first closed).",
+    "round2": "Probes (a throwaway copy of hostProjection with extra rows, run on the head and deleted; source kept as `zzR2Probe.hostProjection.test.tsx.txt`; outputs in `probe-head3.log`): PROBE-A (round-1 shape on the new head) -> rejoin at the remount (2 sockets before release, confirms `[v1-r0]`, acks `[v1-r0]`), then the replacement's own window at T (3 sockets by 2T, CF-G4 cycle). PROBE-S1 -> spurious cut reproduced (section 2; the first attempt used `queueMicrotask`, which Jest's modern fake timers fake, and was discarded as invalid, `probe-head.log`). PROBE-S2 -> same-tick cut handled. PROBE-S3 -> replacement not cut, ACKs v2-r0, stays open through 3T. PROBE-S4 -> double remount handled. PROBE-H3a / H3b -> section 3. PROBE-RP -> section 2. Fix-shape reproduction (`apply-fixshape.js`; 59c1fa72 consumer + my round-1 shape): with the 59c1fa72 store 3 failed / 40 passed / 43 (the three titles the author names, `fixshape-on-red.log`); with the head store 2 failed / 41 (the held-refresh row and the next-offer-first row, `fixshape-headstore.log`), the first failing with confirms `[v1-r0, v1-r2]`, i.e. the stall."
+  },
+  "stableSuiteNote": "The author did not run npm run test:stable; the local receipt claims none. Neither review round ran it (no stable row in round 1 section 3 or round 2 section 4). The PR CI unit shards on the head stand in for it.",
+  "bcdeAndA1A2Rows": "The B-E batch (344) and the 35 A1/A2 suites (388) were run by the reviewer in both rounds, not by the author (round 1 N7, round 2 N-R2-5). This closure cites the round 2 rows for the merged head, and its own main proof re-runs both at the merge.",
+  "notVerified": {
+    "round1": [
+      "Production boot with the port installed and a bound creator (H's and G2's work), a real browser co-op journey, and the Electron shell: dormancy is established by grep and by the absence of any bound shipped caller, not by a live run.",
+      "The server-side consequence of a stalled host applied view (what reads it for convergence) is inferred from `campaignApplicationConnection.ts` (no ACK wait, no timeout) and the L1 acceptance text, not exercised end to end.",
+      "CI runtime on the GitHub runners beyond reading the 32 check-run conclusions by API.",
+      "The A1/A2 suite list is taken from F's `suites35.txt` (all 35 present at the head); I did not re-derive it from the A1/A2 registrations."
+    ],
+    "round2": [
+      "Production boot with a bound creator and the installed port, a real browser co-op journey, the Electron shell: dormancy is still by construction (no shipped `expectedCampaignId` on a creator), not by a live run.",
+      "Whether the server's view of a stalled host applied view would have been observable before pending overflow: inferred from `campaignApplicationConnection.ts` as in round 1, not exercised end to end; the cut design removes the need to find out.",
+      "React's exact flush timing for the PROBE-S1 class in a browser (the probe forces the ordering with a hooked confirm; the production analysis is by reading the shipped mounts and the projection).",
+      "CI runtime beyond the 32 check-run conclusions read by API."
+    ]
+  },
+  "lintNote": "| `npm run lint` (oxlint) | 87 warnings, 0 errors; 0 on G1 leaves | 87 / 0 |",
+  "madgeNote": {
+    "round1": [
+      {
+        "run": "`madge@8.0.0 --circular` surface + consumer",
+        "result": "1133 files, 172 chains, chain set identical to the author's after-log",
+        "authorReceipt": "1133 / 172"
+      },
+      {
+        "run": "`madge` all four product leaves",
+        "result": "169 chains, none through the two new modules",
+        "authorReceipt": "169"
+      }
+    ],
+    "round2": {
+      "run": "madge",
+      "result": "not re-run: no import/export line changed since 59c1fa72",
+      "authorReceipt": "172 / 169, same sets"
+    }
+  },
+  "judgments": [
+    "**Retained fold re-shown at remount (accept, with a guard).** Projecting the continued fold at bind is the right symmetry with the guest (`projectMirrorToCampaign()` at bind) and is what makes R2 observable; without it the dashboard would show the reloaded record until the next frame. It is safe when the lineage is current. It is wrong when the lineage missed frames during the gap: `continues` does not compare `cell.current.lastSequence` with `transport.lastSeq()`, so a lineage behind the cursor is continued, re-shown (stale balance), and then folds the next offer over the gap; the window re-arms (the gap row pins that) and ends it within T, and the ACK stays withheld, so nothing is certified. Accept the design; add the cursor equality to `continues` (or skip the re-projection when behind) when the store next opens (CF-H3).",
+    "**Heard semantics (sound choice; wrong moment).** The cursor-watermark refinement is strictly better than the stop-report WeakSet (the author's M1 and my RM-G5 show the second gap row discriminates), and the two gap rows pin exactly what #2236 review note 2 asked. The remaining defect is *when* the record is written: at consume, i.e. when the frame reaches a binding, not when its handling completes. For a legacy frame those coincide; for an offer they do not, and an unmount between consume and confirm leaves a record that says \"heard\" for an offer nobody confirmed. F had no such state because every bind started from EMPTY and armed a window. The fix is local to the consumer (record non-offers at consume, offers after a successful `confirm`, using the cursor captured at consume), passes all 100 registered cases and my probes, and keeps the legacy-server behaviour the amendment wanted. It is a consumer-leaf change, which G1 owns only for CF-G3; the lane is closing, so it is carried as CF-H1 with activation as the deadline. If the owner prefers it inside G1, it must land as a new red-first commit pair and be re-reviewed on the new head.",
+    "**CF-G3 (satisfied as registered, see item 2 for the residue).** W1 passes and the amendment's wording (a rebind on a transport that already delivered a campaign frame arms no new window; replacement transports keep their own) is delivered; the \"already delivered\" semantics are the narrower ones the admission receipt records, which is the conservative reading.",
+    "**CF-G4 (carried unchanged, correctly).** G1 does not touch the cycle; every rejoin builds a new, unheard transport, which arms its window as before. Recorded in the admission and local receipts and here (CF-H7). Note that the CF-H1 fix re-enters the window path for the cut-settle case, so the cycle bound matters slightly more after it.",
+    "**CF-G11 (decided, correctly).** The fakes carry campaignId without `confirmApplied`; `active` is false; no window; real timers; pinned.",
+    "**CF-G8 placement.** Pinned in hostProjection rather than hostRecordRefresh (not a G1 leaf); the properties are the ones I asked for.",
+    "**CF-G9 (lint and cycles).** 87/0 at baseline and head, identical location set; madge from the same two entries 1133 files / 172 chains with an identical chain set; the four-entry run has 169 chains, none through the new modules; the surface drops from 396 to 319 counted lines (81 of headroom under the 400 warning for G2).",
+    "**Carry-forwards directed elsewhere.** CF-G5 (binder test / H), CF-G6 (persistence store), CF-G7 (hostRecordRefresh) are not G1 leaves and were correctly not absorbed; restated below with their owners.",
+    "**Not re-run by the implementer.** The B-E server suites and the 35 A1/A2 suites were not run by the author (PR body). Given that G1 changes the consumer every bound client shares, I ran them: 344 and 388, all green. The closure should cite this review for those two rows."
+  ],
+  "documentaryDefects": [
+    {
+      "id": "G1-DOC-1",
+      "concern": "runtime in the red receipt",
+      "owner": "parent, at closure",
+      "wording": "**G1-DOC-1 (runtime in the red receipt) [parent, at closure].** `evidence/p2cg1g1-red-20261018.json` records `runtime.node: v24.15.0`; the local receipt, the PR body and G1-PREP record v22.22.0 for every run, and both versions are installed under nvm. The red log carries no version line, so which one ran RED cannot be derived; my replay on v22.22.0 reproduces the same 3 failed / 73 passed with the same titles and shapes, so the result is not in question, but the closure should state the version actually used and the ledger's runtime contract (v22.22.0)."
+    },
+    {
+      "id": "G1-DOC-2",
+      "concern": "behaviour text",
+      "owner": "parent, at closure",
+      "wording": "**G1-DOC-2 (behaviour text) [parent, at closure].** The registered P2CG1G1 behaviour text (as amended by #2236) says the consumer \"remembers transports that already delivered a campaign frame\" and that the lineage continues on a rebind, but names neither the narrower cursor-watermark semantics the admission receipt's `heardSemantics` chose (a transport is heard only while every campaign frame it dispatched reached an active binding, with the two gap rows), nor the remount re-projection of the retained fold (R2), which is a shipped product behaviour and a design choice this review accepts (section 6 item 1). Record both at closure, as F-DOC-1 was."
+    },
+    {
+      "id": "G1-DOC-3",
+      "concern": "hook skip undisclosed in the ledger",
+      "owner": null,
+      "wording": "**G1-DOC-3 (hook skip undisclosed in the ledger).** The admission commit was made with hooks skipped (disclosed in the handoff to this review, not in any receipt or the PR body). The pre-commit's lint-staged matchers cover no JSON path, so nothing was bypassed; record it as the F/E receipts recorded their own disclosures."
+    }
+  ],
+  "minors": [
+    {
+      "id": "M1",
+      "wording": "**M1 (surface comment).** The surface's host-join comment now says \"a reused one ignores the cursor\"; true (the stored connect returns the existing transport without reading `lastSeq`), and worth keeping accurate when G2 changes the connect."
+    }
+  ],
+  "notes": {
+    "round1": [
+      {
+        "id": "N1",
+        "wording": "**N1.** The implementation was drafted before the gate (G1-PREP, stop report) and committed 7 min after RED; the ledger order and byte identities hold."
+      },
+      {
+        "id": "N2",
+        "wording": "**N2.** The mojibake RED run is kept uncited; the cited run followed a fresh idle reading; the baseline em-dash bytes are intact at the head."
+      },
+      {
+        "id": "N3",
+        "wording": "**N3.** The post-green type-only import reorder in `campaignCoopSurfaceHelpers.ts` was followed by full re-runs on the final bytes (idle.log 21:32-21:33, before the 21:35 commit); the `*-pre-typeimport.log` files are kept uncited; the author's mutants ran on the final consumer and store bytes, which the reorder did not touch."
+      },
+      {
+        "id": "N4",
+        "wording": "**N4.** The author's three mutants stand; AM1 and AM3 re-run here agree (M2's class is covered by RM-G2/RM-G7)."
+      },
+      {
+        "id": "N5",
+        "wording": "**N5.** `installReusedBoundTransport` replaces the mocked stored connect with a registry lookup, so hostProjection exercises the reuse path but not the real `existing.campaignId !== expectedCampaignId -> null` branch; the three fixture suites exercise that branch directly against the real function."
+      },
+      {
+        "id": "N6",
+        "wording": "**N6.** The admission receipt cites the #2236 review report hash (dfc24912...) and F's closure merge bc7abfc4 as ancestors of the baseline; both ancestry claims hold (54764673 is the merge of #2236, which was rebased onto bc7abfc4)."
+      },
+      {
+        "id": "N7",
+        "wording": "**N7.** The B-E and A1/A2 rows in section 3 are this review's runs, not the author's; the closure should cite them from here."
+      }
+    ],
+    "round2": [
+      {
+        "id": "N-R2-1",
+        "wording": "**N-R2-1 (round-1 correction).** Round 1 wrote that the \"record heard only after confirm\" fix shape \"recovers [the cut-settle case] like F\"; it recovers only the quiet remount. Its `probe-fixshape.log` ran PROBE-A alone (the one failure in that log was my PROBE-B's own guard), so PROBE-A2 under the shape was never measured. The author's 3/43 is reproduced here and the shape is withdrawn in favour of the cut design."
+      },
+      {
+        "id": "N-R2-2",
+        "wording": "**N-R2-2.** The parent ruling asked for CF-H1 as a red-first pair; the author delivered CF-H3 and CF-H4 inside the same pair. That is within the ruling (\"if cheap\") and the RED commit stays test-only, so no separate ledger step was owed."
+      },
+      {
+        "id": "N-R2-3",
+        "wording": "**N-R2-3.** The review RED has no stage receipt of its own; its failing titles, log hash and runtime note live in the local receipt's `reviewFollowUp`. units.json's `stageReceipts` has one `red` slot and the historical red receipt is deliberately unedited (G1-DOC-1); the closure should cite `reviewFollowUp.red` as the RED evidence for the CF-H rows."
+      },
+      {
+        "id": "N-R2-4",
+        "wording": "**N-R2-4.** The author's new logs are UTF-16 LE with BOM (PowerShell redirection); hashes reconcile as bytes. The receipt's `commits.reviewRed/reviewFix` use 9-character SHAs where the ledger elsewhere uses 40-hex; the PR commit list disambiguates."
+      },
+      {
+        "id": "N-R2-5",
+        "wording": "**N-R2-5.** B-E (344) and A1/A2 (388) were run here, not by the author, in both rounds; the closure should cite this report for those rows on the final head."
+      }
+    ]
+  },
+  "carryForwards": {
+    "intro": {
+      "round1": "Carry-forwards for P2CG1G2 (exact wording; owner in brackets where it is not G2; CF-H is the next free prefix after CF-G and is directed to G2 as the next unit, not to P2CG1H)",
+      "round2": "Carry-forwards for P2CG1G2 (status after this round; owner in brackets where it is not G2)"
+    },
+    "items": [
+      {
+        "id": "CF-H1",
+        "concern": "cut settle leaves a heard mark; receipt chain stalls",
+        "statusAfterRound2": "closed",
+        "round1Owner": "next owner of useCampaignApplicationConsumer.ts, at or before P2CG1H; must be closed before activation",
+        "round2Owner": null,
+        "round1Wording": "**CF-H1 (cut settle leaves a heard mark; receipt chain stalls) [next owner of useCampaignApplicationConsumer.ts, at or before P2CG1H; must be closed before activation].** `consume` writes `heardAt` when a campaign frame reaches an active binding, before `settle` completes. A host that unmounts while an offer's guarded refresh is awaited (C3's shape) comes back onto the continued lineage with the record equal to the cursor, arms no window, and nobody ever confirms that offer; the transport then withholds every later ACK behind it (`drain` -> `prefix-pending`) while the server keeps publishing, and the view recovers only at `pending-overflow` (64 offers) or a reload. Under F the window or the EMPTY-fold `adjunct-failed` rejoin recovered it within T. Fix shape (verified: all 100 registered cases and the probe pass): record non-offer campaign frames at consume, record offers only after `confirm` returns neither refused nor recovery-required, using the cursor captured at consume. Pin under fake timers in hostProjection: baseline applied, linked offer with a held refresh, unmount, remount, release -> window re-armed, rejoin at T, no ACK past the held one, replacement view from EMPTY.",
+        "round2Wording": "**CF-H1 - CLOSED** in G1 by the cut design (8dcb9e46 + a5b4a56a). Residual: CF-H14.",
+        "directedTo": "Closed in P2CG1G1 before merge by the cut design (8dcb9e46 + a5b4a56a), as round 2 section 6 item 1 says; its residual is CF-H14"
+      },
+      {
+        "id": "CF-H2",
+        "concern": "single-slot lineage versus per-transport heard mark",
+        "statusAfterRound2": "open",
+        "round1Owner": "next owner of campaignHostFoldStore.ts; the surface is a G2 leaf",
+        "round2Owner": "next owner of campaignHostFoldStore.ts; the surface is a G2 leaf",
+        "round1Wording": "**CF-H2 (single-slot lineage versus per-transport heard mark) [next owner of campaignHostFoldStore.ts; the surface is a G2 leaf].** Campaign A -> campaign B -> campaign A on two live bound transports: B's claim replaces A's lineage, so A's rebind mints a fresh EMPTY cell while A's heard record still equals its cursor; no window is armed and the next linked offer fails `adjunct-failed` (launchFacts absent on an EMPTY-seeded fold) and rejoins. Self-healing and nothing wrong is projected (PROBE-B), but the two keys disagree. Either key the store per transport identity (a WeakMap like `heardAt`, so A's lineage survives B's claim) or make `continued === false` on a bound transport arm the window. Pin the A -> B -> A case either way.",
+        "round2Wording": "**CF-H2 (single-slot lineage versus per-transport heard mark) - still open** [next owner of campaignHostFoldStore.ts; the surface is a G2 leaf]. Unchanged by this round (campaign A -> B -> A still self-heals through one `adjunct-failed` rejoin). Pin the A -> B -> A case either way.",
+        "directedTo": "next owner of campaignHostFoldStore.ts (a P2CG1G1 leaf; neither P2CG1G2A nor reduced P2CG1G2 lists it among its literal leaves); the surface it names is a reduced-P2CG1G2 leaf, so it is cross-referenced under successorNotes.P2CG1G2"
+      },
+      {
+        "id": "CF-H3",
+        "concern": "continue only a current lineage",
+        "statusAfterRound2": "closed",
+        "round1Owner": "next owner of campaignHostFoldStore.ts",
+        "round2Owner": null,
+        "round1Wording": "**CF-H3 (continue only a current lineage) [next owner of campaignHostFoldStore.ts].** `continues` does not require `lineage.cell.current.lastSequence === transport.lastSeq()`, so a lineage that missed frames during an unmount gap is continued, re-projected at bind (stale balance for up to T) and folds the next offer over the gap (`foldCampaignEvent` accepts gaps). The window re-arms and the ACK is withheld, so this is display-only, but add the cursor equality (or skip the re-projection when behind) and extend the \"re-arms the window when a sequenced campaign frame arrives while no surface is mounted\" row to assert the balance at remount.",
+        "round2Wording": "**CF-H3 - CLOSED** (\"not behind\", pinned in both directions; see section 3 for the PROBE-H3b conflation, no action).",
+        "directedTo": "Closed in P2CG1G1 before merge (\"not behind\", pinned in both directions), as round 2 section 6 item 3 says"
+      },
+      {
+        "id": "CF-H4",
+        "concern": "unbound transport reset pin",
+        "statusAfterRound2": "closed",
+        "round1Owner": "next owner of hostProjection.test.tsx or campaignHostFoldStore.ts",
+        "round2Owner": null,
+        "round1Wording": "**CF-H4 (unbound transport reset pin) [next owner of hostProjection.test.tsx or campaignHostFoldStore.ts].** RM-G1 survived: the registered text \"an unbound legacy transport ... starts a fresh cell at EMPTY\" is unpinned because the legacy reset row builds a new fake per connect. Pin a remount on the SAME unbound transport object: hydration input EMPTY, no retained facts.",
+        "round2Wording": "**CF-H4 - CLOSED** (same unbound transport object remount pinned; RM-G1 now caught).",
+        "directedTo": "Closed in P2CG1G1 before merge (same unbound transport object remount pinned; RM-G1 now caught), as round 2 section 6 item 4 says"
+      },
+      {
+        "id": "CF-H5",
+        "concern": "one activity predicate",
+        "statusAfterRound2": "open",
+        "round1Owner": "next owner of campaignHostFoldStore.ts and useCampaignApplicationConsumer.ts",
+        "round2Owner": "store + consumer owner",
+        "round1Wording": "**CF-H5 (one activity predicate) [next owner of campaignHostFoldStore.ts and useCampaignApplicationConsumer.ts].** RM-G4 survived: the store re-states the consumer's `active` condition (`transport.campaignId === campaignId && confirmApplied !== undefined`) by hand. Export one predicate from the consumer or the transport module and use it in both, or pin a fake with the mounted campaignId and no `confirmApplied` remounting -> fresh cell.",
+        "round2Wording": "**CF-H5 (one activity predicate) - still open** [store + consumer owner]. RM-G4-rerun survives on the head.",
+        "directedTo": "next owner of campaignHostFoldStore.ts and useCampaignApplicationConsumer.ts (P2CG1G1 leaves; neither P2CG1G2A nor reduced P2CG1G2 lists it among its literal leaves, and reduced P2CG1G2 makes no consumer edit)"
+      },
+      {
+        "id": "CF-H6",
+        "concern": "legacy-server variant of W1",
+        "statusAfterRound2": "open",
+        "round1Owner": "P2CG1G2, which binds creators while the server is still legacy",
+        "round2Owner": "P2CG1G2",
+        "round1Wording": "**CF-H6 (legacy-server variant of W1) [P2CG1G2, which binds creators while the server is still legacy].** RM-G9 survived: no row pins that a bound binding against a legacy server (campaign frames without `appliedView`) records the heard cursor, so a consumer that recorded only offers would re-arm the window on every remount in the G2 period and close a healthy legacy socket at T. Pin under fake timers: bound transport, legacy baseline and one legacy event folded by the surface, unmount, remount, 2T -> one socket, no rejoin, no window.",
+        "round2Wording": "**CF-H6 (legacy-server variant of W1) - still open** [P2CG1G2]. RM-G9-rerun survives on the head; pin under fake timers: bound transport, legacy baseline and one legacy event folded by the surface, unmount, remount, 2T -> one socket, no rejoin, no window.",
+        "directedTo": "reduced P2CG1G2, which binds the creators while the server is still legacy (recorded under successorNotes.P2CG1G2)"
+      },
+      {
+        "id": "CF-H7",
+        "concern": "quiet-window cycle bound",
+        "statusAfterRound2": "open",
+        "round1Owner": "next owner of useCampaignApplicationConsumer.ts, at or before P2CG1H",
+        "round2Owner": "consumer owner, at or before P2CG1H",
+        "round1Wording": "**CF-H7 (quiet-window cycle bound) [next owner of useCampaignApplicationConsumer.ts, at or before P2CG1H].** CF-G4 carried unchanged: against a server that holds the socket open and sends no campaign frame, the consumer rejoins once per window indefinitely; decide a cap, a backoff or a terminal state and its user-facing text (CF-F8) before activation. The CF-H1 fix routes the cut-settle case back through this cycle.",
+        "round2Wording": "**CF-H7 (quiet-window cycle bound) - still open** [consumer owner, at or before P2CG1H]. The cut path routes through rejoin; when the server stays quiet the replacement's window re-enters the cycle (PROBE-A/S4: three sockets by 2T). Decide a cap, backoff or terminal state before activation.",
+        "directedTo": "next owner of useCampaignApplicationConsumer.ts, at or before P2CG1H (CF-G4 carried; reduced P2CG1G2 makes no consumer edit and its behaviour text keeps CF-G4 with that owner); deadline cross-referenced under successorNotes.P2CG1H"
+      },
+      {
+        "id": "CF-H8",
+        "concern": "binder exclusivity pin",
+        "statusAfterRound2": "open (unchanged)",
+        "round1Owner": "next owner of bindCampaignSyncConnection.test.ts, or P2CG1H",
+        "round2Owner": "bindCampaignSyncConnection.test.ts owner or P2CG1H",
+        "round1Wording": "**CF-H8 (binder exclusivity pin) [next owner of bindCampaignSyncConnection.test.ts, or P2CG1H].** CF-G5 carried unchanged.",
+        "round2Wording": "**CF-H8 (binder exclusivity pin) - unchanged** [bindCampaignSyncConnection.test.ts owner or P2CG1H].",
+        "directedTo": "next owner of bindCampaignSyncConnection.test.ts (a P2CG1D leaf), or P2CG1H (CF-G5 carried; H-directed; cross-referenced under successorNotes.P2CG1H)"
+      },
+      {
+        "id": "CF-H9",
+        "concern": "adoption versus a newer guarded row",
+        "statusAfterRound2": "open (unchanged)",
+        "round1Owner": "next owner of useCampaignPersistenceStore.ts",
+        "round2Owner": "useCampaignPersistenceStore.ts owner",
+        "round1Wording": "**CF-H9 (adoption versus a newer guarded row) [next owner of useCampaignPersistenceStore.ts].** CF-G6 carried unchanged.",
+        "round2Wording": "**CF-H9 (adoption versus a newer guarded row) - unchanged** [useCampaignPersistenceStore.ts owner].",
+        "directedTo": "next owner of useCampaignPersistenceStore.ts (a P2CG1F leaf; CF-G6 carried)"
+      },
+      {
+        "id": "CF-H10",
+        "concern": "RED shape of the CF-F3 quiet case",
+        "statusAfterRound2": "open (unchanged)",
+        "round1Owner": "next owner of hostRecordRefresh.test.tsx",
+        "round2Owner": "hostRecordRefresh.test.tsx owner",
+        "round1Wording": "**CF-H10 (RED shape of the CF-F3 quiet case) [next owner of hostRecordRefresh.test.tsx].** CF-G7 carried unchanged (that suite is byte-identical in G1).",
+        "round2Wording": "**CF-H10 (RED shape of the CF-F3 quiet case) - unchanged** [hostRecordRefresh.test.tsx owner].",
+        "directedTo": "next owner of CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx (a P2CG1F leaf; CF-G7 carried)"
+      },
+      {
+        "id": "CF-H11",
+        "concern": "lint and cycles",
+        "statusAfterRound2": "open (figures updated)",
+        "round1Owner": null,
+        "round2Owner": null,
+        "round1Wording": "**CF-H11 (lint and cycles).** Head figures: 87 warnings / 0 errors, no G1 leaf warned; surface 319 counted lines (81 under the 400 warning), helpers 125, store 42, consumer 229; madge from the surface and consumer 1133 files / 172 chains, identical set to the baseline; four entries 169 chains, none through the new modules. G2 adds creator binding to the surface; record before/after on its leaves.",
+        "round2Wording": "**CF-H11 (lint and cycles) - figures updated.** 87/0, no G1 leaf warned; surface 319 counted (unchanged), helpers 125, store 43 (74 physical), consumer 239 (303 physical); import graph unchanged since 59c1fa72 (172 / 169 chains carry). G2 records before/after on its leaves.",
+        "directedTo": "reduced P2CG1G2, which adds creator binding to the surface and records lint and cycle figures before and after on its leaves (recorded under successorNotes.P2CG1G2)"
+      },
+      {
+        "id": "CF-H12",
+        "concern": "required checks",
+        "statusAfterRound2": "open (figures updated)",
+        "round1Owner": null,
+        "round2Owner": null,
+        "round1Wording": "**CF-H12 (required checks).** 32 check runs on 59c1fa72, all success, names identical to B-F; protection `[\"Lint and Test\"]`, strict false, conversation resolution required, 0 approvals; `pr-checks.yml` blob a82fe0f7 unchanged. Verify all 32 names by name on G2's exact head.",
+        "round2Wording": "**CF-H12 (required checks) - figures updated.** 32 check runs on a5b4a56a, identical multiset to 59c1fa72 and B-F, all success; protection unchanged. Verify by name on G2's exact head.",
+        "directedTo": "the next unit exact head: P2CG1G2A, now the immediate successor, and then reduced P2CG1G2 (the review wrote \"G2's exact head\" before the S3 split made P2CG1G2A the next unit); recorded under successorNotes.P2CG1G2A and successorNotes.P2CG1G2"
+      },
+      {
+        "id": "CF-H13",
+        "concern": "store holds one transport strongly",
+        "statusAfterRound2": "open (optional)",
+        "round1Owner": "optional; next owner of campaignHostFoldStore.ts",
+        "round2Owner": null,
+        "round1Wording": "**CF-H13 (store holds one transport strongly) [optional; next owner of campaignHostFoldStore.ts].** `held.transport` keeps the last claimed transport (and its socket and listeners) reachable after a rejoin closes it, until the next host claim. Bounded to one object; clearing `held` when its transport is no longer registered would make it zero.",
+        "round2Wording": "**CF-H13 (store holds one transport strongly) - still open, optional.** After a cut rejoin the closed transport stays reachable through `held.transport` until the next host claim; still bounded to one.",
+        "directedTo": "optional; next owner of campaignHostFoldStore.ts (neither P2CG1G2A nor reduced P2CG1G2 lists it among its literal leaves)"
+      },
+      {
+        "id": "CF-H14",
+        "concern": "new; spurious cut after a confirmed settle, latent",
+        "statusAfterRound2": "new",
+        "round1Owner": null,
+        "round2Owner": "next owner of useCampaignApplicationConsumer.ts; before any mount that gates on projected state, and in any case at or before P2CG1H",
+        "round1Wording": null,
+        "round2Wording": "**CF-H14 (new; spurious cut after a confirmed settle, latent) [next owner of useCampaignApplicationConsumer.ts; before any mount that gates on projected state, and in any case at or before P2CG1H].** `settling` is released in a trailing `.then` after `settle` resolves, so a dispose scheduled as a microtask after a successful `confirm` sees `settling > 0` and marks a healthy transport cut; the next binding closes a live socket and rejoins from EMPTY (PROBE-S1). Unreachable from the shipped mounts (section 2). Fix: release the count synchronously when the step has confirmed or can no longer confirm (decrement before `confirm` and on each early return, or count \"consumed and unconfirmed\" precisely); pin: baseline applied, linked offer, `confirmApplied` hooked to unmount in `Promise.resolve().then` on its confirm, remount -> one socket, no rejoin.",
+        "directedTo": "next owner of useCampaignApplicationConsumer.ts, before any mount that gates on projected state and in any case at or before P2CG1H; deadline cross-referenced under successorNotes.P2CG1H and flagged for reduced P2CG1G2 should it add such a mount"
+      },
+      {
+        "id": "CF-H15",
+        "concern": "new; same-tick dispose pin",
+        "statusAfterRound2": "new",
+        "round1Owner": null,
+        "round2Owner": "next owner of hostProjection.test.tsx",
+        "round1Wording": null,
+        "round2Wording": "**CF-H15 (new; same-tick dispose pin) [next owner of hostProjection.test.tsx].** R2-M2 survived: inject a linked offer and unmount inside one `act` (before the queued step starts), remount -> rejoin, acks on socket 0 stop at the baseline, refresh never called (PROBE-S2's shape).",
+        "directedTo": "next owner of CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx (a P2CG1G1 leaf; neither P2CG1G2A nor reduced P2CG1G2 lists it among its literal leaves; reduced P2CG1G2 keeps the G1 and F suites unchanged)"
+      },
+      {
+        "id": "CF-H16",
+        "concern": "new; bind only a transport bound to the mounted campaign",
+        "statusAfterRound2": "new",
+        "round1Owner": null,
+        "round2Owner": "P2CG1G2, which owns the host connect call",
+        "round1Wording": null,
+        "round2Wording": "**CF-H16 (new; bind only a transport bound to the mounted campaign) [P2CG1G2, which owns the host connect call].** The host `connectStoredCampaignSyncTransport` call passes no `expectedCampaignId`, so a stored transport bound to another campaign on the same match would be bound inactive, and an inactive binding swallows offers (`return isOffer(message)`) that nothing confirms, cuts or hears. F-era code, not a G1 regression, but G2 should pass `expectedCampaignId` when it binds the creator so the stored connect refuses the mismatch (the three fixture suites already exercise that branch).",
+        "directedTo": "reduced P2CG1G2, which owns the host connect call (both connected-surface connectStoredCampaignSyncTransport calls bind expectedCampaignId under its registered behaviour text); recorded under successorNotes.P2CG1G2"
+      },
+      {
+        "id": "CF-H17",
+        "concern": "new, optional; re-projection at a cut remount",
+        "statusAfterRound2": "new (optional)",
+        "round1Owner": null,
+        "round2Owner": "surface/store owner",
+        "round1Wording": null,
+        "round2Wording": "**CF-H17 (new, optional; re-projection at a cut remount) [surface/store owner].** A cut remount re-projects the retained fold for the instant before the rejoin's replacement baseline (PROBE-RP). Display-only; skipping it would need the consumer to expose cut-ness to the surface. Record, do not chase.",
+        "directedTo": "optional; surface/store owner (record, do not chase, as the review says)"
+      }
+    ],
+    "closedInLane": [
+      "CF-H1",
+      "CF-H3",
+      "CF-H4"
+    ],
+    "open": [
+      "CF-H2",
+      "CF-H5",
+      "CF-H6",
+      "CF-H7",
+      "CF-H8",
+      "CF-H9",
+      "CF-H10",
+      "CF-H11",
+      "CF-H12",
+      "CF-H13",
+      "CF-H14",
+      "CF-H15",
+      "CF-H16",
+      "CF-H17"
+    ],
+    "newInRound2": [
+      "CF-H14",
+      "CF-H15",
+      "CF-H16",
+      "CF-H17"
+    ],
+    "optional": [
+      "CF-H13",
+      "CF-H17"
+    ],
+    "notBinding": {
+      "round1": "CF-F1, CF-F2, CF-F4 and CF-F8 remain with their named owners; CF-F9 remains with P2CG1H; CF-F5 is closed. None of them binds G2 except where G2 owns the leaf.",
+      "round2": "CF-F1, CF-F2, CF-F4, CF-F8 remain with their named owners; CF-F9 with P2CG1H; CF-F5 closed. None binds G2 except where G2 owns the leaf."
+    },
+    "priorCarryForwards": {
+      "source": "evidence/p2cg1f-review-20261018.json successorNotes.P2CG1G1",
+      "absorbed": {
+        "CF-G1": "pinned in hostProjection (round 1 section 2 item 6)",
+        "CF-G2": "pinned in hostProjection (round 1 section 2 item 6)",
+        "CF-G3": "satisfied as registered under amendment #2236 (round 1 section 6 item 3); its residue became CF-H1, closed before merge",
+        "CF-G8": "pinned in hostProjection rather than hostRecordRefresh (round 1 section 6 item 6)",
+        "CF-G9": "recorded (round 1 section 6 item 7); continued as CF-H11",
+        "CF-G10": "verified on the head (round 1 section 1 item 11, round 2 section 1 item 9); continued as CF-H12",
+        "CF-G11": "decided and pinned (round 1 section 6 item 5)"
+      },
+      "continuedAs": {
+        "CF-G4": "CF-H7",
+        "CF-G5": "CF-H8",
+        "CF-G6": "CF-H9",
+        "CF-G7": "CF-H10"
+      },
+      "remain": {
+        "CF-F1": "named owner (evidence/p2cg1e-review-20261018.json)",
+        "CF-F2": "named owner",
+        "CF-F4": "named owner",
+        "CF-F8": "named owner",
+        "CF-F9": "P2CG1H"
+      },
+      "closed": {
+        "CF-F5": "closed on main by #2230"
+      },
+      "note": "Closure text. The P2CG1F review's CF-G1, CF-G2, CF-G3, CF-G8, CF-G9, CF-G10 and CF-G11 are met by the merged head as the local receipt's carryForwards and both review rounds record. CF-G4, CF-G5, CF-G6 and CF-G7 were carried unchanged and are continued by the review as CF-H7, CF-H8, CF-H9 and CF-H10 with the same owners. CF-F1, CF-F2, CF-F4 and CF-F8 stay with their named owners and CF-F9 with P2CG1H; CF-F5 is closed. Both rounds' closing paragraphs (notBinding) say none of them binds G2 except where G2 owns the leaf."
+    },
+    "note": "round1Wording is round 1 section 7 item n (CF-H1..CF-H13) and round2Wording round 2 section 6 item n (CF-H1..CF-H17), each without its list number; concern, round1Owner and round2Owner are the reviewer's parenthesis and owner brackets verbatim (round 2 brackets for CF-H14..CF-H17 sit inside the bold heading). statusAfterRound2 and directedTo are closure text. Both reports address these to P2CG1G2, written before the S3 split (#2239) put P2CG1G2A between G1 and reduced G2; directedTo records the closure's routing after the split."
+  },
+  "reviewerProofLogs": {
+    "note": "The reviewer's two disposable proof directories outside any repository (named in each report's runtime line), referenced by path, sha256 and size at closure time; their jest-cache subdirectories are not listed. Not re-run by this closure.",
+    "round1": [
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/a1a2.log",
+        "sha256": "d680c7ac644f00619ee1d1288b49b95f052c1f7ac5b939b3165a3c5d6b0d39bb",
+        "bytes": 379131
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/bcde.log",
+        "sha256": "b1dbdab8903304063e0fd384df46b80771e3b2a29f415afa28e8a31cc41fa4a6",
+        "bytes": 115536
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/checkruns.json",
+        "sha256": "452043bef97b1cf21cc7380dfe7ff64b7231d2acab333d9d0eff57d8ae370b35",
+        "bytes": 228714
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/f-suites.log",
+        "sha256": "cbb65a805dda5d5c012c8af704547032e160fbaae9fa736f2059824258c9860a",
+        "bytes": 31015
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/format.log",
+        "sha256": "41d2a45b6081e1478f9d7561f3de65dffb0cf59ff4f1b14bfe7db02c6d53d0cc",
+        "bytes": 366
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/g1-head.log",
+        "sha256": "8c312468ca0504e3eb85e5f818fc0f3c22962c1206afd617f54e3a3801605c65",
+        "bytes": 37982
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/hashes.js",
+        "sha256": "bf8d97938027e3d1037d3a2d80d4a1a77940ce7b66052f9c3b6391e68025d880",
+        "bytes": 3637
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/hashes.log",
+        "sha256": "48b7be1f960309b28ebddd6e01a1af7b63506e7c0e7bb2e5c0494214f4b59dd6",
+        "bytes": 11966
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/idle.log",
+        "sha256": "0ae1689b3a4fb95d2dcd332eba3e0c96eed3a7bbe7eb9cfd4dab49878e15d136",
+        "bytes": 2052
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/lint-units.log",
+        "sha256": "60f3271ad1c1e13670b13a3914daf5e9e65001defa14072ccb79b6606bbc9a6c",
+        "bytes": 730
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/lint.log",
+        "sha256": "e20fba82ebc5770818acf4cae5be51660d2477303fa2543b68ca00c110246b3b",
+        "bytes": 81374
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/madge-four.log",
+        "sha256": "ef6c751dee284de3f80cfa0f71bdfc189f9c69172fad8521aad2328a2b986679",
+        "bytes": 209830
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/madge-same-entries.log",
+        "sha256": "3948dbc1086131f4e15ae81878d11f4d45fd56f11d3989bb8e5cd5edfa077500",
+        "bytes": 257266
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/make-probe-b.js",
+        "sha256": "ce530166530ce097cb4e6aa5b0a05b3e0d4ed0a37bed0f3b3383814890a4010f",
+        "bytes": 3031
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/make-probe.js",
+        "sha256": "9063cd4378b1fc3afe7ea5e8813e16fa6199796d0d0c9a1700c4694731ffaa95",
+        "bytes": 3899
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/make-rerun.js",
+        "sha256": "5ff94e50c291de2f8eee1abf7c2690c16e5ff982d89b4e6284192fbb6af34ea5",
+        "bytes": 991
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/mutant-AM1-rerun.log",
+        "sha256": "b54120b4c9eaa52cf8cbdfcfdaf8313fd7e94680b95e78c538b291a6f636f379",
+        "bytes": 42602
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/mutant-AM3-rerun.log",
+        "sha256": "4d25521e6dad0ddce11c989f05009ba47c28b8dfb7ae7c4cfee763b29b26591e",
+        "bytes": 42223
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/mutant-RM-G1.log",
+        "sha256": "a97f03074f1ffce34e6074d33639de2ac75d3aa85b2d2917d764b10544644f80",
+        "bytes": 40396
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/mutant-RM-G10.log",
+        "sha256": "829b55b1fc146d8dc95ddf6d3d66c98eeee3e15403e94766c10260a7f6727a8b",
+        "bytes": 40411
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/mutant-RM-G2.log",
+        "sha256": "8a351191b7f1eb74c0df60cfcbbbac00a59035fd09cc9079d78cf64455b53ae2",
+        "bytes": 43235
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/mutant-RM-G3.log",
+        "sha256": "5021df0e6bbc9312bcd566e2075aeb1953a1f0528bb6544b88bcc2f4558dd53e",
+        "bytes": 40411
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/mutant-RM-G4.log",
+        "sha256": "829b55b1fc146d8dc95ddf6d3d66c98eeee3e15403e94766c10260a7f6727a8b",
+        "bytes": 40411
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/mutant-RM-G5.log",
+        "sha256": "1a9f96c55892bb3d900550a3ad886fa5989e84fdbdcfcc4aadc5788b1c9c1803",
+        "bytes": 42617
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/mutant-RM-G6.log",
+        "sha256": "e7067385cb1003f9f359a97c804ec47731e95f9f5e09ff1ab5ef2a431c914182",
+        "bytes": 44456
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/mutant-RM-G7.log",
+        "sha256": "fa282bfb3ef1eb4fc325f647851800fc66840aab5a7db0117f24a643326c5171",
+        "bytes": 41109
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/mutant-RM-G8.log",
+        "sha256": "1de283a24ef2a0dc22b61552a2bf4b8ed267bf1b9b54453d35d6ed951d2d72bf",
+        "bytes": 45718
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/mutant-RM-G9.log",
+        "sha256": "0a7bba741483780384b67f04ed78cb9ebc33584fc8cab243f32110ab473316de",
+        "bytes": 40411
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/mutants-author-rerun.js",
+        "sha256": "f1ef1ea7141b7ce68d844d1c7201e5c19180d9a548f06df4025aaac6c68bd89e",
+        "bytes": 3897
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/mutants-author-rerun.json",
+        "sha256": "a81ea57b02af3caa6df7e526393d93de309c14d7afa92a4bd9498f163f93ed09",
+        "bytes": 1052
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/mutants-author-rerun.log",
+        "sha256": "5981f0160ac11e2cc1c11fe9b447b55d1c2150c27fab703dd5d9b921da8770ca",
+        "bytes": 934
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/mutants.js",
+        "sha256": "e8dfa62dd0f64b955b0fa239ae95518e16ae629e4cc03a7dbad8c8bbf2446c2a",
+        "bytes": 6275
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/mutants.json",
+        "sha256": "2756f063a362d81442e2c7fb8e0da38b65118368022ba48a339a093d57bc289d",
+        "bytes": 5591
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/mutants.log",
+        "sha256": "03c7a6abee000247ff29e14b585415ea15f14bb1c7f64b2b6146627d59e0ca80",
+        "bytes": 4466
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/openspec.log",
+        "sha256": "89a3784befdc45a1fb8b4cac58d9703373655afb9d5fa537f58176fbd9cad0c0",
+        "bytes": 13904
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/probe-a-on-F.log",
+        "sha256": "0b3e85380eef199e46cd510736805793b332c895e5e93287c3625ceea6df2fd4",
+        "bytes": 7468
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/probe-b.log",
+        "sha256": "f2f7f07c47cce65516399acf591fa616561b20ccd6cab232f8cfe16f5395ff92",
+        "bytes": 8866
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/probe-fixshape.log",
+        "sha256": "f16776232cb6453782ffbe92aa558ed8d35321d4fdaef76a790509ec242ba811",
+        "bytes": 68671
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/probe-head.log",
+        "sha256": "b2e8adbc4e11cdd8f68d740f4dd1316f3d59a17deab6bf348b0b25a63ab491a5",
+        "bytes": 13834
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/probe-head2.log",
+        "sha256": "102b5c7e58d465e06e888d04c66746d59687fdd918c61b8eaa2a7c789819f26f",
+        "bytes": 10579
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/probe-head3.log",
+        "sha256": "50e7c6f8aae802e0cf408212ee4a846cbeaf7385876dc76f6396ed704a1ad8cb",
+        "bytes": 11592
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/probe-head4.log",
+        "sha256": "e2643c97efeaba584ea5f885f2f333d78b80f76bac0a7c57610f1fb23ac8f8f7",
+        "bytes": 12718
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/probe-head5.log",
+        "sha256": "748d02ea4cc574b70fe69d17aecbfa73eabab82752ea78297fdf8dac6f3005b7",
+        "bytes": 14538
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/probe-head6.log",
+        "sha256": "1bde901fccd040aa132994e0a6d040332c9fff0a94344e08a8d42fdb06c36408",
+        "bytes": 6642
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/qc.log",
+        "sha256": "19b2046de400eaefd184fb58e7072d1816b6ccef3ba1f1ea040c0f9ec8ec2c60",
+        "bytes": 594
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/red-replay.log",
+        "sha256": "435cff792fa60da76431c29c7b9d2f1d72e9b9912e5d529b207f3c9ef26f28e9",
+        "bytes": 43648
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/related.log",
+        "sha256": "6f9656e2984ad53f098f312b52def71ff45c96f0fb6b0557a6b95322ee86be1b",
+        "bytes": 46119
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/report-part1.txt",
+        "sha256": "ad4b32bba1c9ab1143e66ea5338d31c2ca5843c96237283e6e5802c1d8bb1837",
+        "bytes": 7352
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/report-part2.txt",
+        "sha256": "88fe7395381a52b202b7028c128349e96d9cc35602d20f955ef99bec669a3451",
+        "bytes": 11541
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/report-part3.txt",
+        "sha256": "3f741f8b49fe0d7841a0885769a13a26fa83bc0448c8e5bad9e9cd71d6196d24",
+        "bytes": 9038
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/report-part4.txt",
+        "sha256": "46b91109c88c46be2dcf3dfeac291a2ad7601c90b70bb334b5523fddb35c5ef5",
+        "bytes": 13931
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/run.js",
+        "sha256": "bfefa0adfc2a838c8c32f0e7310e11a5b34bbabff70a1b84a2340e8f9f325402",
+        "bytes": 1724
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/selector.log",
+        "sha256": "7e6e8885b7c7a034ad88540f34702ad9b293e0e00f8fcbcf7e9f48ac68593f3b",
+        "bytes": 48884
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/suites35.txt",
+        "sha256": "146494263be940d1639608d56d4d4e65dc79febe50de23b15b7d775c64421201",
+        "bytes": 2571
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/surface-base.tsx",
+        "sha256": "107374410c8cb418022f5c28c6b2ca9adb99caf8ff316c076dafbd2a2c3887c0",
+        "bytes": 19202
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/sweep-suites.txt",
+        "sha256": "47557b564bedbb302d76b25d59e0c0686f9e50d88f0219b4d7a9a55d82707764",
+        "bytes": 4825
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/sweep.log",
+        "sha256": "862a7f9590d5dd55448eb93ff51701be08bf923b92033d9b35e927f8f2f29eca",
+        "bytes": 110984
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/typecheck-red.log",
+        "sha256": "8102a14cf3245ac2b0d67c588affb25efaebfcd3485f9a46a751595d9a774951",
+        "bytes": 358
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/typecheck.log",
+        "sha256": "8102a14cf3245ac2b0d67c588affb25efaebfcd3485f9a46a751595d9a774951",
+        "bytes": 358
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/units-diff.js",
+        "sha256": "9c4c87fe1389a2df2507cd239dc68d09f33b62e577c1f6b0ab416503efa74a91",
+        "bytes": 1772
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/units-diff.log",
+        "sha256": "ac2dcb6c9ba2e63557b8f1723f514f6e25125e1fff5f6fdf645aaa677f2c5be4",
+        "bytes": 3046
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/validator-git.log",
+        "sha256": "8334eb5ca69d8e1d087d34582a3138c3c68a69a32d6c67914441a48eaf64c460",
+        "bytes": 4714
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/validator-tests.log",
+        "sha256": "f5a0653f6c69d7a589f88d3ced61fe336c6a4114a7d5fa6b8d0dffdaf08d397a",
+        "bytes": 33638
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/validator.log",
+        "sha256": "3c8a526f2cfa587e259a090767acd1fce1930d20d5c4b368cebf78dcf23cca7b",
+        "bytes": 156
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-proof-20261018/zzReviewProbe.hostProjection.test.tsx.txt",
+        "sha256": "867641eb39cfd2306e79822cdef5fd82c48d9c493748224652d8c2c155e5ec65",
+        "bytes": 58292
+      }
+    ],
+    "round2": [
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/a1a2.log",
+        "sha256": "59a0c3549f8084c6f7f5488becaf9f327d1574402c633331c470331823c17e8a",
+        "bytes": 379188
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/apply-fixshape.js",
+        "sha256": "c372bf2f931f2b173656b7b05c4846753ceef7f02312d713395d253010e76c76",
+        "bytes": 2038
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/apply-m2.js",
+        "sha256": "0888bd252ab7e3a51c433a22205987faff0efc8cc1cb15f7cdf70398b6bfea21",
+        "bytes": 664
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/bcde-suites.txt",
+        "sha256": "b2f7a9f03b3dfa43770eefd626c52590a220791e17611abf9b35048f134394ad",
+        "bytes": 697
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/bcde.log",
+        "sha256": "38f2e06b8c6ed69b1445397ab459b1b1c05cf2ceaad4697600845fe4d331d2ef",
+        "bytes": 115700
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/checks-a5b4a56a.txt",
+        "sha256": "0cfa4ffafa1c66e49f7487ff367a2def4212035677f1282ab242e53a4a80e301",
+        "bytes": 1233
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/checks-new.json",
+        "sha256": "d375c15dfc3a6bc45f8e7929cdc4f294aac36513f41cefff1b82a1fef2d7848b",
+        "bytes": 114354
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/checks-old.json",
+        "sha256": "f4c8dcdd2429d7b4ad70b09977a998b1085761c010dbd473a30438825fd9c6ac",
+        "bytes": 114354
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/checks.jq",
+        "sha256": "9d05eb3fac8e0e3692a07f5bf72cd85fc3fa87ee353a4f73c1b3cab9f0b73eae",
+        "bytes": 71
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/cmpchecks.js",
+        "sha256": "ab1a472b01264141d508d0019c8648e1d12ca64c0413db149665d102570ea354",
+        "bytes": 633
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/f-suites.log",
+        "sha256": "69befa8f6e378ba5d5b113af99df6aa499201496a5a0e7b313e7cb22783db5ca",
+        "bytes": 49529
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/fixshape-headstore.log",
+        "sha256": "0ec67078a68d64b167a994a69832e3411aa40a1d300008a4325e3b11cf0e4767",
+        "bytes": 52493
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/fixshape-on-red.log",
+        "sha256": "49eba1892c2beff4c7450e8dccbd0ce9128878993e00ed99eb294f7ff9f72f3d",
+        "bytes": 53298
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/format.log",
+        "sha256": "622f307707ce5d51dda964f3906a3abd324c8b125d415219d042e01ae9ddf1ee",
+        "bytes": 366
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/g1-head.log",
+        "sha256": "11f7a6940048dea57dd436b0ac33e33a3d0fb516ce4d35afc8f2511556d9498a",
+        "bytes": 60062
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/idle.log",
+        "sha256": "f0e0a5cee3ddd649f7adc40d46df814a29ec88428b702ade4b375e9be0c078b7",
+        "bytes": 1715
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/lint-units.log",
+        "sha256": "60f3271ad1c1e13670b13a3914daf5e9e65001defa14072ccb79b6606bbc9a6c",
+        "bytes": 730
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/lint.log",
+        "sha256": "4eaa41c512cf358e539a4ff2ef11080d8d7277514f4f0f2e0d7a41984b88ddd9",
+        "bytes": 81374
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/make-mutants-r2.js",
+        "sha256": "a540d837eab98b0d4881b504b34292ab448e4283b81bb3a35cca3147fa687df9",
+        "bytes": 4449
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/make-probe-r2.js",
+        "sha256": "eb5a6c2802f8639dbcc2c4600e88d64e8caed8845f09a0a9bc38229bc362018e",
+        "bytes": 10376
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/make-rerun.js",
+        "sha256": "b68824e7f6b3b5eb1e948ac16efde02afb798879a44a727001f7adc05af000ee",
+        "bytes": 909
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/mutant-R2-M1.log",
+        "sha256": "e53c88fe37b93256659a5f285561f429e0f9c24e465def7028043c9b35d8f123",
+        "bytes": 60077
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/mutant-R2-M2.log",
+        "sha256": "aea5a53fa43145baa32cf7a1c1b398210acbccdc119c94484e86ea1e9c3de6b5",
+        "bytes": 60077
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/mutant-R2-M3.log",
+        "sha256": "8bbed1b4355301f03bd485c92c8da9936248355d73cb35b1d62733fc2d05e8ab",
+        "bytes": 62876
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/mutant-R2-M4.log",
+        "sha256": "7459807b672d871485f540bb1ee4acc24ab06ee92f3c9df70566bfb96760da2c",
+        "bytes": 62639
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/mutant-R2-M5.log",
+        "sha256": "89abd78aa8ab6916d619489c5cf10539cf669b74e5c0e298ee1ef1b912e7201f",
+        "bytes": 60987
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/mutant-R2-M6.log",
+        "sha256": "ab6fe18dca9edc3082126611f8ef163f1cf94ec9df95e7a3b261588420462434",
+        "bytes": 66980
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/mutant-R2-M7.log",
+        "sha256": "81cc78bc6a70fbb03b731170677eb7b85dcaf3314bce8c8163394d8ecd0e4250",
+        "bytes": 60917
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/mutant-R2-M8.log",
+        "sha256": "704d3f020294fbe913423a43d694b122dffb0fe56acd59311522443ac1367a67",
+        "bytes": 62876
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/mutant-RM-G4-rerun.log",
+        "sha256": "459b90c1fa9ac1170ec8ded9421bd8a77142a832d2abc635885e789162b8df17",
+        "bytes": 60077
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/mutant-RM-G9-rerun.log",
+        "sha256": "9aa10054b4a1035bec1275f2697d9af46f41a87aee7cdb898c82826a8908af61",
+        "bytes": 60077
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/mutants-r2.js",
+        "sha256": "8ee1c14adbcf8fc5c715f9ecdb9ab1d952d139a92fa746e13b1f52ef2a8abd48",
+        "bytes": 6516
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/mutants-r2.log",
+        "sha256": "cf7721a6ae891fe01244e33d0624d25a2cd37bd98c8e680c24258befd9ff034b",
+        "bytes": 5042
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/mutants-rerun.js",
+        "sha256": "395f116bf4cde2e39ff859d1db212bc8c292c8eb20ee880517cd9f399d7078b3",
+        "bytes": 4222
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/mutants-rerun.json",
+        "sha256": "9d8dce337b9c4bd1a858d6950798f2a14131b373eaf2c897e3f56e13d82f96fa",
+        "bytes": 1038
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/mutants-rerun.log",
+        "sha256": "065fad9ea8070a84de7f3d5cfd58d42a1adabfca00cb5b061d340d7ca7fbcf6e",
+        "bytes": 650
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/mutants.json",
+        "sha256": "73ea85c1bc7c5624e30d0805b1255cc78a49ea0bacccceaf34ce68912fdbcc69",
+        "bytes": 5444
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/openspec.log",
+        "sha256": "89a3784befdc45a1fb8b4cac58d9703373655afb9d5fa537f58176fbd9cad0c0",
+        "bytes": 13904
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/patch-s1.js",
+        "sha256": "7ad58501e4b73df7b43f171a8ad1124e883adc10180d518be93eee46d13b0f53",
+        "bytes": 692
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/patch-s3.js",
+        "sha256": "ee492b621fd145470c3d6afe63ad843e5f3358ec6ccd1c507dcbd794519cf9aa",
+        "bytes": 663
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/probe-head.log",
+        "sha256": "57741908ddb2e311b34d200bd3d877a1291729686443017513e0b050954e11eb",
+        "bytes": 35167
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/probe-head2.log",
+        "sha256": "437009b6b73413410746789607eea5c5867a92589c3b7876116fecaf69fbc1ba",
+        "bytes": 9132
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/probe-head3.log",
+        "sha256": "b336f3a7f4f47d1f9702ff470c8f50ea36370b2ea7ef869b2a5684b0398f3243",
+        "bytes": 35264
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/probe-m2.log",
+        "sha256": "f542bb7be884f76b64ce041b7cf81939d3cee5a7ff23514b005718e70c377fe8",
+        "bytes": 9000
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/qc.log",
+        "sha256": "19b2046de400eaefd184fb58e7072d1816b6ccef3ba1f1ea040c0f9ec8ec2c60",
+        "bytes": 594
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/red-replay.log",
+        "sha256": "9632ec9e41700ee8330accacb4f2d7840260119a8edcbd00a782bd71bf8397bb",
+        "bytes": 61138
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/related.log",
+        "sha256": "75076644776d4c93b5a0add289cee0fc046291e0f373346b1b43ce7251676b64",
+        "bytes": 66697
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/report-part1.txt",
+        "sha256": "653600a56a84a55962b211b96faa55b396c8917f2165cfdeab2ba5b51f2acd21",
+        "bytes": 11463
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/report-part2.txt",
+        "sha256": "5a33ca473cfcd08b471c2b5ed116a6bdcdbea19ce04807aeda7955e6f86891d9",
+        "bytes": 10054
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/report-part3.txt",
+        "sha256": "ecf90501f4992ee1e2539a0c66ed731dc688f53f2b908150d02667c6162f6a47",
+        "bytes": 9788
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/run.js",
+        "sha256": "5360f146f5f067657485e542ce2afd23d16c70dde8d108f872879196fe5e0a0a",
+        "bytes": 1730
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/selector.log",
+        "sha256": "907829ac50c9c837f8215493061e966f9d124016474f5072edef5427b0e22602",
+        "bytes": 48884
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/suites35.txt",
+        "sha256": "146494263be940d1639608d56d4d4e65dc79febe50de23b15b7d775c64421201",
+        "bytes": 2571
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/sweep-suites.txt",
+        "sha256": "47557b564bedbb302d76b25d59e0c0686f9e50d88f0219b4d7a9a55d82707764",
+        "bytes": 4825
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/sweep.log",
+        "sha256": "449af9b8478bfc158cdd23c907b56ef52022f11393581c96291040150eb964b2",
+        "bytes": 137329
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/sweep73.log",
+        "sha256": "79b149d59756380c614fc28fa311965dfe303295d765afd68cb0b5ea70095e01",
+        "bytes": 137938
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/sweep73.txt",
+        "sha256": "1c2ecc639b6d0a4a3ac8fcb99d48c4ed33cd916dd4beeb770da3153e6c186e35",
+        "bytes": 5168
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/typecheck-red.log",
+        "sha256": "8102a14cf3245ac2b0d67c588affb25efaebfcd3485f9a46a751595d9a774951",
+        "bytes": 358
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/typecheck.log",
+        "sha256": "8102a14cf3245ac2b0d67c588affb25efaebfcd3485f9a46a751595d9a774951",
+        "bytes": 358
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/validator-git.log",
+        "sha256": "8334eb5ca69d8e1d087d34582a3138c3c68a69a32d6c67914441a48eaf64c460",
+        "bytes": 4714
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/validator-tests.log",
+        "sha256": "1a6ddb59f80906e04dc0e169f6ed86f2a1743ed23ba9cc0859462807f1c16751",
+        "bytes": 33630
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/validator.log",
+        "sha256": "3c8a526f2cfa587e259a090767acd1fce1930d20d5c4b368cebf78dcf23cca7b",
+        "bytes": 156
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2238-r2-proof-20261018/zzR2Probe.hostProjection.test.tsx.txt",
+        "sha256": "25e7455b0693d050c82dd12510fcaad8271a26c625a5ffe1a3ae5a818bc8508f",
+        "bytes": 70140
+      }
+    ]
+  },
+  "successorNotes": {
+    "P2CG1G2A": {
+      "applies": [
+        "CF-H12"
+      ],
+      "carryForwards": [
+        {
+          "id": "CF-H12",
+          "concern": "required checks",
+          "statusAfterRound2": "open (figures updated)",
+          "round1Owner": null,
+          "round2Owner": null,
+          "round1Wording": "**CF-H12 (required checks).** 32 check runs on 59c1fa72, all success, names identical to B-F; protection `[\"Lint and Test\"]`, strict false, conversation resolution required, 0 approvals; `pr-checks.yml` blob a82fe0f7 unchanged. Verify all 32 names by name on G2's exact head.",
+          "round2Wording": "**CF-H12 (required checks) - figures updated.** 32 check runs on a5b4a56a, identical multiset to 59c1fa72 and B-F, all success; protection unchanged. Verify by name on G2's exact head.",
+          "directedTo": "the next unit exact head: P2CG1G2A, now the immediate successor, and then reduced P2CG1G2 (the review wrote \"G2's exact head\" before the S3 split made P2CG1G2A the next unit); recorded under successorNotes.P2CG1G2A and successorNotes.P2CG1G2"
+        }
+      ],
+      "notBindingG2A": "Closure text. P2CG1G2A's two literal leaves (src/pages/api/multiplayer/invites/[roomCode].ts, src/__tests__/api/securityBoundary.test.ts) appear in no CF-H item of either round. Only CF-H12, the by-name verification of the 32 required checks on the next exact head, applies to it, because P2CG1G2A is now the next unit. CF-H6, CF-H11 and CF-H16 bind reduced P2CG1G2, CF-H8 is H-directed, and the remaining open items stay with the named owners in carryForwards.items[].directedTo. Its registration already requires re-reading this verified G1 exact-main proof and remeasuring actual post-G1 main before admission.",
+      "priorCarryForwards": "CF-F1, CF-F2, CF-F4 and CF-F8 remain with their named owners, CF-F9 with P2CG1H, and CF-F5 is closed; none names a P2CG1G2A leaf.",
+      "requiredChecks": {
+        "wording": "**CF-H12 (required checks) - figures updated.** 32 check runs on a5b4a56a, identical multiset to 59c1fa72 and B-F, all success; protection unchanged. Verify by name on G2's exact head.",
+        "round1Wording": "**CF-H12 (required checks).** 32 check runs on 59c1fa72, all success, names identical to B-F; protection `[\"Lint and Test\"]`, strict false, conversation resolution required, 0 approvals; `pr-checks.yml` blob a82fe0f7 unchanged. Verify all 32 names by name on G2's exact head.",
+        "checkRunsRow": "**Required checks (CF-H12).** 32 check runs on a5b4a56a (API `total_count` 32; my first read at the default page size showed 30, a paging artefact), all `completed/success`; the name/status/conclusion multiset is identical to the 32 on 59c1fa72 (and therefore to B-F); `Lint and Test` present. Protection unchanged: contexts `[\"Lint and Test\"]`, strict false, conversation resolution required, 0 approvals.",
+        "jobNames": [
+          "Detect Changes",
+          "Install Dependencies",
+          "Lint",
+          "Format Check",
+          "Validate Roadmap Ledger",
+          "Type Check",
+          "Unit Tests (1/6)",
+          "Unit Tests (2/6)",
+          "Unit Tests (3/6)",
+          "Unit Tests (4/6)",
+          "Unit Tests (5/6)",
+          "Unit Tests (6/6)",
+          "Perf Smoke Tests",
+          "Statistical Proof PR",
+          "Perf Budget PR",
+          "Coverage Floor",
+          "A11y Tests",
+          "Validate BV Parity",
+          "Validate Combat Suite",
+          "Build Storybook",
+          "Schema Bridge",
+          "Determinism Audit",
+          "E2E Smoke",
+          "Seam Anchors",
+          "Customizer Regressions",
+          "Desktop Type Check",
+          "Desktop Tests",
+          "Lint and Test",
+          "Prepare Build Artifacts",
+          "Build Test / linux",
+          "Build Test / mac",
+          "Build Test / win"
+        ],
+        "source": ".github/workflows/pr-checks.yml (blob a82fe0f72c613ed0f5fa87078c568ffc69f0aff0, identical at P2CG1F head 66240745, P2CG1F merge fd9891e1, baseline 54764673, round-1 head 59c1fa72, head a5b4a56a, merge 68eb6072 and closure base 1aa4ea47). The 32 check-run names on a5b4a56a equal, one to one, the 32 names recorded for P2CG1F (successorNotes.P2CG1G1.requiredChecks.jobNames in evidence/p2cg1f-review-20261018.json)."
+      },
+      "openNotes": [
+        {
+          "id": "G1-DOC-2",
+          "label": "Root",
+          "concern": "P2CG1G1 behaviour text omits the cursor-watermark heard semantics, the remount re-projection, the CF-H1 cut and the CF-H3 \"not behind\" continuation",
+          "travelsTo": "parent (separate documentary PR) for the behaviour text",
+          "relatedDocumentaryDefect": "G1-DOC-2",
+          "source": "evidence/p2cg1g1-source-fable-review-20261018.txt section 8",
+          "note": "The registered P2CG1G1 behaviour text (as amended by #2236) says the consumer \"remembers transports that already delivered a campaign frame\" and that a host rebind on a live bound transport continues the lineage. It does not name four behaviours the merged head ships: (1) the cursor-watermark heard semantics the admission receipt's heardSemantics chose (a transport counts as heard only while the campaign frames it dispatched reached an active binding and its cursor has not moved since; round 1 section 8 G1-DOC-2 and section 2 item 5); (2) the remount re-projection of a continued fold onto the campaign store at bind (R2; round 1 section 6 item 1 accepts it); (3) the CF-H1 cut, which Root required in lane: a live binding disposed with an offer still settling marks its transport cut, and the next active binding on that transport rejoins at once (round 2 section 2); and (4) the CF-H3 \"not behind\" continuation: a lineage continues only when its fold's lastSequence is not behind transport.lastSeq() (round 2 section 3). A parent documentary correction of P2CG1G1's behaviour text follows as a separate PR, as #2230 did for E-DOC-1 and #2236 did for F-DOC-1. This closure does not edit P2CG1G1's behaviour text (own-lifecycle authority does not cover it); the correction is documentary and changes no reviewed behaviour or proof recorded here."
+        },
+        {
+          "id": "G1-DOC-1/G1-DOC-3",
+          "label": "Root",
+          "concern": "red-receipt runtime line and the undisclosed admission hook skip",
+          "travelsTo": "recorded in the local receipt (reviewFollowUp); nothing further",
+          "relatedDocumentaryDefect": "G1-DOC-1, G1-DOC-3",
+          "source": "evidence/p2cg1g1-source-fable-review-20261018.txt section 8; evidence/p2cg1g1-source-fable-review-r2-20261018.txt section 1 item 11",
+          "note": "G1-DOC-1 (the red receipt's runtime.node v24.15.0 is the receipt-writing script's process.version; every Jest run, RED included, prepended the v22.22.0 path) and G1-DOC-3 (the admission commit a62fc69c was made with core.hooksPath=NUL; the pre-commit lint-staged matchers cover no JSON path) were ruled to the local receipt and are recorded there under reviewFollowUp, which round 2 section 1 item 11 verified. The historical red receipt is not edited. Nothing further travels."
+        },
+        {
+          "id": "G1-MAIN-1",
+          "label": "Root",
+          "concern": "main moved after the merge (#2239, #2233, #2237, #2240, #2241)",
+          "travelsTo": "recorded in this closure (merge receipt postMerge)",
+          "relatedDocumentaryDefect": null,
+          "source": "git log --first-parent 68eb6072..1aa4ea47",
+          "note": "After the head-guarded merge, main moved by five first-parent merges before this closure: #2239 (969af8de, the P2CG1G2 S3 split amendment) changed P2CG1G1's successors from [P2CG1G2, P2C] to [P2CG1G2A, P2C] and registered P2CG1G2A with predecessor P2CG1G1; #2233 (e52000e3, a gameplay turn-rail fix) touched no ledger file; #2237 (c962217b, the B15 registration) changed units.json and roadmap.json for its own blocked B15 units only, leaving P2CG1G1, P2CG1G2A, reduced P2CG1G2, P2CG1H and PK-p2cg1f-ruling unchanged; #2240 (a104208d) and #2241 (1aa4ea47) are test-only. None touched a P2CG1G1 leaf. This closure is based on 1aa4ea47; the main proof ran on the exact merge 68eb6072. Every P2CG1G1 leaf is byte-identical at 68eb6072 and 1aa4ea47."
+        }
+      ],
+      "travellingRootNotes": "G1-DOC-2 (Root) travels to a separate parent documentary PR for P2CG1G1's behaviour text. G1-DOC-1 and G1-DOC-3 are recorded in the local receipt. G1-MAIN-1 is recorded here and in the merge receipt. H-OPEN-1 (Root) stays recorded under successorNotes.P2CG1H in evidence/p2cg1d-review-20261017.json and travels to P2CG1H.",
+      "state": "P2CG1G2A moves from blocked to planned in this change set (successorRelease). Its behaviour text, leaves and every other field are not edited."
+    },
+    "P2CG1G2": {
+      "carryForwardsDirected": [
+        {
+          "id": "CF-H6",
+          "owner": "P2CG1G2",
+          "recordedAt": "carryForwards.items"
+        },
+        {
+          "id": "CF-H11",
+          "owner": null,
+          "recordedAt": "carryForwards.items"
+        },
+        {
+          "id": "CF-H12",
+          "owner": null,
+          "recordedAt": "carryForwards.items"
+        },
+        {
+          "id": "CF-H16",
+          "owner": "P2CG1G2, which owns the host connect call",
+          "recordedAt": "carryForwards.items"
+        }
+      ],
+      "leafCrossReferences": {
+        "CF-H2": "its owner bracket names the surface, a reduced-P2CG1G2 leaf; the fix lives in campaignHostFoldStore.ts, which reduced P2CG1G2 does not list, so it stays with that leaf's next owner",
+        "CF-H14": "reduced P2CG1G2 binds creators but makes no consumer edit; if it adds a mount that gates on projected state, CF-H14 must be closed by the consumer's next owner first, as the review says"
+      },
+      "applies": "Recorded for reduced P2CG1G2, a non-immediate successor (behind P2CG1G2A). It stays blocked and is not edited or released here. CF-H16 matches its registered behaviour text (both connected-surface connectStoredCampaignSyncTransport calls bind expectedCampaignId); CF-H6 asks it to pin the legacy-server variant of W1; CF-H11 asks it to record lint and cycle figures on its leaves; CF-H12 asks it to verify the 32 names by name on its exact head."
+    },
+    "P2CG1H": {
+      "carryForwardsDirected": [
+        {
+          "id": "CF-H8",
+          "owner": "bindCampaignSyncConnection.test.ts owner or P2CG1H",
+          "recordedAt": "carryForwards.items"
+        }
+      ],
+      "deadlinesAtOrBeforeH": [
+        {
+          "id": "CF-H7",
+          "owner": "consumer owner, at or before P2CG1H",
+          "recordedAt": "carryForwards.items"
+        },
+        {
+          "id": "CF-H14",
+          "owner": "next owner of useCampaignApplicationConsumer.ts; before any mount that gates on projected state, and in any case at or before P2CG1H",
+          "recordedAt": "carryForwards.items"
+        }
+      ],
+      "priorNotes": "H-OPEN-1, CF-E1, CF-E5 and CF-E6 remain recorded in evidence/p2cg1d-review-20261017.json, CF-F9 in evidence/p2cg1e-review-20261018.json and CF-G5 (now CF-H8) in evidence/p2cg1f-review-20261018.json; this closure neither restates nor changes them.",
+      "applies": "Recorded for P2CG1H, a non-immediate successor. P2CG1H stays blocked and is not edited or released here. CF-H8 names the next owner of bindCampaignSyncConnection.test.ts or P2CG1H; CF-H7 and CF-H14 must be closed by the consumer's next owner at or before P2CG1H (before activation)."
+    },
+    "note": "Every wording, concern and owner string under carryForwards.items, documentaryDefects, minors, notes and notBinding is a verbatim substring of evidence/p2cg1g1-source-fable-review-20261018.txt (round 1) or evidence/p2cg1g1-source-fable-review-r2-20261018.txt (round 2), checked by the closure generator; statusAfterRound2, directedTo, applies, notBindingG2A, leafCrossReferences, priorCarryForwards, jobNames, source, openNotes, travellingRootNotes and state are closure text. requiredChecks.wording is round 2 section 6 item 12 (CF-H12) and checkRunsRow round 2 section 1 item 9. openNotes are Root text, not reviewer text."
+  },
+  "reviewNotes": "No blocker and no product defect at the merged head. Round 1 CF-H1 (G1-introduced liveness regression in dormant receipt-mode code) was closed in lane before merge; CF-H3 and CF-H4 likewise. Open: CF-H2 (self-healing key disagreement), CF-H5 (one activity predicate), CF-H6 (legacy-server W1 pin, reduced G2), CF-H7 (quiet-window cycle bound, at or before H), CF-H8-CF-H10 (carried CF-G5-CF-G7), CF-H11/CF-H12 (figures), CF-H13 and CF-H17 (optional), CF-H14 (latent spurious cut, at or before H), CF-H15 (same-tick dispose pin) and CF-H16 (bind only a transport bound to the mounted campaign, reduced G2). G1-DOC-2 is a Root open note; G1-DOC-1 and G1-DOC-3 are in the local receipt.",
+  "reservedSlot": "evidence/p2cg1g1-admission-review-20261018.md stays unwritten. The reviewer wrote its audits to docs/audits/2026-10-18-p2cg1g1-review.md and docs/audits/2026-10-18-p2cg1g1-review-r2.md in its detached review worktrees (untracked there); this closure preserves them byte for byte at evidence/p2cg1g1-source-fable-review-20261018.txt and evidence/p2cg1g1-source-fable-review-r2-20261018.txt instead of authoring reviewer text.",
+  "ciQualification": "All 32 check runs on the merged head succeeded (run 39097496338), with no commit statuses. Round 2 section 1 item 9 reads 32 check runs on a5b4a56a, all completed/success, which matches.",
+  "laneB": {
+    "ruledHead": "a5b4a56a8d524cb52ca7122b087d009a6603ac92",
+    "pr": 2238,
+    "commentId": 6246040501,
+    "author": "SwiggitySwerve",
+    "bodySha256": "cddd5c42ac337d1687ddead1a8e8fa860f70e0d072c2a9e0f161560cea448998",
+    "at": "2026-10-18T05:20:03Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2238#issuecomment-6246040501",
+    "bodyPath": "evidence/p2cg1g1-owner-ruling-6246040501.txt"
+  },
+  "ownerRulingNote": "The ruling body names the exact merged head and P2CG1G1: the single retained host fold continued only on the same live bound transport for the same campaign and match, re-projection at remount, the CF-G3 cursor-record window skip in the consumer leaf registered by #2236, the CF-H1 cut (a disposed binding with an unsettled offer marks the transport cut and the next binding rejoins), CF-H3 'not behind' continuation and the CF-H4 unbound-reset pin. It is dormant because no shipped creator sets expectedCampaignId and the wire bytes are unchanged. Review classes are authority, privacy, replay, idempotency and concurrency. It records both independent reviews by Claude Fable 5.1 high with their sha256 values (round 1 at 59c1fa72 APPROVE-WITH-NOTES; round 2 at this exact head APPROVE), the 13/15 and 353/500 census, product unchanged at RED with no test byte changed after RED, the C3 inversion ruled acceptable, the cut design, the re-runs, 6 of 10 round-2 mutants caught, that CF-H1, H3 and H4 are closed and CF-H2, H5-H10, H13 and H14-H17 carry to G2A and G2 and their named owners, and that G1-DOC-2 is recorded at closure. It records CI 32/32 and approves merging this exact head. The comment states its authorization: the owner's chat instruction in T3 thread 6db2c314-6cd3-40c5-8fbd-7c42bc27ed35 on 2026-10-17, quoted in the comment, under which Root posts OWNER-RULING comments for sensitive units. It is transcribed verbatim.",
+  "chronology": "The owner ruling was posted at 2026-10-18T05:20:03Z, before the head-guarded merge at 2026-10-18T05:20:13Z (10 seconds later). This records a premerge ruling on the exact merged head.",
+  "identityScope": "Preserves the existing unversioned P2CG1G1 evidence and the actual cross-model review provenance. No v2/v3 identity manifest or engine observation is claimed.",
+  "githubApproval": "Lane A engineering evidence only; no GitHub approval claimed.",
+  "successorRelease": {
+    "label": "successor release",
+    "scope": "Separate from the P2CG1G1 closure. This change set also releases P2CG1G2A (successor release). No other field of P2CG1G2A changes and no other unit is released; reduced P2CG1G2, P2CG1R, P2CG1S, P2CG1H, P2C and every other unit stay as they are.",
+    "release": {
+      "unit": "P2CG1G2A",
+      "field": "state",
+      "from": "blocked",
+      "to": "planned",
+      "basis": "P2CG1G2A's only predecessor, P2CG1G1, is main-verified in this same change set with a genuine exact-main mainProof PASS at 68eb607212a099a6a707a59be6bc8654064e8534, as P2CG1G2A.admissionRequires demands. P2CG1G1 has no task keys, so its tick stays null. P2CG1G1's successors on main are [P2CG1G2A, P2C] since #2239, so P2CG1G2A, not reduced P2CG1G2 (whose predecessor is P2CG1G2A), is the unit this closure releases. This is the standard on which P2CG1F (#2229) and P2CG1G1 (#2235) were released.",
+      "permission": "Release to planned only. Selection is not admission. P2CG1G2A source work still requires its own normal finite admission at its own baseline (containing 68eb6072, 969af8de and this closure), with the remeasure on actual post-G1 main its registration requires and the one-product-writing-lane rule (no source admission while any other unit is in flight). CF-H12 (verify all 32 check names by name on the exact head) applies to it; no other open CF-H item names a P2CG1G2A leaf. CF-H6, CF-H11, CF-H12 and CF-H16 bind reduced P2CG1G2, which stays blocked; CF-H8 is H-directed; the rest stay with the named owners the review gives."
+    }
+  }
+}

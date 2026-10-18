@@ -7063,7 +7063,24 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g1-admission-20261018.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g1-admission-review-20261018.md",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g1-red-20261018.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g1-local-20261018.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g1-local-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g1-source-fable-review-20261018.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g1-source-fable-review-r2-20261018.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g1-owner-ruling-6246040501.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g1-review-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g1-merge-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-68eb6072-tests.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-68eb6072-leaves.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-68eb6072-selector.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-68eb6072-p2cg1f.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-68eb6072-p2cg1e.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-68eb6072-p2cg1d.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-68eb6072-p2cg1c.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-68eb6072-p2cg1b.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-68eb6072-predecessors.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-68eb6072-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-68eb6072-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g1-mainproof-20261018.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -7078,10 +7095,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "implementing",
+      "state": "main-verified",
       "baseline": "54764673b3eb8aaa9759bfc919461640f7e360b6",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "a5b4a56a8d524cb52ca7122b087d009a6603ac92",
+      "mergeSha": "68eb607212a099a6a707a59be6bc8654064e8534",
       "stageReceipts": {
         "admission": {
           "path": "evidence/p2cg1g1-admission-20261018.json"
@@ -7092,9 +7109,27 @@
         "local": {
           "path": "evidence/p2cg1g1-local-20261018.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/p2cg1g1-review-20261018.json",
+          "head": "a5b4a56a8d524cb52ca7122b087d009a6603ac92",
+          "reviewedHead": "a5b4a56a8d524cb52ca7122b087d009a6603ac92",
+          "reviewerModel": "claude-fable-5-1",
+          "implementerModel": "claude-opus-5-5",
+          "outputSha256": "1be03fca615b1ef567d9eb79ddc0d22ed0a21f8828d0b14fd5ae7b144cc05e14",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/p2cg1g1-merge-20261018.json",
+          "pr": 2238,
+          "head": "a5b4a56a8d524cb52ca7122b087d009a6603ac92",
+          "mergeSha": "68eb607212a099a6a707a59be6bc8654064e8534"
+        },
+        "mainProof": {
+          "path": "evidence/p2cg1g1-mainproof-20261018.json",
+          "mergeCommit": "68eb607212a099a6a707a59be6bc8654064e8534",
+          "verdict": "PASS",
+          "runtime": "Source/Main Jest: Tests:       735 passed, 735 total"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -7139,7 +7174,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -16269,6 +16304,44 @@
         "commentId": 6244750389,
         "author": "SwiggitySwerve",
         "bodySha256": "c68bd921ab3a491fea9dd357608a97a8868747ac18dcf9c2a51e4baa7846ac81"
+      }
+    },
+    {
+      "id": "PK-p2cg1g1-ruling",
+      "blocks": [
+        "P2CG1G1"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "After independent exact-head review across its five sensitive classes and required green CI, should the owner rule the bounded P2CG1G1 head (surface preparation for creator binding, still legacy on the wire: one module-scoped GM fold lineage in campaignHostFoldStore.ts continued only on the same live bound transport for the same campaign and match and only when not behind the transport cursor (CF11/M2, CF-H3), re-projected at remount; the surface's refusal, projection and proposal helpers extracted to campaignCoopSurfaceHelpers.ts (m13); the three fixture fakes carrying the mounted campaignId without confirmApplied (CF-G11); the consumer's cursor-record skip of the pre-receipt window on a heard transport (CF-G3, amendment #2236) and its cut mark, by which a binding disposed with an offer still settling makes the next binding rejoin (CF-H1, required in lane after the round-1 review); all dormant because no shipped creator binds expectedCampaignId and the wire bytes are unchanged) before guarded merge?",
+      "options": [
+        {
+          "label": "rule the exact source head",
+          "consequence": "Permit guarded P2CG1G1 merge and exact-main proof only; with no bound creator the store never continues and the consumer never arms or cuts, and P2CG1G2A may be released to planned only after that proof, with the review carry-forwards recorded for G2A, reduced G2 and the named owners. The behaviour-text omissions (G1-DOC-2) are recorded at closure, with the correction made by a separate parent documentary change; G1-DOC-1 and G1-DOC-3 are recorded in the local receipt.",
+          "effort": "Two independent exact-head review rounds across authority, privacy, replay, idempotency and concurrency (the second on the follow-up head), evidence check and owner ruling"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Hold merge until the concrete authority, privacy, replay, idempotency, concurrency or proof objections are fixed and fresh exact-head review, CI and owner ruling are complete.",
+          "effort": "Bounded by the concrete review objections"
+        }
+      ],
+      "agentRecommendation": "Rule only an independently approved green exact head that meets all of these: product byte-identical at each RED commit and no test byte changed after it; a lineage continues only on the same registered bound transport, campaign and match and never when behind the cursor, and a replacement transport or another campaign starts from EMPTY; a continued lineage certifies nothing it did not apply and every residual withholds or restarts ACKs rather than advancing one; a cut transport is rejoined by the next binding and its replacement starts from EMPTY; the helpers are behaviour-identical extractions; the fixture fakes stay inactive; and without a bound creator production behaviour and wire bytes are unchanged. This proposal grants no approval or merge permission.",
+      "revertCost": "Low: revert the four product leaves (two new) and the four test leaves; P2CG1G1 changes no Protocol type, transport, binder, registry, server.js composition or client creator, and no shipped creator binds expectedCampaignId, so production already takes the unbound path where the store never continues and the consumer never arms or cuts.",
+      "decision": {
+        "option": "rule the exact source head",
+        "at": "2026-10-18T05:20:03Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2238#issuecomment-6246040501"
+      },
+      "ruling": {
+        "ruledHead": "a5b4a56a8d524cb52ca7122b087d009a6603ac92",
+        "pr": 2238,
+        "commentId": 6246040501,
+        "author": "SwiggitySwerve",
+        "bodySha256": "cddd5c42ac337d1687ddead1a8e8fa860f70e0d072c2a9e0f161560cea448998"
       }
     },
     {

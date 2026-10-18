@@ -1,0 +1,322 @@
+{
+  "unit": "P2CG1G1",
+  "stage": "mainProof",
+  "recordedAt": "2026-10-18T05:43:26Z",
+  "mergeCommit": "68eb607212a099a6a707a59be6bc8654064e8534",
+  "verdict": "PASS",
+  "checkout": "E:/Projects/Personal/MekStation-wt/p2cg1g1-closure-20261018",
+  "runtime": {
+    "playwright": "Source/Main Jest: Tests:       735 passed, 735 total",
+    "suites": "48 passed, 48 total",
+    "tsc": "npm run typecheck: exit 0 (TypeScript 7, root and scripts projects)",
+    "node": "v22.22.0",
+    "install": "real npm ci in the checkout at 68eb6072 (1078 packages), Node v22.22.0; package-lock.json unchanged and the worktree clean afterwards",
+    "npmCiLog": {
+      "path": "E:/Projects/Personal/MekStation-wt/_p2cg1g1-closure-logs/npm-ci.log",
+      "sha256": "98930d6f96cad972a23e52f8c1e08fd36b6e91c612874e346d2d3a3bf468f9d4",
+      "bytes": 1195
+    },
+    "jestCache": "private --cacheDirectory=E:/Projects/Personal/MekStation-wt/_p2cg1g1-closure-logs/jest-cache on every jest run"
+  },
+  "machine": "node scripts/qc/machine-idle.mjs --own-pid 47516 ran before each run, and the runner would have waited until it printed MACHINE_IDLE. PID 47516 is the Root-allowed idle server.js. Every reading printed MACHINE_IDLE on the first check, so every run started with no other jest, tsc, oxlint, madge or browser process. The runs were sequential (one heavy run at a time). This closure neither started nor stopped any other process.",
+  "machineLog": {
+    "path": "E:/Projects/Personal/MekStation-wt/_p2cg1g1-closure-logs/idle.log",
+    "sha256": "3ebd957348f5d96a92a56caa70408774dbf1cf138666b9fd29e9096ad52c4f4e",
+    "bytes": 596
+  },
+  "proof": {
+    "path": "evidence/mainproof-68eb6072-tests.bytes.json",
+    "payloadSha256": "3f047ba81c8b5dc5edceeb54065a971cae8aa2beb0d8fc4597a53a6d74b72a1a",
+    "payloadBytes": 490174,
+    "note": "Fresh run at the exact merge HEAD 68eb6072 (the closure worktree detached at the merge, clean, before any closure edit): P2CG1G1's four registered test leaves, P2CG1F's three, P2CG1E's three, P2CG1C's two, P2CG1B's two, P2CG1D's four and the 35 A1/A2 suites, by path in one jest invocation. Five paths are shared and listed once: hostProjection.test.tsx is a G1 and an F leaf, coopMissionCreate.test.ts an E and a C leaf, campaignLaunchAuthorityRoute.test.ts an E leaf and one of the 35, and bindCampaignSyncConnection.test.ts and campaignProgressionReaders.durable.crossGraph.test.ts D leaves and two of the 35; no G1 or F leaf is among the 35 or the E-B leaves. So the run has 48 unique suites. Result: 48 suites, 735/735 = 81 (G1) + 96 (F) + 156 (E) + 54 (C) + 45 (B) + 119 (D) + 388 (the 35) - 161 (the four E-B/35 shared suites, 30 + 60 + 65 + 6, as recorded in evidence/p2cg1e-mainproof-20261018.json) - 43 (hostProjection, 43 cases, as the local receipt's MH mutant rows and round 2 section 5 count). None of the E, D, C, B or 35-suite paths changed between the P2CG1E merge 696f87f4 and 68eb6072; the P2CG1E test leaves equal their 5032b491 blobs, the P2CG1D leaves their bc87e5b3 blobs, the P2CG1B leaves their c0c97c13 blobs and DurableMatchStore.test.ts its ed7fb95b blob; hostRecordRefresh.test.tsx, campaignCommandAckRefresh.test.ts and useCampaignPersistenceStore.ts are unchanged since the P2CG1F merge and equal the P2CG1F local receipt's hashes; and the four G1 product and four G1 test leaves equal the P2CG1G1 local receipt's hashes."
+  },
+  "logs": [
+    {
+      "path": "evidence/mainproof-68eb6072-leaves.bytes.json",
+      "payloadSha256": "d293600e4e72eb6c47050889abd085881d261e141e0ae467d8a2fa61fb54356e",
+      "payloadBytes": 52721,
+      "note": "Fresh run of the four registered test leaves (CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx, CampaignLifecycleGate.test.tsx, GuestProposalSurface.test.tsx, GuestRebuildStaleGate.test.tsx) on the same checkout and HEAD: 4 suites, 81/81."
+    },
+    {
+      "path": "evidence/mainproof-68eb6072-selector.bytes.json",
+      "payloadSha256": "3cf39627150affec688edcaaefe8c4022c51babab9c90be35a6b0053667e6f2f",
+      "payloadBytes": 49111,
+      "note": "Fresh run of the registered Task 14 selector --testPathPattern='campaignLaunchAuthorityRoute|campaignProgressionReaders.durable|CampaignSyncSession' on the same checkout and HEAD, with the pattern passed to node as one argument: 4 suites, 104/104."
+    },
+    {
+      "path": "evidence/mainproof-68eb6072-p2cg1f.bytes.json",
+      "payloadSha256": "1203ff2bf9a8e4510c4d12b5f794c15e4b82b53a9bda47121c25dee4eb455306",
+      "payloadBytes": 45709,
+      "note": "Fresh run of the three P2CG1F test leaves (hostRecordRefresh.test.tsx, hostProjection.test.tsx, campaignCommandAckRefresh.test.ts) on the same checkout and HEAD: 3 suites, 96/96 (hostProjection is also a G1 leaf)."
+    },
+    {
+      "path": "evidence/mainproof-68eb6072-p2cg1e.bytes.json",
+      "payloadSha256": "d166f926c0a34ead2e7dd165d6c967e16288727a509bf3c0a3a2192d2d4d8a59",
+      "payloadBytes": 98887,
+      "note": "Fresh run of the three P2CG1E test leaves (campaignLaunchAuthorityRoute.test.ts, coopMissionCreate.test.ts, campaignSyncTransport.test.ts), unmodified since 5032b491, on the same checkout and HEAD: 3 suites, 156/156."
+    },
+    {
+      "path": "evidence/mainproof-68eb6072-p2cg1d.bytes.json",
+      "payloadSha256": "9fe5623f54bcfef32ac263874ecc391a07c87d3e85fe15e55f0c8833c394dcee",
+      "payloadBytes": 17976,
+      "note": "Fresh run of the four P2CG1D test leaves (bindCampaignSyncConnection.test.ts, CampaignGmArbiter.test.ts, CampaignHostRegistry.test.ts, campaignProgressionReaders.durable.crossGraph.test.ts), unmodified since bc87e5b3, on the same checkout and HEAD: 4 suites, 119/119."
+    },
+    {
+      "path": "evidence/mainproof-68eb6072-p2cg1c.bytes.json",
+      "payloadSha256": "6a8ba30187692aa12668417531e8f9ba1b8913a89258ce462862f25138b0333c",
+      "payloadBytes": 52010,
+      "note": "Fresh run of the two P2CG1C test leaves (DurableMatchStore.test.ts, coopMissionCreate.test.ts), unmodified since the P2CG1E merge, on the same checkout and HEAD: 2 suites, 54/54."
+    },
+    {
+      "path": "evidence/mainproof-68eb6072-p2cg1b.bytes.json",
+      "payloadSha256": "81c878256e413d6794e68766d7cf8f4c437b79ef55dc18af117711b491c5c956",
+      "payloadBytes": 963,
+      "note": "Fresh run of the two P2CG1B test leaves (JournalCampaignEventStore.test.ts, CampaignMatchHost.pipeline.test.ts), unmodified, on the same checkout and HEAD: 2 suites, 45/45."
+    },
+    {
+      "path": "evidence/mainproof-68eb6072-predecessors.bytes.json",
+      "payloadSha256": "59665e6d3af6b2760f9c4d96b0c30ce1136956fd1ae2e3212a4dac0c490ccfe9",
+      "payloadBytes": 382015,
+      "note": "Fresh run of the 35 A1/A2 suites by path on the same checkout and HEAD: 35 suites, 388/388."
+    },
+    {
+      "path": "evidence/mainproof-68eb6072-typecheck.bytes.json",
+      "payloadSha256": "ebcceaacf302d43a8153193fe733d48d37fd796188e9dbab92aba67814b883a4",
+      "payloadBytes": 409,
+      "note": "Fresh typecheck on the same checkout and HEAD."
+    },
+    {
+      "path": "evidence/mainproof-68eb6072-validator.bytes.json",
+      "payloadSha256": "fb9893f313fd2b7764df08843c1b1d305d791b3cc0307940f00706263ca37da9",
+      "payloadBytes": 458,
+      "note": "Fresh validator and --next on the unedited ledger at the same HEAD (PASSED; --next U24b, advisory, while P2CG1G1 was still implementing)."
+    }
+  ],
+  "attemptLogs": [
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/red.log",
+      "sha256": "b79b51267079e1fa706425d1911087580d180bad827292ef96d4d52e9b0eb14b",
+      "bytes": 89950,
+      "note": "Author RED run of the four registered suites over baseline product (7510a82a): 4 suites, 76 tests, 73 passed, 3 failed (round 1 section 1 item 3 reproduces the same three titles)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/green.log",
+      "sha256": "0e103ccab24daeedf7b16b46c6396415eb303ad418339860077eb3f8fbccb82e",
+      "bytes": 83660,
+      "note": "Author green run at 59c1fa72 (round-1 head): the four registered suites plus hostRecordRefresh and CampaignDashboardPage.reactivity, 6 suites, 104/104"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/selector.log",
+      "sha256": "30b450748b2f7472a55150605c2c92e718d48afcf4e9ce0405b65dc0cee380e4",
+      "bytes": 99728,
+      "note": "Author Task 14 selector at 59c1fa72: 4 suites, 104/104"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/p2cg1f.log",
+      "sha256": "d810a636a2362336d914ada7c223521905e23b89a5e2e1aca0464a9a20cd6c1b",
+      "bytes": 64038,
+      "note": "Author P2CG1F suites at 59c1fa72: 3 suites, 91/91"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/sweep.log",
+      "sha256": "654c90d8e3a6bb20d93ae06aac4afb24991247c6ad2c654de1d4d79c2e7a380d",
+      "bytes": 226766,
+      "note": "Author co-op sweep at 59c1fa72: 73 suites, 759/759"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/related.log",
+      "sha256": "c10cb9fff32b69628a5a8718c8f27e0cab34d680b945bde5176501bc8df0c381",
+      "bytes": 94846,
+      "note": "Author --findRelatedTests on the four product leaves at 59c1fa72: 16 suites, 158/158"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/typecheck.log",
+      "sha256": "8102a14cf3245ac2b0d67c588affb25efaebfcd3485f9a46a751595d9a774951",
+      "bytes": 358,
+      "note": "Author typecheck at 59c1fa72 (TS7): PASS"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/lint-base.log",
+      "sha256": "1be5785041db856f5d8d8b44487a0036b9eaf121ca7995c94a2a252d35eadba1",
+      "bytes": 81286,
+      "note": "Author lint at baseline 54764673: 0 errors, 87 warnings"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/lint-after.log",
+      "sha256": "f9a8b71a498748fec14a95494a56e01c2643a893c82af067449f8df9401b6cf0",
+      "bytes": 81288,
+      "note": "Author lint at 59c1fa72: 0 errors, 87 warnings, identical location set"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/format.log",
+      "sha256": "725240a9888e17e139fc835fb4602930cca070ef90bd82642e020d4376e1369e",
+      "bytes": 366,
+      "note": "Author format:check at 59c1fa72: PASS (8216 files)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/lint-units.log",
+      "sha256": "60f3271ad1c1e13670b13a3914daf5e9e65001defa14072ccb79b6606bbc9a6c",
+      "bytes": 730,
+      "note": "Author lint:units at 59c1fa72: LINT_UNITS_PASS 17899/17899"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/madge-base.log",
+      "sha256": "4de13a25b70d1e68f5f8c30e7fc555ba625a51cbdf60a087676350f4c2854c00",
+      "bytes": 257266,
+      "note": "Author madge from the surface and consumer at baseline: 1131 files, 172 chains"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/madge-after-same-entries.log",
+      "sha256": "42872adbba71346244a84b2721dddf6b0ab5e7c4d5e097e9219309b15a1e4e2c",
+      "bytes": 257266,
+      "note": "Author madge from the same two entries at 59c1fa72: 1133 files, 172 chains, identical set"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/madge-after.log",
+      "sha256": "0702b1a274374d707f27affbb9708c4bb333e37ffd653d017ab55e0b1b736e03",
+      "bytes": 209826,
+      "note": "Author madge from the four product leaves at 59c1fa72: 1133 files, 169 chains, none through the new modules"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/idle.log",
+      "sha256": "5f5e9359f285866c11273f80989305faeaf50b5a87363b7026e14e202a20fdac",
+      "bytes": 2284,
+      "note": "Author machine-idle log, append-only (the red receipt hashes its 270-byte prefix, round 1 section 1 item 8; the local receipt hashes the full file, which covers the review follow-up runs too)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/census.md",
+      "sha256": "380c61ca760242338b7d30733e1355e67822ed1187eabe713e398c97bf979f56",
+      "bytes": 1793,
+      "note": "Author census: git diff --numstat --no-renames 54764673..HEAD"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/h/red-h.log",
+      "sha256": "fffeec78f5947a2aa4a905ab2bc13cb8850cb26a34bf512956549406b80b9183",
+      "bytes": 114414,
+      "note": "Author review RED at 8dcb9e46 (consumer and store byte-identical to 59c1fa72): 4 suites, 81 tests, 77 passed, 4 failed; first line node -v v22.22.0 (round 2 section 1 item 5)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/h/green-h.log",
+      "sha256": "1a474e2803d3597dc6697e31a55beb9221213c6cfaf29a1091a3f89fc7c5511f",
+      "bytes": 112360,
+      "note": "Author green run at a5b4a56a: the four registered suites plus hostRecordRefresh and CampaignDashboardPage.reactivity, 6 suites, 109/109"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/h/selector.log",
+      "sha256": "e633a2071872cb9509e24d8ed94d77ae237e7efd8d471f28783543838a5d523f",
+      "bytes": 99728,
+      "note": "Author Task 14 selector at a5b4a56a: 4 suites, 104/104"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/h/p2cg1f.log",
+      "sha256": "abdad735497a0290d8df908f2d5a9b61d571f7ed870640684b13d10e0bc1a41c",
+      "bytes": 92768,
+      "note": "Author P2CG1F suites at a5b4a56a: 3 suites, 96/96"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/h/sweep.log",
+      "sha256": "868610af132256a108ab7daa5d443f0359ad68af47ce39477006ef41a2212d75",
+      "bytes": 255464,
+      "note": "Author co-op sweep at a5b4a56a: 73 suites, 764/764"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/h/related.log",
+      "sha256": "be987379f18bfc38aebd864b3c320943b77da0f1a86171d447f39cb735c40481",
+      "bytes": 123516,
+      "note": "Author --findRelatedTests on the four product leaves at a5b4a56a: 16 suites, 163/163"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/h/typecheck.log",
+      "sha256": "8102a14cf3245ac2b0d67c588affb25efaebfcd3485f9a46a751595d9a774951",
+      "bytes": 358,
+      "note": "Author typecheck at a5b4a56a (TS7): PASS (same bytes as typecheck.log)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/h/format.log",
+      "sha256": "85416e90a5ff274a6ee859c903a79a2ad6967052f20395e67d7eb3977a8749e6",
+      "bytes": 366,
+      "note": "Author format:check at a5b4a56a: PASS (8216 files)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/h/lint-units.log",
+      "sha256": "60f3271ad1c1e13670b13a3914daf5e9e65001defa14072ccb79b6606bbc9a6c",
+      "bytes": 730,
+      "note": "Author lint:units at a5b4a56a: LINT_UNITS_PASS 17899/17899"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/h/lint-after.log",
+      "sha256": "f9a8b71a498748fec14a95494a56e01c2643a893c82af067449f8df9401b6cf0",
+      "bytes": 81288,
+      "note": "Author lint at a5b4a56a: 0 errors, 87 warnings (same bytes as lint-after.log)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/h/madge-after-same-entries.log",
+      "sha256": "42872adbba71346244a84b2721dddf6b0ab5e7c4d5e097e9219309b15a1e4e2c",
+      "bytes": 257266,
+      "note": "Author madge, same two entries, at a5b4a56a: 172 chains (same bytes as the 59c1fa72 log)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/h/madge-after.log",
+      "sha256": "0702b1a274374d707f27affbb9708c4bb333e37ffd653d017ab55e0b1b736e03",
+      "bytes": 209826,
+      "note": "Author madge, four product leaves, at a5b4a56a: 169 chains (same bytes as the 59c1fa72 log)"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/mutant-M1.log",
+      "sha256": "da1b6d1c54c068023734e36516c9f7cd1f8b3d88a99741fdef294484b683adc6",
+      "bytes": 70040,
+      "note": "Author mutant M1 (prototype WeakSet semantics), hostProjection at the round-1 bytes: 1 failed / 37 passed"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/mutant-M2.log",
+      "sha256": "dbc90f93b8798ca71e92bfcb391d2246b32424ffb6fe1c8b9e290d9b7eedbf24",
+      "bytes": 79774,
+      "note": "Author mutant M2 (store never continues), hostProjection at the round-1 bytes: 3 failed / 35 passed"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/mutant-M3.log",
+      "sha256": "3ad404cdd3aec14abf146b7203e2360659ccc256a70f8dd11b31cde48735d407",
+      "bytes": 69300,
+      "note": "Author mutant M3 (always arm the window), hostProjection at the round-1 bytes: 1 failed / 37 passed"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/h/mutant-MH1.log",
+      "sha256": "6e725a71efbb3a17c4dbe2736fe660e60d57eaa8966f4620a3e3a9498ff33c69",
+      "bytes": 100572,
+      "note": "Author mutant MH1 (no rejoin at bind on a cut transport) at a5b4a56a: 3 failed / 40 passed"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/h/mutant-MH2.log",
+      "sha256": "9b3aa1ea211144e7139497a39607d4b67a241b2d8dd5472783d8c406c349c46e",
+      "bytes": 100574,
+      "note": "Author mutant MH2 (dispose never marks a transport cut) at a5b4a56a: 3 failed / 40 passed"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/h/mutant-MH3.log",
+      "sha256": "5440f7bb27cc9a528fcb7c6fca5ed667470a69d6590cb0f35f434c2cba8595e5",
+      "bytes": 96546,
+      "note": "Author mutant MH3 (store ignores the cursor) at a5b4a56a: 1 failed / 42 passed"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/h/mutant-MH4.log",
+      "sha256": "a0d8506bf136365eeee4334ae570c64e69df397adf81dac5642e43c410e1d3b1",
+      "bytes": 96576,
+      "note": "Author mutant MH4 (cursor equality instead of not-behind) at a5b4a56a: 1 failed / 42 passed"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/h/mutant-MH5.log",
+      "sha256": "688d60af17d0848083f5aa219d9a27f37ace8d4624cbdf536b577933785dfa99",
+      "bytes": 96346,
+      "note": "Author mutant MH5 (round-1 RM-G1, store continues an unbound transport) at a5b4a56a: 1 failed / 42 passed"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/h/reviewer-fixshape-on-red.log",
+      "sha256": "596a516c9d5ef24258482a18a25da84865944576226bb852ee004489245edb11",
+      "bytes": 100436,
+      "note": "Author measurement of round 1's suggested CF-H1 shape on the review RED head: 3 failed / 40 passed of hostProjection (round 2 reproduces it and withdraws the shape, N-R2-1)"
+    }
+  ],
+  "scope": "Fresh runs at the exact merge commit of the unit's registered proof scope (the four registered suites plus the Task 14 selector), of the P2CG1F, P2CG1E, P2CG1D, P2CG1C and P2CG1B suites and of the 35 A1/A2 predecessor suites, combined and separately, plus typecheck and the validator, with hash references to the author's proof logs. No full-stable, --findRelatedTests, co-op sweep, lint, madge, browser or build result is claimed for main; the author's related and sweep runs and the reviewer's re-runs are on the head, and CI covers the rest.",
+  "closure": "main-verified only. taskKeys is empty; no tasks.md row is ticked and no tick receipt is invented. Source/closure owned-resource cleanup is not established here.",
+  "preservation": "Proof and logs are base64 envelopes so repository LF normalization cannot alter their exact bytes. Decode data and verify payloadSha256/payloadBytes."
+}
