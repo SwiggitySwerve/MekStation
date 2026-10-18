@@ -25,7 +25,13 @@
  * @phase Phase 2 — Single-Player Browser UAT
  */
 
-import { test, expect, type Page, type ConsoleMessage } from '@playwright/test';
+import {
+  test,
+  expect,
+  type Page,
+  type ConsoleMessage,
+  type Response,
+} from '@playwright/test';
 
 // =============================================================================
 // Configuration
@@ -286,9 +292,9 @@ test.describe(
 
 test.describe('Phase 2 — replay viewer', { tag: ['@playtest', '@sp'] }, () => {
   test(
-    'opens the most recent quick-game replay and renders the viewer',
+    'opens the just-persisted quick-game replay and renders the viewer',
     { tag: ['@game', '@smoke', '@playtest'] },
-    async ({ page }) => {
+    async ({ page }, testInfo) => {
       const cap = newErrorCapture();
       cap.attach(page);
 
@@ -297,7 +303,31 @@ test.describe('Phase 2 — replay viewer', { tag: ['@playtest', '@sp'] }, () => 
       await startSetup(page);
       await addUnitsAndProceed(page);
       await setQuickGameScenarioType(page, 'destroy');
-      await generateAndStart(page);
+      // Collect passively while simulation runs; the existing saved-status wait
+      // below bounds persistence without starting an action timer before battle.
+      const saveResponses: Response[] = [];
+      const captureSave = (response: Response) => {
+        if (
+          response.url().endsWith('/api/replay-library/quick') &&
+          response.request().method() === 'POST'
+        )
+          saveResponses.push(response);
+      };
+      page.on('response', captureSave);
+      try {
+        await generateAndStart(page);
+      } finally {
+        page.off('response', captureSave);
+      }
+      const saveResponse = saveResponses.at(-1);
+      expect(saveResponse).toBeDefined();
+      if (!saveResponse)
+        throw new Error('Quick Game did not send a replay save');
+      expect(saveResponse.status()).toBe(200);
+      const saved = (await saveResponse.json()) as {
+        manifestEntry: { id: string; bvTotal: number };
+      };
+      expect(saved.manifestEntry.id).toBeTruthy();
 
       // Replay Library
       await page.goto('/replay-library', { waitUntil: 'domcontentloaded' });
@@ -311,14 +341,33 @@ test.describe('Phase 2 — replay viewer', { tag: ['@playtest', '@sp'] }, () => 
         await filterQuick.click();
       }
 
-      // Watch the first row. `generateAndStart` waits for the saved status, so
-      // an empty quick replay list is now a real persistence or routing defect.
-      const watchBtn = page.locator('[data-testid^="replay-watch-"]').first();
+      const watchBtn = page.getByTestId(
+        `replay-watch-${saved.manifestEntry.id}`,
+      );
       await expect(
         watchBtn,
-        'Expected a quick-game replay watch button after seeding a saved quick replay.',
+        'Expected the exact quick game saved by this test in the library.',
       ).toBeVisible({ timeout: 15_000 });
+      const loadResponsePromise = page.waitForResponse((response) =>
+        response
+          .url()
+          .endsWith(`/api/replay-library/quick/${saved.manifestEntry.id}`),
+      );
       await watchBtn.click();
+      const loadResponse = await loadResponsePromise;
+      expect(loadResponse.status()).toBe(200);
+      const loaded = (await loadResponse.json()) as {
+        events: {
+          type: string;
+          payload: { quickMeta?: { bvTotal: number } };
+        }[];
+      };
+      expect(loaded.events.length).toBeGreaterThan(0);
+      expect(saved.manifestEntry.bvTotal).toBeGreaterThan(0);
+      expect(
+        loaded.events.find((event) => event.type === 'game_created')?.payload
+          .quickMeta?.bvTotal,
+      ).toBe(saved.manifestEntry.bvTotal);
 
       // QuickGameReplayPanel mounts. The key contract: timeline + back-to-library.
       await expect(page.getByTestId('back-to-library')).toBeVisible({
@@ -330,6 +379,21 @@ test.describe('Phase 2 — replay viewer', { tag: ['@playtest', '@sp'] }, () => 
       // anchor on the root is the stable assertion.
       await expect(page.getByTestId('quickgame-replay-panel')).toBeVisible({
         timeout: 15_000,
+      });
+      await expect(page.getByTestId('replay-controls')).toBeVisible();
+      await testInfo.attach('quick-replay-round-trip', {
+        body: JSON.stringify({
+          gameId: saved.manifestEntry.id,
+          saveStatus: saveResponse.status(),
+          loadStatus: loadResponse.status(),
+          eventCount: loaded.events.length,
+          bvTotal: saved.manifestEntry.bvTotal,
+        }),
+        contentType: 'application/json',
+      });
+      await testInfo.attach('quick-replay-viewer', {
+        body: await page.screenshot({ fullPage: true }),
+        contentType: 'image/png',
       });
 
       const critical = cap.critical();

@@ -80,6 +80,8 @@ export interface IGameCreatedPayload {
    * manifest from disk.
    */
   readonly encounterMeta?: IEncounterMeta;
+  /** Recorded Quick Game force BV, retained for Replay Library index rebuilds. */
+  readonly quickMeta?: { readonly bvTotal: number };
   /**
    * Per `add-scenario-objective-engine`: scenario objective markers
    * placed at generation time, keyed by canonical `"q,r"` hex key.

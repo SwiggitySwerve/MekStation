@@ -180,9 +180,8 @@ this change is a type annotation and does not change the captured runtime behavi
 
 Under the updated Root ruling, integration rebases onto Main
 `1e0a34dc5da4c4051115db828e986ceb5aad2fa0` (#2280), which repairs the historical
-machine-idle Jest/typecheck detection gap. #2278's replay fixture-root change awaits
-its independent review and will require a later rebase when Root supplies its merge
-SHA. Lane C's proposed workflow patch is now available and is folded separately,
+machine-idle Jest/typecheck detection gap. #2278's replay fixture-root change was initially pending independent review;
+the subsequent council restack below incorporates its open head. Lane C's proposed workflow patch is now available and is folded separately,
 with its own credited commit and privacy-row proof below.
 
 ## Lane C journal-armed privacy workflow integration
@@ -214,6 +213,29 @@ claim of clean server logs, production cutover, fog, or real GM-seat acceptance;
 no L1 product path was edited. Independent sensitive workflow review found no
 blocking issue in the proposed split.
 
-#2278 is still under independent review. When Root supplies its merge SHA, a
-follow-up rebase must preserve its full-suite
-`MEKSTATION_E2E_REPLAY_FIXTURE_ROOT` absolute standalone path alongside this split.
+#2278 remains under independent review; the council restack below incorporates
+its current head without waiting for merge.
+## Council restack onto open PR #2278
+
+Per Root's council merge order (#2282, #2278, #2279), merged #2278 head
+`60e4b54cb91a80ba2ad7e395baf2f914cfa40b54` into this branch without waiting for
+its merge. The only conflict was the full-suite workflow step: it now retains
+both the absolute `${{ github.workspace }}/.next/standalone` replay fixture root
+and the E2E-19/25 exclusion. The armed privacy step needs no replay fixture root.
+Review this lane against that #2278 head; earlier #2280 base changes remain
+inherited integration differences, not new lane-owned fixes.
+
+Focused restack checks: unique-key YAML parsing and assertions covering both
+workflow arms, separate artifacts, production recapture build and always-upload
+all PASS; two-quarantine CLI smoke exits 0 and retains both entries with
+`status: QUARANTINED` and `ok: false`. No generators or browser runs were invoked.
+The machine-idle gate reported baseline-f Jest workers, so no overlapping Jest,
+build or Playwright process was started. Previous full recapture, Jest and browser
+proofs remain recorded above. The prior pushed head `47d2f1c13` completed all 32
+CI checks successfully; Root owns the new head's CI watch and independent review.
+The merge commit's generic pre-commit hook selected inherited #2278 TypeScript
+files and started a whole-repository typecheck. That hook-owned process tree was
+stopped to avoid continued overlap; lint-staged restored its original state.
+The restack commit bypasses this hook only, with the focused workflow/CLI checks
+above as local proof and the new head's full CI assigned to Root. No typecheck
+PASS is claimed for this restack and no lint/typecheck policy file was changed.

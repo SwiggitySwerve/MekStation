@@ -11,10 +11,12 @@
  * `process.versions.node` is set under jest.
  */
 
-import { mkdtemp, readdir, readFile, rm } from 'node:fs/promises';
+import { sha256 } from 'js-sha256';
+import { mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
+import { loadReplayLibraryNdjson } from '@/lib/events/replay/ReplayLibraryLoadPipeline';
 import {
   GameEventType,
   GamePhase,
@@ -258,7 +260,88 @@ describe('persistQuickGame (Node env)', () => {
     expect(saved[0].payload.quickMeta.bvTotal).toBe(3909);
     expect(result.manifestEntry?.bvTotal).toBe(3909);
     expect(JSON.stringify(events)).toBe(before);
+    const raw = await readFile(result.path!, 'utf8');
+    const loaded = loadReplayLibraryNdjson(raw, `quick/${FIXTURE_GAME_ID}`);
+    expect(loaded.kind).toBe('loaded');
+    if (loaded.kind !== 'loaded') throw new Error(JSON.stringify(loaded));
+    expect(loaded.events).toEqual(saved);
+    expect(loaded.sourceDigest).toBe(sha256(raw));
+    expect(await readFile(result.path!, 'utf8')).toBe(raw);
   });
+
+  it('loads already-written #2134 quickMeta history without migrating its bytes', async () => {
+    const created = gameCreatedEvent([]);
+    const retained = {
+      ...created,
+      replaySource: ReplaySource.Quick,
+      payload: { ...created.payload, quickMeta: { bvTotal: 3909 } },
+    };
+    // Noncanonical whitespace and trailing newline must remain evidence bytes.
+    const raw = ` ${JSON.stringify(retained)} \n`;
+    const filePath = path.join(cwd, 'retained-quick.jsonl');
+    await writeFile(filePath, raw);
+    const loaded = loadReplayLibraryNdjson(
+      await readFile(filePath, 'utf8'),
+      'quick/retained',
+    );
+    expect(loaded.kind).toBe('loaded');
+    if (loaded.kind !== 'loaded') throw new Error(JSON.stringify(loaded));
+    expect(loaded.events).toEqual([retained]);
+    expect(loaded.sourceDigest).toBe(sha256(raw));
+    expect(await readFile(filePath, 'utf8')).toBe(raw);
+    expect(
+      buildQuickManifestEntry({
+        gameId: FIXTURE_GAME_ID,
+        events: loaded.events,
+        winner: null,
+        aiVariant: 'normal',
+      }).bvTotal,
+    ).toBe(3909);
+  });
+
+  it.each([
+    null,
+    [],
+    {},
+    { bvTotal: '3909' },
+    { bvTotal: -1 },
+    { bvTotal: null },
+    { bvTotal: 3909, unrecorded: true },
+  ])(
+    'blocks the whole persisted history for invalid quickMeta %j',
+    async (quickMeta) => {
+      const created = gameCreatedEvent([]);
+      const result = await persistQuickGame({
+        gameId: FIXTURE_GAME_ID,
+        // Deliberately model malformed persisted input at the untrusted boundary.
+        events: [
+          {
+            ...created,
+            payload: { ...created.payload, quickMeta },
+          } as unknown as IGameEvent,
+          turnStartedEvent(1, 1),
+        ],
+        winner: null,
+        aiVariant: 'normal',
+        cwd,
+      });
+      const raw = await readFile(result.path!, 'utf8');
+      const loaded = loadReplayLibraryNdjson(raw, `quick/${FIXTURE_GAME_ID}`);
+      expect(loaded.kind).toBe('blocked');
+      if (loaded.kind !== 'blocked')
+        throw new Error('Expected blocked history');
+      expect(loaded.blockedLines).toEqual([
+        expect.objectContaining({
+          line: 1,
+          reason: 'invalid-payload',
+          eventType: 'game_created',
+          evidenceDigest: sha256(raw.split('\n')[0]),
+        }),
+      ]);
+      expect(loaded).not.toHaveProperty('events');
+      expect(await readFile(result.path!, 'utf8')).toBe(raw);
+    },
+  );
 
   it('writes the event log to simulation-reports/quick/<gameId>.jsonl', async () => {
     const events: IGameEvent[] = [

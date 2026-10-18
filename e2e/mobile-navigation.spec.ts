@@ -275,14 +275,12 @@ test.describe('Hamburger Menu Button Position (Right-Hand Ergonomics)', () => {
     const menuButton = page.getByRole('button', {
       name: /open menu/i,
     });
-    const buttonBox = await menuButton.boundingBox();
-
-    expect(buttonBox).not.toBeNull();
-    if (buttonBox) {
-      // Touch target should be at least 44x44 (accounting for padding)
-      expect(buttonBox.width).toBeGreaterThanOrEqual(40);
-      expect(buttonBox.height).toBeGreaterThanOrEqual(40);
-    }
+    await expect
+      .poll(async () => (await menuButton.boundingBox())?.width ?? 0)
+      .toBeGreaterThanOrEqual(44);
+    await expect
+      .poll(async () => (await menuButton.boundingBox())?.height ?? 0)
+      .toBeGreaterThanOrEqual(44);
   });
 });
 
