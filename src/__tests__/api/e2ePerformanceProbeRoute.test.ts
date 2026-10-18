@@ -77,26 +77,32 @@ describe('e2e performance probe route', () => {
   it.each([
     ['outside e2e mode', () => (process.env.NEXT_PUBLIC_E2E_MODE = 'false')],
     ['with no run token armed', () => delete process.env.PLAYWRIGHT_E2E_RUN_ID],
-  ])('answers 404 %s', (_label: string, arrange: () => unknown) => {
+  ])('answers 404 %s', async (_label: string, arrange: () => unknown) => {
     arrange();
     const { res, record } = stubRes();
-    handler(req({ method: 'GET', headers: { [RUN_ID_HEADER]: RUN_ID } }), res);
+    await handler(
+      req({ method: 'GET', headers: { [RUN_ID_HEADER]: RUN_ID } }),
+      res,
+    );
     expect(record.status).toBe(404);
   });
 
-  it('answers 404 for a different run token', () => {
+  it('answers 404 for a different run token', async () => {
     const { res, record } = stubRes();
-    handler(
+    await handler(
       req({ method: 'GET', headers: { [RUN_ID_HEADER]: 'another-run' } }),
       res,
     );
     expect(record.status).toBe(404);
   });
 
-  it('reports a paired clock reading and this process memory', () => {
+  it('reports a paired clock reading and this process memory', async () => {
     const { res, record } = stubRes();
     const before = Date.now();
-    handler(req({ method: 'GET', headers: { [RUN_ID_HEADER]: RUN_ID } }), res);
+    await handler(
+      req({ method: 'GET', headers: { [RUN_ID_HEADER]: RUN_ID } }),
+      res,
+    );
     expect(record.status).toBe(200);
     const body = record.body as {
       readonly success: boolean;
@@ -113,13 +119,13 @@ describe('e2e performance probe route', () => {
     expect(body.memory.heapUsed).toBeGreaterThan(0);
   });
 
-  it('refuses a non-GET method and still answers GET', () => {
+  it('refuses a non-GET method and still answers GET', async () => {
     // THE METHOD GUARD IS LOAD-BEARING, not decoration. Without it a
     // POST is answered with the probe body - and a route that responds
     // to any verb is a wider seam than the one this file argues is
     // safe, in a build where the e2e guard is open by definition.
     const posted = stubRes();
-    handler(
+    await handler(
       req({ method: 'POST', headers: { [RUN_ID_HEADER]: RUN_ID } }),
       posted.res,
     );
@@ -131,14 +137,14 @@ describe('e2e performance probe route', () => {
     // 200 - otherwise the row above could pass because the handler
     // refuses everything, which proves nothing about the method guard.
     const fetched = stubRes();
-    handler(
+    await handler(
       req({ method: 'GET', headers: { [RUN_ID_HEADER]: RUN_ID } }),
       fetched.res,
     );
     expect(fetched.record.status).toBe(200);
   });
 
-  it('reads its two stamps from DIFFERENT clocks', () => {
+  it('reads its two stamps from DIFFERENT clocks', async () => {
     // WHY THIS MATTERS, and why a same-clock pair would be silently
     // wrong rather than loudly wrong. The performance pack takes ONE
     // paired reading here and derives a single offset from it; each
@@ -159,7 +165,7 @@ describe('e2e performance probe route', () => {
     // three orders apart. The /100 margin holds unless the host has
     // been up for roughly 566 years.
     const first = stubRes();
-    handler(
+    await handler(
       req({ method: 'GET', headers: { [RUN_ID_HEADER]: RUN_ID } }),
       first.res,
     );
@@ -175,7 +181,7 @@ describe('e2e performance probe route', () => {
     let elapsed = 0;
     while (elapsed < 5) elapsed = Date.now() - startedAt;
     const second = stubRes();
-    handler(
+    await handler(
       req({ method: 'GET', headers: { [RUN_ID_HEADER]: RUN_ID } }),
       second.res,
     );
@@ -241,9 +247,9 @@ describe('e2e performance probe route', () => {
       expect(await probeConvergence('match-unknown')).toBeNull();
     });
 
-    it('omits convergence when no match is named', () => {
+    it('omits convergence when no match is named', async () => {
       const { res, record } = stubRes();
-      void handler(
+      await handler(
         req({ method: 'GET', headers: { [RUN_ID_HEADER]: RUN_ID } }),
         res,
       );
