@@ -169,7 +169,7 @@ Campaign history, participant cursors, and projection head SHALL be durable acro
 
 ### Requirement: Co-op Entry Credential Choice and Recovery
 
-Each browser profile SHALL choose whether it joins co-op with the primary vault identity or one operator-managed local seat, persisting only that public choice. The chosen principal SHALL pass the existing membership and owner checks; the choice SHALL NOT grant membership, ownership or GM role and SHALL NOT occupy or change a match seat. Passwords and private keys SHALL NOT be persisted in the browser. Renewal and expired-token recovery SHALL prompt for the password of the credential the profile joined with and SHALL refuse to replace the stored bearer with a different principal.
+Each browser profile SHALL choose whether it joins co-op with the primary vault identity or one operator-managed local seat, persisting only that public choice and the ordinary bearer in the existing per-match session store. The chosen principal SHALL pass the existing membership and owner checks; the choice SHALL NOT grant membership, ownership or GM role and SHALL NOT occupy or change a match seat. Passwords and private keys SHALL NOT be persisted in the browser. Renewal and expired-token recovery SHALL prompt for the password of the credential the profile joined with and SHALL refuse to replace the stored bearer with a different principal. An explicit user action SHALL clear the stored credential choice and the stored bearer; a cleared profile re-joins as a fresh principal through ordinary admission, and a recovery refusal SHALL direct the user to that action rather than replacing the bearer.
 
 #### Scenario: Two players and a non-playing GM on one loopback authority
 
@@ -183,6 +183,12 @@ Each browser profile SHALL choose whether it joins co-op with the primary vault 
 - **WHEN** the profile re-enters the password of its chosen credential
 - **THEN** a new bearer for the same playerId SHALL replace the expired one and the session SHALL reconnect
 - **AND** a credential that mints a different playerId SHALL be refused without replacing the stored bearer
+
+#### Scenario: Guest re-claims after re-provision
+
+- **GIVEN** a guest whose seat was re-provisioned, so recovery refuses the new playerId
+- **WHEN** the guest takes the explicit clear action and joins again with the new seat password
+- **THEN** the profile SHALL hold only the new principal, which SHALL need ordinary admission, and the old bearer SHALL be gone
 
 #### Scenario: Packaged proof uses shipped UI only
 
