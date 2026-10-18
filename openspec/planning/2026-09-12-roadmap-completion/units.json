@@ -7943,7 +7943,19 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-head-admission-20261018.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-head-red-20261018.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-head-local-20261018.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-head-admission-review-20261018.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-head-admission-review-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-head-source-fable-review-20261018.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-head-owner-ruling-6256509380.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-head-merge-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-head-mainproof-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-8fcd311d5-npm-ci-log.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-8fcd311d5-owned-log.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-8fcd311d5-owned-json.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-8fcd311d5-regression-log.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-8fcd311d5-regression-json.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-8fcd311d5-typecheck-log.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-8fcd311d5-validator-log.bytes.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -7956,10 +7968,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "implementing",
+      "state": "main-verified",
       "baseline": "5a18aa586c519ea3ad122c7b0a03b502ea69a71b",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+      "mergeSha": "8fcd311d5b60951b766fded267ba688f2dae0395",
       "stageReceipts": {
         "admission": {
           "path": "evidence/b14-head-admission-20261018.json"
@@ -7970,9 +7982,27 @@
         "local": {
           "path": "evidence/b14-head-local-20261018.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/b14-head-admission-review-20261018.json",
+          "head": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+          "reviewedHead": "20af77868bde12a3e5530c72121be0182e8482f5",
+          "reviewerModel": "claude-fable-5-1",
+          "implementerModel": "gpt-6.1-sol",
+          "outputSha256": "66a4d9289776ad50e1ac7402062709506862d60a76ecd10eb71baf75d25cb654",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/b14-head-merge-20261018.json",
+          "pr": 2294,
+          "head": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+          "mergeSha": "8fcd311d5b60951b766fded267ba688f2dae0395"
+        },
+        "mainProof": {
+          "path": "evidence/b14-head-mainproof-20261018.json",
+          "mergeCommit": "8fcd311d5b60951b766fded267ba688f2dae0395",
+          "verdict": "PASS",
+          "runtime": "Source/Main Jest: Tests:       2837 passed, 2837 total"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -19441,6 +19471,44 @@
         "commentId": 6255481179,
         "author": "SwiggitySwerve",
         "bodySha256": "3b6feada26f9e7b28733753dc5e7b51e8bfb9367e2e701e3247cf0b39bfa63d9"
+      }
+    },
+    {
+      "id": "PK-b14-head-ruling",
+      "blocks": [
+        "B14-HEAD"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "After the independent sensitive review, Root-diffed test-only fixes and green CI, should the owner accept the exact B14-HEAD source head that refuses fog-on/unknown host journal-head reads after authorization and before any head read?",
+      "options": [
+        {
+          "label": "rule the exact source head",
+          "consequence": "Permit the bounded head-route source merge and exact-main proof; release downstream units only when all their prerequisites are main-verified. Preserve the routed FOG/U26/U38 items.",
+          "effort": "Independent privacy/authority/replay review, mutation proof, CI and exact-head owner ruling"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Hold merge until concrete defects and proof gaps are resolved and the required review and ruling are complete.",
+          "effort": "Bounded by concrete findings"
+        }
+      ],
+      "agentRecommendation": "Accept only the fixed, secret-free 403 after host authorization and before the journal transaction, with no privilege exemption and unchanged known-off behavior. This records the existing owner decision rather than inventing approval.",
+      "revertCost": "Reverting the ten-line route change would reopen the hidden-dependent digest disclosure; no journal schema, event or wire-format migration is involved.",
+      "decision": {
+        "option": "rule the exact source head",
+        "at": "2026-10-18T23:29:13Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2294#issuecomment-6256509380"
+      },
+      "ruling": {
+        "ruledHead": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+        "pr": 2294,
+        "commentId": 6256509380,
+        "author": "SwiggitySwerve",
+        "bodySha256": "e41011b061761e44c8fb53d8771e9bcc4befb81193e65a3f80280f49915881e8"
       }
     },
     {
