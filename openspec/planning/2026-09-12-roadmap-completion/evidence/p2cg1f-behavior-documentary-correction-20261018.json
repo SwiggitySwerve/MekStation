@@ -1,0 +1,374 @@
+{
+  "schemaVersion": 1,
+  "event": "p2cg1f-behavior-documentary-correction",
+  "kind": "parent documentary correction",
+  "unit": "P2CG1F",
+  "node": "R2.authority-live",
+  "documentaryOnly": true,
+  "at": "2026-10-18T03:07:29.177Z",
+  "baseline": "8662af2cef07add6a1eb8b954909a6feafeb3af9",
+  "mainBaseline": "bc7abfc4527e585e45911b5dff7d5ba3ae8773a2",
+  "branch": "codex/p2cg1g1-consumer-leaf-amendment-20261018",
+  "actor": {
+    "role": "implementation sub-agent acting for the parent (Root)",
+    "provider": "openai",
+    "servedModel": "gpt-6.1-sol",
+    "identitySource": "T3 Code Codex harness runtime; this is not independent review",
+    "gitAuthor": "Wes Rollings <wrollings@gmail.com> 1792292849 -0600"
+  },
+  "authority": {
+    "instruction": "Root requested F-DOC-1 as a SECOND separate commit on the same G1 amendment branch/PR, based on merged main after #2235. Change only P2CG1F.behavior plus this new evidence file, preserve main-verified lifecycle; validate, push and open the combined docs-only PR; do not merge.",
+    "precedent": "#2230: evidence/p2cg1e-sessionid-caller-documentary-correction-20261018.json",
+    "documentaryInputs": [
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1e-sessionid-caller-documentary-correction-20261018.json",
+        "bytes": 20777,
+        "sha256": "0c283a437e8a824182bc1fea938063bfd4ea03e7ea5539fbfbc221ebb6501db1"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1f-source-fable-review-20261018.txt",
+        "bytes": 37873,
+        "sha256": "51949e2635b4203fc2bad1814975e908ee288aedf54dc53fbb06f5e88d36f023"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1f-review-20261018.json",
+        "bytes": 64961,
+        "sha256": "8d46f8c14d9795f2f958b9acada925bc9fe4bbde0c250c717512dd155c4d9d49"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+        "bytes": 287419,
+        "sha256": "ffbf3ddcb64008dae16277761d9f1173dda77d614e051a59d0351e879b916a50"
+      }
+    ],
+    "closure": {
+      "pr": 2235,
+      "merged": true,
+      "mergeSha": "bc7abfc4527e585e45911b5dff7d5ba3ae8773a2"
+    }
+  },
+  "defect": {
+    "id": "F-DOC-1",
+    "source": "P2CG1F source Fable review section 8 (documentary defects), corroborated by section 2 items 3/4 and section 6 items 1/2; F closure Root open notes.",
+    "statement": "The behavior text omits F's shipped CF-F3 pre-receipt quiet window and still offers two CF14 options although source took the loadGeneration bump.",
+    "rootOpenNote": {
+      "id": "F-DOC-1",
+      "label": "Root",
+      "concern": "P2CG1F behaviour text omits the CF-F3 quiet window and the CF14 option taken",
+      "travelsTo": "parent (separate documentary PR) for the behaviour text; the CF14 option taken is recorded in this closure",
+      "relatedDocumentaryDefect": "F-DOC-1",
+      "source": "evidence/p2cg1f-source-fable-review-20261018.txt section 8",
+      "note": "The registered P2CG1F behaviour text names CF13, the CF12 consumer half, CF14 (as \"bumps loadGeneration in adoptFlushedRevision, or refuses a guarded adoption whose version is older than baseVersion\") and the m7, m8 and m12 pins, but not the CF-F3 pre-receipt quiet window the unit ships: one APPLICATION_CONFIRMATION_TIMEOUT_MS (60 s) timer armed per bound binding, cleared by the first campaign frame, by rejoin and by dispose, which the admission absorbed from the P2CG1E review carry-forward CF-F3 (review section 2 item 3 and section 6 item 1). Part (b) is recorded here: of the two CF14 options the text offers, P2CG1F took the loadGeneration bump in adoptFlushedRevision, placed after the response.ok, version and envelope-digest proofs (review section 2 item 4 and section 6 item 2, which rules the bump the better of the two); the guarded-adoption refusal was not implemented. For part (a), a parent documentary correction of P2CG1F's behaviour text follows as a separate PR, as #2230 did for E-DOC-1. This closure does not edit P2CG1F's behaviour text (own-lifecycle authority does not cover it); the correction is documentary and changes no reviewed behaviour or proof recorded here."
+    },
+    "method": "Precise reading of unchanged source on merged main and exact documentary replacement; no runtime rerun or activation proof.",
+    "probes": [
+      {
+        "path": "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+        "line": 149,
+        "text": "const active = transport.campaignId === campaignId && confirm !== undefined;"
+      },
+      {
+        "path": "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+        "line": 155,
+        "text": "const quiet = active"
+      },
+      {
+        "path": "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+        "line": 156,
+        "text": "? setTimeout(rejoin, APPLICATION_CONFIRMATION_TIMEOUT_MS)"
+      },
+      {
+        "path": "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+        "line": 158,
+        "text": "const heard = (): void => clearTimeout(quiet);"
+      },
+      {
+        "path": "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+        "line": 168,
+        "text": "function rejoin(): void {"
+      },
+      {
+        "path": "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+        "line": 232,
+        "text": "if (campaignEventFromMessage(message)) heard();"
+      },
+      {
+        "path": "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+        "line": 61,
+        "text": "readonly dispose: () => void;"
+      },
+      {
+        "path": "src/lib/campaign/coop/campaignSyncTransport.ts",
+        "line": 125,
+        "text": "export const APPLICATION_CONFIRMATION_TIMEOUT_MS = HEARTBEAT_TIMEOUT_MS;"
+      },
+      {
+        "path": "src/stores/campaign/useCampaignPersistenceStore.ts",
+        "line": 1276,
+        "text": "if (!response.ok) {"
+      },
+      {
+        "path": "src/stores/campaign/useCampaignPersistenceStore.ts",
+        "line": 1282,
+        "text": "if (record.version !== flushed.baseVersion + 1) {"
+      },
+      {
+        "path": "src/stores/campaign/useCampaignPersistenceStore.ts",
+        "line": 1285,
+        "text": "if (flushedEnvelopeDigest(record) !== flushed.envelopeDigest) {"
+      },
+      {
+        "path": "src/stores/campaign/useCampaignPersistenceStore.ts",
+        "line": 1290,
+        "text": "loadGeneration += 1;"
+      },
+      {
+        "path": "src/stores/campaign/useCampaignPersistenceStore.ts",
+        "line": 1291,
+        "text": "applySavedRecord(set, record);"
+      }
+    ],
+    "sourceBlobs": [
+      {
+        "path": "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+        "bytes": 9539,
+        "sha256": "452c1b31b12546000dcf97cde4e685fe3efa800ac87920d93f364a1aac97f154",
+        "gitBlob": "52214359065547473ff2e045c6730b4ed7868711"
+      },
+      {
+        "path": "src/lib/campaign/coop/campaignSyncTransport.ts",
+        "bytes": 23004,
+        "sha256": "781d33b29df4ab77b5528d2db2c2065234c27ba715cc8168cb91b71cb7e5139d",
+        "gitBlob": "14a1c040b406154719909e5f9ee7c47a0a62102c"
+      },
+      {
+        "path": "src/stores/campaign/useCampaignPersistenceStore.ts",
+        "bytes": 59126,
+        "sha256": "434b983df4dce78c0be2af0fbb43ab18a564c61028c35044a696e736c1fcdcfb",
+        "gitBlob": "7d5c2aeda9fea6368186bbf98ee477e1a88ac079"
+      }
+    ],
+    "quietWindowScope": "One timer per active bound binding; rejoin creates a replacement binding which can arm a fresh timer. This records F as shipped, not the planned G1 CF-G3 repair. No backoff; CF-G4 remains unchanged with the consumer's next owner at or before H as the first commit records."
+  },
+  "changes": [
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "field": "units[id=P2CG1F].behavior",
+      "beforeSentence": "useCampaignPersistenceStore bumps loadGeneration in adoptFlushedRevision, or refuses a guarded adoption whose version is older than baseVersion (CF14, m11).",
+      "afterSentence": "CF-F3: a bound connection with no campaign frame within one 60s pre-receipt quiet window rejoins once. The timer reuses E's APPLICATION_CONFIRMATION_TIMEOUT_MS (60s), is cancelled by any campaign frame, a rejoin or unmount, and has no backoff. For CF14 (m11), useCampaignPersistenceStore took the loadGeneration-bump option in adoptFlushedRevision, after the response.ok, version and envelope-digest proofs and immediately before applySavedRecord.",
+      "beforeSentenceSha256": "ffdc888e7f3fee51eb821749b17242d394a96f22262859ba6f23a566b59d690b",
+      "afterSentenceSha256": "c8ebb0ad9f1cc37ba9f84d1ce1d863c31fd4e04e889ee8819729f0be29d5caf6",
+      "beforeBehaviorSha256": "3063a58f4a1f4d48b14de1742a81e6e73c9e7acc98c3da81f6a5cd8f3b63f270",
+      "afterBehaviorSha256": "8f39053d61033ecd7cbb934093d8022919cf0479c83a557cbdfda9c345b492ec",
+      "hashEncoding": "SHA-256 of exact UTF-8 decoded text, no trailing newline"
+    }
+  ],
+  "preimages": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "bytes": 1609276,
+      "sha256": "01022e2bbc56491d212cfc88e5b4999426bca4c20be8e1c715faadfe3927b4d8"
+    }
+  ],
+  "postimages": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "bytes": 1609788,
+      "sha256": "660648099d0681f46eb961b829227bd9832d7bfe90804ac9f6902804b0f01876"
+    }
+  ],
+  "fieldDiff": {
+    "method": "Recursive comparison with preceding G1 amendment commit. Exactly F.behavior changes; restoring it yields full units.json equality. roadmap.json and G1 evidence byte-identical. Second-commit scope exactly units.json plus this receipt; pre/post byte hashes verified.",
+    "changedLeafCount": 1,
+    "entries": [
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "path": "$.units[81].behavior",
+        "before": "Seventh narrower P2CG1 successor: client hardening, dormant until receipt mode. useCampaignApplicationConsumer chains .catch(() => rejoin()) on each queue step (CF13, m9) and rejoins on the P2CG1E close signal (the CF12 consumer half). useCampaignPersistenceStore bumps loadGeneration in adoptFlushedRevision, or refuses a guarded adoption whose version is older than baseVersion (CF14, m11). Registered tests: the host sequence-0 linked-offer case in hostRecordRefresh (m7); a GM baseline with a non-empty bundle plus a live CampaignMissionLaunched offer in hostProjection (m8, fact-bearing half); and the CF14 case in campaignCommandAckRefresh. m12 is decided: a guarded receipt refresh does not announce saving. That needs no code change and matches the P2CF2 N1 wording. Planned leaves (5): src/components/campaign/coop/useCampaignApplicationConsumer.ts, src/stores/campaign/useCampaignPersistenceStore.ts, src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx, src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx and src/stores/campaign/__tests__/campaignCommandAckRefresh.test.ts. Estimated at about 45-70 counted lines with lifecycle; that is not a cap-fit proof.",
+        "after": "Seventh narrower P2CG1 successor: client hardening, dormant until receipt mode. useCampaignApplicationConsumer chains .catch(() => rejoin()) on each queue step (CF13, m9) and rejoins on the P2CG1E close signal (the CF12 consumer half). CF-F3: a bound connection with no campaign frame within one 60s pre-receipt quiet window rejoins once. The timer reuses E's APPLICATION_CONFIRMATION_TIMEOUT_MS (60s), is cancelled by any campaign frame, a rejoin or unmount, and has no backoff. For CF14 (m11), useCampaignPersistenceStore took the loadGeneration-bump option in adoptFlushedRevision, after the response.ok, version and envelope-digest proofs and immediately before applySavedRecord. Registered tests: the host sequence-0 linked-offer case in hostRecordRefresh (m7); a GM baseline with a non-empty bundle plus a live CampaignMissionLaunched offer in hostProjection (m8, fact-bearing half); and the CF14 case in campaignCommandAckRefresh. m12 is decided: a guarded receipt refresh does not announce saving. That needs no code change and matches the P2CF2 N1 wording. Planned leaves (5): src/components/campaign/coop/useCampaignApplicationConsumer.ts, src/stores/campaign/useCampaignPersistenceStore.ts, src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx, src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx and src/stores/campaign/__tests__/campaignCommandAckRefresh.test.ts. Estimated at about 45-70 counted lines with lifecycle; that is not a cap-fit proof. Parent documentary correction 2026-10-18 (evidence/p2cg1f-behavior-documentary-correction-20261018.json): records the shipped CF-F3 quiet window and the CF14 option taken (F-DOC-1); reviewed source behavior is unchanged."
+      }
+    ],
+    "status": "PASS"
+  },
+  "preserved": [
+    "All remaining F behavior text, including planned leaves and dormancy.",
+    "F state main-verified, baseline, prHead, mergeSha, stageReceipts, ownership, caps, dependencies and every other lifecycle field from merged main.",
+    "G1 first-commit amendment/evidence, roadmap.json, every other unit, existing evidence, source and tests. Historical F-DOC-1 open-note receipts remain byte-identical."
+  ],
+  "permissionBoundary": "Parent documentary correction only; no source admission, lifecycle release, activation, new runtime proof or merge. This records reviewed behavior already shipped by F.",
+  "sourceAdmitted": false,
+  "productFiles": 0,
+  "scope": [
+    "openspec/planning/2026-09-12-roadmap-completion/units.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1f-behavior-documentary-correction-20261018.json"
+  ],
+  "validation": {
+    "status": "PASS",
+    "node": "v22.22.0",
+    "method": "Real unmodified validator CLIs and Node-native validator tests on both docs commits together, after rebasing onto merged main bc7abfc45. Receipt present; results recorded after execution. No product test/compile/activation proof.",
+    "results": [
+      {
+        "name": "exact-field-diff",
+        "at": "2026-10-18T03:07:50.481Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/g1-amendment-20261018",
+        "command": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "E:/Projects/Personal/MekStation-wt/g1-amendment-evidence-20261018/verify-combined.mjs",
+          "--record"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/g1-amendment-evidence-20261018/combined/exact-field-diff.log",
+        "logSha256": "e5f1eb0021e2eaa97e5ad20cf99e03b191690c7e9abd7144664d7aa9555506f7",
+        "summary": "PASS: second commit changes only F.behavior plus its receipt; combined PR changes exactly four ledger fields plus two new evidence files. All lifecycle/ownership/caps and product files preserved."
+      },
+      {
+        "name": "validate-roadmap-plain",
+        "at": "2026-10-18T03:07:51.100Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/g1-amendment-20261018",
+        "command": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/g1-amendment-evidence-20261018/combined/validate-roadmap-plain.log",
+        "logSha256": "567feb20b9f85c902a3c4492eb3274c970f2370ccbbc6d3390088ad10923b947",
+        "summary": "ROADMAP VALIDATION PASSED: 80 nodes, 13 packages, 381 tasks, 40 triage rows"
+      },
+      {
+        "name": "validate-roadmap-git",
+        "at": "2026-10-18T03:07:54.981Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/g1-amendment-20261018",
+        "command": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+          "--git"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/g1-amendment-evidence-20261018/combined/validate-roadmap-git.log",
+        "logSha256": "0d7d99319c662d2b64fa0c98e73d2d6254bad922234f2c7a68c71758fc9fa890",
+        "summary": "ROADMAP VALIDATION PASSED: 80 nodes, 13 packages, 381 tasks, 40 triage rows"
+      },
+      {
+        "name": "validate-roadmap-next",
+        "at": "2026-10-18T03:08:06.144Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/g1-amendment-20261018",
+        "command": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+          "--next"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/g1-amendment-evidence-20261018/combined/validate-roadmap-next.log",
+        "logSha256": "0efda17fabd7832d981104fb0874c325f6407b889243d877289cbca3bce1d26b",
+        "summary": "P2CG1G1"
+      },
+      {
+        "name": "validator-tests",
+        "at": "2026-10-18T03:08:10.066Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/g1-amendment-20261018",
+        "command": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "--test",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/g1-amendment-evidence-20261018/combined/validator-tests.log",
+        "logSha256": "212857147be62cd97a9b9bed9631eaddeebb5d36a86b5e2f23d1d0e66ca8b01b",
+        "summary": "# tests 86\n# pass 86\n# fail 0"
+      },
+      {
+        "name": "openspec-strict",
+        "at": "2026-10-18T03:08:19.392Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/g1-amendment-20261018",
+        "command": [
+          "powershell.exe",
+          "-NoProfile",
+          "-Command",
+          "npx --no-install openspec validate --all --strict; exit $LASTEXITCODE"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/g1-amendment-evidence-20261018/combined/openspec-strict.log",
+        "logSha256": "3f957310c0c3835ba3d5704458ddc03218d48f0b205252ed6d52ca87951ba4f5",
+        "summary": "Totals: 230 passed, 0 failed (230 items)"
+      },
+      {
+        "name": "qc-openspec-ci",
+        "at": "2026-10-18T03:08:20.862Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/g1-amendment-20261018",
+        "command": [
+          "powershell.exe",
+          "-NoProfile",
+          "-Command",
+          "npm run qc:openspec-ci:validate; exit $LASTEXITCODE"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/g1-amendment-evidence-20261018/combined/qc-openspec-ci.log",
+        "logSha256": "5b8f564706d4d1758110b42749f598120cc028d713f83d2c9c79b43af3738c93",
+        "summary": "> mekstation-app@0.1.1 qc:openspec-ci:validate\n> node scripts/qc/validate-openspec-ci-quality.mjs\n\n[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=20/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0"
+      },
+      {
+        "name": "git-diff-check",
+        "at": "2026-10-18T03:08:21.439Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/g1-amendment-20261018",
+        "command": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/g1-amendment-evidence-20261018/combined/git-diff-check.log",
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "summary": ""
+      }
+    ],
+    "dependencyNote": "Existing p2cg1g1-impl-20261018 dependencies through ignored local node_modules junction; matching unchanged lockfile, no installation/root write.",
+    "reproducibility": {
+      "preparationScript": "E:/Projects/Personal/MekStation-wt/g1-amendment-evidence-20261018/fdoc1.mjs",
+      "exactDiffScript": "E:/Projects/Personal/MekStation-wt/g1-amendment-evidence-20261018/verify-combined.mjs",
+      "validatorScript": "E:/Projects/Personal/MekStation-wt/g1-amendment-evidence-20261018/validate-combined.mjs",
+      "noProcessesStopped": true
+    }
+  },
+  "combinedFieldDiff": {
+    "baseline": "bc7abfc4527e585e45911b5dff7d5ba3ae8773a2",
+    "changedLeafCount": 4,
+    "entries": [
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+        "path": "$.nodes[13].ownershipPathsAmended20261009P2C.restrictions.P2CG1G1[7]",
+        "after": "src/components/campaign/coop/useCampaignApplicationConsumer.ts"
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+        "path": "$.nodes[13].ownershipPathsAmended20261009P2C.knownSourceTestLifecycleSubtotals.P2CG1G1",
+        "before": 8,
+        "after": 9
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "path": "$.units[81].behavior",
+        "before": "Seventh narrower P2CG1 successor: client hardening, dormant until receipt mode. useCampaignApplicationConsumer chains .catch(() => rejoin()) on each queue step (CF13, m9) and rejoins on the P2CG1E close signal (the CF12 consumer half). useCampaignPersistenceStore bumps loadGeneration in adoptFlushedRevision, or refuses a guarded adoption whose version is older than baseVersion (CF14, m11). Registered tests: the host sequence-0 linked-offer case in hostRecordRefresh (m7); a GM baseline with a non-empty bundle plus a live CampaignMissionLaunched offer in hostProjection (m8, fact-bearing half); and the CF14 case in campaignCommandAckRefresh. m12 is decided: a guarded receipt refresh does not announce saving. That needs no code change and matches the P2CF2 N1 wording. Planned leaves (5): src/components/campaign/coop/useCampaignApplicationConsumer.ts, src/stores/campaign/useCampaignPersistenceStore.ts, src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx, src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx and src/stores/campaign/__tests__/campaignCommandAckRefresh.test.ts. Estimated at about 45-70 counted lines with lifecycle; that is not a cap-fit proof.",
+        "after": "Seventh narrower P2CG1 successor: client hardening, dormant until receipt mode. useCampaignApplicationConsumer chains .catch(() => rejoin()) on each queue step (CF13, m9) and rejoins on the P2CG1E close signal (the CF12 consumer half). CF-F3: a bound connection with no campaign frame within one 60s pre-receipt quiet window rejoins once. The timer reuses E's APPLICATION_CONFIRMATION_TIMEOUT_MS (60s), is cancelled by any campaign frame, a rejoin or unmount, and has no backoff. For CF14 (m11), useCampaignPersistenceStore took the loadGeneration-bump option in adoptFlushedRevision, after the response.ok, version and envelope-digest proofs and immediately before applySavedRecord. Registered tests: the host sequence-0 linked-offer case in hostRecordRefresh (m7); a GM baseline with a non-empty bundle plus a live CampaignMissionLaunched offer in hostProjection (m8, fact-bearing half); and the CF14 case in campaignCommandAckRefresh. m12 is decided: a guarded receipt refresh does not announce saving. That needs no code change and matches the P2CF2 N1 wording. Planned leaves (5): src/components/campaign/coop/useCampaignApplicationConsumer.ts, src/stores/campaign/useCampaignPersistenceStore.ts, src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx, src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx and src/stores/campaign/__tests__/campaignCommandAckRefresh.test.ts. Estimated at about 45-70 counted lines with lifecycle; that is not a cap-fit proof. Parent documentary correction 2026-10-18 (evidence/p2cg1f-behavior-documentary-correction-20261018.json): records the shipped CF-F3 quiet window and the CF14 option taken (F-DOC-1); reviewed source behavior is unchanged."
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "path": "$.units[82].behavior",
+        "before": "Eighth narrower P2CG1 successor: surface preparation for creator binding, still legacy on the wire. M2/CF11 is decided at registration: the host fold moves to a module-scoped store, the new src/lib/campaign/coop/campaignHostFoldStore.ts, like the guest mirror. A host rebind on a live bound transport then continues the lineage instead of starting from EMPTY, and retainsLaunchFacts is kept. m13: the surface's refusal and projection helpers move to the new src/components/campaign/coop/campaignCoopSurfaceHelpers.ts, so the surface stays under the max-lines warning before binding grows it. Three surface suites register hand-built fake transports without campaignId (CampaignLifecycleGate, GuestProposalSurface, GuestRebuildStaleGate). Their fakes get the mounted campaignId, because connectStoredCampaignSyncTransport returns null for an existing transport whose campaignId differs from expectedCampaignId, so P2CG1G2's binding would otherwise detach them. hostProjection registers the P2CF2 m8 P1 case (rebind on a live bound transport) with the store behaviour. No creator binds expectedCampaignId here. Planned leaves (7): src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx, src/components/campaign/coop/campaignCoopSurfaceHelpers.ts (new), src/lib/campaign/coop/campaignHostFoldStore.ts (new), and under src/components/campaign/coop/__tests__/ the suites CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx, CampaignLifecycleGate.test.tsx, GuestProposalSurface.test.tsx and GuestRebuildStaleGate.test.tsx. Estimated at about 160-240 counted lines with lifecycle (moved helper lines count again); that is not a cap-fit proof.",
+        "after": "Eighth narrower P2CG1 successor: surface preparation for creator binding, still legacy on the wire. M2/CF11 is decided at registration: the host fold moves to a module-scoped store, the new src/lib/campaign/coop/campaignHostFoldStore.ts, like the guest mirror. A host rebind on a live bound transport then continues the lineage instead of starting from EMPTY, and retainsLaunchFacts is kept. m13: the surface's refusal and projection helpers move to the new src/components/campaign/coop/campaignCoopSurfaceHelpers.ts, so the surface stays under the max-lines warning before binding grows it. Three surface suites register hand-built fake transports without campaignId (CampaignLifecycleGate, GuestProposalSurface, GuestRebuildStaleGate). Their fakes get the mounted campaignId, because connectStoredCampaignSyncTransport returns null for an existing transport whose campaignId differs from expectedCampaignId, so P2CG1G2's binding would otherwise detach them. hostProjection registers the P2CF2 m8 P1 case (rebind on a live bound transport) with the store behaviour. No creator binds expectedCampaignId here. Planned leaves (8): src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx, src/components/campaign/coop/campaignCoopSurfaceHelpers.ts (new), src/lib/campaign/coop/campaignHostFoldStore.ts (new), src/components/campaign/coop/useCampaignApplicationConsumer.ts, and under src/components/campaign/coop/__tests__/ the suites CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx, CampaignLifecycleGate.test.tsx, GuestProposalSurface.test.tsx and GuestRebuildStaleGate.test.tsx. Parent literal-path amendment 2026-10-18 (evidence/p2cg1g1-literal-path-amendment-20261018.json): CF-G3 (P2CG1F review) is included. The consumer remembers transports that already delivered a campaign frame; a rebind on one arms no new 60s pre-receipt window, so the continued lineage survives a quiet remount. Replacement transports after rejoin remain protected by their own pre-receipt window. CF-G4 (cap, backoff or terminal state for the silent-but-open quiet-window cycle, with user-facing text) stays unchanged with the consumer's next owner at or before P2CG1H; it is not absorbed by this CF-G3 amendment. Eight source/test leaves plus units.json, admission/red/local receipts and one independent admission-review slot reserve 13 of 15 source-stage files. Estimated at about 331-340 counted additions with lifecycle (moved helper lines count again), from the stop-report prototype; this is not measured admission fit. Caps and finite source-admission gates are unchanged."
+      }
+    ],
+    "exactFileScope": [
+      "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g1-literal-path-amendment-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1f-behavior-documentary-correction-20261018.json"
+    ],
+    "status": "PASS"
+  },
+  "measurements": {
+    "actualSecondCommitFiles": 2,
+    "combinedPrFiles": 4,
+    "productFiles": 0,
+    "sourceTestHelperEdits": 0
+  }
+}
