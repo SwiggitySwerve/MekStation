@@ -8025,7 +8025,9 @@
         "red": {
           "path": "evidence/mp-recovery-units-1-red.json"
         },
-        "local": null,
+        "local": {
+          "path": "evidence/mp-recovery-units-1-local.json"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
