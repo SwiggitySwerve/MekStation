@@ -1,0 +1,624 @@
+{
+  "unit": "B14-0",
+  "stage": "mainProof",
+  "recordedAt": "2026-10-18T22:01:32Z",
+  "mergeCommit": "1c7632b18d062e1b684fc7384faa4f2668183b69",
+  "verdict": "PASS",
+  "checkout": "E:/Projects/Personal/MekStation-wt/b14-0-closure-20261018",
+  "runtime": {
+    "playwright": "Source/Main Jest: Tests:       1669 passed, 1669 total",
+    "suites": "157 passed, 157 total",
+    "tsc": "npm run typecheck: exit 0 (TypeScript 7, root and scripts projects)",
+    "node": "v22.22.0",
+    "install": "real npm ci in the checkout at 1c7632b1 (1078 packages), Node v22.22.0, through the heavy-run queue (class build); package-lock.json unchanged and the worktree clean afterwards",
+    "npmCiLog": {
+      "path": "E:/Projects/Personal/MekStation-wt/_b14-0-closure-logs/npm-ci.log",
+      "sha256": "8e2938665803b9ad55df51efdcdb5e5dc71f2680c54c6804eb96371a9c3f1428",
+      "bytes": 3152,
+      "encoding": "UTF-16LE with BOM (PowerShell *> redirection), npm stdout and stderr"
+    },
+    "jestCache": "private --cacheDirectory=E:/Projects/Personal/MekStation-wt/_b14-0-closure-logs/jest-cache on every jest run, --runInBand",
+    "runner": {
+      "path": "E:/Projects/Personal/MekStation-wt/_b14-0-closure-logs/run-proof.js",
+      "sha256": "e8eef6ab7d03ecf3f4d9992b7c661fb87308490880c701fab9848ff9c3044980",
+      "bytes": 8244
+    },
+    "runnerOutput": {
+      "path": "E:/Projects/Personal/MekStation-wt/_b14-0-closure-logs/runner.out",
+      "sha256": "cbca38d82a35d1a15edb93cda693df03abdc4650357d08c7511fb36d0efd3094",
+      "bytes": 8672
+    }
+  },
+  "machine": "The heavy runs ran through the machine-wide queue (node E:/Projects/Personal/MekStation-wt/_locks/heavy-run.mjs --lane b14; npm ci as class build, the proof runner as one class jest slot), which itself runs node scripts/qc/machine-idle.mjs --own-pid 47516 --own-pid 55164 at the head of the queue. Inside the slot the runner also gated every run on the same command and waited on any busy reading. It read MACHINE_BUSY 1 time(s) (p2cg1d: ci --no-audit --no-fund; a process this closure did not start) and waited until MACHINE_IDLE; no jest ran under a busy reading. The runs were sequential; this closure neither started nor stopped any process other than its own runner and its jest/tsc/validator children, and no timeout was raised.",
+  "machineReadings": {
+    "tests": {
+      "busyReadings": 0,
+      "busyCommands": [],
+      "idleAt": "2026-10-18T21:45:12.743Z"
+    },
+    "b14": {
+      "busyReadings": 0,
+      "busyCommands": [],
+      "idleAt": "2026-10-18T21:48:16.236Z"
+    },
+    "b14b": {
+      "busyReadings": 0,
+      "busyCommands": [],
+      "idleAt": "2026-10-18T21:48:19.674Z"
+    },
+    "seams": {
+      "busyReadings": 0,
+      "busyCommands": [],
+      "idleAt": "2026-10-18T21:48:26.930Z"
+    },
+    "b14a": {
+      "busyReadings": 0,
+      "busyCommands": [],
+      "idleAt": "2026-10-18T21:48:41.328Z"
+    },
+    "regression": {
+      "busyReadings": 0,
+      "busyCommands": [],
+      "idleAt": "2026-10-18T21:48:54.036Z"
+    },
+    "s": {
+      "busyReadings": 0,
+      "busyCommands": [],
+      "idleAt": "2026-10-18T21:50:12.787Z"
+    },
+    "six": {
+      "busyReadings": 0,
+      "busyCommands": [],
+      "idleAt": "2026-10-18T21:50:16.219Z"
+    },
+    "r": {
+      "busyReadings": 0,
+      "busyCommands": [],
+      "idleAt": "2026-10-18T21:50:21.577Z"
+    },
+    "g2": {
+      "busyReadings": 0,
+      "busyCommands": [],
+      "idleAt": "2026-10-18T21:50:28.767Z"
+    },
+    "g2a": {
+      "busyReadings": 0,
+      "busyCommands": [],
+      "idleAt": "2026-10-18T21:50:33.578Z"
+    },
+    "related": {
+      "busyReadings": 0,
+      "busyCommands": [],
+      "idleAt": "2026-10-18T21:50:37.040Z"
+    },
+    "p2cg1g1": {
+      "busyReadings": 0,
+      "busyCommands": [],
+      "idleAt": "2026-10-18T21:51:06.185Z"
+    },
+    "selector": {
+      "busyReadings": 0,
+      "busyCommands": [],
+      "idleAt": "2026-10-18T21:51:10.021Z"
+    },
+    "p2cg1f": {
+      "busyReadings": 0,
+      "busyCommands": [],
+      "idleAt": "2026-10-18T21:51:19.380Z"
+    },
+    "p2cg1e": {
+      "busyReadings": 0,
+      "busyCommands": [],
+      "idleAt": "2026-10-18T21:51:23.317Z"
+    },
+    "p2cg1d": {
+      "busyReadings": 1,
+      "busyCommands": [
+        "ci --no-audit --no-fund"
+      ],
+      "idleAt": "2026-10-18T21:52:17.122Z"
+    },
+    "p2cg1c": {
+      "busyReadings": 0,
+      "busyCommands": [],
+      "idleAt": "2026-10-18T21:52:26.220Z"
+    },
+    "p2cg1b": {
+      "busyReadings": 0,
+      "busyCommands": [],
+      "idleAt": "2026-10-18T21:52:36.816Z"
+    },
+    "predecessors": {
+      "busyReadings": 0,
+      "busyCommands": [],
+      "idleAt": "2026-10-18T21:52:41.204Z"
+    },
+    "typecheck": {
+      "busyReadings": 0,
+      "busyCommands": [],
+      "idleAt": "2026-10-18T21:53:32.103Z"
+    },
+    "validator": {
+      "busyReadings": 0,
+      "busyCommands": [],
+      "idleAt": "2026-10-18T21:53:37.931Z"
+    }
+  },
+  "machineGate": "node E:/Projects/Personal/MekStation-wt/_locks/heavy-run.mjs --lane b14 --class jest (queue-run node scripts/qc/machine-idle.mjs --own-pid 47516 --own-pid 55164), plus the same machine-idle command before each run inside the slot",
+  "machineLog": {
+    "path": "E:/Projects/Personal/MekStation-wt/_b14-0-closure-logs/idle.log",
+    "sha256": "2ff7feca3dfcb43ba085a41e49ee4561a0f6c99188b3167c3c72a7015a908cf2",
+    "bytes": 1456
+  },
+  "suiteLists": {
+    "owned": {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/b14.txt",
+      "sha256": "e5963baf8e68001e7f6a58e8f0e311f59e2ddf9d9ba2c3ed12235fb898e94641",
+      "bytes": 64,
+      "suites": 1
+    },
+    "seams": {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/allow.txt",
+      "sha256": "8bed044ca9421ce02bf1215bdc60fd67c3d0fc3b526b30009282a19c7abd9b4d",
+      "bytes": 1030,
+      "suites": 14,
+      "note": "The 14 seamed suites (4 B14-0A, 10 B14-0B), run with their seams beneath the real B14-0 refusal."
+    },
+    "b14_0bOwned": {
+      "paths": [
+        "E:/Projects/Personal/MekStation-wt/b14-0b-proof-20261018/leaves.txt",
+        "E:/Projects/Personal/MekStation-wt/b14-0b-proof-20261018/guard.txt"
+      ],
+      "sha256": [
+        "43b0d4677e4ad39e7694a0029056d3358a733f10ffee705260a4efe4add32b73",
+        "f23f36b9d4cf70ff0f286902cc6f4fa0d21b28c3ffcd6e5ed0e6c776615623fb"
+      ],
+      "suites": 11
+    },
+    "b14_0aOwned": {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0a-proof-20261018/focused.txt",
+      "sha256": "e44689c4871cacfad5fe2fbbdd87e9ddd657cef8a901328bc4d134af812ad77f",
+      "bytes": 453,
+      "suites": 7
+    },
+    "regression": {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/regression2.txt",
+      "sha256": "1316f256464de128890d6b9476b026101c309379b319b13a7305a43e03955fec",
+      "bytes": 7896,
+      "suites": 111,
+      "note": "The author 111-suite census (the 109-suite B14-0A/B14-0B census plus b14FogContainment.test.ts and client.test.ts); its suites equal, one to one, the testResults of the receipt-hashed regression-green.json (928/928 at RED+GREEN; 931 here with the three follow-up rows)."
+    }
+  },
+  "proof": {
+    "path": "evidence/mainproof-1c7632b1-tests.bytes.json",
+    "payloadSha256": "c49c4d7fc3907809a6c5555ea7c2e74bb4d9313ec2a165ea643d0ffe70e9bff6",
+    "payloadBytes": 985139,
+    "counts": {
+      "suites": 157,
+      "tests": 1669
+    },
+    "note": "Fresh run at the exact merge HEAD 1c7632b1 (the closure worktree at the merge, clean, before any closure edit): the owned suite, the B14-0B owned suites with the guard, the 14 seamed suites, the B14-0A owned suites, the 111-suite census and the B14-0B closure proof set, by path in one jest invocation: 157 suites, 1669/1669. Against the B14-0B merge union (155/1606) it adds exactly two suites, b14FogContainment.test.ts (31 tests) and client.test.ts (32 tests); among the proof suites only b14FogContainment.test.ts changed since the B14-0B merge, so every shared set matches its B14-0B-merge count exactly."
+  },
+  "logs": [
+    {
+      "path": "evidence/mainproof-1c7632b1-b14.bytes.json",
+      "payloadSha256": "60e29ca845f1d18bee96ce0c5cc30aabf9b866d44778b5f1953922ff92d09443",
+      "payloadBytes": 3096,
+      "counts": {
+        "suites": 1,
+        "tests": 31
+      },
+      "note": "The owned suite b14FogContainment.test.ts: 1 suites, 31/31 (31 rows: 28 at GREEN plus the three review-fix rows)."
+    },
+    {
+      "path": "evidence/mainproof-1c7632b1-b14b.bytes.json",
+      "payloadSha256": "bee9eedd1c9002de6402ea98bf83c432d76dc7199b3b0b6753dd7e90becfbcf7",
+      "payloadBytes": 21402,
+      "counts": {
+        "suites": 11,
+        "tests": 85
+      },
+      "note": "The ten B14-0B owned suites with the guard suite: 11 suites, 85/85 (11/85 at the B14-0B merge 4d9eb721)."
+    },
+    {
+      "path": "evidence/mainproof-1c7632b1-seams.bytes.json",
+      "payloadSha256": "ea56ad3699e52828c8717748f6cd5d238d82d7d03aeb02cee012101d159558e2",
+      "payloadBytes": 22190,
+      "counts": {
+        "suites": 14,
+        "tests": 162
+      },
+      "note": "The 14 seamed suites: 14 suites, 162/162, the seamed total the necessity baseline strips (125 of 162 fail without the seams; B14Z-NEC-1)."
+    },
+    {
+      "path": "evidence/mainproof-1c7632b1-b14a.bytes.json",
+      "payloadSha256": "7b8a13ece46ead1d57190dab3282ac1a8f15a1b6991f9d3cbc094af0e8a5d139",
+      "payloadBytes": 19720,
+      "counts": {
+        "suites": 7,
+        "tests": 162
+      },
+      "note": "The seven B14-0A owned suites: 7 suites, 162/162 (7/162 at the B14-0B merge 4d9eb721)."
+    },
+    {
+      "path": "evidence/mainproof-1c7632b1-regression.bytes.json",
+      "payloadSha256": "dd55639886ef0e652dda1b848c8cb27b6a3e43d5c33df33f9e5525197eb4f496",
+      "payloadBytes": 554589,
+      "counts": {
+        "suites": 111,
+        "tests": 931
+      },
+      "note": "The 111-suite census alone: 111 suites, 931/931 (the B14-0B 109-suite census 109/868 plus the owned suite and client.test.ts)."
+    },
+    {
+      "path": "evidence/mainproof-1c7632b1-s.bytes.json",
+      "payloadSha256": "a262bc2b55b105cf7d34bd1d6849de346c98daffb92c9e3085f92461e0936789",
+      "payloadBytes": 956,
+      "counts": {
+        "suites": 2,
+        "tests": 41
+      },
+      "note": "The two P2CG1S owned suites alone: 2 suites, 41/41 (2/41 at the B14-0B merge 4d9eb721)."
+    },
+    {
+      "path": "evidence/mainproof-1c7632b1-six.bytes.json",
+      "payloadSha256": "16315edb9b17d14eeda9cf7a550193651a188319ac0c2234e3c8ffdabe66af34",
+      "payloadBytes": 1905,
+      "counts": {
+        "suites": 6,
+        "tests": 72
+      },
+      "note": "The six focused P2CG1S suites: 6 suites, 72/72 (6/72 at the B14-0B merge 4d9eb721)."
+    },
+    {
+      "path": "evidence/mainproof-1c7632b1-r.bytes.json",
+      "payloadSha256": "a6ab53573eb64798fb826dfacb046cc5896d3894809f81bc7d22447a8c093f81",
+      "payloadBytes": 26677,
+      "counts": {
+        "suites": 3,
+        "tests": 127
+      },
+      "note": "The three P2CG1R suites alone: 3 suites, 127/127 (3/127 at the B14-0B merge 4d9eb721)."
+    },
+    {
+      "path": "evidence/mainproof-1c7632b1-g2.bytes.json",
+      "payloadSha256": "01349b536fbf501eebc372dba3526847283580140f04ae2ac2ebf44e7c5070ce",
+      "payloadBytes": 1681,
+      "counts": {
+        "suites": 5,
+        "tests": 129
+      },
+      "note": "The five reduced P2CG1G2 suites alone: 5 suites, 129/129 (5/129 at the B14-0B merge 4d9eb721)."
+    },
+    {
+      "path": "evidence/mainproof-1c7632b1-g2a.bytes.json",
+      "payloadSha256": "0c0a20c8dea4d85ce1a09a6e97915c5c33eaf96078e2ddf3ab957f52a4002800",
+      "payloadBytes": 18555,
+      "counts": {
+        "suites": 2,
+        "tests": 57
+      },
+      "note": "The two P2CG1G2A suites alone: 2 suites, 57/57 (2/57 at the B14-0B merge 4d9eb721)."
+    },
+    {
+      "path": "evidence/mainproof-1c7632b1-related.bytes.json",
+      "payloadSha256": "4d1fcc126aecb8526a979ea92e4496a9cfa12b5fc1ff3a77de754420297786d1",
+      "payloadBytes": 84385,
+      "counts": {
+        "suites": 74,
+        "tests": 934
+      },
+      "note": "The P2CG1G2A related set: 74 suites, 934/934 (74/934 at the B14-0B merge 4d9eb721)."
+    },
+    {
+      "path": "evidence/mainproof-1c7632b1-p2cg1g1.bytes.json",
+      "payloadSha256": "f64a486b430bf6ccd3fb39d4e2315e68a3b115e55089a24b201ac33e02414b7b",
+      "payloadBytes": 52717,
+      "counts": {
+        "suites": 4,
+        "tests": 81
+      },
+      "note": "The four P2CG1G1 test leaves: 4 suites, 81/81 (4/81 at the B14-0B merge 4d9eb721)."
+    },
+    {
+      "path": "evidence/mainproof-1c7632b1-selector.bytes.json",
+      "payloadSha256": "b51d6cff558ea904a8e5c627229587d4e6c19130a273e045d1e651a3f2ce15b6",
+      "payloadBytes": 49107,
+      "counts": {
+        "suites": 4,
+        "tests": 104
+      },
+      "note": "The registered Task 14 selector: 4 suites, 104/104 (4/104 at the B14-0B merge 4d9eb721)."
+    },
+    {
+      "path": "evidence/mainproof-1c7632b1-p2cg1f.bytes.json",
+      "payloadSha256": "6d94967bbeaa80a17b313f348e23041d90783b23cbd46081db2eca7c3b061a70",
+      "payloadBytes": 45705,
+      "counts": {
+        "suites": 3,
+        "tests": 96
+      },
+      "note": "The three P2CG1F test leaves: 3 suites, 96/96 (3/96 at the B14-0B merge 4d9eb721)."
+    },
+    {
+      "path": "evidence/mainproof-1c7632b1-p2cg1e.bytes.json",
+      "payloadSha256": "8be9f5c8eb4039ebdde500764049ffd105005ee0aeb5431426d9216f7eb11af2",
+      "payloadBytes": 98719,
+      "counts": {
+        "suites": 3,
+        "tests": 166
+      },
+      "note": "The three P2CG1E test leaves: 3 suites, 166/166 (3/166 at the B14-0B merge 4d9eb721)."
+    },
+    {
+      "path": "evidence/mainproof-1c7632b1-p2cg1d.bytes.json",
+      "payloadSha256": "7e15f7d823e9ed849ff617ffcd8bc51b2be9c9afe0b22da9d18dcd646288b851",
+      "payloadBytes": 29128,
+      "counts": {
+        "suites": 4,
+        "tests": 129
+      },
+      "note": "The four P2CG1D test leaves: 4 suites, 129/129 (4/129 at the B14-0B merge 4d9eb721)."
+    },
+    {
+      "path": "evidence/mainproof-1c7632b1-p2cg1c.bytes.json",
+      "payloadSha256": "3bf1cafa96e0f0d5a640a3164bbc1beabf1c3abec6096f872011dca3afd2e8d7",
+      "payloadBytes": 51845,
+      "counts": {
+        "suites": 2,
+        "tests": 54
+      },
+      "note": "The two P2CG1C test leaves: 2 suites, 54/54 (2/54 at the B14-0B merge 4d9eb721)."
+    },
+    {
+      "path": "evidence/mainproof-1c7632b1-p2cg1b.bytes.json",
+      "payloadSha256": "1f26961d7ac46595943829092bdef005b007bb963377947311804996520f7813",
+      "payloadBytes": 959,
+      "counts": {
+        "suites": 2,
+        "tests": 52
+      },
+      "note": "The two P2CG1B test leaves: 2 suites, 52/52 (2/52 at the B14-0B merge 4d9eb721)."
+    },
+    {
+      "path": "evidence/mainproof-1c7632b1-predecessors.bytes.json",
+      "payloadSha256": "12e7f9706f712677b302e7be3418b3028a005b0f28db0e72c6cf6ae391332403",
+      "payloadBytes": 393347,
+      "counts": {
+        "suites": 35,
+        "tests": 398
+      },
+      "note": "The 35 A1/A2 suites by path: 35 suites, 398/398 (35/398 at the B14-0B merge 4d9eb721)."
+    },
+    {
+      "path": "evidence/mainproof-1c7632b1-typecheck.bytes.json",
+      "payloadSha256": "aa92ebda8fcf02cd7d143688c501513cf286bb72f6b5023de01b58ea59e184fb",
+      "payloadBytes": 407,
+      "note": "Fresh typecheck on the same checkout and HEAD."
+    },
+    {
+      "path": "evidence/mainproof-1c7632b1-validator.bytes.json",
+      "payloadSha256": "59e01ea0767daf89d2b09453ec123cabd73003f42c924dcea7a641b3bf339a61",
+      "payloadBytes": 463,
+      "note": "Fresh validator and --next on the unedited ledger at the same HEAD (ROADMAP VALIDATION PASSED: 93 nodes, 13 packages, 381 tasks, 40 triage rows; --next L1-SMOKE-A1, advisory, while B14-0 was still implementing)."
+    }
+  ],
+  "attemptLogs": [
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/frozen-files.json",
+      "sha256": "ad502cb11079823611b9334b5c674fb8089749c7eafdadc38cdb2a50c31e6990",
+      "bytes": 1195,
+      "citedBy": [
+        "b14-0-admission.json.census"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/frozen-controls.json",
+      "sha256": "db5896852a192fda4783f214d830fcb35f4252e93d3960ce9ab10cef7560cc47",
+      "bytes": 7591,
+      "citedBy": [
+        "b14-0-admission.json.unchangedControls.census"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/necessity-candidate.json",
+      "sha256": "e47f9f506679e939c4b7d5ec723d66eb872bbb21e487f5b9b8d22f2a1c7f152d",
+      "bytes": 236177,
+      "citedBy": [
+        "b14-0-admission.json.prep.seamNecessity.json"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/idle-gates.log",
+      "sha256": "d91ac1d4ee4670e0f242beea77a059462207df2fcfe31475b4a5ed9ab406b198",
+      "bytes": 591,
+      "citedBy": [
+        "b14-0-admission.json.baselineMeasurements.idle.log"
+      ],
+      "appendedAfterCitation": {
+        "currentBytes": 16088,
+        "currentSha256": "e6ace8b2feb0959b6a92737e1ecbf6e5e58a405f761a8a07695751c92ca3b96c",
+        "note": "The file grew after the receipt hashed it (later readings were appended); its first 591 bytes still hash to the cited sha256."
+      }
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/typecheck-base.log",
+      "sha256": "3b36e22e1b0478b0238ff74f78f016d01c34b3acc5ef45f73c88babce588152f",
+      "bytes": 374,
+      "citedBy": [
+        "b14-0-admission.json.baselineMeasurements.typecheck.log"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/lint-base.log",
+      "sha256": "41c7f8c03b88a52f11dfef797f1e17a209b6f255a93072d1903764fc35baa8d9",
+      "bytes": 80866,
+      "citedBy": [
+        "b14-0-admission.json.baselineMeasurements.lint.log"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/lint-units-base.log",
+      "sha256": "5b011cca5ee3e74186606c498e9ebe5d9b25e3ca93b017c5ac9ee8de001f3a12",
+      "bytes": 746,
+      "citedBy": [
+        "b14-0-admission.json.baselineMeasurements.lintUnits.log"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/maintenance-base.log",
+      "sha256": "84d4d1d688e590aadb24c799634a28e8d2f09dcbe9af60c8b011e5d22a75dd03",
+      "bytes": 19526,
+      "citedBy": [
+        "b14-0-admission.json.baselineMeasurements.maintenance.log"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/red-run.json",
+      "sha256": "62918b8551a157c4a4ae310460dc4ff74e414c1bd98f6d2e45ec1a6bf1b28d76",
+      "bytes": 62184,
+      "citedBy": [
+        "b14-0-red.json.run.json"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/red-side.json",
+      "sha256": "d6834c6ebe7c19bc242bbe1c7ff592d0a49ef6c2cab4495d6685ed3e183283f8",
+      "bytes": 77485,
+      "citedBy": [
+        "b14-0-red.json.sideCheck.json"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/typecheck-red.log",
+      "sha256": "3b36e22e1b0478b0238ff74f78f016d01c34b3acc5ef45f73c88babce588152f",
+      "bytes": 374,
+      "citedBy": [
+        "b14-0-red.json.typecheck.log"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/idle-gates.log",
+      "sha256": "e6ace8b2feb0959b6a92737e1ecbf6e5e58a405f761a8a07695751c92ca3b96c",
+      "bytes": 16088,
+      "citedBy": [
+        "b14-0-local.json.runtime.idleLog"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/green-run.json",
+      "sha256": "562b933196a86a54710950d2ee95c45967c6cfee7ea3d4bb74aaf2a9f11c1272",
+      "bytes": 10792,
+      "citedBy": [
+        "b14-0-local.json.results.green.json"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/regression-green.json",
+      "sha256": "7aecbbfa54177e73bc111c43b11cf9ade1b8110f7e716f3a25fda308cf3803eb",
+      "bytes": 403602,
+      "citedBy": [
+        "b14-0-local.json.results.regression.json"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/broad.json",
+      "sha256": "619df7dea2d4672f2057e708361819219b73932dcd53851fafc6748e24f9fefe",
+      "bytes": 1157176,
+      "citedBy": [
+        "b14-0-local.json.results.broad.json"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/necessity-green.json",
+      "sha256": "fbd10c315cff98716898d261dca60ee6793f9e182671e8d95b0b12206aad12b1",
+      "bytes": 236177,
+      "citedBy": [
+        "b14-0-local.json.results.seamNecessity.json"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/probe/probe-results.json",
+      "sha256": "a4f59da21c4e997754288eca2e63f81dc5459a6d5aa44a5bcce66e7c37470ad2",
+      "bytes": 9572,
+      "citedBy": [
+        "b14-0-local.json.serverProbe.results"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/probe/server.log",
+      "sha256": "d6f37191a3253c0df623852339817e12fde3ec005166a044189a382ce6d55965",
+      "bytes": 7487,
+      "citedBy": [
+        "b14-0-local.json.serverProbe.serverLog"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/probe.mts",
+      "sha256": "78a62e31e6015f8b68293fe06044797261d3900d479517966faa235d7be2c563",
+      "bytes": 9533,
+      "citedBy": [
+        "b14-0-local.json.serverProbe.script"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/typecheck.log",
+      "sha256": "3b36e22e1b0478b0238ff74f78f016d01c34b3acc5ef45f73c88babce588152f",
+      "bytes": 374,
+      "citedBy": [
+        "b14-0-local.json.checks.typecheck.log"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/lint.log",
+      "sha256": "0ad822a06d83fd643fc5214b1329d2130ef184c0ebd4ddce1750b6afa0e7d979",
+      "bytes": 81300,
+      "citedBy": [
+        "b14-0-local.json.checks.lint.log"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/lint-units.log",
+      "sha256": "2ce9ba05bf8afcbdb9ed48c79ae893b1a731df081361c0b2a3543eff0c3cbe39",
+      "bytes": 746,
+      "citedBy": [
+        "b14-0-local.json.checks.lintUnits.log"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/format.log",
+      "sha256": "56bc8beeb59c7ae421f16df73354a8dd80c0adf8fe1fa36f1f5bff827023045d",
+      "bytes": 262,
+      "citedBy": [
+        "b14-0-local.json.checks.format.log"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/maintenance.log",
+      "sha256": "e118448c1ac0f66f835d581e54f24000c8789827de1f7e56b7ee73e68bec8acb",
+      "bytes": 19526,
+      "citedBy": [
+        "b14-0-local.json.checks.maintenance.log"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/openspec.log",
+      "sha256": "35a1cabfa87e09910ec90fb9337bc353010518beec543beb342b2900c6f91606",
+      "bytes": 13920,
+      "citedBy": [
+        "b14-0-local.json.checks.openspec.log"
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/validator-tests.log",
+      "sha256": "d29891c247cb5e2218a738ed8012df555fa4cb63a2e96119064fc6684473b92e",
+      "bytes": 33802,
+      "citedBy": [
+        "b14-0-local.json.checks.validatorTests.log"
+      ]
+    }
+  ],
+  "scope": "Fresh runs at the exact merge commit of the owned suite, the B14-0B owned suites with the guard, the 14 seamed suites, the B14-0A owned suites, the 111-suite census and the B14-0B closure proof set (S, six focused S, R, reduced P2CG1G2, P2CG1G2A and its related set, P2CG1G1 leaves, Task 14 selector, F, E, D, C, B and the 35 A1/A2 suites), combined and separately, plus typecheck and the validator, with hash references to the author proof logs. The author broad set (268 suites, 2827 tests), mutants, real server.js WebSocket probe and seam-necessity run are referenced by hash, not re-run; the necessity repeat on merged code is owed by B14-HEAD (B14Z-NEC-1). No full-stable, lint, format, browser, build or built-server socket smoke result is claimed for main; CI covered the first five on the head and the smoke stays owed (B14Z-SMOKE-1).",
+  "closure": "main-verified only. taskKeys is empty; no tasks.md row is ticked and no tick receipt is invented. Source/closure owned-resource cleanup is not established here.",
+  "preservation": "Proof and logs are base64 envelopes so repository LF normalization cannot alter their exact bytes. Decode data and verify payloadSha256/payloadBytes."
+}
