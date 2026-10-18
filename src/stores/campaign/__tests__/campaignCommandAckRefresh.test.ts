@@ -964,6 +964,133 @@ describe('a guarded refresh never writes for a stale binding (P2CF2)', () => {
     },
   );
 
+  // --- CF14: a discard flush adopted while an older guarded read is held ---
+
+  /** The discard flush's envelope as the row would hold it had it landed. */
+  function flushedRecord(): SerializedCampaign {
+    const flush = putRequests().find((request) => request.init.keepalive);
+    if (!flush) throw new Error('no discard flush was sent');
+    return {
+      ...putEnvelope(flush),
+      version: BASE_VERSION + 1,
+      instanceId: HOST_INSTANCE_ID,
+      authority: sourceCampaignAuthority(),
+    };
+  }
+
+  function ordinaryPuts(): CapturedRequest[] {
+    return putRequests().filter((request) => !request.init.keepalive);
+  }
+
+  /** Dirty, flushed on discard, then a guarded refresh starts its read. */
+  async function flushThenStartGuardedRefresh(): Promise<{
+    readonly refresh: Promise<boolean>;
+  }> {
+    useCampaignPersistenceStore.getState().markDirty();
+    useCampaignPersistenceStore.getState().flushPendingMutations();
+    const refresh = guardedRefresh(refreshContext());
+    await getIssued.promise;
+    return { refresh };
+  }
+
+  /** The document returns; its reconciliation read is answered with `record`. */
+  async function reconcileWith(record: SerializedCampaign): Promise<void> {
+    useCampaignPersistenceStore.getState().reconcileAfterDiscardFlush();
+    await until(() => gets.length === 2);
+    gets[1].resolve(okResponse(record));
+    await drainMicrotasks();
+  }
+
+  it.each(['the GET', 'the staged maxima'])(
+    'an older guarded refresh held on %s writes nothing over a discard flush adopted meanwhile',
+    async (held) => {
+      if (held === 'the staged maxima') {
+        // No cache key names the held row, so its read stages maxima.
+        campaignStore.setState({ cachedCampaignKey: null });
+      }
+      const { refresh } = await flushThenStartGuardedRefresh();
+      if (held === 'the staged maxima') {
+        gets[0].resolve(
+          okResponse(recordAt(BASE_VERSION, rosterWithMissingMaxima())),
+        );
+        await until(() => mockCanonicalLookups.length > 0);
+      }
+      await reconcileWith(flushedRecord());
+      const afterAdoption = observable();
+
+      if (held === 'the GET') {
+        gets[0].resolve(okResponse(recordAt(BASE_VERSION)));
+      } else {
+        mockCanonicalLookups[0].answer(canonicalUnit());
+      }
+      const adopted = await refresh;
+      await drainMicrotasks();
+      const afterRelease = observable();
+      jest.advanceTimersByTime(AUTO_SAVE_DEBOUNCE_MS);
+      await drainMicrotasks();
+
+      expect(afterAdoption).toMatchObject({
+        baseVersion: BASE_VERSION + 1,
+        dirty: true,
+        cachedKey: { instanceId: HOST_INSTANCE_ID, revision: BASE_VERSION + 1 },
+      });
+      expect(adopted).toBe(false);
+      expect(afterRelease).toEqual(afterAdoption);
+      expect(afterRelease.live).toBe(afterAdoption.live);
+      expect(afterRelease.roster).toBe(afterAdoption.roster);
+      // One re-armed ordinary save, at the token the flush earned.
+      expect(ordinaryPuts().map(putBaseVersion)).toEqual([BASE_VERSION + 1]);
+    },
+  );
+
+  it.each([
+    ['a digest that is not the flushed envelope', 'digest'],
+    ['a version the flush could not have produced', 'version'],
+  ])(
+    'still completes a guarded refresh when the reconciliation read shows %s',
+    async (_label, mismatch) => {
+      const { refresh } = await flushThenStartGuardedRefresh();
+      const landed = flushedRecord();
+      await reconcileWith(
+        mismatch === 'digest'
+          ? { ...landed, body: { ...landed.body, name: 'Other device' } }
+          : { ...landed, version: BASE_VERSION + 2 },
+      );
+      const afterRead = observable();
+
+      gets[0].resolve(okResponse(recordAt(BASE_VERSION + 1)));
+      const adopted = await refresh;
+
+      expect(afterRead.baseVersion).toBe(BASE_VERSION);
+      expect(adopted).toBe(true);
+      expect(useCampaignPersistenceStore.getState().baseVersion).toBe(
+        BASE_VERSION + 1,
+      );
+      expect(liveCampaign()?.name).toBe(`Row v${BASE_VERSION + 1}`);
+    },
+  );
+
+  it('never announces saving for a guarded refresh, while an ordinary load still does (m12)', async () => {
+    const transitions: string[] = [];
+    const unsubscribe = useCampaignPersistenceStore.subscribe(
+      (state, previous) => {
+        if (state.saveState !== previous.saveState) {
+          transitions.push(state.saveState);
+        }
+      },
+    );
+    autoAnswer = recordAt(BASE_VERSION + 1);
+
+    const adopted = await guardedRefresh(refreshContext());
+    const guarded = transitions.splice(0);
+    await useCampaignPersistenceStore.getState().loadCampaign(campaign.id);
+    unsubscribe();
+
+    expect(adopted).toBe(true);
+    expect(guarded).toEqual([]);
+    expect(transitions).toEqual(['saving', 'saved']);
+  });
+
   it('completes on its own writes when nothing supersedes it', async () => {
     const refresh = guardedRefresh(refreshContext());
     await getIssued.promise;

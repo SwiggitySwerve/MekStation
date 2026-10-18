@@ -32,7 +32,10 @@ import {
   foldCampaignSnapshot,
 } from '@/lib/campaign/coop/campaignAuthoritativeFold';
 import { projectAuthoritativeStateOntoCampaign } from '@/lib/campaign/coop/campaignMirrorProjection';
-import { campaignEventFromMessage } from '@/lib/campaign/coop/campaignSyncTransport';
+import {
+  APPLICATION_CONFIRMATION_TIMEOUT_MS,
+  campaignEventFromMessage,
+} from '@/lib/campaign/coop/campaignSyncTransport';
 import { useCampaignMirrorStore } from '@/lib/p2p/campaignMirrorStore';
 import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
 import { isCampaignWireEvent } from '@/types/campaign/CampaignSync';
@@ -147,9 +150,16 @@ function bindCampaignApplicationConsumer(
   let live = active;
   let latched = false;
   let queue = Promise.resolve();
+  // A close before receipt mode latches is silent, so a bound view that
+  // hears no campaign frame within one confirmation window rejoins once.
+  const quiet = active
+    ? setTimeout(rejoin, APPLICATION_CONFIRMATION_TIMEOUT_MS)
+    : undefined;
+  const heard = (): void => clearTimeout(quiet);
 
   const offError = active
     ? transport.onError((error) => {
+        // Every recovery signal, the unrequested receipt-mode close included.
         const message = error instanceof Error ? error.message : '';
         if (message.startsWith('Campaign application recovery required:'))
           rejoin();
@@ -158,6 +168,7 @@ function bindCampaignApplicationConsumer(
   function rejoin(): void {
     if (!live) return;
     live = false;
+    heard();
     offError();
     transport.close();
     onRejoin();
@@ -218,6 +229,7 @@ function bindCampaignApplicationConsumer(
   return {
     consume: (message) => {
       if (!active) return isOffer(message);
+      if (campaignEventFromMessage(message)) heard();
       // INTERNAL_ERROR precedes a server close; INVALID_INTENT is the transport's.
       if (
         message.kind === 'Error' &&
@@ -229,11 +241,14 @@ function bindCampaignApplicationConsumer(
       if (!isOffer(message))
         return latched && campaignEventFromMessage(message) !== null;
       latched = true;
-      queue = queue.then(() => settle(message));
+      // A step that throws, confirmApplied included, rejoins once; it never
+      // rejects the queue, so later steps still run and see the dead binding.
+      queue = queue.then(() => settle(message)).catch(() => rejoin());
       return true;
     },
     dispose: () => {
       live = false;
+      heard();
       offError();
     },
   };

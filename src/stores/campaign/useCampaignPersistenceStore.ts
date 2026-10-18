@@ -1285,6 +1285,9 @@ async function adoptFlushedRevision(
     if (flushedEnvelopeDigest(record) !== flushed.envelopeDigest) {
       return false;
     }
+    // A guarded refresh that read before this adoption holds an older row:
+    // a new generation stops it before its next write (CF14).
+    loadGeneration += 1;
     applySavedRecord(set, record);
     // The flush still is not an acknowledgement. What is adopted is the
     // compare-and-swap token, NOT the claim that this client has nothing

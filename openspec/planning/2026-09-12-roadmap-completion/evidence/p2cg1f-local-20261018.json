@@ -1,0 +1,262 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CG1F",
+  "stage": "local",
+  "date": "20261018",
+  "baseline": "3b80a8bff25ca474f766a5dc7efb290353697946",
+  "commits": {
+    "admission": "6a7f9e79abf90bc655dd176efb5c15ada8d79dd8 (rebased from ea4286c0 on 3b80a8bf onto 27eca6c1, main after #2230 E-DOC-1; own diff unchanged)",
+    "red": "74c792e872 (test leaves + red receipt + units.json red path; product byte-identical to baseline)",
+    "implementation": "this commit (two product leaves + local receipt + units.json local path; no test byte changed after RED)"
+  },
+  "rebase": "Main advanced to 27eca6c1 (#2230: one sentence of P2CG1E behavior in units.json + evidence/p2cg1e-sessionid-caller-documentary-correction-20261018.json). Rebased before the RED commit, no conflict; the P2CG1E behavior text is main's. The five F leaves are byte-identical at 3b80a8bf and 27eca6c1. Census below is measured against 27eca6c1 (the actual parent of the admission commit); 3b80a8bf..HEAD additionally shows #2230's two files, which are main's and not F's",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "L1 / P2CG1F implementation sub-agent"
+  },
+  "runtime": "Node v22.22.0 (C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0), real npm ci (1078 packages, package-lock byte-identical 5032b491..27eca6c1), every Jest run --runInBand after scripts/qc/machine-idle.mjs --own-pid 47516 reported MACHINE_IDLE (idle.log)",
+  "productBytes": [
+    {
+      "path": "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+      "sha256": "452c1b31b12546000dcf97cde4e685fe3efa800ac87920d93f364a1aac97f154",
+      "bytes": 9539
+    },
+    {
+      "path": "src/stores/campaign/useCampaignPersistenceStore.ts",
+      "sha256": "434b983df4dce78c0be2af0fbb43ab18a564c61028c35044a696e736c1fcdcfb",
+      "bytes": 59126
+    }
+  ],
+  "testBytes": [
+    {
+      "path": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx",
+      "sha256": "5e6c6a4e355ebd6e2c07f9b03c7709e8845e386cdababb41f8dd14310cf786e4",
+      "bytes": 54536
+    },
+    {
+      "path": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+      "sha256": "731471a645a699847277b2f8e20c203ce02c2e207aaada72e453c6c021dc200d",
+      "bytes": 38338
+    },
+    {
+      "path": "src/stores/campaign/__tests__/campaignCommandAckRefresh.test.ts",
+      "sha256": "711ec65763298c09a4bb7bed6cd794907672e26724259f74b5c47b78b6b849db",
+      "bytes": 38292
+    }
+  ],
+  "testBytesVersusRed": "Identical to the RED commit (git diff 74c792e872 -- <three test leaves> empty)",
+  "delivered": {
+    "CF13": "useCampaignApplicationConsumer: every queue step is settle(message).catch(() => rejoin()). A throw anywhere in a step (confirmApplied included) rejoins once; the queue never rejects, so later steps run and return on the dead binding without writing or ACKing",
+    "CF12": "The consumer rejoins on the transport's recovery signal by the fixed prefix, which carries P2CG1E's socket-closed; no product change was needed beyond a comment. Tests pin it idle, during a held refresh (no old-binding store/cache/fence/ACK write) and after application error + close (one reconnect)",
+    "CF-F3": "Pre-receipt quiet window: an active binding arms setTimeout(rejoin, APPLICATION_CONFIRMATION_TIMEOUT_MS) (P2CG1E export, = HEARTBEAT_TIMEOUT_MS, 60 s); the first campaign frame (offer or legacy) clears it, as do rejoin and dispose. A pre-receipt close (silent by E's design) therefore rejoins once after one window; a legacy server's baseline ends the window, so no reconnect loop. Matching stays on the typed result or the fixed prefix, never free text",
+    "CF14": "useCampaignPersistenceStore.adoptFlushedRevision bumps loadGeneration after the version and digest proofs and immediately before applySavedRecord. A guarded refresh that read before the adoption fails its next generation check (after the GET, after json, after the staged-maxima await) and writes nothing: no campaign, roster, cache key, baseVersion, replay fence, status or re-armed save. Unproved flushes (digest or version mismatch) do not bump, so a guarded refresh still completes. Row version and journal numbers stay separate",
+    "m7": "Pinned: host baseline at -1, linked event at sequence 0: fold advances, saved-row refresh awaited, fold reprojected after adoption, exact ACK (no product change)",
+    "m8": "Pinned in hostProjection: GM baseline with bundle [launch 2] then live launch 3; the GM fold holds [2] then [2,3] at each confirmApplied; dropped live fact and malformed bundle give a failed outcome, no applied receipt and one rejoin (no product change)",
+    "m12": "Decided by registration, pinned: a guarded refresh makes no saveState transition; an ordinary load still goes saving -> saved (no product change)"
+  },
+  "carryForwards": {
+    "CF-F3": "Absorbed (above)",
+    "CF-F6": "lint 87 warnings / 0 errors before and after, normalized warning-site set identical (174 lines each); useCampaignPersistenceStore.ts max-lines 990 -> 991 counted (already warned); the consumer does not warn. madge from F's two product leaves 1100 files / 173 chains before and after, identical chain set",
+    "CF-F7": "Protection re-read: contexts [\"Lint and Test\"], strict false, conversation resolution true, 0 approvals; pr-checks.yml blob a82fe0f72c613ed0f5fa87078c568ffc69f0aff0 unchanged. The 32 job names are verified by name on the pushed head",
+    "others": "CF-F1, CF-F2, CF-F4, CF-F5, CF-F8, CF-F9 are directed at other owners and not absorbed (see admission receipt)"
+  },
+  "mutationProbes": {
+    "script": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1f-proof-20261018/mutants.js",
+      "sha256": "2fc27b90fe3e6b728590a731259bbf2aa9e018bd785fde0b0d08156d27467c6f",
+      "bytes": 2713
+    },
+    "log": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1f-proof-20261018/mutants.log",
+      "sha256": "136ba72df14a278fd66083824affac7f2b5527f63ad900f5baba3c1eccdfe9ff",
+      "bytes": 846
+    },
+    "result": "9/9 caught (FM1 drop queue catch, FM2 drop generation bump, FM3 ignore socket-closed, FM4 facts always retained, FM5 no reprojection after adoption, FM6 bump before validation, FM7 no quiet window, FM8 campaign frame does not end the window, FM9 dispose leaves the window armed); product restored byte-identically after each (hash check)"
+  },
+  "results": {
+    "red": "3 suites, 78 tests: 73 passed, 5 failed (product byte-identical to baseline)",
+    "registeredLeaves": "3 suites, 78 tests: 78 passed",
+    "task14Selector": "4 suites, 104 tests: 104 passed",
+    "p2cg1e": "3 suites, 156 tests: 156 passed",
+    "p2cg1d": "4 suites, 119 tests: 119 passed",
+    "p2cg1c": "2 suites, 54 tests: 54 passed",
+    "p2cg1b": "2 suites, 45 tests: 45 passed",
+    "a1a2Suites35": "35 suites, 388 tests: 388 passed",
+    "relatedTests": "82 suites, 677 tests: 675 passed, 0 failed, 2 skipped (jest --findRelatedTests on the two product leaves)"
+  },
+  "checks": {
+    "typecheck": "PASS (TS7, npm run typecheck)",
+    "lint": "0 errors, 87 warnings = baseline, identical set",
+    "format": "PASS (npm run format:check)",
+    "lintUnits": "LINT_UNITS_PASS 17899/17899",
+    "madge": "1100 files, 173 chains = baseline, identical set",
+    "validator": "plain and --git PASS (80 nodes, 13 packages, 381 tasks, 40 triage rows); --next advisory prints U24b, exit 0, not permission",
+    "validatorTests": "86/86 (node --test validate-roadmap.test.mjs)",
+    "openspec": "openspec validate --all --strict: 230 passed, 0 failed",
+    "qc": "qc:openspec-ci:validate errors=0"
+  },
+  "census": {
+    "command": "git diff --numstat --no-renames 27eca6c1..HEAD",
+    "countedLines": {
+      "useCampaignApplicationConsumer.ts": 17,
+      "useCampaignPersistenceStore.ts": 3,
+      "units.json": 16,
+      "total": 36,
+      "cap": 500
+    },
+    "files": {
+      "changed": 9,
+      "reservedReviewSlot": 1,
+      "total": 10,
+      "cap": 15,
+      "list": [
+        "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+        "src/stores/campaign/useCampaignPersistenceStore.ts",
+        "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx",
+        "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+        "src/stores/campaign/__tests__/campaignCommandAckRefresh.test.ts",
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1f-admission-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1f-red-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1f-local-20261018.json"
+      ],
+      "reserved": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1f-admission-review-20261018.md (unwritten)"
+    },
+    "lineExempt": "test leaves 174 + 261 + 127 added; evidence receipts"
+  },
+  "boundary": "Dormant: no production install of the receipt port, no creator binding, no wire schema change, no numeric retirement; both product changes are reachable only through a transport bound to the mounted campaign (consumer) or a guarded refresh racing a non-co-op discard flush (store). Nothing outside the five leaves, units.json (P2CG1F fields only) and F's own receipts changed",
+  "logs": [
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1f-proof-20261018/red.log",
+      "sha256": "74548e5a4838250a202ecb7744117681ccd1b58ce5c367131916fe798f184d1a",
+      "bytes": 7725
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1f-proof-20261018/leaves.log",
+      "sha256": "28d8e2798e19f20dafec0fd94187e158138d18beee9e41c8788916c800ed6222",
+      "bytes": 3603
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1f-proof-20261018/selector.log",
+      "sha256": "37136f54e8fb301450f4f2de9c9be27eb9c59663e6d923534a0e7be61d520a95",
+      "bytes": 49154
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1f-proof-20261018/p2cg1e.log",
+      "sha256": "7875b3d88e8f868cad028e9a0ba8196e5ecc5605d241b208dc0f13c1eba7667d",
+      "bytes": 98569
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1f-proof-20261018/p2cg1d.log",
+      "sha256": "ca673e8db0e6dae10fc205d16baf1a007234bacc1cbb98ca02ee1cb76f21e5ea",
+      "bytes": 18005
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1f-proof-20261018/p2cg1c.log",
+      "sha256": "9f489fa26f945e377cd4f049f1bb79916857c947c00a7ae9242995beb498ee12",
+      "bytes": 51692
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1f-proof-20261018/p2cg1b.log",
+      "sha256": "625d6f8acea6905d05874dbe6aa3ed3ebc3c6f82b2e74805df4e1dc3ef685e77",
+      "bytes": 1007
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1f-proof-20261018/a1a2.log",
+      "sha256": "c43ff08f3e4e9c0eec90e157a5b4992d49f3255008892b5b16d71ba9d828dcf4",
+      "bytes": 382210
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1f-proof-20261018/related.log",
+      "sha256": "cc010bacd37ffe6cc587b642f10f2a97a17258a02f0a5e2bc600e051730b6a94",
+      "bytes": 62400
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1f-proof-20261018/typecheck.log",
+      "sha256": "053c2280a792aff2cb39181911b12988420ea1843cd1c728253d208fef2b184d",
+      "bytes": 538
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1f-proof-20261018/lint.log",
+      "sha256": "4c82adbab41bb09f4a0201e0e0124ceef14ef79d6bdc0e09192350816c51cfce",
+      "bytes": 39928
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1f-proof-20261018/lint-base.log",
+      "sha256": "458ec1d796380a73fe12eb420b59357520bfbae3496df91ef2d96334673d5da3",
+      "bytes": 39570
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1f-proof-20261018/format.log",
+      "sha256": "f87a588c0ed2c9179e7d98dac1594c13a5c4bcd339a202c8a9e473f38bc90e7c",
+      "bytes": 541
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1f-proof-20261018/lintUnits.log",
+      "sha256": "1313d98f7408c12cc6ee1c8d3a2b1184eaeaf990ec67359837d08c7a23dbb4b1",
+      "bytes": 720
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1f-proof-20261018/madge.log",
+      "sha256": "d86d55c7b1427d677509edb116af945b80b830c6566f198bdb01c71d7ea50d78",
+      "bytes": 106542
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1f-proof-20261018/madge-base.log",
+      "sha256": "adc5bd28ba11d0a3f80a92d44073385a7d271a5b1e960116ba9162f0be9b0fc0",
+      "bytes": 106006
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1f-proof-20261018/mutants.log",
+      "sha256": "136ba72df14a278fd66083824affac7f2b5527f63ad900f5baba3c1eccdfe9ff",
+      "bytes": 846
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1f-proof-20261018/mutants.js",
+      "sha256": "2fc27b90fe3e6b728590a731259bbf2aa9e018bd785fde0b0d08156d27467c6f",
+      "bytes": 2713
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1f-proof-20261018/run-proof.js",
+      "sha256": "49617ef11ddcc8ce0d7d92a185c30b04a9c0ca046778257d3011ca0c594402cc",
+      "bytes": 4789
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1f-proof-20261018/suites35.txt",
+      "sha256": "146494263be940d1639608d56d4d4e65dc79febe50de23b15b7d775c64421201",
+      "bytes": 2571
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1f-proof-20261018/census.md",
+      "sha256": "66fe796a0286a69384e622488d407ce4c0323aa26ecfc484c0f5097b8661eb81",
+      "bytes": 2860
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1f-proof-20261018/validator.log",
+      "sha256": "dc6aac199b60e7a28c4ef212b96353dd762a00cda345a5faac6b2438322202ec",
+      "bytes": 3173
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1f-proof-20261018/validatorTests.log",
+      "sha256": "fe3c8fdd791fe947880c96c6f917c316cadae119f5b1509d763ef8b280e56dc3",
+      "bytes": 16870
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1f-proof-20261018/openspec.log",
+      "sha256": "9a2fc1b02dcbc9a15ffca022435ba84d34f28897c56a92c3809d11e5bdc9bbc8",
+      "bytes": 7391
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1f-proof-20261018/qc.log",
+      "sha256": "6cc17ab8e6a18450088540537a9e497f270e6896a494a2d38906d0c3a09fd9f8",
+      "bytes": 820
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1f-proof-20261018/idle.log",
+      "sha256": "07cfeff37ffd0de26af5248981a5e7fcfef22034de86449aa48053f73477dfbc",
+      "bytes": 2578
+    }
+  ],
+  "status": "Local proof complete; awaiting independent exact-head review (sensitive: authority, privacy, replay, idempotency, concurrency). Do not merge from the author lane"
+}
