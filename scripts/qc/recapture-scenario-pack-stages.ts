@@ -4,6 +4,7 @@
  */
 import { spawnSync, type SpawnSyncReturns } from 'node:child_process';
 import fs from 'node:fs';
+import path from 'node:path';
 
 import type { ManifestEntry } from '../../src/lib/scenarioPacks/packSchemas';
 
@@ -264,12 +265,72 @@ export function remintPack(
   committedSizeBytes: number,
   issues: string[],
   deps: RecaptureStageDeps,
+  artifactDirectory?: string,
 ): PackRecaptureResult | null {
+  const runId = `recapture-${entry.id}-${Date.now()}-${process.pid}`;
+  const mintArgs = [deps.mintScriptPath, entry.id];
+  if (
+    artifactDirectory &&
+    !entry.parityAnchorJourney.startsWith('fast-forward:')
+  ) {
+    mintArgs.push(
+      '--output',
+      path.join(artifactDirectory, 'test-results'),
+      '--reporter=list',
+      '--trace=retain-on-failure',
+    );
+  }
   const mintResult: SpawnSyncReturns<Buffer> = spawnSync(
     process.execPath,
-    [deps.mintScriptPath, entry.id],
-    { cwd: deps.repoRoot, stdio: 'inherit' },
+    mintArgs,
+    {
+      cwd: deps.repoRoot,
+      env: {
+        ...process.env,
+        PLAYWRIGHT_E2E_RUN_ID: runId,
+        DEBUG: [process.env.DEBUG, 'pw:webserver'].filter(Boolean).join(','),
+      },
+      stdio: 'pipe',
+      maxBuffer: 64 * 1024 * 1024,
+    },
   );
+  if (mintResult.stdout) process.stdout.write(mintResult.stdout);
+  if (mintResult.stderr) process.stderr.write(mintResult.stderr);
+  if (artifactDirectory) {
+    fs.writeFileSync(
+      path.join(artifactDirectory, 'mint.stdout.log'),
+      mintResult.stdout ?? '',
+    );
+    fs.writeFileSync(
+      path.join(artifactDirectory, 'mint.stderr.log'),
+      mintResult.stderr ?? '',
+    );
+    fs.writeFileSync(
+      path.join(artifactDirectory, 'invocation.json'),
+      JSON.stringify(
+        {
+          runId,
+          command: [process.execPath, ...mintArgs],
+          serverCommand:
+            process.env.MEKSTATION_E2E_SERVER_COMMAND ?? 'npm run dev',
+          status: mintResult.status,
+          signal: mintResult.signal,
+          error: mintResult.error?.message,
+        },
+        null,
+        2,
+      ),
+    );
+    for (const relative of [`.sisyphus/e2e-runtime/${runId}`]) {
+      const source = path.join(deps.repoRoot, relative);
+      if (fs.existsSync(source))
+        fs.cpSync(
+          source,
+          path.join(artifactDirectory, path.basename(relative)),
+          { recursive: true },
+        );
+    }
+  }
   if (mintResult.error) {
     issues.push(
       `${entry.id}: re-mint failed to spawn: ${mintResult.error.message}`,

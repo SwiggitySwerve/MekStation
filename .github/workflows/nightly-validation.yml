@@ -263,7 +263,7 @@ jobs:
   #
   # Needs the chromium browser (flow-checkpoint + anchor-captured
   # re-mints drive a live Playwright journey against the self-booted
-  # Next dev server, mirroring e2e-full's own browser-cache steps
+  # production standalone server, mirroring e2e-full's own browser-cache steps
   # above) plus a full node_modules install (fast-forward re-mints run
   # via jest, headless, no browser).
   # ---------------------------------------------------------------
@@ -302,8 +302,26 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: npx playwright install-deps chromium
 
+      - name: Build production app for recapture
+        env:
+          NEXT_PUBLIC_E2E_MODE: 'true'
+          NEXT_PUBLIC_E2E_TEST: 'true'
+        run: npm run build
+
       - name: Re-mint every registered scenario pack and diff at the invariant level
+        env:
+          MEKSTATION_E2E_SERVER_COMMAND: 'cd .next/standalone && node ../../scripts/e2e/relaunching-server.mjs'
+          HOSTNAME: '127.0.0.1'
         run: node scripts/qc/recapture-scenario-packs.mjs
+
+      - name: Upload scenario pack recapture diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: nightly-scenario-pack-recapture
+          path: .sisyphus/scenario-pack-recapture
+          include-hidden-files: true
+          retention-days: 7
 
   # ---------------------------------------------------------------
   # Per-subsystem nightly audit lanes (W6 design D8): one matrix leg

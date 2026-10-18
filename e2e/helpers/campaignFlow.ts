@@ -132,10 +132,7 @@ export async function createCampaignViaWizard(
   await recorder.step(
     'submit campaign wizard and land on dashboard',
     async () => {
-      await page.getByTestId('wizard-submit-btn').click();
-      await expect(page).toHaveURL(/\/gameplay\/campaigns\/[^/]+$/, {
-        timeout: 30_000,
-      });
+      await submitCampaignWizard(page);
       await expect(page.getByTestId('campaign-save-status-card')).toBeVisible({
         timeout: 20_000,
       });
@@ -147,6 +144,45 @@ export async function createCampaignViaWizard(
     campaignId: campaignIdFromUrl(page),
     campaignUrl: page.url(),
   };
+}
+
+/** Require a successful save and a real dashboard before inspecting its widgets. */
+export async function submitCampaignWizard(page: Page): Promise<void> {
+  const saved = page
+    .waitForResponse(
+      (response) =>
+        response.request().method() === 'PUT' &&
+        /\/api\/campaigns\/[^/?]+$/.test(new URL(response.url()).pathname),
+      { timeout: 30_000 },
+    )
+    .then(async (response) => {
+      if (!response.ok()) {
+        throw new Error(
+          `Campaign create save failed: PUT ${response.url()} returned ${response.status()}\n${await response.text()}`,
+        );
+      }
+    });
+  const dashboard = expect(page).toHaveURL(
+    /\/gameplay\/campaigns\/(?!create(?:[/?#]|$))[^/?#]+\/?(?:[?#].*)?$/,
+    { timeout: 30_000 },
+  );
+  const wizardError = page
+    .getByTestId('name-error')
+    .waitFor({
+      state: 'visible',
+      timeout: 30_000,
+    })
+    .then(async () => {
+      throw new Error(
+        `Campaign create failed: ${await page.getByTestId('name-error').innerText()}`,
+      );
+    });
+  // Install all rejection handlers before clicking: a fast failed PUT must
+  // surface its status/body, and a local save error may precede any request.
+  await Promise.all([
+    Promise.race([Promise.all([saved, dashboard]), wizardError]),
+    page.getByTestId('wizard-submit-btn').click(),
+  ]);
 }
 
 /**

@@ -1,6 +1,11 @@
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+
 import { SCENARIO_PACK_MANIFEST } from '../../e2e/scenario-packs/manifest';
 import {
   classifyGenesisSource,
+  remintPack,
   validateAndCompareFreshStage,
   validateCommittedPayloadStage,
   type RecaptureStageDeps,
@@ -85,5 +90,68 @@ describe('scenario pack recapture dispatch', () => {
       'unsupported campaign-anchor genesis',
     );
     expect(deriveFinances).not.toHaveBeenCalled();
+  });
+});
+describe('per-pack failure diagnostics', () => {
+  it('retains distinct failed invocation output and browser artifacts across packs', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'scenario-recapture-'));
+    const script = path.join(root, 'mint.mjs');
+    fs.writeFileSync(
+      script,
+      `
+      import fs from 'node:fs';
+      const output = process.argv[process.argv.indexOf('--output') + 1];
+      fs.mkdirSync(output, {recursive:true});
+      fs.writeFileSync(output + '/error-context.md', process.argv[2]);
+      console.log('stdout ' + process.argv[2]);
+      console.error('PUT 404 ' + process.argv[2]);
+      process.exitCode = 1;
+    `,
+    );
+    const stdout = jest
+      .spyOn(process.stdout, 'write')
+      .mockImplementation(() => true);
+    const stderr = jest
+      .spyOn(process.stderr, 'write')
+      .mockImplementation(() => true);
+    try {
+      for (const entry of SCENARIO_PACK_MANIFEST.slice(0, 2)) {
+        const artifacts = path.join(root, entry.id);
+        fs.mkdirSync(artifacts);
+        const result = remintPack(
+          entry,
+          path.join(root, 'missing.json'),
+          42,
+          [],
+          {
+            repoRoot: root,
+            mintScriptPath: script,
+          } as RecaptureStageDeps,
+          artifacts,
+        );
+        expect(result?.ok).toBe(false);
+      }
+      for (const entry of SCENARIO_PACK_MANIFEST.slice(0, 2)) {
+        const artifacts = path.join(root, entry.id);
+        expect(
+          fs.readFileSync(path.join(artifacts, 'mint.stderr.log'), 'utf8'),
+        ).toContain(`PUT 404 ${entry.id}`);
+        expect(
+          fs.readFileSync(
+            path.join(artifacts, 'test-results/error-context.md'),
+            'utf8',
+          ),
+        ).toBe(entry.id);
+        expect(
+          JSON.parse(
+            fs.readFileSync(path.join(artifacts, 'invocation.json'), 'utf8'),
+          ),
+        ).toMatchObject({ status: 1 });
+      }
+    } finally {
+      stdout.mockRestore();
+      stderr.mockRestore();
+      fs.rmSync(root, { recursive: true });
+    }
   });
 });

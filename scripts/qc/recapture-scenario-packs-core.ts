@@ -1,4 +1,5 @@
 #!/usr/bin/env npx tsx
+import { execFileSync } from 'node:child_process';
 /**
  * Scenario Pack Nightly Recapture — core logic (task 6.1, design D7 layer
  * 4 / R6 / R9).
@@ -455,7 +456,10 @@ function buildRecaptureDeps() {
 
 async function recapturePack(
   entry: ManifestEntry,
+  artifactRoot: string,
 ): Promise<PackRecaptureResult> {
+  const artifactDirectory = path.join(artifactRoot, entry.id);
+  fs.mkdirSync(artifactDirectory, { recursive: true });
   const payloadAbsolutePath = path.join(SCENARIO_PACKS_DIR, entry.payloadPath);
   const provenanceAbsolutePath = provenancePathFor(payloadAbsolutePath);
 
@@ -477,6 +481,17 @@ async function recapturePack(
   const genesisClass = classifyGenesisSource(entry);
   const issues: string[] = [];
   const deps = buildRecaptureDeps();
+  fs.writeFileSync(
+    path.join(artifactDirectory, 'committed.payload.json'),
+    payloadBackup.content!,
+  );
+  if (provenanceBackup.content)
+    fs.writeFileSync(
+      path.join(artifactDirectory, 'committed.provenance.json'),
+      provenanceBackup.content,
+    );
+  let mintAttempted = false;
+  let mintCompleted = false;
 
   try {
     const committedRaw: unknown = JSON.parse(payloadBackup.content!);
@@ -490,14 +505,17 @@ async function recapturePack(
     );
     if (committedFailure) return committedFailure;
 
+    mintAttempted = true;
     const remintFailure = remintPack(
       entry,
       payloadAbsolutePath,
       committedSizeBytes,
       issues,
       deps,
+      artifactDirectory,
     );
     if (remintFailure) return remintFailure;
+    mintCompleted = true;
 
     const freshContent = fs.readFileSync(payloadAbsolutePath, 'utf8');
     const freshSizeBytes = Buffer.byteLength(freshContent, 'utf8');
@@ -515,12 +533,46 @@ async function recapturePack(
       issues,
       deps,
     });
+  } catch (error) {
+    return {
+      packId: entry.id,
+      ok: false,
+      issues: [...issues, `${entry.id}: ${(error as Error).message}`],
+      committedSizeBytes,
+      freshSizeBytes: null,
+    };
   } finally {
-    // Always restore, pass or fail — a local recapture run must be
-    // re-runnable and must never leave a dirty working tree (task 6.1/6.3
-    // acceptance).
-    restoreFile(payloadBackup);
-    restoreFile(provenanceBackup);
+    try {
+      // Preserve even a partially written capture before restoring the originals.
+      if (
+        mintAttempted &&
+        fs.existsSync(payloadAbsolutePath) &&
+        (mintCompleted ||
+          fs.readFileSync(payloadAbsolutePath, 'utf8') !==
+            payloadBackup.content)
+      )
+        fs.copyFileSync(
+          payloadAbsolutePath,
+          path.join(artifactDirectory, 'fresh.payload.json'),
+        );
+      if (
+        mintAttempted &&
+        fs.existsSync(provenanceAbsolutePath) &&
+        (mintCompleted ||
+          fs.readFileSync(provenanceAbsolutePath, 'utf8') !==
+            provenanceBackup.content)
+      )
+        fs.copyFileSync(
+          provenanceAbsolutePath,
+          path.join(artifactDirectory, 'fresh.provenance.json'),
+        );
+    } finally {
+      // Always restore, including if preserving diagnostics fails — a local recapture run must be
+      // re-runnable and must never leave a dirty working tree (task 6.1/6.3
+      // acceptance).
+      restoreFile(payloadBackup);
+      restoreFile(provenanceBackup);
+    }
   }
 }
 
@@ -573,13 +625,43 @@ async function main(): Promise<void> {
   );
 
   const results: PackRecaptureResult[] = [];
+  const artifactRoot = path.join(
+    REPO_ROOT,
+    '.sisyphus',
+    'scenario-pack-recapture',
+    `${Date.now()}-${process.pid}`,
+  );
+  fs.mkdirSync(artifactRoot, { recursive: true });
+  fs.writeFileSync(
+    path.join(artifactRoot, 'run.json'),
+    `${JSON.stringify(
+      {
+        head: execFileSync('git', ['rev-parse', 'HEAD'], {
+          cwd: REPO_ROOT,
+          encoding: 'utf8',
+        }).trim(),
+        node: process.version,
+        argv: process.argv,
+        packs: entries.map((entry) => entry.id),
+        serverCommand:
+          process.env.MEKSTATION_E2E_SERVER_COMMAND ?? 'npm run dev',
+      },
+      null,
+      2,
+    )}\n`,
+  );
+  console.log(`[recapture-scenario-packs] diagnostics: ${artifactRoot}`);
   for (const entry of entries) {
     console.log(
       `\n[recapture-scenario-packs] === ${entry.id} (${entry.kind}, genesis: ${entry.parityAnchorJourney}) ===`,
     );
     // eslint-disable-next-line no-await-in-loop -- packs re-mint sequentially by design (chromium-only, workers=1, design R9); parallel re-mints would contend the same shared dev server / SQLite file.
-    const result = await recapturePack(entry);
+    const result = await recapturePack(entry, artifactRoot);
     results.push(result);
+    fs.writeFileSync(
+      path.join(artifactRoot, entry.id, 'result.json'),
+      `${JSON.stringify(result, null, 2)}\n`,
+    );
     const sizeReport =
       result.freshSizeBytes !== null
         ? `committed=${formatKB(result.committedSizeBytes)} fresh=${formatKB(result.freshSizeBytes)}`
@@ -593,6 +675,10 @@ async function main(): Promise<void> {
   }
 
   const failed = results.filter((result) => !result.ok);
+  fs.writeFileSync(
+    path.join(artifactRoot, 'results.json'),
+    `${JSON.stringify({ results }, null, 2)}\n`,
+  );
   console.log(
     `\n[recapture-scenario-packs] ${results.length - failed.length}/${results.length} pack(s) passed.`,
   );
