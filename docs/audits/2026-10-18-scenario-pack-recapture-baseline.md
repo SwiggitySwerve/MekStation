@@ -215,6 +215,7 @@ blocking issue in the proposed split.
 
 #2278 remains under independent review; the council restack below incorporates
 its current head without waiting for merge.
+
 ## Council restack onto open PR #2278
 
 Per Root's council merge order (#2282, #2278, #2279), merged #2278 head
