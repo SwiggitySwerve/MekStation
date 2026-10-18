@@ -7094,7 +7094,7 @@
         "P2CG1F"
       ],
       "successors": [
-        "P2CG1G2",
+        "P2CG1G2A",
         "P2C"
       ],
       "source20261016": {
@@ -7105,10 +7105,64 @@
       }
     },
     {
+      "id": "P2CG1G2A",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "S3 identity-only support slice split from P2CG1G2 (itself split from P2CG1), preceding the still-atomic five-creator G2 change. Authenticated identity-only invite mode (G2-BOOT-1), dormant until reduced G2 consumes it. Explicit campaignIdentity=1 requires a non-empty Bearer Authorization header, rejects query-token authentication and malformed mode queries, verifies the real server-derived campaign-session scope for the resolved live match, and returns only {matchId,status,layout,campaignId} from valid durable co-op identity. Identity-mode successes and failures use Cache-Control: private, no-store. Preserve the anonymous summary exactly; HTTP changes no seats, membership or receipts and never returns raw state/bootstrap/grants. The gate is a vault identity plus live room code, not membership. Existing campaignId enumeration/REST capability exposure remains B15; the new disclosure is live-code-to-campaignId correlation. WS membership/revocation/seat authority is independent. In securityBoundary.test.ts use swappable hoisted delegates, actual verifier, real InMemoryMatchStore and real signed-token fixtures, restore defaults, and prove allowlist/privacy, invalid/expired/wrong-scope/malformed cases and unchanged state. Existing metadata/WS privacy tests remain unchanged controls. Planned exact leaves: src/pages/api/multiplayer/invites/[roomCode].ts, src/__tests__/api/securityBoundary.test.ts. Known source/test/lifecycle subtotal 3; two source/test leaves plus units.json, admission/red/local receipts and one independent admission-review slot = 7/15. Route prototype +46, lifecycle estimated +20-30: about 66-76/500 counted additions; remeasure on actual post-G1 Main. Parent split amendment 2026-10-18 (evidence/p2cg1g2-split-amendment-20261018.json). One product-writing lane including closure: no source admission while any other unit is in flight. Re-read verified F/G1 and predecessor exact-main proofs, fetched-main ancestry and closure; remeasure actual post-G1 Main before freezing the complete literal source/test/lifecycle/stage/helper/evidence manifest. Registration is not source admission, activation, runtime certification or release. Preserve normal sensitive reviews/OWNER-RULING and independent registration review/CI/exact-main proof. No omitted scenario, cap exception or cap inflation.",
+      "ownershipPaths": [
+        "src/pages/api/multiplayer/invites/[roomCode].ts",
+        "src/__tests__/api/securityBoundary.test.ts"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "splitFrom": "P2CG1G2",
+      "admissionRequires": "Narrower ordinary-cap successor of P2CG1 (plan Task 14), registered by evidence/p2cg1-split-registration-20261016.json. P2CG1G1 must be complete with a genuine exact-main mainProof PASS before the parent releases this unit to planned; NEXT does not enforce these unit dependencies. No preserved P2CG1 source candidate exists; this slice runs its own red-first proof and measured admission. Task8 must first complete independent exact-head docs review, current required CI, guarded merge and independent exact-main registration proof. Parent verifies documentary predecessors complete with genuine exact-main mainProof PASS, ancestry and closure on fetched main and no actual overlap before every source admission. NEXT selection supplies no permission. Prospective assignment only; source permission remains non-effective until normal finite admission freezes the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measures actual unique files and product/test additions under unchanged 15-file/500-product-added-line limits. Named source/test lists and known lower bounds are in R2.authority-live.ownershipPathsAmended20261009P2C.restrictions for this ID. No unnamed test, directory-wide grant, placeholder/hash, capException or cap inflation. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze of actual bytes/names/hashes and full census. If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required scenario. Parent split amendment 2026-10-18 (evidence/p2cg1g2-split-amendment-20261018.json). One product-writing lane including closure: no source admission while any other unit is in flight. Re-read verified F/G1 and predecessor exact-main proofs, fetched-main ancestry and closure; remeasure actual post-G1 Main before freezing the complete literal source/test/lifecycle/stage/helper/evidence manifest. Registration is not source admission, activation, runtime certification or release. Preserve normal sensitive reviews/OWNER-RULING and independent registration review/CI/exact-main proof. No omitted scenario, cap exception or cap inflation.",
+      "predecessors": [
+        "P2CG1G1"
+      ],
+      "successors": [
+        "P2CG1G2"
+      ],
+      "registration20261018G2Split": {
+        "evidence": "evidence/p2cg1g2-split-amendment-20261018.json",
+        "option": "S3",
+        "ancestor": "P2CG1",
+        "sourceAdmitted": false
+      }
+    },
+    {
       "id": "P2CG1G2",
       "node": "R2.authority-live",
       "taskKeys": [],
-      "behavior": "Ninth narrower P2CG1 successor: creator binding. Binds expectedCampaignId at every creator in one change (CF9): CampaignCoopEntryPanel.tsx 328 (a direct connectCampaignSyncTransport call with a freshly minted token, not connectStoredCampaignSyncTransport; binding there passes expectedCampaignId into that call, whose options already accept it), the surface's two connectStoredCampaignSyncTransport calls at 159 and 294, and launch.tsx 149 and 177. CF10: the entry panel and the launch page resolve the transport through getActiveCampaignSyncTransport on each use, so a consumer rejoin re-seats them. The unit must prove the wire is byte-identical against the legacy binder: the bound join still quotes lastSeq (P2CG1E), and numeric observation ACKs are unchanged until an offer latches receipt mode (P2CF2 N5). index.coop.test.tsx mocks the transport module without getActiveCampaignSyncTransport, so it changes with the entry panel. Planned leaves (10): src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx, src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx, src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx, src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx, src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx and src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx, src/pages/api/multiplayer/invites/[roomCode].ts, src/__tests__/api/securityBoundary.test.ts, src/lib/campaign/coop/campaignSyncTransport.ts, src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts. Estimated at about 250-425 counted lines with lifecycle; that is not a cap-fit proof. Parent literal-path amendment 2026-10-18 (evidence/p2cg1g2-literal-path-amendment-20261018.json): G2-BOOT-1 uses an authenticated identity-only invite response before the direct bound creator, preserving the anonymous summary and never fetching raw match metadata; the existing API security-boundary test adds an isolated real-verifier/real-store fixture to prove the actual response and disclosure boundary. G2-RESEAT-1 adds an active-transport registry subscription with its existing transport test, so entry/participation listeners detach A and attach B immediately while every use rechecks the delivered getter and stale cleanup cannot close B. No F consumer edit, activation or legacy-wire change. Ten source/test leaves plus units.json, admission/red/local receipts and one independent admission-review slot reserve 15 of 15 source-stage files; 250-425 counted additions is a conservative estimate, not measured fit. Root parent ruling 2026-10-18 grants exact ownership for the four added leaves in this same amendment. The API proof uses securityBoundary.test.ts instead of multiplayerMatchMeta.test.ts to avoid the completed U35 units' API-test ownership; existing metadata privacy tests remain unchanged controls. Exact transport aliases on the owner node satisfy the validator's literal membership rule without broadening src/lib/campaign. Normal predecessor, no-in-flight-overlap and finite source-admission gates remain; use separately registered ordinary-cap support successors if actual scope exceeds 15 files/500 additions. This registration grants no source admission.",
+      "behavior": "Reduced ninth P2CG1 successor after the S3 split: binds all five creators in one change (CF9), consuming G2A identity-only invite resolution before direct guest socket construction. Bind expectedCampaignId to actual campaign identity at CampaignCoopEntryPanel direct connectCampaignSyncTransport, both connected-surface connectStoredCampaignSyncTransport calls and both launch-page creators; use campaignId != matchId in runtime proof. Reject missing/invalid identity or foreign snapshots before adoption and never fetch raw match metadata. G2-RESEAT-1 adds synchronous registry invalidation after map writes, subscribe-then-reconcile through the active getter, guarded stale release, throwing/reentrant observer isolation and idempotent same-object registration. New src/lib/campaign/coop/campaignSyncTransportSeat.ts owns seat identity checks (matchId/campaignId/playerId/role), A-to-B detach/attach and snapshot waiting with one fixed timeout, abort/disposal and post-await active-seat verification. Listeners and sends recheck the active getter; replacement B receives the current participation choice once, and its first frame works without an unrelated render. Cleanup disposes its own listeners and never closes foreign/replacement transport B; launch does not own the shared socket. Launch seat playerId comes from the stored co-op token, never coopIdentity host/guest labels. The new src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.creatorBinding.test.tsx proves both surface creators at runtime; G1/F suites remain unchanged, including the three fake transports (CF-G11: no added confirmApplied; real-bound tests inject a campaign frame or unmount before 60 seconds). CF-G4 becomes reachable at G2 activation; implementer analysis found no 60-second loop against today's healthy legacy servers because the first baseline clears the quiet window, and silent open()===false is receipt-mode only. This is analysis, not new runtime proof. CF-G4 cap/backoff/terminal state and user-facing text stay with the consumer's next owner at or before H. No consumer edit or wire/receipt activation here: compare exact bound/unbound join bytes including positive lastSeq and numeric ACK bytes before a genuine offer. Ten source/test leaves: src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx, src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx, src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx, src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx, src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx, src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx, src/lib/campaign/coop/campaignSyncTransport.ts, src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts, src/lib/campaign/coop/campaignSyncTransportSeat.ts, src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.creatorBinding.test.tsx. Source/test/lifecycle subtotal 11; ten leaves plus units.json, admission/red/local receipts and one reserved independent admission-review file = 15/15 with no spare. Product prototype 290 additions, plus estimated lifecycle 20-30 = about 310-320/500; estimates must be remeasured at admission. Parent split amendment 2026-10-18 (evidence/p2cg1g2-split-amendment-20261018.json). One product-writing lane including closure: no source admission while any other unit is in flight. Re-read verified F/G1 and predecessor exact-main proofs, fetched-main ancestry and closure; remeasure actual post-G1 Main before freezing the complete literal source/test/lifecycle/stage/helper/evidence manifest. Registration is not source admission, activation, runtime certification or release. Preserve normal sensitive reviews/OWNER-RULING and independent registration review/CI/exact-main proof. No omitted scenario, cap exception or cap inflation.",
       "ownershipPaths": [
         "src/components/campaign/coop",
         "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
@@ -7116,10 +7170,9 @@
         "src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx",
         "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx",
         "src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx",
-        "src/pages/api/multiplayer/invites/[roomCode].ts",
-        "src/__tests__/api/securityBoundary.test.ts",
         "src/lib/campaign/coop/campaignSyncTransport.ts",
-        "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts"
+        "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+        "src/lib/campaign"
       ],
       "ownershipExceptions": [
         "openspec/planning/2026-09-12-roadmap-completion/units.json"
@@ -7152,9 +7205,9 @@
       },
       "ownerGate": null,
       "splitFrom": "P2CG1",
-      "admissionRequires": "Narrower ordinary-cap successor of P2CG1 (plan Task 14), registered by evidence/p2cg1-split-registration-20261016.json. P2CG1G1 must be complete with a genuine exact-main mainProof PASS before the parent releases this unit to planned; NEXT does not enforce these unit dependencies. No preserved P2CG1 source candidate exists; this slice runs its own red-first proof and measured admission. Task8 must first complete independent exact-head docs review, current required CI, guarded merge and independent exact-main registration proof. Parent verifies documentary predecessors complete with genuine exact-main mainProof PASS, ancestry and closure on fetched main and no actual overlap before every source admission. NEXT selection supplies no permission. Prospective assignment only; source permission remains non-effective until normal finite admission freezes the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measures actual unique files and product/test additions under unchanged 15-file/500-product-added-line limits. Named source/test lists and known lower bounds are in R2.authority-live.ownershipPathsAmended20261009P2C.restrictions for this ID. No unnamed test, directory-wide grant, placeholder/hash, capException or cap inflation. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze of actual bytes/names/hashes and full census. If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required scenario.",
+      "admissionRequires": "Narrower ordinary-cap successor of P2CG1 (plan Task 14), registered by evidence/p2cg1-split-registration-20261016.json. P2CG1G2A must be complete with a genuine exact-main mainProof PASS before the parent releases this unit to planned; NEXT does not enforce these unit dependencies. No preserved P2CG1 source candidate exists; this slice runs its own red-first proof and measured admission. Task8 must first complete independent exact-head docs review, current required CI, guarded merge and independent exact-main registration proof. Parent verifies documentary predecessors complete with genuine exact-main mainProof PASS, ancestry and closure on fetched main and no actual overlap before every source admission. NEXT selection supplies no permission. Prospective assignment only; source permission remains non-effective until normal finite admission freezes the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measures actual unique files and product/test additions under unchanged 15-file/500-product-added-line limits. Named source/test lists and known lower bounds are in R2.authority-live.ownershipPathsAmended20261009P2C.restrictions for this ID. No unnamed test, directory-wide grant, placeholder/hash, capException or cap inflation. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze of actual bytes/names/hashes and full census. If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required scenario. Parent split amendment 2026-10-18 (evidence/p2cg1g2-split-amendment-20261018.json). One product-writing lane including closure: no source admission while any other unit is in flight. Re-read verified F/G1 and predecessor exact-main proofs, fetched-main ancestry and closure; remeasure actual post-G1 Main before freezing the complete literal source/test/lifecycle/stage/helper/evidence manifest. Registration is not source admission, activation, runtime certification or release. Preserve normal sensitive reviews/OWNER-RULING and independent registration review/CI/exact-main proof. No omitted scenario, cap exception or cap inflation.",
       "predecessors": [
-        "P2CG1G1"
+        "P2CG1G2A"
       ],
       "successors": [
         "P2CG1R",
@@ -7746,6 +7799,7 @@
         "P2CG1E",
         "P2CG1F",
         "P2CG1G1",
+        "P2CG1G2A",
         "P2CG1G2",
         "P2CG1R",
         "P2CG1S",
@@ -21292,7 +21346,10 @@
       "P2CG1E",
       "P2CG1F",
       "P2CG1G1",
+      "P2CG1G2A",
       "P2CG1G2",
+      "P2CG1R",
+      "P2CG1S",
       "P2CG1H",
       "P2CG1I1",
       "P2CG1I2",
@@ -21312,7 +21369,10 @@
         "P2CG1E",
         "P2CG1F",
         "P2CG1G1",
+        "P2CG1G2A",
         "P2CG1G2",
+        "P2CG1R",
+        "P2CG1S",
         "P2CG1H",
         "P2CG1I1",
         "P2CG1I2",
@@ -21325,7 +21385,7 @@
       "18": ["P2"],
       "19": ["U38"]
     },
-    "order": "The registered predecessor order, unchanged: each unit is released by the parent only after its predecessor is main-verified on fetched Main; P2 is readmitted by P2C (Task 17) under P2.appliedViewConvergenceBlocked20261002 and P2C.behavior; U38 follows P2.",
+    "order": "Current effective L1 order (20 units, including the R/S prerequisites and S3 G2A insertion): P2CG1B -> P2CG1C -> P2CG1D -> P2CG1E -> P2CG1F -> P2CG1G1 -> P2CG1G2A -> P2CG1G2 -> P2CG1R -> P2CG1S -> P2CG1H -> P2CG1I1 -> P2CG1I2 -> P2CG1I3 -> P2CG1I4 -> P2CG2 -> P2CH -> P2C -> P2 -> U38. Each release requires predecessor genuine exact-main mainProof PASS, fetched-main ancestry and closure. The one-product-writing-lane rule and all original release acceptance/checkpoint/task holders remain. P2 readmission remains governed by P2C and its registered convergence gates.",
     "entry": "ts7TrackRegistration20261016.stoppingCondition is met: at baseline all eleven active TS7 units (TS7S1A through TS7S5C, including TS7S2OD, TS7S5B and TS7S5C) are main-verified, so the TS7 track is complete. L0 (v2.1.0) is published (tag v2.1.0 at e308fb2a44d8cbea3317acbf165bd536b31e45cb, GitHub release 2026-10-17T11:11:29Z) and is independent of this layer.",
     "releasePredicate": "U38 main-verified with an exact-main mainProof PASS; npm run verify:qc:coop-campaign-journey PASS on that exact Main (P2's registered proof) and the Task 19 selector PASS; then v2.2.0 minted by auto-version workflow_dispatch (bump_type=minor), the L0 installer smoke repeated on the v2.2.0 installer and a playtest/ session recorded where two players and a non-playing GM launch, play to Results and reload one shared mission. The release is a layer boundary, not a phase exit: P3 stays open until its full exit contract (PLAN.md P3 Exit) is met.",
     "acceptance": {
@@ -21368,6 +21428,15 @@
       ],
       "order": "G2 -> R -> S -> H; both are L1 supporting prerequisites, covered by the existing one-lane rule. Original task holders, release acceptance and H checkpoint remain unchanged.",
       "checkpointQualification": "The original description of H as the first behaviour-changing merge predates B10 registration. S changes an already-live privacy boundary and requires full proof; H retains its independent activation checkpoint. No new owner decision or gate relaxation is made."
+    },
+    "amended20261018G2Split": {
+      "evidence": "evidence/p2cg1g2-split-amendment-20261018.json",
+      "additionalUnits": [
+        "P2CG1G2A"
+      ],
+      "unitCount": 20,
+      "order": "F -> G1 -> G2A -> G2 -> R -> S -> H",
+      "rule": "S3 prospective registration only. G1 exact leaves and lifecycle, G2 successors, R/S/H gates, release acceptance, task holders and H checkpoint are unchanged. The original 17 plus R/S was 19; insert G2A before G2 for 20. Prior dated registration records remain historical."
     }
   },
   "hPrereqRegistration20261017": {
@@ -21385,6 +21454,7 @@
       "P2CG1E",
       "P2CG1F",
       "P2CG1G1",
+      "P2CG1G2A",
       "P2CG1G2",
       "P2CG1R",
       "P2CG1S",

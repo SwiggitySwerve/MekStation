@@ -1,0 +1,1979 @@
+{
+  "event": "parent-split-amendment",
+  "at": "2026-10-18T04:30:35.951Z",
+  "artifactDate": "2026-10-18",
+  "baseline": "54764673b3eb8aaa9759bfc919461640f7e360b6",
+  "registrationOnly": true,
+  "sourceAdmitted": false,
+  "productFiles": 0,
+  "proofClass": "ledger",
+  "actor": "implementation sub-agent; not an independent reviewer",
+  "authority": {
+    "ruler": "Root on behalf of the owner",
+    "standingInstruction": "continue with recommended options and fix the issues that come up, publish as needed",
+    "ruling": "Adopt S3. Register blocked P2CG1G2A identity-only invite resolution after P2CG1G1 and before reduced P2CG1G2. Move the invite route and securityBoundary.test.ts to G2A; keep all five creator bindings in G2 with the new seat module and surface creator-binding test. Retain 15/500, sensitive reviews, serial lane, G2 successors R/H/P2C, CF-G4 with the consumer next owner at or before H, and launch seat playerId from the stored token. Update the effective L1 ordering to 20. Publish docs-only; do not merge."
+  },
+  "scope": [
+    "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+    "openspec/planning/2026-09-12-roadmap-completion/units.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2-split-amendment-20261018.json",
+    "docs/audits/2026-10-18-p2cg1g2-split-amendment.md"
+  ],
+  "preimages": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "bytes": 1609788,
+      "sha256": "660648099d0681f46eb961b829227bd9832d7bfe90804ac9f6902804b0f01876"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "bytes": 1087211,
+      "sha256": "152072508187488758b315649b3663568b0060ec1bd9480991de500543db7718"
+    }
+  ],
+  "postimages": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "bytes": 1618059,
+      "sha256": "f75580c661fd49547ea4b4e022e1319470cb51dac8936e6aefac1d7a7fa6505f"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "bytes": 1087459,
+      "sha256": "2d116e5cf9687e2f493a6aab0a809abc79611b1f5dc4e1d9ef2b9f51229f4e94"
+    }
+  ],
+  "consulted": [
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-impl-20261018/docs/audits/2026-10-18-p2cg1g2-admission-stop-report.md",
+      "bytes": 10073,
+      "sha256": "ea71a1d853cd97689e816b93014ae46a34779331a182ea0eafd317350816e92d"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-impl-20261018/G2-PREP.md",
+      "bytes": 16941,
+      "sha256": "aa6a2e72683f01cc289ff0c2da44731e789857c830d35c7c298836464a996653"
+    },
+    {
+      "path": "docs/audits/2026-10-18-g2-preadmission-design.md",
+      "bytes": 26198,
+      "sha256": "3b8cbf59aa95a5e88723a808103bb2d8dbb6b30ad7c3bf70c41ea83aafbcc64b"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1-split-registration-20261016.json",
+      "bytes": 59702,
+      "sha256": "d0ba13e137b5a431b010d2ae20a8b45d6586c266c5ad3fe0d2a9c24b2b907ed8"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/h-prereq-registration-20261017.json",
+      "bytes": 20422,
+      "sha256": "a12512641372987f211a67c23fbd1a7d2d22d5bb5579d5f99c3255b94b8d76f2"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2-literal-path-amendment-20261018.json",
+      "bytes": 68255,
+      "sha256": "af595137bbd193f1c31ede08347c3b218d5491e354654f5a02114a72cb662911"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-impl-20261018-logs/proto-variantA-inleaf.patch",
+      "bytes": 44852,
+      "sha256": "281056391684601d86bb5717115ee3fbedf8cca6e549cc038d4ec0bef95ecd0f"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-impl-20261018-logs/proto-variantC-seat.patch",
+      "bytes": 51590,
+      "sha256": "5dc2144bcd821382712e2434f023341520088263d835db85a4443ac9c448d029"
+    }
+  ],
+  "sourceAnchors": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "bytes": 53627,
+      "sha256": "07dcf8fbdbe599382076a4e4a934ceac5de2a2d8c77b056244cf4c54eb81f9d7",
+      "pattern": "ownership path missing",
+      "anchors": [
+        {
+          "line": 357,
+          "text": "if (typeof ownershipPath !== 'string' || !fs.existsSync(path.resolve(repoRoot, ownershipPath))) fail(`${node.id} ownership path missing: ${ownershipPath}`);"
+        },
+        {
+          "line": 518,
+          "text": "if (typeof ownershipPath !== 'string' || !fs.existsSync(path.resolve(repoRoot, ownershipPath))) fail(`${label} ownership path missing: ${ownershipPath}`);"
+        }
+      ]
+    },
+    {
+      "path": "src/lib/campaign/coop/coopRuntimeSession.ts",
+      "bytes": 9867,
+      "sha256": "95182dbc45fa4a0c72b71a48a9b3caa85de3161634f940f4ad729000910582a2",
+      "pattern": "'host'",
+      "anchors": [
+        {
+          "line": 74,
+          "text": "): 'host' | 'guest' {"
+        },
+        {
+          "line": 75,
+          "text": "return session.mode === 'host' ? 'host' : 'guest';"
+        },
+        {
+          "line": 80,
+          "text": "): 'host' | 'guest' {"
+        },
+        {
+          "line": 81,
+          "text": "return session.mode === 'host' ? 'guest' : 'host';"
+        },
+        {
+          "line": 98,
+          "text": "hostPlayerId: options.hostPlayerId ?? 'host',"
+        },
+        {
+          "line": 246,
+          "text": "readonly playerId: 'host' | 'guest' | string;"
+        },
+        {
+          "line": 247,
+          "text": "readonly role: 'host' | 'guest';"
+        }
+      ]
+    },
+    {
+      "path": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+      "bytes": 18690,
+      "sha256": "80cb4d849a1827bfd69b58f93ee87fd3fc012c44e70e3ebff6567ce959a31e97",
+      "pattern": "connectStoredCampaignSyncTransport(",
+      "anchors": [
+        {
+          "line": 159,
+          "text": "const transport = connectStoredCampaignSyncTransport({"
+        },
+        {
+          "line": 294,
+          "text": "const transport = connectStoredCampaignSyncTransport({"
+        }
+      ]
+    },
+    {
+      "path": "src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx",
+      "bytes": 8987,
+      "sha256": "d64b4b277868b15ac3b43e66da6c7851131d6dd355e27f2b96ae28145ecd7481",
+      "pattern": "connectStoredCampaignSyncTransport(",
+      "anchors": [
+        {
+          "line": 149,
+          "text": "connectStoredCampaignSyncTransport({"
+        },
+        {
+          "line": 177,
+          "text": "const transport = connectStoredCampaignSyncTransport({"
+        }
+      ]
+    },
+    {
+      "path": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+      "bytes": 18416,
+      "sha256": "c763c4d57b2ace2aedd5a867a9aaf5dd4fa579c404921dae45a4077a3e350cfe",
+      "pattern": "connectCampaignSyncTransport(",
+      "anchors": [
+        {
+          "line": 328,
+          "text": "transport = connectCampaignSyncTransport({"
+        }
+      ]
+    },
+    {
+      "path": "docs/FILE_MODULARITY_SPEC.md",
+      "bytes": 4406,
+      "sha256": "1939e91bdeb5b4e04be7e96be8bf7ac6d6e9bc4e72c5e528b8c677186b1d6553",
+      "pattern": "600",
+      "anchors": [
+        {
+          "line": 24,
+          "text": "| React container/orchestrator components                         | 300-450 | 500      | 600            | Split UI composition from helpers/state adapters |"
+        }
+      ]
+    }
+  ],
+  "necessityProofs": [
+    {
+      "claim": "The unsplit manifest fails the file cap independently of aggregate line fit.",
+      "basis": "Stop report and G2-PREP fully read; hashed inputs retained. Original 10 source/test plus five ancillary = 15. Required seat module and surface runtime-binding test produce 16-17/15.",
+      "observedManifest": {
+        "registeredSourceTest": 10,
+        "requiredExtraSource": 1,
+        "requiredExtraTest": 1,
+        "ancillary": 5,
+        "totalWithBoth": 17,
+        "maxFiles": 15
+      },
+      "conclusion": "S3 moves the two identity leaves to G2A and registers both new prospective leaves for reduced G2. No test or modularity waiver."
+    },
+    {
+      "claim": "Seat extraction is necessary under current modularity rules.",
+      "measurementOrigin": "Implementer scratch on G1 PR #2238 head 59c1fa7258bceefe44885222bfb9cfb6858cf8a1; not post-G1 Main admission evidence.",
+      "variants": {
+        "A": {
+          "entryBefore": 533,
+          "entryAfter": 603,
+          "entryHardLimit": 600,
+          "productAdditions": 277
+        },
+        "B": {
+          "entryAfter": 577,
+          "entryNetGrowth": 44,
+          "conclusion": "Still exceeds soft maximum with practical extraction and already requires a new module."
+        },
+        "transportOnly": {
+          "transportBefore": 720,
+          "estimatedSeatBody": 110,
+          "estimatedNetGrowth": 145,
+          "conclusion": "Rejected: already exceeds runtime hard limit and grows substantially."
+        },
+        "C": {
+          "entryAfter": 538,
+          "entryNetGrowth": 5,
+          "transportBefore": 720,
+          "transportAfter": 755,
+          "transportNetGrowth": 35,
+          "seatModuleLines": 124,
+          "launchLines": 328,
+          "surfaceLines": 399,
+          "inviteRouteLines": 110,
+          "productAdditions": 336
+        }
+      },
+      "variantCNumstat": [
+        {
+          "path": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+          "added": 2,
+          "deleted": 0
+        },
+        {
+          "path": "src/lib/campaign/coop/campaignSyncTransport.ts",
+          "added": 46,
+          "deleted": 11
+        },
+        {
+          "path": "src/lib/campaign/coop/campaignSyncTransportSeat.ts",
+          "added": 124,
+          "deleted": 0
+        },
+        {
+          "path": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+          "added": 49,
+          "deleted": 44
+        },
+        {
+          "path": "src/pages/api/multiplayer/invites/[roomCode].ts",
+          "added": 46,
+          "deleted": 2
+        },
+        {
+          "path": "src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx",
+          "added": 69,
+          "deleted": 25
+        }
+      ],
+      "conclusion": "Only compliant prototype identified; pre-existing transport debt stays with the numeric-generator removal owner. Fresh post-G1 measurements remain mandatory."
+    },
+    {
+      "claim": "Both surface creator bindings need a new runtime test leaf.",
+      "basis": "None of the original ten restricted suites renders CampaignCoopRouteSurfaceConnected. Existing surface-rendering suites are F/G1 leaves and remain unchanged; transport .ts tests are not the right renderer fixture. A static five-call census does not prove runtime bindings.",
+      "newLeaf": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.creatorBinding.test.tsx",
+      "requiredAssertions": "Host and guest expectedCampaignId equal campaign.id with campaign.id != matchId; foreign transport stays detached; real-bound fixture injects a campaign frame or unmounts before 60 seconds."
+    }
+  ],
+  "sourceStageCensus": [
+    {
+      "unit": "P2CG1G2A",
+      "sourceTestLeaves": [
+        "src/pages/api/multiplayer/invites/[roomCode].ts",
+        "src/__tests__/api/securityBoundary.test.ts"
+      ],
+      "knownSourceTestLifecycleSubtotal": 3,
+      "ancillaryFiles": 5,
+      "sourceStageFiles": 7,
+      "estimatedProductAdditions": 46,
+      "estimatedLifecycleAdditions": [
+        20,
+        30
+      ],
+      "estimatedCountedAdditions": [
+        66,
+        76
+      ],
+      "maxFiles": 15,
+      "maxNonGeneratedLines": 500
+    },
+    {
+      "unit": "P2CG1G2",
+      "sourceTestLeaves": [
+        "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+        "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+        "src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx",
+        "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+        "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx",
+        "src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx",
+        "src/lib/campaign/coop/campaignSyncTransport.ts",
+        "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+        "src/lib/campaign/coop/campaignSyncTransportSeat.ts",
+        "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.creatorBinding.test.tsx"
+      ],
+      "knownSourceTestLifecycleSubtotal": 11,
+      "ancillaryFiles": 5,
+      "sourceStageFiles": 15,
+      "measuredPrototypeProductAdditions": 290,
+      "estimatedLifecycleAdditions": [
+        20,
+        30
+      ],
+      "estimatedCountedAdditions": [
+        310,
+        320
+      ],
+      "maxFiles": 15,
+      "maxNonGeneratedLines": 500
+    }
+  ],
+  "ancillaryAccounting": "units.json own lifecycle plus admission/red/local receipts and one reserved independent admission-review artifact; dates/names frozen at admission. Tests/evidence line-exempt, file-counted. Later G-OWN proof needs a separate full actual-name/byte/hash census. Prototype figures are not admission-fit or runtime proof.",
+  "ordering": {
+    "chain": [
+      "P2CG1F",
+      "P2CG1G1",
+      "P2CG1G2A",
+      "P2CG1G2",
+      "P2CG1R",
+      "P2CG1S",
+      "P2CG1H"
+    ],
+    "G2Successors": [
+      "P2CG1R",
+      "P2CG1H",
+      "P2C"
+    ],
+    "L1": [
+      "P2CG1B",
+      "P2CG1C",
+      "P2CG1D",
+      "P2CG1E",
+      "P2CG1F",
+      "P2CG1G1",
+      "P2CG1G2A",
+      "P2CG1G2",
+      "P2CG1R",
+      "P2CG1S",
+      "P2CG1H",
+      "P2CG1I1",
+      "P2CG1I2",
+      "P2CG1I3",
+      "P2CG1I4",
+      "P2CG2",
+      "P2CH",
+      "P2C",
+      "P2",
+      "U38"
+    ],
+    "unitCount": 20,
+    "rule": "G1 actual in-flight holder blocks every product admission; G2A waits for G1 exact-main proof and closure; G2 waits for G2A. NEXT remains G1 and supplies no permission."
+  },
+  "ownership": {
+    "leafCensus": [
+      {
+        "path": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+        "exists": true,
+        "currentUnitAliases": [
+          {
+            "id": "U101c",
+            "state": "planned",
+            "aliases": [
+              "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx"
+            ],
+            "finiteRestriction": null
+          }
+        ],
+        "activeG1": {
+          "state": "implementing",
+          "aliasOverlap": [],
+          "finiteManifestOverlap": false
+        },
+        "openB15": [
+          {
+            "id": "B15-2",
+            "state": "blocked",
+            "aliases": [
+              "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx"
+            ]
+          }
+        ]
+      },
+      {
+        "path": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+        "exists": true,
+        "currentUnitAliases": [
+          {
+            "id": "U35f",
+            "state": "complete",
+            "aliases": [
+              "src/components/campaign/coop"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U90",
+            "state": "blocked",
+            "aliases": [
+              "src/components/campaign/coop"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U36",
+            "state": "complete",
+            "aliases": [
+              "src/components/campaign/coop"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "P2CF",
+            "state": "blocked",
+            "aliases": [
+              "src/components/campaign/coop"
+            ],
+            "finiteRestriction": true
+          },
+          {
+            "id": "P2CF2",
+            "state": "main-verified",
+            "aliases": [
+              "src/components/campaign/coop"
+            ],
+            "finiteRestriction": true
+          },
+          {
+            "id": "P2CG1F",
+            "state": "main-verified",
+            "aliases": [
+              "src/components/campaign/coop"
+            ],
+            "finiteRestriction": false
+          },
+          {
+            "id": "P2CG1G1",
+            "state": "planned",
+            "aliases": [
+              "src/components/campaign/coop"
+            ],
+            "finiteRestriction": true
+          },
+          {
+            "id": "P2",
+            "state": "blocked",
+            "aliases": [
+              "src/components/campaign/coop"
+            ],
+            "finiteRestriction": null
+          }
+        ],
+        "activeG1": {
+          "state": "implementing",
+          "aliasOverlap": [
+            "src/components/campaign/coop"
+          ],
+          "finiteManifestOverlap": true
+        },
+        "openB15": []
+      },
+      {
+        "path": "src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx",
+        "exists": true,
+        "currentUnitAliases": [
+          {
+            "id": "P2",
+            "state": "blocked",
+            "aliases": [
+              "src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx"
+            ],
+            "finiteRestriction": null
+          }
+        ],
+        "activeG1": {
+          "state": "implementing",
+          "aliasOverlap": [],
+          "finiteManifestOverlap": false
+        },
+        "openB15": []
+      },
+      {
+        "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+        "exists": true,
+        "currentUnitAliases": [
+          {
+            "id": "U101c",
+            "state": "planned",
+            "aliases": [
+              "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx"
+            ],
+            "finiteRestriction": null
+          }
+        ],
+        "activeG1": {
+          "state": "implementing",
+          "aliasOverlap": [],
+          "finiteManifestOverlap": false
+        },
+        "openB15": [
+          {
+            "id": "B15-2",
+            "state": "blocked",
+            "aliases": [
+              "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx"
+            ]
+          }
+        ]
+      },
+      {
+        "path": "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx",
+        "exists": true,
+        "currentUnitAliases": [
+          {
+            "id": "P2",
+            "state": "blocked",
+            "aliases": [
+              "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx"
+            ],
+            "finiteRestriction": null
+          }
+        ],
+        "activeG1": {
+          "state": "implementing",
+          "aliasOverlap": [],
+          "finiteManifestOverlap": false
+        },
+        "openB15": []
+      },
+      {
+        "path": "src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx",
+        "exists": true,
+        "currentUnitAliases": [],
+        "activeG1": {
+          "state": "implementing",
+          "aliasOverlap": [],
+          "finiteManifestOverlap": false
+        },
+        "openB15": []
+      },
+      {
+        "path": "src/pages/api/multiplayer/invites/[roomCode].ts",
+        "exists": true,
+        "currentUnitAliases": [],
+        "activeG1": {
+          "state": "implementing",
+          "aliasOverlap": [],
+          "finiteManifestOverlap": false
+        },
+        "openB15": []
+      },
+      {
+        "path": "src/__tests__/api/securityBoundary.test.ts",
+        "exists": true,
+        "currentUnitAliases": [],
+        "activeG1": {
+          "state": "implementing",
+          "aliasOverlap": [],
+          "finiteManifestOverlap": false
+        },
+        "openB15": []
+      },
+      {
+        "path": "src/lib/campaign/coop/campaignSyncTransport.ts",
+        "exists": true,
+        "currentUnitAliases": [
+          {
+            "id": "U35g",
+            "state": "complete",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U35i",
+            "state": "complete",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U58",
+            "state": "complete",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U89",
+            "state": "complete",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U92",
+            "state": "complete",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U97",
+            "state": "complete",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U98",
+            "state": "complete",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "P1B",
+            "state": "blocked",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "P1B1",
+            "state": "complete",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "P1",
+            "state": "blocked",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "P2CA",
+            "state": "main-verified",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": false
+          },
+          {
+            "id": "P2CB",
+            "state": "main-verified",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": false
+          },
+          {
+            "id": "P2CD",
+            "state": "main-verified",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": true
+          },
+          {
+            "id": "P2CF",
+            "state": "blocked",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": false
+          },
+          {
+            "id": "P2CF1",
+            "state": "main-verified",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": true
+          },
+          {
+            "id": "P2CG1",
+            "state": "blocked",
+            "aliases": [
+              "src/lib/campaign/coop/campaignSyncTransport.ts"
+            ],
+            "finiteRestriction": true
+          },
+          {
+            "id": "P2CG1B",
+            "state": "main-verified",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": false
+          },
+          {
+            "id": "P2CG1E",
+            "state": "main-verified",
+            "aliases": [
+              "src/lib/campaign/coop/campaignSyncTransport.ts"
+            ],
+            "finiteRestriction": true
+          },
+          {
+            "id": "P2CG1G1",
+            "state": "planned",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": false
+          },
+          {
+            "id": "P2CG1R",
+            "state": "blocked",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": false
+          },
+          {
+            "id": "P2CG1I1",
+            "state": "blocked",
+            "aliases": [
+              "src/lib/campaign/coop/campaignSyncTransport.ts"
+            ],
+            "finiteRestriction": true
+          },
+          {
+            "id": "U38",
+            "state": "blocked",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U45",
+            "state": "planned",
+            "aliases": [
+              "src/lib"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U56",
+            "state": "planned",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U4",
+            "state": "complete",
+            "aliases": [
+              "src/lib"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U5d",
+            "state": "complete",
+            "aliases": [
+              "src/lib"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U5e",
+            "state": "complete",
+            "aliases": [
+              "src/lib"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U5h",
+            "state": "complete",
+            "aliases": [
+              "src/lib"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U100",
+            "state": "planned",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U105",
+            "state": "planned",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U101c",
+            "state": "planned",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          }
+        ],
+        "activeG1": {
+          "state": "implementing",
+          "aliasOverlap": [
+            "src/lib/campaign"
+          ],
+          "finiteManifestOverlap": false
+        },
+        "openB15": []
+      },
+      {
+        "path": "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+        "exists": true,
+        "currentUnitAliases": [
+          {
+            "id": "U35g",
+            "state": "complete",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U35i",
+            "state": "complete",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U58",
+            "state": "complete",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U89",
+            "state": "complete",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U92",
+            "state": "complete",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U97",
+            "state": "complete",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U98",
+            "state": "complete",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "P1B",
+            "state": "blocked",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "P1B1",
+            "state": "complete",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "P1",
+            "state": "blocked",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "P2CA",
+            "state": "main-verified",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": false
+          },
+          {
+            "id": "P2CB",
+            "state": "main-verified",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": false
+          },
+          {
+            "id": "P2CD",
+            "state": "main-verified",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": true
+          },
+          {
+            "id": "P2CF",
+            "state": "blocked",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": false
+          },
+          {
+            "id": "P2CF1",
+            "state": "main-verified",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": true
+          },
+          {
+            "id": "P2CG1",
+            "state": "blocked",
+            "aliases": [
+              "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts"
+            ],
+            "finiteRestriction": true
+          },
+          {
+            "id": "P2CG1B",
+            "state": "main-verified",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": false
+          },
+          {
+            "id": "P2CG1E",
+            "state": "main-verified",
+            "aliases": [
+              "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts"
+            ],
+            "finiteRestriction": true
+          },
+          {
+            "id": "P2CG1G1",
+            "state": "planned",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": false
+          },
+          {
+            "id": "P2CG1R",
+            "state": "blocked",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": false
+          },
+          {
+            "id": "P2CG1I1",
+            "state": "blocked",
+            "aliases": [
+              "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts"
+            ],
+            "finiteRestriction": true
+          },
+          {
+            "id": "U38",
+            "state": "blocked",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U45",
+            "state": "planned",
+            "aliases": [
+              "src/lib"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U56",
+            "state": "planned",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U4",
+            "state": "complete",
+            "aliases": [
+              "src/lib"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U5d",
+            "state": "complete",
+            "aliases": [
+              "src/lib"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U5e",
+            "state": "complete",
+            "aliases": [
+              "src/lib"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U5h",
+            "state": "complete",
+            "aliases": [
+              "src/lib"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U100",
+            "state": "planned",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U105",
+            "state": "planned",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U101c",
+            "state": "planned",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          }
+        ],
+        "activeG1": {
+          "state": "implementing",
+          "aliasOverlap": [
+            "src/lib/campaign"
+          ],
+          "finiteManifestOverlap": false
+        },
+        "openB15": []
+      },
+      {
+        "path": "src/lib/campaign/coop/campaignSyncTransportSeat.ts",
+        "exists": false,
+        "currentUnitAliases": [
+          {
+            "id": "U35g",
+            "state": "complete",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U35i",
+            "state": "complete",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U58",
+            "state": "complete",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U89",
+            "state": "complete",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U92",
+            "state": "complete",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U97",
+            "state": "complete",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U98",
+            "state": "complete",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "P1B",
+            "state": "blocked",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "P1B1",
+            "state": "complete",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "P1",
+            "state": "blocked",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "P2CA",
+            "state": "main-verified",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": false
+          },
+          {
+            "id": "P2CB",
+            "state": "main-verified",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": false
+          },
+          {
+            "id": "P2CD",
+            "state": "main-verified",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": false
+          },
+          {
+            "id": "P2CF",
+            "state": "blocked",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": false
+          },
+          {
+            "id": "P2CF1",
+            "state": "main-verified",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": false
+          },
+          {
+            "id": "P2CG1B",
+            "state": "main-verified",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": false
+          },
+          {
+            "id": "P2CG1G1",
+            "state": "planned",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": false
+          },
+          {
+            "id": "P2CG1R",
+            "state": "blocked",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": false
+          },
+          {
+            "id": "U38",
+            "state": "blocked",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U45",
+            "state": "planned",
+            "aliases": [
+              "src/lib"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U56",
+            "state": "planned",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U4",
+            "state": "complete",
+            "aliases": [
+              "src/lib"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U5d",
+            "state": "complete",
+            "aliases": [
+              "src/lib"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U5e",
+            "state": "complete",
+            "aliases": [
+              "src/lib"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U5h",
+            "state": "complete",
+            "aliases": [
+              "src/lib"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U100",
+            "state": "planned",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U105",
+            "state": "planned",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U101c",
+            "state": "planned",
+            "aliases": [
+              "src/lib/campaign"
+            ],
+            "finiteRestriction": null
+          }
+        ],
+        "activeG1": {
+          "state": "implementing",
+          "aliasOverlap": [
+            "src/lib/campaign"
+          ],
+          "finiteManifestOverlap": false
+        },
+        "openB15": []
+      },
+      {
+        "path": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.creatorBinding.test.tsx",
+        "exists": false,
+        "currentUnitAliases": [
+          {
+            "id": "U35f",
+            "state": "complete",
+            "aliases": [
+              "src/components/campaign/coop"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U90",
+            "state": "blocked",
+            "aliases": [
+              "src/components/campaign/coop"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "U36",
+            "state": "complete",
+            "aliases": [
+              "src/components/campaign/coop"
+            ],
+            "finiteRestriction": null
+          },
+          {
+            "id": "P2CF",
+            "state": "blocked",
+            "aliases": [
+              "src/components/campaign/coop"
+            ],
+            "finiteRestriction": false
+          },
+          {
+            "id": "P2CF2",
+            "state": "main-verified",
+            "aliases": [
+              "src/components/campaign/coop"
+            ],
+            "finiteRestriction": false
+          },
+          {
+            "id": "P2CG1F",
+            "state": "main-verified",
+            "aliases": [
+              "src/components/campaign/coop"
+            ],
+            "finiteRestriction": false
+          },
+          {
+            "id": "P2CG1G1",
+            "state": "planned",
+            "aliases": [
+              "src/components/campaign/coop"
+            ],
+            "finiteRestriction": false
+          },
+          {
+            "id": "P2",
+            "state": "blocked",
+            "aliases": [
+              "src/components/campaign/coop"
+            ],
+            "finiteRestriction": null
+          }
+        ],
+        "activeG1": {
+          "state": "implementing",
+          "aliasOverlap": [
+            "src/components/campaign/coop"
+          ],
+          "finiteManifestOverlap": false
+        },
+        "openB15": []
+      }
+    ],
+    "activeG1": {
+      "pr": 2238,
+      "state": "OPEN",
+      "head": "59c1fa7258bceefe44885222bfb9cfb6858cf8a1",
+      "mainLedgerState": "planned",
+      "prLedgerState": "implementing",
+      "preserved": "Exact eight-leaf restrictions, ownership, behavior and lifecycle unchanged; only G1.successors replaces G2 with G2A.",
+      "collision": "No G2A finite-leaf overlap. Reduced G2 shares the connected surface; blocked serial registration does not authorize concurrent writing."
+    },
+    "openB15": {
+      "pr": 2237,
+      "state": "OPEN",
+      "head": "28ff707f1d4a55f23229cfd43af02e85206afc53",
+      "merged": false,
+      "identityLeavesOverlap": false,
+      "G2Overlap": [
+        "B15-2: CampaignCoopEntryPanel.tsx",
+        "B15-2: CampaignCoopEntryPanel.test.tsx"
+      ],
+      "matchesPaths": "B15-5 owns src/pages/api/multiplayer/matches/index.ts. Neither G2 slice owns it or src/pages/api/multiplayer/matches/[id].ts; invite route and securityBoundary.test.ts are absent from B15 grants.",
+      "composition": "Shared units.json registration file requires fresh-main composition checks. B15 remains blocked, outside L1 after U38; do not import its unmerged fields into this amendment."
+    },
+    "prospectiveRegistration": {
+      "decision": "Follow the explicitly requested G1 prospective-leaf precedent using exact restrictions and existing ownership aliases.",
+      "interpretation": "The request also asked for exact missing paths in ownershipPaths. That form conflicts with the unmodified validator existence checks at lines 357 and 518. G1 prospective helpers use restrictions under directory aliases. The implementation follows that precedent; this is disclosed as an interpretation rather than a separately received parent ruling.",
+      "newLeaves": [
+        "src/lib/campaign/coop/campaignSyncTransportSeat.ts",
+        "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.creatorBinding.test.tsx"
+      ],
+      "unitAliases": [
+        "src/lib/campaign",
+        "src/components/campaign/coop"
+      ],
+      "ownerNodeAliasesAlreadyPresent": true,
+      "literalRestrictions": true,
+      "placeholderFilesAdded": false,
+      "validatorChanged": false,
+      "sourcePermission": "Only ten named restrictions after finite source admission; aliases are navigation, not directory-wide permission.",
+      "futureExactAliases": "Can be added only after actual leaves exist. No claim that a broad alias equals a literal filename in the validator."
+    }
+  },
+  "carryForward": {
+    "CF_G4": "Reachable at G2 activation. Implementer analysis found no 60-second loop against healthy legacy servers: baseline clears the window; silent open()===false is receipt-mode only. Keep cap/backoff/terminal state plus user-facing text with consumer next owner at or before H. No new runtime proof or waiver.",
+    "CF_G11": "Preserve G1 fake suites and no confirmApplied addition; real bound tests inject a campaign frame or unmount before 60 seconds.",
+    "launchSeatIdentity": "Stored co-op token playerId; coopIdentity returns host/guest role labels."
+  },
+  "exactFieldDiff": {
+    "method": "Unit/node arrays keyed by stable id; other arrays compared atomically, with full before/after values. Keyed normalization avoids insertion index noise; original unit ordering plus one inserted G2A is checked separately.",
+    "count": 16,
+    "changes": [
+      {
+        "path": "units.json.units.P2CG1G1.successors",
+        "operation": "replace",
+        "before": [
+          "P2CG1G2",
+          "P2C"
+        ],
+        "after": [
+          "P2CG1G2A",
+          "P2C"
+        ]
+      },
+      {
+        "path": "units.json.units.P2CG1G2.behavior",
+        "operation": "replace",
+        "before": "Ninth narrower P2CG1 successor: creator binding. Binds expectedCampaignId at every creator in one change (CF9): CampaignCoopEntryPanel.tsx 328 (a direct connectCampaignSyncTransport call with a freshly minted token, not connectStoredCampaignSyncTransport; binding there passes expectedCampaignId into that call, whose options already accept it), the surface's two connectStoredCampaignSyncTransport calls at 159 and 294, and launch.tsx 149 and 177. CF10: the entry panel and the launch page resolve the transport through getActiveCampaignSyncTransport on each use, so a consumer rejoin re-seats them. The unit must prove the wire is byte-identical against the legacy binder: the bound join still quotes lastSeq (P2CG1E), and numeric observation ACKs are unchanged until an offer latches receipt mode (P2CF2 N5). index.coop.test.tsx mocks the transport module without getActiveCampaignSyncTransport, so it changes with the entry panel. Planned leaves (10): src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx, src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx, src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx, src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx, src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx and src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx, src/pages/api/multiplayer/invites/[roomCode].ts, src/__tests__/api/securityBoundary.test.ts, src/lib/campaign/coop/campaignSyncTransport.ts, src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts. Estimated at about 250-425 counted lines with lifecycle; that is not a cap-fit proof. Parent literal-path amendment 2026-10-18 (evidence/p2cg1g2-literal-path-amendment-20261018.json): G2-BOOT-1 uses an authenticated identity-only invite response before the direct bound creator, preserving the anonymous summary and never fetching raw match metadata; the existing API security-boundary test adds an isolated real-verifier/real-store fixture to prove the actual response and disclosure boundary. G2-RESEAT-1 adds an active-transport registry subscription with its existing transport test, so entry/participation listeners detach A and attach B immediately while every use rechecks the delivered getter and stale cleanup cannot close B. No F consumer edit, activation or legacy-wire change. Ten source/test leaves plus units.json, admission/red/local receipts and one independent admission-review slot reserve 15 of 15 source-stage files; 250-425 counted additions is a conservative estimate, not measured fit. Root parent ruling 2026-10-18 grants exact ownership for the four added leaves in this same amendment. The API proof uses securityBoundary.test.ts instead of multiplayerMatchMeta.test.ts to avoid the completed U35 units' API-test ownership; existing metadata privacy tests remain unchanged controls. Exact transport aliases on the owner node satisfy the validator's literal membership rule without broadening src/lib/campaign. Normal predecessor, no-in-flight-overlap and finite source-admission gates remain; use separately registered ordinary-cap support successors if actual scope exceeds 15 files/500 additions. This registration grants no source admission.",
+        "after": "Reduced ninth P2CG1 successor after the S3 split: binds all five creators in one change (CF9), consuming G2A identity-only invite resolution before direct guest socket construction. Bind expectedCampaignId to actual campaign identity at CampaignCoopEntryPanel direct connectCampaignSyncTransport, both connected-surface connectStoredCampaignSyncTransport calls and both launch-page creators; use campaignId != matchId in runtime proof. Reject missing/invalid identity or foreign snapshots before adoption and never fetch raw match metadata. G2-RESEAT-1 adds synchronous registry invalidation after map writes, subscribe-then-reconcile through the active getter, guarded stale release, throwing/reentrant observer isolation and idempotent same-object registration. New src/lib/campaign/coop/campaignSyncTransportSeat.ts owns seat identity checks (matchId/campaignId/playerId/role), A-to-B detach/attach and snapshot waiting with one fixed timeout, abort/disposal and post-await active-seat verification. Listeners and sends recheck the active getter; replacement B receives the current participation choice once, and its first frame works without an unrelated render. Cleanup disposes its own listeners and never closes foreign/replacement transport B; launch does not own the shared socket. Launch seat playerId comes from the stored co-op token, never coopIdentity host/guest labels. The new src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.creatorBinding.test.tsx proves both surface creators at runtime; G1/F suites remain unchanged, including the three fake transports (CF-G11: no added confirmApplied; real-bound tests inject a campaign frame or unmount before 60 seconds). CF-G4 becomes reachable at G2 activation; implementer analysis found no 60-second loop against today's healthy legacy servers because the first baseline clears the quiet window, and silent open()===false is receipt-mode only. This is analysis, not new runtime proof. CF-G4 cap/backoff/terminal state and user-facing text stay with the consumer's next owner at or before H. No consumer edit or wire/receipt activation here: compare exact bound/unbound join bytes including positive lastSeq and numeric ACK bytes before a genuine offer. Ten source/test leaves: src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx, src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx, src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx, src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx, src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx, src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx, src/lib/campaign/coop/campaignSyncTransport.ts, src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts, src/lib/campaign/coop/campaignSyncTransportSeat.ts, src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.creatorBinding.test.tsx. Source/test/lifecycle subtotal 11; ten leaves plus units.json, admission/red/local receipts and one reserved independent admission-review file = 15/15 with no spare. Product prototype 290 additions, plus estimated lifecycle 20-30 = about 310-320/500; estimates must be remeasured at admission. Parent split amendment 2026-10-18 (evidence/p2cg1g2-split-amendment-20261018.json). One product-writing lane including closure: no source admission while any other unit is in flight. Re-read verified F/G1 and predecessor exact-main proofs, fetched-main ancestry and closure; remeasure actual post-G1 Main before freezing the complete literal source/test/lifecycle/stage/helper/evidence manifest. Registration is not source admission, activation, runtime certification or release. Preserve normal sensitive reviews/OWNER-RULING and independent registration review/CI/exact-main proof. No omitted scenario, cap exception or cap inflation."
+      },
+      {
+        "path": "units.json.units.P2CG1G2.ownershipPaths",
+        "operation": "replace",
+        "before": [
+          "src/components/campaign/coop",
+          "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+          "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+          "src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx",
+          "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx",
+          "src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx",
+          "src/pages/api/multiplayer/invites/[roomCode].ts",
+          "src/__tests__/api/securityBoundary.test.ts",
+          "src/lib/campaign/coop/campaignSyncTransport.ts",
+          "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts"
+        ],
+        "after": [
+          "src/components/campaign/coop",
+          "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+          "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+          "src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx",
+          "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx",
+          "src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx",
+          "src/lib/campaign/coop/campaignSyncTransport.ts",
+          "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+          "src/lib/campaign"
+        ]
+      },
+      {
+        "path": "units.json.units.P2CG1G2.admissionRequires",
+        "operation": "replace",
+        "before": "Narrower ordinary-cap successor of P2CG1 (plan Task 14), registered by evidence/p2cg1-split-registration-20261016.json. P2CG1G1 must be complete with a genuine exact-main mainProof PASS before the parent releases this unit to planned; NEXT does not enforce these unit dependencies. No preserved P2CG1 source candidate exists; this slice runs its own red-first proof and measured admission. Task8 must first complete independent exact-head docs review, current required CI, guarded merge and independent exact-main registration proof. Parent verifies documentary predecessors complete with genuine exact-main mainProof PASS, ancestry and closure on fetched main and no actual overlap before every source admission. NEXT selection supplies no permission. Prospective assignment only; source permission remains non-effective until normal finite admission freezes the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measures actual unique files and product/test additions under unchanged 15-file/500-product-added-line limits. Named source/test lists and known lower bounds are in R2.authority-live.ownershipPathsAmended20261009P2C.restrictions for this ID. No unnamed test, directory-wide grant, placeholder/hash, capException or cap inflation. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze of actual bytes/names/hashes and full census. If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required scenario.",
+        "after": "Narrower ordinary-cap successor of P2CG1 (plan Task 14), registered by evidence/p2cg1-split-registration-20261016.json. P2CG1G2A must be complete with a genuine exact-main mainProof PASS before the parent releases this unit to planned; NEXT does not enforce these unit dependencies. No preserved P2CG1 source candidate exists; this slice runs its own red-first proof and measured admission. Task8 must first complete independent exact-head docs review, current required CI, guarded merge and independent exact-main registration proof. Parent verifies documentary predecessors complete with genuine exact-main mainProof PASS, ancestry and closure on fetched main and no actual overlap before every source admission. NEXT selection supplies no permission. Prospective assignment only; source permission remains non-effective until normal finite admission freezes the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measures actual unique files and product/test additions under unchanged 15-file/500-product-added-line limits. Named source/test lists and known lower bounds are in R2.authority-live.ownershipPathsAmended20261009P2C.restrictions for this ID. No unnamed test, directory-wide grant, placeholder/hash, capException or cap inflation. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze of actual bytes/names/hashes and full census. If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required scenario. Parent split amendment 2026-10-18 (evidence/p2cg1g2-split-amendment-20261018.json). One product-writing lane including closure: no source admission while any other unit is in flight. Re-read verified F/G1 and predecessor exact-main proofs, fetched-main ancestry and closure; remeasure actual post-G1 Main before freezing the complete literal source/test/lifecycle/stage/helper/evidence manifest. Registration is not source admission, activation, runtime certification or release. Preserve normal sensitive reviews/OWNER-RULING and independent registration review/CI/exact-main proof. No omitted scenario, cap exception or cap inflation."
+      },
+      {
+        "path": "units.json.units.P2CG1G2.predecessors",
+        "operation": "replace",
+        "before": [
+          "P2CG1G1"
+        ],
+        "after": [
+          "P2CG1G2A"
+        ]
+      },
+      {
+        "path": "units.json.units.P2C.predecessors",
+        "operation": "replace",
+        "before": [
+          "P2CA",
+          "P2CB",
+          "P2CD",
+          "P2CE1",
+          "P2CE2",
+          "P2CE3",
+          "P2CF1",
+          "P2CF2",
+          "P2CG1A1",
+          "P2CG1A2",
+          "P2CG1B",
+          "P2CG1C",
+          "P2CG1D",
+          "P2CG1E",
+          "P2CG1F",
+          "P2CG1G1",
+          "P2CG1G2",
+          "P2CG1R",
+          "P2CG1S",
+          "P2CG1H",
+          "P2CG1I1",
+          "P2CG1I2",
+          "P2CG1I3",
+          "P2CG1I4",
+          "P2CG2",
+          "P2CH"
+        ],
+        "after": [
+          "P2CA",
+          "P2CB",
+          "P2CD",
+          "P2CE1",
+          "P2CE2",
+          "P2CE3",
+          "P2CF1",
+          "P2CF2",
+          "P2CG1A1",
+          "P2CG1A2",
+          "P2CG1B",
+          "P2CG1C",
+          "P2CG1D",
+          "P2CG1E",
+          "P2CG1F",
+          "P2CG1G1",
+          "P2CG1G2A",
+          "P2CG1G2",
+          "P2CG1R",
+          "P2CG1S",
+          "P2CG1H",
+          "P2CG1I1",
+          "P2CG1I2",
+          "P2CG1I3",
+          "P2CG1I4",
+          "P2CG2",
+          "P2CH"
+        ]
+      },
+      {
+        "path": "units.json.units.P2CG1G2A",
+        "operation": "add",
+        "after": {
+          "id": "P2CG1G2A",
+          "node": "R2.authority-live",
+          "taskKeys": [],
+          "behavior": "S3 identity-only support slice split from P2CG1G2 (itself split from P2CG1), preceding the still-atomic five-creator G2 change. Authenticated identity-only invite mode (G2-BOOT-1), dormant until reduced G2 consumes it. Explicit campaignIdentity=1 requires a non-empty Bearer Authorization header, rejects query-token authentication and malformed mode queries, verifies the real server-derived campaign-session scope for the resolved live match, and returns only {matchId,status,layout,campaignId} from valid durable co-op identity. Identity-mode successes and failures use Cache-Control: private, no-store. Preserve the anonymous summary exactly; HTTP changes no seats, membership or receipts and never returns raw state/bootstrap/grants. The gate is a vault identity plus live room code, not membership. Existing campaignId enumeration/REST capability exposure remains B15; the new disclosure is live-code-to-campaignId correlation. WS membership/revocation/seat authority is independent. In securityBoundary.test.ts use swappable hoisted delegates, actual verifier, real InMemoryMatchStore and real signed-token fixtures, restore defaults, and prove allowlist/privacy, invalid/expired/wrong-scope/malformed cases and unchanged state. Existing metadata/WS privacy tests remain unchanged controls. Planned exact leaves: src/pages/api/multiplayer/invites/[roomCode].ts, src/__tests__/api/securityBoundary.test.ts. Known source/test/lifecycle subtotal 3; two source/test leaves plus units.json, admission/red/local receipts and one independent admission-review slot = 7/15. Route prototype +46, lifecycle estimated +20-30: about 66-76/500 counted additions; remeasure on actual post-G1 Main. Parent split amendment 2026-10-18 (evidence/p2cg1g2-split-amendment-20261018.json). One product-writing lane including closure: no source admission while any other unit is in flight. Re-read verified F/G1 and predecessor exact-main proofs, fetched-main ancestry and closure; remeasure actual post-G1 Main before freezing the complete literal source/test/lifecycle/stage/helper/evidence manifest. Registration is not source admission, activation, runtime certification or release. Preserve normal sensitive reviews/OWNER-RULING and independent registration review/CI/exact-main proof. No omitted scenario, cap exception or cap inflation.",
+          "ownershipPaths": [
+            "src/pages/api/multiplayer/invites/[roomCode].ts",
+            "src/__tests__/api/securityBoundary.test.ts"
+          ],
+          "ownershipExceptions": [
+            "openspec/planning/2026-09-12-roadmap-completion/units.json"
+          ],
+          "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
+          "ciClass": "product",
+          "reviewClasses": [
+            "authority",
+            "privacy",
+            "replay",
+            "idempotency",
+            "concurrency"
+          ],
+          "caps": {
+            "maxFiles": 15,
+            "maxNonGeneratedLines": 500
+          },
+          "state": "blocked",
+          "baseline": null,
+          "prHead": null,
+          "mergeSha": null,
+          "stageReceipts": {
+            "admission": null,
+            "red": null,
+            "local": null,
+            "review": null,
+            "merge": null,
+            "mainProof": null,
+            "tick": null
+          },
+          "ownerGate": null,
+          "splitFrom": "P2CG1G2",
+          "admissionRequires": "Narrower ordinary-cap successor of P2CG1 (plan Task 14), registered by evidence/p2cg1-split-registration-20261016.json. P2CG1G1 must be complete with a genuine exact-main mainProof PASS before the parent releases this unit to planned; NEXT does not enforce these unit dependencies. No preserved P2CG1 source candidate exists; this slice runs its own red-first proof and measured admission. Task8 must first complete independent exact-head docs review, current required CI, guarded merge and independent exact-main registration proof. Parent verifies documentary predecessors complete with genuine exact-main mainProof PASS, ancestry and closure on fetched main and no actual overlap before every source admission. NEXT selection supplies no permission. Prospective assignment only; source permission remains non-effective until normal finite admission freezes the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measures actual unique files and product/test additions under unchanged 15-file/500-product-added-line limits. Named source/test lists and known lower bounds are in R2.authority-live.ownershipPathsAmended20261009P2C.restrictions for this ID. No unnamed test, directory-wide grant, placeholder/hash, capException or cap inflation. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze of actual bytes/names/hashes and full census. If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required scenario. Parent split amendment 2026-10-18 (evidence/p2cg1g2-split-amendment-20261018.json). One product-writing lane including closure: no source admission while any other unit is in flight. Re-read verified F/G1 and predecessor exact-main proofs, fetched-main ancestry and closure; remeasure actual post-G1 Main before freezing the complete literal source/test/lifecycle/stage/helper/evidence manifest. Registration is not source admission, activation, runtime certification or release. Preserve normal sensitive reviews/OWNER-RULING and independent registration review/CI/exact-main proof. No omitted scenario, cap exception or cap inflation.",
+          "predecessors": [
+            "P2CG1G1"
+          ],
+          "successors": [
+            "P2CG1G2"
+          ],
+          "registration20261018G2Split": {
+            "evidence": "evidence/p2cg1g2-split-amendment-20261018.json",
+            "option": "S3",
+            "ancestor": "P2CG1",
+            "sourceAdmitted": false
+          }
+        }
+      },
+      {
+        "path": "units.json.layerRegistration20261017L1.units",
+        "operation": "replace",
+        "before": [
+          "P2CG1B",
+          "P2CG1C",
+          "P2CG1D",
+          "P2CG1E",
+          "P2CG1F",
+          "P2CG1G1",
+          "P2CG1G2",
+          "P2CG1H",
+          "P2CG1I1",
+          "P2CG1I2",
+          "P2CG1I3",
+          "P2CG1I4",
+          "P2CG2",
+          "P2CH",
+          "P2C",
+          "P2",
+          "U38"
+        ],
+        "after": [
+          "P2CG1B",
+          "P2CG1C",
+          "P2CG1D",
+          "P2CG1E",
+          "P2CG1F",
+          "P2CG1G1",
+          "P2CG1G2A",
+          "P2CG1G2",
+          "P2CG1R",
+          "P2CG1S",
+          "P2CG1H",
+          "P2CG1I1",
+          "P2CG1I2",
+          "P2CG1I3",
+          "P2CG1I4",
+          "P2CG2",
+          "P2CH",
+          "P2C",
+          "P2",
+          "U38"
+        ]
+      },
+      {
+        "path": "units.json.layerRegistration20261017L1.planTasks.14",
+        "operation": "replace",
+        "before": [
+          "P2CG1B",
+          "P2CG1C",
+          "P2CG1D",
+          "P2CG1E",
+          "P2CG1F",
+          "P2CG1G1",
+          "P2CG1G2",
+          "P2CG1H",
+          "P2CG1I1",
+          "P2CG1I2",
+          "P2CG1I3",
+          "P2CG1I4"
+        ],
+        "after": [
+          "P2CG1B",
+          "P2CG1C",
+          "P2CG1D",
+          "P2CG1E",
+          "P2CG1F",
+          "P2CG1G1",
+          "P2CG1G2A",
+          "P2CG1G2",
+          "P2CG1R",
+          "P2CG1S",
+          "P2CG1H",
+          "P2CG1I1",
+          "P2CG1I2",
+          "P2CG1I3",
+          "P2CG1I4"
+        ]
+      },
+      {
+        "path": "units.json.layerRegistration20261017L1.order",
+        "operation": "replace",
+        "before": "The registered predecessor order, unchanged: each unit is released by the parent only after its predecessor is main-verified on fetched Main; P2 is readmitted by P2C (Task 17) under P2.appliedViewConvergenceBlocked20261002 and P2C.behavior; U38 follows P2.",
+        "after": "Current effective L1 order (20 units, including the R/S prerequisites and S3 G2A insertion): P2CG1B -> P2CG1C -> P2CG1D -> P2CG1E -> P2CG1F -> P2CG1G1 -> P2CG1G2A -> P2CG1G2 -> P2CG1R -> P2CG1S -> P2CG1H -> P2CG1I1 -> P2CG1I2 -> P2CG1I3 -> P2CG1I4 -> P2CG2 -> P2CH -> P2C -> P2 -> U38. Each release requires predecessor genuine exact-main mainProof PASS, fetched-main ancestry and closure. The one-product-writing-lane rule and all original release acceptance/checkpoint/task holders remain. P2 readmission remains governed by P2C and its registered convergence gates."
+      },
+      {
+        "path": "units.json.layerRegistration20261017L1.amended20261018G2Split",
+        "operation": "add",
+        "after": {
+          "evidence": "evidence/p2cg1g2-split-amendment-20261018.json",
+          "additionalUnits": [
+            "P2CG1G2A"
+          ],
+          "unitCount": 20,
+          "order": "F -> G1 -> G2A -> G2 -> R -> S -> H",
+          "rule": "S3 prospective registration only. G1 exact leaves and lifecycle, G2 successors, R/S/H gates, release acceptance, task holders and H checkpoint are unchanged. The original 17 plus R/S was 19; insert G2A before G2 for 20. Prior dated registration records remain historical."
+        }
+      },
+      {
+        "path": "units.json.hPrereqRegistration20261017.order",
+        "operation": "replace",
+        "before": [
+          "P2CG1E",
+          "P2CG1F",
+          "P2CG1G1",
+          "P2CG1G2",
+          "P2CG1R",
+          "P2CG1S",
+          "P2CG1H"
+        ],
+        "after": [
+          "P2CG1E",
+          "P2CG1F",
+          "P2CG1G1",
+          "P2CG1G2A",
+          "P2CG1G2",
+          "P2CG1R",
+          "P2CG1S",
+          "P2CG1H"
+        ]
+      },
+      {
+        "path": "roadmap.json.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.unit",
+        "operation": "replace",
+        "before": "P2CA/P2CB/P2CD/P2CE/P2CE1/P2CE2/P2CE3/P2CF/P2CF1/P2CF2/P2CG1/P2CG1A1/P2CG1A2/P2CG1B/P2CG1C/P2CG1D/P2CG1E/P2CG1F/P2CG1G1/P2CG1G2/P2CG1H/P2CG1I1/P2CG1I2/P2CG1I3/P2CG1I4/P2CG2/P2CH",
+        "after": "P2CA/P2CB/P2CD/P2CE/P2CE1/P2CE2/P2CE3/P2CF/P2CF1/P2CF2/P2CG1/P2CG1A1/P2CG1A2/P2CG1B/P2CG1C/P2CG1D/P2CG1E/P2CG1F/P2CG1G1/P2CG1G2A/P2CG1G2/P2CG1H/P2CG1I1/P2CG1I2/P2CG1I3/P2CG1I4/P2CG2/P2CH"
+      },
+      {
+        "path": "roadmap.json.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1G2",
+        "operation": "replace",
+        "before": [
+          "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+          "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+          "src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx",
+          "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+          "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx",
+          "src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx",
+          "src/pages/api/multiplayer/invites/[roomCode].ts",
+          "src/__tests__/api/securityBoundary.test.ts",
+          "src/lib/campaign/coop/campaignSyncTransport.ts",
+          "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts"
+        ],
+        "after": [
+          "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+          "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+          "src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx",
+          "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+          "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx",
+          "src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx",
+          "src/lib/campaign/coop/campaignSyncTransport.ts",
+          "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+          "src/lib/campaign/coop/campaignSyncTransportSeat.ts",
+          "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.creatorBinding.test.tsx"
+        ]
+      },
+      {
+        "path": "roadmap.json.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1G2A",
+        "operation": "add",
+        "after": [
+          "src/pages/api/multiplayer/invites/[roomCode].ts",
+          "src/__tests__/api/securityBoundary.test.ts"
+        ]
+      },
+      {
+        "path": "roadmap.json.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.knownSourceTestLifecycleSubtotals.P2CG1G2A",
+        "operation": "add",
+        "after": 3
+      }
+    ],
+    "allowedPaths": [
+      "roadmap.json.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.knownSourceTestLifecycleSubtotals.P2CG1G2A",
+      "roadmap.json.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1G2",
+      "roadmap.json.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1G2A",
+      "roadmap.json.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.unit",
+      "units.json.hPrereqRegistration20261017.order",
+      "units.json.layerRegistration20261017L1.amended20261018G2Split",
+      "units.json.layerRegistration20261017L1.order",
+      "units.json.layerRegistration20261017L1.planTasks.14",
+      "units.json.layerRegistration20261017L1.units",
+      "units.json.units.P2C.predecessors",
+      "units.json.units.P2CG1G1.successors",
+      "units.json.units.P2CG1G2.admissionRequires",
+      "units.json.units.P2CG1G2.behavior",
+      "units.json.units.P2CG1G2.ownershipPaths",
+      "units.json.units.P2CG1G2.predecessors",
+      "units.json.units.P2CG1G2A"
+    ],
+    "allowlistResult": "PASS: exactly 16 semantic field changes; 205 unrelated unit objects and all other nodes equal fetched Main."
+  },
+  "preserved": {
+    "unrelatedOriginalUnits": 205,
+    "originalUnits": 208,
+    "newUnits": 209,
+    "G1OnlyChangedField": "successors",
+    "G2LifecycleAndCapsUnchanged": true,
+    "G2SuccessorsUnchanged": true,
+    "G1ExactLeavesUnchanged": true,
+    "allOtherNodesUnchanged": true,
+    "taskHoldersAndHistoricalReceiptsUnchanged": true,
+    "L1AcceptanceAndReleasePredicateUnchanged": true,
+    "rootCheckoutEdited": false
+  },
+  "validation": {
+    "status": "PASS",
+    "node": "v22.22.0",
+    "results": [
+      {
+        "name": "roadmap-plain",
+        "at": "2026-10-18T04:31:17.037Z",
+        "command": [
+          "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+        ],
+        "cwd": "E:/Projects/Personal/MekStation-wt/g2-split-20261018",
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/g2-split-20261018-logs/roadmap-plain.log",
+        "logSha256": "567feb20b9f85c902a3c4492eb3274c970f2370ccbbc6d3390088ad10923b947",
+        "summary": "ROADMAP VALIDATION PASSED: 80 nodes, 13 packages, 381 tasks, 40 triage rows"
+      },
+      {
+        "name": "roadmap-git",
+        "at": "2026-10-18T04:31:21.373Z",
+        "command": [
+          "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+          "--git"
+        ],
+        "cwd": "E:/Projects/Personal/MekStation-wt/g2-split-20261018",
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/g2-split-20261018-logs/roadmap-git.log",
+        "logSha256": "0d7d99319c662d2b64fa0c98e73d2d6254bad922234f2c7a68c71758fc9fa890",
+        "summary": "ROADMAP VALIDATION PASSED: 80 nodes, 13 packages, 381 tasks, 40 triage rows"
+      },
+      {
+        "name": "roadmap-next",
+        "at": "2026-10-18T04:31:32.565Z",
+        "command": [
+          "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+          "--next"
+        ],
+        "cwd": "E:/Projects/Personal/MekStation-wt/g2-split-20261018",
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/g2-split-20261018-logs/roadmap-next.log",
+        "logSha256": "0efda17fabd7832d981104fb0874c325f6407b889243d877289cbca3bce1d26b",
+        "summary": "P2CG1G1"
+      },
+      {
+        "name": "validator-tests",
+        "command": [
+          "node",
+          "--test",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs"
+        ],
+        "cwd": "E:/Projects/Personal/MekStation-wt/g2-split-20261018",
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/g2-split-20261018-logs/validator-tests.log",
+        "logSha256": "86120ac6a94b6e49e63a5a4f38a68404e35ddc971b2266129ee8e13f54620bd8",
+        "summary": "86 tests passed, 0 failed",
+        "note": "Executed earlier in this same task; test/spec/validator source and lockfiles are unchanged."
+      },
+      {
+        "name": "openspec-strict",
+        "command": [
+          "npx",
+          "--no-install",
+          "openspec",
+          "validate",
+          "--all",
+          "--strict"
+        ],
+        "cwd": "E:/Projects/Personal/MekStation-wt/g2-split-20261018",
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/g2-split-20261018-logs/openspec-strict.log",
+        "logSha256": "89a3784befdc45a1fb8b4cac58d9703373655afb9d5fa537f58176fbd9cad0c0",
+        "summary": "230 passed, 0 failed",
+        "note": "Executed earlier in this same task; test/spec/validator source and lockfiles are unchanged."
+      },
+      {
+        "name": "exact-field-diff",
+        "command": [
+          "node",
+          "E:/Projects/Personal/MekStation-wt/g2-split-20261018-logs/evidence.mjs"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/g2-split-20261018-logs/exact-field-diff.json",
+        "logSha256": "b40401045e103ceda4fc94a50e9977437a7049c1045656a39caf00bda579e474",
+        "summary": "PASS: exactly 16 semantic field changes; 205 unrelated unit objects and all other nodes equal fetched Main.",
+        "method": "Unit/node arrays keyed by stable id; other arrays compared atomically, with full before/after values. Keyed normalization avoids insertion index noise; original unit ordering plus one inserted G2A is checked separately."
+      },
+      {
+        "name": "whitespace",
+        "at": "2026-10-18T04:32:01.905Z",
+        "command": [
+          "git",
+          "diff",
+          "--check",
+          "HEAD"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/g2-split-20261018-logs/git-diff-check.log",
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "summary": "PASS: staged and unstaged tracked candidate, including the new docs/evidence files."
+      }
+    ],
+    "limits": "Docs-only validation; no compiler, product suites, build, browser, server or dependency installation. Prototype runtime results are attributed to the stop report, not rerun or claimed here."
+  },
+  "permissionBoundary": "Docs-only registration under Root ruling. Blocked units grant no source admission. Independent review, CI, parent release, exact-main proof and closure remain mandatory. Do not merge.",
+  "measurements": {
+    "actualFiles": 4,
+    "productFiles": 0,
+    "sourceTestHelperEdits": 0,
+    "uniqueSourceStageFiles": {
+      "P2CG1G2A": 7,
+      "P2CG1G2": 15
+    },
+    "semanticFieldChanges": 16
+  }
+}
