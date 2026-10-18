@@ -1,0 +1,55 @@
+# Identity gap: v2.2.0 first shared mission
+
+2026-10-18. Read-only source assessment at `cc98179e4d77024651bf1a16c63f077d64337273` (`origin/main` when the detached worktree was created). No runtime/installer certification or tests performed. Root checkout untouched. Below, **U** means `openspec/planning/2026-09-12-roadmap-completion/units.json`; other paths are repository-relative unless absolute.
+
+## Recommendation
+
+**Register a new L1 prerequisite for durable local-seat credentials (option B), then prove three ordinary UI participants on the packaged server.** Keep loopback binding. Preserve the primary vault identity; provision two separate player keys with recoverable, seat-specific credentials and select them per browser session. Do not promote the E2E seeder or switch the global active row between participants. This is an operator-managed, trusted same-host feature, not private multi-user hosting.
+
+Insert the new source/proof slices after the current G2 product/closure lane finishes, preferably before activation H; require their exact-main closure before P2 journey reproof, U38 acceptance and v2.2.0 human acceptance. Parent registration must explicitly amend the ordering and path ownership; G2 is already budgeted at 15 files (U:7256). Do not infer admission from this report. Budget at least two ordinary-cap implementation slices plus registration/proof; broader account semantics require option A.
+
+## 1. Intended model and confirmed contradiction
+
+The specifications describe **one active identity per user**, not a normative requirement for one physical computer per player. Multi-identity management and cross-device identity synchronization are explicitly excluded (`openspec/specs/user-identity/spec.md:30`); duplicate creation must return 409 (:66), persistence is SQLite (:161), and only one row should be active (:513). Vault export signs server-side with the unlocked user's key (`openspec/specs/vault-sync/spec.md:106`).
+
+Multiplayer is independently keyed: a public key deterministically identifies a player across machines; different keys identify different players (`openspec/specs/player-identity/spec.md:24`). Tokens are verified using their embedded public key (:47), and campaign sync requires one authoritative writer and read-only guest mirrors (`openspec/specs/coop-campaign-sync/spec.md:9`, :102, :127). A low-level client signer exists but requires an unlocked private key (`src/lib/multiplayer/client/issuePlayerToken.ts:101`); the ordinary unlock endpoint returns only public identity. Thus “one identity per installation/database” is today's effective product model; “players on separate machines” is an inference, not a complete implemented connection workflow.
+
+The contradiction is concrete:
+
+- Creation rejects any existing identity (`src/pages/api/vault/identity/index.ts:131`); Settings offers create/unlock/status (`src/components/vault/VaultIdentitySection.tsx:320`). Unlock also selects the global active row (`src/pages/api/vault/identity/unlock.ts:54`).
+- Token minting loads `getActive()` and derives playerId from that key (`src/pages/api/multiplayer/auth/token.ts:133`, :155). Repository selection is database-wide; `setActive` clears every other row (`src/services/vault/IdentityRepository.ts:86`, :144).
+- Both host and guest use the same-origin password-only mint helper (`src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx:68`, :307). Guest invite resolution obtains **campaignId**, not a new person. Launch reads the previously stored token (`src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx:78`; `src/lib/campaign/coop/launchCoopMission.ts:149`).
+- Three browsers therefore remain one principal. Server role is derived by comparing that principal with hostPlayerId (`src/lib/multiplayer/server/bindCampaignSyncConnection.ts:1184`); existing participant binding returns the existing membership (`src/services/campaignPersistence/CampaignSessionParticipantStore.ts:92`). Display names cannot create seats.
+
+**Confirmed: the supported ordinary UI cannot supply two distinct players plus GM.** Loopback alone does not prevent several humans using one machine; loopback plus the single-principal UI does. The explicit same-host human-session requirement is `docs/releases/v2.2.0-topology.md:7`, :13 and U:21969. Non-loopback HOSTNAME is refused (`server.js:72`). E2E seeding bypasses the creation restriction and changes active identity, but requires E2E mode/run identity (`src/pages/api/e2e/vault-identity.ts:97`, :141); that is not shipped-user evidence.
+
+## 2. Existing ownership
+
+**No registered contract examined owns multiple local identities or per-session key selection.**
+
+- G2A resolves authenticated live-code-to-campaign identity; G2 binds five creators and transport replacement to campaign/player/role. Neither provisions player keys (U:7156, :7256).
+- The remaining L1 chain covers reservations, spectator/fog containment, application receipts, convergence, recovery, launch and unit authority; U38 enforces an already-trusted owner map, not identity creation (U:9535, :21967).
+- B15-0 defines operator/member policy; B15-1 provisions an **operator cookie**; B15-2 attaches existing member bearers; B15-4/4J migrate test identities; other slices enforce/project existing actors (U:15752, :15774, :15796, :15818, :15840). Multi-operator identity/owner columns remain explicitly open (U:22079).
+- P3 tasks 58–66 cover U99 projection wording, U100 activity labels, U103 closure tooling, U104 launch-boundary proof, U101a–d token scopes/consumers, and U105 applied-snapshot convergence. Task 60 is actually mapped outside P3. See `E:/Projects/Personal/MekStation/.omo/plans/mekstation-phased-delivery-20261015/task-index.md:52`, :171 and the full task contracts in `E:/Projects/Personal/MekStation/.omo/plans/mekstation-whole-roadmap-reconciliation-20261002.md:1797`. These local planning files were read only. U101c's refresh migration is adjacent, but cannot silently acquire provisioning (U:15642). U61 records a future identity need, not implementation ownership (U:10104).
+
+## 3. Fix options and fit
+
+Estimates below are design estimates, not measured admission manifests. Each slice must include tests, lifecycle/evidence files and counted additions within **15 files/500 lines**, with no deletion credit. Register smaller successors if actual census exceeds either cap.
+
+**A — Per-browser selected vault identity.** Add additional-identity create/unlock UI and request-bound identity selection; verify the selected key's password for each mint, or use a bounded server-validated unlock session. Never trust an identityId alone. Audit other vault signing/update routes so selection cannot silently sign as another user. Estimate **three slices, 10–15 files/250–450 counted additions each**, plus contract registration. Sensitive authority/privacy/concurrency; replay/idempotency for renewal/rejoin. Risks: identity enumeration, wrong-key signing, session fixation, cross-tab credential confusion and global-active races. Broader durable solution, but larger L1 delay than B. B15 remote holds remain.
+
+**B — Local seat provisioning (recommended).** GM/operator authorizes two durable local-seat keypairs; each guest claims/unlocks its own credential in a separate profile. Reuse crypto primitives, keep seat credentials distinct from the primary vault, and feed ordinary verified tokens through existing membership/owner checks. Include renewal, reload and revocation behavior; no role granted merely by selecting a seat. Estimate **two to three slices, 10–15 files/250–450 additions each** for provisioning/signing and UI/recovery/proof. Candidate seams: a seat-credential repository/API, token schema/signing, co-op entry selector, credential storage, and focused API/UI/recovery tests; separate spec/ledger registration from implementation. Sensitive authority/privacy/replay/idempotency/concurrency. GM-managed credentials permit operator impersonation; shared OS access offers no isolation. Document that trust model. Smallest scoped L1 addition; B15 is still needed before remote access.
+
+**C — Earlier LAN/remote play.** Not a listener toggle and not an identity fix alone: all browser clients would still mint the server's one identity. Requires A/B or separately designed local signing plus host selection. Move the **ten registered B15 slices**, separately register PRIV-1 product remediation, retain packaged boundary protections, and prove the intended external topology (U:22079). B15-6 specifies TLS proxy-to-loopback, not unrestricted binding (U:15950). Cannot honestly fit one 15/500 unit; authority/privacy-sensitive, largest release delay. B15 and PRIV-1 must precede any remote procedure/support claim.
+
+**D — OS accounts/data directories.** No working ordinary-UI bypass. Separate databases produce identities but separate servers/sessions; opening the shared server mints its identity. Shared DATABASE_PATH restores the global-active problem, and process-local host maps do not become one live authority (`src/services/persistence/SQLiteService.ts:50`; `src/lib/multiplayer/server/MatchHostRegistry.ts:55`). Manual token transfer/custom clients could exploit self-signed tokens, but are not product acceptance. Zero-file workaround fails; a supported bridge needs separately sized authority/privacy work and loses the claimed schedule shortcut.
+
+## 4. Artifact and privacy checks
+
+Electron uses userData, a single-instance lock, fixed port 3001 and its own SQLite path (`desktop/electron/main.ts:86`; `desktop/electron/main.lifecycle.ts:18`; `desktop/electron/main.window.ts:219`). Separate accounts do not remove the fixed-port collision. A browser can, by source design, load `http://127.0.0.1:3001`: HTTP dispatch has no Electron-only credential gate (`server.js:543`). Multiplayer still needs the vault token; sockets use the page origin (`src/lib/campaign/coop/campaignSyncTransport.ts:642`). This needs installer proof, but is not an additional architectural blocker.
+
+Tokens default to one hour; sessionStorage preserves reload, not guaranteed fresh-browser recovery (`src/pages/api/multiplayer/auth/token.ts:54`; `src/lib/campaign/coop/coopCampaignAuthTokenStore.ts:14`). Include expired-token recovery in the new proof. Existing L1 convergence/launch work remains mandatory.
+
+PRIV-1 is unresolved: authenticated lobby discovery exposes co-op codes; G2A correlates them with campaignId. B15-6 records a required separately admitted product fix, not permission to implement it there (U:15950). A/B cannot claim REST isolation or close this remote hold.
+
+**Owner decisions:** Accept explicitly operator-managed local seats, or require independent private accounts? Define credential recovery/revocation expectations and authorize the new L1 predecessor slices. No decision is needed merely to acknowledge the demonstrated gap.
