@@ -25,6 +25,7 @@ import { DELIVERY_EPOCHS_MIGRATION } from './SQLiteService.deliveryEpochs.migrat
 import { EVENT_JOURNAL_MIGRATION } from './SQLiteService.eventJournal.migration';
 import { EVENT_HISTORY_BRANCHES_MIGRATION } from './SQLiteService.historyBranches.migration';
 import { EVENT_HISTORY_BRANCH_INTEGRITY_MIGRATION } from './SQLiteService.historyBranchesIntegrity.migration';
+import { LOCAL_SEAT_CREDENTIALS_MIGRATION } from './SQLiteService.localSeatCredentials.migration';
 import { MATCH_AUTHORITY_BASELINE_MIGRATION } from './SQLiteService.matchAuthorityBaseline.migration';
 import { CAMPAIGN_PARTICIPANT_CURSORS_MIGRATION } from './SQLiteService.participantCursors.migration';
 import { PRIVATE_ACCESS_WRITE_MIGRATION } from './SQLiteService.privateAccessWrite.migration';
@@ -411,4 +412,5 @@ export const MIGRATIONS: readonly IMigration[] = [
   EVENT_HISTORY_ARTIFACT_MANIFEST_KINDS_MIGRATION,
   EVENT_HISTORY_BRANCH_INTEGRITY_MIGRATION,
   CAMPAIGN_PUBLIC_APPLIED_VIEWS_MIGRATION,
+  LOCAL_SEAT_CREDENTIALS_MIGRATION,
 ];

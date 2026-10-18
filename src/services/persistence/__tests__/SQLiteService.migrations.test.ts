@@ -81,7 +81,7 @@ describe('SQLiteService migrations', () => {
     const before = db
       .prepare('SELECT * FROM campaign_public_applied_view')
       .all();
-    db.prepare('DELETE FROM migrations WHERE version = 32').run();
+    db.prepare('DELETE FROM migrations WHERE version >= 32').run();
     resetSQLiteService();
     getSQLiteService({ path: dbPath }).initialize();
     db = getSQLiteService().getDatabase();

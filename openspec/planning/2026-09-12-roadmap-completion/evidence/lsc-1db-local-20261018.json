@@ -1,0 +1,489 @@
+{
+  "schemaVersion": 1,
+  "unit": "LSC-1DB",
+  "stage": "local",
+  "date": "20261018",
+  "baseline": "afcbd62bba50621ebcf37c2c11adf58ecc3bfc5f",
+  "admissionCommit": "83931a7eb8fd7cca892b44d7429e04ee43178eb1",
+  "redCommit": "2ae35fa4ac49bc164dbd50793db2d7d50a87fccb",
+  "productChanges": [
+    {
+      "path": "src/services/persistence/SQLiteService.localSeatCredentials.migration.ts",
+      "sha256": "36d3e397205b37e91778ed9e00a9bc46be6ffa775e4dc4a9e777471eeb4e25c7",
+      "added": 74,
+      "deleted": 0
+    },
+    {
+      "path": "src/services/persistence/SQLiteService.migrations.ts",
+      "sha256": "28d2780f838ec445ede32ae4abce7eefc84f83720822b85d0a428ba968370673",
+      "added": 2,
+      "deleted": 0
+    }
+  ],
+  "testChanges": [
+    {
+      "path": "src/services/persistence/__tests__/SQLiteService.localSeatCredentials.migration.test.ts",
+      "sha256": "655ed59233973ac5d5697314cbd243c92d40c29eac37accff6198249b958a563",
+      "added": 438,
+      "deleted": 0
+    },
+    {
+      "path": "src/services/persistence/__tests__/SQLiteService.migrations.test.ts",
+      "sha256": "9203b93806a3d745b545735b67c7ae03f8befe2dd97408e303e89fbf115cba34",
+      "added": 1,
+      "deleted": 1
+    },
+    {
+      "path": "src/services/persistence/__tests__/SQLiteService.replayCheckpointsBranch.migration.test.ts",
+      "sha256": "e12de912d58955f09b4125c71f1394bd9db8211c2dcfba6c386fa1613cc111b2",
+      "added": 1,
+      "deleted": 1
+    }
+  ],
+  "caps": {
+    "files": {
+      "changed": 9,
+      "reservedUnwritten": 1,
+      "manifest": 10,
+      "cap": 15
+    },
+    "countedLines": {
+      "added": 92,
+      "cap": 500,
+      "byFile": {
+        "src/services/persistence/SQLiteService.localSeatCredentials.migration.ts": {
+          "added": 74,
+          "deleted": 0
+        },
+        "src/services/persistence/SQLiteService.migrations.ts": {
+          "added": 2,
+          "deleted": 0
+        },
+        "openspec/planning/2026-09-12-roadmap-completion/units.json": {
+          "added": 16,
+          "deleted": 6
+        }
+      },
+      "convention": "git diff --numstat --no-renames baseline..HEAD over the migration module, catalog and units.json, added lines only, no deletion credit; test leaves and receipts line-exempt but file-counted. Includes this commit's local-stage units.json edit."
+    }
+  },
+  "migration": {
+    "version": 33,
+    "name": "local_seat_credentials_schema",
+    "tables": [
+      "local_seat_credentials",
+      "local_seat_credential_operations"
+    ],
+    "indexes": [
+      "local_seat_credential_operations_seat_generation (UNIQUE seat_id, result_generation)"
+    ],
+    "additiveOnly": true,
+    "keyColumn": "Closed envelope: json_valid, json_type object, ciphertext/iv/salt/algorithm IS text, ciphertext/iv/salt non-empty, and json_remove of those four members IS {} (no other member, e.g. privateKey or password, can be stored). Base64 shape is not checkable in SQL and is not claimed.",
+    "integerColumns": "generation and result_generation: typeof integer AND BETWEEN 1 AND 9007199254740991; failed_attempts and locked_until_ms: typeof integer AND BETWEEN 0 AND 9007199254740991 (the catalog guard; numeric text such as 2 is still coerced by affinity).",
+    "revokedAt": "NULL or non-blank text.",
+    "nullCheckFix": "json_type(...) IS 'text' rather than = 'text': json_type returns NULL for a missing path and a CHECK that evaluates to NULL passes, so = would accept a key missing iv or salt (mutants D11/D12 prove the difference)."
+  },
+  "green": {
+    "command": "heavy-run.mjs --lane lsc --class jest -> node green-run.cjs (jest --selectProjects unit --runInBand --cacheDirectory <proof>/jest-cache over all 24 src/services/persistence/__tests__ suites plus IdentityRepository.test.ts)",
+    "result": "Tests:       200 passed, 200 total",
+    "suites": "Test Suites: 25 passed, 25 total",
+    "log": {
+      "path": "E:/Projects/Personal/MekStation-wt/lsc-1db-proof-20261018/green/green.log",
+      "sha256": "03a1c21910763b327e8fbc2091bf5fc5b96ef159d41f3c55f701d2a6d542ab0f",
+      "bytes": 4590
+    }
+  },
+  "typecheck": {
+    "command": "npm run --silent typecheck (TypeScript 7, root and scripts projects)",
+    "exitCode": 0,
+    "log": {
+      "path": "E:/Projects/Personal/MekStation-wt/lsc-1db-proof-20261018/green/typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  },
+  "lintFormat": "oxlint 0 warnings/0 errors and oxfmt --check clean on the migration module, catalog and migration test.",
+  "mutants": {
+    "harness": {
+      "path": "E:/Projects/Personal/MekStation-wt/lsc-1db-proof-20261018/green-run.cjs",
+      "sha256": "96fa81e56dc78c1fed47ac4e4bce9c70e847792e20c276d146923777a0d1a4f0",
+      "bytes": 2757
+    },
+    "catalog": {
+      "path": "E:/Projects/Personal/MekStation-wt/lsc-1db-proof-20261018/mutants.json",
+      "sha256": "6ca8e9a8919fec3d7be84a17c4a9ebdc3f98693ad20597ac8044cb544ab007c2",
+      "bytes": 8461
+    },
+    "caught": 33,
+    "total": 34,
+    "rows": [
+      {
+        "id": "D1",
+        "desc": "catalog entry dropped",
+        "result": "CAUGHT",
+        "summary": "Tests:       14 failed, 12 passed, 26 total"
+      },
+      {
+        "id": "D2",
+        "desc": "version gap 34",
+        "result": "CAUGHT",
+        "summary": "Tests:       2 failed, 24 passed, 26 total"
+      },
+      {
+        "id": "D3",
+        "desc": "seat id allow-list dropped",
+        "result": "CAUGHT",
+        "summary": "Tests:       1 failed, 25 passed, 26 total"
+      },
+      {
+        "id": "D4",
+        "desc": "generation 0 allowed",
+        "result": "CAUGHT",
+        "summary": "Tests:       1 failed, 25 passed, 26 total"
+      },
+      {
+        "id": "D5",
+        "desc": "operation kind allow-list dropped",
+        "result": "CAUGHT",
+        "summary": "Tests:       1 failed, 25 passed, 26 total"
+      },
+      {
+        "id": "D6",
+        "desc": "non-idempotent create",
+        "result": "CAUGHT",
+        "summary": "Tests:       5 failed, 21 passed, 26 total"
+      },
+      {
+        "id": "D7",
+        "desc": "lock deadline column dropped",
+        "result": "CAUGHT",
+        "summary": "Tests:       4 failed, 22 passed, 26 total"
+      },
+      {
+        "id": "D8",
+        "desc": "failure default/check changed",
+        "result": "CAUGHT",
+        "summary": "Tests:       2 failed, 24 passed, 26 total"
+      },
+      {
+        "id": "D9",
+        "desc": "operation id not unique",
+        "result": "CAUGHT",
+        "summary": "Tests:       1 failed, 25 passed, 26 total"
+      },
+      {
+        "id": "D10",
+        "desc": "revoked_at not nullable",
+        "result": "CAUGHT",
+        "summary": "Tests:       2 failed, 24 passed, 26 total"
+      },
+      {
+        "id": "D11",
+        "desc": "NULL-passing CHECK for iv (= instead of IS)",
+        "result": "CAUGHT",
+        "summary": "Tests:       1 failed, 25 passed, 26 total"
+      },
+      {
+        "id": "D12",
+        "desc": "NULL-passing CHECK for salt",
+        "result": "CAUGHT",
+        "summary": "Tests:       1 failed, 25 passed, 26 total"
+      },
+      {
+        "id": "D13",
+        "desc": "salt type requirement dropped",
+        "result": "CAUGHT",
+        "summary": "Tests:       1 failed, 25 passed, 26 total"
+      },
+      {
+        "id": "D14",
+        "desc": "fingerprint hex check dropped (64-char password accepted)",
+        "result": "CAUGHT",
+        "summary": "Tests:       1 failed, 25 passed, 26 total"
+      },
+      {
+        "id": "D15",
+        "desc": "fingerprint length check dropped",
+        "result": "CAUGHT",
+        "summary": "Tests:       1 failed, 25 passed, 26 total"
+      },
+      {
+        "id": "D16",
+        "desc": "password-capable column added",
+        "result": "CAUGHT",
+        "summary": "Tests:       2 failed, 24 passed, 26 total"
+      },
+      {
+        "id": "A1",
+        "desc": "F1 closed-envelope json_remove dropped (extra privateKey/password accepted)",
+        "result": "CAUGHT",
+        "summary": "Tests:       1 failed, 25 passed, 26 total"
+      },
+      {
+        "id": "A2",
+        "desc": "F1 closure whitelists privateKey/password",
+        "result": "CAUGHT",
+        "summary": "Tests:       1 failed, 25 passed, 26 total"
+      },
+      {
+        "id": "A3",
+        "desc": "F1 empty ciphertext accepted",
+        "result": "CAUGHT",
+        "summary": "Tests:       1 failed, 25 passed, 26 total"
+      },
+      {
+        "id": "A4",
+        "desc": "F1 empty iv accepted",
+        "result": "CAUGHT",
+        "summary": "Tests:       1 failed, 25 passed, 26 total"
+      },
+      {
+        "id": "A5",
+        "desc": "F1 empty salt accepted",
+        "result": "CAUGHT",
+        "summary": "Tests:       1 failed, 25 passed, 26 total"
+      },
+      {
+        "id": "A6",
+        "desc": "F1 algorithm member optional",
+        "result": "CAUGHT",
+        "summary": "Tests:       1 failed, 25 passed, 26 total"
+      },
+      {
+        "id": "A7",
+        "desc": "F1 object-type clause dropped (expected EQUIVALENT: the member IS text clauses already require an object)",
+        "result": "SURVIVED",
+        "summary": "Tests:       26 passed, 26 total"
+      },
+      {
+        "id": "A8",
+        "desc": "F2 typeof integer guard dropped on all four columns",
+        "result": "CAUGHT",
+        "summary": "Tests:       1 failed, 25 passed, 26 total"
+      },
+      {
+        "id": "A9",
+        "desc": "F2 upper bound raised past MAX_SAFE_INTEGER",
+        "result": "CAUGHT",
+        "summary": "Tests:       1 failed, 25 passed, 26 total"
+      },
+      {
+        "id": "A10",
+        "desc": "F2 failed_attempts lower bound -1",
+        "result": "CAUGHT",
+        "summary": "Tests:       1 failed, 25 passed, 26 total"
+      },
+      {
+        "id": "A11",
+        "desc": "F2 locked_until_ms lower bound -1",
+        "result": "CAUGHT",
+        "summary": "Tests:       1 failed, 25 passed, 26 total"
+      },
+      {
+        "id": "A12",
+        "desc": "F3 result_generation CHECK dropped (reviewer R12)",
+        "result": "CAUGHT",
+        "summary": "Tests:       2 failed, 24 passed, 26 total"
+      },
+      {
+        "id": "A13",
+        "desc": "F3 label cap 640 (reviewer R15)",
+        "result": "CAUGHT",
+        "summary": "Tests:       1 failed, 25 passed, 26 total"
+      },
+      {
+        "id": "A14",
+        "desc": "F3 operation_id cap 1280 (reviewer R16)",
+        "result": "CAUGHT",
+        "summary": "Tests:       1 failed, 25 passed, 26 total"
+      },
+      {
+        "id": "A15",
+        "desc": "F4 empty revoked_at accepted",
+        "result": "CAUGHT",
+        "summary": "Tests:       1 failed, 25 passed, 26 total"
+      },
+      {
+        "id": "A16",
+        "desc": "F6 one-operation-per-seat-generation index dropped",
+        "result": "CAUGHT",
+        "summary": "Tests:       1 failed, 25 passed, 26 total"
+      },
+      {
+        "id": "A17",
+        "desc": "F6 index not unique",
+        "result": "CAUGHT",
+        "summary": "Tests:       1 failed, 25 passed, 26 total"
+      },
+      {
+        "id": "A18",
+        "desc": "F6 index ignores seat (different seats may share a generation)",
+        "result": "CAUGHT",
+        "summary": "Tests:       1 failed, 25 passed, 26 total"
+      }
+    ]
+  },
+  "migrationReview": {
+    "existingDatabase": {
+      "script": {
+        "path": "E:/Projects/Personal/MekStation-wt/lsc-1db-proof-20261018/existing-db-proof.ts",
+        "sha256": "43ee986b62aa2beff308e86c097ce0cfb9e116cbc3bd56c0c0cb1ab3fb1d0a2e",
+        "bytes": 7397
+      },
+      "output": {
+        "path": "E:/Projects/Personal/MekStation-wt/lsc-1db-proof-20261018/existing-db/proof.json",
+        "sha256": "55687ba4c410be8ca95ad5a9ed36ed16533b7f3b26cfc0f67688d934782a2a6d",
+        "bytes": 1506
+      },
+      "source": {
+        "path": "E:/Projects/Personal/MekStation/data/mekstation.db",
+        "bytes": 9728000,
+        "sha256": "516c9abb72f9ab52085e41e069d850ac8f8bfbc06af9dff8278250f94c6ff101",
+        "note": "read-only source; only byte copies under E:/Projects/Personal/MekStation-wt/lsc-1db-proof-20261018/existing-db are opened for writing; no row content is recorded, only counts and hashes"
+      },
+      "originalVersion": 31,
+      "originalTables": 47,
+      "up": {
+        "preLscHead": 32,
+        "head": 33,
+        "addedObjects": [
+          "index:local_seat_credential_operations_seat_generation",
+          "table:local_seat_credential_operations",
+          "table:local_seat_credentials"
+        ],
+        "removedObjects": [],
+        "everyPreExistingObjectAndRowIdentical": true,
+        "localSeatRows": {
+          "credentials": 0,
+          "operations": 0
+        }
+      },
+      "noOp": {
+        "identical": true,
+        "version": 33
+      },
+      "cappedRunner": {
+        "note": "same code, maxMigrationVersion = head - 1; NOT an older build",
+        "opens": true,
+        "error": "",
+        "unchanged": true
+      },
+      "olderBuild": {
+        "tree": "E:/Projects/Personal/MekStation-wt/lsc-1db-older-afcbd62",
+        "commit": "afcbd62bba50621ebcf37c2c11adf58ecc3bfc5f",
+        "catalogHead": 32,
+        "opens": true,
+        "error": null,
+        "unchanged": true
+      },
+      "down": {
+        "restoresPreLscSchemaAndRows": true,
+        "reUp": {
+          "version": 33,
+          "equalsHeadUpgrade": true
+        }
+      },
+      "pass": true,
+      "method": "Byte copies of the existing operator database (read-only source at version 31). C = copy upgraded by the real runner capped at 32; B = copy upgraded to head 33. B minus the two local-seat tables, their unique index and the version-33 record equals C in every sqlite_master entry and every row (migrations compared on version and name, applied_at excluded). A second initialize of B is a no-op; the same code capped at 32 opens B without error or change (cappedRunner), and the REAL older build (a detached worktree at baseline afcbd62bb whose catalog head is 32, not this code with a cap) opens B without error or change (olderBuild, reproducing the reviewer run); dropping the two tables (which drops the index) and the version-33 record (down) restores C exactly and re-applying gives B again. Only counts and hashes are recorded."
+    },
+    "suite": "The migration suite also proves fresh create, upgrade from head 32, idempotent re-apply after a lost record, rollback of both tables when the record write fails, and the R6 head pin at 33."
+  },
+  "carryIn": {
+    "CF-LSC0-6": "Persistence share discharged: no column is named for a password or secret; the key column accepts only the closed ciphertext envelope and fingerprints only a sha256 hex digest (RED rows, mutants D11-D16 and A1-A7). Free-text columns (label, public_key, operation_id) can technically hold any string; the schema cannot prevent that and does not claim to (review L7); the name check is a name check only (review L6). Request-scoped key lifetime and no-secret logging/error/operation-record proof remain LSC-1S/LSC-1.",
+    "CF-LSC0-8": "Persistence share discharged: failed_attempts and locked_until_ms are durable (survive reopen and re-apply; mutants D7/D8) and integer-guarded (review F2; mutants A8-A11). Revoke-keeps and re-provision-clears is repository behaviour routed to LSC-1S.",
+    "CF-LSC0-16": "Persistence share: only the per-seat count and lock deadline persist; the route-wide windows are process-local service state (not stored). Post-expiry counter semantics and window consumption routed to LSC-1S/LSC-1.",
+    "migration33": "Re-censused at admission against Main afcbd62bb and every open PR; unchanged at this head."
+  },
+  "unchangedControls": [
+    {
+      "path": "src/services/persistence/SQLiteService.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/services/persistence/SQLiteService.publicAppliedViews.migration.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/services/persistence/__tests__/SQLiteService.contract.migration.test.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/services/vault/IdentityRepository.ts",
+      "unchanged": true
+    }
+  ],
+  "notClaimed": [
+    "No repository, service, API or UI (LSC-1S/LSC-1/LSC-2OP/LSC-2)",
+    "No OWNER-RULING",
+    "No remote support, B15 or PRIV-1 discharge"
+  ],
+  "postReviewAmendment": {
+    "review": {
+      "path": "E:/Projects/Personal/MekStation-wt/review-2290-20261018/2026-10-18-lsc-1db-review.md",
+      "sha256": "22f488154f0e4299281209a60f4695eab0b098f59bb7acf2c62eb894438a0782",
+      "bytes": 21388,
+      "reviewedHead": "18319cc5cfd65d329b9e2dd25daa4140f7af4cf9",
+      "verdict": "APPROVE WITH IN-PR FIXES"
+    },
+    "fixes": {
+      "F1": "M1 closed key envelope (object, non-empty ciphertext/iv/salt, algorithm text, json_remove IS {}).",
+      "F2": "M2 typeof integer guard with BETWEEN lo AND 9007199254740991 on generation, failed_attempts, locked_until_ms, result_generation.",
+      "F3": "L1/L2 rows for result_generation 0, 65-char label and 129-char operation id (reviewer survivors R12/R15/R16 now caught as A12-A14).",
+      "F4": "L3 revoked_at IS NULL OR non-blank.",
+      "F5": "L5/L7 wording: real afcbd62 older build re-run here; no column is named for a password or secret, instead of no column can hold one.",
+      "F6": "L4 UNIQUE INDEX (seat_id, result_generation); CF-LSC1DB-2 discharged in-PR."
+    },
+    "method": "amend-old.cjs: the post-review test file run once against the 18319cc5 migration module (byte copy, swapped in and restored in a finally) and once against the new module, under one heavy-run ticket.",
+    "harness": {
+      "path": "E:/Projects/Personal/MekStation-wt/lsc-1db-proof-20261018/amend-old.cjs",
+      "sha256": "21b8163b3692da4e8712f0e43d420fce38210deabcbb86e5a47bc2ed0d4e7c7c",
+      "bytes": 1760
+    },
+    "oldMigration": {
+      "path": "E:/Projects/Personal/MekStation-wt/lsc-1db-proof-20261018/old-migration-18319cc5.ts",
+      "sha256": "3d48376e64aac1e7d44099d82f3f986e9c65b0cae9b704cc0baac2d678af8fbd",
+      "bytes": 2668
+    },
+    "testSha256": "655ed59233973ac5d5697314cbd243c92d40c29eac37accff6198249b958a563",
+    "oldHead": {
+      "result": "Tests:       3 failed, 10 passed, 13 total",
+      "failing": [
+        "SQLiteService local seat credentials migration > review F1: refuses extra plaintext members, empty members and non-object envelopes",
+        "SQLiteService local seat credentials migration > review F2: refuses non-integer fence and lockout values but coerces numeric text",
+        "SQLiteService local seat credentials migration > review F3/F4/F6: caps, positive result generation, non-empty revocation and one operation per seat generation"
+      ],
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/lsc-1db-proof-20261018/amend/old-head.log",
+        "sha256": "9c57d062cea7c9c5454bdbd1eeefb1dd1698396c8e426c554ac8161a37a5f4be",
+        "bytes": 3792
+      }
+    },
+    "newHead": {
+      "result": "Tests:       13 passed, 13 total",
+      "failing": [],
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/lsc-1db-proof-20261018/amend/new-head.log",
+        "sha256": "0eb4c55299d1d9b80641e648e13b03854bdd0bee66512c8ef69a024de3ce0012",
+        "bytes": 1653
+      }
+    },
+    "firstSweep": {
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/lsc-1db-proof-20261018/amend-all.run1.out",
+        "sha256": "a52d6adc7f227a876635733f4e0176883345b8ee7e3ffd10f81d268d59d3e63d",
+        "bytes": 2519
+      },
+      "note": "The first post-fix sweep caught 29/34: A7 (expected equivalent) plus D9, D11, D12 and D13 survived because the new rules masked two existing rows. The F6 unique index rejected the duplicate-operation row before the primary key did (D9), and the now-required algorithm member rejected the iv/salt rows before the NULL-passing member check (D11-D13). Fix in the test leaf only: the iv/salt rows now carry algorithm, and a row reuses an operation id on a different seat and generation. The old-head leg of that first run also failed to compile because the 18319cc5 module copy had been written UTF-16 by a shell redirect; it was regenerated byte-exact and both legs re-run."
+    },
+    "equivalentMutants": "A7 (drop json_type object) is expected EQUIVALENT: the member IS text clauses already require an object; the clause is kept as the reviewer specified, for readability."
+  },
+  "carryForwards": {
+    "CF-LSC1DB-1": "LSC-1S: bind integers; CAS compares changes === 1; stale expected generation leaves the row untouched; revoke preserves failed_attempts/locked_until_ms, re-provision resets both to 0.",
+    "CF-LSC1DB-2": "LSC-1S: one op per (seat_id, result_generation). Persistence share DISCHARGED in-PR by F6; LSC-1S still tests the lost-CAS race.",
+    "CF-LSC1DB-3": "LSC-1S: revocation means revoked_at IS NOT NULL (never blank, now also schema-enforced); same clock source for locked_until_ms as the writer; document clock rollback.",
+    "CF-LSC1DB-4": "LSC-1S/LSC-1: CF-LSC0-6 remainder (key lifetime limited to the request; no secrets in logs, errors or op rows; redaction mutants).",
+    "CF-LSC1DB-5": "LSC-1S/LSC-1: CF-LSC0-16 window semantics (post-expiry counter, whether locked/concurrent refusals consume the route-wide window).",
+    "CF-LSC1DB-6": "Any later schema change to these tables: IMigration has no down; record the manual down SQL in that unit receipt."
+  },
+  "review": "Fable review of 18319cc5: APPROVE WITH IN-PR FIXES (see postReviewAmendment). evidence/lsc-1db-admission-review-20261018.json stays reserved and unwritten in this PR."
+}
