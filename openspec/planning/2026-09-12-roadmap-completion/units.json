@@ -8049,7 +8049,11 @@
         "scripts"
       ],
       "ownershipExceptions": [
-        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a1-admission-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a1-admission-review-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a1-red-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a1-local-20261018.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit own authentic lifecycle fields and frozen evidence; serialize ledger writes with the L1 product lane. No other unit, packet, holder or historical receipt edits. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -8061,14 +8065,20 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "implementing",
+      "baseline": "a25ba4130da7a8cf9e107ecfa0c30b5648082936",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/l1-smoke-a1-admission-20261018.json"
+        },
+        "red": {
+          "path": "evidence/l1-smoke-a1-red-20261018.json"
+        },
+        "local": {
+          "path": "evidence/l1-smoke-a1-local-20261018.json"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,

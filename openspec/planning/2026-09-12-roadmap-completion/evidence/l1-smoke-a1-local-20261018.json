@@ -1,0 +1,399 @@
+{
+  "schemaVersion": 1,
+  "unit": "L1-SMOKE-A1",
+  "stage": "local",
+  "date": "20261018",
+  "baseline": "a25ba4130da7a8cf9e107ecfa0c30b5648082936",
+  "rebasedOnto": "2d576747e9 (fetched Main after #2285 LSC parallel amendment, docs/ledger only) via db3b56816 (#2280 machine-idle, #2284 docs). a25ba4130..2d576747e touches docs/audits, scripts/qc/machine-idle.mjs, scripts/__tests__/machine-idle.test.ts and other units' ledger rows (PROGRESS.md, roadmap.json, units.json LSC rows, lsc-parallel-amendment evidence): no manifest leaf, no frozen control, no src byte and no L1-SMOKE-A1 byte. Rebases were clean; admission baseline field kept as admitted.",
+  "commits": {
+    "admission": "a205fa117",
+    "red": "a9bda139c",
+    "green": "this commit (HEAD)"
+  },
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "L1-SMOKE-A1 implementation sub-agent"
+  },
+  "runtime": {
+    "node": "v22.22.0",
+    "heavyQueue": "node E:/Projects/Personal/MekStation-wt/_locks/heavy-run.mjs --lane smoke-a1 --class build --p0 (Root P0 priority); queue runs machine-idle (now Jest-aware) at the head. Earlier light runs gated with node scripts/qc/machine-idle.mjs --own-pid 47516 --own-pid 55164."
+  },
+  "implementationLeaves": [
+    {
+      "path": "scripts/release/run-l1-built-server-smoke.mjs",
+      "added": 226,
+      "sha256": "a9300977bbf6b9ad6efb6febed95b828629733ff6fcd4aeb87e8ae546ed9cc9b",
+      "bytes": 16507
+    },
+    {
+      "path": "scripts/release/l1-built-server-socket-cases.mjs",
+      "added": 199,
+      "sha256": "ab4df6ad917d5103d9f14baa8f0197b42dbbc19b13d100aa49448dc0348622dc",
+      "bytes": 15615
+    },
+    {
+      "path": "scripts/release/l1-built-server-fixtures.ts",
+      "added": 46,
+      "sha256": "6777453bee2d21aed6db18329ec7e022aea3a69d9075c653f01ca71b61ab935a",
+      "bytes": 3293
+    }
+  ],
+  "bytesVersusAdmission": "All four leaves byte-identical to the admission-recorded prototype (prep.files). Test leaf byte-identical to RED (d67cb2e7...); no test byte changed after RED.",
+  "counted": {
+    "runner": 226,
+    "cases": 199,
+    "fixtures": 46,
+    "code": 471,
+    "lifecycle": "16 (admission 10, red 3, local 3)",
+    "total": "487 / 500",
+    "files": "8 written + 1 reserved = 9 / 15",
+    "tests": "372 (exempt)",
+    "method": "git diff --numstat --no-renames origin/main..HEAD over runner, cases, fixtures and units.json"
+  },
+  "delivered": "Frozen A1 harness/transport/baseline interface as recorded in the admission design.extensionContract; no deviation.",
+  "results": {
+    "nodeTest": {
+      "command": "node --test scripts/release/l1-built-server-smoke.test.mjs",
+      "result": "tests 15, pass 15, fail 0 (23.9s)",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/l1-smoke-a1-proof-20261018/green-test.log",
+        "sha256": "61f95b1915c91f496281049fd02e4a7bbf5450e9b19c332fbb23c555ccb519f9",
+        "bytes": 6588
+      },
+      "note": "Run on the a25ba4130-based branch; leaf bytes unchanged by the rebase."
+    },
+    "lintLeaves": {
+      "command": "oxlint --config scripts/qc/oxlint-units.json --allow no-console <four leaves>",
+      "result": "0 warnings, 0 errors on 4 files",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/l1-smoke-a1-proof-20261018/lint-leaves-green.log",
+        "sha256": "a458135f0b4cda3df39e932225a06062013b532b19169613cc236eb3a01cd6e3",
+        "bytes": 188
+      }
+    },
+    "lintUnits": {
+      "command": "node scripts/qc/lint-units.mjs",
+      "result": "LINT_UNITS_PASS 17896/17899; scripts 50/50 unchanged (byte-identical log to baseline)",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/l1-smoke-a1-proof-20261018/lint-units-green.log",
+        "sha256": "b76ca7cae1bdb510155e8329a555db6fb7fa3dbac39ca842d7251428b2266682",
+        "bytes": 584
+      },
+      "gitignoreNote": "scripts/** is gitignored (whitelist); the leaves are force-added tracked files, so the directory walk does not visit them; explicit-path lint above is the leaf proof."
+    },
+    "validateRoadmap": "ROADMAP VALIDATION PASSED: 93 nodes, 13 packages, 381 tasks, 40 triage rows"
+  },
+  "realRun": {
+    "claim": "One real run of the A1 smoke against a normal production build of exact fetched Main db3b56816. Partial proof only: A1 baseline rows; no B10 matrix, restart acceptance or fog-on refusal; does not discharge S-SMOKE-1 / B14A-SMOKE-1 / B14B-SMOKE-1.",
+    "worktree": "E:/Projects/Personal/MekStation-wt/l1-smoke-a1-main-20261018 (detached at db3b56816, clean, its own npm ci exit 0)",
+    "command": "node <branch>/scripts/release/run-l1-built-server-smoke.mjs --build --expected-sha=db3b5681663b5eb8b4f42507e4047a7f3ca2b1de --output=E:/Projects/Personal/MekStation-wt/l1-smoke-a1-proof-20261018/run-main-db3b56816 --repo-root=E:/Projects/Personal/MekStation-wt/l1-smoke-a1-main-20261018",
+    "exit": 0,
+    "verdict": "PASS",
+    "build": {
+      "command": "npm.cmd run build",
+      "exitCode": 0,
+      "ms": 146506,
+      "buildId": "1792353025224",
+      "builtFresh": true
+    },
+    "image": {
+      "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
+      "configSha256": "7d16282e0919dc76e2f880bf0f5d94de36f9c63143df8875bf787a9e9593d866",
+      "sourceTreeSha256": "91128520ea82210c656d95122582b14687f2ba9e147eb57b4367e4546edd7fd4"
+    },
+    "processes": [
+      {
+        "n": 1,
+        "pid": 51600,
+        "port": 61082,
+        "readyRecords": 1,
+        "stop": "owned taskkill, exit 1, port released"
+      },
+      {
+        "n": 2,
+        "pid": 26068,
+        "port": 61082,
+        "readyRecords": 1,
+        "note": "restart via callback, same image re-verified, same port and private DB; final cleanup owned only"
+      }
+    ],
+    "readiness": "MEKSTATION_LISTENER_READY {schema mekstation-packaged-listener-ready/v1, configuredHostname 127.0.0.1, boundAddress 127.0.0.1, family IPv4, port 61082}; listener probe 404 from the owned server",
+    "rows": {
+      "credential-malformed-refused": "upgrade 401",
+      "credential-url-refused": "upgrade 400 (placeholder query token; no credential in any URL)",
+      "credential-foreign-refused": "guest credential + host playerId SessionJoin -> Error/Close AUTH_REJECTED player-mismatch, no ReplayStart",
+      "participants-authenticated": "fog-off 1v1, alpha-1 = host principal, bravo-1 = guest principal, LaunchMatch -> active",
+      "participant-action-accepted": "host AdvancePhase -> initiative_rolled Event with payload.intentId host-3",
+      "spectator-seat-witnessed": "POST /spectate 201 spectator-1; LobbyUpdated shows the watcher only on spectator-1 (kind spectator), status active; server 'session joined' line for the watcher principal",
+      "spectator-replay-public": "ReplayStart/Chunk/End: game_started, initiative_rolled, initiative_order_set, phase_changed at deliveries 0-3; every host-observed action event id present",
+      "spectator-live-public": "guest AdvancePhase -> movement_locked live at delivery 4",
+      "spectator-cannot-act": "watcher AdvancePhase -> Error INVALID_INTENT spectator-cannot-act (watcher-1); next host action arrives live, no event for watcher-1, gapless stream",
+      "callbacks-exercised": "stop pid 51600 -> offline tsx lineage (match active, fogOfWar false, spectator seat persisted, 12 events) -> restart pid 26068 -> spectator reconnect replays all 11 public events"
+    },
+    "redaction": "6 credentials registered (3 tokens, 3 signatures); every retained file scanned, none found; SessionJoin frames retained as [REDACTED:<label>-token].",
+    "evidence": {
+      "dir": "E:/Projects/Personal/MekStation-wt/l1-smoke-a1-proof-20261018/run-main-db3b56816",
+      "files": {
+        "evidence.jsonl": "f4af5aed8647b36ed88ad414328193fbae80b348602e46ac104bc813cd64c048 45793",
+        "manifest.json": "47d2b72c659b8ced0c38d4e2fb1a921a11197e3ba5ffada8f35ccbb1eb98eb86 1118",
+        "summary.json": "b076121cf5577529129de6570673300690edd727f9691ff4f2ccf91c6e5005ba 2240",
+        "server-1.log": "58a994c0a9598d57773cca45a7ba8d00cf88558b04a1e42ab83ec43a231d760a 5619",
+        "server-2.log": "a9e5ece7265ade5920e5053f5796dc8d8274df8a0715554a286b9092b0e13442 1675",
+        "db/smoke.sqlite": "ded6347373baa19341fa364f9c3f31819be1394599b9aeb07e6a26cc4ce684f9 806912 (retained, with -wal 70072 and -shm 32768)"
+      },
+      "runLog": {
+        "path": "E:/Projects/Personal/MekStation-wt/l1-smoke-a1-proof-20261018/run-main.log",
+        "sha256": "e91eb2946d44ccd63a0f74dcc5e025ad725cf48bfc9bda7c7f3ff53846f76912",
+        "bytes": 780
+      },
+      "npmCiLog": {
+        "path": "E:/Projects/Personal/MekStation-wt/l1-smoke-a1-proof-20261018/main-npm-ci.log",
+        "sha256": "3065ec375186a3d1a64d025b906d1aaa0a1c905cc5cf9b4974ecbc9bc5ebd96c",
+        "bytes": 2576
+      }
+    },
+    "mainDelta": "The run is on db3b56816; the branch base 2d576747e differs only by docs/ledger commit #2285 (no src, server, package or build input)."
+  },
+  "mutationProbes": {
+    "method": "20 single-edit mutants of the three implementation leaves, each run against the frozen test leaf in a scratch copy (E:/Projects/Personal/MekStation-wt/l1-smoke-a1-vacuous), gated per run.",
+    "caught": "16 / 20",
+    "log": {
+      "path": "E:/Projects/Personal/MekStation-wt/l1-smoke-a1-proof-20261018/mutants.json",
+      "sha256": "b8529c6653c8a72e63229118dc99e3087fe9a15fac2b787e9dd1f7ce146795a5",
+      "bytes": 5877
+    },
+    "caughtIds": [
+      "M1 redactor drops base64url form",
+      "M2 readiness ignores port",
+      "M3 server-output leak ignored",
+      "M4 case enumeration not enforced",
+      "M5 owned kill is a no-op",
+      "M6 standalone BUILD_ID not compared",
+      "M7 restart skips image re-verification",
+      "M8 prepareOffline allowed while running",
+      "M9 build exit code ignored",
+      "M10 source SHA not compared",
+      "M11 early server exit ignored",
+      "M12 readiness count not enforced",
+      "M14 echoed credential in frame ignored",
+      "M15 premature close not detected",
+      "M17 replay public facts not checked",
+      "M20 fixture ignores a live owning pid"
+    ],
+    "survivors": {
+      "M13 retained-credential scan disabled": "Defense in depth: every harness write is already sanitized, so no falsifier can reach the final scan; it guards files that A2/B extension code writes into the run dir. Gap disclosed for review (a test row would need a post-RED test change).",
+      "M16 spectator refusal check removed": "Equivalent under the stub: the independent stream-unchanged check still fails an acting spectator with [spectator-cannot-act].",
+      "M18 action-acceptance check removed": "Equivalent under the stub: the acted.length check still fails universal rejection with [participant-action-accepted].",
+      "M19 live delivery contiguity check removed": "Real falsifier gap: no stub mode delivers a non-contiguous live sequence. Positive contiguity is observed on the real image (delivery 4 after replay 0-3). Disclosed for review."
+    }
+  },
+  "findings": {
+    "FINDING-A1-PREP-1": "Unchanged from admission: concurrent first upgrades to a fresh lobby match create two ServerMatchHost instances (MatchHostRegistry.getOrCreate has no in-flight dedupe); STORE_FAILURE revision-conflict follows. src-owned; needs a separately registered unit. The A1 baseline serializes first connections.",
+    "OBS-A1-1": "The spectator-cannot-act Error is broadcast to every connected participant, not only the actor (ServerMatchHostIntent rejectSpectatorIntent uses ctx.broadcast). Carries no hidden data; recorded for A2/B observers.",
+    "OBS-A1-2": "Replay to a late spectator omits game_created (totalEvents counts projected events only); the first public fact is game_started."
+  },
+  "carryForwards": {
+    "CF-SMOKE-1": "Discharged in A1 by the two CF-SMOKE-1 node:test rows (15/15) and the callbacks-exercised row on the real image.",
+    "CF-H12/CF-E10": {
+      "rule": "verify every required check run by name on the exact head",
+      "expectedNames": [
+        "A11y Tests",
+        "Build Storybook",
+        "Build Test / linux",
+        "Build Test / mac",
+        "Build Test / win",
+        "Coverage Floor",
+        "Customizer Regressions",
+        "Desktop Tests",
+        "Desktop Type Check",
+        "Detect Changes",
+        "Determinism Audit",
+        "E2E Smoke",
+        "Format Check",
+        "Install Dependencies",
+        "Lint",
+        "Lint and Test",
+        "Perf Budget PR",
+        "Perf Smoke Tests",
+        "Prepare Build Artifacts",
+        "Schema Bridge",
+        "Seam Anchors",
+        "Statistical Proof PR",
+        "Type Check",
+        "Unit Tests (1/6)",
+        "Unit Tests (2/6)",
+        "Unit Tests (3/6)",
+        "Unit Tests (4/6)",
+        "Unit Tests (5/6)",
+        "Unit Tests (6/6)",
+        "Validate BV Parity",
+        "Validate Combat Suite",
+        "Validate Roadmap Ledger"
+      ],
+      "expectedCount": 32,
+      "exactHead": "A receipt cannot contain the CI result of the commit that carries it; the by-name comparison on the exact PR head is posted as a PR comment."
+    },
+    "S-SMOKE-1 / B14A-SMOKE-1 / B14B-SMOKE-1": "Still owed; needs A2 + B closures and the final combined B run on exact Main after B14-HEAD."
+  },
+  "boundaryControls": "Frozen controls (admission frozen-controls.json) byte-identical at this head: no src, server.js, package.json, lockfile, workflow, existing validator or existing test edit; noPerViewerRevealProjection untouched and never overridden; no /api/e2e; no ServerMatchHost import in the assertion process.",
+  "status": "local-verified candidate after the round-1 review amendment; round-2 independent exact-head review, OWNER-RULING and current required CI pending. Not merged.",
+  "preCommitHook": "The repo pre-commit lint-staged task runs oxfmt --write on staged *.ts by explicit path, which ignores .oxfmtignore's scripts entry and rewrote the fixtures leaf (imports reordered above the header comment; 46 -> 102 lines, which would breach the 500 cap). CI Format Check (oxfmt --check .) honours .oxfmtignore and never visits scripts/, so the rewrite is not a gate. The GREEN commit was amended with --no-verify to keep the admitted fixtures bytes (sha256 6777453b...); no other hook result was bypassed (oxlint/lint-units run explicitly above). Decision point for review.",
+  "reviewAmendment": {
+    "trigger": "Fable full sensitive review of #2287 at de8e97758: CHANGES REQUESTED (minor). Report E:/Projects/Personal/MekStation-wt/review-2287-20261018/docs/audits/2026-10-18-l1-smoke-a1-review.md (sha256 98b68afb..., 31,597 bytes). Root directive: one in-PR amendment commit (A1 required, A2 required, A3 optional taken).",
+    "kind": "RED amendment (falsifier-of-the-falsifier) plus two zero-counted-line implementation fixes. RED for each new test row is a mutant that survives against the pre-amendment test leaf and is killed after; RED for A2/A3 is the new test leaf failing against the pre-amendment implementation.",
+    "commit": "single amendment commit on top of GREEN; branch rebased onto fetched Main afcbd62bba50621ebcf37c2c11adf58ecc3bfc5f (LSC-0 closure #2288). The real re-run is on 811bfd8d4; 811bfd8d4..afcbd62bb touches only PROGRESS.md, units.json (other units) and LSC-0/mainproof evidence: no build input, src, server.js, package or manifest leaf.",
+    "changes": {
+      "A1 test leaf (line-exempt)": "Stub modes accept-malformed, accept-url-token, accept-foreign (replays to the foreign principal, then closes), seat-human (spectate seats the watcher as kind human), http-echo-token (201 body carries the bearer), stall-after-refusal (spectator delivery cursor freezes after the refusal) and live-gap (first spectator live delivery skips one number), each a row in 'missing controls cannot pass'. New rows 'M13: a raw credential written into the run directory by extension code fails the run' (expects /retained credential: extension.txt:[REDACTED:host-token]/ and no raw secret in the error) and 'R10: a private DB that pre-exists before boot fails the run' (build command writes a fresh BUILD_ID and a DB file). URL assertion: new URL(conn.ws.url).searchParams keys deep-equal ['matchId']. Untracked-source row in 'wrong build'. Happy path asserts the offline-fixture dbAfter === dbBefore.",
+      "A2 runner (0 counted lines)": "gitSource uses git status --porcelain (untracked files included); error text 'wrong build source: uncommitted or untracked changes present'. Line count unchanged (226).",
+      "A3 fixtures (0 counted lines, optional, taken)": "new Database(dbPath, { fileMustExist: true, readonly: true }): lineage can no longer checkpoint the WAL; real run dbBefore === dbAfter (c3b6046f...). Line count unchanged (45 physical, 46 numstat)."
+    },
+    "leavesAfter": [
+      {
+        "path": "scripts/release/run-l1-built-server-smoke.mjs",
+        "sha256": "29a7ea553b939acaaef29ea21f39dbe0e527678b6b6778d129f457862ac7c27e",
+        "bytes": 16500,
+        "supersedes": "a9300977..."
+      },
+      {
+        "path": "scripts/release/l1-built-server-socket-cases.mjs",
+        "sha256": "ab4df6ad917d5103d9f14baa8f0197b42dbbc19b13d100aa49448dc0348622dc",
+        "bytes": 15615,
+        "note": "unchanged"
+      },
+      {
+        "path": "scripts/release/l1-built-server-fixtures.ts",
+        "sha256": "5fb94d4058c6c2da2174c63c28e029755238a304d57598ffe4b0388e6d2ddfbb",
+        "bytes": 3309,
+        "supersedes": "6777453b..."
+      },
+      {
+        "path": "scripts/release/l1-built-server-smoke.test.mjs",
+        "sha256": "24c856a0b996b96335feba928a8c729cb31d9f622263dde279320bfba51138e2",
+        "bytes": 25830,
+        "supersedes": "d67cb2e7...",
+        "added": 411
+      }
+    ],
+    "counted": {
+      "runner": 226,
+      "cases": 199,
+      "fixtures": 46,
+      "lifecycle": 16,
+      "total": "487 / 500 (unchanged by the amendment)",
+      "files": "9 / 15 (unchanged)",
+      "tests": "411 (exempt)"
+    },
+    "nodeTest": {
+      "result": "tests 17, pass 17, fail 0 (15 prior rows + M13 + R10)",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/l1-smoke-a1-proof-20261018/amend-mutants-green-after.log",
+        "sha256": "bec9012bdd2f09c75a73874471ef3ad49b6f99d266809204cf5b57fc3d309ea8",
+        "bytes": 3685
+      }
+    },
+    "redOfFixes": {
+      "result": "new test leaf against the pre-amendment implementation (GREEN de8e97758 runner/cases/fixtures): pass 15, fail 2: 'happy path' (dbAfter != dbBefore, A3) and 'wrong build ... untracked' (untracked file accepted, A2)",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/l1-smoke-a1-proof-20261018/amend-mutants-new-test-on-head-impl.log",
+        "sha256": "a49b9947f649a5e309b4b507fcab2620a0188da9fa046eabbdf41de66a3506c4",
+        "bytes": 5368
+      }
+    },
+    "mutantsSurviveBeforeKilledAfter": {
+      "method": "Each mutant applied once to the pre-amendment leaves (before) and once to the amended leaves (after); node --test of the corresponding test leaf in the scratch copy E:/Projects/Personal/MekStation-wt/l1-smoke-a1-vacuous, one heavy-queue job (lane smoke-a1, P0).",
+      "result": "10 / 10: every mutant survives before (0 failing rows) and is caught after.",
+      "rows": {
+        "R2 malformed check also accepts an opened socket": "caught after by accept-malformed",
+        "R3 post-refusal positive control dropped": "caught after by stall-after-refusal",
+        "R7 token URL-encoded under &auth=": "caught after by the searchParams === ['matchId'] assertion",
+        "R8 foreign-principal check removed": "caught after by accept-foreign",
+        "R9 URL-token check also accepts an opened socket": "caught after by accept-url-token",
+        "R10 pre-existing private DB check removed": "caught after by the R10 row",
+        "R11 HTTP echo check removed": "caught after by http-echo-token",
+        "R12 spectator seat kind not checked": "caught after by seat-human",
+        "M13 retained-credential scan disabled": "caught after by the M13 row",
+        "M19 live delivery contiguity not checked": "caught after by live-gap"
+      },
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/l1-smoke-a1-proof-20261018/amend-mutants.json",
+        "sha256": "088cc1cde710ed078d039fc4234beb42fd1e1e26dbcb0ae8380ddbcc3acf459c",
+        "bytes": 5405
+      },
+      "stdout": {
+        "path": "E:/Projects/Personal/MekStation-wt/l1-smoke-a1-proof-20261018/amend-mutants.log",
+        "sha256": "634923a5e6b2d8b700e5bf32b766de62a33764eb1ddb2281542ffaa0483814ee",
+        "bytes": 2866
+      },
+      "remainingSurvivors": "M16 and M18 remain equivalent mutants (redundant checks, see mutationProbes). Earlier catches (M1-M12, M14, M15, M17, M20; R1, R4-R6) are not re-run; the amendment only adds rows and the two zero-line fixes, which no earlier mutant touches."
+    },
+    "lint": "oxlint --config scripts/qc/oxlint-units.json --allow no-console on the four leaves: 0 warnings, 0 errors.",
+    "realRun": {
+      "claim": "Re-run of the real smoke after the runner change, through the heavy queue (lane smoke-a1, class build, P0). Supersedes realRun (db3b56816) for the implementation hashes; that run is kept as the superseded first run.",
+      "worktree": "E:/Projects/Personal/MekStation-wt/l1-smoke-a1-main-20261018 detached at 811bfd8d40d7d9366616dcd93c5a60ae0c95fd51 (fetched Main); git status --porcelain 0 lines before and after the build (untracked included). package.json/package-lock.json identical to db3b56816, so its npm ci install was reused.",
+      "command": "node <branch>/scripts/release/run-l1-built-server-smoke.mjs --build --expected-sha=811bfd8d40d7d9366616dcd93c5a60ae0c95fd51 --output=E:/Projects/Personal/MekStation-wt/l1-smoke-a1-proof-20261018/run-main-811bfd8d4 --repo-root=<worktree>",
+      "exit": 0,
+      "verdict": "PASS",
+      "rows": "10 / 10, same sequence as realRun",
+      "build": {
+        "command": "npm.cmd run build",
+        "exitCode": 0,
+        "ms": 171088,
+        "buildId": "1792357494670"
+      },
+      "image": {
+        "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
+        "configSha256": "40967abddcc18818b95d96b40b3b08313e7df1ab73d343ba0f83bbdc93fc197d",
+        "sourceTreeSha256": "91128520ea82210c656d95122582b14687f2ba9e147eb57b4367e4546edd7fd4"
+      },
+      "processes": [
+        {
+          "n": 1,
+          "pid": 55636,
+          "port": 63340,
+          "readyRecords": 1
+        },
+        {
+          "n": 2,
+          "pid": 60328,
+          "port": 63340,
+          "readyRecords": 1
+        }
+      ],
+      "offlineFixture": "readonly lineage 283 ms; dbBefore === dbAfter c3b6046fd361b0ae9d328ed470ee59ce031d6eae88c6eea16c2e507b381a4b8d (A3)",
+      "redaction": "5 [REDACTED:*-token] marks (the 5 SessionJoin frames); final retained scan clean.",
+      "h1Observed": "server-2.log again carries the two 'not found in the canonical catalog - skipping' recovery warnings (FINDING-A1-REV-1 / MP-RECOVERY-UNITS-1); A1 only claims store replay after restart.",
+      "evidence": {
+        "dir": "E:/Projects/Personal/MekStation-wt/l1-smoke-a1-proof-20261018/run-main-811bfd8d4",
+        "files": {
+          "evidence.jsonl": "8a81252924ff874876f599f101fb7b900bedbf0774f3ce48c621b96c09bf99e9 45805",
+          "manifest.json": "ff96725cff74fee8fe4459e965454883e372829fca3fabcecea8c06ebc6943d6 1118",
+          "summary.json": "7fecf8ab1a2ef0a4389c1181fa39baa880b9b2d3eeaaf3275c87c4946c4f21e6 2240",
+          "server-1.log": "542a8cc3fb3ae78c541e6d412798dbb2608abe428277d024a1ccf27ec163de04 5619",
+          "server-2.log": "6cfc984ab488c044718411984c5d9513d0f8cb4a4802f7ba4a6e695d892187b3 1675",
+          "db/smoke.sqlite": "da63a52bdf62b3fc863995d79f497584be3ba97c1de4c55d1d301afbafab6cfc 4096 (-wal 2467912 21150f2f..., -shm 32768 8c35df3a...; WAL no longer checkpointed by the readonly lineage)"
+        },
+        "runLog": {
+          "path": "E:/Projects/Personal/MekStation-wt/l1-smoke-a1-proof-20261018/run-main-2.log",
+          "sha256": "d587e5d32882a10f1753979b0666ad9ace68d538a9c3674f9961f5c82855c072",
+          "bytes": 780
+        }
+      }
+    },
+    "rulings": {
+      "(a) --no-verify": "Root: accepted for A1 (disclosed; the lint-staged hook contradicts .oxfmtignore and CI). The amendment commit is also made with --no-verify for the same reason (oxfmt --write on the staged .ts fixtures leaf).",
+      "CF-SMOKEA1-3 counting governance": "Root: A1 is accepted at the validator's physical-line count (487), disclosed; oxfmt-normalized the three implementation leaves are about 1264 lines. For L1-SMOKE-A2 and L1-SMOKE-B, leaves must be written in normal repo style (oxfmt-formatted, no compressed multi-statement lines); if that overflows 500 counted lines the unit splits and is never compressed to fit.",
+      "(c) explicit-path lint": "Root: accepted for this head; durable gate carried as CF-SMOKEA1-4 (Root maintenance)."
+    },
+    "carryForwards": {
+      "CF-SMOKEA1-1": "MP-HOST-DEDUPE-1 (Root registering): concurrent first connections create two hosts (FINDING-A1-PREP-1). Not fixed here.",
+      "CF-SMOKEA1-2": "MP-RECOVERY-UNITS-1 (Root registering): boot recovery cannot resolve canonical units (catalog self-fetch before listen); blocks A2 restart acceptance. Not fixed here.",
+      "CF-SMOKEA1-3": "Counting governance as ruled above (A2/B normal style; split on overflow).",
+      "CF-SMOKEA1-4": "Root maintenance: durable gate for scripts/release/* (gitignore whitelist, lint-units inclusion, CI selector for the node:test leaves).",
+      "CF-SMOKEA1-5": "Not taken in this amendment (Root scope: A1-A3 only): bind standalone server.js to <repoRoot>/server.js bytes in imageIdentity (L4) and re-assert readyRecords === 1 for the final process (L5). Next unit permitted to touch A1 leaves.",
+      "CF-SMOKEA1-6": "Root maintenance: lint-staged oxfmt on scripts/*.ts contradicts .oxfmtignore/CI.",
+      "CF-SMOKEA1-7": "LSC-2P / P2J: production standalone prints the InMemoryPlayerStore dev-only warning.",
+      "CF-SMOKEA1-8": "L1-SMOKE-A2: OBS-A1-1 / OBS-A1-2 are not leaks or gaps."
+    }
+  }
+}

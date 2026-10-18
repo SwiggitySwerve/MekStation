@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "unit": "L1-SMOKE-A1",
+  "stage": "red",
+  "date": "20261018",
+  "baseline": "a25ba4130da7a8cf9e107ecfa0c30b5648082936",
+  "admissionCommit": "954b3f0cc",
+  "runtime": {
+    "node": "v22.22.0",
+    "command": "node --test scripts/release/l1-built-server-smoke.test.mjs",
+    "idle": "node scripts/qc/machine-idle.mjs --own-pid 47516 --own-pid 55164 -> MACHINE_IDLE immediately before every run"
+  },
+  "implementationAbsent": {
+    "note": "scripts/release/run-l1-built-server-smoke.mjs, l1-built-server-socket-cases.mjs and l1-built-server-fixtures.ts do not exist at this commit (exists:false in the admission frozen-files census). No implementation byte is present.",
+    "files": [
+      "scripts/release/run-l1-built-server-smoke.mjs",
+      "scripts/release/l1-built-server-socket-cases.mjs",
+      "scripts/release/l1-built-server-fixtures.ts"
+    ]
+  },
+  "testChanges": [
+    {
+      "path": "scripts/release/l1-built-server-smoke.test.mjs",
+      "added": 372,
+      "deleted": 0,
+      "sha256": "d67cb2e7bfaa3a5a9b4528a7f710bed20bc5221e7815a1f0e689d6504fac897d",
+      "bytes": 22777,
+      "note": "Byte-identical to the admission-recorded prototype test (prep.files). Line-exempt, file-counted."
+    }
+  ],
+  "result": {
+    "summary": "tests 1, pass 0, fail 1: the file fails at import with ERR_MODULE_NOT_FOUND for ./l1-built-server-socket-cases.mjs (the harness under test is absent). This is the only RED a new-leaves unit can show in a tests-only commit.",
+    "log": {
+      "path": "E:/Projects/Personal/MekStation-wt/l1-smoke-a1-proof-20261018/red.log",
+      "sha256": "42af832beb2c93ade472e3e138a2ce708bc5e402903754f5f7362da30711e3c1",
+      "bytes": 3290
+    },
+    "idleLog": {
+      "path": "E:/Projects/Personal/MekStation-wt/l1-smoke-a1-proof-20261018/idle-red.log",
+      "sha256": "5ae71092694ee67992e4eb270ac9bd7e449ddad57fa0b9edb00e37982c485d7a",
+      "bytes": 30
+    }
+  },
+  "vacuousStandIn": {
+    "purpose": "Show that no row passes vacuously: the same test file run against a scratch-only stand-in whose runHarness reports PASS for every required case, whose redactor redacts nothing, whose parser accepts any record and whose cases module never touches a socket.",
+    "location": "E:/Projects/Personal/MekStation-wt/l1-smoke-a1-vacuous (never committed)",
+    "summary": "tests 15, pass 0, fail 15",
+    "rows": [
+      "redactor replaces raw and base64url forms and refuses weak secrets",
+      "readiness parser rejects every wrong listener shape",
+      "happy path: all A1 cases pass, callbacks run, nothing retained, owned children cleaned",
+      "CF-SMOKE-1: stop, offline fixture, restart and reconnect callbacks are guarded and observable",
+      "CF-SMOKE-1: restart refuses a changed image",
+      "wrong build: SHA mismatch, dirty source, standalone BUILD_ID mismatch, missing markers, stale build",
+      "wrong listener or readiness fails before any case runs",
+      "early server exit fails the run even when cases pass",
+      "failed commands propagate: build exit code and runCases errors",
+      "case enumeration: missing, unexpected and duplicate rows fail",
+      "credential leakage fails on server output and frames; failure output stays redacted",
+      "missing controls cannot pass: no public replay, universal rejection, acting spectator, dropped live",
+      "premature socket close fails the pending wait",
+      "refused upgrades and identities use the subprotocol, never the URL",
+      "never kills a process it did not start"
+    ],
+    "log": {
+      "path": "E:/Projects/Personal/MekStation-wt/l1-smoke-a1-proof-20261018/red-vacuous.log",
+      "sha256": "0f5b27c6606674d18a27fb4fe9f9933786ff35dcfcec4502ff9812c6445c5f5f",
+      "bytes": 26478
+    }
+  },
+  "testDesignNotes": [
+    "Falsifiers boot a test-only stub standalone image (embedded CommonJS server.js written into a throwaway committed git repo with .next/BUILD_ID, standalone/.next/BUILD_ID, server.next-config.json and src/) through the real runHarness: real TCP listener, real ws WebSocket server selecting mekstation.v1, real better-sqlite3 durable file with the production mp_matches/mp_match_events columns. Modes break exactly one guarantee each (wrong-port, wrong-address, two-ready, no-ready, exit-after-ready, log-token, echo-token, no-public, reject-actions, spectator-acts, drop-live, close-on-join). The stub is never product proof.",
+    "CF-SMOKE-1 rows drive the frozen callbacks: stop (owned pid dead, port free, double stop refused), prepareOffline (refused while running; real fixtures.ts via tsx lineage on the stopped DB; the fixture itself refuses a live owning pid), restart (new pid, same port, re-verified image; a changed server.js is refused) and reconnect (replay after restart still carries every baseline public event id).",
+    "Credential rows wrap the redactor to capture every raw credential the run issued and scan every retained file and the thrown error for them, on success and failure paths.",
+    "Cleanup rows assert every owned pid from summary.json is dead and its port free, and that an unrelated bystander process survives a failing run."
+  ],
+  "gitignore": "scripts/** is ignored by .gitignore:38 with a whitelist; scripts/release is not whitelisted, so the leaf is added with git add -f, the established convention (606 tracked files under scripts are ignored-but-tracked). Consequence: directory-walk linting (lint-units 'scripts', which honours .gitignore) does not visit the four leaves, so the 50/50 scripts ceiling is unaffected either way; the leaves are linted by explicit path (oxlint --config scripts/qc/oxlint-units.json --allow no-console <file>) and must report 0 warnings / 0 errors. No .gitignore edit (outside the manifest).",
+  "lintAtRed": "oxlint --config scripts/qc/oxlint-units.json --allow no-console scripts/release/l1-built-server-smoke.test.mjs: 0 warnings, 0 errors on 1 file."
+}
