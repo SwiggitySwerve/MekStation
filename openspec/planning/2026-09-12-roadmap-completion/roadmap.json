@@ -2708,7 +2708,7 @@
     {
       "id": "R2.authority-live",
       "ownershipPathsAmended20261009P2C": {
-        "unit": "P2CA/P2CB/P2CD/P2CE/P2CE1/P2CE2/P2CE3/P2CF/P2CF1/P2CF2/P2CG1/P2CG1A1/P2CG1A2/P2CG1B/P2CG1C/P2CG1D/P2CG1E/P2CG1F/P2CG1G1/P2CG1G2A/P2CG1G2/P2CG1H/P2CG1I1/P2CG1I2/P2CG1I3/P2CG1I4/P2CG2/P2CH",
+        "unit": "P2CA/P2CB/P2CD/P2CE/P2CE1/P2CE2/P2CE3/P2CF/P2CF1/P2CF2/P2CG1/P2CG1A1/P2CG1A2/P2CG1B/P2CG1C/P2CG1D/P2CG1E/P2CG1F/P2CG1G1/P2CG1G2A/P2CG1G2/P2CG1HP/P2CG1H/P2CG1I1/P2CG1I2/P2CG1I3/P2CG1I4/P2CG2/P2CH",
         "planTask": 8,
         "evidence": "evidence/p2cg1-split-registration-correction-20261016.json",
         "paths": [
@@ -2874,7 +2874,9 @@
             "src/pages-modules/api/e2ePerformanceProbeRoute.ts",
             "src/__tests__/api/e2ePerformanceProbeRoute.test.ts",
             "e2e/coop-campaign-two-browser-journey.spec.ts",
-            "e2e/gm-two-player-authority.pack1.spec.ts"
+            "e2e/gm-two-player-authority.pack1.spec.ts",
+            "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+            "src/lib/multiplayer/server/campaignApplicationConnection.ts"
           ],
           "P2CG1I1": [
             "src/pages-modules/api/campaignLaunchProgressionGate.ts",
@@ -2965,6 +2967,12 @@
           "P2CG1G2A": [
             "src/pages/api/multiplayer/invites/[roomCode].ts",
             "src/__tests__/api/securityBoundary.test.ts"
+          ],
+          "P2CG1HP": [
+            "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+            "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+            "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+            "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts"
           ]
         },
         "knownSourceTestLifecycleSubtotals": {
@@ -2988,7 +2996,7 @@
           "P2CG1F": 6,
           "P2CG1G1": 9,
           "P2CG1G2": 11,
-          "P2CG1H": 9,
+          "P2CG1H": 11,
           "P2CG1I1": 6,
           "P2CG1I2": 10,
           "P2CG1I3": 5,
@@ -2997,7 +3005,8 @@
           "P2CH": 5,
           "P2CG1R": 8,
           "P2CG1S": 6,
-          "P2CG1G2A": 3
+          "P2CG1G2A": 3,
+          "P2CG1HP": 5
         },
         "permissionBoundary": "Prospective assignment only; source permission remains non-effective until normal finite admission freezes the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measures actual unique files and product/test additions under unchanged 15-file/500-product-added-line limits. Named source/test lists and known lower bounds are in R2.authority-live.ownershipPathsAmended20261009P2C.restrictions for this ID. No unnamed test, directory-wide grant, placeholder/hash, capException or cap inflation. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze of actual bytes/names/hashes and full census. If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required scenario."
       },
@@ -18015,5 +18024,45 @@
       "note": "Full playable fog restoration requires later separately registered work: visible-unit hydration/last-known state, stable placements, shared-team ownership and live/replay/recovery/HTTP parity. No placeholder unit or implementation permission is registered here."
     },
     "enforcement": "Documentary predecessor and release gate; NEXT does not enforce ordinary predecessor arrays. Parent releases B14-0 to planned only after S genuine exact-main mainProof PASS, fetched-main ancestry and closure, then H only after B14-0 equivalent proof. Single product-writing lane including closure; registration alone supplies no source permission."
+  },
+  "hConsumerPrereqAmendment20261018": {
+    "baseline": "36dacb34613785cb364db258afdd2632eca09be0",
+    "status": "planned-gated",
+    "registrationOnly": true,
+    "sourceAdmitted": false,
+    "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/hi-prep-20261018.txt",
+    "sourceSha256": "6b8df3e824b27717d7db0c6f6f316ef150295d4cdb28d3861eb23a697ffb7590",
+    "authority": "Parent adopts the recommended draft and concrete two-retry policy under the owner standing instruction: continue with recommended options and fix the issues that come up, publish as needed. This records the parent ruling, not a fresh direct owner answer, future implementation OWNER-RULING or runtime acceptance.",
+    "node": "R2.authority-live",
+    "unit": "P2CG1HP",
+    "layer": "L1",
+    "order": "B14-0 -> P2CG1HP -> P2CG1H",
+    "manifest": [
+      "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+      "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+      "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+      "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-admission-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-red-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-local-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-admission-review-20261018.json"
+    ],
+    "knownSourceTestLifecycleSubtotal": 5,
+    "totalProspectiveFiles": 9,
+    "evidenceNames": "The four output names are prospective only; freeze truthful final admission/red/local/admission-review names at admission. No placeholders are created. R exact CF-H8/CF-G5 proof must be recorded before reducing the binder test and total to eight files.",
+    "hAmendment": {
+      "typeOnlyLeaves": [
+        "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+        "src/lib/multiplayer/server/campaignApplicationConnection.ts"
+      ],
+      "interfaceOwner": "src/lib/multiplayer/server/campaignApplicationReceiptPort.ts",
+      "knownSourceTestLifecycleSubtotal": 11,
+      "totalProspectiveFiles": 15,
+      "evidenceOutputs": 4,
+      "scope": "CF-E6 type-only imports in the two added leaves; port factory owns the single interface. All other H behavior, activation predicate, successors, review/CI/exact-main/closure gates and caps remain. Final evidence names and measured fit freeze at admission."
+    },
+    "rBoundary": "R does not establish cross-file atomicity or comprehensive outer-COMMIT cleanup. If broader repair is required it must be separately registered before H; repair-not-implied-waiver remains.",
+    "enforcement": "Documentary predecessors only: NEXT supplies no permission. Parent releases HP only after B14-0 genuine exact-main PASS, fetched-main ancestry and closure, then H only after equivalent HP proof and closure alongside existing G2/R/S/B14-0 prerequisites. Sensitive review, exact-head OWNER-RULING and required CI precede implementation merge. No source admission or receipt fabricated."
   }
 }

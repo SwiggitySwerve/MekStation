@@ -1,3 +1,54 @@
+## 2026-10-18 Pre-H consumer recovery registered; H type scope amended
+
+Parent adopts the recommended split and concrete two-retry policy under the
+standing owner instruction to continue with recommended options, fix issues and
+publish as needed. P2CG1HP (pre-H consumer recovery) is blocked under
+R2.authority-live, with authority/privacy/replay/idempotency/concurrency review.
+Effective L1 has 22 units: P2CG1S -> B14-0 -> P2CG1HP -> P2CG1H -> P2CG1I1.
+B14-0 must have genuine exact-main PASS, fetched-main ancestry and closure before
+HP release; HP needs independent sensitive review, exact-head OWNER-RULING,
+required CI, exact-main PASS and closure before H admission or installation.
+NEXT does not enforce ordinary predecessors and supplies no source permission.
+
+The [HI preparation report](evidence/hi-prep-20261018.txt) is copied byte-for-byte
+(SHA-256 6b8df3e824b27717d7db0c6f6f316ef150295d4cdb28d3861eb23a697ffb7590).
+Its "Draft amendment / split - not applied" section is adopted here with real ID
+P2CG1HP and the finite policy: two automatic quiet-window retries per mounted
+campaign-seat recovery episode, counted across replacement transports; reset
+only on healthy application confirmation or explicit user retry. Exhaustion
+closes the unproductive socket, stops automatic rejoin and shows accessible
+inline "Campaign sync could not connect. Reload this campaign to try again."
+State is hook-local, scoped by campaign/match/player; dispose cancels timers and
+route remount resets are documented and tested. No durable cross-route cap is
+claimed. CF-H14 synchronous settling release, CF-H15 same-tick pin and CF-H8/CF-G5
+bound-join first appliedView/no-joinMember proof belong here. Preserve G1 heardAt,
+CF-H1 held-refresh cut, ordered offers, stale-binding silence, replacement EMPTY
+fold and healthy legacy first-frame behavior. If R provides exact H8/G5 proof,
+record its receipt/head/assertions and reduce the binder test; do not assume it.
+
+HP has four exact source/test leaves plus units.json and four prospective
+admission/red/local/admission-review outputs: nine files, ordinary 15/500 caps.
+Freeze truthful final evidence names at admission, then measure actual fit.
+H gains only CampaignHostRegistry.ts and campaignApplicationConnection.ts for
+CF-E6 type-only imports; campaignApplicationReceiptPort.ts owns the single
+interface. Its source/test/lifecycle subtotal changes 9 -> 11; four evidence
+outputs make 15/15. R does not establish cross-file atomicity or comprehensive
+outer-COMMIT cleanup; any broader required repair must be registered before H.
+Preserve G2/R/S/B14-0, repair-not-implied-waiver, all other H behavior, activation
+predicate, I1 successor and review/CI/exact-main/closure gates.
+
+Registration baseline is 36dacb34613785cb364db258afdd2632eca09be0. Existing unit
+changes are limited to B14-0.successors and H.behavior/admissionRequires/
+predecessors. P2CG1G2A/P2CG1G2 and all other unit objects are unchanged; L1 mapping
+and documentary order insert HP only. Prior dated registration records remain
+historical. No source admission, implementation, runtime acceptance or future
+sensitive approval is supplied. Final field audit and validation are in the PR.
+
+Parent review follow-up: rebased onto the G2A closure (#2248), preserving its
+G2A main-verified / G2 planned state and progress entry below. Following #2246,
+H retains G2/R/B14-0 predecessors and includes HP; B14-0 -> HP -> H links are
+symmetric without removing existing prerequisite edges.
+
 ## 2026-10-18 P2CG1G2A source verified on main; reduced P2CG1G2 released; closure metadata proposed
 
 P2CG1G2A advances from implementing to main-verified for source PR #2247,

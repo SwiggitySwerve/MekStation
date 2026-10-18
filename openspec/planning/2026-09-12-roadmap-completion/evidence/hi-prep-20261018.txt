@@ -1,0 +1,470 @@
+﻿# H / I1-I4 early fit check - 2026-10-18
+
+Read-only research for the parent. Prospective fit analysis, not admission, RED evidence, independent review, runtime acceptance or closure. No tests or prototypes were run.
+
+**Decision:** H needs a reviewed literal-scope amendment and a separate pre-activation consumer slice. I1, I2 (including its already-registered two harnesses), I3 and I4 appear to fit their present registrations. Counts are source-derived estimates, not measured implementation diffs.
+
+| Unit | Fit | Draft source-stage files | Counted additions | Separate test additions |
+| --- | --- | ---: | ---: | ---: |
+| P2CG1H | Amend type leaves; split consumer prerequisite | registered 13; proposed activation 15/15 | 83-183/500 | 420-760 |
+| P2CG1I1 | Fits prospectively | 10/15 | 24-61/500 | 300-550 |
+| P2CG1I2 | Fits accepted nine-leaf amendment | 14/15 | 16-35/500 (lifecycle only) | 650-1100 |
+| P2CG1I3 | Fits prospectively | 9/15 | 31-75/500 | 450-750 |
+| P2CG1I4 | Fits; recheck I2 handoff | at most 12/15 | 33-76/500 | 350-650 |
+
+## Baseline and authority
+
+- Checkout: `E:/Projects/Personal/MekStation-wt/hi-prep-20261018`, newly created detached at local origin/main **a6b604a078e44abaf9dbb6e2c14888e90ad83d08** (#2247 merge). No fetch, branch change, installation, server launch, test, mutation or scratch prototype. Later Main movement is not incorporated.
+- Every E: research shell command prepended `C:\Users\wroll\AppData\Local\nvm\v22.22.0` to PATH; observed Node v22.22.0. Root working files were not edited. Root was used only for read-only inspection and worktree administration. Existing dirty `.claude_settings.json`, `scripts/show-unit-crits.ts`, `scripts/trace-albatross-weapons.ts` and unrelated T3 edits were left alone. No child agent launched.
+- Read personal working guidance; applicable root/OpenSpec/server/pages/pages-modules/components/E2E instructions; TRANSPORT.md; delivery counting rules; contracts; G1 receipt and both review copies; I-chain amendment; R/S prep and reduced G2 prep. Their prior test/prototype results are not this report's evidence. G2 prep's multi-PID idle exclusions are not adopted: this task allows only --own-pid 47516.
+- Contracts: `openspec/planning/2026-09-12-roadmap-completion/units.json` H/I1/I2/I3/I4 ID locations appear in the generated anchor table; `roadmap.json:2869` onward lists their exact leaves. Read the original split, I4 correction and `evidence/p2cg1i-literal-path-amendment-20261018.json` together. I3's historical 'last' wording is explicitly superseded by I4.
+- At this snapshot G2A remains implementing with null mainProof despite its product merge; G2/R/S/B14-0 and H/I1-I4 are blocked. Merge is not closure. Requested order: **G2 -> R -> S -> B14-0 -> H -> I1 -> I2 -> I3 -> I4 -> P2CG2 -> P2CH -> P2C -> P2 -> U38**, with G2A closure before G2. The proposed prerequisite inserts after B14-0/before H, subject to registration.
+- H predecessor array lists G2/R/B14-0; admission text independently requires S as well. Preserve S -> B14-0 transitively and the explicit requirement. Before source admission parent verifies fetched-main ancestry, genuine exact-main PASS, closure, current reservations and one product-writing lane including closure. NEXT supplies no permission.
+
+U41 (`DELIVERY.md:11`): count all unique files and additions without deletion credit. Tests, generated files and ledger evidence/ are excluded from lines, not files. units.json additions count. Test helpers inside __tests__/ are line-exempt. Each draft reserves units.json plus four exact proposed admission/red/local/admission-review names. Later G-OWN must freeze genuine review/identity/closure names/bytes/hashes and re-count the full stage; unknown outputs are not authorized by spare slots. No placeholder evidence is created here.
+
+## P2CG1H - activation
+
+### Current paths and change
+
+| Anchor at a6b604a07 | Required change |
+| --- | --- |
+| `server.js:446`, `:463`, `:521`, `:537`, `:544`, `:882` | Initialize socket graph SQLite, backfill/install once inside loadMultiplayerRuntime before bootstrap, entries, createServer and listen. Preserve cache behavior. Runtime load failure is caught and HTTP can still start; this motivates I1/I3/I4, and must not be described as successful activation. |
+| `src/lib/multiplayer/server/CampaignHostRegistry.ts:76`, `:280`, `:295`, `:332` | Duplicated port type; install-once/empty-registry guards already exist. Entries derive graph-local launch views only under install. Preserve sole activation predicate and graph ownership. |
+| `src/lib/multiplayer/server/campaignApplicationConnection.ts:55`, `:93`, `:322`, `:452` | Other port type; preparePublicCut materializes verified public cuts per view. Import the unified type for CF-E6. Measure N-view per-commit cost; no silent tail-read rewrite. |
+| `src/lib/events/journal/SQLiteEventHistoryBranchStore.ts:74` | Reuse existing backfillGenesisBranches, preserving stored generations/branches and second-call idempotence. No edit to this file needed. New port factory returns this composing graph's live getSQLiteService().getDatabase() handle. |
+| `src/lib/multiplayer/server/__tests__/CampaignHostRegistry.globalSlot.test.ts:20`, `:43` | Extend actual isolateModules graph fixture with install visibility, identity, empty/once/order/no-database pins. Structural equality is insufficient. |
+| `src/pages-modules/api/e2ePerformanceProbeRoute.ts:75` | Installed port selects entry.launch readiness, missing view fails closed; missing entry remains null. No-port fallback only to surviving legacy session behavior. Preserve E2E guard. |
+| `e2e/gm-two-player-performance.pack.spec.ts:701`, `:716` | Unowned consumer requires convergence.ok plus event-sequence requiredRevision. Raw CampaignLaunchVerdict is incompatible: `campaignPublicAppliedView.ts:314`, `:335` exposes no revision. Preserve probe response fields; ok comes solely from receipt verdict, numeric metadata from event-log number space, never readiness credit. Revalidate after async preparation on bound C before claiming current readiness. No spec edit demonstrated. |
+| `src/__tests__/api/e2ePerformanceProbeRoute.test.ts:195`, `:215` | Rewrite production case currently calling noteParticipantAcknowledged to installed-port/P2CA proof now, avoiding a missed I3 caller. Keep only separately identified absent-port tests of behavior that survives I3. |
+| `e2e/gm-two-player-authority.pack1.spec.ts:410`, `:468`, `:605` | Raw socket harness captures sequences, sends numeric ACKs. Capture exact offers, apply projected state/facts, send matching appliedView ACK and await server confirmation. Include initial/post-day GM ACK, not players only. Snapshot arrival is not application. |
+| `e2e/coop-campaign-two-browser-journey.spec.ts:365` | Narrow exception: strengthen only pre-AdvanceDay waits for BOTH host and guest application confirmations. Scenario expansion remains P2CH. |
+
+**Registered-scope defect:** H has 8 leaves +5 lifecycle/evidence =13. CF-E6 demands two unlisted type-import leaves (registry/application connection), consuming the remaining slots. CF-H7/H14 require consumer and hostProjection test; visible text needs connected surface. CF-H8 needs binder test unless R closes it first. All in H = **19 files** (18 if R closes H8). Spare capacity does not grant unlisted leaves. Proposed amended H is 15/15 after separate consumer prerequisite.
+
+### RED / mutations
+
+1. Real temporary C database with old journal stream missing genesis: assert factory database identity, preserving backfill, second-call zero changes, no foreign graph handle. New module is absent at baseline: feature-detect and fail a plain behavioral assertion, or honestly separate a typed skeleton stage; missing-import/compiler errors alone are not behavioral RED.
+2. Execute server.js with a bounded test-local fake Next/http/module harness in the registered factory test: observe initialize -> backfill -> install -> bootstrap -> createServer -> listen; two runtime loads install once. No separate harness/config leaf. Genuine built-server socket/HTTP smoke must then prove real composition.
+3. Install via one graph, read same object via another Symbol.for graph. With no entry, make an actual HTTP preflight from a fixture inside a registered H test (factory test can own it): receipt path still selected, code-only refusal, no mutation. Covers CF-F9 without assuming an extra route-test edit.
+4. Probe with opposing legacy and receipt answers: receipt decides ok while old response shape/event-sequence metadata remains. Cover absent/omitted match, installed-but-no-view, no-port fallback, and journal/event sequence distinction.
+5. Numeric pack1 setup under install must refuse. Revised real wire proof waits for exact ACK confirmation, then progresses; withholding either host/guest keeps gate closed. Keep duplicate-intent outcome proof.
+6. Measure preparePublicCut for N=1,2,3 active views and short/long histories, with warmed samples and read counts via test-local instrumentation. Record genuine admission cost evidence, no benchmark product rewrite. If unacceptable, separately register tail-read work.
+
+Mutants: omit install; install after bootstrap/listen; return other graph handle; omit backfill; module-local instead of Symbol.for registry; probe trusts legacy ok; raw verdict omits compatible fields; clear wait on arrival; ACK altered/other-view receipt; omit GM application. Kill with identity/order/wire/readiness assertions. Type unification itself requires one-definition/type/cycle evidence, not an invented behavioral mutant.
+
+Fit: needs amendment/split. Proposed activation product 67-148 + lifecycle16-35 = **83-183** counted; tests420-760; four evidence files roughly200-650 raw excluded lines. No measured diff. Further raw-spec edit would stop exhausted 15-file H.
+
+Carry-forwards: CF-E5 boot order; CF-E6 single type; CF-F9 disclosure that launch-authority is unauthenticated read-only code-only preflight and authenticated create is mutation; P2CE2 C3 cost. Verify genuine R H-OPEN-1/CF-E1, S/B10 and B14-0 closure before activation. CF-H7 (=G4), H14 and H8 (=G5) must close before installation. R/S prep explicitly separates in-span append cleanup from native outer-writer COMMIT failure: R does not establish cross-file atomicity or comprehensive outer-COMMIT cleanup. Record this boundary; if broader repair is required, register it before H rather than infer waiver.
+
+## P2CG1I1 - HTTP/client legacy credit removal
+
+### Paths and changes
+
+- `src/pages-modules/api/campaignLaunchProgressionGate.ts:99`, `:157`, `:229`, `:263`, `:286`: remove listParticipantsBehind/MAX(acked_sequence), cursor/database helpers and associated imports. A session call reaching this fallback has no installed receipt path: return typed CAMPAIGN_NOT_CONVERGED even for high cursors/zero active rows. Preserve session-less head-only semantics and applicable branch/saga checks.
+- `src/pages-modules/api/campaignLaunchAuthorityRoute.ts:263`, `:309`, `:317` already selects port+session and delegates fallback to owned helper. I-chain's conditional route leaf is **not demonstrated necessary** after E; helper can refuse without route edit. Earlier no-authoritative-stream answer at :279 is separate existing policy: expanding that policy needs registration, not an unlisted edit here.
+- `src/lib/campaign/coop/campaignSyncTransport.ts:501`, `:512`, `:671`: delete only !receiptMode numeric ACK block and snapshotAckRevision. Keep application ACK at :205, confirmation at :452, prefix queue, recovery and grant cursor number space. Legacy traffic can still fold but earns no ACK.
+- Registered route/transport suites migrate numeric-cursor fixtures to installed-port/P2CA rows. `src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx:1068` explicitly expects numeric observation ACKs: rewrite to folded legacy state with **zero ACKs of either kind** on an unbound transport. Preserve pre-H consumer/G2 transport changes.
+
+RED: no-port session with maximal legacy MAX cursors refuses before grant/launch; session-less head response stays correct; installed port/no entry still selects receipts, missing P2CA refuses despite high cursors; legacy event+snapshot fold without ACK; bound applied offer sends exact receipt and confirms. Await actual async handler before response assertions.
+
+Mutants: restore MAX credit; substitute cursor for missing receipt; key switch on registry entry.launch; no-port session succeeds; restore event numeric ACK; restore snapshot numeric ACK; accidentally suppress application ACK too; use journal/transport cursor as grant cursor. Distinct positive/negative controls kill each.
+
+Fit: **10/15**, gate8-20 +transport0-6 +lifecycle16-35 = **24-61** counted; tests300-550; evidence150-450 raw excluded lines. No amendment presently needed. Any required route edit needs explicit conditional literal amendment.
+
+Carry-forwards: CF-F1 no-second-switch/no-entry pin and CF-F4 awaited handler are due to route-test owner. CF-F2 terminal signals/timers due to transport-test owner unless G2 closed them: recovery then remote close emits once; unknown-receipt before first ACK recovers; exactly one timer across two consecutive ACKs. CF-H15 due to next hostProjection owner: close in proposed pre-H slice if it owns next, otherwise I1 pins same-tick consume/unmount -> rejoin, baseline-only ACKs, refresh never called. H7/H14 deadlines precede I1.
+
+## P2CG1I2 - test migration before server deletion
+
+No product edits. Nine exact leaves plus units.json/four evidence = **14/15**. The accepted I-chain evidence already registers BOTH harnesses; obsolete seven-leaf totals must not be reused.
+
+### Per-leaf paths and changes
+
+All paths in this table are under `src/lib/multiplayer/server/__tests__/`.
+
+| Leaf:line | Finding / migration |
+| --- | --- |
+| `campaignHostIntentServerTime.test-helpers.ts:105`, `:313`, `:327`, `:372` | RowSocket drops completion callback; timing wraps legacy session gate; command numeric-ACKs guest after sleeps. Complete send callback, apply offered frames, ACK GM+guest and await exact confirmations. Instrument actual receipt preparation/revalidation; preserve metric meaning/labels or disclose the changed measurement. Fixed sleeps cannot replace readiness. |
+| `campaignHostIntentServerTime.test.ts:80`, `:94`, `:114` | Install after reset on empty registry before register; use real durable seats, both ready baselines, both log sizes and host PUT loops. Preserve finite steps/refused===0 and existing performance thresholds/timeouts. |
+| `campaignLiveDeliveryUnification.test.ts:72`, `:182`, `:209`, `:224` | In-memory registry/numeric ACK readiness. Move readiness to installed entry.launch/P2CA plus real offers. 'GM never waited on' is old policy: replace with actual GM application required along with every durable seat; do not auto-credit GM. Keep delivery-once, all three audiences and GM-scope secrecy controls. |
+| `campaignProgressionReaders.durable.integrity.test.ts:88`, `:105`, `:144`, `:154` | fullyAcknowledgedSession calls deleted method. Use installed receipt fixture for readiness; retain forged-root/building-head native durable-reader error assertions. P2CB may translate native integrity failure to typed history-integrity: assert both contracts separately, never weaken corruption control to merely completing. |
+| `campaignWireScopeBoundary.test.ts:186`, `:201` | Hidden-frame noteDelivered proof currently observes numeric ACK outcome. Read retained delivery watermark using test-local Reflect.get on existing private map; no new product accessor. Preserve secret absence/public controls. Separately prove installed-port projected offers/readiness without accepting a guessed journal revision. |
+| `coopMissionAnnouncement.reconnect.test.ts:101`, `:190`, `:468`, `:551`, `:763`, `:1158` | Opt into harness port, replace direct acknowledgment calls, reinstall after reset before entry rebuild. Preserve all hold/fail callbacks/reconnect chain assertions. Separate receipts:false delivery controls from receipt-ready create setup: omitted binder override does not disable installed registry port. Prepare for I4 so it needs no unowned reconnect edit. |
+| `healCommittedParticipantRemovals.test.ts:34`, `:84`, `:182`, `:204` | Sockets drop callbacks; in-memory readiness assertions. Preserve revokeAttempts/sequence-healing proofs while using actual durable membership/P2CA exclusion and ACK surviving seats. No always-success replacement for failing revoke stub. |
+| `coopMissionCreate.harness.ts:122`, `:141`, `:144`, `:184` | Opt-in port setup AFTER reset/database init BEFORE vessel POST/register. Before helper is erased by reset; afterward rejected as nonempty. Preserve default legacy behavior for other callers until I4. Expose reusable receipt setup/readiness seam without global flag. |
+| `coopMissionAnnouncement.harness.ts:24`, `:54`, `:60`, `:79`, `:103` | Thread option, callback-aware ObservedSocket and real application ACK/confirmation rather than arrival-only ready. ReceiptSocket calls super without callback on purpose: retain its exclusive hold/fail callback control. Keep join/create/census interfaces usable after I4. |
+
+RED/mutation for test-only migration: first add receipt assertions against the **unmigrated fixture**, obtaining plain readiness/confirmation failures, then migrate fixture setup while keeping assertions fixed. There is no product repair here; do not manufacture a product RED claim. Final migrated suites must pass both before and after scratch I3 removal of noteParticipantAcknowledged, acknowledged field/comparison and numeric binder acceptance. Leftover-call compiler failures diagnose migration dependence, not behavioral RED.
+
+Mutants that must fail: omit install; omit callback; resolve join on arrival; seed rows instead of using applied ACK path; auto-ACK GM without applying; complete held ReceiptSocket early; lose membership incarnation after reinstall; accept stale transport receipt; omit committed-removal filter. Preserve scope/delivery/integrity controls. None executed here.
+
+Fit: **16-35** counted units.json only; tests650-1100, four evidence files200-650 raw excluded lines. Actual leaves may remain unchanged only if substantive before/after-I3 proof shows no migration needed; report that leaf explicitly. Static reading finds a live seam in all nine, not a guarantee all must physically change. One spare slot does not authorize a new helper/missed suite; stop for literal amendment if necessary.
+
+Carry-forwards: I-chain confirmed-write/exact-ACK contract and conditional I4 setup/reset handoff; preserve H8/E7 proofs as read-only regressions. Consumer deadlines cannot wait until I2. Old 'GM never waits' assertions do not override activated all-seat readiness.
+
+## P2CG1I3 - server legacy readiness removal
+
+### Paths and changes
+
+- `src/lib/multiplayer/server/CampaignSyncSession.ts:117`, `:128`, `:193`, `:485`, `:590`, `:751`, `:844`: remove acknowledged field/initializers/method and retained-map readiness comparison. Keep retained map, delivered watermark/noteDelivered(:714), scoped delivery/resync, committed removal, method name evaluateScenarioLaunch and durable branch/saga/replacement clauses. Delivered must never replace acknowledged as readiness.
+- `src/lib/multiplayer/server/bindCampaignSyncConnection.ts:699`: application ACK still processed, numeric ACK always typed INVALID_INTENT / campaign-application-receipt-required on every connection, including absent-port.
+- Same binder :800 fallback is called at :954/:958 host AdvanceDay, :1487 auto-approved AdvanceDay proposal, :1559 GM approval of pending AdvanceDay. Every absent-entry.launch progression door must return CAMPAIGN_NOT_CONVERGED, never consult legacy readiness. Keep proposal pending on refusal, correlation IDs, auth/pause/membership, rejection and non-progression commands. Preserve R release hook and guarded receipt commit.
+- Registered session tests migrate removed-method cases to surviving delivery/clauses proofs. Binder test :2828 onward already owns real installed-port transaction fixtures; migrate legacy-success cases there. No unregistered fixture file assumed.
+
+RED: numeric ACK refused both port states; no-port progression refuses in all three doors even after maximal legacy credit, with unchanged durable event/command/head/mission census and unconsumed proposal. Installed applied receipts allow each door; ordinary host/proposal commands and GM reject still work. Preserve no participant-bearing refusal payload, branch/saga/integrity refusal and hidden-event delivery watermark. Run I2 suites before AND after product deletion.
+
+Mutants: accept no-port numeric ACK; restore retained/delivered credit; allow host no-launch; allow auto-approve no-launch; consume pending proposal on GM refusal; delete noteDelivered; lose R synchronous release; bypass durable branch/saga clause. Each needs a distinct killed assertion, especially both arbiter doors.
+
+Fit: **9/15**; session5-15 +binder10-25 +lifecycle16-35 = **31-75** counted, tests450-750; evidence150-450 raw excluded lines. Inherited large session/binder debt stays documented; this deletion/local guard does not authorize broad extraction. Required extraction is a new literal registration.
+
+Carry-forwards: next binder-test owner inherits CF-E7 unless already closed by R/pre-H: preparation refusal, veto-during-preparation, invalid reservation each shows M trail `[]`. H8 is due BEFORE H; verify its proof instead of deferring to I3. Preserve R post-guard/success trails and H first-frame application-only invariant.
+
+## P2CG1I4 - fail-closed mission create
+
+### Paths and changes
+
+- `src/lib/multiplayer/server/coopMissionCreate.ts:92`, `:112`, `:117`: absent registry port calls createDirect -> unprepared createMatch. Refuse absent port with typed **campaign-readiness-port-not-installed**, **503**, before catalog/write/bootstrap/announcement. Delete createDirect; prepared operation remains only route-reached create. Keep readMission/storedOrThrow: prepared uncertainty/retry still uses them. No substitute port argument, request flag or environment switch.
+- `src/lib/multiplayer/server/CampaignMatchHost.ts:116`: CampaignMissionLaunchRefusal has closed code union/fixed409. Add missing-port arm/status503, preserve409 for existing four arms.
+- `src/lib/multiplayer/server/coopMissionAdmission.ts:26`: CoopMissionRefusal union lacks503. Broaden it. Actual route `src/pages/api/multiplayer/matches/index.ts:315`, `:323` catches **CoopMissionRefusal**, not any status-bearing Error: raw unrelated CampaignMissionLaunchRefusal would fall through to500. A candidate within owned leaves: CampaignMissionLaunchRefusal extends CoopMissionRefusal, calls super(code === missing-port ? 503 : 409, code), retains its name/narrow code union. Admission's registry import is type-only, but prove no new runtime dependency cycle before adopting inheritance. An explicit internal typed-refusal translation preserving status/code is another candidate if rejected-error identity is agreed. Structural status alone does not satisfy instanceof. No route edit inherently needed; register a demonstrated route need if neither approach composes cleanly.
+- `src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts:82`, `:573`, `:616`, `:1488`: default route fixture currently no port; prepared tests seed application rows directly. Normal route cases must use installed port, offered/applied/confirmed readiness; keep deliberate absent-port control and existing prepared rollback/reservation/idempotency cases. Direct-create spy at :399 migrates to prepared-create semantics rather than disappearing.
+- `src/lib/multiplayer/server/__tests__/coopMissionCreate.refusals.test.ts:39` onward: old status/member/roster/head/identity tests need receipt-ready setup so early503 does not mask their original boundary.
+- `src/lib/multiplayer/server/__tests__/coopMissionCreate.harness.ts:141`, `:184` and `coopMissionCreate.fixture.ts`: reuse I2 opt-in setup/callback/ACK seam; change normal mission-create default now, preserve explicit no-port option. Both reserved in manifest, count if changed. Keep persisted membership/head/roster consistent.
+
+RED: valid authenticated route request absent port -> baseline201 becomes503 exact reason; zero new matches/events/receipts/hosts/announcements and zero direct/prepared create calls. Repeat with matching preexisting mission to pin refusal precedence, and runtime-install failure. Installed port but absent capability still refuses rather than fallback. Actual confirmed all-seat receipts ->201 through prepared only; concurrent/replay remains one match/announcement; late head/member drift rolls back. Assert helper rejection identity AND real route503; all old arms remain409. No structural mock alone proves route catch.
+
+Mutants: restore no-port direct create; status409; unrelated typed error yields500; request/env substitutes port; foreign launch/database; existing-match shortcut bypasses missing-port refusal; unprepared write after ready; omit post-I/O readmission; compensate committed M after publication failure. Kill with status/census/method/graph and genuine prepared retry controls.
+
+Fit: **at most12/15**, 7 leaves +five lifecycle/evidence. create8-20 +host8-18 +admission1-3 +lifecycle16-35 = **33-76** counted; tests350-650; evidence150-450 raw excluded lines. No further amendment proven now. I-chain explicitly leaves announcement harness/reconnect **NOT registered for I4** until I2 outcome: recheck both after I2. If no-port reset/create controls still need edits, register exact demonstrated leaves first; three spare slots do not grant them.
+
+Carry-forwards: I2 reset-before-install/reusable receipt-ready fixture promise and R controls on shared CampaignMatchHost. H7/H8/H14 are earlier deadlines, not I4 residuals. This closes last split fail-open create door, not later P2CG2 retention/pause/recovery or P2CH full journey.
+
+## Draft amendment / split - not applied
+
+Root should register one new blocked ordinary-cap **pre-H consumer recovery unit**, assigning its real ID, after B14-0 closure and before H. Exact candidate source/test leaves:
+
+```text
+src/components/campaign/coop/useCampaignApplicationConsumer.ts
+src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx
+src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx
+src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts
+```
+
+With units.json and four genuinely named admission/red/local/admission-review outputs: **9 files**, ordinary15/500; estimated product80-160 +lifecycle16-35 =96-195 counted, tests250-500. Concrete proposed evidence filenames for that new slice (ID still assigned by Root) are openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-admission-20261018.json, h-consumer-recovery-red-20261018.json, h-consumer-recovery-local-20261018.json and h-consumer-recovery-admission-review-20261018.json, all in that same evidence directory. Together with the four exact leaves and units.json they are nine files. These are draft names only; freeze truthful final names/bytes at registration/admission, never use the descriptive unit name as a wildcard grant. No port installation here.
+
+Proposed behavior text:
+
+> Bound automatic quiet-window recovery across replacement transport objects, with accessible user-facing text (CF-H7/CF-G4). Release settling count synchronously exactly when a consumed offer can no longer confirm or has confirmed, preserving cut marking for unfinished work (CF-H14). Pin same-tick consume/dispose recovery (CF-H15). With port installed, membership-admitted bound join's first campaign frame carries appliedView and joinMember is never invoked for that socket (CF-H8/CF-G5), unless R already supplies exact proof. Preserve G1 heardAt cursor-watermark semantics, CF-H1 held-refresh cut, ordered offers, stale-binding silence, replacement EMPTY fold and healthy legacy-server first-frame behavior. Red-first proof, sensitive review, required CI, exact-main PASS and closure precede H admission/install.
+
+Concrete finite policy candidate: two automatic **quiet-window** retries per mounted campaign-seat recovery episode, counted across replacement transport identities, not a socket WeakMap. Reset only after healthy application confirmation or explicit user retry, not heartbeat/any frame/rebind. Exhaustion closes unproductive socket, stops automatic rejoin and displays inline status: 'Campaign sync could not connect. Reload this campaign to try again.' Reload is explicit retry, needing no new UI component. Scope state by campaign/match/player; dispose cancels timers. If hook-local state, pin/document route remount resets: do not promise durable cross-route cap without a registered store leaf. Root may choose bounded backoff instead, with load/text proof. This is a recommendation, not an already-approved owner policy.
+
+RED: hold sockets open/no campaign frames through at least4 windows -> old unbounded cycle fails finite socket count and visible-text assertion. Test replacement binds, explicit retry, healthy-confirmation reset, identity switch and late dead callbacks. For H14, decrement once on every success/return/throw before confirm can schedule dispose; leave queued work counted from **consume**, not promise start. Hook confirmApplied to `Promise.resolve().then(unmount)` after linked success -> remount one healthy socket/no rejoin. Same-tick consume+unmount -> remount rejoins, ACKs baseline only, refresh never called. Retain held-refresh cut/G1 fake-timer pins. Round1 'heard only after confirm' fix was withdrawn by round2 because it stalls chains; do not reuse it.
+
+Proposed H amendment text:
+
+> Append exactly `src/lib/multiplayer/server/CampaignHostRegistry.ts` and `src/lib/multiplayer/server/campaignApplicationConnection.ts` to H restrictions for CF-E6 type-only imports; port factory owns single interface. knownSourceTestLifecycleSubtotals.H changes9 ->11 (ten source/test +units.json). Four bounded evidence outputs make15/15, estimated83-183 counted, caps unchanged. Add newly assigned pre-H unit as explicit prerequisite and preserve G2/R/S/B14-0, repair-not-implied-waiver, all H behavior/activation predicate, I1 successor and review/CI/exact-main/closure gates. Freeze actual names/measurements before source admission. Registration edits to roadmap.json do not belong to H's own lifecycle source stage.
+
+Separate registration candidate: units.json, roadmap.json and one newly frozen amendment evidence file. No historical review edits, silent G2/R reopening, cap inflation or invented prerequisite mainProof. If R closes H8 on its already-listed binder test, record actual proof and reduce pre-H slice to8 source-stage files; do not assume it.
+
+New slice source overlap: G2 connected surface; R binder test; I1 hostProjection; I3 binder test. Plus units.json with all. No source overlap S/B14-0. H's type-import registry leaf also overlaps later P2CG2 and earlier D/A receipt machinery; keep type consolidation narrow. Serial closure/rebase and full census still required.
+
+## Carry-forward evidence reconciliation
+
+Primary G1 review copies (repository-relative under the ledger evidence directory):
+
+- `p2cg1g1-source-fable-review-20261018.txt:116` CF-H7 deadline/wording, :117 CF-H8 alias. Round2 `p2cg1g1-source-fable-review-r2-20261018.txt:110`, :111 retains both; :117 gives H14 microtask pin; :118 H15 same-tick pin.
+- `p2cg1g1-review-20261018.json` successorNotes.P2CG1H lists H8 directed and H7/H14 deadlines. Original CF-G5 full pin is in `p2cg1f-review-20261018.json:405`: installed bound membership join first campaign frame offered, joinMember never called. Preserve held/failed send callback controls and no unoffered snapshot escape.
+- D receipt successorNotes.P2CG1H carries H-OPEN-1/CF-E1, CF-E5/E6; E review carries CF-F9. R/S prep is the current implementation-fit handoff for R and S, not runtime acceptance.
+- H7/H14 cannot be shifted to I1/I2 because the first new consumer owner arrives too late. H8's next binder-test owner is R in the requested sequence, so R can discharge it without extra leaf; otherwise pre-H slice does. If neither does, H must stop, not activate then wait for I3.
+- CF-H15 is due to next hostProjection owner; proposed pre-H work makes it due there, otherwise I1. CF-E7 follows next binder-test ownership (now R, or proposed prerequisite, then I3), despite old bracket naming I3/P2CG2. CF-F1/F4 follow route test (I1); CF-F2 follows transport test (G2 before I1). Preserve actual closure receipts, no duplicate claim.
+- CF-H2/CF-H5 (fold-store/consumer predicate drift), H6/H11/H12/H16 (reduced G2), H9/H10 and other optional store/performance notes stay with recorded owners unless actual touched leaf makes them due. New consumer owner should reconcile H5 activity predicate with fold store, without silently editing unregistered campaignHostFoldStore.ts; if predicate changes are needed, register exact leaf. This draft does not call those items closed.
+
+## Verification discipline and stop rules
+
+No runtime tests, validation suites or mutations ran; no machine-idle output or runtime PASS claimed. Before EACH future test/mutation/check run:
+
+```powershell
+$env:PATH = 'C:\Users\wroll\AppData\Local\nvm\v22.22.0;' + $env:PATH
+node scripts/qc/machine-idle.mjs --own-pid 47516
+```
+
+Only MACHINE_IDLE permits running. Busy -> wait/recheck; never kill foreign processes, add exclusions or raise timeout. Every Jest run uses private per-worktree/unit/run cache and --runInBand, including npm QC's nested Jest. No dependency installs assumed.
+
+Future owned-leaf command shape (substitute real cache/run and exact manifest test leaves):
+
+```text
+node node_modules/jest/bin/jest.js --selectProjects unit --runInBand --watchAll=false --cacheDirectory E:/Projects/Personal/MekStation-wt/hi-proof-cache-20261018/UNIT-RUN --runTestsByPath LITERAL_TEST_FILES
+```
+
+Task14 selector in split evidence :1252, with private cache added:
+
+```text
+node node_modules/jest/bin/jest.js --runInBand --watchAll=false --cacheDirectory E:/Projects/Personal/MekStation-wt/hi-proof-cache-20261018/task14-RUN --testPathPattern='campaignLaunchAuthorityRoute|campaignProgressionReaders.durable|CampaignSyncSession'
+```
+
+Check installed Jest option spelling without changing selector scope. Run I2 tests before/after I3; read-only regressions may run outside mutation manifest, but required source/test edits outside it stop for registration.
+
+H requires `npm run verify:qc:coop-campaign-journey` and actual runs of these specs, via documented scripts/playwright runner with per-run stores and one worker:
+
+```text
+e2e/coop-campaign-two-browser-journey.spec.ts
+e2e/gm-two-player-authority.pack1.spec.ts
+e2e/gm-two-player-performance.pack.spec.ts
+e2e/gm-two-player-authority-recovery.pack.spec.ts
+e2e/gm-two-player-evidence.pack.spec.ts
+e2e/campaign-journal-two-process-convergence.spec.ts
+e2e/gm-two-player-membership.smoke.spec.ts
+e2e/campaign-journal-two-process-privacy.spec.ts
+```
+
+The named npm QC script is a compound Jest-then-Playwright command (package.json:206); jest.config.js does not implement a JEST_CACHE_DIRECTORY override. Appending arguments to npm run would target the final command, not reliably its nested Jest. The H registration amendment should explicitly retain equivalent expanded component commands, adding --cacheDirectory to the Jest component and keeping --runInBand, with an idle gate before each run. Do not claim the literal npm command ran if only its expanded components did; preserve/resolve immutable receipt command identity at admission. No config/helper edit is authorized by this suggestion. Extra required E2E edit stops 15-file H; no threshold reduction/timeout increase.
+
+Future gates: typecheck; owned lint/format; roadmap/OpenSpec validators; cycle analysis for H type unification and I4 error inheritance; production build/socket smoke; genuine required CI, independent sensitive review and exact-main/closure. Large binder/session/transport/host files have inherited modularity debt: local deletions/imports need explicit rationale, not a silent exemption. Practical required extraction is another registered leaf.
+
+Mutants belong only in separate owned scratch worktree at actual predecessor baseline; gate each, retain exact patch/output/failing assertion/hash, restore one at a time. Report equivalent/unexercised mutants; compile/import errors are not behavioral kills. Re-read fetched Main and frozen predecessor/lane evidence at each admission; estimates are not admission. Stop for missing literal leaf, >15 actual files, >500 counted additions or unfit genuine later stage census.
+
+## Generated literal manifests and overlap census
+
+Tables below are part of this report. Concrete evidence names are prospective proposals, not existing receipts or assertions all work occurs20261018. Truthfully freeze names/bytes at admission. H type leaves are proposed, not currently granted. Count every retained helper/test/evidence file. Unchanged candidate leaves can be omitted only after measured proof and explicit report.
+
+### P2CG1H draft literal manifest (15/15)
+
+| # | Exact repository-relative path | Added-line estimate / treatment |
+| --- | --- | --- |
+| 1 | `server.js` | 20-45 counted |
+| 2 | `src/lib/multiplayer/server/campaignApplicationReceiptPort.ts` | 20-40 counted |
+| 3 | `src/lib/multiplayer/server/__tests__/campaignApplicationReceiptPort.test.ts` | Test additions, excluded lines; included in unit test estimate |
+| 4 | `src/lib/multiplayer/server/__tests__/CampaignHostRegistry.globalSlot.test.ts` | Test additions, excluded lines; included in unit test estimate |
+| 5 | `src/pages-modules/api/e2ePerformanceProbeRoute.ts` | 23-53 counted |
+| 6 | `src/__tests__/api/e2ePerformanceProbeRoute.test.ts` | Test additions, excluded lines; included in unit test estimate |
+| 7 | `e2e/coop-campaign-two-browser-journey.spec.ts` | Test additions, excluded lines; included in unit test estimate |
+| 8 | `e2e/gm-two-player-authority.pack1.spec.ts` | Test additions, excluded lines; included in unit test estimate |
+| 9 | `src/lib/multiplayer/server/CampaignHostRegistry.ts` | 2-5 counted (proposed CF-E6 leaf) |
+| 10 | `src/lib/multiplayer/server/campaignApplicationConnection.ts` | 2-5 counted (proposed CF-E6 leaf) |
+| 11 | `openspec/planning/2026-09-12-roadmap-completion/units.json` | 16-35 counted, own lifecycle only |
+| 12 | `openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1h-admission-20261018.json` | Excluded ledger-evidence lines; counts as one file |
+| 13 | `openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1h-red-20261018.json` | Excluded ledger-evidence lines; counts as one file |
+| 14 | `openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1h-local-20261018.json` | Excluded ledger-evidence lines; counts as one file |
+| 15 | `openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1h-admission-review-20261018.json` | Excluded ledger-evidence lines; counts as one file |
+
+### P2CG1I1 draft literal manifest (10/15)
+
+| # | Exact repository-relative path | Added-line estimate / treatment |
+| --- | --- | --- |
+| 1 | `src/pages-modules/api/campaignLaunchProgressionGate.ts` | 8-20 counted |
+| 2 | `src/lib/campaign/coop/campaignSyncTransport.ts` | 0-6 counted |
+| 3 | `src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts` | Test additions, excluded lines; included in unit test estimate |
+| 4 | `src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts` | Test additions, excluded lines; included in unit test estimate |
+| 5 | `src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx` | Test additions, excluded lines; included in unit test estimate |
+| 6 | `openspec/planning/2026-09-12-roadmap-completion/units.json` | 16-35 counted, own lifecycle only |
+| 7 | `openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1i1-admission-20261018.json` | Excluded ledger-evidence lines; counts as one file |
+| 8 | `openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1i1-red-20261018.json` | Excluded ledger-evidence lines; counts as one file |
+| 9 | `openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1i1-local-20261018.json` | Excluded ledger-evidence lines; counts as one file |
+| 10 | `openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1i1-admission-review-20261018.json` | Excluded ledger-evidence lines; counts as one file |
+
+### P2CG1I2 draft literal manifest (14/15)
+
+| # | Exact repository-relative path | Added-line estimate / treatment |
+| --- | --- | --- |
+| 1 | `src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test-helpers.ts` | Test additions, excluded lines; included in unit test estimate |
+| 2 | `src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test.ts` | Test additions, excluded lines; included in unit test estimate |
+| 3 | `src/lib/multiplayer/server/__tests__/campaignLiveDeliveryUnification.test.ts` | Test additions, excluded lines; included in unit test estimate |
+| 4 | `src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.integrity.test.ts` | Test additions, excluded lines; included in unit test estimate |
+| 5 | `src/lib/multiplayer/server/__tests__/campaignWireScopeBoundary.test.ts` | Test additions, excluded lines; included in unit test estimate |
+| 6 | `src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts` | Test additions, excluded lines; included in unit test estimate |
+| 7 | `src/lib/multiplayer/server/__tests__/healCommittedParticipantRemovals.test.ts` | Test additions, excluded lines; included in unit test estimate |
+| 8 | `src/lib/multiplayer/server/__tests__/coopMissionCreate.harness.ts` | Test additions, excluded lines; included in unit test estimate |
+| 9 | `src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.harness.ts` | Test additions, excluded lines; included in unit test estimate |
+| 10 | `openspec/planning/2026-09-12-roadmap-completion/units.json` | 16-35 counted, own lifecycle only |
+| 11 | `openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1i2-admission-20261018.json` | Excluded ledger-evidence lines; counts as one file |
+| 12 | `openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1i2-red-20261018.json` | Excluded ledger-evidence lines; counts as one file |
+| 13 | `openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1i2-local-20261018.json` | Excluded ledger-evidence lines; counts as one file |
+| 14 | `openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1i2-admission-review-20261018.json` | Excluded ledger-evidence lines; counts as one file |
+
+### P2CG1I3 draft literal manifest (9/15)
+
+| # | Exact repository-relative path | Added-line estimate / treatment |
+| --- | --- | --- |
+| 1 | `src/lib/multiplayer/server/CampaignSyncSession.ts` | 5-15 counted |
+| 2 | `src/lib/multiplayer/server/bindCampaignSyncConnection.ts` | 10-25 counted |
+| 3 | `src/lib/multiplayer/server/__tests__/CampaignSyncSession.test.ts` | Test additions, excluded lines; included in unit test estimate |
+| 4 | `src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts` | Test additions, excluded lines; included in unit test estimate |
+| 5 | `openspec/planning/2026-09-12-roadmap-completion/units.json` | 16-35 counted, own lifecycle only |
+| 6 | `openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1i3-admission-20261018.json` | Excluded ledger-evidence lines; counts as one file |
+| 7 | `openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1i3-red-20261018.json` | Excluded ledger-evidence lines; counts as one file |
+| 8 | `openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1i3-local-20261018.json` | Excluded ledger-evidence lines; counts as one file |
+| 9 | `openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1i3-admission-review-20261018.json` | Excluded ledger-evidence lines; counts as one file |
+
+### P2CG1I4 draft literal manifest (12/15)
+
+| # | Exact repository-relative path | Added-line estimate / treatment |
+| --- | --- | --- |
+| 1 | `src/lib/multiplayer/server/coopMissionCreate.ts` | 8-20 counted |
+| 2 | `src/lib/multiplayer/server/CampaignMatchHost.ts` | 8-18 counted |
+| 3 | `src/lib/multiplayer/server/coopMissionAdmission.ts` | 1-3 counted |
+| 4 | `src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts` | Test additions, excluded lines; included in unit test estimate |
+| 5 | `src/lib/multiplayer/server/__tests__/coopMissionCreate.refusals.test.ts` | Test additions, excluded lines; included in unit test estimate |
+| 6 | `src/lib/multiplayer/server/__tests__/coopMissionCreate.harness.ts` | Test additions, excluded lines; included in unit test estimate |
+| 7 | `src/lib/multiplayer/server/__tests__/coopMissionCreate.fixture.ts` | Test additions, excluded lines; included in unit test estimate |
+| 8 | `openspec/planning/2026-09-12-roadmap-completion/units.json` | 16-35 counted, own lifecycle only |
+| 9 | `openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1i4-admission-20261018.json` | Excluded ledger-evidence lines; counts as one file |
+| 10 | `openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1i4-red-20261018.json` | Excluded ledger-evidence lines; counts as one file |
+| 11 | `openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1i4-local-20261018.json` | Excluded ledger-evidence lines; counts as one file |
+| 12 | `openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1i4-admission-review-20261018.json` | Excluded ledger-evidence lines; counts as one file |
+
+### Predecessor literal manifests read for the census
+
+These are the current roadmap restrictions, not directory aliases. G2/R/S append their own units.json lifecycle and bounded distinct evidence outputs; B14-0 is already the complete15-file manifest. Current B14-0 literal is **fogMatchAdmission.ts** (roadmap.json:3586); do not copy the reversed fogMatch name in older R/S prep.
+
+P2CG1G2:
+
+```text
+src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx
+src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx
+src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx
+src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx
+src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx
+src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx
+src/lib/campaign/coop/campaignSyncTransport.ts
+src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts
+src/lib/campaign/coop/campaignSyncTransportSeat.ts
+src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.creatorBinding.test.tsx
+```
+
+P2CG1R:
+
+```text
+src/lib/campaign/sync/ICampaignEventStore.ts
+src/lib/campaign/sync/JournalCampaignEventStore.ts
+src/lib/multiplayer/server/CampaignMatchHost.ts
+src/lib/multiplayer/server/bindCampaignSyncConnection.ts
+src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts
+src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts
+src/lib/multiplayer/server/__tests__/CampaignMatchHost.pipeline.test.ts
+```
+
+P2CG1S:
+
+```text
+src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts
+src/lib/multiplayer/server/ServerMatchHostReplay.ts
+src/lib/multiplayer/server/ServerMatchHostEvents.ts
+src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts
+src/lib/multiplayer/server/__tests__/sealedChoiceDelivery.test.ts
+```
+
+B14-0:
+
+```text
+src/lib/multiplayer/server/fogMatchAdmission.ts
+src/lib/multiplayer/server/ServerMatchHost.ts
+src/lib/multiplayer/server/ServerMatchHostReplay.ts
+src/lib/multiplayer/server/ServerMatchHostEvents.ts
+src/lib/multiplayer/server/projection/FogAwareMatchProjection.ts
+src/pages/api/multiplayer/matches/[id].ts
+src/lib/multiplayer/server/__tests__/b14FogContainment.test.ts
+src/__tests__/api/securityBoundary.test.ts
+src/pages-modules/api/__tests__/matchHistoryFog.test.ts
+openspec/specs/fog-of-war/spec.md
+openspec/planning/2026-09-12-roadmap-completion/units.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0-admission.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0-red.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0-local.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0-review.json
+```
+
+### Exact source/test overlap vs predecessors
+
+All five units additionally share **units.json** with each predecessor. Evidence filenames in the drafts are distinct. Count below excludes the shared ledger leaf; B14 includes its spec/evidence literals, none intersects other than units.json. Amended H includes its two proposed type leaves.
+
+| Candidate | G2 | R | S | B14-0 |
+| --- | --- | --- | --- | --- |
+| P2CG1H | 0 | 0 | 0 | 0 |
+| P2CG1I1 | 2: `src/lib/campaign/coop/campaignSyncTransport.ts`, `src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts` | 0 | 0 | 0 |
+| P2CG1I2 | 0 | 0 | 0 | 0 |
+| P2CG1I3 | 0 | 2: `src/lib/multiplayer/server/bindCampaignSyncConnection.ts`, `src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts` | 0 | 0 |
+| P2CG1I4 | 0 | 1: `src/lib/multiplayer/server/CampaignMatchHost.ts` | 0 | 0 |
+
+### Between H / I1-I4
+
+Every pair additionally shares units.json; the ten pair rows explicitly count source/test intersections.
+
+| Pair | Source/test overlap |
+| --- | --- |
+| P2CG1H / P2CG1I1 | 0 |
+| P2CG1H / P2CG1I2 | 0 |
+| P2CG1H / P2CG1I3 | 0 |
+| P2CG1H / P2CG1I4 | 0 |
+| P2CG1I1 / P2CG1I2 | 0 |
+| P2CG1I1 / P2CG1I3 | 0 |
+| P2CG1I1 / P2CG1I4 | 0 |
+| P2CG1I2 / P2CG1I3 | 0 |
+| P2CG1I2 / P2CG1I4 | 1: `src/lib/multiplayer/server/__tests__/coopMissionCreate.harness.ts` |
+| P2CG1I3 / P2CG1I4 | 0 |
+
+Composition: I1 must preserve G2 transport observer/reseat/seat-module behavior while removing only numeric ACK generation. I3 inherits R binder synchronous cleanup and its transaction proofs; I4 inherits R CampaignMatchHost control forwarding. I2 owns coopMissionCreate.harness before I4 and must leave an intentional opt-in-to-default handoff. S/B14 have no H/I source intersections, but remain hard activation/privacy prerequisites; no zero-overlap row permits concurrent product-writing or bypassing closure. Later P2CG2 shares I3 session/binder/test and amended H registry; P2CH shares H journey and I2 reconnect. Rebase/re-census at each handoff.
+
+### Measured baseline source sizes and SHA-256
+
+Physical lines, comments/blanks included; not U41 addition counts. All are fresh reads at detached a6b604a07. Prospective absent factory/test have no hashes and are not fabricated.
+
+| Literal path | Physical lines | Bytes | SHA-256 |
+| --- | ---: | ---: | --- |
+| `server.js` | 904 | 32625 | `e4f973d2cfa7f4c25775e4ce9315b7398655a6a17cfc799793545de84a59ecf6` |
+| `src/lib/multiplayer/server/campaignApplicationReceiptPort.ts` | absent | absent | absent |
+| `src/lib/multiplayer/server/__tests__/campaignApplicationReceiptPort.test.ts` | absent | absent | absent |
+| `src/lib/multiplayer/server/__tests__/CampaignHostRegistry.globalSlot.test.ts` | 74 | 2632 | `b051135eb7cd3abff51aa445575e497d6ce663d7486526ea69ddc9875bf99f8e` |
+| `src/pages-modules/api/e2ePerformanceProbeRoute.ts` | 116 | 4450 | `d3a2e67125a5f7855710b5501e225c9ffca0c0b02c86f98428feec45a6f88094` |
+| `src/__tests__/api/e2ePerformanceProbeRoute.test.ts` | 260 | 9382 | `b558b2fa392dabd7e4a95932100bc39e8960b9e046b63653748c9194ff25018d` |
+| `e2e/coop-campaign-two-browser-journey.spec.ts` | 502 | 16707 | `cf24477281833f67d518bd93a05a17704abba7643f81e5971174f62a8b2e7c19` |
+| `e2e/gm-two-player-authority.pack1.spec.ts` | 709 | 24210 | `22c76d8a45d3bffcd9fe4d356b9e7715a79b4376b3130c8f15b2a6881106272f` |
+| `src/lib/multiplayer/server/CampaignHostRegistry.ts` | 509 | 17930 | `7293d6b928cd510301e5e39abeb2636dea7f1bc80ea5718426dbb71e1a2e355f` |
+| `src/lib/multiplayer/server/campaignApplicationConnection.ts` | 550 | 19122 | `e28fd1c0acb886627629fe3b6a6436ecf2886a03634916b7145259afd922d412` |
+| `src/pages-modules/api/campaignLaunchProgressionGate.ts` | 294 | 10004 | `e7545d78ee5c911397c62a3e7743317d6e246c2a65f8a218252399cc3267f06e` |
+| `src/lib/campaign/coop/campaignSyncTransport.ts` | 720 | 23004 | `781d33b29df4ab77b5528d2db2c2065234c27ba715cc8168cb91b71cb7e5139d` |
+| `src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts` | 1721 | 55715 | `0df36e9dafad96eae356fba4bca75928b094c3ae12614ccfe6fed0a28c466fcb` |
+| `src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts` | 1259 | 43269 | `0924d081536053955034e64a320d38fcd46a15047ccdea557b583316648c6936` |
+| `src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx` | 1852 | 60444 | `cdbfe394372ebe25cafabb1294f658c6ad9e823b064a3c208955b626344bdcab` |
+| `src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test-helpers.ts` | 440 | 14437 | `d3891bf50cb3bd16a7e1a66df12bb247f95ed4b09919074679360914495109ca` |
+| `src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test.ts` | 206 | 7247 | `93ab06cdcb3843c901017c227a642a433c028205f6948076036ea2cc9a42afba` |
+| `src/lib/multiplayer/server/__tests__/campaignLiveDeliveryUnification.test.ts` | 385 | 12758 | `d4f485e964456d2ca473adb7e33051ed56c595f865941ce4701457b56eb51783` |
+| `src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.integrity.test.ts` | 178 | 6338 | `4fe59aa61e37d981a7df71855a40c38fdcd951f95ae45ba3591f5a40f4662d5a` |
+| `src/lib/multiplayer/server/__tests__/campaignWireScopeBoundary.test.ts` | 207 | 7635 | `49ea26ff95d7e209b454dd37d67231be603599670e34449080d0bad63f327d87` |
+| `src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts` | 1739 | 65934 | `d29db0928345b8c40c03cdec586db82f9e971277ba648e1395f62caec01c7d1e` |
+| `src/lib/multiplayer/server/__tests__/healCommittedParticipantRemovals.test.ts` | 208 | 6893 | `7f4963827d02b6318998da0f0f6c6dd28d8e9d5e9ed7613813d8305e2c285693` |
+| `src/lib/multiplayer/server/__tests__/coopMissionCreate.harness.ts` | 219 | 6625 | `7ece3af4538927777c69bc2e8a6f1846cc41d6dd8690b9dcbd5a8c8d148f77ae` |
+| `src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.harness.ts` | 119 | 3932 | `83773258f2c8d6c2564e76a1220d01dfa2245e72ec66d547abf4017b5a2ebc10` |
+| `src/lib/multiplayer/server/CampaignSyncSession.ts` | 946 | 39719 | `2dbd9810a7e2464fdabe697cc873078bcdb31ae1f7e28248929d92c3e3895022` |
+| `src/lib/multiplayer/server/bindCampaignSyncConnection.ts` | 1829 | 57589 | `5a38f49ee930b5e59543553c08cf5d776269cfff2df9d4b91ef1f26a3556edbd` |
+| `src/lib/multiplayer/server/__tests__/CampaignSyncSession.test.ts` | 952 | 32821 | `85bad0834ebd1bf2ced0cb539bba9fb1435f2159547f5a4c79d997cb34bebfac` |
+| `src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts` | 3460 | 109287 | `94ea988c248be00589120a9e224a5a0467f215df14b8dfbeff6f23981033cb46` |
+| `src/lib/multiplayer/server/coopMissionCreate.ts` | 358 | 11566 | `238245aace299df317a4628f1762ba6b1c1800b091036d9a256a2d0871e9284e` |
+| `src/lib/multiplayer/server/CampaignMatchHost.ts` | 699 | 26624 | `2b914410d2960170d0c0f1fe9661cbb63a91c563353cd5e860556922670ce349` |
+| `src/lib/multiplayer/server/coopMissionAdmission.ts` | 244 | 8178 | `8a265fe89d1072249aeb7a8e401a5560e146f6742d64986183209e05175630af` |
+| `src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts` | 1594 | 58854 | `6c204622290a53ef162c31cf4c1962ace4c0946d2b64d855ab3deeb439102a36` |
+| `src/lib/multiplayer/server/__tests__/coopMissionCreate.refusals.test.ts` | 480 | 15770 | `06ffba99cfc25e7eb8fb302681004360bdc76b7a4b3b3591f5121e72f8eeb809` |
+| `src/lib/multiplayer/server/__tests__/coopMissionCreate.fixture.ts` | 252 | 8681 | `82118e8ebe5df12428136fbb4c51e1535f6a070e6c7df40fa04cd075cb1fcbbf` |
+
+### Contract and reference hashes
+
+| Input | SHA-256 |
+| --- | --- |
+| `openspec/planning/2026-09-12-roadmap-completion/units.json` | `2904e0073f03dd4478c21115673929ea46922e99f61f1fefaabc99da7d3bafcf` |
+| `openspec/planning/2026-09-12-roadmap-completion/roadmap.json` | `32512be94f4f7356408139052ddf84fa59766bf029379750a159afc605d6f514` |
+| `openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1i-literal-path-amendment-20261018.json` | `6178a29d34de55e17f4a3dd3946c77e4b42f427035dd0f806bd51b291cd96fcc` |
+| `openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g1-review-20261018.json` | `bcbe24a9fc15fa3cad791b95fed5e5052d19b040230e3c0e07d40adc052b5a92` |
+| `openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g1-source-fable-review-20261018.txt` | `4ad652bd9b1d7ebb853e374644f87a53b54b6718e852c46217267226e6b124cc` |
+| `openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g1-source-fable-review-r2-20261018.txt` | `1be03fca615b1ef567d9eb79ddc0d22ed0a21f8828d0b14fd5ae7b144cc05e14` |
+| `E:/Projects/Personal/MekStation-wt/rs-prep-20261018/RS-PREP.md` | `99588cc64f7117f746648809618368f4d7a6df62af3f4e54d659757b96c703eb` |
+| `E:/Projects/Personal/MekStation-wt/p2cg1g2-impl-20261018/G2-PREP-REDUCED.md` | `c0a4bf56df8f332a47841695ef5c5ebf48b14d8a9631c6a7927ef118b35d763b` |
+
+### Unit ID anchors
+
+- `openspec/planning/2026-09-12-roadmap-completion/units.json:7462` - P2CG1H
+- `openspec/planning/2026-09-12-roadmap-completion/units.json:7529` - P2CG1I1
+- `openspec/planning/2026-09-12-roadmap-completion/units.json:7592` - P2CG1I2
+- `openspec/planning/2026-09-12-roadmap-completion/units.json:7646` - P2CG1I3
+- `openspec/planning/2026-09-12-roadmap-completion/units.json:7706` - P2CG1I4
+
+## Completion readback
+
+At final readback HEAD remained detached at a6b604a078e44abaf9dbb6e2c14888e90ad83d08, tracked and staged diffs were empty, and git status reported only `?? HI-PREP.md`. Explicit file:line citations were checked for existing baseline files and in-range line numbers. No tracked edits, commits, pushes or PRs; no root working-file writes; no test/mutation/runtime validation results supplied. Report SHA-256 is returned separately because a file cannot contain its own final hash.
