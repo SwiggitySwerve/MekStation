@@ -1,0 +1,1655 @@
+{
+  "schemaVersion": 1,
+  "registrationOnly": true,
+  "at": "2026-10-18T01:33:13.164Z",
+  "baseline": "27eca6c10325885fef568212b29151e8ef972988",
+  "branch": "codex/g2-preadmission-amendment-20261018",
+  "actor": {
+    "role": "design sub-agent acting for the parent (Root)",
+    "provider": "openai",
+    "servedModel": "gpt-6-astra",
+    "gitAuthor": "Wes Rollings <wrollings@gmail.com> 1792285933 -0600",
+    "identitySource": "T3 Code runtime; not independent review"
+  },
+  "authority": {
+    "instruction": "Root accepted both recommended G2 designs, lifted the restriction-only limit, granted exact ownership in this same amendment, and directed fresh-main rebase, validation, push and docs-only PR; no merge.",
+    "precedent": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1i-literal-path-amendment-20261018.json",
+    "documentaryInputs": [
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1f-h-scope-20261017/SCOPE.md",
+        "bytes": 80596,
+        "sha256": "84794186547dda9e5f47f8cb0cd53f1cfde50309343c4834aa70a7a2dfa7f9e8"
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation/docs/audits/2026-10-18-ichain-amendment-design.md",
+        "bytes": 15086,
+        "sha256": "cbb85366905535132ab5d079a8dace57fa8f44b02022f8769512e4e5f362d807"
+      },
+      {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\g2-preadmission-20261018\\openspec\\planning\\2026-09-12-roadmap-completion\\evidence\\p2cg1d-grant-helper-literal-path-amendment-20261017.json",
+        "bytes": 19291,
+        "sha256": "68867be3dffdf14c0b21e371dad2b5e9a215800f2b4df74118b8b20796c4a0a7"
+      },
+      {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\g2-preadmission-20261018\\openspec\\planning\\2026-09-12-roadmap-completion\\evidence\\p2cg1i-literal-path-amendment-20261018.json",
+        "bytes": 36869,
+        "sha256": "6178a29d34de55e17f4a3dd3946c77e4b42f427035dd0f806bd51b291cd96fcc"
+      }
+    ],
+    "parentRuling": {
+      "date": "2026-10-18",
+      "recordedAt": "2026-10-18T01:33:13.164Z",
+      "actor": "Root on behalf of the owner",
+      "standingInstruction": "continue with recommended options and fix the issues that come up, publish as needed",
+      "quote": "PARENT RULING (Root, under the owner's standing instruction \"continue with recommended options and fix the issues that come up, publish as needed\"): accept your recommended G2-BOOT-1 (authenticated identity-only invite resolution before socket construction; WS membership/revocation/seat checks preserved) and G2-RESEAT-1 (registry subscription detach A/attach B, getter on every use, stale-cleanup guard). Exact ownership for the four new leaves IS granted as part of this same parent amendment — the restriction-only limit is lifted.",
+      "collisionInstruction": "Check the validator's overlap/exclusivity rules so no other unit/node ownership collides; if a path is already owned by another unit (e.g. matches tests), say so and pick a non-colliding exact test path instead.",
+      "publication": "Push branch and open the requested docs-only PR against main; do not merge."
+    },
+    "rebase": {
+      "from": "3b80a8bff25ca474f766a5dc7efb290353697946",
+      "onto": "27eca6c10325885fef568212b29151e8ef972988",
+      "note": "Fetched and cleanly rebased the prepared commit; exact field diff proves all other-unit fields, including F lifecycle, equal fresh Main."
+    }
+  },
+  "defect": {
+    "method": "Static assertion-backed precise reading; no compiler mutation, runtime RED/GREEN or admission claim.",
+    "probes": [
+      {
+        "id": "G2-BOOT-IDENTITY",
+        "unit": "P2CG1G2",
+        "path": "src/pages/api/multiplayer/invites/[roomCode].ts",
+        "decision": "register",
+        "method": "precise reading of the actual guest bootstrap and HTTP response",
+        "anchors": [
+          {
+            "path": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+            "line": 105,
+            "text": "async function resolveInviteCode("
+          },
+          {
+            "path": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+            "line": 119,
+            "text": "return { matchId: data.matchId, roomCode, status: data.status };"
+          },
+          {
+            "path": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+            "line": 328,
+            "text": "transport = connectCampaignSyncTransport({"
+          },
+          {
+            "path": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+            "line": 346,
+            "text": "campaignId: snapshot.payload.state.campaignId,"
+          },
+          {
+            "path": "src/pages/api/multiplayer/invites/[roomCode].ts",
+            "line": 55,
+            "text": "const meta = await getDefaultMatchStore().getMatchByRoomCode(normalized);"
+          },
+          {
+            "path": "src/pages/api/multiplayer/invites/[roomCode].ts",
+            "line": 61,
+            "text": "res.status(200).json({\n    matchId: meta.matchId,\n    status: meta.status,\n    layout: meta.layout,\n  });"
+          },
+          {
+            "path": "src/pages/api/multiplayer/matches/[id].ts",
+            "line": 86,
+            "text": "const participant ="
+          },
+          {
+            "path": "src/pages/api/multiplayer/matches/[id].ts",
+            "line": 98,
+            "text": "res.status(200).json({ meta });"
+          },
+          {
+            "path": "src/lib/multiplayer/server/IMatchStore.ts",
+            "line": 102,
+            "text": "export interface IMatchCoopCampaignRegistration {\n  readonly campaignId: string;\n  readonly state: ICampaignAuthoritativeState;"
+          }
+        ],
+        "result": "The guest lacks campaignId before its registered direct creator, and the existing invite response cannot supply it. Current full metadata GET requires host/seated membership but still returns raw state. An authenticated narrow response is necessary for the selected privacy-preserving all-creators-bound implementation.",
+        "minimalRepair": "Add explicit authenticated campaignIdentity=1 mode to the existing invite handler; return only identity plus the existing summary, using the existing verifier and server-derived campaign-session scope. Preserve anonymous shape, expire invalid codes, no-store, no seat mutation or authority grant.",
+        "alternative": "A separate endpoint would also need a new route/test grant. Unbound bootstrap requires an incompatible behavior interpretation and no prebind credit. Neither is claimed impossible; the selected minimum reuses the existing resolver."
+      },
+      {
+        "id": "G2-BOOT-API-PROOF",
+        "unit": "P2CG1G2",
+        "path": "src/__tests__/api/securityBoundary.test.ts",
+        "decision": "register",
+        "method": "precise reading of the real existing invite-response test",
+        "anchors": [
+          {
+            "path": "src/__tests__/api/securityBoundary.test.ts",
+            "line": 3,
+            "text": "import { createMocks } from 'node-mocks-http';"
+          },
+          {
+            "path": "src/__tests__/api/securityBoundary.test.ts",
+            "line": 16,
+            "text": "const actual = jest.requireActual('@/lib/multiplayer/server/auth');"
+          },
+          {
+            "path": "src/__tests__/api/securityBoundary.test.ts",
+            "line": 20,
+            "text": "mockAuthenticateRequest(...args),"
+          },
+          {
+            "path": "src/__tests__/api/securityBoundary.test.ts",
+            "line": 24,
+            "text": "jest.mock('@/lib/multiplayer/server/getDefaultMatchStore', () => ({"
+          },
+          {
+            "path": "src/__tests__/api/securityBoundary.test.ts",
+            "line": 94,
+            "text": "describe('API security boundaries', () => {"
+          },
+          {
+            "path": "src/__tests__/unit/api/multiplayerMatchMeta.test.ts",
+            "line": 27,
+            "text": "import inviteHandler from '@/pages/api/multiplayer/invites/[roomCode]';"
+          },
+          {
+            "path": "src/__tests__/unit/api/multiplayerMatchMeta.test.ts",
+            "line": 274,
+            "text": "const invite = request(undefined, { roomCode: 'ABCD23' });"
+          },
+          {
+            "path": "src/__tests__/unit/api/multiplayerMatchMeta.test.ts",
+            "line": 275,
+            "text": "await inviteHandler(invite.req, invite.res);"
+          },
+          {
+            "path": "src/__tests__/unit/api/multiplayerMatchMeta.test.ts",
+            "line": 277,
+            "text": "expect(invite.result.body).toEqual({\n      matchId: MATCH_ID,\n      status: 'lobby',\n      layout: '1v1',\n    });"
+          }
+        ],
+        "result": "The real invite response requires a server-side authentication/disclosure test beyond UI mocks. The initial multiplayerMatchMeta.test.ts proposal overlaps completed U35c/U35d/U35e ownership. Root explicitly permits a non-colliding exact replacement. Existing securityBoundary.test.ts is an API security suite with no unit owner overlap; its current auth/store defaults are mocks, so a new isolated fixture must delegate authenticateRequest to jest.requireActual and room-code reads to a real InMemoryMatchStore. The old metadata suite stays unchanged as a regression control.",
+        "minimalRepair": "Add an isolated invite-identity describe block using the actual invite handler, generated signed tokens, actual verifier, and real InMemoryMatchStore behind the existing mock store boundary. Restore previous mock behavior between describes. Assert exact private-field-free response, anonymous legacy shape, all auth/scope/query/status failures, no-store and no seat/receipt mutation. No mockResolvedValue(ok:true) as authentication proof; no imported unowned test helper.",
+        "alternative": "A new prospective test would fail current ownership-path existence validation in a docs-only amendment. The existing unowned API security suite fits both the test responsibility and the unchanged validator without creating a placeholder file."
+      },
+      {
+        "id": "G2-RESEAT-REGISTRY",
+        "unit": "P2CG1G2",
+        "path": "src/lib/campaign/coop/campaignSyncTransport.ts",
+        "decision": "register",
+        "method": "precise reading of registry mutations and captured subscription lifetime",
+        "anchors": [
+          {
+            "path": "src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx",
+            "line": 177,
+            "text": "const transport = connectStoredCampaignSyncTransport({"
+          },
+          {
+            "path": "src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx",
+            "line": 183,
+            "text": "transport?.onFrame((message) => {"
+          },
+          {
+            "path": "src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx",
+            "line": 205,
+            "text": "unsubscribeTransport();"
+          },
+          {
+            "path": "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+            "line": 249,
+            "text": "const [rejoins, setRejoins] = useState(0);"
+          },
+          {
+            "path": "src/lib/campaign/coop/campaignSyncTransport.ts",
+            "line": 120,
+            "text": "const activeTransports = new Map<string, ICampaignSyncTransport>();"
+          },
+          {
+            "path": "src/lib/campaign/coop/campaignSyncTransport.ts",
+            "line": 537,
+            "text": "activeTransports.set(options.matchId, transport);"
+          },
+          {
+            "path": "src/lib/campaign/coop/campaignSyncTransport.ts",
+            "line": 541,
+            "text": "export function getActiveCampaignSyncTransport("
+          },
+          {
+            "path": "src/lib/campaign/coop/campaignSyncTransport.ts",
+            "line": 573,
+            "text": "export function registerCampaignSyncTransport("
+          },
+          {
+            "path": "src/lib/campaign/coop/campaignSyncTransport.ts",
+            "line": 416,
+            "text": "if (activeTransports.get(options.matchId) === transport) {\n        activeTransports.delete(options.matchId);"
+          }
+        ],
+        "result": "onFrame attaches only to the captured object; the getter has no invalidation subscription and consumer rejoin state is private to the surface. No delivered API synchronously informs the launch/entry subscription when the registry replaces A with B.",
+        "minimalRepair": "Add subscribeActiveCampaignSyncTransport(matchId,onChange) at the registry owner. Notify after every actual identity mutation; guarded removal of A cannot remove B. Callers subscribe then reconcile via getter, detach before attach, guard each use, and dispose listeners without closing foreign/shared B.",
+        "alternative": "Polling or duplicating registry notifications in page owners can miss the first B frame or non-page register/close paths. This design chooses the authoritative registry seam; it does not claim a missing compiler field or modify F."
+      },
+      {
+        "id": "G2-RESEAT-PROOF",
+        "unit": "P2CG1G2",
+        "path": "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+        "decision": "register",
+        "method": "precise reading of existing real socket fixture and cleanup tests",
+        "anchors": [
+          {
+            "path": "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+            "line": 23,
+            "text": "_resetCampaignSyncTransportsForTest,"
+          },
+          {
+            "path": "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+            "line": 62,
+            "text": "socket.onclose?.({});"
+          },
+          {
+            "path": "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+            "line": 172,
+            "text": "afterEach(() => _resetCampaignSyncTransportsForTest());"
+          },
+          {
+            "path": "src/lib/campaign/coop/campaignSyncTransport.ts",
+            "line": 717,
+            "text": "export function _resetCampaignSyncTransportsForTest(): void {"
+          }
+        ],
+        "result": "Page mocks alone do not prove all real registry mutation paths, disposal, late close identity guards, observer exceptions/reentrancy or wire compatibility. The existing transport suite owns the real socket/reset fixture.",
+        "minimalRepair": "Add replacement/registration/removal/reset/exception/reentrancy tests here; add real A-to-B page behavior in the already registered entry/launch suites and retain raw legacy-wire controls.",
+        "alternative": "A new dedicated observer suite is possible but needs the same extra literal test grant; no standalone helper is necessary."
+      }
+    ],
+    "sourceBlobs": [
+      {
+        "path": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+        "sha256": "c763c4d57b2ace2aedd5a867a9aaf5dd4fa579c404921dae45a4077a3e350cfe",
+        "gitBlob": "b2d59b3093168f837217d176beadaf5b9f1a4161"
+      },
+      {
+        "path": "src/pages/api/multiplayer/invites/[roomCode].ts",
+        "sha256": "48edd26fff601aa61ad33ca5ef23076d70f5db13dd5743a7d114c4217c01dec5",
+        "gitBlob": "3745c1c9f509e817e74ca5bb1ce5ca9d6d35b344"
+      },
+      {
+        "path": "src/pages/api/multiplayer/matches/[id].ts",
+        "sha256": "a1f60774389e2d6ecd0d6e1aaeca0d82b7be50769084e2bfb5eff3f913d55cf0",
+        "gitBlob": "33728ff620f425833cd3fe4c045ee8ad2a2741e0"
+      },
+      {
+        "path": "src/lib/multiplayer/server/IMatchStore.ts",
+        "sha256": "beb13efd217ee162bf69a52769dfe41f2b16a8a505d07464671ff51a0351425d",
+        "gitBlob": "ca6c40a328410eba8f54f075369df87bd9374fcf"
+      },
+      {
+        "path": "src/__tests__/api/securityBoundary.test.ts",
+        "sha256": "b1ad23eadc77dc469369a30a257b0d2899423602cd9f3e3f4cf62f5316eaf3a6",
+        "gitBlob": "30683784e9c9c88739e323ccd0aff8235bae4ee2"
+      },
+      {
+        "path": "src/__tests__/unit/api/multiplayerMatchMeta.test.ts",
+        "sha256": "fbad6d672ec0b15b3a357f5bf0ad109af796f12dd819ffdd1c701f158b501603",
+        "gitBlob": "5277c42fc4476fe994fe931a84b5fb9041d1159a"
+      },
+      {
+        "path": "src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx",
+        "sha256": "d64b4b277868b15ac3b43e66da6c7851131d6dd355e27f2b96ae28145ecd7481",
+        "gitBlob": "bd9a8e51dea68ca8870f3b5f2285b0acdea217c8"
+      },
+      {
+        "path": "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+        "sha256": "4798100d184e3b564998203203dfc66c68dc3b2be3a219fcfadf740af1fa9c53",
+        "gitBlob": "75df51394bd86e91b36eb4864022738ecd10300a"
+      },
+      {
+        "path": "src/lib/campaign/coop/campaignSyncTransport.ts",
+        "sha256": "781d33b29df4ab77b5528d2db2c2065234c27ba715cc8168cb91b71cb7e5139d",
+        "gitBlob": "14a1c040b406154719909e5f9ee7c47a0a62102c"
+      },
+      {
+        "path": "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+        "sha256": "0924d081536053955034e64a320d38fcd46a15047ccdea557b583316648c6936",
+        "gitBlob": "d8facdbb42f70a857353b740abb88fe564d32cb2"
+      }
+    ],
+    "probeScript": {
+      "path": "E:/Projects/Personal/MekStation-wt/g2-preadmission-evidence-20261018/complete-ownership.mjs",
+      "bytes": 19053,
+      "sha256": "039d93097a9d2914194dfd0118f5ed2ee8b1a9c8740c999b9f4239ff42aaf0a5"
+    }
+  },
+  "changes": [
+    {
+      "unit": "P2CG1G2",
+      "restriction": "6 -> 10; append only",
+      "registered": [
+        "src/pages/api/multiplayer/invites/[roomCode].ts",
+        "src/__tests__/api/securityBoundary.test.ts",
+        "src/lib/campaign/coop/campaignSyncTransport.ts",
+        "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts"
+      ],
+      "knownSourceTestLifecycleSubtotal": "7 -> 11",
+      "behavior": "Planned leaves 6 -> 10, actual four leaves, conservative 250-425 estimate, accepted identity/observer designs and explicit Root ownership ruling; no lifecycle change.",
+      "ownership": "Append four exact paths to G2 and owner node; two transport entries are narrower aliases required by literal includes validation, not new directory scope."
+    }
+  ],
+  "deferredConditionals": [],
+  "ownership": {
+    "coveredByExistingDirectory": false,
+    "noOwnershipPathOrExceptionChanges": false,
+    "literalOwnershipRegistered": true,
+    "sourcePermissionEffective": false,
+    "nodeExactEntriesAdded": [
+      "src/pages/api/multiplayer/invites/[roomCode].ts",
+      "src/__tests__/api/securityBoundary.test.ts",
+      "src/lib/campaign/coop/campaignSyncTransport.ts",
+      "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts"
+    ],
+    "unitExactEntriesAdded": [
+      "src/pages/api/multiplayer/invites/[roomCode].ts",
+      "src/__tests__/api/securityBoundary.test.ts",
+      "src/lib/campaign/coop/campaignSyncTransport.ts",
+      "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts"
+    ],
+    "noDirectoryBroadening": true,
+    "validatorRule": "validate-roadmap.mjs:517-519 uses Array.includes, not directory containment, for unit-to-node ownership. All four exact node aliases are required; the existing src/lib/campaign alias alone does not satisfy the two literal transport grants.",
+    "rejectedTest": {
+      "path": "src/__tests__/unit/api/multiplayerMatchMeta.test.ts",
+      "overlappingUnits": [
+        "U35c",
+        "U35d",
+        "U35e"
+      ],
+      "state": "complete",
+      "replacement": "src/__tests__/api/securityBoundary.test.ts"
+    },
+    "overlapAudit": [
+      {
+        "path": "src/__tests__/unit/api/multiplayerMatchMeta.test.ts",
+        "exists": true,
+        "nodeOverlaps": [
+          {
+            "id": "R1.references",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-0",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-1",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-2",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-3",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-4",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-5",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-6",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-7",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-8",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.authority-cutover",
+            "paths": [
+              "src/__tests__/unit/api"
+            ]
+          }
+        ],
+        "unitOverlaps": [
+          {
+            "id": "U35c",
+            "state": "complete",
+            "paths": [
+              "src/__tests__/unit/api"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "U35d",
+            "state": "complete",
+            "paths": [
+              "src/__tests__/unit/api"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "U35e",
+            "state": "complete",
+            "paths": [
+              "src/__tests__/unit/api"
+            ],
+            "inFlight": false
+          }
+        ]
+      },
+      {
+        "path": "src/pages/api/multiplayer/invites/[roomCode].ts",
+        "exists": true,
+        "nodeOverlaps": [
+          {
+            "id": "R1.references",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-0",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-1",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-2",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-3",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-4",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-5",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-6",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-7",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-8",
+            "paths": [
+              "src"
+            ]
+          }
+        ],
+        "unitOverlaps": []
+      },
+      {
+        "path": "src/__tests__/api/securityBoundary.test.ts",
+        "exists": true,
+        "nodeOverlaps": [
+          {
+            "id": "R1.references",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-0",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-1",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-2",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-3",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-4",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-5",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-6",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-7",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-8",
+            "paths": [
+              "src"
+            ]
+          }
+        ],
+        "unitOverlaps": []
+      },
+      {
+        "path": "src/lib/campaign/coop/campaignSyncTransport.ts",
+        "exists": true,
+        "nodeOverlaps": [
+          {
+            "id": "R1.references",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.combat",
+            "paths": [
+              "src/lib"
+            ]
+          },
+          {
+            "id": "R2.authority-live",
+            "paths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "R2.camp-0",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-1",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-2",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-3",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-4",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-5",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-6",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-7",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-8",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R5.E1",
+            "paths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "R5.E2",
+            "paths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "R5.E3",
+            "paths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "R5.E4",
+            "paths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "R5.E5",
+            "paths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "R5.E6",
+            "paths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "R5.E7",
+            "paths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "R5.E8",
+            "paths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "R5.E9",
+            "paths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "R5.E10",
+            "paths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "R6.B4",
+            "paths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "R6.B5",
+            "paths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "R6.B6",
+            "paths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "R6.B7",
+            "paths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "R8.travel",
+            "paths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "R8.opportunities",
+            "paths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "R2.authority-host",
+            "paths": [
+              "src/lib/campaign"
+            ]
+          }
+        ],
+        "unitOverlaps": [
+          {
+            "id": "U35g",
+            "state": "complete",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "U35i",
+            "state": "complete",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "U58",
+            "state": "complete",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "U89",
+            "state": "complete",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "U92",
+            "state": "complete",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "U97",
+            "state": "complete",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "U98",
+            "state": "complete",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "P1B",
+            "state": "blocked",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "P1B1",
+            "state": "complete",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "P1",
+            "state": "blocked",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "P2CA",
+            "state": "main-verified",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "P2CB",
+            "state": "main-verified",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "P2CD",
+            "state": "main-verified",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "P2CF",
+            "state": "blocked",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "P2CF1",
+            "state": "main-verified",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "P2CG1B",
+            "state": "main-verified",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "P2CG1G1",
+            "state": "blocked",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "P2CG1R",
+            "state": "blocked",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "U38",
+            "state": "blocked",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "U45",
+            "state": "planned",
+            "paths": [
+              "src/lib"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "U56",
+            "state": "planned",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "U4",
+            "state": "complete",
+            "paths": [
+              "src/lib"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "U5d",
+            "state": "complete",
+            "paths": [
+              "src/lib"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "U5e",
+            "state": "complete",
+            "paths": [
+              "src/lib"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "U5h",
+            "state": "complete",
+            "paths": [
+              "src/lib"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "U100",
+            "state": "planned",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "U105",
+            "state": "planned",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "U101c",
+            "state": "planned",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          }
+        ]
+      },
+      {
+        "path": "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+        "exists": true,
+        "nodeOverlaps": [
+          {
+            "id": "R1.references",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.combat",
+            "paths": [
+              "src/lib"
+            ]
+          },
+          {
+            "id": "R2.authority-live",
+            "paths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "R2.camp-0",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-1",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-2",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-3",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-4",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-5",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-6",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-7",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R2.camp-8",
+            "paths": [
+              "src"
+            ]
+          },
+          {
+            "id": "R5.E1",
+            "paths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "R5.E2",
+            "paths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "R5.E3",
+            "paths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "R5.E4",
+            "paths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "R5.E5",
+            "paths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "R5.E6",
+            "paths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "R5.E7",
+            "paths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "R5.E8",
+            "paths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "R5.E9",
+            "paths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "R5.E10",
+            "paths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "R6.B4",
+            "paths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "R6.B5",
+            "paths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "R6.B6",
+            "paths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "R6.B7",
+            "paths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "R8.travel",
+            "paths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "R8.opportunities",
+            "paths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "R2.authority-host",
+            "paths": [
+              "src/lib/campaign"
+            ]
+          }
+        ],
+        "unitOverlaps": [
+          {
+            "id": "U35g",
+            "state": "complete",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "U35i",
+            "state": "complete",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "U58",
+            "state": "complete",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "U89",
+            "state": "complete",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "U92",
+            "state": "complete",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "U97",
+            "state": "complete",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "U98",
+            "state": "complete",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "P1B",
+            "state": "blocked",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "P1B1",
+            "state": "complete",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "P1",
+            "state": "blocked",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "P2CA",
+            "state": "main-verified",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "P2CB",
+            "state": "main-verified",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "P2CD",
+            "state": "main-verified",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "P2CF",
+            "state": "blocked",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "P2CF1",
+            "state": "main-verified",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "P2CG1B",
+            "state": "main-verified",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "P2CG1G1",
+            "state": "blocked",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "P2CG1R",
+            "state": "blocked",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "U38",
+            "state": "blocked",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "U45",
+            "state": "planned",
+            "paths": [
+              "src/lib"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "U56",
+            "state": "planned",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "U4",
+            "state": "complete",
+            "paths": [
+              "src/lib"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "U5d",
+            "state": "complete",
+            "paths": [
+              "src/lib"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "U5e",
+            "state": "complete",
+            "paths": [
+              "src/lib"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "U5h",
+            "state": "complete",
+            "paths": [
+              "src/lib"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "U100",
+            "state": "planned",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "U105",
+            "state": "planned",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          },
+          {
+            "id": "U101c",
+            "state": "planned",
+            "paths": [
+              "src/lib/campaign"
+            ],
+            "inFlight": false
+          }
+        ]
+      }
+    ],
+    "overlapInterpretation": "No added leaf overlaps an in-flight unit. The API test replacement has no unit overlap. Broad navigation nodes (src) and historical/future transport grants are not global exclusivity failures; --next uses containment to prevent simultaneous in-flight admission. G2 remains blocked behind verified F/G1; recheck actual active holders at admission. No other unit/node grant is removed or modified.",
+    "sequentialOverlap": "G1/G2 connected-surface and transport-directory work remains serial; transport precursor/future units retain their existing grants. No F consumer or B13 DELETE route edit."
+  },
+  "caps": {
+    "unchanged": true,
+    "capException": false,
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "census": [
+      {
+        "unit": "P2CG1G2",
+        "sourceTestLeaves": 10,
+        "knownSourceTestLifecycleSubtotal": 11,
+        "ancillaryFiles": 5,
+        "sourceStageFiles": 15,
+        "maxFiles": 15,
+        "spareFiles": 0,
+        "state": "blocked"
+      }
+    ],
+    "ancillaryAccounting": "units.json plus admission/red/local receipts and one reserved independent admission-review file. Later G-OWN outputs need separate actual-name/byte/hash census.",
+    "lineAccounting": "250-425 estimated physical added lines including lifecycle; tests/evidence line-exempt but file-counted. No measured future implementation fit.",
+    "conditionalCensus": "Any extra leaf or actual >500 additions requires separately registered ordinary-cap identity/observer support successors before the still-atomic five-creator G2 client slice; details in design."
+  },
+  "preserved": [
+    "Every non-G2 unit, including the fresh-main F lifecycle, is identical to baseline",
+    "G2 lifecycle/state/receipts/baseline/prHead/mergeSha/ownerGate/caps/admissionRequires/dependency fields",
+    "Every other node, restriction/subtotal and historical receipt",
+    "No product/test/helper/dependency/lockfile changes; root checkout read only"
+  ],
+  "permissionBoundary": "Parent registration and exact ownership only under the quoted Root ruling. G2 remains blocked; normal registration review/merge/exact-main proof and F/G1 predecessor closure precede finite source admission. No activation, runtime certification or merge approval.",
+  "sourceAdmitted": false,
+  "productFiles": 0,
+  "scope": [
+    "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+    "openspec/planning/2026-09-12-roadmap-completion/units.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2-literal-path-amendment-20261018.json",
+    "docs/audits/2026-10-18-g2-preadmission-design.md"
+  ],
+  "preimages": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "bytes": 1086628,
+      "sha256": "c3c3a609faea92a15105722aef021293873b7fac36660c97437e32b1d23a7ddb",
+      "source": "git show 27eca6c10325885fef568212b29151e8ef972988:openspec/planning/2026-09-12-roadmap-completion/roadmap.json"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "bytes": 1599255,
+      "sha256": "177cf8dd80a71827fd4304640fe3f0847070772ef7073579bffc11b989a5d775",
+      "source": "git show 27eca6c10325885fef568212b29151e8ef972988:openspec/planning/2026-09-12-roadmap-completion/units.json"
+    }
+  ],
+  "postimages": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "bytes": 1087133,
+      "sha256": "3b3868614ceeeb8d07009acd8dbaf14387f0673e2003d26f894d711f66cb40da"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "bytes": 1601291,
+      "sha256": "ddc9752457340b7c1fcffdac8f049534870b6d4cc55ad2fc36c5f1c9f5cf9d1b"
+    }
+  ],
+  "fieldDiff": {
+    "method": "Recursive parsed fresh-main/candidate comparison, arrays by index. Exact 14-leaf allowlist asserted; every other field equal to fetched Main.",
+    "changedLeafCount": 14,
+    "entries": [
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+        "path": "$.nodes[13].ownershipPathsAmended20261009P2C.restrictions.P2CG1G2[6]",
+        "after": "src/pages/api/multiplayer/invites/[roomCode].ts"
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+        "path": "$.nodes[13].ownershipPathsAmended20261009P2C.restrictions.P2CG1G2[7]",
+        "after": "src/__tests__/api/securityBoundary.test.ts"
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+        "path": "$.nodes[13].ownershipPathsAmended20261009P2C.restrictions.P2CG1G2[8]",
+        "after": "src/lib/campaign/coop/campaignSyncTransport.ts"
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+        "path": "$.nodes[13].ownershipPathsAmended20261009P2C.restrictions.P2CG1G2[9]",
+        "after": "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts"
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+        "path": "$.nodes[13].ownershipPathsAmended20261009P2C.knownSourceTestLifecycleSubtotals.P2CG1G2",
+        "before": 7,
+        "after": 11
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+        "path": "$.nodes[13].ownershipPaths[80]",
+        "after": "src/pages/api/multiplayer/invites/[roomCode].ts"
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+        "path": "$.nodes[13].ownershipPaths[81]",
+        "after": "src/__tests__/api/securityBoundary.test.ts"
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+        "path": "$.nodes[13].ownershipPaths[82]",
+        "after": "src/lib/campaign/coop/campaignSyncTransport.ts"
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+        "path": "$.nodes[13].ownershipPaths[83]",
+        "after": "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts"
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "path": "$.units[83].behavior",
+        "before": "Ninth narrower P2CG1 successor: creator binding. Binds expectedCampaignId at every creator in one change (CF9): CampaignCoopEntryPanel.tsx 328 (a direct connectCampaignSyncTransport call with a freshly minted token, not connectStoredCampaignSyncTransport; binding there passes expectedCampaignId into that call, whose options already accept it), the surface's two connectStoredCampaignSyncTransport calls at 159 and 294, and launch.tsx 149 and 177. CF10: the entry panel and the launch page resolve the transport through getActiveCampaignSyncTransport on each use, so a consumer rejoin re-seats them. The unit must prove the wire is byte-identical against the legacy binder: the bound join still quotes lastSeq (P2CG1E), and numeric observation ACKs are unchanged until an offer latches receipt mode (P2CF2 N5). index.coop.test.tsx mocks the transport module without getActiveCampaignSyncTransport, so it changes with the entry panel. Planned leaves (6): src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx, src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx, src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx, src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx, src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx and src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx. Estimated at about 45-90 counted lines with lifecycle; that is not a cap-fit proof.",
+        "after": "Ninth narrower P2CG1 successor: creator binding. Binds expectedCampaignId at every creator in one change (CF9): CampaignCoopEntryPanel.tsx 328 (a direct connectCampaignSyncTransport call with a freshly minted token, not connectStoredCampaignSyncTransport; binding there passes expectedCampaignId into that call, whose options already accept it), the surface's two connectStoredCampaignSyncTransport calls at 159 and 294, and launch.tsx 149 and 177. CF10: the entry panel and the launch page resolve the transport through getActiveCampaignSyncTransport on each use, so a consumer rejoin re-seats them. The unit must prove the wire is byte-identical against the legacy binder: the bound join still quotes lastSeq (P2CG1E), and numeric observation ACKs are unchanged until an offer latches receipt mode (P2CF2 N5). index.coop.test.tsx mocks the transport module without getActiveCampaignSyncTransport, so it changes with the entry panel. Planned leaves (10): src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx, src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx, src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx, src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx, src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx and src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx, src/pages/api/multiplayer/invites/[roomCode].ts, src/__tests__/api/securityBoundary.test.ts, src/lib/campaign/coop/campaignSyncTransport.ts, src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts. Estimated at about 250-425 counted lines with lifecycle; that is not a cap-fit proof. Parent literal-path amendment 2026-10-18 (evidence/p2cg1g2-literal-path-amendment-20261018.json): G2-BOOT-1 uses an authenticated identity-only invite response before the direct bound creator, preserving the anonymous summary and never fetching raw match metadata; the existing API security-boundary test adds an isolated real-verifier/real-store fixture to prove the actual response and disclosure boundary. G2-RESEAT-1 adds an active-transport registry subscription with its existing transport test, so entry/participation listeners detach A and attach B immediately while every use rechecks the delivered getter and stale cleanup cannot close B. No F consumer edit, activation or legacy-wire change. Ten source/test leaves plus units.json, admission/red/local receipts and one independent admission-review slot reserve 15 of 15 source-stage files; 250-425 counted additions is a conservative estimate, not measured fit. Root parent ruling 2026-10-18 grants exact ownership for the four added leaves in this same amendment. The API proof uses securityBoundary.test.ts instead of multiplayerMatchMeta.test.ts to avoid the completed U35 units' API-test ownership; existing metadata privacy tests remain unchanged controls. Exact transport aliases on the owner node satisfy the validator's literal membership rule without broadening src/lib/campaign. Normal predecessor, no-in-flight-overlap and finite source-admission gates remain; use separately registered ordinary-cap support successors if actual scope exceeds 15 files/500 additions. This registration grants no source admission."
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "path": "$.units[83].ownershipPaths[6]",
+        "after": "src/pages/api/multiplayer/invites/[roomCode].ts"
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "path": "$.units[83].ownershipPaths[7]",
+        "after": "src/__tests__/api/securityBoundary.test.ts"
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "path": "$.units[83].ownershipPaths[8]",
+        "after": "src/lib/campaign/coop/campaignSyncTransport.ts"
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "path": "$.units[83].ownershipPaths[9]",
+        "after": "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts"
+      }
+    ]
+  },
+  "measurements": {
+    "actualFiles": 4,
+    "productFiles": 0,
+    "sourceTestHelperEdits": 0,
+    "ledgerDiff": "11\t3\topenspec/planning/2026-09-12-roadmap-completion/roadmap.json\n6\t2\topenspec/planning/2026-09-12-roadmap-completion/units.json"
+  },
+  "validation": {
+    "status": "PASS",
+    "method": "Candidate receipt is present for real unmodified lightweight validators. No product suite or compiler; Node-native validator tests only.",
+    "results": [
+      {
+        "name": "validate-roadmap-plain",
+        "at": "2026-10-18T01:33:29.053Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/g2-preadmission-20261018",
+        "command": [
+          "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+        ],
+        "exitCode": 0,
+        "log": "E:\\Projects\\Personal\\MekStation-wt\\g2-preadmission-evidence-20261018\\validate-roadmap-plain.log",
+        "logSha256": "567feb20b9f85c902a3c4492eb3274c970f2370ccbbc6d3390088ad10923b947",
+        "summary": "ROADMAP VALIDATION PASSED: 80 nodes, 13 packages, 381 tasks, 40 triage rows"
+      },
+      {
+        "name": "validate-roadmap-git",
+        "at": "2026-10-18T01:33:33.095Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/g2-preadmission-20261018",
+        "command": [
+          "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+          "--git"
+        ],
+        "exitCode": 0,
+        "log": "E:\\Projects\\Personal\\MekStation-wt\\g2-preadmission-evidence-20261018\\validate-roadmap-git.log",
+        "logSha256": "0d7d99319c662d2b64fa0c98e73d2d6254bad922234f2c7a68c71758fc9fa890",
+        "summary": "ROADMAP VALIDATION PASSED: 80 nodes, 13 packages, 381 tasks, 40 triage rows"
+      },
+      {
+        "name": "validator-tests",
+        "at": "2026-10-18T01:33:44.256Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/g2-preadmission-20261018",
+        "command": [
+          "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+          "--test",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs"
+        ],
+        "exitCode": 0,
+        "log": "E:\\Projects\\Personal\\MekStation-wt\\g2-preadmission-evidence-20261018\\validator-tests.log",
+        "logSha256": "4a42f4ec0f237029efb14159ebee9aab7f6a2553a0ef9215fc7b44c62ba4b495",
+        "summary": "# tests 86\n# pass 86\n# fail 0"
+      },
+      {
+        "name": "openspec-strict",
+        "at": "2026-10-18T01:33:54.386Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/g2-preadmission-20261018",
+        "command": [
+          "powershell.exe",
+          "-NoProfile",
+          "-Command",
+          "npx --no-install openspec validate --all --strict; exit $LASTEXITCODE"
+        ],
+        "exitCode": 0,
+        "log": "E:\\Projects\\Personal\\MekStation-wt\\g2-preadmission-evidence-20261018\\openspec-strict.log",
+        "logSha256": "3f957310c0c3835ba3d5704458ddc03218d48f0b205252ed6d52ca87951ba4f5",
+        "summary": "Totals: 230 passed, 0 failed (230 items)"
+      },
+      {
+        "name": "git-diff-check",
+        "at": "2026-10-18T01:33:55.797Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/g2-preadmission-20261018",
+        "command": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exitCode": 0,
+        "log": "E:\\Projects\\Personal\\MekStation-wt\\g2-preadmission-evidence-20261018\\git-diff-check.log",
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "summary": ""
+      }
+    ],
+    "reproducibility": {
+      "probeScript": "E:/Projects/Personal/MekStation-wt/g2-preadmission-evidence-20261018/complete-ownership.mjs",
+      "fieldDiffLog": "E:\\Projects\\Personal\\MekStation-wt\\g2-preadmission-evidence-20261018\\field-diff.json",
+      "noProcessesStopped": true,
+      "validatorScript": "E:\\Projects\\Personal\\MekStation-wt\\g2-preadmission-evidence-20261018\\validate.mjs",
+      "overlapLog": "E:/Projects/Personal/MekStation-wt/g2-preadmission-evidence-20261018/ownership-overlap.json"
+    },
+    "node": "v22.22.0",
+    "machineIdle": {
+      "exitCode": 1,
+      "log": "E:\\Projects\\Personal\\MekStation-wt\\g2-preadmission-evidence-20261018\\machine-idle.log",
+      "logSha256": "fc78e015a5fae7d7428d84ef722babcb4dba95510e348bc6cb7b296e77523046",
+      "interpretation": "Preflight recorded before checks; existing server process was not stopped. Only lightweight docs validators and Node-native validator tests ran; no heavy suite, compiler, build or browser."
+    },
+    "initialInvocationFailure": {
+      "check": "openspec-strict",
+      "exitCode": 1,
+      "reason": "cmd.exe /s /c quoting rejected the command before OpenSpec ran: The syntax of the command is incorrect.",
+      "resolution": "Reran npx --no-install openspec validate --all --strict directly in PowerShell; 230 passed, 0 failed. Final validator run uses PowerShell."
+    }
+  }
+}
