@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "unit": "B14-0A",
+  "stage": "red",
+  "date": "20261018",
+  "baseline": "87c0f1508c859fe1386595c02c53501d9446b861",
+  "at": "2026-10-18T13:43:54.454Z",
+  "admissionCommit": "04c4f4b469f38cf5776d4cce1ca89674ba7aca1b",
+  "summary": "11 failed / 159 in the seven owned suites on the unchanged product leaves: 9 privacy (fog-on metadata to seated player x3, non-playing GM and host; fog-on export/private-preview for host, opponent, spectator; journal projection for an admitted host), 1 refusal-shape (missing seat answered projection-failed rather than wrong-session) and 1 reason (unknown config answered with the generic message). The four legacy-filter seam suites, the seam allowlist guard and the fog-on timeline audit-only rows pass (seam inert before the refusal; timeline is not a contained surface).",
+  "productState": "FogAwareMatchProjection.ts and src/pages/api/multiplayer/matches/[id].ts are byte-identical to the baseline. The new src/lib/multiplayer/server/fogMatchAdmission.ts (FOG_REFUSAL + noPerViewerRevealProjection, 18 lines) is added in this commit and referenced by no product file (ruling B14-0A-R1: the four seam module factories need it to resolve). No product behaviour changes.",
+  "testLeaves": [
+    "src/__tests__/api/securityBoundary.test.ts",
+    "src/pages-modules/api/__tests__/matchHistoryFog.test.ts",
+    "src/__tests__/unit/api/multiplayerMatchMeta.test.ts",
+    "src/lib/multiplayer/server/__tests__/CoopOpponentDriver.test.ts",
+    "src/lib/multiplayer/server/__tests__/customCombatRecovery.recoveryDelivery.test.ts",
+    "src/lib/multiplayer/server/__tests__/customConstructionTransport.test.ts",
+    "src/lib/multiplayer/server/__tests__/ServerMatchHost.fogOfWarIntegration.test.ts"
+  ],
+  "run": {
+    "command": "node node_modules/jest/bin/jest.js --runTestsByPath <seven owned suites> --runInBand --cacheDirectory <proof>/.jest-private --json",
+    "gate": "node scripts/qc/machine-idle.mjs --own-pid 47516 --own-pid 55164 -> MACHINE_IDLE",
+    "suites": 7,
+    "passed": 148,
+    "failed": 11,
+    "total": 159,
+    "json": {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0a-proof-20261018/red-run.json",
+      "sha256": "d4ed4a09b9679d1dba7d4f44721ab80e92afda9c706657b357f3edda85870fdf",
+      "bytes": 108928
+    },
+    "log": {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0a-proof-20261018/red-run.log",
+      "sha256": "498455587e6484651cbcf880e92a9932ec6c90b1dca752cafece91576ae4a94a",
+      "bytes": 35267
+    }
+  },
+  "seamBefore": {
+    "suites": [
+      "CoopOpponentDriver",
+      "customCombatRecovery.recoveryDelivery",
+      "customConstructionTransport",
+      "ServerMatchHost.fogOfWarIntegration"
+    ],
+    "result": "all pass on the unchanged product with the seam present (no failing assertion in these four suites)"
+  },
+  "typecheck": {
+    "command": "npm run typecheck",
+    "result": "exit 0",
+    "log": {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0a-proof-20261018/typecheck-red.log",
+      "sha256": "3b36e22e1b0478b0238ff74f78f016d01c34b3acc5ef45f73c88babce588152f",
+      "bytes": 374
+    }
+  },
+  "failures": [
+    {
+      "suite": "src/pages-modules/api/__tests__/matchHistoryFog.test.ts",
+      "name": "fog of war on the HTTP match-history chain fog on B14 refuses export and private preview for host",
+      "first": "Error: expect(received).toBe(expected) // Object.is equality | Expected: 500 | Received: 200 | at toBe (E:\\Projects\\Personal\\MekStation-wt\\b14-impl-20261018\\src\\pages-modules\\api\\__tests__\\matchHistoryFog.test.ts:549:37)",
+      "classification": "privacy: Main serves fog-on export/private-preview (HTTP 200, per-viewer filter projection including the full GameCreated roster) instead of refusing"
+    },
+    {
+      "suite": "src/pages-modules/api/__tests__/matchHistoryFog.test.ts",
+      "name": "fog of war on the HTTP match-history chain fog on B14 refuses export and private preview for opponent",
+      "first": "Error: expect(received).toBe(expected) // Object.is equality | Expected: 500 | Received: 200 | at toBe (E:\\Projects\\Personal\\MekStation-wt\\b14-impl-20261018\\src\\pages-modules\\api\\__tests__\\matchHistoryFog.test.ts:549:37)",
+      "classification": "privacy: Main serves fog-on export/private-preview (HTTP 200, per-viewer filter projection including the full GameCreated roster) instead of refusing"
+    },
+    {
+      "suite": "src/pages-modules/api/__tests__/matchHistoryFog.test.ts",
+      "name": "fog of war on the HTTP match-history chain fog on B14 refuses export and private preview for spectator",
+      "first": "Error: expect(received).toBe(expected) // Object.is equality | Expected: 500 | Received: 200 | at toBe (E:\\Projects\\Personal\\MekStation-wt\\b14-impl-20261018\\src\\pages-modules\\api\\__tests__\\matchHistoryFog.test.ts:549:37)",
+      "classification": "privacy: Main serves fog-on export/private-preview (HTTP 200, per-viewer filter projection including the full GameCreated roster) instead of refusing"
+    },
+    {
+      "suite": "src/pages-modules/api/__tests__/matchHistoryFog.test.ts",
+      "name": "fog of war on the HTTP match-history chain fog on B14 policy throws before journal projection for admitted viewer",
+      "first": "Error: expect(received).rejects.toMatchObject() | Received promise resolved instead of rejected | Resolved to value: {\"identifiedFacts\": [{\"fact\": {\"factType\": \"game_created\", \"payload\": {\"expectedPostStateDigest\": null, \"matchEvent\": {\"gameId\": \"match-history-fog\", \"id\": \"evt-created\", \"payload\": {",
+      "classification": "privacy: Main projects the fog-on match journal for an admitted host instead of refusing before the read"
+    },
+    {
+      "suite": "src/pages-modules/api/__tests__/matchHistoryFog.test.ts",
+      "name": "fog of war on the HTTP match-history chain fog on B14 membership precedes fog policy: no seat or seat failure discloses no fog",
+      "first": "Error: expect(received).toMatchObject(expected) | - Expected  - 2 | + Received  + 1 | Object { | -   \"code\": \"wrong-session\",",
+      "classification": "shape: Main already refuses an unseated viewer, but with the constant projection-failed instead of wrong-session \"Authorization refused\"; no leak"
+    },
+    {
+      "suite": "src/pages-modules/api/__tests__/matchHistoryFog.test.ts",
+      "name": "fog of war on the HTTP match-history chain fog off B14 known-off configuration needs no projection-head metadata; unknown configuration refuses",
+      "first": "Error: expect(received).rejects.toMatchObject(expected) | - Expected  - 3 | + Received  + 1 | - Object { | -   \"message\": \"fog-projection-unavailable\",",
+      "classification": "reason: Main refuses unknown configuration only with the generic projection-failed message, not the fixed fog-projection-unavailable reason; no leak"
+    },
+    {
+      "suite": "src/__tests__/api/securityBoundary.test.ts",
+      "name": "API security boundaries campaign identity invite resolution (G2-BOOT-1) B14 metadata fog=true caller=host: membership first, fog-on refused before private serialization",
+      "first": "Error: expect(received).toBe(expected) // Object.is equality | Expected: 403 | Received: 200 | at toBe (E:\\Projects\\Personal\\MekStation-wt\\b14-impl-20261018\\src\\__tests__\\api\\securityBoundary.test.ts:438:34)",
+      "classification": "privacy: Main returns full fog-on metadata (unit bootstrap references, skills, start hexes) to the host"
+    },
+    {
+      "suite": "src/__tests__/unit/api/multiplayerMatchMeta.test.ts",
+      "name": "GET match metadata privacy B14-0A fog-on containment refuses a seated player in a lobby fog-on match after membership",
+      "first": "Error: expect(received).toBe(expected) // Object.is equality | Expected: 403 | Received: 200 | at toBe (E:\\Projects\\Personal\\MekStation-wt\\b14-impl-20261018\\src\\__tests__\\unit\\api\\multiplayerMatchMeta.test.ts:290:33) | at expectFogRefused (E:\\Projects\\Personal\\MekStation-wt\\b14-impl-20261018\\src\\__t",
+      "classification": "privacy: Main returns full fog-on metadata to a seated player"
+    },
+    {
+      "suite": "src/__tests__/unit/api/multiplayerMatchMeta.test.ts",
+      "name": "GET match metadata privacy B14-0A fog-on containment refuses a seated player in a active fog-on match after membership",
+      "first": "Error: expect(received).toBe(expected) // Object.is equality | Expected: 403 | Received: 200 | at toBe (E:\\Projects\\Personal\\MekStation-wt\\b14-impl-20261018\\src\\__tests__\\unit\\api\\multiplayerMatchMeta.test.ts:290:33) | at expectFogRefused (E:\\Projects\\Personal\\MekStation-wt\\b14-impl-20261018\\src\\__t",
+      "classification": "privacy: Main returns full fog-on metadata to a seated player"
+    },
+    {
+      "suite": "src/__tests__/unit/api/multiplayerMatchMeta.test.ts",
+      "name": "GET match metadata privacy B14-0A fog-on containment refuses a seated player in a completed fog-on match after membership",
+      "first": "Error: expect(received).toBe(expected) // Object.is equality | Expected: 403 | Received: 200 | at toBe (E:\\Projects\\Personal\\MekStation-wt\\b14-impl-20261018\\src\\__tests__\\unit\\api\\multiplayerMatchMeta.test.ts:290:33) | at expectFogRefused (E:\\Projects\\Personal\\MekStation-wt\\b14-impl-20261018\\src\\__t",
+      "classification": "privacy: Main returns full fog-on metadata to a seated player"
+    },
+    {
+      "suite": "src/__tests__/unit/api/multiplayerMatchMeta.test.ts",
+      "name": "GET match metadata privacy B14-0A fog-on containment refuses the GM/host without a playing seat when fog is on",
+      "first": "Error: expect(received).toBe(expected) // Object.is equality | Expected: 403 | Received: 200 | at toBe (E:\\Projects\\Personal\\MekStation-wt\\b14-impl-20261018\\src\\__tests__\\unit\\api\\multiplayerMatchMeta.test.ts:290:33) | at Object.expectFogRefused (E:\\Projects\\Personal\\MekStation-wt\\b14-impl-20261018\\",
+      "classification": "privacy: Main returns full fog-on metadata to the non-playing GM/host"
+    }
+  ]
+}

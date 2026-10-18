@@ -23,6 +23,7 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import { readdirSync, readFileSync } from 'node:fs';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -30,6 +31,7 @@ import path from 'node:path';
 import type { IMatchMeta } from '@/lib/multiplayer/server/IMatchStore';
 import type { IVaultIdentity } from '@/types/vault';
 
+import { canonicalizeEventDigestV1 } from '@/lib/events/journal/EventJournalCanonicalizer';
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
 import { VALID_COMBAT_LIFECYCLE_EVENT_PAYLOADS } from '@/lib/events/replay/__fixtures__/CombatLifecycleBaselineSchemaPack.fixture';
@@ -107,15 +109,6 @@ interface IHolder {
 interface IResult {
   statusCode: number;
   body: unknown;
-}
-
-interface IMatchFact {
-  readonly factType: string;
-  readonly sequenceHint: number;
-  readonly payload: {
-    readonly matchEvent: IGameEvent;
-    readonly expectedPostStateDigest: string | null;
-  };
 }
 
 function mockReqRes(
@@ -332,23 +325,6 @@ function matchEvents(): readonly IGameEvent[] {
   ];
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-function matchFacts(body: unknown): readonly IMatchFact[] {
-  if (!isRecord(body) || !isRecord(body['stream'])) {
-    throw new Error(`expected an export stream, got ${JSON.stringify(body)}`);
-  }
-  const facts = body['stream']['facts'];
-  if (!Array.isArray(facts)) throw new Error('expected stream.facts');
-  return facts as readonly IMatchFact[];
-}
-
-function eventIds(body: unknown): readonly string[] {
-  return matchFacts(body).map((fact) => fact.payload.matchEvent.id);
-}
-
 const ALL_SECRETS = [
   HOST_DESIGN,
   OPPONENT_DESIGN,
@@ -362,6 +338,14 @@ const ALL_SECRETS = [
   HOST_IN_LOS,
   POST_STATE_DIGEST,
 ];
+
+/** The stored mirror envelope fields the digest census mutates. */
+interface ICensusEnvelope {
+  readonly matchEvent: {
+    readonly payload: { readonly units: IGameCreatedPayload['units'] };
+  };
+  readonly expectedPostStateDigest?: string | null;
+}
 
 function expectOnly(body: unknown, allowed: readonly string[]): void {
   const blob = JSON.stringify(body);
@@ -493,14 +477,6 @@ describe('fog of war on the HTTP match-history chain', () => {
     return result;
   }
 
-  function createdUnits(body: unknown) {
-    const created = matchFacts(body).find(
-      (fact) => fact.factType === GameEventType.GameCreated,
-    );
-    if (created === undefined) throw new Error('expected GameCreated');
-    return (created.payload.matchEvent.payload as IGameCreatedPayload).units;
-  }
-
   function registry(): ViewerAudienceProjectorRegistry {
     const registered = new ViewerAudienceProjectorRegistry();
     registered.register({
@@ -520,108 +496,64 @@ describe('fog of war on the HTTP match-history chain', () => {
     beforeEach(async () => {
       await setUp(true);
     });
-
-    it('precondition: the stream sits where the production mirror puts it', () => {
-      const db = getSQLiteService().getDatabase();
-      const branches = db
-        .prepare(
-          `SELECT DISTINCT branch_id AS branchId FROM event_journal_events
-            WHERE stream_type = 'match' AND stream_id = ?`,
-        )
-        .all(MATCH_ID);
-      expect(branches).toEqual([{ branchId: 'main' }]);
-      const head = new SQLiteEventHistoryBranchStore(db).readEffectiveHead({
+    it('B14 census: a mirrored journal event digest changes with hidden payload or post-state digest alone', async () => {
+      const journal = new SQLiteEventJournal<ICensusEnvelope>(
+        getSQLiteService().getDatabase(),
+      );
+      const events = await journal.readStream({
         streamType: 'match',
         streamId: MATCH_ID,
+        branchId: 'main',
+        afterRevision: 0,
+        limit: 1,
       });
-      expect(head?.branchId).toBe('main');
-    });
-
-    it('opponent export: own construction and choices only, LOS-gated host locks', async () => {
-      const exported = await getExport(opponent);
-      expect(exported.statusCode).toBe(200);
-      expect(eventIds(exported.body)).toEqual([
-        ID.created,
-        ID.lockBack,
-        ID.opponentLock,
-        ID.opponentSealed,
-      ]);
-      expectOnly(exported.body, [
-        OPPONENT_DESIGN,
-        OPPONENT_SLOT,
-        OPPONENT_LOCK,
-        OPPONENT_SEALED,
-        HOST_IN_LOS,
-      ]);
-      // Identity is public, construction is not.
-      expect(createdUnits(exported.body).map((unit) => unit.id)).toEqual([
-        'host-unit',
-        'opponent-unit',
-      ]);
+      const stored = events[0];
+      expect(stored).toBeDefined();
+      expect(canonicalizeEventDigestV1(stored).digest).toBe(stored.eventDigest);
+      const payload = stored.payload;
+      const units = payload.matchEvent.payload.units;
+      const changed = {
+        ...payload,
+        matchEvent: {
+          ...payload.matchEvent,
+          payload: {
+            ...payload.matchEvent.payload,
+            units: units.map((unit, index) =>
+              index === 1 ? { ...unit, gunnery: unit.gunnery + 1 } : unit,
+            ),
+          },
+        },
+      };
       expect(
-        matchFacts(exported.body).map((fact) => fact.sequenceHint),
-      ).toEqual([1, 2, 3, 4]);
+        canonicalizeEventDigestV1({ ...stored, payload: changed }).digest,
+      ).not.toBe(stored.eventDigest);
+      expect(
+        canonicalizeEventDigestV1({
+          ...stored,
+          payload: {
+            ...payload,
+            expectedPostStateDigest: 'changed-hidden-state',
+          },
+        }).digest,
+      ).not.toBe(stored.eventDigest);
     });
-
-    it('no exported event carries an authority-only field', async () => {
-      for (const holder of [host, opponent, spectator]) {
-        const exported = await getExport(holder);
-        expect(exported.statusCode).toBe(200);
-        for (const fact of matchFacts(exported.body)) {
-          for (const field of ['sequence', 'visibility', 'privateRecordRef']) {
-            expect(field in fact.payload.matchEvent).toBe(false);
-          }
-          expect(fact.payload.expectedPostStateDigest).toBeNull();
+    it.each(['host', 'opponent', 'spectator'])(
+      'B14 refuses export and private preview for %s',
+      async (role) => {
+        const holder =
+          role === 'host' ? host : role === 'opponent' ? opponent : spectator;
+        for (const result of [
+          await getExport(holder),
+          await getPrivatePreview(holder),
+        ]) {
+          expect(result.statusCode).toBe(500);
+          expect(result.body).toEqual({ error: 'fog-projection-unavailable' });
+          expect(JSON.stringify(result.body)).not.toMatch(
+            /host-unit|opponent-unit|SAVED-DESIGN|POST-STATE|digest|gunnery/,
+          );
         }
-      }
-    });
-
-    it('spectator export: no construction for anyone and only public events', async () => {
-      const exported = await getExport(spectator);
-      expect(exported.statusCode).toBe(200);
-      expect(eventIds(exported.body)).toEqual([ID.created]);
-      expectOnly(exported.body, []);
-      const blob = JSON.stringify(exported.body);
-      expect(blob).not.toContain('customUnitDefinition');
-      expect(blob).not.toContain('criticalSlotManifest');
-      expect(createdUnits(exported.body)).toHaveLength(2);
-    });
-
-    it('owner export: its own construction, moves, locks and sealed choice; nothing of the opponent', async () => {
-      const exported = await getExport(host);
-      expect(exported.statusCode).toBe(200);
-      expect(eventIds(exported.body)).toEqual([
-        ID.created,
-        ID.moveOut,
-        ID.lockOut,
-        ID.moveBack,
-        ID.lockBack,
-        ID.hostLock,
-        ID.hostSealed,
-      ]);
-      expectOnly(exported.body, [
-        HOST_DESIGN,
-        HOST_SLOT,
-        HOST_OUT_OF_LOS,
-        HOST_IN_LOS,
-        HOST_LOCK,
-        HOST_SEALED,
-      ]);
-    });
-
-    it('host private-preview: the GM brand unlocks no sealed choice; same facts as its export', async () => {
-      const preview = await getPrivatePreview(host);
-      expect(preview.statusCode).toBe(200);
-      // The route brands the tactical host gm; the live wire would not.
-      const scope = (
-        preview.body as { stream: { viewerScope: { role: string } } }
-      ).stream.viewerScope;
-      expect(scope.role).toBe('gm');
-      expect(JSON.stringify(preview.body)).not.toContain(OPPONENT_SEALED);
-      const exported = await getExport(host);
-      expect(matchFacts(preview.body)).toEqual(matchFacts(exported.body));
-    });
-
+      },
+    );
     it.each(['opponent', 'spectator'] as const)(
       '%s timeline carries audit rows only, never match events',
       async (who) => {
@@ -635,89 +567,62 @@ describe('fog of war on the HTTP match-history chain', () => {
         expect(blob).not.toContain('criticalSlotManifest');
       },
     );
-
-    it('refuses a mid-stream page: no honest prefix state to filter against', async () => {
-      const db = getSQLiteService().getDatabase();
+    it('B14 policy throws before journal projection for admitted viewer', async () => {
       const service = new FogAwareMatchProjectionService({
-        journal: new SQLiteEventJournal(db, () => AT),
+        journal: new SQLiteEventJournal(getSQLiteService().getDatabase()),
         registry: registry(),
         matchMeta: store,
-        heads: {
-          branches: new SQLiteEventHistoryBranchStore(db),
-          readEffectiveStreamHead: () => ({ branchId: 'main', revision: 9 }),
-        },
         seatMembership: new MatchSeatMembershipSource(store),
-      });
-      const viewer = await viewerFor(opponent);
-      await expect(
-        service.project(viewer, {
-          streamType: 'match',
-          streamId: MATCH_ID,
-          afterRevision: 1,
-        }),
-      ).rejects.toBeInstanceOf(ViewerProjectionError);
-      const whole = await service.project(viewer, {
-        streamType: 'match',
-        streamId: MATCH_ID,
-      });
-      expect(whole.facts).toHaveLength(4);
-    });
-
-    it('fails closed when durable seats do not know the viewer', async () => {
-      const db = getSQLiteService().getDatabase();
-      const service = new FogAwareMatchProjectionService({
-        journal: new SQLiteEventJournal(db, () => AT),
-        registry: registry(),
-        matchMeta: store,
         heads: {
-          branches: new SQLiteEventHistoryBranchStore(db),
-          readEffectiveStreamHead: () => ({ branchId: 'main', revision: 9 }),
-        },
-        seatMembership: {
-          lookupMembership: async () => null,
-          currentMembershipRevision: async () => 0,
+          branches: new SQLiteEventHistoryBranchStore(
+            getSQLiteService().getDatabase(),
+          ),
+          readEffectiveStreamHead: () => ({ branchId: 'main', revision: 1 }),
         },
       });
       await expect(
-        service.project(await viewerFor(host), {
+        service.projectWithIdentities(await viewerFor(host), {
           streamType: 'match',
           streamId: MATCH_ID,
         }),
-      ).rejects.toBeInstanceOf(ViewerProjectionError);
+      ).rejects.toMatchObject({ message: 'fog-projection-unavailable' });
     });
-    it('fails closed on a match envelope it cannot read', async () => {
+    it('B14 membership precedes fog policy: no seat or seat failure discloses no fog', async () => {
       const db = getSQLiteService().getDatabase();
-      const mirrored = await mirrorMatchBatchToJournal(db, {
-        matchId: MATCH_ID,
-        commandId: 'cmd-malformed',
-        actorId: host.playerId,
-        expected: resolveMatchCommitExpectedRevision(db, MATCH_ID, 9),
-        // Not a game event: no gameId, no sequence.
-        events: [
-          {
-            type: GameEventType.AttackLocked,
-            timestamp: AT,
-            payload: { marker: HOST_LOCK },
-          } as unknown as IGameEvent,
-        ],
+      const build = (
+        lookupMembership: () => Promise<null>,
+      ): FogAwareMatchProjectionService =>
+        new FogAwareMatchProjectionService({
+          journal: new SQLiteEventJournal(db),
+          registry: registry(),
+          matchMeta: store,
+          seatMembership: {
+            lookupMembership,
+            currentMembershipRevision: async () => 0,
+          },
+          heads: {
+            branches: new SQLiteEventHistoryBranchStore(db),
+            readEffectiveStreamHead: () => ({ branchId: 'main', revision: 1 }),
+          },
+        });
+      const request = { streamType: 'match', streamId: MATCH_ID } as const;
+      const absent = await build(async () => null)
+        .project(await viewerFor(opponent), request)
+        .catch((error: unknown) => error);
+      expect(absent).toMatchObject({
+        code: 'wrong-session',
+        message: 'Authorization refused',
       });
-      expect(mirrored.kind).toBe('mirrored');
-      const exported = await getExport(opponent);
-      expect(exported.statusCode).toBeGreaterThanOrEqual(500);
-      expectOnly(exported.body, []);
-    });
-  });
-
-  describe('fog on, stale side assignment', () => {
-    beforeEach(async () => {
-      await setUp(true, { staleSpectatorAssignment: true });
-    });
-
-    it('a spectator seat outranks a side assignment naming the spectator', async () => {
-      const exported = await getExport(spectator);
-      expect(exported.statusCode).toBe(200);
-      expect(eventIds(exported.body)).toEqual([ID.created]);
-      expectOnly(exported.body, []);
+      const failed = await build(async () => {
+        throw new Error('private-seat-secret');
+      })
+        .project(await viewerFor(opponent), request)
+        .catch((error: unknown) => error);
+      expect(failed).toBeInstanceOf(ViewerProjectionError);
+      expect((failed as ViewerProjectionError).code).toBe('projection-failed');
+      expect(JSON.stringify([absent, failed, String(failed)])).not.toMatch(
+        /fog|private-seat/,
+      );
     });
   });
 
@@ -726,6 +631,47 @@ describe('fog of war on the HTTP match-history chain', () => {
       await setUp(false);
     });
 
+    it('B14 known-off configuration needs no projection-head metadata; unknown configuration refuses', async () => {
+      const db = getSQLiteService().getDatabase();
+      const m = await store.getMatchMeta(MATCH_ID);
+      const deps = {
+        journal: new SQLiteEventJournal(db),
+        registry: registry(),
+        seatMembership: new MatchSeatMembershipSource(store),
+        heads: {
+          branches: new SQLiteEventHistoryBranchStore(db),
+          readEffectiveStreamHead: () => {
+            throw Error('projection metadata unavailable');
+          },
+        },
+      };
+      const knownOff = new FogAwareMatchProjectionService({
+        ...deps,
+        matchMeta: {
+          getMatchMeta: async () => ({ config: m.config }) as IMatchMeta,
+        },
+      });
+      await expect(
+        knownOff.project(await viewerFor(host), {
+          streamType: 'match',
+          streamId: MATCH_ID,
+        }),
+      ).resolves.toBeDefined();
+      const unknown = new FogAwareMatchProjectionService({
+        ...deps,
+        matchMeta: {
+          getMatchMeta: async () => {
+            throw Error('unknown');
+          },
+        },
+      });
+      await expect(
+        unknown.project(await viewerFor(host), {
+          streamType: 'match',
+          streamId: MATCH_ID,
+        }),
+      ).rejects.toMatchObject({ message: 'fog-projection-unavailable' });
+    });
     it('every viewer gets exactly the parent projection, unchanged', async () => {
       const db = getSQLiteService().getDatabase();
       const plain = new ViewerProjectionService({
@@ -744,5 +690,83 @@ describe('fog of war on the HTTP match-history chain', () => {
         );
       }
     });
+  });
+});
+
+/**
+ * B14 legacy-filter availability seam: only the registered suites may mock
+ * the capability module, each with the canonical comment and overrides.
+ * B14-0A owns the first four; B14-0B adds the rest; B14-0 pins equality.
+ */
+const B14_SEAM_ALLOWLIST: Readonly<Record<string, 'B14-0A' | 'B14-0B'>> = {
+  'src/lib/multiplayer/server/__tests__/CoopOpponentDriver.test.ts': 'B14-0A',
+  'src/lib/multiplayer/server/__tests__/customCombatRecovery.recoveryDelivery.test.ts':
+    'B14-0A',
+  'src/lib/multiplayer/server/__tests__/customConstructionTransport.test.ts':
+    'B14-0A',
+  'src/lib/multiplayer/server/__tests__/ServerMatchHost.fogOfWarIntegration.test.ts':
+    'B14-0A',
+  'src/lib/multiplayer/server/__tests__/viewerFrameRawNegativeSweep.test.ts':
+    'B14-0B',
+  'src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindLiveReplay.test.ts':
+    'B14-0B',
+  'src/lib/multiplayer/__tests__/clientAgainstFogServer.integration.test.ts':
+    'B14-0B',
+  'src/lib/multiplayer/server/__tests__/viewerFrameAuthorityFieldLeak.test.ts':
+    'B14-0B',
+  'src/lib/multiplayer/server/__tests__/ServerMatchHostCommandResults.test.ts':
+    'B14-0B',
+  'src/lib/multiplayer/server/__tests__/viewerSequenceConcealmentLeak.test.ts':
+    'B14-0B',
+  'src/lib/multiplayer/server/__tests__/matchmaking.integration.test.ts':
+    'B14-0B',
+  'src/lib/multiplayer/server/__tests__/viewerDeliverySequence.test.ts':
+    'B14-0B',
+  'src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts':
+    'B14-0B',
+  'src/lib/multiplayer/server/__tests__/fogViewerSequenceSparsity.test.ts':
+    'B14-0B',
+};
+
+describe('B14 legacy-filter seam allowlist', () => {
+  const repo = path.resolve(__dirname, '../../../..');
+  const mocksCapability =
+    /jest\.(?:mock|doMock|unstable_mockModule|setMock)\(\s*['"`][^'"`]*fogMatchAdmission['"`]/;
+  function suitesMockingCapability(): string[] {
+    const found: string[] = [];
+    const walk = (dir: string): void => {
+      for (const entry of readdirSync(dir, { withFileTypes: true })) {
+        if (entry.name === 'node_modules') continue;
+        const full = path.join(dir, entry.name);
+        if (entry.isDirectory()) walk(full);
+        else if (
+          /\.(test|spec)\.tsx?$/.test(entry.name) &&
+          mocksCapability.test(readFileSync(full, 'utf8'))
+        )
+          found.push(path.relative(repo, full).split(path.sep).join('/'));
+      }
+    };
+    walk(path.join(repo, 'src'));
+    return found.sort();
+  }
+
+  it('confines the capability mock to registered suites with the canonical seam', () => {
+    const found = suitesMockingCapability();
+    expect(found.filter((file) => !(file in B14_SEAM_ALLOWLIST))).toEqual([]);
+    for (const file of found) {
+      const text = readFileSync(path.join(repo, file), 'utf8');
+      expect(text).toContain(
+        '// B14 seam: this suite pins the existing per-viewer fog filter beneath the',
+      );
+      expect(text).toContain('noPerViewerRevealProjection: () => false,');
+      expect(text).toContain('matchLacksRevealProjection: async () => false,');
+    }
+    // B14-0A lands its four seams; B14-0B's land with B14-0B.
+    expect(
+      Object.entries(B14_SEAM_ALLOWLIST)
+        .filter(([, unit]) => unit === 'B14-0A')
+        .map(([file]) => file)
+        .filter((file) => !found.includes(file)),
+    ).toEqual([]);
   });
 });

@@ -58,6 +58,16 @@ import {
 import * as journalAuthority from '../ServerMatchHostJournalAuthority';
 import { commitJournalAuthorityCommand } from '../ServerMatchHostJournalAuthority';
 
+// B14 seam: this suite pins the existing per-viewer fog filter beneath the
+// B14 refusal. Production has no per-viewer reveal projection and refuses.
+jest.mock('@/lib/multiplayer/server/fogMatchAdmission', () => ({
+  ...jest.requireActual<
+    typeof import('@/lib/multiplayer/server/fogMatchAdmission')
+  >('@/lib/multiplayer/server/fogMatchAdmission'),
+  noPerViewerRevealProjection: () => false,
+  matchLacksRevealProjection: async () => false,
+}));
+
 // Jest's shared environment is jsdom; the production server never writes
 // the browser match log. Only this unrelated browser persistence is inert.
 jest.mock('@/lib/p2p/matchLogStorage', () => {
