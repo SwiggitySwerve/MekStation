@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "unit": "B14-HEAD",
+  "stage": "red",
+  "date": "20261018",
+  "baseline": "5a18aa586c519ea3ad122c7b0a03b502ea69a71b",
+  "at": "2026-10-18T22:35:17.419Z",
+  "admissionCommit": "9c7eae2f23fc5953ab1b03d5290cc333dba99d31",
+  "summary": "3 failed / 17 in matchHeadRoute.test.ts on the unchanged route (matchHeadRoute.ts byte-identical to the baseline). The 14 passing rows are the pre-existing route rows plus the new authorization-first and known-off controls, which must hold on both sides.",
+  "productState": "Only src/pages-modules/api/__tests__/matchHeadRoute.test.ts changes in this commit (new describe \"B14-HEAD fog containment\"; no module mock, spies restored). No product or spec byte changes.",
+  "run": {
+    "name": "red",
+    "head": "40b7f41f69375d7d0ee5a50728c51f82f3e602b1",
+    "exit": 1,
+    "seconds": 53.123,
+    "suites": 1,
+    "passedSuites": 0,
+    "passed": 14,
+    "failed": 3,
+    "total": 17,
+    "command": [
+      "node",
+      "node_modules/jest/bin/jest.js",
+      "--runInBand",
+      "--cacheDirectory",
+      "E:\\Projects\\Personal\\MekStation-wt\\b14-head-sol-proof-20261018/.jest-private",
+      "--json",
+      "--outputFile",
+      "E:\\Projects\\Personal\\MekStation-wt\\b14-head-sol-proof-20261018/red.json",
+      "--runTestsByPath",
+      "src/pages-modules/api/__tests__/matchHeadRoute.test.ts"
+    ],
+    "failures": [
+      {
+        "file": "E:\\Projects\\Personal\\MekStation-wt\\b14-head-sol-20261018\\src\\pages-modules\\api\\__tests__\\matchHeadRoute.test.ts",
+        "tests": [
+          {
+            "name": "GET /api/matches/:id/head B14-HEAD fog containment refuses the host for fog on with only the fixed reason, before any digest",
+            "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 403\nReceived: 200\n    at toBe (E:\\Projects\\Personal\\MekStation-wt\\b14-head-sol-20261018\\src\\pages-modules\\api\\__tests__\\matchHeadRoute.test.ts:375:35)"
+          },
+          {
+            "name": "GET /api/matches/:id/head B14-HEAD fog containment refuses the host for unknown config with only the fixed reason, before any digest",
+            "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 403\nReceived: 200\n    at toBe (E:\\Projects\\Personal\\MekStation-wt\\b14-head-sol-20261018\\src\\pages-modules\\api\\__tests__\\matchHeadRoute.test.ts:375:35)"
+          },
+          {
+            "name": "GET /api/matches/:id/head B14-HEAD fog containment refuses a fog host before any head or journal read",
+            "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 403\nReceived: 200\n    at Object.toBe (E:\\Projects\\Personal\\MekStation-wt\\b14-head-sol-20261018\\src\\pages-modules\\api\\__tests__\\matchHeadRoute.test.ts:395:35)"
+          }
+        ]
+      }
+    ],
+    "gate": "Every new heavy run uses node E:/Projects/Personal/MekStation-wt/_locks/heavy-run.mjs --lane b14-head --class jest --cwd <worktree> -- <cmd>; no timeout increased and no foreign process stopped.",
+    "json": {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\b14-head-sol-proof-20261018/red.json",
+      "sha256": "f85885fa4f7187fb532eb387b7917d0ba9de06347f81c84f136e0631efd8640d",
+      "bytes": 10377
+    }
+  },
+  "greenPreview": {
+    "note": "Evidence-only: the same test bytes against the staged route edit (not committed here) pass 17/17, so every RED failure is discharged by the route edit alone.",
+    "passed": 17,
+    "failed": 0,
+    "total": 17,
+    "json": {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-head-proof-20261018/green-pre.json",
+      "sha256": "42d7f8b2b4fc5b1f8050f02b77591b682270f0252ffee4d4ce807e23a6bfe2c9",
+      "bytes": 7098
+    }
+  },
+  "typecheck": {
+    "command": "npm run typecheck",
+    "result": "exit 0",
+    "log": {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-head-proof-20261018/typecheck-red.log",
+      "sha256": "8102a14cf3245ac2b0d67c588affb25efaebfcd3485f9a46a751595d9a774951",
+      "bytes": 358
+    }
+  },
+  "failures": [
+    {
+      "name": "GET /api/matches/:id/head B14-HEAD fog containment refuses the host for fog on with only the fixed reason, before any digest",
+      "status": "failed",
+      "first": "Error: expect(received).toBe(expected) // Object.is equality | Expected: 403 | Received: 200",
+      "classification": "privacy: Main serializes the journal digest to the host for a fog-on/unknown-config match instead of refusing with fog-projection-unavailable"
+    },
+    {
+      "name": "GET /api/matches/:id/head B14-HEAD fog containment refuses the host for unknown config with only the fixed reason, before any digest",
+      "status": "failed",
+      "first": "Error: expect(received).toBe(expected) // Object.is equality | Expected: 403 | Received: 200",
+      "classification": "privacy: Main serializes the journal digest to the host for a fog-on/unknown-config match instead of refusing with fog-projection-unavailable"
+    },
+    {
+      "name": "GET /api/matches/:id/head B14-HEAD fog containment refuses a fog host before any head or journal read",
+      "status": "failed",
+      "first": "Error: expect(received).toBe(expected) // Object.is equality | Expected: 403 | Received: 200",
+      "classification": "privacy/replay: Main reads the effective journal head for a fog-on match"
+    }
+  ],
+  "passingControls": [
+    "GET /api/matches/:id/head publishes a handler at the Pages Router head entrypoint",
+    "GET /api/matches/:id/head gives the host exactly the effective head the lease compares",
+    "GET /api/matches/:id/head the lineage names the head GET /head names once the branch runs past its base",
+    "GET /api/matches/:id/head refuses player and stranger identically (head present: false)",
+    "GET /api/matches/:id/head refuses player and stranger identically (head present: true)",
+    "GET /api/matches/:id/head requires a bearer",
+    "GET /api/matches/:id/head requires a bearer scoped to this match",
+    "GET /api/matches/:id/head refuses POST before reading a bearer",
+    "GET /api/matches/:id/head rejects a missing match id",
+    "GET /api/matches/:id/head answers an unknown match with the private-preview 404 body",
+    "GET /api/matches/:id/head answers no head without inventing a genesis digest",
+    "GET /api/matches/:id/head answers no head when the effective branch has no journal head row",
+    "GET /api/matches/:id/head B14-HEAD fog containment authorizes first: non-host and stranger keep the generic refusal under fog",
+    "GET /api/matches/:id/head B14-HEAD fog containment serves an explicitly known-off host the unchanged head"
+  ],
+  "inheritedRedCommit": "40b7f41f69375d7d0ee5a50728c51f82f3e602b1",
+  "baselineEquivalence": "Fresh RED ran at the inherited RED tip based on 1c7632b18. Route and all admission controls remain byte-identical at closure 5a18aa586c519ea3ad122c7b0a03b502ea69a71b.",
+  "immutableTest": {
+    "gitBlob": "3b2b861a28584d3b0017f0974624b0a07561d5c8",
+    "sha256": "98519c3e67186ea7220f3bfb39af4f64ef6e81c8fa19b3435244df9864862764",
+    "inheritedGitBlob": "3b2b861a28584d3b0017f0974624b0a07561d5c8"
+  },
+  "redCommit": "79ddc3339956dddea00702b9f44c84915e176c5a"
+}
