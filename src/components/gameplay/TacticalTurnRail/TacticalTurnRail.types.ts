@@ -29,7 +29,7 @@ export type UnitRailStatus =
   | 'active' // it is this unit's turn RIGHT NOW
   | 'upcoming' // waiting to act in this phase
   | 'completed' // has acted this phase (lockState Resolved)
-  | 'skipped' // shutdown/unconscious — cannot act this phase
+  | 'skipped' // shutdown/ejected/unconscious — cannot act this phase
   | 'destroyed' // unit is dead
   | 'withdrawn'; // retreated or withdrawing
 

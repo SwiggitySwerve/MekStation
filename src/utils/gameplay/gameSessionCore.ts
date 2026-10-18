@@ -12,7 +12,6 @@ import {
   IGameSession,
   IGameUnit,
   IHexTerrain,
-  IUnitGameState,
   LockState,
 } from '@/types/gameplay';
 
@@ -62,7 +61,16 @@ import {
   createPhysicalAttackLockedEvent,
   createSpottingDeclaredEvent,
 } from './gameEvents';
+import {
+  getActivePhaseUnitId,
+  isPhaseActivationEligible,
+} from './gameSessionActivation';
 import { appendAttackRevealIfReady } from './gameSessionAttackReveal';
+export {
+  getActivePhaseUnitId,
+  getPhaseActivationOrder,
+  isPhaseActivationEligible,
+} from './gameSessionActivation';
 import { appendEvent } from './gameSessionEvents';
 import { allUnitsLocked, deriveState } from './gameState';
 import {
@@ -403,46 +411,6 @@ export function lockAttack(
   return appendAttackRevealIfReady(appendEvent(session, event), unitId);
 }
 
-export function isPhaseActivationEligible(
-  unit: IUnitGameState | undefined,
-): unit is IUnitGameState {
-  return Boolean(
-    unit &&
-    !unit.destroyed &&
-    !unit.shutdown &&
-    !unit.hasRetreated &&
-    !unit.hasEjected &&
-    unit.pilotConscious,
-  );
-}
-
-function physicalAttackActivationOrder(session: IGameSession): string[] {
-  const firstMover = session.currentState.firstMover ?? GameSide.Player;
-  const opposingSide =
-    firstMover === GameSide.Player ? GameSide.Opponent : GameSide.Player;
-  const firstMoverUnits: string[] = [];
-  const opposingUnits: string[] = [];
-
-  for (const gameUnit of session.units) {
-    const unit = session.currentState.units[gameUnit.id];
-    if (!isPhaseActivationEligible(unit)) continue;
-    const side = unit.side ?? gameUnit.side ?? null;
-    if (side === firstMover) {
-      firstMoverUnits.push(gameUnit.id);
-    } else if (side === opposingSide) {
-      opposingUnits.push(gameUnit.id);
-    }
-  }
-
-  const order: string[] = [];
-  const count = Math.max(firstMoverUnits.length, opposingUnits.length);
-  for (let index = 0; index < count; index += 1) {
-    if (firstMoverUnits[index]) order.push(firstMoverUnits[index]);
-    if (opposingUnits[index]) order.push(opposingUnits[index]);
-  }
-  return order;
-}
-
 function canCompletePhysicalAttack(
   session: IGameSession,
   unitId: string,
@@ -458,8 +426,7 @@ function canCompletePhysicalAttack(
     return false;
   }
 
-  const order = physicalAttackActivationOrder(session);
-  const activeUnitId = order[session.currentState.activationIndex] ?? null;
+  const activeUnitId = getActivePhaseUnitId(session);
   return activeUnitId === unitId;
 }
 

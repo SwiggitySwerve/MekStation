@@ -21,9 +21,8 @@
  *     server bootstraps `playerUnits` / `opponentUnits`.
  *   - The active side comes from the mirror's `IGameState`: in the
  *     alternating Movement / WeaponAttack / PhysicalAttack phases the
- *     1v1 engine activates one unit per side in turn, so the side that
- *     may act is `firstMover` when `activationIndex` is even and the
- *     opposite side when it is odd.
+ *     engine identifies the next eligible unit with an unfinished action.
+ *     Eligibility changes cannot move a numeric cursor past a pending actor.
  *
  * @spec openspec/changes/complete-multiplayer-game-surface/specs/multiplayer-game-surface/spec.md
  */
@@ -36,6 +35,7 @@ import {
   GameStatus,
   type IGameSession,
 } from '@/types/gameplay/GameSessionInterfaces';
+import { getActivePhaseUnitId } from '@/utils/gameplay/gameSession';
 
 // =============================================================================
 // Local side
@@ -99,11 +99,13 @@ export function activeSideFromSession(
   const state = session.currentState;
   if (state.status !== GameStatus.Active) return null;
   if (!INTENT_PHASES.has(state.phase)) return null;
-  const firstMover = state.firstMover ?? GameSide.Player;
-  const otherSide =
-    firstMover === GameSide.Player ? GameSide.Opponent : GameSide.Player;
-  // Even activation index → the first mover acts; odd → the other side.
-  return state.activationIndex % 2 === 0 ? firstMover : otherSide;
+  const activeUnitId = getActivePhaseUnitId(session);
+  if (!activeUnitId) return null;
+  return (
+    state.units[activeUnitId]?.side ??
+    session.units.find((unit) => unit.id === activeUnitId)?.side ??
+    null
+  );
 }
 
 // =============================================================================

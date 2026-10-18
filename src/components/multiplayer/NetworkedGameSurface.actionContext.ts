@@ -15,6 +15,8 @@ import type {
 } from '@/types/gameplay/GameSessionInterfaces';
 import type { CommandAvailability } from '@/types/gameplay/TacticalCommandInterfaces';
 
+import { isPhaseActivationEligible } from '@/utils/gameplay/gameSession';
+
 /** How a control forwards an intent to the server. Never resolves locally. */
 export type NetworkedIntentSender = (intent: IGameIntent) => void;
 
@@ -78,7 +80,14 @@ export function buildActionControlContext(
   const refused = refusalReason !== null;
   return {
     session: input.session,
-    enabled: input.enabled && !refused,
+    enabled:
+      input.enabled &&
+      !refused &&
+      isPhaseActivationEligible(
+        input.selectedUnitId
+          ? input.session.currentState.units[input.selectedUnitId]
+          : undefined,
+      ),
     canAdvancePhase: input.canAdvancePhase && !refused,
     authorPeerId: input.authorPeerId,
     selectedUnitId: input.selectedUnitId,

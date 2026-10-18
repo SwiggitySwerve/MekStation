@@ -52,6 +52,7 @@ function buildSession(phase: GamePhase): IGameSession {
   };
   return {
     id: 'test-session',
+    events: [],
     units: [playerUnit, opponentUnit],
     currentState: {
       phase,

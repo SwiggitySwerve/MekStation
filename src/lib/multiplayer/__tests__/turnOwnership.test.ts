@@ -10,10 +10,12 @@
 
 import type { IMatchSeat } from '@/types/multiplayer/Lobby';
 
+import { createMinimalUnitState } from '@/simulation/runner/SimulationRunnerSupport';
 import {
   GamePhase,
   GameSide,
   GameStatus,
+  LockState,
   type IGameSession,
   type IGameState,
 } from '@/types/gameplay/GameSessionInterfaces';
@@ -51,7 +53,10 @@ function makeSession(state: Partial<IGameState>): IGameSession {
     phase: GamePhase.Movement,
     activationIndex: 0,
     firstMover: GameSide.Player,
-    units: {},
+    units: {
+      p1: createMinimalUnitState('p1', GameSide.Player, { q: 0, r: 0 }),
+      o1: createMinimalUnitState('o1', GameSide.Opponent, { q: 1, r: 0 }),
+    },
     turnEvents: [],
   };
   return {
@@ -64,7 +69,26 @@ function makeSession(state: Partial<IGameState>): IGameSession {
       victoryConditions: ['elimination'],
       optionalRules: [],
     },
-    units: [],
+    units: [
+      {
+        id: 'p1',
+        name: 'Player',
+        unitRef: 'p1',
+        side: GameSide.Player,
+        pilotRef: 'pilot-1',
+        gunnery: 4,
+        piloting: 5,
+      },
+      {
+        id: 'o1',
+        name: 'Opponent',
+        unitRef: 'o1',
+        side: GameSide.Opponent,
+        pilotRef: 'pilot-2',
+        gunnery: 4,
+        piloting: 5,
+      },
+    ],
     events: [],
     currentState: { ...base, ...state },
   };
@@ -99,7 +123,7 @@ describe('localSideFromSeats', () => {
 // =============================================================================
 
 describe('activeSideFromSession', () => {
-  it('returns the first mover on an even activation index', () => {
+  it("returns the first eligible actor's side at cursor zero", () => {
     const session = makeSession({
       firstMover: GameSide.Opponent,
       activationIndex: 0,
@@ -107,11 +131,21 @@ describe('activeSideFromSession', () => {
     expect(activeSideFromSession(session)).toBe(GameSide.Opponent);
   });
 
-  it('returns the other side on an odd activation index', () => {
-    const session = makeSession({
+  it("returns the next eligible actor's side at cursor one", () => {
+    const base = makeSession({
       firstMover: GameSide.Opponent,
       activationIndex: 1,
     });
+    const session = {
+      ...base,
+      currentState: {
+        ...base.currentState,
+        units: {
+          ...base.currentState.units,
+          o1: { ...base.currentState.units.o1, lockState: LockState.Locked },
+        },
+      },
+    };
     expect(activeSideFromSession(session)).toBe(GameSide.Player);
   });
 
@@ -127,6 +161,27 @@ describe('activeSideFromSession', () => {
 
   it('returns null for a null session', () => {
     expect(activeSideFromSession(null)).toBeNull();
+  });
+
+  it('returns null when no eligible actors remain', () => {
+    expect(activeSideFromSession(makeSession({ units: {} }))).toBeNull();
+  });
+
+  it('returns null when the eligible activation queue is exhausted', () => {
+    const base = makeSession({ activationIndex: 2 });
+    const session = {
+      ...base,
+      currentState: {
+        ...base.currentState,
+        units: Object.fromEntries(
+          Object.entries(base.currentState.units).map(([id, unit]) => [
+            id,
+            { ...unit, lockState: LockState.Locked },
+          ]),
+        ),
+      },
+    };
+    expect(activeSideFromSession(session)).toBeNull();
   });
 });
 

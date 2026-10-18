@@ -2,8 +2,8 @@
  * TacticalTurnRail status derivation — which compact state a rail token
  * shows and the text that names it.
  *
- * V211-03: only units that cannot act this phase are skipped (shut down or
- * unconscious pilot, the engine's `isPhaseActivationEligible` gate). A
+ * V211-03: only units that cannot act this phase are skipped (shut down,
+ * ejected, or unconscious pilot, the engine's `isPhaseActivationEligible` gate). A
  * prone unit still owes its activation (it may attempt to stand), so it
  * stays active/upcoming and its label flags the posture as the prompt.
  *
@@ -39,7 +39,8 @@ export function deriveUnitStatus(
 
   if (state.destroyed) return 'destroyed';
   if (state.hasRetreated || state.isWithdrawing) return 'withdrawn';
-  if (state.shutdown || state.pilotConscious === false) return 'skipped';
+  if (state.shutdown || state.hasEjected || state.pilotConscious === false)
+    return 'skipped';
   if (state.lockState === LockState.Resolved) return 'completed';
   if (unitId === activeUnitId) return 'active';
   return 'upcoming';

@@ -26,6 +26,10 @@ import {
   type IIntent,
   type IServerMessage,
 } from '@/types/multiplayer/Protocol';
+import {
+  canAdvancePhase,
+  getActivePhaseUnitId,
+} from '@/utils/gameplay/gameSessionCore';
 
 import type { IMatchMeta } from '../IMatchStore';
 
@@ -47,7 +51,11 @@ import {
 import { foldMatchSession } from '../MatchSessionProjector';
 import { buildMatchHostBootstrapFromMeta } from '../matchUnitBootstrap';
 import { ServerMatchHost } from '../ServerMatchHost';
-import { digestCommandPostState } from '../ServerMatchHostDecision';
+import {
+  decideCommandBatch,
+  digestCommandPostState,
+} from '../ServerMatchHostDecision';
+import { commitJournalAuthorityCommand } from '../ServerMatchHostJournalAuthority';
 
 // Jest's shared environment is jsdom; the production server never writes
 // the browser match log. Only this unrelated browser persistence is inert.
@@ -119,6 +127,7 @@ async function fixture(
   enabled: boolean,
   scope: 'mission' | 'versus' | 'vessel' = 'mission',
   diceSeed = 1,
+  options: { secondOpponent?: boolean } = {},
 ) {
   _setCombatJournalAuthorityModeForTests(enabled ? 'enabled' : null);
   const created = getUnitRepository().create({
@@ -162,6 +171,16 @@ async function fixture(
         side: 'opponent',
         startHex: { q: 2, r: 0 },
       },
+      ...(options.secondOpponent
+        ? [
+            {
+              unitId: 'opponent-2',
+              unitRef,
+              side: 'opponent' as const,
+              startHex: { q: 2, r: 1 },
+            },
+          ]
+        : []),
     ],
     ...(scope === 'mission'
       ? {
@@ -327,6 +346,83 @@ afterEach(async () => {
 });
 
 describe.each([false, true])('CoopOpponentDriver authority=%s', (enabled) => {
+  it('does not move the second opponent after a completed player ejects while a teammate is pending', async () => {
+    await fixture(enabled, 'mission', 1, { secondOpponent: true });
+    await intent({ kind: 'AdvancePhase' }, 'start-movement');
+    await playerMove();
+    expect(getActivePhaseUnitId(host!.getSessionForTests())).toBe('player-b');
+    const result = await intent(
+      { kind: 'Eject', unitId: 'player-a' },
+      'eject-completed-player',
+    );
+    expect(result.filter((frame) => frame.kind === 'Error')).toEqual([]);
+    const session = host!.getSessionForTests();
+    expect(session.currentState.units['player-a'].hasEjected).toBe(true);
+    expect(session.currentState.units['player-b'].lockState).toBe(
+      LockState.Pending,
+    );
+    expect(session.currentState.units['opponent-2'].lockState).toBe(
+      LockState.Pending,
+    );
+    expect(getActivePhaseUnitId(session)).toBe('player-b');
+    expect(
+      (await store.getEvents(MATCH))
+        .filter((event) => event.type === GameEventType.MovementLocked)
+        .map((event) => event.actorId),
+    ).toEqual(['player-a', 'opponent']);
+  });
+
+  it('finishes the second opponent physical activation after the pending player acts following ejection', async () => {
+    await fixture(enabled, 'mission', 1, { secondOpponent: true });
+    const driver = jest.spyOn(coopOpponentDriver, 'driveCoopOpponent');
+    for (let index = 0; index < 3; index += 1) {
+      await intent({ kind: 'AdvancePhase' }, `physical-setup-${index}`);
+    }
+    expect(host!.getSessionForTests().currentState.phase).toBe(
+      GamePhase.PhysicalAttack,
+    );
+    const input = driver.mock.calls.at(-1)![0];
+    // Complete a no-attack activation through the real engine and journal.
+    // The wire has no dedicated physical-pass intent.
+    const complete = async (unitId: string, playerId: string) => {
+      const ctx = input.context();
+      const result = await commitJournalAuthorityCommand(
+        ctx,
+        { playerId, intentId: `complete-${unitId}` },
+        (deps) =>
+          decideCommandBatch(
+            ctx.session,
+            (scratch) => scratch.completePhysicalAttack(unitId),
+            deps,
+          ),
+      );
+      expect(result.messages.filter((frame) => frame.kind === 'Error')).toEqual(
+        [],
+      );
+      await coopOpponentDriver.driveCoopOpponent(input);
+    };
+    await complete('player-a', 'host');
+    expect(
+      host!.getSessionForTests().currentState.units.opponent.lockState,
+    ).toBe(LockState.Locked);
+    await intent({ kind: 'Eject', unitId: 'player-a' }, 'eject-after-physical');
+    await complete('player-b', 'guest');
+    const session = host!.getSessionForTests();
+    expect(session.currentState.units['player-b'].lockState).toBe(
+      LockState.Locked,
+    );
+    expect(session.currentState.units['opponent-2'].lockState).toBe(
+      LockState.Locked,
+    );
+    expect(getActivePhaseUnitId(session)).toBeNull();
+    expect(canAdvancePhase(session)).toBe(true);
+    expect(
+      (await store.getEvents(MATCH))
+        .filter((event) => event.type === GameEventType.PhysicalAttackLocked)
+        .map((event) => event.actorId),
+    ).toEqual(['player-a', 'opponent', 'player-b', 'opponent-2']);
+  });
+
   it('leaves a broken-store non-mission join with only its Close and no pause', async () => {
     const { hostSocket, guestSocket } = await fixture(enabled, 'versus');
     const before = await store.getEvents(MATCH);

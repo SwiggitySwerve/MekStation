@@ -10,10 +10,9 @@ import {
   GamePhase,
   GameSide,
   GameStatus,
-  LockState,
   type IGameSession,
 } from '@/types/gameplay/GameSessionInterfaces';
-import { isPhaseActivationEligible } from '@/utils/gameplay/gameSessionCore';
+import { getActivePhaseUnitId } from '@/utils/gameplay/gameSessionCore';
 import { logger } from '@/utils/logger';
 
 import type { IServerMatchHostIntentContext } from './ServerMatchHostIntent';
@@ -24,7 +23,7 @@ import { decideCommandBatch } from './ServerMatchHostDecision';
 import { commitJournalAuthorityCommand } from './ServerMatchHostJournalAuthority';
 import { errorMessage } from './ServerMatchHostPublication';
 
-/** The activation order used by the engine's physical-action guard. */
+/** Act only on the opponent identity selected by the shared activation rules. */
 function opposingActivation(session: IGameSession): string | null {
   const state = session.currentState;
   if (
@@ -36,22 +35,12 @@ function opposingActivation(session: IGameSession): string | null {
     ].includes(state.phase)
   )
     return null;
-  const first = state.firstMover ?? GameSide.Player;
-  const eligible = session.units.filter((unit) =>
-    isPhaseActivationEligible(state.units[unit.id]),
-  );
-  const a = eligible.filter((unit) => unit.side === first);
-  const b = eligible.filter((unit) => unit.side !== first);
-  const order = a.flatMap((unit, index) =>
-    b[index] ? [unit, b[index]] : [unit],
-  );
-  order.push(...b.slice(a.length));
-  const active = order[state.activationIndex];
-  if (!active || active.side !== GameSide.Opponent) return null;
-  const lock = state.units[active.id].lockState;
-  return lock === LockState.Pending || lock === LockState.Planning
-    ? active.id
-    : null;
+  const activeUnitId = getActivePhaseUnitId(session);
+  if (!activeUnitId) return null;
+  const side =
+    state.units[activeUnitId]?.side ??
+    session.units.find((unit) => unit.id === activeUnitId)?.side;
+  return side === GameSide.Opponent ? activeUnitId : null;
 }
 
 function acceptedHead(ctx: IServerMatchHostIntentContext) {
