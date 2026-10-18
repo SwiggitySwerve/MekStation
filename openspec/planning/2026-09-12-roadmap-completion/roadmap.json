@@ -3116,7 +3116,8 @@
         "docs/releases",
         "src/__tests__/unit/api/multiplayerMatchMeta.test.ts",
         "src/lib/multiplayer/__tests__/clientAgainstFogServer.integration.test.ts",
-        "src/components/campaign/CampaignNavigation.tsx"
+        "src/components/campaign/CampaignNavigation.tsx",
+        "scripts"
       ],
       "acceptance": [
         "npm.cmd run typecheck",
@@ -3803,6 +3804,45 @@
           "B14-0B": 15
         },
         "rule": "Blocked documentary registration only; no source admission or runtime acceptance. Parent releases to planned only after the predecessor is main-verified (or complete/archived) with genuine exact-main mainProof PASS, fetched-main ancestry and closure. NEXT does not enforce ordinary predecessor arrays and supplies no permission. Preserve G2/R/S gates and one product-writing lane including closure. Rebase and re-census all existing/prospective source/test/helper/lifecycle/evidence leaves, aliases, exceptions and planned/blocked holders on fresh Main before admission. Freeze the complete literal manifest and truthful final evidence names; aliases are navigation only, never directory-wide permission. Caps remain 15 actual unique files / 500 counted added lines, no deletion credit; tests and ledger evidence are line-exempt but file-counted under U41. Estimates are not measured cap fit. Extra leaves or overflow require a separately registered narrower successor; never suppress proof or use spare slots without a freeze. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze and full census. Genuine sensitive packet before local-verified, independent exact-head review and OWNER-RULING before merge, required CI, then genuine exact-main PASS and closure; ownerGate null is no waiver. No fabricated receipts. New ownership is limited to the literal multiplayerMatchMeta.test.ts and clientAgainstFogServer.integration.test.ts leaves, never their parent directories. B14-0B receives ServerMatchHost.spectator.test.ts only after S closes. securityBoundary.test.ts also has B15-PRIV reservation and LSC-1 alias: re-census at admission."
+      },
+      "ownershipPathsAmended20261018L1Smoke": {
+        "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/v220-prep-20261018.txt",
+        "sourceSha256": "34c7300287de540411259987de6bc4351203abff66fbb123ac2fcebad30d8f70",
+        "units": [
+          "L1-SMOKE-A",
+          "L1-SMOKE-B"
+        ],
+        "status": "A planned; B blocked; registration only",
+        "restrictions": {
+          "L1-SMOKE-A": [
+            "scripts/release/run-l1-built-server-smoke.mjs",
+            "scripts/release/l1-built-server-socket-cases.mjs",
+            "scripts/release/l1-built-server-fixtures.ts",
+            "scripts/release/l1-built-server-smoke.test.mjs",
+            "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a-admission-20261018.json",
+            "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a-red-20261018.json",
+            "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a-local-20261018.json",
+            "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a-admission-review-20261018.json"
+          ],
+          "L1-SMOKE-B": [
+            "scripts/release/run-l1-built-server-smoke.mjs",
+            "scripts/release/l1-built-server-socket-cases.mjs",
+            "scripts/release/l1-built-server-fixtures.ts",
+            "scripts/release/l1-built-server-smoke.test.mjs",
+            "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-b-admission-20261018.json",
+            "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-b-red-20261018.json",
+            "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-b-local-20261018.json",
+            "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-b-admission-review-20261018.json"
+          ]
+        },
+        "prospectiveFileCounts": {
+          "L1-SMOKE-A": 9,
+          "L1-SMOKE-B": 9
+        },
+        "edges": "P2CG1S -> L1-SMOKE-A; {L1-SMOKE-A, B14-0, B14-HEAD} -> L1-SMOKE-B; {L1-SMOKE-A, L1-SMOKE-B, all retained H prerequisites} -> P2CG1H. The existing L1 product chain is unchanged and runs alongside this serial proof lane.",
+        "rule": "One separate L1 smoke proof lane may be admitted alongside the serial L1 product lane because its four literal new script leaves are disjoint from every existing L1 product manifest. A and B are serial within that proof lane, including closure; no parallel A/B writes and no L2 admission. Rebase and re-census fetched Main before each admission and merge. Serialize shared units.json lifecycle/closure commits with the product lane, change only the owning unit lifecycle, and preserve other-unit bytes; independent worktrees do not waive that shared-file collision. The scripts alias is validator navigation only, never ownership of existing scripts or other future leaves. Registration only; no source admission or runtime proof. Normal finite admission must freeze all actual source/test/helper/lifecycle/evidence leaves and measure actual unique files and U41 counted additions under unchanged 15-file / 500-counted-added-line caps, no deletion credit. Tests and ledger evidence are line-exempt but file-counted; the runner, cases and fixture helper require actual classification/counting, not an assumed all-test exemption. Nine prospective source-stage files per unit are a manifest count, not measured line fit. Required extra leaves or overflow stop for a separately registered narrower successor; never weaken or omit matrix rows. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze and full census. Sensitive privacy/authority review requires a genuine packet before local-verified, independent exact-head review, OWNER-RULING and current required CI before merge, then genuine exact-main mainProof PASS, fetched-Main ancestry and closure. ownerGate null is no waiver. NEXT does not enforce ordinary predecessor arrays and gives no admission permission."
       }
     },
     {
@@ -18653,5 +18693,134 @@
     "releaseClosure": "LSC-1S and LSC-2OP closure is implied by the predecessor order and explicit in the 33-unit closure checklist. The human-session LSC-2/LSC-2P gate is unchanged in substance.",
     "historicalRecords": "This amendment and current L1 lists/order/checklist supersede prior dated LSC order/count/manifest/pending-policy text, including prep draft 28 -> 30 (current ledger is 31 -> 33). Root-adopted recommendations remain owner-overridable, not direct owner answers. No other unit, lifecycle, packet, holder, prior receipt or B14-0A field changes.",
     "rule": "Blocked prospective registration only; no source admission. Parent releases to planned only after the predecessor is main-verified (or complete/archived) with genuine exact-main mainProof PASS, fetched-main ancestry and closure. Preserve all G2/R/S/B14/HP gates and one product-writing lane including closure. NEXT does not enforce ordinary predecessor arrays and supplies no permission. Rebase/re-census fresh Main, active and planned/blocked reservations, aliases and every existing/prospective source/test/helper/lifecycle/evidence leaf before admission; CampaignCoopEntryPanel.tsx and campaign co-op paths overlap G2/HP ownership, which must be closed first. Freeze exact literal manifests and truthful final evidence names at admission from localSeatCredentialsRegistration20261018; candidate seams are not directory-wide permission or measured cap fit. Caps remain 15 actual unique files / 500 counted added lines, no deletion credit; tests and ledger evidence are line-exempt but file-counted under U41. If actual required scope exceeds either cap or needs another leaf, stop and separately register a narrower successor; no omitted proof, cap inflation or unnamed outputs. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze and full census. Sensitive authority/privacy/replay/idempotency/concurrency review, genuine packet before local-verified, independent exact-head review and OWNER-RULING before merge, required CI, then genuine exact-main PASS and closure; ownerGate null is no waiver. Registration supplies no future implementation ruling or runtime acceptance."
+  },
+  "l1SmokeRegistration20261018": {
+    "baseline": "921ad8a1ec1c3ccac460ab6e6808ca5146474171",
+    "registrationOnly": true,
+    "sourceAdmitted": false,
+    "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/v220-prep-20261018.txt",
+    "sourceSha256": "34c7300287de540411259987de6bc4351203abff66fbb123ac2fcebad30d8f70",
+    "designSection": "Built-server socket smoke: proposed concrete design; Ownership census and parallel safety (whole prep retained unchanged; historical 33-unit snapshot is not current acceptance)",
+    "authority": "Owner standing instruction: \"continue with recommended options and fix the issues that come up, publish as needed\"; owner 2026-10-18: \"let's keep going on the main path of things using as many sub-agents as we can in parallel to go quickly\" and \"Do the research on the units and such that we haven't imported or implemented yet\". This task explicitly authorizes registration of the disjoint smoke proof lane alongside L1. This records scheduling authority only, not future source admission, sensitive exact-head OWNER-RULING, runtime acceptance or merge approval.",
+    "node": "R2.authority-live",
+    "layer": "L1",
+    "additionalUnits": [
+      "L1-SMOKE-A",
+      "L1-SMOKE-B"
+    ],
+    "unitCountBefore": 33,
+    "unitCountAfter": 35,
+    "states": {
+      "L1-SMOKE-A": "planned",
+      "L1-SMOKE-B": "blocked"
+    },
+    "order": "P2CG1S -> L1-SMOKE-A; {L1-SMOKE-A, B14-0, B14-HEAD} -> L1-SMOKE-B; {L1-SMOKE-A, L1-SMOKE-B, all retained H prerequisites} -> P2CG1H. The existing L1 product chain is unchanged and runs alongside this serial proof lane.",
+    "reason": "Ordinary unit dependencies are documentary and the ledger has no partial gate. Split early fog-off harness/matrix from final fog-on refusal proof; do not block disjoint A implementation on B14, and do not permit a partial smoke to release H.",
+    "obligation": {
+      "status": "owed; registered for future discharge only",
+      "origin": "P2CG1S.registration20261017HPrereqs.proofs[3]; evidence/p2cg1s-review-20261018.json successorNotes.builtServerSocketSmoke, successorNotes.P2CG1H.owedBeforeH and S-SMOKE-1; evidence/b14-0a-review-20261018.json B14A-SMOKE-1",
+      "discharge": "Both smoke units must close with genuine exact-main mainProof PASS and fetched-Main ancestry; B final combined smoke runs after B14-HEAD and before H or any spectator-bearing shipment. Registration and A-only evidence do not discharge it.",
+      "carryForwards": "S CF-S-1 through CF-S-9 retain their recorded owners and open statuses. CF-S-6 real attack/physical intent drives inform A proof but do not close the P2CG2/P2CH obligation; CF-S-4 recovery and CF-S-8 future reseat remain independently owned. No historical receipt is rewritten."
+    },
+    "parallelPermission": "One separate L1 smoke proof lane may be admitted alongside the serial L1 product lane because its four literal new script leaves are disjoint from every existing L1 product manifest. A and B are serial within that proof lane, including closure; no parallel A/B writes and no L2 admission. Rebase and re-census fetched Main before each admission and merge. Serialize shared units.json lifecycle/closure commits with the product lane, change only the owning unit lifecycle, and preserve other-unit bytes; independent worktrees do not waive that shared-file collision. The scripts alias is validator navigation only, never ownership of existing scripts or other future leaves.",
+    "prospectiveManifests": {
+      "L1-SMOKE-A": [
+        "scripts/release/run-l1-built-server-smoke.mjs",
+        "scripts/release/l1-built-server-socket-cases.mjs",
+        "scripts/release/l1-built-server-fixtures.ts",
+        "scripts/release/l1-built-server-smoke.test.mjs",
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a-admission-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a-red-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a-local-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a-admission-review-20261018.json"
+      ],
+      "L1-SMOKE-B": [
+        "scripts/release/run-l1-built-server-smoke.mjs",
+        "scripts/release/l1-built-server-socket-cases.mjs",
+        "scripts/release/l1-built-server-fixtures.ts",
+        "scripts/release/l1-built-server-smoke.test.mjs",
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-b-admission-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-b-red-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-b-local-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-b-admission-review-20261018.json"
+      ]
+    },
+    "prospectiveFileCounts": {
+      "L1-SMOKE-A": 9,
+      "L1-SMOKE-B": 9
+    },
+    "existingProductProtection": "At registration all four script leaves are absent. A creates only these four; B may subsequently extend only these same A-created proof leaves. Neither may edit any pre-existing tracked product/helper/config/package/workflow file, including server.js, the existing packaged-socket validator, its tests, L1 product manifests, release docs or playtest checklist. The v2.2.0 checklist reference is in this ledger only.",
+    "ownershipCensus": {
+      "baseline": "921ad8a1ec1c3ccac460ab6e6808ca5146474171",
+      "scanned": "All 240 units and 82 nodes, including 111 planned/blocked/implementing units (35/75/1) and 35 such nodes (32/3/0); ownershipPaths, ownershipExceptions, ancestor aliases and prospective literal manifests.",
+      "literalScriptMatches": [],
+      "scriptsAlias": "scripts/release does not yet exist; validator requires an existing alias, so scripts is added to R2.authority-live and these units as navigation only. It overlaps 30 planned/blocked/implementing units and 6 nodes by containment, but none owns any of the four leaves or an ancestor of scripts/release. Only prospectiveManifests grants source scope; no broad scripts grant.",
+      "scriptsAliasUnits": [
+        "U2",
+        "U2b",
+        "U24",
+        "U24b",
+        "U28",
+        "U53",
+        "U55",
+        "U57",
+        "U12",
+        "U63",
+        "U64",
+        "U65",
+        "U66",
+        "U67",
+        "U68",
+        "U69",
+        "U70",
+        "U71",
+        "U72",
+        "U74",
+        "U75",
+        "U76",
+        "U77",
+        "U78",
+        "U79",
+        "U80",
+        "U81",
+        "U82",
+        "U103",
+        "U101d"
+      ],
+      "scriptsAliasNodes": [
+        "R2.camp-8",
+        "R2.journey",
+        "R6.umbrella",
+        "R7.provenance",
+        "R6.loop-harness",
+        "R6.ts7-toolchain"
+      ],
+      "evidenceAliases": "New l1-smoke-a-* and l1-smoke-b-* evidence has no existing literal reservation. Broad evidence ancestors belong to blocked P2C/U85 and planned R9.close (inactive U0/U41/U42/U59/U16 and R0.plan/R0.publish also match). This registration allocates only the named new evidence leaves: P2C keeps its own lifecycle/PROGRESS/frozen p2c-* outputs, U85 its never-admitted Phase7 placeholder, R9.close its final handoff. No other-unit lifecycle or historical receipt permission. Shared units.json lifecycle updates are serialized as parallelPermission requires.",
+      "repeat": "Rebase/re-census fresh Main and every planned, blocked, implementing or otherwise in-flight holder before each admission; if another ledger PR lands first preserve its fields and repeat the census. A/B shared script leaves are serialized through A closure before B release."
+    },
+    "selectors": {
+      "harness": "node --test scripts/release/l1-built-server-smoke.test.mjs",
+      "smoke": "node scripts/release/run-l1-built-server-smoke.mjs --build --expected-sha=<full-main-sha> --output=<absolute-private-run-directory>",
+      "heavyGate": "node scripts/qc/machine-idle.mjs --own-pid 47516 --own-pid 55164"
+    },
+    "execution": "Prepend C:/Users/wroll/AppData/Local/nvm/v22.22.0 to PATH. Gate each heavy build/Jest run with machine-idle; nonzero defers, never kills unrelated processes. Run in a clean dedicated exact-Main worktree with dependencies/assets ready, production standalone cwd and private durable DATABASE_PATH/MULTIPLAYER_DB_PATH. Freeze truthful final evidence paths; raw private artifacts are hashed/indexed by receipts, never credentials or production DBs in git.",
+    "acceptance": {
+      "L1-SMOKE-A": [
+        "Normal Node 22 npm run build, hydrated .next/standalone/server.js, production environment, IPv4 127.0.0.1 and actual bound port; exactly one valid readiness record. Bind exact SHA, build ID, server/config hashes and owned PID. Real authenticated HTTP/WebSocket subprotocol join and ReplayStart/Chunk/End; malformed/foreign credentials refuse, tokens never enter URLs or retained output.",
+        "Fog-off spectator baseline receives public replay/live facts and cannot act (spectator-cannot-act); an actual participant action succeeds. B10 negative matrix: MovementDeclared, AttackDeclared and PhysicalAttackDeclared secret sentinel event IDs/payloads are absent from raw live frames and replay chunks for current player-branded and GM-branded spectators with stale side assignment, and GM spectator without stale assignment. Witness trusted seat/brand/assignment preconditions.",
+        "Use actual accepted Intent commands and a second actor to withhold reveal until negative observations finish. Public controls before/after each withheld declaration and bounded synchronization prove delivery remains live. Owning actor sees its unrevealed declaration; non-spectating GM retains policy; eligible authoritative reveals/public facts reach spectators afterward. No hidden placeholders, authority sequence leak or visible delivery-cursor gap.",
+        "Reconnect and restart the same built image against the same private durable DB; retain withheld-secret and positive/public/reveal assertions. Ordinary API provisioning/actions produce positive behavior; offline fixtures only for unreachable trusted stale-seat/brand/phase conditions, with server stopped before DB writes. No source-host calls, append/broadcast internals, fake sockets, /api/e2e, test-mode or projection-capability mocks in the running production server.",
+        "First prove legal phase-ready fixtures for all three declaration kinds and trusted GM/spectator brands are reachable. If a product seam would be required, retain explicit unrun rows and stop for a separately registered proof slice; no claim of a complete matrix. Harness node:test falsifiers cover missing public controls, leaked sentinel, early socket close, wrong build/listener, failed command propagation and owned-child cleanup.",
+        "Retain sanitized raw frames, case/connection IDs, expected/observed sentinels and controls, commands/exits, source/build/hash manifest, readiness, private DB lineage and restart port/process records. Redact credentials in success and failure output. Fail on omitted cases, timeouts, parse failures, early exit or identity mismatch. Bounded serial sockets, windowsHide:true, finally cleanup only of owned PIDs, verified port release, failed evidence/DB retained; no cleanup outside the validated private run directory."
+      ],
+      "L1-SMOKE-B": [
+        "Only after A and all four B14 units have genuine exact-main PASS, fetched-Main ancestry and closure: extend only the four A-created harness leaves for fog-on stored-match join, replay/live subscription, HTTP history/metadata and privileged /head refusal rows. Follow the landed fixed refusal/close contracts with no secret bytes, no hidden-dependent digest and no privilege bypass; preserve authentication/authorization ordering and fog-off controls.",
+        "Never override noPerViewerRevealProjection or mock the production capability to deliver fog-on frames. S underlying Jest filtering proof and unsupported production fog refusal are different contracts; both remain required. Re-run the full A fog-off matrix plus B fog-on refusals on one exact fetched-Main built image after B14-HEAD and before H admission/port installation or any spectator-bearing shipment.",
+        "A-only proof is explicitly partial and cannot discharge S-SMOKE-1 / B14A-SMOKE-1. Final exact-main receipt binds both matrices, command/exits, raw sanitized evidence and source/build/process/store identity. The existing one-player packaged-socket validator alone is insufficient. No P2J, LSC-2P, installer rehearsal or human acceptance credit."
+      ]
+    },
+    "rule": "Registration only; no source admission or runtime proof. Normal finite admission must freeze all actual source/test/helper/lifecycle/evidence leaves and measure actual unique files and U41 counted additions under unchanged 15-file / 500-counted-added-line caps, no deletion credit. Tests and ledger evidence are line-exempt but file-counted; the runner, cases and fixture helper require actual classification/counting, not an assumed all-test exemption. Nine prospective source-stage files per unit are a manifest count, not measured line fit. Required extra leaves or overflow stop for a separately registered narrower successor; never weaken or omit matrix rows. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze and full census. Sensitive privacy/authority review requires a genuine packet before local-verified, independent exact-head review, OWNER-RULING and current required CI before merge, then genuine exact-main mainProof PASS, fetched-Main ancestry and closure. ownerGate null is no waiver. NEXT does not enforce ordinary predecessor arrays and gives no admission permission."
   }
 }
