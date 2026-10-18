@@ -1,0 +1,37 @@
+OWNER-RULING 9e22300b7eb7c565a641176f469978145d8f67f6
+
+Unit: L1-SMOKE-A1 (L1 parallel proof lane; sensitive privacy/authority). PR #2287 at exact head 9e22300b7eb7c565a641176f469978145d8f67f6.
+
+Owner text:
+- Standing: "continue with recommended options and fix the issues that come up, publish as needed".
+- 2026-10-18: "let's keep going on the main path of things using as many sub-agents as we can in parallel to go quickly".
+- 2026-10-18: "I think the recommended actions make sense for the ones that have them", which covers Root posting OWNER-RULING comments.
+Root rules under these.
+
+Basis:
+- Round 1 (Fable 5.1, de8e97758a77cd0f5f6cd9dea47d4065b1591511): CHANGES REQUESTED (minor). Report: docs/audits/2026-10-18-l1-smoke-a1-review.md, sha256 98b68afbf08ab41b68a718042323f2aeb85f6a723d2da36bf4de49ffc3dba594 (31,597 bytes).
+  - It confirmed real production-build proof with positive controls, and a 10/10 exact-Main re-run.
+  - M1: 8 of 12 mutants survived. M2: untracked source was ignored. Two product findings, now registered as MP-RECOVERY-UNITS-1 and MP-HOST-DEDUPE-1 in #2289.
+- Round 2 (Fable 5.1, 9e22300b7eb7c565a641176f469978145d8f67f6): APPROVE. Report: 2026-10-18-l1-smoke-a1-review-r2.md, sha256 b900dc41242ca20dac24b411a55697f85e95199686cf1794f3e6e5352a9b0482 (17,508 bytes).
+  - All 10 prior survivors are caught, each with a genuine RED. A2 and A3 are resolved.
+  - The amendment touched only the test leaf plus 0-counted-line runner and fixture edits. Counts are 487/500 lines and 9/15 files.
+  - Re-run at 811bfd8d4: 10/10, with no credential retained. CI is 32/32, and the merge state is CLEAN.
+
+Rulings recorded:
+- The --no-verify commits are accepted. The hook contradicts .oxfmtignore and CI, and this was disclosed.
+- CF-SMOKEA1-3: A1 is accepted at the validator's physical-line count. A2 and B must be written in normal formatted style and must split if they overflow.
+
+Ruling: ACCEPT, and merge at this exact head.
+
+Carry-forwards:
+- CF-SMOKEA1-1: MP-HOST-DEDUPE-1.
+- CF-SMOKEA1-2: MP-RECOVERY-UNITS-1, which A2's restart acceptance depends on.
+- CF-SMOKEA1-4/6: maintenance units.
+- CF-SMOKEA1-5: bind standalone server.js; re-assert the final readiness. Goes to A2.
+- CF-SMOKEA1-7: InMemoryPlayerStore. Goes to LSC-2P/P2J.
+- CF-SMOKEA1-8: A2.
+- CF-SMOKEA1-9: test-leaf falsifiers for N1-N4. The next unit allowed to touch the A1 leaves (A2/B, by amendment).
+- CF-SMOKEA1-10: the PR body cites pre-rebase SHAs. The closure records the mapping: admission a205fa117 -> c7bcf92a3, RED a9bda139c -> 6ceb2da41, GREEN de8e97758 -> 8a3f4bfa3, then the amendment 9e22300b7.
+- L-R2-6: mainProof re-runs at the merge commit.
+
+Next: the closure PR. It releases no unit, because L1-SMOKE-A2 also waits on MP-RECOVERY-UNITS-1 and MP-HOST-DEDUPE-1.

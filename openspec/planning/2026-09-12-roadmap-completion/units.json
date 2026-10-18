@@ -8053,7 +8053,25 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a1-admission-20261018.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a1-admission-review-20261018.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a1-red-20261018.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a1-local-20261018.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a1-local-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a1-source-fable-review-r1-20261018.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a1-source-fable-review-r2-20261018.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a1-owner-ruling-6255513661.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-b16302d7-tests.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-b16302d7-smoke.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-b16302d7-summary.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-b16302d7-manifest.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-b16302d7-evidence.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-b16302d7-server1.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-b16302d7-server2.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-b16302d7-vplain.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-b16302d7-vgit.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-b16302d7-vnext.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-b16302d7-vtests.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-b16302d7-lintunits.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-b16302d7-oxlint.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a1-merge-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a1-mainproof-20261018.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit own authentic lifecycle fields and frozen evidence; serialize ledger writes with the L1 product lane. No other unit, packet, holder or historical receipt edits. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -8065,10 +8083,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "implementing",
+      "state": "main-verified",
       "baseline": "a25ba4130da7a8cf9e107ecfa0c30b5648082936",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "9e22300b7eb7c565a641176f469978145d8f67f6",
+      "mergeSha": "b16302d76df1ace0589bc334f9249330a25c5278",
       "stageReceipts": {
         "admission": {
           "path": "evidence/l1-smoke-a1-admission-20261018.json"
@@ -8079,9 +8097,27 @@
         "local": {
           "path": "evidence/l1-smoke-a1-local-20261018.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/l1-smoke-a1-admission-review-20261018.json",
+          "head": "9e22300b7eb7c565a641176f469978145d8f67f6",
+          "reviewedHead": "9e22300b7eb7c565a641176f469978145d8f67f6",
+          "reviewerModel": "claude-fable-5-1",
+          "implementerModel": "claude-opus-5-5",
+          "outputSha256": "b900dc41242ca20dac24b411a55697f85e95199686cf1794f3e6e5352a9b0482",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/l1-smoke-a1-merge-20261018.json",
+          "pr": 2287,
+          "head": "9e22300b7eb7c565a641176f469978145d8f67f6",
+          "mergeSha": "b16302d76df1ace0589bc334f9249330a25c5278"
+        },
+        "mainProof": {
+          "path": "evidence/l1-smoke-a1-mainproof-20261018.json",
+          "mergeCommit": "b16302d76df1ace0589bc334f9249330a25c5278",
+          "verdict": "PASS",
+          "runtime": "Source/Main checks: 10 passed (A1 harness node:test 17/17 at the merge; real --build smoke at the merge PASS 10/10, build exit 0, BUILD_ID 1792360460809, one readiness record per owned process, 2 owned PIDs, port released, 5 tokens redacted, none retained, readonly lineage DB unchanged; validate-roadmap plain/--git PASSED, --next LSC-1DB; validator tests 86/86; lint:units PASS 17896/17899, scripts 50/50; oxlint 0/0 on the four leaves; leaves equal head and local receipt; 32/32 head checks by name; 0 failed)"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -18995,6 +19031,44 @@
         "commentId": 6252742470,
         "author": "SwiggitySwerve",
         "bodySha256": "a37ca8dd92a961135ac96e10424042eb767a5404e3cce08024e9b86d2f896b27"
+      }
+    },
+    {
+      "id": "PK-l1-smoke-a1-ruling",
+      "blocks": [
+        "L1-SMOKE-A1"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "After two independent exact-head privacy/authority reviews (round 1 CHANGES REQUESTED (minor) on de8e97758, fixed in-PR by one amendment; round 2 APPROVE on 9e22300b7) and required green CI, should the owner rule the L1-SMOKE-A1 head (built-server spectator socket smoke harness and fog-off baseline: production build/boot identity, single 127.0.0.1 readiness record, credential redaction with no token in URLs or retained output, authenticated HTTP/WS join and replay with malformed/URL/foreign credentials refused, fog-off spectator public facts and spectator-cannot-act with a real participant action as positive control, frozen stop/offline-fixture/restart/reconnect callbacks; 9/15 files, 487/500 physical counted lines; node:test 17/17, real exact-Main run 10/10) before guarded merge?",
+      "options": [
+        {
+          "label": "rule the exact head",
+          "consequence": "Permit guarded L1-SMOKE-A1 merge and exact-main proof only; A1 is partial proof and releases no unit (L1-SMOKE-A2 also waits on MP-RECOVERY-UNITS-1 and MP-HOST-DEDUPE-1); CF-SMOKEA1-1..10 routed as ruled. No S-SMOKE-1 / B14A-SMOKE-1 / B14B-SMOKE-1 discharge.",
+          "effort": "Two independent exact-head sensitive reviews with mutant reproduction, real-run evidence check and owner ruling"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Hold merge until the review objections are fixed and a fresh exact-head review, CI and owner ruling are complete.",
+          "effort": "Bounded by the concrete review objections"
+        }
+      ],
+      "agentRecommendation": "Rule only an independently approved green head whose harness proves the registered A1 rows on a real production build, stays inside the four registered script leaves and caps with no src edit, and leaves A2/B extension through the frozen interface. This proposal grants no approval or merge permission.",
+      "revertCost": "Low: revert the four new scripts/release leaves; A1 changes no source, wire format, store or route.",
+      "decision": {
+        "option": "rule the exact head",
+        "at": "2026-10-18T21:43:52Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2287#issuecomment-6255513661"
+      },
+      "ruling": {
+        "ruledHead": "9e22300b7eb7c565a641176f469978145d8f67f6",
+        "pr": 2287,
+        "commentId": 6255513661,
+        "author": "SwiggitySwerve",
+        "bodySha256": "37e06bbd09576742d7679f55661f49ffa3450d06e27891d4f6f3789bc45da5d2"
       }
     },
     {

@@ -1,0 +1,294 @@
+{
+  "unit": "L1-SMOKE-A1",
+  "stage": "merge",
+  "recordedAt": "2026-10-18T22:01:57Z",
+  "pr": 2287,
+  "title": "L1-SMOKE-A1: built-server spectator socket smoke harness + fog-off baseline (partial proof)",
+  "url": "https://github.com/SwiggitySwerve/MekStation/pull/2287",
+  "head": "9e22300b7eb7c565a641176f469978145d8f67f6",
+  "reviewedHead": "9e22300b7eb7c565a641176f469978145d8f67f6",
+  "mergeSha": "b16302d76df1ace0589bc334f9249330a25c5278",
+  "mergedAt": "2026-10-18T21:44:00Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "Two-parent merge commit (head-guarded)",
+  "parentCount": 2,
+  "treeIntegration": {
+    "parents": [
+      "1c7632b18d062e1b684fc7384faa4f2668183b69",
+      "9e22300b7eb7c565a641176f469978145d8f67f6"
+    ],
+    "expectedTree": "a61cdd6752e8fef9b4de172a4bc5734ae82da886",
+    "actualTree": "a61cdd6752e8fef9b4de172a4bc5734ae82da886",
+    "matches": true,
+    "method": "git merge-tree --write-tree 1c7632b18d062e1b684fc7384faa4f2668183b69 9e22300b7eb7c565a641176f469978145d8f67f6 equals b16302d76df1ace0589bc334f9249330a25c5278^{tree}; Main moved (B14-0 #2281, #2282, #2279, #2289, #2278) after the head base afcbd62bb, so the merge tree is not the head tree; every one of the 8 PR paths except units.json is blob-identical at head and merge, and the L1-SMOKE-A1 unit object in units.json is JSON-identical at head and merge (other-unit rows came from first-parent Main)."
+  },
+  "baseline": {
+    "admissionBaseline": "a25ba4130da7a8cf9e107ecfa0c30b5648082936",
+    "headBase": "afcbd62bba50621ebcf37c2c11adf58ecc3bfc5f",
+    "mergeBase": "afcbd62bba50621ebcf37c2c11adf58ecc3bfc5f",
+    "mainAtMerge": "1c7632b18d062e1b684fc7384faa4f2668183b69",
+    "headCommits": [
+      "c7bcf92a37d8a71b07ab7dd8a546fc12e7210c4a",
+      "6ceb2da4121627bee6d0b186290509086a263d10",
+      "8a3f4bfa3d0f8a9618a71964aed71c4a2b033402",
+      "9e22300b7eb7c565a641176f469978145d8f67f6"
+    ]
+  },
+  "census": {
+    "command": "git diff --numstat --no-renames afcbd62bba50621ebcf37c2c11adf58ecc3bfc5f 9e22300b7eb7c565a641176f469978145d8f67f6",
+    "changedFiles": 8,
+    "reservedUnwrittenAtMerge": 1,
+    "reservedSlot": "evidence/l1-smoke-a1-admission-review-20261018.json",
+    "countedLines": 487,
+    "byFile": {
+      "scripts/release/run-l1-built-server-smoke.mjs": 226,
+      "scripts/release/l1-built-server-socket-cases.mjs": 199,
+      "scripts/release/l1-built-server-fixtures.ts": 46,
+      "openspec/planning/2026-09-12-roadmap-completion/units.json": 16
+    },
+    "exempt": {
+      "scripts/release/l1-built-server-smoke.test.mjs": 411,
+      "evidence receipts": 3
+    },
+    "caps": {
+      "files": "9 / 15",
+      "lines": "487 / 500"
+    }
+  },
+  "leavesAtMerge": [
+    {
+      "path": "scripts/release/run-l1-built-server-smoke.mjs",
+      "headSha256": "29a7ea553b939acaaef29ea21f39dbe0e527678b6b6778d129f457862ac7c27e",
+      "mergeSha256": "29a7ea553b939acaaef29ea21f39dbe0e527678b6b6778d129f457862ac7c27e",
+      "localReceiptSha256": "29a7ea553b939acaaef29ea21f39dbe0e527678b6b6778d129f457862ac7c27e",
+      "equal": true
+    },
+    {
+      "path": "scripts/release/l1-built-server-socket-cases.mjs",
+      "headSha256": "ab4df6ad917d5103d9f14baa8f0197b42dbbc19b13d100aa49448dc0348622dc",
+      "mergeSha256": "ab4df6ad917d5103d9f14baa8f0197b42dbbc19b13d100aa49448dc0348622dc",
+      "localReceiptSha256": "ab4df6ad917d5103d9f14baa8f0197b42dbbc19b13d100aa49448dc0348622dc",
+      "equal": true
+    },
+    {
+      "path": "scripts/release/l1-built-server-fixtures.ts",
+      "headSha256": "5fb94d4058c6c2da2174c63c28e029755238a304d57598ffe4b0388e6d2ddfbb",
+      "mergeSha256": "5fb94d4058c6c2da2174c63c28e029755238a304d57598ffe4b0388e6d2ddfbb",
+      "localReceiptSha256": "5fb94d4058c6c2da2174c63c28e029755238a304d57598ffe4b0388e6d2ddfbb",
+      "equal": true
+    },
+    {
+      "path": "scripts/release/l1-built-server-smoke.test.mjs",
+      "headSha256": "24c856a0b996b96335feba928a8c729cb31d9f622263dde279320bfba51138e2",
+      "mergeSha256": "24c856a0b996b96335feba928a8c729cb31d9f622263dde279320bfba51138e2",
+      "localReceiptSha256": "24c856a0b996b96335feba928a8c729cb31d9f622263dde279320bfba51138e2",
+      "equal": true
+    }
+  ],
+  "frozenControlsAtMerge": {
+    "unchangedByThisPr": true,
+    "changedOnMainByOtherUnits": [
+      "src/lib/multiplayer/server/ServerMatchHostReplay.ts",
+      "src/lib/multiplayer/server/fogMatchAdmission.ts"
+    ],
+    "changedBy": "B14-0 (#2281, merged 1c7632b18 before this merge)",
+    "note": "Admission controls are read-only for A1; neither file is in the A1 diff. The mainProof image includes the B14-0 changes."
+  },
+  "checksObservedAt": "2026-10-18T22:01:57Z",
+  "checks": {
+    "head": "9e22300b7eb7c565a641176f469978145d8f67f6",
+    "total": 32,
+    "successful": 32,
+    "namesEqualExpected32": true,
+    "expectedFrom": "evidence/l1-smoke-a1-local-20261018.json carryForwards[\"CF-H12/CF-E10\"].expectedNames",
+    "prComment": "https://github.com/SwiggitySwerve/MekStation/pull/2287#issuecomment-6255295285",
+    "jobs": [
+      {
+        "name": "A11y Tests",
+        "id": 117791042643,
+        "conclusion": "success"
+      },
+      {
+        "name": "Build Storybook",
+        "id": 117791042713,
+        "conclusion": "success"
+      },
+      {
+        "name": "Build Test / linux",
+        "id": 117791506580,
+        "conclusion": "success"
+      },
+      {
+        "name": "Build Test / mac",
+        "id": 117791506590,
+        "conclusion": "success"
+      },
+      {
+        "name": "Build Test / win",
+        "id": 117791506597,
+        "conclusion": "success"
+      },
+      {
+        "name": "Coverage Floor",
+        "id": 117791042523,
+        "conclusion": "success"
+      },
+      {
+        "name": "Customizer Regressions",
+        "id": 117791042564,
+        "conclusion": "success"
+      },
+      {
+        "name": "Desktop Tests",
+        "id": 117791042677,
+        "conclusion": "success"
+      },
+      {
+        "name": "Desktop Type Check",
+        "id": 117791042569,
+        "conclusion": "success"
+      },
+      {
+        "name": "Detect Changes",
+        "id": 117790920134,
+        "conclusion": "success"
+      },
+      {
+        "name": "Determinism Audit",
+        "id": 117791042562,
+        "conclusion": "success"
+      },
+      {
+        "name": "E2E Smoke",
+        "id": 117791042585,
+        "conclusion": "success"
+      },
+      {
+        "name": "Format Check",
+        "id": 117791042475,
+        "conclusion": "success"
+      },
+      {
+        "name": "Install Dependencies",
+        "id": 117790920069,
+        "conclusion": "success"
+      },
+      {
+        "name": "Lint",
+        "id": 117791042553,
+        "conclusion": "success"
+      },
+      {
+        "name": "Lint and Test",
+        "id": 117792099488,
+        "conclusion": "success"
+      },
+      {
+        "name": "Perf Budget PR",
+        "id": 117791042513,
+        "conclusion": "success"
+      },
+      {
+        "name": "Perf Smoke Tests",
+        "id": 117791042486,
+        "conclusion": "success"
+      },
+      {
+        "name": "Prepare Build Artifacts",
+        "id": 117790970538,
+        "conclusion": "success"
+      },
+      {
+        "name": "Schema Bridge",
+        "id": 117791042556,
+        "conclusion": "success"
+      },
+      {
+        "name": "Seam Anchors",
+        "id": 117791042622,
+        "conclusion": "success"
+      },
+      {
+        "name": "Statistical Proof PR",
+        "id": 117791042567,
+        "conclusion": "success"
+      },
+      {
+        "name": "Type Check",
+        "id": 117791042519,
+        "conclusion": "success"
+      },
+      {
+        "name": "Unit Tests (1/6)",
+        "id": 117791042581,
+        "conclusion": "success"
+      },
+      {
+        "name": "Unit Tests (2/6)",
+        "id": 117791042624,
+        "conclusion": "success"
+      },
+      {
+        "name": "Unit Tests (3/6)",
+        "id": 117791042617,
+        "conclusion": "success"
+      },
+      {
+        "name": "Unit Tests (4/6)",
+        "id": 117791042559,
+        "conclusion": "success"
+      },
+      {
+        "name": "Unit Tests (5/6)",
+        "id": 117791042575,
+        "conclusion": "success"
+      },
+      {
+        "name": "Unit Tests (6/6)",
+        "id": 117791042593,
+        "conclusion": "success"
+      },
+      {
+        "name": "Validate BV Parity",
+        "id": 117791042557,
+        "conclusion": "success"
+      },
+      {
+        "name": "Validate Combat Suite",
+        "id": 117791042653,
+        "conclusion": "success"
+      },
+      {
+        "name": "Validate Roadmap Ledger",
+        "id": 117790919844,
+        "conclusion": "success"
+      }
+    ]
+  },
+  "mergeCommitCheckRuns": {
+    "observedAt": "2026-10-18T22:01:57Z",
+    "runs": [
+      "Live Tier Signal completed/success",
+      "release completed/skipped",
+      "Push Docker image completed/skipped",
+      "build completed/skipped",
+      "Prepare Build Artifacts completed/skipped",
+      "Build Docker image completed/skipped",
+      "Determine release tag completed/success",
+      "Publish Live Evidence (windows-latest) completed/success",
+      "Publish Live Evidence (ubuntu-latest) completed/success",
+      "version-and-release completed/success"
+    ]
+  },
+  "ownerRuling": {
+    "ruledHead": "9e22300b7eb7c565a641176f469978145d8f67f6",
+    "pr": 2287,
+    "commentId": 6255513661,
+    "author": "SwiggitySwerve",
+    "bodySha256": "37e06bbd09576742d7679f55661f49ffa3450d06e27891d4f6f3789bc45da5d2",
+    "bodyBytes": 2768,
+    "at": "2026-10-18T21:43:52Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2287#issuecomment-6255513661"
+  },
+  "chronology": "Ruled at 2026-10-18T21:43:52Z on the exact head; merged at 2026-10-18T21:44:00Z. The ruling preceded the merge."
+}

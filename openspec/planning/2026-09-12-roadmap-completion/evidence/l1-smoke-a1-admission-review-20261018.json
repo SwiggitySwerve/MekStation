@@ -1,0 +1,229 @@
+{
+  "unit": "L1-SMOKE-A1",
+  "stage": "review",
+  "recordedAt": "2026-10-18T22:01:57Z",
+  "head": "9e22300b7eb7c565a641176f469978145d8f67f6",
+  "reviewedHead": "9e22300b7eb7c565a641176f469978145d8f67f6",
+  "headNote": "head is the merged, ruled and CI-checked PR head; round 2 read the same head; round 1 read de8e97758a77cd0f5f6cd9dea47d4065b1591511 (patch-identical to 8a3f4bfa3) and its findings were fixed in-PR by the single amendment 9e22300b7.",
+  "reviewerModel": "claude-fable-5-1",
+  "implementerModel": "claude-opus-5-5",
+  "verdict": "APPROVE",
+  "reviewClasses": [
+    "privacy",
+    "authority"
+  ],
+  "rounds": [
+    {
+      "round": 1,
+      "reviewedHead": "de8e97758a77cd0f5f6cd9dea47d4065b1591511",
+      "verdict": "CHANGES REQUESTED (minor)",
+      "verdictText": "**CHANGES REQUESTED (minor) - one amendment commit, then re-review on the new head.**",
+      "findings": "H1 product (boot recovery cannot resolve canonical units) -> MP-RECOVERY-UNITS-1; M1 falsifier gaps (8/12 reviewer mutants survived) -> A1 amendment; M2 untracked source -> A2; M3 counting governance -> CF-SMOKEA1-3; M4 host race -> MP-HOST-DEDUPE-1; L1-L6 lows",
+      "outputPath": "evidence/l1-smoke-a1-source-fable-review-r1-20261018.bytes.json",
+      "outputSha256": "98b68afbf08ab41b68a718042323f2aeb85f6a723d2da36bf4de49ffc3dba594",
+      "outputBytes": 31597,
+      "source": "E:/Projects/Personal/MekStation-wt/review-2287-20261018/docs/audits/2026-10-18-l1-smoke-a1-review.md"
+    },
+    {
+      "round": 2,
+      "reviewedHead": "9e22300b7eb7c565a641176f469978145d8f67f6",
+      "verdict": "APPROVE",
+      "verdictText": "**APPROVE.**",
+      "findings": "All 10 prior survivors caught with genuine RED; A2/A3 resolved; 17/17; CI 32/32; Lows L-R2-1..6 (N1-N4 -> CF-SMOKEA1-9, L-R2-5 -> CF-SMOKEA1-10, L-R2-6 -> mainProof at the merge)",
+      "outputPath": "evidence/l1-smoke-a1-source-fable-review-r2-20261018.bytes.json",
+      "outputSha256": "b900dc41242ca20dac24b411a55697f85e95199686cf1794f3e6e5352a9b0482",
+      "outputBytes": 17508,
+      "source": "E:/Projects/Personal/MekStation-wt/review-2287-r2-20261018/2026-10-18-l1-smoke-a1-review-r2.md"
+    }
+  ],
+  "outputPath": "evidence/l1-smoke-a1-source-fable-review-r2-20261018.bytes.json",
+  "outputSha256": "b900dc41242ca20dac24b411a55697f85e95199686cf1794f3e6e5352a9b0482",
+  "outputBytes": 17508,
+  "outputEncoding": "Both reports are UTF-8 without a byte-order mark and LF-only (no CR). They are stored as base64 envelopes (B14B-ENC-1 / LSC-0 closure precedent) so the closure preserves them byte for byte regardless of normalization; decode data and verify payloadSha256/payloadBytes.",
+  "shaMapping": {
+    "rule": "CF-SMOKEA1-10: PR body, admission/red receipts and the round-1 review cite pre-rebase SHAs. Each rebase was clean; git patch-id --stable is identical along each chain.",
+    "chains": [
+      {
+        "stage": "admission",
+        "commits": [
+          {
+            "sha": "954b3f0cc42d37fb6d6c955907d51e801d0df102",
+            "parent": "a25ba4130da7a8cf9e107ecfa0c30b5648082936"
+          },
+          {
+            "sha": "dd159d6c44e9dd28727bf9a9e4720e73f1055e20",
+            "parent": "db3b5681663b5eb8b4f42507e4047a7f3ca2b1de"
+          },
+          {
+            "sha": "a205fa1171c5e2f9b0dd18e216f7d48d9101c0ae",
+            "parent": "2d576747ee8dd210e5f6a5b0f380819b153a203a"
+          },
+          {
+            "sha": "c7bcf92a37d8a71b07ab7dd8a546fc12e7210c4a",
+            "parent": "afcbd62bba50621ebcf37c2c11adf58ecc3bfc5f"
+          }
+        ],
+        "patchId": "e6beab22996402a06ba64e2d98c12d517fa5a141",
+        "cited": "954b3f0cc in the red receipt (admissionCommit); a205fa117 in the original PR body and round-1 review",
+        "merged": "c7bcf92a37d8a71b07ab7dd8a546fc12e7210c4a"
+      },
+      {
+        "stage": "red",
+        "commits": [
+          {
+            "sha": "f7cb34aa4ca77befcbbee86ab47b3171b0c5f33e",
+            "parent": "954b3f0cc42d37fb6d6c955907d51e801d0df102"
+          },
+          {
+            "sha": "29bcdf3578488103c3a0b42ea400753b2feb640c",
+            "parent": "dd159d6c44e9dd28727bf9a9e4720e73f1055e20"
+          },
+          {
+            "sha": "a9bda139ce752e30a8020b22ca9440f633c3d9a3",
+            "parent": "a205fa1171c5e2f9b0dd18e216f7d48d9101c0ae"
+          },
+          {
+            "sha": "6ceb2da4121627bee6d0b186290509086a263d10",
+            "parent": "c7bcf92a37d8a71b07ab7dd8a546fc12e7210c4a"
+          }
+        ],
+        "patchId": "ebd69fc04e9e7c4928e691fc31e6d3c0914b0297",
+        "cited": "a9bda139c in the original PR body and round-1 review",
+        "merged": "6ceb2da4121627bee6d0b186290509086a263d10"
+      },
+      {
+        "stage": "green",
+        "commits": [
+          {
+            "sha": "de8e97758a77cd0f5f6cd9dea47d4065b1591511",
+            "parent": "a9bda139ce752e30a8020b22ca9440f633c3d9a3"
+          },
+          {
+            "sha": "8a3f4bfa3d0f8a9618a71964aed71c4a2b033402",
+            "parent": "6ceb2da4121627bee6d0b186290509086a263d10"
+          }
+        ],
+        "patchId": "025cb5793edddf65bde8776b47138b1f1e679a1a",
+        "cited": "de8e97758 (round-1 reviewed head) in the original PR body and round-1 review; an unpushed earlier local GREEN 2bd1bb89c was amended before the first push (pre-commit oxfmt rewrite of the fixtures leaf, disclosed in the local receipt)",
+        "merged": "8a3f4bfa3d0f8a9618a71964aed71c4a2b033402"
+      },
+      {
+        "stage": "amendment",
+        "commits": [
+          {
+            "sha": "9e22300b7eb7c565a641176f469978145d8f67f6",
+            "parent": "8a3f4bfa3d0f8a9618a71964aed71c4a2b033402"
+          }
+        ],
+        "patchId": "5a827365bdc21b392792f172b13bc469566ca74d",
+        "cited": "9e22300b7 (round-2 reviewed, ruled and merged head)",
+        "merged": "9e22300b7eb7c565a641176f469978145d8f67f6"
+      }
+    ],
+    "note": "Pushed-and-reviewed mapping per the ruling: admission a205fa117 -> c7bcf92a3, RED a9bda139c -> 6ceb2da41, GREEN de8e97758 -> 8a3f4bfa3, then amendment 9e22300b7. Historical receipts are not rewritten."
+  },
+  "carryForwards": {
+    "items": [
+      {
+        "id": "CF-SMOKEA1-1",
+        "status": "open",
+        "owner": "MP-HOST-DEDUPE-1 (registered #2289; blocked)",
+        "item": "FINDING-A1-PREP-1: concurrent first upgrades create two ServerMatchHost instances (MatchHostRegistry.getOrCreate has no in-flight dedupe). L1-SMOKE-A2 predecessor."
+      },
+      {
+        "id": "CF-SMOKEA1-2",
+        "status": "open",
+        "owner": "MP-RECOVERY-UNITS-1 (registered #2289; blocked); L1-SMOKE-A2 admission must cite it",
+        "item": "FINDING-A1-REV-1: packaged boot recovery cannot resolve canonical units (catalog self-fetch before listen). Reproduced again in the mainProof server-2.log at the merge. A2 restart acceptance depends on it."
+      },
+      {
+        "id": "CF-SMOKEA1-3",
+        "status": "ruled",
+        "owner": "L1-SMOKE-A2 / L1-SMOKE-B admission",
+        "item": "A1 accepted at the validator physical-line count (487); A2/B leaves in normal repo style (oxfmt-formatted, no compressed multi-statement lines); overflow splits the unit, never compression."
+      },
+      {
+        "id": "CF-SMOKEA1-4",
+        "status": "open",
+        "owner": "Root maintenance unit",
+        "item": "Durable gate for scripts/release/* (gitignore whitelist, lint-units inclusion, CI selector for the node:test leaves)."
+      },
+      {
+        "id": "CF-SMOKEA1-5",
+        "status": "open",
+        "owner": "L1-SMOKE-A2 (by amendment of A1 leaves)",
+        "item": "Bind standalone server.js bytes to <repoRoot>/server.js in imageIdentity (L4); re-assert readyRecords === 1 for the final process (L5)."
+      },
+      {
+        "id": "CF-SMOKEA1-6",
+        "status": "open",
+        "owner": "Root maintenance unit",
+        "item": "lint-staged oxfmt --write on scripts/*.ts by explicit path contradicts .oxfmtignore and CI Format Check."
+      },
+      {
+        "id": "CF-SMOKEA1-7",
+        "status": "open",
+        "owner": "LSC-2P / P2J",
+        "item": "Production standalone prints the InMemoryPlayerStore dev-only warning; confirm intended under seat credentials."
+      },
+      {
+        "id": "CF-SMOKEA1-8",
+        "status": "open",
+        "owner": "L1-SMOKE-A2",
+        "item": "OBS-A1-1 (spectator refusal broadcast to all participants) and OBS-A1-2 (game_created absent from late replay) are not leaks or gaps."
+      },
+      {
+        "id": "CF-SMOKEA1-9",
+        "status": "open",
+        "owner": "next unit allowed to touch A1 leaves (L1-SMOKE-A2/B by amendment)",
+        "item": "Test-leaf falsifiers for round-2 N1-N4: later-live gap mode, replay-then-Error-refuse mode, fog-on mode, searchParams.get(matchId) === matchId."
+      },
+      {
+        "id": "CF-SMOKEA1-10",
+        "status": "discharged in this closure",
+        "owner": "closure review receipt (shaMapping)",
+        "item": "Pre-rebase to merged SHA mapping recorded; patch-ids identical."
+      },
+      {
+        "id": "L-R2-6",
+        "status": "discharged in this closure",
+        "owner": "mainProof",
+        "item": "mainProof re-ran at the merge b16302d76 (image includes B14-0 #2281 src changes; sourceTreeSha256 c5cf1dc6...)."
+      }
+    ]
+  },
+  "successorNotes": {
+    "L1-SMOKE-A2": {
+      "carryForwards": [
+        "CF-SMOKEA1-1",
+        "CF-SMOKEA1-2",
+        "CF-SMOKEA1-3",
+        "CF-SMOKEA1-5",
+        "CF-SMOKEA1-8",
+        "CF-SMOKEA1-9"
+      ],
+      "note": "Remains blocked: predecessors L1-SMOKE-A1 (main-verified here), MP-RECOVERY-UNITS-1 and MP-HOST-DEDUPE-1 (both blocked). This closure releases no unit."
+    },
+    "L1-SMOKE-B": {
+      "note": "Unchanged (blocked)."
+    }
+  },
+  "reservedSlot": "evidence/l1-smoke-a1-admission-review-20261018.json was frozen in the admission manifest as the one reserved, unwritten slot and was unwritten at the head and the merge. This closure writes it, under its frozen name, as the closure review receipt binding both genuine Fable reviews.",
+  "ownerRuling": {
+    "ruledHead": "9e22300b7eb7c565a641176f469978145d8f67f6",
+    "pr": 2287,
+    "commentId": 6255513661,
+    "author": "SwiggitySwerve",
+    "bodySha256": "37e06bbd09576742d7679f55661f49ffa3450d06e27891d4f6f3789bc45da5d2",
+    "bodyBytes": 2768,
+    "at": "2026-10-18T21:43:52Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2287#issuecomment-6255513661"
+  },
+  "ownerRulingQuotes": [
+    "Ruling: ACCEPT, and merge at this exact head.",
+    "Next: the closure PR. It releases no unit, because L1-SMOKE-A2 also waits on MP-RECOVERY-UNITS-1 and MP-HOST-DEDUPE-1."
+  ],
+  "chronology": "Ruling posted 2026-10-18T21:43:52Z on the exact head; merged 2026-10-18T21:44:00Z.",
+  "githubApproval": "Engineering evidence only; no GitHub approval claimed.",
+  "partialProof": "A1 is partial proof; S-SMOKE-1 / B14A-SMOKE-1 / B14B-SMOKE-1 remain owed to the final combined L1-SMOKE-B run."
+}
