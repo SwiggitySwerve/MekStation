@@ -1,0 +1,191 @@
+{
+  "unit": "LSC-0",
+  "stage": "mainProof",
+  "recordedAt": "2026-10-18T20:37:59Z",
+  "mergeCommit": "811bfd8d40d7d9366616dcd93c5a60ae0c95fd51",
+  "verdict": "PASS",
+  "checkout": "E:/Projects/Personal/MekStation-wt/lsc-0-closure-20261018",
+  "runtime": {
+    "playwright": "Source/Main checks: 11 passed (openspec validate --all --strict 230 passed, 0 failed of 230 items; qc:openspec-ci:validate errors=0; spec:purpose:validate 0 errors; validate-roadmap PASSED, --git PASSED, --next B14-0; validate-roadmap tests 86/86; lint:units PASS; contract probe v2 38/38 and v1 20/20 over the merged leaves; spec-text mutants 30/30 killed; contract leaves equal head and local receipt; admission controls unchanged; merge tree equals head tree; 32/32 head checks by name; 0 failed)",
+    "kind": "contract unit: probe v2, OpenSpec strict and the roadmap/openspec validators; no source, so no jest/typecheck/build",
+    "node": "v22.22.0",
+    "summary": "Totals: 230 passed, 0 failed (230 items); probe v2 allSatisfied=true (38); mutants 30/30; validator tests 86/86",
+    "install": "node_modules junction to the lsc-impl-20261018 npm ci (lockfile byte-identical between 1b8558625 and the merge); no package changed",
+    "runner": {
+      "path": "E:/Projects/Personal/MekStation-wt/_lsc-0-closure-logs/run-proof.cjs",
+      "sha256": "6318c7dc161443acc03b5cab2c6ff4aa5e4e357e570ad3e86922489a46d00c6e"
+    }
+  },
+  "machine": "All eleven runs are light node runs (no build, jest, playwright or package class per the heavy-run queue README), so none took a heavy-run ticket. machine-idle --own-pid 47516 --own-pid 55164 was recorded before each run and read MACHINE_BUSY (other lanes held the queue with playwright); the readings are logged, not gated on. A first attempt that gated on idle was stopped by its owner (this runner) before any run completed.",
+  "machineLog": {
+    "path": "E:/Projects/Personal/MekStation-wt/_lsc-0-closure-logs/idle.log",
+    "sha256": "eff438e2c0a3446282aba31c1553dbb28d82a60abc6b64ad2a139c50fe89df9d"
+  },
+  "contract": {
+    "leavesEqualHeadAndLocalReceipt": true,
+    "leaves": [
+      {
+        "path": "openspec/changes/design-campaign-authority-and-sync/design.md",
+        "localReceiptSha256": "594fe8d25de45d863e8ec4e49f27fad2f25b8092e5e2b8336981f643a3a2d658",
+        "headSha256": "594fe8d25de45d863e8ec4e49f27fad2f25b8092e5e2b8336981f643a3a2d658",
+        "mergeSha256": "594fe8d25de45d863e8ec4e49f27fad2f25b8092e5e2b8336981f643a3a2d658",
+        "bytes": 45094,
+        "equal": true
+      },
+      {
+        "path": "openspec/changes/design-campaign-authority-and-sync/specs/user-identity/spec.md",
+        "localReceiptSha256": "6d9fa8222b2e7ecb70090c5cb439a7607cc05929b3ad94fb0e54a46048fd5d2b",
+        "headSha256": "6d9fa8222b2e7ecb70090c5cb439a7607cc05929b3ad94fb0e54a46048fd5d2b",
+        "mergeSha256": "6d9fa8222b2e7ecb70090c5cb439a7607cc05929b3ad94fb0e54a46048fd5d2b",
+        "bytes": 3618,
+        "equal": true
+      },
+      {
+        "path": "openspec/changes/design-campaign-authority-and-sync/specs/player-identity/spec.md",
+        "localReceiptSha256": "4430664cc4bd0e0997a3139d3cde15d2b9cea323c8e895f71d323ae67cb07d4d",
+        "headSha256": "4430664cc4bd0e0997a3139d3cde15d2b9cea323c8e895f71d323ae67cb07d4d",
+        "mergeSha256": "4430664cc4bd0e0997a3139d3cde15d2b9cea323c8e895f71d323ae67cb07d4d",
+        "bytes": 5841,
+        "equal": true
+      },
+      {
+        "path": "openspec/changes/design-campaign-authority-and-sync/specs/coop-campaign-sync/spec.md",
+        "localReceiptSha256": "fedb701744bf0d99d06a3c8d2fbcfb6202e9f3ee97f5a2da2c79f22c6f8e0b2a",
+        "headSha256": "fedb701744bf0d99d06a3c8d2fbcfb6202e9f3ee97f5a2da2c79f22c6f8e0b2a",
+        "mergeSha256": "fedb701744bf0d99d06a3c8d2fbcfb6202e9f3ee97f5a2da2c79f22c6f8e0b2a",
+        "bytes": 14651,
+        "equal": true
+      }
+    ],
+    "probeV2": {
+      "allSatisfied": true,
+      "predicates": 38,
+      "script": {
+        "path": "E:/Projects/Personal/MekStation-wt/_lsc-0-closure-logs/probe.cjs",
+        "sha256": "3c6b2c4ea42cbb0ce0ff6b3ef165ac1fdb23275c4e34089424590bdae060bdad"
+      },
+      "output": "evidence/mainproof-811bfd8d-probe2out.bytes.json",
+      "outputSha256": "2cf6120a417b52935fcc5eeed0f52196d9963e2888b7422fdf3ebd2b1f7a503f"
+    },
+    "probeV1": {
+      "allSatisfied": true,
+      "predicates": 20,
+      "sha256": "bea1e1e93864908842c5e38c9a71018f66a16d9ef11d57997c2a3fec550fe985"
+    },
+    "mutants": {
+      "killed": 30,
+      "total": 30,
+      "harness": {
+        "path": "E:/Projects/Personal/MekStation-wt/_lsc-0-closure-logs/mutants-v2.cjs",
+        "sha256": "1ca676a342c232c32465cf17d0947cec644a4b565781740fc3dab8f72a5693d3"
+      },
+      "output": "evidence/mainproof-811bfd8d-mutantsout.bytes.json",
+      "outputSha256": "f513c4ba1e33b1c491de92aa30db3657d8244c03b2b4ee74329899e371235bf0",
+      "reviewerRound2Survivors": "R2-01..R2-14 survive probe v2 by design (scenario bodies); recorded as CF-LSC0-18, not re-run here"
+    }
+  },
+  "logs": [
+    {
+      "path": "evidence/mainproof-811bfd8d-osv.bytes.json",
+      "label": "openspec strict",
+      "command": "npx openspec validate --all --strict",
+      "exitCode": 0,
+      "payloadSha256": "3f957310c0c3835ba3d5704458ddc03218d48f0b205252ed6d52ca87951ba4f5",
+      "payloadBytes": 6857,
+      "lastLine": "- Validating..."
+    },
+    {
+      "path": "evidence/mainproof-811bfd8d-ci.bytes.json",
+      "label": "qc:openspec-ci",
+      "command": "npm run --silent qc:openspec-ci:validate",
+      "exitCode": 0,
+      "payloadSha256": "f2ecacc6006cdd0cc60052c81384bf785d65970c200c0bcc8ebcbc4834c1a61a",
+      "payloadBytes": 191,
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=20/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0"
+    },
+    {
+      "path": "evidence/mainproof-811bfd8d-purpose.bytes.json",
+      "label": "spec:purpose",
+      "command": "npm run --silent spec:purpose:validate",
+      "exitCode": 0,
+      "payloadSha256": "90df2902b6e6a9f5f3af4859de8a0fa9abe78758dfe863528dc624cf67490b73",
+      "payloadBytes": 172,
+      "lastLine": "Tracked source-of-truth debt: 0"
+    },
+    {
+      "path": "evidence/mainproof-811bfd8d-vplain.bytes.json",
+      "label": "validate-roadmap plain",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "payloadSha256": "5024cdc2300b695592c9110329650d3c669d6029413fe991bce44f23bf67f0f7",
+      "payloadBytes": 76,
+      "lastLine": "ROADMAP VALIDATION PASSED: 93 nodes, 13 packages, 381 tasks, 40 triage rows"
+    },
+    {
+      "path": "evidence/mainproof-811bfd8d-vgit.bytes.json",
+      "label": "validate-roadmap --git",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --git",
+      "exitCode": 0,
+      "payloadSha256": "86558697a00c210916ccdb45d8b4cf66029686f4cfe58e6fd5cf5cc738de6a46",
+      "payloadBytes": 2354,
+      "lastLine": "ROADMAP VALIDATION PASSED: 93 nodes, 13 packages, 381 tasks, 40 triage rows"
+    },
+    {
+      "path": "evidence/mainproof-811bfd8d-vnext.bytes.json",
+      "label": "validate-roadmap --next",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+      "exitCode": 0,
+      "payloadSha256": "dbfd75ddb993478790984186f03c4f5fa3789f40ad918eb21039bf1a006318c9",
+      "payloadBytes": 6,
+      "lastLine": "B14-0"
+    },
+    {
+      "path": "evidence/mainproof-811bfd8d-vtests.bytes.json",
+      "label": "validate-roadmap tests",
+      "command": "node --test openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
+      "exitCode": 0,
+      "payloadSha256": "37df53c12fc7b77650f2f9dd235fe58f67a1e91b15988c61aafa549edc264083",
+      "payloadBytes": 16293,
+      "lastLine": "# duration_ms 10241.585"
+    },
+    {
+      "path": "evidence/mainproof-811bfd8d-lintunits.bytes.json",
+      "label": "lint:units",
+      "command": "npm run --silent lint:units",
+      "exitCode": 0,
+      "payloadSha256": "9c874e8b39d5ed26d820643c1b664f848a1f2505e9d4228b3423690e90f60220",
+      "payloadBytes": 286,
+      "lastLine": "LINT_UNITS_PASS 17896/17899"
+    },
+    {
+      "path": "evidence/mainproof-811bfd8d-probe2.bytes.json",
+      "label": "contract probe v2",
+      "command": "node \"<closure-logs>/probe.cjs\" \"E:/Projects/Personal/MekStation-wt/lsc-0-closure-20261018\" \"<closure-logs>/probe2-out.json\"",
+      "exitCode": 0,
+      "payloadSha256": "4405ffb1bffa2658c827d6605344a8ce4685aa5ea1be14788c76ac588a76e062",
+      "payloadBytes": 52,
+      "lastLine": "allSatisfied=true noneSatisfied=false predicates=38"
+    },
+    {
+      "path": "evidence/mainproof-811bfd8d-probe1.bytes.json",
+      "label": "contract probe v1",
+      "command": "node \"<closure-logs>/probe-v1.cjs\" \"E:/Projects/Personal/MekStation-wt/lsc-0-closure-20261018\" \"<closure-logs>/probe1-out.json\"",
+      "exitCode": 0,
+      "payloadSha256": "251373bd6333e5bc84c7e73cd3c177ae040bab597f9fbc4199582fca7b074d0e",
+      "payloadBytes": 52,
+      "lastLine": "allSatisfied=true noneSatisfied=false predicates=20"
+    },
+    {
+      "path": "evidence/mainproof-811bfd8d-mutants.bytes.json",
+      "label": "spec-text mutants v2",
+      "command": "node \"<closure-logs>/mutants-v2.cjs\" \"E:/Projects/Personal/MekStation-wt/lsc-0-closure-20261018\" \"<closure-logs>/probe.cjs\" \"<closure-logs>/mutants-out\"",
+      "exitCode": 0,
+      "payloadSha256": "d627d47b87567abee403bfff3c7c8f2b751d031384085cfd77771300eaea8e93",
+      "payloadBytes": 3608,
+      "lastLine": "killed 30/30"
+    }
+  ],
+  "scope": "Fresh runs at the exact merge commit before any closure edit: OpenSpec strict, qc:openspec-ci, spec:purpose, validate-roadmap plain/--git/--next and its tests, lint:units, contract probe v2 and v1 over the merged leaves, and the 30-mutant spec-text harness.",
+  "closure": "main-verified only. taskKeys is empty; no tasks.md row is ticked and no tick receipt is invented.",
+  "preservation": "Logs are base64 envelopes so repository LF normalization cannot alter their bytes; decode data and verify payloadSha256/payloadBytes."
+}

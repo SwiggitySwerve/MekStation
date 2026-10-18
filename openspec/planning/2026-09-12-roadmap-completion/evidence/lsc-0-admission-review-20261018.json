@@ -1,0 +1,340 @@
+{
+  "unit": "LSC-0",
+  "stage": "review",
+  "recordedAt": "2026-10-18T20:37:59Z",
+  "head": "1298baf37853d636781a03ea633b6c2bf5d5eee3",
+  "reviewedHead": "1298baf37853d636781a03ea633b6c2bf5d5eee3",
+  "headNote": "head is the merged, ruled and CI-checked PR head; round 2 read the same head; round 1 read 3f83031a1b06ebf9edd0f12428ea2225ac0fe529 and its findings were fixed in-PR by the round-1 amendment 1298baf37.",
+  "reviewerModel": "claude-fable-5-1",
+  "implementerModel": "claude-opus-5-5",
+  "verdict": "APPROVE",
+  "reviewClasses": [
+    "authority",
+    "privacy",
+    "replay",
+    "idempotency",
+    "concurrency"
+  ],
+  "rounds": [
+    {
+      "round": 1,
+      "reviewedHead": "3f83031a1b06ebf9edd0f12428ea2225ac0fe529",
+      "verdict": "REQUEST CHANGES",
+      "verdictText": "**REQUEST CHANGES — in-PR contract fixes only; no re-registration and no new leaves.**",
+      "title": "# LSC-0 (PR #2286) independent full sensitive review",
+      "outputPath": "evidence/lsc-0-source-fable-review-r1-20261018.bytes.json",
+      "outputSha256": "4260f8e109b6f4f3fc2f3730766fa0e14358582f42f3d6eb16849637a7c5ea22",
+      "outputBytes": 27277,
+      "originalPath": "E:/Projects/Personal/MekStation-wt/review-2286-20261018/docs/audits/2026-10-18-lsc-0-review.md",
+      "mutants": {
+        "killed": 9,
+        "total": 16,
+        "note": "**9/16 killed.**"
+      }
+    },
+    {
+      "round": 2,
+      "reviewedHead": "1298baf37853d636781a03ea633b6c2bf5d5eee3",
+      "verdict": "APPROVE",
+      "verdictText": "**APPROVE.**",
+      "title": "# LSC-0 (PR #2286) round-2 independent full sensitive review",
+      "outputPath": "evidence/lsc-0-source-fable-review-r2-20261018.bytes.json",
+      "outputSha256": "21717657db9473a47c46884b726a0bf07571d6ee2fc19dc41d886a313b1a5a67",
+      "outputBytes": 26500,
+      "originalPath": "E:/Projects/Personal/MekStation-wt/review-2286-r2-20261018/2026-10-18-lsc-0-review-r2.md",
+      "mutants": {
+        "implementerHarnessReproduced": "**30/30 killed**",
+        "reviewerRound2": "**0/14 killed.**",
+        "note": "R2-01..R2-14 survive probe v2 (scenario bodies and limiting clauses); routed as CF-LSC0-18"
+      }
+    }
+  ],
+  "outputPath": "evidence/lsc-0-source-fable-review-r2-20261018.bytes.json",
+  "outputSha256": "21717657db9473a47c46884b726a0bf07571d6ee2fc19dc41d886a313b1a5a67",
+  "outputBytes": 26500,
+  "outputEncoding": "Both reports are UTF-8 without a byte-order mark and LF-only (no CR). They are stored as base64 envelopes, the main-proof log form used by the B14-0B closure (B14B-ENC-1 precedent), so the closure preserves them byte for byte regardless of normalization.",
+  "lowFindings": [
+    {
+      "id": "L-r2-1",
+      "reviewer": "- **L-r2-1 (PR body, no tree change).** The PR body and the implementer's summary say probe v2 has **15** failing predicates at the round-1 head; the actual count (and the receipt's own list) is **14**. Edit the PR body; the receipt is correct.",
+      "routedBy": "owner ruling"
+    },
+    {
+      "id": "L-r2-2",
+      "reviewer": "- **L-r2-2 (contract wording; carry to LSC-1 if not done in a later head).** The attempt-window magnitudes (10 mint / 5 operator per 60 s) are Root recommendations in D14 only; the specs bind \"a route-wide attempt window\" with no magnitude (mutant R2-01). The lockout got the \"N=5/W=60, Root-recommended, server-side configurable\" treatment in round 1; the windows should get the same sentence so LSC-1's \"window exhausted\" tests have a number to exhaust. LSC-1's units.json behavior likewise says \"route-global limits\" without numbers.",
+      "routedBy": "owner ruling"
+    },
+    {
+      "id": "L-r2-3",
+      "reviewer": "- **L-r2-3 (semantic gap, implementable either way).** After a 60 s lock expires, the spec does not say whether the failure count resets; as written (\"5 consecutive\", cleared only by success or re-provision) one further wrong password re-locks immediately, which is a defensible escalation but should be stated. Also unspecified: whether locked-seat refusals and second-concurrent-mint refusals consume the route-wide window. Recommend LSC-1 decide and test both; owner of CF-LSC0-8.",
+      "routedBy": "owner ruling"
+    },
+    {
+      "id": "L-r2-4",
+      "reviewer": "- **L-r2-4 (idempotency × authority wording).** \"A duplicate delivery … SHALL return the recorded outcome without re-verifying or re-applying any seat password\" should say explicitly that the operator attempt window and the primary-password check still apply to a duplicate; the composition with \"Operator writes require the primary password each time\" already forces this, but an implementer reading the idempotency requirement alone could build an unauthenticated replay oracle keyed by operation id. Same-host only (H2), so low impact.",
+      "routedBy": "owner ruling"
+    },
+    {
+      "id": "L-r2-5",
+      "reviewer": "- **L-r2-5 (coop wording).** \"in the existing per-match session store\" reads as the `coopCampaignAuthTokenStore.ts` module, which LSC-2 is told to leave unchanged and whose record type has no choice field. Intended reading is \"the per-match sessionStorage\"; say so, or let LSC-2 add a sibling key.",
+      "routedBy": "owner ruling"
+    },
+    {
+      "id": "L-r2-6",
+      "reviewer": "- **L-r2-6 (receipt cosmetic).** `validatorsAtGreen.*.lastLine` is `\"\\u0000\"` for every validator (a PowerShell capture artifact). Harmless; the log hashes are what matter and I re-ran every validator.",
+      "routedBy": "owner ruling"
+    },
+    {
+      "id": "L-r2-7",
+      "reviewer": "- **L-r2-7 (probe limit, already carried).** 14/14 reviewer mutants survive probe v2 because it anchors scenarios by heading only (§1.5). This is CF-LSC0-9, now with concrete survivors for the LSC-0 review receipt to cite.",
+      "routedBy": "owner ruling"
+    }
+  ],
+  "carryForwards": {
+    "items": [
+      {
+        "id": "CF-LSC0-1",
+        "reviewer": "F1: `clientRateLimitKey` trusts `X-Forwarded-For` on token.ts / unlock.ts / matches. LSC routes must never use it (route-wide window instead).",
+        "reviewerOwner": "U101 (token route) / B15-1 (\"no proxy-header authority\")",
+        "directedTo": "U101 / B15-1",
+        "status": "open",
+        "rulingRoute": "CF-LSC0-1"
+      },
+      {
+        "id": "CF-LSC0-2",
+        "reviewer": "F2: no Host/Origin/Sec-Fetch-Site guard on token.ts and unlock.ts; LSC guards local-seat routes only.",
+        "reviewerOwner": "B15-1 / U101",
+        "directedTo": "B15-1 / U101",
+        "status": "open",
+        "rulingRoute": "CF-LSC0-2"
+      },
+      {
+        "id": "CF-LSC0-3",
+        "reviewer": "F3: the primary GM bearer has no expired-token recovery today; the renewal banner must cover primary and seat bearers.",
+        "reviewerOwner": "LSC-2 (already in its behavior)",
+        "directedTo": "LSC-2",
+        "status": "open",
+        "rulingRoute": "CF-LSC0-3"
+      },
+      {
+        "id": "CF-LSC0-4",
+        "reviewer": "Token scope collision: add `/api/multiplayer/auth/local-seats` to the consumer census; LSC-1 mirrors token.ts scope semantics at its head.",
+        "reviewerOwner": "U101a / U101c / U101d (census); LSC-1 (mirror)",
+        "directedTo": "U101a / U101c / U101d (census); LSC-1 (mirror)",
+        "status": "open",
+        "rulingRoute": "CF-LSC0-4"
+      },
+      {
+        "id": "CF-LSC0-5",
+        "reviewer": "design.md is literally reserved by B15-0 (blocked) and R2.campaign-access (planned); LSC-0 appended D14 at lines 142–155 (head sha `34c7a084…0a6f3`). Both must rebase and re-census design.md at admission; LSC-0's closure receipt should record the D14 line range and sha.",
+        "reviewerOwner": "B15-0 admission; R2.campaign-access registration; Root (closure receipt)",
+        "directedTo": "B15-0 admission; R2.campaign-access; closure receipt (recorded in lsc-0-merge d14)",
+        "status": "open",
+        "rulingRoute": "CF-LSC0-5"
+      },
+      {
+        "id": "CF-LSC0-6",
+        "reviewer": "If M3 is deferred: encrypted seat key at rest under the seat-password KDF, no decrypted key beyond the request, no-secret logging/error/operation-record proof with mutants.",
+        "reviewerOwner": "LSC-1DB (schema) / LSC-1S (KDF) / LSC-1 (logging mutants)",
+        "directedTo": "LSC-1DB / LSC-1S / LSC-1",
+        "status": "open",
+        "rulingRoute": "CF-LSC0-6"
+      },
+      {
+        "id": "CF-LSC0-7",
+        "reviewer": "If M5 is deferred: explicit forget-credential-choice action and re-claim path after re-provision.",
+        "reviewerOwner": "LSC-2",
+        "directedTo": "LSC-2",
+        "status": "open",
+        "rulingRoute": "CF-LSC0-7"
+      },
+      {
+        "id": "CF-LSC0-8",
+        "reviewer": "If M2/M6 are deferred: concurrent-mint response, mint-vs-revoke race test, failure-counter durability, revoke-vs-re-provision lock clearing.",
+        "reviewerOwner": "LSC-1S / LSC-1",
+        "directedTo": "LSC-1S / LSC-1",
+        "status": "open",
+        "rulingRoute": "CF-LSC0-8"
+      },
+      {
+        "id": "CF-LSC0-9",
+        "reviewer": "Probe blind spots (7/16 survivors) recorded; LSC-1 RED must be runtime tests, not the phrase probe.",
+        "reviewerOwner": "Root (LSC-0 review receipt); LSC-1 admission",
+        "directedTo": "LSC-1 admission and review",
+        "status": "open",
+        "rulingRoute": "CF-LSC0-9"
+      },
+      {
+        "id": "CF-LSC0-10",
+        "reviewer": "Ghost membership of a rotated/revoked principal (acts until bearer expiry; stays a member until removed by the existing path); disclose in the operator UI.",
+        "reviewerOwner": "LSC-2OP (disclosure); B15-0 policy (removal)",
+        "directedTo": "LSC-2OP / B15-0",
+        "status": "open",
+        "rulingRoute": "CF-LSC0-10"
+      },
+      {
+        "id": "CF-LSC0-11",
+        "reviewer": "Same-host denial of mint via the route-wide window is an accepted consequence of the trust model; document in D14 if not done in-PR (L3).",
+        "reviewerOwner": "LSC-0 (in-PR), else LSC-1",
+        "directedTo": "accepted and documented in D14 (discharged in-contract)",
+        "status": "discharged in-contract (D14 accepted consequence)",
+        "rulingRoute": "CF-LSC0-11"
+      },
+      {
+        "id": "CF-LSC0-12",
+        "reviewer": "Literal overlap at LSC-2 / LSC-2OP admission: U101c (planned) and B15-2 (blocked) reserve CampaignCoopEntryPanel.tsx (+test) and U101c reserves `src/lib/campaign`; N1 census must resolve ordering before admission.",
+        "reviewerOwner": "LSC-2OP / LSC-2 admission; U101c; B15-2",
+        "directedTo": "LSC-2OP / LSC-2 admission; U101c; B15-2",
+        "status": "open",
+        "rulingRoute": "CF-LSC0-12"
+      },
+      {
+        "id": "CF-LSC0-13",
+        "reviewer": "Seat renewal is user-prompted, not silent; LSC-2 evidence should say how this coexists with canonical player-identity \"Token Rotation\" (4-minute pre-expiry re-issue).",
+        "reviewerOwner": "LSC-2",
+        "directedTo": "LSC-1 / LSC-2",
+        "status": "open",
+        "rulingRoute": "CF-LSC0-13"
+      },
+      {
+        "id": "CF-LSC0-14",
+        "reviewer": "Expiry-recovery proof needs a short seat-token lifetime: LSC-1 should accept an optional `ttlMs` capped at 1 h and/or honour the existing E2E ttl-override seam; LSC-2P records which one it used.",
+        "reviewerOwner": "LSC-1 (seam); LSC-2P (proof)",
+        "directedTo": "LSC-1 (seam); LSC-2P (proof)",
+        "status": "open",
+        "rulingRoute": "CF-LSC0-14"
+      },
+      {
+        "id": "CF-LSC0-15",
+        "reviewer": "Bind the attempt-window magnitudes (10/5 per 60 s) as Root-recommended server-side defaults in normative text, or in LSC-1's tests with the numbers named (L-r2-2).",
+        "reviewerOwner": "LSC-1 (or a later LSC-0 head if one happens)",
+        "directedTo": "LSC-1S / LSC-1",
+        "status": "open",
+        "rulingRoute": "CF-LSC0-15"
+      },
+      {
+        "id": "CF-LSC0-16",
+        "reviewer": "Post-lock-expiry counter semantics and whether lock/concurrency refusals consume the route-wide window (L-r2-3).",
+        "reviewerOwner": "LSC-1S / LSC-1",
+        "directedTo": "LSC-1S / LSC-1",
+        "status": "open",
+        "rulingRoute": "CF-LSC0-16"
+      },
+      {
+        "id": "CF-LSC0-17",
+        "reviewer": "Duplicate delivery still passes the operator window and primary-password check; only the seat password is not re-applied (L-r2-4).",
+        "reviewerOwner": "LSC-1S",
+        "directedTo": "LSC-1S / LSC-1",
+        "status": "open",
+        "rulingRoute": "CF-LSC0-17"
+      },
+      {
+        "id": "CF-LSC0-18",
+        "reviewer": "Round-2 mutant survivors R2-01…R2-14 recorded; H2's \"local-seat routes only / discharges nothing\" clause and N4's \"only be verified to authorize operator seat writes\" clause are unprobed and must be eyeballed at LSC-1 review (R2-13, R2-14).",
+        "reviewerOwner": "Root (LSC-0 review receipt); LSC-1 review",
+        "directedTo": "LSC-1 admission and review",
+        "status": "open",
+        "rulingRoute": "CF-LSC0-18"
+      }
+    ],
+    "note": "reviewer and reviewerOwner are the review tables verbatim (CF-LSC0-1..11 round 1 section 7; 12..18 round 2 section 7); directedTo is the owner ruling routing. No reviewer text is authored here."
+  },
+  "successorNotes": {
+    "LSC-1DB": {
+      "carryForwards": [
+        "CF-LSC0-6"
+      ],
+      "note": "Released to planned by this closure. Its admission carries CF-LSC0-6 (seat private key encrypted at rest under the seat-password vault KDF; no secrets in operation records) and allocates migration 33 from fresh Main."
+    },
+    "LSC-1S": {
+      "carryForwards": [
+        "CF-LSC0-6",
+        "CF-LSC0-8",
+        "CF-LSC0-15",
+        "CF-LSC0-16",
+        "CF-LSC0-17"
+      ]
+    },
+    "LSC-1": {
+      "carryForwards": [
+        "CF-LSC0-4",
+        "CF-LSC0-6",
+        "CF-LSC0-8",
+        "CF-LSC0-9",
+        "CF-LSC0-13",
+        "CF-LSC0-14",
+        "CF-LSC0-15",
+        "CF-LSC0-16",
+        "CF-LSC0-17",
+        "CF-LSC0-18"
+      ],
+      "note": "LSC-1 RED must be runtime tests; its review cites R2-13/R2-14 by eye."
+    },
+    "LSC-2OP": {
+      "carryForwards": [
+        "CF-LSC0-10",
+        "CF-LSC0-12"
+      ]
+    },
+    "LSC-2": {
+      "carryForwards": [
+        "CF-LSC0-3",
+        "CF-LSC0-7",
+        "CF-LSC0-12",
+        "CF-LSC0-13"
+      ],
+      "note": "L-r2-5: \"session store\" means per-match sessionStorage, not coopCampaignAuthTokenStore.ts."
+    },
+    "LSC-2P": {
+      "carryForwards": [
+        "CF-LSC0-14"
+      ]
+    },
+    "U101AndB15": {
+      "carryForwards": [
+        "CF-LSC0-1",
+        "CF-LSC0-2",
+        "CF-LSC0-4",
+        "CF-LSC0-5",
+        "CF-LSC0-10",
+        "CF-LSC0-12"
+      ]
+    },
+    "R2.campaign-access": {
+      "carryForwards": [
+        "CF-LSC0-5"
+      ]
+    }
+  },
+  "reservedSlot": "evidence/lsc-0-admission-review-20261018.json was frozen in the admission manifest as the one reserved, unwritten slot and was unwritten at the head and the merge. This closure writes it, under its frozen name, as the closure review receipt binding both genuine review rounds by sha256; every reviewer string is checked as a verbatim substring of the stored copies.",
+  "ownerRuling": {
+    "ruledHead": "1298baf37853d636781a03ea633b6c2bf5d5eee3",
+    "pr": 2286,
+    "commentId": 6254759051,
+    "author": "SwiggitySwerve",
+    "bodySha256": "35b9d3e6719d1b6c73e1497afcfbc44097a3ac6598a14ca3f46c1a7b0529c4be",
+    "bodyBytes": 3911,
+    "at": "2026-10-18T20:27:52Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2286#issuecomment-6254759051",
+    "bodyPath": "evidence/lsc-0-owner-ruling-6254759051.txt",
+    "fetchedWith": "gh api repos/SwiggitySwerve/MekStation/issues/comments/6254759051 --jq .body, which prints the body plus one LF; the stored copy omits that LF and is byte-identical to _receipts/pr2286-owner-ruling.md (LF-only, no CR, so .gitattributes eol=lf leaves it unchanged)"
+  },
+  "ownerRulingQuotes": [
+    "Ruling: ACCEPT, and merge at this exact head. Both review reports are copied byte-for-byte into the closure.",
+    "Next: the closure PR releases only LSC-1DB."
+  ],
+  "chronology": "Ruling posted 2026-10-18T20:27:52Z, merged 2026-10-18T20:27:58Z.",
+  "githubApproval": "Lane A engineering evidence only; no GitHub approval claimed.",
+  "successorRelease": {
+    "label": "successor release",
+    "scope": "Separate from the LSC-0 closure.",
+    "release": {
+      "unit": "LSC-1DB",
+      "field": "state",
+      "from": "blocked",
+      "to": "planned",
+      "basis": "Its only predecessor LSC-0 is main-verified with a genuine exact-main mainProof PASS in this change set; the owner ruling releases only LSC-1DB.",
+      "permission": "Selection is not admission."
+    }
+  }
+}

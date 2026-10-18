@@ -8225,7 +8225,25 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-admission-20261018.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-admission-review-20261018.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-red-20261018.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-local-20261018.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-local-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-source-fable-review-r1-20261018.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-source-fable-review-r2-20261018.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-owner-ruling-6254759051.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-811bfd8d-osv.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-811bfd8d-ci.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-811bfd8d-purpose.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-811bfd8d-vplain.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-811bfd8d-vgit.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-811bfd8d-vnext.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-811bfd8d-vtests.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-811bfd8d-lintunits.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-811bfd8d-probe2.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-811bfd8d-probe1.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-811bfd8d-mutants.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-811bfd8d-probe2out.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-811bfd8d-mutantsout.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-merge-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-mainproof-20261018.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic lifecycle fields and frozen evidence; no other unit/packet/holder/historical receipt edits. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -8240,10 +8258,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "implementing",
+      "state": "main-verified",
       "baseline": "2d576747ee8dd210e5f6a5b0f380819b153a203a",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "1298baf37853d636781a03ea633b6c2bf5d5eee3",
+      "mergeSha": "811bfd8d40d7d9366616dcd93c5a60ae0c95fd51",
       "stageReceipts": {
         "admission": {
           "path": "evidence/lsc-0-admission-20261018.json"
@@ -8254,9 +8272,27 @@
         "local": {
           "path": "evidence/lsc-0-local-20261018.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/lsc-0-admission-review-20261018.json",
+          "head": "1298baf37853d636781a03ea633b6c2bf5d5eee3",
+          "reviewedHead": "1298baf37853d636781a03ea633b6c2bf5d5eee3",
+          "reviewerModel": "claude-fable-5-1",
+          "implementerModel": "claude-opus-5-5",
+          "outputSha256": "21717657db9473a47c46884b726a0bf07571d6ee2fc19dc41d886a313b1a5a67",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/lsc-0-merge-20261018.json",
+          "pr": 2286,
+          "head": "1298baf37853d636781a03ea633b6c2bf5d5eee3",
+          "mergeSha": "811bfd8d40d7d9366616dcd93c5a60ae0c95fd51"
+        },
+        "mainProof": {
+          "path": "evidence/lsc-0-mainproof-20261018.json",
+          "mergeCommit": "811bfd8d40d7d9366616dcd93c5a60ae0c95fd51",
+          "verdict": "PASS",
+          "runtime": "Source/Main checks: 11 passed (openspec validate --all --strict 230 passed, 0 failed of 230 items; qc:openspec-ci:validate errors=0; spec:purpose:validate 0 errors; validate-roadmap PASSED, --git PASSED, --next B14-0; validate-roadmap tests 86/86; lint:units PASS; contract probe v2 38/38 and v1 20/20 over the merged leaves; spec-text mutants 30/30 killed; contract leaves equal head and local receipt; admission controls unchanged; merge tree equals head tree; 32/32 head checks by name; 0 failed)"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -8306,7 +8342,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -18683,6 +18719,44 @@
         "commentId": 6252742470,
         "author": "SwiggitySwerve",
         "bodySha256": "a37ca8dd92a961135ac96e10424042eb767a5404e3cce08024e9b86d2f896b27"
+      }
+    },
+    {
+      "id": "PK-lsc-0-ruling",
+      "blocks": [
+        "LSC-0"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "After two independent exact-head sensitive reviews (round 1 REQUEST CHANGES on 3f83031a1, fixed in-PR; round 2 APPROVE on 1298baf37) across authority, privacy, replay, idempotency and concurrency, and required green CI, should the owner rule the contract-only LSC-0 head (design D14 plus user-identity, player-identity and coop-campaign-sync deltas for operator-managed local seat credentials: not vault identities, password per mint, route-wide pre-KDF windows not keyed by address, loopback/same-origin guard on the local-seat routes only, operation-id replay and generation CAS, mint-vs-revoke race and one in-flight mint, secrecy outside the browser with encryption at rest, scope parity with the primary mint route, durable 5/60 s lockout, revocation at next mint or renewal, explicit clear-and-rejoin; 9/15 files, 195/500 lines; probe v2 38/38, 30/30 mutants) before guarded merge?",
+      "options": [
+        {
+          "label": "rule the exact contract head",
+          "consequence": "Permit guarded LSC-0 merge and exact-main proof only; LSC-1DB may be released to planned only after that proof, with CF-LSC0-1..18 routed as ruled. No runtime acceptance, B15, PRIV-1, F1 or F2 discharge.",
+          "effort": "Two independent exact-head sensitive reviews with probe and mutant reproduction, evidence check and owner ruling"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Hold merge until the contract objections are fixed and a fresh exact-head review, CI and owner ruling are complete.",
+          "effort": "Bounded by the concrete review objections"
+        }
+      ],
+      "agentRecommendation": "Rule only an independently approved green head whose delta specs carry every safety property as SHALL text with scenarios, stay inside the nine registered literals and caps, contradict no U101/U101a-d, B15 or canonical spec, and keep owner questions pending with Root recommendations only. This proposal grants no approval or merge permission.",
+      "revertCost": "Low: revert the four contract leaves; LSC-0 changes no source, wire format, store or route.",
+      "decision": {
+        "option": "rule the exact contract head",
+        "at": "2026-10-18T20:27:52Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2286#issuecomment-6254759051"
+      },
+      "ruling": {
+        "ruledHead": "1298baf37853d636781a03ea633b6c2bf5d5eee3",
+        "pr": 2286,
+        "commentId": 6254759051,
+        "author": "SwiggitySwerve",
+        "bodySha256": "35b9d3e6719d1b6c73e1497afcfbc44097a3ac6598a14ca3f46c1a7b0529c4be"
       }
     },
     {
