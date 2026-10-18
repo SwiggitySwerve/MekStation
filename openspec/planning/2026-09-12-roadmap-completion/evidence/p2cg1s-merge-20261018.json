@@ -1,0 +1,362 @@
+{
+  "unit": "P2CG1S",
+  "stage": "merge",
+  "recordedAt": "2026-10-18T12:55:01Z",
+  "pr": 2264,
+  "title": "P2CG1S: a current spectator seat never owns a sealed declaration (B10)",
+  "url": "https://github.com/SwiggitySwerve/MekStation/pull/2264",
+  "head": "ca62de7beaa7274bb3782e5a4681d1ed411dc016",
+  "mergeSha": "1b8558625e1e488e6ba62b916ec68bd2ed0d701f",
+  "mergedAt": "2026-10-18T12:40:24Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "Two-parent merge commit (head-guarded)",
+  "parentCount": 2,
+  "treeIntegration": {
+    "parents": [
+      "70eab85ae2e16adfc05e4c2fcced4be5cae4f21e",
+      "ca62de7beaa7274bb3782e5a4681d1ed411dc016"
+    ],
+    "expectedTree": "aee190cee36805e11bf96f8a2cb8625697bd3390",
+    "actualTree": "aee190cee36805e11bf96f8a2cb8625697bd3390",
+    "matches": true,
+    "headTree": "aee190cee36805e11bf96f8a2cb8625697bd3390",
+    "headTreeEqualsMergeTree": true,
+    "note": "Main did not move between the admission baseline 70eab85a (the P2CG1R closure merge #2262) and the merge: the merge commit 1b855862 has first parent 70eab85a and second parent the reviewed head ca62de7b; its tree aee190ce equals the head tree and git merge-tree --write-tree of the two parents (clean), as the owner ruling recorded (\"Merge-tree with Main 70eab85a clean\"). Its units.json equals the head's, which differs from the baseline only in the P2CG1S entry. The three product leaves equal the local receipt hashes, the two test leaves are byte-identical from RED 1efcb036 through the head, the merge and the closure base 1b855862, and the eleven admission unchanged controls equal their admission hashes at the head, the merge and the closure base (the closure base is the merge itself; main has not moved since)."
+  },
+  "baseline": {
+    "baseline": "70eab85ae2e16adfc05e4c2fcced4be5cae4f21e",
+    "mainAtMerge": "70eab85ae2e16adfc05e4c2fcced4be5cae4f21e",
+    "rebase": false,
+    "mergeBase": "70eab85ae2e16adfc05e4c2fcced4be5cae4f21e",
+    "mainBetween": [],
+    "headCommits": [
+      "1b8976e510282ebdef56e3cbf2535970dea596af",
+      "1efcb0361687f48fea11c7ba6e5c0a9fec92383c",
+      "ca62de7beaa7274bb3782e5a4681d1ed411dc016"
+    ]
+  },
+  "census": {
+    "command": "git diff --numstat --no-renames 70eab85ae2e16adfc05e4c2fcced4be5cae4f21e ca62de7beaa7274bb3782e5a4681d1ed411dc016",
+    "changedFiles": 9,
+    "reservedUnwritten": 1,
+    "countedLines": 27,
+    "testAdditions": {
+      "src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts": {
+        "added": 311,
+        "deleted": 5
+      },
+      "src/lib/multiplayer/server/__tests__/sealedChoiceDelivery.test.ts": {
+        "added": 105,
+        "deleted": 4
+      }
+    },
+    "caps": {
+      "maxFiles": 15,
+      "maxNonGeneratedLines": 500
+    }
+  },
+  "testLeavesSinceRed": {
+    "src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts": {
+      "sha256": "368fef26cfb1e0383818e9810a5715b908a7e7ec992386ec1632ce64989bb17b",
+      "bytes": 18765
+    },
+    "src/lib/multiplayer/server/__tests__/sealedChoiceDelivery.test.ts": {
+      "sha256": "82ea39b22e8588b5ed65ad206f661385589f45b6152f63f002a584e67f54dcf4",
+      "bytes": 19346
+    }
+  },
+  "admissionControlsAtMerge": [
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHost.ts",
+      "sha256": "9a7f9300bed3e9dd47efca51a627a6ed96cb818cf0027c5e1a9c3df4f010a26b"
+    },
+    {
+      "path": "src/lib/multiplayer/server/projection/ViewerPublicationBoundary.ts",
+      "sha256": "0fb8428f0c7546716c823a3f79485e97358d08921e325263105bbbeffcf1a5d3"
+    },
+    {
+      "path": "src/lib/multiplayer/server/projection/ViewerAudienceProjector.ts",
+      "sha256": "c454cf29aae336223c2a9915db8135c333a71fff020af6064d0fcbde7ab021ff"
+    },
+    {
+      "path": "src/lib/multiplayer/server/projection/FogAwareMatchProjection.ts",
+      "sha256": "18c9356f6ae43bc395f60f8be6ee229808a7819c4996cf7913b7a1d367efa1cf"
+    },
+    {
+      "path": "src/lib/multiplayer/server/lobby/spectatorSeats.ts",
+      "sha256": "8cfa2eb2ab260ee9030b859932bba6638ade1c5509ed305c86e658dec8212a74"
+    },
+    {
+      "path": "src/lib/multiplayer/server/authorization/MatchSeatMembershipSource.ts",
+      "sha256": "010dd429f935181c088478db5f120618dac9fc21f9525af8aec22a3d1315d81c"
+    },
+    {
+      "path": "src/lib/multiplayer/server/fogOfWar.ts",
+      "sha256": "a8b7a1d381dfd087237a68780d509963ffd6c3925917041bc305fc71fbc4a6aa"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/ServerMatchHost.fogOfWarIntegration.test.ts",
+      "sha256": "51a7248470b38c6d39ce5e5127b4cce80b97eafcc98bec2ea48b3bb1e4bac3ed"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/ServerMatchHost.gmNoPromotion.test.ts",
+      "sha256": "bfbb1a28edea5ca34cb6c280399647caa9129f3697d28831e4a79b15ca2cbe60"
+    },
+    {
+      "path": "src/lib/multiplayer/server/projection/__tests__/ViewerPublicationBoundary.test.ts",
+      "sha256": "32b4979a0b5074e44f622aac5e4eed387c018b90378556a7153d8fdd8ec45dd0"
+    },
+    {
+      "path": "src/pages-modules/api/__tests__/matchHistoryFog.test.ts",
+      "sha256": "87b0d89bc07dbd9d58f823f182b69fdd86afabf6b1cff6e88e924cfa18bc6740"
+    }
+  ],
+  "postMerge": {
+    "firstParentAfterMerge": [],
+    "closureBase": "1b8558625e1e488e6ba62b916ec68bd2ed0d701f"
+  },
+  "checksObservedAt": "2026-10-18T12:45:20Z",
+  "checks": {
+    "head": "ca62de7beaa7274bb3782e5a4681d1ed411dc016",
+    "successful": 32,
+    "other": 0,
+    "statuses": 0,
+    "run": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39125901935",
+    "jobs": [
+      {
+        "name": "Lint and Test",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39125901935/job/117671737305"
+      },
+      {
+        "name": "Build Test / win",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39125901935/job/117671275485"
+      },
+      {
+        "name": "Build Test / linux",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39125901935/job/117671275457"
+      },
+      {
+        "name": "Build Test / mac",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39125901935/job/117671275449"
+      },
+      {
+        "name": "Validate Combat Suite",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39125901935/job/117670924449"
+      },
+      {
+        "name": "Schema Bridge",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39125901935/job/117670924445"
+      },
+      {
+        "name": "Seam Anchors",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39125901935/job/117670924412"
+      },
+      {
+        "name": "Desktop Type Check",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39125901935/job/117670924396"
+      },
+      {
+        "name": "Desktop Tests",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39125901935/job/117670924359"
+      },
+      {
+        "name": "Unit Tests (2/6)",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39125901935/job/117670924353"
+      },
+      {
+        "name": "Unit Tests (6/6)",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39125901935/job/117670924347"
+      },
+      {
+        "name": "Customizer Regressions",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39125901935/job/117670924342"
+      },
+      {
+        "name": "Coverage Floor",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39125901935/job/117670924339"
+      },
+      {
+        "name": "Format Check",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39125901935/job/117670924331"
+      },
+      {
+        "name": "Perf Budget PR",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39125901935/job/117670924326"
+      },
+      {
+        "name": "E2E Smoke",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39125901935/job/117670924319"
+      },
+      {
+        "name": "Determinism Audit",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39125901935/job/117670924306"
+      },
+      {
+        "name": "Unit Tests (4/6)",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39125901935/job/117670924291"
+      },
+      {
+        "name": "Unit Tests (3/6)",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39125901935/job/117670924279"
+      },
+      {
+        "name": "Unit Tests (5/6)",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39125901935/job/117670924262"
+      },
+      {
+        "name": "Build Storybook",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39125901935/job/117670924253"
+      },
+      {
+        "name": "Unit Tests (1/6)",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39125901935/job/117670924227"
+      },
+      {
+        "name": "A11y Tests",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39125901935/job/117670924226"
+      },
+      {
+        "name": "Type Check",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39125901935/job/117670924225"
+      },
+      {
+        "name": "Validate BV Parity",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39125901935/job/117670924193"
+      },
+      {
+        "name": "Perf Smoke Tests",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39125901935/job/117670924187"
+      },
+      {
+        "name": "Lint",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39125901935/job/117670924167"
+      },
+      {
+        "name": "Statistical Proof PR",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39125901935/job/117670924111"
+      },
+      {
+        "name": "Prepare Build Artifacts",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39125901935/job/117670899697"
+      },
+      {
+        "name": "Install Dependencies",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39125901935/job/117670849333"
+      },
+      {
+        "name": "Detect Changes",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39125901935/job/117670849326"
+      },
+      {
+        "name": "Validate Roadmap Ledger",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39125901935/job/117670849213"
+      }
+    ],
+    "failedAttempts": 0,
+    "allAttemptsCount": 32,
+    "cfh12Comment": "https://github.com/SwiggitySwerve/MekStation/pull/2264#issuecomment-6249808382",
+    "cfh12CommentEdit": "posted 2026-10-18T12:16:43Z and edited 2026-10-18T12:17:06Z; its closing note says it replaces an earlier version whose check-run query failed on a shell quoting error"
+  },
+  "requiredChecks": "Observed 2026-10-18T12:45:20Z. GET branches/main/protection: required_status_checks.contexts [\"Lint and Test\"] (strict false), required_conversation_resolution enabled, required_pull_request_reviews with 0 required approvals. GET rules/branches/main returns no rules. GitHub enforces only Lint and Test; CF-H12 asks for all 32 by name, verified here one to one against the P2CG1G1/P2CG1G2A/P2CG1G2/P2CG1R names (pr-checks.yml blob a82fe0f7).",
+  "mergeCommitCheckRuns": {
+    "observedAt": "2026-10-18T12:45:21Z",
+    "runs": [
+      {
+        "name": "Live Tier Signal",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Push Docker image",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "build",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Prepare Build Artifacts",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "release",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Build Docker image",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Determine release tag",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "version-and-release",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Publish Live Evidence (windows-latest)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Publish Live Evidence (ubuntu-latest)",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ],
+    "note": "Push workflows on the merge commit; pr-checks.yml runs only on pull_request."
+  },
+  "ownerRuling": {
+    "ruledHead": "ca62de7beaa7274bb3782e5a4681d1ed411dc016",
+    "pr": 2264,
+    "commentId": 6250027395,
+    "author": "SwiggitySwerve",
+    "bodySha256": "ca0fe3d32147eee17f5aa5980b047459c6c21a93392ecee428bd70f03c664c82",
+    "bodyBytes": 2433,
+    "at": "2026-10-18T12:40:18Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2264#issuecomment-6250027395",
+    "bodyPath": "evidence/p2cg1s-owner-ruling-6250027395.txt",
+    "fetchedWith": "gh api repos/SwiggitySwerve/MekStation/issues/comments/6250027395 --jq .body, which prints the body plus one trailing LF (2434 bytes); the stored file is the exact body without that added newline, equal to the JSON body field"
+  },
+  "chronology": "Ruled at 12:40:18Z on the exact head; merged at 12:40:24Z. The ruling preceded the merge."
+}

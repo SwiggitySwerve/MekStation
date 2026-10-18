@@ -1,0 +1,14 @@
+OWNER-RULING ca62de7beaa7274bb3782e5a4681d1ed411dc016
+
+Unit: P2CG1S (L1; sensitive: privacy/replay). PR #2264 at exact head ca62de7beaa7274bb3782e5a4681d1ed411dc016.
+
+Owner text: standing instruction "continue with recommended options and fix the issues that come up, publish as needed"; direct approval 2026-10-18 "I think the recommended actions make sense for the ones that have them" (including Root posting OWNER-RULING comments). Root rules under them.
+
+Basis:
+- Independent full sensitive review (Fable 5.1): APPROVE, docs/audits/2026-10-18-p2cg1s-review.md, sha256 f8301ca79635955f5146f56df81f1c7fd7d9c0722018a24c15e62bfb78ae6a80 (21,120 bytes). Reviewer re-ran RED 23/41 failing (product byte-identical) and GREEN 41/41 + six focused suites 71/71; typecheck/lint/format clean; ledger discipline PASS (admission no source; RED tests only; GREEN product only; 27/500 lines; units.json S lifecycle only).
+- Reviewer mutants: 8 of their own, 8/8 caught (author 12/12). R7 shows the no-delivery-number-for-withheld-frames rule is load-bearing for reveal republish.
+- Five classes: no spectator path (live, join replay, cursor rejoin, isolation resume, rewind re-replay, reveal republish, HTTP fog-on) receives an unrevealed sealed declaration or digest; actors and seated GMs keep theirs; current seats govern.
+- GM-branded spectator change accepted (registered contract, fog D6, HTTP parity). L1 two-players-plus-GM mission verified unaffected in code (coopMissionCreate meta has coopMission but no seats/coopCampaign).
+- CI 32/32 on the exact head (author comparison issuecomment-6249808382). Merge-tree with Main 70eab85a clean.
+
+Ruling: ACCEPT and merge at this exact head. Carry-forwards routed as the review tabulates: CF-S-1 (fog-off HTTP has no sealed hold) -> B14-0/HP; CF-S-2 (meta-read failure withholds actor's own declaration) -> B14-0A; CF-S-3 (revealed declarations bypass fog for invisible units) -> B14-0; CF-S-4 (backpressure-refused owed frames not re-offered by reveal) -> B14-HEAD/U38; CF-S-5 (stale e2e ROLE HONESTY header) -> H; CF-S-6 (real attack/physical intent drive for spectator) -> P2CG2/P2CH; CF-S-7 (maintain:scan:gate type-safety highs incl. FogAwareMatchProjection.ts) -> Root maintenance backlog; CF-S-8 (reseat-to-spectator product path) -> LSC*/I1-I4; CF-S-9 (raw no-playerId replay) -> U26. The built-server socket smoke test required before H or any build shipping spectating remains owed.
