@@ -550,13 +550,14 @@ function batches(
 ): readonly Batch[] {
   const evidence = fixture.openEvidence('app');
   try {
-    const hash = evidence.fileHash();
-    const rows = evidence.select<Batch>(
+    // The reader changed nothing because its connection cannot write. A
+    // before/after hash of the live mekstation.db raced the server's own
+    // WAL checkpoints (nightly 39129982940, attempt 1).
+    expect(evidence.refusesWrites()).toBe(true);
+    return evidence.select<Batch>(
       'SELECT command_id, event_count, recorded_at FROM event_journal_batches WHERE stream_type = ? AND stream_id = ? AND command_id = ?',
       ['campaign', session.campaignId, commandId],
     );
-    expect(evidence.fileHash()).toBe(hash);
-    return rows;
   } finally {
     evidence.close();
   }
