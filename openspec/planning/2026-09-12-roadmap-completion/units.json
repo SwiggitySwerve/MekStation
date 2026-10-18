@@ -7701,7 +7701,11 @@
         "src/lib/multiplayer/__tests__/clientAgainstFogServer.integration.test.ts"
       ],
       "ownershipExceptions": [
-        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0b-admission-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0b-red-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0b-local-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0b-review-20261018.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -7714,12 +7718,14 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "implementing",
+      "baseline": "e6d1553ce90ca9c56705a349155c4030e7901857",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
+        "admission": {
+          "path": "evidence/b14-0b-admission-20261018.json"
+        },
         "red": null,
         "local": null,
         "review": null,
