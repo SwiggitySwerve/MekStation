@@ -2204,6 +2204,13 @@ side data as allied.
 - **AND** the terminal unit SHALL be excluded from unresolved and blocker collections
 - **AND** the terminal unit SHALL NOT be exposed as the current active item
 
+#### Scenario: Ejected units remain visible as skipped
+- **GIVEN** a unit's pilot has ejected (`hasEjected` is true)
+- **WHEN** the initiative projection and rail update
+- **THEN** the unit SHALL remain visible under its original force with Skipped text
+- **AND** the unit SHALL be excluded from the active-turn sequence, unresolved units, and blockers
+- **AND** the rail SHALL NOT mark the ejected unit as active or upcoming, even if the activation cursor still names it
+
 #### Scenario: Rail selects and focuses units
 - **GIVEN** the player selects a unit in the rail
 - **WHEN** the unit is visible and selectable

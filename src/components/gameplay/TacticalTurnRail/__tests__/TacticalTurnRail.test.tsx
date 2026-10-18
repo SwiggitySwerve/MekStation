@@ -6,7 +6,7 @@ import type { IGameUnit, IUnitGameState } from '@/types/gameplay';
 import type { ShellMode } from '@/types/gameplay/TacticalShellInterfaces';
 
 import { createMinimalUnitState } from '@/simulation/runner/SimulationRunnerSupport';
-import { GamePhase, GameSide } from '@/types/gameplay';
+import { GamePhase, GameSide, LockState } from '@/types/gameplay';
 
 import { TacticalTurnRail } from '../TacticalTurnRail';
 
@@ -121,6 +121,32 @@ describe('TacticalTurnRail force framing', () => {
       byId('rail-unit-allied-live'),
     ]);
   });
+
+  it.each([
+    ['allied-live', LockState.Pending],
+    ['opposing-live', LockState.Pending],
+    ['allied-live', LockState.Resolved],
+  ])(
+    'shows an ejected unit as skipped with cursor %s and lock %s',
+    (activeUnitId, lockState) => {
+      renderRail({
+        activeUnitId,
+        unitStates: {
+          ...UNIT_STATES,
+          'allied-live': state('allied-live', GameSide.Player, {
+            hasEjected: true,
+            lockState,
+          }),
+        },
+      });
+
+      const ejected = byId('rail-unit-allied-live');
+      expect(ejected).toHaveAttribute('data-status', 'skipped');
+      expect(ejected).toHaveAccessibleName('Atlas — Skipped');
+      expect(ejected).not.toHaveAttribute('aria-current');
+      expect(ejected).not.toHaveClass('animate-pulse');
+    },
+  );
 
   it.each(['gm', 'replay', 'spectator'] as const)(
     'uses fixed force labels in %s mode',

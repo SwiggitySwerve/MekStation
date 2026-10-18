@@ -190,6 +190,68 @@ describe('usePhaseQueueProjection', () => {
     ]);
   });
 
+  it.each([
+    GamePhase.Movement,
+    GamePhase.WeaponAttack,
+    GamePhase.PhysicalAttack,
+  ])(
+    'removes ejected units from turn ownership and blockers in %s',
+    (phase) => {
+      const session = buildSession({
+        phase,
+        unitLockStates: { p1: LockState.Pending, o1: LockState.Pending },
+      });
+      act(() => {
+        useGameplayStore.setState({ session });
+      });
+      const { result } = renderHook(() => usePhaseQueueProjection());
+      expect(result.current.activeUnitId).toBe('p1');
+
+      const afterEjection: IGameSession = {
+        ...session,
+        currentState: {
+          ...session.currentState,
+          units: {
+            ...session.currentState.units,
+            p1: { ...session.currentState.units.p1, hasEjected: true },
+          },
+        },
+      };
+      act(() => {
+        useGameplayStore.setState({ session: afterEjection });
+      });
+
+      expect(result.current.initiativeOrder).toEqual(['p1', 'o1']);
+      expect(result.current.activeUnitId).toBe('o1');
+      expect(result.current.activeSide).toBe(GameSide.Opponent);
+      expect(result.current.unresolvedUnits).toEqual(['o1']);
+      expect(result.current.blockers.map((blocker) => blocker.unitId)).toEqual([
+        'o1',
+      ]);
+
+      act(() => {
+        useGameplayStore.setState({
+          session: {
+            ...afterEjection,
+            currentState: {
+              ...afterEjection.currentState,
+              units: {
+                ...afterEjection.currentState.units,
+                o1: {
+                  ...afterEjection.currentState.units.o1,
+                  hasEjected: true,
+                },
+              },
+            },
+          },
+        });
+      });
+      expect(result.current.activeUnitId).toBeNull();
+      expect(result.current.unresolvedUnits).toEqual([]);
+      expect(result.current.blockers).toEqual([]);
+    },
+  );
+
   it('uses authoritative unit state when game-unit side metadata is missing', () => {
     const session = buildSession({
       phase: GamePhase.Movement,
