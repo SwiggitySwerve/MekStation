@@ -7163,7 +7163,25 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2a-admission-20261018.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2a-admission-review-20261018.md",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2a-red-20261018.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2a-local-20261018.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2a-local-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2a-source-fable-review-20261018.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2a-owner-ruling-6246826945.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2a-review-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2a-merge-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-a6b604a0-tests.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-a6b604a0-g2a.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-a6b604a0-related.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-a6b604a0-p2cg1g1.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-a6b604a0-selector.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-a6b604a0-p2cg1f.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-a6b604a0-p2cg1e.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-a6b604a0-p2cg1d.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-a6b604a0-p2cg1c.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-a6b604a0-p2cg1b.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-a6b604a0-predecessors.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-a6b604a0-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-a6b604a0-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2a-mainproof-20261018.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -7178,10 +7196,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "implementing",
+      "state": "main-verified",
       "baseline": "58e5c31b09d7d724ef409b497f3b421d41d48a29",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "412c09411a784fbb8985995b652ef2007e5a4a39",
+      "mergeSha": "a6b604a078e44abaf9dbb6e2c14888e90ad83d08",
       "stageReceipts": {
         "admission": {
           "path": "evidence/p2cg1g2a-admission-20261018.json"
@@ -7192,9 +7210,27 @@
         "local": {
           "path": "evidence/p2cg1g2a-local-20261018.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/p2cg1g2a-review-20261018.json",
+          "head": "412c09411a784fbb8985995b652ef2007e5a4a39",
+          "reviewedHead": "412c09411a784fbb8985995b652ef2007e5a4a39",
+          "reviewerModel": "claude-fable-5-1",
+          "implementerModel": "claude-opus-5-5",
+          "outputSha256": "e54904c72a239f8259595a0b6d49309219d657dd3e80408714986e708d43a0e5",
+          "verdict": "APPROVE-WITH-NOTES"
+        },
+        "merge": {
+          "path": "evidence/p2cg1g2a-merge-20261018.json",
+          "pr": 2247,
+          "head": "412c09411a784fbb8985995b652ef2007e5a4a39",
+          "mergeSha": "a6b604a078e44abaf9dbb6e2c14888e90ad83d08"
+        },
+        "mainProof": {
+          "path": "evidence/p2cg1g2a-mainproof-20261018.json",
+          "mergeCommit": "a6b604a078e44abaf9dbb6e2c14888e90ad83d08",
+          "verdict": "PASS",
+          "runtime": "Source/Main Jest: Tests:       783 passed, 783 total"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -7245,7 +7281,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -16412,6 +16448,44 @@
         "commentId": 6246040501,
         "author": "SwiggitySwerve",
         "bodySha256": "cddd5c42ac337d1687ddead1a8e8fa860f70e0d072c2a9e0f161560cea448998"
+      }
+    },
+    {
+      "id": "PK-p2cg1g2a-ruling",
+      "blocks": [
+        "P2CG1G2A"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "After independent exact-head review across its five sensitive classes and required green CI, should the owner rule the bounded P2CG1G2A head (G2-BOOT-1 authenticated identity-only invite mode on GET /api/multiplayer/invites/:roomCode: explicit campaignIdentity=1 only, any other mode value or any token query key refused with 400 and no downgrade; a non-empty Bearer Authorization header required before any store lookup or crypto; the real verifier with the server-derived scope {kind:campaign-session, id: meta.matchId}; an allowlisted 200 {matchId, status, layout, campaignId} built field by field from valid durable co-op identity, non-co-op or empty campaignId in the unknown-code 404 class; Cache-Control: private, no-store on every identity outcome; the anonymous summary unchanged; HTTP writing no seat, membership, receipt or grant; production-live from merge with no in-repo caller until reduced P2CG1G2, and the PRIV-1 live-code-to-campaignId correlation held for B15 under the loopback-only topology) before guarded merge?",
+      "options": [
+        {
+          "label": "rule the exact source head",
+          "consequence": "Permit guarded P2CG1G2A merge and exact-main proof only; reduced P2CG1G2 may be released to planned only after that proof, with the review carry-forwards routed to B15 (CF-G2A-1, 2, 3, 6), reduced P2CG1G2 (CF-G2A-5) and the closure (CF-G2A-7). CF-G2A-4 (rows killing MR1 and MR4) was routed to P2CG1G2 by the ruling and re-routed to B15 auth hardening by the later parent ruling recorded at closure (G2A-ROUTE-1).",
+          "effort": "One independent exact-head full sensitive review across authority, privacy, replay, idempotency and concurrency, the PRIV-1 evaluation, evidence check and owner ruling"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Hold merge until the concrete authority, privacy, replay, idempotency, concurrency or proof objections are fixed and fresh exact-head review, CI and owner ruling are complete.",
+          "effort": "Bounded by the concrete review objections"
+        }
+      ],
+      "agentRecommendation": "Rule only an independently approved green exact head that meets all of these: the route byte-identical to the baseline at RED and no test byte changed after it; identity mode never downgrades to the anonymous summary and never reads a query token; the bearer gate precedes any store lookup or crypto; the verifier scope comes from the stored match, never the request; the 200 body carries exactly the four allowlisted keys and refusals disclose nothing; every identity outcome is private, no-store; the anonymous summary is unchanged; HTTP writes nothing; and the PRIV-1 correlation is recorded as a B15 hold rather than claimed closed. This proposal grants no approval or merge permission.",
+      "revertCost": "Low: revert the route and its test leaf; P2CG1G2A changes no Protocol type, transport, binder, registry, server.js composition, verifier or client creator, and no in-repo caller uses identity mode before reduced P2CG1G2.",
+      "decision": {
+        "option": "rule the exact source head",
+        "at": "2026-10-18T06:57:20Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2247#issuecomment-6246826945"
+      },
+      "ruling": {
+        "ruledHead": "412c09411a784fbb8985995b652ef2007e5a4a39",
+        "pr": 2247,
+        "commentId": 6246826945,
+        "author": "SwiggitySwerve",
+        "bodySha256": "6977569bcf414b4e28d4515eee032dc4118c1a003a0f27ae19ed6c687b526da6"
       }
     },
     {
