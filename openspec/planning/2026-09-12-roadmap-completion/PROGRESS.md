@@ -108,6 +108,41 @@ This closure metadata still requires its own CI and parent merge.
 
 ---
 
+## L2 readiness amendment (2026-10-18) — registration only
+
+Five new **blocked** slices complete the missing ownership: B15-AUTH-LIMIT (F1),
+B15-AUTH-ORIGIN (F2), B15-WIRE, B15-INV and L2-GUI-SMOKE. F1/F2 remain accountable
+under U101/B15-1 per CF-LSC0-1/2; their full manifests are not expanded. All new
+work is L2/P3-exit only; no L1/v2.2.0 gate, runtime acceptance or lifecycle change.
+The 20 existing L2 holders plus five new slices total 25 open obligations.
+P2CER #2137 (`08f917ef`) is delivered registration, counted once using its original
+receipt; no duplicate unit or claim of runtime delivery.
+
+After U38/L1 release and the B15 chain through 5R: AUTH-LIMIT -> AUTH-ORIGIN ->
+WIRE -> INV -> PRIV -> 6. Then residual U99/U100/U104/U105 and U101a -> b -> c -> d
+-> aggregate U101; final packaged GUI proof follows B15-1/U101d/U101/B15-6 and all
+residual obligations on integrated Main. Task57 and Task17/P2C gates remain.
+INV owns both-mode budgets, known-code refusal, safe summary/correlation policy,
+MR1/MR4 rows and optional logging disposition; PRIV retains listings/default names.
+Required fixes, actor x 17-method proof and actual topology evidence precede any
+B15-6 remote claim. CF-LSC0-4 local-seat scope census and CF-LSC0-12 LSC-2/2OP
+ownership release bind U101a/c/d and B15-2. Existing findings remain open.
+
+Both ledgers mirror `l2ReadinessAmendment20261018` and the
+[complete census and source evidence](evidence/l2-readiness-amendment-20261018.json)
+(SHA256 9f4e3a0bd972b7aebeb3828443415d221e91087584641cb4bf925fc6e08ca404). Census: 4 open PRs at stable exact heads,
+all paginated files (including the 472-file PR), 124 planned/blocked/implementing
+units, literal/ancestor aliases and both-ledger manifests. B14-0/A1 product merges
+are observed; their historical lifecycle bytes stay untouched. Parent serializes
+closure writers and in-flight LSC-1DB #2290, then rebases/re-censuses before delivery.
+Post-L1/B15 manifests, RED and actual fit must be re-frozen; U99 2/120, U100 3/120,
+U104 5/220 and U101b/d 8/300 are unchanged. Separate lawful closure allocation or
+narrower registration is required if tight caps cannot fit. No second L2 lane.
+Every P3 letter, final platform GUI evidence and independent Astra exit review
+remain owed before v2.3.0; P4 Task33 is distinct. This edit ran no runtime proof.
+
+---
+
 ## Baseline and L1 review follow-ups (2026-10-18)
 
 Docs-only registration under the standing owner direction, prioritizing ordinary-UI

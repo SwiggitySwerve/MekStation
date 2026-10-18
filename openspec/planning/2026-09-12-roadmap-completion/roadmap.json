@@ -9404,7 +9404,16 @@
         "src/lib/multiplayer/server/joinableLobbies.ts",
         "src/lib/multiplayer/server/__tests__/joinableLobbies.test.ts",
         "src/__tests__/unit/api/multiplayerLobbies.test.ts",
-        "src/__tests__/api/securityBoundary.test.ts"
+        "src/__tests__/api/securityBoundary.test.ts",
+        ".github/workflows/pr-checks.yml",
+        "desktop/scripts/test-build.js",
+        "src/__tests__/api/vault/unlock.test.ts",
+        "src/lib/api/security.ts",
+        "src/lib/multiplayer/server/__tests__/auth.test.ts",
+        "src/pages/api/multiplayer/auth/token.ts",
+        "src/pages/api/multiplayer/invites/[roomCode].ts",
+        "src/pages/api/vault/identity/unlock.ts",
+        "src/types/multiplayer/Player.ts"
       ],
       "acceptance": [
         "B15-0 -> B15-1 -> B15-2 -> B15-4 -> B15-4J -> B15-3R -> B15-3 -> B15-5 -> B15-5R -> B15-PRIV -> B15-6; all ordinary caps and genuine exact-main proof",
@@ -19080,5 +19089,58 @@
     "collisionRule": "Census covers every open PR and all planned/blocked/implementing units, exact paths and ancestor aliases; source in hash-bound evidence. Registration writer queue is serialized with LSC-0 closure #2288 and later B14-0 closure, plus A1 lifecycle; rebase before CI and again after an earlier writer lands. Re-census all future admissions; U73 retains engine ownership (a separate scope amendment is required for any engine edit); U45 src/lib, U24/U24b server, H/HP and broad e2e/scripts holders keep their contracts. No broad alias supplies implementation permission.",
     "scope": "Only units.json, roadmap.json, PROGRESS.md and this named evidence file. Registration cap 15 files / 500 counted additions; evidence is line-exempt/file-counted. Original task holders, packets, historical receipts, validator semantics and every existing cap/review gate remain. Remaining nightly fixes are owned by baseline PRs, not reimplemented here.",
     "reviewCorrection20261018": "Sonnet CHANGES on ec8c989458fd1b61008bfa6f835d842603d4a1e7: the committed 113202-byte LF evidence file is authoritative and unchanged. Its former 55f8786f hash described a working copy with 748 CRLF sequences; Git normalization produced committed SHA256 06f8fdf1b4d503f432771bddcd8d70564d896298c6a39cba4634bb7bd73a7428. Bind both ledgers and all five unit registrations to committed bytes. The preserved census/review-era text is historical; current unit leaves, symmetric B14-0 recovery edges and this correction supersede the first draft engine grant, read-only Node service restriction and B14-HEAD wait. Routine maintenance carries no sensitive-work boilerplate."
+  },
+  "l2ReadinessAmendment20261018": {
+    "baseline": "b16302d76df1ace0589bc334f9249330a25c5278",
+    "source": "evidence/l2-readiness-amendment-20261018.json",
+    "sourceSha256": "9f4e3a0bd972b7aebeb3828443415d221e91087584641cb4bf925fc6e08ca404",
+    "registrationOnly": true,
+    "sourceAdmitted": false,
+    "authority": "Owner authorizes recommended options and publishing; this docs-only amendment supplies no future source admission, exact-head OWNER-RULING or runtime acceptance.",
+    "layer": "L2 / P3 exit / v2.3.0; all five new units BLOCKED, never L1/v2.2.0 prerequisites",
+    "additionalUnits": [
+      "B15-AUTH-LIMIT",
+      "B15-AUTH-ORIGIN",
+      "B15-WIRE",
+      "B15-INV",
+      "L2-GUI-SMOKE"
+    ],
+    "existingOpenHolders": [
+      "B15-0",
+      "B15-1",
+      "B15-2",
+      "B15-4",
+      "B15-4J",
+      "B15-3R",
+      "B15-3",
+      "B15-5",
+      "B15-5R",
+      "B15-PRIV",
+      "B15-6",
+      "U99",
+      "U100",
+      "U104",
+      "U105",
+      "U101a",
+      "U101b",
+      "U101c",
+      "U101d",
+      "U101"
+    ],
+    "accounting": "20 existing open holders + 5 new blocked slices = 25 L2 obligations. P2CER is a delivered documentary registration (#2137, 08f917ef), counted once via preserved evidence/p2cer-registration-20261016.json; no duplicate unit or product acceptance. Original task holders and all lifecycle states/receipts stay unchanged.",
+    "order": "U38 exact-Main closure and L1 release/human-session boundary first. Existing B15 chain through B15-5R -> B15-AUTH-LIMIT -> B15-AUTH-ORIGIN -> B15-WIRE -> B15-INV -> B15-PRIV -> B15-6; then U99, U100, U104, U105; U101a -> U101b -> U101c -> U101d -> U101; L2-GUI-SMOKE last on final integrated Main. Original Task57 and Task17/P2C -> U105 gates remain. No concurrent L2 product/closure lane; NEXT is advisory.",
+    "carryForwards": {
+      "CF-LSC0-1 / F1": "U101/B15-1 retain accountability; B15-AUTH-LIMIT implements trusted limiter identity for primary token/unlock, with all three helper callers in the census. Shared helper/tests serialize before ORIGIN and INV.",
+      "CF-LSC0-2 / F2": "B15-1/U101 retain accountability; B15-AUTH-ORIGIN guards primary token and vault identity unlock before body/KDF. Local-seat guards alone do not discharge F2; enumerate other auth surfaces without taking ungranted ownership.",
+      "CF-LSC0-4": "U101a/c/d must census local-seat routes and preserve scope parity; LSC-1 owns its mirror. Keep unscoped REST bootstrap, scope enforcement only after every socket consumer migrates.",
+      "CF-LSC0-12": "B15-2/U101c admission must first release LSC-2/2OP overlapping entry/store leaves and re-census; no concurrent writes.",
+      "CF-G2A-1/2/4/6, CF-G2-10, CF-B14A-8": "B15-INV owns both-mode rate limits, known-code non-member refusal, summary/campaign correlation policy and lowercase Bearer/empty campaignId MR1/MR4 rows. B15-PRIV retains listing/default-name privacy and proves composition. Logging is optional with explicit rationale; use logger if adopted.",
+      "CF-G2A-3": "B15-WIRE owns strict canonical base64 decode and real malformed/trailing/padding tests. No broad token-policy rewrite."
+    },
+    "supersession": "This binding amendment replaces only the direct B15-5R -> B15-PRIV scheduling edge with the four new serial security slices; earlier B15 order descriptions remain historical. All other admission, privacy, topology, lifecycle and L1 obligations persist.",
+    "refreeze": "All residual units require post-L1/B15 Main source/test/helper/lifecycle/evidence manifest and RED refresh before admission. U99 2/120, U100 3/120, U104 5/220, U101b/d 8/300 stay tight; lawful separate closure allocation only where permitted, otherwise narrower registered prefixes. U101 aggregate freezes its own proof/task-reconciliation manifest after d, not another implementation.",
+    "census": "Evidence captures every open PR (4; exact head before/after; all file pages including rename sources) and all 124 planned/blocked/implementing units plus both-ledger manifests and new-unit intersections. Rebase/re-census each admission and merge. Shared units writer queue follows merged B14-0/A1 source PRs; their closure lifecycle is parent-owned, with LSC-1DB #2290 in flight. No historical record is rewritten.",
+    "release": "Every L2 obligation, required carry-forward disposition, packaged GUI on actual platform artifacts and every P3 acceptance letter need genuine exact-Main proof/ancestry/closure, then independent Astra P3-exit review and v2.3.0. Retain withheld application, wrong scope, hidden state, stale lineage, revocation, no-op and reconnect negatives. P4 Task33 final production UAT remains distinct; FN-ob2 owner-column/multi-operator and FN-u96 stay open pending their own proof.",
+    "bounds": "This amendment owns only units.json, roadmap.json, PROGRESS.md and the hash-bound evidence; <=15 files/500 counted additions, no deletion credit. All current caps/review classes/receipts remain. New slices retain 15/500, tests/evidence file-counted and line-exempt under U41; future overflow or extra leaves require a registered split. One heavy run and existing machine-idle gate; no heavy validation in this edit."
   }
 }

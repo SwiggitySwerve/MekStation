@@ -16815,7 +16815,10 @@
         "predecessors": [
           "U101d"
         ]
-      }
+      },
+      "successors": [
+        "L2-GUI-SMOKE"
+      ]
     },
     {
       "id": "U103",
@@ -17021,7 +17024,8 @@
           "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --runTestsByPath src/lib/multiplayer/server/__tests__/auth.test.ts src/lib/multiplayer/server/__tests__/socketTokenScope.test.ts"
         ],
         "predecessors": []
-      }
+      },
+      "l2Admission20261018": "CF-LSC0-4: include local-seat issuance in scope census and LSC-1 mirror after LSC ownership release; preserve unscoped REST bootstrap. F1/F2 owned by B15-AUTH-LIMIT/ORIGIN for U101/B15-1. Refreeze on post-L1/B15 Main under unchanged 8/300 cap."
     },
     {
       "id": "U101b",
@@ -17129,7 +17133,8 @@
         "predecessors": [
           "U101a"
         ]
-      }
+      },
+      "l2Admission20261018": "CF-LSC0-4/12: include local-seat refresh/reconnect scope and release LSC-2/2OP and B15-2/PRIV entry/store ownership before refreeze; serialize U105. Existing consumer/enforcement order and 8/300 cap remain."
     },
     {
       "id": "U101d",
@@ -17188,7 +17193,11 @@
           "U101b",
           "U101c"
         ]
-      }
+      },
+      "successors": [
+        "L2-GUI-SMOKE"
+      ],
+      "l2Admission20261018": "CF-LSC0-4: include local-seat tokens/callers in final scope census after all consumers migrate; retain packaged socket proof and 8/300 cap. GUI launch is L2-GUI-SMOKE, not this manifest."
     },
     {
       "id": "B15-0",
@@ -17231,8 +17240,12 @@
       "ownerGate": null,
       "admissionRequires": "Blocked documentary registration, no source admission. L2/P3-exit supporting group after U38 and prior B15 predecessor exact-main PASS, fetched-main ancestry and closure. No overlap with L1, U50, U81 or U101c/d work; re-census every literal path, including exceptions and planned/blocked holders, before admission. Keep one product/closure lane. Ordinary caps are 15 actual unique files and 500 U41 added counted lines, no deletion credit. Freeze complete source/test/helper/lifecycle/evidence manifest before edits. This inventory is not cap-fit proof: if required tests, projection or evidence exceed either cap, register narrower ordinary-cap successors before implementation; never omit proof or bypass auth to fit. NEXT does not enforce documentary edges or release policy. No remote/tunnel claim before B15-3R, B15-3, B15-5 and B15-5R exact-main proof plus the complete group/hosting acceptance. Existing L1 predicate is unchanged. Sensitive: register a genuine packet before local-verified and obtain independent exact-head review plus OWNER-RULING before merge. ownerGate null is not a waiver; no unresolved choice packet is fabricated.",
       "predecessors": ["B15-0"],
-      "successors": ["B15-2"],
-      "registration20261018B15": {"evidence":"evidence/b15-ob2-registration-20261018.json","layer":"L2 = P3 exit; remote/tunnel support precondition, never an L1 prerequisite","ownerRulingRequired":true,"sourceAdmitted":false}
+      "successors": [
+        "B15-2",
+        "L2-GUI-SMOKE"
+      ],
+      "registration20261018B15": {"evidence":"evidence/b15-ob2-registration-20261018.json","layer":"L2 = P3 exit; remote/tunnel support precondition, never an L1 prerequisite","ownerRulingRequired":true,"sourceAdmitted":false},
+      "l2Admission20261018": "CF-LSC0-1/2 remain U101/B15-1 accountability; implementation is B15-AUTH-LIMIT/ORIGIN under l2ReadinessAmendment20261018, not added to this full manifest. A safe new campaign-local-session endpoint alone does not close primary token/unlock F1/F2."
     },
     {
       "id": "B15-2",
@@ -17254,7 +17267,8 @@
       "admissionRequires": "Blocked documentary registration, no source admission. L2/P3-exit supporting group after U38 and prior B15 predecessor exact-main PASS, fetched-main ancestry and closure. No overlap with L1, U50, U81 or U101c/d work; re-census every literal path, including exceptions and planned/blocked holders, before admission. Keep one product/closure lane. Ordinary caps are 15 actual unique files and 500 U41 added counted lines, no deletion credit. Freeze complete source/test/helper/lifecycle/evidence manifest before edits. This inventory is not cap-fit proof: if required tests, projection or evidence exceed either cap, register narrower ordinary-cap successors before implementation; never omit proof or bypass auth to fit. NEXT does not enforce documentary edges or release policy. No remote/tunnel claim before B15-3R, B15-3, B15-5 and B15-5R exact-main proof plus the complete group/hosting acceptance. Existing L1 predicate is unchanged. Routine: ordinary independent review/CI; no sensitive OWNER-RULING required. Reclassify before any actual authority/privacy policy change.",
       "predecessors": ["B15-1"],
       "successors": ["B15-4"],
-      "registration20261018B15": {"evidence":"evidence/b15-ob2-registration-20261018.json","layer":"L2 = P3 exit; remote/tunnel support precondition, never an L1 prerequisite","ownerRulingRequired":false,"sourceAdmitted":false}
+      "registration20261018B15": {"evidence":"evidence/b15-ob2-registration-20261018.json","layer":"L2 = P3 exit; remote/tunnel support precondition, never an L1 prerequisite","ownerRulingRequired":false,"sourceAdmitted":false},
+      "l2Admission20261018": "CF-LSC0-12: release LSC-2/2OP entry/store ownership first, then post-L1 literal/ancestor census and manifest refreeze; no parallel writers."
     },
     {
       "id": "B15-4",
@@ -17388,7 +17402,7 @@
       "admissionRequires": "Blocked documentary registration, no source admission. L2/P3-exit supporting group after U38 and prior B15 predecessor exact-main PASS, fetched-main ancestry and closure. No overlap with L1, U50, U81 or U101c/d work; re-census every literal path, including exceptions and planned/blocked holders, before admission. Keep one product/closure lane. Ordinary caps are 15 actual unique files and 500 U41 added counted lines, no deletion credit. Freeze complete source/test/helper/lifecycle/evidence manifest before edits. This inventory is not cap-fit proof: if required tests, projection or evidence exceed either cap, register narrower ordinary-cap successors before implementation; never omit proof or bypass auth to fit. NEXT does not enforce documentary edges or release policy. No remote/tunnel claim before B15-3R, B15-3, B15-5 and B15-5R exact-main proof plus the complete group/hosting acceptance. Existing L1 predicate is unchanged. Sensitive: register a genuine packet before local-verified and obtain independent exact-head review plus OWNER-RULING before merge. ownerGate null is not a waiver; no unresolved choice packet is fabricated.",
       "predecessors": ["B15-5"],
       "successors": [
-        "B15-PRIV"
+        "B15-AUTH-LIMIT"
       ],
       "registration20261018B15": {"evidence":"evidence/b15-ob2-registration-20261018.json","layer":"L2 = P3 exit; remote/tunnel support precondition, never an L1 prerequisite","ownerRulingRequired":true,"sourceAdmitted":false}
     },
@@ -17436,7 +17450,7 @@
       "ownerGate": null,
       "admissionRequires": "Blocked post-U38 like all B15, after B15-5R exact-main PASS, fetched-main ancestry and closure; no L1 prerequisite. Re-census every proposed literal against G2, B14, B15 and all planned/blocked holders on current Main; no current write permission to protected co-op or L1 files. Target <=10 actual files / <=300 counted additions is a hypothesis, not measured proof. Freeze the complete manifest and split if proof/closure exceeds target or ordinary 15/500 caps. Genuine sensitive packet before local-verified; independent exact-head review and OWNER-RULING before merge; exact-main PASS and closure before B15-6. No source admission or fabricated receipts.",
       "predecessors": [
-        "B15-5R"
+        "B15-INV"
       ],
       "successors": [
         "B15-6"
@@ -17457,7 +17471,8 @@
           "evidence/council3-b-20261018.txt",
           "evidence/council3-c-20261018.txt"
         ]
-      }
+      },
+      "l2Admission20261018": "B15-INV owns known-code membership, safe summary policy, both-mode abuse budgets and lowercase Bearer/empty campaignId MR1/MR4 rows; retain listing/default-name ownership and compose both proofs before B15-6. Shared securityBoundary.test.ts is serial."
     },
     {
       "id": "B15-6",
@@ -17480,8 +17495,11 @@
       "predecessors": [
         "B15-PRIV"
       ],
-      "successors": [],
-      "registration20261018B15": {"evidence":"evidence/b15-ob2-registration-20261018.json","layer":"L2 = P3 exit; remote/tunnel support precondition, never an L1 prerequisite","ownerRulingRequired":false,"sourceAdmitted":false}
+      "successors": [
+        "L2-GUI-SMOKE"
+      ],
+      "registration20261018B15": {"evidence":"evidence/b15-ob2-registration-20261018.json","layer":"L2 = P3 exit; remote/tunnel support precondition, never an L1 prerequisite","ownerRulingRequired":false,"sourceAdmitted":false},
+      "l2Admission20261018": "No remote/tunnel procedure or support claim before B15-AUTH-LIMIT, B15-AUTH-ORIGIN, B15-WIRE, B15-INV and B15-PRIV exact-Main closure, full actor x 17-method proof and actual intended-topology evidence; all earlier B15 holds remain."
     },
     {
       "id": "FOG-S",
@@ -18247,6 +18265,267 @@
       "registration20261018": {
         "source": "evidence/followups-registration-20261018.txt",
         "sourceSha256": "06f8fdf1b4d503f432771bddcd8d70564d896298c6a39cba4634bb7bd73a7428"
+      }
+    },
+    {
+      "id": "B15-AUTH-LIMIT",
+      "node": "R2.campaign-access",
+      "taskKeys": [],
+      "behavior": "F1 / CF-LSC0-1 implementation for U101/B15-1: clientRateLimitKey uses the actual socket peer (or conservative fallback), never caller X-Forwarded-For. Prove rotated/string/array/missing spoof headers cannot buy extra token or vault-unlock KDF attempts; preserve separate route budgets and match-create limiter semantics. No proxy trust, seat-budget change or token scope change.",
+      "ownershipPaths": [
+        "src/lib/api/security.ts",
+        "src/__tests__/api/securityBoundary.test.ts",
+        "src/__tests__/api/vault/unlock.test.ts"
+      ],
+      "ownershipExceptions": [
+        "src/lib/api/__tests__/security.test.ts",
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-auth-limit-admission.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-auth-limit-red.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-auth-limit-local.json"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "predecessors": [
+        "B15-5R"
+      ],
+      "successors": [
+        "B15-AUTH-ORIGIN"
+      ],
+      "admissionRequires": "Blocked documentary registration only. After U38 exact-Main PASS, ancestry, closure and L1 release boundary, parent may release only after every listed predecessor has genuine exact-Main PASS and closure. Follow l2ReadinessAmendment20261018; serialize B15/L2 and shared ledger writers. Rebase/re-census every open PR and planned/blocked/implementing unit, including literal/ancestor aliases and both-ledger manifests; resolve overlaps, freeze every actual source/test/helper/lifecycle/evidence leaf and measure fit before edits. <=15 actual files / 500 total counted additions, no deletion credit; tests/evidence line-exempt but file-counted. Extra leaves or overflow require a separately registered split. Later review/identity/closure outputs require finite G-OWN freeze. NEXT is advisory, not admission. Sensitive: genuine packet before local-verified, independent exact-head review and OWNER-RULING before merge, required CI and exact-Main proof; null ownerGate is no waiver.",
+      "registration20261018L2": {
+        "source": "evidence/l2-readiness-amendment-20261018.json",
+        "sourceSha256": "9f4e3a0bd972b7aebeb3828443415d221e91087584641cb4bf925fc6e08ca404"
+      }
+    },
+    {
+      "id": "B15-AUTH-ORIGIN",
+      "node": "R2.campaign-access",
+      "taskKeys": [],
+      "behavior": "F2 / CF-LSC0-2 implementation for B15-1/U101: guard primary /api/multiplayer/auth/token and /api/vault/identity/unlock against Host/DNS-rebinding and Origin/CSRF before body parsing, identity lookup or KDF. Freeze same-host, loopback/IPv6/port and Origin/Sec-Fetch-Site policy with real accepted/refused route rows; forwarded headers confer no authority. Preserve legitimate same-host Electron/browser and unscoped REST bootstrap; do not enable remote hosting. Census other auth routes and LSC guard parity without claiming unowned fixes.",
+      "ownershipPaths": [
+        "src/lib/api/security.ts",
+        "src/pages/api/multiplayer/auth/token.ts",
+        "src/pages/api/vault/identity/unlock.ts",
+        "src/__tests__/api/securityBoundary.test.ts",
+        "src/__tests__/api/vault/unlock.test.ts"
+      ],
+      "ownershipExceptions": [
+        "src/lib/api/__tests__/security.test.ts",
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-auth-origin-admission.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-auth-origin-red.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-auth-origin-local.json"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "predecessors": [
+        "B15-AUTH-LIMIT"
+      ],
+      "successors": [
+        "B15-WIRE"
+      ],
+      "admissionRequires": "Blocked documentary registration only. After U38 exact-Main PASS, ancestry, closure and L1 release boundary, parent may release only after every listed predecessor has genuine exact-Main PASS and closure. Follow l2ReadinessAmendment20261018; serialize B15/L2 and shared ledger writers. Rebase/re-census every open PR and planned/blocked/implementing unit, including literal/ancestor aliases and both-ledger manifests; resolve overlaps, freeze every actual source/test/helper/lifecycle/evidence leaf and measure fit before edits. <=15 actual files / 500 total counted additions, no deletion credit; tests/evidence line-exempt but file-counted. Extra leaves or overflow require a separately registered split. Later review/identity/closure outputs require finite G-OWN freeze. NEXT is advisory, not admission. Sensitive: genuine packet before local-verified, independent exact-head review and OWNER-RULING before merge, required CI and exact-Main proof; null ownerGate is no waiver.",
+      "registration20261018L2": {
+        "source": "evidence/l2-readiness-amendment-20261018.json",
+        "sourceSha256": "9f4e3a0bd972b7aebeb3828443415d221e91087584641cb4bf925fc6e08ca404"
+      }
+    },
+    {
+      "id": "B15-WIRE",
+      "node": "R2.campaign-access",
+      "taskKeys": [],
+      "behavior": "CF-G2A-3 strict wire decoding: reject non-base64 characters, trailing garbage, invalid/noncanonical padding and malformed payloads in Player.ts; preserve valid token round-trip and existing signature/scope law. Real browser/Node decoding rows and verifier regression must kill the permissive decode mutant. This implements wire parsing only; U101 still owns scope mint/consumer/enforcement.",
+      "ownershipPaths": [
+        "src/types/multiplayer/Player.ts",
+        "src/lib/multiplayer/server/__tests__/auth.test.ts"
+      ],
+      "ownershipExceptions": [
+        "src/types/multiplayer/__tests__/Player.test.ts",
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-wire-admission.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-wire-red.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-wire-local.json"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "predecessors": [
+        "B15-AUTH-ORIGIN"
+      ],
+      "successors": [
+        "B15-INV"
+      ],
+      "admissionRequires": "Blocked documentary registration only. After U38 exact-Main PASS, ancestry, closure and L1 release boundary, parent may release only after every listed predecessor has genuine exact-Main PASS and closure. Follow l2ReadinessAmendment20261018; serialize B15/L2 and shared ledger writers. Rebase/re-census every open PR and planned/blocked/implementing unit, including literal/ancestor aliases and both-ledger manifests; resolve overlaps, freeze every actual source/test/helper/lifecycle/evidence leaf and measure fit before edits. <=15 actual files / 500 total counted additions, no deletion credit; tests/evidence line-exempt but file-counted. Extra leaves or overflow require a separately registered split. Later review/identity/closure outputs require finite G-OWN freeze. NEXT is advisory, not admission. Sensitive: genuine packet before local-verified, independent exact-head review and OWNER-RULING before merge, required CI and exact-Main proof; null ownerGate is no waiver.",
+      "registration20261018L2": {
+        "source": "evidence/l2-readiness-amendment-20261018.json",
+        "sourceSha256": "9f4e3a0bd972b7aebeb3828443415d221e91087584641cb4bf925fc6e08ca404"
+      }
+    },
+    {
+      "id": "B15-INV",
+      "node": "R2.campaign-access",
+      "taskKeys": [],
+      "behavior": "Close CF-G2A-1/2/4 and invite portion of CF-G2-10 / PRIV-1 / CF-B14A-8: rate-limit both invite summary and identity modes; known room code is not membership. Refuse non-member identity queries with 401/404 without campaignId/co-op/private-fog correlation. Freeze safe invited-code summary policy, lowercase Bearer and empty campaignId MR1/MR4 rows, real allowed-member/public controls and verifier coverage. Keep ordinary public invites usable. CF-G2A-6 logging is optional, explicitly dispositioned with rationale; use logger if adopted. B15-PRIV owns listing/default-name work after this closure.",
+      "ownershipPaths": [
+        "src/pages/api/multiplayer/invites/[roomCode].ts",
+        "src/__tests__/api/securityBoundary.test.ts",
+        "src/lib/api/security.ts"
+      ],
+      "ownershipExceptions": [
+        "src/lib/api/__tests__/security.test.ts",
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-inv-admission.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-inv-red.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-inv-local.json"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "predecessors": [
+        "B15-WIRE"
+      ],
+      "successors": [
+        "B15-PRIV"
+      ],
+      "admissionRequires": "Blocked documentary registration only. After U38 exact-Main PASS, ancestry, closure and L1 release boundary, parent may release only after every listed predecessor has genuine exact-Main PASS and closure. Follow l2ReadinessAmendment20261018; serialize B15/L2 and shared ledger writers. Rebase/re-census every open PR and planned/blocked/implementing unit, including literal/ancestor aliases and both-ledger manifests; resolve overlaps, freeze every actual source/test/helper/lifecycle/evidence leaf and measure fit before edits. <=15 actual files / 500 total counted additions, no deletion credit; tests/evidence line-exempt but file-counted. Extra leaves or overflow require a separately registered split. Later review/identity/closure outputs require finite G-OWN freeze. NEXT is advisory, not admission. Sensitive: genuine packet before local-verified, independent exact-head review and OWNER-RULING before merge, required CI and exact-Main proof; null ownerGate is no waiver.",
+      "registration20261018L2": {
+        "source": "evidence/l2-readiness-amendment-20261018.json",
+        "sourceSha256": "9f4e3a0bd972b7aebeb3828443415d221e91087584641cb4bf925fc6e08ca404"
+      }
+    },
+    {
+      "id": "L2-GUI-SMOKE",
+      "node": "R2.campaign-access",
+      "taskKeys": [],
+      "behavior": "Add packaged Electron GUI launch smoke to Build Test using the actual Windows/macOS/Linux artifact without ELECTRON_RUN_AS_NODE. In an isolated data directory prove real BrowserWindow renderer navigation, owned server health and B15-1 operator cookie established before campaign access; bind artifact/hash/process identity, bounded failure and owned-process teardown. Linux requires an explicit display strategy, never a silent skip. Retain packaged security/socket regressions. Only CI/build-caller/launcher/test wiring; startup/cookie implementation changes require separately registered sensitive work. Final proof runs on integrated Main after B15/U101 and all residual L2 obligations; one heavy run under the idle gate.",
+      "ownershipPaths": [
+        ".github/workflows/pr-checks.yml",
+        "desktop/scripts/test-build.js"
+      ],
+      "ownershipExceptions": [
+        "desktop/scripts/validate-packaged-launch.js",
+        "desktop/scripts/__tests__/validate-packaged-launch.test.js",
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l2-gui-smoke-admission.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l2-gui-smoke-red.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l2-gui-smoke-local.json"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "predecessors": [
+        "B15-1",
+        "U101d",
+        "U101",
+        "B15-6"
+      ],
+      "successors": [],
+      "admissionRequires": "Blocked documentary registration only. After U38 exact-Main PASS, ancestry, closure and L1 release boundary, parent may release only after every listed predecessor has genuine exact-Main PASS and closure. Follow l2ReadinessAmendment20261018; serialize B15/L2 and shared ledger writers. Rebase/re-census every open PR and planned/blocked/implementing unit, including literal/ancestor aliases and both-ledger manifests; resolve overlaps, freeze every actual source/test/helper/lifecycle/evidence leaf and measure fit before edits. <=15 actual files / 500 total counted additions, no deletion credit; tests/evidence line-exempt but file-counted. Extra leaves or overflow require a separately registered split. Later review/identity/closure outputs require finite G-OWN freeze. NEXT is advisory, not admission. Routine infrastructure; reclassify before any startup/authority/privacy behavior change.",
+      "registration20261018L2": {
+        "source": "evidence/l2-readiness-amendment-20261018.json",
+        "sourceSha256": "9f4e3a0bd972b7aebeb3828443415d221e91087584641cb4bf925fc6e08ca404"
       }
     }
   ],
@@ -25656,5 +25935,58 @@
     "collisionRule": "Census covers every open PR and all planned/blocked/implementing units, exact paths and ancestor aliases; source in hash-bound evidence. Registration writer queue is serialized with LSC-0 closure #2288 and later B14-0 closure, plus A1 lifecycle; rebase before CI and again after an earlier writer lands. Re-census all future admissions; U73 retains engine ownership (a separate scope amendment is required for any engine edit); U45 src/lib, U24/U24b server, H/HP and broad e2e/scripts holders keep their contracts. No broad alias supplies implementation permission.",
     "scope": "Only units.json, roadmap.json, PROGRESS.md and this named evidence file. Registration cap 15 files / 500 counted additions; evidence is line-exempt/file-counted. Original task holders, packets, historical receipts, validator semantics and every existing cap/review gate remain. Remaining nightly fixes are owned by baseline PRs, not reimplemented here.",
     "reviewCorrection20261018": "Sonnet CHANGES on ec8c989458fd1b61008bfa6f835d842603d4a1e7: the committed 113202-byte LF evidence file is authoritative and unchanged. Its former 55f8786f hash described a working copy with 748 CRLF sequences; Git normalization produced committed SHA256 06f8fdf1b4d503f432771bddcd8d70564d896298c6a39cba4634bb7bd73a7428. Bind both ledgers and all five unit registrations to committed bytes. The preserved census/review-era text is historical; current unit leaves, symmetric B14-0 recovery edges and this correction supersede the first draft engine grant, read-only Node service restriction and B14-HEAD wait. Routine maintenance carries no sensitive-work boilerplate."
+  },
+  "l2ReadinessAmendment20261018": {
+    "baseline": "b16302d76df1ace0589bc334f9249330a25c5278",
+    "source": "evidence/l2-readiness-amendment-20261018.json",
+    "sourceSha256": "9f4e3a0bd972b7aebeb3828443415d221e91087584641cb4bf925fc6e08ca404",
+    "registrationOnly": true,
+    "sourceAdmitted": false,
+    "authority": "Owner authorizes recommended options and publishing; this docs-only amendment supplies no future source admission, exact-head OWNER-RULING or runtime acceptance.",
+    "layer": "L2 / P3 exit / v2.3.0; all five new units BLOCKED, never L1/v2.2.0 prerequisites",
+    "additionalUnits": [
+      "B15-AUTH-LIMIT",
+      "B15-AUTH-ORIGIN",
+      "B15-WIRE",
+      "B15-INV",
+      "L2-GUI-SMOKE"
+    ],
+    "existingOpenHolders": [
+      "B15-0",
+      "B15-1",
+      "B15-2",
+      "B15-4",
+      "B15-4J",
+      "B15-3R",
+      "B15-3",
+      "B15-5",
+      "B15-5R",
+      "B15-PRIV",
+      "B15-6",
+      "U99",
+      "U100",
+      "U104",
+      "U105",
+      "U101a",
+      "U101b",
+      "U101c",
+      "U101d",
+      "U101"
+    ],
+    "accounting": "20 existing open holders + 5 new blocked slices = 25 L2 obligations. P2CER is a delivered documentary registration (#2137, 08f917ef), counted once via preserved evidence/p2cer-registration-20261016.json; no duplicate unit or product acceptance. Original task holders and all lifecycle states/receipts stay unchanged.",
+    "order": "U38 exact-Main closure and L1 release/human-session boundary first. Existing B15 chain through B15-5R -> B15-AUTH-LIMIT -> B15-AUTH-ORIGIN -> B15-WIRE -> B15-INV -> B15-PRIV -> B15-6; then U99, U100, U104, U105; U101a -> U101b -> U101c -> U101d -> U101; L2-GUI-SMOKE last on final integrated Main. Original Task57 and Task17/P2C -> U105 gates remain. No concurrent L2 product/closure lane; NEXT is advisory.",
+    "carryForwards": {
+      "CF-LSC0-1 / F1": "U101/B15-1 retain accountability; B15-AUTH-LIMIT implements trusted limiter identity for primary token/unlock, with all three helper callers in the census. Shared helper/tests serialize before ORIGIN and INV.",
+      "CF-LSC0-2 / F2": "B15-1/U101 retain accountability; B15-AUTH-ORIGIN guards primary token and vault identity unlock before body/KDF. Local-seat guards alone do not discharge F2; enumerate other auth surfaces without taking ungranted ownership.",
+      "CF-LSC0-4": "U101a/c/d must census local-seat routes and preserve scope parity; LSC-1 owns its mirror. Keep unscoped REST bootstrap, scope enforcement only after every socket consumer migrates.",
+      "CF-LSC0-12": "B15-2/U101c admission must first release LSC-2/2OP overlapping entry/store leaves and re-census; no concurrent writes.",
+      "CF-G2A-1/2/4/6, CF-G2-10, CF-B14A-8": "B15-INV owns both-mode rate limits, known-code non-member refusal, summary/campaign correlation policy and lowercase Bearer/empty campaignId MR1/MR4 rows. B15-PRIV retains listing/default-name privacy and proves composition. Logging is optional with explicit rationale; use logger if adopted.",
+      "CF-G2A-3": "B15-WIRE owns strict canonical base64 decode and real malformed/trailing/padding tests. No broad token-policy rewrite."
+    },
+    "supersession": "This binding amendment replaces only the direct B15-5R -> B15-PRIV scheduling edge with the four new serial security slices; earlier B15 order descriptions remain historical. All other admission, privacy, topology, lifecycle and L1 obligations persist.",
+    "refreeze": "All residual units require post-L1/B15 Main source/test/helper/lifecycle/evidence manifest and RED refresh before admission. U99 2/120, U100 3/120, U104 5/220, U101b/d 8/300 stay tight; lawful separate closure allocation only where permitted, otherwise narrower registered prefixes. U101 aggregate freezes its own proof/task-reconciliation manifest after d, not another implementation.",
+    "census": "Evidence captures every open PR (4; exact head before/after; all file pages including rename sources) and all 124 planned/blocked/implementing units plus both-ledger manifests and new-unit intersections. Rebase/re-census each admission and merge. Shared units writer queue follows merged B14-0/A1 source PRs; their closure lifecycle is parent-owned, with LSC-1DB #2290 in flight. No historical record is rewritten.",
+    "release": "Every L2 obligation, required carry-forward disposition, packaged GUI on actual platform artifacts and every P3 acceptance letter need genuine exact-Main proof/ancestry/closure, then independent Astra P3-exit review and v2.3.0. Retain withheld application, wrong scope, hidden state, stale lineage, revocation, no-op and reconnect negatives. P4 Task33 final production UAT remains distinct; FN-ob2 owner-column/multi-operator and FN-u96 stay open pending their own proof.",
+    "bounds": "This amendment owns only units.json, roadmap.json, PROGRESS.md and the hash-bound evidence; <=15 files/500 counted additions, no deletion credit. All current caps/review classes/receipts remain. New slices retain 15/500, tests/evidence file-counted and line-exempt under U41; future overflow or extra leaves require a registered split. One heavy run and existing machine-idle gate; no heavy validation in this edit."
   }
 }
