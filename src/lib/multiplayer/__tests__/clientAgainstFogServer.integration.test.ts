@@ -38,6 +38,16 @@ import { buildMirrorSession, orderGameEvents } from '../mirrorMatchSession';
 import { InMemoryMatchStore } from '../server/InMemoryMatchStore';
 import { ServerMatchHost } from '../server/ServerMatchHost';
 
+// B14 seam: this suite pins the existing per-viewer fog filter beneath the
+// B14 refusal. Production has no per-viewer reveal projection and refuses.
+jest.mock('@/lib/multiplayer/server/fogMatchAdmission', () => ({
+  ...jest.requireActual<
+    typeof import('@/lib/multiplayer/server/fogMatchAdmission')
+  >('@/lib/multiplayer/server/fogMatchAdmission'),
+  noPerViewerRevealProjection: () => false,
+  matchLacksRevealProjection: async () => false,
+}));
+
 const MATCH_ID = 'match-client-fog-bridge';
 
 /**

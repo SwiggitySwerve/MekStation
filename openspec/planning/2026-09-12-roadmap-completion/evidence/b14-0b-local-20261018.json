@@ -1,0 +1,601 @@
+{
+  "schemaVersion": 1,
+  "unit": "B14-0B",
+  "stage": "local",
+  "date": "20261018",
+  "baseline": "e6d1553ce90ca9c56705a349155c4030e7901857",
+  "at": "2026-10-18T16:39:50.636Z",
+  "commits": {
+    "admission": "6178b13af9108164b02738d5b93809722700b780",
+    "tests": "cd45d9223bd2b495b4cfab1129675db8e978766b",
+    "local": "the commit carrying this receipt (receipt and units.json local path only)"
+  },
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "B14 implementation sub-agent (B14-0B)"
+  },
+  "runtime": {
+    "node": "v22.22.0",
+    "jest": "29.7.0",
+    "typescript": "typescript7 (npm run typecheck)",
+    "gate": "node scripts/qc/machine-idle.mjs --own-pid 47516 --own-pid 55164 before every heavy run (MACHINE_IDLE each time)",
+    "idleLog": {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0b-proof-20261018/idle-gates.log",
+      "sha256": "ac622065465a741130831f566118f6dab322e8fd6b55cf1d59f126043e61bda4",
+      "bytes": 4033
+    },
+    "jestFlags": "--runInBand --cacheDirectory <proof>/.jest-private"
+  },
+  "delivered": "The canonical ten-line seam in each of the ten registered legacy-filter suites, placed after the imports; each suite diff is exactly +10/-0 with no assertion change. No product, helper, spec, guard or config byte changes.",
+  "attribution": "Every run below was taken on the clean tests commit cd45d9223 (reg.cjs records head and worktree state; mutant and simulation runs restore HEAD after each run and the tree was clean afterwards). This receipt and its units.json path are the only bytes added after that.",
+  "seamGuard": {
+    "suite": "src/pages-modules/api/__tests__/matchHistoryFog.test.ts (B14-0A allowlist guard, frozen control)",
+    "result": "passes with all ten B14-0B seams (14/14 in that suite)",
+    "mutants": [
+      {
+        "name": "G1-mock-outside-allowlist",
+        "mutation": "capability jest.mock added to non-allowlisted sealedChoiceDelivery.test.ts",
+        "outcome": "caught",
+        "killingAssertions": [
+          "B14 legacy-filter seam allowlist confines the capability mock to registered suites with the canonical seam"
+        ]
+      },
+      {
+        "name": "G2-canonical-comment-removed",
+        "mutation": "canonical seam comment removed from viewerDeliverySequence.test.ts",
+        "outcome": "caught",
+        "killingAssertions": [
+          "B14 legacy-filter seam allowlist confines the capability mock to registered suites with the canonical seam"
+        ]
+      },
+      {
+        "name": "G3-override-removed",
+        "mutation": "noPerViewerRevealProjection override removed from fogViewerSequenceSparsity.test.ts",
+        "outcome": "caught",
+        "killingAssertions": [
+          "B14 legacy-filter seam allowlist confines the capability mock to registered suites with the canonical seam"
+        ]
+      },
+      {
+        "name": "G4-override-flipped-guard",
+        "mutation": "matchLacksRevealProjection override flipped to refuse (policy) in ServerMatchHost.spectator.test.ts; guard suite",
+        "outcome": "caught",
+        "killingAssertions": [
+          "B14 legacy-filter seam allowlist confines the capability mock to registered suites with the canonical seam"
+        ]
+      },
+      {
+        "name": "G5-override-flipped-under-B14-0",
+        "mutation": "same flip, run under the simulated B14-0 refusal against the spectator suite",
+        "outcome": "caught",
+        "killingAssertions": [
+          "ServerMatchHost spectator connection — design D5 streams the replay then live events to a connecting spectator",
+          "B10 sealed movement_declared spectator, fog true, player brand, stale true: live and replay withhold it"
+        ]
+      }
+    ]
+  },
+  "realFilter": {
+    "claim": "The seam replaces only the capability decision. With a simulated B14-0 refusal present (uncommitted; admission redDecision and red receipt record the files by hash) and the seams in place, every one of the ten suites is killed by at least one mutant in the real fog / sealed-choice / frame-projection / delivery-numbering path, so the suites still exercise the real per-viewer filter beneath the refusal.",
+    "mutants": [
+      {
+        "name": "F1-player-fog-filter-bypassed",
+        "group": "real",
+        "mutation": "filterEventForPlayer returns every event unfiltered for players",
+        "simulatedB14_0": true,
+        "suites": 10,
+        "passed": 65,
+        "failed": 6,
+        "suiteErrors": 0,
+        "outcome": "caught",
+        "killedSuites": [
+          "fogViewerSequenceSparsity.test.ts:1",
+          "viewerFrameRawNegativeSweep.test.ts:2",
+          "viewerDeliverySequence.test.ts:2",
+          "viewerSequenceConcealmentLeak.test.ts:1"
+        ],
+        "killingAssertions": [
+          "fog-of-war viewer sequence sparsity gives each viewer a stream with holes the other does not have",
+          "viewer frame raw-wire negative sweep (d) inferable concealment does not reconstruct a hidden authority position from any numeric field",
+          "viewer frame raw-wire negative sweep (d) inferable concealment characterizes the replay-span finding: delivery span equals items delivered; hidden count unrecoverable",
+          "per-viewer delivery sequence numbers the two viewers independently"
+        ]
+      },
+      {
+        "name": "F2-spectator-fog-filter-bypassed",
+        "group": "real",
+        "mutation": "filterEventForSpectator returns every event unfiltered",
+        "simulatedB14_0": true,
+        "suites": 10,
+        "passed": 69,
+        "failed": 2,
+        "suiteErrors": 0,
+        "outcome": "caught",
+        "killedSuites": [
+          "ServerMatchHost.spectator.test.ts:1",
+          "matchmaking.integration.test.ts:1"
+        ],
+        "killingAssertions": [
+          "ServerMatchHost spectator fog-of-war scope — design D6 a fog-on spectator never receives a hidden-unit event",
+          "M3 integration — spectate a fog-on match (task 8.2) a spectator observes an active fog-on match without hidden-unit events"
+        ]
+      },
+      {
+        "name": "F3-sealed-spectator-exclusion-removed",
+        "group": "real",
+        "mutation": "S rule: current spectator seat no longer excluded from sealed-declaration ownership",
+        "simulatedB14_0": true,
+        "suites": 10,
+        "passed": 50,
+        "failed": 21,
+        "suiteErrors": 0,
+        "outcome": "caught",
+        "killedSuites": [
+          "ServerMatchHost.spectator.test.ts:21"
+        ],
+        "killingAssertions": [
+          "B10 sealed movement_declared spectator, fog true, player brand, stale true: live and replay withhold it",
+          "B10 sealed movement_declared spectator, fog true, gm brand, stale true: live and replay withhold it"
+        ]
+      },
+      {
+        "name": "F4-authority-field-strip-bypassed",
+        "group": "real",
+        "mutation": "projectEventForViewerClass returns the raw event (authority-only fields kept)",
+        "simulatedB14_0": true,
+        "suites": 10,
+        "passed": 59,
+        "failed": 12,
+        "suiteErrors": 0,
+        "outcome": "caught",
+        "killedSuites": [
+          "ServerMatchHost.rewindLiveReplay.test.ts:1",
+          "viewerFrameAuthorityFieldLeak.test.ts:3",
+          "viewerDeliverySequence.test.ts:1",
+          "viewerSequenceConcealmentLeak.test.ts:2",
+          "clientAgainstFogServer.integration.test.ts:1",
+          "viewerFrameRawNegativeSweep.test.ts:4"
+        ],
+        "killingAssertions": [
+          "ServerMatchHost rewind reaches connected players privacy of the replay each socket gets its own projection: no fog-hidden fact and no authority-only field reaches a player",
+          "viewer frame authority-only fields delivers no server-only authority field to either player under fog",
+          "viewer frame authority-only fields removes only the declared fields and leaves the rest byte-identical",
+          "per-viewer delivery sequence is gapless for each viewer while the authority sequence is not"
+        ]
+      },
+      {
+        "name": "F5-delivery-numbering-is-authority-sequence",
+        "group": "real",
+        "mutation": "ViewerDeliveryCursors.assign returns the authority sequence instead of a per-viewer gapless number",
+        "simulatedB14_0": true,
+        "suites": 10,
+        "passed": 62,
+        "failed": 9,
+        "suiteErrors": 0,
+        "outcome": "caught",
+        "killedSuites": [
+          "viewerFrameRawNegativeSweep.test.ts:2",
+          "clientAgainstFogServer.integration.test.ts:2",
+          "viewerSequenceConcealmentLeak.test.ts:1",
+          "viewerDeliverySequence.test.ts:3",
+          "fogViewerSequenceSparsity.test.ts:1"
+        ],
+        "killingAssertions": [
+          "viewer frame raw-wire negative sweep (d) inferable concealment FINDING: ReplayStart/End authority span does not let a player count withheld events",
+          "viewer frame raw-wire negative sweep (d) inferable concealment characterizes the replay-span finding: delivery span equals items delivered; hidden count unrecoverable",
+          "real client against a real fog-of-war server keeps applying events after the server withholds one",
+          "real client against a real fog-of-war server applies, gaps, resyncs, and recovers when event.sequence is stripped"
+        ]
+      },
+      {
+        "name": "F6-live-fog-branch-disabled",
+        "group": "real",
+        "mutation": "publishEvent treats every match as fog-off (live fog filter never applied) under the simulated B14-0 file",
+        "simulatedB14_0": true,
+        "suites": 10,
+        "passed": 62,
+        "failed": 9,
+        "suiteErrors": 0,
+        "outcome": "caught",
+        "killedSuites": [
+          "viewerFrameRawNegativeSweep.test.ts:3",
+          "viewerDeliverySequence.test.ts:2",
+          "viewerSequenceConcealmentLeak.test.ts:1",
+          "fogViewerSequenceSparsity.test.ts:1",
+          "ServerMatchHost.spectator.test.ts:1",
+          "matchmaking.integration.test.ts:1"
+        ],
+        "killingAssertions": [
+          "viewer frame raw-wire negative sweep (d) inferable concealment does not reconstruct a hidden authority position from any numeric field",
+          "viewer frame raw-wire negative sweep (d) inferable concealment FINDING: ReplayStart/End authority span does not let a player count withheld events",
+          "per-viewer delivery sequence numbers the two viewers independently",
+          "per-viewer delivery sequence does not consume a number for a frame the viewer never receives"
+        ]
+      },
+      {
+        "name": "F7-replay-fog-branch-disabled",
+        "group": "real",
+        "mutation": "getReplayEventsForPlayer treats every match as fog-off (replay fog filter never applied)",
+        "simulatedB14_0": true,
+        "suites": 10,
+        "passed": 69,
+        "failed": 2,
+        "suiteErrors": 0,
+        "outcome": "caught",
+        "killedSuites": [
+          "viewerFrameRawNegativeSweep.test.ts:2"
+        ],
+        "killingAssertions": [
+          "viewer frame raw-wire negative sweep (d) inferable concealment does not reconstruct a hidden authority position from any numeric field",
+          "viewer frame raw-wire negative sweep (d) inferable concealment characterizes the replay-span finding: delivery span equals items delivered; hidden count unrecoverable"
+        ]
+      },
+      {
+        "name": "F8-fog-filter-withholds-public-events",
+        "group": "real",
+        "mutation": "fog filter over-withholds: every fog-on event (including public ones) is withheld for every audience",
+        "simulatedB14_0": true,
+        "suites": 10,
+        "passed": 42,
+        "failed": 29,
+        "suiteErrors": 0,
+        "outcome": "caught",
+        "killedSuites": [
+          "viewerFrameRawNegativeSweep.test.ts:4",
+          "ServerMatchHost.rewindLiveReplay.test.ts:1",
+          "viewerFrameAuthorityFieldLeak.test.ts:1",
+          "viewerDeliverySequence.test.ts:3",
+          "fogViewerSequenceSparsity.test.ts:1",
+          "ServerMatchHostCommandResults.test.ts:1",
+          "clientAgainstFogServer.integration.test.ts:5",
+          "viewerSequenceConcealmentLeak.test.ts:2",
+          "ServerMatchHost.spectator.test.ts:11"
+        ],
+        "killingAssertions": [
+          "viewer frame raw-wire negative sweep (a) authority sequence puts no \"sequence\": key on player Event, ReplayChunk, or resync event objects",
+          "viewer frame raw-wire negative sweep (d) inferable concealment does not reconstruct a hidden authority position from any numeric field",
+          "ServerMatchHost rewind reaches connected players privacy of the replay each socket gets its own projection: no fog-hidden fact and no authority-only field reaches a player",
+          "viewer frame authority-only fields delivers no server-only authority field to either player under fog"
+        ]
+      }
+    ],
+    "coverageBySuite": {
+      "viewerFrameRawNegativeSweep.test.ts": [
+        "F1-player-fog-filter-bypassed",
+        "F4-authority-field-strip-bypassed",
+        "F5-delivery-numbering-is-authority-sequence",
+        "F6-live-fog-branch-disabled",
+        "F7-replay-fog-branch-disabled",
+        "F8-fog-filter-withholds-public-events"
+      ],
+      "ServerMatchHost.rewindLiveReplay.test.ts": [
+        "F4-authority-field-strip-bypassed",
+        "F8-fog-filter-withholds-public-events"
+      ],
+      "clientAgainstFogServer.integration.test.ts": [
+        "F4-authority-field-strip-bypassed",
+        "F5-delivery-numbering-is-authority-sequence",
+        "F8-fog-filter-withholds-public-events"
+      ],
+      "viewerFrameAuthorityFieldLeak.test.ts": [
+        "F4-authority-field-strip-bypassed",
+        "F8-fog-filter-withholds-public-events"
+      ],
+      "ServerMatchHostCommandResults.test.ts": [
+        "F8-fog-filter-withholds-public-events"
+      ],
+      "viewerSequenceConcealmentLeak.test.ts": [
+        "F1-player-fog-filter-bypassed",
+        "F4-authority-field-strip-bypassed",
+        "F5-delivery-numbering-is-authority-sequence",
+        "F6-live-fog-branch-disabled",
+        "F8-fog-filter-withholds-public-events"
+      ],
+      "matchmaking.integration.test.ts": [
+        "F2-spectator-fog-filter-bypassed",
+        "F6-live-fog-branch-disabled"
+      ],
+      "viewerDeliverySequence.test.ts": [
+        "F1-player-fog-filter-bypassed",
+        "F4-authority-field-strip-bypassed",
+        "F5-delivery-numbering-is-authority-sequence",
+        "F6-live-fog-branch-disabled",
+        "F8-fog-filter-withholds-public-events"
+      ],
+      "ServerMatchHost.spectator.test.ts": [
+        "F2-spectator-fog-filter-bypassed",
+        "F3-sealed-spectator-exclusion-removed",
+        "F6-live-fog-branch-disabled",
+        "F8-fog-filter-withholds-public-events"
+      ],
+      "fogViewerSequenceSparsity.test.ts": [
+        "F1-player-fog-filter-bypassed",
+        "F5-delivery-numbering-is-authority-sequence",
+        "F6-live-fog-branch-disabled",
+        "F8-fog-filter-withholds-public-events"
+      ]
+    },
+    "uncoveredSuites": []
+  },
+  "results": {
+    "red": {
+      "receipt": "evidence/b14-0b-red-20261018.json",
+      "status": "not-applicable (ruling B14-0B-R1)",
+      "beforeAfterMain": "71/71 unseamed and seamed",
+      "simulatedB14_0": "unseamed 35 failed / 71 in all ten suites; seamed 71/71"
+    },
+    "regression": {
+      "head": "cd45d9223bd2b495b4cfab1129675db8e978766b",
+      "worktree": "clean at head",
+      "suites": 109,
+      "passed": 868,
+      "failed": 0,
+      "total": 868,
+      "json": {
+        "path": "E:/Projects/Personal/MekStation-wt/b14-0b-proof-20261018/regression.json",
+        "sha256": "a48f0f62ebd2e2dcff9d452c16e356e61089253b2c5d2359ff01c60ae74d4692",
+        "bytes": 381875
+      },
+      "scope": "109 suites: every test file referencing ServerMatchHost, FogAwareMatchProjection, matchHistoryViewerChain, multiplayer/matches/[id], MatchHostRegistry, fogMatchAdmission or fogOfWar (B14-PREP2 census list)"
+    },
+    "broad": {
+      "command": "node node_modules/jest/bin/jest.js src/lib/multiplayer src/pages-modules/api src/__tests__/api src/__tests__/unit/api --runInBand --cacheDirectory <proof>/.jest-private --json",
+      "head": "cd45d9223bd2b495b4cfab1129675db8e978766b",
+      "suites": 267,
+      "passedSuites": 267,
+      "passed": 2799,
+      "failed": 0,
+      "json": {
+        "path": "E:/Projects/Personal/MekStation-wt/b14-0b-proof-20261018/broad.json",
+        "sha256": "cf74374491773f07430a29cf3577bf681ac41aa09a077758090a1dcdd3873b0a",
+        "bytes": 1146950
+      }
+    },
+    "mutants": {
+      "total": 13,
+      "caught": 13,
+      "survived": []
+    }
+  },
+  "checks": {
+    "typecheck": {
+      "command": "npm run typecheck",
+      "result": "exit 0",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/b14-0b-proof-20261018/typecheck.log",
+        "sha256": "3b36e22e1b0478b0238ff74f78f016d01c34b3acc5ef45f73c88babce588152f",
+        "bytes": 374
+      }
+    },
+    "lint": {
+      "command": "npx oxlint",
+      "result": "86 warnings, 0 errors (= baseline)",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/b14-0b-proof-20261018/lint.log",
+        "sha256": "8c280e46871c3e6c51277016484ecb62d52b85ec15afcffb7a0e035ef3337314",
+        "bytes": 80866
+      }
+    },
+    "lintUnits": {
+      "command": "npm run lint:units",
+      "result": "LINT_UNITS_PASS 17896/17899; src-tests 17780 = baseline",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/b14-0b-proof-20261018/lint-units.log",
+        "sha256": "5b011cca5ee3e74186606c498e9ebe5d9b25e3ca93b017c5ac9ee8de001f3a12",
+        "bytes": 746
+      }
+    },
+    "format": {
+      "command": "npx oxfmt --check .",
+      "result": "exit 0",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/b14-0b-proof-20261018/format.log",
+        "sha256": "bb33f47fc2cbb5f0fcdf992ef14014a88ed86608a7638f2f7f00f6a0e444b6fc",
+        "bytes": 260
+      }
+    },
+    "openspec": {
+      "command": "npx openspec validate --all --strict",
+      "result": "230 passed, 0 failed",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/b14-0b-proof-20261018/openspec.log",
+        "sha256": "35a1cabfa87e09910ec90fb9337bc353010518beec543beb342b2900c6f91606",
+        "bytes": 13920
+      }
+    },
+    "validatorTests": {
+      "command": "node --test openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
+      "result": "86/86",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/b14-0b-proof-20261018/validator-tests.log",
+        "sha256": "caa1d3e03ad8b436dc72303ec921daf33e104f72a0e640c0832c79adb58a51ab",
+        "bytes": 33640
+      }
+    },
+    "roadmap": "validate-roadmap plain and --git: PASSED",
+    "diffCheck": "git diff --check e6d1553ce: clean"
+  },
+  "census": {
+    "command": "git diff --numstat --no-renames e6d1553ce90ca9c56705a349155c4030e7901857..HEAD",
+    "countedLines": {
+      "openspec/planning/2026-09-12-roadmap-completion/units.json": 16,
+      "total": 16,
+      "cap": 500,
+      "note": "no product leaf; only units.json lifecycle lines count"
+    },
+    "files": {
+      "changed": 14,
+      "reservedReviewSlot": 1,
+      "total": 15,
+      "cap": 15,
+      "list": [
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0b-admission-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0b-red-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "src/lib/multiplayer/__tests__/clientAgainstFogServer.integration.test.ts",
+        "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindLiveReplay.test.ts",
+        "src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts",
+        "src/lib/multiplayer/server/__tests__/ServerMatchHostCommandResults.test.ts",
+        "src/lib/multiplayer/server/__tests__/fogViewerSequenceSparsity.test.ts",
+        "src/lib/multiplayer/server/__tests__/matchmaking.integration.test.ts",
+        "src/lib/multiplayer/server/__tests__/viewerDeliverySequence.test.ts",
+        "src/lib/multiplayer/server/__tests__/viewerFrameAuthorityFieldLeak.test.ts",
+        "src/lib/multiplayer/server/__tests__/viewerFrameRawNegativeSweep.test.ts",
+        "src/lib/multiplayer/server/__tests__/viewerSequenceConcealmentLeak.test.ts",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0b-local-20261018.json"
+      ],
+      "reserved": "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0b-review-20261018.json (unwritten)"
+    },
+    "lineExempt": "test leaves 100 added / 0 deleted (10 x +10/-0); evidence receipts",
+    "numstat": [
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0b-admission-20261018.json",
+        "added": 383,
+        "deleted": 0
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0b-red-20261018.json",
+        "added": 468,
+        "deleted": 0
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "added": 16,
+        "deleted": 6
+      },
+      {
+        "path": "src/lib/multiplayer/__tests__/clientAgainstFogServer.integration.test.ts",
+        "added": 10,
+        "deleted": 0
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindLiveReplay.test.ts",
+        "added": 10,
+        "deleted": 0
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts",
+        "added": 10,
+        "deleted": 0
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/ServerMatchHostCommandResults.test.ts",
+        "added": 10,
+        "deleted": 0
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/fogViewerSequenceSparsity.test.ts",
+        "added": 10,
+        "deleted": 0
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/matchmaking.integration.test.ts",
+        "added": 10,
+        "deleted": 0
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/viewerDeliverySequence.test.ts",
+        "added": 10,
+        "deleted": 0
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/viewerFrameAuthorityFieldLeak.test.ts",
+        "added": 10,
+        "deleted": 0
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/viewerFrameRawNegativeSweep.test.ts",
+        "added": 10,
+        "deleted": 0
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/viewerSequenceConcealmentLeak.test.ts",
+        "added": 10,
+        "deleted": 0
+      }
+    ]
+  },
+  "boundaryControls": [
+    {
+      "path": "src/lib/multiplayer/server/fogMatchAdmission.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHost.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHostEvents.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHostReplay.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/fogOfWar.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/projection/ViewerFrameProjector.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/projection/ViewerPublicationBoundary.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/projection/ViewerDeliveryCursors.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/projection/FogAwareMatchProjection.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/pages-modules/api/__tests__/matchHistoryFog.test.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/CoopOpponentDriver.test.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/customCombatRecovery.recoveryDelivery.test.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/customConstructionTransport.test.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/ServerMatchHost.fogOfWarIntegration.test.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/sealedChoiceDelivery.test.ts",
+      "unchanged": true
+    },
+    {
+      "path": "openspec/specs/fog-of-war/spec.md",
+      "unchanged": true
+    },
+    {
+      "path": "server.js",
+      "unchanged": true
+    }
+  ],
+  "carryForwards": {
+    "CF-S-3": "Preservation held: host modules and MatchWireSealedChoices byte-identical; S fog-on sealed-choice rows retained and, per F3 above, still bind the real sealed-choice rule under the simulated refusal.",
+    "CF-B14A-2": "B14-0: tighten the guard to exact equality and assert the module is unmocked in b14FogContainment.test.ts; the allowlist now holds 14 seamed suites (4 B14-0A + 10 B14-0B).",
+    "CF-S-2 / CF-B14A-5": "B14-0: matchLacksRevealProjection must be async and awaited (the seams pin async () => false); decide and pin the actor case for an unreadable live config.",
+    "CF-G2-9": "Pass-through; rerun and cite if the Seam Anchors spec flakes.",
+    "CF-H12/CF-E10": "By-name comparison of the 32 required checks posted on the exact head."
+  },
+  "status": "Local proof complete; awaiting independent sensitive review (privacy/authority/replay; reserved slot), sensitive packet, OWNER-RULING on the exact head, required CI and the CF-H12 by-name comparison. Not merged."
+}
