@@ -76,6 +76,7 @@ import type { IPartsInventory } from '@/types/campaign/PartsInventory';
 import type { IUnitMaxState } from '@/types/campaign/UnitCombatState';
 
 import { adaptUnit } from '@/engine/adapters/CompendiumAdapter';
+import { authoritativeStateFromSerializedCampaign } from '@/lib/campaign/authority/campaignSourceGenesis';
 import { fastForwardCampaign } from '@/lib/campaign/fastForward/fastForwardCampaign';
 import { buildFastForwardFixture } from '@/lib/campaign/fastForward/fastForwardFixture';
 import { initializeInProcessApiDatabase } from '@/lib/campaign/fastForward/inProcessApiRouter';
@@ -84,6 +85,7 @@ import {
   buildComparableRunState,
   type ComparableRunState,
 } from '@/lib/campaign/fastForward/invariants/comparableRunState';
+import { buildSerializedCampaign } from '@/lib/campaign/persistence/campaignEnvelope';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import { Money } from '@/types/campaign/Money';
@@ -97,7 +99,10 @@ import {
   makeAdaptedUnit,
   resetWorld,
 } from '../../../__tests__/integration/fastForwardTestSupport';
-import { dumpAndCanonicalizeFastForwardCampaign } from '../mintFastForwardPack';
+import {
+  buildFastForwardRosterProjectionSnapshot,
+  dumpAndCanonicalizeFastForwardCampaign,
+} from '../mintFastForwardPack';
 import { campaignPackSchema, type CampaignPackPayload } from '../packSchemas';
 
 jest.mock('@/engine/adapters/CompendiumAdapter', () => ({
@@ -106,8 +111,23 @@ jest.mock('@/engine/adapters/CompendiumAdapter', () => ({
 
 const adaptUnitMock = adaptUnit as jest.MockedFunction<typeof adaptUnit>;
 
+function assertGenesisProjection(campaign: ICampaign): void {
+  const envelope = buildSerializedCampaign(
+    campaign,
+    'mint-regression',
+    1,
+    buildFastForwardRosterProjectionSnapshot(campaign.id),
+  );
+  expect(() =>
+    authoritativeStateFromSerializedCampaign(envelope),
+  ).not.toThrow();
+}
+
 function primeWorld(): void {
   resetWorld();
+  // These suites reuse one campaign id. Resetting store singletons does
+  // not remove their persisted child-force/mission maps between mints.
+  localStorage.clear();
   initializeInProcessApiDatabase();
   adaptUnitMock.mockReset();
   adaptUnitMock.mockImplementation(async (unitRef, options) =>
@@ -466,6 +486,7 @@ describe('mint-from-fast-forward — economy fixture (task 5.1/5.2 acceptance)',
       { packId: ECONOMY_PACK_ID },
     );
     expect(() => campaignPackSchema.parse(payload)).not.toThrow();
+    assertGenesisProjection(result.campaign);
     assertNoCrossStoreReferences(payload);
 
     // Sanity: the shape task 5.1's parenthetical names — a real contract
@@ -512,6 +533,29 @@ describe('mint-from-fast-forward — economy fixture (task 5.1/5.2 acceptance)',
   });
 });
 
+describe('fast-forward minter isolation', () => {
+  beforeEach(primeWorld);
+  afterEach(() => {
+    resetWorld();
+    adaptUnitMock.mockReset();
+  });
+
+  it('does not carry maintenance forces into a later economy mint with the same campaign id', async () => {
+    await runMaintenanceFastForward();
+    primeWorld();
+    const result = await runEconomyFastForward();
+    const { payload } = dumpAndCanonicalizeFastForwardCampaign(
+      result.campaign,
+      {
+        packId: ECONOMY_PACK_ID,
+      },
+    );
+
+    expect(payload.body.forces).toHaveLength(1);
+    assertGenesisProjection(result.campaign);
+  });
+});
+
 describe('mint-from-fast-forward — maintenance fixture (task 5.1/5.3 acceptance)', () => {
   beforeEach(() => primeWorld());
   afterEach(() => {
@@ -526,6 +570,7 @@ describe('mint-from-fast-forward — maintenance fixture (task 5.1/5.3 acceptanc
       { packId: MAINTENANCE_PACK_ID },
     );
     expect(() => campaignPackSchema.parse(payload)).not.toThrow();
+    assertGenesisProjection(result.campaign);
     assertNoCrossStoreReferences(payload);
 
     const repairQueue =

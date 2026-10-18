@@ -14,11 +14,15 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import { createMocks, type Body, type RequestMethod } from 'node-mocks-http';
+import fs from 'node:fs';
+import path from 'node:path';
 
 import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 
 import { buildPopulatedCampaign } from '@/lib/campaign/persistence/__tests__/campaignFixture';
 import { buildSerializedCampaign } from '@/lib/campaign/persistence/campaignEnvelope';
+import { campaignPackSchema } from '@/lib/scenarioPacks/packSchemas';
+import { stampPackIds } from '@/lib/scenarioPacks/packStamping';
 import idHandler from '@/pages/api/campaigns/[id]';
 import { readCampaignMigrationMarker } from '@/services/campaignPersistence/CampaignMigrationMarkerStore';
 import {
@@ -124,4 +128,37 @@ describe('campaign PUT genesis', () => {
     expect(campaignEventTypes(id)).toEqual(['CampaignSnapshotPublished']);
     expect(effectiveCampaignBranchRows(id)).toBe(1);
   });
+
+  it.each(['maintenance-repairbay', 'economy-midcampaign'])(
+    'loads the generated %s pack through the same PUT used by browser parity tests',
+    async (packId) => {
+      const payload = campaignPackSchema.parse(
+        JSON.parse(
+          fs.readFileSync(
+            path.join(
+              process.cwd(),
+              'e2e/scenario-packs/campaign',
+              `${packId}.campaign.json`,
+            ),
+            'utf8',
+          ),
+        ),
+      );
+      const { payload: stamped, ids } = stampPackIds(payload, {
+        packId,
+        workerIndex: 0,
+      });
+      const put = await callId('PUT', ids.campaignId, {
+        envelope: stamped,
+        baseVersion: 0,
+      });
+
+      expect(put.res._getJSONData()).not.toHaveProperty('error');
+      expect(put.res._getStatusCode()).toBe(200);
+      expect(campaignEventTypes(ids.campaignId)).toEqual([
+        'CampaignSnapshotPublished',
+      ]);
+      expect(effectiveCampaignBranchRows(ids.campaignId)).toBe(1);
+    },
+  );
 });

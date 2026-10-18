@@ -1,7 +1,7 @@
 {
   "genesisSource": "fast-forward:maintenance-repairbay",
-  "mintedAt": "2026-07-11T09:52:42.914Z",
-  "baseCommit": "472c7ca30eb30a085e039f4e84e9375d75bfbf1e",
+  "mintedAt": "2026-10-18T05:40:37.143Z",
+  "baseCommit": "c962217ba54d3179897918cd234058bf1d9dc298",
   "invariantSummary": {
     "battles": [
       {
@@ -17,10 +17,11 @@
             "finalStatus": "intact",
             "armorRemaining": {
               "head": 9,
-              "center_torso": 26,
-              "left_torso": 26,
-              "right_torso": 16,
-              "left_torso_rear": 2
+              "center_torso": 31,
+              "left_torso": 21,
+              "right_torso": 26,
+              "center_torso_rear": 5,
+              "right_torso_rear": 2
             },
             "internalsRemaining": {
               "head": 3,
@@ -28,32 +29,29 @@
               "left_torso": 16,
               "right_torso": 16,
               "center_torso_rear": 23,
-              "right_torso_rear": 16,
-              "left_torso_rear": 16
+              "left_torso_rear": 16,
+              "right_torso_rear": 16
             }
           },
           {
             "unitId": "player-1-atlas-as7-d",
             "side": "player",
-            "destroyed": true,
-            "finalStatus": "destroyed",
+            "destroyed": false,
+            "finalStatus": "intact",
             "armorRemaining": {
               "head": 9,
-              "center_torso": 42,
-              "left_torso": 27,
-              "right_torso": 32,
-              "left_torso_rear": 2,
-              "right_torso_rear": 0,
-              "center_torso_rear": 0
+              "center_torso": 47,
+              "left_torso": 32,
+              "right_torso": 22,
+              "center_torso_rear": 5
             },
             "internalsRemaining": {
               "head": 3,
               "center_torso": 31,
               "left_torso": 21,
-              "right_torso": 13,
-              "center_torso_rear": 31,
-              "left_torso_rear": 21,
-              "right_torso_rear": 13
+              "right_torso": 21,
+              "right_torso_rear": 21,
+              "center_torso_rear": 31
             }
           }
         ]
@@ -71,42 +69,41 @@
             "finalStatus": "intact",
             "armorRemaining": {
               "head": 9,
-              "center_torso": 22,
-              "left_torso": 12,
-              "right_torso": 22,
-              "right_torso_rear": 2
+              "center_torso": 42,
+              "left_torso": 27,
+              "right_torso": 27,
+              "center_torso_rear": 5
             },
             "internalsRemaining": {
               "head": 3,
               "center_torso": 31,
               "left_torso": 21,
               "right_torso": 21,
+              "center_torso_rear": 31,
               "right_torso_rear": 21,
-              "left_torso_rear": 21,
-              "center_torso_rear": 31
+              "left_torso_rear": 21
             }
           },
           {
             "unitId": "player-1-marauder-mad-3r",
             "side": "player",
-            "destroyed": true,
-            "finalStatus": "destroyed",
+            "destroyed": false,
+            "finalStatus": "intact",
             "armorRemaining": {
-              "head": 4,
-              "center_torso": 6,
-              "left_torso": 11,
-              "right_torso": 0,
-              "right_torso_rear": 2,
-              "center_torso_rear": 5,
-              "left_torso_rear": 2
+              "head": 9,
+              "center_torso": 26,
+              "left_torso": 16,
+              "right_torso": 16,
+              "center_torso_rear": 0,
+              "right_torso_rear": 2
             },
             "internalsRemaining": {
               "head": 3,
-              "center_torso": 23,
+              "center_torso": 18,
               "left_torso": 16,
-              "right_torso": 7,
-              "right_torso_rear": 7,
-              "center_torso_rear": 23,
+              "right_torso": 16,
+              "right_torso_rear": 16,
+              "center_torso_rear": 18,
               "left_torso_rear": 16
             }
           }
@@ -115,33 +112,32 @@
       {
         "scenarioId": "scn-fast-forward-fixture-contract-3025-06-13-ff-team-force-3",
         "contractId": "fast-forward-fixture-contract",
-        "winner": "player",
-        "endReason": "destruction",
+        "winner": "opponent",
+        "endReason": "turn_limit",
         "unitDeltas": [
           {
             "unitId": "opponent-1-locust-lct-1v",
             "side": "opponent",
-            "destroyed": true,
-            "finalStatus": "destroyed",
+            "destroyed": false,
+            "finalStatus": "crippled",
             "armorRemaining": {
-              "head": 4,
+              "head": 9,
               "center_torso": 0,
-              "left_torso": 0,
+              "left_torso": 10,
               "right_torso": 0,
+              "left_torso_rear": 2,
               "right_arm": 0,
-              "right_torso_rear": 2,
-              "left_arm": 0
+              "center_torso_rear": 5
             },
             "internalsRemaining": {
               "head": 3,
-              "center_torso": 0,
-              "left_torso": 0,
+              "center_torso": 10,
+              "left_torso": 5,
               "right_torso": 0,
-              "left_torso_rear": 0,
-              "right_arm": 0,
               "right_torso_rear": 0,
-              "center_torso_rear": 0,
-              "left_arm": 0
+              "left_torso_rear": 5,
+              "right_arm": 0,
+              "center_torso_rear": 10
             }
           },
           {
@@ -150,21 +146,21 @@
             "destroyed": false,
             "finalStatus": "intact",
             "armorRemaining": {
-              "head": 9,
-              "center_torso": 0,
+              "head": 4,
+              "center_torso": 25,
               "left_torso": 7,
-              "right_torso": 7,
-              "center_torso_rear": 5,
-              "left_torso_rear": 2
+              "right_torso": 17,
+              "center_torso_rear": 0,
+              "right_torso_rear": 2
             },
             "internalsRemaining": {
               "head": 3,
-              "center_torso": 6,
+              "center_torso": 21,
               "left_torso": 15,
               "right_torso": 15,
-              "center_torso_rear": 6,
-              "left_torso_rear": 15,
-              "right_torso_rear": 15
+              "center_torso_rear": 21,
+              "right_torso_rear": 15,
+              "left_torso_rear": 15
             }
           }
         ]
@@ -172,29 +168,29 @@
       {
         "scenarioId": "scn-fast-forward-fixture-contract-3025-06-13-ff-team-force-5",
         "contractId": "fast-forward-fixture-contract",
-        "winner": "player",
+        "winner": "opponent",
         "endReason": "destruction",
         "unitDeltas": [
           {
             "unitId": "opponent-1-marauder-mad-3r",
             "side": "opponent",
-            "destroyed": true,
-            "finalStatus": "destroyed",
+            "destroyed": false,
+            "finalStatus": "intact",
             "armorRemaining": {
               "head": 9,
-              "center_torso": 0,
-              "left_torso": 1,
-              "right_torso": 0,
+              "center_torso": 31,
+              "left_torso": 16,
+              "right_torso": 21,
               "center_torso_rear": 5,
-              "right_torso_rear": 0
+              "right_torso_rear": 2
             },
             "internalsRemaining": {
               "head": 3,
-              "center_torso": 4,
+              "center_torso": 23,
               "left_torso": 16,
-              "right_torso": 4,
-              "center_torso_rear": 4,
-              "right_torso_rear": 4,
+              "right_torso": 16,
+              "right_torso_rear": 16,
+              "center_torso_rear": 23,
               "left_torso_rear": 16
             }
           },
@@ -205,19 +201,18 @@
             "finalStatus": "intact",
             "armorRemaining": {
               "head": 9,
-              "center_torso": 2,
-              "left_torso": 0,
-              "right_torso": 0,
-              "center_torso_rear": 5
+              "center_torso": 32,
+              "left_torso": 32,
+              "right_torso": 27,
+              "center_torso_rear": 0
             },
             "internalsRemaining": {
               "head": 3,
-              "center_torso": 31,
-              "left_torso": 8,
-              "right_torso": 8,
-              "center_torso_rear": 31,
-              "right_torso_rear": 8,
-              "left_torso_rear": 8
+              "center_torso": 26,
+              "left_torso": 21,
+              "right_torso": 21,
+              "center_torso_rear": 26,
+              "right_torso_rear": 21
             }
           }
         ]
@@ -225,8 +220,8 @@
       {
         "scenarioId": "scn-fast-forward-fixture-contract-3025-06-13-ff-team-force-7",
         "contractId": "fast-forward-fixture-contract",
-        "winner": "opponent",
-        "endReason": "destruction",
+        "winner": "draw",
+        "endReason": "turn_limit",
         "unitDeltas": [
           {
             "unitId": "opponent-1-locust-lct-1v",
@@ -235,16 +230,20 @@
             "finalStatus": "intact",
             "armorRemaining": {
               "head": 9,
-              "center_torso": 20,
-              "left_torso": 0,
-              "right_torso": 10
+              "center_torso": 10,
+              "left_torso": 5,
+              "right_torso": 0,
+              "right_torso_rear": 2,
+              "center_torso_rear": 5
             },
             "internalsRemaining": {
               "head": 3,
               "center_torso": 10,
               "left_torso": 5,
               "right_torso": 5,
-              "left_torso_rear": 5
+              "left_torso_rear": 5,
+              "right_torso_rear": 5,
+              "center_torso_rear": 10
             }
           },
           {
@@ -254,32 +253,38 @@
             "finalStatus": "intact",
             "armorRemaining": {
               "head": 9,
-              "center_torso": 30,
-              "left_torso": 17,
-              "right_torso": 12,
-              "right_torso_rear": 0
+              "center_torso": 10,
+              "left_torso": 22,
+              "right_torso": 17,
+              "left_torso_rear": 2,
+              "right_torso_rear": 2
             },
             "internalsRemaining": {
               "head": 3,
               "center_torso": 21,
               "left_torso": 15,
-              "right_torso": 7,
-              "right_torso_rear": 7,
+              "right_torso": 15,
+              "center_torso_rear": 21,
+              "right_torso_rear": 15,
               "left_torso_rear": 15
             }
           }
         ]
       }
     ],
-    "balanceDeltaCents": -40000,
+    "balanceDeltaCents": -80000,
     "transactions": [
       {
         "type": "expense",
-        "amountCents": 20000
+        "amountCents": 40000
       },
       {
         "type": "expense",
-        "amountCents": 20000
+        "amountCents": 40000
+      },
+      {
+        "type": "income",
+        "amountCents": 0
       },
       {
         "type": "income",
@@ -297,10 +302,10 @@
     "xpCounters": [
       {
         "unitId": "ff-roster-unit-1",
-        "xp": 4,
-        "campaignXpEarned": 4,
-        "campaignKills": 2,
-        "campaignMissions": 2
+        "xp": 1,
+        "campaignXpEarned": 1,
+        "campaignKills": 0,
+        "campaignMissions": 1
       },
       {
         "unitId": "ff-roster-unit-2",
@@ -311,13 +316,41 @@
       },
       {
         "unitId": "ff-roster-unit-3",
-        "xp": 5,
-        "campaignXpEarned": 5,
-        "campaignKills": 3,
-        "campaignMissions": 2
+        "xp": 1,
+        "campaignXpEarned": 1,
+        "campaignKills": 0,
+        "campaignMissions": 1
       },
       {
         "unitId": "ff-roster-unit-4",
+        "xp": 0,
+        "campaignXpEarned": 0,
+        "campaignKills": 0,
+        "campaignMissions": 0
+      },
+      {
+        "unitId": "ff-roster-unit-5",
+        "xp": 1,
+        "campaignXpEarned": 1,
+        "campaignKills": 0,
+        "campaignMissions": 1
+      },
+      {
+        "unitId": "ff-roster-unit-6",
+        "xp": 0,
+        "campaignXpEarned": 0,
+        "campaignKills": 0,
+        "campaignMissions": 0
+      },
+      {
+        "unitId": "ff-roster-unit-7",
+        "xp": 1,
+        "campaignXpEarned": 1,
+        "campaignKills": 0,
+        "campaignMissions": 1
+      },
+      {
+        "unitId": "ff-roster-unit-8",
         "xp": 0,
         "campaignXpEarned": 0,
         "campaignKills": 0,
@@ -327,17 +360,17 @@
     "contractStatuses": [
       {
         "contractId": "fast-forward-fixture-contract",
-        "status": "Failed"
+        "status": "Partial Success"
       }
     ],
     "repairTickets": [
       {
         "kind": "armor",
-        "count": 4
+        "count": 11
       },
       {
         "kind": "structure",
-        "count": 2
+        "count": 3
       }
     ]
   }

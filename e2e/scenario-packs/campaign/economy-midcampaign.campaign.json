@@ -1,8 +1,8 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "campaignId": "pack:economy-midcampaign:campaign",
-  "savedAt": "2026-07-11T10:02:46.980Z",
-  "originDeviceId": "d83f2635-ef09-43cf-b9e7-a039a4e6f32b",
+  "savedAt": "2026-10-18T05:39:27.272Z",
+  "originDeviceId": "b1d6e277-b2f1-419b-8d73-5d6eba513ca1",
   "version": 1,
   "body": {
     "id": "pack:economy-midcampaign:campaign",
@@ -17,97 +17,6 @@
           "name": "Fixture Patrol Team 1",
           "subForceIds": [],
           "unitIds": ["ff-roster-unit-1"],
-          "forceType": "Standard",
-          "formationLevel": "Lance",
-          "createdAt": "3025-06-13T00:00:00.000Z",
-          "updatedAt": "3025-06-13T00:00:00.000Z"
-        }
-      ],
-      [
-        "ff-team-force-2",
-        {
-          "id": "ff-team-force-2",
-          "name": "Fixture Patrol Team 2",
-          "subForceIds": [],
-          "unitIds": ["ff-roster-unit-2"],
-          "forceType": "Standard",
-          "formationLevel": "Lance",
-          "createdAt": "3025-06-13T00:00:00.000Z",
-          "updatedAt": "3025-06-13T00:00:00.000Z"
-        }
-      ],
-      [
-        "ff-team-force-3",
-        {
-          "id": "ff-team-force-3",
-          "name": "Fixture Patrol Team 3",
-          "subForceIds": [],
-          "unitIds": ["ff-roster-unit-3"],
-          "forceType": "Standard",
-          "formationLevel": "Lance",
-          "createdAt": "3025-06-13T00:00:00.000Z",
-          "updatedAt": "3025-06-13T00:00:00.000Z"
-        }
-      ],
-      [
-        "ff-team-force-4",
-        {
-          "id": "ff-team-force-4",
-          "name": "Fixture Patrol Team 4",
-          "subForceIds": [],
-          "unitIds": ["ff-roster-unit-4"],
-          "forceType": "Standard",
-          "formationLevel": "Lance",
-          "createdAt": "3025-06-13T00:00:00.000Z",
-          "updatedAt": "3025-06-13T00:00:00.000Z"
-        }
-      ],
-      [
-        "ff-team-force-5",
-        {
-          "id": "ff-team-force-5",
-          "name": "Fixture Patrol Team 5",
-          "subForceIds": [],
-          "unitIds": ["ff-roster-unit-1"],
-          "forceType": "Standard",
-          "formationLevel": "Lance",
-          "createdAt": "3025-06-13T00:00:00.000Z",
-          "updatedAt": "3025-06-13T00:00:00.000Z"
-        }
-      ],
-      [
-        "ff-team-force-6",
-        {
-          "id": "ff-team-force-6",
-          "name": "Fixture Patrol Team 6",
-          "subForceIds": [],
-          "unitIds": ["ff-roster-unit-2"],
-          "forceType": "Standard",
-          "formationLevel": "Lance",
-          "createdAt": "3025-06-13T00:00:00.000Z",
-          "updatedAt": "3025-06-13T00:00:00.000Z"
-        }
-      ],
-      [
-        "ff-team-force-7",
-        {
-          "id": "ff-team-force-7",
-          "name": "Fixture Patrol Team 7",
-          "subForceIds": [],
-          "unitIds": ["ff-roster-unit-3"],
-          "forceType": "Standard",
-          "formationLevel": "Lance",
-          "createdAt": "3025-06-13T00:00:00.000Z",
-          "updatedAt": "3025-06-13T00:00:00.000Z"
-        }
-      ],
-      [
-        "ff-team-force-8",
-        {
-          "id": "ff-team-force-8",
-          "name": "Fixture Patrol Team 8",
-          "subForceIds": [],
-          "unitIds": ["ff-roster-unit-4"],
           "forceType": "Standard",
           "formationLevel": "Lance",
           "createdAt": "3025-06-13T00:00:00.000Z",
@@ -140,8 +49,8 @@
           },
           "salvageRights": "None",
           "commandRights": "House",
-          "createdAt": "2026-07-11T10:02:46.874Z",
-          "updatedAt": "2026-07-11T10:02:46.979Z"
+          "createdAt": "2026-10-18T05:39:27.092Z",
+          "updatedAt": "2026-10-18T05:39:27.271Z"
         }
       ]
     ],
@@ -155,7 +64,7 @@
           "description": "Daily salaries for 4 personnel"
         },
         {
-          "id": "tx-contract-close-fast-forward-fixture-contract-2026-07-11T10:02:46.979Z",
+          "id": "tx-contract-close-fast-forward-fixture-contract-2026-10-18T05:39:27.271Z",
           "type": "income",
           "amount": 300000,
           "date": "3025-06-14T00:00:00.000Z",
@@ -269,51 +178,47 @@
     },
     "campaignType": "mercenary",
     "createdAt": "3025-06-13T00:00:00.000Z",
-    "updatedAt": "2026-07-11T10:02:46.980Z",
+    "updatedAt": "2026-10-18T05:39:27.272Z",
     "unitCombatStates": {
       "player-1-atlas-as7-d": {
         "unitId": "player-1-atlas-as7-d",
         "currentArmorPerLocation": {
           "head": 9,
-          "center_torso": 42,
-          "left_torso": 27,
-          "right_torso": 32,
+          "center_torso": 47,
+          "left_torso": 32,
+          "right_torso": 22,
           "left_arm": null,
-          "left_leg": null,
-          "left_torso_rear": 2,
-          "right_torso_rear": 0,
-          "center_torso_rear": 0
+          "right_leg": null,
+          "center_torso_rear": 5
         },
         "currentStructurePerLocation": {
           "head": 3,
           "center_torso": 31,
           "left_torso": 21,
-          "right_torso": 13,
+          "right_torso": 21,
           "left_arm": null,
-          "center_torso_rear": 31,
-          "left_leg": null,
-          "left_torso_rear": 21,
-          "right_torso_rear": 13
+          "right_leg": null,
+          "right_torso_rear": 21,
+          "center_torso_rear": 31
         },
         "destroyedLocations": [],
         "destroyedComponents": [],
-        "heatEnd": 13,
+        "heatEnd": 0,
         "ammoRemaining": {},
-        "combatReady": false,
+        "combatReady": true,
         "lastCombatOutcomeId": null,
-        "lastUpdated": "2026-07-11T10:02:46.979Z"
+        "lastUpdated": "2026-10-18T05:39:27.271Z"
       },
       "opponent-1-marauder-mad-3r": {
         "unitId": "opponent-1-marauder-mad-3r",
         "currentArmorPerLocation": {
           "head": 9,
-          "center_torso": 26,
-          "left_torso": 26,
-          "right_torso": 16,
-          "right_leg": null,
+          "center_torso": 31,
+          "left_torso": 21,
+          "right_torso": 26,
+          "center_torso_rear": 5,
           "left_leg": null,
-          "right_arm": null,
-          "left_torso_rear": 2
+          "right_torso_rear": 2
         },
         "currentStructurePerLocation": {
           "head": 3,
@@ -321,19 +226,17 @@
           "left_torso": 16,
           "right_torso": 16,
           "center_torso_rear": 23,
-          "right_torso_rear": 16,
-          "right_leg": null,
           "left_leg": null,
-          "right_arm": null,
-          "left_torso_rear": 16
+          "left_torso_rear": 16,
+          "right_torso_rear": 16
         },
         "destroyedLocations": [],
         "destroyedComponents": [],
-        "heatEnd": 9,
+        "heatEnd": 0,
         "ammoRemaining": {},
         "combatReady": true,
         "lastCombatOutcomeId": null,
-        "lastUpdated": "2026-07-11T10:02:46.979Z"
+        "lastUpdated": "2026-10-18T05:39:27.271Z"
       }
     },
     "rosterProjection": {
@@ -343,7 +246,7 @@
           "unitId": "ff-roster-unit-1",
           "unitRef": "atlas-as7-d",
           "unitName": "atlas-as7-d",
-          "pilotId": "pilot-d83685ff-3187-43de-8fb2-83f98534e19e",
+          "pilotId": "pilot-e525b957-8d80-4094-bbac-69feea34599b",
           "chassisVariant": "atlas-as7-d",
           "readiness": "Ready"
         },
@@ -374,7 +277,7 @@
       ],
       "pilots": [
         {
-          "pilotId": "pilot-d83685ff-3187-43de-8fb2-83f98534e19e",
+          "pilotId": "pilot-e525b957-8d80-4094-bbac-69feea34599b",
           "pilotName": "Fixture Pilot 1",
           "status": "active",
           "wounds": 0,
@@ -439,9 +342,9 @@
       "missionCount": 0
     },
     "salvageAllocations": {
-      "d1aee6a0-598a-4dfc-8512-db5e55d1a79a": {
+      "88fff218-fbc0-462b-9b07-a66184b9f971": {
         "pool": {
-          "battleId": "d1aee6a0-598a-4dfc-8512-db5e55d1a79a",
+          "battleId": "88fff218-fbc0-462b-9b07-a66184b9f971",
           "contractId": "fast-forward-fixture-contract",
           "candidates": [],
           "totalEstimatedValue": 0,
@@ -464,8 +367,8 @@
       }
     },
     "salvageReports": {
-      "d1aee6a0-598a-4dfc-8512-db5e55d1a79a": {
-        "matchId": "d1aee6a0-598a-4dfc-8512-db5e55d1a79a",
+      "88fff218-fbc0-462b-9b07-a66184b9f971": {
+        "matchId": "88fff218-fbc0-462b-9b07-a66184b9f971",
         "contractId": "fast-forward-fixture-contract",
         "candidates": [],
         "totalValueEmployer": 0,
@@ -475,32 +378,7 @@
       }
     },
     "pendingBattleOutcomes": [],
-    "processedBattleIds": [
-      "141ede0f-0f07-49e2-ae84-b422508b7c30",
-      "713470ac-b098-4a78-a7e1-8ffd1ad64d15",
-      "f2a3ddfd-179c-4d56-88e5-3e71e6f68dd0",
-      "c27e5df4-f568-4916-acb4-b25d2e398df7",
-      "a045fb19-8ae0-4988-b902-6ea54cee7f08",
-      "858b67e8-ff98-4044-967f-361032b0c985",
-      "fb2d023a-f978-4ebb-bca6-b1bab29534c4",
-      "29cda621-72e4-4f68-9cdf-ee01f3868221",
-      "0948a521-4940-4d3b-9c10-d995f1fb4987",
-      "aa5d6f98-2e85-49e6-9882-9268b0bc5594",
-      "008de9c8-a797-4ceb-807d-e4662059ad9a",
-      "50b7f0e0-4de4-49da-ab5e-de7d9b251a3a",
-      "912e3b5f-5cde-4b4f-8fa8-9d9c2c4ace01",
-      "4e262944-d75d-4b2c-b5be-b86355eb9476",
-      "f6dd6488-cb3a-4581-a356-f0c445fc1b79",
-      "44eeac0e-eec6-4bc6-a7e3-f7062bdd906e",
-      "2f628d1b-cead-4680-8e4e-47faa1149748",
-      "c0d34da7-d746-4240-9f0c-b8ee6fcb8ad4",
-      "6beb3293-a3c7-4424-b0dc-d43ee1ecd70c",
-      "0f7c085b-db7c-48b2-9ed6-2a07b87f1df6",
-      "7f3a8c08-3f86-4e1f-86a6-057f7a5327a9",
-      "2806ac5b-810f-4020-b693-e90feb3e6ebb",
-      "00cf4e1c-12e6-4a78-83a0-b1dafd58dc0f",
-      "d1aee6a0-598a-4dfc-8512-db5e55d1a79a"
-    ],
+    "processedBattleIds": ["88fff218-fbc0-462b-9b07-a66184b9f971"],
     "recentlyAppliedOutcomes": [],
     "dailyBattleAudit": [
       {
@@ -528,14 +406,14 @@
     "unitPrestige": [
       {
         "unitId": "player-1-atlas-as7-d",
-        "score": 33,
+        "score": 49,
         "history": [
           {
-            "matchId": "d1aee6a0-598a-4dfc-8512-db5e55d1a79a",
-            "delta": -17,
-            "scoreAfter": 33,
-            "reason": "Defeat, destroyed",
-            "appliedAt": "2026-07-11T10:02:46.979Z"
+            "matchId": "88fff218-fbc0-462b-9b07-a66184b9f971",
+            "delta": -1,
+            "scoreAfter": 49,
+            "reason": "Defeat, survived intact",
+            "appliedAt": "2026-10-18T05:39:27.271Z"
           }
         ]
       },
@@ -544,11 +422,11 @@
         "score": 62,
         "history": [
           {
-            "matchId": "d1aee6a0-598a-4dfc-8512-db5e55d1a79a",
+            "matchId": "88fff218-fbc0-462b-9b07-a66184b9f971",
             "delta": 12,
             "scoreAfter": 62,
             "reason": "Victory, survived intact",
-            "appliedAt": "2026-07-11T10:02:46.979Z"
+            "appliedAt": "2026-10-18T05:39:27.271Z"
           }
         ]
       }
@@ -570,5 +448,9 @@
         "occurredAt": "3025-06-14T00:00:00.000Z"
       }
     ]
+  },
+  "instanceId": "b1d6e277-b2f1-419b-8d73-5d6eba513ca1",
+  "authority": {
+    "role": "source"
   }
 }
