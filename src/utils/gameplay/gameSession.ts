@@ -9,6 +9,8 @@ export {
   getNextPhase,
   advancePhase,
   canAdvancePhase,
+  getPhaseActivationOrder,
+  isPhaseActivationEligible,
   roll2d6,
   rollInitiative,
   declareMovement,

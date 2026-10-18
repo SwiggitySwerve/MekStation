@@ -162,6 +162,29 @@ describe('TacticalTurnRail force framing', () => {
     },
   );
 
+  it.each([
+    [{ destroyed: true, isWithdrawing: true }, 'destroyed', 'Eliminated'],
+    [{ isWithdrawing: true }, 'withdrawn', 'Withdrawn'],
+    [{ hasRetreated: true }, 'withdrawn', 'Withdrawn'],
+  ] as const)(
+    'preserves terminal label precedence after ejection: %j',
+    (flags, status, label) => {
+      renderRail({
+        unitStates: {
+          ...UNIT_STATES,
+          'allied-live': state('allied-live', GameSide.Player, {
+            hasEjected: true,
+            ...flags,
+          }),
+        },
+      });
+      const ejected = byId('rail-unit-allied-live');
+      expect(ejected).toHaveAttribute('data-status', status);
+      expect(ejected).toHaveTextContent(label);
+      expect(ejected).not.toHaveAttribute('aria-current');
+    },
+  );
+
   it('keeps missing-side units visible in an Unassigned group', () => {
     const gameUnit = unit(
       'unassigned-live',

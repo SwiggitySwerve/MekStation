@@ -2207,7 +2207,8 @@ side data as allied.
 #### Scenario: Ejected units remain visible as skipped
 - **GIVEN** a unit's pilot has ejected (`hasEjected` is true)
 - **WHEN** the initiative projection and rail update
-- **THEN** the unit SHALL remain visible under its original force with Skipped text
+- **THEN** the unit SHALL remain visible under its original force
+- **AND** destroyed units SHALL retain Eliminated text; otherwise retreated or withdrawing units SHALL retain Withdrawn text; all other ejected units SHALL show Skipped text
 - **AND** the unit SHALL be excluded from the active-turn sequence, unresolved units, and blockers
 - **AND** the rail SHALL NOT mark the ejected unit as active or upcoming, even if the activation cursor still names it
 

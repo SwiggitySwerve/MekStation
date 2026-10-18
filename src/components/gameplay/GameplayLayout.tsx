@@ -434,7 +434,9 @@ export function GameplayLayout({
   // legality), runtime capability, and start hex/facing already computed here.
   const composerDockContext = useMemo(
     () => ({
-      active: Boolean(intentComposer?.composerActive),
+      active: Boolean(
+        intentComposer?.composerActive && actionContext.activeUnitId,
+      ),
       capability: selectedMovementCapability,
       unit: selectedUnitModel.selectedUnit,
       commandContext: actionContext,
@@ -463,7 +465,7 @@ export function GameplayLayout({
         currentState.phase === GamePhase.WeaponAttack &&
         isPlayerTurn &&
         attackerId &&
-        unit,
+        actionContext.activeUnitId,
       ),
       attackerId,
       unit: unit ?? null,
@@ -476,6 +478,7 @@ export function GameplayLayout({
       movementHeat: unit ? computeMovementHeat(unit) : 0,
     };
   }, [
+    actionContext.activeUnitId,
     currentState.phase,
     isPlayerTurn,
     selectedUnitId,

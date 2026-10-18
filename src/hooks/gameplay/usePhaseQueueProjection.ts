@@ -33,7 +33,7 @@ import {
   GameSide,
   LockState,
 } from '@/types/gameplay/GameSessionCoreTypes';
-import { isPhaseActivationEligible } from '@/utils/gameplay/gameSessionCore';
+import { getPhaseActivationOrder } from '@/utils/gameplay/gameSession';
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -67,7 +67,7 @@ export interface IPhaseQueueProjection {
   readonly round: number;
   readonly phase: GamePhase;
   readonly activeSide: GameSide;
-  /** Unit whose turn it currently is (first in unresolvedUnits, or null). */
+  /** Eligible unit at the engine's activation cursor, or null. */
   readonly activeUnitId: UnitId | null;
   /** All units in activation order for this phase. */
   readonly initiativeOrder: readonly UnitId[];
@@ -185,9 +185,12 @@ export function usePhaseQueueProjection(): IPhaseQueueProjection {
       // Non-alternating: show all units, first-mover side first.
       activationOrder = [...firstMoverUnits, ...opposingUnits].map((u) => u.id);
     }
-    const actionOrder = activationOrder.filter((unitId) =>
-      isPhaseActivationEligible(unitStates[unitId]),
-    );
+    // The engine filters each force BEFORE interleaving. Keep this eligible
+    // queue separate from the full display roster so terminal units remain
+    // visible without changing which live actor owns the cursor.
+    const actionOrder = ALTERNATING_PHASES.has(phase)
+      ? getPhaseActivationOrder(session)
+      : [];
     // Side-less units remain visible but never acquire action debt or ownership.
     const initiativeOrder = [
       ...activationOrder,
@@ -222,17 +225,8 @@ export function usePhaseQueueProjection(): IPhaseQueueProjection {
       }
     }
 
-    // Active unit: the unit at `activationIndex` in the interleaved order.
-    // If activationIndex is out of range (phase complete) fall back to
-    // the first unresolved unit, then null.
-    let activeUnitId: UnitId | null = null;
-    if (actionOrder.length > 0) {
-      if (activationIndex < actionOrder.length) {
-        activeUnitId = actionOrder[activationIndex] ?? null;
-      } else if (unresolvedUnits.length > 0) {
-        activeUnitId = unresolvedUnits[0];
-      }
-    }
+    // Match engine selection exactly, including an exhausted cursor.
+    const activeUnitId = actionOrder[activationIndex] ?? null;
     const activeSide = activeUnitId
       ? (resolvedSideByUnitId.get(activeUnitId) ?? firstMoverSide)
       : firstMoverSide;

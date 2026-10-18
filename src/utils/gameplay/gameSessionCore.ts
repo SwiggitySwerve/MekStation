@@ -416,7 +416,8 @@ export function isPhaseActivationEligible(
   );
 }
 
-function physicalAttackActivationOrder(session: IGameSession): string[] {
+/** Eligible actors, filtered per force before alternating their activations. */
+export function getPhaseActivationOrder(session: IGameSession): string[] {
   const firstMover = session.currentState.firstMover ?? GameSide.Player;
   const opposingSide =
     firstMover === GameSide.Player ? GameSide.Opponent : GameSide.Player;
@@ -458,7 +459,7 @@ function canCompletePhysicalAttack(
     return false;
   }
 
-  const order = physicalAttackActivationOrder(session);
+  const order = getPhaseActivationOrder(session);
   const activeUnitId = order[session.currentState.activationIndex] ?? null;
   return activeUnitId === unitId;
 }

@@ -9,6 +9,7 @@ import type {
 import type { IPhysicalAttackOption } from '@/utils/gameplay/physicalAttacks/types';
 
 import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
+import { isPhaseActivationEligible } from '@/utils/gameplay/gameSession';
 
 import type { ICommandPreviewInputs } from './TacticalActionDock';
 
@@ -48,7 +49,10 @@ export function buildTacticalActionContext({
   selectedMovementCapability,
 }: BuildTacticalActionContextParams): ITacticalCommandContext {
   return {
-    activeUnitId: selectedUnitId,
+    // Keep inspection selection, but offer unit commands only to live actors.
+    activeUnitId: isPhaseActivationEligible(selectedUnit ?? undefined)
+      ? selectedUnitId
+      : null,
     selectedUnitId,
     targetUnitId: activeTargetId ?? null,
     targetCombatProjection: getTargetCombatProjection(

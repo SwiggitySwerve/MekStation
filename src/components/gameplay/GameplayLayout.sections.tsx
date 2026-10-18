@@ -9,6 +9,7 @@ import type {
 } from '@/types/gameplay';
 
 import { DEFAULT_MAP_LAYER_STATE } from '@/types/gameplay';
+import { isPhaseActivationEligible } from '@/utils/gameplay/gameSession';
 import { mergeLiveAmmoIntoWeaponStatuses } from '@/utils/gameplay/weaponAmmoDisplay';
 
 import type { MapInteractionState } from './HexMapDisplay/useMapInteraction';
@@ -312,10 +313,8 @@ export function WithdrawalTrailingActions({
   isPlayerTurn,
 }: WithdrawalTrailingActionsProps): React.ReactElement {
   const showWithdraw =
-    selectedUnit != null &&
-    selectedUnit.side === playerSide &&
-    !selectedUnit.destroyed &&
-    !selectedUnit.hasRetreated;
+    isPhaseActivationEligible(selectedUnit ?? undefined) &&
+    selectedUnit?.side === playerSide;
 
   return (
     <div className="flex items-center gap-2">
