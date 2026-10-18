@@ -1,0 +1,24 @@
+OWNER-RULING 90d2bae2a48868dff619cf740fa212dfba8a6968
+
+Unit: B14-0B (L1; sensitive class privacy/authority/replay; this unit is test-only). PR #2270 at exact head 90d2bae2a48868dff619cf740fa212dfba8a6968.
+
+Owner text:
+- Standing instruction: "continue with recommended options and fix the issues that come up, publish as needed".
+- Direct, 2026-10-18: "I think the recommended actions make sense for the ones that have them". This covers Root posting OWNER-RULING comments and the temporary fog-on refusal for v2.2.0. Root rules under both.
+
+Basis:
+- Independent review (Sonnet 5.5, the reviewer for test-only units) on 90d2bae2a48868dff619cf740fa212dfba8a6968: APPROVE. Report: docs/audits/2026-10-18-b14-0b-review.md, sha256 6a3f095054c4d6113ddb8ca1cebd46b8a5e40161975e97aaf071d1b5c3fd666c (10,257 bytes). The closure copies it byte-for-byte.
+- Seams: ten suites each add the identical 10-line seam (+10/-0, a single hunk, __tests__ only), with no other src change. The ten suites plus matchHistoryFog pass 85/85 at head.
+- The real filter is still exercised. The reviewer reproduced the simulated-refusal baselines: 71/71 with the seams, 35 failures without them, per-suite counts matching the RED receipt and the same simulation hash. It re-ran author mutants F1/F3/F5/F7 (caught), and 5 of its own 7 mutants were caught. The two survivors, target-visible passthrough and UnitDestroyed redaction, also survive on the unseamed base and are caught by fogOfWar.test.ts and the fogOfWarIntegration suite. The seams did not cause that gap.
+- S spectator rows: the file differs only by the seam and passes 34/34. Removing the spectator rule (F3) breaks 21 rows.
+- RED not-applicable: the rationale is backed by four real runs. validate-roadmap and lint-units pass, and the receipt shape matches the B14-0A precedent. The ledger is within caps (15/15 files, 16/500 counted lines). CI passes 32/32 on the exact head, and merge state is CLEAN.
+
+Ruling: ACCEPT, and merge at this exact head.
+
+Carry-forwards:
+- CF-B14B-1 -> B14-0: make the guard check for the exact canonical block and for all 14 seams. Assert the capability module is unmocked in b14FogContainment.test.ts. This folds in CF-B14A-2.
+- CF-B14B-2 -> FOG-*: keep the dedicated target-visible and UnitDestroyed tests.
+- CF-B14B-3 -> FOG-*/B14-HEAD: when a real per-viewer reveal projection lands, retarget or remove the 14 seams and shrink the allowlist.
+- CF-B14B-4 -> B14-HEAD: re-run the seam-necessity check against the real B14-0 code.
+
+Next: the closure PR releases only B14-0.
