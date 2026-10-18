@@ -35,13 +35,29 @@ import { appendCampaignGenesis } from '@/lib/campaign/authority/campaignSourceGe
 import { materializeOwnedPlayerForces } from '@/lib/campaign/encounter/campaignOwnedForceMaterialization';
 import { buildPopulatedCampaign } from '@/lib/campaign/persistence/__tests__/campaignFixture';
 import { buildSerializedCampaign } from '@/lib/campaign/persistence/campaignEnvelope';
+import {
+  CampaignLaunchView,
+  CampaignPublicAppliedViewStore,
+  campaignViewerAuthorityFingerprint,
+  readCampaignPublicAppliedView,
+} from '@/lib/campaign/sync/campaignPublicAppliedView';
 import { CAMPAIGN_STREAM_TYPE } from '@/lib/campaign/sync/JournalCampaignEventStore';
+import { readEffectiveStreamHead } from '@/lib/events/journal/EventHistoryEffectiveStreamHead';
+import { EXPECTED_HEAD_RESYNC_ACTION } from '@/lib/events/journal/EventHistoryExpectedHead';
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
 import { acceptFixtureParticipation } from '@/lib/multiplayer/server/__tests__/coopMissionCreate.fixture';
 import { openRouteFixture } from '@/lib/multiplayer/server/__tests__/coopMissionCreate.harness';
 import { getCampaignHostRegistry } from '@/lib/multiplayer/server/CampaignHostRegistry';
-import { createDurableCampaignProgressionReaders } from '@/lib/multiplayer/server/campaignProgressionReaders.durable';
+import { PROGRESSION_BLOCKED_CORRECTION_PENDING } from '@/lib/multiplayer/server/CampaignProgressionGate';
+import {
+  createDurableCampaignLaunchView,
+  createDurableCampaignProgressionReaders,
+} from '@/lib/multiplayer/server/campaignProgressionReaders.durable';
+import {
+  COORDINATED_CORRECTION_SAGA_TABLE,
+  migrateCoordinatedCorrectionSaga,
+} from '@/lib/multiplayer/server/history/CoordinatedOutcomeCorrectionSaga';
 import handler from '@/pages-modules/api/campaignLaunchAuthorityRoute';
 import {
   _setCampaignLaunchProgressionReadersForTests,
@@ -55,6 +71,7 @@ import {
 import { claimCampaignSessionForce } from '@/services/campaignPersistence/CampaignSessionForceClaimStore';
 import {
   bindCampaignSessionParticipant,
+  listActiveCampaignSessionParticipants,
   revokeCampaignSessionParticipant,
 } from '@/services/campaignPersistence/CampaignSessionParticipantStore';
 import {
@@ -69,6 +86,18 @@ jest.mock('@/lib/campaign/encounter/campaignOwnedForceMaterialization', () => {
   return {
     ...actual,
     materializeOwnedPlayerForces: jest.fn(actual.materializeOwnedPlayerForces),
+  };
+});
+
+jest.mock('@/lib/multiplayer/server/campaignProgressionReaders.durable', () => {
+  const actual = jest.requireActual<
+    typeof import('@/lib/multiplayer/server/campaignProgressionReaders.durable')
+  >('@/lib/multiplayer/server/campaignProgressionReaders.durable');
+  return {
+    ...actual,
+    createDurableCampaignLaunchView: jest.fn(
+      actual.createDurableCampaignLaunchView,
+    ),
   };
 });
 
@@ -1362,6 +1391,327 @@ describe('launch preflight with real signed campaign claims (P2A)', () => {
         body: { kind: 'refused', code: 'STALE_OWNERSHIP' },
       });
       expect(world.census()).toEqual(before);
+    } finally {
+      await world.close();
+    }
+  });
+});
+
+/**
+ * P2CG1E: with the receipt port installed, a session-bearing preflight is
+ * keyed on accepted P2CA application receipts through this graph's own
+ * P2CB view, prepared outside SQL and revalidated in the read transaction.
+ */
+describe('launch preflight on the installed receipt port (P2CG1E)', () => {
+  type ReceiptWorld = Awaited<ReturnType<typeof signedWorld>>;
+
+  async function receiptWorld(): Promise<ReceiptWorld> {
+    const world = await signedWorld();
+    try {
+      const registry = getCampaignHostRegistry();
+      registry.dispose(world.entry.matchId);
+      registry.installApplicationReceipts({
+        database: () => getSQLiteService().getDatabase(),
+      });
+      const entry = await registry.getOrCreate(world.entry.matchId);
+      if (!entry?.launch) throw new Error('Receipt entry did not rebuild');
+      acceptFixtureParticipation(entry, world.contributors);
+      return { ...world, entry };
+    } catch (error) {
+      await world.close();
+      throw error;
+    }
+  }
+
+  async function callReceiptPreflight(
+    world: ReceiptWorld,
+    overrides: Record<string, unknown> = {},
+  ) {
+    const request = post(world.mission.campaignId, {
+      missionId: world.mission.missionId,
+      sessionId: world.mission.sessionId,
+      expectedHead: world.mission.expectedHead,
+      ...overrides,
+    });
+    await handler(request.req, request.res);
+    return request.result;
+  }
+
+  /** Every active seat accepts a P2CA offer at the current head. */
+  function acknowledgeAll(world: ReceiptWorld) {
+    const db = getSQLiteService().getDatabase();
+    const { campaignId, sessionId } = world.mission;
+    const stream = { streamType: CAMPAIGN_STREAM_TYPE, streamId: campaignId };
+    const branches = new SQLiteEventHistoryBranchStore(db);
+    const head = readEffectiveStreamHead(db, branches, stream);
+    const { effectiveGeneration } = branches.requireEffectiveHead(stream);
+    for (const member of listActiveCampaignSessionParticipants(
+      campaignId,
+      sessionId,
+    )) {
+      const key = {
+        campaignId,
+        sessionId,
+        participantId: member.participantId,
+      };
+      const viewer = {
+        participantId: member.participantId,
+        isGm: member.seat === 'gm',
+      };
+      const previous = readCampaignPublicAppliedView(db, key);
+      const offer = {
+        ...key,
+        receiptId: `${member.participantId}@${head.revision}`,
+        branchId: head.branchId,
+        effectiveGeneration,
+        acknowledgedJournalCut: head.revision,
+        viewerAuthorityFingerprint: campaignViewerAuthorityFingerprint(
+          member,
+          viewer,
+        ),
+        kind: previous === null ? 'baseline' : 'delta',
+        predecessorReceiptId: previous?.receiptId ?? null,
+      } as const;
+      const accepted = new CampaignPublicAppliedViewStore(db, {
+        resolveDeliveredOffer: () => offer,
+        readCurrentContext: () => ({
+          branchId: head.branchId,
+          effectiveGeneration,
+          headRevision: head.revision,
+          viewer,
+          membership: member,
+          participantRemoved: false,
+        }),
+      }).accept({ ...key, receiptId: offer.receiptId });
+      expect(['accepted', 'duplicate']).toContain(accepted.kind);
+    }
+  }
+
+  /** One inbox outcome (campaign file) whose open saga lives on the match file. */
+  function openCorrectionSaga(world: ReceiptWorld) {
+    getSQLiteService()
+      .getDatabase()
+      .prepare(
+        `INSERT INTO campaign_combat_outcome_inbox
+           (outcome_id, outcome_version, campaign_id, command_id, command_digest,
+            first_stream_revision, last_stream_revision, first_commit_position,
+            last_commit_position, received_at)
+         VALUES ('p2cg1e-outcome', 1, ?, 'p2cg1e-command', ?, 1, 1, 1, 1, ?)`,
+      )
+      .run(world.mission.campaignId, 'e'.repeat(64), NOW);
+    const match = world.store.getDatabase();
+    migrateCoordinatedCorrectionSaga(match);
+    match
+      .prepare(
+        `INSERT INTO mp_matches
+           (match_id, status, room_code, created_at, updated_at, meta_json)
+         VALUES ('saga-match', 'completed', NULL, ?, ?, '{}')`,
+      )
+      .run(NOW, NOW);
+    match
+      .prepare(
+        `INSERT INTO ${COORDINATED_CORRECTION_SAGA_TABLE}
+           (match_id, outcome_id, outcome_version, target_revision, state,
+            source_recorded_at, updated_at)
+         VALUES ('saga-match', 'p2cg1e-outcome', 1, 1, 'source-recorded', ?, ?)`,
+      )
+      .run(NOW, NOW);
+  }
+
+  const refusedWith = (world: ReceiptWorld, reason: string) => ({
+    statusCode: 409,
+    body: {
+      kind: 'refused',
+      code: CAMPAIGN_LAUNCH_NOT_CONVERGED,
+      reason,
+      activeHead: world.mission.expectedHead,
+      resyncAction: EXPECTED_HEAD_RESYNC_ACTION,
+    },
+  });
+
+  beforeEach(() => jest.mocked(materializeOwnedPlayerForces).mockClear());
+  afterEach(() => jest.restoreAllMocks());
+
+  it('keys a session preflight on accepted receipts, not cursors, and answers code-only', async () => {
+    // Given: every cursor is at the head, but no seat accepted an offer.
+    const world = await receiptWorld();
+    try {
+      const before = { ...durablePreflightCensus(), match: world.census() };
+      // When
+      const withheld = await callReceiptPreflight(world);
+      // Then: withheld application authorizes nothing and names no one.
+      expect(withheld).toEqual(refusedWith(world, 'participants-behind'));
+      const wire = JSON.stringify(withheld.body);
+      expect(wire).not.toContain(world.guest.playerId);
+      expect(wire).not.toContain(world.host.playerId);
+      expect(materializeOwnedPlayerForces).not.toHaveBeenCalled();
+      expect({ ...durablePreflightCensus(), match: world.census() }).toEqual(
+        before,
+      );
+      // When: genuine acceptance, with every numeric cursor row removed.
+      acknowledgeAll(world);
+      getSQLiteService()
+        .getDatabase()
+        .prepare(
+          'DELETE FROM campaign_participant_cursor WHERE campaign_id = ?',
+        )
+        .run(world.mission.campaignId);
+      const accepted = await callReceiptPreflight(world);
+      // Then
+      expect(accepted.statusCode).toBe(200);
+      const body = signedResponse.parse(accepted.body);
+      expect(body.head).toEqual(world.mission.expectedHead);
+      expect(body.slots.map((slot) => slot.ownerParticipantId).sort()).toEqual(
+        [world.host.playerId, world.guest.playerId].sort(),
+      );
+    } finally {
+      await world.close();
+    }
+  });
+
+  it('keeps the head-only answer for a session-less body under the installed port', async () => {
+    const world = await receiptWorld();
+    try {
+      const prepare = jest.spyOn(CampaignLaunchView.prototype, 'prepare');
+      const result = await callReceiptPreflight(world, {
+        sessionId: undefined,
+      });
+      expect(result).toEqual({
+        statusCode: 200,
+        body: { kind: 'current', head: world.mission.expectedHead },
+      });
+      expect(prepare).not.toHaveBeenCalled();
+    } finally {
+      await world.close();
+    }
+  });
+
+  it("prepares this graph's own view outside the read transaction and revalidates it inside", async () => {
+    const world = await receiptWorld();
+    try {
+      acknowledgeAll(world);
+      const db = getSQLiteService().getDatabase();
+      const order: Record<string, unknown>[] = [];
+      const prepare = CampaignLaunchView.prototype.prepare;
+      const revalidate = CampaignLaunchView.prototype.revalidate;
+      jest
+        .spyOn(CampaignLaunchView.prototype, 'prepare')
+        .mockImplementation(function (this: CampaignLaunchView, key) {
+          order.push({
+            at: 'prepare',
+            inTransaction: db.inTransaction,
+            entryView: this === world.entry.launch,
+          });
+          return prepare.call(this, key);
+        });
+      jest
+        .spyOn(CampaignLaunchView.prototype, 'revalidate')
+        .mockImplementation(
+          function (this: CampaignLaunchView, handle, prepared) {
+            order.push({
+              at: 'revalidate',
+              inTransaction: handle.inTransaction,
+              ownHandle: handle === db,
+              entryView: this === world.entry.launch,
+            });
+            return revalidate.call(this, handle, prepared);
+          },
+        );
+      const result = await callReceiptPreflight(world);
+      expect(result.statusCode).toBe(200);
+      expect(order).toEqual([
+        { at: 'prepare', inTransaction: false, entryView: false },
+        {
+          at: 'revalidate',
+          inTransaction: true,
+          ownHandle: true,
+          entryView: false,
+        },
+      ]);
+    } finally {
+      await world.close();
+    }
+  });
+
+  const drifts: readonly (readonly [
+    string,
+    (world: ReceiptWorld) => void,
+    string,
+  ])[] = [
+    [
+      'a changed applied row',
+      (world) =>
+        getSQLiteService()
+          .getDatabase()
+          .prepare(
+            `UPDATE campaign_public_applied_view SET applied_at = 'drifted'
+              WHERE participant_id = ?`,
+          )
+          .run(world.guest.playerId),
+      'fresh-request',
+    ],
+    [
+      'a newly bound seat',
+      (world) =>
+        bindCampaignSessionParticipant({
+          campaignId: world.mission.campaignId,
+          sessionId: world.mission.sessionId,
+          participantId: 'late-seat',
+          seat: 'player',
+          boundAt: NOW,
+        }),
+      'fresh-request',
+    ],
+    [
+      'an open correction saga',
+      openCorrectionSaga,
+      PROGRESSION_BLOCKED_CORRECTION_PENDING,
+    ],
+  ];
+
+  it.each(drifts)(
+    'refuses %s that lands between preparation and revalidation, before materializing',
+    async (_name, drift, reason) => {
+      const world = await receiptWorld();
+      try {
+        acknowledgeAll(world);
+        const prepare = CampaignLaunchView.prototype.prepare;
+        let before: unknown;
+        jest
+          .spyOn(CampaignLaunchView.prototype, 'prepare')
+          .mockImplementation(async function (this: CampaignLaunchView, key) {
+            const prepared = await prepare.call(this, key);
+            drift(world);
+            before = { ...durablePreflightCensus(), match: world.census() };
+            return prepared;
+          });
+        const result = await callReceiptPreflight(world);
+        expect(result).toEqual(refusedWith(world, reason));
+        expect(materializeOwnedPlayerForces).not.toHaveBeenCalled();
+        expect({ ...durablePreflightCensus(), match: world.census() }).toEqual(
+          before,
+        );
+      } finally {
+        await world.close();
+      }
+    },
+  );
+
+  it('keeps saga precedence over convergence and fails closed without a view', async () => {
+    const world = await receiptWorld();
+    try {
+      // Given: nobody accepted an offer and a correction saga is open.
+      openCorrectionSaga(world);
+      // When / Then: the saga answers first.
+      expect(await callReceiptPreflight(world)).toEqual(
+        refusedWith(world, PROGRESSION_BLOCKED_CORRECTION_PENDING),
+      );
+      // When: this graph cannot build a view (no fallback to cursors).
+      jest.mocked(createDurableCampaignLaunchView).mockReturnValueOnce(null);
+      const unavailable = await callReceiptPreflight(world);
+      // Then
+      expect(unavailable).toEqual(refusedWith(world, 'evidence-unavailable'));
+      expect(materializeOwnedPlayerForces).not.toHaveBeenCalled();
     } finally {
       await world.close();
     }

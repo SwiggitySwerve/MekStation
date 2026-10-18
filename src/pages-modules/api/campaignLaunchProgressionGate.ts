@@ -1,5 +1,6 @@
 /**
- * Session-free N+1 launch gate for POST launch-authority (seam 17.3-b).
+ * Session-free N+1 launch gate for POST launch-authority (seam 17.3-b),
+ * and its receipt-mode answer (P2CG1E).
  *
  * `evaluateScenarioLaunch` lives on `CampaignSyncSession` and reads the
  * in-memory retained map. This door must not acquire a host entry, so
@@ -12,6 +13,7 @@
 
 import type Database from 'better-sqlite3';
 
+import type { CampaignLaunchVerdict } from '@/lib/campaign/sync/campaignPublicAppliedView';
 import type { EventHistoryBranchStatus } from '@/lib/events/journal/EventHistoryBranchContract';
 import type { IActiveBranchHead } from '@/lib/events/journal/EventHistoryExpectedHead';
 import type {
@@ -77,6 +79,42 @@ export type CampaignLaunchProgressionRefusalBody =
       readonly branchId: string;
       readonly status: EventHistoryBranchStatus;
     });
+
+/**
+ * Receipt-mode refusal: the P2CB verdict code only, like the socket doors.
+ * WHY: participant ids, cursors and revisions stay on the legacy branch.
+ */
+export interface ICampaignLaunchReceiptRefusalBody {
+  readonly kind: 'refused';
+  readonly code: typeof CAMPAIGN_LAUNCH_NOT_CONVERGED;
+  readonly reason: Exclude<CampaignLaunchVerdict, { kind: 'ready' }>['reason'];
+  readonly activeHead: IActiveBranchHead;
+  readonly resyncAction: typeof EXPECTED_HEAD_RESYNC_ACTION;
+}
+
+/**
+ * Which door answers: the receipt view only with the installed port and a
+ * session; otherwise the legacy cursor gate, session-less bodies included.
+ */
+export function campaignLaunchUsesReceipts(
+  portInstalled: boolean,
+  sessionId: string | undefined,
+): sessionId is string {
+  return portInstalled && sessionId !== undefined;
+}
+
+export function toCampaignLaunchReceiptRefusal(
+  verdict: Exclude<CampaignLaunchVerdict, { kind: 'ready' }>,
+  activeHead: IActiveBranchHead,
+): ICampaignLaunchReceiptRefusalBody {
+  return {
+    kind: 'refused',
+    code: CAMPAIGN_LAUNCH_NOT_CONVERGED,
+    reason: verdict.reason,
+    activeHead,
+    resyncAction: EXPECTED_HEAD_RESYNC_ACTION,
+  };
+}
 
 /**
  * Install in-memory readers, force the absent-port skip, or restore

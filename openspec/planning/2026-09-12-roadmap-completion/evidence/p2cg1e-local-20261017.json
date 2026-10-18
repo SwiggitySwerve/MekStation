@@ -1,0 +1,418 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CG1E",
+  "stage": "local",
+  "date": "20261017",
+  "baseline": "a64c6f1c9e77ecf2d6be38f2dd00316241557a85",
+  "commits": {
+    "admission": "78b58d6884a3e467e3b3327be0f9e7021c7d5e9e",
+    "red": "4042f6740351289722c0949e2732919be3016988"
+  },
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "L1 / P2CG1E implementation sub-agent (relaunch r2)"
+  },
+  "runtime": {
+    "node": "v22.22.0 (C:/Users/wroll/AppData/Local/nvm/v22.22.0)",
+    "install": "real npm ci (package.json/package-lock.json unchanged since)",
+    "machineIdle": "Idle checked before every Jest, lint and madge run (no other jest/tsc/oxlint/madge node process, PID 47516 excluded); idle.log hashed below"
+  },
+  "productBytes": [
+    {
+      "path": "src/pages-modules/api/campaignLaunchProgressionGate.ts",
+      "sha256": "e7545d78ee5c911397c62a3e7743317d6e246c2a65f8a218252399cc3267f06e",
+      "changed": true
+    },
+    {
+      "path": "src/pages-modules/api/campaignLaunchAuthorityRoute.ts",
+      "sha256": "15aed12fa85207214225b6b33ba0f83497fdb40ddb82260fc265917b3547b543",
+      "changed": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/coopMissionCreate.ts",
+      "sha256": "238245aace299df317a4628f1762ba6b1c1800b091036d9a256a2d0871e9284e",
+      "changed": true
+    },
+    {
+      "path": "src/lib/campaign/coop/campaignSyncTransport.ts",
+      "sha256": "781d33b29df4ab77b5528d2db2c2065234c27ba715cc8168cb91b71cb7e5139d",
+      "changed": true
+    }
+  ],
+  "testBytes": [
+    {
+      "path": "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts",
+      "sha256": "6ddef67910fcb4f27fd48f3a9a0ec12ac56fd6d52f5f04715a03c7b237c82a99"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+      "sha256": "6c204622290a53ef162c31cf4c1962ace4c0946d2b64d855ab3deeb439102a36"
+    },
+    {
+      "path": "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+      "sha256": "0924d081536053955034e64a320d38fcd46a15047ccdea557b583316648c6936"
+    }
+  ],
+  "testBytesVersusRed": "Identical: no test, helper or fixture byte changed after the RED commit (git diff RED -- __tests__ is empty)",
+  "delivered": {
+    "gate": "campaignLaunchProgressionGate: campaignLaunchUsesReceipts(portInstalled, sessionId) is the single branch predicate (port installed AND a session in the body); toCampaignLaunchReceiptRefusal answers code-only {kind refused, code CAMPAIGN_NOT_CONVERGED, reason <P2CB verdict reason>, activeHead, resyncAction}; the legacy refusal body is untouched",
+    "route": "campaignLaunchAuthorityRoute handler is async. Receipt branch: createDurableCampaignLaunchView() is built in this graph (entry.launch is never read), prepare() is awaited before the read transaction, revalidate() runs on this graph's campaign handle inside it, after the head is resolved (not-found / no-authoritative-stream precedence kept) and before owned-force materialization. No view (no campaign database) fails closed as evidence-unavailable. The legacy cursor gate does not also run in receipt mode. Session-less bodies and the absent port keep the legacy gate and the head-only answer",
+    "create": "createCoopMissionMatch: with getCampaignHostRegistry().applicationReceipts !== null it calls the P2CG1C createPreparedCoopMissionMatch on a freshly built graph-local view, which refuses COOP_MISSION_LAUNCH_UNSUPPORTED without a view or capability (no fallback); absent port keeps the old create. CF-E4: C IMMEDIATE then M, revalidate on C while M is held, unchanged C code",
+    "transport": "Receipt mode only. CF7 (a): campaign-application-unknown-receipt is ignored when a newer offer arrived after the refused ACK (latest !== sent) and recovers otherwise; other refusals stay terminal. CF8: MAX_HEAD_DRIFT_RESENDS = 3 byte-identical re-sends of the current unconfirmed ACK, then recovery-required head-drift-exhausted; APPLICATION_CONFIRMATION_TIMEOUT_MS = HEARTBEAT_TIMEOUT_MS (60 s) one-shot wait per sent ACK, cleared by its exact confirmation, recovery or close, re-armed only by a new ACK, and inert while a newer offer is pending; then confirmation-timeout. CF12: an unrequested socket close of a bound receipt-mode transport emits recovery-required socket-closed once; intentional close stays quiet. Bound joins quote the remembered lastSeq (>= 0, including 0) like legacy joins; the server ignores it in receipt mode (bindCampaignSyncConnection.ts:1332 takes the resync arm only without application)"
+  },
+  "carryForwards": {
+    "CF-E2": "Absorbed: causal release marker replaces the two cross-process clock comparisons. Flake before (baseline bytes, a64c6f1c): isolated 0 of 10 failed, full suite 0 of 10 failed; after: isolated 0 of 10 failed, full suite 0 of 10 failed. The 1-in-3 rate seen in the D lane is not reproduced on this machine; the fix removes the clock dependency regardless",
+    "CF-E3": "Pinned by EM1/EM8 (registry entry view adopted) and EM5/EM6 (port ignored)",
+    "CF-E4": "Unchanged C operation reached; EM18 (re-admission skipped) caught",
+    "CF-E8": "Code-only in receipt mode; EM19 (whole verdict leaked) caught",
+    "CF-E9": "lint 87 -> 87 warnings, identical rule/file set, 0 errors; campaignSyncTransport.ts max-lines 618 -> 661 (already warned at baseline); route and create not warned. madge 1089 files, 176 -> 176 chains, identical set",
+    "CF-E10": "Protection re-read: [\"Lint and Test\"], strict false, conversation resolution true, 0 approvals; the check names are verified by name on the pushed head",
+    "CF-E11": "STALE_HEAD re-admission pinned on the prepared path; EM18 caught",
+    "CF-E1, CF-E5, CF-E6": "Directed at P2CG1H; not absorbed",
+    "CF-E7": "Directed at the next owner of bindCampaignSyncConnection.test.ts; not absorbed",
+    "E-DOC-1": "Open for the parent: the registered behavior sentence \"no shipped client sends sessionId\" is stale; missionLaunchPage.launch.ts sends sessionId: matchId through requestLaunchAuthority to /launch-authority, so the receipt preflight is a real caller branch once the port is installed. Root handles the documentary correction separately"
+  },
+  "mutationProbes": {
+    "note": "Each alone on its own registered suite, product restored byte-identically after each (product-after-mutants.patch == product patch)",
+    "results": [
+      {
+        "name": "EM1 route adopts the registry entry view",
+        "status": "CAUGHT",
+        "failed": "2/60"
+      },
+      {
+        "name": "EM2 route skips revalidation (prepared verdict only)",
+        "status": "CAUGHT",
+        "failed": "4/60"
+      },
+      {
+        "name": "EM3 route also runs the legacy cursor gate in receipt mode",
+        "status": "CAUGHT",
+        "failed": "1/60"
+      },
+      {
+        "name": "EM4 route falls back to legacy when it has no view",
+        "status": "CAUGHT",
+        "failed": "1/60"
+      },
+      {
+        "name": "EM5 route ignores the port (always legacy)",
+        "status": "CAUGHT",
+        "failed": "6/60"
+      },
+      {
+        "name": "EM6 create ignores the port (always old create)",
+        "status": "CAUGHT",
+        "failed": "1/30"
+      },
+      {
+        "name": "EM7 create falls back to old create without the capability",
+        "status": "CAUGHT",
+        "failed": "1/30"
+      },
+      {
+        "name": "EM8 create adopts the registry entry view",
+        "status": "CAUGHT",
+        "failed": "1/30"
+      },
+      {
+        "name": "EM9 CF7 ignores unknown-receipt even when the refused ACK is latest",
+        "status": "CAUGHT",
+        "failed": "1/66"
+      },
+      {
+        "name": "EM10 CF8 head-drift re-sends uncapped",
+        "status": "CAUGHT",
+        "failed": "1/66"
+      },
+      {
+        "name": "EM11 CF8 timer not cleared on exact confirmation",
+        "status": "CAUGHT",
+        "failed": "1/66"
+      },
+      {
+        "name": "EM12 CF8 wait fires even while a newer offer is pending",
+        "status": "CAUGHT",
+        "failed": "1/66"
+      },
+      {
+        "name": "EM13 CF8 head-drift re-send extends the wait",
+        "status": "CAUGHT",
+        "failed": "1/66"
+      },
+      {
+        "name": "EM14 CF12 signals on an intentional close too",
+        "status": "CAUGHT",
+        "failed": "2/66"
+      },
+      {
+        "name": "EM15 CF12 no signal on remote close",
+        "status": "CAUGHT",
+        "failed": "1/66"
+      },
+      {
+        "name": "EM16 bound join omits lastSeq zero",
+        "status": "CAUGHT",
+        "failed": "1/66"
+      },
+      {
+        "name": "EM17 CF8 confirmation wait never armed",
+        "status": "CAUGHT",
+        "failed": "3/66"
+      },
+      {
+        "name": "EM18 prepared create skips re-admission (RM2)",
+        "status": "CAUGHT",
+        "failed": "1/30"
+      },
+      {
+        "name": "EM19 receipt refusal leaks the whole verdict",
+        "status": "CAUGHT",
+        "failed": "5/60"
+      },
+      {
+        "name": "EM20 receipt branch without a session",
+        "status": "CAUGHT",
+        "failed": "1/60"
+      }
+    ]
+  },
+  "results": {
+    "red": "3 suites, 156 tests: 139 passed, 17 failed (product byte-identical to baseline)",
+    "registeredLeaves": "3 suites, 156 tests: 156 passed, 0 failed, 0 pending",
+    "task14Selector": "4 suites, 104 tests: 104 passed, 0 failed, 0 pending",
+    "p2cg1b": "2 suites, 45 tests: 45 passed, 0 failed, 0 pending",
+    "p2cg1c": "2 suites, 54 tests: 54 passed, 0 failed, 0 pending",
+    "p2cg1d": "4 suites, 119 tests: 119 passed, 0 failed, 0 pending",
+    "a1a2Suites35": "35 suites, 388 tests: 388 passed, 0 failed, 0 pending",
+    "relatedTests": "200 suites, 1591 tests: 1589 passed, 0 failed, 2 pending (jest --findRelatedTests on the four product leaves)",
+    "callers": "4 suites, 27 tests: 27 passed, 0 failed, 0 pending (requestLaunchAuthority, missionLaunchPage.launch, fastForwardCampaign, fastForwardCombatRunner)"
+  },
+  "checks": {
+    "typecheck": "PASS (TS7, npm run typecheck)",
+    "lint": "0 errors, 87 warnings = baseline, identical set",
+    "format": "PASS (npm run format:check)",
+    "lintUnits": "LINT_UNITS_PASS 17899/17899",
+    "madge": "1089 files, 176 chains = baseline, identical set",
+    "validator": "plain and --git PASS (80 nodes, 13 packages, 381 tasks, 40 triage rows); --next advisory exit 0",
+    "validatorTests": "86/86",
+    "openspec": "openspec validate --all --strict: 230 passed, 0 failed",
+    "qc": "qc:openspec-ci:validate errors=0"
+  },
+  "census": {
+    "rule": "U41: git diff --numstat --no-renames a64c6f1c9e77ecf2d6be38f2dd00316241557a85..HEAD; __tests__/ and evidence/ line-exempt; every changed file counted",
+    "rows": [
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1e-admission-20261017.json",
+        "added": 196,
+        "deleted": 0,
+        "counted": false
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1e-red-20261017.json",
+        "added": 134,
+        "deleted": 0,
+        "counted": false
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "added": 16,
+        "deleted": 6,
+        "counted": true
+      },
+      {
+        "path": "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+        "added": 219,
+        "deleted": 15,
+        "counted": false
+      },
+      {
+        "path": "src/lib/campaign/coop/campaignSyncTransport.ts",
+        "added": 56,
+        "deleted": 5,
+        "counted": true
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+        "added": 122,
+        "deleted": 10,
+        "counted": false
+      },
+      {
+        "path": "src/lib/multiplayer/server/coopMissionCreate.ts",
+        "added": 15,
+        "deleted": 2,
+        "counted": true
+      },
+      {
+        "path": "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts",
+        "added": 351,
+        "deleted": 1,
+        "counted": false
+      },
+      {
+        "path": "src/pages-modules/api/campaignLaunchAuthorityRoute.ts",
+        "added": 66,
+        "deleted": 19,
+        "counted": true
+      },
+      {
+        "path": "src/pages-modules/api/campaignLaunchProgressionGate.ts",
+        "added": 39,
+        "deleted": 1,
+        "counted": true
+      }
+    ],
+    "countedAddedLines": 192,
+    "cap": 500,
+    "files": {
+      "actual": 11,
+      "note": "the rows above plus this local receipt",
+      "reservedUnchanged": [
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1e-admission-review-20261017.md"
+      ],
+      "total": 12,
+      "cap": 15
+    }
+  },
+  "logs": [
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1e-proof2-20261017/idle.log",
+      "sha256": "31cd9dc8c099a46245ce5b521f7157a839bfd16f5f57a3fa8796f8e8e4fdcba6",
+      "bytes": 1142
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1e-proof2-20261017/red-jest.json",
+      "sha256": "414f4729fd563a4956c805311b7728652c381619bbdc4e9a57e394f0d8b62f62",
+      "bytes": 143200
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1e-proof2-20261017/red-typecheck.log",
+      "sha256": "17b1606539c5c3d74b182de835851d25a82c3f2a41213e610a10fd6430c982ce",
+      "bytes": 523
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1e-proof2-20261017/green-leaves.json",
+      "sha256": "23df6db0de14aeb0ee010375fba01f7db3cd38842d7c7e01752e8ad26a06b89b",
+      "bytes": 68716
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1e-proof2-20261017/task14.json",
+      "sha256": "88af526cb8d7e8c36e4e2e9d52044ba393f0ebeef442c7d4a8c8f93d67631cce",
+      "bytes": 46169
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1e-proof2-20261017/p2cg1b.json",
+      "sha256": "c09cd7de87435fc10971427945278087ad355a2c1965f4ded6445ca745976089",
+      "bytes": 23790
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1e-proof2-20261017/p2cg1c.json",
+      "sha256": "85b46b057775bab53be6f49c9f23b6195169a024e841aea155dbea1a053e0e01",
+      "bytes": 24583
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1e-proof2-20261017/p2cg1d.json",
+      "sha256": "bd9661cc43b790cb1153e880510a25fb4370d1f9a1c77781b191b14575b0a76f",
+      "bytes": 51267
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1e-proof2-20261017/suites35.json",
+      "sha256": "44e074a28861bd3e674edfbca5e2cffbccec6613c00f97a7f083cd4b2eb33a09",
+      "bytes": 173403
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1e-proof2-20261017/related.json",
+      "sha256": "41469ca7587e536560428eb2f58b09ec85408a9c04b1a183da304dd7798832b8",
+      "bytes": 716068
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1e-proof2-20261017/callers.json",
+      "sha256": "4fc4a81c818fcc354046efcd0dea7ce53b0aa713eb5771095f7610b3c208c4f7",
+      "bytes": 12299
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1e-proof2-20261017/flake-before.json",
+      "sha256": "f5bbe70dd7bad616e507e7163a3dd8b442a1f3a83866de591dfa7c1387c9fb73",
+      "bytes": 982
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1e-proof2-20261017/flake-before-suite.json",
+      "sha256": "688b7e0d6130bc8ba1501082bc5d794848ca2ad21083c85982bff6667313e871",
+      "bytes": 998
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1e-proof2-20261017/flake-after.json",
+      "sha256": "2baf9fd19cf14ef914a47e8588124857877909cc5077a03fca7b117cb7773728",
+      "bytes": 981
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1e-proof2-20261017/flake-after-suite.json",
+      "sha256": "f6b13b3ae0846c7dc6b1d9e4ddb7664f489007ad076b8772cea10ee2c8271c58",
+      "bytes": 997
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1e-proof2-20261017/mutants.json",
+      "sha256": "ef70bfd12a27a5d9074255acd0a1d24b7666f9fb11da13963302b61ffcf3f134",
+      "bytes": 7367
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1e-proof2-20261017/typecheck.log",
+      "sha256": "ee29abd3809772d6a70e1e4db10615e6c04e36b469fc8075f6dd66f56956838c",
+      "bytes": 174
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1e-proof2-20261017/lint-base.log",
+      "sha256": "b91bc5d790901bd7ba441f48b0dfce571ca3671aa96c62c03994bfd21faceee3",
+      "bytes": 39571
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1e-proof2-20261017/lint.log",
+      "sha256": "dc4f0b1bf2adf2bd44a8f4a93a44a1a98dd07f83f78b51e36873ba1a9a5da7d9",
+      "bytes": 39610
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1e-proof2-20261017/format.log",
+      "sha256": "6743ca792001f5d4f385575e326bd2a4044742f11feacfed20a8e2de12b85237",
+      "bytes": 173
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1e-proof2-20261017/lint-units.log",
+      "sha256": "3da2a529f327414bd30e455a0b6b69b47e360bb6a4301ed416b188147eaf28ea",
+      "bytes": 355
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1e-proof2-20261017/madge-base.log",
+      "sha256": "e6fcf0c1b9e6171586dcf2e9684f29a1042175c7bdefca8f8022b22bee34c2a1",
+      "bytes": 106869
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1e-proof2-20261017/madge-head.log",
+      "sha256": "1d46cbaafbd69419b1b276f79783e1076435330dc21b5e2c8422cfb99449a5ce",
+      "bytes": 106869
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1e-proof2-20261017/validator-next.log",
+      "sha256": "b0b896ffbe54660baef433a3b71bd0f8036573f2253fda5e77211fe5402156ad",
+      "bytes": 4
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1e-proof2-20261017/validator-tests.log",
+      "sha256": "fc4e64f68bcf7f2aea0292e862c601282a83a6cb297b8e1973a3dc7507b10e7a",
+      "bytes": 16307
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1e-proof2-20261017/openspec.log",
+      "sha256": "fd47a21118ed60eedc45c31821d6c48a6fc31bdb8c31b9b84436716ebfa8a9f1",
+      "bytes": 6857
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1e-proof2-20261017/qc-openspec.log",
+      "sha256": "5b8f564706d4d1758110b42749f598120cc028d713f83d2c9c79b43af3738c93",
+      "bytes": 291
+    }
+  ],
+  "boundary": "No server.js, roadmap.json, Protocol, CampaignHostRegistry, binder, B/C/D leaf, client caller, harness/fixture or package edit; the port stays uninstalled in production, so production keeps the legacy gate and the old create. No merge or Main claim; the admission-review slot is left to the independent reviewer",
+  "status": "local GREEN; ready for push and independent exact-head review"
+}

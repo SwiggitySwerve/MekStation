@@ -26,6 +26,11 @@
  * so a candidate branch, a pending correction, or a behind cursor
  * refuses the launch. AdvanceDay still uses refuseUnconvergedProgression.
  *
+ * With the receipt port installed and a session in the body (P2CG1E),
+ * this graph prepares its own P2CB launch view outside SQL and
+ * revalidates it inside the same read transaction instead: accepted
+ * application receipts, not numeric cursors, decide convergence.
+ *
  * @spec openspec/changes/harden-gm-two-player-campaign-sessions/specs/campaign-management/spec.md
  *   ("Scenario Materialization Uses Authoritative Owned Forces")
  */
@@ -52,12 +57,18 @@ import { materializeOwnedPlayerForces } from '@/lib/campaign/encounter/campaignO
 import { validateExpectedBranchHead } from '@/lib/events/journal/EventHistoryExpectedHead';
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import { getCampaignHostRegistry } from '@/lib/multiplayer/server/CampaignHostRegistry';
-import { createDurableCampaignProgressionReaders } from '@/lib/multiplayer/server/campaignProgressionReaders.durable';
 import {
+  createDurableCampaignLaunchView,
+  createDurableCampaignProgressionReaders,
+} from '@/lib/multiplayer/server/campaignProgressionReaders.durable';
+import {
+  campaignLaunchUsesReceipts,
   evaluateCampaignLaunchProgression,
   resolveCampaignLaunchProgressionReaders,
   toCampaignLaunchProgressionRefusal,
+  toCampaignLaunchReceiptRefusal,
   type CampaignLaunchProgressionRefusalBody,
+  type ICampaignLaunchReceiptRefusalBody,
 } from '@/pages-modules/api/campaignLaunchProgressionGate';
 import {
   initializeApiDatabase,
@@ -85,6 +96,7 @@ type ResponseBody =
   | CampaignLaunchAuthorityResponse
   | Extract<OwnedForceMaterializationResult, { kind: 'refused' }>
   | CampaignLaunchProgressionRefusalBody
+  | ICampaignLaunchReceiptRefusalBody
   | { readonly error: string };
 
 interface IRequestBody {
@@ -216,10 +228,20 @@ function ownedForcePorts(currentRevision: number) {
   };
 }
 
-export default function handler(
+/**
+ * This graph's own view, prepared outside SQL. A foreign entry's view is
+ * never adopted; no view (no campaign database) fails closed below.
+ */
+async function prepareReceiptLaunch(campaignId: string, sessionId: string) {
+  const view = createDurableCampaignLaunchView();
+  const prepared = await view?.prepare({ campaignId, sessionId });
+  return { view, prepared };
+}
+
+export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<ResponseBody>,
-): void {
+): Promise<void> {
   if (rejectUnexpectedMethod(req, res, ['POST'])) return;
   if (!initializeApiDatabase(res)) return;
 
@@ -238,6 +260,12 @@ export default function handler(
   }
 
   try {
+    const receipt = campaignLaunchUsesReceipts(
+      getCampaignHostRegistry().applicationReceipts !== null,
+      body.sessionId,
+    )
+      ? await prepareReceiptLaunch(id, body.sessionId)
+      : null;
     // One read snapshot binds head, progression, membership, claims and roster.
     // Mission creation independently re-admits this same expected head later.
     getSQLiteService()
@@ -253,24 +281,43 @@ export default function handler(
           return;
         }
 
+        const activeHead = {
+          branchId: head.branchId,
+          revision: head.revision,
+          effectiveGeneration: head.effectiveGeneration,
+        };
+        if (receipt !== null) {
+          const verdict =
+            receipt.view && receipt.prepared
+              ? receipt.view.revalidate(
+                  getSQLiteService().getDatabase(),
+                  receipt.prepared,
+                )
+              : ({ kind: 'refused', reason: 'evidence-unavailable' } as const);
+          if (verdict.kind !== 'ready') {
+            res
+              .status(409)
+              .json(toCampaignLaunchReceiptRefusal(verdict, activeHead));
+            return;
+          }
+        }
         // N+1 gate after the head is known, before any launch proceeds.
         // Session-free: durable readers + cursor rows, not a host entry.
-        const gate = evaluateCampaignLaunchProgression({
-          campaignId: id,
-          sessionId: body.sessionId,
-          requiredRevision: head.revision,
-          readers: resolveCampaignLaunchProgressionReaders(
-            createDurableCampaignProgressionReaders,
-          ),
-        });
-        if (!gate.ok) {
-          res.status(409).json(
-            toCampaignLaunchProgressionRefusal(gate, {
-              branchId: head.branchId,
-              revision: head.revision,
-              effectiveGeneration: head.effectiveGeneration,
-            }),
-          );
+        const gate =
+          receipt !== null
+            ? null
+            : evaluateCampaignLaunchProgression({
+                campaignId: id,
+                sessionId: body.sessionId,
+                requiredRevision: head.revision,
+                readers: resolveCampaignLaunchProgressionReaders(
+                  createDurableCampaignProgressionReaders,
+                ),
+              });
+        if (gate !== null && !gate.ok) {
+          res
+            .status(409)
+            .json(toCampaignLaunchProgressionRefusal(gate, activeHead));
           return;
         }
 

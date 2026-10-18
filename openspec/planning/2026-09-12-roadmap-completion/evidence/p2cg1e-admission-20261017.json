@@ -1,0 +1,196 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CG1E",
+  "stage": "admission",
+  "date": "20261017",
+  "baseline": "a64c6f1c9e77ecf2d6be38f2dd00316241557a85",
+  "authority": "Root delegation (L1 chain unit 4, relaunch r2). Closure #2222 (merge 526cf6d0) recorded P2CG1D main-verified (mergeSha 1c49312d, mainProof PASS) and released P2CG1E to planned. Root then directed this admission onto the commit actually rebased onto: a64c6f1c (merge of #2226, which registers P2CG1R/P2CG1S and does not touch the P2CG1E entry or leaves)",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "L1 / P2CG1E implementation sub-agent"
+  },
+  "predecessors": {
+    "P2CG1D": "main-verified, mergeSha 1c49312ddcf8079c4e6560201ab58eb3b7af196f, mainProof PASS (evidence/p2cg1d-mainproof-20261017.json), closure #2222 merge 526cf6d0; both 1c49312d and 526cf6d0 are ancestors of the baseline a64c6f1c (git merge-base --is-ancestor)"
+  },
+  "carryForwards": {
+    "source": "evidence/p2cg1d-review-20261017.json successorNotes.P2CG1E (CF-E1..CF-E11, M1-M3, N1-N5) and the reviewer file E:/Projects/Personal/MekStation/docs/audits/2026-10-17-p2cg1d-review.md section 7",
+    "CF-E1": "Directed at P2CG1H (B leaves + binder). None of E's leaves can carry it; not absorbed",
+    "CF-E2": "Absorbed (E owns coopMissionCreate.test.ts). The parent samples were already taken in traceExec's before hook at baseline (fourth argument), so the review's suggested move is a no-op; the residual cause is cross-process Date.now() skew. Fix: replace the two cross-process clock comparisons with a causal marker (the parent writes <marker>.released in the before hook of M COMMIT / C ROLLBACK; the child records whether it existed when it acquired the lock). Flake rate before (baseline bytes) and after recorded in the local receipt",
+    "CF-E3": "Both HTTP doors key on getCampaignHostRegistry().applicationReceipts !== null and build createDurableCampaignLaunchView() in their own graph; entry.launch is never read",
+    "CF-E4": "The route reaches P2CG1C's createPreparedCoopMissionMatch unchanged: C IMMEDIATE then M, revalidate on C while M is held, seed/recovery/announcement after both releases; no new M access",
+    "CF-E5": "Directed at P2CG1H; not absorbed",
+    "CF-E6": "Directed at P2CG1H; not absorbed",
+    "CF-E7": "Directed at the next owner of bindCampaignSyncConnection.test.ts (P2CG1I3 or P2CG2); not an E leaf",
+    "CF-E8": "Decided: receipt mode answers code-only {kind, code CAMPAIGN_NOT_CONVERGED, reason <P2CB verdict reason>, activeHead, resyncAction}; the legacy branch keeps its existing shape (requiredRevision, behind, clause)",
+    "CF-E9": "Baseline measured here: lint 87 warnings / 0 errors; campaignSyncTransport.ts is ALREADY max-lines warned at baseline (618 counted), contrary to the review's \"not warned today\"; campaignLaunchAuthorityRoute.ts and coopMissionCreate.ts are not warned. madge 8.0.0 from E's four product leaves: 1089 files, 176 chains. Before/after in the local receipt",
+    "CF-E10": "Protection re-read at this admission: contexts [\"Lint and Test\"], strict false, conversation resolution true, 0 approvals; all 32 pr-checks.yml names to be verified by name on the exact head",
+    "CF-E11": "Absorbed: a STALE_HEAD re-admission case on the prepared path (CF-D11(a)); CF-D11(b) stays with the next owner of DurableMatchStore.test.ts",
+    "M1": "Not E leaves (CampaignGmArbiter.test.ts, CampaignHostRegistry.test.ts); not absorbed",
+    "M2-M3": "Not E leaves; noted",
+    "N1-N5": "Noted. N1 applies: E's installed-port cases install on a registry emptied with dispose and the harness close calls _resetCampaignHostRegistry",
+    "H-OPEN-1": "Root note under successorNotes.P2CG1H; not E's"
+  },
+  "caps": {
+    "files": 15,
+    "productAddedLines": 500
+  },
+  "restriction": {
+    "container": "R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1E",
+    "leaves": 7,
+    "knownSubtotal": 8
+  },
+  "manifest": {
+    "count": 12,
+    "spare": 3,
+    "reservedUnchanged": 1,
+    "note": "7 restriction leaves (4 product, 3 test) + units.json (own lifecycle fields only) + admission/red/local receipts + reserved admission-review slot = 12/15"
+  },
+  "countingConvention": "U41 counted lines = added physical lines (git diff --numstat --no-renames baseline..HEAD, no deletion credit) in the product leaves and units.json. __tests__/ leaves and evidence/ contents are line-exempt; every changed file counts toward 15",
+  "census": {
+    "path": "E:/Projects/Personal/MekStation-wt/p2cg1e-proof2-20261017/census.md",
+    "bytes": 3980,
+    "sha256": "6134fb0658886c9d7088f49f2f4965179dd5080581c0c75553f56b4489e9a129",
+    "frozenBefore": "any source, test, lifecycle or evidence edit in this branch"
+  },
+  "frozenFiles": [
+    {
+      "path": "src/pages-modules/api/campaignLaunchProgressionGate.ts",
+      "exists": true,
+      "sha256": "2e84b0ce52ea7482bd71d8d3157b6aefe3e470ea2841527f3102f57546395ab5",
+      "bytes": 8696,
+      "physicalLines": 256
+    },
+    {
+      "path": "src/pages-modules/api/campaignLaunchAuthorityRoute.ts",
+      "exists": true,
+      "sha256": "add67f687c10de680ad2e47000bd48a939f0582a936f3cf9342e896bddf05c48",
+      "bytes": 11353,
+      "physicalLines": 312
+    },
+    {
+      "path": "src/lib/multiplayer/server/coopMissionCreate.ts",
+      "exists": true,
+      "sha256": "dd3e06ae9f7bdc8a1bd82a7a048b713cf9309c809058849c851e47045eb35bbd",
+      "bytes": 11035,
+      "physicalLines": 345
+    },
+    {
+      "path": "src/lib/campaign/coop/campaignSyncTransport.ts",
+      "exists": true,
+      "sha256": "042b6ef3714cb99f00e5bc1707e0be74dab101355ea4dba7d84577e5c729e1e8",
+      "bytes": 21121,
+      "physicalLines": 669
+    },
+    {
+      "path": "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts",
+      "exists": true,
+      "sha256": "ad0d2e408dfdfc85e19c2181396ab9e5b29422db8ff7467ca49c8dc244c90194",
+      "bytes": 42971,
+      "physicalLines": 1369
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+      "exists": true,
+      "sha256": "cb26564cde8864d62df8f3d381d7fb225988f55e995d946c14db35448dc1a6f1",
+      "bytes": 53932,
+      "physicalLines": 1482
+    },
+    {
+      "path": "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+      "exists": true,
+      "sha256": "7c43ab5726288b666eb7cc50ff62933e446f8774a2a020b2e95c04c4e4b99c51",
+      "bytes": 34868,
+      "physicalLines": 1055
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "exists": true,
+      "sha256": "6a78594a25b7e1490ee1dfd1c8fbe1b8a452bcd5c380846d1aabe98540fab195",
+      "bytes": 1591244,
+      "physicalLines": 21232
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1e-admission-20261017.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null,
+      "physicalLines": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1e-red-20261017.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null,
+      "physicalLines": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1e-local-20261017.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null,
+      "physicalLines": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1e-admission-review-20261017.md",
+      "exists": false,
+      "sha256": null,
+      "bytes": null,
+      "physicalLines": null
+    }
+  ],
+  "estimate": "Registration 125-175; scope research 185-315. Pre-gate draft measured 176 product lines plus about 22 lifecycle lines; final figures only at the local stage",
+  "baselineMeasurements": {
+    "lint": {
+      "command": "npx oxlint (npm run lint)",
+      "result": "87 warnings, 0 errors (re-measured on a64c6f1c)",
+      "leafWarnings": "campaignSyncTransport.ts eslint(max-lines) 618 counted (already warned); the other E product leaves do not warn",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1e-proof2-20261017/lint-base.log",
+        "sha256": "b91bc5d790901bd7ba441f48b0dfce571ca3671aa96c62c03994bfd21faceee3",
+        "bytes": 39571
+      }
+    },
+    "cycles": {
+      "command": "npx -y madge@8.0.0 --circular --extensions ts --ts-config tsconfig.json <E four product leaves>",
+      "result": "Processed 1089 files, 176 circular chains (re-measured on a64c6f1c)",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1e-proof2-20261017/madge-base.log",
+        "sha256": "e6fcf0c1b9e6171586dcf2e9684f29a1042175c7bdefca8f8022b22bee34c2a1",
+        "bytes": 106869
+      }
+    },
+    "grep": {
+      "note": "Non-test callers at baseline: installApplicationReceipts / applicationReceipts (registry + binder only), createPreparedCoopMissionMatch (definition only), createCoopMissionMatch (matches route), createDurableCampaignLaunchView (registry only), sessionId callers, expectedCampaignId transports",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1e-proof2-20261017/grep-base.txt",
+        "sha256": "85037679db3242d4d8dee306120d67bf9e12dbdd51f6716be217d4b4fae609e5",
+        "bytes": 3790
+      }
+    },
+    "flakeBefore": {
+      "note": "CF-E2 case on these baseline test bytes, Node v22.22.0, --runInBand, idle-checked: 0 of 10 failed run alone (-t) and 0 of 10 failed in full-suite runs (re-measured on a64c6f1c). The 1-in-3 rate the D author and reviewer saw is not reproduced on this machine now; the clock comparison is still unsound across processes, so the causal fix stands",
+      "isolated": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1e-proof2-20261017/flake-before.json",
+        "sha256": "f5bbe70dd7bad616e507e7163a3dd8b442a1f3a83866de591dfa7c1387c9fb73",
+        "bytes": 982
+      },
+      "suite": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1e-proof2-20261017/flake-before-suite.json",
+        "sha256": "688b7e0d6130bc8ba1501082bc5d794848ca2ad21083c85982bff6667313e871",
+        "bytes": 998
+      }
+    }
+  },
+  "overlap": "gh pr list --state open: #2113 (docs audits) and #1886 (e2e wip); neither touches an E path or units.json. No remote codex/p2cg1e* branch. No other roadmap unit is admitted or implementing. Main moved 526cf6d0 -> a64c6f1c through #2223 (desktop icons, perf test), #2224 (match-meta participant gate, src/pages/api/multiplayer/matches/[id].ts), #2225 (unit data encoding) and #2226 (P2CG1R/P2CG1S registration, units.json/roadmap.json outside the P2CG1E entry): git diff 526cf6d0 a64c6f1c over the seven leaves plus the coopMissionCreate harness/fixture is empty, and package.json/package-lock.json are unchanged since the npm ci",
+  "baselineOpenNotes": {
+    "E-PREP": "Before the gate opened, RED cases and the implementation were drafted in this worktree on 1c49312d (no commit, no PR, no lifecycle field). A first agent (r1) then admitted on 526cf6d0 (admission 414eb7cf, RED 459fa13a, neither pushed) and failed with a provider error before its local commit. Root directed the baseline to be the commit actually rebased onto, so this admission supersedes that one: the worktree was reset to a64c6f1c and the identical test and product patches (sha256 c5ef8bd0... and 336d1f49..., held off-tree in the proof directory) are re-applied only after this commit, tests first, product after the RED commit. The superseded commits stay on the local branch backup/p2cg1e-prior-526cf6d0 and their receipts in E:/Projects/Personal/MekStation-wt/p2cg1e-proof2-20261017/prior-526cf6d0 as history, not as evidence for this head",
+    "E-PRIOR-RUNS": "The r1 draft and mutation runs on 526cf6d0 are not evidence here; RED, GREEN, mutation, predecessor-suite and static proof are re-run on this baseline",
+    "E-DOC-1": "The registered behavior sentence \"no shipped client sends sessionId\" is stale (scope research finding 4): missionLaunchPage.launch.ts calls resolveLaunchForces with sessionId: matchId and requestLaunchAuthority forwards it to /launch-authority. The session-bearing receipt preflight is therefore a real caller branch once the port is installed. This admission does not edit the behavior text (outside own-lifecycle authority); a parent documentary correction is needed. E needs no client change",
+    "E-PROBE-OVERLAP": "Disclosure: one pre-gate draft mutation probe batch (EM1-EM5, about one minute) overlapped the P2CG1D closure lane's roadmap Jest run before the overlap was noticed; it was stopped, the product restored byte-identically, and the batch is not used as evidence. All evidence runs are idle-checked (idle.log)"
+  },
+  "activationPredicate": "Unchanged and uninstalled: a typed ICampaignApplicationReceiptPort installed once on CampaignHostRegistry by server.js at boot. E keys both HTTP doors on its presence and the transport changes act only in receipt mode; no production process installs the port, so production keeps the legacy cursor gate and the old create",
+  "requiredChecks": "gh api branches/main/protection re-read at this admission: required_status_checks.contexts [\"Lint and Test\"] (strict false), required_conversation_resolution true, 0 required approvals",
+  "reviewSlot": "Reserved for the independent reviewer; author must not write review",
+  "summary": "Ordinary admission of the 12 frozen paths under unchanged caps. No cap exception, no unnamed leaf, no merge or Main claim."
+}

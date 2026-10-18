@@ -23,6 +23,7 @@ import {
   CampaignApplicationClientMessageSchema,
   CampaignApplicationServerMessageSchema,
   HEARTBEAT_INTERVAL_MS,
+  HEARTBEAT_TIMEOUT_MS,
   nowIso,
 } from '@/types/multiplayer/Protocol';
 
@@ -49,7 +50,10 @@ export type CampaignAppliedResult =
         | 'application-refused'
         | 'prefix-conflict'
         | 'pending-overflow'
-        | 'send-failed';
+        | 'send-failed'
+        | 'head-drift-exhausted'
+        | 'confirmation-timeout'
+        | 'socket-closed';
     };
 
 export interface ICampaignSyncTransport {
@@ -115,6 +119,10 @@ export interface IConnectStoredCampaignSyncOptions {
 
 const activeTransports = new Map<string, ICampaignSyncTransport>();
 const MAX_PENDING_APPLICATION_OFFERS = 64;
+/** Identical re-sends of one unconfirmed ACK on head-drift (CF8). */
+export const MAX_HEAD_DRIFT_RESENDS = 3;
+/** How long one sent ACK waits for its confirmation or refusal (CF8). */
+export const APPLICATION_CONFIRMATION_TIMEOUT_MS = HEARTBEAT_TIMEOUT_MS;
 
 export function connectCampaignSyncTransport(
   options: IConnectCampaignSyncOptions,
@@ -129,6 +137,13 @@ export function connectCampaignSyncTransport(
   // The exact bytes of `sent`'s ACK, and whether the server confirmed it.
   let sentAck = '';
   let confirmed = false;
+  // Both belong to `sent` alone: a new ACK resets them, nothing else does.
+  let driftResends = 0;
+  let confirmationTimer: ReturnType<typeof setTimeout> | null = null;
+  const stopConfirmationWait = (): void => {
+    if (confirmationTimer !== null) clearTimeout(confirmationTimer);
+    confirmationTimer = null;
+  };
   let failed = false;
   let dispatching = false;
   let receiptMode = false;
@@ -176,6 +191,7 @@ export function connectCampaignSyncTransport(
     failed = true;
     pending.length = 0;
     sent = null;
+    stopConfirmationWait();
     emitError(new Error(`Campaign application recovery required: ${reason}`));
     return { status: 'recovery-required', reason };
   };
@@ -202,16 +218,44 @@ export function connectCampaignSyncTransport(
     sent = latest;
     sentAck = raw;
     confirmed = false;
+    driftResends = 0;
+    stopConfirmationWait();
+    const waiting = sent;
+    // A lost confirmation or refusal must not leave the view waiting forever.
+    confirmationTimer = setTimeout(() => {
+      confirmationTimer = null;
+      if (
+        !closed &&
+        !failed &&
+        !confirmed &&
+        sent === waiting &&
+        latest === sent
+      )
+        recover('confirmation-timeout');
+    }, APPLICATION_CONFIRMATION_TIMEOUT_MS);
     return { status: 'ack-sent' };
   };
   // P2CE3: head-drift committed nothing and leaves the view live, so the
-  // same ACK is retried while it is still the latest and unconfirmed. A
-  // newer offer is ACKed by drain once ready. Every other typed refusal
-  // must not be retried with the same frame: the consumer rejoins.
+  // same ACK is retried, a bounded number of times, while it is still the
+  // latest and unconfirmed. A newer offer is ACKed by drain once ready. An
+  // unknown receipt is moot once a newer offer arrived after the refused
+  // ACK (CF7 a). Every other typed refusal must not be retried with the
+  // same frame: the consumer rejoins.
   const handleApplicationRefusal = (reason: string): void => {
+    if (
+      reason === 'campaign-application-unknown-receipt' &&
+      sent !== null &&
+      latest !== sent
+    )
+      return;
     if (reason !== 'campaign-application-head-drift') {
       recover('application-refused');
     } else if (sent && sent === latest && !confirmed) {
+      if (driftResends >= MAX_HEAD_DRIFT_RESENDS) {
+        recover('head-drift-exhausted');
+        return;
+      }
+      driftResends += 1;
       try {
         socket.send(sentAck);
       } catch {
@@ -368,6 +412,7 @@ export function connectCampaignSyncTransport(
       pending.length = 0;
       sent = null;
       stopHeartbeat();
+      stopConfirmationWait();
       if (activeTransports.get(options.matchId) === transport) {
         activeTransports.delete(options.matchId);
       }
@@ -387,7 +432,8 @@ export function connectCampaignSyncTransport(
       role: options.role,
       token: wireToken,
       roomCode: options.roomCode,
-      ...(!options.expectedCampaignId && lastSeq >= 0 ? { lastSeq } : {}),
+      // Quoted bound or not; in receipt mode the server derives the cut.
+      ...(lastSeq >= 0 ? { lastSeq } : {}),
     });
     while (pendingOutbound.length > 0 && socket.readyState === 1) {
       const next = pendingOutbound.shift();
@@ -414,6 +460,7 @@ export function connectCampaignSyncTransport(
         JSON.stringify(message.appliedView) === JSON.stringify(sent.appliedView)
       ) {
         confirmed = true;
+        stopConfirmationWait();
         confirmations.forEach((handler) => handler(message));
       }
       return;
@@ -474,10 +521,14 @@ export function connectCampaignSyncTransport(
   };
   socket.onerror = (ev) => emitError(ev);
   socket.onclose = () => {
+    // CF12: a receipt-mode close nobody asked for is a recovery signal, once.
+    if (!closed && !failed && receiptMode && options.expectedCampaignId)
+      recover('socket-closed');
     closed = true;
     pending.length = 0;
     sent = null;
     stopHeartbeat();
+    stopConfirmationWait();
     if (activeTransports.get(options.matchId) === transport) {
       activeTransports.delete(options.matchId);
     }
