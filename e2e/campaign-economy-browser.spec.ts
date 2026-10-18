@@ -12,6 +12,7 @@
 
 import { expect, test, type Page } from '@playwright/test';
 
+import { saveCampaignInContext } from './fixtures/campaign';
 import { withBrowserDiagnostics } from './helpers';
 
 interface SeededCampaign {
@@ -136,7 +137,7 @@ async function readCampaignEconomySnapshot(
 async function seedPostBattleCampaign(page: Page): Promise<SeededCampaign> {
   await waitForCampaignStoresReady(page);
 
-  return page.evaluate(() => {
+  const seeded = await page.evaluate(() => {
     type StoreApi = {
       getState: () => Record<string, any>;
       setState?: (state: Record<string, any>) => void;
@@ -266,6 +267,7 @@ async function seedPostBattleCampaign(page: Page): Promise<SeededCampaign> {
       units: [
         {
           unitId: 'unit-atlas',
+          unitRef: 'atlas-as7-d',
           unitName: 'Atlas AS7-D',
           chassis: 'Atlas',
           model: 'AS7-D',
@@ -371,6 +373,9 @@ async function seedPostBattleCampaign(page: Page): Promise<SeededCampaign> {
 
     return { campaignId, currentDate };
   });
+
+  await saveCampaignInContext(page);
+  return seeded;
 }
 
 test.describe('Campaign economy browser proof', () => {
@@ -435,6 +440,9 @@ test.describe('Campaign economy browser proof', () => {
         const repairSnapshot = await readCampaignEconomySnapshot(page);
         expect(repairSnapshot.repairPriorities).toEqual(repairPriorities);
 
+        // Confirm a server save before reload; browser-cache state alone
+        // does not prove the mutation reached the canonical record.
+        await saveCampaignInContext(page);
         await page.reload({ waitUntil: 'networkidle' });
         await waitForLoadedCampaign(page, seeded.campaignId);
         await expect(page.getByTestId('repair-bay-queue')).toBeVisible();
@@ -461,6 +469,7 @@ test.describe('Campaign economy browser proof', () => {
           salvageStatuses: [['salvage-atlas', 'accepted']],
         });
 
+        await saveCampaignInContext(page);
         await page.reload({ waitUntil: 'networkidle' });
         await waitForLoadedCampaign(page, seeded.campaignId);
         await expect(page.getByTestId('salvage-panel')).toBeVisible();
@@ -493,6 +502,7 @@ test.describe('Campaign economy browser proof', () => {
           'Loan disbursement: 1,000,000.00 C-bills',
         );
 
+        await saveCampaignInContext(page);
         await page.reload({ waitUntil: 'networkidle' });
         await waitForLoadedCampaign(page, seeded.campaignId);
         await expect(page.getByTestId('finances-panel')).toBeVisible();
@@ -522,6 +532,7 @@ test.describe('Campaign economy browser proof', () => {
         expect(advancedSnapshot.currentDate).toBe('3025-01-02');
         expect(advancedSnapshot.balance).toBeLessThan(financeSnapshot.balance);
 
+        await saveCampaignInContext(page);
         await page.reload({ waitUntil: 'networkidle' });
         await waitForLoadedCampaign(page, seeded.campaignId);
         await expect(page.getByTestId('day-advance-current-date')).toHaveText(

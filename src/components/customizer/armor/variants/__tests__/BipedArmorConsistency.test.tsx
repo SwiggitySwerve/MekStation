@@ -170,3 +170,29 @@ it.each([
     view.unmount();
   }
 });
+
+it.each([null, MechLocation.HEAD])(
+  'renders one text child per SVG title with selected location %s',
+  (selectedLocation) => {
+    for (const Diagram of components) {
+      const view = render(
+        <Diagram
+          armorData={armorData}
+          selectedLocation={selectedLocation}
+          unallocatedPoints={0}
+          onLocationClick={jest.fn()}
+        />,
+      );
+      const titles = view.container.querySelectorAll('svg title');
+      expect(titles).toHaveLength(8);
+      for (const title of titles) {
+        expect(title.childNodes).toHaveLength(1);
+        expect(title.firstChild?.nodeType).toBe(Node.TEXT_NODE);
+      }
+      expect(titles[0]).toHaveTextContent(
+        selectedLocation === MechLocation.HEAD ? 'Head — selected' : 'Head',
+      );
+      view.unmount();
+    }
+  },
+);
