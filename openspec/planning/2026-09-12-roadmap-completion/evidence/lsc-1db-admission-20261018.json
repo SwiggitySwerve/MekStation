@@ -1,0 +1,196 @@
+{
+  "schemaVersion": 1,
+  "unit": "LSC-1DB",
+  "stage": "admission",
+  "date": "20261018",
+  "baseline": "afcbd62bba50621ebcf37c2c11adf58ecc3bfc5f",
+  "authority": "Root GATE OPEN message for LSC-1DB (2026-10-18): the LSC-0 closure #2288 merged at afcbd62bba50621ebcf37c2c11adf58ecc3bfc5f; LSC-1DB is planned; rebase the staged admission and RED onto afcbd62bba50621ebcf37c2c11adf58ecc3bfc5f, keep the SQLite CHECK fix (IS text, because a CHECK that evaluates to NULL passes) and add a RED row proving a key missing iv/salt is refused, carry in CF-LSC0-6, CF-LSC0-8, CF-LSC0-16 and a fresh migration-33 census, and prove up and down/no-op behaviour against a copy of an existing database. Owner standing instruction: \"continue with recommended options and fix the issues that come up, publish as needed\"; owner 2026-10-18: \"let's keep going on the main path of things using as many sub-agents as we can in parallel to go quickly\"; parallel LSC lane (#2285). This receipt records that release; it is not an owner ruling on the implementation head.",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "LSC implementation sub-agent (parallel LSC lane)"
+  },
+  "predecessors": {
+    "LSC-0": "main-verified on fetched origin/main afcbd62bba50621ebcf37c2c11adf58ecc3bfc5f (closure #2288; merge 811bfd8d4 of #2286, OWNER-RULING 1298baf37, comment 6254759051; mainProof PASS evidence/lsc-0-mainproof-20261018.json)."
+  },
+  "carryIn": {
+    "CF-LSC0-6": {
+      "source": "LSC-0 review round 1 section 7 and owner ruling 6254759051 (\"CF-LSC0-6: the encrypted-at-rest key and no-secret logging -> LSC-1DB/1S/1\")",
+      "schemaShare": "The schema enforces it: encrypted_private_key CHECK accepts only the vault IdentityService ciphertext envelope (json_valid with text ciphertext, iv and salt); operation fingerprint CHECK accepts only a 64-char lowercase sha256 hex digest; no column is named for a password or secret. A plaintext key, a password-shaped fingerprint or a password column is a CHECK/RED failure (migration test CF-LSC0-6 row).",
+      "deferred": "Request-scoped key lifetime and no-secret logging/error/operation-record proof with mutants stay with LSC-1S/LSC-1."
+    },
+    "migration": "Version 33 = MAX(MIGRATIONS.version)+1 at afcbd62bba50621ebcf37c2c11adf58ecc3bfc5f (head 32, SQLiteService.publicAppliedViews.migration.ts). Re-census at admission: git grep \"version: 3[2-9]\" over src/services/persistence on origin/main finds only version 32; no open PR (#2278, #2279, #2281, #2282, #2283, #2287, #2289) touches src/services/persistence or any migration file.",
+    "otherLsc0CarryForwards": "CF-LSC0-8/15/16/17 (counter and window semantics) are LSC-1S/LSC-1; LSC-1DB only stores durable failed_attempts and locked_until_ms.",
+    "CF-LSC0-8": "Persistence share: failed_attempts and locked_until_ms are durable columns (NOT NULL, default 0, CHECK >= 0) that survive close/reopen and a migration re-apply (proved in the migration suite). How revoke keeps and re-provision clears them is repository behaviour, routed to LSC-1S (its repository writes revoked_at without touching the counter and resets both on re-provision).",
+    "CF-LSC0-16": "Persistence share: only the per-seat failure count and lock deadline are persisted. The route-wide attempt windows (mint and operator) are process-local service state and are not stored, so a restart reopens the window but never the per-seat lock. Post-lock-expiry counter semantics and whether lock/concurrency refusals consume the window are routed to LSC-1S/LSC-1."
+  },
+  "restriction": {
+    "container": "R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-1DB",
+    "leaves": 10
+  },
+  "caps": {
+    "files": 15,
+    "productAddedLines": 500
+  },
+  "manifest": {
+    "count": 10,
+    "spare": 5,
+    "reservedUnchanged": 1,
+    "files": [
+      "src/services/persistence/SQLiteService.localSeatCredentials.migration.ts",
+      "src/services/persistence/SQLiteService.migrations.ts",
+      "src/services/persistence/__tests__/SQLiteService.localSeatCredentials.migration.test.ts",
+      "src/services/persistence/__tests__/SQLiteService.migrations.test.ts",
+      "src/services/persistence/__tests__/SQLiteService.replayCheckpointsBranch.migration.test.ts",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1db-admission-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1db-red-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1db-local-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1db-admission-review-20261018.json"
+    ],
+    "note": "Exactly the ten registered literals: new migration module + catalog entry, new migration test + two existing pinned-head tests (N2 amendment), units.json (own lifecycle only), admission/red/local receipts, reserved admission-review slot. No repository/service/API/UI file (LSC-1S/LSC-1/LSC-2*)."
+  },
+  "migrationVersion": {
+    "allocated": 33,
+    "basis": "MAX(version) in MIGRATIONS at the baseline afcbd62bb (fetched origin/main) is 32 (SQLiteService.publicAppliedViews.migration.ts); git grep \"version: 3[3-9]\" over src/services/persistence on origin/main is empty; no open PR touches src/services/persistence or a migration file. Re-allocate if another lane lands a migration first."
+  },
+  "schema": {
+    "tables": [
+      "local_seat_credentials(seat_id PK CHECK in (local-seat-1, local-seat-2), label, public_key, encrypted_private_key, generation >0 fence, revoked_at nullable, failed_attempts >=0 default 0, locked_until_ms >=0 default 0, updated_at)",
+      "local_seat_credential_operations(operation_id PK <=128, seat_id CHECK, kind CHECK in (provision, revoke), fingerprint, result_generation >0, created_at)"
+    ],
+    "properties": "CREATE TABLE IF NOT EXISTS; additive only; no foreign keys into vault or campaign tables; never touches vault_identities (seat credentials are not vault identities, N4)."
+  },
+  "countingConvention": "U41 counted lines = added physical lines (git diff --numstat --no-renames baseline..HEAD, no deletion credit) in the migration module, catalog and units.json; test leaves and receipts line-exempt but file-counted. Prep measured 48 + 2 product lines.",
+  "census": {
+    "script": {
+      "path": "E:/Projects/Personal/MekStation-wt/lsc-1db-proof-20261018/census.cjs",
+      "sha256": "ded0b32113e8f47de39c0e4e10471704651cc89455d3ee553a38c67062979025",
+      "bytes": 5286
+    },
+    "output": {
+      "path": "E:/Projects/Personal/MekStation-wt/lsc-1db-proof-20261018/census.json",
+      "sha256": "5f0a0aaee04afb92c4627cfb6231efcec15e6a9526400df9ee54b49d622a9e0b",
+      "bytes": 222033
+    },
+    "leaves": {
+      "src/services/persistence/SQLiteService.localSeatCredentials.migration.ts": {
+        "exists": false,
+        "liveClaimants": [
+          "LSC-1DB (planned) via src/services/persistence",
+          "R2.camp-8 (blocked) via src"
+        ]
+      },
+      "src/services/persistence/SQLiteService.migrations.ts": {
+        "exists": true,
+        "liveClaimants": [
+          "LSC-1DB (planned) via src/services/persistence",
+          "R2.camp-8 (blocked) via src"
+        ]
+      },
+      "src/services/persistence/__tests__/SQLiteService.localSeatCredentials.migration.test.ts": {
+        "exists": false,
+        "liveClaimants": [
+          "LSC-1DB (planned) via src/services/persistence",
+          "R2.camp-8 (blocked) via src"
+        ]
+      },
+      "src/services/persistence/__tests__/SQLiteService.migrations.test.ts": {
+        "exists": true,
+        "liveClaimants": [
+          "LSC-1DB (planned) via src/services/persistence",
+          "R2.camp-8 (blocked) via src"
+        ]
+      },
+      "src/services/persistence/__tests__/SQLiteService.replayCheckpointsBranch.migration.test.ts": {
+        "exists": true,
+        "liveClaimants": [
+          "LSC-1DB (planned) via src/services/persistence",
+          "R2.camp-8 (blocked) via src"
+        ]
+      }
+    },
+    "disposition": "Only LSC-1DB (literal) and R2.camp-8 (blocked, bare src alias) claim the persistence leaves; no implementing/local-verified unit; no open PR touches src/services/persistence; the B14/HP lane is file-disjoint."
+  },
+  "frozenFiles": [
+    {
+      "path": "src/services/persistence/SQLiteService.localSeatCredentials.migration.ts",
+      "exists": false
+    },
+    {
+      "path": "src/services/persistence/SQLiteService.migrations.ts",
+      "exists": true,
+      "sha256": "be920064cc1690ea075ca72c9fe83aba8bd01030170bab2c9ee3c3d8d631ce5c",
+      "bytes": 18365,
+      "physicalLines": 414
+    },
+    {
+      "path": "src/services/persistence/__tests__/SQLiteService.localSeatCredentials.migration.test.ts",
+      "exists": false
+    },
+    {
+      "path": "src/services/persistence/__tests__/SQLiteService.migrations.test.ts",
+      "exists": true,
+      "sha256": "e9cc05448e694d99ff7a558c113344514dfb08c7808a86cbede5c50f42a42c36",
+      "bytes": 8561,
+      "physicalLines": 216
+    },
+    {
+      "path": "src/services/persistence/__tests__/SQLiteService.replayCheckpointsBranch.migration.test.ts",
+      "exists": true,
+      "sha256": "f77b5ca4fccf8fc9770179d0e5a54a5f0dcdc0d11565f731010b536932b7bbc2",
+      "bytes": 9373,
+      "physicalLines": 272
+    }
+  ],
+  "frozenCensus": {
+    "path": "E:/Projects/Personal/MekStation-wt/lsc-1db-proof-20261018/frozen-files.json",
+    "sha256": "7742a67a99360fcd13d27c14040a95fbda35a600d85c1029e344aba630e7f7a2",
+    "bytes": 975
+  },
+  "unchangedControls": {
+    "files": [
+      {
+        "path": "src/services/persistence/SQLiteService.ts",
+        "exists": true,
+        "sha256": "13b09094392ac13633812d0c542cd81f2bf377cb7bba99e944d98d6d35adca67",
+        "bytes": 6630,
+        "physicalLines": 260
+      },
+      {
+        "path": "src/services/persistence/SQLiteService.publicAppliedViews.migration.ts",
+        "exists": true,
+        "sha256": "c30d5dd40eb4623e7ecc2bc282486ae7c6b079a7f1b5c666dc45c126d223be26",
+        "bytes": 1207,
+        "physicalLines": 21
+      },
+      {
+        "path": "src/services/persistence/__tests__/SQLiteService.contract.migration.test.ts",
+        "exists": true,
+        "sha256": "da9f932786aebf6938496169ced3a5787c79e17beeb78d7ed8d34938c2e9dfe3",
+        "bytes": 3588,
+        "physicalLines": 117
+      },
+      {
+        "path": "src/services/vault/IdentityRepository.ts",
+        "exists": true,
+        "sha256": "621e8c6c077df61fa9d2e953436ccde94e36901a6fc3d3d461f166e0695e0b48",
+        "bytes": 6808,
+        "physicalLines": 254
+      }
+    ],
+    "census": {
+      "path": "E:/Projects/Personal/MekStation-wt/lsc-1db-proof-20261018/frozen-controls.json",
+      "sha256": "f96ae4f217f8df143cbe1680ee7ae21650bfcdbf07e4e510fcfcb15b284cc9c8",
+      "bytes": 912
+    },
+    "note": "Runner, previous head migration, contract migration test and vault IdentityRepository stay byte-identical."
+  },
+  "redPlan": "RED commit edits tests only: new migration test looks the migration up by name in MIGRATIONS (F6, behavioural failure not module resolution); replayCheckpointsBranch R6 pin moves 32->33 (fails until the catalog head is 33); migrations.test applied-view reapply deletes version >= 32 (passes before and after). Product leaves byte-identical at RED. Separate RED row: a key envelope missing iv or salt (or with a non-text iv) is refused, because json_type returns NULL for a missing path and a CHECK that evaluates to NULL passes; GREEN uses IS text.",
+  "heavyRuns": "Jest via node E:/Projects/Personal/MekStation-wt/_locks/heavy-run.mjs --lane lsc --class jest (queue runs machine-idle), --runInBand, private --cacheDirectory.",
+  "history": "An earlier local staging of this admission and RED on 811bfd8d4 (f4f294fc7, 133c1afc1) is superseded by this rebase; the receipts are regenerated with the true baseline.",
+  "migrationReview": {
+    "upAndNoOp": "Migration suite: fresh create, upgrade from head 32, idempotent re-apply after a lost record, rollback when the record write fails.",
+    "existingDatabaseCopy": "A byte copy of an existing operator database (root checkout data/mekstation.db, read-only source, copied outside the repo) is upgraded by the real runner; every pre-existing table, index and row must be byte-identical after the upgrade, a second initialize must be a no-op, an older build capped at 32 must open the upgraded copy unchanged, and dropping the two additive tables plus the version-33 record must restore the pre-upgrade schema exactly (down). Recorded in the local receipt; no row content is printed."
+  }
+}
