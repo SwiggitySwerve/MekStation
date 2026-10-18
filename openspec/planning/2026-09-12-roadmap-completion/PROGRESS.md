@@ -1,3 +1,32 @@
+## Baseline and L1 review follow-ups (2026-10-18)
+
+Docs-only registration under the standing owner direction, prioritizing ordinary-UI
+setup, join, play, reconnect, finish and reload. Five new blocked units; no source
+admission, runtime PASS, task tick, quarantine edit or existing-unit release.
+
+B14-HEAD -> MP-RECOVERY-UNITS-1 -> MP-HOST-DEDUPE-1 -> P2CG1HP -> H.
+Recovery fixes the pre-listen HTTP catalog dependency; NodeCanonicalUnitService
+already reads disk. Dedupe repairs concurrent first-host creation. Both precede
+A2, whose feasibility must include an accepted unit action after packaged restart.
+The separate LSC lane and all existing sensitive gates remain. L1 closures: 38.
+
+COOP-PACK-GEN follows P2J, which already requires LSC-2P. Transfer #2279's two
+quarantine owners in separately admitted config/guard work BEFORE P2J closure;
+generator proof later removes them. CF-SMOKEA1-4 and CF-SMOKEA1-6 are small blocked
+maintenance after L1-SMOKE-B, serial over package.json. U24b owns the nightly split
+removal; LSC-2OP carries the 12/12 campaign-economy release predicate; B15-3R/B15-3
+carry typed-422 handoff; H/U2b/U25 acknowledge #2283; LSC-2P/P2J check production
+InMemoryPlayerStore behavior. Patch provenance is historical, not new proof.
+
+Both ledgers carry identical followupsRegistration20261018; [the full collision
+census](evidence/followups-registration-20261018.txt) covers all nine open PRs and
+120 planned/blocked/implementing units. Shared ledger writes serialize with
+#2288 LSC-0 closure, B14-0 closure and A1. Rebase before CI and after earlier
+writers land; preserve other-unit lifecycle bytes. Future scope/cap expansion
+requires admission or a registered split. NEXT remains advisory.
+
+---
+
 ## 2026-10-18 LSC-0 contract verified on main; LSC-1DB released; closure metadata proposed
 
 LSC-0 advances from implementing to main-verified for contract PR #2286,

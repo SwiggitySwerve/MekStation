@@ -1,0 +1,956 @@
+﻿# Follow-up registration collision census, 2026-10-18
+
+Read-only census; no source authorization or runtime acceptance. Baseline: 811bfd8d40d7d9366616dcd93c5a60ae0c95fd51
+
+## Every open PR (REST paginated file census; all exact paths)
+
+#2288 docs(roadmap): record LSC-0 verified contract closure; release LSC-1DB; head fc6792f95dc0a00a38862ea407286036582d7669; files 21
+- openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md
+- openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-admission-review-20261018.json
+- openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-mainproof-20261018.json
+- openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-merge-20261018.json
+- openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-owner-ruling-6254759051.txt
+- openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-source-fable-review-r1-20261018.bytes.json
+- openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-source-fable-review-r2-20261018.bytes.json
+- openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-811bfd8d-ci.bytes.json
+- openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-811bfd8d-lintunits.bytes.json
+- openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-811bfd8d-mutants.bytes.json
+- openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-811bfd8d-mutantsout.bytes.json
+- openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-811bfd8d-osv.bytes.json
+- openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-811bfd8d-probe1.bytes.json
+- openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-811bfd8d-probe2.bytes.json
+- openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-811bfd8d-probe2out.bytes.json
+- openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-811bfd8d-purpose.bytes.json
+- openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-811bfd8d-vgit.bytes.json
+- openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-811bfd8d-vnext.bytes.json
+- openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-811bfd8d-vplain.bytes.json
+- openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-811bfd8d-vtests.bytes.json
+- openspec/planning/2026-09-12-roadmap-completion/units.json
+
+#2287 L1-SMOKE-A1: built-server spectator socket smoke harness + fog-off baseline (partial proof); head de8e97758a77cd0f5f6cd9dea47d4065b1591511; files 8
+- openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a1-admission-20261018.json
+- openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a1-local-20261018.json
+- openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a1-red-20261018.json
+- openspec/planning/2026-09-12-roadmap-completion/units.json
+- scripts/release/l1-built-server-fixtures.ts
+- scripts/release/l1-built-server-smoke.test.mjs
+- scripts/release/l1-built-server-socket-cases.mjs
+- scripts/release/run-l1-built-server-smoke.mjs
+
+#2283 test(e2e): repair privacy E2E-20/21 drift and E2E-08 hash flake (nightly baseline lane C); head 75c833ac037fd3b9e801afb4b710af6a5496056d; files 4
+- e2e/fixtures/sqliteEvidenceReader.ts
+- e2e/gm-two-player-authority.pack1.spec.ts
+- e2e/gm-two-player-privacy.pack.spec.ts
+- src/__tests__/unit/evidence/sqliteEvidenceReader.test.ts
+
+#2282 Repair campaign and app-shell nightly regression checks; head 0da8feed0a2b8dcab071f9f31d92bfd66c41a5ad; files 7
+- e2e/campaign-economy-browser.spec.ts
+- e2e/campaign-flow.spec.ts
+- e2e/campaign-subroute-recovery.spec.ts
+- e2e/fixtures/campaign.ts
+- e2e/saved-custom-combat-launch.spec.ts
+- src/components/customizer/armor/variants/BipedArmorDiagram.tsx
+- src/components/customizer/armor/variants/__tests__/BipedArmorConsistency.test.tsx
+
+#2281 B14-0: refuse fog-on WebSocket delivery through the capability predicate; head 471d6281ce07480119b47b61f7d3ecc07e18e5d5; files 10
+- openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0-admission.json
+- openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0-local.json
+- openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0-red.json
+- openspec/planning/2026-09-12-roadmap-completion/units.json
+- openspec/specs/fog-of-war/spec.md
+- src/lib/multiplayer/server/ServerMatchHost.ts
+- src/lib/multiplayer/server/ServerMatchHostEvents.ts
+- src/lib/multiplayer/server/ServerMatchHostReplay.ts
+- src/lib/multiplayer/server/__tests__/b14FogContainment.test.ts
+- src/lib/multiplayer/server/fogMatchAdmission.ts
+
+#2279 fix(qc): refresh scenario packs and harden nightly recapture; head d5cb1591d85af1bb1023f027b3c7574461afb463; files 30
+- .github/workflows/nightly-validation.yml
+- docs/audits/2026-10-18-scenario-pack-recapture-baseline.md
+- docs/audits/2026-10-18-scenario-pack-recapture-diagnosis.md
+- e2e/campaign-wizard-save-diagnostics.spec.ts
+- e2e/customizer-category-colors.spec.ts
+- e2e/customizer-layout-workbench.spec.ts
+- e2e/helpers/campaignFlow.ts
+- e2e/helpers/seamCampaign.ts
+- e2e/mobile-navigation.spec.ts
+- e2e/playtest-sp-smoke.spec.ts
+- e2e/replay-blocked-history.spec.ts
+- e2e/scenario-packs/campaign/experience-pilot.campaign.json
+- e2e/scenario-packs/campaign/experience-pilot.provenance.json
+- e2e/scenario-packs/campaign/navigation-briefing.campaign.json
+- e2e/scenario-packs/campaign/navigation-briefing.provenance.json
+- e2e/scenario-packs/campaign/personnel-roster.campaign.json
+- e2e/scenario-packs/campaign/personnel-roster.provenance.json
+- e2e/scenario-packs/manifest.ts
+- e2e/scenario-packs/quarantine.ts
+- scripts/__tests__/scenario-pack-quarantine.test.ts
+- scripts/__tests__/scenario-pack-recapture.test.ts
+- scripts/qc/mint-scenario-pack.mjs
+- scripts/qc/recapture-scenario-pack-stages.ts
+- scripts/qc/recapture-scenario-packs-core.ts
+- src/components/common/TopBar.tsx
+- src/components/quickgame/__tests__/persistQuickGame.test.ts
+- src/components/quickgame/persistQuickGame.ts
+- src/lib/events/replay/CombatLifecycleBaselineSchemaPack.ts
+- src/lib/events/replay/__tests__/CombatLifecycleBaselineSchemaPack.test.ts
+- src/types/gameplay/GameSessionLifecycleEvents.ts
+
+#2278 fix: repair nightly UI, navigation, and quick-game replay regressions; head 60e4b54cb91a80ba2ad7e395baf2f914cfa40b54; files 12
+- .github/workflows/nightly-validation.yml
+- e2e/customizer-category-colors.spec.ts
+- e2e/customizer-layout-workbench.spec.ts
+- e2e/mobile-navigation.spec.ts
+- e2e/playtest-sp-smoke.spec.ts
+- e2e/replay-blocked-history.spec.ts
+- src/components/common/TopBar.tsx
+- src/components/quickgame/__tests__/persistQuickGame.test.ts
+- src/components/quickgame/persistQuickGame.ts
+- src/lib/events/replay/CombatLifecycleBaselineSchemaPack.ts
+- src/lib/events/replay/__tests__/CombatLifecycleBaselineSchemaPack.test.ts
+- src/types/gameplay/GameSessionLifecycleEvents.ts
+
+#2113 docs(audits): preserve complete thread-transfer history; head baa20ce6c3031094fc46bd9a8185e44a3a8740ab; files 472
+- docs/audits/2026-10-02-thread-transfer/ARCHIVE-INDEX.json
+- docs/audits/2026-10-02-thread-transfer/LOCAL-ONLY-CUSTODY-INDEX.json
+- docs/audits/2026-10-02-thread-transfer/PARENT-PLANNING-HANDOFF-DRAFT.md
+- docs/audits/2026-10-02-thread-transfer/README.md
+- docs/audits/2026-10-02-thread-transfer/START-HERE.md
+- docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/independent-assembled-archive-review-epoch1.json
+- docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/independent-reader-index-review-epoch2.json
+- docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-assembled-archive-content-review-retention-repaired.json.archive.json
+- docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-assembled-archive-review-dispatched.json.archive.json
+- docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-current-control-archive-parent-byteverified.json.archive.json
+- docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-existing-genuine-patch-engine-rebind-20261002.json.archive.json
+- docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-full-historical-archive-parent-byteverified.json.archive.json
+- docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-genuine-patch-scratch-parent-qualified.json.archive.json
+- docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-materialized-task-core-parent-qualified.json.archive.json
+- docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-task67-current-remote-custody-rechecked.json.archive.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0000.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0001.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0002.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0003.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0004.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0005.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0006.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0007.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0008.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0009.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0010.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0011.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0012.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0013.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0014.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0015.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0016.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0017.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0018.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0019.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0020.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0021.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0022.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0023.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0024.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0025.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0026.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0027.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0028.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0029.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0030.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0031.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0032.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0033.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0034.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0035.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0036.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0037.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0038.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0039.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0040.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0041.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0042.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0043.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0044.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0045.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0046.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0047.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0048.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0049.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0050.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0051.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0052.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0053.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0054.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0055.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0056.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0057.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0058.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0059.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0060.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0061.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0062.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0063.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0064.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0065.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0066.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0067.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0068.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0069.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0070.json
+- docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0071.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0000.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0001.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0002.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0003.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0004.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0005.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0006.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0007.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0008.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0009.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0010.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0011.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0012.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0013.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0014.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0015.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0016.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0017.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0018.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0019.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0020.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0021.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0022.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0023.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0024.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0025.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0026.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0027.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0028.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0029.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0030.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0031.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0032.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0033.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0034.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0035.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0036.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0037.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0038.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0039.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0040.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0041.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0042.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0043.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0044.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0045.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0046.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0047.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0048.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0049.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0050.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0051.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0052.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0053.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0054.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0055.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0056.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0057.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0058.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0059.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0060.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0061.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0062.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0063.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0064.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0065.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0066.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0067.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0068.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0069.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0070.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0071.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0072.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0073.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0074.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0075.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0076.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0077.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0078.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0079.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0080.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0081.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0082.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0083.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0084.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0085.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0086.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0087.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0088.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0089.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0090.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0091.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0092.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0093.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0094.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0095.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0096.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0097.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0098.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0099.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0100.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0101.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0102.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0103.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0104.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0105.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0106.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0107.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0108.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0109.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0110.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0111.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0112.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0113.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0114.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0115.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0116.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0117.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0118.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0119.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0120.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0121.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0122.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0123.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0124.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0125.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0126.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0127.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0128.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0129.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0130.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0131.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0132.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0133.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0134.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0135.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0136.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0137.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0138.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0139.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0140.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0141.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0142.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0143.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0144.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0145.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0146.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0147.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0148.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0149.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0150.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0151.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0152.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0153.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0154.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0155.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0156.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0157.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0158.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0159.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0160.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0161.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0162.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0163.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0164.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0165.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0166.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0167.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0168.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0169.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0170.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0171.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0172.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0173.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0174.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0175.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0176.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0177.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0178.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0179.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0180.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0181.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0182.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0183.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0184.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0185.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0186.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0187.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0188.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0189.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0190.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0191.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0192.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0193.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0194.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0195.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0196.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0197.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0198.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0199.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0200.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0201.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0202.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0203.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0204.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0205.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0206.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0207.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0208.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0209.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0210.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0211.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0212.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0213.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0214.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0215.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0216.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0217.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0218.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0219.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0220.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0221.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0222.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0223.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0224.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0225.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0226.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0227.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0228.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0229.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0230.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0231.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0232.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0233.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0234.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0235.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0236.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0237.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0238.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0239.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0240.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0241.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0242.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0243.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0244.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0245.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0246.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0247.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0248.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0249.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0250.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0251.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0252.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0253.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0254.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0255.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0256.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0257.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0258.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0259.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0260.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0261.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0262.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0263.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0264.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0265.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0266.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0267.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0268.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0269.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0270.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0271.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0272.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0273.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0274.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0275.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0276.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0277.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0278.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0279.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0280.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0281.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0282.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0283.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0284.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0285.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0286.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0287.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0288.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0289.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0290.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0291.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0292.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0293.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0294.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0295.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0296.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0297.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0298.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0299.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0300.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0301.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0302.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0303.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0304.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0305.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0306.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0307.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0308.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0309.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0310.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0311.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0312.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0313.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0314.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0315.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0316.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0317.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0318.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0319.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0320.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0321.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0322.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0323.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0324.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0325.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0326.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0327.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0328.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0329.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0330.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0331.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0332.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0333.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0334.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0335.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0336.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0337.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0338.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0339.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0340.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0341.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0342.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0343.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0344.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0345.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0346.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0347.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0348.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0349.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0350.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0351.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0352.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0353.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0354.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0355.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0356.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0357.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0358.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0359.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0360.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0361.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0362.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0363.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0364.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0365.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0366.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0367.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0368.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0369.json
+- docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0370.json
+- docs/audits/2026-10-02-thread-transfer/historical-153-todos-and-current-override.json
+- docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-000.json
+- docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-001.json
+- docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-002.json
+- docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-003.json
+- docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-004.json
+- docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-005.json
+- docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-006.json
+- docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-007.json
+- docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-008.json
+- docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-009.json
+- docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-010.json
+- docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-011.json
+- docs/audits/2026-10-02-thread-transfer/read-archives.mjs
+
+#1886 wip(e2e): U2b resumed, E2E-19 green under the privacy-pack arm, E2E-25 refused at the candidate anchor (parked again); head cbb0e214e5aac4fb1e2b9cad9cb56f93fbdc387b; files 6
+- e2e/gm-two-player-privacy.pack.spec.ts
+- openspec/planning/2026-09-12-roadmap-completion/evidence/u2b-admission-20260922.json
+- openspec/planning/2026-09-12-roadmap-completion/evidence/u2b-local-20260922.json
+- openspec/planning/2026-09-12-roadmap-completion/evidence/u2b-red-20260922.json
+- scripts/__tests__/gm-two-player-campaign-qc.test.ts
+- scripts/qc/gm-two-player-campaign-core.cjs
+
+## Every planned/blocked/implementing unit
+Count: 120
+U2 [blocked] paths=e2e; scripts/qc; openspec/changes/harden-gm-two-player-campaign-sessions; exceptions=
+U2b [blocked] paths=e2e; scripts/qc; openspec/changes/harden-gm-two-player-campaign-sessions; exceptions=
+U19 [blocked] paths=src/lib/events/journal; exceptions=
+U35 [blocked] paths=src/lib/campaign/sync; src/lib/campaign/persistence; exceptions=
+U90 [blocked] paths=src/components/campaign/coop; exceptions=
+P1B [blocked] paths=src/types/campaign/CampaignSync.ts; src/lib/campaign; src/lib/multiplayer/server; src/lib/events/replay/CampaignBaselineSchemaPack.ts; src/lib/events/replay/ReplayBaselineDomainRegistry.ts; src/lib/events/replay/__fixtures__/CampaignBaselineSchemaPack.fixture.ts; src/lib/events/replay/__tests__/CampaignBaselineSchemaPack.test.ts; exceptions=
+P1 [blocked] paths=src/lib/campaign; src/lib/multiplayer/server; src/pages/api/multiplayer/matches/index.ts; src/lib/api; src/types/campaign/CampaignSync.ts; e2e/coop-campaign-two-browser-journey.spec.ts; exceptions=
+P2CE [blocked] paths=src/lib/multiplayer/server; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json
+P2CF [blocked] paths=src/components/campaign/coop; src/lib/campaign; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json
+P2CG1 [blocked] paths=src/lib/multiplayer/server; src/pages-modules/api; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json; src/lib/campaign/coop/campaignSyncTransport.ts; src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts
+B14-0 [planned] paths=src/lib/multiplayer/server; openspec/specs/fog-of-war/spec.md; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json
+B14-HEAD [blocked] paths=src/pages-modules/api; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json
+L1-SMOKE-A1 [planned] paths=scripts; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json
+L1-SMOKE-A2 [blocked] paths=scripts; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json
+L1-SMOKE-B [blocked] paths=scripts; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json
+P2CG1HP [blocked] paths=src/components/campaign/coop; src/lib/multiplayer/server; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json
+LSC-0 [implementing] paths=openspec/changes/design-campaign-authority-and-sync; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json; openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-admission-20261018.json; openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-admission-review-20261018.json; openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-red-20261018.json; openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-local-20261018.json
+LSC-1DB [blocked] paths=src/services/persistence; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json
+LSC-1S [blocked] paths=src/services/vault; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json
+LSC-1 [blocked] paths=src/services/vault; src/pages/api/multiplayer/auth; src/lib/api/securitySchemas.ts; src/__tests__/api; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json
+LSC-2OP [blocked] paths=src/lib/campaign; src/pages-modules/gameplay/campaigns; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json
+LSC-2 [blocked] paths=src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx; src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx; src/pages-modules/gameplay/campaigns; src/lib/campaign; src/components/campaign/CampaignNavigation.tsx; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json
+LSC-2P [blocked] paths=e2e; docs/releases; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json; playwright.local-seat-packaged.config.ts
+P2CG1H [blocked] paths=server.js; src/lib/multiplayer/server; src/pages-modules/api; src/__tests__/api/e2ePerformanceProbeRoute.test.ts; e2e/coop-campaign-two-browser-journey.spec.ts; e2e/gm-two-player-authority.pack1.spec.ts; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json
+P2CG1I1 [blocked] paths=src/pages-modules/api; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json; src/lib/campaign/coop/campaignSyncTransport.ts; src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts; src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx
+P2CG1I2 [blocked] paths=src/lib/multiplayer/server; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json
+P2CG1I3 [blocked] paths=src/lib/multiplayer/server; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json
+P2CG1I4 [blocked] paths=src/lib/multiplayer/server; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json
+P2CG2 [blocked] paths=src/lib/multiplayer/server; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json
+P2CH [blocked] paths=e2e/coop-campaign-two-browser-journey.spec.ts; src/lib/multiplayer/server; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json
+P2C [blocked] paths=openspec/planning/2026-09-12-roadmap-completion; exceptions=
+P2 [blocked] paths=src/pages-modules/gameplay/campaigns/missionLaunchPage.launch.ts; src/pages-modules/gameplay/campaigns/__tests__/missionLaunchPage.launch.test.ts; src/components/campaign/coop; src/hooks; e2e/coop-campaign-two-browser-journey.spec.ts; src/lib/campaign/coop/launchCoopMission.ts; src/lib/campaign/coop/__tests__/launchCoopMission.test.ts; src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx; src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx; src/pages/multiplayer; exceptions=
+P2J [blocked] paths=e2e/coop-campaign-two-browser-journey.spec.ts; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json
+TS7S1 [blocked] paths=src/lib/multiplayer/server/auth.ts; src/services/vault/IdentityService.ts; src/lib/events/checkpoints/BranchCheckpointCache.ts; tsconfig.json; desktop/tsconfig.json; openspec/active-change-ledger.json; desktop/tsconfig.test.json; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json; openspec/changes/migrate-to-typescript-7/tasks.md; openspec/changes/migrate-to-typescript-7/design.md
+U38 [blocked] paths=src/lib/multiplayer/server; src/lib/campaign; exceptions=
+U24 [blocked] paths=src/lib/multiplayer/server; openspec/changes/adopt-combat-journal-cutover-and-gm-rewind; scripts/qc/gm-two-player-campaign-core.cjs; scripts/__tests__/gm-two-player-campaign-qc.test.ts; playwright.config.ts; exceptions=
+CNI2 [blocked] paths=openspec/planning/2026-09-12-roadmap-completion/units.json; openspec/planning/2026-09-12-roadmap-completion/roadmap.json; exceptions=openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-d352a03d3d259ff926ebde5aa20e4ecbd9602b3f9110a2bd2c830a54a57ce554.json; openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-6318d72e2faeb6ad97d44847641273de2b8c3de3299900cd7831bd76c5168dd3.json; openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-d094fc269d8325ba8ab4e729b63fc476b29d1f359ff9acf57141617c468b3689.json; openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-60e8c88160cfdc60cdd403c037ef9d19ed7f0c1033c1d63831d6093658b72c27.json; openspec/planning/2026-09-12-roadmap-completion/evidence/codex-review-identity-31fcbcd60def4f724c56eb0c56f0a27d618a85e104d853d30f16c87f2d17d7f8.json
+CNI3 [blocked] paths=openspec/planning/2026-09-12-roadmap-completion/units.json; openspec/planning/2026-09-12-roadmap-completion/roadmap.json; exceptions=openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-admission-20261004.json; openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-red-20261004.json; openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-local-20261004.json; openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-review-20261004.json; openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-lane-a-review-20261004.md; openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-e84105a99a699fe5bf405820d15b0ab0a3f4438ed5cf9f83b78f6b5baa811454.json; openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-b3c0afb63366923c6cc75f636a7c797d203e84c704e7295c4df71b9a8847deba.json; openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-502b4847dbba8730e3f3e120c7301666832e64fdd6d21d19cecb95cb97e8beaa.json; openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-25f98a9de258e6ac7b978428c49d9f57840581bbe3bc23487704d959bfed6391.json; openspec/planning/2026-09-12-roadmap-completion/evidence/codex-review-identity-72431485c6cb4abde67e7d16a0a94052c47ed973677645813a63b2cc90d0d227.json; openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-merge-20261004.json; openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-mainproof-20261004.json; openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-tick-20261004.json; openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-logs-20261004.json; openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-admission-20261008.json; openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-red-20261008.json; openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-local-20261008.json; openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-review-20261008.json; openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-lane-a-review-20261008.md; openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-merge-20261008.json; openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-mainproof-20261008.json; openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-tick-20261008.json; openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-logs-20261008.json; openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-e63196768647e4ee491ecdd9f8be85be62e51ff4316fceb4d2821a6fdaa689c0.json; openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-d9f5ad9c98e8df686776211dd8cda8daa9386f08ef724290d2a32e2b4cfb06da.json; openspec/planning/2026-09-12-roadmap-completion/evidence/codex-review-identity-99b825a348d9584e30375147395f2f9db6128c0140bda982f267b85ffe312311.json
+U24b [planned] paths=src/lib/multiplayer/server; openspec/changes/adopt-combat-journal-cutover-and-gm-rewind; scripts/qc/gm-two-player-campaign-core.cjs; scripts/__tests__/gm-two-player-campaign-qc.test.ts; playwright.config.ts; exceptions=
+U44 [planned] paths=src/lib/multiplayer/server; src/lib/events/journal; openspec/changes/adopt-combat-journal-cutover-and-gm-rewind; exceptions=
+U45 [planned] paths=src/types/multiplayer; src/lib; exceptions=
+U25 [planned] paths=e2e; exceptions=
+U26 [planned] paths=src/lib/multiplayer/server; src/pages/api/matches; src/pages-modules/api; exceptions=
+U46 [planned] paths=src/lib/multiplayer/server; src/pages/api/matches; src/pages-modules/api; exceptions=
+U47 [planned] paths=src/lib/interventions; src/lib/multiplayer/server; exceptions=
+U27 [planned] paths=e2e; exceptions=
+U48 [planned] paths=src/lib/multiplayer/server; src/pages/api/matches; src/pages-modules/api; exceptions=
+U49 [planned] paths=src/lib/multiplayer/server; exceptions=
+U50 [planned] paths=src/components/multiplayer; src/pages-modules/multiplayer; src/hooks; src/lib/campaign/encounter/requestLaunchAuthority.ts; src/lib/campaign/encounter/__tests__/requestLaunchAuthority.test.ts; src/pages-modules/gameplay/campaigns/missionLaunchPage.launch.ts; src/pages-modules/gameplay/campaigns/__tests__/missionLaunchPage.launch.test.ts; src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.launch.ts; src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignDashboardPage.launch.test.ts; exceptions=
+U28 [planned] paths=scripts/qc; e2e; openspec/changes/harden-gm-two-player-campaign-sessions; exceptions=
+U51 [planned] paths=e2e; openspec/changes/harden-gm-two-player-campaign-sessions; exceptions=
+U52 [planned] paths=e2e; openspec/changes/harden-gm-two-player-campaign-sessions; exceptions=
+U53 [planned] paths=e2e; scripts/qc; openspec/changes/harden-gm-two-player-campaign-sessions; exceptions=
+U30 [planned] paths=e2e; exceptions=
+U31 [planned] paths=openspec/changes/harden-gm-two-player-campaign-sessions; e2e; exceptions=
+U54 [planned] paths=e2e; openspec/changes/harden-gm-two-player-campaign-sessions; exceptions=
+U55 [planned] paths=e2e; scripts/qc; openspec/changes/harden-gm-two-player-campaign-sessions; exceptions=
+U32 [planned] paths=openspec/changes/adopt-combat-journal-cutover-and-gm-rewind; exceptions=
+U33 [planned] paths=openspec/changes/adopt-combat-journal-cutover-and-gm-rewind; exceptions=
+U56 [planned] paths=src/lib/campaign; src/lib/multiplayer/server; exceptions=
+U57 [planned] paths=openspec/changes/harden-gm-two-player-campaign-sessions; scripts/qc; scripts/__tests__; e2e; exceptions=
+U12 [blocked] paths=scripts/qc; scripts/__tests__; package.json; exceptions=
+U63 [planned] paths=scripts/qc; scripts/__tests__; package.json; exceptions=
+U64 [blocked] paths=.github/workflows/pr-checks.yml; scripts/__tests__; exceptions=
+U65 [blocked] paths=src/kernel/__tests__/KernelBoundary.test.ts; scripts/qc; scripts/__tests__; exceptions=
+U66 [blocked] paths=scripts/qc; scripts/__tests__; .github/workflows/pr-checks.yml; exceptions=
+U67 [blocked] paths=src/utils/gameplay/movement; src/utils/gameplay/movement.ts; src/utils/gameplay/pilotingSkillRolls; src/utils/gameplay/pilotingSkillRolls.ts; src/utils/gameplay/spaModifiers; src/utils/gameplay/spaModifiers.ts; src/utils/gameplay/standUpRules.ts; src/utils/gameplay/physicalAttacks; src/utils/gameplay/__tests__; scripts/__tests__; exceptions=
+U68 [blocked] paths=src/components/customizer; scripts/__tests__; exceptions=
+U69 [blocked] paths=src/stores; scripts/__tests__; exceptions=
+U70 [blocked] paths=.oxlintrc.json; scripts/__tests__; exceptions=
+U71 [blocked] paths=src/services/units/unitLoaderService; src/stores; .oxlintrc.json; scripts/__tests__; exceptions=
+U72 [blocked] paths=src/components/spa; src/lib/spa/designation; src/services/printing; .oxlintrc.json; scripts/__tests__; exceptions=
+U73 [blocked] paths=src/engine; src/stores; src/components/gameplay/pages/preBattle; exceptions=
+U74 [blocked] paths=src/lib/combat/acar.ts; src/lib/combat/__tests__/acar.test.ts; src/lib/combat/__tests__/acar.test-helpers.ts; .oxlintrc.json; scripts/__tests__; exceptions=
+U75 [blocked] paths=scripts/qc; scripts/__tests__; package.json; .github/workflows/pr-checks.yml; exceptions=
+U76 [blocked] paths=src/lib/spa/designation; src/stores; src/types/gameplay; scripts/qc; scripts/__tests__; exceptions=
+U77 [blocked] paths=src/types/gameplay; src/utils/gameplay/aerospace; src/utils/gameplay/infantry; src/utils/gameplay/protomech; scripts/qc; scripts/__tests__; exceptions=
+U78 [blocked] paths=src/services/printing; src/services/unit-card; src/services/pilot-mech-card; src/services/assets; src/types/printing; scripts/qc; scripts/__tests__; exceptions=
+U79 [planned] paths=scripts/megameklab-conversion; scripts/qc; scripts/__tests__; exceptions=
+U80 [blocked] paths=config; scripts/mm-data; scripts/__tests__; package.json; exceptions=
+U81 [blocked] paths=.github/actions/setup-node-and-install/action.yml; .github/workflows/pr-checks.yml; .github/workflows/release.yml; Dockerfile; scripts/__tests__; exceptions=
+U82 [blocked] paths=public/data/units; scripts/__tests__; exceptions=
+U83 [blocked] paths=package.json; exceptions=
+U84 [blocked] paths=package.json; exceptions=
+U85 [blocked] paths=openspec/planning/2026-09-12-roadmap-completion; exceptions=
+U99 [planned] paths=openspec/specs/coop-campaign-sync/spec.md; openspec/changes/harden-gm-two-player-campaign-sessions; exceptions=
+U100 [planned] paths=src/lib/campaign; exceptions=
+U101 [planned] paths=src/pages/api/multiplayer/auth; src/lib/multiplayer/server; exceptions=
+U103 [planned] paths=scripts/qc; scripts/__tests__; exceptions=
+U104 [planned] paths=src/pages-modules/api; src/lib/multiplayer/server; exceptions=
+U105 [planned] paths=src/lib/campaign; src/lib/multiplayer/server; exceptions=
+U101a [planned] paths=src/pages/api/multiplayer/auth; src/lib/multiplayer/server; src/lib/api/securitySchemas.ts; exceptions=
+U101b [planned] paths=src/pages/multiplayer/index.tsx; src/pages/multiplayer/lobby/[roomCode].tsx; src/pages/multiplayer/spectate/[matchId].tsx; src/pages-modules/multiplayer/multiplayerPage.helpers.ts; src/pages-modules/multiplayer/multiplayerAuthTokenStore.ts; src/lib/multiplayer/client/issuePlayerToken.ts; src/lib/multiplayer/client/__tests__/issuePlayerToken.test.ts; exceptions=
+U101c [planned] paths=src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx; src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx; src/lib/campaign; exceptions=
+U101d [planned] paths=server.js; scripts/validate-multiplayer-packaged-socket.mjs; src/lib/multiplayer/server; src/lib/api/securitySchemas.ts; scripts/__tests__/validate-multiplayer-packaged-socket.test.ts; scripts/__tests__/packagedSocketValidatorCredentialMirror.test.ts; exceptions=
+B15-0 [blocked] paths=openspec/changes/design-campaign-authority-and-sync/design.md; openspec/changes/design-campaign-authority-and-sync/specs/campaign-persistence/spec.md; openspec/changes/design-campaign-authority-and-sync/specs/campaign-access-projection/spec.md; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json
+B15-1 [blocked] paths=server.js; desktop/electron/main.server.ts; desktop/electron/main.window.ts; desktop/electron/__tests__/main.server.test.ts; desktop/electron/__tests__/main.window.security.test.ts; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json; src/lib/campaign/authority/CampaignOperatorCredential.ts; src/pages/api/campaign-local-session.ts; src/pages-modules/api/campaignAccess.ts; src/lib/campaign/authority/__tests__/CampaignOperatorCredential.test.ts; src/pages-modules/api/__tests__/campaignAccess.test.ts
+B15-2 [blocked] paths=src/stores/campaign/useCampaignPersistenceStore.ts; src/pages/gameplay/campaigns/index.tsx; src/lib/campaign/hooks/useCampaignActivityFeed.ts; src/lib/campaign/encounter/readCampaignLaunchHead.ts; src/lib/campaign/encounter/requestLaunchAuthority.ts; src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx; src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts; src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json; src/lib/campaign/authority/campaignCredentialClient.ts; src/lib/campaign/authority/__tests__/campaignCredentialClient.test.ts
+B15-4 [blocked] paths=e2e/fixtures/campaign.ts; e2e/helpers/scenarioPackLoading.ts; e2e/helpers/campaignJournalDrive.ts; e2e/helpers/campaignJournalTwoProcess.ts; e2e/gm-two-player-restart.pack.spec.ts; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json; e2e/helpers/campaignAccessIdentity.ts
+B15-4J [blocked] paths=e2e/campaign-flow.spec.ts; e2e/saved-custom-combat.spec.ts; e2e/coop-campaign-two-browser-journey.spec.ts; e2e/gm-campaign-ledger-control-plane.spec.ts; e2e/campaign-two-device-drive.spec.ts; e2e/campaign-journal-two-process-convergence.spec.ts; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json
+B15-3R [blocked] paths=src/pages/api/campaigns/[id].ts; src/stores/campaign/useCampaignPersistenceStore.ts; src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts; src/pages-modules/api/campaignActivityRoute.ts; src/pages-modules/api/campaignLaunchHeadRoute.ts; src/pages-modules/api/campaignLaunchAuthorityRoute.ts; src/__tests__/api/campaigns/campaigns.test.ts; src/pages-modules/api/__tests__/campaignActivityRoute.test.ts; src/pages-modules/api/__tests__/campaignLaunchHeadRoute.test.ts; src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json
+B15-3 [blocked] paths=src/pages/api/campaigns/index.ts; src/pages/api/campaigns/[id].ts; src/pages/api/campaigns/[id]/adopt.ts; src/__tests__/api/campaigns/campaigns.test.ts; src/__tests__/api/campaigns/campaignAdoptRoute.test.ts; src/__tests__/api/campaigns/campaignPutLiveHost.test.ts; src/__tests__/api/campaigns/campaignPutGenesisRoute.test.ts; src/__tests__/api/campaigns/campaignRecordJournalTransaction.test.ts; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json; src/__tests__/api/campaigns/campaignAccessMatrix.test.ts; e2e/campaign-access-isolation.spec.ts
+B15-5 [blocked] paths=src/pages/api/multiplayer/matches/index.ts; src/pages/api/campaigns/[id]/grants.ts; src/lib/campaign/grants/campaignShareService.ts; src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts; src/__tests__/api/campaigns/campaignGrantsRoute.test.ts; src/lib/campaign/grants/__tests__/campaignShareCallerAuthority.test.ts; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json; src/__tests__/api/campaigns/campaignAccessMatrix.test.ts
+B15-5R [blocked] paths=src/pages/api/campaigns/redeem.ts; src/pages/api/campaigns/[id]/replica-sync.ts; src/pages/api/campaigns/[id]/commands.ts; src/pages/api/campaigns/[id]/rewind-preview.ts; src/__tests__/api/campaigns/campaignRedeemRoute.test.ts; src/__tests__/api/campaigns/campaignReplicaSyncRoute.test.ts; src/__tests__/api/campaigns/campaignCommandsRoute.test.ts; src/__tests__/api/campaigns/rewindPreviewRoute.test.ts; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json; src/__tests__/api/campaigns/campaignAccessMatrix.test.ts
+B15-PRIV [blocked] paths=src/lib/multiplayer/server/joinableLobbies.ts; src/lib/multiplayer/server/__tests__/joinableLobbies.test.ts; src/__tests__/unit/api/multiplayerLobbies.test.ts; src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx; src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx; src/__tests__/api/securityBoundary.test.ts; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json; openspec/planning/2026-09-12-roadmap-completion/evidence/b15-priv-local.json; openspec/planning/2026-09-12-roadmap-completion/evidence/b15-priv-review.json; openspec/planning/2026-09-12-roadmap-completion/evidence/b15-priv-main.json
+B15-6 [blocked] paths=README.md; docker-compose.yml; playtest/checklists/coop-uat.md; docs/releases/v2.2.0-topology.md; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json; docs/deployment/campaign-hosting.md
+FOG-S [blocked] paths=openspec/specs/fog-of-war/spec.md; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json
+FOG-K [blocked] paths=src/utils/gameplay; src/lib/multiplayer/server; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json
+FOG-B [blocked] paths=src/lib/multiplayer/server; src/types/gameplay; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json
+FOG-L [blocked] paths=src/lib/multiplayer/server; src/components/multiplayer; src/utils/gameplay; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json
+FOG-R [blocked] paths=src/lib/multiplayer/server; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json
+FOG-H [blocked] paths=src/lib/multiplayer/server; src/pages-modules/api; src/pages/api/multiplayer; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json
+FOG-X [blocked] paths=e2e; src/lib/multiplayer/server; openspec/specs/fog-of-war/spec.md; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json
+DF-SHEET-QV [blocked] paths=src/services/printing/recordsheet/mechTypeUtils.ts; src/services/printing/recordsheet/__tests__; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json
+DF-MECH-RULES [blocked] paths=scripts/megameklab-conversion; scripts/__tests__; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json
+DF-MECH-CONFIG [blocked] paths=scripts/megameklab-conversion; scripts/__tests__; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json
+DF-MECH-META [blocked] paths=scripts/megameklab-conversion; scripts/__tests__; public/data/equipment/_schema/unit-schema.json; src/types/contracts/generated/unit.zod.ts; src/types/contracts/__tests__/unit.contract.test.ts; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json
+EQ-ID [blocked] paths=scripts/analysis; scripts/__tests__; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json
+DF-BLK-ENGINE [blocked] paths=scripts/megameklab-conversion; scripts/__tests__; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json
+DF-CATALOG-PIN [blocked] paths=config; scripts/__tests__; exceptions=openspec/planning/2026-09-12-roadmap-completion/units.json
+
+## Candidate path overlap against every active unit
+src/lib/multiplayer/server/MatchHostRegistry.ts: P1B, P1, P2CE, P2CG1, B14-0, P2CG1HP, P2CG1H, P2CG1I2, P2CG1I3, P2CG1I4, P2CG2, P2CH, U38, U24, U24b, U44, U45, U26, U46, U47, U48, U49, U56, U101, U104, U105, U101a, U101d, FOG-K, FOG-B, FOG-L, FOG-R, FOG-H, FOG-X
+src/lib/multiplayer/server/MatchRecovery.ts: P1B, P1, P2CE, P2CG1, B14-0, P2CG1HP, P2CG1H, P2CG1I2, P2CG1I3, P2CG1I4, P2CG2, P2CH, U38, U24, U24b, U44, U45, U26, U46, U47, U48, U49, U56, U101, U104, U105, U101a, U101d, FOG-K, FOG-B, FOG-L, FOG-R, FOG-H, FOG-X
+src/lib/multiplayer/server/matchUnitBootstrap.ts: P1B, P1, P2CE, P2CG1, B14-0, P2CG1HP, P2CG1H, P2CG1I2, P2CG1I3, P2CG1I4, P2CG2, P2CH, U38, U24, U24b, U44, U45, U26, U46, U47, U48, U49, U56, U101, U104, U105, U101a, U101d, FOG-K, FOG-B, FOG-L, FOG-R, FOG-H, FOG-X
+src/engine/InteractiveSession.ts: U73
+src/engine/InteractiveSession.recovery.ts: U73
+src/engine/adapters/CompendiumAdapter.ts: U73
+src/services/units/NodeCanonicalUnitService.ts: none
+src/services/units/CanonicalUnitService.ts: none
+server.js: P2CG1H, U101d, B15-1
+.github/workflows/nightly-validation.yml: none
+e2e/scenario-packs/quarantine.ts: U2, U2b, LSC-2P, U25, U27, U28, U51, U52, U53, U30, U31, U54, U55, U57, FOG-X
+scripts/qc: U2, U2b, L1-SMOKE-A1, L1-SMOKE-A2, L1-SMOKE-B, U24, U24b, U28, U53, U55, U57, U12, U63, U65, U66, U75, U76, U77, U78, U79, U103
+scripts/release: L1-SMOKE-A1, L1-SMOKE-A2, L1-SMOKE-B
+package.json: U12, U63, U75, U80, U83, U84
+openspec/planning/2026-09-12-roadmap-completion/units.json: P2CE, P2CF, P2CG1, B14-0, B14-HEAD, L1-SMOKE-A1, L1-SMOKE-A2, L1-SMOKE-B, P2CG1HP, LSC-0, LSC-1DB, LSC-1S, LSC-1, LSC-2OP, LSC-2, LSC-2P, P2CG1H, P2CG1I1, P2CG1I2, P2CG1I3, P2CG1I4, P2CG2, P2CH, P2C, P2J, TS7S1, CNI2, CNI3, U85, B15-0, B15-1, B15-2, B15-4, B15-4J, B15-3R, B15-3, B15-5, B15-5R, B15-PRIV, B15-6, FOG-S, FOG-K, FOG-B, FOG-L, FOG-R, FOG-H, FOG-X, DF-SHEET-QV, DF-MECH-RULES, DF-MECH-CONFIG, DF-MECH-META, EQ-ID, DF-BLK-ENGINE, DF-CATALOG-PIN
+openspec/planning/2026-09-12-roadmap-completion/roadmap.json: P2C, CNI2, CNI3, U85
+openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md: P2C, U85
+
+## Current chain
+Current L1 closure inventory remains 36 units (33 product units plus three smoke proof units). Product scheduling: P2CG1B -> P2CG1C -> P2CG1D -> P2CG1E -> P2CG1F -> P2CG1G1 -> P2CG1G2A -> P2CG1G2 -> P2CG1R -> P2CG1S; then P2CG1S -> LSC-0 -> LSC-1DB -> LSC-1S -> LSC-1 -> LSC-2OP -> LSC-2 -> LSC-2P alongside the B14-0A -> B14-0B -> B14-0 -> B14-HEAD -> P2CG1HP lane; both converge at P2CG1H with all retained H prerequisites, including all three L1-SMOKE closures. Array placement adds no B14 or HP predecessor to LSC-0. After H: P2CG1I1 -> P2CG1I2 -> P2CG1I3 -> P2CG1I4 -> P2CG2 -> P2CH -> P2C -> P2 -> U38 -> P2J. Each release requires its predecessors genuine exact-main mainProof PASS, fetched-main ancestry and closure. Original acceptance/checkpoint/task holders and P2 convergence gates remain. The separate L1-SMOKE-A1 -> L1-SMOKE-A2 -> L1-SMOKE-B proof lane remains governed by l1SmokeRegistration20261018. Units array placement is an inventory and selector priority, not an extra dependency.
+
+## Recommendation
+Register blocked MP-RECOVERY-UNITS-1 then blocked MP-HOST-DEDUPE-1 in B14/HP lane: B14-HEAD -> MP-RECOVERY-UNITS-1 -> MP-HOST-DEDUPE-1 -> P2CG1HP -> P2CG1H. Preserve existing B14/HP/H prerequisites; make L1-SMOKE-A2 additionally depend on MP-RECOVERY-UNITS-1. All original LSC parallel and smoke read-only ownership limits remain.
+MP recovery call graph: server.js:537 bootstrapMultiplayerServer BEFORE server.js:882 listen; MatchHostRegistry.ts:290 bootstrap -> :298 recoverActiveMatches -> MatchRecovery.ts:143 registerRecoveredHost -> InteractiveSession.fromSessionAsync -> InteractiveSession.recovery.ts:203 adaptUnit -> CompendiumAdapter.ts:209 getCanonicalUnitService -> CanonicalUnitService.ts:142 localhost PORT fetch. NodeCanonicalUnitService.ts is already fs-based, explicitly not installed as the fetch singleton; do not describe it as the self-fetch source. Exact warning at InteractiveSession.recovery.ts:214-217.
+MP source ownership must be finite: node R2.authority-live already includes registry/server.js but not src/services/units or src/engine. New server-only injection/adaptation seam may need an exact parent-node path addition for engine/service files; avoid granting entire src/engine or services/units. Re-census U73 for adapter/recovery engine leaves and P2CG1H/U101d/B15-1 for server.js. No active unit claims NodeCanonicalUnitService.ts or CanonicalUnitService.ts directly.
+DEDUPE exact seam is MatchHostRegistry.ts:125 getOrCreate; existing map check precedes awaits; insertion occurs only at :159, so concurrent first calls build distinct hosts. Test concurrent same-match identity, one creation, failure cleanup/retry, unrelated-match progress; retain quarantine and recovery semantics.
+Open PR source overlaps: #2281 server folder broad B14 alias, but no exact registry/recovery/bootstrap/adapter/service/server.js edit. #2287 exact scripts/release leaves and units.json. #2288 units.json and PROGRESS.md. #2279 nightly YAML + quarantine + generator scripts; #2278 nightly YAML. #2283 and #1886 share U2b privacy pack; #2283 authority pack belongs H. #2282 campaign economy tests touches LSC-2OP known-red proof. #2113 unrelated audit archive only.
+Registration shape from #2275/#2266/#2285: units.json + roadmap.json + PROGRESS.md + hash-bound evidence; blocked units with empty taskKeys, null lifecycle receipts/baseline/head/merge/gate, product review classes, 15-file/500-counted-added-line future source caps; parent node ownership and finite candidate manifest, symmetric predecessor/successor edges, L1 inventory/checklist count and lane-order updates, mirrored amendment blocks, full collision census, genuine source admission/review/exact-main closure remain required. Registration is not runtime proof or release. #2275 was 4 files +1084/-11, #2266 4 files +679/-41, #2285 4 files +218/-22: do not infer their registration cap rules from future product unit caps.
+U24b currently has no nightly YAML ownership; add literal path to its ownership (and parent R4.S7 as needed) plus behavior obligation retiring split MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE arms. COOP-PACK-GEN should be delivering quarantine owner, after P2J; P2J remains test-only and upstream, quarantine config owner change is future registered source work.
+
+
+## Source custody and scope qualification
+The following are source findings, not new runtime proof. The review includes requests for the separate A1 amendment, which this registration does not implement or close. The four nightly diagnoses predate baseline repairs; later Root carry-forwards control residual disposition.
+
+Source: E:\Projects\Personal\MekStation-wt\_receipts\carry-forward.md
+SHA256: 3429ea2407ff4e15e8a7d26e098466f0e8330f94c3b14101615b77587cb01c85
+
+# Carry-forward register (Root, created 2026-10-18 under the council 3b BASELINE CARVE-OUT rule)
+
+Each line names a change or finding for a planned or blocked unit. That unit's admission freeze must re-baseline on Main and acknowledge each line.
+
+| Date | Owner unit | Files | Item | Source |
+|---|---|---|---|---|
+| 2026-10-18 | LSC-2OP | src/stores/campaign/campaignBayActions.ts, new salvageUnitEnrollment.ts, src/types/campaign/Salvage.ts, src/pages/gameplay/campaigns/[id]/salvage.tsx, e2e/campaign-economy-browser.spec.ts | KNOWN-RED: campaign-economy-browser.spec.ts:377. Accepting a whole-unit salvage adds force membership with no roster projection, and the checkpoint refuses the save ("Force <root> references absent roster unit enemy-atlas"). The candidate also lacks unitRef/unitSource/sourceVersion. A ready patch with 23/23 unit tests is at E:/Projects/Personal/MekStation-wt/nightly-diag-20261018/baseline-f-salvage.patch, based on #2282 at 0da8feed0. It exceeds the carve-out (more than 40 lines, plus new exports). Release predicate: LSC-2OP lands the enrollment and verify:qc:campaign-economy:browser passes 12/12. | baseline-F routing report |
+| 2026-10-18 | B15-3R / B15-3 | src/pages/api/campaigns/[id].ts, campaignRecordJournalTransaction.test.ts | An invalid campaign projection is refused with 500 (deliberate, from U35b). It should be a typed 422 {kind:'invalid-campaign-projection'}. Patch: nightly-diag-20261018/baseline-f-checkpoint-422.patch (10/10 tests). | baseline-F routing report |
+| 2026-10-18 | P2CG1H | e2e/gm-two-player-authority.pack1.spec.ts | Pre-landed by #2283 (when merged): the E2E-08 read-only reader replaces the DB-file hash. P2CG1H's acknowledgement edit must rebase over it, and CF-S-5's role-honesty paragraph stays with P2CG1H. | #2283 |
+| 2026-10-18 | U2b | e2e/gm-two-player-privacy.pack.spec.ts | #1886 (parked) must rebase over #2283's E2E-20/21 sealed-Move rewrite. | #2283 |
+| 2026-10-18 | U25 | e2e/fixtures/sqliteEvidenceReader.ts and 12 call sites | Inherits the read-only reader check. 12 other call sites hash the live DB the same way. Units deploy off-map on small maps (product finding). | #2283 |
+| 2026-10-18 | U24b | .github/workflows/nightly-validation.yml | When the journal ships on by default and the switch is removed, collapse #2279's split E2E-19/25 nightly step back into the full suite. | #2279 / lane C |
+| 2026-10-18 | P2J | e2e/scenario-packs (coop-host-review, coop-guest-proposal) | These are QUARANTINED in recapture (#2279). Lift the quarantine when P2J is main-verified; a guard test enforces this. | #2279 |
+| 2026-10-18 | TBD (P2CG1H or new unit after B14-HEAD; Fable #2287 review to recommend) | src/lib/multiplayer/server (MatchHostRegistry host creation) | PRODUCT BUG: two simultaneous first socket connections to a new lobby match create two server hosts; the later intent fails with a store conflict. Found by L1-SMOKE-A1 (#2287). Matters for 2 players + GM joining at once. | #2287 |
+
+
+Source: E:\Projects\Personal\MekStation-wt\review-2287-20261018\docs\audits\2026-10-18-l1-smoke-a1-review.md
+SHA256: 98b68afbf08ab41b68a718042323f2aeb85f6a723d2da36bf4de49ffc3dba594
+
+# L1-SMOKE-A1 independent sensitive review (privacy/authority): PR #2287
+
+- **PR:** https://github.com/SwiggitySwerve/MekStation/pull/2287 (`codex/l1-smoke-a1-20261018` -> `main`)
+- **Head reviewed:** `de8e97758a77cd0f5f6cd9dea47d4065b1591511` (GREEN); RED `a9bda139ce752e30a8020b22ca9440f633c3d9a3`; admission `a205fa1171c5e2f9b0dd18e216f7d48d9101c0ae`
+- **Base:** merge-base with fetched `origin/main` = `2d576747ee8dd210e5f6a5b0f380819b153a203a` (current Main; PR is three commits on top)
+- **Reviewer:** Fable (claude-fable-5-1), independent of the implementer; read-only (no push, comment, label or merge; root checkout untouched)
+- **Review worktree:** `E:/Projects/Personal/MekStation-wt/review-2287-20261018` (detached at the head, own `npm ci`, Node v22.22.0)
+- **Date:** 2026-10-18
+
+## 1. Verdict
+
+**CHANGES REQUESTED (minor) - one amendment commit, then re-review on the new head.**
+
+The harness is real proof on a production build and the privacy/authority controls it claims are present and were exercised against the real image: no mocks, no `/api/e2e`, no `ServerMatchHost` in the asserting process, `noPerViewerRevealProjection` never referenced; credential refusals (401 / 400 / `AUTH_REJECTED:player-mismatch`) were observed on the owned built server with positive controls in the same run; six credentials registered, none retained (independently re-scanned); one readiness record per owned process; owned-PID cleanup with port release. The retained evidence is internally consistent and I reproduced its image hashes from the still-present standalone image and bound `.next/standalone/server.js` byte-for-byte to the committed `server.js` at the run's SHA.
+
+What blocks an unconditional approve is not a privacy or authority defect in the harness. It is (i) the node:test falsifier set, which cannot detect weakening of exactly the credential-refusal and control assertions this sensitive unit exists for (8 of my 12 mutants survived, all of them assertion-weakening mutants in the cases leaf; the implementer's own M13/M19 survivors are the same class), and (ii) a one-token build-source binding gap (`--untracked-files=no`). Because A2/B are forbidden from touching A1-frozen leaves, any A1 falsifier gap left now is frozen until a new unit is registered; the fix is cheap (test leaf is line-exempt, runner change is zero counted lines), so it belongs in this PR with a recorded RED amendment.
+
+Two product findings are reported (section 7): the implementer's FINDING-A1-PREP-1 (concurrent first-upgrade host race) and a new one I found in the retained `server-2.log`: the packaged server's boot-time recovery cannot resolve canonical units (self-HTTP catalog fetch before `listen`), so a restarted active match cannot act. Neither is fixed here and neither should be.
+
+## 2. What I verified and how
+
+| Item | Method | Result |
+| --- | --- | --- |
+| Head/base | `git rev-parse`, `merge-base` | de8e97758 on 2d576747e (= origin/main) |
+| Diff scope | `git diff --name-status origin/main...HEAD` | exactly 8 paths: 4 script leaves, units.json, 3 evidence receipts. No src, server.js, package*, workflows, existing validator/test |
+| Manifest | 8 written + 1 reserved (`l1-smoke-a1-admission-review-20261018.json`, unwritten) = 9/15, equal to `l1SmokeRegistration20261018.prospectiveManifests.L1-SMOKE-A1` | matches |
+| Counted lines | `git diff --numstat --no-renames`: runner 226 + cases 199 + fixtures 46 + units.json 16 = **487/500**; test 372 exempt | matches PR body |
+| Leaf hashes at head | sha256 | runner a9300977..., cases ab4df6ad..., fixtures 6777453b..., test d67cb2e7... = admission prototype and local receipt; test leaf byte-identical RED->GREEN |
+| Frozen controls | diff scope above | byte-identical to origin/main |
+| units.json lifecycle | diff | only L1-SMOKE-A1 fields (4 ownershipExceptions, state, baseline, 3 stage paths); other-unit bytes preserved |
+| Forbidden strings in leaves | grep `ServerMatchHost`, `/api/e2e`, `noPerViewerRevealProjection`, mocks | only the header comment saying "no /api/e2e"; no imports, no overrides |
+| Env scrub | runner SCRUB regex | E2E/PLAYWRIGHT/NEXT_PUBLIC_E2E/CAMP0/MEKSTATION_/MULTIPLAYER_/JEST/__NEXT/NODE_OPTIONS/HOSTNAME/PORT/DATABASE_PATH/NODE_ENV removed from child env; server.js enables the e2e seam only on `NEXT_PUBLIC_E2E_MODE=true` + `PLAYWRIGHT_E2E_RUN_ID`, both scrubbed |
+| node:test | `node --test scripts/release/l1-built-server-smoke.test.mjs` in the review worktree | 15/15 pass, 24.2s (log: review-2287-logs-green-test.log) |
+| Lint | `oxlint --config scripts/qc/oxlint-units.json --allow no-console` on the 4 leaves | 0 warnings, 0 errors |
+| Typecheck of fixtures.ts | isolated tsc (scripts/tsconfig + file, lib es2022) | no errors in the leaf (remaining errors are es2023 APIs in src under the scripts lib target; unrelated) |
+| CI | `gh api .../commits/de8e97758.../check-runs` | 32/32 success on the exact head, run 39161089391 (event pull_request, head_sha = de8e97758); names equal the receipt's 32 expected names |
+| Receipt file hashes | sha256 of every file the local receipt names | all 19 match (sizes too) |
+| Retained-output credential scan | independent regexes over every file in `run-main-db3b56816/` (incl. sqlite, -wal, -shm): base64-JSON prefix `eyJ`, `Bearer`, `mekstation.token.`, `token=` in URLs, 80+ char base64 runs | zero hits; 5 `[REDACTED:*-token]` marks = the 5 SessionJoin frames; the one 80+ run in sqlite is a hex hash chain |
+| Image identity | recomputed from `l1-smoke-a1-main-20261018/.next/standalone` | serverSha256 d44599ad... and configSha256 7d16282e... reproduce (trimmed-utf8 convention); raw bytes of standalone server.js = git blob of `server.js` at db3b56816 (e4f973d2...); BUILD_ID 1792353025224 |
+| Main delta db3b56816 -> 2d576747e | `git diff --name-only` | PROGRESS.md, roadmap.json, units.json, one evidence txt: docs/ledger only, as claimed |
+| Evidence record shape | evidence.jsonl kinds | command 2, process 4, http 2, case 10, socket 10, frame 65, offline-fixture 1, reconnect 1; cases pass once each; two processes (51600 -> 26068), same port 61082, both `readyRecords: 1`, `portReleased: true` |
+| Server logs | server-1/2.log | refusals logged by the real server as `reason=malformed`, `reason=token-in-url`, `code=1008 reason=player-mismatch`; `hasToken=true` only, no token bytes |
+
+## 3. Findings by severity
+
+### High
+
+**H1 (product, out of A1 scope, new): packaged boot recovery cannot resolve canonical units; a restarted active match cannot act.**
+Retained `server-2.log` (the restarted owned server) shows, before the readiness record:
+`[InteractiveSession.fromSessionAsync] unit 'player-1-atlas-as7-d' (unitRef 'atlas-as7-d') not found in the canonical catalog - skipping. The recovered host will not have adapted state for this unit and any action targeting it will fail.` (and the same for `opponent-1-marauder-mad-3r`), then `[mp-boot] recovered 1 active match(es)`.
+Cause (source, high confidence): `server.js:537` awaits `bootstrapMultiplayerServer()` before `server.listen` at `server.js:882`; recovery calls `adaptUnit` -> `getCanonicalUnitService().getById`, and the server-side `CanonicalUnitService` loads the catalog by `fetch("http://localhost:<PORT>/data/units/...")` (`CanonicalUnitService.ts:133-164`) - a request to itself before it is listening, so the lookup fails non-strictly and the unit is skipped. The same refs adapted fine at `LaunchMatch` in server-1 because the listener was up. The existing packaged validator only replays after restart ("same-match-replay-after-process-restart-ok"), so this was invisible until now.
+Why it is High for the two-players-plus-GM shared mission: any server restart mid-mission (crash, update, reboot) leaves the recovered match unable to process unit actions for the rest of the mission; the replay looks healthy, which is worse. It also means L1-SMOKE-A2's registered restart row ("Ordinary API provisioning/actions produce positive behavior ... reconnect and restart the same built image") will fail its positive controls on the real image as Main stands. A1 is unaffected: `callbacks-exercised` only requires store replay after restart, which works. Not fixed here; owner in section 7.
+
+### Medium
+
+**M1 (proof quality): the falsifier set cannot detect weakening of the credential-refusal and control assertions.**
+My mutants (section 4): weakening `credential-malformed-refused` to also accept an opened socket (R2), `credential-url-refused` likewise (R9), `credential-foreign-refused` to `true` (R8), dropping the post-refusal positive control of `spectator-cannot-act` (R3), dropping the HTTP echo check in `api()` (R11) and dropping the `kind === 'spectator'` seat check (R12) all pass 15/15. The implementer's M13 (retained scan) and M19 (live contiguity) are the same class. The stub has refusal-side modes (`reject-actions`, `no-public`, `spectator-acts`, `drop-live`, `echo-token`, `log-token`, `close-on-join`) but no acceptance-side modes (a server that accepts a malformed credential, a URL token, or a foreign principal, seats the watcher as a human, echoes the bearer over HTTP, stalls after a refusal, or delivers a non-contiguous live sequence). The real run is not vacuous (the real server refused and the evidence shows it), so this is not a proof defect of the run; it is a frozen self-check gap that A2/B cannot repair. Fix in-PR (section 8, A1).
+
+**M2 (binding): `gitSource` uses `git status --porcelain --untracked-files=no`.** An untracked file under `src/` (or anywhere the build reads) would be compiled into the image while the manifest still says `clean: true` for the expected SHA. Mutant R6 confirms the tracked-dirty check is tested; the untracked path is not. The registered procedure (fresh dedicated exact-Main worktree) mitigates, and I confirmed the implementer's run worktree is clean including untracked files after the build, so the delivered receipt is not undermined. Fix is removing the flag (zero counted lines; stub repos stay clean because `.next/` is gitignored in them). Section 8, A2.
+
+**M3 (governance, cap): the 487 counted lines are physical lines of deliberately dense code; oxfmt-normalized the three implementation leaves are 589 + 573 + 102 = 1264 lines (2.6x the 500 cap), with 94 lines over 120 characters (max 208).** The counting convention ("added physical lines") and `.oxfmtignore` (which excludes `scripts`) make this letter-compliant, and the admission measured the same dense prototype at 469 and recorded "fits". But the cap exists to bound scope, and the scope here is ~1.26k formatted lines. This is a Root ruling, not a privacy/authority defect; it bears directly on A2/B whose planning budgets (480/440) will be measured the same way. See decision (a) and CF-SMOKEA1-3.
+
+**M4 (product, out of scope, confirmed): FINDING-A1-PREP-1, `MatchHostRegistry.getOrCreate` has no in-flight dedupe** (`MatchHostRegistry.ts:125-159`: `hosts.get`, then `await getMatchMeta` and `await buildMatchHostBootstrapFromMeta`, then `hosts.set`). Assessment and owner in section 7.
+
+### Low
+
+**L1: the "never in a URL" falsifier checks only the raw wire form and the stub refuses only a `token` query parameter.** Mutant R7 (token URL-encoded under `&auth=`) survives: `conn.ws.url.includes(id.wire)` misses the `%3D`-encoded form and the stub does not refuse it. The redactor itself is fine in practice: I verified base64-of-JSON wire tokens contain no `+`/`/` (0/100 samples; only `=` padding), so the registered base64url form already matches the URL-encoded token. The real server refuses only `token` (`reason=token-in-url`), which is its contract; A1 never puts a credential in any URL (verified in evidence: every socket open record has `query: ""` or the placeholder). Test-only tightening in section 8, A1 (assert the URL query carries only `matchId`).
+
+**L2: the "read-only" offline lineage changes the DB bytes.** `offline-fixture` records `dbBefore != dbAfter` (80c3956d... -> 6dd35244...). With `query_only = ON` nothing is written by SQL; closing the last connection to a WAL database after a force-killed owner checkpoints the WAL into the main file. Benign, but the harness records the digests without asserting anything and the receipt does not explain the change. Optional: open with `readonly: true` (zero added lines) so lineage never checkpoints; otherwise document it. No privacy impact (the DB is retained inside the private run dir and is scanned).
+
+**L3: no durable gate sees the four leaves.** `scripts/**` is gitignored (force-added), the root tsconfig excludes `scripts/**`, `scripts/tsconfig.json` includes only three other paths, CI Lint (`oxlint` -> 0 files under scripts/release), Format Check (`.oxfmtignore`) and lint-units (directory walk honouring .gitignore) all skip them, and `node --test` has no npm selector. The explicit-path lint is a one-time proof; see decision (c) and CF-SMOKEA1-4.
+
+**L4: `imageIdentity` marker check is satisfiable by a comment** (the stub does exactly that: "markers: server.on('upgrade' ... MEKSTATION_LISTENER_READY"). Binding actually comes from SHA + fresh `--build` + BUILD_ID change + recorded hashes, and I could bind server.js to the commit externally. Optional strengthening: compare standalone `server.js` to `<repoRoot>/server.js` (hydration is a verbatim copy, `hydrate-next-standalone-multiplayer-server.mjs:267-270`); needs the stub repos to carry a root server.js, so it is a test+runner change. CF-SMOKEA1-5 unless the implementer prefers to fold it into the amendment.
+
+**L5: final process readiness count is not re-asserted at cleanup.** `ready.length === 1` is checked at probe time and in `stop()`; the last process (killed in `finally`) only reports `readyRecords` in summary. A late second readiness line after the probe would be recorded, not failed. Optional one-line addition to the final `errors` list. Mutant R5 confirms the probe-time check is tested.
+
+**L6 (observations for later owners, no action in A1):** (a) `[InMemoryPlayerStore] dev-only store in use; configure a persistent store for production` is printed by the production standalone (LSC/P2J owners); (b) the spectator socket closes 1006 on stop because the owner is force-killed (expected); (c) OBS-A1-1/OBS-A1-2 from the receipt (refusal broadcast to all participants; `game_created` absent from late-spectator replay) are confirmed in the evidence and are correctly routed to A2/B observers.
+
+## 4. My mutants (12 run, 4 caught, 8 survived)
+
+Method: copies of the four leaves in `E:/Projects/Personal/MekStation-wt/review-2287-mutants/` (node_modules junction to the review worktree), one edit each, `node --test` against the frozen test leaf. Logs: `review-2287-mutants/<id>.log`, `results.json`.
+
+| Id | Edit | Outcome | Failing rows |
+| --- | --- | --- | --- |
+| R1 | `record()` writes evidence.jsonl unsanitized | **CAUGHT** | happy path; CF-SMOKE-1 callbacks; credential leakage (the final retained scan fired: so M13's "defense in depth" claim is right that the scan works, and wrong that it is unreachable - it is reachable from any extension that writes raw) |
+| R2 | `credential-malformed-refused` also accepts `opened === true` | SURVIVED | - |
+| R3 | `spectator-cannot-act` post-refusal control -> `true` | SURVIVED | - |
+| R4 | last owned PID not killed in `finally` | **CAUGHT** | 9 rows + run hang to the 5-min timeout (assertCleaned sees the live pid) |
+| R5 | readiness probe accepts >= 1 records | **CAUGHT** | wrong listener or readiness (`two-ready` mode) |
+| R6 | tracked-dirty source ignored | **CAUGHT** | wrong build (dirty README) |
+| R7 | wire token URL-encoded under `&auth=` | SURVIVED | - (see L1) |
+| R8 | `credential-foreign-refused` -> `true` | SURVIVED | - |
+| R9 | `credential-url-refused` also accepts `opened === true` | SURVIVED | - |
+| R10 | "private DB already exists" check removed | SURVIVED | - (near-unreachable behind exclusive `mkdirSync(output)`; acceptable) |
+| R11 | HTTP echo check in `api()` removed | SURVIVED | - |
+| R12 | spectator seat `kind` check removed | SURVIVED | - |
+
+Reading: every runner-side guarantee I attacked is falsified; every cases-side assertion I attacked is not, except where a stub mode already exists. Combined with the implementer's 16/20 this is a consistent picture: runner strong, cases self-check thin. It does not make the real run vacuous (section 2), but it is the reason for the amendment.
+
+## 5. CF-SMOKE-1 (from #2275: "add a falsifier that exercises A1's frozen stop/restart, reconnect and offline-fixture callbacks")
+
+Exercised, both in node:test and on the real image:
+- `CF-SMOKE-1: stop, offline fixture, restart and reconnect callbacks are guarded and observable`: prepareOffline refused while running; stop kills the owned pid (asserted dead) and frees the port; double stop refused; real `l1-built-server-fixtures.ts` via tsx on the stopped DB returns the spectator seat; the fixture refuses a live owning pid (spawned bystander); restart yields a new pid on the same port; reconnect replays every baseline public event id.
+- `CF-SMOKE-1: restart refuses a changed image`: appending to standalone server.js between stop and restart fails with `changed image on restart` (implementer mutant M7 and my reading of `ctx.restart()` agree).
+- Real run `callbacks-exercised`: stop 51600 -> offline lineage (status active, fogOfWar false, spectator-1 persisted, 12 events) -> restart 26068 with the identical image triple -> spectator reconnect replays 11 public events.
+Discharged as infrastructure proof. Restart *acceptance* is not claimed and (H1) would currently fail it.
+
+## 6. Decision points
+
+**(a) GREEN committed with `--no-verify`.** Acceptable as a hook bypass; not acceptable as a precedent without a ruling on counting. Facts: lint-staged runs `oxfmt --write` on staged `*.ts` by explicit path, which overrides `.oxfmtignore`'s `scripts` entry (I reproduced: `oxfmt --check scripts/release/l1-built-server-fixtures.ts` reports issues; the formatted file is 102 lines). CI Format Check honours the ignore and passed; CI Lint and Type Check never visit the leaves; the hook's `npm run typecheck` would not have covered them either. So no CI-equivalent gate was dodged, the bypass is disclosed in the PR body and the receipt, and `.oxfmtignore` itself says the repo does not format scripts. The hook and CI disagree on `scripts/*.ts`; that is a maintenance defect (CF-SMOKEA1-6), not this unit's. The cap-gaming risk is real but is M3, not the bypass: with or without the hook, 1264 formatted lines sit under a 500 cap by density. Ruling: accept the bypass for A1; require Root to rule before A2 admission whether counted lines for the smoke lane are physical or oxfmt-normalized (CF-SMOKEA1-3). If Root rules "normalized", A1 is already merged under the old rule and is not re-litigated; A2/B must split.
+
+**(b) M13 and M19.** Fix in-PR, together with the gaps in section 4, as one tests-only amendment commit after GREEN, recorded in the local receipt as a RED amendment (mutant survives before, is killed after; 15 -> N/N green). Rationale: A2 and B are contractually forbidden from editing A1 leaves, so "carry forward to A2" means "never, unless a new unit is registered"; the test leaf is line-exempt; and the amendment does not change the implementation leaves' bytes unless A2 (below) is taken, so the real-run receipt stays valid for the implementation hashes. RED discipline is preserved by recording that the amendment is a falsifier-of-the-falsifier (its RED is the surviving mutant, not a product failure).
+
+**(c) Explicit-path lint under a gitignored `scripts/**`.** Sufficient as proof for this head (I re-ran it: 0/0 on 4 files), consistent with the established force-add convention (606 ignored-but-tracked script files) and with the zero-headroom lint-units ceiling (50/50 unchanged, so the leaves neither consume nor game it). Not sufficient as a durable gate (L3): nothing in CI will ever lint, format, typecheck or run these leaves. A2's and B's registered harness selectors run A1's test leaf, which keeps it alive through the lane. Whitelisting `scripts/release/` in `.gitignore` and adding the leaves to lint-units would be an out-of-manifest edit and needs the ceiling raised or headroom found - CF-SMOKEA1-4 for a maintenance unit, not for A1.
+
+**(d) The stand-in server is harness-only.** Confirmed. The stub is a string inside the test leaf (`stubSource()`), written into throwaway git repos under `os.tmpdir()` by `stubRepo()` and reached only via `runHarness({ repoRoot: fixture.repo, ... })`. The runner and cases leaves contain no reference to it; the CLI entry binds `requiredCases = A1_REQUIRED_CASES` and `runA1Cases` to `--repo-root` with `--build`; the real-run manifest records `built: true`, build exit 0 in 146.5s, BUILD_ID changed, and a server.js hash I bound to the commit. Caveat L4: the stub shows that the marker check alone is not a build-identity proof; it is the SHA + fresh build + hashes that bind.
+
+## 7. Product findings and owners (do not fix here)
+
+**FINDING-A1-PREP-1 (implementer): two concurrent first upgrades create two `ServerMatchHost` instances; later intent fails `STORE_FAILURE revision-conflict`.**
+Confirmed in source: `getOrCreate` has two awaits between map read and map write and no in-flight promise map; the second `hosts.set` overwrites the first, so the first connection stays bound to an orphaned host whose next persist collides. The coop path (`meta.coopMission` -> `recoverActiveMatches`) has the same missing dedupe but rebuilds from the log, so it produces split-brain without the creation-time collision.
+Severity for two players + GM on one machine: **Medium (authority/availability, not privacy).** Ordinary flow is serial (host creates and connects, guest joins by room code later), which is why A1 opens first connections serially. Realistic triggers: (1) a server restart while clients sit on a `lobby` match - boot recovery only rebuilds `active` matches, so the first reconnects race to recreate the host, and three co-located browser tabs reconnecting at once is exactly the shared-machine setup; (2) any client-side auto-retry that double-connects. Effect: one participant's intents fail persistently until they reconnect; no cross-viewer leak. Recommended owner: **a new narrow src unit** (suggested id MP-HOST-DEDUPE-1 under R2.authority-live; ~30 lines: in-flight `Map<matchId, Promise>` in `getOrCreate`/`recoverActiveMatches` plus a Jest row with two concurrent `getOrCreate` on a durable store). Not B14-*: `MatchHostRegistry.ts` is a frozen read-only control for the B14 lane and B14 is fog containment. Not P2CG1H: H is the consumer gate and must not absorb src fixes. Schedule before L1-SMOKE-A2's reconnect/restart rows (which reconnect several principals in quick succession) and before P2CG1H.
+
+**FINDING-A1-REV-1 (this review, H1): boot-time recovery cannot resolve canonical units because the server-side catalog service fetches itself before it listens.**
+Severity for the shared mission: **High (availability after restart; silent).** Owner: **a new narrow src unit** touching `server.js` boot order and/or the server-side canonical unit source (e.g. use `NodeCanonicalUnitService` on the server, or run recovery after `listen` but before accepting upgrades). `server.js` is an admission control for many units, so this needs explicit registration (suggested id MP-RECOVERY-UNITS-1). It must land, or A2's restart row must be explicitly narrowed, before L1-SMOKE-A2 can claim restart acceptance. Suggested repro for the owner: start the packaged server, create + launch a match, stop, restart, send one `AdvancePhase` - expect an Error, and the two `fromSessionAsync` warnings in the log.
+
+## 8. Precise in-PR fixes (one amendment commit)
+
+**A1 (required, test leaf only, line-exempt): add acceptance-side stub modes and rows so the sensitive assertions are falsified.** In `stubSource()` add modes `accept-malformed` (skip the `!token` 401 when the subprotocol entry is present), `accept-url-token` (do not reject `token` in the query), `accept-foreign` (skip the playerId mismatch refusal), `seat-human` (spectate registers `kind: 'human'`), `http-echo-token` (201 body carries `who` wire), `stall-after-refusal` (after the spectator Error, stop broadcasting Events), `live-gap` (spectator `deliverySequence` += 2 on live). Extend the table in `missing controls cannot pass` with the seven `[mode, pattern]` pairs (`/\[credential-malformed-refused\]/`, `/\[credential-url-refused\]/`, `/\[credential-foreign-refused\]/`, `/\[spectator-seat-witnessed\]/`, `/\[credential-redaction\]/`, `/post-refusal public fact|\[spectator-cannot-act\]/`, `/\[spectator-live-public\]/`). For M13 add one row: a `runCases` that passes all A1 cases through the stub and additionally writes `fs.writeFileSync(path.join(ctx.evidence.dir, 'extension.txt'), <a raw registered secret>)`, expecting `/retained credential/`. For L1 change the URL assertion to `assert.deepEqual([...new URL(conn.ws.url).searchParams.keys()], ['matchId'])`. Record in the local receipt: amendment commit, mutant ids that survive before / are caught after (at least M13, M19, R2, R3, R8, R9, R11, R12), new green count.
+
+**A2 (required, runner leaf, zero counted lines): in `gitSource` replace `git('status', '--porcelain', '--untracked-files=no')` with `git('status', '--porcelain')`** and change the error text to `'wrong build source: uncommitted or untracked changes present'`. Because the runner bytes change, re-run the real smoke once (`--build` on a clean exact-Main worktree) and update the local receipt's leaf hash and run evidence; the existing receipt may be kept as the superseded first run.
+
+**A3 (optional, zero counted lines): fixtures `new Database(dbPath, { fileMustExist: true, readonly: true })`** so lineage never checkpoints (L2); if taken, note `dbBefore === dbAfter` in the receipt.
+
+Not in-PR: the two product findings; any .gitignore/lint-units/hook change; any A2 row.
+
+## 9. Carry-forwards
+
+| Id | Owner | Item |
+| --- | --- | --- |
+| CF-SMOKEA1-1 | new src unit (suggested MP-HOST-DEDUPE-1), before L1-SMOKE-A2 reconnect rows and P2CG1H | FINDING-A1-PREP-1 in-flight dedupe in `MatchHostRegistry.getOrCreate` / `recoverActiveMatches` |
+| CF-SMOKEA1-2 | new src unit (suggested MP-RECOVERY-UNITS-1), before L1-SMOKE-A2 restart acceptance; L1-SMOKE-A2 admission must cite it | FINDING-A1-REV-1 boot recovery cannot resolve canonical units (self-fetch before listen); A2 feasibility pre-check must include one accepted intent after restart on the real image |
+| CF-SMOKEA1-3 | Root, before L1-SMOKE-A2 admission | Rule whether smoke-lane counted lines are physical or oxfmt-normalized (A1: 487 physical vs 1264 normalized); apply to A2/B budgets 480/440 |
+| CF-SMOKEA1-4 | Root maintenance backlog | Durable gate for `scripts/release/*`: .gitignore whitelist + lint-units inclusion (needs ceiling headroom) + an npm/CI selector for the node:test leaves; until then A2/B selectors carry A1's test |
+| CF-SMOKEA1-5 | L1-SMOKE-A1 amendment if the implementer takes it, else the first unit allowed to touch A1 leaves | Bind standalone `server.js` to `<repoRoot>/server.js` bytes in `imageIdentity` (L4) and re-assert `readyRecords === 1` for the final process (L5) |
+| CF-SMOKEA1-6 | Root maintenance backlog | Pre-commit lint-staged formats `scripts/*.ts` by explicit path, contradicting `.oxfmtignore` and CI; align (pass `--ignore-path` or exclude scripts in lint-staged) so `--no-verify` is never needed again |
+| CF-SMOKEA1-7 | LSC-2P / P2J owners | Production standalone prints `[InMemoryPlayerStore] dev-only store in use` (L6a); confirm it is intended under seat credentials |
+| CF-SMOKEA1-8 | L1-SMOKE-A2 | OBS-A1-1 (spectator refusal broadcast to all participants) and OBS-A1-2 (`game_created` absent from late replay) are confirmed; A2 observers must not treat either as a leak or a gap |
+
+S-SMOKE-1 / B14A-SMOKE-1 / B14B-SMOKE-1 remain owed; A1 is partial proof and does not discharge them, as the PR says.
+
+## 10. Exact-Main re-run
+
+Ticket `P1-1792354274334-rev-2287.json` was queued at 20:11Z (lane rev-2287, class build, cwd `E:/Projects/Personal/MekStation-wt/review-2287-main-20261018`, detached at `2d576747e` = origin/main, own `npm ci`, clean including untracked) behind rev-2282 (45-min playwright lease, granted 20:03Z), rev-2283, b14 and rev-2281. Command: `node <review-wt>/scripts/release/run-l1-built-server-smoke.mjs --build --expected-sha=2d576747ee8dd210e5f6a5b0f380819b153a203a --output=E:/Projects/Personal/MekStation-wt/review-2287-proof/run-main-2d576747 --repo-root=<main-wt>`, log `review-2287-proof/heavy-run.log`.
+**Result: granted 20:35:43Z, released 20:39:36Z, exit 0, `PASS` 10/10 rows** (output `review-2287-proof/run-main-2d576747/`). Independently checked the same way as the implementer's run:
+- Source: `head 2d576747ee8dd210e5f6a5b0f380819b153a203a`, `clean: true`; after the build the worktree is still clean including untracked files (`git status --porcelain` = 0 lines), so M2 did not bite here either.
+- Build: `npm.cmd run build` exit 0 in 174.5s; BUILD_ID `1792355750154` (fresh). Image: serverSha256 `d44599ad...` (identical to the implementer's run - server.js is unchanged between db3b56816 and 2d576747e), sourceTreeSha256 `91128520...` (identical), configSha256 `f98e0979...` (differs from `7d16282e...` because `server.next-config.json` embeds the worktree's absolute paths; expected). `git hash-object .next/standalone/server.js` = `7ce8627c35dbc754fa789f70cc701c536f3549e8` = `git rev-parse HEAD:server.js`: the running server is the committed one.
+- Processes: 29364 -> 55260 on port 56337, one readiness record each, both dead after the run, port free (checked by binding it). Owned-only cleanup held: no other process was affected.
+- Credentials: 5 `[REDACTED:*-token]` marks in evidence.jsonl, zero hits for every credential-shape regex in every retained file including the sqlite/-wal/-shm.
+- Rows: identical sequence to the implementer's run (malformed 401, url 400, foreign AUTH_REJECTED, launch, host action, spectate 201 + seat witnessed, replay 0..3, live 4, refusal + gapless stream, stop -> lineage (527 ms) -> restart -> reconnect replayFrames 3).
+- **H1 reproduced on current Main:** `server-2.log` again carries both `fromSessionAsync ... not found in the canonical catalog - skipping` warnings before `[mp-boot] recovered 1 active match(es)`.
+- Retained file hashes: evidence.jsonl 41d9b31b... (45811 B), manifest.json 5402dabc... (1108), summary.json 81b92bbd... (2230), server-1.log 3c6a8870... (5624), server-2.log a1effcfb... (1671), db/smoke.sqlite d3c21f62... (806912), -wal ba641881... (70072), -shm d489827f... (32768).
+So the A1 rows hold on the exact current Main image, not only on db3b56816.
+
+## 11. Artifacts (all outside the repo; nothing committed)
+
+- Report: this file (untracked in the review worktree).
+- `E:/Projects/Personal/MekStation-wt/review-2287-logs-green-test.log` (15/15), `review-2287-mutants/` (results.json + per-mutant logs), `review-2287-mutants.mjs`, `review-2287-mutants2.mjs`, `review-2287-fmt2/` (oxfmt-normalized copies for M3), `review-2287-redactor-probe.mjs` (+ `-probe2.log`), `review-2287-checkruns.json`, `review-2287-npmci.log`, `review-2287-main-npmci.log`, `review-2287-proof/`.
+- Processes: the only processes I stopped were three of my own hung probe node processes (an infinite loop in my first probe script); no implementer or queue process was touched. The two review worktrees were added with `git worktree add --detach` and are left in place.
+
+
+Repository source: docs/audits/2026-10-18-nightly-diag-campaign-shell.md SHA256 d37db5efcb44bb3e512c907b8802a0bb1cd13818232857eb45a2b6db2bfe6f23
+
+Repository source: docs/audits/2026-10-18-nightly-diag-privacy-authority.md SHA256 fb2e09985f69795b794d0f764062a5f9d432ddb8524812e4c36350521b86b93a
+
+Repository source: docs/audits/2026-10-18-nightly-diag-scenario-packs.md SHA256 bd4ec9b6bbfc5db2d2633c9b368d68f422bac4d4dc49cb2bb2813e821aa1cc07
+
+Repository source: docs/audits/2026-10-18-nightly-diag-ui-nav-replay.md SHA256 ae3a7ca4b0b7a9ef699d4c34fb660d31e2402602d66f89f558087cffa50ae38b
+
+Review class qualification: the validator recognizes authority/privacy/migration/replay/idempotency/concurrency, not persistence. MP-RECOVERY-UNITS-1 uses authority/replay/migration to cover the requested sensitive authority, replay and persistence boundary; this is not a sensitivity downgrade.
+Recovery source loci at the census baseline: server.js bootstrap:537 and listen:882; MatchHostRegistry bootstrap:290; MatchRecovery registerRecoveredHost:143; InteractiveSession.recovery adaptUnit:203 and warning:214; CompendiumAdapter fetch-backed factory:209; CanonicalUnitService localhost base:142. NodeCanonicalUnitService is fs-backed and separate; server.js and both services are read-only controls in this registration.
+Quarantine timing: transfer ownerUnit to COOP-PACK-GEN in separately admitted source work after registration and before P2J closure; do not wait for blocked generator admission. Keep both entries visible and expire on genuine delivering-owner verification.

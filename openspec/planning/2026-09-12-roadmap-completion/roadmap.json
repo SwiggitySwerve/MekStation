@@ -3117,7 +3117,11 @@
         "src/__tests__/unit/api/multiplayerMatchMeta.test.ts",
         "src/lib/multiplayer/__tests__/clientAgainstFogServer.integration.test.ts",
         "src/components/campaign/CampaignNavigation.tsx",
-        "scripts"
+        "scripts",
+        "src/engine/InteractiveSession.recovery.ts",
+        "src/engine/adapters/CompendiumAdapter.ts",
+        "src/engine/__tests__/InteractiveSession.recovery.test.ts",
+        "src/engine/__tests__/CompendiumAdapter.test.ts"
       ],
       "acceptance": [
         "npm.cmd run typecheck",
@@ -5660,7 +5664,8 @@
         "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind",
         "scripts/qc/gm-two-player-campaign-core.cjs",
         "scripts/__tests__/gm-two-player-campaign-qc.test.ts",
-        "playwright.config.ts"
+        "playwright.config.ts",
+        ".github/workflows/nightly-validation.yml"
       ],
       "acceptance": [
         "npm.cmd run typecheck",
@@ -6506,7 +6511,9 @@
         "scripts/__tests__",
         "src/pages-modules/api/e2ePerformanceProbeRoute.ts",
         "src/__tests__/api/e2ePerformanceProbeRoute.test.ts",
-        "openspec/specs/coop-campaign-sync/spec.md"
+        "openspec/specs/coop-campaign-sync/spec.md",
+        "src/lib/scenarioPacks/__tests__/coopPackCoverage.test.ts",
+        "openspec/specs/scenario-packs/spec.md"
       ],
       "acceptance": "E2E-01..80 resolved and run as the harden-gm-two-player-campaign-sessions e2e-testing requirement 'Acceptance Run Excludes Only Named-Gate Rows' defines: every id resolves exactly once to an authored row, the E2E-80 exact-main contract, or a gated-absent entry of scripts/qc/gm-two-player-acceptance-gates.cjs naming its gate tag and holder; the run passes only when every non-excluded row passes and no excluded row passes unexpectedly; ten-scenario reconnect/restart/correction proof; preserve explicit out-of-scope simulations",
       "owner": "parent; assign bounded Luna high worker on admission",
@@ -8606,7 +8613,9 @@
         "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
         "openspec/planning/2026-09-12-roadmap-completion/GOAL.md",
         "openspec/planning/2026-09-12-roadmap-completion/DELIVERY.md",
-        "openspec/planning/2026-09-12-roadmap-completion/WORKERS.md"
+        "openspec/planning/2026-09-12-roadmap-completion/WORKERS.md",
+        ".gitignore",
+        ".oxfmtignore"
       ],
       "acceptance": [
         "Each harness unit ships with a jest pin and a red-first probe; no product path under src/ is touched",
@@ -18991,7 +19000,8 @@
       "reviewer": "Sonnet (Root-reported)",
       "verdict": "CHANGES",
       "response": "Rebased onto #2273; preserves B14-0 priority; A1/A2/B distinct new leaves and total aggregate caps; exact merge-diff allowlist, lint-clean zero-headroom rule and tsx/offline-SQL fixture restriction. Root will independently re-review the revised head; no approval is inferred."
-    }
+    },
+    "followups20261018": "A2 now also requires MP-RECOVERY-UNITS-1 and MP-HOST-DEDUPE-1 exact-main PASS, ancestry and closure. This supersedes prior A2-only/no-B14-wait descriptions; A1 remains independent. See followupsRegistration20261018."
   },
   "dataFidelityRegistration20261018": {
     "baseline": "407ff0e9ae3eb0cd200b3c68da26e3d27d66a144",
@@ -19025,7 +19035,7 @@
       "LSC-2",
       "LSC-2P"
     ],
-    "order": "P2CG1S -> LSC-0 -> LSC-1DB -> LSC-1S -> LSC-1 -> LSC-2OP -> LSC-2 -> LSC-2P alongside the B14-0A -> B14-0B -> B14-0 -> B14-HEAD -> P2CG1HP lane; both converge at P2CG1H with all retained H prerequisites, including all three L1-SMOKE closures. Array placement adds no B14 or HP predecessor to LSC-0.",
+    "order": "P2CG1S -> LSC-0 -> LSC-1DB -> LSC-1S -> LSC-1 -> LSC-2OP -> LSC-2 -> LSC-2P alongside the B14-0A -> B14-0B -> B14-0 -> B14-HEAD -> MP-RECOVERY-UNITS-1 -> MP-HOST-DEDUPE-1 -> P2CG1HP lane; both converge at P2CG1H with all retained H prerequisites, including all three L1-SMOKE closures. Array placement adds no B14 or HP predecessor to LSC-0.",
     "states": {
       "LSC-0": "planned",
       "LSC-1DB": "blocked",
@@ -19051,5 +19061,26 @@
     "selector": "Unchanged --next emits one candidate, not all parallel options, and ignores ordinary predecessors/GitHub review status. Actual baseline remains B14-0; B14-HEAD stays blocked until genuine B14-0 closure and release. LSC-0 is planned on S closure but array placement adds no B14 predecessor. Earlier planned smoke A1 can win the selector when B14-0 is in-flight. Parent enforces each lane prerequisite and admission; no live state or receipt is fabricated for selector priority.",
     "supersession": "This amendment supersedes only historical HP -> LSC-0 sequencing, blanket one-product-writing-lane clauses as applied between LSC and B14/HP, and the inaccurate assertion that the current HP manifest owns CampaignCoopEntryPanel.tsx. This includes earlier dated L1/B14/HP/LSC registration order/rule text; those records remain historical. No other collision or predecessor gate is waived. Current local-seat admission text and current L1 order reference this amendment.",
     "unchanged": "No contract, cap, literal manifest, task holder, packet, review class, proof requirement, release closure count or historical receipt changes. Each unit retains 15 files / 500 counted added lines. Source admission still needs a fresh exact manifest/census, measured fit, red/local proof, sensitive independent review, exact-head OWNER-RULING, required CI, then genuine exact-main PASS and closure. No LSC implementation or completion is claimed."
+  },
+  "followupsRegistration20261018": {
+    "baseline": "811bfd8d40d7d9366616dcd93c5a60ae0c95fd51",
+    "registrationOnly": true,
+    "sourceAdmitted": false,
+    "authority": "Owner: continue with recommended options and fix the issues that come up, publish as needed; use parallel sub-agents. Priority: dependable ordinary-UI setup, join, play, reconnect, finish and reload. Documentary scheduling only, not a future sensitive OWNER-RULING.",
+    "source": "evidence/followups-registration-20261018.txt",
+    "sourceSha256": "55f8786fa7efe6250a941c79345350fa25d61aa552c84e8aa71f588a70b82cef",
+    "additionalUnits": [
+      "MP-RECOVERY-UNITS-1",
+      "MP-HOST-DEDUPE-1",
+      "COOP-PACK-GEN",
+      "CF-SMOKEA1-4",
+      "CF-SMOKEA1-6"
+    ],
+    "order": "B14-HEAD -> MP-RECOVERY-UNITS-1 -> MP-HOST-DEDUPE-1 -> P2CG1HP -> P2CG1H. Both new product units also precede L1-SMOKE-A2. P2J -> COOP-PACK-GEN; L1-SMOKE-B -> CF-SMOKEA1-4 -> CF-SMOKEA1-6. All five start blocked; no existing unit is released.",
+    "lane": "Recovery/dedupe belong to the serial B14/HP lane, after B14-0 #2281 and B14-HEAD prep/closure. LSC stays independently serial and parallel; smoke stays independently serial with the added A2 gates. Only recovery/dedupe add L1 closures: 36 -> 38. Pack/gate/hook backlog is not a new v2.2.0 acceptance gate.",
+    "quarantineFollowup": "After this registration merges, separately admit an edit to #2279 e2e/scenario-packs/quarantine.ts and scripts/__tests__/scenario-pack-quarantine.test.ts BEFORE P2J closure: move both ownerUnit values P2J -> COOP-PACK-GEN. Keep exactly two entries, visible QUARANTINED / ok:false, missing-owner rejection and fail-closed expiry when the new owner is main-verified/complete/archived. Generator delivery removes quarantine with real proof. No code or quarantine changes in this PR.",
+    "otherA1": "CF-SMOKEA1-3 remains a Root counting ruling before A2 admission; CF-SMOKEA1-5 belongs to the A1 amendment or a separately registered owner permitted to edit frozen A1 leaves (server.js byte binding and final readiness assertion). No later unit gets implicit permission. CF-SMOKEA1-8 binds A2 observers; CF-SMOKEA1-7 binds LSC-2P/P2J.",
+    "collisionRule": "Census covers every open PR and all planned/blocked/implementing units, exact paths and ancestor aliases; source in hash-bound evidence. Registration writer queue is serialized with LSC-0 closure #2288 and later B14-0 closure, plus A1 lifecycle; rebase before CI and again after an earlier writer lands. Re-census all future admissions; U73 engine, U45 src/lib, U24/U24b server, H/HP and broad e2e/scripts holders keep their contracts. No broad alias supplies implementation permission.",
+    "scope": "Only units.json, roadmap.json, PROGRESS.md and this named evidence file. Registration cap 15 files / 500 counted additions; evidence is line-exempt/file-counted. Original task holders, packets, historical receipts, validator semantics and every existing cap/review gate remain. Remaining nightly fixes are owned by baseline PRs, not reimplemented here."
   }
 }
