@@ -55,6 +55,7 @@ import {
   decideCommandBatch,
   digestCommandPostState,
 } from '../ServerMatchHostDecision';
+import * as journalAuthority from '../ServerMatchHostJournalAuthority';
 import { commitJournalAuthorityCommand } from '../ServerMatchHostJournalAuthority';
 
 // Jest's shared environment is jsdom; the production server never writes
@@ -78,6 +79,13 @@ jest.mock('../CoopOpponentDriver', () => ({
   __esModule: true,
   ...jest.requireActual<typeof import('../CoopOpponentDriver')>(
     '../CoopOpponentDriver',
+  ),
+}));
+
+jest.mock('../ServerMatchHostJournalAuthority', () => ({
+  __esModule: true,
+  ...jest.requireActual<typeof import('../ServerMatchHostJournalAuthority')>(
+    '../ServerMatchHostJournalAuthority',
   ),
 }));
 
@@ -346,6 +354,77 @@ afterEach(async () => {
 });
 
 describe.each([false, true])('CoopOpponentDriver authority=%s', (enabled) => {
+  it.each(
+    [
+      GamePhase.Movement,
+      GamePhase.WeaponAttack,
+      GamePhase.PhysicalAttack,
+    ].flatMap((phase) =>
+      [GameSide.Player, GameSide.Opponent].flatMap((firstMover) =>
+        ['eligible', 'ejected', 'destroyed'].map((playerStatus) => ({
+          phase,
+          firstMover,
+          playerStatus,
+        })),
+      ),
+    ),
+  )(
+    'only starts an opponent command: phase=$phase firstMover=$firstMover player=$playerStatus',
+    async ({ phase, firstMover, playerStatus }) => {
+      await fixture(enabled);
+      const run = coopOpponentDriver.driveCoopOpponent;
+      const driver = jest
+        .spyOn(coopOpponentDriver, 'driveCoopOpponent')
+        .mockResolvedValue([]);
+      await intent({ kind: 'AdvancePhase' }, 'start-movement');
+      const input = driver.mock.calls.at(-1)![0];
+      const ctx = input.context();
+      const original = ctx.session.getSession();
+      const session = {
+        ...original,
+        currentState: {
+          ...original.currentState,
+          phase,
+          firstMover,
+          units: {
+            ...original.currentState.units,
+            'player-a': {
+              ...original.currentState.units['player-a'],
+              hasEjected: playerStatus === 'ejected',
+              destroyed: playerStatus === 'destroyed',
+            },
+          },
+        },
+      };
+      jest.spyOn(ctx.session, 'getSession').mockReturnValue(session);
+      expect(getActivePhaseUnitId(session)).toBe(
+        firstMover === GameSide.Opponent
+          ? 'opponent'
+          : playerStatus === 'eligible'
+            ? 'player-a'
+            : 'player-b',
+      );
+      // Observe admission to the command boundary: engine-side rejection of
+      // a Player unit would otherwise hide a missing side check in the driver.
+      const commit = jest
+        .spyOn(journalAuthority, 'commitJournalAuthorityCommand')
+        .mockResolvedValue({ messages: [], recovery: null });
+
+      expect(await run(input)).toEqual([]);
+
+      expect(commit).toHaveBeenCalledTimes(
+        firstMover === GameSide.Opponent ? 1 : 0,
+      );
+      if (firstMover === GameSide.Opponent) {
+        expect(commit).toHaveBeenCalledWith(
+          expect.objectContaining({ matchId: MATCH, session: ctx.session }),
+          expect.objectContaining({ playerId: 'server:coop-opponent' }),
+          expect.any(Function),
+        );
+      }
+    },
+  );
+
   it('does not move the second opponent after a completed player ejects while a teammate is pending', async () => {
     await fixture(enabled, 'mission', 1, { secondOpponent: true });
     await intent({ kind: 'AdvancePhase' }, 'start-movement');
