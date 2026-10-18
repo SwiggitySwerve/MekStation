@@ -11,6 +11,7 @@ import type {
 
 import { reconcileCoopBattle } from '@/lib/campaign/coop/reconcileCoopBattle';
 import { CampaignLaunchView } from '@/lib/campaign/sync/campaignPublicAppliedView';
+import { SQLiteEventJournalWriter } from '@/lib/events/journal/SQLiteEventJournalWriter';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { createEmptyCampaignState } from '@/types/campaign/CampaignSync';
 import {
@@ -3062,12 +3063,20 @@ describe('P2CG1D guarded progression doors (installed receipt port)', () => {
    * microtask queued at BEGIN: an explicit release lands before `tick`,
    * the reservation's microtask safety net only after it.
    */
-  function traceMatch(trail: string[], onRollback: () => void = () => {}) {
+  function traceMatch(
+    trail: string[],
+    onRollback: () => void = () => {},
+    onTick: () => void = () => {},
+  ) {
     const exec = matchDb().exec.bind(matchDb());
     jest.spyOn(matchDb(), 'exec').mockImplementation((sql: string) => {
       if (/^(BEGIN|COMMIT|ROLLBACK)/.test(sql)) {
         trail.push(`M:${sql}:C-open=${String(campaignDb().inTransaction)}`);
-        if (sql === 'BEGIN IMMEDIATE') queueMicrotask(() => trail.push('tick'));
+        if (sql === 'BEGIN IMMEDIATE')
+          queueMicrotask(() => {
+            trail.push('tick');
+            onTick();
+          });
         if (sql === 'ROLLBACK') onRollback();
       }
       return exec(sql);
@@ -3095,6 +3104,223 @@ describe('P2CG1D guarded progression doors (installed receipt port)', () => {
     return { reached, release };
   }
 
+  /** P2CG1R: rows the foreign microtask in failAfterGuard committed on M. */
+  function foreignRows() {
+    const other = new Database(route().matchPath, { readonly: true });
+    try {
+      return (
+        other.prepare('SELECT COUNT(*) AS n FROM r_foreign').get() as {
+          readonly n: number;
+        }
+      ).n;
+    } finally {
+      other.close();
+    }
+  }
+
+  /**
+   * P2CG1R (H-OPEN-1 / CF-E1): fails the guarded commit of `intentId` after
+   * its guard admitted, at the real writer: aimed one revision ahead (a
+   * real SQL revision conflict) or aborted by a SQLite trigger on the batch
+   * insert (a native throw). The trail records the guard and M; a microtask
+   * queued at BEGIN writes a foreign row on M right after 'tick'.
+   */
+  function failAfterGuard(failure: 'conflict' | 'abort', intentId: string) {
+    assert.ok(entry.launch);
+    const trail: string[] = [];
+    const revalidate = entry.launch.revalidate.bind(entry.launch);
+    jest
+      .spyOn(entry.launch, 'revalidate')
+      .mockImplementation((db, prepared) => {
+        trail.push('guard');
+        return revalidate(db, prepared);
+      });
+    matchDb().exec(
+      'CREATE TABLE IF NOT EXISTS r_foreign (id INTEGER PRIMARY KEY)',
+    );
+    traceMatch(trail, undefined, () =>
+      matchDb().transaction(() =>
+        matchDb().prepare('INSERT INTO r_foreign DEFAULT VALUES').run(),
+      )(),
+    );
+    if (failure === 'abort') {
+      campaignDb().exec(
+        `CREATE TEMP TRIGGER r_abort BEFORE INSERT ON event_journal_batches WHEN instr(NEW.command_id, '${intentId}') > 0 BEGIN SELECT RAISE(ABORT, 'r native append abort'); END`,
+      );
+    } else {
+      const writer = SQLiteEventJournalWriter.prototype;
+      const real = writer.appendWithExtension;
+      jest
+        .spyOn(writer, 'appendWithExtension')
+        .mockImplementation(
+          function (this: SQLiteEventJournalWriter, raw, extend, onCommitted) {
+            const aimed = raw.commandId.includes(intentId)
+              ? { ...raw, expectedRevision: raw.expectedRevision + 1 }
+              : raw;
+            return real.call(this, aimed, extend, onCommitted);
+          },
+        );
+    }
+    return trail;
+  }
+
+  /** P2CG1R: counts the binder's own consumption of an arbiter reservation. */
+  function countConsumed() {
+    let consumed = 0;
+    type Guarded = Parameters<typeof entry.arbiter.decide>[2];
+    const wrap = (guarded: Guarded): Guarded =>
+      guarded &&
+      ((intent, reservation) =>
+        guarded(intent, {
+          ...reservation,
+          consumed: () => {
+            consumed += 1;
+            reservation.consumed();
+          },
+        }));
+    const submit = entry.arbiter.submitProposal.bind(entry.arbiter);
+    jest
+      .spyOn(entry.arbiter, 'submitProposal')
+      .mockImplementation((proposal, guarded) =>
+        submit(proposal, wrap(guarded)),
+      );
+    const decide = entry.arbiter.decide.bind(entry.arbiter);
+    jest
+      .spyOn(entry.arbiter, 'decide')
+      .mockImplementation((id, decision, guarded) =>
+        decide(id, decision, wrap(guarded)),
+      );
+    return () => consumed;
+  }
+
+  it.each([
+    ['host AdvanceDay', 'host', 'conflict'],
+    ['host AdvanceDay', 'host', 'abort'],
+    ['an auto-approved AdvanceDay proposal', 'auto', 'conflict'],
+    ['an auto-approved AdvanceDay proposal', 'auto', 'abort'],
+    ['GM approval of a pending AdvanceDay', 'gm', 'conflict'],
+    ['GM approval of a pending AdvanceDay', 'gm', 'abort'],
+  ] as const)(
+    'P2CG1R: %s failing after its guard admitted (%s) releases M in the append span',
+    async (_label, door, failure) => {
+      await open(door === 'auto' ? 'auto-approve' : 'host-review');
+      const { gm, guest } = await joinedAndReady();
+      const proposalId = `r-${door}-${failure}`;
+      const intentId = `advance-${proposalId}`;
+      const consumed = countConsumed();
+      if (door === 'gm') {
+        const queued = once(guest, 'CampaignDecision', signal());
+        propose(guest, 'AdvanceDay', proposalId);
+        await queued;
+      }
+      const before = census();
+      const trail = failAfterGuard(failure, intentId);
+      const answeredTo = door === 'auto' ? guest : gm;
+      const answered =
+        failure === 'abort'
+          ? once(answeredTo, 'close', signal())
+          : door === 'host'
+            ? nextError(gm)
+            : next(answeredTo, 'CampaignDecision');
+      try {
+        if (door === 'host') hostIntent(gm, 'AdvanceDay', intentId);
+        if (door === 'auto') propose(guest, 'AdvanceDay', proposalId);
+        if (door === 'gm') approve(gm, proposalId);
+        await answered;
+        await new Promise((resolve) => setTimeout(resolve, 20));
+      } finally {
+        campaignDb().exec('DROP TRIGGER IF EXISTS temp.r_abort');
+      }
+
+      expect(trail).toEqual([
+        'M:BEGIN IMMEDIATE:C-open=true',
+        'guard',
+        'M:ROLLBACK:C-open=true',
+        'tick',
+      ]);
+      // Released before the queued write ran: it committed on its own.
+      expect(foreignRows()).toBe(1);
+      expect(census()).toEqual(before);
+      expect(days()).toBe(0);
+      expect(consumed()).toBe(0);
+      expect(matchDb().inTransaction).toBe(false);
+      expect(campaignDb().inTransaction).toBe(false);
+      // The outcome classes stand: a conflict is answered stale, a throw
+      // stays uncertain (the socket closes), neither is a refusal.
+      const frames = JSON.stringify(answeredTo.sent);
+      if (failure === 'conflict') {
+        expect(frames).toContain('CAMPAIGN_STALE_HEAD');
+        expect(answeredTo.closes).toEqual([]);
+      } else {
+        expect(answeredTo.closes).toEqual([
+          { code: 1008, reason: 'dispatch-failed' },
+        ]);
+      }
+      expect(frames).not.toContain('CAMPAIGN_NOT_CONVERGED');
+
+      if (door === 'host' && failure === 'conflict') {
+        // Nothing stranded: the same intent then commits exactly once.
+        jest.restoreAllMocks();
+        const seen = dayAdvanced(guest);
+        hostIntent(gm, 'AdvanceDay', intentId);
+        await seen;
+        expect(days()).toBe(1);
+        expect(matchDb().inTransaction).toBe(false);
+      }
+    },
+  );
+
+  it.each(['confirmed', 'held', 'failed'] as const)(
+    'P2CG1R CF-H8/CF-G5: an installed bound membership join only ever offers (%s send callback); joinMember is never invoked',
+    async (mode) => {
+      await open('host-review');
+      const unoffered = jest.spyOn(entry.syncSession, 'joinMember');
+      class Controlled extends ConfirmingSocket {
+        override send(data: string, onSent?: (error?: Error) => void): void {
+          if (mode === 'confirmed') super.send(data, onSent);
+          else {
+            ObservedSocket.prototype.send.call(this, data);
+            if (mode === 'failed' && onSent)
+              queueMicrotask(() => onSent(new Error('held failure')));
+          }
+        }
+      }
+      const socket = new Controlled();
+      sockets.push(socket);
+      await bindCampaignSyncConnection({
+        socket,
+        registry: getCampaignHostRegistry(),
+        matchId: entry.matchId,
+        verifiedPlayerId: route().host.playerId,
+        logger: quietLogger,
+        membership: createCampaignSessionMembershipPort(),
+      });
+      socket.inbound({
+        kind: 'CampaignJoin',
+        matchId: entry.matchId,
+        ts: nowIso(),
+        playerId: route().host.playerId,
+        role: 'host',
+        roomCode: entry.roomCode ?? undefined,
+        campaignId: entry.campaignId,
+      });
+      for (let i = 0; i < 40; i++)
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      const campaign = socket.sent.filter(
+        (frame) =>
+          frame.kind === 'CampaignSnapshot' || frame.kind === 'CampaignEvent',
+      );
+      expect(campaign.length).toBeGreaterThan(0);
+      expect(campaign[0]).toHaveProperty('appliedView');
+      expect(
+        campaign.every(
+          (frame) => 'appliedView' in frame && frame.appliedView !== undefined,
+        ),
+      ).toBe(true);
+      expect(unoffered).not.toHaveBeenCalled();
+    },
+  );
+
   it('composes application from the installed port; a numeric cursor cannot authorize, genuine receipts commit host AdvanceDay once', async () => {
     await open('host-review');
     expect(entry.launch).toBeInstanceOf(CampaignLaunchView);
@@ -3105,6 +3331,9 @@ describe('P2CG1D guarded progression doors (installed receipt port)', () => {
     expect(latestOffer(guest)).toBeDefined();
     // The installed port is the only switch: the legacy session gate is never asked.
     const legacyGate = jest.spyOn(entry.syncSession, 'evaluateScenarioLaunch');
+    // P2CG1R CF-E7: a preparation refusal never opens M.
+    const unreadyTrail: string[] = [];
+    traceMatch(unreadyTrail);
     const before = census();
     const refused = nextError(gm);
     hostIntent(gm, 'AdvanceDay', 'advance-unready');
@@ -3131,6 +3360,7 @@ describe('P2CG1D guarded progression doors (installed receipt port)', () => {
     hostIntent(gm, 'AdvanceDay', 'advance-numeric');
     expect((await stillRefused).reason).toBe('participants-behind');
     expect(census()).toEqual(before);
+    expect(unreadyTrail).toEqual([]);
 
     await ack(gm, route().host.playerId);
     await ack(guest, route().guest.playerId);
@@ -3401,6 +3631,9 @@ describe('P2CG1D guarded progression doors (installed receipt port)', () => {
     const queued = once(guest, 'CampaignDecision', signal());
     propose(guest, 'AdvanceDay', 'review-veto');
     await queued;
+    // P2CG1R CF-E7: a veto during preparation never opens M.
+    const trail: string[] = [];
+    traceMatch(trail);
     const held = holdPreparation();
     const stale = nextError(gm);
     approve(gm, 'review-veto');
@@ -3429,6 +3662,37 @@ describe('P2CG1D guarded progression doors (installed receipt port)', () => {
     );
     expect(census()).toEqual(before);
     expect(days()).toBe(0);
+    expect(trail).toEqual([]);
+  });
+
+  it('P2CG1R CF-E7: an invalid proposal reservation never opens M and keeps the pending proposal', async () => {
+    await open('host-review');
+    const { gm, guest } = await joinedAndReady();
+    const queued = once(guest, 'CampaignDecision', signal());
+    propose(guest, 'AdvanceDay', 'invalid-reservation');
+    await queued;
+    const decide = entry.arbiter.decide.bind(entry.arbiter);
+    jest
+      .spyOn(entry.arbiter, 'decide')
+      .mockImplementation((id, decision, guarded) =>
+        decide(
+          id,
+          decision,
+          guarded
+            ? (intent, reservation) =>
+                guarded(intent, { ...reservation, valid: () => false })
+            : undefined,
+        ),
+      );
+    const trail: string[] = [];
+    traceMatch(trail);
+    const before = census();
+    const refused = nextError(gm);
+    approve(gm, 'invalid-reservation');
+    expect((await refused).reason).toBe('proposal-reservation-invalid');
+    expect(trail).toEqual([]);
+    expect(census()).toEqual(before);
+    expect(entry.arbiter.getPendingProposals()).toHaveLength(1);
   });
 
   it('a late refusal of a GM approval preserves the still-valid pending proposal', async () => {

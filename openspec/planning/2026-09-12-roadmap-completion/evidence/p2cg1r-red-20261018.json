@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CG1R",
+  "stage": "red",
+  "date": "20261018",
+  "baseline": "c4d0eae46e8ae49851b15e3037e2fe139e99745b",
+  "admissionCommit": "1d7fdb54108ed6fb5c745d942cfe82ef9ddffffe",
+  "runtime": {
+    "node": "v22.22.0",
+    "jest": "node node_modules/jest/bin/jest.js --selectProjects unit --runInBand --cacheDirectory E:/Projects/Personal/MekStation-wt/p2cg1r-jest-cache-20261018 --runTestsByPath <three R test leaves>",
+    "idle": "node scripts/qc/machine-idle.mjs --own-pid 47516 --own-pid 55164 -> MACHINE_IDLE immediately before every heavy run"
+  },
+  "productUnchanged": {
+    "note": "The four product leaves are byte-identical to the baseline (git diff --quiet c4d0eae46 -- <four leaves> exit 0); sha256 as frozen in the admission receipt.",
+    "files": [
+      "src/lib/campaign/sync/ICampaignEventStore.ts 29a066f49694",
+      "src/lib/campaign/sync/JournalCampaignEventStore.ts 906c8d06f745",
+      "src/lib/multiplayer/server/CampaignMatchHost.ts 2b914410d296",
+      "src/lib/multiplayer/server/bindCampaignSyncConnection.ts 5a38f49ee930"
+    ]
+  },
+  "testChanges": [
+    {
+      "path": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+      "added": 232,
+      "deleted": 0,
+      "sha256": "422fcb76141d11ced967fd67644da61593d5985557680984df4dfc662c7fd0f7",
+      "bytes": 52755
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
+      "added": 266,
+      "deleted": 2,
+      "sha256": "f26855a5a3b9eba54434c705141429e64354e7d0f9cec4d4cac71d76d179e8bf",
+      "bytes": 118932
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/CampaignMatchHost.pipeline.test.ts",
+      "added": 101,
+      "deleted": 0,
+      "sha256": "4e3d929a3a7f831035379293213525a1910a36706e4c70a1a1313eedaa2a3634",
+      "bytes": 25195
+    }
+  ],
+  "typecheckAtRed": {
+    "command": "npm run typecheck",
+    "result": "exit 0 (the tests reach the new hook through non-literal controls objects; the hook-only row names guard/onCommitted as undefined)",
+    "log": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1r-proof-20261018/typecheck-red.log",
+      "sha256": "ee29abd3809772d6a70e1e4db10615e6c04e36b469fc8075f6dd66f56956838c",
+      "bytes": 174
+    }
+  },
+  "lintUnitsAtRed": {
+    "result": "LINT_UNITS_PASS 17898/17899 (src-tests 17782, ceiling 17783, unchanged from baseline)",
+    "log": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1r-proof-20261018/lint-units-red.log",
+      "sha256": "bfd06beb5fe67f8621febb1b2036c62db67658c4e9f07cf97cec3511ed8e976a",
+      "bytes": 355
+    }
+  },
+  "result": {
+    "summary": "Test Suites: 3 failed, 3 total; Tests: 13 failed, 114 passed, 127 total",
+    "log": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1r-proof-20261018/red.log",
+      "sha256": "e42d1dd3bdd5e3f9bbd63efd3e99bb351d95b2e0e9e03849431e29aae0e6f298",
+      "bytes": 38197
+    },
+    "idleLog": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1r-proof-20261018/idle-red.log",
+      "sha256": "7d38ea0bb5ace1e63e7d44c21652acdb36d26f406c0875fa71350e59c74de48e",
+      "bytes": 13
+    }
+  },
+  "behaviourRows": {
+    "count": 13,
+    "shape": "Plain Jest assertion failures; no import/type/new-API failure.",
+    "rows": [
+      "binder x6 (host AdvanceDay, auto-approved AdvanceDay proposal, GM approval of a pending AdvanceDay) x (real revision conflict via the writer aimed one revision ahead; native append abort via a TEMP SQLite trigger): trail received [M:BEGIN IMMEDIATE:C-open=true, guard, tick, M:ROLLBACK:C-open=false] — M released only by the reservation microtask after the queued foreign write nested under it — expected [M:BEGIN IMMEDIATE:C-open=true, guard, M:ROLLBACK:C-open=true, tick]",
+      "adapter x3 (real revision conflict, native append abort, throwing saved-record extension) with a real DurableMatchStore reservation: same trail failure; the queued foreign M row is discarded (0, expected 1)",
+      "adapter: no signal on guard refusal / commit / recorded retry, and a throwing signal never replaces the conflict or the original abort: received [] signals, expected ['throwing','throwing']",
+      "adapter: hook-only controls on a non-SQLite journal: received committed, expected refused append-controls-unsupported",
+      "host pipeline: hook forwarded unchanged and run inside the open append on a real post-guard conflict: forwarded [undefined], no not-committed log entry",
+      "host pipeline: hook-only controls on plain-batch and per-event stores: received committed, expected refused append-controls-unsupported before the first event"
+    ]
+  },
+  "controlsGreenAtRed": [
+    "CF-H8/CF-G5 x3 (confirmed, held, failed send callback): installed bound membership join, every campaign frame carries appliedView, joinMember never invoked — baseline-green preservation pins",
+    "CF-E7: participants-behind preparation refusal (trail added to the first P2CG1D test), veto during preparation (trail added to the veto test), explicit invalid proposal reservation (new row; pending proposal and census kept) — each M trail [] — baseline-green pins",
+    "All pre-existing rows of the three suites (114 passed includes them)"
+  ],
+  "existingTestEdits": {
+    "note": "Disclosed; no existing assertion removed or weakened.",
+    "binder": "traceMatch gains an optional onTick callback run after 'tick'; the first P2CG1D test and the veto test each add an M trail that must stay [] (CF-E7). One import added (SQLiteEventJournalWriter).",
+    "adapter": "New rows only; one import added (DurableMatchStore).",
+    "host": "New rows only."
+  },
+  "testDesignNotes": [
+    "A native better-sqlite3 SqliteError can belong to another Jest file's realm when several suites share a worker, so abort rows assert rejects.toMatchObject({ message }) rather than rejects.toThrow.",
+    "The binder conflict injection wraps the real SQLiteEventJournalWriter.appendWithExtension and only re-aims expectedRevision for the target command; the guard, extension and SQL revision check all run for real.",
+    "The binder consumption counter wraps the arbiter reservation handed to the binder; it counts the binder's own consumed() calls only."
+  ]
+}

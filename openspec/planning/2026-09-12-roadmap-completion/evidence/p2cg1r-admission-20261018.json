@@ -1,0 +1,236 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CG1R",
+  "stage": "admission",
+  "date": "20261018",
+  "baseline": "c4d0eae46e8ae49851b15e3037e2fe139e99745b",
+  "authority": "Root GATE OPEN message for P2CG1R: G2 closure #2258 merged at c4d0eae46 (closure head 0443d121; Sonnet closure verify APPROVE-WITH-NOTES; receipt issuecomment-6248564303); P2CG1G2 main-verified; P2CG1R planned; validate-roadmap --next = P2CG1R; nothing else in the product lane in flight. Owner standing instruction: \"continue with recommended options and fix the issues that come up, publish as needed\"; owner 2026-10-18: \"I think the recommended actions make sense for the ones that have them\". This receipt records that release; it is not an owner ruling on the implementation head.",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "P2CG1R implementation sub-agent"
+  },
+  "predecessors": {
+    "P2CG1G2": "main-verified on fetched origin/main c4d0eae46 (prHead 45f6d7e1, mergeSha cc98179e4d77024651bf1a16c63f077d64337273, mainProof PASS); closure #2258 is the baseline commit",
+    "P2CG1B": "main-verified, ancestor of the baseline",
+    "P2CG1D": "main-verified, ancestor of the baseline"
+  },
+  "overlap": "Single product-writing lane: no other unit is implementing at the baseline (Root: nothing else in the product lane in flight). The seven R leaves are not edited by any open lane; G2's leaves (client transport/seat/entry/launch/surface) are disjoint from R's server reservation path.",
+  "restriction": {
+    "container": "R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1R",
+    "leaves": 7,
+    "knownSourceTestLifecycleSubtotal": 8,
+    "registration": "evidence/h-prereq-registration-20261017.json"
+  },
+  "caps": {
+    "files": 15,
+    "productAddedLines": 500
+  },
+  "manifest": {
+    "count": 12,
+    "spare": 3,
+    "reservedUnchanged": 1,
+    "files": [
+      "src/lib/campaign/sync/ICampaignEventStore.ts",
+      "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+      "src/lib/multiplayer/server/CampaignMatchHost.ts",
+      "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+      "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+      "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
+      "src/lib/multiplayer/server/__tests__/CampaignMatchHost.pipeline.test.ts",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1r-admission-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1r-red-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1r-local-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1r-admission-review-20261018.md"
+    ],
+    "note": "7 restriction leaves (4 existing product: ICampaignEventStore.ts, JournalCampaignEventStore.ts, CampaignMatchHost.ts, bindCampaignSyncConnection.ts; 3 existing tests) + units.json (own lifecycle fields only) + admission/red/local receipts + 1 reserved, unwritten admission-review slot = 12/15. The three spare slots grant no unnamed output; later review/identity/closure outputs need the separate G-OWN freeze. No new source, helper, harness, config or dependency file; no writer edit."
+  },
+  "countingConvention": "U41 counted lines = added physical lines (git diff --numstat --no-renames baseline..HEAD, no deletion credit) in the four product leaves and units.json. Test leaves and evidence receipts are line-exempt but file-counted; test additions are reported separately.",
+  "census": {
+    "path": "E:/Projects/Personal/MekStation-wt/p2cg1r-proof-20261018/frozen-files.json",
+    "sha256": "9ae165afba85fd1118c1dc8d692e2c79bc9319ff2812ad9180095b223a899a7b",
+    "bytes": 1615,
+    "frozenBefore": "any source, test, lifecycle or evidence edit on the c4d0eae46-based branch"
+  },
+  "frozenFiles": [
+    {
+      "path": "src/lib/campaign/sync/ICampaignEventStore.ts",
+      "exists": true,
+      "sha256": "29a066f49694b1095ab5c54a2ef9dec472972800140a4bb0781c1370be71b035",
+      "bytes": 10920,
+      "physicalLines": 295
+    },
+    {
+      "path": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+      "exists": true,
+      "sha256": "906c8d06f7450b227c52d735367c029aee30db0080e54c00cfad48ebf4139f29",
+      "bytes": 26660,
+      "physicalLines": 660
+    },
+    {
+      "path": "src/lib/multiplayer/server/CampaignMatchHost.ts",
+      "exists": true,
+      "sha256": "2b914410d2960170d0c0f1fe9661cbb63a91c563353cd5e860556922670ce349",
+      "bytes": 26624,
+      "physicalLines": 699
+    },
+    {
+      "path": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+      "exists": true,
+      "sha256": "5a38f49ee930b5e59543553c08cf5d776269cfff2df9d4b91ef1f26a3556edbd",
+      "bytes": 57589,
+      "physicalLines": 1829
+    },
+    {
+      "path": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+      "exists": true,
+      "sha256": "f9e7c7756d1f15eefc5b440ee016f315d68a032dab832de1c62d553a8199d844",
+      "bytes": 44927,
+      "physicalLines": 1290
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
+      "exists": true,
+      "sha256": "94ea988c248be00589120a9e224a5a0467f215df14b8dfbeff6f23981033cb46",
+      "bytes": 109287,
+      "physicalLines": 3460
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/CampaignMatchHost.pipeline.test.ts",
+      "exists": true,
+      "sha256": "e9b2494ce5dfeb07f5b2b3dba159e41facabc517b97e45b3f78fa762cb449ebc",
+      "bytes": 21645,
+      "physicalLines": 633
+    }
+  ],
+  "unchangedControls": {
+    "census": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1r-proof-20261018/frozen-controls.json",
+      "sha256": "79ce3f77a744375da1227f0f976b7ded513d6a4b24c1d72b06fb8dedc2f9f71e",
+      "bytes": 1782
+    },
+    "files": [
+      {
+        "path": "src/lib/events/journal/SQLiteEventJournalWriter.ts",
+        "exists": true,
+        "sha256": "541748203807e279fa8697e769aee72ac1c45f53688f58471f0401c35a1dbb68",
+        "bytes": 22403,
+        "physicalLines": 531
+      },
+      {
+        "path": "src/lib/multiplayer/server/DurableMatchStore.ts",
+        "exists": true,
+        "sha256": "942b6143aa9d25097ce392203d1c29cc0b92d0a2298fb70b4ebbfc9658aff475",
+        "bytes": 68230,
+        "physicalLines": 1875
+      },
+      {
+        "path": "src/lib/multiplayer/server/campaignHostBatchCommit.ts",
+        "exists": true,
+        "sha256": "cf0232632e7cc666d38a55edf9663128ce07f36442d0d8ec7f4fd1a8fc6b6f0d",
+        "bytes": 12587,
+        "physicalLines": 309
+      },
+      {
+        "path": "src/lib/multiplayer/server/CampaignGmArbiter.ts",
+        "exists": true,
+        "sha256": "87535829f2b9afd7da1123a87225a3f64f812a28d4f1b3c338b110ffc6e792d6",
+        "bytes": 27299,
+        "physicalLines": 734
+      },
+      {
+        "path": "src/lib/multiplayer/server/CampaignMatchHost.doors.ts",
+        "exists": true,
+        "sha256": "6dcc96d52ad7d58937dcbfddafea74bb27630b7bccefed8aef92094c89b70e1d",
+        "bytes": 8412,
+        "physicalLines": 269
+      },
+      {
+        "path": "src/lib/multiplayer/server/IMatchStore.ts",
+        "exists": true,
+        "sha256": "beb13efd217ee162bf69a52769dfe41f2b16a8a505d07464671ff51a0351425d",
+        "bytes": 26408,
+        "physicalLines": 701
+      },
+      {
+        "path": "src/lib/campaign/coop/campaignSyncTransportSeat.ts",
+        "exists": true,
+        "sha256": "410311758c29165546719ea60517a29315da6dff64511998194c6a7e7f8327a5",
+        "bytes": 4152,
+        "physicalLines": 124
+      },
+      {
+        "path": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+        "exists": true,
+        "sha256": "29ffeddaeca127f3b23a9fe8f482188e05aad1d0bb646c45af24af5ee2d565f3",
+        "bytes": 18815,
+        "physicalLines": 538
+      }
+    ],
+    "note": "Read-only surfaces that must stay byte-identical: the SQLite writer (no writer product edit; outer-COMMIT boundary), the durable match reservation and its microtask fallback, the batch-commit classifier (commit-uncertain preserved), the GM arbiter (pending-proposal semantics), the host door helpers, the match-store interface, and G2's client seat module and entry panel (CF-G2-3 stays with H)."
+  },
+  "design": {
+    "source": "P2CG1R.behavior and registration20261017HPrereqs.proofs; CF-E1 wording in evidence/p2cg1d-review-20261017.json; RS-PREP.md (untracked, sha256 99588cc6...) and R-PREP.md (untracked, sha256 327fca1d...)",
+    "interface": "ICampaignAppendControls gains optional onNotCommitted?: () => void (trusted, server-only, default-absent; never in batch, payload, command identity or wire).",
+    "adapter": "appendControlledCampaignBatch: hook joins capability detection (hook-only controls on a non-SQLite journal refuse append-controls-unsupported before any write). A recorded command short-circuits before guard and hook. After the guard admits, append() and the saved-record afterCommit extension run in a try: a non-committed result or a throw calls the hook in the same synchronous extension span, then returns/rethrows the original outcome. A throwing hook never replaces that outcome.",
+    "host": "CampaignMatchHost.commitEvents includes the hook in its capability check and forwards the identical function.",
+    "binder": "commitGuardedProgression binds onNotCommitted: release; onCommitted (consume then release), afterRelease and the reservation microtask fallback are unchanged.",
+    "boundary": "No activation, no port installation, no cross-file atomicity claim. Native outer-COMMIT failure after the extension returns stays unrepaired and recorded (rBoundary #2249); any writer-level widening is a separate registration."
+  },
+  "carryForwards": {
+    "CF-E1/H-OPEN-1": "Owned: discharged by this unit's product and RED/GREEN rows (adapter, host pipeline, binder doors).",
+    "CF-H8/CF-G5": "Absorbed in the binder leaf: installed port, membership-admitted bound join, send callback confirmed/held/failed; every campaign frame carries appliedView and joinMember is never invoked. Baseline-green preservation pin; when recorded with R's exact head and exact-main proof it lets P2CG1HP drop the binder test (9 -> 8 files).",
+    "CF-E7": "Absorbed in the binder leaf (next binder-test owner): participants-behind preparation refusal, veto during preparation and an explicit invalid proposal reservation each assert an empty M trail; the invalid row keeps the pending proposal and census. Baseline-green pins.",
+    "CF-G2-3": "Not absorbed: N3's superseded same-seat transport is in CampaignCoopEntryPanel.tsx / campaignSyncTransportSeat.ts (client), neither an R leaf; stays with H.",
+    "CF-H12/CF-E10": "All required check names compared by name on the exact head and posted as a PR comment.",
+    "CF-E9/CF-H11": "Baseline lint 87/0 (adapter 446, binder 1459 counted max-lines, both already warned); madge from the four product leaves 977 files / 175 chains; after figures at the local stage.",
+    "CF-R-1 (new observation)": "Arbiter (not an R leaf): on a native append throw (commit-uncertain) the pending GM approval is consumed and the answering socket closes INTERNAL_ERROR dispatch-failed; a post-guard conflict resolves it stale-head. R pins only that the binder never consumes the reservation on a non-commit. Routed to the next owner of CampaignGmArbiter.ts / P2CG1H."
+  },
+  "prep": "Phase 1 prototype in scratch worktree p2cg1r-scratch-20261018 on Main 5e6187208 (R leaves byte-identical at c4d0eae46): RED 13 failed / 127 on the unchanged product (all behaviour assertions), GREEN 127/127, typescript7 tsc exit 0, oxfmt clean, oxlint 0 errors.",
+  "estimate": "Product 49 counted additions + about 14-20 units.json lifecycle = about 63-69 / 500; tests about 596 added (exempt).",
+  "baselineMeasurements": {
+    "node": "v22.22.0",
+    "dependencies": "npm ci in the implementation worktree against the baseline package-lock (root node_modules is stale)",
+    "idle": {
+      "result": "MACHINE_IDLE",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1r-proof-20261018/idle-base.log",
+        "sha256": "7d38ea0bb5ace1e63e7d44c21652acdb36d26f406c0875fa71350e59c74de48e",
+        "bytes": 13
+      }
+    },
+    "typecheck": {
+      "command": "npm run typecheck",
+      "result": "exit 0",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1r-proof-20261018/typecheck-base.log",
+        "sha256": "ee29abd3809772d6a70e1e4db10615e6c04e36b469fc8075f6dd66f56956838c",
+        "bytes": 174
+      }
+    },
+    "lint": {
+      "command": "npx oxlint",
+      "result": "87 warnings, 0 errors; max-lines counted JournalCampaignEventStore 446, bindCampaignSyncConnection 1459 (already warned)",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1r-proof-20261018/lint-base.log",
+        "sha256": "5955563c2a726fd37feb7c66753b02010cab5e8508dd6b72707cd5570d86df0c",
+        "bytes": 39569
+      }
+    },
+    "cycles": {
+      "command": "npx -y madge@8.0.0 --circular --extensions ts,tsx --ts-config tsconfig.json <four product leaves>",
+      "result": "Processed 977 files, 175 circular chains",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1r-proof-20261018/madge-base.log",
+        "sha256": "177778eb33cceb166dabde3f0b39ead60e035674ed20893396423331bfffef35",
+        "bytes": 109437
+      }
+    }
+  },
+  "plan": {
+    "red": "Commit 2 changes only the three test leaves (plus units.json red path and the red receipt); the four product leaves stay byte-identical. Tests reach the new hook through non-literal controls objects so the RED commit typechecks against the unchanged interface.",
+    "implementation": "Commit 3 changes only the four product leaves (plus units.json local path and the local receipt). No test byte changes after RED.",
+    "mutants": "At least 12 single-edit mutants re-run on the GREEN head against the three R suites (list in R-PREP.md)."
+  }
+}

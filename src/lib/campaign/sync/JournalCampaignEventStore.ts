@@ -319,6 +319,15 @@ export async function appendCampaignCommandBatch(
  * id is written; `onCommitted` fires from the writer after its COMMIT, a
  * throw reported, not raised. A non-SQLite journal refuses controls.
  */
+/** A failing not-committed signal never replaces the append's own outcome. */
+function signalNotCommitted(onNotCommitted: (() => void) | undefined): void {
+  try {
+    onNotCommitted?.();
+  } catch {
+    // The caller's own late safety net (a reservation microtask) remains.
+  }
+}
+
 async function appendControlledCampaignBatch(
   journal: IEventJournal<ICampaignJournalEnvelope>,
   input: {
@@ -351,8 +360,11 @@ async function appendControlledCampaignBatch(
   controls: ICampaignAppendControls,
 ): Promise<CampaignBatchAppendResult | ICampaignAppendRefusal> {
   const batch = toJournalBatch(input);
-  const { guard, onCommitted } = controls;
-  const controlled = guard !== undefined || onCommitted !== undefined;
+  const { guard, onCommitted, onNotCommitted } = controls;
+  const controlled =
+    guard !== undefined ||
+    onCommitted !== undefined ||
+    onNotCommitted !== undefined;
   if (controlled && !(journal instanceof SQLiteEventJournalWriter)) {
     return { kind: 'refused', reason: CAMPAIGN_APPEND_CONTROLS_UNSUPPORTED };
   }
@@ -370,13 +382,20 @@ async function appendControlledCampaignBatch(
                   'SELECT 1 AS ok FROM event_journal_batches WHERE command_id = ?',
                 )
                 .get(batch.commandId) !== undefined;
-            if (!recorded && guard !== undefined) {
+            if (recorded) return append();
+            if (guard !== undefined) {
               const refusal = guard(db);
               rejectPreparedThenable(refusal);
               if (refusal !== null) return refusal;
             }
-            const appended = append();
-            if (!recorded && appended.kind === 'committed') {
+            // P2CG1R: an admitted batch that does not commit here signals
+            // in this synchronous span, never from a later continuation.
+            try {
+              const appended = append();
+              if (appended.kind !== 'committed') {
+                signalNotCommitted(onNotCommitted);
+                return appended;
+              }
               afterCommit?.(db, input.campaignId, input);
               const { receipt } = appended;
               committed = Object.freeze({
@@ -387,8 +406,11 @@ async function appendControlledCampaignBatch(
                 lastCommitPosition: receipt.lastCommitPosition,
                 eventCount: receipt.eventCount,
               });
+              return appended;
+            } catch (error) {
+              signalNotCommitted(onNotCommitted);
+              throw error;
             }
-            return appended;
           },
           onCommitted &&
             (() => {
