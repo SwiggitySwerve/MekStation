@@ -129,7 +129,7 @@ export default async function handler(
       return;
     }
     if (meta.hostPlayerId !== auth.playerId) {
-      res.status(403).json({ error: 'Only the host may close the match' });
+      res.status(404).json({ error: new MatchNotFoundError(id).message });
       return;
     }
     try {

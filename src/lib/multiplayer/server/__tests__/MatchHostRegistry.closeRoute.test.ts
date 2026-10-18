@@ -147,6 +147,34 @@ describe('DELETE /api/multiplayer/matches/[id] against a live host', () => {
     _resetDefaultMatchStore();
   });
 
+  it('returns the same response for a non-host as for a missing match', async () => {
+    authMock.mockResolvedValue({
+      ok: true,
+      playerId: 'pid_outsider',
+      publicKey: 'pk',
+      token: {},
+    });
+    const registry = loadRegistryModuleInNewGraph().getMatchHostRegistry();
+    const closeMatch = jest.spyOn(registry, 'closeMatch');
+    const handler = loadCloseRouteInNewGraph();
+    const store = getDefaultMatchStore();
+    const meta = await store.getMatchMeta(MATCH_ID);
+
+    const unauthorized = await deleteMatch(handler);
+
+    expect(closeMatch).not.toHaveBeenCalled();
+    expect(await store.getMatchMeta(MATCH_ID)).toEqual(meta);
+    _resetDefaultMatchStore();
+    const missing = await deleteMatch(handler);
+
+    expect(missing).toEqual({
+      statusCode: 404,
+      body: { error: `Match not found: ${MATCH_ID}` },
+    });
+    expect(unauthorized).toEqual(missing);
+    expect(closeMatch).not.toHaveBeenCalled();
+  });
+
   it('closes the host the socket graph started and disconnects its sockets', async () => {
     const socketGraph = loadRegistryModuleInNewGraph();
     const host = await socketGraph.getMatchHostRegistry().getOrCreate(MATCH_ID);

@@ -275,7 +275,8 @@ configuration via privileged operations.
 
 - **GIVEN** a player whose `playerId != hostPlayerId`
 - **WHEN** they DELETE `/api/multiplayer/matches/:id`
-- **THEN** the server SHALL respond `403 Forbidden`
+- **THEN** the server SHALL respond `404 Not Found` with the same body as for a
+  match that does not exist, so the response does not reveal that the match exists
 - **AND** the match SHALL remain active
 
 #### Scenario: Host close succeeds
