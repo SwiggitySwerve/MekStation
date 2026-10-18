@@ -1,3 +1,32 @@
+## LSC parallel product lane amendment (2026-10-18)
+
+Council 3b member A sections 1-2 independently verified at Main
+`1e0a34dc5da4c4051115db828e986ceb5aad2fa0`. All seven LSC ownership paths
+and literal manifests are disjoint from B14-0/B14-HEAD/HP, except shared
+`units.json` lifecycle writes. PRs #2281/#2278/#2279/#2282/#2283 were checked
+at the heads recorded in [census evidence](evidence/lsc-parallel-amendment-20261018.txt). The baseline PRs
+intersect LSC-2P's broad `e2e` alias, but none of its literal proof files.
+
+LSC-0 consumes existing identity/token/membership contracts, not HP recovery.
+Its predecessor is now main-verified P2CG1S; LSC-0 is planned, later LSC units
+remain blocked. S/LSC links are symmetric. HP now points directly to H, and H
+retains LSC-2P plus every previous predecessor; its pre-existing HP gate is
+also explicit. `lscParallelLaneAmendment20261018` in both ledgers records the
+owner-overridable product-lane exception alongside B14/HP. Internal lane order
+and all caps/contracts/review/proof/release gates remain. Shared ledger writes
+are serialized with other product and smoke closures. Fresh census remains
+mandatory; historical sequencing clauses are superseded only as stated there.
+
+`--next` remains advisory and selects one candidate in array order. Actual
+baseline output remains **B14-0** because Main still records it planned; the
+selector does not read #2281's GitHub review state or ordinary predecessor
+arrays. B14-HEAD remains blocked pending genuine B14-0 closure. LSC-0 is
+independently eligible on S, even when an earlier smoke unit wins the selector.
+Array placement adds no B14/HP predecessor. No validator semantics, historical
+receipts, source admission or runtime acceptance are changed.
+
+---
+
 ## Data-fidelity registration, review round 2 corrected (2026-10-18)
 
 Rebased after #2275; its L1-SMOKE entries and B14-0 priority remain intact. This is
