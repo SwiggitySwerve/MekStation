@@ -158,15 +158,8 @@ const sourceInventory = (root, unit) => {
         ),
       'native frozen evidence must be committed regular blobs',
     );
-    const current = nativeBuffers(frozen.map((file) => path.join(root, file)));
-    identityCheck(
-      frozen.every((file, i) =>
-        current[i].equals(gitBytes(root, ['show', `HEAD:${file}`])),
-      ),
-      'native frozen evidence bytes changed',
-    );
   }
-  return files.sort();
+  return { files: files.sort(), frozen };
 };
 const sourceStatus = (root) =>
   gitBytes(root, [
@@ -189,7 +182,8 @@ export function sourceReadback({
 }) {
   return safeBoundary(() => {
     const root = nativePath(repoRoot, true).absolute;
-    const files = sourceInventory(root, unit);
+    const selection = sourceInventory(root, unit);
+    const { files, frozen } = selection;
     const head = nativeText(gitBytes(root, ['rev-parse', 'HEAD'])).trim();
     const tree = nativeText(
       gitBytes(root, ['rev-parse', 'HEAD^{tree}']),
@@ -198,11 +192,34 @@ export function sourceReadback({
       root,
       nativeText(gitBytes(root, ['rev-parse', '--git-path', 'index'])).trim(),
     );
-    const index = nativeBytes(indexFile);
     const inventory = gitBytes(root, ['ls-files', '--stage', '-z']);
     const diff = gitBytes(root, ['diff', '--binary', 'HEAD', '--']);
     const status = sourceStatus(root);
-    const buffers = nativeBuffers(files.map((file) => path.join(root, file)));
+    const artifacts = Object.entries({
+      review: reviewOutput,
+      local: localReceipt,
+    }).filter(([, file]) => file !== undefined);
+    // Sweep the complete selection together: two fresh all-tag attribute checks
+    // per inventory, rather than a PowerShell pair per index/artifact on Windows.
+    const paths = [
+      ...new Set([
+        indexFile,
+        ...files.map((file) => path.join(root, file)),
+        ...artifacts.map(([, file]) => file),
+      ]),
+    ];
+    const captured = nativeBuffers(paths);
+    const bytesByPath = new Map(paths.map((file, i) => [file, captured[i]]));
+    const index = bytesByPath.get(indexFile);
+    const buffers = files.map((file) => bytesByPath.get(path.join(root, file)));
+    identityCheck(
+      frozen.every((file) =>
+        bytesByPath
+          .get(path.join(root, file))
+          .equals(gitBytes(root, ['show', `${head}:${file}`])),
+      ),
+      'native frozen evidence bytes changed',
+    );
     const result = {
       readbackVersion: 1,
       privateRoots: NATIVE_PRIVATE_ROOTS,
@@ -217,16 +234,12 @@ export function sourceReadback({
         base64: buffers[i].toString('base64'),
       })),
     };
-    for (const [name, file] of Object.entries({
-      review: reviewOutput,
-      local: localReceipt,
-    }))
-      if (file !== undefined)
-        result[name] = nativeBytes(file).toString('base64');
+    for (const [name, file] of artifacts)
+      result[name] = bytesByPath.get(file).toString('base64');
     identityCheck(
-      isDeepStrictEqual(sourceInventory(root, unit), files) &&
+      isDeepStrictEqual(sourceInventory(root, unit), selection) &&
         nativeText(gitBytes(root, ['rev-parse', 'HEAD'])).trim() === head &&
-        nativeBytes(indexFile).equals(index) &&
+        nativeBuffers(paths).every((bytes, i) => bytes.equals(captured[i])) &&
         gitBytes(root, ['ls-files', '--stage', '-z']).equals(inventory) &&
         gitBytes(root, ['diff', '--binary', 'HEAD', '--']).equals(diff) &&
         sourceStatus(root).equals(status),
