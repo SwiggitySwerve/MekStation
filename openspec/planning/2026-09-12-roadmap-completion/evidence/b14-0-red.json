@@ -1,0 +1,185 @@
+{
+  "schemaVersion": 1,
+  "unit": "B14-0",
+  "stage": "red",
+  "date": "20261018",
+  "baseline": "3328e2fa5f9bcc87da09d8fdb16fc4a20f19134b",
+  "at": "2026-10-18T18:34:59.028Z",
+  "admissionCommit": "69b6b550c77ef52b8ca94a99c4167b9eec59fe4e",
+  "summary": "22 failed / 28 in b14FogContainment.test.ts on the unchanged host leaves (ServerMatchHost/Events/Replay byte-identical to the baseline; the admission-registered helpers are referenced by no product file). The 6 passing rows are controls that must hold on both sides: the seam guard, the unmocked/type pin, the client retry row and helper rows (exercise the admission helper directly), and the two fog-off controls.",
+  "productState": "Only src/lib/multiplayer/server/__tests__/b14FogContainment.test.ts is added by this commit. No product, helper or spec byte changes.",
+  "run": {
+    "gate": "node scripts/qc/machine-idle.mjs --own-pid 47516 --own-pid 55164 -> MACHINE_IDLE",
+    "command": "node node_modules/jest/bin/jest.js --runTestsByPath src/lib/multiplayer/server/__tests__/b14FogContainment.test.ts --runInBand --cacheDirectory <proof>/.jest-private --json",
+    "passed": 6,
+    "failed": 22,
+    "total": 28,
+    "json": {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/red-run.json",
+      "sha256": "62918b8551a157c4a4ae310460dc4ff74e414c1bd98f6d2e45ec1a6bf1b28d76",
+      "bytes": 62184
+    }
+  },
+  "sideCheck": {
+    "note": "B14-0A guard (matchHistoryFog.test.ts) and all 14 seamed suites with the new test present: still green, so the new suite is not read as an unlisted seam.",
+    "suites": 15,
+    "passed": 176,
+    "failed": 0,
+    "json": {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/red-side.json",
+      "sha256": "d6834c6ebe7c19bc242bbe1c7ff592d0a49ef6c2cab4495d6685ed3e183283f8",
+      "bytes": 77485
+    }
+  },
+  "typecheck": {
+    "command": "npm run typecheck",
+    "result": "exit 0",
+    "log": {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/typecheck-red.log",
+      "sha256": "3b36e22e1b0478b0238ff74f78f016d01c34b3acc5ef45f73c88babce588152f",
+      "bytes": 374
+    }
+  },
+  "failures": [
+    {
+      "name": "legacy stale peer metadata cannot reveal fog policy to a non-member",
+      "status": "failed",
+      "first": "Error: expect(jest.fn()).not.toHaveBeenCalled() | Expected number of calls: 0 | Received number of calls: 1",
+      "classification": "authority: Main leaks to a non-member / gives no physical 1008 close"
+    },
+    {
+      "name": "detaches and closes even if terminal refusal send fails",
+      "status": "failed",
+      "first": "Error: expect(received).toEqual(expected) // deep equality | - Expected  - 6 | + Received  + 1",
+      "classification": "lifecycle: Main keeps refused sockets attached"
+    },
+    {
+      "name": "refuses fog admission for pid_host before bytes",
+      "status": "failed",
+      "first": "Error: expect(received).toBeNull() | Received: {\"campaignId\": \"match-spectator\", \"campaignSessionId\": \"match-spectator\", \"kind\": \"viewer\", \"matchId\": \"match-spectator\", \"membershipRevision\": 268241677072958, \"ownedForceIds\": [\"alpha-1\"], \"p",
+      "classification": "privacy: Main serves fog-on private battle state (baseline, events, replay) instead of refusing"
+    },
+    {
+      "name": "refuses fog admission for pid_opp before bytes",
+      "status": "failed",
+      "first": "Error: expect(received).toBeNull() | Received: {\"campaignId\": \"match-spectator\", \"campaignSessionId\": \"match-spectator\", \"kind\": \"viewer\", \"matchId\": \"match-spectator\", \"membershipRevision\": 268241677072958, \"ownedForceIds\": [\"bravo-1\"], \"p",
+      "classification": "privacy: Main serves fog-on private battle state (baseline, events, replay) instead of refusing"
+    },
+    {
+      "name": "refuses fog admission for pid_watcher before bytes",
+      "status": "failed",
+      "first": "Error: expect(received).toBeNull() | Received: {\"campaignId\": \"match-spectator\", \"campaignSessionId\": \"match-spectator\", \"kind\": \"viewer\", \"matchId\": \"match-spectator\", \"membershipRevision\": 268241677072958, \"ownedForceIds\": [], \"participan",
+      "classification": "privacy: Main serves fog-on private battle state (baseline, events, replay) instead of refusing"
+    },
+    {
+      "name": "refuses fog admission for same-side players",
+      "status": "failed",
+      "first": "Error: expect(received).toBeNull() | Received: {\"campaignId\": \"match-spectator\", \"campaignSessionId\": \"match-spectator\", \"kind\": \"viewer\", \"matchId\": \"match-spectator\", \"membershipRevision\": 268241677072958, \"ownedForceIds\": [\"alpha-1\"], \"p",
+      "classification": "privacy: Main serves fog-on private battle state (baseline, events, replay) instead of refusing"
+    },
+    {
+      "name": "classifies an unreadable live config as infrastructure: 1011, no delivery",
+      "status": "failed",
+      "first": "Error: expect(received).toEqual(expected) // deep equality | - Expected  -  4 | + Received  + 16",
+      "classification": "infrastructure classification: Main has no unreadable-config refusal (delivers, or closes without a code)"
+    },
+    {
+      "name": "refuses a readable but unknown config with the fog policy (1008)",
+      "status": "failed",
+      "first": "Error: expect(received).toBeNull() | Received: {\"campaignId\": \"match-spectator\", \"campaignSessionId\": \"match-spectator\", \"kind\": \"viewer\", \"matchId\": \"match-spectator\", \"membershipRevision\": 268241677072958, \"ownedForceIds\": [\"alpha-1\"], \"p",
+      "classification": "privacy: Main serves fog-on private battle state (baseline, events, replay) instead of refusing"
+    },
+    {
+      "name": "classifies an unreadable config after membership at admission as 1011",
+      "status": "failed",
+      "first": "Error: expect(received).toEqual(expected) // deep equality | - Expected  - 1 | + Received  + 1",
+      "classification": "infrastructure classification: Main has no unreadable-config refusal (delivers, or closes without a code)"
+    },
+    {
+      "name": "answers an unreadable legacy reconnect config generically without replay",
+      "status": "failed",
+      "first": "Error: expect(jest.fn()).not.toHaveBeenCalled() | Expected number of calls: 0 | Received number of calls: 1",
+      "classification": "infrastructure classification: Main has no unreadable-config refusal (delivers, or closes without a code)"
+    },
+    {
+      "name": "CF-S-2: an unreadable live config withholds nothing the actor gets back on resume",
+      "status": "failed",
+      "first": "Error: expect(received).toEqual(expected) // deep equality | - Expected  - 3 | + Received  + 1",
+      "classification": "infrastructure classification: Main has no unreadable-config refusal (delivers, or closes without a code)"
+    },
+    {
+      "name": "CF-S-3: no fog-on audience receives a declaration, revealed or not",
+      "status": "failed",
+      "first": "Error: expect(received).toEqual(expected) // deep equality | - Expected  - 3 | + Received  + 1",
+      "classification": "privacy: Main serves fog-on private battle state (baseline, events, replay) instead of refusing"
+    },
+    {
+      "name": "refuses fog-on join and replay before any event read",
+      "status": "failed",
+      "first": "Error: expect(received).toEqual(expected) // deep equality | - Expected  - 1 | + Received  + 4",
+      "classification": "privacy/replay: Main reads and serves fog-on events"
+    },
+    {
+      "name": "gives a non-member generic auth, physically closes 1008",
+      "status": "failed",
+      "first": "Error: expect(received).toBe(expected) // Object.is equality | Expected: 1008 | Received: undefined",
+      "classification": "authority: Main leaks to a non-member / gives no physical 1008 close"
+    },
+    {
+      "name": "blocks fog join including attached socket",
+      "status": "failed",
+      "first": "Error: expect(received).toEqual(expected) // deep equality | - Expected  - 1 | + Received  + 4",
+      "classification": "privacy: Main serves fog-on private battle state (baseline, events, replay) instead of refusing"
+    },
+    {
+      "name": "blocks fog replay including attached socket",
+      "status": "failed",
+      "first": "Error: expect(received).toEqual(expected) // deep equality | - Expected  - 1 | + Received  + 3",
+      "classification": "privacy: Main serves fog-on private battle state (baseline, events, replay) instead of refusing"
+    },
+    {
+      "name": "blocks fog legacy including attached socket",
+      "status": "failed",
+      "first": "Error: expect(received).toEqual(expected) // deep equality | - Expected  - 1 | + Received  + 3",
+      "classification": "privacy: Main serves fog-on private battle state (baseline, events, replay) instead of refusing"
+    },
+    {
+      "name": "detaches a refused join socket server-side even before transport close",
+      "status": "failed",
+      "first": "Error: expect(received).toEqual(expected) // deep equality | - Expected  - 1 | + Received  + 4",
+      "classification": "lifecycle: Main keeps refused sockets attached"
+    },
+    {
+      "name": "detaches a refused replay socket server-side even before transport close",
+      "status": "failed",
+      "first": "Error: expect(received).toEqual(expected) // deep equality | - Expected  - 1 | + Received  + 3",
+      "classification": "lifecycle: Main keeps refused sockets attached"
+    },
+    {
+      "name": "stops a pre-existing live socket and detaches it",
+      "status": "failed",
+      "first": "Error: expect(received).toEqual(expected) // deep equality | - Expected  - 1 | + Received  + 1",
+      "classification": "lifecycle: Main keeps refused sockets attached"
+    },
+    {
+      "name": "rejects the legacy reconnect callback before replay",
+      "status": "failed",
+      "first": "Error: expect(jest.fn()).not.toHaveBeenCalled() | Expected number of calls: 0 | Received number of calls: 1",
+      "classification": "privacy: Main serves fog-on private battle state (baseline, events, replay) instead of refusing"
+    },
+    {
+      "name": "closes join membership infrastructure failure with 1011 and no fog details",
+      "status": "failed",
+      "first": "Error: expect(received).toEqual(expected) // deep equality | - Expected  - 6 | + Received  + 1",
+      "classification": "infrastructure classification: Main has no unreadable-config refusal (delivers, or closes without a code)"
+    }
+  ],
+  "passingControls": [
+    "reports projection availability as false and refusals by kind",
+    "pins the byte-exact seam in exactly the 14 registered suites and nowhere else",
+    "runs against the real capability module, whose shape the seams match",
+    "lets the client retry an unreadable config but not a policy refusal",
+    "fog-off projection metadata absent does not become a policy refusal",
+    "preserves fog-off admission/replay for players and non-playing GM"
+  ]
+}
