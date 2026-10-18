@@ -1,6 +1,6 @@
 # Maintenance group (b): bounded cleanup, 2026-10-18
 
-Baseline: origin/main at cf42ab567b21b6226baed67b165fcb924a282a98. Branch: codex/maintenance-group-b-20261018. Scope follows docs/audits/2026-10-18-maintenance-gate-triage.md; no group (a)/(c) implementation, scanner/baseline/ledger changes, generated-file edits, or product behavior changes.
+Baseline: origin/main at cf42ab567b21b6226baed67b165fcb924a282a98. Branch: codex/maintenance-group-b-20261018. Scope follows docs/audits/2026-10-18-maintenance-gate-triage.md; no group (a)/(c) implementation, scanner/baseline/ledger changes, generated-file edits, or unrelated product behavior changes.
 
 ## Ownership census before editing
 
@@ -35,7 +35,7 @@ Ten entries in eight eligible files are addressed. Eleven entries in five protec
 - Replace the SQLite conformance fixture's class with a factory and closed-over state, preserving the existing exported create/current/database/restart/failure/dispose interfaces, commit-failure trigger, adapter bindings, and cleanup. Only test support changes.
 - Replace the eight-case test fixture mutation switch with typed callbacks; unhandled fault variants remain no-ops.
 - Explain the appearance bootstrap's intentionally ignored storage failure in its empty catch.
-- Use Element / Pick<Element, 'getAttribute'> for parsed SVG roots and the geometry helper; remove the unnecessary intermediate unknown assertion from the browser print popup type. No parsing, sizing, popup arguments, or lifecycle logic changes.
+- Use Element / Pick<Element, 'getAttribute'> for parsed SVG roots and the geometry helper; model the popup as shared close/print operations with optional browser document/event capabilities, and narrow event support before registering afterprint. The return from window.open needs no assertion. Parsing, sizing, popup arguments, and successful browser printing stay unchanged. The review correction below gives unsupported popup event capabilities an explicit error through the existing cleanup path.
 - Correct the two historical 'plan todo 28' references to 'plan item 28', retaining the task numbers and explanatory comments. They refer to implemented fault controls, not unfinished work.
 
 ## Council source evidence
@@ -48,9 +48,9 @@ The three supplied reports are copied byte-for-byte into collapsible sections in
 
 ## Validation
 
-Focused Jest passed: 9 suites, 226 tests passed, 2 existing skipped tests; 528.208 seconds. Flags: --selectProjects unit --watchAll=false --runTestsByPath (the nine files listed below) --runInBand --cacheDirectory=.tmp/jest-maintenance-group-b. No test timeout changed.
+At the initial PR head 1cf8a0c66, focused Jest passed: 9 suites, 226 tests passed, 2 existing skipped tests; 528.208 seconds. Flags: --selectProjects unit --watchAll=false --runTestsByPath (the nine files listed below) --runInBand --cacheDirectory=.tmp/jest-maintenance-group-b. No test timeout changed.
 
-Selected suites: src/**tests**/unit/encoding/mojibakeGuard.test.ts; src/lib/events/journal/**tests**/SQLiteEventJournalConformance.test.ts; src/lib/events/journal/**tests**/SQLiteEventJournalRecovery.test.ts; src/**tests**/stores/appearanceAutoSave.test.ts; src/**tests**/service/printing/RecordSheetService.test.ts; src/**tests**/service/printing/RecordSheetService.pipeline.test.ts; src/services/printing/svgRecordSheetRenderer/**tests**/svgGeometry.test.ts; src/lib/testing/**tests**/faultControlsStartup.test.ts; scripts/**tests**/roadmap-codex-review-identity.test.ts.
+Selected suites: `src/__tests__/unit/encoding/mojibakeGuard.test.ts`; `src/lib/events/journal/__tests__/SQLiteEventJournalConformance.test.ts`; `src/lib/events/journal/__tests__/SQLiteEventJournalRecovery.test.ts`; `src/__tests__/stores/appearanceAutoSave.test.ts`; `src/__tests__/service/printing/RecordSheetService.test.ts`; `src/__tests__/service/printing/RecordSheetService.pipeline.test.ts`; `src/services/printing/svgRecordSheetRenderer/__tests__/svgGeometry.test.ts`; `src/lib/testing/__tests__/faultControlsStartup.test.ts`; `scripts/__tests__/roadmap-codex-review-identity.test.ts`.
 
 Scanner results (same baseline/scope before and after):
 
@@ -73,8 +73,18 @@ The source gate still exits 1 against the unchanged zero baseline. The ledger st
 
 Commands: node scripts/maintenance/scan-maintenance.mjs --scope=src --baseline=docs/qc/maintenance-baseline.json --fail-on-regression --json; node scripts/maintenance/scan-maintenance.mjs --json; node scripts/qc/validate-maintenance-warning-ledger.mjs --scan-json=.tmp/group-b-full-after.json. The ledger consumed the current full scan, not a hand-edited or scoped substitute.
 
-Formatting passes on all eight changed TypeScript files and this audit. Configured oxlint exits 0 with its existing RecordSheetService.ts 402-line warning; that file's LOC is unchanged. Test files remain subject to the repository's existing lint exclusions. git diff --check passes. No formatting/scanner exclusions or baselines were changed.
+Formatting passes on the changed TypeScript files and this audit. Configured oxlint exits 0 with the existing RecordSheetService.ts line-limit warning (402 LOC initially; 405 LOC after the review-required event capability guard). Test files remain subject to the repository's existing lint exclusions. git diff --check passes. No formatting/scanner exclusions or baselines were changed.
 
 Jest began only after node scripts/qc/machine-idle.mjs --own-pid 47516 reported MACHINE_IDLE. After Jest, the same gate repeatedly reported MACHINE_BUSY for T3 Code's preview browser PID 55164, including two default-duration --wait attempts. No compiler was launched while busy, no extra process exclusion was used, no process was killed, and no timeout was increased. Local typechecking is therefore NOT claimed; the PR's CI compiler/build checks remain required. The commit hook's unconditional typecheck was not run through the busy gate; focused tests and the manual format/lint/whitespace checks above are the local validation, with this limitation disclosed.
 
 Fetched Main advanced to cc98179e4 (G2 PR #2250 merged) during validation. A read-only re-census of its units.json confirms every selected cleanup path remains outside protected ownership. The validation baseline remains cf42ab567; no protected source was rebased into this cleanup. Raw logs and machine-readable scans are local in .tmp/group-b-\*. No raw generated scanner output is committed.
+
+## Review correction: Electron popup typing
+
+CI on 1cf8a0c66 rejected the direct BrowserPrintWindow assertion with TS2352: Electron's BrowserWindowProxy does not supply addEventListener. That removal of the intermediate assertion was invalid. The popup interface now declares document and addEventListener as optional browser capabilities while requiring only the close/print methods shared by both popup types. window.open returns directly with no cast. After document readiness, a typeof-function guard narrows addEventListener before the call. A popup without event support is closed once by the existing catch/closeOwned path and receives an explicit error rather than an implicit TypeError; it is not printed.
+
+A focused regression in src/**tests**/service/printing/RecordSheetService.pipeline.test.ts covers the unsupported event capability, cleanup-once, and no print call. This additional test file was re-censused against fetched Main 21b490fd24c11cf344b72cd62e480e0cb9ffac91 and is outside every registered L1/B14/B15/FOG ownership alias and literal manifest. The PR now contains ten files, within the fifteen-file cap.
+
+Fresh source/full/ledger checks after the correction still report 70 source critical/high, 117 full critical/high, and tracked=54 untracked=44 errors=44. Both RecordSheetService double-assertion findings remain absent, so S74/S75 stay in the fixed set and the before/after totals above are unchanged. Formatting, configured lint (the disclosed 405-LOC warning), and whitespace checks pass.
+
+Before the required npm run typecheck, node scripts/qc/machine-idle.mjs --own-pid 47516 reported MACHINE_BUSY solely for T3 preview browser PID 55164. A subsequent --wait used the unchanged default 60000 ms and ended on the same busy PID. Under Root's explicit 2026-10-18 instruction, compiler/Jest runs were not launched and current-head validation relies on CI. The new regression is therefore added but not claimed as locally passed; the 226-pass result above belongs to the initial head. No process was stopped, extra exclusion added, timeout raised, or shared dependency/root-checkout file changed. Local review logs: .tmp/group-b-review-idle.log, .tmp/group-b-review-scanner.json, .tmp/group-b-review-full.json, .tmp/group-b-review-ledger.log.

@@ -185,7 +185,10 @@ const protoMechUnit = {
   equipment: [],
 } satisfies IProtoMechRecordSheetUnitInput;
 
-function createPrintWindow(overrides?: { missingDocument?: boolean }) {
+function createPrintWindow(overrides?: {
+  missingDocument?: boolean;
+  missingEventListener?: boolean;
+}) {
   const close = jest.fn();
   const print = jest.fn();
   const write = jest.fn();
@@ -204,7 +207,9 @@ function createPrintWindow(overrides?: { missingDocument?: boolean }) {
         },
     close,
     print,
-    addEventListener,
+    addEventListener: overrides?.missingEventListener
+      ? undefined
+      : addEventListener,
   };
 }
 
@@ -395,6 +400,20 @@ describe('RecordSheetService unified pipeline', () => {
     await expect(
       service.printRecordSheet(data, PaperSize.LETTER),
     ).rejects.toThrow('Could not open print window');
+  });
+
+  it('closes an owned popup without browser event support before printing', async () => {
+    const printWindow = createPrintWindow({ missingEventListener: true });
+    mockWindowOpen(printWindow);
+    const data = service.extractData(mechUnit);
+    jest.spyOn(service, 'getSVGString').mockResolvedValue(LETTER_SVG);
+
+    await expect(
+      service.printRecordSheet(data, PaperSize.LETTER),
+    ).rejects.toThrow('Print window does not support afterprint events');
+
+    expect(printWindow.close).toHaveBeenCalledTimes(1);
+    expect(printWindow.print).not.toHaveBeenCalled();
   });
 
   it('closes an owned print window when SVG construction fails', async () => {
