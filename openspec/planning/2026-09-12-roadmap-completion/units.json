@@ -7592,7 +7592,11 @@
         "src/__tests__/unit/api/multiplayerMatchMeta.test.ts"
       ],
       "ownershipExceptions": [
-        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0a-admission-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0a-red-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0a-local-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0a-review-20261018.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -7605,12 +7609,14 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "implementing",
+      "baseline": "3971389b3ead0cf6a7d78bdefb58604477e67ec6",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
+        "admission": {
+          "path": "evidence/b14-0a-admission-20261018.json"
+        },
         "red": null,
         "local": null,
         "review": null,
