@@ -16089,7 +16089,7 @@
       "id": "U79",
       "node": "R6.loop-harness",
       "taskKeys": [],
-      "behavior": "The battlemech catalog is reproducible from the converter (owner sub-decision 7: committed hand fixes move back into the converter first). A qc command regenerates public/data/units/battlemechs with scripts/megameklab-conversion from a pinned MegaMek data input into a temp directory and compares every file's sha256 with the tracked tree (4,226 JSON files, 22,004,233 bytes on f50e76fe4; 9 commits touch it, 10 with --full-history, 1 in the last 90 days, ca8c2c958 (#1010): analysis corrections 2 and 18); it exits 1 on any difference and names the files. Post-conversion changes committed into the tree move into the converter until the comparison is clean: #1010 (ca8c2c958) regenerated 359 unit JSONs and then applied an oxfmt pass to them, and #233 (f8ba41e92) edited three unit JSONs directly (1-age-of-war/standard/Lumberjack LM1-A.json and Patron PTN-1 LoaderMech.json, 6-dark-age/standard/Deep Lord RCL-Z1M MilitiaMech.json). Eight tracked file names are double-encoded UTF-8 (git ls-files prints them quoted, under 2-star-league/standard and 6-dark-age); the converter reproduces them as they are, because renaming them changes reader paths. The pinned input (tag or commit) is recorded in the repository. Red-first: a scripts/__tests__ jest pin feeds the comparison a temp fixture tree with one changed byte and one missing file and expects exit 1 naming both, and asserts the pinned-input record exists (red today: no comparison command and no record); today's comparison on the repository lists the differing files, and if it lists none, the receipt records that the tree is already reproducible and the unit shrinks to the pinned-input record and its pins.",
+      "behavior": "The battlemech catalog is reproducible from the converter (owner sub-decision 7: committed hand fixes move back into the converter first). A qc command regenerates public/data/units/battlemechs with scripts/megameklab-conversion from a pinned MegaMek data input into a temp directory and compares every file's sha256 with the tracked tree (4,226 JSON files, 22,004,233 bytes on f50e76fe4; 9 commits touch it, 10 with --full-history, 1 in the last 90 days, ca8c2c958 (#1010): analysis corrections 2 and 18); it exits 1 on any difference and names the files. Post-conversion changes committed into the tree move into the converter until the comparison is clean: #1010 (ca8c2c958) regenerated 359 unit JSONs and then applied an oxfmt pass to them, and #233 (f8ba41e92) edited three unit JSONs directly (1-age-of-war/standard/Lumberjack LM1-A.json and Patron PTN-1 LoaderMech.json, 6-dark-age/standard/Deep Lord RCL-Z1M MilitiaMech.json). Eight tracked file names are double-encoded UTF-8 (git ls-files prints them quoted, under 2-star-league/standard and 6-dark-age); the converter reproduces them as they are, because renaming them changes reader paths. The pinned input (tag or commit) is recorded in the repository. Red-first: a scripts/__tests__ jest pin feeds the comparison a temp fixture tree with one changed byte and one missing file and expects exit 1 naming both, and asserts the pinned-input record exists (red today: no comparison command and no record); today's comparison on the repository lists the differing files, and if it lists none, the receipt records that the tree is already reproducible and the unit shrinks to the pinned-input record and its pins. Pin the converter Git revision and generation/format-tool identity alongside the MegaMek input. Reproduction always uses that immutable producer/input tuple, not ambient converter HEAD: initially compare to tracked bytes; after U82 compare to the artifact matching the active pin. Test changed/missing bytes and producer mismatch as failures. Candidate generator revisions receive separate fixture proof before a new artifact is admitted; never weaken the byte comparison. Admission re-measures cap fit for this amended behavior within existing limits; stop and split if it does not fit.",
       "ownershipPaths": [
         "scripts/megameklab-conversion",
         "scripts/qc",
@@ -16119,13 +16119,18 @@
       "ownerGate": null,
       "source20260923": "planned by the parent under the owner decisions of 2026-09-23 (roadmap.json ownerDecisions OD-repo-split-boundaries-in-place), from evidence/repo-split-analysis-20260923.json (draft.phases with its corrections array applied; measured again on main f50e76fe4); written by a ledger-author lane from the parent's transcription",
       "phase20260923": "Phase 4 (catalog data artifact; a parallel track)",
-      "capsReading20260923": "caps.maxNonGeneratedLines (500) counts non-generated product lines only, as OD-line-cap-product-lines reads the 500: test lines, this unit's jest pins and fixtures included, are reported separately in its local receipt and never count."
+      "capsReading20260923": "caps.maxNonGeneratedLines (500) counts non-generated product lines only, as OD-line-cap-product-lines reads the 500: test lines, this unit's jest pins and fixtures included, are reported separately in its local receipt and never count.",
+      "reownedTo": "R6.catalog-reproduce",
+      "predecessors": [],
+      "successors": [
+        "U80"
+      ]
     },
     {
       "id": "U80",
       "node": "R6.loop-harness",
       "taskKeys": [],
-      "behavior": "The catalog is a pinned, fetched and strictly validated artifact (owner sub-decision 7). A deterministic tarball of the tree U79 reproduces is published as a GitHub release of this repository (publishing is a repository write the owner authorizes at the unit's admission); a pin file under config/ (the config/mm-data-assets.json pattern) records its version, URL, sha256, file count (4,226) and a per-file manifest hash. npm run fetch:catalog downloads it and extracts it into public/data/units/battlemechs, the path every reader already uses and .gitignore:121 already matches (analysis correction 21), so no reader changes: CanonicalUnitService.ts:152, NodeCanonicalUnitService.ts:216, chassisIndex.server.ts:9-16, chassisIndex.ts:134, ChassisIndex.ts:30, validate-bv.ts:149 and :168, fastForwardCombatRunner.ts:469 (campaign, not edited), the hydrate script's copyPublicAssets check (:132-149) and the static JSON imports (git grep on f50e76fe4: 15 files under src, 2 under e2e, 4 under scripts; analysis correction 19, which supersedes correction 13's 16). npm run validate:catalog:strict fails on a version, count or hash mismatch. The tracked tree stays in this unit (U82 untracks it). Red-first: scripts/__tests__ jest pins that a fetched tree with one byte changed, one file missing or the wrong version fails strict validation, and that a fetch into an empty directory yields a tree byte-identical to the tracked one.",
+      "behavior": "The catalog is a pinned, fetched and strictly validated artifact (owner sub-decision 7). A deterministic tarball of the tree U79 reproduces is published as a GitHub release of this repository (publishing is a repository write the owner authorizes at the unit's admission); a pin file under config/ (the config/mm-data-assets.json pattern) records its version, URL, sha256, file count (4,226) and a per-file manifest hash. npm run fetch:catalog downloads it and extracts it into public/data/units/battlemechs, the path every reader already uses and .gitignore:121 already matches (analysis correction 21), so no reader changes: CanonicalUnitService.ts:152, NodeCanonicalUnitService.ts:216, chassisIndex.server.ts:9-16, chassisIndex.ts:134, ChassisIndex.ts:30, validate-bv.ts:149 and :168, fastForwardCombatRunner.ts:469 (campaign, not edited), the hydrate script's copyPublicAssets check (:132-149) and the static JSON imports (git grep on f50e76fe4: 15 files under src, 2 under e2e, 4 under scripts; analysis correction 19, which supersedes correction 13's 16). npm run validate:catalog:strict fails on a version, count or hash mismatch. The tracked tree stays in this unit (U82 untracks it). Red-first: scripts/__tests__ jest pins that a fetched tree with one byte changed, one file missing or the wrong version fails strict validation, and that a fetch into an empty directory yields a tree byte-identical to the tracked one. Reserve config/catalog-assets.json as the exact pin leaf, including converter revision and input revision. This initial publication still equals the tracked tree U79 reproduces. Later DF-CATALOG-PIN uses the same publication/strict-validation protocol only after U82; it must prove the candidate artifact against its recorded producer before changing the pin. Admission re-measures cap fit for this amended behavior within existing limits; stop and split if it does not fit.",
       "ownershipPaths": [
         "config",
         "scripts/mm-data",
@@ -16162,7 +16167,14 @@
         "at": "2026-09-23T02:11:01.566Z",
         "cause": "prerequisite not yet main-verified: U79 main-verified (the release is built from the reproducible tree); --next cannot express a unit dependency, so the parent checks it at admission",
         "nextIndependentAction": "the docs(roadmap) edit that records the prerequisite's main proof returns this unit to planned; --next cannot express a unit-to-unit dependency, so the ledger holds it blocked until then"
-      }
+      },
+      "reownedTo": "R6.catalog-publish",
+      "predecessors": [
+        "U79"
+      ],
+      "successors": [
+        "U81"
+      ]
     },
     {
       "id": "U81",
@@ -16206,13 +16218,20 @@
         "at": "2026-09-23T02:11:01.566Z",
         "cause": "prerequisite not yet main-verified: U80 main-verified (the release and the fetch exist); --next cannot express a unit dependency, so the parent checks it at admission",
         "nextIndependentAction": "the docs(roadmap) edit that records the prerequisite's main proof returns this unit to planned; --next cannot express a unit-to-unit dependency, so the ledger holds it blocked until then"
-      }
+      },
+      "reownedTo": "R6.catalog-consume",
+      "predecessors": [
+        "U80"
+      ],
+      "successors": [
+        "U82"
+      ]
     },
     {
       "id": "U82",
       "node": "R6.loop-harness",
       "taskKeys": [],
-      "behavior": "The battlemech tree leaves git. git rm --cached -r public/data/units/battlemechs (4,226 files, 22,004,233 bytes on f50e76fe4) once U81 is main-verified; .gitignore:121 (/public/data/*) already ignores the path, so no ignore rule changes (analysis correction 21), and a fresh clone gets the tree from npm run fetch:catalog. Red-first: a scripts/__tests__ jest pin asserts that git ls-files public/data/units/battlemechs lists no file and that git check-ignore --no-index matches public/data/units/battlemechs/index.json (red today: 4,226 tracked files). The PR changes 4,227 files (the 4,226 untracked plus the pin) and 0 product lines, which the 15-file cap forbids; the owner waived the cap for this one PR on 2026-09-23 (PK-catalog-untrack-file-cap, option a). The recorded caps are the validator's ceiling. Exit criterion (analysis Phase 4): the tree is untracked and fetched by pinned version; validate-bv, the Dockerfile, NodeCanonicalUnitService and the tests pass against the fetched copy; and regeneration is byte-identical to the pinned release (U79's comparison). Not claimed: the git pack shrinks only with a history rewrite, which is not planned (keyMeasurements: the pack is 1.24 GiB); archiving the one-off top-level scripts that mention the path (about 292, correction 19) is not planned.",
+      "behavior": "The battlemech tree leaves git. git rm --cached -r public/data/units/battlemechs (4,226 files, 22,004,233 bytes on f50e76fe4) once U81 is main-verified; .gitignore:121 (/public/data/*) already ignores the path, so no ignore rule changes (analysis correction 21), and a fresh clone gets the tree from npm run fetch:catalog. Red-first: a scripts/__tests__ jest pin asserts that git ls-files public/data/units/battlemechs lists no file and that git check-ignore --no-index matches public/data/units/battlemechs/index.json (red today: 4,226 tracked files). The PR changes 4,227 files (the 4,226 untracked plus the pin) and 0 product lines, which the 15-file cap forbids; the owner waived the cap for this one PR on 2026-09-23 (PK-catalog-untrack-file-cap, option a). The recorded caps are the validator's ceiling. Exit criterion (analysis Phase 4): the tree is untracked and fetched by pinned version; validate-bv, the Dockerfile, NodeCanonicalUnitService and the tests pass against the fetched copy; and regeneration is byte-identical to the pinned release (U79's comparison). Not claimed: the git pack shrinks only with a history rewrite, which is not planned (keyMeasurements: the pack is 1.24 GiB); archiving the one-off top-level scripts that mention the path (about 292, correction 19) is not planned. Reproduction uses the pinned release producer/input tuple, as recorded by U79/U80. Only after genuine U82 main proof and closure may the generator-only fidelity chain start; no semantic output is regenerated into tracked files.",
       "ownershipPaths": [
         "public/data/units",
         "scripts/__tests__"
@@ -16252,7 +16271,14 @@
         "at": "2026-09-23T02:11:01.566Z",
         "cause": "prerequisite not yet main-verified: U81 main-verified (the owner waived the file cap at 2026-09-23T02:11:01Z); --next cannot express a unit dependency, so the parent checks it at admission",
         "nextIndependentAction": "the docs(roadmap) edit that records the prerequisite's main proof returns this unit to planned; --next cannot express a unit-to-unit dependency, so the ledger holds it blocked until then"
-      }
+      },
+      "reownedTo": "R6.catalog-untrack",
+      "predecessors": [
+        "U81"
+      ],
+      "successors": [
+        "DF-MECH-RULES"
+      ]
     },
     {
       "id": "U83",
@@ -17539,6 +17565,274 @@
         "budgetHypothesis": "10-13 files / 250-400 counted additions",
         "placement": "Head of P5, after P4 Task33 production journal authority proof and before U26 and Tasks 34-40. No L1/L2 insertion and no priority above P4. Preserve all original P5 prerequisites.",
         "prerequisite": "Prior FOG unit exact-main PASS and closure."
+      }
+    },
+    {
+      "id": "DF-SHEET-QV",
+      "node": "R6.df-sheet-qv",
+      "taskKeys": [],
+      "behavior": "Classify QuadVee before generic Quad in record-sheet dispatch; failing-before/passing-after tests protect Biped, Quad, Tripod and LAM.",
+      "ownershipPaths": ["src/services/printing/recordsheet/mechTypeUtils.ts", "src/services/printing/recordsheet/__tests__"],
+      "ownershipExceptions": ["openspec/planning/2026-09-12-roadmap-completion/units.json"],
+      "lifecycleOwnershipLimit": "Only this unit's authentic lifecycle fields and frozen evidence; no other unit/packet/holder/historical receipt edits. Every lifecycle/evidence file counts.",
+      "ciClass": "product",
+      "reviewClasses": ["routine"],
+      "caps": {"maxFiles": 15, "maxNonGeneratedLines": 500},
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {"admission": null, "red": null, "local": null, "review": null, "merge": null, "mainProof": null, "tick": null},
+      "ownerGate": null,
+      "predecessors": [],
+      "successors": [],
+      "owner": "Root-managed backlog; no admission slot",
+      "ledgerMapping": "Unit coverage G5; NEW branch-order fix, separate from U72/U78 boundary refactors.",
+      "coordinationOwners": ["U72", "U78"],
+      "coordinationNodes": ["R6.loop-harness", "R2.camp-8"],
+      "prospectiveManifest": ["src/services/printing/recordsheet/mechTypeUtils.ts", "src/services/printing/recordsheet/__tests__/mechTypeUtils.test.ts"],
+      "fitEstimate": "2 source/test files; <=30 counted additions.",
+      "requiredGate": "Jest unit/stable auto-discovers the named mechTypeUtils.test.ts.",
+      "admissionRequires": "OFF L1/L2. Apply dataFidelityRegistration20261018 in both ledgers and its hashed unit/node census. Root must resolve listed reservations (closure or explicit bounded leaf reconciliation), preserve all predecessor mainProof/ancestry/closure gates, freeze full source/lifecycle manifests and verify caps before release. No admission from NEXT. P7 tasks 88-93 and all named L1 paths/campaign sync excluded.",
+      "registration": {
+        "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/data-fidelity-registration-20261018.txt",
+        "sourceSha256": "48cfd14ffae9a8d50eb6f8dbdffd356c35f35f1b60edfd6ee4dbf26883ae3568",
+        "sourceAdmitted": false
+      }
+    },
+    {
+      "id": "DF-MECH-RULES",
+      "node": "R6.df-mech-rules",
+      "taskKeys": [],
+      "behavior": "Generator only: preserve MTF numeric rules 1-5, UNOFFICIAL folder mapping and textual mappings. For existing identities preserve published storage paths from the pinned artifact independently of corrected rules metadata; fixture-prove Atlas/Warhammer legacy imports and one index row per identity. New-identity/catalog expansion excluded. Test only temporary output; no tracked catalog regeneration.",
+      "ownershipPaths": ["scripts/megameklab-conversion", "scripts/__tests__"],
+      "ownershipExceptions": ["openspec/planning/2026-09-12-roadmap-completion/units.json"],
+      "lifecycleOwnershipLimit": "Only this unit's authentic lifecycle fields and frozen evidence; no other unit/packet/holder/historical receipt edits. Every lifecycle/evidence file counts.",
+      "ciClass": "product",
+      "reviewClasses": ["routine"],
+      "caps": {"maxFiles": 15, "maxNonGeneratedLines": 500},
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {"admission": null, "red": null, "local": null, "review": null, "merge": null, "mainProof": null, "tick": null},
+      "ownerGate": null,
+      "predecessors": ["U82"],
+      "successors": ["DF-MECH-CONFIG"],
+      "owner": "Root-managed backlog; no admission slot",
+      "ledgerMapping": "Unit coverage G0/M2; new semantic correction after the U79-U82 artifact pipeline.",
+      "coordinationOwners": ["U12", "U57", "U63", "U64", "U65", "U66", "U67", "U68", "U69", "U70", "U71", "U72", "U74", "U75", "U76", "U77", "U78", "U79", "U80", "U81", "U82", "U103"],
+      "coordinationNodes": ["R6.loop-harness", "R6.umbrella"],
+      "prospectiveManifest": [
+        "scripts/megameklab-conversion/enum_mapping_tables.py",
+        "scripts/megameklab-conversion/enum_mappings.py",
+        "scripts/megameklab-conversion/mtf_converter.py",
+        "scripts/megameklab-conversion/__tests__/test_mtf_rules_level.py",
+        "scripts/__tests__/dfMechRules.test.ts"
+      ],
+      "fitEstimate": "5 source/test files; <=200 counted additions.",
+      "requiredGate": "scripts/__tests__/dfMechRules.test.ts executes the resolved interpreter with -B on scripts/megameklab-conversion/__tests__/test_mtf_rules_level.py. The wrapper resolves the interpreter in order python3, python, py -3; fails, never skips, if none resolves; sets an explicit Jest timeout (60 seconds) and spawn timeout (45 seconds). Admission records proof of interpreter resolution on the CI shard runner, for example the first CI run log. No workflow edits.",
+      "admissionRequires": "OFF L1/L2. Apply dataFidelityRegistration20261018 in both ledgers and its hashed unit/node census. Root must resolve listed reservations (closure or explicit bounded leaf reconciliation), preserve all predecessor mainProof/ancestry/closure gates, freeze full source/lifecycle manifests and verify caps before release. No admission from NEXT. P7 tasks 88-93 and all named L1 paths/campaign sync excluded.",
+      "registration": {
+        "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/data-fidelity-registration-20261018.txt",
+        "sourceSha256": "48cfd14ffae9a8d50eb6f8dbdffd356c35f35f1b60edfd6ee4dbf26883ae3568",
+        "sourceAdmitted": false
+      }
+    },
+    {
+      "id": "DF-MECH-CONFIG",
+      "node": "R6.df-mech-center-leg",
+      "taskKeys": [],
+      "behavior": "Generator only: preserve Tripod Center Leg location, CL armor mapped to CENTER_LEG, mounted equipment and six critical slots in source fixtures. No Omni/industrial metadata or configuration classification change; no tracked catalog regeneration.",
+      "ownershipPaths": ["scripts/megameklab-conversion", "scripts/__tests__"],
+      "ownershipExceptions": ["openspec/planning/2026-09-12-roadmap-completion/units.json"],
+      "lifecycleOwnershipLimit": "Only this unit's authentic lifecycle fields and frozen evidence; no other unit/packet/holder/historical receipt edits. Every lifecycle/evidence file counts.",
+      "ciClass": "product",
+      "reviewClasses": ["routine"],
+      "caps": {"maxFiles": 15, "maxNonGeneratedLines": 500},
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {"admission": null, "red": null, "local": null, "review": null, "merge": null, "mainProof": null, "tick": null},
+      "ownerGate": null,
+      "predecessors": ["DF-MECH-RULES"],
+      "successors": ["DF-MECH-META"],
+      "owner": "Root-managed backlog; no admission slot",
+      "ledgerMapping": "Unit coverage G0/M3 location loss only; existing armor/critical location schema permits these keys. DF-MECH-MAPPING remains deferred.",
+      "coordinationOwners": ["U12", "U57", "U63", "U64", "U65", "U66", "U67", "U68", "U69", "U70", "U71", "U72", "U74", "U75", "U76", "U77", "U78", "U79", "U80", "U81", "U82", "U103"],
+      "coordinationNodes": ["R6.loop-harness", "R6.umbrella"],
+      "prospectiveManifest": [
+        "scripts/megameklab-conversion/mtf_parser.py",
+        "scripts/megameklab-conversion/mtf_parser_builders.py",
+        "scripts/megameklab-conversion/enum_mapping_tables.py",
+        "scripts/megameklab-conversion/__tests__/test_mtf_center_leg.py",
+        "scripts/__tests__/dfMechCenterLeg.test.ts"
+      ],
+      "fitEstimate": "5 source/test files; <=150 counted additions.",
+      "requiredGate": "scripts/__tests__/dfMechCenterLeg.test.ts executes the resolved interpreter with -B on scripts/megameklab-conversion/__tests__/test_mtf_center_leg.py. The wrapper resolves the interpreter in order python3, python, py -3; fails, never skips, if none resolves; sets an explicit Jest timeout (60 seconds) and spawn timeout (45 seconds). Admission records proof of interpreter resolution on the CI shard runner, for example the first CI run log. No workflow edits.",
+      "admissionRequires": "OFF L1/L2. Apply dataFidelityRegistration20261018 in both ledgers and its hashed unit/node census. Root must resolve listed reservations (closure or explicit bounded leaf reconciliation), preserve all predecessor mainProof/ancestry/closure gates, freeze full source/lifecycle manifests and verify caps before release. No admission from NEXT. P7 tasks 88-93 and all named L1 paths/campaign sync excluded.",
+      "registration": {
+        "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/data-fidelity-registration-20261018.txt",
+        "sourceSha256": "48cfd14ffae9a8d50eb6f8dbdffd356c35f35f1b60edfd6ee4dbf26883ae3568",
+        "sourceAdmitted": false
+      }
+    },
+    {
+      "id": "DF-MECH-META",
+      "node": "R6.df-mech-metadata",
+      "taskKeys": [],
+      "behavior": "Generator/schema only: preserve Omni boolean and existing OmniMech/IndustrialMech unitType metadata from source fixtures, without new configuration mappings or isIndustrial field. Validate isOmni as boolean; regenerate unit.zod.ts only via npm run schema:gen. No tracked unit catalog regeneration.",
+      "ownershipPaths": [
+        "scripts/megameklab-conversion",
+        "scripts/__tests__",
+        "public/data/equipment/_schema/unit-schema.json",
+        "src/types/contracts/generated/unit.zod.ts",
+        "src/types/contracts/__tests__/unit.contract.test.ts"
+      ],
+      "ownershipExceptions": ["openspec/planning/2026-09-12-roadmap-completion/units.json"],
+      "lifecycleOwnershipLimit": "Only this unit's authentic lifecycle fields and frozen evidence; no other unit/packet/holder/historical receipt edits. Every lifecycle/evidence file counts.",
+      "ciClass": "product",
+      "reviewClasses": ["routine"],
+      "caps": {"maxFiles": 15, "maxNonGeneratedLines": 500},
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {"admission": null, "red": null, "local": null, "review": null, "merge": null, "mainProof": null, "tick": null},
+      "ownerGate": null,
+      "predecessors": ["DF-MECH-CONFIG"],
+      "successors": ["DF-BLK-ENGINE"],
+      "owner": "Root-managed backlog; no admission slot",
+      "ledgerMapping": "Unit coverage G0/M3 metadata only; existing interfaces support isOmni. P7 migration/authority and new configuration mapping excluded.",
+      "coordinationOwners": ["U12", "U57", "U63", "U64", "U65", "U66", "U67", "U68", "U69", "U70", "U71", "U72", "U74", "U75", "U76", "U77", "U78", "U79", "U80", "U81", "U82", "U103"],
+      "coordinationNodes": ["R6.loop-harness", "R6.umbrella", "R2.camp-8"],
+      "prospectiveManifest": [
+        "scripts/megameklab-conversion/mtf_parser.py",
+        "scripts/megameklab-conversion/mtf_serialized_models.py",
+        "scripts/megameklab-conversion/enum_mappings.py",
+        "scripts/megameklab-conversion/enum_mapping_tables.py",
+        "scripts/megameklab-conversion/__tests__/test_mtf_metadata.py",
+        "scripts/__tests__/dfMechMetadata.test.ts",
+        "public/data/equipment/_schema/unit-schema.json",
+        "src/types/contracts/generated/unit.zod.ts",
+        "src/types/contracts/__tests__/unit.contract.test.ts"
+      ],
+      "fitEstimate": "9 source/test/schema files; <=250 counted additions; generated contract line-exempt, file-counted.",
+      "requiredGate": "scripts/__tests__/dfMechMetadata.test.ts executes the resolved interpreter with -B on scripts/megameklab-conversion/__tests__/test_mtf_metadata.py; unit.contract.test.ts enforces boolean/schema roundtrip; npm run schema:gen-check. The wrapper resolves the interpreter in order python3, python, py -3; fails, never skips, if none resolves; sets an explicit Jest timeout (60 seconds) and spawn timeout (45 seconds). Admission records proof of interpreter resolution on the CI shard runner, for example the first CI run log. No workflow edits.",
+      "admissionRequires": "OFF L1/L2. Apply dataFidelityRegistration20261018 in both ledgers and its hashed unit/node census. Root must resolve listed reservations (closure or explicit bounded leaf reconciliation), preserve all predecessor mainProof/ancestry/closure gates, freeze full source/lifecycle manifests and verify caps before release. No admission from NEXT. P7 tasks 88-93 and all named L1 paths/campaign sync excluded.",
+      "registration": {
+        "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/data-fidelity-registration-20261018.txt",
+        "sourceSha256": "48cfd14ffae9a8d50eb6f8dbdffd356c35f35f1b60edfd6ee4dbf26883ae3568",
+        "sourceAdmitted": false
+      }
+    },
+    {
+      "id": "EQ-ID",
+      "node": "R6.df-equipment-identity",
+      "taskKeys": [],
+      "behavior": "One deterministic equipment integrity gate reconciles manifest totals/duplicates, rejects missing alias targets and compares Registry/BV/combat lookup paths on attributed inputs. Held-out corruptions fail; current corpus defects remain reported without silent allowlisting. Repair cohorts deferred.",
+      "ownershipPaths": ["scripts/analysis", "scripts/__tests__"],
+      "ownershipExceptions": ["openspec/planning/2026-09-12-roadmap-completion/units.json"],
+      "lifecycleOwnershipLimit": "Only this unit's authentic lifecycle fields and frozen evidence; no other unit/packet/holder/historical receipt edits. Every lifecycle/evidence file counts.",
+      "ciClass": "product",
+      "reviewClasses": ["routine"],
+      "caps": {"maxFiles": 15, "maxNonGeneratedLines": 500},
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {"admission": null, "red": null, "local": null, "review": null, "merge": null, "mainProof": null, "tick": null},
+      "ownerGate": null,
+      "predecessors": [],
+      "successors": [],
+      "owner": "Root-managed backlog; no admission slot",
+      "ledgerMapping": "Equipment coverage G1/G2 NEW integrity contract; U79-U82 remain battlemech-only, not an equipment repair grant.",
+      "coordinationOwners": ["U12", "U57", "U63", "U64", "U65", "U66", "U67", "U68", "U69", "U70", "U71", "U72", "U74", "U75", "U76", "U77", "U78", "U79", "U80", "U81", "U82", "U103"],
+      "coordinationNodes": ["R6.umbrella", "R6.loop-harness"],
+      "prospectiveManifest": ["scripts/analysis/equipment-identity-integrity.ts", "scripts/__tests__/equipmentIdentityIntegrity.test.ts", "scripts/analysis/__tests__/equipment-identity-integrity.fixtures.json"],
+      "fitEstimate": "3 source/test/fixture files; <=450 counted additions.",
+      "requiredGate": "scripts/__tests__/equipmentIdentityIntegrity.test.ts invokes the real integrity entrypoint against held-out valid/corrupt fixtures, asserts manifest, duplicate, alias and three-lookup failures; stable/CI Jest discovers it.",
+      "admissionRequires": "OFF L1/L2. Apply dataFidelityRegistration20261018 in both ledgers and its hashed unit/node census. Root must resolve listed reservations (closure or explicit bounded leaf reconciliation), preserve all predecessor mainProof/ancestry/closure gates, freeze full source/lifecycle manifests and verify caps before release. No admission from NEXT. P7 tasks 88-93 and all named L1 paths/campaign sync excluded.",
+      "registration": {
+        "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/data-fidelity-registration-20261018.txt",
+        "sourceSha256": "48cfd14ffae9a8d50eb6f8dbdffd356c35f35f1b60edfd6ee4dbf26883ae3568",
+        "sourceAdmitted": false
+      }
+    },
+    {
+      "id": "DF-BLK-ENGINE",
+      "node": "R6.df-blk-engine",
+      "taskKeys": [],
+      "behavior": "Generator only: decode numeric BLK engines 0-13 using pinned BLKFile semantics in shared, vehicle, aerospace and blk_common ImportError fallback paths. Explicitly reject unsupported 14/15 and unknown numeric codes; preserve textual MTF mappings. No generated unit catalog changes.",
+      "ownershipPaths": ["scripts/megameklab-conversion", "scripts/__tests__"],
+      "ownershipExceptions": ["openspec/planning/2026-09-12-roadmap-completion/units.json"],
+      "lifecycleOwnershipLimit": "Only this unit's authentic lifecycle fields and frozen evidence; no other unit/packet/holder/historical receipt edits. Every lifecycle/evidence file counts.",
+      "ciClass": "product",
+      "reviewClasses": ["routine"],
+      "caps": {"maxFiles": 15, "maxNonGeneratedLines": 500},
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {"admission": null, "red": null, "local": null, "review": null, "merge": null, "mainProof": null, "tick": null},
+      "ownerGate": null,
+      "predecessors": ["DF-MECH-META"],
+      "successors": ["DF-CATALOG-PIN"],
+      "owner": "Root-managed backlog; no admission slot",
+      "ledgerMapping": "Unit coverage G2 / MegaMek reference section 3. Shared producer pin follows; non-mech delivery still requires deferred DF-BLK-SCHEMA and DF-BV-REF, not the battlemech artifact.",
+      "coordinationOwners": ["U12", "U57", "U63", "U64", "U65", "U66", "U67", "U68", "U69", "U70", "U71", "U72", "U74", "U75", "U76", "U77", "U78", "U79", "U80", "U81", "U82", "U103"],
+      "coordinationNodes": ["R6.loop-harness", "R6.umbrella"],
+      "prospectiveManifest": [
+        "scripts/megameklab-conversion/enum_mapping_tables.py",
+        "scripts/megameklab-conversion/enum_mappings.py",
+        "scripts/megameklab-conversion/blk_common.py",
+        "scripts/megameklab-conversion/blk_vehicle_tables.py",
+        "scripts/megameklab-conversion/blk_vehicle_converter.py",
+        "scripts/megameklab-conversion/blk_aerospace_converter.py",
+        "scripts/megameklab-conversion/__tests__/test_blk_engine_codes.py",
+        "scripts/__tests__/dfBlkEngine.test.ts"
+      ],
+      "fitEstimate": "8 source/test files; <=300 counted additions.",
+      "requiredGate": "scripts/__tests__/dfBlkEngine.test.ts executes the resolved interpreter with -B on scripts/megameklab-conversion/__tests__/test_blk_engine_codes.py; force ImportError fallback, cover 0-13 and reject 14/15 in every numeric route. The wrapper resolves the interpreter in order python3, python, py -3; fails, never skips, if none resolves; sets an explicit Jest timeout (60 seconds) and spawn timeout (45 seconds). Admission records proof of interpreter resolution on the CI shard runner, for example the first CI run log. No workflow edits.",
+      "admissionRequires": "OFF L1/L2. Apply dataFidelityRegistration20261018 in both ledgers and its hashed unit/node census. Root must resolve listed reservations (closure or explicit bounded leaf reconciliation), preserve all predecessor mainProof/ancestry/closure gates, freeze full source/lifecycle manifests and verify caps before release. No admission from NEXT. P7 tasks 88-93 and all named L1 paths/campaign sync excluded.",
+      "registration": {
+        "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/data-fidelity-registration-20261018.txt",
+        "sourceSha256": "48cfd14ffae9a8d50eb6f8dbdffd356c35f35f1b60edfd6ee4dbf26883ae3568",
+        "sourceAdmitted": false
+      }
+    },
+    {
+      "id": "DF-CATALOG-PIN",
+      "node": "R6.df-catalog-repin",
+      "taskKeys": [],
+      "behavior": "Publish and re-pin one regenerated battlemech artifact after U82 and generator fixes using U80 protocol and U81 existing fetch/strict-validation/readers. Pin corrected producer/input revisions, verify per-file hashes, identity/path compatibility and deterministic reproduction before switching config/catalog-assets.json. Release bytes stay outside git; no non-mech publication.",
+      "ownershipPaths": ["config", "scripts/__tests__"],
+      "ownershipExceptions": ["openspec/planning/2026-09-12-roadmap-completion/units.json"],
+      "lifecycleOwnershipLimit": "Only this unit's authentic lifecycle fields and frozen evidence; no other unit/packet/holder/historical receipt edits. Every lifecycle/evidence file counts.",
+      "ciClass": "product",
+      "reviewClasses": ["routine"],
+      "caps": {"maxFiles": 15, "maxNonGeneratedLines": 500},
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {"admission": null, "red": null, "local": null, "review": null, "merge": null, "mainProof": null, "tick": null},
+      "ownerGate": null,
+      "predecessors": ["DF-BLK-ENGINE"],
+      "successors": [],
+      "owner": "Root-managed backlog; no admission slot",
+      "ledgerMapping": "Bounded successor of U80 publication/re-pin and U81 consumption after U82 untracking; no new file-count waiver. No catalogue expansion or deferred DF-MECH-MAPPING acceptance.",
+      "coordinationOwners": ["U12", "U57", "U63", "U64", "U65", "U66", "U67", "U68", "U69", "U70", "U71", "U72", "U74", "U75", "U76", "U77", "U78", "U79", "U80", "U81", "U82", "U103"],
+      "coordinationNodes": ["R6.loop-harness", "R6.umbrella"],
+      "prospectiveManifest": ["config/catalog-assets.json", "scripts/__tests__/catalogArtifactRepin.test.ts"],
+      "fitEstimate": "2 source/test files; <=100 counted additions; release payload is an external artifact, never tracked.",
+      "requiredGate": "scripts/__tests__/catalogArtifactRepin.test.ts invokes U80 strict validator with valid and corrupted/version/count/producer-mismatch fixtures; existing U81 build/reader gates must pass on the candidate fetched artifact before publication/re-pin.",
+      "admissionRequires": "OFF L1/L2. Apply dataFidelityRegistration20261018 in both ledgers and its hashed unit/node census. Root must resolve listed reservations (closure or explicit bounded leaf reconciliation), preserve all predecessor mainProof/ancestry/closure gates, freeze full source/lifecycle manifests and verify caps before release. No admission from NEXT. P7 tasks 88-93 and all named L1 paths/campaign sync excluded. owner authorizes the release publication at admission (same requirement as U80).",
+      "registration": {
+        "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/data-fidelity-registration-20261018.txt",
+        "sourceSha256": "48cfd14ffae9a8d50eb6f8dbdffd356c35f35f1b60edfd6ee4dbf26883ae3568",
+        "sourceAdmitted": false
       }
     }
   ],
@@ -24745,5 +25039,20 @@
       "verdict": "CHANGES",
       "response": "Rebased onto #2273; preserves B14-0 priority; A1/A2/B distinct new leaves and total aggregate caps; exact merge-diff allowlist, lint-clean zero-headroom rule and tsx/offline-SQL fixture restriction. Root will independently re-review the revised head; no approval is inferred."
     }
+  },
+  "dataFidelityRegistration20261018": {
+    "baseline": "407ff0e9ae3eb0cd200b3c68da26e3d27d66a144",
+    "registrationOnly": true,
+    "sourceAdmitted": false,
+    "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/data-fidelity-registration-20261018.txt",
+    "sourceSha256": "48cfd14ffae9a8d50eb6f8dbdffd356c35f35f1b60edfd6ee4dbf26883ae3568",
+    "units": ["DF-SHEET-QV", "DF-MECH-RULES", "DF-MECH-CONFIG", "DF-MECH-META", "EQ-ID", "DF-BLK-ENGINE", "DF-CATALOG-PIN"],
+    "order": "U79 -> U80 -> U81 -> U82 -> DF-MECH-RULES -> DF-MECH-CONFIG -> DF-MECH-META -> DF-BLK-ENGINE -> DF-CATALOG-PIN",
+    "authority": "Owner standing instruction to continue recommended options and publish as needed; Root review-round-1 directions on PR #2276. No source admission or future merge ruling.",
+    "scope": "OFF L1/L2 critical path. P7 tasks 88-93 remain R7.versions -> R7.provenance -> R7.context. Forbidden: src/lib/multiplayer/server, src/lib/campaign/coop, src/components/campaign/coop, src/pages/api/multiplayer, server.js and campaign sync.",
+    "coordination": "Root must reconcile every unit/node reservation in the hashed census before release to planned; predecessor arrays need genuine mainProof PASS, ancestry and closure. Dedicated pipeline node edges enforce ordering without blocking the entire R6.loop-harness. All new units remain blocked; one product-writing lane.",
+    "gates": "Named scripts/__tests__ Jest wrappers run in existing stable/CI unit shards without workflow edits. Use @jest-environment node and stdlib-only source fixtures. Resolve interpreters in order python3, python, py -3, then pass -B; missing interpreter/spawn error/null or nonzero status fails, never skips. Set explicit Jest timeout 60 seconds and spawn timeout 45 seconds. Each Python-wrapper unit admission records resolution proof on the CI shard runner (for example first CI run log). EQ-ID invokes its real entrypoint from its named Jest test.",
+    "caps": "Every new unit <=15 files/500 counted additions; no deletion credit. Tests/generated lines exempt only under existing validator rules, all files count. Exact prospective manifests are the sole source/test set; freeze every lifecycle/evidence leaf and split before admission if required. No directory-wide grant or new waiver.",
+    "pipeline": "U79/U80 pin immutable producer+input. Initial U80 remains byte-identical to tracked data; U82 untracks before any fidelity change. Generator-only units test staged fixtures, never rewrite tracked catalogs. DF-CATALOG-PIN validates and publishes corrected battlemech bytes, re-pins U80 config and exercises U81 fetch/readers; non-mech publication stays deferred."
   }
 }

@@ -1,3 +1,58 @@
+## Data-fidelity registration, review round 2 corrected (2026-10-18)
+
+Rebased after #2275; its L1-SMOKE entries and B14-0 priority remain intact. This is
+registration only: seven NEW blocked routine/product units, no task holders,
+source admission or runtime acceptance. Every new unit retains 15 files / 500
+counted additions; the amendment stays within its own 500-counted-addition budget.
+
+Sources: [unit coverage](../../../docs/audits/2026-10-18-unit-type-coverage.md),
+[equipment coverage](../../../docs/audits/2026-10-18-equipment-rules-coverage.md),
+[MegaMek reference](../../../docs/audits/2026-10-18-megamek-mm-data-reference.md).
+Their merged blob sourceSha256 values and exhaustive unit/node collision census
+are in [registration provenance](evidence/data-fidelity-registration-20261018.txt),
+hash-bound from BOTH ledgers and each new unit. Research is not runtime proof.
+
+Order: U79 -> U80 -> U81 -> U82 -> DF-MECH-RULES -> DF-MECH-CONFIG ->
+DF-MECH-META -> DF-BLK-ENGINE -> DF-CATALOG-PIN. Unit predecessor/successor
+links and dedicated node edges agree; historical U79-U82 node attribution stays
+via reownedTo. Initial U80 still publishes the tracked bytes U79 reproduces.
+U79 compares using the immutable producer/input tuple recorded by the active
+pin, so newer generator HEAD cannot make that old comparison red. Only after
+U82 untracks may fidelity fixes land; their fixture-only generation changes no
+tracked catalog. RULES preserves published storage paths independently of corrected
+rules metadata, protecting existing static imports and one index row per identity.
+DF-CATALOG-PIN validates the new tuple and artifact, publishes
+and re-pins config/catalog-assets.json through U80/U81. No new cap waiver. U79/U80 admission re-measures amended cap fit;
+DF-CATALOG-PIN requires owner release-publication authorization at admission.
+
+DF-SHEET-QV is the tiny printing order fix; U72/U78 and both covering nodes
+require explicit reconciliation. DF-MECH-CONFIG now covers Center Leg only;
+DF-MECH-META separately covers Omni/industrial metadata, boolean schema and
+generator-produced contract. DF-BLK-ENGINE includes blk_common.py fallback,
+all codes 0-13, and explicit rejection of undocumented 14/15. EQ-ID supplies
+an integrity gate, not wholesale catalog repair. Exact manifests include stable
+Jest wrappers for every Python suite and EQ-ID; ordered python3/python/py -3
+resolution, explicit timeouts and CI-runner interpreter proof are admission gates. Census includes all 22 wrapper reservations plus lifecycle exceptions,
+R6.loop-harness, R6.umbrella and R2.camp-8's src alias; resolve before admission.
+
+OFF L1/L2: no multiplayer server/API, campaign coop UI/lib, server.js or campaign
+sync paths. P7 tasks 88-93 remain R7.versions -> R7.provenance -> R7.context.
+Source work is serialized. Freeze all source/test/lifecycle/evidence leaves and
+re-measure caps; tests/generated lines exempt only under existing validator rules.
+
+Deferred without admission: DF-MECH-MAPPING (QuadVee/Tripod Omni recognition,
+third independent configuration behavior; cannot fit this registration budget);
+DF-BLK-SCHEMA (split vehicle/aero boundaries); DF-BV-REF (split historical
+reference/strict validators, final parity waits BOTH BLK fixes); EQ-QUIRK
+(alias/mount split after EQ-ID/U79 coordination); EQ-HAG (extractor boolean and
+metadata after EQ-ID, no combat claim). DF-CATALOG-PIN publishes battlemechs
+only; BLK catalogs await schema/BV. G1 expansion needs per-family contracts;
+G7 engine journeys need state/combat/replay/AI and L1 coordination; G6 capital/
+entity scope needs models and upstream BuildingEntity reconciliation. None is
+silently included. Independent review, green CI and Root merge remain required.
+
+---
+
 ## 2026-10-18 L1 built-server spectator smoke registration: review-round-1 corrections
 
 Registration only: L1-SMOKE-A1 is planned; L1-SMOKE-A2 and L1-SMOKE-B are blocked. A1 depends only on P2CG1S, A2 on A1, and B on A2/B14-0/B14-HEAD genuine exact-main PASS, ancestry and closure. All three records follow B14-HEAD in units.json, preserving B14-0 as validate-roadmap --next after the #2273 rebase. This array order does not add a B14 wait to A1/A2. All have empty taskKeys, ciClass product, sensitive privacy/authority review, ordinary 15-file/500-total-counted-added-line caps and null lifecycle/owner-gate receipts. No source implementation, runtime PASS or discharge is claimed.
