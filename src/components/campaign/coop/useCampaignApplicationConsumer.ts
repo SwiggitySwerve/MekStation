@@ -140,6 +140,15 @@ function retainsLaunchFacts(
   );
 }
 
+/**
+ * CF-G3: the transport cursor each transport stood at when a binding last
+ * consumed one of its campaign frames. A rebind arms no new pre-receipt
+ * window while the transport is still there: every frame it dispatched
+ * reached a binding. A first frame, or one that arrives while nothing is
+ * bound, leaves no matching mark, so that rebind keeps its window.
+ */
+const heardAt = new WeakMap<ICampaignSyncTransport, number>();
+
 function bindCampaignApplicationConsumer(
   binding: CampaignApplicationBinding,
   onRejoin: () => void,
@@ -152,9 +161,10 @@ function bindCampaignApplicationConsumer(
   let queue = Promise.resolve();
   // A close before receipt mode latches is silent, so a bound view that
   // hears no campaign frame within one confirmation window rejoins once.
-  const quiet = active
-    ? setTimeout(rejoin, APPLICATION_CONFIRMATION_TIMEOUT_MS)
-    : undefined;
+  const quiet =
+    active && heardAt.get(transport) !== transport.lastSeq()
+      ? setTimeout(rejoin, APPLICATION_CONFIRMATION_TIMEOUT_MS)
+      : undefined;
   const heard = (): void => clearTimeout(quiet);
 
   const offError = active
@@ -229,7 +239,10 @@ function bindCampaignApplicationConsumer(
   return {
     consume: (message) => {
       if (!active) return isOffer(message);
-      if (campaignEventFromMessage(message)) heard();
+      if (campaignEventFromMessage(message)) {
+        heardAt.set(transport, transport.lastSeq());
+        heard();
+      }
       // INTERNAL_ERROR precedes a server close; INVALID_INTENT is the transport's.
       if (
         message.kind === 'Error' &&

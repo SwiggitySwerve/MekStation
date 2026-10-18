@@ -1,0 +1,262 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CG1G1",
+  "stage": "local",
+  "date": "20261018",
+  "baseline": "54764673b3eb8aaa9759bfc919461640f7e360b6",
+  "commits": {
+    "admission": "a62fc69c873b58819ecfad869052fa03dbb386d9 (admission receipt + units.json lifecycle; no source/test byte)",
+    "red": "7510a82abb83f7d79905762aaf2fb02d728b84f2 (four test leaves + red receipt + units.json red path; product byte-identical to the baseline)",
+    "implementation": "this commit (four product leaves + local receipt + units.json local path; no test byte changed after RED)"
+  },
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "P2CG1G1 implementation sub-agent"
+  },
+  "runtime": "Node v22.22.0 (C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0), npm ci in this worktree (1078 packages, package-lock unchanged since before P2CG1F), private Jest cache, every Jest run --runInBand after node scripts/qc/machine-idle.mjs --own-pid 47516 reported MACHINE_IDLE (idle.log), one heavy run at a time",
+  "productBytes": [
+    {
+      "path": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+      "sha256": "2b5a1096512fae54e20773e640817f3b5acd6dca75e69fa5e064f54a24c1f155",
+      "bytes": 14107
+    },
+    {
+      "path": "src/components/campaign/coop/campaignCoopSurfaceHelpers.ts",
+      "sha256": "95a71cfb584ca3643a2f8b69d43993e9dfa67b783af47cd4c3364435f4031c2c",
+      "bytes": 6021
+    },
+    {
+      "path": "src/lib/campaign/coop/campaignHostFoldStore.ts",
+      "sha256": "aa68c622b89754e2721c3f309a4a1431339e8a20558f950485fd13817bbb5d1e",
+      "bytes": 2445
+    },
+    {
+      "path": "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+      "sha256": "04a9c9d35cbd03ece7f06194e68b8d94e30310ec5fe2fe31c1bce6825b200aae",
+      "bytes": 10102
+    }
+  ],
+  "testBytes": [
+    {
+      "path": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+      "sha256": "22c96119d3b01df45cf7cd1e81f641bf37b3c5c9829b1ce9422609a8088ff9f0",
+      "bytes": 55003
+    },
+    {
+      "path": "src/components/campaign/coop/__tests__/CampaignLifecycleGate.test.tsx",
+      "sha256": "5778cd951e8756a6c479b414c7cb2aa936e2877d786f71f1a24babef2264dfa6",
+      "bytes": 17527
+    },
+    {
+      "path": "src/components/campaign/coop/__tests__/GuestProposalSurface.test.tsx",
+      "sha256": "1f5b6e83591e4181c2fb7175a27134636a515b8b72b0f1717d137fd1094c74f9",
+      "bytes": 12089
+    },
+    {
+      "path": "src/components/campaign/coop/__tests__/GuestRebuildStaleGate.test.tsx",
+      "sha256": "dd065fd2e97411d479109d6e18c03835594d6c6ff5c6df15faa1ca9b3c532e5a",
+      "bytes": 17229
+    }
+  ],
+  "testBytesVersusRed": "identical to the RED commit (git diff --name-only RED -- <test leaves> is empty)",
+  "delivered": {
+    "CF11/M2 store": "New src/lib/campaign/coop/campaignHostFoldStore.ts: one module-scoped GM fold lineage {campaignId, matchId, transport, cell}. claimCampaignHostFold continues the held cell only for the same transport object, same campaign and match, the transport bound exactly as the consumer requires (transport.campaignId === campaignId and confirmApplied present) and still the registered active transport; otherwise it mints a fresh EMPTY cell, so a writer holding the old cell cannot reach the new lineage. Single slot, no transport map; browser-safe imports only (fold module, transport module); no test reset export",
+    "surface": "CampaignCoopRouteSurfaceConnected.tsx: the component-local useRef fold is gone; the host effect claims the cell after the stored connect and passes it to the consumer as fold, and the legacy fold writes the same cell. On a continued lineage it re-projects the retained fold at bind (symmetric with the guest mirror projection). The host CampaignJoin still quotes EMPTY's -1, which the transport omits, so the wire bytes are unchanged; no creator binds expectedCampaignId; retainsLaunchFacts and the consumer's settle path are untouched",
+    "m13 helpers": "New campaignCoopSurfaceHelpers.ts: refusalFromFrame (one host/guest refusal rule; application errors are never a refusal), projectStateOntoCampaignStore (the D9 single projection), upsertPendingProposal/removePendingProposal, guestMirrorSummaryOf, and verbatim refreshSavedRecordAfterCommit, submitGuestProposalOverTransport, isPendingProposalResult. It does not import the connected surface (type-only import of the presentational surface props); the only server-path import is the pre-existing type-only IPendingProposal",
+    "CF-G3 consumer": "useCampaignApplicationConsumer.ts: a module WeakMap records transport.lastSeq() each time an active binding consumes a campaign frame; a new binding arms the pre-receipt window unless the record exists and equals transport.lastSeq(). Receipt application, settle order, rejoin and the \"any campaign frame clears the window\" rule are unchanged",
+    "fixtures": "The three hand-built fakes carry the mounted campaignId (CampaignLifecycleGate CAMPAIGN_ID, GuestProposalSurface guest.id, GuestRebuildStaleGate CAMPAIGN_ID) and stay without confirmApplied; each suite asserts a creator bound to the mounted campaign reuses the fake"
+  },
+  "heardSemantics": {
+    "decision": "\"Already delivered a campaign frame\" means: an active binding of this consumer consumed a campaign frame from this transport, and the transport cursor has not moved since. A first frame, or a sequenced frame, that arrives while no binding is mounted is not remembered, so the remount keeps P2CG1F's window (no regression versus F; the continued lineage never folded that frame). Frames that do not move lastSeq (a baseline at sequence -1 after the first consumed frame cannot occur on a live transport; heartbeats, ACKs, proposals and errors are not campaign frames) leave the record valid",
+    "pins": [
+      "hostProjection: does not remember a first campaign frame that arrives while no surface is mounted",
+      "hostProjection: re-arms the window when a sequenced campaign frame arrives while no surface is mounted"
+    ],
+    "refinesPrototype": "The stop-report prototype WeakSet survives the first pin and fails the second (mutant M1)",
+    "limit": "A gap frame that leaves the transport waiting on an unapplied offer is recovered only through the window or the next offer's failure; P2CG1F behaves the same"
+  },
+  "carryForwards": {
+    "CF-G1": "Absorbed: hostProjection \"ends the quiet window on the first offer, so a quiet receipt-mode view never rejoins (CF-G1)\"",
+    "CF-G2": "Absorbed: hostProjection \"does not end the quiet window on a heartbeat, a proposal or a command refusal (CF-G2)\"",
+    "CF-G3": "Absorbed under amendment #2236: hostProjection W1 (RED at the red commit, green here) and the consumer change above",
+    "CF-G4": "CARRIED, unchanged, to the next owner of useCampaignApplicationConsumer.ts at or before P2CG1H: decide a cap, backoff or terminal state (and the user-facing text CF-F8 also owes) for the once-per-window rejoin against a silent-but-open server. G1 owns the consumer only for CF-G3 and does not alter that cycle: every rejoin builds a new transport with no heard record, which arms its window as before",
+    "CF-G5": "Not a G1 leaf; carried to the next owner of bindCampaignSyncConnection.test.ts or P2CG1H",
+    "CF-G6": "Not a G1 leaf; carried to the next owner of useCampaignPersistenceStore.ts",
+    "CF-G7": "Not a G1 leaf; carried to the next owner of hostRecordRefresh.test.tsx (byte-identical here)",
+    "CF-G8": "Absorbed in hostProjection (not hostRecordRefresh): \"trades the old window for the new one across a rejoin (CF-G8)\" and \"arms no window on an unbound transport (CF-G8)\"",
+    "CF-G9": "Recorded under checks (lint, madge) and maxLines",
+    "CF-G10": "Required check names to be verified by name on the exact PR head (PR stage)",
+    "CF-G11": "Decided: fakes carry campaignId without confirmApplied, so no window is armed and the suites stay on real timers; pinned by hostProjection \"arms no window on a fixture fake that carries only the mounted campaignId (CF-G11)\". Successor note: a later unit that adds confirmApplied to these fakes activates the consumer and must inject a campaign frame or dispose before APPLICATION_CONFIRMATION_TIMEOUT_MS",
+    "#2236-note-2": "Done: heardSemantics above, with two explicit pins",
+    "#2236-note-3": "Done: CF-G4 carried above"
+  },
+  "mutationProbes": {
+    "method": "one mutant at a time on the final consumer/store bytes, hostProjection only, --runInBand, product restored after each (hashes equal before and after)",
+    "rows": [
+      {
+        "id": "M1",
+        "mutant": "prototype WeakSet semantics (any consumed frame marks the transport heard forever)",
+        "result": "1 failed / 37 passed: \"re-arms the window when a sequenced campaign frame arrives while no surface is mounted\"",
+        "log": {
+          "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/mutant-M1.log",
+          "sha256": "da1b6d1c54c068023734e36516c9f7cd1f8b3d88a99741fdef294484b683adc6",
+          "bytes": 70040
+        }
+      },
+      {
+        "id": "M2",
+        "mutant": "store never continues a lineage",
+        "result": "3 failed / 35 passed: R1, R2, W1",
+        "log": {
+          "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/mutant-M2.log",
+          "sha256": "dbc90f93b8798ca71e92bfcb391d2246b32424ffb6fe1c8b9e290d9b7eedbf24",
+          "bytes": 79774
+        }
+      },
+      {
+        "id": "M3",
+        "mutant": "consumer always arms the window (P2CG1F behaviour)",
+        "result": "1 failed / 37 passed: W1 (CF-G3)",
+        "log": {
+          "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/mutant-M3.log",
+          "sha256": "3ad404cdd3aec14abf146b7203e2360659ccc256a70f8dd11b31cde48735d407",
+          "bytes": 69300
+        }
+      }
+    ],
+    "note": "Mutants ran before a type-only import reordering in campaignCoopSurfaceHelpers.ts; the consumer and store bytes they mutated are the final bytes"
+  },
+  "results": {
+    "red": "4 suites, 76 tests: 73 passed, 3 failed (product byte-identical to baseline)",
+    "registeredLeavesPlusNeighbours": "6 suites, 104 tests: 104 passed (G1 four suites, P2CG1F hostRecordRefresh, CampaignDashboardPage.reactivity)",
+    "task14Selector": "4 suites, 104 tests: 104 passed",
+    "p2cg1fSuites": "3 suites, 91 tests: 91 passed (hostRecordRefresh, hostProjection, campaignCommandAckRefresh)",
+    "coopSweep": "73 suites, 759 tests: 759 passed (co-op component/lib/page/p2p trees plus the Task14 selector)",
+    "relatedTests": "16 suites, 158 tests: 158 passed (jest --findRelatedTests on the four product leaves)"
+  },
+  "checks": {
+    "typecheck": "PASS (typescript7 7.0.2, npm run typecheck)",
+    "lint": "0 errors, 87 warnings = baseline, identical location set",
+    "format": "PASS (npm run format:check)",
+    "lintUnits": "LINT_UNITS_PASS 17899/17899",
+    "madge": "same two entries as the baseline (surface, consumer): 1133 files (the two new modules), 172 chains = baseline, identical set; with all four product leaves as entries 169 chains, none through campaignCoopSurfaceHelpers or campaignHostFoldStore",
+    "validator": "validate-roadmap.mjs plain and --git PASS (80 nodes, 13 packages, 381 tasks, 40 triage rows); --next advisory prints U24b, not permission",
+    "validatorTests": "86/86 (node --test validate-roadmap.test.mjs)",
+    "openspec": "openspec validate --all --strict: 230 passed, 0 failed",
+    "qc": "qc:openspec-ci:validate errors=0",
+    "diffCheck": "git diff --check on the staged implementation: clean"
+  },
+  "maxLines": {
+    "rule": "oxlint max-lines warn at 400, skipBlankLines and skipComments",
+    "surface": "396 -> 319 counted code lines (512 -> 397 physical); about 80 lines of headroom for P2CG1G2",
+    "helpers": "125 (171 physical)",
+    "store": "42 (68 physical)",
+    "consumer": "not warned (286 physical)"
+  },
+  "census": {
+    "command": "git diff --numstat --no-renames 54764673b3eb8aaa9759bfc919461640f7e360b6..HEAD",
+    "countedLines": {
+      "CampaignCoopRouteSurfaceConnected.tsx": 57,
+      "campaignCoopSurfaceHelpers.ts": 171,
+      "campaignHostFoldStore.ts": 68,
+      "useCampaignApplicationConsumer.ts": 17,
+      "units.json": 16,
+      "total": 329,
+      "cap": 500
+    },
+    "files": {
+      "changed": 12,
+      "reservedReviewSlot": 1,
+      "total": 13,
+      "cap": 15,
+      "reserved": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g1-admission-review-20261018.md (unwritten)"
+    },
+    "lineExempt": "test leaves 475 + 20 + 12 + 20 added; evidence receipts"
+  },
+  "boundary": "Dormant on the wire: no creator binding, no receipt-port install, no wire schema or byte change, no numeric retirement. The store continues only bound transports, which no production creator creates before P2CG1G2; unbound transports start from EMPTY as before. Nothing outside the eight restriction leaves, units.json (P2CG1G1 fields only) and G1's own receipts changed",
+  "logs": [
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/red.log",
+      "sha256": "b79b51267079e1fa706425d1911087580d180bad827292ef96d4d52e9b0eb14b",
+      "bytes": 89950
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/green.log",
+      "sha256": "0e103ccab24daeedf7b16b46c6396415eb303ad418339860077eb3f8fbccb82e",
+      "bytes": 83660
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/selector.log",
+      "sha256": "30b450748b2f7472a55150605c2c92e718d48afcf4e9ce0405b65dc0cee380e4",
+      "bytes": 99728
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/p2cg1f.log",
+      "sha256": "d810a636a2362336d914ada7c223521905e23b89a5e2e1aca0464a9a20cd6c1b",
+      "bytes": 64038
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/sweep.log",
+      "sha256": "654c90d8e3a6bb20d93ae06aac4afb24991247c6ad2c654de1d4d79c2e7a380d",
+      "bytes": 226766
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/related.log",
+      "sha256": "c10cb9fff32b69628a5a8718c8f27e0cab34d680b945bde5176501bc8df0c381",
+      "bytes": 94846
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/typecheck.log",
+      "sha256": "8102a14cf3245ac2b0d67c588affb25efaebfcd3485f9a46a751595d9a774951",
+      "bytes": 358
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/lint-base.log",
+      "sha256": "1be5785041db856f5d8d8b44487a0036b9eaf121ca7995c94a2a252d35eadba1",
+      "bytes": 81286
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/lint-after.log",
+      "sha256": "299850945c514b3d33d4fbce63c7e55f8388a92c10b13f21df470ca4d9784b81",
+      "bytes": 81288
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/format.log",
+      "sha256": "725240a9888e17e139fc835fb4602930cca070ef90bd82642e020d4376e1369e",
+      "bytes": 366
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/lint-units.log",
+      "sha256": "60f3271ad1c1e13670b13a3914daf5e9e65001defa14072ccb79b6606bbc9a6c",
+      "bytes": 730
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/madge-base.log",
+      "sha256": "4de13a25b70d1e68f5f8c30e7fc555ba625a51cbdf60a087676350f4c2854c00",
+      "bytes": 257266
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/madge-after-same-entries.log",
+      "sha256": "4971ea205cbbeb84fc6244ffc63f15d6d8dc73cf71bfd69f9d82047f0b3844e2",
+      "bytes": 257266
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/madge-after.log",
+      "sha256": "ef6c751dee284de3f80cfa0f71bdfc189f9c69172fad8521aad2328a2b986679",
+      "bytes": 209830
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/idle.log",
+      "sha256": "996dc28833feb1ca7d56992753df009639260824f759e3a909fab22364ccbd45",
+      "bytes": 1236
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/census.md",
+      "sha256": "380c61ca760242338b7d30733e1355e67822ed1187eabe713e398c97bf979f56",
+      "bytes": 1793
+    }
+  ],
+  "discardedLogs": "red-discarded-mojibake.log (see red receipt) and *-pre-typeimport.log (same results on bytes before the helpers type-only import reorder) are kept and not cited",
+  "status": "Local proof complete; awaiting independent exact-head review (sensitive: authority, privacy, replay, idempotency, concurrency). Do not merge from the author lane"
+}
