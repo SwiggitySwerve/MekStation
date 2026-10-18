@@ -2,7 +2,7 @@
 
 This batch commits 85 dated audits. Until now they existed only as untracked files in the orchestrator checkout. They are reviews, council records, verifications and research produced between 2026-10-15 and 2026-10-18, during TS7, L0 and L1 delivery.
 
-Each file was formatted with oxfmt to match repository style; formatting changes whitespace only. The pre-format SHA256 is the hash of the bytes as originally written, so it stays the hash that any OWNER-RULING or ledger evidence copy cites. MM-DATA reference source: E:/Projects/Personal/MekStation-wt/mm-ref-20261018/MM-DATA-REFERENCE.md.
+Each file was formatted with oxfmt to match repository style; formatting is oxfmt markdown normalisation only: whitespace, padded table separator rows, _emph_ written as _emph_, some dropped escapes, and one trailing comma added inside a fenced code block in 2026-10-16-p2ce3-fable-review-r2.md. No wording changed. The pre-format SHA256 is the hash of the bytes as originally written, so it stays the hash that any OWNER-RULING or ledger evidence copy cites. MM-DATA reference source: E:/Projects/Personal/MekStation-wt/mm-ref-20261018/MM-DATA-REFERENCE.md.
 
 These are dated records, not proof of current runtime behaviour. Protected ledger evidence copies under openspec/planning remain authoritative and are unchanged.
 
