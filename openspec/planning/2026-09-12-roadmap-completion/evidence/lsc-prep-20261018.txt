@@ -1,0 +1,2015 @@
+# LSC early preparation — scratch prototypes, not admission
+
+2026-10-18. Research-only at Main **fe41f7ad8ebcdc3731a59cbec5fd69005cd1e29e**. Report worktree: E:/Projects/Personal/MekStation-wt/lsc-prep-20261018; scratch worktree: E:/Projects/Personal/MekStation-wt/lsc-scratch-20261018. Both detached from origin/main at the requested revision. No tracked product, ledger, configuration or root-checkout edits; no commit, push or PR. The report is intentionally untracked. Scratch material is never pushed. Existing unrelated edits in the caller's C: worktree were not touched.
+
+**Recommendation:** LSC-0 is a plausible fit as registered. Before source admission, register **LSC-1DB** for the durable schema and **LSC-2P** for packaged-browser registration/proof. LSC-1 and LSC-2 do not have a defensible full implementation fit as registered merely because their candidate lists contain 14 files. All LSC units remain blocked; this report is not a stage receipt, implementation OWNER-RULING, exact-main proof or release permission.
+
+## Authority and inputs
+
+Read all three units in units.json, the complete localSeatCredentialsRegistration20261018 record, node R2.authority-live's ownershipPathsAmended20261018LocalSeats, identity-gap evidence, canonical user/player identity and co-op constraints, and Root's receipt via `gh pr view 2256 --repo SwiggitySwerve/MekStation --comments` (receipt 6d1ab20788b4499f773681f57601b39a2170c5ce). The PR is background authority, not a PR edited by this research task.
+
+Binding notes applied: census U101/U101a/U101c/U105/B15-2/FOG-H; split if SQLite migration or Playwright/npm registration is needed; throttle password-verified mint; seat credentials **are not vault identities**; revocation is effective at the **next mint or renewal**. H retains HP in admissionRequires. Actual H predecessors omit HP from the documentary array, but admissionRequires explicitly retains HP, R/S, G2 and B14 prerequisites; do not weaken that conjunction.
+
+- openspec/planning/2026-09-12-roadmap-completion/units.json: `51f6fe27d70b652508a7f913a6968ce8c06bbba7e89f5c2a52292ae0ce73463f`
+- openspec/planning/2026-09-12-roadmap-completion/roadmap.json: `776373a1f0c3f8db3de93216f71ce0c82ad5f346499de7922725c2994661b8dd`
+- openspec/planning/2026-09-12-roadmap-completion/evidence/identity-gap-20261018.txt: `e16d2a29ff0d5196b9b5c3962c9fa53d4272be4e086eea58dc1a225cb4aecc76`
+
+Primary vault semantics remain unchanged. Existing token.ts loads getActive(); TokenIssueBodySchema is strict and rejects seatId today. Existing co-op session token storage is in src/lib/campaign/coop/coopCampaignAuthTokenStore.ts, not its parent directory. Existing player-token verification already supports signed scopes; U101a/c remain the owners of scope issuance and campaign refresh migration. The sketch emits the current ordinary unscoped identity bootstrap token and does not implement or discharge their scope contracts.
+
+## Machine-idle policy and executed runs
+
+Every test invocation first executed exactly `node scripts/qc/machine-idle.mjs --own-pid 47516`, with C:/Users/wroll/AppData/Local/nvm/v22.22.0 prepended to PATH. Repeated checks during preparation continued to report MACHINE_BUSY 1, exclusively chrome-headless-shell PID 55164. We waited through preparation and used the user's permitted **proceed without heavy runs** alternative. No process was killed; PID 47516 and PID 55164 were untouched.
+
+No Jest, npm suite, typecheck, production build or browser run was started. Thus no Jest cache was used; any later Jest run must use a private --cacheDirectory and --runInBand with relevant files only. No timeout was raised. The one small integration file ran serially with Node's built-in runner; each process used under one second of elapsed time. This is the requested integration-harness alternative, not a Jest result or permission to ignore the idle gate for heavy runs.
+
+- Run 1: .lsc/results/run-1.txt, FAIL in 172 ms overall. Harness incorrectly assumed schema stripped seatId; strict schema rejected it. Corrected the harness to issue three ordinary unchanged password-only mints and separately assert the strict schema rejection. Product unchanged.
+- Run 2: .lsc/results/run-2.txt, PASS, one top-level integration test, 580 ms overall, 448 ms test body.
+- Run 3 (authoritative final prototype): .lsc/results/run-3.txt, PASS, one top-level integration test, 584 ms overall, 452 ms body. Added real expiry/recovery and revoke-during-KDF assertions, used a unique private SQLite file per run.
+- Raw gate results: .lsc/results/idle-run-1.txt, idle-run-2.txt, idle-run-3.txt (all BUSY only on PID 55164). .lsc/results/results.json contains final public IDs, rows and mutation results. No authentic roadmap lifecycle receipts were created.
+
+Reproduce the lightweight run only under the same explicit no-heavy-run allowance, or after an idle PASS. From scratch, use node --test --test-concurrency=1 .lsc/prep.integration.test.cjs after the prescribed idle command. The loader resolves existing @swc/core and ws dependencies read-only from E:/Projects/Personal/MekStation/node_modules. It uses real source crypto/auth via SWC and node:sqlite for the injected SQL adapter. Production uses better-sqlite3; that adapter/ABI and the actual migration runner are **unproved** here.
+
+## Measured caps, with no deletion credit
+
+Counts below measure actual scratch source/spec additions, including blank/comment lines and the JSON policy fixture. Nothing is subtracted for deletions. Tests are line-exempt under U41, but file-counted; ledger evidence is line-exempt and file-counted. units.json lifecycle additions, release documentation and registration config are counted unless their actual path is exempt. No global 500-line exemption for JSON or documentation is assumed.
+
+| Unit | Own scratch files | Measured counted additions | Registered literal files | Fit ruling |
+| --- | ---: | ---: | ---: | --- |
+| LSC-0 | 5 | 115 | 9/15 | Fits measured contract sketch; final lifecycle delta still to measure |
+| LSC-1 | 2 | 106 | 14/15 | Propose LSC-1DB: 14 + 3 schema leaves = 17/15 |
+| LSC-2 | 2 | 49 | 14/15 | Propose LSC-2P: packaged config is an extra registration leaf |
+
+These are **prototype lower bounds**, not a measured completed source patch. The 115 LSC-0 lines include 17 extra research policy-fixture lines; four deployable contract snippets are 98 lines. LSC-1's 106 lines implement an injected repository/service but omit actual Next request-method/security/header/schema/error wiring and production migration integration. LSC-2's 49 lines implement storage and a guest recovery component, but omit operator provisioning UI and the create/join/connected-launch consumers. Types in scratch intentionally use any at adapter boundaries; strict production interfaces and error taxonomy still need sizing. The 500-line ceiling cannot be certified by omitting these pieces.
+
+Shared research support is separately visible: .lsc/load.cjs, .lsc/prep.integration.test.cjs, .lsc/analyze.cjs, .lsc/write-report.cjs, raw test/gate logs, private SQLite files, and results/measurements/census artifacts. These are not secretly proposed unit leaves. The combined research directory is not a 15-file implementation candidate. If any helper, policy test or artifact is to ship, it must be assigned a literal admitted leaf and counted or trigger another split. Prospective manifests below count all 9/14/14 actual unit source/test/lifecycle/evidence outputs; later review/identity/closure outputs require the existing separately frozen G-OWN procedure and a fresh full census, not free unlisted slots.
+
+| Unit | Actual scratch path | Added lines | SHA256 |
+| --- | --- | ---: | --- |
+| LSC-0 | .lsc/specs/design.md | 42 | cfb02f4fb5d25e8ec10cea52ba5007740e5c139ecd63c51a257411965805b79a |
+| LSC-0 | .lsc/specs/user-identity.md | 18 | 2bb9203c323ba660c5a51e4d507beab91d32b99eadf704dfcfbc85ecfbac08af |
+| LSC-0 | .lsc/specs/player-identity.md | 19 | 2263eba07c1807e6f4dfae36c2bb67edb9f844cf0bcc0f342c8462425cfbcb64 |
+| LSC-0 | .lsc/specs/coop-campaign-sync.md | 19 | 3b9fb068b4509c81008a538258976068f3cf4f2fe015f16d284c50a0991d2364 |
+| LSC-0 | .lsc/contract.json | 17 | 48c17ff8576082d0d88f6d1a50a1bfd26e2bf7879251ee483a606c6f844a23de |
+| LSC-1 | .lsc/LocalSeatCredentialRepository.ts | 46 | 8f015ef5d2e6e00767bc406d34ef02c093d58c83049580e57725fd0523277d39 |
+| LSC-1 | .lsc/LocalSeatCredentialService.ts | 60 | 123f64145d37ad274214232f6901eeb7e8b56ed5ef3e913d4409d0226840c05e |
+| LSC-2 | .lsc/localSeatCredentialStore.ts | 27 | 223aaa13fa299c7b74e8117325cf5f8471c30f3f5634e219339b24c508794cf3 |
+| LSC-2 | .lsc/LocalSeatCredentialPanel.tsx | 22 | 3e218db5ca004cb403037483b6a0c3e95f631188ffb294de3605dc204ee93c40 |
+
+### LSC-0 prototype and fit
+
+Four delta snippets under .lsc/specs target the existing design and three registered delta-spec paths. Two registered spec files do not yet exist and are deliberately treated as additions, not absent permission. The snippets specify operator-managed trusted same-host seats, primary-vault separation, one-password-per-mint, lockout, public metadata, bounded bearer lifetime, idempotent operation IDs, re-provision rotation, reload/reconnect and password-prompted expiry recovery. Root adoption is distinguished from pending direct owner answers.
+
+Revocation does not invalidate signatures or force disconnects: old bearer works until original expiry; subsequent mint/renewal fails. Reprovision creates a new keypair/playerId and requires normal membership admission again. Seat selection grants no membership or GM role. B15 and PRIV-1 holds remain. Fit **plausible as registered** at 9 files and a 115-line conservative sketch; final appended design/spec/lifecycle diff and authentic evidence must be measured before admission. The policy mutation fixture is research support, not a newly authorized tenth product leaf.
+
+### LSC-1 prototype and fit
+
+Repository creates an independent table, persists encrypted credential payload/generation/revocation/failures/lock deadline/unique operation ID, uses BEGIN IMMEDIATE and expected-generation CAS, and reopens durable guest keys without touching vault_identities. Service reuses createIdentity/unlockIdentity/signData/canonicalTokenPayload/derivePlayerId and ordinary wire encoding. Primary operator password verification is injected; production must wire real getActive/unlockIdentity, rate limiting and loopback request defenses, never trust a caller boolean or seat ID.
+
+Mint: bounded password input, aggregate 12-attempt/minute pre-KDF window (including guessed IDs), durable three-failure/30-second seat lockout, one in-flight mint per seat, and revocation/generation rechecks after KDF and signing. These numbers are prototype policy proposals, not owner answers. Loopback callers share an aggregate window; denial of service by the trusted operator/shared OS remains possible. Every mint requires the password; no durable unlock session is introduced. Concurrent same-seat mint is rejected/throttled and can be retried; simultaneous provisions use SQL CAS/idempotency.
+
+The prototype's lazy CREATE TABLE matches the existing IdentityRepository precedent, but a durable new authentication namespace and lockout state deserve the central migration runner's upgrade/retry/transaction proof. Choose the explicit migration path rather than treating an untested lazy schema as a way to fit. Three required schema leaves turn the 14-file candidate into **17 files**, and two are outside LSC-1 ownership. Root N2 therefore requires a separately registered schema predecessor, not permission to consume a spare slot. The sketch does not prove primary-vault authorization routes, cross-worker locking, actual HTTP CSRF/origin defenses or complete request-body idempotency semantics. A repeated operation ID with different parameters currently returns the old public row; decide/document whether this is accepted retry semantics or a 409 before product implementation.
+
+### LSC-2 prototype and fit
+
+LocalSeatCredentialStore persists only selected public seat metadata and an ordinary bearer in the supplied per-profile session store. Wrong-seat/expired/malformed data is cleared; failed renewal clears the previous bearer; selection changes during an awaited mint cannot store another seat's result. The scratch guest panel prompts again, clears password React state after submit, and offers forgetting/recovery with trust disclosure. It has not been mounted or rendered in a browser; its JSX is not full UI acceptance.
+
+The HTTP/WS harness is an integration prototype on one real loopback listener. It executes unchanged product mint for GM, scratch mint for two seats, production Ed25519 verifier at reconnect, independent profile-storage facsimiles, public IDs, reload reconstruction, renewal, expiry and disk SQLite reopen. Admission roles come from an explicit fixture membership map, **not** the seat selector. It does not invoke CampaignHostRegistry/bindCampaignSyncConnection or prove authoritative campaign actions, owner law, privacy projections or packaged Electron.
+
+Packaged proof needs a config that attaches to the actual installed instance. The default playwright.config.ts has E2E global setup, per-run readiness and webServer configured with E2E/durable-store env; a normal invocation risks a second dev server or identity-fixture path. Draft .lsc/playwright.local-seat-packaged.config.ts explicitly has no webServer/globalSetup and fixed 127.0.0.1:3001, serial workers, original 30-second timeout. This extra registration leaf triggers N2 even though it would bring the old 14-file list to 15. Move the packaged spec and release-proof document into LSC-2P rather than squeezing them or silently changing package.json. No npm registration is currently needed; if needed later, it is another separately frozen literal.
+
+## RED rows (product unchanged) and GREEN results
+
+| Unit | RED observation on unchanged product | GREEN scratch result | Limit |
+| --- | --- | --- | --- |
+| LSC-0 | Existing design lacks the explicit new next-mint-or-renewal contract; canonical user identity excludes multi-identity management | Four concrete draft deltas plus eight policy predicates | Documentary/policy-fixture proof; OpenSpec validators not run |
+| LSC-1 | Three ordinary password-only calls to unchanged token.ts yield one distinct playerId; adding seatId fails strict schema | Separate encrypted seat rows mint distinct correctly signed principals; wrong/guessed/cross-seat/operator credentials rejected; serialized mint, CAS and retry tested | Framework/security/repository plumbing isolated; no shipped new API |
+| LSC-2 | Ordinary unchanged mint collapses all profiles to active vault principal | Three public IDs stable across profile reload and real WS reconnect; renewal and SQLite reopen preserve seat ID | Profile-storage facsimiles; fixture membership; not a browser/packaged claim |
+
+Final GREEN also verifies expiry rejects old bearer, re-entered password recovers the same seat ID, revoked seat cannot mint, already-issued unexpired bearer remains valid, old password fails after reprovision, new key rotates ID, and revocation racing password verification rejects issuance. Password/private-key fields are absent from stored profile records; the server-side private-key payload is encrypted by the existing primitive. Test fixture password literals are synthetic, never user credentials. No manual token transfer or active-row switching is used for guests; direct programmatic provisioning is a harness setup only and cannot replace shipped UI acceptance.
+
+At **127.0.0.1:54063**, final integration run:
+
+| Profile | Initial public playerId | After reload / reconnect |
+| --- | --- | --- |
+| Non-playing GM | pid_2VeVe7AZ6bzZBGaU58i88Egu68MS | pid_2VeVe7AZ6bzZBGaU58i88Egu68MS |
+| Player 1 | pid_3KvJ51kXjUvRQfZxRYfb8NayXQTx | pid_3KvJ51kXjUvRQfZxRYfb8NayXQTx |
+| Player 2 | pid_3bJjdwXPEqXmC9KfzqikcxzE1GGS | pid_3bJjdwXPEqXmC9KfzqikcxzE1GGS |
+
+Three IDs are distinct; renewal preserves Player 1 ID; SQLite close/reopen preserves it. These public IDs may appear in this report. Bearers, private keys and real credentials are not printed. Harness-only server and sockets closed normally after the run.
+
+## Mutation plan and executed outcomes
+
+26 executed mutants: **24 caught, 2 survived**. Each TS source mutant was compiled/evaluated in isolation from a changed source string; on-disk product/prototype sources were not modified by mutation runs. Fresh in-memory SQLite/store fixtures isolate checks. There were no invalid/uncompilable mutants counted as kills. The harness is one top-level Node test, not 26 independently reported Jest tests. LSC-0's eight mutations flip expected policy data; they demonstrate a contract oracle only, not eight security exploits or prose interpretation.
+
+| Unit | Mutant | Result | Interpretation |
+| --- | --- | --- | --- |
+| LSC-0 | seatIsVaultIdentity | CAUGHT | Policy-data predicate only |
+| LSC-0 | changesPrimaryActiveRow | CAUGHT | Policy-data predicate only |
+| LSC-0 | selectionGrantsRole | CAUGHT | Policy-data predicate only |
+| LSC-0 | passwordEveryMint | CAUGHT | Policy-data predicate only |
+| LSC-0 | throttledMint | CAUGHT | Policy-data predicate only |
+| LSC-0 | revocation | CAUGHT | Policy-data predicate only |
+| LSC-0 | issuedTokens | CAUGHT | Policy-data predicate only |
+| LSC-0 | topology | CAUGHT | Policy-data predicate only |
+| LSC-1 | operator-bypass | CAUGHT | Semantic assertion detects changed behavior |
+| LSC-1 | password-bypass | CAUGHT | Semantic assertion detects changed behavior |
+| LSC-1 | aggregate-throttle | CAUGHT | Semantic assertion detects changed behavior |
+| LSC-1 | lockout | CAUGHT | Semantic assertion detects changed behavior |
+| LSC-1 | wrong-seat | CAUGHT | Semantic assertion detects changed behavior |
+| LSC-1 | unbounded-ttl | CAUGHT | Semantic assertion detects changed behavior |
+| LSC-1 | idempotency | SURVIVED | Repository operation-ID guard still returns original row |
+| LSC-1 | concurrent-mint | CAUGHT | Semantic assertion detects changed behavior |
+| LSC-1 | cas-generation | CAUGHT | Semantic assertion detects changed behavior |
+| LSC-1 | revocation-first-check-only | SURVIVED | Post-KDF/final revocation guards still reject |
+| LSC-2 | persist-password | CAUGHT | Semantic assertion detects changed behavior |
+| LSC-2 | expiry | CAUGHT | Semantic assertion detects changed behavior |
+| LSC-2 | cross-seat-token | CAUGHT | Semantic assertion detects changed behavior |
+| LSC-2 | selection-race | CAUGHT | Semantic assertion detects changed behavior |
+| LSC-2 | forget-selection | CAUGHT | Semantic assertion detects changed behavior |
+| LSC-2 | failed-renewal-keeps-bearer | CAUGHT | Semantic assertion detects changed behavior |
+| LSC-2 | accept-guessed-seat | CAUGHT | Semantic assertion detects changed behavior |
+| LSC-2 | missing-selection | CAUGHT | Semantic assertion detects changed behavior |
+
+Survivors are retained, not suppressed: removing service-level provision retry shortcut is masked by the repository's unique operation-ID guard; removing just the initial revocation check is masked by the two later checks. Next mutation round should remove all revocation guards together, break the final generation fence, alter signed payload bytes, remove source throttle and durable lockout together, force wrong scope, and fail operator-origin authorization. Those extra mutants are a future plan and were **not** run. Product admission also needs actual API errors/methods/schema, full lockout-unlock/restart cases, database upgrade/retry tests and actual UI race tests.
+
+## Draft frozen literal manifests
+
+These are literal **draft freezes** copied byte-for-byte as names from registration, not actual frozen admission or fabricated evidence files. The date in a candidate name must be replaced through a reviewed admission amendment if it is not the truthful final output name. Every extra source/test/helper/release/lifecycle/evidence leaf requires census and permission through registration, regardless of spare cap space.
+
+### LSC-0: draft literal manifest (9 files)
+
+```text
+openspec/changes/design-campaign-authority-and-sync/design.md
+openspec/changes/design-campaign-authority-and-sync/specs/user-identity/spec.md
+openspec/changes/design-campaign-authority-and-sync/specs/player-identity/spec.md
+openspec/changes/design-campaign-authority-and-sync/specs/coop-campaign-sync/spec.md
+openspec/planning/2026-09-12-roadmap-completion/units.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-admission-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-red-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-local-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-admission-review-20261018.json
+```
+
+### LSC-1: draft literal manifest (14 files)
+
+```text
+src/services/vault/LocalSeatCredentialRepository.ts
+src/services/vault/__tests__/LocalSeatCredentialRepository.test.ts
+src/pages/api/multiplayer/auth/local-seats.ts
+src/__tests__/api/localSeatCredentials.test.ts
+src/pages/api/multiplayer/auth/token.ts
+src/lib/api/securitySchemas.ts
+src/__tests__/api/localSeatToken.test.ts
+src/services/vault/LocalSeatCredentialService.ts
+src/services/vault/__tests__/LocalSeatCredentialService.test.ts
+openspec/planning/2026-09-12-roadmap-completion/units.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1-admission-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1-red-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1-local-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1-admission-review-20261018.json
+```
+
+### LSC-2: draft literal manifest (14 files)
+
+```text
+src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx
+src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx
+src/lib/campaign/coop/coopCampaignAuthTokenStore.ts
+src/lib/campaign/coop/localSeatCredentialStore.ts
+src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts
+src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx
+src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx
+e2e/local-seat-credentials.spec.ts
+docs/releases/v2.2.0-local-seat-proof.md
+openspec/planning/2026-09-12-roadmap-completion/units.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-admission-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-red-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-local-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-admission-review-20261018.json
+```
+
+
+### Proposed split manifests
+
+LSC-1DB: **8 files**, 12-line migration SQL sketch plus still-unmeasured central catalog import/entry and authentic lifecycle delta; migration test lines exempt but counted as one file. Production migration version must be allocated from fresh Main. This sketch is not applied or tested with production's migration runner.
+
+```text
+src/services/persistence/SQLiteService.localSeatCredentials.migration.ts
+src/services/persistence/SQLiteService.migrations.ts
+src/services/persistence/__tests__/SQLiteService.localSeatCredentials.migration.test.ts
+openspec/planning/2026-09-12-roadmap-completion/units.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1db-admission-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1db-red-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1db-local-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1db-admission-review-20261018.json
+```
+
+Reduced LSC-2 UI/recovery: **12 files**, retaining all original API/UI/store tests and four own evidence outputs; packaged proof is deferred to its mandatory successor, not omitted.
+
+```text
+src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx
+src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx
+src/lib/campaign/coop/coopCampaignAuthTokenStore.ts
+src/lib/campaign/coop/localSeatCredentialStore.ts
+src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts
+src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx
+src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx
+openspec/planning/2026-09-12-roadmap-completion/units.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-admission-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-red-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-local-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-admission-review-20261018.json
+```
+
+LSC-2P: **8 files**, 18-line dedicated Playwright config draft plus a full, still-unmeasured packaged proof document/spec and own lifecycle delta. No package.json edit proposed. All packaging evidence must be genuine outputs; freeze any trace/video/screenshot/binary hash receipt filenames under their separate evidence ownership before collecting them. Default Playwright outputDir artifacts are not an implied new tracked surface.
+
+```text
+playwright.local-seat-packaged.config.ts
+e2e/local-seat-credentials.spec.ts
+docs/releases/v2.2.0-local-seat-proof.md
+openspec/planning/2026-09-12-roadmap-completion/units.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-admission-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-red-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-local-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-admission-review-20261018.json
+```
+
+### Draft amendment text (not applied)
+
+> Register blocked LSC-1DB, ordinary 15 actual unique files / 500 counted additions with no deletion credit, at R2.authority-live in L1 between LSC-0 and LSC-1. It owns only the eight literal schema/test/lifecycle/evidence paths listed above. Behavior: add the separate encrypted local-seat schema with durable lockout, generation fencing and idempotency state via the existing transactional migration catalog; prove fresh DB, upgrade, repeated initialization and failure rollback without touching the primary active vault row. Re-census all persistence aliases before admission. LSC-1 requires LSC-1DB genuine exact-main PASS, fetched-main ancestry and closure in addition to LSC-0; it consumes that schema and retains all original authority/privacy/replay/idempotency/concurrency behavior, including password-verified mint throttling. No source admission, cap inflation, placeholder receipts or remote/PRIV-1 discharge.
+>
+> Register blocked LSC-2P, ordinary 15/500, at R2.authority-live in L1 after LSC-2 and before P2CG1H. Transfer only e2e/local-seat-credentials.spec.ts and docs/releases/v2.2.0-local-seat-proof.md from LSC-2's literal manifest to LSC-2P; add only playwright.local-seat-packaged.config.ts plus its own lifecycle/evidence literals shown above. LSC-2 remains the ordinary UI/storage/recovery implementation with integration proof; LSC-2P owns actual installed-Electron browser acceptance at 127.0.0.1:3001 without E2E seeding, manual bearer transfer, global active-row changes or a second server. LSC-2P requires LSC-2 exact-main PASS/ancestry/closure. H retains HP and all G2/R/S/B14 requirements and additionally requires LSC-2P exact-main PASS/ancestry/closure. P2 Task18, U38 and v2.2.0 human acceptance require BOTH LSC-2 and LSC-2P exact-main closure. Registration is not activation or acceptance.
+>
+> Preserve all old gates, B15/PRIV-1 holds, existing holders and historical receipts. Intended order: G2 -> R -> S -> B14-0 -> B14-HEAD -> HP -> LSC-0 -> LSC-1DB -> LSC-1 -> LSC-2 -> LSC-2P -> H -> I1. L1 count would become 28 from 26. Synchronize units.json, roadmap node restrictions, registration record, layer ordering, checklist and release predicate in a separately bounded registration unit; do not edit them as an LSC lifecycle exception. Each added slice retains sensitive independent exact-head review, OWNER-RULING, CI, exact-main proof and one product/closure lane. Later genuine review/identity/closure outputs use G-OWN. If any measured unit still exceeds cap or needs another literal, separately register a narrower successor before implementation.
+
+## Packaged 127.0.0.1:3001 browser-path proof outline (UNRUN)
+
+1. After all source predecessors and LSC-2P admission gates close, record installer/executable SHA256, installed version, running executable path/PID, database path and loopback listener owner. Start only the installed Electron instance using a private disposable userData/database; never terminate an unrelated listener. Before each automated test command run the exact idle gate with only --own-pid 47516; if the packaged server has another PID and the gate is busy, wait or obtain an explicit changed run instruction rather than silently excluding it. No new timeout or hidden exclusion.
+2. Use the dedicated no-webServer config against http://127.0.0.1:3001; do not run the default E2E setup, enable E2E routes, seed identities, call APIs to provision, inject localStorage tokens or change active vault rows. Use three independent browser profiles/contexts. Create/unlock the primary identity using Settings and the host's ordinary UI. Non-playing GM hosts the campaign through normal flow.
+3. In the shipped operator panel authorize provisioning two guest seat passwords. In each guest profile select/claim its own seat and join the same room using ordinary UI. Record three non-secret playerIds and a shared campaign/session/authority identity; prove guest membership/owner/GM permissions remain the existing law. Selecting a seat before joining must not authorize a GM/owner command. Prove the GM is non-playing, with two distinct playable participant seats.
+4. Reload all three pages, disconnect/reconnect each browser, and verify the same three public IDs/session and authoritative revision. Trigger real supported renewal and expired-token recovery using shipped UI and natural expiry or a separately admitted production-safe test clock; never use an E2E TTL override as packaged acceptance. Prompt for each password; no plaintext/password/private-key storage. No timeout extension to accommodate expiry; perform separate bounded normal UI steps around the expiry interval.
+5. Revoke Player 1 through the ordinary operator UI. Verify next mint/renewal is refused; document that an already-issued bearer may work until expiry. Reprovision with a new password and key, verify old password fails, re-claim via UI, and perform normal membership re-admission for the new playerId. Test wrong password/lockout and recovery without leaking secret values into screenshots/logs.
+6. Retain registered browser trace/screenshots and a secret-redacted public-ID/session/revision table and artifact hashes in the proof document. Capture actual failures, not just source presence. Repeat required exact-main and installed-artifact evidence under their normal admission rules before releasing P2/U38/human acceptance. This preparation does not close any of those holds.
+
+## Overlap census and admission disposition
+
+The complete appendix enumerates **72 exact existing/prospective paths**, including every original LSC source/test/helper/lifecycle/evidence leaf, proposed split leaves, and G2/HP/H literal manifests. It searches every unit field and every roadmap node/top-level registration for pure path strings, records exact provenance, and matches literal equality or ancestor/descendant aliases without glob expansion. It retains completed/historical owners and broad node aliases rather than dropping them. Narrative admission gates are evaluated here separately. This is a baseline census, not a live reservation lock; redo on fresh fetched Main and all planned/blocked work before admission.
+
+- **U101, U101a (planned):** token.ts and local-seats.ts collide with their auth-directory reservations; U101a also directly owns securitySchemas.ts. Preserve its scoped-token work; do not silently add signed roles or replace auth.ts verification. U101d's securitySchemas.ts reservation is also visible through its nested scope record even where its unit ownership list does not name it.
+- **U101c (planned):** direct CampaignCoopEntryPanel/test and coopCampaignAuthTokenStore.ts, plus src/lib/campaign alias. LSC may add credential selection/recovery but cannot discharge or overwrite validated campaign-session refresh ownership. **U105 (planned)** shares the src/lib/campaign alias; do not touch snapshot-ack/convergence logic to implement credentials.
+- **B15-2 (blocked, after U38):** direct entry panel/test and future campaignCredentialClient bearer propagation; preserve its REST actor isolation hold. **B15-0** also reserves design.md; **B15-1/B15-4J/B15-PRIV** and others appear on neighboring API/test/security leaves in the appendix. These later consumers need explicit sequencing/carry-forward census, not an assertion that blocked means unowned.
+- **FOG-H (blocked, post-P4):** src/pages/api/multiplayer ancestor covers both auth routes; its server/api aliases also overlap H/HP neighbors. It owns projected HTTP/head parity, not seat provisioning. Do not lift B14-HEAD, enable fog or move it into L1. FOG-B/K/L/R/X and B14 reservations are retained where relevant.
+- **G2 (implementing at this baseline):** direct entry panel/test and broad campaign/component aliases. No LSC admission before its genuine exact-main PASS/closure and R/S/B14/HP gates. G2A is main-verified in the ledger; that alone does not close G2 or grant its shared leaves.
+- **HP (blocked):** explicit useCampaignApplicationConsumer.ts, CampaignCoopRouteSurfaceConnected.tsx, hostProjection test and bindCampaignSyncConnection test; no direct intersection with LSC's original literal list except shared ledger. Its connected consumer is an adjacent recovery seam; adding it for expired-token recovery would require a newly registered leaf/split. Do not infer a broad component alias grants LSC that file.
+- **H (blocked):** server.js, receipt port/factory/test, global-slot test, e2ePerformanceProbeRoute/test, two journey specs, CampaignHostRegistry.ts and campaignApplicationConnection.ts. Its exact files have no original LSC source intersection beyond shared ledger; transitive identity requirements and HP admission remain binding. Never port-install H early merely because LSC harness identities work.
+- **Ledger/lifecycle/evidence:** units.json is shared by many units and node aliases; only the current unit's own authentic lifecycle/evidence can change. All four proposed own evidence names per unit and each new split unit were censused, including absent files. Separate G-OWN freeze must census authentic later output names; no blanket directory grants or invented receipts. The 72-path appendix includes the proposed schema/config/test/evidence leaves even before registration.
+
+Main unit states at the census: LSC-0/1/2 blocked; G2 implementing; HP/H blocked; U101/a/c/U105 planned; B15-2/FOG-H blocked. ownerGate null is not a waiver. Root's pending owner questions are not replaced by research findings. No admission, merge, exact-main or release gates are claimed complete.
+
+## Full baseline census appendix
+
+Research support and raw-result hashes (UTF-8 contents):
+
+- .lsc/load.cjs: `db7639e36ec1caf5adc90fd9d49048afbf073bc400b209dcb5534aa94276ab7f`
+- .lsc/prep.integration.test.cjs: `86bc9ca1720a2e63e165e72988c9b99f40fcbf0b2073c1590ea11856424ff8d9`
+- .lsc/analyze.cjs: `1e9d32c0887f6bc167a124d084c6ffb77b7af9ee6385a4abe448eb4d2faedf6b`
+- .lsc/results/results.json: `e7b272fde5e33c94d82fa2cf3abdb6c21b81e999de79146d81e2453716b78163`
+- .lsc/results/run-1.txt: `69a529841b2c05a73a1abd29f9ee63f6c03f94fadc77fa3b8b903736f9fe6b7a`
+- .lsc/results/run-2.txt: `f908da35a185b720454a0216fd4a5b3934d6efe9ec16f2f25e25ca5673662e2a`
+- .lsc/results/run-3.txt: `006b2121111220ad3f66ce9e67db799b03bd2dce6242defe5c0aaddf5cd6ddd5`
+- .lsc/results/idle-run-1.txt: `8b6f0fd406fdf49037adf71c4557107412b76c9a6b0d3450cf2df38d919877ae`
+- .lsc/results/idle-run-2.txt: `8b6f0fd406fdf49037adf71c4557107412b76c9a6b0d3450cf2df38d919877ae`
+- .lsc/results/idle-run-3.txt: `8b6f0fd406fdf49037adf71c4557107412b76c9a6b0d3450cf2df38d919877ae`
+- .lsc/results/census.json: `2ed5922758f47f9a5dafd5485dff607968f9e56122af2fa3b073feef7651651c`
+- .lsc/results/measurements.json: `8a43e4c0e10641840304b3a648198ed49374b96e03995f11e995c375cdfb79bc`
+
+# Exhaustive literal ownership/alias census at fe41f7ad8
+
+Every proposed literal, including tests, lifecycle/evidence and prospective split leaves, is listed. “Alias” is a navigation/reservation hit, not a grant. Historical owners remain visible. Human prose gates are covered in LSC-PREP.md.
+
+## openspec/changes/design-campaign-authority-and-sync/design.md
+Exists: true.
+
+- U97 (complete) via openspec/changes/design-campaign-authority-and-sync; units.U97.ownershipPaths[4]
+- LSC-0 (blocked) via openspec/changes/design-campaign-authority-and-sync; units.LSC-0.ownershipPaths[0]
+- U61 (complete) via openspec/changes/design-campaign-authority-and-sync; units.U61.ownershipPaths[0]
+- B15-0 (blocked) via openspec/changes/design-campaign-authority-and-sync/design.md; units.B15-0.ownershipPaths[0]
+- R0.contracts (complete) via openspec/changes/design-campaign-authority-and-sync; roadmap.nodes.R0.contracts.ownershipPaths[3]
+- R0.contracts (complete) via openspec/changes/design-campaign-authority-and-sync/design.md; roadmap.nodes.R0.contracts.prefixes[2].files[1]
+- R1.references (complete) via openspec/changes; roadmap.nodes.R1.references.ownershipPaths[2]
+- R1.archives (main-verified) via openspec/changes; roadmap.nodes.R1.archives.ownershipPaths[1]
+- R1.remote (main-verified) via openspec/changes; roadmap.nodes.R1.remote.ownershipPaths[1]
+- R2.authority (main-verified) via openspec/changes/design-campaign-authority-and-sync; roadmap.nodes.R2.authority.ownershipPaths[3]
+- R2.authority-live (main-verified) via openspec/changes/design-campaign-authority-and-sync; roadmap.nodes.R2.authority-live.ownershipPaths[36]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20260926[14].path
+- R2.authority-live (main-verified) via openspec/changes/design-campaign-authority-and-sync/design.md; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-0[0]
+- R9.close (planned) via openspec/changes; roadmap.nodes.R9.close.ownershipPaths[1]
+- R2.campaign-access (planned) via openspec/changes/design-campaign-authority-and-sync/design.md; roadmap.nodes.R2.campaign-access.ownershipPaths[0]
+
+## openspec/changes/design-campaign-authority-and-sync/specs/user-identity/spec.md
+Exists: false.
+
+- U97 (complete) via openspec/changes/design-campaign-authority-and-sync; units.U97.ownershipPaths[4]
+- LSC-0 (blocked) via openspec/changes/design-campaign-authority-and-sync; units.LSC-0.ownershipPaths[0]
+- U61 (complete) via openspec/changes/design-campaign-authority-and-sync; units.U61.ownershipPaths[0]
+- R0.contracts (complete) via openspec/changes/design-campaign-authority-and-sync; roadmap.nodes.R0.contracts.ownershipPaths[3]
+- R1.references (complete) via openspec/changes; roadmap.nodes.R1.references.ownershipPaths[2]
+- R1.archives (main-verified) via openspec/changes; roadmap.nodes.R1.archives.ownershipPaths[1]
+- R1.remote (main-verified) via openspec/changes; roadmap.nodes.R1.remote.ownershipPaths[1]
+- R2.authority (main-verified) via openspec/changes/design-campaign-authority-and-sync; roadmap.nodes.R2.authority.ownershipPaths[3]
+- R2.authority-live (main-verified) via openspec/changes/design-campaign-authority-and-sync; roadmap.nodes.R2.authority-live.ownershipPaths[36]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20260926[14].path
+- R2.authority-live (main-verified) via openspec/changes/design-campaign-authority-and-sync/specs/user-identity/spec.md; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-0[1]
+- R9.close (planned) via openspec/changes; roadmap.nodes.R9.close.ownershipPaths[1]
+
+## openspec/changes/design-campaign-authority-and-sync/specs/player-identity/spec.md
+Exists: false.
+
+- U97 (complete) via openspec/changes/design-campaign-authority-and-sync; units.U97.ownershipPaths[4]
+- LSC-0 (blocked) via openspec/changes/design-campaign-authority-and-sync; units.LSC-0.ownershipPaths[0]
+- U61 (complete) via openspec/changes/design-campaign-authority-and-sync; units.U61.ownershipPaths[0]
+- R0.contracts (complete) via openspec/changes/design-campaign-authority-and-sync; roadmap.nodes.R0.contracts.ownershipPaths[3]
+- R1.references (complete) via openspec/changes; roadmap.nodes.R1.references.ownershipPaths[2]
+- R1.archives (main-verified) via openspec/changes; roadmap.nodes.R1.archives.ownershipPaths[1]
+- R1.remote (main-verified) via openspec/changes; roadmap.nodes.R1.remote.ownershipPaths[1]
+- R2.authority (main-verified) via openspec/changes/design-campaign-authority-and-sync; roadmap.nodes.R2.authority.ownershipPaths[3]
+- R2.authority-live (main-verified) via openspec/changes/design-campaign-authority-and-sync; roadmap.nodes.R2.authority-live.ownershipPaths[36]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20260926[14].path
+- R2.authority-live (main-verified) via openspec/changes/design-campaign-authority-and-sync/specs/player-identity/spec.md; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-0[2]
+- R9.close (planned) via openspec/changes; roadmap.nodes.R9.close.ownershipPaths[1]
+
+## openspec/changes/design-campaign-authority-and-sync/specs/coop-campaign-sync/spec.md
+Exists: true.
+
+- U97 (complete) via openspec/changes/design-campaign-authority-and-sync; units.U97.ownershipPaths[4]
+- LSC-0 (blocked) via openspec/changes/design-campaign-authority-and-sync; units.LSC-0.ownershipPaths[0]
+- U61 (complete) via openspec/changes/design-campaign-authority-and-sync; units.U61.ownershipPaths[0]
+- R0.contracts (complete) via openspec/changes/design-campaign-authority-and-sync; roadmap.nodes.R0.contracts.ownershipPaths[3]
+- R1.references (complete) via openspec/changes; roadmap.nodes.R1.references.ownershipPaths[2]
+- R1.archives (main-verified) via openspec/changes; roadmap.nodes.R1.archives.ownershipPaths[1]
+- R1.remote (main-verified) via openspec/changes; roadmap.nodes.R1.remote.ownershipPaths[1]
+- R2.authority (main-verified) via openspec/changes/design-campaign-authority-and-sync; roadmap.nodes.R2.authority.ownershipPaths[3]
+- R2.authority-live (main-verified) via openspec/changes/design-campaign-authority-and-sync; roadmap.nodes.R2.authority-live.ownershipPaths[36]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20260926[14].path
+- R2.authority-live (main-verified) via openspec/changes/design-campaign-authority-and-sync/specs/coop-campaign-sync/spec.md; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-0[3]
+- R9.close (planned) via openspec/changes; roadmap.nodes.R9.close.ownershipPaths[1]
+
+## openspec/planning/2026-09-12-roadmap-completion/units.json
+Exists: true.
+
+Shared ledger: U0 (complete), U1 (complete), U1b (complete), U1c (complete), U1e (complete), U1d (complete), P2B (complete), P2CC (complete), P2CA (main-verified), P2CB (main-verified), P2CD (main-verified), P2CE (blocked), P2CE1 (main-verified), P2CE2 (main-verified), P2CE3 (main-verified), P2CF (blocked), P2CF1 (main-verified), P2CF2 (main-verified), P2CG1 (blocked), P2CG1A1 (main-verified), P2CG1A2 (main-verified), P2CG1B (main-verified), P2CG1C (main-verified), P2CG1D (main-verified), P2CG1E (main-verified), P2CG1F (main-verified), P2CG1G1 (main-verified), P2CG1G2A (main-verified), P2CG1G2 (implementing), P2CG1R (blocked), P2CG1S (blocked), B14-0 (blocked), B14-HEAD (blocked), P2CG1HP (blocked), LSC-0 (blocked), LSC-1 (blocked), LSC-2 (blocked), P2CG1H (blocked), P2CG1I1 (blocked), P2CG1I2 (blocked), P2CG1I3 (blocked), P2CG1I4 (blocked), P2CG2 (blocked), P2CH (blocked), P2C (blocked), TS7S1 (blocked), TS7S1A (main-verified), TS7S1B (main-verified), TS7S2A (main-verified), TS7S2B (main-verified), TS7S2OD (main-verified), TS7S3 (main-verified), TS7S4A (main-verified), TS7S4B (main-verified), TS7S5A (main-verified), TS7S5B (main-verified), TS7S5C (main-verified), U41 (complete), U42 (complete), U59 (complete), CNI0 (complete), CNI2 (blocked), CNI3 (blocked), U16 (complete), U85 (blocked), B15-0 (blocked), B15-1 (blocked), B15-2 (blocked), B15-4 (blocked), B15-4J (blocked), B15-3R (blocked), B15-3 (blocked), B15-5 (blocked), B15-5R (blocked), B15-PRIV (blocked), B15-6 (blocked), FOG-S (blocked), FOG-K (blocked), FOG-B (blocked), FOG-L (blocked), FOG-R (blocked), FOG-H (blocked), FOG-X (blocked), R0.plan (local-verified), R2.authority-live (main-verified), R9.close (planned), R0.publish (complete), R0.cni-registration (main-verified), R0.cni-evidence (main-verified), R0.cni-discharge (blocked). Only the admitted unit's own authentic lifecycle fields may change.
+
+## openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-admission-20261018.json
+Exists: false.
+
+- U0 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U0.ownershipPaths[0]
+- P2C (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.P2C.ownershipPaths[0]
+- U41 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U41.ownershipPaths[0]
+- U42 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U42.ownershipPaths[0]
+- U59 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U59.ownershipPaths[0]
+- U16 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U16.ownershipPaths[0]
+- U85 (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.U85.ownershipPaths[0]
+- R0.plan (local-verified) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.plan.ownershipPaths[0]
+- R2.authority-live (main-verified) via openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-admission-20261018.json; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-0[5]
+- R9.close (planned) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R9.close.ownershipPaths[0]
+- R0.publish (complete) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.publish.ownershipPaths[0]
+
+## openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-red-20261018.json
+Exists: false.
+
+- U0 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U0.ownershipPaths[0]
+- P2C (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.P2C.ownershipPaths[0]
+- U41 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U41.ownershipPaths[0]
+- U42 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U42.ownershipPaths[0]
+- U59 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U59.ownershipPaths[0]
+- U16 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U16.ownershipPaths[0]
+- U85 (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.U85.ownershipPaths[0]
+- R0.plan (local-verified) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.plan.ownershipPaths[0]
+- R2.authority-live (main-verified) via openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-red-20261018.json; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-0[6]
+- R9.close (planned) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R9.close.ownershipPaths[0]
+- R0.publish (complete) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.publish.ownershipPaths[0]
+
+## openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-local-20261018.json
+Exists: false.
+
+- U0 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U0.ownershipPaths[0]
+- P2C (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.P2C.ownershipPaths[0]
+- U41 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U41.ownershipPaths[0]
+- U42 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U42.ownershipPaths[0]
+- U59 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U59.ownershipPaths[0]
+- U16 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U16.ownershipPaths[0]
+- U85 (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.U85.ownershipPaths[0]
+- R0.plan (local-verified) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.plan.ownershipPaths[0]
+- R2.authority-live (main-verified) via openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-local-20261018.json; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-0[7]
+- R9.close (planned) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R9.close.ownershipPaths[0]
+- R0.publish (complete) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.publish.ownershipPaths[0]
+
+## openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-admission-review-20261018.json
+Exists: false.
+
+- U0 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U0.ownershipPaths[0]
+- P2C (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.P2C.ownershipPaths[0]
+- U41 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U41.ownershipPaths[0]
+- U42 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U42.ownershipPaths[0]
+- U59 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U59.ownershipPaths[0]
+- U16 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U16.ownershipPaths[0]
+- U85 (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.U85.ownershipPaths[0]
+- R0.plan (local-verified) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.plan.ownershipPaths[0]
+- R2.authority-live (main-verified) via openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-admission-review-20261018.json; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-0[8]
+- R9.close (planned) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R9.close.ownershipPaths[0]
+- R0.publish (complete) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.publish.ownershipPaths[0]
+
+## src/services/vault/LocalSeatCredentialRepository.ts
+Exists: false.
+
+- LSC-1 (blocked) via src/services/vault; units.LSC-1.ownershipPaths[0]
+- R2.combat (main-verified) via src/services; roadmap.nodes.R2.combat.ownershipPaths[1]
+- R2.authority-live (main-verified) via src/services/vault; roadmap.nodes.R2.authority-live.ownershipPaths[86]
+- R2.authority-live (main-verified) via src/services/vault/LocalSeatCredentialRepository.ts; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-1[0]
+
+## src/services/vault/__tests__/LocalSeatCredentialRepository.test.ts
+Exists: false.
+
+- LSC-1 (blocked) via src/services/vault; units.LSC-1.ownershipPaths[0]
+- R2.combat (main-verified) via src/services; roadmap.nodes.R2.combat.ownershipPaths[1]
+- R2.authority-live (main-verified) via src/services/vault; roadmap.nodes.R2.authority-live.ownershipPaths[86]
+- R2.authority-live (main-verified) via src/services/vault/__tests__/LocalSeatCredentialRepository.test.ts; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-1[1]
+
+## src/pages/api/multiplayer/auth/local-seats.ts
+Exists: false.
+
+- LSC-1 (blocked) via src/pages/api/multiplayer/auth; units.LSC-1.ownershipPaths[1]
+- U101 (planned) via src/pages/api/multiplayer/auth; units.U101.ownershipPaths[0]
+- U101a (planned) via src/pages/api/multiplayer/auth; units.U101a.ownershipPaths[0]
+- FOG-H (blocked) via src/pages/api/multiplayer; units.FOG-H.ownershipPaths[2]
+- R2.authority-live (main-verified) via src/pages/api/multiplayer/auth; roadmap.nodes.R2.authority-live.ownershipPaths[43]
+- R2.authority-live (main-verified) via src/pages/api/multiplayer/auth/local-seats.ts; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-1[2]
+- R5.fog-restoration (blocked) via src/pages/api/multiplayer; roadmap.nodes.R5.fog-restoration.ownershipPaths[6]
+
+## src/__tests__/api/localSeatCredentials.test.ts
+Exists: false.
+
+- LSC-1 (blocked) via src/__tests__/api; units.LSC-1.ownershipPaths[3]
+- R2.authority-live (main-verified) via src/__tests__/api; roadmap.nodes.R2.authority-live.ownershipPaths[87]
+- R2.authority-live (main-verified) via src/__tests__/api/localSeatCredentials.test.ts; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-1[3]
+
+## src/pages/api/multiplayer/auth/token.ts
+Exists: true.
+
+- LSC-1 (blocked) via src/pages/api/multiplayer/auth; units.LSC-1.ownershipPaths[1]
+- U101 (planned) via src/pages/api/multiplayer/auth; units.U101.ownershipPaths[0]
+- U101a (planned) via src/pages/api/multiplayer/auth; units.U101a.ownershipPaths[0]
+- U101a (planned) via src/pages/api/multiplayer/auth/token.ts; units.U101a.registration20261016.files[0]
+- FOG-H (blocked) via src/pages/api/multiplayer; units.FOG-H.ownershipPaths[2]
+- R2.authority-live (main-verified) via src/pages/api/multiplayer/auth; roadmap.nodes.R2.authority-live.ownershipPaths[43]
+- R2.authority-live (main-verified) via src/pages/api/multiplayer/auth/token.ts; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-1[4]
+- R5.fog-restoration (blocked) via src/pages/api/multiplayer; roadmap.nodes.R5.fog-restoration.ownershipPaths[6]
+
+## src/lib/api/securitySchemas.ts
+Exists: true.
+
+- U88 (complete) via src/lib/api; units.U88.ownershipPaths[0]
+- U93 (complete) via src/lib/api; units.U93.ownershipPaths[0]
+- P1A (complete) via src/lib/api; units.P1A.ownershipPaths[0]
+- P1 (blocked) via src/lib/api; units.P1.ownershipPaths[3]
+- LSC-1 (blocked) via src/lib/api/securitySchemas.ts; units.LSC-1.ownershipPaths[2]
+- U45 (planned) via src/lib; units.U45.ownershipPaths[1]
+- U4 (complete) via src/lib; units.U4.ownershipPaths[0]
+- U5d (complete) via src/lib; units.U5d.ownershipPaths[0]
+- U5e (complete) via src/lib; units.U5e.ownershipPaths[0]
+- U5h (complete) via src/lib; units.U5h.ownershipPaths[0]
+- U101a (planned) via src/lib/api/securitySchemas.ts; units.U101a.ownershipPaths[2]; units.U101a.registration20261016.files[2]
+- U101d (planned) via src/lib/api/securitySchemas.ts; units.U101d.ownershipPaths[3]; units.U101d.registration20261016.files[3]
+- R2.combat (main-verified) via src/lib; roadmap.nodes.R2.combat.ownershipPaths[0]
+- R2.authority-live (main-verified) via src/lib/api; roadmap.nodes.R2.authority-live.ownershipPaths[22]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20260925[3].path
+- R2.authority-live (main-verified) via src/lib/api/securitySchemas.ts; roadmap.nodes.R2.authority-live.ownershipPaths[60]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-1[5]
+
+## src/__tests__/api/localSeatToken.test.ts
+Exists: false.
+
+- LSC-1 (blocked) via src/__tests__/api; units.LSC-1.ownershipPaths[3]
+- R2.authority-live (main-verified) via src/__tests__/api; roadmap.nodes.R2.authority-live.ownershipPaths[87]
+- R2.authority-live (main-verified) via src/__tests__/api/localSeatToken.test.ts; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-1[6]
+
+## src/services/vault/LocalSeatCredentialService.ts
+Exists: false.
+
+- LSC-1 (blocked) via src/services/vault; units.LSC-1.ownershipPaths[0]
+- R2.combat (main-verified) via src/services; roadmap.nodes.R2.combat.ownershipPaths[1]
+- R2.authority-live (main-verified) via src/services/vault; roadmap.nodes.R2.authority-live.ownershipPaths[86]
+- R2.authority-live (main-verified) via src/services/vault/LocalSeatCredentialService.ts; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-1[7]
+
+## src/services/vault/__tests__/LocalSeatCredentialService.test.ts
+Exists: false.
+
+- LSC-1 (blocked) via src/services/vault; units.LSC-1.ownershipPaths[0]
+- R2.combat (main-verified) via src/services; roadmap.nodes.R2.combat.ownershipPaths[1]
+- R2.authority-live (main-verified) via src/services/vault; roadmap.nodes.R2.authority-live.ownershipPaths[86]
+- R2.authority-live (main-verified) via src/services/vault/__tests__/LocalSeatCredentialService.test.ts; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-1[8]
+
+## openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1-admission-20261018.json
+Exists: false.
+
+- U0 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U0.ownershipPaths[0]
+- P2C (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.P2C.ownershipPaths[0]
+- U41 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U41.ownershipPaths[0]
+- U42 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U42.ownershipPaths[0]
+- U59 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U59.ownershipPaths[0]
+- U16 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U16.ownershipPaths[0]
+- U85 (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.U85.ownershipPaths[0]
+- R0.plan (local-verified) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.plan.ownershipPaths[0]
+- R2.authority-live (main-verified) via openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1-admission-20261018.json; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-1[10]
+- R9.close (planned) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R9.close.ownershipPaths[0]
+- R0.publish (complete) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.publish.ownershipPaths[0]
+
+## openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1-red-20261018.json
+Exists: false.
+
+- U0 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U0.ownershipPaths[0]
+- P2C (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.P2C.ownershipPaths[0]
+- U41 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U41.ownershipPaths[0]
+- U42 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U42.ownershipPaths[0]
+- U59 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U59.ownershipPaths[0]
+- U16 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U16.ownershipPaths[0]
+- U85 (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.U85.ownershipPaths[0]
+- R0.plan (local-verified) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.plan.ownershipPaths[0]
+- R2.authority-live (main-verified) via openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1-red-20261018.json; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-1[11]
+- R9.close (planned) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R9.close.ownershipPaths[0]
+- R0.publish (complete) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.publish.ownershipPaths[0]
+
+## openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1-local-20261018.json
+Exists: false.
+
+- U0 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U0.ownershipPaths[0]
+- P2C (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.P2C.ownershipPaths[0]
+- U41 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U41.ownershipPaths[0]
+- U42 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U42.ownershipPaths[0]
+- U59 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U59.ownershipPaths[0]
+- U16 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U16.ownershipPaths[0]
+- U85 (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.U85.ownershipPaths[0]
+- R0.plan (local-verified) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.plan.ownershipPaths[0]
+- R2.authority-live (main-verified) via openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1-local-20261018.json; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-1[12]
+- R9.close (planned) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R9.close.ownershipPaths[0]
+- R0.publish (complete) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.publish.ownershipPaths[0]
+
+## openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1-admission-review-20261018.json
+Exists: false.
+
+- U0 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U0.ownershipPaths[0]
+- P2C (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.P2C.ownershipPaths[0]
+- U41 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U41.ownershipPaths[0]
+- U42 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U42.ownershipPaths[0]
+- U59 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U59.ownershipPaths[0]
+- U16 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U16.ownershipPaths[0]
+- U85 (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.U85.ownershipPaths[0]
+- R0.plan (local-verified) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.plan.ownershipPaths[0]
+- R2.authority-live (main-verified) via openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1-admission-review-20261018.json; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-1[13]
+- R9.close (planned) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R9.close.ownershipPaths[0]
+- R0.publish (complete) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.publish.ownershipPaths[0]
+
+## src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx
+Exists: true.
+
+- P2CG1G2 (implementing) via src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx; units.P2CG1G2.ownershipPaths[1]
+- LSC-2 (blocked) via src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx; units.LSC-2.ownershipPaths[0]
+- LSC-2 (blocked) via src/pages-modules/gameplay/campaigns; units.LSC-2.ownershipPaths[2]
+- U101c (planned) via src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx; units.U101c.ownershipPaths[0]; units.U101c.registration20261016.files[0]
+- B15-2 (blocked) via src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx; units.B15-2.ownershipPaths[5]
+- B15-PRIV (blocked) via src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx; units.B15-PRIV.ownershipPaths[3]
+- R2.authority-live (main-verified) via src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1G2[0]; roadmap.nodes.R2.authority-live.ownershipPaths[68]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-2[0]
+- R2.authority-live (main-verified) via src/pages-modules/gameplay/campaigns; roadmap.nodes.R2.authority-live.ownershipPaths[88]
+- R2.campaign-access (planned) via src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx; roadmap.nodes.R2.campaign-access.ownershipPaths[13]
+
+## src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx
+Exists: true.
+
+- P2CG1G2 (implementing) via src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx; units.P2CG1G2.ownershipPaths[2]
+- LSC-2 (blocked) via src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx; units.LSC-2.ownershipPaths[1]
+- LSC-2 (blocked) via src/pages-modules/gameplay/campaigns; units.LSC-2.ownershipPaths[2]
+- U101c (planned) via src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx; units.U101c.ownershipPaths[1]; units.U101c.registration20261016.files[1]
+- B15-2 (blocked) via src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx; units.B15-2.ownershipPaths[7]
+- B15-PRIV (blocked) via src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx; units.B15-PRIV.ownershipPaths[4]
+- R2.authority-live (main-verified) via src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1G2[3]; roadmap.nodes.R2.authority-live.ownershipPaths[69]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-2[1]
+- R2.authority-live (main-verified) via src/pages-modules/gameplay/campaigns; roadmap.nodes.R2.authority-live.ownershipPaths[88]
+- R2.campaign-access (planned) via src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx; roadmap.nodes.R2.campaign-access.ownershipPaths[15]
+
+## src/lib/campaign/coop/coopCampaignAuthTokenStore.ts
+Exists: true.
+
+- U35g (complete) via src/lib/campaign; units.U35g.ownershipPaths[0]
+- U35i (complete) via src/lib/campaign; units.U35i.ownershipPaths[0]
+- U58 (complete) via src/lib/campaign; units.U58.ownershipPaths[0]
+- U89 (complete) via src/lib/campaign; units.U89.ownershipPaths[1]
+- U92 (complete) via src/lib/campaign; units.U92.ownershipPaths[0]
+- U97 (complete) via src/lib/campaign; units.U97.ownershipPaths[1]
+- U98 (complete) via src/lib/campaign; units.U98.ownershipPaths[1]
+- P1B (blocked) via src/lib/campaign; units.P1B.ownershipPaths[1]
+- P1B1 (complete) via src/lib/campaign; units.P1B1.ownershipPaths[1]
+- P1 (blocked) via src/lib/campaign; units.P1.ownershipPaths[0]
+- P2CA (main-verified) via src/lib/campaign; units.P2CA.ownershipPaths[0]
+- P2CB (main-verified) via src/lib/campaign; units.P2CB.ownershipPaths[0]
+- P2CD (main-verified) via src/lib/campaign; units.P2CD.ownershipPaths[2]
+- P2CF (blocked) via src/lib/campaign; units.P2CF.ownershipPaths[1]
+- P2CF1 (main-verified) via src/lib/campaign; units.P2CF1.ownershipPaths[0]
+- P2CG1B (main-verified) via src/lib/campaign; units.P2CG1B.ownershipPaths[0]
+- P2CG1G1 (main-verified) via src/lib/campaign; units.P2CG1G1.ownershipPaths[1]
+- P2CG1G2 (implementing) via src/lib/campaign; units.P2CG1G2.ownershipPaths[8]
+- P2CG1R (blocked) via src/lib/campaign; units.P2CG1R.ownershipPaths[0]
+- LSC-2 (blocked) via src/lib/campaign; units.LSC-2.ownershipPaths[3]
+- U38 (blocked) via src/lib/campaign; units.U38.ownershipPaths[1]
+- U45 (planned) via src/lib; units.U45.ownershipPaths[1]
+- U56 (planned) via src/lib/campaign; units.U56.ownershipPaths[0]
+- U4 (complete) via src/lib; units.U4.ownershipPaths[0]
+- U5d (complete) via src/lib; units.U5d.ownershipPaths[0]
+- U5e (complete) via src/lib; units.U5e.ownershipPaths[0]
+- U5h (complete) via src/lib; units.U5h.ownershipPaths[0]
+- U100 (planned) via src/lib/campaign; units.U100.ownershipPaths[0]
+- U105 (planned) via src/lib/campaign; units.U105.ownershipPaths[0]
+- U101c (planned) via src/lib/campaign; units.U101c.ownershipPaths[2]
+- U101c (planned) via src/lib/campaign/coop/coopCampaignAuthTokenStore.ts; units.U101c.registration20261016.files[2]
+- R2.combat (main-verified) via src/lib; roadmap.nodes.R2.combat.ownershipPaths[0]
+- R2.authority-live (main-verified) via src/lib/campaign; roadmap.nodes.R2.authority-live.ownershipPaths[0]
+- R2.authority-live (main-verified) via src/lib/campaign/coop/coopCampaignAuthTokenStore.ts; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-2[2]
+- R5.E1 (planned) via src/lib/campaign; roadmap.nodes.R5.E1.ownershipPaths[2]
+- R5.E2 (planned) via src/lib/campaign; roadmap.nodes.R5.E2.ownershipPaths[2]
+- R5.E3 (planned) via src/lib/campaign; roadmap.nodes.R5.E3.ownershipPaths[2]
+- R5.E4 (planned) via src/lib/campaign; roadmap.nodes.R5.E4.ownershipPaths[2]
+- R5.E5 (planned) via src/lib/campaign; roadmap.nodes.R5.E5.ownershipPaths[2]
+- R5.E6 (planned) via src/lib/campaign; roadmap.nodes.R5.E6.ownershipPaths[2]
+- R5.E7 (planned) via src/lib/campaign; roadmap.nodes.R5.E7.ownershipPaths[2]
+- R5.E8 (planned) via src/lib/campaign; roadmap.nodes.R5.E8.ownershipPaths[2]
+- R5.E9 (planned) via src/lib/campaign; roadmap.nodes.R5.E9.ownershipPaths[2]
+- R5.E10 (planned) via src/lib/campaign; roadmap.nodes.R5.E10.ownershipPaths[2]
+- R6.B4 (planned) via src/lib/campaign; roadmap.nodes.R6.B4.ownershipPaths[3]
+- R6.B5 (planned) via src/lib/campaign; roadmap.nodes.R6.B5.ownershipPaths[3]
+- R6.B6 (planned) via src/lib/campaign; roadmap.nodes.R6.B6.ownershipPaths[3]
+- R6.B7 (planned) via src/lib/campaign; roadmap.nodes.R6.B7.ownershipPaths[3]
+- R8.travel (planned) via src/lib/campaign; roadmap.nodes.R8.travel.ownershipPaths[2]
+- R8.opportunities (planned) via src/lib/campaign; roadmap.nodes.R8.opportunities.ownershipPaths[1]
+- R2.authority-host (main-verified) via src/lib/campaign; roadmap.nodes.R2.authority-host.ownershipPaths[1]
+
+## src/lib/campaign/coop/localSeatCredentialStore.ts
+Exists: false.
+
+- U35g (complete) via src/lib/campaign; units.U35g.ownershipPaths[0]
+- U35i (complete) via src/lib/campaign; units.U35i.ownershipPaths[0]
+- U58 (complete) via src/lib/campaign; units.U58.ownershipPaths[0]
+- U89 (complete) via src/lib/campaign; units.U89.ownershipPaths[1]
+- U92 (complete) via src/lib/campaign; units.U92.ownershipPaths[0]
+- U97 (complete) via src/lib/campaign; units.U97.ownershipPaths[1]
+- U98 (complete) via src/lib/campaign; units.U98.ownershipPaths[1]
+- P1B (blocked) via src/lib/campaign; units.P1B.ownershipPaths[1]
+- P1B1 (complete) via src/lib/campaign; units.P1B1.ownershipPaths[1]
+- P1 (blocked) via src/lib/campaign; units.P1.ownershipPaths[0]
+- P2CA (main-verified) via src/lib/campaign; units.P2CA.ownershipPaths[0]
+- P2CB (main-verified) via src/lib/campaign; units.P2CB.ownershipPaths[0]
+- P2CD (main-verified) via src/lib/campaign; units.P2CD.ownershipPaths[2]
+- P2CF (blocked) via src/lib/campaign; units.P2CF.ownershipPaths[1]
+- P2CF1 (main-verified) via src/lib/campaign; units.P2CF1.ownershipPaths[0]
+- P2CG1B (main-verified) via src/lib/campaign; units.P2CG1B.ownershipPaths[0]
+- P2CG1G1 (main-verified) via src/lib/campaign; units.P2CG1G1.ownershipPaths[1]
+- P2CG1G2 (implementing) via src/lib/campaign; units.P2CG1G2.ownershipPaths[8]
+- P2CG1R (blocked) via src/lib/campaign; units.P2CG1R.ownershipPaths[0]
+- LSC-2 (blocked) via src/lib/campaign; units.LSC-2.ownershipPaths[3]
+- U38 (blocked) via src/lib/campaign; units.U38.ownershipPaths[1]
+- U45 (planned) via src/lib; units.U45.ownershipPaths[1]
+- U56 (planned) via src/lib/campaign; units.U56.ownershipPaths[0]
+- U4 (complete) via src/lib; units.U4.ownershipPaths[0]
+- U5d (complete) via src/lib; units.U5d.ownershipPaths[0]
+- U5e (complete) via src/lib; units.U5e.ownershipPaths[0]
+- U5h (complete) via src/lib; units.U5h.ownershipPaths[0]
+- U100 (planned) via src/lib/campaign; units.U100.ownershipPaths[0]
+- U105 (planned) via src/lib/campaign; units.U105.ownershipPaths[0]
+- U101c (planned) via src/lib/campaign; units.U101c.ownershipPaths[2]
+- R2.combat (main-verified) via src/lib; roadmap.nodes.R2.combat.ownershipPaths[0]
+- R2.authority-live (main-verified) via src/lib/campaign; roadmap.nodes.R2.authority-live.ownershipPaths[0]
+- R2.authority-live (main-verified) via src/lib/campaign/coop/localSeatCredentialStore.ts; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-2[3]
+- R5.E1 (planned) via src/lib/campaign; roadmap.nodes.R5.E1.ownershipPaths[2]
+- R5.E2 (planned) via src/lib/campaign; roadmap.nodes.R5.E2.ownershipPaths[2]
+- R5.E3 (planned) via src/lib/campaign; roadmap.nodes.R5.E3.ownershipPaths[2]
+- R5.E4 (planned) via src/lib/campaign; roadmap.nodes.R5.E4.ownershipPaths[2]
+- R5.E5 (planned) via src/lib/campaign; roadmap.nodes.R5.E5.ownershipPaths[2]
+- R5.E6 (planned) via src/lib/campaign; roadmap.nodes.R5.E6.ownershipPaths[2]
+- R5.E7 (planned) via src/lib/campaign; roadmap.nodes.R5.E7.ownershipPaths[2]
+- R5.E8 (planned) via src/lib/campaign; roadmap.nodes.R5.E8.ownershipPaths[2]
+- R5.E9 (planned) via src/lib/campaign; roadmap.nodes.R5.E9.ownershipPaths[2]
+- R5.E10 (planned) via src/lib/campaign; roadmap.nodes.R5.E10.ownershipPaths[2]
+- R6.B4 (planned) via src/lib/campaign; roadmap.nodes.R6.B4.ownershipPaths[3]
+- R6.B5 (planned) via src/lib/campaign; roadmap.nodes.R6.B5.ownershipPaths[3]
+- R6.B6 (planned) via src/lib/campaign; roadmap.nodes.R6.B6.ownershipPaths[3]
+- R6.B7 (planned) via src/lib/campaign; roadmap.nodes.R6.B7.ownershipPaths[3]
+- R8.travel (planned) via src/lib/campaign; roadmap.nodes.R8.travel.ownershipPaths[2]
+- R8.opportunities (planned) via src/lib/campaign; roadmap.nodes.R8.opportunities.ownershipPaths[1]
+- R2.authority-host (main-verified) via src/lib/campaign; roadmap.nodes.R2.authority-host.ownershipPaths[1]
+
+## src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts
+Exists: false.
+
+- U35g (complete) via src/lib/campaign; units.U35g.ownershipPaths[0]
+- U35i (complete) via src/lib/campaign; units.U35i.ownershipPaths[0]
+- U58 (complete) via src/lib/campaign; units.U58.ownershipPaths[0]
+- U89 (complete) via src/lib/campaign; units.U89.ownershipPaths[1]
+- U92 (complete) via src/lib/campaign; units.U92.ownershipPaths[0]
+- U97 (complete) via src/lib/campaign; units.U97.ownershipPaths[1]
+- U98 (complete) via src/lib/campaign; units.U98.ownershipPaths[1]
+- P1B (blocked) via src/lib/campaign; units.P1B.ownershipPaths[1]
+- P1B1 (complete) via src/lib/campaign; units.P1B1.ownershipPaths[1]
+- P1 (blocked) via src/lib/campaign; units.P1.ownershipPaths[0]
+- P2CA (main-verified) via src/lib/campaign; units.P2CA.ownershipPaths[0]
+- P2CB (main-verified) via src/lib/campaign; units.P2CB.ownershipPaths[0]
+- P2CD (main-verified) via src/lib/campaign; units.P2CD.ownershipPaths[2]
+- P2CF (blocked) via src/lib/campaign; units.P2CF.ownershipPaths[1]
+- P2CF1 (main-verified) via src/lib/campaign; units.P2CF1.ownershipPaths[0]
+- P2CG1B (main-verified) via src/lib/campaign; units.P2CG1B.ownershipPaths[0]
+- P2CG1G1 (main-verified) via src/lib/campaign; units.P2CG1G1.ownershipPaths[1]
+- P2CG1G2 (implementing) via src/lib/campaign; units.P2CG1G2.ownershipPaths[8]
+- P2CG1R (blocked) via src/lib/campaign; units.P2CG1R.ownershipPaths[0]
+- LSC-2 (blocked) via src/lib/campaign; units.LSC-2.ownershipPaths[3]
+- U38 (blocked) via src/lib/campaign; units.U38.ownershipPaths[1]
+- U45 (planned) via src/lib; units.U45.ownershipPaths[1]
+- U56 (planned) via src/lib/campaign; units.U56.ownershipPaths[0]
+- U4 (complete) via src/lib; units.U4.ownershipPaths[0]
+- U5d (complete) via src/lib; units.U5d.ownershipPaths[0]
+- U5e (complete) via src/lib; units.U5e.ownershipPaths[0]
+- U5h (complete) via src/lib; units.U5h.ownershipPaths[0]
+- U100 (planned) via src/lib/campaign; units.U100.ownershipPaths[0]
+- U105 (planned) via src/lib/campaign; units.U105.ownershipPaths[0]
+- U101c (planned) via src/lib/campaign; units.U101c.ownershipPaths[2]
+- R2.combat (main-verified) via src/lib; roadmap.nodes.R2.combat.ownershipPaths[0]
+- R2.authority-live (main-verified) via src/lib/campaign; roadmap.nodes.R2.authority-live.ownershipPaths[0]
+- R2.authority-live (main-verified) via src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-2[4]
+- R5.E1 (planned) via src/lib/campaign; roadmap.nodes.R5.E1.ownershipPaths[2]
+- R5.E2 (planned) via src/lib/campaign; roadmap.nodes.R5.E2.ownershipPaths[2]
+- R5.E3 (planned) via src/lib/campaign; roadmap.nodes.R5.E3.ownershipPaths[2]
+- R5.E4 (planned) via src/lib/campaign; roadmap.nodes.R5.E4.ownershipPaths[2]
+- R5.E5 (planned) via src/lib/campaign; roadmap.nodes.R5.E5.ownershipPaths[2]
+- R5.E6 (planned) via src/lib/campaign; roadmap.nodes.R5.E6.ownershipPaths[2]
+- R5.E7 (planned) via src/lib/campaign; roadmap.nodes.R5.E7.ownershipPaths[2]
+- R5.E8 (planned) via src/lib/campaign; roadmap.nodes.R5.E8.ownershipPaths[2]
+- R5.E9 (planned) via src/lib/campaign; roadmap.nodes.R5.E9.ownershipPaths[2]
+- R5.E10 (planned) via src/lib/campaign; roadmap.nodes.R5.E10.ownershipPaths[2]
+- R6.B4 (planned) via src/lib/campaign; roadmap.nodes.R6.B4.ownershipPaths[3]
+- R6.B5 (planned) via src/lib/campaign; roadmap.nodes.R6.B5.ownershipPaths[3]
+- R6.B6 (planned) via src/lib/campaign; roadmap.nodes.R6.B6.ownershipPaths[3]
+- R6.B7 (planned) via src/lib/campaign; roadmap.nodes.R6.B7.ownershipPaths[3]
+- R8.travel (planned) via src/lib/campaign; roadmap.nodes.R8.travel.ownershipPaths[2]
+- R8.opportunities (planned) via src/lib/campaign; roadmap.nodes.R8.opportunities.ownershipPaths[1]
+- R2.authority-host (main-verified) via src/lib/campaign; roadmap.nodes.R2.authority-host.ownershipPaths[1]
+
+## src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx
+Exists: false.
+
+- LSC-2 (blocked) via src/pages-modules/gameplay/campaigns; units.LSC-2.ownershipPaths[2]
+- R2.authority-live (main-verified) via src/pages-modules/gameplay/campaigns; roadmap.nodes.R2.authority-live.ownershipPaths[88]
+- R2.authority-live (main-verified) via src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-2[5]
+
+## src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx
+Exists: false.
+
+- LSC-2 (blocked) via src/pages-modules/gameplay/campaigns; units.LSC-2.ownershipPaths[2]
+- R2.authority-live (main-verified) via src/pages-modules/gameplay/campaigns; roadmap.nodes.R2.authority-live.ownershipPaths[88]
+- R2.authority-live (main-verified) via src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-2[6]
+
+## e2e/local-seat-credentials.spec.ts
+Exists: false.
+
+- R2.authority-live (main-verified) via e2e/local-seat-credentials.spec.ts; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-2[7]
+
+## docs/releases/v2.2.0-local-seat-proof.md
+Exists: false.
+
+- LSC-2 (blocked) via docs/releases; units.LSC-2.ownershipPaths[5]
+- R2.authority-live (main-verified) via docs/releases; roadmap.nodes.R2.authority-live.ownershipPaths[90]
+- R2.authority-live (main-verified) via docs/releases/v2.2.0-local-seat-proof.md; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-2[8]
+
+## openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-admission-20261018.json
+Exists: false.
+
+- U0 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U0.ownershipPaths[0]
+- P2C (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.P2C.ownershipPaths[0]
+- U41 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U41.ownershipPaths[0]
+- U42 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U42.ownershipPaths[0]
+- U59 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U59.ownershipPaths[0]
+- U16 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U16.ownershipPaths[0]
+- U85 (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.U85.ownershipPaths[0]
+- R0.plan (local-verified) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.plan.ownershipPaths[0]
+- R2.authority-live (main-verified) via openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-admission-20261018.json; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-2[10]
+- R9.close (planned) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R9.close.ownershipPaths[0]
+- R0.publish (complete) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.publish.ownershipPaths[0]
+
+## openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-red-20261018.json
+Exists: false.
+
+- U0 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U0.ownershipPaths[0]
+- P2C (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.P2C.ownershipPaths[0]
+- U41 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U41.ownershipPaths[0]
+- U42 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U42.ownershipPaths[0]
+- U59 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U59.ownershipPaths[0]
+- U16 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U16.ownershipPaths[0]
+- U85 (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.U85.ownershipPaths[0]
+- R0.plan (local-verified) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.plan.ownershipPaths[0]
+- R2.authority-live (main-verified) via openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-red-20261018.json; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-2[11]
+- R9.close (planned) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R9.close.ownershipPaths[0]
+- R0.publish (complete) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.publish.ownershipPaths[0]
+
+## openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-local-20261018.json
+Exists: false.
+
+- U0 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U0.ownershipPaths[0]
+- P2C (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.P2C.ownershipPaths[0]
+- U41 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U41.ownershipPaths[0]
+- U42 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U42.ownershipPaths[0]
+- U59 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U59.ownershipPaths[0]
+- U16 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U16.ownershipPaths[0]
+- U85 (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.U85.ownershipPaths[0]
+- R0.plan (local-verified) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.plan.ownershipPaths[0]
+- R2.authority-live (main-verified) via openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-local-20261018.json; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-2[12]
+- R9.close (planned) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R9.close.ownershipPaths[0]
+- R0.publish (complete) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.publish.ownershipPaths[0]
+
+## openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-admission-review-20261018.json
+Exists: false.
+
+- U0 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U0.ownershipPaths[0]
+- P2C (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.P2C.ownershipPaths[0]
+- U41 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U41.ownershipPaths[0]
+- U42 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U42.ownershipPaths[0]
+- U59 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U59.ownershipPaths[0]
+- U16 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U16.ownershipPaths[0]
+- U85 (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.U85.ownershipPaths[0]
+- R0.plan (local-verified) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.plan.ownershipPaths[0]
+- R2.authority-live (main-verified) via openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-admission-review-20261018.json; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-2[13]
+- R9.close (planned) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R9.close.ownershipPaths[0]
+- R0.publish (complete) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.publish.ownershipPaths[0]
+
+## src/services/persistence/SQLiteService.localSeatCredentials.migration.ts
+Exists: false.
+
+- P2CA (main-verified) via src/services/persistence; units.P2CA.ownershipPaths[1]
+- R2.combat (main-verified) via src/services; roadmap.nodes.R2.combat.ownershipPaths[1]
+- R2.authority-live (main-verified) via src/services/persistence; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.paths[0]; roadmap.nodes.R2.authority-live.ownershipPaths[56]
+
+## src/services/persistence/SQLiteService.migrations.ts
+Exists: true.
+
+- P2CA (main-verified) via src/services/persistence; units.P2CA.ownershipPaths[1]
+- R2.combat (main-verified) via src/services; roadmap.nodes.R2.combat.ownershipPaths[1]
+- R2.authority-live (main-verified) via src/services/persistence; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.paths[0]; roadmap.nodes.R2.authority-live.ownershipPaths[56]
+- R2.authority-live (main-verified) via src/services/persistence/SQLiteService.migrations.ts; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CA[2]
+
+## src/services/persistence/__tests__/SQLiteService.localSeatCredentials.migration.test.ts
+Exists: false.
+
+- P2CA (main-verified) via src/services/persistence; units.P2CA.ownershipPaths[1]
+- R2.combat (main-verified) via src/services; roadmap.nodes.R2.combat.ownershipPaths[1]
+- R2.authority-live (main-verified) via src/services/persistence; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.paths[0]; roadmap.nodes.R2.authority-live.ownershipPaths[56]
+
+## playwright.local-seat-packaged.config.ts
+Exists: false.
+
+No literal/ancestor reservation found; this is not permission.
+
+## openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1db-admission-20261018.json
+Exists: false.
+
+- U0 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U0.ownershipPaths[0]
+- P2C (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.P2C.ownershipPaths[0]
+- U41 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U41.ownershipPaths[0]
+- U42 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U42.ownershipPaths[0]
+- U59 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U59.ownershipPaths[0]
+- U16 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U16.ownershipPaths[0]
+- U85 (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.U85.ownershipPaths[0]
+- R0.plan (local-verified) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.plan.ownershipPaths[0]
+- R9.close (planned) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R9.close.ownershipPaths[0]
+- R0.publish (complete) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.publish.ownershipPaths[0]
+
+## openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1db-red-20261018.json
+Exists: false.
+
+- U0 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U0.ownershipPaths[0]
+- P2C (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.P2C.ownershipPaths[0]
+- U41 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U41.ownershipPaths[0]
+- U42 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U42.ownershipPaths[0]
+- U59 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U59.ownershipPaths[0]
+- U16 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U16.ownershipPaths[0]
+- U85 (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.U85.ownershipPaths[0]
+- R0.plan (local-verified) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.plan.ownershipPaths[0]
+- R9.close (planned) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R9.close.ownershipPaths[0]
+- R0.publish (complete) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.publish.ownershipPaths[0]
+
+## openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1db-local-20261018.json
+Exists: false.
+
+- U0 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U0.ownershipPaths[0]
+- P2C (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.P2C.ownershipPaths[0]
+- U41 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U41.ownershipPaths[0]
+- U42 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U42.ownershipPaths[0]
+- U59 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U59.ownershipPaths[0]
+- U16 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U16.ownershipPaths[0]
+- U85 (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.U85.ownershipPaths[0]
+- R0.plan (local-verified) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.plan.ownershipPaths[0]
+- R9.close (planned) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R9.close.ownershipPaths[0]
+- R0.publish (complete) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.publish.ownershipPaths[0]
+
+## openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1db-admission-review-20261018.json
+Exists: false.
+
+- U0 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U0.ownershipPaths[0]
+- P2C (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.P2C.ownershipPaths[0]
+- U41 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U41.ownershipPaths[0]
+- U42 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U42.ownershipPaths[0]
+- U59 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U59.ownershipPaths[0]
+- U16 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U16.ownershipPaths[0]
+- U85 (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.U85.ownershipPaths[0]
+- R0.plan (local-verified) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.plan.ownershipPaths[0]
+- R9.close (planned) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R9.close.ownershipPaths[0]
+- R0.publish (complete) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.publish.ownershipPaths[0]
+
+## openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-admission-20261018.json
+Exists: false.
+
+- U0 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U0.ownershipPaths[0]
+- P2C (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.P2C.ownershipPaths[0]
+- U41 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U41.ownershipPaths[0]
+- U42 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U42.ownershipPaths[0]
+- U59 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U59.ownershipPaths[0]
+- U16 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U16.ownershipPaths[0]
+- U85 (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.U85.ownershipPaths[0]
+- R0.plan (local-verified) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.plan.ownershipPaths[0]
+- R9.close (planned) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R9.close.ownershipPaths[0]
+- R0.publish (complete) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.publish.ownershipPaths[0]
+
+## openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-red-20261018.json
+Exists: false.
+
+- U0 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U0.ownershipPaths[0]
+- P2C (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.P2C.ownershipPaths[0]
+- U41 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U41.ownershipPaths[0]
+- U42 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U42.ownershipPaths[0]
+- U59 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U59.ownershipPaths[0]
+- U16 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U16.ownershipPaths[0]
+- U85 (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.U85.ownershipPaths[0]
+- R0.plan (local-verified) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.plan.ownershipPaths[0]
+- R9.close (planned) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R9.close.ownershipPaths[0]
+- R0.publish (complete) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.publish.ownershipPaths[0]
+
+## openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-local-20261018.json
+Exists: false.
+
+- U0 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U0.ownershipPaths[0]
+- P2C (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.P2C.ownershipPaths[0]
+- U41 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U41.ownershipPaths[0]
+- U42 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U42.ownershipPaths[0]
+- U59 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U59.ownershipPaths[0]
+- U16 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U16.ownershipPaths[0]
+- U85 (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.U85.ownershipPaths[0]
+- R0.plan (local-verified) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.plan.ownershipPaths[0]
+- R9.close (planned) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R9.close.ownershipPaths[0]
+- R0.publish (complete) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.publish.ownershipPaths[0]
+
+## openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-admission-review-20261018.json
+Exists: false.
+
+- U0 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U0.ownershipPaths[0]
+- P2C (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.P2C.ownershipPaths[0]
+- U41 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U41.ownershipPaths[0]
+- U42 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U42.ownershipPaths[0]
+- U59 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U59.ownershipPaths[0]
+- U16 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U16.ownershipPaths[0]
+- U85 (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.U85.ownershipPaths[0]
+- R0.plan (local-verified) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.plan.ownershipPaths[0]
+- R9.close (planned) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R9.close.ownershipPaths[0]
+- R0.publish (complete) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.publish.ownershipPaths[0]
+
+## src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx
+Exists: true.
+
+- U35f (complete) via src/components/campaign/coop; units.U35f.ownershipPaths[0]
+- U90 (blocked) via src/components/campaign/coop; units.U90.ownershipPaths[0]
+- U36 (complete) via src/components/campaign/coop; units.U36.ownershipPaths[2]
+- P2CF (blocked) via src/components/campaign/coop; units.P2CF.ownershipPaths[0]
+- P2CF2 (main-verified) via src/components/campaign/coop; units.P2CF2.ownershipPaths[0]
+- P2CG1F (main-verified) via src/components/campaign/coop; units.P2CG1F.ownershipPaths[0]
+- P2CG1G1 (main-verified) via src/components/campaign/coop; units.P2CG1G1.ownershipPaths[0]
+- P2CG1G2 (implementing) via src/components/campaign/coop; units.P2CG1G2.ownershipPaths[0]
+- P2CG1HP (blocked) via src/components/campaign/coop; units.P2CG1HP.ownershipPaths[0]
+- P2 (blocked) via src/components/campaign/coop; units.P2.ownershipPaths[2]
+- R2.authority-live (main-verified) via src/components/campaign/coop; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.paths[3]; roadmap.nodes.R2.authority-live.ownershipPaths[59]
+- R2.authority-live (main-verified) via src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1G1[0]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1G2[1]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CF[0]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CF2[0]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1HP[1]
+- R7.context (planned) via src/components/campaign; roadmap.nodes.R7.context.ownershipPaths[0]
+- R8.starmap (planned) via src/components/campaign; roadmap.nodes.R8.starmap.ownershipPaths[0]
+- R2.multiplayer-client (planned) via src/components/campaign/coop; roadmap.nodes.R2.multiplayer-client.ownershipPaths[8]; roadmap.nodes.R2.multiplayer-client.ownershipPathsAmended20260922[2].path
+- roadmap-registration (documentary) via src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx; roadmap.hConsumerPrereqAmendment20261018.manifest[1]
+
+## src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx
+Exists: true.
+
+- P2CG1G2 (implementing) via src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx; units.P2CG1G2.ownershipPaths[3]
+- P2 (blocked) via src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx; units.P2.ownershipPaths[7]; units.P2.ownershipAmended20260929.addedExistingPaths[2]
+- R2.authority-live (main-verified) via src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.paths[5]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1G2[2]; roadmap.nodes.R2.authority-live.ownershipPaths[75]
+- R7.context (planned) via src/pages/gameplay/campaigns; roadmap.nodes.R7.context.ownershipPaths[1]
+- R8.starmap (planned) via src/pages/gameplay/campaigns; roadmap.nodes.R8.starmap.ownershipPaths[1]
+- R2.multiplayer-client (planned) via src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx; roadmap.nodes.R2.multiplayer-client.ownershipPaths[1]; roadmap.nodes.R2.multiplayer-client.ownershipPathsAmended20260929[0].path
+
+## src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx
+Exists: true.
+
+- P2CG1G2 (implementing) via src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx; units.P2CG1G2.ownershipPaths[4]
+- P2 (blocked) via src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx; units.P2.ownershipPaths[8]; units.P2.ownershipAmended20260929.addedExistingPaths[3]
+- R2.authority-live (main-verified) via src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.paths[6]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1G2[4]; roadmap.nodes.R2.authority-live.ownershipPaths[76]
+- R2.multiplayer-client (planned) via src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx; roadmap.nodes.R2.multiplayer-client.ownershipPaths[2]; roadmap.nodes.R2.multiplayer-client.ownershipPathsAmended20260929[1].path
+
+## src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx
+Exists: true.
+
+- P2CG1G2 (implementing) via src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx; units.P2CG1G2.ownershipPaths[5]
+- R2.authority-live (main-verified) via src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.paths[7]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1G2[5]; roadmap.nodes.R2.authority-live.ownershipPaths[77]
+
+## src/lib/campaign/coop/campaignSyncTransport.ts
+Exists: true.
+
+- U35g (complete) via src/lib/campaign; units.U35g.ownershipPaths[0]
+- U35i (complete) via src/lib/campaign; units.U35i.ownershipPaths[0]
+- U58 (complete) via src/lib/campaign; units.U58.ownershipPaths[0]
+- U89 (complete) via src/lib/campaign; units.U89.ownershipPaths[1]
+- U92 (complete) via src/lib/campaign; units.U92.ownershipPaths[0]
+- U97 (complete) via src/lib/campaign; units.U97.ownershipPaths[1]
+- U98 (complete) via src/lib/campaign; units.U98.ownershipPaths[1]
+- P1B (blocked) via src/lib/campaign; units.P1B.ownershipPaths[1]
+- P1B1 (complete) via src/lib/campaign; units.P1B1.ownershipPaths[1]
+- P1 (blocked) via src/lib/campaign; units.P1.ownershipPaths[0]
+- P2CA (main-verified) via src/lib/campaign; units.P2CA.ownershipPaths[0]
+- P2CB (main-verified) via src/lib/campaign; units.P2CB.ownershipPaths[0]
+- P2CD (main-verified) via src/lib/campaign; units.P2CD.ownershipPaths[2]
+- P2CF (blocked) via src/lib/campaign; units.P2CF.ownershipPaths[1]
+- P2CF1 (main-verified) via src/lib/campaign; units.P2CF1.ownershipPaths[0]
+- P2CG1 (blocked) via src/lib/campaign/coop/campaignSyncTransport.ts; units.P2CG1.ownershipExceptions[1]
+- P2CG1B (main-verified) via src/lib/campaign; units.P2CG1B.ownershipPaths[0]
+- P2CG1E (main-verified) via src/lib/campaign/coop/campaignSyncTransport.ts; units.P2CG1E.ownershipExceptions[1]
+- P2CG1G1 (main-verified) via src/lib/campaign; units.P2CG1G1.ownershipPaths[1]
+- P2CG1G2 (implementing) via src/lib/campaign/coop/campaignSyncTransport.ts; units.P2CG1G2.ownershipPaths[6]
+- P2CG1G2 (implementing) via src/lib/campaign; units.P2CG1G2.ownershipPaths[8]
+- P2CG1R (blocked) via src/lib/campaign; units.P2CG1R.ownershipPaths[0]
+- LSC-2 (blocked) via src/lib/campaign; units.LSC-2.ownershipPaths[3]
+- P2CG1I1 (blocked) via src/lib/campaign/coop/campaignSyncTransport.ts; units.P2CG1I1.ownershipExceptions[1]
+- U38 (blocked) via src/lib/campaign; units.U38.ownershipPaths[1]
+- U45 (planned) via src/lib; units.U45.ownershipPaths[1]
+- U56 (planned) via src/lib/campaign; units.U56.ownershipPaths[0]
+- U4 (complete) via src/lib; units.U4.ownershipPaths[0]
+- U5d (complete) via src/lib; units.U5d.ownershipPaths[0]
+- U5e (complete) via src/lib; units.U5e.ownershipPaths[0]
+- U5h (complete) via src/lib; units.U5h.ownershipPaths[0]
+- U100 (planned) via src/lib/campaign; units.U100.ownershipPaths[0]
+- U105 (planned) via src/lib/campaign; units.U105.ownershipPaths[0]
+- U105 (planned) via src/lib/campaign/coop/campaignSyncTransport.ts; units.U105.registration20261016.files[0]
+- U101c (planned) via src/lib/campaign; units.U101c.ownershipPaths[2]
+- U101c (planned) via src/lib/campaign/coop/campaignSyncTransport.ts; units.U101c.registration20261016.files[3]
+- R2.combat (main-verified) via src/lib; roadmap.nodes.R2.combat.ownershipPaths[0]
+- R2.authority-live (main-verified) via src/lib/campaign/coop/campaignSyncTransport.ts; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CD[1]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1[8]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1E[3]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1G2[6]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1I1[1]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CF1[1]; roadmap.nodes.R2.authority-live.ownershipPaths[82]
+- R2.authority-live (main-verified) via src/lib/campaign; roadmap.nodes.R2.authority-live.ownershipPaths[0]
+- R5.E1 (planned) via src/lib/campaign; roadmap.nodes.R5.E1.ownershipPaths[2]
+- R5.E2 (planned) via src/lib/campaign; roadmap.nodes.R5.E2.ownershipPaths[2]
+- R5.E3 (planned) via src/lib/campaign; roadmap.nodes.R5.E3.ownershipPaths[2]
+- R5.E4 (planned) via src/lib/campaign; roadmap.nodes.R5.E4.ownershipPaths[2]
+- R5.E5 (planned) via src/lib/campaign; roadmap.nodes.R5.E5.ownershipPaths[2]
+- R5.E6 (planned) via src/lib/campaign; roadmap.nodes.R5.E6.ownershipPaths[2]
+- R5.E7 (planned) via src/lib/campaign; roadmap.nodes.R5.E7.ownershipPaths[2]
+- R5.E8 (planned) via src/lib/campaign; roadmap.nodes.R5.E8.ownershipPaths[2]
+- R5.E9 (planned) via src/lib/campaign; roadmap.nodes.R5.E9.ownershipPaths[2]
+- R5.E10 (planned) via src/lib/campaign; roadmap.nodes.R5.E10.ownershipPaths[2]
+- R6.B4 (planned) via src/lib/campaign; roadmap.nodes.R6.B4.ownershipPaths[3]
+- R6.B5 (planned) via src/lib/campaign; roadmap.nodes.R6.B5.ownershipPaths[3]
+- R6.B6 (planned) via src/lib/campaign; roadmap.nodes.R6.B6.ownershipPaths[3]
+- R6.B7 (planned) via src/lib/campaign; roadmap.nodes.R6.B7.ownershipPaths[3]
+- R8.travel (planned) via src/lib/campaign; roadmap.nodes.R8.travel.ownershipPaths[2]
+- R8.opportunities (planned) via src/lib/campaign; roadmap.nodes.R8.opportunities.ownershipPaths[1]
+- R2.authority-host (main-verified) via src/lib/campaign; roadmap.nodes.R2.authority-host.ownershipPaths[1]
+
+## src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts
+Exists: true.
+
+- U35g (complete) via src/lib/campaign; units.U35g.ownershipPaths[0]
+- U35i (complete) via src/lib/campaign; units.U35i.ownershipPaths[0]
+- U58 (complete) via src/lib/campaign; units.U58.ownershipPaths[0]
+- U89 (complete) via src/lib/campaign; units.U89.ownershipPaths[1]
+- U92 (complete) via src/lib/campaign; units.U92.ownershipPaths[0]
+- U97 (complete) via src/lib/campaign; units.U97.ownershipPaths[1]
+- U98 (complete) via src/lib/campaign; units.U98.ownershipPaths[1]
+- P1B (blocked) via src/lib/campaign; units.P1B.ownershipPaths[1]
+- P1B1 (complete) via src/lib/campaign; units.P1B1.ownershipPaths[1]
+- P1 (blocked) via src/lib/campaign; units.P1.ownershipPaths[0]
+- P2CA (main-verified) via src/lib/campaign; units.P2CA.ownershipPaths[0]
+- P2CB (main-verified) via src/lib/campaign; units.P2CB.ownershipPaths[0]
+- P2CD (main-verified) via src/lib/campaign; units.P2CD.ownershipPaths[2]
+- P2CF (blocked) via src/lib/campaign; units.P2CF.ownershipPaths[1]
+- P2CF1 (main-verified) via src/lib/campaign; units.P2CF1.ownershipPaths[0]
+- P2CG1 (blocked) via src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts; units.P2CG1.ownershipExceptions[2]
+- P2CG1B (main-verified) via src/lib/campaign; units.P2CG1B.ownershipPaths[0]
+- P2CG1E (main-verified) via src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts; units.P2CG1E.ownershipExceptions[2]
+- P2CG1G1 (main-verified) via src/lib/campaign; units.P2CG1G1.ownershipPaths[1]
+- P2CG1G2 (implementing) via src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts; units.P2CG1G2.ownershipPaths[7]
+- P2CG1G2 (implementing) via src/lib/campaign; units.P2CG1G2.ownershipPaths[8]
+- P2CG1R (blocked) via src/lib/campaign; units.P2CG1R.ownershipPaths[0]
+- LSC-2 (blocked) via src/lib/campaign; units.LSC-2.ownershipPaths[3]
+- P2CG1I1 (blocked) via src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts; units.P2CG1I1.ownershipExceptions[2]
+- U38 (blocked) via src/lib/campaign; units.U38.ownershipPaths[1]
+- U45 (planned) via src/lib; units.U45.ownershipPaths[1]
+- U56 (planned) via src/lib/campaign; units.U56.ownershipPaths[0]
+- U4 (complete) via src/lib; units.U4.ownershipPaths[0]
+- U5d (complete) via src/lib; units.U5d.ownershipPaths[0]
+- U5e (complete) via src/lib; units.U5e.ownershipPaths[0]
+- U5h (complete) via src/lib; units.U5h.ownershipPaths[0]
+- U100 (planned) via src/lib/campaign; units.U100.ownershipPaths[0]
+- U105 (planned) via src/lib/campaign; units.U105.ownershipPaths[0]
+- U105 (planned) via src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts; units.U105.registration20261016.files[1]
+- U101c (planned) via src/lib/campaign; units.U101c.ownershipPaths[2]
+- U101c (planned) via src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts; units.U101c.registration20261016.files[4]
+- R2.combat (main-verified) via src/lib; roadmap.nodes.R2.combat.ownershipPaths[0]
+- R2.authority-live (main-verified) via src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CD[4]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1[9]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1E[6]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1G2[7]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1I1[3]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CF1[4]; roadmap.nodes.R2.authority-live.ownershipPaths[83]
+- R2.authority-live (main-verified) via src/lib/campaign; roadmap.nodes.R2.authority-live.ownershipPaths[0]
+- R5.E1 (planned) via src/lib/campaign; roadmap.nodes.R5.E1.ownershipPaths[2]
+- R5.E2 (planned) via src/lib/campaign; roadmap.nodes.R5.E2.ownershipPaths[2]
+- R5.E3 (planned) via src/lib/campaign; roadmap.nodes.R5.E3.ownershipPaths[2]
+- R5.E4 (planned) via src/lib/campaign; roadmap.nodes.R5.E4.ownershipPaths[2]
+- R5.E5 (planned) via src/lib/campaign; roadmap.nodes.R5.E5.ownershipPaths[2]
+- R5.E6 (planned) via src/lib/campaign; roadmap.nodes.R5.E6.ownershipPaths[2]
+- R5.E7 (planned) via src/lib/campaign; roadmap.nodes.R5.E7.ownershipPaths[2]
+- R5.E8 (planned) via src/lib/campaign; roadmap.nodes.R5.E8.ownershipPaths[2]
+- R5.E9 (planned) via src/lib/campaign; roadmap.nodes.R5.E9.ownershipPaths[2]
+- R5.E10 (planned) via src/lib/campaign; roadmap.nodes.R5.E10.ownershipPaths[2]
+- R6.B4 (planned) via src/lib/campaign; roadmap.nodes.R6.B4.ownershipPaths[3]
+- R6.B5 (planned) via src/lib/campaign; roadmap.nodes.R6.B5.ownershipPaths[3]
+- R6.B6 (planned) via src/lib/campaign; roadmap.nodes.R6.B6.ownershipPaths[3]
+- R6.B7 (planned) via src/lib/campaign; roadmap.nodes.R6.B7.ownershipPaths[3]
+- R8.travel (planned) via src/lib/campaign; roadmap.nodes.R8.travel.ownershipPaths[2]
+- R8.opportunities (planned) via src/lib/campaign; roadmap.nodes.R8.opportunities.ownershipPaths[1]
+- R2.authority-host (main-verified) via src/lib/campaign; roadmap.nodes.R2.authority-host.ownershipPaths[1]
+
+## src/lib/campaign/coop/campaignSyncTransportSeat.ts
+Exists: true.
+
+- U35g (complete) via src/lib/campaign; units.U35g.ownershipPaths[0]
+- U35i (complete) via src/lib/campaign; units.U35i.ownershipPaths[0]
+- U58 (complete) via src/lib/campaign; units.U58.ownershipPaths[0]
+- U89 (complete) via src/lib/campaign; units.U89.ownershipPaths[1]
+- U92 (complete) via src/lib/campaign; units.U92.ownershipPaths[0]
+- U97 (complete) via src/lib/campaign; units.U97.ownershipPaths[1]
+- U98 (complete) via src/lib/campaign; units.U98.ownershipPaths[1]
+- P1B (blocked) via src/lib/campaign; units.P1B.ownershipPaths[1]
+- P1B1 (complete) via src/lib/campaign; units.P1B1.ownershipPaths[1]
+- P1 (blocked) via src/lib/campaign; units.P1.ownershipPaths[0]
+- P2CA (main-verified) via src/lib/campaign; units.P2CA.ownershipPaths[0]
+- P2CB (main-verified) via src/lib/campaign; units.P2CB.ownershipPaths[0]
+- P2CD (main-verified) via src/lib/campaign; units.P2CD.ownershipPaths[2]
+- P2CF (blocked) via src/lib/campaign; units.P2CF.ownershipPaths[1]
+- P2CF1 (main-verified) via src/lib/campaign; units.P2CF1.ownershipPaths[0]
+- P2CG1B (main-verified) via src/lib/campaign; units.P2CG1B.ownershipPaths[0]
+- P2CG1G1 (main-verified) via src/lib/campaign; units.P2CG1G1.ownershipPaths[1]
+- P2CG1G2 (implementing) via src/lib/campaign; units.P2CG1G2.ownershipPaths[8]
+- P2CG1R (blocked) via src/lib/campaign; units.P2CG1R.ownershipPaths[0]
+- LSC-2 (blocked) via src/lib/campaign; units.LSC-2.ownershipPaths[3]
+- U38 (blocked) via src/lib/campaign; units.U38.ownershipPaths[1]
+- U45 (planned) via src/lib; units.U45.ownershipPaths[1]
+- U56 (planned) via src/lib/campaign; units.U56.ownershipPaths[0]
+- U4 (complete) via src/lib; units.U4.ownershipPaths[0]
+- U5d (complete) via src/lib; units.U5d.ownershipPaths[0]
+- U5e (complete) via src/lib; units.U5e.ownershipPaths[0]
+- U5h (complete) via src/lib; units.U5h.ownershipPaths[0]
+- U100 (planned) via src/lib/campaign; units.U100.ownershipPaths[0]
+- U105 (planned) via src/lib/campaign; units.U105.ownershipPaths[0]
+- U101c (planned) via src/lib/campaign; units.U101c.ownershipPaths[2]
+- R2.combat (main-verified) via src/lib; roadmap.nodes.R2.combat.ownershipPaths[0]
+- R2.authority-live (main-verified) via src/lib/campaign/coop/campaignSyncTransportSeat.ts; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1G2[8]
+- R2.authority-live (main-verified) via src/lib/campaign; roadmap.nodes.R2.authority-live.ownershipPaths[0]
+- R5.E1 (planned) via src/lib/campaign; roadmap.nodes.R5.E1.ownershipPaths[2]
+- R5.E2 (planned) via src/lib/campaign; roadmap.nodes.R5.E2.ownershipPaths[2]
+- R5.E3 (planned) via src/lib/campaign; roadmap.nodes.R5.E3.ownershipPaths[2]
+- R5.E4 (planned) via src/lib/campaign; roadmap.nodes.R5.E4.ownershipPaths[2]
+- R5.E5 (planned) via src/lib/campaign; roadmap.nodes.R5.E5.ownershipPaths[2]
+- R5.E6 (planned) via src/lib/campaign; roadmap.nodes.R5.E6.ownershipPaths[2]
+- R5.E7 (planned) via src/lib/campaign; roadmap.nodes.R5.E7.ownershipPaths[2]
+- R5.E8 (planned) via src/lib/campaign; roadmap.nodes.R5.E8.ownershipPaths[2]
+- R5.E9 (planned) via src/lib/campaign; roadmap.nodes.R5.E9.ownershipPaths[2]
+- R5.E10 (planned) via src/lib/campaign; roadmap.nodes.R5.E10.ownershipPaths[2]
+- R6.B4 (planned) via src/lib/campaign; roadmap.nodes.R6.B4.ownershipPaths[3]
+- R6.B5 (planned) via src/lib/campaign; roadmap.nodes.R6.B5.ownershipPaths[3]
+- R6.B6 (planned) via src/lib/campaign; roadmap.nodes.R6.B6.ownershipPaths[3]
+- R6.B7 (planned) via src/lib/campaign; roadmap.nodes.R6.B7.ownershipPaths[3]
+- R8.travel (planned) via src/lib/campaign; roadmap.nodes.R8.travel.ownershipPaths[2]
+- R8.opportunities (planned) via src/lib/campaign; roadmap.nodes.R8.opportunities.ownershipPaths[1]
+- R2.authority-host (main-verified) via src/lib/campaign; roadmap.nodes.R2.authority-host.ownershipPaths[1]
+
+## src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.creatorBinding.test.tsx
+Exists: true.
+
+- U35f (complete) via src/components/campaign/coop; units.U35f.ownershipPaths[0]
+- U90 (blocked) via src/components/campaign/coop; units.U90.ownershipPaths[0]
+- U36 (complete) via src/components/campaign/coop; units.U36.ownershipPaths[2]
+- P2CF (blocked) via src/components/campaign/coop; units.P2CF.ownershipPaths[0]
+- P2CF2 (main-verified) via src/components/campaign/coop; units.P2CF2.ownershipPaths[0]
+- P2CG1F (main-verified) via src/components/campaign/coop; units.P2CG1F.ownershipPaths[0]
+- P2CG1G1 (main-verified) via src/components/campaign/coop; units.P2CG1G1.ownershipPaths[0]
+- P2CG1G2 (implementing) via src/components/campaign/coop; units.P2CG1G2.ownershipPaths[0]
+- P2CG1HP (blocked) via src/components/campaign/coop; units.P2CG1HP.ownershipPaths[0]
+- P2 (blocked) via src/components/campaign/coop; units.P2.ownershipPaths[2]
+- R2.authority-live (main-verified) via src/components/campaign/coop; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.paths[3]; roadmap.nodes.R2.authority-live.ownershipPaths[59]
+- R2.authority-live (main-verified) via src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.creatorBinding.test.tsx; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1G2[9]
+- R7.context (planned) via src/components/campaign; roadmap.nodes.R7.context.ownershipPaths[0]
+- R8.starmap (planned) via src/components/campaign; roadmap.nodes.R8.starmap.ownershipPaths[0]
+- R2.multiplayer-client (planned) via src/components/campaign/coop; roadmap.nodes.R2.multiplayer-client.ownershipPaths[8]; roadmap.nodes.R2.multiplayer-client.ownershipPathsAmended20260922[2].path
+
+## server.js
+Exists: true.
+
+- P2CG1H (blocked) via server.js; units.P2CG1H.ownershipPaths[0]
+- U101d (planned) via server.js; units.U101d.ownershipPaths[0]; units.U101d.registration20261016.files[0]
+- B15-1 (blocked) via server.js; units.B15-1.ownershipPaths[0]
+- R2.authority-live (main-verified) via server.js; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1H[0]; roadmap.nodes.R2.authority-live.ownershipPaths[70]
+- R2.campaign-access (planned) via server.js; roadmap.nodes.R2.campaign-access.ownershipPaths[3]
+
+## src/lib/multiplayer/server/campaignApplicationReceiptPort.ts
+Exists: false.
+
+- U19b (complete) via src/lib/multiplayer/server; units.U19b.ownershipPaths[1]
+- U35g (complete) via src/lib/multiplayer/server; units.U35g.ownershipPaths[1]; units.U35g.pathsAmendedBeforeAdmission20260925.added[0]
+- U35i (complete) via src/lib/multiplayer/server; units.U35i.ownershipPaths[1]
+- U21 (complete) via src/lib/multiplayer/server; units.U21.ownershipPaths[0]
+- U22a (complete) via src/lib/multiplayer/server; units.U22a.ownershipPaths[0]
+- U21b (complete) via src/lib/multiplayer/server; units.U21b.ownershipPaths[0]
+- U89 (complete) via src/lib/multiplayer/server; units.U89.ownershipPaths[0]
+- U92 (complete) via src/lib/multiplayer/server; units.U92.ownershipPaths[1]
+- U94 (complete) via src/lib/multiplayer/server; units.U94.ownershipPaths[0]
+- U95 (complete) via src/lib/multiplayer/server; units.U95.ownershipPaths[0]
+- U96 (complete) via src/lib/multiplayer/server; units.U96.ownershipPaths[0]
+- U97 (complete) via src/lib/multiplayer/server; units.U97.ownershipPaths[0]
+- U98 (complete) via src/lib/multiplayer/server; units.U98.ownershipPaths[0]
+- P1A (complete) via src/lib/multiplayer/server; units.P1A.ownershipPaths[2]
+- U98b (complete) via src/lib/multiplayer/server; units.U98b.ownershipPaths[0]
+- U98c (complete) via src/lib/multiplayer/server; units.U98c.ownershipPaths[0]
+- P1B (blocked) via src/lib/multiplayer/server; units.P1B.ownershipPaths[2]
+- P1B2 (complete) via src/lib/multiplayer/server; units.P1B2.ownershipPaths[0]
+- P1B3 (complete) via src/lib/multiplayer/server; units.P1B3.ownershipPaths[0]
+- P1 (blocked) via src/lib/multiplayer/server; units.P1.ownershipPaths[1]
+- PAI (complete) via src/lib/multiplayer/server; units.PAI.ownershipPaths[0]
+- P2CB (main-verified) via src/lib/multiplayer/server; units.P2CB.ownershipPaths[1]
+- P2CE (blocked) via src/lib/multiplayer/server; units.P2CE.ownershipPaths[0]
+- P2CE1 (main-verified) via src/lib/multiplayer/server; units.P2CE1.ownershipPaths[0]
+- P2CE2 (main-verified) via src/lib/multiplayer/server; units.P2CE2.ownershipPaths[0]
+- P2CE3 (main-verified) via src/lib/multiplayer/server; units.P2CE3.ownershipPaths[0]
+- P2CG1 (blocked) via src/lib/multiplayer/server; units.P2CG1.ownershipPaths[0]
+- P2CG1A1 (main-verified) via src/lib/multiplayer/server; units.P2CG1A1.ownershipPaths[0]
+- P2CG1A2 (main-verified) via src/lib/multiplayer/server; units.P2CG1A2.ownershipPaths[0]
+- P2CG1B (main-verified) via src/lib/multiplayer/server; units.P2CG1B.ownershipPaths[1]
+- P2CG1C (main-verified) via src/lib/multiplayer/server; units.P2CG1C.ownershipPaths[0]
+- P2CG1D (main-verified) via src/lib/multiplayer/server; units.P2CG1D.ownershipPaths[0]
+- P2CG1E (main-verified) via src/lib/multiplayer/server; units.P2CG1E.ownershipPaths[0]
+- P2CG1R (blocked) via src/lib/multiplayer/server; units.P2CG1R.ownershipPaths[1]
+- P2CG1S (blocked) via src/lib/multiplayer/server; units.P2CG1S.ownershipPaths[0]
+- B14-0 (blocked) via src/lib/multiplayer/server; units.B14-0.ownershipPaths[0]
+- P2CG1HP (blocked) via src/lib/multiplayer/server; units.P2CG1HP.ownershipPaths[1]
+- P2CG1H (blocked) via src/lib/multiplayer/server; units.P2CG1H.ownershipPaths[1]
+- P2CG1I2 (blocked) via src/lib/multiplayer/server; units.P2CG1I2.ownershipPaths[0]
+- P2CG1I3 (blocked) via src/lib/multiplayer/server; units.P2CG1I3.ownershipPaths[0]
+- P2CG1I4 (blocked) via src/lib/multiplayer/server; units.P2CG1I4.ownershipPaths[0]
+- P2CG2 (blocked) via src/lib/multiplayer/server; units.P2CG2.ownershipPaths[0]
+- P2CH (blocked) via src/lib/multiplayer/server; units.P2CH.ownershipPaths[1]
+- U38 (blocked) via src/lib/multiplayer/server; units.U38.ownershipPaths[0]
+- U23 (complete) via src/lib/multiplayer/server; units.U23.ownershipPaths[0]
+- U43 (complete) via src/lib/multiplayer/server; units.U43.ownershipPaths[0]
+- U24 (blocked) via src/lib/multiplayer/server; units.U24.ownershipPaths[0]
+- U24a (complete) via src/lib/multiplayer/server; units.U24a.ownershipPaths[0]
+- U24b (planned) via src/lib/multiplayer/server; units.U24b.ownershipPaths[0]
+- U44 (planned) via src/lib/multiplayer/server; units.U44.ownershipPaths[0]
+- U45 (planned) via src/lib; units.U45.ownershipPaths[1]
+- U26 (planned) via src/lib/multiplayer/server; units.U26.ownershipPaths[0]
+- U46 (planned) via src/lib/multiplayer/server; units.U46.ownershipPaths[0]
+- U47 (planned) via src/lib/multiplayer/server; units.U47.ownershipPaths[1]
+- U48 (planned) via src/lib/multiplayer/server; units.U48.ownershipPaths[0]
+- U49 (planned) via src/lib/multiplayer/server; units.U49.ownershipPaths[0]
+- U56 (planned) via src/lib/multiplayer/server; units.U56.ownershipPaths[1]
+- U4 (complete) via src/lib; units.U4.ownershipPaths[0]
+- U15a (complete) via src/lib/multiplayer/server; units.U15a.ownershipPaths[0]
+- U5a (complete) via src/lib/multiplayer/server; units.U5a.ownershipPaths[2]
+- U5d (complete) via src/lib; units.U5d.ownershipPaths[0]
+- U5e (complete) via src/lib; units.U5e.ownershipPaths[0]
+- U5h (complete) via src/lib; units.U5h.ownershipPaths[0]
+- U10 (complete) via src/lib/multiplayer/server; units.U10.ownershipPaths[0]
+- U101 (planned) via src/lib/multiplayer/server; units.U101.ownershipPaths[1]
+- U104 (planned) via src/lib/multiplayer/server; units.U104.ownershipPaths[1]
+- U105 (planned) via src/lib/multiplayer/server; units.U105.ownershipPaths[1]
+- U101a (planned) via src/lib/multiplayer/server; units.U101a.ownershipPaths[1]
+- U101d (planned) via src/lib/multiplayer/server; units.U101d.ownershipPaths[2]
+- FOG-K (blocked) via src/lib/multiplayer/server; units.FOG-K.ownershipPaths[1]
+- FOG-B (blocked) via src/lib/multiplayer/server; units.FOG-B.ownershipPaths[0]
+- FOG-L (blocked) via src/lib/multiplayer/server; units.FOG-L.ownershipPaths[0]
+- FOG-R (blocked) via src/lib/multiplayer/server; units.FOG-R.ownershipPaths[0]
+- FOG-H (blocked) via src/lib/multiplayer/server; units.FOG-H.ownershipPaths[0]
+- FOG-X (blocked) via src/lib/multiplayer/server; units.FOG-X.ownershipPaths[1]
+- R2.combat (main-verified) via src/lib; roadmap.nodes.R2.combat.ownershipPaths[0]
+- R2.authority (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R2.authority.ownershipPaths[2]
+- R2.authority-live (main-verified) via src/lib/multiplayer/server/campaignApplicationReceiptPort.ts; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1H[1]
+- R2.authority-live (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R2.authority-live.ownershipPaths[2]
+- R3.activation (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R3.activation.ownershipPaths[1]
+- R3.combat (planned) via src/lib/multiplayer/server; roadmap.nodes.R3.combat.ownershipPaths[2]
+- R4.S1 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S1.ownershipPaths[0]
+- R4.S2 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S2.ownershipPaths[0]
+- R4.S3 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S3.ownershipPaths[0]
+- R4.S4 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S4.ownershipPaths[0]
+- R4.S5 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S5.ownershipPaths[0]
+- R4.S6 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S6.ownershipPaths[0]
+- R4.S7 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S7.ownershipPaths[0]
+- R4.rewind (planned) via src/lib/multiplayer/server; roadmap.nodes.R4.rewind.ownershipPaths[1]
+- R5.E1 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E1.ownershipPaths[3]
+- R5.E2 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E2.ownershipPaths[3]
+- R5.E3 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E3.ownershipPaths[3]
+- R5.E4 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E4.ownershipPaths[3]
+- R5.E5 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E5.ownershipPaths[3]
+- R5.E6 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E6.ownershipPaths[3]
+- R5.E7 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E7.ownershipPaths[3]
+- R5.E8 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E8.ownershipPaths[3]
+- R5.E9 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E9.ownershipPaths[3]
+- R5.E10 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E10.ownershipPaths[3]
+- R2.authority-host (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R2.authority-host.ownershipPaths[0]
+- R5.fog-restoration (blocked) via src/lib/multiplayer/server; roadmap.nodes.R5.fog-restoration.ownershipPaths[2]
+- roadmap-registration (documentary) via src/lib/multiplayer/server/campaignApplicationReceiptPort.ts; roadmap.hConsumerPrereqAmendment20261018.hAmendment.interfaceOwner
+
+## src/lib/multiplayer/server/__tests__/campaignApplicationReceiptPort.test.ts
+Exists: false.
+
+- U19b (complete) via src/lib/multiplayer/server; units.U19b.ownershipPaths[1]
+- U35g (complete) via src/lib/multiplayer/server; units.U35g.ownershipPaths[1]; units.U35g.pathsAmendedBeforeAdmission20260925.added[0]
+- U35i (complete) via src/lib/multiplayer/server; units.U35i.ownershipPaths[1]
+- U21 (complete) via src/lib/multiplayer/server; units.U21.ownershipPaths[0]
+- U22a (complete) via src/lib/multiplayer/server; units.U22a.ownershipPaths[0]
+- U21b (complete) via src/lib/multiplayer/server; units.U21b.ownershipPaths[0]
+- U89 (complete) via src/lib/multiplayer/server; units.U89.ownershipPaths[0]
+- U92 (complete) via src/lib/multiplayer/server; units.U92.ownershipPaths[1]
+- U94 (complete) via src/lib/multiplayer/server; units.U94.ownershipPaths[0]
+- U95 (complete) via src/lib/multiplayer/server; units.U95.ownershipPaths[0]
+- U96 (complete) via src/lib/multiplayer/server; units.U96.ownershipPaths[0]
+- U97 (complete) via src/lib/multiplayer/server; units.U97.ownershipPaths[0]
+- U98 (complete) via src/lib/multiplayer/server; units.U98.ownershipPaths[0]
+- P1A (complete) via src/lib/multiplayer/server; units.P1A.ownershipPaths[2]
+- U98b (complete) via src/lib/multiplayer/server; units.U98b.ownershipPaths[0]
+- U98c (complete) via src/lib/multiplayer/server; units.U98c.ownershipPaths[0]
+- P1B (blocked) via src/lib/multiplayer/server; units.P1B.ownershipPaths[2]
+- P1B2 (complete) via src/lib/multiplayer/server; units.P1B2.ownershipPaths[0]
+- P1B3 (complete) via src/lib/multiplayer/server; units.P1B3.ownershipPaths[0]
+- P1 (blocked) via src/lib/multiplayer/server; units.P1.ownershipPaths[1]
+- PAI (complete) via src/lib/multiplayer/server; units.PAI.ownershipPaths[0]
+- P2CB (main-verified) via src/lib/multiplayer/server; units.P2CB.ownershipPaths[1]
+- P2CE (blocked) via src/lib/multiplayer/server; units.P2CE.ownershipPaths[0]
+- P2CE1 (main-verified) via src/lib/multiplayer/server; units.P2CE1.ownershipPaths[0]
+- P2CE2 (main-verified) via src/lib/multiplayer/server; units.P2CE2.ownershipPaths[0]
+- P2CE3 (main-verified) via src/lib/multiplayer/server; units.P2CE3.ownershipPaths[0]
+- P2CG1 (blocked) via src/lib/multiplayer/server; units.P2CG1.ownershipPaths[0]
+- P2CG1A1 (main-verified) via src/lib/multiplayer/server; units.P2CG1A1.ownershipPaths[0]
+- P2CG1A2 (main-verified) via src/lib/multiplayer/server; units.P2CG1A2.ownershipPaths[0]
+- P2CG1B (main-verified) via src/lib/multiplayer/server; units.P2CG1B.ownershipPaths[1]
+- P2CG1C (main-verified) via src/lib/multiplayer/server; units.P2CG1C.ownershipPaths[0]
+- P2CG1D (main-verified) via src/lib/multiplayer/server; units.P2CG1D.ownershipPaths[0]
+- P2CG1E (main-verified) via src/lib/multiplayer/server; units.P2CG1E.ownershipPaths[0]
+- P2CG1R (blocked) via src/lib/multiplayer/server; units.P2CG1R.ownershipPaths[1]
+- P2CG1S (blocked) via src/lib/multiplayer/server; units.P2CG1S.ownershipPaths[0]
+- B14-0 (blocked) via src/lib/multiplayer/server; units.B14-0.ownershipPaths[0]
+- P2CG1HP (blocked) via src/lib/multiplayer/server; units.P2CG1HP.ownershipPaths[1]
+- P2CG1H (blocked) via src/lib/multiplayer/server; units.P2CG1H.ownershipPaths[1]
+- P2CG1I2 (blocked) via src/lib/multiplayer/server; units.P2CG1I2.ownershipPaths[0]
+- P2CG1I3 (blocked) via src/lib/multiplayer/server; units.P2CG1I3.ownershipPaths[0]
+- P2CG1I4 (blocked) via src/lib/multiplayer/server; units.P2CG1I4.ownershipPaths[0]
+- P2CG2 (blocked) via src/lib/multiplayer/server; units.P2CG2.ownershipPaths[0]
+- P2CH (blocked) via src/lib/multiplayer/server; units.P2CH.ownershipPaths[1]
+- U38 (blocked) via src/lib/multiplayer/server; units.U38.ownershipPaths[0]
+- U23 (complete) via src/lib/multiplayer/server; units.U23.ownershipPaths[0]
+- U43 (complete) via src/lib/multiplayer/server; units.U43.ownershipPaths[0]
+- U24 (blocked) via src/lib/multiplayer/server; units.U24.ownershipPaths[0]
+- U24a (complete) via src/lib/multiplayer/server; units.U24a.ownershipPaths[0]
+- U24b (planned) via src/lib/multiplayer/server; units.U24b.ownershipPaths[0]
+- U44 (planned) via src/lib/multiplayer/server; units.U44.ownershipPaths[0]
+- U45 (planned) via src/lib; units.U45.ownershipPaths[1]
+- U26 (planned) via src/lib/multiplayer/server; units.U26.ownershipPaths[0]
+- U46 (planned) via src/lib/multiplayer/server; units.U46.ownershipPaths[0]
+- U47 (planned) via src/lib/multiplayer/server; units.U47.ownershipPaths[1]
+- U48 (planned) via src/lib/multiplayer/server; units.U48.ownershipPaths[0]
+- U49 (planned) via src/lib/multiplayer/server; units.U49.ownershipPaths[0]
+- U56 (planned) via src/lib/multiplayer/server; units.U56.ownershipPaths[1]
+- U4 (complete) via src/lib; units.U4.ownershipPaths[0]
+- U15a (complete) via src/lib/multiplayer/server; units.U15a.ownershipPaths[0]
+- U5a (complete) via src/lib/multiplayer/server; units.U5a.ownershipPaths[2]
+- U5d (complete) via src/lib; units.U5d.ownershipPaths[0]
+- U5e (complete) via src/lib; units.U5e.ownershipPaths[0]
+- U5h (complete) via src/lib; units.U5h.ownershipPaths[0]
+- U10 (complete) via src/lib/multiplayer/server; units.U10.ownershipPaths[0]
+- U101 (planned) via src/lib/multiplayer/server; units.U101.ownershipPaths[1]
+- U104 (planned) via src/lib/multiplayer/server; units.U104.ownershipPaths[1]
+- U105 (planned) via src/lib/multiplayer/server; units.U105.ownershipPaths[1]
+- U101a (planned) via src/lib/multiplayer/server; units.U101a.ownershipPaths[1]
+- U101d (planned) via src/lib/multiplayer/server; units.U101d.ownershipPaths[2]
+- FOG-K (blocked) via src/lib/multiplayer/server; units.FOG-K.ownershipPaths[1]
+- FOG-B (blocked) via src/lib/multiplayer/server; units.FOG-B.ownershipPaths[0]
+- FOG-L (blocked) via src/lib/multiplayer/server; units.FOG-L.ownershipPaths[0]
+- FOG-R (blocked) via src/lib/multiplayer/server; units.FOG-R.ownershipPaths[0]
+- FOG-H (blocked) via src/lib/multiplayer/server; units.FOG-H.ownershipPaths[0]
+- FOG-X (blocked) via src/lib/multiplayer/server; units.FOG-X.ownershipPaths[1]
+- R2.combat (main-verified) via src/lib; roadmap.nodes.R2.combat.ownershipPaths[0]
+- R2.authority (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R2.authority.ownershipPaths[2]
+- R2.authority-live (main-verified) via src/lib/multiplayer/server/__tests__/campaignApplicationReceiptPort.test.ts; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1H[2]
+- R2.authority-live (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R2.authority-live.ownershipPaths[2]
+- R3.activation (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R3.activation.ownershipPaths[1]
+- R3.combat (planned) via src/lib/multiplayer/server; roadmap.nodes.R3.combat.ownershipPaths[2]
+- R4.S1 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S1.ownershipPaths[0]
+- R4.S2 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S2.ownershipPaths[0]
+- R4.S3 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S3.ownershipPaths[0]
+- R4.S4 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S4.ownershipPaths[0]
+- R4.S5 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S5.ownershipPaths[0]
+- R4.S6 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S6.ownershipPaths[0]
+- R4.S7 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S7.ownershipPaths[0]
+- R4.rewind (planned) via src/lib/multiplayer/server; roadmap.nodes.R4.rewind.ownershipPaths[1]
+- R5.E1 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E1.ownershipPaths[3]
+- R5.E2 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E2.ownershipPaths[3]
+- R5.E3 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E3.ownershipPaths[3]
+- R5.E4 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E4.ownershipPaths[3]
+- R5.E5 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E5.ownershipPaths[3]
+- R5.E6 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E6.ownershipPaths[3]
+- R5.E7 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E7.ownershipPaths[3]
+- R5.E8 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E8.ownershipPaths[3]
+- R5.E9 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E9.ownershipPaths[3]
+- R5.E10 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E10.ownershipPaths[3]
+- R2.authority-host (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R2.authority-host.ownershipPaths[0]
+- R5.fog-restoration (blocked) via src/lib/multiplayer/server; roadmap.nodes.R5.fog-restoration.ownershipPaths[2]
+
+## src/lib/multiplayer/server/__tests__/CampaignHostRegistry.globalSlot.test.ts
+Exists: true.
+
+- U19b (complete) via src/lib/multiplayer/server; units.U19b.ownershipPaths[1]
+- U35g (complete) via src/lib/multiplayer/server; units.U35g.ownershipPaths[1]; units.U35g.pathsAmendedBeforeAdmission20260925.added[0]
+- U35i (complete) via src/lib/multiplayer/server; units.U35i.ownershipPaths[1]
+- U21 (complete) via src/lib/multiplayer/server; units.U21.ownershipPaths[0]
+- U22a (complete) via src/lib/multiplayer/server; units.U22a.ownershipPaths[0]
+- U21b (complete) via src/lib/multiplayer/server; units.U21b.ownershipPaths[0]
+- U89 (complete) via src/lib/multiplayer/server; units.U89.ownershipPaths[0]
+- U92 (complete) via src/lib/multiplayer/server; units.U92.ownershipPaths[1]
+- U94 (complete) via src/lib/multiplayer/server; units.U94.ownershipPaths[0]
+- U95 (complete) via src/lib/multiplayer/server; units.U95.ownershipPaths[0]
+- U96 (complete) via src/lib/multiplayer/server; units.U96.ownershipPaths[0]
+- U97 (complete) via src/lib/multiplayer/server; units.U97.ownershipPaths[0]
+- U98 (complete) via src/lib/multiplayer/server; units.U98.ownershipPaths[0]
+- P1A (complete) via src/lib/multiplayer/server; units.P1A.ownershipPaths[2]
+- U98b (complete) via src/lib/multiplayer/server; units.U98b.ownershipPaths[0]
+- U98c (complete) via src/lib/multiplayer/server; units.U98c.ownershipPaths[0]
+- P1B (blocked) via src/lib/multiplayer/server; units.P1B.ownershipPaths[2]
+- P1B2 (complete) via src/lib/multiplayer/server; units.P1B2.ownershipPaths[0]
+- P1B3 (complete) via src/lib/multiplayer/server; units.P1B3.ownershipPaths[0]
+- P1 (blocked) via src/lib/multiplayer/server; units.P1.ownershipPaths[1]
+- PAI (complete) via src/lib/multiplayer/server; units.PAI.ownershipPaths[0]
+- P2CB (main-verified) via src/lib/multiplayer/server; units.P2CB.ownershipPaths[1]
+- P2CE (blocked) via src/lib/multiplayer/server; units.P2CE.ownershipPaths[0]
+- P2CE1 (main-verified) via src/lib/multiplayer/server; units.P2CE1.ownershipPaths[0]
+- P2CE2 (main-verified) via src/lib/multiplayer/server; units.P2CE2.ownershipPaths[0]
+- P2CE3 (main-verified) via src/lib/multiplayer/server; units.P2CE3.ownershipPaths[0]
+- P2CG1 (blocked) via src/lib/multiplayer/server; units.P2CG1.ownershipPaths[0]
+- P2CG1A1 (main-verified) via src/lib/multiplayer/server; units.P2CG1A1.ownershipPaths[0]
+- P2CG1A2 (main-verified) via src/lib/multiplayer/server; units.P2CG1A2.ownershipPaths[0]
+- P2CG1B (main-verified) via src/lib/multiplayer/server; units.P2CG1B.ownershipPaths[1]
+- P2CG1C (main-verified) via src/lib/multiplayer/server; units.P2CG1C.ownershipPaths[0]
+- P2CG1D (main-verified) via src/lib/multiplayer/server; units.P2CG1D.ownershipPaths[0]
+- P2CG1E (main-verified) via src/lib/multiplayer/server; units.P2CG1E.ownershipPaths[0]
+- P2CG1R (blocked) via src/lib/multiplayer/server; units.P2CG1R.ownershipPaths[1]
+- P2CG1S (blocked) via src/lib/multiplayer/server; units.P2CG1S.ownershipPaths[0]
+- B14-0 (blocked) via src/lib/multiplayer/server; units.B14-0.ownershipPaths[0]
+- P2CG1HP (blocked) via src/lib/multiplayer/server; units.P2CG1HP.ownershipPaths[1]
+- P2CG1H (blocked) via src/lib/multiplayer/server; units.P2CG1H.ownershipPaths[1]
+- P2CG1I2 (blocked) via src/lib/multiplayer/server; units.P2CG1I2.ownershipPaths[0]
+- P2CG1I3 (blocked) via src/lib/multiplayer/server; units.P2CG1I3.ownershipPaths[0]
+- P2CG1I4 (blocked) via src/lib/multiplayer/server; units.P2CG1I4.ownershipPaths[0]
+- P2CG2 (blocked) via src/lib/multiplayer/server; units.P2CG2.ownershipPaths[0]
+- P2CH (blocked) via src/lib/multiplayer/server; units.P2CH.ownershipPaths[1]
+- U38 (blocked) via src/lib/multiplayer/server; units.U38.ownershipPaths[0]
+- U23 (complete) via src/lib/multiplayer/server; units.U23.ownershipPaths[0]
+- U43 (complete) via src/lib/multiplayer/server; units.U43.ownershipPaths[0]
+- U24 (blocked) via src/lib/multiplayer/server; units.U24.ownershipPaths[0]
+- U24a (complete) via src/lib/multiplayer/server; units.U24a.ownershipPaths[0]
+- U24b (planned) via src/lib/multiplayer/server; units.U24b.ownershipPaths[0]
+- U44 (planned) via src/lib/multiplayer/server; units.U44.ownershipPaths[0]
+- U45 (planned) via src/lib; units.U45.ownershipPaths[1]
+- U26 (planned) via src/lib/multiplayer/server; units.U26.ownershipPaths[0]
+- U46 (planned) via src/lib/multiplayer/server; units.U46.ownershipPaths[0]
+- U47 (planned) via src/lib/multiplayer/server; units.U47.ownershipPaths[1]
+- U48 (planned) via src/lib/multiplayer/server; units.U48.ownershipPaths[0]
+- U49 (planned) via src/lib/multiplayer/server; units.U49.ownershipPaths[0]
+- U56 (planned) via src/lib/multiplayer/server; units.U56.ownershipPaths[1]
+- U4 (complete) via src/lib; units.U4.ownershipPaths[0]
+- U15a (complete) via src/lib/multiplayer/server; units.U15a.ownershipPaths[0]
+- U5a (complete) via src/lib/multiplayer/server; units.U5a.ownershipPaths[2]
+- U5d (complete) via src/lib; units.U5d.ownershipPaths[0]
+- U5e (complete) via src/lib; units.U5e.ownershipPaths[0]
+- U5h (complete) via src/lib; units.U5h.ownershipPaths[0]
+- U10 (complete) via src/lib/multiplayer/server; units.U10.ownershipPaths[0]
+- U101 (planned) via src/lib/multiplayer/server; units.U101.ownershipPaths[1]
+- U104 (planned) via src/lib/multiplayer/server; units.U104.ownershipPaths[1]
+- U105 (planned) via src/lib/multiplayer/server; units.U105.ownershipPaths[1]
+- U101a (planned) via src/lib/multiplayer/server; units.U101a.ownershipPaths[1]
+- U101d (planned) via src/lib/multiplayer/server; units.U101d.ownershipPaths[2]
+- FOG-K (blocked) via src/lib/multiplayer/server; units.FOG-K.ownershipPaths[1]
+- FOG-B (blocked) via src/lib/multiplayer/server; units.FOG-B.ownershipPaths[0]
+- FOG-L (blocked) via src/lib/multiplayer/server; units.FOG-L.ownershipPaths[0]
+- FOG-R (blocked) via src/lib/multiplayer/server; units.FOG-R.ownershipPaths[0]
+- FOG-H (blocked) via src/lib/multiplayer/server; units.FOG-H.ownershipPaths[0]
+- FOG-X (blocked) via src/lib/multiplayer/server; units.FOG-X.ownershipPaths[1]
+- R2.combat (main-verified) via src/lib; roadmap.nodes.R2.combat.ownershipPaths[0]
+- R2.authority (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R2.authority.ownershipPaths[2]
+- R2.authority-live (main-verified) via src/lib/multiplayer/server/__tests__/CampaignHostRegistry.globalSlot.test.ts; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1H[3]
+- R2.authority-live (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R2.authority-live.ownershipPaths[2]
+- R3.activation (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R3.activation.ownershipPaths[1]
+- R3.combat (planned) via src/lib/multiplayer/server; roadmap.nodes.R3.combat.ownershipPaths[2]
+- R4.S1 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S1.ownershipPaths[0]
+- R4.S2 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S2.ownershipPaths[0]
+- R4.S3 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S3.ownershipPaths[0]
+- R4.S4 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S4.ownershipPaths[0]
+- R4.S5 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S5.ownershipPaths[0]
+- R4.S6 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S6.ownershipPaths[0]
+- R4.S7 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S7.ownershipPaths[0]
+- R4.rewind (planned) via src/lib/multiplayer/server; roadmap.nodes.R4.rewind.ownershipPaths[1]
+- R5.E1 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E1.ownershipPaths[3]
+- R5.E2 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E2.ownershipPaths[3]
+- R5.E3 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E3.ownershipPaths[3]
+- R5.E4 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E4.ownershipPaths[3]
+- R5.E5 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E5.ownershipPaths[3]
+- R5.E6 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E6.ownershipPaths[3]
+- R5.E7 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E7.ownershipPaths[3]
+- R5.E8 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E8.ownershipPaths[3]
+- R5.E9 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E9.ownershipPaths[3]
+- R5.E10 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E10.ownershipPaths[3]
+- R2.authority-host (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R2.authority-host.ownershipPaths[0]
+- R5.fog-restoration (blocked) via src/lib/multiplayer/server; roadmap.nodes.R5.fog-restoration.ownershipPaths[2]
+
+## src/pages-modules/api/e2ePerformanceProbeRoute.ts
+Exists: true.
+
+- U21 (complete) via src/pages-modules/api; units.U21.ownershipPaths[1]
+- U86 (complete) via src/pages-modules/api/e2ePerformanceProbeRoute.ts; units.U86.ownershipPaths[1]; units.U86.pathsAmendedBeforeAdmission20260925.added[0]
+- U21b (complete) via src/pages-modules/api; units.U21b.ownershipPaths[1]
+- P2CG1 (blocked) via src/pages-modules/api; units.P2CG1.ownershipPaths[1]
+- P2CG1E (main-verified) via src/pages-modules/api; units.P2CG1E.ownershipPaths[1]
+- B14-0 (blocked) via src/pages-modules/api; units.B14-0.ownershipPaths[3]
+- B14-HEAD (blocked) via src/pages-modules/api; units.B14-HEAD.ownershipPaths[0]
+- P2CG1H (blocked) via src/pages-modules/api; units.P2CG1H.ownershipPaths[2]
+- P2CG1I1 (blocked) via src/pages-modules/api; units.P2CG1I1.ownershipPaths[0]
+- U26 (planned) via src/pages-modules/api; units.U26.ownershipPaths[2]
+- U46 (planned) via src/pages-modules/api; units.U46.ownershipPaths[2]
+- U48 (planned) via src/pages-modules/api; units.U48.ownershipPaths[2]
+- U5a (complete) via src/pages-modules/api; units.U5a.ownershipPaths[1]
+- U5c (complete) via src/pages-modules/api; units.U5c.ownershipPaths[1]
+- U5g (complete) via src/pages-modules/api; units.U5g.ownershipPaths[1]
+- U104 (planned) via src/pages-modules/api; units.U104.ownershipPaths[0]
+- FOG-H (blocked) via src/pages-modules/api; units.FOG-H.ownershipPaths[1]
+- R2.authority-live (main-verified) via src/pages-modules/api/e2ePerformanceProbeRoute.ts; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1H[4]
+- R2.authority-live (main-verified) via src/pages-modules/api; roadmap.nodes.R2.authority-live.ownershipPaths[4]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20260917[1].path
+- R6.umbrella (planned) via src/pages-modules/api/e2ePerformanceProbeRoute.ts; roadmap.nodes.R6.umbrella.ownershipPaths[4]; roadmap.nodes.R6.umbrella.ownershipPathsAmended20260925[0].path
+- R5.fog-restoration (blocked) via src/pages-modules/api; roadmap.nodes.R5.fog-restoration.ownershipPaths[5]
+
+## src/__tests__/api/e2ePerformanceProbeRoute.test.ts
+Exists: true.
+
+- U86 (complete) via src/__tests__/api/e2ePerformanceProbeRoute.test.ts; units.U86.ownershipPaths[2]; units.U86.pathsAmendedBeforeAdmission20260925.added[1]
+- LSC-1 (blocked) via src/__tests__/api; units.LSC-1.ownershipPaths[3]
+- P2CG1H (blocked) via src/__tests__/api/e2ePerformanceProbeRoute.test.ts; units.P2CG1H.ownershipPaths[3]
+- R2.authority-live (main-verified) via src/__tests__/api/e2ePerformanceProbeRoute.test.ts; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.paths[8]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1H[5]; roadmap.nodes.R2.authority-live.ownershipPaths[78]
+- R2.authority-live (main-verified) via src/__tests__/api; roadmap.nodes.R2.authority-live.ownershipPaths[87]
+- R6.umbrella (planned) via src/__tests__/api/e2ePerformanceProbeRoute.test.ts; roadmap.nodes.R6.umbrella.ownershipPaths[5]; roadmap.nodes.R6.umbrella.ownershipPathsAmended20260925[1].path
+
+## e2e/coop-campaign-two-browser-journey.spec.ts
+Exists: true.
+
+- U96 (complete) via e2e/coop-campaign-two-browser-journey.spec.ts; units.U96.ownershipPaths[5]; units.U96.testPathsAmendedAtFold20260926[1].path
+- P1 (blocked) via e2e/coop-campaign-two-browser-journey.spec.ts; units.P1.ownershipPaths[5]
+- P2CG1H (blocked) via e2e/coop-campaign-two-browser-journey.spec.ts; units.P2CG1H.ownershipPaths[4]
+- P2CH (blocked) via e2e/coop-campaign-two-browser-journey.spec.ts; units.P2CH.ownershipPaths[0]
+- P2 (blocked) via e2e/coop-campaign-two-browser-journey.spec.ts; units.P2.ownershipPaths[4]
+- B15-4J (blocked) via e2e/coop-campaign-two-browser-journey.spec.ts; units.B15-4J.ownershipPaths[2]
+- R2.authority-live (main-verified) via e2e/coop-campaign-two-browser-journey.spec.ts; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1H[6]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CH[0]; roadmap.nodes.R2.authority-live.ownershipPaths[29]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20260926[7].path
+- R2.multiplayer-client (planned) via e2e/coop-campaign-two-browser-journey.spec.ts; roadmap.nodes.R2.multiplayer-client.ownershipPaths[17]; roadmap.nodes.R2.multiplayer-client.ownershipPathsAmended20260927[0].path
+- R2.campaign-access (planned) via e2e/coop-campaign-two-browser-journey.spec.ts; roadmap.nodes.R2.campaign-access.ownershipPaths[23]
+
+## e2e/gm-two-player-authority.pack1.spec.ts
+Exists: true.
+
+- P2CG1H (blocked) via e2e/gm-two-player-authority.pack1.spec.ts; units.P2CG1H.ownershipPaths[5]
+- R2.authority-live (main-verified) via e2e/gm-two-player-authority.pack1.spec.ts; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.paths[9]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1H[7]; roadmap.nodes.R2.authority-live.ownershipPaths[79]
+
+## src/lib/multiplayer/server/CampaignHostRegistry.ts
+Exists: true.
+
+- U19b (complete) via src/lib/multiplayer/server; units.U19b.ownershipPaths[1]
+- U35g (complete) via src/lib/multiplayer/server; units.U35g.ownershipPaths[1]; units.U35g.pathsAmendedBeforeAdmission20260925.added[0]
+- U35i (complete) via src/lib/multiplayer/server; units.U35i.ownershipPaths[1]
+- U21 (complete) via src/lib/multiplayer/server; units.U21.ownershipPaths[0]
+- U22a (complete) via src/lib/multiplayer/server; units.U22a.ownershipPaths[0]
+- U21b (complete) via src/lib/multiplayer/server; units.U21b.ownershipPaths[0]
+- U89 (complete) via src/lib/multiplayer/server; units.U89.ownershipPaths[0]
+- U92 (complete) via src/lib/multiplayer/server; units.U92.ownershipPaths[1]
+- U94 (complete) via src/lib/multiplayer/server; units.U94.ownershipPaths[0]
+- U95 (complete) via src/lib/multiplayer/server; units.U95.ownershipPaths[0]
+- U96 (complete) via src/lib/multiplayer/server; units.U96.ownershipPaths[0]
+- U97 (complete) via src/lib/multiplayer/server; units.U97.ownershipPaths[0]
+- U98 (complete) via src/lib/multiplayer/server; units.U98.ownershipPaths[0]
+- P1A (complete) via src/lib/multiplayer/server; units.P1A.ownershipPaths[2]
+- U98b (complete) via src/lib/multiplayer/server; units.U98b.ownershipPaths[0]
+- U98c (complete) via src/lib/multiplayer/server; units.U98c.ownershipPaths[0]
+- P1B (blocked) via src/lib/multiplayer/server; units.P1B.ownershipPaths[2]
+- P1B2 (complete) via src/lib/multiplayer/server; units.P1B2.ownershipPaths[0]
+- P1B3 (complete) via src/lib/multiplayer/server; units.P1B3.ownershipPaths[0]
+- P1 (blocked) via src/lib/multiplayer/server; units.P1.ownershipPaths[1]
+- PAI (complete) via src/lib/multiplayer/server; units.PAI.ownershipPaths[0]
+- P2CB (main-verified) via src/lib/multiplayer/server; units.P2CB.ownershipPaths[1]
+- P2CE (blocked) via src/lib/multiplayer/server; units.P2CE.ownershipPaths[0]
+- P2CE1 (main-verified) via src/lib/multiplayer/server; units.P2CE1.ownershipPaths[0]
+- P2CE2 (main-verified) via src/lib/multiplayer/server; units.P2CE2.ownershipPaths[0]
+- P2CE3 (main-verified) via src/lib/multiplayer/server; units.P2CE3.ownershipPaths[0]
+- P2CG1 (blocked) via src/lib/multiplayer/server; units.P2CG1.ownershipPaths[0]
+- P2CG1A1 (main-verified) via src/lib/multiplayer/server; units.P2CG1A1.ownershipPaths[0]
+- P2CG1A2 (main-verified) via src/lib/multiplayer/server; units.P2CG1A2.ownershipPaths[0]
+- P2CG1B (main-verified) via src/lib/multiplayer/server; units.P2CG1B.ownershipPaths[1]
+- P2CG1C (main-verified) via src/lib/multiplayer/server; units.P2CG1C.ownershipPaths[0]
+- P2CG1D (main-verified) via src/lib/multiplayer/server; units.P2CG1D.ownershipPaths[0]
+- P2CG1E (main-verified) via src/lib/multiplayer/server; units.P2CG1E.ownershipPaths[0]
+- P2CG1R (blocked) via src/lib/multiplayer/server; units.P2CG1R.ownershipPaths[1]
+- P2CG1S (blocked) via src/lib/multiplayer/server; units.P2CG1S.ownershipPaths[0]
+- B14-0 (blocked) via src/lib/multiplayer/server; units.B14-0.ownershipPaths[0]
+- P2CG1HP (blocked) via src/lib/multiplayer/server; units.P2CG1HP.ownershipPaths[1]
+- P2CG1H (blocked) via src/lib/multiplayer/server; units.P2CG1H.ownershipPaths[1]
+- P2CG1I2 (blocked) via src/lib/multiplayer/server; units.P2CG1I2.ownershipPaths[0]
+- P2CG1I3 (blocked) via src/lib/multiplayer/server; units.P2CG1I3.ownershipPaths[0]
+- P2CG1I4 (blocked) via src/lib/multiplayer/server; units.P2CG1I4.ownershipPaths[0]
+- P2CG2 (blocked) via src/lib/multiplayer/server; units.P2CG2.ownershipPaths[0]
+- P2CH (blocked) via src/lib/multiplayer/server; units.P2CH.ownershipPaths[1]
+- U38 (blocked) via src/lib/multiplayer/server; units.U38.ownershipPaths[0]
+- U23 (complete) via src/lib/multiplayer/server; units.U23.ownershipPaths[0]
+- U43 (complete) via src/lib/multiplayer/server; units.U43.ownershipPaths[0]
+- U24 (blocked) via src/lib/multiplayer/server; units.U24.ownershipPaths[0]
+- U24a (complete) via src/lib/multiplayer/server; units.U24a.ownershipPaths[0]
+- U24b (planned) via src/lib/multiplayer/server; units.U24b.ownershipPaths[0]
+- U44 (planned) via src/lib/multiplayer/server; units.U44.ownershipPaths[0]
+- U45 (planned) via src/lib; units.U45.ownershipPaths[1]
+- U26 (planned) via src/lib/multiplayer/server; units.U26.ownershipPaths[0]
+- U46 (planned) via src/lib/multiplayer/server; units.U46.ownershipPaths[0]
+- U47 (planned) via src/lib/multiplayer/server; units.U47.ownershipPaths[1]
+- U48 (planned) via src/lib/multiplayer/server; units.U48.ownershipPaths[0]
+- U49 (planned) via src/lib/multiplayer/server; units.U49.ownershipPaths[0]
+- U56 (planned) via src/lib/multiplayer/server; units.U56.ownershipPaths[1]
+- U4 (complete) via src/lib; units.U4.ownershipPaths[0]
+- U15a (complete) via src/lib/multiplayer/server; units.U15a.ownershipPaths[0]
+- U5a (complete) via src/lib/multiplayer/server; units.U5a.ownershipPaths[2]
+- U5d (complete) via src/lib; units.U5d.ownershipPaths[0]
+- U5e (complete) via src/lib; units.U5e.ownershipPaths[0]
+- U5h (complete) via src/lib; units.U5h.ownershipPaths[0]
+- U10 (complete) via src/lib/multiplayer/server; units.U10.ownershipPaths[0]
+- U101 (planned) via src/lib/multiplayer/server; units.U101.ownershipPaths[1]
+- U104 (planned) via src/lib/multiplayer/server; units.U104.ownershipPaths[1]
+- U105 (planned) via src/lib/multiplayer/server; units.U105.ownershipPaths[1]
+- U101a (planned) via src/lib/multiplayer/server; units.U101a.ownershipPaths[1]
+- U101d (planned) via src/lib/multiplayer/server; units.U101d.ownershipPaths[2]
+- FOG-K (blocked) via src/lib/multiplayer/server; units.FOG-K.ownershipPaths[1]
+- FOG-B (blocked) via src/lib/multiplayer/server; units.FOG-B.ownershipPaths[0]
+- FOG-L (blocked) via src/lib/multiplayer/server; units.FOG-L.ownershipPaths[0]
+- FOG-R (blocked) via src/lib/multiplayer/server; units.FOG-R.ownershipPaths[0]
+- FOG-H (blocked) via src/lib/multiplayer/server; units.FOG-H.ownershipPaths[0]
+- FOG-X (blocked) via src/lib/multiplayer/server; units.FOG-X.ownershipPaths[1]
+- R2.combat (main-verified) via src/lib; roadmap.nodes.R2.combat.ownershipPaths[0]
+- R2.authority (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R2.authority.ownershipPaths[2]
+- R2.authority-live (main-verified) via src/lib/multiplayer/server/CampaignHostRegistry.ts; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1D[2]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1H[8]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG2[1]
+- R2.authority-live (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R2.authority-live.ownershipPaths[2]
+- R3.activation (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R3.activation.ownershipPaths[1]
+- R3.combat (planned) via src/lib/multiplayer/server; roadmap.nodes.R3.combat.ownershipPaths[2]
+- R4.S1 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S1.ownershipPaths[0]
+- R4.S2 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S2.ownershipPaths[0]
+- R4.S3 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S3.ownershipPaths[0]
+- R4.S4 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S4.ownershipPaths[0]
+- R4.S5 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S5.ownershipPaths[0]
+- R4.S6 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S6.ownershipPaths[0]
+- R4.S7 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S7.ownershipPaths[0]
+- R4.rewind (planned) via src/lib/multiplayer/server; roadmap.nodes.R4.rewind.ownershipPaths[1]
+- R5.E1 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E1.ownershipPaths[3]
+- R5.E2 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E2.ownershipPaths[3]
+- R5.E3 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E3.ownershipPaths[3]
+- R5.E4 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E4.ownershipPaths[3]
+- R5.E5 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E5.ownershipPaths[3]
+- R5.E6 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E6.ownershipPaths[3]
+- R5.E7 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E7.ownershipPaths[3]
+- R5.E8 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E8.ownershipPaths[3]
+- R5.E9 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E9.ownershipPaths[3]
+- R5.E10 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E10.ownershipPaths[3]
+- R2.authority-host (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R2.authority-host.ownershipPaths[0]
+- R5.fog-restoration (blocked) via src/lib/multiplayer/server; roadmap.nodes.R5.fog-restoration.ownershipPaths[2]
+- roadmap-registration (documentary) via src/lib/multiplayer/server/CampaignHostRegistry.ts; roadmap.hConsumerPrereqAmendment20261018.hAmendment.typeOnlyLeaves[0]
+
+## src/lib/multiplayer/server/campaignApplicationConnection.ts
+Exists: true.
+
+- U19b (complete) via src/lib/multiplayer/server; units.U19b.ownershipPaths[1]
+- U35g (complete) via src/lib/multiplayer/server; units.U35g.ownershipPaths[1]; units.U35g.pathsAmendedBeforeAdmission20260925.added[0]
+- U35i (complete) via src/lib/multiplayer/server; units.U35i.ownershipPaths[1]
+- U21 (complete) via src/lib/multiplayer/server; units.U21.ownershipPaths[0]
+- U22a (complete) via src/lib/multiplayer/server; units.U22a.ownershipPaths[0]
+- U21b (complete) via src/lib/multiplayer/server; units.U21b.ownershipPaths[0]
+- U89 (complete) via src/lib/multiplayer/server; units.U89.ownershipPaths[0]
+- U92 (complete) via src/lib/multiplayer/server; units.U92.ownershipPaths[1]
+- U94 (complete) via src/lib/multiplayer/server; units.U94.ownershipPaths[0]
+- U95 (complete) via src/lib/multiplayer/server; units.U95.ownershipPaths[0]
+- U96 (complete) via src/lib/multiplayer/server; units.U96.ownershipPaths[0]
+- U97 (complete) via src/lib/multiplayer/server; units.U97.ownershipPaths[0]
+- U98 (complete) via src/lib/multiplayer/server; units.U98.ownershipPaths[0]
+- P1A (complete) via src/lib/multiplayer/server; units.P1A.ownershipPaths[2]
+- U98b (complete) via src/lib/multiplayer/server; units.U98b.ownershipPaths[0]
+- U98c (complete) via src/lib/multiplayer/server; units.U98c.ownershipPaths[0]
+- P1B (blocked) via src/lib/multiplayer/server; units.P1B.ownershipPaths[2]
+- P1B2 (complete) via src/lib/multiplayer/server; units.P1B2.ownershipPaths[0]
+- P1B3 (complete) via src/lib/multiplayer/server; units.P1B3.ownershipPaths[0]
+- P1 (blocked) via src/lib/multiplayer/server; units.P1.ownershipPaths[1]
+- PAI (complete) via src/lib/multiplayer/server; units.PAI.ownershipPaths[0]
+- P2CB (main-verified) via src/lib/multiplayer/server; units.P2CB.ownershipPaths[1]
+- P2CE (blocked) via src/lib/multiplayer/server; units.P2CE.ownershipPaths[0]
+- P2CE1 (main-verified) via src/lib/multiplayer/server; units.P2CE1.ownershipPaths[0]
+- P2CE2 (main-verified) via src/lib/multiplayer/server; units.P2CE2.ownershipPaths[0]
+- P2CE3 (main-verified) via src/lib/multiplayer/server; units.P2CE3.ownershipPaths[0]
+- P2CG1 (blocked) via src/lib/multiplayer/server; units.P2CG1.ownershipPaths[0]
+- P2CG1A1 (main-verified) via src/lib/multiplayer/server; units.P2CG1A1.ownershipPaths[0]
+- P2CG1A2 (main-verified) via src/lib/multiplayer/server; units.P2CG1A2.ownershipPaths[0]
+- P2CG1B (main-verified) via src/lib/multiplayer/server; units.P2CG1B.ownershipPaths[1]
+- P2CG1C (main-verified) via src/lib/multiplayer/server; units.P2CG1C.ownershipPaths[0]
+- P2CG1D (main-verified) via src/lib/multiplayer/server; units.P2CG1D.ownershipPaths[0]
+- P2CG1E (main-verified) via src/lib/multiplayer/server; units.P2CG1E.ownershipPaths[0]
+- P2CG1R (blocked) via src/lib/multiplayer/server; units.P2CG1R.ownershipPaths[1]
+- P2CG1S (blocked) via src/lib/multiplayer/server; units.P2CG1S.ownershipPaths[0]
+- B14-0 (blocked) via src/lib/multiplayer/server; units.B14-0.ownershipPaths[0]
+- P2CG1HP (blocked) via src/lib/multiplayer/server; units.P2CG1HP.ownershipPaths[1]
+- P2CG1H (blocked) via src/lib/multiplayer/server; units.P2CG1H.ownershipPaths[1]
+- P2CG1I2 (blocked) via src/lib/multiplayer/server; units.P2CG1I2.ownershipPaths[0]
+- P2CG1I3 (blocked) via src/lib/multiplayer/server; units.P2CG1I3.ownershipPaths[0]
+- P2CG1I4 (blocked) via src/lib/multiplayer/server; units.P2CG1I4.ownershipPaths[0]
+- P2CG2 (blocked) via src/lib/multiplayer/server; units.P2CG2.ownershipPaths[0]
+- P2CH (blocked) via src/lib/multiplayer/server; units.P2CH.ownershipPaths[1]
+- U38 (blocked) via src/lib/multiplayer/server; units.U38.ownershipPaths[0]
+- U23 (complete) via src/lib/multiplayer/server; units.U23.ownershipPaths[0]
+- U43 (complete) via src/lib/multiplayer/server; units.U43.ownershipPaths[0]
+- U24 (blocked) via src/lib/multiplayer/server; units.U24.ownershipPaths[0]
+- U24a (complete) via src/lib/multiplayer/server; units.U24a.ownershipPaths[0]
+- U24b (planned) via src/lib/multiplayer/server; units.U24b.ownershipPaths[0]
+- U44 (planned) via src/lib/multiplayer/server; units.U44.ownershipPaths[0]
+- U45 (planned) via src/lib; units.U45.ownershipPaths[1]
+- U26 (planned) via src/lib/multiplayer/server; units.U26.ownershipPaths[0]
+- U46 (planned) via src/lib/multiplayer/server; units.U46.ownershipPaths[0]
+- U47 (planned) via src/lib/multiplayer/server; units.U47.ownershipPaths[1]
+- U48 (planned) via src/lib/multiplayer/server; units.U48.ownershipPaths[0]
+- U49 (planned) via src/lib/multiplayer/server; units.U49.ownershipPaths[0]
+- U56 (planned) via src/lib/multiplayer/server; units.U56.ownershipPaths[1]
+- U4 (complete) via src/lib; units.U4.ownershipPaths[0]
+- U15a (complete) via src/lib/multiplayer/server; units.U15a.ownershipPaths[0]
+- U5a (complete) via src/lib/multiplayer/server; units.U5a.ownershipPaths[2]
+- U5d (complete) via src/lib; units.U5d.ownershipPaths[0]
+- U5e (complete) via src/lib; units.U5e.ownershipPaths[0]
+- U5h (complete) via src/lib; units.U5h.ownershipPaths[0]
+- U10 (complete) via src/lib/multiplayer/server; units.U10.ownershipPaths[0]
+- U101 (planned) via src/lib/multiplayer/server; units.U101.ownershipPaths[1]
+- U104 (planned) via src/lib/multiplayer/server; units.U104.ownershipPaths[1]
+- U105 (planned) via src/lib/multiplayer/server; units.U105.ownershipPaths[1]
+- U101a (planned) via src/lib/multiplayer/server; units.U101a.ownershipPaths[1]
+- U101d (planned) via src/lib/multiplayer/server; units.U101d.ownershipPaths[2]
+- FOG-K (blocked) via src/lib/multiplayer/server; units.FOG-K.ownershipPaths[1]
+- FOG-B (blocked) via src/lib/multiplayer/server; units.FOG-B.ownershipPaths[0]
+- FOG-L (blocked) via src/lib/multiplayer/server; units.FOG-L.ownershipPaths[0]
+- FOG-R (blocked) via src/lib/multiplayer/server; units.FOG-R.ownershipPaths[0]
+- FOG-H (blocked) via src/lib/multiplayer/server; units.FOG-H.ownershipPaths[0]
+- FOG-X (blocked) via src/lib/multiplayer/server; units.FOG-X.ownershipPaths[1]
+- R2.combat (main-verified) via src/lib; roadmap.nodes.R2.combat.ownershipPaths[0]
+- R2.authority (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R2.authority.ownershipPaths[2]
+- R2.authority-live (main-verified) via src/lib/multiplayer/server/campaignApplicationConnection.ts; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1A1[1]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1A2[1]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1H[9]
+- R2.authority-live (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R2.authority-live.ownershipPaths[2]
+- R3.activation (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R3.activation.ownershipPaths[1]
+- R3.combat (planned) via src/lib/multiplayer/server; roadmap.nodes.R3.combat.ownershipPaths[2]
+- R4.S1 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S1.ownershipPaths[0]
+- R4.S2 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S2.ownershipPaths[0]
+- R4.S3 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S3.ownershipPaths[0]
+- R4.S4 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S4.ownershipPaths[0]
+- R4.S5 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S5.ownershipPaths[0]
+- R4.S6 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S6.ownershipPaths[0]
+- R4.S7 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S7.ownershipPaths[0]
+- R4.rewind (planned) via src/lib/multiplayer/server; roadmap.nodes.R4.rewind.ownershipPaths[1]
+- R5.E1 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E1.ownershipPaths[3]
+- R5.E2 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E2.ownershipPaths[3]
+- R5.E3 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E3.ownershipPaths[3]
+- R5.E4 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E4.ownershipPaths[3]
+- R5.E5 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E5.ownershipPaths[3]
+- R5.E6 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E6.ownershipPaths[3]
+- R5.E7 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E7.ownershipPaths[3]
+- R5.E8 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E8.ownershipPaths[3]
+- R5.E9 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E9.ownershipPaths[3]
+- R5.E10 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E10.ownershipPaths[3]
+- R2.authority-host (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R2.authority-host.ownershipPaths[0]
+- R5.fog-restoration (blocked) via src/lib/multiplayer/server; roadmap.nodes.R5.fog-restoration.ownershipPaths[2]
+- roadmap-registration (documentary) via src/lib/multiplayer/server/campaignApplicationConnection.ts; roadmap.hConsumerPrereqAmendment20261018.hAmendment.typeOnlyLeaves[1]
+
+## src/components/campaign/coop/useCampaignApplicationConsumer.ts
+Exists: true.
+
+- U35f (complete) via src/components/campaign/coop; units.U35f.ownershipPaths[0]
+- U90 (blocked) via src/components/campaign/coop; units.U90.ownershipPaths[0]
+- U36 (complete) via src/components/campaign/coop; units.U36.ownershipPaths[2]
+- P2CF (blocked) via src/components/campaign/coop; units.P2CF.ownershipPaths[0]
+- P2CF2 (main-verified) via src/components/campaign/coop; units.P2CF2.ownershipPaths[0]
+- P2CG1F (main-verified) via src/components/campaign/coop; units.P2CG1F.ownershipPaths[0]
+- P2CG1G1 (main-verified) via src/components/campaign/coop; units.P2CG1G1.ownershipPaths[0]
+- P2CG1G2 (implementing) via src/components/campaign/coop; units.P2CG1G2.ownershipPaths[0]
+- P2CG1HP (blocked) via src/components/campaign/coop; units.P2CG1HP.ownershipPaths[0]
+- P2 (blocked) via src/components/campaign/coop; units.P2.ownershipPaths[2]
+- R2.authority-live (main-verified) via src/components/campaign/coop; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.paths[3]; roadmap.nodes.R2.authority-live.ownershipPaths[59]
+- R2.authority-live (main-verified) via src/components/campaign/coop/useCampaignApplicationConsumer.ts; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1F[0]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1G1[7]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CF2[1]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1HP[0]
+- R7.context (planned) via src/components/campaign; roadmap.nodes.R7.context.ownershipPaths[0]
+- R8.starmap (planned) via src/components/campaign; roadmap.nodes.R8.starmap.ownershipPaths[0]
+- R2.multiplayer-client (planned) via src/components/campaign/coop; roadmap.nodes.R2.multiplayer-client.ownershipPaths[8]; roadmap.nodes.R2.multiplayer-client.ownershipPathsAmended20260922[2].path
+- roadmap-registration (documentary) via src/components/campaign/coop/useCampaignApplicationConsumer.ts; roadmap.hConsumerPrereqAmendment20261018.manifest[0]
+
+## src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx
+Exists: true.
+
+- U35f (complete) via src/components/campaign/coop; units.U35f.ownershipPaths[0]
+- U90 (blocked) via src/components/campaign/coop; units.U90.ownershipPaths[0]
+- U36 (complete) via src/components/campaign/coop; units.U36.ownershipPaths[2]
+- P2CF (blocked) via src/components/campaign/coop; units.P2CF.ownershipPaths[0]
+- P2CF2 (main-verified) via src/components/campaign/coop; units.P2CF2.ownershipPaths[0]
+- P2CG1F (main-verified) via src/components/campaign/coop; units.P2CG1F.ownershipPaths[0]
+- P2CG1G1 (main-verified) via src/components/campaign/coop; units.P2CG1G1.ownershipPaths[0]
+- P2CG1G2 (implementing) via src/components/campaign/coop; units.P2CG1G2.ownershipPaths[0]
+- P2CG1HP (blocked) via src/components/campaign/coop; units.P2CG1HP.ownershipPaths[0]
+- P2CG1I1 (blocked) via src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx; units.P2CG1I1.ownershipExceptions[3]
+- P2 (blocked) via src/components/campaign/coop; units.P2.ownershipPaths[2]
+- R2.authority-live (main-verified) via src/components/campaign/coop; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.paths[3]; roadmap.nodes.R2.authority-live.ownershipPaths[59]
+- R2.authority-live (main-verified) via src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1F[3]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1G1[3]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1I1[4]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CF[1]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CF2[4]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1HP[2]
+- R7.context (planned) via src/components/campaign; roadmap.nodes.R7.context.ownershipPaths[0]
+- R8.starmap (planned) via src/components/campaign; roadmap.nodes.R8.starmap.ownershipPaths[0]
+- R2.multiplayer-client (planned) via src/components/campaign/coop; roadmap.nodes.R2.multiplayer-client.ownershipPaths[8]; roadmap.nodes.R2.multiplayer-client.ownershipPathsAmended20260922[2].path
+- roadmap-registration (documentary) via src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx; roadmap.hConsumerPrereqAmendment20261018.manifest[2]
+
+## src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts
+Exists: true.
+
+- U19b (complete) via src/lib/multiplayer/server; units.U19b.ownershipPaths[1]
+- U35g (complete) via src/lib/multiplayer/server; units.U35g.ownershipPaths[1]; units.U35g.pathsAmendedBeforeAdmission20260925.added[0]
+- U35i (complete) via src/lib/multiplayer/server; units.U35i.ownershipPaths[1]
+- U21 (complete) via src/lib/multiplayer/server; units.U21.ownershipPaths[0]
+- U22a (complete) via src/lib/multiplayer/server; units.U22a.ownershipPaths[0]
+- U21b (complete) via src/lib/multiplayer/server; units.U21b.ownershipPaths[0]
+- U89 (complete) via src/lib/multiplayer/server; units.U89.ownershipPaths[0]
+- U92 (complete) via src/lib/multiplayer/server; units.U92.ownershipPaths[1]
+- U94 (complete) via src/lib/multiplayer/server; units.U94.ownershipPaths[0]
+- U95 (complete) via src/lib/multiplayer/server; units.U95.ownershipPaths[0]
+- U96 (complete) via src/lib/multiplayer/server; units.U96.ownershipPaths[0]
+- U97 (complete) via src/lib/multiplayer/server; units.U97.ownershipPaths[0]
+- U98 (complete) via src/lib/multiplayer/server; units.U98.ownershipPaths[0]
+- P1A (complete) via src/lib/multiplayer/server; units.P1A.ownershipPaths[2]
+- U98b (complete) via src/lib/multiplayer/server; units.U98b.ownershipPaths[0]
+- U98c (complete) via src/lib/multiplayer/server; units.U98c.ownershipPaths[0]
+- P1B (blocked) via src/lib/multiplayer/server; units.P1B.ownershipPaths[2]
+- P1B2 (complete) via src/lib/multiplayer/server; units.P1B2.ownershipPaths[0]
+- P1B3 (complete) via src/lib/multiplayer/server; units.P1B3.ownershipPaths[0]
+- P1 (blocked) via src/lib/multiplayer/server; units.P1.ownershipPaths[1]
+- PAI (complete) via src/lib/multiplayer/server; units.PAI.ownershipPaths[0]
+- P2CB (main-verified) via src/lib/multiplayer/server; units.P2CB.ownershipPaths[1]
+- P2CE (blocked) via src/lib/multiplayer/server; units.P2CE.ownershipPaths[0]
+- P2CE1 (main-verified) via src/lib/multiplayer/server; units.P2CE1.ownershipPaths[0]
+- P2CE2 (main-verified) via src/lib/multiplayer/server; units.P2CE2.ownershipPaths[0]
+- P2CE3 (main-verified) via src/lib/multiplayer/server; units.P2CE3.ownershipPaths[0]
+- P2CG1 (blocked) via src/lib/multiplayer/server; units.P2CG1.ownershipPaths[0]
+- P2CG1A1 (main-verified) via src/lib/multiplayer/server; units.P2CG1A1.ownershipPaths[0]
+- P2CG1A2 (main-verified) via src/lib/multiplayer/server; units.P2CG1A2.ownershipPaths[0]
+- P2CG1B (main-verified) via src/lib/multiplayer/server; units.P2CG1B.ownershipPaths[1]
+- P2CG1C (main-verified) via src/lib/multiplayer/server; units.P2CG1C.ownershipPaths[0]
+- P2CG1D (main-verified) via src/lib/multiplayer/server; units.P2CG1D.ownershipPaths[0]
+- P2CG1E (main-verified) via src/lib/multiplayer/server; units.P2CG1E.ownershipPaths[0]
+- P2CG1R (blocked) via src/lib/multiplayer/server; units.P2CG1R.ownershipPaths[1]
+- P2CG1S (blocked) via src/lib/multiplayer/server; units.P2CG1S.ownershipPaths[0]
+- B14-0 (blocked) via src/lib/multiplayer/server; units.B14-0.ownershipPaths[0]
+- P2CG1HP (blocked) via src/lib/multiplayer/server; units.P2CG1HP.ownershipPaths[1]
+- P2CG1H (blocked) via src/lib/multiplayer/server; units.P2CG1H.ownershipPaths[1]
+- P2CG1I2 (blocked) via src/lib/multiplayer/server; units.P2CG1I2.ownershipPaths[0]
+- P2CG1I3 (blocked) via src/lib/multiplayer/server; units.P2CG1I3.ownershipPaths[0]
+- P2CG1I4 (blocked) via src/lib/multiplayer/server; units.P2CG1I4.ownershipPaths[0]
+- P2CG2 (blocked) via src/lib/multiplayer/server; units.P2CG2.ownershipPaths[0]
+- P2CH (blocked) via src/lib/multiplayer/server; units.P2CH.ownershipPaths[1]
+- U38 (blocked) via src/lib/multiplayer/server; units.U38.ownershipPaths[0]
+- U23 (complete) via src/lib/multiplayer/server; units.U23.ownershipPaths[0]
+- U43 (complete) via src/lib/multiplayer/server; units.U43.ownershipPaths[0]
+- U24 (blocked) via src/lib/multiplayer/server; units.U24.ownershipPaths[0]
+- U24a (complete) via src/lib/multiplayer/server; units.U24a.ownershipPaths[0]
+- U24b (planned) via src/lib/multiplayer/server; units.U24b.ownershipPaths[0]
+- U44 (planned) via src/lib/multiplayer/server; units.U44.ownershipPaths[0]
+- U45 (planned) via src/lib; units.U45.ownershipPaths[1]
+- U26 (planned) via src/lib/multiplayer/server; units.U26.ownershipPaths[0]
+- U46 (planned) via src/lib/multiplayer/server; units.U46.ownershipPaths[0]
+- U47 (planned) via src/lib/multiplayer/server; units.U47.ownershipPaths[1]
+- U48 (planned) via src/lib/multiplayer/server; units.U48.ownershipPaths[0]
+- U49 (planned) via src/lib/multiplayer/server; units.U49.ownershipPaths[0]
+- U56 (planned) via src/lib/multiplayer/server; units.U56.ownershipPaths[1]
+- U4 (complete) via src/lib; units.U4.ownershipPaths[0]
+- U15a (complete) via src/lib/multiplayer/server; units.U15a.ownershipPaths[0]
+- U5a (complete) via src/lib/multiplayer/server; units.U5a.ownershipPaths[2]
+- U5d (complete) via src/lib; units.U5d.ownershipPaths[0]
+- U5e (complete) via src/lib; units.U5e.ownershipPaths[0]
+- U5h (complete) via src/lib; units.U5h.ownershipPaths[0]
+- U10 (complete) via src/lib/multiplayer/server; units.U10.ownershipPaths[0]
+- U101 (planned) via src/lib/multiplayer/server; units.U101.ownershipPaths[1]
+- U104 (planned) via src/lib/multiplayer/server; units.U104.ownershipPaths[1]
+- U105 (planned) via src/lib/multiplayer/server; units.U105.ownershipPaths[1]
+- U101a (planned) via src/lib/multiplayer/server; units.U101a.ownershipPaths[1]
+- U101d (planned) via src/lib/multiplayer/server; units.U101d.ownershipPaths[2]
+- FOG-K (blocked) via src/lib/multiplayer/server; units.FOG-K.ownershipPaths[1]
+- FOG-B (blocked) via src/lib/multiplayer/server; units.FOG-B.ownershipPaths[0]
+- FOG-L (blocked) via src/lib/multiplayer/server; units.FOG-L.ownershipPaths[0]
+- FOG-R (blocked) via src/lib/multiplayer/server; units.FOG-R.ownershipPaths[0]
+- FOG-H (blocked) via src/lib/multiplayer/server; units.FOG-H.ownershipPaths[0]
+- FOG-X (blocked) via src/lib/multiplayer/server; units.FOG-X.ownershipPaths[1]
+- R2.combat (main-verified) via src/lib; roadmap.nodes.R2.combat.ownershipPaths[0]
+- R2.authority (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R2.authority.ownershipPaths[2]
+- R2.authority-live (main-verified) via src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CE[6]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CE3[1]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1D[5]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1I3[3]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG2[4]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1R[5]; roadmap.nodes.R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1HP[3]
+- R2.authority-live (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R2.authority-live.ownershipPaths[2]
+- R3.activation (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R3.activation.ownershipPaths[1]
+- R3.combat (planned) via src/lib/multiplayer/server; roadmap.nodes.R3.combat.ownershipPaths[2]
+- R4.S1 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S1.ownershipPaths[0]
+- R4.S2 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S2.ownershipPaths[0]
+- R4.S3 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S3.ownershipPaths[0]
+- R4.S4 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S4.ownershipPaths[0]
+- R4.S5 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S5.ownershipPaths[0]
+- R4.S6 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S6.ownershipPaths[0]
+- R4.S7 (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R4.S7.ownershipPaths[0]
+- R4.rewind (planned) via src/lib/multiplayer/server; roadmap.nodes.R4.rewind.ownershipPaths[1]
+- R5.E1 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E1.ownershipPaths[3]
+- R5.E2 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E2.ownershipPaths[3]
+- R5.E3 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E3.ownershipPaths[3]
+- R5.E4 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E4.ownershipPaths[3]
+- R5.E5 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E5.ownershipPaths[3]
+- R5.E6 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E6.ownershipPaths[3]
+- R5.E7 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E7.ownershipPaths[3]
+- R5.E8 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E8.ownershipPaths[3]
+- R5.E9 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E9.ownershipPaths[3]
+- R5.E10 (planned) via src/lib/multiplayer/server; roadmap.nodes.R5.E10.ownershipPaths[3]
+- R2.authority-host (main-verified) via src/lib/multiplayer/server; roadmap.nodes.R2.authority-host.ownershipPaths[0]
+- R5.fog-restoration (blocked) via src/lib/multiplayer/server; roadmap.nodes.R5.fog-restoration.ownershipPaths[2]
+- roadmap-registration (documentary) via src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts; roadmap.hConsumerPrereqAmendment20261018.manifest[3]
+
+## openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-admission-20261018.json
+Exists: false.
+
+- U0 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U0.ownershipPaths[0]
+- P2C (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.P2C.ownershipPaths[0]
+- U41 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U41.ownershipPaths[0]
+- U42 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U42.ownershipPaths[0]
+- U59 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U59.ownershipPaths[0]
+- U16 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U16.ownershipPaths[0]
+- U85 (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.U85.ownershipPaths[0]
+- R0.plan (local-verified) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.plan.ownershipPaths[0]
+- R9.close (planned) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R9.close.ownershipPaths[0]
+- R0.publish (complete) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.publish.ownershipPaths[0]
+- roadmap-registration (documentary) via openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-admission-20261018.json; roadmap.hConsumerPrereqAmendment20261018.manifest[5]
+
+## openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-red-20261018.json
+Exists: false.
+
+- U0 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U0.ownershipPaths[0]
+- P2C (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.P2C.ownershipPaths[0]
+- U41 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U41.ownershipPaths[0]
+- U42 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U42.ownershipPaths[0]
+- U59 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U59.ownershipPaths[0]
+- U16 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U16.ownershipPaths[0]
+- U85 (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.U85.ownershipPaths[0]
+- R0.plan (local-verified) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.plan.ownershipPaths[0]
+- R9.close (planned) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R9.close.ownershipPaths[0]
+- R0.publish (complete) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.publish.ownershipPaths[0]
+- roadmap-registration (documentary) via openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-red-20261018.json; roadmap.hConsumerPrereqAmendment20261018.manifest[6]
+
+## openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-local-20261018.json
+Exists: false.
+
+- U0 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U0.ownershipPaths[0]
+- P2C (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.P2C.ownershipPaths[0]
+- U41 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U41.ownershipPaths[0]
+- U42 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U42.ownershipPaths[0]
+- U59 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U59.ownershipPaths[0]
+- U16 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U16.ownershipPaths[0]
+- U85 (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.U85.ownershipPaths[0]
+- R0.plan (local-verified) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.plan.ownershipPaths[0]
+- R9.close (planned) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R9.close.ownershipPaths[0]
+- R0.publish (complete) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.publish.ownershipPaths[0]
+- roadmap-registration (documentary) via openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-local-20261018.json; roadmap.hConsumerPrereqAmendment20261018.manifest[7]
+
+## openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-admission-review-20261018.json
+Exists: false.
+
+- U0 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U0.ownershipPaths[0]
+- P2C (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.P2C.ownershipPaths[0]
+- U41 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U41.ownershipPaths[0]
+- U42 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U42.ownershipPaths[0]
+- U59 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U59.ownershipPaths[0]
+- U16 (complete) via openspec/planning/2026-09-12-roadmap-completion; units.U16.ownershipPaths[0]
+- U85 (blocked) via openspec/planning/2026-09-12-roadmap-completion; units.U85.ownershipPaths[0]
+- R0.plan (local-verified) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.plan.ownershipPaths[0]
+- R9.close (planned) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R9.close.ownershipPaths[0]
+- R0.publish (complete) via openspec/planning/2026-09-12-roadmap-completion; roadmap.nodes.R0.publish.ownershipPaths[0]
+- roadmap-registration (documentary) via openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-admission-review-20261018.json; roadmap.hConsumerPrereqAmendment20261018.manifest[8]
+
+
