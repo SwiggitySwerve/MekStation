@@ -4,6 +4,7 @@ import type { IIntent, IServerMessage } from '@/types/multiplayer/Protocol';
 
 import { createMinimalGrid } from '@/engine/GameEngine.helpers';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
+import { createEmptyCampaignState } from '@/types/campaign/CampaignSync';
 import {
   Facing,
   GameEventType,
@@ -16,6 +17,7 @@ import { defaultSeats } from '@/types/multiplayer/Lobby';
 import { nowIso } from '@/types/multiplayer/Protocol';
 
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
+import { addSpectatorSeat } from '../lobby/spectatorSeats';
 import { sealedDeclarationsRevealedBy } from '../projection/MatchWireSealedChoices';
 import { ServerMatchHost, type IMatchSocket } from '../ServerMatchHost';
 
@@ -168,14 +170,19 @@ function replayedEvents(socketValue: IRecordedSocket): Array<{
   return out;
 }
 
-async function makeHost(): Promise<{
+/** `spectator` adds a current spectator seat for `watcher` (B10). */
+async function makeHost(
+  options: { readonly spectator?: 'player' | 'gm' } = {},
+): Promise<{
   readonly host: ServerMatchHost;
   readonly playerOne: IRecordedSocket;
   readonly playerTwo: IRecordedSocket;
   readonly store: InMemoryMatchStore;
+  readonly watcher?: IRecordedSocket;
 }> {
   const store = new InMemoryMatchStore({ quiet: true });
   const now = '2026-08-30T00:00:00.000Z';
+  const campaignId = 'camp-sealed-choice-delivery';
   await store.createMatch({
     matchId: MATCH_ID,
     hostPlayerId: 'player-one',
@@ -204,7 +211,33 @@ async function makeHost(): Promise<{
       }
       return seat;
     }),
+    ...(options.spectator === 'gm'
+      ? {
+          coopCampaign: {
+            campaignId,
+            state: createEmptyCampaignState(campaignId),
+          },
+        }
+      : {}),
   });
+  if (options.spectator !== undefined) {
+    const meta = await store.getMatchMeta(MATCH_ID);
+    await store.updateMatchMeta(MATCH_ID, {
+      seats: addSpectatorSeat(meta.seats ?? [], {
+        playerId: 'watcher',
+        displayName: 'Watcher',
+      }),
+    });
+  }
+  if (options.spectator === 'gm') {
+    store.bindCampaignSessionParticipant({
+      campaignId,
+      sessionId: MATCH_ID,
+      participantId: 'watcher',
+      seat: 'gm',
+      boundAt: now,
+    });
+  }
   const host = ServerMatchHost.create(MATCH_ID, store, {
     mapRadius: 6,
     turnLimit: 5,
@@ -224,7 +257,12 @@ async function makeHost(): Promise<{
   const playerTwo = socket();
   host.attachSocket(playerOne, 'player-one');
   host.attachSocket(playerTwo, 'player-two');
-  return { host, playerOne, playerTwo, store };
+  if (options.spectator === undefined) {
+    return { host, playerOne, playerTwo, store };
+  }
+  const watcher = socket();
+  host.attachSocket(watcher, 'watcher');
+  return { host, playerOne, playerTwo, store, watcher };
 }
 
 /**
@@ -237,7 +275,7 @@ async function makeHost(): Promise<{
  */
 async function driveToMovementReveal(
   host: ServerMatchHost,
-  beforeFinalize: () => void = () => undefined,
+  beforeFinalize: () => void | Promise<void> = () => undefined,
 ): Promise<{
   readonly move: {
     readonly id: string;
@@ -279,7 +317,7 @@ async function driveToMovementReveal(
   });
   // The caller's last chance to arrange the world before the event
   // that triggers the reveal commits.
-  beforeFinalize();
+  await beforeFinalize();
   await intent(host, 'player-one', 'finalize-movement', {
     kind: 'AdvancePhase',
   });
@@ -476,4 +514,67 @@ describe('sealed two-player tactical choices', () => {
       jest.restoreAllMocks();
     }
   });
+});
+
+// B10 (P2CG1S), real intents: a current spectator seat - player brand, or
+// gm brand from a real campaign-session gm row (the co-op host shape) - is
+// held to the reveal like any non-actor, then gets the COMMITTED row once
+// with a gapless delivery number, and replay agrees with live.
+describe('sealed choices to a current spectator seat', () => {
+  it.each(['player', 'gm'] as const)(
+    '%s-branded spectator: live withholds the move until the reveal, then delivers the committed row',
+    async (brand) => {
+      const { host, playerOne, store, watcher } = await makeHost({
+        spectator: brand,
+      });
+      if (watcher === undefined) throw new Error('no spectator socket');
+      let preReveal: string[] = [];
+      const { move } = await driveToMovementReveal(host, () => {
+        preReveal = eventFrames(watcher).map((frame) => frame.event?.id ?? '');
+      });
+      expect(eventFrames(playerOne).map((frame) => frame.event?.id)).toContain(
+        move.id,
+      );
+      expect(preReveal.length).toBeGreaterThan(0);
+      expect(preReveal).not.toContain(move.id);
+
+      const committed = (await store.getEvents(MATCH_ID)).find(
+        (event) => event.id === move.id,
+      );
+      const frames = eventFrames(watcher);
+      const revealed = frames.filter((frame) => frame.event?.id === move.id);
+      expect(revealed).toHaveLength(1);
+      expect(revealed[0]?.event?.payload).toEqual(committed?.payload);
+      const delivery = frames.map((frame) => frame.deliverySequence);
+      expect(delivery).toEqual(
+        delivery.map((_value, index) => (delivery[0] ?? 0) + index),
+      );
+
+      const rejoin = socket();
+      host.attachSocket(rejoin, 'watcher');
+      await host.handleSessionJoin(rejoin, 'watcher', undefined, MATCH_ID, 0);
+      expect(
+        replayedEvents(rejoin)
+          .filter((event) => event.id === move.id)
+          .map((event) => event.payload),
+      ).toEqual([revealed[0]?.event?.payload]);
+    },
+  );
+
+  it.each(['player', 'gm'] as const)(
+    '%s-branded spectator: replay before the reveal withholds the committed move',
+    async (brand) => {
+      const { host } = await makeHost({ spectator: brand });
+      const early = socket();
+      const { move } = await driveToMovementReveal(host, async () => {
+        await host.sendReplay(early, 0, 'watcher');
+      });
+      const ids = replayedEvents(early).map((event) => event.id);
+      expect(ids.length).toBeGreaterThan(0);
+      expect(ids).not.toContain(move.id);
+      expect(JSON.stringify(early.sent)).not.toContain(
+        JSON.stringify((move.payload as { readonly to?: unknown }).to),
+      );
+    },
+  );
 });

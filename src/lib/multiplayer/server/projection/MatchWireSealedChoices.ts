@@ -1,3 +1,5 @@
+import type { IMatchSeat } from '@/types/multiplayer/Lobby';
+
 import {
   GameEventType,
   GamePhase,
@@ -7,6 +9,8 @@ import {
 
 import type { IAuthorizedViewer } from '../authorization/AuthorizedViewer';
 import type { IViewerAudienceRuntimeContext } from './ViewerAudienceProjector';
+
+import { isSpectatorPlayer } from '../lobby/spectatorSeats';
 
 /** Tactical choices that are withheld until their authoritative reveal. */
 export const MATCH_WIRE_SEALED_DECLARATION_TYPES = new Set<GameEventType>([
@@ -50,6 +54,7 @@ export function createMatchWireSealedChoiceAudienceContext(
   events: readonly IGameEvent[],
   state: AudienceState,
   visibleThroughSequence: number,
+  seats: readonly IMatchSeat[] = [],
 ): IViewerAudienceRuntimeContext {
   const finalizedAt = finalizationSequences(events, visibleThroughSequence);
   return {
@@ -66,6 +71,10 @@ export function createMatchWireSealedChoiceAudienceContext(
       return finalization !== undefined && finalization > declaration.sequence;
     },
     isActorOwnedByViewer(viewer: IAuthorizedViewer, event: unknown): boolean {
+      // A current spectator seat owns no side (fog-of-war D6), whatever
+      // its brand or a stale side assignment says. Seats, not role:
+      // spectators are branded player or gm.
+      if (isSpectatorPlayer(seats, viewer.principalId)) return false;
       if (viewer.role === 'gm') return true;
       const declaration = readWireEvent(event);
       if (declaration === null) return false;

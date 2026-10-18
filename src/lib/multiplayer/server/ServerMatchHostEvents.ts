@@ -294,6 +294,7 @@ async function publishEvent(
           ctx.session.getSession().events,
           state,
           visibleThroughSequence,
+          meta?.seats ?? [],
         );
   const fogMeta = meta !== null && meta.config.fogOfWar === true ? meta : null;
   const seats = fogMeta?.seats ?? [];

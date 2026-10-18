@@ -1,0 +1,241 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CG1S",
+  "stage": "admission",
+  "date": "20261018",
+  "baseline": "70eab85ae2e16adfc05e4c2fcced4be5cae4f21e",
+  "authority": "Root GATE OPEN message for P2CG1S: P2CG1R closure #2262 merged at 70eab85ae (Sonnet closure verify APPROVE sha256 c45ac2d4...; receipt issuecomment-6249546193); P2CG1R main-verified; P2CG1S planned (successors [B14-0A, P2C]); validate-roadmap --next = P2CG1S; nothing else in the product lane in flight; Main also gained docs-only #2263 (B14-0 split) and the e2e fix #2261, neither touching an S leaf. Owner standing instruction: \"continue with recommended options and fix the issues that come up, publish as needed\"; owner 2026-10-18: \"I think the recommended actions make sense for the ones that have them\". Parent rulings on S-PREP (same authority) are recorded under rulings. This receipt records that release; it is not an owner ruling on the implementation head.",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "P2CG1S implementation sub-agent"
+  },
+  "predecessors": {
+    "P2CG1R": "main-verified on fetched origin/main 70eab85ae (merge fb5d7c343a5419eeead75bbd91b78a26c52a5da5, mainProof PASS evidence/p2cg1r-mainproof-20261018.json); closure #2262 is the baseline commit"
+  },
+  "overlap": "Single product-writing lane: no other unit is implementing at the baseline (Root: nothing else in the product lane in flight). The five S leaves are byte-identical between c4d0eae46 (S-PREP prototype) and the baseline; R touched none of them. B14-0A/B14-0 later share ServerMatchHostReplay.ts and ServerMatchHostEvents.ts and must preserve both seat arguments and the seat-before-gm rule.",
+  "restriction": {
+    "container": "R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1S",
+    "leaves": 5,
+    "knownSourceTestLifecycleSubtotal": 6,
+    "registration": "evidence/h-prereq-registration-20261017.json (B10)"
+  },
+  "caps": {
+    "files": 15,
+    "productAddedLines": 500
+  },
+  "manifest": {
+    "count": 10,
+    "spare": 5,
+    "reservedUnchanged": 1,
+    "files": [
+      "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+      "src/lib/multiplayer/server/ServerMatchHostReplay.ts",
+      "src/lib/multiplayer/server/ServerMatchHostEvents.ts",
+      "src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts",
+      "src/lib/multiplayer/server/__tests__/sealedChoiceDelivery.test.ts",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1s-admission-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1s-red-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1s-local-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1s-admission-review-20261018.md"
+    ],
+    "note": "5 restriction leaves (3 existing product, 2 existing tests) + units.json (own lifecycle fields only) + admission/red/local receipts + 1 reserved, unwritten admission-review slot = 10/15. The five spare slots grant no unnamed output; later review/identity/closure outputs need the separate G-OWN freeze. No new source, helper, harness, config or dependency file."
+  },
+  "countingConvention": "U41 counted lines = added physical lines (git diff --numstat --no-renames baseline..HEAD, no deletion credit) in the three product leaves and units.json. Test leaves and evidence receipts are line-exempt but file-counted; test additions are reported separately.",
+  "census": {
+    "path": "E:/Projects/Personal/MekStation-wt/p2cg1s-proof-20261018/frozen-files.json",
+    "sha256": "4ad4dfb38c2fce9fc535a478dbc7228c21a9c9c37d4b2bd8fd78a63d7a10383b",
+    "bytes": 1161,
+    "frozenBefore": "any source, test, lifecycle or evidence edit on the 70eab85ae-based branch"
+  },
+  "frozenFiles": [
+    {
+      "path": "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+      "exists": true,
+      "sha256": "5f4960d3f7080fe1202efafcfd68047d508476b14ba4c193f71b6eb474e2c5f9",
+      "bytes": 5653,
+      "physicalLines": 175
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHostReplay.ts",
+      "exists": true,
+      "sha256": "0c931c26c787ab0c344431e7a116acdea0988f66addf7e209151ac1f18c0340b",
+      "bytes": 15251,
+      "physicalLines": 493
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHostEvents.ts",
+      "exists": true,
+      "sha256": "085985a42baea3912daa98806eea771e5af423f38670c4faa69a5da34b421ee5",
+      "bytes": 16918,
+      "physicalLines": 464
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts",
+      "exists": true,
+      "sha256": "b5bab4fb76a0070f99404c8363be7e2d8b2d211fa75e9cf78cb68a53d8586c6f",
+      "bytes": 8206,
+      "physicalLines": 265
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/sealedChoiceDelivery.test.ts",
+      "exists": true,
+      "sha256": "2b587a1454760493a4720c7b00462328aaefb2a6c7e236501f23e0181ef247f2",
+      "bytes": 15488,
+      "physicalLines": 479
+    }
+  ],
+  "unchangedControls": {
+    "census": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1s-proof-20261018/frozen-controls.json",
+      "sha256": "30d9c03f99f2756d34549576d9cda90a221875c431a6f0c7e19c98a4d1a77fcc",
+      "bytes": 2578
+    },
+    "files": [
+      {
+        "path": "src/lib/multiplayer/server/ServerMatchHost.ts",
+        "exists": true,
+        "sha256": "9a7f9300bed3e9dd47efca51a627a6ed96cb818cf0027c5e1a9c3df4f010a26b",
+        "bytes": 64684,
+        "physicalLines": 1696
+      },
+      {
+        "path": "src/lib/multiplayer/server/projection/ViewerPublicationBoundary.ts",
+        "exists": true,
+        "sha256": "0fb8428f0c7546716c823a3f79485e97358d08921e325263105bbbeffcf1a5d3",
+        "bytes": 14362,
+        "physicalLines": 417
+      },
+      {
+        "path": "src/lib/multiplayer/server/projection/ViewerAudienceProjector.ts",
+        "exists": true,
+        "sha256": "c454cf29aae336223c2a9915db8135c333a71fff020af6064d0fcbde7ab021ff",
+        "bytes": 7612,
+        "physicalLines": 217
+      },
+      {
+        "path": "src/lib/multiplayer/server/projection/FogAwareMatchProjection.ts",
+        "exists": true,
+        "sha256": "18c9356f6ae43bc395f60f8be6ee229808a7819c4996cf7913b7a1d367efa1cf",
+        "bytes": 13407,
+        "physicalLines": 366
+      },
+      {
+        "path": "src/lib/multiplayer/server/lobby/spectatorSeats.ts",
+        "exists": true,
+        "sha256": "8cfa2eb2ab260ee9030b859932bba6638ade1c5509ed305c86e658dec8212a74",
+        "bytes": 5091,
+        "physicalLines": 158
+      },
+      {
+        "path": "src/lib/multiplayer/server/authorization/MatchSeatMembershipSource.ts",
+        "exists": true,
+        "sha256": "010dd429f935181c088478db5f120618dac9fc21f9525af8aec22a3d1315d81c",
+        "bytes": 7786,
+        "physicalLines": 228
+      },
+      {
+        "path": "src/lib/multiplayer/server/fogOfWar.ts",
+        "exists": true,
+        "sha256": "a8b7a1d381dfd087237a68780d509963ffd6c3925917041bc305fc71fbc4a6aa",
+        "bytes": 12071,
+        "physicalLines": 466
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/ServerMatchHost.fogOfWarIntegration.test.ts",
+        "exists": true,
+        "sha256": "51a7248470b38c6d39ce5e5127b4cce80b97eafcc98bec2ea48b3bb1e4bac3ed",
+        "bytes": 10259,
+        "physicalLines": 358
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/ServerMatchHost.gmNoPromotion.test.ts",
+        "exists": true,
+        "sha256": "bfbb1a28edea5ca34cb6c280399647caa9129f3697d28831e4a79b15ca2cbe60",
+        "bytes": 4001,
+        "physicalLines": 138
+      },
+      {
+        "path": "src/lib/multiplayer/server/projection/__tests__/ViewerPublicationBoundary.test.ts",
+        "exists": true,
+        "sha256": "32b4979a0b5074e44f622aac5e4eed387c018b90378556a7153d8fdd8ec45dd0",
+        "bytes": 23721,
+        "physicalLines": 711
+      },
+      {
+        "path": "src/pages-modules/api/__tests__/matchHistoryFog.test.ts",
+        "exists": true,
+        "sha256": "87b0d89bc07dbd9d58f823f182b69fdd86afabf6b1cff6e88e924cfa18bc6740",
+        "bytes": 24116,
+        "physicalLines": 748
+      }
+    ],
+    "note": "Read-only proof surfaces that must stay byte-identical: the host entry (sendReplay/handleSessionJoin/broadcast seam), the publication boundary and audience projector (sealed rule is revealed OR actor-owned), the HTTP fog projection (its own seat-first exclusion; default-empty seats keep it unchanged), the spectator seat helper, the membership source (derives player/gm brand), the fog filter, and the four read-only focused suites (fogOfWarIntegration, gmNoPromotion, ViewerPublicationBoundary, matchHistoryFog)."
+  },
+  "design": {
+    "source": "P2CG1S.behavior and registration20261017HPrereqs.proofs (B10); evidence/b14-fog-scope-20261018.txt (B10 reproduction); RS-PREP.md (untracked, sha256 99588cc6...) and S-PREP.md (untracked, sha256 43c6729f...)",
+    "helper": "createMatchWireSealedChoiceAudienceContext gains an optional, default-empty current-seat argument. isActorOwnedByViewer returns false when isSpectatorPlayer(seats, viewer.principalId), checked before the gm shortcut and the side-assignment lookup. Seats, not viewer.role: spectators are branded player or gm. isSealedChoiceRevealed is unchanged, so authoritative reveals still reach spectators.",
+    "live": "ServerMatchHostEvents.publishEvent passes the current meta.seats (meta read per publication, fog on or off), not the fog-only seats alias.",
+    "replay": "ServerMatchHostReplay sealedChoiceAudienceContext passes the current meta.seats (read per replay); one argument line, file stays under the 500-line guardrail (493 -> 494).",
+    "boundary": "No HTTP export rewrite, spectator role redesign, removal of unrelated GM authority, or general replay hardening. The raw no-playerId replay and the legacy reconnect callback (ServerMatchHostReplay.ts) never use the sealed context and stay with B14-0A/B14-0 and U26. FogAwareMatchProjection keeps its own exclusion and is not an edit leaf."
+  },
+  "rulings": {
+    "S-PREP-P1 (accepted)": "A gm-branded spectator seat, including a co-op campaign host seated as spectator (pages/api/multiplayer/matches/index.ts defaultSeatsWithSpectatorHost + campaign-session gm row), receives sealed declarations on live and replay only once authoritatively revealed. This matches HTTP (FogAwareMatchProjection already excludes spectator seats) and the registered contract (\"even with a stale sideAssignments entry or a gm-branded viewer\"; \"preserve non-spectating GM policy\"). A seated (non-spectating) gm keeps pre-reveal visibility. The L1 two-players-plus-GM coop mission is unaffected: coopMissionCreate mission metadata carries no seats and no coopCampaign, so no viewer there is a spectator or gm-branded. Recorded for the full review to assess.",
+    "S-PREP-P2 (accepted)": "MovementDeclared is driven by real intents (sealedChoiceDelivery.test.ts). AttackDeclared and PhysicalAttackDeclared rows use real payload shapes (IAttackDeclaredPayload / IPhysicalAttackDeclaredPayload) sent through the host's own broadcastEvent seam for live, and the same event appended to the store and served by the real host.sendReplay / handleSessionJoin for replay. Actor ownership, the membership source and the publication boundary are not mocked. Rationale: driving a real weapon or physical attack to an unrevealed declaration needs combat setup beyond the two registered test leaves; doing so would need a new test leaf and an amendment, and the decision under test (sealed audience at the boundary) is identical for all three types.",
+    "S-PREP-trim (accepted)": "Tests trimmed from the S-PREP prototype (597 added) to about 416 added, without dropping any discriminating row; the same 12 mutants are all still caught on the trimmed rows (pre-check in scratch)."
+  },
+  "carryForwards": {
+    "CF-G2-9": "Routed to S by the P2CG1G2 review (successorNotes.P2CG1S) but not owned: the Seam Anchors flake (e2e/seam-fresh-construction-no-instant-defeat.spec.ts:425) binds whichever unit next owns that spec or the battle-resolution path. S touches no e2e, engine, simulation or gameplay file. Passes through unchanged; if it flakes on S's CI, rerun and cite CF-G2-9.",
+    "CF-H12/CF-E10": "All required check names compared by name on the exact head and posted as a PR comment.",
+    "CF-E9/CF-H11": "Baseline lint 87 warnings / 0 errors (none in an S leaf); madge from the three product leaves 913 files / 171 chains; after figures at the local stage.",
+    "Shipment hold": "Exact-main built-server socket smoke before H or any spectator-bearing shipment remains a post-merge obligation (registration proof 4), not part of this local receipt."
+  },
+  "prep": "Phase 1 prototype in scratch worktree p2cg1s-scratch-20261018 on Main c4d0eae46 (S leaves byte-identical at 70eab85ae): RED 23 failed / 41 on the unchanged product in the two owned suites (all behaviour assertions), GREEN 41/41 and the six focused suites 71/71, typescript7 tsc exit 0, oxfmt clean, oxlint 0/0; 12/12 mutants caught. Re-run on 70eab85ae with the trimmed tests: RED 23 failed / 41, GREEN 41/41, 12/12 caught.",
+  "estimate": "Product 11 counted additions + about 14-20 units.json lifecycle = about 25-31 / 500; tests about 416 added (exempt).",
+  "baselineMeasurements": {
+    "node": "v22.22.0",
+    "dependencies": "node_modules is a junction to E:/Projects/Personal/MekStation-wt/p2cg1g1-impl-20261018/node_modules, the install used by G2A/G2; its node_modules/.package-lock.json sha256 7f25c528... equals the npm ci install R recorded in p2cg1r-impl-20261018 at c4d0eae46, and package.json / package-lock.json are unchanged c4d0eae46..70eab85ae (git diff --quiet exit 0). Root node_modules (stale) is not used.",
+    "idle": {
+      "result": "MACHINE_IDLE",
+      "command": "node scripts/qc/machine-idle.mjs --own-pid 47516 --own-pid 55164",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1s-proof-20261018/idle-base.log",
+        "sha256": "5ae71092694ee67992e4eb270ac9bd7e449ddad57fa0b9edb00e37982c485d7a",
+        "bytes": 30
+      }
+    },
+    "typecheck": {
+      "command": "npm run typecheck",
+      "result": "exit 0",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1s-proof-20261018/typecheck-base.log",
+        "sha256": "8102a14cf3245ac2b0d67c588affb25efaebfcd3485f9a46a751595d9a774951",
+        "bytes": 358
+      }
+    },
+    "lint": {
+      "command": "npx oxlint",
+      "result": "87 warnings, 0 errors; no warning in an S leaf",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1s-proof-20261018/lint-base.log",
+        "sha256": "873ce7ba704201626dfabf4c39cefbbb1744ec0ae0824b50866e5a67ff1f4c9e",
+        "bytes": 81284
+      }
+    },
+    "cycles": {
+      "command": "npx -y madge@8.0.0 --circular --extensions ts,tsx --ts-config tsconfig.json <three product leaves>",
+      "result": "Processed 913 files, 171 circular chains",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1s-proof-20261018/madge-base.log",
+        "sha256": "dc3bf80b9df36e80139c329971465a75ef9e012e72c6cc518da8352fab83882e",
+        "bytes": 230726
+      }
+    }
+  },
+  "plan": {
+    "red": "Commit 2 changes only the two test leaves (plus units.json red path and the red receipt); the three product leaves stay byte-identical. The tests call the existing public host API only, so the RED commit typechecks against the unchanged product.",
+    "implementation": "Commit 3 changes only the three product leaves (plus units.json local path and the local receipt). No test byte changes after RED.",
+    "mutants": "At least 12 single-edit mutants re-run on the GREEN head against the two owned suites (S-PREP M1-M12): exclusion removed / after the gm shortcut / role instead of seats; seats dropped from live or replay; seats gated on fog (live, replay); all actor ownership suppressed; reveal suppressed; seats cached at first publish; any occupied seat excluded; movement reveal on the wrong phase."
+  }
+}

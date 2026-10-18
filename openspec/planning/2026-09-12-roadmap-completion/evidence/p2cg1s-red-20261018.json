@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CG1S",
+  "stage": "red",
+  "date": "20261018",
+  "baseline": "70eab85ae2e16adfc05e4c2fcced4be5cae4f21e",
+  "admissionCommit": "1b8976e510282ebdef56e3cbf2535970dea596af",
+  "runtime": {
+    "node": "v22.22.0",
+    "jest": "node node_modules/jest/bin/jest.js --selectProjects unit --runInBand --cacheDirectory E:/Projects/Personal/MekStation-wt/p2cg1s-jest-cache-20261018 --runTestsByPath <two S test leaves>",
+    "idle": "node scripts/qc/machine-idle.mjs --own-pid 47516 --own-pid 55164 -> MACHINE_IDLE immediately before every heavy run"
+  },
+  "productUnchanged": {
+    "note": "The three product leaves are byte-identical to the baseline (git diff --quiet 70eab85ae -- <three leaves> exit 0); sha256 as frozen in the admission receipt.",
+    "files": [
+      "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts 5f4960d3f708",
+      "src/lib/multiplayer/server/ServerMatchHostReplay.ts 0c931c26c787",
+      "src/lib/multiplayer/server/ServerMatchHostEvents.ts 085985a42bae"
+    ]
+  },
+  "testChanges": [
+    {
+      "path": "src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts",
+      "added": 311,
+      "deleted": 5,
+      "sha256": "368fef26cfb1e0383818e9810a5715b908a7e7ec992386ec1632ce64989bb17b",
+      "bytes": 18765
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/sealedChoiceDelivery.test.ts",
+      "added": 105,
+      "deleted": 4,
+      "sha256": "82ea39b22e8588b5ed65ad206f661385589f45b6152f63f002a584e67f54dcf4",
+      "bytes": 19346
+    }
+  ],
+  "typecheckAtRed": {
+    "command": "npm run typecheck",
+    "result": "exit 0 (the tests use only the existing public host, store and membership APIs)",
+    "log": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1s-proof-20261018/typecheck-red.log",
+      "sha256": "8102a14cf3245ac2b0d67c588affb25efaebfcd3485f9a46a751595d9a774951",
+      "bytes": 358
+    }
+  },
+  "lintUnitsAtRed": {
+    "result": "LINT_UNITS_PASS 17896/17899 (src-tests 17780, ceiling 17783)",
+    "log": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1s-proof-20261018/lint-units-red.log",
+      "sha256": "b76ca7cae1bdb510155e8329a555db6fb7fa3dbac39ca842d7251428b2266682",
+      "bytes": 584
+    }
+  },
+  "result": {
+    "summary": "Test Suites: 2 failed, 2 total; Tests: 23 failed, 18 passed, 41 total",
+    "log": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1s-proof-20261018/red.log",
+      "sha256": "dc9ec8c1b091e19ff847934c5c0f5eeee8c9aff8784b47d8e7f09ace597a9aef",
+      "bytes": 77626
+    },
+    "idleLog": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1s-proof-20261018/idle-red.log",
+      "sha256": "5ae71092694ee67992e4eb270ac9bd7e449ddad57fa0b9edb00e37982c485d7a",
+      "bytes": 30
+    }
+  },
+  "behaviourRows": {
+    "count": 23,
+    "shape": "Plain Jest assertion failures (expect(wire).not.toContain(<declaration id>) / not.toContain(<move id>)); no import, type or new-API failure. The serialized live Event frame and/or ReplayChunk handed to socket.send carried the unrevealed declaration id and payload.",
+    "rows": [
+      "spectator suite x18: {MovementDeclared, AttackDeclared, PhysicalAttackDeclared} x {stale opponent assignment: fog on/off x player/gm brand (4); gm brand with no assignment: fog on/off (2)} - each asserts live Event and actual host.sendReplay(sock, 0, watcher); brand asserted through the real MatchSeatMembershipSource (gm = real campaign-session gm row)",
+      "spectator suite: SessionJoin replay (handleSessionJoin from 0) to a stale-assignment spectator carried the unrevealed AttackDeclared",
+      "spectator suite x2 (fog on/off): a player reseated to spectator between deliveries, side assignment left unchanged - the second declaration still reached the live socket",
+      "sealedChoiceDelivery x2 (real intents, gm-branded spectator): live received the real committed MovementDeclared before the movement reveal; replay before the reveal served it"
+    ]
+  },
+  "controlsGreenAtRed": [
+    "spectator suite x6: {three types} x fog on/off - the current human actor (pid_opp) and a seated, non-spectating gm (pid_host with a campaign-session gm row) keep the unrevealed declaration live and on replay",
+    "spectator suite: a removed principal (spectator seat gone) gets no Event and no replayed events",
+    "sealedChoiceDelivery x2 (real intents, player-branded spectator): live withholds before the reveal, then exactly one copy equal to the committed store row with contiguous delivery numbers, and SessionJoin replay serves the identical payload; replay before the reveal withholds it (the player-brand rows already pass at baseline because only a stale assignment or the gm shortcut leaks)",
+    "All pre-existing rows of the two suites (D5/D6 spectator rows, the three sealed two-player rows)"
+  ],
+  "existingTestEdits": {
+    "note": "Disclosed; no existing assertion removed or weakened.",
+    "spectator": "The recording socket also keeps the raw sent string (assertions read socket.send bytes). makeHostWithSpectator gains optional fixture knobs (brand, stale, gmHost) whose defaults reproduce the original match byte-for-byte in seats, roster and side assignments. Two imports added (createEmptyCampaignState, MatchSeatMembershipSource).",
+    "sealedChoiceDelivery": "makeHost gains an optional spectator brand (adds a current spectator seat for watcher via the real addSpectatorSeat after creation; gm adds coopCampaign metadata and a real campaign-session gm row) and returns the watcher socket only then; driveToMovementReveal accepts an async beforeFinalize. Two imports added (createEmptyCampaignState, addSpectatorSeat)."
+  },
+  "testDesignNotes": [
+    "Attack and physical-attack declarations are real payload shapes sent through the host broadcastEvent seam and appended to the store for the real replay call (ruling S-PREP-P2, admission receipt); movement is additionally driven by real intents in sealedChoiceDelivery.",
+    "Delivery numbers are per player, not per socket: a replay sent to a second socket of the same player stamps numbers from the same cursor, so the pre-reveal replay row is a separate test from the live gapless-number row.",
+    "Each withheld row also asserts that a public control event reached the same live socket and that replay was non-empty, so a dead or silent socket cannot pass."
+  ]
+}

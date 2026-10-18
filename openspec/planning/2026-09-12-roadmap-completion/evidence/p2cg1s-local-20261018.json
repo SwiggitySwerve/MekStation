@@ -1,0 +1,375 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CG1S",
+  "stage": "local",
+  "date": "20261018",
+  "baseline": "70eab85ae2e16adfc05e4c2fcced4be5cae4f21e",
+  "commits": {
+    "admission": "1b8976e510282ebdef56e3cbf2535970dea596af",
+    "red": "1efcb0361687f48fea11c7ba6e5c0a9fec92383c",
+    "implementation": "this commit"
+  },
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "P2CG1S implementation sub-agent"
+  },
+  "runtime": {
+    "node": "v22.22.0",
+    "dependencies": "node_modules junction to p2cg1g1-impl-20261018/node_modules (same install as the npm ci R recorded; package-lock unchanged c4d0eae46..70eab85ae), see admission baselineMeasurements",
+    "jest": "node node_modules/jest/bin/jest.js --selectProjects unit --runInBand, private --cacheDirectory; every heavy run preceded by node scripts/qc/machine-idle.mjs --own-pid 47516 --own-pid 55164 -> MACHINE_IDLE; one heavy run at a time"
+  },
+  "productBytes": [
+    {
+      "path": "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+      "exists": true,
+      "sha256": "6e25afc908d9396e70335b981fd69c8399d9f022f9a26b72134ec2fb680ef120",
+      "bytes": 6072,
+      "physicalLines": 184,
+      "added": 9,
+      "deleted": 0
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHostReplay.ts",
+      "exists": true,
+      "sha256": "d12a58a3f1b3c79d8dfc4633d0afaaab7a35d14ada69f03ce596718ae989a20f",
+      "bytes": 15275,
+      "physicalLines": 494,
+      "added": 1,
+      "deleted": 0
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHostEvents.ts",
+      "exists": true,
+      "sha256": "44334a238bfbc5679e5665b2a33a06b3c8dd0ca4857352da1ab79a4160cf245c",
+      "bytes": 16947,
+      "physicalLines": 465,
+      "added": 1,
+      "deleted": 0
+    }
+  ],
+  "testBytesVersusRed": "identical: no test byte changed after the RED commit (1efcb036); test sha256 368fef26... (spectator) and 82ea39b2... (sealedChoiceDelivery)",
+  "delivered": [
+    "createMatchWireSealedChoiceAudienceContext(events, state, visibleThroughSequence, seats = []): isActorOwnedByViewer returns false for a principal occupying a current kind:spectator seat (isSpectatorPlayer), checked before the gm shortcut and the side-assignment lookup; seats, not viewer.role. isSealedChoiceRevealed unchanged.",
+    "ServerMatchHostEvents.publishEvent passes the current meta.seats (read per publication) to the sealed context, fog on or off (no longer only the fog-only seats alias).",
+    "ServerMatchHostReplay sealedChoiceAudienceContext passes the current meta.seats (read per replay).",
+    "Proof: for MovementDeclared, AttackDeclared and PhysicalAttackDeclared, a current spectator seat with a stale opponent side assignment (player or gm brand, fog on or off) or a gm brand with no assignment receives neither the declaration id nor its payload through live Event or actual sendReplay/SessionJoin replay, while public facts still flow; a player reseated to spectator loses ownership between deliveries; the current human actor and a seated gm keep it; with real intents a player- or gm-branded spectator gets the reveal once, as the committed row, with contiguous delivery numbers, and replay agrees."
+  ],
+  "rulings": "S-PREP-P1 and S-PREP-P2 as recorded in the admission receipt: a gm-branded spectator seat (incl. a co-op campaign host seated as spectator) sees sealed declarations only after the authoritative reveal on live and replay (matches HTTP and the contract; a seated gm keeps pre-reveal visibility; the L1 coop mission has no seats or coopCampaign and is unaffected); attack/physical-attack rows are real payload shapes through the host broadcast seam and real replay, movement via real intents.",
+  "boundary": "No HTTP export rewrite, spectator role redesign, removal of unrelated GM authority, or general replay hardening. The raw no-playerId replay and the legacy reconnect callback never use the sealed context and stay with B14-0A/B14-0 and U26. FogAwareMatchProjection unchanged (own exclusion; default-empty seats). Exact-main built-server socket smoke before H or any spectator-bearing shipment remains a post-merge obligation.",
+  "carryForwards": {
+    "CF-G2-9": "Routed, not owned: the Seam Anchors flake (e2e/seam-fresh-construction-no-instant-defeat.spec.ts:425) binds the next owner of that spec or the battle-resolution path; S touches no e2e/engine/simulation/gameplay file. Passes through unchanged.",
+    "CF-E9/CF-H11": {
+      "lint": "87 warnings / 0 errors before and after; no warning in an S leaf.",
+      "madge": "three product leaves: 913 files / 171 chains before and after (identical counts); the new import ../lobby/spectatorSeats adds no chain."
+    },
+    "CF-H12/CF-E10": {
+      "rule": "verify every required check run by name on the exact head",
+      "expectedNames": [
+        "A11y Tests",
+        "Build Storybook",
+        "Build Test / linux",
+        "Build Test / mac",
+        "Build Test / win",
+        "Coverage Floor",
+        "Customizer Regressions",
+        "Desktop Tests",
+        "Desktop Type Check",
+        "Detect Changes",
+        "Determinism Audit",
+        "E2E Smoke",
+        "Format Check",
+        "Install Dependencies",
+        "Lint",
+        "Lint and Test",
+        "Perf Budget PR",
+        "Perf Smoke Tests",
+        "Prepare Build Artifacts",
+        "Schema Bridge",
+        "Seam Anchors",
+        "Statistical Proof PR",
+        "Type Check",
+        "Unit Tests (1/6)",
+        "Unit Tests (2/6)",
+        "Unit Tests (3/6)",
+        "Unit Tests (4/6)",
+        "Unit Tests (5/6)",
+        "Unit Tests (6/6)",
+        "Validate BV Parity",
+        "Validate Combat Suite",
+        "Validate Roadmap Ledger"
+      ],
+      "expectedCount": 32,
+      "exactHead": "A receipt cannot contain the CI result of the commit that carries it; the by-name comparison on the exact PR head is posted as a PR comment."
+    },
+    "CF-S-1 (new observation)": "M10 (seats cached at first live publish) is caught by both reseat rows and, incidentally, by the gm-branded real-intent row because a process-global cache would carry an earlier test's seats; the reseat rows are the intended discriminator."
+  },
+  "mutationProbes": {
+    "script": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1s-proof-20261018/s-mutants.cjs",
+      "sha256": "bdb9e9346c1103be5e917765c182375fde20ed826fefaf95718bf5ba6ce3dbb2",
+      "bytes": 3965
+    },
+    "method": "Each mutant is one string edit of one GREEN product file in the disposable scratch worktree p2cg1s-scratch-20261018 (detached at 70eab85ae with the five S leaves byte-identical to this head: tests = RED commit bytes, product = GREEN bytes, compared by sha256); the two owned suites (41 rows) run per mutant with --runInBand and a private cache, gated MACHINE_IDLE before each; the original bytes are restored after each.",
+    "results": [
+      {
+        "id": "M1",
+        "mutant": "remove spectator exclusion",
+        "file": "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+        "caught": true,
+        "tests": "Tests:       23 failed, 18 passed, 41 total",
+        "failingRowCount": 23,
+        "firstFailingRow": "sealed choices to a current spectator seat › gm-branded spectator: live withholds the move until the reveal, then delivers the committed row"
+      },
+      {
+        "id": "M2",
+        "mutant": "exclusion after gm shortcut",
+        "file": "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+        "caught": true,
+        "tests": "Tests:       14 failed, 27 passed, 41 total",
+        "failingRowCount": 14,
+        "firstFailingRow": "sealed choices to a current spectator seat › gm-branded spectator: live withholds the move until the reveal, then delivers the committed row"
+      },
+      {
+        "id": "M3",
+        "mutant": "role check instead of seats",
+        "file": "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+        "caught": true,
+        "tests": "Tests:       23 failed, 18 passed, 41 total",
+        "failingRowCount": 23,
+        "firstFailingRow": "sealed choices to a current spectator seat › gm-branded spectator: live withholds the move until the reveal, then delivers the committed row"
+      },
+      {
+        "id": "M4",
+        "mutant": "drop seats from live",
+        "file": "src/lib/multiplayer/server/ServerMatchHostEvents.ts",
+        "caught": true,
+        "tests": "Tests:       21 failed, 20 passed, 41 total",
+        "failingRowCount": 21,
+        "firstFailingRow": "sealed choices to a current spectator seat › gm-branded spectator: live withholds the move until the reveal, then delivers the committed row"
+      },
+      {
+        "id": "M5",
+        "mutant": "drop seats from replay",
+        "file": "src/lib/multiplayer/server/ServerMatchHostReplay.ts",
+        "caught": true,
+        "tests": "Tests:       22 failed, 19 passed, 41 total",
+        "failingRowCount": 22,
+        "firstFailingRow": "sealed choices to a current spectator seat › gm-branded spectator: replay before the reveal withholds the committed move"
+      },
+      {
+        "id": "M6",
+        "mutant": "live seats gated on fog",
+        "file": "src/lib/multiplayer/server/ServerMatchHostEvents.ts",
+        "caught": true,
+        "tests": "Tests:       11 failed, 30 passed, 41 total",
+        "failingRowCount": 11,
+        "firstFailingRow": "sealed choices to a current spectator seat › gm-branded spectator: live withholds the move until the reveal, then delivers the committed row"
+      },
+      {
+        "id": "M7",
+        "mutant": "replay seats gated on fog",
+        "file": "src/lib/multiplayer/server/ServerMatchHostReplay.ts",
+        "caught": true,
+        "tests": "Tests:       12 failed, 29 passed, 41 total",
+        "failingRowCount": 12,
+        "firstFailingRow": "sealed choices to a current spectator seat › gm-branded spectator: replay before the reveal withholds the committed move"
+      },
+      {
+        "id": "M8",
+        "mutant": "suppress all actor ownership",
+        "file": "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+        "caught": true,
+        "tests": "Tests:       9 failed, 32 passed, 41 total",
+        "failingRowCount": 9,
+        "firstFailingRow": "sealed two-player tactical choices › withholds a committed move without a delivery gap, then delivers its original after movement finalization"
+      },
+      {
+        "id": "M9",
+        "mutant": "suppress authoritative reveal",
+        "file": "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+        "caught": true,
+        "tests": "Tests:       4 failed, 37 passed, 41 total",
+        "failingRowCount": 4,
+        "firstFailingRow": "sealed two-player tactical choices › withholds a committed move without a delivery gap, then delivers its original after movement finalization"
+      },
+      {
+        "id": "M10",
+        "mutant": "live seats cached at first publish",
+        "file": "src/lib/multiplayer/server/ServerMatchHostEvents.ts",
+        "caught": true,
+        "tests": "Tests:       3 failed, 38 passed, 41 total",
+        "failingRowCount": 3,
+        "firstFailingRow": "sealed choices to a current spectator seat › gm-branded spectator: live withholds the move until the reveal, then delivers the committed row"
+      },
+      {
+        "id": "M11",
+        "mutant": "any occupied seat excluded",
+        "file": "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+        "caught": true,
+        "tests": "Tests:       9 failed, 32 passed, 41 total",
+        "failingRowCount": 9,
+        "firstFailingRow": "sealed two-player tactical choices › withholds a committed move without a delivery gap, then delivers its original after movement finalization"
+      },
+      {
+        "id": "M12",
+        "mutant": "movement reveal on wrong phase",
+        "file": "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+        "caught": true,
+        "tests": "Tests:       4 failed, 37 passed, 41 total",
+        "failingRowCount": 4,
+        "firstFailingRow": "sealed two-player tactical choices › withholds a committed move without a delivery gap, then delivers its original after movement finalization"
+      }
+    ],
+    "summary": "12 of 12 caught.",
+    "results_json": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1s-proof-20261018/mutants.json",
+      "sha256": "087f01d561032a9b829a0e418ec68156fda9a1a22ee984dd97317a49444a1ace",
+      "bytes": 8208
+    },
+    "log": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1s-proof-20261018/mutants.log",
+      "sha256": "8ccb838623d3ebfd3d337a91ab3e69409e13cfac3af351f39cfe7bdeeeab068f",
+      "bytes": 7645
+    }
+  },
+  "results": {
+    "green": {
+      "summary": "Test Suites: 6 passed, 6 total; Tests: 71 passed, 71 total (ServerMatchHost.spectator, sealedChoiceDelivery, ServerMatchHost.fogOfWarIntegration, ServerMatchHost.gmNoPromotion, ViewerPublicationBoundary, matchHistoryFog)",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1s-proof-20261018/green.log",
+        "sha256": "30d414f0ba8fc4ebf0764d0d12e97700a594ddd5a5e68fac81240102e4cc3b39",
+        "bytes": 2982
+      },
+      "idleLog": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1s-proof-20261018/idle-green.log",
+        "sha256": "5ae71092694ee67992e4eb270ac9bd7e449ddad57fa0b9edb00e37982c485d7a",
+        "bytes": 30
+      }
+    },
+    "broad": {
+      "set": "src/lib/multiplayer src/pages-modules/api (unit project, --runInBand)",
+      "summary": "Test Suites: 200 passed, 200 total; Tests: 1919 passed, 1919 total",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1s-proof-20261018/broad-green.log",
+        "sha256": "b818b0d94c72fcb96432b63423376536193810d1cad393bce18d3c7f7280a52e",
+        "bytes": 1813632
+      }
+    }
+  },
+  "checks": {
+    "typecheck": {
+      "result": "PASS (npm run typecheck, typescript7 app + scripts) at baseline, RED and GREEN",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1s-proof-20261018/typecheck-green.log",
+        "sha256": "8102a14cf3245ac2b0d67c588affb25efaebfcd3485f9a46a751595d9a774951",
+        "bytes": 358
+      }
+    },
+    "lint": {
+      "result": "0 errors, 87 warnings = baseline",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1s-proof-20261018/lint-green.log",
+        "sha256": "87c92cc253eb99aca33dcfdbba83ee62f689398d292754fa0fd6fa9bf12e914a",
+        "bytes": 81286
+      }
+    },
+    "format": {
+      "result": "PASS (npx oxfmt --check ., 8232 files; untracked S-PREP.md moved out of the worktree first)",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1s-proof-20261018/format-green.log",
+        "sha256": "c505f24f6136d12d9560b85714ca7f235aaf8311cc7e6881c07af6bf744ad34e",
+        "bytes": 244
+      }
+    },
+    "lintUnits": {
+      "result": "LINT_UNITS_PASS 17896/17899 (src-tests 17780, ceiling 17783)",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1s-proof-20261018/lint-units-green.log",
+        "sha256": "b76ca7cae1bdb510155e8329a555db6fb7fa3dbac39ca842d7251428b2266682",
+        "bytes": 584
+      }
+    },
+    "validator": {
+      "result": "validate-roadmap.mjs plain and --git PASS (82 nodes, 13 packages, 381 tasks, 40 triage rows); --next advisory U25 (P2CG1S is implementing)",
+      "logs": [
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/p2cg1s-proof-20261018/validator-green.log",
+          "sha256": "9d7a4c73c3705d606d980849271e3608a8de810cf611aebbcce5653e27a032a5",
+          "bytes": 156
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/p2cg1s-proof-20261018/validator-git-green.log",
+          "sha256": "289473c25883611e9707d1bb78e1129052fbec9fff4e1264573359caca1a393e",
+          "bytes": 4714
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/p2cg1s-proof-20261018/validator-next-green.log",
+          "sha256": "618889180cf70fe5d0577a3d3eb36d957ca89eac8bbf500b251c188834ca3e05",
+          "bytes": 12
+        }
+      ]
+    },
+    "validatorTests": {
+      "result": "86/86",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1s-proof-20261018/validator-tests-green.log",
+        "sha256": "730ba7c274df9345dd5c643d9f263c4d79f82f04052e06e373621352f24674fd",
+        "bytes": 33640
+      }
+    },
+    "openspec": {
+      "result": "npx openspec validate --all --strict: 230 passed, 0 failed",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1s-proof-20261018/openspec-green.log",
+        "sha256": "89a3784befdc45a1fb8b4cac58d9703373655afb9d5fa537f58176fbd9cad0c0",
+        "bytes": 13904
+      }
+    },
+    "qc": {
+      "result": "qc:openspec-ci:validate errors=0",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1s-proof-20261018/qc-openspec-ci-green.log",
+        "sha256": "19b2046de400eaefd184fb58e7072d1816b6ccef3ba1f1ea040c0f9ec8ec2c60",
+        "bytes": 594
+      }
+    },
+    "cycles": {
+      "result": "madge from the three product leaves: 913 files / 171 chains (= baseline)",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1s-proof-20261018/madge-green.log",
+        "sha256": "50f86da4a0e1974ef7b11ebc73692256b404ee65f1f8ec342fbdab5a6fe9c013",
+        "bytes": 230726
+      }
+    },
+    "diffCheck": "git diff --check clean"
+  },
+  "census": {
+    "command": "git diff --numstat --no-renames 70eab85ae2e16adfc05e4c2fcced4be5cae4f21e..HEAD",
+    "countedLines": {
+      "MatchWireSealedChoices.ts": 9,
+      "ServerMatchHostReplay.ts": 1,
+      "ServerMatchHostEvents.ts": 1,
+      "units.json": 16,
+      "total": 27,
+      "cap": 500
+    },
+    "files": {
+      "changed": 9,
+      "reservedReviewSlot": 1,
+      "total": 10,
+      "cap": 15,
+      "reserved": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1s-admission-review-20261018.md (unwritten)"
+    },
+    "lineExempt": "test leaves 311 + 105 = 416 added (5 + 4 deleted); evidence receipts"
+  },
+  "boundaryControls": {
+    "note": "All eleven unchanged controls frozen at admission are byte-identical after GREEN (controls census re-hashed: same sha256 30d9c03f...): ServerMatchHost.ts, ViewerPublicationBoundary.ts, ViewerAudienceProjector.ts, FogAwareMatchProjection.ts, spectatorSeats.ts, MatchSeatMembershipSource.ts, fogOfWar.ts and the four read-only focused suites.",
+    "census": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1s-proof-20261018/frozen-controls.json",
+      "sha256": "30d9c03f99f2756d34549576d9cda90a221875c431a6f0c7e19c98a4d1a77fcc",
+      "bytes": 2578
+    }
+  },
+  "status": "Local proof complete; awaiting independent sensitive review (authority/privacy/replay; reserved slot), OWNER-RULING, required CI and the CF-H12 by-name comparison on the exact head. Not merged."
+}
