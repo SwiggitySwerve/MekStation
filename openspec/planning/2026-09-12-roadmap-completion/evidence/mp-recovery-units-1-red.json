@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "unit": "MP-RECOVERY-UNITS-1",
+  "stage": "red",
+  "date": "20261018",
+  "baseline": "44bd8bb9191f2c945324f483e4f524841b098ddf",
+  "at": "2026-10-18T22:56:59.597Z",
+  "admissionCommit": "b7145143321612c1ac84746a23ba5e92ae27edef",
+  "summary": "3 failed / 3 in MatchRecovery.canonicalUnits.test.ts on the unchanged product leaves (matchUnitBootstrap.ts and MatchRecovery.ts byte-identical to the baseline).",
+  "productState": "This commit adds only src/lib/multiplayer/server/__tests__/MatchRecovery.canonicalUnits.test.ts, this receipt and the unit's own red pointer in units.json. No product byte changes.",
+  "testDesign": "No module mocks: the real CompendiumAdapter, CanonicalUnitService, NodeCanonicalUnitService, InteractiveSession and ServerMatchHost run. Process one launches a 1v1 match with the default catalog bootstrap (atlas-as7-d, marauder-mad-3r) while global.fetch serves public/ (the listening server) and advances to Movement. Process two resets the fetch catalog singleton and replaces fetch with a function that throws ECONNREFUSED (the packaged boot window before listen), then calls MatchHostRegistry.recoverActiveMatches on the same store.",
+  "run": {
+    "gate": "node E:/Projects/Personal/MekStation-wt/_locks/heavy-run.mjs --lane mp-recovery --class jest (repo machine-idle gate inside the queue)",
+    "command": "node node_modules/jest/bin/jest.js --runTestsByPath src/lib/multiplayer/server/__tests__/MatchRecovery.canonicalUnits.test.ts --selectProjects unit --runInBand --cacheDirectory <proof>/.jest-private --json",
+    "passed": 0,
+    "failed": 3,
+    "total": 3,
+    "json": {
+      "path": "E:/Projects/Personal/MekStation-wt/mp-recovery-proof-20261018/red-run.json",
+      "sha256": "aea7002c1522e205996b505260825220e8bbadab4092f6368d0b830c301b3d2f",
+      "bytes": 16756
+    }
+  },
+  "typecheck": {
+    "command": "npx tsc --noEmit -p tsconfig.json",
+    "result": "no diagnostics (the test only imports exports present at the baseline)"
+  },
+  "failures": [
+    {
+      "name": "recovers adapted catalog units and accepts a unit Move after restart, with no HTTP catalog",
+      "status": "failed",
+      "first": "Error: expect(received).toEqual(expected) // deep equality | - Expected  - 1 | + Received  + 4",
+      "classification": "authority/availability: boot recovery skips both canonical units (fromSessionAsync \"not found in the canonical catalog\" warnings) because the fetch catalog cannot reach the not-yet-listening server; the recovered host has no movement capability"
+    },
+    {
+      "name": "rebuilds the same adapted units from disk as the listening HTTP catalog",
+      "status": "failed",
+      "first": "Error: expect(jest.fn()).not.toHaveBeenCalled() | Expected number of calls: 0 | Received number of calls: 2",
+      "classification": "boot path still calls HTTP-to-self (2 index.json fetches) instead of reading the catalog from disk"
+    },
+    {
+      "name": "keeps the fromSessionAsync reseed rule for a seeded recovered session",
+      "status": "failed",
+      "first": "Error: expect(received).toEqual(expected) // deep equality | - Expected  - 3 | + Received  + 3",
+      "classification": "replay: the pre-listen rebuild diverges from the post-listen rebuild for the same seeded log (no adapted units, so the AI turn and later events differ)"
+    }
+  ],
+  "builtImageRepro": {
+    "note": "Pre-admission reproduction on a production standalone image (same failure, real server.js boot): source 1c7632b18 (clean), npm run build, durable store, create/launch, accepted AdvancePhase, stop, restart same image/port/DB, reconnect, Move.",
+    "output": "E:/Projects/Personal/MekStation-wt/mp-recovery-proof-20261018/repro-base-1c7632b18",
+    "verdict": "FAIL: restart-units-resolved (both \"not found in the canonical catalog - skipping\" lines in server-2.log before [mp-boot] recovered 1 active match(es)); post-restart Move -> movement_invalid reason NoMovementCapability.",
+    "image": {
+      "buildId": "1792361300774",
+      "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee"
+    }
+  }
+}
