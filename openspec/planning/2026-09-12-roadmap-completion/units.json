@@ -7266,7 +7266,11 @@
         "src/lib/campaign"
       ],
       "ownershipExceptions": [
-        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2-admission-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2-admission-review-20261018.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2-red-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2-local-20261018.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -7281,14 +7285,20 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "implementing",
+      "baseline": "f32626fbd2b558e1307f16590d4ab03c55668772",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/p2cg1g2-admission-20261018.json"
+        },
+        "red": {
+          "path": "evidence/p2cg1g2-red-20261018.json"
+        },
+        "local": {
+          "path": "evidence/p2cg1g2-local-20261018.json"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,

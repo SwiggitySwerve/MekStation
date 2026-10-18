@@ -12,9 +12,16 @@
 import { act, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 
+import type { ICampaignSyncWebSocket } from '@/lib/campaign/coop/campaignSyncTransport';
 import type { IForce } from '@/types/campaign/Force';
 import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
 
+import {
+  _resetCampaignSyncTransportsForTest,
+  connectCampaignSyncTransport,
+  getActiveCampaignSyncTransport,
+} from '@/lib/campaign/coop/campaignSyncTransport';
+import { storeCoopCampaignToken } from '@/lib/campaign/coop/coopCampaignAuthTokenStore';
 import {
   _resetCoopRuntimeSessions,
   publishCoopParticipation,
@@ -689,5 +696,203 @@ describe('CoopMissionLaunchPage - custom-source authority revalidation', () => {
     expect(mockRouterPush).toHaveBeenCalledWith(
       '/gameplay/encounters/repo-enc-coop-1?campaignId=campaign-coop-1&missionId=mission-alpha',
     );
+  });
+});
+
+describe('CoopMissionLaunchPage - creator binding and reseat (P2CG1G2)', () => {
+  const MATCH = 'match-launch-1';
+  const CAMPAIGN = 'campaign-coop-1';
+  const TS = '2026-10-18T00:00:00.000Z';
+
+  interface ILaunchSocket extends ICampaignSyncWebSocket {
+    readonly sent: string[];
+    open(): void;
+    inject(message: unknown): void;
+  }
+  const sockets: ILaunchSocket[] = [];
+  function launchSocket(): ILaunchSocket {
+    const socket: ILaunchSocket = {
+      readyState: 0,
+      onopen: null,
+      onmessage: null,
+      onerror: null,
+      onclose: null,
+      sent: [],
+      send(data: string) {
+        socket.sent.push(data);
+      },
+      close() {
+        socket.readyState = 3;
+        socket.onclose?.({});
+      },
+      open() {
+        socket.readyState = 1;
+        socket.onopen?.({});
+      },
+      inject(message: unknown) {
+        socket.onmessage?.({ data: JSON.stringify(message) });
+      },
+    };
+    sockets.push(socket);
+    return socket;
+  }
+  const originalWebSocket = (globalThis as { WebSocket?: unknown }).WebSocket;
+
+  function participations(socket: ILaunchSocket) {
+    return socket.sent
+      .map(
+        (raw) => JSON.parse(raw) as { kind: string; participation?: unknown },
+      )
+      .filter((frame) => frame.kind === 'CampaignParticipation');
+  }
+
+  function guestPick(choice: 'deploy' | 'command-hq' = 'deploy') {
+    return {
+      kind: 'CampaignParticipation',
+      matchId: MATCH,
+      ts: TS,
+      playerId: 'guest',
+      role: 'guest',
+      participation: {
+        missionId: 'mission-alpha',
+        forceId: 'force-guest',
+        choice,
+      },
+    };
+  }
+
+  /** A second transport bound to the same GM seat (a rejoin's replacement). */
+  function connectReplacement(campaignId = CAMPAIGN) {
+    const socket = launchSocket();
+    const transport = connectCampaignSyncTransport({
+      expectedCampaignId: campaignId,
+      matchId: MATCH,
+      role: 'host',
+      playerId: 'pid-gm-1',
+      wireToken: 'wire',
+      socketFactory: () => socket,
+    });
+    socket.open();
+    return { socket, transport };
+  }
+
+  async function mountHost() {
+    const base = createCampaign('Co-op Reseat', 'mercenary');
+    const rootForce = makeForce(base.rootForceId, ['u-host-1']);
+    const guestForce = makeForce('force-guest', ['u-guest-1']);
+    mockGetCampaign.mockReturnValue({
+      ...base,
+      id: CAMPAIGN,
+      forces: new Map([
+        [rootForce.id, rootForce],
+        [guestForce.id, guestForce],
+      ]),
+      coopSession: createHostCoopSession('ABC234', MATCH),
+    });
+    const view = await act(async () => render(<CoopMissionLaunchPage />));
+    await screen.findByTestId('coop-launch-mission');
+    return { view, rootForce };
+  }
+
+  async function settle() {
+    await act(async () => {
+      for (let tick = 0; tick < 10; tick += 1) await Promise.resolve();
+    });
+  }
+
+  beforeEach(() => {
+    sockets.length = 0;
+    mockGetCampaign.mockReset();
+    mockGetCoopRuntimeSessionByMatch.mockReset().mockReturnValue(undefined);
+    _resetCoopRuntimeSessions();
+    window.sessionStorage.clear();
+    // The seat's playerId comes from this stored token, never the page's
+    // 'host'/'guest' labels.
+    storeCoopCampaignToken({
+      matchId: MATCH,
+      playerId: 'pid-gm-1',
+      wireToken: 'wire',
+      displayName: 'GM',
+    });
+    (globalThis as { WebSocket?: unknown }).WebSocket =
+      function FakeWebSocket() {
+        return launchSocket();
+      };
+  });
+
+  afterEach(() => {
+    _resetCampaignSyncTransportsForTest();
+    window.sessionStorage.clear();
+    (globalThis as { WebSocket?: unknown }).WebSocket = originalWebSocket;
+  });
+
+  it('binds both launch creators to the campaign, not the match', async () => {
+    await mountHost();
+    expect(CAMPAIGN).not.toBe(MATCH);
+    expect(sockets).toHaveLength(1);
+    expect(getActiveCampaignSyncTransport(MATCH)?.campaignId).toBe(CAMPAIGN);
+  });
+
+  it('hears the first participation frame on a replacement B with no rerender', async () => {
+    await mountHost();
+    expect(screen.getByTestId('coop-launch-mission')).toBeDisabled();
+
+    const replacement = connectReplacement();
+    await act(async () => replacement.socket.inject(guestPick()));
+    await waitFor(() =>
+      expect(screen.getByTestId('coop-launch-mission')).not.toBeDisabled(),
+    );
+  });
+
+  it('tells a replacement B the current choice exactly once', async () => {
+    const { rootForce } = await mountHost();
+    sockets[0].open();
+    const replacement = connectReplacement();
+    await settle();
+
+    expect(participations(replacement.socket)).toEqual([
+      expect.objectContaining({
+        playerId: 'pid-gm-1',
+        participation: {
+          missionId: 'mission-alpha',
+          forceId: rootForce.id,
+          choice: 'deploy',
+        },
+      }),
+    ]);
+  });
+
+  it('publishes nothing from the replaced A, even while its socket is open', async () => {
+    await mountHost();
+    const replaced = sockets[0];
+    replaced.open();
+    connectReplacement();
+
+    await act(async () => replaced.inject(guestPick()));
+    await settle();
+    expect(replaced.readyState).toBe(1);
+    expect(screen.getByTestId('coop-launch-mission')).toBeDisabled();
+  });
+
+  it('sends nothing to, and never closes, a transport bound to another campaign', async () => {
+    const foreign = connectReplacement('campaign-other');
+    await mountHost();
+    await settle();
+
+    expect(participations(foreign.socket)).toEqual([]);
+    expect(foreign.socket.readyState).toBe(1);
+    expect(getActiveCampaignSyncTransport(MATCH)).toBe(foreign.transport);
+  });
+
+  it('detaches on unmount without closing the shared socket', async () => {
+    const { view } = await mountHost();
+    const socket = sockets[0];
+    socket.open();
+    const active = getActiveCampaignSyncTransport(MATCH);
+    view.unmount();
+    await settle();
+
+    expect(socket.readyState).toBe(1);
+    expect(getActiveCampaignSyncTransport(MATCH)).toBe(active);
   });
 });

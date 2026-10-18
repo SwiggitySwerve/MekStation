@@ -1,0 +1,329 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CG1G2",
+  "stage": "admission",
+  "date": "20261018",
+  "baseline": "f32626fbd2b558e1307f16590d4ab03c55668772",
+  "authority": "Root GATE OPEN message: P2CG1G2A closure #2248 merged at 36dacb34 (closure head e78f2db6; closure verify APPROVE-WITH-NOTES; receipt issuecomment-6247100203), P2CG1G2A main-verified on Main, reduced P2CG1G2 released to planned, validate-roadmap --next = P2CG1G2, nothing else in the product lane in flight. Docs-only ledger PR #2249 (P2CG1HP registration, H amendment) is open and does not edit P2CG1G2 fields; rebase and re-measure if it lands first. MR1/MR4 (CF-G2A-4) re-routed to B15 auth hardening (G2A-ROUTE-1); not added here. Root then reported Main at f32626fb (#2249, docs-only: P2CG1HP registration and P2CG1H amendment in units.json/roadmap.json/PROGRESS.md/evidence; no P2CG1G2 field or G2 leaf) and asked to base the branch on it. The admission was first made on 36dacb34 (local commits never reviewed); the branch was rebuilt on f32626fb, the commit actually checked out, with every frozen leaf and control re-hashed (identical except units.json) and every check below re-run",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "P2CG1G2 implementation sub-agent"
+  },
+  "predecessors": {
+    "P2CG1G2A": "main-verified on fetched origin/main 36dacb34: prHead 412c0941, mergeSha a6b604a078e44abaf9dbb6e2c14888e90ad83d08, review evidence/p2cg1g2a-review-20261018.json (APPROVE-WITH-NOTES), owner ruling issuecomment-6246826945, mainProof evidence/p2cg1g2a-mainproof-20261018.json verdict PASS (783/783), closure #2248 merge 36dacb34. a6b604a0 is an ancestor of the baseline (git merge-base --is-ancestor exit 0)",
+    "P2CG1G1": "main-verified (closure #2244 at 58e5c31b), ancestor of the baseline"
+  },
+  "overlap": "No unit in units.json is in an active state at the baseline (complete 96, blocked 60, main-verified 29, planned 36). Every one of the ten G2 source/test leaves is byte-identical between 412c0941 (the prep base), 36dacb34 and the baseline; package.json/package-lock.json unchanged. #2249 (merged into the baseline) changed no P2CG1G2 field or leaf",
+  "restriction": {
+    "container": "R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1G2",
+    "leaves": 10,
+    "knownSourceTestLifecycleSubtotal": 11,
+    "amendment": "evidence/p2cg1g2-split-amendment-20261018.json (#2239, option S3)"
+  },
+  "caps": {
+    "files": 15,
+    "productAddedLines": 500
+  },
+  "manifest": {
+    "count": 15,
+    "spare": 0,
+    "reservedUnchanged": 1,
+    "note": "10 restriction leaves (5 product: 4 existing, 1 new seat module; 5 test: 4 existing, 1 new creatorBinding suite) + units.json (own lifecycle fields only) + admission/red/local receipts + reserved admission-review slot = 15/15. Zero spare: any further helper, fixture or test forces a split"
+  },
+  "countingConvention": "U41 counted lines = added physical lines (git diff --numstat --no-renames baseline..HEAD, no deletion credit) in the five product leaves and units.json. __tests__/ leaves and evidence/ contents are line-exempt; every changed file counts toward 15",
+  "census": {
+    "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/frozen-files.json",
+    "sha256": "751ff4d806a796da76d23bdf0a1dadb28fbf0344da0d693c16f67720caf5c5d0",
+    "bytes": 3364,
+    "frozenBefore": "any source, test, lifecycle or evidence edit on the f32626fb-based branch"
+  },
+  "frozenFiles": [
+    {
+      "path": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+      "exists": true,
+      "sha256": "c763c4d57b2ace2aedd5a867a9aaf5dd4fa579c404921dae45a4077a3e350cfe",
+      "bytes": 18416,
+      "physicalLines": 533
+    },
+    {
+      "path": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+      "exists": true,
+      "sha256": "2b5a1096512fae54e20773e640817f3b5acd6dca75e69fa5e064f54a24c1f155",
+      "bytes": 14107,
+      "physicalLines": 397
+    },
+    {
+      "path": "src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx",
+      "exists": true,
+      "sha256": "d64b4b277868b15ac3b43e66da6c7851131d6dd355e27f2b96ae28145ecd7481",
+      "bytes": 8987,
+      "physicalLines": 285
+    },
+    {
+      "path": "src/lib/campaign/coop/campaignSyncTransport.ts",
+      "exists": true,
+      "sha256": "781d33b29df4ab77b5528d2db2c2065234c27ba715cc8168cb91b71cb7e5139d",
+      "bytes": 23004,
+      "physicalLines": 720
+    },
+    {
+      "path": "src/lib/campaign/coop/campaignSyncTransportSeat.ts",
+      "exists": false,
+      "sha256": null,
+      "bytes": null,
+      "physicalLines": null
+    },
+    {
+      "path": "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+      "exists": true,
+      "sha256": "0924d081536053955034e64a320d38fcd46a15047ccdea557b583316648c6936",
+      "bytes": 43269,
+      "physicalLines": 1259
+    },
+    {
+      "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "exists": true,
+      "sha256": "113f0779ca34dc5292b8962c62a47b34117566e67e144e5db1eef385ae635455",
+      "bytes": 9674,
+      "physicalLines": 305
+    },
+    {
+      "path": "src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx",
+      "exists": true,
+      "sha256": "2fad6b5df2c763621b1e1377116d79862f7662b51ffcac7249d4c90ea8956a34",
+      "bytes": 17599,
+      "physicalLines": 521
+    },
+    {
+      "path": "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx",
+      "exists": true,
+      "sha256": "440958350bcc4f7e88446e3cd25b3a9f2f481e152b70351cc079ee3cf1410e58",
+      "bytes": 23169,
+      "physicalLines": 693
+    },
+    {
+      "path": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.creatorBinding.test.tsx",
+      "exists": false,
+      "sha256": null,
+      "bytes": null,
+      "physicalLines": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "exists": true,
+      "sha256": "1dd1df13503b4e06b65fc61a7b43998fabf9bda30f90aa9e9922f4e5faa4edd6",
+      "bytes": 1697057,
+      "physicalLines": 22061
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2-admission-20261018.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null,
+      "physicalLines": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2-red-20261018.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null,
+      "physicalLines": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2-local-20261018.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null,
+      "physicalLines": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2-admission-review-20261018.md",
+      "exists": false,
+      "sha256": null,
+      "bytes": null,
+      "physicalLines": null
+    }
+  ],
+  "unchangedControls": {
+    "census": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/frozen-controls.json",
+      "sha256": "b311ddd76aa07e1456926d17775acbca2ca9e664183d7d83bd54300705fcdd8b",
+      "bytes": 2868
+    },
+    "files": [
+      {
+        "path": "src/pages/api/multiplayer/invites/[roomCode].ts",
+        "exists": true,
+        "sha256": "6ee9ec402303769462f9ffc5e7105cddcd2d35bab4ec52c3b26ab94d0528ce2b",
+        "bytes": 3697,
+        "physicalLines": 110
+      },
+      {
+        "path": "src/__tests__/api/securityBoundary.test.ts",
+        "exists": true,
+        "sha256": "696d4b8699df5fda2c11d78feec587dc43d6145e6d059cff24e359be3831e7d7",
+        "bytes": 19634,
+        "physicalLines": 606
+      },
+      {
+        "path": "src/lib/multiplayer/server/joinableLobbies.ts",
+        "exists": true,
+        "sha256": "a2247cc2efbe09bcea80189d2b499372362e729f237f2184ec3c02efc05ff4cc",
+        "bytes": 6887,
+        "physicalLines": 190
+      },
+      {
+        "path": "src/pages/api/multiplayer/auth/token.ts",
+        "exists": true,
+        "sha256": "8a1f93cce5df4d7e3fdef2e092d47d71d9ad2dc0587a3aaf34a31751aa2786cd",
+        "bytes": 5978,
+        "physicalLines": 183
+      },
+      {
+        "path": "src/lib/multiplayer/server/auth.ts",
+        "exists": true,
+        "sha256": "661c7d1cf98a94c6afb9df4525128ebe3a8ac4e39a2bcf5b20ac22a8d6bb2672",
+        "bytes": 10155,
+        "physicalLines": 318
+      },
+      {
+        "path": "src/types/multiplayer/Player.ts",
+        "exists": true,
+        "sha256": "eadaa4ddeb666b1f8f9cb3ec39a64cfa92afb204309e9b2923e91c73cee02310",
+        "bytes": 6840,
+        "physicalLines": 190
+      },
+      {
+        "path": "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+        "exists": true,
+        "sha256": "3074c9a3d74acc51e0f6e61efebc283ff0dfa1e3699b53d90ac74c385fb87606",
+        "bytes": 10632,
+        "physicalLines": 303
+      },
+      {
+        "path": "src/lib/campaign/coop/campaignHostFoldStore.ts",
+        "exists": true,
+        "sha256": "cc08d7a2e9ab536ee96d02a4a136fb2bdc5ff1edbcc46f3bc68bbea9fa8a382c",
+        "bytes": 2710,
+        "physicalLines": 74
+      },
+      {
+        "path": "src/components/campaign/coop/__tests__/CampaignLifecycleGate.test.tsx",
+        "exists": true,
+        "sha256": "5778cd951e8756a6c479b414c7cb2aa936e2877d786f71f1a24babef2264dfa6",
+        "bytes": 17527,
+        "physicalLines": 529
+      },
+      {
+        "path": "src/components/campaign/coop/__tests__/GuestProposalSurface.test.tsx",
+        "exists": true,
+        "sha256": "1f5b6e83591e4181c2fb7175a27134636a515b8b72b0f1717d137fd1094c74f9",
+        "bytes": 12089,
+        "physicalLines": 384
+      },
+      {
+        "path": "src/components/campaign/coop/__tests__/GuestRebuildStaleGate.test.tsx",
+        "exists": true,
+        "sha256": "dd065fd2e97411d479109d6e18c03835594d6c6ff5c6df15faa1ca9b3c532e5a",
+        "bytes": 17229,
+        "physicalLines": 503
+      },
+      {
+        "path": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+        "exists": true,
+        "sha256": "cdbfe394372ebe25cafabb1294f658c6ad9e823b064a3c208955b626344bdcab",
+        "bytes": 60444,
+        "physicalLines": 1852
+      }
+    ],
+    "note": "G2A's route and test, the B15/PRIV-1 files (joinableLobbies.ts, token.ts), the verifier and Player types, the consumer and host-fold store, and the F/G1 surface suites stay byte-identical"
+  },
+  "design": {
+    "source": "P2CG1G2.behavior; docs/audits/2026-10-18-g2-preadmission-design.md (G2-BOOT-1 consumer side, G2-RESEAT-1); prep G2-PREP-REDUCED.md (untracked)",
+    "transport": "Every registry write goes through setActiveTransport (map write first, then a snapshot of observers, each in try/catch with logger.warn); same-object registration is a no-op; releaseActiveTransport clears the slot only if the object is still active; new subscribeActiveCampaignSyncTransport; the test reset clears observers. No wire, lastSeq, ACK or latch change",
+    "seat": "New campaignSyncTransportSeat.ts: ICampaignSyncSeat {matchId, campaignId, playerId, role}; boundCampaignSyncTransport checks all four; followCampaignSyncSeat subscribes then reconciles, detaches A before attaching B, passes replaced, never attaches/adopts/creates/closes a foreign socket; waitForSeatCampaignSnapshot has one fixed timeout, honours abort, disposes on settle, rejects a foreign event or state campaignId",
+    "entry": "Resolves identity via ?campaignIdentity=1 with the minted bearer only in Authorization and cache:'no-store'; validates non-empty matchId/campaignId and a known status before any socket; 400/401/404 are final with no anonymous fallback (CF-G2A-5); throwIfAborted before the creator, which binds expectedCampaignId; snapshot wait through the seat, active-seat re-check after the await; mirror uses the resolved campaignId; per-attempt AbortController aborted on unmount; the failure path closes only its own A",
+    "launch": "Both creators bound to campaign.id; sends via boundCampaignSyncTransport(seat); the listener follows the seat, re-sends the current choice once to a replacement B and checks matchId/missionId; cleanup detaches without closing the shared socket; seat playerId from the stored co-op token, never the coopIdentity labels",
+    "surface": "expectedCampaignId: campaignId at both connectStoredCampaignSyncTransport calls (CF-H16)"
+  },
+  "privacy": "G2 is the first in-repo consumer of G2A's identity mode and adds no disclosure beyond G2A's recorded PRIV-1 correlation (the guest already receives the campaignId in its first snapshot). The entry panel keeps minting unscoped tokens via /api/multiplayer/auth/token and sends them only in the Authorization header of the identity request, never as a query token. PRIV-1 remains a B15 remote-support obligation (R-PRIV-1); joinableLobbies.ts and token.ts are unchanged controls",
+  "carryForwards": {
+    "CF-G2A-5": "Absorbed in the entry suite: exact ?campaignIdentity=1 URL, bearer only in Authorization, no-store; 400/401/404 each final with no socket and exactly one invites request (no anonymous fallback, no token=)",
+    "CF-G2A-4": "Not absorbed: MR1/MR4 live in the G2A route and are observable only by running the route handler; re-routed to B15 auth hardening (G2A-ROUTE-1). No file added",
+    "CF-G2A-7": "Baseline is the actual Main commit f32626fb (after the closure merge 36dacb34 and docs-only #2249); CF-H12 is checked on this unit's exact PR head",
+    "CF-H6": "Pinned in the new creatorBinding suite: a bound host against a legacy server (baseline and one legacy event folded), unmount, remount, 2T -> one socket, no rejoin; the consumer mutant RM-G9 (heard only for offers) is run at the local stage",
+    "CF-H11": "Baseline measured: lint 87/0 (entry panel 503 and transport 661 counted lines already warned); madge from the four existing product leaves 1255 files / 170 chains. Before/after in the local receipt",
+    "CF-H12": "All required check names verified by name on the exact head, posted as a PR comment",
+    "CF-H16": "Both surface creators pass expectedCampaignId; a stored transport bound to another campaign on the same match is refused (host and guest rows)",
+    "CF-H2": "Cross-reference only (store owner): G2 does not touch campaignHostFoldStore.ts; binding makes the A->B->A case reachable across two matches; it self-heals through one adjunct-failed rejoin",
+    "CF-H14": "Cross-reference only (consumer owner, at or before H): G2 adds no mount gated on projected state",
+    "CF-G11": "The three G1 fake suites stay byte-identical (controls) and get no confirmApplied; new real-bound rows inject a campaign frame or unmount before 60 s, except CF-H6, which crosses 2T deliberately with legacy frames",
+    "CF-G4/CF-H7": "Stays with the consumer's next owner at or before H. Binding makes F's quiet window reachable in production; the first legacy baseline clears it (CF-H6 pins no rejoin at 2T); silent open()===false is receipt-mode only. Analysis, not new runtime proof"
+  },
+  "prep": "G2-PREP-REDUCED.md (untracked): before the gate the tests and implementation were prototyped in scratch worktree p2cg1g2-scratch2-20261018 on #2247 head 412c0941 (all ten G2 leaves byte-identical to this baseline). Those runs are not evidence for this head; every result is re-run after this admission commit",
+  "scopeFitProbe": "Pre-gate TS7 probe: npm run typecheck (typescript7) exit 0 on the prototype at RED (product unchanged, seat module absent) and GREEN; product numstat entry +49, surface +2, launch +69, transport +46, seat +124 = 290",
+  "estimate": "About 306 counted additions (290 product + about 16 lifecycle); final figures at the local stage",
+  "baselineMeasurements": {
+    "node": "v22.22.0",
+    "idle": {
+      "result": "MACHINE_IDLE",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/idle-base.log",
+        "sha256": "315ceb46326ccdda8b3d7a4913043d09a4b22eb2dbc65560259861fe0f202a2d",
+        "bytes": 17
+      }
+    },
+    "lint": {
+      "command": "npx oxlint",
+      "result": "87 warnings, 0 errors; max-lines counted entry panel 503, transport 661 (already warned)",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/lint-base.log",
+        "sha256": "412e32ecc380f974f81ecf3077549eb4435b22500fb818718ca77c9689de9bf2",
+        "bytes": 81288
+      }
+    },
+    "typecheck": {
+      "command": "npm run typecheck",
+      "result": "exit 0",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/typecheck-base.log",
+        "sha256": "8102a14cf3245ac2b0d67c588affb25efaebfcd3485f9a46a751595d9a774951",
+        "bytes": 358
+      }
+    },
+    "cycles": {
+      "command": "npx -y madge@8.0.0 --circular --extensions ts,tsx --ts-config tsconfig.json <entry panel> <surface> <launch> <transport>",
+      "result": "Processed 1255 files, 170 circular chains",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/madge-base.log",
+        "sha256": "846868f24be37dea2a0cc7ae121b3c73b8a195787e219bf4905911eb03cc6822",
+        "bytes": 210054
+      }
+    },
+    "previousBaseLogs": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/base-36dacb34/ (same results on 36dacb34; kept, not cited)"
+  },
+  "plan": {
+    "red": "Commit 2 changes only the five test leaves (plus units.json red path and the red receipt); the four existing product leaves stay byte-identical and the seat module absent. Expected RED: 34 failed / 129 across the five suites = 25 behaviour rows (plain assertion failures) + 9 new-API transport rows (runtime: missing export/module; disclosed separately, not claimed as behaviour RED). Typecheck green at RED",
+    "implementation": "Commit 3 changes only the five product leaves (plus units.json local path and the local receipt). No test byte changes after RED; any post-RED test change goes in its own labelled commit",
+    "mutants": "26 mutants (transport 6, seat 5, entry 6, launch 6, surface 2, consumer RM-G9 1) re-run on the GREEN head; prototype: 24 caught, ME6 and ML6 equivalent"
+  },
+  "rebase": {
+    "from": "36dacb34613785cb364db258afdd2632eca09be0",
+    "to": "f32626fbd2b558e1307f16590d4ab03c55668772",
+    "reason": "Root heads-up: Main moved to f32626fb (#2249 docs-only); base the G2 branch on it",
+    "diff36dacb34ToBase": [
+      "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/hi-prep-20261018.txt",
+      "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json"
+    ],
+    "g2LeavesAndControls": "byte-identical between 36dacb34 and f32626fb (only units.json, a lifecycle file, differs)",
+    "previousLocalHead": "58bec7f9de7628c12264233f2d018d6d09756868 (pushed as PR #2250 before review; superseded by force-push of the rebuilt commits)",
+    "previousCensus": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/frozen-files-36dacb34.json",
+      "sha256": "6eb8eeaef7842eaaf7a773c1f6d4b964709c77c4872adabd7a285c72cd316420",
+      "bytes": 3364
+    }
+  }
+}
