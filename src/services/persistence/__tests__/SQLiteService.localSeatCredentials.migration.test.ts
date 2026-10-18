@@ -4,7 +4,9 @@
  * the primary vault row, idempotent re-apply and whole-migration
  * rollback when its record write fails. CF-LSC0-6 (LSC-0 closure): the
  * schema itself refuses a non-ciphertext seat key, a non-hash operation
- * fingerprint and any password-named column.
+ * fingerprint and any password-named column. Review F1-F6 (#2290):
+ * closed envelope, integer guards, caps, non-empty revocation and one
+ * operation per seat generation.
  */
 
 import type Database from 'better-sqlite3';
@@ -195,12 +197,15 @@ describe('SQLiteService local seat credentials migration', () => {
     getSQLiteService({ path: dbPath }).initialize();
     const db = getSQLiteService().getDatabase();
 
+    // Every row keeps algorithm so the row isolates the NULL-passing
+    // member check rather than the (review F1) algorithm requirement.
+    const algorithm = 'AES-GCM-256';
     for (const key of [
-      { ciphertext: 'Y2lwaGVy', salt: 'c2FsdA==' },
-      { ciphertext: 'Y2lwaGVy', iv: 'aXY=' },
-      { ciphertext: 'Y2lwaGVy', iv: 1, salt: 'c2FsdA==' },
-      { ciphertext: 'Y2lwaGVy', iv: 'aXY=', salt: null },
-      { iv: 'aXY=', salt: 'c2FsdA==' },
+      { ciphertext: 'Y2lwaGVy', salt: 'c2FsdA==', algorithm },
+      { ciphertext: 'Y2lwaGVy', iv: 'aXY=', algorithm },
+      { ciphertext: 'Y2lwaGVy', iv: 1, salt: 'c2FsdA==', algorithm },
+      { ciphertext: 'Y2lwaGVy', iv: 'aXY=', salt: null, algorithm },
+      { iv: 'aXY=', salt: 'c2FsdA==', algorithm },
     ]) {
       expect(() =>
         db
@@ -211,6 +216,124 @@ describe('SQLiteService local seat credentials migration', () => {
     expect(
       db.prepare('SELECT COUNT(*) AS n FROM local_seat_credentials').get(),
     ).toEqual({ n: 0 });
+  });
+
+  it('review F1: refuses extra plaintext members, empty members and non-object envelopes', () => {
+    getSQLiteService({ path: dbPath }).initialize();
+    const db = getSQLiteService().getDatabase();
+    const base = JSON.parse(KEY) as Record<string, unknown>;
+
+    for (const key of [
+      { ...base, privateKey: 'cHJpdmF0ZQ==' },
+      { ...base, password: 'hunter2' },
+      { ciphertext: '', iv: '', salt: '', algorithm: 'AES-GCM-256' },
+      { ...base, ciphertext: '' },
+      { ...base, iv: '' },
+      { ...base, salt: '' },
+      { ciphertext: 'Y2lwaGVy', iv: 'aXY=', salt: 'c2FsdA==' },
+      [base],
+    ]) {
+      expect(() =>
+        db
+          .prepare(SEAT_INSERT)
+          .run(seat('local-seat-1', 1, JSON.stringify(key))),
+      ).toThrow(/CHECK constraint failed/);
+    }
+    db.prepare(SEAT_INSERT).run(seat('local-seat-1', 1));
+    expect(
+      db.prepare('SELECT COUNT(*) AS n FROM local_seat_credentials').get(),
+    ).toEqual({ n: 1 });
+  });
+
+  it('review F2: refuses non-integer fence and lockout values but coerces numeric text', () => {
+    getSQLiteService({ path: dbPath }).initialize();
+    const db = getSQLiteService().getDatabase();
+
+    for (const generation of ['abc', 1.5]) {
+      expect(() =>
+        db.prepare(SEAT_INSERT).run({ ...seat('local-seat-1', 1), generation }),
+      ).toThrow(/CHECK constraint failed/);
+    }
+    db.prepare(SEAT_INSERT).run({
+      ...seat('local-seat-1', 1),
+      generation: '2',
+    });
+    for (const update of [
+      "failed_attempts = 'many'",
+      'failed_attempts = 2.5',
+      "locked_until_ms = 'soon'",
+      'locked_until_ms = 1.5',
+      'locked_until_ms = -1',
+      'generation = 9007199254740992',
+    ]) {
+      expect(() =>
+        db.prepare(`UPDATE local_seat_credentials SET ${update}`).run(),
+      ).toThrow(/CHECK constraint failed/);
+    }
+    for (const generation of ['soon', 1.5]) {
+      expect(() =>
+        db
+          .prepare(
+            `INSERT INTO local_seat_credential_operations VALUES ('op-i', 'local-seat-1', 'provision', '${FP}', ?, 'now')`,
+          )
+          .run(generation),
+      ).toThrow(/CHECK constraint failed/);
+    }
+    expect(
+      db
+        .prepare(
+          'SELECT typeof(generation) AS t, generation, failed_attempts, locked_until_ms FROM local_seat_credentials',
+        )
+        .get(),
+    ).toEqual({
+      t: 'integer',
+      generation: 2,
+      failed_attempts: 0,
+      locked_until_ms: 0,
+    });
+  });
+
+  it('review F3/F4/F6: caps, positive result generation, non-empty revocation and one operation per seat generation', () => {
+    getSQLiteService({ path: dbPath }).initialize();
+    const db = getSQLiteService().getDatabase();
+    const label = db.prepare(`INSERT INTO local_seat_credentials
+      (seat_id, label, public_key, encrypted_private_key, generation, updated_at)
+      VALUES ('local-seat-2', ?, 'pk', '${KEY}', 1, 'now')`);
+    const op = db.prepare(
+      `INSERT INTO local_seat_credential_operations VALUES (?, ?, 'provision', '${FP}', ?, 'now')`,
+    );
+
+    expect(() => label.run('L'.repeat(65))).toThrow(/CHECK constraint failed/);
+    label.run('L'.repeat(64));
+    expect(() => op.run('o'.repeat(129), 'local-seat-2', 1)).toThrow(
+      /CHECK constraint failed/,
+    );
+    expect(() => op.run('op-zero', 'local-seat-2', 0)).toThrow(
+      /CHECK constraint failed/,
+    );
+    for (const revokedAt of ['', '   ']) {
+      expect(() =>
+        db
+          .prepare('UPDATE local_seat_credentials SET revoked_at = ?')
+          .run(revokedAt),
+      ).toThrow(/CHECK constraint failed/);
+    }
+    db.prepare("UPDATE local_seat_credentials SET revoked_at = 'now'").run();
+
+    op.run('o'.repeat(128), 'local-seat-2', 1);
+    expect(() => op.run('op-race', 'local-seat-2', 1)).toThrow(
+      /UNIQUE constraint failed/,
+    );
+    op.run('op-other-seat', 'local-seat-1', 1);
+    op.run('op-next', 'local-seat-2', 2);
+    expect(() => op.run('op-next', 'local-seat-1', 3)).toThrow(
+      /UNIQUE constraint failed|PRIMARY KEY/,
+    );
+    expect(
+      db
+        .prepare('SELECT COUNT(*) AS n FROM local_seat_credential_operations')
+        .get(),
+    ).toEqual({ n: 3 });
   });
 
   it('keeps the failure count and lock deadline durable across reopen and re-apply (CF-LSC0-8)', () => {
