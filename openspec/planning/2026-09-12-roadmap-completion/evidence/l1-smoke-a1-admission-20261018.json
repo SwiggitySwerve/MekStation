@@ -1,0 +1,140 @@
+{
+  "schemaVersion": 1,
+  "unit": "L1-SMOKE-A1",
+  "stage": "admission",
+  "date": "20261018",
+  "baseline": "a25ba4130da7a8cf9e107ecfa0c30b5648082936",
+  "authority": "Owner standing instruction: \"continue with recommended options and fix the issues that come up, publish as needed\"; owner 2026-10-18: \"let's keep going on the main path of things using as many sub-agents as we can in parallel to go quickly\". Registration #2275 (merged 407ff0e9a) records the separate L1 smoke proof-lane permission alongside the serial L1 product lane (B14-0 in progress in another thread, PR #2281). Root task: implement L1-SMOKE-A1 as the parallel proof lane, admission -> RED -> GREEN -> PR, stop before merge. This receipt records normal finite admission only; it is not an owner ruling on the implementation head, review, merge approval or any runtime acceptance.",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "L1-SMOKE-A1 implementation sub-agent"
+  },
+  "predecessors": {
+    "P2CG1S": "main-verified (merge 1b8558625e1e488e6ba62b916ec68bd2ed0d701f, mainProof PASS evidence/p2cg1s-mainproof-20261018.json); closure #2265 merged at 3971389b3. git merge-base --is-ancestor 1b8558625 origin/main exit 0 on fetched Main a25ba4130."
+  },
+  "overlap": "Parallel proof lane per l1SmokeRegistration20261018.parallelPermission. The four exact script leaves are absent at the baseline and literal-free in every unit/node reservation (census below). No product-lane unit is implementing on fetched Main (implementing: []); B14-0 is in flight on its own branch (PR #2281) and changes only its own units.json lifecycle. units.json lifecycle commits here change only L1-SMOKE-A1 fields and preserve other-unit bytes; merge order with the product lane is serialized at merge time (this PR stops before merge). A2/B remain blocked.",
+  "caps": {
+    "files": 15,
+    "productAddedLines": 500
+  },
+  "manifest": {
+    "count": 9,
+    "spare": 6,
+    "reservedUnchanged": 1,
+    "files": [
+      "scripts/release/run-l1-built-server-smoke.mjs",
+      "scripts/release/l1-built-server-socket-cases.mjs",
+      "scripts/release/l1-built-server-fixtures.ts",
+      "scripts/release/l1-built-server-smoke.test.mjs",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a1-admission-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a1-red-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a1-local-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a1-admission-review-20261018.json"
+    ],
+    "mergeDiffAllowlist": "Exactly the nine paths above (the registered prospective manifest l1SmokeRegistration20261018.prospectiveManifests.L1-SMOKE-A1). Any other path, including any other file under the coarse scripts alias, fails admission.",
+    "note": "4 new script leaves + units.json (own lifecycle fields only) + admission/red/local receipts + 1 reserved, unwritten admission-review slot = 9/15. The six spare slots grant no unnamed output; later review/identity/closure outputs need the separate G-OWN freeze. No src, server.js, package.json, workflow, existing-validator or existing-test edit."
+  },
+  "countingConvention": "U41 counted lines = added physical lines (git diff --numstat --no-renames baseline..HEAD, no deletion credit) in the three non-test leaves (runner, cases, fixtures) plus units.json. The node:test leaf and evidence receipts are line-exempt but file-counted; test additions are reported separately.",
+  "budget": {
+    "measured": "Complete scratch prototype (sha256 below), oxlint-units clean, 15/15 node:test and a PASS real run on a production build of 407ff0e9a.",
+    "runner": 226,
+    "cases": 198,
+    "fixtures": 45,
+    "code": 469,
+    "lifecycleEstimate": "15 (admission 9: four ownershipExceptions + state + baseline + admission path; red 3; local 3)",
+    "total": "about 484 / 500 counted (16 headroom)",
+    "tests": "372 added (exempt)",
+    "fits": true,
+    "planningBudget": "registered planning allocation 450 (runner 160 / cases 150 / fixtures 90 / lifecycle 50); the measured split differs (runner and cases larger, fixtures smaller) but the 500 aggregate cap is met. No split required."
+  },
+  "census": {
+    "path": "E:/Projects/Personal/MekStation-wt/l1-smoke-a1-proof-20261018/census-admission.json",
+    "sha256": "e90c6f83cd0a465400b255333398a71d9d46c5868d95630635cacc794966c156",
+    "bytes": 17290,
+    "result": "On fetched Main a25ba4130: 250 units (96 complete / 34 main-verified / 37 planned / 83 blocked / 0 implementing), 93 roadmap nodes. The four leaves and four evidence names are absent and have no literal reservation in any unit. Containing paths: the registered navigation-only scripts alias (L1-SMOKE-A1/A2/B, node R2.authority-live) and the broad evidence ancestor openspec/planning/2026-09-12-roadmap-completion (U0, P2C, U41, U42, U59, U16, U85; nodes R0.plan, R0.publish, R9.close), exactly the evidenceAliases recorded at registration. No unit owns scripts/release or any leaf."
+  },
+  "frozenFiles": {
+    "path": "E:/Projects/Personal/MekStation-wt/l1-smoke-a1-proof-20261018/frozen-files.json",
+    "sha256": "036932de2d3e974d0e003a54aa438258e23c784bc2b0d26c4c6d3020843f347c",
+    "bytes": 1144,
+    "note": "All four script leaves and all four evidence names exist:false at the baseline; units.json frozen by hash. Frozen before any edit on the a25ba4130-based branch."
+  },
+  "unchangedControls": {
+    "path": "E:/Projects/Personal/MekStation-wt/l1-smoke-a1-proof-20261018/frozen-controls.json",
+    "sha256": "e3e2b6c8c8eb0e4f9381f284a73aa3bffbce244699eaab1d08cf3a86e4967dfd",
+    "bytes": 3613,
+    "files": [
+      "server.js",
+      "scripts/validate-multiplayer-packaged-socket.mjs (U101d, transport reference only)",
+      "scripts/hydrate-next-standalone-multiplayer-server.mjs",
+      "scripts/next/run-next.mjs",
+      "package.json",
+      "package-lock.json",
+      "scripts/qc/lint-units.ceiling.json",
+      "scripts/qc/oxlint-units.json",
+      "src/lib/multiplayer/server/fogMatchAdmission.ts (noPerViewerRevealProjection; never overridden)",
+      "src/lib/multiplayer/server/MatchHostRegistry.ts",
+      "src/lib/multiplayer/server/bindMultiplayerSocketConnection.ts",
+      "src/lib/multiplayer/server/ServerMatchHostIntent.ts",
+      "src/lib/multiplayer/server/ServerMatchHostReplay.ts",
+      "src/lib/multiplayer/server/DurableMatchStore.ts",
+      "src/pages/api/multiplayer/matches/index.ts",
+      "src/pages/api/multiplayer/matches/[id]/spectate.ts",
+      "src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts"
+    ],
+    "note": "Read-only surfaces that must stay byte-identical through merge."
+  },
+  "design": {
+    "source": "L1-SMOKE-A1 behavior, registration20261018L1Smoke.acceptance/extensionContract; V220-PREP.md section \"Built-server socket smoke: proposed concrete design\" (E:/Projects/Personal/MekStation-wt/v220-prep-20261018, untracked); scripts/validate-multiplayer-packaged-socket.mjs as transport reference only (not imported, not edited).",
+    "runner": "runHarness(options, runCases): Node 22 guard; exclusive new absolute output dir; git HEAD == expectedSha with no tracked changes; optional normal build (npm.cmd run build, bounded, exit propagated; BUILD_ID must change); hydrated standalone identity (BUILD_ID equal to standalone/.next/BUILD_ID, upgrade/socket/binder/readiness markers in server.js, sha256 of server.js, server.next-config.json and the hydrated src tree); private DB inside the run dir (must not pre-exist); owned child node .next/standalone/server.js (cwd standalone, NODE_ENV=production, HOSTNAME=127.0.0.1, allocated PORT, MULTIPLAYER_STORE=durable, DATABASE_PATH=MULTIPLAYER_DB_PATH=private DB; E2E/PLAYWRIGHT/CAMP/MEKSTATION_/MULTIPLAYER_/NODE_OPTIONS scrubbed); exactly one valid MEKSTATION_LISTENER_READY record for 127.0.0.1/IPv4/requested port plus an HTTP probe answered by the owned listener; bounded readiness/stop/case/command timeouts; finally-kill of owned PIDs only (taskkill /pid <owned> /t /f, windowsHide) and verified port release; early exit, leaked server output, missing/unexpected/duplicate case rows and any retained credential fail the run; failed evidence and DB retained.",
+    "cases": "Real Ed25519 credentials in the production wire format, registered with the redactor before use; bearer HTTP and the mekstation.v1 + mekstation.token.<b64url> subprotocol only. Every inbound frame retained sanitized and scanned (echoed credential or unparseable frame faults the connection; close fails pending waits as premature). Rows: credential-malformed-refused (401), credential-url-refused (400; placeholder, never a real token in a URL), credential-foreign-refused (valid guest credential claiming the host principal: AUTH_REJECTED player-mismatch Close, no replay), participants-authenticated (fog-off 1v1 lobby, seats bound to the authenticated host/guest, LaunchMatch -> active), participant-action-accepted (real AdvancePhase Event correlated by payload.intentId), spectator-seat-witnessed (POST /spectate -> spectator-1; post-join LobbyUpdated shows the watcher only on a spectator seat; server-side session joined line for the watcher principal), spectator-replay-public (ReplayStart/Chunk/End, game_started first, every participant-action event id present, contiguous delivery from 0), spectator-live-public (second actor's real action reaches the spectator live, delivery contiguous with replay), spectator-cannot-act (Error INVALID_INTENT spectator-cannot-act, then a participant action still arrives with no event for the spectator intent and a gapless stream), callbacks-exercised (infrastructure: stop -> offline lineage -> restart -> reconnect on the real image; restart acceptance stays A2's).",
+    "fixtures": "Offline only, via the harness prepareOffline callback after stop (refuses if the private DB is missing or the owning PID is alive); node --import tsx; standalone SQL over mp_matches/mp_match_events with type-only production imports; query_only lineage op. No loader/dependency/src edit, never a production test-mode seam.",
+    "extensionContract": "Frozen A1 interface (A2/B import read-only, add only their own leaves). Runner exports runHarness, createRedactor, parseReadyRecord, imageIdentity, FIXTURES_SCRIPT, LIMITS; options {repoRoot, expectedSha, output, requiredCases, build, buildCommand, standaloneDir, limits}; ctx {port, origin, wsOrigin, identity, pid, limits, evidence.record, redactor, serverOutput(), check(), pass(), stop(), restart(), reconnect(conn, joinOptions), prepareOffline(script, args)}. Cases export A1_REQUIRED_CASES, issueIdentity, api, openSocket (conn.frames/raw, waitFor, send, join, intent, close), runBaseline (returns matchId, identities, conns, replayed), exerciseCallbacks, runA1Cases. Fixtures export openStoppedDb, readMatchMeta, lineage. Runners enumerate requiredCases explicitly; a missing row fails.",
+    "boundary": "No B10 three-declaration matrix, actor/reveal controls or restart/reconnect acceptance (A2); no fog-on refusal rows (B). No /api/e2e, test mode, fake sockets in the production proof, ServerMatchHost import in the assertion process, or noPerViewerRevealProjection override. The node:test falsifiers boot a test-only stub standalone image over real TCP/WebSocket and SQLite; it exercises the harness only and is never product proof."
+  },
+  "carryForwards": {
+    "CF-SMOKE-1": "Addressed in A1: node:test rows 'CF-SMOKE-1: stop, offline fixture, restart and reconnect callbacks are guarded and observable' and 'CF-SMOKE-1: restart refuses a changed image' falsify the frozen callbacks (stop kills only the owned pid and frees the port, double stop refused, prepareOffline refused while running, the real fixture refuses a live owning pid, restart re-verifies image identity and port, reconnect replays persisted public facts); the real run also exercises them on the built image (callbacks-exercised).",
+    "S-SMOKE-1 / B14A-SMOKE-1 / B14B-SMOKE-1": "Remain owed. A1 is partial proof only; discharge needs A2 + B closures and the final combined B run.",
+    "CF-H12/CF-E10": "All required check names compared by name on the exact head and posted as a PR comment.",
+    "FINDING-A1-PREP-1 (src-owned, not fixed here)": "Prototype run 2 on the 407ff0e9a build: two concurrent first WebSocket upgrades to a fresh lobby match created two ServerMatchHost instances (MatchHostRegistry.getOrCreate awaits getMatchMeta/bootstrap between hosts.get and hosts.set with no in-flight dedupe). The second host's initial GameCreated/GameStarted persist hit MatchStoreSequenceCollisionError and a later guest intent returned STORE_FAILURE revision-conflict. The A1 baseline opens first connections serially (host join, then guest), which is the ordinary product order; the race needs a separately registered src-owning unit. Raw evidence: E:/Projects/Personal/MekStation-wt/l1-smoke-a1-scratch/runs/run2."
+  },
+  "prep": {
+    "prototype": "Scratch E:/Projects/Personal/MekStation-wt/l1-smoke-a1-scratch (node_modules junction to this worktree's npm ci install), copied to the proof dir prototype/.",
+    "files": {
+      "run-l1-built-server-smoke.mjs": "a9300977bbf6b9ad6efb6febed95b828629733ff6fcd4aeb87e8ae546ed9cc9b",
+      "l1-built-server-socket-cases.mjs": "ab4df6ad917d5103d9f14baa8f0197b42dbbc19b13d100aa49448dc0348622dc",
+      "l1-built-server-fixtures.ts": "6777453bee2d21aed6db18329ec7e022aea3a69d9075c653f01ca71b61ab935a",
+      "l1-built-server-smoke.test.mjs": "d67cb2e7bfaa3a5a9b4528a7f710bed20bc5221e7815a1f0e689d6504fac897d"
+    },
+    "results": "node --test: 15/15 pass (about 28s, stub image). oxlint (scripts/qc/oxlint-units.json, --allow no-console) on scripts/release: 0 warnings / 0 errors on 4 files. Real run (no --build) against the npm run build of 407ff0e9a: PASS, all 10 rows (runs/run3, run4)."
+  },
+  "baselineMeasurements": {
+    "node": "v22.22.0",
+    "dependencies": "npm ci in this worktree (added 1078 packages; postinstall asset check OK).",
+    "idle": {
+      "result": "MACHINE_IDLE",
+      "command": "node scripts/qc/machine-idle.mjs --own-pid 47516 --own-pid 55164",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/l1-smoke-a1-proof-20261018/idle-base.log",
+        "sha256": "5ae71092694ee67992e4eb270ac9bd7e449ddad57fa0b9edb00e37982c485d7a",
+        "bytes": 30
+      }
+    },
+    "lintUnits": {
+      "command": "node scripts/qc/lint-units.mjs",
+      "result": "LINT_UNITS_PASS 17896/17899; scripts files=199 findings=50 ceiling=50 (zero headroom)",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/l1-smoke-a1-proof-20261018/lint-units-base.log",
+        "sha256": "b76ca7cae1bdb510155e8329a555db6fb7fa3dbac39ca842d7251428b2266682",
+        "bytes": 584
+      }
+    }
+  },
+  "plan": {
+    "red": "Commit 2 adds only scripts/release/l1-built-server-smoke.test.mjs (plus units.json red path and the red receipt). The three implementation leaves do not exist, so every row fails on the missing harness module; no implementation byte is present.",
+    "green": "Commit 3 adds only the three implementation leaves (plus units.json local path and the local receipt); no test byte changes after RED. Local proof: node --test, oxlint-units, lint-units ceiling unchanged, single-edit harness mutants, and one real runner execution with --build against a clean detached worktree at the then-current fetched Main SHA, sanitized evidence retained.",
+    "gates": "machine-idle before every build/server/test run; one heavy run at a time."
+  }
+}
