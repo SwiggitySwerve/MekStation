@@ -1,0 +1,15 @@
+OWNER-RULING e3f2535e3968d3ea8e465aa2c4f2ff64bc2fcd6a
+
+Unit: P2CG1R (L1; sensitive: authority/replay/idempotency/concurrency). PR #2260 at exact head e3f2535e3968d3ea8e465aa2c4f2ff64bc2fcd6a.
+
+Owner text: standing instruction "continue with recommended options and fix the issues that come up, publish as needed"; direct approval 2026-10-18 "I think the recommended actions make sense for the ones that have them" (including Root posting OWNER-RULING comments). Root rules under them.
+
+Basis:
+- Independent full sensitive review (Fable 5.1): APPROVE-WITH-NOTES, docs/audits/2026-10-18-p2cg1r-review.md, sha256 4064bc298555db9fb61ccff47fe65ba50dd3962e1ff6fc784b23b7335050110f (21,156 bytes). Ledger discipline PASS (admission 1d7fdb54 receipt + lifecycle only; RED c68ae161 tests only, product byte-identical; GREEN e3f2535e product only; 12/15 files, 65/500 lines). Reviewer re-ran RED 13/127 failing and GREEN 127/127; typecheck/lint/format pass. Five classes: release only after guard admission, exactly once, never on success or recorded retry; hook/afterRelease/microtask releases compose idempotently; foreign-writer nesting at BEGIN IMMEDIATE reproduced; error classification preserved; outer-COMMIT residual honestly bounded (within R's recorded boundary). No product defect.
+- Reviewer mutants: 11, 8 caught; RV3/RV4 in the RM9 race-only class; RV10 caught by a P2CE2 row elsewhere. RM9 non-equivalent; a one-row probe template closes the class (CF-R-2).
+- CI 32/32 on the exact head (author's name comparison: comment 6248788889). Merge-tree with Main c4d0eae4 clean.
+
+Ruling: ACCEPT and merge at this exact head.
+- CF-E1 / H-OPEN-1 discharged. CF-E7 pinned.
+- CF-H8/CF-G5: Root adopts the reviewer's recommendation — R discharges the GM/host arm only; P2CG1HP KEEPS bindCampaignSyncConnection.test.ts (stays 9 files) and widens the row to it.each over {host, member} (newcomer arm cross-checked by the existing P2CE2 row). The conditional HP 9->8 reduction is NOT taken.
+- Carry-forwards routed: CF-G2-3 -> H; CF-R-1 (arbiter consumes pending approval on append throw; CampaignGmArbiter.ts:559) -> H; CF-R-2 (RM9-class race row) -> next owner of JournalCampaignEventStore.test.ts; CF-R-3 (cross-realm SQLite error assertion pitfall) -> all test owners; CF-R-4 (outer-COMMIT failure needs a writer-level callback) -> H or a separate registration before H if H requires the guarantee; CF-R-5 (orphaned JSDoc JournalCampaignEventStore.ts:306-331; signalNotCommitted swallow lacks logger.warn) -> next owner of that file; CF-R-6 (nested-savepoint asymmetry, info) -> recorded.

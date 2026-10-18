@@ -7379,7 +7379,27 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1r-admission-20261018.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1r-admission-review-20261018.md",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1r-red-20261018.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1r-local-20261018.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1r-local-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1r-source-fable-review-20261018.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1r-owner-ruling-6248977966.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1r-review-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1r-merge-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-fb5d7c34-tests.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-fb5d7c34-r.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-fb5d7c34-g2.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-fb5d7c34-g2a.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-fb5d7c34-related.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-fb5d7c34-p2cg1g1.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-fb5d7c34-selector.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-fb5d7c34-p2cg1f.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-fb5d7c34-p2cg1e.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-fb5d7c34-p2cg1d.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-fb5d7c34-p2cg1c.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-fb5d7c34-p2cg1b.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-fb5d7c34-predecessors.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-fb5d7c34-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-fb5d7c34-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1r-mainproof-20261018.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -7394,10 +7414,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "implementing",
+      "state": "main-verified",
       "baseline": "c4d0eae46e8ae49851b15e3037e2fe139e99745b",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "e3f2535e3968d3ea8e465aa2c4f2ff64bc2fcd6a",
+      "mergeSha": "fb5d7c343a5419eeead75bbd91b78a26c52a5da5",
       "stageReceipts": {
         "admission": {
           "path": "evidence/p2cg1r-admission-20261018.json"
@@ -7408,9 +7428,27 @@
         "local": {
           "path": "evidence/p2cg1r-local-20261018.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/p2cg1r-review-20261018.json",
+          "head": "e3f2535e3968d3ea8e465aa2c4f2ff64bc2fcd6a",
+          "reviewedHead": "e3f2535e3968d3ea8e465aa2c4f2ff64bc2fcd6a",
+          "reviewerModel": "claude-fable-5-1",
+          "implementerModel": "claude-opus-5-5",
+          "outputSha256": "4064bc298555db9fb61ccff47fe65ba50dd3962e1ff6fc784b23b7335050110f",
+          "verdict": "APPROVE-WITH-NOTES"
+        },
+        "merge": {
+          "path": "evidence/p2cg1r-merge-20261018.json",
+          "pr": 2260,
+          "head": "e3f2535e3968d3ea8e465aa2c4f2ff64bc2fcd6a",
+          "mergeSha": "fb5d7c343a5419eeead75bbd91b78a26c52a5da5"
+        },
+        "mainProof": {
+          "path": "evidence/p2cg1r-mainproof-20261018.json",
+          "mergeCommit": "fb5d7c343a5419eeead75bbd91b78a26c52a5da5",
+          "verdict": "PASS",
+          "runtime": "Source/Main Jest: Tests:       863 passed, 863 total"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -7458,7 +7496,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -17678,6 +17716,44 @@
         "commentId": 6247720708,
         "author": "SwiggitySwerve",
         "bodySha256": "378fa2392a802bd46ebaff520565b286251117d1b7c4682edda9798f5dcdcaaf"
+      }
+    },
+    {
+      "id": "PK-p2cg1r-ruling",
+      "blocks": [
+        "P2CG1R"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "After independent exact-head review across its five sensitive classes and required green CI, should the owner rule the bounded P2CG1R head (the trusted, server-only, default-absent synchronous onNotCommitted control on ICampaignAppendControls; JournalCampaignEventStore including it in capability detection and firing it exactly once inside the synchronous append extension only after the guard admitted and the append returned non-committed or threw, never on success, a guard refusal or a recorded retry, with the original typed result or error preserved and a throwing hook never replacing it; CampaignMatchHost.commitEvents forwarding the identical function and including it in its capability check; the binder wiring it to the idempotent release while onCommitted, afterRelease and the reservation microtask fallback stay; no writer edit, activation or cross-file atomicity claim, the outer-COMMIT failure recorded as the bounded residual) before guarded merge?",
+      "options": [
+        {
+          "label": "rule the exact source head",
+          "consequence": "Permit guarded P2CG1R merge and exact-main proof only; P2CG1S may be released to planned only after that proof, with CF-E1 / H-OPEN-1 discharged, CF-E7 pinned, CF-H8/CF-G5 discharged for the host arm only and the review carry-forwards routed as ruled (CF-G2-3, CF-R-1 and CF-R-4 to H; CF-R-2, CF-R-5 and CF-R-6 to the next adapter owners; CF-R-3 to all test owners).",
+          "effort": "One independent exact-head full sensitive review across authority, privacy, replay, idempotency and concurrency, evidence check and owner ruling"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Hold merge until the concrete authority, privacy, replay, idempotency, concurrency or proof objections are fixed and fresh exact-head review, CI and owner ruling are complete.",
+          "effort": "Bounded by the concrete review objections"
+        }
+      ],
+      "agentRecommendation": "Rule only an independently approved green exact head that meets all of these: the four product leaves byte-identical to the baseline at RED and no test byte changed after it; the hook fires only after guard admission, exactly once per non-commit and never on success or a recorded retry; release happens inside the append span before any queued foreign M write can nest; conflict stays a stale-head answer and a throw stays commit-uncertain, neither a refusal; the reservation is consumed only on a known commit; hook-only controls on an unsupported store fail closed before any write; no writer, arbiter, durable-store or client control changed. This proposal grants no approval or merge permission.",
+      "revertCost": "Low: revert the four product and three test leaves; P2CG1R adds one optional server-only control and changes no wire format, Protocol type, writer or arbiter, so a revert restores the microtask-only release.",
+      "decision": {
+        "option": "rule the exact source head",
+        "at": "2026-10-18T10:54:09Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2260#issuecomment-6248977966"
+      },
+      "ruling": {
+        "ruledHead": "e3f2535e3968d3ea8e465aa2c4f2ff64bc2fcd6a",
+        "pr": 2260,
+        "commentId": 6248977966,
+        "author": "SwiggitySwerve",
+        "bodySha256": "1420353fc1429f31e0205163d98ea4a13fd02479314664ab437f152b92f43677"
       }
     },
     {
