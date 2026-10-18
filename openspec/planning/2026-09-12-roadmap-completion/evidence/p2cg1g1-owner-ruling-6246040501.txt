@@ -1,0 +1,24 @@
+OWNER-RULING a5b4a56a8d524cb52ca7122b087d009a6603ac92
+
+The owner authorized this ruling in chat (T3 thread 6db2c314-6cd3-40c5-8fbd-7c42bc27ed35, 2026-10-17, owner text: "continue with recommended options and fix the issues that come up, publish as needed"; Root posts OWNER-RULING comments for sensitive units under that instruction, disclosed to the owner).
+
+The ruling covers P2CG1G1:
+- Host fold retention: a single retained fold, continued only on the same live bound transport for the same campaign and match.
+- Re-projection at remount.
+- CF-G3: a cursor-record window skip, implemented in the consumer leaf registered by #2236.
+- CF-H1 fix, which Root required in-lane: a disposed binding with an unsettled offer marks the transport cut, and the next binding rejoins.
+- CF-H3: 'not behind' continuation.
+- CF-H4: unbound-reset pin.
+
+It is dormant: no shipped creator sets expectedCampaignId, and the wire bytes are unchanged. Review classes are authority, privacy, replay, idempotency and concurrency.
+
+Independent reviews (Claude Fable 5.1 high):
+- **Round 1 at 59c1fa72:** APPROVE-WITH-NOTES (docs/audits/2026-10-18-p2cg1g1-review.md, sha256 4ad652bd9b1d7ebb853e374644f87a53b54b6718e852c46217267226e6b124cc). It found the CF-H1 liveness regression; Root ruled it closed before merge.
+- **Round 2 at this exact head:** APPROVE (docs/audits/2026-10-18-p2cg1g1-review-r2.md, sha256 1be03fca615b1ef567d9eb79ddc0d22ed0a21f8828d0b14fd5ae7b144cc05e14).
+  - **Ledger:** exact at 13/15 files and 353/500 lines. RED is product-unchanged, with no test byte changed after RED. The C3 inversion is ruled acceptable RED evidence.
+  - **Cut design:** correct. The reviewer reproduced the implementer's counter-evidence against round 1's suggested shape and withdrew that claim.
+  - **Re-runs:** G1 105, F 96, Task 14 104, B-E 344, A1/A2 388 and sweep 764, all green.
+  - **Mutants:** 6 of 10 caught. The survivors are equivalent or tracked: CF-H5, CF-H6 and the new CF-H15.
+  - **Carry-forwards:** CF-H1, H3 and H4 are closed. CF-H2, H5-H10, H13 and the new H14-H17 carry to G2A and G2 and their named owners.
+
+G1-DOC-2 (behavior text) is recorded at closure. CI 32/32. The ruling approves merging this exact head.
