@@ -1,0 +1,134 @@
+﻿# P2CG1S review — PR #2264 (B10 spectator sealed-choice privacy)
+
+Date: 2026-10-18. Reviewer: independent review sub-agent (read-only; no push, comment, label, or merge).
+PR: SwiggitySwerve/MekStation #2264, branch \`codex/p2cg1s-impl-20261018\`.
+Head: \`ca62de7beaa7274bb3782e5a4681d1ed411dc016\` (GREEN). Base: \`70eab85ae2e16adfc05e4c2fcced4be5cae4f21e\` (main, P2CG1R closure #2262).
+Commits: \`1b8976e5\` admission (manifest + receipt, no source) -> \`1efcb036\` RED (tests only) -> \`ca62de7b\` GREEN (product only + local receipt).
+Review worktree: \`E:/Projects/Personal/MekStation-wt/review-2264-20261018\` (detached at head; \`git fetch origin pull/2264/head\`). Own \`npm ci\` (node_modules/.package-lock.json sha256 \`7f25c528...\`, equal to the author's recorded install). Root checkout \`E:/Projects/Personal/MekStation\` untouched (its node_modules differs from this lockfile and was not used).
+Proof directory (untracked, outside the repo): \`E:/Projects/Personal/MekStation-wt/review-2264-proof-20261018/\`.
+Node \`v22.22.0\` (nvm path prepended). \`node scripts/qc/machine-idle.mjs --own-pid 47516 --own-pid 55164\` -> \`MACHINE_IDLE\` before npm ci, before the GREEN/RED/six-suite runs, and before the mutant batch. Jest ran with a private \`--cacheDirectory\` and \`--runInBand\`. No process I did not start was killed; no timeout was raised.
+
+## Verdict
+
+**APPROVE.** The fix is the registered B10 contract, minimal (9+1+1 product lines), seat-first by current durable seats keyed on \`principalId\`, applied to both live and replay with fog on or off, and fail-closed in every direction I could find. RED reproduces (23 failed / 41 on byte-identical product), GREEN is 41/41, the six focused suites are 71/71, typecheck/oxlint/oxfmt are clean, CI is green on the exact head, and 8 of 8 of my own mutants are caught by the owned suites. No blocking findings. The GM-branded-spectator behaviour change (ruling S-PREP-P1) is correct and the L1 two-players-plus-GM mission is unaffected (verified in code, see F1). Carry-forwards are all pre-existing surfaces outside the five S leaves.
+
+## What changed (product)
+
+| File | Lines | Change |
+| --- | ---: | --- |
+| \`src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts\` | +9 | \`createMatchWireSealedChoiceAudienceContext(events, state, visibleThroughSequence, seats = [])\`; \`isActorOwnedByViewer\` returns \`false\` when \`isSpectatorPlayer(seats, viewer.principalId)\` **before** the \`role === 'gm'\` shortcut and the side-assignment lookup (MatchWireSealedChoices.ts:57, :73-77). \`isSealedChoiceRevealed\` unchanged. |
+| \`src/lib/multiplayer/server/ServerMatchHostEvents.ts\` | +1 | \`publishEvent\` passes \`meta?.seats ?? []\` (the per-publication meta read, not the fog-only \`fogMeta\` alias) (ServerMatchHostEvents.ts:297). |
+| \`src/lib/multiplayer/server/ServerMatchHostReplay.ts\` | +1 | \`sealedChoiceAudienceContext\` passes \`meta.seats ?? []\` (per-replay meta read) (ServerMatchHostReplay.ts:479). |
+
+Default-empty \`seats\` keeps the two existing callers unchanged: \`FogAwareMatchProjection.ts:223\` (HTTP fog-on history/export, which already excludes spectators itself at :236-242) and \`ViewerPublicationBoundary.test.ts:615\`.
+
+## Runs (this review)
+
+| Run | Command (abridged) | Result | Log sha256 |
+| --- | --- | --- | --- |
+| GREEN owned (head) | jest --runTestsByPath spectator.test.ts sealedChoiceDelivery.test.ts | 2 suites, **41 passed / 41** | green-owned.log \`26737442...\` |
+| RED owned (checkout 1efcb036, product byte-identical to base and to 1b8976e5: \`git diff --quiet\` exit 0) | same | **23 failed / 18 passed / 41**; 0 TypeError/ReferenceError/SyntaxError; every failure is a B10 behaviour assertion (list in red-owned.log) | red-owned.log \`42afab78...\` |
+| GREEN six focused (head) | + fogOfWarIntegration, gmNoPromotion, ViewerPublicationBoundary, matchHistoryFog | 6 suites, **71 passed / 71** | green-six.log \`4d241f75...\` |
+| typecheck | node node_modules/typescript7/bin/tsc --noEmit --skipLibCheck | exit 0 | typecheck.log (empty) |
+| lint/format | oxlint (3 product leaves) 0/0; oxfmt --check 5 leaves clean | exit 0 | — |
+| CI on head | gh pr checks 2264 | all listed checks pass; CF-H12/E10 name comparison posted by author | — |
+| Ledger | \`git diff 1efcb036 ca62de7b -- __tests__\` quiet; \`git diff 70eab85ae 1b8976e5 -- src\` empty | admission: no source; RED: tests only; GREEN: product only | — |
+| Caps | \`git diff --numstat --no-renames\` | 9 files changed (manifest 10 incl. one reserved unwritten slot) / 15; product 11 + units.json 16 = **27 / 500** counted; tests +416 (exempt) | — |
+| units.json | diff | only P2CG1S's own lifecycle fields (state, baseline, stageReceipts, ownershipExceptions for its own receipts) | — |
+
+Note: \`npm run verify:qc:roadmap\` fails at the head in \`maintain:scan:gate\` (\`type-safety high: 6 > 0\`) on six files none of which this PR touches (CompendiumAdapter, requestLaunchAuthority, CampaignReplicaSyncClient, FogAwareMatchProjection x2, replica-sync route). This is baseline debt, not S, and not a required CI check (CI green). Recorded as CF-S-7.
+
+## Mutants
+
+Author's 12 (M1-M12, receipt \`p2cg1s-local-20261018.json\`): reviewed, 12/12 reported caught with per-mutant first failing row; I did not re-run them (their runner is bound to the author's scratch worktree). Mine, below, are disjoint from M1-M12 and were run on the GREEN head in my worktree with \`mutants.cjs\` (sha256 \`b9710da5...\`; results \`mutants.json\` sha256 \`7dab92ff...\`). Each is one string edit, both owned suites, bytes restored after each (final \`git status --short -- src\` empty).
+
+| Id | File | Mutant | Result | Tests |
+| --- | --- | --- | --- | --- |
+| R1 | MatchWireSealedChoices.ts | spectator lookup keyed by \`viewer.participantId\` (slotId \`spectator-n\`) instead of \`principalId\` | **CAUGHT** | 23 failed / 41 |
+| R2 | MatchWireSealedChoices.ts | spectator seat returns \`viewer.role === 'gm'\` (gm-branded spectator keeps ownership) | **CAUGHT** | 14 failed / 41 |
+| R3 | MatchWireSealedChoices.ts | existence of ANY spectator seat strips ownership from every viewer (actor loses own declaration) | **CAUGHT** (the "human actor and seated gm keep it" rows) | 6 failed / 41 |
+| R4 | MatchWireSealedChoices.ts | a stale side assignment naming the spectator overrides the spectator seat | **CAUGHT** | 15 failed / 41 |
+| R5 | ServerMatchHostReplay.ts | replay passes seats with spectator seats filtered out (live unchanged) | **CAUGHT** | 22 failed / 41 |
+| R6 | ServerMatchHostEvents.ts | live: a spectator never receives a sealed declaration, even the revealed committed row | **CAUGHT** (reveal-delivered-once row) | 2 failed / 41 |
+| R7 | ServerMatchHostEvents.ts | live: a frame withheld from a spectator still consumes a delivery number | **CAUGHT** — the consumed number makes the later reveal republish (\`onlyUndelivered\`) skip the row, so \`revealed\` has length 0 | 2 failed / 41 |
+| R8 | MatchWireSealedChoices.ts | exclusion applied only when the spectator is named in some side assignment (stale-only fix; a never-assigned spectator leaks via the gm shortcut) | **CAUGHT** (the \`stale: false\` gm rows) | 8 failed / 41 |
+
+8 / 8 caught; 0 survived. R7 is worth noting: it is caught through the reveal rather than the contiguity assertion, which documents a real coupling (see F6).
+
+## Five-class analysis
+
+**Authority.** The decision still lives in one place, the audience context consumed by \`MATCH_WIRE_PUBLICATION_BOUNDARY\` (ViewerPublicationBoundary.ts:147-152: sealed = revealed OR actor-owned). Seats come from the durable store (\`getMatchMeta\`) on each publication / replay, never from the client or the viewer brand. The viewer brand itself is re-validated per publish by membership epoch (AuthorizedViewer.ts:228-239; the epoch hashes seat occupancy, MatchSeatMembershipSource.ts:67-88), so a reseat invalidates the cached viewer on the next frame. Seated (human-kind) viewers are unaffected: \`isSpectatorPlayer\` is false, the gm shortcut and the side lookup run exactly as before (verified by the "human actor and a seated gm keep it" rows, fog on and off, all three declaration types, and by R3). The actor keeps their own declaration. No new authority surface, no client-resolvable path.
+
+**Privacy.** Can any spectator path still receive an unrevealed sealed declaration or a payload-derived digest?
+- Live (\`publishEvent\`): no — seats passed; sealed types bypass the fog filter (:303-306) but reach the guard with the seat-aware context; omit consumes no delivery number.
+- Join replay / rejoin with cursors / isolation-cleared resume / rewind re-replay: all route through \`sendReplay(ctx, socket, fromSeq, playerId)\` (ServerMatchHost.ts:896, :992, :1474; bindMultiplayerSocketConnection.ts:287) -> \`sealedChoiceAudienceContext\` with seats; \`visibleThroughSequence = MAX_SAFE_INTEGER\` so only genuinely finalized declarations are revealed. Verified by the SessionJoin row, the reseat row and by R5.
+- Reveal republish (\`broadcastEventInMode\` -> \`committedDeclarations\` -> \`publishEvent(..., true, reveal.sequence)\`): the committed row goes through the same seat-aware context; the spectator gets it exactly once with a contiguous delivery number (sealedChoiceDelivery rows, both brands).
+- HTTP fog-on history/export: unchanged, already seat-first (\`!spectator && ...\`, FogAwareMatchProjection.ts:236-242); matchHistoryFog suite passes.
+- HTTP fog-off: the parent \`ViewerProjectionService.isVisibleToViewer\` (ViewerProjectionService.ts:94-104) returns \`true\` for \`sealed-to-actor-until-revealed\` — no hold at all — but reads only \`ROOT_EVENT_BRANCH_ID\` (:239), which the S1 mirror does not write, so it is latent (documented at FogAwareMatchProjection.ts header "fog-off has no sealed-choice hold on this path yet"). Outside S's leaves; CF-S-1.
+- Payload-derived digests: live/replay frames carry no \`expectedPostStateDigest\` (ViewerFrameProjector strips authority fields; the HTTP path sets it \`null\`). The B10 rows additionally assert the payload marker strings (\`"q":11,"r":-4\`, weapon id, limb) are absent from the raw \`socket.send\` strings, not just the event id.
+- Raw no-\`playerId\` \`sendReplay\` and the P2P reconnect callback stay unguarded (pre-existing, U26); the production binder always passes the verified identity.
+
+**Replay.** Live and replay agree for every row tested (same event ids, same committed payload on the reveal). The replay context reads \`meta.seats\` at replay time, so a from-zero replay after a reseat withholds what the viewer saw while seated (current seats govern; the reseat row asserts this). My scratch probe (scratch-reseat.log) confirms a reseated viewer's from-zero replay stamps are reused for frames it already held (\`evt-phase-2\`->0, \`evt-phase-4\`->2) and new numbers are assigned to the never-sent prefix (3,4) — the documented \`stampReplayDeliveries\` semantics, unchanged by S.
+
+**Idempotency.** Withheld frames consume no delivery number (the omit \`continue\`s before \`admit\`/\`assign\`), which is exactly what lets the reveal republish in \`onlyUndelivered\` mode deliver the committed row once and keep the viewer's sequence gapless. R7 shows the dependency is real: consuming a number at withhold time silently loses the reveal (recoverable only by rejoin). The outbox drain (\`broadcastUndeliveredEvent\`) uses the same path. Nothing in S changes numbering.
+
+**Concurrency.** \`publishEvent\` performs two store reads per frame (viewer resolution via the membership source; \`getMatchMeta\` for state/seats). A seat change landing between them would pair a viewer from one epoch with seats from the next for one frame. Both directions are safe for this rule: newer seats (now spectator) withhold; older seats (still playing) fall through to the side lookup, which is the pre-S behaviour for a seated player. In-process stores make the window negligible, and there is no product path that reseats a playing principal to spectator mid-match (\`addSpectatorSeat\` rejects a playing conflict, spectatorSeats.ts:118-126; the spectate route only appends). Per-player viewer cache is per-frame (\`viewerCache\`), so a reseat cannot persist a stale decision across frames (author's M10 covers caching seats; my R1 covers the stale \`participantId\` the cached viewer carries).
+
+## GM-branded spectator (ruling S-PREP-P1) and L1
+
+The change: a gm-branded viewer occupying a current spectator seat (the co-op campaign host seated via \`defaultSeatsWithSpectatorHost\`, matches/index.ts:178-190, with a campaign-session \`gm\` row, MatchSeatMembershipSource.ts:108-128) used to receive sealed declarations pre-reveal on live and replay (the \`role === 'gm'\` shortcut); it now receives them only once revealed. Assessment: correct. (a) The registered B10 contract says "even with a stale sideAssignments entry or a gm-branded viewer"; (b) fog D6 says a spectator seat owns no side; (c) HTTP already behaved this way, so the surfaces now agree; (d) a non-spectating gm keeps pre-reveal visibility (rows + R3). GM campaign arbitration (\`CampaignGmArbiter\`) consumes campaign proposals, not tactical sealed choices, so no GM function depends on pre-reveal tactical visibility.
+
+L1 (two deploying players + non-playing GM): verified in code. \`coopMissionCreate.ts:272-305\` builds mission meta with \`sideAssignments\` (both on \`player\`), \`coopMission\`, and **neither \`seats\` nor \`coopCampaign\`**. Therefore \`meta.seats ?? []\` is empty (\`isSpectatorPlayer\` false for everyone) and \`deriveMembershipRole\` returns \`player\` (no \`coopCampaign.campaignId\`), so nothing in S fires there. The e2e GM packs (\`gm-two-player-privacy.pack.spec.ts\`, \`gm-two-player-lifecycle.pack.spec.ts\`) assert the opponent's wire only and state that the tactical channel mints no gm viewer; \`gmNoPromotion\` asserts pause/no-HostMigrated only. Unaffected.
+
+## Findings
+
+| Id | Severity | Where | Finding |
+| --- | --- | --- | --- |
+| F1 | Info (accepted) | MatchWireSealedChoices.ts:73-77 | GM-branded spectator loses pre-reveal visibility on live/replay. Correct per contract and D6; matches HTTP; L1 unaffected (above). Behaviour change worth one line in the closure note. |
+| F2 | Low (pre-existing, outside S) | ViewerProjectionService.ts:94-104, :239 | Fog-off HTTP history/export has no sealed-choice hold; latent only because the root-branch read returns nothing for mirrored matches. CF-S-1. |
+| F3 | Low (pre-existing, outside S) | ServerMatchHostEvents.ts:259-264, :288-298 | \`getMatchMeta\` failure -> \`audienceContext\` undefined -> every sealed declaration omitted for everyone, including the actor (fail-closed; recoverable by replay). Not a leak; a liveness note. CF-S-2. |
+| F4 | Info (pre-existing design) | ServerMatchHostEvents.ts:303-306, ServerMatchHostReplay.ts:~447 | Sealed types bypass the fog classifier, so a revealed declaration of a fog-invisible unit reaches fog-on spectators/opponents in full. B14 territory, not B10. CF-S-3. |
+| F5 | Info | spectatorSeats.ts:118-126 | A principal holding both a human and a spectator seat is unreachable through the helpers; if ever produced by a raw \`updateMatchMeta\`, seat-first withholds their own declarations (fail-closed direction). No action. |
+| F6 | Info (pre-existing) | ServerMatchHostEvents.ts:330-384 | Reveal republish relies on "withheld = no number". A frame that was admitted/assigned and then refused by \`admitForSend\` backpressure is not re-offered by the reveal republish (its number exists), only by rejoin resume. R7 documents the coupling. CF-S-4. |
+| F7 | Info (baseline debt) | six non-S files | \`maintain:scan:gate\` fails on the head with 6 type-safety highs in files S does not touch; not a required check. CF-S-7. |
+| F8 | Info (doc drift) | e2e/gm-two-player-privacy.pack.spec.ts:117-121 | Header says the membership source never mints \`gm\`; stale since \`deriveMembershipRole\` (campaign gm row). Doc-only. CF-S-5. |
+| F9 | Info (test design) | ServerMatchHost.spectator.test.ts:386-399, :446-447 | Attack/physical rows use real payload shapes through the real \`broadcastEvent\` seam and store-appended rows through the real replay (ruling S-PREP-P2); movement uses real intents. The boundary decision is type-independent, so this is adequate; a real attack-phase intent drive for the spectator case remains a nice-to-have. CF-S-6. |
+
+No finding blocks merge.
+
+## Carry-forwards
+
+| Id | Owner | Item |
+| --- | --- | --- |
+| CF-S-1 | B14-0 / HP | Fog-off HTTP history/export sealed-choice hold (F2): either route fog-off matches through \`fogMatchHistoryProjection\`'s sealed branch or teach the parent service the sealed decision before fog-off is ever moved onto the effective head. |
+| CF-S-2 | B14-0A | \`publishEvent\` meta-read failure omits sealed declarations for the actor too (F3); decide whether the actor's own declaration should be retried/logged rather than silently withheld until replay. |
+| CF-S-3 | B14-0 | Revealed sealed declarations bypass fog for invisible units (F4); fold into B14's fog-scope decision together with the GameCreated roster leak. B14-0A/B14-0 must preserve both seat arguments and the seat-before-gm order when they touch ServerMatchHostEvents.ts / ServerMatchHostReplay.ts. |
+| CF-S-4 | B14-HEAD / U38 | Backpressure-refused owed frames are not re-offered by the reveal republish (F6); confirm the rejoin-resume path is the intended and only recovery, and add a row for it. |
+| CF-S-5 | H | Refresh the stale ROLE HONESTY header in \`gm-two-player-privacy.pack.spec.ts\` (F8) when H next edits the GM packs; consider one tactical-wire row for a gm-branded spectator now that the brand exists. |
+| CF-S-6 | P2CG2 / P2CH | A real attack-phase and physical-phase intent drive for the spectator sealed case (F9) when a unit next owns a combat-setup test leaf. |
+| CF-S-7 | Root (outside the listed owners) | \`maintain:scan:gate\` type-safety regressions on main (F7): six \`as unknown as\` highs; two in FogAwareMatchProjection.ts, which is an S read-only control, so whoever next edits that file (B14-0 / HP) should clear them. |
+| CF-S-8 | LSC* / I1-I4 | Reseat-to-spectator mid-match has no product path today (spectate route appends only); if local seat credentials or a later unit add one, the live row "reseated to spectator loses ownership between deliveries" and my R1/R4 are the regression anchors; the viewer cache invalidates by membership epoch, so no extra invalidation is needed. |
+| CF-S-9 | U26 (standing) | Raw no-\`playerId\` \`sendReplay\` and the P2P reconnect callback remain unguarded; unchanged by S; the production binder always passes identity. |
+
+## Ledger discipline
+
+- Admission \`1b8976e5\`: \`git diff --stat 70eab85ae 1b8976e5 -- src\` empty; manifest froze 5 leaves with sha256 (I confirmed the three product sha256s change only in GREEN and the two test sha256s only in RED).
+- RED \`1efcb036\`: only the two test leaves (+416/-9) plus units.json red path and the red receipt; product byte-identical to base and to the admission commit (\`git diff --quiet\` exit 0 both ways); 23/41 fail, all behaviour assertions, zero compile errors.
+- GREEN \`ca62de7b\`: only the three product leaves (+11) plus units.json local path and the local receipt; tests byte-identical to RED (\`git diff --quiet 1efcb036 ca62de7b -- __tests__\` exit 0).
+- Caps: 9 files / 15 (manifest lists 10 with one reserved, unwritten admission-review slot); 27 / 500 counted lines. units.json edits are P2CG1S's own lifecycle fields only.
+- Receipts: admission, red, local present and internally consistent with what I measured (RED 23/41, GREEN 41/41, six suites 71/71, typecheck 0, lint 0/0, 12/12 mutants).
+
+## Artefacts
+
+| Path | sha256 | bytes |
+| --- | --- | --- |
+| review-2264-proof-20261018/green-owned.log | 267374420931e0d108cd122461104d39b8f99d88a3578fb5f778f052601c33fc | 1648 |
+| review-2264-proof-20261018/red-owned.log | 42afab78fc14f3459b3a224e72ee6a87fc5a55043470c89375e8c7c87b5dc216 | 77628 |
+| review-2264-proof-20261018/green-six.log | 4d241f75bed7a8aafe9bc8582b7fe3cf9a2c6af308e5f282afce540822202b38 | 2952 |
+| review-2264-proof-20261018/mutants.cjs | b9710da541bdc9d776f70c1bc9837e6f339ea6e06c8f71b3d2ae49d9c59a8af2 | 5015 |
+| review-2264-proof-20261018/mutants.json | 7dab92ffc36d96b321e2d46d85f3489cd41e418dd52802b6d3eb1038003d4138 | 5679 |
+| review-2264-proof-20261018/typecheck.log | e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 | 0 |
+| review-2264-proof-20261018/npm-ci.log | 4fa5107f3b2ad1ea783b7c8ac432db4d5c9bae6d2bf2008af738ffb9e9273074 | 2450 |
+| review-2264-proof-20261018/scratch-reseat.log | 6e6ff37df1d0864d8af4fb20c91d26ea7b6de6b87981d1ee34454c1b05028e8c | 3392 |
+
+The scratch probe test (\`review2264.reseat.scratch.test.ts\`) was deleted after its run; \`git status --short\` in the review worktree is empty at \`ca62de7b\`. One stray run of my own (jest path regex not matching on Windows, which started the whole unit lane) was stopped by me within a minute; nothing else was touched.

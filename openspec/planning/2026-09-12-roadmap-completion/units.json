@@ -7487,7 +7487,29 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1s-admission-20261018.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1s-admission-review-20261018.md",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1s-red-20261018.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1s-local-20261018.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1s-local-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1s-source-fable-review-20261018.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1s-owner-ruling-6250027395.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1s-review-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1s-merge-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-1b855862-tests.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-1b855862-s.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-1b855862-six.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-1b855862-r.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-1b855862-g2.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-1b855862-g2a.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-1b855862-related.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-1b855862-p2cg1g1.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-1b855862-selector.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-1b855862-p2cg1f.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-1b855862-p2cg1e.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-1b855862-p2cg1d.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-1b855862-p2cg1c.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-1b855862-p2cg1b.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-1b855862-predecessors.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-1b855862-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-1b855862-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1s-mainproof-20261018.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -7500,10 +7522,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "implementing",
+      "state": "main-verified",
       "baseline": "70eab85ae2e16adfc05e4c2fcced4be5cae4f21e",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "ca62de7beaa7274bb3782e5a4681d1ed411dc016",
+      "mergeSha": "1b8558625e1e488e6ba62b916ec68bd2ed0d701f",
       "stageReceipts": {
         "admission": {
           "path": "evidence/p2cg1s-admission-20261018.json"
@@ -7514,9 +7536,27 @@
         "local": {
           "path": "evidence/p2cg1s-local-20261018.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/p2cg1s-review-20261018.json",
+          "head": "ca62de7beaa7274bb3782e5a4681d1ed411dc016",
+          "reviewedHead": "ca62de7beaa7274bb3782e5a4681d1ed411dc016",
+          "reviewerModel": "claude-fable-5-1",
+          "implementerModel": "claude-opus-5-5",
+          "outputSha256": "f8301ca79635955f5146f56df81f1c7fd7d9c0722018a24c15e62bfb78ae6a80",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/p2cg1s-merge-20261018.json",
+          "pr": 2264,
+          "head": "ca62de7beaa7274bb3782e5a4681d1ed411dc016",
+          "mergeSha": "1b8558625e1e488e6ba62b916ec68bd2ed0d701f"
+        },
+        "mainProof": {
+          "path": "evidence/p2cg1s-mainproof-20261018.json",
+          "mergeCommit": "1b8558625e1e488e6ba62b916ec68bd2ed0d701f",
+          "verdict": "PASS",
+          "runtime": "Source/Main Jest: Tests:       934 passed, 934 total"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -7565,7 +7605,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -17764,6 +17804,44 @@
         "commentId": 6248977966,
         "author": "SwiggitySwerve",
         "bodySha256": "1420353fc1429f31e0205163d98ea4a13fd02479314664ab437f152b92f43677"
+      }
+    },
+    {
+      "id": "PK-p2cg1s-ruling",
+      "blocks": [
+        "P2CG1S"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "After independent exact-head review across its sensitive classes and required green CI, should the owner rule the bounded P2CG1S head (createMatchWireSealedChoiceAudienceContext gains an optional, default-empty current-seat argument and isActorOwnedByViewer returns false for a principal occupying a current spectator seat, checked by isSpectatorPlayer on current meta.seats keyed on principalId before the gm shortcut and the side-assignment lookup, never by viewer.role; ServerMatchHostEvents.publishEvent and ServerMatchHostReplay pass the per-publication and per-replay meta.seats, fog on or off; isSealedChoiceRevealed is unchanged so authoritative reveals still reach spectators once with contiguous delivery numbers; a gm-branded spectator sees sealed declarations only once revealed (S-PREP-P1) while actors and seated gms keep theirs; no HTTP export rewrite, spectator role redesign, removal of unrelated GM authority or general replay hardening) before guarded merge?",
+      "options": [
+        {
+          "label": "rule the exact source head",
+          "consequence": "Permit guarded P2CG1S merge and exact-main proof only; B14-0A may be released to planned only after that proof, with the review carry-forwards routed as ruled (CF-S-1 to B14-0/HP; CF-S-2 to B14-0A; CF-S-3 to B14-0; CF-S-4 to B14-HEAD/U38; CF-S-5 to H; CF-S-6 to P2CG2/P2CH; CF-S-7 to the Root maintenance backlog; CF-S-8 to LSC*/I1-I4; CF-S-9 to U26) and the exact-main built-server socket smoke still owed before H or any build shipping spectating.",
+          "effort": "One independent exact-head full sensitive review across authority, privacy and replay (with idempotency and concurrency), evidence check and owner ruling"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Hold merge until the concrete authority, privacy, replay or proof objections are fixed and fresh exact-head review, CI and owner ruling are complete.",
+          "effort": "Bounded by the concrete review objections"
+        }
+      ],
+      "agentRecommendation": "Rule only an independently approved green exact head that meets all of these: the three product leaves byte-identical to the baseline at RED and no test byte changed after it; the spectator-seat exclusion keyed on principalId precedes the gm shortcut and the side-assignment lookup; live and replay both pass current seats, fog on or off; the current human actor and a seated gm keep their own unrevealed declarations; authoritative reveals reach spectators exactly once as the committed row with contiguous delivery numbers; withheld frames consume no delivery number; the eleven admission controls, including the HTTP fog projection, stay byte-identical. This proposal grants no approval or merge permission.",
+      "revertCost": "Low: revert the three product and two test leaves; P2CG1S adds one optional default-empty argument and changes no wire format, Protocol type, store or HTTP projection, so a revert restores the pre-S sealed audience (a stale side assignment or the gm shortcut again leaks unrevealed declarations to spectator seats).",
+      "decision": {
+        "option": "rule the exact source head",
+        "at": "2026-10-18T12:40:18Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2264#issuecomment-6250027395"
+      },
+      "ruling": {
+        "ruledHead": "ca62de7beaa7274bb3782e5a4681d1ed411dc016",
+        "pr": 2264,
+        "commentId": 6250027395,
+        "author": "SwiggitySwerve",
+        "bodySha256": "ca0fe3d32147eee17f5aa5980b047459c6c21a93392ecee428bd70f03c664c82"
       }
     },
     {
