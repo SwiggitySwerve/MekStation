@@ -7596,7 +7596,30 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0a-admission-20261018.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0a-red-20261018.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0a-local-20261018.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0a-review-20261018.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0a-review-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0a-source-fable-review-20261018.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0a-owner-ruling-6251586209.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0a-merge-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-2e61f050-tests.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-2e61f050-b14.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-2e61f050-regression.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-2e61f050-s.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-2e61f050-six.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-2e61f050-r.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-2e61f050-g2.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-2e61f050-g2a.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-2e61f050-related.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-2e61f050-p2cg1g1.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-2e61f050-selector.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-2e61f050-p2cg1f.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-2e61f050-p2cg1e.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-2e61f050-p2cg1d.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-2e61f050-p2cg1c.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-2e61f050-p2cg1b.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-2e61f050-predecessors.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-2e61f050-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-2e61f050-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0a-mainproof-20261018.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -7609,10 +7632,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "implementing",
+      "state": "main-verified",
       "baseline": "3971389b3ead0cf6a7d78bdefb58604477e67ec6",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "8509a3e3188d7e860d060080861fb269259ccfc3",
+      "mergeSha": "2e61f050a7ba7e7feee7b647e711d8a833a08a2d",
       "stageReceipts": {
         "admission": {
           "path": "evidence/b14-0a-admission-20261018.json"
@@ -7623,9 +7646,27 @@
         "local": {
           "path": "evidence/b14-0a-local-20261018.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/b14-0a-review-20261018.json",
+          "head": "8509a3e3188d7e860d060080861fb269259ccfc3",
+          "reviewedHead": "d66ef43662b9012495124a6bcd373ff95db34d47",
+          "reviewerModel": "claude-fable-5-1",
+          "implementerModel": "claude-opus-5-5",
+          "outputSha256": "8c11dbbc3ab014222fbcef89f947f3824ffad6c0d718a9c5e79a401208127fee",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/b14-0a-merge-20261018.json",
+          "pr": 2267,
+          "head": "8509a3e3188d7e860d060080861fb269259ccfc3",
+          "mergeSha": "2e61f050a7ba7e7feee7b647e711d8a833a08a2d"
+        },
+        "mainProof": {
+          "path": "evidence/b14-0a-mainproof-20261018.json",
+          "mergeCommit": "2e61f050a7ba7e7feee7b647e711d8a833a08a2d",
+          "verdict": "PASS",
+          "runtime": "Source/Main Jest: Tests:       1606 passed, 1606 total"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -7673,7 +7714,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -17970,6 +18011,44 @@
         "commentId": 6250027395,
         "author": "SwiggitySwerve",
         "bodySha256": "ca0fe3d32147eee17f5aa5980b047459c6c21a93392ecee428bd70f03c664c82"
+      }
+    },
+    {
+      "id": "PK-b14-0a-ruling",
+      "blocks": [
+        "B14-0A"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "After independent exact-head review across its sensitive classes and required green CI, should the owner rule the bounded B14-0A head (one shared capability predicate noPerViewerRevealProjection(config) in the new fogMatchAdmission.ts, unknown configuration or fogOfWar true refusing and a known configuration with the flag omitted fog-off; participant HTTP metadata refuses fog-on/unknown with HTTP 403 and the fixed fog-projection-unavailable reason after authentication and participant authorization, non-participants keeping the generic 404; export, private-preview and history pages refuse in FogAwareMatchProjectionService after the parent brand-then-scope check and the durable current-seat check, before any journal, audit, private-record or epoch read, with the existing HTTP 500 projection-failed mapping and the fixed reason; known-off and flag-omitted bytes unchanged; the commented jest.mock availability seam only in the four named legacy-filter suites under an allowlist guard; no WebSocket refusal flip, no spec edit, no /head or rewind change, no removal of S sealed-choice privacy pins) before guarded merge?",
+      "options": [
+        {
+          "label": "rule the exact source head",
+          "consequence": "Permit guarded B14-0A merge and exact-main proof only; B14-0B may be released to planned only after that proof, with the review carry-forwards routed as ruled (CF-S-2 to B14-0; CF-B14A-2 seam-guard exact-match tightening and CF-B14A-5 to B14-0; CF-B14A-6 to FOG-H; CF-B14A-7 to FOG for the timeline and B14-HEAD for /head; CF-B14A-8 to B15-PRIV/FOG; CF-B14A-9 to U26; CF-B14A-1 and CF-B14A-3 taken in PR; CF-B14A-4 recorded by the closure) and the exact-main built-server socket smoke still owed before H or any build shipping spectating.",
+          "effort": "One independent exact-head full sensitive review across privacy, authority and replay (with idempotency and concurrency), evidence check, Root diff of any review follow-up and owner ruling"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Hold merge until the concrete privacy, authority, replay or proof objections are fixed and fresh exact-head review, CI and owner ruling are complete.",
+          "effort": "Bounded by the concrete review objections"
+        }
+      ],
+      "agentRecommendation": "Rule only an independently approved green head, plus any review-recommended follow-up that Root has diffed, that meets all of these: the two existing product leaves byte-identical to the baseline at RED and the new helper referenced by no product file there (ruling B14-0A-R1); membership and authorization precede the fog policy on every surface and non-members see no fog detail; refusal happens before any journal, audit, private-record or epoch read and serves no raw fallback; unknown configuration refuses and known-off and flag-omitted bytes are unchanged; the seam exists only in the four allowlisted suites and the unmocked suites pin the real refusal; the sixteen admission controls (WebSocket host, live and replay modules, sealed-choice audience context, parent viewer projection, /head and rewind routes, server.js) stay byte-identical. This proposal grants no approval or merge permission.",
+      "revertCost": "Low to moderate: revert the three product leaves and seven test leaves; B14-0A adds one helper and two refusal branches and changes no wire format, Protocol type, store or WebSocket path, so a revert restores serving fog-on participant metadata and the fogMatchHistoryProjection HTTP export (the pre-B14 behaviour B14 exists to contain).",
+      "decision": {
+        "option": "rule the exact source head",
+        "at": "2026-10-18T15:18:45Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2267#issuecomment-6251586209"
+      },
+      "ruling": {
+        "ruledHead": "8509a3e3188d7e860d060080861fb269259ccfc3",
+        "pr": 2267,
+        "commentId": 6251586209,
+        "author": "SwiggitySwerve",
+        "bodySha256": "ab4d7587fcc9c74a218e6c2f3ebad9425ddf22dfeb8a895831a2c7d2abb8c326"
       }
     },
     {
