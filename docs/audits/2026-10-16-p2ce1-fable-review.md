@@ -1,0 +1,101 @@
+# Task 12 / P2CE1 confirmed send - independent exact-head review (Fable)
+
+- **Subject:** PR #2147 <https://github.com/SwiggitySwerve/MekStation/pull/2147>, "feat(P2CE1): add result-aware confirmed send to ServerMatchBroadcaster" (roadmap Task 12, unit `P2CE1`, first slice of the P2CE split registered by PR #2146).
+- **Head:** `ad30b4384a1ae05d185f217b600a1a0481770989` (branch `codex/p2ce1-confirmed-send-20261016`, one commit on the baseline). GitHub `headRefOid` matches.
+- **Base:** `cb4af3aafb81790c33455fc2304ebb5cf3c36a87` (`main`, merge of PR #2146). `git merge-base` of head and base is the base.
+- **Reviewer:** Claude Fable 5.1 (`claude-fable-5-1`), read-only review sub-agent, a different model from the author (Claude Opus 5.5). I wrote only this file. No OWNER-RULING, label, packet decision or evidence slot was touched; the worktree `E:/Projects/Personal/MekStation-wt/p2ce1-confirmed-send-20261016` was clean before and after (`git status --short` empty). Under `.omo/` I read only the named files: `task-12-p2ce1-20261016/{report.md, census.md, red.log, green.log, callers.log, callers-batch.log, mutation-probe.log, mutation-probe-final.log, checks.log, validation.log, typecheck.log, stable.log, stable.exit, pre-stable-hashes.txt, commit.log, p2ce-full-normalized.patch}` and `task-12-p2ce-20261016/p2ce-full-implementation-717.patch`.
+- **Contract:** plan Task 12 (plan line 1130: "Successfulsend is required; failed/closed/backpressure path cannot establishoffer ... no durable sentcache"); `units.json` unit `P2CE1` (behavior text, caps 15 files / 500 counted lines, review classes authority, privacy, replay, idempotency, concurrency); `roadmap.json` `R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CE1` (3 leaves, subtotal 4); registration review `docs/audits/2026-10-16-p2ce-split-registration-fable-review.md` (line 78: E1 writes `const { lifecycle } =` and E2 widens it; line 118: dormant primitives are permitted by the 2026-10-09 clarification).
+- **CI:** snapshot only, 31 of 31 hosted checks `pass` at head, GitHub reports `MERGEABLE`. This verdict judges the diff and my own re-runs.
+
+## Verdict: **APPROVE-WITH-NOTES**
+
+No blockers, no majors. The diff is exactly the three registered P2CE1 leaves plus P2CE1's own `units.json` lifecycle fields and three dated evidence receipts. `sendConfirmed` satisfies the Task 12 send clause as a primitive: a result of `sent` is produced only by the socket's own write callback, and the aborted, not-open, backpressured and unserializable paths refuse before any byte is written. It is dormant (no production caller), `broadcast` and `safeSend` are byte-unchanged, and the binder change is behaviour-neutral. Every author number I could recompute reproduces on the exact head under Node v22.22.0. The two LOW findings are composition constraints for P2CE2/P2CE3, not defects in this slice.
+
+## Recomputed census (`git diff --numstat --no-renames cb4af3aa ad30b438`, validator counting rule)
+
+Counting rule reproduced from `validate-roadmap.mjs` lines 106-112 and 705-726: every changed file counts toward `maxFiles`; added lines count unless the path matches `UNCOUNTED_FILES` (`__tests__/`, `*.test.*`, snapshots, generated) or starts with the ledger evidence prefix; no deletion credit.
+
+| #   | Path                                                                  | Kind                 |         +/- | Counted | Head SHA-256                                                       |
+| --- | --------------------------------------------------------------------- | -------------------- | ----------: | ------: | ------------------------------------------------------------------ |
+| 1   | `src/lib/multiplayer/server/ServerMatchBroadcaster.ts`                | product (leaf 1)     |      +80/-1 |      80 | `1def8e2160969c22b5e9dc94a06104d487adb4c6f6b9442ebf2345392856d45b` |
+| 2   | `src/lib/multiplayer/server/bindCampaignSyncConnection.ts`            | product (leaf 2)     |     +23/-12 |      23 | `93ff88f710db96ad1f08e41eb536ce3d2eb79f8c496961288cb8d3d456385392` |
+| 3   | `openspec/planning/2026-09-12-roadmap-completion/units.json`          | lifecycle            |      +16/-6 |      16 | `1f57730de97b89f9a5a9d6041a3618af2a5666eaf37e3b3bbbd089006be81289` |
+| 4   | `src/lib/multiplayer/server/__tests__/ServerMatchBroadcaster.test.ts` | test (leaf 3)        |     +229/-0 |       0 | `7883fdf0cdf4d62cfb975ac7b91806871328a36369b0ba80007a9c30ec53b617` |
+| 5   | `.../evidence/p2ce1-admission-20261016.json`                          | evidence             |         +85 |       0 | `64639c18f8c5a3dff8b64463433be771626ea8cc6feb9d84339e70891c4d1add` |
+| 6   | `.../evidence/p2ce1-red-20261016.json`                                | evidence             |         +25 |       0 | `86040fd86f2c91afd4b1970b0bf4d004d17dde037833530ec9116bce970ad6b7` |
+| 7   | `.../evidence/p2ce1-local-20261016.json`                              | evidence             |         +33 |       0 | `abdf6038496c464a11fa81bbda0e073eccf9eb135f3efe5cd4cdeadd1184bfb0` |
+| 8   | `.../evidence/p2ce1-admission-review-20261016.md`                     | reserved review slot | not in diff |       0 | (absent; listed in `ownershipExceptions`, not authored)            |
+
+**Totals:** 7 files changed + 1 reserved slot = **8 of 15**. Counted lines **119 of 500** (80 + 23 + 16). Test additions 229, evidence additions 143, both uncounted. This equals the author's census exactly. Every changed path is inside `ownershipPaths` (`src/lib/multiplayer/server`) or named in `ownershipExceptions`. The two product leaves and one test leaf are precisely the three `restrictions.P2CE1` paths. No other source, test, Protocol or lifecycle file is touched.
+
+**Hash chain:** the seven committed blobs at head equal the author's `pre-stable-hashes.txt` byte for byte, so `test:stable` ran on the committed bytes. The baseline hashes recorded in `census.md` and the admission receipt's `frozenFiles` equal `git show cb4af3aa:<path>` for the three leaves (`f7b5ff24...`, `d316df99...`, `b32c9fe3...`). The source patch `p2ce-full-implementation-717.patch` hashes `505899e1256b368f8bafbf9cd2380a90eb3ec95fa7b7f3c3c828b583e06e0afd` as stored (BOM+CRLF) and `c396b1f487dd29de3b8c381848eaea1ef8318f8feb2eb406cbefd811ebc9d67a` after stripping both, matching the admission receipt and the registration receipt.
+
+**`units.json` deep diff (base -> head), full list, all under `units[68]` = P2CE1:** `state` planned -> implementing; `baseline` null -> `cb4af3aa...`; `ownershipExceptions` 1 -> 5 entries (the three receipts in the diff plus the reserved review slot); `stageReceipts.admission/red/local` null -> `{path}`. No other unit, node, packet, holder, cap or historical receipt moved. `prHead`, `mergeSha`, `review`, `merge`, `mainProof`, `tick` remain null, correct for this stage.
+
+## Re-runs on the exact head (Node v22.22.0 from `C:\Users\wroll\AppData\Local\nvm\v22.22.0`, worktree)
+
+| Check                  | Command (abridged)                                                                                      | Result                                                                                                                                                                                        |
+| ---------------------- | ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- | ----------------------- | ----------------------------------- | ------------------------------------ |
+| P2CE1 test leaf        | jest `--runInBand --runTestsByPath src/lib/multiplayer/server/__tests__/ServerMatchBroadcaster.test.ts` | **20/20 passed, exit 0**                                                                                                                                                                      |
+| Registered QA selector | jest `--testPathPattern='ServerMatchBroadcaster                                                         | CampaignSyncSession                                                                                                                                                                           | bindCampaignSyncConnection | handleRoomCodeGuestJoin | coopMissionAnnouncement.reconnect'` | **7 suites, 138/138 passed, exit 0** |
+| Typecheck              | `tsc --noEmit --skipLibCheck`                                                                           | **exit 0**                                                                                                                                                                                    |
+| Lint (touched)         | `oxlint` on the 3 leaves                                                                                | 0 errors, 1 warning (pre-existing `max-lines` on the binder, 1265 -> 1276 lines)                                                                                                              |
+| Format (touched)       | `oxfmt --check` on the 3 leaves                                                                         | **pass**                                                                                                                                                                                      |
+| Roadmap validator      | `validate-roadmap.mjs`                                                                                  | **PASSED: 79 nodes, 13 packages, 381 tasks, 40 triage rows**                                                                                                                                  |
+| Validator `--next`     | `validate-roadmap.mjs --next`                                                                           | **U25** (P2CE1 is in flight, so it is no longer NEXT)                                                                                                                                         |
+| Validator tests        | `node --test validate-roadmap.test.mjs`                                                                 | **86/86 pass**                                                                                                                                                                                |
+| `test:stable`          | not re-run (per brief); author's `stable.log`                                                           | header shows Node v22.22.0, start 2026-10-15 21:45:04; `2795 passed, 2795 total` suites, `37078 passed, 50 skipped`, 947 s, `stable.exit` = 0; commit followed at 22:01 with identical hashes |
+
+Author claims verified from the named logs: RED on the original 18-test text 9 failed / 9 passed; RED supplement on the final 20-test text 11 failed / 9 passed, every failure `TypeError: broadcaster.sendConfirmed is not a function` (20 occurrences counted in `red.log`, product leaves restored to the baseline hashes and re-hashed). Callers: 22 suites / 100 tests, both per-suite (`callers.log`, 22 `SUITE-DONE exit=0`) and batch (`callers-batch.log`). Mutation probe: 12 mutants, first pass 9 killed (M9, M11, M12 survived), final pass 11 killed with M9 surviving; the two added tests are exactly the ones that kill M11 (listener released) and M12 (early callback), and they are the only divergence between the committed test hunk and the source patch's test hunk.
+
+## Findings
+
+### 1. [LOW, non-blocking] `sendConfirmed` accepts sequenced `Event` frames but never advances `deliveredSeq`
+
+`src/lib/multiplayer/server/ServerMatchBroadcaster.ts:232` types the frame as `IServerMessage | ICampaignApplicationAck`. `broadcast` (line 183) records `deliveredSeq` after a successful write of a `kind: 'Event'` frame carrying `event.sequence`; `sendConfirmed` records nothing. Today this is harmless: nothing calls it, and the P2CE offer kinds (`CampaignSnapshot`, `CampaignEvent`, `CampaignAck`) return null from `sequenceOf`, so `broadcast` would not record them either. The latent risk is a later slice routing a match `Event` frame through `sendConfirmed` and silently stalling the resynchronization cursor `deliveredCursor` reads (replay class). **For P2CE2/P2CE3:** either narrow the parameter to the campaign frame union or record the cursor on `sent`. Not a change this slice must make, and the author disclosed it.
+
+### 2. [LOW, non-blocking] A backpressure refusal marks `behind` even for a socket this broadcaster never registered
+
+`admitForSend` (lines 134-141) adds a saturated socket to `behind` unconditionally; only `unregister` (line 94) clears it. `broadcast` only reaches registered sockets, so the row is always cleared on detach. `sendConfirmed` takes any socket, so a caller that passes a socket attached to a different lifecycle's broadcaster would leave a permanent `behind` row and a heartbeat that never reaps it (concurrency/leak class). This slice already prevents it for the campaign path: the binder stores each entry's broadcaster beside its lifecycle (`bindCampaignSyncConnection.ts:193-232`) so receipt sends and `attach`/`detach` share one instance. **For P2CE2:** always send through the paired broadcaster, never a fresh `new ServerMatchBroadcaster()`.
+
+### 3. [INFO] Send-callback failure does not mark the socket `behind`: judged correct
+
+`behind` means "outbound buffer passed the cap", and the lifecycle's heartbeat (`ServerMatchSocketLifecycle.ts:130-135`) reaps a behind socket. A write-callback error from `ws` means the socket is closing or closed, which fires `close` and the binder's cleanup `lifecycle.detach(socket)` (`bindCampaignSyncConnection.ts:286`) already unregisters it. Marking `behind` would conflate two states and could race the detach. The result `{ kind: 'failed', reason: 'send' }` is enough for the caller to refuse the offer, which is what the Task 12 clause requires. No change.
+
+### 4. [INFO] Exactly-once settlement under the abort-then-late-callback race
+
+In "abort, then callback" (`ServerMatchBroadcaster.ts:249-266`) `settle` runs twice: once from `onAbort`, then from the callback because `returned` is true. The second `removeEventListener` and `resolve` are no-ops, so the promise settles exactly once as `cancelled`, and the test "ignores a late callback success after abort" pins it. The author's docblock claim "settles exactly once" is correct in observable behaviour; it rests on Promise idempotence rather than a `settled` flag. A flag would make the invariant local and testable without a promise, but it is not required. The early-callback path (`early` set before `returned = true`, line 266) and the throw-after-early-callback path (the `catch` settles `send` and returns before `early` is consulted) are both correct and both covered.
+
+### 5. [INFO] Open-state check uses the literal `1`
+
+Line 236 compares `readyState !== 1`. This matches the existing convention at `bindCampaignSyncConnection.ts:1615` and `bindMultiplayerSocketConnection.ts:440`; `ws.WebSocket.OPEN` is 1. Consistent; no change.
+
+### 6. [INFO] Binder change is behaviour-neutral; the "no direct test" gap is acceptable for this slice
+
+`campaignSocketLifecycle` constructs the same object graph as before (one `ServerMatchBroadcaster` per entry, passed to one `ServerMatchSocketLifecycle`); the only differences are that the broadcaster is held in a local and the `WeakMap` value is a `{ lifecycle, broadcaster }` pair instead of the bare lifecycle. The call site destructures `{ lifecycle }` (line 284), so nothing reads `broadcaster` yet. `IWireCampaignSocket extends ICallbackMatchSocket` is a pure type widening: `ws.WebSocket.send(data, cb?)` (`node_modules/@types/ws/index.d.ts:91`) satisfies both overloads, no other file names `IWireCampaignSocket`, and typecheck plus the three binder suites in the selector pass. There is nothing observable to test until P2CE2 sends through the pair; no binder test leaf is registered for P2CE1, and adding one would exceed the registered leaves. The registration review (line 78) anticipated exactly this `{ lifecycle }` glue line.
+
+### 7. [INFO] Divergence from the source patch is confined to the destructuring
+
+The committed `ServerMatchBroadcaster.ts` hunk is identical to the patch's hunk (verified by line diff after stripping headers). The committed test hunk equals the patch's test hunk plus the two mutation-killing tests. In the binder, the patch's `const { lifecycle, broadcaster } =` becomes `const { lifecycle } =`; every other binder hunk in the patch (receipt port, `CampaignApplicationConnection`, `application?.invalidate()`) is P2CE2/P2CE3 and absent here. P2CE2 composes by widening that one line and adding its own code; no P2CE1 symbol would need to change.
+
+### 8. [INFO] Mutation survivor M9 is equivalent
+
+"`admitForSend` applied twice": when admitted, `admitForSend` changes no state and returns true again; when refused, the first call short-circuits. Confirmed by reading lines 134-141. No test can distinguish it.
+
+### 9. [INFO] Review classes
+
+- **Authority:** no authority decision is made here; the primitive reports delivery and nothing else. The behind/backpressure rule is the one `broadcast` already applies, so no new path hands frames to a stalled viewer.
+- **Privacy:** `sendConfirmed` serializes whatever frame it is given and applies no fog; this is the same boundary `safeSend` has. No new field, log or trace is exposed; unlike `safeSend`, it writes no `MULTIPLAYER_SOCKET_TRACE` console lines (the test "uses the callback whether or not socket tracing is enabled" pins that the callback path does not depend on the trace flag).
+- **Replay:** see finding 1; the cursor semantics are unchanged for every existing caller.
+- **Idempotency:** the primitive is not idempotent and does not claim to be; idempotency of the ACK path belongs to P2CE3. No durable sent cache is introduced (the contract's explicit prohibition).
+- **Concurrency:** one settlement per call, listener released on settle, early and late callbacks handled; see findings 2 and 4.
+
+### 10. [INFO] Pre-existing lint warning
+
+`oxlint` reports `max-lines` on `bindCampaignSyncConnection.ts` (1276 lines, limit 400). It was 1265 at base and is not introduced by this slice.
+
+## What I did not do
+
+- Did not re-run `test:stable`; relied on the author's `stable.log`/`stable.exit` with the hash chain above.
+- Did not poll CI beyond one `gh pr checks` snapshot.
+- Did not write to the worktree, `units.json`, any evidence slot, or any `.omo` file.

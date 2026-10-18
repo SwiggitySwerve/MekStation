@@ -1,0 +1,137 @@
+# TS7S1B exact-head review (PR #2176)
+
+- Reviewer: claude-fable-5-1, independent exact-head reviewer (not the author; author claude-opus-5-5).
+- Reviewed head: 07e61c70404d9da5d0dad5582c06a17e6c77b401 (branch codex/ts7s1b-config-20261016); base/baseline origin/main 0929f614e3de20d89801eee90750937d6c925c13 (merge-base equals the baseline; one commit on the branch).
+- GitHub: PR #2176 OPEN, headRefOid 07e61c70 (matches), 8 changed files, +773/-18, MERGEABLE. No comment, approval, edit, commit or merge was made.
+- Author worktree E:/Projects/Personal/MekStation-wt/ts7s1b-config-20261016 was read only; git status --short was empty before and after this review.
+- My runs: two throwaway worktrees (review-ts7s1b-base at 0929f614, review-ts7s1b-head at 07e61c70) with node_modules and desktop/node_modules junctioned to the root checkout (package-lock.json and desktop/package-lock.json are byte-identical between the root checkout d68858607 and the head). Node v22.22.0; root tsc 5.8.3; desktop tsc 5.9.3; scratch compilers in %TEMP%/ts7s1b-review/{ts7,ts6} (Version 7.0.2 / Version 6.0.3, called by path). Both worktrees removed afterwards; junctions unlinked first. Not run: npm run test:stable (author ran once: 2796/2796, 37180 passed), npm run build, npm run storybook:build, next dev (see section 10).
+
+## Verdict: APPROVE-WITH-NOTES
+
+Blockers: none. Majors: none. Minors: M1-M4 (documentary). Notes: N1-N6. Carry-forwards for TS7S2A: section 9.
+
+## 1. Diff scope and census
+
+- git diff --numstat 0929f614..07e61c70: exactly 8 files: tsconfig.json (+2/-3), desktop/tsconfig.json (+2/-2), openspec/changes/migrate-to-typescript-7/tasks.md (+5/-5), openspec/active-change-ledger.json (+2/-2), openspec/planning/2026-09-12-roadmap-completion/units.json (+16/-6), and the three receipts evidence/ts7s1b-{admission,red,local}-20261016.json (+224/+348/+174). The 4 registered leaves, the unit's own units.json lifecycle, 3 receipts. The reserved review slot evidence/ts7s1b-admission-review-20261016.md is absent from the tree (correct). No node_modules path in git ls-tree -r of the head (0 hits).
+- Conditional leaves untouched: openspec/changes/migrate-to-typescript-7/design.md and desktop/tsconfig.test.json are not in the diff.
+- Not-to-change set unchanged: package.json, package-lock.json, desktop/package.json, desktop/package-lock.json, scripts/tsconfig.json, next-env.d.ts not in the diff.
+- units.json id-keyed deep diff (my script, base vs head): 206 units both sides, same order, every top-level key other than units deep-equal; exactly one unit changed, TS7S1B, fields: state planned -> implementing; baseline null -> 0929f614e3de20d89801eee90750937d6c925c13; stageReceipts.admission/red/local null -> {path: evidence/ts7s1b-\*.json}; ownershipExceptions +4 (the three receipts and the reserved review slot), none removed. The ownershipExceptions widening follows the TS7S1A precedent ("every actual lifecycle/evidence file counts"). prHead/mergeSha/review/merge/mainProof/tick untouched (null). No other unit, packet, holder or registration block changed.
+- Census recomputed: 8 files in the diff + the reserved review slot = 9 of 15; counted added lines with the evidence directory skipped = 27 of 500 (tsconfig 2, desktop/tsconfig 2, tasks.md 5, ledger 2, units.json 16). Matches the author (27/500; 9/15). The split registration's capCheck ("4 leaves + units.json + 3 receipts + review slot = 9 of 15; 11 with both conditionals") and knownLeafSubtotal 5 are consistent.
+
+## 2. The edits are exactly D2; effect of target es2017 on emitted JS
+
+Root tsconfig.json: target es5 -> es2017; baseUrl "./src" deleted; paths {"@/_": ["./_"]} -> {"@/_": ["./src/_"]}. Nothing else in the file changed. desktop/tsconfig.json: module commonjs -> nodenext, moduleResolution node -> nodenext; nothing else. Both match design.md D2 verbatim.
+
+Does target es2017 change emitted JS? Re-derived from the installed toolchain in the root checkout (next 16.2.11, vite 6.4.3, esbuild 0.25.12, @swc/jest 0.2.39):
+
+- Next (npm run build = next build --webpack; next dev = Turbopack): next/dist/build/swc/options.js sets jsc.target only when no env.targets exist (then 'es5', "Matches default @babel/preset-env behavior") and otherwise uses env.targets = supportedBrowsers; it reads from jsConfig.compilerOptions only paths, experimentalDecorators, emitDecoratorMetadata, useDefineForClassFields (as an explicit Boolean, not derived from target) and jsxImportSource. A scan of next/dist/build for compilerOptions.target found no reader. So tsconfig target cannot change the SWC output; it affects only the TypeScript type-check pass (typescript.ignoreBuildErrors is set in PR CI only). I did not rebuild; the author's artifacts next-build-normalized-compare.json (376 .js compared, 0 differ after BUILD_ID/BUILD_TIME normalisation; raw .js diff only required-server-files.js and server/middleware-build-manifest.js; 35 .nft.json order-only differences; 0 one-sided of 639) and next-build-nft-compare.json hash-match the local receipt (sha256 6d9e9423... and e7611b6d...).
+- Storybook (react-vite): vite feeds esbuild the tsconfig fields alwaysStrict, experimentalDecorators, importsNotUsedAsValues, jsx\*, preserveValueImports, target, useDefineForClassFields, verbatimModuleSyntax as tsconfigRaw; esbuild uses target there only to default useDefineForClassFields (true from ES2022). Independent re-derivation: esbuild.transform of all 7,820 .ts/.tsx files under src, .storybook and scripts with tsconfigRaw {jsx: react-jsx, target: es5} vs {jsx: react-jsx, target: es2017} (the exact meaningful-field sets of base and head): 0 files differ, 0 transform errors. Sensitivity: head vs head with target es2022 flips 223 class-bearing files, so the comparison can see the class-field effect. The author's before/after Storybook manifests (4,599 files) are the same file by hash (3de22f7e... both) and storybook-compare.json (0 one-sided, 0 differing) hash-matches the receipt.
+- Root Jest: @swc/jest with explicit jsc.target es2022 and moduleNameMapper; does not read tsconfig.
+- tsx: esbuild with the same tsconfigRaw rule; output below is identical.
+- ts-node (only the terminology:\* npm scripts): the one in-tree consumer whose transpile follows tsconfig target (npx ts-node --showConfig: base target es5 / head es2017, module esnext, moduleResolution bundler). npm run terminology:validate exit 0 on both trees with identical output (22 lines, worktree path aside). TS7S2A replaces ts-node (N4).
+
+Conclusion: emitted runtime JavaScript of the product is unchanged; the es2017 target changes only what the type-checker downlevel-diagnoses (and ts-node's transient transpile).
+
+## 3. @/ resolution without baseUrl (head)
+
+- npm run typecheck (tsc 5.8.3): exit 0; cold (tsconfig.tsbuildinfo deleted) 35.3 s, warm 7.3 s.
+- Jest: npx jest src/utils/construction/**tests**/battleValueCalculations.test.ts --selectProjects unit: 1 suite, 22/22 passed. (Note for anyone reproducing: --selectProjects is variadic; a path after it is swallowed and the whole unit project runs.)
+- npx tsx scripts/debug-sirocco.ts: exit 0 on base and head, 8 stdout lines, identical base vs head (sha256 of LF-joined stdout 4cee95e4... both sides) and identical to the 8 resolveEquipmentBV lines of the author's before-tsx-debug-sirocco.log.
+- Other consumers of baseUrl/paths, checked in source and where cheap at runtime:
+  - Next webpack: JsConfigPathsPlugin joins resolvedBaseUrl.baseUrl with each paths target; with no baseUrl Next sets an implicit baseUrl = dirname(tsconfig) (load-jsconfig.js), so "./src/\*" resolves to the same directory as before. One real resolver change: webpack-config.js pushes the baseUrl onto resolve.modules only when it is explicit ("Only add the baseUrl if it's explicitly set"), so bare imports rooted at a src subdirectory (e.g. 'utils/logger') would no longer resolve in webpack. My scan of 8,291 ts/tsx/js files under src, e2e, scripts, .storybook, server.js, next.config.ts, playwright.config.ts, desktop/electron, desktop/services and openspec/scripts found 0 such imports (and tsc under the old baseUrl was the only thing that ever accepted them), so no effect (M2). next.config.ts additionally aliases @/services, @/utils, @/components, @/data, @/types explicitly.
+  - Next tsconfig rewrite: writeConfigurationDefaults.js treats target as "suggested" (written only when the key is absent) and has no baseUrl entry, so Next cannot reintroduce baseUrl or an es5 target; the author's next-dev-hashes-before/after.txt (tsconfig.json 6c41dc2a... both; next-env.d.ts switched by dev mode and restored) hash-match the receipt.
+  - Storybook: vite alias '@' -> src in .storybook/main.ts; independent of tsconfig.
+  - Root Jest: moduleNameMapper '^@/(.\*)$' -> <rootDir>/src/$1; independent.
+  - Playwright 1.57: its tsconfig loader uses absoluteBaseUrl ?? paths.pathsBasePath (= dirname of the tsconfig), so paths without baseUrl work; npx playwright test --list on two @/-importing specs (campaign-two-device-drive, gm-two-player-authority.pack1) loads at head: 1 and 3 tests listed. (A full --list fails identically on base and head on an unrelated route-proof precondition in app-shell-route-proof.spec.ts, not a resolution error.)
+  - oxlint: .oxlintrc.json has no tsconfig/import-resolver settings; lint output is line-identical (section 7).
+  - scripts/tsconfig.json still has baseUrl "../src" and paths {"@/_": ["./_"]}: no runner references it (git grep: none outside docs/openspec; tsx reads the root tsconfig from cwd, proven by the author's no-paths sensitivity run). TS 7.0.2 would reject it (TS5102). OD-scripts-tsconfig, TS7S2OD; correctly untouched here (M3).
+  - One src/-rooted specifier exists: jest.mock('src/lib/p2p/matchLogStorage', ...) in src/lib/multiplayer/server/**tests**/reconnectPersistence.integration.test-helpers.ts. It never resolved through tsconfig (baseUrl ./src would have made it src/src/...), Jest does not consult tsconfig, and the effective mock is the jest.mock('@/lib/p2p/matchLogStorage') immediately below. Pre-existing, outside scope (N1).
+
+## 4. Desktop emit equality (desktop's own tsc 5.9.3, identical procedure in both trees)
+
+- Procedure per tree: delete desktop/dist; node desktop/node_modules/typescript/bin/tsc --version (Version 5.9.3 both); node .../tsc -p tsconfig.json from desktop/ (outDir ./dist, rootDir ./). Config sha256: base 4d27b681..., head fb796ee7... (equal to the receipts' before/after hashes).
+- Output: 84 files each, 0 one-sided; 21 .js, 42 .map (.js.map + .d.ts.map), 21 .d.ts; 0 differing in every class; whole-manifest sha256 a98b6494... on both sides. Every .js is byte-identical; there are no .map or .d.ts differences to list.
+- Sensitivity through the same script: head rebuilt with --module esnext --moduleResolution bundler flags 21/21 .js.
+- Against the author's manifests (desktop-emit-before/after.json, both hash-matching the receipts): all 42 .js and .d.ts per-file hashes match mine exactly; all 42 .map hashes differ from mine only because the author built into out-of-tree sibling directories, so each map's sources path embeds the checkout name (../../../ts7s1b-config-20261016/desktop/electron/MenuManager.ts vs my in-tree ../../electron/MenuManager.ts); the mappings field is identical in the file I opened (M1). The author's own before/after are equal to each other, which is what task 1.4 asks.
+- Why the emit is identical under nodenext: desktop/package.json has no "type": "module", so every file is CommonJS under nodenext and the output matches module commonjs (N5).
+- desktop npm run type-check: exit 0 on base and head (0.8 s). npm run electron:test (desktop jest): base 5 suites / 57 tests, 0 TS151002; head 5 suites / 57 tests, 13 TS151002 messages. ts-jest 29.4.6 source (legacy/compiler/ts-compiler.js): fixupCompilerOptionsForModuleKind forces module CommonJS and moduleResolution Node10 for every non-ESM run regardless of the tsconfig module, and the TS151002 message is raised purely because the initial module kind is Node16/NodeNext. Informational; acceptable until task 2.3 replaces ts-jest (M4). I did not reproduce the author's transform-cache byte comparison.
+
+## 5. TypeScript 7.0.2 and 6.0.3 on head and on the unmodified base
+
+Command: node <prefix>/node_modules/typescript/bin/tsc -p <config> --noEmit --skipLibCheck, run in each worktree.
+
+| compiler | tree | tsconfig.json                                                                            | desktop/tsconfig.json                                  | desktop/tsconfig.test.json                           |
+| -------- | ---- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------ | ---------------------------------------------------- |
+| 7.0.2    | base | exit 1, 2 errors: TS5108 target=ES5 removed (3,15); TS5102 baseUrl removed (17,5); 2.0 s | exit 1: TS5108 moduleResolution=node10 removed (12,25) | exit 1: TS5108 moduleResolution=node10 removed (3,3) |
+| 7.0.2    | head | exit 0, 0 errors, 5.1 s                                                                  | exit 0, 0 errors, 0.1 s                                | exit 0, 0 errors, 0.1 s                              |
+| 6.0.3    | base | exit 2, 2 errors: TS5107 target=ES5 deprecated; TS5101 baseUrl deprecated; 39.7 s        | exit 2: TS5107 moduleResolution=node10 deprecated      | exit 2: TS5107 (same)                                |
+| 6.0.3    | head | exit 0, 0 errors, 61.0 s                                                                 | exit 0, 0 errors, 0.9 s                                | exit 0, 0 errors, 1.0 s                              |
+
+Before the edit both compilers reject only the config options named in D2 (TS6 compiled the whole root program in 39.7 s and reported no source error, confirming TS7S1A's fixes are in the baseline); after the edit 0/0/0 on both. This reproduces the red and local receipts exactly (same codes and positions). module commonjs is still accepted by 7.0.2; only moduleResolution node10 is removed, so the desktop module edit is a D2 choice, not a TS7 requirement (the emit is proven unchanged either way).
+
+## 6. Ledger flip and tasks.md ticks
+
+- openspec/active-change-ledger.json: the diff is 2 lines inside the migrate-to-typescript-7 entry: status proposed -> in-progress; reason's final "Not started." replaced by "Started 2026-10-16: tasks 1.1-1.2 merged with TS7S1A (PR #2174); TS7S1B carries 0.1-0.2 and the 1.3-1.5 config edits; sections 2-5 not started." lastReviewed stays "2026-10-16" (already today's date, so "with lastReviewed" is satisfied without a textual change). No other entry changed. The split registration explicitly allowed refreshing the reason text; the wording is accurate (1.1-1.2 merged in #2174 c60ad495; 0.1-0.2 and 1.3-1.5 are this PR; sections 2-5 untouched). npm run qc:openspec-ci:validate: errors=0 (activeOpenSpecChanges=10 accounted=10); npx openspec validate --all --strict: 230 passed, 0 failed.
+- tasks.md: the diff is exactly 5 lines, [ ] -> [x] for 0.1, 0.2, 1.3, 1.4, 1.5; no outcome lines added and none required: 0.1 records numbers (admission receipt, per the unit's "never in the repository"); 0.2 replaces design.md Context only if the list changed (it did not: 11/9/0-0 pre-fix, measured twice at 4bf26f7b); 1.3 and 1.4 require proofs and PR listing (PR body has them, and "no .map or .d.ts differences to list" is stated); 1.5 requires versions and times in the PR body (present: 7.0.2 5.0 s / 6.0.3 39.7 s etc.). This is the TS7S1B-OPEN-2 reading (no text change implied).
+
+## 7. Gates re-run on head
+
+| gate                                  | result                                                                                                |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| npm run typecheck (tsc 5.8.3)         | exit 0; cold 35.3 s, warm 7.3 s                                                                       |
+| npm run lint (oxlint)                 | Found 86 warnings and 0 errors; 976 output lines identical to the base run apart from the timing line |
+| npm run lint:units                    | LINT_UNITS_PASS 17899/17899 (scripts 50/50, src/pages/api 16/16, src-tests 17783/17783)               |
+| npm run format:check (oxfmt)          | All matched files use the correct format (8,191 files)                                                |
+| npx openspec validate --all --strict  | 230 passed, 0 failed                                                                                  |
+| npm run qc:openspec-ci:validate       | errors=0                                                                                              |
+| desktop npm run type-check / npm test | exit 0 (5.9.3) / 5 suites, 57 tests                                                                   |
+| validate-roadmap.mjs                  | ROADMAP VALIDATION PASSED: 80 nodes, 13 packages, 381 tasks, 40 triage rows                           |
+| validate-roadmap.mjs --next           | U24b at head; TS7S1B at base (expected flip: TS7S1B is implementing, N2)                              |
+| node --test validate-roadmap.test.mjs | 86 pass, 0 fail                                                                                       |
+
+git status --short was empty in both throwaway worktrees after every run (tsconfig.tsbuildinfo is gitignored).
+
+## 8. The author's six concerns
+
+1. design.md left alone (TS7S1B-OPEN-1 / OPEN-4): correct. The registered trigger (pre-fix list differs from the 11 in Context) was not met; C1's sentence is explicitly optional and conditional on owner direction, which was not given; the C5 "TS 5.8 today is root-only" wording is M4 of the TS7S1A review, "not this unit's concern". Neither must be added now. Both stay optional and should be folded into the first later unit that opens design.md for another reason (the OD decisions or the D3 package-layout unit), so no extra leaf is spent here. The admission receipt states the reading the parent asked for (the existing conditional leaf would cover it, 11 files, inside the bound).
+2. OPEN-2 tick handling (1.5 ticked without an outcome line; measurements in receipts and PR body): correct; the task text asks for the PR body, and TS7S1B-OPEN-2 says no text change is implied.
+3. Ledger wording: accurate and validator-clean (section 6). No change requested.
+4. ts-jest TS151002 (13 informational messages): acceptable until task 2.3; the compile is forced to CommonJS/Node10 anyway (section 4). Suppressing via diagnostics.ignoreCodes would need desktop/jest.config.js, which is not a leaf; do not add it here.
+5. Physical node_modules copy in the author's worktree: an environment detail only; the PR tree contains no node_modules path, and the lockfiles are unchanged (not-to-change hashes). Nothing to do.
+6. Cold typecheck variance (77.1 s first run after checkout vs 36.5 s): OS file-cache effect, as the receipt says; my cold run on head was 35.3 s and warm 7.3 s, consistent with the author's warm-cache figures (36.4/36.6 cold, 7.6/7.7 warm). The 0.1 baseline record is adequate.
+
+## 9. Carry-forwards for TS7S2A (ts-node -> tsx and related), exact wording
+
+- C1. "ts-node is the only in-tree consumer whose transpile follows the root tsconfig target (npx ts-node --showConfig now reports target es2017, module esnext, moduleResolution bundler, paths without baseUrl). Before replacing npx ts-node in the four terminology:\* scripts with tsx, run npm run terminology:validate once with ts-node and once with tsx and diff stdout; record both exit codes and the diff in the local receipt."
+- C2. "scripts/tsconfig.json still carries baseUrl ../src and paths {"@/_": ["./_"]}; TypeScript 7.0.2 rejects it with TS5102. No in-tree runner references it (tsx resolves the root tsconfig from cwd). Leave it to TS7S2OD (OD-scripts-tsconfig); if kept, the D2 form is paths {"@/_": ["../src/_"]} with baseUrl deleted. Do not let TS7S2A touch it."
+- C3. "The 13 ts-jest TS151002 messages in desktop npm test are informational (ts-jest forces CommonJS + Node10 for non-ESM runs). They disappear with task 2.3 (ts-jest -> @swc/jest). Until that unit lands, do not add diagnostics.ignoreCodes to desktop/jest.config.js; after it lands, assert in the 2.3 receipt that the message count is 0."
+- C4. "An emit-equality receipt that builds into out-of-tree sibling directories must say that each .map's sources entry embeds the checkout directory name relative to the outDir, so per-file .map hashes are reproducible only from the same path. When base and head are different checkouts, build into each tree's own dist (sources become ../../...) so a reviewer can match .map hashes too."
+- C5. "The Next build emit is produced by SWC with env.targets from browserslist and reads no tsconfig target (next/dist/build/swc/options.js); the C6 whole-project emit manifest when root typescript becomes the TS 6 alias is still worth producing once for tsc itself, but a Next output comparison is not needed for a compiler-version change."
+- C6. "Desktop nodenext emit identity rests on desktop/package.json having no "type": "module"; any unit that adds it must redo the 1.4 byte-for-byte proof, because nodenext would then emit ESM."
+- C7. "If a unit edits src/lib/multiplayer/server/**tests**/reconnectPersistence.integration.test-helpers.ts for another reason, drop the dead jest.mock('src/lib/p2p/matchLogStorage', ...) that precedes the effective jest.mock('@/lib/p2p/matchLogStorage', ...). Not required."
+
+## 10. What I could not verify (and what I relied on instead)
+
+- npm run build, npm run storybook:build and the next dev run were not repeated (instruction: no full build unless needed). Relied on: the author's comparison artifacts and hash files matching the receipts' sha256 (next-build-normalized-compare.json, next-build-nft-compare.json, storybook-compare.json, before/after-storybook-manifest.json, next-dev-hashes-before/after.txt, after-electron-test.log, pre-/post- ts7 root logs all equal their recorded hashes); Next/Vite/esbuild source showing tsconfig target does not reach SWC and only affects esbuild's class-field default; and my own 7,820-file esbuild equality with a 223-file sensitivity.
+- npm run test:stable was not run (instruction). The author's single run (2796/2796 suites, 37180 passed, 50 skipped) is in the PR body, not in a receipt (the local receipt says it is recorded in the attempt directory and the PR). Not re-checked.
+- The ts-jest transform-cache byte comparison (13 entries) was not reproduced; the ts-jest source reading in section 4 is my basis.
+- Turbopack (next dev) resolution of @/ with an implicit baseUrl was not exercised by me; the author's GET /units 200 and Next's documented implicit-baseUrl handling (load-jsconfig.js) are the basis.
+- The 0.1 CI Type Check duration (51 s, run 38972913148) and the .omo log sha256s other than the ones listed above were not re-fetched.
+- Playwright: only --list (module loading) of two @/-importing specs; no e2e run.
+
+## 11. Findings
+
+- Blockers: none.
+- Majors: none.
+- M1 (documentary): the author's desktop .map per-file hashes are path-bound (sibling-directory build embeds the checkout name in sources); their before/after equality is valid, but a reviewer from another path can match only the 42 .js/.d.ts hashes, which I did. See C4.
+- M2 (documentary): removing baseUrl also removes <root>/src from Next's webpack resolve.modules (explicit-baseUrl-only behaviour). 0 bare src-subdirectory imports exist, so no effect; design.md D2 does not mention this resolver side effect. No edit requested now.
+- M3 (documentary): scripts/tsconfig.json retains baseUrl; TS7 would reject it; OD-gated for TS7S2OD; correctly not a leaf here. See C2.
+- M4 (toolchain): 13 informational TS151002 messages in desktop jest; harmless; removed by task 2.3. See C3.
+- N1: dead jest.mock('src/lib/p2p/matchLogStorage') in a test helper; pre-existing; see C7.
+- N2: --next flips TS7S1B -> U24b at head; expected validator behaviour, not a successor claim.
+- N3: ledger lastReviewed unchanged because it already equals 2026-10-16.
+- N4: ts-node is the only consumer whose transpile target changed; terminology:validate output identical; TS7S2A retires it.
+- N5: desktop nodenext = CommonJS emit because desktop/package.json has no "type": "module".
+- N6: the tsx stdout sha256 in the receipts (8cbce3ca...) and mine (4cee95e4...) differ only by capture (line endings); the 8 content lines are identical to the author's log.
+
+Routine review class is justified on this head: config, ledger, tasks.md and lifecycle only; desktop .js emit byte-identical under the repo's own desktop compiler (re-derived here); product bundles are SWC/esbuild outputs that do not read the changed options (re-derived for esbuild, source-cited for Next); every gate green.

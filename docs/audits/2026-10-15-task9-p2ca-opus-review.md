@@ -1,0 +1,168 @@
+# Task 9 / P2CA independent exact-head review (Opus)
+
+- Subject: PR #2135 https://github.com/SwiggitySwerve/MekStation/pull/2135
+- Reviewed head: e921a69f3cfa92f97a4aa03395fd145f0b567df6 (branch codex/p2ca-applied-view-20261016)
+- Base: ba8007f2dfea7786a3823145eb999e308c97f3fa (equals live `origin/main` per `git ls-remote` at review time)
+- Worktree: E:/Projects/Personal/MekStation-wt/p2ca-applied-view-20261016 (clean, HEAD = reviewed head)
+- Reviewer: Claude Opus 5.5 (claude-opus-5-5), read-only review sub-agent. This file is the only write.
+- Date: 2026-10-15
+
+## Verdict
+
+**APPROVE-WITH-NOTES.** No blockers, no majors. Seven minor/informational notes below; none requires a new head before the owner decides.
+
+This review covers the exact head above only. Any new commit invalidates it. It is not an owner ruling and does not advance P2CA lifecycle state.
+
+## Method
+
+- Read the Task 9 contract (`.omo/plans/mekstation-whole-roadmap-reconciliation-20261002.md:1091-1102`), the design (`task9-storage-preparation-20261009.md`), and the plan's line-cap rule (`OD-line-cap-product-lines`, e.g. plan line 1765).
+- Reviewed the actual diff `git diff ba8007f2...e921a69f` (12 files, +1065/-8), the full new owner/migration/test sources, and the unchanged runner `src/services/persistence/SQLiteService.ts:131-232`.
+- Re-ran the focused four-suite command at the reviewed head: **4 suites / 41 tests passed, 13.05 s** (`git status` clean before and after).
+- Verified hosted CI: `gh pr checks 2135` gives 31/31 SUCCESS; run 38801515633 headSha = e921a69f, conclusion success.
+- Checked the round-2/round-3 logs directly and compared the receipt's SHA256 values against the files.
+
+## Q1 - Contract and design satisfaction
+
+| Contract item                                                                                                                                                                               | Evidence at head                                                                                                                                                                   | Status       |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| One `campaign_public_applied_view` table keyed campaign/session/participant with branch, effective generation, acknowledged journal cut, viewer-authority fingerprint, receiptId, appliedAt | `SQLiteService.publicAppliedViews.migration.ts:6-19`; PK at :18                                                                                                                    | Met          |
+| Owner is `campaignPublicAppliedView.ts`                                                                                                                                                     | `campaignPublicAppliedView.ts:129-245`; no other writer in `src` (grep finds only the test importing it)                                                                           | Met          |
+| No rows from cursors/membership/memory ACK; no backfill                                                                                                                                     | Migration body is a lone `CREATE TABLE IF NOT EXISTS` with no INSERT/SELECT (`migration.ts:5-20`); test `migrations.test.ts:65-68` asserts the table is empty                      | Met (see N4) |
+| Missing-at-zero is unacknowledged; a real baseline may record cut 0                                                                                                                         | `read()` returns null (`:135-148`); first row requires `kind === 'baseline'` with null predecessor (`:205-207`); test `integration.test.ts:109-115`                                | Met          |
+| Monotone within matching lineage/authority                                                                                                                                                  | `:215-219` returns `stale` for `<=` cut; tests `:117-131`                                                                                                                          | Met          |
+| New lineage/authority needs a validated, predecessor-bound replacement offer (lower cut allowed)                                                                                            | `:208-214`; tests `:215-250`                                                                                                                                                       | Met          |
+| Exact receipt idempotency; conflicting reuse refuses; original appliedAt preserved                                                                                                          | `:199-204`; tests `:117-121` (row bytes equal), `:163-169`                                                                                                                         | Met          |
+| Current-authority revalidation inside the transaction, including for duplicates                                                                                                             | Ports run inside `db.transaction(...).immediate()` (`:162-243`); tests assert `handle.inTransaction` (`integration.test.ts:83-99`) and revalidated refusals `:133-152`, `:180-213` | Met          |
+| No wire-supplied cut                                                                                                                                                                        | `accept()` takes only key + receiptId (`:63-65`, `:151`); cut comes from trusted `resolveDeliveredOffer`                                                                           | Met          |
+| Public result omits internal cut                                                                                                                                                            | `CampaignApplicationResult` (`:86-99`) carries no position                                                                                                                         | Met          |
+| Typed errors and transaction rollback; driver errors propagate                                                                                                                              | Discriminated refusals; post-write throw rolls back (`integration.test.ts:267-291`)                                                                                                | Met          |
+| Migration integrated in existing catalog, existing runner unchanged                                                                                                                         | `SQLiteService.migrations.ts:33,413`; `SQLiteService.ts` not in diff                                                                                                               | Met          |
+| Migration atomic failure                                                                                                                                                                    | `migrations.test.ts:98-121` (trigger rejects ledger insert at v32, table and ledger unchanged)                                                                                     | Met          |
+| Reapplication preserves accepted bytes                                                                                                                                                      | `migrations.test.ts:65-96`                                                                                                                                                         | Met (see N1) |
+| Cold reopen                                                                                                                                                                                 | `integration.test.ts:293-308`                                                                                                                                                      | Met          |
+| Explicit head assertion updated to literal 32 (no self-adjusting max)                                                                                                                       | `replayCheckpointsBranch.migration.test.ts:270`                                                                                                                                    | Met          |
+
+"Integrity triggers": P2CA's own table uses CHECK constraints rather than triggers. The design did not require triggers for this table (design section "Migration registration and rollback"). The integrity triggers in scope are migration 31's history-branch guards. They are covered under Q2 and remain fully asserted.
+
+Scope boundary is honest. Receipt issuance, the socket/principal registry, and verified-history context readers are injected ports (`:67-84`) with no production wiring. That matches the design's split into Task11/12/13. The tests use controlled port fixtures over real file-backed SQLite with production migrations. They do not prove the later integrations, and the PR does not claim they do.
+
+## Q2 - The round-2/3 test fix
+
+Diff: `SQLiteService.historyBranches.migration.test.ts:427-431` changes `DELETE FROM migrations WHERE version = ?` to `version >= ?` with the same `EVENT_HISTORY_BRANCH_INTEGRITY_MIGRATION.version` constant, plus a two-line comment.
+
+- **Root cause confirmed in code.** `SQLiteService.ts:135-149` skips every migration `<= getCurrentMigrationVersion()`, and that function reads `SELECT MAX(version)` (`:175-184`). With v32 present, deleting only the v31 record leaves the watermark at 32, so v31 never replays and the ledger lookup returns undefined. `round2-red.log` shows exactly that: `Expected: {"version": 31} / Received: undefined`, 1 failed / 7 passed.
+- **The fix is correct and follows existing practice.** The same file already uses `version >= ?` in its `replayMigration` helper (`historyBranches.migration.test.ts:54`). `migrations.test.ts:167,190` uses `>= 4` / `>= 7` for the v4/v7 recovery tests.
+- **No assertion was removed or relaxed.** The test still checks that all three named triggers exist before reopen, after cold reopen, and after replay (`:402-421`, `:433`). It still requires the v31 ledger row after replay (`:434-438`). The schema is left intact, so replay still exercises `CREATE TRIGGER IF NOT EXISTS` idempotency. Deleting the v32 record as well only replays P2CA's idempotent `CREATE TABLE IF NOT EXISTS`.
+- **No production runner, validator, gate, timeout, or CI change.** `git diff --stat` over `SQLiteService.ts`, `scripts/`, `.github/`, `package.json`, `jest.config.js`, and `validate-roadmap.mjs` is empty. The only changed paths are the 12 listed in Q3.
+
+Conclusion: the fix is correct, it is the established idiom, and it does not weaken the test.
+
+## Q3 - Recomputed census (from `git diff --numstat ba8007f2...e921a69f`)
+
+| File                                                                                       | Kind      |     +add |  -del |
+| ------------------------------------------------------------------------------------------ | --------- | -------: | ----: |
+| src/lib/campaign/sync/campaignPublicAppliedView.ts                                         | product   |      245 |     0 |
+| src/services/persistence/SQLiteService.publicAppliedViews.migration.ts                     | product   |       21 |     0 |
+| src/services/persistence/SQLiteService.migrations.ts                                       | product   |        2 |     0 |
+| openspec/planning/2026-09-12-roadmap-completion/units.json                                 | lifecycle |       16 |     6 |
+| src/lib/campaign/sync/**tests**/campaignPublicAppliedView.integration.test.ts              | test      |      309 |     0 |
+| src/services/persistence/**tests**/SQLiteService.migrations.test.ts                        | test      |       58 |     0 |
+| src/services/persistence/**tests**/SQLiteService.historyBranches.migration.test.ts         | test      |        3 |     1 |
+| src/services/persistence/**tests**/SQLiteService.replayCheckpointsBranch.migration.test.ts | test      |        1 |     1 |
+| evidence/p2ca-admission-20261016.json                                                      | evidence  |      112 |     0 |
+| evidence/p2ca-admission-review-20261016.md                                                 | evidence  |       49 |     0 |
+| evidence/p2ca-local-20261016.json                                                          | evidence  |      226 |     0 |
+| evidence/p2ca-red-20261016.json                                                            | evidence  |       23 |     0 |
+| **Total**                                                                                  |           | **1065** | **8** |
+
+- Files: **12 / 15**. The plan counts every changed path, including tests, lifecycle, and evidence ("Every actual lifecycle/evidence file counts").
+- Counted lines: **268 product + 16 lifecycle = 284 / 500**, additions only with no deletion credit. The plan's `OD-line-cap-product-lines` rule says `caps.maxNonGeneratedLines` counts non-generated product lines only, and test lines "are reported separately ... and never count". The merge-time validator does the same: `validate-roadmap.mjs:681-690` skips the evidence prefix and `UNCOUNTED_FILES` (which match `__tests__/` and `*.test.*`, `:107-110`), so it would count the same 268 + 16 = 284. Counting lifecycle is the conservative choice; a product-only count is 268.
+- Tests: **371** additions (309 + 58 + 3 + 1), reported separately.
+- Evidence: **410** additions, reported separately and outside the line cap.
+
+The claimed 12/15, 284/500, and 371 all match.
+
+## Q4 - Production correctness and repo anti-patterns
+
+- **Data loss:** the migration is additive only. The upsert (`:220-240`) runs only after key, authority, receipt, and monotone/replacement checks, inside an immediate transaction. No existing table is touched.
+- **Migration ordering:** v32 is appended last (`SQLiteService.migrations.ts:413`). At base, no other `version: 3[2-9]` exists under `src/services/persistence`. `origin/main` is still ba8007f2, so there is no collision today. The design asks for the version to be rechecked at merge time if main moves.
+- **Determinism:** no `Math.random`. `appliedAt` uses `new Date().toISOString()` (`:239`). That is wall-clock evidence time in a server persistence owner, not a seeded gameplay or simulation path, and it matches the runner's own `applied_at` (`SQLiteService.ts:222`).
+- **Browser/server boundary:** the owner's three imports are all `import type` (`:6-9`) and erase at compile time. Nothing in product code imports the module (grep finds only its test). The header marks it server-only, as the design requires.
+- **Generated files:** none touched. No `*.zod.ts`, `public/data`, `.next/standalone`, or record sheets in the diff.
+- **Logging:** no new raw `console` calls.
+
+## Q5 - Evidence honesty
+
+- **Round 2 incomplete full-stable is still recorded as incomplete.** `round2-full-stable.log` (UTF-16) has no `Test Suites:` / `Tests:` summary. It has one `FAIL unit scripts/__tests__/roadmap-codex-identity-capture.test.ts (125.187 s)` with `spawnSync ... node.exe ETIMEDOUT`. `round2-report.md` stops at "Results are appended after execution below." with nothing appended. The canonical receipt `p2ca-local-20261016.json` `round3Verification.preservation.round2FullStable` says "Incomplete ... Not a full PASS". `round3-report.md` says the same and does not claim to fix the cause. This is honest.
+- **The round-3 claims match the logs:**
+  - Full stable: `round3-full-stable.stderr.log` shows `Test Suites: 2795 passed, 2795 total`, `Tests: 50 skipped, 37002 passed, 37052 total`, `Snapshots: 8 passed`, `Time: 1263.992 s`, "Ran all test suites in 2 projects". identity-capture PASS in 44.293 s; zero `FAIL` and zero `ETIMEDOUT` lines.
+    - The command is `JEST_EXCLUDE_PERF_SENSITIVE=true node jest --watchAll=false --maxWorkers=2`. That matches the `stable` lane's env and args (`scripts/jest/run-jest-lane.mjs:16-20`) apart from the worker cap, and it is disclosed as "equivalent".
+  - Focused: `round3-focused.stderr.log` shows 4 suites / 41 tests, 9.211 s. My rerun matched.
+  - Typecheck: `round3-typecheck.stdout.log` shows `tsc --noEmit --skipLibCheck` with empty stderr and receipt status 0.
+  - Lint: "Found 83 warnings and 0 errors".
+  - Format: "All matched files use the correct format ... 8188 files".
+  - Roadmap: "ROADMAP VALIDATION PASSED: 79 nodes, 13 packages, 381 tasks, 40 triage rows", also repeated in `round3-final-roadmap.log` and `round3-committed-roadmap.log` with EXIT=0.
+  - Build: `round3-build.stdout.log` ends with standalone hydration `"ok": true`.
+- **Hashes:** all eight stdout/stderr SHA256 values in the receipt's `round3Verification.checks` that I recomputed match the files on disk.
+- **CI snapshot is honest:** `round3-pushed-ci.json` recorded an empty check rollup (pending) and did not claim green. Green CI (31/31, run 38801515633) was observed independently in this review.
+
+## Q6 - Packet gate and state
+
+- P2CA is `"state": "implementing"` (`units.json:5481`), with `baseline` set, `prHead`/`mergeSha` null, `review`/`merge`/`mainProof` receipts null, and `ownerGate` null.
+- No packet in `units.json` names P2CA in `blocks`. The `PK-p2ca-ruling` packet appears only as a proposal in `round2-report.md`, with null decision and ruling, and was not applied.
+- `validate-roadmap.mjs:556-557` (packet required from local-verified onward) and `:559-563` (ruling bound to merged head) are unchanged and not bypassed.
+- The PR has no comments and no labels (`gh pr view 2135`). There is no `OWNER-RULING` comment and no `owner-ruled` label. None was invented or applied by this review.
+- units.json diff is limited to P2CA's own fields: state, baseline, three stage-receipt paths, and four evidence paths added to its own `ownershipExceptions`. No other unit, packet, holder, or validator was edited.
+
+## Findings
+
+1. **[minor] The new reapply test repeats the watermark fragility that round 2 just fixed.**
+   - Where: `src/services/persistence/__tests__/SQLiteService.migrations.test.ts:84` deletes `WHERE version = 32`, and `:93` asserts the v32 count is 1.
+   - Failure: once a migration 33 exists, MAX(version) stays 33, v32 is not replayed, and the count assertion fails.
+   - Not a defect at this head. Suggested follow-up when v33 lands, or optionally now: `version >= CAMPAIGN_PUBLIC_APPLIED_VIEWS_MIGRATION.version`.
+   - The explicit literal head `32` in `replayCheckpointsBranch.migration.test.ts:270` is intentional per the design and should stay.
+2. **[minor] The same-lineage path ignores `kind` and `predecessorReceiptId`.**
+   - Where: `campaignPublicAppliedView.ts:215-219`.
+   - Behavior: any higher cumulative offer under matching authority advances, whatever its predecessor.
+   - This fits the design's multi-tab cumulative model, and the docblock (`:67-74`) assigns predecessor and supersession policy to the registry port.
+   - Recorded so the P2CD/P2CE issuance work knows storage does not enforce chain continuity within a lineage.
+3. **[minor] `stale` is a success-shaped kind, not a refusal.**
+   - Where: `:87`, `:218`.
+   - Behavior: replaying an older, superseded accepted receipt under the current lineage returns `stale` with no write, not a typed refusal.
+   - No data is affected. Consumers in later units must not treat `stale` as an application confirmation.
+4. **[minor] The missing-at-zero/no-backfill scenario is only partly fixtured.**
+   - The design scenario seeds legacy cursor, membership, and ACK fixtures. The test seeds membership only (`integration.test.ts:48-52`, `:109-115`).
+   - Absence of backfill is still guaranteed structurally, because the migration has no INSERT/SELECT.
+   - Coverage gap only.
+5. **[minor] `applied_at` is only checked for non-empty.**
+   - Where: `migration.ts:17`.
+   - The CHECK is non-empty only, with no ISO shape constraint. Writes come only from the owner's `toISOString()`, so the risk is limited to raw SQL.
+6. **[minor, evidence hygiene] Some round-1 receipt paths are wrong, and one planned artifact name is missing.**
+   - Round-1 receipt `log` fields point to the non-existent root `E:/Projects/MekStation/...`:
+     - `p2ca-red-20261016.json:15`
+     - `p2ca-local-20261016.json:16`
+     - `p2ca-admission-review-20261016.md:28`
+   - The files actually live under `E:/Projects/Personal/MekStation/.omo/.../task-9-20261016/`. The round-3 block uses the correct paths.
+   - The plan's named `<attemptDir>/task-9/qa.md` does not exist; `round3-report.md` serves that role.
+   - The evidence content itself is genuine:
+     - `failure.log` shows the RED (module missing, table missing, rollback did not throw, head 31 vs 32).
+     - `happy.log` shows the passing focused run.
+7. **[info] P2CA extended its own `ownershipExceptions`.**
+   - Where: units.json diff, the four evidence paths.
+   - Strictly, this is not a "lifecycle field" under `lifecycleOwnershipLimit`. It follows the P2CC precedent, and the merge-time validator needs it (`validate-roadmap.mjs:680-686`).
+   - Raised so root/owner are aware; no action is proposed.
+
+## Disposition
+
+P2CA storage is correct, inside its caps (12/15 files, 284/500 counted lines), and backed by genuine RED, focused, full-stable, static, build, and hosted-CI evidence at this exact head. The round-2 fixture repair is correct and does not weaken the test.
+
+Remaining gates belong to root and the owner and were not performed here:
+
+- Packet registration naming P2CA in `blocks`.
+- Exact-head `OWNER-RULING e921a69f3cfa92f97a4aa03395fd145f0b567df6` comment plus the `owner-ruled` label.
+- Guarded merge.
+- Main proof.
+
+## File hash
+
+SHA256 of this file is reported in the reviewer's final message. A file cannot contain its own hash.

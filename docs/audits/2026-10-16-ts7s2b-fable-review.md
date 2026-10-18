@@ -1,0 +1,148 @@
+# TS7S2B exact-head review (independent): desktop Jest ts-jest -> @swc/jest; Storybook needs no TypeScript API
+
+- Unit: TS7S2B (migrate-to-typescript-7 tasks 2.3-2.4, design D5). PR #2180 `SwiggitySwerve/MekStation`, branch `codex/ts7s2b-swc-20261016`.
+- Head reviewed: `dd9a54dbe4bcdeec06f6d1aea6fe03246015d9f5` (tree `29a19c155107d9d570aee1f8cf6002b7e639402d`). Base: `b4a1fc5c75b1bfe6f9b45b9e023b458d1c5843c0` = `origin/main` at review time (fetched); base is an ancestor of head; exactly 1 commit between them.
+- Reviewer: claude-fable-5-1 (not the author; author claude-opus-5-5). Date 2026-10-16.
+- Method: two throwaway detached worktrees (`MekStation-wt/rev-ts7s2b-base-20261016` at base, `MekStation-wt/rev-ts7s2b-head-20261016` at head), root `node_modules` junctioned from the root checkout (root lockfile differs from base only by the TS7S2A ts-node removal; no root package changes here), `desktop/node_modules` physically installed in each by `npm ci` (npm 11.19.1 from nvm v24.15.0's npm-cli.js, Node v22.22.0). All Jest runs `--no-cache` on both sides. Author worktree read only; `git status` clean before and after. Review logs under `MekStation-wt/rev-ts7s2b-logs/` (not part of the ledger). Both throwaways removed after the review.
+
+## Verdict: APPROVE-WITH-NOTES
+
+No blockers. No majors. Three minors (M1-M3), notes N1-N8, and TS7S3 carry-forwards in section 10. Nothing requires a change to head `dd9a54dbe` before merge.
+
+## 1. Scope, census, ownership
+
+- `git diff --numstat --no-renames base..head` = 8 files: `desktop/jest.config.js` 20/3, `desktop/package-lock.json` 383/144, `desktop/package.json` 3/2, `openspec/changes/migrate-to-typescript-7/tasks.md` 3/2, `units.json` 16/6, and the three receipts (admission 137, red 331, local 694 added lines, under the evidence prefix). No other file. `.storybook/main.ts` unchanged (working-tree sha256 `63c41a9f...` equals the admission freeze). `desktop/.swcrc` and root `.swcrc` do not exist and are not tracked; the SWC options are inline with `swcrc: false` (and `@swc/jest` 0.2.39 only consults `.swcrc` when the inline options object is empty, `buildSwcTransformOpts`).
+- Validator rule, read from `validate-roadmap.mjs` lines 104-126 and 699-727: lines are counted from the merge's first-parent `--numstat`, files under `EVIDENCE_PREFIX` are skipped, files matching `UNCOUNTED_FILES` (`/(^|\/)package-lock\.json$/` among others) add 0. So counted = 20 + 3 + 3 + 16 = 42 of 500; files = 4 leaves + units.json + 3 receipts + the reserved review slot = 9 of 15 (10 only if the conditional leaf had changed). Author's census matches.
+- `units.json` id-keyed deep diff: 206 units before and after, same order, no top-level key other than `units` differs, exactly one unit differs (`TS7S2B`), and only in `ownershipExceptions` (+3 receipts, + reserved review slot), `state` (planned -> implementing), `baseline` (null -> b4a1fc5c7), `stageReceipts.admission/red/local` (paths). `prHead`, `mergeSha`, review/merge/mainProof/tick remain null. No other unit, packet, holder, or registration object changed.
+- All 13 `notToChange` hashes in the admission receipt match the head working tree (root package.json/lockfile, root jest.config.js, root tsconfig.json, desktop tsconfig.json and tsconfig.test.json, design.md, the five desktop test files).
+- Reserved slot `evidence/ts7s2b-admission-review-20261016.md` is not written by the author (absent at head) and is not written by this review.
+
+## 2. The decision item: `module.lazy: ['electron']`
+
+Facts established on the head throwaway (SWC 1.15.30, @swc/jest 0.2.39):
+
+- Without `lazy` (otherwise identical D5 options): `npx jest --no-cache` exit 1; `main.behavior`, `main.window.security`, `main.ipc.security` fail to load with `ReferenceError: Cannot access 'mockQuit' / 'mockApp' / 'mockIpcHandle' before initialization`; 2 suites / 41 tests pass. Reproduced exactly as the author reports.
+- Cause confirmed by dumping the transform (`swc.transformFileSync` with the exact `jest.config.js` options plus `jsc.transform.hidden.jest`): in the test file, `jest.mock('electron', factory)` is hoisted to the top and all four imports become top-of-file `require`s, so `require("../main.ipc")` runs before `const mockIpcHandle = jest.fn()`. In `main.ipc.ts`, `import {...} from 'electron'` becomes a memoised lazy getter `function _electron(){ const data = require("electron"); _electron = () => data; return data; }`, while `fs/promises`, `path`, `../types/BaseTypes` and `./pathSandbox` stay eager. The electron `require` (and so the `jest.mock` factory) therefore runs on the first `_electron().ipcMain...` access inside `setupIpcHandlers`, which the test calls from `beforeEach`, after the `const mock*` bindings exist. The test files themselves do not import `electron`, so `lazy` does not change the test files' emit at all.
+- ts-jest did not have the problem because TypeScript's CommonJS emit keeps each `require` at the source position of its `import`; ts-jest's own hoister moves `jest.mock` to the top but the factory still ran at the late `require('../main.ipc')`. The three tests thus relied on a tsc emit detail. Jest's documentation for `mock`-prefixed factory variables says it is up to the test to guarantee they are initialised on time; Babel's CommonJS transform hoists imports the same way SWC does, so alternative (c) (babel-plugin-jest-hoist / "jest-hoist semantics") would not help: `jest.mock` is already hoisted correctly by SWC's built-in jest transform, and the problem is import hoisting, not mock hoisting.
+- Alternatives measured by me:
+  - (a) `lazy: true`: exit 0, 5/57, names list byte-identical (sha256 `ec5bc1ac...`, same as the shipped config). Works, but makes every bare-specifier import in every desktop module lazy, including `fs/promises`, `path`, `electron-updater`; broader than needed with no benefit.
+  - (b) Editing the 3 tests to read the mocks through getters (author's saved patch `prototype-test-getters.patch`, sha256 `3054b741...` verified, +30/-10): correct and the cleanest long-term fix, because it removes the tests' dependence on emit order altogether; but the tests are not TS7S2B leaves and are frozen `notToChange` hashes in the admission, so it would need a ledger amendment. Not for this unit.
+  - (d) `var mockIpcHandle = jest.fn()` with no `lazy`: suite fails with `TypeError: _electron.ipcMain.handle is not a function` in every test (the factory captures `undefined` at require time). Rejected on evidence.
+- Does `lazy: ['electron']` change what the tests exercise?
+  - Module identity: no. Jest's registry still returns one `electron` mock object per test file; `_electron()` memoises the same object per importing module, so `mockIpcHandle`, `mockApp`, etc. are the very objects the production code sees.
+  - Side effects of requiring `electron`: in tests the only side effect is running the `jest.mock` factory, now deferred from module load to first use. None of the three tests asserts anything at import time; all assertions follow explicit calls (`setupIpcHandlers`, `createMainWindow`, `handleMenuCommand`, `handleSettingsChange`).
+  - Import order in production code under test: `main.ipc.ts`, `main.window.ts`, `main.behavior.ts` have no module-level electron access (only `let securityHeadersInstalled = false` and two const action maps of closures at module level), so nothing moves between module-load and first-call. `MenuManager.ts` and `main.ts` do touch electron at top level but are not loaded by any desktop test (`main.ipc.ts`'s `MenuManager` import is type-only and elided by both tsc and SWC; confirmed in the emitted `require` list).
+  - Production emit: unaffected. The desktop build is `tsc` (`npm run build`), not SWC; `lazy` lives only in the Jest transform (section 4 byte-compares dist).
+- Mutation check with the shipped config (each mutant restored afterwards, `git status` clean):
+  - `pathSandbox.ts` containment check disabled -> `main.ipc.security`: 5 of 7 fail (out-of-root read/write, traversal, symlink, restore-backup). On the base, the same mutant was caught differently: ts-jest refused to compile it (TS7027 unreachable code under `allowUnreachableCode: false`, 0 tests ran). Head catches it by assertion, base by diagnostics; either way red.
+  - `PATH_OUTSIDE_SANDBOX_ERROR` text changed -> 4 of 7 fail.
+  - `main.window.ts`: `onHeadersReceived` not installed -> 1 of 4 fails ("enables Electron sandboxing and pins CSP headers"); `nodeIntegration: true` -> 1 of 4 fails; `shell.openExternal` dropped from the window-open handler -> 1 of 4 fails ("only opens explicitly safe external URL schemes"); base kills the same openExternal mutant (1 of 4).
+  - `main.behavior.ts`: `shell.openExternal` on help links replaced -> 1 of 5 fails ("opens known help links externally").
+  - Two `main.behavior.ts` mutants survive on head AND on base: `'file:quit': () => undefined` (app.quit never called) and `setLoginItemSettings` not called. Both suites pass 5/5 on both sides, so this is a pre-existing assertion gap in `main.behavior.test.ts`, not an effect of `lazy` or of the transform swap (M2).
+- Judgement: `lazy: ['electron']` is correct, minimal in effect (one module specifier, Jest-only, no test edit, no production emit change), stable (SWC's `module.lazy` is the documented analogue of Babel's `lazy` option), and the regression-detection power of the three suites is unchanged. It is a config-side workaround for a latent test-authoring dependency, and the in-file comment in `jest.config.js` states that honestly.
+- Recommendation, exact wording: **Accept `module: { type: 'commonjs', lazy: ['electron'] }` as shipped in head dd9a54dbe. Do not widen it to `lazy: true` and do not edit the three electron tests in this unit. Record M1 below as a carry-forward so that a later desktop-test unit, with `desktop/electron/__tests__/main.behavior.test.ts`, `main.ipc.security.test.ts` and `main.window.security.test.ts` as registered leaves, may convert the `jest.mock('electron')` factories to getter form (the author's `prototype-test-getters.patch`, +30/-10) and then delete `lazy: ['electron']`; until then the option stays.**
+
+## 3. Equality before/after
+
+| run (fresh `npm ci`, `--no-cache`) | base ts-jest 29.4.6 / TS 5.9.3                   | head @swc/jest 0.2.39 / @swc/core 1.15.30                             |
+| ---------------------------------- | ------------------------------------------------ | --------------------------------------------------------------------- |
+| `npm test -- --no-cache` (workers) | 5/5 suites, 57/57 tests, exit 0, **16** TS151002 | 5/5, 57/57, exit 0, **0** TS151002, no `TS\d+` diagnostic of any kind |
+| `npm test -- --no-cache -i`        | (not re-run)                                     | 5/5, 57/57, exit 0, 0 TS151002                                        |
+| `npm run electron:test` (root)     | -                                                | 5/5, 57/57, 0 TS151002                                                |
+
+- Sorted `file :: fullName :: status` lists (57 lines) from the two `--json` reports are byte-identical: sha256 `ec5bc1aca83a14abae36cdd35000c767c7de80dc4f297f6d50e7cc263ce375ef` on both sides (my formatting differs from the author's `7cc67220...` list; equality within each measurement is what matters). Count equals the TS7S1B 0.1 baseline (57 passed, recorded in `ts7s1b-admission-20261016.json`).
+- `desktop/jest.config.js` has no `diagnostics` key at all; C3 / TS7S2B-OPEN-1 satisfied on a cold cache.
+- Stack traces in head stderr point at `.ts` lines (`RecentFilesService.ts:129:15`), so @swc/jest's default inline source maps are in effect.
+
+## 4. Type-check relocation
+
+- Head `desktop/`: `npx tsc --version` = 5.9.3 and `node_modules/typescript/package.json` = 5.9.3 (the lockfile resolves `^5.8.3` to 5.9.3 on both base and head; unchanged by this unit). `npm run type-check` runs `tsc --noEmit && tsc -p tsconfig.test.json --noEmit` through npm's `node_modules/.bin`, i.e. desktop's own tsc; clean tree exit 0.
+- Injection (`const ts7s2bReviewInjected: number = 'not a number';` in `SettingsService.test.ts`, restored to sha256 `75b8fc8e...` afterwards): `npx jest --no-cache` on that suite exit 0, 17/17 (SWC strips types); `npm run type-check` exit **2** with `services/local/__tests__/SettingsService.test.ts(15,7): error TS2322`; plain `tsc --noEmit` alone exit 0 (tsconfig.json excludes `**/*.test.ts`), which is exactly the gap the new step closes.
+- CI: `.github/workflows/pr-checks.yml` job `desktop-typecheck` ("Desktop Type Check") runs `working-directory: desktop`, `run: npm run type-check`, on Node 22 after `npm ci` in desktop (`.github/actions/setup-node-and-install`), so the new step is in CI without a workflow change; `desktop-tests` runs `npm test -- --runInBand`. Root `electron:typecheck` still delegates to the same script (exit 0 on head). PR #2180 checks: 31/31 SUCCESS at head `dd9a54dbe` (`gh pr view`).
+- Build emit: `desktop/dist` produced by each tree's own `tsc` (prepare step of `npm ci`, and a fresh `npm run build` on head, exit 0): 84 files each (21 `.js` + `.d.ts` + maps), identical file sets, 0 differing hashes.
+
+## 5. SWC options, decorators, coverage
+
+- `git grep` over `desktop/electron`, `desktop/services`, `desktop/types`: no decorator usage, no `reflect-metadata`, no `Reflect.*Metadata`. The decorator options are therefore inert today and mirror tsconfig (`experimentalDecorators`, `emitDecoratorMetadata`). `jsc.target: 'es2020'` matches `tsconfig.json` `target: ES2020`; `useDefineForClassFields: false` matches tsc's default for that target. The author's out-of-repo decorator probe was not re-run (nothing in the repo exercises it).
+- `@swc/jest` injects `jsc.transform.hidden.jest = true`, `sourceMaps: 'inline'` when unset, and spreads the user `module` object before forcing `type` (so `lazy` survives); verified in `node_modules/@swc/jest/index.js`.
+- Coverage (`--coverage --coverageReporters=json-summary`, both sides): 20 instrumented files; covered/total **functions identical in all 20 files** (76/374 total) and **branches identical in all 20** (83/424 total); line/statement totals differ in 15 files (1424 -> 1346 lines, 1463 -> 1387 statements) purely from emit shape. `desktop/jest.config.js` has `collectCoverageFrom` and `coverageDirectory` but **no `coverageThreshold`**, and no workflow runs desktop coverage, so nothing enforces these numbers.
+
+## 6. Lockfile
+
+- `lockfileVersion` 3 -> 3. Package-entry diff computed from parsed JSON: **+23**: `@swc/core@1.15.30` and its 12 platform packages, `@swc/jest@0.2.39`, `@swc/counter@0.1.3`, `@swc/types@0.1.28`, `jsonc-parser@3.3.1`, `@jest/create-cache-key-function@30.5.1` with five nested jest-30 packages (`@jest/pattern` 30.5.0, `@jest/schemas` 30.5.0, `@jest/types` 30.5.1, `@sinclair/typebox` 0.34.52, `jest-regex-util` 30.5.0). **-9**: `ts-jest@29.4.6`, `ts-jest/node_modules/type-fest@4.41.0`, `bs-logger`, `handlebars`, `lodash.memoize`, `make-error`, `neo-async`, `uglify-js`, `wordwrap`; every removed package was reachable only from ts-jest (handlebars and its three deps via ts-jest -> handlebars). **~1**: the root entry's devDependencies. Nothing else changes, so no libc/peer-flag churn.
+- @swc/core 1.15.30 (all 13 entries), @swc/jest 0.2.39, @swc/counter 0.1.3 and jsonc-parser 3.3.1 have the same version **and integrity** as the root lockfile. Drift is confined to two transitive packages: `@swc/types` 0.1.28 vs root 0.1.26 (type-declaration package, range `^0.1.26` from @swc/core) and `@jest/create-cache-key-function` 30.5.1 vs root 30.3.0 (range `^30.0.0` from @swc/jest; it only feeds the cache key). Acceptable: neither affects transform output, and desktop's Jest itself stays 29.7.0.
+- Idempotence: on head, `npm install --package-lock-only` with npm 11.19.1 prints "up to date" and the file hash is unchanged (`d1fd7e2572f131d2222813163815fe5e4556d685bcffd7aa823f5addcec7d9f1`, equal to the author's recorded sha256). With npm 11.6.2 (Node 22's bundled npm) the same command rewrites +6/-31 lines (peer/libc flags); the base lockfile shows the same class of churn (+7/-13) under 11.6.2, so this is pre-existing and not introduced here (N3).
+- Reproduction from base: head `desktop/package.json` on the base lockfile + `npm install --package-lock-only` (11.19.1) reproduces every entry except that `@swc/core` resolves to **1.16.18** today (the `^1.15.30` range now admits 1.16.x). The author pinned 1.15.30 explicitly (`npm install --save-dev @swc/core@1.15.30 @swc/jest@0.2.39`), which is why the committed file matches root; see M3 for the TS7S3 implication.
+- `npm ci` in a clean throwaway desktop dir: exit 0 under npm 11.19.1 (557 packages; base 554) and exit 0 under npm 11.6.2/Node 22.22.0 (the CI path); resulting tree has @swc/core 1.15.30, @swc/jest 0.2.39, typescript 5.9.3, ts-jest absent.
+
+## 7. Task 2.4 (Storybook)
+
+- `npm run storybook:build` on head: exit 0 (Storybook core 8.6.18, react-vite 8.6.18), with `NODE_OPTIONS=--require` of a `Module._load` tracer in every Node process npm spawned. The `storybook build` process loaded 642 modules; the only hit for `/typescript|react-docgen-typescript|@joshwooding\/vite-plugin-react-docgen-typescript|react-docgen/` was `node_modules/react-docgen/dist/main.js`. No `node_modules/typescript/` file and no `react-docgen-typescript` file was loaded. Limitation: the hook sees CommonJS loads; `@storybook/react-vite/dist/preset.js` is CJS and would have gone through it, so the negative is meaningful for the docgen plugin path.
+- Source confirmation: `@storybook/core/dist/core-server/presets/common-preset.(c)js` sets `reactDocgen: "react-docgen"` as the default; `@storybook/react-vite/dist/preset.js` `viteFinal` only `require`s `@joshwooding/vite-plugin-react-docgen-typescript` when `reactDocgen === "react-docgen-typescript"` (it does `require.resolve("typescript")` to set a flag, a resolve, not a load). So S2B-3's premise (the plugin is in the lockfile) is true, and the author's conclusion (it is never used) is right.
+- Populated table: the built chunk `storybook-static/assets/OverwriteConfirmDialog.stories-*.js` carries react-docgen `__docgenInfo` (`tsType`, JSDoc `description`, `required: true`) for all six props. I served `storybook-static` locally and read the rendered autodocs iframe (`iframe.html?id=customizer-dialogs-overwriteconfirmdialog--docs&viewMode=docs`): the ArgTypes table has header `Name | Description | Default | Control` and six rows `onOverwrite*`, `onSaveAsNew*`, `onCancel*` (`() => void`), `isOpen*` (`boolean`, boolean control), `newUnitName*`, `existingUnitName*` (`string`), each with its JSDoc description. The story defines no `argTypes`, so this content is docgen-derived.
+- The tasks.md 2.4 outcome line ("no `reactDocgen` change. Storybook 8.6.18 already defaults `typescript.reactDocgen` to `'react-docgen'` (Babel). `storybook build` never loads `react-docgen-typescript` or its Vite plugin, and the `OverwriteConfirmDialog` autodocs table lists all six typed props with their types and JSDoc descriptions. `.storybook/main.ts` is unchanged.") is accurate on every clause.
+
+## 8. Re-runs on head (throwaway worktree, Node v22.22.0)
+
+| gate                                                                      | result                                                                                                       |
+| ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `npm run typecheck` (root tsc 5.8.3)                                      | exit 0                                                                                                       |
+| `npm run lint`                                                            | exit 0; "Found 86 warnings and 0 errors"; 978 non-timing lines identical to the base run (0 differing lines) |
+| `npm run lint:units`                                                      | LINT_UNITS_PASS 17899/17899                                                                                  |
+| `npm run format:check`                                                    | exit 0, 8191 files                                                                                           |
+| `npx openspec validate --all --strict`                                    | 230 passed, 0 failed                                                                                         |
+| `npm run qc:openspec-ci:validate`                                         | errors=0, activeOpenSpecChanges=10 accounted=10                                                              |
+| desktop `npm run type-check` / `npm test -- --no-cache` / `npm run build` | 0 / 0 (5 suites, 57) / 0                                                                                     |
+| `npm run electron:test` / `npm run electron:typecheck`                    | 5 suites, 57 passed / exit 0                                                                                 |
+| `validate-roadmap.mjs`                                                    | ROADMAP VALIDATION PASSED: 80 nodes, 13 packages, 381 tasks, 40 triage rows                                  |
+| `validate-roadmap.mjs --next`                                             | `U24b` on head (prints `TS7S2B` on the base)                                                                 |
+| `node --test validate-roadmap.test.mjs`                                   | 86 tests, 86 pass, 0 fail                                                                                    |
+| `npm run storybook:build`                                                 | exit 0 (section 7)                                                                                           |
+| `npm run test:stable`                                                     | not re-run (instruction); author reports 2796/2796 suites, 37180 passed                                      |
+
+## 9. Author notes checked
+
+- Commits: the author worktree reflog shows `836295725` (commit), `reset HEAD~1`, then `dd9a54dbe`. Both commits have parent `b4a1fc5c7` and the **same tree `29a19c155...`** (`git diff 836295725 dd9a54dbe` empty). Only `dd9a54dbe` is reachable from the branch and from `origin/codex/ts7s2b-swc-20261016`; `base..head` is 1 commit. `.husky/_` in the author worktree is ignored and timestamped 21:38:12, seven seconds before the second commit (21:38:19), consistent with "husky installed, then recommitted"; `format:check` and the lint-staged hook content (oxlint/oxfmt/tsc) are satisfied by the tree.
+- desktop lockfile resolves typescript to 5.9.3 (base and head; unchanged).
+- desktop `npm run lint` lints 0 files on base and head alike (`Finished in 7ms on 0 files`); pre-existing (N4).
+- `--next` moving to `U24b` while TS7S2B is `implementing` confirms what the admission text says: NEXT does not enforce the one-lane rule and grants no permission (N2).
+
+## 10. Carry-forwards for TS7S3 (TypeScript 6.0 bridge), exact wording
+
+- **S3-1 (desktop type-check now has two tsc steps).** "desktop `npm run type-check` is `tsc --noEmit && tsc -p tsconfig.test.json --noEmit` since TS7S2B. The TS7S3 proof item `desktop/: npm run type-check` therefore gates both `desktop/tsconfig.json` and `desktop/tsconfig.test.json` under TypeScript 6; any TS 6 deprecation or default change (for example the `types` default, `experimentalDecorators`/`emitDecoratorMetadata`, which desktop enables without using decorators) must be clean in both files, with no `ignoreDeprecations`. Note that the test tsconfig already lists `types: ['node', 'jest']` explicitly."
+- **S3-2 (desktop lockfile interplay).** "After TS7S2B the desktop lockfile pins `@swc/core` 1.15.30 and `@swc/jest` 0.2.39 to the root-resolved versions, but the range `^1.15.30` already admits 1.16.x (a fresh resolution picks 1.16.18). When TS7S3 reinstalls `desktop/package-lock.json` for `typescript ^6.0.3`, do it in place with npm 11.19.1 (`npm install --save-dev typescript@<exact 6.0.x>` or edit `package.json` then `npm install --package-lock-only`), not by deleting the lockfile; otherwise `@swc/core` drifts from the root and a reviewer has to classify 13 unrelated entries. Expect npm 11.6.2 to rewrite peer/libc flags (+6/-31 at this head) if it is used instead; say which npm wrote the file."
+- **S3-3 (desktop TypeScript consumers are now tsc only).** "After TS7S2B nothing in `desktop/` loads the TypeScript API at test time: `@swc/jest` strips types, and `npm ls` shows no package in the desktop tree depending on `typescript` except the root devDependency. The desktop TypeScript consumers to prove under TS 6 are exactly `tsc --noEmit`, `tsc -p tsconfig.test.json --noEmit` and `npm run build` (`tsc`); desktop `npm test` is TypeScript-version independent and its 5/57 count must still match."
+- **S3-4 (root package.json / lockfile).** "TS7S2B touched neither root `package.json` nor root `package-lock.json` (both sha256-frozen in the admission and unchanged at head). The root lockfile's only `typescript` peer ranges are `>= 4.3.x` (`@joshwooding/vite-plugin-react-docgen-typescript`, `react-docgen-typescript`) and `>= 4.2.x` (`@storybook/react`); no root package declares an upper bound below 6, so the TS 6 bridge should install without peer conflicts. Storybook's build never loads `typescript` or `react-docgen-typescript` (TS7S2B traced build), so `npm run storybook:build` is a smoke check for TS 6, not an API consumer; `next build`, `scan-maintenance.mjs`, `validate-flow-audit.mjs` and `scripts/__tests__/ux-walkthrough-recorder-privacy.test.ts` remain the real API consumers to prove."
+- **S3-5 (desktop TS 5.9.3 vs the bridge).** "desktop currently resolves `typescript ^5.8.3` to 5.9.3 while the root gate runs 5.8.3; TS7S3 sets both to the unaliased `^6.0.3`, which collapses that split. Record both `tsc --version` outputs (root `npx tsc --version`, `desktop/node_modules/.bin/tsc --version`) in the TS7S3 receipts, since D3/TS7S4A later alias the root `typescript` and need the desktop one unaliased."
+
+## Findings
+
+Blockers: none.
+
+Majors: none.
+
+Minors:
+
+- **M1.** `lazy: ['electron']` is a correct Jest-only workaround for the three electron tests' latent dependence on tsc's source-order `require` emit (Jest leaves on-time initialisation of `mock*` factory variables to the test). It should stay for TS7S2B. A later unit that registers `desktop/electron/__tests__/main.behavior.test.ts`, `main.ipc.security.test.ts` and `main.window.security.test.ts` as leaves may apply the author's getter patch (+30/-10) and remove `lazy`; either end state is acceptable, and the config comment already explains the dependency.
+- **M2.** Pre-existing assertion gap in `main.behavior.test.ts`: `app.quit()` for `file:quit` and `app.setLoginItemSettings` can be removed from `main.behavior.ts` without failing any test, on the base (ts-jest) as well as on the head. Not introduced or worsened here; for whichever unit next owns the desktop tests.
+- **M3.** `^1.15.30` already resolves to `@swc/core` 1.16.18 on a fresh resolution; the committed lockfile is correct and pinned at 1.15.30 only because the author installed an exact version. Carried as S3-2 so the next desktop lockfile rewrite does not drift from root.
+
+Notes:
+
+- **N1.** tasks.md 2.3 and 2.4 ticks and the 2.4 outcome line are accurate; no extra prose beyond what the task text asks.
+- **N2.** `validate-roadmap.mjs --next` prints `U24b` at head; the validator does not model the track's one-writing-lane rule, exactly as `admissionRequires` says. Disclosed by the author.
+- **N3.** npm 11.6.2 rewrites the desktop lockfile's peer/libc flags on both base and head; pre-existing class of churn, irrelevant to `npm ci`.
+- **N4.** desktop `oxlint` lints 0 files on both sides; pre-existing, not a TS7S2B concern.
+- **N5.** `@storybook/react-vite` calls `require.resolve("typescript")` (a path lookup, not a load) in `viteFinal`; the traced build confirms no TypeScript module is executed.
+- **N6.** My names-list hash (`ec5bc1ac...`) differs from the author's (`7cc67220...`) only in line format; both measurements show byte-identical before/after lists.
+- **N7.** The root `node_modules` used for root gates was junctioned from the root checkout (its lockfile differs from base only by TS7S2A's ts-node removal); desktop `node_modules` were fresh `npm ci` installs on each side, so the desktop equality claims rest on clean installs.
+- **N8.** The storybook `__docgenInfo` uses react-docgen's `tsType` shape, not react-docgen-typescript's `type.name` shape, which independently confirms which docgen produced it.
+
+## Not verified
+
+- `npm run test:stable` (by instruction; author's single run 2796/2796, 37180 passed).
+- The author's out-of-repo decorator probe (tsc vs SWC metadata parity); moot for the repository, which has no decorators.
+- GitHub Actions job logs beyond the 31/31 SUCCESS rollup at head `dd9a54dbe`.
+- Linux `npm ci` behaviour (my installs ran on Windows; CI ran it on ubuntu-latest and passed).
+- The author's `.omo` attempt-directory artefacts other than `prototype-test-getters.patch` (hash matched); I rebuilt every number from scratch instead of trusting them.
+- Warm-cache behaviour of the new transform (only cold `--no-cache` and the `-i` form were run; the author's warm run reports 0 TS151002 as well, which is expected since @swc/jest emits no TS diagnostics at all).

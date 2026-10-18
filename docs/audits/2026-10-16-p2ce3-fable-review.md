@@ -1,0 +1,204 @@
+# Task 12 / P2CE3 receipt-ACK admission, P2CA commit and durable confirmation - independent exact-head review (Fable)
+
+- **Subject:** PR #2155 <https://github.com/SwiggitySwerve/MekStation/pull/2155>, "feat(P2CE3): admit receipt ACKs and confirm only after the P2CA commit" (roadmap Task 12, unit `P2CE3`, third and last slice of the P2CE split registered by PR #2146).
+- **Head:** `b803b5d18987acb52148a5e9681e9f537d5c7a93` (branch `codex/p2ce3-ack-commit-20261016`, one commit on the baseline). GitHub `headRefOid` matches; PR state OPEN, base `main`, MERGEABLE.
+- **Base:** `842257c0b664138c560ef17f36df40c0c8e220da` (`origin/main` after fetch, merge of PR #2152 which released P2CE3 to planned). `git merge-base` of head and base is the base.
+- **Reviewer:** Claude Fable 5.1 (`claude-fable-5-1`), read-only review sub-agent, a different model from the author (Claude Opus 5.5). I wrote only this file. No product, test, ledger, evidence or `.omo` file was touched; the reserved `evidence/p2ce3-admission-review-20261016.md` slot stays absent. The author worktree `E:/Projects/Personal/MekStation-wt/p2ce3-ack-commit-20261016` was clean before and after every run (`git status --porcelain` empty). My own probe tests ran in a throwaway detached worktree `MekStation-wt/p2ce3-review-probe` at the same head with a `node_modules` junction, removed afterwards. Under `.omo/` I read only the named files of `task-12-p2ce3-20261016/` (`report.md`, `pr-body.md`, `qa.md`, `census.md`, `mutation.log`, `mutation-round2.log`, `mutation-probe.mjs`, `validation.log`, head of `green.log`, head of `validator-tests.log`) and that one directory's listing. I did not run `test:stable`.
+- **Note on the root checkout:** `E:/Projects/Personal/MekStation` is on `main` but behind `origin/main`; its `evidence/` has no `p2ce*` receipts. The prior reviews were read from the root `docs/audits/`; the split registration receipt, P2CE2 closure `successorNotes` and the three P2CE3 receipts were read from the author worktree at head.
+
+## Verdict: **REQUEST-CHANGES**
+
+One blocker, reproduced on the exact head with a probe through the binder's public seam: a receipt the server issued on this socket and view is refused `campaign-application-unknown-receipt` and never committed when its ACK arrives while the previous offer's commit is running. The window exists because `publish` clears `view.inFlight` before the offer becomes `view.latest`, and the commit of a pending earlier ACK runs inside that gap (preparation, P2CA transaction, confirmation write). The fix is a one-line move inside the P2CE3 binder leaf; with it applied in my throwaway copy, all 99 registered cases and my six probes pass. Everything else in the slice is correct and well-evidenced: scope is exact, every author number reproduces on the exact head, parsing is strict, only the latest established offer commits, confirmations follow the row, N1 and N2 are handled as worded, and the author's C2 judgement is right.
+
+No majors beyond the blocker. Minors and notes follow; carry-forward wording for Task 13 and Task 14 is in section 8.
+
+## 1. Scope and census (verified)
+
+- `git diff --stat base..head`: exactly 7 files. The three registered leaves (`R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CE3` = `bindCampaignSyncConnection.ts`, its test, `coopMissionAnnouncement.reconnect.test.ts`), `units.json`, and three new evidence receipts (admission, red, local). No `server.js`, `Protocol.ts`, `ServerMatchBroadcaster.ts`, `campaignPublicAppliedView.ts`, participant store, harness or new module.
+- **units.json deep-diff** (parsed both versions, structural compare): only `units[70]` (`id: P2CE3`) differs: `state planned -> implementing`, `baseline null -> 842257c0...`, `stageReceipts.admission/red/local null -> {path}`, `ownershipExceptions` 1 -> 5 entries (the four P2CE3 evidence paths including the reserved review slot). No other unit, packet, holder or receipt touched.
+- **Census** (`git diff --numstat --no-renames base..head`): binder 222 added / 10 removed, units.json 16 / 6, tests 103 + 533 (uncounted), evidence 89 + 37 + 29 (skipped). Counted = **238 / 500**; files = 7 changed + 1 reserved slot = **8 / 15**. Matches the author.
+- **Dormancy:** `grep applicationReceipts` outside tests hits only the binder's own option, destructuring and `membership && applicationReceipts` gate (lines 224, 293, 333, 340). `server.js` is byte-identical to base. Nothing in production passes the port.
+- **Evidence receipts:** admission freezes the 8 paths with pre-edit SHA-256 values that equal the base blobs (I compared the binder and both test hashes against `git show base:...`); red records 15 failed / 84 passed / 99 on the final test bytes against the baseline binder with three regression guards passing; local records the leaves, selectors, mutation probe, census and checks and claims no merge or main proof. `reviewSlot` says the author must not write the review; it is absent.
+
+## 2. Re-run on the exact head (Node v22.22.0, author worktree, no file changed)
+
+| Check                                               | Author                               | Mine                                                         |
+| --------------------------------------------------- | ------------------------------------ | ------------------------------------------------------------ |
+| P2CE3 leaves (2 suites)                             | 99/99                                | **99/99**, exit 0                                            |
+| Registered QA selector incl. ServerMatchBroadcaster | 7 suites, 173                        | **7 suites, 173/173**, exit 0                                |
+| Plan Task 12 selector                               | 6 suites, 153                        | **6 suites, 153/153**, exit 0                                |
+| `npm run typecheck`                                 | 0 errors                             | **exit 0**                                                   |
+| `npm run lint`                                      | 0 errors, existing max-lines warning | **85 warnings, 0 errors**, exit 0                            |
+| `npm run format:check`                              | PASS                                 | **PASS** (8188 files)                                        |
+| `validate-roadmap.mjs`                              | PASSED                               | **PASSED: 79 nodes, 13 packages, 381 tasks, 40 triage rows** |
+| `--next`                                            | U25                                  | **U25**                                                      |
+| `validate-roadmap.test.mjs`                         | 86/86                                | **86 pass, 0 fail**                                          |
+
+`git status --porcelain` in the author worktree was empty after the runs.
+
+## 3. Review classes
+
+### Authority
+
+- The ACK's `playerId`/`matchId` are checked before dispatch by the pre-existing `wrong-match` and `player-mismatch` closes (binder ~471-490); `campaignId` must equal `entry.campaignId` or the receipt ACK gets `campaign-application-not-offered`. The P2CA resolver returns an offer only for `request.receiptId === receiptId && view.latest === offer`; the key is the server's `{campaignId, sessionId: matchId, participantId}`, never the client's claim.
+- `readCurrentContext` reads branch/generation/head on the transaction handle, current membership (singleton; see C2), and `participantRemoved` from the fresh verified cut (`cut?.removed ?? true`, so a null cut, i.e. no active seat, refuses `not-admitted`). A revoked seat or a committed removal yields `not-admitted`, no row, and `fail(view, AUTH_REJECTED, membership-revoked)` closes the socket (tests "removed-participant", "seat revoked after preparation"; my PROBE-D for a removal landing between preparation and accept: `['threw','refused']`, closed `membership-revoked`, no row).
+- A re-seat after the offer refuses `current-authority` with no row and no confirmation (test present; the fingerprint law from P2CE2 holds).
+
+### Privacy
+
+- The confirmation echoes only the opaque `appliedView` (viewId, receiptId, previousReceiptId); `CampaignApplicationServerMessageSchema` parses it (test asserts). No journal position leaves the server. The SECRET sentinel is asserted absent from the guest's bytes after confirmations.
+- Refusal reasons are P2CA's reason strings. `campaign-application-head-drift` after three consecutive drifts tells a restricted viewer that the head moved during their ACK, which a gm-scoped commit would otherwise hide. The signal is narrower than the pre-existing sequence gap (P2CE2 review) and requires three drifts in a row; note only (N5).
+
+### Replay
+
+- The confirmation is a `CampaignAck` frame with `appliedView`, never a sequenced match `Event`; it goes through `this.deps.broadcaster.sendConfirmed`, the pair stored beside the lifecycle (P2CE1 notes honoured; the only `new ServerMatchBroadcaster()` remains inside `campaignSocketLifecycle`). `sendConfirmed` records no cursor, so `deliveredSeq` is unaffected.
+- No durable sent cache: every commit attempt re-materializes the verified path (`preparePublicCut`) and the digest must reach the captured head.
+
+### Idempotency
+
+- Duplicate accepted ACK: P2CA returns `duplicate` (same receipt, same authority, same cut) and the binder confirms again; the row (including `applied_at`) is byte-identical (test pins). `stale` is silent; `refused` sends the typed reason and never confirms (mutations M12/M13 killed in round two).
+- Racing duplicates (two identical ACKs before the chain runs) produce one commit and one confirmation (PROBE-B), because `processAck` nulls the slot before `commit`. Not a defect, but Task 13 must not expect one confirmation per ACK (section 8).
+
+### Concurrency
+
+- Every view step is on one serialized chain; `acknowledge` sets the one `pendingAck` slot and enqueues `processAck`; `publish` runs `processAck` once before and once after `view.latest = candidate`, so an ACK of the previous latest that arrived during the next write commits first (test "arrives while the next delta is in flight"), and an early ACK of the in-flight offer commits once it settles (test "holds an early ACK in its one slot").
+- **B1 (blocker):** `publish` clears `view.inFlight` immediately after `sendConfirmed` returns and before the pre-establishment `processAck`. If that `processAck` commits the previous latest (async: preparation, transaction, confirmation write), the just-written offer is neither in flight nor latest during the commit, and a client ACK for it arriving in that window is refused `campaign-application-unknown-receipt`. Section 4.
+- Second early ACK overwrites the slot. For a well-behaved client (ACKs in receipt order) the overwritten ACK is always an earlier receipt of the same view, and the later commit is cumulative, so durable state is right; the earlier ACK gets neither a confirmation nor a refusal (PROBE-C). Note M1 / Task 13 wording.
+- Close/supersession with a pending slot: `invalidate()` aborts; `enqueue` skips the step; `commit` checks `current` after each preparation; `sendConfirmed` with an aborted signal returns `cancelled`, and `fail` is a no-op on a dead view. A row committed just before a rejoin is kept; the new view's rebaseline then returns `stale` (section 6, note M3).
+
+## 4. B1 - a legitimately issued receipt is refused during the previous offer's commit
+
+**Code.** `publish` (binder ~1881-1915):
+
+```ts
+view.inFlight = candidate;
+const result = await this.deps.broadcaster.sendConfirmed(socket, candidate.frame, view.abort.signal);
+view.inFlight = null;                 // <- B is now neither in flight nor latest
+if (!this.current(view)) return false;
+if (result.kind !== 'sent') { ... }
+if (isRevoked) { ... }
+await this.processAck(view);          // may run commit(A): prepare + SQL + confirmation write
+if (!this.current(view)) return false;
+view.latest = candidate;              // <- B becomes latest only here
+await this.processAck(view);
+```
+
+`acknowledge` admits only `names(view.inFlight) || names(view.latest)`. Between the two marked lines, with `pendingAck` holding the ACK of A (the previous latest), `commit(A)` awaits `preparePublicCut` (journal materialization), runs the P2CA transaction, then awaits `sendConfirmed` for A's confirmation. The client has already received B's bytes (the write callback fired), so its ACK of B can arrive in this window. It then hits `acknowledge` with `inFlight === null` and `latest === A`, is refused `unknown-receipt`, and is never committed: the durable view stays at A's cut although the client applied B. Nothing re-offers B; the next delta (if any) heals it cumulatively, but with no further commit the row is wrong indefinitely and the client holds a typed refusal for a receipt the server issued it.
+
+**Reproduction** (throwaway worktree at head, `observeAccept` `before` hook injecting the ACK of the delta synchronously inside the first P2CA `accept`, i.e. inside `commit(baseline)`):
+
+```
+PROBE-A {"injected":true,"results":["accepted"],
+ "errors":[{"kind":"Error","code":"INVALID_INTENT","reason":"campaign-application-unknown-receipt"}],
+ "confirmations":["<baseline receipt>"],"rows":["<baseline receipt>"],"closes":[]}
+```
+
+Expected by the contract ("an ACK naming the in-flight offer waits in one exact early-ACK slot until its write settles; an ACK naming the latest established offer commits"): no refusal, two confirmations, row at the delta receipt.
+
+**Fix (in the P2CE3 binder leaf, two lines):** keep `view.inFlight = candidate` until the candidate is established, i.e. delete the early `view.inFlight = null` and set it right after `view.latest = candidate`. With the view invalidated on every failure path, a stale `inFlight` on a dead view is unobservable. Applied in my throwaway copy:
+
+```
+PROBE-A {"injected":true,"results":["accepted","accepted"],"errors":[],
+ "confirmations":["<baseline>","<delta>"],"rows":["<delta>"],"closes":[]}
+Tests: 105 passed, 105 total   (99 registered + 6 probes); oxlint 0 errors on the binder
+```
+
+Add a registered test for it (PROBE-A's shape: ACK of the latest during the next write, then the next offer's ACK injected from an `accept` hook). No mutation in the author's probe targets the position of `view.inFlight = null`, which is why 25/26 killed did not catch this; the M6/M7 mutations cover the slot's existence and the pre-establishment `processAck`, not the in-flight window's extent.
+
+## 5. Contract clauses (units.json P2CE3 `behavior`) - verified line by line
+
+| Clause                                                                                                                                                          | Evidence                                                                                                                                                                                                                                        | Holds                   |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
+| Parse via `CampaignApplicationClientMessageSchema`, strict receipt first, legacy second                                                                         | `z.union([CampaignApplicationAckSchema (strict), ClientMessageSchema])`; `CampaignAckSchema.appliedView: z.never().optional()` so a present `appliedView` can never parse as numeric; `isApplicationAck` guard before `isCampaignClientMessage` | Yes                     |
+| Mixed or malformed ACK refused                                                                                                                                  | `BAD_ENVELOPE malformed-envelope`; binder tests (mixed `revision`+`appliedView`, `{viewId:'v'}`); pass at RED as guards                                                                                                                         | Yes                     |
+| Early-ACK slot, in-flight ACK waits until write settles                                                                                                         | `pendingAck` + `publish` post-write `processAck`; test "holds an early ACK..."                                                                                                                                                                  | Yes, except B1's window |
+| ACK of the latest established offer commits                                                                                                                     | `processAck` requires `sameAppliedView(ack, latest)`; M9 killed                                                                                                                                                                                 | Yes                     |
+| Unknown / unissued / superseded / other-socket / other-principal / other-session / altered -> typed refusal, no commit, no confirmation                         | `unknown-receipt` (5 variants incl. altered link), `not-offered`, `wrong-match`/`player-mismatch` closes; rows and confirmations asserted empty                                                                                                 | Yes                     |
+| Numeric ACK on receipt connection refused; receipt ACK on non-receipt connection refused; legacy numeric kept                                                   | `campaign-application-receipt-required`; `not-offered` with `noteParticipantAcknowledged` not called; legacy spy called with `('pid_guest', 0)`                                                                                                 | Yes                     |
+| Fresh verified preparation outside SQL, then P2CA `accept`, resolving only this view's latest offer, reading current membership, removal and head on the handle | per-attempt `preparePublicCut` (M20 killed); resolver guard; `readCurrentContext` as described (membership on the singleton, see C2)                                                                                                            | Yes                     |
+| Bounded head-drift retry then refuse                                                                                                                            | `COMMIT_ATTEMPTS = 3`, `HEAD_DRIFT` by identity, `continue`; M16-M19 killed; my PROBE-E (`['threw','threw','accepted']`) shows success on the last permitted retry confirms                                                                     | Yes                     |
+| accepted and duplicate confirm via `sendConfirmed` after the row exists                                                                                         | row captured from inside the socket's `CampaignAck` emit; M11 (confirm before commit) killed; M15 killed                                                                                                                                        | Yes                     |
+| stale and refused never confirm                                                                                                                                 | M12/M13 killed in round two                                                                                                                                                                                                                     | Yes                     |
+| Revoked seat / removed participant: no credit, stopped                                                                                                          | `not-admitted` -> `fail(... membership-revoked)`; M14 killed                                                                                                                                                                                    | Yes                     |
+| Failed confirmation write keeps the row and closes                                                                                                              | `campaign-application-confirmation-failed`; M23/M24 killed                                                                                                                                                                                      | Yes                     |
+
+## 6. Reviewer adversarial scenarios (throwaway worktree at head, real SQLite journal, author's `ReceiptSocket` double)
+
+| #   | Scenario                                                                                                       | Result on head                                                                                                                                                                                                      | Registered test covers it?                                                                                                                                                                  |
+| --- | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A   | ACK of the latest arrives while the next delta is in flight; the delta's ACK arrives during the first commit   | **Delta ACK refused `unknown-receipt`, never committed; row stays at baseline** (B1)                                                                                                                                | **No.** "arrives while the next delta is in flight" stops before the second ACK                                                                                                             |
+| B   | Two ACKs of the same latest offer racing before the chain runs                                                 | One `accepted`, one confirmation, row correct, no error                                                                                                                                                             | Partly: sequential duplicate is tested; racing is not. Behaviour acceptable (note M1)                                                                                                       |
+| C   | ACK of latest then ACK of in-flight, both before the in-flight write settles                                   | One `accepted` for the delta, delta confirmed, row at delta; the baseline ACK gets no frame                                                                                                                         | No. Acceptable by cumulative semantics (note M1)                                                                                                                                            |
+| D   | Committed `ParticipantRemoved` lands between preparation and accept (injected from the commit's verified read) | `['threw','refused']`, `not-admitted`, closed `membership-revoked`, no row, no confirmation                                                                                                                         | By composition only (head-drift + removed tests); not as one scenario. Behaviour correct                                                                                                    |
+| E   | Head drift on attempts 1-2, success on the last permitted retry                                                | `['threw','threw','accepted']`, exact confirmation, row present, no error                                                                                                                                           | No (only all-three-drift is tested); behaviour correct                                                                                                                                      |
+| F   | Duplicate ACK after a failed confirmation write, then rejoin with a new view                                   | Duplicate on the closed socket: nothing. Rejoin: old receipt `unknown-receipt`; new baseline ACK -> `stale`, **no confirmation**, row kept at the old receipt                                                       | Halves tested separately ("failed confirmation write", "stale rebaseline"); the combined client-visible consequence (no confirmation ever for that cut) is the Task 13 wording in section 8 |
+| G   | ACK arrives exactly as the offer write fails (reasoned, not probed)                                            | `publish` fails the view on `result.kind !== 'sent'`; the enqueued `processAck` is skipped (`current` false); socket closes `send-failed`; a later ACK gets `not-offered` on a closing socket (swallowed by `send`) | "failed/backpressured/closing offer write" covers the close; no probe needed                                                                                                                |
+
+**Author's synthetic drift test.** `driftHead` adds/subtracts 1 to `event_journal_stream_heads.stream_revision` directly in the `before`/`after` hooks around each real `accept`. It exercises the comparison in `readCurrentContext` against a fresh cut and the attempt bound, but never a real head move or a real retry preparation seeing new events. The single-drift test is realistic (a real commit lands inside the commit's verified read via a `readStream` spy, so the retry prepares fresh and accepts). Together with my PROBE-E the bounded loop is adequately pinned. Acceptable; a note (N6) suggests the three-drift case also use real commits once a cheap way exists.
+
+**Mutation survivor M10** (resolver ignores `view.latest !== offer`): I agree it is equivalent on this code. `commit` checks `view.latest !== offer` synchronously after the awaited preparation, and `accept` plus the resolver are synchronous better-sqlite3 calls with no interleaving point; the guard is belt-and-braces. It becomes observable only if `accept` ever awaits, which the P2CA contract forbids ("both run synchronously under the same immediate transaction").
+
+## 7. Carry-forwards from P2CE2 (as worded in `evidence/p2ce2-review-20261016.json` `successorNotes.P2CE3`)
+
+- **N1** "MUST re-prepare the verified cut (head, generation, path, seat, committed removal) before P2CA `accept`, and MUST refuse an ACK naming a `viewId` other than the live view's." **Handled.** Preparation runs on every attempt; the fresh cut supplies `removed` and the drift check; `sameAppliedView` includes `viewId`, so the first view's receipt after a fast rejoin is refused (test "a new view refuses the old receipt"; the S2a/S2b two-baseline case is covered by that admission rule).
+- **N2** GM double-join spurious `campaign-session-unavailable`. **Fixed as suggested:** `if (application) return;` when `open()` is false. A false `open()` with `application` set means either `fail` already closed the socket or a later `open()` superseded the view (`open` returns `current(view) && latest !== null`; every non-publishing exit of `refresh`/`publish` goes through `fail`, so no third case). The superseded first handler then skips `sendPendingProposals`/`subscribePending`/`acknowledge()`, which the second handler performs; test "a GM join superseded by a quick second join" asserts no Error, no close, and the delta links to the second view. M25 killed.
+- **C2 / N3** (seat read on the service singleton inside the `receipts.database()` transaction). **Author's claim that it cannot close inside the three leaves is correct.** `activeCampaignSessionMembership` hard-codes `getSQLiteService().getDatabase()` and the participant store is not a P2CE3 leaf; the only in-leaf alternative is to inline the `campaign_session_participant` SQL and row mapping in the binder, which duplicates the store's owner logic and is the wrong layer. Note that P2CE3 adds a **second** singleton seat read, inside P2CA's `.immediate()` transaction (`readCurrentContext`), so the Task 14 precondition now guards two sites (preparation and accept). Wording updated in section 8.
+- **P2CE1 notes:** confirmation is a `CampaignAck`, never a match `Event`; sent through the stored broadcaster pair. Honoured (section 3, Replay).
+
+## 8. Carry-forward wording
+
+### Task 13 (client / consumer)
+
+1. _"The client MUST NOT wait for a confirmation of a rebaseline ACK. When the stored `campaign_public_applied_view` row already covers the new baseline's cut (returning member, or rejoin after `campaign-application-confirmation-failed`), P2CA returns `stale` and the server sends nothing. Absence of a confirmation after a rebaseline means covered, never pending."_
+2. _"Confirmations are cumulative and at-least-once per committed receipt, not one per ACK. An ACK superseded in the single early-ACK slot by a later exact ACK of the same view receives neither a confirmation nor a refusal, and two racing ACKs of one receipt may produce one confirmation. A confirmation naming receipt R covers every earlier receipt of the same `viewId`."_
+3. _"`campaign-application-head-drift` leaves the view live and commits nothing; the client MUST re-send the same ACK (or ACK the next offer) to retry. `unknown-receipt`, `not-offered`, `receipt-required` and `current-authority` MUST NOT be retried with the same frame; rejoin for a fresh view."_
+4. _"ACKs MUST be sent in receipt order on one connection; the server's slot and commit ordering assume it."_
+
+### Task 14 (production composition) - hard preconditions
+
+1. **C1** (unchanged): _"Task 14 MUST NOT compose `applicationReceipts` into `bindCampaignSyncConnection` until the launch/readiness doors read `campaign_public_applied_view` rows for convergence; receipt-mode participants are not retained by `CampaignSyncSession` and the legacy numeric gate cannot see them."_
+2. **C2 / N3** (updated): _"`ICampaignApplicationReceiptPort.database()` MUST return the same better-sqlite3 connection `getSQLiteService().getDatabase()` returns, or the participant store must gain a handle-taking seat read that P2CE3's `preparePublicCut` and `readCurrentContext` both use. Two seat reads now run on the singleton inside transactions on the port's handle (the capture in `preparePublicCut` and P2CA's `accept`); the same-cut and same-context guarantees depend on them being one connection."_
+3. **N4** (unchanged): _"Every campaign served in receipt mode MUST have its effective-head branch backfilled before `applicationReceipts` is composed; otherwise joins fail closed with `campaign-application-unavailable`."_
+4. **Refusal frames are not write-checked:** _"Typed refusals (`INVALID_INTENT campaign-application-_`) go through the legacy `send`, which swallows socket errors; a lost refusal is indistinguishable from a commit still in progress. Before composition either route refusals through `sendConfirmed` (closing on failure) or require the Task 13 client to bound its wait and rejoin."\*
+5. **Binder size:** _"`bindCampaignSyncConnection.ts` is 2196 physical / 1773 counted lines (max-lines 400 warning). Register the move-only extraction of `CampaignApplicationConnection`, `preparePublicCut`, `IApplicationView` and `ICampaignApplicationReceiptPort` into `src/lib/multiplayer/server/campaignApplicationConnection.ts` (P2CE2 `successorNotes.afterP2CE3`) and land it before Task 14 touches the binder again."_
+6. **Performance** (P2CE2 C3, unchanged): measure `preparePublicCut` per commit with N views before composition; P2CE3 runs it once more per ACK attempt.
+
+## 9. Findings
+
+### Blockers
+
+- **B1.** Receipt issued on the live view refused `unknown-receipt` when its ACK arrives during the previous offer's commit (section 4). Fix: keep `view.inFlight` set until `view.latest = candidate` in `publish`; add the PROBE-A-shaped test. Fits the leaf and the cap (two product lines).
+
+### Majors
+
+- None.
+
+### Minors
+
+- **M1.** Slot overwrite and racing duplicates make confirmations cumulative/at-least-once rather than per-ACK (PROBE-B, PROBE-C). Not a defect given cumulative commits; needs the Task 13 wording (8.2, 8.4) so the consumer does not wait per ACK.
+- **M2.** Head-drift exhaustion refuses but leaves the view live with no server-side retry or backoff; recovery depends on the client re-ACKing (8.3). Three immediate attempts with no delay on a hot campaign may refuse repeatedly; acceptable for a dormant slice, revisit at composition.
+- **M3.** After `campaign-application-confirmation-failed` the row is kept (correct) but the client, on rejoin, can never obtain a confirmation for that cut because the rebaseline is `stale` and silent (PROBE-F). Contract-conformant; the Task 13 wording in 8.1 is mandatory.
+- **M4.** C2 now has two singleton seat-read sites instead of one (section 7). Not closable here; wording updated in 8 (Task 14 item 2).
+
+### Notes
+
+- **N5.** `head-drift` after three drifts is a narrow timing side channel that a hidden (gm-scoped) commit moved the head; weaker than the pre-existing sequence-gap signal. No action.
+- **N6.** The bounded-drift test mutates `stream_revision` directly; prefer three real commits from an `accept`/`readStream` hook when a cheap pattern exists, so the retry preparation also sees new events.
+- **N7.** `HEAD_DRIFT` is a module-level `Error` instance compared by identity; its stack is from module load. It never escapes (caught by identity before the generic `throw error`), so harmless; a sentinel object would avoid the misleading stack if it ever did.
+- **N8.** Racing-duplicate and slot-overwrite behaviours (PROBE-B/C) and the last-retry success (PROBE-E) have no registered tests; worth adding alongside the B1 test since they pin the Task 13 contract.
+- **N9.** Lint reports 85 warnings repo-wide (0 errors); the only touched-file warning is the pre-existing binder max-lines.
+
+## 10. What I could not verify
+
+- `npm run test:stable` was not re-run (author: exit 0, 2795 suites, 37113 passed, 50 skipped). The P2CE3 leaves and the two selectors were.
+- Production composition does not exist, so C1, C2/N3, N4 and the refusal-frame best-effort path are verified as code properties, not production behaviour.
+- CI status of PR #2155 was not polled.
+- The reserved admission-review slot and any owner ruling are outside this file.
+- Timing of the B1 window against a real `ws` socket was not measured; the window is bounded below by one journal materialization, one SQLite transaction and one socket write callback, which is enough for a client ACK to land in it under ordinary latency.
+
+## 11. Artifacts (not committed)
+
+- Probe log on head: `C:/Users/wroll/AppData/Local/Temp/p2ce3-review/probes.log` (PROBE-A failed as described; B-F passed).
+- Probe log with the two-line fix: `.../probes-fixed.log` (105/105).
+- Verification logs on head: `.../leaves.log`, `qa.log`, `plan.log`, `typecheck.log`, `lint.log`, `format.log`, `validator.log`, `next.log`, `validator-tests.log`, `summary.txt`.
+- Throwaway worktree `E:/Projects/Personal/MekStation-wt/p2ce3-review-probe` removed after the runs.
