@@ -189,6 +189,7 @@ jobs:
           # the relaunching wrapper the QC plans already use.
           MEKSTATION_E2E_SERVER_COMMAND: 'cd .next/standalone && node ../../scripts/e2e/relaunching-server.mjs'
           HOSTNAME: '127.0.0.1'
+          MEKSTATION_E2E_REPLAY_FIXTURE_ROOT: ${{ github.workspace }}/.next/standalone
         run: node scripts/playwright/run-playwright.mjs test --project=chromium --ignore-snapshots
 
       - name: Upload Playwright report
