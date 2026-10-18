@@ -7479,7 +7479,7 @@
         "P2CG1S"
       ],
       "successors": [
-        "P2CG1H"
+        "P2CG1HP"
       ],
       "registration20261018B14": {
         "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-fog-scope-20261018.txt",
@@ -7495,10 +7495,67 @@
       }
     },
     {
+      "id": "P2CG1HP",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Pre-H consumer recovery. Bound automatic quiet-window recovery across replacement transport objects, with accessible user-facing text (CF-H7/CF-G4). Release settling count synchronously exactly when a consumed offer can no longer confirm or has confirmed, preserving cut marking for unfinished work (CF-H14). Pin same-tick consume/dispose recovery (CF-H15). With port installed, membership-admitted bound join's first campaign frame carries appliedView and joinMember is never invoked for that socket (CF-H8/CF-G5), unless R already supplies exact proof. Preserve G1 heardAt cursor-watermark semantics, CF-H1 held-refresh cut, ordered offers, stale-binding silence, replacement EMPTY fold and healthy legacy-server first-frame behavior. Red-first proof, sensitive review, required CI, exact-main PASS and closure precede H admission/install. Adopted finite policy: two automatic quiet-window retries per mounted campaign-seat recovery episode, counted across replacement transport identities, not a socket WeakMap. Reset only after healthy application confirmation or explicit user retry, never heartbeat, any frame or rebind. Exhaustion closes the unproductive socket, stops automatic rejoin and displays accessible inline text: \"Campaign sync could not connect. Reload this campaign to try again.\" Reload is explicit retry, requiring no new UI component. Scope hook-local state by campaign/match/player; dispose cancels timers. Document and pin route remount reset; no durable cross-route cap or new store leaf is granted. No port installation in this unit.",
+      "ownershipPaths": [
+        "src/components/campaign/coop",
+        "src/lib/multiplayer/server"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "splitFrom": "P2CG1H",
+      "admissionRequires": "Blocked ordinary-cap registration only. B14-0 must be main-verified (or complete/archived) with genuine exact-main mainProof PASS, fetched-main ancestry and closure before parent release to planned; preserve G2/R/S prerequisites and one product-writing lane including closure. NEXT does not enforce ordinary predecessor arrays and supplies no source permission. Rebase/re-census fresh Main, reservations and all existing/prospective leaves before admission: connected surface overlaps G2, binder test R/I3, hostProjection I1, and units.json all units. Aliases are navigation, never directory-wide permission. Freeze the four exact source/test leaves, units.json and four truthful final admission/red/local/admission-review evidence names from hConsumerPrereqAmendment20261018: nine prospective files, 96-195 estimated counted additions and 250-500 test additions, not measured fit. If R supplies exact CF-H8/CF-G5 proof, record its receipt/head/assertions and reduce by the binder test to eight files; never assume closure. Caps stay 15 unique files / 500 counted added lines, tests and ledger evidence line-exempt but file-counted, no deletion credit. Required extra leaf or cap overflow stops for separate registration; spare slots grant no unnamed outputs. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze and census. Red-first proof, required CI, genuine sensitive packet before local-verified, independent exact-head review and OWNER-RULING before merge, then exact-main PASS and closure precede H admission/install; ownerGate null is no waiver. Reconcile CF-H5 consumer/fold-store predicate without editing unregistered campaignHostFoldStore.ts; register an exact leaf if needed. CF-E7 follows binder-test ownership; record R proof or discharge at this owner without claiming historical carry-forwards closed.",
+      "predecessors": [
+        "B14-0"
+      ],
+      "successors": [
+        "P2CG1H"
+      ],
+      "registration20261018HP": {
+        "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/hi-prep-20261018.txt",
+        "sourceSha256": "6b8df3e824b27717d7db0c6f6f316ef150295d4cdb28d3861eb23a697ffb7590",
+        "sourceAdmitted": false,
+        "acceptance": [
+          "RED: hold sockets open/no campaign frames through at least4 windows -> old unbounded cycle fails finite socket count and visible-text assertion. Test replacement binds, explicit retry, healthy-confirmation reset, identity switch and late dead callbacks. For H14, decrement once on every success/return/throw before confirm can schedule dispose; leave queued work counted from **consume**, not promise start. Hook confirmApplied to `Promise.resolve().then(unmount)` after linked success -> remount one healthy socket/no rejoin. Same-tick consume+unmount -> remount rejoins, ACKs baseline only, refresh never called. Retain held-refresh cut/G1 fake-timer pins. Round1 'heard only after confirm' fix was withdrawn by round2 because it stalls chains; do not reuse it.",
+          "Pin no reset on heartbeat/frame/rebind, dispose timer cancellation, route remount reset and identity scope. Preserve held/failed send callback controls and no unoffered snapshot escape in CF-H8/CF-G5 proof, unless exact R evidence discharges that obligation."
+        ]
+      }
+    },
+    {
       "id": "P2CG1H",
       "node": "R2.authority-live",
       "taskKeys": [],
-      "behavior": "Tenth narrower P2CG1 successor: activation. The new src/lib/multiplayer/server/campaignApplicationReceiptPort.ts returns a port whose database() is the composing graph's getSQLiteService().getDatabase(); that is C2/N3 by construction, and its test asserts the identity. It runs SQLiteEventHistoryBranchStore.backfillGenesisBranches() at install (N4; idempotent, NOT EXISTS-guarded). server.js installs it on getCampaignHostRegistry() inside loadMultiplayerRuntime, which app.prepare().then runs before createServer and listen. CampaignHostRegistry.globalSlot.test.ts pins that the Next API graph sees the install through the Symbol.for slot. The E2E-only probe e2ePerformanceProbeRoute answers convergence from entry.launch (P2CB) when the port is installed, else from evaluateScenarioLaunch, so the GM two-player performance pack waits on the gate the authority actually applies. e2e/gm-two-player-authority.pack1.spec.ts sends application ACKs for offered frames instead of the numeric CampaignAck the activated binder refuses. Narrow exception on the P2CH-owned e2e/coop-campaign-two-browser-journey.spec.ts: only the waits before the advance-day click are strengthened (the guest and host applied-view confirmation), so the gate sees both receipts; every scenario extension stays with P2CH. The preparePublicCut per-commit cost with N views is measured and recorded in the admission receipt (P2CE2 C3); a tail-read rewrite, if needed, is a later unit. The proof must include npm run verify:qc:coop-campaign-journey and runs of the co-op e2e specs that drive raw campaign sockets (gm-two-player-authority.pack1, gm-two-player-performance.pack, gm-two-player-authority-recovery.pack, gm-two-player-evidence.pack, campaign-journal-two-process-convergence, gm-two-player-membership.smoke and campaign-journal-two-process-privacy). Any further spec that needs a change stops this unit for the successor procedure. Activation predicate (frozen): a typed ICampaignApplicationReceiptPort installed once on CampaignHostRegistry by server.js at boot; the binder composes application from it, each entry derives a graph-local CampaignLaunchView from it, and both HTTP doors key on its presence while building their own graph-bound view; no other switch exists. Planned leaves (8): server.js, src/lib/multiplayer/server/campaignApplicationReceiptPort.ts (new), src/lib/multiplayer/server/__tests__/campaignApplicationReceiptPort.test.ts (new), src/lib/multiplayer/server/__tests__/CampaignHostRegistry.globalSlot.test.ts, src/pages-modules/api/e2ePerformanceProbeRoute.ts, src/__tests__/api/e2ePerformanceProbeRoute.test.ts, e2e/coop-campaign-two-browser-journey.spec.ts (narrow wait exception) and e2e/gm-two-player-authority.pack1.spec.ts. Estimated at about 80-130 counted lines with lifecycle; that is not a cap-fit proof.",
+      "behavior": "Tenth narrower P2CG1 successor: activation. The new src/lib/multiplayer/server/campaignApplicationReceiptPort.ts returns a port whose database() is the composing graph's getSQLiteService().getDatabase(); that is C2/N3 by construction, and its test asserts the identity. It runs SQLiteEventHistoryBranchStore.backfillGenesisBranches() at install (N4; idempotent, NOT EXISTS-guarded). server.js installs it on getCampaignHostRegistry() inside loadMultiplayerRuntime, which app.prepare().then runs before createServer and listen. CampaignHostRegistry.globalSlot.test.ts pins that the Next API graph sees the install through the Symbol.for slot. The E2E-only probe e2ePerformanceProbeRoute answers convergence from entry.launch (P2CB) when the port is installed, else from evaluateScenarioLaunch, so the GM two-player performance pack waits on the gate the authority actually applies. e2e/gm-two-player-authority.pack1.spec.ts sends application ACKs for offered frames instead of the numeric CampaignAck the activated binder refuses. Narrow exception on the P2CH-owned e2e/coop-campaign-two-browser-journey.spec.ts: only the waits before the advance-day click are strengthened (the guest and host applied-view confirmation), so the gate sees both receipts; every scenario extension stays with P2CH. The preparePublicCut per-commit cost with N views is measured and recorded in the admission receipt (P2CE2 C3); a tail-read rewrite, if needed, is a later unit. The proof must include npm run verify:qc:coop-campaign-journey and runs of the co-op e2e specs that drive raw campaign sockets (gm-two-player-authority.pack1, gm-two-player-performance.pack, gm-two-player-authority-recovery.pack, gm-two-player-evidence.pack, campaign-journal-two-process-convergence, gm-two-player-membership.smoke and campaign-journal-two-process-privacy). Any further spec that needs a change stops this unit for the successor procedure. Activation predicate (frozen): a typed ICampaignApplicationReceiptPort installed once on CampaignHostRegistry by server.js at boot; the binder composes application from it, each entry derives a graph-local CampaignLaunchView from it, and both HTTP doors key on its presence while building their own graph-bound view; no other switch exists. Planned leaves (8): server.js, src/lib/multiplayer/server/campaignApplicationReceiptPort.ts (new), src/lib/multiplayer/server/__tests__/campaignApplicationReceiptPort.test.ts (new), src/lib/multiplayer/server/__tests__/CampaignHostRegistry.globalSlot.test.ts, src/pages-modules/api/e2ePerformanceProbeRoute.ts, src/__tests__/api/e2ePerformanceProbeRoute.test.ts, e2e/coop-campaign-two-browser-journey.spec.ts (narrow wait exception) and e2e/gm-two-player-authority.pack1.spec.ts. Estimated at about 80-130 counted lines with lifecycle; that is not a cap-fit proof. Amendment 2026-10-18: append exactly src/lib/multiplayer/server/CampaignHostRegistry.ts and src/lib/multiplayer/server/campaignApplicationConnection.ts for CF-E6 type-only imports; campaignApplicationReceiptPort.ts owns the single ICampaignApplicationReceiptPort interface. The original eight source/test leaves become ten; with units.json and four bounded admission/red/local/admission-review outputs H is 15/15 files (83-183 estimated counted additions, not measured fit). All other behavior and the frozen activation predicate remain unchanged.",
       "ownershipPaths": [
         "server.js",
         "src/lib/multiplayer/server",
@@ -7538,11 +7595,12 @@
       },
       "ownerGate": null,
       "splitFrom": "P2CG1",
-      "admissionRequires": "Narrower ordinary-cap successor of P2CG1 (plan Task 14), registered by evidence/p2cg1-split-registration-20261016.json. P2CG1G2 must be complete with a genuine exact-main mainProof PASS before the parent releases this unit to planned; NEXT does not enforce these unit dependencies. No preserved P2CG1 source candidate exists; this slice runs its own red-first proof and measured admission. Task8 must first complete independent exact-head docs review, current required CI, guarded merge and independent exact-main registration proof. Parent verifies documentary predecessors complete with genuine exact-main mainProof PASS, ancestry and closure on fetched main and no actual overlap before every source admission. NEXT selection supplies no permission. Prospective assignment only; source permission remains non-effective until normal finite admission freezes the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measures actual unique files and product/test additions under unchanged 15-file/500-product-added-line limits. Named source/test lists and known lower bounds are in R2.authority-live.ownershipPathsAmended20261009P2C.restrictions for this ID. No unnamed test, directory-wide grant, placeholder/hash, capException or cap inflation. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze of actual bytes/names/hashes and full census. If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required scenario. Additional hard pre-activation prerequisites registered 2026-10-17: P2CG1R (H-OPEN-1 / CF-E1) and P2CG1S (B10) must both have genuine exact-main mainProof PASS before H admission or port installation. This design selects repair, not the historical residual-acceptance option; any proposed waiver is a separate explicit Root/owner decision, never inferred from NEXT. See evidence/h-prereq-registration-20261017.json. B14-0 must be main-verified (or complete/archived) with genuine exact-main mainProof PASS, fetched-main ancestry and closure before P2CG1H admission or port installation.",
+      "admissionRequires": "Narrower ordinary-cap successor of P2CG1 (plan Task 14), registered by evidence/p2cg1-split-registration-20261016.json. P2CG1G2 must be complete with a genuine exact-main mainProof PASS before the parent releases this unit to planned; NEXT does not enforce these unit dependencies. No preserved P2CG1 source candidate exists; this slice runs its own red-first proof and measured admission. Task8 must first complete independent exact-head docs review, current required CI, guarded merge and independent exact-main registration proof. Parent verifies documentary predecessors complete with genuine exact-main mainProof PASS, ancestry and closure on fetched main and no actual overlap before every source admission. NEXT selection supplies no permission. Prospective assignment only; source permission remains non-effective until normal finite admission freezes the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measures actual unique files and product/test additions under unchanged 15-file/500-product-added-line limits. Named source/test lists and known lower bounds are in R2.authority-live.ownershipPathsAmended20261009P2C.restrictions for this ID. No unnamed test, directory-wide grant, placeholder/hash, capException or cap inflation. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze of actual bytes/names/hashes and full census. If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required scenario. Additional hard pre-activation prerequisites registered 2026-10-17: P2CG1R (H-OPEN-1 / CF-E1) and P2CG1S (B10) must both have genuine exact-main mainProof PASS before H admission or port installation. This design selects repair, not the historical residual-acceptance option; any proposed waiver is a separate explicit Root/owner decision, never inferred from NEXT. See evidence/h-prereq-registration-20261017.json. B14-0 must be main-verified (or complete/archived) with genuine exact-main mainProof PASS, fetched-main ancestry and closure before P2CG1H admission or port installation. P2CG1HP must be main-verified (or complete/archived) with genuine exact-main mainProof PASS, fetched-main ancestry and closure before P2CG1H admission or port installation, alongside existing G2/R/S/B14-0 prerequisites. Its independent sensitive review and exact-head OWNER-RULING precede merge; registration is not that ruling. R does not establish cross-file atomicity or comprehensive outer-COMMIT cleanup. If broader repair is required, register it before H; no implied waiver. See evidence/hi-prep-20261018.txt and hConsumerPrereqAmendment20261018. Freeze truthful final evidence names and measured fit at admission; roadmap.json registration edits are not part of H own lifecycle source stage.",
       "predecessors": [
         "P2CG1G2",
         "P2CG1R",
-        "B14-0"
+        "B14-0",
+        "P2CG1HP"
       ],
       "successors": [
         "P2CG1I1",
@@ -21799,6 +21857,7 @@
       "P2CG1R",
       "P2CG1S",
       "B14-0",
+      "P2CG1HP",
       "P2CG1H",
       "P2CG1I1",
       "P2CG1I2",
@@ -21823,6 +21882,7 @@
         "P2CG1R",
         "P2CG1S",
         "B14-0",
+        "P2CG1HP",
         "P2CG1H",
         "P2CG1I1",
         "P2CG1I2",
@@ -21835,7 +21895,7 @@
       "18": ["P2"],
       "19": ["U38"]
     },
-    "order": "Current effective L1 order (21 units, including the R/S prerequisites, S3 G2A insertion and B14-0 containment): P2CG1B -> P2CG1C -> P2CG1D -> P2CG1E -> P2CG1F -> P2CG1G1 -> P2CG1G2A -> P2CG1G2 -> P2CG1R -> P2CG1S -> B14-0 -> P2CG1H -> P2CG1I1 -> P2CG1I2 -> P2CG1I3 -> P2CG1I4 -> P2CG2 -> P2CH -> P2C -> P2 -> U38. Each release requires predecessor genuine exact-main mainProof PASS, fetched-main ancestry and closure. The one-product-writing-lane rule and all original release acceptance/checkpoint/task holders remain. P2 readmission remains governed by P2C and its registered convergence gates.",
+    "order": "Current effective L1 order (22 units, including the R/S prerequisites, S3 G2A insertion, B14-0 containment and pre-H consumer recovery): P2CG1B -> P2CG1C -> P2CG1D -> P2CG1E -> P2CG1F -> P2CG1G1 -> P2CG1G2A -> P2CG1G2 -> P2CG1R -> P2CG1S -> B14-0 -> P2CG1HP -> P2CG1H -> P2CG1I1 -> P2CG1I2 -> P2CG1I3 -> P2CG1I4 -> P2CG2 -> P2CH -> P2C -> P2 -> U38. Each release requires predecessor genuine exact-main mainProof PASS, fetched-main ancestry and closure. The one-product-writing-lane rule and all original release acceptance/checkpoint/task holders remain. P2 readmission remains governed by P2C and its registered convergence gates.",
     "entry": "ts7TrackRegistration20261016.stoppingCondition is met: at baseline all eleven active TS7 units (TS7S1A through TS7S5C, including TS7S2OD, TS7S5B and TS7S5C) are main-verified, so the TS7 track is complete. L0 (v2.1.0) is published (tag v2.1.0 at e308fb2a44d8cbea3317acbf165bd536b31e45cb, GitHub release 2026-10-17T11:11:29Z) and is independent of this layer.",
     "releasePredicate": "U38 main-verified with an exact-main mainProof PASS; npm run verify:qc:coop-campaign-journey PASS on that exact Main (P2's registered proof) and the Task 19 selector PASS; then v2.2.0 minted by auto-version workflow_dispatch (bump_type=minor), the L0 installer smoke repeated on the v2.2.0 installer and a playtest/ session recorded where two players and a non-playing GM launch, play to Results and reload one shared mission. The release is a layer boundary, not a phase exit: P3 stays open until its full exit contract (PLAN.md P3 Exit) is met.",
     "acceptance": {
@@ -21897,6 +21957,16 @@
       "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-fog-scope-20261018.txt",
       "rule": "Documentary predecessor and release gate; NEXT does not enforce ordinary predecessor arrays. Parent releases B14-0 to planned only after S genuine exact-main mainProof PASS, fetched-main ancestry and closure, then H only after B14-0 equivalent proof. Single product-writing lane including closure; registration alone supplies no source permission.",
       "releaseHold": "Contain the known fog bootstrap leak before the v2.2.0 build/playtest that may offer fog-on multiplayer or spectating. The narrow fog-off two-players-plus-GM journey is unchanged and does not discharge B14. S remains independently necessary for fog-off sealed-choice privacy. If H advances before admission, explicitly resequence containment before the release build/playtest; do not rewrite historical gates."
+    },
+    "amended20261018HConsumer": {
+      "additionalUnits": [
+        "P2CG1HP"
+      ],
+      "unitCount": 22,
+      "order": "P2CG1S -> B14-0 -> P2CG1HP -> P2CG1H -> P2CG1I1",
+      "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/hi-prep-20261018.txt",
+      "sourceSha256": "6b8df3e824b27717d7db0c6f6f316ef150295d4cdb28d3861eb23a697ffb7590",
+      "rule": "Registration only. HP/H remain blocked; parent-enforced predecessor exact-main PASS, ancestry and closure precede release. Original release acceptance, task holders, H activation predicate/checkpoint, I1 successor and one product-writing lane remain unchanged. Prior dated amendments are historical."
     }
   },
   "hPrereqRegistration20261017": {
@@ -21919,6 +21989,7 @@
       "P2CG1R",
       "P2CG1S",
       "B14-0",
+      "P2CG1HP",
       "P2CG1H"
     ],
     "rule": "New blocked finite supporting units under existing contracts; E/F/G1/G2 order and leaves unchanged. Parent releases R after G2 and S after R, then H only after both exact-main proofs. No product permission and no waiver. One product-writing lane including closure; NEXT does not enforce these documentary edges.",
@@ -21946,5 +22017,45 @@
       "note": "Full playable fog restoration requires later separately registered work: visible-unit hydration/last-known state, stable placements, shared-team ownership and live/replay/recovery/HTTP parity. No placeholder unit or implementation permission is registered here."
     },
     "enforcement": "Documentary predecessor and release gate; NEXT does not enforce ordinary predecessor arrays. Parent releases B14-0 to planned only after S genuine exact-main mainProof PASS, fetched-main ancestry and closure, then H only after B14-0 equivalent proof. Single product-writing lane including closure; registration alone supplies no source permission."
+  },
+  "hConsumerPrereqAmendment20261018": {
+    "baseline": "36dacb34613785cb364db258afdd2632eca09be0",
+    "status": "planned-gated",
+    "registrationOnly": true,
+    "sourceAdmitted": false,
+    "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/hi-prep-20261018.txt",
+    "sourceSha256": "6b8df3e824b27717d7db0c6f6f316ef150295d4cdb28d3861eb23a697ffb7590",
+    "authority": "Parent adopts the recommended draft and concrete two-retry policy under the owner standing instruction: continue with recommended options and fix the issues that come up, publish as needed. This records the parent ruling, not a fresh direct owner answer, future implementation OWNER-RULING or runtime acceptance.",
+    "node": "R2.authority-live",
+    "unit": "P2CG1HP",
+    "layer": "L1",
+    "order": "B14-0 -> P2CG1HP -> P2CG1H",
+    "manifest": [
+      "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+      "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+      "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+      "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-admission-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-red-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-local-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-admission-review-20261018.json"
+    ],
+    "knownSourceTestLifecycleSubtotal": 5,
+    "totalProspectiveFiles": 9,
+    "evidenceNames": "The four output names are prospective only; freeze truthful final admission/red/local/admission-review names at admission. No placeholders are created. R exact CF-H8/CF-G5 proof must be recorded before reducing the binder test and total to eight files.",
+    "hAmendment": {
+      "typeOnlyLeaves": [
+        "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+        "src/lib/multiplayer/server/campaignApplicationConnection.ts"
+      ],
+      "interfaceOwner": "src/lib/multiplayer/server/campaignApplicationReceiptPort.ts",
+      "knownSourceTestLifecycleSubtotal": 11,
+      "totalProspectiveFiles": 15,
+      "evidenceOutputs": 4,
+      "scope": "CF-E6 type-only imports in the two added leaves; port factory owns the single interface. All other H behavior, activation predicate, successors, review/CI/exact-main/closure gates and caps remain. Final evidence names and measured fit freeze at admission."
+    },
+    "rBoundary": "R does not establish cross-file atomicity or comprehensive outer-COMMIT cleanup. If broader repair is required it must be separately registered before H; repair-not-implied-waiver remains.",
+    "enforcement": "Documentary predecessors only: NEXT supplies no permission. Parent releases HP only after B14-0 genuine exact-main PASS, fetched-main ancestry and closure, then H only after equivalent HP proof and closure alongside existing G2/R/S/B14-0 prerequisites. Sensitive review, exact-head OWNER-RULING and required CI precede implementation merge. No source admission or receipt fabricated."
   }
 }
