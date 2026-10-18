@@ -1305,7 +1305,9 @@ updatedAt`
 
 - **GIVEN** an authenticated player who is NOT the match host
 - **WHEN** they DELETE `/api/multiplayer/matches/:id`
-- **THEN** the response SHALL be `403 Forbidden`
+- **THEN** the response SHALL be `404 Not Found` with the same body as for a
+  match that does not exist
+- **AND** the match SHALL remain active
 
 ### Requirement: WebSocket Endpoint Documentation
 
