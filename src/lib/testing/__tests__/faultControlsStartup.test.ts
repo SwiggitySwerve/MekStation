@@ -1,6 +1,6 @@
 /**
  * The startup refusal, proven against the REAL server entrypoint
- * (umbrella task 20.2; plan todo 28 "production config fails startup").
+ * (umbrella task 20.2; plan item 28 "production config fails startup").
  *
  * The pure guard is unit-tested next door. This asserts the thing that
  * actually protects a deploy: `server.js` refuses to come up. A guard

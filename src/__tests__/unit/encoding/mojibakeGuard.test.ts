@@ -104,22 +104,24 @@ describe('shipped data text encoding (B7)', () => {
         }
       }
     }
+    function inspectJsonFile(full: string): void {
+      const value: unknown = JSON.parse(fs.readFileSync(full, 'utf8'));
+      // The exact eight compatibility keys are the sole exceptions.
+      if (full === path.join(BATTLEMECH_ROOT, 'index.json')) {
+        const index = value as { units: { id: string }[] };
+        for (const unit of index.units) {
+          if (LEGACY_INDEX_IDS.has(unit.id)) unit.id = 'preserved-legacy-id';
+        }
+      }
+      inspect(value, path.relative(DATA_ROOT, full));
+    }
     function walk(dir: string): void {
       for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
         const full = path.join(dir, entry.name);
         inspect(entry.name, full);
         if (entry.isDirectory()) walk(full);
         else if (entry.name.endsWith('.json')) {
-          const value: unknown = JSON.parse(fs.readFileSync(full, 'utf8'));
-          // The exact eight compatibility keys are the sole exceptions.
-          if (full === path.join(BATTLEMECH_ROOT, 'index.json')) {
-            const index = value as { units: { id: string }[] };
-            for (const unit of index.units) {
-              if (LEGACY_INDEX_IDS.has(unit.id))
-                unit.id = 'preserved-legacy-id';
-            }
-          }
-          inspect(value, path.relative(DATA_ROOT, full));
+          inspectJsonFile(full);
         }
       }
     }

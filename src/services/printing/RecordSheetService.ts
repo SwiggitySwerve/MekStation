@@ -134,7 +134,7 @@ function ensurePrintSvgViewBox(svgString: string): string {
   if (rootHasValidViewBox(root)) {
     return svgString;
   }
-  const size = readSvgRootSize(root as unknown as SVGSVGElement);
+  const size = readSvgRootSize(root);
   root.setAttribute('viewBox', `0 0 ${size.width} ${size.height}`);
   return new XMLSerializer().serializeToString(doc);
 }
@@ -172,15 +172,15 @@ function buildPrintDocumentHtml(
 }
 
 /**
- * Browser print-popup surface. `window.open` is overloaded by Electron to
- * return `BrowserWindowProxy`, which lacks afterprint / addEventListener.
- * The MekStation customizer print path is a real browser Window.
+ * Common popup operations with optional browser capabilities. Electron's
+ * `window.open` overload returns `BrowserWindowProxy`, which supplies close
+ * and print but lacks document access and addEventListener.
  */
 interface BrowserPrintWindow {
   readonly document?: Document;
   close(): void;
   print(): void;
-  addEventListener(
+  addEventListener?(
     type: 'afterprint',
     listener: EventListener,
     options?: boolean | AddEventListenerOptions,
@@ -188,7 +188,7 @@ interface BrowserPrintWindow {
 }
 
 function openBrowserPrintWindow(): BrowserPrintWindow | null {
-  return window.open('', '_blank') as unknown as BrowserPrintWindow | null;
+  return window.open('', '_blank');
 }
 
 type ExtractRecordSheetData = {
@@ -472,6 +472,9 @@ export class RecordSheetService {
       windowDoc.close();
       await waitForPrintWindowReady(windowDoc);
 
+      if (typeof printWindow.addEventListener !== 'function') {
+        throw new Error('Print window does not support afterprint events');
+      }
       printWindow.addEventListener('afterprint', closeOwned, { once: true });
       printWindow.print();
     } catch (error) {
