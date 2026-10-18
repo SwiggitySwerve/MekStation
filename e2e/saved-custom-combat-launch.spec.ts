@@ -435,11 +435,11 @@ test('server-saved custom unit launches through production combat to a durable p
         archivedCustom[0].armorByLocation.left_arm,
         'the archived GameCreated snapshot must carry the custom armor',
       ).toBe(CUSTOM_LEFT_ARM_ARMOR);
-      expect((await archivedMatch).ok()).toBe(true);
-      // The terminal persist effects can re-fire before their own guard
-      // latches (the guard is set in the resolve callback), so let the
-      // duplicate archive writes settle before navigating away.
-      await page.waitForLoadState('networkidle');
+      const matchResponse = await archivedMatch;
+      expect(matchResponse.ok()).toBe(true);
+      // Response headers can arrive before the archive bodies finish.
+      // Complete both writes before navigation can abort their body reads.
+      await Promise.all([replayResponse.finished(), matchResponse.finished()]);
 
       const terminalCustom = terminal.terminalUnits.find(
         (u) => u.id === seededCustom[0]!.id,
