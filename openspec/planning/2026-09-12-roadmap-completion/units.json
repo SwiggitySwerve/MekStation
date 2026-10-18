@@ -7402,7 +7402,9 @@
         "admission": {
           "path": "evidence/p2cg1r-admission-20261018.json"
         },
-        "red": null,
+        "red": {
+          "path": "evidence/p2cg1r-red-20261018.json"
+        },
         "local": null,
         "review": null,
         "merge": null,

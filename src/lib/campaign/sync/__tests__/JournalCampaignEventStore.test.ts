@@ -31,6 +31,7 @@ import { canonicalizeJsonV1 } from '@/lib/events/journal/EventJournalCanonicaliz
 import { canonicalizeCommandIdentityV1 } from '@/lib/events/journal/EventJournalCommandIdentity';
 import { InMemoryEventJournal } from '@/lib/events/journal/InMemoryEventJournal';
 import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
+import { DurableMatchStore } from '@/lib/multiplayer/server/DurableMatchStore';
 import { EVENT_JOURNAL_MIGRATION } from '@/services/persistence/SQLiteService.eventJournal.migration';
 import { AtBContractType } from '@/types/campaign/contracts/contractTypes';
 import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
@@ -1286,5 +1287,236 @@ describe('P2CG1B borrowed append, prewrite guard and actual-commit signal (real 
     }
     guarded.db.close();
     plain.db.close();
+  });
+  /**
+   * P2CG1R (H-OPEN-1 / CF-E1): a real P2CG1C match reservation (M) taken in
+   * the guard. The trace records M's transaction control with whether the
+   * append's own transaction (C) is still open; a microtask queued at BEGIN
+   * records 'tick' and then writes a foreign row on M - the write a late
+   * (microtask) release would let nest under M and then discard.
+   */
+  function reservedMatch(campaign: Database.Database) {
+    const file = path.join(directory, 'match.sqlite');
+    const matches = new DurableMatchStore({ path: file });
+    const match = matches.getDatabase();
+    match.exec('CREATE TABLE r_foreign (id INTEGER PRIMARY KEY)');
+    const trail: string[] = [];
+    const exec = match.exec.bind(match);
+    jest.spyOn(match, 'exec').mockImplementation((sql: string) => {
+      if (/^(BEGIN|COMMIT|ROLLBACK)/.test(sql)) {
+        trail.push(`M:${sql}:C-open=${String(campaign.inTransaction)}`);
+        if (sql === 'BEGIN IMMEDIATE') {
+          queueMicrotask(() => {
+            trail.push('tick');
+            match.transaction(() =>
+              match.prepare('INSERT INTO r_foreign DEFAULT VALUES').run(),
+            )();
+          });
+        }
+      }
+      return exec(sql);
+    });
+    let held: { release(): void } | null = null;
+    let signals = 0;
+    const controls = {
+      guard: () => {
+        held = matches.reserveMatchProgression();
+        trail.push('guard');
+        return null;
+      },
+      onNotCommitted: () => {
+        signals += 1;
+        const hold = held;
+        held = null;
+        hold?.release();
+      },
+    };
+    const foreignRows = () => {
+      const other = new Database(file, { readonly: true });
+      try {
+        return (
+          other.prepare('SELECT COUNT(*) AS n FROM r_foreign').get() as {
+            readonly n: number;
+          }
+        ).n;
+      } finally {
+        other.close();
+      }
+    };
+    return {
+      trail,
+      controls,
+      signals: () => signals,
+      foreignRows,
+      idle: () => !match.inTransaction,
+      close: () => matches.close(),
+    };
+  }
+
+  const abortTrigger =
+    "CREATE TRIGGER r_abort BEFORE INSERT ON event_journal_batches BEGIN SELECT RAISE(ABORT, 'r native append abort'); END";
+
+  it.each([
+    ['a real revision conflict', 'conflict'],
+    ['a native append abort', 'abort'],
+    ['a throwing saved-record extension', 'extension'],
+  ] as const)(
+    'P2CG1R: %s after the guard admitted releases M inside the append, before a queued foreign write',
+    async (_label, failure) => {
+      const { db, journal } = openFile(`r-${failure}.sqlite`);
+      const store = new JournalCampaignEventStore(journal);
+      expect(
+        (
+          await store.appendCommandBatch(
+            'campaign-journal',
+            commandInput('command-r-first'),
+          )
+        ).kind,
+      ).toBe('committed');
+      if (failure === 'abort') db.exec(abortTrigger);
+      if (failure === 'extension') {
+        store.rewriteRecordAfterCommand = () => {
+          throw new Error('saved-record rewrite failed');
+        };
+      }
+      const before = durableCounts(db);
+      const match = reservedMatch(db);
+      try {
+        const notified: ICampaignCommittedBatch[] = [];
+        const controls = {
+          ...match.controls,
+          onCommitted: (batch: ICampaignCommittedBatch) => notified.push(batch),
+        };
+        // The conflict row aims at revision 0, already taken: the SQL
+        // revision check refuses inside the append, after the guard admitted.
+        const appended = store.appendControlledCommandBatch!(
+          'campaign-journal',
+          commandInput('command-r-failed', failure === 'conflict' ? 0 : 1),
+          controls,
+        );
+        if (failure === 'conflict') {
+          expect(await appended).toEqual({
+            kind: 'sequence-conflict',
+            expectedNextSequence: 0,
+            actualNextSequence: 1,
+          });
+        } else {
+          // A native SqliteError may come from another realm: match by message.
+          await expect(appended).rejects.toMatchObject({
+            message:
+              failure === 'abort'
+                ? 'r native append abort'
+                : 'saved-record rewrite failed',
+          });
+        }
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        expect(match.trail).toEqual([
+          'M:BEGIN IMMEDIATE:C-open=true',
+          'guard',
+          'M:ROLLBACK:C-open=true',
+          'tick',
+        ]);
+        expect(match.signals()).toBe(1);
+        // Released before the queued write ran, so it committed on its own.
+        expect(match.foreignRows()).toBe(1);
+        expect(match.idle()).toBe(true);
+        expect(notified).toEqual([]);
+        expect(durableCounts(db)).toEqual(before);
+      } finally {
+        match.close();
+        db.close();
+      }
+    },
+  );
+
+  it('P2CG1R: no not-committed signal on a guard refusal, a commit or a recorded retry; a throwing signal never replaces the outcome', async () => {
+    const { db, journal } = openFile('r-signal.sqlite');
+    try {
+      const store = new JournalCampaignEventStore(journal);
+      const signals: string[] = [];
+      let guardCalls = 0;
+      const refusal = { kind: 'refused' as const, reason: 'not-converged' };
+      const refusing = {
+        guard: () => refusal,
+        onNotCommitted: () => signals.push('refused'),
+      };
+      const passing = {
+        guard: () => {
+          guardCalls += 1;
+          return null;
+        },
+        onNotCommitted: () => signals.push('passing'),
+      };
+      const throwing = {
+        guard: () => null,
+        onNotCommitted: () => {
+          signals.push('throwing');
+          throw new Error('release failed');
+        },
+      };
+      const append = (
+        commandId: string,
+        sequence: number,
+        controls: typeof passing | typeof refusing | typeof throwing,
+      ) =>
+        store.appendControlledCommandBatch!(
+          'campaign-journal',
+          commandInput(commandId, sequence),
+          controls,
+        );
+
+      expect(await append('command-r-once', 0, refusing)).toEqual(refusal);
+      expect((await append('command-r-once', 0, passing)).kind).toBe(
+        'committed',
+      );
+      expect(await append('command-r-once', 0, passing)).toMatchObject({
+        kind: 'duplicate-command',
+      });
+      expect(guardCalls).toBe(1);
+      expect(signals).toEqual([]);
+
+      expect(await append('command-r-stale', 0, throwing)).toMatchObject({
+        kind: 'sequence-conflict',
+      });
+      db.exec(abortTrigger);
+      await expect(
+        append('command-r-abort', 1, throwing),
+      ).rejects.toMatchObject({
+        message: 'r native append abort',
+      });
+      expect(signals).toEqual(['throwing', 'throwing']);
+      expect(durableCounts(db)).toMatchObject({ batches: 1, events: 1 });
+    } finally {
+      db.close();
+    }
+  });
+
+  it('P2CG1R: hook-only controls on a journal without the capability fail closed before any write', async () => {
+    const memoryStore = new JournalCampaignEventStore(
+      new InMemoryEventJournal<ICampaignJournalEnvelope>(() => NOW),
+    );
+    let signals = 0;
+    // Only the not-committed hook: no guard and no commit notification.
+    const hookOnly = {
+      guard: undefined,
+      onCommitted: undefined,
+      onNotCommitted: () => {
+        signals += 1;
+      },
+    };
+
+    expect(
+      await memoryStore.appendControlledCommandBatch!(
+        'campaign-journal',
+        commandInput('command-r-hook-only'),
+        hookOnly,
+      ),
+    ).toEqual({
+      kind: 'refused',
+      reason: CAMPAIGN_APPEND_CONTROLS_UNSUPPORTED,
+    });
+    expect(signals).toBe(0);
+    expect(await memoryStore.getEvents('campaign-journal')).toEqual([]);
   });
 });

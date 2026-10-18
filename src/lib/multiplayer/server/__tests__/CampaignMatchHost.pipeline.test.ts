@@ -630,4 +630,105 @@ describe('CampaignMatchHost controlled commits over a file-backed SQLite journal
     expect(next.ok).toBe(true);
     expect(host.getState().day).toBe(1);
   });
+  it('P2CG1R: the not-committed hook reaches the adapter unchanged and runs inside the open append on a real post-guard conflict', async () => {
+    const commandId = commandIdOf('intent-remove-conflict');
+    const real = store.appendControlledCommandBatch!;
+    const forwarded: unknown[] = [];
+    jest
+      .spyOn(store, 'appendControlledCommandBatch')
+      .mockImplementationOnce((campaignId, input, controls) => {
+        forwarded.push(Reflect.get(controls, 'onNotCommitted'));
+        // Aimed one revision ahead: the real SQL revision check refuses
+        // inside the append, after the guard admitted.
+        return real(
+          campaignId,
+          { ...input, expectedRevision: (input.expectedRevision ?? 0) + 1 },
+          controls,
+        );
+      });
+    const onNotCommitted = () =>
+      log.push(
+        `not-committed:in-transaction=${String(db.inTransaction)}:depth=${lockDepth()}`,
+      );
+    const controls = {
+      guard: () => {
+        log.push('guard');
+        return null;
+      },
+      onCommitted: () => log.push('notify'),
+      onNotCommitted,
+      afterRelease: () => log.push('cleanup'),
+    };
+    const before = host.getState();
+
+    const outcome = await host.applyHostIntentWithControls!(
+      removal('intent-remove-conflict'),
+      controls,
+    );
+
+    expect(outcome.kind).toBe('lost-race');
+    expect(forwarded).toEqual([onNotCommitted]);
+    expect(forwarded[0]).toBe(onNotCommitted);
+    expect(log).toEqual([
+      'guard',
+      'not-committed:in-transaction=true:depth=1',
+      'cleanup',
+    ]);
+    expect(host.getState()).toBe(before);
+    expect(durableRemoval(commandId)).toEqual([]);
+
+    // The same operation then commits once and never signals not-committed.
+    log.length = 0;
+    const accepted = await host.applyHostIntentWithControls!(
+      removal('intent-remove-conflict'),
+      controls,
+    );
+    expect(accepted.kind).toBe('committed');
+    expect(log).toEqual([
+      'guard',
+      'notify',
+      'publish:ParticipantRemoved',
+      'cleanup',
+    ]);
+  });
+
+  it('P2CG1R: hook-only controls on a store without the capability refuse before the first event', async () => {
+    const plainBatch = new InMemoryCampaignEventStore();
+    const inner = new InMemoryCampaignEventStore();
+    const perEventOnly: ICampaignEventStore = {
+      appendEvent: (campaignId, event) => inner.appendEvent(campaignId, event),
+      getEvents: (campaignId, fromSeq) => inner.getEvents(campaignId, fromSeq),
+      highestSequence: (campaignId) => inner.highestSequence(campaignId),
+    };
+    for (const eventStore of [plainBatch, perEventOnly]) {
+      const memoryHost = new CampaignMatchHost({
+        campaignId: CAMPAIGN,
+        hostPlayerId: 'pid-host',
+        eventStore,
+        initialState: initialState(CAMPAIGN),
+      });
+      await memoryHost.open();
+      const headBefore = await eventStore.highestSequence(CAMPAIGN);
+      const signals: string[] = [];
+      const hookOnly = {
+        onNotCommitted: () => signals.push('not-committed'),
+        afterRelease: () => signals.push('cleanup'),
+      };
+
+      const outcome = await memoryHost.applyHostIntentWithControls!(
+        removal('intent-remove-hook-only'),
+        hookOnly,
+      );
+
+      expect(outcome).toEqual({
+        kind: 'refused',
+        refusal: {
+          kind: 'refused',
+          reason: CAMPAIGN_APPEND_CONTROLS_UNSUPPORTED,
+        },
+      });
+      expect(signals).toEqual(['cleanup']);
+      expect(await eventStore.highestSequence(CAMPAIGN)).toBe(headBefore);
+    }
+  });
 });
