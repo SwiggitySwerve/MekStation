@@ -1,0 +1,146 @@
+# TS7S2A independent exact-head review (PR #2178): ts-node -> tsx, ts-node removed
+
+- Reviewer: claude-fable-5-1 (review sub-agent), not the author (author: claude-opus-5-5). Date 2026-10-16.
+- Reviewed head: 38e0541301c8a90bec3558b0f7b9db69a8a1c234 (branch codex/ts7s2a-tsx-20261016, one commit on the branch); base/baseline origin/main 35b962d79a4d6a69f03de820150b277ddeaab85d (merge-base equals the baseline; origin/main re-fetched during the review, still 35b962d79).
+- GitHub: PR #2178 OPEN, headRefOid 38e05413 (matches), 10 changed files, +1578/-178, MERGEABLE, no reviews, no comments. I made no comment, approval, edit, commit, push or merge.
+- Contract read: units.json TS7S2A entry (head), evidence/ts7-track-registration-20261016.json (units.TS7S2A, overlap, inventoryGaps), the TS7S1B review carry-forwards C1-C7 (docs/audits/2026-10-16-ts7s1b-fable-review.md section 9), design.md D6, tasks.md 2.1-2.2, the three receipts and the PR body.
+- My runs: two throwaway worktrees, review-ts7s2a-base (35b962d79) with node_modules junctioned to the root checkout (whose package-lock.json blob 439b3e2c equals the base blob; ts-node 10.9.2 and tsx 4.22.4 present) and review-ts7s2a-head (38e05413) with node_modules junctioned to the author's physical npm-ci tree (tsx 4.22.4, no ts-node); desktop/node_modules junctioned to the root checkout's in both. Node v22.22.0 on PATH for every run; npm 11.6.2 (Node 22's) and npm 11.19.1 (Node 24.15.0's npm-cli.js run under Node 22) as stated per step. Both worktrees removed afterwards, junctions unlinked first; author worktree git status empty before and after; root checkout status unchanged (see Process note). Not run: npm run test:stable (author ran once: 2796/2796 suites, 37180 passed), a full real npm ci (see section 3), build, storybook:build.
+
+Verdict: APPROVE-WITH-NOTES. Blockers: none. Majors: none. Minors: M1-M3 (documentary, none requires a change to this PR). Notes N1-N7. Carry-forwards for TS7S2B/S3/S4B/S5A/S2OD: section 7.
+
+## 1. Diff scope, lifecycle, census
+
+- git diff --numstat --no-renames 35b962d79..38e05413: exactly 10 files: package.json (+4/-5), package-lock.json (+9/-154), scripts/compare-pip-distributions.ts (+1/-1), openspec/scripts/terminology-tool.ts (+4/-4), openspec/scripts/terminology-tool.output.js (+6/-6), openspec/changes/migrate-to-typescript-7/tasks.md (+2/-2), openspec/planning/2026-09-12-roadmap-completion/units.json (+16/-6), evidence/ts7s2a-{admission,red,local}-20261016.json (+146/+532/+858). That is the 6 registered leaves (identical to units.TS7S2A.leaves and ownershipPaths in the registration), the unit's own units.json lifecycle, and 3 receipts. The reserved review slot evidence/ts7s2a-admission-review-20261016.md is absent from the tree (correct; I did not write it). git ls-tree -r of the head: 0 node_modules or .omo paths.
+- Content of the non-lock leaves: package.json changes exactly the four terminology:\* script strings (npx ts-node -> npx tsx, arguments unchanged) and deletes the "ts-node": "^10.9.2" devDependency line; terminology-tool.ts changes the shebang and three usage-comment lines; terminology-tool.output.js changes six help-text lines; compare-pip-distributions.ts changes one usage comment; tasks.md ticks 2.1 and 2.2 with no added outcome line (neither task text requires one). No import/require line is added anywhere.
+- units.json id-keyed deep diff (my script): 206 units both sides, same order, every top-level key other than units deep-equal (schemaVersion, programSnapshot, supplementSnapshots, holdersRule, packets, deferrals, findings, residualRegistration20261016, ts7TrackRegistration20261016). Exactly one unit changed, TS7S2A, four fields: state planned -> implementing; baseline null -> 35b962d79...; stageReceipts.admission/red/local null -> {path: evidence/ts7s2a-\*.json}; ownershipExceptions +4 (three receipts and the reserved review slot), none removed. prHead/mergeSha/review/merge/mainProof/tick untouched. Same shape as the TS7S1A/TS7S1B precedent.
+- Census recomputed against validate-roadmap.mjs's own rule (lines 105-110, 703-727: evidence directory skipped; UNCOUNTED_FILES matches /(^|\/)package-lock\.json$/; added lines of everything else counted): tasks.md 2 + units.json 16 + output.js 6 + terminology-tool.ts 4 + package.json 4 + compare-pip 1 = 33 counted lines of 500; package-lock.json 0 counted. Files: 10 in the diff + the reserved review slot = 11 of 15. Matches the author's 33 and 11/15. The validator does not exempt the evidence receipts from the file count by any rule I can see, and the author counted them, so 11 is the right figure.
+- Admission receipt hashes: all 7 existing frozenFiles sha256 values match the baseline blobs (git show 35b962d79:<path>); all 10 notToChange hashes are unchanged at the head (scripts/tsconfig.json, tsconfig.json, desktop/package.json, desktop/package-lock.json, desktop/jest.config.js, jest.config.js, playwright.config.ts, .storybook/main.ts, openspec/scripts/README.md, design.md). TS7S1B merge 3d9c4536 is an ancestor of the baseline (merge-base --is-ancestor exit 0).
+- All three receipts carry unit TS7S2A, the right stage, baseline 35b962d79 and contributor claude-opus-5-5.
+
+## 2. Behaviour equality of the four commands (base ts-node vs head tsx)
+
+Capture: Node spawnSync via cmd, stdout and stderr as raw bytes, sha256 + exit code; the same harness on both trees.
+
+Clean tree (npm run -s):
+
+| command                     | base exit / head exit | stdout sha256 (identical base = head)                                                                                                  | lines                                   |
+| --------------------------- | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- |
+| terminology:validate        | 0 / 0                 | 8bf31f80951a7de88d35f307ac4a8468025d5f6a7e9303a55c4d0b4f04130d31                                                                       | 9 (308 files scanned)                   |
+| terminology:validate:strict | 0 / 0                 | 8bf31f80... (same)                                                                                                                     | 9                                       |
+| terminology:fix:dry-run     | 0 / 0                 | 2d000d64e8c8e2e97da9207a891caf3b7c406f350bb2ae8c4ec67da1eca7ee93                                                                       | 11                                      |
+| terminology:fix             | 0 / 0                 | da8a0fc5b90be12108a7527e08a38d5f52e9ce42612520e21806a325766dca5c                                                                       | 11; git status empty afterwards on both |
+| validate -- report          | 0 / 0                 | 8bf31f80... (same)                                                                                                                     | 9                                       |
+| validate -- --json          | 0 / 0                 | 1858 lines; byte-identical after replacing the worktree directory name (absolute paths are embedded in the JSON)                       | 1858                                    |
+| validate -- --help          | 0 / 0                 | differs: base 0f43ba70..., head 37517f96...; Compare-Object shows exactly the 6 intended npx ts-node -> npx tsx lines and nothing else | 29                                      |
+
+The three stdout hashes match the author's red/local receipts (8bf31f80..., 2d000d64..., da8a0fc5...). stderr: base prints the 4-line Node MODULE_TYPELESS_PACKAGE_JSON warning (its pid and path vary, so its hash varies per run; it vanished when the tool called process.exit(1) synchronously); head prints nothing. No tool output goes to stderr on either side.
+
+Deliberate-violation run: an identical probe spec openspec/specs/zz-review-probe/spec.md (two "crit slots"/"component mass" errors, "critical spaces" error, "armour"/"equipment slots" items; 5 violations reported) written to both trees:
+
+| command                   | base / head exit | stdout sha256 identical                                          | lines          |
+| ------------------------- | ---------------- | ---------------------------------------------------------------- | -------------- |
+| validate                  | 0 / 0            | 6db08427e6eb383d5c7e80055c62716e73d046c49392db3aecdcd2f4f4d61945 | 47 (309 files) |
+| validate:strict           | 1 / 1            | 6db08427... (same)                                               | 47             |
+| fix:dry-run               | 0 / 0            | 4d8fa529adc3bb8cb556d7a3bc1b7137176280f412bfd7fe8be5d38f80a3a955 | 52             |
+| fix                       | 0 / 0            | 46f9252d1fd1f12928ec18aadbc3c8bd0a7c45a06322117ea2356fd7df521ebf | 52             |
+| validate:strict after fix | 0 / 0            | 601d1699f66324cd9c55427a0293198a324d36d3088e97e713e6b17ad124ddd8 | 9              |
+
+fix rewrote the probe to the same bytes on both trees (spec.md sha256 cfdd4b27f285888e81ebef3609760ec2545a754beaa812d5b7958ca09f28976c) and created spec.md.bak on both. Probe directory and .bak removed afterwards; both worktrees clean. (The author's probe used different content, sha c44fc48b...; not comparable, not needed.)
+
+Runner identity (NODE_OPTIONS=--require argv probe on npm run -s terminology:validate): base chain npm-cli -> npx-cli ts-node -> node_modules/ts-node/dist/bin.js openspec/scripts/terminology-tool.ts validate; head chain npm-cli -> npx-cli tsx -> node_modules/tsx/dist/cli.mjs -> a child node with execArgv [--require .../tsx/dist/preflight.cjs --import file:///.../tsx/dist/loader.mjs] and argv [terminology-tool.ts, validate]. No ts-node process on the head. Same as the author's probe.
+
+Differences between ts-node and tsx that could matter, checked:
+
+- Type-checking on load. ts-node type-checks by default and did so here: a copy of the tool with one appended `const x: number = 'x'` fails under npx ts-node with TSError TS2322 even for --help (exit 1, no stdout); the same file under tsx on both trees runs (exit 0, help printed). No TS_NODE_TRANSPILE_ONLY, tsconfig "ts-node" key, or --transpile-only flag is in the tree, so the old npm scripts were type-checking the tool on every run and the new ones do not. This is covered elsewhere: `tsc --noEmit --skipLibCheck --listFilesOnly` on the head lists openspec/scripts/terminology-tool.ts, terminology-tool.types.ts, spec-purpose-lint.ts and (allowJs) terminology-tool.core.js/.fixers.js/.output.js, because the root tsconfig includes **/\*.ts and excludes only scripts/** and desktop/\*\*. npm run typecheck exits 0 on the head. So the tool stays type-checked by the gate that CI and the pre-commit hook run; nothing is lost. (N1)
+- What ts-node was actually doing on the base is worth recording, because it shows the swap removes fragility rather than adding it. With the root tsconfig (module esnext, moduleResolution bundler, target es2017) ts-node 10.9.2 emits ESM: `require('ts-node').create().compile(...)` on terminology-tool.ts yields `import * as fs from 'fs'; ...` (236 lines). ts-node then hands that to the CommonJS loader, and the run only succeeds because Node 22.22 detects module syntax, re-parses the file as ESM (hence the MODULE_TYPELESS_PACKAGE_JSON warning) and loads a .ts URL through its type-stripping format table. Evidence: on the base, `npx ts-node ... validate` with NODE_OPTIONS=--no-experimental-detect-module fails with "SyntaxError: Cannot use import statement outside a module" (exit 1), and with NODE_OPTIONS=--no-experimental-strip-types fails with ERR_UNKNOWN_FILE_EXTENSION ".ts" (exit 1). On the head, `npx tsx ... validate` passes under both flags with the identical stdout 8bf31f80... (exit 0). The package engines field is node >=22.12.0; type stripping was unflagged only in 22.18, so the base command was likely broken on 22.12-22.17 (I could not test those versions: nvm has 20.20.0, 22.22.0, 24.13.0, 24.15.0 only). The head does not depend on either Node feature. (N2)
+- tsconfig handling by tsx: tsx loads the tsconfig from the cwd (register-_.mjs: loadTsconfig(process.env.TSX_TSCONFIG_PATH); npm run sets cwd to the repository root) and uses it for paths, jsx, useDefineForClassFields and the like; its esbuild target is `node${process.versions.node}` (index-_.mjs), not the tsconfig target, so target es2017 does not downlevel anything at run time. A probe file importing `{ UI_THEMES } from '@/constants/appearance'` resolves under tsx with the root tsconfig (paths without baseUrl) and, with TSX_TSCONFIG_PATH=scripts/tsconfig.json, with the baseUrl form too; the same probe under ts-node on the base fails ("Cannot find package '@/constants'"), so tsx is strictly more capable here. The terminology tool itself imports only node builtins and relative files (./terminology-tool.{core,fixers,output}.js and a type-only import of ./terminology-tool.types), so no alias is exercised by the four commands.
+- Constructs: grep of the five tool files finds no decorator, enum/const enum, import.meta, require.main or export default; terminology-tool.core.js is a CommonJS file using \_\_dirname and Object.hasOwn, loaded by require from the transpiled tool on both sides; terminology-tool.output.js is ESM syntax, which tsx transforms and which Node on the base handled via the same detection path. process.argv: the tool reads process.argv.slice(2); both runners deliver [command, flags] (output equality above proves it, including --strict, --dry-run, --json, --help, report).
+- ES target: a probe with optional chaining, nullish coalescing, class fields, private static fields and for-await runs under tsx on Node 22 unchanged (printed "probe 7 1 1 2 undefined").
+
+## 3. Lockfile
+
+- The head package-lock.json (blob 0bc4b876) is reproduced byte for byte from the base by `node <nvm v24.15.0>/node_modules/npm/bin/npm-cli.js uninstall ts-node --package-lock-only --ignore-scripts --no-audit --no-fund` (npm 11.19.1 under Node 22.22.0) in a clean worktree with no node_modules; the resulting package.json is also byte-identical to the head's (blob ce821c60). git diff --numstat: 9/154 as stated.
+- Idempotent: `npm install --package-lock-only --ignore-scripts` with npm 11.19.1 on the head prints "up to date" and leaves 0 lines changed. With npm 11.6.2 (the npm bundled with Node 22.22.0) the same command rewrites the head lockfile by +80/-196 and the base lockfile by +90/-205 (libc/peer/dev flag churn): the churn the author discarded is a property of npm 11.6.2 against this lockfile at either commit, not of this change. (N3)
+- Structural diff (JSON-level, my script): 13 package entries removed, 0 added, 1 changed (the root "" entry: devDependencies.ts-node removed, nothing else). lockfileVersion 3 unchanged; name/version/requires unchanged. Key order identical apart from node*modules/string_decoder, which moved from between string-width/node_modules/emoji-regex and strip-ansi to between storybook and string-argv (npm 11.19.1 collates "*" before "-"); its entry is byte-identical, which is the +9.
+- Removed entries and their dependents in the base lockfile: ts-node (dependents: root devDependencies and jest-config's optional peer only); @cspotcode/source-map-support, @cspotcode/source-map-support/node_modules/@jridgewell/trace-mapping (the nested 0.3.9 copy only; the top-level @jridgewell/trace-mapping stays, with 14 other dependents), @tsconfig/node10, @tsconfig/node12, @tsconfig/node14, @tsconfig/node16, arg, create-require, diff (4.0.4; no other diff entry exists anywhere in the head lockfile), make-error, v8-compile-cache-lib, yn: each has ts-node as its only dependent. ts-node's shared dependencies acorn and acorn-walk are retained. On the author's installed tree `npm ls` for arg, yn, make-error, create-require, v8-compile-cache-lib, diff, @tsconfig/node10 and @cspotcode/source-map-support each prints (empty); `npm ls ts-node` prints (empty) with exit 1 (npm's no-match); `npm ls` (whole tree) exits 0.
+- The only ts-node strings left in the head lockfile are jest-config's `peerDependencies "ts-node": ">=9.0.0"` and `peerDependenciesMeta ts-node optional: true`. desktop/package-lock.json has the same optional peer and nothing else. jest-config imports ts-node only for a TypeScript Jest config; the tracked configs are jest.config.js and desktop/jest.config.js (plus jest.setup.js and jest.setup.a11y.ts, which are setup files, not configs); no vitest/mocha config exists.
+- `npm ci --dry-run --ignore-scripts --no-audit --no-fund` from the head lockfile in a clean worktree exits 0 with npm 11.6.2 ("added 1075 packages") and with npm 11.19.1 ("added 1073 packages"; the two versions count differently, no sync error from either). I did not re-run a full real npm ci: the author's worktree holds the physical tree from its npm ci, which `npm ls` validates (exit 0) and which ran every head command above.
+- `npm ls` on the author's tree and on the root checkout both list @emnapi/runtime and @img/sharp-wasm32 as extraneous; identical before and after, a sharp optional-platform artefact unrelated to this PR.
+
+## 4. Other ts-node invocations in the repository (head)
+
+git grep -i ts-node over tracked files, excluding both lockfiles, the ledger evidence directory and docs/audits:
+
+- openspec/scripts/README.md: 17 lines still say `npx ts-node openspec/scripts/terminology-tool.ts ...` (47, 50, 53, 56, 59, 62, 65; the package.json excerpt at 224-227; 238; a CI snippet at 249; 302, 305, 308). The registration's inventoryGaps assigns this file to TS7S5A and the unit behavior text says the same, so it is correctly not a leaf here. Not a breakage: a user running those lines on a clean machine gets npx's "Need to install ts-node@10.9.2" prompt and, if accepted, the same base behaviour; it is stale documentation. (M1)
+- design.md 33/46/137, proposal.md 14, tasks.md 56-60, roadmap.json 8871, units.json 7923/7979/8360/8408: descriptive text of the migration itself; correct as written.
+- No match in .github/workflows, .husky (pre-commit runs npx lint-staged only), Dockerfile, Dockerfile.dev, docker-compose.yml, desktop/package.json, any tsconfig ("ts-node" key), or any tracked .vscode file (none tracked). No TS*NODE*\*, ts-node/register or --loader ts-node anywhere; the one tsconfig-paths/register mention is an archived change note using tsx. No other package script, in root or desktop/, invokes ts-node. Nothing else would break.
+
+## 5. Gates re-run on the head (Node v22.22.0)
+
+| gate                                  | result                                                                                          | matches author                            |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------- | ----------------------------------------- |
+| npm run typecheck                     | exit 0 (tsc 5.8.3; stdout sha d140a6ce...)                                                      | yes                                       |
+| npm run lint                          | exit 0, "Found 86 warnings and 0 errors", 3841 files, 1068 lines                                | yes (sha differs only by the timing line) |
+| npm run lint:units                    | LINT_UNITS_PASS 17899/17899 (stdout sha e53b4790... identical to the author's and to base)      | yes                                       |
+| npm run format:check                  | "All matched files use the correct format", 8191 files                                          | yes                                       |
+| npx openspec validate --all --strict  | Totals: 230 passed, 0 failed (sha f0ed162c... identical)                                        | yes                                       |
+| npm run qc:openspec-ci:validate       | errors=0, activeOpenSpecChanges=10 accounted=10 (sha 732887ec... identical)                     | yes                                       |
+| desktop/ npm run type-check           | exit 0 (sha 1c84aef8... identical)                                                              | yes                                       |
+| desktop/ npm test                     | 5 suites, 57/57 passed; 14 TS151002 messages on stderr (warm cache); 16 with --no-cache, 57/57  | yes (author: 0/13/16 depending on cache)  |
+| validate-roadmap.mjs                  | ROADMAP VALIDATION PASSED: 80 nodes, 13 packages, 381 tasks, 40 triage rows                     | yes                                       |
+| validate-roadmap.mjs --next           | U24b (TS7S2A in flight; U63 excluded by the shared package.json path, as the overlap rule says) | yes                                       |
+| node --test validate-roadmap.test.mjs | 86 tests, 86 pass, 0 fail                                                                       | yes                                       |
+
+## 6. The author's concerns
+
+- Lockfile npm version: verified above; 11.19.1 reproduces and is idempotent, 11.6.2 churns both commits equally. Recording the generating npm version in the receipt, as the author did, is the right practice and should continue for TS7S3/TS7S4B (section 7).
+- Desktop TS151002 count: confirmed cache-dependent (my 14 warm / 16 cold against the author's 0 / 13 / 16); ts-jest emits them per transformed file not served from cache. No diagnostics.ignoreCodes added; desktop untouched (hashes unchanged). The 0 assertion belongs to the 2.3 receipt (C3 carried).
+- Shebang `#!/usr/bin/env npx tsx`: the base shebang `#!/usr/bin/env npx ts-node` had the identical multi-argument property (needs env -S on GNU coreutils); the file mode is 100644 on both commits so the line is inert when run through npm; tsx strips it; and the same form is the repository convention (spec-purpose-lint.ts and at least eight scripts/analyze-\*.ts files). Changing the form here would be out of scope. (N4)
+- openspec/scripts/README.md: see section 4 (M1), TS7S5A.
+- Scratch leftovers: the author worktree's tracked status is empty; its gitignored leftovers are .husky/\_/, data/, equipment-validation-report.json, scripts/lib/**pycache**/ and tsconfig.tsbuildinfo, all produced by install/test runs and all ignored; nothing of them is in the head tree. The compare-pip-distributions output the author mentions is gone.
+
+## 7. Carry-forwards, exact wording
+
+For TS7S2B (tasks 2.3-2.4):
+
+- C3 (carried, tightened). "desktop `npm test` prints a cache-dependent number of ts-jest TS151002 messages (reviewers measured 0, 13, 14 and 16 on the same tree). After ts-jest -> @swc/jest, the 2.3 receipt must assert 0 TS151002 on `npm test -- --no-cache`, not on a warm-cache run, and must not add diagnostics.ignoreCodes to desktop/jest.config.js."
+- S2B-1. "Root devDependencies already carry @swc/core ^1.15.30 and @swc/jest ^0.2.39 (root package.json, unchanged by TS7S2A). When adding both to desktop/package.json, pin the same majors and state in the PR body whether desktop resolves its own copies (desktop has a separate lockfile) so the two SWC versions do not drift. Root package.json and package-lock.json are not TS7S2B leaves; do not touch them."
+- S2B-2. "Regenerate desktop/package-lock.json with npm 11.19.1 (node <nvm v24.15.0>/node_modules/npm/bin/npm-cli.js under Node 22) or record the npm version used: npm 11.6.2 rewrites the root lockfile by about +80/-196 lines on this main with no dependency change, and the desktop lockfile is likely to behave the same way."
+- S2B-3 (task 2.4). "The root lockfile contains @joshwooding/vite-plugin-react-docgen-typescript 0.5.0 -> react-docgen-typescript, so Storybook autodocs currently depend on the TypeScript compiler API. The 2.4 proof must run `npm run storybook:build` and show one populated prop table for a component with typed props; if `typescript: { reactDocgen: 'react-docgen' }` is adopted, .storybook/main.ts must be a registered leaf of the unit making the edit (it was a notToChange hash for TS7S2A)."
+
+For TS7S3 / TS7S4B (shared package.json and package-lock.json leaves): "TS7S2A's package-lock.json is idempotent under npm 11.19.1 (`npm install --package-lock-only` prints 'up to date', 0 lines). Any later reinstall of the root lockfile should use the same npm and say so, or expect an unrelated libc/peer-flag diff of about 200 lines from npm 11.6.2 that reviewers will have to classify. There is no other package.json interplay: TS7S2A touched only the four terminology:\* scripts and the ts-node devDependency; tsx 4.22.4 and typescript ^5.8.3 lines are unchanged."
+
+For TS7S2OD (scripts/tsconfig.json): "tsx resolves the `@/*` alias correctly from both the root tsconfig (paths without baseUrl) and scripts/tsconfig.json (baseUrl ../src form) when pointed at it with TSX_TSCONFIG_PATH; the terminology tool needs neither. Deleting or narrowing scripts/tsconfig.json therefore cannot change any tsx-run script's module resolution, which confirms C2 from the tsx side."
+
+For TS7S5A (docs): "openspec/scripts/README.md lines 47, 50, 53, 56, 59, 62, 65, 224-227, 238, 249, 302, 305, 308 say npx ts-node; replace with npx tsx (the package.json excerpt at 224-227 should match the live scripts)."
+
+## 8. Findings
+
+Blockers: none.
+Majors: none.
+Minors (documentary; no change to this PR requested):
+
+- M1. openspec/scripts/README.md still documents npx ts-node (17 lines). Registered to TS7S5A; stale but not broken.
+- M2. The tool is no longer type-checked at run time (ts-node did; tsx does not). Covered by root `npm run typecheck`, which includes openspec/scripts/\*.ts and the allowJs .js modules (verified with --listFilesOnly). Worth one sentence in the TS7S5A docs so nobody reads a green terminology run as a type-check.
+- M3. The receipts record the MODULE_TYPELESS_PACKAGE_JSON warning but not why it appeared (ts-node emitting ESM under module esnext and Node rescuing it). Section 2 above records it; nothing to change.
+
+Notes:
+
+- N1. Type-check-on-load difference verified by injection (TS2322): ts-node exit 1 even for --help; tsx exit 0.
+- N2. Base ts-node run depended on Node's module-syntax detection, require(esm) and type-stripping format table; fails under --no-experimental-detect-module and --no-experimental-strip-types. Head tsx passes under both. Engines node >=22.12.0 makes the base command suspect on 22.12-22.17 (not tested).
+- N3. npm 11.6.2 lockfile churn is pre-existing at the base, not introduced here.
+- N4. Shebang form unchanged in property, non-executable file, repository convention.
+- N5. `validate --json` embeds absolute paths; byte-identical modulo the checkout directory name.
+- N6. @emnapi/runtime and @img/sharp-wasm32 show as extraneous in both the root and the author's trees; unrelated.
+- N7. The author's `npm ci --dry-run` without --ignore-scripts failed only because husky's prepare runs before node_modules exists; the --ignore-scripts form passes under both npm versions, as I reproduced.
+
+## 9. Not verified
+
+- npm run test:stable (not re-run; author's single run 2796/2796 suites, 37180 passed).
+- A full real `npm ci` from the head lockfile into an empty directory (only --dry-run with two npm versions plus the author's existing physical tree, validated by npm ls).
+- Behaviour of the base command on Node 22.12-22.17 (versions not installed); the head does not depend on the features in question.
+- npm run build, storybook:build, next dev: out of scope for a script-runner swap and unaffected by the diff.
+
+## Process note
+
+One reviewer-side mishap, disclosed for integrity: two `[IO.File]::WriteAllText` calls with relative paths resolved against the process working directory (the root checkout E:/Projects/Personal/MekStation) instead of the base worktree, appending two lines to the root checkout's openspec/scripts/terminology-tool.ts and creating openspec/scripts/zz-typeerr.ts there. Both were detected within the same step, the file restored with `git checkout --` (its diff against 35b962d79 is empty) and the stray file deleted; the root checkout's git status is unchanged from the start of the review (.claude_settings.json, scripts/show-unit-crits.ts, scripts/trace-albatross-weapons.ts modified, untracked .omo/ and docs/audits files). No result in this report comes from the affected step; the type-check injection evidence (N1) is from files written with absolute paths into the throwaway worktrees.

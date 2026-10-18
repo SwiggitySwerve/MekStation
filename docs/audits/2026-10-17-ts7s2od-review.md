@@ -1,0 +1,102 @@
+APPROVE-WITH-NOTES
+
+Blockers: none. Majors: none.
+
+Minor M1 — scripts/validate-bv.ts:284; scripts/validate-bv-types.ts:32:
+`iu.bv!` suppresses a real optional-value mismatch; it does not establish that BV exists.
+Accept for this bounded, behavior-preserving migration: the prior branch already returned
+undefined, the row remains `status: 'error'`, and reporting excludes it from calculated
+coverage (scripts/validate-bv-reporting.ts:113). JSON still omits indexBV/ref when absent.
+The assertion does not silently exclude a successful unit or change the gate's outcome.
+A later unit owning the shared result type should model absent BV on error rows explicitly;
+do not replace this with `?? 0` here, which would change the existing report contract.
+
+Review identity and scope
+
+- PR: https://github.com/SwiggitySwerve/MekStation/pull/2184
+- Reviewed head: 80ac1ae97c39d10668d7e1e7d266ebdc1112dd43 (GitHub and detached checkout matched).
+- Source diff base: 244c9d2fe90587481551726cd2704b4cc889a5a3.
+- Admission baseline: 437db72aab57009f2ba5b73a86220cb2dc65615a.
+- Independent reviewer: GPT-6 Astra, high effort; routine/light review, 2026-10-17 UTC.
+- Followed the council's lean cadence. No Jest, build, Playwright, installs, commits,
+  pushes, merges, PR comments, or unrelated-process termination.
+
+Ownership, caps, ruling, lifecycle
+
+- units.json:8136: every changed leaf is in TS7S2OD ownershipPaths/ownershipExceptions.
+  Measured `git diff --numstat --no-renames`: 11 actual files / 15; 12 with the reserved
+  review slot; 60 counted additions / 500. Evidence files count as files but their lines
+  are excluded by validate-roadmap.mjs:716. No cap exception or scope widening.
+- units.json:8148 and :8165: deep comparison found only TS7S2OD's four evidence exceptions,
+  state (planned -> implementing), baseline, and admission/red/local receipt pointers changed.
+  All other 205 units and all top-level data are identical. No review/merge/Main claim.
+- The owner ruling is present on merged #2181, in
+  evidence/ts7s2b-review-20261016.json:285 (relative to the roadmap directory): option (a),
+  verbatim owner reply, source message/time, preceding question, and explicit interpretation.
+  It includes the BV spec command correction. This is not merely the design's recommendation.
+- 437db72aa is an ancestor of the reviewed head; TS7S2B merge 08555b7a is an ancestor of it.
+  The #2181 ledger records TS7S2B main-verified and a matching mainProof PASS.
+
+Implementation and specification
+
+- scripts/tsconfig.json:4, :15, :18, :20: retains strict checking; removes baseUrl;
+  maps @/_ to ../src/_; explicitly selects node types; roots only validate-bv.ts,
+  validate-parity.ts and data-migration/\*_/_.ts. Parsed roots are the two named CLIs;
+  data-migration currently contributes no TS file. Imported dependencies remain checked.
+  DOM declarations support transitive browser-safe imports without adding runtime code.
+- package.json:26: root then scripts compiler, joined by &&. Failure propagation is
+  demonstrated below, using the current compiler (5.8.3), as the ruling permits.
+- scripts/validate-bv.ts:253 correctly admits the existing undefined map key;
+  scripts/validate-bv-calculator.ts:17 imports MechLocation as a type only.
+  IndexUnit.bv stays optional. Both edited files emit byte-identical JavaScript versus base
+  under TS 5.8.3 transpileModule (ES2020/ESNext, comments removed).
+- openspec/changes/migrate-to-typescript-7/specs/bv-validation-tooling/spec.md:3 retains
+  the complete canonical requirement and both scenarios; a text comparison confirmed its
+  only substantive change is `npx tsc --noEmit` -> `npm run typecheck` at :20.
+- proposal.md:37 names the modified capability. tasks.md:70 only ticks 2.5 and adds the
+  required option-(a) command correction; no outcome narrative or unrelated tick.
+  Canonical spec synchronization remains for the registered archive work.
+
+Independent checks and mutants
+
+- Runtime: Node v24.15.0, npm 11.19.1, TypeScript 5.8.3; reused the requested dependency
+  junction, with no install. This differs from the author's Node 22/npm 11.6 environment.
+- Exact-head `npm run typecheck`: exit 0. Both projects ran.
+- Mutant 1: appended `const ts7s2odReviewFailureProbe: number = 'deliberate scripts gate error';`
+  to scripts/validate-bv.ts. Root `npm run typecheck` exited 2, TS2322 at :448.
+  The scripts-only error was reached after the root project succeeded.
+- Restored that file, then mutant 2 reverted only Map<number | undefined, string[]>
+  to Map<number, string[]>. Root `npm run typecheck` exited 2, three TS2345 diagnostics
+  at :255 and :256. Neither mutant survived.
+- Restored exact-head bytes again: `npm run typecheck` exit 0; tracked status clean.
+- Separate in-memory compiler-host replay of the two pre-fix files under the final narrowed
+  config reproduced exactly five diagnostics in two files: three TS2345, one TS2322,
+  one TS2552. No additional source leaf was needed.
+- Roadmap validator PASSED; focused `openspec validate migrate-to-typescript-7 --strict`
+  passed; `git diff --check HEAD^ HEAD` passed.
+- All 46 stdout/stderr log hashes referenced by the red/local receipts matched available
+  files. Full BV/parity runs were not independently repeated; those runtime results remain
+  author evidence, supplemented here by independent JavaScript emit equality.
+- Exact-head GitHub check snapshot: Type Check, A11y and multiple other jobs succeeded;
+  unit shards and other jobs were still in progress. This review does not claim completed
+  CI/stable proof or authorize bypassing the remaining merge gates.
+
+Carry-forwards
+
+- TS7S3: admit on a baseline containing TS7S2OD's merge and closure; revalidate both root
+  and scripts projects with TS 6, plus both desktop projects. Retain explicit node types,
+  relative paths, strictness and no ignoreDeprecations. Register any new diagnostic leaf.
+- TS7S4A: package.json:26 must retain BOTH compiler invocations, each using
+  `node node_modules/typescript7/bin/tsc`; the second must retain `-p scripts/tsconfig.json`.
+  tasks.md:99 currently sketches only the root invocation: do not copy it over this gate.
+  Route CI (.github/workflows/pr-checks.yml:167 currently checks root only) and other gates
+  without losing scripts coverage. Repeat a scripts-only error mutant through the routed
+  gate and ensure guard coverage rejects a TS6 fallback in either invocation.
+- Later result-type owner: resolve M1 without changing missing-file JSON semantics.
+
+Cleanup
+
+- Used E:/Projects/Personal/MekStation-wt/ts7s2od-review-20261017 at the pinned head.
+  Created node_modules with cmd /c mklink /J to E:/Projects/Personal/MekStation/node_modules.
+  Restored mutants; removed the verified junction first, then the worktree. Confirmed the
+  worktree is absent and the donor node_modules still exists. Only this audit persists.
