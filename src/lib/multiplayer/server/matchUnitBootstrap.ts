@@ -1,16 +1,30 @@
+import type { ReadCustomCombatDefinition } from '@/engine/InteractiveSession.recovery';
 import type { IAdaptedUnit } from '@/engine/types';
-import type { IGameUnit } from '@/types/gameplay/GameSessionInterfaces';
+import type {
+  IGameSession,
+  IGameUnit,
+} from '@/types/gameplay/GameSessionInterfaces';
 import type { IHexCoordinate } from '@/types/gameplay/HexGridInterfaces';
 import type { TeamLayout } from '@/types/multiplayer/Lobby';
 
-import { adaptUnit } from '@/engine/adapters/CompendiumAdapter';
+import {
+  adaptUnit,
+  adaptUnitFromData,
+} from '@/engine/adapters/CompendiumAdapter';
 import { createMinimalGrid } from '@/engine/GameEngine.helpers';
-import { detachCustomCombatSnapshot } from '@/engine/InteractiveSession.recovery';
+import { InteractiveSession } from '@/engine/InteractiveSession';
+import {
+  deriveAdaptedUnitsFromSession,
+  detachCustomCombatSnapshot,
+  isCustomCombatUnitRef,
+} from '@/engine/InteractiveSession.recovery';
+import { getNodeCanonicalUnitService } from '@/services/units/NodeCanonicalUnitService';
 import { readServerCustomCombatDefinition } from '@/services/units/serverCustomCombatDefinition';
-import { SeededRandom } from '@/simulation/core/SeededRandom';
+import { SeededD6Roller, SeededRandom } from '@/simulation/core';
 import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 import { Facing } from '@/types/gameplay/HexGridInterfaces';
 import { seatLayoutSpec } from '@/types/multiplayer/Lobby';
+import { logger } from '@/utils/logger';
 
 import type { IMatchMeta, IMatchUnitBootstrapEntry } from './IMatchStore';
 import type { IMatchHostBootstrap } from './ServerMatchHostBootstrap';
@@ -181,4 +195,77 @@ export async function buildMatchHostBootstrapFromMeta(
     gameUnits: adapted.map((entry) => entry.gameUnit),
     diceSeed: options.diceSeed,
   };
+}
+
+/**
+ * WHAT: a unit the engine recovers from its recorded custom snapshot or
+ * authoritative custom definition, never from the canonical catalog.
+ * WHY: those keep the engine path; only catalog units change source.
+ */
+function isEngineRecoveredUnit(gameUnit: IGameUnit): boolean {
+  return (
+    gameUnit.customUnitDefinition !== undefined ||
+    isCustomCombatUnitRef(gameUnit.unitRef)
+  );
+}
+
+/**
+ * WHAT: per-unit adapted state for a recovered session, in session order,
+ * with canonical units read from the bundled catalog files on disk.
+ * WHY: boot recovery runs before server.js listens, so the fetch catalog
+ * (HTTP to this same server) cannot answer and every unit was skipped
+ * (FINDING-A1-REV-1). Same adapter and skip rule as the engine path.
+ */
+export async function deriveServerAdaptedUnits(
+  session: IGameSession,
+  readCustom: ReadCustomCombatDefinition = readServerCustomCombatDefinition,
+): Promise<IAdaptedUnit[]> {
+  const engineUnits = await deriveAdaptedUnitsFromSession(
+    { ...session, units: session.units.filter(isEngineRecoveredUnit) },
+    readCustom,
+  );
+  const engineById = new Map(engineUnits.map((unit) => [unit.id, unit]));
+  const catalog = getNodeCanonicalUnitService();
+  const adapted: IAdaptedUnit[] = [];
+  for (const gameUnit of session.units) {
+    if (isEngineRecoveredUnit(gameUnit)) {
+      const unit = engineById.get(gameUnit.id);
+      if (unit) adapted.push(unit);
+      continue;
+    }
+    const fullUnit = catalog.getByIdSync(gameUnit.unitRef);
+    if (fullUnit === null) {
+      logger.warn(
+        `[matchUnitBootstrap] unit '${gameUnit.id}' (unitRef '${gameUnit.unitRef}') ` +
+          'not found in the server canonical catalog - skipping',
+      );
+      continue;
+    }
+    adapted.push({
+      ...adaptUnitFromData(fullUnit, { side: gameUnit.side }),
+      id: gameUnit.id,
+    });
+  }
+  return adapted;
+}
+
+/**
+ * WHAT: the recovered InteractiveSession for a replayed match session.
+ * WHY: InteractiveSession.fromSessionAsync reads catalog units over HTTP;
+ * this adopts the same session with disk-read units and the same reseed
+ * rule (config.seed when finite, else the legacy 0xc0ffee stream).
+ */
+export async function recoverServerInteractiveSession(
+  session: IGameSession,
+  readCustom: ReadCustomCombatDefinition = readServerCustomCombatDefinition,
+): Promise<InteractiveSession> {
+  const adapted = await deriveServerAdaptedUnits(session, readCustom);
+  const seed = session.config.seed;
+  const seeded = typeof seed === 'number' && Number.isFinite(seed);
+  return InteractiveSession.fromHydratedSession(session, {
+    random: new SeededRandom(seeded ? seed : 0xc0ffee),
+    d6Roller: seeded ? new SeededD6Roller(seed).asD6Roller() : undefined,
+    playerUnits: adapted.filter((unit) => unit.side === GameSide.Player),
+    opponentUnits: adapted.filter((unit) => unit.side === GameSide.Opponent),
+  });
 }
