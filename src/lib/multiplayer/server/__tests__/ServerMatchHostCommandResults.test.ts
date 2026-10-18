@@ -19,6 +19,16 @@ import {
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
 import { ServerMatchHost, type IMatchSocket } from '../ServerMatchHost';
 
+// B14 seam: this suite pins the existing per-viewer fog filter beneath the
+// B14 refusal. Production has no per-viewer reveal projection and refuses.
+jest.mock('@/lib/multiplayer/server/fogMatchAdmission', () => ({
+  ...jest.requireActual<
+    typeof import('@/lib/multiplayer/server/fogMatchAdmission')
+  >('@/lib/multiplayer/server/fogMatchAdmission'),
+  noPerViewerRevealProjection: () => false,
+  matchLacksRevealProjection: async () => false,
+}));
+
 interface IRecordedSend {
   readonly payload: string;
   readonly parsed: IServerMessage;

@@ -1,0 +1,468 @@
+{
+  "schemaVersion": 1,
+  "unit": "B14-0B",
+  "stage": "red",
+  "date": "20261018",
+  "baseline": "e6d1553ce90ca9c56705a349155c4030e7901857",
+  "at": "2026-10-18T16:28:49.905Z",
+  "admissionCommit": "6178b13af9108164b02738d5b93809722700b780",
+  "status": "not-applicable",
+  "summary": "RED N/A (test-only seam declaration; ruling B14-0B-R1): no product byte changes, so there is no failing-product proof to record. Before/after on Main: 71/71 unseamed and 71/71 seamed in the ten suites, identical per-suite counts. Necessity under a simulated, uncommitted B14-0 refusal: unseamed 35 failed / 71 across 10/10 suites; seamed 71/71. Nothing failing is fabricated.",
+  "rationale": "b14SplitRegistration20261018 / B14-0B acceptance: \"RED is honestly N/A: this test-only declaration changes no production behavior. Record each suite passing before and after; do not fabricate a failing-product proof. The real refuse-by-default proof and mutants belong to B14-0.\" The necessity run is supplementary evidence that each seam is load-bearing once B14-0 activates the refusal; it is not presented as a RED of this unit.",
+  "tooling": "Confirmed on the baseline (admission receipt redDecision.tooling): validate-roadmap.mjs requires only an existing path; roadmap-ledger-lib.mjs foldStages records {path, at, summary} without inspecting failure counts; review-identity and main-proof do not read RED; packet checks are independent of RED. This receipt passes the tooling unchanged.",
+  "productState": "No product, helper, spec or guard file is changed by this commit; the ten test leaves gain only the canonical seam block (10 lines each).",
+  "runs": {
+    "gate": "node scripts/qc/machine-idle.mjs --own-pid 47516 --own-pid 55164 -> MACHINE_IDLE before each run",
+    "command": "node node_modules/jest/bin/jest.js --runTestsByPath <ten suites> --runInBand --cacheDirectory <proof>/.jest-private --json",
+    "beforeMain": {
+      "suites": 10,
+      "passed": 71,
+      "failed": 0,
+      "total": 71,
+      "head": "6178b13af9108164b02738d5b93809722700b780",
+      "worktree": "clean at head",
+      "json": {
+        "path": "E:/Projects/Personal/MekStation-wt/b14-0b-proof-20261018/red-before-main.json",
+        "sha256": "55593b7917c2624cf9a8a4071ae59b12630ab4d1d3fab583f5300938f98ca19d",
+        "bytes": 32843
+      }
+    },
+    "afterMain": {
+      "suites": 10,
+      "passed": 71,
+      "failed": 0,
+      "total": 71,
+      "head": "6178b13af9108164b02738d5b93809722700b780",
+      "worktree": "uncommitted changes on top of head",
+      "json": {
+        "path": "E:/Projects/Personal/MekStation-wt/b14-0b-proof-20261018/red-after-main.json",
+        "sha256": "2e5a9b5dfe981d7ffb9c21c7e48961995da4a4aef280be5a2fb284fc9977de58",
+        "bytes": 32844
+      }
+    },
+    "simulatedB14_0Unseamed": {
+      "suites": 10,
+      "passed": 36,
+      "failed": 35,
+      "total": 71,
+      "head": "6178b13af9108164b02738d5b93809722700b780",
+      "worktree": "uncommitted changes on top of head",
+      "json": {
+        "path": "E:/Projects/Personal/MekStation-wt/b14-0b-proof-20261018/red-sim-unseamed.json",
+        "sha256": "1f55208832131af7e84f7db62ce362e4b9908e5bc39bff9677107cdcf55ed1ad",
+        "bytes": 83230
+      }
+    },
+    "simulatedB14_0Seamed": {
+      "suites": 10,
+      "passed": 71,
+      "failed": 0,
+      "total": 71,
+      "head": "6178b13af9108164b02738d5b93809722700b780",
+      "worktree": "uncommitted changes on top of head",
+      "json": {
+        "path": "E:/Projects/Personal/MekStation-wt/b14-0b-proof-20261018/red-sim-seamed.json",
+        "sha256": "bc5e3e5981b7eb6a1ea5cb096446d051892be466febd2cb4d9f0059a7a41a852",
+        "bytes": 32843
+      }
+    },
+    "guard": {
+      "suite": "src/pages-modules/api/__tests__/matchHistoryFog.test.ts (B14-0A allowlist guard, frozen control)",
+      "suites": 1,
+      "passed": 14,
+      "failed": 0,
+      "total": 14,
+      "head": "6178b13af9108164b02738d5b93809722700b780",
+      "worktree": "uncommitted changes on top of head",
+      "json": {
+        "path": "E:/Projects/Personal/MekStation-wt/b14-0b-proof-20261018/red-guard.json",
+        "sha256": "7e49af9456b0f57a8ae46f8d7df54d5c9384ba8424d8d9f2c9ef954c07daea12",
+        "bytes": 6802
+      },
+      "note": "seamed tree: the guard accepts all ten B14-0B seams"
+    }
+  },
+  "simulation": {
+    "note": "Never committed. ServerMatchHost/Events/Replay take the B14-0 WebSocket refusal hunks from the B14-PREP2 candidate patch, applied with git apply -3 onto this Main; fogMatchAdmission.ts takes the B14-0 candidate version (adds FOG_CONFIG_UNAVAILABLE, matchLacksRevealProjection false|policy|unavailable, refuseFogSocket). S seat arguments verified present. Files restored to HEAD after each run.",
+    "file": {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0b-proof-20261018/b14-0-simulation.json",
+      "sha256": "3d8d921f2a339127581e317c50be688b566f1a32c78c6fc19bc3492e4987c66e",
+      "bytes": 104628
+    },
+    "files": {
+      "src/lib/multiplayer/server/ServerMatchHost.ts": "b4602f5bc6dd972018cd2cec6074b158cab9d4ef6807a52b8ea772d1caf8491e",
+      "src/lib/multiplayer/server/ServerMatchHostEvents.ts": "98ba1eca09b5e1ecf071d61bdabd8393d5c1f4bd6cd6fa194c4ae4b59cf03763",
+      "src/lib/multiplayer/server/ServerMatchHostReplay.ts": "615360ae807ff30f1ac49048fb995ab68a25ddde6459cda90bcf40406ad58eed",
+      "src/lib/multiplayer/server/fogMatchAdmission.ts": "b6c3c9674c75360902cd38c47ebdb6b315443360c425b879f92adc8b052ae9bd"
+    }
+  },
+  "perSuite": [
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/viewerFrameRawNegativeSweep.test.ts",
+      "beforeMain": {
+        "passed": 11,
+        "failed": 0
+      },
+      "afterMain": {
+        "passed": 11,
+        "failed": 0
+      },
+      "simulatedB14_0Unseamed": {
+        "passed": 5,
+        "failed": 6
+      },
+      "simulatedB14_0Seamed": {
+        "passed": 11,
+        "failed": 0
+      }
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindLiveReplay.test.ts",
+      "beforeMain": {
+        "passed": 6,
+        "failed": 0
+      },
+      "afterMain": {
+        "passed": 6,
+        "failed": 0
+      },
+      "simulatedB14_0Unseamed": {
+        "passed": 5,
+        "failed": 1
+      },
+      "simulatedB14_0Seamed": {
+        "passed": 6,
+        "failed": 0
+      }
+    },
+    {
+      "suite": "src/lib/multiplayer/__tests__/clientAgainstFogServer.integration.test.ts",
+      "beforeMain": {
+        "passed": 6,
+        "failed": 0
+      },
+      "afterMain": {
+        "passed": 6,
+        "failed": 0
+      },
+      "simulatedB14_0Unseamed": {
+        "passed": 1,
+        "failed": 5
+      },
+      "simulatedB14_0Seamed": {
+        "passed": 6,
+        "failed": 0
+      }
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/viewerFrameAuthorityFieldLeak.test.ts",
+      "beforeMain": {
+        "passed": 3,
+        "failed": 0
+      },
+      "afterMain": {
+        "passed": 3,
+        "failed": 0
+      },
+      "simulatedB14_0Unseamed": {
+        "passed": 2,
+        "failed": 1
+      },
+      "simulatedB14_0Seamed": {
+        "passed": 3,
+        "failed": 0
+      }
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/ServerMatchHostCommandResults.test.ts",
+      "beforeMain": {
+        "passed": 3,
+        "failed": 0
+      },
+      "afterMain": {
+        "passed": 3,
+        "failed": 0
+      },
+      "simulatedB14_0Unseamed": {
+        "passed": 2,
+        "failed": 1
+      },
+      "simulatedB14_0Seamed": {
+        "passed": 3,
+        "failed": 0
+      }
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/viewerSequenceConcealmentLeak.test.ts",
+      "beforeMain": {
+        "passed": 2,
+        "failed": 0
+      },
+      "afterMain": {
+        "passed": 2,
+        "failed": 0
+      },
+      "simulatedB14_0Unseamed": {
+        "passed": 0,
+        "failed": 2
+      },
+      "simulatedB14_0Seamed": {
+        "passed": 2,
+        "failed": 0
+      }
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/matchmaking.integration.test.ts",
+      "beforeMain": {
+        "passed": 2,
+        "failed": 0
+      },
+      "afterMain": {
+        "passed": 2,
+        "failed": 0
+      },
+      "simulatedB14_0Unseamed": {
+        "passed": 1,
+        "failed": 1
+      },
+      "simulatedB14_0Seamed": {
+        "passed": 2,
+        "failed": 0
+      }
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/viewerDeliverySequence.test.ts",
+      "beforeMain": {
+        "passed": 3,
+        "failed": 0
+      },
+      "afterMain": {
+        "passed": 3,
+        "failed": 0
+      },
+      "simulatedB14_0Unseamed": {
+        "passed": 0,
+        "failed": 3
+      },
+      "simulatedB14_0Seamed": {
+        "passed": 3,
+        "failed": 0
+      }
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts",
+      "beforeMain": {
+        "passed": 34,
+        "failed": 0
+      },
+      "afterMain": {
+        "passed": 34,
+        "failed": 0
+      },
+      "simulatedB14_0Unseamed": {
+        "passed": 20,
+        "failed": 14
+      },
+      "simulatedB14_0Seamed": {
+        "passed": 34,
+        "failed": 0
+      }
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/fogViewerSequenceSparsity.test.ts",
+      "beforeMain": {
+        "passed": 1,
+        "failed": 0
+      },
+      "afterMain": {
+        "passed": 1,
+        "failed": 0
+      },
+      "simulatedB14_0Unseamed": {
+        "passed": 0,
+        "failed": 1
+      },
+      "simulatedB14_0Seamed": {
+        "passed": 1,
+        "failed": 0
+      }
+    }
+  ],
+  "simulatedUnseamedFailures": [
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindLiveReplay.test.ts",
+      "name": "ServerMatchHost rewind reaches connected players privacy of the replay each socket gets its own projection: no fog-hidden fact and no authority-only field reaches a player",
+      "first": "Error: expect(received).toContain(expected) // indexOf | Expected value: \"a0a42248-ff8c-49a5-9800-d0620975adc8\" | Received array: []"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts",
+      "name": "ServerMatchHost spectator fog-of-war scope — design D6 a fog-on spectator still receives public events",
+      "first": "Error: expect(received).toBe(expected) // Object.is equality | Expected: true | Received: false"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts",
+      "name": "B10 sealed movement_declared spectator, fog true, player brand, stale true: live and replay withhold it",
+      "first": "Error: expect(received).toContain(expected) // indexOf | Expected substring: \"evt-phase-2\" | Received string:    \"{\\\"kind\\\":\\\"Close\\\",\\\"matchId\\\":\\\"match-spectator\\\",\\\"ts\\\":\\\"2026-10-18T16:27:51.442Z\\\",\\\"code\\\":\\\"AUTH_RE"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts",
+      "name": "B10 sealed movement_declared spectator, fog true, gm brand, stale true: live and replay withhold it",
+      "first": "Error: expect(received).toContain(expected) // indexOf | Expected substring: \"evt-phase-2\" | Received string:    \"{\\\"kind\\\":\\\"Close\\\",\\\"matchId\\\":\\\"match-spectator\\\",\\\"ts\\\":\\\"2026-10-18T16:27:51.443Z\\\",\\\"code\\\":\\\"AUTH_RE"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts",
+      "name": "B10 sealed movement_declared spectator, fog true, gm brand, stale false: live and replay withhold it",
+      "first": "Error: expect(received).toContain(expected) // indexOf | Expected substring: \"evt-phase-2\" | Received string:    \"{\\\"kind\\\":\\\"Close\\\",\\\"matchId\\\":\\\"match-spectator\\\",\\\"ts\\\":\\\"2026-10-18T16:27:51.449Z\\\",\\\"code\\\":\\\"AUTH_RE"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts",
+      "name": "B10 sealed movement_declared fog true: the human actor and a seated gm keep it",
+      "first": "Error: expect(received).toContain(expected) // indexOf | Expected substring: \"evt-sealed-movement_declared-opp-0-3\" | Received string:    \"{\\\"kind\\\":\\\"Close\\\",\\\"matchId\\\":\\\"match-spectator\\\",\\\"ts\\\":\\\"2026-10-18T16:27:51."
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts",
+      "name": "B10 sealed attack_declared spectator, fog true, player brand, stale true: live and replay withhold it",
+      "first": "Error: expect(received).toContain(expected) // indexOf | Expected substring: \"evt-phase-2\" | Received string:    \"{\\\"kind\\\":\\\"Close\\\",\\\"matchId\\\":\\\"match-spectator\\\",\\\"ts\\\":\\\"2026-10-18T16:27:51.457Z\\\",\\\"code\\\":\\\"AUTH_RE"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts",
+      "name": "B10 sealed attack_declared spectator, fog true, gm brand, stale true: live and replay withhold it",
+      "first": "Error: expect(received).toContain(expected) // indexOf | Expected substring: \"evt-phase-2\" | Received string:    \"{\\\"kind\\\":\\\"Close\\\",\\\"matchId\\\":\\\"match-spectator\\\",\\\"ts\\\":\\\"2026-10-18T16:27:51.458Z\\\",\\\"code\\\":\\\"AUTH_RE"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts",
+      "name": "B10 sealed attack_declared spectator, fog true, gm brand, stale false: live and replay withhold it",
+      "first": "Error: expect(received).toContain(expected) // indexOf | Expected substring: \"evt-phase-2\" | Received string:    \"{\\\"kind\\\":\\\"Close\\\",\\\"matchId\\\":\\\"match-spectator\\\",\\\"ts\\\":\\\"2026-10-18T16:27:51.464Z\\\",\\\"code\\\":\\\"AUTH_RE"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts",
+      "name": "B10 sealed attack_declared fog true: the human actor and a seated gm keep it",
+      "first": "Error: expect(received).toContain(expected) // indexOf | Expected substring: \"evt-sealed-attack_declared-opp-0-3\" | Received string:    \"{\\\"kind\\\":\\\"Close\\\",\\\"matchId\\\":\\\"match-spectator\\\",\\\"ts\\\":\\\"2026-10-18T16:27:51.46"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts",
+      "name": "B10 sealed physical_attack_declared spectator, fog true, player brand, stale true: live and replay withhold it",
+      "first": "Error: expect(received).toContain(expected) // indexOf | Expected substring: \"evt-phase-2\" | Received string:    \"{\\\"kind\\\":\\\"Close\\\",\\\"matchId\\\":\\\"match-spectator\\\",\\\"ts\\\":\\\"2026-10-18T16:27:51.471Z\\\",\\\"code\\\":\\\"AUTH_RE"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts",
+      "name": "B10 sealed physical_attack_declared spectator, fog true, gm brand, stale true: live and replay withhold it",
+      "first": "Error: expect(received).toContain(expected) // indexOf | Expected substring: \"evt-phase-2\" | Received string:    \"{\\\"kind\\\":\\\"Close\\\",\\\"matchId\\\":\\\"match-spectator\\\",\\\"ts\\\":\\\"2026-10-18T16:27:51.472Z\\\",\\\"code\\\":\\\"AUTH_RE"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts",
+      "name": "B10 sealed physical_attack_declared spectator, fog true, gm brand, stale false: live and replay withhold it",
+      "first": "Error: expect(received).toContain(expected) // indexOf | Expected substring: \"evt-phase-2\" | Received string:    \"{\\\"kind\\\":\\\"Close\\\",\\\"matchId\\\":\\\"match-spectator\\\",\\\"ts\\\":\\\"2026-10-18T16:27:51.478Z\\\",\\\"code\\\":\\\"AUTH_RE"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts",
+      "name": "B10 sealed physical_attack_declared fog true: the human actor and a seated gm keep it",
+      "first": "Error: expect(received).toContain(expected) // indexOf | Expected substring: \"evt-sealed-physical_attack_declared-opp-0-3\" | Received string:    \"{\\\"kind\\\":\\\"Close\\\",\\\"matchId\\\":\\\"match-spectator\\\",\\\"ts\\\":\\\"2026-10-18T16"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts",
+      "name": "B10 current seats govern, not a snapshot fog true: a player reseated to spectator loses ownership between deliveries",
+      "first": "Error: expect(received).toContain(expected) // indexOf | Expected substring: \"evt-sealed-movement_declared-opp-0-2\" | Received string:    \"{\\\"kind\\\":\\\"Close\\\",\\\"matchId\\\":\\\"match-spectator\\\",\\\"ts\\\":\\\"2026-10-18T16:27:51."
+    },
+    {
+      "suite": "src/lib/multiplayer/__tests__/clientAgainstFogServer.integration.test.ts",
+      "name": "real client against a real fog-of-war server keeps applying events after the server withholds one",
+      "first": "Error: expect(received).toBeGreaterThan(expected) | Expected: > 0 | Received:   0"
+    },
+    {
+      "suite": "src/lib/multiplayer/__tests__/clientAgainstFogServer.integration.test.ts",
+      "name": "real client against a real fog-of-war server recovers a frame lost in transit, end to end",
+      "first": "Error: expect(received).toHaveLength(expected) | Expected length: 1 | Received length: 0"
+    },
+    {
+      "suite": "src/lib/multiplayer/__tests__/clientAgainstFogServer.integration.test.ts",
+      "name": "real client against a real fog-of-war server advances its resume cursor past a withheld sequence",
+      "first": "Error: expect(received).toBeGreaterThan(expected) | Expected: > 0 | Received:   0"
+    },
+    {
+      "suite": "src/lib/multiplayer/__tests__/clientAgainstFogServer.integration.test.ts",
+      "name": "real client against a real fog-of-war server applies, gaps, resyncs, and recovers when event.sequence is stripped",
+      "first": "Error: expect(received).toBe(expected) // Object.is equality | Expected: true | Received: false"
+    },
+    {
+      "suite": "src/lib/multiplayer/__tests__/clientAgainstFogServer.integration.test.ts",
+      "name": "what the client emits from a sequence-stripped stream still hydrates a mirror",
+      "first": "Error: expect(received).toBeGreaterThan(expected) | Expected: > 0 | Received:   0"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/viewerFrameRawNegativeSweep.test.ts",
+      "name": "viewer frame raw-wire negative sweep (a) authority sequence puts no \"sequence\": key on player Event, ReplayChunk, or resync event objects",
+      "first": "Error: expect(received).toBeGreaterThan(expected) | Expected: > 0 | Received:   0"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/viewerFrameRawNegativeSweep.test.ts",
+      "name": "viewer frame raw-wire negative sweep (b) private ids carries only protocol-declared id-shaped keys on player frames",
+      "first": "Error: expect(received).toBeGreaterThan(expected) | Expected: > 0 | Received:   0"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/viewerFrameRawNegativeSweep.test.ts",
+      "name": "viewer frame raw-wire negative sweep (c) hidden metadata / GM-private reasons does not put a concealed event type, id, reason, or payload literal on player frames",
+      "first": "Error: expect(received).toContain(expected) // indexOf | Expected substring: \"evt-concealed-sentinel-11-4\" | Received string:    \"{\\\"kind\\\":\\\"Close\\\",\\\"matchId\\\":\\\"m-raw-hidden\\\",\\\"ts\\\":\\\"2026-10-18T16:27:52.349Z\\\",\\\"cod"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/viewerFrameRawNegativeSweep.test.ts",
+      "name": "viewer frame raw-wire negative sweep (d) inferable concealment does not reconstruct a hidden authority position from any numeric field",
+      "first": "Error: expect(received).not.toEqual(expected) // deep equality | Expected: not [] | at Object.toEqual (E:\\Projects\\Personal\\MekStation-wt\\b14-impl-20261018\\src\\lib\\multiplayer\\server\\__tests__\\viewerFrameRawNegativeSweep"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/viewerFrameRawNegativeSweep.test.ts",
+      "name": "viewer frame raw-wire negative sweep (d) inferable concealment FINDING: ReplayStart/End authority span does not let a player count withheld events",
+      "first": "Error: expect(received).toBe(expected) // Object.is equality | Expected: \"number\" | Received: \"undefined\""
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/viewerFrameRawNegativeSweep.test.ts",
+      "name": "viewer frame raw-wire negative sweep (d) inferable concealment characterizes the replay-span finding: delivery span equals items delivered; hidden count unrecoverable",
+      "first": "Error: expect(received).toBe(expected) // Object.is equality | Expected: \"number\" | Received: \"undefined\""
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/viewerSequenceConcealmentLeak.test.ts",
+      "name": "viewer sequence concealment leak does not let a player count or locate the events hidden from them",
+      "first": "Error: expect(received).toBeGreaterThan(expected) | Expected: > 0 | Received:   0"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/viewerSequenceConcealmentLeak.test.ts",
+      "name": "viewer sequence concealment leak keeps the authority sequence off player frames and in the durable log",
+      "first": "Error: expect(received).toBeGreaterThan(expected) | Expected: > 0 | Received:   0"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/viewerFrameAuthorityFieldLeak.test.ts",
+      "name": "viewer frame authority-only fields delivers no server-only authority field to either player under fog",
+      "first": "Error: expect(received).toBeGreaterThan(expected) | Expected: > 0 | Received:   0"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/matchmaking.integration.test.ts",
+      "name": "M3 integration — spectate a fog-on match (task 8.2) a spectator observes an active fog-on match without hidden-unit events",
+      "first": "Error: expect(received).toBe(expected) // Object.is equality | Expected: true | Received: false"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/ServerMatchHostCommandResults.test.ts",
+      "name": "ServerMatchHost command-result publication persists, broadcasts, and replays host GM results as player-safe public events",
+      "first": "Error: expect(received).toHaveLength(expected) | Expected length: 1 | Received length: 0"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/fogViewerSequenceSparsity.test.ts",
+      "name": "fog-of-war viewer sequence sparsity gives each viewer a stream with holes the other does not have",
+      "first": "Error: expect(received).toBeGreaterThan(expected) | Expected: > 0 | Received:   0"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/viewerDeliverySequence.test.ts",
+      "name": "per-viewer delivery sequence is gapless for each viewer while the authority sequence is not",
+      "first": "Error: expect(received).toBeGreaterThan(expected) | Expected: > 0 | Received:   0"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/viewerDeliverySequence.test.ts",
+      "name": "per-viewer delivery sequence numbers the two viewers independently",
+      "first": "Error: expect(received).toBe(expected) // Object.is equality | Expected: 0 | Received: undefined"
+    },
+    {
+      "suite": "src/lib/multiplayer/server/__tests__/viewerDeliverySequence.test.ts",
+      "name": "per-viewer delivery sequence does not consume a number for a frame the viewer never receives",
+      "first": "Error: expect(received).not.toEqual(expected) // deep equality | Expected: not [] | at Object.toEqual (E:\\Projects\\Personal\\MekStation-wt\\b14-impl-20261018\\src\\lib\\multiplayer\\server\\__tests__\\viewerDeliverySequence.test"
+    }
+  ]
+}

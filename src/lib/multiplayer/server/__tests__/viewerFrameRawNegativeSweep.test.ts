@@ -45,6 +45,16 @@ import { InMemoryMatchStore } from '../InMemoryMatchStore';
 import { MATCH_WIRE_PUBLICATION_BOUNDARY } from '../projection/ViewerPublicationBoundary';
 import { ServerMatchHost, type IMatchSocket } from '../ServerMatchHost';
 
+// B14 seam: this suite pins the existing per-viewer fog filter beneath the
+// B14 refusal. Production has no per-viewer reveal projection and refuses.
+jest.mock('@/lib/multiplayer/server/fogMatchAdmission', () => ({
+  ...jest.requireActual<
+    typeof import('@/lib/multiplayer/server/fogMatchAdmission')
+  >('@/lib/multiplayer/server/fogMatchAdmission'),
+  noPerViewerRevealProjection: () => false,
+  matchLacksRevealProjection: async () => false,
+}));
+
 const SEQUENCE_KEY = /"sequence"\s*:/;
 const PRIVATE_REASON_SENTINEL = 'GM-PRIVATE-REASON-SENTINEL-11-4';
 const CONCEALED_EVENT_ID = 'evt-concealed-sentinel-11-4';

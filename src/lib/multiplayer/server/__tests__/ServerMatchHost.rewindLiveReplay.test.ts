@@ -85,6 +85,16 @@ import { foldMatchSession } from '../MatchSessionProjector';
 import { SeededDiceRoller } from '../RollCapture';
 import { ServerMatchHost, type IMatchSocket } from '../ServerMatchHost';
 
+// B14 seam: this suite pins the existing per-viewer fog filter beneath the
+// B14 refusal. Production has no per-viewer reveal projection and refuses.
+jest.mock('@/lib/multiplayer/server/fogMatchAdmission', () => ({
+  ...jest.requireActual<
+    typeof import('@/lib/multiplayer/server/fogMatchAdmission')
+  >('@/lib/multiplayer/server/fogMatchAdmission'),
+  noPerViewerRevealProjection: () => false,
+  matchLacksRevealProjection: async () => false,
+}));
+
 const AT = '2026-09-02T00:00:00.000Z';
 const SEED = 42;
 const GM = 'gm-1';
