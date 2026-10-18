@@ -1,0 +1,71 @@
+# Council 3-B: architecture and roadmap advice
+
+2026-10-18. Read-only baseline: `origin/main` = `f32626fbd2b558e1307f16590d4ab03c55668772`, detached `council3-b-20261018`. Read Root's PLAN.md revision, both canonical ledgers, B14 scope evidence, B14HP-PREP.md, fog specification, implementation and maintenance triage. No tests, builds, source edits, commits or PR operations. B14-HEAD is pending registration at this baseline; the owner's supplied 23-unit L1 order supersedes stale overlay counts. Proposals below are not source admission.
+
+## A. Human acceptance of the first shared mission
+
+Use one loopback server and three independent browser profiles: player A, player B, and a non-playing GM. Separate windows sharing storage are insufficient; multiple Electron instances may also share identity/storage or start separate servers. Prefer browsers for the three seats, plus the separately required v2.2.0 installer smoke.
+
+Book the session after U38 exact-Main proof and both required automated gates. Reserve 60–90 minutes, continuing until an actual mission finishes. Script: GM creates campaign/session; two players join and receive distinct owned units; approve one proposal; launch fog-off; each player moves and attacks with their units while GM observes/arbitrates; reload one player during play; reach Results; reload all seats and verify the same mission/result persists. Record failures and retests, not just the eventual pass.
+
+Minimum honest evidence in `playtest/session-notes/`: human operator(s), timestamp, exact Main SHA/build and installer identity, one-server topology, profile-to-seat mapping, campaign/match IDs, actual actions/result, reload observations, defect references and screenshots/log references with secrets excluded. A human must actually operate and attest to the session. One person driving three seats proves manual three-seat operation, not three-person usability. The current two-browser journey injects outcomes through `enqueueCoopBattleOutcome`; it is a pre-check, not completed combat evidence.
+
+Recommendation: Owner drives all three profiles if scheduling three people is impractical; preserve the independent installer requirement and label the evidence precisely.
+
+Owner question (if any): Who will perform the session, when, and is one human operating three seats acceptable for this manual gate?
+
+## B. PRIV-1: campaign lobby discovery
+
+Exclude campaign-backed sessions entirely from generic lobby AND spectatable-match listings. Removing only roomCode leaves matchId, host identity, occupancy and campaign correlation exposed. `joinableLobbies.ts` currently admits any lobby with an open human seat; `getSpectatableMatches` similarly has no campaign exclusion. Campaign membership should be the discovery surface; an intentionally shared invitation remains the join surface. Ordinary public matchmaking stays discoverable. Possessing a code must not bypass campaign admission.
+
+`units.json:B15-6` explicitly holds PRIV-1 but forbids implementing it under its routine docs/config grant. Register a sensitive `B15-PRIV` predecessor to B15-6, after the B15 access core. Give it the query, relevant route/tests and invitation-path regression census; prove authenticated stranger omission, member invite joining and ordinary lobby preservation. Target <=10 files and <=300 counted additions, subject to measurement.
+
+Recommendation: Invite-only campaign discovery, implemented by a separately registered authority/privacy slice in L2 before remote-support documentation. Do not add an L1 prerequisite.
+
+Owner question (if any): None required; public campaign recruitment can be a later explicit product choice.
+
+## C. Incremental reveal effects and replay
+
+The owner's direction fits a server-derived knowledge stream. Keep canonical events/state authoritative and complete on the server. For each committed transition, fold the authoritative state and compare each viewer's prior knowledge with permitted knowledge now. Emit ordered reveal, permitted-field update, and visibility-loss effects. Movement of either observer or target, terrain/LOS, sensor changes and audited GM overrides can trigger them. Reveal must establish the permitted entity before dependent events reference it. Hidden movement updates no player position; visibility loss retains only allowed last-known fields, with stale time. Clients fold a dedicated view model, never an incomplete authoritative game reducer pretending to have full state.
+
+Bootstrap contains own/revealed units and explicitly public facts only; unknown units must not become placeholders with identifiable metadata. Audit every supposedly public payload, including GameCreated, initiative/order and reveal batches. Apply existing open/rough/hidden intel tiers and sealed-choice rules separately. GM authority is an authenticated audience, not an exemption inferred from a host identifier.
+
+Make projection deterministic from canonical prefixes plus historical membership, ownership, policy and GM reveal facts. Use versioned viewer checkpoints and delivery cursors scoped to match, viewer and branch/generation; persist explicit GM grants canonically and make automatic effects reproducible across restart. Live, replay, rejoin, HTTP history/export and digests must consume the same projector. Replay must not recompute past visibility using today's final state. Rewind builds a new candidate knowledge history, validates it, then activates atomically; old-generation cursors cannot resume it. Expose viewer-derived digests, never canonical hidden-dependent hashes. Hidden-only changes should not alter observable payloads/cursors.
+
+Concrete defects constrain this design: `src/lib/multiplayer/server/fogOfWar.ts` strips construction secrets but retains all GameCreated units; `gameEventVisibility.ts` calls it public. `visibility.ts` uses the first side assignment as owner and an empty-clear-grid fallback. Resolve ownership from the trusted per-unit map, define allied knowledge separately, and refuse missing required visibility inputs rather than granting sight.
+
+Register blocked restoration successors now; implement after P4's Task33 authority proof, inside P5 before fogged rewind acceptance. Keep B14-0 and B14-HEAD refusal through L1/L2. Proposed slices, each including tests and lifecycle/evidence overhead:
+
+- FOG-S: specification, historical audience/knowledge contract and task registration; 6–8 files, 250–400 counted additions.
+- FOG-K: trusted ownership, visibility transitions and last-known reducer; 10–12 files, 300–450 additions.
+- FOG-B: safe bootstrap/entity reveal schema and field-tier projector; 10–12 files, 300–450 additions.
+- FOG-L: live publication plus client knowledge fold; 12–15 files, 350–450 additions; split server/client if measured scope exceeds caps.
+- FOG-R: historical replay/rejoin, checkpoints and generation-bound cursors; 12–15 files, 350–450 additions.
+- FOG-H: HTTP metadata/history/export/head parity; 10–15 files, 300–450 additions.
+- FOG-X: browser byte-leak/regression proof and guarded enablement; 10–13 files, 250–400 additions.
+
+These are budget hypotheses, not measured grants. Freeze literal manifests; count all actual files and counted added lines without deletion credit; tests remain file-counted under U41. Split further rather than omit acceptance.
+
+Exact ledger mapping: U26 is `R4.rewind`, reowned to `R2.authority-live`, currently planned with no task keys. It owns both-head fog rebuild and raw replay-fallback removal. Amend its successors to consume FOG-R/H rather than duplicate their ownership. U30 retains `adopt-combat-journal-cutover-and-gm-rewind#2.4@27` and `#2.5@28`, ticking from U26 receipts; U25 owns #2.2/#2.3 and E2E-43 preparation; U27 owns rewound restart. Preserve P5 Tasks34–40 and their prerequisites. U2 is a historical blocked proof record: #21.2@547 transferred via U2b to completed U22. Re-prove E2E-19–30, especially fog/live/replay/export, without rewriting U22's historical closure.
+
+Update fog spec bootstrap, knowledge effects and replay requirements; explicitly reconcile its out-of-LOS destruction unitId disclosure with “never reveal unknown units.” B14-0 needs no behavioral change: retain centralized temporary refusal, membership-first checks, fixed reason and intact persisted history. Do not enable individual fog surfaces before the complete new boundary passes.
+
+Recommendation: Register now, deliver in P5, preserve L1 containment; make the restoration chain a prerequisite for fogged rewind closure.
+
+Owner question (if any): Do allies automatically share sight, or maintain individual knowledge until shared/GM-revealed? May never-seen enemy destruction disclose its identity? Recommend shared allied sight and no unknown-unit identity disclosure.
+
+## D. Maintenance debt
+
+The triage reports 76 critical/high scanner findings and 48 untracked ledger findings, with overlap—not 124 independent defects. Scanner groups are 3 protected, 12 bounded cleanup, 61 refactor; ledger groups are 1/15/32. Its parent ruling already defers the larger refactor.
+
+Recommendation: Permit parallel read-only preparation now; schedule measured group-(b) fixes in idle delivery slots after ownership census, preserving the single product/closure lane. Put authority/history refactors behind their domain milestones. Re-run both checks per slice; no baseline inflation, blanket suppression or TODO deletion to manufacture green. Keep known gate failures visible.
+
+Owner question (if any): None; this preserves the existing deferral and L1 priority.
+
+## E. Remaining release discipline
+
+The L1 documentary predicates and B15 ordering are not fully enforced by NEXT. Root needs an explicit release checklist: all 23 closures, actual Main journey/ownership proof, human playtest, installer smoke, and release notes including both topology and Docker HOSTNAME refusal. Carry B14's fog-unavailable limitation into release notes/UI guidance. The old two-window co-op checklist is insufficient for the new three-seat gate.
+
+Recommendation: Prepare the human script and release checklist while implementation continues. Add active spectatable discovery to PRIV-1's census; preserve B14-HEAD's independent route coverage. Keep Next.js deferred through L2.
+
+Owner question (if any): None beyond the human session and fog-policy choices above.

@@ -1,0 +1,2 @@
+# Preserve Council 3-B evidence bytes, including its original CRLF endings.
+council3-b-20261018.txt -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
