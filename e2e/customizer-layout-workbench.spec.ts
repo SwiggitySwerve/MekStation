@@ -375,6 +375,37 @@ test('unit switching never attributes another draft validation to the selected u
   await page.goto('/customizer');
   await loadUnit(page);
   await loadUnit(page, 'Locust LCT-1V', 'LCT-1V');
+  // Canonical Locust is valid. Deliberately move both arm guns onto the
+  // shoulder slots through the existing fixture seam, without changing actuators.
+  await page.waitForFunction(() => Boolean(window.__UNIT_REGISTRY__));
+  const movedGuns = await page.evaluate(() => {
+    type Equipment = {
+      name: string;
+      location?: string;
+      slots?: readonly number[];
+    };
+    const registry = (
+      window as unknown as {
+        __UNIT_REGISTRY__: {
+          getUnitStore: (id: string) => {
+            getState: () => { equipment: Equipment[] };
+            setState: (state: { equipment: Equipment[] }) => void;
+          };
+        };
+      }
+    ).__UNIT_REGISTRY__;
+    const store = registry.getUnitStore(location.pathname.split('/')[2]);
+    let moved = 0;
+    store.setState({
+      equipment: store.getState().equipment.map((item) => {
+        if (item.name !== 'Machine Gun') return item;
+        moved++;
+        return { ...item, slots: [0] };
+      }),
+    });
+    return moved;
+  });
+  expect(movedGuns).toBe(2);
   const locustErrors = page
     .locator('[aria-label="Unit validation"]')
     .getByRole('button', {
@@ -412,6 +443,21 @@ test('unit switching never attributes another draft validation to the selected u
       .locator('[aria-label="Unit validation"]')
       .getByRole('button', { name: /errors?, show issues$/ }),
   ).toBeVisible();
+  await page
+    .locator('[aria-label="Unit validation"]')
+    .getByRole('button', {
+      name: /errors?, show issues$/,
+    })
+    .click();
+  const atlasMessages = await page
+    .locator('[data-validation-issue]')
+    .allTextContents();
+  expect(atlasMessages).not.toEqual(baselineMessages);
+  expect(atlasMessages).toHaveLength(1);
+  expect(atlasMessages[0]).toContain(
+    'Unit exceeds maximum tonnage by 7.0 tons',
+  );
+  await page.keyboard.press('Escape');
   await page.evaluate(() => {
     const auditWindow = window as typeof window & {
       layoutValidationSamples: string[];

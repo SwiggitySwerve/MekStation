@@ -36,17 +36,38 @@ test('equipment colors survive catalog, grouping, mounting and reload @customize
       exact: true,
     });
     await expect(details).toBeVisible();
-    colors[name] = await paint(details.locator('xpath=ancestor::li'));
+    const row = details.locator('xpath=ancestor::li');
+    const fill = row.getByTestId('equipment-catalog-row-fill');
+    await page.mouse.move(0, 0);
+    colors[name] = {
+      background: (await paint(fill)).background,
+      // Loadout and mounted slots use solid category colors with black text.
+      text: 'rgb(0, 0, 0)',
+    };
     expect(colors[name].background).not.toBe('rgba(0, 0, 0, 0)');
+    await expect(fill).toHaveCSS('opacity', '0.3');
+    await expect(row).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+    await expect(row).toHaveCSS('opacity', '1');
+    await expect(details).toHaveCSS('opacity', '1');
+    const content = details.locator('span').first();
+    await expect(content).toHaveCSS('opacity', '1');
+    // The catalog keeps theme-colored, opaque content over a translucent fill.
     expect(
-      await details
-        .locator('span')
-        .first()
-        .evaluate((e) => getComputedStyle(e).color),
-    ).toBe(colors[name].text);
+      await content.evaluate((element) => {
+        const probe = document.createElement('span');
+        probe.style.color = 'var(--text-primary)';
+        element.append(probe);
+        const matches =
+          getComputedStyle(element).color === getComputedStyle(probe).color;
+        probe.remove();
+        return matches;
+      }),
+    ).toBe(true);
+    await details.hover();
+    await expect(fill).toHaveCSS('opacity', '0.4');
+    await expect(content).toHaveCSS('opacity', '1');
   }
   expect(new Set(Object.values(colors).map((c) => c.background)).size).toBe(4);
-  expect(colors['Small Laser'].text).toBe('rgb(0, 0, 0)');
   await search.fill('Small Laser');
   await expect(
     page.getByRole('region', { name: 'Equipment catalog' }).locator('li'),

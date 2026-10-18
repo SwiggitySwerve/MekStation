@@ -170,6 +170,62 @@ describe('combat lifecycle baseline schema pack', () => {
     ).toThrow(UnsupportedReplayHistoryError);
   });
 
+  it.each([0, 3909, 3909.5])(
+    'accepts the finite recorded Quick Game BV %s',
+    (bvTotal) => {
+      const payload = {
+        ...clone(VALID_COMBAT_LIFECYCLE_EVENT_PAYLOADS.game_created),
+        quickMeta: { bvTotal },
+      };
+      expect(registry.upcast('game_created', 1, payload).payload).toEqual(
+        payload,
+      );
+    },
+  );
+
+  it.each([
+    null,
+    [],
+    {},
+    { bvTotal: '3909' },
+    { bvTotal: -1 },
+    { bvTotal: NaN },
+    { bvTotal: Infinity },
+    { bvTotal: -Infinity },
+    { bvTotal: 3909, extra: true },
+  ])('rejects unsupported Quick Game metadata %j', (quickMeta) => {
+    const payload = {
+      ...clone(VALID_COMBAT_LIFECYCLE_EVENT_PAYLOADS.game_created),
+      quickMeta,
+    };
+    expect(() => registry.upcast('game_created', 1, payload)).toThrow(
+      UnsupportedReplayHistoryError,
+    );
+  });
+
+  it('invalidates the prior GameCreated parser fingerprint without affecting other histories', () => {
+    const previous = new ReplaySchemaRegistry({
+      events: COMBAT_LIFECYCLE_BASELINE_SCHEMA_PACK.map((event) => ({
+        ...event,
+        schemas: event.schemas.map((schema) => ({
+          ...schema,
+          schemaId:
+            event.eventType === 'game_created'
+              ? 'combat.game_created.v1.custom-construction-1'
+              : schema.schemaId,
+        })),
+      })),
+    });
+    const created = [{ eventType: 'game_created', schemaVersion: 1 }];
+    expect(registry.fingerprintPipeline(created)).not.toBe(
+      previous.fingerprintPipeline(created),
+    );
+    const untouched = [{ eventType: 'turn_started', schemaVersion: 1 }];
+    expect(registry.fingerprintPipeline(untouched)).toBe(
+      previous.fingerprintPipeline(untouched),
+    );
+  });
+
   it('retains resolved initiative inputs as stored payload data', () => {
     // The audit trail (raw 2d6 values, modifiers, totals, Tactical Genius
     // fields, consumed rolls) survives validation byte-for-byte — nothing

@@ -265,7 +265,7 @@ const TopBar: React.FC = () => {
             {/* Mobile: Hamburger */}
             <button
               onClick={openMobile}
-              className="text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50 rounded-lg p-2 transition-colors md:hidden"
+              className="text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50 flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-lg p-2 transition-colors md:hidden"
               aria-label="Open menu"
             >
               <HamburgerIcon />
