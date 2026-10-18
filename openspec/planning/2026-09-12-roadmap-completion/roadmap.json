@@ -9448,6 +9448,100 @@
         ],
         "rule": "Navigation aliases only, no source grant. Task33 is a documentary admission predicate beyond the existing R4.S7 node edge; freeze and census exact manifests at admission."
       }
+    },
+    {
+      "id": "R6.catalog-reproduce", "wave": 6, "title": "U79 bounded catalog/data fidelity", "kind": "implementation", "state": "planned",
+      "dependsOn": [],
+      "ownershipPaths": ["scripts/megameklab-conversion", "scripts/qc", "scripts/__tests__"],
+      "acceptance": ["Deliver only U79 behavior and required proof; genuine exact-main PASS/closure before dependent admission."],
+      "owner": "Root; OFF L1/L2 critical path",
+      "maxFiles": 15, "maxNonGeneratedLines": 500, "taskKeys": [], "receipt": null
+    },
+    {
+      "id": "R6.catalog-publish", "wave": 6, "title": "U80 bounded catalog/data fidelity", "kind": "implementation", "state": "blocked",
+      "dependsOn": ["R6.catalog-reproduce"],
+      "ownershipPaths": ["config", "scripts/mm-data", "scripts/__tests__", "package.json"],
+      "acceptance": ["Deliver only U80 behavior and required proof; genuine exact-main PASS/closure before dependent admission."],
+      "owner": "Root; OFF L1/L2 critical path",
+      "maxFiles": 15, "maxNonGeneratedLines": 500, "taskKeys": [], "receipt": null
+    },
+    {
+      "id": "R6.catalog-consume", "wave": 6, "title": "U81 bounded catalog/data fidelity", "kind": "implementation", "state": "blocked",
+      "dependsOn": ["R6.catalog-publish"],
+      "ownershipPaths": [".github/actions/setup-node-and-install/action.yml", ".github/workflows/pr-checks.yml", ".github/workflows/release.yml", "Dockerfile", "scripts/__tests__"],
+      "acceptance": ["Deliver only U81 behavior and required proof; genuine exact-main PASS/closure before dependent admission."],
+      "owner": "Root; OFF L1/L2 critical path",
+      "maxFiles": 15, "maxNonGeneratedLines": 500, "taskKeys": [], "receipt": null
+    },
+    {
+      "id": "R6.catalog-untrack", "wave": 6, "title": "U82 bounded catalog/data fidelity", "kind": "implementation", "state": "blocked",
+      "dependsOn": ["R6.catalog-consume"],
+      "ownershipPaths": ["public/data/units", "scripts/__tests__"],
+      "acceptance": ["Deliver only U82 behavior and required proof; genuine exact-main PASS/closure before dependent admission."],
+      "owner": "Root; OFF L1/L2 critical path",
+      "maxFiles": 15, "maxNonGeneratedLines": 20, "taskKeys": [], "receipt": null
+    },
+    {
+      "id": "R6.df-sheet-qv", "wave": 6, "title": "DF-SHEET-QV bounded catalog/data fidelity", "kind": "implementation", "state": "blocked",
+      "dependsOn": [],
+      "ownershipPaths": ["src/services/printing/recordsheet/mechTypeUtils.ts", "src/services/printing/recordsheet/__tests__"],
+      "acceptance": ["Deliver only DF-SHEET-QV behavior and required proof; genuine exact-main PASS/closure before dependent admission."],
+      "owner": "Root; OFF L1/L2 critical path",
+      "maxFiles": 15, "maxNonGeneratedLines": 500, "taskKeys": [], "receipt": null
+    },
+    {
+      "id": "R6.df-mech-rules", "wave": 6, "title": "DF-MECH-RULES bounded catalog/data fidelity", "kind": "implementation", "state": "blocked",
+      "dependsOn": ["R6.catalog-untrack"],
+      "ownershipPaths": ["scripts/megameklab-conversion", "scripts/__tests__"],
+      "acceptance": ["Deliver only DF-MECH-RULES behavior and required proof; genuine exact-main PASS/closure before dependent admission."],
+      "owner": "Root; OFF L1/L2 critical path",
+      "maxFiles": 15, "maxNonGeneratedLines": 500, "taskKeys": [], "receipt": null
+    },
+    {
+      "id": "R6.df-mech-center-leg", "wave": 6, "title": "DF-MECH-CONFIG bounded catalog/data fidelity", "kind": "implementation", "state": "blocked",
+      "dependsOn": ["R6.df-mech-rules"],
+      "ownershipPaths": ["scripts/megameklab-conversion", "scripts/__tests__"],
+      "acceptance": ["Deliver only DF-MECH-CONFIG behavior and required proof; genuine exact-main PASS/closure before dependent admission."],
+      "owner": "Root; OFF L1/L2 critical path",
+      "maxFiles": 15, "maxNonGeneratedLines": 500, "taskKeys": [], "receipt": null
+    },
+    {
+      "id": "R6.df-mech-metadata", "wave": 6, "title": "DF-MECH-META bounded catalog/data fidelity", "kind": "implementation", "state": "blocked",
+      "dependsOn": ["R6.df-mech-center-leg"],
+      "ownershipPaths": [
+        "scripts/megameklab-conversion",
+        "scripts/__tests__",
+        "public/data/equipment/_schema/unit-schema.json",
+        "src/types/contracts/generated/unit.zod.ts",
+        "src/types/contracts/__tests__/unit.contract.test.ts"
+      ],
+      "acceptance": ["Deliver only DF-MECH-META behavior and required proof; genuine exact-main PASS/closure before dependent admission."],
+      "owner": "Root; OFF L1/L2 critical path",
+      "maxFiles": 15, "maxNonGeneratedLines": 500, "taskKeys": [], "receipt": null
+    },
+    {
+      "id": "R6.df-equipment-identity", "wave": 6, "title": "EQ-ID bounded catalog/data fidelity", "kind": "implementation", "state": "blocked",
+      "dependsOn": [],
+      "ownershipPaths": ["scripts/analysis", "scripts/__tests__"],
+      "acceptance": ["Deliver only EQ-ID behavior and required proof; genuine exact-main PASS/closure before dependent admission."],
+      "owner": "Root; OFF L1/L2 critical path",
+      "maxFiles": 15, "maxNonGeneratedLines": 500, "taskKeys": [], "receipt": null
+    },
+    {
+      "id": "R6.df-blk-engine", "wave": 6, "title": "DF-BLK-ENGINE bounded catalog/data fidelity", "kind": "implementation", "state": "blocked",
+      "dependsOn": ["R6.df-mech-metadata"],
+      "ownershipPaths": ["scripts/megameklab-conversion", "scripts/__tests__"],
+      "acceptance": ["Deliver only DF-BLK-ENGINE behavior and required proof; genuine exact-main PASS/closure before dependent admission."],
+      "owner": "Root; OFF L1/L2 critical path",
+      "maxFiles": 15, "maxNonGeneratedLines": 500, "taskKeys": [], "receipt": null
+    },
+    {
+      "id": "R6.df-catalog-repin", "wave": 6, "title": "DF-CATALOG-PIN bounded catalog/data fidelity", "kind": "implementation", "state": "blocked",
+      "dependsOn": ["R6.df-blk-engine"],
+      "ownershipPaths": ["config", "scripts/__tests__"],
+      "acceptance": ["Deliver only DF-CATALOG-PIN behavior and required proof; genuine exact-main PASS/closure before dependent admission."],
+      "owner": "Root; OFF L1/L2 critical path",
+      "maxFiles": 15, "maxNonGeneratedLines": 500, "taskKeys": [], "receipt": null
     }
   ],
   "tasks": [
@@ -18896,5 +18990,20 @@
       "verdict": "CHANGES",
       "response": "Rebased onto #2273; preserves B14-0 priority; A1/A2/B distinct new leaves and total aggregate caps; exact merge-diff allowlist, lint-clean zero-headroom rule and tsx/offline-SQL fixture restriction. Root will independently re-review the revised head; no approval is inferred."
     }
+  },
+  "dataFidelityRegistration20261018": {
+    "baseline": "407ff0e9ae3eb0cd200b3c68da26e3d27d66a144",
+    "registrationOnly": true,
+    "sourceAdmitted": false,
+    "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/data-fidelity-registration-20261018.txt",
+    "sourceSha256": "48cfd14ffae9a8d50eb6f8dbdffd356c35f35f1b60edfd6ee4dbf26883ae3568",
+    "units": ["DF-SHEET-QV", "DF-MECH-RULES", "DF-MECH-CONFIG", "DF-MECH-META", "EQ-ID", "DF-BLK-ENGINE", "DF-CATALOG-PIN"],
+    "order": "U79 -> U80 -> U81 -> U82 -> DF-MECH-RULES -> DF-MECH-CONFIG -> DF-MECH-META -> DF-BLK-ENGINE -> DF-CATALOG-PIN",
+    "authority": "Owner standing instruction to continue recommended options and publish as needed; Root review-round-1 directions on PR #2276. No source admission or future merge ruling.",
+    "scope": "OFF L1/L2 critical path. P7 tasks 88-93 remain R7.versions -> R7.provenance -> R7.context. Forbidden: src/lib/multiplayer/server, src/lib/campaign/coop, src/components/campaign/coop, src/pages/api/multiplayer, server.js and campaign sync.",
+    "coordination": "Root must reconcile every unit/node reservation in the hashed census before release to planned; predecessor arrays need genuine mainProof PASS, ancestry and closure. Dedicated pipeline node edges enforce ordering without blocking the entire R6.loop-harness. All new units remain blocked; one product-writing lane.",
+    "gates": "Named scripts/__tests__ Jest wrappers run in existing stable/CI unit shards without workflow edits. Use @jest-environment node and stdlib-only source fixtures. Resolve interpreters in order python3, python, py -3, then pass -B; missing interpreter/spawn error/null or nonzero status fails, never skips. Set explicit Jest timeout 60 seconds and spawn timeout 45 seconds. Each Python-wrapper unit admission records resolution proof on the CI shard runner (for example first CI run log). EQ-ID invokes its real entrypoint from its named Jest test.",
+    "caps": "Every new unit <=15 files/500 counted additions; no deletion credit. Tests/generated lines exempt only under existing validator rules, all files count. Exact prospective manifests are the sole source/test set; freeze every lifecycle/evidence leaf and split before admission if required. No directory-wide grant or new waiver.",
+    "pipeline": "U79/U80 pin immutable producer+input. Initial U80 remains byte-identical to tracked data; U82 untracks before any fidelity change. Generator-only units test staged fixtures, never rewrite tracked catalogs. DF-CATALOG-PIN validates and publishes corrected battlemech bytes, re-pins U80 config and exercises U81 fetch/readers; non-mech publication stays deferred."
   }
 }
