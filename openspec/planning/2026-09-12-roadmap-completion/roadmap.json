@@ -2708,7 +2708,7 @@
     {
       "id": "R2.authority-live",
       "ownershipPathsAmended20261009P2C": {
-        "unit": "P2CA/P2CB/P2CD/P2CE/P2CE1/P2CE2/P2CE3/P2CF/P2CF1/P2CF2/P2CG1/P2CG1A1/P2CG1A2/P2CG1B/P2CG1C/P2CG1D/P2CG1E/P2CG1F/P2CG1G1/P2CG1G2/P2CG1H/P2CG1I1/P2CG1I2/P2CG1I3/P2CG1I4/P2CG2/P2CH",
+        "unit": "P2CA/P2CB/P2CD/P2CE/P2CE1/P2CE2/P2CE3/P2CF/P2CF1/P2CF2/P2CG1/P2CG1A1/P2CG1A2/P2CG1B/P2CG1C/P2CG1D/P2CG1E/P2CG1F/P2CG1G1/P2CG1G2A/P2CG1G2/P2CG1H/P2CG1I1/P2CG1I2/P2CG1I3/P2CG1I4/P2CG2/P2CH",
         "planTask": 8,
         "evidence": "evidence/p2cg1-split-registration-correction-20261016.json",
         "paths": [
@@ -2861,10 +2861,10 @@
             "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
             "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx",
             "src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx",
-            "src/pages/api/multiplayer/invites/[roomCode].ts",
-            "src/__tests__/api/securityBoundary.test.ts",
             "src/lib/campaign/coop/campaignSyncTransport.ts",
-            "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts"
+            "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+            "src/lib/campaign/coop/campaignSyncTransportSeat.ts",
+            "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.creatorBinding.test.tsx"
           ],
           "P2CG1H": [
             "server.js",
@@ -2961,6 +2961,10 @@
             "src/lib/multiplayer/server/ServerMatchHostEvents.ts",
             "src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts",
             "src/lib/multiplayer/server/__tests__/sealedChoiceDelivery.test.ts"
+          ],
+          "P2CG1G2A": [
+            "src/pages/api/multiplayer/invites/[roomCode].ts",
+            "src/__tests__/api/securityBoundary.test.ts"
           ]
         },
         "knownSourceTestLifecycleSubtotals": {
@@ -2992,7 +2996,8 @@
           "P2CG2": 7,
           "P2CH": 5,
           "P2CG1R": 8,
-          "P2CG1S": 6
+          "P2CG1S": 6,
+          "P2CG1G2A": 3
         },
         "permissionBoundary": "Prospective assignment only; source permission remains non-effective until normal finite admission freezes the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measures actual unique files and product/test additions under unchanged 15-file/500-product-added-line limits. Named source/test lists and known lower bounds are in R2.authority-live.ownershipPathsAmended20261009P2C.restrictions for this ID. No unnamed test, directory-wide grant, placeholder/hash, capException or cap inflation. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze of actual bytes/names/hashes and full census. If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required scenario."
       },
