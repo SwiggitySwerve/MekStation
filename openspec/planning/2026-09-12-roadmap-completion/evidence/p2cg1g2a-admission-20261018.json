@@ -1,0 +1,200 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CG1G2A",
+  "stage": "admission",
+  "date": "20261018",
+  "baseline": "58e5c31b09d7d724ef409b497f3b421d41d48a29",
+  "authority": "Root GATE OPEN message: P2CG1G1 closure #2244 merged at 58e5c31b (closure head 9db3198c; receipt issuecomment-6246329698; closure verify APPROVE-WITH-NOTES), P2CG1G1 main-verified on Main, P2CG1G2A released to planned, validate-roadmap --next = P2CG1G2A, nothing else in the product lane in flight. Parent ruling R-PRIV-1: accept G2A as registered (7/15) and carry the corrected privacy analysis (PRIV-1) in admission evidence, receipts and PR body; do not change any non-G2A leaf. Admission on 58e5c31b, the commit actually checked out",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "P2CG1G2A implementation sub-agent"
+  },
+  "predecessors": {
+    "P2CG1G1": "main-verified on fetched origin/main 58e5c31b: prHead a5b4a56a, mergeSha 68eb607212a099a6a707a59be6bc8654064e8534, mainProof evidence/p2cg1g1-mainproof-20261018.json verdict PASS (735/735), closure #2244 merge 58e5c31b. 68eb6072 is an ancestor of the baseline (git merge-base --is-ancestor exit 0)"
+  },
+  "overlap": "No unit in units.json is in an active state at the baseline (complete 96, blocked 59, main-verified 28, planned 36). The only unit whose ownershipPaths cover either G2A leaf is P2CG1G2A. git diff 68eb6072..58e5c31b touches neither leaf (route blob 3745c1c9, test blob 30683784 unchanged since the #2239 registration); #2240-#2244 touch other files only",
+  "restriction": {
+    "container": "R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1G2A",
+    "leaves": 2,
+    "knownSourceTestLifecycleSubtotal": 3,
+    "amendment": "evidence/p2cg1g2-split-amendment-20261018.json (#2239, option S3)"
+  },
+  "caps": {
+    "files": 15,
+    "productAddedLines": 500
+  },
+  "manifest": {
+    "count": 7,
+    "spare": 8,
+    "reservedUnchanged": 1,
+    "note": "2 restriction leaves (1 product, existing; 1 test, existing) + units.json (own lifecycle fields only) + admission/red/local receipts + reserved admission-review slot = 7/15. Spare slots grant no path"
+  },
+  "countingConvention": "U41 counted lines = added physical lines (git diff --numstat --no-renames baseline..HEAD, no deletion credit) in the product leaf and units.json. __tests__/ leaves and evidence/ contents are line-exempt; every changed file counts toward 15",
+  "census": {
+    "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2a-proof-20261018/census.md",
+    "sha256": "5334bf8a6b503c05bf701981009c04da0baaf7d33dcbb1680616ecc732b573ce",
+    "bytes": 1749,
+    "frozenBefore": "any source, test, lifecycle or evidence edit in this branch"
+  },
+  "frozenFiles": [
+    {
+      "path": "src/pages/api/multiplayer/invites/[roomCode].ts",
+      "exists": true,
+      "sha256": "48edd26fff601aa61ad33ca5ef23076d70f5db13dd5743a7d114c4217c01dec5",
+      "bytes": 2138,
+      "physicalLines": 66
+    },
+    {
+      "path": "src/__tests__/api/securityBoundary.test.ts",
+      "exists": true,
+      "sha256": "b1ad23eadc77dc469369a30a257b0d2899423602cd9f3e3f4cf62f5316eaf3a6",
+      "bytes": 9193,
+      "physicalLines": 308
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "exists": true,
+      "sha256": "341575d44494c39346f29af3eddae42e3130ca4e42e07dcecf7165f9b4b5658d",
+      "bytes": 1664815,
+      "physicalLines": 21772
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2a-admission-20261018.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null,
+      "physicalLines": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2a-red-20261018.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null,
+      "physicalLines": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2a-local-20261018.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null,
+      "physicalLines": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2a-admission-review-20261018.md",
+      "exists": false,
+      "sha256": null,
+      "bytes": null,
+      "physicalLines": null
+    }
+  ],
+  "unchangedControls": [
+    {
+      "path": "src/__tests__/unit/api/multiplayerMatchMeta.test.ts",
+      "exists": true,
+      "sha256": "fbad6d672ec0b15b3a357f5bf0ad109af796f12dd819ffdd1c701f158b501603",
+      "bytes": 9077,
+      "physicalLines": 286
+    },
+    {
+      "path": "src/lib/multiplayer/server/auth.ts",
+      "exists": true,
+      "sha256": "661c7d1cf98a94c6afb9df4525128ebe3a8ac4e39a2bcf5b20ac22a8d6bb2672",
+      "bytes": 10155,
+      "physicalLines": 318
+    },
+    {
+      "path": "src/lib/multiplayer/server/joinableLobbies.ts",
+      "exists": true,
+      "sha256": "a2247cc2efbe09bcea80189d2b499372362e729f237f2184ec3c02efc05ff4cc",
+      "bytes": 6887,
+      "physicalLines": 190
+    },
+    {
+      "path": "src/pages/api/multiplayer/auth/token.ts",
+      "exists": true,
+      "sha256": "8a1f93cce5df4d7e3fdef2e092d47d71d9ad2dc0587a3aaf34a31751aa2786cd",
+      "bytes": 5978,
+      "physicalLines": 183
+    }
+  ],
+  "contract": {
+    "source": "docs/audits/2026-10-18-g2-preadmission-design.md G2-BOOT-1 and P2CG1G2A.behavior",
+    "order": [
+      "1 non-GET -> 405 (unchanged)",
+      "2 campaignIdentity key present -> identity mode; Cache-Control: private, no-store on every identity outcome",
+      "3 identity mode with a mode other than the exact string '1', or any token query key; or missing roomCode -> 400 (no downgrade to the anonymous summary)",
+      "4 invalid room-code shape -> 404 not-found class",
+      "5 identity mode without Authorization 'Bearer <non-space>' -> 401 before any store lookup or crypto",
+      "6 no live lobby code -> 404",
+      "7 identity mode: authenticateRequest(req, undefined, {kind:'campaign-session', id: meta.matchId}) fails -> 401 (scope derived server-side, never read from the request)",
+      "8 identity mode: meta.coopCampaign.campaignId not a non-empty string -> 404 (same class as unknown)",
+      "9 identity mode -> 200 {matchId, status, layout, campaignId}, built field by field (meta never spread)",
+      "10 anonymous -> 200 {matchId, status, layout} exactly as before; no auth call, no cache header"
+    ],
+    "noWrite": "HTTP claims no seat, membership, receipt or grant; WS membership/revocation/seat checks remain the authority (bindCampaignSyncConnection.ts:1162-1354)"
+  },
+  "privacy": {
+    "productionLive": "#2239 review N1: the identity mode is live and callable by any HTTP client from the moment G2A merges; reduced P2CG1G2 is only its first in-repo consumer. 'Dormant' in the behavior text means 'no in-repo caller', not inert. The mainProof must not be read as inert",
+    "whoLearnsCampaignId": "Anyone presenting a live lobby code with any well-formed self-signed Ed25519 bearer: unscoped tokens, or tokens scoped to this match's campaign-session. verifyPlayerToken derives playerId from the embedded key and consults no registry, so a throwaway key suffices",
+    "PRIV1": "The design-doc premise that the room code is the actual secret (2026-10-18-g2-preadmission-design.md:23) is false for co-op campaign lobbies. The entry panel creates the session as layout '1v1' with hostSeatKind 'spectator' (CampaignCoopEntryPanel.tsx:221-238), leaving two unoccupied human seats (Lobby.ts:285); the campaign WS path never writes meta.seats, so isJoinable (joinableLobbies.ts:126-131) holds while the match is in lobby status and GET /api/multiplayer/lobbies returns {matchId, roomCode, ...} to any verified bearer, which may be self-signed (lobbies.ts:65). A pre-gate scratch probe (deleted) confirmed a co-op campaign session meta is listed with its roomCode",
+    "incremental": "Pre-existing: campaign ids and names are anonymously enumerable (GET /api/campaigns) and /api/campaigns/[id] is unauthenticated (B15); a listed code already admits a newcomer WS guest join (handleRoomCodeGuestJoin.ts header) whose snapshot includes the campaignId. G2A adds the matchId->campaignId link without taking a seat, without appearing to the host, and independent of seat-full refusal or membership revocation. It adds no seat, membership, receipt, stream or grant capability",
+    "topology": "v2.2.0 enforces same-host/loopback (server.js:72; Electron pins loopback) and same-host play has no inter-participant isolation (B15 design :13, :17). Under that topology PRIV-1 is not a release blocker",
+    "ruling": "Parent ruling R-PRIV-1: accept G2A as registered; Root records PRIV-1 as a B15 remote-support obligation (fix in joinableLobbies.ts / session creation before any remote/tunnel hosting claim) in a separate docs ledger amendment. G2A changes no non-G2A leaf",
+    "whyNotNarrowedHere": "Requiring membership refuses the fresh guest who needs the identity before the socket exists; requiring a scoped token changes nothing (any key can sign the scope) and would break reduced G2, whose entry panel mints unscoped tokens via /api/multiplayer/auth/token (token.ts:157), not a G2/G2A leaf",
+    "otherNotes": [
+      "Cache: private, no-store on every identity outcome",
+      "Oracles: missing header -> 401 before lookup; invalid bearer on a live code -> 401 whether or not co-op (row A9); unknown and non-co-op share the 404 body. Code liveness is already disclosed by the anonymous summary",
+      "Cost: Ed25519 verification only after a live-code hit; the anonymous route already has no rate limit (pre-existing); no limiter added",
+      "Bearers live up to 6h (token.ts:55); a revoked member can still read the correlation (accepted residual in the design doc)"
+    ]
+  },
+  "carryForwards": {
+    "source": "P2CG1G1 review r1/r2 (CF-H1..CF-H17), #2239 review N1-N6",
+    "CF-H6": "Directed at reduced P2CG1G2; not a G2A leaf",
+    "CF-H16": "Directed at reduced P2CG1G2 (host connect expectedCampaignId); not a G2A leaf",
+    "CF-H12": "Applies: all required check runs verified by name on the exact G2A head and recorded in the local receipt",
+    "CF-G11/CF-G4/CF-H7": "Untouched: G2A changes no co-op client file",
+    "#2239-N1": "Absorbed: privacy analysis framed as production-live (privacy.productionLive)",
+    "#2239-N3/N4/N5/N6": "Registration-level notes; nothing for this unit"
+  },
+  "prep": "G2A-PREP (untracked): before the gate the route and tests were prototyped in scratch worktree p2cg1g2a-scratch-20261018 on e52000e3 (both leaves byte-identical to this baseline). Those runs are not evidence for this head; every result is re-run after this admission commit",
+  "scopeFitProbe": "Pre-gate TS7 probe: npm run typecheck (typescript7) exit 0 on the prototype at RED and GREEN; the prototype touched only the two restriction leaves (route +46/-2, test +299/-0). No further path is needed",
+  "estimate": "About 62-76 counted additions (route 46 + units.json lifecycle); final figures at the local stage",
+  "baselineMeasurements": {
+    "node": "v22.22.0",
+    "idle": {
+      "command": "node scripts/qc/machine-idle.mjs --own-pid 47516 --own-pid <shell pid>",
+      "result": "MACHINE_IDLE",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2a-proof-20261018/idle-base.log",
+        "sha256": "315ceb46326ccdda8b3d7a4913043d09a4b22eb2dbc65560259861fe0f202a2d",
+        "bytes": 17
+      }
+    },
+    "lint": {
+      "command": "npx oxlint",
+      "result": "87 warnings, 0 errors",
+      "leafWarnings": "the route does not warn; repository config excludes __tests__ from lint",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2a-proof-20261018/lint-base.log",
+        "sha256": "f7ce37302d88f3255bbf2a4f1d62d4d970527adab0434b098a3be3176cc4c8a9",
+        "bytes": 81286
+      }
+    },
+    "typecheck": {
+      "command": "npm run typecheck",
+      "result": "exit 0",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2a-proof-20261018/typecheck-base.log",
+        "sha256": "8102a14cf3245ac2b0d67c588affb25efaebfcd3485f9a46a751595d9a774951",
+        "bytes": 358
+      }
+    }
+  },
+  "plan": {
+    "red": "Commit 2 changes only the test leaf (plus units.json red path and the red receipt); the route stays byte-identical to the baseline. Expected RED: 19 rows A1-A9 in the nested describe 'campaign identity invite resolution (G2-BOOT-1)'. Controls green at RED: C1 anonymous summary exact, C2 default delegates restored, every existing row",
+    "implementation": "Commit 3 changes only the route (plus units.json local path and the local receipt). No test byte changes after RED; any post-RED test change goes in its own labelled commit",
+    "mutants": "M1-M10 re-run on the GREEN route at the local stage"
+  }
+}

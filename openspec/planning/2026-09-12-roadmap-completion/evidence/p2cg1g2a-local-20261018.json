@@ -1,0 +1,269 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CG1G2A",
+  "stage": "local",
+  "date": "20261018",
+  "baseline": "58e5c31b09d7d724ef409b497f3b421d41d48a29",
+  "commits": {
+    "admission": "60da3dbb8e3343e65e1dfca70d03913d719bfbc2",
+    "red": "eec0cab8f (this receipt's parent; full sha in git log)",
+    "implementation": "this commit"
+  },
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "P2CG1G2A implementation sub-agent"
+  },
+  "runtime": {
+    "node": "v22.22.0",
+    "jest": "node node_modules/jest/bin/jest.js, private --cacheDirectory; every heavy run preceded by node scripts/qc/machine-idle.mjs --own-pid 47516 --own-pid <shell pid> -> MACHINE_IDLE"
+  },
+  "productBytes": [
+    {
+      "path": "src/pages/api/multiplayer/invites/[roomCode].ts",
+      "sha256": "6ee9ec402303769462f9ffc5e7105cddcd2d35bab4ec52c3b26ab94d0528ce2b",
+      "bytes": 3697,
+      "physicalLines": 110,
+      "added": 46,
+      "deleted": 2
+    }
+  ],
+  "testBytes": [
+    {
+      "path": "src/__tests__/api/securityBoundary.test.ts",
+      "sha256": "696d4b8699df5fda2c11d78feec587dc43d6145e6d059cff24e359be3831e7d7",
+      "bytes": 19634
+    }
+  ],
+  "testBytesVersusRed": "identical: no test byte changed after the RED commit",
+  "delivered": [
+    "Explicit campaignIdentity=1 mode on GET /api/multiplayer/invites/:roomCode; any other mode value or any token query key -> 400 (no downgrade to the anonymous summary)",
+    "Non-empty 'Bearer' Authorization header required before any store lookup or crypto (-> 401); query-token authentication is never used in this mode",
+    "Real verifier with the server-derived scope {kind:'campaign-session', id: meta.matchId}; failure -> 401 decided before the co-op check",
+    "Allowlisted 200 {matchId, status, layout, campaignId} from meta.coopCampaign.campaignId only; non-co-op or empty campaignId -> the unknown-code 404 class",
+    "Cache-Control: private, no-store on every identity-mode outcome",
+    "Anonymous summary byte-for-byte unchanged in shape; no auth, no cache header",
+    "HTTP writes nothing: no seat, membership, receipt or grant (afterEach invariant)"
+  ],
+  "privacy": "As recorded in the admission receipt (privacy.*): production-live from merge (#2239 N1); campaignId is learnable by any live-code holder with any self-signed bearer; PRIV-1 - co-op campaign lobbies are listed with their room codes by GET /api/multiplayer/lobbies, so the room-code-is-the-secret premise is false for them and G2A adds the matchId->campaignId link without a seat; not a release blocker under v2.2.0's enforced loopback topology; Root records PRIV-1 as a B15 remote-support obligation (parent ruling R-PRIV-1). No non-G2A leaf changed (controls below)",
+  "carryForwards": {
+    "CF-H12": {
+      "rule": "verify every required check run by name on the exact head",
+      "expectedNames": [
+        "A11y Tests",
+        "Build Storybook",
+        "Build Test / linux",
+        "Build Test / mac",
+        "Build Test / win",
+        "Coverage Floor",
+        "Customizer Regressions",
+        "Desktop Tests",
+        "Desktop Type Check",
+        "Detect Changes",
+        "Determinism Audit",
+        "E2E Smoke",
+        "Format Check",
+        "Install Dependencies",
+        "Lint",
+        "Lint and Test",
+        "Perf Budget PR",
+        "Perf Smoke Tests",
+        "Prepare Build Artifacts",
+        "Schema Bridge",
+        "Seam Anchors",
+        "Statistical Proof PR",
+        "Type Check",
+        "Unit Tests (1/6)",
+        "Unit Tests (2/6)",
+        "Unit Tests (3/6)",
+        "Unit Tests (4/6)",
+        "Unit Tests (5/6)",
+        "Unit Tests (6/6)",
+        "Validate BV Parity",
+        "Validate Combat Suite",
+        "Validate Roadmap Ledger"
+      ],
+      "expectedCount": 32,
+      "reference": {
+        "head": "a5b4a56a8d524cb52ca7122b087d009a6603ac92 (P2CG1G1 final head)",
+        "log": {
+          "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2a-proof-20261018/checks-g1-head.json",
+          "sha256": "1a1317afa98a3b45c51af03e0c3fd012d06cb7a6c9ecdca7a4da705259555290",
+          "bytes": 3044
+        }
+      },
+      "exactHead": "A receipt cannot contain the CI result of the commit that carries it; the by-name comparison on this unit's exact PR head is posted as a PR comment and must be re-checked at review/merge"
+    },
+    "CF-H6/CF-H16": "reduced P2CG1G2's; untouched",
+    "CF-G11/CF-G4/CF-H7": "untouched; G2A changes no co-op client file"
+  },
+  "mutationProbes": {
+    "script": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2a-proof-20261018/mutants.cjs",
+      "sha256": "9aeafdd49ed98d09e8cd1f8fc070a4cfda2ebbe321f1b5e7f0c8a8b7f371601c",
+      "bytes": 2508
+    },
+    "method": "Each mutant is a string edit of the GREEN route; securityBoundary.test.ts (30 rows) is run per mutant with npx jest --maxWorkers=2; the GREEN route is restored afterwards (sha256 6ee9ec40... re-verified)",
+    "results": [
+      "M1 accept query token: 1 failed (CAUGHT)",
+      "M2 no bearer pre-check: 3 failed (CAUGHT)",
+      "M3 no expected scope: 2 failed (CAUGHT)",
+      "M4 match-kind scope: 3 failed (CAUGHT)",
+      "M5 spread meta: 1 failed (CAUGHT)",
+      "M6 no-store on success only: 16 failed (CAUGHT)",
+      "M7 malformed mode downgrades to summary: 4 failed (CAUGHT)",
+      "M8 campaignId falls back to matchId: 1 failed (CAUGHT)",
+      "M9 anonymous leaks campaignId: 1 failed (CAUGHT)",
+      "M10 co-op check before auth: 1 failed (CAUGHT by A9)"
+    ],
+    "summary": "10/10 caught",
+    "log": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2a-proof-20261018/mutants.log",
+      "sha256": "93044d168271b31a6172d9d1e1ed5dcb0c2952a0e2162c9a696e99c8e79dc594",
+      "bytes": 696
+    },
+    "idleLog": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2a-proof-20261018/idle-mutants.log",
+      "sha256": "315ceb46326ccdda8b3d7a4913043d09a4b22eb2dbc65560259861fe0f202a2d",
+      "bytes": 17
+    }
+  },
+  "results": {
+    "green": {
+      "summary": "Test Suites: 2 passed; Tests: 48 passed, 48 total (securityBoundary 30, multiplayerMatchMeta 18)",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2a-proof-20261018/green.log",
+        "sha256": "29097e53b19f32ed08716e39e431adb50ef749c34622ec224711cd1a21609bbe",
+        "bytes": 35774
+      },
+      "idleLog": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2a-proof-20261018/idle-green.log",
+        "sha256": "315ceb46326ccdda8b3d7a4913043d09a4b22eb2dbc65560259861fe0f202a2d",
+        "bytes": 17
+      }
+    },
+    "related": {
+      "set": "src/__tests__/api/, src/__tests__/unit/api/, index.coop.test.tsx, lobby-roomcode.test.tsx, coopMatchRosterSourceVersion.test.ts, issuePlayerToken.test.ts, MatchHostRegistry.closeRoute.test.ts, lobbyCorrectionSurface.test.tsx, server/__tests__/auth.test.ts (every test importing the invite route or the server verifier)",
+      "summary": "Test Suites: 74 passed; Tests: 925 passed, 925 total",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2a-proof-20261018/related.log",
+        "sha256": "338e8dfef8231e37fafbe201859775dec7ae26e95329e4c9d8ec7aa65ab9d630",
+        "bytes": 166534
+      },
+      "idleLog": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2a-proof-20261018/idle-related.log",
+        "sha256": "315ceb46326ccdda8b3d7a4913043d09a4b22eb2dbc65560259861fe0f202a2d",
+        "bytes": 17
+      }
+    }
+  },
+  "checks": {
+    "typecheck": {
+      "result": "PASS (npm run typecheck, typescript7)",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2a-proof-20261018/typecheck-green.log",
+        "sha256": "8102a14cf3245ac2b0d67c588affb25efaebfcd3485f9a46a751595d9a774951",
+        "bytes": 358
+      }
+    },
+    "lint": {
+      "result": "0 errors, 87 warnings = baseline; the route does not warn",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2a-proof-20261018/lint-green.log",
+        "sha256": "e4b2c69646be9628341037024617d8395bbba3b1d8ae934153dac08720984ba3",
+        "bytes": 81288
+      }
+    },
+    "format": {
+      "result": "PASS (npx oxfmt --check ., 8226 files)",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2a-proof-20261018/format.log",
+        "sha256": "9716e2ed4e15858d4079b182cdea1420e056b057dfb45bb88ff96f267814a9e1",
+        "bytes": 244
+      }
+    },
+    "lintUnits": {
+      "result": "LINT_UNITS_PASS 17899/17899",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2a-proof-20261018/lint-units.log",
+        "sha256": "d00eff4f65ab38e81b1fb456a57ed1cea54fdc55a454c60fb2c618a5b9a4cd13",
+        "bytes": 730
+      }
+    },
+    "validator": "validate-roadmap.mjs plain and --git PASS (81 nodes, 13 packages, 381 tasks, 40 triage rows); --next advisory prints U24b, not permission",
+    "validatorTests": {
+      "result": "86/86 (node --test validate-roadmap.test.mjs)",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2a-proof-20261018/validator-tests.log",
+        "sha256": "bfb90f1e8595e2ace9e6d41587d881b9dc77591894838ddb5016db8f68103cf7",
+        "bytes": 33624
+      }
+    },
+    "openspec": {
+      "result": "openspec validate --all --strict: 230 passed, 0 failed",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2a-proof-20261018/openspec.log",
+        "sha256": "89a3784befdc45a1fb8b4cac58d9703373655afb9d5fa537f58176fbd9cad0c0",
+        "bytes": 13904
+      }
+    },
+    "qc": {
+      "result": "qc:openspec-ci:validate errors=0",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2a-proof-20261018/qc-openspec-ci.log",
+        "sha256": "19b2046de400eaefd184fb58e7072d1816b6ccef3ba1f1ea040c0f9ec8ec2c60",
+        "bytes": 594
+      }
+    },
+    "diffCheck": "git diff --check clean"
+  },
+  "maxLines": {
+    "rule": "oxlint max-lines warn at 400, skipBlankLines and skipComments",
+    "route": "not warned (66 -> 110 physical)"
+  },
+  "census": {
+    "command": "git diff --numstat --no-renames 58e5c31b09d7d724ef409b497f3b421d41d48a29..HEAD",
+    "countedLines": {
+      "invites/[roomCode].ts": 46,
+      "units.json": 16,
+      "total": 62,
+      "cap": 500
+    },
+    "files": {
+      "changed": 6,
+      "reservedReviewSlot": 1,
+      "total": 7,
+      "cap": 15,
+      "reserved": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2a-admission-review-20261018.md (unwritten)"
+    },
+    "lineExempt": "test leaf 298 added; evidence receipts"
+  },
+  "boundary": {
+    "unchangedControls": [
+      {
+        "path": "src/__tests__/unit/api/multiplayerMatchMeta.test.ts",
+        "sha256": "fbad6d672ec0b15b3a357f5bf0ad109af796f12dd819ffdd1c701f158b501603"
+      },
+      {
+        "path": "src/lib/multiplayer/server/auth.ts",
+        "sha256": "661c7d1cf98a94c6afb9df4525128ebe3a8ac4e39a2bcf5b20ac22a8d6bb2672"
+      },
+      {
+        "path": "src/lib/multiplayer/server/joinableLobbies.ts",
+        "sha256": "a2247cc2efbe09bcea80189d2b499372362e729f237f2184ec3c02efc05ff4cc"
+      },
+      {
+        "path": "src/pages/api/multiplayer/auth/token.ts",
+        "sha256": "8a1f93cce5df4d7e3fdef2e092d47d71d9ad2dc0587a3aaf34a31751aa2786cd"
+      }
+    ],
+    "note": "All four equal their admission hashes. No co-op client, WS, binder or wire file changed; units.json changes are P2CG1G2A's own lifecycle fields only"
+  },
+  "discardedLogs": [
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2a-proof-20261018/red-discarded-unformatted.log",
+      "note": "see the red receipt discardedRun"
+    }
+  ],
+  "status": "Local proof complete; awaiting independent sensitive review (reserved slot), OWNER-RULING, CI and the CF-H12 by-name check on the exact head. Not merged"
+}
