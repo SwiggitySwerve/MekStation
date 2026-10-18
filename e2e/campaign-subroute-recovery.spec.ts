@@ -16,7 +16,7 @@ import {
   request as playwrightRequest,
 } from '@playwright/test';
 
-import { deleteCampaign } from './fixtures/campaign';
+import { deleteCampaign, saveCampaignInContext } from './fixtures/campaign';
 import { withBrowserDiagnostics } from './helpers';
 
 const persistedCampaignIds = new Set<string>();
@@ -75,7 +75,7 @@ async function seedRecoverableCampaign(
   await waitForE2EHydration(page);
   await waitForCampaignStoresReady(page);
 
-  return page.evaluate(() => {
+  const seeded = await page.evaluate(() => {
     type MissionRecord = {
       readonly id: string;
       readonly name: string;
@@ -161,6 +161,9 @@ async function seedRecoverableCampaign(
 
     return { campaignId, name, missionId, missionName };
   });
+
+  await saveCampaignInContext(page);
+  return seeded;
 }
 
 async function saveCampaignThroughDashboard(

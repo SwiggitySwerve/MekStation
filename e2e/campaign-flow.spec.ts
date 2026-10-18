@@ -17,7 +17,7 @@ import {
   request as playwrightRequest,
 } from '@playwright/test';
 
-import { deleteCampaign } from './fixtures/campaign';
+import { deleteCampaign, saveCampaignInContext } from './fixtures/campaign';
 import { withBrowserDiagnostics } from './helpers';
 import { getStoreState } from './helpers/store';
 
@@ -419,7 +419,7 @@ async function seedDamagedPostBattleCampaign(
   await page.goto('/gameplay/campaigns');
   await waitForCampaignStoresReady(page);
 
-  return page.evaluate(() => {
+  const seeded = await page.evaluate(() => {
     type StoreApi = {
       getState: () => Record<string, any>;
       setState?: (state: Record<string, any>) => void;
@@ -632,6 +632,9 @@ async function seedDamagedPostBattleCampaign(
       unitId,
     };
   });
+
+  await saveCampaignInContext(page);
+  return seeded;
 }
 
 // Runs once after the whole file, not after each test: several tests in this

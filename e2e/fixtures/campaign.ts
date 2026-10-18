@@ -133,10 +133,8 @@ export async function createTestCampaign(
   return campaignId;
 }
 
-export async function persistCampaignThroughDashboard(
-  page: Page,
-  campaignId: string,
-): Promise<PersistedCampaignRecord> {
+/** Persist all seed or mutation updates before leaving the page context. */
+export async function saveCampaignInContext(page: Page): Promise<void> {
   // The product's create wizard persists a new campaign server-side in the
   // SAME page context it was created in, before any navigation
   // (CreateCampaignPage.submit.ts). A store-seeded campaign that first meets
@@ -144,7 +142,7 @@ export async function persistCampaignThroughDashboard(
   // copy, and the save path then demands explicit adoption rather than
   // birthing the record — Save-now silently skips. Mirror the wizard: save
   // once here, while the seeding context still holds the campaign.
-  const genesis = await page.evaluate(async () => {
+  const status = await page.evaluate(async () => {
     type PersistenceStoreApi = {
       getState: () => {
         saveCampaign: (options?: {
@@ -172,11 +170,18 @@ export async function persistCampaignThroughDashboard(
       .saveCampaign({ retryOnConflict: false });
     return result.status;
   });
-  if (genesis !== 'saved') {
+  if (status !== 'saved') {
     throw new Error(
-      `Initial in-context campaign save did not persist (status: ${genesis})`,
+      `In-context campaign save did not persist (status: ${status})`,
     );
   }
+}
+
+export async function persistCampaignThroughDashboard(
+  page: Page,
+  campaignId: string,
+): Promise<PersistedCampaignRecord> {
+  await saveCampaignInContext(page);
 
   await page.goto(`/gameplay/campaigns/${campaignId}`, {
     waitUntil: 'domcontentloaded',
