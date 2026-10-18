@@ -1,3 +1,45 @@
+## 2026-10-18 Local-seat schema and packaged-proof splits registered
+
+Parent adopts the recommendation in the [LSC preparation report](evidence/lsc-prep-20261018.txt)
+under the standing owner instruction to continue with recommended options, fix
+issues and publish as needed, and the 2026-10-18 owner recommendation approval.
+The report is retained byte-for-byte, SHA-256
+57c20caf90e9acf3c2ce0b8ba57c8dcc5178426ece806bab7c78b14e980e25ea.
+This is a docs-only registration ruling, not source admission, a future sensitive
+OWNER-RULING or runtime acceptance. Baseline: fe41f7ad8ebcdc3731a59cbec5fd69005cd1e29e.
+
+Register blocked sensitive LSC-1DB for the durable local-seat schema, central
+migration catalog, migration test and own lifecycle/evidence (eight draft leaves).
+Allocate its production migration version from fresh Main at admission. LSC-1
+retains repository/API/token and password-verified mint throttling, consuming the
+new predecessor's schema; the unsplit draft would require 17/15 leaves.
+
+Register blocked sensitive LSC-2P for the dedicated packaged Playwright config,
+packaged spec, release-proof document and own lifecycle/evidence (eight draft
+leaves). Config attaches to the installed instance at 127.0.0.1:3001 with no
+webServer/globalSetup, one serial worker and unchanged 30-second timeout. Move
+only the packaged spec and release-proof document out of LSC-2's draft manifest;
+LSC-2 retains storage, selector, provisioning/recovery UI and the in-repo
+three-identity integration proof in its remaining twelve draft leaves. No source,
+config, spec implementation or placeholder lifecycle evidence is created.
+
+Effective L1 has 28 units: P2CG1HP -> LSC-0 -> LSC-1DB -> LSC-1 -> LSC-2 ->
+LSC-2P -> P2CG1H. Links are symmetric. H adds LSC-2P exact-main PASS, ancestry
+and closure while retaining all existing admission text, including LSC-2 and HP.
+The release predicate and human-session checklist require both LSC-2 and LSC-2P
+closure. Binding N1-N6 from #2256 remain explicit: full overlapping reservation
+census, further splits for unregistered leaves, mint throttling, non-vault seat
+semantics, next-mint/renewal revocation and H's HP gate.
+
+Caps remain 15 actual unique files / 500 counted additions without deletion
+credit; measured fit and final evidence names freeze at admission. Preserve
+sensitive review, required CI, exact-head OWNER-RULING, exact-main proof and one
+product/closure lane. NEXT does not enforce documentary predecessor arrays.
+Only LSC-0/1/2 and H existing unit fields change; HP, G2, R and every other unit
+remain unchanged. Earlier dated layer amendments remain historical. The PR
+records the exact field diff, validator modes/tests, selector simulation, strict
+OpenSpec validation and formatting results.
+
 ## 2026-10-18 B14 host-head containment split registered
 
 Parent adopts "B14 fit ruling and draft split" from the
