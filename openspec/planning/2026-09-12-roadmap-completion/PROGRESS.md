@@ -1,3 +1,52 @@
+## 2026-10-18 G1-DOC-2 and R-PRIV-1 documentary amendments proposed
+
+Docs-only correction against Main 58e5c31b09d7d724ef409b497f3b421d41d48a29.
+Only P2CG1G1.behavior and B15-6.behavior change in units.json; this entry records
+why. No source, lifecycle, receipt, ownership, manifest, cap, task or L1 change.
+P2CG1G2A and P2CG1G2 remain identical as parsed unit objects to Main.
+
+G1-DOC-2 follows the F-DOC-1 (#2236, ed4d93ff9) and E-DOC-1 (#2230)
+precedents: correct the description of already-merged behaviour without
+rewriting historical evidence. The merged source/test leaves from #2238
+(head a5b4a56a8d524cb52ca7122b087d009a6603ac92,
+merge 68eb607212a099a6a707a59be6bc8654064e8534) are unchanged at this baseline.
+Read both preserved independent reviews:
+[evidence/p2cg1g1-source-fable-review-20261018.txt](evidence/p2cg1g1-source-fable-review-20261018.txt)
+and [round 2](evidence/p2cg1g1-source-fable-review-r2-20261018.txt).
+The corrected behaviour names remount re-projection before another frame,
+the per-transport heard cursor recorded at consume (including legacy frames,
+not a successful-settle mark), the CF-H1 immediate rejoin after a live binding
+is disposed with an offer still settling, and CF-H3's not-behind predicate
+(`lastSequence >= transport.lastSeq()`, permitting a legacy baseline at 0
+with cursor -1). It preserves the review's outstanding carry-forwards; this
+amendment supplies no new runtime, activation or closure proof.
+
+R-PRIV-1 / PRIV-1 belongs in B15-6's remote-hosting readiness obligation,
+under #2237's [registration design](../../../docs/audits/2026-10-18-b15-ob2-registration-design.md)
+and [v2.2.0 topology boundary](../../../docs/releases/v2.2.0-topology.md).
+Static source tracing: CampaignCoopEntryPanel posts a 1v1 layout with a
+spectator host; matches/index.ts creates open human meta.seats;
+joinableLobbies.ts lists that lobby with its roomCode and matchId;
+bindCampaignSyncConnection.ts binds campaign membership without populating
+meta.seats. GET /api/multiplayer/lobbies requires a bearer but no campaign
+seat, so these codes are discoverable by authenticated strangers while the
+co-op match remains in lobby status. P2CG1G2A's registered authenticated
+campaignIdentity=1 read permits live-code-to-campaignId correlation without
+a seat. That identity read is prospective at this baseline, not claimed shipped
+by this documentary amendment, and is not changed here.
+
+A product fix in joinableLobbies.ts or co-op session creation, with regression
+proof for an authenticated stranger without a campaign seat, must land before
+any remote/tunnel hosting claim. Required source/test leaves beyond the B15-6
+docs/config inventory are recorded as an admission note only: re-census and
+register a narrower authority/privacy slice or reviewed owning-unit amendment
+within ordinary caps before implementation. No manifest expands here, and
+routine B15-6 gains no product or authority/privacy grant. All ten B15 units
+remain blocked at 15 files / 500 counted added lines. Same-host v2.2.0 and the
+existing L1 release predicate remain unchanged; PRIV-1 is not claimed fixed.
+
+---
+
 ## 2026-10-18 P2CG1G1 source verified on main; P2CG1G2A released; closure metadata proposed
 
 P2CG1G1 advances from implementing to main-verified for source PR #2238,
