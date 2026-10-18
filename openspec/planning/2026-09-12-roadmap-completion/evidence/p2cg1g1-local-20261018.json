@@ -1,0 +1,429 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CG1G1",
+  "stage": "local",
+  "date": "20261018",
+  "baseline": "54764673b3eb8aaa9759bfc919461640f7e360b6",
+  "commits": {
+    "admission": "a62fc69c873b58819ecfad869052fa03dbb386d9 (admission receipt + units.json lifecycle; no source/test byte)",
+    "red": "7510a82abb83f7d79905762aaf2fb02d728b84f2 (four test leaves + red receipt + units.json red path; product byte-identical to the baseline)",
+    "implementation": "59c1fa7258bceefe44885222bfb9cfb6858cf8a1 (four product leaves + local receipt + units.json local path; no test byte changed after RED); reviewed head (Fable APPROVE-WITH-NOTES, report sha256 4ad652bd9b1d7ebb853e374644f87a53b54b6718e852c46217267226e6b124cc)",
+    "reviewRed": "8dcb9e467 (test leaf hostProjection only; product byte-identical to 59c1fa72): CF-H1/CF-H3/CF-H4 rows",
+    "reviewFix": "this commit (consumer and store leaves + this receipt update; no test byte changed after 8dcb9e467)"
+  },
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "P2CG1G1 implementation sub-agent"
+  },
+  "runtime": "Node v22.22.0 (C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0), npm ci in this worktree (1078 packages, package-lock unchanged since before P2CG1F), private Jest cache, every Jest run --runInBand after node scripts/qc/machine-idle.mjs --own-pid 47516 reported MACHINE_IDLE (idle.log), one heavy run at a time",
+  "productBytes": [
+    {
+      "path": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+      "sha256": "2b5a1096512fae54e20773e640817f3b5acd6dca75e69fa5e064f54a24c1f155",
+      "bytes": 14107
+    },
+    {
+      "path": "src/components/campaign/coop/campaignCoopSurfaceHelpers.ts",
+      "sha256": "95a71cfb584ca3643a2f8b69d43993e9dfa67b783af47cd4c3364435f4031c2c",
+      "bytes": 6021
+    },
+    {
+      "path": "src/lib/campaign/coop/campaignHostFoldStore.ts",
+      "sha256": "cc08d7a2e9ab536ee96d02a4a136fb2bdc5ff1edbcc46f3bc68bbea9fa8a382c",
+      "bytes": 2710
+    },
+    {
+      "path": "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+      "sha256": "3074c9a3d74acc51e0f6e61efebc283ff0dfa1e3699b53d90ac74c385fb87606",
+      "bytes": 10632
+    }
+  ],
+  "testBytes": [
+    {
+      "path": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+      "sha256": "cdbfe394372ebe25cafabb1294f658c6ad9e823b064a3c208955b626344bdcab",
+      "bytes": 60444
+    },
+    {
+      "path": "src/components/campaign/coop/__tests__/CampaignLifecycleGate.test.tsx",
+      "sha256": "5778cd951e8756a6c479b414c7cb2aa936e2877d786f71f1a24babef2264dfa6",
+      "bytes": 17527
+    },
+    {
+      "path": "src/components/campaign/coop/__tests__/GuestProposalSurface.test.tsx",
+      "sha256": "1f5b6e83591e4181c2fb7175a27134636a515b8b72b0f1717d137fd1094c74f9",
+      "bytes": 12089
+    },
+    {
+      "path": "src/components/campaign/coop/__tests__/GuestRebuildStaleGate.test.tsx",
+      "sha256": "dd065fd2e97411d479109d6e18c03835594d6c6ff5c6df15faa1ca9b3c532e5a",
+      "bytes": 17229
+    }
+  ],
+  "testBytesVersusRed": "identical to the review RED commit 8dcb9e467 (and the four leaves changed only in 7510a82a and 8dcb9e467, both test-only commits)",
+  "delivered": {
+    "CF11/M2 store": "New src/lib/campaign/coop/campaignHostFoldStore.ts: one module-scoped GM fold lineage {campaignId, matchId, transport, cell}. claimCampaignHostFold continues the held cell only for the same transport object, same campaign and match, the transport bound exactly as the consumer requires (transport.campaignId === campaignId and confirmApplied present) and still the registered active transport; otherwise it mints a fresh EMPTY cell, so a writer holding the old cell cannot reach the new lineage. Single slot, no transport map; browser-safe imports only (fold module, transport module); no test reset export",
+    "surface": "CampaignCoopRouteSurfaceConnected.tsx: the component-local useRef fold is gone; the host effect claims the cell after the stored connect and passes it to the consumer as fold, and the legacy fold writes the same cell. On a continued lineage it re-projects the retained fold at bind (symmetric with the guest mirror projection). The host CampaignJoin still quotes EMPTY's -1, which the transport omits, so the wire bytes are unchanged; no creator binds expectedCampaignId; retainsLaunchFacts and the consumer's settle path are untouched",
+    "m13 helpers": "New campaignCoopSurfaceHelpers.ts: refusalFromFrame (one host/guest refusal rule; application errors are never a refusal), projectStateOntoCampaignStore (the D9 single projection), upsertPendingProposal/removePendingProposal, guestMirrorSummaryOf, and verbatim refreshSavedRecordAfterCommit, submitGuestProposalOverTransport, isPendingProposalResult. It does not import the connected surface (type-only import of the presentational surface props); the only server-path import is the pre-existing type-only IPendingProposal",
+    "CF-G3 consumer": "useCampaignApplicationConsumer.ts: a module WeakMap records transport.lastSeq() each time an active binding consumes a campaign frame; a new binding arms the pre-receipt window unless the record exists and equals transport.lastSeq(). Receipt application, settle order, rejoin and the \"any campaign frame clears the window\" rule are unchanged",
+    "fixtures": "The three hand-built fakes carry the mounted campaignId (CampaignLifecycleGate CAMPAIGN_ID, GuestProposalSurface guest.id, GuestRebuildStaleGate CAMPAIGN_ID) and stay without confirmApplied; each suite asserts a creator bound to the mounted campaign reuses the fake",
+    "CF-H1 cut transports": "useCampaignApplicationConsumer.ts: a binding counts offers still settling; a live binding disposed with one marks the transport cut (WeakSet keyed by transport identity), and the next active binding on a cut transport rejoins at once. The cut offer can never be confirmed (a disposed binding reports nothing, P2CG1F contract), so the transport would withhold every later ACK; rejoining is the only recovery, as under P2CG1F (whose EMPTY-fold remount failed the next offer and rejoined)",
+    "CF-H3 current lineage": "campaignHostFoldStore.ts continues a lineage only when its fold is not behind the transport cursor (cell.current.lastSequence >= transport.lastSeq()). Equality would refuse every bound lineage after a legacy baseline, which foldCampaignFrame adopts at 0 while the transport cursor stays -1 (pinned by the legacy-baseline control row; mutant MH4 = equality is caught there)"
+  },
+  "heardSemantics": {
+    "decision": "\"Already delivered a campaign frame\" means: an active binding of this consumer consumed a campaign frame from this transport, and the transport cursor has not moved since. A first frame, or a sequenced frame, that arrives while no binding is mounted is not remembered, so the remount keeps P2CG1F's window (no regression versus F; the continued lineage never folded that frame). Frames that do not move lastSeq (a baseline at sequence -1 after the first consumed frame cannot occur on a live transport; heartbeats, ACKs, proposals and errors are not campaign frames) leave the record valid",
+    "pins": [
+      "hostProjection: does not remember a first campaign frame that arrives while no surface is mounted",
+      "hostProjection: re-arms the window when a sequenced campaign frame arrives while no surface is mounted"
+    ],
+    "refinesPrototype": "The stop-report prototype WeakSet survives the first pin and fails the second (mutant M1)",
+    "limit": "A gap frame that leaves the transport waiting on an unapplied offer is recovered only through the window or the next offer's failure; P2CG1F behaves the same",
+    "cutSettle": "Added by CF-H1: a transport whose offer was consumed by a binding that was disposed before settling it is cut, and the next binding rejoins at once whatever the heard map says"
+  },
+  "carryForwards": {
+    "CF-G1": "Absorbed: hostProjection \"ends the quiet window on the first offer, so a quiet receipt-mode view never rejoins (CF-G1)\"",
+    "CF-G2": "Absorbed: hostProjection \"does not end the quiet window on a heartbeat, a proposal or a command refusal (CF-G2)\"",
+    "CF-G3": "Absorbed under amendment #2236: hostProjection W1 (RED at the red commit, green here) and the consumer change above",
+    "CF-G4": "CARRIED, unchanged, to the next owner of useCampaignApplicationConsumer.ts at or before P2CG1H: decide a cap, backoff or terminal state (and the user-facing text CF-F8 also owes) for the once-per-window rejoin against a silent-but-open server. G1 owns the consumer only for CF-G3 and does not alter that cycle: every rejoin builds a new transport with no heard record, which arms its window as before",
+    "CF-G5": "Not a G1 leaf; carried to the next owner of bindCampaignSyncConnection.test.ts or P2CG1H",
+    "CF-G6": "Not a G1 leaf; carried to the next owner of useCampaignPersistenceStore.ts",
+    "CF-G7": "Not a G1 leaf; carried to the next owner of hostRecordRefresh.test.tsx (byte-identical here)",
+    "CF-G8": "Absorbed in hostProjection (not hostRecordRefresh): \"trades the old window for the new one across a rejoin (CF-G8)\" and \"arms no window on an unbound transport (CF-G8)\"",
+    "CF-G9": "Recorded under checks (lint, madge) and maxLines",
+    "CF-G10": "Required check names to be verified by name on the exact PR head (PR stage)",
+    "CF-G11": "Decided: fakes carry campaignId without confirmApplied, so no window is armed and the suites stay on real timers; pinned by hostProjection \"arms no window on a fixture fake that carries only the mounted campaignId (CF-G11)\". Successor note: a later unit that adds confirmApplied to these fakes activates the consumer and must inject a campaign frame or dispose before APPLICATION_CONFIRMATION_TIMEOUT_MS",
+    "#2236-note-2": "Done: heardSemantics above, with two explicit pins",
+    "#2236-note-3": "Done: CF-G4 carried above"
+  },
+  "mutationProbes": {
+    "method": "one mutant at a time on the final consumer/store bytes, hostProjection only, --runInBand, product restored after each (hashes equal before and after)",
+    "rows": [
+      {
+        "id": "M1",
+        "mutant": "prototype WeakSet semantics (any consumed frame marks the transport heard forever)",
+        "result": "1 failed / 37 passed: \"re-arms the window when a sequenced campaign frame arrives while no surface is mounted\"",
+        "log": {
+          "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/mutant-M1.log",
+          "sha256": "da1b6d1c54c068023734e36516c9f7cd1f8b3d88a99741fdef294484b683adc6",
+          "bytes": 70040
+        }
+      },
+      {
+        "id": "M2",
+        "mutant": "store never continues a lineage",
+        "result": "3 failed / 35 passed: R1, R2, W1",
+        "log": {
+          "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/mutant-M2.log",
+          "sha256": "dbc90f93b8798ca71e92bfcb391d2246b32424ffb6fe1c8b9e290d9b7eedbf24",
+          "bytes": 79774
+        }
+      },
+      {
+        "id": "M3",
+        "mutant": "consumer always arms the window (P2CG1F behaviour)",
+        "result": "1 failed / 37 passed: W1 (CF-G3)",
+        "log": {
+          "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/mutant-M3.log",
+          "sha256": "3ad404cdd3aec14abf146b7203e2360659ccc256a70f8dd11b31cde48735d407",
+          "bytes": 69300
+        }
+      }
+    ],
+    "note": "Mutants ran before a type-only import reordering in campaignCoopSurfaceHelpers.ts; the consumer and store bytes they mutated are the final bytes",
+    "reviewRows": [
+      {
+        "id": "MH1",
+        "mutant": "no rejoin at bind on a cut transport",
+        "result": "3 failed / 40 passed: the three CF-H1 rows",
+        "log": {
+          "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/h/mutant-MH1.log",
+          "sha256": "6e725a71efbb3a17c4dbe2736fe660e60d57eaa8966f4620a3e3a9498ff33c69",
+          "bytes": 100572
+        }
+      },
+      {
+        "id": "MH2",
+        "mutant": "dispose never marks a transport cut",
+        "result": "3 failed / 40 passed: the three CF-H1 rows",
+        "log": {
+          "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/h/mutant-MH2.log",
+          "sha256": "9b3aa1ea211144e7139497a39607d4b67a241b2d8dd5472783d8c406c349c46e",
+          "bytes": 100574
+        }
+      },
+      {
+        "id": "MH3",
+        "mutant": "store ignores the cursor (CF-H3 condition replaced by true)",
+        "result": "1 failed / 42 passed: CF-H3 no re-show row",
+        "log": {
+          "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/h/mutant-MH3.log",
+          "sha256": "5440f7bb27cc9a528fcb7c6fca5ed667470a69d6590cb0f35f434c2cba8595e5",
+          "bytes": 96546
+        }
+      },
+      {
+        "id": "MH4",
+        "mutant": "cursor equality instead of not-behind",
+        "result": "1 failed / 42 passed: legacy-baseline continuation row",
+        "log": {
+          "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/h/mutant-MH4.log",
+          "sha256": "a0d8506bf136365eeee4334ae570c64e69df397adf81dac5642e43c410e1d3b1",
+          "bytes": 96576
+        }
+      },
+      {
+        "id": "MH5",
+        "mutant": "reviewer RM-G1: store continues an unbound transport",
+        "result": "1 failed / 42 passed: CF-H4 row",
+        "log": {
+          "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/h/mutant-MH5.log",
+          "sha256": "688d60af17d0848083f5aa219d9a27f37ace8d4624cbdf536b577933785dfa99",
+          "bytes": 96346
+        }
+      }
+    ],
+    "reviewNote": "One mutant at a time on the final consumer/store bytes, hostProjection only, product restored after each (hashes equal). First MH3/MH5 applications were malformed (mutant-MH3-misapplied.log, mutant-MH5-misapplied.log: a multi-line splice that broke the expression and, for MH5, the parse); kept, not cited"
+  },
+  "results": {
+    "red": "4 suites, 76 tests: 73 passed, 3 failed (product byte-identical to baseline)",
+    "reviewRed": "4 suites, 81 tests: 77 passed, 4 failed (product byte-identical to 59c1fa72)",
+    "registeredLeavesPlusNeighbours": "6 suites, 109 tests: 109 passed (G1 four suites, P2CG1F hostRecordRefresh, CampaignDashboardPage.reactivity)",
+    "task14Selector": "4 suites, 104 tests: 104 passed",
+    "p2cg1fSuites": "3 suites, 96 tests: 96 passed (hostRecordRefresh, hostProjection, campaignCommandAckRefresh)",
+    "coopSweep": "73 suites, 764 tests: 764 passed (co-op component/lib/page/p2p trees plus the Task14 selector)",
+    "relatedTests": "16 suites, 163 tests: 163 passed (jest --findRelatedTests on the four product leaves)",
+    "reviewerReruns": "The P2CG1B-E server suites (344) and the 35 A1/A2 suites (388) were run green by the independent review on 59c1fa72; not re-run here (the follow-up touches only the consumer and store client leaves)"
+  },
+  "checks": {
+    "typecheck": "PASS (typescript7, after the CF-H fix)",
+    "lint": "0 errors, 87 warnings = baseline, identical location set (after the CF-H fix)",
+    "format": "PASS (npm run format:check)",
+    "lintUnits": "LINT_UNITS_PASS 17899/17899",
+    "madge": "same two entries as the baseline: 172 chains, identical set; four entries 169 chains, none through campaignCoopSurfaceHelpers or campaignHostFoldStore (after the CF-H fix)",
+    "validator": "validate-roadmap.mjs plain and --git PASS (80 nodes, 13 packages, 381 tasks, 40 triage rows) after the CF-H fix",
+    "validatorTests": "86/86",
+    "openspec": "openspec validate --all --strict: 230 passed, 0 failed",
+    "qc": "qc:openspec-ci:validate errors=0",
+    "diffCheck": "git diff --check on the staged implementation: clean"
+  },
+  "maxLines": {
+    "rule": "oxlint max-lines warn at 400, skipBlankLines and skipComments",
+    "surface": "396 -> 319 counted code lines (512 -> 397 physical); about 80 lines of headroom for P2CG1G2",
+    "helpers": "125 (171 physical)",
+    "store": "43 (74 physical)",
+    "consumer": "not warned (303 physical, 239 counted code lines)"
+  },
+  "census": {
+    "command": "git diff --numstat --no-renames 54764673b3eb8aaa9759bfc919461640f7e360b6..HEAD",
+    "countedLines": {
+      "CampaignCoopRouteSurfaceConnected.tsx": 57,
+      "campaignCoopSurfaceHelpers.ts": 171,
+      "campaignHostFoldStore.ts": 74,
+      "useCampaignApplicationConsumer.ts": 35,
+      "units.json": 16,
+      "total": 353,
+      "cap": 500
+    },
+    "files": {
+      "changed": 12,
+      "reservedReviewSlot": 1,
+      "total": 13,
+      "cap": 15,
+      "reserved": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g1-admission-review-20261018.md (unwritten)"
+    },
+    "lineExempt": "test leaves 623 + 20 + 12 + 20 added; evidence receipts"
+  },
+  "boundary": "Dormant on the wire: no creator binding, no receipt-port install, no wire schema or byte change, no numeric retirement. The store continues only bound transports, which no production creator creates before P2CG1G2; unbound transports start from EMPTY as before. Nothing outside the eight restriction leaves, units.json (P2CG1G1 fields only) and G1's own receipts changed",
+  "logs": [
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/red.log",
+      "sha256": "b79b51267079e1fa706425d1911087580d180bad827292ef96d4d52e9b0eb14b",
+      "bytes": 89950
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/green.log",
+      "sha256": "0e103ccab24daeedf7b16b46c6396415eb303ad418339860077eb3f8fbccb82e",
+      "bytes": 83660
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/selector.log",
+      "sha256": "30b450748b2f7472a55150605c2c92e718d48afcf4e9ce0405b65dc0cee380e4",
+      "bytes": 99728
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/p2cg1f.log",
+      "sha256": "d810a636a2362336d914ada7c223521905e23b89a5e2e1aca0464a9a20cd6c1b",
+      "bytes": 64038
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/sweep.log",
+      "sha256": "654c90d8e3a6bb20d93ae06aac4afb24991247c6ad2c654de1d4d79c2e7a380d",
+      "bytes": 226766
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/related.log",
+      "sha256": "c10cb9fff32b69628a5a8718c8f27e0cab34d680b945bde5176501bc8df0c381",
+      "bytes": 94846
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/typecheck.log",
+      "sha256": "8102a14cf3245ac2b0d67c588affb25efaebfcd3485f9a46a751595d9a774951",
+      "bytes": 358
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/lint-base.log",
+      "sha256": "1be5785041db856f5d8d8b44487a0036b9eaf121ca7995c94a2a252d35eadba1",
+      "bytes": 81286
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/lint-after.log",
+      "sha256": "f9a8b71a498748fec14a95494a56e01c2643a893c82af067449f8df9401b6cf0",
+      "bytes": 81288
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/format.log",
+      "sha256": "725240a9888e17e139fc835fb4602930cca070ef90bd82642e020d4376e1369e",
+      "bytes": 366
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/lint-units.log",
+      "sha256": "60f3271ad1c1e13670b13a3914daf5e9e65001defa14072ccb79b6606bbc9a6c",
+      "bytes": 730
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/madge-base.log",
+      "sha256": "4de13a25b70d1e68f5f8c30e7fc555ba625a51cbdf60a087676350f4c2854c00",
+      "bytes": 257266
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/madge-after-same-entries.log",
+      "sha256": "42872adbba71346244a84b2721dddf6b0ab5e7c4d5e097e9219309b15a1e4e2c",
+      "bytes": 257266
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/madge-after.log",
+      "sha256": "0702b1a274374d707f27affbb9708c4bb333e37ffd653d017ab55e0b1b736e03",
+      "bytes": 209826
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/idle.log",
+      "sha256": "5f5e9359f285866c11273f80989305faeaf50b5a87363b7026e14e202a20fdac",
+      "bytes": 2284
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/census.md",
+      "sha256": "380c61ca760242338b7d30733e1355e67822ed1187eabe713e398c97bf979f56",
+      "bytes": 1793
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/h/red-h.log",
+      "sha256": "fffeec78f5947a2aa4a905ab2bc13cb8850cb26a34bf512956549406b80b9183",
+      "bytes": 114414
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/h/green-h.log",
+      "sha256": "1a474e2803d3597dc6697e31a55beb9221213c6cfaf29a1091a3f89fc7c5511f",
+      "bytes": 112360
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/h/selector.log",
+      "sha256": "e633a2071872cb9509e24d8ed94d77ae237e7efd8d471f28783543838a5d523f",
+      "bytes": 99728
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/h/p2cg1f.log",
+      "sha256": "abdad735497a0290d8df908f2d5a9b61d571f7ed870640684b13d10e0bc1a41c",
+      "bytes": 92768
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/h/sweep.log",
+      "sha256": "868610af132256a108ab7daa5d443f0359ad68af47ce39477006ef41a2212d75",
+      "bytes": 255464
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/h/related.log",
+      "sha256": "be987379f18bfc38aebd864b3c320943b77da0f1a86171d447f39cb735c40481",
+      "bytes": 123516
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/h/typecheck.log",
+      "sha256": "8102a14cf3245ac2b0d67c588affb25efaebfcd3485f9a46a751595d9a774951",
+      "bytes": 358
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/h/format.log",
+      "sha256": "85416e90a5ff274a6ee859c903a79a2ad6967052f20395e67d7eb3977a8749e6",
+      "bytes": 366
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/h/lint-units.log",
+      "sha256": "60f3271ad1c1e13670b13a3914daf5e9e65001defa14072ccb79b6606bbc9a6c",
+      "bytes": 730
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/h/lint-after.log",
+      "sha256": "f9a8b71a498748fec14a95494a56e01c2643a893c82af067449f8df9401b6cf0",
+      "bytes": 81288
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/h/madge-after-same-entries.log",
+      "sha256": "42872adbba71346244a84b2721dddf6b0ab5e7c4d5e097e9219309b15a1e4e2c",
+      "bytes": 257266
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/h/madge-after.log",
+      "sha256": "0702b1a274374d707f27affbb9708c4bb333e37ffd653d017ab55e0b1b736e03",
+      "bytes": 209826
+    }
+  ],
+  "discardedLogs": "red-discarded-mojibake.log (see red receipt) and *-pre-typeimport.log (same results on bytes before the helpers type-only import reorder) are kept and not cited",
+  "status": "Local proof complete on the review follow-up; awaiting independent exact-head re-review of the new head (sensitive: authority, privacy, replay, idempotency, concurrency). Do not merge from the author lane",
+  "reviewFollowUp": {
+    "ruling": "Parent ruling after the #2238 review (standing instruction \"continue with recommended options and fix the issues that come up\"): CF-H1 is a G1-introduced liveness regression and G2 is what first activates the consumer, so it is closed in G1 as a red-first pair on the same PR; CF-H3 and CF-H4 closed in lane; G1-DOC-1 and G1-DOC-3 recorded here; G1-DOC-2 goes to closure",
+    "red": {
+      "commit": "8dcb9e467",
+      "result": "4 suites, 81 tests: 77 passed, 4 failed (product byte-identical to 59c1fa72)",
+      "failing": [
+        "held refresh across the remount: the remount must rejoin and the replacement view start from EMPTY (the row previously asserted r2 confirmed with every ACK past r1 withheld, which is the CF-H1 stall itself; its title and assertions changed in this test-only commit)",
+        "recovers within one window when the remount stays quiet after a cut settle (CF-H1; the reviewer's PROBE-A shape)",
+        "recovers within one window even when the next offer arrives first after a cut settle (CF-H1; PROBE-A2 shape)",
+        "does not re-show a lineage that missed a frame while no surface was mounted (CF-H3)"
+      ],
+      "controls": [
+        "continues a bound lineage whose legacy baseline is adopted ahead of the transport cursor (CF-H3: why \"not behind\" rather than equality)",
+        "starts a remount on the same unbound transport from EMPTY (CF-H4)"
+      ],
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/h/red-h.log",
+        "sha256": "fffeec78f5947a2aa4a905ab2bc13cb8850cb26a34bf512956549406b80b9183",
+        "bytes": 114414
+      },
+      "runtimeNote": "the log's first line is node -v = v22.22.0"
+    },
+    "CF-H1": {
+      "status": "closed",
+      "fix": "useCampaignApplicationConsumer.ts: a binding counts offers still settling; a live binding disposed with one marks the transport cut (WeakSet keyed by transport identity), and the next active binding on a cut transport rejoins at once. The cut offer can never be confirmed (a disposed binding reports nothing, P2CG1F contract), so the transport would withhold every later ACK; rejoining is the only recovery, as under P2CG1F (whose EMPTY-fold remount failed the next offer and rejoined)",
+      "whyNotTheReviewerShape": "The reviewer's shape (record offers in the heard map only after a successful confirm) re-arms the window, which recovers a quiet remount (PROBE-A) but not a remount whose next offer arrives inside the window: that frame clears the window, the offer applies, the transport answers prefix-pending behind the cut r1 and the chain stalls again. Measured on the RED head with that shape applied: 3 of 43 hostProjection rows fail (the \"next offer first\" row, the rejoin-at-remount row, and CF-H3), log below. The cut mark closes both cases and needs no change to the heard-map semantics",
+      "reviewerShapeLog": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/h/reviewer-fixshape-on-red.log",
+        "sha256": "596a516c9d5ef24258482a18a25da84865944576226bb852ee004489245edb11",
+        "bytes": 100436
+      },
+      "addedLines": 18
+    },
+    "CF-H3": {
+      "status": "closed",
+      "fix": "campaignHostFoldStore.ts continues a lineage only when its fold is not behind the transport cursor (cell.current.lastSequence >= transport.lastSeq()). Equality would refuse every bound lineage after a legacy baseline, which foldCampaignFrame adopts at 0 while the transport cursor stays -1 (pinned by the legacy-baseline control row; mutant MH4 = equality is caught there)",
+      "addedLines": "7 (comment and condition)"
+    },
+    "CF-H4": {
+      "status": "closed",
+      "pin": "hostProjection \"starts a remount on the same unbound transport from EMPTY (CF-H4)\": the same real unbound transport object is reused, nothing is re-shown; the reviewer's RM-G1 (drop transport.campaignId === campaignId) is now caught (MH5)"
+    },
+    "notClosedHere": "CF-H2, CF-H5, CF-H6, CF-H13 (optional) and CF-H7..CF-H12 stay with the owners the review names; not changed by this follow-up",
+    "G1-DOC-1": "The red receipt records runtime.node v24.15.0. That value is process.version of the one-off script that wrote the receipt, run in a shell without the nvm PATH prefix (the machine default is v24.15.0). The RED Jest run itself was launched from a command whose first statement prepended C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0 to PATH, as every Jest run in this unit was; the reviewer's v22.22.0 replay reproduces 3 failed / 73 passed. The red receipt is a historical stage receipt and is not edited; the runtime of record for every G1 Jest run is v22.22.0. The review RED log above records node -v on its first line",
+    "G1-DOC-2": "Behaviour text: left to the parent at closure, as ruled",
+    "G1-DOC-3": "The admission commit a62fc69c8 was made with git hooks disabled (core.hooksPath=NUL). The pre-commit hook runs lint-staged, whose matchers (*.{ts,tsx}, *.{js,jsx}, ...) match none of its two JSON paths, so nothing would have run. Every later commit (7510a82a, 59c1fa72, 8dcb9e46 and this one) ran the hook normally and the hook changed no bytes"
+  }
+}

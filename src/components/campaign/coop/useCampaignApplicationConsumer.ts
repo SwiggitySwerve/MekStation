@@ -140,6 +140,22 @@ function retainsLaunchFacts(
   );
 }
 
+/**
+ * CF-G3: the transport cursor each transport stood at when a binding last
+ * consumed one of its campaign frames. A rebind arms no new pre-receipt
+ * window while the transport is still there: every frame it dispatched
+ * reached a binding. A first frame, or one that arrives while nothing is
+ * bound, leaves no matching mark, so that rebind keeps its window.
+ */
+const heardAt = new WeakMap<ICampaignSyncTransport, number>();
+
+/**
+ * CF-H1: transports a binding was disposed from while an offer it consumed
+ * was still settling. No binding can confirm that offer any more, so the
+ * transport withholds every later ACK; the next binding rejoins at once.
+ */
+const cutTransports = new WeakSet<ICampaignSyncTransport>();
+
 function bindCampaignApplicationConsumer(
   binding: CampaignApplicationBinding,
   onRejoin: () => void,
@@ -150,11 +166,13 @@ function bindCampaignApplicationConsumer(
   let live = active;
   let latched = false;
   let queue = Promise.resolve();
+  let settling = 0;
   // A close before receipt mode latches is silent, so a bound view that
   // hears no campaign frame within one confirmation window rejoins once.
-  const quiet = active
-    ? setTimeout(rejoin, APPLICATION_CONFIRMATION_TIMEOUT_MS)
-    : undefined;
+  const quiet =
+    active && heardAt.get(transport) !== transport.lastSeq()
+      ? setTimeout(rejoin, APPLICATION_CONFIRMATION_TIMEOUT_MS)
+      : undefined;
   const heard = (): void => clearTimeout(quiet);
 
   const offError = active
@@ -226,10 +244,15 @@ function bindCampaignApplicationConsumer(
       rejoin();
   };
 
+  if (active && cutTransports.has(transport)) rejoin();
+
   return {
     consume: (message) => {
       if (!active) return isOffer(message);
-      if (campaignEventFromMessage(message)) heard();
+      if (campaignEventFromMessage(message)) {
+        heardAt.set(transport, transport.lastSeq());
+        heard();
+      }
       // INTERNAL_ERROR precedes a server close; INVALID_INTENT is the transport's.
       if (
         message.kind === 'Error' &&
@@ -243,10 +266,17 @@ function bindCampaignApplicationConsumer(
       latched = true;
       // A step that throws, confirmApplied included, rejoins once; it never
       // rejects the queue, so later steps still run and see the dead binding.
-      queue = queue.then(() => settle(message)).catch(() => rejoin());
+      settling += 1;
+      queue = queue
+        .then(() => settle(message))
+        .catch(() => rejoin())
+        .then(() => {
+          settling -= 1;
+        });
       return true;
     },
     dispose: () => {
+      if (live && settling > 0) cutTransports.add(transport);
       live = false;
       heard();
       offError();

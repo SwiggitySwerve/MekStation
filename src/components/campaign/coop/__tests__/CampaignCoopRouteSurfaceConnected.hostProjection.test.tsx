@@ -37,10 +37,13 @@ import type {
   IServerMessage,
 } from '@/types/multiplayer/Protocol';
 
+import { EMPTY_CAMPAIGN_AUTHORITATIVE_FOLD } from '@/lib/campaign/coop/campaignAuthoritativeFold';
 import {
   _resetCampaignSyncTransportsForTest,
+  APPLICATION_CONFIRMATION_TIMEOUT_MS,
   connectCampaignSyncTransport,
   connectStoredCampaignSyncTransport,
+  getActiveCampaignSyncTransport,
 } from '@/lib/campaign/coop/campaignSyncTransport';
 import { storeCoopCampaignToken } from '@/lib/campaign/coop/coopCampaignAuthTokenStore';
 import { useCampaignMirrorStore } from '@/lib/p2p/campaignMirrorStore';
@@ -85,6 +88,8 @@ jest.mock('@/lib/campaign/coop/coopRuntimeSession', () => {
 // real and are recorded, so a row can read the GM's launch facts at the
 // moment an ACK leaves. `mockDropLiveFact` injects an incorrect adjunct.
 const mockHostFolds: ICampaignAuthoritativeFold[] = [];
+/** The fold each hydration started from: EMPTY unless a lineage continued. */
+const mockHydrationInputs: ICampaignAuthoritativeFold[] = [];
 let mockDropLiveFact = false;
 jest.mock('@/lib/campaign/coop/campaignAuthoritativeFold', () => {
   const actual = jest.requireActual(
@@ -93,6 +98,9 @@ jest.mock('@/lib/campaign/coop/campaignAuthoritativeFold', () => {
   const recorded =
     (name: 'foldCampaignHydration' | 'foldCampaignEvent') =>
     (...args: unknown[]) => {
+      if (name === 'foldCampaignHydration') {
+        mockHydrationInputs.push(args[0] as ICampaignAuthoritativeFold);
+      }
       let fold = actual[name](...args) as ICampaignAuthoritativeFold | null;
       if (fold && name === 'foldCampaignEvent' && mockDropLiveFact) {
         fold = { ...fold, launchFacts: fold.launchFacts?.slice(0, -1) };
@@ -744,7 +752,7 @@ function installBoundTransport(
     connects.push(input);
     const transport = connectCampaignSyncTransport({
       expectedCampaignId: expectedCampaignId ?? undefined,
-      matchId: MATCH_ID,
+      matchId: input.matchId ?? MATCH_ID,
       role,
       playerId: role === 'host' ? 'host-player' : 'guest-player',
       wireToken: 'wire-token',
@@ -1226,5 +1234,619 @@ describe('CampaignCoopRouteSurfaceConnected - a GM applies a fact-bearing baseli
     expect(connection.acks(0)).toEqual([]);
     expect(connection.sockets[0].readyState).toBe(3);
     expect(connection.connects).toHaveLength(2);
+  });
+});
+
+describe('CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1)', () => {
+  const realRefresh =
+    useCampaignPersistenceStore.getState().refreshAfterCommittedCommand;
+  const OTHER_MATCH_ID = 'match-host-fold-other';
+  const OTHER_CAMPAIGN_ID = 'campaign-host-fold-other';
+  let refresh: jest.Mock<Promise<boolean>, []>;
+  /** What the GM held each time the consumer confirmed an offer. */
+  let confirms: {
+    readonly receiptId: string;
+    readonly status: string;
+    readonly launchFacts: readonly ICampaignEvent[] | undefined;
+    readonly balance: number | undefined;
+  }[];
+
+  beforeEach(() => {
+    connectMock.mockReset();
+    useCampaignMirrorStore.getState().reset();
+    resetCampaignStore();
+    window.sessionStorage.clear();
+    mockHostFolds.length = 0;
+    mockHydrationInputs.length = 0;
+    mockDropLiveFact = false;
+    confirms = [];
+    for (const matchId of [MATCH_ID, OTHER_MATCH_ID]) {
+      storeCoopCampaignToken({
+        matchId,
+        playerId: 'host-player',
+        wireToken: 'wire-token',
+        displayName: 'GM',
+      });
+    }
+    useCampaignStore().getState().switchCampaign(hostCampaign());
+    refresh = jest.fn(async () => true);
+    useCampaignPersistenceStore.setState({
+      refreshAfterCommittedCommand: refresh,
+    });
+  });
+
+  afterEach(() => {
+    cleanup();
+    jest.useRealTimers();
+    _resetCampaignSyncTransportsForTest();
+    useCampaignPersistenceStore.setState({
+      refreshAfterCommittedCommand: realRefresh,
+    });
+    useCampaignMirrorStore.getState().reset();
+    resetCampaignStore();
+    window.sessionStorage.clear();
+  });
+
+  /**
+   * Bound real transports over mock sockets that, like the real stored
+   * connect, hand back the live registered transport for the match instead
+   * of opening another socket, recording each confirmation with the GM's
+   * launch facts and projected balance at that moment.
+   */
+  function installReusedBoundTransport(): IBoundConnection {
+    const connection = installBoundTransport('host');
+    const open = connectMock.getMockImplementation();
+    if (!open) throw new Error('no bound transport');
+    connectMock.mockImplementation((input) => {
+      const live = getActiveCampaignSyncTransport(input.matchId);
+      if (live) {
+        connection.connects.push(input);
+        return live;
+      }
+      const transport = open(input);
+      const confirm = transport?.confirmApplied;
+      if (transport && confirm) {
+        (transport as { confirmApplied: typeof confirm }).confirmApplied = (
+          offer,
+          outcome,
+        ) => {
+          confirms.push({
+            receiptId: offer.appliedView.receiptId,
+            status: outcome.status,
+            launchFacts: mockHostFolds[mockHostFolds.length - 1]?.launchFacts,
+            balance: storedBalance(),
+          });
+          return confirm(offer, outcome);
+        };
+      }
+      return transport;
+    });
+    return connection;
+  }
+
+  async function mountHost(campaign: ICampaign = hostCampaign()) {
+    return render(
+      <CampaignCoopRouteSurfaceConnected
+        campaign={campaign}
+        routeId="dashboard"
+      />,
+    );
+  }
+
+  async function settled(): Promise<void> {
+    await act(async () => {
+      for (let tick = 0; tick < 20; tick += 1) await Promise.resolve();
+    });
+  }
+
+  it('applies the next linked launch onto the retained fold and facts after a remount, before its exact ACK', async () => {
+    const connection = installReusedBoundTransport();
+    const first = await mountHost();
+    await settled();
+    await inject(connection, baselineOffer('v1', 800_000, [launchFact(2)]));
+    await settled();
+    await inject(connection, linkedOffer('v1', 1, launchFact(3)));
+    await settled();
+
+    first.unmount();
+    await mountHost();
+    await settled();
+    await inject(connection, linkedOffer('v1', 2, launchFact(4)));
+    await settled();
+
+    expect(confirms).toEqual([
+      {
+        receiptId: 'v1-r0',
+        status: 'applied',
+        launchFacts: [launchFact(2)],
+        balance: 800_000,
+      },
+      {
+        receiptId: 'v1-r1',
+        status: 'applied',
+        launchFacts: [launchFact(2), launchFact(3)],
+        balance: 800_000,
+      },
+      {
+        receiptId: 'v1-r2',
+        status: 'applied',
+        launchFacts: [launchFact(2), launchFact(3), launchFact(4)],
+        balance: 800_000,
+      },
+    ]);
+    expect(connection.acks(0)).toEqual(['v1-r0', 'v1-r1', 'v1-r2']);
+    // No second socket and no second baseline: the remount reused the
+    // live transport and continued the receipt chain it was building.
+    expect(connection.sockets).toHaveLength(1);
+    expect(connection.connects).toHaveLength(2);
+    expect(connection.sockets[0].readyState).toBe(1);
+  });
+
+  it('re-projects the retained fold when the remount binds, before any new frame', async () => {
+    const connection = installReusedBoundTransport();
+    const first = await mountHost();
+    await settled();
+    await inject(connection, baselineOffer('v1', 800_000, [launchFact(2)]));
+    await settled();
+    first.unmount();
+
+    // The next page reloads the saved record over the projected view.
+    resetCampaignStore();
+    useCampaignStore().getState().switchCampaign(hostCampaign());
+    expect(storedBalance()).toBe(START_BALANCE);
+    await mountHost();
+    await settled();
+
+    expect(storedBalance()).toBe(800_000);
+    expect(connection.sockets).toHaveLength(1);
+  });
+
+  it('starts from EMPTY on the replacement transport a rejoin opens', async () => {
+    const connection = installReusedBoundTransport();
+    await mountHost();
+    await settled();
+    await inject(connection, baselineOffer('v1', 800_000, [launchFact(2)]));
+    await settled();
+    await inject(connection, linkedOffer('v1', 1, launchFact(3)));
+    await settled();
+
+    await inject(
+      connection,
+      errorFrame('INTERNAL_ERROR', 'campaign-application-replaced'),
+    );
+    await settled();
+    expect(connection.sockets).toHaveLength(2);
+    expect(connection.sockets[0].readyState).toBe(3);
+
+    mockHydrationInputs.length = 0;
+    await inject(connection, baselineOffer('v2', 600_000, [launchFact(5)]));
+    await settled();
+
+    // The new view's baseline is adopted onto a fresh EMPTY cell, never
+    // onto the closed transport's lineage.
+    expect(mockHydrationInputs).toEqual([EMPTY_CAMPAIGN_AUTHORITATIVE_FOLD]);
+    expect(confirms[confirms.length - 1]).toEqual({
+      receiptId: 'v2-r0',
+      status: 'applied',
+      launchFacts: [launchFact(5)],
+      balance: 600_000,
+    });
+    expect(connection.acks(1)).toEqual(['v2-r0']);
+  });
+
+  it('gives another campaign a fresh fold that holds none of the first campaign facts', async () => {
+    const connection = installReusedBoundTransport();
+    const first = await mountHost();
+    await settled();
+    await inject(connection, baselineOffer('v1', 800_000, [launchFact(2)]));
+    await settled();
+    first.unmount();
+
+    const other = installBoundTransport('host', OTHER_CAMPAIGN_ID);
+    const otherCampaign: ICampaign = {
+      ...hostCampaign(),
+      id: OTHER_CAMPAIGN_ID,
+      coopSession: createHostCoopSession(ROOM_CODE, OTHER_MATCH_ID),
+    };
+    useCampaignStore().getState().switchCampaign(otherCampaign);
+    mockHydrationInputs.length = 0;
+    await mountHost(otherCampaign);
+    await settled();
+    await inject(other, {
+      ...baselineOffer('v9', 500_000, [], OTHER_CAMPAIGN_ID),
+      matchId: OTHER_MATCH_ID,
+    });
+    await settled();
+
+    expect(mockHydrationInputs).toEqual([EMPTY_CAMPAIGN_AUTHORITATIVE_FOLD]);
+    expect(other.acks(0)).toEqual(['v9-r0']);
+    expect(useCampaignStore().getState().campaign?.id).toBe(OTHER_CAMPAIGN_ID);
+    expect(storedBalance()).toBe(500_000);
+  });
+
+  it('lets neither binding certify an offer whose refresh is held across the remount, and rejoins at the remount (CF-H1)', async () => {
+    const connection = installReusedBoundTransport();
+    const first = await mountHost();
+    await settled();
+    await inject(connection, baselineOffer('v1', 800_000));
+    await settled();
+
+    let release: (adopted: boolean) => void = () => undefined;
+    refresh.mockImplementationOnce(
+      () =>
+        new Promise<boolean>((resolve) => {
+          release = resolve;
+        }),
+    );
+    await inject(connection, linkedOffer('v1', 1, fundsEvent(1, 750_000)));
+    await settled();
+    first.unmount();
+    await mountHost();
+    await settled();
+    await act(async () => {
+      release(true);
+    });
+    await settled();
+    // The server keeps publishing on the connection the GM came back to.
+    await act(async () => {
+      connection.sockets[0].inject(
+        linkedOffer('v1', 2, fundsEvent(2, 700_000)),
+      );
+    });
+    await settled();
+
+    // Nobody can confirm r1 any more, so the old receipt chain is dead: the
+    // remount rejoins at once instead of withholding every later ACK.
+    expect(confirms.map(({ receiptId }) => receiptId)).toEqual(['v1-r0']);
+    expect(connection.acks(0)).toEqual(['v1-r0']);
+    expect(connection.sockets).toHaveLength(2);
+    expect(connection.sockets[0].readyState).toBe(3);
+
+    // The replacement view starts from EMPTY and is applied and ACKed.
+    mockHydrationInputs.length = 0;
+    await inject(connection, baselineOffer('v2', 600_000));
+    await settled();
+    expect(mockHydrationInputs).toEqual([EMPTY_CAMPAIGN_AUTHORITATIVE_FOLD]);
+    expect(connection.acks(1)).toEqual(['v2-r0']);
+    expect(storedBalance()).toBe(600_000);
+  });
+
+  // --- The pre-receipt quiet window under fake timers (CF-G1..CF-G3, CF-G8, CF-G11) ---
+
+  async function elapse(ms: number): Promise<void> {
+    await act(async () => {
+      jest.advanceTimersByTime(ms);
+    });
+  }
+
+  /** The server's confirmation of the GM's ACK, so the view stops waiting. */
+  async function confirmed(
+    connection: IBoundConnection,
+    offer: ICampaignApplicationOffer,
+  ): Promise<void> {
+    await inject(connection, {
+      kind: 'CampaignAck',
+      matchId: offer.matchId,
+      ts: '3025-01-01T00:00:00.000Z',
+      playerId: 'host-player',
+      campaignId: offer.event.campaignId,
+      appliedView: offer.appliedView,
+    });
+  }
+
+  async function applied(
+    connection: IBoundConnection,
+    offer: ICampaignApplicationOffer,
+  ): Promise<void> {
+    await inject(connection, offer);
+    await settled();
+    await confirmed(connection, offer);
+  }
+
+  it('keeps the continued lineage through a quiet confirmation window after the remount (CF-G3)', async () => {
+    const connection = installReusedBoundTransport();
+    jest.useFakeTimers();
+    const first = await mountHost();
+    await settled();
+    await applied(connection, baselineOffer('v1', 800_000, [launchFact(2)]));
+    await applied(connection, linkedOffer('v1', 1, launchFact(3)));
+
+    first.unmount();
+    await mountHost();
+    await settled();
+    // A GM reading the screen: the latched view hears nothing for a while.
+    await elapse(2 * APPLICATION_CONFIRMATION_TIMEOUT_MS);
+    await applied(connection, linkedOffer('v1', 2, launchFact(4)));
+
+    expect(confirms[confirms.length - 1]).toEqual({
+      receiptId: 'v1-r2',
+      status: 'applied',
+      launchFacts: [launchFact(2), launchFact(3), launchFact(4)],
+      balance: 800_000,
+    });
+    expect(connection.acks(0)).toEqual(['v1-r0', 'v1-r1', 'v1-r2']);
+    expect(connection.sockets).toHaveLength(1);
+    expect(connection.sockets[0].readyState).toBe(1);
+  });
+
+  /** Timers the binding held: what disposing it clears (React's stay). */
+  async function windowsDisposed(): Promise<number> {
+    const live = jest.getTimerCount();
+    cleanup();
+    return live - jest.getTimerCount();
+  }
+
+  it('ends the quiet window on the first offer, so a quiet receipt-mode view never rejoins (CF-G1)', async () => {
+    const connection = installReusedBoundTransport();
+    jest.useFakeTimers();
+    await mountHost();
+    await settled();
+
+    await applied(connection, baselineOffer('v1', 800_000));
+    await elapse(2 * APPLICATION_CONFIRMATION_TIMEOUT_MS);
+
+    expect(connection.connects).toHaveLength(1);
+    expect(connection.sockets[0].readyState).toBe(1);
+    // The offer cleared the window, so disposing the binding clears none.
+    expect(await windowsDisposed()).toBe(0);
+  });
+
+  it('does not end the quiet window on a heartbeat, a proposal or a command refusal (CF-G2)', async () => {
+    const connection = installReusedBoundTransport();
+    jest.useFakeTimers();
+    await mountHost();
+    await settled();
+
+    await inject(
+      connection,
+      { kind: 'Heartbeat', matchId: MATCH_ID, ts: '3025-01-01T00:00:00.000Z' },
+      proposalFrame(),
+      errorFrame('PROGRESSION_BLOCKED', 'campaign-progression-blocked'),
+    );
+    await elapse(APPLICATION_CONFIRMATION_TIMEOUT_MS - 1);
+    const withinWindow = connection.connects.length;
+    await elapse(1);
+
+    expect(withinWindow).toBe(1);
+    expect(connection.connects).toHaveLength(2);
+    expect(connection.sockets[0].readyState).toBe(3);
+  });
+
+  it('trades the old window for the new one across a rejoin (CF-G8)', async () => {
+    const connection = installReusedBoundTransport();
+    jest.useFakeTimers();
+    await mountHost();
+    await settled();
+    const before = jest.getTimerCount();
+
+    await elapse(APPLICATION_CONFIRMATION_TIMEOUT_MS);
+
+    expect(connection.connects).toHaveLength(2);
+    expect(jest.getTimerCount()).toBe(before);
+    // Exactly one window is armed, the new binding's.
+    expect(await windowsDisposed()).toBe(1);
+  });
+
+  it('arms no window on an unbound transport (CF-G8)', async () => {
+    const connection = installBoundTransport('host', null);
+    jest.useFakeTimers();
+    await mountHost();
+    await settled();
+
+    await elapse(2 * APPLICATION_CONFIRMATION_TIMEOUT_MS);
+
+    expect(connection.connects).toHaveLength(1);
+    expect(connection.sockets[0].readyState).toBe(1);
+    expect(await windowsDisposed()).toBe(0);
+  });
+
+  it('arms no window on a fixture fake that carries only the mounted campaignId (CF-G11)', async () => {
+    const socket = installTransport('host');
+    const fake = connectMock.getMockImplementation();
+    if (!fake) throw new Error('no fake transport');
+    const close = jest.fn();
+    connectMock.mockImplementation((input) => {
+      const transport = fake(input);
+      return transport
+        ? { ...transport, campaignId: CAMPAIGN_ID, close }
+        : null;
+    });
+    jest.useFakeTimers();
+    await mountHost();
+    await settled();
+
+    // No confirmApplied, so the consumer stays inactive and arms nothing.
+    await elapse(2 * APPLICATION_CONFIRMATION_TIMEOUT_MS);
+    expect(socket.connects).toHaveLength(1);
+    expect(close).not.toHaveBeenCalled();
+    expect(await windowsDisposed()).toBe(0);
+  });
+
+  // --- What "already delivered a campaign frame" means (#2236 review note 2) ---
+  // A transport counts as heard only while every campaign frame it has
+  // dispatched reached an active binding. A frame that arrives while no
+  // surface is mounted was never folded into the continued lineage, so the
+  // remount keeps P2CG1F's pre-receipt window and recovers through it.
+
+  it('does not remember a first campaign frame that arrives while no surface is mounted', async () => {
+    const connection = installReusedBoundTransport();
+    jest.useFakeTimers();
+    const first = await mountHost();
+    await settled();
+    first.unmount();
+
+    await inject(connection, baselineOffer('v1', 800_000, [launchFact(2)]));
+    await mountHost();
+    await settled();
+    await elapse(APPLICATION_CONFIRMATION_TIMEOUT_MS - 1);
+    const withinWindow = connection.sockets.length;
+    await elapse(1);
+
+    expect(withinWindow).toBe(1);
+    expect(connection.sockets).toHaveLength(2);
+    expect(connection.sockets[0].readyState).toBe(3);
+    expect(confirms).toEqual([]);
+  });
+
+  it('re-arms the window when a sequenced campaign frame arrives while no surface is mounted', async () => {
+    const connection = installReusedBoundTransport();
+    jest.useFakeTimers();
+    const first = await mountHost();
+    await settled();
+    await applied(connection, baselineOffer('v1', 800_000, [launchFact(2)]));
+    await applied(connection, linkedOffer('v1', 1, launchFact(3)));
+    first.unmount();
+
+    await inject(connection, linkedOffer('v1', 2, launchFact(4)));
+    await mountHost();
+    await settled();
+    await elapse(APPLICATION_CONFIRMATION_TIMEOUT_MS - 1);
+    const withinWindow = connection.sockets.length;
+    await elapse(1);
+
+    // The lineage never folded r2, so the remount must not trust it.
+    expect(withinWindow).toBe(1);
+    expect(connection.sockets).toHaveLength(2);
+    expect(connection.sockets[0].readyState).toBe(3);
+    expect(confirms.map(({ receiptId }) => receiptId)).toEqual([
+      'v1-r0',
+      'v1-r1',
+    ]);
+  });
+
+  // --- A settle cut by the unmount (CF-H1, P2CG1G1 review) ---
+
+  /** Baseline applied, linked r1 held on its refresh, unmount, remount, release. */
+  async function cutAcrossRemount(connection: IBoundConnection): Promise<void> {
+    const first = await mountHost();
+    await settled();
+    await applied(connection, baselineOffer('v1', 800_000));
+    let release: (adopted: boolean) => void = () => undefined;
+    refresh.mockImplementationOnce(
+      () =>
+        new Promise<boolean>((resolve) => {
+          release = resolve;
+        }),
+    );
+    await inject(connection, linkedOffer('v1', 1, fundsEvent(1, 750_000)));
+    await settled();
+    first.unmount();
+    await mountHost();
+    await settled();
+    await act(async () => {
+      release(true);
+    });
+    await settled();
+  }
+
+  it('recovers within one window when the remount stays quiet after a cut settle (CF-H1)', async () => {
+    const connection = installReusedBoundTransport();
+    jest.useFakeTimers();
+    await cutAcrossRemount(connection);
+
+    await elapse(APPLICATION_CONFIRMATION_TIMEOUT_MS);
+
+    expect(connection.connects.length).toBeGreaterThanOrEqual(3);
+    expect(connection.sockets[0].readyState).toBe(3);
+    expect(connection.acks(0)).toEqual(['v1-r0']);
+    expect(confirms.map(({ receiptId }) => receiptId)).toEqual(['v1-r0']);
+  });
+
+  it('recovers within one window even when the next offer arrives first after a cut settle (CF-H1)', async () => {
+    const connection = installReusedBoundTransport();
+    jest.useFakeTimers();
+    await cutAcrossRemount(connection);
+
+    // A campaign frame inside the window must not leave r1 unconfirmable.
+    await act(async () => {
+      connection.sockets[0].inject(
+        linkedOffer('v1', 2, fundsEvent(2, 700_000)),
+      );
+    });
+    await settled();
+    await elapse(APPLICATION_CONFIRMATION_TIMEOUT_MS - 1);
+
+    expect(connection.sockets[0].readyState).toBe(3);
+    expect(connection.acks(0)).toEqual(['v1-r0']);
+    expect(confirms.map(({ receiptId }) => receiptId)).toEqual(['v1-r0']);
+  });
+
+  // --- Continue only a current lineage (CF-H3) and never an unbound one (CF-H4) ---
+
+  it('does not re-show a lineage that missed a frame while no surface was mounted (CF-H3)', async () => {
+    const connection = installReusedBoundTransport();
+    const first = await mountHost();
+    await settled();
+    await inject(connection, baselineOffer('v1', 800_000));
+    await settled();
+    await inject(connection, linkedOffer('v1', 1, fundsEvent(1, 750_000)));
+    await settled();
+    first.unmount();
+
+    await inject(connection, linkedOffer('v1', 2, fundsEvent(2, 700_000)));
+    resetCampaignStore();
+    useCampaignStore().getState().switchCampaign(hostCampaign());
+    await mountHost();
+    await settled();
+
+    // The held fold stops at r1 while the transport is at r2: not current.
+    expect(storedBalance()).toBe(START_BALANCE);
+  });
+
+  it('continues a bound lineage whose legacy baseline is adopted ahead of the transport cursor (CF-H3)', async () => {
+    const connection = installReusedBoundTransport();
+    const first = await mountHost();
+    await settled();
+    await inject(
+      connection,
+      baselineFrame(4, {
+        ...createEmptyCampaignState(CAMPAIGN_ID),
+        balance: 640_000,
+      }),
+    );
+    first.unmount();
+
+    // A legacy baseline is adopted at 0 while the transport cursor stays -1.
+    resetCampaignStore();
+    useCampaignStore().getState().switchCampaign(hostCampaign());
+    await mountHost();
+    await settled();
+    expect(storedBalance()).toBe(640_000);
+    await inject(connection, fundsChangedFrame(5, 600_000));
+    expect(storedBalance()).toBe(600_000);
+    expect(connection.sockets).toHaveLength(1);
+  });
+
+  it('starts a remount on the same unbound transport from EMPTY (CF-H4)', async () => {
+    const connection = installBoundTransport('host', null);
+    const open = connectMock.getMockImplementation();
+    if (!open) throw new Error('no unbound transport');
+    connectMock.mockImplementation((input) => {
+      const live = getActiveCampaignSyncTransport(input.matchId);
+      if (!live) return open(input);
+      connection.connects.push(input);
+      return live;
+    });
+    const first = await mountHost();
+    await settled();
+    await inject(
+      connection,
+      baselineFrame(4, {
+        ...createEmptyCampaignState(CAMPAIGN_ID),
+        balance: 640_000,
+      }),
+    );
+    expect(storedBalance()).toBe(640_000);
+    first.unmount();
+
+    resetCampaignStore();
+    useCampaignStore().getState().switchCampaign(hostCampaign());
+    await mountHost();
+    await settled();
+
+    // Same transport object, but unbound: nothing is retained or re-shown.
+    expect(connection.sockets).toHaveLength(1);
+    expect(connection.connects).toHaveLength(2);
+    expect(storedBalance()).toBe(START_BALANCE);
   });
 });

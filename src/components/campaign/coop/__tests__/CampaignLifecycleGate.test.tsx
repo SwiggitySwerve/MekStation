@@ -25,6 +25,8 @@ import type { IPendingProposal } from '@/lib/multiplayer/server/CampaignGmArbite
 
 import {
   _resetCampaignSyncTransportsForTest,
+  connectStoredCampaignSyncTransport,
+  getActiveCampaignSyncTransport,
   registerCampaignSyncTransport,
 } from '@/lib/campaign/coop/campaignSyncTransport';
 import {
@@ -381,8 +383,11 @@ describe('campaign refusal lifecycle over the wire', () => {
     resetCampaignStore();
     window.sessionStorage.clear();
 
+    // The mounted campaign's id, so a creator bound to it (P2CG1G2)
+    // reuses this transport instead of detaching it.
     const transport: ICampaignSyncTransport = {
       matchId: MATCH_ID,
+      campaignId: CAMPAIGN_ID,
       playerId: 'host-player',
       role: 'host',
       sendProposal: jest.fn(),
@@ -428,6 +433,21 @@ describe('campaign refusal lifecycle over the wire', () => {
       await Promise.resolve();
     });
   }
+
+  it('registers a transport a creator bound to the mounted campaign reuses', async () => {
+    await mountHostDashboard();
+
+    const live = getActiveCampaignSyncTransport(MATCH_ID);
+    expect(live?.campaignId).toBe(hostCampaign().id);
+    expect(
+      connectStoredCampaignSyncTransport({
+        matchId: MATCH_ID,
+        role: 'host',
+        roomCode: ROOM_CODE,
+        expectedCampaignId: hostCampaign().id,
+      }),
+    ).toBe(live);
+  });
 
   it('blocks progression when the server refuses it', async () => {
     await mountHostDashboard();

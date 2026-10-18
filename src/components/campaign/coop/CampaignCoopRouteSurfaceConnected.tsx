@@ -6,26 +6,21 @@ import React, {
   useState,
 } from 'react';
 
-import type { ICampaignAuthoritativeFold } from '@/lib/campaign/coop/campaignAuthoritativeFold';
 import type { IPendingProposal } from '@/lib/multiplayer/server/CampaignGmArbiter';
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
-import type {
-  GmDecision,
-  GuestProposalResult,
-  IGuestProposal,
-} from '@/types/campaign/CoopCampaign';
+import type { GmDecision, IGuestProposal } from '@/types/campaign/CoopCampaign';
+import type { IServerMessage } from '@/types/multiplayer/Protocol';
 
 import {
   EMPTY_CAMPAIGN_AUTHORITATIVE_FOLD,
   foldCampaignFrame,
 } from '@/lib/campaign/coop/campaignAuthoritativeFold';
-import { projectAuthoritativeStateOntoCampaign } from '@/lib/campaign/coop/campaignMirrorProjection';
+import { claimCampaignHostFold } from '@/lib/campaign/coop/campaignHostFoldStore';
 import {
   campaignEventFromMessage,
   connectStoredCampaignSyncTransport,
   getActiveCampaignSyncTransport,
-  type ICampaignSyncTransport,
 } from '@/lib/campaign/coop/campaignSyncTransport';
 import { readCoopCampaignToken } from '@/lib/campaign/coop/coopCampaignAuthTokenStore';
 import {
@@ -37,18 +32,23 @@ import {
   subscribeCoopPendingProposals,
 } from '@/lib/campaign/coop/coopRuntimeSession';
 import { useCampaignMirrorStore } from '@/lib/p2p/campaignMirrorStore';
-import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 
 import {
   CampaignCoopRouteSurface,
   type CampaignCoopRouteId,
 } from './CampaignCoopRouteSurface';
-import { pendingProposalFromWire } from './pendingProposalFromWire';
 import {
-  isCampaignApplicationError,
-  useCampaignApplicationConsumer,
-} from './useCampaignApplicationConsumer';
+  guestMirrorSummaryOf,
+  projectStateOntoCampaignStore,
+  refreshSavedRecordAfterCommit,
+  refusalFromFrame,
+  removePendingProposal,
+  submitGuestProposalOverTransport,
+  upsertPendingProposal,
+} from './campaignCoopSurfaceHelpers';
+import { pendingProposalFromWire } from './pendingProposalFromWire';
+import { useCampaignApplicationConsumer } from './useCampaignApplicationConsumer';
 
 export interface CampaignCoopRouteSurfaceConnectedProps {
   readonly campaign: ICampaign | null;
@@ -59,8 +59,8 @@ export interface CampaignCoopRouteSurfaceConnectedProps {
 /**
  * Binds the co-op campaign route surface to the live campaign sync stream.
  * A host opens its runtime session, folds each campaign frame its transport
- * delivers, projects every fold that accepted a frame onto the campaign
- * store (the projection a guest uses), and after folding a committed event
+ * delivers into its module-scoped fold, projects every fold that accepted a
+ * frame onto the campaign store (the projection a guest uses), and after folding a committed event
  * has the persistence store re-read the saved record. A guest feeds the
  * frames into the mirror store and projects the mirror onto the campaign
  * store. Both roles track pending proposals and the server's last refusal.
@@ -98,22 +98,15 @@ export function CampaignCoopRouteSurfaceConnected({
   const [runtimeReady, setRuntimeReady] = useState(false);
   const latestCampaignRef = useRef<ICampaign | null>(campaign);
   latestCampaignRef.current = campaign;
-  // The GM's own fold of the stream it publishes. Held here rather than
-  // in a module-scoped store on purpose: the campaign server hydrates
-  // every host connection with a fresh baseline, so a surface that comes
-  // back holding nothing catches up completely, while one that came back
-  // quoting a cursor past that baseline's own `sequence: -1` would
-  // REJECT its own hydration frame and backfill nothing.
-  //
-  // The connect effect below resets it for every binding (P2CF2), so a
-  // reconnect on a `roomCode` or `matchId` change without unmounting also
-  // adopts its baseline at 0 instead of refusing it against old proof.
-  const hostFold = useRef<ICampaignAuthoritativeFold>(
-    EMPTY_CAMPAIGN_AUTHORITATIVE_FOLD,
-  );
   // Receipt-mode application (P2CF2): idle unless a transport is bound to
   // this campaign, which no production creator does before Task 14.
   const { rejoins, bind: bindApplication } = useCampaignApplicationConsumer();
+  const applyRefusal = useCallback((message: IServerMessage): void => {
+    const refusal = refusalFromFrame(message);
+    if (refusal === undefined) return;
+    setLastRefusalCode(refusal?.code ?? null);
+    setLastRefusalAction(refusal?.action ?? null);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -155,13 +148,12 @@ export function CampaignCoopRouteSurfaceConnected({
     if (coopMode !== 'host' || !matchId || !roomCode || !campaignId) {
       return () => undefined;
     }
-    hostFold.current = EMPTY_CAMPAIGN_AUTHORITATIVE_FOLD;
     const transport = connectStoredCampaignSyncTransport({
       matchId,
       role: 'host',
       roomCode,
-      // Quote the cursor this surface holds, exactly as the guest does
-      // below, so the two roles connect the same way (D9). On the wire
+      // A new socket starts a fresh EMPTY lineage below and a reused one
+      // ignores the cursor, so a host always quotes EMPTY's. On the wire
       // this is currently INERT for a host and is not claimed otherwise:
       // a cold connect holds -1, which the transport omits, and no arm
       // reachable from a host connection reads `lastSeq` - the host arm
@@ -170,21 +162,22 @@ export function CampaignCoopRouteSurfaceConnected({
       // fallback resync arm a host does not take. It is carried so the
       // cursor is already correct when the cutover routes a GM replica
       // down the resumable path.
-      lastSeq: hostFold.current.lastSequence,
+      lastSeq: EMPTY_CAMPAIGN_AUTHORITATIVE_FOLD.lastSequence,
     });
     if (!transport) return () => undefined;
 
-    // The host's own view of the campaign is a grant property, not a
-    // hosting property (design D9), so it is projected by the SAME pure
-    // function every other viewer uses - no host-specific path.
-    const projectHostFoldToCampaign = (): void => {
-      const projected = projectAuthoritativeStateOntoCampaign(
-        store.getState().campaign,
-        campaignId,
-        hostFold.current.state,
-      );
-      if (projected) store.setState({ campaign: projected });
-    };
+    // The GM's fold of the stream it publishes lives in a module-scoped
+    // store (CF11). A remount on the same live bound transport continues
+    // its lineage, so the next linked offer folds onto the facts the
+    // receipt chain holds. Any other binding starts a fresh cell at EMPTY,
+    // so a reconnect adopts its hydration baseline at 0 (P2CF2).
+    const { cell: hostFold, continued } = claimCampaignHostFold({
+      campaignId,
+      matchId,
+      transport,
+    });
+    const projectHostFoldToCampaign = (): void =>
+      projectStateOntoCampaignStore(store, campaignId, hostFold.current.state);
 
     const application = bindApplication({
       role: 'host',
@@ -193,28 +186,12 @@ export function CampaignCoopRouteSurfaceConnected({
       store,
       fold: hostFold,
     });
+    if (continued) projectHostFoldToCampaign();
     const offFrame = transport.onFrame((message) => {
       const applied = application.consume(message);
-      // Umbrella 19.2: the server's refusal is the ONLY authority on
-      // whether a progression command will be taken, and it arrives on
-      // this same frame stream. Holding the last one is what lets the GM
-      // surface gate the control the server would refuse instead of
-      // letting the host press it and find out. Application errors are
-      // the consumer's, never a command refusal.
-      if (message.kind === 'Error' && !isCampaignApplicationError(message)) {
-        setLastRefusalCode(message.code);
-        setLastRefusalAction(message.recoveryAction ?? null);
-      }
-      // A committed campaign event means the server accepted a write, so
-      // the standing refusal is stale. Clearing it here is deliberately
-      // OPTIMISTIC - the block is a hint, not a convergence
-      // subscription - and the server re-refuses if the condition still
-      // holds. Without this a host who converged would stay gated
-      // forever on a message that no longer describes anything.
-      if (message.kind === 'CampaignEvent') {
-        setLastRefusalCode(null);
-        setLastRefusalAction(null);
-      }
+      // Holding the last refusal lets the GM surface gate the control the
+      // server would refuse instead of letting the host press it.
+      applyRefusal(message);
       // Task 3.6: keep the GM's received stream so the scope audit panel
       // can show how each event was classified at emission. Host-only -
       // this accumulation never runs on a guest surface.
@@ -253,20 +230,12 @@ export function CampaignCoopRouteSurfaceConnected({
           currentCampaign,
         );
         if (!pendingEntry) return;
-        setPending((current) => [
-          ...current.filter(
-            (entry) =>
-              entry.proposal.proposalId !== pendingEntry.proposal.proposalId,
-          ),
-          pendingEntry,
-        ]);
+        setPending((current) => upsertPendingProposal(current, pendingEntry));
         return;
       }
       if (message.kind === 'CampaignDecision') {
         setPending((current) =>
-          current.filter(
-            (entry) => entry.proposal.proposalId !== message.proposalId,
-          ),
+          removePendingProposal(current, message.proposalId),
         );
       }
     });
@@ -275,6 +244,7 @@ export function CampaignCoopRouteSurfaceConnected({
       application.dispose();
     };
   }, [
+    applyRefusal,
     bindApplication,
     campaignId,
     coopMode,
@@ -299,14 +269,12 @@ export function CampaignCoopRouteSurfaceConnected({
     });
     if (!transport) return () => undefined;
 
-    const projectMirrorToCampaign = (): void => {
-      const projected = projectAuthoritativeStateOntoCampaign(
-        store.getState().campaign,
+    const projectMirrorToCampaign = (): void =>
+      projectStateOntoCampaignStore(
+        store,
         campaignId,
         useCampaignMirrorStore.getState().campaign,
       );
-      if (projected) store.setState({ campaign: projected });
-    };
 
     const application = bindApplication({
       role: 'guest',
@@ -318,25 +286,10 @@ export function CampaignCoopRouteSurfaceConnected({
     projectMirrorToCampaign();
     const offFrame = transport.onFrame((message) => {
       const applied = application.consume(message);
-      // Umbrella 19.2: the guest gets the SAME refusal channel the host
-      // has had since seam 1, for the same reason. The server refuses on
-      // the frame stream both roles already subscribe to, and a guest
-      // whose commands are being refused was, until this, told nothing at
-      // all - their replica reads "up to date" because it IS up to date,
-      // and "up to date" is precisely what reads as permission.
-      //
-      // Deliberately the same two rules as the host, not a second
-      // policy: hold the last Error code, and clear it optimistically on
-      // the next committed campaign event, because no "you may command
-      // again" frame exists and the server stays the enforcer.
-      if (message.kind === 'Error' && !isCampaignApplicationError(message)) {
-        setLastRefusalCode(message.code);
-        setLastRefusalAction(message.recoveryAction ?? null);
-      }
-      if (message.kind === 'CampaignEvent') {
-        setLastRefusalCode(null);
-        setLastRefusalAction(null);
-      }
+      // The guest gets the SAME refusal channel and rules as the host: a
+      // guest's replica reads "up to date" because it IS, and "up to date"
+      // is precisely what reads as permission.
+      applyRefusal(message);
       const event = campaignEventFromMessage(message);
       if (!event || applied) return;
       const mirrorStore = useCampaignMirrorStore.getState();
@@ -361,6 +314,7 @@ export function CampaignCoopRouteSurfaceConnected({
       application.dispose();
     };
   }, [
+    applyRefusal,
     bindApplication,
     campaignId,
     coopMode,
@@ -405,25 +359,12 @@ export function CampaignCoopRouteSurfaceConnected({
 
   const guestMirrorSummary = useMemo(() => {
     if (campaign?.coopSession?.mode !== 'guest') return undefined;
-    const token = readCoopCampaignToken(matchId);
-    return {
-      status: mirrorPaused
-        ? ('paused' as const)
-        : mirrorCampaign
-          ? ('synced' as const)
-          : token
-            ? ('connecting' as const)
-            : ('missing-token' as const),
-      balance: mirrorCampaign?.balance,
-      salvagePool: mirrorCampaign?.salvagePool,
-      rosterUnitCount: mirrorCampaign
-        ? Object.keys(mirrorCampaign.rosterUnits).length
-        : 0,
-      pilotCount: mirrorCampaign
-        ? Object.keys(mirrorCampaign.pilots).length
-        : 0,
-      lastSequence: mirrorLastSequence,
-    };
+    return guestMirrorSummaryOf({
+      mirrorCampaign,
+      mirrorPaused,
+      mirrorLastSequence,
+      hasToken: readCoopCampaignToken(matchId) !== null,
+    });
   }, [
     campaign?.coopSession?.mode,
     matchId,
@@ -454,59 +395,3 @@ export function CampaignCoopRouteSurfaceConnected({
 }
 
 export default CampaignCoopRouteSurfaceConnected;
-
-/**
- * Hands the persistence store a committed-command acknowledgement for the
- * campaign the EVENT names (U35f; owner decision
- * OD-u35d-server-and-host-fix, host half), so the store ignores an event
- * for any campaign other than the one it holds. For its own campaign the
- * store cancels its armed auto-save and re-reads the record through its
- * load path, adopting the row version it read; a read that fails adopts
- * nothing. Not awaited: the store owns the read and its outcome.
- */
-function refreshSavedRecordAfterCommit(event: ICampaignEvent): void {
-  void useCampaignPersistenceStore.getState().refreshAfterCommittedCommand({
-    kind: 'committed',
-    state: { campaignId: event.campaignId },
-  });
-}
-
-function submitGuestProposalOverTransport(
-  transport: ICampaignSyncTransport,
-  proposal: IGuestProposal,
-): Promise<GuestProposalResult> {
-  return new Promise((resolve, reject) => {
-    let offFrame = (): void => undefined;
-    let offError = (): void => undefined;
-    const cleanup = (): void => {
-      offFrame();
-      offError();
-    };
-    offFrame = transport.onFrame((message) => {
-      if (
-        message.kind !== 'CampaignDecision' ||
-        message.proposalId !== proposal.proposalId
-      ) {
-        return;
-      }
-      if (isPendingProposalResult(message.result)) {
-        return;
-      }
-      cleanup();
-      resolve(message.result as GuestProposalResult);
-    });
-    offError = transport.onError((error) => {
-      cleanup();
-      reject(error instanceof Error ? error : new Error('Campaign sync error'));
-    });
-    transport.sendProposal(proposal);
-  });
-}
-
-function isPendingProposalResult(value: unknown): boolean {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    (value as { status?: unknown }).status === 'pending'
-  );
-}
