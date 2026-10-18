@@ -88,7 +88,6 @@ export function CreateMatchForm(
   const [displayName, setDisplayName] = useState<string>('MechWarrior');
   const [mapRadius, setMapRadius] = useState<number>(8);
   const [turnLimit, setTurnLimit] = useState<number>(20);
-  const [fogOfWar, setFogOfWar] = useState<boolean>(false);
   const [rosterMode, setRosterMode] = useState<MatchRosterMode>('preset');
   const [rosterPresetId, setRosterPresetId] = useState<MatchRosterPresetId>(
     DEFAULT_MATCH_ROSTER_PRESET_ID,
@@ -122,7 +121,7 @@ export function CreateMatchForm(
           displayName,
           mapRadius,
           turnLimit,
-          fogOfWar,
+          fogOfWar: false,
           rosterMode,
           rosterPresetId,
           unitBootstrap:
@@ -379,15 +378,24 @@ export function CreateMatchForm(
           />
         </div>
       </div>
-      <label className="border-border-theme bg-surface-deep text-text-theme-primary flex items-start gap-3 rounded border px-3 py-2 text-sm">
-        <input
-          type="checkbox"
-          checked={fogOfWar}
-          onChange={(e) => setFogOfWar(e.target.checked)}
-          className="border-border-theme bg-surface-deep mt-0.5 h-4 w-4 rounded text-emerald-600 focus:ring-emerald-500"
-        />
-        <span>Double-blind (fog of war)</span>
-      </label>
+      <div>
+        <label className="border-border-theme bg-surface-deep text-text-theme-primary flex items-start gap-3 rounded border px-3 py-2 text-sm">
+          <input
+            type="checkbox"
+            checked={false}
+            disabled
+            aria-describedby="cm-fogOfWar-description"
+            className="border-border-theme bg-surface-deep mt-0.5 h-4 w-4 rounded text-emerald-600 focus:ring-emerald-500"
+          />
+          <span>Double-blind (fog of war)</span>
+        </label>
+        <p
+          id="cm-fogOfWar-description"
+          className="text-text-theme-secondary mt-1 text-xs"
+        >
+          Fog of war is unavailable in multiplayer in this release.
+        </p>
+      </div>
       <button
         type="submit"
         disabled={props.busy}
