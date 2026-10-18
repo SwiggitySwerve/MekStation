@@ -777,6 +777,17 @@ function routeByPath(path: string): RouteProof {
 }
 
 async function openDesktopDropdown(page: Page, label: string): Promise<void> {
+  // A fresh document starts both E2E store loading and first-install worker
+  // activation. Finish that handoff before exercising client-side routing.
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const ready = (window as unknown as { __E2E_MODE__?: boolean })
+          .__E2E_MODE__;
+        return ready && Boolean(navigator.serviceWorker?.controller);
+      }),
+    )
+    .toBe(true);
   const button = page.getByRole('button', { name: label }).first();
   await expect(button).toBeVisible();
   await button.click();
