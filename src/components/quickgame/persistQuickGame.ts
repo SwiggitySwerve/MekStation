@@ -117,19 +117,10 @@ function stampQuickReplaySource(
         : event;
     if (event.type !== 'game_created' || !isReplayBvTotal(bvTotal))
       return stamped;
-    const payload = event.payload as IGameCreatedPayload & {
-      quickMeta?: Record<string, unknown>;
-    };
-    const existingMeta = payload.quickMeta;
-    const quickMeta =
-      existingMeta &&
-      typeof existingMeta === 'object' &&
-      !Array.isArray(existingMeta)
-        ? existingMeta
-        : {};
+    const payload = event.payload as IGameCreatedPayload;
     return {
       ...stamped,
-      payload: { ...payload, quickMeta: { ...quickMeta, bvTotal } },
+      payload: { ...payload, quickMeta: { ...payload.quickMeta, bvTotal } },
     };
   });
 }

@@ -64,6 +64,12 @@ const COMBAT_LIFECYCLE_PAYLOAD_SCHEMAS = {
       hexTerrain: z.array(hexTerrainSchema).optional(),
       c3Network: c3NetworkStateSchema.optional(),
       encounterMeta: encounterMetaSchema.optional(),
+      // Retain the recorded #2134 metadata. Unknown keys still fail closed;
+      // the schemaId below changes so prior checkpoints cannot reuse this parser.
+      quickMeta: z
+        .object({ bvTotal: finiteNumber.nonnegative() })
+        .strict()
+        .optional(),
       objectives: z.record(z.string(), objectiveMarkerSchema).optional(),
       groundObjects: z
         .record(z.string(), representedGroundObjectStateSchema)
@@ -147,7 +153,7 @@ export const COMBAT_LIFECYCLE_BASELINE_SCHEMA_PACK: readonly IReplayEventSchemaR
             schemaVersion: 1,
             schemaId:
               eventType === GameEventType.GameCreated
-                ? 'combat.game_created.v1.custom-construction-1'
+                ? 'combat.game_created.v1.custom-construction-1.quick-meta-1'
                 : `combat.${eventType}.v1`,
             parse: (payload: unknown) => schema.parse(payload),
           },
