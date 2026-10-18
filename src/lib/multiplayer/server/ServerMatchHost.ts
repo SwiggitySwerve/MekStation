@@ -86,6 +86,10 @@ import { getCampaignHostRegistry } from './CampaignHostRegistry';
 import { driveCoopOpponent } from './CoopOpponentDriver';
 import { type IServerDiceRoller } from './CryptoDiceRoller';
 import { bindViewerDeliveryPersist } from './DurableMatchStore.viewerDelivery';
+import {
+  matchLacksRevealProjection,
+  refuseFogSocket,
+} from './fogMatchAdmission';
 import { FogOfWarVisibilityCache } from './fogOfWar';
 import {
   hasCombatOutcomeOutbox,
@@ -706,6 +710,15 @@ export class ServerMatchHost {
         mintVerifiedPrincipal(verifiedPlayerId),
         this.matchId,
       );
+      const refusal = await matchLacksRevealProjection(
+        this.store,
+        this.matchId,
+      );
+      if (refusal) {
+        refuseFogSocket(socket, this.matchId, refusal);
+        this.lifecycle.detach(socket);
+        return null;
+      }
       this.attachSocket(socket, verifiedPlayerId);
       return viewer;
     } catch (error) {
@@ -724,7 +737,7 @@ export class ServerMatchHost {
           code: 'AUTH_REJECTED',
           reason: 'not an active member of this match',
         });
-        socket.close();
+        socket.close(1008, 'not an active member of this match');
         return null;
       }
       // Infrastructure failure: admission still FAILS CLOSED (no
@@ -737,7 +750,7 @@ export class ServerMatchHost {
         code: 'INTERNAL_ERROR',
         reason: 'membership verification unavailable',
       });
-      socket.close();
+      socket.close(1011, 'membership verification unavailable');
       return null;
     }
   };
@@ -769,8 +782,8 @@ export class ServerMatchHost {
           code: 'AUTH_REJECTED',
           reason: 'membership revoked',
         });
+        socket.close(1008, 'membership revoked');
         this.lifecycle.detach(socket);
-        socket.close();
       }
     }
   };
@@ -893,12 +906,13 @@ export class ServerMatchHost {
     fromSeq = 0,
     playerId?: string,
   ): Promise<void> => {
-    await sendReplay(
+    const delivered = await sendReplay(
       buildReplayContext(this.internals()),
       socket,
       fromSeq,
       playerId,
     );
+    if (!delivered) this.lifecycle.detach(socket);
   };
 
   /** Read the raw event history >= `seq` (delegates to replay module). */
@@ -996,6 +1010,7 @@ export class ServerMatchHost {
       resumeFrom,
       requestedMatchId,
     );
+    if (!joined) this.lifecycle.detach(socket);
     if (joined) {
       await this.queueCommand(async () => {
         if (socket.readyState === 1) await this.driveOpponent();

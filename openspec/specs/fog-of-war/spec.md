@@ -257,3 +257,29 @@ Replay event streams SHALL apply the same opponent intel policy and visibility h
 - **THEN** the viewer MAY show exact state and hidden events
 - **AND** the UI SHALL label the replay as GM perspective
 
+### Requirement: Fog-On Private Reads Require a Per-Viewer Projection
+
+Fog-on private reads SHALL be served only through a per-viewer projection; when none is available, refuse with fog-projection-unavailable. A single capability predicate decides whether a per-viewer reveal projection is available for the match. Until one exists, the server refuses fog-on private battle state before serializing any baseline, event, replay, metadata or export, for playing, same-side, spectator and host audiences. Stored matches remain intact.
+
+#### Scenario: Current member requests fog-on private state
+
+- **WHEN** current membership has been verified and fog is enabled or authoritative configuration is unknown
+- **THEN** delivery SHALL be refused with the fixed reason fog-projection-unavailable
+- **AND** a terminal WebSocket refusal SHALL physically close with 1008 and detach the socket
+
+#### Scenario: Fog is authoritatively known off
+
+- **WHEN** an otherwise authorized read has known-off configuration but lacks projection-only metadata
+- **THEN** missing projection metadata alone SHALL NOT trigger a fog-policy refusal
+- **AND** the existing authorization and fog-off co-op behavior remain applicable
+
+#### Scenario: Caller lacks current membership
+
+- **WHEN** membership is absent or cannot be verified
+- **THEN** the caller SHALL receive only the existing generic authorization or infrastructure refusal, with no fog configuration
+
+#### Scenario: Fog configuration cannot be read
+
+- **WHEN** the authoritative match configuration cannot be read during admission, join, replay or live delivery
+- **THEN** no private battle state SHALL be delivered for that request
+- **AND** the WebSocket SHALL close with 1011 and a fixed, secret-free reason, as a non-terminal infrastructure refusal the client may retry and resume from its delivery cursor

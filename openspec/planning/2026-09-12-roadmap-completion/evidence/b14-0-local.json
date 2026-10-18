@@ -1,0 +1,986 @@
+{
+  "schemaVersion": 1,
+  "unit": "B14-0",
+  "stage": "local",
+  "date": "20261018",
+  "baseline": "3328e2fa5f9bcc87da09d8fdb16fc4a20f19134b",
+  "at": "2026-10-18T18:48:51.812Z",
+  "commits": {
+    "admission": "69b6b550c77ef52b8ca94a99c4167b9eec59fe4e",
+    "red": "6785caf932808f2cc8a99caf9ff2e727915a4790",
+    "green": "the commit carrying this receipt (ServerMatchHost.ts, ServerMatchHostEvents.ts, ServerMatchHostReplay.ts, fog-of-war spec, units.json local path and this receipt)"
+  },
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "B14 implementation sub-agent (B14-0)"
+  },
+  "runtime": {
+    "node": "v22.22.0",
+    "jest": "29.7.0",
+    "typescript": "typescript7 (npm run typecheck)",
+    "gate": "node scripts/qc/machine-idle.mjs --own-pid 47516 --own-pid 55164 before every heavy run; other lanes made it report MACHINE_BUSY repeatedly and each run waited (see idle log)",
+    "idleLog": {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/idle-gates.log",
+      "sha256": "e6ace8b2feb0959b6a92737e1ecbf6e5e58a405f761a8a07695751c92ca3b96c",
+      "bytes": 16088
+    },
+    "jestFlags": "--runInBand --cacheDirectory <proof>/.jest-private"
+  },
+  "attribution": "Every GREEN run (tests, mutants, regression, broad sweep, necessity, checks, server probe) was taken on the GREEN working tree on top of the RED commit 6785caf93; the runners record head and dirty paths. That tree is committed byte-identically with this receipt (productBytes below); no test or helper byte changes after RED (verified by git diff against the RED commit).",
+  "productBytes": [
+    {
+      "path": "src/lib/multiplayer/server/fogMatchAdmission.ts",
+      "sha256": "d01e320852f121d466a6450e6d62bd91039b6d48ce9f8bc863648126f388c8a1",
+      "bytes": 3016
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHost.ts",
+      "sha256": "b4602f5bc6dd972018cd2cec6074b158cab9d4ef6807a52b8ea772d1caf8491e",
+      "bytes": 65252
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHostEvents.ts",
+      "sha256": "98ba1eca09b5e1ecf071d61bdabd8393d5c1f4bd6cd6fa194c4ae4b59cf03763",
+      "bytes": 17345
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHostReplay.ts",
+      "sha256": "615360ae807ff30f1ac49048fb995ab68a25ddde6459cda90bcf40406ad58eed",
+      "bytes": 16635
+    },
+    {
+      "path": "openspec/specs/fog-of-war/spec.md",
+      "sha256": "b079d19713d513c77388bdd4ce831206d25063614266fdaa011f2c9c08561954",
+      "bytes": 13221
+    }
+  ],
+  "delivered": {
+    "admission": "ServerMatchHost.admitSocket: current membership is resolved first (non-members keep the pre-existing generic AUTH_REJECTED / 1008, infrastructure 1011); then matchLacksRevealProjection is awaited; any refusal sends the fixed frame, physically closes and detaches before attachSocket, so the socket is never a broadcast recipient.",
+    "live": "ServerMatchHostEvents.publishEvent: per recipient, after viewer resolution and before any frame shaping or delivery-number assignment, noPerViewerRevealProjection(meta?.config) refuses: meta === null (unreadable) -> unavailable (Error + 1011), otherwise policy (Close + 1008); the socket is detached so later publishes send nothing. fogMeta is computed with optional chaining so a readable meta with an undefined config cannot throw.",
+    "replay": "ServerMatchHostReplay.sendReplay: membership/viewer resolution first, then matchLacksRevealProjection before any event read (getReplayEventsForPlayer / getEventsFromSeq) or ReplayStart; refusal returns false and the host detaches (join and direct replay). Legacy reconnect callback: a metadata peer triggers the config read; a policy refusal answers fog-projection-unavailable only after the durable seat confirms current membership, else the generic \"Match in progress\"; an unreadable config answers the generic reason; fog-off goes to answerReconnectRequest unchanged.",
+    "closeCodes": "Membership/policy refusal 1008; infrastructure (membership lookup failure, unreadable fog config) 1011; join membership refusal and join guard failure now also physically close (1008/1011) per closePolicy. Pre-upgrade invalid credentials remain HTTP 401 in server.js (unchanged).",
+    "seatOrder": "MatchWireSealedChoices and both S seat arguments untouched; the refusal precedes the sealed-choice audience context entirely.",
+    "knownOff": "Known-off and flag-omitted configs return false from both decisions; the fog-off two-players-plus-GM path is unchanged (pinned unmocked)."
+  },
+  "redRebuild": "The first RED commit (dce668e8e, never pushed) was rebuilt as 6785caf93 before GREEN: GREEN mutants W20 (legacy fog reason on unreadable config) and G5 (computed jest.doMock path beginning with a string literal) first survived, so the test was strengthened (unreadable-config legacy row fails only the config read; the computed-path regex also flags a literal followed by an operator) and RED re-run on the unchanged host leaves: 22 failed / 28 again. A stray probe file from an overlapping mutant run (the gate held two of my runs at once) made one interim guard run fail; both runs were discarded and every result here comes from a clean single run.",
+  "results": {
+    "red": {
+      "receipt": "evidence/b14-0-red.json",
+      "summary": "22 failed / 28 on the unchanged host leaves"
+    },
+    "green": {
+      "head": "6785caf932808f2cc8a99caf9ff2e727915a4790",
+      "worktree": "uncommitted changes on top of head",
+      "suites": 1,
+      "passed": 28,
+      "failed": 0,
+      "total": 28,
+      "json": {
+        "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/green-run.json",
+        "sha256": "562b933196a86a54710950d2ee95c45967c6cfee7ea3d4bb74aaf2a9f11c1272",
+        "bytes": 10792
+      }
+    },
+    "mutants": {
+      "total": 27,
+      "caught": 27,
+      "survived": [],
+      "probes": [
+        {
+          "name": "W01-admission-bypass",
+          "mutation": "admission fog refusal removed",
+          "passed": 22,
+          "failed": 6,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "refuses fog admission for pid_host before bytes",
+            "refuses fog admission for pid_opp before bytes",
+            "refuses fog admission for pid_watcher before bytes",
+            "refuses fog admission for same-side players"
+          ]
+        },
+        {
+          "name": "W02-live-bypass",
+          "mutation": "live publication fog refusal removed",
+          "passed": 22,
+          "failed": 6,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "detaches and closes even if terminal refusal send fails",
+            "classifies an unreadable live config as infrastructure: 1011, no delivery",
+            "refuses a readable but unknown config with the fog policy (1008)",
+            "CF-S-2: an unreadable live config withholds nothing the actor gets back on resume"
+          ]
+        },
+        {
+          "name": "W03-replay-bypass",
+          "mutation": "join/replay fog refusal removed",
+          "passed": 21,
+          "failed": 7,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "CF-S-3: no fog-on audience receives a declaration, revealed or not",
+            "refuses fog-on join and replay before any event read",
+            "blocks fog join including attached socket",
+            "blocks fog replay including attached socket"
+          ]
+        },
+        {
+          "name": "W04-legacy-bypass",
+          "mutation": "legacy reconnect fog refusal removed",
+          "passed": 25,
+          "failed": 3,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "legacy stale peer metadata cannot reveal fog policy to a non-member",
+            "answers an unreadable legacy reconnect config generically without replay",
+            "rejects the legacy reconnect callback before replay"
+          ]
+        },
+        {
+          "name": "W05-policy-close-1000",
+          "mutation": "policy refusal closes 1000",
+          "passed": 17,
+          "failed": 11,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "detaches and closes even if terminal refusal send fails",
+            "refuses fog admission for pid_host before bytes",
+            "refuses fog admission for pid_opp before bytes",
+            "refuses fog admission for pid_watcher before bytes"
+          ]
+        },
+        {
+          "name": "W06-live-no-detach",
+          "mutation": "refused live recipient stays attached",
+          "passed": 26,
+          "failed": 2,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "detaches and closes even if terminal refusal send fails",
+            "stops a pre-existing live socket and detaches it"
+          ]
+        },
+        {
+          "name": "W07-legacy-no-membership",
+          "mutation": "legacy fog reason given without the current-seat check",
+          "passed": 26,
+          "failed": 2,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "legacy stale peer metadata cannot reveal fog policy to a non-member",
+            "answers an unreadable legacy reconnect config generically without replay"
+          ]
+        },
+        {
+          "name": "W08-reason-drift",
+          "mutation": "fixed fog reason changed in the socket frame",
+          "passed": 17,
+          "failed": 11,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "detaches and closes even if terminal refusal send fails",
+            "refuses fog admission for pid_host before bytes",
+            "refuses fog admission for pid_opp before bytes",
+            "refuses fog admission for pid_watcher before bytes"
+          ]
+        },
+        {
+          "name": "W09-replay-no-detach",
+          "mutation": "refused replay socket stays attached",
+          "passed": 27,
+          "failed": 1,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "detaches a refused replay socket server-side even before transport close"
+          ]
+        },
+        {
+          "name": "W10-join-no-detach",
+          "mutation": "refused join socket stays attached",
+          "passed": 27,
+          "failed": 1,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "detaches a refused join socket server-side even before transport close"
+          ]
+        },
+        {
+          "name": "W11-live-unreadable-as-policy",
+          "mutation": "unreadable live config classified as policy",
+          "passed": 26,
+          "failed": 2,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "classifies an unreadable live config as infrastructure: 1011, no delivery",
+            "CF-S-2: an unreadable live config withholds nothing the actor gets back on resume"
+          ]
+        },
+        {
+          "name": "W12-unreadable-permits-delivery",
+          "mutation": "unreadable config treated as projection available",
+          "passed": 25,
+          "failed": 3,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "classifies an unreadable config after membership at admission as 1011",
+            "answers an unreadable legacy reconnect config generically without replay",
+            "reports projection availability as false and refusals by kind"
+          ]
+        },
+        {
+          "name": "W13-unavailable-closes-1008",
+          "mutation": "unreadable config closes 1008",
+          "passed": 24,
+          "failed": 4,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "classifies an unreadable live config as infrastructure: 1011, no delivery",
+            "classifies an unreadable config after membership at admission as 1011",
+            "lets the client retry an unreadable config but not a policy refusal",
+            "CF-S-2: an unreadable live config withholds nothing the actor gets back on resume"
+          ]
+        },
+        {
+          "name": "W14-unavailable-terminal-close",
+          "mutation": "unreadable config sends a terminal Close frame (client never retries)",
+          "passed": 24,
+          "failed": 4,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "classifies an unreadable live config as infrastructure: 1011, no delivery",
+            "classifies an unreadable config after membership at admission as 1011",
+            "lets the client retry an unreadable config but not a policy refusal",
+            "CF-S-2: an unreadable live config withholds nothing the actor gets back on resume"
+          ]
+        },
+        {
+          "name": "W15-undefined-config-crash",
+          "mutation": "fogMeta reads meta.config.fogOfWar without optional chaining",
+          "passed": 27,
+          "failed": 1,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "refuses a readable but unknown config with the fog policy (1008)"
+          ]
+        },
+        {
+          "name": "W16-fog-off-refused",
+          "mutation": "every match refused",
+          "passed": 23,
+          "failed": 5,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "classifies an unreadable config after membership at admission as 1011",
+            "reports projection availability as false and refusals by kind",
+            "CF-S-2: an unreadable live config withholds nothing the actor gets back on resume",
+            "fog-off projection metadata absent does not become a policy refusal"
+          ]
+        },
+        {
+          "name": "W17-await-dropped",
+          "mutation": "admission decision not awaited (a Promise is always truthy)",
+          "passed": 21,
+          "failed": 7,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "refuses fog admission for pid_host before bytes",
+            "refuses fog admission for pid_opp before bytes",
+            "refuses fog admission for pid_watcher before bytes",
+            "refuses fog admission for same-side players"
+          ]
+        },
+        {
+          "name": "W18-event-read-before-refusal",
+          "mutation": "replay reads events before the fog decision",
+          "passed": 27,
+          "failed": 1,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "refuses fog-on join and replay before any event read"
+          ]
+        },
+        {
+          "name": "W19-policy-before-membership",
+          "mutation": "admission fog decision taken before membership resolution",
+          "passed": 26,
+          "failed": 2,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "classifies an unreadable config after membership at admission as 1011",
+            "gives a non-member generic auth, physically closes 1008"
+          ]
+        },
+        {
+          "name": "W20-legacy-unreadable-reveals",
+          "mutation": "legacy reconnect leaks fog reason on unreadable config",
+          "passed": 27,
+          "failed": 1,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "answers an unreadable legacy reconnect config generically without replay"
+          ]
+        },
+        {
+          "name": "G1-b14-0b-seam-dropped",
+          "mutation": "canonical seam deleted from viewerDeliverySequence.test.ts (G14drop)",
+          "passed": 27,
+          "failed": 1,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "pins the byte-exact seam in exactly the 14 registered suites and nowhere else"
+          ]
+        },
+        {
+          "name": "G2-b14-0a-seam-dropped",
+          "mutation": "canonical seam deleted from CoopOpponentDriver.test.ts",
+          "passed": 27,
+          "failed": 1,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "pins the byte-exact seam in exactly the 14 registered suites and nowhere else"
+          ]
+        },
+        {
+          "name": "G3-seam-byte-changed",
+          "mutation": "one byte of the seam changed (override returns a non-boolean cast)",
+          "passed": 27,
+          "failed": 1,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "pins the byte-exact seam in exactly the 14 registered suites and nowhere else"
+          ]
+        },
+        {
+          "name": "G4-seam-duplicated",
+          "mutation": "second capability mock appended to an allowlisted suite",
+          "passed": 27,
+          "failed": 1,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "pins the byte-exact seam in exactly the 14 registered suites and nowhere else"
+          ]
+        },
+        {
+          "name": "G5-computed-path-domock",
+          "mutation": "new unlisted suite overrides the predicate through a computed jest.doMock path (R9)",
+          "passed": 27,
+          "failed": 1,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "pins the byte-exact seam in exactly the 14 registered suites and nowhere else"
+          ]
+        },
+        {
+          "name": "G6-export-spy",
+          "mutation": "new unlisted suite spies on a capability export",
+          "passed": 27,
+          "failed": 1,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "pins the byte-exact seam in exactly the 14 registered suites and nowhere else"
+          ]
+        },
+        {
+          "name": "G7-capability-mocked-here",
+          "mutation": "b14FogContainment itself mocks the capability module",
+          "passed": 27,
+          "failed": 1,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "runs against the real capability module, whose shape the seams match"
+          ]
+        }
+      ]
+    },
+    "regression": {
+      "head": "6785caf932808f2cc8a99caf9ff2e727915a4790",
+      "worktree": "uncommitted changes on top of head",
+      "suites": 111,
+      "passed": 928,
+      "failed": 0,
+      "total": 928,
+      "json": {
+        "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/regression-green.json",
+        "sha256": "7aecbbfa54177e73bc111c43b11cf9ade1b8110f7e716f3a25fda308cf3803eb",
+        "bytes": 403602
+      },
+      "scope": "111 suites: the B14-PREP2 census (every test referencing the changed host modules, FogAwareMatchProjection, matchHistoryViewerChain, multiplayer/matches/[id], MatchHostRegistry, fogMatchAdmission or fogOfWar) plus b14FogContainment and client.test"
+    },
+    "broad": {
+      "command": "node node_modules/jest/bin/jest.js src/lib/multiplayer src/pages-modules/api src/__tests__/api src/__tests__/unit/api --runInBand --cacheDirectory <proof>/.jest-private --json",
+      "suites": 268,
+      "passedSuites": 268,
+      "passed": 2827,
+      "failed": 0,
+      "json": {
+        "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/broad.json",
+        "sha256": "619df7dea2d4672f2057e708361819219b73932dcd53851fafc6748e24f9fefe",
+        "bytes": 1157176
+      }
+    },
+    "seamNecessity": {
+      "forB14Head": "CF-B14B-4: with all 14 seams stripped against the real B14-0 code (this tree), every one of the 14 suites fails, 125 failed / 162; all 14 seams are needed. B14-HEAD re-checks on merged code.",
+      "suites": [
+        {
+          "suite": "src/lib/multiplayer/server/__tests__/CoopOpponentDriver.test.ts",
+          "failedWithoutSeam": 84,
+          "total": 84
+        },
+        {
+          "suite": "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindLiveReplay.test.ts",
+          "failedWithoutSeam": 1,
+          "total": 6
+        },
+        {
+          "suite": "src/lib/multiplayer/server/__tests__/customCombatRecovery.recoveryDelivery.test.ts",
+          "failedWithoutSeam": 1,
+          "total": 1
+        },
+        {
+          "suite": "src/lib/multiplayer/server/__tests__/viewerFrameRawNegativeSweep.test.ts",
+          "failedWithoutSeam": 6,
+          "total": 11
+        },
+        {
+          "suite": "src/lib/multiplayer/__tests__/clientAgainstFogServer.integration.test.ts",
+          "failedWithoutSeam": 5,
+          "total": 6
+        },
+        {
+          "suite": "src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts",
+          "failedWithoutSeam": 14,
+          "total": 34
+        },
+        {
+          "suite": "src/lib/multiplayer/server/__tests__/ServerMatchHost.fogOfWarIntegration.test.ts",
+          "failedWithoutSeam": 4,
+          "total": 5
+        },
+        {
+          "suite": "src/lib/multiplayer/server/__tests__/viewerDeliverySequence.test.ts",
+          "failedWithoutSeam": 3,
+          "total": 3
+        },
+        {
+          "suite": "src/lib/multiplayer/server/__tests__/viewerFrameAuthorityFieldLeak.test.ts",
+          "failedWithoutSeam": 1,
+          "total": 3
+        },
+        {
+          "suite": "src/lib/multiplayer/server/__tests__/customConstructionTransport.test.ts",
+          "failedWithoutSeam": 1,
+          "total": 1
+        },
+        {
+          "suite": "src/lib/multiplayer/server/__tests__/matchmaking.integration.test.ts",
+          "failedWithoutSeam": 1,
+          "total": 2
+        },
+        {
+          "suite": "src/lib/multiplayer/server/__tests__/ServerMatchHostCommandResults.test.ts",
+          "failedWithoutSeam": 1,
+          "total": 3
+        },
+        {
+          "suite": "src/lib/multiplayer/server/__tests__/viewerSequenceConcealmentLeak.test.ts",
+          "failedWithoutSeam": 2,
+          "total": 2
+        },
+        {
+          "suite": "src/lib/multiplayer/server/__tests__/fogViewerSequenceSparsity.test.ts",
+          "failedWithoutSeam": 1,
+          "total": 1
+        }
+      ],
+      "json": {
+        "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/necessity-green.json",
+        "sha256": "fbd10c315cff98716898d261dca60ee6793f9e182671e8d95b0b12206aad12b1",
+        "bytes": 236177
+      }
+    }
+  },
+  "serverProbe": {
+    "claim": "Implementation-time probe of the real server.js WebSocket entry (acceptance 4). Evidence only: server.js not edited, no harness retained in the repo; the probe script and logs live in the proof directory.",
+    "method": "Seeded two active matches in a proof-local durable SQLite store through DurableMatchStore (fog-on 1v1: host, opponent, spectator seat; fog-off: two same-side players plus a non-playing GM in a spectator seat; default 1v1 unit bootstrap atlas-as7-d / marauder-mad-3r). Started node server.js (NODE_ENV=development, MULTIPLAYER_STORE=durable, MULTIPLAYER_DB_PATH and DATABASE_PATH in the proof directory, HOSTNAME=127.0.0.1, PORT=3671; pid 57892, ready after 10046 ms via the 426 upgrade hint). Opened real ws upgrades on /api/multiplayer/socket with match-scoped signed tokens in Sec-WebSocket-Protocol and sent the real SessionJoin; captured raw inbound frames and the received close code/reason. Then GET /api/multiplayer/matches/:id with unscoped signed bearer tokens. Stopped only the server pid started here (SIGTERM).",
+    "tree": {
+      "sha": "6785caf932808f2cc8a99caf9ff2e727915a4790",
+      "dirty": "M openspec/specs/fog-of-war/spec.md\n M src/lib/multiplayer/server/ServerMatchHost.ts\n M src/lib/multiplayer/server/ServerMatchHostEvents.ts\n M src/lib/multiplayer/server/ServerMatchHostReplay.ts"
+    },
+    "ws": [
+      {
+        "label": "fog-on host (playing) admission+join",
+        "preUpgradeHttpStatus": null,
+        "frames": [
+          "Close:AUTH_REJECTED:fog-projection-unavailable"
+        ],
+        "close": {
+          "code": 1008,
+          "reason": "fog-projection-unavailable"
+        }
+      },
+      {
+        "label": "fog-on opponent admission+join",
+        "preUpgradeHttpStatus": null,
+        "frames": [
+          "Close:AUTH_REJECTED:fog-projection-unavailable"
+        ],
+        "close": {
+          "code": 1008,
+          "reason": "fog-projection-unavailable"
+        }
+      },
+      {
+        "label": "fog-on spectator admission+join",
+        "preUpgradeHttpStatus": null,
+        "frames": [
+          "Close:AUTH_REJECTED:fog-projection-unavailable"
+        ],
+        "close": {
+          "code": 1008,
+          "reason": "fog-projection-unavailable"
+        }
+      },
+      {
+        "label": "fog-on rejoin (host, second connection)",
+        "preUpgradeHttpStatus": null,
+        "frames": [
+          "Close:AUTH_REJECTED:fog-projection-unavailable"
+        ],
+        "close": {
+          "code": 1008,
+          "reason": "fog-projection-unavailable"
+        }
+      },
+      {
+        "label": "fog-on stranger (valid token, not a member)",
+        "preUpgradeHttpStatus": null,
+        "frames": [
+          "Error:AUTH_REJECTED:admission refused: no-active-membership",
+          "Close:AUTH_REJECTED:not an active member of this match"
+        ],
+        "close": {
+          "code": 1008,
+          "reason": "not an active member of this match"
+        }
+      },
+      {
+        "label": "invalid credential",
+        "preUpgradeHttpStatus": 401,
+        "frames": [],
+        "close": {
+          "code": 1006,
+          "reason": ""
+        }
+      },
+      {
+        "label": "fog-off player A admission+join",
+        "preUpgradeHttpStatus": null,
+        "frames": [
+          "ReplayStart",
+          "ReplayChunk:2",
+          "ReplayEnd",
+          "LobbyUpdated"
+        ],
+        "close": {
+          "code": 1006,
+          "reason": ""
+        }
+      },
+      {
+        "label": "fog-off player B (same side) admission+join",
+        "preUpgradeHttpStatus": null,
+        "frames": [
+          "ReplayStart",
+          "ReplayChunk:2",
+          "ReplayEnd",
+          "LobbyUpdated"
+        ],
+        "close": {
+          "code": 1006,
+          "reason": ""
+        }
+      },
+      {
+        "label": "fog-off non-playing GM (spectator seat) admission+join",
+        "preUpgradeHttpStatus": null,
+        "frames": [
+          "ReplayStart",
+          "ReplayChunk:2",
+          "ReplayEnd",
+          "LobbyUpdated"
+        ],
+        "close": {
+          "code": 1006,
+          "reason": ""
+        }
+      }
+    ],
+    "http": {
+      "metadata fog-on host": {
+        "status": 403,
+        "body": "{\"error\":\"fog-projection-unavailable\"}",
+        "bodyBytes": 38
+      },
+      "metadata fog-on spectator": {
+        "status": 404,
+        "body": "{\"error\":\"Match not found: b14probe-fog\"}",
+        "bodyBytes": 41
+      },
+      "metadata fog-on stranger": {
+        "status": 404,
+        "body": "{\"error\":\"Match not found: b14probe-fog\"}",
+        "bodyBytes": 41
+      },
+      "metadata fog-off GM": {
+        "status": 200,
+        "body": "{\"meta\":{\"matchId\":\"b14probe-off\",\"hostPlayerId\":\"pid_2XuVCFHhWrPzAeDPmikCQt49FkEj\",\"playerIds\":[\"pid_2hF7UD5vpm73CT4Bv9hr1DHhURZS\",\"pid_3Mtrmt35DGkYxW25XCKBJoT9Wr7d\",\"pid_2XuVCFHhWrPzAeDPmikCQt49FkEj\"],\"sideAssignments\":[{\"playerId\":\"pid_2hF7UD5vpm73CT4Bv9hr1DHhURZS\",\"side\":\"player\"},{\"playerId\":\"p",
+        "bodyBytes": 1349
+      }
+    },
+    "secretScan": {
+      "unitRefs": [
+        "atlas-as7-d",
+        "marauder-mad-3r"
+      ],
+      "fogOnWireContainsUnitRef": false
+    },
+    "notes": "Server boot logged \"[mp-boot] recovered 0 active match(es), 2 failed\" for the seeded rows (no journal/runtime state was seeded); hosts were created on demand by the real registry at connection time. Fog-off rows close 1006 because the probe terminates the socket after its hold window. Not exercised at the real entry (covered unmocked in b14FogContainment.test.ts): an unreadable fog config (1011) and the legacy P2P reconnect callback, which is not reachable through server.js. The exact-main built-server smoke before H or spectator-bearing shipment remains owed.",
+    "results": {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/probe/probe-results.json",
+      "sha256": "a4f59da21c4e997754288eca2e63f81dc5459a6d5aa44a5bcce66e7c37470ad2",
+      "bytes": 9572
+    },
+    "serverLog": {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/probe/server.log",
+      "sha256": "d6f37191a3253c0df623852339817e12fde3ec005166a044189a382ce6d55965",
+      "bytes": 7487
+    },
+    "script": {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/probe.mts",
+      "sha256": "78a62e31e6015f8b68293fe06044797261d3900d479517966faa235d7be2c563",
+      "bytes": 9533
+    }
+  },
+  "checks": {
+    "typecheck": {
+      "command": "npm run typecheck",
+      "result": "exit 0",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/typecheck.log",
+        "sha256": "3b36e22e1b0478b0238ff74f78f016d01c34b3acc5ef45f73c88babce588152f",
+        "bytes": 374
+      }
+    },
+    "lint": {
+      "command": "npx oxlint",
+      "result": "87 warnings, 0 errors (baseline 86/0). The one new warning is eslint(max-lines) on ServerMatchHostReplay.ts (437 > 400); ServerMatchHost.ts was already over. Splitting the replay module needs a new file outside the frozen 11-file manifest, so it is recorded as CF-B14-0-1 rather than done here.",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/lint.log",
+        "sha256": "0ad822a06d83fd643fc5214b1329d2130ef184c0ebd4ddce1750b6afa0e7d979",
+        "bytes": 81300
+      }
+    },
+    "lintUnits": {
+      "command": "npm run lint:units",
+      "result": "LINT_UNITS_PASS 17896/17899; src-tests 17780 = baseline (3271 files, +1 new test)",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/lint-units.log",
+        "sha256": "2ce9ba05bf8afcbdb9ed48c79ae893b1a731df081361c0b2a3543eff0c3cbe39",
+        "bytes": 746
+      }
+    },
+    "format": {
+      "command": "npx oxfmt --check .",
+      "result": "exit 0",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/format.log",
+        "sha256": "56bc8beeb59c7ae421f16df73354a8dd80c0adf8fe1fa36f1f5bff827023045d",
+        "bytes": 262
+      }
+    },
+    "maintenance": {
+      "result": "type-safety high 4 = baseline; not a required check",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/maintenance.log",
+        "sha256": "e118448c1ac0f66f835d581e54f24000c8789827de1f7e56b7ee73e68bec8acb",
+        "bytes": 19526
+      }
+    },
+    "openspec": {
+      "command": "npx openspec validate --all --strict",
+      "result": "230 passed, 0 failed",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/openspec.log",
+        "sha256": "35a1cabfa87e09910ec90fb9337bc353010518beec543beb342b2900c6f91606",
+        "bytes": 13920
+      }
+    },
+    "validatorTests": {
+      "command": "node --test openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
+      "result": "86/86",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/b14-0-proof-20261018/validator-tests.log",
+        "sha256": "d29891c247cb5e2218a738ed8012df555fa4cb63a2e96119064fc6684473b92e",
+        "bytes": 33802
+      }
+    },
+    "roadmap": "validate-roadmap plain and --git: PASSED"
+  },
+  "census": {
+    "command": "git diff --numstat --no-renames 3328e2fa5f9bcc87da09d8fdb16fc4a20f19134b (cumulative PR)",
+    "countedLines": {
+      "openspec/planning/2026-09-12-roadmap-completion/units.json": 16,
+      "openspec/specs/fog-of-war/spec.md": 26,
+      "src/lib/multiplayer/server/ServerMatchHost.ts": 19,
+      "src/lib/multiplayer/server/ServerMatchHostEvents.ts": 15,
+      "src/lib/multiplayer/server/ServerMatchHostReplay.ts": 51,
+      "src/lib/multiplayer/server/fogMatchAdmission.ts": 74,
+      "total": 201,
+      "cap": 500
+    },
+    "files": {
+      "changed": 10,
+      "reservedReviewSlot": 1,
+      "total": 11,
+      "cap": 15,
+      "list": [
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0-admission.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0-red.json",
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/specs/fog-of-war/spec.md",
+        "src/lib/multiplayer/server/ServerMatchHost.ts",
+        "src/lib/multiplayer/server/ServerMatchHostEvents.ts",
+        "src/lib/multiplayer/server/ServerMatchHostReplay.ts",
+        "src/lib/multiplayer/server/__tests__/b14FogContainment.test.ts",
+        "src/lib/multiplayer/server/fogMatchAdmission.ts",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0-local.json"
+      ],
+      "reserved": "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0-review.json (unwritten)"
+    },
+    "lineExempt": "test leaf 799 added; evidence receipts",
+    "numstat": [
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0-admission.json",
+        "added": 501,
+        "deleted": 0
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0-red.json",
+        "added": 185,
+        "deleted": 0
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "added": 16,
+        "deleted": 6
+      },
+      {
+        "path": "openspec/specs/fog-of-war/spec.md",
+        "added": 26,
+        "deleted": 0
+      },
+      {
+        "path": "src/lib/multiplayer/server/ServerMatchHost.ts",
+        "added": 19,
+        "deleted": 4
+      },
+      {
+        "path": "src/lib/multiplayer/server/ServerMatchHostEvents.ts",
+        "added": 15,
+        "deleted": 1
+      },
+      {
+        "path": "src/lib/multiplayer/server/ServerMatchHostReplay.ts",
+        "added": 51,
+        "deleted": 9
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/b14FogContainment.test.ts",
+        "added": 799,
+        "deleted": 0
+      },
+      {
+        "path": "src/lib/multiplayer/server/fogMatchAdmission.ts",
+        "added": 74,
+        "deleted": 1
+      }
+    ]
+  },
+  "boundaryControls": [
+    {
+      "path": "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/fogOfWar.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/projection/ViewerFrameProjector.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/projection/ViewerPublicationBoundary.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/projection/ViewerDeliveryCursors.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/projection/FogAwareMatchProjection.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/bindMultiplayerSocketConnection.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/MatchHostRegistry.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/authorization/AuthorizedViewer.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/authorization/MatchSeatMembershipSource.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/client.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/pages/api/multiplayer/matches/[id].ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/pages-modules/api/matchHeadRoute.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/pages-modules/api/__tests__/matchHeadRoute.test.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/pages-modules/api/__tests__/matchHistoryFog.test.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/sealedChoiceDelivery.test.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/CoopOpponentDriver.test.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/customCombatRecovery.recoveryDelivery.test.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/customConstructionTransport.test.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/ServerMatchHost.fogOfWarIntegration.test.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/viewerFrameRawNegativeSweep.test.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindLiveReplay.test.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/__tests__/clientAgainstFogServer.integration.test.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/viewerFrameAuthorityFieldLeak.test.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/ServerMatchHostCommandResults.test.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/viewerSequenceConcealmentLeak.test.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/matchmaking.integration.test.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/viewerDeliverySequence.test.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/fogViewerSequenceSparsity.test.ts",
+      "unchanged": true
+    },
+    {
+      "path": "server.js",
+      "unchanged": true
+    },
+    {
+      "path": "jest.config.js",
+      "unchanged": true
+    },
+    {
+      "path": "jest.setup.js",
+      "unchanged": true
+    }
+  ],
+  "carryForwards": {
+    "CF-B14B-1 (folds in CF-B14A-2)": "Addressed in b14FogContainment.test.ts (owned leaf; matchHistoryFog.test.ts is a B14-0A frozen control and keeps its tripwire): all 14 allowlisted suites must contain the byte-exact canonical block exactly once and nothing else naming the module; the set of src test files naming fogMatchAdmission must equal the 14 + matchHistoryFog + b14FogContainment; no jest.mock/doMock/unstable_mockModule/setMock call anywhere in src tests may take a computed module path (R9); no jest.spyOn on the capability exports; jest.config.js and both setup files must not mention the module; the capability exports are asserted unmocked (jest.isMockFunction false, identity with jest.requireActual); the seam override shapes type-check against the real exports. Residual: a mock of a consumer module (e.g. ServerMatchHostEvents) is not detectable by text; the unmocked refusal rows in this suite still fail under such a mock only if it is in this suite.",
+    "CF-S-2 / CF-B14A-5": "Decided and pinned: matchLacksRevealProjection is async and awaited at every call site (mutant: a dropped await refuses every match). An unreadable fog config during live delivery withholds the frame from every recipient, including the actor, and answers with a typed Error (not a terminal Close) plus WS 1011; the real client treats Error as non-terminal and reconnects; because the withheld frame was never numbered, the actor's resume replay delivers its own sealed declaration while the opponent still does not see it. Pinned by an unmocked host row and a real-client row.",
+    "CF-S-3": "Contained, not restored: under B14-0 no fog-on audience receives any declaration, revealed or not, live or on replay (pinned). Restoring fog-on delivery must keep revealed declarations of fog-invisible units withheld; routed to the FOG chain (FOG-B/FOG-R) together with the GameCreated roster item. Seat-preservation half held (MatchWireSealedChoices and both seat arguments unchanged).",
+    "CF-S-1": "Routed to P2CG1HP (shared): fog-off HTTP history/export sealed hold lives in ViewerProjectionService/FogAwareMatchProjection, outside the B14-0 manifest (B14-0A frozen control). B14-0 neither opens nor closes it.",
+    "CF-B14B-4 (record for B14-HEAD)": "Seam necessity re-run against the real B14-0 candidate code (this tree) with all 14 seams stripped: every one of the 14 suites fails (125 failed / 162). B14-HEAD re-checks on the merged code.",
+    "CF-B14B-2 / CF-B14B-3": "FOG chain; untouched.",
+    "CF-S-7": "Not applicable: B14-0 does not edit FogAwareMatchProjection.ts.",
+    "CF-G2-9": "Pass-through; rerun and cite if the Seam Anchors spec flakes on CI.",
+    "CF-H12/CF-E10": "All required check names compared by name on the exact head and posted as a PR comment.",
+    "builtServerSocketSmoke": "Not discharged by B14-0 (exact-main built-server smoke remains owed before H or any spectator-bearing shipment). B14-0 runs the registered implementation-time probe against the real server.js entry (dev runtime, durable store) and records it in the local receipt.",
+    "CF-B14-0-1 (new)": "Root maintenance backlog / next owner of ServerMatchHostReplay.ts (U26): the module now exceeds the 400-line lint guideline (437); split the legacy reconnect and join-close helpers into their own module under a registration that grants the new file."
+  },
+  "status": "Local proof complete; awaiting independent sensitive review (privacy/authority/replay; reserved slot), sensitive packet, OWNER-RULING on the exact head, required CI and the CF-H12 by-name comparison. Not merged."
+}
