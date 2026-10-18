@@ -1,0 +1,594 @@
+{
+  "unit": "B14-0",
+  "stage": "merge",
+  "recordedAt": "2026-10-18T22:01:32Z",
+  "pr": 2281,
+  "title": "B14-0: refuse fog-on WebSocket delivery through the capability predicate",
+  "url": "https://github.com/SwiggitySwerve/MekStation/pull/2281",
+  "head": "3b06758e4ad84328326d51a7ef12e5e6cc150f79",
+  "reviewedHead": "471d6281ce07480119b47b61f7d3ecc07e18e5d5",
+  "mergeSha": "1c7632b18d062e1b684fc7384faa4f2668183b69",
+  "mergedAt": "2026-10-18T21:40:36Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "Two-parent merge commit (head-guarded)",
+  "parentCount": 2,
+  "treeIntegration": {
+    "parents": [
+      "14893923932eb5e697f6528dab8c533889ad3df8",
+      "3b06758e4ad84328326d51a7ef12e5e6cc150f79"
+    ],
+    "expectedTree": "82bef9f395a75025a00e759b36ac07a531fea120",
+    "actualTree": "82bef9f395a75025a00e759b36ac07a531fea120",
+    "matches": true,
+    "headTree": "62b99a2b0bd3ad6b828ec75368b0df815ee26bd9",
+    "headTreeEqualsMergeTree": false,
+    "note": "Main moved between the PR base and the merge. The unit baseline is 3328e2fa (#2273, the B14-0B closure); the PR was last updated against a25ba413 (#2276) and GitHub merged it against 14893923 (#2282). The merge commit 1c7632b1 has first parent 14893923 and second parent the merged head 3b06758e; merge-base(head, first parent) is the unit baseline; git merge-tree --write-tree of the two parents is clean and equals the merge tree 82bef9f3 (the head tree 62b99a2b differs only by the main-side files). The 13 first-parent main merges between the baseline and the first parent (#2272, #2275, #2277, #2276, #2280, #2284, #2285, #2286, #2288, #2278, #2289, #2279, #2282) touched 144 files, none a B14-0 manifest leaf, admission control (33), seamed suite or author receipt, and none under src/lib/multiplayer or the fog-of-war spec. In units.json they changed B14-0 only in its successors array (B14-HEAD -> B14-HEAD, L1-SMOKE-B, MP-RECOVERY-UNITS-1, by #2275 and #2289); the merged entry is the head entry with the main successors, every other unit and packet equals the first parent. The four product leaves, the spec and the owned test are byte-identical at the head, the merge and the closure base (product hashes equal the local receipt productBytes); main moved after the merge by b16302d7 #2287 (8 files, no B14-0 leaf, control or seam; the B14-0A, B14-0B, B14-0, B14-HEAD, MP-RECOVERY-UNITS-1 and P2CG1S entries unchanged)."
+  },
+  "baseline": {
+    "baseline": "3328e2fa5f9bcc87da09d8fdb16fc4a20f19134b",
+    "prBaseRefOid": "a25ba4130da7a8cf9e107ecfa0c30b5648082936",
+    "mainAtMerge": "14893923932eb5e697f6528dab8c533889ad3df8",
+    "rebase": false,
+    "mergeBase": "3328e2fa5f9bcc87da09d8fdb16fc4a20f19134b",
+    "mainBetween": [
+      {
+        "commit": "ebbea9a4ebec2b2445f7a04570a9af1517233881",
+        "pr": 2272,
+        "subject": "Merge pull request #2272 from SwiggitySwerve/codex/maint-split-bulk2-20261018",
+        "files": 28
+      },
+      {
+        "commit": "407ff0e9ae3eb0cd200b3c68da26e3d27d66a144",
+        "pr": 2275,
+        "subject": "Merge pull request #2275 from SwiggitySwerve/docs/l1-smoke-registration-20261018",
+        "files": 4
+      },
+      {
+        "commit": "631484c8f8c4c0fbdd4fafd497a61bd35392d398",
+        "pr": 2277,
+        "subject": "Merge pull request #2277 from SwiggitySwerve/codex/maint-split-bulk3-20261018",
+        "files": 33
+      },
+      {
+        "commit": "a25ba4130da7a8cf9e107ecfa0c30b5648082936",
+        "pr": 2276,
+        "subject": "Merge pull request #2276 from SwiggitySwerve/codex/data-fidelity-backlog-20261018",
+        "files": 4
+      },
+      {
+        "commit": "1e0a34dc5da4c4051115db828e986ceb5aad2fa0",
+        "pr": 2280,
+        "subject": "Merge pull request #2280 from SwiggitySwerve/fix/machine-idle-jest-20261018",
+        "files": 2
+      },
+      {
+        "commit": "db3b5681663b5eb8b4f42507e4047a7f3ca2b1de",
+        "pr": 2284,
+        "subject": "Merge pull request #2284 from SwiggitySwerve/codex/docs-review-nightly-council-20261018",
+        "files": 10
+      },
+      {
+        "commit": "2d576747ee8dd210e5f6a5b0f380819b153a203a",
+        "pr": 2285,
+        "subject": "Merge pull request #2285 from SwiggitySwerve/docs/lsc-parallel-amend-20261018",
+        "files": 4
+      },
+      {
+        "commit": "811bfd8d40d7d9366616dcd93c5a60ae0c95fd51",
+        "pr": 2286,
+        "subject": "Merge pull request #2286 from SwiggitySwerve/codex/lsc-0-impl-20261018",
+        "files": 8
+      },
+      {
+        "commit": "afcbd62bba50621ebcf37c2c11adf58ecc3bfc5f",
+        "pr": 2288,
+        "subject": "Merge pull request #2288 from SwiggitySwerve/codex/lsc-0-closure-20261018",
+        "files": 21
+      },
+      {
+        "commit": "af41ddcd8c2f2388b0d8ea67a90cea0b41e0c3aa",
+        "pr": 2278,
+        "subject": "Merge pull request #2278 from SwiggitySwerve/fix/nightly-ui-nav-replay-20261018",
+        "files": 12
+      },
+      {
+        "commit": "2789ceb21256538f7f9cbc951652f48319ba2f46",
+        "pr": 2289,
+        "subject": "Merge pull request #2289 from SwiggitySwerve/docs/followups-registration-20261018",
+        "files": 4
+      },
+      {
+        "commit": "44203b99bd8fe75af6611c6a314e9e819fe50ded",
+        "pr": 2279,
+        "subject": "Merge pull request #2279 from SwiggitySwerve/fix/scenario-recapture-baseline-20261018",
+        "files": 19
+      },
+      {
+        "commit": "14893923932eb5e697f6528dab8c533889ad3df8",
+        "pr": 2282,
+        "subject": "Merge pull request #2282 from SwiggitySwerve/fix/baseline-d-campaign-shell-20261018",
+        "files": 8
+      }
+    ],
+    "mainBetweenFiles": 144,
+    "headCommits": [
+      "69b6b550c77ef52b8ca94a99c4167b9eec59fe4e",
+      "6785caf932808f2cc8a99caf9ff2e727915a4790",
+      "471d6281ce07480119b47b61f7d3ecc07e18e5d5",
+      "3b06758e4ad84328326d51a7ef12e5e6cc150f79"
+    ],
+    "commitRoles": {
+      "admission": "69b6b550c77ef52b8ca94a99c4167b9eec59fe4e",
+      "red": "6785caf932808f2cc8a99caf9ff2e727915a4790",
+      "green": "471d6281ce07480119b47b61f7d3ecc07e18e5d5",
+      "reviewFixes": "3b06758e4ad84328326d51a7ef12e5e6cc150f79"
+    },
+    "predecessorClosure": "3328e2fa5f9bcc87da09d8fdb16fc4a20f19134b"
+  },
+  "census": {
+    "command": "git diff --numstat --no-renames 3328e2fa5f9bcc87da09d8fdb16fc4a20f19134b 3b06758e4ad84328326d51a7ef12e5e6cc150f79",
+    "changedFiles": 10,
+    "reservedUnwrittenAtMerge": 1,
+    "countedLines": 201,
+    "countedByFile": {
+      "openspec/planning/2026-09-12-roadmap-completion/units.json": 16,
+      "openspec/specs/fog-of-war/spec.md": 26,
+      "src/lib/multiplayer/server/ServerMatchHost.ts": 19,
+      "src/lib/multiplayer/server/ServerMatchHostEvents.ts": 15,
+      "src/lib/multiplayer/server/ServerMatchHostReplay.ts": 51,
+      "src/lib/multiplayer/server/fogMatchAdmission.ts": 74
+    },
+    "testAdditions": {
+      "src/lib/multiplayer/server/__tests__/b14FogContainment.test.ts": {
+        "added": 850,
+        "deleted": 0
+      }
+    },
+    "caps": {
+      "maxFiles": 15,
+      "maxNonGeneratedLines": 500
+    }
+  },
+  "productAtMerge": [
+    {
+      "path": "src/lib/multiplayer/server/fogMatchAdmission.ts",
+      "sha256": "d01e320852f121d466a6450e6d62bd91039b6d48ce9f8bc863648126f388c8a1",
+      "bytes": 3016
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHost.ts",
+      "sha256": "b4602f5bc6dd972018cd2cec6074b158cab9d4ef6807a52b8ea772d1caf8491e",
+      "bytes": 65252
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHostEvents.ts",
+      "sha256": "98ba1eca09b5e1ecf071d61bdabd8393d5c1f4bd6cd6fa194c4ae4b59cf03763",
+      "bytes": 17345
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHostReplay.ts",
+      "sha256": "615360ae807ff30f1ac49048fb995ab68a25ddde6459cda90bcf40406ad58eed",
+      "bytes": 16635
+    },
+    {
+      "path": "openspec/specs/fog-of-war/spec.md",
+      "sha256": "b079d19713d513c77388bdd4ce831206d25063614266fdaa011f2c9c08561954",
+      "bytes": 13221
+    }
+  ],
+  "admissionControlsAtMerge": [
+    {
+      "path": "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+      "sha256": "6e25afc908d9396e70335b981fd69c8399d9f022f9a26b72134ec2fb680ef120"
+    },
+    {
+      "path": "src/lib/multiplayer/server/fogOfWar.ts",
+      "sha256": "a8b7a1d381dfd087237a68780d509963ffd6c3925917041bc305fc71fbc4a6aa"
+    },
+    {
+      "path": "src/lib/multiplayer/server/projection/ViewerFrameProjector.ts",
+      "sha256": "f19a5df823c5daa366f64dc639043287d57c5406279deb26501779648143acf5"
+    },
+    {
+      "path": "src/lib/multiplayer/server/projection/ViewerPublicationBoundary.ts",
+      "sha256": "0fb8428f0c7546716c823a3f79485e97358d08921e325263105bbbeffcf1a5d3"
+    },
+    {
+      "path": "src/lib/multiplayer/server/projection/ViewerDeliveryCursors.ts",
+      "sha256": "4418dbb3e994c9afbf86aa5a432590aa9e628baa6a50cfdbbb73d32239fe90ae"
+    },
+    {
+      "path": "src/lib/multiplayer/server/projection/FogAwareMatchProjection.ts",
+      "sha256": "9066d70df0352daed25e11700ccc6938212e9aa866315075b3df4459f01e1634"
+    },
+    {
+      "path": "src/lib/multiplayer/server/bindMultiplayerSocketConnection.ts",
+      "sha256": "f3593468e6b788a6303b9601ecc8eae2b1091f3385c27037293e017a6a61fdf4"
+    },
+    {
+      "path": "src/lib/multiplayer/server/MatchHostRegistry.ts",
+      "sha256": "feb2576461403b3dafd68dba5631b43c4f0ba9620d0f0f006f47178b8d62cade"
+    },
+    {
+      "path": "src/lib/multiplayer/server/authorization/AuthorizedViewer.ts",
+      "sha256": "2b8ae8feea2368090cd76a7c01ee76713f7c85e81f376f997ceb36764dec4a42"
+    },
+    {
+      "path": "src/lib/multiplayer/server/authorization/MatchSeatMembershipSource.ts",
+      "sha256": "010dd429f935181c088478db5f120618dac9fc21f9525af8aec22a3d1315d81c"
+    },
+    {
+      "path": "src/lib/multiplayer/client.ts",
+      "sha256": "9a85d3092a151a72b7bf6b50cbe549ea608e2c601b410774fddf957844c2c9c4"
+    },
+    {
+      "path": "src/pages/api/multiplayer/matches/[id].ts",
+      "sha256": "8075e431921f432ca2d75eab1b9364fa63da1e3f2ea701c03b94f74d45614d36"
+    },
+    {
+      "path": "src/pages-modules/api/matchHeadRoute.ts",
+      "sha256": "1ba0fd513cd811faa2d88313d2a542956aca9365bc8e8fff43482b3baf7cd1b8"
+    },
+    {
+      "path": "src/pages-modules/api/__tests__/matchHeadRoute.test.ts",
+      "sha256": "abc509c275e65918c968d5a13c71cf417c26bbba8eaf533e81a2f76e3df7f0dd"
+    },
+    {
+      "path": "src/pages-modules/api/__tests__/matchHistoryFog.test.ts",
+      "sha256": "2d52d2487e0ba31faf26e5d545fac484960bbbcd9af0622bdfd7353459e3ad66"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/sealedChoiceDelivery.test.ts",
+      "sha256": "82ea39b22e8588b5ed65ad206f661385589f45b6152f63f002a584e67f54dcf4"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/CoopOpponentDriver.test.ts",
+      "sha256": "648d715adeebac3bac4a921beda7dfa47dfe3bafa53f9831a53ce0e67cec2ad1"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/customCombatRecovery.recoveryDelivery.test.ts",
+      "sha256": "2cba52e17ba8c7a68677b89a2b6ba14ec5fa8376cf8e06259f84d6c3a282d2ff"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/customConstructionTransport.test.ts",
+      "sha256": "965fd92f139a896df8c6df7311edea8f43696906d8348b193d6c1bded0097f90"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/ServerMatchHost.fogOfWarIntegration.test.ts",
+      "sha256": "20f4ee19e2c683c1c3dd539777cd59f978b305a7e1e914714dd88b926d67c7d1"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/viewerFrameRawNegativeSweep.test.ts",
+      "sha256": "5cb0fd4f2f1f4957d18598293325d1cbeef91bb09d2141c8c5170c6267f70bae"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindLiveReplay.test.ts",
+      "sha256": "0b9ef884a191bee858d3213b3a32abd1e7d2b2a9dd248d593d51cb2c4fc54340"
+    },
+    {
+      "path": "src/lib/multiplayer/__tests__/clientAgainstFogServer.integration.test.ts",
+      "sha256": "3c9fe0fff8f3686754cddd529f84f481e4e599441856b9cf75dbcd1ebe71f48a"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/viewerFrameAuthorityFieldLeak.test.ts",
+      "sha256": "b7f5b14428dd55a44bebcd7e47f9ac8476c970d7aa0267fdfb8b7afa8b313905"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/ServerMatchHostCommandResults.test.ts",
+      "sha256": "93871a9576b51253bcedb8b4552eea8e95ae5ecbf858e36261fb0470596e051e"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/viewerSequenceConcealmentLeak.test.ts",
+      "sha256": "5007f7c230aa81e024459819cf6e7d8d9b9eb487814a6b36d07a3399afc2cdd1"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/matchmaking.integration.test.ts",
+      "sha256": "1d4255ca4e704d704388f0624e779ae3446fdf39c9cd81c8af1dfaf592cf0b44"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/viewerDeliverySequence.test.ts",
+      "sha256": "83ad309ad2c9c3ea197351377dfba127f60c50cf635237c9048f80adbe10a554"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts",
+      "sha256": "987bdeeb8e9dbc65bb63a2cbf3b3b22c9b42decd011c169a1bfc055b0cd9d996"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/fogViewerSequenceSparsity.test.ts",
+      "sha256": "9c15173b874bf2a89fd61f268f76724180f5bee9cb6db68635c2aa928c80b3ef"
+    },
+    {
+      "path": "server.js",
+      "sha256": "e4f973d2cfa7f4c25775e4ce9315b7398655a6a17cfc799793545de84a59ecf6"
+    },
+    {
+      "path": "jest.config.js",
+      "sha256": "562e7a320f0547dda21dd2e8ec93e6c68db615f32522de42a293fc58a44b8a76"
+    },
+    {
+      "path": "jest.setup.js",
+      "sha256": "feab814b62579b60bdd9511646e39d8461391e66885605d61e2a2f7906935e0d"
+    }
+  ],
+  "postMerge": {
+    "firstParentAfterMerge": [
+      "b16302d76df1ace0589bc334f9249330a25c5278"
+    ],
+    "closureBase": "b16302d76df1ace0589bc334f9249330a25c5278"
+  },
+  "checksObservedAt": "2026-10-18T21:44:04Z",
+  "checks": {
+    "head": "3b06758e4ad84328326d51a7ef12e5e6cc150f79",
+    "successful": 32,
+    "other": 0,
+    "statuses": 0,
+    "run": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39167404493",
+    "jobs": [
+      {
+        "name": "Lint and Test",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39167404493/job/117794429428"
+      },
+      {
+        "name": "Build Test / win",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39167404493/job/117793694516"
+      },
+      {
+        "name": "Build Test / mac",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39167404493/job/117793694488"
+      },
+      {
+        "name": "Build Test / linux",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39167404493/job/117793694461"
+      },
+      {
+        "name": "Determinism Audit",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39167404493/job/117793227840"
+      },
+      {
+        "name": "Desktop Tests",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39167404493/job/117793227036"
+      },
+      {
+        "name": "Coverage Floor",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39167404493/job/117793227034"
+      },
+      {
+        "name": "Validate Combat Suite",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39167404493/job/117793227031"
+      },
+      {
+        "name": "Customizer Regressions",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39167404493/job/117793227022"
+      },
+      {
+        "name": "Desktop Type Check",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39167404493/job/117793226998"
+      },
+      {
+        "name": "Unit Tests (2/6)",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39167404493/job/117793226991"
+      },
+      {
+        "name": "Perf Budget PR",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39167404493/job/117793226990"
+      },
+      {
+        "name": "Unit Tests (6/6)",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39167404493/job/117793226980"
+      },
+      {
+        "name": "A11y Tests",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39167404493/job/117793226977"
+      },
+      {
+        "name": "Unit Tests (1/6)",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39167404493/job/117793226975"
+      },
+      {
+        "name": "Seam Anchors",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39167404493/job/117793226963"
+      },
+      {
+        "name": "E2E Smoke",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39167404493/job/117793226962"
+      },
+      {
+        "name": "Schema Bridge",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39167404493/job/117793226951"
+      },
+      {
+        "name": "Unit Tests (3/6)",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39167404493/job/117793226950"
+      },
+      {
+        "name": "Unit Tests (5/6)",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39167404493/job/117793226946"
+      },
+      {
+        "name": "Build Storybook",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39167404493/job/117793226941"
+      },
+      {
+        "name": "Validate BV Parity",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39167404493/job/117793226920"
+      },
+      {
+        "name": "Statistical Proof PR",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39167404493/job/117793226909"
+      },
+      {
+        "name": "Lint",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39167404493/job/117793226901"
+      },
+      {
+        "name": "Unit Tests (4/6)",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39167404493/job/117793226896"
+      },
+      {
+        "name": "Perf Smoke Tests",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39167404493/job/117793226846"
+      },
+      {
+        "name": "Format Check",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39167404493/job/117793226833"
+      },
+      {
+        "name": "Type Check",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39167404493/job/117793226815"
+      },
+      {
+        "name": "Prepare Build Artifacts",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39167404493/job/117793169215"
+      },
+      {
+        "name": "Install Dependencies",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39167404493/job/117793116571"
+      },
+      {
+        "name": "Validate Roadmap Ledger",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39167404493/job/117793116570"
+      },
+      {
+        "name": "Detect Changes",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39167404493/job/117793116508"
+      }
+    ],
+    "failedAttempts": 0,
+    "allAttemptsCount": 32,
+    "cfh12Comment": "https://github.com/SwiggitySwerve/MekStation/pull/2281#issuecomment-6255470545",
+    "cfh12CommentEdit": "posted 2026-10-18T21:39:22Z, not edited",
+    "greenHeadComment": "https://github.com/SwiggitySwerve/MekStation/pull/2281#issuecomment-6254857417"
+  },
+  "requiredChecks": "Observed 2026-10-18T21:44:04Z. GET branches/main/protection: required_status_checks.contexts [\"Lint and Test\"] (strict false), required_conversation_resolution enabled, required_pull_request_reviews with 0 required approvals. GET rules/branches/main returns no rules. GitHub enforces only Lint and Test; CF-H12 asks for all 32 by name, verified here one to one (pr-checks.yml blob a82fe0f7).",
+  "mergeCommitCheckRuns": {
+    "observedAt": "2026-10-18T21:44:06Z",
+    "runs": [
+      {
+        "name": "Live Tier Signal",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "release",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "build",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Push Docker image",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Build Docker image",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Prepare Build Artifacts",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "release",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Push Docker image",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "build",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Prepare Build Artifacts",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Build Docker image",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Determine release tag",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Determine release tag",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "version-and-release",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Publish Live Evidence (ubuntu-latest)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Publish Live Evidence (windows-latest)",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ],
+    "note": "Push workflows on the merge commit; pr-checks.yml runs only on pull_request."
+  },
+  "ownerRuling": {
+    "ruledHead": "3b06758e4ad84328326d51a7ef12e5e6cc150f79",
+    "pr": 2281,
+    "commentId": 6255481179,
+    "author": "SwiggitySwerve",
+    "bodySha256": "3b6feada26f9e7b28733753dc5e7b51e8bfb9367e2e701e3247cf0b39bfa63d9",
+    "bodyBytes": 2947,
+    "at": "2026-10-18T21:40:29Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2281#issuecomment-6255481179",
+    "bodyPath": "evidence/b14-0-owner-ruling-6255481179.txt",
+    "fetchedWith": "gh api repos/SwiggitySwerve/MekStation/issues/comments/6255481179 --jq .body, which prints the body plus one trailing LF (2948 bytes); the stored file is the exact body without that added newline, equal to the JSON body field and byte-identical to the Root receipt copy E:/Projects/Personal/MekStation-wt/_receipts/pr2281-owner-ruling.md"
+  },
+  "chronology": "Ruled at 21:40:29Z on the exact head; merged at 21:40:36Z. The ruling preceded the merge."
+}

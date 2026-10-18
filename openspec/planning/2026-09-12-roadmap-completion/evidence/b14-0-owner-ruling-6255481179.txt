@@ -1,0 +1,38 @@
+OWNER-RULING 3b06758e4ad84328326d51a7ef12e5e6cc150f79
+
+Unit: B14-0 (L1, B14/HP lane; sensitive classes privacy, authority and replay). PR #2281 at exact head 3b06758e4ad84328326d51a7ef12e5e6cc150f79.
+
+Owner text:
+- Standing: "continue with recommended options and fix the issues that come up, publish as needed".
+- Direct, 2026-10-18: "I think the recommended actions make sense for the ones that have them". This covers Root posting OWNER-RULING comments, and the temporary fog-on refusal for v2.2.0.
+Root rules under these.
+
+Basis:
+- Independent full sensitive review (Fable 5.1) on 471d6281ce07480119b47b61f7d3ecc07e18e5d5: APPROVE-WITH-IN-PR-FIXES. Report: docs/audits/2026-10-18-b14-0-review.md, sha256 7c49543a4c8b65dcfdab31dda2723fa820112b26cdae7f27d0dad68284688338 (27,099 bytes).
+  - No product defect. GREEN passes 28/28. RED is 22 behavioural failures, with product leaves at baseline bytes.
+  - GREEN changed no test or helper byte, and the helpers were dead code at RED.
+  - Regression: 261 suites, 2,768 tests.
+  - CF-B14B-4 re-run on the real code: 14/14 suites fail when unseamed (125/162).
+  - Discharged: CF-B14B-1 (exact seam block in all 14 suites; capability module asserted unmocked); CF-S-2 (Error plus 1011; the actor's declaration replays on resume); CF-S-3.
+  - Ordering holds: seat before GM, membership before policy, and refusal before any event read, number or baseline. There is no raw fallback, and known-off and omitted behave as before.
+- In-PR fixes relayed by Root and applied at 3b06758e4ad84328326d51a7ef12e5e6cc150f79. Root confirmed with a diff from 471d6281 that only server/__tests__/b14FogContainment.test.ts changed (+62/-11). The fixes:
+  - F1: a stranger gets 1008 and the generic close on both join and replay.
+  - F3: the exact legacy reject payload is asserted.
+  - F2: the guard-failure path is pinned (1011 INTERNAL_ERROR, detached).
+  - The PR body names the sendJoinGuardError Error->Close change and justifies the two distinct 1011 behaviours: a terminal guard failure versus a transient config read, per CF-S-2.
+  - The optional items are done: the guard now walks src, scripts and openspec; the fog-off row is stronger; the "raw" mode is renamed.
+  - Reviewer mutants R1, R2, R4 and R10 are now caught. Owned suite 31/31; regression 261/261 suites, 2,771 tests.
+- CI is 32/32 on the exact head, and the merge state is CLEAN.
+
+Ruling: ACCEPT, and merge at this exact head.
+
+Carry-forwards:
+- CF-B14-3 (F6, F8, F9) -> B14-0/B14-HEAD where still open.
+- CF-B14-4 (F4, F7) -> U26.
+- CF-B14-5 (F5) -> FOG-*.
+- CF-B14-6 (record the reviewed head) -> the closure receipt.
+- CF-B14-0-1 (437-line test file) -> backlog/U26.
+- CF-B14B-4 repeats at B14-HEAD on merged code.
+- CF-S-1 and CF-S-3..9, CF-B14A-6..9 and CF-B14B-2/3 pass through unchanged.
+
+Next: one closure task, which also preps B14-HEAD. It releases only B14-HEAD and MP-RECOVERY-UNITS-1, the two successors of B14-0 registered in #2289.
