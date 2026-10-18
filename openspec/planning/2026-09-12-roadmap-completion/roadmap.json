@@ -2859,7 +2859,11 @@
             "src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx",
             "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
             "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx",
-            "src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx"
+            "src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx",
+            "src/pages/api/multiplayer/invites/[roomCode].ts",
+            "src/__tests__/api/securityBoundary.test.ts",
+            "src/lib/campaign/coop/campaignSyncTransport.ts",
+            "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts"
           ],
           "P2CG1H": [
             "server.js",
@@ -2978,7 +2982,7 @@
           "P2CG1E": 8,
           "P2CG1F": 6,
           "P2CG1G1": 8,
-          "P2CG1G2": 7,
+          "P2CG1G2": 11,
           "P2CG1H": 9,
           "P2CG1I1": 6,
           "P2CG1I2": 10,
@@ -3078,7 +3082,11 @@
         "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx",
         "src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx",
         "src/__tests__/api/e2ePerformanceProbeRoute.test.ts",
-        "e2e/gm-two-player-authority.pack1.spec.ts"
+        "e2e/gm-two-player-authority.pack1.spec.ts",
+        "src/pages/api/multiplayer/invites/[roomCode].ts",
+        "src/__tests__/api/securityBoundary.test.ts",
+        "src/lib/campaign/coop/campaignSyncTransport.ts",
+        "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts"
       ],
       "acceptance": [
         "npm.cmd run typecheck",
