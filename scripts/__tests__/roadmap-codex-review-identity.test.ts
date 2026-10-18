@@ -774,32 +774,34 @@ function nativeFixture(
     if (!chunkCase) return {};
     const chunks = completedChunks(number);
     if (chunkCase.target === target) {
-      switch (chunkCase.fault) {
-        case 'empty':
-          chunks.splice(0);
-          break;
-        case 'duplicate':
-          chunks[0].id = chunks[1].id;
-          break;
-        case 'missing-frame':
-          chunks[0].frameSha256 = digest(Buffer.from('unbound frame'));
-          break;
-        case 'last-anchor':
-          chunks[1].stdoutSha256 = digest(Buffer.from('foreign anchor'));
-          break;
-        case 'out-of-order':
-          chunks.reverse();
-          break;
-        case 'thread':
-          chunks[0].threadId = uid(999);
-          break;
-        case 'turn':
-          chunks[0].turnId = uid(999);
-          break;
-        case 'workdir':
-          chunks[0].workdir = path.join(f.dir, 'foreign');
-          break;
-      }
+      const mutations: Partial<Record<INativeChunkCase['fault'], () => void>> =
+        {
+          empty: () => {
+            chunks.splice(0);
+          },
+          duplicate: () => {
+            chunks[0].id = chunks[1].id;
+          },
+          'missing-frame': () => {
+            chunks[0].frameSha256 = digest(Buffer.from('unbound frame'));
+          },
+          'last-anchor': () => {
+            chunks[1].stdoutSha256 = digest(Buffer.from('foreign anchor'));
+          },
+          'out-of-order': () => {
+            chunks.reverse();
+          },
+          thread: () => {
+            chunks[0].threadId = uid(999);
+          },
+          turn: () => {
+            chunks[0].turnId = uid(999);
+          },
+          workdir: () => {
+            chunks[0].workdir = path.join(f.dir, 'foreign');
+          },
+        };
+      mutations[chunkCase.fault]?.();
     }
     return { chunks };
   };

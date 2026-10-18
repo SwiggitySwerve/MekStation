@@ -94,7 +94,7 @@ function sizeFromOpenTag(tag: string): SvgSize | null {
   return null;
 }
 
-function parseRootSvgElement(svgString: string): SVGSVGElement | null {
+function parseRootSvgElement(svgString: string): Element | null {
   if (typeof DOMParser === 'undefined') {
     return null;
   }
@@ -106,7 +106,7 @@ function parseRootSvgElement(svgString: string): SVGSVGElement | null {
   if (!root || root.localName.toLowerCase() !== 'svg') {
     return null;
   }
-  return root as unknown as SVGSVGElement;
+  return root;
 }
 
 /** Read width/height from a serialized SVG string (root element only). */
@@ -132,7 +132,9 @@ export function parseSvgViewBox(svgString: string): SvgSize {
  * Root width/height are preferred: canonical sheets have no root viewBox
  * while nested logos do.
  */
-export function readSvgRootSize(svgRoot: SVGSVGElement): SvgSize {
+export function readSvgRootSize(
+  svgRoot: Pick<Element, 'getAttribute'>,
+): SvgSize {
   const fromAttrs = sizeFromWidthHeight(
     svgRoot.getAttribute('width'),
     svgRoot.getAttribute('height'),

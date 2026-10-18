@@ -19,5 +19,7 @@ export const APPEARANCE_BOOTSTRAP_SCRIPT = `(() => {
     root.style.setProperty('--accent-hover', accents[state.accentColor].hover);
     root.style.setProperty('--accent-muted', accents[state.accentColor].muted);
     root.style.setProperty('--font-size-base', fonts[state.fontSize]);
-  } catch {}
+  } catch {
+    // Unreadable browser storage leaves the default appearance in place.
+  }
 })();`;

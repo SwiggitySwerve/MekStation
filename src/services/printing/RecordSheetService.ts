@@ -134,7 +134,7 @@ function ensurePrintSvgViewBox(svgString: string): string {
   if (rootHasValidViewBox(root)) {
     return svgString;
   }
-  const size = readSvgRootSize(root as unknown as SVGSVGElement);
+  const size = readSvgRootSize(root);
   root.setAttribute('viewBox', `0 0 ${size.width} ${size.height}`);
   return new XMLSerializer().serializeToString(doc);
 }
@@ -188,7 +188,7 @@ interface BrowserPrintWindow {
 }
 
 function openBrowserPrintWindow(): BrowserPrintWindow | null {
-  return window.open('', '_blank') as unknown as BrowserPrintWindow | null;
+  return window.open('', '_blank') as BrowserPrintWindow | null;
 }
 
 type ExtractRecordSheetData = {

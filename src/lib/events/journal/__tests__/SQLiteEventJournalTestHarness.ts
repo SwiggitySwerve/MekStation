@@ -11,88 +11,89 @@ import { openVerifiedSQLiteEventJournal } from '../SQLiteEventJournalRecovery';
 
 type Payload = Readonly<{ value: string }>;
 
-export class SQLiteEventJournalTestHarness implements IEventJournalConformanceHarness {
-  private service: SQLiteService;
-  private journal: Journal.IEventJournal<Payload> | null = null;
-  private failNextCommit = false;
+export interface SQLiteEventJournalTestHarness extends IEventJournalConformanceHarness {
+  database(): ReturnType<SQLiteService['getDatabase']>;
+  openAdditionalService(): SQLiteService;
+}
 
-  private constructor(
-    private readonly directory: string,
-    private readonly databasePath: string,
-  ) {
-    this.service = this.newService();
-  }
-
-  public static async create(): Promise<SQLiteEventJournalTestHarness> {
+// Preserve the test-facing factory while keeping each fixture's state private.
+export const SQLiteEventJournalTestHarness = {
+  async create(): Promise<SQLiteEventJournalTestHarness> {
     const directory = await mkdtemp(
       path.join(tmpdir(), 'event-journal-conformance-'),
     );
-    const harness = new SQLiteEventJournalTestHarness(
+    const { harness, open } = fixture(
       directory,
       path.join(directory, 'journal.db'),
     );
     try {
-      await harness.open();
+      await open();
       return harness;
     } catch (error) {
       await harness.dispose();
       throw error;
     }
+  },
+};
+
+function fixture(directory: string, databasePath: string) {
+  let service = newService();
+  let journal: Journal.IEventJournal<Payload> | null = null;
+  let failNextCommit = false;
+
+  function current(): Journal.IEventJournal<Payload> {
+    if (!journal) throw new Error('SQLite journal is not open');
+    return journal;
   }
 
-  public current(): Journal.IEventJournal<Payload> {
-    if (!this.journal) throw new Error('SQLite journal is not open');
-    return this.journal;
+  function database() {
+    return service.getDatabase();
   }
 
-  public database() {
-    return this.service.getDatabase();
+  function openAdditionalService(): SQLiteService {
+    const additionalService = newService();
+    additionalService.initialize();
+    return additionalService;
   }
 
-  public openAdditionalService(): SQLiteService {
-    const service = this.newService();
+  async function restart(): Promise<void> {
+    journal = null;
+    service.close();
+    service = newService();
+    await open();
+  }
+
+  function failNextCommitAfterWrites(): void {
+    failNextCommit = true;
+  }
+
+  async function assertStorageConsistent(): Promise<void> {
+    await openVerifiedSQLiteEventJournal<Payload>(database());
+  }
+
+  async function dispose(): Promise<void> {
+    journal = null;
+    service.close();
+    await rm(directory, { recursive: true, force: true, maxRetries: 3 });
+  }
+
+  function newService(): SQLiteService {
+    return new SQLiteService({ path: databasePath });
+  }
+
+  async function open(): Promise<void> {
     service.initialize();
-    return service;
-  }
-
-  public async restart(): Promise<void> {
-    this.journal = null;
-    this.service.close();
-    this.service = this.newService();
-    await this.open();
-  }
-
-  public failNextCommitAfterWrites(): void {
-    this.failNextCommit = true;
-  }
-
-  public async assertStorageConsistent(): Promise<void> {
-    await openVerifiedSQLiteEventJournal<Payload>(this.database());
-  }
-
-  public async dispose(): Promise<void> {
-    this.journal = null;
-    this.service.close();
-    await rm(this.directory, { recursive: true, force: true, maxRetries: 3 });
-  }
-
-  private newService(): SQLiteService {
-    return new SQLiteService({ path: this.databasePath });
-  }
-
-  private async open(): Promise<void> {
-    this.service.initialize();
-    const db = this.database();
+    const db = database();
     db.function('event_journal_fail_next_commit', () => {
-      if (!this.failNextCommit) return 0;
-      this.failNextCommit = false;
+      if (!failNextCommit) return 0;
+      failNextCommit = false;
       return 1;
     });
     db.exec(
       `CREATE TEMP TRIGGER event_journal_fail_next_head BEFORE INSERT ON event_journal_stream_heads WHEN event_journal_fail_next_commit() = 1 BEGIN SELECT RAISE(ABORT, 'injected final-head failure'); END`,
     );
     const adapter = await openVerifiedSQLiteEventJournal<Payload>(db);
-    this.journal = {
+    journal = {
       append: async (input) => {
         try {
           return await adapter.append(input);
@@ -111,6 +112,17 @@ export class SQLiteEventJournalTestHarness implements IEventJournalConformanceHa
       getCommandReceipt: adapter.getCommandReceipt.bind(adapter),
     };
   }
+
+  const harness: SQLiteEventJournalTestHarness = {
+    current,
+    database,
+    openAdditionalService,
+    restart,
+    failNextCommitAfterWrites,
+    assertStorageConsistent,
+    dispose,
+  };
+  return { harness, open };
 }
 
 export const createSQLiteEventJournalTestHarness = () =>
