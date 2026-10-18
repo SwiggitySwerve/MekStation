@@ -10,6 +10,10 @@ import {
 } from '@/lib/multiplayer/server/authorization/AuthorizedViewer';
 import { authorizeHumanAction } from '@/lib/multiplayer/server/authorization/HumanActionAuthorizationGate';
 import { MatchSeatMembershipSource } from '@/lib/multiplayer/server/authorization/MatchSeatMembershipSource';
+import {
+  FOG_REFUSAL,
+  noPerViewerRevealProjection,
+} from '@/lib/multiplayer/server/fogMatchAdmission';
 import { getDefaultMatchStore } from '@/lib/multiplayer/server/getDefaultMatchStore';
 import { matchStreamRef } from '@/lib/multiplayer/server/history/GmCombatRewindPreview';
 import { HostAsGmMembershipSource } from '@/pages-modules/api/hostAsGmMembershipSource';
@@ -55,6 +59,12 @@ export default async function handler(
       viewer.role !== 'gm'
     ) {
       res.status(403).json({ error: MATCH_HISTORY_AUTHORIZATION_REFUSED });
+      return;
+    }
+
+    // Host/GM privilege is no fog exemption: the digest is hidden-dependent.
+    if (noPerViewerRevealProjection(meta.config)) {
+      res.status(403).json({ error: FOG_REFUSAL });
       return;
     }
 

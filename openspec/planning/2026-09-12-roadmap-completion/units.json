@@ -7957,7 +7957,7 @@
         "maxNonGeneratedLines": 500
       },
       "state": "implementing",
-      "baseline": "471d6281ce07480119b47b61f7d3ecc07e18e5d5",
+      "baseline": "5a18aa586c519ea3ad122c7b0a03b502ea69a71b",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
@@ -7967,7 +7967,9 @@
         "red": {
           "path": "evidence/b14-head-red-20261018.json"
         },
-        "local": null,
+        "local": {
+          "path": "evidence/b14-head-local-20261018.json"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,

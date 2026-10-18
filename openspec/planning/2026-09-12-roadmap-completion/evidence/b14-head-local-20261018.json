@@ -1,0 +1,427 @@
+{
+  "schemaVersion": 1,
+  "unit": "B14-HEAD",
+  "stage": "local",
+  "date": "20261018",
+  "at": "2026-10-18T22:56:44.302Z",
+  "baseline": "5a18aa586c519ea3ad122c7b0a03b502ea69a71b",
+  "implementer": {
+    "provider": "openai",
+    "model": "gpt-6.1-sol",
+    "task": "B14-HEAD implementation handoff",
+    "priorImplementer": "claude-opus-5-5"
+  },
+  "commits": {
+    "admission": "9c7eae2f23fc5953ab1b03d5290cc333dba99d31",
+    "red": "79ddc3339956dddea00702b9f44c84915e176c5a",
+    "inheritedRed": "40b7f41f69375d7d0ee5a50728c51f82f3e602b1",
+    "green": "the commit carrying this receipt; exact review head must be recorded by the reviewer"
+  },
+  "environment": {
+    "node": "v22.22.0",
+    "install": "npm ci succeeded: 1078 packages; heavy-run lane b14-head; no dependency files changed",
+    "worktree": "E:/Projects/Personal/MekStation-wt/b14-head-sol-20261018"
+  },
+  "summary": "The authorized host receives only HTTP 403 {error: fog-projection-unavailable} for fog-on or unknown configuration, before any journal-head read. Authentication/authorization run first; known-off and omitted-flag reads retain their existing response.",
+  "productChange": {
+    "file": "src/pages-modules/api/matchHeadRoute.ts",
+    "addedLines": 10,
+    "gitBlob": "b4d19c5ac6ffd39371318c32d9abf281457fcafa",
+    "sha256": "d0e3ef8ecf13a7958f0df01bd5f2e9d40f73a56379b5bfa974d7fb1372ef5dc5",
+    "sharedDecision": "noPerViewerRevealProjection(meta.config)",
+    "sharedReason": "FOG_REFUSAL",
+    "ordering": "prepareMatchHistoryGet -> metadata/host authorization -> shared fog decision -> SQLite transaction -> head JSON"
+  },
+  "testIntegrity": {
+    "gitBlob": "3b2b861a28584d3b0017f0974624b0a07561d5c8",
+    "sha256": "98519c3e67186ea7220f3bfb39af4f64ef6e81c8fa19b3435244df9864862764",
+    "inheritedGitBlob": "3b2b861a28584d3b0017f0974624b0a07561d5c8"
+  },
+  "red": {
+    "path": "E:\\Projects\\Personal\\MekStation-wt\\b14-head-sol-proof-20261018/red-summary.json",
+    "sha256": "9ccc7524a2383266db7d513c1808a94feba227ffbcac6218c6a6e43a33539f90",
+    "bytes": 2057
+  },
+  "runs": {
+    "owned": {
+      "name": "owned",
+      "head": "59e41d754880a3442057adb0572b0d915fb5eb31",
+      "exit": 0,
+      "seconds": 55.953,
+      "suites": 3,
+      "passedSuites": 3,
+      "passed": 62,
+      "failed": 0,
+      "total": 62,
+      "command": [
+        "node",
+        "node_modules/jest/bin/jest.js",
+        "--runInBand",
+        "--cacheDirectory",
+        "E:\\Projects\\Personal\\MekStation-wt\\b14-head-sol-proof-20261018/.jest-private",
+        "--json",
+        "--outputFile",
+        "E:\\Projects\\Personal\\MekStation-wt\\b14-head-sol-proof-20261018/owned.json",
+        "--runTestsByPath",
+        "src/pages-modules/api/__tests__/matchHeadRoute.test.ts",
+        "src/pages-modules/api/__tests__/matchHistoryFog.test.ts",
+        "src/lib/multiplayer/server/__tests__/b14FogContainment.test.ts"
+      ],
+      "failures": []
+    },
+    "regression": {
+      "name": "regression",
+      "head": "59e41d754880a3442057adb0572b0d915fb5eb31",
+      "exit": 0,
+      "seconds": 249.797,
+      "suites": 261,
+      "passedSuites": 261,
+      "passed": 2776,
+      "failed": 0,
+      "total": 2776,
+      "command": [
+        "node",
+        "node_modules/jest/bin/jest.js",
+        "--runInBand",
+        "--cacheDirectory",
+        "E:\\Projects\\Personal\\MekStation-wt\\b14-head-sol-proof-20261018/.jest-private",
+        "--json",
+        "--outputFile",
+        "E:\\Projects\\Personal\\MekStation-wt\\b14-head-sol-proof-20261018/regression.json",
+        "src/lib/multiplayer",
+        "src/pages-modules/api",
+        "src/__tests__/api"
+      ],
+      "failures": []
+    },
+    "gates": [
+      {
+        "name": "typecheck",
+        "command": "npm run typecheck",
+        "exit": 0
+      },
+      {
+        "name": "lint",
+        "command": "npm run lint -- src/pages-modules/api/matchHeadRoute.ts src/pages-modules/api/__tests__/matchHeadRoute.test.ts",
+        "exit": 0
+      },
+      {
+        "name": "format",
+        "command": "npm run format:check",
+        "exit": 0
+      },
+      {
+        "name": "ledger",
+        "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --git",
+        "exit": 0
+      },
+      {
+        "name": "openspec",
+        "command": "npx openspec validate --all --strict",
+        "exit": 0,
+        "seconds": 1.281
+      }
+    ]
+  },
+  "artifacts": [
+    {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\b14-head-sol-proof-20261018/owned.json",
+      "sha256": "ba16036afc02c03f7edabbe783780ce6c7382a522881eb05ee1348c97f71bd78",
+      "bytes": 24673
+    },
+    {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\b14-head-sol-proof-20261018/owned.log",
+      "sha256": "5f7fca2ae78f73c2a4f259082f670ac3cdbbc5a5bf6b89803e83d160c4ece38c",
+      "bytes": 617
+    },
+    {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\b14-head-sol-proof-20261018/regression.json",
+      "sha256": "9a2bd996f359ea72b7115abeabda0d4b0c7f5f751a038e58da9d8a28107ecb2e",
+      "bytes": 1138210
+    },
+    {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\b14-head-sol-proof-20261018/regression.log",
+      "sha256": "befe37d71a5ee863f8b8aba9d62e3b2c6ab7c7fcc94c8fa1ec984f8c7c972c33",
+      "bytes": 926879
+    },
+    {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\b14-head-sol-proof-20261018/gates.json",
+      "sha256": "a05be7242f35531e756a0482e38ec5691767f33585b5849778973f890512c5d1",
+      "bytes": 610
+    },
+    {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\b14-head-sol-proof-20261018/mutants-summary.json",
+      "sha256": "aed6110c380e2329b2a31d6ff94ab13d8fad6002d71054b028fe73eea9dba3b5",
+      "bytes": 5704
+    },
+    {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\b14-head-sol-proof-20261018/typecheck.log",
+      "sha256": "8102a14cf3245ac2b0d67c588affb25efaebfcd3485f9a46a751595d9a774951",
+      "bytes": 358
+    },
+    {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\b14-head-sol-proof-20261018/lint.log",
+      "sha256": "733e53da837f6434398728a70228e7d8b3e1155ae606db869194cecdac5e2b52",
+      "bytes": 462
+    },
+    {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\b14-head-sol-proof-20261018/format.log",
+      "sha256": "50c43b305b5bfa39dafaf9eda182323566777d348800823812490ec8e3840bf8",
+      "bytes": 366
+    },
+    {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\b14-head-sol-proof-20261018/ledger.log",
+      "sha256": "c1ae1a6295acb251f6614e1bc117ca2e37b8ef5bfdab5df65c415b137bb9745a",
+      "bytes": 4714
+    },
+    {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\b14-head-sol-proof-20261018/openspec.log",
+      "sha256": "fd47a21118ed60eedc45c31821d6c48a6fc31bdb8c31b9b84436716ebfa8a9f1",
+      "bytes": 6857
+    }
+  ],
+  "mutations": [
+    {
+      "name": "M01-bypass",
+      "exit": 1,
+      "failed": 3,
+      "total": 17,
+      "killedBy": [
+        "GET /api/matches/:id/head B14-HEAD fog containment refuses the host for fog on with only the fixed reason, before any digest",
+        "GET /api/matches/:id/head B14-HEAD fog containment refuses the host for unknown config with only the fixed reason, before any digest",
+        "GET /api/matches/:id/head B14-HEAD fog containment refuses a fog host before any head or journal read"
+      ]
+    },
+    {
+      "name": "M02-flag-only",
+      "exit": 1,
+      "failed": 1,
+      "total": 17,
+      "killedBy": [
+        "GET /api/matches/:id/head B14-HEAD fog containment refuses the host for unknown config with only the fixed reason, before any digest"
+      ]
+    },
+    {
+      "name": "M03-success-status",
+      "exit": 1,
+      "failed": 3,
+      "total": 17,
+      "killedBy": [
+        "GET /api/matches/:id/head B14-HEAD fog containment refuses the host for fog on with only the fixed reason, before any digest",
+        "GET /api/matches/:id/head B14-HEAD fog containment refuses the host for unknown config with only the fixed reason, before any digest",
+        "GET /api/matches/:id/head B14-HEAD fog containment refuses a fog host before any head or journal read"
+      ]
+    },
+    {
+      "name": "M04-reason-drift",
+      "exit": 1,
+      "failed": 2,
+      "total": 17,
+      "killedBy": [
+        "GET /api/matches/:id/head B14-HEAD fog containment refuses the host for fog on with only the fixed reason, before any digest",
+        "GET /api/matches/:id/head B14-HEAD fog containment refuses the host for unknown config with only the fixed reason, before any digest"
+      ]
+    },
+    {
+      "name": "M05-policy-before-auth",
+      "exit": 1,
+      "failed": 1,
+      "total": 17,
+      "killedBy": [
+        "GET /api/matches/:id/head B14-HEAD fog containment authorizes first: non-host and stranger keep the generic refusal under fog"
+      ]
+    },
+    {
+      "name": "M06-missing-return",
+      "exit": 1,
+      "failed": 3,
+      "total": 17,
+      "killedBy": [
+        "GET /api/matches/:id/head B14-HEAD fog containment refuses the host for fog on with only the fixed reason, before any digest",
+        "GET /api/matches/:id/head B14-HEAD fog containment refuses the host for unknown config with only the fixed reason, before any digest",
+        "GET /api/matches/:id/head B14-HEAD fog containment refuses a fog host before any head or journal read"
+      ]
+    },
+    {
+      "name": "M07-config-disclosure",
+      "exit": 1,
+      "failed": 2,
+      "total": 17,
+      "killedBy": [
+        "GET /api/matches/:id/head B14-HEAD fog containment refuses the host for fog on with only the fixed reason, before any digest",
+        "GET /api/matches/:id/head B14-HEAD fog containment refuses the host for unknown config with only the fixed reason, before any digest"
+      ]
+    },
+    {
+      "name": "M08-always-refuse",
+      "exit": 1,
+      "failed": 6,
+      "total": 17,
+      "killedBy": [
+        "GET /api/matches/:id/head gives the host exactly the effective head the lease compares",
+        "GET /api/matches/:id/head the lineage names the head GET /head names once the branch runs past its base",
+        "GET /api/matches/:id/head answers no head without inventing a genesis digest",
+        "GET /api/matches/:id/head answers no head when the effective branch has no journal head row",
+        "GET /api/matches/:id/head B14-HEAD fog containment refuses a fog host before any head or journal read",
+        "GET /api/matches/:id/head B14-HEAD fog containment serves an explicitly known-off host the unchanged head"
+      ]
+    },
+    {
+      "name": "M09-inverted",
+      "exit": 1,
+      "failed": 8,
+      "total": 17,
+      "killedBy": [
+        "GET /api/matches/:id/head gives the host exactly the effective head the lease compares",
+        "GET /api/matches/:id/head the lineage names the head GET /head names once the branch runs past its base",
+        "GET /api/matches/:id/head answers no head without inventing a genesis digest",
+        "GET /api/matches/:id/head answers no head when the effective branch has no journal head row",
+        "GET /api/matches/:id/head B14-HEAD fog containment refuses the host for fog on with only the fixed reason, before any digest",
+        "GET /api/matches/:id/head B14-HEAD fog containment refuses the host for unknown config with only the fixed reason, before any digest",
+        "GET /api/matches/:id/head B14-HEAD fog containment refuses a fog host before any head or journal read",
+        "GET /api/matches/:id/head B14-HEAD fog containment serves an explicitly known-off host the unchanged head"
+      ]
+    },
+    {
+      "name": "M10-auth-vocabulary",
+      "exit": 1,
+      "failed": 3,
+      "total": 17,
+      "killedBy": [
+        "GET /api/matches/:id/head refuses player and stranger identically (head present: false)",
+        "GET /api/matches/:id/head refuses player and stranger identically (head present: true)",
+        "GET /api/matches/:id/head B14-HEAD fog containment authorizes first: non-host and stranger keep the generic refusal under fog"
+      ]
+    },
+    {
+      "name": "M11-wrong-status",
+      "exit": 1,
+      "failed": 3,
+      "total": 17,
+      "killedBy": [
+        "GET /api/matches/:id/head B14-HEAD fog containment refuses the host for fog on with only the fixed reason, before any digest",
+        "GET /api/matches/:id/head B14-HEAD fog containment refuses the host for unknown config with only the fixed reason, before any digest",
+        "GET /api/matches/:id/head B14-HEAD fog containment refuses a fog host before any head or journal read"
+      ]
+    },
+    {
+      "name": "M12-after-head-read",
+      "exit": 1,
+      "failed": 1,
+      "total": 17,
+      "killedBy": [
+        "GET /api/matches/:id/head B14-HEAD fog containment refuses a fog host before any head or journal read"
+      ]
+    }
+  ],
+  "controls": [
+    {
+      "path": "src/lib/multiplayer/server/fogMatchAdmission.ts",
+      "gitBlob": "55bc5726cf7017fce49a1083e2e90ea2bd05f49f",
+      "unchanged": true
+    },
+    {
+      "path": "src/pages-modules/api/matchHistoryViewerChain.ts",
+      "gitBlob": "d0ba104a1e19834eb61a3d55d894cb7d38053a49",
+      "unchanged": true
+    },
+    {
+      "path": "src/pages-modules/api/hostAsGmMembershipSource.ts",
+      "gitBlob": "108e73b1472f8a7d2b9698b5085618fba8019e18",
+      "unchanged": true
+    },
+    {
+      "path": "src/pages/api/matches/[id]/head.ts",
+      "gitBlob": "5a94462a28f6d286b0e983bf312e4101e86a61aa",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/events/journal/EventHistoryEffectiveStreamHead.ts",
+      "gitBlob": "e763a325ec9a16f26fe82106a701dd57ae020024",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/events/journal/SQLiteEventHistoryBranchStore.ts",
+      "gitBlob": "3a85ddaa94af58193ea3fcf354211e6e6ed4dbf3",
+      "unchanged": true
+    },
+    {
+      "path": "src/pages-modules/api/matchHistoryExportRoute.ts",
+      "gitBlob": "a89f9f4506fd53d96a611af07ba3caf537cbbaf4",
+      "unchanged": true
+    },
+    {
+      "path": "src/pages-modules/api/matchPrivatePreviewRoute.ts",
+      "gitBlob": "b1ce45ac00f4ef5ba0882213118a6929e29ad7ad",
+      "unchanged": true
+    },
+    {
+      "path": "src/pages-modules/api/matchHistoryTimelineRoute.ts",
+      "gitBlob": "311777f26adbcdb033c23c4e30e58b8a4e4bc2d3",
+      "unchanged": true
+    },
+    {
+      "path": "src/pages-modules/api/__tests__/matchHistoryFog.test.ts",
+      "gitBlob": "2a2ee822a8b7571dddcc2c68cfbc15f4e9587291",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/b14FogContainment.test.ts",
+      "gitBlob": "ded6d378c4d8f3539445a73d293bb3c6423b4612",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHost.ts",
+      "gitBlob": "fde72713fdf1b94927c7be3f7b3e781986e2d72c",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHostEvents.ts",
+      "gitBlob": "bbf7155b4371ac24ce250a07e51d7cd536f85e2b",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHostReplay.ts",
+      "gitBlob": "7319812b3dd5f04c445de8d7aaebfcf88296667c",
+      "unchanged": true
+    },
+    {
+      "path": "server.js",
+      "gitBlob": "7ce8627c35dbc754fa789f70cc701c536f3549e8",
+      "unchanged": true
+    }
+  ],
+  "carryForwards": {
+    "CF-B14B-4": "Discharged: prior implementer reran all 14 unseamed suites on the real B14-0 merged product code. 14/14 suites fail, 125/162 tests fail; every seam remains necessary. Run HEAD is 40b7f41f6 (only B14-HEAD admission/RED above 1c7632b18). All relevant product and seam suite blobs equal the closure baseline; no test was edited by this implementer.",
+    "CF-B14B-3": "Recorded: when a real per-viewer reveal projection lands (FOG chain), the 14 seams are removed or retargeted and the allowlist in b14FogContainment.test.ts / matchHistoryFog.test.ts shrinks so the suites test the production path again; the refusal-by-default proof stays in b14FogContainment.test.ts. Not actionable in B14-HEAD: none of the seamed suites or guards is in this manifest.",
+    "CF-B14A-7": "The /head digest half is this unit; the /timeline count/timing half stays with the FOG chain.",
+    "CF-S-4": "Routed to U38: confirming rejoin-resume as the only recovery for backpressure-refused owed frames needs a host/delivery test leaf; B14-HEAD's frozen manifest is the head route and its test only.",
+    "CF-G2-9": "Pass-through; rerun and cite if the Seam Anchors spec flakes on CI (it did on #2281 and passed on rerun).",
+    "CF-H12/CF-E10": "Required comparison will be posted on the exact published head. No CI-success claim is made in this local receipt.",
+    "CF-B14-1/2/3": "CF-B14-1 and CF-B14-2 discharged in B14-0 at 3b06758e; CF-B14-3 guard-scope and fog-off control discharged there. Remaining F6 no-op detach is information only and cannot be edited in this head-route manifest."
+  },
+  "analysis": {
+    "privacy": "The policy branch serializes only the fixed error. No branch, revision, generation or digest is read or returned. Host/GM role supplies no exemption.",
+    "authority": "Existing method, token scope, durable membership and host checks precede policy. Strangers retain generic refusals.",
+    "replay": "No journal/reducer/cursor or event writes; known-off head transaction and lease contract unchanged.",
+    "idempotency": "Read-only refusal. Repeated requests perform no new persistent side effect.",
+    "concurrency": "No new asynchronous gap after authorization: the shared decision is synchronous, before the existing snapshot transaction. Match configuration has no supported update route."
+  },
+  "scope": {
+    "manifest": [
+      "src/pages-modules/api/matchHeadRoute.ts",
+      "src/pages-modules/api/__tests__/matchHeadRoute.test.ts",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-head-admission-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-head-red-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-head-local-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-head-admission-review-20261018.json"
+    ],
+    "uniqueFileCap": 15,
+    "lineCap": 500,
+    "testOrEvidenceLineExempt": true,
+    "countedAddedLines": 26
+  },
+  "runnerNote": "The first PowerShell gates wrapper stopped on OpenSpec progress stderr after typecheck, lint, format and ledger exited 0. OpenSpec alone was resumed through a Node runner; no source, tests or timeouts changed.",
+  "status": "Local proof complete; lifecycle remains implementing pending sensitive packet registration, independent exact-head review, OWNER-RULING, CI and exact-main closure. This receipt does not release HP."
+}

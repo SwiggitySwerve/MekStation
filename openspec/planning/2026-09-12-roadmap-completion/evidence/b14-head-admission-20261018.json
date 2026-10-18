@@ -3,19 +3,20 @@
   "unit": "B14-HEAD",
   "stage": "admission",
   "date": "20261018",
-  "baseline": "471d6281ce07480119b47b61f7d3ecc07e18e5d5",
-  "provisional": "PREP ONLY: staged locally stacked on the B14-0 PR head while B14-0 is under review (Root council-3b pipelining). Regenerated on the B14-0 merge commit after its closure before any push or PR.",
-  "authority": "Root (council 3b pipelining, 2026-10-18): while the B14-0 #2281 Fable review runs, the writing slot is the B14 implementer's for B14-HEAD prep stacked on #2281's head 471d6281; prepare the admission (frozen manifest) and RED tests locally with the CF-B14B-4 seam-necessity baseline against the real B14-0 code and the CF-B14B-3 note; do not open the PR until B14-0 merges and its closure is verified, then rebase onto the merge commit. Owner standing instruction \"continue with recommended options and fix the issues that come up, publish as needed\"; owner 2026-10-18 \"I think the recommended actions make sense for the ones that have them\". This receipt is not an owner ruling on any implementation head.",
+  "baseline": "5a18aa586c519ea3ad122c7b0a03b502ea69a71b",
+  "provisional": false,
+  "authority": "Owner-directed implementation handoff, 2026-10-18: create codex/b14-head-sol-20261018 from the staged B14-HEAD tip, verify RED, implement GREEN without changing tests, wait for #2293 to merge, rebase, re-run owned suites/regressions, and publish for independent Claude review. Standing authority: continue with recommended options and fix issues, publish as needed. This is not an OWNER-RULING on the final head.",
   "contributor": {
-    "provider": "anthropic",
-    "model": "claude-opus-5-5",
-    "task": "B14 implementation sub-agent (B14-HEAD)"
+    "provider": "openai",
+    "model": "gpt-6.1-sol",
+    "task": "B14-HEAD implementation handoff",
+    "priorImplementer": "claude-opus-5-5"
   },
   "predecessors": {
-    "B14-0": "state implementing; PR #2281 head 471d6281 under review (prep stacks on it)",
+    "B14-0": "main-verified; source #2281 merge 1c7632b18d062e1b684fc7384faa4f2668183b69; closure #2293 merge 5a18aa586c519ea3ad122c7b0a03b502ea69a71b fetched and used as this baseline.",
     "B14-0A": "main-verified; supplies the shared predicate noPerViewerRevealProjection and the matchHistoryFog digest census consumed read-only."
   },
-  "overlap": "B14-HEAD edits only src/pages-modules/api/matchHeadRoute.ts and its existing test. B14-0 touches no file under src/pages-modules/api. U26/U46/U48/U104 (planned, not in flight), P2CG1/P2CG1H/P2CG1I1 and FOG-H (blocked) hold the src/pages-modules/api alias; none is implementing or has an open PR touching the head route. FOG-H later lifts this refusal through projected HTTP/head parity. The shared helper fogMatchAdmission.ts is consumed read-only (no helper edit is granted).",
+  "overlap": "Re-censused the fetched closure ledger for head-route path holders; the frozen scope remains only the route and its existing test. Other holders are recorded in readmission.holders. No helper or WebSocket edit is granted.",
   "restriction": {
     "container": "R2.authority-live.ownershipPathsAmended20261018B14Head.restrictions.B14-HEAD",
     "leaves": 2,
@@ -42,10 +43,10 @@
   },
   "countingConvention": "U41 counted lines = added physical lines (git diff --numstat --no-renames baseline..HEAD, no deletion credit) in the route and units.json; the test and evidence receipts are line-exempt but file-counted.",
   "census": {
-    "path": "E:/Projects/Personal/MekStation-wt/b14-head-proof-20261018/frozen-files.json",
+    "path": "E:\\Projects\\Personal\\MekStation-wt\\b14-head-sol-proof-20261018/frozen-files.json",
     "sha256": "77b0cc2bae41b7e08473789b2f18b973f32ef27f6b727c671e018bfe08d48ff1",
     "bytes": 438,
-    "frozenBefore": "any route, test, lifecycle or evidence edit on this branch"
+    "frozenBefore": "Canonical blobs from the closure baseline, read at re-admission. The original seven-file manifest was frozen before RED and product edits; its original census is retained separately."
   },
   "frozenFiles": [
     {
@@ -65,8 +66,8 @@
   ],
   "unchangedControls": {
     "census": {
-      "path": "E:/Projects/Personal/MekStation-wt/b14-head-proof-20261018/frozen-controls.json",
-      "sha256": "c2a7476139015dce2b867828c7f81e7eed132f724d0670c96648a59ae4200f82",
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\b14-head-sol-proof-20261018/frozen-controls.json",
+      "sha256": "520b6c591ec2bc45fc307f8dc0752dfbe03e94fa924c9c50f8c39f12799ffbaa",
       "bytes": 3278
     },
     "files": [
@@ -143,9 +144,9 @@
       {
         "path": "src/lib/multiplayer/server/__tests__/b14FogContainment.test.ts",
         "exists": true,
-        "sha256": "784d3688c31093f1b74ca5fc311a1b61fcc34849321c86b1c96a1bbeeaf4df53",
-        "bytes": 29063,
-        "physicalLines": 799
+        "sha256": "7816cb87b81ff06efb16fdbc50443f984b5631f064e20fe714f9e11a62394855",
+        "bytes": 31590,
+        "physicalLines": 850
       },
       {
         "path": "src/lib/multiplayer/server/ServerMatchHost.ts",
@@ -180,90 +181,19 @@
   "helpers": "None: the route consumes FOG_REFUSAL and noPerViewerRevealProjection from the landed B14-0A helper; the B14-0 additions to that helper are not used here.",
   "design": "After prepareMatchHistoryGet (method, bearer scope, match id), the meta read and the existing host-as-GM authorization (non-host and stranger keep the generic 403 \"Authorization refused\"; no bearer 401), noPerViewerRevealProjection(meta.config) refuses fog-on and unknown config with HTTP 403 {error:\"fog-projection-unavailable\"} before the SQLite effective-head transaction, so no branch, revision, generation or digest is read or serialized. Known-off and flag-omitted host responses are unchanged byte for byte.",
   "carryForwards": {
-    "CF-B14B-4": "Seam necessity re-run against the real B14-0 code at 471d6281c (all 14 seams stripped): 125 failed / 162; every one of the 14 suites fails without its seam (14/14). All 14 seams stay. Re-run on the B14-0 merge commit before the PR.",
+    "CF-B14B-4": "Discharged: prior implementer reran all 14 unseamed suites on the real B14-0 merged product code. 14/14 suites fail, 125/162 tests fail; every seam remains necessary. Run HEAD is 40b7f41f6 (only B14-HEAD admission/RED above 1c7632b18). All relevant product and seam suite blobs equal the closure baseline; no test was edited by this implementer.",
     "CF-B14B-3": "Recorded: when a real per-viewer reveal projection lands (FOG chain), the 14 seams are removed or retargeted and the allowlist in b14FogContainment.test.ts / matchHistoryFog.test.ts shrinks so the suites test the production path again; the refusal-by-default proof stays in b14FogContainment.test.ts. Not actionable in B14-HEAD: none of the seamed suites or guards is in this manifest.",
     "CF-B14A-7": "The /head digest half is this unit; the /timeline count/timing half stays with the FOG chain.",
     "CF-S-4": "Routed to U38: confirming rejoin-resume as the only recovery for backpressure-refused owed frames needs a host/delivery test leaf; B14-HEAD's frozen manifest is the head route and its test only.",
     "CF-G2-9": "Pass-through; rerun and cite if the Seam Anchors spec flakes on CI (it did on #2281 and passed on rerun).",
-    "CF-H12/CF-E10": "All required check names compared by name on the exact head and posted as a PR comment."
+    "CF-H12/CF-E10": "Required comparison will be posted on the exact published head. No CI-success claim is made in this local receipt.",
+    "CF-B14-1/2/3": "CF-B14-1 and CF-B14-2 discharged in B14-0 at 3b06758e; CF-B14-3 guard-scope and fog-off control discharged there. Remaining F6 no-op detach is information only and cannot be edited in this head-route manifest."
   },
   "prep": {
     "seamNecessity": {
-      "suites": [
-        {
-          "suite": "src/lib/multiplayer/server/__tests__/CoopOpponentDriver.test.ts",
-          "failedWithoutSeam": 84,
-          "total": 84
-        },
-        {
-          "suite": "src/lib/multiplayer/server/__tests__/viewerFrameRawNegativeSweep.test.ts",
-          "failedWithoutSeam": 6,
-          "total": 11
-        },
-        {
-          "suite": "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindLiveReplay.test.ts",
-          "failedWithoutSeam": 1,
-          "total": 6
-        },
-        {
-          "suite": "src/lib/multiplayer/__tests__/clientAgainstFogServer.integration.test.ts",
-          "failedWithoutSeam": 5,
-          "total": 6
-        },
-        {
-          "suite": "src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts",
-          "failedWithoutSeam": 14,
-          "total": 34
-        },
-        {
-          "suite": "src/lib/multiplayer/server/__tests__/ServerMatchHost.fogOfWarIntegration.test.ts",
-          "failedWithoutSeam": 4,
-          "total": 5
-        },
-        {
-          "suite": "src/lib/multiplayer/server/__tests__/viewerFrameAuthorityFieldLeak.test.ts",
-          "failedWithoutSeam": 1,
-          "total": 3
-        },
-        {
-          "suite": "src/lib/multiplayer/server/__tests__/customCombatRecovery.recoveryDelivery.test.ts",
-          "failedWithoutSeam": 1,
-          "total": 1
-        },
-        {
-          "suite": "src/lib/multiplayer/server/__tests__/ServerMatchHostCommandResults.test.ts",
-          "failedWithoutSeam": 1,
-          "total": 3
-        },
-        {
-          "suite": "src/lib/multiplayer/server/__tests__/viewerSequenceConcealmentLeak.test.ts",
-          "failedWithoutSeam": 2,
-          "total": 2
-        },
-        {
-          "suite": "src/lib/multiplayer/server/__tests__/matchmaking.integration.test.ts",
-          "failedWithoutSeam": 1,
-          "total": 2
-        },
-        {
-          "suite": "src/lib/multiplayer/server/__tests__/viewerDeliverySequence.test.ts",
-          "failedWithoutSeam": 3,
-          "total": 3
-        },
-        {
-          "suite": "src/lib/multiplayer/server/__tests__/customConstructionTransport.test.ts",
-          "failedWithoutSeam": 1,
-          "total": 1
-        },
-        {
-          "suite": "src/lib/multiplayer/server/__tests__/fogViewerSequenceSparsity.test.ts",
-          "failedWithoutSeam": 1,
-          "total": 1
-        }
-      ],
       "summary": {
-        "name": "necessity-471d6281",
-        "head": "471d6281ce07480119b47b61f7d3ecc07e18e5d5",
+        "name": "necessity-1c7632b1",
+        "head": "40b7f41f69375d7d0ee5a50728c51f82f3e602b1",
         "worktree": "uncommitted changes on top of head",
         "dirtyPaths": [
           "src/lib/multiplayer/__tests__/clientAgainstFogServer.integration.test.ts",
@@ -279,12 +209,11 @@
           "src/lib/multiplayer/server/__tests__/viewerDeliverySequence.test.ts",
           "src/lib/multiplayer/server/__tests__/viewerFrameAuthorityFieldLeak.test.ts",
           "src/lib/multiplayer/server/__tests__/viewerFrameRawNegativeSweep.test.ts",
-          "src/lib/multiplayer/server/__tests__/viewerSequenceConcealmentLeak.test.ts",
-          "src/pages-modules/api/__tests__/matchHeadRoute.test.ts"
+          "src/lib/multiplayer/server/__tests__/viewerSequenceConcealmentLeak.test.ts"
         ],
         "queue": "heavy-run.mjs --lane b14 --class jest",
         "exit": 1,
-        "seconds": 55.777,
+        "seconds": 719.971,
         "suites": 14,
         "passed": 37,
         "failed": 125,
@@ -381,21 +310,16 @@
             "msg": ""
           },
           {
-            "file": "src/lib/multiplayer/server/__tests__/viewerFrameRawNegativeSweep.test.ts",
+            "file": "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindLiveReplay.test.ts",
             "failed": [
-              "viewer frame raw-wire negative sweep (a) authority sequence puts no \"sequence\": key on player Event, ReplayChunk, or resync event objects",
-              "viewer frame raw-wire negative sweep (b) private ids carries only protocol-declared id-shaped keys on player frames",
-              "viewer frame raw-wire negative sweep (c) hidden metadata / GM-private reasons does not put a concealed event type, id, reason, or payload literal on player frames",
-              "viewer frame raw-wire negative sweep (d) inferable concealment does not reconstruct a hidden authority position from any numeric field",
-              "viewer frame raw-wire negative sweep (d) inferable concealment FINDING: ReplayStart/End authority span does not let a player count withheld events",
-              "viewer frame raw-wire negative sweep (d) inferable concealment characterizes the replay-span finding: delivery span equals items delivered; hidden count unrecoverable"
+              "ServerMatchHost rewind reaches connected players privacy of the replay each socket gets its own projection: no fog-hidden fact and no authority-only field reaches a player"
             ],
             "msg": ""
           },
           {
-            "file": "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindLiveReplay.test.ts",
+            "file": "src/lib/multiplayer/server/__tests__/customCombatRecovery.recoveryDelivery.test.ts",
             "failed": [
-              "ServerMatchHost rewind reaches connected players privacy of the replay each socket gets its own projection: no fog-hidden fact and no authority-only field reaches a player"
+              "the recovery delivery stream redacts like the live one serves owner, opponent and spectator the same redaction after recovery"
             ],
             "msg": ""
           },
@@ -411,9 +335,16 @@
             "msg": ""
           },
           {
+            "file": "src/lib/multiplayer/server/__tests__/viewerFrameAuthorityFieldLeak.test.ts",
+            "failed": [
+              "viewer frame authority-only fields delivers no server-only authority field to either player under fog"
+            ],
+            "msg": ""
+          },
+          {
             "file": "src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts",
             "failed": [
-              "ServerMatchHost spectator fog-of-war scope — design D6 a fog-on spectator still receives public events",
+              "ServerMatchHost spectator fog-of-war scope \u2014 design D6 a fog-on spectator still receives public events",
               "B10 sealed movement_declared spectator, fog true, player brand, stale true: live and replay withhold it",
               "B10 sealed movement_declared spectator, fog true, gm brand, stale true: live and replay withhold it",
               "B10 sealed movement_declared spectator, fog true, gm brand, stale false: live and replay withhold it",
@@ -441,27 +372,6 @@
             "msg": ""
           },
           {
-            "file": "src/lib/multiplayer/server/__tests__/viewerFrameAuthorityFieldLeak.test.ts",
-            "failed": [
-              "viewer frame authority-only fields delivers no server-only authority field to either player under fog"
-            ],
-            "msg": ""
-          },
-          {
-            "file": "src/lib/multiplayer/server/__tests__/customCombatRecovery.recoveryDelivery.test.ts",
-            "failed": [
-              "the recovery delivery stream redacts like the live one serves owner, opponent and spectator the same redaction after recovery"
-            ],
-            "msg": ""
-          },
-          {
-            "file": "src/lib/multiplayer/server/__tests__/ServerMatchHostCommandResults.test.ts",
-            "failed": [
-              "ServerMatchHost command-result publication persists, broadcasts, and replays host GM results as player-safe public events"
-            ],
-            "msg": ""
-          },
-          {
             "file": "src/lib/multiplayer/server/__tests__/viewerSequenceConcealmentLeak.test.ts",
             "failed": [
               "viewer sequence concealment leak does not let a player count or locate the events hidden from them",
@@ -470,9 +380,30 @@
             "msg": ""
           },
           {
+            "file": "src/lib/multiplayer/server/__tests__/customConstructionTransport.test.ts",
+            "failed": [
+              "keeps custom construction private through live, replay, and reconnect publication"
+            ],
+            "msg": ""
+          },
+          {
             "file": "src/lib/multiplayer/server/__tests__/matchmaking.integration.test.ts",
             "failed": [
-              "M3 integration — spectate a fog-on match (task 8.2) a spectator observes an active fog-on match without hidden-unit events"
+              "M3 integration \u2014 spectate a fog-on match (task 8.2) a spectator observes an active fog-on match without hidden-unit events"
+            ],
+            "msg": ""
+          },
+          {
+            "file": "src/lib/multiplayer/server/__tests__/fogViewerSequenceSparsity.test.ts",
+            "failed": [
+              "fog-of-war viewer sequence sparsity gives each viewer a stream with holes the other does not have"
+            ],
+            "msg": ""
+          },
+          {
+            "file": "src/lib/multiplayer/server/__tests__/ServerMatchHostCommandResults.test.ts",
+            "failed": [
+              "ServerMatchHost command-result publication persists, broadcasts, and replays host GM results as player-safe public events"
             ],
             "msg": ""
           },
@@ -486,26 +417,96 @@
             "msg": ""
           },
           {
-            "file": "src/lib/multiplayer/server/__tests__/customConstructionTransport.test.ts",
+            "file": "src/lib/multiplayer/server/__tests__/viewerFrameRawNegativeSweep.test.ts",
             "failed": [
-              "keeps custom construction private through live, replay, and reconnect publication"
-            ],
-            "msg": ""
-          },
-          {
-            "file": "src/lib/multiplayer/server/__tests__/fogViewerSequenceSparsity.test.ts",
-            "failed": [
-              "fog-of-war viewer sequence sparsity gives each viewer a stream with holes the other does not have"
+              "viewer frame raw-wire negative sweep (a) authority sequence puts no \"sequence\": key on player Event, ReplayChunk, or resync event objects",
+              "viewer frame raw-wire negative sweep (b) private ids carries only protocol-declared id-shaped keys on player frames",
+              "viewer frame raw-wire negative sweep (c) hidden metadata / GM-private reasons does not put a concealed event type, id, reason, or payload literal on player frames",
+              "viewer frame raw-wire negative sweep (d) inferable concealment does not reconstruct a hidden authority position from any numeric field",
+              "viewer frame raw-wire negative sweep (d) inferable concealment FINDING: ReplayStart/End authority span does not let a player count withheld events",
+              "viewer frame raw-wire negative sweep (d) inferable concealment characterizes the replay-span finding: delivery span equals items delivered; hidden count unrecoverable"
             ],
             "msg": ""
           }
         ]
       },
       "json": {
-        "path": "E:/Projects/Personal/MekStation-wt/b14-head-proof-20261018/necessity-471d6281.json",
-        "sha256": "e848adcc0197d324b8d9cfdddc924a2ea700ea50b407d27d3316e639307bb131",
-        "bytes": 237315
-      }
+        "path": "E:/Projects/Personal/MekStation-wt/b14-head-proof-20261018/necessity-1c7632b1.json",
+        "sha256": "a4eea0ddbfe563126471cc74c29f4c6fc6d5aec518db33fe471f245521c5a9a0",
+        "bytes": 237298
+      },
+      "suites": [
+        {
+          "suite": "src/lib/multiplayer/server/__tests__/CoopOpponentDriver.test.ts",
+          "failedWithoutSeam": 84,
+          "total": 84
+        },
+        {
+          "suite": "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindLiveReplay.test.ts",
+          "failedWithoutSeam": 1,
+          "total": 6
+        },
+        {
+          "suite": "src/lib/multiplayer/server/__tests__/customCombatRecovery.recoveryDelivery.test.ts",
+          "failedWithoutSeam": 1,
+          "total": 1
+        },
+        {
+          "suite": "src/lib/multiplayer/__tests__/clientAgainstFogServer.integration.test.ts",
+          "failedWithoutSeam": 5,
+          "total": 6
+        },
+        {
+          "suite": "src/lib/multiplayer/server/__tests__/viewerFrameAuthorityFieldLeak.test.ts",
+          "failedWithoutSeam": 1,
+          "total": 3
+        },
+        {
+          "suite": "src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts",
+          "failedWithoutSeam": 14,
+          "total": 34
+        },
+        {
+          "suite": "src/lib/multiplayer/server/__tests__/ServerMatchHost.fogOfWarIntegration.test.ts",
+          "failedWithoutSeam": 4,
+          "total": 5
+        },
+        {
+          "suite": "src/lib/multiplayer/server/__tests__/viewerSequenceConcealmentLeak.test.ts",
+          "failedWithoutSeam": 2,
+          "total": 2
+        },
+        {
+          "suite": "src/lib/multiplayer/server/__tests__/customConstructionTransport.test.ts",
+          "failedWithoutSeam": 1,
+          "total": 1
+        },
+        {
+          "suite": "src/lib/multiplayer/server/__tests__/matchmaking.integration.test.ts",
+          "failedWithoutSeam": 1,
+          "total": 2
+        },
+        {
+          "suite": "src/lib/multiplayer/server/__tests__/fogViewerSequenceSparsity.test.ts",
+          "failedWithoutSeam": 1,
+          "total": 1
+        },
+        {
+          "suite": "src/lib/multiplayer/server/__tests__/ServerMatchHostCommandResults.test.ts",
+          "failedWithoutSeam": 1,
+          "total": 3
+        },
+        {
+          "suite": "src/lib/multiplayer/server/__tests__/viewerDeliverySequence.test.ts",
+          "failedWithoutSeam": 3,
+          "total": 3
+        },
+        {
+          "suite": "src/lib/multiplayer/server/__tests__/viewerFrameRawNegativeSweep.test.ts",
+          "failedWithoutSeam": 6,
+          "total": 11
+        }
+      ]
     }
   },
   "plan": {
@@ -513,5 +514,175 @@
     "green": "Commit 3 changes only matchHeadRoute.ts (plus units.json local path and local receipt).",
     "mutants": "At least 12: bypass, flag-only check instead of the shared predicate, status 200, reason drift, policy before authorization, missing return, refusal discloses config, always refuse, inverted, non-host oracle, wrong 404 vocabulary, refusal after the head read."
   },
-  "heavyRuns": "All Jest runs go through the machine-wide queue: node E:/Projects/Personal/MekStation-wt/_locks/heavy-run.mjs --lane b14 --class jest --cwd <worktree> -- <cmd> (Root, 2026-10-18)."
+  "heavyRuns": "Every new heavy run uses node E:/Projects/Personal/MekStation-wt/_locks/heavy-run.mjs --lane b14-head --class jest --cwd <worktree> -- <cmd>; no timeout increased and no foreign process stopped.",
+  "readmission": {
+    "holders": [
+      {
+        "id": "U21",
+        "state": "complete",
+        "paths": [
+          "src/lib/multiplayer/server",
+          "src/pages-modules/api",
+          "src/pages/api/matches",
+          "src/__tests__/api/matches"
+        ]
+      },
+      {
+        "id": "U21b",
+        "state": "complete",
+        "paths": [
+          "src/lib/multiplayer/server",
+          "src/pages-modules/api"
+        ]
+      },
+      {
+        "id": "P2CG1",
+        "state": "blocked",
+        "paths": [
+          "src/lib/multiplayer/server",
+          "src/pages-modules/api"
+        ]
+      },
+      {
+        "id": "P2CG1E",
+        "state": "main-verified",
+        "paths": [
+          "src/lib/multiplayer/server",
+          "src/pages-modules/api"
+        ]
+      },
+      {
+        "id": "B14-0A",
+        "state": "main-verified",
+        "paths": [
+          "src/lib/multiplayer/server",
+          "src/pages/api/multiplayer/matches/[id].ts",
+          "src/__tests__/api/securityBoundary.test.ts",
+          "src/pages-modules/api",
+          "src/__tests__/unit/api/multiplayerMatchMeta.test.ts"
+        ]
+      },
+      {
+        "id": "B14-HEAD",
+        "state": "planned",
+        "paths": [
+          "src/pages-modules/api"
+        ]
+      },
+      {
+        "id": "P2CG1H",
+        "state": "blocked",
+        "paths": [
+          "server.js",
+          "src/lib/multiplayer/server",
+          "src/pages-modules/api",
+          "src/__tests__/api/e2ePerformanceProbeRoute.test.ts",
+          "e2e/coop-campaign-two-browser-journey.spec.ts",
+          "e2e/gm-two-player-authority.pack1.spec.ts"
+        ]
+      },
+      {
+        "id": "P2CG1I1",
+        "state": "blocked",
+        "paths": [
+          "src/pages-modules/api"
+        ]
+      },
+      {
+        "id": "U26",
+        "state": "planned",
+        "paths": [
+          "src/lib/multiplayer/server",
+          "src/pages/api/matches",
+          "src/pages-modules/api"
+        ]
+      },
+      {
+        "id": "U46",
+        "state": "planned",
+        "paths": [
+          "src/lib/multiplayer/server",
+          "src/pages/api/matches",
+          "src/pages-modules/api"
+        ]
+      },
+      {
+        "id": "U48",
+        "state": "planned",
+        "paths": [
+          "src/lib/multiplayer/server",
+          "src/pages/api/matches",
+          "src/pages-modules/api"
+        ]
+      },
+      {
+        "id": "U5a",
+        "state": "complete",
+        "paths": [
+          "src/pages/api/matches",
+          "src/pages-modules/api",
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "U5c",
+        "state": "complete",
+        "paths": [
+          "src/pages/api/matches",
+          "src/pages-modules/api"
+        ]
+      },
+      {
+        "id": "U5g",
+        "state": "complete",
+        "paths": [
+          "src/pages/api/matches",
+          "src/pages-modules/api"
+        ]
+      },
+      {
+        "id": "U104",
+        "state": "planned",
+        "paths": [
+          "src/pages-modules/api",
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "FOG-H",
+        "state": "blocked",
+        "paths": [
+          "src/lib/multiplayer/server",
+          "src/pages-modules/api",
+          "src/pages/api/multiplayer"
+        ]
+      }
+    ],
+    "at": "2026-10-18T22:56:44.302Z",
+    "originalPrepBaseline": "471d6281ce07480119b47b61f7d3ecc07e18e5d5",
+    "inheritedAdmission": "4c6ac5ef989d32b6a0663c9672bb8a6cb6a5658f",
+    "inheritedRed": "40b7f41f69375d7d0ee5a50728c51f82f3e602b1",
+    "closure": {
+      "headRefOid": "78976d84586fae588403f75c6c59b3a356953cb0",
+      "mergeCommit": {
+        "oid": "5a18aa586c519ea3ad122c7b0a03b502ea69a71b"
+      },
+      "state": "MERGED",
+      "url": "https://github.com/SwiggitySwerve/MekStation/pull/2293"
+    },
+    "scope": "The original seven-file freeze is retained. Only B14-HEAD lifecycle fields may change. No test byte changed after inherited RED. Controls re-censused from the fetched closure merge."
+  },
+  "originalPrepCensus": {
+    "files": {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-head-proof-20261018/frozen-files.json",
+      "sha256": "77b0cc2bae41b7e08473789b2f18b973f32ef27f6b727c671e018bfe08d48ff1",
+      "bytes": 438,
+      "frozenBefore": "any route, test, lifecycle or evidence edit on this branch"
+    },
+    "controls": {
+      "path": "E:/Projects/Personal/MekStation-wt/b14-head-proof-20261018/frozen-controls.json",
+      "sha256": "c2a7476139015dce2b867828c7f81e7eed132f724d0670c96648a59ae4200f82",
+      "bytes": 3278
+    }
+  }
 }
