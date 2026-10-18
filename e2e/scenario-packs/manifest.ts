@@ -26,6 +26,8 @@ import {
 /** Re-exported under the loader's own name (`scenarioPackLoading.ts` imports this type). */
 export type ScenarioPackManifestEntry = ManifestEntry;
 
+export { SCENARIO_PACK_QUARANTINES } from './quarantine';
+
 /** The registry module's own format version — see this file's header comment. */
 export const manifestVersion = MANIFEST_VERSION;
 

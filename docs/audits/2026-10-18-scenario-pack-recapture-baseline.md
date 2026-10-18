@@ -1,9 +1,11 @@
 # Scenario pack regression baseline repair — 2026-10-18
 
 This is a bounded repair of the Scenario Pack Recapture nightly failures.
-The all-registered recapture now passes six packs and explicitly fails the two
-unsupported co-op campaign genesis contracts. It does **not** establish a green
-eight-pack nightly baseline or co-op runtime acceptance.
+The baseline refresh and production capture harness cover six supported packs.
+The two unsupported co-op campaign entries carry explicit, owned quarantines under
+the Root follow-up ruling. They remain listed as **QUARANTINED**, never PASS. The
+nightly exits successfully only when every non-quarantined entry passes. This does
+not establish co-op runtime acceptance.
 
 ## Scope and ownership
 
@@ -47,30 +49,62 @@ migration fixtures were preserved.
 
 ## Failure classification and proof
 
-| Previously failing test/pack | Cause class                                                                      | Repair                                                                                                                           | Local proof                                                                       |
-| ---------------------------- | -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| navigation-briefing          | Stale schema-1 baseline                                                          | Sanctioned re-mint and pin 2                                                                                                     | Parity PASS; recapture PASS                                                       |
-| personnel-roster             | Stale schema-1 baseline                                                          | Sanctioned re-mint and pin 2                                                                                                     | Parity PASS; recapture PASS                                                       |
-| experience-pilot             | Stale schema-1 baseline; intermittent create prerequisite                        | Sanctioned re-mint and pin 2; shared save diagnostics                                                                            | Parity PASS; recapture PASS                                                       |
-| combat-midbattle             | Intermittent CI development-server PUT 404, obscured by a create-route URL match | Require successful PUT and a dashboard route; use production standalone in nightly; retain per-pack diagnostics                  | Injected PUT-404 diagnostic PASS; combat recapture PASS                           |
-| coop-host-review             | Unsupported hand-authored campaign genesis, misclassified as a combat log        | Classify using payload kind as well as source prefix; fail explicitly before invoking combat or deterministic-finance invariants | Dispatch regression tests PASS; recapture FAIL with unsupported-genesis diagnosis |
-| coop-guest-proposal          | Unsupported hand-authored campaign genesis, misclassified as a combat log        | Same kind-aware fail-closed dispatch                                                                                             | Dispatch regression tests PASS; recapture FAIL with unsupported-genesis diagnosis |
+| Previously failing test/pack | Cause class                                                                      | Repair                                                                                                          | Local proof                                                 |
+| ---------------------------- | -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| navigation-briefing          | Stale schema-1 baseline                                                          | Sanctioned re-mint and pin 2                                                                                    | Parity PASS; recapture PASS                                 |
+| personnel-roster             | Stale schema-1 baseline                                                          | Sanctioned re-mint and pin 2                                                                                    | Parity PASS; recapture PASS                                 |
+| experience-pilot             | Stale schema-1 baseline; intermittent create prerequisite                        | Sanctioned re-mint and pin 2; shared save diagnostics                                                           | Parity PASS; recapture PASS                                 |
+| combat-midbattle             | Intermittent CI development-server PUT 404, obscured by a create-route URL match | Require successful PUT and a dashboard route; use production standalone in nightly; retain per-pack diagnostics | Injected PUT-404 diagnostic PASS; combat recapture PASS     |
+| coop-host-review             | Unsupported hand-authored campaign genesis, misclassified as a combat log        | Kind-aware classification plus explicit P2J-owned expiring quarantine                                           | Guard/dispatch tests PASS; reported QUARANTINED, never PASS |
+| coop-guest-proposal          | Unsupported hand-authored campaign genesis, misclassified as a combat log        | Same kind-aware dispatch and owned expiring quarantine                                                          | Guard/dispatch tests PASS; reported QUARANTINED, never PASS |
 
 Co-op remains an owner dependency: neither entry has a sanctioned generator or a
-declared campaign checkpoint invariant. The diagnosis assigns that front-door
-identity/session capture contract to the co-op owner. This repair does not remove
-either entry, skip its nightly check, fabricate session state, or claim that these
-fixtures prove approval, proposal, or synchronization behavior.
+declared campaign checkpoint invariant. The registry retains both fixtures and
+recapture checks their committed schema/pins, then reports their quarantine with
+reason, owner and diagnosis. No fresh co-op payload is fabricated.
+
+## Owned quarantine and expiry
+
+The Root follow-up ruling supersedes the initial classification-only red baseline.
+The typed registry configuration in `e2e/scenario-packs/quarantine.ts` declares
+exactly `coop-host-review` and `coop-guest-proposal`, each with:
+
+- reason: `no sanctioned co-op generator/checkpoint contract`;
+- ownerUnit: `P2J`;
+- diagnosisDoc: [the original diagnosis](2026-10-18-scenario-pack-recapture-diagnosis.md),
+  copied into the repository from the supplied diagnostic worktree.
+
+P2J is the expiry owner because its ledger behavior explicitly proves create/join
+by invite and approve/reject proposal with three ordinary LSC identities. LSC-2P
+only proves the packaged credential/seat prerequisite; it does not prove the
+campaign/proposal genesis journey. P2J is test-only and does not own scenario-pack
+generator leaves. Its main verification is the readiness trigger that **forces**
+quarantine removal and a separately admitted sanctioned generator/checkpoint
+follow-up; this configuration does not amend its scope or claim that a minter
+already exists.
+
+The nightly validates owner IDs against the live `units.json` before any capture.
+An absent owner or an owner in `main-verified`, `complete` or `archived` state
+fails loudly, so the exceptions expire when P2J lands. A guard test freezes the
+two-pack allowlist: quarantining any other pack requires editing that explicit
+test allowlist. Mutation rows cover a completed owner, a nonexistent owner, a
+third registered pack, duplicate entries and a non-quarantined failure. A CLI
+integration row verifies both quarantine records remain in JSON with `ok: false`
+and `status: QUARANTINED`, without invoking a minter.
+
+The summary reports separate PASS/FAIL/QUARANTINED counts. Only FAIL entries cause
+a failing exit; quarantine never contributes to the PASS count. Invalid committed
+schemas or pins still fail before quarantine classification.
 
 The pre-existing invariant comparators and all timeouts/assertions remain intact.
-The fresh combat capture is 62,713 bytes versus the committed 19,156 bytes; its
+The initial pre-quarantine combat capture was 62,713 bytes versus the committed 19,156 bytes; its
 schema and existing seed-agnostic invariants pass. The fresh bytes are retained for
 inspection, and the committed combat payload is unchanged.
 
-## Validation and retained evidence
+## Initial validation before the quarantine ruling
 
 Implementation recapture head: `f41883dd3da5d13bc493aad41f2d06b3ba380044`.
-The final documentation amendment does not change runtime or capture code.
+This initial implementation proof preceded the quarantine ruling; its results are historical.
 
 - E2E production build: PASS with `NEXT_PUBLIC_E2E_MODE=true` and
   `NEXT_PUBLIC_E2E_TEST=true`; standalone hydration completed.
@@ -116,3 +150,36 @@ Local ignored evidence:
 The nightly workflow uploads `.sisyphus/scenario-pack-recapture` with `if: always()`
 and hidden files included. Diagnostic preservation is followed by a nested `finally`
 that restores original files even if artifact copying fails.
+
+## Quarantine follow-up validation
+
+Root/scoped typecheck and a dedicated typecheck including the recapture core and both
+script test files pass. The focused proof passes **4 suites / 46 tests**, using
+`--runInBand` and `.cache/scenario-quarantine-jest`. It includes the fixed allowlist,
+live-ledger guard, completed/missing-owner mutants, duplicate records, failure-summary
+control and real two-quarantine CLI JSON proof, together with existing schema,
+registry and recapture tests.
+
+On quarantine implementation head `e1ee54d6569010f251b7eeb6cf1ae2e979f56c1d`,
+`node scripts/qc/recapture-scenario-packs.mjs --json` completed with **6 PASS,
+0 FAIL, 2 QUARANTINED; exit 0**. All eight registry entries remain listed. Each
+quarantine has `ok: false`, its owner/reason/diagnosis, and no invented fresh
+capture. The six supported packs pass their existing schema, pin and invariant
+checks. The latest fresh combat capture is 65,603 bytes; the committed capture remains
+19,156 bytes. Artifacts are retained at
+`.sisyphus/scenario-pack-recapture/1792349658818-60600/`; the working tree was clean
+after restoration. The original production build was reused because quarantine
+changes are registry/tooling only.
+
+CI run 39156075459 found one new scripts-lint finding: the exported summary
+function lacked an explicit return type. Adding `IPackRecaptureSummary` restores
+the scripts gate to **50/50** without changing its ceiling. The affected lint
+gate, quarantine guard and recapture suites pass **3 suites / 47 tests** afterward;
+this change is a type annotation and does not change the captured runtime behavior.
+
+Under the updated Root ruling, integration rebases onto Main
+`1e0a34dc5da4c4051115db828e986ceb5aad2fa0` (#2280), which repairs the historical
+machine-idle Jest/typecheck detection gap. #2278's replay fixture-root change awaits
+its independent review and will require a later rebase when Root supplies its merge
+SHA. Lane C's proposed workflow patch is now available and is folded separately,
+with its own credited commit and privacy-row proof below.

@@ -6,6 +6,7 @@ import { spawnSync, type SpawnSyncReturns } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 
+import type { IScenarioPackQuarantine } from '../../e2e/scenario-packs/quarantine';
 import type { ManifestEntry } from '../../src/lib/scenarioPacks/packSchemas';
 
 import {
@@ -49,10 +50,20 @@ export interface ValidationResult {
 
 export interface PackRecaptureResult {
   readonly packId: string;
+  readonly status: 'PASS' | 'FAIL' | 'QUARANTINED';
   readonly ok: boolean;
+  readonly quarantine?: IScenarioPackQuarantine;
   readonly issues: readonly string[];
   readonly committedSizeBytes: number;
   readonly freshSizeBytes: number | null;
+}
+
+export interface IPackRecaptureSummary {
+  readonly passed: number;
+  readonly failed: number;
+  readonly quarantined: number;
+  readonly total: number;
+  readonly ok: boolean;
 }
 
 export interface RecaptureStageDeps {
@@ -83,6 +94,7 @@ function failResult(
 ): PackRecaptureResult {
   return {
     packId,
+    status: 'FAIL',
     ok: false,
     issues,
     committedSizeBytes,
@@ -359,6 +371,7 @@ export function validateCommittedPayloadStage(
   committedSizeBytes: number,
   issues: string[],
   deps: RecaptureStageDeps,
+  quarantine?: IScenarioPackQuarantine,
 ): PackRecaptureResult | null {
   const committedValidation = deps.validatePayloadAgainstSchemaAndPins(
     entry,
@@ -372,6 +385,17 @@ export function validateCommittedPayloadStage(
       issues,
     );
     return failResult(entry.id, issues, committedSizeBytes);
+  }
+  if (quarantine) {
+    return {
+      packId: entry.id,
+      status: 'QUARANTINED',
+      ok: false,
+      quarantine,
+      issues: [quarantine.reason],
+      committedSizeBytes,
+      freshSizeBytes: null,
+    };
   }
   assertCommittedGenesisInvariants(
     entry,
@@ -445,9 +469,27 @@ export function validateAndCompareFreshStage(input: {
 
   return {
     packId: entry.id,
+    status: issues.length === 0 ? 'PASS' : 'FAIL',
     ok: issues.length === 0,
     issues,
     committedSizeBytes,
     freshSizeBytes,
+  };
+}
+
+export function summarizeRecaptureResults(
+  results: readonly PackRecaptureResult[],
+): IPackRecaptureSummary {
+  const passed = results.filter((result) => result.status === 'PASS').length;
+  const failed = results.filter((result) => result.status === 'FAIL').length;
+  const quarantined = results.filter(
+    (result) => result.status === 'QUARANTINED',
+  ).length;
+  return {
+    passed,
+    failed,
+    quarantined,
+    total: results.length,
+    ok: failed === 0,
   };
 }

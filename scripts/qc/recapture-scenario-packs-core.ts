@@ -89,7 +89,12 @@ import type { TransactionType } from '../../src/types/campaign/enums/Transaction
 import {
   manifestVersion,
   SCENARIO_PACK_MANIFEST,
+  SCENARIO_PACK_QUARANTINES,
 } from '../../e2e/scenario-packs/manifest';
+import {
+  validateScenarioPackQuarantines,
+  type IQuarantineOwnerUnit,
+} from '../../e2e/scenario-packs/quarantine';
 import { type ComparableTransaction } from '../../src/lib/campaign/fastForward/invariants/comparableRunState';
 import { signFor } from '../../src/lib/campaign/fastForward/invariants/ledger';
 import { CURRENT_CAMPAIGN_SCHEMA_VERSION } from '../../src/lib/campaign/persistence/campaignMigration';
@@ -104,6 +109,7 @@ import {
   type PackRecaptureResult,
   classifyGenesisSource,
   remintPack,
+  summarizeRecaptureResults,
   validateAndCompareFreshStage,
   validateCommittedPayloadStage,
 } from './recapture-scenario-pack-stages';
@@ -466,6 +472,7 @@ async function recapturePack(
   if (!fs.existsSync(payloadAbsolutePath)) {
     return {
       packId: entry.id,
+      status: 'FAIL',
       ok: false,
       issues: [
         `${entry.id}: committed payload file missing at ${payloadAbsolutePath}`,
@@ -502,6 +509,9 @@ async function recapturePack(
       committedSizeBytes,
       issues,
       deps,
+      SCENARIO_PACK_QUARANTINES.find(
+        (quarantine) => quarantine.packId === entry.id,
+      ),
     );
     if (committedFailure) return committedFailure;
 
@@ -536,6 +546,7 @@ async function recapturePack(
   } catch (error) {
     return {
       packId: entry.id,
+      status: 'FAIL',
       ok: false,
       issues: [...issues, `${entry.id}: ${(error as Error).message}`],
       committedSizeBytes,
@@ -581,6 +592,20 @@ async function recapturePack(
 // =============================================================================
 
 async function main(): Promise<void> {
+  const ledger = JSON.parse(
+    fs.readFileSync(
+      path.join(
+        REPO_ROOT,
+        'openspec/planning/2026-09-12-roadmap-completion/units.json',
+      ),
+      'utf8',
+    ),
+  ) as { units: IQuarantineOwnerUnit[] };
+  validateScenarioPackQuarantines(
+    SCENARIO_PACK_QUARANTINES,
+    ledger.units,
+    SCENARIO_PACK_MANIFEST.map((entry) => entry.id),
+  );
   const args = process.argv.slice(2);
   const jsonMode = args.includes('--json');
   const packFlagIndex = args.indexOf('--pack');
@@ -667,23 +692,24 @@ async function main(): Promise<void> {
         ? `committed=${formatKB(result.committedSizeBytes)} fresh=${formatKB(result.freshSizeBytes)}`
         : `committed=${formatKB(result.committedSizeBytes)}`;
     console.log(
-      `[recapture-scenario-packs] ${entry.id}: ${sizeReport} -> ${result.ok ? 'PASS' : 'FAIL'}`,
+      `[recapture-scenario-packs] ${entry.id}: ${sizeReport} -> ${result.status}${result.quarantine ? ` (ownerUnit=${result.quarantine.ownerUnit}; ${result.quarantine.reason}; diagnosis=${result.quarantine.diagnosisDoc})` : ''}`,
     );
-    if (!result.ok) {
+    if (result.status === 'FAIL') {
       for (const issue of result.issues) console.error(`  - ${issue}`);
     }
   }
 
-  const failed = results.filter((result) => !result.ok);
+  const failed = results.filter((result) => result.status === 'FAIL');
+  const summary = summarizeRecaptureResults(results);
   fs.writeFileSync(
     path.join(artifactRoot, 'results.json'),
-    `${JSON.stringify({ results }, null, 2)}\n`,
+    `${JSON.stringify({ results, summary }, null, 2)}\n`,
   );
   console.log(
-    `\n[recapture-scenario-packs] ${results.length - failed.length}/${results.length} pack(s) passed.`,
+    `\n[recapture-scenario-packs] ${summary.passed} PASS, ${summary.failed} FAIL, ${summary.quarantined} QUARANTINED (${summary.total} registered). Non-quarantined baseline: ${summary.ok ? 'PASS' : 'FAIL'}.`,
   );
   if (jsonMode) {
-    console.log(JSON.stringify({ results }, null, 2));
+    console.log(JSON.stringify({ results, summary }, null, 2));
   }
   if (failed.length > 0) {
     console.error(
