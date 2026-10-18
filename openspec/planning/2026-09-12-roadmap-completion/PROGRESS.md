@@ -4,9 +4,11 @@ Docs-only registration under the standing owner direction, prioritizing ordinary
 setup, join, play, reconnect, finish and reload. Five new blocked units; no source
 admission, runtime PASS, task tick, quarantine edit or existing-unit release.
 
-B14-HEAD -> MP-RECOVERY-UNITS-1 -> MP-HOST-DEDUPE-1 -> P2CG1HP -> H.
-Recovery fixes the pre-listen HTTP catalog dependency; NodeCanonicalUnitService
-already reads disk. Dedupe repairs concurrent first-host creation. Both precede
+B14-0 -> MP-RECOVERY-UNITS-1 -> MP-HOST-DEDUPE-1 -> P2CG1HP -> H.
+B14-HEAD independently feeds HP; A2 does not wait for B14-HEAD. Recovery prefers
+filesystem loading through the explicitly owned NodeCanonicalUnitService.ts.
+Any server.js edit needs a scope amendment against H/U101d/B15-1; any engine edit
+needs one against U73. Dedupe repairs concurrent first-host creation. Both precede
 A2, whose feasibility must include an accepted unit action after packaged restart.
 The separate LSC lane and all existing sensitive gates remain. L1 closures: 38.
 
@@ -24,6 +26,12 @@ census](evidence/followups-registration-20261018.txt) covers all nine open PRs a
 #2288 LSC-0 closure, B14-0 closure and A1. Rebase before CI and after earlier
 writers land; preserve other-unit lifecycle bytes. Future scope/cap expansion
 requires admission or a registered split. NEXT remains advisory.
+
+Sonnet review correction: all seven source hashes now bind the unchanged committed
+113,202-byte LF evidence (SHA256 06f8fdf1b4d503f432771bddcd8d70564d896298c6a39cba4634bb7bd73a7428).
+The old hash covered 748 extra CR bytes in the working copy. Committed bytes are
+authoritative; the historical evidence is preserved. Routine maintenance units
+no longer carry sensitive-work boilerplate.
 
 ---
 

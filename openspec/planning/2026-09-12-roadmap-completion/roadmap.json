@@ -3118,10 +3118,7 @@
         "src/lib/multiplayer/__tests__/clientAgainstFogServer.integration.test.ts",
         "src/components/campaign/CampaignNavigation.tsx",
         "scripts",
-        "src/engine/InteractiveSession.recovery.ts",
-        "src/engine/adapters/CompendiumAdapter.ts",
-        "src/engine/__tests__/InteractiveSession.recovery.test.ts",
-        "src/engine/__tests__/CompendiumAdapter.test.ts"
+        "src/services/units/NodeCanonicalUnitService.ts"
       ],
       "acceptance": [
         "npm.cmd run typecheck",
@@ -18835,7 +18832,7 @@
       "L1-SMOKE-A2": "blocked",
       "L1-SMOKE-B": "blocked"
     },
-    "order": "P2CG1S -> L1-SMOKE-A1; {L1-SMOKE-A1, MP-RECOVERY-UNITS-1, MP-HOST-DEDUPE-1} -> L1-SMOKE-A2; {L1-SMOKE-A2, B14-0, B14-HEAD} -> L1-SMOKE-B; {L1-SMOKE-A1, L1-SMOKE-A2, L1-SMOKE-B, all retained H prerequisites} -> P2CG1H. A1 remains independent of B14; A2 now waits for the registered B14/HP recovery and dedupe repairs. Array placement remains selector priority, not extra admission permission.",
+    "order": "P2CG1S -> L1-SMOKE-A1; {L1-SMOKE-A1, MP-RECOVERY-UNITS-1, MP-HOST-DEDUPE-1} -> L1-SMOKE-A2; {L1-SMOKE-A2, B14-0, B14-HEAD} -> L1-SMOKE-B; {L1-SMOKE-A1, L1-SMOKE-A2, L1-SMOKE-B, all retained H prerequisites} -> P2CG1H. A1 remains independent of B14; A2 waits for recovery/dedupe after B14-0, without waiting for B14-HEAD. B14-HEAD continues to gate HP and B. Array placement remains selector priority, not extra admission permission.",
     "reason": "Root review round 1 split A baseline/harness from A2 B10 matrix/restart proof because 500 counted lines is a total per-unit cap, not per-file. Three finite, separately capped new-leaf units replace the two-unit shared-file proposal; no partial gate exists in the validator.",
     "obligation": {
       "status": "owed; registered for future discharge only",
@@ -19001,7 +18998,7 @@
       "verdict": "CHANGES",
       "response": "Rebased onto #2273; preserves B14-0 priority; A1/A2/B distinct new leaves and total aggregate caps; exact merge-diff allowlist, lint-clean zero-headroom rule and tsx/offline-SQL fixture restriction. Root will independently re-review the revised head; no approval is inferred."
     },
-    "followups20261018": "A2 now also requires MP-RECOVERY-UNITS-1 and MP-HOST-DEDUPE-1 exact-main PASS, ancestry and closure. This supersedes prior A2-only/no-B14-wait descriptions; A1 remains independent. See followupsRegistration20261018."
+    "followups20261018": "A2 also requires MP-RECOVERY-UNITS-1 and MP-HOST-DEDUPE-1 exact-main PASS, ancestry and closure. Recovery depends on B14-0, not B14-HEAD; A2 has no B14-HEAD wait. This supersedes prior A2-only/no-B14-wait descriptions and the first follow-up draft sequencing; A1 remains independent. See followupsRegistration20261018."
   },
   "dataFidelityRegistration20261018": {
     "baseline": "407ff0e9ae3eb0cd200b3c68da26e3d27d66a144",
@@ -19035,7 +19032,7 @@
       "LSC-2",
       "LSC-2P"
     ],
-    "order": "P2CG1S -> LSC-0 -> LSC-1DB -> LSC-1S -> LSC-1 -> LSC-2OP -> LSC-2 -> LSC-2P alongside the B14-0A -> B14-0B -> B14-0 -> B14-HEAD -> MP-RECOVERY-UNITS-1 -> MP-HOST-DEDUPE-1 -> P2CG1HP lane; both converge at P2CG1H with all retained H prerequisites, including all three L1-SMOKE closures. Array placement adds no B14 or HP predecessor to LSC-0.",
+    "order": "P2CG1S -> LSC-0 -> LSC-1DB -> LSC-1S -> LSC-1 -> LSC-2OP -> LSC-2 -> LSC-2P alongside the B14-0A -> B14-0B -> B14-0 -> MP-RECOVERY-UNITS-1 -> MP-HOST-DEDUPE-1 -> P2CG1HP (B14-0 -> B14-HEAD -> P2CG1HP is the separate converging branch) lane; both converge at P2CG1H with all retained H prerequisites, including all three L1-SMOKE closures. Array placement adds no B14 or HP predecessor to LSC-0.",
     "states": {
       "LSC-0": "planned",
       "LSC-1DB": "blocked",
@@ -19068,7 +19065,7 @@
     "sourceAdmitted": false,
     "authority": "Owner: continue with recommended options and fix the issues that come up, publish as needed; use parallel sub-agents. Priority: dependable ordinary-UI setup, join, play, reconnect, finish and reload. Documentary scheduling only, not a future sensitive OWNER-RULING.",
     "source": "evidence/followups-registration-20261018.txt",
-    "sourceSha256": "55f8786fa7efe6250a941c79345350fa25d61aa552c84e8aa71f588a70b82cef",
+    "sourceSha256": "06f8fdf1b4d503f432771bddcd8d70564d896298c6a39cba4634bb7bd73a7428",
     "additionalUnits": [
       "MP-RECOVERY-UNITS-1",
       "MP-HOST-DEDUPE-1",
@@ -19076,11 +19073,12 @@
       "CF-SMOKEA1-4",
       "CF-SMOKEA1-6"
     ],
-    "order": "B14-HEAD -> MP-RECOVERY-UNITS-1 -> MP-HOST-DEDUPE-1 -> P2CG1HP -> P2CG1H. Both new product units also precede L1-SMOKE-A2. P2J -> COOP-PACK-GEN; L1-SMOKE-B -> CF-SMOKEA1-4 -> CF-SMOKEA1-6. All five start blocked; no existing unit is released.",
-    "lane": "Recovery/dedupe belong to the serial B14/HP lane, after B14-0 #2281 and B14-HEAD prep/closure. LSC stays independently serial and parallel; smoke stays independently serial with the added A2 gates. Only recovery/dedupe add L1 closures: 36 -> 38. Pack/gate/hook backlog is not a new v2.2.0 acceptance gate.",
+    "order": "B14-0 -> MP-RECOVERY-UNITS-1 -> MP-HOST-DEDUPE-1 -> P2CG1HP -> P2CG1H. B14-0 -> B14-HEAD -> P2CG1HP remains the separate converging branch. Both new product units also precede L1-SMOKE-A2, without a B14-HEAD wait. P2J -> COOP-PACK-GEN; L1-SMOKE-B -> CF-SMOKEA1-4 -> CF-SMOKEA1-6. All five start blocked; no existing unit is released.",
+    "lane": "Recovery/dedupe belong to the serial B14/HP lane, after B14-0 #2281 closure; B14-HEAD independently feeds HP. Recovery does not consume the API-only B14-HEAD proof. LSC stays independently serial and parallel; smoke stays independently serial with the added A2 gates. Only recovery/dedupe add L1 closures: 36 -> 38. Pack/gate/hook backlog is not a new v2.2.0 acceptance gate.",
     "quarantineFollowup": "After this registration merges, separately admit an edit to #2279 e2e/scenario-packs/quarantine.ts and scripts/__tests__/scenario-pack-quarantine.test.ts BEFORE P2J closure: move both ownerUnit values P2J -> COOP-PACK-GEN. Keep exactly two entries, visible QUARANTINED / ok:false, missing-owner rejection and fail-closed expiry when the new owner is main-verified/complete/archived. Generator delivery removes quarantine with real proof. No code or quarantine changes in this PR.",
     "otherA1": "CF-SMOKEA1-3 remains a Root counting ruling before A2 admission; CF-SMOKEA1-5 belongs to the A1 amendment or a separately registered owner permitted to edit frozen A1 leaves (server.js byte binding and final readiness assertion). No later unit gets implicit permission. CF-SMOKEA1-8 binds A2 observers; CF-SMOKEA1-7 binds LSC-2P/P2J.",
-    "collisionRule": "Census covers every open PR and all planned/blocked/implementing units, exact paths and ancestor aliases; source in hash-bound evidence. Registration writer queue is serialized with LSC-0 closure #2288 and later B14-0 closure, plus A1 lifecycle; rebase before CI and again after an earlier writer lands. Re-census all future admissions; U73 engine, U45 src/lib, U24/U24b server, H/HP and broad e2e/scripts holders keep their contracts. No broad alias supplies implementation permission.",
-    "scope": "Only units.json, roadmap.json, PROGRESS.md and this named evidence file. Registration cap 15 files / 500 counted additions; evidence is line-exempt/file-counted. Original task holders, packets, historical receipts, validator semantics and every existing cap/review gate remain. Remaining nightly fixes are owned by baseline PRs, not reimplemented here."
+    "collisionRule": "Census covers every open PR and all planned/blocked/implementing units, exact paths and ancestor aliases; source in hash-bound evidence. Registration writer queue is serialized with LSC-0 closure #2288 and later B14-0 closure, plus A1 lifecycle; rebase before CI and again after an earlier writer lands. Re-census all future admissions; U73 retains engine ownership (a separate scope amendment is required for any engine edit); U45 src/lib, U24/U24b server, H/HP and broad e2e/scripts holders keep their contracts. No broad alias supplies implementation permission.",
+    "scope": "Only units.json, roadmap.json, PROGRESS.md and this named evidence file. Registration cap 15 files / 500 counted additions; evidence is line-exempt/file-counted. Original task holders, packets, historical receipts, validator semantics and every existing cap/review gate remain. Remaining nightly fixes are owned by baseline PRs, not reimplemented here.",
+    "reviewCorrection20261018": "Sonnet CHANGES on ec8c989458fd1b61008bfa6f835d842603d4a1e7: the committed 113202-byte LF evidence file is authoritative and unchanged. Its former 55f8786f hash described a working copy with 748 CRLF sequences; Git normalization produced committed SHA256 06f8fdf1b4d503f432771bddcd8d70564d896298c6a39cba4634bb7bd73a7428. Bind both ledgers and all five unit registrations to committed bytes. The preserved census/review-era text is historical; current unit leaves, symmetric B14-0 recovery edges and this correction supersede the first draft engine grant, read-only Node service restriction and B14-HEAD wait. Routine maintenance carries no sensitive-work boilerplate."
   }
 }
