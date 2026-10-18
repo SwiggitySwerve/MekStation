@@ -2156,4 +2156,2097 @@
     "4": "Residual caps and registrations preserved. Refreeze actual post-L1 source/test/helper/lifecycle/evidence unions and RED; tighter limits require legitimate separate closure allocation or narrower registration before admission. Aggregate U101 is distinct.",
     "5": "U38/L1 release and B15-first scheduling remain documentary gates for every release decision; original Task57/Task17 and mint -> consumers -> enforcement ordering preserved. No second L2 lane is granted."
   }
+,
+  "publicationRefresh": {
+  "at": "2026-10-18T22:08:38.877772+00:00",
+  "main": "b16302d76df1ace0589bc334f9249330a25c5278",
+  "openPrCount": 5,
+  "openPrs": [
+    {
+      "number": 2291,
+      "head": "b82d98253dbb35c6943d85a004be6ded2a604fb9",
+      "files": [
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+          "status": "modified"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a1-admission-review-20261018.json",
+          "status": "added"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a1-mainproof-20261018.json",
+          "status": "added"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a1-merge-20261018.json",
+          "status": "added"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a1-owner-ruling-6255513661.txt",
+          "status": "added"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a1-source-fable-review-r1-20261018.bytes.json",
+          "status": "added"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a1-source-fable-review-r2-20261018.bytes.json",
+          "status": "added"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-b16302d7-evidence.bytes.json",
+          "status": "added"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-b16302d7-lintunits.bytes.json",
+          "status": "added"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-b16302d7-manifest.bytes.json",
+          "status": "added"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-b16302d7-oxlint.bytes.json",
+          "status": "added"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-b16302d7-server1.bytes.json",
+          "status": "added"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-b16302d7-server2.bytes.json",
+          "status": "added"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-b16302d7-smoke.bytes.json",
+          "status": "added"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-b16302d7-summary.bytes.json",
+          "status": "added"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-b16302d7-tests.bytes.json",
+          "status": "added"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-b16302d7-vgit.bytes.json",
+          "status": "added"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-b16302d7-vnext.bytes.json",
+          "status": "added"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-b16302d7-vplain.bytes.json",
+          "status": "added"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-b16302d7-vtests.bytes.json",
+          "status": "added"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "status": "modified"
+        }
+      ]
+    },
+    {
+      "number": 2290,
+      "head": "18319cc5cfd65d329b9e2dd25daa4140f7af4cf9",
+      "files": [
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1db-admission-20261018.json",
+          "status": "added"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1db-local-20261018.json",
+          "status": "added"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1db-red-20261018.json",
+          "status": "added"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "status": "modified"
+        },
+        {
+          "path": "src/services/persistence/SQLiteService.localSeatCredentials.migration.ts",
+          "status": "added"
+        },
+        {
+          "path": "src/services/persistence/SQLiteService.migrations.ts",
+          "status": "modified"
+        },
+        {
+          "path": "src/services/persistence/__tests__/SQLiteService.localSeatCredentials.migration.test.ts",
+          "status": "added"
+        },
+        {
+          "path": "src/services/persistence/__tests__/SQLiteService.migrations.test.ts",
+          "status": "modified"
+        },
+        {
+          "path": "src/services/persistence/__tests__/SQLiteService.replayCheckpointsBranch.migration.test.ts",
+          "status": "modified"
+        }
+      ]
+    },
+    {
+      "number": 2283,
+      "head": "75c833ac037fd3b9e801afb4b710af6a5496056d",
+      "files": [
+        {
+          "path": "e2e/fixtures/sqliteEvidenceReader.ts",
+          "status": "modified"
+        },
+        {
+          "path": "e2e/gm-two-player-authority.pack1.spec.ts",
+          "status": "modified"
+        },
+        {
+          "path": "e2e/gm-two-player-privacy.pack.spec.ts",
+          "status": "modified"
+        },
+        {
+          "path": "src/__tests__/unit/evidence/sqliteEvidenceReader.test.ts",
+          "status": "modified"
+        }
+      ]
+    },
+    {
+      "number": 2113,
+      "head": "baa20ce6c3031094fc46bd9a8185e44a3a8740ab",
+      "files": [
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/ARCHIVE-INDEX.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/LOCAL-ONLY-CUSTODY-INDEX.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/PARENT-PLANNING-HANDOFF-DRAFT.md",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/README.md",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/START-HERE.md",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/independent-assembled-archive-review-epoch1.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/independent-reader-index-review-epoch2.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-assembled-archive-content-review-retention-repaired.json.archive.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-assembled-archive-review-dispatched.json.archive.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-current-control-archive-parent-byteverified.json.archive.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-existing-genuine-patch-engine-rebind-20261002.json.archive.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-full-historical-archive-parent-byteverified.json.archive.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-genuine-patch-scratch-parent-qualified.json.archive.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-materialized-task-core-parent-qualified.json.archive.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-task67-current-remote-custody-rechecked.json.archive.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0000.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0001.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0002.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0003.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0004.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0005.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0006.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0007.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0008.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0009.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0010.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0011.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0012.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0013.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0014.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0015.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0016.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0017.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0018.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0019.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0020.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0021.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0022.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0023.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0024.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0025.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0026.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0027.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0028.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0029.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0030.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0031.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0032.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0033.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0034.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0035.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0036.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0037.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0038.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0039.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0040.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0041.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0042.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0043.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0044.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0045.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0046.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0047.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0048.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0049.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0050.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0051.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0052.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0053.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0054.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0055.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0056.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0057.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0058.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0059.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0060.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0061.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0062.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0063.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0064.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0065.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0066.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0067.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0068.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0069.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0070.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0071.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0000.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0001.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0002.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0003.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0004.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0005.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0006.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0007.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0008.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0009.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0010.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0011.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0012.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0013.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0014.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0015.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0016.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0017.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0018.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0019.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0020.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0021.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0022.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0023.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0024.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0025.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0026.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0027.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0028.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0029.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0030.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0031.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0032.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0033.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0034.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0035.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0036.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0037.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0038.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0039.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0040.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0041.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0042.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0043.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0044.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0045.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0046.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0047.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0048.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0049.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0050.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0051.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0052.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0053.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0054.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0055.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0056.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0057.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0058.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0059.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0060.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0061.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0062.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0063.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0064.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0065.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0066.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0067.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0068.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0069.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0070.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0071.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0072.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0073.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0074.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0075.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0076.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0077.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0078.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0079.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0080.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0081.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0082.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0083.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0084.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0085.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0086.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0087.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0088.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0089.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0090.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0091.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0092.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0093.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0094.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0095.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0096.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0097.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0098.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0099.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0100.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0101.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0102.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0103.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0104.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0105.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0106.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0107.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0108.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0109.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0110.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0111.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0112.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0113.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0114.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0115.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0116.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0117.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0118.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0119.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0120.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0121.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0122.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0123.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0124.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0125.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0126.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0127.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0128.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0129.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0130.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0131.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0132.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0133.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0134.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0135.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0136.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0137.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0138.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0139.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0140.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0141.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0142.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0143.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0144.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0145.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0146.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0147.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0148.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0149.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0150.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0151.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0152.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0153.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0154.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0155.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0156.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0157.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0158.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0159.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0160.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0161.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0162.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0163.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0164.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0165.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0166.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0167.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0168.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0169.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0170.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0171.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0172.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0173.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0174.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0175.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0176.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0177.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0178.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0179.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0180.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0181.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0182.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0183.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0184.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0185.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0186.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0187.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0188.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0189.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0190.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0191.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0192.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0193.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0194.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0195.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0196.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0197.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0198.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0199.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0200.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0201.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0202.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0203.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0204.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0205.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0206.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0207.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0208.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0209.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0210.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0211.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0212.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0213.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0214.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0215.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0216.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0217.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0218.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0219.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0220.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0221.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0222.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0223.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0224.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0225.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0226.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0227.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0228.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0229.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0230.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0231.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0232.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0233.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0234.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0235.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0236.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0237.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0238.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0239.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0240.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0241.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0242.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0243.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0244.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0245.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0246.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0247.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0248.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0249.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0250.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0251.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0252.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0253.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0254.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0255.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0256.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0257.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0258.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0259.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0260.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0261.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0262.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0263.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0264.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0265.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0266.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0267.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0268.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0269.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0270.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0271.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0272.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0273.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0274.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0275.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0276.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0277.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0278.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0279.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0280.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0281.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0282.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0283.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0284.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0285.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0286.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0287.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0288.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0289.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0290.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0291.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0292.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0293.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0294.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0295.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0296.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0297.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0298.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0299.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0300.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0301.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0302.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0303.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0304.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0305.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0306.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0307.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0308.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0309.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0310.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0311.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0312.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0313.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0314.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0315.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0316.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0317.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0318.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0319.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0320.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0321.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0322.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0323.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0324.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0325.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0326.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0327.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0328.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0329.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0330.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0331.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0332.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0333.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0334.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0335.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0336.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0337.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0338.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0339.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0340.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0341.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0342.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0343.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0344.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0345.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0346.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0347.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0348.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0349.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0350.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0351.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0352.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0353.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0354.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0355.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0356.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0357.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0358.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0359.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0360.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0361.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0362.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0363.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0364.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0365.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0366.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0367.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0368.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0369.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0370.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/historical-153-todos-and-current-override.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-000.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-001.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-002.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-003.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-004.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-005.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-006.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-007.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-008.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-009.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-010.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-011.json",
+          "status": "added"
+        },
+        {
+          "path": "docs/audits/2026-10-02-thread-transfer/read-archives.mjs",
+          "status": "added"
+        }
+      ]
+    },
+    {
+      "number": 1886,
+      "head": "cbb0e214e5aac4fb1e2b9cad9cb56f93fbdc387b",
+      "files": [
+        {
+          "path": "e2e/gm-two-player-privacy.pack.spec.ts",
+          "status": "modified"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u2b-admission-20260922.json",
+          "status": "added"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u2b-local-20260922.json",
+          "status": "added"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u2b-red-20260922.json",
+          "status": "added"
+        },
+        {
+          "path": "scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+          "status": "modified"
+        },
+        {
+          "path": "scripts/qc/gm-two-player-campaign-core.cjs",
+          "status": "modified"
+        }
+      ]
+    }
+  ],
+  "newUnitProductCollisions": [],
+  "registrationFilesSharedWith2291": [
+    "openspec/planning/2026-09-12-roadmap-completion/units.json",
+    "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md"
+  ],
+  "unitReservations": "Main unchanged; original 124 existing reservations plus five new blocked registrations remain current. Prior census and committed hashes retained.",
+  "disposition": "New A1 closure PR #2291 shares only registration ledgers with this change; serialize/rebase before CI and after any earlier writer lands. No product admission or overlap resolution claimed."
+}
 }

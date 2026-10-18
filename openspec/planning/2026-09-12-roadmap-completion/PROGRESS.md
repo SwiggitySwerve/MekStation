@@ -130,11 +130,13 @@ ownership release bind U101a/c/d and B15-2. Existing findings remain open.
 
 Both ledgers mirror `l2ReadinessAmendment20261018` and the
 [complete census and source evidence](evidence/l2-readiness-amendment-20261018.json)
-(SHA256 9f4e3a0bd972b7aebeb3828443415d221e91087584641cb4bf925fc6e08ca404). Census: 4 open PRs at stable exact heads,
+(SHA256 1da4c52b037e56328bdc97301e13c85d5be1b96dd682d509b2728883eb5d6fef). Census: 4 open PRs at stable exact heads,
 all paginated files (including the 472-file PR), 124 planned/blocked/implementing
 units, literal/ancestor aliases and both-ledger manifests. B14-0/A1 product merges
 are observed; their historical lifecycle bytes stay untouched. Parent serializes
 closure writers and in-flight LSC-1DB #2290, then rebases/re-censuses before delivery.
+Publication refresh captures all five open PRs including A1 closure #2291; Main
+and the 124 existing reservations remain unchanged.
 Post-L1/B15 manifests, RED and actual fit must be re-frozen; U99 2/120, U100 3/120,
 U104 5/220 and U101b/d 8/300 are unchanged. Separate lawful closure allocation or
 narrower registration is required if tight caps cannot fit. No second L2 lane.

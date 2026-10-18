@@ -18316,7 +18316,7 @@
       "admissionRequires": "Blocked documentary registration only. After U38 exact-Main PASS, ancestry, closure and L1 release boundary, parent may release only after every listed predecessor has genuine exact-Main PASS and closure. Follow l2ReadinessAmendment20261018; serialize B15/L2 and shared ledger writers. Rebase/re-census every open PR and planned/blocked/implementing unit, including literal/ancestor aliases and both-ledger manifests; resolve overlaps, freeze every actual source/test/helper/lifecycle/evidence leaf and measure fit before edits. <=15 actual files / 500 total counted additions, no deletion credit; tests/evidence line-exempt but file-counted. Extra leaves or overflow require a separately registered split. Later review/identity/closure outputs require finite G-OWN freeze. NEXT is advisory, not admission. Sensitive: genuine packet before local-verified, independent exact-head review and OWNER-RULING before merge, required CI and exact-Main proof; null ownerGate is no waiver.",
       "registration20261018L2": {
         "source": "evidence/l2-readiness-amendment-20261018.json",
-        "sourceSha256": "9f4e3a0bd972b7aebeb3828443415d221e91087584641cb4bf925fc6e08ca404"
+        "sourceSha256": "1da4c52b037e56328bdc97301e13c85d5be1b96dd682d509b2728883eb5d6fef"
       }
     },
     {
@@ -18370,7 +18370,7 @@
       "admissionRequires": "Blocked documentary registration only. After U38 exact-Main PASS, ancestry, closure and L1 release boundary, parent may release only after every listed predecessor has genuine exact-Main PASS and closure. Follow l2ReadinessAmendment20261018; serialize B15/L2 and shared ledger writers. Rebase/re-census every open PR and planned/blocked/implementing unit, including literal/ancestor aliases and both-ledger manifests; resolve overlaps, freeze every actual source/test/helper/lifecycle/evidence leaf and measure fit before edits. <=15 actual files / 500 total counted additions, no deletion credit; tests/evidence line-exempt but file-counted. Extra leaves or overflow require a separately registered split. Later review/identity/closure outputs require finite G-OWN freeze. NEXT is advisory, not admission. Sensitive: genuine packet before local-verified, independent exact-head review and OWNER-RULING before merge, required CI and exact-Main proof; null ownerGate is no waiver.",
       "registration20261018L2": {
         "source": "evidence/l2-readiness-amendment-20261018.json",
-        "sourceSha256": "9f4e3a0bd972b7aebeb3828443415d221e91087584641cb4bf925fc6e08ca404"
+        "sourceSha256": "1da4c52b037e56328bdc97301e13c85d5be1b96dd682d509b2728883eb5d6fef"
       }
     },
     {
@@ -18421,7 +18421,7 @@
       "admissionRequires": "Blocked documentary registration only. After U38 exact-Main PASS, ancestry, closure and L1 release boundary, parent may release only after every listed predecessor has genuine exact-Main PASS and closure. Follow l2ReadinessAmendment20261018; serialize B15/L2 and shared ledger writers. Rebase/re-census every open PR and planned/blocked/implementing unit, including literal/ancestor aliases and both-ledger manifests; resolve overlaps, freeze every actual source/test/helper/lifecycle/evidence leaf and measure fit before edits. <=15 actual files / 500 total counted additions, no deletion credit; tests/evidence line-exempt but file-counted. Extra leaves or overflow require a separately registered split. Later review/identity/closure outputs require finite G-OWN freeze. NEXT is advisory, not admission. Sensitive: genuine packet before local-verified, independent exact-head review and OWNER-RULING before merge, required CI and exact-Main proof; null ownerGate is no waiver.",
       "registration20261018L2": {
         "source": "evidence/l2-readiness-amendment-20261018.json",
-        "sourceSha256": "9f4e3a0bd972b7aebeb3828443415d221e91087584641cb4bf925fc6e08ca404"
+        "sourceSha256": "1da4c52b037e56328bdc97301e13c85d5be1b96dd682d509b2728883eb5d6fef"
       }
     },
     {
@@ -18473,7 +18473,7 @@
       "admissionRequires": "Blocked documentary registration only. After U38 exact-Main PASS, ancestry, closure and L1 release boundary, parent may release only after every listed predecessor has genuine exact-Main PASS and closure. Follow l2ReadinessAmendment20261018; serialize B15/L2 and shared ledger writers. Rebase/re-census every open PR and planned/blocked/implementing unit, including literal/ancestor aliases and both-ledger manifests; resolve overlaps, freeze every actual source/test/helper/lifecycle/evidence leaf and measure fit before edits. <=15 actual files / 500 total counted additions, no deletion credit; tests/evidence line-exempt but file-counted. Extra leaves or overflow require a separately registered split. Later review/identity/closure outputs require finite G-OWN freeze. NEXT is advisory, not admission. Sensitive: genuine packet before local-verified, independent exact-head review and OWNER-RULING before merge, required CI and exact-Main proof; null ownerGate is no waiver.",
       "registration20261018L2": {
         "source": "evidence/l2-readiness-amendment-20261018.json",
-        "sourceSha256": "9f4e3a0bd972b7aebeb3828443415d221e91087584641cb4bf925fc6e08ca404"
+        "sourceSha256": "1da4c52b037e56328bdc97301e13c85d5be1b96dd682d509b2728883eb5d6fef"
       }
     },
     {
@@ -18525,7 +18525,7 @@
       "admissionRequires": "Blocked documentary registration only. After U38 exact-Main PASS, ancestry, closure and L1 release boundary, parent may release only after every listed predecessor has genuine exact-Main PASS and closure. Follow l2ReadinessAmendment20261018; serialize B15/L2 and shared ledger writers. Rebase/re-census every open PR and planned/blocked/implementing unit, including literal/ancestor aliases and both-ledger manifests; resolve overlaps, freeze every actual source/test/helper/lifecycle/evidence leaf and measure fit before edits. <=15 actual files / 500 total counted additions, no deletion credit; tests/evidence line-exempt but file-counted. Extra leaves or overflow require a separately registered split. Later review/identity/closure outputs require finite G-OWN freeze. NEXT is advisory, not admission. Routine infrastructure; reclassify before any startup/authority/privacy behavior change.",
       "registration20261018L2": {
         "source": "evidence/l2-readiness-amendment-20261018.json",
-        "sourceSha256": "9f4e3a0bd972b7aebeb3828443415d221e91087584641cb4bf925fc6e08ca404"
+        "sourceSha256": "1da4c52b037e56328bdc97301e13c85d5be1b96dd682d509b2728883eb5d6fef"
       }
     }
   ],
@@ -25939,7 +25939,7 @@
   "l2ReadinessAmendment20261018": {
     "baseline": "b16302d76df1ace0589bc334f9249330a25c5278",
     "source": "evidence/l2-readiness-amendment-20261018.json",
-    "sourceSha256": "9f4e3a0bd972b7aebeb3828443415d221e91087584641cb4bf925fc6e08ca404",
+    "sourceSha256": "1da4c52b037e56328bdc97301e13c85d5be1b96dd682d509b2728883eb5d6fef",
     "registrationOnly": true,
     "sourceAdmitted": false,
     "authority": "Owner authorizes recommended options and publishing; this docs-only amendment supplies no future source admission, exact-head OWNER-RULING or runtime acceptance.",
@@ -25985,7 +25985,7 @@
     },
     "supersession": "This binding amendment replaces only the direct B15-5R -> B15-PRIV scheduling edge with the four new serial security slices; earlier B15 order descriptions remain historical. All other admission, privacy, topology, lifecycle and L1 obligations persist.",
     "refreeze": "All residual units require post-L1/B15 Main source/test/helper/lifecycle/evidence manifest and RED refresh before admission. U99 2/120, U100 3/120, U104 5/220, U101b/d 8/300 stay tight; lawful separate closure allocation only where permitted, otherwise narrower registered prefixes. U101 aggregate freezes its own proof/task-reconciliation manifest after d, not another implementation.",
-    "census": "Evidence captures every open PR (4; exact head before/after; all file pages including rename sources) and all 124 planned/blocked/implementing units plus both-ledger manifests and new-unit intersections. Rebase/re-census each admission and merge. Shared units writer queue follows merged B14-0/A1 source PRs; their closure lifecycle is parent-owned, with LSC-1DB #2290 in flight. No historical record is rewritten.",
+    "census": "Evidence captures every open PR (4; exact head before/after; all file pages including rename sources) and all 124 planned/blocked/implementing units plus both-ledger manifests and new-unit intersections. Rebase/re-census each admission and merge. Shared units writer queue follows merged B14-0/A1 source PRs; their closure lifecycle is parent-owned, with LSC-1DB #2290 in flight. Publication refresh captures all five current open PRs, including A1 closure #2291; Main and the 124-unit census are unchanged. Shared ledger writes remain serialized. No historical record is rewritten.",
     "release": "Every L2 obligation, required carry-forward disposition, packaged GUI on actual platform artifacts and every P3 acceptance letter need genuine exact-Main proof/ancestry/closure, then independent Astra P3-exit review and v2.3.0. Retain withheld application, wrong scope, hidden state, stale lineage, revocation, no-op and reconnect negatives. P4 Task33 final production UAT remains distinct; FN-ob2 owner-column/multi-operator and FN-u96 stay open pending their own proof.",
     "bounds": "This amendment owns only units.json, roadmap.json, PROGRESS.md and the hash-bound evidence; <=15 files/500 counted additions, no deletion credit. All current caps/review classes/receipts remain. New slices retain 15/500, tests/evidence file-counted and line-exempt under U41; future overflow or extra leaves require a registered split. One heavy run and existing machine-idle gate; no heavy validation in this edit."
   }
