@@ -8,7 +8,7 @@ order is P2CG1S -> B14-0 -> P2CG1H (21 units). Release B14-0 only after S genuin
 exact-main PASS, fetched-main ancestry and closure; H waits for B14-0 equivalent
 proof. NEXT does not enforce these documentary predecessors or grant admission.
 
-The [scope audit](../../../docs/audits/2026-10-18-b14-fog-scope.md) is copied byte-for-byte
+The [scope audit](evidence/b14-fog-scope-20261018.txt) is copied byte-for-byte
 (SHA-256 fa86fc77b387a9547841bf96261f4bd5becfeca92e22c3b9050b2409142c2a21).
 Contain fog-on live/join/rejoin/HTTP/export before the v2.2.0 build/playtest, with
 membership-first generic refusal, fixed fog-projection-unavailable reason and
@@ -21,11 +21,21 @@ and unchanged fog-off two-player-plus-GM co-op. No campaign close-policy rewrite
 The literal prospective 15-file manifest is in roadmap.json. Caps remain 15 files /
 500 counted added lines; remeasure at admission and split if proof or review/closure
 needs more. G2A lands its shared securityBoundary.test.ts first; census S/U26 shared
-Events/Replay leaves and all other holders on fresh Main. No other unit contract
-changes beyond S/H links; G2A/G2, G1 and B15 fields are untouched. Full playable fog
+Events/Replay leaves and all other holders on fresh Main. Other unit contracts change only in S/H links and H
+admission text; G2A/G2, G1 and B15 fields are untouched. Full playable fog
 restoration remains blocked and unscheduled as later separately registered work,
 not a placeholder unit. This is registration only: no source admission, runtime
 fix, fabricated sensitive approval, merge or release acceptance.
+
+Parent review follow-up: retain the byte-pinned audit as .txt evidence, following
+review-copy storage conventions. The host journal-head digest route is a mandatory
+admission census item: hidden-information leakage is within B14-0 acceptance,
+but matchHeadRoute.ts is not an edit leaf; required extra writes trigger a split.
+Metadata-unavailable tests cover fog on/unknown and known-off configuration;
+missing projection metadata alone must not refuse otherwise-authorized fog-off
+reads. The real server.js WS probe is evidence-only in b14-0-local.json, with no
+retained harness. Registration baseline is 76ed00c16063a2e28dba4e81bc0a2cf01af7c780;
+H admission now explicitly requires B14-0 main-verified and exact-main proof.
 
 ## 2026-10-18 G1-DOC-2 and R-PRIV-1 documentary amendments proposed
 
