@@ -2851,7 +2851,8 @@
             "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
             "src/components/campaign/coop/__tests__/CampaignLifecycleGate.test.tsx",
             "src/components/campaign/coop/__tests__/GuestProposalSurface.test.tsx",
-            "src/components/campaign/coop/__tests__/GuestRebuildStaleGate.test.tsx"
+            "src/components/campaign/coop/__tests__/GuestRebuildStaleGate.test.tsx",
+            "src/components/campaign/coop/useCampaignApplicationConsumer.ts"
           ],
           "P2CG1G2": [
             "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
@@ -2981,7 +2982,7 @@
           "P2CG1D": 11,
           "P2CG1E": 8,
           "P2CG1F": 6,
-          "P2CG1G1": 8,
+          "P2CG1G1": 9,
           "P2CG1G2": 11,
           "P2CG1H": 9,
           "P2CG1I1": 6,

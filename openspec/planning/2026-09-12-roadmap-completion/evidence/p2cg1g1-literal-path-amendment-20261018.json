@@ -1,0 +1,560 @@
+{
+  "schemaVersion": 1,
+  "event": "p2cg1g1-literal-path-amendment",
+  "kind": "parent literal-path amendment",
+  "unit": "P2CG1G1",
+  "node": "R2.authority-live",
+  "registrationOnly": true,
+  "at": "2026-10-18T03:03:18.916Z",
+  "baseline": "bc7abfc4527e585e45911b5dff7d5ba3ae8773a2",
+  "branch": "codex/p2cg1g1-consumer-leaf-amendment-20261018",
+  "actor": {
+    "role": "implementation sub-agent acting for the parent (Root)",
+    "provider": "openai",
+    "servedModel": "gpt-6.1-sol",
+    "identitySource": "T3 Code Codex harness runtime; this is not independent review",
+    "gitAuthor": "Wes Rollings <wrollings@gmail.com> 1792292598 -0600"
+  },
+  "authority": {
+    "instruction": "Root updated the instruction after #2235 merged: rebase the amendment onto origin/main; PR is no longer stacked. Commit and push this G1 amendment and add F-DOC-1 as a second separate commit in the same docs-only PR; do not merge.",
+    "parentRuling": {
+      "actor": "Root on behalf of the owner",
+      "standingInstruction": "continue with recommended options and fix the issues that come up, publish as needed",
+      "decision": "Root accepts the recommended single consumer literal-path amendment for CF-G3 under the owner's standing instruction. CF-G4 stays unchanged with the consumer's next owner at or before H. Existing directory ownership suffices; no ownershipPaths change."
+    },
+    "stack": {
+      "pr": 2235,
+      "head": "c669d0c2241d7bae2cab98fa64e160ac72b3181e",
+      "mergeSha": "bc7abfc4527e585e45911b5dff7d5ba3ae8773a2",
+      "statusAtPublication": "MERGED",
+      "stacked": false,
+      "note": "Rebased onto origin/main after #2235 merged. The original closure head and merged main have identical trees; this PR is unstacked."
+    },
+    "precedents": [
+      {
+        "pr": 2220,
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1d-grant-helper-literal-path-amendment-20261017.json"
+      },
+      {
+        "pr": 2227,
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1i-literal-path-amendment-20261018.json"
+      },
+      {
+        "pr": 2232,
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2-literal-path-amendment-20261018.json"
+      }
+    ],
+    "documentaryInputs": [
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-impl-20261018/docs/audits/2026-10-18-p2cg1g1-admission-stop-report.md",
+        "bytes": 16257,
+        "sha256": "b6786efe57922e789c6e7a2274dd4c36527bda5304694cad0bc0d4864a839788"
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-impl-20261018/G1-PREP.md",
+        "bytes": 13712,
+        "sha256": "72e4529d13f368d49bd2981c043811e9ae5d889bb641601d9f2318bc6f8a6ced"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1f-source-fable-review-20261018.txt",
+        "bytes": 37873,
+        "sha256": "51949e2635b4203fc2bad1814975e908ee288aedf54dc53fbb06f5e88d36f023"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1d-grant-helper-literal-path-amendment-20261017.json",
+        "bytes": 19291,
+        "sha256": "68867be3dffdf14c0b21e371dad2b5e9a215800f2b4df74118b8b20796c4a0a7"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1i-literal-path-amendment-20261018.json",
+        "bytes": 36869,
+        "sha256": "6178a29d34de55e17f4a3dd3946c77e4b42f427035dd0f806bd51b291cd96fcc"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2-literal-path-amendment-20261018.json",
+        "bytes": 68255,
+        "sha256": "af595137bbd193f1c31ede08347c3b218d5491e354654f5a02114a72cb662911"
+      }
+    ],
+    "rebase": {
+      "fromBaseline": "c669d0c2241d7bae2cab98fa64e160ac72b3181e",
+      "onto": "bc7abfc4527e585e45911b5dff7d5ba3ae8773a2",
+      "exactTreeEqualityVerified": true,
+      "method": "git diff --name-only c669d0c2241d7bae2cab98fa64e160ac72b3181e bc7abfc4527e585e45911b5dff7d5ba3ae8773a2 is empty; c669d0c2 is an ancestor of main."
+    }
+  },
+  "defect": {
+    "method": "Precise reading of the unchanged stacked baseline, corroborated by the implementer's measured scratch A/B/C proof. No source mutation or runtime rerun by this author.",
+    "registeredBehavior": "A host rebind on a live bound transport continues the lineage instead of starting from EMPTY (m8 P1).",
+    "consequence": "F privately arms a new 60s pre-receipt timer on every active consumer bind, even if the same transport already delivered its baseline. After G2 binds creators, a quiet remount closes a healthy socket and rejoins from EMPTY after T, defeating continued lineage on both legacy and receipt-mode servers.",
+    "anchors": [
+      {
+        "path": "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+        "line": 149,
+        "text": "const active = transport.campaignId === campaignId && confirm !== undefined;"
+      },
+      {
+        "path": "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+        "line": 155,
+        "text": "const quiet = active"
+      },
+      {
+        "path": "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+        "line": 232,
+        "text": "if (campaignEventFromMessage(message)) heard();"
+      },
+      {
+        "path": "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+        "line": 268,
+        "text": "setRejoins((count) => count + 1),"
+      },
+      {
+        "path": "src/lib/campaign/coop/campaignSyncTransport.ts",
+        "line": 484,
+        "text": "lastSeq = Math.max(lastSeq, sequence);"
+      },
+      {
+        "path": "src/lib/campaign/coop/campaignSyncTransport.ts",
+        "line": 694,
+        "text": "setSequence(message.event.sequence);"
+      },
+      {
+        "path": "src/lib/campaign/coop/campaignSyncTransport.ts",
+        "line": 552,
+        "text": "const existing = getActiveCampaignSyncTransport(options.matchId);"
+      }
+    ],
+    "necessity": [
+      "The timer is private to bindCampaignApplicationConsumer and depends only on active. Suppressing active also disables receipt application; even a new binding flag requires the consumer leaf that defines CampaignApplicationBinding.",
+      "Transport lastSeq() stays -1 after a baseline-only stream: updateLastSeq uses the baseline event sequence -1 and max preserves -1. It cannot establish whether the transport already delivered a campaign frame.",
+      "A new marker in campaignSyncTransport.ts would cross into G2's registered transport/observer leaf (#2232); this amendment does not grant that file to G1.",
+      "Injecting a fake campaign frame into consume fabricates traffic on the authority path. Keeping the old consumer alive across a remount retains the unmounted setRejoins callback while its frame subscription is gone; recovery would break. Reimplementing it in the store duplicates F's consumer and exceeds the intended slice.",
+      "Configuration B isolates the defect after all three existing G1 product leaves are present; C changes only consumer arming and passes. A parent literal grant is required before source admission can include the fix."
+    ],
+    "sourceBlobs": [
+      {
+        "path": "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+        "bytes": 9539,
+        "sha256": "452c1b31b12546000dcf97cde4e685fe3efa800ac87920d93f364a1aac97f154",
+        "gitBlob": "52214359065547473ff2e045c6730b4ed7868711"
+      },
+      {
+        "path": "src/lib/campaign/coop/campaignSyncTransport.ts",
+        "bytes": 23004,
+        "sha256": "781d33b29df4ab77b5528d2db2c2065234c27ba715cc8168cb91b71cb7e5139d",
+        "gitBlob": "14a1c040b406154719909e5f9ee7c47a0a62102c"
+      }
+    ],
+    "measuredProof": {
+      "attribution": "P2CG1G1 implementer stop report / G1-PREP, scratch only; author verified the cited log bytes and hash prefixes, not a new product execution or admission proof.",
+      "rerunByThisAuthor": false,
+      "baseline": "fd9891e16",
+      "node": "v22.22.0",
+      "scratch": "E:/Projects/Personal/MekStation-wt/p2cg1g1-scratch-20261018",
+      "row": "keeps the continued lineage through a quiet confirmation window after the remount (CF-G3)",
+      "steps": [
+        "Reuse a real bound transport; apply/confirm baseline v1-r0 with fact 2, then linked v1-r1 with fact 3.",
+        "Unmount/remount on that same live transport under fake timers; advance 2 x APPLICATION_CONFIRMATION_TIMEOUT_MS.",
+        "Deliver linked v1-r2 with fact 4; require facts [2,3,4], ACKs r0/r1/r2 on one open socket."
+      ],
+      "configurations": [
+        {
+          "id": "A",
+          "product": "Post-F main, no G1 product change (RED baseline)",
+          "result": "FAIL: R1, R2 and CF-G3/W1; 3 failed / 71 passed across G1's four suites",
+          "file": "cfg-A-red-postF.log",
+          "expectedHashPrefix": "f612a76cdf4009e7",
+          "log": {
+            "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proto-20261018/logs/cfg-A-red-postF.log",
+            "bytes": 85906,
+            "sha256": "f612a76cdf4009e7feaea10e2d5bd194fa2565b19cac260341998b41da6fab73"
+          }
+        },
+        {
+          "id": "B",
+          "product": "G1's three registered product leaves, F consumer unchanged",
+          "result": "FAIL: only CF-G3/W1; last confirmation v1-r1 after the remount window closes the healthy socket at T and rejoins, losing the lineage for v1-r2; other 35 hostProjection rows pass",
+          "file": "cfg-B-g1-product-F-consumer.log",
+          "expectedHashPrefix": "652f5798d1ad8115",
+          "log": {
+            "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proto-20261018/logs/cfg-B-g1-product-F-consumer.log",
+            "bytes": 62424,
+            "sha256": "652f5798d1ad8115876f9754476c08a5196564275f8a3acd9e4debefbaf500cf"
+          }
+        },
+        {
+          "id": "C",
+          "product": "B plus the consumer heard-transport change; only arming differs between B and C",
+          "result": "PASS: 6 suites / 102 tests (G1's four suites, F hostRecordRefresh with all three CF-F3 rows, CampaignDashboardPage.reactivity)",
+          "file": "cfg-C-g1-product-consumer-fix.log",
+          "expectedHashPrefix": "963aca2bf6d19c25",
+          "log": {
+            "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proto-20261018/logs/cfg-C-g1-product-consumer-fix.log",
+            "bytes": 79960,
+            "sha256": "963aca2bf6d19c257a95e6fa4afc41cb2cb7a7f73aac8fc56b98f928fdae99a2"
+          }
+        }
+      ]
+    },
+    "permittedRepair": "Consumer remembers transport identities that already delivered any campaign frame (prototype: WeakSet<ICampaignSyncTransport>). A rebind on one arms no new 60s window. A replacement transport after rejoin is a new object and retains its own pre-receipt protection. No new frame or wire behavior; role-agnostic and GC-safe. Receipt-mode close protection remains E's CF12.",
+    "carryForward": {
+      "id": "CF-G4",
+      "status": "unchanged",
+      "owner": "consumer's next owner at or before P2CG1H / activation",
+      "decisionOwed": "Cap, backoff or terminal state for silent-but-open quiet-window cycles, with user-facing text (also CF-F8).",
+      "boundary": "Not absorbed into G1 by this CF-G3 leaf grant; fresh unheard transports still arm windows, so the existing cycle remains."
+    }
+  },
+  "changes": [
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "field": "nodes[id=R2.authority-live].ownershipPathsAmended20261009P2C.restrictions.P2CG1G1",
+      "change": "Append only useCampaignApplicationConsumer.ts (7 -> 8 leaves); existing seven remain in order."
+    },
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "field": "nodes[id=R2.authority-live].ownershipPathsAmended20261009P2C.knownSourceTestLifecycleSubtotals.P2CG1G1",
+      "change": "8 -> 9"
+    },
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "field": "units[id=P2CG1G1].behavior",
+      "change": "Planned leaves (8), name consumer, register CF-G3 memory/window behavior and replacement protection, preserve CF-G4 boundary, update prototype estimate/census."
+    }
+  ],
+  "ownership": {
+    "noOwnershipPathOrExceptionChanges": true,
+    "coveredByExistingDirectory": "src/components/campaign/coop",
+    "nodeAndUnitAlreadyOwnDirectory": true,
+    "validatorRule": "validate-roadmap.mjs unit ownership requires literal membership of each existing unit ownershipPaths entry in owner-node ownershipPaths; the directory entry already satisfies this. --next uses directory containment against in-flight states. Restrictions are the ledger's literal admission grant, not a separately enforced validator restriction rule.",
+    "fClosure": {
+      "state": "main-verified",
+      "mergeSha": "fd9891e161ee13ab8e3a62c56a5f9029bc5fa127",
+      "mainProof": {
+        "path": "evidence/p2cg1f-mainproof-20261018.json",
+        "mergeCommit": "fd9891e161ee13ab8e3a62c56a5f9029bc5fa127",
+        "verdict": "PASS",
+        "runtime": "Source/Main Jest: Tests:       679 passed, 679 total"
+      }
+    },
+    "literalHoldersBeforeAmendment": [
+      {
+        "id": "P2CG1F",
+        "state": "main-verified"
+      },
+      {
+        "id": "P2CF2",
+        "state": "main-verified"
+      }
+    ],
+    "containingUnitOwnershipAudit": [
+      {
+        "id": "U35f",
+        "state": "complete",
+        "paths": [
+          "src/components/campaign/coop"
+        ],
+        "inFlight": false
+      },
+      {
+        "id": "U90",
+        "state": "blocked",
+        "paths": [
+          "src/components/campaign/coop"
+        ],
+        "inFlight": false
+      },
+      {
+        "id": "U36",
+        "state": "complete",
+        "paths": [
+          "src/components/campaign/coop"
+        ],
+        "inFlight": false
+      },
+      {
+        "id": "P2CF",
+        "state": "blocked",
+        "paths": [
+          "src/components/campaign/coop"
+        ],
+        "inFlight": false
+      },
+      {
+        "id": "P2CF2",
+        "state": "main-verified",
+        "paths": [
+          "src/components/campaign/coop"
+        ],
+        "inFlight": false
+      },
+      {
+        "id": "P2CG1F",
+        "state": "main-verified",
+        "paths": [
+          "src/components/campaign/coop"
+        ],
+        "inFlight": false
+      },
+      {
+        "id": "P2CG1G1",
+        "state": "planned",
+        "paths": [
+          "src/components/campaign/coop"
+        ],
+        "inFlight": false
+      },
+      {
+        "id": "P2CG1G2",
+        "state": "blocked",
+        "paths": [
+          "src/components/campaign/coop"
+        ],
+        "inFlight": false
+      },
+      {
+        "id": "P2",
+        "state": "blocked",
+        "paths": [
+          "src/components/campaign/coop"
+        ],
+        "inFlight": false
+      }
+    ],
+    "activeHolders": [],
+    "interpretation": "Only main-verified P2CF2 and F have the consumer literal before the amendment. No in-flight unit claims it by literal, directory or ownership exception on merged main bc7abfc45. Historical and planned/blocked sequential directory grants are retained. Recheck fetched-main overlap and closure before source admission."
+  },
+  "caps": {
+    "unchanged": true,
+    "capException": false,
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "sourceTestLeaves": 8,
+    "knownSourceTestLifecycleSubtotal": 9,
+    "ancillaryFiles": 5,
+    "sourceStageFiles": 13,
+    "spareFiles": 2,
+    "prototypeCountedAdditionsEstimate": "331-340 / 500 (stop report; G1-PREP manifest also notes 326-340 after dropping reset export)",
+    "estimateNote": "No measured source-admission fit is certified. Prototype consumer change is 14 added / 4 deleted counted lines; lifecycle and actual manifest must be remeasured at admission."
+  },
+  "preserved": [
+    "All G1 lifecycle/state, dependencies, ownershipPaths, ownershipExceptions, admissionRequires and caps; G1 remains planned on merged main.",
+    "F main-verified closure and every other unit/node/restriction/subtotal are identical to merged main bc7abfc45.",
+    "Existing evidence and every product/test/helper/dependency file are unchanged."
+  ],
+  "permissionBoundary": "Parent registration only. No source admission, activation, lifecycle change, runtime certification or merge. F closure #2235 is merged; this amendment must land and normal predecessor/mainProof/ancestry/overlap/finite admission gates must pass before G1 source work.",
+  "sourceAdmitted": false,
+  "productFiles": 0,
+  "scope": [
+    "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+    "openspec/planning/2026-09-12-roadmap-completion/units.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g1-literal-path-amendment-20261018.json"
+  ],
+  "preimages": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "bytes": 1087133,
+      "sha256": "3b3868614ceeeb8d07009acd8dbaf14387f0673e2003d26f894d711f66cb40da"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "bytes": 1608351,
+      "sha256": "b9ea0f2b3ee6571f9083de977f1ea422c5711fddc031c91640737dde267de058"
+    }
+  ],
+  "postimages": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "bytes": 1087211,
+      "sha256": "152072508187488758b315649b3663568b0060ec1bd9480991de500543db7718"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "bytes": 1609276,
+      "sha256": "01022e2bbc56491d212cfc88e5b4999426bca4c20be8e1c715faadfe3927b4d8"
+    }
+  ],
+  "fieldDiff": {
+    "method": "Recursive parsed comparison against main bc7abfc4527e585e45911b5dff7d5ba3ae8773a2 after #2235 merged; arrays by index, objects by key. Assert exact three-leaf allowlist and exact three-file scope for this first commit (including new receipt), and verify pre/postimage byte hashes.",
+    "changedLeafCount": 3,
+    "entries": [
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+        "path": "$.nodes[13].ownershipPathsAmended20261009P2C.restrictions.P2CG1G1[7]",
+        "after": "src/components/campaign/coop/useCampaignApplicationConsumer.ts"
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+        "path": "$.nodes[13].ownershipPathsAmended20261009P2C.knownSourceTestLifecycleSubtotals.P2CG1G1",
+        "before": 8,
+        "after": 9
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "path": "$.units[82].behavior",
+        "before": "Eighth narrower P2CG1 successor: surface preparation for creator binding, still legacy on the wire. M2/CF11 is decided at registration: the host fold moves to a module-scoped store, the new src/lib/campaign/coop/campaignHostFoldStore.ts, like the guest mirror. A host rebind on a live bound transport then continues the lineage instead of starting from EMPTY, and retainsLaunchFacts is kept. m13: the surface's refusal and projection helpers move to the new src/components/campaign/coop/campaignCoopSurfaceHelpers.ts, so the surface stays under the max-lines warning before binding grows it. Three surface suites register hand-built fake transports without campaignId (CampaignLifecycleGate, GuestProposalSurface, GuestRebuildStaleGate). Their fakes get the mounted campaignId, because connectStoredCampaignSyncTransport returns null for an existing transport whose campaignId differs from expectedCampaignId, so P2CG1G2's binding would otherwise detach them. hostProjection registers the P2CF2 m8 P1 case (rebind on a live bound transport) with the store behaviour. No creator binds expectedCampaignId here. Planned leaves (7): src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx, src/components/campaign/coop/campaignCoopSurfaceHelpers.ts (new), src/lib/campaign/coop/campaignHostFoldStore.ts (new), and under src/components/campaign/coop/__tests__/ the suites CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx, CampaignLifecycleGate.test.tsx, GuestProposalSurface.test.tsx and GuestRebuildStaleGate.test.tsx. Estimated at about 160-240 counted lines with lifecycle (moved helper lines count again); that is not a cap-fit proof.",
+        "after": "Eighth narrower P2CG1 successor: surface preparation for creator binding, still legacy on the wire. M2/CF11 is decided at registration: the host fold moves to a module-scoped store, the new src/lib/campaign/coop/campaignHostFoldStore.ts, like the guest mirror. A host rebind on a live bound transport then continues the lineage instead of starting from EMPTY, and retainsLaunchFacts is kept. m13: the surface's refusal and projection helpers move to the new src/components/campaign/coop/campaignCoopSurfaceHelpers.ts, so the surface stays under the max-lines warning before binding grows it. Three surface suites register hand-built fake transports without campaignId (CampaignLifecycleGate, GuestProposalSurface, GuestRebuildStaleGate). Their fakes get the mounted campaignId, because connectStoredCampaignSyncTransport returns null for an existing transport whose campaignId differs from expectedCampaignId, so P2CG1G2's binding would otherwise detach them. hostProjection registers the P2CF2 m8 P1 case (rebind on a live bound transport) with the store behaviour. No creator binds expectedCampaignId here. Planned leaves (8): src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx, src/components/campaign/coop/campaignCoopSurfaceHelpers.ts (new), src/lib/campaign/coop/campaignHostFoldStore.ts (new), src/components/campaign/coop/useCampaignApplicationConsumer.ts, and under src/components/campaign/coop/__tests__/ the suites CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx, CampaignLifecycleGate.test.tsx, GuestProposalSurface.test.tsx and GuestRebuildStaleGate.test.tsx. Parent literal-path amendment 2026-10-18 (evidence/p2cg1g1-literal-path-amendment-20261018.json): CF-G3 (P2CG1F review) is included. The consumer remembers transports that already delivered a campaign frame; a rebind on one arms no new 60s pre-receipt window, so the continued lineage survives a quiet remount. Replacement transports after rejoin remain protected by their own pre-receipt window. CF-G4 (cap, backoff or terminal state for the silent-but-open quiet-window cycle, with user-facing text) stays unchanged with the consumer's next owner at or before P2CG1H; it is not absorbed by this CF-G3 amendment. Eight source/test leaves plus units.json, admission/red/local receipts and one independent admission-review slot reserve 13 of 15 source-stage files. Estimated at about 331-340 counted additions with lifecycle (moved helper lines count again), from the stop-report prototype; this is not measured admission fit. Caps and finite source-admission gates are unchanged."
+      }
+    ],
+    "exactFileScope": [
+      "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g1-literal-path-amendment-20261018.json"
+    ],
+    "status": "PASS"
+  },
+  "validation": {
+    "status": "PASS",
+    "node": "v22.22.0",
+    "method": "Real unmodified validator CLIs and Node-native validator tests on the candidate worktree with the receipt present. Results recorded after execution; no product suites or compiler run for this docs-only amendment.",
+    "results": [
+      {
+        "name": "exact-field-diff",
+        "at": "2026-10-18T03:03:55.741Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/g1-amendment-20261018",
+        "command": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "E:/Projects/Personal/MekStation-wt/g1-amendment-evidence-20261018/verify.mjs",
+          "--record"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/g1-amendment-evidence-20261018/exact-field-diff.log",
+        "logSha256": "715e84294891187c910c6a5af62c8521f24426a5ffc689ea134ccf54971b3644",
+        "summary": "PASS: exactly 3 ledger leaves plus the new evidence file; ownership, lifecycle, caps and all other fields unchanged; pre/post hashes match."
+      },
+      {
+        "name": "validate-roadmap-plain",
+        "at": "2026-10-18T03:03:56.138Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/g1-amendment-20261018",
+        "command": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/g1-amendment-evidence-20261018/validate-roadmap-plain.log",
+        "logSha256": "567feb20b9f85c902a3c4492eb3274c970f2370ccbbc6d3390088ad10923b947",
+        "summary": "ROADMAP VALIDATION PASSED: 80 nodes, 13 packages, 381 tasks, 40 triage rows"
+      },
+      {
+        "name": "validate-roadmap-git",
+        "at": "2026-10-18T03:04:02.575Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/g1-amendment-20261018",
+        "command": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+          "--git"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/g1-amendment-evidence-20261018/validate-roadmap-git.log",
+        "logSha256": "0d7d99319c662d2b64fa0c98e73d2d6254bad922234f2c7a68c71758fc9fa890",
+        "summary": "CNI1_SOURCE_SIZING {\"mergeSha\":\"622f46cdbe505fd57cfd5e0a9635496a343baf3e\",\"fileCount\":13,\"maxFiles\":13,\"targetLines\":[250,350],\"reviewGuidanceLines\":500,\"files\":[{\"path\":\"openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs\",\"lines\":771,\"bytes\":50501,\"deleted\":false,\"exempt\":false,\"legacyWiring\":true,\"requiresSizingReview\":false},{\"path\":\"scripts/__tests__/roadmap-codex-identity-capture.test.ts\",\"lines\":1124,\"bytes\":59501,\"deleted\":false,\"exempt\":true,\"legacyWiring\":false,\"requiresSizingReview\":false},{\"path\":\"scripts/__tests__/roadmap-codex-review-identity.test.ts\",\"lines\":1644,\"bytes\":54141,\"deleted\":false,\"exempt\":true,\"legacyWiring\":false,\"requiresSizingReview\":false},{\"path\":\"scripts/__tests__/roadmap-loop-closure-proof.test.ts\",\"lines\":2484,\"bytes\":89940,\"deleted\":false,\"exempt\":true,\"legacyWiring\":false,\"requiresSizingReview\":false},{\"path\":\"scripts/qc/review-identity/contract.mjs\",\"lines\":387,\"bytes\":12768,\"deleted\":false,\"exempt\":false,\"legacyWiring\":false,\"requiresSizingReview\":false},{\"path\":\"scripts/qc/review-identity/custody.mjs\",\"lines\":384,\"bytes\":12331,\"deleted\":false,\"exempt\":false,\"legacyWiring\":false,\"requiresSizingReview\":false},{\"path\":\"scripts/qc/review-identity/native-binding.mjs\",\"lines\":531,\"bytes\":17059,\"deleted\":false,\"exempt\":false,\"legacyWiring\":false,\"requiresSizingReview\":true},{\"path\":\"scripts/qc/review-identity/review.mjs\",\"lines\":415,\"bytes\":12727,\"deleted\":false,\"exempt\":false,\"legacyWiring\":false,\"requiresSizingReview\":false},{\"path\":\"scripts/qc/review-identity/source.mjs\",\"lines\":503,\"bytes\":15058,\"deleted\":false,\"exempt\":false,\"legacyWiring\":false,\"requiresSizingReview\":true},{\"path\":\"scripts/qc/roadmap-codex-identity-capture.mjs\",\"lines\":535,\"bytes\":17027,\"deleted\":false,\"exempt\":false,\"legacyWiring\":false,\"requiresSizingReview\":true},{\"path\":\"scripts/qc/roadmap-ledger-lib.mjs\",\"lines\":184,\"bytes\":5486,\"deleted\":false,\"exempt\":false,\"legacyWiring\":false,\"requiresSizingReview\":false},{\"path\":\"scripts/qc/roadmap-loop-runtime.mjs\",\"lines\":75,\"bytes\":2288,\"deleted\":false,\"exempt\":false,\"legacyWiring\":false,\"requiresSizingReview\":false},{\"path\":\"scripts/qc/roadmap-unit-closure.mjs\",\"lines\":638,\"bytes\":22382,\"deleted\":false,\"exempt\":false,\"legacyWiring\":true,\"requiresSizingReview\":false}]}\nROADMAP VALIDATION PASSED: 80 nodes, 13 packages, 381 tasks, 40 triage rows"
+      },
+      {
+        "name": "validate-roadmap-next",
+        "at": "2026-10-18T03:04:13.968Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/g1-amendment-20261018",
+        "command": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+          "--next"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/g1-amendment-evidence-20261018/validate-roadmap-next.log",
+        "logSha256": "0efda17fabd7832d981104fb0874c325f6407b889243d877289cbca3bce1d26b",
+        "summary": "P2CG1G1"
+      },
+      {
+        "name": "validator-tests",
+        "at": "2026-10-18T03:04:17.948Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/g1-amendment-20261018",
+        "command": [
+          "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+          "--test",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/g1-amendment-evidence-20261018/validator-tests.log",
+        "logSha256": "3382bac1cba3904bec259932bcbaa64e4156d328d1748ae0153ff7a5f220ee81",
+        "summary": "# tests 86\n# pass 86\n# fail 0"
+      },
+      {
+        "name": "openspec-strict",
+        "at": "2026-10-18T03:04:27.433Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/g1-amendment-20261018",
+        "command": [
+          "powershell.exe",
+          "-NoProfile",
+          "-Command",
+          "npx --no-install openspec validate --all --strict; exit $LASTEXITCODE"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/g1-amendment-evidence-20261018/openspec-strict.log",
+        "logSha256": "3f957310c0c3835ba3d5704458ddc03218d48f0b205252ed6d52ca87951ba4f5",
+        "summary": "Totals: 230 passed, 0 failed (230 items)"
+      },
+      {
+        "name": "qc-openspec-ci",
+        "at": "2026-10-18T03:05:32.635Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/g1-amendment-20261018",
+        "command": [
+          "powershell.exe",
+          "-NoProfile",
+          "-Command",
+          "npm run qc:openspec-ci:validate; exit $LASTEXITCODE"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/g1-amendment-evidence-20261018/qc-openspec-ci.log",
+        "logSha256": "5b8f564706d4d1758110b42749f598120cc028d713f83d2c9c79b43af3738c93",
+        "summary": "> mekstation-app@0.1.1 qc:openspec-ci:validate\n> node scripts/qc/validate-openspec-ci-quality.mjs\n\n[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=20/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0"
+      },
+      {
+        "name": "git-diff-check",
+        "at": "2026-10-18T03:04:30.075Z",
+        "cwd": "E:/Projects/Personal/MekStation-wt/g1-amendment-20261018",
+        "command": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exitCode": 0,
+        "log": "E:/Projects/Personal/MekStation-wt/g1-amendment-evidence-20261018/git-diff-check.log",
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "summary": ""
+      }
+    ],
+    "reproducibility": {
+      "amendmentScript": "E:/Projects/Personal/MekStation-wt/g1-amendment-evidence-20261018/amend.mjs",
+      "exactDiffScript": "E:/Projects/Personal/MekStation-wt/g1-amendment-evidence-20261018/verify.mjs",
+      "validatorScript": "E:/Projects/Personal/MekStation-wt/g1-amendment-evidence-20261018/validate.mjs",
+      "noProcessesStopped": true,
+      "finalizationScript": "E:/Projects/Personal/MekStation-wt/g1-amendment-evidence-20261018/finalize.mjs",
+      "rebaseScript": "E:/Projects/Personal/MekStation-wt/g1-amendment-evidence-20261018/rebase-first.mjs"
+    },
+    "initialAttempt": {
+      "name": "qc-openspec-ci",
+      "at": "2026-10-18T03:04:29.543Z",
+      "cwd": "E:/Projects/Personal/MekStation-wt/g1-amendment-20261018",
+      "command": [
+        "powershell.exe",
+        "-NoProfile",
+        "-Command",
+        "npm run qc:openspec-ci:validate; exit $LASTEXITCODE"
+      ],
+      "exitCode": 1,
+      "log": "E:/Projects/Personal/MekStation-wt/g1-amendment-evidence-20261018/qc-openspec-ci-initial-missing-dependencies.log",
+      "logSha256": "d5ee0df2fbaf6958cc29cf661879b48ce30b03e702658d66a04ac8e65350aa18",
+      "summary": "> mekstation-app@0.1.1 qc:openspec-ci:validate\n> node scripts/qc/validate-openspec-ci-quality.mjs\n\nnode:internal/modules/package_json_reader:314\r\n  throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);\r\n        ^\r\n\r\nError [ERR_MODULE_NOT_FOUND]: Cannot find package 'yaml' imported from E:\\Projects\\Personal\\MekStation-wt\\g1-amendment-20261018\\scripts\\qc\\openspec-workflow-contracts.mjs\r\n    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)\r\n    at packageResolve (node:internal/modules/esm/resolve:767:81)\r\n    at moduleResolve (node:internal/modules/esm/resolve:853:18)\r\n    at defaultResolve (node:internal/modules/esm/resolve:983:11)\r\n    at #cachedDefaultResolve (node:internal/modules/esm/loader:731:20)\r\n    at ModuleLoader.resolve (node:internal/modules/esm/loader:708:38)\r\n    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:310:38)\r\n    at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {\r\n  code: 'ERR_MODULE_NOT_FOUND'\r\n}\r\n\r\nNode.js v22.22.0",
+      "reason": "Fresh worktree lacked dependencies: ERR_MODULE_NOT_FOUND for yaml. No validation contract failure.",
+      "resolution": "Created ignored node_modules junction to existing p2cg1g1-impl-20261018 dependency installation; matching lockfile SHA256 9b5881bbd63f6ee8347935f843543ec230185eac706d43bb93c3aca3c0f51a80; reran only the blocked check."
+    },
+    "dependencyNote": "Existing dependency installation reused through a worktree-local ignored junction; no install, dependency/lockfile edit or root-checkout write. Not a fresh npm-ci proof.",
+    "formattingNote": "OpenSpec is intentionally excluded by .oxfmtignore; targeted oxfmt --check found no eligible target (exit 2). Required whitespace proof uses git diff --check.",
+    "rebaseNote": "Recorded validators ran before rebase on the identical c669d0c2 closure tree. Exact tree equality with merged main bc7abfc45 verified; exact field diff/hashes rerun after rebase. Combined final PR validators are recorded separately in the second F-DOC-1 commit receipt."
+  },
+  "measurements": {
+    "actualFiles": 3,
+    "productFiles": 0,
+    "sourceTestHelperEdits": 0,
+    "ledgerDiff": "3\t2\topenspec/planning/2026-09-12-roadmap-completion/roadmap.json\n1\t1\topenspec/planning/2026-09-12-roadmap-completion/units.json"
+  }
+}
