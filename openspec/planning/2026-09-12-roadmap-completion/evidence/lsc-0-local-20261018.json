@@ -1,0 +1,386 @@
+{
+  "schemaVersion": 1,
+  "unit": "LSC-0",
+  "stage": "local",
+  "date": "20261018",
+  "baseline": "2d576747ee8dd210e5f6a5b0f380819b153a203a",
+  "admissionCommit": "156c6cacd8a6292fe64eb54d7f551c398ac0b172",
+  "redCommit": "61c3c11929523c2cf248ae16ec521f3226891986",
+  "contractChanges": [
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/design.md",
+      "sha256": "594fe8d25de45d863e8ec4e49f27fad2f25b8092e5e2b8336981f643a3a2d658",
+      "bytes": 45094,
+      "added": 14,
+      "deleted": 0
+    },
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/specs/user-identity/spec.md",
+      "sha256": "6d9fa8222b2e7ecb70090c5cb439a7607cc05929b3ad94fb0e54a46048fd5d2b",
+      "bytes": 3618,
+      "added": 54,
+      "deleted": 0
+    },
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/specs/player-identity/spec.md",
+      "sha256": "4430664cc4bd0e0997a3139d3cde15d2b9cea323c8e895f71d323ae67cb07d4d",
+      "bytes": 5841,
+      "added": 82,
+      "deleted": 0
+    },
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/specs/coop-campaign-sync/spec.md",
+      "sha256": "fedb701744bf0d99d06a3c8d2fbcfb6202e9f3ee97f5a2da2c79f22c6f8e0b2a",
+      "bytes": 14651,
+      "added": 29,
+      "deleted": 0
+    }
+  ],
+  "caps": {
+    "files": {
+      "actualChanged": 8,
+      "reservedUnwritten": 1,
+      "manifest": 9,
+      "cap": 15
+    },
+    "countedLines": {
+      "added": 195,
+      "cap": 500,
+      "breakdown": {
+        "openspec/changes/design-campaign-authority-and-sync/design.md": {
+          "added": 14,
+          "deleted": 0
+        },
+        "openspec/changes/design-campaign-authority-and-sync/specs/coop-campaign-sync/spec.md": {
+          "added": 29,
+          "deleted": 0
+        },
+        "openspec/changes/design-campaign-authority-and-sync/specs/player-identity/spec.md": {
+          "added": 82,
+          "deleted": 0
+        },
+        "openspec/changes/design-campaign-authority-and-sync/specs/user-identity/spec.md": {
+          "added": 54,
+          "deleted": 0
+        },
+        "openspec/planning/2026-09-12-roadmap-completion/units.json": {
+          "added": 16,
+          "deleted": 6
+        }
+      },
+      "convention": "git diff --numstat --no-renames baseline..HEAD over the four OpenSpec leaves and units.json, added lines only, no deletion credit; evidence receipts line-exempt but file-counted. Includes the units.json local-stage lifecycle edit made in this commit."
+    }
+  },
+  "validatorsAtGreen": {
+    "openspecStrict": {
+      "command": "npx openspec validate --all --strict",
+      "exitCode": 0,
+      "lastLine": "\u0000",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/lsc-0-proof-20261018/green-osv.log",
+        "sha256": "89a3784befdc45a1fb8b4cac58d9703373655afb9d5fa537f58176fbd9cad0c0",
+        "bytes": 13904
+      }
+    },
+    "openspecCi": {
+      "command": "npm run --silent qc:openspec-ci:validate",
+      "exitCode": 0,
+      "lastLine": "\u0000",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/lsc-0-proof-20261018/green-ci.log",
+        "sha256": "217bf050778223aea37e060d483d06f7a1be2ff5d6b8dbd613e7cf90bdf567de",
+        "bytes": 386
+      }
+    },
+    "specPurpose": {
+      "command": "npm run --silent spec:purpose:validate",
+      "exitCode": 0,
+      "lastLine": "\u0000",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/lsc-0-proof-20261018/green-purpose.log",
+        "sha256": "f4384ef8ea0a4efa7f4ce68d88f34dc3c997b75e2cb2257a9cc22ed9f11a9bdf",
+        "bytes": 346
+      }
+    },
+    "roadmapPlain": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "lastLine": "\u0000",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/lsc-0-proof-20261018/green-roadmap.log",
+        "sha256": "4bdfdd94059d7831fc6e970833c990809dd800b8c628deb45ed40869b7794a13",
+        "bytes": 156
+      },
+      "reviewLink": "L6 (Fable review of #2286): log hash now recorded; review report hash below"
+    },
+    "formatting": "openspec/ is in .oxfmtignore; no source file changed, so typecheck/lint/jest are unaffected.",
+    "roadmapGit": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --git",
+      "exitCode": 0,
+      "lastLine": "\u0000",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/lsc-0-proof-20261018/green-roadmap-git.log",
+        "sha256": "c1ae1a6295acb251f6614e1bc117ca2e37b8ef5bfdab5df65c415b137bb9745a",
+        "bytes": 4714
+      }
+    }
+  },
+  "contractProbe": {
+    "script": {
+      "path": "E:/Projects/Personal/MekStation-wt/lsc-0-proof-20261018/probe.cjs",
+      "sha256": "3c6b2c4ea42cbb0ce0ff6b3ef165ac1fdb23275c4e34089424590bdae060bdad",
+      "bytes": 7473
+    },
+    "output": {
+      "path": "E:/Projects/Personal/MekStation-wt/lsc-0-proof-20261018/green-probe.json",
+      "sha256": "2cf6120a417b52935fcc5eeed0f52196d9963e2888b7422fdf3ebd2b1f7a503f",
+      "bytes": 15197
+    },
+    "predicateCount": 38,
+    "allSatisfied": true,
+    "red": "noneSatisfied at RED (evidence/lsc-0-red-20261018.json)"
+  },
+  "unchangedControls": [
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/proposal.md",
+      "unchanged": true
+    },
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+      "unchanged": true
+    },
+    {
+      "path": "openspec/specs/user-identity/spec.md",
+      "unchanged": true
+    },
+    {
+      "path": "openspec/specs/player-identity/spec.md",
+      "unchanged": true
+    },
+    {
+      "path": "openspec/specs/coop-campaign-sync/spec.md",
+      "unchanged": true
+    },
+    {
+      "path": "src/pages/api/multiplayer/auth/token.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/services/vault/IdentityRepository.ts",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/auth.ts",
+      "unchanged": true
+    }
+  ],
+  "contentSummary": {
+    "design.md": "D14 appended (append-only vs baseline): not vault identities; local-seat naming disjoint from match/spectator seats (CF-S-8); operator password per write, operation-id replay (true retry keeps the originally applied password), generation CAS, fresh id per submit, operator window; per-mint seat password, token with the primary mint route's payload/scope/verifier semantics at that head (U101a/c/d census); throttle/lockout 5 failures/60 s bound in player-identity, revoke keeps lock, re-provision clears it, same-host DoS accepted; N5 revocation, race, ghost membership accepted; recovery; loopback/same-origin topology (normative in player-identity); B15/PRIV-1; pending owner questions.",
+    "specs/user-identity/spec.md": "ADDED Local Seat Credentials Are Not Vault Identities (2 scenarios); ADDED Operator Seat Writes Are Throttled Before Key Derivation (1); ADDED Operator Seat Writes Are Idempotent and Generation-Fenced (3).",
+    "specs/player-identity/spec.md": "ADDED Password-Verified Local Seat Token Mint (4 scenarios incl. lockout clearing and second concurrent mint); ADDED Local Seat Revocation and Re-provision (3 incl. mint racing a revoke); ADDED Local Seat Routes Accept Only Loopback Same-Origin Requests (2); ADDED Local Seat Credential Secrecy (1).",
+    "specs/coop-campaign-sync/spec.md": "ADDED Co-op Entry Credential Choice and Recovery (4 scenarios incl. guest re-claim after re-provision)."
+  },
+  "notClaimed": [
+    "No runtime behavior: LSC-1DB/LSC-1S/LSC-1/LSC-2OP/LSC-2/LSC-2P implement it",
+    "No OWNER-RULING; owner questions stay pending",
+    "No remote support, B15 or PRIV-1 discharge",
+    "Throttle/lockout numbers (5/60 s, 10/5 per minute) are Root-recommended defaults pending owner answers"
+  ],
+  "review": "Sensitive authority/privacy/replay/idempotency/concurrency review pending on the exact head; evidence/lsc-0-admission-review-20261018.json is reserved and unwritten.",
+  "postReviewAmendment": {
+    "review": {
+      "report": "E:/Projects/Personal/MekStation-wt/review-2286-20261018/docs/audits/2026-10-18-lsc-0-review.md",
+      "sha256": "4260f8e109b6f4f3fc2f3730766fa0e14358582f42f3d6eb16849637a7c5ea22",
+      "bytes": 27277,
+      "reviewer": "claude-fable-5-1",
+      "reviewedHead": "3f83031a1b06ebf9edd0f12428ea2225ac0fe529",
+      "verdict": "REQUEST CHANGES (in-PR contract fixes only)",
+      "mutantArtifacts": "E:/Projects/Personal/MekStation-wt/review-2286-20261018/.review-2286/ (mutants.cjs, mutants.json: 9/16 killed by probe v1)"
+    },
+    "authority": "Root relay of the review (2026-10-18): fix H1, H2, M1-M6 and the lows in-PR as normative SHALL requirements with scenarios; extend the probe so the surviving mutants are caught; re-run RED/GREEN transparently. Owner standing instruction: \"continue with recommended options and fix the issues that come up, publish as needed\".",
+    "fixes": {
+      "H1": "user-identity ADDED \"Operator Seat Writes Are Throttled Before Key Derivation\" (route-wide, pre-KDF, not keyed by client address or forwarded header) + scenario \"Operator password guessing is throttled\".",
+      "H2": "player-identity ADDED \"Local Seat Routes Accept Only Loopback Same-Origin Requests\" (loopback Host literal, Origin match when present, Sec-Fetch-Site same-origin/none, before body or KDF, local-seat routes only) + scenarios \"Foreign Host is refused before the body\", \"Cross-site Origin is refused before key derivation\".",
+      "M1": "user-identity ADDED \"Operator Seat Writes Are Idempotent and Generation-Fenced\" (duplicate replays recorded outcome without re-applying a password; reused id with different non-secret parameters refused; stale generation refused without state change; fresh operation id per submit) + 3 scenarios; D14 retry sentence corrected (a true retry replays and keeps the originally applied password).",
+      "M2": "player-identity: second concurrent mint refused immediately with retry-after, not queued, not a failed attempt; scenarios \"Second concurrent mint\" and \"Mint racing a revoke\" (no token; same refusal as a revoked seat).",
+      "M3": "player-identity ADDED \"Local Seat Credential Secrecy\" (POST body only; no passwords/derived keys/private keys in URLs, logs, error payloads, operation records, campaign event journal, match history or responses; seat key encrypted at rest under the seat-password vault KDF; decrypted key not outliving the request; Cache-Control: no-store) + scenario \"Mints leave no secret behind\".",
+      "M4": "player-identity and D14: token has \"the same payload, scope and verifier semantics as the primary mint route at that head\" (no U101 collision); D14 names U101a/U101c/U101d census.",
+      "M5": "coop: explicit user action clears stored choice and bearer; refusal directs the user to it; scenario \"Guest re-claims after re-provision\".",
+      "M6": "player-identity: lockout after 5 consecutive failures for 60 s (Root-recommended defaults pending the owner answer, server-side only); refusals of a locked seat run no KDF; failure count and lock durable; successful mint and re-provision clear both, revocation does not; scenario \"Lockout threshold and clearing\".",
+      "L1": "coop: \"only that public choice and the ordinary bearer in the existing per-match session store\".",
+      "L2": "D14: ghost membership of a revoked/rotated principal accepted and disclosed by LSC-2OP.",
+      "L3": "D14: same-host denial of mint via the route-wide window accepted under the trust model.",
+      "L4": "CF-LSC0-5 carried in the PR body.",
+      "L5": "Probe blind spots recorded below; probe v2 closes them for the contract text; LSC-1 RED remains runtime tests (CF-LSC0-9).",
+      "L6": "roadmapPlain/roadmapGit log hashes recorded above; review report hash recorded here."
+    },
+    "probe": {
+      "before": {
+        "version": 1,
+        "path": "E:/Projects/Personal/MekStation-wt/lsc-0-proof-20261018/probe-v1.cjs",
+        "sha256": "bea1e1e93864908842c5e38c9a71018f66a16d9ef11d57997c2a3fec550fe985",
+        "bytes": 3727,
+        "predicates": 20
+      },
+      "after": {
+        "version": 2,
+        "path": "E:/Projects/Personal/MekStation-wt/lsc-0-proof-20261018/probe.cjs",
+        "sha256": "3c6b2c4ea42cbb0ce0ff6b3ef165ac1fdb23275c4e34089424590bdae060bdad",
+        "bytes": 7473,
+        "predicates": 38,
+        "note": "v1 predicates unchanged; 18 binding-strength predicates appended (throttle SHALL, 1 h cap, race clause and scenario, Distinct stable principals, 5/60 in spec and D14, D14 loopback clause, one in-flight mint, H1, H2, M1-M6, L1-L3)."
+      }
+    },
+    "rerunTransparent": {
+      "redOnBaseline": {
+        "tree": "2d576747e leaves extracted with git show (two delta specs absent)",
+        "extractor": {
+          "path": "E:/Projects/Personal/MekStation-wt/lsc-0-proof-20261018/extract.cjs",
+          "sha256": "235fdf4c56ad5fdfcf77fec5265e039a79e2245f4464e01ebf1f997d6bc86cfc",
+          "bytes": 672
+        },
+        "output": {
+          "path": "E:/Projects/Personal/MekStation-wt/lsc-0-proof-20261018/red-v2-probe.json",
+          "sha256": "03abe492e757fbaa1cd4d0ee12f2d947f7899425291ee4d71d12ad345b7088ff",
+          "bytes": 15320
+        },
+        "allSatisfied": false,
+        "noneSatisfied": true,
+        "predicates": 38
+      },
+      "roundOneHead": {
+        "tree": "3f83031a1 leaves",
+        "output": {
+          "path": "E:/Projects/Personal/MekStation-wt/lsc-0-proof-20261018/head1-v2-probe.json",
+          "sha256": "80c9cde170eedad4e8d383b5f6a6c851be50557a0bbeecfef7807eaca67992fa",
+          "bytes": 15250
+        },
+        "allSatisfied": false,
+        "failingPredicates": [
+          "mintRevokeRace",
+          "lockoutNumbers",
+          "oneInFlightMint",
+          "H1_operatorThrottle",
+          "H2_loopbackSameOrigin",
+          "M1_idempotencyCas",
+          "M2_secondMintDefined",
+          "M3_secrecy",
+          "M4_scopeParity",
+          "M5_clearChoice",
+          "M6_lockoutCounter",
+          "L1_bearerWording",
+          "L2_ghostMembership",
+          "L3_sameHostDos"
+        ]
+      },
+      "greenAmended": {
+        "output": {
+          "path": "E:/Projects/Personal/MekStation-wt/lsc-0-proof-20261018/green-probe.json",
+          "sha256": "2cf6120a417b52935fcc5eeed0f52196d9963e2888b7422fdf3ebd2b1f7a503f",
+          "bytes": 15197
+        },
+        "allSatisfied": true,
+        "predicates": 38
+      },
+      "roundOneGreenOutput": {
+        "note": "round-1 GREEN probe output (v1) retained, byte-identical to the reviewer re-run",
+        "path": "E:/Projects/Personal/MekStation-wt/lsc-0-proof-20261018/round1/green-probe.json"
+      }
+    },
+    "mutants": {
+      "harness": {
+        "path": "E:/Projects/Personal/MekStation-wt/lsc-0-proof-20261018/mutants-v2.cjs",
+        "sha256": "1ca676a342c232c32465cf17d0947cec644a4b565781740fc3dab8f72a5693d3",
+        "bytes": 10250,
+        "basis": "reviewer harness .review-2286/mutants.cjs (16 mutants, unchanged anchors) + 14 mutants M17-M30 for the new requirements"
+      },
+      "probeV2": {
+        "killed": 30,
+        "total": 30,
+        "output": {
+          "path": "E:/Projects/Personal/MekStation-wt/lsc-0-proof-20261018/mutants-v2-probe-v2.json",
+          "sha256": "f513c4ba1e33b1c491de92aa30db3657d8244c03b2b4ee74329899e371235bf0",
+          "bytes": 8685
+        }
+      },
+      "probeV1OnAmendedHead": {
+        "killed": 9,
+        "total": 30,
+        "survivors": [
+          "M06",
+          "M07",
+          "M09",
+          "M10",
+          "M14",
+          "M15",
+          "M16",
+          "M17",
+          "M18",
+          "M19",
+          "M20",
+          "M21",
+          "M22",
+          "M23",
+          "M24",
+          "M25",
+          "M26",
+          "M27",
+          "M28",
+          "M29",
+          "M30"
+        ],
+        "output": {
+          "path": "E:/Projects/Personal/MekStation-wt/lsc-0-proof-20261018/mutants-v1-out/mutants.json",
+          "sha256": "93216da1bc03049239c07fbf9acbd7dcf55a290627dfeb4dd2c46fe6486f95b3",
+          "bytes": 8018
+        }
+      },
+      "reviewerSurvivorsNowKilled": [
+        {
+          "id": "M06",
+          "killedBy": [
+            "throttleIsShall"
+          ]
+        },
+        {
+          "id": "M07",
+          "killedBy": [
+            "tokenCapOneHour"
+          ]
+        },
+        {
+          "id": "M09",
+          "killedBy": [
+            "mintRevokeRace"
+          ]
+        },
+        {
+          "id": "M10",
+          "killedBy": [
+            "distinctPrincipalsScenario"
+          ]
+        },
+        {
+          "id": "M14",
+          "killedBy": [
+            "lockoutNumbers"
+          ]
+        },
+        {
+          "id": "M15",
+          "killedBy": [
+            "loopbackGuardDesign"
+          ]
+        },
+        {
+          "id": "M16",
+          "killedBy": [
+            "oneInFlightMint"
+          ]
+        }
+      ],
+      "limit": "Phrase-presence probe: binding evidence for contract text only, not runtime; LSC-1 RED must be runtime tests (CF-LSC0-9)."
+    },
+    "carryForwards": "CF-LSC0-1..11 with owners recorded in the PR #2286 body per review section 7; CF-LSC0-6/7/8 are discharged in-contract by M3/M5/M2+M6 and remain as implementation obligations on LSC-1DB/LSC-1S/LSC-1/LSC-2."
+  }
+}

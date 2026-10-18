@@ -1,0 +1,56 @@
+OWNER-RULING 1298baf37853d636781a03ea633b6c2bf5d5eee3
+
+Unit: LSC-0. Layer L1, parallel LSC lane (#2285). Sensitive classes: authority, privacy, replay, idempotency, concurrency. This is a contract-only unit. PR #2286 at exact head 1298baf37853d636781a03ea633b6c2bf5d5eee3.
+
+Owner text:
+- Standing instruction: "continue with recommended options and fix the issues that come up, publish as needed".
+- 2026-10-18: "I think the recommended actions make sense for the ones that have them", which covers Root posting OWNER-RULINGs.
+- 2026-10-18: "let's keep going on the main path of things using as many sub-agents as we can in parallel to go quickly".
+- The 2026-10-18 project review names UI identity provisioning as the biggest gap.
+Root rules under these.
+
+Basis:
+- Round 1 (Fable 5.1, on 3f83031a1b06ebf9edd0f12428ea2225ac0fe529): REQUEST CHANGES. Report: docs/audits/2026-10-18-lsc-0-review.md, sha256 4260f8e109b6f4f3fc2f3730766fa0e14358582f42f3d6eb16849637a7c5ea22 (27,277 bytes).
+  - H1: an unthrottled operator-password oracle.
+  - H2: the loopback Host / same-origin guard existed only as prose.
+  - M1–M6: idempotency/CAS, the mint-vs-revoke race, secrecy at rest and in logs, U101 scope parity, the forget-choice path, and lockout binding.
+  - 7 probe survivors.
+- Root relayed every fix as normative SHALL text with scenarios. The implementer pushed 1298baf37853d636781a03ea633b6c2bf5d5eee3:
+  - 195/500 lines, with the same 9 manifest files;
+  - the probe grew to 38 checks;
+  - 30/30 mutants are caught, including the 7 earlier survivors.
+- Round 2 (Fable 5.1, on 1298baf37853d636781a03ea633b6c2bf5d5eee3): APPROVE. Report: 2026-10-18-lsc-0-review-r2.md, sha256 21717657db9473a47c46884b726a0bf07571d6ee2fc19dc41d886a313b1a5a67 (26,500 bytes).
+  - Every round-1 item is now normative.
+  - Nothing contradicts U101/U101a–d, B15-0/1/2 or the canonical specs. F1/F2 are not claimed and not worsened.
+  - The requirements can be implemented inside the registered manifests.
+  - The validators pass. CI is 32/32 on the exact head, and the merge state is CLEAN.
+
+Ruling: ACCEPT, and merge at this exact head. Both review reports are copied byte-for-byte into the closure.
+
+Low findings, routed rather than given a new head:
+- L-r2-1: the PR body says 15 round-1 predicate failures; the correct figure is 14, as the receipt states.
+- L-r2-2: the window magnitudes, 10 mint and 5 operator per 60 s, are bound only in D14. This goes to CF-LSC0-15.
+- L-r2-3: the counter/window semantics. This goes to CF-LSC0-16.
+- L-r2-4: a duplicate delivery must still be authenticated. This goes to CF-LSC0-17.
+- L-r2-5: "session store" means sessionStorage, not coopCampaignAuthTokenStore.ts. This goes to LSC-2.
+- L-r2-6: a cosmetic receipt artifact.
+- L-r2-7: 14 reviewer mutants hit scenario bodies the probe cannot see. This goes to CF-LSC0-18: the LSC-1 RED must be runtime tests, and the LSC-1 review must cite those survivors.
+
+Carry-forwards:
+- CF-LSC0-1: F1 -> U101/B15-1.
+- CF-LSC0-2: F2 -> B15-1/U101.
+- CF-LSC0-3: GM-bearer recovery -> LSC-2.
+- CF-LSC0-4: local-seat routes in the U101a/c/d scope census, plus the LSC-1 mirror.
+- CF-LSC0-5: the design.md D14 append -> B15-0 admission, R2.campaign-access, and the closure receipt.
+- CF-LSC0-6: the encrypted-at-rest key and no-secret logging -> LSC-1DB/1S/1.
+- CF-LSC0-7: the forget-choice path -> LSC-2.
+- CF-LSC0-8: race and counter semantics -> LSC-1S/1.
+- CF-LSC0-9 and CF-LSC0-18: probe limits -> the LSC-1 admission and review.
+- CF-LSC0-10: ghost membership -> LSC-2OP/B15-0.
+- CF-LSC0-11: the same-host mint DoS is accepted and documented.
+- CF-LSC0-12: U101c/B15-2 overlap with LSC-2/2OP at admission.
+- CF-LSC0-13: prompted renewal vs canonical Token Rotation -> LSC-1/LSC-2.
+- CF-LSC0-14: a short-ttl seam for the expiry-recovery proof -> LSC-1.
+- CF-LSC0-15, CF-LSC0-16, CF-LSC0-17 -> LSC-1S/LSC-1.
+
+Next: the closure PR releases only LSC-1DB.

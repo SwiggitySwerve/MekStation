@@ -1,3 +1,76 @@
+## 2026-10-18 LSC-0 contract verified on main; LSC-1DB released; closure metadata proposed
+
+LSC-0 advances from implementing to main-verified for contract PR #2286,
+head 1298baf37853d636781a03ea633b6c2bf5d5eee3, merge 811bfd8d40d7d9366616dcd93c5a60ae0c95fd51.
+Its baseline is 2d576747ee8dd210e5f6a5b0f380819b153a203a (the #2285 lscParallelLaneAmendment20261018 merge). Main did not move before the merge: first parent 2d576747ee8dd210e5f6a5b0f380819b153a203a, merge tree f5edb9b8 equal to the head tree and a clean merge-tree; the four contract leaves at the merge equal the head and the local receipt, and the admission controls are byte-identical.
+The owner ruling ([comment 6254759051](https://github.com/SwiggitySwerve/MekStation/pull/2286#issuecomment-6254759051), 3911 bytes, sha256 35b9d3e6719d1b6c73e1497afcfbc44097a3ac6598a14ca3f46c1a7b0529c4be) was posted at 2026-10-18T20:27:52Z, before the merge at 2026-10-18T20:27:58Z. PK-lsc-0-ruling records it.
+
+The admission, red and local receipts came with the contract PR and are unchanged.
+The [review receipt](evidence/lsc-0-admission-review-20261018.json), written at the reserved slot name, binds two independent Fable 5.1 reviews: round 1 on 3f83031a1 REQUEST CHANGES (sha256 4260f8e109b6f4f3fc2f3730766fa0e14358582f42f3d6eb16849637a7c5ea22, 27277 bytes; H1, H2, M1-M6 and lows, fixed in-PR by 1298baf37) and round 2 on the merged head APPROVE (sha256 21717657db9473a47c46884b726a0bf07571d6ee2fc19dc41d886a313b1a5a67, 26500 bytes). Both are preserved byte for byte as base64 envelopes. Ledger within caps: 9/15 files, 195/500 counted lines.
+
+The [merge receipt](evidence/lsc-0-merge-20261018.json) binds the parents, tree, census, contract leaves, admission controls, the D14 line range (CF-LSC0-5), 32/32 checks by name on the head (names equal the recorded 32) and the push runs on the merge commit.
+The [main proof](evidence/lsc-0-mainproof-20261018.json) is a fresh contract run at the merge before any closure edit: Totals: 230 passed, 0 failed (230 items), qc:openspec-ci errors=0, spec:purpose 0 errors, validate-roadmap plain/--git PASSED and --next B14-0, validator tests 86/86, lint:units PASS, contract probe v2 38/38 and v1 20/20 over the merged leaves, spec-text mutants 30/30. All are light node runs; no heavy-run ticket was needed.
+
+Carry-forwards (reviewer rows verbatim in the review receipt; routing as the owner ruling writes):
+
+- CF-LSC0-1 [open]: U101 / B15-1.
+- CF-LSC0-2 [open]: B15-1 / U101.
+- CF-LSC0-3 [open]: LSC-2.
+- CF-LSC0-4 [open]: U101a / U101c / U101d (census); LSC-1 (mirror).
+- CF-LSC0-5 [open]: B15-0 admission; R2.campaign-access; closure receipt (recorded in lsc-0-merge d14).
+- CF-LSC0-6 [open]: LSC-1DB / LSC-1S / LSC-1.
+- CF-LSC0-7 [open]: LSC-2.
+- CF-LSC0-8 [open]: LSC-1S / LSC-1.
+- CF-LSC0-9 [open]: LSC-1 admission and review.
+- CF-LSC0-10 [open]: LSC-2OP / B15-0.
+- CF-LSC0-11 [discharged in-contract (D14 accepted consequence)]: accepted and documented in D14 (discharged in-contract).
+- CF-LSC0-12 [open]: LSC-2OP / LSC-2 admission; U101c; B15-2.
+- CF-LSC0-13 [open]: LSC-1 / LSC-2.
+- CF-LSC0-14 [open]: LSC-1 (seam); LSC-2P (proof).
+- CF-LSC0-15 [open]: LSC-1S / LSC-1.
+- CF-LSC0-16 [open]: LSC-1S / LSC-1.
+- CF-LSC0-17 [open]: LSC-1S / LSC-1.
+- CF-LSC0-18 [open]: LSC-1 admission and review.
+
+Low findings L-r2-1..7 are routed as the ruling writes (L-r2-1 PR-body count 14 not 15; L-r2-2 to CF-LSC0-15; L-r2-3 to CF-LSC0-16; L-r2-4 to CF-LSC0-17; L-r2-5 to LSC-2; L-r2-6 cosmetic; L-r2-7 to CF-LSC0-18).
+
+LSC-0 has no task keys. Its tick remains null; no tasks.md row is changed.
+
+Successor release (separate from the closure): LSC-1DB moves from blocked to planned; its only predecessor LSC-0 is main-verified with a genuine exact-main mainProof PASS in this same change set. No other unit changes: LSC-1S, LSC-1, LSC-2OP, LSC-2, LSC-2P, the B14/HP lane, H and every other unit state are unchanged.
+Selection is not downstream admission.
+This closure metadata still requires its own CI and parent merge.
+
+---
+
+## LSC parallel product lane amendment (2026-10-18)
+
+Council 3b member A sections 1-2 independently verified at Main
+`1e0a34dc5da4c4051115db828e986ceb5aad2fa0`. All seven LSC ownership paths
+and literal manifests are disjoint from B14-0/B14-HEAD/HP, except shared
+`units.json` lifecycle writes. PRs #2281/#2278/#2279/#2282/#2283 were checked
+at the heads recorded in [census evidence](evidence/lsc-parallel-amendment-20261018.txt). The baseline PRs
+intersect LSC-2P's broad `e2e` alias, but none of its literal proof files.
+
+LSC-0 consumes existing identity/token/membership contracts, not HP recovery.
+Its predecessor is now main-verified P2CG1S; LSC-0 is planned, later LSC units
+remain blocked. S/LSC links are symmetric. HP now points directly to H, and H
+retains LSC-2P plus every previous predecessor; its pre-existing HP gate is
+also explicit. `lscParallelLaneAmendment20261018` in both ledgers records the
+owner-overridable product-lane exception alongside B14/HP. Internal lane order
+and all caps/contracts/review/proof/release gates remain. Shared ledger writes
+are serialized with other product and smoke closures. Fresh census remains
+mandatory; historical sequencing clauses are superseded only as stated there.
+
+`--next` remains advisory and selects one candidate in array order. Actual
+baseline output remains **B14-0** because Main still records it planned; the
+selector does not read #2281's GitHub review state or ordinary predecessor
+arrays. B14-HEAD remains blocked pending genuine B14-0 closure. LSC-0 is
+independently eligible on S, even when an earlier smoke unit wins the selector.
+Array placement adds no B14/HP predecessor. No validator semantics, historical
+receipts, source admission or runtime acceptance are changed.
+
+---
+
 ## Data-fidelity registration, review round 2 corrected (2026-10-18)
 
 Rebased after #2275; its L1-SMOKE entries and B14-0 priority remain intact. This is

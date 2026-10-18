@@ -1,0 +1,277 @@
+{
+  "schemaVersion": 1,
+  "unit": "LSC-0",
+  "stage": "admission",
+  "date": "20261018",
+  "baseline": "2d576747ee8dd210e5f6a5b0f380819b153a203a",
+  "authority": "Root council 3b: LSC opens as a PARALLEL product lane, file-disjoint from the B14/HP lane. Ledger amendment #2285 (lscParallelLaneAmendment20261018) merged at 2d576747ee8dd210e5f6a5b0f380819b153a203a: LSC-0 predecessor moved from P2CG1HP to P2CG1S and LSC-0 is planned. Root release message: '#2285 is MERGED. Fetch origin, rebase onto the merge commit yourself, and proceed with the LSC-0 PR: admission -> RED -> GREEN.' Owner standing instruction: \"continue with recommended options and fix the issues that come up, publish as needed\"; owner 2026-10-18: \"I think the recommended actions make sense for the ones that have them\" (option B local seat credentials adopted). This receipt records that release; it is not an owner ruling on the implementation head and answers none of the pending owner questions.",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "LSC implementation sub-agent (council 3b parallel LSC lane)"
+  },
+  "predecessors": {
+    "P2CG1S": "main-verified in units.json on fetched origin/main 2d576747e (the baseline); predecessor per lscParallelLaneAmendment20261018"
+  },
+  "overlap": "Parallel L1 lane under lscParallelLaneAmendment20261018; units within the lane stay serial and shared units.json writes are serialized. No unit is implementing or local-verified in units.json at the baseline. The B14/HP lane (open PR #2281 B14-0) owns src/lib/multiplayer/server, src/pages-modules/api and openspec/specs/fog-of-war/spec.md; none intersects an LSC-0 leaf. All open PRs (#2113, #1886, #2278, #2279, #2281, #2282, #2283) were checked: none touches an LSC-0 leaf. LSC-0 is contract-only and writes no source. Only the LSC-0 record's own lifecycle fields change in units.json.",
+  "restriction": {
+    "container": "R2.authority-live.ownershipPathsAmended20261018LocalSeats.restrictions.LSC-0",
+    "leaves": 9,
+    "registration": "units.json localSeatCredentialsRegistration20261018 (+ split registrations); identity-gap-20261018.txt sha256 e16d2a29ff0d5196b9b5c3962c9fa53d4272be4e086eea58dc1a225cb4aecc76"
+  },
+  "caps": {
+    "files": 15,
+    "productAddedLines": 500
+  },
+  "manifest": {
+    "count": 9,
+    "spare": 6,
+    "reservedUnchanged": 1,
+    "files": [
+      "openspec/changes/design-campaign-authority-and-sync/design.md",
+      "openspec/changes/design-campaign-authority-and-sync/specs/user-identity/spec.md",
+      "openspec/changes/design-campaign-authority-and-sync/specs/player-identity/spec.md",
+      "openspec/changes/design-campaign-authority-and-sync/specs/coop-campaign-sync/spec.md",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-admission-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-red-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-local-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-admission-review-20261018.json"
+    ],
+    "note": "Exactly the nine registered restriction literals: 4 OpenSpec contract leaves (2 existing, 2 new delta specs) + units.json (own LSC-0 lifecycle fields only) + admission/red/local receipts + 1 reserved, unwritten admission-review slot. No source, test, helper, config, tasks.md, proposal.md or canonical openspec/specs file. The six spare slots grant no unnamed output; later review/identity/closure outputs need the separate G-OWN freeze."
+  },
+  "countingConvention": "U41 counted lines = added physical lines (git diff --numstat --no-renames baseline..HEAD, no deletion credit) in the four OpenSpec leaves plus units.json. Evidence receipts are line-exempt but file-counted.",
+  "prepMeasurement": {
+    "source": "LSC-PREP2.md (untracked, lsc-impl-20261018) measured on the scratch port at 1b8558625",
+    "contractLines": 96,
+    "breakdown": {
+      "design.md (append D14)": 14,
+      "specs/coop-campaign-sync/spec.md (append one ADDED requirement)": 23,
+      "specs/player-identity/spec.md (new)": 38,
+      "specs/user-identity/spec.md (new)": 21
+    },
+    "unitsJsonLifecycleEstimate": "about 20 added lines across admission/red/local",
+    "fit": "9/15 files, about 116/500 counted lines"
+  },
+  "census": {
+    "path": "E:/Projects/Personal/MekStation-wt/lsc-0-proof-20261018/frozen-files.json",
+    "sha256": "5427296adb57c46a7603db88ee9056fb6facf3b4016ad386fed658c59935af44",
+    "bytes": 742,
+    "frozenBefore": "any OpenSpec, lifecycle or evidence edit on the branch"
+  },
+  "frozenFiles": [
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/design.md",
+      "exists": true,
+      "sha256": "e33c3b3c710d2bba8a1f1a8993a1e327c5b16208bced45a2b0cd003cd05ed91a",
+      "bytes": 40078,
+      "physicalLines": 141
+    },
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/specs/user-identity/spec.md",
+      "exists": false
+    },
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/specs/player-identity/spec.md",
+      "exists": false
+    },
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/specs/coop-campaign-sync/spec.md",
+      "exists": true,
+      "sha256": "ea19e7dda5057aea6b7bf8f6b87aa785774d65085c97dbcbbbc75c52b45a12b8",
+      "bytes": 12221,
+      "physicalLines": 168
+    }
+  ],
+  "unchangedControls": {
+    "census": {
+      "path": "E:/Projects/Personal/MekStation-wt/lsc-0-proof-20261018/frozen-controls.json",
+      "sha256": "42245f303115c456698601c7bc7927c7e7f5e832275ef948e7e41ebbd097b74d"
+    },
+    "files": [
+      {
+        "path": "openspec/changes/design-campaign-authority-and-sync/proposal.md",
+        "exists": true,
+        "sha256": "4dea616fbf4f28ee9867afe425756e25d2ff95d2628431c5a7dad80abe6da28a",
+        "bytes": 13617,
+        "physicalLines": 37
+      },
+      {
+        "path": "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+        "exists": true,
+        "sha256": "075ce10e1c188fbeb58cf94b5826a1437fac0f28743aaca21b41cd0d83c43ff8",
+        "bytes": 148563,
+        "physicalLines": 111
+      },
+      {
+        "path": "openspec/specs/user-identity/spec.md",
+        "exists": true,
+        "sha256": "faed932c4afaec49969b2879b80577a36180246e42522f721223a9500e99ed28",
+        "bytes": 25003,
+        "physicalLines": 844
+      },
+      {
+        "path": "openspec/specs/player-identity/spec.md",
+        "exists": true,
+        "sha256": "5cd7bd0b91ebee0468c9b593f567b64eaf23cb271c798449b304d221ee846610",
+        "bytes": 5024,
+        "physicalLines": 139
+      },
+      {
+        "path": "openspec/specs/coop-campaign-sync/spec.md",
+        "exists": true,
+        "sha256": "780a1f1f69a4ba5186d2fdbc67e0c8277fabcc72ba92aa7e318812187215d3e5",
+        "bytes": 41619,
+        "physicalLines": 639
+      },
+      {
+        "path": "src/pages/api/multiplayer/auth/token.ts",
+        "exists": true,
+        "sha256": "8a1f93cce5df4d7e3fdef2e092d47d71d9ad2dc0587a3aaf34a31751aa2786cd",
+        "bytes": 5978,
+        "physicalLines": 183
+      },
+      {
+        "path": "src/services/vault/IdentityRepository.ts",
+        "exists": true,
+        "sha256": "621e8c6c077df61fa9d2e953436ccde94e36901a6fc3d3d461f166e0695e0b48",
+        "bytes": 6808,
+        "physicalLines": 254
+      },
+      {
+        "path": "src/lib/multiplayer/server/auth.ts",
+        "exists": true,
+        "sha256": "661c7d1cf98a94c6afb9df4525128ebe3a8ac4e39a2bcf5b20ac22a8d6bb2672",
+        "bytes": 10155,
+        "physicalLines": 318
+      }
+    ],
+    "note": "Canonical specs, the change proposal/tasks and the token/identity sources the contract describes stay byte-identical through GREEN."
+  },
+  "ownershipCensus": {
+    "method": "Every units.json unit field, every roadmap node and every top-level registration walked for path strings (bare src/e2e/docs/openspec aliases included); match = literal equality or ancestor/descendant. Blocked is not unowned.",
+    "script": {
+      "path": "E:/Projects/Personal/MekStation-wt/lsc-0-proof-20261018/census.cjs",
+      "sha256": "ded0b32113e8f47de39c0e4e10471704651cc89455d3ee553a38c67062979025"
+    },
+    "output": {
+      "path": "E:/Projects/Personal/MekStation-wt/lsc-0-proof-20261018/census.json",
+      "sha256": "cd9d03e8860e707c8df2c959f4e7cbcccd99176fa25f141c882f8e9950acfd12"
+    },
+    "leaves": [
+      {
+        "path": "openspec/changes/design-campaign-authority-and-sync/design.md",
+        "exists": true,
+        "claimants": [
+          "U97 (complete) via openspec/changes/design-campaign-authority-and-sync",
+          "LSC-0 (planned) via openspec/changes/design-campaign-authority-and-sync",
+          "U61 (complete) via openspec/changes/design-campaign-authority-and-sync",
+          "B15-0 (blocked) via openspec/changes/design-campaign-authority-and-sync/design.md",
+          "R0.contracts (complete) via openspec/changes/design-campaign-authority-and-sync | openspec/changes/design-campaign-authority-and-sync/design.md",
+          "R1.references (complete) via openspec/changes",
+          "R1.archives (main-verified) via openspec/changes",
+          "R1.remote (main-verified) via openspec/changes",
+          "R2.authority (main-verified) via openspec/changes/design-campaign-authority-and-sync",
+          "R2.authority-live (main-verified) via openspec/changes/design-campaign-authority-and-sync | openspec/changes/design-campaign-authority-and-sync/design.md",
+          "R9.close (planned) via openspec/changes",
+          "R2.campaign-access (planned) via openspec/changes/design-campaign-authority-and-sync/design.md",
+          "units:localSeatCredentialsRegistration20261018 (documentary) via openspec/changes/design-campaign-authority-and-sync/design.md"
+        ],
+        "liveNonLsc": [
+          "B15-0 (blocked) via openspec/changes/design-campaign-authority-and-sync/design.md",
+          "R9.close (planned) via openspec/changes",
+          "R2.campaign-access (planned) via openspec/changes/design-campaign-authority-and-sync/design.md"
+        ]
+      },
+      {
+        "path": "openspec/changes/design-campaign-authority-and-sync/specs/user-identity/spec.md",
+        "exists": false,
+        "claimants": [
+          "U97 (complete) via openspec/changes/design-campaign-authority-and-sync",
+          "LSC-0 (planned) via openspec/changes/design-campaign-authority-and-sync",
+          "U61 (complete) via openspec/changes/design-campaign-authority-and-sync",
+          "R0.contracts (complete) via openspec/changes/design-campaign-authority-and-sync",
+          "R1.references (complete) via openspec/changes",
+          "R1.archives (main-verified) via openspec/changes",
+          "R1.remote (main-verified) via openspec/changes",
+          "R2.authority (main-verified) via openspec/changes/design-campaign-authority-and-sync",
+          "R2.authority-live (main-verified) via openspec/changes/design-campaign-authority-and-sync | openspec/changes/design-campaign-authority-and-sync/specs/user-identity/spec.md",
+          "R9.close (planned) via openspec/changes",
+          "units:localSeatCredentialsRegistration20261018 (documentary) via openspec/changes/design-campaign-authority-and-sync/specs/user-identity/spec.md"
+        ],
+        "liveNonLsc": [
+          "R9.close (planned) via openspec/changes"
+        ]
+      },
+      {
+        "path": "openspec/changes/design-campaign-authority-and-sync/specs/player-identity/spec.md",
+        "exists": false,
+        "claimants": [
+          "U97 (complete) via openspec/changes/design-campaign-authority-and-sync",
+          "LSC-0 (planned) via openspec/changes/design-campaign-authority-and-sync",
+          "U61 (complete) via openspec/changes/design-campaign-authority-and-sync",
+          "R0.contracts (complete) via openspec/changes/design-campaign-authority-and-sync",
+          "R1.references (complete) via openspec/changes",
+          "R1.archives (main-verified) via openspec/changes",
+          "R1.remote (main-verified) via openspec/changes",
+          "R2.authority (main-verified) via openspec/changes/design-campaign-authority-and-sync",
+          "R2.authority-live (main-verified) via openspec/changes/design-campaign-authority-and-sync | openspec/changes/design-campaign-authority-and-sync/specs/player-identity/spec.md",
+          "R9.close (planned) via openspec/changes",
+          "units:localSeatCredentialsRegistration20261018 (documentary) via openspec/changes/design-campaign-authority-and-sync/specs/player-identity/spec.md"
+        ],
+        "liveNonLsc": [
+          "R9.close (planned) via openspec/changes"
+        ]
+      },
+      {
+        "path": "openspec/changes/design-campaign-authority-and-sync/specs/coop-campaign-sync/spec.md",
+        "exists": true,
+        "claimants": [
+          "U97 (complete) via openspec/changes/design-campaign-authority-and-sync",
+          "LSC-0 (planned) via openspec/changes/design-campaign-authority-and-sync",
+          "U61 (complete) via openspec/changes/design-campaign-authority-and-sync",
+          "R0.contracts (complete) via openspec/changes/design-campaign-authority-and-sync",
+          "R1.references (complete) via openspec/changes",
+          "R1.archives (main-verified) via openspec/changes",
+          "R1.remote (main-verified) via openspec/changes",
+          "R2.authority (main-verified) via openspec/changes/design-campaign-authority-and-sync",
+          "R2.authority-live (main-verified) via openspec/changes/design-campaign-authority-and-sync | openspec/changes/design-campaign-authority-and-sync/specs/coop-campaign-sync/spec.md",
+          "R9.close (planned) via openspec/changes",
+          "units:localSeatCredentialsRegistration20261018 (documentary) via openspec/changes/design-campaign-authority-and-sync/specs/coop-campaign-sync/spec.md"
+        ],
+        "liveNonLsc": [
+          "R9.close (planned) via openspec/changes"
+        ]
+      }
+    ],
+    "disposition": "No implementing or local-verified unit claims any LSC-0 leaf. design.md is also literally reserved by B15-0 (blocked) and R2.campaign-access (planned); LSC-0 only appends a new D14 section and edits no existing decision. All four leaves sit under R9.close (planned) via openspec/changes. The two delta specs are new files. Completed/historical owners (U97, U61, R0.contracts, R1.*, R2.authority*) are retained, not edited. The parallel B14/HP lane (B14-0 owns openspec/specs/fog-of-war/spec.md) is file-disjoint."
+  },
+  "bindingNotes": {
+    "N1": "Census of U101/U101a/U101c/U105/B15-2/FOG-H on token.ts, securitySchemas.ts, CampaignCoopEntryPanel.tsx and coopCampaignAuthTokenStore.ts recorded in LSC-PREP2.md; none is an LSC-0 leaf. LSC-0 contract keeps token.ts unchanged (seat mint is a separate route) so later slices avoid the U101/U101a/U101c literal claims.",
+    "N2": "Schema and Playwright leaves are registered as LSC-1DB and LSC-2P; LSC-0 adds none.",
+    "N3": "Contract states route-wide pre-KDF throttling, one in-flight mint per seat and durable per-seat lockout; values are Root recommendations, not owner answers.",
+    "N4": "user-identity delta: seat credentials SHALL NOT be vault identities; multi-identity management remains excluded.",
+    "N5": "player-identity delta and D14: revocation effective at the next mint or renewal; issued bearer keeps its original lifetime (max 1 h); no immediate eviction or retroactive invalidation.",
+    "N6": "H keeps HP plus LSC-2/LSC-2P; not an LSC-0 edit."
+  },
+  "plannedContent": [
+    "design.md: append D14 operator-managed local seat credentials (naming, operator authority, guest mint, throttle/lockout, revocation, recovery, topology/trust, pending owner questions)",
+    "specs/user-identity/spec.md (new): ADDED Local Seat Credentials Are Not Vault Identities (2 scenarios)",
+    "specs/player-identity/spec.md (new): ADDED Password-Verified Local Seat Token Mint; Local Seat Revocation and Re-provision (4 scenarios)",
+    "specs/coop-campaign-sync/spec.md: append ADDED Co-op Entry Credential Choice and Recovery (3 scenarios)"
+  ],
+  "redPlan": "RED = baseline validators PASS (openspec --all --strict, qc:openspec-ci, validate-roadmap plain and --git) and probe.cjs reports noneSatisfied for all 20 contract predicates; GREEN = same validators PASS and allSatisfied. probe.cjs is proof tooling outside the repo, hashed in the receipts.",
+  "probe": {
+    "path": "E:/Projects/Personal/MekStation-wt/lsc-0-proof-20261018/probe.cjs",
+    "sha256": "bea1e1e93864908842c5e38c9a71018f66a16d9ef11d57997c2a3fec550fe985",
+    "predicates": 20
+  },
+  "carryForwards": {
+    "CF-S-8": "From the P2CG1S review: LSC adds no reseat-to-spectator path; D14 says so and keeps the S rows/R1-R4 mutants as anchors. Stays with I1-I4.",
+    "F1": "clientRateLimitKey trusts X-Forwarded-For (pre-existing; token.ts and vault unlock). LSC limits are route-global. Carry to U101/B15.",
+    "F2": "No Host/Origin guard on auth routes (pre-existing). LSC-1 adds one on local-seats only. Carry to B15/U101.",
+    "F3": "Co-op has no expired-token recovery today and bearers default to 1 h; LSC-2 renewal covers primary and seat credentials."
+  },
+  "ownerQuestions": "Pending (localSeatCredentialsRegistration20261018.ownerQuestions); the contract records Root-recommended answers only and supplies no OWNER-RULING.",
+  "holds": "B15 before any remote claim; PRIV-1 unchanged; P2 Task 18, U38 and v2.2.0 human session still require LSC-2 and LSC-2P exact-main closure."
+}

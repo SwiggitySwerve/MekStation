@@ -166,3 +166,32 @@ Campaign history, participant cursors, and projection head SHALL be durable acro
 - **WHEN** the campaign host restarts with both players behind
 - **THEN** each player SHALL resume from its durable authorized cursor
 - **AND** both SHALL converge without creating a fresh empty campaign log
+
+### Requirement: Co-op Entry Credential Choice and Recovery
+
+Each browser profile SHALL choose whether it joins co-op with the primary vault identity or one operator-managed local seat, persisting only that public choice and the ordinary bearer in the existing per-match session store. The chosen principal SHALL pass the existing membership and owner checks; the choice SHALL NOT grant membership, ownership or GM role and SHALL NOT occupy or change a match seat. Passwords and private keys SHALL NOT be persisted in the browser. Renewal and expired-token recovery SHALL prompt for the password of the credential the profile joined with and SHALL refuse to replace the stored bearer with a different principal. An explicit user action SHALL clear the stored credential choice and the stored bearer; a cleared profile re-joins as a fresh principal through ordinary admission, and a recovery refusal SHALL direct the user to that action rather than replacing the bearer.
+
+#### Scenario: Two players and a non-playing GM on one loopback authority
+
+- **GIVEN** a GM profile using the primary vault and two guest profiles using different local seats
+- **WHEN** each reloads and reconnects with an unexpired stored bearer
+- **THEN** all three SHALL keep their distinct playerIds and existing authorization
+
+#### Scenario: Expired bearer recovery
+
+- **GIVEN** a stored co-op bearer that has expired
+- **WHEN** the profile re-enters the password of its chosen credential
+- **THEN** a new bearer for the same playerId SHALL replace the expired one and the session SHALL reconnect
+- **AND** a credential that mints a different playerId SHALL be refused without replacing the stored bearer
+
+#### Scenario: Guest re-claims after re-provision
+
+- **GIVEN** a guest whose seat was re-provisioned, so recovery refuses the new playerId
+- **WHEN** the guest takes the explicit clear action and joins again with the new seat password
+- **THEN** the profile SHALL hold only the new principal, which SHALL need ordinary admission, and the old bearer SHALL be gone
+
+#### Scenario: Packaged proof uses shipped UI only
+
+- **GIVEN** an installed Electron instance serving 127.0.0.1:3001
+- **WHEN** three ordinary browser profiles provision, claim and join through shipped UI
+- **THEN** reload, reconnect, renewal, expiry recovery, revocation and re-provision SHALL be recorded without E2E identity seeding, active-row switching or manual token transfer

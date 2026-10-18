@@ -1,0 +1,74 @@
+LSC parallel-lane verification, council 3b member A, 2026-10-18
+Baseline: 1e0a34dc5da4c4051115db828e986ceb5aad2fa0 (fresh origin/main worktree).
+Source brief: E:/Projects/Personal/MekStation-wt/council3b-20261018/A-critical-path.md sections 1-2.
+Read-only independent ownership and selector reviews corroborated the checks below.
+
+Ownership census (prefix-aware paths, both directions):
+LSC-0: openspec/changes/design-campaign-authority-and-sync
+LSC-1DB: src/services/persistence
+LSC-1S: src/services/vault
+LSC-1: src/services/vault; src/pages/api/multiplayer/auth; src/lib/api/securitySchemas.ts; src/__tests__/api
+LSC-2OP: src/lib/campaign; src/pages-modules/gameplay/campaigns
+LSC-2: src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx; src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx; src/pages-modules/gameplay/campaigns; src/lib/campaign; src/components/campaign/CampaignNavigation.tsx
+LSC-2P: e2e; docs/releases
+All seven have zero ownershipPath intersections with each of:
+B14-0: src/lib/multiplayer/server; openspec/specs/fog-of-war/spec.md
+B14-HEAD: src/pages-modules/api
+P2CG1HP: src/components/campaign/coop; src/lib/multiplayer/server
+Checked localSeatCredentialsRegistration20261018.prospectiveManifests for every LSC unit,
+b14SplitRegistration20261018/current B14-0 manifest, b14HeadRegistration20261018.manifest,
+and hConsumerPrereqAmendment20261018.manifest. Literal intersection is units.json only.
+HP owns useCampaignApplicationConsumer.ts, CampaignCoopRouteSurfaceConnected.tsx,
+its hostProjection test and bindCampaignSyncConnection.test.ts, not CampaignCoopEntryPanel.tsx.
+HEAD owns matchHeadRoute.ts and its test. LSC has neither file.
+
+Live PR census, all OPEN when queried via gh pr view --json state,headRefOid,files:
+#2281 471d6281ce07480119b47b61f7d3ecc07e18e5d5: units.json lifecycle intersection only; no LSC product/spec leaf.
+#2278 60e4b54cb91a80ba2ad7e395baf2f914cfa40b54: 5 e2e alias matches, zero literal intersection.
+#2279 47d2f1c13385e8f48f38df73ac7398a10211af1a: 11 e2e alias matches, zero literal intersection.
+#2282 0da8feed0a2b8dcab071f9f31d92bfd66c41a5ad: 5 e2e alias matches, zero literal intersection.
+#2283 75c833ac037fd3b9e801afb4b710af6a5496056d: 3 e2e alias matches, zero literal intersection.
+The broad e2e alias DOES overlap the baseline PRs; no blanket alias-disjoint claim is made.
+LSC-2P grants only playwright.local-seat-packaged.config.ts, e2e/local-seat-credentials.spec.ts,
+docs/releases/v2.2.0-local-seat-proof.md and its own ledger/evidence leaves; none of those
+three proof files occurs in these PR diffs. Broad aliases never grant directory-wide edits.
+Baseline alias matches:
+#2278 e2e/customizer-category-colors.spec.ts; e2e/customizer-layout-workbench.spec.ts;
+e2e/mobile-navigation.spec.ts; e2e/playtest-sp-smoke.spec.ts; e2e/replay-blocked-history.spec.ts.
+#2279 e2e/campaign-wizard-save-diagnostics.spec.ts; e2e/helpers/campaignFlow.ts;
+e2e/helpers/seamCampaign.ts; e2e/scenario-packs/campaign/experience-pilot.campaign.json;
+e2e/scenario-packs/campaign/experience-pilot.provenance.json;
+e2e/scenario-packs/campaign/navigation-briefing.campaign.json;
+e2e/scenario-packs/campaign/navigation-briefing.provenance.json;
+e2e/scenario-packs/campaign/personnel-roster.campaign.json;
+e2e/scenario-packs/campaign/personnel-roster.provenance.json;
+e2e/scenario-packs/manifest.ts; e2e/scenario-packs/quarantine.ts.
+#2282 e2e/campaign-economy-browser.spec.ts; e2e/campaign-flow.spec.ts;
+e2e/campaign-subroute-recovery.spec.ts; e2e/fixtures/campaign.ts; e2e/saved-custom-combat-launch.spec.ts.
+#2283 e2e/fixtures/sqliteEvidenceReader.ts; e2e/gm-two-player-authority.pack1.spec.ts;
+e2e/gm-two-player-privacy.pack.spec.ts.
+
+LSC-0 consumption:
+Four contract leaves: design.md and specs/{user-identity,player-identity,coop-campaign-sync}/spec.md
+under openspec/changes/design-campaign-authority-and-sync, plus own lifecycle/evidence.
+Defines separate operator-managed durable seat credentials using existing ordinary player-token,
+membership and owner checks. Current token.ts loads repository.getActive(), unlocks the primary
+identity and signs its player token; IdentityRepository.setActive() deactivates other identities.
+The local-seat contract addresses the inability to provision three distinct UI identities.
+No HP retry/settling/first-frame recovery or B14 refusal implementation is consumed by LSC-0.
+N4/N5, the adopted seat policy and same-host trust limits remain binding.
+S is main-verified at 1b8558625e1e488e6ba62b916ec68bd2ed0d701f, recorded mainProof PASS
+(934 tests / 60 suites); git merge-base --is-ancestor to fetched origin/main returned success.
+This is dependency verification, not a new runtime proof or LSC source admission.
+
+Selector interpretation:
+validate-roadmap.mjs --next emits one first eligible unit in array order, not all lanes.
+It uses planned state, node dependencies, coarse in-flight path exclusion and
+registration20261016.predecessors; ordinary predecessor arrays and live GitHub state are not read.
+At this baseline B14-0 is planned, despite #2281 being in review; actual --next remains B14-0.
+If B14-0 alone is marked in-flight in a hypothetical copy, earlier smoke A1 wins.
+If B14-0 and A1 are in-flight, LSC-0 is selectable; B14-HEAD is still blocked.
+After genuine B14-0 closure and parent release, B14-HEAD may be offered by array priority;
+LSC-0 remains eligible in its parallel lane. NEXT never grants source admission or proves closure.
+No validator behavior, historical lifecycle or B14/smoke state is changed to force an answer.
+Each admission must rebase/re-census current Main, every active PR and all reservations.

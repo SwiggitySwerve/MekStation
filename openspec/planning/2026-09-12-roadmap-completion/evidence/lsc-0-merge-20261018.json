@@ -1,0 +1,400 @@
+{
+  "unit": "LSC-0",
+  "stage": "merge",
+  "recordedAt": "2026-10-18T20:37:59Z",
+  "pr": 2286,
+  "title": "LSC-0: contract for operator-managed local seat credentials",
+  "url": "https://github.com/SwiggitySwerve/MekStation/pull/2286",
+  "head": "1298baf37853d636781a03ea633b6c2bf5d5eee3",
+  "reviewedHead": "1298baf37853d636781a03ea633b6c2bf5d5eee3",
+  "mergeSha": "811bfd8d40d7d9366616dcd93c5a60ae0c95fd51",
+  "mergedAt": "2026-10-18T20:27:58Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "Two-parent merge commit (head-guarded)",
+  "parentCount": 2,
+  "treeIntegration": {
+    "parents": [
+      "2d576747ee8dd210e5f6a5b0f380819b153a203a",
+      "1298baf37853d636781a03ea633b6c2bf5d5eee3"
+    ],
+    "expectedTree": "f5edb9b8d5dbd34599538d2fba6adabb07466fcd",
+    "actualTree": "f5edb9b8d5dbd34599538d2fba6adabb07466fcd",
+    "matches": true,
+    "headTree": "f5edb9b8d5dbd34599538d2fba6adabb07466fcd",
+    "headTreeEqualsMergeTree": true,
+    "note": "Main did not move between the PR base 2d576747e (the #2285 merge, the units.json baseline field) and the merge: first parent 2d576747ee8dd210e5f6a5b0f380819b153a203a, second parent the ruled head; merge tree equals the head tree and a clean git merge-tree of the two parents."
+  },
+  "baseline": {
+    "baseline": "2d576747ee8dd210e5f6a5b0f380819b153a203a",
+    "mainAtMerge": "2d576747ee8dd210e5f6a5b0f380819b153a203a",
+    "rebase": false,
+    "mergeBase": "2d576747ee8dd210e5f6a5b0f380819b153a203a",
+    "headCommits": [
+      "156c6cacd8a6292fe64eb54d7f551c398ac0b172",
+      "61c3c11929523c2cf248ae16ec521f3226891986",
+      "3f83031a1b06ebf9edd0f12428ea2225ac0fe529",
+      "1298baf37853d636781a03ea633b6c2bf5d5eee3"
+    ],
+    "commitRoles": [
+      "admission",
+      "red",
+      "green",
+      "round-1 amendment (post-review, no history rewrite)"
+    ]
+  },
+  "census": {
+    "command": "git diff --numstat --no-renames 2d576747ee8dd210e5f6a5b0f380819b153a203a 1298baf37853d636781a03ea633b6c2bf5d5eee3",
+    "changedFiles": 8,
+    "reservedUnwrittenAtMerge": 1,
+    "reservedSlot": "evidence/lsc-0-admission-review-20261018.json",
+    "countedLines": 195,
+    "byFile": [
+      {
+        "path": "openspec/changes/design-campaign-authority-and-sync/design.md",
+        "added": 14,
+        "deleted": 0
+      },
+      {
+        "path": "openspec/changes/design-campaign-authority-and-sync/specs/coop-campaign-sync/spec.md",
+        "added": 29,
+        "deleted": 0
+      },
+      {
+        "path": "openspec/changes/design-campaign-authority-and-sync/specs/player-identity/spec.md",
+        "added": 82,
+        "deleted": 0
+      },
+      {
+        "path": "openspec/changes/design-campaign-authority-and-sync/specs/user-identity/spec.md",
+        "added": 54,
+        "deleted": 0
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-admission-20261018.json",
+        "added": 277,
+        "deleted": 0
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-local-20261018.json",
+        "added": 386,
+        "deleted": 0
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-0-red-20261018.json",
+        "added": 114,
+        "deleted": 0
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "added": 16,
+        "deleted": 6
+      }
+    ],
+    "caps": {
+      "maxFiles": 15,
+      "maxNonGeneratedLines": 500
+    }
+  },
+  "contractLeavesAtMerge": [
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/design.md",
+      "localReceiptSha256": "594fe8d25de45d863e8ec4e49f27fad2f25b8092e5e2b8336981f643a3a2d658",
+      "headSha256": "594fe8d25de45d863e8ec4e49f27fad2f25b8092e5e2b8336981f643a3a2d658",
+      "mergeSha256": "594fe8d25de45d863e8ec4e49f27fad2f25b8092e5e2b8336981f643a3a2d658",
+      "bytes": 45094,
+      "equal": true
+    },
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/specs/user-identity/spec.md",
+      "localReceiptSha256": "6d9fa8222b2e7ecb70090c5cb439a7607cc05929b3ad94fb0e54a46048fd5d2b",
+      "headSha256": "6d9fa8222b2e7ecb70090c5cb439a7607cc05929b3ad94fb0e54a46048fd5d2b",
+      "mergeSha256": "6d9fa8222b2e7ecb70090c5cb439a7607cc05929b3ad94fb0e54a46048fd5d2b",
+      "bytes": 3618,
+      "equal": true
+    },
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/specs/player-identity/spec.md",
+      "localReceiptSha256": "4430664cc4bd0e0997a3139d3cde15d2b9cea323c8e895f71d323ae67cb07d4d",
+      "headSha256": "4430664cc4bd0e0997a3139d3cde15d2b9cea323c8e895f71d323ae67cb07d4d",
+      "mergeSha256": "4430664cc4bd0e0997a3139d3cde15d2b9cea323c8e895f71d323ae67cb07d4d",
+      "bytes": 5841,
+      "equal": true
+    },
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/specs/coop-campaign-sync/spec.md",
+      "localReceiptSha256": "fedb701744bf0d99d06a3c8d2fbcfb6202e9f3ee97f5a2da2c79f22c6f8e0b2a",
+      "headSha256": "fedb701744bf0d99d06a3c8d2fbcfb6202e9f3ee97f5a2da2c79f22c6f8e0b2a",
+      "mergeSha256": "fedb701744bf0d99d06a3c8d2fbcfb6202e9f3ee97f5a2da2c79f22c6f8e0b2a",
+      "bytes": 14651,
+      "equal": true
+    }
+  ],
+  "admissionControlsAtMerge": [
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/proposal.md",
+      "admissionSha256": "4dea616fbf4f28ee9867afe425756e25d2ff95d2628431c5a7dad80abe6da28a",
+      "mergeSha256": "4dea616fbf4f28ee9867afe425756e25d2ff95d2628431c5a7dad80abe6da28a",
+      "unchanged": true
+    },
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+      "admissionSha256": "075ce10e1c188fbeb58cf94b5826a1437fac0f28743aaca21b41cd0d83c43ff8",
+      "mergeSha256": "075ce10e1c188fbeb58cf94b5826a1437fac0f28743aaca21b41cd0d83c43ff8",
+      "unchanged": true
+    },
+    {
+      "path": "openspec/specs/user-identity/spec.md",
+      "admissionSha256": "faed932c4afaec49969b2879b80577a36180246e42522f721223a9500e99ed28",
+      "mergeSha256": "faed932c4afaec49969b2879b80577a36180246e42522f721223a9500e99ed28",
+      "unchanged": true
+    },
+    {
+      "path": "openspec/specs/player-identity/spec.md",
+      "admissionSha256": "5cd7bd0b91ebee0468c9b593f567b64eaf23cb271c798449b304d221ee846610",
+      "mergeSha256": "5cd7bd0b91ebee0468c9b593f567b64eaf23cb271c798449b304d221ee846610",
+      "unchanged": true
+    },
+    {
+      "path": "openspec/specs/coop-campaign-sync/spec.md",
+      "admissionSha256": "780a1f1f69a4ba5186d2fdbc67e0c8277fabcc72ba92aa7e318812187215d3e5",
+      "mergeSha256": "780a1f1f69a4ba5186d2fdbc67e0c8277fabcc72ba92aa7e318812187215d3e5",
+      "unchanged": true
+    },
+    {
+      "path": "src/pages/api/multiplayer/auth/token.ts",
+      "admissionSha256": "8a1f93cce5df4d7e3fdef2e092d47d71d9ad2dc0587a3aaf34a31751aa2786cd",
+      "mergeSha256": "8a1f93cce5df4d7e3fdef2e092d47d71d9ad2dc0587a3aaf34a31751aa2786cd",
+      "unchanged": true
+    },
+    {
+      "path": "src/services/vault/IdentityRepository.ts",
+      "admissionSha256": "621e8c6c077df61fa9d2e953436ccde94e36901a6fc3d3d461f166e0695e0b48",
+      "mergeSha256": "621e8c6c077df61fa9d2e953436ccde94e36901a6fc3d3d461f166e0695e0b48",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/auth.ts",
+      "admissionSha256": "661c7d1cf98a94c6afb9df4525128ebe3a8ac4e39a2bcf5b20ac22a8d6bb2672",
+      "mergeSha256": "661c7d1cf98a94c6afb9df4525128ebe3a8ac4e39a2bcf5b20ac22a8d6bb2672",
+      "unchanged": true
+    }
+  ],
+  "d14": {
+    "path": "openspec/changes/design-campaign-authority-and-sync/design.md",
+    "lines": [
+      143,
+      155
+    ],
+    "blockSha256": "0eb6f609ca19a95d8eeebef9d98631b2155e7ccd6fca4713f462c8b153a6b0fa",
+    "note": "CF-LSC0-5: D14 is appended at these lines of design.md at the merge; B15-0 and R2.campaign-access rebase and re-census design.md at admission."
+  },
+  "postMerge": {
+    "closureBase": "811bfd8d40d7d9366616dcd93c5a60ae0c95fd51"
+  },
+  "checksObservedAt": "2026-10-18T20:29:54.395Z",
+  "checks": {
+    "head": "1298baf37853d636781a03ea633b6c2bf5d5eee3",
+    "total": 32,
+    "successful": 32,
+    "namesEqualExpected32": true,
+    "expectedFrom": "evidence/p2cg1s-local-20261018.json carryForwards[\"CF-H12/CF-E10\"].expectedNames",
+    "jobs": [
+      {
+        "name": "A11y Tests",
+        "id": 117777266592,
+        "conclusion": "success"
+      },
+      {
+        "name": "Build Storybook",
+        "id": 117777266533,
+        "conclusion": "success"
+      },
+      {
+        "name": "Build Test / linux",
+        "id": 117777251129,
+        "conclusion": "success"
+      },
+      {
+        "name": "Build Test / mac",
+        "id": 117777251206,
+        "conclusion": "success"
+      },
+      {
+        "name": "Build Test / win",
+        "id": 117777251145,
+        "conclusion": "success"
+      },
+      {
+        "name": "Coverage Floor",
+        "id": 117777266629,
+        "conclusion": "success"
+      },
+      {
+        "name": "Customizer Regressions",
+        "id": 117777266555,
+        "conclusion": "success"
+      },
+      {
+        "name": "Desktop Tests",
+        "id": 117777266575,
+        "conclusion": "success"
+      },
+      {
+        "name": "Desktop Type Check",
+        "id": 117777266529,
+        "conclusion": "success"
+      },
+      {
+        "name": "Detect Changes",
+        "id": 117777183704,
+        "conclusion": "success"
+      },
+      {
+        "name": "Determinism Audit",
+        "id": 117777266567,
+        "conclusion": "success"
+      },
+      {
+        "name": "E2E Smoke",
+        "id": 117777266531,
+        "conclusion": "success"
+      },
+      {
+        "name": "Format Check",
+        "id": 117777266480,
+        "conclusion": "success"
+      },
+      {
+        "name": "Install Dependencies",
+        "id": 117777183652,
+        "conclusion": "success"
+      },
+      {
+        "name": "Lint",
+        "id": 117777266482,
+        "conclusion": "success"
+      },
+      {
+        "name": "Lint and Test",
+        "id": 117778256857,
+        "conclusion": "success"
+      },
+      {
+        "name": "Perf Budget PR",
+        "id": 117777266610,
+        "conclusion": "success"
+      },
+      {
+        "name": "Perf Smoke Tests",
+        "id": 117777266476,
+        "conclusion": "success"
+      },
+      {
+        "name": "Prepare Build Artifacts",
+        "id": 117777229126,
+        "conclusion": "success"
+      },
+      {
+        "name": "Schema Bridge",
+        "id": 117777266554,
+        "conclusion": "success"
+      },
+      {
+        "name": "Seam Anchors",
+        "id": 117777266523,
+        "conclusion": "success"
+      },
+      {
+        "name": "Statistical Proof PR",
+        "id": 117777266510,
+        "conclusion": "success"
+      },
+      {
+        "name": "Type Check",
+        "id": 117777266585,
+        "conclusion": "success"
+      },
+      {
+        "name": "Unit Tests (1/6)",
+        "id": 117777266519,
+        "conclusion": "success"
+      },
+      {
+        "name": "Unit Tests (2/6)",
+        "id": 117777266613,
+        "conclusion": "success"
+      },
+      {
+        "name": "Unit Tests (3/6)",
+        "id": 117777266558,
+        "conclusion": "success"
+      },
+      {
+        "name": "Unit Tests (4/6)",
+        "id": 117777266590,
+        "conclusion": "success"
+      },
+      {
+        "name": "Unit Tests (5/6)",
+        "id": 117777266699,
+        "conclusion": "success"
+      },
+      {
+        "name": "Unit Tests (6/6)",
+        "id": 117777266599,
+        "conclusion": "success"
+      },
+      {
+        "name": "Validate BV Parity",
+        "id": 117777266520,
+        "conclusion": "success"
+      },
+      {
+        "name": "Validate Combat Suite",
+        "id": 117777266502,
+        "conclusion": "success"
+      },
+      {
+        "name": "Validate Roadmap Ledger",
+        "id": 117777183498,
+        "conclusion": "success"
+      }
+    ],
+    "cfh12Comment": "https://github.com/SwiggitySwerve/MekStation/pull/2286#issuecomment-6254583987"
+  },
+  "requiredChecks": {
+    "observedAt": "2026-10-18T20:29:54.395Z",
+    "contexts": [
+      "Lint and Test"
+    ]
+  },
+  "mergeCommitCheckRuns": {
+    "observedAt": "2026-10-18T20:29:54.395Z",
+    "runs": [
+      "Live Tier Signal completed/success",
+      "Push Docker image completed/skipped",
+      "release completed/skipped",
+      "build completed/skipped",
+      "Build Docker image completed/skipped",
+      "Prepare Build Artifacts completed/skipped",
+      "Determine release tag completed/success",
+      "Publish Live Evidence (windows-latest) completed/success",
+      "version-and-release completed/success",
+      "Publish Live Evidence (ubuntu-latest) completed/success"
+    ],
+    "note": "Push workflows on the merge commit; pr-checks.yml runs only on pull_request."
+  },
+  "ownerRuling": {
+    "ruledHead": "1298baf37853d636781a03ea633b6c2bf5d5eee3",
+    "pr": 2286,
+    "commentId": 6254759051,
+    "author": "SwiggitySwerve",
+    "bodySha256": "35b9d3e6719d1b6c73e1497afcfbc44097a3ac6598a14ca3f46c1a7b0529c4be",
+    "bodyBytes": 3911,
+    "at": "2026-10-18T20:27:52Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2286#issuecomment-6254759051",
+    "bodyPath": "evidence/lsc-0-owner-ruling-6254759051.txt",
+    "fetchedWith": "gh api repos/SwiggitySwerve/MekStation/issues/comments/6254759051 --jq .body, which prints the body plus one LF; the stored copy omits that LF and is byte-identical to _receipts/pr2286-owner-ruling.md (LF-only, no CR, so .gitattributes eol=lf leaves it unchanged)"
+  },
+  "chronology": "Ruled at 2026-10-18T20:27:52Z on the exact head; merged at 2026-10-18T20:27:58Z. The ruling preceded the merge."
+}

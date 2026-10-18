@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "unit": "LSC-0",
+  "stage": "red",
+  "date": "20261018",
+  "baseline": "2d576747ee8dd210e5f6a5b0f380819b153a203a",
+  "admissionCommit": "156c6cacd8a6292fe64eb54d7f551c398ac0b172",
+  "runtime": {
+    "node": "v22.22.0",
+    "openspec": "npx openspec (1.5.x global)",
+    "note": "Validators and the probe are light node runs (no build/jest/playwright/package), run directly per the heavy-run queue README classes."
+  },
+  "contractUnchanged": {
+    "note": "The four LSC-0 leaves are byte-identical to the baseline at RED (frozen in the admission receipt); the two delta specs do not exist yet.",
+    "command": "git diff --quiet <baseline> -- openspec/changes/design-campaign-authority-and-sync",
+    "exitCode": 0
+  },
+  "validatorsAtRed": {
+    "openspecStrict": {
+      "command": "npx openspec validate --all --strict",
+      "exitCode": 0,
+      "lastLine": "\u0000",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/lsc-0-proof-20261018/red-osv.log",
+        "sha256": "89a3784befdc45a1fb8b4cac58d9703373655afb9d5fa537f58176fbd9cad0c0",
+        "bytes": 13904
+      }
+    },
+    "openspecCi": {
+      "command": "npm run --silent qc:openspec-ci:validate",
+      "exitCode": 0,
+      "lastLine": "\u0000",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/lsc-0-proof-20261018/red-ci.log",
+        "sha256": "217bf050778223aea37e060d483d06f7a1be2ff5d6b8dbd613e7cf90bdf567de",
+        "bytes": 386
+      }
+    },
+    "roadmapPlain": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "lastLine": "\u0000",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/lsc-0-proof-20261018/red-roadmap.log",
+        "sha256": "4bdfdd94059d7831fc6e970833c990809dd800b8c628deb45ed40869b7794a13",
+        "bytes": 156
+      }
+    },
+    "roadmapGit": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --git",
+      "exitCode": 0,
+      "lastLine": "\u0000",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/lsc-0-proof-20261018/red-roadmap-git.log",
+        "sha256": "c1ae1a6295acb251f6614e1bc117ca2e37b8ef5bfdab5df65c415b137bb9745a",
+        "bytes": 4714
+      }
+    },
+    "verdict": "PASS on the baseline; the contract unit must keep all four PASS at GREEN."
+  },
+  "contractProbe": {
+    "command": "node E:/Projects/Personal/MekStation-wt/lsc-0-proof-20261018/probe.cjs <repo> <out>",
+    "script": {
+      "path": "E:/Projects/Personal/MekStation-wt/lsc-0-proof-20261018/probe.cjs",
+      "sha256": "bea1e1e93864908842c5e38c9a71018f66a16d9ef11d57997c2a3fec550fe985",
+      "bytes": 3727
+    },
+    "output": {
+      "path": "E:/Projects/Personal/MekStation-wt/lsc-0-proof-20261018/red-probe.json",
+      "sha256": "dd80d51a078d78ced108b621782353ddab8fbdf9b8ae76e9d85953a94f800549",
+      "bytes": 6656
+    },
+    "surfacesPresent": {
+      "design": false,
+      "user": false,
+      "player": false,
+      "coop": false
+    },
+    "predicateCount": 20,
+    "allSatisfied": false,
+    "noneSatisfied": true,
+    "failingPredicates": [
+      "N4_notVaultIdentities",
+      "N4_multiIdentityExcluded",
+      "N5_nextMintOrRenewal",
+      "N5_issuedBearerKeepsLifetime",
+      "N5_noEvictionClaim",
+      "selectionGrantsNoRole",
+      "passwordEveryMint",
+      "N3_throttleLockout",
+      "seatIdNotCredential",
+      "primaryVaultUnchanged",
+      "operatorPasswordPerWrite",
+      "trustModel",
+      "remoteHoldsRetained",
+      "reprovisionRotatesPrincipal",
+      "renewalAndExpiredRecovery",
+      "reloadReconnectStable",
+      "noBrowserSecrets",
+      "packagedProofTopology",
+      "ownerQuestionsPending",
+      "cfS8NoReseatPath"
+    ],
+    "shape": "Every predicate fails on the baseline: no D14 section in design.md, no user-identity or player-identity delta, no co-op credential-choice requirement. No predicate is partially satisfied (noneSatisfied=true), so GREEN cannot pass by pre-existing text."
+  },
+  "scratchControl": {
+    "note": "The same probe over the LSC-PREP2 scratch port of the planned deltas reports allSatisfied=true, so every predicate is reachable by the planned GREEN text.",
+    "output": {
+      "path": "E:/Projects/Personal/MekStation-wt/lsc-0-proof-20261018/probe-scratch.json",
+      "sha256": "5bb48894c113d6d37d7646a6262ba3b8b6b0c707aa31fccd39fbe02be501b198",
+      "bytes": 6597
+    }
+  }
+}
