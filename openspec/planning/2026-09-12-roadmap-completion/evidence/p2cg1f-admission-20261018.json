@@ -1,0 +1,153 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CG1F",
+  "stage": "admission",
+  "date": "20261018",
+  "baseline": "3b80a8bff25ca474f766a5dc7efb290353697946",
+  "authority": "Root delegation (L1 chain unit 5) and Root GATE OPEN message: closure PR #2229 (merge 3b80a8bf) recorded P2CG1E main-verified (mergeSha 696f87f4, mainProof PASS) and released P2CG1F to planned. Admission on the commit actually rebased onto, 3b80a8bf",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "L1 / P2CG1F implementation sub-agent"
+  },
+  "predecessors": {
+    "P2CG1E": "main-verified on fetched origin/main 3b80a8bf: prHead 5032b491, mergeSha 696f87f4ae06714e773c046df1185757f11686a6, review evidence/p2cg1e-review-20261018.json (APPROVE-WITH-NOTES), merge evidence/p2cg1e-merge-20261018.json, mainProof evidence/p2cg1e-mainproof-20261018.json verdict PASS (601/601), closure #2229 merge 3b80a8bf. 696f87f4 is an ancestor of the baseline (git merge-base --is-ancestor exit 0); the baseline is the closure merge itself"
+  },
+  "overlap": "No unit in units.json is in an active state (states at baseline: complete 96, blocked 50, main-verified 26, planned 36). None of the five F leaves changed between 5032b491 and 3b80a8bf (git diff --name-only lists only roadmap ledger/evidence files)",
+  "carryForwards": {
+    "source": "evidence/p2cg1e-review-20261018.json successorNotes.P2CG1F (CF-F1..CF-F9, M1-M3, N1-N6) and the reviewer file docs/audits/2026-10-18-p2cg1e-review.md section 7",
+    "CF-F1": "Directed at the next owner of campaignLaunchAuthorityRoute.test.ts (not an F leaf); not absorbed",
+    "CF-F2": "Directed at the next owner of campaignSyncTransport.test.ts (not an F leaf); not absorbed",
+    "CF-F3": "Directed at F; absorbed. The consumer matches the typed result (refused / recovery-required) or the fixed prefix \"Campaign application recovery required:\" only, never free text; this covers socket-closed. Pre-receipt timeout owned by the consumer: a bound binding that hears no campaign frame within APPLICATION_CONFIRMATION_TIMEOUT_MS (E export, = HEARTBEAT_TIMEOUT_MS) rejoins once; any campaign frame (offer or legacy) ends the window, dispose and rejoin clear it. No reconnect loop: one rejoin per binding (live latch); the transport still never reconnects itself",
+    "CF-F4": "Directed at the next owner of campaignLaunchAuthorityRoute.test.ts; not absorbed",
+    "CF-F5": "Parent (E-DOC-1 documentary correction); not F",
+    "CF-F6": "Directed at F; baseline measured here (lint 87/0, persistence store max-lines 990 already warned, consumer not warned; madge from F two product leaves 1100 files / 173 chains). Before/after in the local receipt",
+    "CF-F7": "Directed at F; all 32 job names verified by name on the exact F head before handoff",
+    "CF-F8": "Directed at the next owner of the launch-page/dashboard client leaves; not absorbed",
+    "CF-F9": "Directed at P2CG1H; not F",
+    "M1-M3": "E leaves; noted",
+    "N1-N6": "Noted. N2 analogue applies here: F was drafted on the E head before the gate (F-PREP below)"
+  },
+  "prep": "F-PREP: before the gate opened, RED tests and implementation were drafted in this worktree on 5032b491 (P2CG1E head; the five F leaves are byte-identical to this baseline) as off-repo patches, with no commit, receipt, lifecycle field or PR. They are not evidence for this head; every result is re-run after this admission commit",
+  "caps": {
+    "files": 15,
+    "productAddedLines": 500
+  },
+  "restriction": {
+    "container": "R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1F",
+    "leaves": 5
+  },
+  "manifest": {
+    "count": 10,
+    "spare": 5,
+    "reservedUnchanged": 1,
+    "note": "5 restriction leaves (2 product, 3 test) + units.json (own lifecycle fields only) + admission/red/local receipts + reserved admission-review slot = 10/15"
+  },
+  "countingConvention": "U41 counted lines = added physical lines (git diff --numstat --no-renames baseline..HEAD, no deletion credit) in the product leaves and units.json. __tests__/ leaves and evidence/ contents are line-exempt; every changed file counts toward 15",
+  "census": {
+    "path": "E:/Projects/Personal/MekStation-wt/p2cg1f-proof-20261018/census.md",
+    "sha256": "66fe796a0286a69384e622488d407ce4c0323aa26ecfc484c0f5097b8661eb81",
+    "bytes": 2860,
+    "frozenBefore": "any source, test, lifecycle or evidence edit in this branch"
+  },
+  "frozenFiles": [
+    {
+      "path": "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+      "exists": true,
+      "sha256": "4798100d184e3b564998203203dfc66c68dc3b2be3a219fcfadf740af1fa9c53",
+      "bytes": 8860,
+      "physicalLines": 258
+    },
+    {
+      "path": "src/stores/campaign/useCampaignPersistenceStore.ts",
+      "exists": true,
+      "sha256": "3a7d2066a1edd240553d0e4d7e520d481010950e9a2d2a19179daf1082ad6481",
+      "bytes": 58962,
+      "physicalLines": 1585
+    },
+    {
+      "path": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx",
+      "exists": true,
+      "sha256": "6423c2dc3f62046f5ccd47f2d75cee93988aa16883c00c215278c962afd0d56f",
+      "bytes": 45836,
+      "physicalLines": 1390
+    },
+    {
+      "path": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+      "exists": true,
+      "sha256": "791084d44cdd41e2a5ca67e0b7bd6d7e69e674f97b6f43e1ea4be791b1d9976c",
+      "bytes": 32457,
+      "physicalLines": 1056
+    },
+    {
+      "path": "src/stores/campaign/__tests__/campaignCommandAckRefresh.test.ts",
+      "exists": true,
+      "sha256": "bf74d38645517fbcf09a2d48aefcfbad5655d7a89a5acebbd61c047ecda2a362",
+      "bytes": 33543,
+      "physicalLines": 987
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "exists": true,
+      "sha256": "df761eb69d9e58e6d4b6f88902a6e894d17f39f7a7b6f25c1bd72f1739b54041",
+      "bytes": 1599065,
+      "physicalLines": 21312
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1f-admission-20261018.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null,
+      "physicalLines": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1f-red-20261018.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null,
+      "physicalLines": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1f-local-20261018.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null,
+      "physicalLines": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1f-admission-review-20261018.md",
+      "exists": false,
+      "sha256": null,
+      "bytes": null,
+      "physicalLines": null
+    }
+  ],
+  "scopeFitProbe": "Pre-gate TS7 probe: the draft touches only the two product leaves (20 added lines: consumer 17, store 3) and the three test leaves; npm run typecheck (typescript7) exit 0. No path outside the five leaves is needed, so no stop report",
+  "estimate": "Registration 45-70 with lifecycle; scope research 55-110. Draft measured 20 product lines plus about 20 lifecycle lines; final figures only at the local stage",
+  "baselineMeasurements": {
+    "lint": {
+      "command": "npx oxlint (npm run lint)",
+      "result": "87 warnings, 0 errors",
+      "leafWarnings": "useCampaignPersistenceStore.ts eslint(max-lines) 990 counted (already warned); useCampaignApplicationConsumer.ts does not warn",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1f-proof-20261018/lint-base.log",
+        "sha256": "458ec1d796380a73fe12eb420b59357520bfbae3496df91ef2d96334673d5da3",
+        "bytes": 39570
+      }
+    },
+    "cycles": {
+      "command": "npx -y madge@8.0.0 --circular --extensions ts,tsx --ts-config tsconfig.json <F two product leaves>",
+      "result": "Processed 1100 files, 173 circular chains",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1f-proof-20261018/madge-base.log",
+        "sha256": "adc5bd28ba11d0a3f80a92d44073385a7d271a5b1e960116ba9162f0be9b0fc0",
+        "bytes": 106006
+      }
+    }
+  },
+  "plan": {
+    "red": "Commit 2 changes only the three test leaves (plus units.json red path and the red receipt); product leaves stay byte-identical to the baseline. Expected RED: CF13 thrown confirmApplied, CF14 discard-flush race (held GET and staged maxima), CF-F3 pre-receipt quiet window. Controls (expected green at RED): CF12 close signal while idle / during held refresh / after application error, m7 host sequence 0, m8 GM fact-bearing baseline and live launch with two adjunct contrasts, CF14 unproved-flush controls, m12 no-saving",
+    "implementation": "Commit 3 changes only the two product leaves (plus units.json local path and the local receipt). No test byte changes after RED; any post-RED test change goes in its own labelled commit",
+    "m12": "Decided by registration: no product change"
+  }
+}
