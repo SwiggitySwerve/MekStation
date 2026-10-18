@@ -112,10 +112,7 @@ export function BipedArmorDiagram({
               onClick={() => onLocationClick(location)}
               onHover={(active) => setHovered(active ? location : null)}
             >
-              <title>
-                {location}
-                {selected ? ' — selected' : ''}
-              </title>
+              <title>{selected ? location + ' — selected' : location}</title>
               <BipedArmorSurface
                 path={plate.path}
                 location={location}
