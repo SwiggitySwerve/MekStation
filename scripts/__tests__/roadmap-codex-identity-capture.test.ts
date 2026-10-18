@@ -12,6 +12,7 @@ const library = pathToFileURL(
 function probe(body: string): void {
   // Retain fixtures, including failed attempts, for direct byte inspection.
   const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'native-capture-'));
+  const started = performance.now();
   const result = spawnSync(
     process.execPath,
     [
@@ -50,6 +51,7 @@ function probe(body: string): void {
     JSON.stringify({
       scenario: expect.getState().currentTestName,
       pid: result.pid,
+      elapsedMs: performance.now() - started,
       status: result.status,
       error: result.error?.message,
       stdout: result.stdout,
@@ -307,6 +309,8 @@ const parserFixtures = `
   import { NATIVE_PRIVATE_ROOTS, checkReadbacks } from ${JSON.stringify(contractModule)};
   import { gzipSync, gunzipSync } from 'node:zlib';
   import { spawnSync as gitSpawn } from 'node:child_process';
+  import childProcess from 'node:child_process';
+  import { syncBuiltinESMExports } from 'node:module';
   import { sourceReadback, sourceReadbackChunk } from ${JSON.stringify(producerModule)};
   const uuid = (n) => n.toString(16).padStart(8, '0') + '-0000-4000-8000-000000000000';
   const parentId = uuid(1), childId = uuid(2), observerId = uuid(3);
@@ -409,6 +413,7 @@ const parserFixtures = `
   const fixtureGit = (repo, args) => {
     const result = gitSpawn('git', ['-c', 'user.name=Native capture fixture',
       '-c', 'user.email=native-capture-fixture@example.invalid', '-c', 'core.autocrlf=false',
+      '-c', 'commit.gpgsign=false',
       '-c', 'core.hooksPath=' + path.join(repo, '.git/hooks'), ...args],
       { cwd: repo, encoding: 'utf8', windowsHide: true });
     assert.equal(result.status, 0, result.stderr);
@@ -931,6 +936,63 @@ describe('native raw source protocol regressions', () => {
       fs.writeFileSync(path.join(root, 'Second-unit-readback.json'), JSON.stringify(second));
     `);
   });
+
+  test('fixture commits do not invoke an inherited signing program', () => {
+    parserProbe(`
+      const config = path.join(root, 'Global.gitconfig');
+      fs.writeFileSync(config, '[commit]\\n gpgsign = true\\n[gpg]\\n program = nonexistent-native-capture-signer\\n');
+      process.env.GIT_CONFIG_GLOBAL = config;
+      const repo = registeredRepo('Signing-independent-repo');
+      assert(!fixtureGit(repo, ['cat-file', 'commit', 'HEAD']).includes('gpgsig '));
+    `);
+  });
+
+  test('producer bounds Windows attribute processes across source, index and optional artifacts', () => {
+    parserProbe(`
+      const repo = registeredRepo('Bounded-repo');
+      const review = path.join(root, 'Review.txt'), local = path.join(root, 'Local.txt');
+      fs.writeFileSync(review, 'review'); fs.writeFileSync(local, 'local');
+      const spawn = childProcess.spawnSync;
+      let attributeCalls = 0;
+      childProcess.spawnSync = (command, ...args) => {
+        if (String(command).endsWith('powershell.exe')) attributeCalls++;
+        return spawn(command, ...args);
+      };
+      syncBuiltinESMExports();
+      const value = sourceReadback({ repoRoot: repo, unit: 'CNI2', reviewOutput: review, localReceipt: local });
+      assert.equal(Buffer.from(value.review, 'base64').toString(), 'review');
+      assert.equal(Buffer.from(value.local, 'base64').toString(), 'local');
+      assert(attributeCalls <= 5, 'attribute processes: ' + attributeCalls);
+      assert.equal(attributeCalls > 0, process.platform === 'win32');
+    `);
+  });
+
+  test.each(['source', 'index', 'frozen', 'review', 'local'])(
+    'producer refuses %s byte drift during final Git revalidation',
+    (kind) => {
+      parserProbe(`
+        const repo = registeredRepo('Drift-repo');
+        const review = path.join(root, 'Review.txt'), local = path.join(root, 'Local.txt');
+        fs.writeFileSync(review, 'review'); fs.writeFileSync(local, 'local');
+        const targets = { source: path.join(repo, 'src/Second.mjs'), index: path.join(repo, '.git/index'),
+          frozen: path.join(repo, 'evidence/frozen.bin'), review, local };
+        const target = targets[${JSON.stringify(kind)}];
+        const original = fs.readFileSync(target);
+        const changed = Buffer.from(original); changed[0] ^= 1;
+        const spawn = childProcess.spawnSync;
+        let inventories = 0;
+        childProcess.spawnSync = (command, args, ...options) => {
+          if (command === 'git' && args.includes('HEAD:' + registrationPath) && ++inventories === 2)
+            fs.writeFileSync(target, changed);
+          return spawn(command, args, ...options);
+        };
+        syncBuiltinESMExports();
+        captureRefused(() => sourceReadback({ repoRoot: repo, unit: 'CNI2', reviewOutput: review, localReceipt: local }));
+        assert.equal(inventories, 2);
+        assert.deepEqual(fs.readFileSync(target), changed);
+      `);
+    },
+  );
 
   test('producer chunk wrapper forwards the selected registered unit and reconstructs its exact source', () => {
     parserProbe(`
