@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "registrationOnly": true,
-  "at": "2026-10-18T01:33:13.164Z",
-  "baseline": "27eca6c10325885fef568212b29151e8ef972988",
+  "at": "2026-10-18T01:56:55.620Z",
+  "baseline": "591a4e2fe058858c467a83ddd7ae178f2cb41bc0",
   "branch": "codex/g2-preadmission-amendment-20261018",
   "actor": {
     "role": "design sub-agent acting for the parent (Root)",
@@ -46,9 +46,23 @@
       "publication": "Push branch and open the requested docs-only PR against main; do not merge."
     },
     "rebase": {
-      "from": "3b80a8bff25ca474f766a5dc7efb290353697946",
-      "onto": "27eca6c10325885fef568212b29151e8ef972988",
-      "note": "Fetched and cleanly rebased the prepared commit; exact field diff proves all other-unit fields, including F lifecycle, equal fresh Main."
+      "from": "27eca6c10325885fef568212b29151e8ef972988",
+      "onto": "591a4e2fe058858c467a83ddd7ae178f2cb41bc0",
+      "note": "Clean rebase onto #2231 after Fable high reviewed b6c2c134. All 14 registered field paths, values and append order match that reviewed head verbatim; every other parsed field equals new Main."
+    },
+    "reviewFollowUp": {
+      "date": "2026-10-18",
+      "actor": "Root on behalf of the owner",
+      "reviewer": "Fable high (as identified by Root)",
+      "reviewedHead": "b6c2c1344fb28b4ac8f6f5d42bab5e2a06c37351",
+      "verdict": "APPROVE-WITH-NOTES",
+      "report": {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2232-20261018/docs/audits/2026-10-18-pr2232-review.md",
+        "bytes": 17344,
+        "sha256": "f753f82df68da813a8540c0208352e29bf0b7bf80030cc642345248d25a9f970"
+      },
+      "instruction": "Required before merge: correct finding 3 privacy baseline in design and evidence; add finding 4 fixture cost and finding 5 modularity risks. Preserve all 14 registered fields verbatim, rebase, refresh evidence, validate, push same PR; do not merge.",
+      "reviewScope": "Verdict applies to reviewedHead only, not automatically to this follow-up. Root owns the out-of-band ruling comment recommended by finding 6."
     }
   },
   "defect": {
@@ -107,7 +121,7 @@
             "text": "export interface IMatchCoopCampaignRegistration {\n  readonly campaignId: string;\n  readonly state: ICampaignAuthoritativeState;"
           }
         ],
-        "result": "The guest lacks campaignId before its registered direct creator, and the existing invite response cannot supply it. Current full metadata GET requires host/seated membership but still returns raw state. An authenticated narrow response is necessary for the selected privacy-preserving all-creators-bound implementation.",
+        "result": "The guest lacks campaignId before its registered direct creator, and the existing invite response cannot supply it. Current full metadata GET requires host/seated membership but still returns raw state. An authenticated narrow response is necessary for the selected privacy-preserving all-creators-bound implementation. Privacy basis corrected under F3: this avoids returning raw match metadata, but does not make campaignId secret. The additional disclosure is the code/match-to-campaign correlation; self-issued bearers do not establish membership, and pre-existing unauthenticated campaign REST exposure is Root backlog B15.",
         "minimalRepair": "Add explicit authenticated campaignIdentity=1 mode to the existing invite handler; return only identity plus the existing summary, using the existing verifier and server-derived campaign-session scope. Preserve anonymous shape, expire invalid codes, no-store, no seat mutation or authority grant.",
         "alternative": "A separate endpoint would also need a new route/test grant. Unbound bootstrap requires an incompatible behavior interpretation and no prebind credit. Neither is claimed impossible; the selected minimum reuses the existing resolver."
       },
@@ -165,7 +179,7 @@
           }
         ],
         "result": "The real invite response requires a server-side authentication/disclosure test beyond UI mocks. The initial multiplayerMatchMeta.test.ts proposal overlaps completed U35c/U35d/U35e ownership. Root explicitly permits a non-colliding exact replacement. Existing securityBoundary.test.ts is an API security suite with no unit owner overlap; its current auth/store defaults are mocks, so a new isolated fixture must delegate authenticateRequest to jest.requireActual and room-code reads to a real InMemoryMatchStore. The old metadata suite stays unchanged as a regression control.",
-        "minimalRepair": "Add an isolated invite-identity describe block using the actual invite handler, generated signed tokens, actual verifier, and real InMemoryMatchStore behind the existing mock store boundary. Restore previous mock behavior between describes. Assert exact private-field-free response, anonymous legacy shape, all auth/scope/query/status failures, no-store and no seat/receipt mutation. No mockResolvedValue(ok:true) as authentication proof; no imported unowned test helper.",
+        "minimalRepair": "Add an isolated invite-identity describe block using the actual invite handler, generated signed tokens, actual verifier, and real InMemoryMatchStore behind the existing mock store boundary. Restore previous mock behavior between describes. Assert exact private-field-free response, anonymous legacy shape, all auth/scope/query/status failures, no-store and no seat/receipt mutation. No mockResolvedValue(ok:true) as authentication proof; no imported unowned test helper. F4: make the hoisted auth wrapper and fixed store factory swappable; the baseline store object lacks getMatchByRoomCode. Restore original delegates after the new signed-token cases.",
         "alternative": "A new prospective test would fail current ownership-path existence validation in a docs-only amendment. The existing unowned API security suite fits both the test responsibility and the unchanged validator without creating a placeholder file."
       },
       {
@@ -271,8 +285,8 @@
       },
       {
         "path": "src/pages/api/multiplayer/matches/[id].ts",
-        "sha256": "a1f60774389e2d6ecd0d6e1aaeca0d82b7be50769084e2bfb5eff3f913d55cf0",
-        "gitBlob": "33728ff620f425833cd3fe4c045ee8ad2a2741e0"
+        "sha256": "e154c330f032c487ad2b965e3b1bea2e3dded46168e53d0720d9a218a1f712cb",
+        "gitBlob": "32a1867c7801ee75a2c24aeeb706a3b2ece60b29"
       },
       {
         "path": "src/lib/multiplayer/server/IMatchStore.ts",
@@ -308,12 +322,170 @@
         "path": "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
         "sha256": "0924d081536053955034e64a320d38fcd46a15047ccdea557b583316648c6936",
         "gitBlob": "d8facdbb42f70a857353b740abb88fe564d32cb2"
+      },
+      {
+        "path": "src/lib/multiplayer/server/auth.ts",
+        "sha256": "661c7d1cf98a94c6afb9df4525128ebe3a8ac4e39a2bcf5b20ac22a8d6bb2672",
+        "gitBlob": "4a38dd1a7e6ace53cc8fc0690a1fb615f7682890"
+      },
+      {
+        "path": "src/pages/api/campaigns/index.ts",
+        "sha256": "06c20cdda625495874846fea99ccd5458966a3947354ca8e6bbd48c6640e205f",
+        "gitBlob": "7f8307cc5499740faf3c09ceb3805fb433b104bc"
+      },
+      {
+        "path": "src/services/campaignPersistence/CampaignPersistenceService.ts",
+        "sha256": "ca263b66afba7bd96ca21691b49d55a0e49bba756152f6a3b11924295db121f9",
+        "gitBlob": "4862394551c44db19e2ce756d5cdd4abff9a5b29"
+      },
+      {
+        "path": "src/pages/api/campaigns/[id].ts",
+        "sha256": "38f598c1c4a80158b735bf43e84f4454b5fd2fecb15213828e4c173d50100462",
+        "gitBlob": "5fa957443bf09139300ed01c2ca8c4eeb125e0bf"
+      },
+      {
+        "path": "docs/FILE_MODULARITY_SPEC.md",
+        "sha256": "1939e91bdeb5b4e04be7e96be8bf7ac6d6e9bc4e72c5e528b8c677186b1d6553",
+        "gitBlob": "90c1e765285ba08d830df21e06f553e21108649a"
       }
     ],
     "probeScript": {
       "path": "E:/Projects/Personal/MekStation-wt/g2-preadmission-evidence-20261018/complete-ownership.mjs",
       "bytes": 19053,
       "sha256": "039d93097a9d2914194dfd0118f5ed2ee8b1a9c8740c999b9f4239ff42aaf0a5"
+    },
+    "privacyBaseline": {
+      "finding": "F3",
+      "bearer": "Tokens are self-signed Ed25519: any vault identity can mint one. Verification binds playerId to the supplied public key and signature, without an admitted-principal registry. The invite gate is vault identity plus live room-code possession; the room code is the actual secret, not bearer membership.",
+      "existingDisclosure": "GET /api/campaigns anonymously enumerates campaign IDs. GET/PUT/DELETE /api/campaigns/[id] lack caller authentication. CampaignId is a de-facto capability for these pre-existing REST routes, subject to existing record-authority, payload, version and live-host guards; it is not globally secret.",
+      "newDisclosure": "The genuinely new disclosure is roomCode/matchId -> campaignId correlation to live-code holders who are not yet admitted, including full-seat, revoked or never-joining callers. The identity response does not establish confidentiality or authorization for the separate REST routes.",
+      "authority": "WS membership, revocation and seat checks remain the actual co-op authority. A returned correlation cannot grant a WS seat, WS stream or application-receipt authority; expectedCampaignId remains a consistency binding.",
+      "backlog": {
+        "id": "B15",
+        "owner": "Root",
+        "status": "Root records the pre-existing unauthenticated campaign-record REST exposure separately; outside G2 and not fixed or closed by this amendment."
+      },
+      "anchors": [
+        {
+          "path": "src/lib/multiplayer/server/auth.ts",
+          "line": 150,
+          "text": "export async function verifyPlayerToken("
+        },
+        {
+          "path": "src/lib/multiplayer/server/auth.ts",
+          "line": 187,
+          "text": "derivedId = derivePlayerId(publicKeyBytes);"
+        },
+        {
+          "path": "src/lib/multiplayer/server/auth.ts",
+          "line": 220,
+          "text": "verified = await crypto.subtle.verify("
+        },
+        {
+          "path": "src/pages/api/campaigns/index.ts",
+          "line": 45,
+          "text": "const { summaries, omitted } = listCampaignSummaries();"
+        },
+        {
+          "path": "src/pages/api/campaigns/index.ts",
+          "line": 56,
+          "text": "res.status(200).json(summaries);"
+        },
+        {
+          "path": "src/services/campaignPersistence/CampaignPersistenceService.ts",
+          "line": 370,
+          "text": "summaries.push(toCampaignSummary(hydrated.record));"
+        },
+        {
+          "path": "src/pages/api/campaigns/[id].ts",
+          "line": 187,
+          "text": "case 'GET': {\n      const result = readCampaign(id);"
+        },
+        {
+          "path": "src/pages/api/campaigns/[id].ts",
+          "line": 219,
+          "text": "case 'PUT': {"
+        },
+        {
+          "path": "src/pages/api/campaigns/[id].ts",
+          "line": 351,
+          "text": "case 'DELETE': {\n      try {\n        const result = deleteCampaign(id);"
+        }
+      ],
+      "method": "Precise reading of the full auth verifier and campaign route handlers, not a runtime authorization test or a G2 remediation claim."
+    },
+    "admissionRisks": [
+      {
+        "finding": "F4",
+        "path": "src/__tests__/api/securityBoundary.test.ts",
+        "risk": "Hoisted auth mock and fixed store factory without getMatchByRoomCode need swappable delegates; adding an isolated describe block alone is insufficient.",
+        "requiredWork": "Delegate auth to jest.requireActual, room-code lookup to a real InMemoryMatchStore, add an in-file Ed25519 token fixture, and restore defaults between cases. Keep existing tests truthful and do not count success-only auth mocks as proof.",
+        "capImpact": "Test additions are line-exempt, but any extracted fixture helper adds a file to the zero-spare manifest and requires the ordinary-cap split.",
+        "anchors": [
+          {
+            "path": "src/__tests__/api/securityBoundary.test.ts",
+            "line": 15,
+            "text": "jest.mock('@/lib/multiplayer/server/auth', () => {"
+          },
+          {
+            "path": "src/__tests__/api/securityBoundary.test.ts",
+            "line": 20,
+            "text": "mockAuthenticateRequest(...args),"
+          },
+          {
+            "path": "src/__tests__/api/securityBoundary.test.ts",
+            "line": 24,
+            "text": "jest.mock('@/lib/multiplayer/server/getDefaultMatchStore', () => ({\n  getDefaultMatchStore: () => ({\n    closeMatch: mockCloseMatch,\n    createMatch: mockCreateMatch,\n    listMatches: mockListMatches,\n  }),\n}));"
+          }
+        ]
+      },
+      {
+        "finding": "F5",
+        "risk": "Aggregate added-line cap fit does not establish modularity fit; contingency likelihood is higher than the census alone suggests.",
+        "files": [
+          {
+            "path": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+            "physicalLines": 533,
+            "category": "React container",
+            "softMax": 500,
+            "hardGuardrail": 600,
+            "estimatedAdditions": [
+              70,
+              115
+            ]
+          },
+          {
+            "path": "src/lib/campaign/coop/campaignSyncTransport.ts",
+            "physicalLines": 720,
+            "category": "runtime logic",
+            "softMax": 400,
+            "hardGuardrail": 500,
+            "estimatedAdditions": [
+              55,
+              90
+            ]
+          }
+        ],
+        "rule": "FILE_MODULARITY_SPEC split triggers include runtime >500 and practical extraction when growth exceeds about 40 lines above soft max. Warning-only lint does not waive these guardrails.",
+        "requiredAction": "Recheck actual verified predecessor sizes at admission. With 15/15 files and zero spare, any required extraction forces a separately registered ordinary-cap contingency split with the helper counted and estimates remeasured. Do not silently add a helper or waive modularity/proof.",
+        "anchors": [
+          {
+            "path": "docs/FILE_MODULARITY_SPEC.md",
+            "line": 39,
+            "text": "2. Runtime logic file exceeds 500 lines."
+          },
+          {
+            "path": "docs/FILE_MODULARITY_SPEC.md",
+            "line": 40,
+            "text": "3. New changes would increase a file that is already over Soft Max by more than"
+          }
+        ]
+      }
+    ],
+    "followUpScript": {
+      "path": "E:/Projects/Personal/MekStation-wt/g2-preadmission-evidence-20261018/review-followup.mjs",
+      "bytes": 10124,
+      "sha256": "ecde22fb015a32d27986c3dacdde8d6e9e887a1c4c8a904034693d3ca4a22435"
     }
   },
   "changes": [
@@ -1451,13 +1623,13 @@
       "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
       "bytes": 1086628,
       "sha256": "c3c3a609faea92a15105722aef021293873b7fac36660c97437e32b1d23a7ddb",
-      "source": "git show 27eca6c10325885fef568212b29151e8ef972988:openspec/planning/2026-09-12-roadmap-completion/roadmap.json"
+      "source": "git show 591a4e2fe058858c467a83ddd7ae178f2cb41bc0:openspec/planning/2026-09-12-roadmap-completion/roadmap.json"
     },
     {
       "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
       "bytes": 1599255,
       "sha256": "177cf8dd80a71827fd4304640fe3f0847070772ef7073579bffc11b989a5d775",
-      "source": "git show 27eca6c10325885fef568212b29151e8ef972988:openspec/planning/2026-09-12-roadmap-completion/units.json"
+      "source": "git show 591a4e2fe058858c467a83ddd7ae178f2cb41bc0:openspec/planning/2026-09-12-roadmap-completion/units.json"
     }
   ],
   "postimages": [
@@ -1473,7 +1645,7 @@
     }
   ],
   "fieldDiff": {
-    "method": "Recursive parsed fresh-main/candidate comparison, arrays by index. Exact 14-leaf allowlist asserted; every other field equal to fetched Main.",
+    "method": "Recursive parsed new-main/candidate comparison, arrays by index. All 14 entries deep-equal the independently reviewed b6c2c134 fieldDiff, including values and append order; every other field equals fetched Main.",
     "changedLeafCount": 14,
     "entries": [
       {
@@ -1562,7 +1734,7 @@
     "results": [
       {
         "name": "validate-roadmap-plain",
-        "at": "2026-10-18T01:33:29.053Z",
+        "at": "2026-10-18T01:56:56.638Z",
         "cwd": "E:/Projects/Personal/MekStation-wt/g2-preadmission-20261018",
         "command": [
           "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
@@ -1575,7 +1747,7 @@
       },
       {
         "name": "validate-roadmap-git",
-        "at": "2026-10-18T01:33:33.095Z",
+        "at": "2026-10-18T01:57:00.618Z",
         "cwd": "E:/Projects/Personal/MekStation-wt/g2-preadmission-20261018",
         "command": [
           "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
@@ -1589,7 +1761,7 @@
       },
       {
         "name": "validator-tests",
-        "at": "2026-10-18T01:33:44.256Z",
+        "at": "2026-10-18T01:57:12.516Z",
         "cwd": "E:/Projects/Personal/MekStation-wt/g2-preadmission-20261018",
         "command": [
           "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
@@ -1598,12 +1770,12 @@
         ],
         "exitCode": 0,
         "log": "E:\\Projects\\Personal\\MekStation-wt\\g2-preadmission-evidence-20261018\\validator-tests.log",
-        "logSha256": "4a42f4ec0f237029efb14159ebee9aab7f6a2553a0ef9215fc7b44c62ba4b495",
+        "logSha256": "4d2ce7d5e93a09b2c5fd5d3ac0fa963871a026397353952146c75fc11fc33b14",
         "summary": "# tests 86\n# pass 86\n# fail 0"
       },
       {
         "name": "openspec-strict",
-        "at": "2026-10-18T01:33:54.386Z",
+        "at": "2026-10-18T01:57:22.058Z",
         "cwd": "E:/Projects/Personal/MekStation-wt/g2-preadmission-20261018",
         "command": [
           "powershell.exe",
@@ -1618,7 +1790,7 @@
       },
       {
         "name": "git-diff-check",
-        "at": "2026-10-18T01:33:55.797Z",
+        "at": "2026-10-18T01:57:23.571Z",
         "cwd": "E:/Projects/Personal/MekStation-wt/g2-preadmission-20261018",
         "command": [
           "git",
@@ -1636,7 +1808,8 @@
       "fieldDiffLog": "E:\\Projects\\Personal\\MekStation-wt\\g2-preadmission-evidence-20261018\\field-diff.json",
       "noProcessesStopped": true,
       "validatorScript": "E:\\Projects\\Personal\\MekStation-wt\\g2-preadmission-evidence-20261018\\validate.mjs",
-      "overlapLog": "E:/Projects/Personal/MekStation-wt/g2-preadmission-evidence-20261018/ownership-overlap.json"
+      "overlapLog": "E:/Projects/Personal/MekStation-wt/g2-preadmission-evidence-20261018/ownership-overlap.json",
+      "reviewFollowUpScript": "E:/Projects/Personal/MekStation-wt/g2-preadmission-evidence-20261018/review-followup.mjs"
     },
     "node": "v22.22.0",
     "machineIdle": {
