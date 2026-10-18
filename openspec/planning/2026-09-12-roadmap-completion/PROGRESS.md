@@ -1,3 +1,73 @@
+## 2026-10-18 P2CG1E source verified on main; P2CG1F released; closure metadata proposed
+
+P2CG1E advances from implementing to main-verified for source PR #2228,
+head 5032b491162b2d082acfe2a33be5063a558ba326, merge 696f87f4ae06714e773c046df1185757f11686a6.
+Its baseline remains the admission base a64c6f1c9e77ecf2d6be38f2dd00316241557a85 (the merge of #2226); the merge's first parent is b843b5ac465ee84c30b4e05e1cbf4d99c3a54b4b (the merge of #2227, which touches no P2CG1E leaf).
+The owner authorized this ruling in chat, and it was posted as [comment 6243490372](https://github.com/SwiggitySwerve/MekStation/pull/2228#issuecomment-6243490372), which quotes that instruction;
+its exact UTF-8 body (1615 bytes), without an added newline, hashes to 3477f8b57325ee6e3335f7616904b3bb120c8e5b952ffb848b8d6eb0d44b89a9.
+The ruling (00:04:16Z) preceded the head-guarded merge (00:04:24Z), and PR #2228 carries the owner-ruled label.
+PK-p2cg1e-ruling records that ruling.
+
+The admission, red and local receipts came with the source PR and are unchanged.
+The [review receipt](evidence/p2cg1e-review-20261018.json) binds the independent review of the exact merged head, preserved byte for byte
+(APPROVE-WITH-NOTES, no blockers, minors M1-M3, notes N1-N6; reviewer Claude Fable 5.1 high, substituting for GPT Astra; author Opus 5.5; sha256 238f2b8cec082ba78e9a67926f566bfda305b7cada398e1a497a85951755b4f3).
+It records the five sensitive review classes (authority, privacy, replay, idempotency, concurrency) with the reviewer's section 5 findings verbatim; none records a product defect, and the three unpinned cases they name (RM-E2, RM-E4, RM-E5) are carried as CF-F1 and CF-F2.
+The reviewer re-derived the ledger discipline (admission freeze first, product byte-identical at red, no test byte changed after red, 11 changed + 1 reserved = 12/15 files, 192/500 counted lines),
+replayed RED independently (17 failed / 139 passed, titles identical to the receipt),
+re-ran the three registered suites (156/156), the Task 14 selector (104/104), the P2CG1C (54/54), P2CG1B (45/45) and P2CG1D (119/119) suites, the 35 A1/A2 suites (388/388), the four client callers (27/27), the 200 related suites, typecheck, lint, format, lint:units, madge, the validators and OpenSpec,
+and caught 4 of 8 independent mutants; the four survivors (RM-E2, RM-E4, RM-E5, RM-E8) are coverage gaps, not product defects (CF-F1, CF-F2). Neither the author nor the reviewer ran npm run test:stable; the CI unit shards stand in for it.
+Lint (review section 3): "87 warnings, 0 errors; warning-site multiset identical to the author's baseline log; `campaignSyncTransport.ts` max-lines 661 counted (618 at baseline, already warned); route, gate and create not warned"
+The reserved p2cg1e-admission-review-20261017.md slot stays unwritten.
+
+The review's carry-forward wording for P2CG1F is recorded verbatim under successorNotes.P2CG1F in the review receipt:
+section 7 items 1-9 and its closing paragraph, and minors M1-M3 and notes N1-N6 from section 8.
+CF-F9 is directed at P2CG1H; CF-F1 and CF-F4 at the next owner of campaignLaunchAuthorityRoute.test.ts, CF-F2 at the next owner of campaignSyncTransport.test.ts, CF-F5 at the parent and CF-F8 at the next owner of the launch-page/dashboard client leaves, as the review's owner brackets say.
+
+- P2CG1F CF-F1 (no-second-switch pin) [next owner of campaignLaunchAuthorityRoute.test.ts]: "**CF-F1 (no-second-switch pin) [next owner of campaignLaunchAuthorityRoute.test.ts].** RM-E2 survived: keying the route on `getCampaignHostRegistry().get(sessionId)?.launch != null` instead of the port passes all 60 cases, because every receipt fixture has a rebuilt entry with a view. Pin: port installed, no registry entry for the session (dispose before the call) -> the receipt branch is still taken (`prepare` called, `evidence-unavailable`/`participants-behind` answer, never the legacy cursor gate)."
+- P2CG1F CF-F2 (terminal-signal pins) [next owner of campaignSyncTransport.test.ts]: "**CF-F2 (terminal-signal pins) [next owner of campaignSyncTransport.test.ts].** Pin (a) recovery then remote close emits no second `recovery-required` (RM-E5); (b) an `unknown-receipt` refusal that arrives before any ACK was sent recovers (RM-E4), or record the opposite decision; (c) `jest.getTimerCount()` stays at one armed wait across two consecutive ACKs (RM-E8). All three are test-only; the product already behaves this way."
+- P2CG1F CF-F3 (consumer rejoin contract): "**CF-F3 (consumer rejoin contract).** F consumes the `recovery-required` signal. The transport emits it twice: as the returned `CampaignAppliedResult` from `complete`/`drain`, and as an `Error` whose message is `Campaign application recovery required: <reason>` through `onError`. Reasons now: `application-refused`, `head-drift-exhausted`, `confirmation-timeout`, `socket-closed`, `send-failed`, `prefix-conflict`, `pending-overflow`, `application-failed`. Match on the typed result or the fixed prefix, not on free text; a typed error class is worth adding when the transport leaf next opens. A remote close before receipt mode latches emits no signal by design (legacy close kept), so F must own its own pre-receipt timeout, and F must not reconnect in a loop on `socket-closed` without the consumer's say (the transport never reconnects itself)."
+- P2CG1F CF-F4 (await the async handler) [next owner of campaignLaunchAuthorityRoute.test.ts]: "**CF-F4 (await the async handler) [next owner of campaignLaunchAuthorityRoute.test.ts].** Sixteen legacy call sites (`callSignedPreflight` at `:836` and the `post` users at `:374`, `:397`, `:423`, `:436`, `:464`, `:480`) call `handler(req, res)` without `await` and read `result` synchronously. Make them `await` (and `callSignedPreflight` async) so a future await on the legacy path cannot silently zero the status."
+- P2CG1F CF-F5 (E-DOC-1) [parent]: "**CF-F5 (E-DOC-1) [parent].** Correct the P2CG1E behaviour text: replace "no shipped client sends sessionId, so the session-bearing P2CB preflight is exercised only by tests until a client does" with the fact that `missionLaunchPage.launch.ts` (via `resolveLaunchForces`/`requestLaunchAuthority`) and `fastForwardCombatRunner.ts` send `sessionId` and the dashboard does not. Own-lifecycle authority does not cover it; a separate documentary change is in flight."
+- P2CG1F CF-F6 (lint and cycles): "**CF-F6 (lint and cycles).** Head figures: 87 warnings / 0 errors, warning-site multiset identical to baseline; `campaignSyncTransport.ts` max-lines 661 counted (618 at baseline); madge from E's four leaves 1089 files / 176 chains, identical set. Record before/after on F's leaves."
+- P2CG1F CF-F7 (required checks): "**CF-F7 (required checks).** 32 check runs on 5032b491, all success, names identical to B/C/D; protection `["Lint and Test"]`, strict false, conversation resolution required, 0 approvals; `pr-checks.yml` blob a82fe0f7 unchanged. Verify all 32 names by name on F's exact head."
+- P2CG1F CF-F8 (receipt-mode conflict wording) [next owner of the launch-page/dashboard client leaves]: "**CF-F8 (receipt-mode conflict wording) [next owner of the launch-page/dashboard client leaves].** Decide the user-facing text for `reason` values `participants-behind`, `fresh-request`, `evidence-unavailable` and the precedence reasons; the card currently prints the code verbatim."
+- P2CG1F CF-F9 (activation note) [P2CG1H]: "**CF-F9 (activation note) [P2CG1H].** When H installs the port, record that the launch-authority route is an unauthenticated read-only preflight (as it was under legacy) answering code-only, and that the authenticated create door is the only mutation; H's boot-order pins (CF-E5) should include one HTTP preflight under the installed port with no registry entry, which is the production shape before any socket connects."
+- Not binding F (section 7 closing paragraph): "CF-E1, CF-E5 and CF-E6 remain with P2CG1H (recorded under successorNotes.P2CG1H); CF-E7 remains with the next owner of `bindCampaignSyncConnection.test.ts`; H-OPEN-1 travels to H. None of them binds F."
+- Minor M1: "**M1 (cosmetic).** `prepareReceiptLaunch` returns `{ view: null, prepared: undefined }` when there is no campaign database and the route folds both into `evidence-unavailable`; a small typed result would read better. Not this PR."
+- Minor M2: "**M2 (no backoff).** The three head-drift re-sends go out immediately on each refusal. Bounded and harmless at this scale; if the server ever rate-limits P2CA accepts, revisit when the leaf is open."
+- Minor M3: "**M3 (double initialize).** `createCoopMissionMatch` calls `getSQLiteService().initialize()` and `runCoopMissionCreate` calls it again; idempotent."
+- Note N1: "**N1.** The red receipt's `idle.log` hash is the 284-byte prefix of the append-only log (verified); the local receipt hashes the full 1142-byte file."
+- Note N2: "**N2.** The implementation was drafted before the gate and applied 16 s after the RED commit, as E-PREP discloses; the ledger order and byte identities hold."
+- Note N3: "**N3.** My first RED-replay launch was my own script bug (whole-project Jest); stopped, restored, re-run; not evidence (section 1.3)."
+- Note N4: "**N4.** RM-E8 is an equivalent mutant except for a transient handle (the superseded timer is inert by its `sent === waiting` guard and lapses within 60 s)."
+- Note N5: "**N5.** The 2 pending in the related run are pre-existing (same as the author's run and the D review)."
+- Note N6: "**N6.** `handleApplicationRefusal` is reached only for `Error` frames with code `INVALID_INTENT` and a `campaign-application-` reason on a bound transport in receipt mode; a `campaign-application-head-drift` with any other code is ignored as before (pinned)."
+
+Root note (not reviewer text; recorded under successorNotes.P2CG1F.openNotes):
+
+- E-DOC-1 (Root): The registered P2CG1E behaviour sentence "no shipped client sends sessionId, so the session-bearing P2CB preflight is exercised only by tests until a client does" is stale: missionLaunchPage.launch.ts sends sessionId through resolveLaunchForces/requestLaunchAuthority to /launch-authority (and fastForwardCombatRunner.ts forwards it when a session is supplied), as the review confirms in section 6 item 1 and carries as CF-F5, and as the local receipt records under carryForwards.E-DOC-1. A parent documentary correction of P2CG1E's behaviour text follows as a separate PR. This closure does not edit P2CG1E's behaviour text (own-lifecycle authority does not cover it); the correction is documentary and changes no reviewed behaviour or proof recorded here.
+
+All 32 checks on the merged head succeeded (run 39079245909); the 32 names equal P2CG1D's and match pr-checks.yml one to one:
+Detect Changes; Install Dependencies; Lint; Format Check; Validate Roadmap Ledger; Type Check; Unit Tests (1/6); Unit Tests (2/6); Unit Tests (3/6); Unit Tests (4/6); Unit Tests (5/6); Unit Tests (6/6); Perf Smoke Tests; Statistical Proof PR; Perf Budget PR; Coverage Floor; A11y Tests; Validate BV Parity; Validate Combat Suite; Build Storybook; Schema Bridge; Determinism Audit; E2E Smoke; Seam Anchors; Customizer Regressions; Desktop Type Check; Desktop Tests; Lint and Test; Prepare Build Artifacts; Build Test / linux; Build Test / mac; Build Test / win.
+GitHub enforces only Lint and Test; each name was verified individually.
+The [merge receipt](evidence/p2cg1e-merge-20261018.json) binds both ordered parents and the matching integration tree.
+The [main proof](evidence/p2cg1e-mainproof-20261018.json) is a fresh run at the merge before any closure edit, after a real npm ci under Node v22.22.0:
+the three registered test leaves, P2CG1C's two leaves, P2CG1B's two leaves, P2CG1D's four leaves and the 35 A1/A2 suites together (42 unique suites, 601 tests), the three leaves alone (3 suites, 156 tests),
+the Task 14 selector alone (4 suites, 104 tests), the P2CG1D leaves alone (4 suites, 119 tests), the P2CG1C leaves alone (2 suites, 54 tests), the P2CG1B leaves alone (2 suites, 45 tests), the 35 suites alone (35 suites, 388 tests), typecheck and the validator passed.
+It references the author's proof logs by hash.
+
+P2CG1E has no task keys. Its tick remains null because source/closure cleanup
+is not established here; no tasks.md row is changed. P2CG1E therefore releases
+its in-flight src/lib/multiplayer/server and src/pages-modules/api reservations at main-verified.
+
+Successor release (separate from the closure): P2CG1F moves from blocked to planned;
+its only predecessor, P2CG1E, is main-verified with a genuine exact-main mainProof PASS in this same change set.
+No other P2CG1F field changes. P2CG1G1, P2CG1H, P2C and every other unit state are unchanged.
+Selection is not downstream admission.
+This closure metadata still requires its own CI and parent merge.
+
+---
+
 ## 2026-10-17 P2CG1D source verified on main; P2CG1E released; closure metadata proposed
 
 P2CG1D advances from implementing to main-verified for source PR #2221,

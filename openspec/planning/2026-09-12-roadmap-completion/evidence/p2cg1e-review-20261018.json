@@ -1,0 +1,406 @@
+{
+  "unit": "P2CG1E",
+  "stage": "review",
+  "recordedAt": "2026-10-18T00:25:05Z",
+  "head": "5032b491162b2d082acfe2a33be5063a558ba326",
+  "reviewedHead": "5032b491162b2d082acfe2a33be5063a558ba326",
+  "reviewerModel": "claude-fable-5-1",
+  "implementerModel": "claude-opus-5-5",
+  "verdict": "APPROVE-WITH-NOTES",
+  "outputPath": "evidence/p2cg1e-source-fable-review-20261018.txt",
+  "outputSha256": "238f2b8cec082ba78e9a67926f566bfda305b7cada398e1a497a85951755b4f3",
+  "reviews": [
+    {
+      "round": 1,
+      "path": "evidence/p2cg1e-source-fable-review-20261018.txt",
+      "sha256": "238f2b8cec082ba78e9a67926f566bfda305b7cada398e1a497a85951755b4f3",
+      "bytes": 34172,
+      "originalPath": "docs/audits/2026-10-18-p2cg1e-review.md",
+      "reviewedHead": "5032b491162b2d082acfe2a33be5063a558ba326",
+      "verdict": "APPROVE-WITH-NOTES"
+    }
+  ],
+  "reviewerSubstitution": "The independent reviewer was Claude Fable 5.1 at high reasoning effort, substituting for GPT Astra. The ruling comment discloses the substitution. The reviewer is not the author (Claude Opus 5.5).",
+  "reviewHistory": "One round on the exact merged head 5032b491 by an independent Fable 5.1 reviewer: APPROVE-WITH-NOTES with no blockers, three minors (M1-M3) and notes N1-N6 in section 8, and four surviving mutants that are coverage gaps rather than product defects (RM-E2, RM-E4, RM-E5, RM-E8; carried as CF-F1 and CF-F2); none requires a change to the head.",
+  "verdictText": "**APPROVE-WITH-NOTES.** The ledger is exact and re-derivable (admission freeze before any edit; the four product leaves byte-identical to the baseline at the red commit; no test byte changed after the red commit; 11 changed files all registered, plus the reserved admission-review slot = 12 of 15; 192 of 500 counted lines recomputed `--no-renames`; only P2CG1E's own lifecycle fields in units.json; every hash in the three receipts reconciles with the blobs and the proof logs; nothing from the abandoned 526cf6d0 admission is cited as evidence). The behaviour is what the registration and my D carry-forwards asked for: both doors key on `getCampaignHostRegistry().applicationReceipts !== null` and nothing else, build their own `createDurableCampaignLaunchView()` per call and never adopt an entry's view, fail closed without a view, keep the legacy gate and the head-only answer for session-less bodies and for the absent port, answer code-only in receipt mode, and reach C's prepared create unchanged. The transport changes are reachable only after receipt mode latches on a bound transport, which no shipped caller creates. All 156 registered cases, the Task 14 selector (104), the B (45), C (54) and D (119) suites, the 35 A1/A2 suites (388), the four client callers (27) and 200 related suites (1589, 2 pre-existing skips) pass on the exact head; typecheck, lint (87 warnings / 0 errors, identical site set), format, lint:units, madge (1089 files / 176 chains, identical set), both roadmap validators, OpenSpec and the QC validator pass; 32 of 32 check runs succeed with names identical to D's list. The notes are: four of my eight mutants survived, all coverage gaps rather than product defects (the no-second-switch rule, the exactly-once terminal signal after a prior recovery, pre-ACK refusal semantics, a transient timer handle); E-DOC-1 confirmed, with the real session-bearing caller handled correctly and more narrowly than legacy; sixteen legacy route-test call sites invoke the now-async handler without `await` and pass only because the legacy branch has no await before the response. Nothing blocks merge.",
+  "reviewClasses": [
+    "authority",
+    "privacy",
+    "replay",
+    "idempotency",
+    "concurrency"
+  ],
+  "reviewClassEvidence": {
+    "note": "The unit's five sensitive review classes, each with the reviewer's section 5 finding verbatim. None records a product defect. Authority, replay and idempotency each name one unpinned case (RM-E2, RM-E4, RM-E5) where the product already behaves correctly; they are carried as CF-F1 and CF-F2. Privacy records code-only receipt-mode refusals. Concurrency records a bounded retry and wait, with the absence of backoff noted as M2. Each verdict field is the closure's reading of the finding, not reviewer text.",
+    "authority": {
+      "verdict": "PASS (no defect; one coverage gap, RM-E2, carried as CF-F1)",
+      "finding": "**Authority.** Both doors key on the installed port alone; the view is built per call in the API graph and `revalidate` refuses any other handle or a non-transactional call (`context-mismatch`), so a foreign entry's view cannot be grafted (pinned `entryView: false`, `ownHandle: true`). No view fails closed on both doors. The receipt preflight is read-only (durable census and match census unchanged across every refusal and the accepted call) and carries no principal, exactly as the legacy gate did; the only mutating door binds the authenticated player to session membership. Residual: RM-E2 shows no case distinguishes \"port installed\" from \"entry with a launch view exists\", which coincide in every fixture; the product is right, the pin is missing (CF-F1)."
+    },
+    "privacy": {
+      "verdict": "PASS (no defect; code-only refusals, narrower than legacy)",
+      "finding": "**Privacy.** Receipt-mode refusals are code-only: `participants-behind` loses its `participantIds`, the legacy `requiredRevision`/`behind` rows stay on the legacy branch, hydration is never serialised; the wire-string pin and RM-E7 hold this. The transport adds nothing to the wire except the non-secret remembered `lastSeq` on bound joins, which no shipped client sends."
+    },
+    "replay": {
+      "verdict": "PASS (no defect; one coverage gap, RM-E4, carried as CF-F2(b))",
+      "finding": "**Replay.** Head-drift re-sends are the exact `sentAck` bytes (P2CA answers `duplicate`); a stale or foreign confirmation does not confirm (`appliedView` JSON equality, pinned); duplicate offers are byte-compared (unchanged); the CF7 ignore grants no confirmation and sends no ACK. Residual: the pre-ACK unknown-receipt case (RM-E4) is unpinned; the product recovers, which is the conservative answer."
+    },
+    "idempotency": {
+      "verdict": "PASS (no defect; one coverage gap, RM-E5, carried as CF-F2(a))",
+      "finding": "**Idempotency.** `recover` is reached only behind `!failed` guards (message path, timer, `onclose`, `drain` call sites), the CF12 signal fires once across repeated `onclose`/`onerror` (pinned), and the confirmation timer is one-shot and nulled before it runs. Residual: a remote close after a prior recovery is unpinned (RM-E5); the product's `!failed` guard keeps it to one signal."
+    },
+    "concurrency": {
+      "verdict": "PASS (no defect; bounded re-sends and wait, no backoff noted as M2)",
+      "finding": "**Concurrency.** Prepare runs before the read transaction and revalidate inside it on the same handle (order probe pinned); three injected drifts between the two are refused before materialization with censuses unchanged; the create path keeps C IMMEDIATE then M with re-admission before C (RM-E3); the transport's counter and timer belong to `sent` only, a newer pending offer neither fires nor hides the wait, and no late callback acts after close, recovery or confirmation (pinned with fake timers). DoS judgment: a server can provoke at most 4 identical ACK attempts per sent ACK (1 + 3 re-sends, no backoff, each a short P2CA transaction) and the client waits at most one 60 s window per ACK before giving up to the consumer; nothing retries on arbitrary failure. Acceptable and bounded; the absence of backoff is noted (M2)."
+    }
+  },
+  "ledgerDiscipline": [
+    "**Commit order and content.** `git diff --numstat --no-renames` per step: `a64c6f1c..78b58d68` touches only `evidence/p2cg1e-admission-20261017.json` (+196) and units.json (+10/-4); `78b58d68..4042f674` touches only the three test leaves (+219/-15, +122/-10, +351/-1), `evidence/p2cg1e-red-20261017.json` (+134) and units.json (+3/-1); `4042f674..5032b491` touches only the four product leaves (+56/-5, +15/-2, +66/-19, +39/-1), `evidence/p2cg1e-local-20261017.json` (+418) and units.json (+3/-1). `git diff --stat 4042f674 5032b491 -- 'src/**/__tests__/**' src/__tests__ e2e` is empty: no test, helper or fixture byte changed after the red commit; the three test-leaf blobs at 5032b491 hash equal to their blobs at 4042f674 and to the red and local receipts' entries (3/3, my own sha256 of `git show` output).",
+    "**Product identity at RED.** `git diff --stat a64c6f1c 4042f674 -- <four product leaves> server.js` is empty; the red receipt's four hashes equal my sha256 of the baseline blobs (4/4). The admission receipt's eight existing frozen files hash equal to the baseline blobs (8/8, units.json included); its four non-existent slots exist at the head only as the three receipts (the review slot is still reserved).",
+    "**RED reproduced independently.** In the throwaway worktree I checked out the four product leaves at a64c6f1c (tests at the head) and ran the three registered suites `--runInBand`: 17 failed / 139 passed / 156 total. The 17 failing titles are exactly the 17 the red receipt lists (set difference empty both ways). Product restored to the head and re-verified via `git status`. Disclosure: my first replay attempt mis-launched through my own runner script (a PowerShell `$args` collision dropped the path arguments, so Jest ran the whole unit project); I stopped my own two processes (PIDs 39460, 19840), restored the leaves, fixed the script and re-ran. That attempt is not evidence.",
+    "**--no-verify and TS2305 disclosed.** The red commit message states `--no-verify` and why (the two transport constants do not exist before the implementation); the red receipt records the two TS2305 errors and hashes the typecheck log.",
+    "**Census.** `git diff --numstat --no-renames a64c6f1c 5032b491`: 11 files. Counted (added physical lines, no deletion credit) in product leaves and units.json: campaignSyncTransport.ts 56 + coopMissionCreate.ts 15 + campaignLaunchAuthorityRoute.ts 66 + campaignLaunchProgressionGate.ts 39 + units.json 16 = **192 of 500**, as the local receipt states (registration estimate 125-175; scope estimate 185-315). Test leaves (219 + 122 + 351) and the three evidence files are line-exempt under the convention the admission receipt states (`countingConvention`, the B/C/D reading). Files: 11 changed + 1 reserved unchanged (the admission-review slot) = 12 of 15, 3 spare, as the admission froze.",
+    "**Only registered leaves.** All 11 changed paths are in the frozen 12-path manifest; the 7 restriction leaves in `roadmap.json` match the manifest's 7 source/test leaves exactly; `roadmap.json`, `server.js`, `CampaignHostRegistry.ts`, the binder, `Protocol.ts`, every B/C/D leaf, every client caller and the C harness/fixture are untouched (`git diff --stat` empty). The lint max-lines warning on `campaignSyncTransport.ts` predates this unit (618 counted at baseline, 661 now).",
+    "**units.json.** Parsed both versions: 208 units each, top-level keys identical; the only changed unit is P2CG1E, and only its `ownershipExceptions` (the four evidence paths added), `state` (planned -> implementing), `baseline` and `stageReceipts.admission/red/local`; no other unit and no top-level key changed. P2CG1D's entry (state main-verified) is untouched; its successorNotes live in `evidence/p2cg1d-review-20261017.json`, not in units.json.",
+    "**Citations by hash.** Every proof log the three receipts cite exists on disk and hashes to the recorded value (admission 6/6, red 3/4, local 28/28). The one non-match is the red receipt's `idle.log` entry, which is the append-only log at 284 bytes: the first 284 bytes of the current 1142-byte file hash to exactly the red value, and the local receipt records the full file. Consistent, not a discrepancy.",
+    "**The abandoned 526cf6d0 admission.** `backup/p2cg1e-prior-526cf6d0` exists only as a local branch (526cf6d0 -> 414eb7cf admission -> 459fa13a red; never pushed; the remote has only the PR branch). Its receipts sit in `proof2/prior-526cf6d0/` with a different jest hash and baseline 526cf6d0. The head's receipts mention it only under `baselineOpenNotes.E-PREP`/`E-PRIOR-RUNS` and `reproducesPriorRed`, each time as history that is explicitly not evidence; no head receipt cites a prior-dir path or hash as proof, and every evidence hash the head cites comes from a run between 17:10 and 17:27 on a64c6f1c (idle.log timeline). Nothing leaked.",
+    "**Required checks (CF-E10).** 32 check runs on 5032b491, all `completed/success`, 0 commit statuses; the 32 names equal, one to one, the list recorded for D (`Lint and Test` present). `.github/workflows/pr-checks.yml` is blob a82fe0f7 at baseline and head (unchanged since B). Branch protection unchanged: `required_status_checks.contexts = [\"Lint and Test\"]`, strict false, conversation resolution required, 0 approvals.",
+    "**Pre-drafted implementation (disclosed).** The green run in the local receipt started at 17:15:37, 16 s after the red commit (17:15:21): the product patch was held off-tree and applied immediately after RED, as E-PREP discloses. The ledger order holds (product byte-identical at RED; tests unchanged after RED), so this is a disclosure, not a finding."
+  ],
+  "dormancy": "**Dormancy.** Non-test grep at the head: `installApplicationReceipts` has no caller outside tests; `server.js` is byte-identical to the baseline and mentions neither the campaign registry nor a receipt port; `createPreparedCoopMissionMatch` is reached only through `createCoopMissionMatch` under the installed port; `expectedCampaignId` is set by no shipped transport caller, so `receiptMode` never latches and CF7/CF8/CF12 and the bound-join branch are unreachable in production. Production keeps the legacy cursor gate, the head-only answer and the old create.",
+  "reviewReruns": "On 5032b491 under Node v22.22.0 after a fresh npm ci in a throwaway detached worktree, the reviewer re-ran (all --runInBand) the rows quoted verbatim under rerunRows, including an independent RED replay, and ran 8 independent single-site mutation probes against the registered suites.",
+  "rerunRows": [
+    {
+      "run": "Three registered suites",
+      "result": "3 suites, 156 passed / 156 (15 s)",
+      "authorReceipt": "156 / 156"
+    },
+    {
+      "run": "RED replay (head tests over baseline product)",
+      "result": "17 failed / 139 passed; titles identical to the receipt",
+      "authorReceipt": "17 / 139"
+    },
+    {
+      "run": "Task 14 selector (`campaignLaunchAuthorityRoute`, `campaignProgressionReaders.durable`, `CampaignSyncSession`)",
+      "result": "4 suites, 104 / 104",
+      "authorReceipt": "104 / 104"
+    },
+    {
+      "run": "P2CG1C suites (DurableMatchStore, coopMissionCreate)",
+      "result": "54 / 54",
+      "authorReceipt": "54 / 54"
+    },
+    {
+      "run": "P2CG1B suites (JournalCampaignEventStore, CampaignMatchHost.pipeline)",
+      "result": "45 / 45",
+      "authorReceipt": "45 / 45"
+    },
+    {
+      "run": "P2CG1D suites (binder, arbiter, crossGraph, registry)",
+      "result": "119 / 119",
+      "authorReceipt": "119 / 119"
+    },
+    {
+      "run": "35 A1/A2 predecessor suites (author's suites35.json names, all present)",
+      "result": "35 suites, 388 / 388 (51 s)",
+      "authorReceipt": "388 / 388"
+    },
+    {
+      "run": "Client callers (requestLaunchAuthority, missionLaunchPage.launch, fastForwardCampaign, fastForwardCombatRunner)",
+      "result": "4 suites, 27 / 27",
+      "authorReceipt": "27 / 27"
+    },
+    {
+      "run": "`--findRelatedTests` on the four product leaves",
+      "result": "200 suites, 1589 passed, 2 skipped (pre-existing), 0 failed, 165 s",
+      "authorReceipt": "1589 / 2 pending"
+    },
+    {
+      "run": "CF-E2 clock case (`blocks writers in other processes ...`)",
+      "result": "0 failures in 3 full-suite runs (green, p2cg1c, related) plus the RED replay",
+      "authorReceipt": "0 of 10 before and after"
+    },
+    {
+      "run": "`npm run typecheck` (TS7, both configs)",
+      "result": "PASS",
+      "authorReceipt": "PASS"
+    },
+    {
+      "run": "`npx oxlint` (my proof dir excluded)",
+      "result": "87 warnings, 0 errors; warning-site multiset identical to the author's baseline log; `campaignSyncTransport.ts` max-lines 661 counted (618 at baseline, already warned); route, gate and create not warned",
+      "authorReceipt": "87 / 0"
+    },
+    {
+      "run": "`npm run format:check`",
+      "result": "PASS (8213 files)",
+      "authorReceipt": "PASS"
+    },
+    {
+      "run": "`npm run lint:units`",
+      "result": "LINT_UNITS_PASS 17899/17899",
+      "authorReceipt": "same"
+    },
+    {
+      "run": "`madge@8.0.0 --circular` from the four product leaves",
+      "result": "1089 files, 176 chains; the chain set is identical to the author's baseline log (0 differences)",
+      "authorReceipt": "1089 / 176"
+    },
+    {
+      "run": "`validate-roadmap.mjs` plain and `--git`",
+      "result": "both PASSED (80 nodes, 13 packages, 381 tasks, 40 triage rows)",
+      "authorReceipt": "PASS"
+    },
+    {
+      "run": "`npx openspec validate --all --strict`",
+      "result": "230 passed, 0 failed",
+      "authorReceipt": "same"
+    },
+    {
+      "run": "`npm run qc:openspec-ci:validate`",
+      "result": "errors=0",
+      "authorReceipt": "same"
+    }
+  ],
+  "mutationRows": [
+    "| RM-E1 | authority | receipt refusal answers 409 but does not `return` (materialization continues) | CAUGHT 5/60 |",
+    "| RM-E2 | authority | second switch: route keys on `getCampaignHostRegistry().get(sessionId)?.launch != null` instead of the port | **SURVIVED** 0/60 |",
+    "| RM-E3 | concurrency | prepared create calls `readmit()` after the C/M commit instead of before C IMMEDIATE | CAUGHT 1/30 (the CF-D11a case) |",
+    "| RM-E4 | replay | CF7 ignore also applies before any ACK was sent (`sent === null` guard removed) | **SURVIVED** 0/66 |",
+    "| RM-E5 | idempotency | CF12 close signal not guarded by `failed` (a remote close after a prior recovery emits a second terminal signal) | **SURVIVED** 0/66 |",
+    "| RM-E6 | concurrency | confirmation wait doubled (`2 * APPLICATION_CONFIRMATION_TIMEOUT_MS`) | CAUGHT 3/66 |",
+    "| RM-E7 | privacy | gate's receipt refusal spreads the whole verdict (`participantIds` on the wire) | CAUGHT 1/60 |",
+    "| RM-E8 | replay | `drain` re-arms without clearing the previous ACK's timer | **SURVIVED** 0/66 (equivalent: the old timer's `sent === waiting` guard makes it inert; only a transient handle) |"
+  ],
+  "mutationNote": "The author's 20 mutants (EM1-EM20, all caught) and mine overlap on the route predicate, no-fallback, re-admission, privacy and the timer bound; mine add the second-switch, pre-ACK refusal, post-recovery close and timer-handle probes, which are the four that survived. All four are coverage gaps in the test leaves, not product defects: the product takes the port-only branch, recovers on a pre-ACK unknown receipt (conservative), signals exactly once, and clears the old timer.",
+  "stableSuiteNote": "The author did not run npm run test:stable; the local receipt claims none. The reviewer did not run it either (section 3 has no stable row). The PR CI unit shards on the head stand in for it.",
+  "notVerified": [
+    "Production boot with the port installed (server.js untouched; H's work), a real browser co-op journey, and the Electron shell: dormancy is established by grep and by the absence of any bound shipped caller, not by a live run.",
+    "The server-side claim that a bound join's `lastSeq` is ignored in receipt mode (`bindCampaignSyncConnection.ts:1332`): cited from the local receipt and D's design, not re-traced here.",
+    "CI runtime on the GitHub runners beyond reading the 32 check-run conclusions by API.",
+    "The author's flake-rate measurement (0 of 10 before and after) beyond my own four clean runs of the C suite."
+  ],
+  "lintNote": "87 warnings, 0 errors; warning-site multiset identical to the author's baseline log; `campaignSyncTransport.ts` max-lines 661 counted (618 at baseline, already warned); route, gate and create not warned",
+  "madgeNote": "1089 files, 176 chains; the chain set is identical to the author's baseline log (0 differences)",
+  "judgments": [
+    "**E-DOC-1 (confirmed).** The registered sentence \"no shipped client sends sessionId\" is false at the head: `missionLaunchPage.launch.ts:239` calls `resolveLaunchForces({ ..., sessionId: matchId })`, and `requestLaunchAuthority` puts `sessionId` in the POST body; `fastForwardCombatRunner.ts:366` also forwards it when a session is supplied. The dashboard facade (`CampaignDashboardPage.launch.ts`) sends no session and keeps the head-only answer. E's implementation handles the real caller correctly: the body's `sessionId` is the co-op match id, the same key the legacy cursor gate, the participant store and `materializeOwnedPlayerForces` already use; the view lists the roster by `(campaignId, sessionId)`, so a session of another campaign yields an empty roster and `gm-required` (fail closed), and a session of this campaign yields the same read-only verdict any participant would get. A client-supplied `sessionId` cannot act for another session: the preflight writes nothing, and the create door checks the authenticated player's membership of that exact session. Disclosure is narrower than legacy (code only, no participant ids, no revision rows; `activeHead` was already public on the head-only path). The client relays the body unchanged and `assertOwnedForcesCurrent` needs only `code`, `reason`, `activeHead` and `resyncAction`, all present (the 27 caller cases pass). The documentary correction belongs to the parent, as the scope and both receipts say; the \"coverage gap recorded\" clause of the behaviour text should go with it (CF-F5).",
+    "**Bound-join lastSeq (scope item 7).** Correct and dormant: the server reads it only on the legacy resync arm, no shipped client is bound, and a bound client's cursor claim selects nothing in receipt mode by the D/binder design. The test at `:171-233` was updated to expect `lastSeq: 99`, as the scope directed.",
+    "**Un-awaited handler calls in the legacy route tests (scope item 8).** `callSignedPreflight` (`:836`) and the six `post` users at `:374-480` still call `handler(req, res)` without `await`; only the new P2CG1E describe awaits. They pass because the legacy branches reach `res.json` synchronously (the `await` sits in the ternary's receipt arm only). This is fragile, not wrong: any later await before the response would turn those reads into `statusCode: 0`, and an async throw would become an unhandled rejection. A test-only fix; it cannot land in this PR (post-RED test edit) and is carried forward (CF-F4).",
+    "**CF-E2 (clock flake).** The causal release marker replaces both cross-process `Date.now()` comparisons; the parent writes `<marker>.released` in the `before` hook of M COMMIT / C ROLLBACK and the child reports whether it existed at lock acquisition. Sound. The author's 0-of-10 before and after on this machine, and my 0-of-4, do not reproduce the D lane's 1-in-3, which is consistent with a clock-skew cause the fix removes regardless.",
+    "**CF-E9 (lint).** The D review's \"not warned today\" for `campaignSyncTransport.ts` was wrong; the author measured 618 counted at baseline (warned since before E). Corrected here: 618 -> 661, same single warning; the other three leaves are not warned.",
+    "**Receipt-mode conflict wording.** In receipt mode the client's conflict card will show `Campaign launch refused (CAMPAIGN_LAUNCH_NOT_CONVERGED): participants-behind` (or `fresh-request`, `evidence-unavailable`, a precedence reason) where legacy showed a sentence with ids and revisions. Code-only is the registered decision; the wording is a client concern for whoever next opens the client leaf (CF-F8)."
+  ],
+  "successorNotes": {
+    "P2CG1F": {
+      "intro": "Carry-forwards for P2CG1F (exact wording; owner in brackets where it is not F)",
+      "carryForwards": [
+        {
+          "id": "CF-F1",
+          "concern": "no-second-switch pin",
+          "owner": "next owner of campaignLaunchAuthorityRoute.test.ts",
+          "wording": "**CF-F1 (no-second-switch pin) [next owner of campaignLaunchAuthorityRoute.test.ts].** RM-E2 survived: keying the route on `getCampaignHostRegistry().get(sessionId)?.launch != null` instead of the port passes all 60 cases, because every receipt fixture has a rebuilt entry with a view. Pin: port installed, no registry entry for the session (dispose before the call) -> the receipt branch is still taken (`prepare` called, `evidence-unavailable`/`participants-behind` answer, never the legacy cursor gate).",
+          "directedTo": "next owner of campaignLaunchAuthorityRoute.test.ts (a P2CG1E leaf, not one of P2CG1F's five planned leaves), recorded under P2CG1F as the review does"
+        },
+        {
+          "id": "CF-F2",
+          "concern": "terminal-signal pins",
+          "owner": "next owner of campaignSyncTransport.test.ts",
+          "wording": "**CF-F2 (terminal-signal pins) [next owner of campaignSyncTransport.test.ts].** Pin (a) recovery then remote close emits no second `recovery-required` (RM-E5); (b) an `unknown-receipt` refusal that arrives before any ACK was sent recovers (RM-E4), or record the opposite decision; (c) `jest.getTimerCount()` stays at one armed wait across two consecutive ACKs (RM-E8). All three are test-only; the product already behaves this way.",
+          "directedTo": "next owner of campaignSyncTransport.test.ts (a P2CG1E leaf, not one of P2CG1F's five planned leaves), recorded under P2CG1F as the review does"
+        },
+        {
+          "id": "CF-F3",
+          "concern": "consumer rejoin contract",
+          "owner": null,
+          "wording": "**CF-F3 (consumer rejoin contract).** F consumes the `recovery-required` signal. The transport emits it twice: as the returned `CampaignAppliedResult` from `complete`/`drain`, and as an `Error` whose message is `Campaign application recovery required: <reason>` through `onError`. Reasons now: `application-refused`, `head-drift-exhausted`, `confirmation-timeout`, `socket-closed`, `send-failed`, `prefix-conflict`, `pending-overflow`, `application-failed`. Match on the typed result or the fixed prefix, not on free text; a typed error class is worth adding when the transport leaf next opens. A remote close before receipt mode latches emits no signal by design (legacy close kept), so F must own its own pre-receipt timeout, and F must not reconnect in a loop on `socket-closed` without the consumer's say (the transport never reconnects itself).",
+          "directedTo": "P2CG1F"
+        },
+        {
+          "id": "CF-F4",
+          "concern": "await the async handler",
+          "owner": "next owner of campaignLaunchAuthorityRoute.test.ts",
+          "wording": "**CF-F4 (await the async handler) [next owner of campaignLaunchAuthorityRoute.test.ts].** Sixteen legacy call sites (`callSignedPreflight` at `:836` and the `post` users at `:374`, `:397`, `:423`, `:436`, `:464`, `:480`) call `handler(req, res)` without `await` and read `result` synchronously. Make them `await` (and `callSignedPreflight` async) so a future await on the legacy path cannot silently zero the status.",
+          "directedTo": "next owner of campaignLaunchAuthorityRoute.test.ts (a P2CG1E leaf, not one of P2CG1F's five planned leaves), recorded under P2CG1F as the review does"
+        },
+        {
+          "id": "CF-F5",
+          "concern": "E-DOC-1",
+          "owner": "parent",
+          "wording": "**CF-F5 (E-DOC-1) [parent].** Correct the P2CG1E behaviour text: replace \"no shipped client sends sessionId, so the session-bearing P2CB preflight is exercised only by tests until a client does\" with the fact that `missionLaunchPage.launch.ts` (via `resolveLaunchForces`/`requestLaunchAuthority`) and `fastForwardCombatRunner.ts` send `sessionId` and the dashboard does not. Own-lifecycle authority does not cover it; a separate documentary change is in flight.",
+          "directedTo": "parent (Root): the E-DOC-1 documentary correction of P2CG1E's behaviour text, a separate PR (see openNotes E-DOC-1); recorded under P2CG1F as the review does"
+        },
+        {
+          "id": "CF-F6",
+          "concern": "lint and cycles",
+          "owner": null,
+          "wording": "**CF-F6 (lint and cycles).** Head figures: 87 warnings / 0 errors, warning-site multiset identical to baseline; `campaignSyncTransport.ts` max-lines 661 counted (618 at baseline); madge from E's four leaves 1089 files / 176 chains, identical set. Record before/after on F's leaves.",
+          "directedTo": "P2CG1F"
+        },
+        {
+          "id": "CF-F7",
+          "concern": "required checks",
+          "owner": null,
+          "wording": "**CF-F7 (required checks).** 32 check runs on 5032b491, all success, names identical to B/C/D; protection `[\"Lint and Test\"]`, strict false, conversation resolution required, 0 approvals; `pr-checks.yml` blob a82fe0f7 unchanged. Verify all 32 names by name on F's exact head.",
+          "directedTo": "P2CG1F"
+        },
+        {
+          "id": "CF-F8",
+          "concern": "receipt-mode conflict wording",
+          "owner": "next owner of the launch-page/dashboard client leaves",
+          "wording": "**CF-F8 (receipt-mode conflict wording) [next owner of the launch-page/dashboard client leaves].** Decide the user-facing text for `reason` values `participants-behind`, `fresh-request`, `evidence-unavailable` and the precedence reasons; the card currently prints the code verbatim.",
+          "directedTo": "next owner of the launch-page/dashboard client leaves (not among P2CG1F's five planned leaves), recorded under P2CG1F as the review does"
+        },
+        {
+          "id": "CF-F9",
+          "concern": "activation note",
+          "owner": "P2CG1H",
+          "wording": "**CF-F9 (activation note) [P2CG1H].** When H installs the port, record that the launch-authority route is an unauthenticated read-only preflight (as it was under legacy) answering code-only, and that the authenticated create door is the only mutation; H's boot-order pins (CF-E5) should include one HTTP preflight under the installed port with no registry entry, which is the production shape before any socket connects.",
+          "directedTo": "P2CG1H (H-directed; recorded under P2CG1F as the review does)"
+        }
+      ],
+      "hDirected": [
+        "CF-F9"
+      ],
+      "directedElsewhere": [
+        "CF-F1",
+        "CF-F2",
+        "CF-F4",
+        "CF-F5",
+        "CF-F8"
+      ],
+      "hDirectedNote": "CF-F9 carries the reviewer's own owner bracket naming P2CG1H and is cross-referenced under successorNotes.P2CG1H. CF-F1 and CF-F4 name the next owner of campaignLaunchAuthorityRoute.test.ts, CF-F2 the next owner of campaignSyncTransport.test.ts, CF-F5 the parent and CF-F8 the next owner of the launch-page/dashboard client leaves. They are recorded here because the review addresses its section 7 to P2CG1F. The owner field is the reviewer's bracket verbatim; directedTo is the closure's reading.",
+      "notBindingF": "CF-E1, CF-E5 and CF-E6 remain with P2CG1H (recorded under successorNotes.P2CG1H); CF-E7 remains with the next owner of `bindCampaignSyncConnection.test.ts`; H-OPEN-1 travels to H. None of them binds F.",
+      "minors": [
+        {
+          "id": "M1",
+          "wording": "**M1 (cosmetic).** `prepareReceiptLaunch` returns `{ view: null, prepared: undefined }` when there is no campaign database and the route folds both into `evidence-unavailable`; a small typed result would read better. Not this PR."
+        },
+        {
+          "id": "M2",
+          "wording": "**M2 (no backoff).** The three head-drift re-sends go out immediately on each refusal. Bounded and harmless at this scale; if the server ever rate-limits P2CA accepts, revisit when the leaf is open."
+        },
+        {
+          "id": "M3",
+          "wording": "**M3 (double initialize).** `createCoopMissionMatch` calls `getSQLiteService().initialize()` and `runCoopMissionCreate` calls it again; idempotent."
+        }
+      ],
+      "notes": [
+        {
+          "id": "N1",
+          "wording": "**N1.** The red receipt's `idle.log` hash is the 284-byte prefix of the append-only log (verified); the local receipt hashes the full 1142-byte file."
+        },
+        {
+          "id": "N2",
+          "wording": "**N2.** The implementation was drafted before the gate and applied 16 s after the RED commit, as E-PREP discloses; the ledger order and byte identities hold."
+        },
+        {
+          "id": "N3",
+          "wording": "**N3.** My first RED-replay launch was my own script bug (whole-project Jest); stopped, restored, re-run; not evidence (section 1.3)."
+        },
+        {
+          "id": "N4",
+          "wording": "**N4.** RM-E8 is an equivalent mutant except for a transient handle (the superseded timer is inert by its `sent === waiting` guard and lapses within 60 s)."
+        },
+        {
+          "id": "N5",
+          "wording": "**N5.** The 2 pending in the related run are pre-existing (same as the author's run and the D review)."
+        },
+        {
+          "id": "N6",
+          "wording": "**N6.** `handleApplicationRefusal` is reached only for `Error` frames with code `INVALID_INTENT` and a `campaign-application-` reason on a bound transport in receipt mode; a `campaign-application-head-drift` with any other code is ignored as before (pinned)."
+        }
+      ],
+      "requiredChecks": {
+        "wording": "**CF-F7 (required checks).** 32 check runs on 5032b491, all success, names identical to B/C/D; protection `[\"Lint and Test\"]`, strict false, conversation resolution required, 0 approvals; `pr-checks.yml` blob a82fe0f7 unchanged. Verify all 32 names by name on F's exact head.",
+        "checkRunsRow": "**Required checks (CF-E10).** 32 check runs on 5032b491, all `completed/success`, 0 commit statuses; the 32 names equal, one to one, the list recorded for D (`Lint and Test` present). `.github/workflows/pr-checks.yml` is blob a82fe0f7 at baseline and head (unchanged since B). Branch protection unchanged: `required_status_checks.contexts = [\"Lint and Test\"]`, strict false, conversation resolution required, 0 approvals.",
+        "jobNames": [
+          "Detect Changes",
+          "Install Dependencies",
+          "Lint",
+          "Format Check",
+          "Validate Roadmap Ledger",
+          "Type Check",
+          "Unit Tests (1/6)",
+          "Unit Tests (2/6)",
+          "Unit Tests (3/6)",
+          "Unit Tests (4/6)",
+          "Unit Tests (5/6)",
+          "Unit Tests (6/6)",
+          "Perf Smoke Tests",
+          "Statistical Proof PR",
+          "Perf Budget PR",
+          "Coverage Floor",
+          "A11y Tests",
+          "Validate BV Parity",
+          "Validate Combat Suite",
+          "Build Storybook",
+          "Schema Bridge",
+          "Determinism Audit",
+          "E2E Smoke",
+          "Seam Anchors",
+          "Customizer Regressions",
+          "Desktop Type Check",
+          "Desktop Tests",
+          "Lint and Test",
+          "Prepare Build Artifacts",
+          "Build Test / linux",
+          "Build Test / mac",
+          "Build Test / win"
+        ],
+        "source": ".github/workflows/pr-checks.yml (blob a82fe0f72c613ed0f5fa87078c568ffc69f0aff0, identical at P2CG1D head bc87e5b3, baseline a64c6f1c, head 5032b491 and merge 696f87f4). The 32 check-run names on 5032b491 equal, one to one, the 32 names recorded for P2CG1D (successorNotes.P2CG1E.requiredChecks.jobNames in evidence/p2cg1d-review-20261017.json)."
+      },
+      "openNotes": [
+        {
+          "id": "E-DOC-1",
+          "label": "Root",
+          "concern": "stale P2CG1E behaviour sentence about sessionId",
+          "travelsTo": "parent (separate documentary PR)",
+          "relatedCarryForward": "CF-F5",
+          "source": "https://github.com/SwiggitySwerve/MekStation/pull/2228#issuecomment-6243490372",
+          "note": "The registered P2CG1E behaviour sentence \"no shipped client sends sessionId, so the session-bearing P2CB preflight is exercised only by tests until a client does\" is stale: missionLaunchPage.launch.ts sends sessionId through resolveLaunchForces/requestLaunchAuthority to /launch-authority (and fastForwardCombatRunner.ts forwards it when a session is supplied), as the review confirms in section 6 item 1 and carries as CF-F5, and as the local receipt records under carryForwards.E-DOC-1. A parent documentary correction of P2CG1E's behaviour text follows as a separate PR. This closure does not edit P2CG1E's behaviour text (own-lifecycle authority does not cover it); the correction is documentary and changes no reviewed behaviour or proof recorded here."
+        }
+      ],
+      "travellingRootNotes": "E-DOC-1 (Root) is recorded under openNotes: the parent documentary correction of the P2CG1E behaviour text follows as a separate PR. H-OPEN-1 (Root) stays recorded under successorNotes.P2CG1H in evidence/p2cg1d-review-20261017.json and travels to P2CG1H.",
+      "state": "P2CG1F moves from blocked to planned in this change set (successorRelease). Its behaviour text, leaves and every other field are not edited."
+    },
+    "P2CG1H": {
+      "carryForwardsDirected": [
+        {
+          "id": "CF-F9",
+          "recordedAt": "successorNotes.P2CG1F.carryForwards",
+          "owner": "P2CG1H"
+        }
+      ],
+      "priorNotes": "H-OPEN-1 and CF-E1, CF-E5 and CF-E6 remain recorded under successorNotes.P2CG1H and successorNotes.P2CG1E in evidence/p2cg1d-review-20261017.json; this closure neither restates nor changes them.",
+      "applies": "Recorded for P2CG1H, a non-immediate successor on the P2CG1 chain. P2CG1H stays blocked and is not edited or released here. When P2CG1H is admitted, CF-F9 joins H-OPEN-1, CF-E1, CF-E5 and CF-E6 for that admission."
+    },
+    "note": "Every wording, concern and owner string under successorNotes.P2CG1F, and notBindingF, is a verbatim substring of evidence/p2cg1e-source-fable-review-20261018.txt (checked by the closure generator); hDirected, directedElsewhere, hDirectedNote, directedTo, jobNames, source, openNotes, travellingRootNotes and state are closure text. CF-F1 to CF-F9 are the reviewer's section 7 items 1-9 in order, without their list numbers, and notBindingF is the section 7 closing paragraph. M1-M3 and N1-N6 are the section 8 items. requiredChecks.wording is section 7 item 7 (CF-F7), and checkRunsRow is section 1 item 10. openNotes E-DOC-1 is Root text, not reviewer text."
+  },
+  "reviewNotes": "No blockers and no product defect. The four surviving mutants are coverage gaps carried as CF-F1 (RM-E2) and CF-F2 (RM-E4, RM-E5, RM-E8; RM-E8 is equivalent except for a transient handle, N4). E-DOC-1 is confirmed (judgment 1) and goes to the parent as CF-F5 and Root note E-DOC-1. The un-awaited legacy route-test calls are carried as CF-F4. M1 (prepareReceiptLaunch result shape), M2 (no backoff) and M3 (double initialize) are cosmetic or harmless; N1-N6 are recorded verbatim.",
+  "reservedSlot": "evidence/p2cg1e-admission-review-20261017.md stays unwritten. The reviewer wrote its audit to docs/audits/2026-10-18-p2cg1e-review.md in the root checkout (untracked there); this closure preserves it byte for byte at evidence/p2cg1e-source-fable-review-20261018.txt instead of authoring reviewer text.",
+  "ciQualification": "All 32 check runs on the merged head succeeded (run 39079245909), with no commit statuses. The review's section 1 item 10 reads 32 check runs, all completed/success, which matches.",
+  "laneB": {
+    "ruledHead": "5032b491162b2d082acfe2a33be5063a558ba326",
+    "pr": 2228,
+    "commentId": 6243490372,
+    "author": "SwiggitySwerve",
+    "bodySha256": "3477f8b57325ee6e3335f7616904b3bb120c8e5b952ffb848b8d6eb0d44b89a9",
+    "at": "2026-10-18T00:04:16Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2228#issuecomment-6243490372",
+    "bodyPath": "evidence/p2cg1e-owner-ruling-6243490372.txt"
+  },
+  "ownerRulingNote": "The ruling body names the exact merged head and P2CG1E: the launch-authority route's receipt mode with code-only refusals, transport rejoin and confirmation (head-drift re-send capped at 3, one 60 s lost-confirmation window) and the gate and create changes. It is dormant because no installApplicationReceipts or expectedCampaignId caller exists and server.js is untouched. Review classes are authority, privacy, replay, idempotency and concurrency. It records the independent APPROVE-WITH-NOTES review (with the Fable-for-Astra substitution and the review sha256), the 12/15 and 192/500 census, product byte-identical at RED with no test change after RED, the full re-run and 4 of 8 mutants caught. It records E-DOC-1 as confirmed, with E handling the session-bearing caller correctly, says a parent documentary correction follows, sends CF-F1..CF-F9 to P2CG1F, records CI 32/32 and approves merging this exact head. The comment states its authorization: the owner's chat instruction in T3 thread 6db2c314-6cd3-40c5-8fbd-7c42bc27ed35 on 2026-10-17, quoted in the comment, under which Root posts OWNER-RULING comments for sensitive units. It is transcribed verbatim.",
+  "chronology": "The owner ruling was posted at 2026-10-18T00:04:16Z, before the head-guarded merge at 2026-10-18T00:04:24Z (8 seconds later). This records a premerge ruling on the exact merged head.",
+  "identityScope": "Preserves the existing unversioned P2CG1E evidence and the actual cross-model review provenance. No v2/v3 identity manifest or engine observation is claimed.",
+  "githubApproval": "Lane A engineering evidence only; no GitHub approval claimed.",
+  "successorRelease": {
+    "label": "successor release",
+    "scope": "Separate from the P2CG1E closure. This change set also releases P2CG1F (successor release). No other field of P2CG1F changes and no other unit is released; P2CG1G1, P2CG1H, P2C and every other unit stay as they are.",
+    "release": {
+      "unit": "P2CG1F",
+      "field": "state",
+      "from": "blocked",
+      "to": "planned",
+      "basis": "P2CG1F's only predecessor, P2CG1E, is main-verified in this same change set with a genuine exact-main mainProof PASS at 696f87f4ae06714e773c046df1185757f11686a6, as P2CG1F.admissionRequires demands. P2CG1E has no task keys, so its tick stays null. This is the standard on which P2CG1D (#2219) and P2CG1E (#2222) were released.",
+      "permission": "Release to planned only. Selection is not admission. P2CG1F source work still requires its own normal finite admission at its own baseline (containing 696f87f4 and this closure), with the review's CF-F1 to CF-F9 recorded for it. CF-F9 is directed at P2CG1H; CF-F1 and CF-F4 at the next owner of campaignLaunchAuthorityRoute.test.ts, CF-F2 at the next owner of campaignSyncTransport.test.ts, CF-F5 at the parent and CF-F8 at the next owner of the launch-page/dashboard client leaves, as the review's owner brackets say. H-OPEN-1 and CF-E1, CF-E5 and CF-E6 stay with P2CG1H as recorded in evidence/p2cg1d-review-20261017.json; the review states that none of them binds F."
+    }
+  }
+}
