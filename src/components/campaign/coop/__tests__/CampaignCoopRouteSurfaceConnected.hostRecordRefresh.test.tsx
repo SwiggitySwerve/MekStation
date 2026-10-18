@@ -36,6 +36,7 @@ import { toast } from '@/components/shared/Toast';
 import { sourceCampaignAuthority } from '@/lib/campaign/authority/campaignAuthority';
 import {
   _resetCampaignSyncTransportsForTest,
+  APPLICATION_CONFIRMATION_TIMEOUT_MS,
   connectCampaignSyncTransport,
   connectStoredCampaignSyncTransport,
 } from '@/lib/campaign/coop/campaignSyncTransport';
@@ -1105,6 +1106,39 @@ async function until(reached: () => boolean): Promise<void> {
   if (!reached()) throw new Error('the awaited owner step never happened');
 }
 
+/** Makes confirmApplied throw on `receiptId` for every later connect. */
+function throwOnConfirm(receiptId: string): void {
+  const connect = connectMock.getMockImplementation();
+  if (!connect) throw new Error('install the bound transport first');
+  connectMock.mockImplementation((input) => {
+    const transport = connect(input);
+    const confirm = transport?.confirmApplied;
+    if (transport && confirm) {
+      (transport as { confirmApplied: typeof confirm }).confirmApplied = (
+        offer,
+        outcome,
+      ) => {
+        if (offer.appliedView.receiptId === receiptId) {
+          throw new Error('confirmation threw');
+        }
+        return confirm(offer, outcome);
+      };
+    }
+    return transport;
+  });
+}
+
+/** The server ending a view on the frame stream before it closes. */
+function applicationErrorFrame(): IServerMessage {
+  return {
+    kind: 'Error',
+    matchId: MATCH_ID,
+    ts: START_DATE,
+    code: 'INTERNAL_ERROR',
+    reason: 'campaign-application-replaced',
+  } as IServerMessage;
+}
+
 describe('CampaignCoopRouteSurfaceConnected - the GM refreshes the saved record before its exact ACK', () => {
   beforeEach(() => {
     connectMock.mockReset();
@@ -1124,6 +1158,7 @@ describe('CampaignCoopRouteSurfaceConnected - the GM refreshes the saved record 
   });
 
   afterEach(() => {
+    jest.useRealTimers();
     cleanup();
     _resetCampaignSyncTransportsForTest();
     useCampaignPersistenceStore.setState({
@@ -1139,7 +1174,7 @@ describe('CampaignCoopRouteSurfaceConnected - the GM refreshes the saved record 
   });
 
   /** A loaded journal-native GM whose first view's baseline is ACKed. */
-  async function arrange(): Promise<{
+  async function arrange(beforeMount?: () => void): Promise<{
     readonly row: IFakeCampaignsRow;
     readonly connection: IBoundConnection;
     readonly refreshes: Promise<boolean>[];
@@ -1149,6 +1184,7 @@ describe('CampaignCoopRouteSurfaceConnected - the GM refreshes the saved record 
     await loadAs(hostCampaign());
     const connection = installBoundTransport();
     const refreshes = captureRefreshes();
+    beforeMount?.();
     mountSurface();
     await settle();
     await inject(connection, baselineOffer('v1', START_BALANCE));
@@ -1356,6 +1392,230 @@ describe('CampaignCoopRouteSurfaceConnected - the GM refreshes the saved record 
 
     expect(connection.acks(0).map((ack) => ack.receiptId)).toEqual(['v1-r0']);
     expect(connection.connects).toHaveLength(2);
+  });
+
+  it('rejoins once when confirmApplied throws, and a held successor certifies nothing (CF13)', async () => {
+    const { row, connection, refreshes } = await arrange(() =>
+      throwOnConfirm('v1-r1'),
+    );
+    const hold = holdGetResponses();
+    commitCoopCommand(row, { balance: SPENT_BALANCE });
+    await inject(
+      connection,
+      linkedOffer('v1', 1, fundsChangedFrame(1, SPENT_BALANCE)),
+    );
+    commitCoopCommand(row, { balance: SPENT_BALANCE, currentDate: NEXT_DAY });
+    await inject(connection, linkedOffer('v1', 2, dayAdvancedFrame(2, 1)));
+
+    await act(async () => {
+      hold.release();
+      await refreshes[0];
+    });
+    await until(() => connection.connects.length === 2);
+    await settle();
+    await inject(connection, baselineOffer('v2', 420_000));
+    await settle();
+
+    expect({
+      refreshes: refreshes.length,
+      oldAcks: connection.acks(0).map((ack) => ack.receiptId),
+      oldSocket: connection.sockets[0].readyState,
+      connects: connection.connects.length,
+      newAcks: connection.acks(1).map((ack) => ack.receiptId),
+      balance: liveBalance(),
+    }).toEqual({
+      refreshes: 1,
+      oldAcks: ['v1-r0'],
+      oldSocket: 3,
+      connects: 2,
+      newAcks: ['v2-r0'],
+      balance: 420_000,
+    });
+  });
+
+  it('rejoins once on the transport close signal while idle and adopts the next view from EMPTY (CF12)', async () => {
+    const { connection } = await arrange();
+    const errors: string[] = [];
+    connection.transports[0].onError((error) =>
+      errors.push(error instanceof Error ? error.message : String(error)),
+    );
+
+    await act(async () => {
+      connection.sockets[0].close();
+    });
+    await until(() => connection.connects.length === 2);
+    await settle();
+    await inject(connection, baselineOffer('v2', 420_000));
+    await settle();
+
+    expect(errors).toEqual([
+      'Campaign application recovery required: socket-closed',
+    ]);
+    expect(connection.connects).toHaveLength(2);
+    expect(connection.acks(0).map((ack) => ack.receiptId)).toEqual(['v1-r0']);
+    expect(connection.acks(1).map((ack) => ack.receiptId)).toEqual(['v2-r0']);
+    expect(liveBalance()).toBe(420_000);
+  });
+
+  it('writes nothing for the old binding when the close signal lands while its refresh is held (CF12)', async () => {
+    const { row, connection, refreshes } = await arrange();
+    const hold = holdGetResponses();
+    commitCoopCommand(row, { balance: SPENT_BALANCE });
+    await inject(
+      connection,
+      linkedOffer('v1', 1, fundsChangedFrame(1, SPENT_BALANCE)),
+    );
+    const before = {
+      baseVersion: useCampaignPersistenceStore.getState().baseVersion,
+      fence: useCampaignPersistenceStore.getState().sourceReplayFence,
+      cachedKey: useCampaignStore().getState().cachedCampaignKey,
+    };
+
+    await act(async () => {
+      connection.sockets[0].close();
+    });
+    let adopted: boolean | undefined;
+    await act(async () => {
+      hold.release();
+      adopted = await refreshes[0];
+    });
+    await until(() => connection.connects.length === 2);
+    await settle();
+
+    expect(adopted).toBe(false);
+    expect({
+      baseVersion: useCampaignPersistenceStore.getState().baseVersion,
+      fence: useCampaignPersistenceStore.getState().sourceReplayFence,
+      cachedKey: useCampaignStore().getState().cachedCampaignKey,
+    }).toEqual(before);
+    expect(before.baseVersion).toBe(LOADED_VERSION);
+    expect(connection.acks(0).map((ack) => ack.receiptId)).toEqual(['v1-r0']);
+    expect(connection.connects).toHaveLength(2);
+  });
+
+  it('reconnects once when an application error is followed by the socket close', async () => {
+    const { connection } = await arrange();
+
+    await inject(connection, applicationErrorFrame());
+    await act(async () => {
+      connection.sockets[0].close();
+    });
+    await until(() => connection.connects.length === 2);
+    await settle();
+
+    expect(connection.connects).toHaveLength(2);
+    expect(connection.sockets[0].readyState).toBe(3);
+  });
+
+  it('folds a first committed event at sequence 0, adopts the refreshed row and reprojects before its exact ACK (m7)', async () => {
+    const { row, connection, refreshes } = await arrange();
+    // The row moved without the commit, so only a reprojection after the
+    // adoption can leave the spend on the store when the ACK leaves.
+    row.record = {
+      ...row.record,
+      version: row.record.version + 1,
+      body: { ...row.record.body, name: 'Other Tab' },
+    };
+
+    await inject(
+      connection,
+      linkedOffer('v1', 1, fundsChangedFrame(0, SPENT_BALANCE)),
+    );
+    await act(async () => {
+      await Promise.all(refreshes);
+    });
+
+    expect(refreshes).toHaveLength(1);
+    expect(connection.acks()).toEqual([
+      {
+        receiptId: 'v1-r0',
+        baseVersion: LOADED_VERSION,
+        balance: START_BALANCE,
+      },
+      {
+        receiptId: 'v1-r1',
+        baseVersion: LOADED_VERSION + 1,
+        balance: SPENT_BALANCE,
+      },
+    ]);
+    expect(useCampaignStore().getState().campaign?.name).toBe('Other Tab');
+    expect(connection.connects).toHaveLength(1);
+  });
+
+  /** A loaded GM over a bound transport, on fake timers from the mount on. */
+  async function mountOnFakeTimers(): Promise<IBoundConnection> {
+    installCampaignsRow(loadedRecord(hostCampaign()));
+    await loadAs(hostCampaign());
+    const connection = installBoundTransport();
+    jest.useFakeTimers();
+    mountSurface();
+    await act(async () => {
+      await Promise.resolve();
+    });
+    return connection;
+  }
+
+  async function elapse(ms: number): Promise<void> {
+    await act(async () => {
+      jest.advanceTimersByTime(ms);
+    });
+  }
+
+  it('rejoins once when the socket closes before receipt mode and no campaign frame arrives within one confirmation window (CF-F3)', async () => {
+    const connection = await mountOnFakeTimers();
+    const errors: unknown[] = [];
+    connection.transports[0].onError((error) => errors.push(error));
+
+    await act(async () => {
+      connection.sockets[0].close();
+    });
+    await elapse(APPLICATION_CONFIRMATION_TIMEOUT_MS - 1);
+    const withinWindow = connection.connects.length;
+    await elapse(1);
+    const afterWindow = connection.connects.length;
+    await act(async () => {
+      connection.inject(baselineOffer('v2', 420_000));
+      await Promise.resolve();
+    });
+
+    expect({
+      signals: errors.length,
+      withinWindow,
+      afterWindow,
+      newAcks: connection.acks(1).map((ack) => ack.receiptId),
+    }).toEqual({
+      signals: 0,
+      withinWindow: 1,
+      afterWindow: 2,
+      newAcks: ['v2-r0'],
+    });
+  });
+
+  it('never rejoins on the quiet window once a legacy campaign frame has arrived (CF-F3)', async () => {
+    const connection = await mountOnFakeTimers();
+
+    await act(async () => {
+      connection.inject(baselineFrame());
+    });
+    await elapse(2 * APPLICATION_CONFIRMATION_TIMEOUT_MS);
+
+    expect(connection.connects).toHaveLength(1);
+    expect(connection.sockets[0].readyState).toBe(1);
+  });
+
+  it('starts nothing from the quiet window once the binding is disposed (CF-F3)', async () => {
+    const connection = await mountOnFakeTimers();
+    const armed = jest.getTimerCount();
+
+    cleanup();
+    const afterDispose = jest.getTimerCount();
+    await elapse(2 * APPLICATION_CONFIRMATION_TIMEOUT_MS);
+
+    // The shared transport keeps its heartbeat; only the window is gone.
+    expect(armed - afterDispose).toBe(1);
+
+    expect(connection.connects).toHaveLength(1);
+    expect(connection.sockets[0].readyState).toBe(1);
   });
 
   it('gives no receipt when the refresh cannot read, rejoins, and adopts the new view from EMPTY', async () => {

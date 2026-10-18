@@ -20,6 +20,7 @@
 import { act, cleanup, render, screen } from '@testing-library/react';
 import React from 'react';
 
+import type { ICampaignAuthoritativeFold } from '@/lib/campaign/coop/campaignAuthoritativeFold';
 import type {
   CampaignSyncFrameHandler,
   ICampaignSyncTransport,
@@ -43,6 +44,7 @@ import {
 } from '@/lib/campaign/coop/campaignSyncTransport';
 import { storeCoopCampaignToken } from '@/lib/campaign/coop/coopCampaignAuthTokenStore';
 import { useCampaignMirrorStore } from '@/lib/p2p/campaignMirrorStore';
+import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
 import {
   resetCampaignStore,
   useCampaignStore,
@@ -76,6 +78,32 @@ jest.mock('@/lib/campaign/coop/coopRuntimeSession', () => {
     ...actual,
     openCoopRuntimeSession: jest.fn().mockResolvedValue(null),
     subscribeCoopPendingProposals: jest.fn(() => () => undefined),
+  };
+});
+
+// The host fold is a ref inside the surface; the folds it is built from stay
+// real and are recorded, so a row can read the GM's launch facts at the
+// moment an ACK leaves. `mockDropLiveFact` injects an incorrect adjunct.
+const mockHostFolds: ICampaignAuthoritativeFold[] = [];
+let mockDropLiveFact = false;
+jest.mock('@/lib/campaign/coop/campaignAuthoritativeFold', () => {
+  const actual = jest.requireActual(
+    '@/lib/campaign/coop/campaignAuthoritativeFold',
+  );
+  const recorded =
+    (name: 'foldCampaignHydration' | 'foldCampaignEvent') =>
+    (...args: unknown[]) => {
+      let fold = actual[name](...args) as ICampaignAuthoritativeFold | null;
+      if (fold && name === 'foldCampaignEvent' && mockDropLiveFact) {
+        fold = { ...fold, launchFacts: fold.launchFacts?.slice(0, -1) };
+      }
+      if (fold) mockHostFolds.push(fold);
+      return fold;
+    };
+  return {
+    ...actual,
+    foldCampaignHydration: recorded('foldCampaignHydration'),
+    foldCampaignEvent: recorded('foldCampaignEvent'),
   };
 });
 
@@ -1052,5 +1080,151 @@ describe('CampaignCoopRouteSurfaceConnected - a guest applies each offer before 
       { revision: 1, receipt: false },
     ]);
     expect(connection.connects).toHaveLength(1);
+  });
+});
+
+describe('CampaignCoopRouteSurfaceConnected - a GM applies a fact-bearing baseline and a live launch before its exact ACK (m8)', () => {
+  const realRefresh =
+    useCampaignPersistenceStore.getState().refreshAfterCommittedCommand;
+  /** What the GM held each time the consumer confirmed an offer. */
+  let confirms: {
+    readonly receiptId: string;
+    readonly status: string;
+    readonly launchFacts: readonly ICampaignEvent[] | undefined;
+    readonly balance: number | undefined;
+  }[];
+
+  beforeEach(() => {
+    connectMock.mockReset();
+    useCampaignMirrorStore.getState().reset();
+    resetCampaignStore();
+    window.sessionStorage.clear();
+    mockHostFolds.length = 0;
+    mockDropLiveFact = false;
+    confirms = [];
+    storeCoopCampaignToken({
+      matchId: MATCH_ID,
+      playerId: 'host-player',
+      wireToken: 'wire-token',
+      displayName: 'GM',
+    });
+    useCampaignStore().getState().switchCampaign(hostCampaign());
+    // The saved-row refresh is the record suite's subject; here it adopts.
+    useCampaignPersistenceStore.setState({
+      refreshAfterCommittedCommand: jest.fn(async () => true),
+    });
+  });
+
+  afterEach(() => {
+    cleanup();
+    _resetCampaignSyncTransportsForTest();
+    useCampaignPersistenceStore.setState({
+      refreshAfterCommittedCommand: realRefresh,
+    });
+    useCampaignMirrorStore.getState().reset();
+    resetCampaignStore();
+    window.sessionStorage.clear();
+  });
+
+  async function mountHost(): Promise<IBoundConnection> {
+    const connection = installBoundTransport('host');
+    const connect = connectMock.getMockImplementation();
+    if (!connect) throw new Error('no bound transport');
+    connectMock.mockImplementation((input) => {
+      const transport = connect(input);
+      const confirm = transport?.confirmApplied;
+      if (transport && confirm) {
+        (transport as { confirmApplied: typeof confirm }).confirmApplied = (
+          offer,
+          outcome,
+        ) => {
+          confirms.push({
+            receiptId: offer.appliedView.receiptId,
+            status: outcome.status,
+            launchFacts: mockHostFolds[mockHostFolds.length - 1]?.launchFacts,
+            balance: storedBalance(),
+          });
+          return confirm(offer, outcome);
+        };
+      }
+      return transport;
+    });
+    render(
+      <CampaignCoopRouteSurfaceConnected
+        campaign={hostCampaign()}
+        routeId="dashboard"
+      />,
+    );
+    await flush();
+    return connection;
+  }
+
+  async function settled(): Promise<void> {
+    await act(async () => {
+      for (let tick = 0; tick < 20; tick += 1) await Promise.resolve();
+    });
+  }
+
+  it('holds the baseline bundle, then the live launch, on the GM fold at each exact ACK', async () => {
+    const connection = await mountHost();
+
+    await inject(connection, baselineOffer('v1', 800_000, [launchFact(2)]));
+    await settled();
+    await inject(connection, linkedOffer('v1', 1, launchFact(3)));
+    await settled();
+
+    expect(confirms).toEqual([
+      {
+        receiptId: 'v1-r0',
+        status: 'applied',
+        launchFacts: [launchFact(2)],
+        balance: 800_000,
+      },
+      {
+        receiptId: 'v1-r1',
+        status: 'applied',
+        launchFacts: [launchFact(2), launchFact(3)],
+        balance: 800_000,
+      },
+    ]);
+    expect(connection.acks(0)).toEqual(['v1-r0', 'v1-r1']);
+    expect(connection.connects).toHaveLength(1);
+  });
+
+  it('sends no applied receipt for a live launch the GM fold did not retain, and rejoins', async () => {
+    const connection = await mountHost();
+    await inject(connection, baselineOffer('v1', 800_000, [launchFact(2)]));
+    await settled();
+
+    mockDropLiveFact = true;
+    await inject(connection, linkedOffer('v1', 1, launchFact(3)));
+    await settled();
+
+    expect(
+      confirms.map(({ receiptId, status }) => [receiptId, status]),
+    ).toEqual([
+      ['v1-r0', 'applied'],
+      ['v1-r1', 'failed'],
+    ]);
+    expect(connection.acks(0)).toEqual(['v1-r0']);
+    expect(connection.sockets[0].readyState).toBe(3);
+    expect(connection.connects).toHaveLength(2);
+  });
+
+  it('sends no applied receipt for a GM baseline whose bundle is malformed, and rejoins', async () => {
+    const connection = await mountHost();
+
+    await inject(
+      connection,
+      baselineOffer('v1', 800_000, [
+        { ...launchFact(2), payload: { missionId: 'm' } } as ICampaignEvent,
+      ]),
+    );
+    await settled();
+
+    expect(confirms.map(({ status }) => status)).toEqual(['failed']);
+    expect(connection.acks(0)).toEqual([]);
+    expect(connection.sockets[0].readyState).toBe(3);
+    expect(connection.connects).toHaveLength(2);
   });
 });

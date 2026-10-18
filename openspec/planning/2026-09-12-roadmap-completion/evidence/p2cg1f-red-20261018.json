@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CG1F",
+  "stage": "red",
+  "date": "20261018",
+  "baseline": "3b80a8bff25ca474f766a5dc7efb290353697946",
+  "rebase": "Root FYI: main advanced to 27eca6c1 (#2230 E-DOC-1: P2CG1E behavior sentence + one evidence file, docs-only). Before this RED commit the admission commit ea4286c0 (on 3b80a8bf) was rebased onto 27eca6c1 as 6a7f9e79 with no conflict; its own diff is unchanged (153-line receipt + 10/4 units.json lines, P2CG1F fields only). The P2CG1E behavior text is main's. Admission baseline stays 3b80a8bf; the five F leaves are byte-identical between 3b80a8bf and 27eca6c1",
+  "parent": "6a7f9e79abf90bc655dd176efb5c15ada8d79dd8",
+  "runtime": "Node v22.22.0, npm ci on the identical package-lock (byte-identical 5032b491..27eca6c1), jest --runInBand",
+  "productUnchanged": {
+    "note": "Product leaves byte-identical to the baseline at this commit (git diff --quiet HEAD on both: exit 0)",
+    "files": [
+      {
+        "path": "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+        "sha256": "4798100d184e3b564998203203dfc66c68dc3b2be3a219fcfadf740af1fa9c53",
+        "bytes": 8860
+      },
+      {
+        "path": "src/stores/campaign/useCampaignPersistenceStore.ts",
+        "sha256": "3a7d2066a1edd240553d0e4d7e520d481010950e9a2d2a19179daf1082ad6481",
+        "bytes": 58962
+      }
+    ]
+  },
+  "testFiles": [
+    {
+      "path": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx",
+      "sha256": "5e6c6a4e355ebd6e2c07f9b03c7709e8845e386cdababb41f8dd14310cf786e4",
+      "bytes": 54536
+    },
+    {
+      "path": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+      "sha256": "731471a645a699847277b2f8e20c203ce02c2e207aaada72e453c6c021dc200d",
+      "bytes": 38338
+    },
+    {
+      "path": "src/stores/campaign/__tests__/campaignCommandAckRefresh.test.ts",
+      "sha256": "711ec65763298c09a4bb7bed6cd794907672e26724259f74b5c47b78b6b849db",
+      "bytes": 38292
+    }
+  ],
+  "command": "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --runTestsByPath <three registered F suites>",
+  "result": "Test Suites: 2 failed, 1 passed, 3 total; Tests: 5 failed, 73 passed, 78 total (exit 1)",
+  "log": {
+    "path": "E:/Projects/Personal/MekStation-wt/p2cg1f-proof-20261018/red.log",
+    "sha256": "74548e5a4838250a202ecb7744117681ccd1b58ce5c367131916fe798f184d1a",
+    "bytes": 7725
+  },
+  "idle": {
+    "note": "Machine idle checked before every Jest run (no other jest/tsc/oxlint/madge node process, PID 47516 and Chrome excluded). A first RED launch at 19:05 overlapped another lane's short jest because the idle gate was misparsing its own output; it was discarded (kept as red-overlapped-discarded.log, not evidence) and this run followed a clean idle reading",
+    "log": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1f-proof-20261018/idle.log",
+      "sha256": "a3fd32250bf263bc9be94fb93b2be17544cd885509a7cf6329fd6c21985341bc",
+      "bytes": 1520
+    }
+  },
+  "expectedRed": [
+    {
+      "test": "hostRecordRefresh: rejoins once when confirmApplied throws, and a held successor certifies nothing (CF13)",
+      "failure": "unhandled \"confirmation threw\" rejects the queue; no rejoin (\"the awaited owner step never happened\" waiting for the second connect)"
+    },
+    {
+      "test": "hostRecordRefresh: rejoins once when the socket closes before receipt mode and no campaign frame arrives within one confirmation window (CF-F3)",
+      "failure": "no second connect after the window, so socket 1 does not exist (TypeError reading sentRaw of the missing socket); behavioural, not a missing API"
+    },
+    {
+      "test": "hostRecordRefresh: starts nothing from the quiet window once the binding is disposed (CF-F3)",
+      "failure": "timer count drops by 0 on dispose (no window armed), expected 1"
+    },
+    {
+      "test": "campaignCommandAckRefresh: an older guarded refresh held on the GET writes nothing over a discard flush adopted meanwhile (CF14)",
+      "failure": "old guarded refresh adopts (true) over the adopted flush"
+    },
+    {
+      "test": "campaignCommandAckRefresh: an older guarded refresh held on the staged maxima writes nothing over a discard flush adopted meanwhile (CF14)",
+      "failure": "old guarded refresh adopts (true) after the staged-maxima await"
+    }
+  ],
+  "greenControls": [
+    "CF12: rejoins once on the transport close signal while idle; writes nothing for the old binding when the close signal lands during a held refresh; reconnects once after application error + close",
+    "m7: first committed event at sequence 0, refresh adopted and fold reprojected before the exact ACK",
+    "m8 (hostProjection): GM baseline bundle [launch 2] then live launch 3 retained at each exact ACK; dropped live fact and malformed bundle send no applied receipt and rejoin",
+    "CF14 controls: digest mismatch and impossible version leave the guarded refresh completing",
+    "CF-F3: a legacy campaign frame ends the window (no rejoin over two windows)",
+    "m12: guarded refresh makes no saveState transition; ordinary load goes saving -> saved"
+  ],
+  "noteGreenControls": "Controls are existing behaviour pinned for F (E already delivers the close signal; m7/m8/m12 need no product change). They are not presented as new RED evidence"
+}
