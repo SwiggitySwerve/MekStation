@@ -18,6 +18,10 @@ import {
 } from './authorization/AuthorizedViewer';
 import { throwForPostCommitSendFault } from './DurableMatchStore';
 import {
+  noPerViewerRevealProjection,
+  refuseFogSocket,
+} from './fogMatchAdmission';
+import {
   filterEventForPlayer,
   filterEventForSpectator,
   FogOfWarVisibilityCache,
@@ -296,7 +300,7 @@ async function publishEvent(
           visibleThroughSequence,
           meta?.seats ?? [],
         );
-  const fogMeta = meta !== null && meta.config.fogOfWar === true ? meta : null;
+  const fogMeta = meta?.config?.fogOfWar === true ? meta : null;
   const seats = fogMeta?.seats ?? [];
   // One number per player per frame. Recipients are per-socket, but
   // `assign` is keyed per player: a second call for the same player
@@ -306,6 +310,16 @@ async function publishEvent(
   for (const recipient of recipients) {
     const viewer = viewerCache.get(recipient.playerId) ?? null;
     if (viewer === null) continue;
+    if (noPerViewerRevealProjection(meta?.config)) {
+      // An unreadable config is infrastructure (1011), never permission.
+      refuseFogSocket(
+        recipient.socket,
+        ctx.matchId,
+        meta === null ? 'unavailable' : 'policy',
+      );
+      ctx.lifecycle.detach(recipient.socket);
+      continue;
+    }
 
     let frame: IEventMessage = message;
     if (

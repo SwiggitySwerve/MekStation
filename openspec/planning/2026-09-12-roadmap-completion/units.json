@@ -7839,7 +7839,9 @@
         "red": {
           "path": "evidence/b14-0-red.json"
         },
-        "local": null,
+        "local": {
+          "path": "evidence/b14-0-local.json"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,

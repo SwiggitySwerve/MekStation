@@ -26,10 +26,16 @@ import type { IMatchSocket } from './ServerMatchSocketTypes';
 
 import {
   AuthorizedViewerError,
+  AuthorizedViewerResolver,
   mintVerifiedPrincipal,
-  type AuthorizedViewerResolver,
   type IAuthorizedViewer,
 } from './authorization/AuthorizedViewer';
+import { MatchSeatMembershipSource } from './authorization/MatchSeatMembershipSource';
+import {
+  matchLacksRevealProjection,
+  refuseFogSocket,
+  FOG_REFUSAL,
+} from './fogMatchAdmission';
 import {
   filterEventForPlayer,
   filterEventForSpectator,
@@ -78,11 +84,6 @@ export async function sendReplay(
   playerId?: string,
   admittedViewer?: IAuthorizedViewer,
 ): Promise<boolean> {
-  const events =
-    playerId != null
-      ? await getReplayEventsForPlayer(ctx, playerId, fromSeq)
-      : await getEventsFromSeq(ctx, fromSeq);
-  const frames = streamReplay(ctx.matchId, events, fromSeq);
   let viewer: IAuthorizedViewer | null = admittedViewer ?? null;
   if (viewer === null && playerId != null) {
     const resolution = await resolveJoinViewer(ctx, playerId);
@@ -92,6 +93,16 @@ export async function sendReplay(
     }
     viewer = resolution.viewer;
   }
+  const refusal = await matchLacksRevealProjection(ctx.store, ctx.matchId);
+  if (refusal) {
+    refuseFogSocket(socket, ctx.matchId, refusal);
+    return false;
+  }
+  const events =
+    playerId != null
+      ? await getReplayEventsForPlayer(ctx, playerId, fromSeq)
+      : await getEventsFromSeq(ctx, fromSeq);
+  const frames = streamReplay(ctx.matchId, events, fromSeq);
   if (viewer !== null) {
     const audienceContext = await sealedChoiceAudienceContext(ctx);
     const guarded = MATCH_WIRE_PUBLICATION_BOUNDARY.guardReplayFrames(
@@ -246,6 +257,30 @@ export async function handleReconnectRequest(
       ? await metadataReader.getMatchMetadata(ctx.matchId)
       : null;
 
+  const member =
+    request.authorPeerId === metadata?.hostPeerId ||
+    request.authorPeerId === metadata?.guestPeerId;
+  const refusal = member
+    ? await matchLacksRevealProjection(ctx.store, ctx.matchId)
+    : false;
+  if (refusal) {
+    // Membership precedes the fog refusal: stale peer metadata learns nothing.
+    const current =
+      refusal === 'policy' &&
+      (await new AuthorizedViewerResolver(
+        new MatchSeatMembershipSource(ctx.store),
+      )
+        .resolve(mintVerifiedPrincipal(request.authorPeerId), ctx.matchId)
+        .then(
+          () => true,
+          () => false,
+        ));
+    channel.broadcastReconnectReject({
+      matchId: ctx.matchId,
+      reason: current ? FOG_REFUSAL : 'Match in progress',
+    });
+    return;
+  }
   await answerReconnectRequest(request, {
     matchId: ctx.matchId,
     metadata,
@@ -403,6 +438,12 @@ function sendJoinClose(
       ? 'not an active member of this match'
       : 'membership verification unavailable',
   });
+  socket.close(
+    refused ? 1008 : 1011,
+    refused
+      ? 'not an active member of this match'
+      : 'membership verification unavailable',
+  );
 }
 
 /**
@@ -412,15 +453,16 @@ function sendJoinClose(
 function sendJoinGuardError(
   ctx: IServerMatchHostReplayContext,
   socket: IMatchSocket,
-  reason: string,
+  _reason: string,
 ): void {
   ctx.safeSend(socket, {
-    kind: 'Error',
+    kind: 'Close',
     matchId: ctx.matchId,
     ts: nowIso(),
     code: 'INTERNAL_ERROR',
-    reason,
+    reason: 'viewer projection unavailable',
   });
+  socket.close(1011, 'viewer projection unavailable');
 }
 
 async function getReplayEventsForPlayer(
